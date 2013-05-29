@@ -56,7 +56,7 @@ public class RttMbtProgressBar implements IRttMbtProgressBar {
 	
 	public void resetAllProgressBars() {
 		final ProgressBar global = getProgressBar(IRttMbtProgressBar.Tasks.Global);
-		final ProgressBar goal = getProgressBar(IRttMbtProgressBar.Tasks.TC_COV);
+		final ProgressBar goal = getProgressBar(IRttMbtProgressBar.Tasks.Goal);
 		final ProgressBar tc = getProgressBar(IRttMbtProgressBar.Tasks.TC_COV);
 		final ProgressBar tr = getProgressBar(IRttMbtProgressBar.Tasks.TR_COV);
 		final ProgressBar bcs = getProgressBar(IRttMbtProgressBar.Tasks.BCS_COV);

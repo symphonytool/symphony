@@ -59,6 +59,9 @@ public class jsonRemoveFileFromCacheCommand extends jsonCommand {
 			System.err.println("*** error: removing file '"
 							   + filename + "' from cache directory for " 
 							   + user + " (ID: '" + userId + "') failed!");
+			resultValue = false;
+		} else {
+			resultValue = true;
 		}
 	}
 

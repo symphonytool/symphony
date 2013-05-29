@@ -51,6 +51,15 @@ public class Activator implements BundleActivator
     							  store.getInt("RttMbtServerPort"),
     							  store.getString("RttMbtUserName"),
     							  store.getString("RttMbtUserId"));
+    	if ((store.getString("RttMbtRttTprocPrefix") != null) &&
+    		(store.getString("RttMbtRttTprocPrefix").compareTo("") != 0)) {
+    		client.setRttMbtTestProcFolderName(store.getString("RttMbtRttTprocPrefix"));
+    	}
+    	if ((store.getString("RttMbtTProcGenCtx") != null) &&
+    		(store.getString("RttMbtTProcGenCtx").compareTo("") != 0)) {
+    		client.setRttMbtTProcGenCtxFolderName(store.getString("RttMbtTProcGenCtx"));
+        }
+    	client.setMode(store.getString("ClientMode"));
       }
     
     @Override
@@ -78,6 +87,15 @@ public class Activator implements BundleActivator
 			client.setRttMbtPort(store.getInt("RttMbtServerPort"));
 			client.setUserName(store.getString("RttMbtUserName"));
 			client.setUserId(store.getString("RttMbtUserId"));
+			if ((store.getString("RttMbtRttTprocPrefix") != null) &&
+				(store.getString("RttMbtRttTprocPrefix").compareTo("") != 0)) {
+				client.setRttMbtTestProcFolderName(store.getString("RttMbtRttTprocPrefix"));
+			}
+			if ((store.getString("RttMbtTProcGenCtx") != null) &&
+				(store.getString("RttMbtTProcGenCtx").compareTo("") != 0)) {
+				client.setRttMbtTProcGenCtxFolderName(store.getString("RttMbtTProcGenCtx"));
+			}
+	    	client.setMode(store.getString("ClientMode"));
 			System.out.println("updated client settings to ('" + client.getRttMbtServer() + "', '" + client.getRttMbtPort() + "', '" + client.getUserName() + "', '" + client.getUserId() + "')");
 		}
 	}

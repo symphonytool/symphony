@@ -38,7 +38,7 @@ public class RttMbtRetrieveDirectory extends RttMbtPopupMenuAction {
 				Boolean success;
 				File item = new File(client.getCmlWorkspace() + selectedObjectPath);
 				if (!item.exists()) {
-					client.addErrorMessage("[FAIL]: Retrieve Directory/File from RTT-MBT Server Work Area: file or directory '" + item.getAbsolutePath() + "' does not exist!");
+					client.addErrorMessage("[FAIL]: Retrieve Directory/File from RTT-MBT Server Work Area: file or directory '" + item.getAbsolutePath() + "' does not exist!\n");
 					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 					return Status.OK_STATUS;
 				}
@@ -48,15 +48,15 @@ public class RttMbtRetrieveDirectory extends RttMbtPopupMenuAction {
 				} else if (item.isFile()) {
 					success = client.downloadFile(item.getAbsolutePath());
 				} else {
-					client.addErrorMessage("[FAIL]: Retrieve Directory/File from RTT-MBT Server Work Area: selection is not a file or directory!");			
+					client.addErrorMessage("[FAIL]: Retrieve Directory/File from RTT-MBT Server Work Area: selection is not a file or directory!\n");
 					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 					return Status.OK_STATUS;
 				}
 				
 				if (success) {
-					client.addLogMessage("[PASS]: Retrieve Directory/File from RTT-MBT Server Work Area!");			
+					client.addLogMessage("[PASS]: Retrieve Directory/File from RTT-MBT Server Work Area!\n");			
 				} else {			
-					client.addErrorMessage("[FAIL]: Retrieve Directory/File from RTT-MBT Server Work Area!");			
+					client.addErrorMessage("[FAIL]: Retrieve Directory/File from RTT-MBT Server Work Area!\n");			
 				}
 				return Status.OK_STATUS;
 			}

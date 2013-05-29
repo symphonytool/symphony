@@ -29,14 +29,26 @@ public class RttMbtDocRttTestProcedure extends RttMbtConcreteTestProcedureAction
 			return null;
 		}
 
+		// if a test procedure generation context is selected, switch to test procedure
+		if ((!isRttTestProcSelected()) && (isTProcGenCtxSelected())) {
+			getRttTestProcPathFromTProcGenCtxPath();
+			client.addLogMessage("adjusting selected object to '" + selectedObjectPath + "'\n");
+		}
+		
+		// check that a test procedure is selected
+		if (!isRttTestProcSelected()) {
+			client.addErrorMessage("Please select a valid test procedure!\n");
+		}
+
 		Job job = new Job("Generate Documentation") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
+				client.addLogMessage("generating documentation for " + selectedObject + "... please wait for the task to be finished.\n");
 				// generate test procedure documentation
 				if (client.docTestProcedure(selectedObject)) {
-					client.addLogMessage("[PASS]: generate test procedure documentation");
+					client.addLogMessage("[PASS]: generate test procedure documentation\n");
 				} else {
-					client.addErrorMessage("[FAIL]: generate test procedure documentation");
+					client.addErrorMessage("[FAIL]: generate test procedure documentation\n");
 					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 				}
 				return Status.OK_STATUS;

@@ -13,6 +13,14 @@ import java.util.zip.ZipInputStream;
 
 public class RttMbtClient {
 
+	// enum type for client mode
+	public enum Modes {
+		RTT_MBT_VSI_MODE,
+		RTT_MBT_DAG_MODE,
+		RTT_MBT_SCADE_MODE,
+		RTT_MBT_MODE_UNDEFINED
+	}
+
 	// User name and id
 	private String rttMbtServer;
 	private Integer rttMbtPort;
@@ -22,6 +30,8 @@ public class RttMbtClient {
 	private String CmlProject;   // starting and ending with file separator
 	private String CmlWorkspace; // no file separator at the end
 	private String currentJobId;
+	private String RttMbtTestProcFolderName;
+	private String RttMbtTProcGenCtxFolderName;
 
 	// Logging facility
 	private String consoleName;
@@ -29,6 +39,9 @@ public class RttMbtClient {
 	
 	// progress bar
 	private IRttMbtProgressBar progress;
+
+	// client mode
+	private Modes mode;
 
 	public RttMbtClient(String server, Integer port, String user, String id) {
 		rttMbtServer = server;
@@ -42,6 +55,9 @@ public class RttMbtClient {
 		log = null;
 		progress = null;
 		currentJobId = null;
+		RttMbtTestProcFolderName = getRttMbtTestProcFolderName();
+		RttMbtTProcGenCtxFolderName = getRttMbtTProcGenCtxFolderName();
+		mode = Modes.RTT_MBT_MODE_UNDEFINED;
 	}
 
 	public void setLoggingFacility(String name, IRttMbtLoggingFacility logger) {
@@ -91,13 +107,13 @@ public class RttMbtClient {
 
 	public Boolean beginRttMbtSession() {
 		jsonCheckFileCacheExistsCommand check =
-					new jsonCheckFileCacheExistsCommand(this);
+				new jsonCheckFileCacheExistsCommand(this);
 		check.executeCommand();
-		if (!check.executedSuccessfully()) {
+		if (!check.executedSuccessfully() || (!check.getResult())) {
 			jsonStartFileCacheCommand start =
 					new jsonStartFileCacheCommand(this);
 			start.executeCommand();
-			if (!check.executedSuccessfully()) {
+			if (!start.executedSuccessfully()) {
 				return false;
 			}
 		}
@@ -105,7 +121,22 @@ public class RttMbtClient {
 	}
 
 	public Boolean removeRttMbtSession() {
-		return false;
+		jsonCheckFileCacheExistsCommand check =
+				new jsonCheckFileCacheExistsCommand(this);
+		check.executeCommand();
+		if ((check.executedSuccessfully()) && (check.getResult())){
+			System.out.println("remove file cache for user id '" + getUserId() + "'.");
+			jsonRemoveFileCacheCommand remove =
+					new jsonRemoveFileCacheCommand(this);
+			remove.executeCommand();
+			if ((!remove.executedSuccessfully()) || (!remove.getResult())) {
+				return false;
+			}
+		} else {
+			System.out.println("unable to remove file cache for user id '" + getUserId() + "'!");
+			return false;
+		}
+		return true;
 	}
 	
 	public Boolean uploadFile(String filename) {
@@ -121,7 +152,6 @@ public class RttMbtClient {
 		}
 		
 		// check if file already is in cache
-		System.out.println("checking if file '" + filename + "' already exists in cache");
 		jsonCheckFileInCacheCommand check = new jsonCheckFileInCacheCommand(this);
 		check.setFilename(filename);
 		check.executeCommand();
@@ -226,11 +256,10 @@ public class RttMbtClient {
 		// get file list
 		jsonGetCachFileListCommand cmd = new jsonGetCachFileListCommand(this);
 		cmd.setDirname(directory);
-		String reply = cmd.executeCommand();
+		cmd.executeCommand();
 		success = cmd.executedSuccessfully();
 		if (!success) {
-			System.err.println("[FAIL]: retrieveing file list for directory '" + directory + "' failed!");
-			System.err.println("reply: " + reply);
+			addErrorMessage("[FAIL]: retrieveing file list for directory '" + directory + "' failed!\n");
 			return success;
 		}
 
@@ -266,7 +295,48 @@ public class RttMbtClient {
 		
 		return success;
 	}
-	
+
+	public Boolean deleteLocalDirectory(File dir) {
+		if (dir == null) { return false; }
+		if (!dir.exists()) { return true; }
+		if (!dir.isDirectory()) { return false; }
+
+		addLogMessage("delete local directory " + dir.getAbsolutePath() + "\n");
+		String[] entries = dir.list();
+		if (entries == null) { return dir.delete(); }
+
+		for (int i = 0; i < entries.length; i++) {
+			File entry = new File(dir, entries[i]);
+			if (entry.isDirectory()) {
+				if (!deleteLocalDirectory(entry))
+					return false;
+			} else {
+				addLogMessage("delete local file " + entry.getAbsolutePath() + "\n");
+				if (!entry.delete())
+					return false;
+			}
+		}
+		return dir.delete();
+	}
+
+	public Boolean deleteRemoteFileOrDir(String filename) {
+		Boolean success = true;
+
+		// add workspace
+		filename = addLocalWorkspace(filename);
+
+		// remove file on rtt-mbt server
+		System.out.println("removing file or directory '" + filename + "' from cache");
+		jsonRemoveFileFromCacheCommand cmd = new jsonRemoveFileFromCacheCommand(this);
+		cmd.setFilename(filename);
+		cmd.executeCommand();
+		success = cmd.executedSuccessfully();
+		if (!success) {
+			addErrorMessage("[FAIL]: removing file or directory '" + filename + "' from cache failed!\n");
+		}
+		return success;
+	}
+
 	public Boolean createProject(String project) {
 		Boolean success = true;
 		
@@ -313,6 +383,43 @@ public class RttMbtClient {
 		System.out.println("uploading '" + getProjectName() + "' to the rtt-mbt-tms file cache...");
 		success = uploadDirectory(getProjectName(), true);
 		return success;
+	}
+	
+	public Boolean livelockCheckModelFile(File model) {
+		if (model == null) {
+			return false;
+		}
+
+		// calculate model parameters
+		String modelName = getProjectName() + ".model";
+		String modelVersion = "1.0";
+		String modelFile = model.getAbsolutePath();
+
+		// store model
+		jsonStoreModelCommand storeModel= new jsonStoreModelCommand(this);
+		storeModel.setModelName(modelName);
+		storeModel.setModelId(modelVersion);
+		storeModel.setModelFile(modelFile);
+		storeModel.executeCommand();
+		if (!storeModel.executedSuccessfully()) {
+			addErrorMessage("[FAIL]: unable to store model file '" + modelFile + "' on RTT-MBT server!\n");
+			return false;
+		} else {
+			addLogMessage("[PASS]: model file '" + modelFile + "' stored on RTT-MBT server!\n");
+		}
+
+		// perform live lock check
+		jsonCheckModelCommand checkModel = new jsonCheckModelCommand(this);
+		checkModel.setGuiPorts(true);
+		checkModel.setModelName(modelName);
+		checkModel.setModelId(modelVersion);
+		checkModel.executeCommand();
+		if (!checkModel.executedSuccessfully()) {
+			System.err.println("[FAIL]: livelock check of model '" + modelName + "', version '" + modelVersion + "' on RTT-MBT server failed!");
+			return false;
+		}
+		
+		return true;
 	}
 	
 	public Boolean initProject(String modelName, String modelVersion, String modelFileName) {
@@ -389,7 +496,7 @@ public class RttMbtClient {
 			return false;
 		}
 		File archive = new File(templates, "_P1_compass.zip");
-		File testProcs = new File(projectRoot, "TestProcedures");
+		File testProcs = new File(projectRoot, getRttMbtTProcGenCtxFolderName());
 		if (!testProcs.exists()) {
 			testProcs.mkdir();
 		}
@@ -398,6 +505,10 @@ public class RttMbtClient {
 			return false;
 		}
 		success = unzipArchive(archive.getPath(), testProcs.getPath());
+		if (!success) {
+			addErrorMessage("[FAIL]: unpacking of template test procedure _P1 failed!\n");
+			return false;
+		}
 
 		// perform livelock check
 		System.out.println("performing livelock check of the model (with enabled GUI ports)...");
@@ -507,13 +618,28 @@ public class RttMbtClient {
 		Boolean success = true;
 
 		// push necessary files to cache:
+		// cache/<user-id>/<project-name>/model/
+		// - model_dump.xml
+		// - configuration.csv
+		// - signalmap.csv
+		// - advanced.conf
+		// - addgoals.conf
+		// - addgoalsordered.conf
+		String modelDirName = getProjectName() + File.separator + "model" + File.separator;
+		uploadFile(modelDirName + "model_dump.xml");
+		uploadFile(modelDirName + "configuration.csv");
+		uploadFile(modelDirName + "signalmap.csv");
+		uploadFile(modelDirName + "advanced.conf");
+		uploadFile(modelDirName + "addgoals.conf");
+		uploadFile(modelDirName + "addgoalsordered.conf");
+		// cache/<user-id>/<project-name>/<abstract-testproc>/conf
 		// - configuration.csv
 		// - signalmap.csv
 		// - advanced.conf
 		// - addgoals.conf
 		// - addgoalsordered.conf
 		String confDirName = getProjectName() + File.separator
-				+ "TestProcedures" + File.separator
+				+ getRttMbtTProcGenCtxFolderName() + File.separator
 				+ abstractTestProc + File.separator
 				+ "conf" +  File.separator;
 		uploadFile(confDirName + "configuration.csv");
@@ -531,27 +657,31 @@ public class RttMbtClient {
 		if (!cmd.executedSuccessfully()) {
 			System.err.println("[FAIL]: generatig RTT_TestProcedures/" + abstractTestProc + " failed!");
 			// download debugging data to local directory
-			// - error.log
-			// - rtt-mbt-tms.out
-			// - rtt-mbt-tms.err
+			// - rtt-mbt-tms-execution.out
+			// - rtt-mbt-tms-execution.err
 			String dirname = getProjectName() + File.separator;
-			downloadFile(dirname + "error.log");
 			downloadFile(dirname + "rtt-mbt-tms-execution.err");
 			downloadFile(dirname + "rtt-mbt-tms-execution.out");
-			// - configuration.csv.bak
+			// - model/error.log
+			// - model/genertion.log
 			dirname = getProjectName() + File.separator
-					+ "TestProcedures" + File.separator
-					+ abstractTestProc + File.separator
-					+ "conf" + File.separator;
-			downloadFile(dirname + "configuration.csv.bak");
-			// - generation.log
-			// - error.log
+					+ "model" + File.separator;
+			downloadFile(dirname + "errors.log");
+			downloadFile(dirname + "generation.log");
+			// - TestProcedures/<TP>/generation.log
+			// - TestProcedures/<TP>/error.log
 			dirname = getProjectName() + File.separator
-					+ "TestProcedures" + File.separator
+					+ getRttMbtTProcGenCtxFolderName() + File.separator
 					+ abstractTestProc + File.separator
 					+ "log" + File.separator;
 			downloadFile(dirname + "generation.log");
 			downloadFile(dirname + "errors.log");
+			// - configuration.csv.bak
+			dirname = getProjectName() + File.separator
+					+ getRttMbtTProcGenCtxFolderName() + File.separator
+					+ abstractTestProc + File.separator
+					+ "conf" + File.separator;
+			downloadFile(dirname + "configuration.csv.bak");
 			return false;
 		}
 		// download generated files to local directory:
@@ -579,7 +709,7 @@ public class RttMbtClient {
 		// from cache/<user-id>/<project-name>/<testproc>/conf
 		// - configuration.csv
 		dirname = getProjectName() + File.separator
-				+ "TestProcedures" + File.separator
+				+ getRttMbtTProcGenCtxFolderName() + File.separator
 				+ abstractTestProc + File.separator
 				+ "conf" + File.separator;
 		downloadFile(dirname + "configuration.csv");
@@ -589,20 +719,20 @@ public class RttMbtClient {
 		// - covered_testcases.csv
 		// - focus_points_to_addgoals.conf
 		dirname = getProjectName() + File.separator
-				+ "TestProcedures" + File.separator
+				+ getRttMbtTProcGenCtxFolderName() + File.separator
 				+ abstractTestProc + File.separator
 				+ "log" + File.separator;
 		downloadFile(dirname + "addgoalcoverage.csv");
 		downloadFile(dirname + "covered_testcases.csv");
 		downloadFile(dirname + "focus_points_to_addgoals.conf");
-		downloadFile(dirname + "generation.log");
+		// downloadFile(dirname + "generation.log");
 
 		// from cache/<user-id>/<project-name>/<testproc>/model
 		// - signals.dat
 		// - signals.json
 		// - *.pdf
 		dirname = getProjectName() + File.separator
-				+ "TestProcedures" + File.separator
+				+ getRttMbtTProcGenCtxFolderName() + File.separator
 				+ abstractTestProc + File.separator
 				+ "model";
 		downloadDirectory(dirname);
@@ -610,19 +740,18 @@ public class RttMbtClient {
 		// from cache/<user-id>/<project-name>/<testproc>/testdata
 		// - signals.dat
 		dirname = getProjectName() + File.separator
-				+ "TestProcedures" + File.separator
+				+ getRttMbtTProcGenCtxFolderName() + File.separator
 				+ abstractTestProc + File.separator
 				+ "testdata";
 		downloadDirectory(dirname);
 
 		// download concrete test procedure from cache
 		dirname = getProjectName() + File.separator
-				+ "RTT_TestProcedures" + File.separator
+				+ getRttMbtTestProcFolderName() + File.separator
 				+ abstractTestProc + File.separator;
 		downloadDirectory(dirname + "conf");
 		downloadDirectory(dirname + "inc");
 		downloadDirectory(dirname + "specs");
-		downloadDirectory(dirname + "testdata");
 
 		return success;
 	}
@@ -631,7 +760,33 @@ public class RttMbtClient {
 		Boolean success = true;
 
 		// push necessary files to cache:
-		// all input files for replay should already exist on the server
+		// cache/<user-id>/<project-name>/model/
+		// - model_dump.xml
+		// - configuration.csv
+		// - signalmap.csv
+		// - addgoals.conf
+		// - addgoalsordered.conf
+		String modelDirName = getProjectName() + File.separator + "model" + File.separator;
+		uploadFile(modelDirName + "model_dump.xml");
+		uploadFile(modelDirName + "configuration.csv");
+		uploadFile(modelDirName + "signalmap.csv");
+		uploadFile(modelDirName + "addgoals.conf");
+		uploadFile(modelDirName + "addgoalsordered.conf");
+		// cache/<user-id>/<project-name>/<abstract-testproc>/conf
+		// - configuration.csv
+		// - signalmap.csv
+		// - advanced.conf
+		// - addgoals.conf
+		// - addgoalsordered.conf
+		String confDirName = getProjectName() + File.separator
+				+ getRttMbtTProcGenCtxFolderName() + File.separator
+				+ abstractTestProc + File.separator
+				+ "conf" +  File.separator;
+		uploadFile(confDirName + "configuration.csv");
+		uploadFile(confDirName + "signalmap.csv");
+		uploadFile(confDirName + "advanced.conf");
+		uploadFile(confDirName + "addgoals.conf");
+		uploadFile(confDirName + "addgoalsordered.conf");
 
 		// replay-command
 		System.out.println("replay test execution " + abstractTestProc + "...");
@@ -644,17 +799,21 @@ public class RttMbtClient {
 		if (!cmd.executedSuccessfully()) {
 			System.err.println("[FAIL]: generatig RTT_TestProcedures/" + abstractTestProc + " failed!");
 			// download debugging data to local directory
-			// - error.log
-			// - rtt-mbt-tms.out
-			// - rtt-mbt-tms.err
+			// - rtt-mbt-tms-execution.out
+			// - rtt-mbt-tms-execution.err
 			String dirname = getProjectName() + File.separator;
-			downloadFile(dirname + "error.log");
 			downloadFile(dirname + "rtt-mbt-tms-execution.err");
 			downloadFile(dirname + "rtt-mbt-tms-execution.out");
-			// - generation.log
-			// - error.log
+			// - model/error.log
+			// - model/genertion.log
 			dirname = getProjectName() + File.separator
-					+ "TestProcedures" + File.separator
+					+ "model" + File.separator;
+			downloadFile(dirname + "errors.log");
+			downloadFile(dirname + "generation.log");
+			// - TestProcedures<TP>/log/generation.log
+			// - TestProcedures<TP>/log/error.log
+			dirname = getProjectName() + File.separator
+					+ getRttMbtTProcGenCtxFolderName() + File.separator
 					+ abstractTestProc + File.separator
 					+ "log" + File.separator;
 			downloadFile(dirname + "generation.log");
@@ -666,21 +825,28 @@ public class RttMbtClient {
 		String dirname;
 		// Testprocedures/<TP>/log/configuration.csv
 		dirname = getProjectName() + File.separator
-				+ "TestProcedures" + File.separator
+				+ getRttMbtTProcGenCtxFolderName() + File.separator
 				+ abstractTestProc + File.separator
 				+ "conf" + File.separator;;
 		downloadFile(dirname + "configuration.csv");
 		// Testprocedures/<TP>/log/covered_testcases.csv
 		// Testprocedures/<TP>/log/missed_goals.csv
 		dirname = getProjectName() + File.separator
-				+ "TestProcedures" + File.separator
+				+ getRttMbtTProcGenCtxFolderName() + File.separator
 				+ abstractTestProc + File.separator
 				+ "log" + File.separator;
 		downloadFile(dirname + "covered_testcases.csv");
 		downloadFile(dirname + "missed_goals.csv");
+		// Testprocedures/<TP>/model/signals.json
+		dirname = getProjectName() + File.separator
+				+ getRttMbtTProcGenCtxFolderName() + File.separator
+				+ abstractTestProc + File.separator
+				+ "model" + File.separator;
+		downloadFile(dirname + "signals.dat");
+		downloadFile(dirname + "signals.json");
 		// RTT_Testprocedures/<TP>/testdata/replay.log
 		dirname = getProjectName() + File.separator
-				+ "RTT_TestProcedures" + File.separator
+				+ getRttMbtTestProcFolderName() + File.separator
 				+ abstractTestProc + File.separator
 				+ "testdata" + File.separator;
 		downloadFile(dirname + "replay.log");
@@ -692,13 +858,26 @@ public class RttMbtClient {
 		Boolean success = true;
 
 		// push necessary files to cache:
+		// cache/<user-id>/<project-name>/model/
+		// - model_dump.xml
+		// - configuration.csv
+		// - signalmap.csv
+		// - addgoals.conf
+		// - addgoalsordered.conf
+		String modelDirName = getProjectName() + File.separator + "model" + File.separator;
+		uploadFile(modelDirName + "model_dump.xml");
+		uploadFile(modelDirName + "configuration.csv");
+		uploadFile(modelDirName + "signalmap.csv");
+		uploadFile(modelDirName + "addgoals.conf");
+		uploadFile(modelDirName + "addgoalsordered.conf");
+		// cache/<user-id>/<project-name>/TestProcedures/<TP>/conf/
 		// - configuration.csv
 		// - signalmap.csv
 		// - advanced.conf
 		// - addgoals.conf
 		// - addgoalsordered.conf
 		String confDirName = getProjectName() + File.separator
-				+ "TestProcedures" + File.separator
+				+ getRttMbtTProcGenCtxFolderName() + File.separator
 				+ abstractTestProc + File.separator
 				+ "conf" +  File.separator;
 		uploadFile(confDirName + "configuration.csv");
@@ -716,17 +895,21 @@ public class RttMbtClient {
 			success = false;
 			System.err.println("[FAIL]: generatig Simulation " + abstractTestProc + " failed!");
 			// download debugging data to local directory
-			// - error.log
-			// - rtt-mbt-tms.out
-			// - rtt-mbt-tms.err
+			// - rtt-mbt-tms-execution.out
+			// - rtt-mbt-tms-execution.err
 			String dirname = getProjectName() + File.separator;
-			downloadFile(dirname + "error.log");
 			downloadFile(dirname + "rtt-mbt-tms-execution.err");
 			downloadFile(dirname + "rtt-mbt-tms-execution.out");
+			// - model/error.log
+			// - model/genertion.log
+			dirname = getProjectName() + File.separator
+					+ "model" + File.separator;
+			downloadFile(dirname + "errors.log");
+			downloadFile(dirname + "generation.log");
 			// - generation.log
 			// - error.log
 			dirname = getProjectName() + File.separator
-					+ "TestProcedures" + File.separator
+					+ getRttMbtTProcGenCtxFolderName() + File.separator
 					+ abstractTestProc + File.separator
 					+ "log" + File.separator;
 			downloadFile(dirname + "generation.log");
@@ -734,24 +917,13 @@ public class RttMbtClient {
 			return false;
 		} else {
 			// download generated files to local directory:
-			// /RTT_Testprocedure/conf/
-			// /RTT_Testprocedure/inc/
-			// /RTT_Testprocedure/specs/
-			// /RTT_Testprocedure/stubs/
-			// /RTT_Testprocedure/<testproc>/conf/
-			// /RTT_Testprocedure/<testproc>/inc/
-			// /RTT_Testprocedure/<testproc>/specs/
-			// /RTT_Testprocedure/<testproc>/stubs/
+			// /RTT_Testprocedures/conf/
+			// /RTT_Testprocedures/inc/
+			// /RTT_Testprocedures/specs/
+			// /RTT_Testprocedures/stubs/
 			String dirName;
 			dirName = getProjectName() + File.separator
-					+ "RTT_TestProcedures" + File.separator;
-			downloadDirectory(dirName + "conf");
-			downloadDirectory(dirName + "inc");
-			downloadDirectory(dirName + "specs");
-			downloadDirectory(dirName + "stubs");
-			dirName = getProjectName() + File.separator
-					+ "RTT_TestProcedures" + File.separator
-					+ abstractTestProc + File.separator;
+					+ getRttMbtTestProcFolderName() + File.separator;
 			downloadDirectory(dirName + "conf");
 			downloadDirectory(dirName + "inc");
 			downloadDirectory(dirName + "specs");
@@ -765,6 +937,14 @@ public class RttMbtClient {
 		Boolean success = true;
 
 		// push necessary files to cache:
+		// /project.rtp
+		// /RTT_Testprocedure/<testproc>/conf/
+		String fileName = getProjectName() + File.separator;
+		uploadFile(fileName + "project.rtp");
+		String dirName = getProjectName() + File.separator
+				+ getRttMbtTestProcFolderName() + File.separator
+				+ concreteTestProc + File.separator;
+		uploadDirectory(dirName + "conf", false);
 
 		// generate-test-command
 		System.out.println("cleanup concrete test procedure " + concreteTestProc + "...");
@@ -777,8 +957,29 @@ public class RttMbtClient {
 			System.err.println("[FAIL]: cleanup of RTT_TestProcedures/" + concreteTestProc + " failed!");
 
 			// download debug information:
+			// - rtt-mbt-tms.out
+			// - rtt-mbt-tms.err
+			String dirname = getProjectName() + File.separator;
+			downloadFile(dirname + "rtt-mbt-tms-execution.err");
+			downloadFile(dirname + "rtt-mbt-tms-execution.out");
 		} else {
-			// download generated files
+			// remove local files
+			// /stubsrc/
+			// /RTT_Testprocedure/stubsrc/
+			// /RTT_Testprocedure/<testproc>/src/
+			// /RTT_Testprocedure/<testproc>/stubsrc/
+			// /RTT_Testprocedure/<testproc>/testdata/
+			String dirname = getRttProjectRoot() + File.separator;
+			deleteLocalDirectory(new File(dirname + File.separator + "stubsrc"));
+			dirname = getRttProjectRoot() + File.separator
+					+ getRttMbtTestProcFolderName() + File.separator;
+			deleteLocalDirectory(new File(dirname + File.separator + "stubsrc"));
+			dirname = getRttProjectRoot() + File.separator
+					+ getRttMbtTestProcFolderName() + File.separator
+					+ concreteTestProc + File.separator;
+			deleteLocalDirectory(new File(dirname + File.separator + "src"));
+			deleteLocalDirectory(new File(dirname + File.separator + "stubsrc"));
+			deleteLocalDirectory(new File(dirname + File.separator + "testdata"));
 		}
 
 		// return result
@@ -789,38 +990,41 @@ public class RttMbtClient {
 		Boolean success = true;
 
 		// push necessary files to cache:
+		// /project.rtp
 		// /conf/
 		// /inc/
 		// /specs/
 		// /stubs/
-		// /<testproc>/conf/
-		// /<testproc>/inc/
-		// /<testproc>/specs/
-		// /<testproc>/stubs/
+		// /RTT_Testprocedure/conf/
+		// /RTT_Testprocedure/inc/
+		// /RTT_Testprocedure/specs/
+		// /RTT_Testprocedure/stubs/
 		// /RTT_Testprocedure/<testproc>/conf/
 		// /RTT_Testprocedure/<testproc>/inc/
 		// /RTT_Testprocedure/<testproc>/specs/
 		// /RTT_Testprocedure/<testproc>/stubs/
+		String fileName = getProjectName() + File.separator;
+		uploadFile(fileName + "project.rtp");
 		String dirName = getProjectName() + File.separator;
 		uploadDirectory(dirName + "conf", false);
 		uploadDirectory(dirName + "inc", false);
 		uploadDirectory(dirName + "specs", false);
 		uploadDirectory(dirName + "stubs", false);
 		dirName = getProjectName() + File.separator
-				+ "RTT_TestProcedures" + File.separator;
+				+ getRttMbtTestProcFolderName() + File.separator;
 		uploadDirectory(dirName + "conf", false);
 		uploadDirectory(dirName + "inc", false);
 		uploadDirectory(dirName + "specs", false);
 		uploadDirectory(dirName + "stubs", false);
 		dirName = getProjectName() + File.separator
-				+ "RTT_TestProcedures" + File.separator
+				+ getRttMbtTestProcFolderName() + File.separator
 				+ concreteTestProc + File.separator;
 		uploadDirectory(dirName + "conf", false);
 		uploadDirectory(dirName + "inc", false);
 		uploadDirectory(dirName + "specs", false);
 		uploadDirectory(dirName + "stubs", false);
 		
-		// generate-test-command
+		// compile-test-command
 		System.out.println("compiling concrete test procedure " + concreteTestProc + "...");
 		jsonCompileTestCommand cmd = new jsonCompileTestCommand(this);
 		cmd.setTestProcName("RTT_TestProcedures/" + concreteTestProc);
@@ -837,7 +1041,7 @@ public class RttMbtClient {
 		} else {
 			// download generated files (not src, stubsrc, etc.)
 			dirName = getProjectName() + File.separator
-					+ "RTT_TestProcedures" + File.separator
+					+ getRttMbtTestProcFolderName() + File.separator
 					+ concreteTestProc + File.separator
 					+ "src" + File.separator;
 			// create local target directory (src) if it does not exist
@@ -861,7 +1065,7 @@ public class RttMbtClient {
 		// push necessary files to cache:
 		String dirName;
 
-		// generate-test-command
+		// run-test-command
 		System.out.println("run concrete test procedure " + concreteTestProc + "...");
 		jsonRunTestCommand cmd = new jsonRunTestCommand(this);
 		cmd.setTestProcName("RTT_TestProcedures/" + concreteTestProc);
@@ -874,9 +1078,17 @@ public class RttMbtClient {
 		} else {
 			// download generated files
 			dirName = getProjectName() + File.separator
-					+ "RTT_TestProcedures" + File.separator
+					+ getRttMbtTestProcFolderName() + File.separator
 					+ concreteTestProc + File.separator
 					+ "testdata" + File.separator;
+			// create local target directory (testdata) if it does not exist
+			File testdata = new File(addLocalWorkspace(dirName));
+			if (!testdata.exists()) {
+				System.out.println("creating directory '" + addLocalWorkspace(dirName) + "'");
+				if (!testdata.mkdir()) {
+					System.err.println("creating directory '" + addLocalWorkspace(dirName) + "' failed!");
+				}
+			}
 			downloadFile(dirName + "VERDICT.txt");
 			downloadFile(dirName + "rtt-run-test.log");
 		}
@@ -889,11 +1101,16 @@ public class RttMbtClient {
 		Boolean success = true;
 
 		// push necessary files to cache:
-		String dirName;
+		// /project.rtp
+		// /TMPL
+		String fileName = getProjectName() + File.separator;
+		uploadFile(fileName + "componentnames.txt");
+		String dirName = getProjectName() + File.separator;
+		uploadDirectory(dirName + "TMPL", true);
 
-		// generate-test-command
+		// doc-test-command
 		System.out.println("doc concrete test procedure " + concreteTestProc + "...");
-		jsonDocTestCommant cmd = new jsonDocTestCommant(this);
+		jsonDocTestCommand cmd = new jsonDocTestCommand(this);
 		cmd.setTestProcName("RTT_TestProcedures/" + concreteTestProc);
 		cmd.executeCommand();
 		if (!cmd.executedSuccessfully()) {
@@ -904,7 +1121,7 @@ public class RttMbtClient {
 		} else {
 			// download generated files
 			dirName = getProjectName() + File.separator
-					+ "RTT_TestProcedures" + File.separator
+					+ getRttMbtTestProcFolderName() + File.separator
 					+ concreteTestProc + File.separator
 					+ "testdata" + File.separator;
 			downloadFile(dirName + "RTT_TestProcedures_" + concreteTestProc + "_testprocedure.pdf");
@@ -918,25 +1135,99 @@ public class RttMbtClient {
 		return success;
 	}
 	
-	public String addLocalWorkspace(String filename) {
-		if (filename == null) return filename;
-		String workspace = getCmlWorkspace() + getCmlProject();
-		if (filename.startsWith(workspace)) {
-			return filename;
+	// substitute local names for generation or execution context in the
+	// path of <filename> with the ones from the RTT-MBT server
+	public String substituteContextFolderNamesLocal2Server(String filename) {
+		String serverFilename = null;
+		
+		// check/substitute generation context
+		String localGenerationContext = getProjectName() + File.separator + getRttMbtTProcGenCtxFolderName();
+		String serverGenerationContext = getProjectName() + "/TestProcedures";
+		if (filename.startsWith(localGenerationContext)) {
+			serverFilename = serverGenerationContext + filename.substring(localGenerationContext.length());
+			System.out.println("server filename: '" + serverFilename + "'");
+		} else {
+			serverFilename = filename;
 		}
-		return workspace + filename;
+		
+		String localExecutionContext = getProjectName() + File.separator + getRttMbtTestProcFolderName();
+		String serverExecutionContext = getProjectName() + "/RTT_TestProcedures";
+		if (filename.startsWith(localExecutionContext)) {
+			serverFilename = serverExecutionContext + filename.substring(localExecutionContext.length());
+			System.out.println("server filename: '" + serverFilename + "'");
+		}
+
+		return serverFilename;
 	}
 	
-	public String removeLocalWorkspace(String filename) {
+	// substitute local names for generation or execution context in the
+	// path of <filename> with the ones from the RTT-MBT server
+	public String substituteContextFolderNamesServer2Local(String filename) {
+		String serverFilename = null;
+		
+		// check/substitute generation context
+		String localGenerationContext = getProjectName() + File.separator + getRttMbtTProcGenCtxFolderName();
+		String serverGenerationContext = getProjectName() + "/TestProcedures";
+		if (filename.startsWith(serverGenerationContext)) {
+			serverFilename = localGenerationContext + filename.substring(serverGenerationContext.length());
+			System.out.println("local filename: '" + serverFilename + "'");
+		} else {
+			serverFilename = filename;
+		}
+		
+		String localExecutionContext = getProjectName() + File.separator + getRttMbtTestProcFolderName();
+		String serverExecutionContext = getProjectName() + "/RTT_TestProcedures";
+		if (filename.startsWith(serverExecutionContext)) {
+			serverFilename = localExecutionContext + filename.substring(serverExecutionContext.length());
+			System.out.println("local filename: '" + serverFilename + "'");
+		}
+
+		return serverFilename;
+	}
+	
+	public String addLocalWorkspace(String filename) {
+		String localFilename = null;
+
+		// check argument
 		if (filename == null) return filename;
+
+		// substitute context folder names
+		localFilename = substituteContextFolderNamesServer2Local(filename);
+
+		// add workspace prefix
+		String workspace = getCmlWorkspace() + getCmlProject();
+		if (!localFilename.startsWith(workspace)) {
+			System.out.println("adding '" + workspace + "' to '" + localFilename + "'");
+			localFilename =  workspace + localFilename;
+		}
+
+		// return new filename (with path)
+		System.out.println("return local file name '" + localFilename + "'");
+		return localFilename;
+	}
+
+	public String removeLocalWorkspace(String filename) {
+		String serverFilename = null;
+
+		// check argument
+		if (filename == null) return null;
+
+		// remove workspace prefix
 		String workspace = getCmlWorkspace() + getCmlProject();
 		if (filename.startsWith(workspace)) {
-			//System.out.println("removing '" + workspace + "' from '" + filename + "'");
-			return filename.substring(workspace.length());
+			System.out.println("removing '" + workspace + "' from '" + filename + "'");
+			serverFilename = filename.substring(workspace.length());
 		} else {
-			//System.out.println("workspace '" + workspace + "' is no prefix of '" + filename + "'");
-			return filename;
+			System.out.println("workspace '" + workspace + "' is no prefix of '" + filename + "'");
+			serverFilename = filename;
 		}
+
+		// substitute context folder names
+		serverFilename = substituteContextFolderNamesLocal2Server(serverFilename);
+
+		// return new filename (with path)
+		System.out.println("return server file name '" + serverFilename + "'");
+		return serverFilename;
 	}
 	
 	public String toUnixPath(String path) {
@@ -1023,5 +1314,50 @@ public class RttMbtClient {
 
 	public void setCurrentJobId(String jobId) {
 		this.currentJobId = jobId;
+	}
+	
+	public void setRttMbtTestProcFolderName(String name) {
+		RttMbtTestProcFolderName = name;
+	}
+
+	public String getRttMbtTestProcFolderName() {
+		if ((RttMbtTestProcFolderName == null) ||
+			(RttMbtTestProcFolderName.length() == 0)) {
+			return "RTT_TestProcedures";
+		}
+		return RttMbtTestProcFolderName;
+	}
+
+	public void setRttMbtTProcGenCtxFolderName(String name) {
+		RttMbtTProcGenCtxFolderName = name;
+	}
+
+	public String getRttMbtTProcGenCtxFolderName() {
+		if ((RttMbtTProcGenCtxFolderName == null) ||
+			(RttMbtTProcGenCtxFolderName.length() == 0)) {
+			return "TestProcedures";
+		}
+		return RttMbtTProcGenCtxFolderName;
+	}
+
+	public Modes getMode() {
+		return mode;
+	}
+
+	public void setMode(Modes mode) {
+		this.mode = mode;
+	}
+
+	public void setMode(String mode) {
+		if (mode.compareTo("RTT_MBT_VSI_MODE") == 0) {
+			this.mode = Modes.RTT_MBT_VSI_MODE;
+		} else if (mode.compareTo("RTT_MBT_DAG_MODE") == 0) {
+			this.mode = Modes.RTT_MBT_DAG_MODE;
+		} else if (mode.compareTo("RTT_MBT_SCADE_MODE") == 0) {
+			this.mode = Modes.RTT_MBT_SCADE_MODE;
+		} else {
+			this.mode = Modes.RTT_MBT_MODE_UNDEFINED;
+			addErrorMessage("unsupported client mode " + mode + "\n");
+		}
 	}
 }

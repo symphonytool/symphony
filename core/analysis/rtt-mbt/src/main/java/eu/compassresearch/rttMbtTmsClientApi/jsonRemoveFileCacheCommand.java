@@ -53,9 +53,9 @@ public class jsonRemoveFileCacheCommand extends jsonCommand {
 		if (!(result.equals("PASS"))) {
 			System.err.println("*** error: removing cache directory for " 
 							   + user + " (ID: '" + userId + "') failed!");
+			resultValue = false;
 		} else {
-			System.err.println("removed cache directory for " 
-					   + user + " (ID: '" + userId + "').");		
+			resultValue = true;
 		}
 	}
 }

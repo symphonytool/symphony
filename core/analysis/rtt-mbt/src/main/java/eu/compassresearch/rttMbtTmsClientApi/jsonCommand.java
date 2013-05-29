@@ -47,6 +47,7 @@ public class jsonCommand {
 	private Boolean debugIMR;
 	protected Boolean hasProgress;
 	protected Boolean hasConsole;
+	protected Boolean hasJobId;
 	protected String userName;
 	protected String userId;
 	protected Boolean resultValue;
@@ -67,6 +68,7 @@ public class jsonCommand {
 			debugIMR = false;
 			hasProgress = false;
 			hasConsole = false;
+			hasJobId = false;
 	}
 
 	public void setDebugMode(Boolean value) { debugMode = value; }
@@ -209,6 +211,9 @@ public class jsonCommand {
 			last = item.length() - 2;
 			if ((first < 0) || (last > item.length())) return;
 			String jobIdString = item.substring(first, last);
+			if (client.getCurrentJobId() != null) {
+				hasJobId = true;
+			}
 			client.setCurrentJobId(jobIdString);
 			System.out.println("current job id: " + client.getCurrentJobId());
 
@@ -259,35 +264,30 @@ public class jsonCommand {
 		String message = new String(msg);
 		int percent = -1;
 		int start, end, first, last, firstDigit, lastDigit;
-		while ((hasProgressItems(message)) && (percent < 100)) {
-			start = message.indexOf("{ \"progress-item\"");
-			end = message.indexOf('}', start);
-			if (start == -1) {
-				return percent;
-			}
-			if (end == -1) {
-				return percent;
-			}
+
+		// prepare first loop
+		start = message.indexOf("{ \"progress-item\"");
+		end = message.indexOf('}', start);
+		while ((start != -1) && (end != -1) && (percent < 100)) {
 
 			// extract item
 			String item = message.substring(start, end + 1);
 
 			// extract percent from item
-			if (item.compareTo("{ \"progress-item\" : \"clean\" }") != 0) {
-				first = item.indexOf(':') + 3;
-				last = item.lastIndexOf(':');
-				firstDigit = item.lastIndexOf(':') + 2;
-				lastDigit = item.lastIndexOf('\"') ;
-				if ((firstDigit >= 3) && (lastDigit >= firstDigit)) {
-					String taskName = item.substring(first, last);
-					String number = item.substring(firstDigit, lastDigit);
-					percent = Integer.parseInt(number);
-					client.setProgress(String2Task(taskName), percent);
-				}
+			first = item.indexOf(':') + 3;
+			last = item.lastIndexOf(':');
+			firstDigit = item.lastIndexOf(':') + 2;
+			lastDigit = item.lastIndexOf('\"') ;
+			if ((firstDigit >= 3) && (lastDigit >= firstDigit) && (lastDigit <= firstDigit + 3)) {
+				String taskName = item.substring(first, last);
+				String number = item.substring(firstDigit, lastDigit);
+				percent = Integer.parseInt(number);
+				client.setProgress(String2Task(taskName), percent);
 			}
 
 			// scan again in the rest of the message
-			message = message.substring(end + 1);
+			start = message.indexOf("{ \"progress-item\"", end + 1);
+			end = message.indexOf('}', start);
 		}
 		return percent;
 	}
@@ -299,15 +299,11 @@ public class jsonCommand {
 	public void scanForConsoleItems(String msg) {
 		String message = new String(msg);
 		int start, end, first, last;
-		while (hasConsoleItems(message)) {
-			start = message.indexOf("{ \"console-item\"");
-			end = message.indexOf('}', start);
-			if (start == -1) {
-				return;
-			}
-			if (end == -1) {
-				return;
-			}
+
+		// prepare first loop
+		start = message.indexOf("{ \"console-item\"");
+		end = message.indexOf('}', start);
+		while ((start != -1) && (end != -1)) {
 
 			// extract item
 			String item = message.substring(start, end + 1);
@@ -318,12 +314,12 @@ public class jsonCommand {
 			// - extract base64 encoded string
 			String base64content = item.substring(first, last);
 			// base64 decode encoded into content
-			byte [] decoded = Base64.decodeBase64(base64content);
-			String content = new String(decoded);
+			String content = new String(Base64.decodeBase64(base64content));
 			client.addLogMessage(content + "\n");			
 
 			// scan again in the rest of the message
-			message = message.substring(end + 1);
+			start = message.indexOf("{ \"console-item\"", end + 1);
+			end = message.indexOf('}', start);
 		}
 	}
 	
@@ -350,10 +346,10 @@ public class jsonCommand {
 						chunkBuffer = new byte[bytes_read];
 						System.arraycopy(buffer, offset, chunkBuffer, 0, bytes_read);
 						chunk = new String(chunkBuffer);
-						if (hasJobAcknowledgeItem(chunk)) {
+						if (!hasJobId) {
 							scanForJobId(chunk);
 						}
-						if ((progress < 100) && (hasProgress) && (hasProgressItems(chunk))) {
+						if ((progress < 100) && (hasProgress)) {
 							progress = scanForProgressItems(chunk);
 						}
 						if ((hasConsole) && (hasConsoleItems(chunk))) {

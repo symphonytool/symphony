@@ -1,11 +1,14 @@
 package eu.compassresearch.ide.cml.rttplugin;
 
-import org.eclipse.jface.preference.*;
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.preference.StringFieldEditor;
+import org.eclipse.jface.preference.IntegerFieldEditor;
+import org.eclipse.jface.preference.ComboFieldEditor;
+import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.IWorkbench;
-import eu.compassresearch.ide.cml.rttplugin.Activator;
 
 /**
  * This class represents a preference page that
@@ -25,7 +28,6 @@ public class RttMbtPreferencesPage
 	extends FieldEditorPreferencePage
 	implements IWorkbenchPreferencePage {
 
-	@SuppressWarnings("deprecation")
 	public RttMbtPreferencesPage() {
 		super(GRID);
 		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
@@ -52,6 +54,10 @@ public class RttMbtPreferencesPage
 		StringFieldEditor server = new StringFieldEditor("RttMbtServer",
 														 "Server:",
 														 getFieldEditorParent());
+		server.load();
+		if (server.getStringValue().compareTo("") == 0) {
+			server.loadDefault();
+		}
 		addField(server);
 		IntegerFieldEditor port = new IntegerFieldEditor("RttMbtServerPort",
 												    	 "Port:",
@@ -60,11 +66,43 @@ public class RttMbtPreferencesPage
 		StringFieldEditor user = new StringFieldEditor("RttMbtUserName",
 													   "Name:",
 													   getFieldEditorParent());
+		user.load();
+		if (user.getStringValue().compareTo("") == 0) {
+			user.loadDefault();
+		}
 		addField(user);
 		StringFieldEditor id = new StringFieldEditor("RttMbtUserId",
 													 "User-ID:",
 													 getFieldEditorParent());
+		id.load();
+		if (id.getStringValue().compareTo("") == 0) {
+			id.loadDefault();
+        }
 		addField(id);
+		StringFieldEditor rtttprocprefix = new StringFieldEditor("RttMbtRttTprocPrefix",
+                                                                 "Test Execution Context:",
+                                                                  getFieldEditorParent());
+		rtttprocprefix.load();
+		if (rtttprocprefix.getStringValue().compareTo("") == 0) {
+			rtttprocprefix.loadDefault();
+		}
+		addField(rtttprocprefix);
+		StringFieldEditor tprocgenctx = new StringFieldEditor("RttMbtTProcGenCtx",
+                                                              "Test Generation Context:",
+                                                              getFieldEditorParent());
+		tprocgenctx.load();
+		if (tprocgenctx.getStringValue().compareTo("") == 0) {
+			tprocgenctx.loadDefault();
+		}
+		addField(tprocgenctx);
+
+        String[][] modes = {{"COMPASS", "RTT_MBT_VSI_MODE"},
+                            {"Verified", "RTT_MBT_VSI_MODE"},
+                            {"POVEtech:TA", "RTT_MBT_DAG_MODE"},
+        	                {"SCADE", "RTT_MBT_SCADE_MODE"}};
+		ComboFieldEditor ClientMode = new ComboFieldEditor("ClientMode", "Client Mode: ", modes, getFieldEditorParent());
+		ClientMode.loadDefault();
+		addField(ClientMode);
 	}
 
 	/* (non-Javadoc)
