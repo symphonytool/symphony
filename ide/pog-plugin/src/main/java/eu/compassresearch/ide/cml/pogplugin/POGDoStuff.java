@@ -1,27 +1,22 @@
 package eu.compassresearch.ide.cml.pogplugin;
 
-import java.io.File;
-import java.io.FileWriter;
 import java.util.ArrayList;
 
-import org.eclipse.core.filesystem.EFS;
-import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IViewPart;
+import org.eclipse.ui.IWorkbenchSite;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.handlers.HandlerUtil;
-import org.eclipse.ui.ide.IDE;
+import org.eclipse.ui.PartInitException;
 import org.overture.ide.core.IVdmModel;
 import org.overture.ide.core.resources.IVdmProject;
-import org.overture.ide.core.resources.IVdmSourceUnit;
+import org.overture.ide.plugins.poviewer.Activator;
+import org.overture.ide.plugins.poviewer.view.PoOverviewTableView;
 import org.overture.ide.ui.utility.VdmTypeCheckerUi;
 import org.overture.pog.obligation.ProofObligation;
 import org.overture.pog.obligation.ProofObligationList;
@@ -39,14 +34,16 @@ import eu.compassresearch.ide.cml.ui.editor.core.dom.ICmlSourceUnit;
  * 
  * @see IWorkbenchWindowActionDelegate
  */
-public class POGBasicAction implements IWorkbenchWindowActionDelegate
+public class POGDoStuff implements IWorkbenchWindowActionDelegate
 {
 	private IWorkbenchWindow window;
+	private IWorkbenchSite site;
+ 
 
 	/**
 	 * The constructor.
 	 */
-	public POGBasicAction()
+	public POGDoStuff()
 	{
 	}
 
@@ -101,8 +98,6 @@ public class POGBasicAction implements IWorkbenchWindowActionDelegate
 					for (IResource cmlfile : cmlfiles)
 					{
 						ICmlSourceUnit source = (ICmlSourceUnit) cmlfile.getAdapter(ICmlSourceUnit.class);
-						// CmlSourceUnit source = CmlSourceUnit
-						// .getFromFileResource((IFile) cmlfile);
 						if (!CmlTypeChecker.Utils.isWellType(source.getSourceAst()))
 						{
 							popErrorMessage("There were type errors in "
@@ -111,26 +106,9 @@ public class POGBasicAction implements IWorkbenchWindowActionDelegate
 						}
 					}
 
-					String workspaceLoc = ResourcesPlugin.getWorkspace().getRoot().getLocation().toString();
-					File tempPo = new File(workspaceLoc, "proofobligations");
-					tempPo.deleteOnExit();
-
-					FileWriter fw;
-
-					fw = new FileWriter(tempPo);
-					fw.write(getPOsfromSource(cmlfiles, proj.getName()));
-					fw.flush();
-					fw.close();
-
-					File fileToOpen = new File(workspaceLoc, "proofobligations");
-
-					if (fileToOpen.exists() && fileToOpen.isFile())
-					{
-						IFileStore fileStore = EFS.getLocalFileSystem().getStore(fileToOpen.toURI());
-						IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-						IDE.openEditorOnFileStore(page, fileStore);
-
-					}
+					ProofObligationList pol = getPoListFromSource(cmlfiles);
+					
+					showPOs(vdmProject, pol);
 
 				}
 			}
@@ -148,7 +126,35 @@ public class POGBasicAction implements IWorkbenchWindowActionDelegate
 				+ message);
 	}
 
-	private char[] getPOsfromSource(ArrayList<IResource> cmlfiles,
+	private ProofObligationList getPoListFromSource(ArrayList<IResource> cmlfiles) throws Exception
+	{
+
+		ProofObligationList pol = new ProofObligationList();
+		
+		for (IResource cmlfile : cmlfiles)
+		{
+			ICmlSourceUnit source = (ICmlSourceUnit) cmlfile.getAdapter(ICmlSourceUnit.class);			
+//			CmlSourceUnit source = CmlSourceUnit.getFromFileResource((IFile) cmlfile);
+			PSource psAux = source.getSourceAst();
+			ProofObligationGenerator pog = new ProofObligationGenerator(psAux);
+			try
+			{
+				ProofObligationList innerpol = pog.generatePOs();
+				for (ProofObligation po : innerpol){
+					pol.add(po);
+				}
+			}
+
+			catch (Exception e)
+			{
+				throw e;
+			}
+		}
+		return pol;
+	}
+
+	
+	private char[] getPoStringsfromSource(ArrayList<IResource> cmlfiles,
 			String projName) throws Exception
 	{
 
@@ -180,25 +186,41 @@ public class POGBasicAction implements IWorkbenchWindowActionDelegate
 		return sb.toString().toCharArray();
 	}
 
-	/**
-	 * Selection in the workbench has been changed. We can change the state of the 'real' action here if we want, but
-	 * this can only happen after the delegate has been created.
-	 * 
-	 * @see IWorkbenchWindowActionDelegate#selectionChanged
-	 */
-	public void selectionChanged(IAction action, ISelection selection)
+	private void showPOs(final IVdmProject project,
+			final ProofObligationList pos)
 	{
+		site.getPage().getWorkbenchWindow().getShell().getDisplay().asyncExec(new Runnable()
+		{
+
+			public void run()
+			{
+				IViewPart v;
+				try
+				{
+					v = site.getPage().showView("eu.compassresearch.ide.OvtPoOTable");
+					if (v instanceof PoOverviewTableView)
+					{
+						((PoOverviewTableView) v).setDataList(project, pos);
+
+					}	
+
+		//			openPoviewPerspective();
+				} catch (PartInitException e)
+				{
+					if (Activator.DEBUG)
+					{
+						e.printStackTrace();
+					}
+				}
+
+			}
+
+		});
 	}
 
-	/**
-	 * We can use this method to dispose of any system resources we previously allocated.
-	 * 
-	 * @see IWorkbenchWindowActionDelegate#dispose
-	 */
-	public void dispose()
-	{
-	}
-
+	
+	
+	
 	/**
 	 * We will cache window object in order to be able to provide parent shell for the message dialog.
 	 * 
@@ -207,5 +229,20 @@ public class POGBasicAction implements IWorkbenchWindowActionDelegate
 	public void init(IWorkbenchWindow window)
 	{
 		this.window = window;
+		this.site=window.getActivePage().getActivePart().getSite();
+	}
+
+	@Override
+	public void selectionChanged(IAction action, ISelection selection)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void dispose()
+	{
+		// TODO Auto-generated method stub
+		
 	}
 }
