@@ -21,7 +21,8 @@ Require-Bundle: org.eclipse.debug.ui,
  isabelle.eclipse.launch;bundle-version="1.2.0",
  isabelle.eclipse.ui;bundle-version="1.2.0",
  isabelle.pide;bundle-version="2013.0.1",
- isabelle.pure;bundle-version="2013.0.1"
+ isabelle.pure;bundle-version="2013.0.1",
+ org.scala-ide.scala.library
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Eclipse-BuddyPolicy: registered

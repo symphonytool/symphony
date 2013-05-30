@@ -37,7 +37,7 @@ public class ThmPExpVisitor extends AnswerCMLAdaptor<String> {
 	public String caseAStringLiteralExp(AStringLiteralExp node)
 			throws AnalysisException {
 		String s = node.toString();
-		return "''" + s.substring(1, s.length() - 1) + "''";
+		return "\\<langle>''" + s.substring(1, s.length() - 1) + "''\\<rangle>";
 	}
 	
 	

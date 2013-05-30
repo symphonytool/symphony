@@ -1,5 +1,8 @@
 package eu.compassresearch.ide.cml.tpplugin;
 
+import isabelle.eclipse.core.IsabelleCore;
+import isabelle.eclipse.core.app.Isabelle;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -7,6 +10,7 @@ import java.util.ArrayList;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
@@ -17,6 +21,8 @@ import org.overture.ide.core.IVdmModel;
 import org.overture.ide.core.resources.IVdmProject;
 import org.overture.ide.ui.utility.VdmTypeCheckerUi;
 
+import scala.util.Either;
+
 import eu.compassresearch.ide.cml.ui.editor.core.dom.ICmlSourceUnit;
 import eu.compassresearch.theoremprover.TPVisitor;
 import eu.compassresearch.theoremprover.ThmType;
@@ -25,12 +31,29 @@ import eu.compassresearch.theoremprover.ThmValue;
 public class TPBasicAction implements IWorkbenchWindowActionDelegate {
 
 	private IWorkbenchWindow window;
+	private IsabelleTheory ithy = null;
+	private int thmCount = 0;
 	
 	@Override
 	public void run(IAction action) {
 		try
 		{
-
+			Isabelle isabelle = IsabelleCore.isabelle();
+			
+			if (ithy == null) {
+				if (isabelle.session().isDefined()) {
+					ithy = new IsabelleTheory(isabelle.session().get(), "Test", "/home/simon/Isabelle");
+					ithy.init();
+			    } else {
+			    	popErrorMessage("Isabelle is not started");
+			    	return;
+			    }
+			}
+			else { 
+				ithy.addThm(new IsabelleTheorem("simpleLemma" + thmCount, "True", "by simp\n"));			
+				thmCount++;
+			}
+			
 			IProject proj = TPPluginUtils.getCurrentlySelectedProject();
 			if (proj == null)
 			{
