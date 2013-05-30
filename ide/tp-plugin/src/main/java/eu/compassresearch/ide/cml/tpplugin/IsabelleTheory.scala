@@ -9,7 +9,7 @@ import org.eclipse.core.runtime.{IProgressMonitor, NullProgressMonitor, Status}
 import org.eclipse.core.runtime.jobs.Job
 import org.eclipse.jface.text.{DocumentEvent, IDocument, IDocumentListener}
 
-import isabelle.{Document, Session, Text}
+import isabelle.{Document, Session, Text, Protocol, Command}
 import isabelle.eclipse.core.util.{PostponeJob, SerialSchedulingRule}
 import isabelle.eclipse.core.util.ConcurrentUtil.FunReadWriteLock
 
@@ -40,7 +40,11 @@ class IsabelleTheorem(val name: String, val goal: String, var proof: List[String
   def thmString: String = lemmaString + proofString
   
   def this(name: String, goal:String, proof: String) {
-    this(name,goal,List(proof))
+    this(name, goal, List(proof))
+  }
+  
+  def this(name: String, goal:String) {
+    this(name, goal, "oops")
   }
   
 }
@@ -89,26 +93,28 @@ class IsabelleTheory( val session: Session
   /**
    * Checks if the contents of this document have already been submitted as-is to the prover
    */
-  def thmCmd(thm : String): Option[Document.Command_ID] = {
+  def thmCmd(thm : String): Option[Command] = {
     val s = session.snapshot(thyNode)
     val cmds = s.node.commands.toList  
-    val cmd = cmds.find(c => c.source.contains(thm))    
-    cmd.map(_.id)
+    cmds.find(c => c.source.contains(thm))
   }
   
-  def proofCmds(thm : String): Option[List[Document.Command_ID]] = {
+  def proofCmds(thm : String): Option[List[Command]] = {
     val s = session.snapshot(thyNode)
     val cmds = s.node.commands.toList
     var found = false;
     var prf = false;
-    var prfcmds : List[Document.Command_ID] = Nil
+    var prfcmds : List[Command] = Nil
     for (c <- cmds) {
       if (prf && !c.source.contains("done") && !c.source.contains("by")) {
-        prfcmds = c.id :: prfcmds
+        prfcmds = c :: prfcmds
       }
       
-      if (c.source.contains("done") || c.source.contains("by")) {
-        prfcmds = c.id :: prfcmds
+      /* FIXME: Need some more sophisticated to control logic to deal with,
+         e.g. Isar proofs */
+      if ( c.source.contains("done") || c.source.contains("by") 
+         || c.source.contains("sorry") || c.source.contains("oops")) {
+        prfcmds = c :: prfcmds
         prf = false;
       }
       
@@ -121,5 +127,24 @@ class IsabelleTheory( val session: Session
     if (found) { Some(prfcmds) } else { None }
   }
 
+  def thmStatus(thm : String): Option[Protocol.Status] = {
+    val cmd = proofCmds(thm).flatMap(_.lastOption)
+    val version = session.snapshot().version
+    val state   = session.snapshot().state
+    cmd match {
+      case Some(c) => {
+    	val st = state.command_state(version, c)
+    	Some(Protocol.command_status(st.status))
+      }
+      case None => None
+    }
+  }
  
+  def thmIsProved(thm : String): Boolean = {
+    val cmd = proofCmds(thm).flatMap(_.lastOption)
+    val status = thmStatus(thm)
+    (status.exists(x => x.is_finished && !x.is_failed) 
+      && cmd.exists(x => !(x.source.contains("oops") || x.source.contains("sorry"))))
+  }
+  
 }

@@ -1,5 +1,6 @@
 package eu.compassresearch.ide.cml.tpplugin;
 
+import isabelle.Protocol;
 import isabelle.eclipse.core.IsabelleCore;
 import isabelle.eclipse.core.app.Isabelle;
 
@@ -21,6 +22,7 @@ import org.overture.ide.core.IVdmModel;
 import org.overture.ide.core.resources.IVdmProject;
 import org.overture.ide.ui.utility.VdmTypeCheckerUi;
 
+import scala.Option;
 import scala.util.Either;
 
 import eu.compassresearch.ide.cml.ui.editor.core.dom.ICmlSourceUnit;
@@ -53,7 +55,7 @@ public class TPBasicAction implements IWorkbenchWindowActionDelegate {
 				ithy.addThm(new IsabelleTheorem("simpleLemma" + thmCount, "True", "by simp\n"));			
 				thmCount++;
 			}
-			
+						
 			IProject proj = TPPluginUtils.getCurrentlySelectedProject();
 			if (proj == null)
 			{
