@@ -156,12 +156,4 @@ class CmlExpressionVisitor extends QuestionAnswerCMLAdaptor<Context, Value>
 		return val;
 	}
 	
-	@Override
-	public Value caseAExpressionSingleDeclaration(
-			AExpressionSingleDeclaration node, Context question)
-			throws AnalysisException {
-
-		return node.getExpression().apply(this, question);
-	}
-	
 }

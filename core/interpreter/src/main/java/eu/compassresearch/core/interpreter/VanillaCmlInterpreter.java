@@ -184,7 +184,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			for(CmlTransition event : availableEvents.getAllEvents())
 			{
 				//TODO this should be handled differently
-				Context context = event.getEventSources().iterator().next().getExecutionState().second;
+				Context context = event.getEventSources().iterator().next().getNextState().second;
 
 				String state;
 
@@ -281,10 +281,10 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		VanillaCmlInterpreter cmlInterp = new VanillaCmlInterpreter(source);
 		try
 		{
-			//CmlSupervisorEnvironment sve = 
-			//		VanillaInterpreterFactory.newDefaultCmlSupervisorEnvironment(new ConsoleSelectionStrategy());
 			CmlSupervisorEnvironment sve = 
-							VanillaInterpreterFactory.newDefaultCmlSupervisorEnvironment(new RandomSelectionStrategy());
+					VanillaInterpreterFactory.newDefaultCmlSupervisorEnvironment(new ConsoleSelectionStrategy());
+			//CmlSupervisorEnvironment sve = 
+			//				VanillaInterpreterFactory.newDefaultCmlSupervisorEnvironment(new RandomSelectionStrategy());
 
 			CmlRuntime.logger().setLevel(Level.FINEST);
 			cmlInterp.onStatusChanged().registerObserver(new CmlInterpreterStatusObserver() {
