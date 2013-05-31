@@ -21,10 +21,17 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ide.core.IVdmModel;
 import org.overture.ide.core.resources.IVdmProject;
 import org.overture.ide.ui.utility.VdmTypeCheckerUi;
+import org.overture.pog.obligation.ProofObligation;
 
 import scala.Option;
 import scala.util.Either;
 
+import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligation;
+import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
+import eu.compassresearch.ide.cml.pogplugin.POConstants;
+import eu.compassresearch.core.common.Registry;
+import eu.compassresearch.core.common.RegistryFactory;
+import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
 import eu.compassresearch.ide.cml.ui.editor.core.dom.ICmlSourceUnit;
 import eu.compassresearch.theoremprover.TPVisitor;
 import eu.compassresearch.theoremprover.ThmType;
@@ -35,7 +42,8 @@ public class TPBasicAction implements IWorkbenchWindowActionDelegate {
 	private IWorkbenchWindow window;
 	private IsabelleTheory ithy = null;
 	private int thmCount = 0;
-	
+	private CMLProofObligationList poList;
+
 	@Override
 	public void run(IAction action) {
 		try
@@ -51,18 +59,20 @@ public class TPBasicAction implements IWorkbenchWindowActionDelegate {
 			    	return;
 			    }
 			}
+/*
 			else { 
 				ithy.addThm(new IsabelleTheorem("simpleLemma" + thmCount, "True", "by simp\n"));			
 				thmCount++;
 			}
-						
+*/
+			Registry registry = RegistryFactory.getInstance(POConstants.PO_REGISTRY_ID).getRegistry();
+			
 			IProject proj = TPPluginUtils.getCurrentlySelectedProject();
 			if (proj == null)
 			{
 				popErrorMessage("No project selected.");
 				return;
 			}
-
 			// Check project is built
 			IVdmProject vdmProject = (IVdmProject) proj.getAdapter(IVdmProject.class);
 
@@ -89,11 +99,19 @@ public class TPBasicAction implements IWorkbenchWindowActionDelegate {
 
 				if (model.isTypeCorrect())
 				{
-
+					
 					ArrayList<IResource> cmlFiles = TPPluginUtils.getAllCFilesInProject(proj);
 
 					for (IResource cmlFile : cmlFiles)
-					{						
+					{			
+						// May return a null if the adapter fails to convert
+                        ICmlSourceUnit cmlSource = (ICmlSourceUnit) cmlFile.getAdapter(ICmlSourceUnit.class);
+						CMLProofObligationList poList = registry.lookup(cmlSource.getSourceAst(), CMLProofObligationList.class);
+					
+						for (ProofObligation po : poList) {
+							ithy.addThm(new IsabelleTheorem(po.name, "True", "by auto\n"));
+						}
+						
 						getThyFromCML(cmlFile);
 					}
 		
@@ -101,6 +119,8 @@ public class TPBasicAction implements IWorkbenchWindowActionDelegate {
 
 			}
 
+			
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 			popErrorMessage(e.getMessage());
@@ -108,49 +128,48 @@ public class TPBasicAction implements IWorkbenchWindowActionDelegate {
 
 	}
 
-	private void popErrorMessage(String message)
-	{
-		MessageDialog.openInformation(window.getShell(), "COMPASS", "Could not generate THY.\n\n"
-				+ message);
+	private void popErrorMessage(String message) {
+		MessageDialog.openInformation(window.getShell(), "COMPASS",
+				"Could not generate THY.\n\n" + message);
 	}
-	
-	private void getThyFromCML(IResource cmlFile) throws IOException, AnalysisException {
 
-		ICmlSourceUnit source = (ICmlSourceUnit) cmlFile.getAdapter(ICmlSourceUnit.class);
-		
+	private void getThyFromCML(IResource cmlFile) throws IOException,
+			AnalysisException {
+
+		ICmlSourceUnit source = (ICmlSourceUnit) cmlFile
+				.getAdapter(ICmlSourceUnit.class);
+
 		String cmlLoc = cmlFile.getLocation().toString();
 		String thyFile = cmlLoc.replaceAll("\\.cml", "\\.thy");
 
 		TPVisitor tpv = new TPVisitor();
 		source.getSourceAst().apply(tpv);
-		
+
 		String name = cmlFile.getName();
-		
+
 		String thyName = name.substring(0, name.lastIndexOf("."));
 		StringBuilder sb = new StringBuilder();
 
-		sb.append("theory "+ thyName +" \n" +
-				  "  imports utp_vdm \n" +
-				  "begin \n" +
-				  "\n");
-				 		
+		sb.append("theory " + thyName + " \n" + "  imports utp_vdm \n"
+				+ "begin \n" + "\n");
+
 		sb.append("text {* VDM value declarations *}\n\n");
-		
+
 		for (ThmValue tv : tpv.getValueList()) {
 			sb.append(tv.toString());
 			sb.append("\n");
 		}
-		
+
 		sb.append("\n");
 		sb.append("text {* VDM type declarations *}\n\n");
-		
+
 		for (ThmType ty : tpv.getTypeList()) {
 			sb.append(ty.toString());
 			sb.append("\n");
 		}
-		
+
 		sb.append("\n");
-		
+
 		sb.append("\n" + "end");
 
 		File thy = new File(thyFile);

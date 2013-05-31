@@ -37,6 +37,7 @@ class TPListener(session: Session) extends SessionEvents {
           if (changed.nodes contains docModel.name) {
             notifyCommandsChanged(Some(changed.commands))
           } */
+          System.out.print("T!")
           System.out.print("HELLO!")
         }
       }

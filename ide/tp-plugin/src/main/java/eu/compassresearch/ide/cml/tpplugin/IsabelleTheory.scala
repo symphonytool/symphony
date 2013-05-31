@@ -69,7 +69,7 @@ class IsabelleTheory( val session: Session
     // Set the header for the theory node, clear the contents and add the header and end
     tpListener.init()
     
-    tpListener.dispose()
+    // tpListener.dispose()
     
     val perspective = Text.Perspective(List(Text.Range(0, thyEnd)))
     
