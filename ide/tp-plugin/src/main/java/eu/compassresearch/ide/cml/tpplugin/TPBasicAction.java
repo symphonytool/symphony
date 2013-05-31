@@ -1,6 +1,7 @@
 package eu.compassresearch.ide.cml.tpplugin;
 
 import isabelle.Protocol;
+import isabelle.Session;
 import isabelle.eclipse.core.IsabelleCore;
 import isabelle.eclipse.core.app.Isabelle;
 
@@ -47,101 +48,98 @@ public class TPBasicAction implements IWorkbenchWindowActionDelegate {
 
 	@Override
 	public void run(IAction action) {
-		try
-		{
+		try {
 			Isabelle isabelle = IsabelleCore.isabelle();
-				
-			// if (tpListener = null) tpListener = new TPListener(isabelle.session().get(), ithy);
-			
-/*
-			else { 
-				ithy.addThm(new IsabelleTheorem("simpleLemma" + thmCount, "True", "by simp\n"));			
-				thmCount++;
+			Session session = null;
+
+			if (isabelle.session().isDefined()) {
+				session = isabelle.session().get();
+			} else {
+				popErrorMessage("Isabelle is not started");
+				return;
 			}
-*/
-			Registry registry = RegistryFactory.getInstance(POConstants.PO_REGISTRY_ID).getRegistry();
-			
+
+			// if (tpListener = null) tpListener = new
+			// TPListener(isabelle.session().get(), ithy);
+
+			/*
+			 * else { ithy.addThm(new IsabelleTheorem("simpleLemma" + thmCount,
+			 * "True", "by simp\n")); thmCount++; }
+			 */
+			Registry registry = RegistryFactory.getInstance(
+					POConstants.PO_REGISTRY_ID).getRegistry();
+
 			IProject proj = TPPluginUtils.getCurrentlySelectedProject();
-			if (proj == null)
-			{
+			if (proj == null) {
 				popErrorMessage("No project selected.");
 				return;
 			}
 			// Check project is built
-			IVdmProject vdmProject = (IVdmProject) proj.getAdapter(IVdmProject.class);
+			IVdmProject vdmProject = (IVdmProject) proj
+					.getAdapter(IVdmProject.class);
 
-			if (vdmProject == null)
-			{
+			if (vdmProject == null) {
 				return;
 			}
 
 			final IVdmModel model = vdmProject.getModel();
-			if (model.isParseCorrect())
-			{
+			if (model.isParseCorrect()) {
 
-				if (!model.isParseCorrect())
-				{
+				if (!model.isParseCorrect()) {
 					return;
-					// return new Status(Status.ERROR, IPoviewerConstants.PLUGIN_ID,
+					// return new Status(Status.ERROR,
+					// IPoviewerConstants.PLUGIN_ID,
 					// "Project contains parse errors");
 				}
 
-				if (model == null || !model.isTypeCorrect())
-				{
-					VdmTypeCheckerUi.typeCheck(this.window.getShell(), vdmProject);
+				if (model == null || !model.isTypeCorrect()) {
+					VdmTypeCheckerUi.typeCheck(this.window.getShell(),
+							vdmProject);
 				}
 
-				if (model.isTypeCorrect())
-				{
-					
-					ArrayList<IResource> cmlFiles = TPPluginUtils.getAllCFilesInProject(proj);
+				if (model.isTypeCorrect()) {
 
-					for (IResource cmlFile : cmlFiles)
-					{			
+					ArrayList<IResource> cmlFiles = TPPluginUtils
+							.getAllCFilesInProject(proj);
+
+					for (IResource cmlFile : cmlFiles) {
 						// May return a null if the adapter fails to convert
-                        ICmlSourceUnit cmlSource = (ICmlSourceUnit) cmlFile.getAdapter(ICmlSourceUnit.class);
-						CMLProofObligationList poList = registry.lookup(cmlSource.getSourceAst(), CMLProofObligationList.class);
-					
-						JIsabelleTheory ithy = registry.lookup(cmlSource.getSourceAst(), JIsabelleTheory.class);
-						
-						if (ithy == null) {
-							String cmlLoc = cmlFile.getLocation().toString();
-							String poFile = cmlLoc.replaceAll("\\.cml", "-POs.thy");							
-							ithy = new JIsabelleTheory(new IsabelleTheory(isabelle.session().get(), poFile, proj.getLocation().toString()));
-							ithy.getIsabelleTheory().init();
-							registry.store(cmlSource.getSourceAst(), ithy);
-						}
-						
-						/*
-						 * 
-						 * 			if (ithy == null) {
-				if (isabelle.session().isDefined()) {
-					ithy = new IsabelleTheory(isabelle.session().get(), "Test", "/home/simon/Isabelle");
-					ithy.init();
-			    } else {
-			    	popErrorMessage("Isabelle is not started");
-			    	return;
-			    }
-				
-			}
+						ICmlSourceUnit cmlSource = (ICmlSourceUnit) cmlFile
+								.getAdapter(ICmlSourceUnit.class);
+						CMLProofObligationList poList = registry.lookup(
+								cmlSource.getSourceAst(),
+								CMLProofObligationList.class);
 
-						 */
-						
-						for (ProofObligation po : poList) {
-							ithy.getIsabelleTheory().addThm(new IsabelleTheorem(po.name, "True", "by auto\n"));
+						JIsabelleTheory jthy = registry
+								.lookup(cmlSource.getSourceAst(),
+										JIsabelleTheory.class);
+						IsabelleTheory ithy = null;
+
+						if (jthy == null) {
+							String cmlLoc = cmlFile.getLocation().toString();
+							String poFile = cmlLoc.replaceAll("\\.cml",
+									"-POs.thy");
+							ithy = new IsabelleTheory(session, poFile, proj
+									.getLocation().toString());
+							jthy = new JIsabelleTheory(ithy);
+							ithy.init();
+							registry.store(cmlSource.getSourceAst(), jthy);
+						} else {
+							ithy = jthy.getIsabelleTheory();
 						}
-						
-						
-						
+
+						for (ProofObligation po : poList) {
+							ithy.addThm(new IsabelleTheorem(po.name, "True",
+									"by auto\n"));
+						}
+
 						getThyFromCML(cmlFile);
 					}
-		
+
 				}
 
 			}
 
-			
-			
 		} catch (Exception e) {
 			e.printStackTrace();
 			popErrorMessage(e.getMessage());
@@ -202,7 +200,7 @@ public class TPBasicAction implements IWorkbenchWindowActionDelegate {
 		return;
 
 	}
-
+	
 	@Override
 	public void selectionChanged(IAction action, ISelection selection) {
 		// TODO Auto-generated method stub
