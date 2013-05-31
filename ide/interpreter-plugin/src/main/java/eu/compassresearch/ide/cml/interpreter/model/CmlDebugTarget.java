@@ -44,7 +44,7 @@ import eu.compassresearch.core.interpreter.utility.messaging.Message;
 import eu.compassresearch.core.interpreter.utility.messaging.MessageCommunicator;
 import eu.compassresearch.core.interpreter.utility.messaging.MessageContainer;
 import eu.compassresearch.core.interpreter.utility.messaging.RequestMessage;
-import eu.compassresearch.ide.cml.interpreter.CmlDebugConstants;
+import eu.compassresearch.ide.cml.interpreter.ICmlDebugConstants;
 import eu.compassresearch.ide.cml.interpreter.views.CmlEventHistoryView;
 
 public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
@@ -119,7 +119,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 		
 		
 		/**
-		 * Initialises all the status message handlers
+		 * Initializes all the status message handlers
 		 * @return
 		 */
 		private Map<String, CmlDebugTarget.MessageEventHandler<CmlDbgStatusMessage>> initializeStatusHandlers()
@@ -177,6 +177,11 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 			return handlers;
 		}
 
+		/**
+		 * Receives a message from the debugger
+		 * @return The received message wrapped in a MessageContainer
+		 * @throws IOException
+		 */
 		private MessageContainer receiveMessage() throws IOException
 		{
 			return MessageCommunicator.receiveMessage(fRequestReader,
@@ -455,7 +460,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 			@Override
 			public void run() {
 				try {
-					CmlEventHistoryView view = (CmlEventHistoryView)PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(CmlDebugConstants.ID_CML_HISTORY_VIEW.toString());
+					CmlEventHistoryView view = (CmlEventHistoryView)PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(ICmlDebugConstants.ID_CML_HISTORY_VIEW.toString());
 					view.getListViewer().setInput(trace);
 				} catch (PartInitException e) {
 					e.printStackTrace();

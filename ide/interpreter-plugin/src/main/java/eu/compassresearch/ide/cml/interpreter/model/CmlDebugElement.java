@@ -10,7 +10,7 @@ import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IDebugElement;
 import org.eclipse.debug.core.model.IDebugTarget;
 
-import eu.compassresearch.ide.cml.interpreter.CmlDebugConstants;
+import eu.compassresearch.ide.cml.interpreter.ICmlDebugConstants;
 
 public class CmlDebugElement extends PlatformObject implements IDebugElement {
 
@@ -29,7 +29,7 @@ public class CmlDebugElement extends PlatformObject implements IDebugElement {
 
 	@Override
 	public String getModelIdentifier() {
-		return CmlDebugConstants.ID_CML_DEBUG_MODEL.toString();
+		return ICmlDebugConstants.ID_CML_DEBUG_MODEL.toString();
 	}
 
 	@Override

@@ -12,6 +12,10 @@ import eu.compassresearch.core.interpreter.utility.events.Event;
  */
 public class InterpreterStatusEvent extends Event<CmlInterpreter> {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6478492523089731326L;
 	private final CmlInterpreterState status;
 
 	public InterpreterStatusEvent(CmlInterpreter interpreter,CmlInterpreterState status)

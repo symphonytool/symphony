@@ -13,7 +13,7 @@ import org.eclipse.ui.PlatformUI;
 import eu.compassresearch.core.interpreter.utility.messaging.CmlRequest;
 import eu.compassresearch.core.interpreter.utility.messaging.RequestMessage;
 import eu.compassresearch.core.interpreter.utility.messaging.ResponseMessage;
-import eu.compassresearch.ide.cml.interpreter.CmlDebugConstants;
+import eu.compassresearch.ide.cml.interpreter.ICmlDebugConstants;
 import eu.compassresearch.ide.cml.interpreter.views.CmlEventOptionView;
 
 public class CmlChoiceMediator implements IDoubleClickListener{
@@ -30,7 +30,7 @@ public class CmlChoiceMediator implements IDoubleClickListener{
 			@Override
 			public void run() {
 				try {
-					CmlEventOptionView view = (CmlEventOptionView)PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(CmlDebugConstants.ID_CML_OPTION_VIEW.toString());
+					CmlEventOptionView view = (CmlEventOptionView)PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(ICmlDebugConstants.ID_CML_OPTION_VIEW.toString());
 					view.getListViewer().addDoubleClickListener(CmlChoiceMediator.this);
 					CmlChoiceMediator.this.cmlDebugTarget.resume();
 					
@@ -50,7 +50,7 @@ public class CmlChoiceMediator implements IDoubleClickListener{
 			@Override
 			public void run() {
 				try {
-					CmlEventOptionView view = (CmlEventOptionView)PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(CmlDebugConstants.ID_CML_OPTION_VIEW.toString());
+					CmlEventOptionView view = (CmlEventOptionView)PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(ICmlDebugConstants.ID_CML_OPTION_VIEW.toString());
 					view.getListViewer().removeDoubleClickListener(CmlChoiceMediator.this);
 				} catch (PartInitException e) {
 					e.printStackTrace();
@@ -66,7 +66,7 @@ public class CmlChoiceMediator implements IDoubleClickListener{
 			@Override
 			public void run() {
 				try {
-					CmlEventOptionView view = (CmlEventOptionView)PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(CmlDebugConstants.ID_CML_OPTION_VIEW.toString());
+					CmlEventOptionView view = (CmlEventOptionView)PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(ICmlDebugConstants.ID_CML_OPTION_VIEW.toString());
 					view.getListViewer().setInput(events);
 				} catch (PartInitException e) {
 					e.printStackTrace();

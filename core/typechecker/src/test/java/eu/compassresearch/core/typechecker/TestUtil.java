@@ -94,7 +94,7 @@ public class TestUtil {
 
 			if (e.token != null) {
 				ct = (org.antlr.runtime.CommonToken) e.token;
-				parseErrors.add("Syntax error in " + s + " snear '"
+				parseErrors.add("Syntax error in " + s + " near '"
 						+ ct.getText() + "'. Error at line " + e.line + " - "
 						+ ct.getStartIndex() + ":" + ct.getStopIndex());
 			} else
@@ -161,7 +161,7 @@ public class TestUtil {
 
 				if (e.token != null) {
 					ct = (org.antlr.runtime.CommonToken) e.token;
-					parseErrors.add("Syntax error in " + s + " snear '"
+					parseErrors.add("Syntax error in " + s + " near '"
 							+ ct.getText() + "'. Error at line " + e.line
 							+ " - " + ct.getStartIndex() + ":"
 							+ ct.getStopIndex());
