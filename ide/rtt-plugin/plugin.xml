@@ -15,7 +15,7 @@
       <perspectiveExtension
             targetID="eu.compassresearch.ide.cml.rttplugin.rtt-perspective">
          <view
-               id="org.eclipse.ui.navigator.ProjectExplorer"
+               id="eu.compassresearch.ide.cml.rtt-plugin.RttMbtProjectExplorer"
                minimized="false"
                ratio="0.25"
                relationship="left"
@@ -58,11 +58,48 @@
             name="ProgressView"
             restorable="true">
       </view>
+      <view
+            allowMultiple="false"
+            category="eu.compassresearch.ide.ui.category"
+            class="eu.compassresearch.ide.cml.rttplugin.RttMbtProjectExplorer"
+            icon="icons/rtt-mbt-small.png"
+            id="eu.compassresearch.ide.cml.rtt-plugin.RttMbtProjectExplorer"
+            name="ProjectExplorer"
+            restorable="true">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.navigator.viewer">
+      <viewerContentBinding
+            viewerId="eu.compassresearch.ide.cml.rtt-plugin.RttMbtProjectExplorer">
+         <includes>
+            <contentExtension
+                  pattern="org.eclipse.ui.navigator.resourceContent">
+            </contentExtension>
+            <contentExtension
+                  pattern="org.eclipse.ui.navigator.resources.filters.*">
+            </contentExtension>
+            <contentExtension
+                  pattern="org.eclipse.ui.navigator.resources.linkHelper">
+            </contentExtension>
+            <contentExtension
+                  pattern="org.eclipse.ui.navigator.resources.workingSets">
+            </contentExtension>
+         </includes>
+      </viewerContentBinding>
+      <viewerActionBinding
+            viewerId="eu.compassresearch.ide.cml.rtt-plugin.viewerActionBinding1">
+         <includes>
+            <actionExtension
+                  pattern="org.eclipse.ui.navigator.resources.*">
+            </actionExtension>
+         </includes>
+      </viewerActionBinding>
    </extension>
    <extension
          point="org.eclipse.ui.newWizards">
       <wizard
-            category="eu.compassresearch.ide.ui.category"
+            category="compass_eu.compassresearch.ide.cml.ui.category"
             class="eu.compassresearch.ide.cml.rttplugin.RttMbtComponentWizard"
             icon="icons/rtt-mbt-small.png"
             id="eu.compassresearch.ide.cml.rttplugin.RttMbtComponentWizard"
@@ -132,41 +169,6 @@
             name="Check model">
       </command>
       <command
-            defaultHandler="eu.compassresearch.ide.cml.rttplugin.RttMbtGenerateTest"
-            id="eu.compassresearch.ide.cml.rttplugin.RttMbtGenerateTest"
-            name="Generate Test Procedure">
-      </command>
-      <command
-            defaultHandler="eu.compassresearch.ide.cml.rttplugin.RttMbtGenerateSimulation"
-            id="eu.compassresearch.ide.cml.rttplugin.RttMbtGenerateSimulation"
-            name="Generate Simulation">
-      </command>
-      <command
-            defaultHandler="eu.compassresearch.ide.cml.rttplugin.RttMbtCleanRttTestProcedure"
-            id="eu.compassresearch.ide.cml.rttplugin.RttMbtCleanTest"
-            name="Clean Test">
-      </command>
-      <command
-            defaultHandler="eu.compassresearch.ide.cml.rttplugin.RttMbtCompileRttTestProcedure"
-            id="eu.compassresearch.ide.cml.rttplugin.RttMbtCompileTest"
-            name="Compile Test">
-      </command>
-      <command
-            defaultHandler="eu.compassresearch.ide.cml.rttplugin.RttMbtRunRttTestProcedure"
-            id="eu.compassresearch.ide.cml.rttplugin.RttMbtRunTest"
-            name="Run Test">
-      </command>
-      <command
-            defaultHandler="eu.compassresearch.ide.cml.rttplugin.RttMbtReplayTestprocedure"
-            id="eu.compassresearch.ide.cml.rttplugin.RttMbtReplayTest"
-            name="Replay Test Results">
-      </command>
-      <command
-            defaultHandler="eu.compassresearch.ide.cml.rttplugin.RttMbtDocRttTestProcedure"
-            id="eu.compassresearch.ide.cml.rttplugin.RttMbtDocTest"
-            name="Generate Test Documentation">
-      </command>
-      <command
             defaultHandler="eu.compassresearch.ide.cml.rttplugin.RttMbtAbort"
             id="eu.compassresearch.ide.cml.rttplugin.RttMbtAbort"
             name="Abort Current Task">
@@ -186,6 +188,101 @@
             id="eu.compassresearch.ide.cml.rttplugin.DeleteLocalAndServer"
             name="Delete RTT-MBT Resource">
       </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="eu.compassresearch.ide.cml.rttplugin.RttMbtGenerateTest"
+            commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtGenerateTest">
+         <activeWhen>
+            <with
+                  variable="eu.compassresearch.ide.cml.rtt-plugin.IsGenerationContextTP">
+               <equals
+                     value="truumpel">
+               </equals>
+            </with>
+         </activeWhen>
+      </handler>
+      <handler
+            class="eu.compassresearch.ide.cml.rttplugin.RttMbtGenerateSimulation"
+            commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtGenerateSimulation">
+         <activeWhen>
+            <with
+                  variable="eu.compassresearch.ide.cml.rtt-plugin.IsGenerationContextTP">
+               <equals
+                     value="truumpel">
+               </equals>
+            </with>
+         </activeWhen>
+      </handler>
+      <handler
+            class="eu.compassresearch.ide.cml.rttplugin.RttMbtCleanRttTestProcedure"
+            commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtCleanTest">
+         <activeWhen>
+            <with
+                  variable="eu.compassresearch.ide.cml.rtt-plugin.IsExecutionContextTP">
+               <equals
+                     value="truumpel">
+               </equals>
+            </with>
+         </activeWhen>
+      </handler>
+      <handler
+            class="eu.compassresearch.ide.cml.rttplugin.RttMbtCompileRttTestProcedure"
+            commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtCompileTest">
+         <activeWhen>
+            <with
+                  variable="eu.compassresearch.ide.cml.rtt-plugin.IsExecutionContextTP">
+               <equals
+                     value="truumpel">
+               </equals>
+            </with>
+         </activeWhen>
+      </handler>
+      <handler
+            class="eu.compassresearch.ide.cml.rttplugin.RttMbtRunRttTestProcedure"
+            commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtRunTest">
+         <activeWhen>
+            <with
+                  variable="eu.compassresearch.ide.cml.rtt-plugin.IsExecutionContextTP">
+               <equals
+                     value="truumpel">
+               </equals>
+            </with>
+         </activeWhen>
+      </handler>
+      <handler
+            class="eu.compassresearch.ide.cml.rttplugin.RttMbtReplayTestprocedure"
+            commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtReplayTest">
+         <activeWhen>
+            <or>
+               <with
+                     variable="eu.compassresearch.ide.cml.rtt-plugin.IsGenerationContextTP">
+                  <equals
+                        value="truumpel">
+                  </equals>
+               </with>
+               <with
+                     variable="eu.compassresearch.ide.cml.rtt-plugin.IsExecutionContextTP">
+                  <equals
+                        value="truumpel">
+                  </equals>
+               </with>
+            </or>
+         </activeWhen>
+      </handler>
+      <handler
+            class="eu.compassresearch.ide.cml.rttplugin.RttMbtDocRttTestProcedure"
+            commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtDocTest">
+         <activeWhen>
+            <with
+                  variable="eu.compassresearch.ide.cml.rtt-plugin.IsExecutionContextTP">
+               <equals
+                     value="truumpel">
+               </equals>
+            </with>
+         </activeWhen>
+      </handler>
    </extension>
    <extension
          point="org.eclipse.ui.menus">
@@ -459,6 +556,9 @@
                   style="push"
                   tooltip="Delete Directory/File locally and from RTT-MBT Server">
             </command>
+            <visibleWhen
+                  checkEnabled="true">
+            </visibleWhen>
          </toolbar>
       </menuContribution>
       <menuContribution
@@ -553,6 +653,15 @@
                   style="push"
                   tooltip="Generate Simulation for this Generation Context">
             </command>
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="eu.compassresearch.ide.cml.rtt-plugin.IsGenerationContextTP">
+                  <equals
+                        value="truumpel">
+                  </equals>
+               </with>
+            </visibleWhen>
          </menu>
       </menuContribution>
       <menuContribution
@@ -596,6 +705,15 @@
                   style="push"
                   tooltip="Generate Test Procedure Documentation">
             </command>
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="eu.compassresearch.ide.cml.rtt-plugin.IsExecutionContextTP">
+                  <equals
+                        value="truumpel">
+                  </equals>
+               </with>
+            </visibleWhen>
          </menu>
       </menuContribution>
    </extension>
@@ -637,6 +755,16 @@
             id="eu.compassresearch.ide.cml.rttplugin.signalviewer"
             name="Signal Viewer">
       </editor>
+   </extension>
+   <extension
+         point="org.eclipse.ui.services">
+      <sourceProvider
+            provider="eu.compassresearch.ide.cml.rttplugin.RttMbtCommandState">
+         <variable
+               name="eu.compassresearch.ide.cml.rtt-plugin.IsGenerationContextTP"
+               priorityLevel="workbench">
+         </variable>
+      </sourceProvider>
    </extension>
 
 </plugin>
