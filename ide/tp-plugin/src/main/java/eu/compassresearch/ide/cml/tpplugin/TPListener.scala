@@ -7,6 +7,9 @@ import isabelle.Document.Snapshot
 import isabelle.Text.Range
 import isabelle.eclipse.core.text.DocumentModel
 import isabelle.eclipse.core.util.{LoggingActor, SessionEvents}
+import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList
+import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligation
+import org.overture.pog.obligation.POStatus
 
 /**
  * A listener wrapper for Isabelle session command change events.
@@ -16,7 +19,7 @@ import isabelle.eclipse.core.util.{LoggingActor, SessionEvents}
  *
  * @author Andrius Velykis
  */
-class TPListener(session: Session) extends SessionEvents {
+class TPListener(session: Session, ithy: IsabelleTheory, poList: CMLProofObligationList) extends SessionEvents {
 
   // When commands change (e.g. results from the prover), notify the handler about changed ranges.
   /** Subscribe to commands change session events */
@@ -60,86 +63,5 @@ class TPListener(session: Session) extends SessionEvents {
     */
   }
 
-  @volatile private var lastCommandCount = 0
-  @volatile private var lastSnapshotOutdated = true
-
-  private def changedRanges(snapshot: Snapshot,
-                            changedCmds: Option[Set[Command]]): Option[List[Range]] = {
-
-    val snapshotCmds = snapshot.node.commands
-    val currentCommandCount = snapshotCmds.size
-    val commands = changedCmds flatMap { cmds =>
-      if (currentCommandCount > lastCommandCount || lastSnapshotOutdated) {
-        // More commands in the snapshot than was previously - update annotations for the
-        // whole snapshot. This is necessary because parsing can happen slowly and commands
-        // appear delayed in the snapshot.
-
-        // This is a workaround because parsing events are not firing notifications, so we
-        // manually check if we need updating. We update if the last snapshot was outdated,
-        // or new commands were added (e.g. via parsing).
-        None
-      } else {
-        // Only use commands that are in the snapshot.
-        Some(cmds intersect snapshotCmds)
-      }
-    }
-
-    lastCommandCount = currentCommandCount
-    lastSnapshotOutdated = snapshot.is_outdated
-
-    commands map { cmds =>
-      if (cmds.isEmpty) {
-        Nil
-      } else {
-
-        // get the ranges occupied by the changed commands
-        // and refresh the view/recalculate annotations for them afterwards
-        val cmdRanges = commandRanges(snapshot, cmds)
-
-        // merge overlapping/adjoining ranges
-        val ranges = mergeRanges(cmdRanges)
-        ranges
-      }
-    }
-  }
-
-  /**
-   * Calculates document ranges for the given commands.
-   */
-  private def commandRanges(snapshot: Snapshot, commands: Set[Command]): List[Range] = {
-
-    val ranges = snapshot.node.command_range(0).collect {
-      case (cmd, start) if commands.contains(cmd) => cmd.range + start
-    }
-
-    ranges.toList
-  }
-
-  /**
-   * Merges overlapping/adjoined ranges.
-   */
-  private def mergeRanges(rangesTr: TraversableOnce[Range]): List[Range] = {
-
-    // sort the ranges just in case
-    val ranges = rangesTr.toList.sorted(Range.Ordering)
-
-    def merge(pending: List[Range], acc: List[Range]): List[Range] = pending match {
-      case Nil => acc
-
-      case single :: Nil => single :: acc
-
-      case r1 :: r2 :: rs => if (r2.start - r1.stop <= 1) {
-        // either the ranges overlap, or the gap between them is too small
-        // merge and continue
-        val merged = Range((r1.start min r2.start), (r1.stop max r2.stop))
-        merge(merged :: rs, acc)
-      } else {
-        // not overlapping ranges - accumulate first and continue to the next one
-        merge(r2 :: rs, r1 :: acc)
-      }
-    }
-
-    merge(ranges, Nil).reverse
-  }
 
 }

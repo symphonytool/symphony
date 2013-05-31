@@ -12,6 +12,7 @@ import org.eclipse.jface.text.{DocumentEvent, IDocument, IDocumentListener}
 import isabelle.{Document, Session, Text, Protocol, Command}
 import isabelle.eclipse.core.util.{PostponeJob, SerialSchedulingRule}
 import isabelle.eclipse.core.util.ConcurrentUtil.FunReadWriteLock
+import eu.compassresearch.core.common.AnalysisArtifact
 
 
 /**
@@ -21,7 +22,7 @@ import isabelle.eclipse.core.util.ConcurrentUtil.FunReadWriteLock
  *
  * @author Andrius Velykis
  */
-object IsabelleTheory {
+object IsabelleTheory extends AnalysisArtifact {
 
   /**
    * A rule to use in Job framework that ensures serial execution of jobs.
@@ -34,7 +35,8 @@ object IsabelleTheory {
   
 }
 
-class IsabelleTheorem(val name: String, val goal: String, var proof: List[String]) {
+class IsabelleTheorem(val name: String, val goal: String, var proof: List[String])
+  extends AnalysisArtifact {
   val lemmaString: String = "lemma " + name +": \"" + goal + "\"\n" 
   val proofString: String = proof.mkString("\n")
   def thmString: String = lemmaString + proofString
@@ -58,7 +60,6 @@ class IsabelleTheory( val session: Session
   val header = session.thy_load.check_thy_text(thyNode, thyHead)
   var thms: List[IsabelleTheorem] = Nil
   
-  val tpListener = new TPListener(session);
   
   private def thmEnd = thyHead.length() + thms.map(_.thmString).mkString("\n").length(); 
   private def thyEnd = thmEnd + 10;
@@ -67,7 +68,6 @@ class IsabelleTheory( val session: Session
   
   def init() {
     // Set the header for the theory node, clear the contents and add the header and end
-    tpListener.init()
     
     // tpListener.dispose()
     

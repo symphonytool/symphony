@@ -40,25 +40,19 @@ import eu.compassresearch.theoremprover.ThmValue;
 public class TPBasicAction implements IWorkbenchWindowActionDelegate {
 
 	private IWorkbenchWindow window;
-	private IsabelleTheory ithy = null;
+	// private IsabelleTheory ithy = null;
 	private int thmCount = 0;
-	private CMLProofObligationList poList;
+	// private CMLProofObligationList poList;
+	private TPListener tpListener;
 
 	@Override
 	public void run(IAction action) {
 		try
 		{
 			Isabelle isabelle = IsabelleCore.isabelle();
+				
+			// if (tpListener = null) tpListener = new TPListener(isabelle.session().get(), ithy);
 			
-			if (ithy == null) {
-				if (isabelle.session().isDefined()) {
-					ithy = new IsabelleTheory(isabelle.session().get(), "Test", "/home/simon/Isabelle");
-					ithy.init();
-			    } else {
-			    	popErrorMessage("Isabelle is not started");
-			    	return;
-			    }
-			}
 /*
 			else { 
 				ithy.addThm(new IsabelleTheorem("simpleLemma" + thmCount, "True", "by simp\n"));			
@@ -108,9 +102,36 @@ public class TPBasicAction implements IWorkbenchWindowActionDelegate {
                         ICmlSourceUnit cmlSource = (ICmlSourceUnit) cmlFile.getAdapter(ICmlSourceUnit.class);
 						CMLProofObligationList poList = registry.lookup(cmlSource.getSourceAst(), CMLProofObligationList.class);
 					
-						for (ProofObligation po : poList) {
-							ithy.addThm(new IsabelleTheorem(po.name, "True", "by auto\n"));
+						JIsabelleTheory ithy = registry.lookup(cmlSource.getSourceAst(), JIsabelleTheory.class);
+						
+						if (ithy == null) {
+							String cmlLoc = cmlFile.getLocation().toString();
+							String poFile = cmlLoc.replaceAll("\\.cml", "-POs.thy");							
+							ithy = new JIsabelleTheory(new IsabelleTheory(isabelle.session().get(), poFile, proj.getLocation().toString()));
+							ithy.getIsabelleTheory().init();
+							registry.store(cmlSource.getSourceAst(), ithy);
 						}
+						
+						/*
+						 * 
+						 * 			if (ithy == null) {
+				if (isabelle.session().isDefined()) {
+					ithy = new IsabelleTheory(isabelle.session().get(), "Test", "/home/simon/Isabelle");
+					ithy.init();
+			    } else {
+			    	popErrorMessage("Isabelle is not started");
+			    	return;
+			    }
+				
+			}
+
+						 */
+						
+						for (ProofObligation po : poList) {
+							ithy.getIsabelleTheory().addThm(new IsabelleTheorem(po.name, "True", "by auto\n"));
+						}
+						
+						
 						
 						getThyFromCML(cmlFile);
 					}
@@ -140,7 +161,7 @@ public class TPBasicAction implements IWorkbenchWindowActionDelegate {
 				.getAdapter(ICmlSourceUnit.class);
 
 		String cmlLoc = cmlFile.getLocation().toString();
-		String thyFile = cmlLoc.replaceAll("\\.cml", "\\.thy");
+		String thyFile = cmlLoc.replaceAll("\\.cml", ".thy");
 
 		TPVisitor tpv = new TPVisitor();
 		source.getSourceAst().apply(tpv);
