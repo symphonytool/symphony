@@ -96,7 +96,6 @@ public class Activator implements BundleActivator
 				client.setRttMbtTProcGenCtxFolderName(store.getString("RttMbtTProcGenCtx"));
 			}
 	    	client.setMode(store.getString("ClientMode"));
-			System.out.println("updated client settings to ('" + client.getRttMbtServer() + "', '" + client.getRttMbtPort() + "', '" + client.getUserName() + "', '" + client.getUserId() + "')");
 		}
 	}
     
