@@ -88,7 +88,7 @@
          </includes>
       </viewerContentBinding>
       <viewerActionBinding
-            viewerId="eu.compassresearch.ide.cml.rtt-plugin.viewerActionBinding1">
+            viewerId="eu.compassresearch.ide.cml.rtt-plugin.RttMbtProjectExplorer">
          <includes>
             <actionExtension
                   pattern="org.eclipse.ui.navigator.resources.*">
