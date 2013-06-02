@@ -4,9 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
 import org.csstudio.swt.xygraph.dataprovider.CircularBufferDataProvider;
 import org.csstudio.swt.xygraph.figures.ToolbarArmedXYGraph;
@@ -18,18 +16,16 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.draw2d.LightweightSystem;
-import org.eclipse.jface.viewers.TreeNode;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TreeNodeContentProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -37,7 +33,6 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.dialogs.CheckedTreeSelectionDialog;
 import org.eclipse.ui.part.EditorPart;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 import org.json.simple.JSONArray;
@@ -53,13 +48,18 @@ public class RttMbtSignalViewEditor extends EditorPart {
 	private IFile iFile;
 	private JSONArray jsonSignals;
 	private XYGraph graph;
-	private CheckedTreeSelectionDialog signalSelection = null;
-	private TreeNode[] signalNodes;
 	private String[] selectedSignals;
-	private String[] signalNames;
 	private RttMbtSignalViewOutlinePage outline;
 	private double xmax, ymax;
 
+	private ISelectionChangedListener outlineListener = new ISelectionChangedListener() {
+		@Override
+		public void selectionChanged(SelectionChangedEvent event) {
+			selectedSignals = outline.getSelectedSignals();
+			createSignalGraphs();
+		}
+    };
+	
 	@Override
 	public void init(IEditorSite site, IEditorInput input)
 			throws PartInitException {
@@ -77,6 +77,7 @@ public class RttMbtSignalViewEditor extends EditorPart {
 				JSONParser parser = new JSONParser();
 				Object obj = parser.parse(reader);
 				jsonSignals = (JSONArray) obj;
+				createOutlinePage();
 			} catch (ParseException e) {
 				System.err.println("*** error: unable to parse signals.json file!");					
 			} catch (FileNotFoundException e) {
@@ -102,25 +103,12 @@ public class RttMbtSignalViewEditor extends EditorPart {
 		return false;
 	}
 	
-	public void getSelectedSignals() {
-		Object[] selectedObjects = signalSelection.getResult();
-		selectedSignals = new String[selectedObjects.length];
-		for (int idx = 0; idx < selectedObjects.length; idx++) {
-			selectedSignals[idx] = ((TreeNode)selectedObjects[idx]).getValue().toString();
-		}
-	}
-
-	public void openSignalSelectionDialog(SelectionEvent e) {
-		signalSelection.open();
-		getSelectedSignals();
-		createSignalGraphs();
-	}
-
 	@SuppressWarnings("rawtypes")
 	public Object getAdapter(Class adapter) {
 		if (adapter.equals(IContentOutlinePage.class)) {
 			if (outline == null) {
-				outline = new RttMbtSignalViewOutlinePage(signalNames);
+				createOutlinePage();
+				outline.setInput(jsonSignals);
 			}
 			return outline;
 		}
@@ -259,49 +247,15 @@ public class RttMbtSignalViewEditor extends EditorPart {
 		return false;
 	}
 
-	public void createSignalSelectionDialog() {
-		signalSelection = new CheckedTreeSelectionDialog(viewParent.getShell(),
-				 new RttMbtTreeNodeLabelProvider(), 
-				 new TreeNodeContentProvider());
-		signalSelection.setTitle("Signal Selection");
-		signalSelection.setMessage("Select signals to be displayed");
-		// create signal tree root node
-		TreeNode rootNode = new TreeNode("Signals");
-		// create list of all signals
-		List<TreeNode> nodes = new ArrayList<TreeNode>();
-		List<String> names = new ArrayList<String>();
-		// select all signals
-		@SuppressWarnings("unchecked")
-		Iterator<JSONObject> iterator = jsonSignals.iterator();
-		while (iterator.hasNext()) {
-			// get JSONArray entry for the current signal
-			JSONObject entry = iterator.next();
-			String signalName = (String) entry.get("name");
-
-			// check if signal is <signalName>_exe signal
-			if ((signalName.lastIndexOf("_exe") == signalName.length() - 4) &&
-				(hasSignalEntry(signalName.substring(0, signalName.length() - 4)))) {
-				continue;
-			} else {
-				// add signal to signal selection dialog
-				TreeNode signalNode = new TreeNode(signalName);
-				signalNode.setParent(rootNode);
-				nodes.add(signalNode);
-				names.add(signalName);
-			}
-		}
-		// prepare signal selection dialog content
-        signalNames = new String[names.size()];
-        for (int i = 0; i < names.size(); i++) { signalNames[i] = names.get(i); }
-        signalNodes = new TreeNode[nodes.size()];
-        for (int i = 0; i < nodes.size(); i++) { signalNodes[i] = nodes.get(i); }
-		rootNode.setChildren(signalNodes);
-		signalSelection.setInput(signalNodes);
-		signalSelection.setContainerMode(true);
-		signalSelection.setBlockOnOpen(true);
-		getSelectedSignals();
+	void createOutlinePage() {
+		outline = new RttMbtSignalViewOutlinePage(viewParent,
+                                                  jsonSignals,
+                                                  new RttMbtTreeNodeLabelProvider(), 
+                                                  new TreeNodeContentProvider());
+		outline.addSelectionChangedListener(outlineListener);
+		System.out.println("createOutlinePage");
 	}
-	
+		
 	public void createPartControl(Composite parent) {
 		if (jsonSignals == null) {
 			return;
@@ -313,11 +267,6 @@ public class RttMbtSignalViewEditor extends EditorPart {
 			viewParent = parent;
 		}
 		
-		// @todo:
-		// - add selection list to the top of other signals
-		// - create composite holding the selection list
-		// - add further control elements for signal viewer functionality
-
 		// define layout of parent
     	GridLayout layout = new GridLayout();
         layout.numColumns = 1;
@@ -338,80 +287,8 @@ public class RttMbtSignalViewEditor extends EditorPart {
     	gridData.horizontalAlignment = GridData.FILL;
     	gridData.grabExcessHorizontalSpace = true;
 
-        // create signal selection button
-        Button openSignalDialog = new Button(parent, SWT.PUSH);
-        openSignalDialog.setText("signal selection");
-        openSignalDialog.setLayoutData(gridData);
-        openSignalDialog.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {
-        		System.out.println("calling openSignalSelectionDialog()");
-            	openSignalSelectionDialog(e);
-            }
-        }); 
-
-        // create signal selection dialog
-        createSignalSelectionDialog();
-
         // Create a child composite to hold the controls
         createSignalGraphs();
-        
-        /*
-        Composite child = new Composite(graphContainer, SWT.NONE);
-        child.setLayout(new FillLayout(SWT.VERTICAL));
-
-		@SuppressWarnings("unchecked")
-		Iterator<JSONObject> iterator = jsonSignals.iterator();
-		while (iterator.hasNext()) {
-
-			// get JSONArray entry for the current signal
-			JSONObject entry = iterator.next();
-			String signalName = (String) entry.get("name");
-			JSONArray values = (JSONArray) entry.get("data");
-
-			// create graph widget
-			Canvas canvas = new Canvas(child, SWT.NONE);
-			final LightweightSystem lws = new LightweightSystem(canvas);
-			graph = new XYGraph();
-			graph.setTitle(signalName);
-			lws.setContents(graph);
-
-			//create a trace data provider, which will provide the data to the trace.
-			CircularBufferDataProvider traceDataProvider = new CircularBufferDataProvider(false);
-			traceDataProvider.setBufferSize(values.size());
-			double[] xvalues = new double[values.size()];
-			double[] yvalues = new double[values.size()];
-			@SuppressWarnings("unchecked")
-			Iterator<JSONArray> valueIterator = values.iterator();
-			int idx = 0;
-			while (valueIterator.hasNext()) {
-				JSONArray valuesEntry = (JSONArray) valueIterator.next();
-				System.out.println("addind values " + valuesEntry.toString());
-				Long x = (Long) valuesEntry.get(0);
-				Long y = (Long) valuesEntry.get(1);
-				xvalues[idx] = x.doubleValue();
-				yvalues[idx] = y.doubleValue();
-				System.out.println("x-value[" + idx + "]: " + xvalues[idx]);
-				System.out.println("y-value[" + idx + "]: " + yvalues[idx]);
-				idx++;
-			}
-			traceDataProvider.setCurrentXDataArray(xvalues);
-			traceDataProvider.setCurrentYDataArray(yvalues);
-
-			//create the trace
-			Trace trace = new Trace(signalName, graph.primaryXAxis, graph.primaryYAxis, traceDataProvider);			
-			trace.setPointStyle(PointStyle.POINT);
-			trace.setVisible(true);
-			graph.addTrace(trace);
-			graph.primaryXAxis.setAutoScale(true);
-			graph.primaryYAxis.setAutoScale(true);
-		}
-
-		graphContainer.setContent(child);
-        // calculate the minimum size according to the number of signals displayed.
-		graphContainer.setMinSize(500, jsonSignals.size() * 200);
-		graphContainer.setExpandHorizontal(true);
-		graphContainer.setExpandVertical(true);
-		*/
 	}
 	
 	@Override
