@@ -617,6 +617,7 @@ public class RttMbtClient {
 	public Boolean generateTestProcedure(String abstractTestProc) {
 		Boolean success = true;
 
+		System.out.println("uploading files for test generation context " + abstractTestProc + "...");
 		// push necessary files to cache:
 		// cache/<user-id>/<project-name>/model/
 		// - model_dump.xml
@@ -647,7 +648,7 @@ public class RttMbtClient {
 		uploadFile(confDirName + "advanced.conf");
 		uploadFile(confDirName + "addgoals.conf");
 		uploadFile(confDirName + "addgoalsordered.conf");
-		
+
 		// generate-test-command
 		System.out.println("generating concrete test procedure (with GUI ports enabled) " + abstractTestProc + "...");
 		jsonGenerateTestCommand cmd = new jsonGenerateTestCommand(this);
@@ -1145,7 +1146,6 @@ public class RttMbtClient {
 		String serverGenerationContext = getProjectName() + "/TestProcedures";
 		if (filename.startsWith(localGenerationContext)) {
 			serverFilename = serverGenerationContext + filename.substring(localGenerationContext.length());
-			System.out.println("server filename: '" + serverFilename + "'");
 		} else {
 			serverFilename = filename;
 		}
@@ -1154,7 +1154,6 @@ public class RttMbtClient {
 		String serverExecutionContext = getProjectName() + "/RTT_TestProcedures";
 		if (filename.startsWith(localExecutionContext)) {
 			serverFilename = serverExecutionContext + filename.substring(localExecutionContext.length());
-			System.out.println("server filename: '" + serverFilename + "'");
 		}
 
 		return serverFilename;
@@ -1170,7 +1169,6 @@ public class RttMbtClient {
 		String serverGenerationContext = getProjectName() + "/TestProcedures";
 		if (filename.startsWith(serverGenerationContext)) {
 			serverFilename = localGenerationContext + filename.substring(serverGenerationContext.length());
-			System.out.println("local filename: '" + serverFilename + "'");
 		} else {
 			serverFilename = filename;
 		}
@@ -1179,7 +1177,6 @@ public class RttMbtClient {
 		String serverExecutionContext = getProjectName() + "/RTT_TestProcedures";
 		if (filename.startsWith(serverExecutionContext)) {
 			serverFilename = localExecutionContext + filename.substring(serverExecutionContext.length());
-			System.out.println("local filename: '" + serverFilename + "'");
 		}
 
 		return serverFilename;
@@ -1197,12 +1194,10 @@ public class RttMbtClient {
 		// add workspace prefix
 		String workspace = getCmlWorkspace() + getCmlProject();
 		if (!localFilename.startsWith(workspace)) {
-			System.out.println("adding '" + workspace + "' to '" + localFilename + "'");
 			localFilename =  workspace + localFilename;
 		}
 
 		// return new filename (with path)
-		System.out.println("return local file name '" + localFilename + "'");
 		return localFilename;
 	}
 
@@ -1215,10 +1210,8 @@ public class RttMbtClient {
 		// remove workspace prefix
 		String workspace = getCmlWorkspace() + getCmlProject();
 		if (filename.startsWith(workspace)) {
-			System.out.println("removing '" + workspace + "' from '" + filename + "'");
 			serverFilename = filename.substring(workspace.length());
 		} else {
-			System.out.println("workspace '" + workspace + "' is no prefix of '" + filename + "'");
 			serverFilename = filename;
 		}
 
@@ -1226,7 +1219,6 @@ public class RttMbtClient {
 		serverFilename = substituteContextFolderNamesLocal2Server(serverFilename);
 
 		// return new filename (with path)
-		System.out.println("return server file name '" + serverFilename + "'");
 		return serverFilename;
 	}
 	
