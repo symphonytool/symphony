@@ -7,10 +7,10 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.rmi.RemoteException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.concurrent.SynchronousQueue;
 
 import org.overture.interpreter.values.IntegerValue;
@@ -133,10 +133,22 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 		//the eclipse debugger
 		CmlSupervisorEnvironment sve = 
 				VanillaInterpreterFactory.newDefaultCmlSupervisorEnvironment(new SelectionStrategy() {
-					Scanner scanIn = new Scanner(System.in);
-					@Override
-					public CmlTransition select(CmlAlphabet availableChannelEvents) {
-
+					
+					private Scanner scanIn = new Scanner(System.in);
+					private RandomSelectionStrategy rndSelect = new RandomSelectionStrategy();
+					
+					private boolean isSystemSelect(CmlAlphabet availableChannelEvents)
+					{
+						return availableChannelEvents.getSilentTransitions().size() > 0;
+					}
+					
+					private CmlTransition systemSelect(CmlAlphabet availableChannelEvents)
+					{
+						return rndSelect.select(new CmlAlphabet((Set)availableChannelEvents.getSilentTransitions()));
+					}
+					
+					private CmlTransition userSelect(CmlAlphabet availableChannelEvents)
+					{
 						sendStatusMessage(CmlDbgpStatus.CHOICE, cmlInterpreter.getStatus());
 
 						//convert to list of strings for now
@@ -174,6 +186,18 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 						}
 
 						return selectedEvent;
+					}
+					
+					@Override
+					public CmlTransition select(CmlAlphabet availableChannelEvents) {
+
+						//At this point we don't want the internal transition to propagate 
+						//to the user, so we randomly choose all the possible internal transitions
+						//before we let anything through to the user
+						if(isSystemSelect(availableChannelEvents))
+							return systemSelect(availableChannelEvents);
+						else
+							return userSelect(availableChannelEvents);
 					}
 				});
 
