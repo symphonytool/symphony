@@ -17,7 +17,8 @@ public class InternalTransition extends AbstractCmlTransition implements SilentT
 	private static final long serialVersionUID = -230317087741433869L;
 	
 	protected static InternalTransition instance = null;
-	public final static String tauString = "\u03C4".toLowerCase();
+	//public final static String tauString = "\u03C4".toLowerCase();
+	public final static String tauString = "tau";
 	private final INode transitionSrcNode;
 	private final INode transitionDstNode;
 	private String transitionText = null;

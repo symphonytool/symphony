@@ -25,7 +25,7 @@
   <extension point="org.eclipse.ui.views">
     <view 
         id="eu.compassresearch.ide.cml.interpreter.historyView"
-        name="CML Event History"
+        name="Observable Event History"
         category="eu.compassresearch.ide.ui.category"
         
         class="eu.compassresearch.ide.cml.interpreter.views.CmlEventHistoryView" />
