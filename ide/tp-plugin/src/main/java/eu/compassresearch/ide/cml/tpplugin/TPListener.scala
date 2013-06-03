@@ -37,7 +37,7 @@ object TPListener {
  *
  * @author Andrius Velykis
  */
-class TPListener(session: Session, ithy: IsabelleTheory, poList: CMLProofObligationList) extends SessionEvents {
+class TPListener(session: Session) extends SessionEvents {
 
   var nodeCMLMap:Map[Document.Node.Name, PSource] = Map()
   

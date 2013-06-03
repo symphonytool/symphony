@@ -1,6 +1,5 @@
 package eu.compassresearch.ide.cml.tpplugin;
 
-import isabelle.Protocol;
 import isabelle.Session;
 import isabelle.eclipse.core.IsabelleCore;
 import isabelle.eclipse.core.app.Isabelle;
@@ -12,7 +11,6 @@ import java.util.ArrayList;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
@@ -24,15 +22,10 @@ import org.overture.ide.core.resources.IVdmProject;
 import org.overture.ide.ui.utility.VdmTypeCheckerUi;
 import org.overture.pog.obligation.ProofObligation;
 
-import scala.Option;
-import scala.util.Either;
-
-import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligation;
 import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
-import eu.compassresearch.ide.cml.pogplugin.POConstants;
 import eu.compassresearch.core.common.Registry;
 import eu.compassresearch.core.common.RegistryFactory;
-import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
+import eu.compassresearch.ide.cml.pogplugin.POConstants;
 import eu.compassresearch.ide.cml.ui.editor.core.dom.ICmlSourceUnit;
 import eu.compassresearch.theoremprover.TPVisitor;
 import eu.compassresearch.theoremprover.ThmType;
@@ -41,10 +34,7 @@ import eu.compassresearch.theoremprover.ThmValue;
 public class TPBasicAction implements IWorkbenchWindowActionDelegate {
 
 	private IWorkbenchWindow window;
-	// private IsabelleTheory ithy = null;
-	private int thmCount = 0;
-	// private CMLProofObligationList poList;
-	private TPListener tpListener;
+	private TPListener tpListener = null;
 
 	@Override
 	public void run(IAction action) {
@@ -59,13 +49,10 @@ public class TPBasicAction implements IWorkbenchWindowActionDelegate {
 				return;
 			}
 
-			// if (tpListener = null) tpListener = new
-			// TPListener(isabelle.session().get(), ithy);
-
-			/*
-			 * else { ithy.addThm(new IsabelleTheorem("simpleLemma" + thmCount,
-			 * "True", "by simp\n")); thmCount++; }
-			 */
+			if (tpListener == null) { 
+				tpListener = new TPListener(isabelle.session().get());
+			}
+				
 			Registry registry = RegistryFactory.getInstance(
 					POConstants.PO_REGISTRY_ID).getRegistry();
 
@@ -110,30 +97,25 @@ public class TPBasicAction implements IWorkbenchWindowActionDelegate {
 								cmlSource.getSourceAst(),
 								CMLProofObligationList.class);
 
-						JIsabelleTheory jthy = registry
-								.lookup(cmlSource.getSourceAst(),
-										JIsabelleTheory.class);
-						IsabelleTheory ithy = null;
+						getThyFromCML(cmlFile);
+						
+						IsabelleTheory ithy = registry.lookup(cmlSource.getSourceAst(), IsabelleTheory.class);
 
-						if (jthy == null) {
+						if (ithy == null) {
 							String cmlLoc = cmlFile.getLocation().toString();
 							String poFile = cmlLoc.replaceAll("\\.cml",
 									"-POs.thy");
 							ithy = new IsabelleTheory(session, poFile, proj
 									.getLocation().toString());
-							jthy = new JIsabelleTheory(ithy);
 							ithy.init();
-							registry.store(cmlSource.getSourceAst(), jthy);
-						} else {
-							ithy = jthy.getIsabelleTheory();
-						}
+							registry.store(cmlSource.getSourceAst(), ithy);
+						} 
 
 						for (ProofObligation po : poList) {
 							ithy.addThm(new IsabelleTheorem(po.name, "True",
 									"by auto\n"));
 						}
 
-						getThyFromCML(cmlFile);
 					}
 
 				}

@@ -22,7 +22,7 @@ import eu.compassresearch.core.common.AnalysisArtifact
  *
  * @author Andrius Velykis
  */
-object IsabelleTheory extends AnalysisArtifact {
+object IsabelleTheory {
 
   /**
    * A rule to use in Job framework that ensures serial execution of jobs.
@@ -35,8 +35,7 @@ object IsabelleTheory extends AnalysisArtifact {
   
 }
 
-class IsabelleTheorem(val name: String, val goal: String, var proof: List[String])
-  extends AnalysisArtifact {
+class IsabelleTheorem(val name: String, val goal: String, var proof: List[String]) {
   val lemmaString: String = "lemma " + name +": \"" + goal + "\"\n" 
   val proofString: String = proof.mkString("\n")
   def thmString: String = lemmaString + proofString
@@ -53,7 +52,7 @@ class IsabelleTheorem(val name: String, val goal: String, var proof: List[String
 
 class IsabelleTheory( val session: Session
                      , val thyName: String
-                     , val thyDir: String) {
+                     , val thyDir: String) extends AnalysisArtifact {
 
   val thyNode = Document.Node.Name(thyName, thyDir, thyName)
   val thyHead = "theory " + thyName + "\nimports HOL\nbegin\n"
@@ -63,8 +62,6 @@ class IsabelleTheory( val session: Session
   
   private def thmEnd = thyHead.length() + thms.map(_.thmString).mkString("\n").length(); 
   private def thyEnd = thmEnd + 10;
-  
-  
   
   def init() {
     // Set the header for the theory node, clear the contents and add the header and end
