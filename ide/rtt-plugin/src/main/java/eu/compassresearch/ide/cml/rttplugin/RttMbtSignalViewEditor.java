@@ -146,11 +146,16 @@ public class RttMbtSignalViewEditor extends EditorPart {
 		while (valueIterator.hasNext()) {
 			JSONArray valuesEntry = (JSONArray) valueIterator.next();
 			Long x = (Long) valuesEntry.get(0);
-			Long y = (Long) valuesEntry.get(1);
+			if (valuesEntry.get(1) instanceof Double) {
+				yvalues[idx] = (double) valuesEntry.get(1);
+			} else {
+				Long y = (Long)valuesEntry.get(1);
+				yvalues[idx] = y.doubleValue();
+			}
 			xvalues[idx] = x.doubleValue();
-			yvalues[idx] = y.doubleValue();
-			if (x.doubleValue() > xmax) xmax = x.doubleValue();
-			if (y.doubleValue() > ymax) ymax = y.doubleValue();
+			xvalues[idx] = xvalues[idx]/1000;
+			if (xvalues[idx] > xmax) xmax = xvalues[idx];
+			if (yvalues[idx] > ymax) ymax = yvalues[idx];
 			idx++;
 		}
 		traceDataProvider.setCurrentXDataArray(xvalues);
@@ -203,6 +208,7 @@ public class RttMbtSignalViewEditor extends EditorPart {
 					graph.primaryYAxis.setShowMajorGrid(true);
 					graph.primaryXAxis.setAutoScale(true);
 					graph.primaryYAxis.setAutoScale(true);
+					graph.primaryXAxis.setFormatPattern("0.####");
 				}
 
 				// create the trace for signal
@@ -216,6 +222,7 @@ public class RttMbtSignalViewEditor extends EditorPart {
 					graph.primaryYAxis.setShowMajorGrid(true);
 					graph.primaryXAxis.setAutoScale(true);
 					graph.primaryYAxis.setAutoScale(true);
+					graph.primaryXAxis.setFormatPattern("0.####");
 				}
 			}
 		}
