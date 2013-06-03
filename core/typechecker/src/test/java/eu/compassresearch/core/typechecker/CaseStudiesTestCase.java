@@ -91,7 +91,7 @@ public class CaseStudiesTestCase extends AbstractTypeCheckerTestCase {
 			// 0//
 			add("/BitRegister");
 			// 1// Failing due to LexNameToken conflict
-			add("Dwarf");
+			add("/Dwarf");
 			// 2// one file has a parse error others - fails due to LexNameToken
 			// conflict
 			add("/EmergencyResponse/Expert-Led/model");
@@ -124,19 +124,19 @@ public class CaseStudiesTestCase extends AbstractTypeCheckerTestCase {
 			// 16// LexNameToken
 			add("/TelephoneExchange/ClassesVersion");
 			// 17// LexNameToken
-			add("TelephoneExchange/Original");
+			add("/TelephoneExchange/Original");
 			// 18// LexNameToken
-			add("TrafficManager/CityAndCars/City");
+			add("/TrafficManager/CityAndCars/City");
 			// 19// LexNameToken
-			add("TrafficManager/CityAndCars/City-Working");
+			add("/TrafficManager/CityAndCars/City-Working");
 			// 20// Maybe a model error, multiple def of var i
-			add("TrafficManager/Junctions");
+			add("/TrafficManager/Junctions");
 			// 21// LexNameToken
-			add("TravelAgent/Hotel1");
+			add("/TravelAgent/Hotel1");
 			// 22// Syntax bug
-			add("TravelAgent/Hotel2");
+			add("/TravelAgent/Hotel2");
 			// 23// Jeremy and Zoe working on master students
-			add("Alarm");
+			add("/Alarm");
 
 		} else {
 			// ensure that the sources is initialised before the parameterized test runner gets to it
