@@ -12,6 +12,7 @@ import org.eclipse.jface.text.{DocumentEvent, IDocument, IDocumentListener}
 import isabelle.{Document, Session, Text, Protocol, Command}
 import isabelle.eclipse.core.util.{PostponeJob, SerialSchedulingRule}
 import isabelle.eclipse.core.util.ConcurrentUtil.FunReadWriteLock
+import eu.compassresearch.core.common.AnalysisArtifact
 
 
 /**
@@ -51,23 +52,19 @@ class IsabelleTheorem(val name: String, val goal: String, var proof: List[String
 
 class IsabelleTheory( val session: Session
                      , val thyName: String
-                     , val thyDir: String) {
+                     , val thyDir: String) extends AnalysisArtifact {
 
   val thyNode = Document.Node.Name(thyName, thyDir, thyName)
   val thyHead = "theory " + thyName + "\nimports HOL\nbegin\n"
   val header = session.thy_load.check_thy_text(thyNode, thyHead)
   var thms: List[IsabelleTheorem] = Nil
   
-  val tpListener = new TPListener(session);
   
   private def thmEnd = thyHead.length() + thms.map(_.thmString).mkString("\n").length(); 
   private def thyEnd = thmEnd + 10;
   
-  
-  
   def init() {
     // Set the header for the theory node, clear the contents and add the header and end
-    tpListener.init()
     
     // tpListener.dispose()
     

@@ -15,16 +15,51 @@
 	<artifactId>eu.compassresearch.ide.cml.tp-plugin</artifactId>
 	<name>COMPASS IDE Isabelle Plugin</name>
 
+	<properties>
+		<scala.version>2.10.1</scala.version>
+	</properties>
+
 	<repositories>
 		<repository>
 			<id>isabelle-eclipse</id>
 			<url>http://andriusvelykis.github.io/isabelle-eclipse/updates/isabelle2013/releases/</url>
 			<layout>p2</layout>
 		</repository>
+		<repository>
+			<id>scala-ide</id>
+			<url>http://download.scala-ide.org/sdk/e38/scala210/stable/site</url>
+			<layout>p2</layout>
+		</repository>
 	</repositories>
+
+
 
 	<build>
 		<plugins>
+
+			<plugin>
+				<groupId>org.scala-tools</groupId>
+				<artifactId>maven-scala-plugin</artifactId>
+				<version>2.15.2</version>
+				<executions>
+					<execution>
+						<id>scala-compile-first</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>add-source</goal>
+							<goal>compile</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>scala-test-compile</id>
+						<phase>process-test-resources</phase>
+						<goals>
+							<goal>testCompile</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
