@@ -21,6 +21,7 @@ import org.overture.interpreter.values.UndefinedValue;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
+import eu.compassresearch.ast.declarations.AExpressionSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AActionsDefinition;
 import eu.compassresearch.ast.definitions.AChannelNameDefinition;
@@ -283,6 +284,24 @@ class CmlDefinitionVisitor extends
 		
 		if(node.getPattern() instanceof AIdentifierPattern)
 			vpl.add(new NameValuePair(((AIdentifierPattern)node.getPattern()).getName(), val));
+		
+		return vpl;
+	}
+	
+	/*
+	 * Replication declarations
+	 */
+	
+	@Override
+	public NameValuePairList caseAExpressionSingleDeclaration(
+			AExpressionSingleDeclaration node, Context question)
+			throws AnalysisException {
+		
+		NameValuePairList vpl = new NameValuePairList();
+		
+		Value value = node.getExpression().apply(cmlExpressionVisitor, question);
+		for(ILexIdentifierToken id : node.getIdentifiers())
+			vpl.add(new NameValuePair(new LexNameToken("", id.clone()), value));
 		
 		return vpl;
 	}

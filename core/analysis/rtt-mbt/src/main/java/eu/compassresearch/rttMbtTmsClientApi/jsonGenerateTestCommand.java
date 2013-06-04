@@ -64,7 +64,7 @@ public class jsonGenerateTestCommand extends jsonCommand {
 			filename = client.getProjectName() + File.separator;
 		}
 		if (testProcName != null) {
-			filename += "TestProcedures" + File.separator + testProcName + File.separator + "conf" + File.separator;
+			filename += client.getRttMbtTProcGenCtxFolderName() + File.separator + testProcName + File.separator + "conf" + File.separator;
 		} else {
 			filename += "model" + File.separator;
 		}

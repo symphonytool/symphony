@@ -18,11 +18,13 @@ Require-Bundle: org.eclipse.debug.ui,
  org.eclipse.core.expressions,
  org.overture.ide.ui,
  eu.compassresearch.ide.cml.core,
- eu.compassresearch.ide.cml.ui
+ eu.compassresearch.ide.cml.ui,
+ org.eclipse.draw2d
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Eclipse-BuddyPolicy: registered
 Bundle-ClassPath: .,
  jars/json-simple.jar,
  jars/rtt-mbt.jar,
- jars/commons-codec.jar
+ jars/commons-codec.jar,
+ lib/org.csstudio.swt.xygraph_2.1.0.jar

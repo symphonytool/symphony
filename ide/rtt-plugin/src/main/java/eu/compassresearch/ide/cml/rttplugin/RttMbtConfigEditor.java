@@ -20,8 +20,11 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.TreeEditor;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
@@ -119,6 +122,7 @@ public class RttMbtConfigEditor extends EditorPart {
 				idx++;
 			}
 			if (idx < columns) continue;
+
 			// store line for saving later
 			fileContent.add(cells);
 
@@ -155,6 +159,11 @@ public class RttMbtConfigEditor extends EditorPart {
 						}
 					}
 				}
+			}
+
+			// set background to green if covered
+			if (cells[0].compareTo("X") == 0) {
+				item.setBackground(new Color(Display.getDefault(), new RGB(0,255,0)));
 			}
 
 			// fill content of item

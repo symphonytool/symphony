@@ -15,6 +15,8 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ControlEditor;
+import org.eclipse.swt.custom.TableCursor;
 import org.eclipse.swt.custom.TableEditor;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -30,6 +32,13 @@ import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IWorkbenchPartConstants;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
+
+/*
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+*/
 
 public class RttMbtSignalmapEditor extends EditorPart {
 
@@ -72,7 +81,7 @@ public class RttMbtSignalmapEditor extends EditorPart {
 		}
 		line.close();
 
-		// initialise content. 
+		// initialize content. 
 		rows = 0;
 		while (fileScanner.hasNextLine()) {
 			line = new Scanner(fileScanner.nextLine());
@@ -110,8 +119,57 @@ public class RttMbtSignalmapEditor extends EditorPart {
 				editorArray[row][column] = editor;
 			}
 		}
-	}
+		
+		// create a TableCursor to navigate around the table
+        final TableCursor cursor = new TableCursor(tableView, SWT.NONE);
+        // create an editor to edit the cell when the user hits "ENTER" 
+        // while over a cell in the table
+        final ControlEditor editor = new ControlEditor(cursor);
+        editor.grabHorizontal = true;
+        editor.grabVertical = true;
 
+        /*
+        cursor.addSelectionListener(new SelectionAdapter() {
+        	// when the TableEditor is over a cell,
+        	// select the corresponding row in the table
+        	public void widgetSelected(SelectionEvent e) {
+        		tableView.setSelection(new TableItem[] {cursor.getRow()});
+        	}
+        	// when the user hits "ENTER" in the TableCursor,
+        	// pop up a text editor so that they can change the text of the cell
+            public void widgetDefaultSelected(SelectionEvent e) {
+            	final Text text = new Text(cursor, SWT.NONE);
+            	TableItem row = cursor.getRow();
+            	int column = cursor.getColumn();
+            	text.setText(row.getText(column));
+            	text.addKeyListener(new KeyAdapter() {
+            		public void keyPressed(KeyEvent e) {
+            			// close the text editor and copy the data over 
+            			// when the user hits "ENTER"
+            			if ((e.character == SWT.CR) ||
+            				(e.character == SWT.TAB) ||
+            				(e.character == SWT.ARROW_DOWN) ||
+            				(e.character == SWT.ARROW_LEFT) ||
+            				(e.character == SWT.ARROW_RIGHT) ||
+                			(e.character == SWT.ARROW_UP)) {
+            				TableItem row = cursor.getRow();
+            				int column = cursor.getColumn();
+            				row.setText(column, text.getText());
+            				text.dispose();
+            			}
+            			// close the text editor when the user hits "ESC"
+            			if (e.character == SWT.ESC) {
+            				text.dispose();
+            			}
+            		}
+            	});
+            	editor.setEditor(text);
+            	text.setFocus();
+            }
+        });
+        */
+	}
+	
 	@Override
 	public void dispose() {
 		// @todo: cleanup
@@ -269,8 +327,6 @@ public class RttMbtSignalmapEditor extends EditorPart {
 
 				// compare values from table and editor
 				if (tData.compareTo(eData) != 0) {
-					System.out.println("item:   " + tData);
-					System.out.println("editor: " + eData);
 					return true;
 				}
 			}
