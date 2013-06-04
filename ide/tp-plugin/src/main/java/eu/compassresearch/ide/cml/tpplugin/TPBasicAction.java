@@ -30,6 +30,7 @@ import eu.compassresearch.ide.cml.ui.editor.core.dom.ICmlSourceUnit;
 import eu.compassresearch.theoremprover.TPVisitor;
 import eu.compassresearch.theoremprover.ThmType;
 import eu.compassresearch.theoremprover.ThmValue;
+import eu.compassresearch.theoremprover.IsabelleTheory;
 
 public class TPBasicAction implements IWorkbenchWindowActionDelegate {
 

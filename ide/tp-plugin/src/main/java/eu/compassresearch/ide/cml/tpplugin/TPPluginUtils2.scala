@@ -12,6 +12,7 @@ import isabelle.Text
 import isabelle.eclipse.core.IsabelleCore
 import isabelle.eclipse.core.app.Isabelle
 import isabelle.eclipse.core.util.ConcurrentUtil.FunReadWriteLock
+import eu.compassresearch.theoremprover.IsabelleTheory
 
 object TPPluginUtils2 {
   

@@ -1,4 +1,4 @@
-package eu.compassresearch.ide.cml.tpplugin
+package eu.compassresearch.theoremprover
 
 import scala.collection.mutable.ListBuffer
 import scala.io.Source

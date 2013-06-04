@@ -7,6 +7,7 @@ import isabelle.Document.Snapshot
 import isabelle.Text.Range
 import isabelle.eclipse.core.text.DocumentModel
 import isabelle.eclipse.core.util.{LoggingActor, SessionEvents}
+import eu.compassresearch.theoremprover.IsabelleTheory
 import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList
 import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligation
 import eu.compassresearch.ast.program.PSource
