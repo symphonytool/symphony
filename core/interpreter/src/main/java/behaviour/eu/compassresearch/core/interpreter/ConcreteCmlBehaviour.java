@@ -1,6 +1,5 @@
 package eu.compassresearch.core.interpreter;
 
-import java.rmi.RemoteException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
@@ -19,11 +18,6 @@ import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.analysis.QuestionCMLAdaptor;
 import eu.compassresearch.ast.lex.LexNameToken;
-import eu.compassresearch.core.interpreter.ActionSetupVisitor;
-import eu.compassresearch.core.interpreter.AlphabetInspectVisitor;
-import eu.compassresearch.core.interpreter.CmlEvaluationVisitor;
-import eu.compassresearch.core.interpreter.CmlOpsToString;
-import eu.compassresearch.core.interpreter.VisitorAccess;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
@@ -74,7 +68,7 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	/**
 	 * The setup visitor
 	 */
-	final transient QuestionCMLAdaptor<Context> 								cmlSetupVisitor;
+	final transient QuestionAnswerCMLAdaptor<Context,INode>						cmlSetupVisitor;
 
 	/**
 	 * The alphabet inspection visitor
@@ -88,6 +82,7 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	protected boolean 							aborted = false;
 	//The next INode to execute in the given Context
 	Pair<INode,Context>                         next;
+	Pair<Context,Context>   					preConstructedChildContexts = null;
 
 	//Current supervisor
 	protected CmlSupervisorEnvironment 			env;
@@ -144,6 +139,21 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 			public void setRightChild(CmlBehaviour child) {
 				ConcreteCmlBehaviour.this.setRightChild(child);				
 			}
+
+			@Override
+			public Pair<Context, Context> getChildContexts(Context context) {
+				
+				if(preConstructedChildContexts != null)
+					return preConstructedChildContexts;
+				else
+					return new Pair<Context,Context>(context,context);
+			}
+
+			@Override
+			public void setChildContexts(Pair<Context, Context> contexts) {
+
+				ConcreteCmlBehaviour.this.preConstructedChildContexts = contexts; 
+			}
 		};
 
 		cmlEvaluationVisitor = new CmlEvaluationVisitor(null,this,visitorAccess);
@@ -168,15 +178,25 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 		this(parent,name);
 		setNext(new Pair<INode, Context>(action, context));
 	}
+	
+	public ConcreteCmlBehaviour(INode action, Context context, CmlBehaviour parent, Pair<Context,Context> childContexts) throws AnalysisException
+	{
+		this(parent,new LexNameToken("", "Child of " + parent.name(),parent.name().getLocation()));
+		setNext(new Pair<INode, Context>(action, context));
+		preConstructedChildContexts = childContexts;
+	}
 
 	protected void setNext(Pair<INode, Context> newNext) throws AnalysisException
 	{
+		
 		if(next == null || (newNext.first != next.first && !hasChildren()))
 		{
-			newNext.first.apply(cmlSetupVisitor,newNext.second);
+			next = new Pair<INode,Context>(newNext.first.apply(cmlSetupVisitor,newNext.second),newNext.second);
+			//INode newNextNode = newNext.first.apply(cmlSetupVisitor,newNext.second);
 			started = false;
 		}
-		next = newNext;
+		else
+			next = newNext;
 	}
 
 	@Override
@@ -285,7 +305,7 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	}
 
 	@Override
-	public Pair<INode, Context> getExecutionState() {
+	public Pair<INode, Context> getNextState() {
 		return next;
 	}
 

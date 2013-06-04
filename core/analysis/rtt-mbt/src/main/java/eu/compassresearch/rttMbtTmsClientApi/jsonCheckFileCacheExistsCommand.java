@@ -34,7 +34,7 @@ public class jsonCheckFileCacheExistsCommand extends jsonCommand {
 			return null;
 		}
 		// extract parameters by resule name
-		return (JSONObject)reply.get("check-file-cache-exists-result");
+		return (JSONObject)reply.get("check-file-cache-exists-reply");
 	}
 
 	public void handleParameters(JSONObject parameters) {
@@ -47,14 +47,13 @@ public class jsonCheckFileCacheExistsCommand extends jsonCommand {
 		if ((result == null) ||
 			(user == null) ||
 			(userId == null)) {
+			resultValue = false;
 			return;
 		}
 		if (!(result.equals("PASS"))) {
-			System.err.println("*** error: setup cache directory for " 
-							   + user + " (ID: '" + userId + "') failed!");
+			resultValue = false;
 		} else {
-			System.out.println("created cache directory for " 
-					   + user + " (ID: '" + userId + "').");		
+			resultValue = true;
 		}
 	}
 }

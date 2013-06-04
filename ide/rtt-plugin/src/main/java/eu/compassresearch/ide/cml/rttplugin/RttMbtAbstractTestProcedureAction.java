@@ -9,10 +9,5 @@ public class RttMbtAbstractTestProcedureAction extends RttMbtPopupMenuAction {
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		return null;
 	}
-
-	// check if the selected item is an rt-tester test procedure
-	public Boolean isTestProcedureSelected() {
-		return false;
-	}
 	
 }

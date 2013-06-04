@@ -210,7 +210,7 @@ class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 			CmlBehaviour theChoosenOne = findFinishedChild();
 			setLeftChild(theChoosenOne.getLeftChild());
 			setRightChild(theChoosenOne.getRightChild());
-			result = theChoosenOne.getExecutionState();
+			result = theChoosenOne.getNextState();
 		}
 		else
 		{
@@ -224,7 +224,7 @@ class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 						child.execute(supervisor());
 						setLeftChild(child.getLeftChild());
 						setRightChild(child.getRightChild());
-						result = child.getExecutionState();
+						result = child.getNextState();
 					}
 					else
 					{

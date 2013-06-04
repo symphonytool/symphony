@@ -1,0 +1,7 @@
+channels 
+a : int * int
+ 
+process A = 
+begin
+	@ ||| i,j in set {1,2} @ [{}] (a.i.j -> Skip)
+end

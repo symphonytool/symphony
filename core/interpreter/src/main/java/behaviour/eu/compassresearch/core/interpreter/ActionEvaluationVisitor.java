@@ -374,14 +374,14 @@ class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 	{
 		PAction left = node.getLeftAction();
 		PAction right = node.getRightAction();
-		
+		Pair<Context,Context> childContexts = getChildContexts(question);
 		//TODO: create a local copy of the question state for each of the actions
 		CmlBehaviour leftInstance = 
-				new ConcreteCmlBehaviour(left, question, 
+				new ConcreteCmlBehaviour(left, childContexts.first, 
 						new LexNameToken(name().getModule(),name().getIdentifier().getName() + "|||" ,left.getLocation()),owner);
 		
 		CmlBehaviour rightInstance = 
-				new ConcreteCmlBehaviour(right, question, 
+				new ConcreteCmlBehaviour(right, childContexts.second, 
 						new LexNameToken(name().getModule(),"|||" + name().getIdentifier().getName(),right.getLocation()),owner);
 		
 		caseParallelBeginGeneral(leftInstance,rightInstance,question);
@@ -520,7 +520,7 @@ class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 		{
 			CmlBehaviour leftChild = owner.getLeftChild();
 			setLeftChild(null);
-			return new Pair<INode, Context>(leftChild.getExecutionState().first, leftChild.getExecutionState().second);
+			return new Pair<INode, Context>(leftChild.getNextState().first, leftChild.getNextState().second);
 		}
 		else
 		{
@@ -530,7 +530,7 @@ class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 			if(supervisor().selectedObservableEvent() instanceof ObservableEvent)
 			{
 				setLeftChild(null);
-				return new Pair<INode, Context>(leftBehavior.getExecutionState().first, leftBehavior.getExecutionState().second);
+				return new Pair<INode, Context>(leftBehavior.getNextState().first, leftBehavior.getNextState().second);
 			}
 			else
 				return new Pair<INode, Context>(node, question);

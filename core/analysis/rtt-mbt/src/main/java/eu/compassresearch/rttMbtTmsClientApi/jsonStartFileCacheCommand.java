@@ -53,9 +53,11 @@ public class jsonStartFileCacheCommand extends jsonCommand {
 		if (!(result.equals("PASS"))) {
 			System.err.println("*** error: setup cache directory for " 
 							   + user + " (ID: '" + userId + "') failed!");
+			resultValue = false;
 		} else {
 			System.out.println("created cache directory for " 
 					   + user + " (ID: '" + userId + "').");		
+			resultValue = true;
 		}
 	}
 }

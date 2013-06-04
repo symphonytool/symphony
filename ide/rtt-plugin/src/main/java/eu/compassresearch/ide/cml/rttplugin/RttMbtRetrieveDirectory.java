@@ -4,6 +4,10 @@ import java.io.File;
 
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 
 import eu.compassresearch.rttMbtTmsClientApi.IRttMbtProgressBar;
 
@@ -27,30 +31,38 @@ public class RttMbtRetrieveDirectory extends RttMbtPopupMenuAction {
 			return null;
 		}
 
-		// perform action using client
-		Boolean success;
-		File item = new File(client.getCmlWorkspace() + selectedObjectPath);
-		if (!item.exists()) {
-			client.addErrorMessage("[FAIL]: Retrieve Directory/File from RTT-MBT Server Work Area: file or directory '" + item.getAbsolutePath() + "' does not exist!");
-			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
-			return null;
-		}
-		
-		if (item.isDirectory()) {
-			success = client.downloadDirectory(item.getAbsolutePath());
-		} else if (item.isFile()) {
-			success = client.downloadFile(item.getAbsolutePath());
-		} else {
-			client.addErrorMessage("[FAIL]: Retrieve Directory/File from RTT-MBT Server Work Area: selection is not a file or directory!");			
-			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
-			return null;
-		}
-		
-		if (success) {
-			client.addLogMessage("[PASS]: Retrieve Directory/File from RTT-MBT Server Work Area!");			
-		} else {			
-			client.addErrorMessage("[FAIL]: Retrieve Directory/File from RTT-MBT Server Work Area!");			
-		}
+		Job job = new Job("pull from server") {
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+				// perform action using client
+				Boolean success;
+				File item = new File(client.getCmlWorkspace() + selectedObjectPath);
+				if (!item.exists()) {
+					client.addErrorMessage("[FAIL]: Retrieve Directory/File from RTT-MBT Server Work Area: file or directory '" + item.getAbsolutePath() + "' does not exist!\n");
+					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
+					return Status.OK_STATUS;
+				}
+				
+				if (item.isDirectory()) {
+					success = client.downloadDirectory(item.getAbsolutePath());
+				} else if (item.isFile()) {
+					success = client.downloadFile(item.getAbsolutePath());
+				} else {
+					client.addErrorMessage("[FAIL]: Retrieve Directory/File from RTT-MBT Server Work Area: selection is not a file or directory!\n");
+					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
+					return Status.OK_STATUS;
+				}
+				
+				if (success) {
+					client.addLogMessage("[PASS]: Retrieve Directory/File from RTT-MBT Server Work Area!\n");			
+				} else {			
+					client.addErrorMessage("[FAIL]: Retrieve Directory/File from RTT-MBT Server Work Area!\n");			
+				}
+				return Status.OK_STATUS;
+			}
+		};
+		job.schedule();
+
 		client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 		return null;
 	}

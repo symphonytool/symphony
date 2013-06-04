@@ -11,11 +11,11 @@ import org.json.simple.JSONObject;
  * @author uwe
  *
  */
-public class jsonDocTestCommant extends jsonCommand {
+public class jsonDocTestCommand extends jsonCommand {
 
 	 private String testProcName;
 
-	 public jsonDocTestCommant(RttMbtClient client) {
+	 public jsonDocTestCommand(RttMbtClient client) {
 		 super(client);
 	 }
 		
