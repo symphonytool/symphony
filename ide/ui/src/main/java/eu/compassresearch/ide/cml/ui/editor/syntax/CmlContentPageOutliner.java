@@ -18,12 +18,13 @@ import org.overture.ast.node.INode;
 
 import eu.compassresearch.ide.cml.ui.editor.core.CmlEditor;
 import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
+import eu.compassresearch.ide.cml.ui.editor.core.dom.ICmlSourceUnit;
 
 public class CmlContentPageOutliner extends ContentOutlinePage implements
 
 IContentOutlinePage {
 
-    private CmlSourceUnit input;
+    private ICmlSourceUnit input;
     private CmlEditor editor;
     private CmlTreeContentProvider provider;
     private OutlineLabelProvider labelprovider;
@@ -152,8 +153,8 @@ IContentOutlinePage {
 
     }
 
-    public void setInput(CmlSourceUnit input) {
-	this.input = input;
+    public void setInput(ICmlSourceUnit csu) {
+	this.input = csu;
     }
 
 }
