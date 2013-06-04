@@ -15,12 +15,12 @@ class IsabelleTheory ( val session: Session
   sealed abstract class IsabelleProof
   case class IsabelleByProof(val proof: String) extends IsabelleProof {
     var command: Option[Command]= None
-    override def toString() = "by ("+ proof +")\n" 
+    override def toString() = "by ("+ proof +")" + ls 
   }
 
   case class IsabelleApplyProof(val proof: List[String]) {
     override def toString() = {
-      proof.map("  apply (" + _ + ")\n").mkString("") + "done\n"
+      proof.map("  apply (" + _ + ")" + ls).mkString("") + "done" + ls
     }
   }
 
@@ -28,7 +28,7 @@ class IsabelleTheory ( val session: Session
   class IsabelleTheorem( val name: String
                        , val goal: String
                        , var proof: IsabelleProof) {
-    val lemmaString: String = "lemma " + name +": \"" + goal + "\"\n" 
+    val lemmaString: String = "lemma " + name +": \"" + goal + "\"" + ls 
 	val proofString: String = proof.toString();
     def thmString: String = lemmaString + proofString
   
@@ -41,14 +41,15 @@ class IsabelleTheory ( val session: Session
     }  
   }
 
+  private val ls = System.getProperty("line.separator")
   
   val thyNode = Document.Node.Name(thyName, thyDir, thyName)
-  val thyHead = "theory " + thyName + "\nimports HOL\nbegin\n"
-  val thyTail  = "end\n"
+  val thyHead = "theory " + thyName + ls + "imports Main" + ls + "begin" + ls + ls
+  val thyTail  = ls + "end" + ls
   val header = session.thy_load.check_thy_text(thyNode, thyHead)
   private var thms: List[IsabelleTheorem] = Nil
   
-  private def thyBody = thms.map(_.thmString).mkString("\n")
+  private def thyBody = thms.map(_.thmString).mkString(ls)
   private def thmEnd = thyHead.length() + thyBody.length(); 
   private def thyEnd = thmEnd + 10;
   
@@ -62,7 +63,7 @@ class IsabelleTheory ( val session: Session
     
     session.update(List( session.header_edit(thyNode, header)
                        , thyNode -> Document.Node.Clear()
-                       , thyNode -> Document.Node.Edits(List(Text.Edit.insert(0, thyHead + "\nend")))
+                       , thyNode -> Document.Node.Edits(List(Text.Edit.insert(0, thyHead + ls + "end")))
                        , thyNode -> Document.Node.Perspective(perspective))
     );
   }
@@ -75,6 +76,8 @@ class IsabelleTheory ( val session: Session
     session.update(List( thyNode -> Document.Node.Edits(List(Text.Edit.insert(oldThmEnd,thm.thmString)))
                        , thyNode -> Document.Node.Perspective(perspective)));
   }
+  
+  override def toString() = thyHead + thyBody + thyTail
   
   def writeThmFile() {
     val thyFile = new File(thyDir + "/" + thyName + ".thy") 
