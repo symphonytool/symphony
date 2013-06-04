@@ -112,7 +112,7 @@ public class TPBasicAction implements IWorkbenchWindowActionDelegate {
 						} 
 
 						for (ProofObligation po : poList) {
-							ithy.addThm(new IsabelleTheorem(po.name, "True",
+							ithy.addThm(ithy.new IsabelleTheorem(po.name, "True",
 									"by auto\n"));
 						}
 

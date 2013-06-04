@@ -29,7 +29,7 @@ object TPPluginUtils2 {
         
         val snapshot1 = s.snapshot();
         
-        ithy.addThm(new IsabelleTheorem("simpleLemma", "True", List("by simp")))
+        ithy.addThm(new ithy.IsabelleTheorem("simpleLemma", "True", "by simp"))
         
         val snapshot2 = s.snapshot();
         val snapshot3 = s.snapshot();

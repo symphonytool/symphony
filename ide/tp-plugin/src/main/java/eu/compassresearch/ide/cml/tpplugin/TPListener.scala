@@ -21,6 +21,7 @@ object TPListener {
   
   def updatePOListFromThy(poList: CMLProofObligationList, ithy: IsabelleTheory) = {
     for (p <- JavaConversions.asScalaIterable(poList)) {
+      
       // FIXME: Add code to update POs from the theory
       //if (ithy.thmIsProved(p.name))
     }
@@ -28,15 +29,6 @@ object TPListener {
   
 }
 
-
-/**
- * A listener wrapper for Isabelle session command change events.
- *
- * Reacts to command changes and calculates the affected document ranges, which are then pushed
- * as handler notifications.
- *
- * @author Andrius Velykis
- */
 class TPListener(session: Session) extends SessionEvents {
 
   var nodeCMLMap:Map[Document.Node.Name, PSource] = Map()
@@ -70,7 +62,7 @@ class TPListener(session: Session) extends SessionEvents {
           for (c <- changed.commands) {
             val ast  = nodeCMLMap(c.node_name)
             val poList = registry.lookup(ast, classOf[CMLProofObligationList]);
-            val ithy   = registry.lookup(ast, classOf[JIsabelleTheory]).getIsabelleTheory()
+            val ithy   = registry.lookup(ast, classOf[IsabelleTheory])
             TPListener.updatePOListFromThy(poList, ithy)
           }
         }

@@ -1,67 +1,57 @@
 package eu.compassresearch.ide.cml.tpplugin
 
-import java.util.concurrent.locks.ReentrantReadWriteLock
-
 import scala.collection.mutable.ListBuffer
 import scala.io.Source
-
-import org.eclipse.core.runtime.{IProgressMonitor, NullProgressMonitor, Status}
-import org.eclipse.core.runtime.jobs.Job
-import org.eclipse.jface.text.{DocumentEvent, IDocument, IDocumentListener}
-
 import isabelle.{Document, Session, Text, Protocol, Command}
-import isabelle.eclipse.core.util.{PostponeJob, SerialSchedulingRule}
-import isabelle.eclipse.core.util.ConcurrentUtil.FunReadWriteLock
 import eu.compassresearch.core.common.AnalysisArtifact
+import java.io.File
+import java.io.FileWriter
 
 
-/**
- * A model for the Isabelle text document.
- *
- * It tracks changes in the text and submits them to the prover for evaluation when needed.
- *
- * @author Andrius Velykis
- */
-object IsabelleTheory {
-
-  /**
-   * A rule to use in Job framework that ensures serial execution of jobs.
-   * Used for submitting content to the Isabelle prover backend.
-   */
-  val serialSubmitRule = new SerialSchedulingRule
-  
-  // TODO add as a configurable option
-  val flushDelay = 300
-  
-}
-
-class IsabelleTheorem(val name: String, val goal: String, var proof: List[String]) {
-  val lemmaString: String = "lemma " + name +": \"" + goal + "\"\n" 
-  val proofString: String = proof.mkString("\n")
-  def thmString: String = lemmaString + proofString
-  
-  def this(name: String, goal:String, proof: String) {
-    this(name, goal, List(proof))
-  }
-  
-  def this(name: String, goal:String) {
-    this(name, goal, "oops")
-  }
-  
-}
-
-class IsabelleTheory( val session: Session
+class IsabelleTheory ( val session: Session
                      , val thyName: String
                      , val thyDir: String) extends AnalysisArtifact {
 
+  sealed abstract class IsabelleProof
+  case class IsabelleByProof(val proof: String) extends IsabelleProof {
+    var command: Option[Command]= None
+    override def toString() = "by ("+ proof +")\n" 
+  }
+
+  case class IsabelleApplyProof(val proof: List[String]) {
+    override def toString() = {
+      proof.map("  apply (" + _ + ")\n").mkString("") + "done\n"
+    }
+  }
+
+  
+  class IsabelleTheorem( val name: String
+                       , val goal: String
+                       , var proof: IsabelleProof) {
+    val lemmaString: String = "lemma " + name +": \"" + goal + "\"\n" 
+	val proofString: String = proof.toString();
+    def thmString: String = lemmaString + proofString
+  
+    def this(name: String, goal:String, proof: String) {
+      this(name, goal, IsabelleByProof(proof))
+    }
+  
+    def this(name: String, goal:String) {
+      this(name, goal, "oops")
+    }  
+  }
+
+  
   val thyNode = Document.Node.Name(thyName, thyDir, thyName)
   val thyHead = "theory " + thyName + "\nimports HOL\nbegin\n"
+  val thyTail  = "end\n"
   val header = session.thy_load.check_thy_text(thyNode, thyHead)
-  var thms: List[IsabelleTheorem] = Nil
+  private var thms: List[IsabelleTheorem] = Nil
   
-  
-  private def thmEnd = thyHead.length() + thms.map(_.thmString).mkString("\n").length(); 
+  private def thyBody = thms.map(_.thmString).mkString("\n")
+  private def thmEnd = thyHead.length() + thyBody.length(); 
   private def thyEnd = thmEnd + 10;
+  
   
   def init() {
     // Set the header for the theory node, clear the contents and add the header and end
@@ -84,6 +74,15 @@ class IsabelleTheory( val session: Session
     val perspective = Text.Perspective(List(Text.Range(0, thyEnd)))
     session.update(List( thyNode -> Document.Node.Edits(List(Text.Edit.insert(oldThmEnd,thm.thmString)))
                        , thyNode -> Document.Node.Perspective(perspective)));
+  }
+  
+  def writeThmFile() {
+    val thyFile = new File(thyDir + "/" + thyName + ".thy") 
+    if (!thyFile.exists()) thyFile.createNewFile()
+    val fw = new FileWriter(thyFile.getAbsoluteFile())
+    fw.write(thyHead + thyBody + thyTail)
+    fw.flush()
+    fw.close()
   }
   
   
