@@ -16,6 +16,7 @@ import org.overture.ast.analysis.AnalysisException;
 public class IsabelleTheoryTests {
 
 	public static String emptyThyPath  = "src/test/resources/Empty.thy";
+	public static String twoLemmasThyPath  = "src/test/resources/TwoLemmas.thy";
 
 	@Test
 	public void testEmptyThy() throws AnalysisException, IOException{
@@ -26,6 +27,20 @@ public class IsabelleTheoryTests {
 		test(emptyThyPath, ithy);	
 	}
 
+	@Test
+	public void testTwoLemmas() throws AnalysisException, IOException {		
+		Session s = TPUtilScala.createHOLSession();
+		
+		IsabelleTheory ithy = new IsabelleTheory(s, "TwoLemmas", "src/test/resources");
+		ithy.init();
+		ithy.addThm(ithy.new IsabelleTheorem("Lemma1", "True", "simp"));
+		ithy.addThm(ithy.new IsabelleTheorem("Lemma2", "True", "simp"));
+		
+		test(twoLemmasThyPath, ithy);
+		
+		s.stop();
+		
+	}
 	
 	public void test(String filePath, IsabelleTheory ithy)
 			throws AnalysisException, IOException {

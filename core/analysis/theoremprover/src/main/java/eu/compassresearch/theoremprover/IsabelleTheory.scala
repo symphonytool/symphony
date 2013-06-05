@@ -2,11 +2,25 @@ package eu.compassresearch.theoremprover
 
 import scala.collection.mutable.ListBuffer
 import scala.io.Source
-import isabelle.{Document, Session, Text, Protocol, Command}
+import isabelle.{Build, Document, Session, Text, Protocol, Thy_Load, Command}
 import eu.compassresearch.core.common.AnalysisArtifact
 import java.io.File
 import java.io.FileWriter
 
+object IsabelleTheory {
+  
+
+  val isabelleHome = "/local/d0p6/simonf/Isabelle/Isabelle2013"
+  
+  def createHOLSession(): Session = {
+    System.setProperty("isabelle.home", isabelleHome)
+    val content = Build.session_content(false, Nil, "HOL")
+    val session = new Session(new Thy_Load(content.loaded_theories, content.syntax))
+    session.start(List("HOL"))
+    session
+  }
+  
+}
 
 class IsabelleTheory ( val session: Session
                      , val thyName: String
@@ -78,6 +92,7 @@ class IsabelleTheory ( val session: Session
   }
   
   override def toString() = thyHead + thyBody + thyTail
+  // Alternatively: session.snapshot(ithy.thyNode).node.commands.map(_.source).mkString("")
   
   def writeThmFile() {
     val thyFile = new File(thyDir + "/" + thyName + ".thy") 
@@ -111,8 +126,8 @@ class IsabelleTheory ( val session: Session
       
       /* FIXME: Need some more sophisticated to control logic to deal with,
          e.g. Isar proofs */
-      if ( c.source.contains("done") || c.source.contains("by") 
-         || c.source.contains("sorry") || c.source.contains("oops")) {
+      if (prf && ( c.source.contains("done") || c.source.contains("by") 
+                || c.source.contains("sorry") || c.source.contains("oops"))) {
         prfcmds = c :: prfcmds
         prf = false;
       }
