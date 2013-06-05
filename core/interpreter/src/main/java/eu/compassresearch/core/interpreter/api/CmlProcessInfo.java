@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.overture.ast.intf.lex.ILexLocation;
+import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.lex.LexLocation;
 
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorState;
@@ -12,7 +13,7 @@ import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 
 public class CmlProcessInfo {
 
-	private final String name;
+	private final ILexNameToken name;
 	private final List<String> trace;
 	private final long level;
 	private final boolean isProcess;
@@ -29,7 +30,7 @@ public class CmlProcessInfo {
 		location = null;		
 	}
 	
-	public CmlProcessInfo(String name, CmlTrace trace,long level, 
+	public CmlProcessInfo(ILexNameToken name, CmlTrace trace,long level, 
 			boolean isProcess, CmlBehaviorState state,
 			LexLocation currentLocation)
 	{

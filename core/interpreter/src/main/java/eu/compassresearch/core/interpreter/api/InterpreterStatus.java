@@ -29,7 +29,7 @@ public class InterpreterStatus {
 	public InterpreterStatus(CmlBehaviour topProcess, CmlInterpreterState state)
 	{
 		this.processInfos = new CmlProcessInfo[1];
-		this.processInfos[0] = new CmlProcessInfo(topProcess.name().getFullName(),
+		this.processInfos[0] = new CmlProcessInfo(topProcess.name(),
 				topProcess.getTraceModel(),
 				topProcess.level(),
 				topProcess instanceof CmlBehaviour,

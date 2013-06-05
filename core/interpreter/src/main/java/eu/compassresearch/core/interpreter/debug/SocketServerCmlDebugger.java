@@ -227,6 +227,7 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 	{
 		sendStatusMessage(CmlDbgpStatus.STOPPED,status);
 		commandDispatcher.stop();
+		System.out.println("Stopped!");
 	}
 	
 	/**

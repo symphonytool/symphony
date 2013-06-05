@@ -376,8 +376,6 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 
 	@Override
 	public void disconnect() throws DebugException {
-		// TODO Auto-generated method stub
-
 		sendCommandMessage(CmlDebugCommand.DISCONNECT);
 	}
 
@@ -521,6 +519,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 		//suspended = false;
 		DebugPlugin.getDefault().getBreakpointManager().removeBreakpointListener(this);
 		fireTerminateEvent();
+		connectionClosed();
 	}
 
 }

@@ -5,6 +5,11 @@ public class InterpreterError {
 	private final String message;
 	private final Throwable throwable;
 	
+	private InterpreterError(){
+		message = null;
+		throwable = null;
+	}
+	
 	public InterpreterError(String message)
 	{
 		this.message = message;
