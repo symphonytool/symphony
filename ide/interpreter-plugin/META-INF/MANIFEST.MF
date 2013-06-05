@@ -28,7 +28,6 @@ Bundle-ActivationPolicy: lazy
 Eclipse-BuddyPolicy: registered
 Eclipse-BundleShape: dir
 Bundle-ClassPath: .,
- jars/gson.jar,
  jars/interpreter.jar,
  jars/json-simple.jar,
  jars/jackson-core.jar,
