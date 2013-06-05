@@ -165,7 +165,7 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 
 						//TODO At the moment if there are two identical events from different processes on the same channel
 						//	then the user cannot distuingiues between the two and for now it will only be the first event in the list
-						String responseStr = response.getContent(String.class);
+						String responseStr = response.getContent();
 						//System.out.println("response: " + responseStr);
 
 						CmlTransition selectedEvent = null;
@@ -331,11 +331,11 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 		switch(messageContainer.getType())
 		{
 		case STATUS:
-			return processStatusMessage(messageContainer.<CmlDbgStatusMessage>getMessage(CmlDbgStatusMessage.class));
+			return processStatusMessage((CmlDbgStatusMessage)messageContainer.getMessage());
 		case COMMAND:
-			return processCommand(messageContainer.<CmlDbgCommandMessage>getMessage(CmlDbgCommandMessage.class));
+			return processCommand((CmlDbgCommandMessage)messageContainer.getMessage());
 		case RESPONSE:
-			return processResponse(messageContainer.<ResponseMessage>getMessage(ResponseMessage.class));
+			return processResponse((ResponseMessage)messageContainer.getMessage());
 		default:
 		}
 		

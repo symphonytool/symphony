@@ -22,6 +22,9 @@ public class CmlDbgStatusMessage extends Message {
 		this.setStatus(status);
 	}
 	
+	protected CmlDbgStatusMessage()
+	{}
+	
 	public CmlDbgpStatus getStatus() {
 		return status;
 	}
@@ -36,9 +39,10 @@ public class CmlDbgStatusMessage extends Message {
 			
 	@Override
 	public String toString() {
-		String newLine = System.getProperty("line.separator");
-		return CmlDbgStatusMessage.class.getSimpleName() + newLine +
-			   "Status: "+ status;
+		return CmlDbgStatusMessage.class.getSimpleName() + System.lineSeparator() +
+			   "Status: "+ status + System.lineSeparator() +
+			   this.interpreterStatus;
+				
 	}
 
 	@Override

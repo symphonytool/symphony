@@ -11,11 +11,13 @@ import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorState;
 public class CmlThread extends CmlDebugElement implements IThread {
 
 	private CmlProcessInfo cmlProcessInfo;
+	private CmlStackFrame cmlStackFrame = null;
 	
 	public CmlThread(CmlDebugTarget debugTarget, CmlProcessInfo cmlProcessInfo)
 	{
 		super(debugTarget);
-		this.cmlProcessInfo = cmlProcessInfo; 
+		this.cmlProcessInfo = cmlProcessInfo;
+		cmlStackFrame = new CmlStackFrame(debugTarget, this,cmlProcessInfo.getLocation());
 	}
 
 	@Override
@@ -105,26 +107,25 @@ public class CmlThread extends CmlDebugElement implements IThread {
 
 	@Override
 	public IStackFrame[] getStackFrames() throws DebugException {
-		// TODO Auto-generated method stub
-		return null;
+		return new CmlStackFrame[]{cmlStackFrame};
 	}
 
 	@Override
 	public boolean hasStackFrames() throws DebugException {
-		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
+	@Override
+	public IStackFrame getTopStackFrame() throws DebugException {
+		return cmlStackFrame;
+	}
+	
 	@Override
 	public int getPriority() throws DebugException {
 		return 0;
 	}
 
-	@Override
-	public IStackFrame getTopStackFrame() throws DebugException {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	
 
 	@Override
 	public String getName() throws DebugException {

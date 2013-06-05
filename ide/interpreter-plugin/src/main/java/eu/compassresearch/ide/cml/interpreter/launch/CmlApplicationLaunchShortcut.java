@@ -196,7 +196,7 @@ public class CmlApplicationLaunchShortcut implements ILaunchShortcut2
     	try {
 			for(ILaunchConfiguration lc : launchManager.getLaunchConfigurations(ctype))
 			{
-				String projectName = lc.getAttribute(CmlLaunchConfigurationConstants.ATTR_PROJECT_NAME.toString(), "");
+				String projectName = lc.getAttribute(ICmlLaunchConfigurationConstants.ATTR_PROJECT_NAME, "");
 				if(file.getProject().getName().equals(projectName))
 					result.add(lc);
 			}
@@ -231,7 +231,7 @@ public class CmlApplicationLaunchShortcut implements ILaunchShortcut2
         	ILaunchConfigurationWorkingCopy lcwc = ctype.newInstance(null, launchManager.generateLaunchConfigurationName("Quick Launch"));
         	
         	lcwc.setAttribute(CmlInterpreterLaunchConfigurationConstants.PROCESS_NAME.toString(), processName);
-        	lcwc.setAttribute(CmlLaunchConfigurationConstants.ATTR_PROJECT_NAME.toString(), 
+        	lcwc.setAttribute(ICmlLaunchConfigurationConstants.ATTR_PROJECT_NAME, 
         			sourceUnit.getProject().getName());
         	lcwc.setAttribute(CmlInterpreterLaunchConfigurationConstants.CML_SOURCES_PATH.toString(),
         			CmlUtil.getCmlSourcesPathsFromProject(sourceUnit.getProject()));

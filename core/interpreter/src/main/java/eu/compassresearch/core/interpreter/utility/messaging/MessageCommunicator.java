@@ -1,27 +1,54 @@
 package eu.compassresearch.core.interpreter.utility.messaging;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 
-import com.google.gson.Gson;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.core.JsonGenerator.Feature;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+
 
 public class MessageCommunicator {
 
-//	private class DateTimeDeserializer implements JsonDeserializer<CmlMessageContainer> {
-//		  public DateTime deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-//		      throws JsonParseException {
-//		    return new DateTime(json.getAsJsonPrimitive().getAsString());
-//		  }
-//		}
+	private static ObjectMapper mapper = null;
+	
+	protected static ObjectMapper mapperInstance()
+	{
+		if(mapper == null)
+		{
+			mapper = new ObjectMapper();
+			mapper.enableDefaultTyping();
+			mapper.configure(MapperFeature.AUTO_DETECT_GETTERS,false);
+			mapper.configure(MapperFeature.AUTO_DETECT_IS_GETTERS,false);
+			mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
+			mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+			
+			mapper.configure(Feature.FLUSH_PASSED_TO_STREAM, false);
+			mapper.configure(Feature.AUTO_CLOSE_TARGET, false);
+		}
+		
+		return mapper;
+	}
+	
 	public static void sendMessage(OutputStream outStream, Message message)
 	{
 		MessageContainer messageContainer = new MessageContainer(message);
-		Gson gson = new Gson();
-		PrintWriter writer = new PrintWriter(outStream);
-		writer.println(gson.toJson(messageContainer));
-		writer.flush();
+		try {
+			mapperInstance().writeValue(outStream,messageContainer);
+			outStream.write(System.lineSeparator().getBytes());
+			outStream.flush();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		//PrintWriter writer = new PrintWriter(outStream);
+		//writer.println(mapperInstance().toJson(messageContainer));
+		//writer.flush();
 	}
 	
 	/**
@@ -37,8 +64,7 @@ public class MessageCommunicator {
 		String strMessage = requestReader.readLine();
 		if(strMessage != null)
 		{
-			Gson gson = new Gson();
-			message = gson.fromJson(strMessage, MessageContainer.class); 
+			message = mapperInstance().readValue(strMessage, MessageContainer.class); 
 		}
 //		else
 //		{
@@ -61,8 +87,7 @@ public class MessageCommunicator {
 		String strMessage = requestReader.readLine();
 		if(strMessage != null)
 		{
-			Gson gson = new Gson();
-			message = gson.fromJson(strMessage, MessageContainer.class); 
+			message = mapperInstance().readValue(strMessage, MessageContainer.class); 
 		}
 		else
 		{
