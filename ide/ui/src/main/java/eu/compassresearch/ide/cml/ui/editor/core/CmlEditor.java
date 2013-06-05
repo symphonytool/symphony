@@ -19,7 +19,15 @@
 package eu.compassresearch.ide.cml.ui.editor.core;
 
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.text.ITextViewerExtension5;
+import org.eclipse.jface.text.source.ISourceViewer;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.part.FileEditorInput;
+import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.node.INode;
 import org.overture.ide.ui.editor.core.VdmEditor;
@@ -29,261 +37,365 @@ import org.overture.ide.ui.outline.VdmContentOutlinePage;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
+import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit.CmlSourceChangedListener;
+import eu.compassresearch.ide.cml.ui.editor.core.dom.ICmlSourceUnit;
+import eu.compassresearch.ide.cml.ui.editor.syntax.CmlContentPageOutliner;
 import eu.compassresearch.ide.cml.ui.editor.syntax.CmlTreeContentProvider;
 import eu.compassresearch.ide.cml.ui.editor.syntax.INodeFromCaret;
 import eu.compassresearch.ide.cml.ui.editor.syntax.OutlineLabelProvider;
 
-public class CmlEditor extends VdmEditor {
+public class CmlEditor extends VdmEditor
+{
 
 	@Override
-	protected VdmSourceViewerConfiguration getVdmSourceViewerConfiguration(IPreferenceStore fPreferenceStore) {
+	protected VdmSourceViewerConfiguration getVdmSourceViewerConfiguration(
+			IPreferenceStore fPreferenceStore)
+	{
 		return new CmlSourceViewerConfiguration();
 	}
+
+	private AbstractSelectionChangedListener selectionChangeListener;
+
+	private class CmlSelectionChangeListener extends
+			AbstractSelectionChangedListener implements
+			ISelectionChangedListener
+	{
+		public void selectionChanged(SelectionChangedEvent arg0)
+		{
+			CmlEditor.this.selectionChanged();
+		}
+
+	}
+
+	@Override
+	public void createPartControl(Composite parent)
+	{
+		super.createPartControl(parent);
+		selectionChangeListener = new CmlSelectionChangeListener();
+		selectionChangeListener.install(this.getSelectionProvider());
+	}
+
+	@Override
+    protected void selectionChanged() {
+	if (getSelectionProvider() == null)
+	    return;
+	INode element = computeHighlightRangeSourceReference();
+
+	if (element != null)
+	    cmlOutLiner.setTreeSelection(element);
+
+    }
 	
 	protected VdmContentOutlinePage createOutlinePage()
 	{
 		VdmContentOutlinePage page = super.createOutlinePage();
-		
-//		page.addSelectionChangedListener(new ISelectionChangedListener()
-//		{
-//
-//			public void selectionChanged(SelectionChangedEvent event)
-//			{
-//				ISelection s = event.getSelection();
-//				if (s instanceof IStructuredSelection)
-//				{
-//					IStructuredSelection ss = (IStructuredSelection) s;
-//					@SuppressWarnings("rawtypes")
-//					List elements = ss.toList();
-//					if (!elements.isEmpty())
-//					{
-//						if (elements.get(0) instanceof INode)
-//						{
-//							INode node = (INode) elements.get(0);
-//							int[] offsetLength = AstLocationSearcher.getNodeOffset(node);
-//							selectAndReveal(offsetLength[0], offsetLength[1]);
-//						}
-//					}
-//				}
-//			}
-//		});
-		
-//		OutlineLabelProvider
-//		CmlTreeContentProvider
-		
-		page.configure(new CmlTreeContentProvider(null),new OutlineLabelProvider());
-		
+
+		// OutlineLabelProvider
+		// CmlTreeContentProvider
+
+		page.configure(new CmlTreeContentProvider(null), new OutlineLabelProvider());
+
 		return page;
 	}
 
-	
-//    private AbstractSelectionChangedListener selectionChangeListener;
-//
-//    public VdmSourceViewerConfiguration getVdmSourceViewerConfiguration() {
-//	return new CmlSourceViewerConfiguration();
-//    }
-//    
-//    @Override
-//    protected void doSetInput(IEditorInput input) throws CoreException {
-//	super.doSetInput(input);
-//	ICommandService commandService = (ICommandService) PlatformUI
-//		.getWorkbench().getService(ICommandService.class);
-//	try {
-//	    Command cmd = commandService
-//		    .getCommand("org.eclipse.ui.project.build");
-//	    cmd.executeWithChecks(new ExecutionEvent());
-//	} catch (Exception exception) {
-//	}
-//
-//    }
+	private CmlContentPageOutliner cmlOutLiner;
 
-//    private class CmlSelectionChangeListener extends
-//	    AbstractSelectionChangedListener implements
-//	    ISelectionChangedListener {
-//	public void selectionChanged(SelectionChangedEvent arg0) {
-//	    CmlEditor.this.selectionChanged();
-//	}
-//
-//    }
-//
-//    protected void selectionChanged() {
-//	if (getSelectionProvider() == null)
-//	    return;
-//	INode element = computeHighlightRangeSourceReference();
-//
-//	if (element != null)
-//	    cmlOutLiner.setTreeSelection(element);
-//
-//    }
-//
-//    @Override
-//    public void createPartControl(Composite parent) {
-//	super.createPartControl(parent);
-//	selectionChangeListener = new CmlSelectionChangeListener();
-//	selectionChangeListener.install(this.getSelectionProvider());
-//
-//	IEditorInput input = getEditorInput();
-//	IDocumentProvider documentProvider = getDocumentProvider();
-//	IDocument doc = documentProvider.getDocument(input);
-//	if (doc instanceof CmlDocument) {
-//	    System.out.println("CML Document in the house.");
-//	}
-//    }
-//
-//    @Override
-//    protected void initializeEditor() {
-//	super.initializeEditor();
-//	VdmSourceViewerConfiguration fVdmSourceViewer = getVdmSourceViewerConfiguration();
-//	setSourceViewerConfiguration(fVdmSourceViewer);
-//	setRulerContextMenuId(IVdmUiConstants.RULERBAR_ID);
-//
-//    }
-//
-//    @Override
-//    protected void configureSourceViewerDecorationSupport(
-//	    SourceViewerDecorationSupport support) {
-//	super.configureSourceViewerDecorationSupport(support);
-//
-//	final String EDITOR_MATCHING_BRACKETS = "matchingBrackets";
-//	final String EDITOR_MATCHING_BRACKETS_COLOR = "matchingBracketsColor";
-//
-//	char[] matchChars = { '(', ')', '[', ']' }; // which brackets to match
-//	ICharacterPairMatcher matcher = new DefaultCharacterPairMatcher(
-//		matchChars, IDocumentExtension3.DEFAULT_PARTITIONING);
-//	support.setCharacterPairMatcher(matcher);
-//	support.setMatchingCharacterPainterPreferenceKeys(
-//		EDITOR_MATCHING_BRACKETS, EDITOR_MATCHING_BRACKETS_COLOR);
-//
-//	// Enable bracket highlighting in the preference store
-//	IPreferenceStore store = getPreferenceStore();
-//	store.setDefault(EDITOR_MATCHING_BRACKETS, true);
-//	store.setDefault(EDITOR_MATCHING_BRACKETS_COLOR, "128,128,128");
-//    }
-//
-//    private CmlContentPageOutliner cmlOutLiner;
-//
-//    @Override
-//    public Object getAdapter(Class required) {
-//
-//	if (IContentOutlinePage.class.equals(required)) {
-//	    if (cmlOutLiner == null)
-//		cmlOutLiner = createCmlOutliner();
-//	    return cmlOutLiner;
-//	}
-//
-//	return super.getAdapter(required);
-//
-//    }
-//
-//    private CmlContentPageOutliner createCmlOutliner() {
-//
-//	final CmlContentPageOutliner cmlOutliner = new CmlContentPageOutliner(
-//		this);
-//	if (getEditorInput() instanceof FileEditorInput) {
-//	    FileEditorInput fei = (FileEditorInput) getEditorInput();
-//	    CmlSourceUnit csu = CmlSourceUnit
-//		    .getFromFileResource(fei.getFile());
-//	    
-//			// // FIXME if there is no AST, build it. This is a hack
-////			 if (csu.getSourceAst() == null){
-////			 try {
-////			 ResourcesPlugin.getWorkspace().build(CmlIncrementalBuilder.FULL_BUILD,
-////			new NullProgressMonitor());
-////			 } catch (CoreException e) {
-////			 // TODO Auto-generated catch block
-////			 e.printStackTrace();
-////			 }
-////			 }
-//			
-//	    cmlOutliner.setInput(csu);
-//	    csu.addChangeListener(new CmlSourceChangedListener() {
-//
-//		public void sourceChanged(CmlSourceUnit csu) {
-//
-//		    final Display curDisp = Display.getDefault();
-//		    if (curDisp != null)
-//			curDisp.syncExec(new Runnable() {
-//			    public void run() {
-//
-//				cmlOutliner.refresh();
-//
-//			    }
-//			});
-//
-//		}
-//
-//	    });
-//	   
-//	}
-//	return cmlOutliner;
-//    }
-//
-//    public CmlEditor() {
-//	super();
-//	setDocumentProvider(new CmlDocumentProvider());
-//
-//    }
-//
-//
-//
-//    protected INode computeHighlightRangeSourceReference() {
-//
-//	// FIXME if the AST is just the source node return null
-//	ISourceViewer sourceViewer = getSourceViewer();
-//	if (sourceViewer == null)
-//	    return null;
-//
-//	StyledText styledText = sourceViewer.getTextWidget();
-//	if (styledText == null)
-//	    return null;
-//
-//	int caret = 0;
-//	if (sourceViewer instanceof ITextViewerExtension5) {
-//	    ITextViewerExtension5 extension = (ITextViewerExtension5) sourceViewer;
-//	    caret = extension.widgetOffset2ModelOffset(styledText
-//		    .getCaretOffset());
-//	} else {
-//	    int offset = sourceViewer.getVisibleRegion().getOffset();
-//	    caret = offset + styledText.getCaretOffset();
-//	}
-//	INode element = getElementAt(caret, false);
-//
-//	return element;
-//    }
-//
-    protected INode getElementAt(int caret, boolean b) {
-	FileEditorInput fei = (FileEditorInput) getEditorInput();
-	INode r = null;
-	CmlSourceUnit csu = CmlSourceUnit.getFromFileResource(fei.getFile());
-	PSource ast = csu.getSourceAst();
+	@Override
+	public Object getAdapter(Class required)
+	{
 
-	if (!astOk(ast))
-	    return null;
+		if (IContentOutlinePage.class.equals(required))
+		{
+			if (cmlOutLiner == null)
+				cmlOutLiner = createCmlOutliner();
+			return cmlOutLiner;
+		}
 
-	INodeFromCaret visitor = new INodeFromCaret(caret, ast);
-	try {
-	    ast.apply(visitor);
-	    return visitor.getBestCandidate();
-	} catch (AnalysisException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
+		return super.getAdapter(required);
+
 	}
 
-	return r;
-    }
+	private CmlContentPageOutliner createCmlOutliner()
+	{
 
-    private boolean astOk(PSource ast) {
-	if (null == ast)
-	    return false;
+		final CmlContentPageOutliner cmlOutliner = new CmlContentPageOutliner(this);
+		if (getEditorInput() instanceof FileEditorInput)
+		{
+			FileEditorInput fei = (FileEditorInput) getEditorInput();
+			// FIXME correct depr
+			ICmlSourceUnit csu = (ICmlSourceUnit) fei.getFile().getAdapter(ICmlSourceUnit.class);
 
-	if (ast.getParagraphs().isEmpty())
-	    return false;
+			cmlOutliner.setInput(csu);
+			csu.addChangeListener(new CmlSourceChangedListener()
+			{
 
-	if (!CmlTypeChecker.Utils.isWellType(ast)){
+				public void sourceChanged(CmlSourceUnit csu)
+				{
+
+					final Display curDisp = Display.getDefault();
+					if (curDisp != null)
+						curDisp.syncExec(new Runnable()
+						{
+							public void run()
+							{
+
+								cmlOutliner.refresh();
+
+							}
+						});
+
+				}
+
+			});
+
+		}
+		return cmlOutliner;
+	}
+
+	protected INode computeHighlightRangeSourceReference()
+	{
+
+		// FIXME if the AST is just the source node return null
+		ISourceViewer sourceViewer = getSourceViewer();
+		if (sourceViewer == null)
+			return null;
+
+		StyledText styledText = sourceViewer.getTextWidget();
+		if (styledText == null)
+			return null;
+
+		int caret = 0;
+		if (sourceViewer instanceof ITextViewerExtension5)
+		{
+			ITextViewerExtension5 extension = (ITextViewerExtension5) sourceViewer;
+			caret = extension.widgetOffset2ModelOffset(styledText.getCaretOffset());
+		} else
+		{
+			int offset = sourceViewer.getVisibleRegion().getOffset();
+			caret = offset + styledText.getCaretOffset();
+		}
+		INode element = getElementAt(caret, false);
+
+		return element;
+	}
+
+	// private AbstractSelectionChangedListener selectionChangeListener;
+	//
+	// public VdmSourceViewerConfiguration getVdmSourceViewerConfiguration() {
+	// return new CmlSourceViewerConfiguration();
+	// }
+	//
+	// @Override
+	// protected void doSetInput(IEditorInput input) throws CoreException {
+	// super.doSetInput(input);
+	// ICommandService commandService = (ICommandService) PlatformUI
+	// .getWorkbench().getService(ICommandService.class);
+	// try {
+	// Command cmd = commandService
+	// .getCommand("org.eclipse.ui.project.build");
+	// cmd.executeWithChecks(new ExecutionEvent());
+	// } catch (Exception exception) {
+	// }
+	//
+	// }
+
+	// private class CmlSelectionChangeListener extends
+	// AbstractSelectionChangedListener implements
+	// ISelectionChangedListener {
+	// public void selectionChanged(SelectionChangedEvent arg0) {
+	// CmlEditor.this.selectionChanged();
+	// }
+	//
+	// }
+	//
+	// protected void selectionChanged() {
+	// if (getSelectionProvider() == null)
+	// return;
+	// INode element = computeHighlightRangeSourceReference();
+	//
+	// if (element != null)
+	// cmlOutLiner.setTreeSelection(element);
+	//
+	// }
+	//
+	// @Override
+	// public void createPartControl(Composite parent) {
+	// super.createPartControl(parent);
+	// selectionChangeListener = new CmlSelectionChangeListener();
+	// selectionChangeListener.install(this.getSelectionProvider());
+	//
+	// IEditorInput input = getEditorInput();
+	// IDocumentProvider documentProvider = getDocumentProvider();
+	// IDocument doc = documentProvider.getDocument(input);
+	// if (doc instanceof CmlDocument) {
+	// System.out.println("CML Document in the house.");
+	// }
+	// }
+	//
+	// @Override
+	// protected void initializeEditor() {
+	// super.initializeEditor();
+	// VdmSourceViewerConfiguration fVdmSourceViewer = getVdmSourceViewerConfiguration();
+	// setSourceViewerConfiguration(fVdmSourceViewer);
+	// setRulerContextMenuId(IVdmUiConstants.RULERBAR_ID);
+	//
+	// }
+	//
+	// @Override
+	// protected void configureSourceViewerDecorationSupport(
+	// SourceViewerDecorationSupport support) {
+	// super.configureSourceViewerDecorationSupport(support);
+	//
+	// final String EDITOR_MATCHING_BRACKETS = "matchingBrackets";
+	// final String EDITOR_MATCHING_BRACKETS_COLOR = "matchingBracketsColor";
+	//
+	// char[] matchChars = { '(', ')', '[', ']' }; // which brackets to match
+	// ICharacterPairMatcher matcher = new DefaultCharacterPairMatcher(
+	// matchChars, IDocumentExtension3.DEFAULT_PARTITIONING);
+	// support.setCharacterPairMatcher(matcher);
+	// support.setMatchingCharacterPainterPreferenceKeys(
+	// EDITOR_MATCHING_BRACKETS, EDITOR_MATCHING_BRACKETS_COLOR);
+	//
+	// // Enable bracket highlighting in the preference store
+	// IPreferenceStore store = getPreferenceStore();
+	// store.setDefault(EDITOR_MATCHING_BRACKETS, true);
+	// store.setDefault(EDITOR_MATCHING_BRACKETS_COLOR, "128,128,128");
+	// }
+	//
+	// private CmlContentPageOutliner cmlOutLiner;
+	//
+	// @Override
+	// public Object getAdapter(Class required) {
+	//
+	// if (IContentOutlinePage.class.equals(required)) {
+	// if (cmlOutLiner == null)
+	// cmlOutLiner = createCmlOutliner();
+	// return cmlOutLiner;
+	// }
+	//
+	// return super.getAdapter(required);
+	//
+	// }
+	//
+	// private CmlContentPageOutliner createCmlOutliner() {
+	//
+	// final CmlContentPageOutliner cmlOutliner = new CmlContentPageOutliner(
+	// this);
+	// if (getEditorInput() instanceof FileEditorInput) {
+	// FileEditorInput fei = (FileEditorInput) getEditorInput();
+	// CmlSourceUnit csu = CmlSourceUnit
+	// .getFromFileResource(fei.getFile());
+	//
+	// // // FIXME if there is no AST, build it. This is a hack
+	// // if (csu.getSourceAst() == null){
+	// // try {
+	// // ResourcesPlugin.getWorkspace().build(CmlIncrementalBuilder.FULL_BUILD,
+	// // new NullProgressMonitor());
+	// // } catch (CoreException e) {
+	// // // TODO Auto-generated catch block
+	// // e.printStackTrace();
+	// // }
+	// // }
+	//
+	// cmlOutliner.setInput(csu);
+	// csu.addChangeListener(new CmlSourceChangedListener() {
+	//
+	// public void sourceChanged(CmlSourceUnit csu) {
+	//
+	// final Display curDisp = Display.getDefault();
+	// if (curDisp != null)
+	// curDisp.syncExec(new Runnable() {
+	// public void run() {
+	//
+	// cmlOutliner.refresh();
+	//
+	// }
+	// });
+	//
+	// }
+	//
+	// });
+	//
+	// }
+	// return cmlOutliner;
+	// }
+	//
+	// public CmlEditor() {
+	// super();
+	// setDocumentProvider(new CmlDocumentProvider());
+	//
+	// }
+	//
+	//
+	//
+	// protected INode computeHighlightRangeSourceReference() {
+	//
+	// // FIXME if the AST is just the source node return null
+	// ISourceViewer sourceViewer = getSourceViewer();
+	// if (sourceViewer == null)
+	// return null;
+	//
+	// StyledText styledText = sourceViewer.getTextWidget();
+	// if (styledText == null)
+	// return null;
+	//
+	// int caret = 0;
+	// if (sourceViewer instanceof ITextViewerExtension5) {
+	// ITextViewerExtension5 extension = (ITextViewerExtension5) sourceViewer;
+	// caret = extension.widgetOffset2ModelOffset(styledText
+	// .getCaretOffset());
+	// } else {
+	// int offset = sourceViewer.getVisibleRegion().getOffset();
+	// caret = offset + styledText.getCaretOffset();
+	// }
+	// INode element = getElementAt(caret, false);
+	//
+	// return element;
+	// }
+	//
+	protected INode getElementAt(int caret, boolean b)
+	{
+		FileEditorInput fei = (FileEditorInput) getEditorInput();
+		INode r = null;
+		// FIXME corrigir a obtencao da AST
+		ICmlSourceUnit csu = (ICmlSourceUnit) fei.getFile().getAdapter(ICmlSourceUnit.class);
+		PSource ast = csu.getSourceAst();
+
+		if (!astParsed(ast))
+			return null;
+
+		INodeFromCaret visitor = new INodeFromCaret(caret, ast);
+		try
+		{
+			ast.apply(visitor);
+			return visitor.getBestCandidate();
+		} catch (AnalysisException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return r;
+	}
+
+	private boolean astParsed(PSource ast){
+		if (null == ast)
+			return false;
+
+		if (ast.getParagraphs().isEmpty())
+			return false;
+		return true;
+	}
+	
+	private boolean astOk(PSource ast)
+	{
+		if (astParsed(ast)){
+			if (CmlTypeChecker.Utils.isWellType(ast))
+			{
+				return true;
+			} 
+		}
 		return false;
 	}
-	
-	return true;
-    }
 
 }

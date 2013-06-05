@@ -11,7 +11,7 @@ import org.eclipse.core.runtime.jobs.Job;
 
 import eu.compassresearch.rttMbtTmsClientApi.IRttMbtProgressBar;
 
-public class RttMbtRetrieveDirectory extends RttMbtPopupMenuAction {
+public class RttMbtDeleteFile extends RttMbtPopupMenuAction {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
@@ -19,44 +19,52 @@ public class RttMbtRetrieveDirectory extends RttMbtPopupMenuAction {
 		// get selected object
 		client.setProgress(IRttMbtProgressBar.Tasks.ALL, 0);
 		if (!getSelectedObject(event)) {
-			client.addErrorMessage("[FAIL]: Retrieve Directory/File from RTT-MBT Server Work Area: Please select an File or directory!\n");
+			client.addErrorMessage("[FAIL]: Delete RTT-MBT Resource: Please select a file or directory!\n");
 			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 			return null;
 		}
 		
 		// get RttMbtClient for this action
 		if (!initClient(selectedObjectPath)) {
-			client.addErrorMessage("[FAIL]: Retrieve Directory/File from RTT-MBT Server Work Area: init of RTT-MBT client failed!\n");
+			client.addErrorMessage("[FAIL]: Delete RTT-MBT Resource: init of RTT-MBT client failed!\n");
 			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 			return null;
 		}
 
-		Job job = new Job("pull from server") {
+		Job job = new Job("Delete RTT-MBT Resource") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				// perform action using client
 				Boolean success;
 				File item = new File(client.getCmlWorkspace() + selectedObjectPath);
 				if (!item.exists()) {
-					client.addErrorMessage("[FAIL]: Retrieve Directory/File from RTT-MBT Server Work Area: file or directory '" + item.getAbsolutePath() + "' does not exist!\n");
+					client.addErrorMessage("[FAIL]: Delete RTT-MBT Resource: file or directory '" + item.getAbsolutePath() + "' does not exist!");
 					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 					return Status.OK_STATUS;
 				}
 				
-				if (item.isDirectory()) {
-					success = client.downloadDirectory(item.getAbsolutePath());
-				} else if (item.isFile()) {
-					success = client.downloadFile(item.getAbsolutePath());
+				if ((!item.isFile()) && (!item.isDirectory())) {
+					client.addErrorMessage("[FAIL]: Delete RTT-MBT Resource: selection is not a file or directory!");			
+					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
+					return Status.OK_STATUS;
+				}
+
+				// remove resource on RTT-MBT server
+				success = client.deleteRemoteFileOrDir(item.getAbsolutePath());
+				if (!success) {
+					client.addErrorMessage("[FAIL]: Delete RTT-MBT Resource: error while removing resource from RTT-MBT server\n");
 				} else {
-					client.addErrorMessage("[FAIL]: Retrieve Directory/File from RTT-MBT Server Work Area: selection is not a file or directory!\n");
-					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
-					return Status.OK_STATUS;
+					if (item.isDirectory()) {
+						success = client.deleteLocalDirectory(item);						
+					} else if (item.isFile()) {
+						success = item.delete();
+					}
 				}
-				
+
 				if (success) {
-					client.addLogMessage("[PASS]: Retrieve Directory/File from RTT-MBT Server Work Area!\n");			
+					client.addLogMessage("[PASS]: Delete RTT-MBT Resource!");			
 				} else {			
-					client.addErrorMessage("[FAIL]: Retrieve Directory/File from RTT-MBT Server Work Area!\n");			
+					client.addErrorMessage("[FAIL]: Delete RTT-MBT Resource!");			
 				}
 				return Status.OK_STATUS;
 			}

@@ -61,7 +61,7 @@ public class jsonConftoolCommand extends jsonCommand {
 		// if the test procedure name is not defined, generate
 		// the signalmap.csv in the model folder of the project 
 		if (testProcName != null) {
-			filename += "TestProcedures" + File.separator + testProcName + File.separator + "conf" + File.separator;
+			filename += client.getRttMbtTProcGenCtxFolderName() + File.separator + testProcName + File.separator + "conf" + File.separator;
 		} else {
 			filename += "model" + File.separator;
 		}

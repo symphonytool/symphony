@@ -2,6 +2,8 @@ package eu.compassresearch.ide.cml.rttplugin;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.ProgressBar;
 import eu.compassresearch.rttMbtTmsClientApi.IRttMbtProgressBar;
 
@@ -17,12 +19,19 @@ public class RttMbtProgressBar implements IRttMbtProgressBar {
 			resetAllProgressBars();
 			return;
 		}
-		ProgressBar bar = getProgressBar(task);
-		if (bar != null) {
-			bar.setSelection(percent);
-		} else {
-			System.out.println("[" + task.toString() + "]:" + percent + "%");
-		}
+		final ProgressBar bar = getProgressBar(task);
+		final int perc = percent;
+		final String line = "[" + task.toString() + "]:" + percent + "%";
+		Display.getDefault().syncExec(new Runnable() {
+			@Override
+			public void run() {
+				if (bar != null) {
+					bar.setSelection(perc);
+				} else {
+					System.out.println(line);
+				}
+			}
+		});
 	}
 
 	public int getProgress(IRttMbtProgressBar.Tasks task) {
@@ -46,29 +55,35 @@ public class RttMbtProgressBar implements IRttMbtProgressBar {
 	}
 	
 	public void resetAllProgressBars() {
-		ProgressBar bar = getProgressBar(IRttMbtProgressBar.Tasks.Global);
-		if (bar != null) {
-			bar.setSelection(0);
-		}		
-		bar = getProgressBar(IRttMbtProgressBar.Tasks.Goal);
-		if (bar != null) {
-			bar.setSelection(0);
-		}		
-		bar = getProgressBar(IRttMbtProgressBar.Tasks.TC_COV);
-		if (bar != null) {
-			bar.setSelection(0);
-		}		
-		bar = getProgressBar(IRttMbtProgressBar.Tasks.TR_COV);
-		if (bar != null) {
-			bar.setSelection(0);
-		}		
-		bar = getProgressBar(IRttMbtProgressBar.Tasks.BCS_COV);
-		if (bar != null) {
-			bar.setSelection(0);
-		}		
-		bar = getProgressBar(IRttMbtProgressBar.Tasks.MCDC_COV);
-		if (bar != null) {
-			bar.setSelection(0);
-		}		
+		final ProgressBar global = getProgressBar(IRttMbtProgressBar.Tasks.Global);
+		final ProgressBar goal = getProgressBar(IRttMbtProgressBar.Tasks.Goal);
+		final ProgressBar tc = getProgressBar(IRttMbtProgressBar.Tasks.TC_COV);
+		final ProgressBar tr = getProgressBar(IRttMbtProgressBar.Tasks.TR_COV);
+		final ProgressBar bcs = getProgressBar(IRttMbtProgressBar.Tasks.BCS_COV);
+		final ProgressBar mcdc = getProgressBar(IRttMbtProgressBar.Tasks.MCDC_COV);
+
+		Display.getDefault().syncExec(new Runnable() {
+			@Override
+			public void run() {
+				if (global != null) {
+					global.setSelection(0);
+				}		
+				if (goal != null) {
+					goal.setSelection(0);
+				}		
+				if (tc != null) {
+					tc.setSelection(0);
+				}		
+				if (tr != null) {
+					tr.setSelection(0);
+				}		
+				if (bcs != null) {
+					bcs.setSelection(0);
+				}		
+				if (mcdc != null) {
+					mcdc.setSelection(0);
+				}						
+			}
+		});
 	}
 }
