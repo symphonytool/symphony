@@ -20,8 +20,7 @@ public class CmlStackFrame extends CmlDebugElement implements IStackFrame {
 	
 	@Override
 	public IVariable[] getVariables() throws DebugException {
-		// TODO Auto-generated method stub
-		return null;
+		return new IVariable[]{};
 	}
 
 	@Override
@@ -46,8 +45,7 @@ public class CmlStackFrame extends CmlDebugElement implements IStackFrame {
 
 	@Override
 	public String getName() throws DebugException {
-		// TODO Auto-generated method stub
-		return null;
+		return "NA";
 	}
 
 	@Override

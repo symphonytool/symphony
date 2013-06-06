@@ -1,24 +1,16 @@
 package eu.compassresearch.ide.cml.interpreter.launch;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URISyntaxException;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
@@ -30,7 +22,6 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.WorkbenchException;
 import org.json.simple.JSONObject;
-import org.overture.ide.core.utility.ClasspathUtils;
 
 import eu.compassresearch.core.interpreter.debug.CmlDebugDefaultValues;
 import eu.compassresearch.ide.cml.interpreter.CmlUtil;
@@ -66,12 +57,6 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate 
 			
 			if (mode.equals(ILaunchManager.DEBUG_MODE))
 			{
-				try {
-					System.out.println(CmlLaunchConfigurationDelegate.class.getProtectionDomain().getCodeSource().getLocation().toURI().toString());
-				} catch (URISyntaxException e) {
-					e.printStackTrace();
-				} 
-				
 				DebugPlugin.getDefault().getBreakpointManager().setEnabled(true);
 				//Execute in a new JVM process
 				CmlDebugTarget target = new CmlDebugTarget(launch,

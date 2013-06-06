@@ -87,8 +87,11 @@ public class CmlChoiceMediator implements IDoubleClickListener, ISelectionChange
 					view.getListViewer().removeDoubleClickListener(CmlChoiceMediator.this);
 					view.getListViewer().removeSelectionChangedListener(CmlChoiceMediator.this);
 					CmlEditor cmlEditor = (CmlEditor)PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
-					StyledText styledText = (StyledText)cmlEditor.getAdapter(Control.class);
-					clearSelections(styledText);
+					if(cmlEditor != null)
+					{
+						StyledText styledText = (StyledText)cmlEditor.getAdapter(Control.class);
+						clearSelections(styledText);
+					}
 					view.getListViewer().setInput(null);
 					view.getListViewer().refresh();
 					
@@ -177,34 +180,37 @@ public class CmlChoiceMediator implements IDoubleClickListener, ISelectionChange
 			Choice choice = (Choice)selection.getFirstElement();
 			
 			CmlEditor cmlEditor = (CmlEditor)PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
-			StyledText styledText = (StyledText)cmlEditor.getAdapter(Control.class);
-			
-			//cmlEditor.resetHighlightRange();
-//			//cmlEditor.setHighlightRange(10, 4, true);
-//			
-//			int line = 0;
-//			int lenght = 0;
-//			try {
-//				CmlStackFrame stackFrame = (CmlStackFrame)cmlDebugTarget.getThreads()[0].getTopStackFrame();
-//				ILexLocation location = stackFrame.getLocation();
-//				line = location.getStartOffset();
-//				lenght = location.getEndOffset() - location.getStartOffset() + 1;
-//			} catch (DebugException e) {
-//				e.printStackTrace();
-//			}
-			clearSelections(styledText);
-			
-			for(ILexLocation loc : choice.getLocations())
+			if(cmlEditor != null)
 			{
-				int length = loc.getEndOffset() - loc.getStartOffset() + 1;
-				StyleRange sr = styledText.getStyleRangeAtOffset(loc.getStartOffset());
-				sr.length = length;
-				sr.background = new Color(null, new RGB(java.awt.Color.GRAY.getRed(), java.awt.Color.GRAY.getGreen(), java.awt.Color.GRAY.getBlue()));
-				styledText.setStyleRange(sr);
-				lastSelectedRanges.add(sr);
+				StyledText styledText = (StyledText)cmlEditor.getAdapter(Control.class);
+
+				//cmlEditor.resetHighlightRange();
+				//			//cmlEditor.setHighlightRange(10, 4, true);
+				//			
+				//			int line = 0;
+				//			int lenght = 0;
+				//			try {
+				//				CmlStackFrame stackFrame = (CmlStackFrame)cmlDebugTarget.getThreads()[0].getTopStackFrame();
+				//				ILexLocation location = stackFrame.getLocation();
+				//				line = location.getStartOffset();
+				//				lenght = location.getEndOffset() - location.getStartOffset() + 1;
+				//			} catch (DebugException e) {
+				//				e.printStackTrace();
+				//			}
+				clearSelections(styledText);
+
+				for(ILexLocation loc : choice.getLocations())
+				{
+					int length = loc.getEndOffset() - loc.getStartOffset() + 1;
+					StyleRange sr = styledText.getStyleRangeAtOffset(loc.getStartOffset());
+					sr.length = length;
+					sr.background = new Color(null, new RGB(java.awt.Color.GRAY.getRed(), java.awt.Color.GRAY.getGreen(), java.awt.Color.GRAY.getBlue()));
+					styledText.setStyleRange(sr);
+					lastSelectedRanges.add(sr);
+				}
+				styledText.setCaretOffset(choice.getLocations().get(0).getStartOffset());
+				styledText.showSelection();
 			}
-			styledText.setCaretOffset(choice.getLocations().get(0).getStartOffset());
-			styledText.showSelection();
 			//cmlEditor.selectAndReveal(firstLoc.getStartOffset(), length);
 			
 			//styledText.setSelection(firstLoc.getStartOffset());
