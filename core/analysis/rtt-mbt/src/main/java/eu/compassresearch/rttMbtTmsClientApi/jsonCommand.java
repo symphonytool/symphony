@@ -352,7 +352,9 @@ public class jsonCommand {
 						if ((progress < 100) && (hasProgress)) {
 							progress = scanForProgressItems(chunk);
 						}
-						if ((hasConsole) && (hasConsoleItems(chunk))) {
+						if ((hasConsole) &&
+							(client.getVerboseLogging()) &&
+							(hasConsoleItems(chunk))) {
 							scanForConsoleItems(chunk);
 						}
 					}

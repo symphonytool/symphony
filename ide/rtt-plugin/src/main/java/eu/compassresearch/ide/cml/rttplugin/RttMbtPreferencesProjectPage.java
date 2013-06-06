@@ -1,5 +1,6 @@
 package eu.compassresearch.ide.cml.rttplugin;
 
+import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.jface.preference.ComboFieldEditor;
@@ -52,6 +53,14 @@ public class RttMbtPreferencesProjectPage extends FieldEditorPreferencePage impl
 		ComboFieldEditor ClientMode = new ComboFieldEditor("ClientMode", "Client Mode: ", modes, getFieldEditorParent());
 		ClientMode.loadDefault();
 		addField(ClientMode);
+		BooleanFieldEditor verboseLogging = new BooleanFieldEditor("RttMbtLogVerbose",
+                                                                   "Verbose Console Logging",
+                                                                   getFieldEditorParent());
+		addField(verboseLogging);
+		BooleanFieldEditor extraFiles = new BooleanFieldEditor("RttMbtExtraFiles",
+                                                               "Retrieve Extra Files",
+                                                                getFieldEditorParent());
+        addField(extraFiles);
 	}
 
 	/* (non-Javadoc)

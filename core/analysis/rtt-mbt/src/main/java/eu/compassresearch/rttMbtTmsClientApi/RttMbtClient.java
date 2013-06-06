@@ -46,6 +46,8 @@ public class RttMbtClient {
 
 	// client mode
 	private Modes mode;
+	private Boolean verboseLogging;
+	private Boolean extraFiles;
 
 	public RttMbtClient(String server, Integer port, String user, String id) {
 		rttMbtServer = server;
@@ -65,6 +67,8 @@ public class RttMbtClient {
 		RttMbtTProcGenCtxFolderName = getRttMbtTProcGenCtxFolderName();
 		mode = Modes.RTT_MBT_MODE_UNDEFINED;
 		serverWorkspaceChecked = false;
+		verboseLogging = false;
+		extraFiles = false;
 	}
 
 	public void setLoggingFacility(String name, IRttMbtLoggingFacility logger) {
@@ -685,9 +689,9 @@ public class RttMbtClient {
 		uploadDirectory(confDirName, true);
 
 		// generate-test-command
-		System.out.println("generating concrete test procedure (with GUI ports enabled) " + abstractTestProc + "...");
+		System.out.println("generating concrete test procedure" + abstractTestProc + "...");
 		jsonGenerateTestCommand cmd = new jsonGenerateTestCommand(this);
-		cmd.setGuiPorts(true);
+		cmd.setGuiPorts(getVerboseLogging());
 		cmd.setTestProcName("TestProcedures/" + abstractTestProc);
 		cmd.executeCommand();
 		if (!cmd.executedSuccessfully()) {
@@ -754,6 +758,8 @@ public class RttMbtClient {
 		// - addgoalcoverage.csv
 		// - covered_testcases.csv
 		// - focus_points_to_addgoals.conf
+		// - model/error.log
+		// - model/genertion.log
 		dirname = getProjectName() + File.separator
 				+ getRttMbtTProcGenCtxFolderName() + File.separator
 				+ abstractTestProc + File.separator
@@ -761,7 +767,10 @@ public class RttMbtClient {
 		downloadFile(dirname + "addgoalcoverage.csv");
 		downloadFile(dirname + "covered_testcases.csv");
 		downloadFile(dirname + "focus_points_to_addgoals.conf");
-		// downloadFile(dirname + "generation.log");
+		if (getExtraFiles()) {
+			downloadFile(dirname + "errors.log");
+			downloadFile(dirname + "generation.log");
+		}
 
 		// from cache/<user-id>/<project-name>/<testproc>/model
 		// - signals.dat
@@ -886,6 +895,16 @@ public class RttMbtClient {
 				+ abstractTestProc + File.separator
 				+ "testdata" + File.separator;
 		downloadFile(dirname + "replay.log");
+		// - model/error.log
+		// - model/genertion.log
+		if (getExtraFiles()) {
+		dirname = getProjectName() + File.separator
+				+ getRttMbtTProcGenCtxFolderName() + File.separator
+				+ abstractTestProc + File.separator
+				+ "log" + File.separator;
+			downloadFile(dirname + "errors.log");
+			downloadFile(dirname + "generation.log");
+		}
 		
 		return success;
 	}
@@ -955,12 +974,22 @@ public class RttMbtClient {
 			downloadFile(dirname + "errors.log");
 			return false;
 		} else {
+			String dirName;
+			// - model/error.log
+			// - model/genertion.log
+			if (getExtraFiles()) {
+			dirName = getProjectName() + File.separator
+					+ getRttMbtTProcGenCtxFolderName() + File.separator
+					+ abstractTestProc + File.separator
+					+ "log" + File.separator;
+				downloadFile(dirName + "errors.log");
+				downloadFile(dirName + "generation.log");
+			}
 			// download generated files to local directory:
 			// /RTT_Testprocedures/conf/
 			// /RTT_Testprocedures/inc/
 			// /RTT_Testprocedures/specs/
 			// /RTT_Testprocedures/stubs/
-			String dirName;
 			dirName = getProjectName() + File.separator
 					+ getRttMbtTestProcFolderName() + File.separator;
 			downloadDirectory(dirName + "conf");
@@ -1128,8 +1157,14 @@ public class RttMbtClient {
 					System.err.println("creating directory '" + addLocalWorkspace(dirName) + "' failed!");
 				}
 			}
-			downloadFile(dirName + "VERDICT.txt");
-			downloadFile(dirName + "rtt-run-test.log");
+			// - model/error.log
+			// - model/genertion.log
+			if (getExtraFiles()) {
+				downloadDirectory(dirName);
+			} else {
+				downloadFile(dirName + "VERDICT.txt");
+				downloadFile(dirName + "rtt-run-test.log");
+			}
 		}
 
 		// return result
@@ -1416,5 +1451,21 @@ public class RttMbtClient {
 
 	public void setRttMbtServerUptime(String rttMbtServerUptime) {
 		this.rttMbtServerUptime = rttMbtServerUptime;
+	}
+
+	public Boolean getVerboseLogging() {
+		return verboseLogging;
+	}
+
+	public void setVerboseLogging(Boolean verboseLogging) {
+		this.verboseLogging = verboseLogging;
+	}
+
+	public Boolean getExtraFiles() {
+		return extraFiles;
+	}
+
+	public void setExtraFiles(Boolean extraFiles) {
+		this.extraFiles = extraFiles;
 	}
 }
