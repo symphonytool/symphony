@@ -21,6 +21,7 @@ import org.eclipse.jface.window.Window;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.dialogs.ElementTreeSelectionDialog;
 import org.eclipse.ui.model.BaseWorkbenchContentProvider;
+import org.overture.ide.core.resources.IVdmProject;
 
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.program.PSource;
@@ -89,12 +90,16 @@ public class CmlApplicationLaunchShortcut implements ILaunchShortcut2
 		
 		IFile ifile = (IFile) file;
 		ICmlSourceUnit source = (ICmlSourceUnit) ifile.getAdapter(ICmlSourceUnit.class);
-
+		
 		//ICmlSourceUnit cmlSourceUnit = ICmlSourceUnit.getFromFileResource((IFile)file);
-		PSource ast = source.getSourceAst();//cmlSourceUnit.getSourceAst();
+		//cmlSourceUnit.getSourceAst();
 
-		if(ast != null)
+		IVdmProject vdmProject = (IVdmProject)ifile.getProject().getAdapter(IVdmProject.class);
+		
+		if(vdmProject != null && vdmProject.getModel().isParseCorrect() && source != null ) //&& vdmProject.getModel().isTypeCorrect())
 		{
+			PSource ast = source.getSourceAst();
+		
 			List<PSource> sourceList = new LinkedList<PSource>();
 			sourceList.add(ast);
 			List<AProcessDefinition> defsInFile = CmlUtil.GetGlobalProcessesFromSource(sourceList); 
@@ -163,7 +168,12 @@ public class CmlApplicationLaunchShortcut implements ILaunchShortcut2
 		else
 		//If no ast is attached then there are either parser or type errors
 		{
-			MessageDialog.openError(null, "Launch failure", "The Cml model is not loaded or contains error and therefore cannot be launched");
+			if(!vdmProject.getModel().isParseCorrect())
+				MessageDialog.openError(null, "Launch failure", "The Cml model is not parsed correctly and therefore cannot be launched. This could be a glitch, try to close and open the source.");
+			else if(!vdmProject.getModel().isTypeCorrect())
+				MessageDialog.openError(null, "Launch failure", "The Cml model is not typecheck correctly and therefore cannot be launched. This could be a glitch, try to close and open the source.");
+			else
+				MessageDialog.openError(null,"Launch failure", "The Cml model is not loaded correctly and therefore cannot be launched");
 		}
 	
 	}
