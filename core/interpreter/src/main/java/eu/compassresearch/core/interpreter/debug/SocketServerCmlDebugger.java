@@ -13,9 +13,12 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.concurrent.SynchronousQueue;
 
+import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.interpreter.values.IntegerValue;
 import org.overture.interpreter.values.Value;
 
+import eu.compassresearch.ast.actions.PAction;
+import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.interpreter.CmlRuntime;
 import eu.compassresearch.core.interpreter.RandomSelectionStrategy;
 import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
@@ -26,16 +29,23 @@ import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.InterpreterStatus;
 import eu.compassresearch.core.interpreter.api.SelectionStrategy;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.events.CmlInterpreterStatusObserver;
 import eu.compassresearch.core.interpreter.api.events.InterpreterStatusEvent;
 import eu.compassresearch.core.interpreter.api.transitions.ChannelEvent;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
+import eu.compassresearch.core.interpreter.utility.Pair;
 import eu.compassresearch.core.interpreter.utility.messaging.CmlRequest;
 import eu.compassresearch.core.interpreter.utility.messaging.MessageCommunicator;
 import eu.compassresearch.core.interpreter.utility.messaging.MessageContainer;
 import eu.compassresearch.core.interpreter.utility.messaging.RequestMessage;
 import eu.compassresearch.core.interpreter.utility.messaging.ResponseMessage;
 
+/**
+ * Implements a CmlDebugger that communicates through sockets
+ * @author akm
+ *
+ */
 public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStatusObserver {
 
 	/**
@@ -118,7 +128,7 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 		return connected;
 	}
 	
-	public void simulate(CmlInterpreter cmlInterpreter) throws Exception
+	private void simulate(CmlInterpreter cmlInterpreter) throws Exception
 	{
 		CmlSupervisorEnvironment sve = 
 				VanillaInterpreterFactory.newDefaultCmlSupervisorEnvironment(new RandomSelectionStrategy());
@@ -126,7 +136,7 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 		cmlInterpreter.execute(sve);
 	}
 	
-	public void animate(final CmlInterpreter cmlInterpreter) throws Exception
+	private void animate(final CmlInterpreter cmlInterpreter) throws Exception
 	{
 
 		//Create the supervisor environment with the a selction strategy that has a connection to
@@ -152,20 +162,30 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 						sendStatusMessage(CmlDbgpStatus.CHOICE, cmlInterpreter.getStatus());
 
 						//convert to list of strings for now
-						List<String> events = new LinkedList<String>();
+						 List<Choice> transitions = new LinkedList<Choice>();
 						for(CmlTransition transition : availableChannelEvents.getAllEvents())
 						{
-							events.add(transition.toString());
+							//First find all the locations of the transition sources
+							List<ILexLocation> locations = new LinkedList<ILexLocation>();
+							for(CmlBehaviour source : transition.getEventSources())
+							{
+								if(source.getNextState().first instanceof PAction)
+									locations.add(((PAction)source.getNextState().first).getLocation());
+								else if(source.getNextState().first instanceof PProcess)
+									locations.add(((PProcess)source.getNextState().first).getLocation());
+							}
+							 	
+							transitions.add(new Choice(System.identityHashCode(transition),transition.toString(),locations));
 						}
 
-						ResponseMessage response = sendRequestSynchronous(new RequestMessage(CmlRequest.CHOICE,events));
+						ResponseMessage response = sendRequestSynchronous(new RequestMessage(CmlRequest.CHOICE,transitions));
 
 						if(response.isRequestInterrupted())
 							throw new InterpreterRuntimeException("The simulation was interrupted");
 
 						//TODO At the moment if there are two identical events from different processes on the same channel
 						//	then the user cannot distuingiues between the two and for now it will only be the first event in the list
-						String responseStr = response.getContent();
+						Choice choice = response.getContent();
 						//System.out.println("response: " + responseStr);
 
 						CmlTransition selectedEvent = null;
@@ -173,7 +193,7 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 						for(CmlTransition transition : availableChannelEvents.getAllEvents())
 						{
 							//System.out.println("found: " + comEvent.getChannel().getName());
-							if(transition.toString().equals(responseStr))
+							if(System.identityHashCode(transition) == choice.getTransitionObjectId())
 								selectedEvent = transition;
 						}
 
@@ -204,8 +224,10 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 		cmlInterpreter.execute(sve);
 	}
 	
+	
+	
 	/**
-	 * State change methods
+	 * Message communication methods
 	 */
 	
 	/**
@@ -229,11 +251,6 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 		commandDispatcher.stop();
 		System.out.println("Stopped!");
 	}
-	
-	/**
-	 * Message communication methods
-	 */
-	
 	/**
 	 * This message sends a status message to the eclipse debug target UI
 	 * @param status The status to send
@@ -281,6 +298,10 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 		responseQueue.add(new ResponseMessage());
 	}
 
+	/*
+	 * Message handlers
+	 */
+	
 	/**
 	 * Processes messages of type MessageType.STATUS, this is status messages from the other end.
 	 * @param message The status message
@@ -343,6 +364,11 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 		return false;
 	}
 	
+	
+	/*
+	 * CmlDebugger methods
+	 */
+	
 	@Override
 	public void initialize() throws Exception{
 		connect();
@@ -351,8 +377,6 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 
 	@Override
 	public void start(DebugMode mode, CmlInterpreter cmlInterpreter) {
-		
-		
 		
 		try{
 			cmlInterpreter.onStatusChanged().registerObserver(this);
@@ -381,9 +405,4 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 		
 	}
 
-//	@Override
-//	public void stop() {
-//		// TODO Auto-generated method stub
-//		
-//	}
 }

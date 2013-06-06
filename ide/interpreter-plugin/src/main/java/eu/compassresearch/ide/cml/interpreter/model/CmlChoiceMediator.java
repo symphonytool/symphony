@@ -3,7 +3,6 @@ package eu.compassresearch.ide.cml.interpreter.model;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.debug.core.DebugException;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -12,14 +11,13 @@ import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
-import org.overture.ast.intf.lex.ILexLocation;
 
+import eu.compassresearch.core.interpreter.debug.Choice;
 import eu.compassresearch.core.interpreter.utility.messaging.CmlRequest;
 import eu.compassresearch.core.interpreter.utility.messaging.RequestMessage;
 import eu.compassresearch.core.interpreter.utility.messaging.ResponseMessage;
 import eu.compassresearch.ide.cml.interpreter.ICmlDebugConstants;
 import eu.compassresearch.ide.cml.interpreter.views.CmlEventOptionView;
-import eu.compassresearch.ide.cml.ui.editor.core.CmlEditor;
 
 public class CmlChoiceMediator implements IDoubleClickListener, ISelectionChangedListener{
 
@@ -65,7 +63,7 @@ public class CmlChoiceMediator implements IDoubleClickListener, ISelectionChange
 		});
 	}
 		
-	public void setChoiceOptions(final List<String> events, RequestMessage requestMessage)
+	public void setChoiceOptions(final List<Choice> events, RequestMessage requestMessage)
 	{
 		this.requestMessage = requestMessage; 
 		Display.getDefault().asyncExec(new Runnable() {
@@ -81,7 +79,7 @@ public class CmlChoiceMediator implements IDoubleClickListener, ISelectionChange
 		});
 	}
 		
-	public void selectChoice(String event)
+	public void selectChoice(Choice event)
 	{
 		this.cmlDebugTarget.sendMessage(new ResponseMessage( requestMessage.getRequestId(),CmlRequest.CHOICE,event));
 		setChoiceOptions(null,null);
@@ -92,15 +90,15 @@ public class CmlChoiceMediator implements IDoubleClickListener, ISelectionChange
 	public void doubleClick(DoubleClickEvent event) {
 		
 		IStructuredSelection selection = null;
-		String eventStr = null;
+		Choice choice = null;
 		
 		if(event.getSelection() instanceof IStructuredSelection)
 		{
 			selection = (IStructuredSelection)event.getSelection();
-			eventStr = (String)selection.getFirstElement();
+			choice = (Choice)selection.getFirstElement();
 		}
 		
-		selectChoice(eventStr);
+		selectChoice(choice);
 	}
 
 	@Override
@@ -110,23 +108,23 @@ public class CmlChoiceMediator implements IDoubleClickListener, ISelectionChange
 		{
 			IStructuredSelection selection = (IStructuredSelection)event.getSelection();
 			
-			CmlEditor cmlEditor = (CmlEditor)PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
-			//cmlEditor.resetHighlightRange();
-			//cmlEditor.setHighlightRange(10, 4, true);
-			
-			int line = 0;
-			int lenght = 0;
-			try {
-				CmlStackFrame stackFrame = (CmlStackFrame)cmlDebugTarget.getThreads()[0].getTopStackFrame();
-				ILexLocation location = stackFrame.getLocation();
-				line = location.getStartOffset();
-				lenght = location.getEndOffset() - location.getStartOffset() + 1;
-			} catch (DebugException e) {
-				e.printStackTrace();
-			}
-			
-			//cmlEditor.selectAndReveal(line, lenght);
-			cmlEditor.setHighlightRange(line, lenght, true);
+//			CmlEditor cmlEditor = (CmlEditor)PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
+//			//cmlEditor.resetHighlightRange();
+//			//cmlEditor.setHighlightRange(10, 4, true);
+//			
+//			int line = 0;
+//			int lenght = 0;
+//			try {
+//				CmlStackFrame stackFrame = (CmlStackFrame)cmlDebugTarget.getThreads()[0].getTopStackFrame();
+//				ILexLocation location = stackFrame.getLocation();
+//				line = location.getStartOffset();
+//				lenght = location.getEndOffset() - location.getStartOffset() + 1;
+//			} catch (DebugException e) {
+//				e.printStackTrace();
+//			}
+//			
+//			//cmlEditor.selectAndReveal(line, lenght);
+//			cmlEditor.setHighlightRange(line, lenght, true);
 		}
 		
 		

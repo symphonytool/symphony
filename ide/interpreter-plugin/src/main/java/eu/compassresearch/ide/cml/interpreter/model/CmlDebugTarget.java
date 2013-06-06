@@ -32,6 +32,7 @@ import org.eclipse.ui.PlatformUI;
 
 import eu.compassresearch.core.interpreter.api.CmlProcessInfo;
 import eu.compassresearch.core.interpreter.api.InterpreterStatus;
+import eu.compassresearch.core.interpreter.debug.Choice;
 import eu.compassresearch.core.interpreter.debug.CmlDbgCommandMessage;
 import eu.compassresearch.core.interpreter.debug.CmlDbgStatusMessage;
 import eu.compassresearch.core.interpreter.debug.CmlDbgpStatus;
@@ -105,7 +106,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 				@Override
 				public boolean handleMessage(RequestMessage message) {
 					//Type listType = new TypeToken<List<String>>(){}.getType();
-					final List<String> events = message.getContent();
+					final List<Choice> events = message.getContent();
 					new CmlChoiceMediator(cmlDebugTarget).setChoiceOptions(events,message);
 					return true;
 				}

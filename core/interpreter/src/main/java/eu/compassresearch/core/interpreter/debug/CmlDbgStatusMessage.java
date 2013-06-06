@@ -10,6 +10,9 @@ public class CmlDbgStatusMessage extends Message {
 	private CmlDbgpStatus status;
 	private InterpreterStatus interpreterStatus;
 	
+	protected CmlDbgStatusMessage()
+	{}
+	
 	public CmlDbgStatusMessage(CmlDbgpStatus status, InterpreterStatus interpreterStatus)
 	{
 		this.interpreterStatus = interpreterStatus;
@@ -21,9 +24,6 @@ public class CmlDbgStatusMessage extends Message {
 		this.interpreterStatus = null;
 		this.setStatus(status);
 	}
-	
-	protected CmlDbgStatusMessage()
-	{}
 	
 	public CmlDbgpStatus getStatus() {
 		return status;

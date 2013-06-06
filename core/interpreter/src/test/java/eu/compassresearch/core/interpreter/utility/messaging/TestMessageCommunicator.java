@@ -10,6 +10,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import junit.framework.Assert;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -285,6 +287,8 @@ public class TestMessageCommunicator {
 				new MessageContainer(new CmlDbgStatusMessage(CmlDbgpStatus.CONNECTION_CLOSED)));
 		
 		Message recvMessage = messageContainter.getMessage();
+		
+		//Assert.assertEquals(sentMessage., recvMessage);
 		
 		//MessageContainer msg2 = mapper.readValue(in, MessageContainer.class);
 		
