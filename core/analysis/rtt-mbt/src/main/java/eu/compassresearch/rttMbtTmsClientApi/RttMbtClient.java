@@ -29,9 +29,13 @@ public class RttMbtClient {
 	private String userId;
 	private String CmlProject;   // starting and ending with file separator
 	private String CmlWorkspace; // no file separator at the end
+	private String rttMbtServerVersion;
+	private String rttMbtServerUptime;
+
 	private String currentJobId;
 	private String RttMbtTestProcFolderName;
 	private String RttMbtTProcGenCtxFolderName;
+	private Boolean serverWorkspaceChecked;
 
 	// Logging facility
 	private String consoleName;
@@ -51,6 +55,8 @@ public class RttMbtClient {
 		projectName = null;
 		CmlProject = null;
 		CmlWorkspace = null;
+		rttMbtServerVersion = "-";
+		rttMbtServerUptime = "-";
 		consoleName = null;
 		log = null;
 		progress = null;
@@ -58,6 +64,7 @@ public class RttMbtClient {
 		RttMbtTestProcFolderName = getRttMbtTestProcFolderName();
 		RttMbtTProcGenCtxFolderName = getRttMbtTProcGenCtxFolderName();
 		mode = Modes.RTT_MBT_MODE_UNDEFINED;
+		serverWorkspaceChecked = false;
 	}
 
 	public void setLoggingFacility(String name, IRttMbtLoggingFacility logger) {
@@ -75,9 +82,9 @@ public class RttMbtClient {
 	
 	public void addErrorMessage(String msg) {
 		if (log != null) {
-			log.addErrorMessage(consoleName, msg);
+			log.addErrorMessage(consoleName, msg + "\n");
 		} else {
-			System.err.println("[" + consoleName + "]:" + msg);
+			System.err.println("[" + consoleName + "]: *** error: " + msg);
 		}
 	}
 	
@@ -113,7 +120,7 @@ public class RttMbtClient {
 			jsonStartFileCacheCommand start =
 					new jsonStartFileCacheCommand(this);
 			start.executeCommand();
-			if (!start.executedSuccessfully()) {
+			if ((!start.executedSuccessfully()) || (!start.getResult())) {
 				return false;
 			}
 		}
@@ -139,9 +146,29 @@ public class RttMbtClient {
 		return true;
 	}
 	
+	public Boolean checkServerWorkspace() {
+		Boolean success = true;
+
+		// if the server workspace for this server has already
+		// been checked or created, return true
+		if (getServerWorkspaceChecked()) {
+			return success;
+		}
+		
+		// check/create server work area
+		success = beginRttMbtSession();
+		return success;
+	}
+	
 	public Boolean uploadFile(String filename) {
 		Boolean success = true;
 
+		// assert that server workspace exists
+		if (!checkServerWorkspace()) {
+			addErrorMessage("*** error: server working area does not exist an cannot be created!\n");
+			return false;
+		}
+		
 		// add workspace
 		filename = addLocalWorkspace(filename);
 		
@@ -178,6 +205,11 @@ public class RttMbtClient {
 	
 	public Boolean uploadDirectory(String directory, Boolean recursive) {
 		Boolean success = true;
+
+		// assert that server workspace exists
+		if (!checkServerWorkspace()) {
+			return false;
+		}
 
 		// add workspace
 		directory = addLocalWorkspace(directory);
@@ -648,6 +680,9 @@ public class RttMbtClient {
 		uploadFile(confDirName + "advanced.conf");
 		uploadFile(confDirName + "addgoals.conf");
 		uploadFile(confDirName + "addgoalsordered.conf");
+		// cache/<user-id>/<project-name>/TMPL
+		confDirName = getProjectName() + File.separator + "TMPL";
+		uploadDirectory(confDirName, true);
 
 		// generate-test-command
 		System.out.println("generating concrete test procedure (with GUI ports enabled) " + abstractTestProc + "...");
@@ -798,7 +833,7 @@ public class RttMbtClient {
 
 		// retrieve results
 		if (!cmd.executedSuccessfully()) {
-			System.err.println("[FAIL]: generatig RTT_TestProcedures/" + abstractTestProc + " failed!");
+			System.err.println("[FAIL]: replay of " + abstractTestProc + " failed!");
 			// download debugging data to local directory
 			// - rtt-mbt-tms-execution.out
 			// - rtt-mbt-tms-execution.err
@@ -865,6 +900,9 @@ public class RttMbtClient {
 		// - signalmap.csv
 		// - addgoals.conf
 		// - addgoalsordered.conf
+		System.out.println("uploading files for " + getProjectName() + File.separator
+				+ getRttMbtTProcGenCtxFolderName() + File.separator
+				+ abstractTestProc + "...");
 		String modelDirName = getProjectName() + File.separator + "model" + File.separator;
 		uploadFile(modelDirName + "model_dump.xml");
 		uploadFile(modelDirName + "configuration.csv");
@@ -1235,6 +1273,9 @@ public class RttMbtClient {
 	}
 
 	public void setRttMbtServer(String rttMbtServer) {
+		if (this.rttMbtServer.compareTo(rttMbtServer) != 0) {
+			setServerWorkspaceChecked(false);
+		}
 		this.rttMbtServer = rttMbtServer;
 	}
 
@@ -1351,5 +1392,29 @@ public class RttMbtClient {
 			this.mode = Modes.RTT_MBT_MODE_UNDEFINED;
 			addErrorMessage("unsupported client mode " + mode + "\n");
 		}
+	}
+
+	public Boolean getServerWorkspaceChecked() {
+		return serverWorkspaceChecked;
+	}
+
+	public void setServerWorkspaceChecked(Boolean serverWorkspaceExists) {
+		this.serverWorkspaceChecked = serverWorkspaceExists;
+	}
+
+	public String getRttMbtServerVersion() {
+		return rttMbtServerVersion;
+	}
+
+	public void setRttMbtServerVersion(String rttMbtServerVersion) {
+		this.rttMbtServerVersion = rttMbtServerVersion;
+	}
+
+	public String getRttMbtServerUptime() {
+		return rttMbtServerUptime;
+	}
+
+	public void setRttMbtServerUptime(String rttMbtServerUptime) {
+		this.rttMbtServerUptime = rttMbtServerUptime;
 	}
 }
