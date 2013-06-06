@@ -47,6 +47,7 @@ public class RttMbtGenerateSimulation extends RttMbtAbstractTestProcedureAction 
 				// generate simulation
 				if (client.generateSimulation(selectedObject)) {
 					client.addLogMessage("[PASS]: generate simulation\n");
+					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 				} else {
 					client.addErrorMessage("[FAIL]: generate simulation\n");
 					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
@@ -56,7 +57,6 @@ public class RttMbtGenerateSimulation extends RttMbtAbstractTestProcedureAction 
 		};
 		job.schedule();
 		
-		client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 		return null;
 	}
 }

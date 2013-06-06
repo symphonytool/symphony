@@ -47,16 +47,16 @@ public class RttMbtGenerateTest extends RttMbtAbstractTestProcedureAction  {
 				// generate concrete test procedure
 				if (client.generateTestProcedure(selectedObject)) {
 					client.addLogMessage("[PASS]: generate test procedure\n");
+					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 				} else {
 					client.addErrorMessage("[FAIL]: generate test procedure\n");
+					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 				}
-				client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 				return Status.OK_STATUS;
 			}
 		};
 		job.schedule();
 		
-		client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 		return null;
 	}
 }

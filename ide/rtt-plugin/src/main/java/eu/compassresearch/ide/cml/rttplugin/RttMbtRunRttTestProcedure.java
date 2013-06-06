@@ -47,6 +47,7 @@ public class RttMbtRunRttTestProcedure extends RttMbtConcreteTestProcedureAction
 				// run test procedure
 				if (client.runTestProcedure(selectedObject)) {
 					client.addLogMessage("[PASS]: execute test procedure\n");
+					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 				} else {
 					client.addErrorMessage("[FAIL]: execute test procedure\n");
 					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
@@ -56,7 +57,6 @@ public class RttMbtRunRttTestProcedure extends RttMbtConcreteTestProcedureAction
 		};
 		job.schedule();
 
-		client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 		return null;
 	}
 }
