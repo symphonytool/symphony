@@ -40,7 +40,7 @@ class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment {
 	}
 
 	@Override
-	public void setSelectedObservableEvent(CmlTransition comm) {
+	public void setSelectedTransition(CmlTransition comm) {
 		selectedCommunication = comm;
 		//signal all the processes that are listening for events on this channel
 		if(selectedCommunication instanceof ChannelEvent)

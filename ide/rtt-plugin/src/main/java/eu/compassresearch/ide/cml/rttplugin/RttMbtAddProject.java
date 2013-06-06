@@ -4,6 +4,10 @@ import java.io.File;
 
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 
 import eu.compassresearch.rttMbtTmsClientApi.IRttMbtProgressBar;
 
@@ -70,102 +74,112 @@ public class RttMbtAddProject extends RttMbtPopupMenuAction  {
 			}
 		}
 
-		// create/update work area on the server
+		final String itempath = item.getAbsolutePath();
+		Job job = new Job("Add Component to Server") {
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+				// create/update work area on the server
 
-		// push global files/directories:
-		// - conf
-		// - inc
-		// - model
-		// - scripts
-		// - specs
-		// - stubs
-		// - TMPL
-		Boolean ret;
-		Boolean success = true;
-		
-		// conf
-		client.setProgress(IRttMbtProgressBar.Tasks.Global, 0);
-		client.addLogMessage("uploading '" + selectedObject + File.separator + "conf'...");
-		ret = client.uploadDirectory(item.getAbsolutePath() + File.separator + "conf", true);
-		success = success && ret;
-		if (ret) {
-			client.addLogMessage("[PASS]\n");
-		} else {
-			client.addLogMessage("[FAIL]\n");
-		}
-		
-		// inc
-		client.setProgress(IRttMbtProgressBar.Tasks.Global, 0);
-		client.addLogMessage("uploading '" + selectedObject + File.separator + "inc'...");
-		ret = client.uploadDirectory(item.getAbsolutePath() + File.separator + "inc", true);
-		success = success && ret;
-		if (ret) {
-			client.addLogMessage("[PASS]\n");
-		} else {
-			client.addLogMessage("[FAIL]\n");
-		}
-		
-		// model
-		client.setProgress(IRttMbtProgressBar.Tasks.Global, 0);
-		client.addLogMessage("uploading '" + selectedObject + File.separator + "model'...");
-		ret = client.uploadDirectory(item.getAbsolutePath() + File.separator + "model", true);
-		success = success && ret;
-		if (ret) {
-			client.addLogMessage("[PASS]\n");
-		} else {
-			client.addLogMessage("[FAIL]\n");
-		}
-		
-		// scripts
-		client.setProgress(IRttMbtProgressBar.Tasks.Global, 0);
-		client.addLogMessage("uploading '" + selectedObject + File.separator + "scripts'...");
-		ret = client.uploadDirectory(item.getAbsolutePath() + File.separator + "scripts", true);
-		success = success && ret;
-		if (ret) {
-			client.addLogMessage("[PASS]\n");
-		} else {
-			client.addLogMessage("[FAIL]\n");
-		}
-		
-		// specs
-		client.setProgress(IRttMbtProgressBar.Tasks.Global, 0);
-		client.addLogMessage("uploading '" + selectedObject + File.separator + "specs'...");
-		ret = client.uploadDirectory(item.getAbsolutePath() + File.separator + "specs", true);
-		success = success && ret;
-		if (ret) {
-			client.addLogMessage("[PASS]\n");
-		} else {
-			client.addLogMessage("[FAIL]\n");
-		}
-		
-		// stubs
-		client.setProgress(IRttMbtProgressBar.Tasks.Global, 0);
-		client.addLogMessage("uploading '" + selectedObject + File.separator + "stubs'...");
-		ret = client.uploadDirectory(item.getAbsolutePath() + File.separator + "stubs", true);
-		success = success && ret;
-		if (ret) {
-			client.addLogMessage("[PASS]\n");
-		} else {
-			client.addLogMessage("[FAIL]\n");
-		}
-		
-		// TMPL
-		client.setProgress(IRttMbtProgressBar.Tasks.Global, 0);
-		client.addLogMessage("uploading '" + selectedObject + File.separator + "TMPL'...");
-		ret = client.uploadDirectory(item.getAbsolutePath() + File.separator + "TMPL", true);
-		success = success && ret;
-		if (ret) {
-			client.addLogMessage("[PASS]\n");
-		} else {
-			client.addLogMessage("[FAIL]\n");
-		}
+				// push global files/directories:
+				// - conf
+				// - inc
+				// - model
+				// - scripts
+				// - specs
+				// - stubs
+				// - TMPL
+				Boolean ret;
+				Boolean success = true;
+				
+				// conf
+				client.setProgress(IRttMbtProgressBar.Tasks.Global, 0);
+				client.addLogMessage("uploading '" + selectedObject + File.separator + "conf'...");
+				ret = client.uploadDirectory(itempath + File.separator + "conf", true);
+				success = success && ret;
+				if (ret) {
+					client.addLogMessage("[PASS]\n");
+				} else {
+					client.addLogMessage("[FAIL]\n");
+				}
+				
+				// inc
+				client.setProgress(IRttMbtProgressBar.Tasks.Global, 0);
+				client.addLogMessage("uploading '" + selectedObject + File.separator + "inc'...");
+				ret = client.uploadDirectory(itempath + File.separator + "inc", true);
+				success = success && ret;
+				if (ret) {
+					client.addLogMessage("[PASS]\n");
+				} else {
+					client.addLogMessage("[FAIL]\n");
+				}
+				
+				// model
+				client.setProgress(IRttMbtProgressBar.Tasks.Global, 0);
+				client.addLogMessage("uploading '" + selectedObject + File.separator + "model'...");
+				ret = client.uploadDirectory(itempath + File.separator + "model", true);
+				success = success && ret;
+				if (ret) {
+					client.addLogMessage("[PASS]\n");
+				} else {
+					client.addLogMessage("[FAIL]\n");
+				}
+				
+				// scripts
+				client.setProgress(IRttMbtProgressBar.Tasks.Global, 0);
+				client.addLogMessage("uploading '" + selectedObject + File.separator + "scripts'...");
+				ret = client.uploadDirectory(itempath + File.separator + "scripts", true);
+				success = success && ret;
+				if (ret) {
+					client.addLogMessage("[PASS]\n");
+				} else {
+					client.addLogMessage("[FAIL]\n");
+				}
+				
+				// specs
+				client.setProgress(IRttMbtProgressBar.Tasks.Global, 0);
+				client.addLogMessage("uploading '" + selectedObject + File.separator + "specs'...");
+				ret = client.uploadDirectory(itempath + File.separator + "specs", true);
+				success = success && ret;
+				if (ret) {
+					client.addLogMessage("[PASS]\n");
+				} else {
+					client.addLogMessage("[FAIL]\n");
+				}
+				
+				// stubs
+				client.setProgress(IRttMbtProgressBar.Tasks.Global, 0);
+				client.addLogMessage("uploading '" + selectedObject + File.separator + "stubs'...");
+				ret = client.uploadDirectory(itempath + File.separator + "stubs", true);
+				success = success && ret;
+				if (ret) {
+					client.addLogMessage("[PASS]\n");
+				} else {
+					client.addLogMessage("[FAIL]\n");
+				}
+				
+				// TMPL
+				client.setProgress(IRttMbtProgressBar.Tasks.Global, 0);
+				client.addLogMessage("uploading '" + selectedObject + File.separator + "TMPL'...");
+				ret = client.uploadDirectory(itempath + File.separator + "TMPL", true);
+				success = success && ret;
+				if (ret) {
+					client.addLogMessage("[PASS]\n");
+				} else {
+					client.addLogMessage("[FAIL]\n");
+				}
 
-		// final verdict of action
-		if (success) {
-			client.addLogMessage("[PASS]: Add RTT-MBT component '" + selectedObject + "'\n");
-		} else {
-			client.addLogMessage("[FAIL]: Add RTT-MBT component '" + selectedObject + "'\n");
-		}
+				// final verdict of action
+				if (success) {
+					client.addLogMessage("[PASS]: Add RTT-MBT component '" + selectedObject + "'\n");
+				} else {
+					client.addLogMessage("[FAIL]: Add RTT-MBT component '" + selectedObject + "'\n");
+				}
+				client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
+				return Status.OK_STATUS;
+			}
+		};
+		job.schedule();
+
 		client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 		return null;
 	}

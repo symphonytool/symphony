@@ -8,6 +8,10 @@ import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 
 public class CmlTock extends AbstractCmlTransition implements ObservableEvent {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5584770741085270746L;
 	private final long limit;
 	
 	public CmlTock(CmlBehaviour eventSource, long limit) {

@@ -18,11 +18,6 @@ import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.analysis.QuestionCMLAdaptor;
 import eu.compassresearch.ast.lex.LexNameToken;
-import eu.compassresearch.core.interpreter.ActionSetupVisitor;
-import eu.compassresearch.core.interpreter.AlphabetInspectVisitor;
-import eu.compassresearch.core.interpreter.CmlEvaluationVisitor;
-import eu.compassresearch.core.interpreter.CmlOpsToString;
-import eu.compassresearch.core.interpreter.VisitorAccess;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
@@ -51,12 +46,12 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	/*
 	 * Instance variables
 	 */
-	
+
 	/**
 	 * Name of the instance
 	 */
 	protected ILexNameToken 						name;
-	
+
 	//Process/Action Graph variables
 	protected final CmlBehaviour 				parent;
 	protected CmlBehaviour						leftChild = null;
@@ -65,35 +60,36 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	/*
 	 * Visitor instances
 	 */
-	
+
 	/**
 	 * The evaluation visitor
 	 */
-	final QuestionAnswerCMLAdaptor<Context, Pair<INode, Context>> 	cmlEvaluationVisitor;
+	final transient QuestionAnswerCMLAdaptor<Context, Pair<INode, Context>> 	cmlEvaluationVisitor;
 	/**
 	 * The setup visitor
 	 */
-	final QuestionCMLAdaptor<Context> 								cmlSetupVisitor;
-	
+	final transient QuestionAnswerCMLAdaptor<Context,INode>						cmlSetupVisitor;
+
 	/**
 	 * The alphabet inspection visitor
 	 */
-	protected final QuestionAnswerCMLAdaptor<Context, CmlAlphabet>	alphabetInspectionVisitor;
-	
+	protected final transient QuestionAnswerCMLAdaptor<Context, CmlAlphabet>	alphabetInspectionVisitor;
+
 	//Process/Action state variables
-	
+
 	protected boolean 							started = false;
 	protected boolean							waitPrime = false;
 	protected boolean 							aborted = false;
 	//The next INode to execute in the given Context
 	Pair<INode,Context>                         next;
-	
+	Pair<Context,Context>   					preConstructedChildContexts = null;
+
 	//Current supervisor
 	protected CmlSupervisorEnvironment 			env;
 
 	//This might get used to boost the performance
 	//protected Map<INode,Object>                	localStore = new HashMap<INode,Object>();
-	
+
 	//Denotational semantics
 	//This contains the current trace of this process
 	protected final CmlTrace 					trace = new CmlTrace();
@@ -143,6 +139,21 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 			public void setRightChild(CmlBehaviour child) {
 				ConcreteCmlBehaviour.this.setRightChild(child);				
 			}
+
+			@Override
+			public Pair<Context, Context> getChildContexts(Context context) {
+				
+				if(preConstructedChildContexts != null)
+					return preConstructedChildContexts;
+				else
+					return new Pair<Context,Context>(context,context);
+			}
+
+			@Override
+			public void setChildContexts(Pair<Context, Context> contexts) {
+
+				ConcreteCmlBehaviour.this.preConstructedChildContexts = contexts; 
+			}
 		};
 
 		cmlEvaluationVisitor = new CmlEvaluationVisitor(null,this,visitorAccess);
@@ -161,21 +172,31 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 		this(parent,new LexNameToken("", "Child of " + parent.name(),parent.name().getLocation()));
 		setNext(new Pair<INode, Context>(action, context));
 	}
-	
+
 	public ConcreteCmlBehaviour(INode action, Context context, ILexNameToken name, CmlBehaviour parent) throws AnalysisException
 	{
 		this(parent,name);
 		setNext(new Pair<INode, Context>(action, context));
 	}
+	
+	public ConcreteCmlBehaviour(INode action, Context context, CmlBehaviour parent, Pair<Context,Context> childContexts) throws AnalysisException
+	{
+		this(parent,new LexNameToken("", "Child of " + parent.name(),parent.name().getLocation()));
+		setNext(new Pair<INode, Context>(action, context));
+		preConstructedChildContexts = childContexts;
+	}
 
 	protected void setNext(Pair<INode, Context> newNext) throws AnalysisException
 	{
+		
 		if(next == null || (newNext.first != next.first && !hasChildren()))
 		{
-			newNext.first.apply(cmlSetupVisitor,newNext.second);
+			next = new Pair<INode,Context>(newNext.first.apply(cmlSetupVisitor,newNext.second),newNext.second);
+			//INode newNextNode = newNext.first.apply(cmlSetupVisitor,newNext.second);
 			started = false;
 		}
-		next = newNext;
+		else
+			next = newNext;
 	}
 
 	@Override
@@ -224,7 +245,7 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 		if(env.isSelectedEventValid() &&  
 				alpha.containsImprecise(env.selectedObservableEvent()))
 		{
-			
+
 			//If the selected event is not a tock event then we can evaluate
 			if(!(env.selectedObservableEvent() instanceof CmlTock))
 			{
@@ -284,7 +305,7 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	}
 
 	@Override
-	public Pair<INode, Context> getExecutionState() {
+	public Pair<INode, Context> getNextState() {
 		return next;
 	}
 
@@ -439,7 +460,7 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	public CmlTrace getTraceModel() {
 		return trace;
 	}
-	
+
 	@Override
 	public long getCurrentTime() {
 		long nTocks = 0;
@@ -465,7 +486,7 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	{
 		return traceEventHandler;
 	}
-	
+
 	/*
 	 * Private methods
 	 */

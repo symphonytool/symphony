@@ -1,12 +1,13 @@
 package eu.compassresearch.core.interpreter.api.transitions;
 
+import java.io.Serializable;
 import java.util.Set;
 
 import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 
 
-public interface CmlTransition {
+public interface CmlTransition extends Serializable {
 	
 	public abstract int hashCode();
 	

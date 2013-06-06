@@ -59,6 +59,11 @@ abstract class AbstractEvaluationVisitor extends QuestionAnswerCMLAdaptor<Contex
 		this.visitorAccess.setRightChild(child);
 	}
 	
+	protected Pair<Context,Context> getChildContexts(Context context)
+	{
+		return visitorAccess.getChildContexts(context);
+	}
+	
 	protected void removeTheChildren()
 	{
 		for(Iterator<CmlBehaviour> iterator = children().iterator(); iterator.hasNext(); )

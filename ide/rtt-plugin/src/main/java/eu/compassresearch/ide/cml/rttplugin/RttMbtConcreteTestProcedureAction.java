@@ -10,8 +10,4 @@ public class RttMbtConcreteTestProcedureAction extends RttMbtPopupMenuAction {
 		return null;
 	}
 
-	// check if the selected item is an rt-tester test procedure
-	public Boolean isRttTestProcedureSelected() {
-		return false;
-	}
 }

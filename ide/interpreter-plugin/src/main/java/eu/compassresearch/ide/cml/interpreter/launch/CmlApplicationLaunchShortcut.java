@@ -25,9 +25,9 @@ import org.eclipse.ui.model.BaseWorkbenchContentProvider;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.debug.CmlInterpreterLaunchConfigurationConstants;
-import eu.compassresearch.ide.cml.interpreter.CmlDebugConstants;
 import eu.compassresearch.ide.cml.interpreter.CmlUtil;
-import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
+import eu.compassresearch.ide.cml.interpreter.ICmlDebugConstants;
+import eu.compassresearch.ide.cml.ui.editor.core.dom.ICmlSourceUnit;
 
 public class CmlApplicationLaunchShortcut implements ILaunchShortcut2
 {
@@ -87,8 +87,11 @@ public class CmlApplicationLaunchShortcut implements ILaunchShortcut2
 	 */
 	protected void searchAndLaunch(Object file, String mode) {
 		
-		CmlSourceUnit cmlSourceUnit = CmlSourceUnit.getFromFileResource((IFile)file);
-		PSource ast = cmlSourceUnit.getSourceAst();
+		IFile ifile = (IFile) file;
+		ICmlSourceUnit source = (ICmlSourceUnit) ifile.getAdapter(ICmlSourceUnit.class);
+
+		//ICmlSourceUnit cmlSourceUnit = ICmlSourceUnit.getFromFileResource((IFile)file);
+		PSource ast = source.getSourceAst();//cmlSourceUnit.getSourceAst();
 
 		if(ast != null)
 		{
@@ -183,7 +186,7 @@ public class CmlApplicationLaunchShortcut implements ILaunchShortcut2
     {
     	ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
     	ILaunchConfigurationType ctype = 
-    			launchManager.getLaunchConfigurationType(CmlDebugConstants.ATTR_LAUNCH_CONFIGURATION_TYPE.toString());
+    			launchManager.getLaunchConfigurationType(ICmlDebugConstants.ATTR_LAUNCH_CONFIGURATION_TYPE);
     	
     	
     	//Get the current project which this file lives in
@@ -222,7 +225,7 @@ public class CmlApplicationLaunchShortcut implements ILaunchShortcut2
     	{
     		ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
         	ILaunchConfigurationType ctype = 
-        			launchManager.getLaunchConfigurationType(CmlDebugConstants.ATTR_LAUNCH_CONFIGURATION_TYPE.toString());
+        			launchManager.getLaunchConfigurationType(ICmlDebugConstants.ATTR_LAUNCH_CONFIGURATION_TYPE);
         	
         	
         	ILaunchConfigurationWorkingCopy lcwc = ctype.newInstance(null, launchManager.generateLaunchConfigurationName("Quick Launch"));
