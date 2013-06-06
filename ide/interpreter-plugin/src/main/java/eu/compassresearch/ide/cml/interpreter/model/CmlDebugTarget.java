@@ -106,6 +106,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 				@Override
 				public boolean handleMessage(RequestMessage message) {
 					//Type listType = new TypeToken<List<String>>(){}.getType();
+					 
 					final List<Choice> events = message.getContent();
 					new CmlChoiceMediator(cmlDebugTarget).setChoiceOptions(events,message);
 					return true;

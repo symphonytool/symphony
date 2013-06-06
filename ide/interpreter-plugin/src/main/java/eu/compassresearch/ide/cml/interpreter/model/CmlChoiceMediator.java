@@ -6,6 +6,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.debug.core.DebugEvent;
+import org.eclipse.debug.core.DebugPlugin;
+import org.eclipse.debug.core.IDebugEventSetListener;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -41,6 +44,20 @@ public class CmlChoiceMediator implements IDoubleClickListener, ISelectionChange
 	{
 		this.cmlDebugTarget = cmlDebugTarget;
 		
+		DebugPlugin.getDefault().addDebugEventListener(new IDebugEventSetListener() {
+		
+			@Override
+			public void handleDebugEvents(DebugEvent[] events) {
+				for(DebugEvent dbgEvent: events)
+					if(dbgEvent.getKind() == DebugEvent.TERMINATE)
+					{
+						finish();
+						DebugPlugin.getDefault().removeDebugEventListener(this);
+					}
+						
+			}
+		});
+		
 		Display.getDefault().syncExec(new Runnable() {
 			@Override
 			public void run() {
@@ -73,7 +90,7 @@ public class CmlChoiceMediator implements IDoubleClickListener, ISelectionChange
 					StyledText styledText = (StyledText)cmlEditor.getAdapter(Control.class);
 					clearSelections(styledText);
 					view.getListViewer().setInput(null);
-					view.getListViewer().setSelection(null);
+					view.getListViewer().refresh();
 					
 				} catch (PartInitException e) {
 					e.printStackTrace();
