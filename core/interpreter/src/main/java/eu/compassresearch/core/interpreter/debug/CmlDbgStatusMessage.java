@@ -10,6 +10,9 @@ public class CmlDbgStatusMessage extends Message {
 	private CmlDbgpStatus status;
 	private InterpreterStatus interpreterStatus;
 	
+	protected CmlDbgStatusMessage()
+	{}
+	
 	public CmlDbgStatusMessage(CmlDbgpStatus status, InterpreterStatus interpreterStatus)
 	{
 		this.interpreterStatus = interpreterStatus;
@@ -36,9 +39,10 @@ public class CmlDbgStatusMessage extends Message {
 			
 	@Override
 	public String toString() {
-		String newLine = System.getProperty("line.separator");
-		return CmlDbgStatusMessage.class.getSimpleName() + newLine +
-			   "Status: "+ status;
+		return CmlDbgStatusMessage.class.getSimpleName() + System.lineSeparator() +
+			   "Status: "+ status + System.lineSeparator() +
+			   this.interpreterStatus;
+				
 	}
 
 	@Override

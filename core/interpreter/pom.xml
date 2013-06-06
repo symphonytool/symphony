@@ -11,7 +11,6 @@
 
 	<artifactId>interpreter</artifactId>
 	<name>COMPASS Core CML Interpreter</name>
-
 	<dependencies>
 		<dependency>
 			<groupId>eu.compassresearch.core</groupId>
@@ -33,11 +32,6 @@
 			<artifactId>typechecker</artifactId>
 			<version>${overture.version}</version>
 		</dependency>
-		<!-- <dependency> -->
-		<!-- <groupId>org.overture.core</groupId> -->
-		<!-- <artifactId>ast</artifactId> -->
-		<!-- <version>${overture.version}</version> -->
-		<!-- </dependency> -->
 		<dependency>
 			<groupId>org.overture.core</groupId>
 			<artifactId>interpreter</artifactId>
@@ -48,14 +42,11 @@
 			<artifactId>json-simple</artifactId>
 			<version>1.1.1</version>
 		</dependency>
-		<!-- Gson: Java to Json conversion -->
 		<dependency>
-			<groupId>com.google.code.gson</groupId>
-			<artifactId>gson</artifactId>
-			<version>2.2.4</version>
-			<scope>compile</scope>
+  			<groupId>com.fasterxml.jackson.core</groupId>
+  			<artifactId>jackson-databind</artifactId>
+  			<version>2.2.0</version>
 		</dependency>
-
 	</dependencies>
 
 	<build>
@@ -72,11 +63,9 @@
 			</resource>
 		</resources>
 		<plugins>
-		<!-- 		FIXME this might not be the best way to do it but it works for know
-					This is needed because of Eclipse. This will set the 
-					exclusion filter for the source folders to the specifed folders.  
-								
-		 -->
+			<!-- FIXME this might not be the best way to do it but it works for know 
+				This is needed because of Eclipse. This will set the exclusion filter for 
+				the source folders to the specifed folders. -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -118,6 +107,7 @@
 					</execution>
 				</executions>
 			</plugin>
+			
 		</plugins>
 	</build>
 </project>

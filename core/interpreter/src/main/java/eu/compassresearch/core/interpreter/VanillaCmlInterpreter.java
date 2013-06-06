@@ -2,6 +2,7 @@ package eu.compassresearch.core.interpreter;
 
 import java.io.File;
 import java.io.IOException;
+import java.rmi.RemoteException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -183,7 +184,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			for(CmlTransition event : availableEvents.getAllEvents())
 			{
 				//TODO this should be handled differently
-				Context context = event.getEventSources().iterator().next().getExecutionState().second;
+				Context context = event.getEventSources().iterator().next().getNextState().second;
 
 				String state;
 
@@ -198,10 +199,16 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			}
 
 			//Let the given decision function select one of the observable events 
-			CmlTransition selectedEvent = currentSupervisor.decisionFunction().select(availableEvents); 
+			CmlTransition selectedEvent = null;
+			try {
+				selectedEvent = currentSupervisor.decisionFunction().select(availableEvents);
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} 
 
 			//Set the selected event on the supervisor
-			currentSupervisor.setSelectedObservableEvent(selectedEvent);
+			currentSupervisor.setSelectedTransition(selectedEvent);
 			
 			topProcess.execute(currentSupervisor);
 			
@@ -210,7 +217,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			if(trace.getLastEvent() instanceof ObservableEvent)
 			{
 				CmlRuntime.logger().fine("----------------observable step by '"+ topProcess +"'----------------");
-				CmlRuntime.logger().fine("Observable trace of '"+topProcess+"': " + trace.getEventTrace());
+				CmlRuntime.logger().fine("Observable trace of '"+topProcess+"': " + trace.getObservableTrace());
 				
 			}
 			else 
@@ -274,10 +281,10 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		VanillaCmlInterpreter cmlInterp = new VanillaCmlInterpreter(source);
 		try
 		{
-			//CmlSupervisorEnvironment sve = 
-			//		VanillaInterpreterFactory.newDefaultCmlSupervisorEnvironment(new ConsoleSelectionStrategy());
 			CmlSupervisorEnvironment sve = 
-							VanillaInterpreterFactory.newDefaultCmlSupervisorEnvironment(new RandomSelectionStrategy());
+					VanillaInterpreterFactory.newDefaultCmlSupervisorEnvironment(new ConsoleSelectionStrategy());
+			//CmlSupervisorEnvironment sve = 
+			//				VanillaInterpreterFactory.newDefaultCmlSupervisorEnvironment(new RandomSelectionStrategy());
 
 			CmlRuntime.logger().setLevel(Level.FINEST);
 			cmlInterp.onStatusChanged().registerObserver(new CmlInterpreterStatusObserver() {
@@ -306,16 +313,9 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	public static void main(String[] args) throws IOException, InterpreterException
 	{
 		File cml_example = new File(
-				"src/test/resources/action/action-replicated-interleaving.cml");
+				"src/test/resources/action/replicated/replicated-interleaving2.cml");
 		runOnFile(cml_example);
 
-	}
-
-	@Override
-	public Value evaluate(String line, Context ctxt,
-			CmlSupervisorEnvironment sve) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override

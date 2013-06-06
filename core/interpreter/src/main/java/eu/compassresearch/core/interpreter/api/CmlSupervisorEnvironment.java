@@ -38,7 +38,7 @@ public interface CmlSupervisorEnvironment {
 	 * @return The selected CMLCommunication if communicationSelected() is true else null
 	 */
 	public CmlTransition selectedObservableEvent();
-	public void setSelectedObservableEvent(CmlTransition comm);
+	public void setSelectedTransition(CmlTransition comm);
 	/**
 	 * Clears the currently selected CMLCommunication
 	 */

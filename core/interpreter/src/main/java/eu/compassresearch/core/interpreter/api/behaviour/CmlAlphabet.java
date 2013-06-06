@@ -91,7 +91,7 @@ public class CmlAlphabet extends Value {
 	 * Returns all the special events in the alphabet
 	 * @return
 	 */
-	public Set<SilentTransition> getSpecialEvents()
+	public Set<SilentTransition> getSilentTransitions()
 	{
 		return new LinkedHashSet<SilentTransition>(specialEvents);
 	}

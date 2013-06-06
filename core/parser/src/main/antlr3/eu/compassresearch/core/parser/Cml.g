@@ -2278,7 +2278,7 @@ typebase returns[PType type]
         {
             LexNameToken tname = $name.name;
             ILexLocation loc = tname.getLocation();
-            $type = new ANamedInvariantType(loc, false, null, false, null, tname,
+            $type = new ANamedInvariantType(loc, false, null, false, false, null, tname,
                                             new AUnresolvedType(loc, false, new ArrayList<PDefinition>(), tname));
         }
     | 'set' 'of' sub=typebase                   { $type = new ASetType(null, false, null, $sub.type, false, false); }
@@ -2289,7 +2289,7 @@ typebase returns[PType type]
     | 'compose' IDENTIFIER 'of' fieldList 'end'
         {
             LexNameToken name = new LexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER));
-            $type = new ARecordInvariantType(null, false, null, false, null, name, $fieldList.fieldList, false);
+            $type = new ARecordInvariantType(null, false, null, false, false, null, name, $fieldList.fieldList, false);
         }
     ;
 

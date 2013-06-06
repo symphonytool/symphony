@@ -13,37 +13,46 @@
     <view 
         id="eu.compassresearch.ide.cml.interpreter.OptionsView"
         name="CML Event Options"
-        category="compass_eu.compassresearch.ide.cml.ui.category"
+        category="eu.compassresearch.ide.ui.category"
         
         class="eu.compassresearch.ide.cml.interpreter.views.CmlEventOptionView" />
         
         <category
-        	id="compass_eu.compassresearch.ide.cml.ui.category"
+        	id="eu.compassresearch.ide.ui.category"
         	name="COMPASS"/>
   </extension>
   
   <extension point="org.eclipse.ui.views">
     <view 
         id="eu.compassresearch.ide.cml.interpreter.historyView"
-        name="CML Event History"
-        category="compass_eu.compassresearch.ide.cml.ui.category"
+        name="Observable Event History"
+        category="eu.compassresearch.ide.ui.category"
         
         class="eu.compassresearch.ide.cml.interpreter.views.CmlEventHistoryView" />
         
         <category
-        	id="compass_eu.compassresearch.ide.cml.ui.category"
+        	id="eu.compassresearch.ide.ui.category"
         	name="COMPASS"/>
   </extension>
   
   <!-- Declare launch configuration type -->
 	<extension point="org.eclipse.debug.core.launchConfigurationTypes">
 		<launchConfigurationType
-        delegate="eu.compassresearch.ide.cml.interpreter_plugin.launch.CmlLaunchConfigurationDelegate"
-        id="eu.compassresearch.ide.cml.interpreter_plugin.launchConfigurationType"
+        delegate="eu.compassresearch.ide.cml.interpreter.launch.CmlLaunchConfigurationDelegate"
+        id="eu.compassresearch.ide.cml.interpreter.launchConfigurationType"
         modes="debug,run"
         name="CML Model"
-        public="true">
+        public="true"
+        sourceLocatorId="eu.compassresearch.ide.cml.interpreter.sourceLookupDirector">
 		</launchConfigurationType>
+	</extension>
+	
+	<extension point="org.eclipse.debug.core.sourceLocators">
+		<sourceLocator
+	       name="CML Source Lookup Director"
+	    class="eu.compassresearch.ide.cml.interpreter.launch.CmlSourceLookupDirector"
+	    id="eu.compassresearch.ide.cml.interpreter.sourceLookupDirector">
+	    </sourceLocator>
 	</extension>
 	
 	<!-- Add the launch config group to the launch dialog -->

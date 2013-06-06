@@ -7,6 +7,10 @@ public abstract class DialogMessage extends Message{
 	private UUID requestId;
 	private CmlRequest request;
 
+	protected DialogMessage()
+	{
+	}
+	
 	public DialogMessage(CmlRequest request, Object value)
 	{
 		requestId = UUID.randomUUID();

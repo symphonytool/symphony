@@ -1,8 +1,9 @@
 package eu.compassresearch.core.interpreter.api;
 
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
+
+import org.overture.ast.lex.LexLocation;
 
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 
@@ -18,14 +19,22 @@ public class InterpreterStatus {
 	private InterpreterError[] errors = null;
 	private final CmlInterpreterState state;
 	
+	protected InterpreterStatus()
+	{
+		state = null;
+		processInfos = null;
+		topLevelProcessIndex = 0;
+	}
+	
 	public InterpreterStatus(CmlBehaviour topProcess, CmlInterpreterState state)
 	{
 		this.processInfos = new CmlProcessInfo[1];
-		this.processInfos[0] = new CmlProcessInfo(topProcess.name().getName(),
+		this.processInfos[0] = new CmlProcessInfo(topProcess.name(),
 				topProcess.getTraceModel(),
 				topProcess.level(),
 				topProcess instanceof CmlBehaviour,
-				topProcess.getState());
+				topProcess.getState(),
+				(LexLocation)topProcess.getNextState().second.location);
 
 		topLevelProcessIndex = 0;
 		this.state = state;
@@ -42,7 +51,10 @@ public class InterpreterStatus {
 	}
 	
 	public List<InterpreterError> getErrors() {
-		return Arrays.asList(errors);
+		if(errors != null)
+			return Arrays.asList(errors);
+		else
+			return null;
 	}
 
 	public void AddError(InterpreterError error) {
@@ -65,4 +77,9 @@ public class InterpreterStatus {
 		return state;
 	}
 			
+	@Override
+	public String toString() {
+		return "CmlInterpreterState: " + state + System.lineSeparator() + 
+				"topProcess: " + this.processInfos[0];
+	}
 }

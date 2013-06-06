@@ -184,15 +184,50 @@ public class InterpretAllCmlFilesTest {
 	@Parameters
 	public static Collection<Object[]> getCmlfilePaths() {
 
-		List<Object[]> paths = addFilesInFolder("src/test/resources/action/");
-		paths.addAll(addFilesInFolder("src/test/resources/process/"));
-		paths.addAll(addFilesInFolder("src/test/resources/examples/"));
-		paths.addAll(addFilesInFolder("src/test/resources/classes/"));
+		List<Object[]> paths = findAllCmlFiles("src/test/resources/");
+				//findAllCmlFiles("src/test/resources/action/");
+		//paths.addAll(findAllCmlFiles("src/test/resources/process/"));
+		//paths.addAll(findAllCmlFiles("src/test/resources/examples/"));
+		//paths.addAll(findAllCmlFiles("src/test/resources/classes/"));
+		//paths.addAll(findAllCmlFiles("src/test/resources/action/replicated/"));
 		
 		return paths;
 	}
 	
-	private static List<Object[]> addFilesInFolder(String folderPath)
+	private static List<Object[]> findAllCmlFiles(String folderPath)
+	{
+		List<Object[]> paths = new Vector<Object[]>();
+		File folder = new File(folderPath);
+		
+		paths.addAll(addFilesInFolder(folder));
+		
+		for(File subfolder  : findSubfolders(folder))
+			paths.addAll(addFilesInFolder(subfolder));
+		
+		return paths;
+	}
+	
+	private static List<File> findSubfolders(File folder)
+	{
+		List<File> subfolders = new LinkedList<File>();
+				
+		subfolders.addAll(Arrays.asList(folder.listFiles(new FilenameFilter() {
+			  @Override
+			  public boolean accept(File dir, String name) {
+			    return new File(dir, name).isDirectory();
+			  }
+			})));
+		
+		List<File> subsubfolders = new LinkedList<File>();
+		for(File sub : subfolders)
+			subsubfolders.addAll(findSubfolders(sub));
+		
+		subfolders.addAll(subsubfolders);
+		
+		return subfolders;
+	}
+	
+	private static List<Object[]> addFilesInFolder(File folder)
 	{
 		
 		//Make filter to only get the files that ends with '.cml'
@@ -203,7 +238,6 @@ public class InterpretAllCmlFilesTest {
 		};
 		
 		//Add the folders to search in
-		File folder = new File(folderPath);
 		String[] children = folder.list(filter);
 		
 		List<Object[]> paths = new Vector<Object[]>();
@@ -216,7 +250,6 @@ public class InterpretAllCmlFilesTest {
 				paths.add(new Object[] { folder.getPath() + "/" + children[i] });
 			}
 		}
-		
 		return paths;
 	}
 }
