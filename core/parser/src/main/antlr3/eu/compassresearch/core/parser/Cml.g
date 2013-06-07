@@ -106,6 +106,8 @@ import org.antlr.runtime.CommonTokenStream;
 // }
 
 @parser::members {
+public String sourceFileName = "";
+
 public String getErrorMessage(RecognitionException e, String[] tokenNames) {
     List stack = getRuleInvocationStack(e, this.getClass().getName());
     String msg = null;
@@ -177,7 +179,7 @@ private ILexLocation extractLexLocation(CommonToken token) {
     int line = token.getLine();
     int pos = token.getCharPositionInLine();
     int offset = token.getStartIndex();
-    return new LexLocation("",// FIXME: filename --- was currentSource.toString(),
+    return new LexLocation(self.sourceFileName,
                            "",// FIXME: (local?) module name
                            line, //start line
                            pos, //start column
@@ -194,7 +196,7 @@ private ILexLocation extractLexLocation(CommonToken start, CommonToken end) {
     int epos = end.getCharPositionInLine() + end.getText().length();
     int soffset = start.getStartIndex();
     int eoffset = end.getStopIndex();
-    return new LexLocation("",// FIXME: filename --- was currentSource.toString(),
+    return new LexLocation(self.sourceFileName,
                            "",// FIXME: (local?) module name
                            sline, spos,
                            eline, epos,
