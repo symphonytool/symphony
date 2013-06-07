@@ -1,105 +1,111 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+	 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>eu.compassresearch.core.analysis</groupId>
-		<artifactId>analysis</artifactId>
-		<version>0.1.1<!--Replaceable: Main Version--></version>
-		<relativePath>../pom.xml</relativePath>
-	</parent>
+  <parent>
+    <groupId>eu.compassresearch.core.analysis</groupId>
+    <artifactId>analysis</artifactId>
+    <version>0.1.1<!--Replaceable: Main Version--></version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
 
-	<repositories>
-		<repository>
-			<id>isabelle-eclipse</id>
-			<url>http://andriusvelykis.github.io/isabelle-eclipse/updates/isabelle2013/releases/</url>
-			<layout>p2</layout>
-		</repository>
-	</repositories>
+  <!-- the two isabelle dependencies below have been installed
+       manually into the overture-compass-m2repo to avoid some errors
+       -jwc/7Jun2013
+  -->
+  <!-- <repositories> -->
+  <!--   <repository> -->
+  <!--     <id>isabelle-eclipse</id> -->
+  <!--     <url>http://andriusvelykis.github.io/isabelle-eclipse/updates/isabelle2013/releases/</url> -->
+  <!--     <layout>p2</layout> -->
+  <!--   </repository> -->
+  <!-- </repositories> -->
 
-	<properties>
-		<scala.version>2.10.1</scala.version>
-		<java.version>1.7</java.version>
-	</properties>
+  <properties>
+    <scala.version>2.10.1</scala.version>
+    <java.version>1.7</java.version>
+  </properties>
 
-	<artifactId>theoremprover</artifactId>
-	<name>COMPASS Core Analysis Theorem Prover</name>
-	<dependencies>
+  <artifactId>theoremprover</artifactId>
+  <name>COMPASS Core Analysis Theorem Prover</name>
+  <dependencies>
 
-		<dependency>
-			<groupId>eu.compassresearch.core</groupId>
-			<artifactId>ast</artifactId>
-			<version>${project.version}</version>
-		</dependency>
+    <dependency>
+      <groupId>eu.compassresearch.core</groupId>
+      <artifactId>ast</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
-		<dependency>
-			<groupId>org.overture.core</groupId>
-			<artifactId>ast</artifactId>
-			<version>${overture.version}</version>
-		</dependency>
+    <dependency>
+      <groupId>org.overture.core</groupId>
+      <artifactId>ast</artifactId>
+      <version>${overture.version}</version>
+    </dependency>
 
-		<!-- Will add this back when we have Isabelle-Eclipse dependency reintegrated 
-			<dependency> <groupId>isabelle.eclipse</groupId> <artifactId>isabelle.eclipse.core</artifactId> 
-			<version>1.1.0-SNAPSHOT</version> <type>eclipse-plugin</type> </dependency> -->
+    <!-- Will add this back when we have Isabelle-Eclipse dependency reintegrated 
+	 <dependency> <groupId>isabelle.eclipse</groupId> <artifactId>isabelle.eclipse.core</artifactId> 
+	 <version>1.1.0-SNAPSHOT</version> <type>eclipse-plugin</type> </dependency> -->
 
-		<dependency>
-			<groupId>eu.compassresearch.core</groupId>
-			<artifactId>typechecker</artifactId>
-			<version>${project.version}</version>
-		</dependency>
+    <dependency>
+      <groupId>eu.compassresearch.core</groupId>
+      <artifactId>typechecker</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
-		<dependency>
-			<groupId>org.scala-lang</groupId>
-			<artifactId>scala-library</artifactId>
-			<version>${scala.version}</version>
-		</dependency>
+    <dependency>
+      <groupId>org.scala-lang</groupId>
+      <artifactId>scala-library</artifactId>
+      <version>${scala.version}</version>
+    </dependency>
 
-		<dependency>
-			<groupId>org.scala-lang</groupId>
-			<artifactId>scala-actors</artifactId>
-			<version>${scala.version}</version>
-		</dependency>
+    <dependency>
+      <groupId>org.scala-lang</groupId>
+      <artifactId>scala-actors</artifactId>
+      <version>${scala.version}</version>
+    </dependency>
 
-		<dependency>
-			<groupId>isabelle.scala</groupId>
-			<artifactId>isabelle.pure</artifactId>
-			<version>2013.0.1-SNAPSHOT</version>
-		</dependency>
+    <dependency>
+      <groupId>isabelle.scala</groupId>
+      <artifactId>isabelle.pure</artifactId>
+      <version>2013.0.1-SNAPSHOT</version>
+      <scope>compile</scope>
+    </dependency>
 
-		<dependency>
-			<groupId>isabelle.scala</groupId>
-			<artifactId>isabelle.pide</artifactId>
-			<version>2013.0.1-SNAPSHOT</version>
-		</dependency>
+    <dependency>
+      <groupId>isabelle.scala</groupId>
+      <artifactId>isabelle.pide</artifactId>
+      <version>2013.0.1-SNAPSHOT</version>
+      <scope>compile</scope>
+    </dependency>
 
-	</dependencies>
+  </dependencies>
 
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.scala-tools</groupId>
-				<artifactId>maven-scala-plugin</artifactId>
-				<version>2.15.2</version>
-				<executions>
-					<execution>
-						<id>scala-compile-first</id>
-						<phase>process-resources</phase>
-						<goals>
-							<goal>add-source</goal>
-							<goal>compile</goal>
-						</goals>
-					</execution>
-					<execution>
-						<id>scala-test-compile</id>
-						<phase>process-test-resources</phase>
-						<goals>
-							<goal>testCompile</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
-	</build>
+  <build>
+    <plugins>
+      <plugin>
+	<groupId>org.scala-tools</groupId>
+	<artifactId>maven-scala-plugin</artifactId>
+	<version>2.15.2</version>
+	<executions>
+	  <execution>
+	    <id>scala-compile-first</id>
+	    <phase>process-resources</phase>
+	    <goals>
+	      <goal>add-source</goal>
+	      <goal>compile</goal>
+	    </goals>
+	  </execution>
+	  <execution>
+	    <id>scala-test-compile</id>
+	    <phase>process-test-resources</phase>
+	    <goals>
+	      <goal>testCompile</goal>
+	    </goals>
+	  </execution>
+	</executions>
+      </plugin>
+    </plugins>
+  </build>
 
 </project>
 
