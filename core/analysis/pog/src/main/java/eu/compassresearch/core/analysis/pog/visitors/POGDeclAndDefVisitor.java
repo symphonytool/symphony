@@ -70,6 +70,7 @@ public class POGDeclAndDefVisitor extends
      * CML ELEMENT - Channels
      * 
      */
+    
     @Override
     public ProofObligationList caseAChannelsDefinition(
     	AChannelsDefinition node, POContextStack question)
@@ -428,8 +429,12 @@ public class POGDeclAndDefVisitor extends
 		    throws AnalysisException {
 			ProofObligationList obligations = new ProofObligationList();
 		
+			// add the name stuff HERE
+			
 			for (PDefinition def : node.getFunctionDefinitions()) {
+				question.push(def.apply(new PogNameContextVisitor()));
 				obligations.addAll(def.apply(parentPOG, question));
+				question.pop();
 			}
 		
 			return obligations;
