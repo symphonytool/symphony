@@ -58,6 +58,7 @@ public class SourceParserCml extends AbstractParserParticipant
 			lexer = new CmlLexer(in);
 			CommonTokenStream tokens = new CommonTokenStream(lexer);
 			CmlParser parser = new CmlParser(tokens);
+			parser.sourceFileName=file.getFile().getName();
 
 			try
 			{

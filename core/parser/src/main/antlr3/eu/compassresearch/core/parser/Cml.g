@@ -179,7 +179,7 @@ private ILexLocation extractLexLocation(CommonToken token) {
     int line = token.getLine();
     int pos = token.getCharPositionInLine();
     int offset = token.getStartIndex();
-    return new LexLocation(self.sourceFileName,
+    return new LexLocation(this.sourceFileName,
                            "",// FIXME: (local?) module name
                            line, //start line
                            pos, //start column
@@ -196,7 +196,7 @@ private ILexLocation extractLexLocation(CommonToken start, CommonToken end) {
     int epos = end.getCharPositionInLine() + end.getText().length();
     int soffset = start.getStartIndex();
     int eoffset = end.getStopIndex();
-    return new LexLocation(self.sourceFileName,
+    return new LexLocation(this.sourceFileName,
                            "",// FIXME: (local?) module name
                            sline, spos,
                            eline, epos,
