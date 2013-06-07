@@ -47,6 +47,7 @@ public class RttMbtCompileRttTestProcedure extends RttMbtConcreteTestProcedureAc
 				// compile test procedure
 				if (client.compileTestProcedure(selectedObject)) {
 					client.addLogMessage("[PASS]: compile test procedure\n");
+					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 				} else {
 					client.addErrorMessage("[FAIL]: compile test procedure\n");
 					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
@@ -56,7 +57,6 @@ public class RttMbtCompileRttTestProcedure extends RttMbtConcreteTestProcedureAc
 		};
 		job.schedule();
 
-		client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 		return null;
 	}
 }

@@ -18,6 +18,7 @@
 
   <properties>
     <maven.test.skip>true</maven.test.skip>
+    <maven.javadoc.skip>true</maven.javadoc.skip>
     <tycho.version>0.16.0</tycho.version>
   </properties>
 
@@ -120,6 +121,16 @@
       <id>overture.iha.dk-p2</id>
       <url>http://build.overturetool.org/builds/overture-compass-p2repo/</url>
       <layout>p2</layout>
+    </repository>
+    <repository>
+      <id>isabelle-eclipse</id>
+      <layout>p2</layout>
+      <url>http://andriusvelykis.github.io/isabelle-eclipse/updates/isabelle2013/releases/</url>
+    </repository>
+    <repository>
+      <id>scala-ide</id>
+      <layout>p2</layout>      
+      <url>http://download.scala-ide.org/sdk/e38/scala210/stable/site</url>
     </repository>
   </repositories>
 

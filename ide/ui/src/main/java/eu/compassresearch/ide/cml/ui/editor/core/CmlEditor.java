@@ -81,7 +81,7 @@ public class CmlEditor extends VdmEditor
 	    return;
 	INode element = computeHighlightRangeSourceReference();
 
-	if (element != null)
+	if (element != null && cmlOutLiner != null)
 	    cmlOutLiner.setTreeSelection(element);
 
     }

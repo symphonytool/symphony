@@ -42,14 +42,25 @@ public class RandomSelectionStrategy implements
 		
 		CmlTransition selectedComm = null;
 		
+		//If nothing is available then we do nothing
+		//TODO This is probably not the best thing to do
 		if(!availableChannelEvents.isEmpty())
 		{
 			int nElems = availableChannelEvents.getAllEvents().size();
+			
+			//if the number of possible transitions are greater than one then the
+			//CMlTock events are filtered out
+//			if(nElems > 1)
+//			{
+//				for(CmlTransition t : availableChannelEvents.g)
+//			}			
 			
 			//pick a random but deterministic choice
 			selectedComm = new ArrayList<CmlTransition>(
 					availableChannelEvents.getAllEvents()).get(rndChoice.nextInt(nElems));
 			
+			//If the selected transition contains a value that are not precise then we
+			//need to resolve this and let the environment take a random choice
 			if(selectedComm instanceof ChannelEvent && !((ChannelEvent)selectedComm).isPrecise())
 			{
 				AChannelType t = (AChannelType)((ChannelEvent)selectedComm).getChannel().getType();

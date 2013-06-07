@@ -392,6 +392,8 @@ public class DebugMain {
 		//retrieve the top process name
 		String startProcessName = (String)config.get(CmlInterpreterLaunchConfigurationConstants.PROCESS_NAME.toString());
 
+		System.out.println("process name: " + startProcessName );
+		
 		if(sourcesPaths == null || sourcesPaths.size() == 0)
 		{
 			System.out.println("The path to the cml sources are not defined");

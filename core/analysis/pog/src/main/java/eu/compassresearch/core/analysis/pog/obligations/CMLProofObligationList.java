@@ -10,15 +10,19 @@ package eu.compassresearch.core.analysis.pog.obligations;
 
 import java.util.Vector;
 
+import org.overture.pog.obligation.ProofObligation;
+
+import eu.compassresearch.core.common.AnalysisArtifact;
+
 @SuppressWarnings("serial")
-public class CMLProofObligationList extends Vector<CMLProofObligation>{
+public class CMLProofObligationList extends Vector<ProofObligation> implements AnalysisArtifact {
 
     @Override
     // override superclass method
     public String toString() {
     	StringBuilder sb = new StringBuilder();
 
-    	for (CMLProofObligation po : this) {
+    	for (ProofObligation po : this) {
     		sb.append(po.toString());
     	}
 

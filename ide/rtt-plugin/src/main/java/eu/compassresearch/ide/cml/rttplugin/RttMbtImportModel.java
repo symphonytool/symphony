@@ -12,6 +12,8 @@ import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
+import eu.compassresearch.rttMbtTmsClientApi.IRttMbtProgressBar;
+
 
 public class RttMbtImportModel extends RttMbtPopupMenuAction {
 
@@ -19,6 +21,7 @@ public class RttMbtImportModel extends RttMbtPopupMenuAction {
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 
 		// get selected object
+		client.setProgress(IRttMbtProgressBar.Tasks.ALL, 0);
 		if (!getSelectedObject(event)) {
 			client.addErrorMessage("[FAIL]: Please select an RTT-MBT component!\n");
 			return null;
@@ -45,11 +48,14 @@ public class RttMbtImportModel extends RttMbtPopupMenuAction {
 		Job job = new Job("Import Model") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
+				client.addLogMessage("importing model " + ModelFile + "... please wait for the task to be finished.\n");
 				// initialize project with a model
 				if (client.initProject(ModelName, client.getUserId(), ModelFile)) {
 					client.addLogMessage("[PASS]: init project\n");
+					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 				} else {
 					client.addErrorMessage("[FAIL]: init project\n");
+					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 				}
 				return Status.OK_STATUS;
 			}

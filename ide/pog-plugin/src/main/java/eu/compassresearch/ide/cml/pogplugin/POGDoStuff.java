@@ -1,28 +1,37 @@
 package eu.compassresearch.ide.cml.pogplugin;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.util.ArrayList;
 
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.ui.IViewPart;
-import org.eclipse.ui.IWorkbenchSite;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
-import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.handlers.HandlerUtil;
+import org.eclipse.ui.ide.IDE;
+import org.overture.ast.analysis.AnalysisException;
 import org.overture.ide.core.IVdmModel;
 import org.overture.ide.core.resources.IVdmProject;
-import org.overture.ide.plugins.poviewer.Activator;
-import org.overture.ide.plugins.poviewer.view.PoOverviewTableView;
+import org.overture.ide.core.resources.IVdmSourceUnit;
 import org.overture.ide.ui.utility.VdmTypeCheckerUi;
 import org.overture.pog.obligation.ProofObligation;
 import org.overture.pog.obligation.ProofObligationList;
 
 import eu.compassresearch.ast.program.PSource;
+import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
 import eu.compassresearch.core.analysis.pog.visitors.ProofObligationGenerator;
+import eu.compassresearch.core.common.Registry;
+import eu.compassresearch.core.common.RegistryFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
 import eu.compassresearch.ide.cml.ui.editor.core.dom.ICmlSourceUnit;
@@ -98,6 +107,8 @@ public class POGDoStuff implements IWorkbenchWindowActionDelegate
 					for (IResource cmlfile : cmlfiles)
 					{
 						ICmlSourceUnit source = (ICmlSourceUnit) cmlfile.getAdapter(ICmlSourceUnit.class);
+						// CmlSourceUnit source = CmlSourceUnit
+						// .getFromFileResource((IFile) cmlfile);
 						if (!CmlTypeChecker.Utils.isWellType(source.getSourceAst()))
 						{
 							popErrorMessage("There were type errors in "
@@ -106,10 +117,8 @@ public class POGDoStuff implements IWorkbenchWindowActionDelegate
 						}
 					}
 
-					ProofObligationList pol = getPoListFromSource(cmlfiles);
-					
+					addPOsToRegistry(cmlfiles);
 					showPOs(vdmProject, pol);
-
 				}
 			}
 		} catch (Exception e)
@@ -186,6 +195,27 @@ public class POGDoStuff implements IWorkbenchWindowActionDelegate
 		return sb.toString().toCharArray();
 	}
 
+	private void addPOsToRegistry(ArrayList<IResource> cmlfiles) {
+		Registry registry = RegistryFactory.getInstance(POConstants.PO_REGISTRY_ID).getRegistry();
+		
+		for (IResource cmlfile : cmlfiles) {
+            ICmlSourceUnit cmlSource = (ICmlSourceUnit) cmlfile.getAdapter(ICmlSourceUnit.class);
+			CMLProofObligationList poList = new CMLProofObligationList();
+			ProofObligationGenerator pog = new ProofObligationGenerator(cmlSource.getSourceAst());
+			ProofObligationList pol = new ProofObligationList();
+			try {
+				pol = pog.generatePOs();
+			} catch (AnalysisException e) {
+				popErrorMessage(e.getMessage());
+				e.printStackTrace();
+			}
+			for (ProofObligation po : pol){
+				poList.add(po);
+			}
+			registry.store(cmlSource.getSourceAst(), poList); 
+		}
+	}
+	
 	private void showPOs(final IVdmProject project,
 			final ProofObligationList pos)
 	{
@@ -218,9 +248,25 @@ public class POGDoStuff implements IWorkbenchWindowActionDelegate
 		});
 	}
 
-	
-	
-	
+	/**
+	 * Selection in the workbench has been changed. We can change the state of the 'real' action here if we want, but
+	 * this can only happen after the delegate has been created.
+	 * 
+	 * @see IWorkbenchWindowActionDelegate#selectionChanged
+	 */
+	public void selectionChanged(IAction action, ISelection selection)
+	{
+	}
+
+	/**
+	 * We can use this method to dispose of any system resources we previously allocated.
+	 * 
+	 * @see IWorkbenchWindowActionDelegate#dispose
+	 */
+	public void dispose()
+	{
+	}
+
 	/**
 	 * We will cache window object in order to be able to provide parent shell for the message dialog.
 	 * 

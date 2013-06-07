@@ -29,9 +29,13 @@ public class RttMbtClient {
 	private String userId;
 	private String CmlProject;   // starting and ending with file separator
 	private String CmlWorkspace; // no file separator at the end
+	private String rttMbtServerVersion;
+	private String rttMbtServerUptime;
+
 	private String currentJobId;
 	private String RttMbtTestProcFolderName;
 	private String RttMbtTProcGenCtxFolderName;
+	private Boolean serverWorkspaceChecked;
 
 	// Logging facility
 	private String consoleName;
@@ -42,6 +46,8 @@ public class RttMbtClient {
 
 	// client mode
 	private Modes mode;
+	private Boolean verboseLogging;
+	private Boolean extraFiles;
 
 	public RttMbtClient(String server, Integer port, String user, String id) {
 		rttMbtServer = server;
@@ -51,6 +57,8 @@ public class RttMbtClient {
 		projectName = null;
 		CmlProject = null;
 		CmlWorkspace = null;
+		rttMbtServerVersion = "-";
+		rttMbtServerUptime = "-";
 		consoleName = null;
 		log = null;
 		progress = null;
@@ -58,6 +66,9 @@ public class RttMbtClient {
 		RttMbtTestProcFolderName = getRttMbtTestProcFolderName();
 		RttMbtTProcGenCtxFolderName = getRttMbtTProcGenCtxFolderName();
 		mode = Modes.RTT_MBT_MODE_UNDEFINED;
+		serverWorkspaceChecked = false;
+		verboseLogging = false;
+		extraFiles = false;
 	}
 
 	public void setLoggingFacility(String name, IRttMbtLoggingFacility logger) {
@@ -75,9 +86,9 @@ public class RttMbtClient {
 	
 	public void addErrorMessage(String msg) {
 		if (log != null) {
-			log.addErrorMessage(consoleName, msg);
+			log.addErrorMessage(consoleName, msg + "\n");
 		} else {
-			System.err.println("[" + consoleName + "]:" + msg);
+			System.err.println("[" + consoleName + "]: *** error: " + msg);
 		}
 	}
 	
@@ -113,7 +124,7 @@ public class RttMbtClient {
 			jsonStartFileCacheCommand start =
 					new jsonStartFileCacheCommand(this);
 			start.executeCommand();
-			if (!start.executedSuccessfully()) {
+			if ((!start.executedSuccessfully()) || (!start.getResult())) {
 				return false;
 			}
 		}
@@ -139,9 +150,29 @@ public class RttMbtClient {
 		return true;
 	}
 	
+	public Boolean checkServerWorkspace() {
+		Boolean success = true;
+
+		// if the server workspace for this server has already
+		// been checked or created, return true
+		if (getServerWorkspaceChecked()) {
+			return success;
+		}
+		
+		// check/create server work area
+		success = beginRttMbtSession();
+		return success;
+	}
+	
 	public Boolean uploadFile(String filename) {
 		Boolean success = true;
 
+		// assert that server workspace exists
+		if (!checkServerWorkspace()) {
+			addErrorMessage("*** error: server working area does not exist an cannot be created!\n");
+			return false;
+		}
+		
 		// add workspace
 		filename = addLocalWorkspace(filename);
 		
@@ -178,6 +209,11 @@ public class RttMbtClient {
 	
 	public Boolean uploadDirectory(String directory, Boolean recursive) {
 		Boolean success = true;
+
+		// assert that server workspace exists
+		if (!checkServerWorkspace()) {
+			return false;
+		}
 
 		// add workspace
 		directory = addLocalWorkspace(directory);
@@ -617,6 +653,7 @@ public class RttMbtClient {
 	public Boolean generateTestProcedure(String abstractTestProc) {
 		Boolean success = true;
 
+		System.out.println("uploading files for test generation context " + abstractTestProc + "...");
 		// push necessary files to cache:
 		// cache/<user-id>/<project-name>/model/
 		// - model_dump.xml
@@ -647,11 +684,14 @@ public class RttMbtClient {
 		uploadFile(confDirName + "advanced.conf");
 		uploadFile(confDirName + "addgoals.conf");
 		uploadFile(confDirName + "addgoalsordered.conf");
-		
+		// cache/<user-id>/<project-name>/TMPL
+		confDirName = getProjectName() + File.separator + "TMPL";
+		uploadDirectory(confDirName, true);
+
 		// generate-test-command
-		System.out.println("generating concrete test procedure (with GUI ports enabled) " + abstractTestProc + "...");
+		System.out.println("generating concrete test procedure" + abstractTestProc + "...");
 		jsonGenerateTestCommand cmd = new jsonGenerateTestCommand(this);
-		cmd.setGuiPorts(true);
+		cmd.setGuiPorts(getVerboseLogging());
 		cmd.setTestProcName("TestProcedures/" + abstractTestProc);
 		cmd.executeCommand();
 		if (!cmd.executedSuccessfully()) {
@@ -718,6 +758,8 @@ public class RttMbtClient {
 		// - addgoalcoverage.csv
 		// - covered_testcases.csv
 		// - focus_points_to_addgoals.conf
+		// - model/error.log
+		// - model/genertion.log
 		dirname = getProjectName() + File.separator
 				+ getRttMbtTProcGenCtxFolderName() + File.separator
 				+ abstractTestProc + File.separator
@@ -725,7 +767,10 @@ public class RttMbtClient {
 		downloadFile(dirname + "addgoalcoverage.csv");
 		downloadFile(dirname + "covered_testcases.csv");
 		downloadFile(dirname + "focus_points_to_addgoals.conf");
-		// downloadFile(dirname + "generation.log");
+		if (getExtraFiles()) {
+			downloadFile(dirname + "errors.log");
+			downloadFile(dirname + "generation.log");
+		}
 
 		// from cache/<user-id>/<project-name>/<testproc>/model
 		// - signals.dat
@@ -797,7 +842,7 @@ public class RttMbtClient {
 
 		// retrieve results
 		if (!cmd.executedSuccessfully()) {
-			System.err.println("[FAIL]: generatig RTT_TestProcedures/" + abstractTestProc + " failed!");
+			System.err.println("[FAIL]: replay of " + abstractTestProc + " failed!");
 			// download debugging data to local directory
 			// - rtt-mbt-tms-execution.out
 			// - rtt-mbt-tms-execution.err
@@ -850,6 +895,16 @@ public class RttMbtClient {
 				+ abstractTestProc + File.separator
 				+ "testdata" + File.separator;
 		downloadFile(dirname + "replay.log");
+		// - model/error.log
+		// - model/genertion.log
+		if (getExtraFiles()) {
+		dirname = getProjectName() + File.separator
+				+ getRttMbtTProcGenCtxFolderName() + File.separator
+				+ abstractTestProc + File.separator
+				+ "log" + File.separator;
+			downloadFile(dirname + "errors.log");
+			downloadFile(dirname + "generation.log");
+		}
 		
 		return success;
 	}
@@ -864,6 +919,9 @@ public class RttMbtClient {
 		// - signalmap.csv
 		// - addgoals.conf
 		// - addgoalsordered.conf
+		System.out.println("uploading files for " + getProjectName() + File.separator
+				+ getRttMbtTProcGenCtxFolderName() + File.separator
+				+ abstractTestProc + "...");
 		String modelDirName = getProjectName() + File.separator + "model" + File.separator;
 		uploadFile(modelDirName + "model_dump.xml");
 		uploadFile(modelDirName + "configuration.csv");
@@ -916,12 +974,22 @@ public class RttMbtClient {
 			downloadFile(dirname + "errors.log");
 			return false;
 		} else {
+			String dirName;
+			// - model/error.log
+			// - model/genertion.log
+			if (getExtraFiles()) {
+			dirName = getProjectName() + File.separator
+					+ getRttMbtTProcGenCtxFolderName() + File.separator
+					+ abstractTestProc + File.separator
+					+ "log" + File.separator;
+				downloadFile(dirName + "errors.log");
+				downloadFile(dirName + "generation.log");
+			}
 			// download generated files to local directory:
 			// /RTT_Testprocedures/conf/
 			// /RTT_Testprocedures/inc/
 			// /RTT_Testprocedures/specs/
 			// /RTT_Testprocedures/stubs/
-			String dirName;
 			dirName = getProjectName() + File.separator
 					+ getRttMbtTestProcFolderName() + File.separator;
 			downloadDirectory(dirName + "conf");
@@ -1089,8 +1157,14 @@ public class RttMbtClient {
 					System.err.println("creating directory '" + addLocalWorkspace(dirName) + "' failed!");
 				}
 			}
-			downloadFile(dirName + "VERDICT.txt");
-			downloadFile(dirName + "rtt-run-test.log");
+			// - model/error.log
+			// - model/genertion.log
+			if (getExtraFiles()) {
+				downloadDirectory(dirName);
+			} else {
+				downloadFile(dirName + "VERDICT.txt");
+				downloadFile(dirName + "rtt-run-test.log");
+			}
 		}
 
 		// return result
@@ -1145,7 +1219,6 @@ public class RttMbtClient {
 		String serverGenerationContext = getProjectName() + "/TestProcedures";
 		if (filename.startsWith(localGenerationContext)) {
 			serverFilename = serverGenerationContext + filename.substring(localGenerationContext.length());
-			System.out.println("server filename: '" + serverFilename + "'");
 		} else {
 			serverFilename = filename;
 		}
@@ -1154,7 +1227,6 @@ public class RttMbtClient {
 		String serverExecutionContext = getProjectName() + "/RTT_TestProcedures";
 		if (filename.startsWith(localExecutionContext)) {
 			serverFilename = serverExecutionContext + filename.substring(localExecutionContext.length());
-			System.out.println("server filename: '" + serverFilename + "'");
 		}
 
 		return serverFilename;
@@ -1170,7 +1242,6 @@ public class RttMbtClient {
 		String serverGenerationContext = getProjectName() + "/TestProcedures";
 		if (filename.startsWith(serverGenerationContext)) {
 			serverFilename = localGenerationContext + filename.substring(serverGenerationContext.length());
-			System.out.println("local filename: '" + serverFilename + "'");
 		} else {
 			serverFilename = filename;
 		}
@@ -1179,7 +1250,6 @@ public class RttMbtClient {
 		String serverExecutionContext = getProjectName() + "/RTT_TestProcedures";
 		if (filename.startsWith(serverExecutionContext)) {
 			serverFilename = localExecutionContext + filename.substring(serverExecutionContext.length());
-			System.out.println("local filename: '" + serverFilename + "'");
 		}
 
 		return serverFilename;
@@ -1197,12 +1267,10 @@ public class RttMbtClient {
 		// add workspace prefix
 		String workspace = getCmlWorkspace() + getCmlProject();
 		if (!localFilename.startsWith(workspace)) {
-			System.out.println("adding '" + workspace + "' to '" + localFilename + "'");
 			localFilename =  workspace + localFilename;
 		}
 
 		// return new filename (with path)
-		System.out.println("return local file name '" + localFilename + "'");
 		return localFilename;
 	}
 
@@ -1215,10 +1283,8 @@ public class RttMbtClient {
 		// remove workspace prefix
 		String workspace = getCmlWorkspace() + getCmlProject();
 		if (filename.startsWith(workspace)) {
-			System.out.println("removing '" + workspace + "' from '" + filename + "'");
 			serverFilename = filename.substring(workspace.length());
 		} else {
-			System.out.println("workspace '" + workspace + "' is no prefix of '" + filename + "'");
 			serverFilename = filename;
 		}
 
@@ -1226,7 +1292,6 @@ public class RttMbtClient {
 		serverFilename = substituteContextFolderNamesLocal2Server(serverFilename);
 
 		// return new filename (with path)
-		System.out.println("return server file name '" + serverFilename + "'");
 		return serverFilename;
 	}
 	
@@ -1243,6 +1308,9 @@ public class RttMbtClient {
 	}
 
 	public void setRttMbtServer(String rttMbtServer) {
+		if (this.rttMbtServer.compareTo(rttMbtServer) != 0) {
+			setServerWorkspaceChecked(false);
+		}
 		this.rttMbtServer = rttMbtServer;
 	}
 
@@ -1359,5 +1427,45 @@ public class RttMbtClient {
 			this.mode = Modes.RTT_MBT_MODE_UNDEFINED;
 			addErrorMessage("unsupported client mode " + mode + "\n");
 		}
+	}
+
+	public Boolean getServerWorkspaceChecked() {
+		return serverWorkspaceChecked;
+	}
+
+	public void setServerWorkspaceChecked(Boolean serverWorkspaceExists) {
+		this.serverWorkspaceChecked = serverWorkspaceExists;
+	}
+
+	public String getRttMbtServerVersion() {
+		return rttMbtServerVersion;
+	}
+
+	public void setRttMbtServerVersion(String rttMbtServerVersion) {
+		this.rttMbtServerVersion = rttMbtServerVersion;
+	}
+
+	public String getRttMbtServerUptime() {
+		return rttMbtServerUptime;
+	}
+
+	public void setRttMbtServerUptime(String rttMbtServerUptime) {
+		this.rttMbtServerUptime = rttMbtServerUptime;
+	}
+
+	public Boolean getVerboseLogging() {
+		return verboseLogging;
+	}
+
+	public void setVerboseLogging(Boolean verboseLogging) {
+		this.verboseLogging = verboseLogging;
+	}
+
+	public Boolean getExtraFiles() {
+		return extraFiles;
+	}
+
+	public void setExtraFiles(Boolean extraFiles) {
+		this.extraFiles = extraFiles;
 	}
 }

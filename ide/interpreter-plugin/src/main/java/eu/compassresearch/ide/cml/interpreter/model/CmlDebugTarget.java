@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.lang.reflect.Type;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
@@ -31,10 +30,9 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
-import com.google.gson.reflect.TypeToken;
-
 import eu.compassresearch.core.interpreter.api.CmlProcessInfo;
 import eu.compassresearch.core.interpreter.api.InterpreterStatus;
+import eu.compassresearch.core.interpreter.debug.Choice;
 import eu.compassresearch.core.interpreter.debug.CmlDbgCommandMessage;
 import eu.compassresearch.core.interpreter.debug.CmlDbgStatusMessage;
 import eu.compassresearch.core.interpreter.debug.CmlDbgpStatus;
@@ -107,8 +105,9 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 
 				@Override
 				public boolean handleMessage(RequestMessage message) {
-					Type listType = new TypeToken<List<String>>(){}.getType();
-					final List<String> events = message.<List<String>>getContent(listType);
+					//Type listType = new TypeToken<List<String>>(){}.getType();
+					 
+					final List<Choice> events = message.getContent();
 					new CmlChoiceMediator(cmlDebugTarget).setChoiceOptions(events,message);
 					return true;
 				}
@@ -216,9 +215,9 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 			switch(messageContainer.getType())
 			{
 			case STATUS:
-				return dispatchMessageHandler(statusHandlers,messageContainer.getMessage(CmlDbgStatusMessage.class));
+				return dispatchMessageHandler(statusHandlers,(CmlDbgStatusMessage)messageContainer.getMessage());
 			case REQUEST:
-				return dispatchMessageHandler(requestHandlers,messageContainer.getMessage(RequestMessage.class));
+				return dispatchMessageHandler(requestHandlers,(RequestMessage)messageContainer.getMessage());
 			default:
 				break;
 			}
@@ -238,11 +237,13 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 					message = receiveMessage(); 
 					System.out.println(message);
 				}
-				while (!isTerminated() && message != null && processMessage(message));
+				//while (!isTerminated() && message != null && processMessage(message));
+				while(processMessage(message));
 			}
 			catch(IOException e)
 			{
-				//terminated();
+				System.out.println(e);
+				terminated();
 			}
 			finally
 			{
@@ -377,8 +378,6 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 
 	@Override
 	public void disconnect() throws DebugException {
-		// TODO Auto-generated method stub
-
 		sendCommandMessage(CmlDebugCommand.DISCONNECT);
 	}
 
@@ -454,7 +453,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 		}
 		//fireSuspendEvent(0);
 		
-		final List<String> trace = status.getToplevelProcessInfo().getVisibleTrace();
+		final List<String> trace = status.getToplevelProcessInfo().getTrace();
 		
 		Display.getDefault().asyncExec(new Runnable() {
 			@Override
@@ -522,6 +521,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 		//suspended = false;
 		DebugPlugin.getDefault().getBreakpointManager().removeBreakpointListener(this);
 		fireTerminateEvent();
+		connectionClosed();
 	}
 
 }

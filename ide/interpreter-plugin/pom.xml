@@ -70,17 +70,26 @@
 									<artifactId>interpreter</artifactId>
 									<version>${project.version}</version>
 								</artifactItem>
-
-								<artifactItem>
-									<groupId>com.google.code.gson</groupId>
-									<artifactId>gson</artifactId>
-									<version>2.2.4</version>
-								</artifactItem>
 								<artifactItem>
 									<groupId>com.googlecode.json-simple</groupId>
 									<artifactId>json-simple</artifactId>
 									<version>1.1.1</version>
 								</artifactItem>
+								<artifactItem>
+									<groupId>com.fasterxml.jackson.core</groupId>
+  									<artifactId>jackson-databind</artifactId>
+  									<version>2.2.0</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>com.fasterxml.jackson.core</groupId>
+  									<artifactId>jackson-core</artifactId>
+  									<version>2.2.0</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>com.fasterxml.jackson.core</groupId>
+  									<artifactId>jackson-annotations</artifactId>
+  									<version>2.2.0</version>
+  								</artifactItem>
 							</artifactItems>
 						</configuration>
 					</execution>

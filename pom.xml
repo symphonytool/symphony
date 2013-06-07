@@ -41,15 +41,15 @@
   <repositories>
     <repository>
       <id>overture.iha.dk</id>
-      <name>Overture Project Build Repository at AU/IHA</name>
+      <name>Overture Project Build Repository for COMPASS at AU/IHA</name>
       <releases>
 	<enabled>true</enabled>
 	<updatePolicy>always</updatePolicy>
 	<checksumPolicy>warn</checksumPolicy>
       </releases>
       <snapshots>
-	<enabled>false</enabled>
-	<updatePolicy>daily</updatePolicy>
+	<enabled>true</enabled>
+	<updatePolicy>always</updatePolicy>
 	<checksumPolicy>warn</checksumPolicy>
       </snapshots>
       <url>http://build.overturetool.org/builds/overture-compass-m2repo/</url>
@@ -60,7 +60,7 @@
   <pluginRepositories>
     <pluginRepository>
       <id>overture.iha.dk</id>
-      <name>Overture Project Build Repository at AU/IHA</name>
+      <name>Overture Project Build Repository for COMPASS at AU/IHA</name>
       <releases>
 	<enabled>true</enabled>
 	<updatePolicy>always</updatePolicy>

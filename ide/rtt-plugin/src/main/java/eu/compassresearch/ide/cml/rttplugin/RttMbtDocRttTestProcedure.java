@@ -47,6 +47,7 @@ public class RttMbtDocRttTestProcedure extends RttMbtConcreteTestProcedureAction
 				// generate test procedure documentation
 				if (client.docTestProcedure(selectedObject)) {
 					client.addLogMessage("[PASS]: generate test procedure documentation\n");
+					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 				} else {
 					client.addErrorMessage("[FAIL]: generate test procedure documentation\n");
 					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
@@ -56,7 +57,6 @@ public class RttMbtDocRttTestProcedure extends RttMbtConcreteTestProcedureAction
 		};
 		job.schedule();
 
-		client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 		return null;
 	}
 }
