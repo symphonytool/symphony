@@ -39,8 +39,15 @@ public class MessageCommunicator {
 						  @JsonProperty("location")ILexLocation location){}
 				  
 				  @JsonIgnore List<PType> typeQualifier;
-				  
 			}
+//			abstract class OvertureLexNameTokenMixIn {
+//				OvertureLexNameTokenMixIn(@JsonProperty("module")String module, 
+//						  @JsonProperty("name")String name, 
+//						  @JsonProperty("location")ILexLocation location){}
+//				  
+//				  @JsonIgnore List<PType> typeQualifier;
+//			}
+			
 			abstract class NodeMixIn {
 				@JsonIgnore INode parent;	
 				@JsonIgnore Set _visitedNodes;
@@ -55,6 +62,7 @@ public class MessageCommunicator {
 				  public void setupModule(SetupContext context)
 				  {
 				    context.setMixInAnnotations(LexNameToken.class, MixIn.class);
+				    context.setMixInAnnotations(org.overture.ast.lex.LexNameToken.class, MixIn.class);
 				    context.setMixInAnnotations(Node.class,NodeMixIn.class);
 				    // and other set up, if any
 				  }
