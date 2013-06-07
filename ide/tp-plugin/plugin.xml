@@ -9,4 +9,23 @@
 
   -->
   
+     <extension
+         point="org.eclipse.ui.actionSets">
+      <actionSet
+            id="eu.compassresearch.ide.cml.ui.actionSet"
+            label="Theorem Prover Basic Action Set"
+            visible="true">
+
+         <action
+               class="eu.compassresearch.ide.cml.tpplugin.TPBasicAction"
+               icon="icons/thy_action.png"
+               id="eu.compassresearch.ide.cml.tpplugin.TPBasicAction"
+               label="&amp;THY"
+               toolbarPath="THYGroup"
+               tooltip="Generate THYs for open file">
+         </action>
+      </actionSet>
+   </extension>
+  
+  
 </plugin>

@@ -19,6 +19,7 @@ import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.ide.IDE;
+import org.overture.ast.analysis.AnalysisException;
 import org.overture.ide.core.IVdmModel;
 import org.overture.ide.core.resources.IVdmProject;
 import org.overture.ide.core.resources.IVdmSourceUnit;
@@ -27,7 +28,10 @@ import org.overture.pog.obligation.ProofObligation;
 import org.overture.pog.obligation.ProofObligationList;
 
 import eu.compassresearch.ast.program.PSource;
+import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
 import eu.compassresearch.core.analysis.pog.visitors.ProofObligationGenerator;
+import eu.compassresearch.core.common.Registry;
+import eu.compassresearch.core.common.RegistryFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
 import eu.compassresearch.ide.cml.ui.editor.core.dom.ICmlSourceUnit;
@@ -111,27 +115,7 @@ public class POGBasicAction implements IWorkbenchWindowActionDelegate
 						}
 					}
 
-					String workspaceLoc = ResourcesPlugin.getWorkspace().getRoot().getLocation().toString();
-					File tempPo = new File(workspaceLoc, "proofobligations");
-					tempPo.deleteOnExit();
-
-					FileWriter fw;
-
-					fw = new FileWriter(tempPo);
-					fw.write(getPOsfromSource(cmlfiles, proj.getName()));
-					fw.flush();
-					fw.close();
-
-					File fileToOpen = new File(workspaceLoc, "proofobligations");
-
-					if (fileToOpen.exists() && fileToOpen.isFile())
-					{
-						IFileStore fileStore = EFS.getLocalFileSystem().getStore(fileToOpen.toURI());
-						IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-						IDE.openEditorOnFileStore(page, fileStore);
-
-					}
-
+					addPOsToRegistry(cmlfiles);
 				}
 			}
 		} catch (Exception e)
@@ -180,6 +164,27 @@ public class POGBasicAction implements IWorkbenchWindowActionDelegate
 		return sb.toString().toCharArray();
 	}
 
+	private void addPOsToRegistry(ArrayList<IResource> cmlfiles) {
+		Registry registry = RegistryFactory.getInstance(POConstants.PO_REGISTRY_ID).getRegistry();
+		
+		for (IResource cmlfile : cmlfiles) {
+            ICmlSourceUnit cmlSource = (ICmlSourceUnit) cmlfile.getAdapter(ICmlSourceUnit.class);
+			CMLProofObligationList poList = new CMLProofObligationList();
+			ProofObligationGenerator pog = new ProofObligationGenerator(cmlSource.getSourceAst());
+			ProofObligationList pol = new ProofObligationList();
+			try {
+				pol = pog.generatePOs();
+			} catch (AnalysisException e) {
+				popErrorMessage(e.getMessage());
+				e.printStackTrace();
+			}
+			for (ProofObligation po : pol){
+				poList.add(po);
+			}
+			registry.store(cmlSource.getSourceAst(), poList); 
+		}
+	}
+	
 	/**
 	 * Selection in the workbench has been changed. We can change the state of the 'real' action here if we want, but
 	 * this can only happen after the delegate has been created.

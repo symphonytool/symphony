@@ -30,7 +30,7 @@ package eu.compassresearch.core.analysis.pog.obligations;
 // This enum is not being used anywhere so far.
 public enum POStatus
 {
-	UNPROVED("Unproved"), PROVED("Proved"), TRIVIAL("Trivial");
+	UNPROVED("Unproved"), SUBMITTED("Submitted"), PROVED("Proved"), DISPROVED("Disproved");
 
 	private String text;
 

@@ -1,0 +1,4 @@
+types 
+  seqnat = seq of nat
+  setreal = set of real
+  seq1char = seq1 of char
