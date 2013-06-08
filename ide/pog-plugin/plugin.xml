@@ -45,24 +45,6 @@
    </extension>
 
 
-<!-- FIXME switch this stuff to commands! -->
-   <extension
-         point="org.eclipse.ui.actionSets">
-      <actionSet
-            id="eu.compassresearch.ide.cml.ui.actionSet"
-            label="POG Basic Action Set"
-            visible="true">
-
-         <action
-               class="eu.compassresearch.ide.cml.pogplugin.POGDoStuff"
-               icon="icons/cview16/pog_gen.png"
-               id="eu.compassresearch.ide.cml.pogplugin.POGBasicAction"
-               label="&amp;Generate POs"
-               toolbarPath="POGGroup"
-               tooltip="Generate POs for open file">
-         </action>
-      </actionSet>
-   </extension>
 
 
 <extension
@@ -79,7 +61,7 @@
       </view>
       <view
             category="eu.compassresearch.ide.ui.category"
-            class="eu.compassresearch.ide.cml.pogplugin.view.PoOverView"
+            class="eu.compassresearch.ide.cml.pogplugin.view.PoListView"
             icon="icons/cview16/po_tsk.png"
             id="eu.compassresearch.ide.pogplugin.POsTable"
             name="Proof Obligations">
@@ -95,6 +77,79 @@
          id="org.overture.ide.plugins.poviewer.perspective"
          name="Proof Obligation">
    </perspective>
+</extension>
+
+
+
+
+<extension
+      point="org.eclipse.ui.commands">
+   <command
+         id="eu.compassresearch.ide.pog-plugin.generatepos"
+         name="GeneratePOs">
+   </command>
+   <command
+         defaultHandler="eu.compassresearch.ide.cml.pogplugin.commands.DischargePosHandler"
+         id="eu.compassresearch.ide.pog-plugin.dischargepos"
+         name="DischargePOs">
+   </command>
+</extension>
+
+
+
+<extension
+      point="org.eclipse.ui.menus">
+   <menuContribution
+         allPopups="false"
+         locationURI="toolbar:org.eclipse.ui.main.toolbar">
+              <toolbar
+              id="eu.compassresearch.ide.pogplugin"
+              label="CML-POG">
+      <command
+            commandId="eu.compassresearch.ide.pog-plugin.generatepos"
+            disabledIcon="icons/cview16/pog_disabled.png"
+            icon="icons/cview16/pog_gen.png"
+            label="POs"
+            style="push"
+            tooltip="Generate Proof Obligations for selected Project">
+      </command>
+      </toolbar>
+   </menuContribution>
+   
+   <menuContribution
+         allPopups="false"
+         locationURI="toolbar:eu.compassresearch.ide.pogplugin.POsTable">
+      <command
+            commandId="eu.compassresearch.ide.pog-plugin.dischargepos"
+            icon="icons/cview16/tp.png"
+            label="Discharge"
+            style="push"
+            tooltip="Send POs to Theorem Prover">
+      </command>
+   </menuContribution>
+</extension>
+
+
+
+
+
+<extension
+      point="org.eclipse.ui.handlers">
+   <handler
+   class ="eu.compassresearch.ide.cml.pogplugin.commands.GeneratePosHandler"
+         commandId="eu.compassresearch.ide.pog-plugin.generatepos">
+            <activeWhen> 
+      <with 
+            variable="selection"> 
+         <iterate 
+               operator="or"> 
+            <instanceof 
+                  value="org.eclipse.core.resources.IProject"> 
+            </instanceof> 
+         </iterate> 
+      </with> 
+   </activeWhen> 
+   </handler>
 </extension>
 
 

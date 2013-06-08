@@ -2,6 +2,7 @@ package eu.compassresearch.ide.cml.pogplugin.view;
 
 import java.util.List;
 
+import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
@@ -26,9 +27,82 @@ import org.overture.pog.obligation.ProofObligation;
 
 import eu.compassresearch.ide.cml.pogplugin.POConstants;
 
-public class PoOverView extends PoOverviewTableView
+public class PoListView extends PoOverviewTableView
 {
 
+	
+
+	@Override
+	public void createPartControl(Composite parent)
+	{
+		viewer = new TableViewer(parent, SWT.FULL_SELECTION | SWT.H_SCROLL
+				| SWT.V_SCROLL);
+		// test setup columns...
+		TableLayout layout = new TableLayout();
+		layout.addColumnData(new ColumnWeightData(20, true));
+		layout.addColumnData(new ColumnWeightData(100, true));
+		layout.addColumnData(new ColumnWeightData(60, false));
+		layout.addColumnData(new ColumnWeightData(20, false));
+		viewer.getTable().setLayout(layout);
+		viewer.getTable().setLinesVisible(true);
+		viewer.getTable().setHeaderVisible(true);
+		viewer.getTable().setSortDirection(SWT.NONE);
+		viewer.setSorter(null);
+
+		TableColumn column01 = new TableColumn(viewer.getTable(), SWT.LEFT);
+		column01.setText("No.");
+		column01.setToolTipText("No.");
+
+		TableColumn column = new TableColumn(viewer.getTable(), SWT.LEFT);
+		column.setText("PO Name");
+		column.setToolTipText("PO Name");
+
+		TableColumn column2 = new TableColumn(viewer.getTable(), SWT.LEFT);
+		column2.setText("Type");
+		column2.setToolTipText("Show Type");
+
+		TableColumn column3 = new TableColumn(viewer.getTable(), SWT.CENTER);
+		column3.setText("Status");
+		column3.setToolTipText("Show status");
+
+		viewer.setContentProvider(new ViewContentProvider());
+		viewer.setLabelProvider(new ViewLabelProvider());
+
+		IToolBarManager mgr = getViewSite().getActionBars().getToolBarManager();
+	//	mgr.
+		
+		//super.makeActions();
+	//	super.contributeToActionBars();
+		super.hookDoubleClickAction();
+
+		viewer.addSelectionChangedListener(new ISelectionChangedListener()
+		{
+
+			public void selectionChanged(SelectionChangedEvent event)
+			{
+
+				Object first = ((IStructuredSelection) event.getSelection()).getFirstElement();
+				if (first instanceof ProofObligation)
+				{
+					try
+					{
+						IViewPart v = getSite().getPage().showView(POConstants.PO_DETAIL_VIEW);
+
+						if (v instanceof PoTableView)
+							((PoTableView) v).setDataList(project, (ProofObligation) first);
+					} catch (PartInitException e)
+					{
+
+						e.printStackTrace();
+					}
+				}
+
+			}
+		});
+	}
+
+	
+	
 	class ViewContentProvider implements IStructuredContentProvider
 	{
 		public void inputChanged(Viewer v, Object oldInput, Object newInput)
@@ -118,71 +192,5 @@ public class PoOverView extends PoOverviewTableView
 		}
 
 	}
-
-	@Override
-	public void createPartControl(Composite parent)
-	{
-		viewer = new TableViewer(parent, SWT.FULL_SELECTION | SWT.H_SCROLL
-				| SWT.V_SCROLL);
-		// test setup columns...
-		TableLayout layout = new TableLayout();
-		layout.addColumnData(new ColumnWeightData(20, true));
-		layout.addColumnData(new ColumnWeightData(100, true));
-		layout.addColumnData(new ColumnWeightData(60, false));
-		layout.addColumnData(new ColumnWeightData(20, false));
-		viewer.getTable().setLayout(layout);
-		viewer.getTable().setLinesVisible(true);
-		viewer.getTable().setHeaderVisible(true);
-		viewer.getTable().setSortDirection(SWT.NONE);
-		viewer.setSorter(null);
-
-		TableColumn column01 = new TableColumn(viewer.getTable(), SWT.LEFT);
-		column01.setText("No.");
-		column01.setToolTipText("No.");
-
-		TableColumn column = new TableColumn(viewer.getTable(), SWT.LEFT);
-		column.setText("PO Name");
-		column.setToolTipText("PO Name");
-
-		TableColumn column2 = new TableColumn(viewer.getTable(), SWT.LEFT);
-		column2.setText("Type");
-		column2.setToolTipText("Show Type");
-
-		TableColumn column3 = new TableColumn(viewer.getTable(), SWT.CENTER);
-		column3.setText("Status");
-		column3.setToolTipText("Show status");
-
-		viewer.setContentProvider(new ViewContentProvider());
-		viewer.setLabelProvider(new ViewLabelProvider());
-
-		super.makeActions();
-		super.contributeToActionBars();
-		super.hookDoubleClickAction();
-
-		viewer.addSelectionChangedListener(new ISelectionChangedListener()
-		{
-
-			public void selectionChanged(SelectionChangedEvent event)
-			{
-
-				Object first = ((IStructuredSelection) event.getSelection()).getFirstElement();
-				if (first instanceof ProofObligation)
-				{
-					try
-					{
-						IViewPart v = getSite().getPage().showView(POConstants.PO_DETAIL_VIEW);
-
-						if (v instanceof PoTableView)
-							((PoTableView) v).setDataList(project, (ProofObligation) first);
-					} catch (PartInitException e)
-					{
-
-						e.printStackTrace();
-					}
-				}
-
-			}
-		});
-	}
-
+	
 }
