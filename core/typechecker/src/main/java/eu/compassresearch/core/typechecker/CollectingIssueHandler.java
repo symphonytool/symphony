@@ -3,12 +3,11 @@ package eu.compassresearch.core.typechecker;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.overture.ast.lex.LexLocation;
+import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.node.INode;
 
 import eu.compassresearch.ast.types.AErrorType;
 import eu.compassresearch.core.common.Registry;
-import eu.compassresearch.core.common.RegistryFactory;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 
 /**
@@ -21,8 +20,8 @@ import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 class CollectingIssueHandler implements TypeIssueHandler {
 
 	/**
-	 * Creating a collecting issue handler assumes you are going to 
-	 * do a fresh type checking round. 
+	 * Creating a collecting issue handler assumes you are going to do a fresh
+	 * type checking round.
 	 * 
 	 * 
 	 * 
@@ -53,14 +52,17 @@ class CollectingIssueHandler implements TypeIssueHandler {
 	public AErrorType addTypeError(INode offendingSubtree, String message) {
 		CMLTypeError error = new CMLTypeError(offendingSubtree, message);
 		this.errors.add(error);
-		addIssueToRegistryForNode(offendingSubtree,registry, error);
+		addIssueToRegistryForNode(offendingSubtree, registry, error);
 		return new AErrorType(error.getLocation(), true);
 	}
 
 	private static void addIssueToRegistryForNode(INode node, Registry reg,
 			CMLIssue error) {
 		CMLIssueList errors = reg.lookup(node, CMLIssueList.class);
-		if (errors == null) { errors = new CMLIssueList(); reg.store(node, errors); }
+		if (errors == null) {
+			errors = new CMLIssueList();
+			reg.store(node, errors);
+		}
 		errors.add(error);
 	}
 
@@ -88,13 +90,12 @@ class CollectingIssueHandler implements TypeIssueHandler {
 
 	@SuppressWarnings("deprecation")
 	@Override
-	public AErrorType addTypeError(INode parent, LexLocation location, String message) {
+	public AErrorType addTypeError(INode parent, ILexLocation location, String message) {
 		CMLTypeError typeError = new CMLTypeError(parent, message);
 		typeError.setLocation(location);
 		this.errors.add(typeError);
 		addIssueToRegistryForNode(parent, registry, typeError);
 		return new AErrorType(location, true);
 	}
-
 
 }

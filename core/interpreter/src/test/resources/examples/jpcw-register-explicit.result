@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testResult>
+  <exception/>
+  <interpreterState>DEADLOCKED</interpreterState>
+  <trace>
+    <events>init,load.56,add.44,read.100,sub.101,underflow,read.0</events>
+    <timedTrace>init,load.56,add.44,read.100,sub.101,underflow,read.0</timedTrace>
+  </trace>
+</testResult>

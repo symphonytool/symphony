@@ -19,6 +19,7 @@
     <module>theoremprover</module>
     <!-- module>refinementtool</module -->
     <module>rtt-mbt</module>
+    <module>security</module>
   </modules>
 </project>
 

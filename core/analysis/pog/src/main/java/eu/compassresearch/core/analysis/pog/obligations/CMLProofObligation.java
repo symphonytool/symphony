@@ -6,20 +6,23 @@
  ******************************************************************************/
 package eu.compassresearch.core.analysis.pog.obligations;
 
-import org.overture.ast.lex.LexLocation;
+import org.overture.ast.intf.lex.ILexLocation;
+import org.overture.pog.obligation.ProofObligation;
 
-abstract public class CMLProofObligation
+abstract public class CMLProofObligation extends ProofObligation
 {
 
-	public final LexLocation location;
+	public final ILexLocation location;
 	public final CMLPOType cmltype;
-	public final String name;
+	public String name;
 	public POStatus status;
 	public String guiString;
 	public String isabelleString;
 	
-    public CMLProofObligation(LexLocation location, CMLPOType kind,
+    public CMLProofObligation(ILexLocation location, CMLPOType kind,
 	    CMLPOContextStack ctxt) {
+    	// FIXME: Need proper inheritance between CML and Overture POs: shouldn't be null
+    	super(location, kind.toOverturePOType(), null);
     	this.location = location;
 		this.name = ctxt.getName();
 		this.status = POStatus.UNPROVED;
@@ -30,6 +33,15 @@ abstract public class CMLProofObligation
 	
 	abstract public String toIsabelleString(CMLPOContextStack ctxt);
 
+	public String getName() {
+	  return name;
+	}
+	
+	// FIXME : Add behaviour to call visitor
+	public String getIsabelleString() {
+		return "True";
+	}
+	
 	@Override
 	public String toString()
 	{

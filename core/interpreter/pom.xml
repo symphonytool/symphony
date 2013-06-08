@@ -1,95 +1,114 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"> 
-  <modelVersion>4.0.0</modelVersion>
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>eu.compassresearch.core</groupId>
-    <artifactId>core</artifactId>
-    <version>0.1.1<!--Replaceable: Main Version--></version>
-    <relativePath>../pom.xml</relativePath>
-  </parent>
+	<parent>
+		<groupId>eu.compassresearch.core</groupId>
+		<artifactId>core</artifactId>
+		<version>0.1.1<!--Replaceable: Main Version--></version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
 
-  <artifactId>interpreter</artifactId>
-  <name>COMPASS Core CML Interpreter</name>
+	<artifactId>interpreter</artifactId>
+	<name>COMPASS Core CML Interpreter</name>
+	<dependencies>
+		<dependency>
+			<groupId>eu.compassresearch.core</groupId>
+			<artifactId>ast</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>eu.compassresearch.core</groupId>
+			<artifactId>parser</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>eu.compassresearch.core</groupId>
+			<artifactId>typechecker</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.overture.core</groupId>
+			<artifactId>typechecker</artifactId>
+			<version>${overture.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.overture.core</groupId>
+			<artifactId>interpreter</artifactId>
+			<version>${overture.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.googlecode.json-simple</groupId>
+			<artifactId>json-simple</artifactId>
+			<version>1.1.1</version>
+		</dependency>
+		<dependency>
+  			<groupId>com.fasterxml.jackson.core</groupId>
+  			<artifactId>jackson-databind</artifactId>
+  			<version>2.2.0</version>
+		</dependency>
+	</dependencies>
 
-  <dependencies>
-    <dependency>
-      <groupId>eu.compassresearch.core</groupId>
-      <artifactId>ast</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>eu.compassresearch.core</groupId>
-      <artifactId>parser</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>eu.compassresearch.core</groupId>
-      <artifactId>typechecker</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.overture.core</groupId>
-      <artifactId>typechecker</artifactId>
-      <version>${overture.version}</version>
-    </dependency>
-    <!-- <dependency> -->
-    <!--   <groupId>org.overture.core</groupId> -->
-    <!--   <artifactId>ast</artifactId> -->
-    <!--   <version>${overture.version}</version> -->
-    <!-- </dependency> -->
-    <dependency>
-      <groupId>org.overture.core</groupId>
-      <artifactId>interpreter</artifactId>
-      <version>${overture.version}</version>
-    </dependency>
-  	 <dependency>
-      <groupId>com.googlecode.json-simple</groupId>
-      <artifactId>json-simple</artifactId>
-      <version>1.1</version>
-    </dependency>
-    <!--  Gson: Java to Json conversion -->
-    <dependency>
-      <groupId>com.google.code.gson</groupId>
-      <artifactId>gson</artifactId>
-      <version>2.2.2</version>
-      <scope>compile</scope>
-    </dependency>
-    
-  </dependencies>
-  <!-- <build> -->
-  <!--   <plugins> -->
-  <!--     <plugin> -->
-  <!--     	<version>1.7</version> -->
-  <!--       <groupId>org.codehaus.mojo</groupId> -->
-  <!--       <artifactId>build-helper-maven-plugin</artifactId> -->
-  <!--       <executions> -->
-  <!--         <execution> -->
-  <!--           <phase>generate-sources</phase> -->
-  <!--           <goals><goal>add-source</goal></goals> -->
-  <!--           <configuration> -->
-  <!--             <sources> -->
-  <!--               <source>src/main/transast</source> -->
-  <!--             </sources> -->
-  <!--           </configuration> -->
-  <!--         </execution> -->
-  <!--       </executions> -->
-  <!--     </plugin> -->
-  <!--   </plugins> -->
-  <!-- </build> -->
+	<build>
+		<resources>
+			<resource>
+				<directory>src/main/java</directory>
+				<excludes>
+					<exclude>behaviour/</exclude>
+					<exclude>factories/</exclude>
+					<exclude>transitions/</exclude>
+					<exclude>utility/</exclude>
+					<exclude>values/</exclude>
+				</excludes>
+			</resource>
+		</resources>
+		<plugins>
+			<!-- FIXME this might not be the best way to do it but it works for know 
+				This is needed because of Eclipse. This will set the exclusion filter for 
+				the source folders to the specifed folders. -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<excludes>
+						<exclude>behaviour/</exclude>
+						<exclude>factories/</exclude>
+						<exclude>transitions/</exclude>
+						<exclude>utility/</exclude>
+						<exclude>values/</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<testFailureIgnore>true</testFailureIgnore>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
 
-<build>
-	<plugins>
-		<plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <testFailureIgnore>true</testFailureIgnore>
-                </configuration>
-            </plugin>
-     </plugins>
-</build>
-
- 
+				<executions>
+					<execution>
+						<goals>
+							<goal>add-source</goal>
+						</goals>
+						<configuration>
+							<sources>
+								<source>src/main/java/behaviour</source>
+								<source>src/main/java/factories</source>
+								<source>src/main/java/transitions</source>
+								<source>src/main/java/utility</source>
+								<source>src/main/java/values</source>
+							</sources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			
+		</plugins>
+	</build>
 </project>
 

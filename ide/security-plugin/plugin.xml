@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+
+<plugin>
+  <!-- For possible extension points see
+ 
+  http://help.eclipse.org/indigo/index.jsp?
+  topic=%2Forg.eclipse.platform.doc.isv%2Freference%2Fextension-points%2Findex.html
+
+  -->
+  
+  
+     <extension
+         point="org.eclipse.ui.actionSets">
+      <actionSet
+            id="eu.compassresearch.ide.cml.ui.secutiryactionSet"
+            label="Security Action"
+            visible="true">
+
+         <action
+               class="eu.compassresearch.ide.securityanalysis.SecAction"
+               icon="icons/sec_action.png"
+               id="eu.compassresearch.ide.securityanalysis.action"
+               label="&amp;Analyse"
+               toolbarPath="SECGroup"
+               tooltip="Run static security analysis">
+         </action>
+      </actionSet>
+   </extension>
+  
+</plugin>

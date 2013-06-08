@@ -1,7 +1,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <packaging>pom</packaging>
 
   <parent>
     <groupId>eu.compassresearch</groupId>
@@ -10,214 +9,171 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
 
+  <packaging>pom</packaging>
+
   <groupId>eu.compassresearch.ide</groupId>
   <artifactId>ide</artifactId>
   <name>Compass IDE Top-level</name>
-  <description>Super POM for all IDE (Eclipse) artifacts.</description>
+  <description>Super POM for all COMPASS IDE (Eclipse) artifacts.</description>
 
   <properties>
     <maven.test.skip>true</maven.test.skip>
+    <maven.javadoc.skip>true</maven.javadoc.skip>
+    <tycho.version>0.16.0</tycho.version>
   </properties>
 
   <modules>
-    <!--module>builder</module-->
-    <!-- <module>parsers</module> -->
-    <module>cml</module>
+    <module>core</module>
+    <module>ui</module>
+    <module>rtt-plugin</module>
+    <module>tp-plugin</module>
+    <module>interpreter-plugin</module>
+    <module>pog-plugin</module>
+    <module>security-plugin</module>
+    <module>platform</module>
+    <module>features</module>
+    <module>product</module>
   </modules>
 
-  <reporting>
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.eclipse.tycho</groupId>
+          <artifactId>tycho-maven-plugin</artifactId>
+          <version>${tycho.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.eclipse.tycho</groupId>
+          <artifactId>target-platform-configuration</artifactId>
+          <version>${tycho.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.eclipse.tycho</groupId>
+          <artifactId>tycho-p2-director-plugin</artifactId>
+          <version>${tycho.version}</version>
+        </plugin>
+
+        <plugin>
+          <groupId>org.eclipse.m2e</groupId>
+          <artifactId>lifecycle-mapping</artifactId>
+          <version>1.0.0</version>
+          <configuration>
+            <lifecycleMappingMetadata>
+              <pluginExecutions>
+                <pluginExecution>
+                  <pluginExecutionFilter>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <versionRange>[1.0.0,)</versionRange>
+                    <goals>
+                      <goal>copy-dependencies</goal>
+                    </goals>
+                  </pluginExecutionFilter>
+                  <action>
+                    <ignore />
+                  </action>
+                </pluginExecution>
+              </pluginExecutions>
+            </lifecycleMappingMetadata>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+
     <plugins>
       <plugin>
-    	<groupId>org.apache.maven.plugins</groupId>
-    	<artifactId>maven-javadoc-plugin</artifactId>
-	<version>2.8.1</version>
-    	<configuration>
-    	  <failOnError>false</failOnError>
-    	  <excludePackageNames>*org.eclipse.*</excludePackageNames>
-    	  <show>public</show>
-    	</configuration>
-      </plugin>
-    </plugins>
-  </reporting>
-  <build>
-   <plugins>
-      <plugin>
-	<groupId>org.codehaus.mojo</groupId>
-	<artifactId>cobertura-maven-plugin</artifactId>
-	<configuration>
-	  <instrumentation>
-	  </instrumentation>
-	</configuration>
-	<version>2.5.1</version>
-	<executions>
-	  <execution>
-	    <goals>
-	      <goal>clean</goal>
-	    </goals>
-	  </execution>
-	</executions>
-      </plugin>
-      
-      <plugin>
-	<artifactId>maven-eclipse-plugin</artifactId>
-	<version>2.8</version>
-	<configuration>
-	  <pde>true</pde>
-	  <projectnatures>
-	    <projectnature>org.eclipse.jdt.core.javanature</projectnature>
-	    <projectnature>org.eclipse.pde.PluginNature</projectnature>
-	  </projectnatures>
-	  <buildcommands>
-	    <buildcommand>org.eclipse.jdt.core.javabuilder</buildcommand>
-	    <buildcommand>org.eclipse.pde.ManifestBuilder</buildcommand>
-	    <buildcommand>org.eclipse.pde.SchemaBuilder</buildcommand>
-	  </buildcommands>
-	  <classpathContainers>
-	    <classpathContainer>org.eclipse.pde.core.requiredPlugins</classpathContainer>
-	  </classpathContainers>
-	  <!-- We set the workspace to null or at least not found such that Eclipse always will use the M2_repo-->
-	  <workspace>nowhere</workspace>
-	</configuration>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-maven-plugin</artifactId>
+        <extensions>true</extensions>
       </plugin>
 
       <plugin>
-	<groupId>org.apache.maven.plugins</groupId>
-	<artifactId>maven-javadoc-plugin</artifactId>
-	<version>2.8</version>
-	<executions>
-	  <execution>
-	    <id>attach-javadocs</id>
-	    <goals>
-	      <goal>jar</goal>
-	    </goals>
-	  </execution>
-	</executions>
-	<configuration>
-	  <skip>true</skip>
-	</configuration>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>target-platform-configuration</artifactId>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>attach-javadocs</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
       </plugin>
     </plugins>
   </build>
-  <!-- <build> -->
-    <!-- <pluginManagement> -->
-    <!--   <plugins> -->
-    <!-- 	<plugin> -->
-    <!-- 	  <groupId>org.eclipse.m2e</groupId> -->
-    <!-- 	  <artifactId>lifecycle-mapping</artifactId> -->
-    <!-- 	  <version>1.0.0</version> -->
-    <!-- 	  <configuration> -->
-    <!-- 	    <lifecycleMappingMetadata> -->
-    <!-- 	      <pluginExecutions> -->
-    <!-- 		<pluginExecution> -->
-    <!-- 		  <pluginExecutionFilter> -->
-    <!-- 		    <groupId>org.apache.maven.plugins</groupId> -->
-    <!-- 		    <artifactId>maven-dependency-plugin</artifactId> -->
-    <!-- 		    <versionRange>[1.0.0,)</versionRange> -->
-    <!-- 		    <goals> -->
-    <!-- 		      <goal>copy-dependencies</goal> -->
-    <!-- 		    </goals> -->
-    <!-- 		  </pluginExecutionFilter> -->
-    <!-- 		  <action> -->
-    <!-- 		    <ignore /> -->
-    <!-- 		  </action> -->
-    <!-- 		</pluginExecution> -->
-    <!-- 	      </pluginExecutions> -->
-    <!-- 	    </lifecycleMappingMetadata> -->
-    <!-- 	  </configuration> -->
-    <!-- 	</plugin> -->
-    <!--   </plugins> -->
-    <!-- </pluginManagement> -->
-    <!-- <plugins> -->
-      <!-- <plugin> -->
-      <!-- 	<groupId>org.apache.maven.plugins</groupId> -->
-      <!-- 	<artifactId>maven-dependency-plugin</artifactId> -->
-      <!-- 	<version>2.1</version> -->
-      <!-- 	<executions> -->
-      <!-- 	  <execution> -->
-      <!-- 	    <id>copy-dependencies</id> -->
-      <!-- 	    <phase>process-sources</phase> -->
-      <!-- 	    <goals> -->
-      <!-- 	      <goal>copy-dependencies</goal> -->
-      <!-- 	    </goals> -->
-      <!-- 	    <configuration> -->
-      <!-- 	      <outputDirectory>${basedir}</outputDirectory> -->
-      <!-- 	      <overWriteReleases>false</overWriteReleases> -->
-      <!-- 	      <overWriteSnapshots>false</overWriteSnapshots> -->
-      <!-- 	      <overWriteIfNewer>true</overWriteIfNewer> -->
-      <!-- 	    </configuration> -->
-      <!-- 	  </execution> -->
-      <!-- 	</executions> -->
-      <!-- </plugin> -->
-      <!-- <plugin> -->
-      <!-- 	<artifactId>maven-clean-plugin</artifactId> -->
-      <!-- 	<version>2.3</version> -->
-      <!-- 	<configuration> -->
-      <!-- 	  <filesets> -->
-      <!-- 	    <fileset> -->
-      <!-- 	      <directory>${basedir}</directory> -->
-      <!-- 	      <includes> -->
-      <!-- 		<include>*.jar</include> -->
-      <!-- 	      </includes> -->
-      <!-- 	      <followSymlinks>false</followSymlinks> -->
-      <!-- 	    </fileset> -->
-      <!-- 	  </filesets> -->
-      <!-- 	</configuration> -->
-      <!-- </plugin> -->
-      <!-- comment this out unless needed -jwc -->
-      <!-- <plugin> -->
-      <!-- 	<groupId>org.codehaus.mojo</groupId> -->
-      <!-- 	<artifactId>cobertura-maven-plugin</artifactId> -->
-      <!-- 	<configuration> -->
-      <!-- 	  <instrumentation> -->
-      <!-- 	  </instrumentation> -->
-      <!-- 	</configuration> -->
-      <!-- 	<version>2.5.1</version> -->
-      <!-- 	<executions> -->
-      <!-- 	  <execution> -->
-      <!-- 	    <goals> -->
-      <!-- 	      <goal>clean</goal> -->
-      <!-- 	    </goals> -->
-      <!-- 	  </execution> -->
-      <!-- 	</executions> -->
-      <!-- </plugin> -->
-      <!-- <plugin> -->
-      <!-- 	<artifactId>maven-eclipse-plugin</artifactId> -->
-      <!-- 	<version>2.8</version> -->
-      <!-- 	<configuration> -->
-      <!-- 	  <pde>true</pde> -->
-      <!-- 	  <projectnatures> -->
-      <!-- 	    <projectnature>org.eclipse.jdt.core.javanature</projectnature> -->
-      <!-- 	    <projectnature>org.eclipse.pde.PluginNature</projectnature> -->
-      <!-- 	  </projectnatures> -->
-      <!-- 	  <buildcommands> -->
-      <!-- 	    <buildcommand>org.eclipse.jdt.core.javabuilder</buildcommand> -->
-      <!-- 	    <buildcommand>org.eclipse.pde.ManifestBuilder</buildcommand> -->
-      <!-- 	    <buildcommand>org.eclipse.pde.SchemaBuilder</buildcommand> -->
-      <!-- 	  </buildcommands> -->
-      <!-- 	  <classpathContainers> -->
-      <!-- 	    <classpathContainer>org.eclipse.pde.core.requiredPlugins</classpathContainer> -->
-      <!-- 	    <classpathContainer>org.eclipse.jdt.launching.JRE_CONTAINER</classpathContainer> -->
-      <!-- 	  </classpathContainers> -->
-      	  <!-- We set the workspace to null or at least not found such that Eclipse always will use the M2_repo-->
-      <!-- 	  <workspace>nowhere</workspace> -->
-      <!-- 	</configuration> -->
-      <!-- </plugin> -->
-    <!--   <plugin> -->
-    <!-- 	<groupId>org.apache.maven.plugins</groupId> -->
-    <!-- 	<artifactId>maven-javadoc-plugin</artifactId> -->
-    <!-- 	<version>2.8</version> -->
-    <!-- 	<executions> -->
-    <!-- 	  <execution> -->
-    <!-- 	    <id>attach-javadocs</id> -->
-    <!-- 	    <goals> -->
-    <!-- 	      <goal>jar</goal> -->
-    <!-- 	    </goals> -->
-    <!-- 	  </execution> -->
-    <!-- 	</executions> -->
-    <!-- 	<configuration> -->
-    <!-- 	  <skip>true</skip> -->
-    <!-- 	</configuration> -->
-    <!--   </plugin> -->
-    <!-- </plugins> -->
-  <!-- </build> -->
+
+  <repositories>
+    <repository>
+      <id>eclipse-juno</id>
+      <url>http://download.eclipse.org/releases/juno</url>
+      <layout>p2</layout>
+    </repository>
+    <repository>
+      <id>overture.iha.dk-p2</id>
+      <url>http://build.overturetool.org/builds/overture-compass-p2repo/</url>
+      <layout>p2</layout>
+    </repository>
+    <repository>
+      <id>isabelle-eclipse</id>
+      <layout>p2</layout>
+      <url>http://andriusvelykis.github.io/isabelle-eclipse/updates/isabelle2013/releases/</url>
+    </repository>
+    <repository>
+      <id>scala-ide</id>
+      <layout>p2</layout>      
+      <url>http://download.scala-ide.org/sdk/e38/scala210/stable/site</url>
+    </repository>
+  </repositories>
+
+  <profiles>
+    <profile>
+      <id>all-platforms</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.eclipse.tycho</groupId>
+            <artifactId>target-platform-configuration</artifactId>
+            <configuration>
+              <environments>
+                <environment>
+                  <os>win32</os>
+                  <ws>win32</ws>
+                  <arch>x86</arch>
+                </environment>
+                <environment>
+                  <os>win32</os>
+                  <ws>win32</ws>
+                  <arch>x86_64</arch>
+                </environment>
+                <environment>
+                  <os>linux</os>
+                  <ws>gtk</ws>
+                  <arch>x86</arch>
+                </environment>
+                <environment>
+                  <os>linux</os>
+                  <ws>gtk</ws>
+                  <arch>x86_64</arch>
+                </environment>
+                <environment>
+                  <os>macosx</os>
+                  <ws>cocoa</ws>
+                  <arch>x86_64</arch>
+                </environment>
+              </environments>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>

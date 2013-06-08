@@ -6,6 +6,7 @@ import java.io.PrintWriter;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.overture.ast.assistant.InvocationAssistantException;
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import org.overture.ast.definitions.AImplicitFunctionDefinition;
 import org.overture.ast.definitions.AImplicitOperationDefinition;
@@ -14,9 +15,9 @@ import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.factory.AstFactory;
-import org.overture.ast.lex.LexIdentifierToken;
+import org.overture.ast.intf.lex.ILexIdentifierToken;
+import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.lex.LexLocation;
-import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.APatternListTypePair;
 import org.overture.ast.patterns.APatternTypePair;
@@ -31,14 +32,23 @@ import org.overture.typechecker.assistant.pattern.PPatternAssistantTC;
 
 import eu.compassresearch.ast.definitions.AClassDefinition;
 import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
-import eu.compassresearch.core.parser.CmlParser.stateDefs_return;
-
+import eu.compassresearch.ast.lex.LexIdentifierToken;
+import eu.compassresearch.ast.lex.LexNameToken;
+import eu.compassresearch.ast.types.AErrorType;
 
 public class CmlTCUtil {
 
-	
-	public static String getErrorMessages(Exception e)
-	{
+	/**
+	 * Determine whether a type is successful or not.
+	 * 
+	 * @param type
+	 * @return
+	 */
+	public static boolean successfulType(PType type) {
+		return !(type == null || type instanceof AErrorType);
+	}
+
+	public static String getErrorMessages(Exception e) {
 		ByteArrayOutputStream b = new ByteArrayOutputStream();
 		PrintWriter pw = new PrintWriter(b);
 		e.printStackTrace(pw);
@@ -49,55 +59,75 @@ public class CmlTCUtil {
 		}
 		return new String(b.toByteArray());
 	}
-	
+
 	/**
 	 * Create a pre- or post-condition.
 	 * 
-	 * The result of this function is appropriate to assign to the predef or postdef 
-	 * fields of A*CmlOperationDefinition or A*FunctionDefinition
+	 * The result of this function is appropriate to assign to the predef or
+	 * postdef fields of A*CmlOperationDefinition or A*FunctionDefinition
 	 * 
-	 *  Post conditions allows access to old-name and hence these must be available in the
-	 *  environment when checking the post condition.
+	 * Post conditions allows access to old-name and hence these must be
+	 * available in the environment when checking the post condition.
 	 * 
-	 * @param prefix - typically the prefix is "pre" for preconditions and "post" for post conditions however it is up to the client. The resulting function name is prefix_target.getName().
-	 * @param target - The function or operation for which we are creating a predef
-	 * @param type - The of the function or operation in target
-	 * @param parameters - The parameter list for the function
-	 * @param condition - The pre/post condition field of target.
-	 * @return An AExplicitFunctionDefinition taking same arguments as target (parameters) and returns boolean with condition as body.
+	 * @param prefix
+	 *            - typically the prefix is "pre" for preconditions and "post"
+	 *            for post conditions however it is up to the client. The
+	 *            resulting function name is prefix_target.getName().
+	 * @param target
+	 *            - The function or operation for which we are creating a predef
+	 * @param type
+	 *            - The of the function or operation in target
+	 * @param parameters
+	 *            - The parameter list for the function
+	 * @param condition
+	 *            - The pre/post condition field of target.
+	 * @return An AExplicitFunctionDefinition taking same arguments as target
+	 *         (parameters) and returns boolean with condition as body.
 	 * 
-	 * NOTICE! The type of condition must be boolean for the result to be well typed. This is *NOT* checked 
+	 *         NOTICE! The type of condition must be boolean for the result to
+	 *         be well typed. This is *NOT* checked
 	 */
-	public static AExplicitFunctionDefinition buildCondition(String prefix, PDefinition target, PType type, List<APatternListTypePair> parameters, PExp condition) {
-		// Clone parameters as they are tree nodes and transform from cml operations params to Overture function params :S
+	public static AExplicitFunctionDefinition buildCondition(String prefix,
+			PDefinition target, PType type,
+			List<APatternListTypePair> parameters, PExp condition) {
+		// Clone parameters as they are tree nodes and transform from cml
+		// operations params to Overture function params :S
 		List<List<PPattern>> newParameters = new LinkedList<List<PPattern>>();
-		for(APatternListTypePair p : parameters)
-		{
+		for (APatternListTypePair p : parameters) {
 			List<PPattern> pList = new LinkedList<PPattern>();
-			for(PPattern pptrn : p.getPatterns())
+			for (PPattern pptrn : p.getPatterns())
 				pList.add(pptrn.clone());
 			newParameters.add(pList);
 		}
 
-		return buildCondition1(prefix, target, type, newParameters, condition, new LinkedList<PDefinition>(), new LinkedList<PDefinition>());
+		return buildCondition1(prefix, target, type, newParameters, condition,
+				new LinkedList<PDefinition>(), new LinkedList<PDefinition>());
 	}
-	
-	public static AExplicitFunctionDefinition buildCondition0(String prefix, PDefinition target, PType type, List<PPattern> ptrnList, PExp condition, List<PDefinition> enclosingStateDefinitions, List<PDefinition> oldStateDefs) {
+
+	public static AExplicitFunctionDefinition buildCondition0(String prefix,
+			PDefinition target, PType type, List<PPattern> ptrnList,
+			PExp condition, List<PDefinition> enclosingStateDefinitions,
+			List<PDefinition> oldStateDefs) {
 		List<List<PPattern>> pList = new LinkedList<List<PPattern>>();
 		pList.add(ptrnList);
-		return buildCondition1(prefix, target, type, pList, condition, enclosingStateDefinitions, oldStateDefs);
+		return buildCondition1(prefix, target, type, pList, condition,
+				enclosingStateDefinitions, oldStateDefs);
 	}
-	
-	public static AExplicitFunctionDefinition buildCondition1(String prefix, PDefinition target, PType type, List<List<PPattern>> ptrnList, PExp condition, List<PDefinition> enclosingStateDefinitions, List<PDefinition> oldStateDefs)
-	{
+
+	public static AExplicitFunctionDefinition buildCondition1(String prefix,
+			PDefinition target, PType type, List<List<PPattern>> ptrnList,
+			PExp condition, List<PDefinition> enclosingStateDefinitions,
+			List<PDefinition> oldStateDefs) {
 		// create new with pre_ before the name
-		LexNameToken name = new LexNameToken("", new LexIdentifierToken(prefix+"_"+target.getName().getName(), false, target.getLocation()));
+		ILexNameToken name = new LexNameToken("", new LexIdentifierToken(prefix
+				+ "_" + target.getName().getFullName(), false,
+				target.getLocation()));
 
 		// pre/post conditions are local scope
 		NameScope scope = NameScope.LOCAL;
 
 		// TODO: RWL Figure out what this is and why it is there
-		List<LexNameToken> typeParams = new LinkedList<LexNameToken>();
+		List<ILexNameToken> typeParams = new LinkedList<ILexNameToken>();
 
 		// Extract parameterTypes from the given type
 		LinkedList<PType> parameterTypes = null;
@@ -111,14 +141,14 @@ public class CmlTCUtil {
 		if (parameterTypes == null)
 			return null;
 
-		for(PDefinition d : enclosingStateDefinitions) {
+		for (PDefinition d : enclosingStateDefinitions) {
 			parameterTypes.add(d.getType().clone());
 		}
-		
-		for(PDefinition d : oldStateDefs) {
+
+		for (PDefinition d : oldStateDefs) {
 			parameterTypes.add(d.getType().clone());
 		}
-		
+
 		// The body is the given condition, we assume ot has type boolean
 		PExp body = condition;
 
@@ -126,8 +156,10 @@ public class CmlTCUtil {
 		PExp precondition = null;
 		PExp postcondition = null;
 
-		// TODO RWL: This is false as we are not generating this for a type invariant.
-		// Client code for type invariants could use this function but must explicitely 
+		// TODO RWL: This is false as we are not generating this for a type
+		// invariant.
+		// Client code for type invariants could use this function but must
+		// explicitely
 		// set the type Invariant flag afterwards on the resulting definition.
 		boolean typeInvariant = false;
 
@@ -136,24 +168,24 @@ public class CmlTCUtil {
 
 		// Clone those parameters
 		List<List<PPattern>> newParameters = new LinkedList<List<PPattern>>();
-		for(List<PPattern> p : ptrnList)
-		{
+		for (List<PPattern> p : ptrnList) {
 			List<PPattern> pList = new LinkedList<PPattern>();
-			for(PPattern pptrn : p)
+			for (PPattern pptrn : p)
 				pList.add(pptrn.clone());
 			newParameters.add(pList);
 		}
 
-		for(PDefinition stateDef : enclosingStateDefinitions) {
-			AIdentifierPattern idPattern = AstFactory.newAIdentifierPattern(stateDef.getName());
+		for (PDefinition stateDef : enclosingStateDefinitions) {
+			AIdentifierPattern idPattern = AstFactory
+					.newAIdentifierPattern(stateDef.getName());
 			List<PPattern> pList = new LinkedList<PPattern>();
 			pList.add(idPattern.clone());
 			newParameters.add(pList);
 		}
 
-		
-		for(PDefinition stateDef : oldStateDefs) {
-			AIdentifierPattern idPattern = AstFactory.newAIdentifierPattern(stateDef.getName());
+		for (PDefinition stateDef : oldStateDefs) {
+			AIdentifierPattern idPattern = AstFactory
+					.newAIdentifierPattern(stateDef.getName());
 			List<PPattern> pList = new LinkedList<PPattern>();
 			pList.add(idPattern.clone());
 			newParameters.add(pList);
@@ -161,7 +193,8 @@ public class CmlTCUtil {
 
 		// The result parameter for implicit stuff
 		if (target instanceof AImplicitFunctionDefinition) {
-			APatternTypePair result = ((AImplicitFunctionDefinition) target).getResult();
+			APatternTypePair result = ((AImplicitFunctionDefinition) target)
+					.getResult();
 			List<PPattern> pList = new LinkedList<PPattern>();
 			pList.add(result.getPattern().clone());
 			newParameters.add(pList);
@@ -170,7 +203,8 @@ public class CmlTCUtil {
 		}
 
 		if (target instanceof AImplicitOperationDefinition) {
-			APatternTypePair result = ((AImplicitOperationDefinition) target).getResult();
+			APatternTypePair result = ((AImplicitOperationDefinition) target)
+					.getResult();
 			List<PPattern> pList = new LinkedList<PPattern>();
 			pList.add(result.getPattern().clone());
 			newParameters.add(pList);
@@ -179,47 +213,53 @@ public class CmlTCUtil {
 		}
 
 		if (target instanceof AImplicitCmlOperationDefinition) {
-			LinkedList<APatternTypePair> result = ((AImplicitCmlOperationDefinition) target).getResult();
+			LinkedList<APatternTypePair> result = ((AImplicitCmlOperationDefinition) target)
+					.getResult();
 			for (APatternTypePair pair : result) {
 				List<PPattern> pList = new LinkedList<PPattern>();
 				pList.add(pair.getPattern().clone());
 				newParameters.add(pList);
 				parameterTypes.add(pair.getType());
-				// TODO This assumes exactly one identifier pattern in each pair !!!
+				// TODO This assumes exactly one identifier pattern in each pair
+				// !!!
 			}
 		}
 		// Alright create the result
-		AFunctionType preDefType = AstFactory.newAFunctionType(target.getLocation(), false, parameterTypes, AstFactory.newABooleanBasicType(target.getLocation()));
-		AExplicitFunctionDefinition preDef = AstFactory.newAExplicitFunctionDefinition(name, scope, typeParams, preDefType, newParameters, body, precondition, postcondition, typeInvariant, measuref);
+		AFunctionType preDefType = AstFactory.newAFunctionType(
+				target.getLocation(), false, parameterTypes,
+				AstFactory.newABooleanBasicType(target.getLocation()));
+		AExplicitFunctionDefinition preDef = AstFactory
+				.newAExplicitFunctionDefinition(name, scope, typeParams,
+						preDefType, newParameters, body, precondition,
+						postcondition, typeInvariant, measuref);
 		return preDef;
 	}
 
 	/**
 	 * 
-	 * Type Checking relies on every PDefinition has a non-null name. This method allows us
-	 * to generate a LexNameToken with an empty string and only a location quickly for setting the
-	 * name of definitions that lack a name.
+	 * Type Checking relies on every PDefinition has a non-null name. This
+	 * method allows us to generate a LexNameToken with an empty string and only
+	 * a location quickly for setting the name of definitions that lack a name.
 	 * 
 	 * @param loc
 	 * @return
 	 */
-	public static LexNameToken newEmptyStringLexName(LexLocation loc)
-	{
-		return new LexNameToken("", new LexIdentifierToken("",false,loc));
+	public static LexNameToken newEmptyStringLexName(LexLocation loc) {
+		return new LexNameToken("", new LexIdentifierToken("", false, loc));
 	}
 
 	/**
 	 * Given an overture env find the above cml env
+	 * 
 	 * @param question
 	 * @return
 	 */
-	public static CmlTypeCheckInfo getCmlEnv(org.overture.typechecker.TypeCheckInfo question)
-	{
+	public static CmlTypeCheckInfo getCmlEnv(
+			org.overture.typechecker.TypeCheckInfo question) {
 		if (question instanceof CmlTypeCheckInfo)
-			return (CmlTypeCheckInfo)question;
+			return (CmlTypeCheckInfo) question;
 		return question.contextGet(CmlTypeCheckInfo.class);
 	}
-
 
 	/**
 	 * Search from the given environment and outwards towards the top-level
@@ -230,26 +270,22 @@ public class CmlTCUtil {
 	 * @param overtureEnv
 	 * @return
 	 */
-	public static PDefinition findNearestFunctionOrOperationInEnvironment(LexNameToken name, Environment overtureEnv)
-	{
+	public static PDefinition findNearestFunctionOrOperationInEnvironment(
+			ILexNameToken name, Environment overtureEnv) {
 		PDefinition result = null;
 		org.overture.typechecker.Environment cur = overtureEnv;
-		while(cur != null && result == null)
-		{
+		while (cur != null && result == null) {
 			List<PDefinition> defs = cur.getDefinitions();
-			if (defs != null)
-			{
-				for(PDefinition def : defs)
-				{
-					LexNameToken defName = def.getName();
-					if (defName != null && defName.getName() != null && defName.getName().equals(name.getName()))
-					{
-						if (PDefinitionAssistantTC.isFunctionOrOperation(def))
-						{
+			if (defs != null) {
+				for (PDefinition def : defs) {
+					ILexNameToken defName = def.getName();
+					if (defName != null && defName.getFullName() != null
+							&& defName.getFullName().equals(name.getFullName())) {
+						if (PDefinitionAssistantTC.isFunctionOrOperation(def)) {
 							return result = def;
 						}
 
-					} 
+					}
 				}
 			}
 			cur = cur.getOuter();
@@ -258,109 +294,114 @@ public class CmlTCUtil {
 	}
 
 	/**
-	 * Look everywhere for the given name in order:
-	 * 1) Locally in the present questions's definition list (env.definitions)
-	 * 2) The anywhere in the enclosingDefinition 
-	 * 3) If still not found expand to global scope if we have an Cml environemt
+	 * Look everywhere for the given name in order: 1) Locally in the present
+	 * questions's definition list (env.definitions) 2) The anywhere in the
+	 * enclosingDefinition 3) If still not found expand to global scope if we
+	 * have an Cml environemt
 	 * 
 	 * 
 	 * @param question
 	 * @return
 	 */
-	public static PDefinition findDefByAllMeans(org.overture.typechecker.TypeCheckInfo question, LexIdentifierToken id)
-	{
+	public static PDefinition findDefByAllMeans(
+			org.overture.typechecker.TypeCheckInfo question,
+			ILexIdentifierToken id) {
 		PDefinition res = null;
 		LexNameToken sought = null;
 		if (id instanceof LexNameToken)
-			sought = (LexNameToken)id;
+			sought = (LexNameToken) id;
 		else
-			sought = new LexNameToken("",id);
+			sought = new LexNameToken("", id);
 
 		// search locally names
 		res = question.env.findName(sought, NameScope.NAMESANDANYSTATE);
-		if (res != null) return res;
+		if (res != null)
+			return res;
 
 		// search locally types
-		res = question.env.findType(sought,"");
-		if (res != null) return res;
+		res = question.env.findType(sought, "");
+		if (res != null)
+			return res;
 
 		// search enclosing definition
 		PDefinition enclosingDef = question.env.getEnclosingDefinition();
-		for(NameScope scope : NameScope.values())
-		{
+		for (NameScope scope : NameScope.values()) {
 			try {
-				res = PDefinitionAssistantTC.findName(enclosingDef, sought, scope);
-				if (res != null) return res;
-			} catch (Exception e)
-			{
+				res = PDefinitionAssistantTC.findName(enclosingDef, sought,
+						scope);
+				if (res != null)
+					return res;
+			} catch (Exception e) {
 				// silently ignore.
 			}
 		}
 
 		// search globally
 		CmlTypeCheckInfo cmlEnv = getCmlEnv(question);
-		if (cmlEnv == null) return null; // no global scope :(
+		if (cmlEnv == null)
+			return null; // no global scope :(
 
-		PDefinition globalDef = cmlEnv.getGlobalClassDefinitions();
-		for(NameScope scope : NameScope.values())
-		{
-			try {
-				res = PDefinitionAssistantTC.findName(globalDef, sought, scope);
-				if (res != null) return res;
-			} catch (Exception e)
-			{
-				// silently ignore.
-			}
-		}
-
-
-		return null;
+		return cmlEnv.lookup(sought, PDefinition.class);
 	}
 
-
 	/**
-	 * Run through the definitions constituting the given class node and flatten paragraph sections
-	 * and add the definitions to the environment.
+	 * Run through the definitions constituting the given class node and flatten
+	 * paragraph sections and add the definitions to the environment.
 	 * 
 	 * @param info
 	 * @param node
 	 * @return
 	 */
 	static CmlTypeCheckInfo createCmlClassEnvironment(CmlTypeCheckInfo info,
-			AClassDefinition node) {
+			AClassDefinition node) throws InvocationAssistantException {
 
 		CmlTypeCheckInfo cmlClassEnv = info.newScope();
 
-		for(PDefinition def : node.getBody())
-		{
-			List<PDefinition> l = TCDeclAndDefVisitor.handleDefinitionsForOverture(def);
+		for (PDefinition def : node.getBody()) {
+			List<PDefinition> l = TCDeclAndDefVisitor
+					.handleDefinitionsForOverture(def);
 			if (l != null)
-				for(PDefinition dd : l)
-				{
+				for (PDefinition dd : l) {
 					if (dd instanceof ATypeDefinition)
 						info.addType(dd.getName(), dd);
-					else
-					{
-						LexNameToken name = dd.getName();
-						if ("".equals(name+""))
-						{
-							if (dd instanceof AValueDefinition)
-							{
-								AValueDefinition ddVd = (AValueDefinition)dd;
+					else {
+						ILexNameToken name = dd.getName();
+						if ("".equals(name + "")) {
+							if (dd instanceof AValueDefinition) {
+								AValueDefinition ddVd = (AValueDefinition) dd;
 								PPattern p = ddVd.getPattern();
-								List<LexNameToken> names = PPatternAssistantTC.getAllVariableNames(p);
-								for(LexNameToken n : names)
+								List<ILexNameToken> names = PPatternAssistantTC
+										.getAllVariableNames(p);
+								for (ILexNameToken n : names)
 									info.addVariable(n, dd);
 							}
-						}
-						else
-							info.addVariable(name,dd);
+						} else
+							info.addVariable(name, dd);
 					}
-				}		
+				}
 		}
 
 		return cmlClassEnv;
 
+	}
+
+	/**
+	 * An initial strategy for determining access. There is code for this in
+	 * Overture we should use instead.
+	 * 
+	 * @param definition
+	 * @param scope
+	 * @return
+	 */
+	static boolean checkAccessInScope(PDefinition definition, NameScope scope) {
+
+		if (scope == null)
+			scope = NameScope.NAMESANDANYSTATE;
+
+		if (scope == NameScope.LOCAL)
+			return definition.getNameScope() == scope;
+
+		return true;
 	}
 
 }

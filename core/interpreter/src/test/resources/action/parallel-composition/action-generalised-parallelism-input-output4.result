@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testResult>
+  <exception/>
+  <interpreterState>TERMINATED</interpreterState>
+  <trace>
+    <events>b,a.1.4</events>
+    <timedTrace/>
+  </trace>
+</testResult>

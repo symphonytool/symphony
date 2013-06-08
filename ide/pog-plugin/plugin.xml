@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="4.2"?>
+
+<plugin>
+
+
+<!-- switch this stuff to commands! -->
+   <extension
+         point="org.eclipse.ui.actionSets">
+      <actionSet
+            id="eu.compassresearch.ide.cml.ui.actionSet"
+            label="POG Basic Action Set"
+            visible="true">
+
+         <action
+               class="eu.compassresearch.ide.cml.pogplugin.POGDoStuff"
+               icon="icons/pog_action.png"
+               id="eu.compassresearch.ide.cml.pogplugin.POGBasicAction"
+               label="&amp;Generate POs"
+               toolbarPath="POGGroup"
+               tooltip="Generate POs for open file">
+         </action>
+      </actionSet>
+   </extension>
+
+
+<extension
+         point="org.eclipse.ui.views">
+     
+      <view
+            category="org.overture.ide.ui.view.category"
+            class="org.overture.ide.plugins.poviewer.view.PoTableView"
+            icon="icons/cview16/po_tsk.png"
+            id="eu.compassresearch.ide.OvtPoTable"
+            name="Overture PO View">
+      </view>
+      <view
+            category="org.overture.ide.ui.view.category"
+            class="org.overture.ide.plugins.poviewer.view.PoOverviewTableView"
+            icon="icons/cview16/po_tsk.png"
+            id="eu.compassresearch.ide.OvtPoOTable"
+            name="Proof Obligation Explorer">
+      </view>
+   
+     
+   </extension>
+<extension
+      point="org.eclipse.ui.perspectives">
+   <perspective
+         class="org.overture.ide.plugins.poviewer.ProofObligationPerspectiveFactory"
+         icon="icons/cview16/po_tsk.png"
+         id="org.overture.ide.plugins.poviewer.perspective"
+         name="Proof Obligation">
+   </perspective>
+</extension>
+
+
+
+
+</plugin>

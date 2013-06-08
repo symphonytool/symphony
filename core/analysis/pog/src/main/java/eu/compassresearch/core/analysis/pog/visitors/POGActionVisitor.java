@@ -1,34 +1,23 @@
 package eu.compassresearch.core.analysis.pog.visitors;
 
+import java.util.LinkedList;
+
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
+import org.overture.ast.intf.lex.ILexIdentifierToken;
+import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.INode;
+import org.overture.ast.patterns.ADefPatternBind;
+import org.overture.ast.patterns.PPattern;
+import org.overture.ast.statements.AExternalClause;
 import org.overture.pog.obligation.POContextStack;
 import org.overture.pog.obligation.ProofObligationList;
 import org.overture.pog.util.POException;
 
-import eu.compassresearch.ast.actions.ABlockStatementAction;
-import eu.compassresearch.ast.actions.AElseIfStatementAction;
-import eu.compassresearch.ast.actions.AIfStatementAction;
-import eu.compassresearch.ast.actions.ASequentialCompositionAction;
-import eu.compassresearch.ast.actions.ASingleGeneralAssignmentStatementAction;
-import eu.compassresearch.ast.actions.ATimedInterruptAction;
-import eu.compassresearch.ast.actions.AWhileStatementAction;
-import eu.compassresearch.ast.actions.PAction;
-import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
-import eu.compassresearch.core.analysis.pog.obligations.CMLWhileLoopObligation;
-import eu.compassresearch.core.analysis.pog.obligations.NonZeroTimeObligation;
-
-import java.util.LinkedList;
-import java.util.List;
-import org.overture.ast.definitions.PDefinition;
-import org.overture.ast.lex.LexIdentifierToken;
-import org.overture.ast.lex.LexNameToken;
-import org.overture.ast.patterns.ADefPatternBind;
-import org.overture.ast.patterns.PPattern;
-import org.overture.ast.statements.AExternalClause;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AAssignmentCallStatementAction;
+import eu.compassresearch.ast.actions.ABlockStatementAction;
 import eu.compassresearch.ast.actions.ACallStatementAction;
 import eu.compassresearch.ast.actions.ACaseAlternativeAction;
 import eu.compassresearch.ast.actions.ACasesStatementAction;
@@ -39,6 +28,7 @@ import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.ADeclarationInstantiatedAction;
 import eu.compassresearch.ast.actions.ADeclareStatementAction;
 import eu.compassresearch.ast.actions.ADivAction;
+import eu.compassresearch.ast.actions.AElseIfStatementAction;
 import eu.compassresearch.ast.actions.AEndDeadlineAction;
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
 import eu.compassresearch.ast.actions.AExternalChoiceReplicatedAction;
@@ -49,6 +39,7 @@ import eu.compassresearch.ast.actions.AGeneralisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AGeneralisedParallelismReplicatedAction;
 import eu.compassresearch.ast.actions.AGuardedAction;
 import eu.compassresearch.ast.actions.AHidingAction;
+import eu.compassresearch.ast.actions.AIfStatementAction;
 import eu.compassresearch.ast.actions.AInterleavingParallelAction;
 import eu.compassresearch.ast.actions.AInterleavingReplicatedAction;
 import eu.compassresearch.ast.actions.AInternalChoiceAction;
@@ -56,18 +47,20 @@ import eu.compassresearch.ast.actions.AInternalChoiceReplicatedAction;
 import eu.compassresearch.ast.actions.AInterruptAction;
 import eu.compassresearch.ast.actions.ALetStatementAction;
 import eu.compassresearch.ast.actions.AMuAction;
+import eu.compassresearch.ast.actions.AMultipleGeneralAssignmentStatementAction;
+import eu.compassresearch.ast.actions.ANewStatementAction;
 import eu.compassresearch.ast.actions.ANonDeterministicAltStatementAction;
 import eu.compassresearch.ast.actions.ANonDeterministicDoStatementAction;
 import eu.compassresearch.ast.actions.ANonDeterministicIfStatementAction;
 import eu.compassresearch.ast.actions.ANotYetSpecifiedStatementAction;
 import eu.compassresearch.ast.actions.AParametrisedAction;
 import eu.compassresearch.ast.actions.AParametrisedInstantiatedAction;
-import eu.compassresearch.ast.actions.AMultipleGeneralAssignmentStatementAction;
-import eu.compassresearch.ast.actions.ANewStatementAction;
 import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.actions.AResParametrisation;
 import eu.compassresearch.ast.actions.AReturnStatementAction;
+import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionReplicatedAction;
+import eu.compassresearch.ast.actions.ASingleGeneralAssignmentStatementAction;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.ASpecificationStatementAction;
 import eu.compassresearch.ast.actions.AStartDeadlineAction;
@@ -75,18 +68,23 @@ import eu.compassresearch.ast.actions.AStopAction;
 import eu.compassresearch.ast.actions.ASubclassResponsibilityAction;
 import eu.compassresearch.ast.actions.ASynchronousParallelismParallelAction;
 import eu.compassresearch.ast.actions.ASynchronousParallelismReplicatedAction;
+import eu.compassresearch.ast.actions.ATimedInterruptAction;
 import eu.compassresearch.ast.actions.ATimeoutAction;
 import eu.compassresearch.ast.actions.AUntimedTimeoutAction;
 import eu.compassresearch.ast.actions.AValParametrisation;
 import eu.compassresearch.ast.actions.AVresParametrisation;
 import eu.compassresearch.ast.actions.AWaitAction;
+import eu.compassresearch.ast.actions.AWhileStatementAction;
+import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.actions.PCommunicationParameter;
 import eu.compassresearch.ast.actions.PParametrisation;
+import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.definitions.AClassDefinition;
-import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
+import eu.compassresearch.core.analysis.pog.obligations.CMLWhileLoopObligation;
+import eu.compassresearch.core.analysis.pog.obligations.NonZeroTimeObligation;
 
 @SuppressWarnings("serial")
 public class POGActionVisitor extends
@@ -383,8 +381,8 @@ try{
 		ProofObligationList pol = new ProofObligationList();
 
 		// Get subparts
-		LinkedList<LexNameToken> ids = node.getIdentifiers();
-		for (LexNameToken id : ids) {
+		LinkedList<ILexNameToken> ids = node.getIdentifiers();
+		for (ILexNameToken id : ids) {
 			// TODO anything to do w/ ids?
 		}
 		// TODO: Any AExternalClause POs?
@@ -502,7 +500,7 @@ try{
 		// Get subparts
 		LinkedList<PExp> args = node.getArgs();
 		AClassDefinition classdef = node.getClassdef();
-		LexNameToken classname = node.getClassName();
+		ILexNameToken classname = node.getClassName();
 		PDefinition ctor = node.getCtorDefinition();
 		PExp dest = node.getDestination();
 
@@ -691,7 +689,7 @@ try{
 		PExp by = node.getBy();
 		PExp frm = node.getFrom();
 		PExp to = node.getTo();
-		LexNameToken var = node.getVar();
+		ILexNameToken var = node.getVar();
 
 		// TODO: Any AForIndexStatementAction POs?
 		return pol;
@@ -779,7 +777,7 @@ try{
 		ProofObligationList pol = new ProofObligationList();
 
 		// Get subparts
-		LinkedList<LexIdentifierToken> ids = node.getIdentifiers();
+		LinkedList<ILexIdentifierToken> ids = node.getIdentifiers();
 		LinkedList<PAction> acts = node.getActions();
 
 		// TODO: Any AMuAction POs?
@@ -879,7 +877,7 @@ try{
 
 		// Get subparts
 		PExp exp = node.getExp();
-
+		pol.addAll(exp.apply(parentPOG, question));
 		// TODO: Any AReturnStatementAction POs?
 		return pol;
 	} catch (Exception e) {
@@ -993,7 +991,7 @@ try{
 
 		// Get subparts
 		LinkedList<PExp> args = node.getArgs();
-		LexNameToken opname = node.getOpname();
+		ILexNameToken opname = node.getOpname();
 
 		// TODO Any ANotYetSpecifiedStatementAction POs?
 		return pol;
@@ -1030,7 +1028,7 @@ try{
 
 		// Get subparts
 		LinkedList<PExp> args = node.getArgs();
-		LexNameToken name = node.getName();
+		ILexNameToken name = node.getName();
 
 		// TODO Any AReferenceAction POs?
 		return pol;
@@ -1049,7 +1047,7 @@ try{
 		PAction act = node.getAction();
 		LinkedList<PCommunicationParameter> commparam = node
 				.getCommunicationParameters();
-		LexIdentifierToken ident = node.getIdentifier();
+		ILexIdentifierToken ident = node.getIdentifier();
 
 		// TODO Any ACommunicationAction POs?
 		return pol;
@@ -1218,7 +1216,7 @@ try{
 
 		// Get subparts
 		LinkedList<PExp> args = node.getArgs();
-		LexNameToken name = node.getName();
+		ILexNameToken name = node.getName();
 
 		// TODO: any ACallStatementAction POs?
 		return pol;

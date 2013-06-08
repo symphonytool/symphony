@@ -1,30 +1,45 @@
 package eu.compassresearch.core.interpreter.api;
 
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import eu.compassresearch.core.interpreter.cml.CmlProcessState;
-import eu.compassresearch.core.interpreter.cml.CmlTrace;
-import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
+import org.overture.ast.intf.lex.ILexLocation;
+import org.overture.ast.intf.lex.ILexNameToken;
+import org.overture.ast.lex.LexLocation;
+
+import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorState;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlTrace;
+import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 
 public class CmlProcessInfo {
 
-	private final String name;
-	private final String[] trace;
+	private final ILexNameToken name;
+	private final List<String> trace;
 	private final long level;
 	private final boolean isProcess;
-	private final CmlProcessState state;
+	private final CmlBehaviorState state;
+	private final LexLocation location;
 
-	public CmlProcessInfo(String name, CmlTrace trace,long level, 
-			boolean isProcess, CmlProcessState state)
+	protected CmlProcessInfo()
+	{
+		name = null;
+		trace = new LinkedList<String>();
+		level = 0;
+		isProcess = false;
+		state = null;
+		location = null;		
+	}
+	
+	public CmlProcessInfo(ILexNameToken name, CmlTrace trace,long level, 
+			boolean isProcess, CmlBehaviorState state,
+			LexLocation currentLocation)
 	{
 		this.name = name;
-		List<String> evs = convertCmlEventsToStringList(trace.getVisibleTrace());
-		this.trace = evs.toArray(new String[evs.size()]);
+		this.trace = convertCmlEventsToStringList(trace.getObservableTrace());
 		this.level = level;
 		this.isProcess = isProcess;
 		this.state = state;
+		this.location = currentLocation;
 	}
 	
 	public String getName() {
@@ -36,20 +51,20 @@ public class CmlProcessInfo {
 		return level;
 	}
 	
-	public CmlProcessState getState() {
+	public CmlBehaviorState getState() {
 		return state;
 	}
 	
-	public List<String> getVisibleTrace()
-	{
-		return Arrays.asList(this.trace); 
+	public List<String> getTrace()
+	{	
+		return this.trace;
 	}
 	
-	private List<String> convertCmlEventsToStringList(List<CmlEvent> events)
+	private List<String> convertCmlEventsToStringList(List<CmlTransition> events)
 	{
 		List<String> result = new LinkedList<String>();
 
-		for(CmlEvent e : events)
+		for(CmlTransition e : events)
 		{
 			result.add(e.toString());
 		}
@@ -57,4 +72,14 @@ public class CmlProcessInfo {
 		return result;
 	}
 	
+	public ILexLocation getLocation()
+	{
+		return this.location;
+	}
+	
+	@Override
+	public String toString() {
+		return "Name: " + name + System.lineSeparator() +
+				"trace :" + trace;
+	}
 }

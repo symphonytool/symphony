@@ -1,8 +1,6 @@
 types
   LampId      = <L1> | <L2> | <L3>
-
   Signal      = set of LampId
-   
   ProperState = Signal
   inv ps == ps in set {dark, stop, warning, drive}
 
@@ -12,12 +10,26 @@ types
                laststate          : Signal
                currentstate       : Signal
                desiredproperstate : ProperState
-  inv d ==  
+  inv d ==
     (((d.currentstate \ d.turnoff) union d.turnon) = d.desiredproperstate) and
-    (d.turnoff inter d.turnon = {})
-     
+    (d.turnoff inter d.turnon = {}) and
+    -- NeverShow All
+    d.currentstate <> {<L1>,<L2>,<L3>} and
+    -- MaxOneLampChange
+    card ((d.currentstate \ d.laststate) union (d.laststate \ d.currentstate)) <= 1 and
+    -- ForbidStopToDrive
+    ((d.lastproperstate = stop) => d.desiredproperstate <> drive) and
+    -- DarkOnlyToStop
+    ((d.lastproperstate = dark) => d.desiredproperstate in set {dark,stop}) and
+    -- DarkOnlyFromStop
+    ((d.desiredproperstate = dark) => d.lastproperstate in set {dark,stop})
+    
   DwarfSignal = DwarfType
-  inv d == NeverShowAll(d) and MaxOneLampChange(d) and ForbidStopToDrive(d) and DarkOnlyToStop(d) and DarkOnlyFromStop(d)
+  inv d == NeverShowAll(d) and 
+  		    MaxOneLampChange(d) and 
+  		    ForbidStopToDrive(d) and 
+  		    DarkOnlyToStop(d) and 
+  		    DarkOnlyFromStop(d)
 
 values
   dark: Signal    = {}
@@ -31,95 +43,125 @@ functions
   NeverShowAll(d) == d.currentstate <> {<L1>,<L2>,<L3>}
   
   MaxOneLampChange: DwarfType -> bool 
-  MaxOneLampChange(d) == exists l : LampId @ d.currentstate \ d.laststate = {l} or d.laststate \ d.currentstate = {l}
+  MaxOneLampChange(d) == card ((d.currentstate \ d.laststate) union (d.laststate \ d.currentstate)) <= 1
   
   ForbidStopToDrive : DwarfType -> bool
-  ForbidStopToDrive(d) == (stop in set d.lastproperstate) => d.desiredproperstate <> drive
+  ForbidStopToDrive(d) == ((d.lastproperstate = stop) => d.desiredproperstate <> drive)
   
   DarkOnlyToStop : DwarfType -> bool
-  DarkOnlyToStop(d) == (dark in set d.lastproperstate) => d.desiredproperstate = stop
+  DarkOnlyToStop(d) == ((d.lastproperstate = dark) => d.desiredproperstate in set {dark,stop}) 
   
   DarkOnlyFromStop: DwarfType -> bool
-  DarkOnlyFromStop(d) == (dark in set d.desiredproperstate) => stop in set d.lastproperstate
- 
+  DarkOnlyFromStop(d) == ((d.desiredproperstate = dark) => d.lastproperstate in set {dark,stop})
+
 channels
   init
-  turnon: LampId
-  turnoff: LampId
-  setPS : ProperState
+  light: LampId
+  extinguish: LampId
+  setPS: ProperState
+  shine: Signal
+  thunk
 
 process Dwarf = begin
 
 state 
-  sg : DwarfSignal
+  dw : DwarfType
 
 operations
   Init : () ==> ()
-  Init() ==   sg := mk_DwarfSignal(stop, 
-				         	  {}, 
-				    	      {}, 
-				    	      stop, 
-				    	      stop, 
-				     		  stop)
+  Init() ==
+    dw := mk_DwarfType(stop, {}, {}, stop, stop, stop) 
 
-    post sg.lastproperstate = stop and 
-         sg.turnoff = {} and 
-         sg.turnon = {} and 
-         sg.laststate = stop and 
-         sg.currentstate = stop and 
-         sg.desiredproperstate = stop
+    post dw.lastproperstate = stop and 
+         dw.turnoff = {} and 
+         dw.turnon = {} and 
+         dw.laststate = stop and 
+         dw.currentstate = stop and 
+         dw.desiredproperstate = stop
 
   SetNewProperState: (ProperState) ==> ()
-  SetNewProperState(st) ==  sg.lastproperstate := sg.currentstate ;	
-				  			sg.turnoff := sg.currentstate \ st ;
-				 	 	    sg.turnon := st \ sg.currentstate ;
-				  	 	    sg.laststate := sg.currentstate ;				  	
-				  	   		sg.desiredproperstate := st
+  SetNewProperState(st) ==
+    dw := mk_DwarfType( dw.currentstate
+    	                , dw.currentstate \ st
+    	                , st \ dw.currentstate
+    	                , dw.laststate
+    	                , dw.currentstate
+    	                , st) 
   
-  	pre sg.currentstate = sg.desiredproperstate and
-  	    st <> sg.currentstate
+  	pre dw.currentstate = dw.desiredproperstate and
+  	    st <> dw.currentstate
   	     
-  	post sg.lastproperstate = sg~.currentstate and
-  	     sg.turnoff = sg~.currentstate \ st and
-  	     sg.turnon  = st \ sg~.currentstate and
-  	     sg.laststate = sg~.currentstate and
-  	     sg.currentstate = sg~.currentstate and
-  	     sg.desiredproperstate = st
+  	post dw.lastproperstate = dw~.currentstate and
+  	     dw.turnoff = dw~.currentstate \ st and
+  	     dw.turnon  = st \ dw~.currentstate and
+  	     dw.laststate = dw~.laststate and
+  	     dw.currentstate = dw~.currentstate and
+  	     dw.desiredproperstate = st
 
- 
   TurnOn: (LampId) ==> ()
-  TurnOn(l) == sg.turnoff := sg.turnoff \ {l};
-		       sg.turnon  := sg.turnon  \ {l};
-		       sg.laststate := sg.currentstate; 
-		       sg.currentstate := sg.currentstate union {l} 
-         
-    pre l in set sg.turnoff
-    post sg.lastproperstate = sg~.lastproperstate and
-         sg.turnoff = sg~.turnoff \ {l} and
-         sg.turnon  = sg~.turnon  \ {l} and 
-         sg.laststate = sg~.currentstate and
-         sg.currentstate = sg~.currentstate \ {l} and
-         sg.desiredproperstate = sg~.desiredproperstate
+  TurnOn(l) == 
+    dw := mk_DwarfType( dw.lastproperstate
+                      , dw.turnoff \ {l}
+                      , dw.turnon \ {l}
+                      , dw.currentstate
+                      , dw.currentstate union {l}
+                      , dw.desiredproperstate)
+                                          
+    pre l in set dw.turnon
+    post dw.lastproperstate = dw~.lastproperstate and
+         dw.turnoff = dw~.turnoff \ {l} and
+         dw.turnon  = dw~.turnon  \ {l} and 
+         dw.laststate = dw~.currentstate and
+         dw.currentstate = dw~.currentstate union {l} and
+         dw.desiredproperstate = dw~.desiredproperstate
+
 
   TurnOff : (LampId) ==> ()
-  TurnOff(l) == sg.turnoff := sg.turnoff \ {l} ;
-       			sg.turnon  := sg.turnon  \ {l} ; 
-   		 	    sg.laststate := sg.currentstate ;
-                sg.currentstate := sg.currentstate \ {l}
+  TurnOff(l) == 
+    dw := mk_DwarfType( dw.lastproperstate
+                      , dw.turnoff \ {l}
+                      , dw.turnon \ {l}
+                      , dw.currentstate
+                      , dw.currentstate \ {l}
+                      , dw.desiredproperstate)
+  
+    pre l in set dw.turnoff
+    post dw.lastproperstate = dw~.lastproperstate and
+         dw.turnoff = dw~.turnoff \ {l} and
+         dw.turnon  = dw~.turnon  \ {l} and 
+         dw.laststate = dw~.currentstate and
+         dw.currentstate = dw~.currentstate \ {l} and
+         dw.desiredproperstate = dw~.desiredproperstate
 
-    pre l in set sg.turnon
-    post sg.lastproperstate = sg~.lastproperstate and
-         sg.turnoff = sg~.turnoff \ {l} and
-         sg.turnon  = sg~.turnon  \ {l} and 
-         sg.laststate = sg~.currentstate and
-         sg.currentstate = sg~.currentstate union {l} and
-         sg.desiredproperstate = sg~.desiredproperstate
+  actions
+    DWARF =
+      (  (light?l -> TurnOn(l); DWARF) 
+      [] (extinguish?l -> TurnOff(l); DWARF)
+      [] (setPS?l -> SetNewProperState(l); DWARF)
+      [] (shine!(dw.currentstate) -> DWARF))
+      
+    -- Working test
+    TEST1 = setPS!warning -> extinguish!<L2> -> light!<L3> 
+          -> setPS!drive -> extinguish!<L1> -> light!<L2> -> Stop
 
-@ init -> Init(); mu X @ ((turnon?l -> TurnOn(l); X) 
-							[] (turnoff?l -> TurnOff(l); X)
-							[] (setPS.dark -> SetNewProperState(dark); X)
-      						[] (setPS.stop -> SetNewProperState(stop); X)
-      						[] (setPS.warning -> SetNewProperState(warning); X)
-      						[] (setPS.drive   -> SetNewProperState(drive); X))
+    -- Tries to turn on 3 lights simulaneously
+    TEST2 = setPS!warning -> light!<L3> -> extinguish!<L2> 
+          -> setPS!drive -> extinguish!<L1> -> light!<L2> -> Stop
+
+    -- Tries to go from dark to warning
+    TEST3 = setPS!dark -> extinguish!<L1> -> extinguish!<L2> -> setPS!warning -> 
+            light!<L1> -> light!<L2> -> Stop 
+          
+    -- Tries to go from stop to drive
+    TEST4 = setPS!drive -> extinguish!<L1> -> light!<L3> -> Stop
+
+    DWARF_TEST1 = DWARF [|{setPS,light,extinguish,shine}|] TEST1
+    DWARF_TEST2 = DWARF [|{setPS,light,extinguish}|] TEST2      
+    DWARF_TEST3 = DWARF [|{setPS,light,extinguish}|] TEST3
+    DWARF_TEST4 = DWARF [|{setPS,light,extinguish}|] TEST4
+    
+@ 
+
+init -> Init() ; DWARF_TEST1
 
 end

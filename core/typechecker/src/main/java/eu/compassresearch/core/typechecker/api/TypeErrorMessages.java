@@ -1,63 +1,71 @@
 package eu.compassresearch.core.typechecker.api;
 
 public enum TypeErrorMessages {
-	DUPLICATE_DEFINITION("Definition \"%s\" is conflicting with definition \"%s\"."),
+	DUPLICATE_DEFINITION(
+			"Definition \"%s\" is conflicting with definition \"%s\"."),
 
-	TYPE_CHECK_INTERNAL_FAILURE("Subtree failed type checking with an internal error: %s."),
+	TYPE_CHECK_INTERNAL_FAILURE(
+			"Subtree failed type checking with an internal error: %s."),
 
-	INPROPER_STATE_DEFINITION("Expected an assignment definition on the form <name> ':' <type> {:= exp}."),
-	
+	INPROPER_STATE_DEFINITION(
+			"Expected an assignment definition on the form <name> ':' <type> {:= exp}."),
+
 	SEQ_TYPE_EXPECTED(
-			"The expresion %s has type %s which is not a sequence type as expected."), 
+			"The expresion %s has type %s which is not a sequence type as expected."),
 
-			PARAGRAPH_HAS_TYPES_ERRORS("Paragraph \"%s\" has type errors."),
+	PARAGRAPH_HAS_TYPES_ERRORS("Paragraph \"%s\" has type errors."),
 
-			EXPECTED_OPERATION_DEFINITION("Operation definition expected. %s is not an operation definition. "),
+	EXPECTED_OPERATION_DEFINITION(
+			"Operation definition expected. %s is not an operation definition. "),
 
-			COULD_NOT_DETERMINE_TYPE("Could not determine type for %s."),
+	COULD_NOT_DETERMINE_TYPE("Could not determine type for %s."),
 
-			INCOMPATIBLE_TYPE("Expected an entity of type %s but %s was found."),
+	INCOMPATIBLE_TYPE("Expected an entity of type %s but %s was found."),
 
-			EXPECTED_A_CHANNEL("Expected entity \"%s\" to be a channel. "),
-			
-			EXPECTED_A_NAMESET("Expected a name set but %s was found."),
-			
-			EXPECTED_SUBTYPE_RELATION("%s is not a sub type of %s."),
+	EXPECTED_A_CHANNEL("Expected entity \"%s\" to be a channel. "),
 
-			MISSING_CONSTRUCTOR("No constructor found for class %s and arguments %s"),
+	EXPECTED_A_NAMESET("Expected a name set but %s was found."),
 
-			NAMED_TYPE_UNDEFINED("The type %s is undefined."),
+	EXPECTED_SUBTYPE_RELATION("%s is not a sub type of %s."),
 
-			SET_TYPE_EXPECTED(
-					"The expression %s has type %s which is not a set type as expected."),
+	MISSING_CONSTRUCTOR("No constructor found for class %s and arguments %s"),
 
-					UNDEFINED_SYMBOL("The Symbol \"%s\" is undefined."),
-					
-					UNDEFINED_TYPE("The Type \"%s\" is undefined."),
+	NAMED_TYPE_UNDEFINED("The type %s is undefined."),
 
-					EXPECTED_AN_ACTION_OR_OPERATION(
-							"Symbol \"%s\" is neither an action nor an operation which are allowed in this context."),
+	SET_TYPE_EXPECTED(
+			"The expression %s has type %s which is not a set type as expected."),
 
-							EXPECTED_A_CHANNELSET("Symbol \"%s\" is not a Channel Set."),
+	UNDEFINED_SYMBOL("The Symbol \"%s\" is undefined."),
 
-							TIME_UNIT_EXPRESSION_MUST_BE_NAT(
-									"In it's context \"%s\" is a time unit expression and must be a subtype of nat, which \"%s\" is not."),
+	UNDEFINED_TYPE("The Type \"%s\" is undefined."),
 
-									EXPECTED_TYPE_DEFINITION(
-											"Expected symbol \"%s\" to be a type definition. But it was not."), EXPECTED_CLASS(
-													"Expected symbol \"%s\" to be a class. But it was not."),
+	EXPECTED_AN_ACTION_OR_OPERATION(
+			"Symbol \"%s\" is neither an action nor an operation which are allowed in this context."),
 
-													EXPECTED_PROCESS_DEFINITION("%s is expected to be a process definition."),
+	EXPECTED_A_CHANNELSET("Symbol \"%s\" is not a Channel Set."),
 
-													ILLEGAL_CONTEXT(
-															"The symbol \"%s\" requires a CML context to be resolved. No such context is present."),
-															PATTERN_TYPE_MISSING("The pattern \"%s\" should already have a type from its context."),
-															WRONG_NUMBER_OF_ARGUMENTS("Expected %s args, %s were found."), PATTERN_MISMATCH("Pattern mismatch. Required by type %s, given pattern %s."), 
-															MIXING_STATE_AND_CHANNEL_IN_SET("Mixing channel and state names not allowed. %s contains both channel and state names."), 
-															EXPECTED_CHANNEL_OR_STATE("Expected a channel or state definition. %s is neither."), CONSTRUCTOR_HAS_WRONG_TYPE("Operation %s has identical name to encloding class, but has wrong type: %s."), EXPECTED_LVALUE("%s is not an assignable expression."), EXPECTED_AN_ACTION("Expected an entity of type Action. %s was found."),
+	TIME_UNIT_EXPRESSION_MUST_BE_NAT(
+			"In it's context \"%s\" is a time unit expression and must be a subtype of nat, which \"%s\" is not."),
 
+	EXPECTED_TYPE_DEFINITION(
+			"Expected symbol \"%s\" to be a type definition. But it was not."), EXPECTED_CLASS(
+			"Expected symbol \"%s\" to be a class. But it was not."),
 
-															;
+	EXPECTED_PROCESS_DEFINITION("%s is expected to be a process definition."),
+
+	ILLEGAL_CONTEXT(
+			"The symbol \"%s\" requires a CML context to be resolved. No such context is present."), PATTERN_TYPE_MISSING(
+			"The pattern \"%s\" should already have a type from its context."), WRONG_NUMBER_OF_ARGUMENTS(
+			"Expected %s args, %s were found."), PATTERN_MISMATCH(
+			"Pattern mismatch. Required by type %s, given pattern %s."), MIXING_STATE_AND_CHANNEL_IN_SET(
+			"Mixing channel and state names not allowed. %s contains both channel and state names."), EXPECTED_CHANNEL_OR_STATE(
+			"Expected a channel or state definition. %s is neither."), CONSTRUCTOR_HAS_WRONG_TYPE(
+			"Operation %s has identical name to encloding class, but has wrong type: %s."), EXPECTED_LVALUE(
+			"%s is not an assignable expression."), EXPECTED_AN_ACTION(
+			"Expected an entity of type Action. %s was found."), ILLEGAL_ACCESS(
+			"Cannot access %s in this context."),
+
+	;
 
 	private String template;
 
@@ -81,6 +89,7 @@ public enum TypeErrorMessages {
 		return String.format(template, (Object[]) strs);
 	}
 
+	@Override
 	public String toString() {
 		return template;
 	}

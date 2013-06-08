@@ -1,0 +1,15 @@
+channels 
+a, b, init
+c : int
+
+process A = 
+begin 
+	@  init -> a -> c?x -> Skip
+end
+
+process B = 
+begin 
+	@  init -> c!3 -> b -> Skip
+end
+
+process C = A [| {init , c} |] B
