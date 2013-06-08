@@ -4,7 +4,48 @@
 <plugin>
 
 
-<!-- switch this stuff to commands! -->
+ <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="eu.compassresearch.ide.cml.pogplugin.PerspectiveFactory"
+            icon="icons/cview16/pog_gen.png"
+            id="eu.compassresearch.ide.pogplugin.pog-perspective"
+            name="POGPerspective">
+      </perspective>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="eu.compassresearch.ide.pogplugin.pog-perspective">
+         <view
+               id="eu.compassresearch.ide.ui.CmlNavigator"
+               minimized="false"
+               ratio="0.25"
+               relationship="left"
+               relative="org.eclipse.ui.editorss"
+               visible="true">
+         </view>
+         <view
+               id="eu.compassresearch.ide.pogplugin.POsTable"
+               minimized="false"
+               ratio="0.60"
+               relationship="right"
+               relative="org.eclipse.ui.editorss"
+               visible="true">
+         </view>
+         <view
+               id="eu.compassresearch.ide.pogplugin.PoDetail"
+               minimized="false"
+               ratio="0.50"
+               relationship="bottom"
+               relative="eu.compassresearch.ide.pogplugin.POsTable"
+               visible="true">
+         </view>
+      </perspectiveExtension>
+   </extension>
+
+
+<!-- FIXME switch this stuff to commands! -->
    <extension
          point="org.eclipse.ui.actionSets">
       <actionSet
@@ -14,7 +55,7 @@
 
          <action
                class="eu.compassresearch.ide.cml.pogplugin.POGDoStuff"
-               icon="icons/pog_action.png"
+               icon="icons/cview16/pog_gen.png"
                id="eu.compassresearch.ide.cml.pogplugin.POGBasicAction"
                label="&amp;Generate POs"
                toolbarPath="POGGroup"
@@ -26,20 +67,22 @@
 
 <extension
          point="org.eclipse.ui.views">
-     
+     		<category
+			id="eu.compassresearch.ide.ui.category"
+			name="COMPASS"/>
       <view
-            category="org.overture.ide.ui.view.category"
-            class="org.overture.ide.plugins.poviewer.view.PoTableView"
+            category="eu.compassresearch.ide.ui.category"
+            class="eu.compassresearch.ide.cml.pogplugin.view.PoView"
             icon="icons/cview16/po_tsk.png"
-            id="eu.compassresearch.ide.OvtPoTable"
-            name="Overture PO View">
+            id="eu.compassresearch.ide.pogplugin.PoDetail"
+            name="CML PO Details">
       </view>
       <view
-            category="org.overture.ide.ui.view.category"
-            class="org.overture.ide.plugins.poviewer.view.PoOverviewTableView"
+            category="eu.compassresearch.ide.ui.category"
+            class="eu.compassresearch.ide.cml.pogplugin.view.PoOverView"
             icon="icons/cview16/po_tsk.png"
-            id="eu.compassresearch.ide.OvtPoOTable"
-            name="Proof Obligation Explorer">
+            id="eu.compassresearch.ide.pogplugin.POsTable"
+            name="Proof Obligations">
       </view>
    
      

@@ -1,6 +1,8 @@
 package eu.compassresearch.ide.cml.pogplugin.view;
 
-public class PoView
+import org.overture.ide.plugins.poviewer.view.PoTableView;
+
+public class PoView extends PoTableView
 {
 
 }
