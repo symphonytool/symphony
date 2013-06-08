@@ -16,6 +16,7 @@ import org.overture.ast.patterns.APatternListTypePair;
 import org.overture.ast.patterns.PPattern;
 import org.overture.ast.types.PType;
 import org.overture.pog.obligation.POContextStack;
+import org.overture.pog.obligation.PONameContext;
 import org.overture.pog.obligation.ProofObligationList;
 import org.overture.pog.obligation.SubTypeObligation;
 import org.overture.pog.util.POException;
@@ -54,12 +55,15 @@ public class POGDeclAndDefVisitor extends
     // Errors and other things are recorded on this guy
     final private QuestionAnswerAdaptor<POContextStack, ProofObligationList> parentPOG;
     final private PogParamDefinitionVisitor<POContextStack, ProofObligationList> overtureVisitor;
+    final private PogNameContextVisitor nameVisitor;
+    
     
     public POGDeclAndDefVisitor(QuestionAnswerAdaptor<POContextStack, 
     		ProofObligationList> parent) {
     	this.parentPOG = parent;
     	this.overtureVisitor = new PogParamDefinitionVisitor<POContextStack, ProofObligationList>
     		(this, this);
+    	this.nameVisitor = new PogNameContextVisitor();
 	
     }
     
@@ -176,8 +180,18 @@ public class POGDeclAndDefVisitor extends
 		ProofObligationList pol = new ProofObligationList();
 	
 		for (PDefinition def : node.getBody()) {
+			PONameContext name = def.apply(new PogNameContextVisitor());
+			if (name != null) {
+			question.push(def.apply(new PogNameContextVisitor()));
 		    System.out.println("In defn Paragraph Loop: " + def.toString());
 		    pol.addAll(def.apply(parentPOG, question));
+		    question.pop();
+		    }
+			else{
+				 pol.addAll(def.apply(parentPOG, question));
+				 System.out.println("In defn Paragraph Loop: " + def.toString());
+			}
+			
 		}
 	
 		return pol;
@@ -432,9 +446,14 @@ public class POGDeclAndDefVisitor extends
 			// add the name stuff HERE
 			
 			for (PDefinition def : node.getFunctionDefinitions()) {
-				question.push(def.apply(new PogNameContextVisitor()));
+				PONameContext name = def.apply(nameVisitor);
+				if (name!= null){
+				question.push(name);
 				obligations.addAll(def.apply(parentPOG, question));
-				question.pop();
+				question.pop();}
+				else {
+					obligations.addAll(def.apply(parentPOG, question));
+				}
 			}
 		
 			return obligations;
@@ -453,7 +472,14 @@ public class POGDeclAndDefVisitor extends
 		 ProofObligationList pol = new ProofObligationList();
 		 
 		 for (SCmlOperationDefinition def : node.getOperations()) {
+			 PONameContext name = def.apply(nameVisitor);
+			 if (name != null){
+			 question.push(name);
 			 pol.addAll(def.apply(parentPOG, question));
+			 question.pop();}
+			 else{
+				 pol.addAll(def.apply(parentPOG, question));
+			 }
 		 }
 		 return pol;
 	 }

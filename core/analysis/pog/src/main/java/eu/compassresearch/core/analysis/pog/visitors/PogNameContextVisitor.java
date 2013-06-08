@@ -3,6 +3,7 @@ package eu.compassresearch.core.analysis.pog.visitors;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.lex.LexNameList;
+import org.overture.ast.node.INode;
 import org.overture.pog.obligation.PONameContext;
 import org.overture.typechecker.assistant.definition.PDefinitionAssistantTC;
 
@@ -11,6 +12,7 @@ import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
+import eu.compassresearch.ast.definitions.PCMLDefinition;
 
 public class PogNameContextVisitor extends AnswerCMLAdaptor<PONameContext>
 {
@@ -53,6 +55,18 @@ public class PogNameContextVisitor extends AnswerCMLAdaptor<PONameContext>
 	{
 		return new PONameContext(new LexNameList(node.getName()));
 	}
+
+	
+	
+	@Override
+	public PONameContext defaultPCMLDefinition(PCMLDefinition node)
+			throws AnalysisException
+	{
+		// no names to return
+		return null;
+	}
+
+
 
 	
 	
