@@ -653,7 +653,6 @@ public class RttMbtClient {
 	public Boolean generateTestProcedure(String abstractTestProc) {
 		Boolean success = true;
 
-		System.out.println("uploading files for test generation context " + abstractTestProc + "...");
 		// push necessary files to cache:
 		// cache/<user-id>/<project-name>/model/
 		// - model_dump.xml
@@ -919,9 +918,6 @@ public class RttMbtClient {
 		// - signalmap.csv
 		// - addgoals.conf
 		// - addgoalsordered.conf
-		System.out.println("uploading files for " + getProjectName() + File.separator
-				+ getRttMbtTProcGenCtxFolderName() + File.separator
-				+ abstractTestProc + "...");
 		String modelDirName = getProjectName() + File.separator + "model" + File.separator;
 		uploadFile(modelDirName + "model_dump.xml");
 		uploadFile(modelDirName + "configuration.csv");
