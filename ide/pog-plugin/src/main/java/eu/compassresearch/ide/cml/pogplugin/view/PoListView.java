@@ -2,7 +2,6 @@ package eu.compassresearch.ide.cml.pogplugin.view;
 
 import java.util.List;
 
-import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
@@ -68,8 +67,6 @@ public class PoListView extends PoOverviewTableView
 		viewer.setContentProvider(new ViewContentProvider());
 		viewer.setLabelProvider(new ViewLabelProvider());
 
-		IToolBarManager mgr = getViewSite().getActionBars().getToolBarManager();
-	//	mgr.
 		
 		//super.makeActions();
 	//	super.contributeToActionBars();

@@ -88,11 +88,6 @@
          id="eu.compassresearch.ide.pog-plugin.generatepos"
          name="GeneratePOs">
    </command>
-   <command
-         defaultHandler="eu.compassresearch.ide.cml.pogplugin.commands.DischargePosHandler"
-         id="eu.compassresearch.ide.pog-plugin.dischargepos"
-         name="DischargePOs">
-   </command>
 </extension>
 
 
@@ -115,19 +110,7 @@
       </command>
       </toolbar>
    </menuContribution>
-   
-   <menuContribution
-         allPopups="false"
-         locationURI="toolbar:eu.compassresearch.ide.pogplugin.POsTable">
-      <command
-            commandId="eu.compassresearch.ide.pog-plugin.dischargepos"
-            icon="icons/cview16/tp.png"
-            label="Discharge"
-            style="push"
-            tooltip="Send POs to Theorem Prover">
-      </command>
-   </menuContribution>
-</extension>
+  </extension>
 
 
 
