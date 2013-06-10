@@ -529,6 +529,7 @@ public class POGDeclAndDefVisitor extends
 				
 				//FIXME Satisfiability PO clashing with implict operation
 				// .getPostDef() is returning null
+
 				question.push(new CMLPOOperationDefinitionContext(node, false, node.getStateDefinition()));
 				pol.add(new SatisfiabilityObligation(node, node.getStateDefinition(), question));
 				question.pop();			

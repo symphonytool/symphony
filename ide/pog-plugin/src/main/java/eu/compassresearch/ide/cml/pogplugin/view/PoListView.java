@@ -2,7 +2,10 @@ package eu.compassresearch.ide.cml.pogplugin.view;
 
 import java.util.List;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.ColumnWeightData;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -18,9 +21,12 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.PartInitException;
+import org.overture.ide.core.resources.IVdmProject;
 import org.overture.ide.plugins.poviewer.Activator;
+import org.overture.ide.plugins.poviewer.IPoviewerConstants;
 import org.overture.ide.plugins.poviewer.view.PoOverviewTableView;
 import org.overture.ide.plugins.poviewer.view.PoTableView;
+import org.overture.ide.ui.utility.EditorUtility;
 import org.overture.pog.obligation.POStatus;
 import org.overture.pog.obligation.ProofObligation;
 
@@ -68,8 +74,7 @@ public class PoListView extends PoOverviewTableView
 		viewer.setLabelProvider(new ViewLabelProvider());
 
 		
-		//super.makeActions();
-	//	super.contributeToActionBars();
+		makeActions();
 		super.hookDoubleClickAction();
 
 		viewer.addSelectionChangedListener(new ISelectionChangedListener()
@@ -98,6 +103,40 @@ public class PoListView extends PoOverviewTableView
 		});
 	}
 
+	
+
+	protected void makeActions()
+	{
+		doubleClickAction = new Action() {
+			@Override
+			public void run()
+			{
+				ISelection selection = viewer.getSelection();
+				Object obj = ((IStructuredSelection) selection).getFirstElement();
+				if (obj instanceof ProofObligation)
+				{
+					gotoDefinition((ProofObligation) obj);
+					// showMessage(((ProofObligation) obj).toString());
+				}
+			}
+
+			private void gotoDefinition(ProofObligation po)
+			{
+				IFile file = project.findIFile(po.location.getFile());
+				if(IVdmProject.externalFileContentType.isAssociatedWith(file.getName()))
+				{
+					EditorUtility.gotoLocation(IPoviewerConstants.ExternalEditorId,file, po.location, po.name);
+				}else{
+					EditorUtility.gotoLocation(file, po.location, po.name);	
+				}
+				
+			}
+		};
+		
+		
+	
+	}
+	
 	
 	
 	class ViewContentProvider implements IStructuredContentProvider

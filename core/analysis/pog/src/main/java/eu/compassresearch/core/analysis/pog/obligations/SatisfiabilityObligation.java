@@ -63,6 +63,7 @@ public class SatisfiabilityObligation extends ProofObligation {
 			appendStatePatterns(sb, stateDefinition, false, true);
 			sb.append(" & ");
 		}
+
 		sb.append("true");
 		//FIXME getPostdef() is null...
 //		sb.append(op.getPostdef().getName().getName());
@@ -75,6 +76,9 @@ public class SatisfiabilityObligation extends ProofObligation {
 //		appendStatePatterns(sb, stateDefinition, true, false);
 //		appendStatePatterns(sb, stateDefinition, false, false);
 //		sb.append(")");
+
+//FIXME getPostdef() is null...
+
 
 		value = ctxt.getObligation(sb.toString());
 	}
