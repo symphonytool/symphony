@@ -109,19 +109,18 @@ public class FetchPosUtil
 						
 						IsabelleTheory ithy = registry.lookup(cmlSource.getSourceAst(), IsabelleTheory.class);
 
-						if (ithy == null) {
-							String cmlLoc = cmlFile.getLocation().toString();
-							String poFile = cmlLoc.replaceAll("\\.cml",
-									"-POs.thy");
-							ithy = new IsabelleTheory(session, poFile, proj
+						if (ithy == null) {							
+							String cmlName = cmlFile.getName();
+							String thyName = cmlName.replaceAll("\\.cml",
+									"_POs");
+							ithy = new IsabelleTheory(session, thyName, proj
 									.getLocation().toString());
 							ithy.init();
 							registry.store(cmlSource.getSourceAst(), ithy);
 						} 
 
 						for (ProofObligation po : poList) {
-							ithy.addThm(ithy.new IsabelleTheorem(po.name, "True",
-									"by auto\n"));
+							ithy.addThm(ithy.new IsabelleTheorem(po.name, "True","auto"));
 						}
 
 					}
