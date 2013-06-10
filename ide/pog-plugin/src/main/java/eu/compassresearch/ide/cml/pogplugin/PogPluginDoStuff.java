@@ -2,6 +2,7 @@ package eu.compassresearch.ide.cml.pogplugin;
 
 import java.util.ArrayList;
 
+import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.action.IAction;
@@ -12,6 +13,8 @@ import org.eclipse.ui.IWorkbenchSite;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.handlers.HandlerUtil;
+import org.eclipse.ui.services.ISourceProviderService;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ide.core.IVdmModel;
 import org.overture.ide.core.resources.IVdmProject;
@@ -25,6 +28,7 @@ import eu.compassresearch.core.analysis.pog.visitors.ProofObligationGenerator;
 import eu.compassresearch.core.common.Registry;
 import eu.compassresearch.core.common.RegistryFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
+import eu.compassresearch.ide.cml.pogplugin.commands.PogCommandStateProvider;
 import eu.compassresearch.ide.cml.ui.editor.core.dom.ICmlSourceUnit;
 
 public class PogPluginDoStuff
@@ -36,15 +40,16 @@ public class PogPluginDoStuff
 	/**
 	 * The action has been activated. The argument of the method represents the 'real' action sitting in the workbench
 	 * UI.
+	 * @param event 
 	 * 
 	 * @see IWorkbenchWindowActionDelegate#run
 	 */
-	public void run()
+	public void run(ExecutionEvent event)
 	{
 
 		try
 		{
-
+			updateTPAvailability(false, event);
 			IProject proj = PogPluginUtility.getCurrentlySelectedProject();
 			if (proj == null)
 			{
@@ -96,6 +101,8 @@ public class PogPluginDoStuff
 
 					addPOsToRegistry(cmlfiles);
 					showPOs(vdmProject, cmlfiles);
+					// FIXME implement a better handler for TP status
+					updateTPAvailability(true, event);
 				}
 			}
 		} catch (Exception e)
@@ -104,6 +111,15 @@ public class PogPluginDoStuff
 			popErrorMessage(e.getMessage());
 		}
 
+	}
+
+	private void updateTPAvailability(boolean b, ExecutionEvent event) {
+	    ISourceProviderService sourceProviderService = (ISourceProviderService) HandlerUtil
+	            .getActiveWorkbenchWindow(event).getService(ISourceProviderService.class);
+	        // Now get my service
+	        PogCommandStateProvider commandStateService = (PogCommandStateProvider) sourceProviderService
+	            .getSourceProvider(PogCommandStateProvider.TP_STATE);
+	        commandStateService.setVarState(b);
 	}
 
 	private void popErrorMessage(String message)

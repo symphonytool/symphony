@@ -119,7 +119,21 @@
       point="org.eclipse.ui.handlers">
    <handler
    class ="eu.compassresearch.ide.cml.pogplugin.commands.GeneratePosHandler"
-         commandId="eu.compassresearch.ide.pog-plugin.generatepos">
+         commandId="eu.compassresearch.ide.pog-plugin.generatepos">  
+            <!--activeWhen> 
+      <with 
+            variable="selection"> 
+         <iterate 
+               operator="or"> 
+            <instanceof 
+                  value="org.eclipse.core.resources.IFile"> 
+            </instanceof> 
+                        <instanceof 
+                  value="org.eclipse.core.resources.IProject"> 
+            </instanceof> 
+         </iterate> 
+      </with> 
+   </activeWhen--> 
             <!--activeWhen> 
             Implement command state logic based on selection
       < with 
@@ -131,12 +145,13 @@
    </activeWhen --> 
    </handler>
 </extension>
+
 <extension
       point="org.eclipse.ui.services">
    <sourceProvider
-         provider="eu.compassresearch.ide.cml.pogplugin.commands.CommandState">
+         provider="eu.compassresearch.ide.cml.pogplugin.commands.PogCommandStateProvider">
       <variable
-            name="eu.compassresearch.ide.pogplugin.active"
+            name="eu.compassresearch.ide.pogplugin.tpstate"
             priorityLevel="workbench">
       </variable>
    </sourceProvider>

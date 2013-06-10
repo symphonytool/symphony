@@ -22,9 +22,11 @@ Require-Bundle: org.eclipse.debug.ui,
  isabelle.eclipse.ui;bundle-version="1.2.0",
  isabelle.pide;bundle-version="2013.0.1",
  isabelle.pure;bundle-version="2013.0.1",
- org.scala-ide.scala.library,
- eu.compassresearch.ide.cml.pog-plugin
-Import-Package: org.overture.pog.obligation
+ org.scala-ide.scala.library
+Import-Package: org.overture.pog.obligation,
+ eu.compassresearch.ide.cml.pogplugin.commands,
+ eu.compassresearch.ide.cml.pogplugin,
+ eu.compassresearch.core.analysis.pog.obligations
 Export-Package: eu.compassresearch.ide.cml.tpplugin
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
