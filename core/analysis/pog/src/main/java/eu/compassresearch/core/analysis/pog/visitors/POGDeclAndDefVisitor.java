@@ -43,6 +43,7 @@ import eu.compassresearch.ast.definitions.AValuesDefinition;
 import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
 import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
 import eu.compassresearch.ast.process.PProcess;
+import eu.compassresearch.core.analysis.pog.obligations.CMLPOOperationDefinitionContext;
 import eu.compassresearch.core.analysis.pog.obligations.CMLStateInvariantObligation;
 import eu.compassresearch.core.analysis.pog.obligations.OperationPostConditionObligation;
 import eu.compassresearch.core.analysis.pog.obligations.ParameterPatternObligation;
@@ -525,9 +526,12 @@ public class POGDeclAndDefVisitor extends
 
 			//	COMMENTED AS CONTEXT GENERATES VARIOUS NULL OBJECTS, DUE TO NEW AST...
 			//	AS SUCH SAT OBLIG DOESN'T DO MUCH
-			//	question.push(new CMLPOOperationDefinitionContext(node, false, node.getStateDefinition()));
+				
+				//FIXME Satisfiability PO clashing with implict operation
+				// .getPostDef() is returning null
+				question.push(new CMLPOOperationDefinitionContext(node, false, node.getStateDefinition()));
 				pol.add(new SatisfiabilityObligation(node, node.getStateDefinition(), question));
-			//	question.pop();			
+				question.pop();			
 			}
 			 
 			return pol;

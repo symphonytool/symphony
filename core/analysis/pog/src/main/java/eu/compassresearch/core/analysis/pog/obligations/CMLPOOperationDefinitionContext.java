@@ -25,7 +25,6 @@ package eu.compassresearch.core.analysis.pog.obligations;
 
 import java.util.Iterator;
 
-import org.overture.ast.definitions.AImplicitOperationDefinition;
 import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.definitions.SClassDefinition;
@@ -34,6 +33,8 @@ import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.types.AOperationType;
 import org.overture.ast.types.PType;
 import org.overture.pog.obligation.POContext;
+
+import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
 
 	public class CMLPOOperationDefinitionContext extends POContext
 	{
@@ -44,7 +45,7 @@ import org.overture.pog.obligation.POContext;
 		public final PExp precondition;
 		public final PDefinition stateDefinition;
 
-		public CMLPOOperationDefinitionContext(AImplicitOperationDefinition definition,
+		public CMLPOOperationDefinitionContext(AImplicitCmlOperationDefinition definition,
 			boolean precond, PDefinition stateDefinition)
 		{
 			this.name = definition.getName();
