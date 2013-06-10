@@ -184,8 +184,9 @@ public class PoListView extends PoOverviewTableView
 					columnText = new Integer(data.number).toString();// count.toString();
 					break;
 				case 1:
-					if (!data.location.getModule().equals("DEFAULT"))
-						columnText = data.location.getModule() + "`"
+					// FIXME replace this with Node Name when we're using it
+					if (!data.location.getFile().toString().equals(""))
+						columnText = data.location.getFile().getName()  + " - "
 								+ data.name;
 					else
 						columnText = data.name;
@@ -217,12 +218,10 @@ public class PoListView extends PoOverviewTableView
 		{
 			ProofObligation data = (ProofObligation) obj;
 
-			String imgPath = "icons/cview16/caution.png";
+			String imgPath = "icons/cview16/unproved.png";
 
 			if (data.status == POStatus.PROVED)
 				imgPath = "icons/cview16/proved.png";
-			else if (data.status == POStatus.TRIVIAL)
-				imgPath = "icons/cview16/trivial.png";
 
 			return Activator.getImageDescriptor(imgPath).createImage();
 		}

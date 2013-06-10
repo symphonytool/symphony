@@ -10,7 +10,7 @@
             class="eu.compassresearch.ide.cml.pogplugin.PerspectiveFactory"
             icon="icons/cview16/pog_gen.png"
             id="eu.compassresearch.ide.pogplugin.pog-perspective"
-            name="POGPerspective">
+            name="POG">
       </perspective>
    </extension>
    <extension
@@ -64,7 +64,7 @@
             class="eu.compassresearch.ide.cml.pogplugin.view.PoListView"
             icon="icons/cview16/po_tsk.png"
             id="eu.compassresearch.ide.pogplugin.POsTable"
-            name="Proof Obligations">
+            name="CML PO List">
       </view>
    
      
@@ -96,19 +96,18 @@
       point="org.eclipse.ui.menus">
    <menuContribution
          allPopups="false"
-         locationURI="toolbar:org.eclipse.ui.main.toolbar">
-              <toolbar
+         locationURI="popup:eu.compassresearch.ide.ui.CmlNavigator">
+              <menu
               id="eu.compassresearch.ide.pogplugin"
+              icon="icons/cview16/pog_gen.png"
               label="CML-POG">
       <command
             commandId="eu.compassresearch.ide.pog-plugin.generatepos"
-            disabledIcon="icons/cview16/pog_disabled.png"
-            icon="icons/cview16/pog_gen.png"
-            label="POs"
+            label="Generate Proof Obligations"
             style="push"
             tooltip="Generate Proof Obligations for selected Project">
       </command>
-      </toolbar>
+      </menu>
    </menuContribution>
   </extension>
 
@@ -121,18 +120,26 @@
    <handler
    class ="eu.compassresearch.ide.cml.pogplugin.commands.GeneratePosHandler"
          commandId="eu.compassresearch.ide.pog-plugin.generatepos">
-            <activeWhen> 
-      <with 
-            variable="selection"> 
-         <iterate 
-               operator="or"> 
-            <instanceof 
-                  value="org.eclipse.core.resources.IProject"> 
-            </instanceof> 
-         </iterate> 
+            <!--activeWhen> 
+            Implement command state logic based on selection
+      < with 
+      	variable="eu.compassresearch.ide.pogplugin.active"> 
+        	<equals
+         		value="ENABLED">
+         	</equals>  
       </with> 
-   </activeWhen> 
+   </activeWhen --> 
    </handler>
+</extension>
+<extension
+      point="org.eclipse.ui.services">
+   <sourceProvider
+         provider="eu.compassresearch.ide.cml.pogplugin.commands.CommandState">
+      <variable
+            name="eu.compassresearch.ide.pogplugin.active"
+            priorityLevel="workbench">
+      </variable>
+   </sourceProvider>
 </extension>
 
 
