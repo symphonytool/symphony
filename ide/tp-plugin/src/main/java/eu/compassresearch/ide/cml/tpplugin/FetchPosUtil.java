@@ -55,6 +55,7 @@ public class FetchPosUtil
 
 			if (tpListener == null) { 
 				tpListener = new TPListener(isabelle.session().get());
+				tpListener.init();
 			}
 				
 			Registry registry = RegistryFactory.getInstance(
@@ -116,11 +117,12 @@ public class FetchPosUtil
 							ithy = new IsabelleTheory(session, thyName, proj
 									.getLocation().toString());
 							ithy.init();
+							TPPluginUtils2.addThyToListener(ithy, tpListener, cmlSource.getSourceAst());
 							registry.store(cmlSource.getSourceAst(), ithy);
 						} 
 
 						for (ProofObligation po : poList) {
-							ithy.addThm(ithy.new IsabelleTheorem(po.name, "True","auto"));
+							ithy.addThm(ithy.new IsabelleTheorem("po" + po.name, "True","auto"));
 						}
 
 					}

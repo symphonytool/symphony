@@ -23,8 +23,9 @@ object TPListener {
   def updatePOListFromThy(poList: CMLProofObligationList, ithy: IsabelleTheory) = {
     for (p <- JavaConversions.asScalaIterable(poList)) {      
       // FIXME: Add code to update POs from the theory
-      if (ithy.thmIsProved(p.name)) {
-        
+      if (ithy.thmIsProved("po" + p.name)) {
+        p.status = POStatus.PROVED;
+        println(p.name + " is proved!");
       }
     }
   }
