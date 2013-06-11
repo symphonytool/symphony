@@ -690,7 +690,7 @@ public class RttMbtClient {
 		// generate-test-command
 		System.out.println("generating concrete test procedure" + abstractTestProc + "...");
 		jsonGenerateTestCommand cmd = new jsonGenerateTestCommand(this);
-		cmd.setGuiPorts(getVerboseLogging());
+		cmd.setGuiPorts(true);
 		cmd.setTestProcName("TestProcedures/" + abstractTestProc);
 		cmd.executeCommand();
 		if (!cmd.executedSuccessfully()) {
@@ -1421,7 +1421,6 @@ public class RttMbtClient {
 			this.mode = Modes.RTT_MBT_SCADE_MODE;
 		} else {
 			this.mode = Modes.RTT_MBT_MODE_UNDEFINED;
-			addErrorMessage("unsupported client mode " + mode + "\n");
 		}
 	}
 
