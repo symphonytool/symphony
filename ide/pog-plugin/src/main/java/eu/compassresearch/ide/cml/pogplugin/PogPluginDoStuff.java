@@ -13,7 +13,7 @@ import org.eclipse.ui.IWorkbenchSite;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.handlers.HandlerUtil;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.services.ISourceProviderService;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ide.core.IVdmModel;
@@ -36,12 +36,11 @@ public class PogPluginDoStuff
 	private IWorkbenchWindow window;
 	private IWorkbenchSite site;
 
-
 	/**
 	 * The action has been activated. The argument of the method represents the 'real' action sitting in the workbench
 	 * UI.
-	 * @param event 
 	 * 
+	 * @param event
 	 * @see IWorkbenchWindowActionDelegate#run
 	 */
 	public void run(ExecutionEvent event)
@@ -49,7 +48,7 @@ public class PogPluginDoStuff
 
 		try
 		{
-			updateTPAvailability(false, event);
+			updateTPAvailability(false);
 			IProject proj = PogPluginUtility.getCurrentlySelectedProject();
 			if (proj == null)
 			{
@@ -102,7 +101,7 @@ public class PogPluginDoStuff
 					addPOsToRegistry(cmlfiles);
 					showPOs(vdmProject, cmlfiles);
 					// FIXME implement a better handler for TP status
-					updateTPAvailability(true, event);
+					updateTPAvailability(true);
 				}
 			}
 		} catch (Exception e)
@@ -113,18 +112,49 @@ public class PogPluginDoStuff
 
 	}
 
-	private void updateTPAvailability(boolean b, ExecutionEvent event) {
-	    ISourceProviderService sourceProviderService = (ISourceProviderService) HandlerUtil
-	            .getActiveWorkbenchWindow(event).getService(ISourceProviderService.class);
-	        // Now get my service
-	        PogCommandStateProvider commandStateService = (PogCommandStateProvider) sourceProviderService
-	            .getSourceProvider(PogCommandStateProvider.TP_STATE);
-	        commandStateService.setVarState(b);
+	public void redrawPos(IVdmProject proj, ProofObligationList polist)
+	{
+		final ProofObligationList pol = polist;
+		final IVdmProject project = proj;
+		site.getPage().getWorkbenchWindow().getShell().getDisplay().asyncExec(new Runnable()
+		{
+
+			public void run()
+			{
+				IViewPart v;
+
+				try
+				{
+					v = site.getPage().showView(POConstants.PO_OVERVIEW_TABLE);
+					if (v instanceof PoOverviewTableView)
+					{
+						((PoOverviewTableView) v).setDataList(project, pol);
+
+					}
+
+					PogPluginUtility ppu = new PogPluginUtility(site);
+					ppu.openPoviewPerspective();
+				} catch (PartInitException e)
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+
+		});
+	}
+
+	private void updateTPAvailability(boolean b)
+	{
+		ISourceProviderService sourceProviderService = (ISourceProviderService)  PlatformUI.getWorkbench().getService(ISourceProviderService.class);
+		// Now get my service
+		PogCommandStateProvider commandStateService = (PogCommandStateProvider) sourceProviderService.getSourceProvider(PogCommandStateProvider.TP_STATE);
+		commandStateService.setVarState(b);
 	}
 
 	private void popErrorMessage(String message)
 	{
-		MessageDialog.openInformation(window.getShell(), "COMPASS", "Could not generate POs.\n\n"
+		MessageDialog.openInformation(window.getShell(), "COMPASS", "Unable to generate POs.\n\n"
 				+ message);
 	}
 
@@ -136,6 +166,7 @@ public class PogPluginDoStuff
 
 		for (IResource cmlfile : cmlfiles)
 		{
+			int poCounter=1;
 			ICmlSourceUnit cmlSource = (ICmlSourceUnit) cmlfile.getAdapter(ICmlSourceUnit.class);
 			CMLProofObligationList poList = new CMLProofObligationList();
 			ProofObligationGenerator pog = new ProofObligationGenerator(cmlSource.getSourceAst());
@@ -150,6 +181,7 @@ public class PogPluginDoStuff
 			}
 			for (ProofObligation po : pol)
 			{
+				po.setTpID(po.name+poCounter++);
 				poList.add(po);
 			}
 			registry.store(cmlSource.getSourceAst(), poList);
@@ -218,6 +250,5 @@ public class PogPluginDoStuff
 		this.window = window;
 		this.site = window.getActivePage().getActivePart().getSite();
 	}
-
 
 }

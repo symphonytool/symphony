@@ -6,6 +6,8 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.handlers.HandlerUtil;
 
+import eu.compassresearch.ide.cml.pogplugin.PogPluginUtility;
+
 
 public class DischargePosHandler extends AbstractHandler
 {
@@ -22,7 +24,7 @@ public class DischargePosHandler extends AbstractHandler
 			util = new FetchPosUtil(HandlerUtil.getActiveWorkbenchWindow(event));
 		}
 		
-		util.fetchPOs();
+		util.fetchPOs(PogPluginUtility.getPoggedProject());
 		
 		String message = "Proof Obligations sent to Theorem Prover (Coming soon!)";
 		

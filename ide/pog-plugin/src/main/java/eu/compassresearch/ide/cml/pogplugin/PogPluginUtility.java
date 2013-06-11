@@ -16,6 +16,9 @@ import org.eclipse.ui.IWorkbenchSite;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.WorkbenchException;
+import org.overture.ide.core.resources.IVdmProject;
+
+import eu.compassresearch.ide.cml.pogplugin.view.PoListView;
 
 public class PogPluginUtility
 {
@@ -74,6 +77,26 @@ public class PogPluginUtility
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Get the project currently loaded in the Proof Obligation Viewer
+	 * 
+	 * @return the project or null, if no project is loaded
+	 */
+	public static IProject getPoggedProject()
+	{
+		try
+		{
+			PoListView v = (PoListView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().findView(POConstants.PO_OVERVIEW_TABLE);
+			IVdmProject proj = v.getProject();
+
+			return (IProject) proj.getAdapter(IProject.class);
+		} catch (Exception e)
+		{
+			e.printStackTrace();
+			return null;
 		}
 	}
 

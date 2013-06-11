@@ -41,7 +41,7 @@ public class FetchPosUtil
 		this.window = window;	
 	}
 	
-	public void fetchPOs() {
+	public void fetchPOs(IProject proj) {
 		try {
 			Isabelle isabelle = IsabelleCore.isabelle();
 			Session session = null;
@@ -61,9 +61,9 @@ public class FetchPosUtil
 			Registry registry = RegistryFactory.getInstance(
 					POConstants.PO_REGISTRY_ID).getRegistry();
 
-			IProject proj = TPPluginUtils.getCurrentlySelectedProject();
+	//		IProject proj = TPPluginUtils.getCurrentlySelectedProject();
 			if (proj == null) {
-				popErrorMessage("No project selected.");
+				popErrorMessage("No project available.");
 				return;
 			}
 			// Check project is built
