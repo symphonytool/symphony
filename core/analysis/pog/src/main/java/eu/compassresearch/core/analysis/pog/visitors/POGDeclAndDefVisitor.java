@@ -335,8 +335,9 @@ public class POGDeclAndDefVisitor extends
 			PSingleDeclaration node, POContextStack question)
 			throws AnalysisException
 	{
+	
 		ProofObligationList pol = new ProofObligationList();
-		pol.addAll(node.apply(overtureVisitor, question));
+		//FIXME any SingleDeclarationPOs?vn
 		return pol;
 	}
 
