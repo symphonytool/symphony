@@ -38,6 +38,14 @@
                relative="org.eclipse.ui.editorss"
                visible="true">
          </view>
+         <view
+               id="org.eclipse.ui.views.ContentOutline"
+               minimized="false"
+               ratio="0.75"
+               relationship="top"
+               relative="eu.compassresearch.ide.cml.rttplugin.ProgressView"
+               visible="true">
+         </view>
       </perspectiveExtension>
    </extension>
    <extension
@@ -304,6 +312,7 @@
          <menu
                id="eu.compassresearch.ide.cml.rttplugin.RttMbtMenu"
                label="RTT-MBT">
+            <!--
             <command
                   commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtNewProject"
                   icon="icons/rtt-mbt-small.png"
@@ -318,17 +327,7 @@
                   style="push"
                   tooltip="Adds a local project to the workspace on the RTT-MBT server">
             </command>
-            <command
-                  commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtCleanProject"
-                  icon="icons/mbt_clean.png"
-                  label="Clean Project"
-                  style="push"
-                  tooltip="Cleanup Project">
-            </command>
-            <separator
-                  name="eu.compassresearch.ide.cml.rttplugin.separator-001"
-                  visible="true">
-            </separator>
+            -->
             <command
                   commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtImportModel"
                   icon="icons/mbt_import_model.png"
@@ -342,6 +341,13 @@
                   label="Check Model"
                   style="push"
                   tooltip="Perform Livelock Check on the model of this RTT-MBT Project">
+            </command>
+            <command
+                  commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtCleanProject"
+                  icon="icons/mbt_clean.png"
+                  label="Clean Project"
+                  style="push"
+                  tooltip="Cleanup Project">
             </command>
             <separator
                   name="eu.compassresearch.ide.cml.rttplugin.separator-002"
@@ -440,6 +446,7 @@
          <toolbar
                id="eu.compassresearch.ide.cml.rttplugin.RttMbtToolbar"
                label="RT-Tester">
+            <!--
             <command
                   commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtNewProject"
                   icon="icons/rtt-mbt-small.png"
@@ -454,17 +461,7 @@
                   style="push"
                   tooltip="Adds a local project to the workspace on the RTT-MBT server">
             </command>
-            <command
-                  commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtCleanProject"
-                  icon="icons/mbt_clean.png"
-                  label="Clean Project"
-                  style="push"
-                  tooltip="Cleanup Project">
-            </command>
-            <separator
-                  name="eu.compassresearch.ide.cml.rttplugin.separator-001"
-                  visible="true">
-            </separator>
+            -->
             <command
                   commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtImportModel"
                   icon="icons/mbt_import_model.png"
@@ -478,6 +475,13 @@
                   label="Check Model"
                   style="push"
                   tooltip="Perform Livelock Check on the model of this RTT-MBT Project">
+            </command>
+            <command
+                  commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtCleanProject"
+                  icon="icons/mbt_clean.png"
+                  label="Clean Project"
+                  style="push"
+                  tooltip="Cleanup Project">
             </command>
             <separator
                   name="eu.compassresearch.ide.cml.rttplugin.separator-002"
@@ -578,7 +582,8 @@
             locationURI="popup:org.eclipse.ui.popup.any?after=additions">
          <menu
                id="eu.compassresearch.ide.cml.rttplugin.RttMbtProjectMenu"
-               label="Project">
+               label="Resource">
+            <!--
             <command
                   commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtNewProject"
                   icon="icons/rtt-mbt-small.png"
@@ -593,13 +598,7 @@
                   style="push"
                   tooltip="Adds a local project to the workspace on the RTT-MBT server">
             </command>
-            <command
-                  commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtCleanProject"
-                  icon="icons/mbt_clean.png"
-                  label="Clean Project"
-                  style="push"
-                  tooltip="Cleanup Project">
-            </command>
+            -->
             <command
                   commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtPushToServer"
                   icon="icons/back.png"
@@ -642,6 +641,13 @@
                   label="Check Model"
                   style="push"
                   tooltip="Imports the XMI representation of a model into the selected RTT-MBT project">
+            </command>
+            <command
+                  commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtCleanProject"
+                  icon="icons/mbt_clean.png"
+                  label="Clean Project"
+                  style="push"
+                  tooltip="Cleanup Project">
             </command>
          </menu>
       </menuContribution>

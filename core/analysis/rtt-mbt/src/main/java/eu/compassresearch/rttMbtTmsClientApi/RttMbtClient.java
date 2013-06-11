@@ -653,7 +653,6 @@ public class RttMbtClient {
 	public Boolean generateTestProcedure(String abstractTestProc) {
 		Boolean success = true;
 
-		System.out.println("uploading files for test generation context " + abstractTestProc + "...");
 		// push necessary files to cache:
 		// cache/<user-id>/<project-name>/model/
 		// - model_dump.xml
@@ -691,7 +690,7 @@ public class RttMbtClient {
 		// generate-test-command
 		System.out.println("generating concrete test procedure" + abstractTestProc + "...");
 		jsonGenerateTestCommand cmd = new jsonGenerateTestCommand(this);
-		cmd.setGuiPorts(getVerboseLogging());
+		cmd.setGuiPorts(true);
 		cmd.setTestProcName("TestProcedures/" + abstractTestProc);
 		cmd.executeCommand();
 		if (!cmd.executedSuccessfully()) {
@@ -919,9 +918,6 @@ public class RttMbtClient {
 		// - signalmap.csv
 		// - addgoals.conf
 		// - addgoalsordered.conf
-		System.out.println("uploading files for " + getProjectName() + File.separator
-				+ getRttMbtTProcGenCtxFolderName() + File.separator
-				+ abstractTestProc + "...");
 		String modelDirName = getProjectName() + File.separator + "model" + File.separator;
 		uploadFile(modelDirName + "model_dump.xml");
 		uploadFile(modelDirName + "configuration.csv");
@@ -1425,7 +1421,6 @@ public class RttMbtClient {
 			this.mode = Modes.RTT_MBT_SCADE_MODE;
 		} else {
 			this.mode = Modes.RTT_MBT_MODE_UNDEFINED;
-			addErrorMessage("unsupported client mode " + mode + "\n");
 		}
 	}
 
