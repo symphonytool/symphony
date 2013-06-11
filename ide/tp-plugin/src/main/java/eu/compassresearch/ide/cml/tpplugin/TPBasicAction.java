@@ -30,6 +30,7 @@ import eu.compassresearch.ide.cml.ui.editor.core.dom.ICmlSourceUnit;
 import eu.compassresearch.theoremprover.TPVisitor;
 import eu.compassresearch.theoremprover.ThmType;
 import eu.compassresearch.theoremprover.ThmValue;
+import eu.compassresearch.theoremprover.IsabelleTheory;
 
 public class TPBasicAction implements IWorkbenchWindowActionDelegate {
 
@@ -112,7 +113,7 @@ public class TPBasicAction implements IWorkbenchWindowActionDelegate {
 						} 
 
 						for (ProofObligation po : poList) {
-							ithy.addThm(new IsabelleTheorem(po.name, "True",
+							ithy.addThm(ithy.new IsabelleTheorem(po.name, "True",
 									"by auto\n"));
 						}
 

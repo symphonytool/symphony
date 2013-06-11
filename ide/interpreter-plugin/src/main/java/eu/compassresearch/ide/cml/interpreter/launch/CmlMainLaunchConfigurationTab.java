@@ -78,7 +78,7 @@ public class CmlMainLaunchConfigurationTab extends
 	public boolean isValid(ILaunchConfiguration launchConfig) {
 		setErrorMessage(null);
 		try {
-			String projectName = launchConfig.getAttribute(CmlLaunchConfigurationConstants.ATTR_PROJECT_NAME.toString(), "");
+			String projectName = launchConfig.getAttribute(ICmlLaunchConfigurationConstants.ATTR_PROJECT_NAME, "");
 			IProject project = null;
 
 			if (projectName.length() == 0)
@@ -374,7 +374,7 @@ public class CmlMainLaunchConfigurationTab extends
 	public void initializeFrom(ILaunchConfiguration configuration) {
 
 		try {
-			String projectName = configuration.getAttribute(CmlLaunchConfigurationConstants.ATTR_PROJECT_NAME.toString(), "");
+			String projectName = configuration.getAttribute(ICmlLaunchConfigurationConstants.ATTR_PROJECT_NAME, "");
 			fProjectText.setText(projectName);
 			
 			String processName = configuration.getAttribute(CmlInterpreterLaunchConfigurationConstants.PROCESS_NAME.toString(), "");
@@ -388,7 +388,7 @@ public class CmlMainLaunchConfigurationTab extends
 	@Override
 	public void performApply(ILaunchConfigurationWorkingCopy configuration) {
 		
-		configuration.setAttribute(CmlLaunchConfigurationConstants.ATTR_PROJECT_NAME.toString(), 
+		configuration.setAttribute(ICmlLaunchConfigurationConstants.ATTR_PROJECT_NAME, 
 				fProjectText.getText());
 		
 		configuration.setAttribute(CmlInterpreterLaunchConfigurationConstants.PROCESS_NAME.toString(),
@@ -402,15 +402,14 @@ public class CmlMainLaunchConfigurationTab extends
 			configuration.setAttribute(CmlInterpreterLaunchConfigurationConstants.CML_SOURCES_PATH.toString(),
 					CmlUtil.getCmlSourcesPathsFromProject(project));
 		
-		
-//			List<AProcessDefinition> globalProcess = CmlUtil.GetGlobalProcessesFromProject(project);
-//			
-//			for(AProcessDefinition processDef : globalProcess)
-//			{
-//				if(fTopProcessText.getText().equals(processDef.getName().getName()))
-//					configuration.setAttribute(CmlInterpreterLaunchConfiguration.PROCESS_FILE_PATH.toString(),
-//							processDef.getLocation().file.getAbsolutePath());
-//			}
+			List<AProcessDefinition> globalProcess = CmlUtil.GetGlobalProcessesFromProject(project);
+			
+			for(AProcessDefinition processDef : globalProcess)
+			{
+				if(fTopProcessText.getText().equals(processDef.getName().getName()))
+					configuration.setAttribute(CmlInterpreterLaunchConfigurationConstants.PROCESS_FILE_PATH.toString(),
+							processDef.getLocation().getFile().getAbsolutePath());
+			}
 			
 		}
 		

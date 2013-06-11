@@ -211,7 +211,7 @@ public class RttMbtRequirementsCoverage extends MultiPageEditorPart  {
 		String ltlformula = button.getData().toString();
 		ElementListSelectionDialog selection =
 				new ElementListSelectionDialog(getContainer().getShell(), new LabelProvider());
-		File tprocRoot = new File(RttProjectRoot + "TestProcedures");
+		File tprocRoot = new File(RttProjectRoot + client.getRttMbtTProcGenCtxFolderName());
 		File[] files = tprocRoot.listFiles();
 		List<File> subdirs = new ArrayList<File>();
 		List<File> testprocs = new ArrayList<File>();

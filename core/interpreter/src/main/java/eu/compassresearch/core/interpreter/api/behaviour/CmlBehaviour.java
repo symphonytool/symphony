@@ -54,7 +54,7 @@ public interface CmlBehaviour extends Serializable //extends Transactable
 	 * Returns the current execution state of the process
 	 * @return The current context
 	 */
-	public Pair<INode,Context> getExecutionState();
+	public Pair<INode,Context> getNextState();
 	public void replaceState(Context context) throws ValueException;
 	//public Pair<INode,Context> getPostCondition();
 	//public setPostCondition(Pair<INode,Context> postcondition);

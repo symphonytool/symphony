@@ -28,4 +28,29 @@
    </extension>
   
   
+  <extension
+      point="org.eclipse.ui.commands">
+   <command
+         defaultHandler="eu.compassresearch.ide.cml.tpplugin.DischargePosHandler"
+         id="eu.compassresearch.ide.tpplugin.dischargepos"
+         name="DischargePOs">
+   </command>
+</extension>
+  
+  
+  <extension
+      point="org.eclipse.ui.menus">
+   <menuContribution
+         allPopups="false"
+         locationURI="toolbar:eu.compassresearch.ide.pogplugin.POsTable">
+      <command
+            commandId="eu.compassresearch.ide.tpplugin.dischargepos"
+            icon="icons/tp.png"
+            label="Discharge"
+            style="push"
+            tooltip="Send POs to Theorem Prover">
+      </command>
+   </menuContribution>
+</extension>
+  
 </plugin>

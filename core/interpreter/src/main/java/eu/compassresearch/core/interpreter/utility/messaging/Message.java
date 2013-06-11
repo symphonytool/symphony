@@ -1,16 +1,12 @@
 package eu.compassresearch.core.interpreter.utility.messaging;
 
-import java.lang.reflect.Type;
-
-import com.google.gson.Gson;
-
 public abstract class Message {
 
 	//sessions id current debugging session
 	//TODO: this is not currently used
 	protected String sessionId;
 	//message content
-	protected String content;
+	protected Object content;
 	
 	
 	public Message()
@@ -28,21 +24,22 @@ public abstract class Message {
 	
 	protected void setContent(Object value)
 	{
-		Gson gson = new Gson();
-		this.content = gson.toJson(value);
+		this.content = value;
 	}
 
-	public <T> T getContent(Class<T> classType)
+	public <T> T getContent()
 	{
-		Gson gson = new Gson();
-		return gson.fromJson(content,classType);
+//		Gson gson = new Gson();
+//		return gson.fromJson(content,classType);
+		return (T)this.content;
 	}
 	
-	public <T> T getContent(Type classType)
-	{
-		Gson gson = new Gson();
-		return gson.fromJson(content,classType);
-	}
+//	public <T> T getContent(Type classType)
+//	{
+////		Gson gson = new Gson();
+////		return gson.fromJson(content,classType);
+//		return classType.cast(this.content);
+//	}
 	
 	public abstract MessageType getType();
 	

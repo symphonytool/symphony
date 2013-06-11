@@ -7,6 +7,9 @@ import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.ListViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.ui.part.ViewPart;
+import org.overture.ast.intf.lex.ILexLocation;
+
+import eu.compassresearch.core.interpreter.utility.Pair;
 
 public class CmlEventOptionView extends ViewPart
   {
@@ -50,7 +53,7 @@ public class CmlEventOptionView extends ViewPart
 
 			@Override
 			public Object[] getElements(Object inputElement) {
-				List<String> strs = (List<String>)inputElement;
+				List<Pair<String,ILexLocation>> strs = (List<Pair<String,ILexLocation>>)inputElement;
 				return strs.toArray();
 			}
 		});

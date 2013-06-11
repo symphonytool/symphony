@@ -218,7 +218,7 @@ class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 	protected Pair<INode,Context> caseExternalChoiceEnd(CmlBehaviour theChoosenOne, Context context) throws ValueException
 	{
 		//FIXME the children contexts also needs to be replaced!!!!!!
-		Context copyContext = theChoosenOne.getExecutionState().second;
+		Context copyContext = theChoosenOne.getNextState().second;
 		Context newCurrentContext = CmlBehaviourUtility.mergeState(context,copyContext);
 		
 		if(theChoosenOne.getLeftChild() != null)
@@ -231,7 +231,7 @@ class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 		
 		setRightChild(theChoosenOne.getRightChild());
 		
-		return new Pair<INode, Context>(theChoosenOne.getExecutionState().first,newCurrentContext);
+		return new Pair<INode, Context>(theChoosenOne.getNextState().first,newCurrentContext);
 	}
 	
 	

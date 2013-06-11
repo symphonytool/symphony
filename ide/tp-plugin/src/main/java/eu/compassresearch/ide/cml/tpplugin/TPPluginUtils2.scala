@@ -12,6 +12,7 @@ import isabelle.Text
 import isabelle.eclipse.core.IsabelleCore
 import isabelle.eclipse.core.app.Isabelle
 import isabelle.eclipse.core.util.ConcurrentUtil.FunReadWriteLock
+import eu.compassresearch.theoremprover.IsabelleTheory
 
 object TPPluginUtils2 {
   
@@ -29,7 +30,7 @@ object TPPluginUtils2 {
         
         val snapshot1 = s.snapshot();
         
-        ithy.addThm(new IsabelleTheorem("simpleLemma", "True", List("by simp")))
+        ithy.addThm(new ithy.IsabelleTheorem("simpleLemma", "True", "by simp"))
         
         val snapshot2 = s.snapshot();
         val snapshot3 = s.snapshot();

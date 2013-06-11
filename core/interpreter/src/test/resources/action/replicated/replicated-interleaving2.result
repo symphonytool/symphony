@@ -1,0 +1,32 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testResult>
+  <exception/>
+  <interpreterState>TERMINATED</interpreterState>
+  <trace>
+  	<events>a.1.1,a.1.2,a.2.1,a.2.2</events>
+	<events>a.1.1,a.1.2,a.2.2,a.2.1</events>
+	<events>a.1.1,a.2.1,a.1.2,a.2.2</events>
+	<events>a.1.1,a.2.1,a.2.2,a.1.2</events>
+	<events>a.1.1,a.2.2,a.1.2,a.2.1</events>
+	<events>a.1.1,a.2.2,a.2.1,a.1.2</events>
+	<events>a.1.2,a.1.1,a.2.1,a.2.2</events>
+	<events>a.1.2,a.1.1,a.2.2,a.2.1</events>
+	<events>a.1.2,a.2.1,a.1.1,a.2.2</events>
+	<events>a.1.2,a.2.1,a.2.2,a.1.1</events>
+	<events>a.1.2,a.2.2,a.1.1,a.2.1</events>
+	<events>a.1.2,a.2.2,a.2.1,a.1.1</events>
+	<events>a.2.1,a.1.1,a.1.2,a.2.2</events>
+	<events>a.2.1,a.1.1,a.2.2,a.1.2</events>
+	<events>a.2.1,a.1.2,a.1.1,a.2.2</events>
+	<events>a.2.1,a.1.2,a.2.2,a.1.1</events>
+	<events>a.2.1,a.2.2,a.1.1,a.1.2</events>
+	<events>a.2.1,a.2.2,a.1.2,a.1.1</events>
+	<events>a.2.2,a.1.1,a.1.2,a.2.1</events>
+	<events>a.2.2,a.1.1,a.2.1,a.1.2</events>
+	<events>a.2.2,a.1.2,a.1.1,a.2.1</events>
+	<events>a.2.2,a.1.2,a.2.1,a.1.1</events>
+	<events>a.2.2,a.2.1,a.1.1,a.1.2</events>
+	<events>a.2.2,a.2.1,a.1.2,a.1.1</events>
+    <timedTrace/>
+  </trace>
+</testResult>

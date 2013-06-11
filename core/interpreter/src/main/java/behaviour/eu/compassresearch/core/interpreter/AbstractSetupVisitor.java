@@ -1,13 +1,20 @@
 package eu.compassresearch.core.interpreter;
 
+import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
-import eu.compassresearch.ast.analysis.QuestionCMLAdaptor;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
-
-abstract class AbstractSetupVisitor extends QuestionCMLAdaptor<Context> {
+import eu.compassresearch.core.interpreter.utility.Pair;
+/**
+ * Handles all setup actions. However, this is not meant to handle the semantic 
+ * begin rules for actions.
+ * @author akm
+ *
+ */
+abstract class AbstractSetupVisitor extends QuestionAnswerCMLAdaptor<Context,INode> {
 
 	//Interface that gives access to methods that control the behaviour
 	private final VisitorAccess 								controlAccess;
@@ -22,6 +29,12 @@ abstract class AbstractSetupVisitor extends QuestionCMLAdaptor<Context> {
 		this.controlAccess = visitorAccess;
 				
 	}
+	
+	@Override
+	public INode defaultINode(INode node, Context question)
+			throws AnalysisException {
+		return node;
+	}
 
 	protected void setLeftChild(CmlBehaviour child)
 	{
@@ -31,5 +44,10 @@ abstract class AbstractSetupVisitor extends QuestionCMLAdaptor<Context> {
 	protected void setRightChild(CmlBehaviour child)
 	{
 		this.controlAccess.setRightChild(child);
+	}
+	
+	protected void setChildContexts(Pair<Context,Context> preBuildContexts)
+	{
+		this.controlAccess.setChildContexts(preBuildContexts);
 	}
 }

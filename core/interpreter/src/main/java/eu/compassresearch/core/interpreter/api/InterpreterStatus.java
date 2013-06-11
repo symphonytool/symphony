@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.overture.ast.lex.LexLocation;
+
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 
 /**
@@ -13,36 +15,62 @@ import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
  */
 public class InterpreterStatus {
 
-	final private CmlProcessInfo[] processInfos;
-	final private int topLevelProcessIndex;
+	final private List<CmlProcessInfo> processInfos;
 	private InterpreterError[] errors = null;
 	private final CmlInterpreterState state;
 	
+	protected InterpreterStatus()
+	{
+		state = null;
+		processInfos = null;
+	}
+	
+	private static List<CmlBehaviour> extractAllRunningProcesses(CmlBehaviour topProcess)
+	{
+		List<CmlBehaviour> children = new LinkedList<CmlBehaviour>();
+		
+		children.add(topProcess);
+		
+		if(topProcess.getLeftChild() != null)
+			children.addAll(extractAllRunningProcesses(topProcess.getLeftChild()));
+		
+		if(topProcess.getRightChild() != null)
+			children.addAll(extractAllRunningProcesses(topProcess.getLeftChild()));
+		
+		return children;
+	}
+	
 	public InterpreterStatus(CmlBehaviour topProcess, CmlInterpreterState state)
 	{
-		this.processInfos = new CmlProcessInfo[1];
-		this.processInfos[0] = new CmlProcessInfo(topProcess.name().getName(),
-				topProcess.getTraceModel(),
-				topProcess.level(),
-				topProcess instanceof CmlBehaviour,
-				topProcess.getState());
+		this.processInfos = new LinkedList<CmlProcessInfo>();
+		for(CmlBehaviour cmlBehavior : extractAllRunningProcesses(topProcess))
+		{
+			this.processInfos.add(new CmlProcessInfo(cmlBehavior.name(),
+					cmlBehavior.getTraceModel(),
+					cmlBehavior.level(),
+					cmlBehavior instanceof CmlBehaviour,
+					cmlBehavior.getState(),
+					(LexLocation)cmlBehavior.getNextState().second.location));
+		}
 
-		topLevelProcessIndex = 0;
 		this.state = state;
 	}
 			
 	public List<CmlProcessInfo> getAllProcessInfos()
 	{
-		return Arrays.asList(this.processInfos);
+		return this.processInfos;
 	}
 	
 	public CmlProcessInfo getToplevelProcessInfo()
 	{
-		return processInfos[topLevelProcessIndex];
+		return processInfos.get(0);
 	}
 	
 	public List<InterpreterError> getErrors() {
-		return Arrays.asList(errors);
+		if(errors != null)
+			return Arrays.asList(errors);
+		else
+			return null;
 	}
 
 	public void AddError(InterpreterError error) {
@@ -65,4 +93,9 @@ public class InterpreterStatus {
 		return state;
 	}
 			
+	@Override
+	public String toString() {
+		return "CmlInterpreterState: " + state + System.lineSeparator() + 
+				"topProcess: " + this.processInfos.get(0);
+	}
 }
