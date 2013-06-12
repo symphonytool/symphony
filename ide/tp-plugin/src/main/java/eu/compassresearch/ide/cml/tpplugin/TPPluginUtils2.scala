@@ -13,8 +13,13 @@ import isabelle.eclipse.core.IsabelleCore
 import isabelle.eclipse.core.app.Isabelle
 import isabelle.eclipse.core.util.ConcurrentUtil.FunReadWriteLock
 import eu.compassresearch.theoremprover.IsabelleTheory
+import eu.compassresearch.ast.program.PSource
 
 object TPPluginUtils2 {
+  
+  def addThyToListener(ithy : IsabelleTheory, tpListener : TPListener, ast : PSource) {
+    tpListener.registerNode(ithy.thyNode, ast);
+  }
   
   def checkHOLVDM(): Either[String, Isabelle] = {
     val isabelle = IsabelleCore.isabelle
