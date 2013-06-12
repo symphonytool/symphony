@@ -83,7 +83,8 @@ public class PogPluginUtility
 	/**
 	 * Get the project currently loaded in the Proof Obligation Viewer
 	 * 
-	 * @return the project or null, if no project is loaded
+	 * @return the project or null, if no project is loaded or this method
+	 * is called from a non-UI thread
 	 */
 	public static IProject getPoggedProject()
 	{

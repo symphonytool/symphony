@@ -53,10 +53,8 @@ public class FetchPosUtil
 				return;
 			}
 
-			if (tpListener == null) { 
-				tpListener = new TPListener(isabelle.session().get());
-				tpListener.init();
-			}
+				
+			
 				
 			Registry registry = RegistryFactory.getInstance(
 					POConstants.PO_REGISTRY_ID).getRegistry();
@@ -91,6 +89,11 @@ public class FetchPosUtil
 
 				if (model.isTypeCorrect()) {
 
+					if (tpListener == null) { 
+						tpListener = new TPListener(isabelle.session().get(), vdmProject);
+						tpListener.init();
+					}
+					
 					ArrayList<IResource> cmlFiles = TPPluginUtils
 							.getAllCFilesInProject(proj);
 

@@ -8,6 +8,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchSite;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -31,67 +32,62 @@ import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.ide.cml.pogplugin.commands.PogCommandStateProvider;
 import eu.compassresearch.ide.cml.ui.editor.core.dom.ICmlSourceUnit;
 
-public class PogPluginDoStuff
-{
+public class PogPluginDoStuff {
 	private IWorkbenchWindow window;
 	private IWorkbenchSite site;
 
 	/**
-	 * The action has been activated. The argument of the method represents the 'real' action sitting in the workbench
-	 * UI.
+	 * The action has been activated. The argument of the method represents the
+	 * 'real' action sitting in the workbench UI.
 	 * 
 	 * @param event
 	 * @see IWorkbenchWindowActionDelegate#run
 	 */
-	public void run(ExecutionEvent event)
-	{
+	public void run(ExecutionEvent event) {
 
-		try
-		{
+		try {
 			updateTPAvailability(false);
 			IProject proj = PogPluginUtility.getCurrentlySelectedProject();
-			if (proj == null)
-			{
+			if (proj == null) {
 				popErrorMessage("No project selected.");
 				return;
 			}
 
 			// Check project is built
-			IVdmProject vdmProject = (IVdmProject) proj.getAdapter(IVdmProject.class);
+			IVdmProject vdmProject = (IVdmProject) proj
+					.getAdapter(IVdmProject.class);
 
-			if (vdmProject == null)
-			{
+			if (vdmProject == null) {
 				return;
 			}
 
 			final IVdmModel model = vdmProject.getModel();
-			if (model.isParseCorrect())
-			{
+			if (model.isParseCorrect()) {
 
-				if (!model.isParseCorrect())
-				{
+				if (!model.isParseCorrect()) {
 					return;
-					// return new Status(Status.ERROR, IPoviewerConstants.PLUGIN_ID,
+					// return new Status(Status.ERROR,
+					// IPoviewerConstants.PLUGIN_ID,
 					// "Project contains parse errors");
 				}
 
-				if (model == null || !model.isTypeCorrect())
-				{
-					VdmTypeCheckerUi.typeCheck(this.window.getShell(), vdmProject);
+				if (model == null || !model.isTypeCorrect()) {
+					VdmTypeCheckerUi.typeCheck(this.window.getShell(),
+							vdmProject);
 				}
 
-				if (model.isTypeCorrect())
-				{
+				if (model.isTypeCorrect()) {
 
-					ArrayList<IResource> cmlfiles = PogPluginUtility.getAllCFilesInProject(proj);
+					ArrayList<IResource> cmlfiles = PogPluginUtility
+							.getAllCFilesInProject(proj);
 
-					for (IResource cmlfile : cmlfiles)
-					{
-						ICmlSourceUnit source = (ICmlSourceUnit) cmlfile.getAdapter(ICmlSourceUnit.class);
+					for (IResource cmlfile : cmlfiles) {
+						ICmlSourceUnit source = (ICmlSourceUnit) cmlfile
+								.getAdapter(ICmlSourceUnit.class);
 						// CmlSourceUnit source = CmlSourceUnit
 						// .getFromFileResource((IFile) cmlfile);
-						if (!CmlTypeChecker.Utils.isWellType(source.getSourceAst()))
-						{
+						if (!CmlTypeChecker.Utils.isWellType(source
+								.getSourceAst())) {
 							popErrorMessage("There were type errors in "
 									+ source.getFile().getName());
 							return;
@@ -104,19 +100,18 @@ public class PogPluginDoStuff
 					updateTPAvailability(true);
 				}
 			}
-		} catch (Exception e)
-		{
+		} catch (Exception e) {
 			e.printStackTrace();
 			popErrorMessage(e.getMessage());
 		}
 
 	}
 
-	public void redrawPos(IVdmProject proj, ProofObligationList polist)
+	public static void redrawPos(IVdmProject proj, ProofObligationList polist)
 	{
 		final ProofObligationList pol = polist;
 		final IVdmProject project = proj;
-		site.getPage().getWorkbenchWindow().getShell().getDisplay().asyncExec(new Runnable()
+		Display.getDefault().asyncExec(new Runnable()
 		{
 
 			public void run()
@@ -125,16 +120,16 @@ public class PogPluginDoStuff
 
 				try
 				{
-					v = site.getPage().showView(POConstants.PO_OVERVIEW_TABLE);
+					v = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().findView(POConstants.PO_OVERVIEW_TABLE);
 					if (v instanceof PoOverviewTableView)
 					{
 						((PoOverviewTableView) v).setDataList(project, pol);
 
 					}
 
-					PogPluginUtility ppu = new PogPluginUtility(site);
-					ppu.openPoviewPerspective();
-				} catch (PartInitException e)
+			//		PogPluginUtility ppu = new PogPluginUtility(site);
+				//	ppu.openPoviewPerspective();
+				} catch (Exception e)
 				{
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -143,45 +138,43 @@ public class PogPluginDoStuff
 
 		});
 	}
-
-	private void updateTPAvailability(boolean b)
-	{
-		ISourceProviderService sourceProviderService = (ISourceProviderService)  PlatformUI.getWorkbench().getService(ISourceProviderService.class);
+	
+	private void updateTPAvailability(boolean b) {
+		ISourceProviderService sourceProviderService = (ISourceProviderService) PlatformUI
+				.getWorkbench().getService(ISourceProviderService.class);
 		// Now get my service
-		PogCommandStateProvider commandStateService = (PogCommandStateProvider) sourceProviderService.getSourceProvider(PogCommandStateProvider.TP_STATE);
+		PogCommandStateProvider commandStateService = (PogCommandStateProvider) sourceProviderService
+				.getSourceProvider(PogCommandStateProvider.TP_STATE);
 		commandStateService.setVarState(b);
 	}
 
-	private void popErrorMessage(String message)
-	{
-		MessageDialog.openInformation(window.getShell(), "COMPASS", "Unable to generate POs.\n\n"
-				+ message);
+	private void popErrorMessage(String message) {
+		MessageDialog.openInformation(window.getShell(), "COMPASS",
+				"Unable to generate POs.\n\n" + message);
 	}
 
-	private void addPOsToRegistry(ArrayList<IResource> cmlfiles)
-	{
-		Registry registry = RegistryFactory.getInstance(POConstants.PO_REGISTRY_ID).getRegistry();
+	private void addPOsToRegistry(ArrayList<IResource> cmlfiles) {
+		Registry registry = RegistryFactory.getInstance(
+				POConstants.PO_REGISTRY_ID).getRegistry();
 
 		ProofObligationList allPOs = new ProofObligationList();
 
-		for (IResource cmlfile : cmlfiles)
-		{
-			int poCounter=1;
-			ICmlSourceUnit cmlSource = (ICmlSourceUnit) cmlfile.getAdapter(ICmlSourceUnit.class);
+		for (IResource cmlfile : cmlfiles) {
+			int poCounter = 1;
+			ICmlSourceUnit cmlSource = (ICmlSourceUnit) cmlfile
+					.getAdapter(ICmlSourceUnit.class);
 			CMLProofObligationList poList = new CMLProofObligationList();
-			ProofObligationGenerator pog = new ProofObligationGenerator(cmlSource.getSourceAst());
+			ProofObligationGenerator pog = new ProofObligationGenerator(
+					cmlSource.getSourceAst());
 			ProofObligationList pol = new ProofObligationList();
-			try
-			{
+			try {
 				pol = pog.generatePOs();
-			} catch (AnalysisException e)
-			{
+			} catch (AnalysisException e) {
 				popErrorMessage(e.getMessage());
 				e.printStackTrace();
 			}
-			for (ProofObligation po : pol)
-			{
-				po.setTpID(po.name+poCounter++);
+			for (ProofObligation po : pol) {
+				po.setTpID(po.name + poCounter++);
 				poList.add(po);
 			}
 			registry.store(cmlSource.getSourceAst(), poList);
@@ -191,62 +184,61 @@ public class PogPluginDoStuff
 	}
 
 	private void showPOs(final IVdmProject project,
-			ArrayList<IResource> cmlFiles)
-	{
+			ArrayList<IResource> cmlFiles) {
 		final ProofObligationList pol = new ProofObligationList();
-		Registry registry = RegistryFactory.getInstance(POConstants.PO_REGISTRY_ID).getRegistry();
-		for (IResource cmlfile : cmlFiles)
-		{
-			ICmlSourceUnit cmlSource = (ICmlSourceUnit) cmlfile.getAdapter(ICmlSourceUnit.class);
-			pol.addAll(registry.lookup(cmlSource.getSourceAst(), CMLProofObligationList.class));
+		Registry registry = RegistryFactory.getInstance(
+				POConstants.PO_REGISTRY_ID).getRegistry();
+		for (IResource cmlfile : cmlFiles) {
+			ICmlSourceUnit cmlSource = (ICmlSourceUnit) cmlfile
+					.getAdapter(ICmlSourceUnit.class);
+			pol.addAll(registry.lookup(cmlSource.getSourceAst(),
+					CMLProofObligationList.class));
 
 		}
 
-		site.getPage().getWorkbenchWindow().getShell().getDisplay().asyncExec(new Runnable()
-		{
+		site.getPage().getWorkbenchWindow().getShell().getDisplay()
+				.asyncExec(new Runnable() {
 
-			public void run()
-			{
-				IViewPart v;
+					public void run() {
+						IViewPart v;
 
-				try
-				{
-					v = site.getPage().showView(POConstants.PO_OVERVIEW_TABLE);
-					if (v instanceof PoOverviewTableView)
-					{
-						((PoOverviewTableView) v).setDataList(project, pol);
+						try {
+							v = site.getPage().showView(
+									POConstants.PO_OVERVIEW_TABLE);
+							if (v instanceof PoOverviewTableView) {
+								((PoOverviewTableView) v).setDataList(project,
+										pol);
 
+							}
+
+							PogPluginUtility ppu = new PogPluginUtility(site);
+							ppu.openPoviewPerspective();
+						} catch (PartInitException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 					}
 
-					PogPluginUtility ppu = new PogPluginUtility(site);
-					ppu.openPoviewPerspective();
-				} catch (PartInitException e)
-				{
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-
-		});
+				});
 	}
 
 	/**
-	 * Selection in the workbench has been changed. We can change the state of the 'real' action here if we want, but
-	 * this can only happen after the delegate has been created.
+	 * Selection in the workbench has been changed. We can change the state of
+	 * the 'real' action here if we want, but this can only happen after the
+	 * delegate has been created.
 	 * 
 	 * @see IWorkbenchWindowActionDelegate#selectionChanged
 	 */
-	public void selectionChanged(IAction action, ISelection selection)
-	{
+	public void selectionChanged(IAction action, ISelection selection) {
 	}
 
 	/**
-	 * We will cache window object in order to be able to provide parent shell for the message dialog.
+	 * We will cache window object in order to be able to provide parent shell
+	 * for the message dialog.
 	 * 
 	 * @see IWorkbenchWindowActionDelegate#init
 	 */
-	public PogPluginDoStuff(IWorkbenchWindow window, IWorkbenchSite site)
-	{
+	public PogPluginDoStuff(IWorkbenchWindow window, IWorkbenchSite site) {
 		this.window = window;
 		this.site = window.getActivePage().getActivePart().getSite();
 	}

@@ -1,7 +1,6 @@
 package eu.compassresearch.ide.cml.tpplugin
 
 import scala.actors.Actor._
-
 import isabelle.{Command, Session, Document}
 import isabelle.Document.Snapshot
 import isabelle.Text.Range
@@ -16,23 +15,35 @@ import eu.compassresearch.core.common.RegistryFactory
 import eu.compassresearch.ide.cml.ui.editor.core.dom.ICmlSourceUnit
 import eu.compassresearch.ide.cml.pogplugin.POConstants
 import org.overture.pog.obligation.POStatus
-import scala.collection.JavaConversions;
+import scala.collection.JavaConversions
+import org.overture.ide.core.resources.IVdmProject
+import eu.compassresearch.ide.cml.pogplugin.PogPluginDoStuff
+import org.overture.pog.obligation.ProofObligationList
 
 object TPListener {
   
-  def updatePOListFromThy(poList: CMLProofObligationList, ithy: IsabelleTheory) = {
-    for (p <- JavaConversions.asScalaIterable(poList)) {      
+  def updatePOListFromThy(poList: CMLProofObligationList, ithy: IsabelleTheory, proj:IVdmProject) = {
+	var flag : Boolean = false
+    for (p <- JavaConversions.asScalaIterable(poList)) {
       // FIXME: Add code to update POs from the theory
       if (ithy.thmIsProved("po" + p.name)) {
         p.status = POStatus.PROVED;
         println(p.name + " is proved!");
+        flag=true
       }
     }
+	if (flag == true){
+	  val pol = new ProofObligationList()
+	  for (po <- JavaConversions.asScalaIterable(poList)){
+	    pol.add(po)
+	  }
+	 PogPluginDoStuff.redrawPos(proj, pol)
+	}
   }
   
 }
 
-class TPListener(session: Session) extends SessionEvents {
+class TPListener(session: Session, project: IVdmProject) extends SessionEvents {
 
   var nodeCMLMap:Map[Document.Node.Name, PSource] = Map()
   
@@ -66,7 +77,7 @@ class TPListener(session: Session) extends SessionEvents {
             val ast  = nodeCMLMap(c.node_name)
             val poList = registry.lookup(ast, classOf[CMLProofObligationList]);
             val ithy   = registry.lookup(ast, classOf[IsabelleTheory])
-            TPListener.updatePOListFromThy(poList, ithy)
+            TPListener.updatePOListFromThy(poList, ithy, project)
           }
         }
       }
