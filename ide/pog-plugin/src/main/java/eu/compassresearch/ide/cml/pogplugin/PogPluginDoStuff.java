@@ -160,7 +160,7 @@ public class PogPluginDoStuff {
 		ProofObligationList allPOs = new ProofObligationList();
 
 		for (IResource cmlfile : cmlfiles) {
-			int poCounter = 1;
+		//	int poCounter = 1;
 			ICmlSourceUnit cmlSource = (ICmlSourceUnit) cmlfile
 					.getAdapter(ICmlSourceUnit.class);
 			CMLProofObligationList poList = new CMLProofObligationList();
@@ -174,7 +174,7 @@ public class PogPluginDoStuff {
 				e.printStackTrace();
 			}
 			for (ProofObligation po : pol) {
-				po.setTpID(po.name + poCounter++);
+			//	po.setTpID(po.name + poCounter++);
 				poList.add(po);
 			}
 			registry.store(cmlSource.getSourceAst(), poList);
