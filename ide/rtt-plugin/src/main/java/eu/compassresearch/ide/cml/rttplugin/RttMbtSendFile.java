@@ -53,15 +53,16 @@ public class RttMbtSendFile extends RttMbtPopupMenuAction {
 
 				if (success) {
 					client.addLogMessage("[PASS]: Add Directory/File to RTT-MBT Server Work Area!\n");			
+					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 				} else {			
 					client.addErrorMessage("[FAIL]: Add Directory/File to RTT-MBT Server Work Area!\n");			
+					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 				}
 				return Status.OK_STATUS;
 			}
 		};
 		job.schedule();
 
-		client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 		return null;
 	}
 }

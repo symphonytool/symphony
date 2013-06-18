@@ -332,6 +332,16 @@ public class RttMbtClient {
 		return success;
 	}
 
+	public Boolean deleteLocalFile(File file) {
+		if (file == null) { return false; }
+		if (!file.exists()) { return true; }
+		if (!file.isFile()) { return false; }
+		if (!file.delete()) {
+			return false;
+		}
+		return true;
+	}
+	
 	public Boolean deleteLocalDirectory(File dir) {
 		if (dir == null) { return false; }
 		if (!dir.exists()) { return true; }
@@ -418,6 +428,33 @@ public class RttMbtClient {
 		// upload project structure to cache
 		System.out.println("uploading '" + getProjectName() + "' to the rtt-mbt-tms file cache...");
 		success = uploadDirectory(getProjectName(), true);
+		return success;
+	}
+	
+	public Boolean cleanProject(String project) {
+		Boolean success = true;
+
+		// remove local files in /model directory (except model_dump.xml)
+		String modelDirName = getCmlWorkspace() + File.separator
+				+ getCmlProject() + File.separator
+				+ getProjectName() + File.separator
+				+ "model" + File.separator;
+		deleteLocalFile(new File(modelDirName + "LivelockReport.log"));
+		deleteLocalFile(new File(modelDirName + "errors.log"));
+		deleteLocalFile(new File(modelDirName + "generation.log"));
+		deleteLocalFile(new File(modelDirName + "overall_coverage.csv"));
+		deleteLocalFile(new File(modelDirName + "req2tc.csv"));
+		deleteLocalFile(new File(modelDirName + "tc2req.csv"));
+		deleteLocalFile(new File(modelDirName + "symbols.log"));
+		deleteLocalFile(new File(modelDirName + "testcases.csv"));
+		deleteLocalFile(new File(modelDirName + "testcases.db"));
+		deleteLocalFile(new File(modelDirName + "uncovered_testcases.csv"));
+		deleteLocalFile(new File(modelDirName + "unreachable_testcases.csv"));
+		deleteLocalFile(new File(modelDirName + "rtt-mbt-tms-execution.err"));
+		deleteLocalFile(new File(modelDirName + "rtt-mbt-tms-execution.out"));
+
+		// remove working area on the server
+		success = deleteRemoteFileOrDir(getProjectName());
 		return success;
 	}
 	

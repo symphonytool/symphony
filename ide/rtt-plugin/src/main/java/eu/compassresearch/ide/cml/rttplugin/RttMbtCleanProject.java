@@ -19,14 +19,14 @@ public class RttMbtCleanProject extends RttMbtPopupMenuAction {
 		// get selected object
 		client.setProgress(IRttMbtProgressBar.Tasks.ALL, 0);
 		if (!getSelectedObject(event)) {
-			client.addErrorMessage("[FAIL]: Add an existing RTT-MBT Component to the RTT-MBT Server: Please select an RTT-MBT component!\n");
+			client.addErrorMessage("[FAIL]: Cleanup RTT-MBT project: Please select an RTT-MBT component!\n");
 			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 			return null;
 		}
 		
 		// get RttMbtClient for this action
 		if (!initClient(selectedObjectPath)) {
-			client.addErrorMessage("[FAIL]: Add an existing RTT-MBT Component to the RTT-MBT Server: init of RTT-MBT client failed!\n");
+			client.addErrorMessage("[FAIL]: Cleanup RTT-MBT project: init of RTT-MBT client failed!\n");
 			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 			return null;
 		}
@@ -34,12 +34,17 @@ public class RttMbtCleanProject extends RttMbtPopupMenuAction {
 		// check if the selected item is a project
 		File item = new File(client.getCmlWorkspace() + selectedObjectPath);
 		if (!item.exists()) {
-			client.addErrorMessage("[FAIL]: Add an existing RTT-MBT Component to the RTT-MBT Server: file or directory '" + item.getAbsolutePath() + "' does not exist!");
+			client.addErrorMessage("[FAIL]: Cleanup RTT-MBT project: file or directory '" + item.getAbsolutePath() + "' does not exist!\n");
 			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 			return null;
 		}
 		if (!item.isDirectory()) {
-			client.addErrorMessage("[FAIL]: Add an existing RTT-MBT Component to the RTT-MBT Server: the selected item '" + selectedObject + "' is not a directory!");
+			client.addErrorMessage("[FAIL]: Cleanup RTT-MBT project: the selected item '" + selectedObject + "' is not a directory!\n");
+			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
+			return null;
+		}
+		if (client.getProjectName().compareTo(selectedObject) != 0) {
+			client.addErrorMessage("[FAIL]: Cleanup RTT-MBT project: the selected item '" + selectedObject + "' is no RTT-MBT project!\n");
 			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 			return null;
 		}
@@ -48,6 +53,13 @@ public class RttMbtCleanProject extends RttMbtPopupMenuAction {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				// cleanup project
+				if (client.cleanProject(selectedObject)) {
+					client.addLogMessage("[PASS]: clean RTT-MBT project " + selectedObject + "\n");
+					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
+				} else {
+					client.addLogMessage("[FAIL]: clean RTT-MBT project " + selectedObject + "\n");
+					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
+				}
 				return Status.OK_STATUS;
 			}
 		};

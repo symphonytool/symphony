@@ -9,6 +9,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.ui.dialogs.WizardNewFolderMainPage;
 import org.eclipse.ui.wizards.newresource.BasicNewFolderResourceWizard;
 
+import eu.compassresearch.rttMbtTmsClientApi.IRttMbtProgressBar;
 import eu.compassresearch.rttMbtTmsClientApi.RttMbtClient;
 
 public class RttMbtComponentWizard extends BasicNewFolderResourceWizard {
@@ -38,6 +39,7 @@ public class RttMbtComponentWizard extends BasicNewFolderResourceWizard {
 				client.addLogMessage("[PASS]: test RTT-MBT server connection\n");
 			} else {
 				client.addErrorMessage("[FAIL]: test RTT-MBT server connection\n");
+				client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 				return false;
 			}
 
@@ -53,6 +55,7 @@ public class RttMbtComponentWizard extends BasicNewFolderResourceWizard {
 				client.addLogMessage("[PASS]: begin RTT-MBT session\n");
 			} else {
 				client.addErrorMessage("[FAIL]: begin RTT-MBT session\n");
+				client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 				return false;
 			}
 
@@ -61,6 +64,7 @@ public class RttMbtComponentWizard extends BasicNewFolderResourceWizard {
 				client.addLogMessage("[PASS]: downloading templates\n");
 			} else {
 				client.addErrorMessage("[FAIL]: downloading templates\n");
+				client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 				return false;
 			}
 
@@ -69,8 +73,12 @@ public class RttMbtComponentWizard extends BasicNewFolderResourceWizard {
 				client.addLogMessage("[PASS]: create initial project structure\n");
 			} else {
 				client.addErrorMessage("[FAIL]: create initial project structure\n");
+				client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 				return false;
 			}
+			
+			// update progress bar
+			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 		}
 		return true;
 	}
