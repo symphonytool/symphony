@@ -347,7 +347,6 @@ public class RttMbtClient {
 		if (!dir.exists()) { return true; }
 		if (!dir.isDirectory()) { return false; }
 
-		addLogMessage("delete local directory " + dir.getAbsolutePath() + "\n");
 		String[] entries = dir.list();
 		if (entries == null) { return dir.delete(); }
 
@@ -357,7 +356,6 @@ public class RttMbtClient {
 				if (!deleteLocalDirectory(entry))
 					return false;
 			} else {
-				addLogMessage("delete local file " + entry.getAbsolutePath() + "\n");
 				if (!entry.delete())
 					return false;
 			}
@@ -503,6 +501,18 @@ public class RttMbtClient {
 			System.err.println("[FAIL]: no project created / selected, yet!");
 			return false;
 		}
+
+		// remove local model directory
+		String modelDirName = getCmlWorkspace() + File.separator
+				+ getCmlProject() + File.separator
+				+ getProjectName() + File.separator
+				+ "model";
+		File modeldir = new File(modelDirName);
+		deleteLocalDirectory(modeldir);
+
+		// remove working area on the server
+		success = deleteRemoteFileOrDir(getProjectName());
+
 		// copy model to <projectroot>/model/model_dump.xml
 		File projectRoot = new File(getRttProjectRoot());
 		try {
@@ -542,7 +552,7 @@ public class RttMbtClient {
 		}
 		// send model_dump.xml to file cache
 		// this is actually needed for test generation command
-		String modelDirName = getRttProjectRoot() + File.separator
+		modelDirName = getRttProjectRoot() + File.separator
 				+ "model" + File.separator;
 		if (uploadFile(modelDirName + "model_dump.xml")) {
 			System.out.println("[PASS]: upload model file '" + modelDirName + "model_dump.xml" + "'!");

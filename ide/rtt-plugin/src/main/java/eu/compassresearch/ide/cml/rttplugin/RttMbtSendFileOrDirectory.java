@@ -42,7 +42,8 @@ public class RttMbtSendFileOrDirectory extends RttMbtPopupMenuAction {
 				}
 				
 				if (item.isDirectory()) {
-					success = client.uploadDirectory(item.getAbsolutePath(), true);
+					success = client.deleteRemoteFileOrDir(item.getAbsolutePath());
+					success = success && client.uploadDirectory(item.getAbsolutePath(), true);
 				} else if (item.isFile()) {
 					success = client.uploadFile(item.getAbsolutePath());			
 				} else {
