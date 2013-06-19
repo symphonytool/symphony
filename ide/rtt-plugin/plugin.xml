@@ -194,12 +194,12 @@
             name="Abort Current Task">
       </command>
       <command
-            defaultHandler="eu.compassresearch.ide.cml.rttplugin.RttMbtRetrieveDirectory"
+            defaultHandler="eu.compassresearch.ide.cml.rttplugin.RttMbtRetrieveFileOrDirectory"
             id="eu.compassresearch.ide.cml.rttplugin.RttMbtPullFromServer"
             name="Pull from Server">
       </command>
       <command
-            defaultHandler="eu.compassresearch.ide.cml.rttplugin.RttMbtSendFile"
+            defaultHandler="eu.compassresearch.ide.cml.rttplugin.RttMbtSendFileOrDirectory"
             id="eu.compassresearch.ide.cml.rttplugin.RttMbtPushToServer"
             name="Push to Server">
       </command>
