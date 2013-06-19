@@ -877,7 +877,7 @@ try{
 
 		// Get subparts
 		PExp exp = node.getExp();
-
+		pol.addAll(exp.apply(parentPOG, question));
 		// TODO: Any AReturnStatementAction POs?
 		return pol;
 	} catch (Exception e) {

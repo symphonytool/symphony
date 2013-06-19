@@ -126,4 +126,62 @@ public class RttMbtPopupMenuAction extends AbstractHandler  {
 	public static boolean isRttMbtProject() {
 		return false;
 	}
+	
+	// check if the selected item is a test procedure generation context
+	public Boolean isTProcGenCtxSelected() {
+		if (selectedObjectPath == null) {
+			return false;
+		}
+		int idx = selectedObjectPath.lastIndexOf(selectedObject);
+		if (idx < 1) { return false; }
+		String path = selectedObjectPath.substring(0, idx - 1);
+		String TProcGenCtx = client.getRttMbtTProcGenCtxFolderName();
+		idx = path.lastIndexOf(TProcGenCtx);
+		if (idx < 1) { return false; }
+		if ((path.substring(idx - 1, idx).compareTo("/") != 0) &&
+			(path.substring(idx - 1, idx).compareTo(File.separator) != 0)) { return false; }
+		String objectContainer = path.substring(idx, path.length());
+		return objectContainer.compareTo(TProcGenCtx) == 0;
+	}
+	
+	// check if the selected item is an rtt-test-procedure
+	public Boolean isRttTestProcSelected() {
+		if (selectedObjectPath == null) {
+			return false;
+		}
+		int idx = selectedObjectPath.lastIndexOf(selectedObject);
+		if (idx < 1) { return false; }
+		String path = selectedObjectPath.substring(0, idx - 1);
+		String RttTestProc = client.getRttMbtTestProcFolderName();
+		idx = path.lastIndexOf(RttTestProc);
+		if (idx < 1) { return false; }
+		if ((path.substring(idx - 1, idx).compareTo("/") != 0) &&
+			(path.substring(idx - 1, idx).compareTo(File.separator) != 0)) { return false; }
+		String objectContainer = path.substring(idx, path.length());
+		return objectContainer.compareTo(RttTestProc) == 0;
+	}
+
+	public void getRttTestProcPathFromTProcGenCtxPath() {
+		if (selectedObjectPath == null) {
+			return;
+		}
+		String TProcGenCtx = client.getRttMbtTProcGenCtxFolderName();
+		int idx = selectedObjectPath.lastIndexOf(TProcGenCtx);
+		if (idx < 1) { return; }
+		String path = selectedObjectPath.substring(0, idx);
+		String RttTestProc = client.getRttMbtTestProcFolderName();
+		selectedObjectPath = path + RttTestProc + File.separator + selectedObject;
+	}
+
+	public void getTProcGenCtxPathFromRttTestProcPath() {
+		if (selectedObjectPath == null) {
+			return;
+		}
+		String RttTestProc = client.getRttMbtTestProcFolderName();
+		int idx = selectedObjectPath.lastIndexOf(RttTestProc);
+		if (idx < 1) { return; }
+		String path = selectedObjectPath.substring(0, idx);
+		String TProcGenCtx = client.getRttMbtTProcGenCtxFolderName();
+		selectedObjectPath = path + TProcGenCtx + File.separator + selectedObject;
+	}
 }

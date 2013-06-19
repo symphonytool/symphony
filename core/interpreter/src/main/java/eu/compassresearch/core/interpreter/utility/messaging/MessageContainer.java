@@ -1,47 +1,49 @@
 package eu.compassresearch.core.interpreter.utility.messaging;
 
-import com.google.gson.Gson;
 
 public class MessageContainer {
 
-	private MessageType type;
+//	private MessageType type;
 	private String version = "0.0.1";
-	private String message;
+	private Message message;
 	
-	public MessageContainer()
+	
+	protected MessageContainer()
 	{
-		this.setType(null);
+//		this.setType(null);
 		message = null;
 	}
 	
 	public MessageContainer(Message message)
 	{
-		this.setType(type);
+//		this.setType(type);
 		this.setMessage(message);
 	}
 	
 	public MessageType getType() {
-		return type;
+		return message.getType();
 	}
 
-	protected void setType(MessageType type) {
-		this.type = type;
-	}
+//	protected void setType(MessageType type) {
+//		this.type = type;
+//	}
 
 //	public CmlMessage getMessage() {
 //		return message;
 //	}
 	
-	public <T> T getMessage(Class<T> classType)
+	public Message getMessage()
 	{
-		Gson gson = new Gson();
-		return gson.fromJson(message,classType);
+//		Gson gson = new Gson();
+//		return gson.fromJson(message,classType);
+		return message;
 	}
 
 	protected void setMessage(Message message) {
-		setType(message.getType());
-		Gson gson = new Gson();
-		this.message =  gson.toJson(message);
+//		setType(message.getType());
+//		Gson gson = new Gson();
+//		this.message =  gson.toJson(message);
+		this.message = message;
 	}
 	
 	public String getVersion() {

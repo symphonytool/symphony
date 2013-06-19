@@ -1,5 +1,10 @@
 package eu.compassresearch.core.interpreter.debug;
 
+/**
+ * Possible debugging commands
+ * @author akm
+ *
+ */
 public enum CmlDebugCommand {
 
 	START,

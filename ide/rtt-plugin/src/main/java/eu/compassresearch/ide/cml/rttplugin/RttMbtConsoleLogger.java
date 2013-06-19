@@ -1,30 +1,46 @@
 package eu.compassresearch.ide.cml.rttplugin;
 
+import org.eclipse.swt.widgets.Display;
+
 import eu.compassresearch.rttMbtTmsClientApi.IRttMbtLoggingFacility;
 
 public class RttMbtConsoleLogger implements IRttMbtLoggingFacility {
 
 	org.eclipse.swt.widgets.Text console;
-	
+
+	// Get UISynchronize injected as field
+
 	@Override
 	public void addLogMessage(String consoleName, String msg) {
-		if (console != null) {
-			console.append("[" + consoleName + "]: " + msg);
-		} else {
-			System.out.println("[" + consoleName + "]: " + msg);
-		}
-		console.redraw();
-		console.update();
+		final String line = "[" + consoleName + "]: " + msg;
+		Display.getDefault().syncExec(new Runnable() {
+		      @Override
+		      public void run() {
+		  		if (console != null) {
+					console.append(line);
+				} else {
+					System.out.println(line);
+				}
+				console.redraw();
+				console.update();
+		      }
+	    });
 	}
 
 	public void addErrorMessage(String consoleName, String msg) {
-		if (console != null) {
-			console.insert("[" + consoleName + "]: " + "*** error: " + msg);
-		} else {
-			System.err.println("[" + consoleName + "]: " + msg);
-		}
-		console.redraw();
-		console.update();
+		final String line = "[" + consoleName + "]: " + "*** error: " + msg;
+		Display.getDefault().syncExec(new Runnable() {
+		      @Override
+		      public void run() {
+		  		if (console != null) {
+					console.insert(line);
+				} else {
+					System.err.println(line);
+				}
+				console.redraw();
+				console.update();
+		      }
+		});
 	}
 
 	public void setConsole(org.eclipse.swt.widgets.Text c) {

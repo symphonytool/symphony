@@ -7,6 +7,8 @@ public class CmlDbgCommandMessage extends Message {
 
 	protected CmlDebugCommand command;
 	
+	protected CmlDbgCommandMessage(){}
+	
 	public CmlDbgCommandMessage(CmlDebugCommand command)
 	{
 		setCommand(command);

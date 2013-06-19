@@ -7,7 +7,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 import org.eclipse.core.resources.IFile;
@@ -20,8 +22,11 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.TreeEditor;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
@@ -34,12 +39,20 @@ import org.eclipse.ui.part.EditorPart;
 
 public class RttMbtConfigEditor extends EditorPart {
 
+	private enum state_t {
+		Checked,
+		Grayed,
+	    Unchecked,
+	    Undefined
+	}
+
 	// widget to display the data
 	private Tree treeView;
 	
 	// table to display the data
 	private int columns;
 	private List<List<TreeEditor>> editors;
+	private Map<TreeItem,List<TreeEditor>> items2editors;
 	private List<String[]> fileContent;
 	private List<String> headerLine;
 	
@@ -50,27 +63,176 @@ public class RttMbtConfigEditor extends EditorPart {
 	private File output;
 	private IFile iFile;
 	
-	private void notifyChanged(SelectionEvent e) {
-		/*
-		if ((e != null) && (e.item instanceof TreeItem)) {
-			// get item
-			TreeItem item = (TreeItem) e.item;
-			while (item != null) {
-				System.out.print(item.getText() + "<-");
-				try {
-					item = item.getParentItem();
-				}
-				catch(SWTException x) {
-					item = null;
-					System.out.print("\n");
-				}
-			}
-		}
-		*/
+	private void notifyChanged(SelectionEvent e, TreeItem item, int column) {
+		// propagate item state to parents and children
+		propagateSelectionChange(item, column);
 		// fire property dirty event
 		firePropertyChange(IWorkbenchPartConstants.PROP_DIRTY);
 	}
 
+	// get the state of the item
+	private state_t getItemState(TreeItem item, int column) {
+		state_t state = state_t.Undefined;
+		// get editor for this item
+		List<TreeEditor> lineEditors = items2editors.get(item);
+		TreeEditor edit = lineEditors.get(column);
+		Button checkBox = (Button) edit.getEditor();
+		boolean grayed = checkBox.getGrayed();
+		boolean checked = checkBox.getSelection();
+		
+		// debug output
+		System.out.print(item.getText() + ", column #" + column + ", ");
+		if (checked && !grayed) {
+			System.out.print( "checked");
+			state = state_t.Checked;
+		}
+		if (grayed) {
+			System.out.print("greyed");
+			state = state_t.Grayed;
+		}
+		if (!checked && !grayed) {
+			System.out.print("unchecked");
+			state = state_t.Unchecked;
+		}
+		System.out.print("\n");
+		return state;
+	}
+
+	private void setItemState(TreeItem item, int column, state_t state) {
+		// get editor for this item
+		List<TreeEditor> lineEditors = items2editors.get(item);
+		TreeEditor edit = lineEditors.get(column);
+		Button checkBox = (Button) edit.getEditor();
+		switch(state) {
+		case Checked:
+			System.out.println("set item " + item.getText() + " checked");
+			checkBox.setGrayed(false);
+			checkBox.setSelection(true);
+			break;
+		case Unchecked:
+			System.out.println("set item " + item.getText() + " unchecked");
+			checkBox.setGrayed(false);
+			checkBox.setSelection(false);
+			break;
+		case Grayed:
+			System.out.println("set item " + item.getText() + " grayed");
+			checkBox.setSelection(true);
+			checkBox.setGrayed(true);
+			break;
+		case Undefined:
+			break;
+		}
+	}
+
+	private void updateSomeChildItemsChecked(TreeItem item, int column) {
+		if (item == null) return;
+		TreeItem[] children = item.getItems();
+		if (children.length == 0) return;
+		Boolean allChecked = true;
+		Boolean noneChecked = true;
+		for (int cidx = 0; cidx < children.length; cidx++) {
+			// recursively update state for child item
+			updateSomeChildItemsChecked(children[cidx], column);
+			state_t state = getItemState(children[cidx], column);
+			if (state == state_t.Checked) {
+				noneChecked = false;
+			} else if (state == state_t.Grayed) {
+				noneChecked = false;
+				allChecked = false;
+			} else {
+				allChecked = false;
+			}
+		}
+		if (allChecked) {
+			System.out.println("all siblings checked");
+			setItemState(item, column, state_t.Checked);
+		} else if (noneChecked) {
+			System.out.println("all siblings unchecked");
+			setItemState(item, column, state_t.Unchecked);
+		} else {
+			System.out.println("some siblings checked");
+			setItemState(item, column, state_t.Grayed);
+		}
+	}
+	
+	// propagate to parents
+	private void propagateSelectionChangeToParents(TreeItem item, int column) {
+		if (item == null) {
+			return;
+		}
+		// propagate to parent
+		TreeItem parent = item.getParentItem();
+		if (parent == null) {
+			return;
+		}
+
+		TreeItem[] children = null;
+		children = parent.getItems();
+		System.out.println("parent " + parent.getText() + " has " + children.length + " child items");
+		// check if all children are checked -> parent = checked
+		// check if some children are checked -> parent = grayed
+		// parent = unchecked, otherwise
+		Boolean allChecked = true;
+		Boolean noneChecked = true;
+		for (int cidx = 0;
+				cidx < children.length && (allChecked || noneChecked);
+				cidx++) {
+			state_t state = getItemState(children[cidx], column);
+			if (state == state_t.Checked) {
+				noneChecked = false;
+			} else if (state == state_t.Grayed) {
+				noneChecked = false;
+				allChecked = false;
+			} else {
+				allChecked = false;
+			}
+		}
+		if (allChecked) {
+			System.out.println("all siblings checked");
+			setItemState(parent, column, state_t.Checked);
+		} else if (noneChecked) {
+			System.out.println("all siblings unchecked");
+			setItemState(parent, column, state_t.Unchecked);
+		} else {
+			System.out.println("some siblings checked");
+			setItemState(parent, column, state_t.Grayed);
+		}
+		// recursively propagate to parent of this parent item
+		propagateSelectionChangeToParents(parent, column);
+	}
+
+	private void propagateSelectionChangeToChildren(TreeItem item, int column) {
+		// propagate to children
+		state_t itemState = getItemState(item, column);
+		TreeItem[] children = item.getItems();
+		// if checked -> set all children checked
+		// if not checked -> set all children unchecked
+		// if grayed -> do nothing
+		if (itemState == state_t.Checked || itemState == state_t.Unchecked) {
+			for (int cidx = 0; cidx < children.length; cidx++) {
+				setItemState(children[cidx], column, itemState);
+				propagateSelectionChangeToChildren(children[cidx], column);
+			}
+		}
+	}
+	// propagate the new state of a tree item to its parents or children
+	private void propagateSelectionChange(TreeItem item, int column) {
+		if (item != null) {
+
+			// if a state changes from unchecked to grayed, it should change to selected
+			state_t itemState = getItemState(item, column);
+			if (itemState == state_t.Grayed) itemState = state_t.Checked;
+			setItemState(item, column, itemState);
+
+			// propagate to parent
+			propagateSelectionChangeToParents(item, column);
+			
+			// propagate to children
+			propagateSelectionChangeToChildren(item, column);
+
+		}
+	}
+	
 	// generate tree view and fill it with the content from the csv file
 	@Override
 	public void createPartControl(Composite parent) {
@@ -105,8 +267,10 @@ public class RttMbtConfigEditor extends EditorPart {
 		// initialise content.
 		List<TreeItem> parents = new ArrayList<TreeItem>();
 		editors = new ArrayList<List<TreeEditor>>();
+		items2editors = new HashMap<TreeItem,List<TreeEditor>>();
 		fileContent = new ArrayList<String[]>();
 		TreeItem lastParent = null;
+		TreeItem rootItem = null;
 		while (fileScanner.hasNextLine()) {
 			line = new Scanner(fileScanner.nextLine());
 			line.useDelimiter(";");
@@ -119,6 +283,7 @@ public class RttMbtConfigEditor extends EditorPart {
 				idx++;
 			}
 			if (idx < columns) continue;
+
 			// store line for saving later
 			fileContent.add(cells);
 
@@ -128,6 +293,7 @@ public class RttMbtConfigEditor extends EditorPart {
 				item = new TreeItem(treeView, SWT.NONE);
 				parents.add(item);
 				lastParent = item;
+				rootItem = item;
 			} else {
 				String condAction = cells[6];
 				if (condAction.compareTo("-") != 0) {
@@ -157,6 +323,11 @@ public class RttMbtConfigEditor extends EditorPart {
 				}
 			}
 
+			// set background to green if covered
+			if (cells[0].compareTo("X") == 0) {
+				item.setBackground(new Color(Display.getDefault(), new RGB(0,255,0)));
+			}
+
 			// fill content of item
 			List<TreeEditor> itemEditors = new ArrayList<TreeEditor>();
 			for (int column = 0; column < headers.length; column++) {
@@ -168,6 +339,8 @@ public class RttMbtConfigEditor extends EditorPart {
 				if (column < 3) {
 					item.setText(column, text);					
 				} else {
+					final TreeItem checkItem = item;
+					final int checkColumn = column - 3;
 					TreeEditor editor = new TreeEditor(treeView);
 					editor.horizontalAlignment = SWT.LEFT;
 					editor.minimumWidth = 15;
@@ -176,10 +349,10 @@ public class RttMbtConfigEditor extends EditorPart {
 				    cellEditor.setBackground(item.getBackground());
 				    cellEditor.addSelectionListener(new SelectionListener() {
 						@Override
-						public void widgetSelected(SelectionEvent e) { notifyChanged(e); }
+						public void widgetSelected(SelectionEvent e) { notifyChanged(e, checkItem, checkColumn); }
 
 						@Override
-						public void widgetDefaultSelected(SelectionEvent e) { notifyChanged(e); }
+						public void widgetDefaultSelected(SelectionEvent e) { notifyChanged(e, checkItem, checkColumn); }
 						});
 				    editor.setEditor(cellEditor, item, column);
 				    itemEditors.add(editor);
@@ -187,7 +360,11 @@ public class RttMbtConfigEditor extends EditorPart {
 				treeView.getColumn(column).pack();
 			}
 			editors.add(itemEditors);
+			items2editors.put(item, itemEditors);
 			line.close();
+		}
+		for (int colIndex = 0; colIndex < (headers.length - 3); colIndex++) {
+			updateSomeChildItemsChecked(rootItem, colIndex);			
 		}
 
 		// expand all items
@@ -259,13 +436,14 @@ public class RttMbtConfigEditor extends EditorPart {
 					String content = line[idx];
 					if (csvIdx2TreeColumn(idx) >= 3) {
 						// compare content
-						boolean checked = content.compareTo("X") == 0;
+						boolean wasChecked = content.compareTo("X") == 0;
 						int eIdx = csvIdx2TreeColumn(idx) - 3;
 						TreeEditor edit = lineEditors.get(eIdx);
 						Button checkBox = (Button) edit.getEditor();
-						if (checkBox.getSelection() != checked) {
+						boolean isChecked = (checkBox.getSelection() && (!checkBox.getGrayed()));
+						if (isChecked != wasChecked) {
 							// set file content according to check box
-							if (checkBox.getSelection()) {
+							if (isChecked) {
 								line[idx] = "X";
 							} else {
 								line[idx] = "-";							
@@ -287,7 +465,7 @@ public class RttMbtConfigEditor extends EditorPart {
 		}
 
 		// notify that content has changed (saved)
-    	notifyChanged(null);
+    	notifyChanged(null, null, -1);
     	try {
 			iFile.refreshLocal(IResource.DEPTH_ZERO, null);
 		} catch (CoreException e) {
@@ -349,11 +527,12 @@ public class RttMbtConfigEditor extends EditorPart {
 				String content = line[idx];
 				if (csvIdx2TreeColumn(idx) >= 3) {
 					// compare content
-					boolean checked = content.compareTo("X") == 0;
+					boolean wasChecked = content.compareTo("X") == 0;
 					int eIdx = csvIdx2TreeColumn(idx) - 3;
 					TreeEditor edit = lineEditors.get(eIdx);
 					Button checkBox = (Button) edit.getEditor();
-					if (checkBox.getSelection() != checked) {
+					boolean isChecked = (checkBox.getSelection() && (!checkBox.getGrayed()));
+					if (isChecked != wasChecked) {
 						return true;
 					}
 				}

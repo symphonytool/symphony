@@ -9,4 +9,48 @@
 
   -->
   
+     <extension
+         point="org.eclipse.ui.actionSets">
+      <actionSet
+            id="eu.compassresearch.ide.cml.ui.actionSet"
+            label="Theorem Prover Basic Action Set"
+            visible="true">
+
+         <action
+               class="eu.compassresearch.ide.cml.tpplugin.TPBasicAction"
+               icon="icons/thy_action.png"
+               id="eu.compassresearch.ide.cml.tpplugin.TPBasicAction"
+               label="&amp;THY"
+               toolbarPath="THYGroup"
+               tooltip="Generate THYs for open file">
+         </action>
+      </actionSet>
+   </extension>
+  
+  
+  <extension
+      point="org.eclipse.ui.commands">
+   <command
+         defaultHandler="eu.compassresearch.ide.cml.tpplugin.DischargePosHandler"
+         id="eu.compassresearch.ide.tpplugin.dischargepos"
+         name="DischargePOs">
+   </command>
+</extension>
+  
+  
+  <extension
+      point="org.eclipse.ui.menus">
+   <menuContribution
+         allPopups="false"
+         locationURI="toolbar:eu.compassresearch.ide.pogplugin.POsTable">
+      <command
+            commandId="eu.compassresearch.ide.tpplugin.dischargepos"
+            icon="icons/tp.png"
+            label="Discharge"
+            style="push"
+            tooltip="Send POs to Theorem Prover">
+      </command>
+   </menuContribution>
+</extension>
+  
 </plugin>

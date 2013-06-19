@@ -25,7 +25,7 @@
   <extension point="org.eclipse.ui.views">
     <view 
         id="eu.compassresearch.ide.cml.interpreter.historyView"
-        name="CML Event History"
+        name="Observable Event History"
         category="eu.compassresearch.ide.ui.category"
         
         class="eu.compassresearch.ide.cml.interpreter.views.CmlEventHistoryView" />
@@ -42,8 +42,17 @@
         id="eu.compassresearch.ide.cml.interpreter.launchConfigurationType"
         modes="debug,run"
         name="CML Model"
-        public="true">
+        public="true"
+        sourceLocatorId="eu.compassresearch.ide.cml.interpreter.sourceLookupDirector">
 		</launchConfigurationType>
+	</extension>
+	
+	<extension point="org.eclipse.debug.core.sourceLocators">
+		<sourceLocator
+	       name="CML Source Lookup Director"
+	    class="eu.compassresearch.ide.cml.interpreter.launch.CmlSourceLookupDirector"
+	    id="eu.compassresearch.ide.cml.interpreter.sourceLookupDirector">
+	    </sourceLocator>
 	</extension>
 	
 	<!-- Add the launch config group to the launch dialog -->

@@ -32,6 +32,7 @@ import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.GlobalEnvironmentBuilder;
 import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
+import eu.compassresearch.ide.cml.ui.editor.core.dom.ICmlSourceUnit;
 
 public final class CmlUtil {
 
@@ -74,9 +75,11 @@ public final class CmlUtil {
 			{
 				if(res instanceof IFile && ((IFile)res).getFileExtension().toLowerCase().equals("cml"))
 				{
-					PSource source = CmlSourceUnit.getFromFileResource((IFile)res).getSourceAst();
-					if(source != null)
-						sources.add(source);
+					ICmlSourceUnit source = (ICmlSourceUnit)((IFile)res).getAdapter(ICmlSourceUnit.class);
+					PSource ast = source.getSourceAst();
+					
+					if(ast != null)
+						sources.add(ast);
 				}
 			}
 		} catch (CoreException e) {
@@ -95,9 +98,10 @@ public final class CmlUtil {
 			{
 				if(res instanceof IFile && ((IFile)res).getFileExtension().toLowerCase().equals("cml"))
 				{
-					PSource source = CmlSourceUnit.getFromFileResource((IFile)res).getSourceAst();
-					if(source != null && source instanceof AFileSource)
-						sources.add(((AFileSource)source).getFile().getCanonicalPath());
+					ICmlSourceUnit source = (ICmlSourceUnit)((IFile)res).getAdapter(ICmlSourceUnit.class);
+					PSource ast = source.getSourceAst();
+					if(ast != null && ast instanceof AFileSource)
+						sources.add(((AFileSource)ast).getFile().getCanonicalPath());
 				}
 			}
 		} catch (CoreException e) {

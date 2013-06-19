@@ -4,8 +4,19 @@ import org.overture.ide.ui.wizard.VdmNewFileWizard;
 
 public class NewCmlClassWizard extends VdmNewFileWizard
   {
+	
     
     @Override
+	public boolean performFinish() {
+		// TODO Auto-generated method stub
+		boolean parentok = super.performFinish();
+		
+		
+		
+		return parentok;
+	}
+
+	@Override
     protected String getPageDescription()
       {
         return "Choose new CML Class name and location";
