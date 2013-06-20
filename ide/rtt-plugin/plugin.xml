@@ -438,6 +438,15 @@
                   style="push"
                   tooltip="Delete Directory/File locally and from RTT-MBT Server">
             </command>
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="eu.compassresearch.ide.cml.rtt-plugin.IsRttPerspectiveActive">
+                  <equals
+                        value="truumpel">
+                  </equals>
+               </with>
+            </visibleWhen>
          </menu>
       </menuContribution>
       <menuContribution
@@ -468,6 +477,14 @@
                   label="Import Model"
                   style="push"
                   tooltip="Imports the XMI representation of a model into the selected RTT-MBT project">
+               <visibleWhen>
+                  <with
+                        variable="eu.compassresearch.ide.cml.rtt-plugin.IsRttPerspectiveActive">
+                     <equals
+                           value="truumpel">
+                     </equals>
+                  </with>
+               </visibleWhen>
             </command>
             <command
                   commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtCheckModel"
@@ -475,6 +492,14 @@
                   label="Check Model"
                   style="push"
                   tooltip="Perform Livelock Check on the model of this RTT-MBT Project">
+               <visibleWhen>
+                  <with
+                        variable="eu.compassresearch.ide.cml.rtt-plugin.IsRttPerspectiveActive">
+                     <equals
+                           value="truumpel">
+                     </equals>
+                  </with>
+               </visibleWhen>
             </command>
             <command
                   commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtCleanProject"
@@ -482,6 +507,14 @@
                   label="Clean Project"
                   style="push"
                   tooltip="Cleanup Project">
+               <visibleWhen>
+                  <with
+                        variable="eu.compassresearch.ide.cml.rtt-plugin.IsRttPerspectiveActive">
+                     <equals
+                           value="truumpel">
+                     </equals>
+                  </with>
+               </visibleWhen>
             </command>
             <separator
                   name="eu.compassresearch.ide.cml.rttplugin.separator-002"
@@ -493,6 +526,14 @@
                   label="Generate Test"
                   style="push"
                   tooltip="Generate Test Procedure for this Generation Context">
+               <visibleWhen>
+                  <with
+                        variable="eu.compassresearch.ide.cml.rtt-plugin.IsRttPerspectiveActive">
+                     <equals
+                           value="truumpel">
+                     </equals>
+                  </with>
+               </visibleWhen>
             </command>
             <command
                   commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtGenerateSimulation"
@@ -500,6 +541,14 @@
                   label="Generate Simulation"
                   style="push"
                   tooltip="Generate Simulation for this Generation Context">
+               <visibleWhen>
+                  <with
+                        variable="eu.compassresearch.ide.cml.rtt-plugin.IsRttPerspectiveActive">
+                     <equals
+                           value="truumpel">
+                     </equals>
+                  </with>
+               </visibleWhen>
             </command>
             <separator
                   name="eu.compassresearch.ide.cml.rttplugin.separator-003"
@@ -511,6 +560,14 @@
                   label="Clean Test"
                   style="push"
                   tooltip="Clean Test Procedure">
+               <visibleWhen>
+                  <with
+                        variable="eu.compassresearch.ide.cml.rtt-plugin.IsRttPerspectiveActive">
+                     <equals
+                           value="truumpel">
+                     </equals>
+                  </with>
+               </visibleWhen>
             </command>
             <command
                   commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtCompileTest"
@@ -518,6 +575,14 @@
                   label="Compile Test"
                   style="push"
                   tooltip="Compile Test Procedure">
+               <visibleWhen>
+                  <with
+                        variable="eu.compassresearch.ide.cml.rtt-plugin.IsRttPerspectiveActive">
+                     <equals
+                           value="truumpel">
+                     </equals>
+                  </with>
+               </visibleWhen>
             </command>
             <command
                   commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtRunTest"
@@ -525,6 +590,14 @@
                   label="Run Test"
                   style="push"
                   tooltip="Execute Test Procedure">
+               <visibleWhen>
+                  <with
+                        variable="eu.compassresearch.ide.cml.rtt-plugin.IsRttPerspectiveActive">
+                     <equals
+                           value="truumpel">
+                     </equals>
+                  </with>
+               </visibleWhen>
             </command>
             <command
                   commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtReplayTest"
@@ -532,6 +605,14 @@
                   label="Replay Test Result"
                   style="push"
                   tooltip="Replay Test Result against the Model">
+               <visibleWhen>
+                  <with
+                        variable="eu.compassresearch.ide.cml.rtt-plugin.IsRttPerspectiveActive">
+                     <equals
+                           value="truumpel">
+                     </equals>
+                  </with>
+               </visibleWhen>
             </command>
             <command
                   commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtDocTest"
@@ -539,6 +620,14 @@
                   label="Generate Test Documentation"
                   style="push"
                   tooltip="Generate Test Procedure Documentation">
+               <visibleWhen>
+                  <with
+                        variable="eu.compassresearch.ide.cml.rtt-plugin.IsRttPerspectiveActive">
+                     <equals
+                           value="truumpel">
+                     </equals>
+                  </with>
+               </visibleWhen>
             </command>
             <separator
                   name="eu.compassresearch.ide.cml.rttplugin.separator-004"
@@ -550,6 +639,14 @@
                   label="Abort Current task"
                   style="push"
                   tooltip="Abort Current task">
+               <visibleWhen>
+                  <with
+                        variable="eu.compassresearch.ide.cml.rtt-plugin.IsRttPerspectiveActive">
+                     <equals
+                           value="truumpel">
+                     </equals>
+                  </with>
+               </visibleWhen>
             </command>
             <command
                   commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtPushToServer"
@@ -557,6 +654,14 @@
                   label="Push to Server"
                   style="push"
                   tooltip="Send File(s) to RTT-MBT server">
+               <visibleWhen>
+                  <with
+                        variable="eu.compassresearch.ide.cml.rtt-plugin.IsRttPerspectiveActive">
+                     <equals
+                           value="truumpel">
+                     </equals>
+                  </with>
+               </visibleWhen>
             </command>
             <command
                   commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtPullFromServer"
@@ -564,6 +669,14 @@
                   label="Pull from Server"
                   style="push"
                   tooltip="Retrieve Files/Directories from RTT-MBT server">
+               <visibleWhen>
+                  <with
+                        variable="eu.compassresearch.ide.cml.rtt-plugin.IsRttPerspectiveActive">
+                     <equals
+                           value="truumpel">
+                     </equals>
+                  </with>
+               </visibleWhen>
             </command>
             <command
                   commandId="eu.compassresearch.ide.cml.rttplugin.DeleteLocalAndServer"
@@ -571,10 +684,15 @@
                   label="Delete RTT-MBT Resource"
                   style="push"
                   tooltip="Delete Directory/File locally and from RTT-MBT Server">
+               <visibleWhen>
+                  <with
+                        variable="eu.compassresearch.ide.cml.rtt-plugin.IsRttPerspectiveActive">
+                     <equals
+                           value="truumpel">
+                     </equals>
+                  </with>
+               </visibleWhen>
             </command>
-            <visibleWhen
-                  checkEnabled="true">
-            </visibleWhen>
          </toolbar>
       </menuContribution>
       <menuContribution
@@ -620,6 +738,15 @@
                   style="push"
                   tooltip="Delete Directory/File locally and from RTT-MBT Server">
             </command>
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="eu.compassresearch.ide.cml.rtt-plugin.IsRttPerspectiveActive">
+                  <equals
+                        value="truumpel">
+                  </equals>
+               </with>
+            </visibleWhen>
          </menu>
       </menuContribution>
       <menuContribution
@@ -649,6 +776,15 @@
                   style="push"
                   tooltip="Cleanup Project">
             </command>
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="eu.compassresearch.ide.cml.rtt-plugin.IsRttPerspectiveActive">
+                  <equals
+                        value="truumpel">
+                  </equals>
+               </with>
+            </visibleWhen>
          </menu>
       </menuContribution>
       <menuContribution
@@ -673,12 +809,20 @@
             </command>
             <visibleWhen
                   checkEnabled="false">
-               <with
-                     variable="eu.compassresearch.ide.cml.rtt-plugin.IsGenerationContextTP">
-                  <equals
-                        value="truumpel">
-                  </equals>
-               </with>
+               <and>
+                  <with
+                        variable="eu.compassresearch.ide.cml.rtt-plugin.IsRttPerspectiveActive">
+                     <equals
+                           value="truumpel">
+                     </equals>
+                  </with>
+                  <with
+                        variable="eu.compassresearch.ide.cml.rtt-plugin.IsGenerationContextTP">
+                     <equals
+                           value="truumpel">
+                     </equals>
+                  </with>
+               </and>
             </visibleWhen>
          </menu>
       </menuContribution>
@@ -725,12 +869,20 @@
             </command>
             <visibleWhen
                   checkEnabled="false">
-               <with
-                     variable="eu.compassresearch.ide.cml.rtt-plugin.IsExecutionContextTP">
-                  <equals
-                        value="truumpel">
-                  </equals>
-               </with>
+               <and>
+                  <with
+                        variable="eu.compassresearch.ide.cml.rtt-plugin.IsRttPerspectiveActive">
+                     <equals
+                           value="truumpel">
+                     </equals>
+                  </with>
+                  <with
+                        variable="eu.compassresearch.ide.cml.rtt-plugin.IsExecutionContextTP">
+                     <equals
+                           value="truumpel">
+                     </equals>
+                  </with>
+               </and>
             </visibleWhen>
          </menu>
       </menuContribution>
@@ -780,6 +932,14 @@
             provider="eu.compassresearch.ide.cml.rttplugin.RttMbtCommandState">
          <variable
                name="eu.compassresearch.ide.cml.rtt-plugin.IsGenerationContextTP"
+               priorityLevel="workbench">
+         </variable>
+         <variable
+               name="eu.compassresearch.ide.cml.rtt-plugin.IsExecutionContextTP"
+               priorityLevel="workbench">
+         </variable>
+         <variable
+               name="eu.compassresearch.ide.cml.rtt-plugin.IsRttPerspectiveActive"
                priorityLevel="workbench">
          </variable>
       </sourceProvider>

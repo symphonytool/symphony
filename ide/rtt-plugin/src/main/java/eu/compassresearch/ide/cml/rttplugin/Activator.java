@@ -1,7 +1,9 @@
 package eu.compassresearch.ide.cml.rttplugin;
 
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -62,15 +64,32 @@ public class Activator implements BundleActivator
     	client.setMode(store.getString("ClientMode"));
     	client.setVerboseLogging(store.getBoolean("RttMbtLogVerbose"));
     	client.setExtraFiles(store.getBoolean("RttMbtExtraFiles"));
-      }
+    	
+    	// Add the listener once the workbench is fully started
+    	Display.getDefault().asyncExec(new Runnable() {
+    	    @Override
+    	    public void run() {
+    	        // wait until the workbench has been initialized
+    	        if (PlatformUI.getWorkbench().isStarting()) {
+        	        // if the workbench is still starting, reschedule the execution
+    	            Display.getDefault().timerExec(1000, this);
+    	        } else { 
+    	            // the workbench finished the initialization process 
+    	            IWorkbenchWindow workbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+    	            RttMbtPerspectiveAdapter perspectiveListener = new RttMbtPerspectiveAdapter();
+    	            workbenchWindow.addPerspectiveListener(perspectiveListener);
+    	 
+    	            // update the PerspectiveListener with the current perspective
+    	            perspectiveListener.perspectiveActivated(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(),
+    	                                                     PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getPerspective());
+    	        }
+    	    }
+    	});
+    }
     
     @Override
     public void stop(BundleContext arg0) throws Exception
       {
-        /*
-         * 
-         * Do what needs to be done for tearing down this plug-in
-         */
 
     	// store settings
     	
