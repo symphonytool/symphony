@@ -78,7 +78,7 @@ public class RttMbtClient {
 	
 	public void addLogMessage(String msg) {
 		if (log != null) {
-			log.addLogMessage(consoleName, msg);
+			log.addLogMessage(consoleName, msg + "\n");
 		} else {
 			System.out.println("[" + consoleName + "]:" + msg);
 		}
@@ -169,7 +169,7 @@ public class RttMbtClient {
 
 		// assert that server workspace exists
 		if (!checkServerWorkspace()) {
-			addErrorMessage("*** error: server working area does not exist an cannot be created!\n");
+			addErrorMessage("*** error: server working area does not exist an cannot be created!");
 			return false;
 		}
 		
@@ -295,7 +295,7 @@ public class RttMbtClient {
 		cmd.executeCommand();
 		success = cmd.executedSuccessfully();
 		if (!success) {
-			addErrorMessage("[FAIL]: retrieveing file list for directory '" + directory + "' failed!\n");
+			addErrorMessage("[FAIL]: retrieveing file list for directory '" + directory + "' failed!");
 			return success;
 		}
 
@@ -376,7 +376,7 @@ public class RttMbtClient {
 		cmd.executeCommand();
 		success = cmd.executedSuccessfully();
 		if (!success) {
-			addErrorMessage("[FAIL]: removing file or directory '" + filename + "' from cache failed!\n");
+			addErrorMessage("[FAIL]: removing file or directory '" + filename + "' from cache failed!");
 		}
 		return success;
 	}
@@ -473,10 +473,10 @@ public class RttMbtClient {
 		storeModel.setModelFile(modelFile);
 		storeModel.executeCommand();
 		if (!storeModel.executedSuccessfully()) {
-			addErrorMessage("[FAIL]: unable to store model file '" + modelFile + "' on RTT-MBT server!\n");
+			addErrorMessage("[FAIL]: unable to store model file '" + modelFile + "' on RTT-MBT server!");
 			return false;
 		} else {
-			addLogMessage("[PASS]: model file '" + modelFile + "' stored on RTT-MBT server!\n");
+			addLogMessage("[PASS]: model file '" + modelFile + "' stored on RTT-MBT server!");
 		}
 
 		// perform live lock check
@@ -589,7 +589,7 @@ public class RttMbtClient {
 		}
 		success = unzipArchive(archive.getPath(), testProcs.getPath());
 		if (!success) {
-			addErrorMessage("[FAIL]: unpacking of template test procedure _P1 failed!\n");
+			addErrorMessage("[FAIL]: unpacking of template test procedure _P1 failed!");
 			return false;
 		}
 
