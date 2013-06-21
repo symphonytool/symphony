@@ -31,17 +31,18 @@ public class RttMbtComponentWizard extends BasicNewFolderResourceWizard {
 			// pass workspace and cml project information to client
 			client.setCmlWorkspace(workspaceDirectory.getAbsolutePath());
 			client.setCmlProject(project.getFullPath().toString());
-			client.addLogMessage("projectWorkingDir: '"
-					+ client.getCmlWorkspace() + client.getCmlProject() + "'\n");
 
 			// test connection to rtt-mbt-tms server
 			if (client.testConenction()) {
-				client.addLogMessage("[PASS]: test RTT-MBT server connection\n");
+				if (client.getVerboseLogging()) {
+					client.addLogMessage("[PASS]: test RTT-MBT server connection");
+				}
 			} else {
-				client.addErrorMessage("[FAIL]: test RTT-MBT server connection\n");
+				client.addErrorMessage("[FAIL]: test RTT-MBT server connection");
 				client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 				return false;
 			}
+			client.setProgress(IRttMbtProgressBar.Tasks.Global, 10);
 
 			// create folder
 			WizardNewFolderMainPage newFolderPage = (WizardNewFolderMainPage) getPages()[0];
@@ -49,30 +50,35 @@ public class RttMbtComponentWizard extends BasicNewFolderResourceWizard {
 
 			// get folder name
 			String projectName = newFolder.getName();
+			client.addLogMessage("creating RTT-MBT project " + projectName + "... please wait for the task to be finished.");
 
 			// start RTT-MBT-TMS session
 			if (client.beginRttMbtSession()) {
-				client.addLogMessage("[PASS]: begin RTT-MBT session\n");
+				if (client.getVerboseLogging()) {
+					client.addLogMessage("[PASS]: begin RTT-MBT session");
+				}
 			} else {
-				client.addErrorMessage("[FAIL]: begin RTT-MBT session\n");
+				client.addErrorMessage("[FAIL]: begin RTT-MBT session");
 				client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 				return false;
 			}
+			client.setProgress(IRttMbtProgressBar.Tasks.Global, 15);
 
 			// download templates
 			if (client.downloadDirectory("templates")) {
-				client.addLogMessage("[PASS]: downloading templates\n");
+				client.addLogMessage("[PASS]: downloading templates");
+				client.setProgress(IRttMbtProgressBar.Tasks.Global, 75);
 			} else {
-				client.addErrorMessage("[FAIL]: downloading templates\n");
+				client.addErrorMessage("[FAIL]: downloading templates");
 				client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 				return false;
 			}
 
 			// create/select a new project
 			if (client.createProject(projectName)) {
-				client.addLogMessage("[PASS]: create initial project structure\n");
+				client.addLogMessage("[PASS]: create initial project structure");
 			} else {
-				client.addErrorMessage("[FAIL]: create initial project structure\n");
+				client.addErrorMessage("[FAIL]: create initial project structure");
 				client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 				return false;
 			}

@@ -11,8 +11,7 @@ import org.osgi.framework.BundleContext;
 import eu.compassresearch.rttMbtTmsClientApi.IRttMbtProgressBar;
 import eu.compassresearch.rttMbtTmsClientApi.RttMbtClient;
 
-public class Activator implements BundleActivator
-  {
+public class Activator implements BundleActivator {
 
 	// RTT-MBT client attribute
 	static private RttMbtClient client;

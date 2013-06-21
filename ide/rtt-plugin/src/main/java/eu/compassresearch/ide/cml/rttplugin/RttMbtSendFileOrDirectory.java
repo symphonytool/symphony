@@ -17,14 +17,14 @@ public class RttMbtSendFileOrDirectory extends RttMbtPopupMenuAction {
 		// get selected object
 		client.setProgress(IRttMbtProgressBar.Tasks.ALL, 0);
 		if (!getSelectedObject(event)) {
-			client.addErrorMessage("[FAIL]: Add Directory/File to RTT-MBT Server Work Area: Please select a file or directory!\n");
+			client.addErrorMessage("[FAIL]: Add Directory/File to RTT-MBT Server Work Area: Please select a file or directory!");
 			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 			return null;
 		}
 		
 		// get RttMbtClient for this action
 		if (!initClient(selectedObjectPath)) {
-			client.addErrorMessage("[FAIL]: Add Directory/File to RTT-MBT Server Work Area: init of RTT-MBT client failed!\n");
+			client.addErrorMessage("[FAIL]: Add Directory/File to RTT-MBT Server Work Area: init of RTT-MBT client failed!");
 			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 			return null;
 		}
@@ -36,7 +36,7 @@ public class RttMbtSendFileOrDirectory extends RttMbtPopupMenuAction {
 				Boolean success;
 				File item = new File(client.getCmlWorkspace() + selectedObjectPath);
 				if (!item.exists()) {
-					client.addErrorMessage("[FAIL]: Add Directory/File to RTT-MBT Server Work Area: file or directory '" + item.getAbsolutePath() + "' does not exist!\n");
+					client.addErrorMessage("[FAIL]: Add Directory/File to RTT-MBT Server Work Area: file or directory '" + item.getAbsolutePath() + "' does not exist!");
 					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 					return Status.OK_STATUS;
 				}
@@ -47,16 +47,16 @@ public class RttMbtSendFileOrDirectory extends RttMbtPopupMenuAction {
 				} else if (item.isFile()) {
 					success = client.uploadFile(item.getAbsolutePath());			
 				} else {
-					client.addErrorMessage("[FAIL]: Add Directory/File to RTT-MBT Server Work Area: selection is not a file or directory!\n");
+					client.addErrorMessage("[FAIL]: Add Directory/File to RTT-MBT Server Work Area: selection is not a file or directory!");
 					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 					return Status.OK_STATUS;
 				}
 
 				if (success) {
-					client.addLogMessage("[PASS]: Add Directory/File to RTT-MBT Server Work Area!\n");			
+					client.addLogMessage("[PASS]: Add Directory/File to RTT-MBT Server Work Area!");			
 					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 				} else {			
-					client.addErrorMessage("[FAIL]: Add Directory/File to RTT-MBT Server Work Area!\n");			
+					client.addErrorMessage("[FAIL]: Add Directory/File to RTT-MBT Server Work Area!");			
 					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 				}
 				return Status.OK_STATUS;
