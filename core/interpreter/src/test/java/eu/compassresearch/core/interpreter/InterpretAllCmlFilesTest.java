@@ -11,6 +11,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
 import java.util.logging.Level;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import junit.framework.Assert;
 
@@ -26,13 +28,9 @@ import org.overture.ast.analysis.AnalysisException;
 
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.PSource;
-import eu.compassresearch.core.interpreter.CmlParserUtil;
-import eu.compassresearch.core.interpreter.CmlRuntime;
-import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.api.InterpreterException;
-import eu.compassresearch.core.interpreter.api.InterpreterStatus;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.typechecker.VanillaFactory;
@@ -145,23 +143,23 @@ public class InterpretAllCmlFilesTest {
 		assertTrue("The test threw an unexpected exception : " + exception,testResult.throwsException() || exception == null);
 			
 		//Convert the trace into a list of strings to compare it with the expected
-		List<String> resultTrace = traceToStringList(topProcess.getTraceModel().getEventTrace());
+		String resultTrace = traceToString(topProcess.getTraceModel().getEventTrace());
 		
 		//Events 
-		if(!testResult.isInterleaved())
-		{
-			assertTrue(testResult.getFirstEventTrace() + " != " + resultTrace ,testResult.getFirstEventTrace()
-					.equals(resultTrace));
-		}
-		else
-		{
-			boolean foundMatch = false;
+//		if(!testResult.isInterleaved())
+//		{
+//			assertTrue(testResult.getFirstEventTrace() + " != " + resultTrace ,testResult.getFirstEventTrace()
+//					.equals(resultTrace));
+//		}
+//		else
+//		{
+//			boolean foundMatch = false;
 			//If we have interleaving it must be one of the possible traces
-			for(List<String> trace : testResult.getEventTraces())
-				foundMatch |= trace.equals(resultTrace);
+			Pattern trace = testResult.getEventTraces();
+			Matcher matcher = trace.matcher(resultTrace);
 
-			assertTrue(foundMatch);
-		}
+			assertTrue(testResult.getFirstEventTrace() + " != " + resultTrace,matcher.matches());
+//		}
 		
 		//TimedTrace
 		
@@ -179,6 +177,22 @@ public class InterpretAllCmlFilesTest {
 		}
 
 		return result;
+	}
+	
+	private String traceToString(List<CmlTransition> trace)
+	{
+		StringBuilder result = new StringBuilder();
+		
+		for(int  i = 0 ; i < trace.size();i++)
+		{
+			CmlTransition e  = trace.get(i);
+			if(i > 0)
+				result.append(",");
+				
+			result.append(e.toString());
+		}
+
+		return result.toString();
 	}
 
 	@Parameters

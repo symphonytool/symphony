@@ -3,7 +3,7 @@
   <exception/>
   <interpreterState>DEADLOCKED</interpreterState>
   <trace>
-    <events>init,setPS.{&lt;L1&gt;, &lt;L3&gt;},extinguish.&lt;L2&gt;,light.&lt;L3&gt;,setPS.{&lt;L2&gt;, &lt;L3&gt;},extinguish.&lt;L1&gt;,light.&lt;L2&gt;</events>
+    <events>init,setPS\.\{&lt;L1&gt;, &lt;L3&gt;\},extinguish\.&lt;L2&gt;,light\.&lt;L3&gt;,setPS\.\{&lt;L2&gt;, &lt;L3&gt;\},extinguish\.&lt;L1&gt;,light\.&lt;L2&gt;</events>
     <timedTrace>init,setPS.{&lt;L1&gt;, &lt;L3&gt;},extinguish.&lt;L2&gt;,light.&lt;L3&gt;,setPS.{&lt;L2&gt;, &lt;L3&gt;},extinguish.&lt;L1&gt;,light.&lt;L2&gt;</timedTrace>
   </trace>
 </testResult>

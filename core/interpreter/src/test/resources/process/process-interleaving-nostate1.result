@@ -3,8 +3,7 @@
   <exception/>
   <interpreterState>TERMINATED</interpreterState>
   <trace>
-    <events>a,b</events>
-    <events>b,a</events>
+    <events><![CDATA[([ab]),([ab&&[^\\1]])]]></events>
     <timedTrace/>
   </trace>
 </testResult>

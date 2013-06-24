@@ -3,6 +3,7 @@ package eu.compassresearch.core.interpreter;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -48,23 +49,24 @@ public class ExpectedTestResult {
 			//Parse the expected events
 			//get a nodelist of elements
 			NodeList nl = docEle.getElementsByTagName("events");
-			List<List<String>> traces = new LinkedList<List<String>>();
+			Pattern traces = null;
 						
 			for(int i = 0; i < nl.getLength();i++)
 			{
 				Node n = nl.item(i);
-				LinkedList<String> trace = new LinkedList<String>();
+//				LinkedList<String> trace = new LinkedList<String>();
 				
 				if(n.hasChildNodes())
 				{
 					String value = n.getFirstChild().getNodeValue();
 
-					for(String s : value.split(",(?! )"))
-					{
-						trace.add(s);
-					}
+					traces = Pattern.compile(value);
+					
+//					for(String s : value.split(",(?! )"))
+//					{
+//						trace.add(s);
+//					}
 				}
-				traces.add(trace);
 			}
 			
 			//Parse the expected timed trace 
@@ -113,7 +115,7 @@ public class ExpectedTestResult {
 	}
 	
 	//The visible traces that the model should produce
-	private final List<List<String>> eventTraces;
+	private final Pattern eventTraces;
 	//The timed traces that the model should produce including the tock events
 	private final List<List<String>> timedTraces;
 	/**
@@ -125,7 +127,7 @@ public class ExpectedTestResult {
 	 */
 	private final CmlInterpreterState state;
 	
-	public ExpectedTestResult(List<List<String>> eventTraces,List<List<String>> timedTraces, String exceptionName,CmlInterpreterState state)
+	public ExpectedTestResult(Pattern eventTraces,List<List<String>> timedTraces, String exceptionName,CmlInterpreterState state)
 	{
 		this.eventTraces = eventTraces;
 		this.timedTraces = timedTraces;
@@ -139,15 +141,16 @@ public class ExpectedTestResult {
 	
 	public boolean isInterleaved()
 	{
-		return this.eventTraces.size() > 1;
+		return false;
+		//return this.eventTraces.size() > 1;
 	}
 	
-	public List<String> getFirstEventTrace()
+	public Pattern getFirstEventTrace()
 	{
-		return this.eventTraces.get(0);
+		return this.eventTraces;
 	}
 		
-	public List<List<String>> getEventTraces()
+	public Pattern getEventTraces()
 	{
 		return this.eventTraces;
 	}

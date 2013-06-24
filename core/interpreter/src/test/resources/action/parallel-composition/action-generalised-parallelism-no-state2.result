@@ -3,10 +3,7 @@
   <exception/>
   <interpreterState>TERMINATED</interpreterState>
   <trace>
-    <events>c,a,b,e,a</events>
-    <events>c,a,b,a,e</events>
-    <events>a,c,b,e,a</events>
-    <events>a,c,b,a,e</events>
+    <events>(c|a),(?!\1)(c|a),b,(e|a),(?!\3)(e|a)</events>
     <timedTrace/>
   </trace>
 </testResult>
