@@ -352,7 +352,9 @@ public class jsonCommand {
 						if ((progress < 100) && (hasProgress)) {
 							progress = scanForProgressItems(chunk);
 						}
-						if ((hasConsole) && (hasConsoleItems(chunk))) {
+						if ((hasConsole) &&
+							(client.getVerboseLogging()) &&
+							(hasConsoleItems(chunk))) {
 							scanForConsoleItems(chunk);
 						}
 					}
@@ -440,7 +442,7 @@ public class jsonCommand {
 				String[] errorMsgs = getExceptions(reply);
 				int erridx = 0;
 				while (erridx < errorMsgs.length) {
-					client.addErrorMessage(errorMsgs[erridx] + "\n");
+					client.addErrorMessage(errorMsgs[erridx]);
 					erridx++;
 				}
 				// if errors did occur, do NOT extract result files
@@ -725,6 +727,16 @@ public class jsonCommand {
 		if (encoded == null) return false;
 
 		try{
+			// check if parent directory exists (and create it if not)
+			int pos = filename.lastIndexOf(File.separator);
+			if (pos > 0) { 
+				File dir = new File(filename.substring(0, pos));
+				if (!dir.exists()) {
+					if (!dir.mkdirs()) {
+						System.err.println("*** error: problem writing content to file " + filename + ": unable to create parent directory");
+					}
+				}
+			}
 			File file = new File(filename);
 			if (file.isFile()) {
 				// System.err.println("*** warning: file " + filename + " already exists. The file will be replaced!");

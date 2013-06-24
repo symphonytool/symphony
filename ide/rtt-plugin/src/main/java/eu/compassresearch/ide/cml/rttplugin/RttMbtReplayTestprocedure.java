@@ -47,6 +47,7 @@ public class RttMbtReplayTestprocedure extends RttMbtConcreteTestProcedureAction
 				// replay test procedure
 				if (client.replayTestProcedure(selectedObject)) {
 					client.addLogMessage("[PASS]: replay test procedure\n");
+					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 				} else {
 					client.addErrorMessage("[FAIL]: replay test procedure\n");
 					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
@@ -56,7 +57,6 @@ public class RttMbtReplayTestprocedure extends RttMbtConcreteTestProcedureAction
 		};
 		job.schedule();
 
-		client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 		return null;
 	}
 }

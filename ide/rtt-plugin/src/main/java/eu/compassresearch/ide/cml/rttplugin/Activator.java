@@ -60,6 +60,8 @@ public class Activator implements BundleActivator
     		client.setRttMbtTProcGenCtxFolderName(store.getString("RttMbtTProcGenCtx"));
         }
     	client.setMode(store.getString("ClientMode"));
+    	client.setVerboseLogging(store.getBoolean("RttMbtLogVerbose"));
+    	client.setExtraFiles(store.getBoolean("RttMbtExtraFiles"));
       }
     
     @Override
@@ -96,6 +98,8 @@ public class Activator implements BundleActivator
 				client.setRttMbtTProcGenCtxFolderName(store.getString("RttMbtTProcGenCtx"));
 			}
 	    	client.setMode(store.getString("ClientMode"));
+	    	client.setVerboseLogging(store.getBoolean("RttMbtLogVerbose"));
+	    	client.setExtraFiles(store.getBoolean("RttMbtExtraFiles"));
 		}
 	}
     

@@ -47,6 +47,7 @@ public class RttMbtCleanRttTestProcedure extends RttMbtConcreteTestProcedureActi
 				// clean test procedure
 				if (client.cleanTestProcedure(selectedObject)) {
 					client.addLogMessage("[PASS]: clean up test procedure\n");
+					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 				} else {
 					client.addErrorMessage("[FAIL]: clean up test procedure\n");
 					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
@@ -56,7 +57,6 @@ public class RttMbtCleanRttTestProcedure extends RttMbtConcreteTestProcedureActi
 		};
 		job.schedule();
 
-		client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 		return null;
 	}
 }
