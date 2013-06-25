@@ -67,7 +67,7 @@
 	<checksumPolicy>warn</checksumPolicy>
       </releases>
       <snapshots>
-	<enabled>false</enabled>
+	<enabled>true</enabled>
 	<updatePolicy>daily</updatePolicy>
 	<checksumPolicy>warn</checksumPolicy>
       </snapshots>
