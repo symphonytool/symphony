@@ -3,7 +3,7 @@
   <exception/>
   <interpreterState>TERMINATED</interpreterState>
   <trace>
-    </events><![CDATA[a\.0,(a\.0|a\.1),(?!\1)(a\.0|a\.1),a\.1]]></events>
+    <events>a\.0,(a\.0|a\.1),(?!\1)(a\.0|a\.1),a\.1</events>
     <timedTrace/>
   </trace>
 </testResult>

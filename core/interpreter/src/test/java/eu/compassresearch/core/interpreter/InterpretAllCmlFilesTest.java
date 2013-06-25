@@ -142,8 +142,7 @@ public class InterpretAllCmlFilesTest {
 		//!testResult.throwsException() => exception == null
 		assertTrue("The test threw an unexpected exception : " + exception,testResult.throwsException() || exception == null);
 			
-		//Convert the trace into a list of strings to compare it with the expected
-		String resultTrace = traceToString(topProcess.getTraceModel().getEventTrace());
+		
 		
 		//Events 
 //		if(!testResult.isInterleaved())
@@ -155,28 +154,27 @@ public class InterpretAllCmlFilesTest {
 //		{
 //			boolean foundMatch = false;
 			//If we have interleaving it must be one of the possible traces
-			Pattern trace = testResult.getEventTraces();
-			Matcher matcher = trace.matcher(resultTrace);
+			//Convert the trace into a list of strings to compare it with the expected
+			String eventTrace = traceToString(topProcess.getTraceModel().getEventTrace());
+				
+			Pattern trace = testResult.getExpectedEventTracePattern();
+			Matcher matcher = trace.matcher(eventTrace);
 
-			assertTrue(testResult.getFirstEventTrace() + " != " + resultTrace,matcher.matches());
+			assertTrue(testResult.getExpectedEventTracePattern() + " != " + eventTrace,matcher.matches());
 //		}
 		
 		//TimedTrace
+		if(testResult.hasTimedTrace())
+		{
+			//Convert the trace into a list of strings to compare it with the expected
+			String timedTrace = traceToString(topProcess.getTraceModel().getObservableTrace());
+			
+			matcher = testResult.getExpectedTimedTracePattern().matcher(timedTrace);
+			assertTrue(testResult.getExpectedTimedTracePattern() + " != " + timedTrace,matcher.matches());
+		}
 		
 		//Interpreter state
 		Assert.assertEquals(testResult.getInterpreterState(), interpreter.getCurrentState());
-	}
-	
-	private List<String> traceToStringList(List<CmlTransition> trace)
-	{
-		List<String> result = new LinkedList<String>();
-
-		for(CmlTransition e : trace)
-		{
-			result.add(e.toString());
-		}
-
-		return result;
 	}
 	
 	private String traceToString(List<CmlTransition> trace)
