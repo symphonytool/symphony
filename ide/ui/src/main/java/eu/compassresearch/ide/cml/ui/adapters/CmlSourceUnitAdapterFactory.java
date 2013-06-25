@@ -34,6 +34,10 @@ public class CmlSourceUnitAdapterFactory implements IAdapterFactory
 				try
 				{
 					CmlSourceUnit r = CmlSourceUnit.getFromFileResource(ivdmSource.getFile());
+					
+					if(ivdmSource.getParseList().size() == 0)
+						return null;
+					
 					PSource ast = (PSource) ivdmSource.getParseList().get(0);
 					r.setSourceAst(ast, !ivdmSource.hasParseErrors());
 					r.setUpSourceUnit(ivdmSource);

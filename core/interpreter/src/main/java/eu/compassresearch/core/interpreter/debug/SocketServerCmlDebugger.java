@@ -249,7 +249,6 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 	{
 		sendStatusMessage(CmlDbgpStatus.STOPPED,status);
 		commandDispatcher.stop();
-		System.out.println("Stopped!");
 	}
 	/**
 	 * This message sends a status message to the eclipse debug target UI

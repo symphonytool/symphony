@@ -3,25 +3,25 @@
    <description>
       COMPASS Tool Platform
    </description>
-   <feature url="features/eu.compassresearch.ide.features.core_0.0.0.jar" id="eu.compassresearch.ide.features.core" version="0.0.0">
+   <feature url="features/eu.compassresearch.ide.features.core_0.0.0.qualifier.jar" id="eu.compassresearch.ide.features.core" version="0.0.0">
       <category name="COMPASS"/>
    </feature>
-   <feature url="features/eu.compassresearch.ide.features.rcp_0.0.0.jar" id="eu.compassresearch.ide.features.rcp" version="0.0.0">
+   <feature url="features/eu.compassresearch.ide.features.rcp_0.0.0.qualifier.jar" id="eu.compassresearch.ide.features.rcp" version="0.0.0">
       <category name="COMPASS"/>
    </feature>
-   <feature url="features/eu.compassresearch.ide.features.plugins.interpreter_0.0.0.jar" id="eu.compassresearch.ide.features.plugins.interpreter" version="0.0.0">
+   <feature url="features/eu.compassresearch.ide.features.plugins.interpreter_0.0.0.qualifier.jar" id="eu.compassresearch.ide.features.plugins.interpreter" version="0.0.0">
       <category name="COMPASS"/>
    </feature>
-   <feature url="features/eu.compassresearch.ide.features.plugins.pog_0.0.0.jar" id="eu.compassresearch.ide.features.plugins.pog" version="0.0.0">
+   <feature url="features/eu.compassresearch.ide.features.plugins.pog_0.0.0.qualifier.jar" id="eu.compassresearch.ide.features.plugins.pog" version="0.0.0">
       <category name="COMPASS"/>
    </feature>
-   <feature url="features/eu.compassresearch.ide.features.plugins.tp_0.0.0.jar" id="eu.compassresearch.ide.features.plugins.tp" version="0.0.0">
+   <feature url="features/eu.compassresearch.ide.features.plugins.tp_0.0.0.qualifier.jar" id="eu.compassresearch.ide.features.plugins.tp" version="0.0.0">
       <category name="COMPASS"/>
    </feature>
-   <feature url="features/eu.compassresearch.ide.features.plugins.rtt_0.0.0.jar" id="eu.compassresearch.ide.features.plugins.rtt" version="0.0.0">
+   <feature url="features/eu.compassresearch.ide.features.plugins.rtt_0.0.0.qualifier.jar" id="eu.compassresearch.ide.features.plugins.rtt" version="0.0.0">
       <category name="COMPASS"/>
    </feature>
-   <feature url="features/eu.compassresearch.ide.features.plugins.security_0.0.0.jar" id="eu.compassresearch.ide.features.plugins.security" version="0.0.0">
+   <feature url="features/eu.compassresearch.ide.features.plugins.security_0.0.0.qualifier.jar" id="eu.compassresearch.ide.features.plugins.security" version="0.0.0">
       <category name="COMPASS"/>
    </feature>
    <category-def name="COMPASS" label="COMPASS Tool Platform">

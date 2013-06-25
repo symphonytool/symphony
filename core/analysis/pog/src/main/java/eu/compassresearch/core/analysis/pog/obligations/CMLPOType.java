@@ -63,7 +63,7 @@ public enum CMLPOType
 	WHILE_LOOP("while loop termination"),
 	OP_POST_CONDITION("operation post condition"),
 	OPERATION_PATTERNS("operation parameter patterns"),
-	OP_SATISFIABILITY("operation satifiability"),
+	OP_SATISFIABILITY("operation satisfiability"),
 	NON_ZERO_TIME("non-zero time"),
 	TEST("test");
 	

@@ -12,15 +12,20 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.ui.IWorkbenchSite;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.WorkbenchException;
 
-public class PogPluginUtility {
+public class PogPluginUtility
+{
 
-	public static ArrayList<IResource> getAllCFilesInProject(IProject project) {
+	private IWorkbenchSite site;
+
+	public static ArrayList<IResource> getAllCFilesInProject(IProject project)
+	{
 		ArrayList<IResource> allCFiles = new ArrayList<IResource>();
-		IWorkspaceRoot myWorkspaceRoot = ResourcesPlugin.getWorkspace()
-				.getRoot();
+		IWorkspaceRoot myWorkspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
 
 		IPath path = project.getLocation();
 
@@ -28,40 +33,61 @@ public class PogPluginUtility {
 		return allCFiles;
 	}
 
+	public PogPluginUtility(IWorkbenchSite site)
+	{
+		this.site = site;
+	}
+
+	public void openPoviewPerspective()
+	{
+		try
+		{
+			PlatformUI.getWorkbench().showPerspective(POConstants.PO_PERSPECTIVE_ID, site.getWorkbenchWindow());
+		} catch (WorkbenchException e)
+		{
+
+			e.printStackTrace();
+		}
+	}
+
 	private static void recursiveFindCMLFiles(ArrayList<IResource> allCMLFiles,
-			IPath path, IWorkspaceRoot myWorkspaceRoot) {
+			IPath path, IWorkspaceRoot myWorkspaceRoot)
+	{
 		IContainer container = myWorkspaceRoot.getContainerForLocation(path);
 
-		try {
+		try
+		{
 			IResource[] iResources;
 			iResources = container.members();
-			for (IResource iR : iResources) {
+			for (IResource iR : iResources)
+			{
 				// for c files
 				if ("cml".equalsIgnoreCase(iR.getFileExtension()))
 					allCMLFiles.add(iR);
-				if (iR.getType() == IResource.FOLDER) {
+				if (iR.getType() == IResource.FOLDER)
+				{
 					IPath tempPath = iR.getLocation();
-					recursiveFindCMLFiles(allCMLFiles, tempPath,
-							myWorkspaceRoot);
+					recursiveFindCMLFiles(allCMLFiles, tempPath, myWorkspaceRoot);
 				}
 			}
-		} catch (CoreException e) {
+		} catch (CoreException e)
+		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
-	public static IProject getCurrentlySelectedProject() {
+	public static IProject getCurrentlySelectedProject()
+	{
 
-		IWorkbenchWindow window = PlatformUI.getWorkbench()
-				.getActiveWorkbenchWindow();
+		IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 
-		if (window != null) {
-			IStructuredSelection selection = (IStructuredSelection) window
-					.getSelectionService().getSelection(
-							"eu.compassresearch.ide.ui.CmlNavigator");
+		if (window != null)
+		{
+			IStructuredSelection selection = (IStructuredSelection) window.getSelectionService().getSelection("eu.compassresearch.ide.ui.CmlNavigator");
 			IResource res = extractSelection(selection);
-			if (res != null ) {
+			if (res != null)
+			{
 				IProject project = res.getProject();
 				return project;
 			}
@@ -69,7 +95,8 @@ public class PogPluginUtility {
 		return null;
 	}
 
-	static IResource extractSelection(ISelection sel) {
+	static IResource extractSelection(ISelection sel)
+	{
 		if (!(sel instanceof IStructuredSelection))
 			return null;
 		IStructuredSelection ss = (IStructuredSelection) sel;

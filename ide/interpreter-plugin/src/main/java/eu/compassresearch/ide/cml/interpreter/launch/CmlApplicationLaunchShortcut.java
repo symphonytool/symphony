@@ -18,15 +18,21 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.jface.window.Window;
+import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ElementTreeSelectionDialog;
+import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.model.BaseWorkbenchContentProvider;
+import org.overture.ide.core.resources.IVdmProject;
 
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.debug.CmlInterpreterLaunchConfigurationConstants;
 import eu.compassresearch.ide.cml.interpreter.CmlUtil;
 import eu.compassresearch.ide.cml.interpreter.ICmlDebugConstants;
+import eu.compassresearch.ide.cml.ui.editor.core.CmlEditor;
 import eu.compassresearch.ide.cml.ui.editor.core.dom.ICmlSourceUnit;
 
 public class CmlApplicationLaunchShortcut implements ILaunchShortcut2
@@ -89,12 +95,20 @@ public class CmlApplicationLaunchShortcut implements ILaunchShortcut2
 		
 		IFile ifile = (IFile) file;
 		ICmlSourceUnit source = (ICmlSourceUnit) ifile.getAdapter(ICmlSourceUnit.class);
+		
+		//Open the file that are going being debugged
+		try {
+			IDE.openEditor(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), ifile);
+		} catch (PartInitException e1) {
+			e1.printStackTrace();
+		}
 
-		//ICmlSourceUnit cmlSourceUnit = ICmlSourceUnit.getFromFileResource((IFile)file);
-		PSource ast = source.getSourceAst();//cmlSourceUnit.getSourceAst();
-
-		if(ast != null)
+		IVdmProject vdmProject = (IVdmProject)ifile.getProject().getAdapter(IVdmProject.class);
+		
+		if(vdmProject != null && vdmProject.getModel().isParseCorrect() && source != null ) //&& vdmProject.getModel().isTypeCorrect())
 		{
+			PSource ast = source.getSourceAst();
+		
 			List<PSource> sourceList = new LinkedList<PSource>();
 			sourceList.add(ast);
 			List<AProcessDefinition> defsInFile = CmlUtil.GetGlobalProcessesFromSource(sourceList); 
@@ -163,7 +177,12 @@ public class CmlApplicationLaunchShortcut implements ILaunchShortcut2
 		else
 		//If no ast is attached then there are either parser or type errors
 		{
-			MessageDialog.openError(null, "Launch failure", "The Cml model is not loaded or contains error and therefore cannot be launched");
+			if(!vdmProject.getModel().isParseCorrect())
+				MessageDialog.openError(null, "Launch failure", "The Cml model is not parsed correctly and therefore cannot be launched. This could be a glitch, try to close and open the source.");
+			else if(!vdmProject.getModel().isTypeCorrect())
+				MessageDialog.openError(null, "Launch failure", "The Cml model is not typecheck correctly and therefore cannot be launched. This could be a glitch, try to close and open the source.");
+			else
+				MessageDialog.openError(null,"Launch failure", "The Cml model is not loaded correctly and therefore cannot be launched");
 		}
 	
 	}

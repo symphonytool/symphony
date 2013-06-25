@@ -58,6 +58,9 @@ public class SourceParserCml extends AbstractParserParticipant
 			lexer = new CmlLexer(in);
 			CommonTokenStream tokens = new CommonTokenStream(lexer);
 			CmlParser parser = new CmlParser(tokens);
+			//FIXME Figure out the correct path for sourceFileNAME!
+	//		file.getFile().getProjectRelativePath()
+			parser.sourceFileName=file.getFile().getLocation().toOSString();
 
 			try
 			{
@@ -125,8 +128,8 @@ public class SourceParserCml extends AbstractParserParticipant
 		result.setAst(nodes);
 		result.setErrors(errors);
 		result.setWarnings(warnings);
-		result.setAllLocation(new Vector<LexLocation>());
-		result.setLocationToAstNodeMap(new HashMap<LexLocation, INode>());
+		//result.setAllLocation(new Vector<LexLocation>());
+		//result.setLocationToAstNodeMap(new HashMap<LexLocation, INode>());
 
 		return result;
 	}

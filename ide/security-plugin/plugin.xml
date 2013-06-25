@@ -13,7 +13,7 @@
      <extension
          point="org.eclipse.ui.actionSets">
       <actionSet
-            id="eu.compassresearch.ide.cml.ui.actionSet"
+            id="eu.compassresearch.ide.cml.ui.secutiryactionSet"
             label="Security Action"
             visible="true">
 

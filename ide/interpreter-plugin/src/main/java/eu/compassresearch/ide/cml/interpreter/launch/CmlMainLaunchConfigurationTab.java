@@ -402,15 +402,14 @@ public class CmlMainLaunchConfigurationTab extends
 			configuration.setAttribute(CmlInterpreterLaunchConfigurationConstants.CML_SOURCES_PATH.toString(),
 					CmlUtil.getCmlSourcesPathsFromProject(project));
 		
-		
-//			List<AProcessDefinition> globalProcess = CmlUtil.GetGlobalProcessesFromProject(project);
-//			
-//			for(AProcessDefinition processDef : globalProcess)
-//			{
-//				if(fTopProcessText.getText().equals(processDef.getName().getName()))
-//					configuration.setAttribute(CmlInterpreterLaunchConfiguration.PROCESS_FILE_PATH.toString(),
-//							processDef.getLocation().file.getAbsolutePath());
-//			}
+			List<AProcessDefinition> globalProcess = CmlUtil.GetGlobalProcessesFromProject(project);
+			
+			for(AProcessDefinition processDef : globalProcess)
+			{
+				if(fTopProcessText.getText().equals(processDef.getName().getName()))
+					configuration.setAttribute(CmlInterpreterLaunchConfigurationConstants.PROCESS_FILE_PATH.toString(),
+							processDef.getLocation().getFile().getAbsolutePath());
+			}
 			
 		}
 		

@@ -106,6 +106,8 @@ import org.antlr.runtime.CommonTokenStream;
 // }
 
 @parser::members {
+public String sourceFileName = "";
+
 public String getErrorMessage(RecognitionException e, String[] tokenNames) {
     List stack = getRuleInvocationStack(e, this.getClass().getName());
     String msg = null;
@@ -177,7 +179,7 @@ private ILexLocation extractLexLocation(CommonToken token) {
     int line = token.getLine();
     int pos = token.getCharPositionInLine();
     int offset = token.getStartIndex();
-    return new LexLocation("",// FIXME: filename --- was currentSource.toString(),
+    return new LexLocation(this.sourceFileName,
                            "",// FIXME: (local?) module name
                            line, //start line
                            pos, //start column
@@ -194,7 +196,7 @@ private ILexLocation extractLexLocation(CommonToken start, CommonToken end) {
     int epos = end.getCharPositionInLine() + end.getText().length();
     int soffset = start.getStartIndex();
     int eoffset = end.getStopIndex();
-    return new LexLocation("",// FIXME: filename --- was currentSource.toString(),
+    return new LexLocation(this.sourceFileName,
                            "",// FIXME: (local?) module name
                            sline, spos,
                            eline, epos,
@@ -1721,6 +1723,9 @@ valueDefinition returns[AValueDefinition def]
 // Also, apparently JPCW doesn't want the "be st" because they
 //  introduce a type on non-determinism that he doesn't want to deal
 //  with.  So, they'll not happen. -jwc/19Dec2012
+//
+// I just noticed that CML0 has an 'in' form present; this is not from
+// the VDM side, but has never been implmented. -jwc/18Jun2013
 //
 //  : bindablePattern (':' type)? ( '=' | 'be' 'st' ) expression
     : bindablePattern (':' type)? '=' expression

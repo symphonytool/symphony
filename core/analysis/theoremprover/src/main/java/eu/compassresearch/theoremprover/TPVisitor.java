@@ -4,49 +4,69 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.definitions.AExplicitFunctionDefinition;
-import org.overture.ast.definitions.ALocalDefinition;
 import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.definitions.PDefinition;
-import org.overture.ast.definitions.SClassDefinition;
-import org.overture.ast.expressions.PExp;
-import org.overture.ast.lex.LexLocation;
-import org.overture.ast.patterns.AIdentifierPattern;
-import org.overture.ast.patterns.PPattern;
-import org.overture.ast.typechecker.NameScope;
-import org.overture.ast.typechecker.Pass;
-import org.overture.ast.types.AAccessSpecifierAccessSpecifier;
-import org.overture.ast.types.AClassType;
-import org.overture.ast.types.AFunctionType;
-import org.overture.ast.types.AOperationType;
-import org.overture.ast.types.PType;
-import org.overture.ast.analysis.AnalysisAdaptor;
+import org.overture.ast.expressions.AStringLiteralExp;
 
-import eu.compassresearch.ast.actions.SStatementAction;
-import eu.compassresearch.ast.definitions.AChannelNameDefinition;
-import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
-import eu.compassresearch.ast.definitions.AProcessDefinition;
-import eu.compassresearch.ast.lex.LexIdentifierToken;
-import eu.compassresearch.ast.lex.LexNameToken;
-import eu.compassresearch.ast.types.AChannelType;
-import eu.compassresearch.ast.types.AErrorType;
-import eu.compassresearch.ast.types.AFunctionParagraphType;
-import eu.compassresearch.ast.types.AOperationParagraphType;
-import eu.compassresearch.ast.types.AProcessParagraphType;
-import eu.compassresearch.ast.types.AStateParagraphType;
-import eu.compassresearch.ast.types.ATypeParagraphType;
-import eu.compassresearch.ast.types.AValueParagraphType;
+import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
 
 @SuppressWarnings("serial")
-class TPVisitor extends
-    AnalysisAdaptor
+public class TPVisitor extends
+	DepthFirstAnalysisCMLAdaptor
   {
 
-	@Override
-	public void caseAFunctionType(AFunctionType node) throws AnalysisException {
-		// TODO Auto-generated method stub
-		super.caseAFunctionType(node);
+	List<ThmType>  typeList = new LinkedList<ThmType>();
+    List<ThmValue> valueList = new LinkedList<ThmValue>();
+	
+	public List<ThmValue> getValueList() {
+		return valueList;
 	}
-  
+
+
+
+	public void setValueList(List<ThmValue> valueList) {
+		this.valueList = valueList;
+	}
+
+
+
+	public List<ThmType> getTypeList() {
+		return typeList;
+	}
+
+
+
+	public void setTypeList(List<ThmType> typeList) {
+		this.typeList = typeList;
+	}
+
+
+
+	@Override
+	public void caseATypeDefinition(ATypeDefinition node)
+			throws AnalysisException {		
+		
+		ThmPTypeVisitor tv = new ThmPTypeVisitor();
+		
+		typeList.add(new ThmTypeAbbrev(node.getType().toString(), node.getType().apply(tv)));
+		
+		super.caseATypeDefinition(node);
+	}
+
+
+	@Override
+	public void caseAValueDefinition(AValueDefinition node)
+			throws AnalysisException {
+		ThmPExpVisitor ev = new ThmPExpVisitor();
+		
+		for (PDefinition d : node.getDefs()) {
+			valueList.add(new ThmValue(d.getName().toString(), node.getExpression().apply(ev)));
+		}
+		
+		super.caseAValueDefinition(node);
+	}
+
+	
+	
   }

@@ -1,0 +1,4 @@
+values
+  basic_t_nat : nat = 7
+  basic_ut_nat = 5
+  basic_str = "hello"

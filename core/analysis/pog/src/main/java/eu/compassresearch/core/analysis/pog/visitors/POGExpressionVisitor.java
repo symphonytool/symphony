@@ -10,6 +10,7 @@ import org.overture.pog.obligation.ProofObligationList;
 import org.overture.pog.visitor.PogParamExpVisitor;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
+import eu.compassresearch.ast.expressions.ABracketedExp;
 import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
 import eu.compassresearch.ast.expressions.PCMLExp;
 
@@ -38,7 +39,20 @@ public class POGExpressionVisitor extends
 
     
     
-    //TODO handle PCML expressions
+    
+    
+    @Override
+	public ProofObligationList caseABracketedExp(ABracketedExp node,
+			POContextStack question) throws AnalysisException
+	{
+    	ProofObligationList pol = new ProofObligationList();
+    	PExp exp = node.getExpression();
+    	pol.addAll(exp.apply(this,question));
+    	return pol;
+
+	}
+
+	//TODO handle PCML expressions
     @Override
 	public ProofObligationList defaultPCMLExp(PCMLExp node,
 			POContextStack question) throws AnalysisException {
