@@ -4,6 +4,5 @@
   <interpreterState>TERMINATED</interpreterState>
   <trace>
     <events>(c|a),(?!\1)(c|a),b,(e|a),(?!\3)(e|a)</events>
-    <timedTrace/>
   </trace>
 </testResult>

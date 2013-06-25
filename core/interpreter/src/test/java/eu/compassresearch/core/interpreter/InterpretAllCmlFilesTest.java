@@ -19,6 +19,7 @@ import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.internal.runners.statements.Fail;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
@@ -99,7 +100,10 @@ public class InterpretAllCmlFilesTest {
 		String resultPath = filePath.split("[.]")[0] + ".result";
 
 		ExpectedTestResult testResult = ExpectedTestResult.parseTestResultFile(resultPath);
-
+		
+		if(testResult == null)
+			Assert.fail("The testResult is not formatted correctly");
+		
 		assertTrue(CmlParserUtil.parseSource(ast));
 
 		// Type check
@@ -141,27 +145,12 @@ public class InterpretAllCmlFilesTest {
 		assertTrue("The test was expected to throw an exception but did not!",!testResult.throwsException() || exception != null);
 		//!testResult.throwsException() => exception == null
 		assertTrue("The test threw an unexpected exception : " + exception,testResult.throwsException() || exception == null);
-			
-		
-		
-		//Events 
-//		if(!testResult.isInterleaved())
-//		{
-//			assertTrue(testResult.getFirstEventTrace() + " != " + resultTrace ,testResult.getFirstEventTrace()
-//					.equals(resultTrace));
-//		}
-//		else
-//		{
-//			boolean foundMatch = false;
-			//If we have interleaving it must be one of the possible traces
-			//Convert the trace into a list of strings to compare it with the expected
-			String eventTrace = traceToString(topProcess.getTraceModel().getEventTrace());
-				
-			Pattern trace = testResult.getExpectedEventTracePattern();
-			Matcher matcher = trace.matcher(eventTrace);
 
-			assertTrue(testResult.getExpectedEventTracePattern() + " != " + eventTrace,matcher.matches());
-//		}
+		//events
+		String eventTrace = traceToString(topProcess.getTraceModel().getEventTrace());
+		Pattern trace = testResult.getExpectedEventTracePattern();
+		Matcher matcher = trace.matcher(eventTrace);
+		assertTrue(testResult.getExpectedEventTracePattern() + " != " + eventTrace,matcher.matches());
 		
 		//TimedTrace
 		if(testResult.hasTimedTrace())

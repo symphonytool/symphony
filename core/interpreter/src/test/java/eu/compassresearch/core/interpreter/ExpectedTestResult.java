@@ -40,17 +40,12 @@ public class ExpectedTestResult {
 			Element docEle = dom.getDocumentElement();
 			
 			//validate the xml
-			
 			SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-			
             Schema schema = schemaFactory.newSchema(new File("src/test/resources/testSchema.xsd"));
             Validator validator = schema.newValidator();
             validator.validate(new DOMSource(dom));
 			
-			
-			
-			//parse the type of the result
-			//TODO this should pass on the expected exception string
+			//parse exception element
 			String exceptionName = null;
 			NodeList exceptionNl = docEle.getElementsByTagName("exception");
 			if(exceptionNl != null && exceptionNl.getLength() > 0)
@@ -61,12 +56,15 @@ public class ExpectedTestResult {
 			}
 			
 			//Parse the expected events
-			Pattern traces = extractPatternFromNodeList(docEle.getElementsByTagName("events"),Pattern.compile(""));
+			Pattern traces = extractPatternFromNodeList(docEle.getElementsByTagName("events"));
 			
 			//Parse the expected timed trace 
-			Pattern timedTraces = extractPatternFromNodeList(docEle.getElementsByTagName("timedTrace"),null);
+			Pattern timedTraces = extractPatternFromNodeList(docEle.getElementsByTagName("timedTrace"));
 			
-			testResult = new ExpectedTestResult(traces,timedTraces,exceptionName,parseInterpreterState(docEle));
+			//Parse the interpreter state
+			CmlInterpreterState interpreterState = parseInterpreterState(docEle);
+			
+			testResult = new ExpectedTestResult(traces,timedTraces,exceptionName,interpreterState);
 
 		}catch(ParserConfigurationException pce) {
 			pce.printStackTrace();
@@ -89,17 +87,23 @@ public class ExpectedTestResult {
 			return null;
 	}
 	
-	private static Pattern extractPatternFromNodeList(NodeList nl, Pattern defaultPattern)
+	private static Pattern extractPatternFromNodeList(NodeList nl)
 	{
-		Pattern pattern = defaultPattern;
+		//Pattern pattern = defaultPattern;
+		Pattern pattern = null;
+		
 		//only move on if the element is not null or the length of the list is more tha zero
-		if(nl != null && nl.getLength() > 0)
+		if(nl.getLength() > 0)
 		{
 			Node n = nl.item(0);
 			if(n.hasChildNodes())
 			{
 				String value = n.getFirstChild().getNodeValue();
 				pattern = Pattern.compile(value);
+			}
+			else
+			{
+				pattern = Pattern.compile("");
 			}
 		}
 		
@@ -131,12 +135,6 @@ public class ExpectedTestResult {
 		return state;
 	}
 	
-	public boolean isInterleaved()
-	{
-		return false;
-		//return this.eventTraces.size() > 1;
-	}
-			
 	public Pattern getExpectedEventTracePattern()
 	{
 		return this.eventTraces;
