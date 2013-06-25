@@ -61,6 +61,9 @@ target/
 .settings/
 .project
 
+# maybe from scala; definitely not desired
+.cache
+
 # temporary excludes #
 ######################
 bin/
