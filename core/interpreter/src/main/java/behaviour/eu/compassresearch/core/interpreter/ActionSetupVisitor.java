@@ -20,6 +20,7 @@ import eu.compassresearch.ast.actions.AInterleavingParallelAction;
 import eu.compassresearch.ast.actions.AInterleavingReplicatedAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ATimeoutAction;
+import eu.compassresearch.ast.actions.AUntimedTimeoutAction;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
@@ -77,6 +78,15 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 		//We setup the child nodes 
 		setLeftChild(new ConcreteCmlBehaviour(node.getLeft(),question,owner));
 		//setRightChild(VanillaInterpreterFactory.newCmlBehaviour(node.getRight(),question,owner));
+		return node;
+	}
+	
+	@Override
+	public INode caseAUntimedTimeoutAction(AUntimedTimeoutAction node,
+			Context question) throws AnalysisException {
+		
+		//We setup the child nodes 
+		setLeftChild(new ConcreteCmlBehaviour(node.getLeft(),question,owner));
 		return node;
 	}
 	
