@@ -50,9 +50,15 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	/**
 	 * Name of the instance
 	 */
-	protected ILexNameToken 						name;
+	protected ILexNameToken 					name;
 
+	protected CmlAlphabet 						lastInspected = null;		
+	protected CmlTrace 							inspectionTrace = null;
+	
 	//Process/Action Graph variables
+	/**
+	 * Parent behavior
+	 */
 	protected final CmlBehaviour 				parent;
 	protected CmlBehaviour						leftChild = null;
 	protected CmlBehaviour						rightChild = null;
@@ -276,7 +282,16 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	{
 		try
 		{
-			return next.first.apply(alphabetInspectionVisitor,next.second);
+			if(inspectionTrace != null && inspectionTrace.equals(this.getTraceModel()))
+			{
+				return lastInspected;
+			}
+			else
+			{	
+				lastInspected = next.first.apply(alphabetInspectionVisitor,next.second);
+				inspectionTrace = new CmlTrace(this.getTraceModel());
+				return lastInspected;
+			}
 		}
 		catch(AnalysisException ex)
 		{
