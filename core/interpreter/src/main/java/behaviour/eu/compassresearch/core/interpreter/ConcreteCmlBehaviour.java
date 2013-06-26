@@ -16,7 +16,6 @@ import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
-import eu.compassresearch.ast.analysis.QuestionCMLAdaptor;
 import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
@@ -25,6 +24,7 @@ import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorState;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlTrace;
+import eu.compassresearch.core.interpreter.api.behaviour.Inspection;
 import eu.compassresearch.core.interpreter.api.behaviour.Reason;
 import eu.compassresearch.core.interpreter.api.events.CmlBehaviorStateEvent;
 import eu.compassresearch.core.interpreter.api.events.CmlBehaviorStateObserver;
@@ -52,8 +52,7 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	 */
 	protected ILexNameToken 					name;
 
-	protected CmlAlphabet 						lastInspected = null;		
-	protected CmlTrace 							inspectionTrace = null;
+	protected Inspection 						lastInspection = null;				
 	
 	//Process/Action Graph variables
 	/**
@@ -282,15 +281,16 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	{
 		try
 		{
-			if(inspectionTrace != null && inspectionTrace.equals(this.getTraceModel()))
+			if(lastInspection != null && lastInspection.getTrace().equals(this.getTraceModel()))
 			{
-				return lastInspected;
+				return lastInspection.getTransitions();
 			}
 			else
 			{	
-				lastInspected = next.first.apply(alphabetInspectionVisitor,next.second);
-				inspectionTrace = new CmlTrace(this.getTraceModel());
-				return lastInspected;
+				lastInspection = new Inspection(new CmlTrace(this.getTraceModel()), 
+						next.first.apply(alphabetInspectionVisitor,next.second));
+				
+				return lastInspection.getTransitions();
 			}
 		}
 		catch(AnalysisException ex)
