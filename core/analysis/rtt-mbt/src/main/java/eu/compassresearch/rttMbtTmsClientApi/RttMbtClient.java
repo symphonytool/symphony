@@ -408,9 +408,10 @@ public class RttMbtClient {
 		File projectConf = new File(folder, "project.rtp");
 		if (!projectConf.exists()) {
 			// extract project template
-			File templates = new File(getCmlWorkspace() + getCmlProject() + File.separator + "templates");
+			String templatesDir = getCmlWorkspace() + File.separator + "templates";
+			File templates = new File(templatesDir);
 			if (!templates.isDirectory()) {
-				System.err.println("[FAIL]: local 'templates' directory does not exist!");
+				System.err.println("[FAIL]: local templates directory " + templatesDir + " does not exist!");
 				return false;
 			}
 			File archive = new File(templates, "_Project_compass.zip");
@@ -424,8 +425,8 @@ public class RttMbtClient {
 		}
 
 		// upload project structure to cache
-		System.out.println("uploading '" + getProjectName() + "' to the rtt-mbt-tms file cache...");
-		success = uploadDirectory(getProjectName(), true);
+		System.out.println("uploading '" + getProjectPath() + "' to the rtt-mbt-tms file cache...");
+		success = uploadDirectory(getProjectPath(), true);
 		return success;
 	}
 	
@@ -452,7 +453,7 @@ public class RttMbtClient {
 		deleteLocalFile(new File(modelDirName + "rtt-mbt-tms-execution.out"));
 
 		// remove working area on the server
-		success = deleteRemoteFileOrDir(getProjectName());
+		success = deleteRemoteFileOrDir(getProjectPath());
 		return success;
 	}
 	
@@ -462,7 +463,7 @@ public class RttMbtClient {
 		}
 
 		// calculate model parameters
-		String modelName = getProjectName() + ".model";
+		String modelName = getCmlProject() + "." + getProjectName() + ".model";
 		String modelVersion = "1.0";
 		String modelFile = model.getAbsolutePath();
 
@@ -511,7 +512,7 @@ public class RttMbtClient {
 		deleteLocalDirectory(modeldir);
 
 		// remove working area on the server
-		success = deleteRemoteFileOrDir(getProjectName());
+		success = deleteRemoteFileOrDir(getProjectPath());
 
 		// copy model to <projectroot>/model/model_dump.xml
 		File projectRoot = new File(getRttProjectRoot());
@@ -573,9 +574,10 @@ public class RttMbtClient {
 		}
 
 		// unpack _P1.zip
-		File templates = new File(getCmlWorkspace() + getCmlProject() + File.separator + "templates");
+		String templatesDir = getCmlWorkspace() + File.separator + "templates";
+		File templates = new File(templatesDir);
 		if (!templates.isDirectory()) {
-			System.err.println("[FAIL]: local 'templates' directory does not exist!");
+			System.err.println("[FAIL]: local templates directory " + templatesDir + " does not exist!");
 			return false;
 		}
 		File archive = new File(templates, "_P1_compass.zip");
@@ -708,7 +710,7 @@ public class RttMbtClient {
 		// - advanced.conf
 		// - addgoals.conf
 		// - addgoalsordered.conf
-		String modelDirName = getProjectName() + File.separator + "model" + File.separator;
+		String modelDirName = getProjectPath() + File.separator + "model" + File.separator;
 		uploadFile(modelDirName + "model_dump.xml");
 		uploadFile(modelDirName + "configuration.csv");
 		uploadFile(modelDirName + "signalmap.csv");
@@ -721,7 +723,7 @@ public class RttMbtClient {
 		// - advanced.conf
 		// - addgoals.conf
 		// - addgoalsordered.conf
-		String confDirName = getProjectName() + File.separator
+		String confDirName = getProjectPath() + File.separator
 				+ getRttMbtTProcGenCtxFolderName() + File.separator
 				+ abstractTestProc + File.separator
 				+ "conf" +  File.separator;
@@ -731,7 +733,7 @@ public class RttMbtClient {
 		uploadFile(confDirName + "addgoals.conf");
 		uploadFile(confDirName + "addgoalsordered.conf");
 		// cache/<user-id>/<project-name>/TMPL
-		confDirName = getProjectName() + File.separator + "TMPL";
+		confDirName = getProjectPath() + File.separator + "TMPL";
 		uploadDirectory(confDirName, true);
 
 		// generate-test-command
@@ -745,25 +747,25 @@ public class RttMbtClient {
 			// download debugging data to local directory
 			// - rtt-mbt-tms-execution.out
 			// - rtt-mbt-tms-execution.err
-			String dirname = getProjectName() + File.separator;
+			String dirname = getProjectPath() + File.separator;
 			downloadFile(dirname + "rtt-mbt-tms-execution.err");
 			downloadFile(dirname + "rtt-mbt-tms-execution.out");
 			// - model/error.log
 			// - model/genertion.log
-			dirname = getProjectName() + File.separator
+			dirname = getProjectPath() + File.separator
 					+ "model" + File.separator;
 			downloadFile(dirname + "errors.log");
 			downloadFile(dirname + "generation.log");
 			// - TestProcedures/<TP>/generation.log
 			// - TestProcedures/<TP>/error.log
-			dirname = getProjectName() + File.separator
+			dirname = getProjectPath() + File.separator
 					+ getRttMbtTProcGenCtxFolderName() + File.separator
 					+ abstractTestProc + File.separator
 					+ "log" + File.separator;
 			downloadFile(dirname + "generation.log");
 			downloadFile(dirname + "errors.log");
 			// - configuration.csv.bak
-			dirname = getProjectName() + File.separator
+			dirname = getProjectPath() + File.separator
 					+ getRttMbtTProcGenCtxFolderName() + File.separator
 					+ abstractTestProc + File.separator
 					+ "conf" + File.separator;
@@ -781,7 +783,7 @@ public class RttMbtClient {
 		// - overall_coverage.csv
 		// - uncovered_testcases.csv
 		// - unreachable_testcases.csv
-		String dirname = getProjectName() + File.separator
+		String dirname = getProjectPath() + File.separator
 		+ "model" + File.separator;
 		downloadFile(dirname + "symbols.log");
 		downloadFile(dirname + "testcases.csv");
@@ -794,7 +796,7 @@ public class RttMbtClient {
 
 		// from cache/<user-id>/<project-name>/<testproc>/conf
 		// - configuration.csv
-		dirname = getProjectName() + File.separator
+		dirname = getProjectPath() + File.separator
 				+ getRttMbtTProcGenCtxFolderName() + File.separator
 				+ abstractTestProc + File.separator
 				+ "conf" + File.separator;
@@ -806,7 +808,7 @@ public class RttMbtClient {
 		// - focus_points_to_addgoals.conf
 		// - model/error.log
 		// - model/genertion.log
-		dirname = getProjectName() + File.separator
+		dirname = getProjectPath() + File.separator
 				+ getRttMbtTProcGenCtxFolderName() + File.separator
 				+ abstractTestProc + File.separator
 				+ "log" + File.separator;
@@ -822,7 +824,7 @@ public class RttMbtClient {
 		// - signals.dat
 		// - signals.json
 		// - *.pdf
-		dirname = getProjectName() + File.separator
+		dirname = getProjectPath() + File.separator
 				+ getRttMbtTProcGenCtxFolderName() + File.separator
 				+ abstractTestProc + File.separator
 				+ "model";
@@ -830,14 +832,14 @@ public class RttMbtClient {
 
 		// from cache/<user-id>/<project-name>/<testproc>/testdata
 		// - signals.dat
-		dirname = getProjectName() + File.separator
+		dirname = getProjectPath() + File.separator
 				+ getRttMbtTProcGenCtxFolderName() + File.separator
 				+ abstractTestProc + File.separator
 				+ "testdata";
 		downloadDirectory(dirname);
 
 		// download concrete test procedure from cache
-		dirname = getProjectName() + File.separator
+		dirname = getProjectPath() + File.separator
 				+ getRttMbtTestProcFolderName() + File.separator
 				+ abstractTestProc + File.separator;
 		downloadDirectory(dirname + "conf");
@@ -857,7 +859,7 @@ public class RttMbtClient {
 		// - signalmap.csv
 		// - addgoals.conf
 		// - addgoalsordered.conf
-		String modelDirName = getProjectName() + File.separator + "model" + File.separator;
+		String modelDirName = getProjectPath() + File.separator + "model" + File.separator;
 		uploadFile(modelDirName + "model_dump.xml");
 		uploadFile(modelDirName + "configuration.csv");
 		uploadFile(modelDirName + "signalmap.csv");
@@ -869,7 +871,7 @@ public class RttMbtClient {
 		// - advanced.conf
 		// - addgoals.conf
 		// - addgoalsordered.conf
-		String confDirName = getProjectName() + File.separator
+		String confDirName = getProjectPath() + File.separator
 				+ getRttMbtTProcGenCtxFolderName() + File.separator
 				+ abstractTestProc + File.separator
 				+ "conf" +  File.separator;
@@ -892,18 +894,18 @@ public class RttMbtClient {
 			// download debugging data to local directory
 			// - rtt-mbt-tms-execution.out
 			// - rtt-mbt-tms-execution.err
-			String dirname = getProjectName() + File.separator;
+			String dirname = getProjectPath() + File.separator;
 			downloadFile(dirname + "rtt-mbt-tms-execution.err");
 			downloadFile(dirname + "rtt-mbt-tms-execution.out");
 			// - model/error.log
 			// - model/genertion.log
-			dirname = getProjectName() + File.separator
+			dirname = getProjectPath() + File.separator
 					+ "model" + File.separator;
 			downloadFile(dirname + "errors.log");
 			downloadFile(dirname + "generation.log");
 			// - TestProcedures<TP>/log/generation.log
 			// - TestProcedures<TP>/log/error.log
-			dirname = getProjectName() + File.separator
+			dirname = getProjectPath() + File.separator
 					+ getRttMbtTProcGenCtxFolderName() + File.separator
 					+ abstractTestProc + File.separator
 					+ "log" + File.separator;
@@ -915,28 +917,28 @@ public class RttMbtClient {
 		// download generated files to local directory:
 		String dirname;
 		// Testprocedures/<TP>/log/configuration.csv
-		dirname = getProjectName() + File.separator
+		dirname = getProjectPath() + File.separator
 				+ getRttMbtTProcGenCtxFolderName() + File.separator
 				+ abstractTestProc + File.separator
 				+ "conf" + File.separator;;
 		downloadFile(dirname + "configuration.csv");
 		// Testprocedures/<TP>/log/covered_testcases.csv
 		// Testprocedures/<TP>/log/missed_goals.csv
-		dirname = getProjectName() + File.separator
+		dirname = getProjectPath() + File.separator
 				+ getRttMbtTProcGenCtxFolderName() + File.separator
 				+ abstractTestProc + File.separator
 				+ "log" + File.separator;
 		downloadFile(dirname + "covered_testcases.csv");
 		downloadFile(dirname + "missed_goals.csv");
 		// Testprocedures/<TP>/model/signals.json
-		dirname = getProjectName() + File.separator
+		dirname = getProjectPath() + File.separator
 				+ getRttMbtTProcGenCtxFolderName() + File.separator
 				+ abstractTestProc + File.separator
 				+ "model" + File.separator;
 		downloadFile(dirname + "signals.dat");
 		downloadFile(dirname + "signals.json");
 		// RTT_Testprocedures/<TP>/testdata/replay.log
-		dirname = getProjectName() + File.separator
+		dirname = getProjectPath() + File.separator
 				+ getRttMbtTestProcFolderName() + File.separator
 				+ abstractTestProc + File.separator
 				+ "testdata" + File.separator;
@@ -944,7 +946,7 @@ public class RttMbtClient {
 		// - model/error.log
 		// - model/genertion.log
 		if (getExtraFiles()) {
-		dirname = getProjectName() + File.separator
+		dirname = getProjectPath() + File.separator
 				+ getRttMbtTProcGenCtxFolderName() + File.separator
 				+ abstractTestProc + File.separator
 				+ "log" + File.separator;
@@ -965,7 +967,7 @@ public class RttMbtClient {
 		// - signalmap.csv
 		// - addgoals.conf
 		// - addgoalsordered.conf
-		String modelDirName = getProjectName() + File.separator + "model" + File.separator;
+		String modelDirName = getProjectPath() + File.separator + "model" + File.separator;
 		uploadFile(modelDirName + "model_dump.xml");
 		uploadFile(modelDirName + "configuration.csv");
 		uploadFile(modelDirName + "signalmap.csv");
@@ -977,7 +979,7 @@ public class RttMbtClient {
 		// - advanced.conf
 		// - addgoals.conf
 		// - addgoalsordered.conf
-		String confDirName = getProjectName() + File.separator
+		String confDirName = getProjectPath() + File.separator
 				+ getRttMbtTProcGenCtxFolderName() + File.separator
 				+ abstractTestProc + File.separator
 				+ "conf" +  File.separator;
@@ -998,18 +1000,18 @@ public class RttMbtClient {
 			// download debugging data to local directory
 			// - rtt-mbt-tms-execution.out
 			// - rtt-mbt-tms-execution.err
-			String dirname = getProjectName() + File.separator;
+			String dirname = getProjectPath() + File.separator;
 			downloadFile(dirname + "rtt-mbt-tms-execution.err");
 			downloadFile(dirname + "rtt-mbt-tms-execution.out");
 			// - model/error.log
 			// - model/genertion.log
-			dirname = getProjectName() + File.separator
+			dirname = getProjectPath() + File.separator
 					+ "model" + File.separator;
 			downloadFile(dirname + "errors.log");
 			downloadFile(dirname + "generation.log");
 			// - generation.log
 			// - error.log
-			dirname = getProjectName() + File.separator
+			dirname = getProjectPath() + File.separator
 					+ getRttMbtTProcGenCtxFolderName() + File.separator
 					+ abstractTestProc + File.separator
 					+ "log" + File.separator;
@@ -1021,7 +1023,7 @@ public class RttMbtClient {
 			// - model/error.log
 			// - model/genertion.log
 			if (getExtraFiles()) {
-			dirName = getProjectName() + File.separator
+			dirName = getProjectPath() + File.separator
 					+ getRttMbtTProcGenCtxFolderName() + File.separator
 					+ abstractTestProc + File.separator
 					+ "log" + File.separator;
@@ -1033,7 +1035,7 @@ public class RttMbtClient {
 			// /RTT_Testprocedures/inc/
 			// /RTT_Testprocedures/specs/
 			// /RTT_Testprocedures/stubs/
-			dirName = getProjectName() + File.separator
+			dirName = getProjectPath() + File.separator
 					+ getRttMbtTestProcFolderName() + File.separator;
 			downloadDirectory(dirName + "conf");
 			downloadDirectory(dirName + "inc");
@@ -1050,9 +1052,9 @@ public class RttMbtClient {
 		// push necessary files to cache:
 		// /project.rtp
 		// /RTT_Testprocedure/<testproc>/conf/
-		String fileName = getProjectName() + File.separator;
+		String fileName = getProjectPath() + File.separator;
 		uploadFile(fileName + "project.rtp");
-		String dirName = getProjectName() + File.separator
+		String dirName = getProjectPath() + File.separator
 				+ getRttMbtTestProcFolderName() + File.separator
 				+ concreteTestProc + File.separator;
 		uploadDirectory(dirName + "conf", false);
@@ -1070,7 +1072,7 @@ public class RttMbtClient {
 			// download debug information:
 			// - rtt-mbt-tms.out
 			// - rtt-mbt-tms.err
-			String dirname = getProjectName() + File.separator;
+			String dirname = getProjectPath() + File.separator;
 			downloadFile(dirname + "rtt-mbt-tms-execution.err");
 			downloadFile(dirname + "rtt-mbt-tms-execution.out");
 		} else {
@@ -1114,20 +1116,20 @@ public class RttMbtClient {
 		// /RTT_Testprocedure/<testproc>/inc/
 		// /RTT_Testprocedure/<testproc>/specs/
 		// /RTT_Testprocedure/<testproc>/stubs/
-		String fileName = getProjectName() + File.separator;
+		String fileName = getProjectPath() + File.separator;
 		uploadFile(fileName + "project.rtp");
-		String dirName = getProjectName() + File.separator;
+		String dirName = getProjectPath() + File.separator;
 		uploadDirectory(dirName + "conf", false);
 		uploadDirectory(dirName + "inc", false);
 		uploadDirectory(dirName + "specs", false);
 		uploadDirectory(dirName + "stubs", false);
-		dirName = getProjectName() + File.separator
+		dirName = getProjectPath() + File.separator
 				+ getRttMbtTestProcFolderName() + File.separator;
 		uploadDirectory(dirName + "conf", false);
 		uploadDirectory(dirName + "inc", false);
 		uploadDirectory(dirName + "specs", false);
 		uploadDirectory(dirName + "stubs", false);
-		dirName = getProjectName() + File.separator
+		dirName = getProjectPath() + File.separator
 				+ getRttMbtTestProcFolderName() + File.separator
 				+ concreteTestProc + File.separator;
 		uploadDirectory(dirName + "conf", false);
@@ -1146,12 +1148,12 @@ public class RttMbtClient {
 			// download debug information:
 			// - rtt-mbt-tms.out
 			// - rtt-mbt-tms.err
-			String dirname = getProjectName() + File.separator;
+			String dirname = getProjectPath() + File.separator;
 			downloadFile(dirname + "rtt-mbt-tms-execution.err");
 			downloadFile(dirname + "rtt-mbt-tms-execution.out");
 		} else {
 			// download generated files (not src, stubsrc, etc.)
-			dirName = getProjectName() + File.separator
+			dirName = getProjectPath() + File.separator
 					+ getRttMbtTestProcFolderName() + File.separator
 					+ concreteTestProc + File.separator
 					+ "src" + File.separator;
@@ -1188,7 +1190,7 @@ public class RttMbtClient {
 			// download debug information:
 		} else {
 			// download generated files
-			dirName = getProjectName() + File.separator
+			dirName = getProjectPath() + File.separator
 					+ getRttMbtTestProcFolderName() + File.separator
 					+ concreteTestProc + File.separator
 					+ "testdata" + File.separator;
@@ -1220,9 +1222,9 @@ public class RttMbtClient {
 		// push necessary files to cache:
 		// /project.rtp
 		// /TMPL
-		String fileName = getProjectName() + File.separator;
+		String fileName = getProjectPath() + File.separator;
 		uploadFile(fileName + "componentnames.txt");
-		String dirName = getProjectName() + File.separator;
+		String dirName = getProjectPath() + File.separator;
 		uploadDirectory(dirName + "TMPL", true);
 
 		// doc-test-command
@@ -1237,7 +1239,7 @@ public class RttMbtClient {
 			// download debug information:
 		} else {
 			// download generated files
-			dirName = getProjectName() + File.separator
+			dirName = getProjectPath() + File.separator
 					+ getRttMbtTestProcFolderName() + File.separator
 					+ concreteTestProc + File.separator
 					+ "testdata" + File.separator;
@@ -1258,16 +1260,16 @@ public class RttMbtClient {
 		String serverFilename = null;
 		
 		// check/substitute generation context
-		String localGenerationContext = getProjectName() + File.separator + getRttMbtTProcGenCtxFolderName();
-		String serverGenerationContext = getProjectName() + "/TestProcedures";
+		String localGenerationContext = getProjectPath() + File.separator + getRttMbtTProcGenCtxFolderName();
+		String serverGenerationContext = getProjectPath() + "/TestProcedures";
 		if (filename.startsWith(localGenerationContext)) {
 			serverFilename = serverGenerationContext + filename.substring(localGenerationContext.length());
 		} else {
 			serverFilename = filename;
 		}
 		
-		String localExecutionContext = getProjectName() + File.separator + getRttMbtTestProcFolderName();
-		String serverExecutionContext = getProjectName() + "/RTT_TestProcedures";
+		String localExecutionContext = getProjectPath() + File.separator + getRttMbtTestProcFolderName();
+		String serverExecutionContext = getProjectPath() + "/RTT_TestProcedures";
 		if (filename.startsWith(localExecutionContext)) {
 			serverFilename = serverExecutionContext + filename.substring(localExecutionContext.length());
 		}
@@ -1281,16 +1283,16 @@ public class RttMbtClient {
 		String serverFilename = null;
 		
 		// check/substitute generation context
-		String localGenerationContext = getProjectName() + File.separator + getRttMbtTProcGenCtxFolderName();
-		String serverGenerationContext = getProjectName() + "/TestProcedures";
+		String localGenerationContext = getProjectPath() + File.separator + getRttMbtTProcGenCtxFolderName();
+		String serverGenerationContext = getProjectPath() + "/TestProcedures";
 		if (filename.startsWith(serverGenerationContext)) {
 			serverFilename = localGenerationContext + filename.substring(serverGenerationContext.length());
 		} else {
 			serverFilename = filename;
 		}
 		
-		String localExecutionContext = getProjectName() + File.separator + getRttMbtTestProcFolderName();
-		String serverExecutionContext = getProjectName() + "/RTT_TestProcedures";
+		String localExecutionContext = getProjectPath() + File.separator + getRttMbtTestProcFolderName();
+		String serverExecutionContext = getProjectPath() + "/RTT_TestProcedures";
 		if (filename.startsWith(serverExecutionContext)) {
 			serverFilename = localExecutionContext + filename.substring(serverExecutionContext.length());
 		}
@@ -1308,7 +1310,7 @@ public class RttMbtClient {
 		localFilename = substituteContextFolderNamesServer2Local(filename);
 
 		// add workspace prefix
-		String workspace = getCmlWorkspace() + getCmlProject();
+		String workspace = getCmlWorkspace() + File.separator;
 		if (!localFilename.startsWith(workspace)) {
 			localFilename =  workspace + localFilename;
 		}
@@ -1324,7 +1326,7 @@ public class RttMbtClient {
 		if (filename == null) return null;
 
 		// remove workspace prefix
-		String workspace = getCmlWorkspace() + getCmlProject();
+		String workspace = getCmlWorkspace() + File.separator;
 		if (filename.startsWith(workspace)) {
 			serverFilename = filename.substring(workspace.length());
 		} else {
@@ -1404,11 +1406,15 @@ public class RttMbtClient {
 	}
 
 	public void setCmlProject(String project) {
-		this.CmlProject = project + File.separator;
+		this.CmlProject = project;
 	}
 	
+	public String getProjectPath() {
+		return getCmlProject() + File.separator + getProjectName();
+	}
+
 	public String getRttProjectRoot() {
-		return getCmlWorkspace() + getCmlProject() + getProjectName();
+		return getCmlWorkspace() + File.separator + getCmlProject() + File.separator + getProjectName();
 	}
 
 	public String getConsoleName() {

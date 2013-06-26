@@ -30,7 +30,7 @@ public class RttMbtComponentWizard extends BasicNewFolderResourceWizard {
 
 			// pass workspace and cml project information to client
 			client.setCmlWorkspace(workspaceDirectory.getAbsolutePath());
-			client.setCmlProject(project.getFullPath().toString());
+			client.setCmlProject(project.getFullPath().toString().substring(1));
 
 			// test connection to rtt-mbt-tms server
 			if (client.testConenction()) {

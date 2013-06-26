@@ -78,14 +78,14 @@ public class RttMbtPopupMenuAction extends AbstractHandler  {
 		int pos = current.indexOf(File.separator);
 		String cmlProject;
 		if (pos > -1) {
-			cmlProject = current.substring(0,pos);
+			cmlProject = current.substring(0, pos);
 		} else {
 			pos = current.indexOf('/');
 			if (pos == -1) {
 				client.addErrorMessage("[FAIL]: no RTT-MBT component selected");
 				return false;
 			} else {
-				cmlProject = current.substring(0,pos);
+				cmlProject = current.substring(0, pos);
 			}
 		}
 		// calculate RTT-MBT project name from selected folder
@@ -96,7 +96,7 @@ public class RttMbtPopupMenuAction extends AbstractHandler  {
 		String rttProject = current.substring(0,pos);
 
 		// set CML project name
-		client.setCmlProject(File.separator + cmlProject);
+		client.setCmlProject(cmlProject);
 
 		// set RTT-MBT project name
 		client.setProjectName(rttProject);

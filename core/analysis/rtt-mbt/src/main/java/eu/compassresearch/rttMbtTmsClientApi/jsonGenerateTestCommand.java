@@ -31,7 +31,7 @@ public class jsonGenerateTestCommand extends jsonCommand {
 
 		// add parameters
 		Map params = new LinkedHashMap();
-		params.put("project-name", client.getProjectName());
+		params.put("project-name", client.getProjectPath());
 		params.put("test-procedure-path", client.toUnixPath(testProcName));
 		// use gui ports
 		if (guiPorts) {
@@ -57,20 +57,6 @@ public class jsonGenerateTestCommand extends jsonCommand {
 		if (parameters == null) {
 			return;
 		}
-
-		// get configuration.csv
-		String filename = "";
-		if (client.getProjectName() != null) {
-			filename = client.getProjectName() + File.separator;
-		}
-		if (testProcName != null) {
-			filename += client.getRttMbtTProcGenCtxFolderName() + File.separator + testProcName + File.separator + "conf" + File.separator;
-		} else {
-			filename += "model" + File.separator;
-		}
-		filename += "configuration.csv";
-		writeBase64StringFileContent(filename,
-								     (String)parameters.get("configuration.csv"), false);
 
 		// get the result
 		String checkResult = (String)parameters.get("result");
