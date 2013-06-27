@@ -174,21 +174,6 @@
             name="Add Project">
       </command>
       <command
-            defaultHandler="eu.compassresearch.ide.cml.rttplugin.RttMbtCleanProject"
-            id="eu.compassresearch.ide.cml.rttplugin.RttMbtCleanProject"
-            name="Clean Project">
-      </command>
-      <command
-            defaultHandler="eu.compassresearch.ide.cml.rttplugin.RttMbtImportModel"
-            id="eu.compassresearch.ide.cml.rttplugin.RttMbtImportModel"
-            name="Import Model">
-      </command>
-      <command
-            defaultHandler="eu.compassresearch.ide.cml.rttplugin.RttMbtCheckModel"
-            id="eu.compassresearch.ide.cml.rttplugin.RttMbtCheckModel"
-            name="Check model">
-      </command>
-      <command
             defaultHandler="eu.compassresearch.ide.cml.rttplugin.RttMbtAbort"
             id="eu.compassresearch.ide.cml.rttplugin.RttMbtAbort"
             name="Abort Current Task">
@@ -303,6 +288,42 @@
             </with>
          </activeWhen>
       </handler>
+      <handler
+            class="eu.compassresearch.ide.cml.rttplugin.RttMbtCheckModel"
+            commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtCheckModel">
+         <activeWhen>
+            <with
+                  variable="eu.compassresearch.ide.cml.rtt-plugin.IsModelDumpSelected">
+               <equals
+                     value="truumpel">
+               </equals>
+            </with>
+         </activeWhen>
+      </handler>
+      <handler
+            class="eu.compassresearch.ide.cml.rttplugin.RttMbtImportModel"
+            commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtImportModel">
+         <activeWhen>
+            <with
+                  variable="eu.compassresearch.ide.cml.rtt-plugin.IsRttMbtProjectSelected">
+               <equals
+                     value="truumpel">
+               </equals>
+            </with>
+         </activeWhen>
+      </handler>
+      <handler
+            class="eu.compassresearch.ide.cml.rttplugin.RttMbtCleanProject"
+            commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtCleanProject">
+         <activeWhen>
+            <with
+                  variable="eu.compassresearch.ide.cml.rtt-plugin.IsRttMbtProjectSelected">
+               <equals
+                     value="truumpel">
+               </equals>
+            </with>
+         </activeWhen>
+      </handler>
    </extension>
    <extension
          point="org.eclipse.ui.menus">
@@ -312,6 +333,13 @@
          <menu
                id="eu.compassresearch.ide.cml.rttplugin.RttMbtMenu"
                label="RTT-MBT">
+            <command
+                  commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtCleanProject"
+                  icon="icons/mbt_clean.png"
+                  label="Clean Project"
+                  style="push"
+                  tooltip="Cleanup Project">
+            </command>
             <!--
             <command
                   commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtNewProject"
@@ -341,13 +369,6 @@
                   label="Check Model"
                   style="push"
                   tooltip="Perform Livelock Check on the model of this RTT-MBT Project">
-            </command>
-            <command
-                  commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtCleanProject"
-                  icon="icons/mbt_clean.png"
-                  label="Clean Project"
-                  style="push"
-                  tooltip="Cleanup Project">
             </command>
             <separator
                   name="eu.compassresearch.ide.cml.rttplugin.separator-002"
@@ -455,6 +476,21 @@
          <toolbar
                id="eu.compassresearch.ide.cml.rttplugin.RttMbtToolbar"
                label="RT-Tester">
+            <command
+                  commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtCleanProject"
+                  icon="icons/mbt_clean.png"
+                  label="Clean Project"
+                  style="push"
+                  tooltip="Cleanup Project">
+               <visibleWhen>
+                  <with
+                        variable="eu.compassresearch.ide.cml.rtt-plugin.IsRttPerspectiveActive">
+                     <equals
+                           value="truumpel">
+                     </equals>
+                  </with>
+               </visibleWhen>
+            </command>
             <!--
             <command
                   commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtNewProject"
@@ -492,21 +528,6 @@
                   label="Check Model"
                   style="push"
                   tooltip="Perform Livelock Check on the model of this RTT-MBT Project">
-               <visibleWhen>
-                  <with
-                        variable="eu.compassresearch.ide.cml.rtt-plugin.IsRttPerspectiveActive">
-                     <equals
-                           value="truumpel">
-                     </equals>
-                  </with>
-               </visibleWhen>
-            </command>
-            <command
-                  commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtCleanProject"
-                  icon="icons/mbt_clean.png"
-                  label="Clean Project"
-                  style="push"
-                  tooltip="Cleanup Project">
                <visibleWhen>
                   <with
                         variable="eu.compassresearch.ide.cml.rtt-plugin.IsRttPerspectiveActive">
@@ -756,6 +777,13 @@
                id="eu.compassresearch.ide.cml.rttplugin.RttMbtModelMenu"
                label="Model">
             <command
+                  commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtCleanProject"
+                  icon="icons/mbt_clean.png"
+                  label="Clean Project"
+                  style="push"
+                  tooltip="Cleanup Project">
+            </command>
+            <command
                   commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtImportModel"
                   icon="icons/mbt_import_model.png"
                   label="Import Model"
@@ -769,21 +797,30 @@
                   style="push"
                   tooltip="Imports the XMI representation of a model into the selected RTT-MBT project">
             </command>
-            <command
-                  commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtCleanProject"
-                  icon="icons/mbt_clean.png"
-                  label="Clean Project"
-                  style="push"
-                  tooltip="Cleanup Project">
-            </command>
             <visibleWhen
                   checkEnabled="false">
-               <with
-                     variable="eu.compassresearch.ide.cml.rtt-plugin.IsRttPerspectiveActive">
-                  <equals
-                        value="truumpel">
-                  </equals>
-               </with>
+               <and>
+                  <with
+                        variable="eu.compassresearch.ide.cml.rtt-plugin.IsRttPerspectiveActive">
+                     <equals
+                           value="truumpel">
+                     </equals>
+                  </with>
+                  <or>
+                     <with
+                           variable="eu.compassresearch.ide.cml.rtt-plugin.IsModelDumpSelected">
+                        <equals
+                              value="truumpel">
+                        </equals>
+                     </with>
+                     <with
+                           variable="eu.compassresearch.ide.cml.rtt-plugin.IsRttMbtProjectSelected">
+                        <equals
+                              value="truumpel">
+                        </equals>
+                     </with>
+                  </or>
+               </and>
             </visibleWhen>
          </menu>
       </menuContribution>
@@ -809,20 +846,12 @@
             </command>
             <visibleWhen
                   checkEnabled="false">
-               <and>
-                  <with
-                        variable="eu.compassresearch.ide.cml.rtt-plugin.IsRttPerspectiveActive">
-                     <equals
-                           value="truumpel">
-                     </equals>
-                  </with>
-                  <with
-                        variable="eu.compassresearch.ide.cml.rtt-plugin.IsGenerationContextTP">
-                     <equals
-                           value="truumpel">
-                     </equals>
-                  </with>
-               </and>
+               <with
+                     variable="eu.compassresearch.ide.cml.rtt-plugin.IsGenerationContextTP">
+                  <equals
+                        value="truumpel">
+                  </equals>
+               </with>
             </visibleWhen>
          </menu>
       </menuContribution>
@@ -869,20 +898,12 @@
             </command>
             <visibleWhen
                   checkEnabled="false">
-               <and>
-                  <with
-                        variable="eu.compassresearch.ide.cml.rtt-plugin.IsRttPerspectiveActive">
-                     <equals
-                           value="truumpel">
-                     </equals>
-                  </with>
-                  <with
-                        variable="eu.compassresearch.ide.cml.rtt-plugin.IsExecutionContextTP">
-                     <equals
-                           value="truumpel">
-                     </equals>
-                  </with>
-               </and>
+               <with
+                     variable="eu.compassresearch.ide.cml.rtt-plugin.IsExecutionContextTP">
+                  <equals
+                        value="truumpel">
+                  </equals>
+               </with>
             </visibleWhen>
          </menu>
       </menuContribution>

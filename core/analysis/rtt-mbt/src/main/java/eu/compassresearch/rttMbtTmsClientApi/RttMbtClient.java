@@ -6,7 +6,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -77,18 +79,32 @@ public class RttMbtClient {
 	}
 	
 	public void addLogMessage(String msg) {
+		String timestamp = "";
+		if (getVerboseLogging()) {
+			Date date = new Date();
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd:HH-mm-ss");
+			String dateString = sdf.format(date);
+			timestamp = dateString + " ";
+		}
 		if (log != null) {
-			log.addLogMessage(consoleName, msg + "\n");
+			log.addLogMessage(timestamp + consoleName, msg + "\n");
 		} else {
-			System.out.println("[" + consoleName + "]:" + msg);
+			System.out.println(timestamp + "[" + consoleName + "]:" + msg);
 		}
 	}
 	
 	public void addErrorMessage(String msg) {
+		String timestamp = "";
+		if (getVerboseLogging()) {
+			Date date = new Date();
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd:HH-mm-ss");
+			String dateString = sdf.format(date);
+			timestamp = dateString + " ";
+		}
 		if (log != null) {
-			log.addErrorMessage(consoleName, msg + "\n");
+			log.addErrorMessage(timestamp + consoleName, msg + "\n");
 		} else {
-			System.err.println("[" + consoleName + "]: *** error: " + msg);
+			System.err.println(timestamp + "[" + consoleName + "]: *** error: " + msg);
 		}
 	}
 	

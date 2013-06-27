@@ -80,15 +80,25 @@ public class RttMbtProjectExplorer extends org.eclipse.ui.navigator.CommonNaviga
 			return;
 		}
 		if (isGenerationContextSelected()) {
-			setService(RttMbtCommandState.keyIsGenerationContextTP,
-                       RttMbtCommandState.TRUE);
-			setService(RttMbtCommandState.keyIsExecutionContextTP,
-                       RttMbtCommandState.FALSE);
+			setService(RttMbtCommandState.keyIsGenerationContextTP,RttMbtCommandState.TRUE);
+			setService(RttMbtCommandState.keyIsExecutionContextTP,RttMbtCommandState.FALSE);
+			setService(RttMbtCommandState.keyIsModelDumpSelected, RttMbtCommandState.FALSE);
+			setService(RttMbtCommandState.keyIsRttMbtProjectSelected, RttMbtCommandState.FALSE);
 		} else if (isExecutionContextSelected()) {
-			setService(RttMbtCommandState.keyIsGenerationContextTP,
-                       RttMbtCommandState.FALSE);
-			setService(RttMbtCommandState.keyIsExecutionContextTP,
-                       RttMbtCommandState.TRUE);
+			setService(RttMbtCommandState.keyIsExecutionContextTP,RttMbtCommandState.TRUE);
+			setService(RttMbtCommandState.keyIsGenerationContextTP,RttMbtCommandState.FALSE);
+			setService(RttMbtCommandState.keyIsModelDumpSelected, RttMbtCommandState.FALSE);
+			setService(RttMbtCommandState.keyIsRttMbtProjectSelected, RttMbtCommandState.FALSE);
+		} else if (isModelDumpSelected()) {
+			setService(RttMbtCommandState.keyIsModelDumpSelected, RttMbtCommandState.TRUE);
+			setService(RttMbtCommandState.keyIsGenerationContextTP, RttMbtCommandState.FALSE);
+			setService(RttMbtCommandState.keyIsExecutionContextTP, RttMbtCommandState.FALSE);
+			setService(RttMbtCommandState.keyIsRttMbtProjectSelected, RttMbtCommandState.FALSE);
+		} else if (isRttMbtProjectSelected()) {
+			setService(RttMbtCommandState.keyIsRttMbtProjectSelected, RttMbtCommandState.TRUE);
+			setService(RttMbtCommandState.keyIsGenerationContextTP, RttMbtCommandState.FALSE);
+			setService(RttMbtCommandState.keyIsExecutionContextTP, RttMbtCommandState.FALSE);
+			setService(RttMbtCommandState.keyIsModelDumpSelected, RttMbtCommandState.FALSE);
 		} else {
 			setAllKeysFlase();
 		}
@@ -98,6 +108,8 @@ public class RttMbtProjectExplorer extends org.eclipse.ui.navigator.CommonNaviga
     private void setAllKeysFlase() {
 		setService(RttMbtCommandState.keyIsGenerationContextTP, RttMbtCommandState.FALSE);
 		setService(RttMbtCommandState.keyIsExecutionContextTP, RttMbtCommandState.FALSE);
+		setService(RttMbtCommandState.keyIsModelDumpSelected, RttMbtCommandState.FALSE);
+		setService(RttMbtCommandState.keyIsRttMbtProjectSelected, RttMbtCommandState.FALSE);
     }
 
     private void setService(String key, String value) {
@@ -142,5 +154,44 @@ public class RttMbtProjectExplorer extends org.eclipse.ui.navigator.CommonNaviga
 			(path.substring(idx - 1, idx).compareTo(File.separator) != 0)) { return false; }
 		String objectContainer = path.substring(idx, path.length());
 		return objectContainer.compareTo(RttTestProc) == 0;
+	}
+	
+	public Boolean isModelDumpSelected() {
+		if (selectedObject == null) {
+			return false;
+		}
+		return selectedObject.compareTo("model_dump.xml") == 0;
+	}
+
+	public Boolean isRttMbtProjectSelected() {
+		if (selectedObjectPath == null) {
+			return false;
+		}
+
+		// calculate CML project name from selectedObjectPath
+		String current = selectedObjectPath.substring(1, selectedObjectPath.length());
+		int pos = current.indexOf(File.separator);
+		String cmlProject;
+		if (pos > -1) {
+			cmlProject = current.substring(0, pos);
+		} else {
+			pos = current.indexOf('/');
+			if (pos == -1) {
+				// no RttMbt project selected
+				return false;
+			} else {
+				cmlProject = current.substring(0, pos);
+			}
+		}
+		// calculate RTT-MBT project name from selected folder
+		current = current.substring(pos + 1, current.length());
+		pos = current.indexOf(File.separator);
+		if (pos == -1) pos = current.indexOf('/');
+		if (pos == -1) pos = current.length();
+		String rttProject = current.substring(0,pos);
+
+		// check if rtt-mbt project is selected
+		String rttProjectPath = File.separator + cmlProject + File.separator + rttProject;
+		return selectedObjectPath.compareTo(rttProjectPath) == 0;
 	}
 }
