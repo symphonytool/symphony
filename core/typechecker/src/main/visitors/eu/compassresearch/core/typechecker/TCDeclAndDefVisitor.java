@@ -248,9 +248,9 @@ class TCDeclAndDefVisitor extends
 	@Override
 	public PType caseAChannelNameDefinition(AChannelNameDefinition node,
 			TypeCheckInfo question) throws AnalysisException {
-
+		
 		ATypeSingleDeclaration decl = node.getSingleType();
-
+		
 		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
 		if (cmlEnv == null) {
 			node.setType(issueHandler.addTypeError(
@@ -259,6 +259,8 @@ class TCDeclAndDefVisitor extends
 							+ node)));
 			return node.getType();
 		}
+		
+		cmlEnv.checkChannelDuplicate(node);
 
 		PType declType = decl.apply(parentChecker, question);
 		if (!successfulType(declType)) {
@@ -267,13 +269,13 @@ class TCDeclAndDefVisitor extends
 							.customizeMessage(declType + " ")));
 			return node.getType();
 		}
-
+		
 		List<PDefinition> typeDefs = new LinkedList<PDefinition>();
 		for (PDefinition def : declType.getDefinitions()) {
 			typeDefs.add(def);
 			def.setType(decl.getType());
 		}
-
+		
 		node.getType().getDefinitions().addAll(typeDefs);
 		return node.getType();
 	}

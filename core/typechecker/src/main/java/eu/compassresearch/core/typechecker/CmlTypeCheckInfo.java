@@ -311,6 +311,38 @@ class CmlTypeCheckInfo extends TypeCheckInfo implements TypeCheckQuestion {
 	public List<PDefinition> getDefinitions() {
 		return env.getDefinitions();
 	}
+	
+	public void checkChannelDuplicate(AChannelNameDefinition newChannel){
+		//run through all identifiers of new channel
+		for (ILexIdentifierToken newChannelIdent : newChannel.getSingleType().getIdentifiers()) {
+			int count = 0;
+			LexNameToken newChannelIdentName = new LexNameToken("", newChannelIdent);
+			
+			//run through each existing channels
+			for (PDefinition def : channels.getDefinitions()) {
+	
+				if (def instanceof AChannelNameDefinition) {
+					AChannelNameDefinition existingChanDef = (AChannelNameDefinition) def;
+					//compare identifiers
+					for (ILexIdentifierToken id : existingChanDef.getSingleType().getIdentifiers()) {
+						LexNameToken existingChannelName = new LexNameToken("", id);
+						
+						if (HelpLexNameToken.isEqual(existingChannelName, newChannelIdentName))
+						{
+							++count;
+							if(count > 1)
+							{
+								newChannel.setType(issueHandler.addTypeError(newChannel,
+										TypeErrorMessages.DUPLICATE_DEFINITION
+												.customizeMessage(newChannelIdentName + " " + newChannel.getLocation()
+														, existingChannelName + "  " + existingChanDef.getLocation())));
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 
 	/**
 	 * Create an environment with this environment being the outer environment
