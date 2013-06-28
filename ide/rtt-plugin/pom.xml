@@ -13,6 +13,7 @@
   <groupId>eu.compassresearch.ide.cml</groupId>
   <artifactId>eu.compassresearch.ide.cml.rtt-plugin</artifactId>
   <name>COMPASS IDE RT Tester Plugin</name>
+  <version>0.1.3-SNAPSHOT<!--Replaceable: Main Version--></version>
 
   <build>
     <plugins>
