@@ -191,7 +191,7 @@ public class RttMbtProjectExplorer extends org.eclipse.ui.navigator.CommonNaviga
 		String rttProject = current.substring(0,pos);
 
 		// check if rtt-mbt project is selected
-		String rttProjectPath = File.separator + cmlProject + File.separator + rttProject;
+		String rttProjectPath = "/" + cmlProject + "/" + rttProject;
 		return selectedObjectPath.compareTo(rttProjectPath) == 0;
 	}
 }
