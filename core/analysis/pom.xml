@@ -20,6 +20,7 @@
     <!-- module>refinementtool</module -->
     <module>rtt-mbt</module>
     <module>security</module>
+	<module>modelchecker</module>
   </modules>
 </project>
 

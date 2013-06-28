@@ -30,6 +30,7 @@
     <module>interpreter-plugin</module>
     <module>pog-plugin</module>
     <module>security-plugin</module>
+	<module>mc-plugin</module>
     <module>platform</module>
     <module>features</module>
     <module>product</module>

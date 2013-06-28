@@ -1,0 +1,4 @@
+ProcDef("A",nopar,Stop)
+ProcHasDeadlock("A")
+State(Stop)
+

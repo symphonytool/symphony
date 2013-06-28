@@ -24,6 +24,9 @@
    <feature url="features/eu.compassresearch.ide.features.plugins.security_0.0.0.qualifier.jar" id="eu.compassresearch.ide.features.plugins.security" version="0.0.0">
       <category name="COMPASS"/>
    </feature>
+   <feature url="features/eu.compassresearch.ide.features.plugins.mc_0.0.0.qualifier.jar" id="eu.compassresearch.ide.features.plugins.mc" version="0.0.0">
+      <category name="COMPASS"/>
+   </feature>
    <category-def name="COMPASS" label="COMPASS Tool Platform">
       <description>
          The COMPASS CML Tool Platform

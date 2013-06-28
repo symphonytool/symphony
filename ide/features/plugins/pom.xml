@@ -21,6 +21,7 @@
     <module>interpreter</module>
     <module>rtt</module>
     <module>security</module>
+	<module>mc</module>
   </modules>
 
 </project>
