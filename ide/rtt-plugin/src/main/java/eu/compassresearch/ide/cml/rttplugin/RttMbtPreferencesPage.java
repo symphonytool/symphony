@@ -28,10 +28,14 @@ public class RttMbtPreferencesPage extends FieldEditorPreferencePage implements 
 	private Label valUptime;
 	private Label valServerConnection;
 	private Label valResetServerWorkspace;
+	private Composite parentControl;
 	
 	@Override
 	protected Control createContents(Composite parent) {
 
+		// store parent control
+		parentControl = parent;
+		
 		// suppress default and apply button for this page
 		noDefaultAndApplyButton();
 
@@ -106,18 +110,20 @@ public class RttMbtPreferencesPage extends FieldEditorPreferencePage implements 
     	valResetServerWorkspace = new Label(parent, SWT.NONE);
     	valResetServerWorkspace.setText("");
 
-    	return super.createContents(parent);
+    	Control control = super.createContents(parent);
+		parentControl.pack();
+		return control;
 	}
 
 	private void testServerConnection() {
 		if (client == null) return;
+		valServerName.setText(client.getRttMbtServer());
+		valServerName.pack();
 		valServerConnection.setText("in progress...");
 		valServerConnection.pack();
 		if (client.testConenction()) {
 			valServerConnection.setText("PASS");
 			valServerConnection.pack();
-			valServerName.setText(client.getRttMbtServer());
-			valServerName.pack();
 	    	valServerVersion.setText(client.getRttMbtServerVersion());
 	    	valServerVersion.pack();
 	    	valUptime.setText(client.getRttMbtServerUptime());
@@ -125,10 +131,13 @@ public class RttMbtPreferencesPage extends FieldEditorPreferencePage implements 
 		} else {
 			valServerConnection.setText("FAIL");
 		}
+		parentControl.pack();
 	}
 	
 	private void resetServerWorkspace() {
 		if (client == null) return;
+		valServerName.setText(client.getRttMbtServer());
+		valServerName.pack();
 		valResetServerWorkspace.setText("in progress...");
 		valResetServerWorkspace.pack();
 		if (client.removeRttMbtSession()) {
@@ -138,6 +147,7 @@ public class RttMbtPreferencesPage extends FieldEditorPreferencePage implements 
 			valResetServerWorkspace.setText("FAIL");
 			valResetServerWorkspace.pack();
 		}
+		parentControl.pack();
 	}
 	
 	public RttMbtPreferencesPage() {

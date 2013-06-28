@@ -31,7 +31,7 @@ public class jsonGenerateSimulationCommand extends jsonCommand {
 		Map params = new LinkedHashMap();
 		params.put("user", client.getUserName());
 		params.put("user-id", client.getUserId());
-		params.put("project-name", client.getProjectPath());
+		params.put("project-name", client.toUnixPath(client.getProjectPath()));
 		params.put("test-procedure-path", client.toUnixPath(testProcName));
 		// create command
 		JSONObject cmd = new JSONObject();

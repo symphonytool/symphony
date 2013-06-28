@@ -1277,7 +1277,7 @@ public class RttMbtClient {
 		
 		// check/substitute generation context
 		String localGenerationContext = getProjectPath() + File.separator + getRttMbtTProcGenCtxFolderName();
-		String serverGenerationContext = getProjectPath() + "/TestProcedures";
+		String serverGenerationContext = getProjectPath() + File.separator + "TestProcedures";
 		if (filename.startsWith(localGenerationContext)) {
 			serverFilename = serverGenerationContext + filename.substring(localGenerationContext.length());
 		} else {
@@ -1285,7 +1285,7 @@ public class RttMbtClient {
 		}
 		
 		String localExecutionContext = getProjectPath() + File.separator + getRttMbtTestProcFolderName();
-		String serverExecutionContext = getProjectPath() + "/RTT_TestProcedures";
+		String serverExecutionContext = getProjectPath() + File.separator + "RTT_TestProcedures";
 		if (filename.startsWith(localExecutionContext)) {
 			serverFilename = serverExecutionContext + filename.substring(localExecutionContext.length());
 		}
@@ -1300,7 +1300,7 @@ public class RttMbtClient {
 		
 		// check/substitute generation context
 		String localGenerationContext = getProjectPath() + File.separator + getRttMbtTProcGenCtxFolderName();
-		String serverGenerationContext = getProjectPath() + "/TestProcedures";
+		String serverGenerationContext = toUnixPath(getProjectPath()) + "/" + "TestProcedures";
 		if (filename.startsWith(serverGenerationContext)) {
 			serverFilename = localGenerationContext + filename.substring(serverGenerationContext.length());
 		} else {
@@ -1308,7 +1308,7 @@ public class RttMbtClient {
 		}
 		
 		String localExecutionContext = getProjectPath() + File.separator + getRttMbtTestProcFolderName();
-		String serverExecutionContext = getProjectPath() + "/RTT_TestProcedures";
+		String serverExecutionContext = toUnixPath(getProjectPath()) + "/" + "RTT_TestProcedures";
 		if (filename.startsWith(serverExecutionContext)) {
 			serverFilename = localExecutionContext + filename.substring(serverExecutionContext.length());
 		}
