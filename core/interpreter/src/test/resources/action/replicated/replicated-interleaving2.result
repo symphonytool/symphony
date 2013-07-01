@@ -3,30 +3,6 @@
   <exception/>
   <interpreterState>TERMINATED</interpreterState>
   <trace>
-  	<events>a.1.1,a.1.2,a.2.1,a.2.2</events>
-	<events>a.1.1,a.1.2,a.2.2,a.2.1</events>
-	<events>a.1.1,a.2.1,a.1.2,a.2.2</events>
-	<events>a.1.1,a.2.1,a.2.2,a.1.2</events>
-	<events>a.1.1,a.2.2,a.1.2,a.2.1</events>
-	<events>a.1.1,a.2.2,a.2.1,a.1.2</events>
-	<events>a.1.2,a.1.1,a.2.1,a.2.2</events>
-	<events>a.1.2,a.1.1,a.2.2,a.2.1</events>
-	<events>a.1.2,a.2.1,a.1.1,a.2.2</events>
-	<events>a.1.2,a.2.1,a.2.2,a.1.1</events>
-	<events>a.1.2,a.2.2,a.1.1,a.2.1</events>
-	<events>a.1.2,a.2.2,a.2.1,a.1.1</events>
-	<events>a.2.1,a.1.1,a.1.2,a.2.2</events>
-	<events>a.2.1,a.1.1,a.2.2,a.1.2</events>
-	<events>a.2.1,a.1.2,a.1.1,a.2.2</events>
-	<events>a.2.1,a.1.2,a.2.2,a.1.1</events>
-	<events>a.2.1,a.2.2,a.1.1,a.1.2</events>
-	<events>a.2.1,a.2.2,a.1.2,a.1.1</events>
-	<events>a.2.2,a.1.1,a.1.2,a.2.1</events>
-	<events>a.2.2,a.1.1,a.2.1,a.1.2</events>
-	<events>a.2.2,a.1.2,a.1.1,a.2.1</events>
-	<events>a.2.2,a.1.2,a.2.1,a.1.1</events>
-	<events>a.2.2,a.2.1,a.1.1,a.1.2</events>
-	<events>a.2.2,a.2.1,a.1.2,a.1.1</events>
-    <timedTrace/>
+  	<events>(a\.1\.1|a\.1\.2|a\.2\.1|a\.2\.2),(?!\1)(a\.1\.1|a\.1\.2|a\.2\.1|a\.2\.2),(?!(\1|\2))(a\.1\.1|a\.1\.2|a\.2\.1|a\.2\.2),(?!(\1|\2|\4))(a\.1\.1|a\.1\.2|a\.2\.1|a\.2\.2)</events>
   </trace>
 </testResult>

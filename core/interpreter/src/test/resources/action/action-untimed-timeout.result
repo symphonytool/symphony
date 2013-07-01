@@ -3,6 +3,7 @@
   <exception/>
   <interpreterState>TERMINATED</interpreterState>
   <trace>
-    <events>a.1.56</events>
+    <events>(a|b)(?!,(a|b))</events>
+    <timedTrace>((tock,)*a|(tock,)*b)(?!,((tock,)*a|(tock,)*b))</timedTrace>
   </trace>
 </testResult>

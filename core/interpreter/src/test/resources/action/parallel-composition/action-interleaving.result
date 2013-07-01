@@ -3,8 +3,6 @@
   <exception/>
   <interpreterState>TERMINATED</interpreterState>
   <trace>
-    <events>a,b</events>
-    <events>b,a</events>
-    <timedTrace/>
+    <events>(a,b|b,a)</events>
   </trace>
 </testResult>
