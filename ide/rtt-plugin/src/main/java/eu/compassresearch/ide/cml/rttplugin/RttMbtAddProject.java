@@ -19,14 +19,14 @@ public class RttMbtAddProject extends RttMbtPopupMenuAction  {
 		// get selected object
 		client.setProgress(IRttMbtProgressBar.Tasks.ALL, 0);
 		if (!getSelectedObject(event)) {
-			client.addErrorMessage("[FAIL]: Add an existing RTT-MBT Component to the RTT-MBT Server: Please select an RTT-MBT component!\n");
+			client.addErrorMessage("[FAIL]: Add an existing RTT-MBT Component to the RTT-MBT Server: Please select an RTT-MBT component!");
 			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 			return null;
 		}
 		
 		// get RttMbtClient for this action
 		if (!initClient(selectedObjectPath)) {
-			client.addErrorMessage("[FAIL]: Add an existing RTT-MBT Component to the RTT-MBT Server: init of RTT-MBT client failed!\n");
+			client.addErrorMessage("[FAIL]: Add an existing RTT-MBT Component to the RTT-MBT Server: init of RTT-MBT client failed!");
 			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 			return null;
 		}
@@ -97,9 +97,9 @@ public class RttMbtAddProject extends RttMbtPopupMenuAction  {
 				ret = client.uploadDirectory(itempath + File.separator + "conf", true);
 				success = success && ret;
 				if (ret) {
-					client.addLogMessage("[PASS]\n");
+					client.addLogMessage("[PASS]");
 				} else {
-					client.addLogMessage("[FAIL]\n");
+					client.addLogMessage("[FAIL]");
 				}
 				
 				// inc
@@ -108,9 +108,9 @@ public class RttMbtAddProject extends RttMbtPopupMenuAction  {
 				ret = client.uploadDirectory(itempath + File.separator + "inc", true);
 				success = success && ret;
 				if (ret) {
-					client.addLogMessage("[PASS]\n");
+					client.addLogMessage("[PASS]");
 				} else {
-					client.addLogMessage("[FAIL]\n");
+					client.addLogMessage("[FAIL]");
 				}
 				
 				// model
@@ -119,9 +119,9 @@ public class RttMbtAddProject extends RttMbtPopupMenuAction  {
 				ret = client.uploadDirectory(itempath + File.separator + "model", true);
 				success = success && ret;
 				if (ret) {
-					client.addLogMessage("[PASS]\n");
+					client.addLogMessage("[PASS]");
 				} else {
-					client.addLogMessage("[FAIL]\n");
+					client.addLogMessage("[FAIL]");
 				}
 				
 				// scripts
@@ -130,9 +130,9 @@ public class RttMbtAddProject extends RttMbtPopupMenuAction  {
 				ret = client.uploadDirectory(itempath + File.separator + "scripts", true);
 				success = success && ret;
 				if (ret) {
-					client.addLogMessage("[PASS]\n");
+					client.addLogMessage("[PASS]");
 				} else {
-					client.addLogMessage("[FAIL]\n");
+					client.addLogMessage("[FAIL]");
 				}
 				
 				// specs
@@ -141,9 +141,9 @@ public class RttMbtAddProject extends RttMbtPopupMenuAction  {
 				ret = client.uploadDirectory(itempath + File.separator + "specs", true);
 				success = success && ret;
 				if (ret) {
-					client.addLogMessage("[PASS]\n");
+					client.addLogMessage("[PASS]");
 				} else {
-					client.addLogMessage("[FAIL]\n");
+					client.addLogMessage("[FAIL]");
 				}
 				
 				// stubs
@@ -152,9 +152,9 @@ public class RttMbtAddProject extends RttMbtPopupMenuAction  {
 				ret = client.uploadDirectory(itempath + File.separator + "stubs", true);
 				success = success && ret;
 				if (ret) {
-					client.addLogMessage("[PASS]\n");
+					client.addLogMessage("[PASS]");
 				} else {
-					client.addLogMessage("[FAIL]\n");
+					client.addLogMessage("[FAIL]");
 				}
 				
 				// TMPL
@@ -163,16 +163,16 @@ public class RttMbtAddProject extends RttMbtPopupMenuAction  {
 				ret = client.uploadDirectory(itempath + File.separator + "TMPL", true);
 				success = success && ret;
 				if (ret) {
-					client.addLogMessage("[PASS]\n");
+					client.addLogMessage("[PASS]");
 				} else {
-					client.addLogMessage("[FAIL]\n");
+					client.addLogMessage("[FAIL]");
 				}
 
 				// final verdict of action
 				if (success) {
-					client.addLogMessage("[PASS]: Add RTT-MBT component '" + selectedObject + "'\n");
+					client.addLogMessage("[PASS]: Add RTT-MBT component '" + selectedObject + "'");
 				} else {
-					client.addLogMessage("[FAIL]: Add RTT-MBT component '" + selectedObject + "'\n");
+					client.addLogMessage("[FAIL]: Add RTT-MBT component '" + selectedObject + "'");
 				}
 				client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 				return Status.OK_STATUS;

@@ -64,7 +64,7 @@ public class RttMbtPopupMenuAction extends AbstractHandler  {
 		Boolean success = true;
 		
 		if (selectionFullPath == null) {
-			client.addErrorMessage("[FAIL]: unable to initialize client (no path to the selected object provided)!\n");
+			client.addErrorMessage("[FAIL]: unable to initialize client (no path to the selected object provided)!");
 			return false;
 		}
 		
@@ -78,14 +78,14 @@ public class RttMbtPopupMenuAction extends AbstractHandler  {
 		int pos = current.indexOf(File.separator);
 		String cmlProject;
 		if (pos > -1) {
-			cmlProject = current.substring(0,pos);
+			cmlProject = current.substring(0, pos);
 		} else {
 			pos = current.indexOf('/');
 			if (pos == -1) {
-				client.addErrorMessage("[FAIL]: no RTT-MBT component selected\n");
+				client.addErrorMessage("[FAIL]: no RTT-MBT component selected");
 				return false;
 			} else {
-				cmlProject = current.substring(0,pos);
+				cmlProject = current.substring(0, pos);
 			}
 		}
 		// calculate RTT-MBT project name from selected folder
@@ -96,7 +96,7 @@ public class RttMbtPopupMenuAction extends AbstractHandler  {
 		String rttProject = current.substring(0,pos);
 
 		// set CML project name
-		client.setCmlProject(File.separator + cmlProject);
+		client.setCmlProject(cmlProject);
 
 		// set RTT-MBT project name
 		client.setProjectName(rttProject);
@@ -106,17 +106,21 @@ public class RttMbtPopupMenuAction extends AbstractHandler  {
 		
 		// test connection to rtt-mbt-tms server
 		if (client.testConenction()) {
-			client.addLogMessage("[PASS]: test RTT-MBT server connection\n");
+			if (client.getVerboseLogging()) {
+				client.addLogMessage("[PASS]: test RTT-MBT server connection");
+			}
 		} else {
-			client.addErrorMessage("[FAIL]: test RTT-MBT server connection\n");
+			client.addErrorMessage("[FAIL]: test RTT-MBT server connection");
 			return false;
 		}
 
 		// start RTT-MBT-TMS session
 		if (client.beginRttMbtSession()) {
-			client.addLogMessage("[PASS]: begin RTT-MBT session\n");
+			if (client.getVerboseLogging()) {
+				client.addLogMessage("[PASS]: begin RTT-MBT session");
+			}
 		} else {
-			client.addErrorMessage("[FAIL]: begin RTT-MBT session\n");
+			client.addErrorMessage("[FAIL]: begin RTT-MBT session");
 			return false;
 		}
 		

@@ -1,0 +1,34 @@
+-----------------------------------------------------------
+RTTMBTAPI_0.1.3
+
+Changes:
+
+rttMbtTmsClientApi:
+- 
+
+Commit: in development
+Released: in development
+
+-----------------------------------------------------------
+RTTMBTAPI_0.1.2
+
+Bugfix and feature release after COMPASS Plenary 2
+
+Changes:
+
+rttMbtTmsClientApi:
+- implemented cleanProject
+- cleanup on model import
+- added CML project name to path in the work area on the RTT-MBT server.
+- add time stamp to console messages if verbose logging is active
+- fixed problem with windows file separator
+
+Commit: a0db135
+Released: 2013-06-28
+
+-----------------------------------------------------------
+Version that was used for the COMPASS Plenary 2 2013-06-14
+
+Commit: 4a9400a
+Released: 2013-06-28
+-----------------------------------------------------------

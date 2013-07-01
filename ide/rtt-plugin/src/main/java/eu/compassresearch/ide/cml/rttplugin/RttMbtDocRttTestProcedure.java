@@ -17,14 +17,14 @@ public class RttMbtDocRttTestProcedure extends RttMbtConcreteTestProcedureAction
 		// get selected object
 		client.setProgress(IRttMbtProgressBar.Tasks.ALL, 0);
 		if (!getSelectedObject(event)) {
-			client.addErrorMessage("[FAIL]: Please select an abstract test procedure!\n");
+			client.addErrorMessage("[FAIL]: Please select an abstract test procedure!");
 			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 			return null;
 		}
 
 		// get RttMbtClient for this action
 		if (!initClient(selectedObjectPath)) {
-			client.addErrorMessage("[FAIL]: generate test procedure documentation: init of RTT-MBT client failed!\n");
+			client.addErrorMessage("[FAIL]: generate test procedure documentation: init of RTT-MBT client failed!");
 			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 			return null;
 		}
@@ -32,7 +32,6 @@ public class RttMbtDocRttTestProcedure extends RttMbtConcreteTestProcedureAction
 		// if a test procedure generation context is selected, switch to test procedure
 		if ((!isRttTestProcSelected()) && (isTProcGenCtxSelected())) {
 			getRttTestProcPathFromTProcGenCtxPath();
-			client.addLogMessage("adjusting selected object to '" + selectedObjectPath + "'\n");
 		}
 		
 		// check that a test procedure is selected
@@ -43,13 +42,13 @@ public class RttMbtDocRttTestProcedure extends RttMbtConcreteTestProcedureAction
 		Job job = new Job("Generate Documentation") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
-				client.addLogMessage("generating documentation for " + selectedObject + "... please wait for the task to be finished.\n");
+				client.addLogMessage("generating documentation for " + selectedObject + "... please wait for the task to be finished.");
 				// generate test procedure documentation
 				if (client.docTestProcedure(selectedObject)) {
-					client.addLogMessage("[PASS]: generate test procedure documentation\n");
+					client.addLogMessage("[PASS]: generate test procedure documentation");
 					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 				} else {
-					client.addErrorMessage("[FAIL]: generate test procedure documentation\n");
+					client.addErrorMessage("[FAIL]: generate test procedure documentation");
 					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 				}
 				return Status.OK_STATUS;

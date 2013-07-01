@@ -11,13 +11,14 @@
 
   <artifactId>rtt-mbt</artifactId>
   <name>COMPASS Core Analysis RTT-MBT Interface</name>
+  <version>0.1.3-SNAPSHOT</version>
 
   <dependencies>
 
     <dependency>
       <groupId>eu.compassresearch.core</groupId>
       <artifactId>ast</artifactId>
-      <version>${project.version}</version>
+      <version>${project.parent.version}</version>
     </dependency>
 
     <dependency>

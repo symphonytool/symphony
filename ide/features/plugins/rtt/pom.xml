@@ -14,5 +14,6 @@
   <groupId>eu.compassresearch.ide.features.plugins</groupId>
   <artifactId>eu.compassresearch.ide.features.plugins.rtt</artifactId>
   <name>COMPASS Tool Plugin Eclipse RTT-MBT feature</name>
+  <version>0.1.3-SNAPSHOT</version>
   
 </project>

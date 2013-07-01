@@ -37,7 +37,6 @@ public class jsonRemoveFileFromCacheCommand extends jsonCommand {
 		if (reply == null) {
 			return null;
 		}
-		// @todo: extract parameters by resule name
 		return (JSONObject)reply.get("remove-file-from-cache-reply");
 	}
 
