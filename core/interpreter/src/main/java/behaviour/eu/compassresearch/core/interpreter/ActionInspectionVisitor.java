@@ -37,6 +37,7 @@ import eu.compassresearch.ast.actions.ASignalCommunicationParameter;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.AStopAction;
 import eu.compassresearch.ast.actions.ATimeoutAction;
+import eu.compassresearch.ast.actions.AUntimedTimeoutAction;
 import eu.compassresearch.ast.actions.AValParametrisation;
 import eu.compassresearch.ast.actions.AWaitAction;
 import eu.compassresearch.ast.actions.AWriteCommunicationParameter;
@@ -727,6 +728,71 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 					});
 			
 			
+		}
+	}
+	
+	@Override
+	public Inspection caseAUntimedTimeoutAction(
+			final AUntimedTimeoutAction node, final Context question)
+					throws AnalysisException {
+
+		//throw new AnalysisException("case not implemented yet");
+		
+		//the alphabet still need to be calculated before this is done, so uncomment when done
+		
+		//Make a random decision whether the process should timeout and
+		//behaves as the right process
+		if(this.rnd.nextBoolean())
+		{
+			return newInspection(createSilentTransition(node, node.getRight()), 
+					new AbstractCalculationStep(owner, visitorAccess) {
+						
+						@Override
+						public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+								throws AnalysisException {
+							//We set the process to become the right behavior
+							setLeftChild(null);
+							return new Pair<INode, Context>(node.getRight(), question);
+						}
+					});
+			
+		}
+		//If the left is Skip then the whole process becomes skip with the state of the left child
+		else if(owner.getLeftChild().finished())
+		{
+			return newInspection(createSilentTransition(node, owner.getLeftChild().getNextState().first),
+					new AbstractCalculationStep(owner, visitorAccess) {
+						
+						@Override
+						public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+								throws AnalysisException {
+							CmlBehaviour leftChild = owner.getLeftChild();
+							setLeftChild(null);
+							return new Pair<INode, Context>(leftChild.getNextState().first, leftChild.getNextState().second);
+						}
+					});
+		}
+		//if no timeout has occurred the whole process behaves as the left process
+		else
+		{
+			return newInspection(owner.getLeftChild().inspect(), 
+					new AbstractCalculationStep(owner, visitorAccess) {
+						
+						@Override
+						public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+								throws AnalysisException {
+							CmlBehaviour leftBehavior = owner.getLeftChild();
+							owner.getLeftChild().execute(supervisor());
+
+							if(supervisor().selectedObservableEvent() instanceof ObservableEvent)
+							{
+								setLeftChild(null);
+								return new Pair<INode, Context>(leftBehavior.getNextState().first, leftBehavior.getNextState().second);
+							}
+							else
+								return new Pair<INode, Context>(node, question);
+						}
+					});
 		}
 	}
 	
