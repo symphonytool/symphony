@@ -185,9 +185,9 @@ public class InterpretAllCmlFilesTest {
 	@Parameters
 	public static Collection<Object[]> getCmlfilePaths() {
 
-		//List<Object[]> paths = findAllCmlFiles("src/test/resources/");
+		List<Object[]> paths = findAllCmlFiles("src/test/resources/");
 		
-		List<Object[]> paths = findAllCmlFiles("src/test/resources/process/");
+		//List<Object[]> paths = findAllCmlFiles("src/test/resources/action/parallel-composition");
 		
 				//findAllCmlFiles("src/test/resources/action/");
 		//paths.addAll(findAllCmlFiles("src/test/resources/process/"));

@@ -6,28 +6,49 @@ import java.util.List;
 import java.util.Set;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.expressions.PExp;
+import org.overture.ast.intf.lex.ILexIdentifierToken;
+import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.PPattern;
+import org.overture.ast.typechecker.NameScope;
+import org.overture.ast.typechecker.Pass;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.NameValuePair;
+import org.overture.interpreter.values.NameValuePairList;
+import org.overture.interpreter.values.NameValuePairMap;
 import org.overture.interpreter.values.Value;
 
+import eu.compassresearch.ast.actions.ACallStatementAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
+import eu.compassresearch.ast.actions.AGeneralisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AGuardedAction;
+import eu.compassresearch.ast.actions.AHidingAction;
+import eu.compassresearch.ast.actions.AInterleavingParallelAction;
+import eu.compassresearch.ast.actions.AInternalChoiceAction;
+import eu.compassresearch.ast.actions.AMuAction;
 import eu.compassresearch.ast.actions.AReadCommunicationParameter;
+import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASignalCommunicationParameter;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.AStopAction;
+import eu.compassresearch.ast.actions.ATimeoutAction;
+import eu.compassresearch.ast.actions.AValParametrisation;
+import eu.compassresearch.ast.actions.AWaitAction;
 import eu.compassresearch.ast.actions.AWriteCommunicationParameter;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.actions.PCommunicationParameter;
+import eu.compassresearch.ast.actions.PParametrisation;
+import eu.compassresearch.ast.actions.SParallelAction;
 import eu.compassresearch.ast.actions.SStatementAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
+import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.lex.LexNameToken;
+import eu.compassresearch.core.interpreter.ActionEvaluationVisitor.parallelCompositionHelper;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
@@ -39,11 +60,14 @@ import eu.compassresearch.core.interpreter.api.transitions.CmlTock;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionFactory;
 import eu.compassresearch.core.interpreter.api.transitions.CommunicationParameter;
+import eu.compassresearch.core.interpreter.api.transitions.HiddenEvent;
 import eu.compassresearch.core.interpreter.api.transitions.InputParameter;
 import eu.compassresearch.core.interpreter.api.transitions.ObservableEvent;
 import eu.compassresearch.core.interpreter.api.transitions.OutputParameter;
 import eu.compassresearch.core.interpreter.api.transitions.SignalParameter;
+import eu.compassresearch.core.interpreter.api.values.ActionValue;
 import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
+import eu.compassresearch.core.interpreter.api.values.CmlOperationValue;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
 public class ActionInspectionVisitor extends CommonInspectionVisitor {
@@ -74,6 +98,85 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 			throws AnalysisException {
 
 		throw new InterpreterRuntimeException(InterpretationErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName()));
+	}
+	
+	/**
+	 * This deals both with calls but also parametrised action reference, since the typechecker does not replace this node yet
+	 * FIXME This might be changed! if the typechecker replaces the call node with a action reference node 
+	 */
+	@Override
+	public Inspection caseACallStatementAction(
+			final ACallStatementAction node, final Context question)
+			throws AnalysisException {
+		
+		if(!owner.hasChildren())
+		{
+			final Value value = question.lookup(node.getName()); 
+			if(value instanceof CmlOperationValue)
+				return node.apply(statementInspectionVisitor,question);
+			else if (value instanceof ActionValue)
+			{
+				//first find the action value in the context
+				final ActionValue actionVal = (ActionValue)value;
+				
+				return newInspection(createSilentTransition(actionVal.getActionDefinition().getAction(), null), 
+						new AbstractCalculationStep(owner, visitorAccess) {
+							
+							@Override
+							public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+									throws AnalysisException {
+								
+								return caseReferenceAction(node.getLocation(),node.getArgs(), actionVal, question);
+							}
+						});
+						
+			}
+			else
+				throw new InterpreterRuntimeException(InterpretationErrorMessages.FATAL_ERROR.customizeMessage());
+		}
+		else
+		{
+			return node.apply(statementInspectionVisitor,question); 
+//			return newInspection(owner.getLeftChild().inspect(),
+//					new AbstractCalculationStep(owner,visitorAccess) {
+//
+//				@Override
+//				public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+//						throws AnalysisException {
+//
+//
+//				}
+//			});
+		}
+//		else if(owner.getRightChild() != null)
+//		{
+//			return newInspection(owner.getRightChild().inspect(),
+//					new AbstractCalculationStep(owner,visitorAccess) {
+//
+//				@Override
+//				public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+//						throws AnalysisException {
+//
+//
+//				}
+//			});
+//		}
+//		else
+//		{
+//			return newInspection(createSilentTransition(node,new ASkipAction()),
+//					new AbstractCalculationStep(owner,visitorAccess) {
+//
+//						@Override
+//						public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+//								throws AnalysisException {
+//
+//							setLeftChild(null);
+//							return new Pair<INode, Context>(new ASkipAction(), question);
+//						}
+//					});
+//		}
+		
+		
 	}
 	
 	/**
@@ -199,6 +302,168 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 		return caseAExternalChoice(node,node.getLeft(),node.getRight(), question);
 		
 	}
+	
+	/**
+	 * Interleaving
+	 * A ||| B (no state)
+	 * 
+	 * or 
+	 * 
+	 * A [|| ns1 | ns2 ||] B
+	 * 
+	 * This has three parts:
+	 * 
+	 * Parallel Begin:
+	 * 	At this step the interleaving action are not yet created. So this will be a silent (tau) transition
+	 * 	where the left and right actions will be created and started.
+	 * 
+	 * Parallel Non-sync:
+	 * 	At this step the actions are each executed separately. Since no sync shall stake place this Action just wait
+	 * 	for the child actions to be in the FINISHED state. 
+	 * 
+	 * Parallel End:
+	 *  At this step both child actions are in the FINISHED state and they will be removed from the running process network
+	 *  and this will make a silent transition into Skip. 
+	 */
+	@Override
+	public Inspection caseAInterleavingParallelAction(
+			final AInterleavingParallelAction node, final Context question)
+			throws AnalysisException {
+
+		//TODO: This only implements the "A ||| B (no state)" and not "A [|| ns1 | ns2 ||] B"
+		
+		//if true this means that this is the first time here, so the Parallel Begin rule is invoked.
+		if(!owner.hasChildren()){
+			
+			return newInspection(createSilentTransition(node, node, "Begin"),
+					new AbstractCommonCalculationStep(owner, visitorAccess) {
+						
+						@Override
+						public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+								throws AnalysisException {
+							
+							caseParallelBegin(node,question);
+							//We push the current state, since this process will control the child processes created by it
+							return new Pair<INode,Context>(node, question);
+						}
+					});
+
+		}
+		//the process has children and must now handle either termination or event sync
+		else if (CmlBehaviourUtility.isAllChildrenFinished(owner))
+		{
+			return newInspection(createSilentTransition(node, new ASkipAction(), "End"),
+					new AbstractCommonCalculationStep(owner, visitorAccess) {
+						
+						@Override
+						public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+								throws AnalysisException {
+							return caseParallelEnd(question);
+						}
+					});
+		}
+		else
+		{
+			return newInspection(syncOnTockAndJoinChildren(),
+					new AbstractCommonCalculationStep(owner, visitorAccess) {
+						
+						@Override
+						public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+								throws AnalysisException {
+							//At least one child is not finished and waiting for event, this will invoke the Parallel Non-sync 
+							caseParallelNonSync();
+							//We push the current state, 
+							return new Pair<INode,Context>(node, question);
+						}
+					});
+		}
+	}
+	
+	/**
+	 * internal choice - section 7.5.3 D23.2
+	 * 
+	 * An internal choice between two actions can evolve via a tau event into either of them
+	 */
+	@Override
+	public Inspection caseAInternalChoiceAction(
+			final AInternalChoiceAction node, final Context question)
+			throws AnalysisException {
+		//TODO: make it random
+		//For now we always pick the left action
+		return newInspection(createSilentTransition(node,node.getLeft()), 
+				new AbstractCalculationStep(owner, visitorAccess) {
+					
+					@Override
+					public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+							throws AnalysisException {
+						return new Pair<INode,Context>(node.getLeft(), question);
+					}
+				}); 
+	}
+	
+	/**
+	 * Recursion - section 7.5.9
+	 * TODO Mutually recursive processes are not implemented yet
+	 */
+	@Override
+	public Inspection caseAMuAction(final AMuAction node, final Context question)
+			throws AnalysisException {
+
+		return newInspection(createSilentTransition(node, null), 
+				new AbstractCalculationStep(owner, visitorAccess) {
+					
+					@Override
+					public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+							throws AnalysisException {
+						///THIS IS NOT CORRECT sEMANTICALLY, 
+						Context muContext = CmlContextFactory.newContext(node.getLocation(), "mu context", question);
+						
+						NameValuePairList nvpl = new NameValuePairList();
+						
+						Pair<INode,Context> res = null;
+						
+						for(int i = 0 ; i < node.getIdentifiers().size() ; i++)
+						{
+							ILexIdentifierToken id = node.getIdentifiers().get(i);
+							
+							ILexNameToken name = new LexNameToken("", id);
+							
+							PAction action = node.getActions().get(i);
+							
+							AActionDefinition actionDef = new AActionDefinition(node.getLocation(),
+									NameScope.LOCAL,true,null,Pass.DEFS,null,action);
+							
+							nvpl.add(new NameValuePair(name, 
+									new ActionValue(actionDef)));
+							if(i == 0)
+								res = new Pair<INode,Context>(action, muContext);
+						}
+						
+						muContext.putAllNew(nvpl);
+						
+						return res;
+					}
+				});
+	}
+	
+	private void caseParallelBegin(SParallelAction node, Context question) throws AnalysisException
+	{
+		PAction left = node.getLeftAction();
+		PAction right = node.getRightAction();
+		Pair<Context,Context> childContexts = visitorAccess.getChildContexts(question);
+		//TODO: create a local copy of the question state for each of the actions
+		CmlBehaviour leftInstance = 
+				new ConcreteCmlBehaviour(left, childContexts.first, 
+						new LexNameToken(owner.name().getModule(),owner.name().getIdentifier().getName() + "|||" ,left.getLocation()),owner);
+		
+		CmlBehaviour rightInstance = 
+				new ConcreteCmlBehaviour(right, childContexts.second, 
+						new LexNameToken(owner.name().getModule(),"|||" + owner.name().getIdentifier().getName(),right.getLocation()),owner);
+		
+		//add the children to the process graph
+		visitorAccess.setLeftChild(leftInstance);
+		visitorAccess.setRightChild(rightInstance);
+	}
 
 	/**
 	 * State-based Choice - section 7.5.5 D23.2
@@ -235,6 +500,142 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 	}
 	
 	/**
+	 * Hiding - section 7.5.8 D23.2
+	 */
+	@Override
+	public Inspection caseAHidingAction(final AHidingAction node,
+			final Context question) throws AnalysisException {
+
+		if(!owner.getLeftChild().finished())
+		{
+			CmlAlphabet hidingAlpha = (CmlAlphabet)node.getChansetExpression().apply(cmlExpressionVisitor,question);
+
+			CmlAlphabet alpha = owner.getLeftChild().inspect();
+
+			CmlAlphabet hiddenEvents = alpha.intersect(hidingAlpha);
+
+			CmlAlphabet resultAlpha = alpha.subtract(hiddenEvents);
+
+			for(ObservableEvent obsEvent : hiddenEvents.getObservableEvents())
+				if(obsEvent instanceof ChannelEvent)
+					resultAlpha = resultAlpha.union(new HiddenEvent(owner,(ChannelEvent)obsEvent));	
+
+			return newInspection(resultAlpha,
+					new AbstractCalculationStep(owner, visitorAccess) {
+						
+						@Override
+						public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+								throws AnalysisException {
+							owner.getLeftChild().execute(supervisor());
+							return new Pair<INode,Context>(node, question);
+						}
+					});
+		}
+		else
+			return newInspection(createSilentTransition(node, new ASkipAction()),
+					new AbstractCalculationStep(owner, visitorAccess) {
+						
+						@Override
+						public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+								throws AnalysisException {
+							setLeftChild(null);
+							return new Pair<INode,Context>(new ASkipAction(), question);
+						}
+					});
+		
+		//FIXME This is actually not a tau transition. This should produced an entirely 
+		//different event which has no denotational trace but only for debugging
+		//return createSilentTransition(node, node.getLeft(), "Hiding (This should not be a tau)");
+	}
+	
+	/**
+	 * Generalised Parallelism
+	 * A [| cs |] B (no state) 
+	 * 
+	 * or
+	 * 
+	 * A [| ns1 | cs | ns2 |] B 
+	 */
+	@Override
+	public Inspection caseAGeneralisedParallelismParallelAction(
+			final AGeneralisedParallelismParallelAction node, final Context question)
+			throws AnalysisException {
+
+		return caseGeneralisedParallelismParallel(node,new parallelCompositionHelper() {
+			
+			@Override
+			public void caseParallelBegin() throws AnalysisException {
+				ActionInspectionVisitor.this.caseParallelBegin(node, question);
+			}
+		}, node.getChansetExpression(),question);
+	}
+	
+	/**
+	 * This implements the 7.5.10 Action Reference transition rule in D23.2. 
+	 */
+	@Override
+	public Inspection caseAReferenceAction(final AReferenceAction node,
+			final Context question) throws AnalysisException {
+		//FIXME: the scoping is not correct, this should be done as described in the transition rule
+				
+		//FIXME: Consider: Instead of this might create a child process, and behave as this child until it terminates
+		//CMLActionInstance refchild = new CMLActionInstance(node.getActionDefinition().getAction(), question, node.getName()); 
+		final ActionValue actionValue = (ActionValue)question.check(node.getName()).deref();
+		
+		return newInspection(createSilentTransition(node,actionValue.getActionDefinition().getAction()),
+				new AbstractCalculationStep(owner, visitorAccess) {
+					
+					@Override
+					public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+							throws AnalysisException {
+						return caseReferenceAction(node.getLocation(),node.getArgs(), actionValue, question);
+					}
+				});
+	}
+	
+	protected Pair<INode,Context> caseReferenceAction(ILexLocation location,
+			List<PExp> args,ActionValue actionValue,Context question) throws AnalysisException {
+
+			//evaluate all the arguments
+			NameValuePairMap evaluatedArgs = new NameValuePairMap();
+
+			int paramIndex = 0;
+			for(PParametrisation parameterization : actionValue.getActionDefinition().getDeclarations())
+			{
+				for(ILexIdentifierToken id : parameterization.getDeclaration().getIdentifiers())
+				{
+					//get and evaluate the i'th expression
+					PExp arg = args.get(paramIndex);
+					Value value = arg.apply(cmlExpressionVisitor,question);
+
+					//check whether the type is correct
+					//if(arg.getType().equals(o))
+					//error(node,"Arguments does not match the action parameterization");
+
+					//Decide whether the argument is updateable or not
+					if(parameterization instanceof AValParametrisation)
+						value = value.getConstant();
+					else {
+						value = value.getUpdatable(null);
+					}
+
+					evaluatedArgs.put(new LexNameToken("",(ILexIdentifierToken)id.clone()), value);
+
+					//update the index
+					paramIndex++;
+				}
+
+			}
+
+			Context refActionContext = CmlContextFactory.newContext(location, 
+					"Parametrised reference action context", question);
+
+			refActionContext.putAll(evaluatedArgs);
+
+			return new Pair<INode,Context>(actionValue.getActionDefinition().getAction(), refActionContext); 
+		}
+	
+	/**
 	 * This implements the 7.5.6 Sequential Composition transition rules in D23.2.
 	 */
 	@Override
@@ -257,5 +658,99 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 			throws AnalysisException {
 		//return the empty alphabet
 		return newInspection(new CmlAlphabet(new CmlTock(owner)),null);
+	}
+	
+	/**
+	 * Timed actions
+	 */
+	
+	@Override
+	public Inspection caseATimeoutAction(final ATimeoutAction node,
+			final Context question) throws AnalysisException {
+		
+		//Evaluate the expression into a natural number
+		long val = node.getTimeoutExpression().apply(cmlExpressionVisitor,question).natValue(question);
+		
+		//if the current time of the process has passed the limit (val) then process
+		//behaves as the right process
+		if(owner.getCurrentTime() >= val)
+		{
+			return newInspection(createSilentTransition(node, node.getRight(),"Timeout: time exceeded"), 
+					new AbstractCalculationStep(owner, visitorAccess) {
+						
+						@Override
+						public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+								throws AnalysisException {
+							//We set the process to become the right behavior
+							setLeftChild(null);
+							return new Pair<INode, Context>(node.getRight(), question);
+						}
+					});
+			
+		}
+		//If the left is Skip then the whole process becomes skip with the state of the left child
+		else if(owner.getLeftChild().finished())
+		{
+			return newInspection(createSilentTransition(node, owner.getLeftChild().getNextState().first,"Timeout: left behavior is finished"), 
+					new AbstractCalculationStep(owner, visitorAccess) {
+						
+						@Override
+						public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+								throws AnalysisException {
+							CmlBehaviour leftChild = owner.getLeftChild();
+							setLeftChild(null);
+							return new Pair<INode, Context>(leftChild.getNextState().first, leftChild.getNextState().second);
+						}
+					});
+		}
+		//if the current time of the process has not passed the limit (val) and the left process
+		//makes an observable transition then the whole process behaves as the left process 
+		else
+		{
+			final CmlBehaviour leftBehavior = owner.getLeftChild();
+			return newInspection(leftBehavior.inspect(), 
+					new AbstractCalculationStep(owner, visitorAccess) {
+						
+						@Override
+						public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+								throws AnalysisException {
+							leftBehavior.execute(supervisor());
+							
+							if(supervisor().selectedObservableEvent() instanceof ObservableEvent)
+							{
+								setLeftChild(null);
+								return new Pair<INode, Context>(leftBehavior.getNextState().first, leftBehavior.getNextState().second);
+							}
+							else
+								return new Pair<INode, Context>(node, question);
+						}
+					});
+			
+			
+		}
+	}
+	
+	@Override
+	public Inspection caseAWaitAction(AWaitAction node,
+			final Context question) throws AnalysisException {
+
+		//Evaluate the expression into a natural number
+		long val = node.getExpression().apply(cmlExpressionVisitor,question).natValue(question);
+		long nTocks = owner.getCurrentTime();
+		
+		//If the number of tocks exceeded val then we make a silent transition that ends the delay process
+		if( nTocks >= val)
+			return newInspection(createSilentTransition(node, new ASkipAction(),"Wait ended"),
+					new AbstractCalculationStep(owner, visitorAccess) {
+						
+						@Override
+						public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+								throws AnalysisException {
+							return new Pair<INode, Context>(new ASkipAction(), question);
+						}
+					});
+		else
+		//If the number of tocks has not exceeded val then behave as Stop
+			return newInspection(new CmlAlphabet(new CmlTock(owner,nTocks-val)), null);
 	}
 }

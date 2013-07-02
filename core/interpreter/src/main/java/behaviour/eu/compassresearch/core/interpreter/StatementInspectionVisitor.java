@@ -263,7 +263,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 		}
 		else if(!owner.getLeftChild().finished())
 		{
-			return newInspection(createSilentTransition(node, node), 
+			return newInspection(owner.getLeftChild().inspect(), 
 					new AbstractCalculationStep(owner, visitorAccess) {
 						
 						@Override
@@ -276,8 +276,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 		}
 		else if(owner.getRightChild() != null)
 		{
-			final INode skipNode = new ASkipAction();
-			return newInspection(createSilentTransition(node, skipNode), 
+			return newInspection(owner.getRightChild().inspect(), 
 			new AbstractCalculationStep(owner, visitorAccess) {
 				
 				@Override
@@ -287,7 +286,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 					owner.getRightChild().execute(supervisor());
 					setLeftChild(null);
 					setRightChild(null);
-					return new Pair<INode, Context>(skipNode, question);
+					return new Pair<INode, Context>(new ASkipAction(), question);
 				}
 			});
 			

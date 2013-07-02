@@ -261,8 +261,6 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 					return new Pair<INode,Context>(node, question);
 				}
 			});
-			
-
 		}
 		//the process has children and must now handle either termination or event sync
 		else if (CmlBehaviourUtility.isAllChildrenFinished(owner))
