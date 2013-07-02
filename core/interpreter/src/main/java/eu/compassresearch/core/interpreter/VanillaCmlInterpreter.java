@@ -281,10 +281,10 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		VanillaCmlInterpreter cmlInterp = new VanillaCmlInterpreter(source);
 		try
 		{
-			CmlSupervisorEnvironment sve = 
-					VanillaInterpreterFactory.newDefaultCmlSupervisorEnvironment(new ConsoleSelectionStrategy());
 			//CmlSupervisorEnvironment sve = 
-			//				VanillaInterpreterFactory.newDefaultCmlSupervisorEnvironment(new RandomSelectionStrategy());
+			//		VanillaInterpreterFactory.newDefaultCmlSupervisorEnvironment(new ConsoleSelectionStrategy());
+			CmlSupervisorEnvironment sve = 
+							VanillaInterpreterFactory.newDefaultCmlSupervisorEnvironment(new RandomSelectionStrategy());
 
 			CmlRuntime.logger().setLevel(Level.FINEST);
 			cmlInterp.onStatusChanged().registerObserver(new CmlInterpreterStatusObserver() {
@@ -313,7 +313,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	public static void main(String[] args) throws IOException, InterpreterException
 	{
 		File cml_example = new File(
-				"src/test/resources/action/action-untimed-timeout.cml");
+				"src/test/resources/process/process-generalised-parallelism-no-state.cml");
 		runOnFile(cml_example);
 
 	}

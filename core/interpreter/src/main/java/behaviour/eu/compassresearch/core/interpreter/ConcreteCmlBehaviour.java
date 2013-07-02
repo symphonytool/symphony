@@ -69,7 +69,7 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	/**
 	 * The evaluation visitor
 	 */
-	final transient QuestionAnswerCMLAdaptor<Context, Pair<INode, Context>> 	cmlEvaluationVisitor;
+	//final transient QuestionAnswerCMLAdaptor<Context, Pair<INode, Context>> 	cmlEvaluationVisitor;
 	/**
 	 * The setup visitor
 	 */
@@ -78,7 +78,7 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	/**
 	 * The alphabet inspection visitor
 	 */
-	protected final transient QuestionAnswerCMLAdaptor<Context, CmlAlphabet>	alphabetInspectionVisitor;
+	protected final transient QuestionAnswerCMLAdaptor<Context, Inspection>		alphabetInspectionVisitor;
 
 	//Process/Action state variables
 
@@ -161,9 +161,10 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 			}
 		};
 
-		cmlEvaluationVisitor = new CmlEvaluationVisitor(null,this,visitorAccess);
+		//cmlEvaluationVisitor = new CmlEvaluationVisitor(null,this,visitorAccess);
 		cmlSetupVisitor = new ActionSetupVisitor(this, visitorAccess);
-		alphabetInspectionVisitor = new AlphabetInspectVisitor(this);
+		//alphabetInspectionVisitor = new AlphabetInspectVisitor(this, visitorAccess);
+		alphabetInspectionVisitor = new CmlInspectionVisitor(this, visitorAccess);
 	}
 
 	public ConcreteCmlBehaviour(INode action, Context context, ILexNameToken name) throws AnalysisException
@@ -238,7 +239,8 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 		this.env= env;
 
 		//inspect if there are any immediate events
-		CmlAlphabet alpha = inspect();
+		//CmlAlphabet alpha = inspect();
+		inspect();
 
 		started = true;
 
@@ -248,15 +250,18 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 		 *  
 		 */
 		if(env.isSelectedEventValid() &&  
-				alpha.containsImprecise(env.selectedObservableEvent()))
+				lastInspection.getTransitions().containsImprecise(env.selectedObservableEvent()))
 		{
 
 			//If the selected event is not a tock event then we can evaluate
 			if(!(env.selectedObservableEvent() instanceof CmlTock))
 			{
 				waitPrime = false;
-				setNext(next.first.apply(cmlEvaluationVisitor,next.second));
+				//setNext(next.first.apply(cmlEvaluationVisitor,next.second));
+				setNext(lastInspection.getNextStep().execute(env));
 			}
+			//If the selected event is tock then we need to execute the children as well to make
+			//time tick in the entire process tree
 			else
 			{
 				if(leftChild != null)
@@ -287,8 +292,7 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 			}
 			else
 			{	
-				lastInspection = new Inspection(new CmlTrace(this.getTraceModel()), 
-						next.first.apply(alphabetInspectionVisitor,next.second));
+				lastInspection = next.first.apply(alphabetInspectionVisitor,next.second);
 				
 				return lastInspection.getTransitions();
 			}

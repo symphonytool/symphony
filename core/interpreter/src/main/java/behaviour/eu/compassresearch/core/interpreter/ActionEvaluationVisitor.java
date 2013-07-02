@@ -284,17 +284,14 @@ class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 	 */
 	@Override
 	public Pair<INode,Context> caseAGeneralisedParallelismParallelAction(
-			AGeneralisedParallelismParallelAction node, Context question)
+			final AGeneralisedParallelismParallelAction node, final Context question)
 			throws AnalysisException {
 
-		final AGeneralisedParallelismParallelAction finalNode = node;
-		final Context finalQuestion = question;
-		
 		return caseGeneralisedParallelismParallel(node,new parallelCompositionHelper() {
 			
 			@Override
 			public void caseParallelBegin() throws AnalysisException {
-				ActionEvaluationVisitor.this.caseParallelBegin(finalNode, finalQuestion);
+				ActionEvaluationVisitor.this.caseParallelBegin(node, question);
 			}
 		}, node.getChansetExpression(),question);
 	}
