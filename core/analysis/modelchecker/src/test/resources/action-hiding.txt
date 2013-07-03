@@ -1,0 +1,7 @@
+ProcDef("A",nopar,proc("INIT",nopar))
+ProcDef("INIT",nopar,hide(Prefix(Sigma("a"),Prefix(Sigma("b"),Skip)),"X"))
+ProcHasDeadlock("A")
+State(hide(Prefix(Sigma("a"),Prefix(Sigma("b"),Skip)),"X"))
+State(proc("INIT",nopar))
+trans(State(proc("INIT",nopar)),tau,State(hide(Prefix(Sigma("a"),Prefix(Sigma("b"),Skip)),"X")))
+

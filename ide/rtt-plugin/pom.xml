@@ -4,7 +4,7 @@
   <parent>
     <groupId>eu.compassresearch.ide</groupId>
     <artifactId>ide</artifactId>
-    <version>0.1.1<!--Replaceable: Main Version--></version>
+    <version>0.1.2-SNAPSHOT<!--Replaceable: Main Version--></version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -13,6 +13,7 @@
   <groupId>eu.compassresearch.ide.cml</groupId>
   <artifactId>eu.compassresearch.ide.cml.rtt-plugin</artifactId>
   <name>COMPASS IDE RT Tester Plugin</name>
+  <version>0.1.3-SNAPSHOT</version>
 
   <build>
     <plugins>

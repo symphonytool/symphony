@@ -116,6 +116,10 @@ public class TypesCmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase {
 		add("types R :: r : int inv r == r.r>0");
 		// 51// set type w. invariant
 		add("types C = set of int inv c == c = {1,2,3}");
+		//52 //Negative test: Check for duplicated type defs
+		add("types A = nat A = bool B = bool B = rat", true, false);
+		//53 //Multiple type defs
+		add("types A = nat B = bool C = bool");
 
 	}
 

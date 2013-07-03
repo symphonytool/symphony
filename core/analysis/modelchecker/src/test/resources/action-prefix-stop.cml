@@ -1,0 +1,5 @@
+channels a
+process A = 
+begin 
+	@ a -> Stop 
+end

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+
+<plugin>
+  <!-- For possible extension points see
+ 
+  http://help.eclipse.org/indigo/index.jsp?
+  topic=%2Forg.eclipse.platform.doc.isv%2Freference%2Fextension-points%2Findex.html
+
+  -->
+  <!--
+  <extension
+        point="org.eclipse.ui.startup">
+     <startup class="eu.compassresearch.ide.cml.mcplugin.Activator"> </startup>
+  </extension>
+  -->
+  <extension point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="eu.compassresearch.ide.cml.mcplugin.MCHandler"
+            id="eu.compassresearch.ide.cml.mcplugin.mcCommand"
+            name="Run CML model checker">
+            <commandParameter
+                  id="eu.compassresearch.ide.cml.mcplugin.property"
+                  name="property">
+            </commandParameter>
+      </command>
+   </extension>
+   
+   
+   <extension point="org.eclipse.ui.menus">
+     <menuContribution
+            locationURI="popup:eu.compassresearch.ide.ui.CmlNavigator">
+            
+      <!-- menuContribution
+            locationURI="popup:org.eclipse.ui.popup.any?after=additions" -->
+            <menu
+                  label="Model check">
+                  <command
+	                  commandId="eu.compassresearch.ide.cml.mcplugin.mcCommand"
+	                  id="eu.compassresearch.ide.cml.mcplugin.deadlockCmd"
+	                  style="push"
+	                  label="Check deadlock"
+	                  tooltip="Invokes the CML model checker for checking deadlock">
+	                  <parameter
+	                        name="eu.compassresearch.ide.cml.mcplugin.property"
+	                        value="DEADLOCK">
+	                  </parameter>
+            	</command>
+            	<command
+                  commandId="eu.compassresearch.ide.cml.mcplugin.mcCommand"
+                  id="eu.compassresearch.ide.cml.mcplugin.livelockCmd"
+                  style="push"
+                  label="Check livelock"
+                  tooltip="Invokes the CML model checker for checking livelock">
+                  <parameter
+                        name="eu.compassresearch.ide.cml.mcplugin.property"
+                        value="LIVELOCK">
+                  </parameter>
+            	</command>
+            	<command
+                  commandId="eu.compassresearch.ide.cml.mcplugin.mcCommand"
+                  id="eu.compassresearch.ide.cml.mcplugin.nondeterminismCmd"
+                  style="push"
+                  label="Check Nondeterminism"
+                  tooltip="Invokes the CML model checker for checking nondeterminism">
+                  <parameter
+                        name="eu.compassresearch.ide.cml.mcplugin.property"
+                        value="NONDETERMINISM">
+                  </parameter>
+            	</command>
+            </menu>
+      </menuContribution>
+   </extension>
+   
+
+</plugin>

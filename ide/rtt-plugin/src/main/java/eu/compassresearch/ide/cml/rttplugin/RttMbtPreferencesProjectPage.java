@@ -12,6 +12,16 @@ import org.eclipse.ui.IWorkbench;
 
 public class RttMbtPreferencesProjectPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
+	private StringFieldEditor rtttprocprefix;
+	private StringFieldEditor tprocgenctx;
+
+	@Override
+	protected void performDefaults() {
+		super.performDefaults();
+		rtttprocprefix.setStringValue("TestExecution");
+		tprocgenctx.setStringValue("TestGeneration");
+	}
+
 	public RttMbtPreferencesProjectPage() {
 		super(GRID);
 		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
@@ -29,17 +39,17 @@ public class RttMbtPreferencesProjectPage extends FieldEditorPreferencePage impl
 	}
 	
 	public void createFieldEditors() {
-		StringFieldEditor rtttprocprefix = new StringFieldEditor("RttMbtRttTprocPrefix",
-                                                                 "Test Execution Context:",
-                                                                  getFieldEditorParent());
+		rtttprocprefix = new StringFieldEditor("RttMbtRttTprocPrefix",
+                                               "Test Execution Context:",
+                                               getFieldEditorParent());
 		rtttprocprefix.load();
 		if (rtttprocprefix.getStringValue().compareTo("") == 0) {
 			rtttprocprefix.loadDefault();
 		}
 		addField(rtttprocprefix);
-		StringFieldEditor tprocgenctx = new StringFieldEditor("RttMbtTProcGenCtx",
-                                                              "Test Generation Context:",
-                                                              getFieldEditorParent());
+		tprocgenctx = new StringFieldEditor("RttMbtTProcGenCtx",
+                                            "Test Generation Context:",
+                                            getFieldEditorParent());
 		tprocgenctx.load();
 		if (tprocgenctx.getStringValue().compareTo("") == 0) {
 			tprocgenctx.loadDefault();

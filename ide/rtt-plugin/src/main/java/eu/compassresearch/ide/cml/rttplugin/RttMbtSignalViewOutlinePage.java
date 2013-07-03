@@ -1,8 +1,10 @@
 package eu.compassresearch.ide.cml.rttplugin;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.jface.viewers.CheckboxTreeViewer;
 import org.eclipse.jface.viewers.ISelection;
@@ -70,7 +72,6 @@ public class RttMbtSignalViewOutlinePage extends ContentOutlinePage implements I
 
 	@Override
 	public void setFocus() {
-		// TODO Auto-generated method stub
 	}
 
 	@Override
@@ -104,7 +105,9 @@ public class RttMbtSignalViewOutlinePage extends ContentOutlinePage implements I
 		List<TreeNode> nodes = new ArrayList<TreeNode>();
 		List<TreeNode> parents = new ArrayList<TreeNode>();
 		List<String> names = new ArrayList<String>();
+		Map<String,TreeNode> parentMap = new HashMap<String,TreeNode>();
 		parents.add(rootNode);
+		parentMap.put("", rootNode);
 		// select all signals
 		@SuppressWarnings("unchecked")
 		Iterator<JSONObject> iterator = jsonSignals.iterator();
@@ -121,7 +124,7 @@ public class RttMbtSignalViewOutlinePage extends ContentOutlinePage implements I
 				// add signal to signal selection dialog
 				int pos = signalName.lastIndexOf('.') + 1;
 				TreeNode signalNode = new TreeNode(signalName.substring(pos));
-				signalNode.setParent(getParent(parents, signalName));
+				signalNode.setParent(getParent(parentMap, parents, signalName));
 				nodes.add(signalNode);
 				names.add(signalName);
 			}
@@ -153,7 +156,7 @@ public class RttMbtSignalViewOutlinePage extends ContentOutlinePage implements I
 		return false;
 	}
 
-	TreeNode getParent(List<TreeNode> parents, String signalName) {
+	TreeNode getParent(Map<String,TreeNode> parentMap, List<TreeNode> parents, String signalName) {
 		TreeNode lastParent = null;
 
 		// check arguments
@@ -162,7 +165,7 @@ public class RttMbtSignalViewOutlinePage extends ContentOutlinePage implements I
 		}
 
 		// retrieve root node
-		lastParent = parents.get(0);
+		lastParent = parentMap.get("");
 
 		// check for '.' in signal name
 		int start = 0;
@@ -170,17 +173,14 @@ public class RttMbtSignalViewOutlinePage extends ContentOutlinePage implements I
 		while (pos > 0) {
 			// extract parent name
 			String parentName = signalName.substring(start, pos);
-			TreeNode parentNode = null;
-			// search for parent in list of parents
-			for (int idx = 0; idx < parents.size(); idx++) {
-				if (((String) parents.get(idx).getValue()).compareTo(parentName) == 0) {
-					parentNode = parents.get(idx);
-				}
-			}
+			String prefix = signalName.substring(0, pos);
+			// search for parent in map of parents
+			TreeNode parentNode = parentMap.get(prefix);
 			if (parentNode == null) {
 				parentNode = new TreeNode(parentName);
 				parentNode.setParent(lastParent);
 				parents.add(parentNode);
+				parentMap.put(prefix, parentNode);
 			}
 			// prepare next loop
 			lastParent = parentNode;

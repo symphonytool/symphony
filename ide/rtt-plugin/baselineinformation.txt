@@ -1,0 +1,44 @@
+-----------------------------------------------------------
+RTTPLUGIN_0.1.3
+
+Changes:
+
+rttplugin:
+- 
+
+Commit: in development
+Released: in development
+
+-----------------------------------------------------------
+RTTPLUGIN_0.1.2
+
+Bugfix and feature release after COMPASS Plenary 2
+
+Changes:
+
+rttplugin:
+- implemented cleanProject
+- hide RT-Tester tool bar and menus if not in RttPerspective
+- added colors to coverage information in configuration.csv and
+  overall_coverage.csv.
+- added CML project name to path in the work area on the RTT-MBT server.
+- fix problem with state signals in signal viewer outline
+- added "test server connection" functionality to RT-Tester preferences page
+- added "reset server workspace" functionality to RT-Tester preferences page
+- implemented "restore defaults" action for RT-Tester/Server and
+  RT-Tester/Project preferences pages
+- RTT-MBT actions "Clean Project" and "Import Model" are only active
+  when an RTT-MBT project is selected
+  (check for RTT-MBT project should be improved in the future)
+- RTT-MBT action "Check Model" is only active if the selected object
+  is named model_dump.xml
+
+Commit: a0db135
+Released: 2013-06-28
+
+-----------------------------------------------------------
+Version that was used for the COMPASS Plenary 2 2013-06-14
+
+Commit: 4a9400a
+Released: 2013-06-28
+-----------------------------------------------------------

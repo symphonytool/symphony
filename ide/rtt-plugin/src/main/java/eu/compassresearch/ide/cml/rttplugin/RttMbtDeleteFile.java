@@ -19,14 +19,14 @@ public class RttMbtDeleteFile extends RttMbtPopupMenuAction {
 		// get selected object
 		client.setProgress(IRttMbtProgressBar.Tasks.ALL, 0);
 		if (!getSelectedObject(event)) {
-			client.addErrorMessage("[FAIL]: Delete RTT-MBT Resource: Please select a file or directory!\n");
+			client.addErrorMessage("[FAIL]: Delete RTT-MBT Resource: Please select a file or directory!");
 			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 			return null;
 		}
 		
 		// get RttMbtClient for this action
 		if (!initClient(selectedObjectPath)) {
-			client.addErrorMessage("[FAIL]: Delete RTT-MBT Resource: init of RTT-MBT client failed!\n");
+			client.addErrorMessage("[FAIL]: Delete RTT-MBT Resource: init of RTT-MBT client failed!");
 			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 			return null;
 		}
@@ -52,7 +52,7 @@ public class RttMbtDeleteFile extends RttMbtPopupMenuAction {
 				// remove resource on RTT-MBT server
 				success = client.deleteRemoteFileOrDir(item.getAbsolutePath());
 				if (!success) {
-					client.addErrorMessage("[FAIL]: Delete RTT-MBT Resource: error while removing resource from RTT-MBT server\n");
+					client.addErrorMessage("[FAIL]: Delete RTT-MBT Resource: error while removing resource from RTT-MBT server");
 				} else {
 					if (item.isDirectory()) {
 						success = client.deleteLocalDirectory(item);						
