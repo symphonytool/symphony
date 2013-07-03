@@ -32,6 +32,7 @@ import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.ATimeoutAction;
+import eu.compassresearch.ast.actions.AUntimedTimeoutAction;
 import eu.compassresearch.ast.actions.AValParametrisation;
 import eu.compassresearch.ast.actions.AWaitAction;
 import eu.compassresearch.ast.actions.PAction;
@@ -490,6 +491,10 @@ class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 		return res;
 	}
 	
+	/**
+	 * Timed actions
+	 */
+	
 	@Override
 	public Pair<INode, Context> caseAWaitAction(AWaitAction node,
 			Context question) throws AnalysisException {
@@ -503,6 +508,8 @@ class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 			return new Pair<INode, Context>(node, question);
 	}
 	
+	//private Pair<INode, Context> timeoutActionHelper()
+	
 	@Override
 	public Pair<INode, Context> caseATimeoutAction(ATimeoutAction node,
 			Context question) throws AnalysisException {
@@ -510,18 +517,23 @@ class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 		//Evaluate the expression into a natural number
 		long val = node.getTimeoutExpression().apply(cmlExpressionVisitor,question).natValue(question);
 		
+		//if the current time of the process has passed the limit (val) then process
+		//behaves as the right process
 		if(owner.getCurrentTime() >= val)
 		{
 			//We set the process to become the right behavior
 			setLeftChild(null);
 			return new Pair<INode, Context>(node.getRight(), question);
 		}
+		//If the left is Skip then the whole process becomes skip with the state of the left child
 		else if(owner.getLeftChild().finished())
 		{
 			CmlBehaviour leftChild = owner.getLeftChild();
 			setLeftChild(null);
 			return new Pair<INode, Context>(leftChild.getNextState().first, leftChild.getNextState().second);
 		}
+		//if the current time of the process has not passed the limit (val) and the left process
+		//makes an observable transition then the whole process behaves as the left process 
 		else
 		{
 			CmlBehaviour leftBehavior = owner.getLeftChild();
@@ -535,7 +547,46 @@ class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 			else
 				return new Pair<INode, Context>(node, question);
 		}
+	}
+	
+	@Override
+	public Pair<INode, Context> caseAUntimedTimeoutAction(
+			AUntimedTimeoutAction node, Context question)
+					throws AnalysisException {
+
+		throw new AnalysisException("case not implemented yet");
 		
+		//the alphabet still need to be calculated before this is done, so uncomment when done
+		
+//		//Make a random decision whether the process should timeout and
+//		//behaves as the right process
+//		if(this.rnd.nextBoolean())
+//		{
+//			//We set the process to become the right behavior
+//			setLeftChild(null);
+//			return new Pair<INode, Context>(node.getRight(), question);
+//		}
+//		//If the left is Skip then the whole process becomes skip with the state of the left child
+//		else if(owner.getLeftChild().finished())
+//		{
+//			CmlBehaviour leftChild = owner.getLeftChild();
+//			setLeftChild(null);
+//			return new Pair<INode, Context>(leftChild.getNextState().first, leftChild.getNextState().second);
+//		}
+//		//if no timeout has occurred the whole process behaves as the left process
+//		else
+//		{
+//			CmlBehaviour leftBehavior = owner.getLeftChild();
+//			owner.getLeftChild().execute(supervisor());
+//
+//			if(supervisor().selectedObservableEvent() instanceof ObservableEvent)
+//			{
+//				setLeftChild(null);
+//				return new Pair<INode, Context>(leftBehavior.getNextState().first, leftBehavior.getNextState().second);
+//			}
+//			else
+//				return new Pair<INode, Context>(node, question);
+//		}
 	}
 //	private void doMuReplace(PAction action, final AMuAction muAction, final LexIdentifierToken id) throws AnalysisException
 //	{

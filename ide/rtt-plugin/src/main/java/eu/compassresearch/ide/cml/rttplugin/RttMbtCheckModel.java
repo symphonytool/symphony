@@ -19,14 +19,14 @@ public class RttMbtCheckModel extends RttMbtPopupMenuAction {
 		// get selected object
 		client.setProgress(IRttMbtProgressBar.Tasks.ALL, 0);
 		if (!getSelectedObject(event)) {
-			client.addErrorMessage("[FAIL]: Please select an RTT-MBT component!\n");
+			client.addErrorMessage("[FAIL]: Please select an RTT-MBT component!");
 			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 			return null;
 		}
 		
 		// get RttMbtClient for this action
 		if (!initClient(selectedObjectPath)) {
-			client.addErrorMessage("[FAIL]: check model: init of RTT-MBT client failed!\n");
+			client.addErrorMessage("[FAIL]: check model: init of RTT-MBT client failed!");
 			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 			return null;
 		}
@@ -35,18 +35,18 @@ public class RttMbtCheckModel extends RttMbtPopupMenuAction {
 		final File model = new File(client.getRttProjectRoot() + File.separator + "model" + File.separator + "model_dump.xml");
 		if (!model.exists()) {
 			client.addErrorMessage("[FAIL]: check model: unable to find model file " +
-		                           model.getAbsolutePath() + "!\n");
+		                           model.getAbsolutePath() + "!");
 		}
 
 		Job job = new Job("Check Model") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
-				client.addLogMessage("performing livelock check on model " + model.getAbsolutePath() + " ... please wait for the task to be finished.\n");
+				client.addLogMessage("performing livelock check on model " + model.getAbsolutePath() + " ... please wait for the task to be finished.");
 				// run live lock check on the model
 				if (client.livelockCheckModelFile(model)) {
-					client.addLogMessage("[PASS]: livelock check - check test results in model/LivelockReport.log\n");
+					client.addLogMessage("[PASS]: livelock check - check test results in model/LivelockReport.log");
 				} else {
-					client.addErrorMessage("[FAIL]: livelock check\n");
+					client.addErrorMessage("[FAIL]: livelock check");
 				}
 				client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 				return Status.OK_STATUS;

@@ -26,7 +26,10 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.TreeEditor;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
@@ -115,10 +118,10 @@ public class RttMbtRequirementsCoverage extends MultiPageEditorPart  {
 								req2tc.put(key, list);
 							}
 						} else {
-							client.addErrorMessage("[FAIL]: illegal file format for req2tc.csv\n");
+							client.addErrorMessage("[FAIL]: illegal file format for req2tc.csv");
 						}
 					} else {
-						client.addErrorMessage("[FAIL]: illegal file format for req2tc.csv\n");
+						client.addErrorMessage("[FAIL]: illegal file format for req2tc.csv");
 					}
 				}
 				// get mapping from test cases to requirements from tc2req.csv
@@ -141,10 +144,10 @@ public class RttMbtRequirementsCoverage extends MultiPageEditorPart  {
 								tc2req.put(key, list);
 							}
 						} else {
-							client.addErrorMessage("[FAIL]: illegal file format for req2tc.csv\n");
+							client.addErrorMessage("[FAIL]: illegal file format for req2tc.csv");
 						}
 					} else {
-						client.addErrorMessage("[FAIL]: illegal file format for req2tc.csv\n");
+						client.addErrorMessage("[FAIL]: illegal file format for req2tc.csv");
 					}
 				}
 				// get list of all test cases from testcases.csv and initialize coverage with false;
@@ -158,17 +161,17 @@ public class RttMbtRequirementsCoverage extends MultiPageEditorPart  {
 							testcases.put(key, value);
 							tccov.put(key, false);
 						} else {
-							client.addErrorMessage("[FAIL]: illegal file format for req2tc.csv\n");
+							client.addErrorMessage("[FAIL]: illegal file format for req2tc.csv");
 						}
 					} else {
-						client.addErrorMessage("[FAIL]: illegal file format for req2tc.csv\n");
+						client.addErrorMessage("[FAIL]: illegal file format for req2tc.csv");
 					}
 				}
 				// get test case coverage from covered_testcases.csv and update testcase coverage
 				while (covScanner.hasNextLine()) {
 					key = covScanner.nextLine();
 					if (!tccov.containsKey(key)) {
-						client.addErrorMessage("[WARNING]: added coverage for unknown test case '" + key + "'\n");						
+						client.addErrorMessage("[WARNING]: added coverage for unknown test case '" + key + "'");						
 					}
 					tccov.put(key, true);
 				}
@@ -193,7 +196,7 @@ public class RttMbtRequirementsCoverage extends MultiPageEditorPart  {
 				e.printStackTrace();
 			} catch (FileNotFoundException e) {
 				// @todo: add error here!
-				client.addErrorMessage("[FAIL]: unable to find expected coverage file: " + e.getMessage() + "\n");
+				client.addErrorMessage("[FAIL]: unable to find expected coverage file: " + e.getMessage() + "");
 			}
 		}
 		setSite(site);
@@ -249,7 +252,7 @@ public class RttMbtRequirementsCoverage extends MultiPageEditorPart  {
 						append.write(ltlformula + "\n");
 						append.close();
 						addgoalStream.close();
-						client.addLogMessage("added '" + ltlformula + "'\nto '" + addgoals.getAbsolutePath() + "'\n");
+						client.addLogMessage("added '" + ltlformula + "'\nto '" + addgoals.getAbsolutePath() + "'");
 					} catch (IOException ex) {
 						client.addErrorMessage("Unable to open '" + addgoals.getAbsolutePath() + "' for writing!");
 					}
@@ -287,8 +290,10 @@ public class RttMbtRequirementsCoverage extends MultiPageEditorPart  {
 			reqParent.setText(0, tcTag);
 			if (tccov.get(tcTag)) {
 				reqParent.setText(1, "COVERED");
+				reqParent.setBackground(1, new Color(Display.getDefault(), new RGB(0,255,0)));
 			} else {
 				reqParent.setText(1, "NOT COVERED");
+				reqParent.setBackground(1, new Color(Display.getDefault(), new RGB(255,255,0)));
 			}
 			TreeEditor editor = new TreeEditor(tcTreeView);
 			editor.horizontalAlignment = SWT.LEFT;
@@ -318,8 +323,10 @@ public class RttMbtRequirementsCoverage extends MultiPageEditorPart  {
 				req.setText(0, reqTag);
 				if (reqcov.get(reqTag)) {
 					req.setText(1, "COVERED");
+					req.setBackground(1, new Color(Display.getDefault(), new RGB(0,255,0)));
 				} else {
 					req.setText(1, "NOT COVERED");
+					req.setBackground(1, new Color(Display.getDefault(), new RGB(255,255,0)));
 				}
 				req.setText(2, "");
 			}
@@ -358,8 +365,10 @@ public class RttMbtRequirementsCoverage extends MultiPageEditorPart  {
 			tcParent.setText(0, reqTag);
 			if (reqcov.get(reqTag)) {
 				tcParent.setText(1, "COVERED");
+				tcParent.setBackground(1, new Color(Display.getDefault(), new RGB(0,255,0)));
 			} else {
 				tcParent.setText(1, "NOT COVERED");
+				tcParent.setBackground(1, new Color(Display.getDefault(), new RGB(255,255,0)));
 			}
 			tcParent.setText(2, "");
 			for (int idx = 0; idx < tcs.size(); idx++) {
@@ -368,8 +377,10 @@ public class RttMbtRequirementsCoverage extends MultiPageEditorPart  {
 				tc.setText(0, tcTag);
 				if (tccov.get(tcTag)) {
 					tc.setText(1, "COVERED");
+					tc.setBackground(1, new Color(Display.getDefault(), new RGB(0,255,0)));
 				} else {
 					tc.setText(1, "NOT COVERED");
+					tc.setBackground(1, new Color(Display.getDefault(), new RGB(255,255,0)));
 				}
 				TreeEditor editor = new TreeEditor(reqTreeView);
 				editor.horizontalAlignment = SWT.LEFT;

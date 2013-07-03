@@ -128,8 +128,8 @@ public class SourceParserCml extends AbstractParserParticipant
 		result.setAst(nodes);
 		result.setErrors(errors);
 		result.setWarnings(warnings);
-		result.setAllLocation(new Vector<LexLocation>());
-		result.setLocationToAstNodeMap(new HashMap<LexLocation, INode>());
+		//result.setAllLocation(new Vector<LexLocation>());
+		//result.setLocationToAstNodeMap(new HashMap<LexLocation, INode>());
 
 		return result;
 	}

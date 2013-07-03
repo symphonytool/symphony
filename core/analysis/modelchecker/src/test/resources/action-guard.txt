@@ -1,0 +1,8 @@
+BoolE(EQ(Nat(2),Nat(1)))
+NEval(EQ(Nat(2),Nat(1)))
+ProcDef("A",nopar,bChoice(EQ(Nat(2),Nat(1)),Prefix(Sigma("a"),Skip),Stop))
+ProcHasDeadlock("A")
+State(bChoice(EQ(Nat(2),Nat(1)),Prefix(Sigma("a"),Skip),Stop))
+State(Stop)
+trans(State(bChoice(EQ(Nat(2),Nat(1)),Prefix(Sigma("a"),Skip),Stop)),tau,State(Stop))
+

@@ -11,6 +11,20 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 
 public class RttMbtPreferencesServerPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
+	private StringFieldEditor server;
+	private IntegerFieldEditor port;
+	private StringFieldEditor user;
+	private StringFieldEditor id;
+
+	@Override
+	protected void performDefaults() {
+		super.performDefaults();
+		server.setStringValue("<RTT-MBT server name>");
+		port.setStringValue("9116");
+		user.setStringValue("<your name>");
+		id.setStringValue("anonymous@domain");
+	}
+
 	public RttMbtPreferencesServerPage() {
 		super(GRID);
 		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
@@ -28,29 +42,29 @@ public class RttMbtPreferencesServerPage extends FieldEditorPreferencePage imple
 	}
 	
 	public void createFieldEditors() {
-		StringFieldEditor server = new StringFieldEditor("RttMbtServer",
-														 "Server:",
-														 getFieldEditorParent());
+		server = new StringFieldEditor("RttMbtServer",
+									   "Server:",
+									   getFieldEditorParent());
 		server.load();
 		if (server.getStringValue().compareTo("") == 0) {
 			server.loadDefault();
 		}
 		addField(server);
-		IntegerFieldEditor port = new IntegerFieldEditor("RttMbtServerPort",
-												    	 "Port:",
-												    	 getFieldEditorParent());
+		port = new IntegerFieldEditor("RttMbtServerPort",
+		                              "Port:",
+		                              getFieldEditorParent());
 		addField(port);
-		StringFieldEditor user = new StringFieldEditor("RttMbtUserName",
-													   "Name:",
-													   getFieldEditorParent());
+		user = new StringFieldEditor("RttMbtUserName",
+									 "Name:",
+									 getFieldEditorParent());
 		user.load();
 		if (user.getStringValue().compareTo("") == 0) {
 			user.loadDefault();
 		}
 		addField(user);
-		StringFieldEditor id = new StringFieldEditor("RttMbtUserId",
-													 "User-ID:",
-													 getFieldEditorParent());
+		id = new StringFieldEditor("RttMbtUserId",
+		                           "User-ID:",
+		                           getFieldEditorParent());
 		id.load();
 		if (id.getStringValue().compareTo("") == 0) {
 			id.loadDefault();

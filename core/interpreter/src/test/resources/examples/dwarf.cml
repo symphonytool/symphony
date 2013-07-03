@@ -43,16 +43,16 @@ functions
   NeverShowAll(d) == d.currentstate <> {<L1>,<L2>,<L3>}
   
   MaxOneLampChange: DwarfType -> bool 
-  MaxOneLampChange(d) == card ((d.currentstate \ d.laststate) union (d.laststate \ d.currentstate)) <= 1
+  MaxOneLampChange(d) == exists l : LampId @ d.currentstate \ d.laststate = {l} or d.laststate \ d.currentstate = {l}
   
-  ForbidStopToDrive : DwarfType -> bool
+ ForbidStopToDrive : DwarfType -> bool
   ForbidStopToDrive(d) == ((d.lastproperstate = stop) => d.desiredproperstate <> drive)
   
   DarkOnlyToStop : DwarfType -> bool
-  DarkOnlyToStop(d) == ((d.lastproperstate = dark) => d.desiredproperstate in set {dark,stop}) 
+  DarkOnlyToStop(d) == (dark = d.lastproperstate) => d.desiredproperstate = stop
   
   DarkOnlyFromStop: DwarfType -> bool
-  DarkOnlyFromStop(d) == ((d.desiredproperstate = dark) => d.lastproperstate in set {dark,stop})
+  DarkOnlyFromStop(d) == (dark = d.desiredproperstate) => stop = d.lastproperstate
 
 channels
   init
