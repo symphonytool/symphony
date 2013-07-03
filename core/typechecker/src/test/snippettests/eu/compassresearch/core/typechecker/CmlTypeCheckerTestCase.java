@@ -238,8 +238,9 @@ public class CmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase {
 				testData,
 				"process P = begin state a: nat * nat := mk_(0,0) t: (nat * nat) * (nat * nat) @ t.#1 := a end",
 				true, true, new String[0]);
-		// 234
-
+		// 234 //test case for bug http://sourceforge.net/p/compassresearch/tickets/12/
+		addTestProgram(testData, "channels a : int class A = begin state hello : int := 4 operations  A : () ==> A  A() == Skip getHello : () ==> int getHello() == return hello end process Test =  begin @ (dcl v : A, out : int @ v := new A(); out := v.getHello();a.(out) -> Skip) end", true, true, new String[0]);
+		
 		return testData;
 	}
 

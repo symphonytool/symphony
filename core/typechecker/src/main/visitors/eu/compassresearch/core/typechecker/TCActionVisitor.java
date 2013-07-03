@@ -119,6 +119,7 @@ import eu.compassresearch.ast.definitions.AClassDefinition;
 import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AOperationsDefinition;
 import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
+import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.expressions.SRenameChannelExp;
 import eu.compassresearch.ast.lex.LexIdentifierToken;
@@ -1926,11 +1927,20 @@ class TCActionVisitor extends
 
 			// extract the call root/target
 			AApplyExp applyExp = (AApplyExp) exp;
-			AVariableExp callRoot = (AVariableExp) applyExp.getRoot();
+			
+			ILexNameToken callRootName;
+			
+			if(applyExp.getRoot() instanceof AUnresolvedPathExp){
+				AUnresolvedPathExp aa = (AUnresolvedPathExp) applyExp.getRoot();
+				LinkedList<ILexIdentifierToken> identifiers = aa.getIdentifiers();
+				callRootName = new LexNameToken("", identifiers.get(0));
+			 } else {
+				AVariableExp callRoot = (AVariableExp) applyExp.getRoot();
+				callRootName = callRoot.getName();
+			 }
 
 			// find the callRoot (again) in the environment
-			PDefinition operationDefinition = cmlEnv.lookupVariable(callRoot
-					.getName());
+			PDefinition operationDefinition = cmlEnv.lookupVariable(callRootName);
 			if (!(operationDefinition instanceof SCmlOperationDefinition))
 				break;
 
@@ -1982,7 +1992,6 @@ class TCActionVisitor extends
 			return replacement.getType();
 
 		} while (false);
-		int a;
 
 		if (!typeComparator.isSubType(expType, stateType)) {
 			node.setType(issueHandler.addTypeError(
