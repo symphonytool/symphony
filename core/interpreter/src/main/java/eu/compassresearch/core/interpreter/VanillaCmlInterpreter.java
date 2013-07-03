@@ -313,7 +313,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	public static void main(String[] args) throws IOException, InterpreterException
 	{
 		File cml_example = new File(
-				"src/test/resources/action/action-call-postcondition.cml");
+				"src/test/resources/action/action-reference-parametrised2.cml");
 		runOnFile(cml_example);
 
 	}

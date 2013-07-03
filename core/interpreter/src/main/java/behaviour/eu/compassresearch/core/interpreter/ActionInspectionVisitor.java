@@ -262,8 +262,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 							if(pattern instanceof AIdentifierPattern)
 							{
 								ILexNameToken name = ((AIdentifierPattern) pattern).getName();
-
-								question.putNew(new NameValuePair(name, value));
+								question.put(name, value);
 							}
 
 						}
