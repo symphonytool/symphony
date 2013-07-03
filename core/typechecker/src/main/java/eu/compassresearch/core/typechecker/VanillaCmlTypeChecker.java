@@ -121,8 +121,10 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 			return false;
 		} catch (AnalysisException ae) {
 			// An expected anomaly was found
+			ae.printStackTrace();
 			throw new InternalException(0,ae.getMessage());
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new InternalException(0,e.getMessage());
 		}
 
