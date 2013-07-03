@@ -693,7 +693,7 @@ class TCDeclAndDefVisitor extends
 					Environment selfInner = new PrivateClassEnvironment(c,
 							allClasses);
 					SClassDefinitionAssistantTC.typeResolve(c, null,
-							new org.overture.typechecker.TypeCheckInfo(
+							new org.overture.typechecker.TypeCheckInfo(question.assistantFactory,
 									selfInner));
 				} catch (TypeCheckException te) {
 					issueHandler.addTypeError(c, te.location, te.getMessage());
@@ -1931,7 +1931,7 @@ class TCDeclAndDefVisitor extends
 
 		// building the new scope for subtypechecks
 
-		PDefinitionListAssistantTC.typeCheck(defs, this, new TypeCheckInfo(
+		PDefinitionListAssistantTC.typeCheck(defs, this, new TypeCheckInfo(question.assistantFactory,
 				local, question.scope, question.qualifiers)); // can
 
 		if (question.env.isVDMPP()
@@ -1946,7 +1946,7 @@ class TCDeclAndDefVisitor extends
 					.getPredef()
 					.getBody()
 					.apply(parentChecker,
-							new TypeCheckInfo(local, NameScope.NAMES));
+							new TypeCheckInfo(question.assistantFactory,local, NameScope.NAMES));
 			ABooleanBasicType expected = AstFactory.newABooleanBasicType(node
 					.getLocation());
 
@@ -1974,7 +1974,7 @@ class TCDeclAndDefVisitor extends
 					.getPostdef()
 					.getBody()
 					.apply(parentChecker,
-							new TypeCheckInfo(post, NameScope.NAMES));
+							new TypeCheckInfo(question.assistantFactory,post, NameScope.NAMES));
 			ABooleanBasicType expected = AstFactory.newABooleanBasicType(node
 					.getLocation());
 
@@ -1991,7 +1991,7 @@ class TCDeclAndDefVisitor extends
 
 		OvertureRootCMLAdapter.pushQuestion(question);
 		PType actualResult = node.getBody().apply(parentChecker,
-				new TypeCheckInfo(local, question.scope));
+				new TypeCheckInfo(question.assistantFactory,local, question.scope));
 		OvertureRootCMLAdapter.popQuestion(question);
 
 		node.setActualResult(actualResult);

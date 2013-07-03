@@ -17,6 +17,7 @@ import org.overture.typechecker.Environment;
 import org.overture.typechecker.EnvironmentSearchStrategy;
 import org.overture.typechecker.FlatEnvironment;
 import org.overture.typechecker.TypeCheckInfo;
+import org.overture.typechecker.assistant.ITypeCheckerAssistantFactory;
 import org.overture.typechecker.util.HelpLexNameToken;
 
 import eu.compassresearch.ast.definitions.AChannelNameDefinition;
@@ -57,10 +58,10 @@ class CmlTypeCheckInfo extends TypeCheckInfo implements TypeCheckQuestion {
 	 *            -- Where to report issues
 	 * @return a fresh Type Check Info instance at top level
 	 */
-	public static CmlTypeCheckInfo getNewTopLevelInstance(
+	public static CmlTypeCheckInfo getNewTopLevelInstance(ITypeCheckerAssistantFactory assistantFactory,
 			TypeIssueHandler issueHandler, List<PDefinition> globalDefs,
 			List<PDefinition> channels) {
-		return new CmlTypeCheckInfo(issueHandler, globalDefs, channels);
+		return new CmlTypeCheckInfo(assistantFactory,issueHandler, globalDefs, channels);
 
 	}
 
@@ -131,9 +132,9 @@ class CmlTypeCheckInfo extends TypeCheckInfo implements TypeCheckQuestion {
 
 	}
 
-	private CmlTypeCheckInfo(TypeIssueHandler issueHandler,
+	private CmlTypeCheckInfo(ITypeCheckerAssistantFactory assistantFactory,TypeIssueHandler issueHandler,
 			List<PDefinition> globalDefs, List<PDefinition> channels) {
-		super(new FlatEnvironment(globalDefs,
+		super(assistantFactory,new FlatEnvironment(globalDefs,
 				new CmlEnvironmentSearchStrategy()));
 		this.issueHandler = issueHandler;
 		this.channels = new FlatEnvironment(channels,
@@ -141,10 +142,10 @@ class CmlTypeCheckInfo extends TypeCheckInfo implements TypeCheckQuestion {
 		this.globalDefinitions = globalDefs;
 	}
 
-	private CmlTypeCheckInfo(FlatEnvironment channelSurounding,
+	private CmlTypeCheckInfo(ITypeCheckerAssistantFactory assistantFactory,FlatEnvironment channelSurounding,
 			org.overture.typechecker.Environment suroundingEnv,
 			TypeIssueHandler issueHandler, List<PDefinition> globalDefs) {
-		super(new FlatEnvironment(new LinkedList<PDefinition>(), suroundingEnv));
+		super(assistantFactory,new FlatEnvironment(new LinkedList<PDefinition>(), suroundingEnv));
 		this.channels = channelSurounding;
 		this.issueHandler = issueHandler;
 		this.globalDefinitions = globalDefs;
@@ -320,7 +321,7 @@ class CmlTypeCheckInfo extends TypeCheckInfo implements TypeCheckQuestion {
 	public CmlTypeCheckInfo newScope(SClassDefinition def) {
 		// Variables are scoped, types and channels are global (for now at
 		// least)
-		CmlTypeCheckInfo res = new CmlTypeCheckInfo(this.channels, super.env,
+		CmlTypeCheckInfo res = new CmlTypeCheckInfo(this.assistantFactory,this.channels, super.env,
 				issueHandler, globalDefinitions);
 		res.env.setEnclosingDefinition(def);
 		return res;
@@ -332,7 +333,7 @@ class CmlTypeCheckInfo extends TypeCheckInfo implements TypeCheckQuestion {
 	 * @return
 	 */
 	public CmlTypeCheckInfo newScope() {
-		CmlTypeCheckInfo res = new CmlTypeCheckInfo(channels, env,
+		CmlTypeCheckInfo res = new CmlTypeCheckInfo(this.assistantFactory,channels, env,
 				issueHandler, globalDefinitions);
 		res.scope = this.scope;
 		res.env.setEnclosingDefinition(env.getEnclosingDefinition());
@@ -378,7 +379,7 @@ class CmlTypeCheckInfo extends TypeCheckInfo implements TypeCheckQuestion {
 
 	public TypeCheckQuestion newScope(
 			org.overture.typechecker.TypeCheckInfo current, PDefinition def) {
-		CmlTypeCheckInfo res = new CmlTypeCheckInfo(channels, env,
+		CmlTypeCheckInfo res = new CmlTypeCheckInfo(this.assistantFactory,channels, env,
 				issueHandler, this.globalDefinitions);
 		res.env.setEnclosingDefinition(def);
 		res.scope = this.scope;
@@ -387,7 +388,7 @@ class CmlTypeCheckInfo extends TypeCheckInfo implements TypeCheckQuestion {
 
 	public TypeCheckQuestion newScope(org.overture.typechecker.Environment env,
 			PDefinition def) {
-		CmlTypeCheckInfo res = new CmlTypeCheckInfo(channels, env,
+		CmlTypeCheckInfo res = new CmlTypeCheckInfo(this.assistantFactory,channels, env,
 				issueHandler, this.globalDefinitions);
 		res.env.setEnclosingDefinition(def);
 
@@ -399,7 +400,7 @@ class CmlTypeCheckInfo extends TypeCheckInfo implements TypeCheckQuestion {
 				new LinkedList<PDefinition>());
 		FlatEnvironment newchannels = new FlatEnvironment(
 				new LinkedList<PDefinition>());
-		CmlTypeCheckInfo res = new CmlTypeCheckInfo(newchannels, newenv,
+		CmlTypeCheckInfo res = new CmlTypeCheckInfo(this.assistantFactory,newchannels, newenv,
 				issueHandler, this.globalDefinitions);
 		return res;
 	}

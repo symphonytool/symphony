@@ -92,7 +92,7 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 					globalDefs.definitions);
 
 			// Create top-level CML-environment
-			TypeCheckInfo cmlTopEnv = CmlTypeCheckInfo.getNewTopLevelInstance(
+			TypeCheckInfo cmlTopEnv = CmlTypeCheckInfo.getNewTopLevelInstance(new CmlTypeCheckerAssistantFactory(),
 					issueHandler, globalDefinitions,
 					new LinkedList<PDefinition>(globalDefs.channels));
 

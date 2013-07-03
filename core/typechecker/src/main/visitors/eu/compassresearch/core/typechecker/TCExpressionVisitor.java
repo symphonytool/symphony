@@ -435,7 +435,7 @@ class TCExpressionVisitor extends
 			}
 			node.setType(node.getRoot().apply(
 					parent,
-					new TypeCheckInfo(question.env, question.scope, node
+					new TypeCheckInfo(question.assistantFactory,question.env, question.scope, node
 							.getArgtypes())));
 
 			if (PTypeAssistantTC.isUnknown(node.getType())) {
@@ -813,7 +813,7 @@ class TCExpressionVisitor extends
 		OvertureRootCMLAdapter overtureExpVisitor = new OvertureRootCMLAdapter(
 				parent, issueHandler);
 
-		org.overture.typechecker.TypeCheckInfo quest = new org.overture.typechecker.TypeCheckInfo(
+		org.overture.typechecker.TypeCheckInfo quest = new org.overture.typechecker.TypeCheckInfo(question.assistantFactory,
 				question.env);
 		quest.scope = question.scope;
 		quest.qualifiers = new LinkedList<PType>();
