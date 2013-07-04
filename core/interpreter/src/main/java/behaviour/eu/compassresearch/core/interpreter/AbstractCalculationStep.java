@@ -1,6 +1,5 @@
 package eu.compassresearch.core.interpreter;
 
-import java.util.Iterator;
 import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
@@ -10,6 +9,7 @@ import org.overture.interpreter.runtime.Context;
 
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlCalculationStep;
 import eu.compassresearch.core.interpreter.utility.Pair;
@@ -33,6 +33,11 @@ abstract class AbstractCalculationStep implements CmlCalculationStep {
 	public abstract Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
 			throws AnalysisException;
 	
+	
+	/*
+	 * Protected Helper Methods 
+	 */
+
 	protected void setLeftChild(CmlBehaviour child)
 	{
 		this.visitorAccess.setLeftChild(child);
@@ -46,16 +51,6 @@ abstract class AbstractCalculationStep implements CmlCalculationStep {
 	protected Pair<Context,Context> getChildContexts(Context context)
 	{
 		return visitorAccess.getChildContexts(context);
-	}
-	
-	protected void removeTheChildren()
-	{
-		for(Iterator<CmlBehaviour> iterator = children().iterator(); iterator.hasNext(); )
-		{
-			CmlBehaviour child = iterator.next();
-			owner.supervisor().removePupil(child);
-			iterator.remove();
-		}
 	}
 	
 	protected ILexNameToken name()
@@ -73,9 +68,39 @@ abstract class AbstractCalculationStep implements CmlCalculationStep {
 		return owner.children();
 	}
 			
-	protected void error(INode errorNode, String message)
+	protected void caseParallelNonSync() throws AnalysisException
 	{
-		throw new InterpreterRuntimeException(message);
+		CmlBehaviour leftChild =  owner.getLeftChild();
+		CmlAlphabet leftChildAlpha = owner.getLeftChild().inspect(); 
+		CmlBehaviour rightChild = owner.getRightChild();
+		CmlAlphabet rightChildAlpha = rightChild.inspect();
+
+		if(leftChildAlpha.containsImprecise(supervisor().selectedObservableEvent()))
+		{
+			leftChild.execute(supervisor());
+		}
+		else if(rightChildAlpha.containsImprecise(supervisor().selectedObservableEvent()))
+		{
+			rightChild.execute(supervisor());
+		}
+		else
+		{
+			throw new InterpreterRuntimeException("");
+		}
 	}
 
+	/**
+	 * Finds the first finished child if any
+	 * @return The first finished child, if none then null is returned
+	 */
+	protected CmlBehaviour findFinishedChild()
+	{
+		for(CmlBehaviour child : children())
+		{
+			if(child.finished())
+				return child;
+		}
+		
+		return null;
+	}
 }

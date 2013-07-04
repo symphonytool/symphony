@@ -53,7 +53,7 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	protected ILexNameToken 					name;
 
 	protected Inspection 						lastInspection = null;				
-	
+
 	//Process/Action Graph variables
 	/**
 	 * Parent behavior
@@ -147,7 +147,7 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 
 			@Override
 			public Pair<Context, Context> getChildContexts(Context context) {
-				
+
 				if(preConstructedChildContexts != null)
 					return preConstructedChildContexts;
 				else
@@ -184,7 +184,7 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 		this(parent,name);
 		setNext(new Pair<INode, Context>(action, context));
 	}
-	
+
 	public ConcreteCmlBehaviour(INode action, Context context, CmlBehaviour parent, Pair<Context,Context> childContexts) throws AnalysisException
 	{
 		this(parent,new LexNameToken("", "Child of " + parent.name(),parent.name().getLocation()));
@@ -194,7 +194,7 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 
 	protected void setNext(Pair<INode, Context> newNext) throws AnalysisException
 	{
-		
+
 		if(next == null || (newNext.first != next.first && !hasChildren()))
 		{
 			next = new Pair<INode,Context>(newNext.first.apply(cmlSetupVisitor,newNext.second),newNext.second);
@@ -293,7 +293,7 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 			else
 			{	
 				lastInspection = next.first.apply(alphabetInspectionVisitor,next.second);
-				
+
 				return lastInspection.getTransitions();
 			}
 		}

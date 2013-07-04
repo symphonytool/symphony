@@ -53,19 +53,34 @@
 		<resources>
 			<resource>
 				<directory>src/main/java</directory>
-				<excludes>
-					<exclude>behaviour/</exclude>
-					<exclude>factories/</exclude>
-					<exclude>transitions/</exclude>
-					<exclude>utility/</exclude>
-					<exclude>values/</exclude>
-				</excludes>
+<!-- 				<excludes> -->
+<!-- 					<exclude>behaviour/</exclude> -->
+<!-- 					<exclude>factories/</exclude> -->
+<!-- 					<exclude>transitions/</exclude> -->
+<!-- 					<exclude>utility/</exclude> -->
+<!-- 					<exclude>values/</exclude> -->
+<!-- 				</excludes> -->
+			</resource>
+			<resource>
+				<directory>src/main/java/behaviour</directory>
+			</resource>
+			<resource>
+				<directory>src/main/java/factories</directory>
+			</resource>
+			<resource>
+				<directory>src/main/java/transitions</directory>
+			</resource>
+			<resource>
+				<directory>src/main/java/utility</directory>
+			</resource>
+			<resource>
+				<directory>src/main/java/values</directory>
 			</resource>
 		</resources>
 		<plugins>
 			<!-- FIXME this might not be the best way to do it but it works for know 
 				This is needed because of Eclipse. This will set the exclusion filter for 
-				the source folders to the specifed folders. -->
+				the source folders to the specified folders. -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
