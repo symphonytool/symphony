@@ -6,6 +6,8 @@ import java.util.Set;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.expressions.PExp;
+import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
@@ -14,9 +16,13 @@ import org.overture.interpreter.values.FunctionValue;
 import org.overture.interpreter.values.NameValuePair;
 import org.overture.interpreter.values.NameValuePairList;
 import org.overture.interpreter.values.NameValuePairMap;
+import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.actions.ASkipAction;
+import eu.compassresearch.ast.actions.AValParametrisation;
+import eu.compassresearch.ast.actions.PParametrisation;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
+import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.lex.LexNameToken;
@@ -349,15 +355,54 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 		//name = new LexNameToken(name.module,name.getIdentifier().getName() + " = " + processValue.getProcessDefinition().getName().getSimpleName(),name.location);
 
 		//CmlStateContext processContext = new CmlStateContext(node.getLocation(), "Referenced Process context", question,null, processValue.getProcessDefinition());
-		ProcessObjectValue processValue = (ProcessObjectValue)question.lookup(node.getProcessName());
+		
 
-		return newInspection(createSilentTransition(node,processValue.getProcessDefinition().getProcess()),
+		return newInspection(createSilentTransition(node,node.getProcessDefinition().getProcess()),
 				new AbstractCalculationStep(owner, visitorAccess) {
 
 			@Override
 			public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
 					throws AnalysisException {
-				return new Pair<INode,Context>( node.getProcessDefinition().getProcess(), question); 
+		
+				ProcessObjectValue processValue = (ProcessObjectValue)question.lookup(node.getProcessName());
+				
+				//evaluate all the arguments
+				NameValuePairMap evaluatedArgs = new NameValuePairMap();
+
+				int paramIndex = 0;
+//				for(PSingleDeclaration decl : processValue.getProcessDefinition().getLocalState())
+//				{
+//					for(ILexIdentifierToken id : decl.getIdentifiers())
+//					{
+//						//get and evaluate the i'th expression
+//						PExp arg = args.get(paramIndex);
+//						Value value = arg.apply(cmlExpressionVisitor,question);
+//
+//						//check whether the type is correct
+//						//if(arg.getType().equals(o))
+//						//error(node,"Arguments does not match the action parameterization");
+//
+//						//Decide whether the argument is updateable or not
+//						if(parameterization instanceof AValParametrisation)
+//							value = value.getConstant();
+//						else {
+//							value = value.getUpdatable(null);
+//						}
+//
+//						evaluatedArgs.put(new LexNameToken("",(ILexIdentifierToken)id.clone()), value);
+//
+//						//update the index
+//						paramIndex++;
+//					}
+//
+//				}
+
+				Context refProcessContext = CmlContextFactory.newContext(node.getLocation(), 
+						"Parametrised reference action context", question);
+
+				refProcessContext.putAll(evaluatedArgs);
+				
+				return new Pair<INode,Context>( node.getProcessDefinition().getProcess(), refProcessContext); 
 			}
 		});
 
