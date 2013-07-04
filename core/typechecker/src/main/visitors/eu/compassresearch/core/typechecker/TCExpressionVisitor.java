@@ -678,7 +678,7 @@ class TCExpressionVisitor extends
 		// The name this variable expressions points to was found.
 		if (node.getVardef() != null) {
 
-			PType type = PDefinitionAssistantTC.getType(node.getVardef());
+			PType type = question.assistantFactory.createPDefinitionAssistantTC().getType(node.getVardef());
 			if (type == null)
 				type = node.getVardef().getType();
 			try {

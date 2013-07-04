@@ -673,12 +673,12 @@ class TCDeclAndDefVisitor extends
 			CmlTypeCheckInfo question) throws AnalysisException {
 
 		// Create class environment
-		PrivateClassEnvironment self = new PrivateClassEnvironment(node,
+		PrivateClassEnvironment self = new PrivateClassEnvironment(question.assistantFactory,node,
 				question.env);
 
 		List<SClassDefinition> classes = new LinkedList<SClassDefinition>();
 		classes.add(node);
-		Environment allClasses = new PublicClassEnvironment(classes,
+		Environment allClasses = new PublicClassEnvironment(question.assistantFactory,classes,
 				question.env, null);
 
 		for (SClassDefinition c : classes) {
@@ -690,7 +690,7 @@ class TCDeclAndDefVisitor extends
 		for (SClassDefinition c : classes) {
 			if (!c.getTypeChecked()) {
 				try {
-					Environment selfInner = new PrivateClassEnvironment(c,
+					Environment selfInner = new PrivateClassEnvironment(question.assistantFactory,c,
 							allClasses);
 					SClassDefinitionAssistantTC.typeResolve(c, null,
 							new org.overture.typechecker.TypeCheckInfo(question.assistantFactory,
@@ -1264,11 +1264,11 @@ class TCDeclAndDefVisitor extends
 			return node.getType();
 		}
 
-		Environment surrogateEnvironment = new FlatEnvironment(
+		Environment surrogateEnvironment = new FlatEnvironment(question.assistantFactory,
 				surrogateDefinitions, question.env);
 
 		// Create class environment
-		PrivateClassEnvironment self = new PrivateClassEnvironment(surrogate,
+		PrivateClassEnvironment self = new PrivateClassEnvironment(question.assistantFactory,surrogate,
 				surrogateEnvironment);
 
 		// Errors will be reported statically by the sub-visitors and the
@@ -1923,7 +1923,7 @@ class TCDeclAndDefVisitor extends
 		}
 
 		OvertureRootCMLAdapter.pushQuestion(question);
-		FlatCheckedEnvironment local = new FlatCheckedEnvironment(defs,
+		FlatCheckedEnvironment local = new FlatCheckedEnvironment(question.assistantFactory,defs,
 				question.env, question.scope);
 
 		local.setStatic(PAccessSpecifierAssistantTC.isStatic(node.getAccess()));
@@ -1966,7 +1966,7 @@ class TCDeclAndDefVisitor extends
 			PPattern rp = AstFactory.newAIdentifierPattern(result);
 			List<PDefinition> rdefs = PPatternAssistantTC.getDefinitions(rp,
 					expectedResult, NameScope.NAMES);
-			FlatCheckedEnvironment post = new FlatCheckedEnvironment(rdefs,
+			FlatCheckedEnvironment post = new FlatCheckedEnvironment(question.assistantFactory,rdefs,
 					local, NameScope.NAMES);
 
 			// building the new scope for subtypechecks
