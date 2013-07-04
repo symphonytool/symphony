@@ -381,7 +381,7 @@ processDefinition returns[AProcessDefinition def]
             $def.setName(processName);
             List<PParametrisation> paramList = $parametrisationList.params;
             if (paramList != null) {
-                List<PSingleDeclaration> localState = new LinkedList<PSingleDeclaration>();
+                List<ATypeSingleDeclaration> localState = new LinkedList<ATypeSingleDeclaration>();
                 for(PParametrisation p : paramList)
                 {
                     ATypeSingleDeclaration decl = p.getDeclaration();

@@ -1519,8 +1519,8 @@ class TCDeclAndDefVisitor extends
 		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
 		CmlTypeCheckInfo newScope = cmlEnv.newScope();
 		newScope.env.setEnclosingDefinition(node);
-		LinkedList<PSingleDeclaration> state = node.getLocalState();
-		for (PSingleDeclaration decl : state) {
+		LinkedList<ATypeSingleDeclaration> state = node.getLocalState();
+		for (ATypeSingleDeclaration decl : state) {
 			PType declType = decl.apply(parentChecker, question);
 			if (!successfulType(declType)) {
 				node.setType(issueHandler.addTypeError(decl,

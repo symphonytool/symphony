@@ -25,6 +25,7 @@ import org.overture.typechecker.TypeComparator;
 
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
+import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AActionsDefinition;
@@ -204,7 +205,7 @@ public class POGDeclAndDefVisitor extends
 
 		ProofObligationList pol = new ProofObligationList();
 
-		LinkedList<PSingleDeclaration> lstate = node.getLocalState();
+		LinkedList<ATypeSingleDeclaration> lstate = node.getLocalState();
 
 		PProcess pdef = node.getProcess();
 		System.out.println("State :" + lstate.toString() + ", process :"

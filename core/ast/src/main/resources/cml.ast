@@ -42,7 +42,7 @@ definition {-> package='eu.compassresearch.ast.definitions'}
                 [namesetExpression]:VarsetExpression
     |   #cmlOperation
     |   {process}
-                [localState]: singleDeclaration*
+                [localState]: singleDeclaration.type*
                 [process]: process
     | {channelName}
         [singleType]: singleDeclaration.type
