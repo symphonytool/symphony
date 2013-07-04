@@ -45,6 +45,7 @@ import org.overture.ast.types.PAccessSpecifier;
 import org.overture.ast.types.PField;
 import org.overture.ast.types.PType;
 import org.overture.pog.assistant.PDefinitionAssistantPOG;
+import org.overture.pog.assistant.PogAssistantFactory;
 import org.overture.pog.obligation.POCaseContext;
 import org.overture.pog.obligation.POContextStack;
 import org.overture.pog.obligation.PONotCaseContext;
@@ -116,7 +117,7 @@ public class ProofObligationGenerator extends
 	@Override
 	public ProofObligationList caseAModuleModules(AModuleModules node,
 			POContextStack question) throws AnalysisException {
-		return PDefinitionAssistantPOG.getProofObligations(node.getDefs(),
+		return question.assistantFactory.createPDefinitionAssistant().getProofObligations(node.getDefs(),
 				this.declAndDefVisitor, question);
 	}
 
@@ -368,7 +369,7 @@ public class ProofObligationGenerator extends
 	 */
 	public ProofObligationList generatePOs() throws AnalysisException {
 		ProofObligationList obligations = new ProofObligationList();
-		POContextStack ctxt = new POContextStack();
+		POContextStack ctxt = new POContextStack(new PogAssistantFactory());
 
 		// for each source
 		for (PSource s : sourceForest) {

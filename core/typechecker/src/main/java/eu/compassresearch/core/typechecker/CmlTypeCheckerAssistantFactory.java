@@ -15,7 +15,7 @@ public class CmlTypeCheckerAssistantFactory extends TypeCheckerAssistantFactory
 	}
 
 	@Override
-	public PDefinitionAssistantTC createPDefinitionAssistantTC()
+	public PDefinitionAssistantTC createPDefinitionAssistant()
 	{
 		return new CmlPDefinitionAssistantTC(this);
 	}
