@@ -26,6 +26,10 @@
  * Note: don't use '()' as a token: it will probably end up
  * conflicting with '(' ')' in places where there is an optional
  * something inside the brackets.
+ *
+ * In the varsetExprbase rules, they allow multiple names then a
+ * comprehension tail; it should only allow either a single name and
+ * comprehension tail or multiple names. -jwc/5July2013
  */
 grammar Cml;
 options {
@@ -1624,20 +1628,37 @@ varsetExprbase returns[PVarsetExpression vexp]
         {
             $vexp = $varsetExpr.vexp;
         }
-    | '{' ( identifierList )? '}'
+    | '{' ( varsetNameList setMapExprBinding? )? '}'
         {
-            List<LexIdentifierToken> ids = ($identifierList.ids!=null) ? $identifierList.ids : new ArrayList<LexIdentifierToken>();
+            List<LexIdentifierToken> ids = ($varsetNameList.names!=null) ? $varsetNameList.names : new ArrayList<LexIdentifierToken>();
             $vexp = new AEnumVarsetExpression(null, ids);
         }
-    | '{|' ( identifierList )? '|}'
+    | '{|' ( varsetNameList setMapExprBinding? )? '|}'
         {
-            List<LexIdentifierToken> ids = ($identifierList.ids!=null) ? $identifierList.ids : new ArrayList<LexIdentifierToken>();
+            List<LexIdentifierToken> ids = ($varsetNameList.names!=null) ? $varsetNameList.names : new ArrayList<LexIdentifierToken>();
             $vexp = new AFatEnumVarsetExpression(null, ids);
+            // For the comprehensions
+            // FIXME --- 2nd null below needs to be a single varsetName
+            // $vexp = new AFatCompVarsetExpression(null, null, $setMapExprBinding.bindings, $setMapExprBinding.pred);
         }
-    | '{|' IDENTIFIER ('.' expression)? setMapExprBinding '|}'
+    ;
+
+varsetNameList returns[List<LexIdentifierToken> names]
+@init { $names = new ArrayList<LexIdentifierToken>(); }
+    : item=varsetName { $names.add($item.name); } ( ',' item=varsetName { $names.add($item.name); } )*
+    ;
+
+varsetName returns[LexIdentifierToken name]
+    : base=IDENTIFIER
+        ( '.'
+            ( id=IDENTIFIER
+            | '(' expression ')'
+            | symbolicLiteralExpr
+            | recordTupleExprs
+            )
+        )*
         {
-            // FIXME --- 2nd null below needs to be some combination of the IDENTIFIER and expression
-            $vexp = new AFatCompVarsetExpression(null, null, $setMapExprBinding.bindings, $setMapExprBinding.pred);
+            $name = new LexIdentifierToken($base.getText(), false, extractLexLocation($base));
         }
     ;
 
