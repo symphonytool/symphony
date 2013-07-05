@@ -2,6 +2,7 @@ package eu.compassresearch.core.interpreter;
 
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.overture.ast.analysis.AnalysisException;
@@ -19,10 +20,8 @@ import org.overture.interpreter.values.NameValuePairMap;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.actions.ASkipAction;
-import eu.compassresearch.ast.actions.AValParametrisation;
-import eu.compassresearch.ast.actions.PParametrisation;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
-import eu.compassresearch.ast.declarations.PSingleDeclaration;
+import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.lex.LexNameToken;
@@ -81,10 +80,18 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 			public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
 					throws AnalysisException {
 				AProcessDefinition processDef;
+				
+				NameValuePairMap valueMap = new NameValuePairMap();
+				
 				//We have a named process
 				if(node.parent() instanceof AProcessDefinition)
 				{
 					processDef = (AProcessDefinition)node.parent();
+					if(processDef.getLocalState().size() > 0)
+					{
+						for(Entry<ILexNameToken,Value> entry : question.entrySet())
+							valueMap.putNew(new NameValuePair(entry.getKey().getModifiedName(processDef.getName().getSimpleName()),entry.getValue()));
+					}
 				}
 				//Unnamed process
 				else
@@ -92,13 +99,26 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 					processDef = new AProcessDefinition();
 					processDef.setLocation(node.getLocation());
 					processDef.setName(new LexNameToken("", "Unnamed Process",node.getLocation()));
+					
+					AProcessDefinition pdef = node.getAncestor(AProcessDefinition.class);
+					//We need to check whether the unnamed process is inside parameterised process, if it is then we need
+					//to add the parameters to this process since it cannot look outside the scope of itself
+					if(pdef != null && pdef.getLocalState().size() > 0)
+					{
+						for(ATypeSingleDeclaration decl : pdef.getLocalState())
+							for(ILexIdentifierToken id : decl.getIdentifiers())
+							{
+								ILexNameToken paramName = new LexNameToken(pdef.getName().getSimpleName(), id.clone());
+								Value val = question.lookup(paramName);
+								valueMap.putNew(new NameValuePair(paramName.getModifiedName(processDef.getName().getSimpleName()),val));
+							}
+					}
 				}
 
 				//Create a temporary context to evaluate the definitions in
 				Context tmpContext = CmlContextFactory.newContext(node.getLocation(),"tmp",null);
 
 				//Evaluate and add paragraph definitions and add the result to the state
-				NameValuePairMap valueMap = new NameValuePairMap();
 				for (PDefinition def : node.getDefinitionParagraphs())
 				{
 					NameValuePairList nvps = def.apply(cmlDefEvaluator, tmpContext);
@@ -168,8 +188,6 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 					return new Pair<INode, Context>(node, question);
 				}
 			});
-
-
 		}
 		//If this is true, the Skip rule is instantiated. This means that the entire choice evolves into Skip
 		//with the state from the skip. After this all the children processes are terminated
@@ -346,17 +364,6 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 	public Inspection caseAReferenceProcess(final AReferenceProcess node,
 			final Context question) throws AnalysisException {
 
-		//initials this process with the global context since this should see any of creators members
-		//		CmlProcess childProcess = new CmlProcess(node.getProcessDefinition(), this, question.getGlobal());
-		//		this.children.add(childProcess);
-		//		return CmlBehaviourSignal.EXEC_SUCCESS;
-
-		//ProcessObjectValue processValue = (ProcessObjectValue)question.lookup(node.getProcessName());
-		//name = new LexNameToken(name.module,name.getIdentifier().getName() + " = " + processValue.getProcessDefinition().getName().getSimpleName(),name.location);
-
-		//CmlStateContext processContext = new CmlStateContext(node.getLocation(), "Referenced Process context", question,null, processValue.getProcessDefinition());
-		
-
 		return newInspection(createSilentTransition(node,node.getProcessDefinition().getProcess()),
 				new AbstractCalculationStep(owner, visitorAccess) {
 
@@ -364,48 +371,51 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 			public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
 					throws AnalysisException {
 		
-				ProcessObjectValue processValue = (ProcessObjectValue)question.lookup(node.getProcessName());
-				
 				//evaluate all the arguments
 				NameValuePairMap evaluatedArgs = new NameValuePairMap();
 
 				int paramIndex = 0;
-//				for(PSingleDeclaration decl : processValue.getProcessDefinition().getLocalState())
-//				{
-//					for(ILexIdentifierToken id : decl.getIdentifiers())
-//					{
-//						//get and evaluate the i'th expression
-//						PExp arg = args.get(paramIndex);
-//						Value value = arg.apply(cmlExpressionVisitor,question);
-//
-//						//check whether the type is correct
-//						//if(arg.getType().equals(o))
-//						//error(node,"Arguments does not match the action parameterization");
-//
-//						//Decide whether the argument is updateable or not
-//						if(parameterization instanceof AValParametrisation)
-//							value = value.getConstant();
-//						else {
-//							value = value.getUpdatable(null);
-//						}
-//
-//						evaluatedArgs.put(new LexNameToken("",(ILexIdentifierToken)id.clone()), value);
-//
-//						//update the index
-//						paramIndex++;
-//					}
-//
-//				}
-
-				Context refProcessContext = CmlContextFactory.newContext(node.getLocation(), 
-						"Parametrised reference action context", question);
-
-				refProcessContext.putAll(evaluatedArgs);
+				for(ATypeSingleDeclaration decl : node.getProcessDefinition().getLocalState())
+				{
+					for(ILexIdentifierToken id : decl.getIdentifiers())
+					{
+						//get and evaluate the i'th expression
+						PExp arg = node.getArgs().get(paramIndex);
+						//There are always a val param so they must allways be constant
+						Value value = arg.apply(cmlExpressionVisitor,question).getConstant();
+						
+						LexNameToken argName = new LexNameToken(node.getProcessDefinition().getName().getSimpleName(),(ILexIdentifierToken)id.clone());
+						
+						evaluatedArgs.put(argName, value);
+						//update the index
+						paramIndex++;
+					}
+				}
 				
-				return new Pair<INode,Context>( node.getProcessDefinition().getProcess(), refProcessContext); 
+				Context nextContext = null;
+				
+				//If the top process of the process definition is a action process we do not do
+				//anything as the it will take care of everything in the action process because tech. reasons
+				if(node.getProcessDefinition().getProcess() instanceof AActionProcess)
+				{
+					nextContext = CmlContextFactory.newContext(node.getLocation(), 
+							"Parametrised reference process context", question);
+					nextContext.putAll(evaluatedArgs);
+				}
+				//if not then we create a new process object
+				else
+				{
+					ProcessObjectValue self = new ProcessObjectValue(node.getProcessDefinition(),evaluatedArgs,question.getSelf());
+					nextContext = CmlContextFactory.newObjectContext(node.getLocation(), "Process Context", question, self);
+				}
+					
+//				Context refProcessContext = 
+
+//				refProcessContext.putAll(evaluatedArgs);
+				
+				return new Pair<INode,Context>( node.getProcessDefinition().getProcess(), nextContext); 
 			}
 		});
-
 	}
 
 	@Override
