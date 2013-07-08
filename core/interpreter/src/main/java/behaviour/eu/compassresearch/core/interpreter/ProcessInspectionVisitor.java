@@ -2,6 +2,8 @@ package eu.compassresearch.core.interpreter;
 
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -10,6 +12,7 @@ import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.intf.lex.ILexNameToken;
+import org.overture.ast.lex.LexLocation;
 import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ObjectContext;
@@ -23,6 +26,7 @@ import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
+import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.ast.process.AActionProcess;
@@ -32,6 +36,7 @@ import eu.compassresearch.ast.process.AInterleavingProcess;
 import eu.compassresearch.ast.process.AInternalChoiceProcess;
 import eu.compassresearch.ast.process.AReferenceProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
+import eu.compassresearch.ast.process.ASynchronousParallelismProcess;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
@@ -44,6 +49,7 @@ import eu.compassresearch.core.interpreter.api.transitions.CmlTock;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.ObservableEvent;
 import eu.compassresearch.core.interpreter.api.values.ActionValue;
+import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
 import eu.compassresearch.core.interpreter.api.values.CmlOperationValue;
 import eu.compassresearch.core.interpreter.api.values.ProcessObjectValue;
 import eu.compassresearch.core.interpreter.utility.Pair;
@@ -150,8 +156,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 			}
 		});
 	}
-
-
+	
 	/**
 	 * External Choice D23.2 7.5.4
 	 * 
@@ -425,6 +430,27 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 
 		return caseASequentialComposition(node,node.getLeft(),node.getRight(),question);
 	}
+	
+	@Override
+	public Inspection caseASynchronousParallelismProcess(
+			ASynchronousParallelismProcess node, Context question)
+			throws AnalysisException {
+
+		Context globalContext = question.getGlobal();
+		List<ILexNameToken> channelNames = new LinkedList<ILexNameToken>();
+		
+		//Get all the channel objects
+		for(Entry<ILexNameToken,Value> entry : globalContext.entrySet())
+			if(entry.getValue() instanceof CMLChannelValue)
+				channelNames.add(entry.getKey());
+				
+		AFatEnumVarsetExpression varsetNode = new AFatEnumVarsetExpression(new LexLocation(), channelNames);
+			
+		AGeneralisedParallelismProcess nextNode = new AGeneralisedParallelismProcess(node.getLocation().clone(), 
+				node.getLeft().clone(), varsetNode, node.getRight().clone());
+		
+		return caseAGeneralisedParallelismProcess(nextNode, question);
+	}
 
 	/**
 	 * Parallel action
@@ -483,5 +509,5 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 
 		return resultAlpha;
 	}
-
+	
 }
