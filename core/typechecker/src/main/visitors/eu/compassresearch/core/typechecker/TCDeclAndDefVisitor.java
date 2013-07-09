@@ -259,9 +259,9 @@ class TCDeclAndDefVisitor extends
 							+ node)));
 			return node.getType();
 		}
-		
-		cmlEnv.checkChannelDuplicate(node);
 
+		cmlEnv.checkChannelDuplicate(node);
+		
 		PType declType = decl.apply(parentChecker, question);
 		if (!successfulType(declType)) {
 			node.setType(issueHandler.addTypeError(node,

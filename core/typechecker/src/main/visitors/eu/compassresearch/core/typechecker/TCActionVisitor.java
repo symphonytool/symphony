@@ -2120,7 +2120,7 @@ class TCActionVisitor extends
 			// //
 			ATypeSingleDeclaration typeDecl = channelNameDefinition
 					.getSingleType();
-
+			
 			if (commParam instanceof AReadCommunicationParameter) {
 
 				AReadCommunicationParameter readParam = (AReadCommunicationParameter) commParam;
@@ -2248,6 +2248,11 @@ class TCActionVisitor extends
 				PType thisType = null;
 				PType type = typeDecl.getType();
 
+				//Type check channel type definitions, if not checked.  
+				if(type.getDefinitions().isEmpty()){
+					type.apply(parentChecker, cmlEnv);
+				}
+				
 				if (!(type instanceof AChannelType)) {
 					node.setType(issueHandler.addTypeError(node,
 							TypeErrorMessages.EXPECTED_A_CHANNEL

@@ -95,6 +95,13 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 					issueHandler, globalDefinitions,
 					new LinkedList<PDefinition>(globalDefs.channels));
 
+			// Resolve channels
+//			for (PDefinition channel : globalDefs.channels) {
+//				PType channelType = channel.apply(rootVisitor, cmlTopEnv);
+//				if (!CmlTCUtil.successfulType(channelType))
+//					return false;
+//			}			
+			
 			// Resolve everything before hand (Overture does this)
 			PDefinitionListAssistantTC.typeResolve(this.globalDefinitions,
 					(QuestionAnswerAdaptor<TypeCheckInfo, PType>) rootVisitor,
