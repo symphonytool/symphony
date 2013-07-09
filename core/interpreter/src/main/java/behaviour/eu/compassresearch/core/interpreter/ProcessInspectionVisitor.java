@@ -317,12 +317,12 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 					InterpretationErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName()));
 
 		ILexNameToken name = owner.name();
-
+		Pair<Context,Context> childContexts = visitorAccess.getChildContexts(question);
 		//TODO: create a local copy of the question state for each of the actions
 		CmlBehaviour leftInstance = 
-				new ConcreteCmlBehaviour(left,question,new LexNameToken(name.getModule(),name.getIdentifier().getName() + "|||" ,left.getLocation()),owner);		
+				new ConcreteCmlBehaviour(left,childContexts.first,new LexNameToken(name.getModule(),name.getIdentifier().getName() + "|||" ,left.getLocation()),owner);		
 		CmlBehaviour rightInstance = 
-				new ConcreteCmlBehaviour(right,question,new LexNameToken(name.getModule(),"|||" + name.getIdentifier().getName() ,right.getLocation()),owner);
+				new ConcreteCmlBehaviour(right,childContexts.second,new LexNameToken(name.getModule(),"|||" + name.getIdentifier().getName() ,right.getLocation()),owner);
 
 		//add the children to the process graph
 		visitorAccess.setLeftChild(leftInstance);
@@ -442,11 +442,11 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 		//Get all the channel objects
 		for(Entry<ILexNameToken,Value> entry : globalContext.entrySet())
 			if(entry.getValue() instanceof CMLChannelValue)
-				channelNames.add(entry.getKey());
+				channelNames.add(entry.getKey().clone());
 				
 		AFatEnumVarsetExpression varsetNode = new AFatEnumVarsetExpression(new LexLocation(), channelNames);
 			
-		AGeneralisedParallelismProcess nextNode = new AGeneralisedParallelismProcess(node.getLocation().clone(), 
+		AGeneralisedParallelismProcess nextNode = new AGeneralisedParallelismProcess(node.getLocation(), 
 				node.getLeft().clone(), varsetNode, node.getRight().clone());
 		
 		return caseAGeneralisedParallelismProcess(nextNode, question);

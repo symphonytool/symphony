@@ -402,7 +402,6 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 		PAction left = node.getLeftAction();
 		PAction right = node.getRightAction();
 		Pair<Context,Context> childContexts = visitorAccess.getChildContexts(question);
-		//TODO: create a local copy of the question state for each of the actions
 		CmlBehaviour leftInstance = 
 				new ConcreteCmlBehaviour(left, childContexts.first.deepCopy(), 
 						new LexNameToken(owner.name().getModule(),owner.name().getIdentifier().getName() + "|||" ,left.getLocation()),owner);

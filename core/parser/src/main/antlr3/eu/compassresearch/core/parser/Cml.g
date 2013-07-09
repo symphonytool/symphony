@@ -793,7 +793,7 @@ action returns[PAction action]
                 $action = suffix;
             }
         }
-    | actionReplicated  { $action = $actionReplicated.action; }
+    | actionReplicated  {$actionReplicated.action.setLocation(extractLexLocation($start,$actionReplicated.stop));$action = $actionReplicated.action; }
     ;
 
 actionSuffix returns[PAction suffix]

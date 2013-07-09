@@ -8,5 +8,5 @@ begin
 	 
 	 TEST = val x : int @ a.x -> Skip 
 	
-	@ ||| i in set {1,2,3} @ [{}] TEST(i)
+	@ [] i in set {1,2,3} @ TEST(i)
 end
