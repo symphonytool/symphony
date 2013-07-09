@@ -16,6 +16,8 @@ import org.overture.interpreter.values.TupleValue;
 import org.overture.interpreter.values.Value;
 import org.overture.interpreter.values.ValueList;
 
+import eu.compassresearch.ast.actions.AExternalChoiceAction;
+import eu.compassresearch.ast.actions.AExternalChoiceReplicatedAction;
 import eu.compassresearch.ast.actions.AHidingAction;
 import eu.compassresearch.ast.actions.AInterleavingParallelAction;
 import eu.compassresearch.ast.actions.AInterleavingReplicatedAction;
@@ -122,7 +124,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 		else
 			setValue = new SetValue(value.setValue(question));
 
-		AInterleavingParallelAction interleavingNode = null;
+		INode interleavingNode = null;
 
 		if(setValue.values.size() == 1)
 			throw new AnalysisException("A replicated action must have at least two enumeration values");
@@ -265,7 +267,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 		else
 			setValue = new SetValue(value.setValue(question));
 
-		ASynchronousParallelismProcess returnNode = null;
+		INode returnNode = null;
 
 		if(setValue.values.size() == 1)
 			throw new AnalysisException("A replicated action must have at least two enumeration values");
@@ -302,4 +304,71 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 		return returnNode;
 	}
 
+	
+	@Override
+	public INode caseAExternalChoiceReplicatedAction(
+			AExternalChoiceReplicatedAction node, Context question)
+					throws AnalysisException {
+
+		//The name of the value holding the state of the remaining values of the replication
+		LexNameToken replicationContextValueName = new LexNameToken("|REPLICATION|",node.getLocation().toShortString(),node.getLocation()); 
+
+		Value value = question.check(replicationContextValueName);
+		NameValuePairList replicationDecls = new  NameValuePairList();
+
+		//Convert all the single decls into a NameValuePairList
+		for(PSingleDeclaration singleDecl :  node.getReplicationDeclaration())
+			replicationDecls.addAll(singleDecl.apply(this.cmlDefEvaluator,question));
+
+		SetValue setValue = null;
+		Context nextContext = question;
+
+		//if null then this is the first action of the replication
+		//then we need to evaluate the 
+		if(value == null)
+		{
+			setValue = convertReplDeclToSetValue(replicationDecls,question);
+			//Make a set of tuples
+			nextContext = CmlContextFactory.newContext(node.getLocation(), "replication contexts", question);
+			nextContext.putNew(new NameValuePair(replicationContextValueName,setValue));
+		}
+		else
+			setValue = new SetValue(value.setValue(question));
+
+		INode returnNode = null;
+
+		if(setValue.values.size() == 1)
+			throw new AnalysisException("A replicated action must have at least two enumeration values");
+		//If we have two replication values then we need to have one interleaving action, since
+		//each value represents one process replication 
+		else if(setValue.values.size() == 2)
+		{
+			returnNode = new AExternalChoiceAction(node.getLocation(), 
+					node.getReplicatedAction().clone(),
+					node.getReplicatedAction().clone());
+
+			setChildContexts(new Pair<Context,Context>(
+					convertReplicationToContext(setValue.values.get(0),replicationDecls,node.getLocation(),question),
+					convertReplicationToContext(setValue.values.get(1),replicationDecls,node.getLocation(),question)));
+
+			setValue.values.remove(0);
+			setValue.values.remove(0);
+		}
+		//If we have more than two replication values then we make an interleaving between the
+		//first value and the rest of the replicated values
+		else
+		{
+			returnNode = new AExternalChoiceAction(node.getLocation(),
+					node.getReplicatedAction().clone(), 
+					node);
+
+			setChildContexts(new Pair<Context,Context>(
+					convertReplicationToContext(setValue.values.get(0),replicationDecls,node.getLocation(),question),
+					nextContext));
+
+			setValue.values.remove(0);
+		}
+
+		return returnNode;
+	}
 }

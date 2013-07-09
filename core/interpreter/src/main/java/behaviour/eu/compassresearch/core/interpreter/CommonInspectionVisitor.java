@@ -104,10 +104,11 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 				@Override
 				public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
 						throws AnalysisException {
-					CmlBehaviour leftInstance = new ConcreteCmlBehaviour(leftNode, question.deepCopy(), new LexNameToken(name().getModule(),name().getIdentifier().getName() + "[]" , new LexLocation()),this.owner);
+					Pair<Context,Context> childContexts = visitorAccess.getChildContexts(question);
+					CmlBehaviour leftInstance = new ConcreteCmlBehaviour(leftNode, childContexts.first.deepCopy(), new LexNameToken(name().getModule(),name().getIdentifier().getName() + "[]" , new LexLocation()),this.owner);
 					setLeftChild(leftInstance);
 
-					CmlBehaviour rightInstance = new ConcreteCmlBehaviour(rightNode, question.deepCopy(), new LexNameToken(name().getModule(),"[]" + name().getIdentifier().getName(), new LexLocation()),this.owner); 
+					CmlBehaviour rightInstance = new ConcreteCmlBehaviour(rightNode, childContexts.second.deepCopy(), new LexNameToken(name().getModule(),"[]" + name().getIdentifier().getName(), new LexLocation()),this.owner); 
 					setRightChild(rightInstance);
 
 					//Now let this process wait for the children to get into a waitForEvent state
