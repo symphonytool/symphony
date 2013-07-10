@@ -3,7 +3,7 @@ package eu.compassresearch.core.interpreter.api.values;
 import org.overture.ast.definitions.AClassClassDefinition;
 import org.overture.ast.types.AClassType;
 
-import eu.compassresearch.ast.definitions.AClassDefinition;
+import eu.compassresearch.ast.definitions.ACmlClassDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 
 class CmlToVdmConverter {
@@ -20,7 +20,7 @@ class CmlToVdmConverter {
 		return classType;
 	}
 	
-	public static AClassType createClassType(AClassDefinition classDefinition)
+	public static AClassType createClassType(ACmlClassDefinition classDefinition)
 	{
 		AClassType classType = new AClassType();
 		classType.setResolved(true);

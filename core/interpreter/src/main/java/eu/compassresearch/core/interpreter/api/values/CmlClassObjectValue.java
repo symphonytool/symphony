@@ -6,19 +6,19 @@ import org.overture.interpreter.values.CPUValue;
 import org.overture.interpreter.values.NameValuePairMap;
 import org.overture.interpreter.values.ObjectValue;
 
-import eu.compassresearch.ast.definitions.AClassDefinition;
+import eu.compassresearch.ast.definitions.ACmlClassDefinition;
 
 public class CmlClassObjectValue extends ObjectValue {
 
-	private AClassDefinition classDefinition = null;
+	private ACmlClassDefinition classDefinition = null;
 	
-	public CmlClassObjectValue(AClassDefinition classDefinition, NameValuePairMap members, ObjectValue creator) {
+	public CmlClassObjectValue(ACmlClassDefinition classDefinition, NameValuePairMap members, ObjectValue creator) {
 		super(CmlToVdmConverter.createClassType(classDefinition), members, new LinkedList<ObjectValue>(), CPUValue.vCPU, creator);
 		this.classDefinition = classDefinition;
 	}
 	
 	
-	public AClassDefinition getClassDefinition()
+	public ACmlClassDefinition getClassDefinition()
 	{
 		return classDefinition;
 	}

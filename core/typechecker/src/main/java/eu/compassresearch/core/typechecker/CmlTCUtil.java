@@ -30,7 +30,7 @@ import org.overture.typechecker.Environment;
 import org.overture.typechecker.assistant.definition.PDefinitionAssistantTC;
 import org.overture.typechecker.assistant.pattern.PPatternAssistantTC;
 
-import eu.compassresearch.ast.definitions.AClassDefinition;
+import eu.compassresearch.ast.definitions.ACmlClassDefinition;
 import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
 import eu.compassresearch.ast.lex.LexIdentifierToken;
 import eu.compassresearch.ast.lex.LexNameToken;
@@ -353,7 +353,7 @@ public class CmlTCUtil {
 	 * @return
 	 */
 	static CmlTypeCheckInfo createCmlClassEnvironment(CmlTypeCheckInfo info,
-			AClassDefinition node) throws InvocationAssistantException {
+			ACmlClassDefinition node) throws InvocationAssistantException {
 
 		CmlTypeCheckInfo cmlClassEnv = info.newScope();
 

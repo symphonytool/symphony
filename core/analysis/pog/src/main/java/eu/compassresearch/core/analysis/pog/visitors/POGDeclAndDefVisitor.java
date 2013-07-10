@@ -33,7 +33,7 @@ import eu.compassresearch.ast.definitions.AChannelNameDefinition;
 import eu.compassresearch.ast.definitions.AChannelsDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.definitions.AChansetsDefinition;
-import eu.compassresearch.ast.definitions.AClassDefinition;
+import eu.compassresearch.ast.definitions.ACmlClassDefinition;
 import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AFunctionsDefinition;
 import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
@@ -166,7 +166,7 @@ public class POGDeclAndDefVisitor extends
 	 * CML ELEMENT - Classes
 	 */
 	@Override
-	public ProofObligationList caseAClassDefinition(AClassDefinition node,
+	public ProofObligationList caseACmlClassDefinition(ACmlClassDefinition node,
 			POContextStack question) throws AnalysisException
 	{
 		System.out.println("------");

@@ -26,7 +26,7 @@ import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AActionsDefinition;
 import eu.compassresearch.ast.definitions.AChannelNameDefinition;
 import eu.compassresearch.ast.definitions.AChannelsDefinition;
-import eu.compassresearch.ast.definitions.AClassDefinition;
+import eu.compassresearch.ast.definitions.ACmlClassDefinition;
 import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AFunctionsDefinition;
 import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
@@ -148,7 +148,7 @@ class CmlDefinitionVisitor extends
 	}
 	
 	@Override
-	public NameValuePairList caseAClassDefinition(AClassDefinition node,
+	public NameValuePairList caseACmlClassDefinition(ACmlClassDefinition node,
 			Context question) throws AnalysisException {
 
 		

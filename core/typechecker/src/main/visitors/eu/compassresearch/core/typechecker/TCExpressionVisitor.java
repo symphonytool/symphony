@@ -50,7 +50,7 @@ import org.overture.typechecker.assistant.type.PTypeAssistantTC;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.definitions.AChannelNameDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
-import eu.compassresearch.ast.definitions.AClassDefinition;
+import eu.compassresearch.ast.definitions.ACmlClassDefinition;
 import eu.compassresearch.ast.expressions.ABracketedExp;
 import eu.compassresearch.ast.expressions.AEnumVarsetExpression;
 import eu.compassresearch.ast.expressions.AEnumerationRenameChannelExp;
@@ -979,7 +979,7 @@ class TCExpressionVisitor extends
 			// nearest cml environment
 			if (typeFound == null) {
 				CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
-				typeFound = cmlEnv.lookup(typename, AClassDefinition.class);
+				typeFound = cmlEnv.lookup(typename, ACmlClassDefinition.class);
 			}
 
 			if (typeFound == null) {

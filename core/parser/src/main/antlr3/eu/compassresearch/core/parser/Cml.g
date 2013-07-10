@@ -353,14 +353,14 @@ programParagraph returns[PDefinition defs]
     | functionDefs      { $defs = $functionDefs.defs; }
     ;
 
-classDefinition returns[AClassDefinition def]
+classDefinition returns[ACmlClassDefinition def]
 @after { $def.setLocation(extractLexLocation($start, $stop)); }
     : 'class' id=IDENTIFIER ('extends' parent=IDENTIFIER)? '=' 'begin' classDefinitionBlockOptList 'end'
         {
             /* FIXME --- Will need to check AInitialDefinition defs
              * that their id matches the class id here.
              */
-            $def = new AClassDefinition(); // FIXME
+            $def = new ACmlClassDefinition(); // FIXME
             $def.setName(new LexNameToken("", $id.getText(), extractLexLocation($id)));
             /* FIXME --- need to set the parent's name once we've
              * settled on how that works

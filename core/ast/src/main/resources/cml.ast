@@ -46,17 +46,7 @@ definition {-> package='eu.compassresearch.ast.definitions'}
                 [process]: process
     | {channelName}
         [singleType]: singleDeclaration.type
-    | {class}
-        [body]: definition*
-        [hasContructors]:java_Boolean
-        [gettingInheritable]:java_Boolean
-        [isAbstract]:java_Boolean
-        [isUndefined]:java_Boolean
-        (classtype):type
-        (isTypeChecked):java_Boolean
-        (invariant):definition.#cmlOperation.explicit
-        (supertypes):type*
-        (superDefs):definition*
+    | #class
    | {channels}
         [channelNameDeclarations]: definition.channelName*
    | {chansets}
@@ -81,7 +71,12 @@ definition {-> package='eu.compassresearch.ast.definitions'}
         [initPattern]:pattern [initExpression]:exp (initdef):definition.explicitFunction
         (stateDefs):definition*
    ;
-
+   
+#class {-> package='eu.compassresearch.ast.definitions'}
+	= {cml}
+        [body]: definition*
+        (cmlInvariant):definition.#cmlOperation.explicit
+	;
 /*
  * Operations
  *
@@ -429,7 +424,7 @@ parametrisation {-> package='eu.compassresearch.ast.actions'}
         [destination]:exp
         [className]:LexNameToken
         [args]:exp*
-        (classdef):definition.class
+        (classdef):definition.#class
         (ctorDefinition):definition
     | {nonDeterministicDo}
         [alternatives]:action.#Statement.nonDeterministicAlt*

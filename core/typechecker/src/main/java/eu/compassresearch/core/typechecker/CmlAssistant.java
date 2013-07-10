@@ -31,7 +31,7 @@ import org.overture.typechecker.assistant.type.ARecordInvariantTypeAssistantTC;
 import org.overture.typechecker.util.HelpLexNameToken;
 
 import eu.compassresearch.ast.definitions.AActionsDefinition;
-import eu.compassresearch.ast.definitions.AClassDefinition;
+import eu.compassresearch.ast.definitions.ACmlClassDefinition;
 import eu.compassresearch.ast.definitions.AFunctionsDefinition;
 import eu.compassresearch.ast.definitions.AOperationsDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
@@ -368,7 +368,7 @@ class CmlAssistant {
 					&& LexNameTokenAssistent.isEqual(def.getName(), name))
 				return def;
 
-			AClassDefinition cpar = AClassDefinition.class.cast(def);
+			ACmlClassDefinition cpar = ACmlClassDefinition.class.cast(def);
 
 			// pre: def.definition is not null
 			for (PDefinition d : cpar.getBody()) {
@@ -385,7 +385,7 @@ class CmlAssistant {
 
 		@Override
 		public Class<?> getType() {
-			return AClassDefinition.class;
+			return ACmlClassDefinition.class;
 		}
 	}
 
@@ -479,7 +479,7 @@ class CmlAssistant {
 			LexNameToken searchFor = new LexNameToken("", def.getName());
 
 			PDefinition classDef = cmlQuestion.lookup(searchFor,
-					AClassDefinition.class);
+					ACmlClassDefinition.class);
 			if (classDef != null)
 				return CmlAssistant.this.findMemberName(classDef, name, more);
 

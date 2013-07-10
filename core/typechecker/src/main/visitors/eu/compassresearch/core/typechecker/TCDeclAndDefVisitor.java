@@ -83,7 +83,7 @@ import eu.compassresearch.ast.definitions.AChannelNameDefinition;
 import eu.compassresearch.ast.definitions.AChannelsDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.definitions.AChansetsDefinition;
-import eu.compassresearch.ast.definitions.AClassDefinition;
+import eu.compassresearch.ast.definitions.ACmlClassDefinition;
 import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AFunctionsDefinition;
 import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
@@ -577,7 +577,7 @@ class TCDeclAndDefVisitor extends
 
 			// It could be the constructor
 			PDefinition clz = question.env.getEnclosingDefinition();
-			if (clz != null && clz instanceof AClassDefinition) {
+			if (clz != null && clz instanceof ACmlClassDefinition) {
 				if (HelpLexNameToken.isEqual(clz.getName(), odef.getName())) {
 					if (odef instanceof AExplicitCmlOperationDefinition) {
 						AExplicitCmlOperationDefinition cmlOdef = (AExplicitCmlOperationDefinition) odef;
@@ -1190,7 +1190,7 @@ class TCDeclAndDefVisitor extends
 	 * Create an Overture class that
 	 */
 	private static AClassClassDefinition createSurrogateClass(
-			AClassDefinition node, CmlTypeCheckInfo question) {
+			ACmlClassDefinition node, CmlTypeCheckInfo question) {
 
 		// if (question.getGlobalClassDefinitions() == null)
 		// throw new NullPointerException();
@@ -1235,7 +1235,7 @@ class TCDeclAndDefVisitor extends
 		return surrogateOvertureClass;
 	}
 
-	PType typeCheckWithOverture(AClassDefinition node,
+	PType typeCheckWithOverture(ACmlClassDefinition node,
 			AClassClassDefinition surrogate,
 			org.overture.typechecker.TypeCheckInfo question)
 			throws AnalysisException {
@@ -1248,8 +1248,8 @@ class TCDeclAndDefVisitor extends
 			Environment env = info.env;
 			while (env != null) {
 				for (PDefinition def : env.getDefinitions()) {
-					if (def instanceof AClassDefinition) {
-						AClassDefinition cdef = (AClassDefinition) def;
+					if (def instanceof ACmlClassDefinition) {
+						ACmlClassDefinition cdef = (ACmlClassDefinition) def;
 						surrogateDefinitions.add(createSurrogateClass(cdef,
 								info));
 					}
@@ -1309,7 +1309,7 @@ class TCDeclAndDefVisitor extends
 	 * in that class paragraph.
 	 */
 	private static <T extends PDefinition> List<T> findParticularDefinitionType(
-			Class<T> type, AClassDefinition clz) {
+			Class<T> type, ACmlClassDefinition clz) {
 
 		List<T> result = new LinkedList<T>();
 
@@ -1335,7 +1335,7 @@ class TCDeclAndDefVisitor extends
 	 * 
 	 */
 	@Override
-	public PType caseAClassDefinition(AClassDefinition node,
+	public PType caseACmlClassDefinition(ACmlClassDefinition node,
 			org.overture.typechecker.TypeCheckInfo question)
 			throws AnalysisException {
 
@@ -1667,7 +1667,7 @@ class TCDeclAndDefVisitor extends
 		{
 			AOperationType operType = (AOperationType) node.getType();
 			if (!operType.getResult().equals(
-					node.getAncestor(AClassDefinition.class).getType())) {
+					node.getAncestor(ACmlClassDefinition.class).getType())) {
 				node.setIsConstructor(false);
 			}
 		}
@@ -1770,8 +1770,8 @@ class TCDeclAndDefVisitor extends
 		PDefinition p = (PDefinition) node.parent();
 		INode classOrProcess = p.parent();
 
-		if (classOrProcess instanceof AClassDefinition) {
-			AClassDefinition clzDef = (AClassDefinition) classOrProcess;
+		if (classOrProcess instanceof ACmlClassDefinition) {
+			ACmlClassDefinition clzDef = (ACmlClassDefinition) classOrProcess;
 			for (PDefinition defInClz : clzDef.getBody()) {
 				if (defInClz instanceof AAssignmentDefinition) {
 					return ((AStateDefinition) defInClz).getStateDefs();
