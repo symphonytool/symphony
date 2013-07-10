@@ -673,12 +673,12 @@ class TCDeclAndDefVisitor extends
 			CmlTypeCheckInfo question) throws AnalysisException {
 
 		// Create class environment
-		PrivateClassEnvironment self = new PrivateClassEnvironment(node,
+		PrivateClassEnvironment self = new PrivateClassEnvironment(question.assistantFactory,node,
 				question.env);
 
 		List<SClassDefinition> classes = new LinkedList<SClassDefinition>();
 		classes.add(node);
-		Environment allClasses = new PublicClassEnvironment(classes,
+		Environment allClasses = new PublicClassEnvironment(question.assistantFactory,classes,
 				question.env, null);
 
 		for (SClassDefinition c : classes) {
@@ -690,10 +690,10 @@ class TCDeclAndDefVisitor extends
 		for (SClassDefinition c : classes) {
 			if (!c.getTypeChecked()) {
 				try {
-					Environment selfInner = new PrivateClassEnvironment(c,
+					Environment selfInner = new PrivateClassEnvironment(question.assistantFactory,c,
 							allClasses);
 					SClassDefinitionAssistantTC.typeResolve(c, null,
-							new org.overture.typechecker.TypeCheckInfo(
+							new org.overture.typechecker.TypeCheckInfo(question.assistantFactory,
 									selfInner));
 				} catch (TypeCheckException te) {
 					issueHandler.addTypeError(c, te.location, te.getMessage());
@@ -1264,11 +1264,11 @@ class TCDeclAndDefVisitor extends
 			return node.getType();
 		}
 
-		Environment surrogateEnvironment = new FlatEnvironment(
+		Environment surrogateEnvironment = new FlatEnvironment(question.assistantFactory,
 				surrogateDefinitions, question.env);
 
 		// Create class environment
-		PrivateClassEnvironment self = new PrivateClassEnvironment(surrogate,
+		PrivateClassEnvironment self = new PrivateClassEnvironment(question.assistantFactory,surrogate,
 				surrogateEnvironment);
 
 		// Errors will be reported statically by the sub-visitors and the
@@ -1923,7 +1923,7 @@ class TCDeclAndDefVisitor extends
 		}
 
 		OvertureRootCMLAdapter.pushQuestion(question);
-		FlatCheckedEnvironment local = new FlatCheckedEnvironment(defs,
+		FlatCheckedEnvironment local = new FlatCheckedEnvironment(question.assistantFactory,defs,
 				question.env, question.scope);
 
 		local.setStatic(PAccessSpecifierAssistantTC.isStatic(node.getAccess()));
@@ -1931,7 +1931,7 @@ class TCDeclAndDefVisitor extends
 
 		// building the new scope for subtypechecks
 
-		PDefinitionListAssistantTC.typeCheck(defs, this, new TypeCheckInfo(
+		PDefinitionListAssistantTC.typeCheck(defs, this, new TypeCheckInfo(question.assistantFactory,
 				local, question.scope, question.qualifiers)); // can
 
 		if (question.env.isVDMPP()
@@ -1946,7 +1946,7 @@ class TCDeclAndDefVisitor extends
 					.getPredef()
 					.getBody()
 					.apply(parentChecker,
-							new TypeCheckInfo(local, NameScope.NAMES));
+							new TypeCheckInfo(question.assistantFactory,local, NameScope.NAMES));
 			ABooleanBasicType expected = AstFactory.newABooleanBasicType(node
 					.getLocation());
 
@@ -1966,7 +1966,7 @@ class TCDeclAndDefVisitor extends
 			PPattern rp = AstFactory.newAIdentifierPattern(result);
 			List<PDefinition> rdefs = PPatternAssistantTC.getDefinitions(rp,
 					expectedResult, NameScope.NAMES);
-			FlatCheckedEnvironment post = new FlatCheckedEnvironment(rdefs,
+			FlatCheckedEnvironment post = new FlatCheckedEnvironment(question.assistantFactory,rdefs,
 					local, NameScope.NAMES);
 
 			// building the new scope for subtypechecks
@@ -1974,7 +1974,7 @@ class TCDeclAndDefVisitor extends
 					.getPostdef()
 					.getBody()
 					.apply(parentChecker,
-							new TypeCheckInfo(post, NameScope.NAMES));
+							new TypeCheckInfo(question.assistantFactory,post, NameScope.NAMES));
 			ABooleanBasicType expected = AstFactory.newABooleanBasicType(node
 					.getLocation());
 
@@ -1991,7 +1991,7 @@ class TCDeclAndDefVisitor extends
 
 		OvertureRootCMLAdapter.pushQuestion(question);
 		PType actualResult = node.getBody().apply(parentChecker,
-				new TypeCheckInfo(local, question.scope));
+				new TypeCheckInfo(question.assistantFactory,local, question.scope));
 		OvertureRootCMLAdapter.popQuestion(question);
 
 		node.setActualResult(actualResult);

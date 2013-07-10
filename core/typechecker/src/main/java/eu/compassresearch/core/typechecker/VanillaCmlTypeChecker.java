@@ -12,6 +12,7 @@ import org.overture.typechecker.TypeCheckException;
 import org.overture.typechecker.TypeCheckInfo;
 import org.overture.typechecker.assistant.definition.PDefinitionListAssistantTC;
 
+import eu.compassresearch.ast.messages.InternalException;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.common.RegistryFactory;
 import eu.compassresearch.core.typechecker.CollectGlobalStateClass.GlobalDefinitions;
@@ -91,7 +92,7 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 					globalDefs.definitions);
 
 			// Create top-level CML-environment
-			TypeCheckInfo cmlTopEnv = CmlTypeCheckInfo.getNewTopLevelInstance(
+			TypeCheckInfo cmlTopEnv = CmlTypeCheckInfo.getNewTopLevelInstance(new CmlTypeCheckerAssistantFactory(),
 					issueHandler, globalDefinitions,
 					new LinkedList<PDefinition>(globalDefs.channels));
 
@@ -120,10 +121,11 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 			return false;
 		} catch (AnalysisException ae) {
 			// An expected anomaly was found
-			return false;
+			ae.printStackTrace();
+			throw new InternalException(0,ae.getMessage());
 		} catch (Exception e) {
 			e.printStackTrace();
-			return false;
+			throw new InternalException(0,e.getMessage());
 		}
 
 		return !issueHandler.hasErrors();
