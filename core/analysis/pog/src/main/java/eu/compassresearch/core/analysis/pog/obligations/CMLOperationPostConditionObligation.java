@@ -32,74 +32,24 @@ import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
 public class CMLOperationPostConditionObligation extends CMLProofObligation{
 	
-	private final PExp preexp;
-	private final PExp postexp;
-	private final List<AErrorCase> errs;
+//	private final PExp preexp;
+//	private final PExp postexp;
+//	private final List<AErrorCase> errs;
 			
 	public CMLOperationPostConditionObligation(AExplicitCmlOperationDefinition op,
 				CMLPOContextStack ctxt)
 	{
-		super(op.getLocation(), CMLPOType.OP_POST_CONDITION, ctxt);
-		this.preexp = op.getPrecondition();
-		this.postexp = op.getPostcondition();
-		this.errs = null;
-		this.guiString = toGUIString(ctxt);
-		this.isabelleString = toIsabelleString(ctxt);
+		super(op, CMLPOType.OP_POST_CONDITION, ctxt);
+		//FIXME implement ast based PO predicate
+	
 	}
 
 	public CMLOperationPostConditionObligation(AImplicitCmlOperationDefinition op,
 				CMLPOContextStack ctxt)
 	{
-		super(op.getLocation(), CMLPOType.OP_POST_CONDITION, ctxt);
-		this.preexp = op.getPrecondition();
-		this.postexp = op.getPostcondition();
-		this.errs = op.getErrors();
-		this.guiString = toGUIString(ctxt);
-		this.isabelleString = toIsabelleString(ctxt);
+		super(op, CMLPOType.OP_POST_CONDITION, ctxt);
+		//FIXME implement ast based PO predicate
+
 	}
 
-	public String toGUIString(CMLPOContextStack ctxt)
-	{
-		return ctxt.getGUIString(getGUIExp());
-	}
-	
-	public String toIsabelleString(CMLPOContextStack ctxt)
-	{
-		//TODO: need to determine Isabelle format 
-		return ctxt.getIsabelleString("");
-	}
-	
-	private String getGUIExp()
-	{
-		if (errs == null || errs.isEmpty())
-		{
-			return postexp.toString();
-		} else
-		{
-			StringBuilder sb = new StringBuilder();
-
-			if (preexp != null)
-			{
-				sb.append("(");
-				sb.append(preexp);
-				sb.append(" and ");
-				sb.append(postexp);
-				sb.append(")");
-			} else
-			{
-				sb.append(postexp);
-			}
-
-			for (AErrorCase err : errs)
-			{
-				sb.append(" or (");
-				sb.append(err.getLeft());
-				sb.append(" and ");
-				sb.append(err.getRight());
-				sb.append(")");
-			}
-
-			return sb.toString();
-		}
-	}
 }

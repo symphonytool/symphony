@@ -31,36 +31,22 @@ import org.overture.ast.statements.PStateDesignator;
 // Not being used anywhere so far. Can we extend the overture one?
 public class CMLMapApplyObligation extends CMLProofObligation
 {
-	public final INode root;
-	public final PExp arg;
+//	public final INode root;
+//	public final PExp arg;
 				
 	public CMLMapApplyObligation(PExp root, PExp arg, CMLPOContextStack ctxt)
 	{
-		super(root.getLocation(), CMLPOType.MAP_APPLY, ctxt);
-		this.arg = arg;
-		this.root = root;
-		this.guiString = toGUIString(ctxt);
-		this.isabelleString = toIsabelleString(ctxt);
+		super(root, CMLPOType.MAP_APPLY, ctxt);
+		//FIXME implement ast based PO predicate
+
 	}
 
 	public CMLMapApplyObligation(PStateDesignator root,
 		PExp arg, CMLPOContextStack ctxt)
 	{
-		super(root.getLocation(), CMLPOType.MAP_APPLY, ctxt);
-		this.arg = arg;
-		this.root = root;
-		this.guiString = toGUIString(ctxt);
-		this.isabelleString = toIsabelleString(ctxt);
+		super(root, CMLPOType.MAP_APPLY, ctxt);
+		//FIXME implement ast based PO predicate
+
 	}
-	
-	public String toGUIString(CMLPOContextStack ctxt)
-	{
-		return ctxt.getGUIString(arg + " in set dom " + root);
-	}
-	
-	public String toIsabelleString(CMLPOContextStack ctxt)
-	{
-		//TODO: need to determine Isabelle format 
-		return ctxt.getIsabelleString("");
-	}
+
 }

@@ -23,20 +23,15 @@
 
 package eu.compassresearch.core.analysis.pog.obligations;
 
-import java.util.Iterator;
-
-import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.PDefinition;
-import org.overture.ast.definitions.SClassDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.types.AOperationType;
 import org.overture.ast.types.PType;
-import org.overture.pog.obligation.POContext;
 
 import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
 
-	public class CMLPOOperationDefinitionContext extends POContext
+	public class CMLPOOperationDefinitionContext implements CMLPOContext
 	{
 		public final ILexNameToken name;
 		public final AOperationType deftype;
@@ -59,61 +54,60 @@ import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
 		@Override
 		public String getContext()
 		{
-			StringBuilder sb = new StringBuilder();
-
-			if (!deftype.getParameters().isEmpty())
-			{
-	    		sb.append("forall ");
-	    		String sep = "";
-				Iterator<PType> types = deftype.getParameters().iterator();
-
-//				for (PPattern p: paramPatternList)
-//				{
-//					if (!(p instanceof AIgnorePattern))
-//					{
-//						sb.append(sep);
-//						sb.append(p.toString());
-//						sb.append(":");
-//						sb.append(types.next());
-//						sep = ", ";
-//					}
-//				}
-
-				if (stateDefinition != null)
-				{
-					appendStatePatterns(sb);
-				}
-
-	    		sb.append(" &");
-
-	    		if (addPrecond && precondition != null)
-	    		{
-	    			sb.append(" ");
-	    			sb.append(precondition);
-	    			sb.append(" =>");
-	    		}
-			}
-
-			return sb.toString();
+			// TODO Auto-generated method stub
+			return null;
 		}
 
-		private void appendStatePatterns(StringBuilder sb)
+		@Override
+		public PExp getContextNode(PExp stitch)
 		{
-			if (stateDefinition == null)
-			{
-				return;
-			}
-			else if (stateDefinition instanceof AStateDefinition)
-			{
-				AStateDefinition def = (AStateDefinition)stateDefinition;
-				sb.append(", oldstate:");
-				sb.append(def.getName().getName());
-			}
-			else
-			{
-				SClassDefinition def = (SClassDefinition)stateDefinition;
-				sb.append(", oldself:");
-				sb.append(def.getName().getName());
-			}
+			// TODO Auto-generated method stub
+			return null;
 		}
+
+		@Override
+		public String getName()
+		{
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public boolean isScopeBoundary()
+		{
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		public void noteType(PExp exp, PType type)
+		{
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public PType checkType(PExp exp)
+		{
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public String getGUIContext()
+		{
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public String getIsabelleContext()
+		{
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		//FIXME implement ast based Context
+
+
 	}

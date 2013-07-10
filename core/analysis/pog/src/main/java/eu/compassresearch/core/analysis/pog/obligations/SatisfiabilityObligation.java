@@ -23,127 +23,24 @@
 
 package eu.compassresearch.core.analysis.pog.obligations;
 
-import java.util.List;
-
-import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.PDefinition;
-import org.overture.ast.definitions.SClassDefinition;
-import org.overture.ast.patterns.APatternListTypePair;
-import org.overture.ast.patterns.APatternTypePair;
-import org.overture.pog.obligation.POContextStack;
-import org.overture.pog.obligation.POType;
-import org.overture.pog.obligation.ProofObligation;
+import org.overture.pog.POContextStack;
 
 import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
 
-public class SatisfiabilityObligation extends ProofObligation {
+public class SatisfiabilityObligation extends CMLProofObligation {
 	private String separator = "";
 
 	public SatisfiabilityObligation(AImplicitCmlOperationDefinition op,
 			PDefinition stateDefinition, POContextStack ctxt) {
-		super(((PDefinition )op).getLocation(), POType.OP_SATISFIABILITY, ctxt);
-		StringBuilder sb = new StringBuilder();
-
-		if (op.getPredef() != null) {
-			sb.append(op.getPredef().getName().getName());
-			sb.append("(");
-			separator = "";
-			appendParamPatterns(sb, op.getParameterPatterns());
-			appendStatePatterns(sb, stateDefinition, true, false);
-			sb.append(")");
-			sb.append(" =>\n");
-		}
-
-		if (op.getResult() != null) {
-			sb.append("exists ");
-			separator = "";
-			for (APatternTypePair r : op.getResult()) {
-				appendResult(sb, r);
-			}
-			appendStatePatterns(sb, stateDefinition, false, true);
-			sb.append(" & ");
-		}
-
-		sb.append("true");
-		//FIXME getPostdef() is null...
-//		sb.append(op.getPostdef().getName().getName());
-//		sb.append("(");
-//		separator = "";
-//		appendParamPatterns(sb, op.getParameterPatterns());
-//		for (APatternTypePair r : op.getResult()) {
-//			appendResultPattern(sb, r);
-//		}
-//		appendStatePatterns(sb, stateDefinition, true, false);
-//		appendStatePatterns(sb, stateDefinition, false, false);
-//		sb.append(")");
+		super(op, CMLPOType.OP_SATISFIABILITY, ctxt);
 
 //FIXME getPostdef() is null...
 
+		// FIXME Implement ast-based PO predicate method
 
-		value = ctxt.getObligation(sb.toString());
+
 	}
 
-	private void appendResult(StringBuilder sb, APatternTypePair ptp) {
-		if (ptp != null) {
-			sb.append(separator);
-			sb.append(ptp);
-			separator = ", ";
-		}
-	}
-
-	private void appendResultPattern(StringBuilder sb, APatternTypePair ptp) {
-		if (ptp != null) {
-			sb.append(separator);
-			sb.append(ptp.getPattern());
-			separator = ", ";
-		}
-	}
-
-	private void appendStatePatterns(StringBuilder sb, PDefinition state,
-			boolean old, boolean typed) {
-		if (state == null) {
-			return;
-		} else if (state instanceof AStateDefinition) {
-			if (old) {
-				sb.append(separator);
-				sb.append("oldstate");
-			} else {
-				sb.append(separator);
-				sb.append("newstate");
-			}
-
-			if (typed) {
-				AStateDefinition def = (AStateDefinition) state;
-				sb.append(":");
-				sb.append(def.getName().getName());
-			}
-		} else {
-			if (old) {
-				sb.append(separator);
-				sb.append("oldself");
-			} else {
-				sb.append(separator);
-				sb.append("newself");
-			}
-
-			if (typed) {
-				SClassDefinition def = (SClassDefinition) state;
-				sb.append(":");
-				sb.append(def.getName().getName());
-			}
-		}
-
-		separator = ", ";
-	}
-
-	private void appendParamPatterns(StringBuilder sb,
-			List<APatternListTypePair> params) {
-		for (APatternListTypePair pltp : params) {
-			// List<PExp> expList =
-			// PPatternAssistantTC.getMatchingExpressionList(pltp.getPatterns());
-			// sb.append(separator);
-			// sb.append(Utils.listToString(expList));
-			// separator = ", ";
-		}
-	}
+	
 }

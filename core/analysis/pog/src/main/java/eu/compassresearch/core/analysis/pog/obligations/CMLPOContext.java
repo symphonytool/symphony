@@ -1,10 +1,10 @@
 package eu.compassresearch.core.analysis.pog.obligations;
 
-public interface CMLPOContext {
+import org.overture.pog.IPOContext;
+
+public interface CMLPOContext extends IPOContext{
 
 	public String getGUIContext();
 	public String getIsabelleContext();
 
-	//TODO Confirm need for this
-	public String getName();
 }

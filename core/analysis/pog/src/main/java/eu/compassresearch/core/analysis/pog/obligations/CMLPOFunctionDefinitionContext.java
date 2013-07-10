@@ -27,27 +27,68 @@ package eu.compassresearch.core.analysis.pog.obligations;
 
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import org.overture.ast.definitions.AImplicitFunctionDefinition;
-import org.overture.pog.obligation.POFunctionDefinitionContext;
+import org.overture.ast.expressions.PExp;
+import org.overture.ast.types.PType;
+import org.overture.pog.POFunctionDefinitionContext;
 
-public class CMLPOFunctionDefinitionContext extends POFunctionDefinitionContext implements CMLPOContext{
+public class CMLPOFunctionDefinitionContext  implements CMLPOContext{
 
-    public CMLPOFunctionDefinitionContext(
-	    AExplicitFunctionDefinition definition, boolean precond) {
-	super(definition, precond);
-    }
+	@Override
+	public String getContext()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
 
-    public CMLPOFunctionDefinitionContext(
-	    AImplicitFunctionDefinition definition, boolean precond) {
-	super(definition, precond);
-    }
+	@Override
+	public PExp getContextNode(PExp stitch)
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
 
-    public String getGUIContext()
-    {
-    	return getContext();
-    }
-    
+	@Override
+	public String getName()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean isScopeBoundary()
+	{
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void noteType(PExp exp, PType type)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public PType checkType(PExp exp)
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getGUIContext()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
 	public String getIsabelleContext()
 	{
-		return "";
+		// TODO Auto-generated method stub
+		return null;
 	}
+
+
+
 }

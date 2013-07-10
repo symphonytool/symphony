@@ -6,45 +6,43 @@
  ******************************************************************************/
 package eu.compassresearch.core.analysis.pog.obligations;
 
-import org.overture.ast.intf.lex.ILexLocation;
-import org.overture.pog.obligation.ProofObligation;
+import org.overture.pog.IPOContextStack;
 
-abstract public class CMLProofObligation extends ProofObligation
+import org.overture.ast.node.INode;
+import org.overture.pog.IProofObligation;
+import org.overture.pog.ProofObligation;
+
+abstract public class CMLProofObligation extends ProofObligation implements
+		IProofObligation
 {
 
-	public final ILexLocation location;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	public final CMLPOType cmltype;
-	public String name;
-	public POStatus status;
-	public String guiString;
-	public String isabelleString;
-	
-    public CMLProofObligation(ILexLocation location, CMLPOType kind,
-	    CMLPOContextStack ctxt) {
-    	// FIXME: Need proper inheritance between CML and Overture POs: shouldn't be null
-    	super(location, kind.toOverturePOType(), null);
-    	this.location = location;
-		this.name = ctxt.getName();
-		this.status = POStatus.UNPROVED;
-		this.cmltype = kind;
-    }
 
-	abstract public String toGUIString(CMLPOContextStack ctxt);
-	
-	abstract public String toIsabelleString(CMLPOContextStack ctxt);
+	public CMLProofObligation(INode node, CMLPOType kind, IPOContextStack ctxt)
+	{
+		super(node, kind.toOverturePOType(), ctxt);
+		cmltype = kind;
 
-	public String getName() {
-	  return name;
 	}
-	
-	// FIXME : Add behaviour to call visitor
-	public String getIsabelleString() {
-		return "True";
+
+	public String toGUIString()
+	{
+		throw new UnsupportedOperationException("Not yet implemented.");
 	}
-	
+
+	public String toIsabelleString()
+	{
+		throw new UnsupportedOperationException("Not yet implemented.");
+	}
+
 	@Override
 	public String toString()
 	{
-		return name + ": " + cmltype + " obligation " + location + "\n" + guiString;
+		return name + ": " + cmltype + " obligation " + getLocation() + "\n"
+				+ valuetree.toString();
 	}
 }

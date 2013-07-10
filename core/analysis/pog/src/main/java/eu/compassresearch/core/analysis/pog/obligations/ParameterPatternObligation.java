@@ -23,129 +23,39 @@
 
 package eu.compassresearch.core.analysis.pog.obligations;
 
-import java.util.Iterator;
-import java.util.List;
+import org.overture.pog.IPOContextStack;
 
 import org.overture.ast.definitions.PDefinition;
-import org.overture.ast.expressions.PExp;
-import org.overture.ast.patterns.AIdentifierPattern;
-import org.overture.ast.patterns.AIgnorePattern;
-import org.overture.ast.patterns.PPattern;
-import org.overture.ast.types.AFunctionType;
-import org.overture.ast.types.PType;
-import org.overture.pog.obligation.POContextStack;
-import org.overture.pog.obligation.POType;
-import org.overture.pog.obligation.ProofObligation;
-import org.overture.typechecker.assistant.pattern.PPatternAssistantTC;
 
 import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
 
-public class ParameterPatternObligation extends ProofObligation
+public class ParameterPatternObligation extends CMLProofObligation
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private final PDefinition predef;
 
 
 
 		public ParameterPatternObligation(
-			AExplicitCmlOperationDefinition def, POContextStack ctxt)
+			AExplicitCmlOperationDefinition def, IPOContextStack ctxt)
 		{
-			super(def.getLocation(), POType.OPERATION_PATTERNS, ctxt);
+			super(def, CMLPOType.OPERATION_PATTERNS, ctxt);
 			this.predef = def.getPredef();
-		//	value = ctxt.getObligation(
-		//		generate( AExplicitOperationDefinitionAssistant.getParamPatternList(def), def.getType().getParameters(), def.getType().getResult()));
+			//FIXME implement ast based PO predicate
 		}
 
 		public ParameterPatternObligation(
-			AImplicitCmlOperationDefinition def, POContextStack ctxt)
+			AImplicitCmlOperationDefinition def, IPOContextStack ctxt)
 		{
-			super(def.getLocation(), POType.OPERATION_PATTERNS, ctxt);
+			super(def, CMLPOType.OPERATION_PATTERNS, ctxt);
 			this.predef = def.getPredef();
-		//	value = ctxt.getObligation(
-		//		generate( AImplicitOperationDefinitionAssistantTC.getListParamPatternList(def), def.getType().getParameters(), def.getType().getResult()));
+			//FIXME implement ast based PO predicate
+
 		}
 
-		private String generate(List<List<PPattern>> plist, List<PType> params, PType result)
-		{
-			StringBuilder foralls = new StringBuilder();
-			StringBuilder argnames = new StringBuilder();
-			StringBuilder exists = new StringBuilder();
-
-			foralls.append("forall ");
-			String fprefix = "";
-			String eprefix = "";
-			int argn = 1;
-
-			for (List<PPattern> pl: plist)
-			{
-				Iterator<PType> titer = params.iterator();
-
-				for (PPattern p: pl)
-				{
-					String aname = "arg" + argn++;
-					PType atype = titer.next();
-
-					if (!(p instanceof AIgnorePattern) &&
-						!(p instanceof AIdentifierPattern))
-					{
-						foralls.append(fprefix);
-						foralls.append(aname);
-						foralls.append(":");
-						foralls.append(atype);
-
-						argnames.append(fprefix);
-						argnames.append(aname);
-
-						PExp pmatch = PPatternAssistantTC.getMatchingExpression(p);
-						exists.append(eprefix);
-						exists.append("(exists ");
-						exists.append(pmatch);
-						exists.append(":");
-						exists.append(atype);
-						exists.append(" & ");
-						exists.append(aname);
-						exists.append(" = ");
-						exists.append(pmatch);
-						exists.append(")");
-
-						fprefix = ", ";
-						eprefix = " and\n  ";
-
-						if (predef != null)
-						{
-							eprefix = eprefix + "  ";
-						}
-					}
-				}
-
-				if (result instanceof AFunctionType)
-				{
-					AFunctionType ft = (AFunctionType)result;
-					result = ft.getResult();
-					params = ft.getParameters();
-				}
-				else
-				{
-					break;
-				}
-			}
-
-			foralls.append(" &\n");
-
-			if (predef != null)
-			{
-				foralls.append("  ");
-				foralls.append(predef.getName().getName());
-				foralls.append("(");
-				foralls.append(argnames);
-				foralls.append(")");
-				foralls.append(" =>\n    ");
-			}
-			else
-			{
-				foralls.append("  ");
-			}
-
-			return foralls.toString() + exists.toString();
-		}
+	
 	}
