@@ -29,6 +29,7 @@ import eu.compassresearch.ast.definitions.AChannelsDefinition;
 import eu.compassresearch.ast.definitions.AClassDefinition;
 import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AFunctionsDefinition;
+import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AOperationsDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.definitions.ATypesDefinition;
@@ -204,6 +205,13 @@ class CmlDefinitionVisitor extends
 		vpl.add(new NameValuePair(node.getName(), CmlValueFactory.createOperationValue(node,question)));
 		
 		return vpl;
+	}
+	
+	@Override
+	public NameValuePairList caseAImplicitCmlOperationDefinition(
+			AImplicitCmlOperationDefinition node, Context question)
+			throws AnalysisException {
+		throw new AnalysisException("Implicit operations cannot be interpreted. This feature might be implemented later");
 	}
 
 	@Override

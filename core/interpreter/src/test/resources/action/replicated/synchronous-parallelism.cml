@@ -1,12 +1,11 @@
 channels 
-a : int 
-b
+a b
  
 process A = 
 begin
 
 	actions
-	 TEST = val x : int @ a.x -> b -> Skip 
+	 TEST = val x : int @ a -> b -> Skip 
 	
 	@ || i in set {1,2,3} @ [{}] TEST(i)
 end

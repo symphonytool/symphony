@@ -4,12 +4,14 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.intf.lex.ILexNameToken;
+import org.overture.ast.lex.LexLocation;
 import org.overture.ast.node.INode;
 import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.PPattern;
@@ -36,6 +38,7 @@ import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASignalCommunicationParameter;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.AStopAction;
+import eu.compassresearch.ast.actions.ASynchronousParallelismParallelAction;
 import eu.compassresearch.ast.actions.ATimeoutAction;
 import eu.compassresearch.ast.actions.AUntimedTimeoutAction;
 import eu.compassresearch.ast.actions.AValParametrisation;
@@ -48,7 +51,9 @@ import eu.compassresearch.ast.actions.SParallelAction;
 import eu.compassresearch.ast.actions.SStatementAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.definitions.AActionDefinition;
+import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
 import eu.compassresearch.ast.lex.LexNameToken;
+import eu.compassresearch.ast.process.AGeneralisedParallelismProcess;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
@@ -609,6 +614,27 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 			throws AnalysisException {
 		//return the alphabet only containing tock since Stop allows for time to pass
 		return newInspection(new CmlAlphabet(new CmlTock(owner)),null);
+	}
+	
+	@Override
+	public Inspection caseASynchronousParallelismParallelAction(
+			ASynchronousParallelismParallelAction node, Context question)
+			throws AnalysisException {
+		
+		Context globalContext = question.getGlobal();
+		List<ILexNameToken> channelNames = new LinkedList<ILexNameToken>();
+		
+		//Get all the channel objects
+		for(Entry<ILexNameToken,Value> entry : globalContext.entrySet())
+			if(entry.getValue() instanceof CMLChannelValue)
+				channelNames.add(entry.getKey().clone());
+				
+		AFatEnumVarsetExpression varsetNode = new AFatEnumVarsetExpression(new LexLocation(), channelNames);
+			
+		AGeneralisedParallelismParallelAction nextNode = new AGeneralisedParallelismParallelAction(node.getLocation(), 
+				node.getLeftAction().clone(),node.getLeftNamesetExpression(),node.getLeftNamesetExpression(), node.getRightAction().clone(),varsetNode);
+		
+		return caseAGeneralisedParallelismParallelAction(nextNode, question);
 	}
 
 	/**

@@ -22,6 +22,8 @@ import eu.compassresearch.ast.actions.AHidingAction;
 import eu.compassresearch.ast.actions.AInterleavingParallelAction;
 import eu.compassresearch.ast.actions.AInterleavingReplicatedAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
+import eu.compassresearch.ast.actions.ASynchronousParallelismParallelAction;
+import eu.compassresearch.ast.actions.ASynchronousParallelismReplicatedAction;
 import eu.compassresearch.ast.actions.ATimeoutAction;
 import eu.compassresearch.ast.actions.AUntimedTimeoutAction;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
@@ -99,30 +101,11 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 			AInterleavingReplicatedAction node, Context question)
 					throws AnalysisException {
 
-		//The name of the value holding the state of the remaining values of the replication
-		LexNameToken replicationContextValueName = new LexNameToken("|REPLICATION|",node.getLocation().toShortString(),node.getLocation()); 
-
-		Value value = question.check(replicationContextValueName);
 		NameValuePairList replicationDecls = new  NameValuePairList();
-
-		//Convert all the single decls into a NameValuePairList
-		for(PSingleDeclaration singleDecl :  node.getReplicationDeclaration())
-			replicationDecls.addAll(singleDecl.apply(this.cmlDefEvaluator,question));
-
-		SetValue setValue = null;
-		Context nextContext = question;
-
-		//if null then this is the first action of the replication
-		//then we need to evaluate the 
-		if(value == null)
-		{
-			setValue = convertReplDeclToSetValue(replicationDecls,question);
-			//Make a set of tuples
-			nextContext = CmlContextFactory.newContext(node.getLocation(), "replication contexts", question);
-			nextContext.putNew(new NameValuePair(replicationContextValueName,setValue));
-		}
-		else
-			setValue = new SetValue(value.setValue(question));
+		Pair<SetValue,Context> pair = getCurrentReplicationValue(node.getLocation(), node.getReplicationDeclaration(),replicationDecls, question);
+		
+		SetValue setValue = pair.first;
+		Context nextContext = pair.second;
 
 		INode interleavingNode = null;
 
@@ -162,110 +145,71 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 		return interleavingNode;
 	}
 
-	private Context convertReplicationToContext(Value value, NameValuePairList replicationDecls,ILexLocation location, Context outer) throws ValueException
-	{
-		Context context = CmlContextFactory.newContext(location, "", outer);
-
-		ValueList tuple = value.tupleValue(outer);
-		for(int i = 0; i < tuple.size(); i++)
-		{
-			context.putNew(new NameValuePair(replicationDecls.get(i).name,tuple.get(i)));
-		}
-
-		return context;
-	}
-
-	private SetValue convertReplDeclToSetValue(NameValuePairList replicationDecls, Context question) throws ValueException
-	{
-		SetValue setValue = null;
-
-		if(replicationDecls.size() == 1)
-		{
-			setValue = new SetValue();
-
-			NameValuePair nvp = replicationDecls.get(0);
-			for(Value val : nvp.value.setValue(question))
-				setValue.values.add(new TupleValue(new ValueList(val)));
-
-		}
-		else
-		{
-			//If more than one decl then we need to calculate the cross product of them
-			//First we append all the sets into a list
-			List<SetValue> sets = new LinkedList<SetValue>();
-			for(NameValuePair nvp : replicationDecls)
-				sets.add(new SetValue(nvp.value.setValue(question)));
-
-			setValue = SetMath.getCrossProduct(sets);
-		}
-
-		return setValue;
-	}
 	
-	private SetValue getCurrentReplicationValue(List<PSingleDeclaration> decls, ILexLocation location, Context question) throws AnalysisException
-	{
-		//The name of the value holding the state of the remaining values of the replication
-		LexNameToken replicationContextValueName = new LexNameToken("|REPLICATION|",location.toShortString(),location); 
-
-		Value value = question.check(replicationContextValueName);
+	
+	@Override
+	public INode caseASynchronousParallelismReplicatedAction(
+			ASynchronousParallelismReplicatedAction node, Context question)
+			throws AnalysisException {
+		
 		NameValuePairList replicationDecls = new  NameValuePairList();
+		Pair<SetValue,Context> pair = getCurrentReplicationValue(node.getLocation(), node.getReplicationDeclaration(),replicationDecls, question);
+		
+		SetValue setValue = pair.first;
+		Context nextContext = pair.second;
 
-		//Convert all the single decls into a NameValuePairList
-		for(PSingleDeclaration singleDecl :  decls)
-			replicationDecls.addAll(singleDecl.apply(this.cmlDefEvaluator,question));
+		INode returnNode = null;
 
-		SetValue setValue = null;
-		Context nextContext = question;
-
-		//if null then this is the first action of the replication
-		//then we need to evaluate the 
-		if(value == null)
+		if(setValue.values.size() == 1)
+			throw new AnalysisException("A replicated action must have at least two enumeration values");
+		//If we have two replication values then we need to have one interleaving action, since
+		//each value represents one process replication 
+		else if(setValue.values.size() == 2)
 		{
-			setValue = convertReplDeclToSetValue(replicationDecls,question);
-			//Make a set of tuples
-			nextContext = CmlContextFactory.newContext(location, "replication contexts", question);
-			nextContext.putNew(new NameValuePair(replicationContextValueName,setValue));
-		}
-		else
-			setValue = new SetValue(value.setValue(question));
+			//TODO The i'th namesetexpression should be evaluated in the i'th context 
+			returnNode = new ASynchronousParallelismParallelAction(node.getLocation(), 
+					node.getReplicatedAction().clone(),
+					node.getNamesetExpression(),
+					node.getNamesetExpression(),
+					node.getReplicatedAction().clone());
 
-		return setValue;
+			setChildContexts(new Pair<Context,Context>(
+					convertReplicationToContext(setValue.values.get(0),replicationDecls,node.getLocation(),question),
+					convertReplicationToContext(setValue.values.get(1),replicationDecls,node.getLocation(),question)));
+
+			setValue.values.remove(0);
+			setValue.values.remove(0);
+		}
+		//If we have more than two replication values then we make an interleaving between the
+		//first value and the rest of the replicated values
+		else
+		{
+			returnNode = new ASynchronousParallelismParallelAction(node.getLocation(),
+					node.getReplicatedAction().clone(),
+					node.getNamesetExpression(),
+					node.getNamesetExpression(),
+					node);
+
+			setChildContexts(new Pair<Context,Context>(
+					convertReplicationToContext(setValue.values.get(0),replicationDecls,node.getLocation(),question),
+					nextContext));
+
+			setValue.values.remove(0);
+		}
+
+		return returnNode;
 	}
-	
-//	protected INode caseReplicatedOperator()
-//			throws AnalysisException {
-//		
-//	}
 
 	@Override
 	public INode caseASynchronousParallelismReplicatedProcess(
 			ASynchronousParallelismReplicatedProcess node, Context question)
 					throws AnalysisException {
-
-		//The name of the value holding the state of the remaining values of the replication
-		LexNameToken replicationContextValueName = new LexNameToken("|REPLICATION|",node.getLocation().toShortString(),node.getLocation()); 
-
-		Value value = question.check(replicationContextValueName);
+		
 		NameValuePairList replicationDecls = new  NameValuePairList();
-
-		//Convert all the single decls into a NameValuePairList
-		for(PSingleDeclaration singleDecl :  node.getReplicationDeclaration())
-			replicationDecls.addAll(singleDecl.apply(this.cmlDefEvaluator,question));
-
-		SetValue setValue = null;
-		Context nextContext = question;
-
-		//if null then this is the first action of the replication
-		//then we need to evaluate the 
-		if(value == null)
-		{
-			setValue = convertReplDeclToSetValue(replicationDecls,question);
-			//Make a set of tuples
-			nextContext = CmlContextFactory.newContext(node.getLocation(), "replication contexts", question);
-			nextContext.putNew(new NameValuePair(replicationContextValueName,setValue));
-		}
-		else
-			setValue = new SetValue(value.setValue(question));
+		Pair<SetValue,Context> pair = getCurrentReplicationValue(node.getLocation(), node.getReplicationDeclaration(),replicationDecls, question);
+		
+		SetValue setValue = pair.first;
+		Context nextContext = pair.second;
 
 		INode returnNode = null;
 
@@ -303,7 +247,6 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 
 		return returnNode;
 	}
-
 	
 	@Override
 	public INode caseAExternalChoiceReplicatedAction(
@@ -370,5 +313,83 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 		}
 
 		return returnNode;
+	}
+	
+	/*
+	 * Non public helper methods
+	 */
+	
+	private Context convertReplicationToContext(Value value, NameValuePairList replicationDecls,ILexLocation location, Context outer) throws ValueException
+	{
+		Context context = CmlContextFactory.newContext(location, "", outer);
+
+		ValueList tuple = value.tupleValue(outer);
+		for(int i = 0; i < tuple.size(); i++)
+		{
+			context.putNew(new NameValuePair(replicationDecls.get(i).name,tuple.get(i)));
+		}
+
+		return context;
+	}
+
+	private SetValue convertReplDeclToSetValue(NameValuePairList replicationDecls, Context question) throws ValueException
+	{
+		SetValue setValue = null;
+
+		if(replicationDecls.size() == 1)
+		{
+			setValue = new SetValue();
+
+			NameValuePair nvp = replicationDecls.get(0);
+			for(Value val : nvp.value.setValue(question))
+				setValue.values.add(new TupleValue(new ValueList(val)));
+
+		}
+		else
+		{
+			//If more than one decl then we need to calculate the cross product of them
+			//First we append all the sets into a list
+			List<SetValue> sets = new LinkedList<SetValue>();
+			for(NameValuePair nvp : replicationDecls)
+				sets.add(new SetValue(nvp.value.setValue(question)));
+
+			setValue = SetMath.getCrossProduct(sets);
+		}
+
+		return setValue;
+	}
+	
+//	protected INode caseReplicatedOperator()
+//			throws AnalysisException {
+//		
+//	}
+	
+	protected Pair<SetValue,Context> getCurrentReplicationValue(ILexLocation location,List<PSingleDeclaration> replicationDeclaration, NameValuePairList replicationNvpl, Context question) throws AnalysisException
+	{
+		//The name of the value holding the state of the remaining values of the replication
+		LexNameToken replicationContextValueName = new LexNameToken("|REPLICATION|",location.toShortString(),location); 
+
+		Value value = question.check(replicationContextValueName);
+
+		//Convert all the single decls into a NameValuePairList
+		for(PSingleDeclaration singleDecl :  replicationDeclaration)
+			replicationNvpl.addAll(singleDecl.apply(this.cmlDefEvaluator,question));
+
+		SetValue setValue = null;
+		Context nextContext = question;
+
+		//if null then this is the first action of the replication
+		//then we need to evaluate the 
+		if(value == null)
+		{
+			setValue = convertReplDeclToSetValue(replicationNvpl,question);
+			//Make a set of tuples
+			nextContext = CmlContextFactory.newContext(location, "replication contexts", question);
+			nextContext.putNew(new NameValuePair(replicationContextValueName,setValue));
+		}
+		else
+			setValue = new SetValue(value.setValue(question));
+
+		return new Pair<SetValue,Context>(setValue,nextContext);
 	}
 }
