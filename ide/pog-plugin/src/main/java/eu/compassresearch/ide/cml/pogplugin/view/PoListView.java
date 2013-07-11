@@ -27,8 +27,8 @@ import org.overture.ide.plugins.poviewer.IPoviewerConstants;
 import org.overture.ide.plugins.poviewer.view.PoOverviewTableView;
 import org.overture.ide.plugins.poviewer.view.PoTableView;
 import org.overture.ide.ui.utility.EditorUtility;
-import org.overture.pog.obligation.POStatus;
-import org.overture.pog.obligation.ProofObligation;
+import org.overture.pog.POStatus;
+import org.overture.pog.ProofObligation;
 
 import eu.compassresearch.ide.cml.pogplugin.POConstants;
 
@@ -122,12 +122,12 @@ public class PoListView extends PoOverviewTableView
 
 			private void gotoDefinition(ProofObligation po)
 			{
-				IFile file = project.findIFile(po.location.getFile());
+				IFile file = project.findIFile(po.getLocation().getFile());
 				if(IVdmProject.externalFileContentType.isAssociatedWith(file.getName()))
 				{
-					EditorUtility.gotoLocation(IPoviewerConstants.ExternalEditorId,file, po.location, po.name);
+					EditorUtility.gotoLocation(IPoviewerConstants.ExternalEditorId,file, po.getLocation(), po.name);
 				}else{
-					EditorUtility.gotoLocation(file, po.location, po.name);	
+					EditorUtility.gotoLocation(file, po.getLocation(), po.name);	
 				}
 				
 			}
@@ -185,8 +185,8 @@ public class PoListView extends PoOverviewTableView
 					break;
 				case 1:
 					// FIXME replace this with Node Name when we're using it
-					if (!data.location.getFile().toString().equals(""))
-						columnText = data.location.getFile().getName()  + " - "
+					if (!data.getLocation().getFile().toString().equals(""))
+						columnText = data.getLocation().getFile().getName()  + " - "
 								+ data.name;
 					else
 						columnText = data.name;

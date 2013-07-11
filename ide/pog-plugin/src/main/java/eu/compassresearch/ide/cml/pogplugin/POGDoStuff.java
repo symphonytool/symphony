@@ -17,8 +17,8 @@ import org.overture.ide.core.IVdmModel;
 import org.overture.ide.core.resources.IVdmProject;
 import org.overture.ide.plugins.poviewer.view.PoOverviewTableView;
 import org.overture.ide.ui.utility.VdmTypeCheckerUi;
-import org.overture.pog.obligation.ProofObligation;
-import org.overture.pog.obligation.ProofObligationList;
+import org.overture.pog.ProofObligation;
+import org.overture.pog.ProofObligationList;
 
 import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
 import eu.compassresearch.core.analysis.pog.visitors.ProofObligationGenerator;
@@ -139,16 +139,13 @@ public class POGDoStuff implements IWorkbenchWindowActionDelegate
 			ProofObligationList pol = new ProofObligationList();
 			try
 			{
-				pol = pog.generatePOs();
+				poList = pog.generatePOs();
 			} catch (AnalysisException e)
 			{
 				popErrorMessage(e.getMessage());
 				e.printStackTrace();
 			}
-			for (ProofObligation po : pol)
-			{
-				poList.add(po);
-			}
+			
 			registry.store(cmlSource.getSourceAst(), poList);
 			allPOs.addAll(poList);
 		}

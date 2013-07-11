@@ -20,7 +20,7 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ide.core.IVdmModel;
 import org.overture.ide.core.resources.IVdmProject;
 import org.overture.ide.ui.utility.VdmTypeCheckerUi;
-import org.overture.pog.obligation.ProofObligation;
+import org.overture.pog.IProofObligation;
 
 import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
 import eu.compassresearch.core.common.Registry;
@@ -112,8 +112,8 @@ public class TPBasicAction implements IWorkbenchWindowActionDelegate {
 							registry.store(cmlSource.getSourceAst(), ithy);
 						} 
 
-						for (ProofObligation po : poList) {
-							ithy.addThm(ithy.new IsabelleTheorem(po.name, "True",
+						for (IProofObligation po : poList) {
+							ithy.addThm(ithy.new IsabelleTheorem(po.getName(), "True",
 									"by auto\n"));
 						}
 

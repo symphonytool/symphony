@@ -15,7 +15,8 @@ import eu.compassresearch.core.common.Registry
 import eu.compassresearch.core.common.RegistryFactory
 import eu.compassresearch.ide.cml.ui.editor.core.dom.ICmlSourceUnit
 import eu.compassresearch.ide.cml.pogplugin.POConstants
-import org.overture.pog.obligation.POStatus
+import org.overture.pog.POStatus
+
 import scala.collection.JavaConversions;
 
 object TPListener {
@@ -23,9 +24,9 @@ object TPListener {
   def updatePOListFromThy(poList: CMLProofObligationList, ithy: IsabelleTheory) = {
     for (p <- JavaConversions.asScalaIterable(poList)) {      
       // FIXME: Add code to update POs from the theory
-      if (ithy.thmIsProved("po" + p.name)) {
-        p.status = POStatus.PROVED;
-        println(p.name + " is proved!");
+      if (ithy.thmIsProved("po" + p.getName())) {
+        p.setStatus(POStatus.PROVED)        
+        println(p.getName() + " is proved!");
       }
     }
   }
