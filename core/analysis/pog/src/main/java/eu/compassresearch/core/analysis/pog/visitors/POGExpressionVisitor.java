@@ -5,26 +5,26 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.node.INode;
-import org.overture.pog.obligation.POContextStack;
-import org.overture.pog.obligation.ProofObligationList;
-import org.overture.pog.visitor.PogParamExpVisitor;
+import org.overture.pog.IPOContextStack;
+import org.overture.pog.PogParamExpVisitor;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.expressions.ABracketedExp;
 import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
 import eu.compassresearch.ast.expressions.PCMLExp;
+import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
 
 public class POGExpressionVisitor extends
-	QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
+	QuestionAnswerCMLAdaptor<IPOContextStack, CMLProofObligationList> {
 
     private static final long serialVersionUID = -8208272656463333796L;
-    final private QuestionAnswerAdaptor<POContextStack, ProofObligationList> rootVisitor;
-    final private PogParamExpVisitor<POContextStack, ProofObligationList> overtureVisitor;
+    final private QuestionAnswerAdaptor<IPOContextStack, CMLProofObligationList> rootVisitor;
+    final private PogParamExpVisitor<IPOContextStack, CMLProofObligationList> overtureVisitor;
 
     public POGExpressionVisitor(
-	    QuestionAnswerAdaptor<POContextStack, ProofObligationList> parentVisitor) {
+	    QuestionAnswerAdaptor<IPOContextStack, CMLProofObligationList> parentVisitor) {
 	this.rootVisitor = parentVisitor;
-	this.overtureVisitor = new PogParamExpVisitor<POContextStack, ProofObligationList>(
+	this.overtureVisitor = new PogParamExpVisitor<IPOContextStack, CMLProofObligationList>(
 		this, this);
     }
 
@@ -32,9 +32,9 @@ public class POGExpressionVisitor extends
 // they are the PCMLExps or wheatever
     // Typechecker will eventually solve resolve these. For now, we hack past it.
     @Override
-    public ProofObligationList caseAUnresolvedPathExp(AUnresolvedPathExp node,
-	    POContextStack question) throws AnalysisException {
-	return new ProofObligationList();
+    public CMLProofObligationList caseAUnresolvedPathExp(AUnresolvedPathExp node,
+	    IPOContextStack question) throws AnalysisException {
+	return new CMLProofObligationList();
     }
 
     
@@ -42,10 +42,10 @@ public class POGExpressionVisitor extends
     
     
     @Override
-	public ProofObligationList caseABracketedExp(ABracketedExp node,
-			POContextStack question) throws AnalysisException
+	public CMLProofObligationList caseABracketedExp(ABracketedExp node,
+			IPOContextStack question) throws AnalysisException
 	{
-    	ProofObligationList pol = new ProofObligationList();
+    	CMLProofObligationList pol = new CMLProofObligationList();
     	PExp exp = node.getExpression();
     	pol.addAll(exp.apply(this,question));
     	return pol;
@@ -54,25 +54,25 @@ public class POGExpressionVisitor extends
 
 	//TODO handle PCML expressions
     @Override
-	public ProofObligationList defaultPCMLExp(PCMLExp node,
-			POContextStack question) throws AnalysisException {
-		return new ProofObligationList();
+	public CMLProofObligationList defaultPCMLExp(PCMLExp node,
+			IPOContextStack question) throws AnalysisException {
+		return new CMLProofObligationList();
 	}
 
 	// Call Overture for the other expressions
     @Override
-    public ProofObligationList defaultPExp(PExp node, POContextStack question)
+    public CMLProofObligationList defaultPExp(PExp node, IPOContextStack question)
 	    throws AnalysisException {
-	ProofObligationList pol = new ProofObligationList();
+	CMLProofObligationList pol = new CMLProofObligationList();
 	pol.addAll(node.apply(overtureVisitor, question));
 	return pol;
     }
 
     // Call the main pog when it's not an expression
     @Override
-    public ProofObligationList defaultINode(INode node, POContextStack question)
+    public CMLProofObligationList defaultINode(INode node, IPOContextStack question)
 	    throws AnalysisException {
-	ProofObligationList pol = new ProofObligationList();
+	CMLProofObligationList pol = new CMLProofObligationList();
 	pol.addAll(node.apply(rootVisitor, question));
 	return pol;
     }

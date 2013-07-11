@@ -7,20 +7,16 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.overture.pog.IProofObligationList;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.pog.obligation.NonEmptySetObligation;
-import org.overture.pog.obligation.NonZeroObligation;
-import org.overture.pog.obligation.ProofObligationList;
 
 import eu.compassresearch.ast.program.PSource;
-import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
-import eu.compassresearch.core.parser.CmlParser;
-import eu.compassresearch.core.typechecker.TestUtil;
 
 @RunWith(value = Parameterized.class)
 public class POGTestWithStrings {
@@ -60,7 +56,7 @@ public class POGTestWithStrings {
 	PSource psAux = (Utilities.makeSourceFromString(sourceFromString));
 	
 	ProofObligationGenerator pog = new ProofObligationGenerator(psAux);
-	ProofObligationList actual = pog.generatePOs();
+	IProofObligationList actual = pog.generatePOs();
 
 	// Haven't figured out a way to manually create expected POs (mostly
 	// because of ContextStack and LexLocation)

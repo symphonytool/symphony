@@ -26,7 +26,7 @@ import org.antlr.runtime.RecognitionException;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.intf.IAnalysis;
 import org.overture.ast.node.INode;
-import org.overture.pog.obligation.POContextStack;
+import org.overture.pog.POContextStack;
 
 import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
 import eu.compassresearch.ast.preview.DotGraphVisitor;

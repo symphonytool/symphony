@@ -23,16 +23,21 @@
 
 package eu.compassresearch.core.analysis.pog.obligations;
 
+import org.overture.pog.IPOContextStack;
+
 import org.overture.ast.definitions.PDefinition;
-import org.overture.pog.POContextStack;
 
 import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
 
 public class SatisfiabilityObligation extends CMLProofObligation {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private String separator = "";
 
 	public SatisfiabilityObligation(AImplicitCmlOperationDefinition op,
-			PDefinition stateDefinition, POContextStack ctxt) {
+			PDefinition stateDefinition, IPOContextStack ctxt) {
 		super(op, CMLPOType.OP_SATISFIABILITY, ctxt);
 
 //FIXME getPostdef() is null...

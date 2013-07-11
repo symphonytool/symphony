@@ -36,6 +36,11 @@ public class CMLSatisfiabilityObligation extends CMLProofObligation
 //	private final AExplicitFunctionDefinition postexp;
 	
 
+		/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 		public CMLSatisfiabilityObligation(AImplicitCmlOperationDefinition op,
 				PDefinition stateDefinition, CMLPOContextStack ctxt)
 		{

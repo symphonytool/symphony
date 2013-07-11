@@ -4,7 +4,7 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.lex.LexNameList;
 import org.overture.ast.node.INode;
-import org.overture.pog.obligation.PONameContext;
+import org.overture.pog.PONameContext;
 import org.overture.typechecker.assistant.definition.PDefinitionAssistantTC;
 
 import eu.compassresearch.ast.analysis.AnswerCMLAdaptor;
