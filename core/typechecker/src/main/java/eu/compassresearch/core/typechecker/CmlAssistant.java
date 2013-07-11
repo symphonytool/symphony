@@ -22,6 +22,7 @@ import org.overture.ast.typechecker.Pass;
 import org.overture.ast.types.AClassType;
 import org.overture.ast.types.AFieldField;
 import org.overture.ast.types.ANamedInvariantType;
+import org.overture.ast.types.AOptionalType;
 import org.overture.ast.types.ARecordInvariantType;
 import org.overture.ast.types.PType;
 import org.overture.ast.types.SInvariantType;
@@ -269,7 +270,12 @@ class CmlAssistant {
 				return CmlAssistant.this.findMemberName(
 						((AClassType) type).getClassdef(), name, more);
 			}
-
+			
+			//if optional type, extract the containing type
+			if (type instanceof AOptionalType) {
+				type = ((AOptionalType) type).getType();
+			}
+			
 			if (type.getDefinitions().size() > 0) {
 				PDefinition def0 = type.getDefinitions().get(0);
 				if (def0 instanceof ATypeDefinition) {
@@ -503,6 +509,7 @@ class CmlAssistant {
 
 		}
 	}
+	
 
 	// *********** Helper methods for LocalDefinitionFindMemberStrategy
 	// ************
