@@ -22,7 +22,7 @@ import eu.compassresearch.ast.definitions.AChannelNameDefinition;
 import eu.compassresearch.ast.definitions.AChannelsDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.definitions.AChansetsDefinition;
-import eu.compassresearch.ast.definitions.AClassDefinition;
+import eu.compassresearch.ast.definitions.ACmlClassDefinition;
 import eu.compassresearch.ast.definitions.AFunctionsDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.definitions.ATypesDefinition;
@@ -170,9 +170,9 @@ Object[] elements = null;
 			{
 				Wrapper<?> w = (Wrapper<?>) n;
 
-				if (w.isClass(AClassDefinition.class))
+				if (w.isClass(ACmlClassDefinition.class))
 				{
-					return handleClassParagraphDefinition((AClassDefinition) w.value).toArray();
+					return handleClassParagraphDefinition((ACmlClassDefinition) w.value).toArray();
 				}
 
 				if (w.isClass(AChannelsDefinition.class))
@@ -231,7 +231,7 @@ Object[] elements = null;
 	}
 
 	private List<Wrapper<? extends PDefinition>> handleClassParagraphDefinition(
-			AClassDefinition cpdef)
+			ACmlClassDefinition cpdef)
 	{
 		List<Wrapper<? extends PDefinition>> r = new LinkedList<Wrapper<? extends PDefinition>>();
 		for (PDefinition pdef : cpdef.getBody())
