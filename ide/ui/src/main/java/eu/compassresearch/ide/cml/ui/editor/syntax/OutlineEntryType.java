@@ -15,7 +15,7 @@ import eu.compassresearch.ast.definitions.AChannelNameDefinition;
 import eu.compassresearch.ast.definitions.AChannelsDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.definitions.AChansetsDefinition;
-import eu.compassresearch.ast.definitions.AClassDefinition;
+import eu.compassresearch.ast.definitions.ACmlClassDefinition;
 import eu.compassresearch.ast.definitions.AFunctionsDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.definitions.ATypesDefinition;
@@ -105,7 +105,7 @@ public enum OutlineEntryType {
 		return PROCESS.getImage();
 	    if (w.isClass(PProcess.class))
 		return PROCESS.getImage();
-	    if (w.isClass(AClassDefinition.class))
+	    if (w.isClass(ACmlClassDefinition.class))
 		return CLASS.getImage();
 
 	    // Fetch interior of processes and classes

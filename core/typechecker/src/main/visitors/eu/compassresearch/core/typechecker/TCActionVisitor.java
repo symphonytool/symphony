@@ -115,7 +115,7 @@ import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AChannelNameDefinition;
-import eu.compassresearch.ast.definitions.AClassDefinition;
+import eu.compassresearch.ast.definitions.ACmlClassDefinition;
 import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AOperationsDefinition;
 import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
@@ -748,8 +748,8 @@ class TCActionVisitor extends
 		}
 
 		// set the class definition
-		node.setClassdef((AClassDefinition) cmlEnv.lookup(node.getClassName(),
-				AClassDefinition.class));
+		node.setClassdef((ACmlClassDefinition) cmlEnv.lookup(node.getClassName(),
+				ACmlClassDefinition.class));
 
 		// All done!
 		node.setType(new AActionType());

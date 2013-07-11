@@ -14,7 +14,7 @@ import eu.compassresearch.ast.definitions.AChannelNameDefinition;
 import eu.compassresearch.ast.definitions.AChannelsDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.definitions.AChansetsDefinition;
-import eu.compassresearch.ast.definitions.AClassDefinition;
+import eu.compassresearch.ast.definitions.ACmlClassDefinition;
 import eu.compassresearch.ast.definitions.AFunctionsDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.definitions.ATypesDefinition;
@@ -86,7 +86,7 @@ public class CollectGlobalStateClass extends AnalysisCMLAdaptor {
 	}
 
 	@Override
-	public void caseAClassDefinition(AClassDefinition node)
+	public void caseACmlClassDefinition(ACmlClassDefinition node)
 			throws AnalysisException {
 		members.add(node);
 	}

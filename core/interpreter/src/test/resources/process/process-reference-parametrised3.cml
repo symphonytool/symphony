@@ -1,0 +1,10 @@
+channels 
+b, c : int 
+ 
+ 
+ 
+process B = val i : nat @ C(i) ; begin @ b.i -> Skip end
+
+process C = val i : nat @ begin @ c.i -> Skip end
+
+process A = B(2)

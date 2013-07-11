@@ -17,9 +17,9 @@ public class CmlTrace {
 		trace = new LinkedList<CmlTransition>();
 	}
 	
-	public CmlTrace(CmlTrace other)
+	public CmlTrace(CmlTrace src)
 	{
-		trace = new LinkedList<CmlTransition>(other.trace);
+		trace = new LinkedList<CmlTransition>(src.trace);
 	}
 	
 	public void addEvent(CmlTransition event)

@@ -26,6 +26,7 @@ import org.antlr.runtime.RecognitionException;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.intf.IAnalysis;
 import org.overture.ast.node.INode;
+import org.overture.pog.assistant.PogAssistantFactory;
 import org.overture.pog.obligation.POContextStack;
 
 import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
@@ -504,7 +505,7 @@ public class CheckCml {
 			// object.
 			AnalysisRunAdaptor r = new AnalysisRunAdaptor(pog) {
 				public void apply(INode root) throws AnalysisException {
-					POContextStack question = new POContextStack();
+					POContextStack question = new POContextStack(new PogAssistantFactory());
 					root.apply(pog, question);
 				}
 			};

@@ -203,10 +203,13 @@ public class CmlChoiceMediator implements IDoubleClickListener, ISelectionChange
 				{
 					int length = loc.getEndOffset() - loc.getStartOffset() + 1;
 					StyleRange sr = styledText.getStyleRangeAtOffset(loc.getStartOffset());
-					sr.length = length;
-					sr.background = new Color(null, new RGB(java.awt.Color.GRAY.getRed(), java.awt.Color.GRAY.getGreen(), java.awt.Color.GRAY.getBlue()));
-					styledText.setStyleRange(sr);
-					lastSelectedRanges.add(sr);
+					if(sr != null)
+					{
+						sr.length = length;
+						sr.background = new Color(null, new RGB(java.awt.Color.GRAY.getRed(), java.awt.Color.GRAY.getGreen(), java.awt.Color.GRAY.getBlue()));
+						styledText.setStyleRange(sr);
+						lastSelectedRanges.add(sr);
+					}
 				}
 				styledText.setCaretOffset(choice.getLocations().get(0).getStartOffset());
 				styledText.showSelection();

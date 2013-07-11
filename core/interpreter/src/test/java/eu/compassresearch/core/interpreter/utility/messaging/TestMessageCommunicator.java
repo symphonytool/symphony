@@ -19,6 +19,7 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.node.INode;
+import org.overture.interpreter.assistant.InterpreterAssistantFactory;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ValueException;
 
@@ -229,7 +230,7 @@ public class TestMessageCommunicator {
 			
 			@Override
 			public Pair<INode, Context> getNextState() {
-				return new Pair<INode,Context>(new ASkipAction(),new Context(new LexLocation(), "test", null));
+				return new Pair<INode,Context>(new ASkipAction(),new Context(new InterpreterAssistantFactory(),new LexLocation(), "test", null));
 			}
 			
 			@Override

@@ -24,19 +24,19 @@ import org.overture.ast.types.AAccessSpecifierAccessSpecifier;
 import org.overture.ast.types.AClassType;
 import org.overture.ast.types.PType;
 
-import eu.compassresearch.ast.definitions.AClassDefinition;
+import eu.compassresearch.ast.definitions.ACmlClassDefinition;
 
 class CmlClassDefinitionAdaptor extends SClassDefinitionBase {
 
-	private AClassDefinition cmlClassDefinition;
+	private ACmlClassDefinition cmlClassDefinition;
 	private AClassType classType;
 	
-	public CmlClassDefinitionAdaptor(AClassDefinition cmlClassDefinition)
+	public CmlClassDefinitionAdaptor(ACmlClassDefinition cmlClassDefinition)
 	{
 		this.cmlClassDefinition = cmlClassDefinition;
 	}
 	
-	public AClassDefinition getCmlClassDefinition()
+	public ACmlClassDefinition getCmlClassDefinition()
 	{
 		return this.cmlClassDefinition;
 	}
