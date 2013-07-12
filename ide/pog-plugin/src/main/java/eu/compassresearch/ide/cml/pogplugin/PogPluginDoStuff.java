@@ -25,7 +25,7 @@ import eu.compassresearch.core.analysis.pog.visitors.ProofObligationGenerator;
 import eu.compassresearch.core.common.Registry;
 import eu.compassresearch.core.common.RegistryFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
-import eu.compassresearch.ide.cml.ui.editor.core.dom.ICmlSourceUnit;
+import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
 
 public class PogPluginDoStuff
 {

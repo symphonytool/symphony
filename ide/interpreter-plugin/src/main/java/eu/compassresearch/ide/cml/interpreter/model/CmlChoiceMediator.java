@@ -31,7 +31,7 @@ import eu.compassresearch.core.interpreter.utility.messaging.RequestMessage;
 import eu.compassresearch.core.interpreter.utility.messaging.ResponseMessage;
 import eu.compassresearch.ide.cml.interpreter.ICmlDebugConstants;
 import eu.compassresearch.ide.cml.interpreter.views.CmlEventOptionView;
-import eu.compassresearch.ide.cml.ui.editor.core.CmlEditor;
+import eu.compassresearch.ide.ui.editor.core.CmlEditor;
 
 public class CmlChoiceMediator implements IDoubleClickListener, ISelectionChangedListener{
 

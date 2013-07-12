@@ -107,7 +107,7 @@
    <extension
          point="org.eclipse.ui.newWizards">
       <wizard
-            category="compass_eu.compassresearch.ide.cml.ui.category"
+            category="compass_eu.compassresearch.ide.ui.category"
             class="eu.compassresearch.ide.cml.rttplugin.RttMbtComponentWizard"
             icon="icons/rtt-mbt-small.png"
             id="eu.compassresearch.ide.cml.rttplugin.RttMbtComponentWizard"
@@ -116,13 +116,13 @@
       <category
             id="RT-Tester"
             name="RT-Tester"
-            parentCategory="compass_eu.compassresearch.ide.cml.ui.category">
+            parentCategory="compass_eu.compassresearch.ide.ui.category">
       </category>
    </extension>
    <extension
          point="org.eclipse.ui.preferencePages">
       <page
-            category="compass_eu.compassresearch.ide.cml.ui.category"
+            category="compass_eu.compassresearch.ide.ui.category"
             class="eu.compassresearch.ide.cml.rttplugin.RttMbtPreferencesPage"
             id="eu.compassresearch.ide.cml.rttplugin.RttMbtPreferencesMainPage"
             name="RT-Tester">

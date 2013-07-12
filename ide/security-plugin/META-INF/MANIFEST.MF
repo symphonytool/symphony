@@ -14,8 +14,8 @@ Require-Bundle: org.eclipse.debug.ui,
  org.eclipse.ui,
  org.eclipse.ui.ide,
  org.overture.ide.ui,
- eu.compassresearch.ide.cml.core,
- eu.compassresearch.ide.cml.ui
+ eu.compassresearch.ide.core,
+ eu.compassresearch.ide.ui
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Eclipse-BuddyPolicy: registered

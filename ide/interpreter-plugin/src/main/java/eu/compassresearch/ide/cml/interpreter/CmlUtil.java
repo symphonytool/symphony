@@ -31,8 +31,8 @@ import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.GlobalEnvironmentBuilder;
-import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
-import eu.compassresearch.ide.cml.ui.editor.core.dom.ICmlSourceUnit;
+import eu.compassresearch.ide.core.resources.CmlSourceUnit;
+import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
 
 public final class CmlUtil {
 
