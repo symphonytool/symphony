@@ -234,7 +234,7 @@ Object[] elements = null;
 			ACmlClassDefinition cpdef)
 	{
 		List<Wrapper<? extends PDefinition>> r = new LinkedList<Wrapper<? extends PDefinition>>();
-		for (PDefinition pdef : cpdef.getBody())
+		for (PDefinition pdef : cpdef.getDefinitions())
 		{
 			DefinitionHandler dh = DefinitionMap.getDelegate(pdef.getClass());
 			if (dh != null)

@@ -27,7 +27,7 @@ class CmlValueFactory {
 		AClassType classType = (AClassType)node.getClassdef().getType();
 		ILexNameToken classname = classType.getName();
 		NameValuePairMap members = new NameValuePairMap();
-		for(PDefinition pdef : ((ACmlClassDefinition)node.getClassdef()).getBody())
+		for(PDefinition pdef : ((ACmlClassDefinition)node.getClassdef()).getDefinitions())
 		{
 			for(NameValuePair nvp : pdef.apply(new CmlDefinitionVisitor() ,question))
 			{

@@ -174,7 +174,7 @@ public class POGDeclAndDefVisitor extends
 
 		ProofObligationList pol = new ProofObligationList();
 
-		for (PDefinition def : node.getBody())
+		for (PDefinition def : node.getDefinitions())
 		{
 			PONameContext name = def.apply(new PogNameContextVisitor());
 			if (name != null)

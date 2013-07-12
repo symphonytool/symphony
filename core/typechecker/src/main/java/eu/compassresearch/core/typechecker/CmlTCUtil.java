@@ -357,7 +357,7 @@ public class CmlTCUtil {
 
 		CmlTypeCheckInfo cmlClassEnv = info.newScope();
 
-		for (PDefinition def : node.getBody()) {
+		for (PDefinition def : node.getDefinitions()) {
 			List<PDefinition> l = TCDeclAndDefVisitor
 					.handleDefinitionsForOverture(def);
 			if (l != null)

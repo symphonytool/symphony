@@ -1211,7 +1211,7 @@ class TCDeclAndDefVisitor extends
 							.getEnclosingDefinition()).getDefinitions());
 
 		// Lets mangle the CML definitions for Overture to cope with them
-		for (PDefinition def : node.getBody()) {
+		for (PDefinition def : node.getDefinitions()) {
 			if (overtureClassBits.containsKey(def.getClass()))
 				overtureReadyCMLDefinitions.addAll(overtureClassBits.get(
 						def.getClass()).handle(def));
@@ -1238,7 +1238,6 @@ class TCDeclAndDefVisitor extends
 	}
 
 	PType typeCheckWithOverture(ACmlClassDefinition node,
-			AClassClassDefinition surrogate,
 			org.overture.typechecker.TypeCheckInfo question)
 			throws AnalysisException {
 
@@ -1248,16 +1247,16 @@ class TCDeclAndDefVisitor extends
 		if (question instanceof CmlTypeCheckInfo) {
 			CmlTypeCheckInfo info = (CmlTypeCheckInfo) question;
 			Environment env = info.env;
-			while (env != null) {
-				for (PDefinition def : env.getDefinitions()) {
-					if (def instanceof ACmlClassDefinition) {
-						ACmlClassDefinition cdef = (ACmlClassDefinition) def;
-						surrogateDefinitions.add(createSurrogateClass(cdef,
-								info));
-					}
-				}
-				env = env.getOuter();
-			}
+//			while (env != null) {
+//				for (PDefinition def : env.getDefinitions()) {
+//					if (def instanceof ACmlClassDefinition) {
+//						ACmlClassDefinition cdef = (ACmlClassDefinition) def;
+//						surrogateDefinitions.add(createSurrogateClass(cdef,
+//								info));
+//					}
+//				}
+//				env = env.getOuter();
+//			}
 		} else {
 			node.setType(issueHandler.addTypeError(
 					node,
@@ -1270,7 +1269,7 @@ class TCDeclAndDefVisitor extends
 				surrogateDefinitions, question.env);
 
 		// Create class environment
-		PrivateClassEnvironment self = new PrivateClassEnvironment(question.assistantFactory,surrogate,
+		PrivateClassEnvironment self = new PrivateClassEnvironment(question.assistantFactory,node,
 				surrogateEnvironment);
 
 		// Errors will be reported statically by the sub-visitors and the
@@ -1279,12 +1278,12 @@ class TCDeclAndDefVisitor extends
 		TypeChecker.clearErrors();
 		OvertureRootCMLAdapter tc = new OvertureRootCMLAdapter(parentChecker,
 				issueHandler);
-		typeCheckPass(surrogate, Pass.TYPES, self, tc, question, issueHandler);
+		typeCheckPass(node, Pass.TYPES, self, tc, question, issueHandler);
 		if (TypeChecker.getErrorCount() == 0)
-			typeCheckPass(surrogate, Pass.VALUES, self, tc, question,
+			typeCheckPass(node, Pass.VALUES, self, tc, question,
 					issueHandler);
 		if (TypeChecker.getErrorCount() == 0)
-			typeCheckPass(surrogate, Pass.DEFS, self, tc, question,
+			typeCheckPass(node, Pass.DEFS, self, tc, question,
 					issueHandler);
 
 		// add overture errors to cml errors
@@ -1299,9 +1298,9 @@ class TCDeclAndDefVisitor extends
 
 		TypeChecker.clearErrors();
 
-		return new AClassType(surrogate.getLocation(), true,
-				surrogate.getDefinitions(), surrogate.getName(),
-				surrogate.getClassDefinition());
+		return new AClassType(node.getLocation(), true,
+				node.getDefinitions(), node.getName(),
+				node.getClassDefinition());
 
 	}
 
@@ -1315,7 +1314,7 @@ class TCDeclAndDefVisitor extends
 
 		List<T> result = new LinkedList<T>();
 
-		for (PDefinition d : clz.getBody())
+		for (PDefinition d : clz.getDefinitions())
 			if (type.isInstance(d))
 				result.add(type.cast(d));
 
@@ -1357,7 +1356,7 @@ class TCDeclAndDefVisitor extends
 				info, node);
 		question.contextSet(CmlTypeCheckInfo.class, cmlClassEnv);
 		AClassType result = new AClassType(node.getLocation(), true,
-				node.getBody(), node.getName().clone(),
+				node.getDefinitions(), node.getName().clone(),
 				node.getClassDefinition());
 		node.setType(result);
 
@@ -1369,18 +1368,18 @@ class TCDeclAndDefVisitor extends
 		cmlClassEnv.addVariable(selfDef.getName(), node);
 
 		// Create Surrogate Overture Class
-		AClassClassDefinition surrogate = createSurrogateClass(node,
-				cmlClassEnv);
-		result.setClassdef(surrogate);
+		//AClassClassDefinition surrogate = createSurrogateClass(node,
+		//		cmlClassEnv);
+		result.setClassdef(node);
 
 		// Type check surrogate with overture
-		PType classType = typeCheckWithOverture(node, surrogate, cmlClassEnv);
-		if (classType == null || classType instanceof AErrorType)
-			return new AErrorType();
+		PType classType = typeCheckWithOverture(node, cmlClassEnv);
+//		if (classType == null || classType instanceof AErrorType)
+//			return new AErrorType();
 
 		// Find out what Overture is not doing for us
 		List<PDefinition> thoseHandledByCOMPASS = new LinkedList<PDefinition>();
-		for (PDefinition def : node.getBody())
+		for (PDefinition def : node.getDefinitions())
 			if (!overtureClassBits.containsKey(def.getClass()))
 				thoseHandledByCOMPASS.add(def);
 		// RWL This is handled by the CmlTCUtil.createCmlClassEnvironment
@@ -1774,7 +1773,7 @@ class TCDeclAndDefVisitor extends
 
 		if (classOrProcess instanceof ACmlClassDefinition) {
 			ACmlClassDefinition clzDef = (ACmlClassDefinition) classOrProcess;
-			for (PDefinition defInClz : clzDef.getBody()) {
+			for (PDefinition defInClz : clzDef.getDefinitions()) {
 				if (defInClz instanceof AAssignmentDefinition) {
 					return ((AStateDefinition) defInClz).getStateDefs();
 				}

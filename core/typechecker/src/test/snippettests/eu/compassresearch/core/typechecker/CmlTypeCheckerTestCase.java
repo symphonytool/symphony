@@ -20,7 +20,7 @@ public class CmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase {
 		// 0 // We have a challenge with class types in type-defs at top level
 		addTestProgram(testData,
 				"class T = begin end class N = begin end types TorN = T | N",
-				true, false, new String[0]);
+				true, true, new String[0]);
 		// 1
 		addTestProgram(
 				testData,
@@ -168,7 +168,7 @@ public class CmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase {
 		addTestProgram(
 				testData,
 				"class T = begin state a : int functions f:int * int -> int f(x,y) == a + x + y end",
-				true, false, new String[0]);
+				true, true, new String[0]);
 		// 220
 		addTestProgram(
 				testData,
