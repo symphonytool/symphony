@@ -4,6 +4,6 @@
   <interpreterState>TERMINATED</interpreterState>
   <trace>
     <events>a</events>
-    <timedTrace>tock,tock,tock,tock,a</timedTrace>
+    <timedTrace>(tock,){4}(tock,)*a</timedTrace>
   </trace>
 </testResult>

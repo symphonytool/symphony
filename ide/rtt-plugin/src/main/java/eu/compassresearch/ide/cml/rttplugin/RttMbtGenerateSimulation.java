@@ -17,14 +17,14 @@ public class RttMbtGenerateSimulation extends RttMbtAbstractTestProcedureAction 
 		// get selected object
 		client.setProgress(IRttMbtProgressBar.Tasks.ALL, 0);
 		if (!getSelectedObject(event)) {
-			client.addErrorMessage("[FAIL]: Please select a test proceduregeneration context!\n");
+			client.addErrorMessage("[FAIL]: Please select a test proceduregeneration context!");
 			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 			return null;
 		}
 
 		// get RttMbtClient for this action
 		if (!initClient(selectedObjectPath)) {
-			client.addErrorMessage("[FAIL]: generate simulation: init of RTT-MBT client failed!\n");
+			client.addErrorMessage("[FAIL]: generate simulation: init of RTT-MBT client failed!");
 			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 			return null;
 		}
@@ -32,24 +32,23 @@ public class RttMbtGenerateSimulation extends RttMbtAbstractTestProcedureAction 
 		// if a test procedure is selected, switch to test procedure generation context
 		if ((!isTProcGenCtxSelected()) && (isRttTestProcSelected())) {
 			getTProcGenCtxPathFromRttTestProcPath();
-			client.addLogMessage("adjusting selected object to '" + selectedObjectPath + "'\n");
 		}
 		
 		// check that test procedure generation context is selected
 		if (!isTProcGenCtxSelected()) {
-			client.addErrorMessage("Please select a valid test procedure generation context!\n");
+			client.addErrorMessage("Please select a valid test procedure generation context!");
 		}
 		
 		Job job = new Job("Generate Simulation") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
-				client.addLogMessage("generating simulation from configuration of " + selectedObject + "... please wait for the task to be finished.\n");
+				client.addLogMessage("generating simulation from configuration of " + selectedObject + "... please wait for the task to be finished.");
 				// generate simulation
 				if (client.generateSimulation(selectedObject)) {
-					client.addLogMessage("[PASS]: generate simulation\n");
+					client.addLogMessage("[PASS]: generate simulation");
 					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 				} else {
-					client.addErrorMessage("[FAIL]: generate simulation\n");
+					client.addErrorMessage("[FAIL]: generate simulation");
 					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 				}
 				return Status.OK_STATUS;

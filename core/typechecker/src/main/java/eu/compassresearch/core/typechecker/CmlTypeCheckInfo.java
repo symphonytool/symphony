@@ -201,12 +201,13 @@ class CmlTypeCheckInfo extends TypeCheckInfo implements TypeCheckQuestion {
 		if (ident == null)
 			throw new NullPointerException("Cannot add a type with null name");
 
-		PDefinition d = lookup(ident, PDefinition.class);
-		if (d != null && findGlobal(ident, PDefinition.class) == null) {
+		PDefinition existingDef = lookup(ident, PDefinition.class);
+		boolean notSame = typeDef != existingDef;
+		if (existingDef != null && notSame) {
 			typeDef.setType(issueHandler.addTypeError(
 					typeDef,
 					TypeErrorMessages.DUPLICATE_DEFINITION.customizeMessage(""
-							+ typeDef.getName(), "" + d.getLocation())));
+							+ typeDef.getName(), "" + existingDef.getLocation())));
 			return;
 		}
 

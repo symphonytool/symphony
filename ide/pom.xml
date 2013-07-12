@@ -5,7 +5,7 @@
   <parent>
     <groupId>eu.compassresearch</groupId>
     <artifactId>root</artifactId>
-    <version>0.1.1<!--Replaceable: Main Version--></version>
+    <version>0.1.2-SNAPSHOT<!--Replaceable: Main Version--></version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -30,6 +30,7 @@
     <module>interpreter-plugin</module>
     <module>pog-plugin</module>
     <module>security-plugin</module>
+	<module>mc-plugin</module>
     <module>platform</module>
     <module>features</module>
     <module>product</module>

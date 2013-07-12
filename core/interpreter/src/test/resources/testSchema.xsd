@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+xmlns="http://www.w3schools.com"
+elementFormDefault="unqualified">
+
+<xs:element name="testResult">
+	<xs:complexType>
+		<xs:sequence>
+			<xs:element name="exception" type="xs:string" />
+			<xs:element name="interpreterState" type="xs:string" minOccurs="0" maxOccurs="1" />
+			<xs:element name="trace" minOccurs="1" maxOccurs="1">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="events" type="xs:string" minOccurs="1" maxOccurs="1" />
+						<xs:element name="timedTrace" type="xs:string" minOccurs="0" maxOccurs="1" />
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+</xs:element>
+</xs:schema>

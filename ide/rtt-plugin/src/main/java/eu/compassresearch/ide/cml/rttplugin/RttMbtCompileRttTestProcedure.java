@@ -17,14 +17,14 @@ public class RttMbtCompileRttTestProcedure extends RttMbtConcreteTestProcedureAc
 		// get selected object
 		client.setProgress(IRttMbtProgressBar.Tasks.ALL, 0);
 		if (!getSelectedObject(event)) {
-			client.addErrorMessage("[FAIL]: Please select a test procedure!\n");
+			client.addErrorMessage("[FAIL]: Please select a test procedure!");
 			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 			return null;
 		}
 
 		// get RttMbtClient for this action
 		if (!initClient(selectedObjectPath)) {
-			client.addErrorMessage("[FAIL]: compile test procedure: init of RTT-MBT client failed!\n");
+			client.addErrorMessage("[FAIL]: compile test procedure: init of RTT-MBT client failed!");
 			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 			return null;
 		}
@@ -32,24 +32,23 @@ public class RttMbtCompileRttTestProcedure extends RttMbtConcreteTestProcedureAc
 		// if a test procedure generation context is selected, switch to test procedure
 		if ((!isRttTestProcSelected()) && (isTProcGenCtxSelected())) {
 			getRttTestProcPathFromTProcGenCtxPath();
-			client.addLogMessage("adjusting selected object to '" + selectedObjectPath + "'\n");
 		}
 		
 		// check that a test procedure is selected
 		if (!isRttTestProcSelected()) {
-			client.addErrorMessage("Please select a valid test procedure!\n");
+			client.addErrorMessage("Please select a valid test procedure!");
 		}
 
 		Job job = new Job("Compile Test") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
-				client.addLogMessage("compiling test procedure " + selectedObject + "... please wait for the task to be finished.\n");
+				client.addLogMessage("compiling test procedure " + selectedObject + "... please wait for the task to be finished.");
 				// compile test procedure
 				if (client.compileTestProcedure(selectedObject)) {
-					client.addLogMessage("[PASS]: compile test procedure\n");
+					client.addLogMessage("[PASS]: compile test procedure");
 					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 				} else {
-					client.addErrorMessage("[FAIL]: compile test procedure\n");
+					client.addErrorMessage("[FAIL]: compile test procedure");
 					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 				}
 				return Status.OK_STATUS;

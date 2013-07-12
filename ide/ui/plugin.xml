@@ -28,9 +28,11 @@
                relationship="left"
                relative="org.eclipse.ui.editorss">
          </view>
+              <newWizardShortcut
+           id="eu.compassresearch.ide.cml.ui.newcmlfilewizard">
+     </newWizardShortcut>
       </perspectiveExtension>
    </extension>
-
 
    <extension
          point="org.eclipse.ui.editors">
@@ -176,9 +178,21 @@
                 </or>
             </possibleChildren> 
             
-            
+             <commonWizard
+     				 type="new"
+  				 wizardId="eu.compassresearch.ide.cml.ui.newcmlfilewizard">
+ 			   <enablement>
+   				<or>
+   				 <adapt type="org.eclipse.core.resources.IFile" /> 
+    			 <adapt type="org.eclipse.core.resources.IFolder" />
+        	     <adapt type="org.eclipse.core.resources.IProject" /> 
+              	 <adapt type="org.eclipse.core.resources.IWorkspaceRoot" /> 
+   				</or>
+  			 </enablement>
+ 			</commonWizard>     
+ 			  
       </navigatorContent>      
-      
+    
    </extension>
 
 

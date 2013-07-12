@@ -3,8 +3,6 @@
   <exception/>
   <interpreterState>DEADLOCKED</interpreterState>
   <trace>
-    <events>a</events>
-    <events>c</events>
-    <timedTrace/>
+    <events>(a|c)</events>
   </trace>
 </testResult>

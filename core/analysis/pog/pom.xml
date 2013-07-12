@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>eu.compassresearch.core.analysis</groupId>
 		<artifactId>analysis</artifactId>
-		<version>0.1.1<!--Replaceable: Main Version--></version>
+		<version>0.1.2-SNAPSHOT<!--Replaceable: Main Version--></version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -26,13 +26,14 @@
 			<version>${project.version}</version>
 		</dependency>
 
-		<dependency>
+		<!--dependency>
 			<groupId>eu.compassresearch.core</groupId>
 			<artifactId>typechecker</artifactId>
 			<version>${project.version}</version>
 			<type>test-jar</type>
 			<scope>test</scope>
-		</dependency>
+			
+		</dependency-->
 
 		<dependency>
 			<groupId>org.overture.core</groupId>
@@ -92,5 +93,28 @@
 			</plugin>
 		</plugins>
 	</build>
+	
+	<profiles>
+		<profile>
+			<!-- Maven has a bug in the dependency resolution of test-jars so we have to fix it like this. See http://jira.codehaus.org/browse/MJAR-68?focusedCommentId=120463&page=com.atlassian.jira.plugin.system.issuetabpanels%3Acomment-tabpanel#action_120463
+			-->
+                        <id>test-dependency-skip</id>
+			<activation>
+                                <!-- use absence of the property rather than it's value; I don't think we can do "or" here -jwc/4July2013 -->
+				<property>
+					<name>!maven.test.skip</name>
+				</property>
+			</activation>
+			<dependencies>
+				<dependency>
+					<groupId>eu.compassresearch.core</groupId>
+					<artifactId>typechecker</artifactId>
+					<version>${project.version}</version>
+					<type>test-jar</type>
+					<scope>test</scope>
+				</dependency>
+			</dependencies>
+		</profile>
+	</profiles>
 </project>
 

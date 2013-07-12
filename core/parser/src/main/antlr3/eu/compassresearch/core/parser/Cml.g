@@ -1724,6 +1724,9 @@ valueDefinition returns[AValueDefinition def]
 //  introduce a type on non-determinism that he doesn't want to deal
 //  with.  So, they'll not happen. -jwc/19Dec2012
 //
+// I just noticed that CML0 has an 'in' form present; this is not from
+// the VDM side, but has never been implmented. -jwc/18Jun2013
+//
 //  : bindablePattern (':' type)? ( '=' | 'be' 'st' ) expression
     : bindablePattern (':' type)? '=' expression
         {
