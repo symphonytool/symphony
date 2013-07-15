@@ -1,12 +1,12 @@
 package eu.compassresearch.core.analysis.pog.obligations;
 
-import java.util.List;
 import java.util.Stack;
 
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.types.PType;
 import org.overture.pog.IPOContext;
 import org.overture.pog.IPOContextStack;
+import org.overture.pog.PONameContext;
 
 @SuppressWarnings("serial")
 public class CMLPOContextStack extends Stack<CMLPOContext> implements
@@ -90,13 +90,6 @@ public class CMLPOContextStack extends Stack<CMLPOContext> implements
 	}
 
 	@Override
-	public List<PExp> getContextNodeList()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public String getObligation(String root)
 	{
 		// TODO Auto-generated method stub
@@ -111,6 +104,21 @@ public class CMLPOContextStack extends Stack<CMLPOContext> implements
 			super.push((CMLPOContext) context);
 		}
 		return context;
+
+	}
+
+	@Override
+	public PExp getPredWithContext(PExp initialPredicate)
+	{
+		for (int i = this.size() - 1; i >= 0; i--)
+		{
+			IPOContext ctxt = this.get(i);
+			if (!(ctxt instanceof PONameContext))
+			{
+				initialPredicate = ctxt.getContextNode(initialPredicate);
+			}
+		}
+		return initialPredicate;
 
 	}
 }
