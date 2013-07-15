@@ -1,7 +1,7 @@
 package eu.compassresearch.core.analysis.pog.visitors;
 
-import org.overture.pog.IPogAssistantFactory;
-import org.overture.pog.PogAssistantFactory;
+import org.overture.pog.pub.IPogAssistantFactory;
+import org.overture.pog.utility.PogAssistantFactory;
 
 public class CmlPogAssistantFactory extends PogAssistantFactory implements
 		IPogAssistantFactory

@@ -44,12 +44,12 @@ import org.overture.ast.statements.PStm;
 import org.overture.ast.types.PAccessSpecifier;
 import org.overture.ast.types.PField;
 import org.overture.ast.types.PType;
-import org.overture.pog.IPOContextStack;
-import org.overture.pog.IProofObligationList;
-import org.overture.pog.POCaseContext;
-import org.overture.pog.POContextStack;
-import org.overture.pog.PONotCaseContext;
-import org.overture.pog.SeqApplyObligation;
+import org.overture.pog.obligation.POCaseContext;
+import org.overture.pog.obligation.POContextStack;
+import org.overture.pog.obligation.PONotCaseContext;
+import org.overture.pog.obligation.SeqApplyObligation;
+import org.overture.pog.pub.IPOContextStack;
+import org.overture.pog.pub.IProofObligationList;
 
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;

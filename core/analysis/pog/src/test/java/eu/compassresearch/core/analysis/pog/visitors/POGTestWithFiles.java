@@ -13,7 +13,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.pog.IProofObligationList;
+import org.overture.pog.pub.IProofObligationList;
 
 import eu.compassresearch.ast.program.PSource;
 

@@ -7,7 +7,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.overture.pog.IProofObligationList;
+import org.overture.pog.pub.IProofObligationList;
 
 import org.junit.Before;
 import org.junit.Test;

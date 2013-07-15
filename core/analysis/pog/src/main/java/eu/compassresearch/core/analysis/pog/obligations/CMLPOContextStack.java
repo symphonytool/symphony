@@ -4,9 +4,9 @@ import java.util.Stack;
 
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.types.PType;
-import org.overture.pog.IPOContext;
-import org.overture.pog.IPOContextStack;
-import org.overture.pog.PONameContext;
+import org.overture.pog.obligation.PONameContext;
+import org.overture.pog.pub.IPOContext;
+import org.overture.pog.pub.IPOContextStack;
 
 @SuppressWarnings("serial")
 public class CMLPOContextStack extends Stack<CMLPOContext> implements

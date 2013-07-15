@@ -11,8 +11,8 @@ import org.overture.ast.node.INode;
 import org.overture.ast.patterns.ADefPatternBind;
 import org.overture.ast.patterns.PPattern;
 import org.overture.ast.statements.AExternalClause;
-import org.overture.pog.IPOContextStack;
-import org.overture.pog.POException;
+import org.overture.pog.pub.IPOContextStack;
+import org.overture.pog.utility.POException;
 
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AAssignmentCallStatementAction;

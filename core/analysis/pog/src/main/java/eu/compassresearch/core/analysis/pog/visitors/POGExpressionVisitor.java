@@ -5,8 +5,8 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.node.INode;
-import org.overture.pog.IPOContextStack;
-import org.overture.pog.PogParamExpVisitor;
+import org.overture.pog.pub.IPOContextStack;
+import org.overture.pog.visitors.PogParamExpVisitor;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.expressions.ABracketedExp;

@@ -16,11 +16,11 @@ import org.overture.ast.node.INode;
 import org.overture.ast.patterns.APatternListTypePair;
 import org.overture.ast.patterns.PPattern;
 import org.overture.ast.types.PType;
-import org.overture.pog.IPOContextStack;
-import org.overture.pog.POException;
-import org.overture.pog.PONameContext;
-import org.overture.pog.PogParamDefinitionVisitor;
-import org.overture.pog.SubTypeObligation;
+import org.overture.pog.obligation.PONameContext;
+import org.overture.pog.obligation.SubTypeObligation;
+import org.overture.pog.pub.IPOContextStack;
+import org.overture.pog.utility.POException;
+import org.overture.pog.visitors.PogParamDefinitionVisitor;
 import org.overture.typechecker.TypeComparator;
 
 import eu.compassresearch.ast.actions.PAction;

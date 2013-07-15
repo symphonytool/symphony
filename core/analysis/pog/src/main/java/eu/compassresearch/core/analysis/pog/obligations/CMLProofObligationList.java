@@ -10,8 +10,8 @@ package eu.compassresearch.core.analysis.pog.obligations;
 
 import java.util.Vector;
 
-import org.overture.pog.IProofObligation;
-import org.overture.pog.IProofObligationList;
+import org.overture.pog.pub.IProofObligation;
+import org.overture.pog.pub.IProofObligationList;
 
 import eu.compassresearch.core.common.AnalysisArtifact;
 

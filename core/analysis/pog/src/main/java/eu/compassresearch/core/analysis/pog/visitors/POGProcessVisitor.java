@@ -6,8 +6,8 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.intf.lex.ILexNameToken;
-import org.overture.pog.IPOContextStack;
-import org.overture.pog.PONameContext;
+import org.overture.pog.obligation.PONameContext;
+import org.overture.pog.pub.IPOContextStack;
 
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.actions.PParametrisation;

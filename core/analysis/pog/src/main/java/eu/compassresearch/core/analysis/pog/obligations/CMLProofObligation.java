@@ -6,11 +6,11 @@
  ******************************************************************************/
 package eu.compassresearch.core.analysis.pog.obligations;
 
-import org.overture.pog.IPOContextStack;
 
 import org.overture.ast.node.INode;
-import org.overture.pog.IProofObligation;
-import org.overture.pog.ProofObligation;
+import org.overture.pog.obligation.ProofObligation;
+import org.overture.pog.pub.IPOContextStack;
+import org.overture.pog.pub.IProofObligation;
 
 abstract public class CMLProofObligation extends ProofObligation implements
 		IProofObligation

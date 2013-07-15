@@ -29,7 +29,7 @@ import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import org.overture.ast.definitions.AImplicitFunctionDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.types.PType;
-import org.overture.pog.POFunctionDefinitionContext;
+import org.overture.pog.obligation.POFunctionDefinitionContext;
 
 public class CMLPOFunctionDefinitionContext  implements CMLPOContext{
 

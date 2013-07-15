@@ -5,9 +5,9 @@ package eu.compassresearch.core.analysis.pog.visitors;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.node.INode;
 import org.overture.ast.statements.PStm;
-import org.overture.pog.IPOContextStack;
-import org.overture.pog.POContextStack;
-import org.overture.pog.PogParamStmVisitor;
+import org.overture.pog.obligation.POContextStack;
+import org.overture.pog.pub.IPOContextStack;
+import org.overture.pog.visitors.PogParamStmVisitor;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
