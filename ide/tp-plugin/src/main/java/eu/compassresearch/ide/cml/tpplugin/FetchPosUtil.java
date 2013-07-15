@@ -23,7 +23,7 @@ import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
 import eu.compassresearch.core.common.Registry;
 import eu.compassresearch.core.common.RegistryFactory;
 import eu.compassresearch.ide.cml.pogplugin.POConstants;
-import eu.compassresearch.ide.cml.ui.editor.core.dom.ICmlSourceUnit;
+import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
 import eu.compassresearch.theoremprover.IsabelleTheory;
 import eu.compassresearch.theoremprover.TPVisitor;
 import eu.compassresearch.theoremprover.ThmType;
@@ -96,7 +96,7 @@ public class FetchPosUtil
 
 					for (IResource cmlFile : cmlFiles) {
 						// May return a null if the adapter fails to convert
-						ICmlSourceUnit cmlSource = (ICmlSourceUnit) cmlFile
+						eu.compassresearch.ide.core.resources.ICmlSourceUnit cmlSource = (ICmlSourceUnit) cmlFile
 								.getAdapter(ICmlSourceUnit.class);
 						CMLProofObligationList poList = registry.lookup(
 								cmlSource.getSourceAst(),

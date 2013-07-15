@@ -17,7 +17,6 @@ import org.overture.ide.core.IVdmModel;
 import org.overture.ide.core.resources.IVdmProject;
 import org.overture.ide.plugins.poviewer.view.PoOverviewTableView;
 import org.overture.ide.ui.utility.VdmTypeCheckerUi;
-import org.overture.pog.ProofObligation;
 import org.overture.pog.ProofObligationList;
 
 import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
