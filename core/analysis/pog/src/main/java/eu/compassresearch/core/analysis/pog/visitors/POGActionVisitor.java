@@ -80,7 +80,7 @@ import eu.compassresearch.ast.actions.PParametrisation;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
-import eu.compassresearch.ast.definitions.AClassDefinition;
+import eu.compassresearch.ast.definitions.ACmlClassDefinition;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
 import eu.compassresearch.core.analysis.pog.obligations.CMLWhileLoopObligation;
@@ -499,7 +499,7 @@ try{
 
 		// Get subparts
 		LinkedList<PExp> args = node.getArgs();
-		AClassDefinition classdef = node.getClassdef();
+		ACmlClassDefinition classdef = (ACmlClassDefinition) node.getClassdef();
 		ILexNameToken classname = node.getClassName();
 		PDefinition ctor = node.getCtorDefinition();
 		PExp dest = node.getDestination();

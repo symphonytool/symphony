@@ -15,6 +15,7 @@ import org.overture.interpreter.values.NameValuePairMap;
 import org.overture.interpreter.values.ObjectValue;
 
 import eu.compassresearch.ast.actions.ANewStatementAction;
+import eu.compassresearch.ast.definitions.ACmlClassDefinition;
 import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
 import eu.compassresearch.core.interpreter.api.values.CmlOperationValue;
@@ -26,7 +27,7 @@ class CmlValueFactory {
 		AClassType classType = (AClassType)node.getClassdef().getType();
 		ILexNameToken classname = classType.getName();
 		NameValuePairMap members = new NameValuePairMap();
-		for(PDefinition pdef : node.getClassdef().getBody())
+		for(PDefinition pdef : ((ACmlClassDefinition)node.getClassdef()).getBody())
 		{
 			for(NameValuePair nvp : pdef.apply(new CmlDefinitionVisitor() ,question))
 			{

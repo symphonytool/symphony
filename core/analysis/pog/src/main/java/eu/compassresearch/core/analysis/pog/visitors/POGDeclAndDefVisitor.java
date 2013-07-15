@@ -165,7 +165,7 @@ public class POGDeclAndDefVisitor extends
 	 * CML ELEMENT - Classes
 	 */
 	@Override
-	public CMLProofObligationList caseAClassDefinition(AClassDefinition node,
+	public CMLProofObligationList caseACmlClassDefinition(ACmlClassDefinition node,
 			IPOContextStack question) throws AnalysisException
 	{
 		System.out.println("------");

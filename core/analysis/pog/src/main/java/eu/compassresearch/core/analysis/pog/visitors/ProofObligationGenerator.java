@@ -122,7 +122,7 @@ public class ProofObligationGenerator extends
 	public CMLProofObligationList caseAModuleModules(AModuleModules node,
 			IPOContextStack question) throws AnalysisException
 	{
-		IProofObligationList ovtpos = PDefinitionAssistantPOG.getProofObligations(node.getDefs(), this.declAndDefVisitor, question);
+		IProofObligationList ovtpos = assistantFactory.createPDefinitionAssistant.getProofObligations(node.getDefs(), this.declAndDefVisitor, question);
 		CMLProofObligationList cmlpos = new CMLProofObligationList();
 		cmlpos.addAll(ovtpos);
 		

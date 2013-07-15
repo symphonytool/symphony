@@ -370,8 +370,8 @@ class SecurityVisitor extends QuestionAnswerCMLAdaptor<SecurityEnvironment, Subt
 		SubtreeJudgement result = new SubtreeJudgement(node);
 
 
-		LinkedList<PSingleDeclaration> localS = node.getLocalState();
-		for(PSingleDeclaration singleDecl : localS) {
+		LinkedList<ATypeSingleDeclaration> localS = node.getLocalState();
+		for(ATypeSingleDeclaration singleDecl : localS) {
 			SubtreeJudgement singleDeclJudgement = singleDecl.apply(this,question);
 			if (singleDeclJudgement != null) result.getInvolvedJudgements().addAll(singleDeclJudgement.getInvolvedJudgements());
 		}

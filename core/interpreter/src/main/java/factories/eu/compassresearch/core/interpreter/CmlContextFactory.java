@@ -2,6 +2,7 @@ package eu.compassresearch.core.interpreter;
 
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.lex.LexLocation;
+import org.overture.interpreter.assistant.InterpreterAssistantFactory;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ObjectContext;
 import org.overture.interpreter.runtime.StateContext;
@@ -19,7 +20,7 @@ class CmlContextFactory {
 	 */
 	public static Context newContext(ILexLocation location, String title, Context outer)
 	{
-		Context context = new Context(location, title, outer);
+		Context context = new Context(new InterpreterAssistantFactory(),location, title, outer);
 		context.setThreadState(null, CPUValue.vCPU);
 		return context;
 	}
@@ -36,14 +37,14 @@ class CmlContextFactory {
 	 */
 	public static ObjectContext newObjectContext(ILexLocation location,String title,Context outer,ObjectValue self)
 	{
-		ObjectContext objectContext = new ObjectContext(location, title, outer, self);
+		ObjectContext objectContext = new ObjectContext(new InterpreterAssistantFactory(),location, title, outer, self);
 		objectContext.setThreadState(null, CPUValue.vCPU);
 		return objectContext;
 	}
 	
 	public static StateContext newStateContext(ILexLocation location, String title)
 	{
-		StateContext stateContext = new StateContext(location, title);
+		StateContext stateContext = new StateContext(new InterpreterAssistantFactory(),location, title);
 		stateContext.setThreadState(null, CPUValue.vCPU);
 		return stateContext;
 	}

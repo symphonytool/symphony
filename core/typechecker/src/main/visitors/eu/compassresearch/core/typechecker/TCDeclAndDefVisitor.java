@@ -83,7 +83,7 @@ import eu.compassresearch.ast.definitions.AChannelNameDefinition;
 import eu.compassresearch.ast.definitions.AChannelsDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.definitions.AChansetsDefinition;
-import eu.compassresearch.ast.definitions.AClassDefinition;
+import eu.compassresearch.ast.definitions.ACmlClassDefinition;
 import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AFunctionsDefinition;
 import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
@@ -248,9 +248,9 @@ class TCDeclAndDefVisitor extends
 	@Override
 	public PType caseAChannelNameDefinition(AChannelNameDefinition node,
 			TypeCheckInfo question) throws AnalysisException {
-
+		
 		ATypeSingleDeclaration decl = node.getSingleType();
-
+		
 		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
 		if (cmlEnv == null) {
 			node.setType(issueHandler.addTypeError(
@@ -260,6 +260,8 @@ class TCDeclAndDefVisitor extends
 			return node.getType();
 		}
 
+		cmlEnv.checkChannelDuplicate(node);
+		
 		PType declType = decl.apply(parentChecker, question);
 		if (!successfulType(declType)) {
 			node.setType(issueHandler.addTypeError(node,
@@ -267,13 +269,13 @@ class TCDeclAndDefVisitor extends
 							.customizeMessage(declType + " ")));
 			return node.getType();
 		}
-
+		
 		List<PDefinition> typeDefs = new LinkedList<PDefinition>();
 		for (PDefinition def : declType.getDefinitions()) {
 			typeDefs.add(def);
 			def.setType(decl.getType());
 		}
-
+		
 		node.getType().getDefinitions().addAll(typeDefs);
 		return node.getType();
 	}
@@ -577,7 +579,7 @@ class TCDeclAndDefVisitor extends
 
 			// It could be the constructor
 			PDefinition clz = question.env.getEnclosingDefinition();
-			if (clz != null && clz instanceof AClassDefinition) {
+			if (clz != null && clz instanceof ACmlClassDefinition) {
 				if (HelpLexNameToken.isEqual(clz.getName(), odef.getName())) {
 					if (odef instanceof AExplicitCmlOperationDefinition) {
 						AExplicitCmlOperationDefinition cmlOdef = (AExplicitCmlOperationDefinition) odef;
@@ -673,12 +675,12 @@ class TCDeclAndDefVisitor extends
 			CmlTypeCheckInfo question) throws AnalysisException {
 
 		// Create class environment
-		PrivateClassEnvironment self = new PrivateClassEnvironment(node,
+		PrivateClassEnvironment self = new PrivateClassEnvironment(question.assistantFactory,node,
 				question.env);
 
 		List<SClassDefinition> classes = new LinkedList<SClassDefinition>();
 		classes.add(node);
-		Environment allClasses = new PublicClassEnvironment(classes,
+		Environment allClasses = new PublicClassEnvironment(question.assistantFactory,classes,
 				question.env, null);
 
 		for (SClassDefinition c : classes) {
@@ -690,10 +692,10 @@ class TCDeclAndDefVisitor extends
 		for (SClassDefinition c : classes) {
 			if (!c.getTypeChecked()) {
 				try {
-					Environment selfInner = new PrivateClassEnvironment(c,
+					Environment selfInner = new PrivateClassEnvironment(question.assistantFactory,c,
 							allClasses);
 					SClassDefinitionAssistantTC.typeResolve(c, null,
-							new org.overture.typechecker.TypeCheckInfo(
+							new org.overture.typechecker.TypeCheckInfo(question.assistantFactory,
 									selfInner));
 				} catch (TypeCheckException te) {
 					issueHandler.addTypeError(c, te.location, te.getMessage());
@@ -1190,7 +1192,7 @@ class TCDeclAndDefVisitor extends
 	 * Create an Overture class that
 	 */
 	private static AClassClassDefinition createSurrogateClass(
-			AClassDefinition node, CmlTypeCheckInfo question) {
+			ACmlClassDefinition node, CmlTypeCheckInfo question) {
 
 		// if (question.getGlobalClassDefinitions() == null)
 		// throw new NullPointerException();
@@ -1235,7 +1237,7 @@ class TCDeclAndDefVisitor extends
 		return surrogateOvertureClass;
 	}
 
-	PType typeCheckWithOverture(AClassDefinition node,
+	PType typeCheckWithOverture(ACmlClassDefinition node,
 			AClassClassDefinition surrogate,
 			org.overture.typechecker.TypeCheckInfo question)
 			throws AnalysisException {
@@ -1248,8 +1250,8 @@ class TCDeclAndDefVisitor extends
 			Environment env = info.env;
 			while (env != null) {
 				for (PDefinition def : env.getDefinitions()) {
-					if (def instanceof AClassDefinition) {
-						AClassDefinition cdef = (AClassDefinition) def;
+					if (def instanceof ACmlClassDefinition) {
+						ACmlClassDefinition cdef = (ACmlClassDefinition) def;
 						surrogateDefinitions.add(createSurrogateClass(cdef,
 								info));
 					}
@@ -1264,11 +1266,11 @@ class TCDeclAndDefVisitor extends
 			return node.getType();
 		}
 
-		Environment surrogateEnvironment = new FlatEnvironment(
+		Environment surrogateEnvironment = new FlatEnvironment(question.assistantFactory,
 				surrogateDefinitions, question.env);
 
 		// Create class environment
-		PrivateClassEnvironment self = new PrivateClassEnvironment(surrogate,
+		PrivateClassEnvironment self = new PrivateClassEnvironment(question.assistantFactory,surrogate,
 				surrogateEnvironment);
 
 		// Errors will be reported statically by the sub-visitors and the
@@ -1309,7 +1311,7 @@ class TCDeclAndDefVisitor extends
 	 * in that class paragraph.
 	 */
 	private static <T extends PDefinition> List<T> findParticularDefinitionType(
-			Class<T> type, AClassDefinition clz) {
+			Class<T> type, ACmlClassDefinition clz) {
 
 		List<T> result = new LinkedList<T>();
 
@@ -1335,7 +1337,7 @@ class TCDeclAndDefVisitor extends
 	 * 
 	 */
 	@Override
-	public PType caseAClassDefinition(AClassDefinition node,
+	public PType caseACmlClassDefinition(ACmlClassDefinition node,
 			org.overture.typechecker.TypeCheckInfo question)
 			throws AnalysisException {
 
@@ -1519,8 +1521,8 @@ class TCDeclAndDefVisitor extends
 		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
 		CmlTypeCheckInfo newScope = cmlEnv.newScope();
 		newScope.env.setEnclosingDefinition(node);
-		LinkedList<PSingleDeclaration> state = node.getLocalState();
-		for (PSingleDeclaration decl : state) {
+		LinkedList<ATypeSingleDeclaration> state = node.getLocalState();
+		for (ATypeSingleDeclaration decl : state) {
 			PType declType = decl.apply(parentChecker, question);
 			if (!successfulType(declType)) {
 				node.setType(issueHandler.addTypeError(decl,
@@ -1667,7 +1669,7 @@ class TCDeclAndDefVisitor extends
 		{
 			AOperationType operType = (AOperationType) node.getType();
 			if (!operType.getResult().equals(
-					node.getAncestor(AClassDefinition.class).getType())) {
+					node.getAncestor(ACmlClassDefinition.class).getType())) {
 				node.setIsConstructor(false);
 			}
 		}
@@ -1770,8 +1772,8 @@ class TCDeclAndDefVisitor extends
 		PDefinition p = (PDefinition) node.parent();
 		INode classOrProcess = p.parent();
 
-		if (classOrProcess instanceof AClassDefinition) {
-			AClassDefinition clzDef = (AClassDefinition) classOrProcess;
+		if (classOrProcess instanceof ACmlClassDefinition) {
+			ACmlClassDefinition clzDef = (ACmlClassDefinition) classOrProcess;
 			for (PDefinition defInClz : clzDef.getBody()) {
 				if (defInClz instanceof AAssignmentDefinition) {
 					return ((AStateDefinition) defInClz).getStateDefs();
@@ -1923,7 +1925,7 @@ class TCDeclAndDefVisitor extends
 		}
 
 		OvertureRootCMLAdapter.pushQuestion(question);
-		FlatCheckedEnvironment local = new FlatCheckedEnvironment(defs,
+		FlatCheckedEnvironment local = new FlatCheckedEnvironment(question.assistantFactory,defs,
 				question.env, question.scope);
 
 		local.setStatic(PAccessSpecifierAssistantTC.isStatic(node.getAccess()));
@@ -1931,7 +1933,7 @@ class TCDeclAndDefVisitor extends
 
 		// building the new scope for subtypechecks
 
-		PDefinitionListAssistantTC.typeCheck(defs, this, new TypeCheckInfo(
+		PDefinitionListAssistantTC.typeCheck(defs, this, new TypeCheckInfo(question.assistantFactory,
 				local, question.scope, question.qualifiers)); // can
 
 		if (question.env.isVDMPP()
@@ -1946,7 +1948,7 @@ class TCDeclAndDefVisitor extends
 					.getPredef()
 					.getBody()
 					.apply(parentChecker,
-							new TypeCheckInfo(local, NameScope.NAMES));
+							new TypeCheckInfo(question.assistantFactory,local, NameScope.NAMES));
 			ABooleanBasicType expected = AstFactory.newABooleanBasicType(node
 					.getLocation());
 
@@ -1966,7 +1968,7 @@ class TCDeclAndDefVisitor extends
 			PPattern rp = AstFactory.newAIdentifierPattern(result);
 			List<PDefinition> rdefs = PPatternAssistantTC.getDefinitions(rp,
 					expectedResult, NameScope.NAMES);
-			FlatCheckedEnvironment post = new FlatCheckedEnvironment(rdefs,
+			FlatCheckedEnvironment post = new FlatCheckedEnvironment(question.assistantFactory,rdefs,
 					local, NameScope.NAMES);
 
 			// building the new scope for subtypechecks
@@ -1974,7 +1976,7 @@ class TCDeclAndDefVisitor extends
 					.getPostdef()
 					.getBody()
 					.apply(parentChecker,
-							new TypeCheckInfo(post, NameScope.NAMES));
+							new TypeCheckInfo(question.assistantFactory,post, NameScope.NAMES));
 			ABooleanBasicType expected = AstFactory.newABooleanBasicType(node
 					.getLocation());
 
@@ -1991,7 +1993,7 @@ class TCDeclAndDefVisitor extends
 
 		OvertureRootCMLAdapter.pushQuestion(question);
 		PType actualResult = node.getBody().apply(parentChecker,
-				new TypeCheckInfo(local, question.scope));
+				new TypeCheckInfo(question.assistantFactory,local, question.scope));
 		OvertureRootCMLAdapter.popQuestion(question);
 
 		node.setActualResult(actualResult);

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="The COMPASS CML Tool Platform" uid="eu.compassresearch.ide.product" id="eu.compassresearch.ide.cml.platform.product" application="org.eclipse.ui.ide.workbench" version="0.1.2.qualifier" useFeatures="true" includeLaunchers="true">
+<product name="The COMPASS CML Tool Platform" uid="eu.compassresearch.ide.product" id="eu.compassresearch.ide.platform.product" application="org.eclipse.ui.ide.workbench" version="0.1.2.qualifier" useFeatures="true" includeLaunchers="true">
 
    <aboutInfo>
       <image path="icons/aboutboximg.png"/>
@@ -20,7 +20,7 @@
    <windowImages i16="icons/icon16.png" i32="icons/icon32.png" i64="icons/icon64.png"/>
 
    <splash
-      location="eu.compassresearch.ide.cml.platform"
+      location="eu.compassresearch.ide.platform"
       startupProgressRect="0,0,300,20"
       startupMessageRect="75,200,300,15"
       startupForegroundColor="7F7F7F" />
@@ -95,8 +95,8 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
       <plugin id="org.eclipse.update.configurator" autoStart="true" startLevel="4" />
       <property name="REMOVE.FOR.PRODUCTION.osgi.instance.area.default" value="@user.home/Documents/COMPASS/workspace" />
       <property name="org.eclipse.update.reconcile" value="false" />
-      <!-- <plugin id="eu.compassresearch.ide.cml.tpplugin" autoStart="true" startLevel="4" /> -->
-      <!-- <plugin id="eu.compassresearch.ide.cml.ui" autoStart="true" startLevel="3" /> -->
+      <!-- <plugin id="eu.compassresearch.ide.tpplugin" autoStart="true" startLevel="4" /> -->
+      <!-- <plugin id="eu.compassresearch.ide.ui" autoStart="true" startLevel="3" /> -->
    </configurations>
 
 </product>

@@ -45,7 +45,7 @@ import org.overture.typechecker.assistant.definition.ATypeDefinitionAssistantTC;
 import org.overture.typechecker.assistant.definition.SClassDefinitionAssistantTC;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
-import eu.compassresearch.ast.definitions.AClassDefinition;
+import eu.compassresearch.ast.definitions.ACmlClassDefinition;
 import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.ast.types.AErrorType;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
@@ -276,7 +276,7 @@ class TCTypeVisitor extends
 			tDef = CmlTCUtil.findNearestFunctionOrOperationInEnvironment(
 					node.getName(), question.env);
 
-		if (tDef instanceof AClassDefinition) {
+		if (tDef instanceof ACmlClassDefinition) {
 			return tDef.getType();
 		}
 
