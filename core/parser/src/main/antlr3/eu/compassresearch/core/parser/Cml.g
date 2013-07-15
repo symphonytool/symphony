@@ -63,6 +63,7 @@ import java.util.ListIterator;
 import java.util.LinkedList;
 
 import static org.overture.ast.lex.Dialect.VDM_PP;
+import org.overture.ast.assistant.definition.PDefinitionAssistant;
 import org.overture.ast.factory.AstFactory;
 import org.overture.ast.definitions.*;
 import org.overture.ast.expressions.*;
@@ -383,6 +384,20 @@ classDefinition returns[ACmlClassDefinition def]
              */
             // $def.setParent(new LexNameToken("", $parent.getText(), extractLexLocation($parent)));
             $def.setDefinitions($classDefinitionBlockOptList.defs);
+            
+            if($classDefinitionBlockOptList.defs!=null)
+			{
+				for (PDefinition p : $classDefinitionBlockOptList.defs)
+				{
+					p.parent($def);
+				}
+			}
+		
+			// Classes are all effectively public types
+			PDefinitionAssistant.setClassDefinition($def.getDefinitions(),$def);
+			
+			//others
+			//$def.setSettingHierarchy(ClassDefinitionSettings.UNSET);
         }
     ;
 
@@ -1693,7 +1708,12 @@ classDefinitionBlock returns[List<? extends PDefinition> defs]
     | valueDefs                 { $defs = $valueDefs.defs.getValueDefinitions(); }
     | stateDefs                 { $defs = $stateDefs.defs.getStateDefs(); }
     | functionDefs              { $defs = $functionDefs.defs.getFunctionDefinitions(); }
-    | operationDefs             { $defs = $operationDefs.defs.getOperations(); }
+    | operationDefs             { 
+    								List<PDefinition> opsDef = new LinkedList<PDefinition>();
+    								opsDef.add($operationDefs.defs);
+    								$defs = opsDef;
+    								//$defs = $operationDefs.defs.getOperations(); 
+    							}
     | 'initial' operationDef
         {
             AInitialDefinition def = new AInitialDefinition();

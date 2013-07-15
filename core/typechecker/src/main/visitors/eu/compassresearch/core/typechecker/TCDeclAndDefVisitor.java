@@ -370,7 +370,71 @@ class TCDeclAndDefVisitor extends
 		node.setType(new AStateParagraphType(node.getLocation(), true));
 		return node.getType();
 	}
+	
+	private PType caseSCmlOperation(SCmlOperationDefinition node, PType operationType,TypeCheckInfo question )
+	{
+		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
+		if (cmlEnv == null) {
+			node.setType(issueHandler.addTypeError(
+					node,
+					TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(""
+							+ node)));
+			return node.getType();
+		}
+		
+		if (!successfulType(operationType)) {
+			node.setType(issueHandler.addTypeError(node,
+					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+							.customizeMessage(node + "")));
+			return node.getType();
+		}
 
+		if (!(operationType instanceof AOperationType)) {
+			node.setType(issueHandler.addTypeError(node,
+					TypeErrorMessages.EXPECTED_OPERATION_DEFINITION
+							.customizeMessage(node.getName() + "")));
+			return node.getType();
+		}
+
+		// It could be the constructor
+		PDefinition clz = question.env.getEnclosingDefinition();
+		if (clz != null && clz instanceof ACmlClassDefinition) {
+			if (HelpLexNameToken.isEqual(clz.getName(), node.getName())) {
+				if (node instanceof AExplicitCmlOperationDefinition) {
+					AExplicitCmlOperationDefinition cmlOdef = (AExplicitCmlOperationDefinition) node;
+					cmlOdef.setIsConstructor(true);
+
+					if (!(operationType instanceof AOperationType)) {
+						node.setType(issueHandler
+								.addTypeError(
+										cmlOdef,
+										TypeErrorMessages.EXPECTED_OPERATION_DEFINITION
+												.customizeMessage(""
+														+ cmlOdef)));
+						return node.getType();
+					}
+
+					AOperationType operationTypeActual = (AOperationType) operationType;
+					if (!(typeComparator.isSubType(clz.getType(),
+							operationTypeActual.getResult()))) {
+						node.setType(issueHandler
+								.addTypeError(
+										operationTypeActual,
+										TypeErrorMessages.CONSTRUCTOR_HAS_WRONG_TYPE
+												.customizeMessage(
+														node + "",
+														operationType + "")));
+						return node.getType();
+					}
+				}
+			}
+		}
+
+		cmlEnv.addVariable(node.getName(), node);
+		
+		return node.getType();
+	}
+	
 	@Override
 	public PType caseAImplicitCmlOperationDefinition(
 			AImplicitCmlOperationDefinition node, TypeCheckInfo question)
@@ -1761,6 +1825,7 @@ class TCDeclAndDefVisitor extends
 			node.setPostdef(postDef);
 		}
 
+		//return caseSCmlOperation(node,node.getType(),question);
 		return node.getType();
 	}
 
@@ -1775,7 +1840,8 @@ class TCDeclAndDefVisitor extends
 			ACmlClassDefinition clzDef = (ACmlClassDefinition) classOrProcess;
 			for (PDefinition defInClz : clzDef.getDefinitions()) {
 				if (defInClz instanceof AAssignmentDefinition) {
-					return ((AStateDefinition) defInClz).getStateDefs();
+					//return ((AStateDefinition) defInClz).getStateDefs();
+					result.add(defInClz);
 				}
 			}
 		}

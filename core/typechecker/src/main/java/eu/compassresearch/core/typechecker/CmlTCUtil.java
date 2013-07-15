@@ -31,6 +31,7 @@ import org.overture.typechecker.assistant.definition.PDefinitionAssistantTC;
 import org.overture.typechecker.assistant.pattern.PPatternAssistantTC;
 
 import eu.compassresearch.ast.definitions.ACmlClassDefinition;
+import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
 import eu.compassresearch.ast.lex.LexIdentifierToken;
 import eu.compassresearch.ast.lex.LexNameToken;
@@ -364,7 +365,18 @@ public class CmlTCUtil {
 				for (PDefinition dd : l) {
 					if (dd instanceof ATypeDefinition)
 						info.addType(dd.getName(), dd);
+//					else if (dd instanceof AExplicitCmlOperationDefinition)
+//						continue;
 					else {
+						
+						if (dd instanceof AExplicitCmlOperationDefinition &&
+								dd.getName().getSimpleName().equals(node.getName().getSimpleName()))
+						{
+							
+							((AExplicitCmlOperationDefinition) dd).setIsConstructor(true);
+						}
+						
+						
 						ILexNameToken name = dd.getName();
 						if ("".equals(name + "")) {
 							if (dd instanceof AValueDefinition) {
