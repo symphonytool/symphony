@@ -158,6 +158,8 @@
 					<version>2.14.1</version>
 					<configuration>
 						<testFailureIgnore>true</testFailureIgnore>
+						<!-- required for java7 to avoid verifier errors-->
+						<argLine>-XX:-UseSplitVerifier</argLine>
 					</configuration>
 				</plugin>
 
