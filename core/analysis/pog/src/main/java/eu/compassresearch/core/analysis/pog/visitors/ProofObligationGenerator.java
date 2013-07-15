@@ -46,7 +46,6 @@ import org.overture.ast.types.PField;
 import org.overture.ast.types.PType;
 import org.overture.pog.IPOContextStack;
 import org.overture.pog.IProofObligationList;
-import org.overture.pog.PDefinitionAssistantPOG;
 import org.overture.pog.POCaseContext;
 import org.overture.pog.POContextStack;
 import org.overture.pog.PONotCaseContext;
@@ -74,6 +73,8 @@ public class ProofObligationGenerator extends
 	private final static String ANALYSIS_NAME = "Proof Obligation Generator";
 
 	private List<PSource> sourceForest;
+	
+	private CmlPogAssistantFactory assistantFactory;
 
 	// ---------------------------------------------
 	// -- Proof Obligation Generator State
@@ -93,6 +94,7 @@ public class ProofObligationGenerator extends
 		processVisitor = new POGProcessVisitor(this);
 		declAndDefVisitor = new POGDeclAndDefVisitor(this);
 		actionVisitor = new POGActionVisitor(this);
+		assistantFactory = new CmlPogAssistantFactory();
 	}
 
 	// ---------------------------------------------
@@ -122,7 +124,7 @@ public class ProofObligationGenerator extends
 	public CMLProofObligationList caseAModuleModules(AModuleModules node,
 			IPOContextStack question) throws AnalysisException
 	{
-		IProofObligationList ovtpos = assistantFactory.createPDefinitionAssistant.getProofObligations(node.getDefs(), this.declAndDefVisitor, question);
+		IProofObligationList ovtpos = assistantFactory.createPDefinitionAssistant().getProofObligations(node.getDefs(), this.declAndDefVisitor, question);
 		CMLProofObligationList cmlpos = new CMLProofObligationList();
 		cmlpos.addAll(ovtpos);
 		

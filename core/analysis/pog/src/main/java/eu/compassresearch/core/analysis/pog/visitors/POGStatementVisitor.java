@@ -24,7 +24,7 @@ QuestionAnswerCMLAdaptor<IPOContextStack, CMLProofObligationList> {
 	{
         this.parentVisitor = parent;
         this.overtureVisitor = new PogParamStmVisitor<POContextStack, CMLProofObligationList>(
-		this, this);
+		this, this, new CmlPogAssistantFactory());
     }
       
     // Call Overture for the other statements
