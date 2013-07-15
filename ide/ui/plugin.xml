@@ -72,7 +72,7 @@
             project="true">
 
 		</wizard>
-		
+
 
 		<wizard
             category="compass_eu.compassresearch.ide.ui.category"
@@ -96,8 +96,8 @@
 		<category
         id="compass_eu.compassresearch.ide.ui.category"
         name="COMPASS">
-  </category>
-<primaryWizard id="eu.compassresearch.ide.CmlProjectWizard" />
+		</category>
+		<primaryWizard id="eu.compassresearch.ide.CmlProjectWizard" />
 	</extension>
 
 
@@ -118,10 +118,6 @@
 
 	<extension 
 			point="org.eclipse.ui.navigator.viewer">
-
-
-
-
 		<viewerContentBinding
              viewerId="eu.compassresearch.ide.ui.CmlNavigator">
 			<includes>
@@ -134,8 +130,7 @@
 				<contentExtension pattern="org.eclipse.ui.navigator.resources.workingSets"/>
 			</includes>
 		</viewerContentBinding>
-
-
+		
 		<viewerActionBinding
              viewerId="eu.compassresearch.ide.ui.CmlNavigator">
 			<includes>
