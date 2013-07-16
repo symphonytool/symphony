@@ -135,7 +135,6 @@ public class POGDoStuff implements IWorkbenchWindowActionDelegate
 			ICmlSourceUnit cmlSource = (ICmlSourceUnit) cmlfile.getAdapter(ICmlSourceUnit.class);
 			CMLProofObligationList poList = new CMLProofObligationList();
 			ProofObligationGenerator pog = new ProofObligationGenerator(cmlSource.getSourceAst());
-			IProofObligationList pol = new CMLProofObligationList();
 			try
 			{
 				poList = pog.generatePOs();
