@@ -68,6 +68,17 @@
                         value="NONDETERMINISM">
                   </parameter>
             	</command>
+             <visibleWhen>
+   		<iterate operator="and" ifEmpty="false">
+      			<adapt type="org.eclipse.core.resources.IResource">
+      			<or>
+                            <test property="org.eclipse.core.resources.contentTypeId" 
+           	    	value="eu.compassresearch.ide.core.content-type-cml"/>
+   	      		    
+               	</or>
+      			</adapt>
+   		</iterate>
+        </visibleWhen>
             </menu>
       </menuContribution>
    </extension>
