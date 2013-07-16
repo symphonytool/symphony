@@ -2,6 +2,7 @@ package eu.compassresearch.core.typechecker;
 
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import org.overture.ast.definitions.AAssignmentDefinition;
@@ -36,7 +37,7 @@ import eu.compassresearch.ast.definitions.ACmlClassDefinition;
 import eu.compassresearch.ast.definitions.AFunctionsDefinition;
 import eu.compassresearch.ast.definitions.AOperationsDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
-import eu.compassresearch.ast.definitions.AValuesDefinition;
+import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
 import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.ast.process.PProcess;
@@ -106,7 +107,7 @@ class CmlAssistant {
 		//injectFindMemberNameBaseCase(new ValuePararagraphDefinitionFindMemberStrategy());
 		injectFindMemberNameBaseCase(new ValueDefinitionFindMemberStrategy());
 		injectFindMemberNameBaseCase(new ClassParagraphFindMemberStrategy());
-		injectFindMemberNameBaseCase(new ClassClassDefinitionFindMemberStrategy());
+		//injectFindMemberNameBaseCase(new ClassClassDefinitionFindMemberStrategy());
 		injectFindMemberNameBaseCase(new LocalDefinitionFindMemberStrategy());
 		injectFindMemberNameBaseCase(new TypeDefinitionFindNameMemberStrategy());
 		injectFindMemberNameBaseCase(new OperationsDefinitionNameMemberStrategy());
@@ -377,16 +378,37 @@ class CmlAssistant {
 
 			ACmlClassDefinition cpar = ACmlClassDefinition.class.cast(def);
 
+			PDefinition res = SClassDefinitionAssistantTC.findName(cpar,
+					(LexNameToken) name, NameScope.NAMESANDANYSTATE);
+			
+			if(res != null)
+				return res;
+			
 			// pre: def.definition is not null
 			for (PDefinition d : cpar.getDefinitions()) {
 				// invariant: all elements before d is not the one we are
 				// looking for
+				
+				if(d instanceof SCmlOperationDefinition)
+				{
+					List<SCmlOperationDefinition> ops = new LinkedList<SCmlOperationDefinition>();
+					ops.add((SCmlOperationDefinition)d);
+					d = new AOperationsDefinition(d.getLocation(), d.getNameScope(), true, d.getAccess(), d.getPass(), ops);
+				}
+				else if(d instanceof AAssignmentDefinition)
+				{
+					AStateDefinition state = new AStateDefinition();
+					List<PDefinition> defs = new LinkedList<PDefinition>();
+					defs.add(d);
+					state.setStateDefs(defs);
+					d = state;
+				}
+				
 				PDefinition member = CmlAssistant.this.findMemberName(d, name);
 				if (member != null)
 					return member;
 			}
 			// post: we did not find the element
-
 			return null;
 		}
 
@@ -512,7 +534,7 @@ class CmlAssistant {
 
 		@Override
 		public Class<?> getType() {
-			return AClassClassDefinition.class;
+			return ACmlClassDefinition.class;
 		}
 
 		@Override

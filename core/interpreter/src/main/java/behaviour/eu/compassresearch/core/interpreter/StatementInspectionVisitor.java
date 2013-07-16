@@ -536,14 +536,8 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 			public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
 					throws AnalysisException {
 				
-				//question.putNew(new NameValuePair(new LexNameToken("", new LexIdentifierToken("a", false, new LexLocation())), new IntegerValue(2)));
 				Value expValue = node.getExpression().apply(cmlExpressionVisitor,question);
-				
-				//TODO Change this to deal with it in general
-				//LexNameToken stateDesignatorName = CmlActionAssistant.extractNameFromStateDesignator(node.getStateDesignator(),question);
-
 				Value oldVal = node.getStateDesignator().apply(cmlExpressionVisitor,question);
-				
 				oldVal.set(node.getLocation(), expValue, question);
 				
 				//System.out.println(stateDesignatorName + " = " + expValue);

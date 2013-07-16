@@ -2064,10 +2064,13 @@ class TCDeclAndDefVisitor extends
 		node.setActualResult(actualResult);
 
 		if (!typeComparator.isSubType(expectedResult, node.getActualResult())) {
+			
 			TypeChecker.report(3018, "Function returns unexpected type",
 					node.getLocation());
 			TypeChecker.detail2("Actual", node.getActualResult(), "Expected",
 					expectedResult);
+			
+			issueHandler.addTypeError(node, TypeChecker.getErrors().get(TypeChecker.getErrors().size()-1).message);
 		}
 
 		if (PTypeAssistantTC.narrowerThan(node.getType(), node.getAccess())) {
