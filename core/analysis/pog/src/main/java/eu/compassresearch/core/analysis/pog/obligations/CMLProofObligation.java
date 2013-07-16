@@ -12,7 +12,6 @@ import org.overture.pog.pub.IPOContextStack;
 import org.overture.pog.pub.IProofObligation;
 
 import eu.compassresearch.core.analysis.pog.utility.CmlLocationHelper;
-import eu.compassresearch.core.analysis.pog.utility.CmlUniqueNameGenerator;
 
 abstract public class CMLProofObligation extends ProofObligation implements
 		IProofObligation {
@@ -25,7 +24,7 @@ abstract public class CMLProofObligation extends ProofObligation implements
 
 	public CMLProofObligation(INode node, CMLPOType kind, IPOContextStack ctxt) {
 		super(node, kind.toOverturePOType(), ctxt, CmlLocationHelper
-				.findLocation(node), new CmlUniqueNameGenerator());
+				.findLocation(node));
 		cmltype = kind;
 
 	}
