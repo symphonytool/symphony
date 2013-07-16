@@ -18,6 +18,10 @@
  *******************************************************************************/
 package eu.compassresearch.ide.ui.editor.core;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Vector;
+
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.ContentAssistant;
 import org.eclipse.jface.text.contentassist.IContentAssistant;
@@ -34,6 +38,10 @@ public class CmlSourceViewerConfiguration extends VdmSourceViewerConfiguration
 	@Override
 	protected ITokenScanner getVdmCodeScanner()
 	{
+
+		List<String> commentingPrefixList = new Vector<String>(Arrays.asList(this.commentingPrefix));
+		commentingPrefixList.add("//");
+		this.commentingPrefix = commentingPrefixList.toArray(new String[] {});
 		return new CmlCodeScanner(new VdmColorProvider());
 	}
 
@@ -55,8 +63,20 @@ public class CmlSourceViewerConfiguration extends VdmSourceViewerConfiguration
 		}
 		return assistant;
 	}
+
 	/*
 	 * @Override public IReconciler getReconciler(ISourceViewer sv) { MonoReconciler mr = new MonoReconciler(new
 	 * CmlReconcilingStrategy(), false); mr.setDelay(1000); mr.install(sv); return mr; }
 	 */
+
+	@Override
+	protected ITokenScanner getVdmSingleLineCommentScanner()
+	{
+		if (vdmSingleLineCommentScanner == null)
+		{
+			vdmSingleLineCommentScanner = new CmlSingleLineCommentScanner(new VdmColorProvider());
+		}
+
+		return vdmSingleLineCommentScanner;
+	}
 }
