@@ -11,14 +11,14 @@ Export-Package: eu.compassresearch.ide.ui;uses:="org.eclipse.ui.plugin,org.osgi.
   uses:="org.eclipse.jface.text,
    org.eclipse.jface.text.reconciler,
    org.eclipse.jface.text.source,
-   eu.compassresearch.ide.cml.ui.editor.core.dom,
+   eu.compassresearch.ide.ui.editor.core.dom,
    org.eclipse.jface.text.rules,
    org.eclipse.jface.text.contentassist,
    org.overture.ide.ui.editor.core",
  eu.compassresearch.ide.ui.editor.syntax;
   uses:="org.overture.ide.ui.editor.syntax,
    org.eclipse.ui.views.contentoutline,
-   eu.compassresearch.ide.cml.ui.editor.core.dom,
+   eu.compassresearch.ide.ui.editor.core.dom,
    org.eclipse.jface.viewers,
    org.eclipse.swt.widgets",
  eu.compassresearch.ide.ui.wizard
