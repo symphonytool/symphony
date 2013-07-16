@@ -27,8 +27,10 @@ public class TopLevelDefinitionMap
 	{
 		String r = TOPLEVEL_DEFINITION_MAP.get(cls);
 		if (r == null)
+		{// FIXME: what is this??
 			System.err.println("No top level entry found for class "
 					+ cls.getCanonicalName());
+		}
 		return r;
 	}
 

@@ -2,8 +2,6 @@ package eu.compassresearch.ide.core.resources;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
@@ -28,10 +26,10 @@ import eu.compassresearch.ast.program.PSource;
 public class CmlSourceUnit implements ICmlSourceUnit
 {
 
-	public static interface CmlSourceChangedListener
-	{
-		public void sourceChanged(CmlSourceUnit csu);
-	}
+	// public static interface CmlSourceChangedListener
+	// {
+	// public void sourceChanged(CmlSourceUnit csu);
+	// }
 
 	private static Map<IFile, CmlSourceUnit> map;
 
@@ -65,7 +63,7 @@ public class CmlSourceUnit implements ICmlSourceUnit
 		return res;
 	}
 
-	List<CmlSourceChangedListener> changeListeners;
+	// List<CmlSourceChangedListener> changeListeners;
 
 	private IFile file;
 	private IVdmSourceUnit upSourceUnit;
@@ -79,18 +77,18 @@ public class CmlSourceUnit implements ICmlSourceUnit
 		this.file = file;
 	}
 
-	public void addChangeListener(CmlSourceChangedListener listener)
-	{
-
-		if (changeListeners == null)
-			changeListeners = new LinkedList<CmlSourceUnit.CmlSourceChangedListener>();
-		changeListeners.add(listener);
-	}
-
-	public void clearListeners()
-	{
-		changeListeners.clear();
-	}
+	// public void addChangeListener(CmlSourceChangedListener listener)
+	// {
+	//
+	// if (changeListeners == null)
+	// changeListeners = new LinkedList<CmlSourceUnit.CmlSourceChangedListener>();
+	// changeListeners.add(listener);
+	// }
+	//
+	// public void clearListeners()
+	// {
+	// changeListeners.clear();
+	// }
 
 	public IFile getFile()
 	{
@@ -132,18 +130,18 @@ public class CmlSourceUnit implements ICmlSourceUnit
 		return Platform.getAdapterManager().getAdapter(this, adapter);
 	}
 
-	private void notifyChange()
-	{
-		if (changeListeners != null)
-			for (CmlSourceChangedListener l : changeListeners)
-				l.sourceChanged(this);
-	}
+	// private void notifyChange()
+	// {
+	// if (changeListeners != null)
+	// for (CmlSourceChangedListener l : changeListeners)
+	// l.sourceChanged(this);
+	// }
 
 	public void setSourceAst(PSource sourceAst, boolean parsedOk)
 	{
 		this.sourceAst = sourceAst;
 		this.parsedOk = parsedOk;
-		notifyChange();
+		// notifyChange();
 	}
 
 	public void setUpSourceUnit(IVdmSourceUnit upSourceUnit)

@@ -36,7 +36,7 @@ IContentOutlinePage
 	@Override
 	public void dispose()
 	{
-		input.clearListeners();
+		// input.clearListeners();
 		if (labelprovider != null)
 		{
 			labelprovider.dispose();

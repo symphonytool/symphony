@@ -11,11 +11,11 @@ import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.contentassist.IContextInformationValidator;
 import org.eclipse.swt.graphics.Point;
-import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.ide.ui.editor.core.VdmDocument;
 
-import eu.compassresearch.ast.definitions.ATypesDefinition;
 import eu.compassresearch.ide.core.resources.CmlSourceUnit;
+import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
 
 public class CmlContentAssistProcessor implements IContentAssistProcessor
 {
@@ -23,8 +23,9 @@ public class CmlContentAssistProcessor implements IContentAssistProcessor
 	public ICompletionProposal[] computeCompletionProposals(ITextViewer viewer,
 			int documentOffset)
 	{
-		CmlDocument doc = (CmlDocument) viewer.getDocument();
-		CmlSourceUnit csu = doc.getCmlSourceUnit();
+		// FIXME: this sometimes returns an VdmDocument
+		VdmDocument doc = (VdmDocument) viewer.getDocument();
+		CmlSourceUnit csu = (CmlSourceUnit) doc.getSourceUnit().getAdapter(ICmlSourceUnit.class);
 		Point selectedRange = viewer.getSelectedRange();
 
 		// Making sure of whats been asked
@@ -89,15 +90,15 @@ public class CmlContentAssistProcessor implements IContentAssistProcessor
 
 	}
 
-	private void computeSingleProposal(ATypesDefinition definition,
-			String qualifier, int documentOffset, int qlen,
-			List<ICompletionProposal> proposalList)
-	{
-		for (ATypeDefinition atd : definition.getTypes())
-		{
-			computeSingleProposal(atd, qualifier, documentOffset, qlen, proposalList);
-		}
-	}
+	// private void computeSingleProposal(ATypesDefinition definition,
+	// String qualifier, int documentOffset, int qlen,
+	// List<ICompletionProposal> proposalList)
+	// {
+	// for (ATypeDefinition atd : definition.getTypes())
+	// {
+	// computeSingleProposal(atd, qualifier, documentOffset, qlen, proposalList);
+	// }
+	// }
 
 	private void computeSingleProposal(PDefinition pd, String qualifier,
 			int documentOffset, int qlen, List<ICompletionProposal> proposalList)
@@ -125,7 +126,7 @@ public class CmlContentAssistProcessor implements IContentAssistProcessor
 	// }
 
 	// TODO refactor this method. It's a mess
-	private String getQualifier(CmlDocument doc, int documentOffset)
+	private String getQualifier(VdmDocument doc, int documentOffset)
 	{
 		StringBuffer buff = new StringBuffer();
 		try
