@@ -25,10 +25,9 @@ import org.overture.ide.core.resources.IVdmProject;
 import org.overture.ide.plugins.poviewer.Activator;
 import org.overture.ide.plugins.poviewer.IPoviewerConstants;
 import org.overture.ide.plugins.poviewer.view.PoOverviewTableView;
-import org.overture.ide.plugins.poviewer.view.PoTableView;
 import org.overture.ide.ui.utility.EditorUtility;
-import org.overture.pog.POStatus;
-import org.overture.pog.ProofObligation;
+import org.overture.pog.pub.IProofObligation;
+import org.overture.pog.pub.POStatus;
 
 import eu.compassresearch.ide.cml.pogplugin.POConstants;
 
@@ -84,14 +83,14 @@ public class PoListView extends PoOverviewTableView
 			{
 
 				Object first = ((IStructuredSelection) event.getSelection()).getFirstElement();
-				if (first instanceof ProofObligation)
+				if (first instanceof IProofObligation)
 				{
 					try
 					{
 						IViewPart v = getSite().getPage().showView(POConstants.PO_DETAIL_VIEW);
 
-						if (v instanceof PoTableView)
-							((PoTableView) v).setDataList(project, (ProofObligation) first);
+						if (v instanceof PoView)
+							((PoView) v).setDataList(project, (IProofObligation) first);
 					} catch (PartInitException e)
 					{
 
@@ -113,21 +112,21 @@ public class PoListView extends PoOverviewTableView
 			{
 				ISelection selection = viewer.getSelection();
 				Object obj = ((IStructuredSelection) selection).getFirstElement();
-				if (obj instanceof ProofObligation)
+				if (obj instanceof IProofObligation)
 				{
-					gotoDefinition((ProofObligation) obj);
+					gotoDefinition((IProofObligation) obj);
 					// showMessage(((ProofObligation) obj).toString());
 				}
 			}
 
-			private void gotoDefinition(ProofObligation po)
+			private void gotoDefinition(IProofObligation po)
 			{
 				IFile file = project.findIFile(po.getLocation().getFile());
 				if(IVdmProject.externalFileContentType.isAssociatedWith(file.getName()))
 				{
-					EditorUtility.gotoLocation(IPoviewerConstants.ExternalEditorId,file, po.getLocation(), po.name);
+					EditorUtility.gotoLocation(IPoviewerConstants.ExternalEditorId,file, po.getLocation(), po.getName());
 				}else{
-					EditorUtility.gotoLocation(file, po.getLocation(), po.name);	
+					EditorUtility.gotoLocation(file, po.getLocation(), po.getName());	
 				}
 				
 			}
@@ -175,24 +174,24 @@ public class PoListView extends PoOverviewTableView
 
 		public String getColumnText(Object element, int columnIndex)
 		{
-			ProofObligation data = (ProofObligation) element;
+			IProofObligation data = (IProofObligation) element;
 			String columnText;
 			switch (columnIndex)
 			{
 				case 0:
 					count++;
-					columnText = new Integer(data.number).toString();// count.toString();
+					columnText = new Integer(data.getNumber()).toString();// count.toString();
 					break;
 				case 1:
 					// FIXME replace this with Node Name when we're using it
 					if (!data.getLocation().getFile().toString().equals(""))
 						columnText = data.getLocation().getFile().getName()  + " - "
-								+ data.name;
+								+ data.getName();
 					else
-						columnText = data.name;
+						columnText = data.getName();
 					break;
 				case 2:
-					columnText = data.kind.toString();
+					columnText = data.getKind().toString();
 					break;
 				case 3:
 					columnText = "";// data.status.toString();
@@ -216,11 +215,11 @@ public class PoListView extends PoOverviewTableView
 		@Override
 		public Image getImage(Object obj)
 		{
-			ProofObligation data = (ProofObligation) obj;
+			IProofObligation data = (IProofObligation) obj;
 
 			String imgPath = "icons/cview16/unproved.png";
 
-			if (data.status == POStatus.PROVED)
+			if (data.getStatus() == POStatus.PROVED)
 				imgPath = "icons/cview16/proved.png";
 
 			return Activator.getImageDescriptor(imgPath).createImage();

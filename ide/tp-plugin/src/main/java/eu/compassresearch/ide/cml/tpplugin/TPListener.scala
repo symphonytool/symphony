@@ -15,7 +15,7 @@ import eu.compassresearch.core.common.Registry
 import eu.compassresearch.core.common.RegistryFactory
 import eu.compassresearch.ide.core.resources.ICmlSourceUnit
 import eu.compassresearch.ide.cml.pogplugin.POConstants
-import org.overture.pog.POStatus
+import org.overture.pog.pub.POStatus
 
 import scala.collection.JavaConversions;
 

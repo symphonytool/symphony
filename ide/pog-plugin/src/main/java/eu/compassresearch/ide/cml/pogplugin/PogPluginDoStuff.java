@@ -17,7 +17,7 @@ import org.overture.ide.core.IVdmModel;
 import org.overture.ide.core.resources.IVdmProject;
 import org.overture.ide.plugins.poviewer.view.PoOverviewTableView;
 import org.overture.ide.ui.utility.VdmTypeCheckerUi;
-import org.overture.pog.ProofObligationList;
+import org.overture.pog.pub.IProofObligationList;
 
 import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
 import eu.compassresearch.core.analysis.pog.visitors.ProofObligationGenerator;
@@ -115,7 +115,7 @@ public class PogPluginDoStuff
 	{
 		Registry registry = RegistryFactory.getInstance(POConstants.PO_REGISTRY_ID).getRegistry();
 
-		ProofObligationList allPOs = new ProofObligationList();
+		IProofObligationList allPOs = new CMLProofObligationList();
 
 		for (IResource cmlfile : cmlfiles)
 		{
@@ -139,7 +139,7 @@ public class PogPluginDoStuff
 	private void showPOs(final IVdmProject project,
 			ArrayList<IResource> cmlFiles)
 	{
-		final ProofObligationList pol = new ProofObligationList();
+		final IProofObligationList pol = new CMLProofObligationList();
 		Registry registry = RegistryFactory.getInstance(POConstants.PO_REGISTRY_ID).getRegistry();
 		for (IResource cmlfile : cmlFiles)
 		{

@@ -32,7 +32,7 @@ Import-Package: eu.compassresearch.core.common,
  org.overture.ide.plugins.poviewer,
  org.overture.ide.plugins.poviewer.view,
  org.overture.ide.ui.utility,
- org.overture.pog
+ org.overture.pog.pub
 Export-Package: eu.compassresearch.core.analysis.pog.obligations,
  eu.compassresearch.ide.cml.pogplugin
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
