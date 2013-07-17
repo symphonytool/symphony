@@ -200,6 +200,62 @@
             natureId="eu.compassresearch.ide.core.cmlnature">
 		</image>
 	</extension>
+ <extension
+       point="org.eclipse.ui.importWizards">
+    <category
+          id="eu.compassresearch.ide.ui.category-compass"
+          name="COMPASS">
+    </category>
+    <wizard
+          category="eu.compassresearch.ide.ui.category-compass"
+          class="eu.compassresearch.ide.ui.wizard.ImportExamplesWizard"
+          id="eu.compassresearch.ide.ui.wizardImportExamples"
+          name="COMPASS Examples">
+    </wizard>
+ </extension>
+ <extension
+       point="org.eclipse.ui.commands">
+    <command
+          id="eu.compassresearch.ide.ui.commandUpgradeCmlProject"
+          name="Upgrade CML Project">
+    </command>
+ </extension>
+ <extension
+       point="org.eclipse.ui.handlers">
+    <handler
+          class="eu.compassresearch.ide.ui.utility.UpgradeProjectHandler"
+          commandId="eu.compassresearch.ide.ui.commandUpgradeCmlProject">
+    </handler>
+ </extension>
+ 
+ <!-- Upgrade CML projects, this is required if we make changes to the internals of the CML tool -->
+ <extension
+       point="org.eclipse.ui.menus">
+    <menuContribution
+          allPopups="false"
+          locationURI="popup:eu.compassresearch.ide.ui.CmlNavigator">
+       <command
+             commandId="eu.compassresearch.ide.ui.commandUpgradeCmlProject"
+             label="Upgrade CML Project"
+             style="push"
+             tooltip="This needs to be performed for projects created prior to 17 July 2013">
+          <visibleWhen>
+					<iterate ifEmpty="false" >
+						<or>
+							<adapt type="org.eclipse.core.resources.IProject">
+
+								<test
+                       property="org.eclipse.core.resources.projectNature"
+                       value="eu.compassresearch.ide.cml.ui.cmlnature">
+								</test>
+							</adapt>
+							
+						</or>
+					</iterate>
+				</visibleWhen>
+       </command>
+    </menuContribution>
+ </extension>
 
 	<!-- Not really using this anymore 
     <extension point="org.eclipse.ui.views">

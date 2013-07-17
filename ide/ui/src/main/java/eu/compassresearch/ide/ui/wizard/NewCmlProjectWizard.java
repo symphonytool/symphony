@@ -23,7 +23,7 @@ public class NewCmlProjectWizard extends BasicNewProjectResourceWizard
 	{
 	}
 
-	private static void addNature(IProject project, String nature)
+	public static void addNature(IProject project, String nature)
 			throws CoreException
 	{
 		if (!project.hasNature(nature))
@@ -62,7 +62,7 @@ public class NewCmlProjectWizard extends BasicNewProjectResourceWizard
 		return ok;
 	}
 
-	private void setVdmBuilder(IProject prj) throws CoreException
+	public static void setVdmBuilder(IProject prj) throws CoreException
 	{
 		addNature(prj, ICmlCoreConstants.NATURE);
 		// addBuilder(prj,
