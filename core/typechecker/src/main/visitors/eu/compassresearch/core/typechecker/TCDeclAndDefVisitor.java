@@ -76,7 +76,6 @@ import eu.compassresearch.ast.actions.PParametrisation;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.AExpressionSingleDeclaration;
 import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
-import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AActionsDefinition;
 import eu.compassresearch.ast.definitions.AChannelNameDefinition;
@@ -2063,7 +2062,7 @@ class TCDeclAndDefVisitor extends
 
 		node.setActualResult(actualResult);
 
-		if (!typeComparator.isSubType(expectedResult, node.getActualResult())) {
+		if (!org.overture.typechecker.TypeComparator.compatible(expectedResult, node.getActualResult())) {
 			
 			TypeChecker.report(3018, "Function returns unexpected type",
 					node.getLocation());
