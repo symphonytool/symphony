@@ -44,7 +44,7 @@
             id="eu.compassresearch.ide.ui.editor"
             name="CML Editor">
 			<contentTypeBinding
-               contentTypeId="eu.compassresearch.ide.core.content-type1">
+               contentTypeId="eu.compassresearch.ide.core.content-type-cml">
 			</contentTypeBinding>
 		</editor>
 	</extension>
