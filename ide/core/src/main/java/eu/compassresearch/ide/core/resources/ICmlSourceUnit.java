@@ -1,5 +1,7 @@
 package eu.compassresearch.ide.core.resources;
 
+import java.io.File;
+
 import org.eclipse.core.resources.IFile;
 import org.overture.ide.core.IVdmElement;
 
@@ -19,5 +21,7 @@ public interface ICmlSourceUnit extends IVdmElement
 	// void addChangeListener(CmlSourceChangedListener cmlSourceChangedListener);
 
 	// void clearListeners();
+	
+	public File getSystemFile();
 
 }

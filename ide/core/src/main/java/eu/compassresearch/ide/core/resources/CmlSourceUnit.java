@@ -1,5 +1,6 @@
 package eu.compassresearch.ide.core.resources;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -157,5 +158,11 @@ public class CmlSourceUnit implements ICmlSourceUnit
 		res += " [sourceTreeAttached=" + (sourceAst == null ? "no" : "yes")
 				+ "]";
 		return res;
+	}
+
+	@Override
+	public File getSystemFile()
+	{
+		return this.upSourceUnit.getSystemFile();
 	}
 }
