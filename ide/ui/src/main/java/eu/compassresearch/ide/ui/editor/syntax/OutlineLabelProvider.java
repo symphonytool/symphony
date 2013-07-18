@@ -7,6 +7,8 @@ import java.util.Map;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
 
+import eu.compassresearch.ast.definitions.AProcessDefinition;
+
 public class OutlineLabelProvider extends LabelProvider
 {
 
@@ -30,7 +32,11 @@ public class OutlineLabelProvider extends LabelProvider
 	 */
 	public String getText(Object element)
 	{
-		// TODO extract proper label texts
+		if (element instanceof AProcessDefinition)
+		{
+			return ((AProcessDefinition) element).getName().getName();
+		}
+			// TODO extract proper label texts
 		return element.toString();
 	}
 
