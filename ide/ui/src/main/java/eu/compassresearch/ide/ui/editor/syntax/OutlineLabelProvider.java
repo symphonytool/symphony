@@ -6,6 +6,8 @@ import java.util.Map;
 
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
+import org.overture.ide.ui.internal.viewsupport.DecorationgVdmLabelProvider;
+import org.overture.ide.ui.internal.viewsupport.VdmUILabelProvider;
 
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 
@@ -14,6 +16,8 @@ public class OutlineLabelProvider extends LabelProvider
 
 	// TODO Initialize map w/ correct number of images
 	private static Map<String, Image> imageCache = new HashMap<String, Image>();
+
+	DecorationgVdmLabelProvider vdmlabelProvider = new DecorationgVdmLabelProvider(new VdmUILabelProvider());
 
 	// static {imageCache.put(key, value)
 	//
@@ -24,7 +28,18 @@ public class OutlineLabelProvider extends LabelProvider
 	 */
 	public Image getImage(Object element)
 	{
-		return OutlineEntryType.getImageForElement(element);
+		Image img = null;
+		if (element instanceof Wrapper)
+		{
+			Wrapper<?> w = (Wrapper<?>) element;
+			img = vdmlabelProvider.getImage(w.value);
+		}
+
+		if (img == null)
+		{
+			return OutlineEntryType.getImageForElement(element);
+		}
+		return img;
 	}
 
 	/*
@@ -32,12 +47,29 @@ public class OutlineLabelProvider extends LabelProvider
 	 */
 	public String getText(Object element)
 	{
-		if (element instanceof AProcessDefinition)
+
+		String text = null;
+		if (element instanceof Wrapper)
 		{
-			return ((AProcessDefinition) element).getName().getName();
+			Wrapper<?> w = (Wrapper<?>) element;
+			text = vdmlabelProvider.getText(w.value);
 		}
-			// TODO extract proper label texts
-		return element.toString();
+		if (text == null || text.startsWith("Unsupported"))
+		{
+
+			if (element instanceof AProcessDefinition)
+			{
+				text = ((AProcessDefinition) element).getName().getName();
+			}
+			text = element.toString();
+		}
+
+		if (text == null)
+		{
+			text = element.toString();
+		}
+		// TODO extract proper label texts
+		return text;// element.toString();
 	}
 
 	public void dispose()

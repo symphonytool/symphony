@@ -12,6 +12,7 @@ import org.overture.ide.core.resources.IVdmProject;
 import org.overture.ide.ui.utility.VdmTypeCheckerUi;
 
 import eu.compassresearch.ast.definitions.AProcessDefinition;
+import eu.compassresearch.ide.core.resources.ICmlProject;
 import eu.compassresearch.ide.plugins.interpreter.CmlUtil;
 import eu.compassresearch.ide.ui.editor.syntax.OutlineLabelProvider;
 
@@ -73,8 +74,8 @@ public class GlobalProcessSelectorDialog
 
 		if (VdmTypeCheckerUi.typeCheck(shell, project))
 		{
-
-			dialog.setInput(CmlUtil.GetGlobalProcessesFromSource(CmlUtil.getPSources(project.getModel())));
+			ICmlProject cp = (ICmlProject) project.getAdapter(ICmlProject.class);
+			dialog.setInput(CmlUtil.getGlobalProcessesFromSource(cp.getModel().getAstSource()));
 
 			if (dialog.open() == Window.OK)
 			{

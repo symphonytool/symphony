@@ -12,7 +12,7 @@ public interface ICmlDebugConstants
 
 	public final String CML_LAUNCH_CONFIG_PROJECT = "CML_LAUNCH_CONFIG_PROJECT".toLowerCase();
 	public final String CML_LAUNCH_CONFIG_PROCESS_NAME = "CML_LAUNCH_CONFIG_PROCESS_NAME".toLowerCase();
-	public final String CML_LAUNCH_CONFIG_PROCESS_FILE_PATH = "CML_LAUNCH_CONFIG_PROCESS_FILE_PATH".toLowerCase();
+	// public final String CML_LAUNCH_CONFIG_PROCESS_FILE_PATH = "CML_LAUNCH_CONFIG_PROCESS_FILE_PATH".toLowerCase();
 	public final String PLUGIN_ID = "eu.compassresearch.ide.plugins.interpreter";
 
 }

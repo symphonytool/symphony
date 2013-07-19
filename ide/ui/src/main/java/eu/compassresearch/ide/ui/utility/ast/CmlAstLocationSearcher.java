@@ -56,6 +56,8 @@ public class CmlAstLocationSearcher extends DepthFirstAnalysisCMLAdaptor
 	private IVdmElement currentElement = null;
 
 	private boolean indexing = false;
+	
+	public final static int[] NO_LOCATION = new int[] { -1, -1 };
 
 	/**
 	 * Private constructor, special care is needed to the state of the class this no instanciation allowed outside this
@@ -298,11 +300,15 @@ public class CmlAstLocationSearcher extends DepthFirstAnalysisCMLAdaptor
 		{
 			return getNodeOffset(((PStm) node).getLocation());
 		}
-		return new int[] { -1, -1 };
+		return NO_LOCATION;
 	}
 
 	public static int[] getNodeOffset(ILexLocation location)
 	{
+		if(location== null)
+		{
+			return NO_LOCATION;
+		}
 		return new int[] { location.getStartOffset() - 1,
 				location.getEndOffset() - location.getStartOffset() };
 	}

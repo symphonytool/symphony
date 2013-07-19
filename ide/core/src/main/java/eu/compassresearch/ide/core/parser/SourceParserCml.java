@@ -20,7 +20,6 @@ import org.overture.ide.core.resources.IVdmSourceUnit;
 import org.overture.parser.messages.VDMError;
 import org.overture.parser.messages.VDMWarning;
 
-import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.core.parser.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.typechecker.CmlTCUtil;
@@ -42,7 +41,8 @@ public class SourceParserCml extends AbstractParserParticipant
 	{
 
 		ParseResult result = new ParseResult();
-		AFileSource sourceFile = new AFileSource(null, null, file.getFile().getName(), file.getSystemFile());
+		List<INode> parselist = new Vector<INode>();
+//		AFileSource sourceFile = new AFileSource(null, null, file.getFile().getName(), file.getSystemFile());
 
 		CmlLexer lexer = null;
 
@@ -76,7 +76,7 @@ public class SourceParserCml extends AbstractParserParticipant
 						errors.add(getErrorMessage(file, "Parser gave back a null paragraph.", 1));
 					}
 				}
-				sourceFile.setParagraphs(notNullParagraphs);
+				parselist.addAll(notNullParagraphs);
 				// return result; //Don't return here
 			} catch (RecognitionException e)
 			{
@@ -122,9 +122,9 @@ public class SourceParserCml extends AbstractParserParticipant
 			errors.add(getErrorMessage(file, msg, lexer.getLine()));
 			// return false;
 		}
-		List<INode> nodes = new Vector<INode>();
-		nodes.add(sourceFile);
-		result.setAst(nodes);
+		
+//		nodes.add(sourceFile);
+		result.setAst(parselist);
 		result.setErrors(errors);
 		result.setWarnings(warnings);
 		// result.setAllLocation(new Vector<LexLocation>());

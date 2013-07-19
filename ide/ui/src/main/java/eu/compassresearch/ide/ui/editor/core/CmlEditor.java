@@ -30,12 +30,12 @@ import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.ui.part.FileEditorInput;
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.node.INode;
 import org.overture.ide.ui.editor.core.VdmEditor;
 import org.overture.ide.ui.editor.core.VdmSourceViewerConfiguration;
 import org.overture.ide.ui.outline.VdmContentOutlinePage;
 
-import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
 import eu.compassresearch.ide.ui.editor.syntax.CmlTreeContentProvider;
 import eu.compassresearch.ide.ui.editor.syntax.INodeFromCaret;
@@ -126,7 +126,10 @@ public class CmlEditor extends VdmEditor
 	public void selectAndReveal(INode node)
 	{
 		int[] offsetLength = locationSearcher.getNodeOffset(node);
-		selectAndReveal(offsetLength[0], offsetLength[1]);
+		if(offsetLength!=CmlAstLocationSearcher.NO_LOCATION)
+		{
+			selectAndReveal(offsetLength[0], offsetLength[1]);
+		}
 	}
 
 	protected INode computeHighlightRangeSourceReference()
@@ -170,19 +173,21 @@ public class CmlEditor extends VdmEditor
 		INode r = null;
 		// FIXME get source unit, update implementation
 		ICmlSourceUnit csu = (ICmlSourceUnit) fei.getFile().getAdapter(ICmlSourceUnit.class);
-		if (csu == null)
+		if (csu == null || csu.hasParseErrors() || !csu.hasParseTree())
 		{
 			return null;
 		}
-		PSource ast = csu.getSourceAst();
+		List<PDefinition> ast = csu.getParseListDefinitions();
 
-		if (!astParsed(ast))
-			return null;
-
-		INodeFromCaret visitor = new INodeFromCaret(caret, ast);
+		// FIXME is this correct ast.get(0)
+		INodeFromCaret visitor = new INodeFromCaret(caret, ast.get(0));
 		try
 		{
-			ast.apply(visitor);
+			for (PDefinition def : ast)
+			{
+				def.apply(visitor);
+			}
+			// ast.apply(visitor);
 			return visitor.getBestCandidate();
 		} catch (AnalysisException e)
 		{
@@ -191,16 +196,6 @@ public class CmlEditor extends VdmEditor
 		}
 
 		return r;
-	}
-
-	private boolean astParsed(PSource ast)
-	{
-		if (null == ast)
-			return false;
-
-		if (ast.getParagraphs().isEmpty())
-			return false;
-		return true;
 	}
 
 }

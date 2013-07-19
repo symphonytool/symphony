@@ -3,6 +3,7 @@ package eu.compassresearch.ide.ui.editor.syntax;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.widgets.Control;
@@ -14,8 +15,6 @@ import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.definitions.SClassDefinition;
 import org.overture.ast.node.INode;
 import org.overture.ast.types.PType;
-import org.overture.ide.core.IVdmModel;
-import org.overture.ide.core.resources.IVdmSourceUnit;
 
 import eu.compassresearch.ast.actions.PActionBase;
 import eu.compassresearch.ast.definitions.AActionDefinition;
@@ -31,9 +30,7 @@ import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
 import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.ast.process.AReferenceProcess;
 import eu.compassresearch.ast.process.PProcess;
-import eu.compassresearch.ast.program.AFileSource;
-import eu.compassresearch.ast.program.PSource;
-import eu.compassresearch.ide.core.resources.CmlSourceUnit;
+import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
 import eu.compassresearch.ide.ui.editor.syntax.DefinitionMap.DefinitionHandler;
 
 public class CmlTreeContentProvider implements ITreeContentProvider
@@ -65,8 +62,6 @@ public class CmlTreeContentProvider implements ITreeContentProvider
 		// current = ((CmlSourceUnit) newInput).getSourceAst();
 	}
 
-	private PSource current;
-
 	// public Object[] getElements(Object inputElement)
 	// {
 	// if (inputElement instanceof IVdmSourceUnit)
@@ -87,34 +82,19 @@ public class CmlTreeContentProvider implements ITreeContentProvider
 
 		try
 		{
-			Object[] elements = null;
-			if (inputElement instanceof IVdmSourceUnit)
-			{
-				IVdmSourceUnit node = (IVdmSourceUnit) inputElement;
-				elements = node.getParseList().toArray();
-
-			} else if (inputElement instanceof IVdmModel)
-			{
-				elements = (((IVdmModel) inputElement).getRootElementList()).toArray();
-			}
-
-			// unwrap
-			if (elements != null && elements.length > 0)
-			{
-				inputElement = elements[0];
-			}
+			inputElement = Platform.getAdapterManager().getAdapter(inputElement, ICmlSourceUnit.class);
 
 			// old from here
-			if (inputElement instanceof CmlSourceUnit)
+			if (inputElement != null && inputElement instanceof ICmlSourceUnit)
 			{
 				// Get current source tree
-				current = ((CmlSourceUnit) inputElement).getSourceAst();
-				if (current == null)
+				ICmlSourceUnit source = ((ICmlSourceUnit) inputElement);
+				if (source.hasParseErrors())
 				{
 					String[] r = { "Rebuild project to generate outline." };
 					return r;
 				}
-				if (current.getParagraphs().isEmpty())
+				if (!source.hasParseTree())
 				{
 					String[] r = { "Fix project errors and save to generate outline." };
 					return r;
@@ -122,7 +102,7 @@ public class CmlTreeContentProvider implements ITreeContentProvider
 
 				// If there are any declarations lets see them
 				List<Object> res = new LinkedList<Object>();
-				for (PDefinition def : current.getParagraphs())
+				for (PDefinition def : source.getParseListDefinitions())
 				{
 
 					// Get the entry names for the global declarations
@@ -134,21 +114,22 @@ public class CmlTreeContentProvider implements ITreeContentProvider
 
 				}
 				return res.toArray();
-			} else if (inputElement instanceof AFileSource)
+			} else if (inputElement instanceof PDefinition)
 			{
 				// If there are any declarations lets see them
 				List<Object> res = new LinkedList<Object>();
-				for (PDefinition def : ((AFileSource) inputElement).getParagraphs())
-				{
-
-					// Get the entry names for the global declarations
-					String dscr = TopLevelDefinitionMap.getDescription(def.getClass());
-					if (dscr == null)
-						res.add(Wrapper.newInstance(def, def.getName().getName()));
-					else
-						res.add(Wrapper.newInstance(def, dscr));
-
-				}
+				// for (PDefinition def : ((AFileSource) inputElement).getParagraphs())
+				// {
+				//
+				PDefinition def = (PDefinition) inputElement;
+				// Get the entry names for the global declarations
+				String dscr = TopLevelDefinitionMap.getDescription(def.getClass());
+				if (dscr == null)
+					res.add(Wrapper.newInstance(def, def.getName().getName()));
+				else
+					res.add(Wrapper.newInstance(def, dscr));
+				//
+				// }
 				return res.toArray();
 				// return ((AFileSource)inputElement).getParagraphs().toArray();
 			}

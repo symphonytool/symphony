@@ -58,7 +58,7 @@ public class CmlMainLaunchConfigurationTab extends
 
 	private Text fProjectText;
 	private Text fTopProcessText;
-	private String fTopProcessFilePath;
+	// private String fTopProcessFilePath;
 	private WidgetListener fListener = new WidgetListener();
 
 	@Override
@@ -222,7 +222,7 @@ public class CmlMainLaunchConfigurationTab extends
 				if (selectedProcess != null)
 				{
 					fTopProcessText.setText(selectedProcess.getName().getName());
-					fTopProcessFilePath = selectedProcess.getLocation().getFile().getAbsolutePath();
+					// fTopProcessFilePath = selectedProcess.getLocation().getFile().getAbsolutePath();
 				}
 			}
 		});
@@ -479,7 +479,8 @@ public class CmlMainLaunchConfigurationTab extends
 			fProjectText.setText(configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_PROJECT, ""));
 
 			fTopProcessText.setText(configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_PROCESS_NAME, ""));
-			fTopProcessFilePath = configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_PROCESS_FILE_PATH, "");
+			// fTopProcessFilePath = configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_PROCESS_FILE_PATH,
+			// "");
 
 		} catch (CoreException e)
 		{
@@ -492,7 +493,7 @@ public class CmlMainLaunchConfigurationTab extends
 	{
 		configuration.setAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_PROJECT, fProjectText.getText());
 		configuration.setAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_PROCESS_NAME, fTopProcessText.getText());
-		configuration.setAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_PROCESS_FILE_PATH, fTopProcessFilePath);
+		// configuration.setAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_PROCESS_FILE_PATH, fTopProcessFilePath);
 
 		// configuration.setAttribute(ICmlLaunchConfigurationConstants.ATTR_PROJECT_NAME, fProjectText.getText());
 		//

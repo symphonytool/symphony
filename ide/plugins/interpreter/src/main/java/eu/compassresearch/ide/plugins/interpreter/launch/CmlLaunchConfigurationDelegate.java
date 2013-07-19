@@ -59,31 +59,9 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 
 			// Write out the launch configuration to the interpreter runner
 
-			Map configurationMap = new HashMap();// = configuration.getAttributes();
-
-			// configurationMap.put(key, value)
-
+			Map configurationMap = new HashMap();
 			configurationMap.put(CmlInterpreterLaunchConfigurationConstants.PROCESS_NAME.toString(), configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_PROCESS_NAME, ""));
-			// fTopProcessText.getText());
-			//
-			// if (fProjectText.getText().length() > 0)
-			// {
-			//
-			// IProject project = getProjectByName(fProjectText.getText());
-
-			// // Set the project src path
 			configurationMap.put(CmlInterpreterLaunchConfigurationConstants.CML_SOURCES_PATH.toString(), getSources(configuration));
-			//
-			// List<AProcessDefinition> globalProcess = CmlUtil.GetGlobalProcessesFromProject(project);
-			//
-			// for (AProcessDefinition processDef : globalProcess)
-			// {
-			// if (fTopProcessText.getText().equals(processDef.getName().getName()))
-			configurationMap.put(CmlInterpreterLaunchConfigurationConstants.PROCESS_FILE_PATH.toString(), configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_PROCESS_FILE_PATH, ""));
-			// }
-			//
-			// }
-
 			configurationMap.put("mode", mode);
 			// Along with the current mode "debug" or "run"
 
@@ -108,25 +86,7 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 				// launchExternalProcess(launch,JSONObject.toJSONString(configurationMap),"CML Runner");
 				// //Execute in a new JVM process
 				CmlDebugTarget target = new CmlDebugTarget(launch, launchExternalProcess(launch, JSONObject.toJSONString(configurationMap), "CML Runner"), CmlDebugDefaultValues.PORT);
-				// target.setVdmProject(vdmProject);
 				launch.addDebugTarget(target);
-
-				// IVMInstall vm = JavaRuntime.getDefaultVMInstall();
-				//
-				// IVMRunner runner = vm.getVMRunner(mode);
-				// // Create VM config
-				// //TODO: this should be added from the config with absolut paths
-				// String mainJavaClass = "eu.compassresearch.core.interpreter.debug.CmlInterpreterRunner";
-				// VMRunnerConfiguration runConfig = new VMRunnerConfiguration(mainJavaClass,new String[]{".",develCP +
-				// "lib/*"});
-				//
-				// runConfig.setProgramArguments(new String[]{JSONValue.toJSONString(obj)});
-				// //runConfig.setWorkingDirectory(path);
-				//
-				// System.out.println("lib locs: " + vm.getLibraryLocations());
-				// System.out.println("vm args: " + vm.getVMArguments());
-				//
-				// runner.run(runConfig, launch, monitor);
 			}
 
 		} catch (CoreException e)
@@ -190,138 +150,14 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 		});
 	}
 
-	// /**
-	// * Write the inStream to the specified outfile
-	// * @param inStream
-	// * @param outfile
-	// * @throws IOException
-	// */
-	// private void WriteFile(InputStream inStream,File outfile) throws IOException
-	// {
-	// FileOutputStream fos = new FileOutputStream(outfile);
-	//
-	// byte[] buffer = new byte[4096];
-	// int bytesRead;
-	// while ((bytesRead = inStream.read(buffer)) != -1) {
-	// fos.write(buffer, 0, bytesRead);
-	// }
-	// inStream.close();
-	// fos.close();
-	//
-	// }
-
-	// /**
-	// * Unpack the interpreter-with-dependencies.jar from the bundle and places it
-	// * at the basePath
-	// * @param basePath path to where the interpreter-with-dependencies.jar is placed
-	// * @throws IOException
-	// * @throws URISyntaxException
-	// */
-	// private void unpackInterpreterFromPlugin(String basePath) throws IOException, URISyntaxException
-	// {
-	// InputStream jarStream = getClass().getResourceAsStream("/lib/interpreter-with-dependencies.jar");
-	// InputStream jarHashStream = getClass().getResourceAsStream("/lib/interpreter-with-dependencies.jar.sha");
-	//
-	// File jarFile = new File(basePath,"interpreter-with-dependencies.jar");
-	// File jarHashFile = new File(basePath,"interpreter-with-dependencies.jar.sha");
-	//
-	// WriteFile(jarStream,jarFile);
-	// WriteFile(jarHashStream,jarHashFile);
-	// }
-
-	// /**
-	// * Determines whether the interpreter jar is extracted at the specified path
-	// * @param uri The folder where the jar might be located
-	// * @return true if it exist else false
-	// * @throws IOException
-	// */
-	// private boolean isInterpreterAlreadyExtracted(String basePath) throws IOException
-	// {
-	// File jarHashFile = new File(basePath,"interpreter-with-dependencies.jar.sha");
-	//
-	// //First check if the jar hash file exists, if not then we re-extract
-	// if(!jarHashFile.exists())
-	// return false;
-	// else
-	// //if it exists we need to check if the sha1 hash matches
-	// {
-	// InputStream jarHashStream = getClass().getResourceAsStream("/lib/interpreter-with-dependencies.jar.sha");
-	// byte[] pluginJarHashBytes = new byte[2*40];
-	// jarHashStream.read(pluginJarHashBytes);
-	//
-	// FileInputStream existingJarHashFS = new FileInputStream(jarHashFile);
-	// byte[] existingJarHashBytes = new byte[2*40];
-	// existingJarHashFS.read(existingJarHashBytes);
-	// existingJarHashFS.close();
-	//
-	// return Arrays.equals(pluginJarHashBytes, existingJarHashBytes);
-	// }
-	// }
-
-	// /**
-	// * Returns the path of the interpreter-with-dependencies jar.
-	// * If the jar cannot be found or the hash is different from the one
-	// * inside the plugin jar, then the interpreter-with-dependencies jar
-	// * is extracted at the returned path.
-	// * @return Path to the interpreter jar
-	// * @throws IOException
-	// * @throws URISyntaxException
-	// */
-	// private String locateInterpreterFromPlugin() throws IOException, URISyntaxException
-	// {
-	// File bundleFile = getBundleFile();
-	// File jarFile = new File(bundleFile.getParent(),"interpreter-with-dependencies.jar");
-	//
-	// //check whether the interpreter jar from the plugin is extracted
-	// //If not then we extract it else do nothing
-	// if(!isInterpreterAlreadyExtracted(bundleFile.getParent()))
-	// {
-	// unpackInterpreterFromPlugin(bundleFile.getParent());
-	// }
-	//
-	// return jarFile.getAbsolutePath();
-	// }
-	//
-	// private File getBundleFile() throws IOException
-	// {
-	// return FileLocator.getBundleFile(Platform.getBundle(ICmlDebugConstants.ID_CML_PLUGIN_NAME.toString()));
-	// }
-
-	// /**
-	// * Determines the path String of where the interpreter jar is located.
-	// * This depends on the eclipse mode
-	// * @return
-	// * @throws IOException
-	// * @throws URISyntaxException
-	// */
-	// private String locateInterpreterJarPath() throws IOException, URISyntaxException
-	// {
-	// File file = getBundleFile();
-	// if(!file.exists())
-	// throw new FileNotFoundException("Can't determine the bundle path");
-	//
-	// //plugin is a folder and we can access it through the lib folder
-	// if(file.isDirectory())
-	// {
-	// return file.getCanonicalPath() + "/lib/interpreter-with-dependencies.jar";
-	// }
-	// //were in a plugin jar, so we need to extract the interpreter jar from the plugin har
-	// else
-	// {
-	// //extract the interpreter with dependencies for launch
-	// return locateInterpreterFromPlugin();
-	// }
-	//
-	// }
-
 	private IProcess launchExternalProcess(ILaunch launch, String config,
 			String name) throws IOException, URISyntaxException, CoreException
 	{
-		// String interpreterJarPath = locateInterpreterJarPath();
-
 		if (isWindowsPlatform())
+		{
 			// escape quotes or else they disappear
 			config = config.replace("\"", "\\\"");
+		}
 
 		List<String> commandArray = new LinkedList<String>();
 
@@ -345,21 +181,7 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 		List<String> commandList = new Vector<String>();
 
 		// get the bundled class path of the debugger
-		// List<String> entries = ClasspathUtils.collectJars(ICmlDebugConstants.ID_CML_PLUGIN_NAME);
 		List<String> entries = CmlUtil.collectJars(ICmlDebugConstants.ID_CML_PLUGIN_NAME);
-
-		// // get the class path for all jars in the project lib folder
-		// File lib = new File(project.getLocation().toFile(), "lib");
-		// if (lib.exists() && lib.isDirectory())
-		// {
-		// for (File f : getAllFiles(lib))
-		// {
-		// if (f.getName().toLowerCase().endsWith(".jar"))
-		// {
-		// entries.add(toPlatformPath(f.getAbsolutePath()));
-		// }
-		// }
-		// }
 
 		if (entries.size() > 0)
 		{

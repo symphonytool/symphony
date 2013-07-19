@@ -23,11 +23,13 @@ import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
+import org.overture.ide.core.resources.IVdmProject;
+import org.overture.ide.ui.utility.VdmTypeCheckerUi;
 
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.common.Registry;
 import eu.compassresearch.core.common.RegistryFactory;
-import eu.compassresearch.ide.core.resources.CmlSourceUnit;
+import eu.compassresearch.ide.core.resources.ICmlProject;
 import eu.compassresearch.security.SecurityAnalysis;
 import eu.compassresearch.security.SecurityEnvironment.Judgement;
 import eu.compassresearch.security.SecurityEnvironment.SubtreeJudgement;
@@ -121,13 +123,33 @@ public class SecAction implements IWorkbenchWindowActionDelegate{
 
 			IProject proj = getCurrentProject();
 			if (proj == null) { console.write("No project selected.\n");return; }
-			ArrayList<IResource> files = getAllCFilesInProject(proj);
-			console.write("Model has "+files.size()+" source unit(s).\n");
+			
+			ICmlProject project = (ICmlProject) proj.getAdapter(ICmlProject.class);
+			if(project==null)
+			{
+				console.write("Selected project is not a CML project");
+				console.flush();
+				return ;
+			}
+			
+			if(project.getModel().isParseCorrect() && !project.getModel().isTypeChecked())
+			{
+				VdmTypeCheckerUi.typeCheck(this.window.getShell(), (IVdmProject) project.getAdapter(IVdmProject.class));
+			}
+			
+			if(!project.getModel().isTypeCorrect())
+			{
+				console.write("Project has type errors aborting");
+				console.flush();
+				return;
+			}
+//			ArrayList<IResource> files = getAllCFilesInProject(proj);
+//			console.write("Model has "+files.size()+" source unit(s).\n");
 			SecurityAnalysis sa = new SecurityAnalysis();
-			for(IResource file: files) {
-				console.write("Analysing: "+file.getName()+"\n");
-				PSource ast = CmlSourceUnit.getFromFileResource((IFile)file).getSourceAst();
-				SubtreeJudgement judgements = sa.runAnalysis(ast);
+			for(PSource source: project.getModel().getAstSource()) {
+//				console.write("Analysing: "+source.g.getName()+"\n");
+//				PSource ast = CmlSourceUnit.getFromFileResource((IFile)file).getSourceAst();
+				SubtreeJudgement judgements = sa.runAnalysis(source);
 				for(Judgement j : judgements.getInvolvedJudgements()) {
 					console.write(j.toString()+"\n");
 

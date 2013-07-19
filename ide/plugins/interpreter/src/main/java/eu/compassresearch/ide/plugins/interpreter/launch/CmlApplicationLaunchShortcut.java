@@ -115,11 +115,11 @@ public class CmlApplicationLaunchShortcut implements ILaunchShortcut2
 			if (vdmProject != null && vdmProject.getModel().isParseCorrect()
 					&& source != null) // && vdmProject.getModel().isTypeCorrect())
 			{
-				PSource ast = source.getSourceAst();
+				PSource ast = source.getParseNode();
 
 				List<PSource> sourceList = new LinkedList<PSource>();
 				sourceList.add(ast);
-				List<AProcessDefinition> defsInFile = CmlUtil.GetGlobalProcessesFromSource(sourceList);
+				List<AProcessDefinition> defsInFile = CmlUtil.getGlobalProcessesFromSource(sourceList);
 
 				if (defsInFile.size() == 1)
 				{
@@ -223,7 +223,8 @@ public class CmlApplicationLaunchShortcut implements ILaunchShortcut2
 
 			lcwc.setAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_PROCESS_NAME, processName);
 			lcwc.setAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_PROJECT, sourceUnit.getFile().getProject().getName());
-			lcwc.setAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_PROCESS_FILE_PATH, sourceUnit.getSystemFile().getAbsolutePath());
+			// lcwc.setAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_PROCESS_FILE_PATH,
+			// sourceUnit.getSystemFile().getAbsolutePath());
 			lcwc.doSave();
 			result = lcwc;
 		}

@@ -7,148 +7,26 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.osgi.util.NLS;
-import org.eclipse.ui.ISelectionService;
-import org.eclipse.ui.PlatformUI;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
-import org.overture.ast.node.INode;
 import org.overture.ide.core.ICoreConstants;
-import org.overture.ide.core.IVdmModel;
 
 import eu.compassresearch.ast.definitions.AProcessDefinition;
-import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.GlobalEnvironmentBuilder;
-import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
 
 public final class CmlUtil
 {
 
-	public static IProject getCurrentSelectedProject()
-	{
-		IProject project = null;
-		ISelectionService selectionService = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getSelectionService();
-
-		ISelection selection = selectionService.getSelection();
-
-		if (selection instanceof IStructuredSelection)
-		{
-			Object element = ((IStructuredSelection) selection).getFirstElement();
-
-			if (element instanceof IResource)
-			{
-				project = ((IResource) element).getProject();
-			}
-			// else if (element instanceof PackageFragmentRoot) {
-			// IJavaProject jProject =
-			// ((PackageFragmentRoot)element).getJavaProject();
-			// project = jProject.getProject();
-			// } else if (element instanceof IJavaElement) {
-			// IJavaProject jProject= ((IJavaElement)element).getJavaProject();
-			// project = jProject.getProject();
-			// }
-		}
-		return project;
-	}
-
-	public static List<AProcessDefinition> GetGlobalProcessesFromProject(
-			IProject project)
-	{
-		return CmlUtil.GetGlobalProcessesFromSource(CmlUtil.getCmlAstSourcesFromProject(project));
-	}
-
-	public static List<PSource> getPSources(IVdmModel mode)
-	{
-		List<PSource> sources = new LinkedList<PSource>();
-		for (INode n : mode.getRootElementList())
-		{
-			if (n instanceof PSource)
-			{
-				sources.add((PSource) n);
-			}
-		}
-		return sources;
-	}
-
-	public static List<PSource> getCmlAstSourcesFromProject(IProject project)
-	{
-		List<PSource> sources = new LinkedList<PSource>();
-
-		try
-		{
-			for (IResource res : project.members())
-			{
-				if (res instanceof IFile
-						&& ((IFile) res).getFileExtension().toLowerCase().equals("cml"))
-				{
-					ICmlSourceUnit source = (ICmlSourceUnit) ((IFile) res).getAdapter(ICmlSourceUnit.class);
-					PSource ast = source.getSourceAst();
-
-					if (ast != null)
-						sources.add(ast);
-				}
-			}
-		} catch (CoreException e)
-		{
-			e.printStackTrace();
-		}
-
-		return sources;
-	}
-
-	public static List<String> getCmlSourcesPathsFromProject(IProject project)
-	{
-		List<String> sources = new LinkedList<String>();
-
-		try
-		{
-			for (IResource res : project.members())
-			{
-				if (res instanceof IFile
-						&& ((IFile) res).getFileExtension().toLowerCase().equals("cml"))
-				{
-					ICmlSourceUnit source = (ICmlSourceUnit) ((IFile) res).getAdapter(ICmlSourceUnit.class);
-					PSource ast = source.getSourceAst();
-					if (ast != null && ast instanceof AFileSource)
-						sources.add(((AFileSource) ast).getFile().getCanonicalPath());
-				}
-			}
-		} catch (CoreException e)
-		{
-			e.printStackTrace();
-		} catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-
-		return sources;
-	}
-
-	public static String getProjectPath(IProject project)
-	{
-		String projectPath = project.getFullPath().toOSString();
-		// String pat = System.getProperty("user.dir");
-
-		String workspacePath = ResourcesPlugin.getWorkspace().getRoot().getRawLocation().toOSString();
-
-		return workspacePath + projectPath;
-	}
-
-	public static List<AProcessDefinition> GetGlobalProcessesFromSource(
+	public static List<AProcessDefinition> getGlobalProcessesFromSource(
 			List<PSource> projectSources)
 	{
 		if (projectSources.isEmpty())
@@ -160,19 +38,6 @@ public final class CmlUtil
 
 	}
 
-	// static public IVdmProject getVdmProject(ILaunchConfiguration configuration)
-	// throws CoreException
-	// {
-	//
-	// IProject project = getProject(configuration);
-	//
-	// if (project != null)
-	// {
-	// IVdmProject vdmProject = (IVdmProject) project.getAdapter(IVdmProject.class);
-	// return vdmProject;
-	// }
-	// return null;
-	// }
 	public static List<String> collectJars(String bundleId)
 	{
 		List<String> bundleIds = new ArrayList<String>();
@@ -332,37 +197,6 @@ public final class CmlUtil
 		}
 		throw new IOException("Unknown protocol"); //$NON-NLS-1$
 	}
-
-	// public static String[] getClassPath(IJavaProject myJavaProject) throws IOException, URISyntaxException {
-	// final List<String> result = new ArrayList<String>();
-	// // TODO ClasspathUtils.collectClasspath(new String[] { GenericOvertureInstallType.EMBEDDED_VDMJ_BUNDLE_ID,
-	// GenericOvertureInstallType.DBGP_FOR_VDMJ_BUNDLE_ID }, result);
-	// ClasspathUtils.collectClasspath
-	// (
-	// new String[]
-	// {
-	// "org.overture.ide.generated.vdmj" //TODO put in constant file
-	// //VDMToolsInstallType.DBGP_FOR_VDMTOOLS_BUNDLE_ID,
-	// //GenericOvertureInstalltype.DBGP_FOR_VDMTOOLS_BUNDLE_ID,
-	// //GenericOvertureInstalltype.DBGP_FOR_ABSTRACT_BUNDLE_ID
-	// },
-	// result
-	// );
-	// try {
-	// final String[] classPath = computeBaseClassPath(myJavaProject);
-	// for (int i = 0; i < classPath.length; ++i) {
-	// result.add(classPath[i]);
-	// }
-	// } catch (CoreException e) {
-	// }
-	// return (String[]) result.toArray(new String[result.size()]);
-	// }
-	//
-	// protected static String[] computeBaseClassPath(IJavaProject myJavaProject) throws CoreException {
-	// if (!myJavaProject.exists())
-	// return CharOperation.NO_STRINGS;
-	// return JavaRuntime.computeDefaultRuntimeClassPath(myJavaProject);
-	// }
 
 	private static final String PLUGIN_LOCATION_ERROR = "Error determining classpath from bundle {0}"; //$NON-NLS-1$
 
