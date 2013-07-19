@@ -33,7 +33,7 @@ import eu.compassresearch.ast.preview.DotGraphVisitor;
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.PSource;
-import eu.compassresearch.core.analysis.pog.obligations.CMLPOContextStack;
+import eu.compassresearch.core.analysis.pog.obligations.CmlPOContextStack;
 import eu.compassresearch.core.analysis.pog.visitors.ProofObligationGenerator;
 import eu.compassresearch.core.interpreter.RandomSelectionStrategy;
 import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
@@ -505,7 +505,7 @@ public class CheckCml {
 			// object.
 			AnalysisRunAdaptor r = new AnalysisRunAdaptor(pog) {
 				public void apply(INode root) throws AnalysisException {
-					IPOContextStack question = new CMLPOContextStack();
+					IPOContextStack question = new CmlPOContextStack();
 					root.apply(pog, question);
 				}
 			};

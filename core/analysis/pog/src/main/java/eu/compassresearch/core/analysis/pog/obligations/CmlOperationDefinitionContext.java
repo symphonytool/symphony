@@ -31,7 +31,7 @@ import org.overture.ast.types.PType;
 
 import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
 
-	public class CMLPOOperationDefinitionContext implements CMLPOContext
+	public class CmlOperationDefinitionContext implements CmlPOContext
 	{
 		public final ILexNameToken name;
 		public final AOperationType deftype;
@@ -40,7 +40,7 @@ import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
 		public final PExp precondition;
 		public final PDefinition stateDefinition;
 
-		public CMLPOOperationDefinitionContext(AImplicitCmlOperationDefinition definition,
+		public CmlOperationDefinitionContext(AImplicitCmlOperationDefinition definition,
 			boolean precond, PDefinition stateDefinition)
 		{
 			this.name = definition.getName();

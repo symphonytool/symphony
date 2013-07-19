@@ -23,31 +23,33 @@ package eu.compassresearch.core.analysis.pog.obligations;
 ******************************************************************************/
 
 
-import java.util.List;
-
-import org.overture.ast.expressions.PExp;
-import org.overture.ast.statements.AErrorCase;
+import org.overture.pog.pub.IPOContextStack;
 
 import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
-public class CMLOperationPostConditionObligation extends CMLProofObligation{
+public class CmlOperationPostConditionObligation extends CmlProofObligation{
 	
 //	private final PExp preexp;
 //	private final PExp postexp;
 //	private final List<AErrorCase> errs;
 			
-	public CMLOperationPostConditionObligation(AExplicitCmlOperationDefinition op,
-				CMLPOContextStack ctxt)
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	public CmlOperationPostConditionObligation(AExplicitCmlOperationDefinition op,
+				IPOContextStack ctxt)
 	{
-		super(op, CMLPOType.OP_POST_CONDITION, ctxt);
+		super(op, CmlPOType.OP_POST_CONDITION, ctxt);
 		//FIXME implement ast based PO predicate
 	
 	}
 
-	public CMLOperationPostConditionObligation(AImplicitCmlOperationDefinition op,
-				CMLPOContextStack ctxt)
+	public CmlOperationPostConditionObligation(AImplicitCmlOperationDefinition op,
+				IPOContextStack ctxt)
 	{
-		super(op, CMLPOType.OP_POST_CONDITION, ctxt);
+		super(op, CmlPOType.OP_POST_CONDITION, ctxt);
 		//FIXME implement ast based PO predicate
 
 	}

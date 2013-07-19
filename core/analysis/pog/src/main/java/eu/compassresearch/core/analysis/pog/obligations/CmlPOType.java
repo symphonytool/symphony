@@ -30,7 +30,7 @@ package eu.compassresearch.core.analysis.pog.obligations;
 import org.overture.pog.pub.POType;
 
 //Extending/copying the overture enums. Will need to encapsulate better.
-public enum CMLPOType
+public enum CmlPOType
 {
 	MAP_APPLY("map apply"),
 	FUNC_APPLY("function apply"),
@@ -69,7 +69,7 @@ public enum CMLPOType
 	
 	private String kind;
 
-	CMLPOType(String kind)
+	CmlPOType(String kind)
 	{
 		this.kind = kind;
 	}
@@ -79,12 +79,12 @@ public enum CMLPOType
 	    return POType.valueOf(POType.class, this.toString());
 		    }
 	    catch (IllegalArgumentException e){
-		return POType.SUB_TYPE;
+		return POType.EXT;
 	    }
 	}
 	
 	
-	public String toString2()
+	public String toString()
 	{
 		return kind;
 	}

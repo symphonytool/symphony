@@ -59,10 +59,10 @@ import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.PSource;
-import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
+import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligationList;
 
 public class ProofObligationGenerator extends
-		QuestionAnswerCMLAdaptor<IPOContextStack, CMLProofObligationList>
+		QuestionAnswerCMLAdaptor<IPOContextStack, CmlProofObligationList>
 {
 	/**
 	 * Main generator class for the POG. Receives the sources to be checked, visits them and dispatches them to the
@@ -106,14 +106,14 @@ public class ProofObligationGenerator extends
 	// switch visitor context at the root level
 
 	@Override
-	public CMLProofObligationList defaultPDefinition(PDefinition node,
+	public CmlProofObligationList defaultPDefinition(PDefinition node,
 			IPOContextStack question) throws AnalysisException
 	{
 		return node.apply(this.declAndDefVisitor, question);
 	}
 
 	@Override
-	public CMLProofObligationList defaultPSingleDeclaration(
+	public CmlProofObligationList defaultPSingleDeclaration(
 			PSingleDeclaration node, IPOContextStack question)
 			throws AnalysisException
 	{
@@ -121,53 +121,53 @@ public class ProofObligationGenerator extends
 	}
 
 	@Override
-	public CMLProofObligationList caseAModuleModules(AModuleModules node,
+	public CmlProofObligationList caseAModuleModules(AModuleModules node,
 			IPOContextStack question) throws AnalysisException
 	{
 		IProofObligationList ovtpos = assistantFactory.createPDefinitionAssistant().getProofObligations(node.getDefs(), this.declAndDefVisitor, question);
-		CMLProofObligationList cmlpos = new CMLProofObligationList();
+		CmlProofObligationList cmlpos = new CmlProofObligationList();
 		cmlpos.addAll(ovtpos);
 		
 		return cmlpos;
 	}
 
 	@Override
-	public CMLProofObligationList defaultPProcess(PProcess node,
+	public CmlProofObligationList defaultPProcess(PProcess node,
 			IPOContextStack question) throws AnalysisException
 	{
 		return node.apply(this.processVisitor, question);
 	}
 
 	@Override
-	public CMLProofObligationList defaultPAction(PAction node,
+	public CmlProofObligationList defaultPAction(PAction node,
 			IPOContextStack question) throws AnalysisException
 	{
 		return node.apply(this.actionVisitor, question);
 	}
 
 	@Override
-	public CMLProofObligationList defaultPStm(PStm node,
+	public CmlProofObligationList defaultPStm(PStm node,
 			IPOContextStack question) throws AnalysisException
 	{
 		return node.apply(this.statementVisitor, question);
 	}
 
 	@Override
-	public CMLProofObligationList defaultPExp(PExp node,
+	public CmlProofObligationList defaultPExp(PExp node,
 			IPOContextStack question) throws AnalysisException
 	{
 		return node.apply(this.expressionVisitor, question);
 	}
 
 	@Override
-	public CMLProofObligationList caseASetBind(ASetBind node,
+	public CmlProofObligationList caseASetBind(ASetBind node,
 			IPOContextStack question) throws AnalysisException
 	{
 		return node.getSet().apply(this.expressionVisitor, question);
 	}
 
 	@Override
-	public CMLProofObligationList caseASetMultipleBind(ASetMultipleBind node,
+	public CmlProofObligationList caseASetMultipleBind(ASetMultipleBind node,
 			IPOContextStack question) throws AnalysisException
 	{
 		return node.getSet().apply(this.expressionVisitor, question);
@@ -175,19 +175,19 @@ public class ProofObligationGenerator extends
 
 	// FIXME --what are pvarsets?
 	@Override
-	public CMLProofObligationList defaultPVarsetExpression(
+	public CmlProofObligationList defaultPVarsetExpression(
 			PVarsetExpression node, IPOContextStack question)
 			throws AnalysisException
 	{
-		return new CMLProofObligationList();
+		return new CmlProofObligationList();
 	}
 
 	@Override
-	public CMLProofObligationList caseACaseAlternative(ACaseAlternative node,
+	public CmlProofObligationList caseACaseAlternative(ACaseAlternative node,
 			IPOContextStack question) throws AnalysisException
 	{
 
-		CMLProofObligationList obligations = new CMLProofObligationList();
+		CmlProofObligationList obligations = new CmlProofObligationList();
 
 		question.push(new POCaseContext(node.getPattern(), node.getType(), node.getCexp()));
 		obligations.addAll(node.getResult().apply(this.expressionVisitor, question));
@@ -198,12 +198,12 @@ public class ProofObligationGenerator extends
 	}
 
 	@Override
-	public CMLProofObligationList caseAMapSeqStateDesignator(
+	public CmlProofObligationList caseAMapSeqStateDesignator(
 			AMapSeqStateDesignator node, IPOContextStack question)
 			throws AnalysisException
 	{
 
-		CMLProofObligationList list = new CMLProofObligationList();
+		CmlProofObligationList list = new CmlProofObligationList();
 
 		if (node.getSeqType() != null)
 		{
@@ -216,12 +216,12 @@ public class ProofObligationGenerator extends
 	}
 
 	@Override
-	public CMLProofObligationList caseATixeStmtAlternative(
+	public CmlProofObligationList caseATixeStmtAlternative(
 			ATixeStmtAlternative node, IPOContextStack question)
 			throws AnalysisException
 	{
 
-		CMLProofObligationList list = new CMLProofObligationList();
+		CmlProofObligationList list = new CmlProofObligationList();
 
 		if (node.getPatternBind().getPattern() != null)
 		{
@@ -243,123 +243,123 @@ public class ProofObligationGenerator extends
 	// Return empty lists for a bunch of stuff...
 
 	@Override
-	public CMLProofObligationList defaultPModifier(PModifier node,
+	public CmlProofObligationList defaultPModifier(PModifier node,
 			IPOContextStack question)
 	{
-		return new CMLProofObligationList();
+		return new CmlProofObligationList();
 	}
 
 	@Override
-	public CMLProofObligationList defaultPType(PType node,
+	public CmlProofObligationList defaultPType(PType node,
 			IPOContextStack question)
 	{
-		return new CMLProofObligationList();
+		return new CmlProofObligationList();
 	}
 
 	@Override
-	public CMLProofObligationList defaultPField(PField node,
+	public CmlProofObligationList defaultPField(PField node,
 			IPOContextStack question)
 	{
-		return new CMLProofObligationList();
+		return new CmlProofObligationList();
 	}
 
 	@Override
-	public CMLProofObligationList defaultPAccessSpecifier(
+	public CmlProofObligationList defaultPAccessSpecifier(
 			PAccessSpecifier node, IPOContextStack question)
 	{
-		return new CMLProofObligationList();
+		return new CmlProofObligationList();
 	}
 
 	@Override
-	public CMLProofObligationList defaultPPattern(PPattern node,
+	public CmlProofObligationList defaultPPattern(PPattern node,
 			IPOContextStack question)
 	{
-		return new CMLProofObligationList();
+		return new CmlProofObligationList();
 	}
 
 	@Override
-	public CMLProofObligationList defaultPPair(PPair node,
+	public CmlProofObligationList defaultPPair(PPair node,
 			IPOContextStack question)
 	{
-		return new CMLProofObligationList();
+		return new CmlProofObligationList();
 	}
 
 	@Override
-	public CMLProofObligationList defaultPBind(PBind node,
+	public CmlProofObligationList defaultPBind(PBind node,
 			IPOContextStack question)
 	{
-		return new CMLProofObligationList();
+		return new CmlProofObligationList();
 	}
 
 	@Override
-	public CMLProofObligationList caseATypeMultipleBind(ATypeMultipleBind node,
+	public CmlProofObligationList caseATypeMultipleBind(ATypeMultipleBind node,
 			IPOContextStack question)
 	{
-		return new CMLProofObligationList();
+		return new CmlProofObligationList();
 	}
 
 	@Override
-	public CMLProofObligationList defaultPPatternBind(PPatternBind node,
+	public CmlProofObligationList defaultPPatternBind(PPatternBind node,
 			IPOContextStack question)
 	{
-		return new CMLProofObligationList();
+		return new CmlProofObligationList();
 	}
 
 	@Override
-	public CMLProofObligationList defaultPModules(PModules node,
+	public CmlProofObligationList defaultPModules(PModules node,
 			IPOContextStack question)
 	{
-		return new CMLProofObligationList();
+		return new CmlProofObligationList();
 	}
 
 	@Override
-	public CMLProofObligationList defaultPImports(PImports node,
+	public CmlProofObligationList defaultPImports(PImports node,
 			IPOContextStack question)
 	{
-		return new CMLProofObligationList();
+		return new CmlProofObligationList();
 	}
 
 	@Override
-	public CMLProofObligationList defaultPExports(PExports node,
+	public CmlProofObligationList defaultPExports(PExports node,
 			IPOContextStack question)
 	{
-		return new CMLProofObligationList();
+		return new CmlProofObligationList();
 	}
 
 	@Override
-	public CMLProofObligationList defaultPExport(PExport node,
+	public CmlProofObligationList defaultPExport(PExport node,
 			IPOContextStack question)
 	{
-		return new CMLProofObligationList();
+		return new CmlProofObligationList();
 	}
 
 	@Override
-	public CMLProofObligationList defaultPStateDesignator(
+	public CmlProofObligationList defaultPStateDesignator(
 			PStateDesignator node, IPOContextStack question)
 	{
-		return new CMLProofObligationList();
+		return new CmlProofObligationList();
 	}
 
 	@Override
-	public CMLProofObligationList defaultPObjectDesignator(
+	public CmlProofObligationList defaultPObjectDesignator(
 			PObjectDesignator node, IPOContextStack question)
 	{
-		return new CMLProofObligationList();
+		return new CmlProofObligationList();
 	}
 
 	@Override
-	public CMLProofObligationList defaultPClause(PClause node,
+	public CmlProofObligationList defaultPClause(PClause node,
 			IPOContextStack question)
 	{
 
-		return new CMLProofObligationList();
+		return new CmlProofObligationList();
 	}
 
 	@Override
-	public CMLProofObligationList defaultPCase(PCase node,
+	public CmlProofObligationList defaultPCase(PCase node,
 			IPOContextStack question)
 	{
-		return new CMLProofObligationList();
+		return new CmlProofObligationList();
 	}
 
 	// ---------------------------------------------
@@ -409,9 +409,9 @@ public class ProofObligationGenerator extends
 	 * 
 	 * @return - Returns CMLProofObligation list. This may need to change.
 	 */
-	public CMLProofObligationList generatePOs() throws AnalysisException
+	public CmlProofObligationList generatePOs() throws AnalysisException
 	{
-		CMLProofObligationList obligations = new CMLProofObligationList();
+		CmlProofObligationList obligations = new CmlProofObligationList();
 		IPOContextStack ctxt = new POContextStack();
 
 		// for each source

@@ -22,7 +22,7 @@ import org.overture.ide.core.resources.IVdmProject;
 import org.overture.ide.ui.utility.VdmTypeCheckerUi;
 import org.overture.pog.pub.IProofObligation;
 
-import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
+import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligationList;
 import eu.compassresearch.core.common.Registry;
 import eu.compassresearch.core.common.RegistryFactory;
 import eu.compassresearch.ide.cml.pogplugin.POConstants;
@@ -94,11 +94,11 @@ public class TPBasicAction implements IWorkbenchWindowActionDelegate {
 						// May return a null if the adapter fails to convert
 						ICmlSourceUnit cmlSource = (ICmlSourceUnit) cmlFile
 								.getAdapter(ICmlSourceUnit.class);
-						CMLProofObligationList poList = registry.lookup(
+						CmlProofObligationList poList = registry.lookup(
 								cmlSource.getSourceAst(),
-								CMLProofObligationList.class);
+								CmlProofObligationList.class);
 
-						getThyFromCML(cmlFile);
+						getThyFromCml(cmlFile);
 						
 						IsabelleTheory ithy = registry.lookup(cmlSource.getSourceAst(), IsabelleTheory.class);
 
@@ -135,7 +135,7 @@ public class TPBasicAction implements IWorkbenchWindowActionDelegate {
 				"Could not generate THY.\n\n" + message);
 	}
 
-	private void getThyFromCML(IResource cmlFile) throws IOException,
+	private void getThyFromCml(IResource cmlFile) throws IOException,
 			AnalysisException {
 
 		ICmlSourceUnit source = (ICmlSourceUnit) cmlFile

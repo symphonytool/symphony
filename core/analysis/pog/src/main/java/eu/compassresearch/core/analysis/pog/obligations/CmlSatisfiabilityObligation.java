@@ -24,10 +24,11 @@
 package eu.compassresearch.core.analysis.pog.obligations;
 
 import org.overture.ast.definitions.PDefinition;
+import org.overture.pog.pub.IPOContextStack;
 
 import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
 
-public class CMLSatisfiabilityObligation extends CMLProofObligation
+public class CmlSatisfiabilityObligation extends CmlProofObligation
 {
 //	private final AExplicitFunctionDefinition preexp;
 //	private final LinkedList<APatternListTypePair> paramPatterns;
@@ -41,10 +42,10 @@ public class CMLSatisfiabilityObligation extends CMLProofObligation
 	 */
 	private static final long serialVersionUID = 1L;
 
-		public CMLSatisfiabilityObligation(AImplicitCmlOperationDefinition op,
-				PDefinition stateDefinition, CMLPOContextStack ctxt)
+		public CmlSatisfiabilityObligation(AImplicitCmlOperationDefinition op,
+				PDefinition stateDefinition, IPOContextStack ctxt)
 		{
-			super(op, CMLPOType.OP_SATISFIABILITY, ctxt);
+			super(op, CmlPOType.OP_SATISFIABILITY, ctxt);
 			//FIXME implement ast based PO predicate
 
 

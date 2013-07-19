@@ -13,16 +13,16 @@ import org.overture.pog.pub.IProofObligation;
 
 import eu.compassresearch.core.analysis.pog.utility.CmlLocationHelper;
 
-abstract public class CMLProofObligation extends ProofObligation implements
+abstract public class CmlProofObligation extends ProofObligation implements
 		IProofObligation {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	public final CMLPOType cmltype;
+	public final CmlPOType cmltype;
 
-	public CMLProofObligation(INode node, CMLPOType kind, IPOContextStack ctxt) {
+	public CmlProofObligation(INode node, CmlPOType kind, IPOContextStack ctxt) {
 		super(node, kind.toOverturePOType(), ctxt, CmlLocationHelper
 				.findLocation(node));
 		cmltype = kind;

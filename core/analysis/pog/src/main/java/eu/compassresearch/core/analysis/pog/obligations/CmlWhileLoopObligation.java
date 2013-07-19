@@ -25,27 +25,17 @@ package eu.compassresearch.core.analysis.pog.obligations;
 
 import org.overture.pog.pub.IPOContextStack;
 
-import org.overture.ast.definitions.PDefinition;
+import eu.compassresearch.ast.actions.AWhileStatementAction;
 
-import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
+public class CmlWhileLoopObligation extends CmlProofObligation {
 
-public class SatisfiabilityObligation extends CMLProofObligation {
-	/**
+		/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private String separator = "";
 
-	public SatisfiabilityObligation(AImplicitCmlOperationDefinition op,
-			PDefinition stateDefinition, IPOContextStack ctxt) {
-		super(op, CMLPOType.OP_SATISFIABILITY, ctxt);
-
-//FIXME getPostdef() is null...
-
-		// FIXME Implement ast-based PO predicate method
-
-
+		public CmlWhileLoopObligation(AWhileStatementAction stmt, IPOContextStack ctxt)
+		{
+			super(stmt, CmlPOType.WHILE_LOOP, ctxt);
+		}
 	}
-
-	
-}

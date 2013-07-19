@@ -25,17 +25,30 @@ package eu.compassresearch.core.analysis.pog.obligations;
 
 import org.overture.pog.pub.IPOContextStack;
 
-import eu.compassresearch.ast.actions.AWhileStatementAction;
+import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
+import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
 
-public class CMLWhileLoopObligation extends CMLProofObligation {
-
-		/**
+public class CmlParameterPatternObligation extends CmlProofObligation
+{
+	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-
-		public CMLWhileLoopObligation(AWhileStatementAction stmt, IPOContextStack ctxt)
+	
+		public CmlParameterPatternObligation(
+			AExplicitCmlOperationDefinition def, IPOContextStack ctxt)
 		{
-			super(stmt, CMLPOType.WHILE_LOOP, ctxt);
+			super(def, CmlPOType.OPERATION_PATTERNS, ctxt);
+			//FIXME implement ast based PO predicate
 		}
+
+		public CmlParameterPatternObligation(
+			AImplicitCmlOperationDefinition def, IPOContextStack ctxt)
+		{
+			super(def, CmlPOType.OPERATION_PATTERNS, ctxt);
+			//FIXME implement ast based PO predicate
+
+		}
+
+	
 	}

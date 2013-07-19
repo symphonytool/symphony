@@ -82,13 +82,13 @@ import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.definitions.ACmlClassDefinition;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
-import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
-import eu.compassresearch.core.analysis.pog.obligations.CMLWhileLoopObligation;
-import eu.compassresearch.core.analysis.pog.obligations.NonZeroTimeObligation;
+import eu.compassresearch.core.analysis.pog.obligations.CmlNonZeroTimeObligation;
+import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligationList;
+import eu.compassresearch.core.analysis.pog.obligations.CmlWhileLoopObligation;
 
 @SuppressWarnings("serial")
 public class POGActionVisitor extends
-		QuestionAnswerCMLAdaptor<IPOContextStack, CMLProofObligationList> {
+		QuestionAnswerCMLAdaptor<IPOContextStack, CmlProofObligationList> {
 
 	private ProofObligationGenerator parentPOG;
 
@@ -103,9 +103,9 @@ public class POGActionVisitor extends
 
 	// Default action
 	@Override
-	public CMLProofObligationList defaultPAction(PAction node,
+	public CmlProofObligationList defaultPAction(PAction node,
 			IPOContextStack question) throws AnalysisException {
-		CMLProofObligationList pol = new CMLProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 
 		System.out.println("----------***----------");
 		System.out.println("defaultPAction");
@@ -117,10 +117,10 @@ public class POGActionVisitor extends
 
 	// Call the main pog when it's not a statement
 	@Override
-	public CMLProofObligationList defaultINode(INode node, IPOContextStack question)
+	public CmlProofObligationList defaultINode(INode node, IPOContextStack question)
 			throws AnalysisException {
 
-		CMLProofObligationList pol = new CMLProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 		pol.addAll(node.apply(parentPOG, question));
 		return pol;
 	}
@@ -129,12 +129,12 @@ public class POGActionVisitor extends
 	 * Block Statement. Currently, get the action and handle
 	 */
 	@Override
-	public CMLProofObligationList caseABlockStatementAction(
+	public CmlProofObligationList caseABlockStatementAction(
 			ABlockStatementAction node, IPOContextStack question)
 			throws AnalysisException {
 		try {
 			System.out.println("A ABlockStatementAction: " + node.toString());
-			CMLProofObligationList pol = new CMLProofObligationList();
+			CmlProofObligationList pol = new CmlProofObligationList();
 
 			// Get subparts
 			PAction action = node.getAction();
@@ -154,13 +154,13 @@ public class POGActionVisitor extends
 	 * expressions May need more detail on identifiers?
 	 */
 	@Override
-	public CMLProofObligationList caseASingleGeneralAssignmentStatementAction(
+	public CmlProofObligationList caseASingleGeneralAssignmentStatementAction(
 			ASingleGeneralAssignmentStatementAction node,
 			IPOContextStack question) throws AnalysisException {
 		try{
 		System.out.println("A ASingleGeneralAssignmentStatementAction: "
 				+ node.toString());
-		CMLProofObligationList pol = new CMLProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// Get subparts
 		PExp id = node.getStateDesignator();
@@ -179,13 +179,13 @@ public class POGActionVisitor extends
 	 * Composition action. Process left part, then right.
 	 */
 	@Override
-	public CMLProofObligationList caseASequentialCompositionAction(
+	public CmlProofObligationList caseASequentialCompositionAction(
 			ASequentialCompositionAction node, IPOContextStack question)
 			throws AnalysisException {
 		try{
 		System.out
 				.println("A ASequentialCompositionAction: " + node.toString());
-		CMLProofObligationList pol = new CMLProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// Get subparts
 		PAction left = node.getLeft();
@@ -205,11 +205,11 @@ public class POGActionVisitor extends
 	 * process 'else' and 'elseif'
 	 */
 	@Override
-	public CMLProofObligationList caseAIfStatementAction(AIfStatementAction node,
+	public CmlProofObligationList caseAIfStatementAction(AIfStatementAction node,
 			IPOContextStack question) throws AnalysisException {
 		try{
 		System.out.println("A caseAIfStatementAction: " + node.toString());
-		CMLProofObligationList pol = new CMLProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// Get subparts
 		PExp ifexp = node.getIfExp();
@@ -233,12 +233,12 @@ public class POGActionVisitor extends
 	}
 
 	@Override
-	public CMLProofObligationList caseAElseIfStatementAction(
+	public CmlProofObligationList caseAElseIfStatementAction(
 			AElseIfStatementAction node, IPOContextStack question)
 			throws AnalysisException {
 		try{
 		System.out.println("A caseAElseIfStatementAction: " + node.toString());
-		CMLProofObligationList pol = new CMLProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// Get subparts
 		pol.addAll(node.getElseIf().apply(parentPOG, question));
@@ -251,15 +251,15 @@ public class POGActionVisitor extends
 	}
 
 	@Override
-	public CMLProofObligationList caseAWhileStatementAction(
+	public CmlProofObligationList caseAWhileStatementAction(
 			AWhileStatementAction node, IPOContextStack question)
 			throws AnalysisException {
 		try{
 		System.out.println("A caseAWhileStatementAction: " + node.toString());
-		CMLProofObligationList pol = new CMLProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// Get subparts
-		pol.add(new CMLWhileLoopObligation(node, question));
+		pol.add(new CmlWhileLoopObligation(node, question));
 		pol.addAll(node.getCondition().apply(parentPOG, question));
 		pol.addAll(node.getAction().apply(this, question));
 
@@ -270,12 +270,12 @@ public class POGActionVisitor extends
 	}
 
 	@Override
-	public CMLProofObligationList caseATimedInterruptAction(
+	public CmlProofObligationList caseATimedInterruptAction(
 			ATimedInterruptAction node, IPOContextStack question)
 			throws AnalysisException {
 		try{
 		System.out.println("A ATimedInterruptAction: " + node.toString());
-		CMLProofObligationList pol = new CMLProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// Get subparts
 		PAction left = node.getLeft();
@@ -287,7 +287,7 @@ public class POGActionVisitor extends
 		// check for Non-Zero time obligation and dispatch exp for POG checking
 		// Changing format of CML POs... pol.add(new
 		// CMLNonZeroTimeObligation(timeExp, question));
-		pol.add(new NonZeroTimeObligation(timeExp, question));
+		pol.add(new CmlNonZeroTimeObligation(timeExp, question));
 		pol.addAll(timeExp.apply(this, question));
 		// Send right-hand side
 		pol.addAll(right.apply(this, question));
@@ -299,11 +299,11 @@ public class POGActionVisitor extends
 	}
 
 	@Override
-	public CMLProofObligationList caseAValParametrisation(
+	public CmlProofObligationList caseAValParametrisation(
 			AValParametrisation node, IPOContextStack question)
 			throws AnalysisException {
 try{
-		CMLProofObligationList pol = new CMLProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// Get subparts
 		ATypeSingleDeclaration decl = node.getDeclaration();
@@ -315,11 +315,11 @@ try{
 	}
 
 	@Override
-	public CMLProofObligationList caseAResParametrisation(
+	public CmlProofObligationList caseAResParametrisation(
 			AResParametrisation node, IPOContextStack question)
 			throws AnalysisException {
 try{
-		CMLProofObligationList pol = new CMLProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// Get subparts
 		ATypeSingleDeclaration decl = node.getDeclaration();
@@ -331,11 +331,11 @@ try{
 	}}
 
 	@Override
-	public CMLProofObligationList caseAUntimedTimeoutAction(
+	public CmlProofObligationList caseAUntimedTimeoutAction(
 			AUntimedTimeoutAction node, IPOContextStack question)
 			throws AnalysisException {
 try{
-		CMLProofObligationList pol = new CMLProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// Get subparts
 		PAction left = node.getLeft();
@@ -351,10 +351,10 @@ try{
 	}}
 
 	@Override
-	public CMLProofObligationList caseATimeoutAction(ATimeoutAction node,
+	public CmlProofObligationList caseATimeoutAction(ATimeoutAction node,
 			IPOContextStack question) throws AnalysisException {
 try{
-		CMLProofObligationList pol = new CMLProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 		System.out.println("A ATimeoutAction: " + node.toString());
 
 		// Get subparts
@@ -365,7 +365,7 @@ try{
 		pol.addAll(left.apply(parentPOG, question));
 		pol.addAll(timedExp.apply(parentPOG, question));
 		// check for Non-Zero time obligation and dispatch exp for POG checking
-		pol.add(new NonZeroTimeObligation(timedExp, question));
+		pol.add(new CmlNonZeroTimeObligation(timedExp, question));
 		pol.addAll(right.apply(parentPOG, question));
 
 		// TODO: Any ATimeoutAction POs?
@@ -375,10 +375,10 @@ try{
 	}}
 
 	@Override
-	public CMLProofObligationList caseAExternalClause(AExternalClause node,
+	public CmlProofObligationList caseAExternalClause(AExternalClause node,
 			IPOContextStack question) throws AnalysisException {
 try{
-		CMLProofObligationList pol = new CMLProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// Get subparts
 		LinkedList<ILexNameToken> ids = node.getIdentifiers();
@@ -392,11 +392,11 @@ try{
 	}}
 
 	@Override
-	public CMLProofObligationList caseASpecificationStatementAction(
+	public CmlProofObligationList caseASpecificationStatementAction(
 			ASpecificationStatementAction node, IPOContextStack question)
 			throws AnalysisException {
 try{
-		CMLProofObligationList pol = new CMLProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// Get subparts
 		PExp post = node.getPostcondition();
@@ -409,11 +409,11 @@ try{
 	}}
 
 	@Override
-	public CMLProofObligationList caseAInternalChoiceReplicatedAction(
+	public CmlProofObligationList caseAInternalChoiceReplicatedAction(
 			AInternalChoiceReplicatedAction node, IPOContextStack question)
 			throws AnalysisException {
 try{
-		CMLProofObligationList pol = new CMLProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// Get subparts
 		PAction repAction = node.getReplicatedAction();
@@ -430,11 +430,11 @@ try{
 	}
 
 	@Override
-	public CMLProofObligationList caseAGeneralisedParallelismReplicatedAction(
+	public CmlProofObligationList caseAGeneralisedParallelismReplicatedAction(
 			AGeneralisedParallelismReplicatedAction node,
 			IPOContextStack question) throws AnalysisException {
 		try{
-		CMLProofObligationList pol = new CMLProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// Get subparts
 		PVarsetExpression csexp = node.getChansetExpression();
@@ -450,11 +450,11 @@ try{
 	}}
 
 	@Override
-	public CMLProofObligationList caseAExternalChoiceReplicatedAction(
+	public CmlProofObligationList caseAExternalChoiceReplicatedAction(
 			AExternalChoiceReplicatedAction node, IPOContextStack question)
 			throws AnalysisException {
 try{
-		CMLProofObligationList pol = new CMLProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// Get subparts
 		PAction action = node.getReplicatedAction();
@@ -471,11 +471,11 @@ try{
 	}}
 
 	@Override
-	public CMLProofObligationList caseANonDeterministicIfStatementAction(
+	public CmlProofObligationList caseANonDeterministicIfStatementAction(
 			ANonDeterministicIfStatementAction node, IPOContextStack question)
 			throws AnalysisException {
 try{
-		CMLProofObligationList pol = new CMLProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// Get subparts
 		LinkedList<ANonDeterministicAltStatementAction> alternatives = node
@@ -491,11 +491,11 @@ try{
 	}}
 
 	@Override
-	public CMLProofObligationList caseANewStatementAction(
+	public CmlProofObligationList caseANewStatementAction(
 			ANewStatementAction node, IPOContextStack question)
 			throws AnalysisException {
 try{
-		CMLProofObligationList pol = new CMLProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// Get subparts
 		LinkedList<PExp> args = node.getArgs();
@@ -511,11 +511,11 @@ try{
 	}}
 
 	@Override
-	public CMLProofObligationList caseAMultipleGeneralAssignmentStatementAction(
+	public CmlProofObligationList caseAMultipleGeneralAssignmentStatementAction(
 			AMultipleGeneralAssignmentStatementAction node,
 			IPOContextStack question) throws AnalysisException {
 try{
-		CMLProofObligationList pol = new CMLProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// Get subparts
 		LinkedList<ASingleGeneralAssignmentStatementAction> assigns = node
@@ -528,11 +528,11 @@ try{
 	}}
 
 	@Override
-	public CMLProofObligationList caseALetStatementAction(
+	public CmlProofObligationList caseALetStatementAction(
 			ALetStatementAction node, IPOContextStack question)
 			throws AnalysisException {
 try{
-		CMLProofObligationList pol = new CMLProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// Get subparts
 		PAction action = node.getAction();
@@ -545,10 +545,10 @@ try{
 	}}
 
 	@Override
-	public CMLProofObligationList caseAInterruptAction(AInterruptAction node,
+	public CmlProofObligationList caseAInterruptAction(AInterruptAction node,
 			IPOContextStack question) throws AnalysisException {
 try{
-		CMLProofObligationList pol = new CMLProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// Get subparts
 		PAction left = node.getLeft();
@@ -565,11 +565,11 @@ try{
 	}}
 
 	@Override
-	public CMLProofObligationList caseAInterleavingParallelAction(
+	public CmlProofObligationList caseAInterleavingParallelAction(
 			AInterleavingParallelAction node, IPOContextStack question)
 			throws AnalysisException {
 try{
-		CMLProofObligationList pol = new CMLProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// Get subparts
 		PAction leftAction = node.getLeftAction();
@@ -590,11 +590,11 @@ try{
 	}}
 
 	@Override
-	public CMLProofObligationList caseADeclarationInstantiatedAction(
+	public CmlProofObligationList caseADeclarationInstantiatedAction(
 			ADeclarationInstantiatedAction node, IPOContextStack question)
 			throws AnalysisException {
 try{
-		CMLProofObligationList pol = new CMLProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// Get subparts
 		PAction action = node.getAction();
@@ -613,11 +613,11 @@ try{
 	}}
 
 	@Override
-	public CMLProofObligationList caseAGeneralisedParallelismParallelAction(
+	public CmlProofObligationList caseAGeneralisedParallelismParallelAction(
 			AGeneralisedParallelismParallelAction node, IPOContextStack question)
 			throws AnalysisException {
 try{
-		CMLProofObligationList pol = new CMLProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// Get subparts
 		PAction leftAction = node.getLeftAction();
@@ -640,13 +640,13 @@ try{
 	}}
 
 	@Override
-	public CMLProofObligationList caseAForSetStatementAction(
+	public CmlProofObligationList caseAForSetStatementAction(
 			AForSetStatementAction node, IPOContextStack question)
 			throws AnalysisException {
 	try{
 		// TODO RWL Working on it !
 
-		CMLProofObligationList pol = new CMLProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// Get subparts
 		PAction action = node.getAction();
@@ -660,11 +660,11 @@ try{
 	}}
 
 	@Override
-	public CMLProofObligationList caseAForSequenceStatementAction(
+	public CmlProofObligationList caseAForSequenceStatementAction(
 			AForSequenceStatementAction node, IPOContextStack question)
 			throws AnalysisException {
 try{
-		CMLProofObligationList pol = new CMLProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// Get subparts
 		PAction action = node.getAction();
@@ -678,11 +678,11 @@ try{
 	}}
 
 	@Override
-	public CMLProofObligationList caseAForIndexStatementAction(
+	public CmlProofObligationList caseAForIndexStatementAction(
 			AForIndexStatementAction node, IPOContextStack question)
 			throws AnalysisException {
 try{
-		CMLProofObligationList pol = new CMLProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// Get subparts
 		PAction act = node.getAction();
@@ -698,11 +698,11 @@ try{
 	}}
 
 	@Override
-	public CMLProofObligationList caseAChannelRenamingAction(
+	public CmlProofObligationList caseAChannelRenamingAction(
 			AChannelRenamingAction node, IPOContextStack question)
 			throws AnalysisException {
 try{
-		CMLProofObligationList pol = new CMLProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// Get subparts
 		PAction act = node.getAction();
@@ -715,10 +715,10 @@ try{
 	}}
 
 	@Override
-	public CMLProofObligationList caseAWaitAction(AWaitAction node,
+	public CmlProofObligationList caseAWaitAction(AWaitAction node,
 			IPOContextStack question) throws AnalysisException {
 		try{
-		CMLProofObligationList pol = new CMLProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// Get subparts
 		PExp timedExp = node.getExpression();
@@ -733,11 +733,11 @@ try{
 	}}
 
 	@Override
-	public CMLProofObligationList caseACaseAlternativeAction(
+	public CmlProofObligationList caseACaseAlternativeAction(
 			ACaseAlternativeAction node, IPOContextStack question)
 			throws AnalysisException {
 try{
-		CMLProofObligationList pol = new CMLProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// Get subparts
 		LinkedList<PDefinition> defs = node.getDefs();
@@ -752,11 +752,11 @@ try{
 	}}
 
 	@Override
-	public CMLProofObligationList caseACasesStatementAction(
+	public CmlProofObligationList caseACasesStatementAction(
 			ACasesStatementAction node, IPOContextStack question)
 			throws AnalysisException {
 try{
-		CMLProofObligationList pol = new CMLProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// Get subparts
 		LinkedList<ACaseAlternativeAction> cases = node.getCases();
@@ -771,10 +771,10 @@ try{
 	}}
 
 	@Override
-	public CMLProofObligationList caseAMuAction(AMuAction node,
+	public CmlProofObligationList caseAMuAction(AMuAction node,
 			IPOContextStack question) throws AnalysisException {
 try{
-		CMLProofObligationList pol = new CMLProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// Get subparts
 		LinkedList<ILexIdentifierToken> ids = node.getIdentifiers();
@@ -789,10 +789,10 @@ try{
 
 	@SuppressWarnings("deprecation")
 	@Override
-	public CMLProofObligationList caseAChaosAction(AChaosAction node,
+	public CmlProofObligationList caseAChaosAction(AChaosAction node,
 			IPOContextStack question) throws AnalysisException {
 		try{
-		CMLProofObligationList pol = new CMLProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// TODO: Any AChaosAction POs?
 
@@ -803,11 +803,11 @@ try{
 
 	@SuppressWarnings("deprecation")
 	@Override
-	public CMLProofObligationList caseASequentialCompositionReplicatedAction(
+	public CmlProofObligationList caseASequentialCompositionReplicatedAction(
 			ASequentialCompositionReplicatedAction node, IPOContextStack question)
 			throws AnalysisException {
 try{
-		CMLProofObligationList pol = new CMLProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// Get subparts
 		PAction replicatedAction = node.getReplicatedAction();
@@ -821,7 +821,7 @@ try{
 	}}
 
 	@Override
-	public CMLProofObligationList caseAAssignmentCallStatementAction(
+	public CmlProofObligationList caseAAssignmentCallStatementAction(
 			AAssignmentCallStatementAction node, IPOContextStack question)
 			throws AnalysisException {
 try{
@@ -829,7 +829,7 @@ try{
 		PExp designator = node.getDesignator();
 		ACallStatementAction call = node.getCall();
 
-		CMLProofObligationList pol = new CMLProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// TODO: Any AAssignmentCallStatementAction POs?
 
@@ -840,11 +840,11 @@ try{
 
 	@SuppressWarnings("deprecation")
 	@Override
-	public CMLProofObligationList caseAAlphabetisedParallelismParallelAction(
+	public CmlProofObligationList caseAAlphabetisedParallelismParallelAction(
 			AAlphabetisedParallelismParallelAction node, IPOContextStack question)
 			throws AnalysisException {
 		try{
-		CMLProofObligationList pol = new CMLProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// Get subparts
 		PAction leftAction = node.getLeftAction();
@@ -869,11 +869,11 @@ try{
 	}}
 
 	@Override
-	public CMLProofObligationList caseAReturnStatementAction(
+	public CmlProofObligationList caseAReturnStatementAction(
 			AReturnStatementAction node, IPOContextStack question)
 			throws AnalysisException {
 try{
-		CMLProofObligationList pol = new CMLProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// Get subparts
 		PExp exp = node.getExp();
@@ -885,14 +885,14 @@ try{
 	}}
 
 	@Override
-	public CMLProofObligationList caseAGuardedAction(AGuardedAction node,
+	public CmlProofObligationList caseAGuardedAction(AGuardedAction node,
 			IPOContextStack question) throws AnalysisException {
 try{
 		// Get subparts
 		PExp exp = node.getExpression();
 		PAction action = node.getAction();
 
-		CMLProofObligationList pol = new CMLProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 
 		pol.addAll(exp.apply(parentPOG, question));
 		pol.addAll(action.apply(parentPOG, question));
@@ -904,10 +904,10 @@ try{
 	}}
 
 	@Override
-	public CMLProofObligationList caseADivAction(ADivAction node,
+	public CmlProofObligationList caseADivAction(ADivAction node,
 			IPOContextStack question) throws AnalysisException {
 try{
-		CMLProofObligationList pol = new CMLProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// TODO: Any ADivAction POs?
 		return pol;
@@ -916,11 +916,11 @@ try{
 	}}
 
 	@Override
-	public CMLProofObligationList caseASubclassResponsibilityAction(
+	public CmlProofObligationList caseASubclassResponsibilityAction(
 			ASubclassResponsibilityAction node, IPOContextStack question)
 			throws AnalysisException {
 try{
-		CMLProofObligationList pol = new CMLProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// TODO: Any ASubclassResponsibilityAction POs?
 		return pol;
@@ -929,11 +929,11 @@ try{
 	}}
 
 	@Override
-	public CMLProofObligationList caseACommonInterleavingReplicatedAction(
+	public CmlProofObligationList caseACommonInterleavingReplicatedAction(
 			ACommonInterleavingReplicatedAction node, IPOContextStack question)
 			throws AnalysisException {
 try{
-		CMLProofObligationList pol = new CMLProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// Get subparts
 		PAction acts = node.getReplicatedAction();
@@ -947,11 +947,11 @@ try{
 	}}
 
 	@Override
-	public CMLProofObligationList caseAInterleavingReplicatedAction(
+	public CmlProofObligationList caseAInterleavingReplicatedAction(
 			AInterleavingReplicatedAction node, IPOContextStack question)
 			throws AnalysisException {
 try{
-		CMLProofObligationList pol = new CMLProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// Get subparts
 		PVarsetExpression namesetExp = node.getNamesetExpression();
@@ -965,11 +965,11 @@ try{
 	}}
 
 	@Override
-	public CMLProofObligationList caseASynchronousParallelismReplicatedAction(
+	public CmlProofObligationList caseASynchronousParallelismReplicatedAction(
 			ASynchronousParallelismReplicatedAction node,
 			IPOContextStack question) throws AnalysisException {
 try{
-		CMLProofObligationList pol = new CMLProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// Get subparts
 		PVarsetExpression namesetExp = node.getNamesetExpression();
@@ -983,11 +983,11 @@ try{
 	}}
 
 	@Override
-	public CMLProofObligationList caseANotYetSpecifiedStatementAction(
+	public CmlProofObligationList caseANotYetSpecifiedStatementAction(
 			ANotYetSpecifiedStatementAction node, IPOContextStack question)
 			throws AnalysisException {
 try{
-		CMLProofObligationList pol = new CMLProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// Get subparts
 		LinkedList<PExp> args = node.getArgs();
@@ -1000,11 +1000,11 @@ try{
 	}}
 
 	@Override
-	public CMLProofObligationList caseAInternalChoiceAction(
+	public CmlProofObligationList caseAInternalChoiceAction(
 			AInternalChoiceAction node, IPOContextStack question)
 			throws AnalysisException {
 try{
-		CMLProofObligationList pol = new CMLProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// Get subparts
 		PAction left = node.getLeft();
@@ -1021,10 +1021,10 @@ try{
 	}}
 
 	@Override
-	public CMLProofObligationList caseAReferenceAction(AReferenceAction node,
+	public CmlProofObligationList caseAReferenceAction(AReferenceAction node,
 			IPOContextStack question) throws AnalysisException {
 try{
-		CMLProofObligationList pol = new CMLProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// Get subparts
 		LinkedList<PExp> args = node.getArgs();
@@ -1037,11 +1037,11 @@ try{
 	}}
 
 	@Override
-	public CMLProofObligationList caseACommunicationAction(
+	public CmlProofObligationList caseACommunicationAction(
 			ACommunicationAction node, IPOContextStack question)
 			throws AnalysisException {
 try{
-		CMLProofObligationList pol = new CMLProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// Get subparts
 		PAction act = node.getAction();
@@ -1057,10 +1057,10 @@ try{
 
 	@SuppressWarnings("deprecation")
 	@Override
-	public CMLProofObligationList caseASkipAction(ASkipAction node,
+	public CmlProofObligationList caseASkipAction(ASkipAction node,
 			IPOContextStack question) throws AnalysisException {
 		try{
-		CMLProofObligationList pol = new CMLProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// TODO Any ASkipAction POs?
 		return pol;
@@ -1070,12 +1070,12 @@ try{
 
 	@SuppressWarnings("deprecation")
 	@Override
-	public CMLProofObligationList caseAExternalChoiceAction(
+	public CmlProofObligationList caseAExternalChoiceAction(
 			AExternalChoiceAction node, IPOContextStack question)
 			throws AnalysisException {
 try{
 		System.out.println("A AExternalChoiceAction: " + node.toString());
-		CMLProofObligationList pol = new CMLProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// Get subparts
 		PAction left = node.getLeft();
@@ -1092,10 +1092,10 @@ try{
 	}}
 
 	@Override
-	public CMLProofObligationList caseAHidingAction(AHidingAction node,
+	public CmlProofObligationList caseAHidingAction(AHidingAction node,
 			IPOContextStack question) throws AnalysisException {
 try{
-		CMLProofObligationList pol = new CMLProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// Get subparts
 		PAction action = node.getLeft();
@@ -1112,11 +1112,11 @@ try{
 	}}
 
 	@Override
-	public CMLProofObligationList caseAVresParametrisation(
+	public CmlProofObligationList caseAVresParametrisation(
 			AVresParametrisation node, IPOContextStack question)
 			throws AnalysisException {
 try{
-		CMLProofObligationList pol = new CMLProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// Get subparts
 		ATypeSingleDeclaration decl = node.getDeclaration();
@@ -1130,11 +1130,11 @@ try{
 	}}
 
 	@Override
-	public CMLProofObligationList caseAParametrisedInstantiatedAction(
+	public CmlProofObligationList caseAParametrisedInstantiatedAction(
 			AParametrisedInstantiatedAction node, IPOContextStack question)
 			throws AnalysisException {
 		try{
-		CMLProofObligationList pol = new CMLProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// Get subparts
 		AParametrisedAction action = node.getAction();
@@ -1153,11 +1153,11 @@ try{
 
 	@SuppressWarnings("deprecation")
 	@Override
-	public CMLProofObligationList caseAStartDeadlineAction(
+	public CmlProofObligationList caseAStartDeadlineAction(
 			AStartDeadlineAction node, IPOContextStack question)
 			throws AnalysisException {
 try{
-		CMLProofObligationList pol = new CMLProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// Get subparts
 		PAction event = node.getLeft();
@@ -1175,10 +1175,10 @@ try{
 
 	@SuppressWarnings("deprecation")
 	@Override
-	public CMLProofObligationList caseAEndDeadlineAction(AEndDeadlineAction node,
+	public CmlProofObligationList caseAEndDeadlineAction(AEndDeadlineAction node,
 			IPOContextStack question) throws AnalysisException {
 try{
-		CMLProofObligationList pol = new CMLProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// Get subparts
 		PAction event = node.getLeft();
@@ -1195,10 +1195,10 @@ try{
 	}}
 
 	@Override
-	public CMLProofObligationList caseAStopAction(AStopAction node,
+	public CmlProofObligationList caseAStopAction(AStopAction node,
 			IPOContextStack question) throws AnalysisException {
 try{
-		CMLProofObligationList pol = new CMLProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// TODO: any AStopAction POs?
 		return pol;
@@ -1208,11 +1208,11 @@ try{
 
 	@SuppressWarnings("deprecation")
 	@Override
-	public CMLProofObligationList caseACallStatementAction(
+	public CmlProofObligationList caseACallStatementAction(
 			ACallStatementAction node, IPOContextStack question)
 			throws AnalysisException {
 try{
-		CMLProofObligationList pol = new CMLProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// Get subparts
 		LinkedList<PExp> args = node.getArgs();
@@ -1226,11 +1226,11 @@ try{
 
 	@SuppressWarnings("deprecation")
 	@Override
-	public CMLProofObligationList caseASynchronousParallelismParallelAction(
+	public CmlProofObligationList caseASynchronousParallelismParallelAction(
 			ASynchronousParallelismParallelAction node, IPOContextStack question)
 			throws AnalysisException {
 try{
-		CMLProofObligationList pol = new CMLProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// Get subparts
 		PAction leftAction = node.getLeftAction();
@@ -1251,11 +1251,11 @@ try{
 	}}
 
 	@Override
-	public CMLProofObligationList caseANonDeterministicDoStatementAction(
+	public CmlProofObligationList caseANonDeterministicDoStatementAction(
 			ANonDeterministicDoStatementAction node, IPOContextStack question)
 			throws AnalysisException {
 		try{
-		CMLProofObligationList pol = new CMLProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// Get subparts
 		LinkedList<ANonDeterministicAltStatementAction> alternatives = node
@@ -1271,11 +1271,11 @@ try{
 	}}
 
 	@Override
-	public CMLProofObligationList caseANonDeterministicAltStatementAction(
+	public CmlProofObligationList caseANonDeterministicAltStatementAction(
 			ANonDeterministicAltStatementAction node, IPOContextStack question)
 			throws AnalysisException {
 try{
-		CMLProofObligationList pol = new CMLProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// Get subparts
 		PExp guard = node.getGuard();
@@ -1291,11 +1291,11 @@ try{
 	}}
 
 	@Override
-	public CMLProofObligationList caseAParametrisedAction(
+	public CmlProofObligationList caseAParametrisedAction(
 			AParametrisedAction node, IPOContextStack question)
 			throws AnalysisException {
 try{
-		CMLProofObligationList pol = new CMLProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// Get subparts
 		PAction action = node.getAction();

@@ -16,7 +16,7 @@ import org.overture.pog.pub.IProofObligationList;
 import eu.compassresearch.core.common.AnalysisArtifact;
 
 @SuppressWarnings("serial")
-public class CMLProofObligationList extends Vector<IProofObligation> implements AnalysisArtifact, IProofObligationList {
+public class CmlProofObligationList extends Vector<IProofObligation> implements AnalysisArtifact, IProofObligationList {
 
 	@Override
 	public void trivialCheck()

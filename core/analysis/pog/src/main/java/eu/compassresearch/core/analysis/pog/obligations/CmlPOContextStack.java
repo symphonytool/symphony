@@ -9,14 +9,14 @@ import org.overture.pog.pub.IPOContext;
 import org.overture.pog.pub.IPOContextStack;
 
 @SuppressWarnings("serial")
-public class CMLPOContextStack extends Stack<CMLPOContext> implements
+public class CmlPOContextStack extends Stack<CmlPOContext> implements
 		IPOContextStack
 {
 	public String getName()
 	{
 		StringBuilder result = new StringBuilder();
 		String prefix = "";
-		for (CMLPOContext ctxt : this)
+		for (CmlPOContext ctxt : this)
 		{
 			String name = ctxt.getName();
 			if (name.length() > 0)
@@ -35,7 +35,7 @@ public class CMLPOContextStack extends Stack<CMLPOContext> implements
 		String spacing = "  ";
 		String indent = "";
 		StringBuilder tail = new StringBuilder();
-		for (CMLPOContext ctxt : this)
+		for (CmlPOContext ctxt : this)
 		{
 			String po = ctxt.getGUIContext();
 			if (po.length() > 0)
@@ -99,9 +99,9 @@ public class CMLPOContextStack extends Stack<CMLPOContext> implements
 	@Override
 	public IPOContext push(IPOContext context)
 	{
-		if (context instanceof CMLPOContext)
+		if (context instanceof CmlPOContext)
 		{
-			super.push((CMLPOContext) context);
+			super.push((CmlPOContext) context);
 		}
 		return context;
 

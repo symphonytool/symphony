@@ -12,19 +12,19 @@ import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.expressions.ABracketedExp;
 import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
 import eu.compassresearch.ast.expressions.PCMLExp;
-import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
+import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligationList;
 
 public class POGExpressionVisitor extends
-	QuestionAnswerCMLAdaptor<IPOContextStack, CMLProofObligationList> {
+	QuestionAnswerCMLAdaptor<IPOContextStack, CmlProofObligationList> {
 
     private static final long serialVersionUID = -8208272656463333796L;
-    final private QuestionAnswerAdaptor<IPOContextStack, CMLProofObligationList> rootVisitor;
-    final private PogParamExpVisitor<IPOContextStack, CMLProofObligationList> overtureVisitor;
+    final private QuestionAnswerAdaptor<IPOContextStack, CmlProofObligationList> rootVisitor;
+    final private PogParamExpVisitor<IPOContextStack, CmlProofObligationList> overtureVisitor;
 
     public POGExpressionVisitor(
-	    QuestionAnswerAdaptor<IPOContextStack, CMLProofObligationList> parentVisitor) {
+	    QuestionAnswerAdaptor<IPOContextStack, CmlProofObligationList> parentVisitor) {
 	this.rootVisitor = parentVisitor;
-	this.overtureVisitor = new PogParamExpVisitor<IPOContextStack, CMLProofObligationList>(
+	this.overtureVisitor = new PogParamExpVisitor<IPOContextStack, CmlProofObligationList>(
 		this, this, new CmlPogAssistantFactory());
     }
 
@@ -32,9 +32,9 @@ public class POGExpressionVisitor extends
 // they are the PCMLExps or wheatever
     // Typechecker will eventually solve resolve these. For now, we hack past it.
     @Override
-    public CMLProofObligationList caseAUnresolvedPathExp(AUnresolvedPathExp node,
+    public CmlProofObligationList caseAUnresolvedPathExp(AUnresolvedPathExp node,
 	    IPOContextStack question) throws AnalysisException {
-	return new CMLProofObligationList();
+	return new CmlProofObligationList();
     }
 
     
@@ -42,10 +42,10 @@ public class POGExpressionVisitor extends
     
     
     @Override
-	public CMLProofObligationList caseABracketedExp(ABracketedExp node,
+	public CmlProofObligationList caseABracketedExp(ABracketedExp node,
 			IPOContextStack question) throws AnalysisException
 	{
-    	CMLProofObligationList pol = new CMLProofObligationList();
+    	CmlProofObligationList pol = new CmlProofObligationList();
     	PExp exp = node.getExpression();
     	pol.addAll(exp.apply(this,question));
     	return pol;
@@ -54,25 +54,25 @@ public class POGExpressionVisitor extends
 
 	//TODO handle PCML expressions
     @Override
-	public CMLProofObligationList defaultPCMLExp(PCMLExp node,
+	public CmlProofObligationList defaultPCMLExp(PCMLExp node,
 			IPOContextStack question) throws AnalysisException {
-		return new CMLProofObligationList();
+		return new CmlProofObligationList();
 	}
 
 	// Call Overture for the other expressions
     @Override
-    public CMLProofObligationList defaultPExp(PExp node, IPOContextStack question)
+    public CmlProofObligationList defaultPExp(PExp node, IPOContextStack question)
 	    throws AnalysisException {
-	CMLProofObligationList pol = new CMLProofObligationList();
+	CmlProofObligationList pol = new CmlProofObligationList();
 	pol.addAll(node.apply(overtureVisitor, question));
 	return pol;
     }
 
     // Call the main pog when it's not an expression
     @Override
-    public CMLProofObligationList defaultINode(INode node, IPOContextStack question)
+    public CmlProofObligationList defaultINode(INode node, IPOContextStack question)
 	    throws AnalysisException {
-	CMLProofObligationList pol = new CMLProofObligationList();
+	CmlProofObligationList pol = new CmlProofObligationList();
 	pol.addAll(node.apply(rootVisitor, question));
 	return pol;
     }

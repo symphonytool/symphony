@@ -8,8 +8,8 @@ import isabelle.Text.Range
 import isabelle.eclipse.core.text.DocumentModel
 import isabelle.eclipse.core.util.{LoggingActor, SessionEvents}
 import eu.compassresearch.theoremprover.IsabelleTheory
-import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList
-import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligation
+import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligationList
+import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligation
 import eu.compassresearch.ast.program.PSource
 import eu.compassresearch.core.common.Registry
 import eu.compassresearch.core.common.RegistryFactory
@@ -21,7 +21,7 @@ import scala.collection.JavaConversions;
 
 object TPListener {
   
-  def updatePOListFromThy(poList: CMLProofObligationList, ithy: IsabelleTheory) = {
+  def updatePOListFromThy(poList: CmlProofObligationList, ithy: IsabelleTheory) = {
     for (p <- JavaConversions.asScalaIterable(poList)) {      
       // FIXME: Add code to update POs from the theory
       if (ithy.thmIsProved("po" + p.getName())) {
@@ -65,7 +65,7 @@ class TPListener(session: Session) extends SessionEvents {
           
           for (c <- changed.commands) {
             val ast  = nodeCMLMap(c.node_name)
-            val poList = registry.lookup(ast, classOf[CMLProofObligationList]);
+            val poList = registry.lookup(ast, classOf[CmlProofObligationList]);
             val ithy   = registry.lookup(ast, classOf[IsabelleTheory])
             TPListener.updatePOListFromThy(poList, ithy)
           }

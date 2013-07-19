@@ -19,7 +19,7 @@ import org.overture.ide.plugins.poviewer.view.PoOverviewTableView;
 import org.overture.ide.ui.utility.VdmTypeCheckerUi;
 import org.overture.pog.pub.IProofObligationList;
 
-import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
+import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligationList;
 import eu.compassresearch.core.analysis.pog.visitors.ProofObligationGenerator;
 import eu.compassresearch.core.common.Registry;
 import eu.compassresearch.core.common.RegistryFactory;
@@ -128,12 +128,12 @@ public class POGDoStuff implements IWorkbenchWindowActionDelegate
 	{
 		Registry registry = RegistryFactory.getInstance(POConstants.PO_REGISTRY_ID).getRegistry();
 
-		IProofObligationList allPOs = new CMLProofObligationList();
+		IProofObligationList allPOs = new CmlProofObligationList();
 
 		for (IResource cmlfile : cmlfiles)
 		{
 			ICmlSourceUnit cmlSource = (ICmlSourceUnit) cmlfile.getAdapter(ICmlSourceUnit.class);
-			CMLProofObligationList poList = new CMLProofObligationList();
+			CmlProofObligationList poList = new CmlProofObligationList();
 			ProofObligationGenerator pog = new ProofObligationGenerator(cmlSource.getSourceAst());
 			try
 			{
@@ -153,12 +153,12 @@ public class POGDoStuff implements IWorkbenchWindowActionDelegate
 	private void showPOs(final IVdmProject project,
 			ArrayList<IResource> cmlFiles)
 	{
-		final IProofObligationList pol = new CMLProofObligationList();
+		final IProofObligationList pol = new CmlProofObligationList();
 		Registry registry = RegistryFactory.getInstance(POConstants.PO_REGISTRY_ID).getRegistry();
 		for (IResource cmlfile : cmlFiles)
 		{
 			ICmlSourceUnit cmlSource = (ICmlSourceUnit) cmlfile.getAdapter(ICmlSourceUnit.class);
-			pol.addAll(registry.lookup(cmlSource.getSourceAst(), CMLProofObligationList.class));
+			pol.addAll(registry.lookup(cmlSource.getSourceAst(), CmlProofObligationList.class));
 
 		}
 
