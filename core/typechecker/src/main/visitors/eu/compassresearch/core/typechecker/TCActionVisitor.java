@@ -2,6 +2,7 @@ package eu.compassresearch.core.typechecker;
 
 import static eu.compassresearch.core.typechecker.CmlTCUtil.successfulType;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -2000,10 +2001,107 @@ class TCActionVisitor extends
 							+ expType, "" + stateType)));
 			return node.getType();
 		}
-
-		node.setType(new AStatementType());
-		return node.getType();
+		
+		//if the expression is an apply expression with of operation type, 
+		//then we have an assignment call instead. So we replace the AST nodes with this
+		if(node.getExpression() instanceof AApplyExp && ((AApplyExp)node.getExpression()).getRoot().getType() instanceof AOperationType)
+		{
+			AApplyExp applyExp = (AApplyExp)node.getExpression();
+			List<ILexIdentifierToken> ids = ((AUnresolvedPathExp)applyExp.getRoot()).getIdentifiers(); 
+			StringBuilder strBuilder = new StringBuilder();
+			for(Iterator<ILexIdentifierToken> iter = ids.iterator();iter.hasNext();)
+				strBuilder.append(iter.next() + (iter.hasNext() ? "." + iter.next() : ""));
+			ILexNameToken name = new LexNameToken("",strBuilder.toString(),applyExp.getRoot().getLocation());
+			//ILexNameToken name = new LexNameToken("", ids.get(0) + "." + ids.get(1),applyExp.getRoot().getLocation());
+			//AUnresolvedPathExp prev = new AUnresolvedPathExp(ids.get(0).getLocation(), ids.subList(0, ids.size()-1));
+			//PObjectDesignator designator = convertUnresolvedPathExpToObjectdesignator(
+			//		new AUnresolvedPathExp(ids.get(0).getLocation(), ids.subList(0, ids.size()-1)), question);
+			//PType newType = prev.apply(parentChecker,question);
+			//PDefinition newDef = question.env.findName(new LexNameToken("", prev.getIdentifiers().get(0)), question.scope);
+			
+			//AVariableExp varExp = new AVariableExp(location_, name_, original_)
+			
+			//ILexNameToken name = new LexNameToken("",ids.get(ids.size()-1) + "",applyExp.getRoot().getLocation());
+			ACallStatementAction cstm = new ACallStatementAction(applyExp.getLocation(),new AStatementType(), name, applyExp.getArgs());
+			
+			AAssignmentCallStatementAction acstm = new AAssignmentCallStatementAction(node.getLocation(),new AStatementType(),node.getStateDesignator(),cstm);
+			acstm.parent(node.parent());
+			acstm.parent().replaceChild(node, acstm);
+			node.parent(null);
+			return acstm.getType();
+		}
+		else{
+			node.setType(new AStatementType());	
+			return node.getType();
+		}
 	}
+	
+//	private PObjectDesignator convertUnresolvedPathExpToObjectdesignator(AUnresolvedPathExp node, org.overture.typechecker.TypeCheckInfo question)
+//	{
+//		// So we are going to look up a path of the form <class>.<member> or
+//		// <identifier>.<member>
+//		// To find that class there must be a CML Environment as Classes are
+//		// top-level and CML Specific.
+//		//
+//		PObjectDesignator designator = null;
+//		
+//		CmlTypeCheckInfo cmlQuestion = CmlTCUtil.getCmlEnv(question);
+//		if (cmlQuestion == null) {
+//			return designator;
+//		}
+//
+//		// All right lets get all the identifiers used in this path
+//		LinkedList<ILexIdentifierToken> identifiers = node.getIdentifiers();
+//
+//		// Get parent identifier
+//		LexNameToken rootName = new LexNameToken("", identifiers.get(0));
+//
+//		// is it a type like a class or global type this is not a type
+//		// as we would be in the UnresolvedType case
+//		// PDefinition root = question.env.findType(rootName, "");
+//		PDefinition root = null;
+//
+//		// no then it may be a variable
+//		if (root == null)
+//			root = question.env.findName(rootName, question.scope);
+//
+//		// Use Cml environment to determine what rootName is
+//		if (root == null)
+//			root = cmlQuestion.lookup(rootName, PDefinition.class);
+//
+//		// last option it is not in something else then in must be in this class
+//		//				if (root == null) {
+//		//					root = question.env.getEnclosingDefinition();
+//		//					if (root != null)
+//		//						root = assist.findMemberName(root, rootName, cmlQuestion);
+//		//				}
+//
+//		// did we find the top-level
+//		if (root == null) {
+//			return designator;
+//		}
+//
+//		// Now the root identifier is resolved, lets look for the first member
+//		// We assume the identifiers are given in order with the outer most
+//		// definitions coming first
+//		PType leafType = null;
+//		PDefinition prevRoot = null;
+//		List<PDefinition> defs = new LinkedList<PDefinition>();
+//		defs.add(root);
+//		PDefinition def = root;
+//
+//		if(identifiers.size() == 1)
+//		{
+//			ILexIdentifierToken id = identifiers.get(0); 
+//			//it must be a variable exp
+//			AVariableExp varExp = new AVariableExp(root.getType(), id.getLocation(),new LexNameToken("", id.clone()),id.getName(), root);
+//			designator = new AIdentifierObjectDesignator(varExp.getLocation(),new LexNameToken("", id.clone()),varExp);
+//		}
+//
+//		
+//		
+//		return designator;
+//	}
 
 	@Override
 	public PType caseAInternalChoiceAction(AInternalChoiceAction node,

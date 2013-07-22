@@ -150,8 +150,8 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 						public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
 								throws AnalysisException {
 							//first find the operation value in the context
-							CmlOperationValue opVal = (CmlOperationValue)question.check(node.getName()); 
-
+							CmlOperationValue opVal = (CmlOperationValue)lookupName(node.getName(),question); 
+							
 							//evaluate all the arguments
 							ValueList argValues = new ValueList();
 							for (PExp arg: node.getArgs())

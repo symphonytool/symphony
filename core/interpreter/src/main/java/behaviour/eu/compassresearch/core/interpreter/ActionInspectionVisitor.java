@@ -116,7 +116,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 
 		if(!owner.hasChildren())
 		{
-			final Value value = question.lookup(node.getName()); 
+			final Value value = lookupName(node.getName(),question); 
 			if(value instanceof CmlOperationValue)
 				return node.apply(statementInspectionVisitor,question);
 			else if (value instanceof ActionValue)
