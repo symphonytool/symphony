@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: COMPASS IDE POG Plugin
 Bundle-SymbolicName: eu.compassresearch.ide.cml.pog-plugin;singleton:=true
-Bundle-Version: 0.1.1
+Bundle-Version: 0.1.2.qualifier
 Bundle-Activator: eu.compassresearch.ide.cml.pogplugin.Activator
 Bundle-Vendor: The COMPASS Project
 Require-Bundle: org.eclipse.debug.ui,
@@ -18,10 +18,17 @@ Require-Bundle: org.eclipse.debug.ui,
  org.eclipse.core.filesystem,
  org.overture.ide.ui,
  org.overture.ide.builders.vdmj,
+<<<<<<< HEAD
  eu.compassresearch.ide.cml.core,
  org.overture.ide.plugins.poviewer
 Import-Package: eu.compassresearch.ide.cml.ui,
  eu.compassresearch.ide.cml.ui.editor.core.dom
+=======
+ org.overture.ide.plugins.poviewer,
+ eu.compassresearch.ide.core
+Import-Package: eu.compassresearch.ide.core.resources,
+ eu.compassresearch.ide.ui
+>>>>>>> origin/development
 Export-Package: eu.compassresearch.core.analysis.pog.obligations,
  eu.compassresearch.ide.cml.pogplugin, 
  eu.compassresearch.ide.cml.pogplugin.commands

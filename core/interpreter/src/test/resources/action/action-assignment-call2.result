@@ -3,7 +3,6 @@
   <exception/>
   <interpreterState>TERMINATED</interpreterState>
   <trace>
-    <events>a.6</events>
-    <timedTrace/>
+    <events>a\.6</events>
   </trace>
 </testResult>

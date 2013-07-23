@@ -26,9 +26,10 @@ import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AActionsDefinition;
 import eu.compassresearch.ast.definitions.AChannelNameDefinition;
 import eu.compassresearch.ast.definitions.AChannelsDefinition;
-import eu.compassresearch.ast.definitions.AClassDefinition;
+import eu.compassresearch.ast.definitions.ACmlClassDefinition;
 import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AFunctionsDefinition;
+import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AOperationsDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.definitions.ATypesDefinition;
@@ -147,7 +148,7 @@ class CmlDefinitionVisitor extends
 	}
 	
 	@Override
-	public NameValuePairList caseAClassDefinition(AClassDefinition node,
+	public NameValuePairList caseACmlClassDefinition(ACmlClassDefinition node,
 			Context question) throws AnalysisException {
 
 		
@@ -204,6 +205,13 @@ class CmlDefinitionVisitor extends
 		vpl.add(new NameValuePair(node.getName(), CmlValueFactory.createOperationValue(node,question)));
 		
 		return vpl;
+	}
+	
+	@Override
+	public NameValuePairList caseAImplicitCmlOperationDefinition(
+			AImplicitCmlOperationDefinition node, Context question)
+			throws AnalysisException {
+		throw new AnalysisException("Implicit operations cannot be interpreted. This feature might be implemented later");
 	}
 
 	@Override

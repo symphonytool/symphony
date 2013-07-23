@@ -3,9 +3,6 @@
   <exception/>
   <interpreterState>TERMINATED</interpreterState>
   <trace>
-    <events>a</events>
-    <events>b</events>
-    <events>c</events>
-    <timedTrace/>
+    <events>(a|b|c)</events>
   </trace>
 </testResult>

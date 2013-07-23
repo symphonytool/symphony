@@ -353,14 +353,14 @@ programParagraph returns[PDefinition defs]
     | functionDefs      { $defs = $functionDefs.defs; }
     ;
 
-classDefinition returns[AClassDefinition def]
+classDefinition returns[ACmlClassDefinition def]
 @after { $def.setLocation(extractLexLocation($start, $stop)); }
     : 'class' id=IDENTIFIER ('extends' parent=IDENTIFIER)? '=' 'begin' classDefinitionBlockOptList 'end'
         {
             /* FIXME --- Will need to check AInitialDefinition defs
              * that their id matches the class id here.
              */
-            $def = new AClassDefinition(); // FIXME
+            $def = new ACmlClassDefinition(); // FIXME
             $def.setName(new LexNameToken("", $id.getText(), extractLexLocation($id)));
             /* FIXME --- need to set the parent's name once we've
              * settled on how that works
@@ -381,7 +381,7 @@ processDefinition returns[AProcessDefinition def]
             $def.setName(processName);
             List<PParametrisation> paramList = $parametrisationList.params;
             if (paramList != null) {
-                List<PSingleDeclaration> localState = new LinkedList<PSingleDeclaration>();
+                List<ATypeSingleDeclaration> localState = new LinkedList<ATypeSingleDeclaration>();
                 for(PParametrisation p : paramList)
                 {
                     ATypeSingleDeclaration decl = p.getDeclaration();
@@ -793,7 +793,7 @@ action returns[PAction action]
                 $action = suffix;
             }
         }
-    | actionReplicated  { $action = $actionReplicated.action; }
+    | actionReplicated  {$actionReplicated.action.setLocation(extractLexLocation($start,$actionReplicated.stop));$action = $actionReplicated.action; }
     ;
 
 actionSuffix returns[PAction suffix]
@@ -1723,6 +1723,9 @@ valueDefinition returns[AValueDefinition def]
 // Also, apparently JPCW doesn't want the "be st" because they
 //  introduce a type on non-determinism that he doesn't want to deal
 //  with.  So, they'll not happen. -jwc/19Dec2012
+//
+// I just noticed that CML0 has an 'in' form present; this is not from
+// the VDM side, but has never been implmented. -jwc/18Jun2013
 //
 //  : bindablePattern (':' type)? ( '=' | 'be' 'st' ) expression
     : bindablePattern (':' type)? '=' expression

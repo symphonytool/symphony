@@ -12,11 +12,6 @@ public class jsonAbortCommand extends jsonCommand {
 	
 	@SuppressWarnings({ "unchecked" })
 	public String getJsonCommandString() {
-		// check if project name is properly assigned
-		if (client.getProjectName() == null) {
-			System.err.println("[ERROR]: project name not assigned!");
-			return null;
-		}
 
 		// add parameters		
 		int job = Integer.parseInt(jobId);

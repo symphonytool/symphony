@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: COMPASS IDE Interpreter Plugin
 Bundle-SymbolicName: eu.compassresearch.ide.cml.interpreter-plugin;singleton:=true
-Bundle-Version: 0.1.1
+Bundle-Version: 0.1.2.qualifier
 Bundle-Activator: eu.compassresearch.ide.cml.interpreter.Activator
 Bundle-Vendor: The COMPASS Project
 Bundle-Localization: plugin
@@ -21,8 +21,8 @@ Require-Bundle: org.eclipse.debug.ui,
  org.overture.ide.ui,
  org.overture.ide.builders.vdmj,
  org.overture.ide.debug,
- eu.compassresearch.ide.cml.core,
- eu.compassresearch.ide.cml.ui
+ eu.compassresearch.ide.core,
+ eu.compassresearch.ide.ui
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Eclipse-BuddyPolicy: registered

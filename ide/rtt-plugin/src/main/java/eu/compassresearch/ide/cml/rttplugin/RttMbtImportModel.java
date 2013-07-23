@@ -23,7 +23,7 @@ public class RttMbtImportModel extends RttMbtPopupMenuAction {
 		// get selected object
 		client.setProgress(IRttMbtProgressBar.Tasks.ALL, 0);
 		if (!getSelectedObject(event)) {
-			client.addErrorMessage("[FAIL]: Please select an RTT-MBT component!\n");
+			client.addErrorMessage("[FAIL]: Please select an RTT-MBT component!");
 			return null;
 		}
 		
@@ -39,22 +39,22 @@ public class RttMbtImportModel extends RttMbtPopupMenuAction {
 		if (ModelFile == null) {
 			return null;
 		}
-		client.addLogMessage("model file '" + ModelFile + "'\n");
+		client.addLogMessage("model file '" + ModelFile + "'");
 		int pos = ModelFile.lastIndexOf(File.separator);
 		if (pos == -1) pos = 0; else pos += 1;
 		final String ModelName = ModelFile.substring(pos, ModelFile.length());
-		client.addLogMessage("model name '" + ModelName + "'\n");
+		client.addLogMessage("model name '" + ModelName + "'");
 
 		Job job = new Job("Import Model") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
-				client.addLogMessage("importing model " + ModelFile + "... please wait for the task to be finished.\n");
+				client.addLogMessage("importing model " + ModelFile + "... please wait for the task to be finished.");
 				// initialize project with a model
 				if (client.initProject(ModelName, client.getUserId(), ModelFile)) {
-					client.addLogMessage("[PASS]: init project\n");
+					client.addLogMessage("[PASS]: init project");
 					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 				} else {
-					client.addErrorMessage("[FAIL]: init project\n");
+					client.addErrorMessage("[FAIL]: init project");
 					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 				}
 				return Status.OK_STATUS;

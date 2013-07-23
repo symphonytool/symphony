@@ -1,0 +1,8 @@
+ProcDef("A",nopar,Prefix(Sigma("a"),Skip))
+ProcHasDeadlock("A")
+State(omega)
+State(Prefix(Sigma("a"),Skip))
+State(Skip)
+trans(State(Prefix(Sigma("a"),Skip)),Sigma("a"),State(Skip))
+trans(State(Skip),tick,State(omega))
+

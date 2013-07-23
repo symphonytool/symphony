@@ -1,33 +1,31 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: COMPASS IDE CML UI
-Bundle-SymbolicName: eu.compassresearch.ide.cml.ui;singleton:=true
-Bundle-Version: 0.1.1
-Bundle-Activator: eu.compassresearch.ide.cml.ui.CmlUIPlugin
+Bundle-SymbolicName: eu.compassresearch.ide.ui;singleton:=true
+Bundle-Version: 0.1.2.qualifier
+Bundle-Activator: eu.compassresearch.ide.ui.CmlUIPlugin
 Bundle-Vendor: The COMPASS Project
 Bundle-Localization: plugin
-Export-Package: eu.compassresearch.ide.cml.ui;uses:="org.eclipse.ui.plugin,org.osgi.framework",
- eu.compassresearch.ide.cml.ui.builder,
- eu.compassresearch.ide.cml.ui.editor.core;
+Export-Package: eu.compassresearch.ide.ui;uses:="org.eclipse.ui.plugin,org.osgi.framework",
+ eu.compassresearch.ide.ui.editor.core;
   uses:="org.eclipse.jface.text,
    org.eclipse.jface.text.reconciler,
    org.eclipse.jface.text.source,
-   eu.compassresearch.ide.cml.ui.editor.core.dom,
+   eu.compassresearch.ide.ui.editor.core.dom,
    org.eclipse.jface.text.rules,
    org.eclipse.jface.text.contentassist,
    org.overture.ide.ui.editor.core",
- eu.compassresearch.ide.cml.ui.editor.core.dom,
- eu.compassresearch.ide.cml.ui.editor.syntax;
+ eu.compassresearch.ide.ui.editor.syntax;
   uses:="org.overture.ide.ui.editor.syntax,
    org.eclipse.ui.views.contentoutline,
-   eu.compassresearch.ide.cml.ui.editor.core.dom,
+   eu.compassresearch.ide.ui.editor.core.dom,
    org.eclipse.jface.viewers,
    org.eclipse.swt.widgets",
- eu.compassresearch.ide.cml.ui.wizard
+ eu.compassresearch.ide.ui.wizard
 Require-Bundle: org.eclipse.debug.ui,
  org.eclipse.ui.views,
  org.eclipse.ui,
- eu.compassresearch.ide.cml.core,
+ eu.compassresearch.ide.core,
  org.eclipse.ui.ide,
  org.eclipse.ui.navigator,
  org.eclipse.ui.navigator.resources
@@ -36,6 +34,7 @@ Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
 Import-Package: org.eclipse.jface.text,
  org.eclipse.jface.text.contentassist,
+ org.eclipse.jface.text.presentation,
  org.eclipse.jface.text.reconciler,
  org.eclipse.jface.text.rules,
  org.eclipse.jface.text.source,

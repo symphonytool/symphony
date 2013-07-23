@@ -12,7 +12,7 @@
      <extension
          point="org.eclipse.ui.actionSets">
       <actionSet
-            id="eu.compassresearch.ide.cml.ui.actionSet"
+            id="eu.compassresearch.ide.ui.actionSet"
             label="Theorem Prover Basic Action Set"
             visible="true">
 

@@ -25,6 +25,7 @@ import org.overture.typechecker.TypeComparator;
 
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
+import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AActionsDefinition;
@@ -32,7 +33,7 @@ import eu.compassresearch.ast.definitions.AChannelNameDefinition;
 import eu.compassresearch.ast.definitions.AChannelsDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.definitions.AChansetsDefinition;
-import eu.compassresearch.ast.definitions.AClassDefinition;
+import eu.compassresearch.ast.definitions.ACmlClassDefinition;
 import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AFunctionsDefinition;
 import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
@@ -165,7 +166,7 @@ public class POGDeclAndDefVisitor extends
 	 * CML ELEMENT - Classes
 	 */
 	@Override
-	public ProofObligationList caseAClassDefinition(AClassDefinition node,
+	public ProofObligationList caseACmlClassDefinition(ACmlClassDefinition node,
 			POContextStack question) throws AnalysisException
 	{
 		System.out.println("------");
@@ -204,7 +205,7 @@ public class POGDeclAndDefVisitor extends
 
 		ProofObligationList pol = new ProofObligationList();
 
-		LinkedList<PSingleDeclaration> lstate = node.getLocalState();
+		LinkedList<ATypeSingleDeclaration> lstate = node.getLocalState();
 
 		PProcess pdef = node.getProcess();
 		System.out.println("State :" + lstate.toString() + ", process :"

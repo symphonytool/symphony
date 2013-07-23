@@ -1,0 +1,7 @@
+channels 
+a, b
+
+process A = 
+begin 
+	@ (a -> Skip) |~| (b -> Stop)
+end

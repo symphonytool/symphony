@@ -1,12 +1,17 @@
 package eu.compassresearch.core.interpreter;
 
+import java.io.File;
 import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.regex.Pattern;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+import javax.xml.validation.Validator;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -22,7 +27,7 @@ public class ExpectedTestResult {
 	{
 		//get the factory
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-
+		dbf.setNamespaceAware(true);
 		ExpectedTestResult testResult = null;
 		
 		try {
@@ -34,8 +39,13 @@ public class ExpectedTestResult {
 			Document dom = db.parse(filePath);
 			Element docEle = dom.getDocumentElement();
 			
-			//parse the type of the result
-			//TODO this should pass on the expected exception string
+			//validate the xml
+			SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+            Schema schema = schemaFactory.newSchema(new File("src/test/resources/testSchema.xsd"));
+            Validator validator = schema.newValidator();
+            validator.validate(new DOMSource(dom));
+			
+			//parse exception element
 			String exceptionName = null;
 			NodeList exceptionNl = docEle.getElementsByTagName("exception");
 			if(exceptionNl != null && exceptionNl.getLength() > 0)
@@ -46,49 +56,15 @@ public class ExpectedTestResult {
 			}
 			
 			//Parse the expected events
-			//get a nodelist of elements
-			NodeList nl = docEle.getElementsByTagName("events");
-			List<List<String>> traces = new LinkedList<List<String>>();
-						
-			for(int i = 0; i < nl.getLength();i++)
-			{
-				Node n = nl.item(i);
-				LinkedList<String> trace = new LinkedList<String>();
-				
-				if(n.hasChildNodes())
-				{
-					String value = n.getFirstChild().getNodeValue();
-
-					for(String s : value.split(",(?! )"))
-					{
-						trace.add(s);
-					}
-				}
-				traces.add(trace);
-			}
+			Pattern traces = extractPatternFromNodeList(docEle.getElementsByTagName("events"));
 			
 			//Parse the expected timed trace 
-			nl = docEle.getElementsByTagName("timedTrace");
-			List<List<String>> timedTraces = new LinkedList<List<String>>();
-						
-			for(int i = 0; i < nl.getLength();i++)
-			{
-				Node n = nl.item(i);
-				LinkedList<String> timedTrace = new LinkedList<String>();
-				
-				if(n.hasChildNodes())
-				{
-					String value = n.getFirstChild().getNodeValue();
-
-					for(String s : value.split(",(?! )"))
-					{
-						timedTrace.add(s);
-					}
-				}
-				timedTraces.add(timedTrace);
-			}
+			Pattern timedTraces = extractPatternFromNodeList(docEle.getElementsByTagName("timedTrace"));
 			
-			testResult = new ExpectedTestResult(traces,timedTraces,exceptionName,parseInterpreterState(docEle));
+			//Parse the interpreter state
+			CmlInterpreterState interpreterState = parseInterpreterState(docEle);
+			
+			testResult = new ExpectedTestResult(traces,timedTraces,exceptionName,interpreterState);
 
 		}catch(ParserConfigurationException pce) {
 			pce.printStackTrace();
@@ -109,13 +85,35 @@ public class ExpectedTestResult {
 		}
 		else
 			return null;
+	}
+	
+	private static Pattern extractPatternFromNodeList(NodeList nl)
+	{
+		//Pattern pattern = defaultPattern;
+		Pattern pattern = null;
 		
+		//only move on if the element is not null or the length of the list is more tha zero
+		if(nl.getLength() > 0)
+		{
+			Node n = nl.item(0);
+			if(n.hasChildNodes())
+			{
+				String value = n.getFirstChild().getNodeValue();
+				pattern = Pattern.compile(value);
+			}
+			else
+			{
+				pattern = Pattern.compile("");
+			}
+		}
+		
+		return pattern;
 	}
 	
 	//The visible traces that the model should produce
-	private final List<List<String>> eventTraces;
+	private final Pattern eventTraces;
 	//The timed traces that the model should produce including the tock events
-	private final List<List<String>> timedTraces;
+	private final Pattern timedTraces;
 	/**
 	 * The name of the exception that should be thrown
 	 */
@@ -125,7 +123,7 @@ public class ExpectedTestResult {
 	 */
 	private final CmlInterpreterState state;
 	
-	public ExpectedTestResult(List<List<String>> eventTraces,List<List<String>> timedTraces, String exceptionName,CmlInterpreterState state)
+	public ExpectedTestResult(Pattern eventTraces,Pattern timedTraces, String exceptionName,CmlInterpreterState state)
 	{
 		this.eventTraces = eventTraces;
 		this.timedTraces = timedTraces;
@@ -137,32 +135,17 @@ public class ExpectedTestResult {
 		return state;
 	}
 	
-	public boolean isInterleaved()
-	{
-		return this.eventTraces.size() > 1;
-	}
-	
-	public List<String> getFirstEventTrace()
-	{
-		return this.eventTraces.get(0);
-	}
-		
-	public List<List<String>> getEventTraces()
+	public Pattern getExpectedEventTracePattern()
 	{
 		return this.eventTraces;
 	}
-	
-	public List<String> getFirstTimedTrace()
-	{
-		return this.timedTraces.get(0);
-	}
-	
+			
 	public boolean hasTimedTrace()
 	{
-		return timedTraces.size() > 0;
+		return timedTraces != null;
 	}
 	
-	public List<List<String>> getTimedTraces()
+	public Pattern getExpectedTimedTracePattern()
 	{
 		return this.timedTraces;
 	}

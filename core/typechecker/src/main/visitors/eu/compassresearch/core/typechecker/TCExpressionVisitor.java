@@ -50,7 +50,7 @@ import org.overture.typechecker.assistant.type.PTypeAssistantTC;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.definitions.AChannelNameDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
-import eu.compassresearch.ast.definitions.AClassDefinition;
+import eu.compassresearch.ast.definitions.ACmlClassDefinition;
 import eu.compassresearch.ast.expressions.ABracketedExp;
 import eu.compassresearch.ast.expressions.AEnumVarsetExpression;
 import eu.compassresearch.ast.expressions.AEnumerationRenameChannelExp;
@@ -435,7 +435,7 @@ class TCExpressionVisitor extends
 			}
 			node.setType(node.getRoot().apply(
 					parent,
-					new TypeCheckInfo(question.env, question.scope, node
+					new TypeCheckInfo(question.assistantFactory,question.env, question.scope, node
 							.getArgtypes())));
 
 			if (PTypeAssistantTC.isUnknown(node.getType())) {
@@ -678,7 +678,7 @@ class TCExpressionVisitor extends
 		// The name this variable expressions points to was found.
 		if (node.getVardef() != null) {
 
-			PType type = PDefinitionAssistantTC.getType(node.getVardef());
+			PType type = question.assistantFactory.createPDefinitionAssistant().getType(node.getVardef());
 			if (type == null)
 				type = node.getVardef().getType();
 			try {
@@ -813,7 +813,7 @@ class TCExpressionVisitor extends
 		OvertureRootCMLAdapter overtureExpVisitor = new OvertureRootCMLAdapter(
 				parent, issueHandler);
 
-		org.overture.typechecker.TypeCheckInfo quest = new org.overture.typechecker.TypeCheckInfo(
+		org.overture.typechecker.TypeCheckInfo quest = new org.overture.typechecker.TypeCheckInfo(question.assistantFactory,
 				question.env);
 		quest.scope = question.scope;
 		quest.qualifiers = new LinkedList<PType>();
@@ -979,7 +979,7 @@ class TCExpressionVisitor extends
 			// nearest cml environment
 			if (typeFound == null) {
 				CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
-				typeFound = cmlEnv.lookup(typename, AClassDefinition.class);
+				typeFound = cmlEnv.lookup(typename, ACmlClassDefinition.class);
 			}
 
 			if (typeFound == null) {

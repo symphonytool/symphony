@@ -2,7 +2,7 @@
 <feature
       id="eu.compassresearch.ide.features.plugins.rtt"
       label="RTT-MBT"
-      version="0.1.1">
+      version="0.1.3.qualifier">
 
    <description>
       %description
@@ -18,7 +18,7 @@
 
    <requires>
       <import plugin="org.eclipse.ui.console"/>
-      <import plugin="eu.compassresearch.ide.cml.core"/>
+      <import plugin="eu.compassresearch.ide.core"/>
       <import plugin="org.eclipse.core.runtime" version="3.5.0" match="compatible"/>
    </requires>
 

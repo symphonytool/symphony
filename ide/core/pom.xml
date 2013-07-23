@@ -5,14 +5,14 @@
   <parent>
     <groupId>eu.compassresearch.ide</groupId>
     <artifactId>ide</artifactId>
-    <version>0.1.1<!--Replaceable: Main Version--></version>
+    <version>0.1.2-SNAPSHOT<!--Replaceable: Main Version--></version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
   <packaging>eclipse-plugin</packaging>
 
-  <groupId>eu.compassresearch.ide.cml</groupId>
-  <artifactId>eu.compassresearch.ide.cml.core</artifactId>
+ 
+  <artifactId>eu.compassresearch.ide.core</artifactId>
   <name>COMPASS IDE CML Core</name>
 
   <build>

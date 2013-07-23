@@ -33,14 +33,14 @@ functions
   MaxOneLampChange: DwarfType -> bool 
   MaxOneLampChange(d) == exists l : LampId @ d.currentstate \ d.laststate = {l} or d.laststate \ d.currentstate = {l}
   
-  ForbidStopToDrive : DwarfType -> bool
-  ForbidStopToDrive(d) == (stop in set d.lastproperstate) => d.desiredproperstate <> drive
+ ForbidStopToDrive : DwarfType -> bool
+  ForbidStopToDrive(d) == ((d.lastproperstate = stop) => d.desiredproperstate <> drive)
   
   DarkOnlyToStop : DwarfType -> bool
-  DarkOnlyToStop(d) == (dark in set d.lastproperstate) => d.desiredproperstate = stop
+  DarkOnlyToStop(d) == (dark = d.lastproperstate) => d.desiredproperstate = stop
   
   DarkOnlyFromStop: DwarfType -> bool
-  DarkOnlyFromStop(d) == (dark in set d.desiredproperstate) => stop in set d.lastproperstate
+  DarkOnlyFromStop(d) == (dark = d.desiredproperstate) => stop = d.lastproperstate
 
 channels
 a
