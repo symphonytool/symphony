@@ -398,6 +398,7 @@ class TCDeclAndDefVisitor extends
 		// It could be the constructor
 		PDefinition clz = question.env.getEnclosingDefinition();
 		if (clz != null && clz instanceof ACmlClassDefinition) {
+			node.setClassDefinition((ACmlClassDefinition)clz);
 			if (HelpLexNameToken.isEqual(clz.getName(), node.getName())) {
 				if (node instanceof AExplicitCmlOperationDefinition) {
 					AExplicitCmlOperationDefinition cmlOdef = (AExplicitCmlOperationDefinition) node;
@@ -429,7 +430,7 @@ class TCDeclAndDefVisitor extends
 			}
 		}
 
-		cmlEnv.addVariable(node.getName(), node);
+		//cmlEnv.addVariable(node.getName(), node);
 		
 		return node.getType();
 	}
@@ -1182,6 +1183,7 @@ class TCDeclAndDefVisitor extends
 		OvertureToCmlIDhandle id = new OvertureToCmlIDhandle();
 		overtureClassBits = new HashMap<Class<?>, OvertureToCmlHandler>();
 		overtureClassBits.put(ATypeDefinition.class, id);
+		overtureClassBits.put(AAssignmentDefinition.class, id);
 		overtureClassBits.put(AExplicitFunctionDefinition.class,
 				new OvertureToCmlFunctionHandler());
 		overtureClassBits.put(AImplicitFunctionDefinition.class,
@@ -1254,51 +1256,51 @@ class TCDeclAndDefVisitor extends
 	/*
 	 * Create an Overture class that
 	 */
-	private static AClassClassDefinition createSurrogateClass(
-			ACmlClassDefinition node, CmlTypeCheckInfo question) {
-
-		// if (question.getGlobalClassDefinitions() == null)
-		// throw new NullPointerException();
-
-		List<SClassDefinition> superDefs = new LinkedList<SClassDefinition>();
-		// superDefs.add(question.getGlobalClassDefinitions());
-		// TODO RWL Go recursive and create surrogates for each ancestor to node
-		// from node.getSuperDefs().
-
-		// So a bit of work needs to be done for definitions
-		List<PDefinition> overtureReadyCMLDefinitions = new LinkedList<PDefinition>();
-
-		if (question.env.getEnclosingDefinition() instanceof AClassClassDefinition)
-			overtureReadyCMLDefinitions
-					.addAll(((AClassClassDefinition) question.env
-							.getEnclosingDefinition()).getDefinitions());
-
-		// Lets mangle the CML definitions for Overture to cope with them
-		for (PDefinition def : node.getDefinitions()) {
-			if (overtureClassBits.containsKey(def.getClass()))
-				overtureReadyCMLDefinitions.addAll(overtureClassBits.get(
-						def.getClass()).handle(def));
-		}
-
-		AClassClassDefinition surrogateOvertureClass = AstFactory
-				.newAClassClassDefinition(node.getName(), new LexNameList(), // TODO:
-						// empty
-						// list
-						// here,
-						// if
-						// doing
-						// inheritance
-						// this
-						// needs
-						// to
-						// be
-						// fixed
-						overtureReadyCMLDefinitions);
-
-		surrogateOvertureClass.setSuperDefs(superDefs);
-
-		return surrogateOvertureClass;
-	}
+//	private static AClassClassDefinition createSurrogateClass(
+//			ACmlClassDefinition node, CmlTypeCheckInfo question) {
+//
+//		// if (question.getGlobalClassDefinitions() == null)
+//		// throw new NullPointerException();
+//
+//		List<SClassDefinition> superDefs = new LinkedList<SClassDefinition>();
+//		// superDefs.add(question.getGlobalClassDefinitions());
+//		// TODO RWL Go recursive and create surrogates for each ancestor to node
+//		// from node.getSuperDefs().
+//
+//		// So a bit of work needs to be done for definitions
+//		List<PDefinition> overtureReadyCMLDefinitions = new LinkedList<PDefinition>();
+//
+//		if (question.env.getEnclosingDefinition() instanceof AClassClassDefinition)
+//			overtureReadyCMLDefinitions
+//					.addAll(((AClassClassDefinition) question.env
+//							.getEnclosingDefinition()).getDefinitions());
+//
+//		// Lets mangle the CML definitions for Overture to cope with them
+//		for (PDefinition def : node.getDefinitions()) {
+//			if (overtureClassBits.containsKey(def.getClass()))
+//				overtureReadyCMLDefinitions.addAll(overtureClassBits.get(
+//						def.getClass()).handle(def));
+//		}
+//
+//		AClassClassDefinition surrogateOvertureClass = AstFactory
+//				.newAClassClassDefinition(node.getName(), new LexNameList(), // TODO:
+//						// empty
+//						// list
+//						// here,
+//						// if
+//						// doing
+//						// inheritance
+//						// this
+//						// needs
+//						// to
+//						// be
+//						// fixed
+//						overtureReadyCMLDefinitions);
+//
+//		surrogateOvertureClass.setSuperDefs(superDefs);
+//
+//		return surrogateOvertureClass;
+//	}
 
 	PType typeCheckWithOverture(ACmlClassDefinition node,
 			org.overture.typechecker.TypeCheckInfo question)
@@ -1372,17 +1374,17 @@ class TCDeclAndDefVisitor extends
 	 * AClassParagraphDefinition find all definition of that class-type defined
 	 * in that class paragraph.
 	 */
-	private static <T extends PDefinition> List<T> findParticularDefinitionType(
-			Class<T> type, ACmlClassDefinition clz) {
-
-		List<T> result = new LinkedList<T>();
-
-		for (PDefinition d : clz.getDefinitions())
-			if (type.isInstance(d))
-				result.add(type.cast(d));
-
-		return result;
-	}
+//	private static <T extends PDefinition> List<T> findParticularDefinitionType(
+//			Class<T> type, ACmlClassDefinition clz) {
+//
+//		List<T> result = new LinkedList<T>();
+//
+//		for (PDefinition d : clz.getDefinitions())
+//			if (type.isInstance(d))
+//				result.add(type.cast(d));
+//
+//		return result;
+//	}
 
 	// ------------------------------------------------
 	// Paragraphs
@@ -1434,12 +1436,13 @@ class TCDeclAndDefVisitor extends
 		//AClassClassDefinition surrogate = createSurrogateClass(node,
 		//		cmlClassEnv);
 		result.setClassdef(node);
-
+		node.setClassDefinition(node);
+		
 		// Type check surrogate with overture
 		PType classType = typeCheckWithOverture(node, cmlClassEnv);
-//		if (classType == null || classType instanceof AErrorType)
-//			return new AErrorType();
-
+		if (classType == null || classType instanceof AErrorType)
+			return new AErrorType();
+		node.setClasstype(classType);
 		// Find out what Overture is not doing for us
 		List<PDefinition> thoseHandledByCOMPASS = new LinkedList<PDefinition>();
 		for (PDefinition def : node.getDefinitions())
@@ -1824,8 +1827,8 @@ class TCDeclAndDefVisitor extends
 			node.setPostdef(postDef);
 		}
 
-		//return caseSCmlOperation(node,node.getType(),question);
-		return node.getType();
+		return caseSCmlOperation(node,node.getType(),question);
+		//return node.getType();
 	}
 
 	private List<PDefinition> findStateDefs(

@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.overture.ast.assistant.InvocationAssistantException;
+import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import org.overture.ast.definitions.AImplicitFunctionDefinition;
 import org.overture.ast.definitions.AImplicitOperationDefinition;
@@ -367,6 +368,8 @@ public class CmlTCUtil {
 						info.addType(dd.getName(), dd);
 //					else if (dd instanceof AExplicitCmlOperationDefinition)
 //						continue;
+					else if (dd instanceof AAssignmentDefinition)
+						continue;
 					else {
 						
 						if (dd instanceof AExplicitCmlOperationDefinition &&

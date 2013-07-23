@@ -390,6 +390,12 @@ classDefinition returns[ACmlClassDefinition def]
 				for (PDefinition p : $classDefinitionBlockOptList.defs)
 				{
 					p.parent($def);
+					if(p instanceof AOperationsDefinition)
+						for(SCmlOperationDefinition op : ((AOperationsDefinition)p).getOperations())
+							op.setClassDefinition($def);
+					else
+						p.setClassDefinition($def);
+					
 				}
 			}
 		
