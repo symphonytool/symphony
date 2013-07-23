@@ -4,66 +4,66 @@
 <plugin>
 
 
-   <extension
+	<extension
          point="org.eclipse.ui.perspectives">
-      <perspective
-            class="eu.compassresearch.ide.cml.ui.perspective.CmlPerspectiveFactory"
+		<perspective
+            class="eu.compassresearch.ide.ui.perspective.CmlPerspectiveFactory"
             icon="icons/cview16/compass_nav.png"
             id="eu.compassresearch.ide.ui.perspective"
             name="%CmlPerspectiveName">
-         <description>
+			<description>
             %CmlPerspectiveDescription
-         </description>
-      </perspective>
-   </extension>
+			</description>
+		</perspective>
+	</extension>
 
-   <extension
+	<extension
          point="org.eclipse.ui.perspectiveExtensions">
-      <perspectiveExtension
+		<perspectiveExtension
             targetID="eu.compassresearch.ide.ui.perspective">
-         <view
+			<view
                id="eu.compassresearch.ide.ui.CmlNavigator"
                minimized="false"
                ratio="0.25"
                relationship="left"
                relative="org.eclipse.ui.editorss">
-         </view>
-              <newWizardShortcut
-           id="eu.compassresearch.ide.cml.ui.newcmlfilewizard">
-     </newWizardShortcut>
-      </perspectiveExtension>
-   </extension>
+			</view>
+			<newWizardShortcut
+           id="eu.compassresearch.ide.ui.newcmlfilewizard">
+			</newWizardShortcut>
+		</perspectiveExtension>
+	</extension>
 
-   <extension
+	<extension
          point="org.eclipse.ui.editors">
-      <editor
-            class="eu.compassresearch.ide.cml.ui.editor.core.CmlEditor"
+		<editor
+            class="eu.compassresearch.ide.ui.editor.core.CmlEditor"
             contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
             default="true"
             icon="icons/cview16/cml_file_tsk.png"
-            id="eu.compassresearch.ide.cml.ui.editor"
+            id="eu.compassresearch.ide.ui.editor"
             name="CML Editor">
-         <contentTypeBinding
-               contentTypeId="eu.compassresearch.ide.cml.core.content-type1">
-         </contentTypeBinding>
-      </editor>
-   </extension>
-   
-   <extension
+			<contentTypeBinding
+               contentTypeId="eu.compassresearch.ide.core.content-type-cml">
+			</contentTypeBinding>
+		</editor>
+	</extension>
+
+	<extension
          point="org.eclipse.ui.newWizards">
-      
-      <wizard
-            category="compass_eu.compassresearch.ide.cml.ui.category"
-            class="eu.compassresearch.ide.cml.ui.wizard.NewCmlFileWizard"
+
+		<wizard
+            category="compass_eu.compassresearch.ide.ui.category"
+            class="eu.compassresearch.ide.ui.wizard.NewCmlFileWizard"
             icon="icons/cview16/cml_file_tsk.png"
-            id="eu.compassresearch.ide.cml.ui.newcmlfilewizard"
+            id="eu.compassresearch.ide.ui.newcmlfilewizard"
             name="CML File">
-      </wizard>
-       <primaryWizard id="eu.compassresearch.ide.cml.ui.newcmlfilewizard" />
-      
-      <wizard
-            category="compass_eu.compassresearch.ide.cml.ui.category"
-            class="eu.compassresearch.ide.cml.ui.wizard.NewCmlProjectWizard"
+		</wizard>
+		<!--primaryWizard id="eu.compassresearch.ide.ui.newcmlfilewizard" /-->
+
+		<wizard
+            category="compass_eu.compassresearch.ide.ui.category"
+            class="eu.compassresearch.ide.ui.wizard.NewCmlProjectWizard"
             finalPerspective="eu.compassresearch.ide.ui.perspective"
             icon="icons/cview16/cml_file_tsk.png"
             id="eu.compassresearch.ide.CmlProjectWizard"
@@ -71,37 +71,37 @@
             preferredPerspectives="eu.compassresearch.ide.ui.perspective"
             project="true">
 
-      </wizard>
-        <primaryWizard id="eu.compassresearch.ide.CmlProjectWizard" />
-      
-       <wizard
-            category="compass_eu.compassresearch.ide.cml.ui.category"
-            class="eu.compassresearch.ide.cml.ui.wizard.NewCmlClassWizard"
+		</wizard>
+
+
+		<wizard
+            category="compass_eu.compassresearch.ide.ui.category"
+            class="eu.compassresearch.ide.ui.wizard.NewCmlClassWizard"
             icon="icons/cview16/cml_file_tsk.png"
-            id="eu.compassresearch.ide.cml.ui.newcmlclasswizard"
-            
+            id="eu.compassresearch.ide.ui.newcmlclasswizard"
+
             name="CML Class">
-      </wizard>
-      
-      
-       <wizard
-            category="compass_eu.compassresearch.ide.cml.ui.category"
-            class="eu.compassresearch.ide.cml.ui.wizard.NewCmlProcessWizard"
+		</wizard>
+
+
+		<wizard
+            category="compass_eu.compassresearch.ide.ui.category"
+            class="eu.compassresearch.ide.ui.wizard.NewCmlProcessWizard"
             icon="icons/cview16/cml_file_tsk.png"
-            id="eu.compassresearch.ide.cml.ui.newcmlprocesswizard"
+            id="eu.compassresearch.ide.ui.newcmlprocesswizard"
             name="CML Process">
-      </wizard>
-      
-      
-      <category
-            id="compass_eu.compassresearch.ide.cml.ui.category"
-            name="COMPASS">
-      </category>
-
-   </extension>
+		</wizard>
 
 
-<!-- Defining the CML Project Explorer -->
+		<category
+        id="compass_eu.compassresearch.ide.ui.category"
+        name="COMPASS">
+		</category>
+		<primaryWizard id="eu.compassresearch.ide.CmlProjectWizard" />
+	</extension>
+
+
+	<!-- Defining the CML Project Explorer -->
 	<extension
 			point="org.eclipse.ui.views">
 		<category
@@ -118,152 +118,111 @@
 
 	<extension 
 			point="org.eclipse.ui.navigator.viewer">
-   
-        
-        
-
-       <viewerContentBinding
+		<viewerContentBinding
              viewerId="eu.compassresearch.ide.ui.CmlNavigator">
-          <includes>
-            <contentExtension
+			<includes>
+				<contentExtension
                    pattern="eu.compassresearch.ide.ui.cmlNavigatorContent">
-            </contentExtension>
-         	<contentExtension pattern="org.eclipse.ui.navigator.resourceContent" />		       	      
-	     	<contentExtension pattern="org.eclipse.ui.navigator.resources.filters.*"/>
-	     	<contentExtension pattern="org.eclipse.ui.navigator.resources.linkHelper"/>
-           <contentExtension pattern="org.eclipse.ui.navigator.resources.workingSets"/>
-          </includes>
-       </viewerContentBinding>
-               
-               
-      <viewerActionBinding
+				</contentExtension>
+				<contentExtension pattern="org.eclipse.ui.navigator.resourceContent" />		       	      
+				<contentExtension pattern="org.eclipse.ui.navigator.resources.filters.*"/>
+				<contentExtension pattern="org.eclipse.ui.navigator.resources.linkHelper"/>
+				<contentExtension pattern="org.eclipse.ui.navigator.resources.workingSets"/>
+			</includes>
+		</viewerContentBinding>
+		
+		<viewerActionBinding
              viewerId="eu.compassresearch.ide.ui.CmlNavigator">
-          <includes>
-             <actionExtension
+			<includes>
+				<actionExtension
                    pattern="org.eclipse.ui.navigator.resources.*">
-             </actionExtension>
-          </includes>
-       </viewerActionBinding>
-               
-   </extension>
-   
-   
+				</actionExtension>
+			</includes>
+		</viewerActionBinding>
+
+	</extension>
 
 
-  <extension
+
+
+	<extension
          point="org.eclipse.ui.navigator.navigatorContent">
-         
-      <navigatorContent 
+
+		<navigatorContent 
             id="eu.compassresearch.ide.ui.cmlNavigatorContent" 
             name="CMLNavigator"
-            contentProvider="eu.compassresearch.ide.cml.ui.navigator.CmlContentProvider"
-            labelProvider="eu.compassresearch.ide.cml.ui.navigator.CmlLabelProvider" 
+            contentProvider="eu.compassresearch.ide.ui.navigator.CmlContentProvider"
+            labelProvider="eu.compassresearch.ide.ui.navigator.CmlLabelProvider" 
             activeByDefault="true"
             icon="icons/cview16/compass_nav.png"
             priority="highest" >
-                  
-  			<triggerPoints>
-            <or>
-               <instanceof
+
+			<triggerPoints>
+				<or>
+					<instanceof
                      value="org.eclipse.core.resources.IProject">
-               </instanceof>
-               <instanceof
+					</instanceof>
+					<instanceof
                      value="org.eclipse.core.resources.IResource">
-               </instanceof>
-            </or>
-            </triggerPoints>
-            <possibleChildren>
-                <or>
-                    <instanceof value="org.eclipse.core.resources.IResource" />
-                </or>
-            </possibleChildren> 
-            
-             <commonWizard
+					</instanceof>
+				</or>
+			</triggerPoints>
+			<possibleChildren>
+				<or>
+					<instanceof value="org.eclipse.core.resources.IResource" />
+				</or>
+			</possibleChildren> 
+
+			<commonWizard
      				 type="new"
-  				 wizardId="eu.compassresearch.ide.cml.ui.newcmlfilewizard">
- 			   <enablement>
-   				<or>
-   				 <adapt type="org.eclipse.core.resources.IFile" /> 
-    			 <adapt type="org.eclipse.core.resources.IFolder" />
-        	     <adapt type="org.eclipse.core.resources.IProject" /> 
-              	 <adapt type="org.eclipse.core.resources.IWorkspaceRoot" /> 
-   				</or>
-  			 </enablement>
- 			</commonWizard>     
- 			  
-      </navigatorContent>      
-    
-   </extension>
+  				 wizardId="eu.compassresearch.ide.ui.newcmlfilewizard">
+				<enablement>
+					<or>
+						<adapt type="org.eclipse.core.resources.IFile" /> 
+						<adapt type="org.eclipse.core.resources.IFolder" />
+						<adapt type="org.eclipse.core.resources.IProject" /> 
+						<adapt type="org.eclipse.core.resources.IWorkspaceRoot" /> 
+					</or>
+				</enablement>
+			</commonWizard>     
+
+		</navigatorContent>      
+
+	</extension>
 
 
 
-   <extension
+	<extension
          point="org.eclipse.ui.ide.projectNatureImages">
-      <image
+		<image
             icon="icons/ovr16/cml_ovr.gif"
-            id="eu.compassresearch.ide.cml.cml-ui.cmlnature.image"
-            natureId="eu.compassresearch.ide.cml.ui.cmlnature">
-      </image>
-   </extension>
-   
- <!-- Not really using this anymore 
+            id="eu.compassresearch.ide.cml-ui.cmlnature.image"
+            natureId="eu.compassresearch.ide.core.cmlnature">
+		</image>
+	</extension>
+
+	<!-- Not really using this anymore 
     <extension point="org.eclipse.ui.views">
     <view 
-        id="eu.compassresearch.ide.cml.ui.Sanitizer"
+        id="eu.compassresearch.ide.ui.Sanitizer"
         name="COMPASS UI Debug Sanitizer"
-        category="compass_eu.compassresearch.ide.cml.ui.category"
+        category="compass_eu.compassresearch.ide.ui.category"
         icon="icons/cview16/cml_file_tsk.png"
-        class="eu.compassresearch.ide.cml.ui.Sanitizer" />
+        class="eu.compassresearch.ide.ui.Sanitizer" />
   </extension>
    -->
-   
-      <extension
-         id="cmlnature"
-         name="CML Project Nature"
-         point="org.eclipse.core.resources.natures">
-         <runtime>
-            <run class ="eu.compassresearch.ide.cml.ui.builder.CmlProjectNature" />
-         </runtime>
-     </extension>
-   
-
-   <extension
-         point="org.overture.ide.core.parsePaticipant">
-      <parser
-            class="eu.compassresearch.ide.cml.ui.editor.core.SourceParserCml"
-            nature="eu.compassresearch.ide.cml.ui.cmlnature">
-      </parser>
-   </extension>
-   <extension
-         point="org.overture.ide.core.buildParticipant">
-      <builder
-            class="eu.compassresearch.ide.cml.ui.builder.BuilderCml"
-            nature="eu.compassresearch.ide.cml.ui.cmlnature">
-      </builder>
-   </extension>
-   
-   <extension
-         point="org.eclipse.core.runtime.adapters">
-      <factory
-            adaptableType="org.overture.ide.core.resources.IVdmSourceUnit"
-            class="eu.compassresearch.ide.cml.ui.adapters.CmlSourceUnitAdapterFactory">
-         <adapter
-               type="eu.compassresearch.ide.cml.ui.editor.core.dom.ICmlSourceUnit">
-         </adapter>
-      </factory>
-      <factory
-            adaptableType="org.eclipse.core.resources.IFile"
-            class="eu.compassresearch.ide.cml.ui.adapters.CmlSourceUnitAdapterFactory">
-         <adapter
-               type="eu.compassresearch.ide.cml.ui.editor.core.dom.ICmlSourceUnit">
-         </adapter>
-      </factory>
-   </extension>
-   
 
 
-   
-  
-   
-   
+
+
+
+
+
+
+
+
+
+
+
+
 </plugin>

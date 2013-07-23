@@ -81,7 +81,7 @@
 	        class="eu.compassresearch.ide.cml.interpreter.launch.CmlApplicationLaunchShortcut"
 	        label="CML Application"
 	        modes="debug, run"
-	        category="compass_eu.compassresearch.ide.cml.ui.category"
+	        category="compass_eu.compassresearch.ide.ui.category"
 	        description="Launch a CML model">
 	    <description
 	     description="Runs a local CML model"

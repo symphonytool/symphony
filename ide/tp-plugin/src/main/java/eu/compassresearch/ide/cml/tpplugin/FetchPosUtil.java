@@ -17,13 +17,13 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ide.core.IVdmModel;
 import org.overture.ide.core.resources.IVdmProject;
 import org.overture.ide.ui.utility.VdmTypeCheckerUi;
-import org.overture.pog.obligation.ProofObligation;
+import org.overture.pog.pub.IProofObligation;
 
-import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
+import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligationList;
 import eu.compassresearch.core.common.Registry;
 import eu.compassresearch.core.common.RegistryFactory;
 import eu.compassresearch.ide.cml.pogplugin.POConstants;
-import eu.compassresearch.ide.cml.ui.editor.core.dom.ICmlSourceUnit;
+import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
 import eu.compassresearch.theoremprover.IsabelleTheory;
 import eu.compassresearch.theoremprover.TPVisitor;
 import eu.compassresearch.theoremprover.ThmType;
@@ -96,17 +96,17 @@ public class FetchPosUtil
 
 					for (IResource cmlFile : cmlFiles) {
 						// May return a null if the adapter fails to convert
-						ICmlSourceUnit cmlSource = (ICmlSourceUnit) cmlFile
+						eu.compassresearch.ide.core.resources.ICmlSourceUnit cmlSource = (ICmlSourceUnit) cmlFile
 								.getAdapter(ICmlSourceUnit.class);
-						CMLProofObligationList poList = registry.lookup(
+						CmlProofObligationList poList = registry.lookup(
 								cmlSource.getSourceAst(),
-								CMLProofObligationList.class);
+								CmlProofObligationList.class);
 						if (poList == null)
 						{
 							popErrorMessage("There are no Proof Oligations to discharge.");
 							return;
 						}
-						getThyFromCML(cmlFile);
+						getThyFromCml(cmlFile);
 						
 						IsabelleTheory ithy = registry.lookup(cmlSource.getSourceAst(), IsabelleTheory.class);
 
@@ -121,8 +121,8 @@ public class FetchPosUtil
 							registry.store(cmlSource.getSourceAst(), ithy);
 						} 
 
-						for (ProofObligation po : poList) {
-							ithy.addThm(ithy.new IsabelleTheorem("po" + po.name, "True","auto"));
+						for (IProofObligation po : poList) {
+							ithy.addThm(ithy.new IsabelleTheorem("po" + po.getName(), "True","auto"));
 						}
 
 					}
@@ -143,7 +143,7 @@ public class FetchPosUtil
 				"Could not generate THY.\n\n" + message);
 	}
 
-	private void getThyFromCML(IResource cmlFile) throws IOException,
+	private void getThyFromCml(IResource cmlFile) throws IOException,
 			AnalysisException {
 
 		ICmlSourceUnit source = (ICmlSourceUnit) cmlFile

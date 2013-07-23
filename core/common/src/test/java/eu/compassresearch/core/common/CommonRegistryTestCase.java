@@ -20,7 +20,7 @@ import org.overture.ast.node.INode;
 import org.overture.ast.node.Node;
 import org.overture.ast.types.PType;
 
-import eu.compassresearch.ast.definitions.AClassDefinition;
+import eu.compassresearch.ast.definitions.ACmlClassDefinition;
 import eu.compassresearch.ast.definitions.AValuesDefinition;
 import eu.compassresearch.ast.program.PSource;
 
@@ -251,7 +251,7 @@ public class CommonRegistryTestCase {
 
 	@Test
 	public void testOnARealPieceOfCML() {
-		AClassDefinition paragraph = new AClassDefinition();
+		ACmlClassDefinition paragraph = new ACmlClassDefinition();
 		AValuesDefinition values = new AValuesDefinition();
 		AValueDefinition valDef = new AValueDefinition();
 		paragraph.setBody(Arrays.asList(new PDefinition[] { values }));

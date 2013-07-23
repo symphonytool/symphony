@@ -3,7 +3,7 @@
       id="eu.compassresearch.ide.features.core"
       label="COMPASS Core"
       version="0.1.2.qualifier"
-      plugin="eu.compassresearch.ide.cml.core">
+      plugin="eu.compassresearch.ide.core">
 
    <description>
       %description
@@ -44,21 +44,21 @@
    </requires>
 
    <plugin
-         id="eu.compassresearch.ide.cml.core"
+         id="eu.compassresearch.ide.core"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="eu.compassresearch.ide.cml.ui"
+         id="eu.compassresearch.ide.ui"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="eu.compassresearch.ide.cml.platform"
+         id="eu.compassresearch.ide.platform"
          download-size="0"
          install-size="0"
          version="0.0.0"

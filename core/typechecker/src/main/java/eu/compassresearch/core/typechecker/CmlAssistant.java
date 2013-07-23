@@ -22,6 +22,7 @@ import org.overture.ast.typechecker.Pass;
 import org.overture.ast.types.AClassType;
 import org.overture.ast.types.AFieldField;
 import org.overture.ast.types.ANamedInvariantType;
+import org.overture.ast.types.AOptionalType;
 import org.overture.ast.types.ARecordInvariantType;
 import org.overture.ast.types.PType;
 import org.overture.ast.types.SInvariantType;
@@ -31,7 +32,7 @@ import org.overture.typechecker.assistant.type.ARecordInvariantTypeAssistantTC;
 import org.overture.typechecker.util.HelpLexNameToken;
 
 import eu.compassresearch.ast.definitions.AActionsDefinition;
-import eu.compassresearch.ast.definitions.AClassDefinition;
+import eu.compassresearch.ast.definitions.ACmlClassDefinition;
 import eu.compassresearch.ast.definitions.AFunctionsDefinition;
 import eu.compassresearch.ast.definitions.AOperationsDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
@@ -269,7 +270,12 @@ class CmlAssistant {
 				return CmlAssistant.this.findMemberName(
 						((AClassType) type).getClassdef(), name, more);
 			}
-
+			
+			//if optional type, extract the containing type
+			if (type instanceof AOptionalType) {
+				type = ((AOptionalType) type).getType();
+			}
+			
 			if (type.getDefinitions().size() > 0) {
 				PDefinition def0 = type.getDefinitions().get(0);
 				if (def0 instanceof ATypeDefinition) {
@@ -368,7 +374,7 @@ class CmlAssistant {
 					&& LexNameTokenAssistent.isEqual(def.getName(), name))
 				return def;
 
-			AClassDefinition cpar = AClassDefinition.class.cast(def);
+			ACmlClassDefinition cpar = ACmlClassDefinition.class.cast(def);
 
 			// pre: def.definition is not null
 			for (PDefinition d : cpar.getBody()) {
@@ -385,7 +391,7 @@ class CmlAssistant {
 
 		@Override
 		public Class<?> getType() {
-			return AClassDefinition.class;
+			return ACmlClassDefinition.class;
 		}
 	}
 
@@ -479,7 +485,7 @@ class CmlAssistant {
 			LexNameToken searchFor = new LexNameToken("", def.getName());
 
 			PDefinition classDef = cmlQuestion.lookup(searchFor,
-					AClassDefinition.class);
+					ACmlClassDefinition.class);
 			if (classDef != null)
 				return CmlAssistant.this.findMemberName(classDef, name, more);
 
@@ -503,6 +509,7 @@ class CmlAssistant {
 
 		}
 	}
+	
 
 	// *********** Helper methods for LocalDefinitionFindMemberStrategy
 	// ************

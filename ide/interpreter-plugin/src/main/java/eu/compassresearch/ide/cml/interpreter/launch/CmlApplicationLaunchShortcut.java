@@ -32,8 +32,8 @@ import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.debug.CmlInterpreterLaunchConfigurationConstants;
 import eu.compassresearch.ide.cml.interpreter.CmlUtil;
 import eu.compassresearch.ide.cml.interpreter.ICmlDebugConstants;
-import eu.compassresearch.ide.cml.ui.editor.core.CmlEditor;
-import eu.compassresearch.ide.cml.ui.editor.core.dom.ICmlSourceUnit;
+import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
+import eu.compassresearch.ide.ui.editor.core.CmlEditor;
 
 public class CmlApplicationLaunchShortcut implements ILaunchShortcut2
 {

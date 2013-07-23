@@ -129,16 +129,17 @@ class ProcessDefinitionAdaptor extends SClassDefinitionBase
 		return processDefinition.getPass();
 	}
 
-	@Override
-	public INode parent() {
-		
-		return processDefinition.parent();
-	}
-
-	@Override
-	public void parent(INode parent) {
-		throw new RuntimeException("The Adaptors set methods should never be touched");
-	}
+//	@Override
+//	public INode parent() {
+//		return this.parent();
+//		//return processDefinition.parent();
+//	}
+//
+//	@Override
+//	public void parent(INode parent) {
+//		//processDefinition.parent(parent);
+//		this.parent(parent);
+//	}
 	
 	@Override
 	public void apply(IAnalysis analysis) throws AnalysisException {

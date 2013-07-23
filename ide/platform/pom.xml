@@ -10,8 +10,8 @@
 
   <packaging>eclipse-plugin</packaging>
 
-  <groupId>eu.compassresearch.ide.cml</groupId>
-  <artifactId>eu.compassresearch.ide.cml.platform</artifactId>
+  
+  <artifactId>eu.compassresearch.ide.platform</artifactId>
   <name>COMPASS IDE CML Platform</name>
 
   <build>

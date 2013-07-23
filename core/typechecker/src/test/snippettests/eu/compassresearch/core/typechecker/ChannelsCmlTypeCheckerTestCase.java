@@ -45,8 +45,12 @@ public class ChannelsCmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase 
 		add("channels a: int process A = begin @ a? x : (x in set {2,3}) -> Skip end");
 		// 11// test that constraints on input communications 
 		add("channels a: int process A = begin @ a? x : (x > 3) -> Skip end");
-		// 11// test that constraints on input communications 
+		// 12// test that constraints on input communications 
 		add("channels a: int process A = begin @ a? x : ({2,3}) -> Skip end",false); //negative test
+		// 13// test warning if channels is used without being declared 
+		add("channels a: int process A = begin @ b? x : ({2,3}) -> Skip end", false); //negative test
+		//14// duplication of channel name
+		add("channels a : nat a : seq of char", false); //negative test
 	}
 
 	public ChannelsCmlTypeCheckerTestCase(String cmlSource, boolean parsesOk,

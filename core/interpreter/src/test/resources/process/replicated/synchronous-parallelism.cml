@@ -1,0 +1,15 @@
+types
+  NID = nat
+  
+values
+  NodeIDs = {1,2,3}  
+
+channels 
+a : int 
+b : int
+ 
+process A = val i : NID @ begin @ a.i -> Skip end
+
+process B = val i : NID @ begin @ b.i -> Skip end
+
+process Network = || i in set NodeIDs @ A(i) |~| B(i)

@@ -100,7 +100,9 @@ public class ProcessCmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase {
 		add("process M = begin @ Skip end process L = begin @ Stop end process K = || i in set {1,2,3} @ [{ }] (M [| {| inp.k | k in set {5,6,7} |} union {| out.k | k in set {5,6,7} |} |] L)");
 		// 26// old-record in operation
 		add("process p = begin types A :: a : int state aa:A operations o:int==>int o(i) == return (aa.a + i) post aa~.a = i @ o(2) end");
-
+		//27 //check for variable name in action being the same as state variable
+		add("process Q = begin state q : nat := 10 actions INIT = (dcl q : nat @ q := 10) @ INIT() end");
+		
 	}
 
 	public ProcessCmlTypeCheckerTestCase(String cmlSource, boolean parsesOk,

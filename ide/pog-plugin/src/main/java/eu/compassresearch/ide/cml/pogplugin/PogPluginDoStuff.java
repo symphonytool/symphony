@@ -17,15 +17,14 @@ import org.overture.ide.core.IVdmModel;
 import org.overture.ide.core.resources.IVdmProject;
 import org.overture.ide.plugins.poviewer.view.PoOverviewTableView;
 import org.overture.ide.ui.utility.VdmTypeCheckerUi;
-import org.overture.pog.obligation.ProofObligation;
-import org.overture.pog.obligation.ProofObligationList;
+import org.overture.pog.pub.IProofObligationList;
 
-import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
+import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligationList;
 import eu.compassresearch.core.analysis.pog.visitors.ProofObligationGenerator;
 import eu.compassresearch.core.common.Registry;
 import eu.compassresearch.core.common.RegistryFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
-import eu.compassresearch.ide.cml.ui.editor.core.dom.ICmlSourceUnit;
+import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
 
 public class PogPluginDoStuff
 {
@@ -116,25 +115,20 @@ public class PogPluginDoStuff
 	{
 		Registry registry = RegistryFactory.getInstance(POConstants.PO_REGISTRY_ID).getRegistry();
 
-		ProofObligationList allPOs = new ProofObligationList();
+		IProofObligationList allPOs = new CmlProofObligationList();
 
 		for (IResource cmlfile : cmlfiles)
 		{
 			ICmlSourceUnit cmlSource = (ICmlSourceUnit) cmlfile.getAdapter(ICmlSourceUnit.class);
-			CMLProofObligationList poList = new CMLProofObligationList();
+			CmlProofObligationList poList = new CmlProofObligationList();
 			ProofObligationGenerator pog = new ProofObligationGenerator(cmlSource.getSourceAst());
-			ProofObligationList pol = new ProofObligationList();
 			try
 			{
-				pol = pog.generatePOs();
+				poList = pog.generatePOs();
 			} catch (AnalysisException e)
 			{
 				popErrorMessage(e.getMessage());
 				e.printStackTrace();
-			}
-			for (ProofObligation po : pol)
-			{
-				poList.add(po);
 			}
 			registry.store(cmlSource.getSourceAst(), poList);
 			allPOs.addAll(poList);
@@ -145,12 +139,12 @@ public class PogPluginDoStuff
 	private void showPOs(final IVdmProject project,
 			ArrayList<IResource> cmlFiles)
 	{
-		final ProofObligationList pol = new ProofObligationList();
+		final IProofObligationList pol = new CmlProofObligationList();
 		Registry registry = RegistryFactory.getInstance(POConstants.PO_REGISTRY_ID).getRegistry();
 		for (IResource cmlfile : cmlFiles)
 		{
 			ICmlSourceUnit cmlSource = (ICmlSourceUnit) cmlfile.getAdapter(ICmlSourceUnit.class);
-			pol.addAll(registry.lookup(cmlSource.getSourceAst(), CMLProofObligationList.class));
+			pol.addAll(registry.lookup(cmlSource.getSourceAst(), CmlProofObligationList.class));
 
 		}
 
