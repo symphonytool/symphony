@@ -4,18 +4,23 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.definitions.AExplicitFunctionDefinition;
+import org.overture.ast.definitions.AImplicitFunctionDefinition;
 import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.AStringLiteralExp;
 
 import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
+import eu.compassresearch.ast.definitions.AFunctionsDefinition;
+import eu.compassresearch.ast.types.AFunctionParagraphType;
 
 @SuppressWarnings("serial")
 public class TPVisitor extends
 	DepthFirstAnalysisCMLAdaptor
   {
 
+	List<ThmDecl>  declList = new LinkedList<ThmDecl>();
 	List<ThmType>  typeList = new LinkedList<ThmType>();
     List<ThmValue> valueList = new LinkedList<ThmValue>();
 	
@@ -66,6 +71,25 @@ public class TPVisitor extends
 		
 		super.caseAValueDefinition(node);
 	}
+
+
+
+	@Override
+	public void caseAExplicitFunctionDefinition(AExplicitFunctionDefinition arg0)
+			throws AnalysisException {
+		// TODO Auto-generated method stub
+		super.caseAExplicitFunctionDefinition(arg0);
+	}
+
+
+
+	@Override
+	public void caseAImplicitFunctionDefinition(AImplicitFunctionDefinition arg0)
+			throws AnalysisException {
+		// TODO Auto-generated method stub
+		super.caseAImplicitFunctionDefinition(arg0);
+	}
+
 
 	
 	

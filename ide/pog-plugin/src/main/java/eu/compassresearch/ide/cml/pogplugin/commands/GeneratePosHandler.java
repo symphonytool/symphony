@@ -16,7 +16,7 @@ public class GeneratePosHandler extends AbstractHandler
 	{
 		IWorkbenchPage page = HandlerUtil.getActiveWorkbenchWindow(event).getActivePage();
 		PogPluginDoStuff doer = new PogPluginDoStuff(HandlerUtil.getActiveWorkbenchWindow(event), page.getActivePart().getSite());
-		doer.run(event);
+		doer.run();
 
 
 		return null;

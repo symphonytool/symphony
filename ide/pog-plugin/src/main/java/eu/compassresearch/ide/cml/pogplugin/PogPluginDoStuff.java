@@ -2,20 +2,16 @@ package eu.compassresearch.ide.cml.pogplugin;
 
 import java.util.ArrayList;
 
-import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchSite;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.services.ISourceProviderService;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ide.core.IVdmModel;
 import org.overture.ide.core.resources.IVdmProject;
@@ -75,15 +71,15 @@ public class PogPluginDoStuff
 					// "Project contains parse errors");
 				}
 
-				if (model == null || !model.isTypeCorrect()) {
+				if (model == null || !model.isTypeCorrect())
 				{
 					VdmTypeCheckerUi.typeCheck(this.window.getShell(), vdmProject);
 				}
 
 				if (model.isTypeCorrect())
+				{
 
 					ArrayList<IResource> cmlfiles = PogPluginUtility.getAllCFilesInProject(proj);
-							.getAllCFilesInProject(proj);
 
 					for (IResource cmlfile : cmlfiles)
 					{
@@ -165,15 +161,14 @@ public class PogPluginDoStuff
 			{
 				IViewPart v;
 
-						try {
+				try
 				{
 					v = site.getPage().showView(POConstants.PO_OVERVIEW_TABLE);
 					if (v instanceof PoOverviewTableView)
 					{
 						((PoOverviewTableView) v).setDataList(project, pol);
-										pol);
 
-							}
+					}
 
 					PogPluginUtility ppu = new PogPluginUtility(site);
 					ppu.openPoviewPerspective();
@@ -199,13 +194,14 @@ public class PogPluginDoStuff
 
 	/**
 	 * We will cache window object in order to be able to provide parent shell for the message dialog.
-	 * for the message dialog.
 	 * 
 	 * @see IWorkbenchWindowActionDelegate#init
 	 */
-	public PogPluginDoStuff(IWorkbenchWindow window, IWorkbenchSite site) {
+	public PogPluginDoStuff(IWorkbenchWindow window, IWorkbenchSite site)
+	{
 		this.window = window;
 		this.site = window.getActivePage().getActivePart().getSite();
 	}
+
 
 }

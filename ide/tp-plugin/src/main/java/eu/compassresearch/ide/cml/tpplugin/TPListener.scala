@@ -37,7 +37,7 @@ object TPListener {
 	  for (po <- JavaConversions.asScalaIterable(poList)){
 	    pol.add(po)
 	  }
-	 PogPluginDoStuff.redrawPos(proj, pol)
+	 // PogPluginDoStuff.redrawPos(proj, pol)
 	}
   }
   

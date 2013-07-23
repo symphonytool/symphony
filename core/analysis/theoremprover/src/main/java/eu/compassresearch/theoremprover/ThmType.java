@@ -1,6 +1,6 @@
 package eu.compassresearch.theoremprover;
 
-public class ThmType {
+public class ThmType extends ThmDecl {
 
 	public String name;
 
