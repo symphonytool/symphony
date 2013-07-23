@@ -163,8 +163,15 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 							// that TransactionValues pass the local "new" value to the far end.
 							ValueList constValues = argValues.getConstant();
 
+							//find the self object
+							ObjectValue self = null;
+							if(opVal.getSelf() != null)
+								self = opVal.getSelf();
+							else
+								self = question.getSelf();
+							
 							//Create a new object context to perform the operation call 
-							Context callContext = CmlContextFactory.newObjectContext(node.getLocation(), "CML Operation Call", question, question.getSelf());
+							Context callContext = CmlContextFactory.newObjectContext(node.getLocation(), "CML Operation Call", question, self);
 
 							if (argValues.size() != opVal.getParamPatterns().size())
 							{
