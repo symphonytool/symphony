@@ -39,12 +39,12 @@ public enum OutlineEntryType
 			"/icons/obj16/type_entry_obj.gif"), VALUE_TOP(
 			"/icons/obj16/value_top_obj.gif"), VALUE_ENTRY(
 			"/icons/obj16/value_entry_obj.gif"), CHANNEL_TOP(
-			"/icons/obj16/channel_top_obj.gif"), CHANNEL_ENTRY(
-			"/icons/obj16/channel_entry_obj.gif"), CHANSET_TOP(
+			"/icons/obj16/channel_obj.gif"), CHANNEL_ENTRY(
+			"/icons/obj16/channel_obj.gif"), CHANSET_TOP(
 			"/icons/obj16/chanset_top_obj.gif"), CHANSET_ENTRY(
-			"/icons/obj16/chanset_entry_obj.gif"), ERROR(
+			"/icons/obj16/channel_obj.gif"), ERROR(
 			"/icons/obj16/error_obj.gif"), ACTION(
-			"/icons/obj16/action_obj.gif"), ;
+			"/icons/obj16/action_go_obj.gif"), ;
 
 	private final Image img;
 
@@ -82,11 +82,11 @@ public enum OutlineEntryType
 	{
 
 		// TODO change to (class,map) format?
-		if (obj instanceof Wrapper)
-		{
-			Wrapper<?> w = (Wrapper<?>) obj;
-			obj = w.value;
-		}
+//		if (obj instanceof Wrapper)
+//		{
+//			Wrapper<?> w = (Wrapper<?>) obj;
+//			obj = w.value;
+//		}
 
 		// Fetch Top-level definitions
 		if (obj instanceof AValuesDefinition)
