@@ -578,9 +578,7 @@ public class POGDeclAndDefVisitor extends
 		// dispatch operation body for PO checking
 		pol.addAll(node.getBody().apply(parentPOG, question));
 
-		// /*
-		// * Taken from Overture POG - not currently working
-		// */
+		// FIXME Taken from Overture POG - not currently working
 		//
 		// if (node.getIsConstructor() && node.getClassDefinition() != null
 		// && node.getClassDefinition().getInvariant() != null){
