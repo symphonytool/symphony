@@ -102,7 +102,9 @@ public class PoListView extends PoOverviewTableView
 		});
 	}
 
-	
+	public IVdmProject getProject(){
+		return project;
+	}
 
 	protected void makeActions()
 	{

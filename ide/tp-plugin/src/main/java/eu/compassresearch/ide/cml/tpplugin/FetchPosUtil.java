@@ -41,7 +41,7 @@ public class FetchPosUtil
 		this.window = window;	
 	}
 	
-	public void fetchPOs() {
+	public void fetchPOs(IProject proj) {
 		try {
 			Isabelle isabelle = IsabelleCore.isabelle();
 			Session session = null;
@@ -53,17 +53,15 @@ public class FetchPosUtil
 				return;
 			}
 
-			if (tpListener == null) { 
-				tpListener = new TPListener(isabelle.session().get());
-				tpListener.init();
-			}
+				
+			
 				
 			Registry registry = RegistryFactory.getInstance(
 					POConstants.PO_REGISTRY_ID).getRegistry();
 
-			IProject proj = TPPluginUtils.getCurrentlySelectedProject();
+	//		IProject proj = TPPluginUtils.getCurrentlySelectedProject();
 			if (proj == null) {
-				popErrorMessage("No project selected.");
+				popErrorMessage("No project available.");
 				return;
 			}
 			// Check project is built
@@ -91,6 +89,11 @@ public class FetchPosUtil
 
 				if (model.isTypeCorrect()) {
 
+					if (tpListener == null) { 
+						tpListener = new TPListener(isabelle.session().get(), vdmProject);
+						tpListener.init();
+					}
+					
 					ArrayList<IResource> cmlFiles = TPPluginUtils
 							.getAllCFilesInProject(proj);
 

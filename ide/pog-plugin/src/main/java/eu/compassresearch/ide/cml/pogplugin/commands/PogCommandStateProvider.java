@@ -4,16 +4,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.ui.AbstractSourceProvider;
+import org.eclipse.ui.ISources;
 
-public class CommandState extends AbstractSourceProvider
+public class PogCommandStateProvider extends AbstractSourceProvider
 {
 
-	public final static String STATE_VAR = "eu.compassresearch.ide.pogplugin.active";
+	public final static String TP_STATE = "eu.compassresearch.ide.pogplugin.tpstate";
 	public final static String ENABLED = "ENABLED";
 	public final static String DISABLED = "DISABLED";
 	private boolean enabled = false;
 
-	public CommandState()
+	public PogCommandStateProvider()
 	{
 		// TODO Auto-generated constructor stub
 	}
@@ -21,6 +22,8 @@ public class CommandState extends AbstractSourceProvider
 	
 	public void setVarState(boolean state){
 		this.enabled = state;
+		String value = enabled ? ENABLED : DISABLED;
+	    fireSourceChanged(ISources.WORKBENCH, TP_STATE, value);		
 	}
 	
 	@Override
@@ -35,14 +38,14 @@ public class CommandState extends AbstractSourceProvider
 	{
 	    HashMap<String, String> map = new HashMap<String, String>(1);
 	    String value = enabled ? ENABLED : DISABLED;
-	    map.put(STATE_VAR, value);
+	    map.put(TP_STATE, value);
 	    return map;
 	}
 
 	@Override
 	public String[] getProvidedSourceNames()
 	{
-		return new String[] { STATE_VAR };
+		return new String[] { TP_STATE };
 	}
 
 }

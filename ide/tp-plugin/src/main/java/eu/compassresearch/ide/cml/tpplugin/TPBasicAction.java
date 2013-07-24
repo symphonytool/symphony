@@ -49,10 +49,6 @@ public class TPBasicAction implements IWorkbenchWindowActionDelegate {
 				popErrorMessage("Isabelle is not started");
 				return;
 			}
-
-			if (tpListener == null) { 
-				tpListener = new TPListener(isabelle.session().get());
-			}
 				
 			Registry registry = RegistryFactory.getInstance(
 					POConstants.PO_REGISTRY_ID).getRegistry();
@@ -70,6 +66,11 @@ public class TPBasicAction implements IWorkbenchWindowActionDelegate {
 				return;
 			}
 
+			if (tpListener == null) { 
+				tpListener = new TPListener(isabelle.session().get(), vdmProject);
+			}
+
+			
 			final IVdmModel model = vdmProject.getModel();
 			if (model.isParseCorrect()) {
 
