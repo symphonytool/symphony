@@ -2,6 +2,7 @@ package eu.compassresearch.core.typechecker;
 
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import org.overture.ast.definitions.AAssignmentDefinition;
@@ -36,7 +37,7 @@ import eu.compassresearch.ast.definitions.ACmlClassDefinition;
 import eu.compassresearch.ast.definitions.AFunctionsDefinition;
 import eu.compassresearch.ast.definitions.AOperationsDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
-import eu.compassresearch.ast.definitions.AValuesDefinition;
+import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
 import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.ast.process.PProcess;
@@ -103,9 +104,10 @@ class CmlAssistant {
 	private final Map<Class<?>, FindMemberNameFinderStrategy> findMemberNameBaseCases = new HashMap<Class<?>, FindMemberNameFinderStrategy>();
 
 	public CmlAssistant() {
-		injectFindMemberNameBaseCase(new ValuePararagraphDefinitionFindMemberStrategy());
+		//injectFindMemberNameBaseCase(new ValuePararagraphDefinitionFindMemberStrategy());
+		injectFindMemberNameBaseCase(new ValueDefinitionFindMemberStrategy());
 		injectFindMemberNameBaseCase(new ClassParagraphFindMemberStrategy());
-		injectFindMemberNameBaseCase(new ClassClassDefinitionFindMemberStrategy());
+		//injectFindMemberNameBaseCase(new ClassClassDefinitionFindMemberStrategy());
 		injectFindMemberNameBaseCase(new LocalDefinitionFindMemberStrategy());
 		injectFindMemberNameBaseCase(new TypeDefinitionFindNameMemberStrategy());
 		injectFindMemberNameBaseCase(new OperationsDefinitionNameMemberStrategy());
@@ -376,16 +378,37 @@ class CmlAssistant {
 
 			ACmlClassDefinition cpar = ACmlClassDefinition.class.cast(def);
 
+			PDefinition res = SClassDefinitionAssistantTC.findName(cpar,
+					(LexNameToken) name, NameScope.NAMESANDANYSTATE);
+			
+			if(res != null)
+				return res;
+			
 			// pre: def.definition is not null
-			for (PDefinition d : cpar.getBody()) {
+			for (PDefinition d : cpar.getDefinitions()) {
 				// invariant: all elements before d is not the one we are
 				// looking for
+				
+				if(d instanceof SCmlOperationDefinition)
+				{
+					List<SCmlOperationDefinition> ops = new LinkedList<SCmlOperationDefinition>();
+					ops.add((SCmlOperationDefinition)d);
+					d = new AOperationsDefinition(d.getLocation(), d.getNameScope(), true, d.getAccess(), d.getPass(), ops);
+				}
+				else if(d instanceof AAssignmentDefinition)
+				{
+					AStateDefinition state = new AStateDefinition();
+					List<PDefinition> defs = new LinkedList<PDefinition>();
+					defs.add(d);
+					state.setStateDefs(defs);
+					d = state;
+				}
+				
 				PDefinition member = CmlAssistant.this.findMemberName(d, name);
 				if (member != null)
 					return member;
 			}
 			// post: we did not find the element
-
 			return null;
 		}
 
@@ -395,13 +418,55 @@ class CmlAssistant {
 		}
 	}
 
+//	/*
+//	 * 
+//	 * Find a named member of a value definition paragraph.
+//	 * 
+//	 * @author rwl
+//	 */
+//	private static class ValuePararagraphDefinitionFindMemberStrategy implements
+//			FindMemberNameFinderStrategy {
+//		/*
+//		 * 
+//		 * Search all ValueDefinition in def and return the first definition
+//		 * with the same name as name.
+//		 * 
+//		 * @param def
+//		 * 
+//		 * @param name
+//		 * 
+//		 * @return
+//		 */
+//		@Override
+//		public PDefinition findMemberName(PDefinition def,
+//				ILexIdentifierToken name, Object... more) {
+//			AValuesDefinition vdef = (AValuesDefinition) def;
+//			for (PDefinition d : vdef.getValueDefinitions()) {
+//				if (d instanceof AValueDefinition) {
+//					AValueDefinition valueDef = (AValueDefinition) d;
+//					for (PDefinition ldef : valueDef.getDefs())
+//						if (ldef.getName() != null
+//								&& LexNameTokenAssistent.isEqual(
+//										ldef.getName(), name))
+//							return ldef;
+//				}
+//			}
+//			return null;
+//		}
+//
+//		@Override
+//		public Class<?> getType() {
+//			return AValuesDefinition.class;
+//		}
+//	}
+	
 	/*
 	 * 
 	 * Find a named member of a value definition paragraph.
 	 * 
 	 * @author rwl
 	 */
-	private static class ValuePararagraphDefinitionFindMemberStrategy implements
+	private static class ValueDefinitionFindMemberStrategy implements
 			FindMemberNameFinderStrategy {
 		/*
 		 * 
@@ -417,23 +482,19 @@ class CmlAssistant {
 		@Override
 		public PDefinition findMemberName(PDefinition def,
 				ILexIdentifierToken name, Object... more) {
-			AValuesDefinition vdef = (AValuesDefinition) def;
-			for (PDefinition d : vdef.getValueDefinitions()) {
-				if (d instanceof AValueDefinition) {
-					AValueDefinition valueDef = (AValueDefinition) d;
-					for (PDefinition ldef : valueDef.getDefs())
-						if (ldef.getName() != null
-								&& LexNameTokenAssistent.isEqual(
-										ldef.getName(), name))
-							return ldef;
-				}
-			}
+			AValueDefinition valueDef = (AValueDefinition) def;
+					
+			for (PDefinition ldef : valueDef.getDefs())
+				if (ldef.getName() != null
+				&& LexNameTokenAssistent.isEqual(
+						ldef.getName(), name))
+					return ldef;
 			return null;
 		}
 
 		@Override
 		public Class<?> getType() {
-			return AValuesDefinition.class;
+			return AValueDefinition.class;
 		}
 	}
 
@@ -473,7 +534,7 @@ class CmlAssistant {
 
 		@Override
 		public Class<?> getType() {
-			return AClassClassDefinition.class;
+			return ACmlClassDefinition.class;
 		}
 
 		@Override

@@ -63,6 +63,7 @@ import java.util.ListIterator;
 import java.util.LinkedList;
 
 import static org.overture.ast.lex.Dialect.VDM_PP;
+import org.overture.ast.assistant.definition.PDefinitionAssistant;
 import org.overture.ast.factory.AstFactory;
 import org.overture.ast.definitions.*;
 import org.overture.ast.expressions.*;
@@ -362,11 +363,47 @@ classDefinition returns[ACmlClassDefinition def]
              */
             $def = new ACmlClassDefinition(); // FIXME
             $def.setName(new LexNameToken("", $id.getText(), extractLexLocation($id)));
+            
+            //default values -- Added by AKM
+            $def.setAccess(getDefaultAccessSpecifier(false, false, extractLexLocation($start)));
+            $def.setUsed(true);
+            $def.setTypeChecked(false);
+        	$def.setGettingInvDefs(false);
+			$def.setHasContructors(false);
+			$def.setGettingInheritable(false);
+			$def.setSupernames(new ArrayList<ILexNameToken>());
+			$def.setSuperDefs(new ArrayList<SClassDefinition>());
+			$def.setSupertypes(new ArrayList<PType>());
+			$def.setSuperInheritedDefinitions(new ArrayList<PDefinition>());
+			$def.setLocalInheritedDefinitions(new ArrayList<PDefinition>());
+			$def.setAllInheritedDefinitions(new ArrayList<PDefinition>());
+			$def.setIsAbstract(false);
+            
             /* FIXME --- need to set the parent's name once we've
              * settled on how that works
              */
             // $def.setParent(new LexNameToken("", $parent.getText(), extractLexLocation($parent)));
-            $def.setBody($classDefinitionBlockOptList.defs);
+            $def.setDefinitions($classDefinitionBlockOptList.defs);
+            
+            if($classDefinitionBlockOptList.defs!=null)
+			{
+				for (PDefinition p : $classDefinitionBlockOptList.defs)
+				{
+					p.parent($def);
+					if(p instanceof AOperationsDefinition)
+						for(SCmlOperationDefinition op : ((AOperationsDefinition)p).getOperations())
+							op.setClassDefinition($def);
+					else
+						p.setClassDefinition($def);
+					
+				}
+			}
+		
+			// Classes are all effectively public types
+			PDefinitionAssistant.setClassDefinition($def.getDefinitions(),$def);
+			
+			//others
+			//$def.setSettingHierarchy(ClassDefinitionSettings.UNSET);
         }
     ;
 
@@ -1669,21 +1706,28 @@ namesetDef returns [ANamesetDefinition def]
 
 classDefinitionBlockOptList returns[List<PDefinition> defs]
 @init { $defs = new ArrayList<PDefinition>(); }
-    : ( classDefinitionBlock { $defs.add($classDefinitionBlock.defs); } )*
+    : ( classDefinitionBlock { $defs.addAll($classDefinitionBlock.defs); } )*
     ;
 
-classDefinitionBlock returns[PDefinition defs]
-    : typeDefs                  { $defs = $typeDefs.defs; }
-    | valueDefs                 { $defs = $valueDefs.defs; }
-    | stateDefs                 { $defs = $stateDefs.defs; }
-    | functionDefs              { $defs = $functionDefs.defs; }
-    | operationDefs             { $defs = $operationDefs.defs; }
+classDefinitionBlock returns[List<? extends PDefinition> defs]
+    : typeDefs                  { $defs = $typeDefs.defs.getTypes(); }
+    | valueDefs                 { $defs = $valueDefs.defs.getValueDefinitions(); }
+    | stateDefs                 { $defs = $stateDefs.defs.getStateDefs(); }
+    | functionDefs              { $defs = $functionDefs.defs.getFunctionDefinitions(); }
+    | operationDefs             { 
+    								List<PDefinition> opsDef = new LinkedList<PDefinition>();
+    								opsDef.add($operationDefs.defs);
+    								$defs = opsDef;
+    								//$defs = $operationDefs.defs.getOperations(); 
+    							}
     | 'initial' operationDef
         {
             AInitialDefinition def = new AInitialDefinition();
             def.setOperationDefinition($operationDef.def);
             def.setLocation(extractLexLocation(extractLexLocation($classDefinitionBlock.start), $operationDef.def.getLocation()));
-            $defs = def;
+            LinkedList<PDefinition> dl = new LinkedList<PDefinition>();
+            dl.add(def);
+            $defs = dl;
         }
     ;
 
@@ -2178,7 +2222,7 @@ operationBody returns[PAction body]
     ;
 
 
-typeDefs returns[PDefinition defs]
+typeDefs returns[ATypesDefinition defs]
 @init {
     List<ATypeDefinition> typeDefList = new ArrayList<ATypeDefinition>();
     ATypeDefinition last = null;

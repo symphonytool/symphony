@@ -254,7 +254,7 @@ public class CommonRegistryTestCase {
 		ACmlClassDefinition paragraph = new ACmlClassDefinition();
 		AValuesDefinition values = new AValuesDefinition();
 		AValueDefinition valDef = new AValueDefinition();
-		paragraph.setBody(Arrays.asList(new PDefinition[] { values }));
+		paragraph.setDefinitions(Arrays.asList(new PDefinition[] { values }));
 		values.setValueDefinitions(Arrays.asList(new PDefinition[] { valDef }));
 
 		paragraph.parent(this.root);

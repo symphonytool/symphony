@@ -76,7 +76,6 @@ import eu.compassresearch.ast.actions.PParametrisation;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.AExpressionSingleDeclaration;
 import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
-import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AActionsDefinition;
 import eu.compassresearch.ast.definitions.AChannelNameDefinition;
@@ -370,7 +369,72 @@ class TCDeclAndDefVisitor extends
 		node.setType(new AStateParagraphType(node.getLocation(), true));
 		return node.getType();
 	}
+	
+	private PType caseSCmlOperation(SCmlOperationDefinition node, PType operationType,TypeCheckInfo question )
+	{
+		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
+		if (cmlEnv == null) {
+			node.setType(issueHandler.addTypeError(
+					node,
+					TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(""
+							+ node)));
+			return node.getType();
+		}
+		
+		if (!successfulType(operationType)) {
+			node.setType(issueHandler.addTypeError(node,
+					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+							.customizeMessage(node + "")));
+			return node.getType();
+		}
 
+		if (!(operationType instanceof AOperationType)) {
+			node.setType(issueHandler.addTypeError(node,
+					TypeErrorMessages.EXPECTED_OPERATION_DEFINITION
+							.customizeMessage(node.getName() + "")));
+			return node.getType();
+		}
+
+		// It could be the constructor
+		PDefinition clz = question.env.getEnclosingDefinition();
+		if (clz != null && clz instanceof ACmlClassDefinition) {
+			node.setClassDefinition((ACmlClassDefinition)clz);
+			if (HelpLexNameToken.isEqual(clz.getName(), node.getName())) {
+				if (node instanceof AExplicitCmlOperationDefinition) {
+					AExplicitCmlOperationDefinition cmlOdef = (AExplicitCmlOperationDefinition) node;
+					cmlOdef.setIsConstructor(true);
+
+					if (!(operationType instanceof AOperationType)) {
+						node.setType(issueHandler
+								.addTypeError(
+										cmlOdef,
+										TypeErrorMessages.EXPECTED_OPERATION_DEFINITION
+												.customizeMessage(""
+														+ cmlOdef)));
+						return node.getType();
+					}
+
+					AOperationType operationTypeActual = (AOperationType) operationType;
+					if (!(typeComparator.isSubType(clz.getType(),
+							operationTypeActual.getResult()))) {
+						node.setType(issueHandler
+								.addTypeError(
+										operationTypeActual,
+										TypeErrorMessages.CONSTRUCTOR_HAS_WRONG_TYPE
+												.customizeMessage(
+														node + "",
+														operationType + "")));
+						return node.getType();
+					}
+				}
+			}
+		}
+
+		//cmlEnv.addVariable(node.getName(), node);
+		
+		return node.getType();
+	}
+	
 	@Override
 	public PType caseAImplicitCmlOperationDefinition(
 			AImplicitCmlOperationDefinition node, TypeCheckInfo question)
@@ -1119,6 +1183,7 @@ class TCDeclAndDefVisitor extends
 		OvertureToCmlIDhandle id = new OvertureToCmlIDhandle();
 		overtureClassBits = new HashMap<Class<?>, OvertureToCmlHandler>();
 		overtureClassBits.put(ATypeDefinition.class, id);
+		overtureClassBits.put(AAssignmentDefinition.class, id);
 		overtureClassBits.put(AExplicitFunctionDefinition.class,
 				new OvertureToCmlFunctionHandler());
 		overtureClassBits.put(AImplicitFunctionDefinition.class,
@@ -1191,54 +1256,53 @@ class TCDeclAndDefVisitor extends
 	/*
 	 * Create an Overture class that
 	 */
-	private static AClassClassDefinition createSurrogateClass(
-			ACmlClassDefinition node, CmlTypeCheckInfo question) {
-
-		// if (question.getGlobalClassDefinitions() == null)
-		// throw new NullPointerException();
-
-		List<SClassDefinition> superDefs = new LinkedList<SClassDefinition>();
-		// superDefs.add(question.getGlobalClassDefinitions());
-		// TODO RWL Go recursive and create surrogates for each ancestor to node
-		// from node.getSuperDefs().
-
-		// So a bit of work needs to be done for definitions
-		List<PDefinition> overtureReadyCMLDefinitions = new LinkedList<PDefinition>();
-
-		if (question.env.getEnclosingDefinition() instanceof AClassClassDefinition)
-			overtureReadyCMLDefinitions
-					.addAll(((AClassClassDefinition) question.env
-							.getEnclosingDefinition()).getDefinitions());
-
-		// Lets mangle the CML definitions for Overture to cope with them
-		for (PDefinition def : node.getBody()) {
-			if (overtureClassBits.containsKey(def.getClass()))
-				overtureReadyCMLDefinitions.addAll(overtureClassBits.get(
-						def.getClass()).handle(def));
-		}
-
-		AClassClassDefinition surrogateOvertureClass = AstFactory
-				.newAClassClassDefinition(node.getName(), new LexNameList(), // TODO:
-						// empty
-						// list
-						// here,
-						// if
-						// doing
-						// inheritance
-						// this
-						// needs
-						// to
-						// be
-						// fixed
-						overtureReadyCMLDefinitions);
-
-		surrogateOvertureClass.setSuperDefs(superDefs);
-
-		return surrogateOvertureClass;
-	}
+//	private static AClassClassDefinition createSurrogateClass(
+//			ACmlClassDefinition node, CmlTypeCheckInfo question) {
+//
+//		// if (question.getGlobalClassDefinitions() == null)
+//		// throw new NullPointerException();
+//
+//		List<SClassDefinition> superDefs = new LinkedList<SClassDefinition>();
+//		// superDefs.add(question.getGlobalClassDefinitions());
+//		// TODO RWL Go recursive and create surrogates for each ancestor to node
+//		// from node.getSuperDefs().
+//
+//		// So a bit of work needs to be done for definitions
+//		List<PDefinition> overtureReadyCMLDefinitions = new LinkedList<PDefinition>();
+//
+//		if (question.env.getEnclosingDefinition() instanceof AClassClassDefinition)
+//			overtureReadyCMLDefinitions
+//					.addAll(((AClassClassDefinition) question.env
+//							.getEnclosingDefinition()).getDefinitions());
+//
+//		// Lets mangle the CML definitions for Overture to cope with them
+//		for (PDefinition def : node.getDefinitions()) {
+//			if (overtureClassBits.containsKey(def.getClass()))
+//				overtureReadyCMLDefinitions.addAll(overtureClassBits.get(
+//						def.getClass()).handle(def));
+//		}
+//
+//		AClassClassDefinition surrogateOvertureClass = AstFactory
+//				.newAClassClassDefinition(node.getName(), new LexNameList(), // TODO:
+//						// empty
+//						// list
+//						// here,
+//						// if
+//						// doing
+//						// inheritance
+//						// this
+//						// needs
+//						// to
+//						// be
+//						// fixed
+//						overtureReadyCMLDefinitions);
+//
+//		surrogateOvertureClass.setSuperDefs(superDefs);
+//
+//		return surrogateOvertureClass;
+//	}
 
 	PType typeCheckWithOverture(ACmlClassDefinition node,
-			AClassClassDefinition surrogate,
 			org.overture.typechecker.TypeCheckInfo question)
 			throws AnalysisException {
 
@@ -1248,16 +1312,16 @@ class TCDeclAndDefVisitor extends
 		if (question instanceof CmlTypeCheckInfo) {
 			CmlTypeCheckInfo info = (CmlTypeCheckInfo) question;
 			Environment env = info.env;
-			while (env != null) {
-				for (PDefinition def : env.getDefinitions()) {
-					if (def instanceof ACmlClassDefinition) {
-						ACmlClassDefinition cdef = (ACmlClassDefinition) def;
-						surrogateDefinitions.add(createSurrogateClass(cdef,
-								info));
-					}
-				}
-				env = env.getOuter();
-			}
+//			while (env != null) {
+//				for (PDefinition def : env.getDefinitions()) {
+//					if (def instanceof ACmlClassDefinition) {
+//						ACmlClassDefinition cdef = (ACmlClassDefinition) def;
+//						surrogateDefinitions.add(createSurrogateClass(cdef,
+//								info));
+//					}
+//				}
+//				env = env.getOuter();
+//			}
 		} else {
 			node.setType(issueHandler.addTypeError(
 					node,
@@ -1270,7 +1334,7 @@ class TCDeclAndDefVisitor extends
 				surrogateDefinitions, question.env);
 
 		// Create class environment
-		PrivateClassEnvironment self = new PrivateClassEnvironment(question.assistantFactory,surrogate,
+		PrivateClassEnvironment self = new PrivateClassEnvironment(question.assistantFactory,node,
 				surrogateEnvironment);
 
 		// Errors will be reported statically by the sub-visitors and the
@@ -1279,12 +1343,12 @@ class TCDeclAndDefVisitor extends
 		TypeChecker.clearErrors();
 		OvertureRootCMLAdapter tc = new OvertureRootCMLAdapter(parentChecker,
 				issueHandler);
-		typeCheckPass(surrogate, Pass.TYPES, self, tc, question, issueHandler);
+		typeCheckPass(node, Pass.TYPES, self, tc, question, issueHandler);
 		if (TypeChecker.getErrorCount() == 0)
-			typeCheckPass(surrogate, Pass.VALUES, self, tc, question,
+			typeCheckPass(node, Pass.VALUES, self, tc, question,
 					issueHandler);
 		if (TypeChecker.getErrorCount() == 0)
-			typeCheckPass(surrogate, Pass.DEFS, self, tc, question,
+			typeCheckPass(node, Pass.DEFS, self, tc, question,
 					issueHandler);
 
 		// add overture errors to cml errors
@@ -1299,9 +1363,9 @@ class TCDeclAndDefVisitor extends
 
 		TypeChecker.clearErrors();
 
-		return new AClassType(surrogate.getLocation(), true,
-				surrogate.getDefinitions(), surrogate.getName(),
-				surrogate.getClassDefinition());
+		return new AClassType(node.getLocation(), true,
+				node.getDefinitions(), node.getName(),
+				node.getClassDefinition());
 
 	}
 
@@ -1310,17 +1374,17 @@ class TCDeclAndDefVisitor extends
 	 * AClassParagraphDefinition find all definition of that class-type defined
 	 * in that class paragraph.
 	 */
-	private static <T extends PDefinition> List<T> findParticularDefinitionType(
-			Class<T> type, ACmlClassDefinition clz) {
-
-		List<T> result = new LinkedList<T>();
-
-		for (PDefinition d : clz.getBody())
-			if (type.isInstance(d))
-				result.add(type.cast(d));
-
-		return result;
-	}
+//	private static <T extends PDefinition> List<T> findParticularDefinitionType(
+//			Class<T> type, ACmlClassDefinition clz) {
+//
+//		List<T> result = new LinkedList<T>();
+//
+//		for (PDefinition d : clz.getDefinitions())
+//			if (type.isInstance(d))
+//				result.add(type.cast(d));
+//
+//		return result;
+//	}
 
 	// ------------------------------------------------
 	// Paragraphs
@@ -1357,7 +1421,7 @@ class TCDeclAndDefVisitor extends
 				info, node);
 		question.contextSet(CmlTypeCheckInfo.class, cmlClassEnv);
 		AClassType result = new AClassType(node.getLocation(), true,
-				node.getBody(), node.getName().clone(),
+				node.getDefinitions(), node.getName().clone(),
 				node.getClassDefinition());
 		node.setType(result);
 
@@ -1369,18 +1433,19 @@ class TCDeclAndDefVisitor extends
 		cmlClassEnv.addVariable(selfDef.getName(), node);
 
 		// Create Surrogate Overture Class
-		AClassClassDefinition surrogate = createSurrogateClass(node,
-				cmlClassEnv);
-		result.setClassdef(surrogate);
-
+		//AClassClassDefinition surrogate = createSurrogateClass(node,
+		//		cmlClassEnv);
+		result.setClassdef(node);
+		node.setClassDefinition(node);
+		
 		// Type check surrogate with overture
-		PType classType = typeCheckWithOverture(node, surrogate, cmlClassEnv);
+		PType classType = typeCheckWithOverture(node, cmlClassEnv);
 		if (classType == null || classType instanceof AErrorType)
 			return new AErrorType();
-
+		node.setClasstype(classType);
 		// Find out what Overture is not doing for us
 		List<PDefinition> thoseHandledByCOMPASS = new LinkedList<PDefinition>();
-		for (PDefinition def : node.getBody())
+		for (PDefinition def : node.getDefinitions())
 			if (!overtureClassBits.containsKey(def.getClass()))
 				thoseHandledByCOMPASS.add(def);
 		// RWL This is handled by the CmlTCUtil.createCmlClassEnvironment
@@ -1762,7 +1827,8 @@ class TCDeclAndDefVisitor extends
 			node.setPostdef(postDef);
 		}
 
-		return node.getType();
+		return caseSCmlOperation(node,node.getType(),question);
+		//return node.getType();
 	}
 
 	private List<PDefinition> findStateDefs(
@@ -1774,9 +1840,10 @@ class TCDeclAndDefVisitor extends
 
 		if (classOrProcess instanceof ACmlClassDefinition) {
 			ACmlClassDefinition clzDef = (ACmlClassDefinition) classOrProcess;
-			for (PDefinition defInClz : clzDef.getBody()) {
+			for (PDefinition defInClz : clzDef.getDefinitions()) {
 				if (defInClz instanceof AAssignmentDefinition) {
-					return ((AStateDefinition) defInClz).getStateDefs();
+					//return ((AStateDefinition) defInClz).getStateDefs();
+					result.add(defInClz);
 				}
 			}
 		}
@@ -1998,11 +2065,14 @@ class TCDeclAndDefVisitor extends
 
 		node.setActualResult(actualResult);
 
-		if (!typeComparator.isSubType(expectedResult, node.getActualResult())) {
+		if (!org.overture.typechecker.TypeComparator.compatible(expectedResult, node.getActualResult())) {
+			
 			TypeChecker.report(3018, "Function returns unexpected type",
 					node.getLocation());
 			TypeChecker.detail2("Actual", node.getActualResult(), "Expected",
 					expectedResult);
+			
+			issueHandler.addTypeError(node, TypeChecker.getErrors().get(TypeChecker.getErrors().size()-1).message);
 		}
 
 		if (PTypeAssistantTC.narrowerThan(node.getType(), node.getAccess())) {
