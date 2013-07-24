@@ -2,23 +2,23 @@ package eu.compassresearch.ide.plugins.interpreter.launch;
 
 import java.util.List;
 
-import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.dialogs.ElementTreeSelectionDialog;
 import org.eclipse.ui.model.BaseWorkbenchContentProvider;
 import org.overture.ide.core.resources.IVdmProject;
+import org.overture.ide.ui.internal.viewsupport.DecorationgVdmLabelProvider;
 import org.overture.ide.ui.utility.VdmTypeCheckerUi;
 
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ide.core.resources.ICmlProject;
 import eu.compassresearch.ide.plugins.interpreter.CmlUtil;
-import eu.compassresearch.ide.ui.editor.syntax.OutlineLabelProvider;
+import eu.compassresearch.ide.ui.navigator.CmlUiLabelProvider;
 
 public class GlobalProcessSelectorDialog
 {
-	private LabelProvider labelProvider = new OutlineLabelProvider();
+	private DecorationgVdmLabelProvider labelProvider = new DecorationgVdmLabelProvider(new CmlUiLabelProvider());
 	// new LabelProvider()
 	// {
 	// @Override

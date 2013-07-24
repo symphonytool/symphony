@@ -130,7 +130,7 @@ public class BuilderCml extends AbstractVdmBuilder
 		AFileSource source = (AFileSource) error.getOffendingNode().getAncestor(PSource.class);
 		if (source != null)
 		{
-			addErrorMarker(source.getFile(), error.getDescription(), error.getLocation(), IBuilderVdmjConstants.PLUGIN_ID);
+			addErrorMarker((source.getFile()==null?error.getLocation().getFile():source.getFile()), error.getDescription(), error.getLocation(), IBuilderVdmjConstants.PLUGIN_ID);
 		}
 	}
 

@@ -22,6 +22,7 @@ Export-Package: eu.compassresearch.ide.ui;uses:="org.eclipse.ui.plugin,org.osgi.
    eu.compassresearch.ide.ui.editor.core.dom,
    org.eclipse.jface.viewers,
    org.eclipse.swt.widgets",
+ eu.compassresearch.ide.ui.navigator,
  eu.compassresearch.ide.ui.utility,
  eu.compassresearch.ide.ui.wizard
 Require-Bundle: org.eclipse.debug.ui,
