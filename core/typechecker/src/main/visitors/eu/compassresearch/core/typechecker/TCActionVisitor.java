@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import org.overture.ast.definitions.AImplicitFunctionDefinition;
 import org.overture.ast.definitions.ALocalDefinition;
@@ -115,9 +116,11 @@ import eu.compassresearch.ast.declarations.AExpressionSingleDeclaration;
 import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionDefinition;
+import eu.compassresearch.ast.definitions.AActionsDefinition;
 import eu.compassresearch.ast.definitions.AChannelNameDefinition;
 import eu.compassresearch.ast.definitions.ACmlClassDefinition;
 import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
+import eu.compassresearch.ast.definitions.AFunctionsDefinition;
 import eu.compassresearch.ast.definitions.AOperationsDefinition;
 import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
 import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
@@ -125,6 +128,7 @@ import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.expressions.SRenameChannelExp;
 import eu.compassresearch.ast.lex.LexIdentifierToken;
 import eu.compassresearch.ast.lex.LexNameToken;
+import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.ast.types.AActionType;
 import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.ast.types.AChansetType;
@@ -475,7 +479,47 @@ class TCActionVisitor extends
 			return node.getType();
 		}
 
+		//that it can't access the class/process state is needed
 		CmlTypeCheckInfo actionEnv = cmlEnv.emptyScope();
+		
+		//Since we are in a empty scope we must add the process section except for the state
+		//since these will be added given the namesetexp
+		AActionProcess actionProcessNode = node.getAncestor(AActionProcess.class);
+		if(actionProcessNode != null)
+		{
+			for(PDefinition pdef : actionProcessNode.getDefinitionParagraphs())
+			{
+				//TODO this should be removed once the operations definition are unwrapped
+				if(pdef instanceof AOperationsDefinition)
+				{
+					for(PDefinition op : ((AOperationsDefinition) pdef).getOperations())
+					{
+						actionEnv.addVariable(op.getName(),op);
+					}
+				}
+				else if(pdef instanceof AActionsDefinition)
+				{
+					for(PDefinition action : ((AActionsDefinition) pdef).getActions())
+					{
+						actionEnv.addVariable(action.getName(),action);
+					}
+				}
+				else if(pdef instanceof AFunctionsDefinition)
+				{
+					for(PDefinition func : ((AFunctionsDefinition) pdef).getFunctionDefinitions())
+					{
+						actionEnv.addVariable(func.getName(),func);
+					}
+				}
+				//else if(pdef instanceof AAssignmentDefinition)
+				//	continue;
+				else
+					actionEnv.addVariable(pdef.getName(), pdef);
+			}
+		}
+		
+		
+		//CmlTypeCheckInfo actionEnv = cmlEnv.newScope();
 		actionEnv.scope = NameScope.NAMESANDANYSTATE;
 		// TODO RWL: What is the semantics of this?
 		PVarsetExpression csexp = node.getChansetExpression();
