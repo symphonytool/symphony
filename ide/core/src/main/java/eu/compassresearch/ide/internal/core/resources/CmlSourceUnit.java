@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Vector;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.Platform;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.node.INode;
 import org.overture.ide.core.resources.IVdmSourceUnit;
@@ -33,6 +34,11 @@ import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
 	@Override
 	public Object getAdapter(Class adapter)
 	{
+		Object obj = Platform.getAdapterManager().getAdapter(this, adapter);
+		if(obj!=null)
+		{
+			return obj;
+		}
 		return source.getAdapter(adapter);
 	}
 

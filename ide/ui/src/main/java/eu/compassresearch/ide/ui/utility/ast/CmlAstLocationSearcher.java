@@ -309,8 +309,8 @@ public class CmlAstLocationSearcher extends DepthFirstAnalysisCMLAdaptor
 		{
 			return NO_LOCATION;
 		}
-		return new int[] { location.getStartOffset() - 1,
-				location.getEndOffset() - location.getStartOffset() };
+		return new int[] { location.getStartOffset() ,
+				location.getEndOffset() - location.getStartOffset()+1 };
 	}
 
 	// ////////////////////////////////////////////////////////////////////////////

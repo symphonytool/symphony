@@ -110,7 +110,7 @@
 		<view
 			category="eu.compassresearch.ide.ui.category"
 			allowMultiple="false"
-			class="org.eclipse.ui.navigator.CommonNavigator"
+			class="eu.compassresearch.ide.ui.navigator.CmlNavigator"
 			icon="icons/cview16/compass_nav.png"
 			id="eu.compassresearch.ide.ui.CmlNavigator"
 			name="%CmlExplorerName"/>
@@ -277,7 +277,23 @@
 
 
 
-
+  <extension
+        point="org.eclipse.core.runtime.adapters">
+     <factory
+           adaptableType="eu.compassresearch.ide.core.resources.ICmlSourceUnit"
+           class="eu.compassresearch.ide.ui.adapters.AdapterFactoryWorkbenchAdapter">
+        <adapter
+              type="org.eclipse.ui.model.IWorkbenchAdapter">
+        </adapter>
+     </factory>
+     <factory
+           adaptableType="org.overture.ast.node.INode"
+           class="eu.compassresearch.ide.ui.adapters.AdapterFactoryWorkbenchAdapter">
+        <adapter
+              type="org.eclipse.ui.model.IWorkbenchAdapter">
+        </adapter>
+     </factory>
+  </extension>  
 
 
 
