@@ -14,7 +14,7 @@ import eu.compassresearch.core.common.Registry
 import eu.compassresearch.core.common.RegistryFactory
 import eu.compassresearch.ide.core.resources.ICmlSourceUnit
 import eu.compassresearch.ide.cml.pogplugin.POConstants
-import org.overture.pog.obligation.POStatus
+import org.overture.pog.pub.POStatus
 import scala.collection.JavaConversions
 import org.overture.ide.core.resources.IVdmProject
 import eu.compassresearch.ide.cml.pogplugin.PogPluginDoStuff
@@ -26,9 +26,9 @@ object TPListener {
 	var flag : Boolean = false
     for (p <- JavaConversions.asScalaIterable(poList)) {
       // FIXME: Add code to update POs from the theory
-      if (ithy.thmIsProved("po" + p.name)) {
-        p.status = POStatus.PROVED;
-        println(p.name + " is proved!");
+      if (ithy.thmIsProved("po" + p.getName())) {
+        p.setStatus(POStatus.PROVED);
+        println(p.getName() + " is proved!");
         flag=true
       }
     }

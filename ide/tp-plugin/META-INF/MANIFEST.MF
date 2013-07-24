@@ -29,7 +29,6 @@ Import-Package: org.overture.pog.pub,
  eu.compassresearch.ide.cml.pogplugin.commands,
  eu.compassresearch.ide.cml.pogplugin,
  eu.compassresearch.core.analysis.pog.obligations
->>>>>>> 0b8cb142e96415b93181283cdb37ad7a002195ed
 Export-Package: eu.compassresearch.ide.cml.tpplugin
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
