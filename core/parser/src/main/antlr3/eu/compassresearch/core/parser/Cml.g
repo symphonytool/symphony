@@ -1715,10 +1715,10 @@ classDefinitionBlock returns[List<? extends PDefinition> defs]
     | stateDefs                 { $defs = $stateDefs.defs.getStateDefs(); }
     | functionDefs              { $defs = $functionDefs.defs.getFunctionDefinitions(); }
     | operationDefs             { 
-    								List<PDefinition> opsDef = new LinkedList<PDefinition>();
-    								opsDef.add($operationDefs.defs);
-    								$defs = opsDef;
-    								//$defs = $operationDefs.defs.getOperations(); 
+    								//List<PDefinition> opsDef = new LinkedList<PDefinition>();
+    								//opsDef.add($operationDefs.defs);
+    								//$defs = opsDef;
+    							  $defs = $operationDefs.defs.getOperations(); 
     							}
     | 'initial' operationDef
         {

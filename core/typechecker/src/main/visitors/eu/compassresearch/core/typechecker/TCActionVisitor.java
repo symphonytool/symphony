@@ -560,7 +560,7 @@ class TCActionVisitor extends
 		}
 
 		PVarsetExpression sexp = node.getNamesetExpression();
-		PType sexpType = sexp.apply(parentChecker, question);
+		PType sexpType = sexp.apply(parentChecker, actionEnv);
 		if (!successfulType(sexpType)) {
 			node.setType(issueHandler.addTypeError(node,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
@@ -777,6 +777,12 @@ class TCActionVisitor extends
 							ctorEnv.addVariable(ctorcand.getName(), ctorcand);
 						}
 					}
+				}
+			}
+			else if (clzDef instanceof AExplicitCmlOperationDefinition) {
+				AExplicitCmlOperationDefinition ctorcand = (AExplicitCmlOperationDefinition) clzDef;
+				if (ctorcand.getIsConstructor()) {
+					ctorEnv.addVariable(ctorcand.getName(), ctorcand);
 				}
 			}
 		}
@@ -2051,11 +2057,20 @@ class TCActionVisitor extends
 		if(node.getExpression() instanceof AApplyExp && ((AApplyExp)node.getExpression()).getRoot().getType() instanceof AOperationType)
 		{
 			AApplyExp applyExp = (AApplyExp)node.getExpression();
-			List<ILexIdentifierToken> ids = ((AUnresolvedPathExp)applyExp.getRoot()).getIdentifiers(); 
-			StringBuilder strBuilder = new StringBuilder();
-			for(Iterator<ILexIdentifierToken> iter = ids.iterator();iter.hasNext();)
-				strBuilder.append(iter.next() + (iter.hasNext() ? "." + iter.next() : ""));
-			ILexNameToken name = new LexNameToken("",strBuilder.toString(),applyExp.getRoot().getLocation());
+			
+			ILexNameToken name = null;
+			if(applyExp.getRoot() instanceof AUnresolvedPathExp)
+			{
+				List<ILexIdentifierToken> ids = ((AUnresolvedPathExp)applyExp.getRoot()).getIdentifiers(); 
+				StringBuilder strBuilder = new StringBuilder();
+				for(Iterator<ILexIdentifierToken> iter = ids.iterator();iter.hasNext();)
+					strBuilder.append(iter.next() + (iter.hasNext() ? "." + iter.next() : ""));
+				name = new LexNameToken("",strBuilder.toString(),applyExp.getRoot().getLocation());
+			}
+			else if(applyExp.getRoot() instanceof AVariableExp)
+			{
+				name = ((AVariableExp)applyExp.getRoot()).getName();
+			}
 			//ILexNameToken name = new LexNameToken("", ids.get(0) + "." + ids.get(1),applyExp.getRoot().getLocation());
 			//AUnresolvedPathExp prev = new AUnresolvedPathExp(ids.get(0).getLocation(), ids.subList(0, ids.size()-1));
 			//PObjectDesignator designator = convertUnresolvedPathExpToObjectdesignator(
@@ -2682,7 +2697,7 @@ class TCActionVisitor extends
 			org.overture.typechecker.TypeCheckInfo question)
 			throws AnalysisException {
 
-		ILexNameToken name = node.getName();
+		ILexNameToken name = node.getName().clone();
 
 		PDefinition callee = question.env.findName(name, NameScope.GLOBAL);
 
@@ -2705,7 +2720,7 @@ class TCActionVisitor extends
 		if (cmlEnv != null) {
 			if (callee == null)
 				callee = cmlEnv.lookup(name, PDefinition.class);
-			if (callee == null) {
+			if (callee == null && !argTypes.isEmpty()) {
 				name.setTypeQualifier(argTypes);
 				callee = cmlEnv.lookup(name, PDefinition.class);
 			}
