@@ -5,7 +5,13 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.IDebugEventSetListener;
@@ -21,8 +27,10 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.ide.IDE;
 import org.overture.ast.intf.lex.ILexLocation;
 
 import eu.compassresearch.core.interpreter.debug.Choice;
@@ -198,11 +206,28 @@ public class CmlChoiceMediator implements IDoubleClickListener,
 			IStructuredSelection selection = (IStructuredSelection) event.getSelection();
 
 			Choice choice = (Choice) selection.getFirstElement();
-
-			CmlEditor cmlEditor = (CmlEditor) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
-			if (cmlEditor != null)
+			
+//			Path path = new Path(choice.getLocations().get(0).getFile().getAbsolutePath());
+//		    IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(path);
+			IWorkspace workspace= ResourcesPlugin.getWorkspace();    
+			IPath location= Path.fromOSString(choice.getLocations().get(0).getFile().getAbsolutePath()); 
+			IFile file= workspace.getRoot().getFileForLocation(location);
+			
+			IEditorPart editor= null;
+			try
 			{
-				StyledText styledText = (StyledText) cmlEditor.getAdapter(Control.class);
+				editor	 = IDE.openEditor(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), file , true);
+			} catch (PartInitException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+
+//			CmlEditor cmlEditor = (CmlEditor) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
+			if (editor != null)
+			{
+				StyledText styledText = (StyledText) ((CmlEditor)editor).getAdapter(Control.class);
 
 				// cmlEditor.resetHighlightRange();
 				// //cmlEditor.setHighlightRange(10, 4, true);

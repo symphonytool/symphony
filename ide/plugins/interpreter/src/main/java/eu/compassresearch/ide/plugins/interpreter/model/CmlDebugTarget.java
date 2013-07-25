@@ -42,6 +42,7 @@ import eu.compassresearch.core.interpreter.utility.messaging.Message;
 import eu.compassresearch.core.interpreter.utility.messaging.MessageCommunicator;
 import eu.compassresearch.core.interpreter.utility.messaging.MessageContainer;
 import eu.compassresearch.core.interpreter.utility.messaging.RequestMessage;
+import eu.compassresearch.ide.plugins.interpreter.CmlDebugPlugin;
 import eu.compassresearch.ide.plugins.interpreter.ICmlDebugConstants;
 import eu.compassresearch.ide.plugins.interpreter.views.CmlEventHistoryView;
 
@@ -314,7 +315,14 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 		try
 		{
 			requestAcceptor = new ServerSocket(requestPort);
-			requestAcceptor.setSoTimeout(5000);
+			//FIXME change to config
+			int timeout = 5000;
+			if(CmlDebugPlugin.getDefault().getPreferenceStore().getBoolean(ICmlDebugConstants.PREFERENCES_REMOTE_DEBUG))
+			{
+				timeout = 30000;
+			}
+			requestAcceptor.setSoTimeout(timeout);
+			
 			fRequestSocket = requestAcceptor.accept();
 			requestOutputStream = fRequestSocket.getOutputStream();
 			fRequestReader = new BufferedReader(new InputStreamReader(fRequestSocket.getInputStream()));

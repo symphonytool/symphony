@@ -10,6 +10,11 @@
   -->
 	<!--icon="icons/cview16/cml_file_tsk.png"-->
 	<extension point="org.eclipse.ui.views">
+	<category
+        	id="eu.compassresearch.ide.ui.category"
+        	name="COMPASS"/>
+	
+	
 		<view 
         id="eu.compassresearch.ide.plugins.interpreter.OptionsView"
         name="CML Event Options"
@@ -17,12 +22,7 @@
 
         class="eu.compassresearch.ide.plugins.interpreter.views.CmlEventOptionView" />
 
-		<category
-        	id="eu.compassresearch.ide.ui.category"
-        	name="COMPASS"/>
-	</extension>
-
-	<extension point="org.eclipse.ui.views">
+		
 		<view 
         id="eu.compassresearch.ide.plugins.interpreter.historyView"
         name="Observable Event History"
@@ -30,9 +30,7 @@
 
         class="eu.compassresearch.ide.plugins.interpreter.views.CmlEventHistoryView" />
 
-		<category
-        	id="eu.compassresearch.ide.ui.category"
-        	name="COMPASS"/>
+		
 	</extension>
 
 	<!-- Declare launch configuration type -->
@@ -151,4 +149,12 @@
 
 		</perspectiveExtension> 
 	</extension>
+ <extension
+       point="org.eclipse.ui.preferencePages">
+    <page
+          class="eu.compassresearch.ide.plugins.interpreter.preferences.WorkbenchPreferencePageInterpreter"
+          id="eu.compassresearch.ide.plugins.interpreter.page1"
+          name="CML Interpreter">
+    </page>
+ </extension>
 </plugin>

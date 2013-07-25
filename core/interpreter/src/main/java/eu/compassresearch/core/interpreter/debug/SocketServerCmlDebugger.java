@@ -14,11 +14,15 @@ import java.util.Set;
 import java.util.concurrent.SynchronousQueue;
 
 import org.overture.ast.intf.lex.ILexLocation;
+import org.overture.ast.lex.LexLocation;
+import org.overture.ast.node.INode;
 import org.overture.interpreter.values.IntegerValue;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.process.PProcess;
+import eu.compassresearch.ast.program.AFileSource;
+import eu.compassresearch.ast.types.ASourceType;
 import eu.compassresearch.core.interpreter.CmlRuntime;
 import eu.compassresearch.core.interpreter.RandomSelectionStrategy;
 import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
@@ -157,6 +161,19 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 						return rndSelect.select(new CmlAlphabet((Set)availableChannelEvents.getSilentTransitions()));
 					}
 					
+					private ILexLocation correctLexLocation(ILexLocation location,INode node)
+					{
+						if(location.getFile().getPath().isEmpty())
+						{
+							AFileSource sourceFile = node.getAncestor(AFileSource.class);
+							if(sourceFile!=null)
+							{
+								return new LexLocation(sourceFile.getFile(), location.getModule(), location.getStartLine(), location.getStartPos(), location.getEndLine(), location.getEndPos(), location.getStartOffset(),location.getEndOffset());
+							}
+							
+						}
+						return location;
+					}
 					private CmlTransition userSelect(CmlAlphabet availableChannelEvents)
 					{
 						sendStatusMessage(CmlDbgpStatus.CHOICE, cmlInterpreter.getStatus());
@@ -169,10 +186,17 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 							List<ILexLocation> locations = new LinkedList<ILexLocation>();
 							for(CmlBehaviour source : transition.getEventSources())
 							{
-								if(source.getNextState().first instanceof PAction)
-									locations.add(((PAction)source.getNextState().first).getLocation());
-								else if(source.getNextState().first instanceof PProcess)
-									locations.add(((PProcess)source.getNextState().first).getLocation());
+								ILexLocation loc = null;
+								INode node = source.getNextState().first;
+								if(node instanceof PAction)
+								{
+									loc = ((PAction)node).getLocation();
+								}
+								else if(node instanceof PProcess)
+								{
+									loc=((PProcess)source.getNextState().first).getLocation();
+								}
+								locations.add(correctLexLocation(loc, node));
 							}
 							 	
 							transitions.add(new Choice(System.identityHashCode(transition),transition.toString(),locations));

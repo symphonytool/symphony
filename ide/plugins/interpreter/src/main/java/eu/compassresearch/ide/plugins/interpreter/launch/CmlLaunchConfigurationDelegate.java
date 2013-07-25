@@ -29,6 +29,7 @@ import org.overture.ide.core.resources.IVdmSourceUnit;
 
 import eu.compassresearch.core.interpreter.debug.CmlDebugDefaultValues;
 import eu.compassresearch.core.interpreter.debug.CmlInterpreterLaunchConfigurationConstants;
+import eu.compassresearch.ide.plugins.interpreter.CmlDebugPlugin;
 import eu.compassresearch.ide.plugins.interpreter.CmlUtil;
 import eu.compassresearch.ide.plugins.interpreter.ICmlDebugConstants;
 import eu.compassresearch.ide.plugins.interpreter.model.CmlDebugTarget;
@@ -168,12 +169,33 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 
 		// Execute in a new JVM process
 		ProcessBuilder pb = new ProcessBuilder(commandArray);
-		Process process = pb.start();
+		Process process = null;
+		if(!CmlDebugPlugin.getDefault().getPreferenceStore().getBoolean(ICmlDebugConstants.PREFERENCES_REMOTE_DEBUG))
+		{
+			process = pb.start();
+		}else
+		{
+				System.out.println("Debugger Arguments:\n"
+						+ getArgumentString(commandArray.subList(4, commandArray.size())));
+			process = Runtime.getRuntime().exec("java -version");
+		}
 		IProcess iprocess = DebugPlugin.newProcess(launch, process, name);
 
 		launch.addProcess(iprocess);
 
 		return iprocess;
+	}
+	
+	private String getArgumentString(List<String> args)
+	{
+		StringBuffer executeString = new StringBuffer();
+		for (String string : args)
+		{
+			executeString.append(string);
+			executeString.append(" ");
+		}
+		return executeString.toString().trim();
+
 	}
 
 	private List<String> getClassPath() throws CoreException

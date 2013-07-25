@@ -14,5 +14,6 @@ public interface ICmlDebugConstants
 	public final String CML_LAUNCH_CONFIG_PROCESS_NAME = "CML_LAUNCH_CONFIG_PROCESS_NAME".toLowerCase();
 	// public final String CML_LAUNCH_CONFIG_PROCESS_FILE_PATH = "CML_LAUNCH_CONFIG_PROCESS_FILE_PATH".toLowerCase();
 	public final String PLUGIN_ID = "eu.compassresearch.ide.plugins.interpreter";
+	public final String PREFERENCES_REMOTE_DEBUG = "PREFERENCES_REMOTE_DEBUG".toLowerCase();
 
 }
