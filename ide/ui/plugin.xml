@@ -209,6 +209,7 @@
     <wizard
           category="eu.compassresearch.ide.ui.category-compass"
           class="eu.compassresearch.ide.ui.wizard.ImportExamplesWizard"
+          icon="icons/cview16/cml_file_tsk.png"
           id="eu.compassresearch.ide.ui.wizardImportExamples"
           name="COMPASS Examples">
     </wizard>
