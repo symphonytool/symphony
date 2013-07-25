@@ -18,8 +18,8 @@ Require-Bundle: org.eclipse.debug.ui,
  org.eclipse.core.filesystem,
  org.overture.ide.ui,
  org.overture.ide.builders.vdmj,
- org.overture.ide.plugins.poviewer,
- eu.compassresearch.ide.core
+ eu.compassresearch.ide.core,
+ org.overture.ide.plugins.poviewer-string-based
 Import-Package: eu.compassresearch.ide.core.resources,
  eu.compassresearch.ide.ui
 Export-Package: eu.compassresearch.core.analysis.pog.obligations,
