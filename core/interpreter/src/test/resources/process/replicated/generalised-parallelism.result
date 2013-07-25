@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testResult>
+  <exception/>
+  <interpreterState>TERMINATED</interpreterState>
+  <trace>
+    <events>a(,b.[1-3]){0,3}</events>
+  </trace>
+</testResult>

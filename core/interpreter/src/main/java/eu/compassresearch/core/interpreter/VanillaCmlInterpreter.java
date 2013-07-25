@@ -313,7 +313,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	public static void main(String[] args) throws IOException, InterpreterException
 	{
 		File cml_example = new File(
-				"src/test/resources/action/replicated/generalised-parallelism.cml");
+				"src/test/resources/examples/SimpleElection.cml");
 		runOnFile(cml_example);
 
 	}
