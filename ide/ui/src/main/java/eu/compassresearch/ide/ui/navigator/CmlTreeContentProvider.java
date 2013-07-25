@@ -7,19 +7,23 @@ import java.util.Vector;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.swt.widgets.Control;
+import org.overture.ast.definitions.AExplicitFunctionDefinition;
+import org.overture.ast.definitions.AExplicitOperationDefinition;
+import org.overture.ast.definitions.AImplicitFunctionDefinition;
+import org.overture.ast.definitions.AImplicitOperationDefinition;
 import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.definitions.SClassDefinition;
 import org.overture.ast.types.ARecordInvariantType;
 import org.overture.ide.core.resources.IVdmSourceUnit;
-import org.overture.typechecker.assistant.definition.PDefinitionListAssistantTC;
 
 import eu.compassresearch.ast.definitions.AActionsDefinition;
 import eu.compassresearch.ast.definitions.AChannelsDefinition;
 import eu.compassresearch.ast.definitions.AChansetsDefinition;
+import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AFunctionsDefinition;
+import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AOperationsDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.definitions.ATypesDefinition;
@@ -31,12 +35,6 @@ import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
 public class CmlTreeContentProvider implements ITreeContentProvider
 {
 
-	private static final String SMILING_ERROR_STRING = "P = NP ? Well we are working on it.";
-
-	// private Map<String, Object> _wrapperCache = new HashMap<String,
-	// Object>();
-
-
 	@Override
 	public void dispose()
 	{
@@ -46,87 +44,11 @@ public class CmlTreeContentProvider implements ITreeContentProvider
 	@Override
 	public void inputChanged(Viewer viewer, Object oldInput, Object newInput)
 	{
-		// TODO figure out ast deltas for the outline preservation
-		// if (newInput instanceof CmlSourceUnit)
-		// current = ((CmlSourceUnit) newInput).getSourceAst();
 	}
-
-	// public Object[] getElements(Object inputElement)
-	// {
-	// if (inputElement instanceof IVdmSourceUnit)
-	// {
-	// IVdmSourceUnit node = (IVdmSourceUnit) inputElement;
-	// return node.getParseList().toArray();
-	//
-	// } else if (inputElement instanceof IVdmModel)
-	// {
-	// return (((IVdmModel) inputElement).getRootElementList()).toArray();
-	// }
-	// return new Object[0];
-	// }
 
 	@Override
 	public Object[] getElements(Object inputElement)
 	{
-
-//		try
-//		{
-//			inputElement = Platform.getAdapterManager().getAdapter(inputElement, ICmlSourceUnit.class);
-//
-//			// old from here
-//			if (inputElement != null && inputElement instanceof ICmlSourceUnit)
-//			{
-//				// Get current source tree
-//				ICmlSourceUnit source = ((ICmlSourceUnit) inputElement);
-//				if (source.hasParseErrors())
-//				{
-//					String[] r = { "Rebuild project to generate outline." };
-//					return r;
-//				}
-//				if (!source.hasParseTree())
-//				{
-//					String[] r = { "Fix project errors and save to generate outline." };
-//					return r;
-//				}
-//
-//				// If there are any declarations lets see them
-//				List<Object> res = new LinkedList<Object>();
-//				for (PDefinition def : source.getParseListDefinitions())
-//				{
-//
-//					// Get the entry names for the global declarations
-//					String dscr = TopLevelDefinitionMap.getDescription(def.getClass());
-//					if (dscr == null)
-//						res.add(Wrapper.newInstance(def, def.getName().getName()));
-//					else
-//						res.add(Wrapper.newInstance(def, dscr));
-//
-//				}
-//				return res.toArray();
-//			} else if (inputElement instanceof PDefinition)
-//			{
-//				// If there are any declarations lets see them
-//				List<Object> res = new LinkedList<Object>();
-//				// for (PDefinition def : ((AFileSource) inputElement).getParagraphs())
-//				// {
-//				//
-//				PDefinition def = (PDefinition) inputElement;
-//				// Get the entry names for the global declarations
-//				String dscr = TopLevelDefinitionMap.getDescription(def.getClass());
-//				if (dscr == null)
-//					res.add(Wrapper.newInstance(def, def.getName().getName()));
-//				else
-//					res.add(Wrapper.newInstance(def, dscr));
-//				//
-//				// }
-//				return res.toArray();
-//				// return ((AFileSource)inputElement).getParagraphs().toArray();
-//			}
-//		} catch (Exception e)
-//		{
-//			return new String[] { SMILING_ERROR_STRING };
-//		}
-//		return new String[0];
 		if(inputElement instanceof IVdmSourceUnit)
 		{
 			inputElement = Platform.getAdapterManager().getAdapter(inputElement, ICmlSourceUnit.class);
@@ -156,8 +78,8 @@ public class CmlTreeContentProvider implements ITreeContentProvider
 			if(n instanceof SClassDefinition)
 			{
 				//TODO
-				List<PDefinition> defs = PDefinitionListAssistantTC.singleDefinitions(((SClassDefinition) parentElement).getDefinitions());
-				return defs.toArray();
+//				List<PDefinition> defs = PDefinitionListAssistantTC.singleDefinitions(((SClassDefinition) parentElement).getDefinitions());
+				return getDefinitions((SClassDefinition) n).toArray();
 			}else if (n instanceof AChannelsDefinition)
 			{
 				return ((AChannelsDefinition)n).getChannelNameDeclarations().toArray();
@@ -205,107 +127,38 @@ public class CmlTreeContentProvider implements ITreeContentProvider
 				return ((AStateDefinition) n).getStateDefs().toArray();
 			}
 
-//			return null;
-//			if (n instanceof Wrapper)
-//			{
-//				Wrapper<?> w = (Wrapper<?>) n;
-
-//				if (w.isClass(SClassDefinition.class))
-//				{
-//					return handleClassParagraphDefinition((SClassDefinition) w.value).toArray();
-//				}
-
-
-
-//				if (w.isClass(AValuesDefinition.class))
-//				{
-//					return handleValueParagraphDefinition((AValuesDefinition) w.value).toArray();
-//				}
-
-//				if (w.isClass(AProcessDefinition.class))
-//				{
-//					return handleProcessParagraphDefinition((AProcessDefinition) w.value).toArray();
-//				}
-
-//				if (w.isClass(AActionProcess.class))
-//				{
-//					return handleReferenceProcess((AActionProcess) w.value).toArray();
-//				}
-
-//				if (w.isClass(ATypesDefinition.class))
-//				{
-//					List<Wrapper<? extends PDefinition>> res = new LinkedList<Wrapper<? extends PDefinition>>();
-//					ATypesDefinition td = (ATypesDefinition) w.value;
-//					res = DefinitionMap.getDelegate(td.getClass()).extractSubdefinition(td);
-//					return res.toArray();
-//				}
-
-//				if (w.isClass(AFunctionsDefinition.class))
-//				{
-//					List<Wrapper<? extends PDefinition>> res = new LinkedList<Wrapper<? extends PDefinition>>();
-//					AFunctionsDefinition fd = (AFunctionsDefinition) w.value;
-//					res = DefinitionMap.getDelegate(fd.getClass()).extractSubdefinition(fd);
-//					return res.toArray();
-//				}
-//			}
 			return new String[0];
 		} catch (Exception e)
 		{
-			return new String[] { SMILING_ERROR_STRING };
+			return new String[] { "Unsupported node" };
 		}
 	}
 
-
-//	private List<Wrapper<? extends PDefinition>> handleClassParagraphDefinition(
-//			SClassDefinition cpdef)
-//	{
-//		List<Wrapper<? extends PDefinition>> r = new LinkedList<Wrapper<? extends PDefinition>>();
-//		for (PDefinition pdef : cpdef.getDefinitions())
-//		{
-//			DefinitionHandler dh = DefinitionMap.getDelegate(pdef.getClass());
-//			if (dh != null)
-//				r.addAll(dh.extractSubdefinition(pdef));
-//		}
-//		return r;
-//	}
-
+	
+	private static List<PDefinition> getDefinitions(SClassDefinition c)
+	{
+		List<PDefinition> defs = new Vector<PDefinition>();
+		
+		for (PDefinition d : c.getDefinitions())
+		{
+			if(d instanceof AExplicitCmlOperationDefinition ||d instanceof  AImplicitCmlOperationDefinition ||d instanceof AImplicitOperationDefinition ||d instanceof AExplicitOperationDefinition ||d instanceof AImplicitFunctionDefinition ||d instanceof AExplicitFunctionDefinition
+					||d instanceof ATypeDefinition||d instanceof AValuesDefinition||d instanceof AStateDefinition)
+			{
+				defs.add(d);
+			}
+			
+			if(d instanceof AOperationsDefinition)
+			{
+				defs.addAll(((AOperationsDefinition) d).getOperations());
+			}
+		}
+		
+		return defs;
+	}
 
 	@Override
 	public Object getParent(Object element)
 	{
-//		try
-//		{
-//			if (element instanceof Wrapper)
-//			{
-//				@SuppressWarnings("unchecked")
-//				Wrapper<Object> w = (Wrapper<Object>) element;
-//				if (w.value instanceof INode)
-//				{
-//					INode in = (INode) w.value;
-//					if (in.parent() == null)
-//						return null;
-//
-//					// test the parent type loop here
-//					if (in.parent() instanceof PType)
-//						return null;
-//
-//					String dscr = TopLevelDefinitionMap.getDescription(in.getClass());
-//					if (dscr == null)
-//						dscr = in.parent().toString();
-//
-//					return Wrapper.newInstance(in.parent(), dscr);
-//					// return ((INode) w.value).parent();}
-//				}
-//			}
-//		} catch (Exception e)
-//		{
-//			e.printStackTrace();
-//			// be quiet !
-//		} catch (StackOverflowError sofe)
-//		{
-//			sofe.printStackTrace();
-//			// be quiet !
-//		}
 		return null;
 	}
 
@@ -313,11 +166,9 @@ public class CmlTreeContentProvider implements ITreeContentProvider
 	@Override
 	public boolean hasChildren(Object element)
 	{
-//		if (element instanceof Wrapper)
-//		{
 		if (element instanceof SClassDefinition)
 		{
-			return ((SClassDefinition) element).getDefinitions().size() > 0;
+			return getDefinitions(((SClassDefinition) element)).size() > 0;
 		} else if (element instanceof ATypeDefinition)
 		{
 			ATypeDefinition typeDef = (ATypeDefinition) element;
@@ -336,21 +187,5 @@ public class CmlTreeContentProvider implements ITreeContentProvider
 
 		return false;
 	}
-
-//	private List<Wrapper<? extends INode>> handleReferenceProcess(PProcess pp)
-//	{
-//		if (ProcessMap.getDelegate(pp.getClass()) != null)
-//			return ProcessMap.getDelegate(pp.getClass()).makeEntries(pp);
-//		return new LinkedList<Wrapper<? extends INode>>();
-//	}
-//
-//	private List<Wrapper<? extends INode>> handleProcessParagraphDefinition(
-//			AProcessDefinition ppdef)
-//	{
-//		PProcess pp = ppdef.getProcess();
-//		if (ProcessMap.getDelegate(pp.getClass()) != null)
-//			return ProcessMap.getDelegate(pp.getClass()).makeEntries(pp);
-//		return new LinkedList<Wrapper<? extends INode>>();
-//	}
 
 }
