@@ -7,6 +7,7 @@ import java.util.Vector;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
+import org.overture.ast.definitions.AClassInvariantDefinition;
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import org.overture.ast.definitions.AExplicitOperationDefinition;
 import org.overture.ast.definitions.AImplicitFunctionDefinition;
@@ -107,6 +108,17 @@ public class CmlTreeContentProvider implements ITreeContentProvider
 						defs.addAll(Arrays.asList(children));
 					}
 				}
+				
+				@SuppressWarnings("rawtypes")
+				List removes = new Vector();
+				for (Object o : defs)
+				{
+					if(o instanceof AClassInvariantDefinition)
+					{
+						removes.add(o);
+					}
+				}
+				defs.removeAll(removes);
 				return defs.toArray();
 			}else if (n instanceof ATypesDefinition)
 			{
@@ -141,6 +153,10 @@ public class CmlTreeContentProvider implements ITreeContentProvider
 		
 		for (PDefinition d : c.getDefinitions())
 		{
+			if(d instanceof AClassInvariantDefinition)
+			{
+				continue;
+			}
 			if(d instanceof AExplicitCmlOperationDefinition ||d instanceof  AImplicitCmlOperationDefinition ||d instanceof AImplicitOperationDefinition ||d instanceof AExplicitOperationDefinition ||d instanceof AImplicitFunctionDefinition ||d instanceof AExplicitFunctionDefinition
 					||d instanceof ATypeDefinition||d instanceof AValuesDefinition||d instanceof AStateDefinition)
 			{

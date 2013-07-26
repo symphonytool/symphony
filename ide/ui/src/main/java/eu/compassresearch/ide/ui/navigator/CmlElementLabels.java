@@ -19,6 +19,7 @@ import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.definitions.AChansetsDefinition;
 import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AFunctionsDefinition;
+import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.definitions.ATypesDefinition;
 import eu.compassresearch.ast.definitions.AValuesDefinition;
@@ -102,6 +103,49 @@ public class CmlElementLabels extends VdmElementLabels
 		}
 
 		@Override
+		public StyledString caseAImplicitCmlOperationDefinition(
+				AImplicitCmlOperationDefinition node) throws AnalysisException
+		{
+			StyledString result = new StyledString();
+
+			result.append(node.getName().getSimpleName());
+
+			if (node.getType() instanceof AOperationType)
+			{
+				AOperationType type = (AOperationType) node.getType();
+				if (type.getParameters().size() == 0)
+				{
+					result.append("() ");
+				} else
+				{
+					result.append("(");
+					int i = 0;
+					while (i < type.getParameters().size() - 1)
+					{
+						PType definition = (PType) type.getParameters().get(i);
+						result.append(getSimpleTypeString(definition) + ", ");
+
+						i++;
+					}
+					PType definition = (PType) type.getParameters().get(i);
+					result.append(getSimpleTypeString(definition) + ")");
+				}
+
+				if (type.getResult() instanceof AVoidType)
+				{
+					result.append(" : ()", StyledString.DECORATIONS_STYLER);
+				} else
+				{
+					result.append(" : " + getSimpleTypeString(type.getResult()), StyledString.DECORATIONS_STYLER);
+				}
+
+			}
+
+			return result;
+
+		}
+
+		@Override
 		public StyledString caseAActionDefinition(AActionDefinition node)
 				throws AnalysisException
 		{
@@ -110,20 +154,22 @@ public class CmlElementLabels extends VdmElementLabels
 			return result;
 		}
 
-		
 		public StyledString caseAValueDefinition(AValueDefinition node)
 				throws AnalysisException
 		{
 			StyledString result = new StyledString();
 			result.append(node.getPattern().toString());
-			if (node.getType().getLocation().getModule().toLowerCase().equals("default"))
+			if (node.getType() != null)
 			{
-				result.append(" : " + getSimpleTypeString(node.getType()), StyledString.DECORATIONS_STYLER);
-			} else
-			{
-				result.append(" : " + // node.getType().getLocation().getModule() + "`"
-						// +
-						getSimpleTypeString(node.getType()), StyledString.DECORATIONS_STYLER);
+				if (node.getType().getLocation().getModule().toLowerCase().equals("default"))
+				{
+					result.append(" : " + getSimpleTypeString(node.getType()), StyledString.DECORATIONS_STYLER);
+				} else
+				{
+					result.append(" : " + // node.getType().getLocation().getModule() + "`"
+							// +
+							getSimpleTypeString(node.getType()), StyledString.DECORATIONS_STYLER);
+				}
 			}
 			return result;
 		}
@@ -143,96 +189,101 @@ public class CmlElementLabels extends VdmElementLabels
 
 			return result;
 		}
-		
+
 		@Override
 		public StyledString caseAProcessDefinition(AProcessDefinition node)
 				throws AnalysisException
 		{
 			StyledString result = new StyledString();
-			
+
 			result.append(node.getName().getName());
-			if(node.getProcess() instanceof AActionProcess)
+			if (node.getProcess() instanceof AActionProcess)
 			{
-			result.append(" : "
-					+ ((AActionProcess)node.getProcess()).getAction(), StyledString.DECORATIONS_STYLER);
+				result.append(" : "
+						+ ((AActionProcess) node.getProcess()).getAction(), StyledString.DECORATIONS_STYLER);
 			}
 			return result;
 		}
-		
+
 		@Override
 		public StyledString caseAStateDefinition(AStateDefinition node)
 				throws AnalysisException
 		{
 			StyledString result = new StyledString();
+			try{//FIXME this try catch have to be removed and the state object should not be made by the parser if it doesn't contain anything but null pointers
 			result.append(node.getName().getSimpleName());
-			if (node.getType().getLocation().getModule().toLowerCase().equals("default")) {
-				result.append(" : " + getSimpleTypeString(node.getType()),
-						StyledString.DECORATIONS_STYLER);
-			} else {
-				result.append(" : " + node.getType().getLocation().getModule() + "`"
-						+ getSimpleTypeString(node.getType()),
-						StyledString.DECORATIONS_STYLER);
+			if (node.getType().getLocation().getModule().toLowerCase().equals("default"))
+			{
+				result.append(" : " + getSimpleTypeString(node.getType()), StyledString.DECORATIONS_STYLER);
+			} else
+			{
+				result.append(" : " + node.getType().getLocation().getModule()
+						+ "`" + getSimpleTypeString(node.getType()), StyledString.DECORATIONS_STYLER);
+			}
+			}catch(Exception e)
+			{
+				result.append("Parser did not populate class: "+node.getClass().getName());
 			}
 			return result;
 		}
-		
+
 		@Override
 		public StyledString caseAAssignmentDefinition(AAssignmentDefinition node)
 				throws AnalysisException
 		{
-			
-				StyledString result = new StyledString();
-				result.append(node.getName().getSimpleName());
-				result.append(" : " + getSimpleTypeString(node.getType()),
-						StyledString.DECORATIONS_STYLER);
-				return result;
+
+			StyledString result = new StyledString();
+			result.append(node.getName().getSimpleName());
+			result.append(" : " + getSimpleTypeString(node.getType()), StyledString.DECORATIONS_STYLER);
+			return result;
 		}
-		
+
 		@Override
 		public StyledString caseAChansetDefinition(AChansetDefinition node)
 				throws AnalysisException
 		{
 			StyledString result = new StyledString();
 			result.append(node.getIdentifier().toString());
-			result.append(" : " + node.getChansetExpression().toString().replace('[', '{').replace(']', '}'),
-					StyledString.DECORATIONS_STYLER);
+			result.append(" : "
+					+ node.getChansetExpression().toString().replace('[', '{').replace(']', '}'), StyledString.DECORATIONS_STYLER);
 			return result;
 		}
-		
+
 		@Override
 		public StyledString caseATypesDefinition(ATypesDefinition node)
 				throws AnalysisException
 		{
 			return new StyledString("Types");
 		}
+
 		@Override
 		public StyledString caseAValuesDefinition(AValuesDefinition node)
 				throws AnalysisException
 		{
 			return new StyledString("Values");
 		}
-		
+
 		@Override
 		public StyledString caseAFunctionsDefinition(AFunctionsDefinition node)
 				throws AnalysisException
 		{
 			return new StyledString("Functions");
 		}
-		
+
 		@Override
 		public StyledString caseAChannelsDefinition(AChannelsDefinition node)
 				throws AnalysisException
 		{
 			return new StyledString("Channels");
 		}
-		
+
 		@Override
 		public StyledString caseAChansetsDefinition(AChansetsDefinition node)
 				throws AnalysisException
 		{
 			return new StyledString("Channel Sets");
 		}
-		
+
 	}
 
 }
