@@ -49,7 +49,7 @@
 
 		<dependency>
 			<groupId>org.overture.core</groupId>
-			<artifactId>pog</artifactId>
+			<artifactId>pog-string-based</artifactId>
 			<version>${overture.version}</version>
 		</dependency>
 	</dependencies>
