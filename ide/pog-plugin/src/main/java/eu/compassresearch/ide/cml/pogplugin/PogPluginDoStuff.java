@@ -1,9 +1,6 @@
 package eu.compassresearch.ide.cml.pogplugin;
 
-import java.util.ArrayList;
-
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
@@ -13,24 +10,22 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.eclipse.ui.PartInitException;
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.ide.core.IVdmModel;
 import org.overture.ide.core.resources.IVdmProject;
 import org.overture.ide.plugins.poviewer.view.PoOverviewTableView;
 import org.overture.ide.ui.utility.VdmTypeCheckerUi;
-import org.overture.pog.pub.IProofObligationList;
+import org.overture.pog.obligation.ProofObligationList;
+import org.overture.pog.pub.IProofObligation;
 
 import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligationList;
 import eu.compassresearch.core.analysis.pog.visitors.ProofObligationGenerator;
 import eu.compassresearch.core.common.Registry;
 import eu.compassresearch.core.common.RegistryFactory;
-import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
-import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
+import eu.compassresearch.ide.core.resources.ICmlModel;
 
 public class PogPluginDoStuff
 {
 	private IWorkbenchWindow window;
 	private IWorkbenchSite site;
-
 
 	/**
 	 * The action has been activated. The argument of the method represents the 'real' action sitting in the workbench
@@ -59,7 +54,7 @@ public class PogPluginDoStuff
 				return;
 			}
 
-			final IVdmModel model = vdmProject.getModel();
+			final ICmlModel model = (ICmlModel) vdmProject.getModel().getAdapter(ICmlModel.class);
 			if (model.isParseCorrect())
 			{
 
@@ -78,23 +73,23 @@ public class PogPluginDoStuff
 				if (model.isTypeCorrect())
 				{
 
-					ArrayList<IResource> cmlfiles = PogPluginUtility.getAllCFilesInProject(proj);
+					// ArrayList<IResource> cmlfiles = PogPluginUtility.getAllCFilesInProject(proj);
+					//
+					// for (IResource cmlfile : cmlfiles)
+					// {
+					// ICmlSourceUnit source = (ICmlSourceUnit) cmlfile.getAdapter(ICmlSourceUnit.class);
+					// // CmlSourceUnit source = CmlSourceUnit
+					// // .getFromFileResource((IFile) cmlfile);
+					// if (!CmlTypeChecker.Utils.isWellType(source.getSourceAst()))
+					// {
+					// popErrorMessage("There were type errors in "
+					// + source.getFile().getName());
+					// return;
+					// }
+					// }
 
-					for (IResource cmlfile : cmlfiles)
-					{
-						ICmlSourceUnit source = (ICmlSourceUnit) cmlfile.getAdapter(ICmlSourceUnit.class);
-						// CmlSourceUnit source = CmlSourceUnit
-						// .getFromFileResource((IFile) cmlfile);
-						if (!CmlTypeChecker.Utils.isWellType(source.getSourceAst()))
-						{
-							popErrorMessage("There were type errors in "
-									+ source.getFile().getName());
-							return;
-						}
-					}
-
-					addPOsToRegistry(cmlfiles);
-					showPOs(vdmProject, cmlfiles);
+					addPOsToRegistry(model);
+					showPOs(vdmProject, model);
 				}
 			}
 		} catch (Exception e)
@@ -111,42 +106,48 @@ public class PogPluginDoStuff
 				+ message);
 	}
 
-	private void addPOsToRegistry(ArrayList<IResource> cmlfiles)
+	private void addPOsToRegistry(ICmlModel model)
 	{
 		Registry registry = RegistryFactory.getInstance(POConstants.PO_REGISTRY_ID).getRegistry();
 
-		IProofObligationList allPOs = new CmlProofObligationList();
+		ProofObligationList allPOs = new ProofObligationList();
 
-		for (IResource cmlfile : cmlfiles)
+		// for (IResource cmlfile : cmlfiles)
+		// {
+		// ICmlSourceUnit cmlSource = (ICmlSourceUnit) cmlfile.getAdapter(ICmlSourceUnit.class);
+		CmlProofObligationList poList = new CmlProofObligationList();
+		ProofObligationGenerator pog = new ProofObligationGenerator(model.getAstSource());
+		CmlProofObligationList pol = new CmlProofObligationList();
+		try
 		{
-			ICmlSourceUnit cmlSource = (ICmlSourceUnit) cmlfile.getAdapter(ICmlSourceUnit.class);
-			CmlProofObligationList poList = new CmlProofObligationList();
-			ProofObligationGenerator pog = new ProofObligationGenerator(cmlSource.getSourceAst());
-			try
-			{
-				poList = pog.generatePOs();
-			} catch (AnalysisException e)
-			{
-				popErrorMessage(e.getMessage());
-				e.printStackTrace();
-			}
-			registry.store(cmlSource.getSourceAst(), poList);
-			allPOs.addAll(poList);
+			pol = pog.generatePOs();
+		} catch (AnalysisException e)
+		{
+			popErrorMessage(e.getMessage());
+			e.printStackTrace();
 		}
+		for (IProofObligation po : pol)
+		{
+			poList.add(po);
+		}
+		// registry.store(cmlSource.getSourceAst(), poList);
+		model.setAttribute(POConstants.PO_REGISTRY_ID, poList);
+		allPOs.addAll(poList);
+		// }
 
 	}
 
-	private void showPOs(final IVdmProject project,
-			ArrayList<IResource> cmlFiles)
+	private void showPOs(final IVdmProject project, ICmlModel model)
 	{
-		final IProofObligationList pol = new CmlProofObligationList();
-		Registry registry = RegistryFactory.getInstance(POConstants.PO_REGISTRY_ID).getRegistry();
-		for (IResource cmlfile : cmlFiles)
-		{
-			ICmlSourceUnit cmlSource = (ICmlSourceUnit) cmlfile.getAdapter(ICmlSourceUnit.class);
-			pol.addAll(registry.lookup(cmlSource.getSourceAst(), CmlProofObligationList.class));
-
-		}
+		final ProofObligationList pol = new ProofObligationList();
+		// Registry registry = RegistryFactory.getInstance(POConstants.PO_REGISTRY_ID).getRegistry();
+		// for (IResource cmlfile : cmlFiles)
+		// {
+		// ICmlSourceUnit cmlSource = (ICmlSourceUnit) cmlfile.getAdapter(ICmlSourceUnit.class);
+		// pol.addAll(registry.lookup(cmlSource.getSourceAst(), CMLProofObligationList.class));
+		//
+		// }
+		pol.addAll(model.getAttribute(POConstants.PO_REGISTRY_ID, new CmlProofObligationList()));
 
 		site.getPage().getWorkbenchWindow().getShell().getDisplay().asyncExec(new Runnable()
 		{
@@ -196,6 +197,5 @@ public class PogPluginDoStuff
 		this.window = window;
 		this.site = window.getActivePage().getActivePart().getSite();
 	}
-
 
 }

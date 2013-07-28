@@ -22,7 +22,8 @@ public class AbstractValueInterpreter {
 			if(!val1.equals(val2))
 			{
 				CmlRuntime.logger().warning("A Value just descreased in precision");
-				return new AnyValue();
+				//return new AnyValue();
+				return null;
 			}
 			//any value would do here since they are identical
 			else

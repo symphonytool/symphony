@@ -175,7 +175,7 @@ public class POGDeclAndDefVisitor extends
 
 		CmlProofObligationList pol = new CmlProofObligationList();
 
-		for (PDefinition def : node.getBody())
+		for (PDefinition def : node.getDefinitions())
 		{
 			PONameContext name = def.apply(new PogNameContextVisitor());
 			if (name != null)
