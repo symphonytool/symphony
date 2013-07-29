@@ -18,12 +18,12 @@
 
    <requires>
       <import plugin="org.eclipse.ui.console"/>
-      <import plugin="eu.compassresearch.ide.cml.core"/>
+      <import plugin="eu.compassresearch.ide.core"/>
       <import plugin="org.eclipse.core.runtime" version="3.5.0" match="compatible"/>
    </requires>
 
    <plugin
-         id="eu.compassresearch.ide.cml.interpreter-plugin"
+         id="eu.compassresearch.ide.plugins.interpreter"
          download-size="0"
          install-size="0"
          version="0.0.0"

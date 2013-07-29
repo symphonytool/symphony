@@ -36,11 +36,11 @@
       <version>${project.version}</version>
     </dependency>
 
-    <dependency>
+    <!-- dependency>
       <groupId>org.overture.core</groupId>
       <artifactId>ast</artifactId>
       <version>${overture.version}</version>
-    </dependency>
+    </dependency-->
 
     <!-- Will add this back when we have Isabelle-Eclipse dependency reintegrated 
 	 <dependency> <groupId>isabelle.eclipse</groupId> <artifactId>isabelle.eclipse.core</artifactId> 
