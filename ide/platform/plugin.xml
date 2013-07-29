@@ -2,7 +2,7 @@
 <?eclipse version="3.2"?>
 <plugin>
    <extension
-         id="eu.compassresearch.ide.cml.platform.product"
+         id="eu.compassresearch.ide.platform.product"
          point="org.eclipse.core.runtime.products">
       <product
             application="org.eclipse.ui.ide.workbench"
@@ -54,19 +54,19 @@
          point="org.eclipse.ui.intro">
       <intro
             class="org.eclipse.ui.intro.config.CustomizableIntroPart"
-            id="eu.compassresearch.ide.cml.platform.intro">
+            id="eu.compassresearch.ide.platform.intro">
       </intro>
       <introProductBinding
-            introId="eu.compassresearch.ide.cml.platform.intro"
-            productId="eu.compassresearch.ide.cml.platform.product">
+            introId="eu.compassresearch.ide.platform.intro"
+            productId="eu.compassresearch.ide.platform.product">
       </introProductBinding>
    </extension>
    <extension
          point="org.eclipse.ui.intro.config">
       <config
             content="introContent.xml"
-            id="eu.compassresearch.ide.cml.platform.introConfigId"
-            introId="eu.compassresearch.ide.cml.platform.intro">
+            id="eu.compassresearch.ide.platform.introConfigId"
+            introId="eu.compassresearch.ide.platform.intro">
          <presentation
                home-page-id="root">
             <implementation

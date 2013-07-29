@@ -31,7 +31,7 @@ import eu.compassresearch.core.interpreter.utility.messaging.RequestMessage;
 import eu.compassresearch.core.interpreter.utility.messaging.ResponseMessage;
 import eu.compassresearch.ide.cml.interpreter.ICmlDebugConstants;
 import eu.compassresearch.ide.cml.interpreter.views.CmlEventOptionView;
-import eu.compassresearch.ide.cml.ui.editor.core.CmlEditor;
+import eu.compassresearch.ide.ui.editor.core.CmlEditor;
 
 public class CmlChoiceMediator implements IDoubleClickListener, ISelectionChangedListener{
 
@@ -203,10 +203,13 @@ public class CmlChoiceMediator implements IDoubleClickListener, ISelectionChange
 				{
 					int length = loc.getEndOffset() - loc.getStartOffset() + 1;
 					StyleRange sr = styledText.getStyleRangeAtOffset(loc.getStartOffset());
-					sr.length = length;
-					sr.background = new Color(null, new RGB(java.awt.Color.GRAY.getRed(), java.awt.Color.GRAY.getGreen(), java.awt.Color.GRAY.getBlue()));
-					styledText.setStyleRange(sr);
-					lastSelectedRanges.add(sr);
+					if(sr != null)
+					{
+						sr.length = length;
+						sr.background = new Color(null, new RGB(java.awt.Color.GRAY.getRed(), java.awt.Color.GRAY.getGreen(), java.awt.Color.GRAY.getBlue()));
+						styledText.setStyleRange(sr);
+						lastSelectedRanges.add(sr);
+					}
 				}
 				styledText.setCaretOffset(choice.getLocations().get(0).getStartOffset());
 				styledText.showSelection();

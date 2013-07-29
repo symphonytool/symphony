@@ -13,7 +13,7 @@ import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligation
 import eu.compassresearch.ast.program.PSource
 import eu.compassresearch.core.common.Registry
 import eu.compassresearch.core.common.RegistryFactory
-import eu.compassresearch.ide.cml.ui.editor.core.dom.ICmlSourceUnit
+import eu.compassresearch.ide.core.resources.ICmlSourceUnit
 import eu.compassresearch.ide.cml.pogplugin.POConstants
 import org.overture.pog.obligation.POStatus
 import scala.collection.JavaConversions;

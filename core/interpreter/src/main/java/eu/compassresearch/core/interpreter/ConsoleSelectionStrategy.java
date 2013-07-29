@@ -8,11 +8,13 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.node.INode;
 import org.overture.ast.types.AIntNumericBasicType;
 import org.overture.ast.types.ANamedInvariantType;
+import org.overture.ast.types.ANatNumericBasicType;
 import org.overture.ast.types.AProductType;
 import org.overture.ast.types.AQuoteType;
 import org.overture.ast.types.AUnionType;
 import org.overture.ast.types.PType;
 import org.overture.interpreter.values.IntegerValue;
+import org.overture.interpreter.values.NaturalValue;
 import org.overture.interpreter.values.QuoteValue;
 import org.overture.interpreter.values.TupleValue;
 import org.overture.interpreter.values.Value;
@@ -77,6 +79,17 @@ SelectionStrategy {
 				throws AnalysisException {
 
 			return new IntegerValue(scanIn.nextInt());
+		}
+		
+		@Override
+		public Value caseANatNumericBasicType(ANatNumericBasicType node,
+				ChannelEvent question) throws AnalysisException {
+
+			try {
+				return new NaturalValue(scanIn.nextLong());
+			} catch (Exception e) {
+				throw new AnalysisException(e.getMessage(),e);
+			}
 		}
 		
 		@Override

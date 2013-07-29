@@ -2,15 +2,15 @@
 <?eclipse version="3.4"?>
 
 <plugin>
-  <!-- For possible extension points see
+	<!-- For possible extension points see
  
   http://help.eclipse.org/indigo/index.jsp?
   topic=%2Forg.eclipse.platform.doc.isv%2Freference%2Fextension-points%2Findex.html
 
   -->
-  
-  
-     <extension
+
+
+	<!--extension
          point="org.eclipse.ui.actionSets">
       <actionSet
             id="eu.compassresearch.ide.cml.ui.secutiryactionSet"
@@ -26,6 +26,50 @@
                tooltip="Run static security analysis">
          </action>
       </actionSet>
-   </extension>
-  
+   </extension-->
+	<extension
+           point="org.eclipse.ui.commands">
+		<command
+              id="eu.compassresearch.ide.cml.security-plugin.commandAnalysis"
+              name="Security Analysis">
+		</command>
+	</extension>
+	<extension
+           point="org.eclipse.ui.handlers">
+		<handler
+              class="eu.compassresearch.ide.securityanalysis.SecurityAnalysisCommandHandler"
+              commandId="eu.compassresearch.ide.cml.security-plugin.commandAnalysis">
+		</handler>
+	</extension>
+	<extension
+           point="org.eclipse.ui.menus">
+		<menuContribution
+              allPopups="false"
+              locationURI="popup:eu.compassresearch.ide.ui.CmlNavigator">
+			<command
+                 commandId="eu.compassresearch.ide.cml.security-plugin.commandAnalysis"
+                 label="Security Analysis"
+                 style="push">
+				<visibleWhen>
+					<iterate ifEmpty="false" >
+						<or>
+							<adapt type="org.eclipse.core.resources.IProject">
+
+								<test
+                       property="org.eclipse.core.resources.projectNature"
+                       value="eu.compassresearch.ide.core.cmlnature">
+								</test>
+							</adapt>
+							<test
+                                forcePluginActivation="true"
+                                property="org.overture.ide.core.resources.dialect"
+                                value="CML">
+							</test>
+						</or>
+					</iterate>
+				</visibleWhen>
+			</command>
+		</menuContribution>
+	</extension>
+
 </plugin>

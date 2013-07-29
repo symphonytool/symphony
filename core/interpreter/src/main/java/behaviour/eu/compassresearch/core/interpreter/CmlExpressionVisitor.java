@@ -8,6 +8,7 @@ import java.util.Set;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
+import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.interpreter.eval.DelegateExpressionEvaluator;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.VdmRuntime;
@@ -18,8 +19,6 @@ import org.overture.interpreter.values.RecordValue;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
-import eu.compassresearch.ast.declarations.AExpressionSingleDeclaration;
-import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.expressions.ABracketedExp;
 import eu.compassresearch.ast.expressions.AEnumVarsetExpression;
 import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
@@ -28,7 +27,6 @@ import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
 import eu.compassresearch.ast.expressions.PCMLExp;
 import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.ast.types.AChannelType;
-import eu.compassresearch.core.interpreter.api.InterpreterError;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionFactory;
@@ -100,7 +98,7 @@ class CmlExpressionVisitor extends QuestionAnswerCMLAdaptor<Context, Value>
 	private ObservableEvent createEvent(ILexIdentifierToken id, Context question )
 	{
 		//FIXME: This should be a name so the conversion is avoided
-		LexNameToken channelName = new LexNameToken("|CHANNELS|",id);
+		ILexNameToken channelName = NamespaceUtility.createChannelName(id);
 		CMLChannelValue chanValue = (CMLChannelValue)question.lookup(channelName);
 
 		AChannelType chanType = (AChannelType)chanValue.getType(); 

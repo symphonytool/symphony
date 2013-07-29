@@ -11,8 +11,8 @@
 
   <packaging>eclipse-plugin</packaging>
 
-  <groupId>eu.compassresearch.ide.cml</groupId>
-  <artifactId>eu.compassresearch.ide.cml.core</artifactId>
+ 
+  <artifactId>eu.compassresearch.ide.core</artifactId>
   <name>COMPASS IDE CML Core</name>
 
   <build>

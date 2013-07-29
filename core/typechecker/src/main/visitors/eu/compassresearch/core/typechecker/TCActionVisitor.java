@@ -115,10 +115,11 @@ import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AChannelNameDefinition;
-import eu.compassresearch.ast.definitions.AClassDefinition;
+import eu.compassresearch.ast.definitions.ACmlClassDefinition;
 import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AOperationsDefinition;
 import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
+import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.expressions.SRenameChannelExp;
 import eu.compassresearch.ast.lex.LexIdentifierToken;
@@ -747,8 +748,8 @@ class TCActionVisitor extends
 		}
 
 		// set the class definition
-		node.setClassdef((AClassDefinition) cmlEnv.lookup(node.getClassName(),
-				AClassDefinition.class));
+		node.setClassdef((ACmlClassDefinition) cmlEnv.lookup(node.getClassName(),
+				ACmlClassDefinition.class));
 
 		// All done!
 		node.setType(new AActionType());
@@ -1926,11 +1927,20 @@ class TCActionVisitor extends
 
 			// extract the call root/target
 			AApplyExp applyExp = (AApplyExp) exp;
-			AVariableExp callRoot = (AVariableExp) applyExp.getRoot();
+			
+			ILexNameToken callRootName;
+			
+			if(applyExp.getRoot() instanceof AUnresolvedPathExp){
+				AUnresolvedPathExp aa = (AUnresolvedPathExp) applyExp.getRoot();
+				LinkedList<ILexIdentifierToken> identifiers = aa.getIdentifiers();
+				callRootName = new LexNameToken("", identifiers.get(0));
+			 } else {
+				AVariableExp callRoot = (AVariableExp) applyExp.getRoot();
+				callRootName = callRoot.getName();
+			 }
 
 			// find the callRoot (again) in the environment
-			PDefinition operationDefinition = cmlEnv.lookupVariable(callRoot
-					.getName());
+			PDefinition operationDefinition = cmlEnv.lookupVariable(callRootName);
 			if (!(operationDefinition instanceof SCmlOperationDefinition))
 				break;
 
@@ -1982,7 +1992,6 @@ class TCActionVisitor extends
 			return replacement.getType();
 
 		} while (false);
-		int a;
 
 		if (!typeComparator.isSubType(expType, stateType)) {
 			node.setType(issueHandler.addTypeError(
@@ -2111,7 +2120,7 @@ class TCActionVisitor extends
 			// //
 			ATypeSingleDeclaration typeDecl = channelNameDefinition
 					.getSingleType();
-
+			
 			if (commParam instanceof AReadCommunicationParameter) {
 
 				AReadCommunicationParameter readParam = (AReadCommunicationParameter) commParam;
@@ -2239,6 +2248,11 @@ class TCActionVisitor extends
 				PType thisType = null;
 				PType type = typeDecl.getType();
 
+				//Type check channel type definitions, if not checked.  
+				if(type.getDefinitions().isEmpty()){
+					type.apply(parentChecker, cmlEnv);
+				}
+				
 				if (!(type instanceof AChannelType)) {
 					node.setType(issueHandler.addTypeError(node,
 							TypeErrorMessages.EXPECTED_A_CHANNEL

@@ -27,7 +27,7 @@ import org.eclipse.ui.console.MessageConsoleStream;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.common.Registry;
 import eu.compassresearch.core.common.RegistryFactory;
-import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
+import eu.compassresearch.ide.core.resources.CmlSourceUnit;
 import eu.compassresearch.security.SecurityAnalysis;
 import eu.compassresearch.security.SecurityEnvironment.Judgement;
 import eu.compassresearch.security.SecurityEnvironment.SubtreeJudgement;
