@@ -282,6 +282,9 @@ class TCDeclAndDefVisitor extends
 	public PType caseAClassInvariantDefinition(AClassInvariantDefinition node,
 			TypeCheckInfo question) throws AnalysisException {
 
+		//set the name
+		//node.setName(node.getClassDefinition().getName().getInvName(node.getLocation()));
+		
 		CmlTypeCheckInfo cmlTCInfo = (CmlTypeCheckInfo)question;
 		CmlTypeCheckInfo stateScopeCentext = cmlTCInfo.newScope();
 		stateScopeCentext.scope = NameScope.STATE; 
@@ -643,7 +646,6 @@ class TCDeclAndDefVisitor extends
 	public PType caseAInitialDefinition(AInitialDefinition node,
 			org.overture.typechecker.TypeCheckInfo question)
 			throws AnalysisException {
-		// TODO Auto-generated method stub
 
 		PDefinition oper = node.getOperationDefinition();
 		if (oper != null) {

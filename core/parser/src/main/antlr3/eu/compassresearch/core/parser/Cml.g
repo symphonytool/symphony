@@ -393,6 +393,14 @@ classDefinition returns[ACmlClassDefinition def]
 					if(p instanceof AOperationsDefinition)
 						for(SCmlOperationDefinition op : ((AOperationsDefinition)p).getOperations())
 							op.setClassDefinition($def);
+					else if(p instanceof AClassInvariantDefinition)
+					{
+						p.setName($def.getName().getInvName(p.getLocation()));
+					}
+					else if(p instanceof AInitialDefinition)
+					{
+						p.setName(new LexNameToken("", $def.getName().getName() + "_initial",p.getLocation()));
+					}
 					else
 						p.setClassDefinition($def);
 					
