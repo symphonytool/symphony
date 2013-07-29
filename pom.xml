@@ -49,7 +49,7 @@
       </releases>
       <snapshots>
         <enabled>true</enabled>
-        <updatePolicy>daily</updatePolicy>
+        <updatePolicy>always</updatePolicy>
         <checksumPolicy>warn</checksumPolicy>
       </snapshots>
       <url>http://build.overturetool.org/builds/overture-compass-m2repo/</url>
