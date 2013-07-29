@@ -150,7 +150,7 @@ import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
 	}
 
 	@Override
-	public <K> K getAttribute(String attributeName, K defaultValue)
+	public <K> K getAttribute(String attributeName, Class<K> defaultValue)
 	{
 		return model.getAttribute(attributeName, defaultValue);
 	}

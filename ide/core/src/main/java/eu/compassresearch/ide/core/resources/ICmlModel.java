@@ -98,6 +98,6 @@ public interface ICmlModel extends IAdaptable
 	// boolean hasWorkingCopies();
 
 	 public boolean hasAttribute(String attributeName);
-	 public <K> K getAttribute(String attributeName, K defaultValue);
+	 public <K> K getAttribute(String attributeName, Class<K> defaultValue);
 	 public <K> void setAttribute(String attributeName, K value);
 }

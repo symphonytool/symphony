@@ -158,7 +158,7 @@ public class POGDoStuff implements IWorkbenchWindowActionDelegate
 		// {
 		// ICmlSourceUnit cmlSource = (ICmlSourceUnit) cmlfile.getAdapter(ICmlSourceUnit.class);
 		// pol.addAll(registry.lookup(cmlSource.getSourceAst(), CMLProofObligationList.class));
-		pol.addAll(model.getAttribute(POConstants.PO_REGISTRY_ID, new CmlProofObligationList()));
+		pol.addAll(model.getAttribute(POConstants.PO_REGISTRY_ID, CmlProofObligationList.class));
 		// }
 
 		site.getPage().getWorkbenchWindow().getShell().getDisplay().asyncExec(new Runnable()
