@@ -32,7 +32,6 @@ import org.overture.ast.factory.AstFactory;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.lex.LexBooleanToken;
-import org.overture.ast.lex.LexNameList;
 import org.overture.ast.node.INode;
 import org.overture.ast.node.NodeList;
 import org.overture.ast.patterns.AIdentifierPattern;
@@ -283,7 +282,10 @@ class TCDeclAndDefVisitor extends
 	public PType caseAClassInvariantDefinition(AClassInvariantDefinition node,
 			TypeCheckInfo question) throws AnalysisException {
 
-		PType expTyp = node.getExpression().apply(parentChecker, question);
+		CmlTypeCheckInfo cmlTCInfo = (CmlTypeCheckInfo)question;
+		CmlTypeCheckInfo stateScopeCentext = cmlTCInfo.newScope();
+		stateScopeCentext.scope = NameScope.STATE; 
+		PType expTyp = node.getExpression().apply(parentChecker, stateScopeCentext);
 
 		node.setType(expTyp);
 		return node.getType();
@@ -626,12 +628,14 @@ class TCDeclAndDefVisitor extends
 			return node.getType();
 		}
 
+		node.setType(new AOperationParagraphType());
 		LinkedList<SCmlOperationDefinition> operations = node.getOperations();
 		for (SCmlOperationDefinition odef : operations) {
 			odef.apply(parentChecker, question);
+			node.getType().getDefinitions().add(odef);
 			//cmlEnv.addVariable(odef.getName(), odef);
 		}
-		node.setType(new AOperationParagraphType());
+		
 		return node.getType();
 	}
 
@@ -1425,7 +1429,7 @@ class TCDeclAndDefVisitor extends
 
 		// Handle the COMPASS definitions
 		{
-			CmlTypeCheckInfo classQuestion = cmlClassEnv;// .newScope(surrogate);
+			//CmlTypeCheckInfo classQuestion = cmlClassEnv.newScope(node);
 
 			// add state
 			/*
@@ -1444,8 +1448,8 @@ class TCDeclAndDefVisitor extends
 			 * }
 			 */
 			for (PDefinition def : thoseHandledByCOMPASS) {
-				classQuestion.env.setEnclosingDefinition(node);
-				PType type = def.apply(parentChecker, classQuestion);
+				cmlClassEnv.env.setEnclosingDefinition(node);
+				PType type = def.apply(parentChecker, cmlClassEnv);
 				if (type == null || type instanceof AErrorType) {
 					return issueHandler.addTypeError(def,
 							TypeErrorMessages.COULD_NOT_DETERMINE_TYPE

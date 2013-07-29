@@ -368,8 +368,8 @@ public class CmlTCUtil {
 						cmlClassEnv.addType(dd.getName(), dd);
 //					else if (dd instanceof AExplicitCmlOperationDefinition)
 //						continue;
-					else if (dd instanceof AAssignmentDefinition)
-						continue;
+//					else if (dd instanceof AAssignmentDefinition)
+//						continue;
 					else {
 						
 						if (dd instanceof AExplicitCmlOperationDefinition &&

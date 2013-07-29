@@ -482,43 +482,6 @@ class TCActionVisitor extends
 		//that it can't access the class/process state is needed
 		CmlTypeCheckInfo actionEnv = cmlEnv.emptyScope();
 		
-		//Since we are in a empty scope we must add the process section except for the state
-		//since these will be added given the namesetexp
-		AActionProcess actionProcessNode = node.getAncestor(AActionProcess.class);
-		if(actionProcessNode != null)
-		{
-			for(PDefinition pdef : actionProcessNode.getDefinitionParagraphs())
-			{
-				//TODO this should be removed once the operations definition are unwrapped
-				if(pdef instanceof AOperationsDefinition)
-				{
-					for(PDefinition op : ((AOperationsDefinition) pdef).getOperations())
-					{
-						actionEnv.addVariable(op.getName(),op);
-					}
-				}
-				else if(pdef instanceof AActionsDefinition)
-				{
-					for(PDefinition action : ((AActionsDefinition) pdef).getActions())
-					{
-						actionEnv.addVariable(action.getName(),action);
-					}
-				}
-				else if(pdef instanceof AFunctionsDefinition)
-				{
-					for(PDefinition func : ((AFunctionsDefinition) pdef).getFunctionDefinitions())
-					{
-						actionEnv.addVariable(func.getName(),func);
-					}
-				}
-				//else if(pdef instanceof AAssignmentDefinition)
-				//	continue;
-				else
-					actionEnv.addVariable(pdef.getName(), pdef);
-			}
-		}
-		
-		
 		//CmlTypeCheckInfo actionEnv = cmlEnv.newScope();
 		actionEnv.scope = NameScope.NAMESANDANYSTATE;
 		// TODO RWL: What is the semantics of this?
@@ -560,7 +523,7 @@ class TCActionVisitor extends
 		}
 
 		PVarsetExpression sexp = node.getNamesetExpression();
-		PType sexpType = sexp.apply(parentChecker, actionEnv);
+		PType sexpType = sexp.apply(parentChecker, question);
 		if (!successfulType(sexpType)) {
 			node.setType(issueHandler.addTypeError(node,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
