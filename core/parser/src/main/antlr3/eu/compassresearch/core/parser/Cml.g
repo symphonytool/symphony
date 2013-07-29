@@ -27,9 +27,6 @@
  * conflicting with '(' ')' in places where there is an optional
  * something inside the brackets.
  *
- * In the varsetExprbase rules, they allow multiple names then a
- * comprehension tail; it should only allow either a single name and
- * comprehension tail or multiple names. -jwc/5July2013
  */
 grammar Cml;
 options {
@@ -1628,18 +1625,40 @@ varsetExprbase returns[PVarsetExpression vexp]
         {
             $vexp = $varsetExpr.vexp;
         }
-    | '{' ( varsetNameList setMapExprBinding? )? '}'
+    | '{' '}'
         {
-            List<LexIdentifierToken> ids = ($varsetNameList.names!=null) ? $varsetNameList.names : new ArrayList<LexIdentifierToken>();
-            $vexp = new AEnumVarsetExpression(null, ids);
+            $vexp = new AEnumVarsetExpression(null, new ArrayList<LexIdentifierToken>());
         }
-    | '{|' ( varsetNameList setMapExprBinding? )? '|}'
+    | '{' varsetName ( ',' varsetNameList | setMapExprBinding )? '}'
         {
-            List<LexIdentifierToken> ids = ($varsetNameList.names!=null) ? $varsetNameList.names : new ArrayList<LexIdentifierToken>();
-            $vexp = new AFatEnumVarsetExpression(null, ids);
-            // For the comprehensions
-            // FIXME --- 2nd null below needs to be a single varsetName
-            // $vexp = new AFatCompVarsetExpression(null, null, $setMapExprBinding.bindings, $setMapExprBinding.pred);
+            if ($setMapExprBinding.bindings != null) {
+                // literal varset comprehension
+                // FIXME --- this needs to be a ACompVarsetExpression(), which doesn't exist yet -jwc/29July2013
+                $vexp = new AEnumVarsetExpression(null,new ArrayList<LexIdentifierToken>());
+            } else {
+                // literal varset enumeration
+                List<LexIdentifierToken> names = $varsetNameList.names == null ? new ArrayList<LexIdentifierToken>() : $varsetNameList.names;
+                names.add(0, $varsetName.name);
+                $vexp = new AEnumVarsetExpression(null, names);
+            }
+        }
+    | '{|' '|}'
+        {
+            $vexp = new AFatEnumVarsetExpression(null, new ArrayList<LexIdentifierToken>());
+        }
+    | '{|' varsetName ( ',' varsetNameList | setMapExprBinding )? '|}'
+        {
+            if ($setMapExprBinding.bindings != null) {
+                // prefix-wise (fat) varset comprehension
+                // 2nd null needs to be the channel name (varsetName)
+                $vexp = new AFatCompVarsetExpression(null, null, $setMapExprBinding.bindings, $setMapExprBinding.pred);
+                //$vexp = new AFatCompVarsetExpression(null, $varsetName.name, $setMapExprBinding.bindings, $setMapExprBinding.pred);
+            } else {
+                // prefix-wise (fat) varset enumeration
+                List<LexIdentifierToken> names = $varsetNameList.names == null ? new ArrayList<LexIdentifierToken>() : $varsetNameList.names;
+                names.add(0, $varsetName.name);
+                $vexp = new AFatEnumVarsetExpression(null, names);
+            }
         }
     ;
 
