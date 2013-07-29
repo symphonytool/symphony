@@ -26,14 +26,14 @@ import org.antlr.runtime.RecognitionException;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.intf.IAnalysis;
 import org.overture.ast.node.INode;
-import org.overture.pog.assistant.PogAssistantFactory;
-import org.overture.pog.obligation.POContextStack;
+import org.overture.pog.pub.IPOContextStack;
 
 import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
 import eu.compassresearch.ast.preview.DotGraphVisitor;
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.PSource;
+import eu.compassresearch.core.analysis.pog.obligations.CmlPOContextStack;
 import eu.compassresearch.core.analysis.pog.visitors.ProofObligationGenerator;
 import eu.compassresearch.core.interpreter.RandomSelectionStrategy;
 import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
@@ -505,7 +505,7 @@ public class CheckCml {
 			// object.
 			AnalysisRunAdaptor r = new AnalysisRunAdaptor(pog) {
 				public void apply(INode root) throws AnalysisException {
-					POContextStack question = new POContextStack(new PogAssistantFactory());
+					IPOContextStack question = new CmlPOContextStack();
 					root.apply(pog, question);
 				}
 			};
