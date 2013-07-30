@@ -142,4 +142,19 @@
 			</plugins>
 		</pluginManagement>
 	</build>
+	
+	
+	<developers>
+    <developer>
+      <id>akm</id>
+      <name>Anders Kaels Malmos</name>
+      <email>anderskm@users.sourceforge.net</email>
+      <organization>AU</organization>
+      <roles>
+        <role>architect</role>
+        <role>developer</role>
+      </roles>
+      <timezone>+1</timezone>
+    </developer>
+  </developers>
 </project>
