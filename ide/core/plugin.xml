@@ -43,20 +43,80 @@
 
 	<extension
          point="org.eclipse.core.runtime.adapters">
+         
+         <!-- source unit -->
 		<factory
             adaptableType="org.overture.ide.core.resources.IVdmSourceUnit"
-            class="eu.compassresearch.ide.core.adapters.CmlSourceUnitAdapterFactory">
+            class="eu.compassresearch.ide.internal.core.resources.CmlResourceAdapter">
 			<adapter
                type="eu.compassresearch.ide.core.resources.ICmlSourceUnit">
+			</adapter>
+		</factory>
+		
+		<factory
+            adaptableType="eu.compassresearch.ide.core.resources.ICmlSourceUnit"
+            class="eu.compassresearch.ide.internal.core.resources.CmlResourceAdapter">
+			<adapter
+               type="org.overture.ide.core.resources.IVdmSourceUnit">
 			</adapter>
 		</factory>
 		<factory
             adaptableType="org.eclipse.core.resources.IFile"
-            class="eu.compassresearch.ide.core.adapters.CmlSourceUnitAdapterFactory">
+            class="eu.compassresearch.ide.internal.core.resources.CmlResourceAdapter">
 			<adapter
                type="eu.compassresearch.ide.core.resources.ICmlSourceUnit">
 			</adapter>
 		</factory>
+		
+		<!-- project -->
+		
+		<factory
+            adaptableType="org.eclipse.core.resources.IProject"
+            class="eu.compassresearch.ide.internal.core.resources.CmlResourceAdapter">
+			<adapter
+               type="eu.compassresearch.ide.core.resources.ICmlProject">
+			</adapter>
+		</factory>
+			<factory
+            adaptableType="org.overture.ide.core.resources.IVdmProject"
+            class="eu.compassresearch.ide.internal.core.resources.CmlResourceAdapter">
+			<adapter
+               type="eu.compassresearch.ide.core.resources.ICmlProject">
+			</adapter>
+		</factory>
+		
+		<factory
+            adaptableType="eu.compassresearch.ide.core.resources.ICmlProject"
+            class="eu.compassresearch.ide.internal.core.resources.CmlResourceAdapter">
+			<adapter
+               type="org.eclipse.core.resources.IProject">
+			</adapter>
+		</factory>
+		<factory
+            adaptableType="eu.compassresearch.ide.core.resources.ICmlProject"
+            class="eu.compassresearch.ide.internal.core.resources.CmlResourceAdapter">
+			<adapter
+               type="org.overture.ide.core.resources.IVdmProject">
+			</adapter>
+		</factory>
+		
+			<!-- model -->
+			<factory
+            adaptableType="org.overture.ide.core.IVdmModel"
+            class="eu.compassresearch.ide.internal.core.resources.CmlResourceAdapter">
+			<adapter
+               type="eu.compassresearch.ide.core.resources.ICmlModel">
+			</adapter>
+		</factory>
+		
+		<factory
+            adaptableType="eu.compassresearch.ide.core.resources.ICmlModel"
+            class="eu.compassresearch.ide.internal.core.resources.CmlResourceAdapter">
+			<adapter
+               type="org.overture.ide.core.IVdmModel">
+			</adapter>
+		</factory>
+		
 	</extension>
 
 

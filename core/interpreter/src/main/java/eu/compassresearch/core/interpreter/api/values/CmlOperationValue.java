@@ -3,15 +3,20 @@ package eu.compassresearch.core.interpreter.api.values;
 import java.util.List;
 import java.util.Vector;
 
+import org.overture.ast.definitions.AExplicitOperationDefinition;
+import org.overture.ast.definitions.AImplicitOperationDefinition;
 import org.overture.ast.definitions.AStateDefinition;
+import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.patterns.APatternListTypePair;
 import org.overture.ast.patterns.PPattern;
+import org.overture.ast.statements.ASkipStm;
 import org.overture.ast.types.AOperationType;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.ObjectValue;
+import org.overture.interpreter.values.OperationValue;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.actions.PAction;
@@ -20,7 +25,7 @@ import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
 import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 
-public class CmlOperationValue extends Value {
+public class CmlOperationValue extends OperationValue {
 
 	//The name of the special return value in a assignment call context
 	//This is used to retrieve the result of a operation
@@ -32,56 +37,58 @@ public class CmlOperationValue extends Value {
 	private static final long serialVersionUID = 1L;
 	public final AExplicitCmlOperationDefinition expldef;
 	public final AImplicitCmlOperationDefinition impldef;
-	public final ILexNameToken name;
-	private final AOperationType type;
-	private final List<PPattern> paramPatterns;
-
 	private final PExp precondition;
 	private final PExp postcondition;
 	public final AStateDefinition state;
-
 	private PAction body;
-	private ILexNameToken stateName = null;
-	private Context stateContext = null;
-	private ObjectValue self = null;
-
-	public boolean isConstructor = false;
-	public boolean isStatic = false;
-	
 	private CmlBehaviour currentlyExecutingThread = null;
 
 	public CmlOperationValue(AExplicitCmlOperationDefinition def,
 							AStateDefinition state)
 	{
+		super(convertToVDMDefinition(def),null,null,null);
 		this.expldef = def;
 		this.impldef = null;
-		this.name = def.getName();
-		this.type = (AOperationType)def.getType();
-		this.paramPatterns = def.getParameterPatterns();
 		this.setBody(def.getBody());
 		this.precondition = def.getPrecondition();
 		this.postcondition = def.getPostcondition();
 		this.state = state;
 	}
-
-	public CmlOperationValue(AImplicitCmlOperationDefinition def,
-			AStateDefinition state)
+	
+	private static AExplicitOperationDefinition convertToVDMDefinition(AExplicitCmlOperationDefinition def)
 	{
-		this.impldef = def;
-		this.expldef = null;
-		this.name = def.getName();
-		this.type = (AOperationType)def.getType();
-		this.paramPatterns = new Vector<PPattern>();
-
-		for (APatternListTypePair ptp : def.getParameterPatterns())
-		{
-			getParamPatterns().addAll(ptp.getPatterns());
-		}
-
-		this.precondition = impldef.getPrecondition();
-		this.postcondition = impldef.getPostcondition();
-		this.state = state;
+		return new AExplicitOperationDefinition(def.getLocation(),def.getName().clone(), def.getNameScope(), 
+				def.getUsed(),def.getClassDefinition() != null ? def.getClassDefinition().clone() : null,def.getAccess().clone(), def.getPass(), 
+				def.getParameterPatterns(), new ASkipStm(), def.getPrecondition() != null ? def.getPrecondition().clone() : null, 
+						def.getPostcondition() != null ? def.getPostcondition().clone() : null,def.getType().clone(),null,null,
+				(List<? extends PDefinition>) def.getParamDefinitions().clone(),null,def.getActualResult(), 
+				def.getIsConstructor());
 	}
+	
+	private static AImplicitOperationDefinition convertToVDMDefinition(AImplicitCmlOperationDefinition def)
+	{
+		//return new AImplicitOperationDefinition(def.getLocation(), def.getNameScope(), def.getUsed(),def.getAccess().clone(), def.getPass(), def.getParameterPatterns(), new ASkipStm(), def.getPrecondition().clone(), def.getPostcondition().clone(), def.getIsConstructor());
+		return null;
+	}
+
+//	public CmlOperationValue(AImplicitCmlOperationDefinition def,
+//			AStateDefinition state)
+//	{
+//		this.impldef = def;
+//		this.expldef = null;
+//		this.name = def.getName();
+//		this.type = (AOperationType)def.getType();
+//		this.paramPatterns = new Vector<PPattern>();
+//
+//		for (APatternListTypePair ptp : def.getParameterPatterns())
+//		{
+//			getParamPatterns().addAll(ptp.getPatterns());
+//		}
+//
+//		this.precondition = impldef.getPrecondition();
+//		this.postcondition = impldef.getPostcondition();
+//		this.state = state;
+//	}
 	
 	public PAction getBody() {
 		return body;
@@ -90,40 +97,27 @@ public class CmlOperationValue extends Value {
 	private void setBody(PAction body) {
 		this.body = body;
 	}
-
+	
 	@Override
-	public String toString()
+	public boolean equals(Object other)
 	{
-		return getType().toString();
-	}
-
-	public void setSelf(ObjectValue self)
-	{
-		if (!isStatic)
+		if (other instanceof Value)
 		{
-			this.self = self;
-		}
-	}
+			Value val = ((Value)other).deref();
 
-	public ObjectValue getSelf()
-	{
-		return self;
+			if (val instanceof CmlOperationValue)
+			{
+				CmlOperationValue ov = (CmlOperationValue)val;
+				return ov.type.equals(type);
+			}
+		}
+
+		return false;
 	}
 	
 	@Override
-	public boolean equals(Object other) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public int hashCode() {
-		return type.hashCode();
-	}
-
-	@Override
 	public String kind() {
-		return "cml operation";
+		return "CML operation";
 	}
 
 	@Override
@@ -134,7 +128,8 @@ public class CmlOperationValue extends Value {
 		}
 		else
 		{
-			return new CmlOperationValue(impldef, state);
+			return null;
+//			return new CmlOperationValue(impldef, state);
 		}
 	}
 
@@ -144,10 +139,6 @@ public class CmlOperationValue extends Value {
 
 	public AOperationType getType() {
 		return type;
-	}
-
-	public CmlBehaviour getCurrentlyExecutingThread() {
-		return currentlyExecutingThread;
 	}
 
 	public void setCurrentlyExecutingThread(CmlBehaviour currentlyExecutingThread) {

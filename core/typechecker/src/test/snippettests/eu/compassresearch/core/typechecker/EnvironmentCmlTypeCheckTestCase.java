@@ -11,8 +11,7 @@ public class EnvironmentCmlTypeCheckTestCase extends
 		AbstractTypeCheckerTestCase {
 
 	static {
-		add("class K = begin state a: int functions f: int -> int f(x) == let y : int = 10 in x + y + a end",
-				true, false);
+		add("class K = begin state a: int functions f: int -> int f(x) == let y : int = 10 in x + y + a end");
 		add("values a : int = 2 class K = begin functions f: int -> int f(x) == let y : int = 10 in x + y + a end");
 	}
 

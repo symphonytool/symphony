@@ -103,7 +103,7 @@ public class SecurityAnalysisCommandHandler extends AbstractHandler implements
 				ICmlSourceUnit cmlSource = (ICmlSourceUnit) source.getAdapter(ICmlSourceUnit.class);
 				if (cmlSource != null)
 				{
-					PSource ast = cmlSource.getSourceAst();
+					PSource ast = cmlSource.getParseNode();
 					SubtreeJudgement judgements = sa.runAnalysis(ast);
 					for (Judgement j : judgements.getInvolvedJudgements())
 					{

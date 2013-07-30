@@ -26,25 +26,25 @@ import eu.compassresearch.ast.process.PProcess;
 public enum OutlineEntryType
 {
 
-	CLASS("/icons/cview16/outline_class.png"), PROCESS(
-			"/icons/cview16/outline_process.png"),
+	CLASS("/icons/obj16/class_obj.gif"), PROCESS(
+			"/icons/obj16/process_obj2.gif"),
 	// EXTERNAL_CHOICE_PROCESS(
 	// "/icons/cview16/outline_external_choice_process.png"),
 	// PARALLEL_PROCESS(
 	// "/icons/cview16/outline_parallel_process.png"),
-	FUNCTION_TOP("/icons/cview16/outline_function_top.png"), FUNCTION_ENTRY(
-			"/icons/cview16/outline_function_entry.png"), OPERATION(
-			"/icons/cview16/outline_operation.png"), TYPE_TOP(
-			"/icons/cview16/outline_type_top.png"), TYPE_ENTRY(
-			"/icons/cview16/outline_type_entry.png"), VALUE_TOP(
-			"/icons/cview16/outline_value_top.png"), VALUE_ENTRY(
-			"/icons/cview16/outline_value_entry.png"), CHANNEL_TOP(
-			"/icons/cview16/outline_channel_top.png"), CHANNEL_ENTRY(
-			"/icons/cview16/outline_channel_entry.png"), CHANSET_TOP(
-			"/icons/cview16/outline_chanset_top.png"), CHANSET_ENTRY(
-			"/icons/cview16/outline_chanset_entry.png"), ERROR(
-			"/icons/cview16/outline_error.png"), ACTION(
-			"/icons/cview16/outline_action.png"), ;
+	FUNCTION_TOP("/icons/obj16/function_top_obj.gif"), FUNCTION_ENTRY(
+			"/icons/obj16/function_entry_obj.gif"), OPERATION(
+			"/icons/obj16/operation_obj.gif"), TYPE_TOP(
+			"/icons/obj16/type_top_obj.gif"), TYPE_ENTRY(
+			"/icons/obj16/type_entry_obj.gif"), VALUE_TOP(
+			"/icons/obj16/value_top_obj.gif"), VALUE_ENTRY(
+			"/icons/obj16/value_entry_obj.gif"), CHANNEL_TOP(
+			"/icons/obj16/channel_obj.gif"), CHANNEL_ENTRY(
+			"/icons/obj16/channel_obj.gif"), CHANSET_TOP(
+			"/icons/obj16/chanset_top_obj.gif"), CHANSET_ENTRY(
+			"/icons/obj16/channel_obj.gif"), ERROR(
+			"/icons/obj16/error_obj.gif"), ACTION(
+			"/icons/obj16/action_go_obj.gif"), ;
 
 	private final Image img;
 
@@ -82,59 +82,61 @@ public enum OutlineEntryType
 	{
 
 		// TODO change to (class,map) format?
-		if (obj instanceof Wrapper)
-		{
-			Wrapper<?> w = (Wrapper<?>) obj;
+//		if (obj instanceof Wrapper)
+//		{
+//			Wrapper<?> w = (Wrapper<?>) obj;
+//			obj = w.value;
+//		}
 
-			// Fetch Top-level definitions
-			if (w.isClass(AValuesDefinition.class))
-				return VALUE_TOP.getImage();
-			if (w.isClass(ATypesDefinition.class))
-				return TYPE_TOP.getImage();
-			if (w.isClass(AFunctionsDefinition.class))
-				return FUNCTION_TOP.getImage();
+		// Fetch Top-level definitions
+		if (obj instanceof AValuesDefinition)
+			return VALUE_TOP.getImage();
+		if (obj instanceof ATypesDefinition)
+			return TYPE_TOP.getImage();
+		if (obj instanceof AFunctionsDefinition)
+			return FUNCTION_TOP.getImage();
 
-			// Fetch channels and chansets
-			if (w.isClass(AChannelsDefinition.class))
-				return CHANNEL_TOP.getImage();
-			if (w.isClass(AChansetsDefinition.class))
-				return CHANSET_TOP.getImage();
-			if (w.isClass(AChannelNameDefinition.class))
-				return CHANNEL_ENTRY.getImage();
-			if (w.isClass(AChansetDefinition.class))
-				return CHANSET_ENTRY.getImage();
+		// Fetch channels and chansets
+		if (obj instanceof AChannelsDefinition)
+			return CHANNEL_TOP.getImage();
+		if (obj instanceof AChansetsDefinition)
+			return CHANSET_TOP.getImage();
+		if (obj instanceof AChannelNameDefinition)
+			return CHANNEL_ENTRY.getImage();
+		if (obj instanceof AChansetDefinition)
+			return CHANSET_ENTRY.getImage();
 
-			// Fetch Top-Level Process and Class
-			if (w.isClass(AProcessDefinition.class))
-				return PROCESS.getImage();
-			if (w.isClass(PProcess.class))
-				return PROCESS.getImage();
-			if (w.isClass(SClassDefinition.class))
-				return CLASS.getImage();
+		// Fetch Top-Level Process and Class
+		if (obj instanceof AProcessDefinition)
+			return PROCESS.getImage();
+		if (obj instanceof PProcess)
+			return PROCESS.getImage();
+		if (obj instanceof SClassDefinition)
+			return CLASS.getImage();
 
-			// Fetch interior of processes and classes
-			if (w.isClass(AValueDefinition.class))
-				return VALUE_ENTRY.getImage();
-			if (w.isClass(AImplicitFunctionDefinition.class)
-					|| w.isClass(AExplicitFunctionDefinition.class))
-				return FUNCTION_ENTRY.getImage();
-			if (w.isClass(ATypeDefinition.class))
-				return TYPE_ENTRY.getImage();
-			if (w.isClass(PAction.class))
-				return ACTION.getImage();
-			if (w.isClass(AActionDefinition.class))
-				return ACTION.getImage();
-			if (w.isClass(SCmlOperationDefinition.class))
-				return OPERATION.getImage();
-			// if (w.isClass(AExternalChoiceProcess.class))
-			// return EXTERNAL_CHOICE_PROCESS.getImage();
-			// if (w.isClass(ASynchronousParallelismProcess.class))
-			// return PARALLEL_PROCESS.getImage();
+		// Fetch interior of processes and classes
+		if (obj instanceof AValueDefinition)
+			return VALUE_ENTRY.getImage();
+		if (obj instanceof AImplicitFunctionDefinition
+				|| obj instanceof AExplicitFunctionDefinition)
+			return FUNCTION_ENTRY.getImage();
+		if (obj instanceof ATypeDefinition)
+			return TYPE_ENTRY.getImage();
+		if (obj instanceof PAction)
+			return ACTION.getImage();
+		if (obj instanceof AActionDefinition)
+			return ACTION.getImage();
+		if (obj instanceof SCmlOperationDefinition)
+			return OPERATION.getImage();
+		// if (obj instanceof AExternalChoiceProcess)
+		// return EXTERNAL_CHOICE_PROCESS.getImage();
+		// if (obj instanceof ASynchronousParallelismProcess)
+		// return PARALLEL_PROCESS.getImage();
 
-			// When all else fails...
-			System.err.println("No icon found for class "
-					+ w.value.getClass().getCanonicalName());
-		}
+		// When all else fails...
+		System.err.println("No icon found for class "
+				+ obj.getClass().getCanonicalName());
+
 		return ERROR.getImage();
 
 	}

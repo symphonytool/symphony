@@ -1,12 +1,9 @@
 package eu.compassresearch.core.interpreter.api.values;
 
-import java.rmi.RemoteException;
-
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.types.PType;
 import org.overture.interpreter.values.Value;
 
-import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.core.interpreter.api.CmlChannel;
 import eu.compassresearch.core.interpreter.api.events.ChannelActivity;
 import eu.compassresearch.core.interpreter.api.events.ChannelEvent;
