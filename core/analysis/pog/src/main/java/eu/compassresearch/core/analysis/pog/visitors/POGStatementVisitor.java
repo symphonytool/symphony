@@ -6,31 +6,32 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.node.INode;
 import org.overture.ast.statements.PStm;
 import org.overture.pog.obligation.POContextStack;
-import org.overture.pog.obligation.ProofObligationList;
-import org.overture.pog.visitor.PogParamStmVisitor;
+import org.overture.pog.pub.IPOContextStack;
+import org.overture.pog.visitors.PogParamStmVisitor;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
+import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligationList;
 
 @SuppressWarnings("serial")
 public class POGStatementVisitor extends 
-QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
+QuestionAnswerCMLAdaptor<IPOContextStack, CmlProofObligationList> {
     
     
     private ProofObligationGenerator parentVisitor;
-    final private PogParamStmVisitor<POContextStack, ProofObligationList> overtureVisitor;
+    final private PogParamStmVisitor<POContextStack, CmlProofObligationList> overtureVisitor;
     
     public POGStatementVisitor(ProofObligationGenerator parent)
 	{
         this.parentVisitor = parent;
-        this.overtureVisitor = new PogParamStmVisitor<POContextStack, ProofObligationList>(
-		this, this);
+        this.overtureVisitor = new PogParamStmVisitor<POContextStack, CmlProofObligationList>(
+		this, this, new CmlPogAssistantFactory());
     }
       
     // Call Overture for the other statements
     @Override
-    public ProofObligationList defaultPStm(PStm node, POContextStack question)
+    public CmlProofObligationList defaultPStm(PStm node, IPOContextStack question)
 	    throws AnalysisException {
-	ProofObligationList pol = new ProofObligationList();
+	CmlProofObligationList pol = new CmlProofObligationList();
 	pol.addAll(node.apply(overtureVisitor, question));
 	return pol;
     }
@@ -38,9 +39,9 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 
     // Call the main pog when it's not a statement
     @Override
-    public ProofObligationList defaultINode(INode node, POContextStack question)
+    public CmlProofObligationList defaultINode(INode node, IPOContextStack question)
 	    throws AnalysisException {
-	ProofObligationList pol = new ProofObligationList();
+	CmlProofObligationList pol = new CmlProofObligationList();
 	pol.addAll(node.apply(parentVisitor, question));
 	return pol;
     }

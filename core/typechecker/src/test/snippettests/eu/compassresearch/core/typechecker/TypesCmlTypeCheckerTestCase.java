@@ -62,7 +62,7 @@ public class TypesCmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase {
 		// 25//
 		add("types F = int +> int");
 		// 26// TODO RWL: TC Cannot handle classes in type defs at top level
-		add("class C = begin state a : int end types A = C", true, false);
+		add("class C = begin state a : int end types A = C");
 		// 27//
 		add("types A = int B = A | real");
 		// 28//

@@ -898,22 +898,34 @@ class TCExpressionVisitor extends
 		List<PDefinition> defs = new LinkedList<PDefinition>();
 		defs.add(root);
 		PDefinition def = root;
-		for (int i = 1; i < identifiers.size(); i++) {
-			ILexIdentifierToken id = identifiers.get(i);
-			LexNameToken idName = new LexNameToken("", id);
-			def = assist.findMemberName(def, idName, cmlQuestion, prevRoot);
-			if (def == null) {
-				node.setType(issueHandler.addTypeError(
-						node,
-						TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(id
-								+ " in " + node)));
-				return node.getType();
-			}
-			defs.add(def);
+		
+		if(identifiers.size() == 1)
+		{
 			leafType = def.getType();
 			if (def.getType() == null) {
 				issueHandler.addTypeWarning(def, "This \"" + def
 						+ "\" entered the environment with no type.");
+			}
+		}
+		else
+		{
+			for (int i = 1; i < identifiers.size(); i++) {
+				ILexIdentifierToken id = identifiers.get(i);
+				LexNameToken idName = new LexNameToken("", id);
+				def = assist.findMemberName(def, idName, cmlQuestion, prevRoot);
+				if (def == null) {
+					node.setType(issueHandler.addTypeError(
+							node,
+							TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(id
+									+ " in " + node)));
+					return node.getType();
+				}
+				defs.add(def);
+				leafType = def.getType();
+				if (def.getType() == null) {
+					issueHandler.addTypeWarning(def, "This \"" + def
+							+ "\" entered the environment with no type.");
+				}
 			}
 		}
 

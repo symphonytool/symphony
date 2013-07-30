@@ -44,35 +44,37 @@ import org.overture.ast.statements.PStm;
 import org.overture.ast.types.PAccessSpecifier;
 import org.overture.ast.types.PField;
 import org.overture.ast.types.PType;
-import org.overture.pog.assistant.PDefinitionAssistantPOG;
-import org.overture.pog.assistant.PogAssistantFactory;
 import org.overture.pog.obligation.POCaseContext;
 import org.overture.pog.obligation.POContextStack;
 import org.overture.pog.obligation.PONotCaseContext;
-import org.overture.pog.obligation.ProofObligationList;
 import org.overture.pog.obligation.SeqApplyObligation;
+import org.overture.pog.pub.IPOContextStack;
+import org.overture.pog.pub.IProofObligationList;
 
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
-import eu.compassresearch.ast.expressions.AEnumVarsetExpression;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.PSource;
+import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligationList;
 
 public class ProofObligationGenerator extends
-		QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
+		QuestionAnswerCMLAdaptor<IPOContextStack, CmlProofObligationList>
+{
 	/**
-	 * Main generator class for the POG. Receives the sources to be checked,
-	 * visits them and dispatches them to the various subvisitors.
+	 * Main generator class for the POG. Receives the sources to be checked, visits them and dispatches them to the
+	 * various subvisitors.
 	 */
 	private static final long serialVersionUID = -4538022323752020155L;
 
 	private final static String ANALYSIS_NAME = "Proof Obligation Generator";
 
 	private List<PSource> sourceForest;
+	
+	private CmlPogAssistantFactory assistantFactory;
 
 	// ---------------------------------------------
 	// -- Proof Obligation Generator State
@@ -85,12 +87,14 @@ public class ProofObligationGenerator extends
 	private POGDeclAndDefVisitor declAndDefVisitor;
 	private POGActionVisitor actionVisitor;
 
-	private void initialize() {
+	private void initialize()
+	{
 		expressionVisitor = new POGExpressionVisitor(this);
 		statementVisitor = new POGStatementVisitor(this);
 		processVisitor = new POGProcessVisitor(this);
 		declAndDefVisitor = new POGDeclAndDefVisitor(this);
 		actionVisitor = new POGActionVisitor(this);
+		assistantFactory = new CmlPogAssistantFactory();
 	}
 
 	// ---------------------------------------------
@@ -102,96 +106,108 @@ public class ProofObligationGenerator extends
 	// switch visitor context at the root level
 
 	@Override
-	public ProofObligationList defaultPDefinition(PDefinition node,
-			POContextStack question) throws AnalysisException {
+	public CmlProofObligationList defaultPDefinition(PDefinition node,
+			IPOContextStack question) throws AnalysisException
+	{
 		return node.apply(this.declAndDefVisitor, question);
 	}
 
 	@Override
-	public ProofObligationList defaultPSingleDeclaration(
-			PSingleDeclaration node, POContextStack question)
-			throws AnalysisException {
+	public CmlProofObligationList defaultPSingleDeclaration(
+			PSingleDeclaration node, IPOContextStack question)
+			throws AnalysisException
+	{
 		return node.apply(this.declAndDefVisitor, question);
 	}
 
 	@Override
-	public ProofObligationList caseAModuleModules(AModuleModules node,
-			POContextStack question) throws AnalysisException {
-		return question.assistantFactory.createPDefinitionAssistant().getProofObligations(node.getDefs(),
-				this.declAndDefVisitor, question);
+	public CmlProofObligationList caseAModuleModules(AModuleModules node,
+			IPOContextStack question) throws AnalysisException
+	{
+		IProofObligationList ovtpos = assistantFactory.createPDefinitionAssistant().getProofObligations(node.getDefs(), this.declAndDefVisitor, question);
+		CmlProofObligationList cmlpos = new CmlProofObligationList();
+		cmlpos.addAll(ovtpos);
+		
+		return cmlpos;
 	}
 
 	@Override
-	public ProofObligationList defaultPProcess(PProcess node,
-			POContextStack question) throws AnalysisException {
+	public CmlProofObligationList defaultPProcess(PProcess node,
+			IPOContextStack question) throws AnalysisException
+	{
 		return node.apply(this.processVisitor, question);
 	}
 
 	@Override
-	public ProofObligationList defaultPAction(PAction node,
-			POContextStack question) throws AnalysisException {
+	public CmlProofObligationList defaultPAction(PAction node,
+			IPOContextStack question) throws AnalysisException
+	{
 		return node.apply(this.actionVisitor, question);
 	}
 
 	@Override
-	public ProofObligationList defaultPStm(PStm node, POContextStack question)
-			throws AnalysisException {
+	public CmlProofObligationList defaultPStm(PStm node,
+			IPOContextStack question) throws AnalysisException
+	{
 		return node.apply(this.statementVisitor, question);
 	}
 
 	@Override
-	public ProofObligationList defaultPExp(PExp node, POContextStack question)
-			throws AnalysisException {
+	public CmlProofObligationList defaultPExp(PExp node,
+			IPOContextStack question) throws AnalysisException
+	{
 		return node.apply(this.expressionVisitor, question);
 	}
 
 	@Override
-	public ProofObligationList caseASetBind(ASetBind node,
-			POContextStack question) throws AnalysisException {
+	public CmlProofObligationList caseASetBind(ASetBind node,
+			IPOContextStack question) throws AnalysisException
+	{
 		return node.getSet().apply(this.expressionVisitor, question);
 	}
 
 	@Override
-	public ProofObligationList caseASetMultipleBind(ASetMultipleBind node,
-			POContextStack question) throws AnalysisException {
+	public CmlProofObligationList caseASetMultipleBind(ASetMultipleBind node,
+			IPOContextStack question) throws AnalysisException
+	{
 		return node.getSet().apply(this.expressionVisitor, question);
 	}
 
-	
-	
-	//FIXME --what are pvarsets?
+	// FIXME --what are pvarsets?
 	@Override
-	public ProofObligationList defaultPVarsetExpression(PVarsetExpression node,
-			POContextStack question) throws AnalysisException {
-		return new ProofObligationList();
+	public CmlProofObligationList defaultPVarsetExpression(
+			PVarsetExpression node, IPOContextStack question)
+			throws AnalysisException
+	{
+		return new CmlProofObligationList();
 	}
 
 	@Override
-	public ProofObligationList caseACaseAlternative(ACaseAlternative node,
-			POContextStack question) throws AnalysisException {
+	public CmlProofObligationList caseACaseAlternative(ACaseAlternative node,
+			IPOContextStack question) throws AnalysisException
+	{
 
-		ProofObligationList obligations = new ProofObligationList();
+		CmlProofObligationList obligations = new CmlProofObligationList();
 
-		question.push(new POCaseContext(node.getPattern(), node.getType(), node
-				.getCexp()));
-		obligations.addAll(node.getResult().apply(this.expressionVisitor,
-				question));
+		question.push(new POCaseContext(node.getPattern(), node.getType(), node.getCexp()));
+		obligations.addAll(node.getResult().apply(this.expressionVisitor, question));
 		question.pop();
-		question.push(new PONotCaseContext(node.getPattern(), node.getType(),
-				node.getCexp()));
+		question.push(new PONotCaseContext(node.getPattern(), node.getType(), node.getCexp()));
 
 		return obligations;
 	}
 
 	@Override
-	public ProofObligationList caseAMapSeqStateDesignator(
-			AMapSeqStateDesignator node, POContextStack question) {
+	public CmlProofObligationList caseAMapSeqStateDesignator(
+			AMapSeqStateDesignator node, IPOContextStack question)
+			throws AnalysisException
+	{
 
-		ProofObligationList list = new ProofObligationList();
+		CmlProofObligationList list = new CmlProofObligationList();
 
-		if (node.getSeqType() != null) {
-			list.add(new SeqApplyObligation(node.getMapseq(), node.getExp(),
-					question));
+		if (node.getSeqType() != null)
+		{
+			list.add(new SeqApplyObligation(node.getMapseq(), node.getExp(), question));
 		}
 
 		// Maps are OK, as you can create new map domain entries
@@ -200,17 +216,21 @@ public class ProofObligationGenerator extends
 	}
 
 	@Override
-	public ProofObligationList caseATixeStmtAlternative(
-			ATixeStmtAlternative node, POContextStack question)
-			throws AnalysisException {
+	public CmlProofObligationList caseATixeStmtAlternative(
+			ATixeStmtAlternative node, IPOContextStack question)
+			throws AnalysisException
+	{
 
-		ProofObligationList list = new ProofObligationList();
+		CmlProofObligationList list = new CmlProofObligationList();
 
-		if (node.getPatternBind().getPattern() != null) {
+		if (node.getPatternBind().getPattern() != null)
+		{
 			// Nothing to do
-		} else if (node.getPatternBind().getBind() instanceof ATypeBind) {
+		} else if (node.getPatternBind().getBind() instanceof ATypeBind)
+		{
 			// Nothing to do
-		} else if (node.getPatternBind().getBind() instanceof ASetBind) {
+		} else if (node.getPatternBind().getBind() instanceof ASetBind)
+		{
 			ASetBind bind = (ASetBind) node.getPatternBind().getBind();
 			list.addAll(bind.getSet().apply(this.expressionVisitor, question));
 		}
@@ -223,102 +243,123 @@ public class ProofObligationGenerator extends
 	// Return empty lists for a bunch of stuff...
 
 	@Override
-	public ProofObligationList defaultPModifier(PModifier node,
-			POContextStack question) {
-		return new ProofObligationList();
+	public CmlProofObligationList defaultPModifier(PModifier node,
+			IPOContextStack question)
+	{
+		return new CmlProofObligationList();
 	}
 
 	@Override
-	public ProofObligationList defaultPType(PType node, POContextStack question) {
-		return new ProofObligationList();
+	public CmlProofObligationList defaultPType(PType node,
+			IPOContextStack question)
+	{
+		return new CmlProofObligationList();
 	}
 
 	@Override
-	public ProofObligationList defaultPField(PField node,
-			POContextStack question) {
-		return new ProofObligationList();
+	public CmlProofObligationList defaultPField(PField node,
+			IPOContextStack question)
+	{
+		return new CmlProofObligationList();
 	}
 
 	@Override
-	public ProofObligationList defaultPAccessSpecifier(PAccessSpecifier node,
-			POContextStack question) {
-		return new ProofObligationList();
+	public CmlProofObligationList defaultPAccessSpecifier(
+			PAccessSpecifier node, IPOContextStack question)
+	{
+		return new CmlProofObligationList();
 	}
 
 	@Override
-	public ProofObligationList defaultPPattern(PPattern node,
-			POContextStack question) {
-		return new ProofObligationList();
+	public CmlProofObligationList defaultPPattern(PPattern node,
+			IPOContextStack question)
+	{
+		return new CmlProofObligationList();
 	}
 
 	@Override
-	public ProofObligationList defaultPPair(PPair node, POContextStack question) {
-		return new ProofObligationList();
+	public CmlProofObligationList defaultPPair(PPair node,
+			IPOContextStack question)
+	{
+		return new CmlProofObligationList();
 	}
 
 	@Override
-	public ProofObligationList defaultPBind(PBind node, POContextStack question) {
-		return new ProofObligationList();
+	public CmlProofObligationList defaultPBind(PBind node,
+			IPOContextStack question)
+	{
+		return new CmlProofObligationList();
 	}
 
 	@Override
-	public ProofObligationList caseATypeMultipleBind(ATypeMultipleBind node,
-			POContextStack question) {
-		return new ProofObligationList();
+	public CmlProofObligationList caseATypeMultipleBind(ATypeMultipleBind node,
+			IPOContextStack question)
+	{
+		return new CmlProofObligationList();
 	}
 
 	@Override
-	public ProofObligationList defaultPPatternBind(PPatternBind node,
-			POContextStack question) {
-		return new ProofObligationList();
+	public CmlProofObligationList defaultPPatternBind(PPatternBind node,
+			IPOContextStack question)
+	{
+		return new CmlProofObligationList();
 	}
 
 	@Override
-	public ProofObligationList defaultPModules(PModules node,
-			POContextStack question) {
-		return new ProofObligationList();
+	public CmlProofObligationList defaultPModules(PModules node,
+			IPOContextStack question)
+	{
+		return new CmlProofObligationList();
 	}
 
 	@Override
-	public ProofObligationList defaultPImports(PImports node,
-			POContextStack question) {
-		return new ProofObligationList();
+	public CmlProofObligationList defaultPImports(PImports node,
+			IPOContextStack question)
+	{
+		return new CmlProofObligationList();
 	}
 
 	@Override
-	public ProofObligationList defaultPExports(PExports node,
-			POContextStack question) {
-		return new ProofObligationList();
+	public CmlProofObligationList defaultPExports(PExports node,
+			IPOContextStack question)
+	{
+		return new CmlProofObligationList();
 	}
 
 	@Override
-	public ProofObligationList defaultPExport(PExport node,
-			POContextStack question) {
-		return new ProofObligationList();
+	public CmlProofObligationList defaultPExport(PExport node,
+			IPOContextStack question)
+	{
+		return new CmlProofObligationList();
 	}
 
 	@Override
-	public ProofObligationList defaultPStateDesignator(PStateDesignator node,
-			POContextStack question) {
-		return new ProofObligationList();
+	public CmlProofObligationList defaultPStateDesignator(
+			PStateDesignator node, IPOContextStack question)
+	{
+		return new CmlProofObligationList();
 	}
 
 	@Override
-	public ProofObligationList defaultPObjectDesignator(PObjectDesignator node,
-			POContextStack question) {
-		return new ProofObligationList();
+	public CmlProofObligationList defaultPObjectDesignator(
+			PObjectDesignator node, IPOContextStack question)
+	{
+		return new CmlProofObligationList();
 	}
 
 	@Override
-	public ProofObligationList defaultPClause(PClause node,
-			POContextStack question) {
+	public CmlProofObligationList defaultPClause(PClause node,
+			IPOContextStack question)
+	{
 
-		return new ProofObligationList();
+		return new CmlProofObligationList();
 	}
 
 	@Override
-	public ProofObligationList defaultPCase(PCase node, POContextStack question) {
-		return new ProofObligationList();
+	public CmlProofObligationList defaultPCase(PCase node,
+			IPOContextStack question)
+	{
+		return new CmlProofObligationList();
 	}
 
 	// ---------------------------------------------
@@ -327,60 +368,63 @@ public class ProofObligationGenerator extends
 	// Taken from Type Checker code
 	// ---------------------------------------------
 	/**
-	 * This method is invoked by the command line tool when pretty printing the
-	 * analysis name.
+	 * This method is invoked by the command line tool when pretty printing the analysis name.
 	 * 
 	 * @return Pretty short name for this analysis.
 	 */
-	public String getAnalysisName() {
+	public String getAnalysisName()
+	{
 		return ANALYSIS_NAME;
 	}
 
 	/**
-	 * Construct a ProofObligationGenerator with the intension of checking a
-	 * list of PSources. These source may refer to each other.
+	 * Construct a ProofObligationGenerator with the intension of checking a list of PSources. These source may refer to
+	 * each other.
 	 * 
 	 * @param cmlSources
 	 *            - Sources containing CML Paragraphs for PO gen.
 	 */
-	public ProofObligationGenerator(List<PSource> cmlSources) {
+	public ProofObligationGenerator(List<PSource> cmlSources)
+	{
 		initialize();
 		this.sourceForest = cmlSources;
 	}
 
 	/**
-	 * Construct a ProofObligationGenerator with the intension of checking a
-	 * single source.
+	 * Construct a ProofObligationGenerator with the intension of checking a single source.
 	 * 
 	 * @param singleSource
 	 *            - Source containing CML Paragraphs for PO gen.
 	 */
-	public ProofObligationGenerator(PSource singleSource) {
+	public ProofObligationGenerator(PSource singleSource)
+	{
 		initialize();
 		this.sourceForest = new LinkedList<PSource>();
 		this.sourceForest.add(singleSource);
 	}
 
 	/**
-	 * Run the proof obligation generator. The POs are placed in the return
-	 * value but we may eventually want to switch them over to the registry
+	 * Run the proof obligation generator. The POs are placed in the return value but we may eventually want to switch
+	 * them over to the registry
 	 * 
 	 * @return - Returns CMLProofObligation list. This may need to change.
 	 */
-	public ProofObligationList generatePOs() throws AnalysisException {
-		ProofObligationList obligations = new ProofObligationList();
-		POContextStack ctxt = new POContextStack(new PogAssistantFactory());
+	public CmlProofObligationList generatePOs() throws AnalysisException
+	{
+		CmlProofObligationList obligations = new CmlProofObligationList();
+		IPOContextStack ctxt = new POContextStack();
 
 		// for each source
-		for (PSource s : sourceForest) {
+		for (PSource s : sourceForest)
+		{
 			// for each CML paragraph
-			for (PDefinition paragraph : s.getParagraphs()) {
-				try {
-					System.out
-							.println("--------------------------------PROCESSING--------------------------------");
+			for (PDefinition paragraph : s.getParagraphs())
+			{
+				try
+				{
+					System.out.println("--------------------------------PROCESSING--------------------------------");
 					System.out.println(paragraph.toString());
-					System.out
-							.println("------------------------------------RESULT----------------------------------");
+					System.out.println("------------------------------------RESULT----------------------------------");
 
 					// process paragraph:
 					obligations.addAll(paragraph.apply(this, ctxt));
@@ -388,10 +432,10 @@ public class ProofObligationGenerator extends
 
 					System.out.println();
 					System.out.println();
-				} catch (AnalysisException ae) {
+				} catch (AnalysisException ae)
+				{
 					// This means we have a bug in the pog
-					System.out
-							.println("The COMPASS Proof Obligation Generator failed on this cml-source. Please submit it for investigation to richard.payne@ncl.ac.uk.\n");
+					System.out.println("The COMPASS Proof Obligation Generator failed on this cml-source. Please submit it for investigation to richard.payne@ncl.ac.uk.\n");
 					throw ae;
 				}
 			}
@@ -404,7 +448,7 @@ public class ProofObligationGenerator extends
 
 	// ensure drilldown to children (this is probably not needed)
 	// @Override
-	// public ProofObligationList defaultINode(INode node,
+	// public CMLProofObligationList defaultINode(INode node,
 	// POContextStack question) throws AnalysisException {
 	// CMLProofObligationList obligations = new CMLProofObligationList();
 	// Stack<INode> workQ = new Stack<INode>();
@@ -428,13 +472,16 @@ public class ProofObligationGenerator extends
 	// setting the file on AFileSource allows the POG to interact with it
 	// TODO this method is a duplicate( from VanillaTypeChecker). Should be
 	// placed in a common utils lib
-	private static PSource prepareSource(File f) {
-		if (f == null) {
+	private static PSource prepareSource(File f)
+	{
+		if (f == null)
+		{
 			AInputStreamSource iss = new AInputStreamSource();
 			iss.setStream(System.in);
 			iss.setOrigin("stdin");
 			return iss;
-		} else {
+		} else
+		{
 			AFileSource fs = new AFileSource();
 			fs.setName(f.getName());
 			fs.setFile(f);
@@ -443,54 +490,58 @@ public class ProofObligationGenerator extends
 	}
 
 	/**
-	 * This method runs the PO generator on a given file. The method invokes
-	 * methods to generate POs.
+	 * This method runs the PO generator on a given file. The method invokes methods to generate POs.
 	 * 
 	 * @param f
 	 *            - The file to generate POs
 	 */
 	// TODO this method is a duplicate( from VanillaTypeChecker). Should be
 	// placed in a common utils lib
-	private static void runOnFile(File f) throws IOException {
+	private static void runOnFile(File f) throws IOException
+	{
 		// set file name
 		PSource source = prepareSource(f);
 
 		// generate POs
 		ProofObligationGenerator cmlPOG = new ProofObligationGenerator(source);
-		try {
+		try
+		{
 			cmlPOG.generatePOs();
-		} catch (AnalysisException e) {
-			System.out
-					.println("The COMPASS Proof Obligation Generator failed on this cml-source. Please submit it for investigation to richard.payne@ncl.ac.uk.\n");
+		} catch (AnalysisException e)
+		{
+			System.out.println("The COMPASS Proof Obligation Generator failed on this cml-source. Please submit it for investigation to richard.payne@ncl.ac.uk.\n");
 			e.printStackTrace();
 		}
 
 		// Report success
-		System.out
-				.println("Proof Obligation Generation is complete for the given CML Program");
+		System.out.println("Proof Obligation Generation is complete for the given CML Program");
 	}
 
 	/**
-	 * Main method for class. Current test class takes a set of cml examples and
-	 * generates POs for each
+	 * Main method for class. Current test class takes a set of cml examples and generates POs for each
 	 */
 	// TODO the body of this method is a duplicate (from VanillaTypeChecker)
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException
+	{
 		File cml_examples = new File("../../docs/cml-examples");
 		int failures = 0;
 		int successes = 0;
 		// runOnFile(null);
 
-		if (cml_examples.isDirectory()) {
-			for (File example : cml_examples.listFiles()) {
+		if (cml_examples.isDirectory())
+		{
+			for (File example : cml_examples.listFiles())
+			{
 				System.out.print("Generating Proof Obligations for example: "
 						+ example.getName() + " \t\t...: ");
 				System.out.flush();
-				try {
+				try
+				{
 					runOnFile(example);
 					System.out.println("done");
 					successes++;
-				} catch (Exception e) {
+				} catch (Exception e)
+				{
 					System.out.println("exception");
 					failures++;
 				}

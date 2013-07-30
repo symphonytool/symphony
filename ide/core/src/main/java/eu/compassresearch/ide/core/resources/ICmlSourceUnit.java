@@ -1,23 +1,41 @@
 package eu.compassresearch.ide.core.resources;
 
+import java.io.File;
+import java.util.List;
+
 import org.eclipse.core.resources.IFile;
+import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.node.INode;
 import org.overture.ide.core.IVdmElement;
 
 import eu.compassresearch.ast.program.PSource;
 
-//import eu.compassresearch.ide.core.resources.CmlSourceUnit.CmlSourceChangedListener;
-
 public interface ICmlSourceUnit extends IVdmElement
 {
-
 	public static final int CML_SPEC = 4;
 
-	PSource getSourceAst();
+//	@Deprecated
+//	PSource getSourceAst();
 
-	IFile getFile();
+	public IFile getFile();
 
-	// void addChangeListener(CmlSourceChangedListener cmlSourceChangedListener);
+	public File getSystemFile();
 
-	// void clearListeners();
+	public List<INode> getParseList();
+	
+	@Deprecated
+	public PSource getParseNode();
+	
+	public List<PDefinition> getParseListDefinitions();
+
+	public boolean exists();
+
+	public void clean();
+
+	public abstract ICmlProject getProject();
+
+	public abstract boolean hasParseTree();
+
+	public abstract boolean hasParseErrors();
 
 }

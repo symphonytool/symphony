@@ -39,7 +39,7 @@ public class OperationCmlTypeCheckerTestCase extends
 				true, false);
 		// 11// op-call
 		add("class test = begin operations op1: int ==> int op1(a) == return (a+1) values k : int = op1(10) end",
-				true, false);
+				true, true);
 		// 12//
 
 	}
