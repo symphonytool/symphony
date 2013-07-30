@@ -133,7 +133,7 @@ public class FetchPosUtil
 
 					for (IProofObligation po : poList)
 					{
-						ithy.addThm(ithy.new IsabelleTheorem("po" + po.getName(), "True", "auto"));
+						ithy.addThm(ithy.new IsabelleTheorem("po" + po.getUniqueName(), "True", "auto"));
 					}
 			}
 
