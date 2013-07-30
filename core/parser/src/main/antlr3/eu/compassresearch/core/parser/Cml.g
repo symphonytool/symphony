@@ -476,6 +476,13 @@ processReplicated returns[PProcess proc]
             srp.setReplicatedProcess($repld.proc);
             $proc = srp;
         }
+    | ';' seqReplicationDeclarationList '@' repld=process
+        {
+            ASequentialCompositionReplicatedProcess ascrp = new ASequentialCompositionReplicatedProcess();
+            ascrp.setReplicationDeclaration($seqReplicationDeclarationList.rdecls);
+            ascrp.setReplicatedProcess($repld.proc);
+            $proc = ascrp;
+        }
     | '||' replicationDeclarationList '@' ( '[' varsetExpr ']' )? repld=process
         {
             if ($varsetExpr.vexp != null)
@@ -486,8 +493,7 @@ processReplicated returns[PProcess proc]
     ;
 
 processReplOp returns[SReplicatedProcess op]
-    : ';'       { $op = new ASequentialCompositionReplicatedProcess(); }
-    | '[]'      { $op = new AExternalChoiceReplicatedProcess(); }
+    : '[]'      { $op = new AExternalChoiceReplicatedProcess(); }
     | '|~|'     { $op = new AInternalChoiceReplicatedProcess(); }
     | '|||'     { $op = new AInterleavingReplicatedProcess(); }
     | '[|' varsetExpr '|]'
@@ -730,6 +736,21 @@ replicationDeclaration returns[PSingleDeclaration rdecl]
         }
     ;
 
+seqReplicationDeclarationList returns[List<PSingleDeclaration> rdecls]
+@init { $rdecls = new ArrayList<PSingleDeclaration>(); }
+    : item=seqReplicationDeclaration { $rdecls.add($item.rdecl); } ( ',' item=seqReplicationDeclaration { $rdecls.add($item.rdecl); } )*
+    ;
+
+seqReplicationDeclaration returns[PSingleDeclaration rdecl]
+    : identifierList ( ':' type | 'in' 'seq' expression )
+        {
+            if ($type.type != null)
+                $rdecl = new ATypeSingleDeclaration(extractLexLocation($identifierList.stop), NameScope.GLOBAL, $identifierList.ids, $type.type);
+            else
+                $rdecl = new AExpressionSingleDeclaration(extractLexLocation($identifierList.stop), NameScope.GLOBAL, $identifierList.ids, $expression.exp);
+        }
+    ;
+
 renamingExpr returns[SRenameChannelExp rexp]
 @after { $rexp.setLocation(extractLexLocation($start, $stop)); }
     : '[[' renamePair
@@ -862,6 +883,13 @@ actionReplicated returns[PAction action]
             sra.setReplicatedAction($repld.action);
             $action = sra;
         }
+    | ';' seqReplicationDeclarationList '@' repld=action
+        {
+            ASequentialCompositionReplicatedAction ascra = new ASequentialCompositionReplicatedAction();
+            ascra.setReplicationDeclaration($seqReplicationDeclarationList.rdecls);
+            ascra.setReplicatedAction($repld.action);
+            $action = ascra;
+        }
     | actionSetReplOp replicationDeclarationList '@' '[' varsetExpr ']' repld=action
         {
             SReplicatedAction sra = $actionSetReplOp.op;
@@ -895,8 +923,7 @@ actionReplicated returns[PAction action]
     ;
 
 actionSimpleReplOp returns[SReplicatedAction op]
-    : ';'       { $op = new ASequentialCompositionReplicatedAction(); }
-    | '[]'      { $op = new AExternalChoiceReplicatedAction(); }
+    : '[]'      { $op = new AExternalChoiceReplicatedAction(); }
     | '|~|'     { $op = new AInternalChoiceReplicatedAction(); }
     | '[||' varsetExpr '||]'
         {
