@@ -52,9 +52,10 @@ public class SourceParserCml extends AbstractParserParticipant
 			ANTLRInputStream in = null;
 			in = new ANTLRInputStream(is);
 			lexer = new CmlLexer(in);
+			lexer.sourceFileName = file.getFile().getLocation().toOSString();
 			CommonTokenStream tokens = new CommonTokenStream(lexer);
 			parser = new CmlParser(tokens);
-			parser.sourceFileName = file.getFile().getLocation().toOSString();
+			parser.sourceFileName = lexer.sourceFileName;
 
 				List<PDefinition> paragraphs = parser.source();
 				List<PDefinition> notNullParagraphs = new LinkedList<PDefinition>();

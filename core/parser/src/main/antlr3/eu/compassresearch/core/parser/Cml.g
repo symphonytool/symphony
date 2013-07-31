@@ -110,6 +110,8 @@ import org.antlr.runtime.CommonTokenStream;
 
 
 @lexer::members {
+
+public String sourceFileName = "";
 private List<CmlParserError> errors = new java.util.LinkedList<CmlParserError>();
 @Override
 public void displayRecognitionError(String[] tokenNames,
@@ -118,7 +120,7 @@ public void displayRecognitionError(String[] tokenNames,
         //String hdr = getErrorHeader(e);
 		String msg = getErrorMessage(e, tokenNames);
 		
-errors.add(new CmlParserError(msg,e,getLine(),getCharPositionInLine(),getCharIndex(),getCharIndex()));
+		errors.add(new CmlParserError(msg,e,sourceFileName,getLine(),getCharPositionInLine(),getCharIndex(),getCharIndex()));
     }	
     
       public List<CmlParserError> getErrors() {
@@ -138,10 +140,10 @@ public void displayRecognitionError(String[] tokenNames,
 		String msg = getErrorMessage(e, tokenNames);
 		if (e.token == null)
 		{
-			errors.add(new CmlParserError( msg, e, e.line, e.charPositionInLine, e.index, e.index));
+			errors.add(new CmlParserError( msg, e,sourceFileName, e.line, e.charPositionInLine, e.index, e.index));
 		} else
 		{
-			errors.add(new CmlParserError( msg, e, e.token));
+			errors.add(new CmlParserError( msg, e,sourceFileName, e.token));
 		}
     }	
     
