@@ -16,28 +16,21 @@ import org.overture.pog.pub.IProofObligationList;
 import eu.compassresearch.core.common.AnalysisArtifact;
 
 @SuppressWarnings("serial")
-public class CmlProofObligationList extends Vector<IProofObligation> implements AnalysisArtifact, IProofObligationList {
+public class CmlProofObligationList extends Vector<IProofObligation> implements
+		AnalysisArtifact, IProofObligationList {
 
 	@Override
-	public void trivialCheck()
-	{
-		// only used in overture 
-		
+	public void trivialCheck() {
+		// only used in overture
+
 	}
 
 	@Override
-	public void renumber()
-	{
-		// only used in overture 
-		
+	public void renumber() {
+		int n = 0;
+		for (IProofObligation po : this) {
+			po.setNumber(n++);
+		}
 	}
-
-	@Override
-	public void renumber(int from)
-	{
-		// only used in overture 
-		
-	}
-
 
 }

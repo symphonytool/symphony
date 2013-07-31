@@ -112,37 +112,32 @@ public class PogPluginDoStuff
 
 	private void addPOsToRegistry(ICmlModel model)
 	{
-		Registry registry = RegistryFactory.getInstance(POConstants.PO_REGISTRY_ID).getRegistry();
-
-		ProofObligationList allPOs = new ProofObligationList();
+		
 
 		// for (IResource cmlfile : cmlfiles)
 		// {
 		// ICmlSourceUnit cmlSource = (ICmlSourceUnit) cmlfile.getAdapter(ICmlSourceUnit.class);
 		CmlProofObligationList poList = new CmlProofObligationList();
 		ProofObligationGenerator pog = new ProofObligationGenerator(model.getAstSource());
-		CmlProofObligationList pol = new CmlProofObligationList();
 		try
 		{
-			pol = pog.generatePOs();
+			poList = pog.generatePOs();
 		} catch (AnalysisException e)
 		{
 			popErrorMessage(e.getMessage());
 			e.printStackTrace();
 		}
-		for (IProofObligation po : pol)
-		{
-			poList.add(po);
-		}
+
+	//	poList.rem
 		// registry.store(cmlSource.getSourceAst(), poList);
 		model.setAttribute(POConstants.PO_REGISTRY_ID, poList);
-		allPOs.addAll(poList);
 		// }
 
 	}
 	
 	public static void redrawPos(ICmlProject proj, IProofObligationList polist)
 	{
+		//FIXME Check if the data in the viewer table is still not being updated!
 		final IProofObligationList pol = polist;
 		final ICmlProject project = proj;
 		Display.getDefault().asyncExec(new Runnable()
