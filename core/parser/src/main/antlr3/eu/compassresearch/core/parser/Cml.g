@@ -48,6 +48,7 @@ tokens {
 
 @lexer::header {
 package eu.compassresearch.core.parser;
+import eu.compassresearch.core.parser.CmlParserError;
 }
 @parser::header {
 package eu.compassresearch.core.parser;
@@ -101,10 +102,30 @@ import eu.compassresearch.ast.types.*;
 // for the main() method
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CommonTokenStream;
+
+
+
 }
 
-// @lexer::members {
-// }
+
+
+@lexer::members {
+private List<CmlParserError> errors = new java.util.LinkedList<CmlParserError>();
+@Override
+public void displayRecognitionError(String[] tokenNames,
+                                        RecognitionException e) {
+                                        //TODO see http://www.antlr.org/wiki/display/ANTLR3/Error+reporting+and+recovery
+        String hdr = getErrorHeader(e);
+		String msg = getErrorMessage(e, tokenNames);
+		
+errors.add(new CmlParserError(hdr+" "+msg,e,getLine(),getCharPositionInLine(),getCharIndex(),getCharIndex()));
+    }	
+    
+      public List<CmlParserError> getErrors() {
+        return errors;
+    }
+
+}
 
 @parser::members {
 public String sourceFileName = "";
@@ -341,7 +362,7 @@ catch (RecognitionException e) {
 
 source returns[List<PDefinition> defs]
 @init { $defs = new ArrayList<PDefinition>(); }
-    : ( programParagraph { $defs.add($programParagraph.defs); } )+ EOF
+    : ( programParagraph { $defs.add($programParagraph.defs); } )* EOF
     ;
 
 programParagraph returns[PDefinition defs]
@@ -3389,7 +3410,7 @@ WHITESPACE
     ;
 
 LINECOMMENT
-    : ( '//' | '--' ) .* '\n' { $channel=HIDDEN; }
+    : ( '//' | '--' ) ~('\r'|'\n')*  { $channel=HIDDEN; }
     ;
 
 MLINECOMMENT

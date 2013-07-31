@@ -22,6 +22,7 @@ import org.overture.parser.messages.VDMWarning;
 
 import eu.compassresearch.core.parser.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
+import eu.compassresearch.core.parser.CmlParserError;
 import eu.compassresearch.core.typechecker.CmlTCUtil;
 
 public class SourceParserCml extends AbstractParserParticipant
@@ -121,6 +122,15 @@ public class SourceParserCml extends AbstractParserParticipant
 			// setProblem(file.createMarker(IMarker.PROBLEM), msg, Math.max(lexer.getLine(), 1));
 			errors.add(getErrorMessage(file, msg, lexer.getLine()));
 			// return false;
+		}
+		
+		if(lexer != null)
+		{
+			for(CmlParserError error: lexer.getErrors())
+			{
+				errors.add(new VDMError(0, error.message, error.getLocation(file.getSystemFile())));
+
+			}
 		}
 		
 //		nodes.add(sourceFile);
