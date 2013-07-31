@@ -173,7 +173,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 						node.getReplicatedAction().clone(), 
 						node.getNamesetExpression().clone(),
 						node.getNamesetExpression().clone(),
-						node);
+						node.clone());
 			}
 			
 			@Override
@@ -203,7 +203,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 						node.getReplicatedAction().clone(),
 						node.getNamesetExpression(),
 						node.getNamesetExpression(),
-						node,
+						node.clone(),
 						node.getChansetExpression().clone());
 			}
 			
@@ -234,7 +234,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 						node.getReplicatedAction().clone(),
 						node.getNamesetExpression(),
 						node.getNamesetExpression(),
-						node);
+						node.clone());
 			}
 			
 			@Override
@@ -260,7 +260,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 			public INode createNextReplication() {
 				return new AExternalChoiceAction(node.getLocation(),
 						node.getReplicatedAction().clone(), 
-						node);
+						node.clone());
 			}
 			
 			@Override
@@ -283,7 +283,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 			public INode createNextReplication() {
 				return new AInternalChoiceAction(node.getLocation(),
 						node.getReplicatedAction().clone(), 
-						node);
+						node.clone());
 			}
 
 			@Override
@@ -345,7 +345,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 				return new AGeneralisedParallelismProcess(node.getLocation(), 
 						node.getReplicatedProcess().clone(),
 						node.getChansetExpression().clone(),
-						node);
+						node.clone());
 			}
 			
 			@Override
@@ -369,7 +369,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 			public INode createNextReplication() {
 				return new ASynchronousParallelismProcess(node.getLocation(),
 						node.getReplicatedProcess().clone(), 
-						node);
+						node.clone());
 			}
 			
 			@Override

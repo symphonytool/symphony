@@ -260,7 +260,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 								//INode seqComp = new ASequentialCompositionAction(node.getLocation(), opVal.getBody(), assignmentNode);
 								//return new Pair<INode, Context>(seqComp,resultContext);
 							}
-							
+							//the left child is the actual call executing
 							setLeftChild(new ConcreteCmlBehaviour(opVal.getBody(), callContext, owner));
 							return new Pair<INode, Context>(node, question);
 						}
@@ -268,6 +268,8 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 			
 			
 		}
+		//The left child is the actual call so if it is not terminated then we execute 
+		//the next action of it
 		else if(!owner.getLeftChild().finished())
 		{
 			return newInspection(owner.getLeftChild().inspect(), 
@@ -281,6 +283,8 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 						}
 					});
 		}
+		//The right child contains the postcondition of the call, so if we are here and its
+		//non-empty then we execute it
 		else if(owner.getRightChild() != null)
 		{
 			return newInspection(owner.getRightChild().inspect(), 
