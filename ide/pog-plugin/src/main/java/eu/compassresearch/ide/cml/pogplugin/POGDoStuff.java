@@ -13,10 +13,11 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ide.core.resources.IVdmProject;
 import org.overture.ide.plugins.poviewer.view.PoOverviewTableView;
 import org.overture.ide.ui.utility.VdmTypeCheckerUi;
-import org.overture.pog.obligation.ProofObligation;
 import org.overture.pog.obligation.ProofObligationList;
+import org.overture.pog.pub.IProofObligation;
+import org.overture.pog.pub.IProofObligationList;
 
-import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
+import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligationList;
 import eu.compassresearch.core.analysis.pog.visitors.ProofObligationGenerator;
 import eu.compassresearch.ide.core.resources.ICmlModel;
 
@@ -122,14 +123,14 @@ public class POGDoStuff implements IWorkbenchWindowActionDelegate
 	{
 		// Registry registry = RegistryFactory.getInstance(POConstants.PO_REGISTRY_ID).getRegistry();
 
-		ProofObligationList allPOs = new ProofObligationList();
+		IProofObligationList allPOs = new CmlProofObligationList();
 
 		// for (IResource cmlfile : cmlfiles)
 		// {
 		// ICmlSourceUnit cmlSource = (ICmlSourceUnit) cmlfile.getAdapter(ICmlSourceUnit.class);
-		CMLProofObligationList poList = new CMLProofObligationList();
+		CmlProofObligationList poList = new CmlProofObligationList();
 		ProofObligationGenerator pog = new ProofObligationGenerator(model.getAstSource());
-		ProofObligationList pol = new ProofObligationList();
+		CmlProofObligationList pol = new CmlProofObligationList();
 		try
 		{
 			pol = pog.generatePOs();
@@ -138,7 +139,7 @@ public class POGDoStuff implements IWorkbenchWindowActionDelegate
 			popErrorMessage(e.getMessage());
 			e.printStackTrace();
 		}
-		for (ProofObligation po : pol)
+		for (IProofObligation po : pol)
 		{
 			poList.add(po);
 		}
@@ -157,7 +158,7 @@ public class POGDoStuff implements IWorkbenchWindowActionDelegate
 		// {
 		// ICmlSourceUnit cmlSource = (ICmlSourceUnit) cmlfile.getAdapter(ICmlSourceUnit.class);
 		// pol.addAll(registry.lookup(cmlSource.getSourceAst(), CMLProofObligationList.class));
-		pol.addAll(model.getAttribute(POConstants.PO_REGISTRY_ID, new CMLProofObligationList()));
+		pol.addAll(model.getAttribute(POConstants.PO_REGISTRY_ID, CmlProofObligationList.class));
 		// }
 
 		site.getPage().getWorkbenchWindow().getShell().getDisplay().asyncExec(new Runnable()

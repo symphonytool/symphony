@@ -13,8 +13,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Vector;
 
-import junit.framework.Assert;
-
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
@@ -25,7 +23,6 @@ import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.parser.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
-import eu.compassresearch.core.typechecker.TestUtil;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
@@ -64,7 +61,7 @@ public class Utilities {
 	source.setOrigin("Test Parameter");
 	source.setStream(cmlSourceIn);
 
-	Assert.assertTrue("Filed to parse", parseWithANTLR(source));
+	assertTrue("Test failed on parser", parseWithANTLR(source));
 
 	// Type check
 	CmlTypeChecker cmlTC = VanillaFactory.newTypeChecker(
@@ -91,8 +88,7 @@ public class Utilities {
 	CmlTypeChecker cmlTC = VanillaFactory.newTypeChecker(
 		Arrays.asList(new PSource[] { ast }), errors);
 	boolean tcResult = cmlTC.typeCheck();
-
-	assertTrue(TestUtil.buildErrorMessage(errors, true), tcResult);
+	assertTrue("Test failed on TC errors", tcResult);
 	return ast;
     }
 
@@ -120,4 +116,8 @@ public class Utilities {
 
 	return paths;
     }
+    
+
+    
+    
 }

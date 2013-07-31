@@ -48,6 +48,7 @@ tokens {
 
 @lexer::header {
 package eu.compassresearch.core.parser;
+import eu.compassresearch.core.parser.CmlParserError;
 }
 @parser::header {
 package eu.compassresearch.core.parser;
@@ -101,12 +102,56 @@ import eu.compassresearch.ast.types.*;
 // for the main() method
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CommonTokenStream;
+
+
+
 }
 
-// @lexer::members {
-// }
+
+
+@lexer::members {
+
+public String sourceFileName = "";
+private List<CmlParserError> errors = new java.util.LinkedList<CmlParserError>();
+@Override
+public void displayRecognitionError(String[] tokenNames,
+                                        RecognitionException e) {
+                                        //TODO see http://www.antlr.org/wiki/display/ANTLR3/Error+reporting+and+recovery
+        //String hdr = getErrorHeader(e);
+		String msg = getErrorMessage(e, tokenNames);
+		
+		errors.add(new CmlParserError(msg,e,sourceFileName,getLine(),getCharPositionInLine(),getCharIndex(),getCharIndex()));
+    }	
+    
+      public List<CmlParserError> getErrors() {
+        return errors;
+    }
+
+}
 
 @parser::members {
+
+private List<CmlParserError> errors = new java.util.LinkedList<CmlParserError>();
+@Override
+public void displayRecognitionError(String[] tokenNames,
+                                        RecognitionException e) {
+                                        //TODO see http://www.antlr.org/wiki/display/ANTLR3/Error+reporting+and+recovery
+        //String hdr = getErrorHeader(e);
+		String msg = getErrorMessage(e, tokenNames);
+		if (e.token == null)
+		{
+			errors.add(new CmlParserError( msg, e,sourceFileName, e.line, e.charPositionInLine, e.index, e.index));
+		} else
+		{
+			errors.add(new CmlParserError( msg, e,sourceFileName, e.token));
+		}
+    }	
+    
+      public List<CmlParserError> getErrors() {
+        return errors;
+    }
+
+
 public String sourceFileName = "";
 
 public String getErrorMessage(RecognitionException e, String[] tokenNames) {
@@ -121,19 +166,19 @@ public String getErrorMessage(RecognitionException e, String[] tokenNames) {
     } else {
         msg = super.getErrorMessage(e, tokenNames);
     }
-    return stack+" "+msg;
+    return /*stack+" "+*/msg;
 }
 public String getTokenErrorDisplay(CommonToken t) {
     return t.toString();
 }
 
-protected Object recoverFromMismatchedToken(IntStream input, int ttype, BitSet follow) throws RecognitionException {
-    throw new MismatchedTokenException(ttype, input);
-}
+//protected Object recoverFromMismatchedToken(IntStream input, int ttype, BitSet follow) throws RecognitionException {
+//    throw new MismatchedTokenException(ttype, input);
+//}
 
-public Object recoverFromMismatchedSet(IntStream input, RecognitionException e, BitSet follow) throws RecognitionException {
-    throw e;
-}
+//public Object recoverFromMismatchedSet(IntStream input, RecognitionException e, BitSet follow) throws RecognitionException {
+//    throw e;
+//}
 
 private DecimalFormat decimalFormatParser = new DecimalFormat();
 public static final String CML_LANG_VERSION = "CML M16";
@@ -328,8 +373,10 @@ public static void main(String[] args) throws Exception {
 } // end @parser::members
 
 @rulecatch {
-catch (RecognitionException e) {
-    throw e;
+catch (RecognitionException re) {
+	reportError(re);
+	//recover(input,re);
+    throw re;
 }
 }
 
@@ -341,7 +388,7 @@ catch (RecognitionException e) {
 
 source returns[List<PDefinition> defs]
 @init { $defs = new ArrayList<PDefinition>(); }
-    : ( programParagraph { $defs.add($programParagraph.defs); } )+ EOF
+    : ( programParagraph { $defs.add($programParagraph.defs); } )* EOF
     ;
 
 programParagraph returns[PDefinition defs]
@@ -3389,7 +3436,7 @@ WHITESPACE
     ;
 
 LINECOMMENT
-    : ( '//' | '--' ) .* '\n' { $channel=HIDDEN; }
+    : ( '//' | '--' ) ~('\r'|'\n')*  { $channel=HIDDEN; }
     ;
 
 MLINECOMMENT

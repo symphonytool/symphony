@@ -1,6 +1,6 @@
 /*******************************************************************************
  *
- *	Copyright (c) 2009 Fujitsu Services Ltd.
+ *	Copyright (C) 2008 Fujitsu Services Ltd.
  *
  *	Author: Nick Battle
  *
@@ -19,29 +19,36 @@
  *	You should have received a copy of the GNU General Public License
  *	along with VDMJ.  If not, see <http://www.gnu.org/licenses/>.
  *
- ******************************************************************************
- * 
- * Just using Overture POStatus for now
- *
  ******************************************************************************/
 
 package eu.compassresearch.core.analysis.pog.obligations;
 
-// This enum is not being used anywhere so far.
-public enum POStatus
+import org.overture.pog.pub.IPOContextStack;
+
+import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
+import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
+
+public class CmlParameterPatternObligation extends CmlProofObligation
 {
-	UNPROVED("Unproved"), SUBMITTED("Submitted"), PROVED("Proved"), DISPROVED("Disproved");
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+		public CmlParameterPatternObligation(
+			AExplicitCmlOperationDefinition def, IPOContextStack ctxt)
+		{
+			super(def, CmlPOType.OPERATION_PATTERNS, ctxt);
+			//FIXME implement ast based PO predicate
+		}
 
-	private String text;
+		public CmlParameterPatternObligation(
+			AImplicitCmlOperationDefinition def, IPOContextStack ctxt)
+		{
+			super(def, CmlPOType.OPERATION_PATTERNS, ctxt);
+			//FIXME implement ast based PO predicate
 
-	POStatus(String text)
-	{
-		this.text = text;
+		}
+
+	
 	}
-
-	@Override
-	public String toString()
-	{
-		return text;
-	}
-}

@@ -23,17 +23,19 @@
 
 package eu.compassresearch.core.analysis.pog.obligations;
 
-import org.overture.pog.obligation.POContextStack;
-import org.overture.pog.obligation.POType;
-import org.overture.pog.obligation.ProofObligation;
+import org.overture.pog.pub.IPOContextStack;
 
 import eu.compassresearch.ast.actions.AWhileStatementAction;
 
-public class CMLWhileLoopObligation extends ProofObligation {
+public class CmlWhileLoopObligation extends CmlProofObligation {
 
-		public CMLWhileLoopObligation(AWhileStatementAction stmt, POContextStack ctxt)
+		/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+		public CmlWhileLoopObligation(AWhileStatementAction stmt, IPOContextStack ctxt)
 		{
-			super(stmt.getLocation(), POType.WHILE_LOOP, ctxt);
-			value = ctxt.getObligation("while " + stmt.getCondition() + " do ...");
+			super(stmt, CmlPOType.WHILE_LOOP, ctxt);
 		}
 	}

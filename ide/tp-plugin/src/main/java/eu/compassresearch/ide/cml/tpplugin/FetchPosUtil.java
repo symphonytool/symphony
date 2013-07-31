@@ -5,14 +5,8 @@ import isabelle.eclipse.core.IsabelleCore;
 import isabelle.eclipse.core.app.Isabelle;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.StringReader;
-import java.util.ArrayList;
 
-import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -22,23 +16,19 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.IWorkbenchWindow;
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.ide.core.IVdmModel;
-import org.overture.ide.core.resources.IVdmProject;
-import org.overture.ide.ui.utility.VdmTypeCheckerUi;
-import org.overture.pog.obligation.ProofObligation;
+import org.overture.pog.pub.IProofObligation;
 
-import eu.compassresearch.ast.program.PSource;
-import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
-import eu.compassresearch.core.common.Registry;
-import eu.compassresearch.core.common.RegistryFactory;
+import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligationList;
 import eu.compassresearch.ide.cml.pogplugin.POConstants;
+import eu.compassresearch.ide.cml.pogplugin.PogPluginDoStuff;
+import eu.compassresearch.ide.cml.pogplugin.PogPluginUtility;
 import eu.compassresearch.ide.core.resources.ICmlModel;
 import eu.compassresearch.ide.core.resources.ICmlProject;
 import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
 import eu.compassresearch.ide.ui.utility.CmlProjectUtil;
 import eu.compassresearch.theoremprover.IsabelleTheory;
+import eu.compassresearch.theoremprover.IsabelleTheory.IsabelleTheorem;
 import eu.compassresearch.theoremprover.TPVisitor;
 import eu.compassresearch.theoremprover.ThmType;
 import eu.compassresearch.theoremprover.ThmValue;
@@ -74,32 +64,31 @@ public class FetchPosUtil
 
 			if (tpListener == null)
 			{
-				tpListener = new TPListener(isabelle.session().get());
+				tpListener = new TPListener(isabelle.session().get(), new IPoStatusChanged() {
+					
+					@Override
+					public void statusChanges(IProofObligation po) {
+						CmlProofObligationList poList = project.getModel().getAttribute(POConstants.PO_REGISTRY_ID, CmlProofObligationList.class);
+						
+						PogPluginDoStuff.redrawPos(project, poList);
+						
+					}
+				});
 				tpListener.init();
 			}
 
-			Registry registry = RegistryFactory.getInstance(POConstants.PO_REGISTRY_ID).getRegistry();
 
-//			IProject proj = TPPluginUtils.getCurrentlySelectedProject();
 			if (project == null)
 			{
 				popErrorMessage("No project selected.");
 				return;
 			}
-			// Check project is built
-//			ICmlProject cmlProject = (ICmlProject) proj.getAdapter(ICmlProject.class);
-
-//			if (cmlProject == null)
-//			{
-//				return;
-//			}
 
 			if (CmlProjectUtil.typeCheck(shell, project))
 			{
-
 				ICmlModel model = project.getModel();
 				
-				CMLProofObligationList poList = model.getAttribute(POConstants.PO_REGISTRY_ID, new CMLProofObligationList());
+				CmlProofObligationList poList = model.getAttribute(POConstants.PO_REGISTRY_ID, CmlProofObligationList.class);
 				
 				if (poList == null)
 				{
@@ -111,6 +100,11 @@ public class FetchPosUtil
 				IFolder output = project.getModelBuildPath().getOutput().getFolder(new Path("Isabelle"));
 				if(!output.exists())
 				{
+					if (!output.getParent().exists())
+					{
+						((IFolder) output.getParent()).create(true, true, new NullProgressMonitor());
+							
+					}
 					output.create(true, true, new NullProgressMonitor());
 					output.refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());
 				}
@@ -121,47 +115,26 @@ public class FetchPosUtil
 					String thyFileName = name.substring(0,name.length()-sourceUnit.getFile().getFileExtension().length())+".ity";
 					translateCmltoThy(sourceUnit,output.getFile(thyFileName));
 				}
-//				ArrayList<IResource> cmlFiles = TPPluginUtils.getAllCFilesInProject(proj);
 
-//				for (IResource cmlFile : cmlFiles)
-//				{
-//					// May return a null if the adapter fails to convert
-//					ICmlSourceUnit cmlSource = (ICmlSourceUnit) cmlFile.getAdapter(ICmlSourceUnit.class);
-//					CMLProofObligationList poList = registry.lookup(cmlSource.getSourceAst(), CMLProofObligationList.class);
-//					if (poList == null)
-//					{
-//						popErrorMessage("There are no Proof Oligations to discharge.");
-//						return;
-//					}
-//					getThyFromCML(cmlFile);
-
-//					IsabelleTheory ithy = registry.lookup(cmlSource.getSourceAst(), IsabelleTheory.class);
-				IsabelleTheory ithyDefault = null;
-				IsabelleTheory ithy = model.getAttribute(ITpConstants.PLUGIN_ID, ithyDefault);
+				IsabelleTheory ithy = model.getAttribute(ITpConstants.PLUGIN_ID, IsabelleTheory.class);
 
 					if (ithy == null )
 					{
 						IProject p = ((IProject) project.getAdapter(IProject.class));
-//						String cmlName = cmlFile.getName();
 						String thyName = p.getName()+"_POs";
 						ithy = new IsabelleTheory(session, thyName,output.getLocation().toString());
 						ithy.init();
-						for (PSource source : model.getAstSource())
-						{
-							TPPluginUtils2.addThyToListener(ithy, tpListener, source);
-						}
-						
-//						registry.store(cmlSource.getSourceAst(), ithy);
+						TPPluginUtils2.addThyToListener(ithy, tpListener, model);
+
 						model.setAttribute(ITpConstants.PLUGIN_ID, ithy);
+					    Object bob = model.getAttribute(ITpConstants.PLUGIN_ID, IsabelleTheory.class);
+					    System.out.println(bob.toString());
 					}
 
-					for (ProofObligation po : poList)
+					for (IProofObligation po : poList)
 					{
-						ithy.addThm(ithy.new IsabelleTheorem("po" + po.name, "True", "auto"));
+						ithy.addThm(ithy.new IsabelleTheorem("po" + po.getUniqueName(), "True", "auto"));
 					}
-
-//				}
-
 			}
 
 		} catch (Exception e)
@@ -182,11 +155,6 @@ public class FetchPosUtil
 	private void translateCmltoThy(ICmlSourceUnit source, IFile outputFile) throws IOException,
 			AnalysisException
 	{
-//		ICmlSourceUnit source = (ICmlSourceUnit) cmlFile.getAdapter(ICmlSourceUnit.class);
-
-//		String cmlLoc = cmlFile.getLocation().toString();
-//		String thyFile = cmlLoc.replaceAll("\\.cml", ".thy");
-
 		TPVisitor tpv = new TPVisitor();
 		source.getParseNode().apply(tpv);
 
@@ -219,13 +187,8 @@ public class FetchPosUtil
 
 		sb.append("\n" + "end");
 
-//		File thy = new File(thyFile);
-//		FileWriter fw = new FileWriter(thy);
-//		fw.write(sb.toString());
-//		fw.flush();
-//		fw.close();
-//		outputFile.getContents().
 		try{
+		outputFile.delete(true, null);
 		outputFile.create( new ByteArrayInputStream(sb.toString().getBytes()), true, new NullProgressMonitor());
 		}catch(CoreException e)
 		{

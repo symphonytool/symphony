@@ -1,9 +1,7 @@
 package eu.compassresearch.ide.cml.tpplugin
 
 import java.util.concurrent.locks.ReentrantReadWriteLock
-
 import scala.io.Source
-
 import isabelle.Document
 import isabelle.Document.Snapshot
 import isabelle.Linear_Set
@@ -14,11 +12,12 @@ import isabelle.eclipse.core.app.Isabelle
 import isabelle.eclipse.core.util.ConcurrentUtil.FunReadWriteLock
 import eu.compassresearch.theoremprover.IsabelleTheory
 import eu.compassresearch.ast.program.PSource
+import eu.compassresearch.ide.core.resources.ICmlModel
 
 object TPPluginUtils2 {
   
-  def addThyToListener(ithy : IsabelleTheory, tpListener : TPListener, ast : PSource) {
-    tpListener.registerNode(ithy.thyNode, ast);
+  def addThyToListener(ithy : IsabelleTheory, tpListener : TPListener, model : ICmlModel) {
+    tpListener.registerNode(ithy.thyNode, model);
   }
   
   def checkHOLVDM(): Either[String, Isabelle] = {
