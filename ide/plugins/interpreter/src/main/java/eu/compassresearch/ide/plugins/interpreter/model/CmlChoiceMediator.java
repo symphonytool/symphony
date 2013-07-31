@@ -212,7 +212,9 @@ public class CmlChoiceMediator implements IDoubleClickListener,
 			IWorkspace workspace= ResourcesPlugin.getWorkspace();    
 			IPath location= Path.fromOSString(choice.getLocations().get(0).getFile().getAbsolutePath()); 
 			IFile file= workspace.getRoot().getFileForLocation(location);
-			
+			//It may be a linked resource
+			if(file == null && workspace.getRoot().findFilesForLocation(location).length > 0)
+				file = workspace.getRoot().findFilesForLocation(location)[0];
 			IEditorPart editor= null;
 			try
 			{
@@ -228,26 +230,23 @@ public class CmlChoiceMediator implements IDoubleClickListener,
 			if (editor != null)
 			{
 				StyledText styledText = (StyledText) ((CmlEditor)editor).getAdapter(Control.class);
-
-				// cmlEditor.resetHighlightRange();
-				// //cmlEditor.setHighlightRange(10, 4, true);
-				//
-				// int line = 0;
-				// int lenght = 0;
-				// try {
-				// CmlStackFrame stackFrame = (CmlStackFrame)cmlDebugTarget.getThreads()[0].getTopStackFrame();
-				// ILexLocation location = stackFrame.getLocation();
-				// line = location.getStartOffset();
-				// lenght = location.getEndOffset() - location.getStartOffset() + 1;
-				// } catch (DebugException e) {
-				// e.printStackTrace();
-				// }
+				//clear the last selection
 				clearSelections(styledText);
 
 				for (ILexLocation loc : choice.getLocations())
 				{
 					int length = loc.getEndOffset() - loc.getStartOffset() + 1;
 					StyleRange sr = styledText.getStyleRangeAtOffset(loc.getStartOffset());
+					
+					//if nothing is found we try to look nearby 
+					if (sr == null)
+						for (int i = loc.getStartOffset() - 50; i < loc.getStartOffset() + 50 ; i++)
+						{
+							sr = styledText.getStyleRangeAtOffset(i);
+						   	if (sr != null)
+						   		break;
+						}
+					
 					if (sr != null)
 					{
 						sr.length = length;
@@ -259,15 +258,6 @@ public class CmlChoiceMediator implements IDoubleClickListener,
 				styledText.setCaretOffset(choice.getLocations().get(0).getStartOffset());
 				styledText.showSelection();
 			}
-			// cmlEditor.selectAndReveal(firstLoc.getStartOffset(), length);
-
-			// styledText.setSelection(firstLoc.getStartOffset());
-			// styledText.setSelection(firstLoc.getStartOffset(), firstLoc.getEndOffset()+1);
-			// styledText.setSelectionBackground(new Color(null, new RGB(java.awt.Color.BLUE.getRed(),
-			// java.awt.Color.BLUE.getGreen(), java.awt.Color.BLUE.getBlue())));
-			// styledText.setBackground(new Color(null, new RGB(java.awt.Color.BLUE.getRed(),
-			// java.awt.Color.BLUE.getGreen(), java.awt.Color.BLUE.getBlue())));
-			// cmlEditor.setHighlightRange(line, lenght, true);
 		}
 	}
 }
