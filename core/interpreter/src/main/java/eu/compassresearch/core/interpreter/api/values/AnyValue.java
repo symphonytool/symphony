@@ -1,5 +1,6 @@
 package eu.compassresearch.core.interpreter.api.values;
 
+import org.overture.ast.types.PType;
 import org.overture.interpreter.values.Value;
 
 /**
@@ -7,12 +8,12 @@ import org.overture.interpreter.values.Value;
  * where the possible values of the type are in the middle and AnyValue are the top and Undefined are
  * the bottom.
  * 
- * E.g for the int type:
+ * E.g for the nat type:
  * 
  * 		AnyValue
- * 		/	|  \
- * 	   1,2,...,infinite								
- * 		\   |  /
+ * 		/	|   \
+ * 	   1,2,....,infinite								
+ * 		\   |   /
  * 		Undefined
  * 
  * @author akm
@@ -20,10 +21,15 @@ import org.overture.interpreter.values.Value;
  */
 public class AnyValue extends Value {
 
-	//unicode seems to ne causing problems on windows and mac
+	//unicode seems to be causing problems on Windows and Mac
 	//private static final String topString = "\u22A4"; 
 	private static final String topString = "?"; 
+	private PType type;
 	
+	public AnyValue(PType type)
+	{
+		this.type = type;
+	}
 	
 	@Override
 	public String toString() {
@@ -44,10 +50,15 @@ public class AnyValue extends Value {
 	public String kind() {
 		return toString();
 	}
+	
+	public PType getType()
+	{
+		return type;
+	}
 
 	@Override
 	public Object clone() {
-		return new AnyValue();
+		return new AnyValue(type);
 	}
 
 }

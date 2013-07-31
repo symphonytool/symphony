@@ -48,7 +48,7 @@ class CommunicationEvent extends AbstractChannelEvent implements ObservableEvent
 		this.value = value;
 	}
 	
-	//Converts communication parameters int the corresponding value
+	//Converts communication parameters into their corresponding value
 	private void initValueFromComParams(List<CommunicationParameter> params)
 	{
 		if(params != null)
@@ -72,11 +72,11 @@ class CommunicationEvent extends AbstractChannelEvent implements ObservableEvent
 			ValueList argvals = new ValueList();
 			AProductType productType = (AProductType)((AChannelType)channel.getType()).getType();
 			for(PType t : productType.getTypes())
-				argvals.add(new AnyValue());
+				argvals.add(new AnyValue(t));
 			value = new TupleValue(argvals);
 		}
 		else
-			value = new AnyValue();
+			value = new AnyValue(new AChannelType());
 	}
 	
 	@Override 

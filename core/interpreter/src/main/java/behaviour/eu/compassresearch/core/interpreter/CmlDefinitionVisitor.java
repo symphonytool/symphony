@@ -5,6 +5,7 @@ import java.util.List;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
+import org.overture.ast.definitions.AImplicitFunctionDefinition;
 import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.AValueDefinition;
@@ -22,6 +23,7 @@ import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.AExpressionSingleDeclaration;
+import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AActionsDefinition;
 import eu.compassresearch.ast.definitions.AChannelNameDefinition;
@@ -36,6 +38,7 @@ import eu.compassresearch.ast.definitions.ATypesDefinition;
 import eu.compassresearch.ast.definitions.AValuesDefinition;
 import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.core.interpreter.api.values.ActionValue;
+import eu.compassresearch.core.interpreter.api.values.AnyValue;
 import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
 import eu.compassresearch.core.interpreter.api.values.ProcessObjectValue;
 
@@ -184,6 +187,15 @@ class CmlDefinitionVisitor extends
 		return vpl;
 	}
 	
+	@Override
+	public NameValuePairList caseAImplicitFunctionDefinition(
+			AImplicitFunctionDefinition node, Context question)
+			throws AnalysisException {
+		
+		throw new AnalysisException("The function " + node.toString() + 
+				" is implicit. This is not supported by the simulator at the moment");
+	}
+	
 	/*
 	 * Operations
 	 */
@@ -308,6 +320,20 @@ class CmlDefinitionVisitor extends
 		NameValuePairList vpl = new NameValuePairList();
 		
 		Value value = node.getExpression().apply(cmlExpressionVisitor, question);
+		for(ILexIdentifierToken id : node.getIdentifiers())
+			vpl.add(new NameValuePair(new LexNameToken("", id.clone()), value));
+		
+		return vpl;
+	}
+	
+	@Override
+	public NameValuePairList caseATypeSingleDeclaration(
+			ATypeSingleDeclaration node, Context question)
+			throws AnalysisException {
+		
+		NameValuePairList vpl = new NameValuePairList();
+		
+		Value value = new AnyValue(node.getType());
 		for(ILexIdentifierToken id : node.getIdentifiers())
 			vpl.add(new NameValuePair(new LexNameToken("", id.clone()), value));
 		

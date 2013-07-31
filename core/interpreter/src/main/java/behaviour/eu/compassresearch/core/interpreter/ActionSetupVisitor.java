@@ -23,6 +23,8 @@ import eu.compassresearch.ast.actions.AGeneralisedParallelismReplicatedAction;
 import eu.compassresearch.ast.actions.AHidingAction;
 import eu.compassresearch.ast.actions.AInterleavingParallelAction;
 import eu.compassresearch.ast.actions.AInterleavingReplicatedAction;
+import eu.compassresearch.ast.actions.AInternalChoiceAction;
+import eu.compassresearch.ast.actions.AInternalChoiceReplicatedAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASynchronousParallelismParallelAction;
 import eu.compassresearch.ast.actions.ASynchronousParallelismReplicatedAction;
@@ -135,7 +137,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 		//each value represents one process replication 
 		else if(setValue.values.size() == 2)
 		{
-			nextNode = factory.createNextReplication();
+			nextNode = factory.createLastReplication();
 
 			setChildContexts(new Pair<Context,Context>(
 					convertReplicationToContext(setValue.values.get(0),replicationDecls,node.getLocation(),question),
@@ -145,7 +147,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 		//first value and the rest of the replicated values
 		else
 		{
-			nextNode = factory.createLastReplication();
+			nextNode = factory.createNextReplication();
 
 			setChildContexts(new Pair<Context,Context>(
 					convertReplicationToContext(setValue.values.get(0),replicationDecls,node.getLocation(),question),
@@ -171,7 +173,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 						node.getReplicatedAction().clone(), 
 						node.getNamesetExpression().clone(),
 						node.getNamesetExpression().clone(),
-						node.getReplicatedAction().clone());
+						node);
 			}
 			
 			@Override
@@ -181,7 +183,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 						node.getReplicatedAction().clone(), 
 						node.getNamesetExpression().clone(),
 						node.getNamesetExpression().clone(),
-						node);
+						node.getReplicatedAction().clone());
 			}
 			
 		},question);
@@ -197,22 +199,22 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 			@Override
 			public INode createNextReplication() {
 				//TODO The i'th namesetexpression should be evaluated in the i'th context 
-				return new AGeneralisedParallelismParallelAction(node.getLocation(), 
+				return new AGeneralisedParallelismParallelAction(node.getLocation(),
 						node.getReplicatedAction().clone(),
 						node.getNamesetExpression(),
 						node.getNamesetExpression(),
-						node.getReplicatedAction().clone(),
+						node,
 						node.getChansetExpression().clone());
 			}
 			
 			@Override
 			public INode createLastReplication() {
 				//TODO The i'th namesetexpression should be evaluated in the i'th context 
-				return new AGeneralisedParallelismParallelAction(node.getLocation(),
+				return new AGeneralisedParallelismParallelAction(node.getLocation(), 
 						node.getReplicatedAction().clone(),
 						node.getNamesetExpression(),
 						node.getNamesetExpression(),
-						node,
+						node.getReplicatedAction().clone(),
 						node.getChansetExpression().clone());
 			}
 		}, question);
@@ -228,21 +230,21 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 			@Override
 			public INode createNextReplication() {
 				//TODO The i'th namesetexpression should be evaluated in the i'th context 
-				return new ASynchronousParallelismParallelAction(node.getLocation(), 
-						node.getReplicatedAction().clone(),
-						node.getNamesetExpression(),
-						node.getNamesetExpression(),
-						node.getReplicatedAction().clone());
-			}
-			
-			@Override
-			public INode createLastReplication() {
-				//TODO The i'th namesetexpression should be evaluated in the i'th context 
 				return new ASynchronousParallelismParallelAction(node.getLocation(),
 						node.getReplicatedAction().clone(),
 						node.getNamesetExpression(),
 						node.getNamesetExpression(),
 						node);
+			}
+			
+			@Override
+			public INode createLastReplication() {
+				//TODO The i'th namesetexpression should be evaluated in the i'th context 
+				return new ASynchronousParallelismParallelAction(node.getLocation(), 
+						node.getReplicatedAction().clone(),
+						node.getNamesetExpression(),
+						node.getNamesetExpression(),
+						node.getReplicatedAction().clone());
 			}
 		}, question);
 	}
@@ -256,16 +258,39 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 			
 			@Override
 			public INode createNextReplication() {
-				return new AExternalChoiceAction(node.getLocation(), 
-						node.getReplicatedAction().clone(),
-						node.getReplicatedAction().clone());
+				return new AExternalChoiceAction(node.getLocation(),
+						node.getReplicatedAction().clone(), 
+						node);
 			}
 			
 			@Override
 			public INode createLastReplication() {
-				return new AExternalChoiceAction(node.getLocation(),
+				return new AExternalChoiceAction(node.getLocation(), 
+						node.getReplicatedAction().clone(),
+						node.getReplicatedAction().clone());
+			}
+		}, question);
+	}
+	
+	@Override
+	public INode caseAInternalChoiceReplicatedAction(
+			final AInternalChoiceReplicatedAction node, Context question)
+			throws AnalysisException {
+		
+		return caseReplicatedAction(node, new ReplicationFactory() {
+			
+			@Override
+			public INode createNextReplication() {
+				return new AInternalChoiceAction(node.getLocation(),
 						node.getReplicatedAction().clone(), 
 						node);
+			}
+
+			@Override
+			public INode createLastReplication() {
+				return new AInternalChoiceAction(node.getLocation(), 
+						node.getReplicatedAction().clone(),
+						node.getReplicatedAction().clone());
 			}
 		}, question);
 	}
@@ -286,7 +311,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 		//each value represents one process replication 
 		else if(setValue.values.size() == 2)
 		{
-			nextNode = factory.createNextReplication();
+			nextNode = factory.createLastReplication();
 
 			setChildContexts(new Pair<Context,Context>(
 					convertReplicationToContext(setValue.values.get(0),replicationDecls,node.getLocation(),question),
@@ -296,7 +321,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 		//first value and the rest of the replicated values
 		else
 		{
-			nextNode = factory.createLastReplication();
+			nextNode = factory.createNextReplication();
 
 			setChildContexts(new Pair<Context,Context>(
 					convertReplicationToContext(setValue.values.get(0),replicationDecls,node.getLocation(),question),
@@ -320,7 +345,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 				return new AGeneralisedParallelismProcess(node.getLocation(), 
 						node.getReplicatedProcess().clone(),
 						node.getChansetExpression().clone(),
-						node.getReplicatedProcess().clone());
+						node);
 			}
 			
 			@Override
@@ -328,7 +353,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 				return new AGeneralisedParallelismProcess(node.getLocation(), 
 						node.getReplicatedProcess().clone(),
 						node.getChansetExpression().clone(),
-						node);
+						node.getReplicatedProcess().clone());
 			}
 		}, question);
 	}
@@ -342,16 +367,16 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 			
 			@Override
 			public INode createNextReplication() {
-				return new ASynchronousParallelismProcess(node.getLocation(), 
-						node.getReplicatedProcess().clone(),
-						node.getReplicatedProcess().clone());
+				return new ASynchronousParallelismProcess(node.getLocation(),
+						node.getReplicatedProcess().clone(), 
+						node);
 			}
 			
 			@Override
 			public INode createLastReplication() {
-				return new ASynchronousParallelismProcess(node.getLocation(),
-						node.getReplicatedProcess().clone(), 
-						node);
+				return new ASynchronousParallelismProcess(node.getLocation(), 
+						node.getReplicatedProcess().clone(),
+						node.getReplicatedProcess().clone());
 			}
 		}, question);
 		
