@@ -27,7 +27,7 @@ object TPListener {
     
     for (p <- JavaConversions.asScalaIterable(poList)) {
       // FIXME: Add code to update POs from the theory
-      if (ithy.thmIsProved("po" + p.getName())) {
+      if (ithy.thmIsProved("po" + p.getUniqueName())) {
         p.setStatus(POStatus.PROVED);
         println(p.getName() + " is proved!");
         ischanged.statusChanges(p)

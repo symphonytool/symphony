@@ -53,5 +53,27 @@
       </plugin>
     </plugins>
   </build>
-
+   <developers>
+<developer>
+      <id>lausdahl</id>
+      <name>Kenneth Lausdahl</name>
+      <email>lausdahl@users.sourceforge.net</email>
+      <organization>AU</organization>
+      <roles>
+        <role>architect</role>
+        <role>developer</role>
+      </roles>
+      <timezone>+1</timezone>
+    </developer>
+    <developer>
+      <id>ldcouto</id>
+      <name>Luis Diogo Couto</name>
+      <email>ldcouto@users.sourceforge.net</email>
+      <organization>AU</organization>
+      <roles>
+        <role>developer</role>
+      </roles>
+      <timezone>+1</timezone>
+    </developer>
+  </developers>
 </project>

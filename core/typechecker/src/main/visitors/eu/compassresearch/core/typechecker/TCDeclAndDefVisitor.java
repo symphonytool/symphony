@@ -32,7 +32,6 @@ import org.overture.ast.factory.AstFactory;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.lex.LexBooleanToken;
-import org.overture.ast.lex.LexNameList;
 import org.overture.ast.node.INode;
 import org.overture.ast.node.NodeList;
 import org.overture.ast.patterns.AIdentifierPattern;
@@ -283,7 +282,13 @@ class TCDeclAndDefVisitor extends
 	public PType caseAClassInvariantDefinition(AClassInvariantDefinition node,
 			TypeCheckInfo question) throws AnalysisException {
 
-		PType expTyp = node.getExpression().apply(parentChecker, question);
+		//set the name
+		//node.setName(node.getClassDefinition().getName().getInvName(node.getLocation()));
+		
+		CmlTypeCheckInfo cmlTCInfo = (CmlTypeCheckInfo)question;
+		CmlTypeCheckInfo stateScopeCentext = cmlTCInfo.newScope();
+		stateScopeCentext.scope = NameScope.STATE; 
+		PType expTyp = node.getExpression().apply(parentChecker, stateScopeCentext);
 
 		node.setType(expTyp);
 		return node.getType();
@@ -610,6 +615,8 @@ class TCDeclAndDefVisitor extends
 		node.setType(operationType);
 		return node.getType();
 	}
+	
+	
 
 	@Override
 	public PType caseAOperationsDefinition(AOperationsDefinition node,
@@ -624,60 +631,14 @@ class TCDeclAndDefVisitor extends
 			return node.getType();
 		}
 
+		node.setType(new AOperationParagraphType());
 		LinkedList<SCmlOperationDefinition> operations = node.getOperations();
 		for (SCmlOperationDefinition odef : operations) {
-			PType operationType = odef.apply(parentChecker, question);
-			if (!successfulType(operationType)) {
-				node.setType(issueHandler.addTypeError(odef,
-						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-								.customizeMessage(odef + "")));
-				return node.getType();
-			}
-
-			if (!(operationType instanceof AOperationType)) {
-				node.setType(issueHandler.addTypeError(odef,
-						TypeErrorMessages.EXPECTED_OPERATION_DEFINITION
-								.customizeMessage(odef.getName() + "")));
-				return node.getType();
-			}
-
-			// It could be the constructor
-			PDefinition clz = question.env.getEnclosingDefinition();
-			if (clz != null && clz instanceof ACmlClassDefinition) {
-				if (HelpLexNameToken.isEqual(clz.getName(), odef.getName())) {
-					if (odef instanceof AExplicitCmlOperationDefinition) {
-						AExplicitCmlOperationDefinition cmlOdef = (AExplicitCmlOperationDefinition) odef;
-						cmlOdef.setIsConstructor(true);
-
-						if (!(operationType instanceof AOperationType)) {
-							node.setType(issueHandler
-									.addTypeError(
-											cmlOdef,
-											TypeErrorMessages.EXPECTED_OPERATION_DEFINITION
-													.customizeMessage(""
-															+ cmlOdef)));
-							return node.getType();
-						}
-
-						AOperationType operationTypeActual = (AOperationType) operationType;
-						if (!(typeComparator.isSubType(clz.getType(),
-								operationTypeActual.getResult()))) {
-							node.setType(issueHandler
-									.addTypeError(
-											operationTypeActual,
-											TypeErrorMessages.CONSTRUCTOR_HAS_WRONG_TYPE
-													.customizeMessage(
-															odef + "",
-															operationType + "")));
-							return node.getType();
-						}
-					}
-				}
-			}
-
-			cmlEnv.addVariable(odef.getName(), odef);
+			odef.apply(parentChecker, question);
+			node.getType().getDefinitions().add(odef);
+			//cmlEnv.addVariable(odef.getName(), odef);
 		}
-		node.setType(new AOperationParagraphType());
+		
 		return node.getType();
 	}
 
@@ -685,7 +646,6 @@ class TCDeclAndDefVisitor extends
 	public PType caseAInitialDefinition(AInitialDefinition node,
 			org.overture.typechecker.TypeCheckInfo question)
 			throws AnalysisException {
-		// TODO Auto-generated method stub
 
 		PDefinition oper = node.getOperationDefinition();
 		if (oper != null) {
@@ -1471,7 +1431,7 @@ class TCDeclAndDefVisitor extends
 
 		// Handle the COMPASS definitions
 		{
-			CmlTypeCheckInfo classQuestion = cmlClassEnv;// .newScope(surrogate);
+			//CmlTypeCheckInfo classQuestion = cmlClassEnv.newScope(node);
 
 			// add state
 			/*
@@ -1490,8 +1450,8 @@ class TCDeclAndDefVisitor extends
 			 * }
 			 */
 			for (PDefinition def : thoseHandledByCOMPASS) {
-				classQuestion.env.setEnclosingDefinition(node);
-				PType type = def.apply(parentChecker, classQuestion);
+				cmlClassEnv.env.setEnclosingDefinition(node);
+				PType type = def.apply(parentChecker, cmlClassEnv);
 				if (type == null || type instanceof AErrorType) {
 					return issueHandler.addTypeError(def,
 							TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
@@ -1809,7 +1769,7 @@ class TCDeclAndDefVisitor extends
 					PDefinition oldDefinition = stateDef.clone();
 					oldDefinition.setName(oldName);
 					oldStateDefs.add(oldDefinition);
-					// postEnv.addVariable(oldName, oldDefinition);
+					postEnv.addVariable(oldName, oldDefinition);
 				}
 			}
 			postEnv.scope = NameScope.NAMESANDANYSTATE;

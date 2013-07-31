@@ -365,11 +365,11 @@ public class CmlTCUtil {
 			if (l != null)
 				for (PDefinition dd : l) {
 					if (dd instanceof ATypeDefinition)
-						info.addType(dd.getName(), dd);
+						cmlClassEnv.addType(dd.getName(), dd);
 //					else if (dd instanceof AExplicitCmlOperationDefinition)
 //						continue;
-					else if (dd instanceof AAssignmentDefinition)
-						continue;
+//					else if (dd instanceof AAssignmentDefinition)
+//						continue;
 					else {
 						
 						if (dd instanceof AExplicitCmlOperationDefinition &&
@@ -388,10 +388,10 @@ public class CmlTCUtil {
 								List<ILexNameToken> names = PPatternAssistantTC
 										.getAllVariableNames(p);
 								for (ILexNameToken n : names)
-									info.addVariable(n, dd);
+									cmlClassEnv.addVariable(n, dd);
 							}
 						} else
-							info.addVariable(name, dd);
+							cmlClassEnv.addVariable(name, dd);
 					}
 				}
 		}

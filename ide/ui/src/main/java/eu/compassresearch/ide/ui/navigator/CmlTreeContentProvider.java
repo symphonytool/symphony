@@ -137,6 +137,16 @@ public class CmlTreeContentProvider implements ITreeContentProvider
 			{
 				//a cml state def is just a list of instance variable defs
 				return ((AStateDefinition) n).getStateDefs().toArray();
+			}else if (parentElement instanceof ATypeDefinition)
+			{
+				ATypeDefinition typeDef = (ATypeDefinition) parentElement;
+
+				if (typeDef.getType() instanceof ARecordInvariantType)
+				{
+					ARecordInvariantType rType = (ARecordInvariantType) typeDef.getType();
+					return rType.getFields().toArray();
+				}
+
 			}
 
 			return new String[0];

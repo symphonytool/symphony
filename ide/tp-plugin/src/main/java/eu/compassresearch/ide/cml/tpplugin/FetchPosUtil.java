@@ -79,23 +79,14 @@ public class FetchPosUtil
 			}
 
 
-//			IProject proj = TPPluginUtils.getCurrentlySelectedProject();
 			if (project == null)
 			{
 				popErrorMessage("No project selected.");
 				return;
 			}
-			// Check project is built
-//			ICmlProject cmlProject = (ICmlProject) proj.getAdapter(ICmlProject.class);
-
-//			if (cmlProject == null)
-//			{
-//				return;
-//			}
 
 			if (CmlProjectUtil.typeCheck(shell, project))
 			{
-
 				ICmlModel model = project.getModel();
 				
 				CmlProofObligationList poList = model.getAttribute(POConstants.PO_REGISTRY_ID, CmlProofObligationList.class);
@@ -125,28 +116,12 @@ public class FetchPosUtil
 					String thyFileName = name.substring(0,name.length()-sourceUnit.getFile().getFileExtension().length())+".ity";
 					translateCmltoThy(sourceUnit,output.getFile(thyFileName));
 				}
-//				ArrayList<IResource> cmlFiles = TPPluginUtils.getAllCFilesInProject(proj);
 
-//				for (IResource cmlFile : cmlFiles)
-//				{
-//					// May return a null if the adapter fails to convert
-//					ICmlSourceUnit cmlSource = (ICmlSourceUnit) cmlFile.getAdapter(ICmlSourceUnit.class);
-//					CMLProofObligationList poList = registry.lookup(cmlSource.getSourceAst(), CMLProofObligationList.class);
-//					if (poList == null)
-//					{
-//						popErrorMessage("There are no Proof Oligations to discharge.");
-//						return;
-//					}
-//					getThyFromCML(cmlFile);
-
-//					IsabelleTheory ithy = registry.lookup(cmlSource.getSourceAst(), IsabelleTheory.class);
-	//			IsabelleTheory ithyDefault = new IsabelleTheo
 				IsabelleTheory ithy = model.getAttribute(ITpConstants.PLUGIN_ID, IsabelleTheory.class);
 
 					if (ithy == null )
 					{
 						IProject p = ((IProject) project.getAdapter(IProject.class));
-//						String cmlName = cmlFile.getName();
 						String thyName = p.getName()+"_POs";
 						ithy = new IsabelleTheory(session, thyName,output.getLocation().toString());
 						ithy.init();
@@ -160,11 +135,8 @@ public class FetchPosUtil
 
 					for (IProofObligation po : poList)
 					{
-						ithy.addThm(ithy.new IsabelleTheorem("po" + po.getName(), "True", "auto"));
+						ithy.addThm(ithy.new IsabelleTheorem("po" + po.getUniqueName(), "True", "auto"));
 					}
-
-//				}
-
 			}
 
 		} catch (Exception e)
@@ -185,11 +157,6 @@ public class FetchPosUtil
 	private void translateCmltoThy(ICmlSourceUnit source, IFile outputFile) throws IOException,
 			AnalysisException
 	{
-//		ICmlSourceUnit source = (ICmlSourceUnit) cmlFile.getAdapter(ICmlSourceUnit.class);
-
-//		String cmlLoc = cmlFile.getLocation().toString();
-//		String thyFile = cmlLoc.replaceAll("\\.cml", ".thy");
-
 		TPVisitor tpv = new TPVisitor();
 		source.getParseNode().apply(tpv);
 
@@ -222,12 +189,6 @@ public class FetchPosUtil
 
 		sb.append("\n" + "end");
 
-//		File thy = new File(thyFile);
-//		FileWriter fw = new FileWriter(thy);
-//		fw.write(sb.toString());
-//		fw.flush();
-//		fw.close();
-//		outputFile.getContents().
 		try{
 		outputFile.delete(true, null);
 		outputFile.create( new ByteArrayInputStream(sb.toString().getBytes()), true, new NullProgressMonitor());

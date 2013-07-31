@@ -443,6 +443,7 @@ public class ProofObligationGenerator extends
 
 		System.out.println(obligations.size() + " Proof Obligations generated");
 		System.out.println(obligations.toString());
+		obligations.renumber();
 		return obligations;
 	}
 

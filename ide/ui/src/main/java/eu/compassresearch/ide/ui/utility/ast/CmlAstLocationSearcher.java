@@ -12,6 +12,7 @@ import org.overture.ast.expressions.PExp;
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.node.INode;
 import org.overture.ast.statements.PStm;
+import org.overture.ast.types.AFieldField;
 import org.overture.ast.types.AFunctionType;
 import org.overture.ast.types.ARecordInvariantType;
 import org.overture.ide.core.IVdmElement;
@@ -284,21 +285,30 @@ public class CmlAstLocationSearcher extends DepthFirstAnalysisCMLAdaptor
 
 	public static int[] getNodeOffset(INode node)
 	{
+		ILexLocation loc = null;
 		if (node instanceof PDefinition)
 		{
-			return getNodeOffset(((PDefinition) node).getLocation());
+			loc =((PDefinition) node).getLocation();
 		} else if (node instanceof PAction)
 		{
-			return getNodeOffset(((PAction) node).getLocation());
+			loc =((PAction) node).getLocation();
 		} else if (node instanceof PProcess)
 		{
-			return getNodeOffset(((PProcess) node).getLocation());
+			loc = ((PProcess) node).getLocation();
 		} else if (node instanceof PExp)
 		{
-			return getNodeOffset(((PExp) node).getLocation());
+			loc = ((PExp) node).getLocation();
 		} else if (node instanceof PStm)
 		{
-			return getNodeOffset(((PStm) node).getLocation());
+			loc =((PStm) node).getLocation();
+		}else if(node instanceof AFieldField)
+		{
+			loc = ((AFieldField) node).getTagname().getLocation();
+		}
+		
+		if(loc!=null)
+		{
+			return getNodeOffset(loc);
 		}
 		return NO_LOCATION;
 	}

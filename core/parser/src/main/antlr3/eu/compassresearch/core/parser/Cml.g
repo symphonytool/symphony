@@ -393,6 +393,14 @@ classDefinition returns[ACmlClassDefinition def]
 					if(p instanceof AOperationsDefinition)
 						for(SCmlOperationDefinition op : ((AOperationsDefinition)p).getOperations())
 							op.setClassDefinition($def);
+					else if(p instanceof AClassInvariantDefinition)
+					{
+						p.setName($def.getName().getInvName(p.getLocation()));
+					}
+					else if(p instanceof AInitialDefinition)
+					{
+						p.setName(new LexNameToken("", $def.getName().getName() + "_initial",p.getLocation()));
+					}
 					else
 						p.setClassDefinition($def);
 					
@@ -1715,10 +1723,10 @@ classDefinitionBlock returns[List<? extends PDefinition> defs]
     | stateDefs                 { $defs = $stateDefs.defs.getStateDefs(); }
     | functionDefs              { $defs = $functionDefs.defs.getFunctionDefinitions(); }
     | operationDefs             { 
-    								List<PDefinition> opsDef = new LinkedList<PDefinition>();
-    								opsDef.add($operationDefs.defs);
-    								$defs = opsDef;
-    								//$defs = $operationDefs.defs.getOperations(); 
+    								//List<PDefinition> opsDef = new LinkedList<PDefinition>();
+    								//opsDef.add($operationDefs.defs);
+    								//$defs = opsDef;
+    							  $defs = $operationDefs.defs.getOperations(); 
     							}
     | 'initial' operationDef
         {

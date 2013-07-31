@@ -482,43 +482,6 @@ class TCActionVisitor extends
 		//that it can't access the class/process state is needed
 		CmlTypeCheckInfo actionEnv = cmlEnv.emptyScope();
 		
-		//Since we are in a empty scope we must add the process section except for the state
-		//since these will be added given the namesetexp
-		AActionProcess actionProcessNode = node.getAncestor(AActionProcess.class);
-		if(actionProcessNode != null)
-		{
-			for(PDefinition pdef : actionProcessNode.getDefinitionParagraphs())
-			{
-				//TODO this should be removed once the operations definition are unwrapped
-				if(pdef instanceof AOperationsDefinition)
-				{
-					for(PDefinition op : ((AOperationsDefinition) pdef).getOperations())
-					{
-						actionEnv.addVariable(op.getName(),op);
-					}
-				}
-				else if(pdef instanceof AActionsDefinition)
-				{
-					for(PDefinition action : ((AActionsDefinition) pdef).getActions())
-					{
-						actionEnv.addVariable(action.getName(),action);
-					}
-				}
-				else if(pdef instanceof AFunctionsDefinition)
-				{
-					for(PDefinition func : ((AFunctionsDefinition) pdef).getFunctionDefinitions())
-					{
-						actionEnv.addVariable(func.getName(),func);
-					}
-				}
-				//else if(pdef instanceof AAssignmentDefinition)
-				//	continue;
-				else
-					actionEnv.addVariable(pdef.getName(), pdef);
-			}
-		}
-		
-		
 		//CmlTypeCheckInfo actionEnv = cmlEnv.newScope();
 		actionEnv.scope = NameScope.NAMESANDANYSTATE;
 		// TODO RWL: What is the semantics of this?
@@ -777,6 +740,12 @@ class TCActionVisitor extends
 							ctorEnv.addVariable(ctorcand.getName(), ctorcand);
 						}
 					}
+				}
+			}
+			else if (clzDef instanceof AExplicitCmlOperationDefinition) {
+				AExplicitCmlOperationDefinition ctorcand = (AExplicitCmlOperationDefinition) clzDef;
+				if (ctorcand.getIsConstructor()) {
+					ctorEnv.addVariable(ctorcand.getName(), ctorcand);
 				}
 			}
 		}
@@ -2051,11 +2020,20 @@ class TCActionVisitor extends
 		if(node.getExpression() instanceof AApplyExp && ((AApplyExp)node.getExpression()).getRoot().getType() instanceof AOperationType)
 		{
 			AApplyExp applyExp = (AApplyExp)node.getExpression();
-			List<ILexIdentifierToken> ids = ((AUnresolvedPathExp)applyExp.getRoot()).getIdentifiers(); 
-			StringBuilder strBuilder = new StringBuilder();
-			for(Iterator<ILexIdentifierToken> iter = ids.iterator();iter.hasNext();)
-				strBuilder.append(iter.next() + (iter.hasNext() ? "." + iter.next() : ""));
-			ILexNameToken name = new LexNameToken("",strBuilder.toString(),applyExp.getRoot().getLocation());
+			
+			ILexNameToken name = null;
+			if(applyExp.getRoot() instanceof AUnresolvedPathExp)
+			{
+				List<ILexIdentifierToken> ids = ((AUnresolvedPathExp)applyExp.getRoot()).getIdentifiers(); 
+				StringBuilder strBuilder = new StringBuilder();
+				for(Iterator<ILexIdentifierToken> iter = ids.iterator();iter.hasNext();)
+					strBuilder.append(iter.next() + (iter.hasNext() ? "." + iter.next() : ""));
+				name = new LexNameToken("",strBuilder.toString(),applyExp.getRoot().getLocation());
+			}
+			else if(applyExp.getRoot() instanceof AVariableExp)
+			{
+				name = ((AVariableExp)applyExp.getRoot()).getName();
+			}
 			//ILexNameToken name = new LexNameToken("", ids.get(0) + "." + ids.get(1),applyExp.getRoot().getLocation());
 			//AUnresolvedPathExp prev = new AUnresolvedPathExp(ids.get(0).getLocation(), ids.subList(0, ids.size()-1));
 			//PObjectDesignator designator = convertUnresolvedPathExpToObjectdesignator(
@@ -2682,7 +2660,7 @@ class TCActionVisitor extends
 			org.overture.typechecker.TypeCheckInfo question)
 			throws AnalysisException {
 
-		ILexNameToken name = node.getName();
+		ILexNameToken name = node.getName().clone();
 
 		PDefinition callee = question.env.findName(name, NameScope.GLOBAL);
 
@@ -2705,7 +2683,7 @@ class TCActionVisitor extends
 		if (cmlEnv != null) {
 			if (callee == null)
 				callee = cmlEnv.lookup(name, PDefinition.class);
-			if (callee == null) {
+			if (callee == null && !argTypes.isEmpty()) {
 				name.setTypeQualifier(argTypes);
 				callee = cmlEnv.lookup(name, PDefinition.class);
 			}
