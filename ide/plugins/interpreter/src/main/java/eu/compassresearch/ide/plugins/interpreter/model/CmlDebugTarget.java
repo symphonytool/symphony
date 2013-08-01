@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 
 import org.eclipse.core.resources.IMarkerDelta;
 import org.eclipse.core.runtime.CoreException;
@@ -19,6 +20,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.DebugPlugin;
+import org.eclipse.debug.core.IBreakpointManager;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IBreakpoint;
 import org.eclipse.debug.core.model.IDebugTarget;
@@ -26,6 +28,7 @@ import org.eclipse.debug.core.model.IMemoryBlock;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IThread;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
@@ -42,6 +45,7 @@ import eu.compassresearch.core.interpreter.utility.messaging.Message;
 import eu.compassresearch.core.interpreter.utility.messaging.MessageCommunicator;
 import eu.compassresearch.core.interpreter.utility.messaging.MessageContainer;
 import eu.compassresearch.core.interpreter.utility.messaging.RequestMessage;
+import eu.compassresearch.ide.core.resources.ICmlProject;
 import eu.compassresearch.ide.plugins.interpreter.CmlDebugPlugin;
 import eu.compassresearch.ide.plugins.interpreter.ICmlDebugConstants;
 import eu.compassresearch.ide.plugins.interpreter.views.CmlEventHistoryView;
@@ -51,6 +55,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 
 	private ILaunch launch;
 	private IProcess process;
+	private ICmlProject project;
 
 	// threads
 	private List<IThread> threads;
@@ -135,6 +140,20 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 				@Override
 				public boolean handleMessage(CmlDbgStatusMessage message)
 				{
+					for (IBreakpoint b : getBreakpoints())
+					{
+						try
+						{
+							if (b.isEnabled())
+							{
+								System.out.println("Adding breakpoint: " + b);
+								//TODO communnicate the setting of the breakpoint to the interpreter
+							}
+						} catch (CoreException e)
+						{
+							CmlDebugPlugin.logError("Failed to set breakpoint", e);
+						}
+					}
 					return true;
 				}
 			});
@@ -279,11 +298,12 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 	}
 
 	public CmlDebugTarget(ILaunch launch, IProcess process,
-			int communicationPort) throws CoreException
+			ICmlProject project, int communicationPort) throws CoreException
 	{
 		super(null);
 		this.launch = launch;
 		this.process = process;
+		this.project = project;
 		cmlDebugTarget = this;
 
 		initialize(communicationPort);
@@ -315,17 +335,20 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 		try
 		{
 			requestAcceptor = new ServerSocket(requestPort);
-			//FIXME change to config
+			// FIXME change to config
 			int timeout = 5000;
-			if(CmlDebugPlugin.getDefault().getPreferenceStore().getBoolean(ICmlDebugConstants.PREFERENCES_REMOTE_DEBUG))
+			if (getLaunch().getLaunchConfiguration().getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_REMOTE_DEBUG,false))
 			{
 				timeout = 30000;
 			}
 			requestAcceptor.setSoTimeout(timeout);
-			
+
 			fRequestSocket = requestAcceptor.accept();
 			requestOutputStream = fRequestSocket.getOutputStream();
 			fRequestReader = new BufferedReader(new InputStreamReader(fRequestSocket.getInputStream()));
+		} catch (CoreException e)
+		{
+			CmlDebugPlugin.logError("Failed to obtain remote debug flag from launch config", e);
 		} finally
 		{
 			if (requestAcceptor != null)
@@ -414,6 +437,40 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 	{
 		// TODO Auto-generated method stub
 
+	}
+
+	public List<IBreakpoint> getBreakpoints()
+	{
+		IBreakpoint[] breakpoints = getBreakpointManager().getBreakpoints(getModelIdentifier());
+
+		List<IBreakpoint> targetBreakpoints = new Vector<IBreakpoint>();
+
+		for (int i = 0; i < breakpoints.length; i++)
+		{
+			try
+			{
+				final IBreakpoint breakpoint = breakpoints[i];
+				if (breakpoint.getMarker().getResource().getProject().getName().equals(project.getName()))
+				{
+					targetBreakpoints.add(breakpoint);
+				}
+
+			} catch (Exception e)
+			{
+				CmlDebugPlugin.logWarning(NLS.bind("ErrorSetupDeferredBreakpoints", e.getMessage()), e);
+				if (CmlDebugPlugin.DEBUG)
+				{
+					e.printStackTrace();
+				}
+			}
+		}
+		return targetBreakpoints;
+	}
+
+	// Utility methods
+	protected static IBreakpointManager getBreakpointManager()
+	{
+		return DebugPlugin.getDefault().getBreakpointManager();
 	}
 
 	@Override
@@ -581,6 +638,23 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 		DebugPlugin.getDefault().getBreakpointManager().removeBreakpointListener(this);
 		fireTerminateEvent();
 		connectionClosed();
+		
+		// take the process down
+		final IProcess p = getProcess();
+			// Debugging process is not answering, so terminating it
+			if (p != null && p.canTerminate())
+			{
+				try
+				{
+					p.terminate();
+				} catch (DebugException e)
+				{
+					CmlDebugPlugin.logError("Failed to take down the interpreter process", e);
+				}
+			}
 	}
+	
+	
+	
 
 }

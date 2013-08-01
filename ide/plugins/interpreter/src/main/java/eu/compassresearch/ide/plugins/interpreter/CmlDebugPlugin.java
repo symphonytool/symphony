@@ -15,6 +15,7 @@ public class CmlDebugPlugin extends AbstractUIPlugin
 	public static final int INTERNAL_ERROR = 120;
 
 	public static final String PLUGIN_ID = ICmlDebugConstants.PLUGIN_ID;
+	public static final boolean DEBUG = false;
 
 	public static IWorkbenchPage getActivePage()
 	{

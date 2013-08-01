@@ -11,7 +11,6 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.IDebugEventSetListener;
@@ -206,47 +205,48 @@ public class CmlChoiceMediator implements IDoubleClickListener,
 			IStructuredSelection selection = (IStructuredSelection) event.getSelection();
 
 			Choice choice = (Choice) selection.getFirstElement();
-			
-//			Path path = new Path(choice.getLocations().get(0).getFile().getAbsolutePath());
-//		    IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(path);
-			IWorkspace workspace= ResourcesPlugin.getWorkspace();    
-			IPath location= Path.fromOSString(choice.getLocations().get(0).getFile().getAbsolutePath()); 
-			IFile file= workspace.getRoot().getFileForLocation(location);
-			//It may be a linked resource
-			if(file == null && workspace.getRoot().findFilesForLocation(location).length > 0)
+
+			// Path path = new Path(choice.getLocations().get(0).getFile().getAbsolutePath());
+			// IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(path);
+			IWorkspace workspace = ResourcesPlugin.getWorkspace();
+			IPath location = Path.fromOSString(choice.getLocations().get(0).getFile().getAbsolutePath());
+			IFile file = workspace.getRoot().getFileForLocation(location);
+			// It may be a linked resource
+			if (file == null
+					&& workspace.getRoot().findFilesForLocation(location).length > 0)
 				file = workspace.getRoot().findFilesForLocation(location)[0];
-			IEditorPart editor= null;
+			IEditorPart editor = null;
 			try
 			{
-				editor	 = IDE.openEditor(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), file , true);
+				editor = IDE.openEditor(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), file, true);
 			} catch (PartInitException e)
 			{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 
-
-//			CmlEditor cmlEditor = (CmlEditor) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
+			// CmlEditor cmlEditor = (CmlEditor)
+			// PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
 			if (editor != null)
 			{
-				StyledText styledText = (StyledText) ((CmlEditor)editor).getAdapter(Control.class);
-				//clear the last selection
+				StyledText styledText = (StyledText) ((CmlEditor) editor).getAdapter(Control.class);
+				// clear the last selection
 				clearSelections(styledText);
 
 				for (ILexLocation loc : choice.getLocations())
 				{
 					int length = loc.getEndOffset() - loc.getStartOffset() + 1;
 					StyleRange sr = styledText.getStyleRangeAtOffset(loc.getStartOffset());
-					
-					//if nothing is found we try to look nearby 
+
+					// if nothing is found we try to look nearby
 					if (sr == null)
-						for (int i = loc.getStartOffset() - 50; i < loc.getStartOffset() + 50 ; i++)
+						for (int i = loc.getStartOffset() - 50; i < loc.getStartOffset() + 50; i++)
 						{
 							sr = styledText.getStyleRangeAtOffset(i);
-						   	if (sr != null)
-						   		break;
+							if (sr != null)
+								break;
 						}
-					
+
 					if (sr != null)
 					{
 						sr.length = length;

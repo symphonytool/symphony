@@ -1,4 +1,4 @@
-package eu.compassresearch.ide.plugins.interpreter.launch;
+package eu.compassresearch.ide.plugins.interpreter.launching;
 
 public enum CmlLaunchConfigurationErrorMessages
 {

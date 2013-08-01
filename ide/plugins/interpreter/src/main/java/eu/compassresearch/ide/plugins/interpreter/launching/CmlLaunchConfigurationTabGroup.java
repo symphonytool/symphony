@@ -1,4 +1,4 @@
-package eu.compassresearch.ide.plugins.interpreter.launch;
+package eu.compassresearch.ide.plugins.interpreter.launching;
 
 import java.util.List;
 import java.util.Vector;
@@ -21,7 +21,7 @@ public class CmlLaunchConfigurationTabGroup extends
 		tabs.add(new CmlMainLaunchConfigurationTab());
 		// tabs.add(getRuntimeTab());
 		// tabs.add(new VmArgumentsLaunchConfigurationTab());
-		// tabs.add(new VdmDevelopLaunchConfigurationTab());
+		 tabs.add(new CmlDevelopLaunchConfigurationTab());
 		// tabs.addAll(getAdditionalTabs());
 		// tabs.add(new EnvironmentTab());
 		// tabs.add(new SourceLookupTab());

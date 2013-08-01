@@ -1,4 +1,4 @@
-package eu.compassresearch.ide.plugins.interpreter.launch;
+package eu.compassresearch.ide.plugins.interpreter.launching;
 
 import java.util.List;
 
@@ -19,19 +19,6 @@ import eu.compassresearch.ide.ui.navigator.CmlUiLabelProvider;
 public class GlobalProcessSelectorDialog
 {
 	private DecorationgVdmLabelProvider labelProvider = new DecorationgVdmLabelProvider(new CmlUiLabelProvider());
-	// new LabelProvider()
-	// {
-	// @Override
-	// public String getText(Object element)
-	// {
-	//
-	// if (element instanceof AProcessDefinition)
-	// return ((AProcessDefinition) element).getName().getName();
-	// else
-	// return null;
-	// }
-	//
-	// };
 	private BaseWorkbenchContentProvider contentProvider = new BaseWorkbenchContentProvider()
 	{
 		@Override

@@ -29,7 +29,7 @@ import org.overture.ide.core.resources.IVdmSourceUnit;
 
 import eu.compassresearch.core.interpreter.debug.CmlDebugDefaultValues;
 import eu.compassresearch.core.interpreter.debug.CmlInterpreterLaunchConfigurationConstants;
-import eu.compassresearch.ide.plugins.interpreter.CmlDebugPlugin;
+import eu.compassresearch.ide.core.resources.ICmlProject;
 import eu.compassresearch.ide.plugins.interpreter.CmlUtil;
 import eu.compassresearch.ide.plugins.interpreter.ICmlDebugConstants;
 import eu.compassresearch.ide.plugins.interpreter.model.CmlDebugTarget;
@@ -55,6 +55,7 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 		}
 		try
 		{
+			ICmlProject project = (ICmlProject) getProject(configuration).getAdapter(ICmlProject.class);
 			// set launch encoding to UTF-8. Mainly used to set console encoding.
 			launch.setAttribute(DebugPlugin.ATTR_CONSOLE_ENCODING, "UTF-8");
 
@@ -70,7 +71,7 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 			{
 				DebugPlugin.getDefault().getBreakpointManager().setEnabled(true);
 				// Execute in a new JVM process
-				CmlDebugTarget target = new CmlDebugTarget(launch, launchExternalProcess(launch, JSONObject.toJSONString(configurationMap), "CML Debugger"), CmlDebugDefaultValues.PORT);
+				CmlDebugTarget target = new CmlDebugTarget(launch, launchExternalProcess(launch,configuration, JSONObject.toJSONString(configurationMap), "CML Debugger"), project, CmlDebugDefaultValues.PORT);
 				// target.setVdmProject(vdmProject);
 				launch.addDebugTarget(target);
 
@@ -86,7 +87,7 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 				// Execute in a new JVM process
 				// launchExternalProcess(launch,JSONObject.toJSONString(configurationMap),"CML Runner");
 				// //Execute in a new JVM process
-				CmlDebugTarget target = new CmlDebugTarget(launch, launchExternalProcess(launch, JSONObject.toJSONString(configurationMap), "CML Runner"), CmlDebugDefaultValues.PORT);
+				CmlDebugTarget target = new CmlDebugTarget(launch, launchExternalProcess(launch,configuration, JSONObject.toJSONString(configurationMap), "CML Runner"), project, CmlDebugDefaultValues.PORT);
 				launch.addDebugTarget(target);
 			}
 
@@ -151,7 +152,7 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 		});
 	}
 
-	private IProcess launchExternalProcess(ILaunch launch, String config,
+	private IProcess launchExternalProcess(ILaunch launch, ILaunchConfiguration configuration, String config,
 			String name) throws IOException, URISyntaxException, CoreException
 	{
 		if (isWindowsPlatform())
@@ -170,13 +171,13 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 		// Execute in a new JVM process
 		ProcessBuilder pb = new ProcessBuilder(commandArray);
 		Process process = null;
-		if(!CmlDebugPlugin.getDefault().getPreferenceStore().getBoolean(ICmlDebugConstants.PREFERENCES_REMOTE_DEBUG))
+		if (!configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_REMOTE_DEBUG, false))
 		{
 			process = pb.start();
-		}else
+		} else
 		{
-				System.out.println("Debugger Arguments:\n"
-						+ getArgumentString(commandArray.subList(4, commandArray.size())));
+			System.out.println("Debugger Arguments:\n"
+					+ getArgumentString(commandArray.subList(4, commandArray.size())));
 			process = Runtime.getRuntime().exec("java -version");
 		}
 		IProcess iprocess = DebugPlugin.newProcess(launch, process, name);
@@ -185,7 +186,7 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 
 		return iprocess;
 	}
-	
+
 	private String getArgumentString(List<String> args)
 	{
 		StringBuffer executeString = new StringBuffer();
