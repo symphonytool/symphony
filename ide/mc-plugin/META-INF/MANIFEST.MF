@@ -21,3 +21,7 @@ Bundle-ClassPath: .,
  jars/modelchecker.jar
 Import-Package: org.eclipse.core.filesystem,
  org.eclipse.ui.console
+Export-Package: eu.compassresearch.core.analysis.modelchecker.api,
+ eu.compassresearch.core.analysis.modelchecker.visitors,
+ eu.compassresearch.ide.cml.mcplugin,
+ eu.compassresearch.ide.cml.mcplugin.view

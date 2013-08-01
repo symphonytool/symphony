@@ -5,10 +5,12 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IResource;
-
-
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -18,7 +20,6 @@ import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
-
 
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.analysis.modelchecker.api.FormulaIntegrator;
@@ -92,15 +93,22 @@ public class MCHandler extends AbstractHandler {
 					        	
 					        	PSource sourceAst = Utilities.makeSourceFromFile(cmlFile.getLocation().toFile().getAbsolutePath());
 					        	
-								FormulaResult formulaOutput = getMCOutputFromSource(sourceAst,propertyToCheck);
+								FormulaResult formulaOutput = new FormulaResult();
+								MCJob job = new MCJob("Model checker progress", sourceAst, propertyToCheck);
+								formulaOutput = job.getFormulaResult();
+								job.schedule();
+								
 								MessageConsole mc = new MessageConsole("Model checker console", null);
 								ConsolePlugin.getDefault().getConsoleManager().addConsoles(new IConsole[] { mc });
 								this.console = mc.newMessageStream();
 								this.console.setActivateOnWrite(true);
+								this.console.write("File: "+sourceAst.toString()+"\n");
 								this.console.write("Result: " + (formulaOutput.isSatisfiable()?"SAT":"UNSAT") + "\n");
 								this.console.write("Base of Facts: \n");
 								this.console.write(formulaOutput.getFacts());
-								FormulaResultWrapper frw = new FormulaResultWrapper(formulaOutput);
+								FormulaResultWrapper frw = new FormulaResultWrapper(formulaOutput, propertyToCheck);
+								MCPluginDoStuff mcp = new MCPluginDoStuff(window.getActivePage().getActivePart().getSite(), cmlFile, frw);
+								mcp.run();
 								registry.store(sourceAst, frw);
 					        }else{
 					        	MessageDialog.openInformation(
@@ -137,7 +145,7 @@ public class MCHandler extends AbstractHandler {
 		
 		return property;
 	}
-	private FormulaResult getMCOutputFromSource(PSource source, String propertyToCheck) throws Exception {
+	/*private FormulaResult getMCOutputFromSource(PSource source, String propertyToCheck) throws Exception {
 
 		FormulaResult mcResult;
 		//StringBuilder sb = new StringBuilder();
@@ -163,7 +171,7 @@ public class MCHandler extends AbstractHandler {
 		//}
 		//return sb.toString();
 		return mcResult;
-	}
+	}*/
 	private void popErrorMessage(String message) {
 		MessageDialog.openInformation(null, "COMPASS",
 				"Could not generate Formula files.\n\n" + message);

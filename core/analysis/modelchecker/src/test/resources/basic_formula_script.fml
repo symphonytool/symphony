@@ -34,7 +34,7 @@ domain CSP_Syntax includes ShallowEmbbeding {
     SpecialEvents           ::= { tick, tau }.
     SigmaTickTau            ::= Sigma + SpecialEvents.
     Omega                   ::= {omega}.
-    BasicProcess            ::= {Stop, Skip}.
+    BasicProcess            ::= {Stop, Skip, Chaos, Div}.
     primitive Prefix        ::= (ev : Sigma, proc : CSPProcess).
     primitive iChoice       ::= (lProc : CSPProcess, rProc : CSPProcess).
     primitive eChoice       ::= (lProc : CSPProcess, rProc : CSPProcess).
@@ -154,7 +154,7 @@ domain CSP_Semantics extends CSP_Syntax {
 
 domain CSP_Properties extends CSP_Semantics {
     // Deadlock property
-    Deadlock := trans(_, _, L), fail trans(L, _, _), fail trans(_, tick, L).
+    Deadlock := trans(_, ev, State(L)), fail trans(State(L), _, _), ev!=tick, L != Div.
     Deadlock := GivenProc(name),ProcDef(name,params,body),fail trans(State(body),_,_).
 
     
@@ -164,7 +164,8 @@ domain CSP_Properties extends CSP_Semantics {
     tauPath(P,Q) :- trans (P,tau,Q).
     tauPath(P,Q) :- tauPath(P,S),tauPath(S,Q).
     Livelock := tauPath(L,L). 
-
+	Livelock := trans(L,ev,Sf),reachable(Sf),Sf=State(Div).
+	
     // Nondeterminism property
     accepts    ::= (iS:State,ev:SigmaTickTau).
     accepts(P, ev) :- trans(P,ev,_), ev != tau.
@@ -183,7 +184,7 @@ domain CSP_Properties extends CSP_Semantics {
 						accepts(S1,ev), ev!= tau, fail accepts(S2,ev),
 						reachable(S1),reachable(S2).
 
-	Nondeterminism := Livelock.
+	//Nondeterminism := Livelock.
   
 
 }
