@@ -71,7 +71,7 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 			{
 				DebugPlugin.getDefault().getBreakpointManager().setEnabled(true);
 				// Execute in a new JVM process
-				CmlDebugTarget target = new CmlDebugTarget(launch, launchExternalProcess(launch,configuration, JSONObject.toJSONString(configurationMap), "CML Debugger"), project, CmlDebugDefaultValues.PORT);
+				CmlDebugTarget target = new CmlDebugTarget(launch, launchExternalProcess(launch, configuration, JSONObject.toJSONString(configurationMap), "CML Debugger"), project, CmlDebugDefaultValues.PORT);
 				// target.setVdmProject(vdmProject);
 				launch.addDebugTarget(target);
 
@@ -87,7 +87,7 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 				// Execute in a new JVM process
 				// launchExternalProcess(launch,JSONObject.toJSONString(configurationMap),"CML Runner");
 				// //Execute in a new JVM process
-				CmlDebugTarget target = new CmlDebugTarget(launch, launchExternalProcess(launch,configuration, JSONObject.toJSONString(configurationMap), "CML Runner"), project, CmlDebugDefaultValues.PORT);
+				CmlDebugTarget target = new CmlDebugTarget(launch, launchExternalProcess(launch, configuration, JSONObject.toJSONString(configurationMap), "CML Runner"), project, CmlDebugDefaultValues.PORT);
 				launch.addDebugTarget(target);
 			}
 
@@ -152,8 +152,9 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 		});
 	}
 
-	private IProcess launchExternalProcess(ILaunch launch, ILaunchConfiguration configuration, String config,
-			String name) throws IOException, URISyntaxException, CoreException
+	private IProcess launchExternalProcess(ILaunch launch,
+			ILaunchConfiguration configuration, String config, String name)
+			throws IOException, URISyntaxException, CoreException
 	{
 		if (isWindowsPlatform())
 		{

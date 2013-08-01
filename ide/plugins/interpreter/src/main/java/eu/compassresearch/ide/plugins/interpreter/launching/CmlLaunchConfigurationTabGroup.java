@@ -21,7 +21,7 @@ public class CmlLaunchConfigurationTabGroup extends
 		tabs.add(new CmlMainLaunchConfigurationTab());
 		// tabs.add(getRuntimeTab());
 		// tabs.add(new VmArgumentsLaunchConfigurationTab());
-		 tabs.add(new CmlDevelopLaunchConfigurationTab());
+		tabs.add(new CmlDevelopLaunchConfigurationTab());
 		// tabs.addAll(getAdditionalTabs());
 		// tabs.add(new EnvironmentTab());
 		// tabs.add(new SourceLookupTab());

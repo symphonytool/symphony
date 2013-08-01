@@ -37,6 +37,7 @@ import eu.compassresearch.core.interpreter.utility.messaging.CmlRequest;
 import eu.compassresearch.core.interpreter.utility.messaging.RequestMessage;
 import eu.compassresearch.core.interpreter.utility.messaging.ResponseMessage;
 import eu.compassresearch.ide.plugins.interpreter.ICmlDebugConstants;
+import eu.compassresearch.ide.plugins.interpreter.protocol.CmlCommunicationManager;
 import eu.compassresearch.ide.plugins.interpreter.views.CmlEventOptionView;
 import eu.compassresearch.ide.ui.editor.core.CmlEditor;
 
@@ -48,10 +49,13 @@ public class CmlChoiceMediator implements IDoubleClickListener,
 	final CmlDebugTarget cmlDebugTarget;
 	RequestMessage requestMessage = null;
 	private List<StyleRange> lastSelectedRanges = new LinkedList<StyleRange>();
+	CmlCommunicationManager communication;
 
-	public CmlChoiceMediator(CmlDebugTarget cmlDebugTarget)
+	public CmlChoiceMediator(CmlDebugTarget cmlDebugTarget,
+			CmlCommunicationManager cmlCommunicationManager)
 	{
 		this.cmlDebugTarget = cmlDebugTarget;
+		this.communication = cmlCommunicationManager;
 
 		DebugPlugin.getDefault().addDebugEventListener(new IDebugEventSetListener()
 		{
@@ -160,7 +164,7 @@ public class CmlChoiceMediator implements IDoubleClickListener,
 
 	public void selectChoice(Choice event)
 	{
-		this.cmlDebugTarget.sendMessage(new ResponseMessage(requestMessage.getRequestId(), CmlRequest.CHOICE, event));
+		communication.sendMessage(new ResponseMessage(requestMessage.getRequestId(), CmlRequest.CHOICE, event));
 		// setChoiceOptions(null,null);
 		finish();
 	}

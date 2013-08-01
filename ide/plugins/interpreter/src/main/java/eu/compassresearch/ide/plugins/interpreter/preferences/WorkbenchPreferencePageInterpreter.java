@@ -21,7 +21,8 @@ public class WorkbenchPreferencePageInterpreter extends
 	@Override
 	protected void createFieldEditors()
 	{
-//		addField(new BooleanFieldEditor(ICmlDebugConstants.PREFERENCES_REMOTE_DEBUG, "Enable remote debug", getFieldEditorParent()));
+		// addField(new BooleanFieldEditor(ICmlDebugConstants.PREFERENCES_REMOTE_DEBUG, "Enable remote debug",
+		// getFieldEditorParent()));
 	}
 
 	@Override

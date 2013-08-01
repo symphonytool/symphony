@@ -114,7 +114,7 @@ public class CmlDevelopLaunchConfigurationTab extends
 		{
 			if (CmlDebugPlugin.DEBUG)
 			{
-				CmlDebugPlugin.logError( "Error in develop launch configuration tab", e);
+				CmlDebugPlugin.logError("Error in develop launch configuration tab", e);
 			}
 		}
 
