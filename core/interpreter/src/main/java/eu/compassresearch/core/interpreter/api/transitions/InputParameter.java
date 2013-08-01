@@ -11,7 +11,8 @@ public class InputParameter extends CommunicationParameter {
 	private AReadCommunicationParameter node;
 
 	public InputParameter(AReadCommunicationParameter node) {
-		super(new AnyValue(),node);
+		//TODO The AnyValue should be set to the actual type
+		super(new AnyValue(null),node);
 		this.node = node;
 	}
 	

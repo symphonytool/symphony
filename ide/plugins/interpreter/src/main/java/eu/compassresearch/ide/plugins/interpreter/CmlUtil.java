@@ -6,6 +6,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Vector;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
@@ -17,6 +18,7 @@ import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
+import org.overture.ast.analysis.AnalysisException;
 import org.overture.ide.core.ICoreConstants;
 
 import eu.compassresearch.ast.definitions.AProcessDefinition;
@@ -32,10 +34,18 @@ public final class CmlUtil
 		if (projectSources.isEmpty())
 			return new LinkedList<AProcessDefinition>();
 
-		GlobalEnvironmentBuilder builder = new GlobalEnvironmentBuilder(projectSources);
+		try{
+			GlobalEnvironmentBuilder builder = new GlobalEnvironmentBuilder(projectSources);
 
-		return builder.getGlobalProcesses();
-
+			return builder.getGlobalProcesses();
+		}
+		catch(AnalysisException e)
+		{
+			e.printStackTrace();
+		}
+		
+		return new Vector<AProcessDefinition>();
+		
 	}
 
 	public static List<String> collectJars(String bundleId)

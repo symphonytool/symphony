@@ -1,5 +1,6 @@
 package eu.compassresearch.core.interpreter;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.LinkedList;
@@ -8,11 +9,8 @@ import java.util.List;
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
-import org.overture.ast.definitions.AClassClassDefinition;
 import org.overture.ast.definitions.PDefinition;
-import org.overture.ast.types.AClassType;
 
-import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.PSource;
@@ -26,8 +24,12 @@ public class CmlParserUtil {
 		boolean parseOK = false;
 		
 		ANTLRInputStream in = null;
+		File file = null;
 		if (source instanceof AFileSource)
+		{
 			in = new ANTLRInputStream(new FileInputStream(((AFileSource)source).getFile()));
+			file = ((AFileSource) source).getFile();
+		}
 
 		if (source instanceof AInputStreamSource)
 			in = new ANTLRInputStream(((AInputStreamSource)source).getStream());
@@ -38,6 +40,7 @@ public class CmlParserUtil {
 		CmlLexer lexer = new CmlLexer(in);
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
 		CmlParser parser = new CmlParser(tokens);
+		parser.sourceFileName = file.getAbsolutePath();
 
 		try {
 			List<PDefinition> sourceDefs = parser.source();

@@ -137,6 +137,7 @@ public class PogPluginDoStuff
 	
 	public static void redrawPos(ICmlProject proj, IProofObligationList polist)
 	{
+		//FIXME Check if the data in the viewer table is still not being updated!
 		final IProofObligationList pol = polist;
 		final ICmlProject project = proj;
 		Display.getDefault().asyncExec(new Runnable()
