@@ -82,6 +82,58 @@
             </menu>
       </menuContribution>
    </extension>
-   
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+			id="eu.compassresearch.ide.ui.category"
+			name="COMPASS">
+      </category>
+      <view
+            category="eu.compassresearch.ide.ui.category"
+            class="eu.compassresearch.ide.cml.mcplugin.view.MCListView"
+            icon="icons/mc.png"
+            id="eu.compassresearch.ide.cml.mcplugin.view.mc-listview"
+            name="CML MC List">
+      </view>
+      <view
+               id="eu.compassresearch.ide.cml.mcplugin.view.progressview"
+               name="MC Progress View"
+               class="org.eclipse.ui.ExtensionFactory:progressView">
+         </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="eu.compassresearch.ide.cml.mcplugin.MCPerspectiveFactory"
+            icon="icons/mc.png"
+            id="eu.compassresearch.ide.mc-plugin.perspective"
+            name="MC">
+            <description>
+               CML Model Checker Perspective
+            </description>
+      </perspective>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+		<perspectiveExtension
+            targetID="eu.compassresearch.ide.mc-plugin.perspective">
+			<view
+               id="eu.compassresearch.ide.cml.mcplugin.view.mc-listview"
+               minimized="false"
+               ratio="0.50"
+               relationship="bottom"
+               relative="org.eclipse.ui.views.ContentOutline"
+               visible="true">
+			</view>
+			<view
+               id="eu.compassresearch.ide.cml.mcplugin.view.progressview"
+               minimized="false"
+               ratio="0.80"
+               relationship="bottom"
+               relative="eu.compassresearch.ide.ui.CmlNavigator"
+               visible="true">
+			</view>
+		</perspectiveExtension>
+	</extension>
 
 </plugin>

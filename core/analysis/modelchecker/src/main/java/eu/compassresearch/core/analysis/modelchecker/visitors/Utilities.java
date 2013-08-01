@@ -28,6 +28,10 @@ public class Utilities {
 	public static final String DEADLOCK_PROPERTY = "Deadlock";
 	public static final String LIVELOCK_PROPERTY = "Livelock";
 	public static final String NONDETERMINISM_PROPERTY = "Nondeterminism";
+	public static final int EXTERNAL_CHOICE = 1;
+	public static final int INTERNAL_CHOICE = 2;
+	public static final int SEQUENTIAL_COMPOSITION = 3;
+	public static final String LOCAL_DEFINITIONS_KEY = "LOCAL_DEFINITIONS";
 	
 	
 	private static boolean parseWithANTLR(PSource sourceIn) throws IOException

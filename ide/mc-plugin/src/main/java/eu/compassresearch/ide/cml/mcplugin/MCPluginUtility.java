@@ -12,10 +12,30 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.ui.IWorkbenchSite;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.WorkbenchException;
 
 public class MCPluginUtility {
+	
+	private IWorkbenchSite site;
+	
+	public MCPluginUtility(IWorkbenchSite s) {
+		this.site = s;
+	}
+	
+	public void openMcviewPerspective()
+	{
+		try
+		{
+			PlatformUI.getWorkbench().showPerspective(MCConstants.MC_PERSPECTIVE_ID, site.getWorkbenchWindow());
+		} catch (WorkbenchException e)
+		{
+
+			e.printStackTrace();
+		}
+	}
 
 	public static ArrayList<IResource> getAllCFilesInProject(IProject project) {
 		ArrayList<IResource> allCFiles = new ArrayList<IResource>();
