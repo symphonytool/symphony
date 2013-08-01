@@ -55,8 +55,8 @@ public class PogPluginDoStuff {
 	}
 
 	private void popErrorMessage(String message) {
-		MessageDialog.openInformation(window.getShell(), "COMPASS",
-				"Could not generate POs.\n\n" + message);
+		MessageDialog.openError(window.getShell(), "COMPASS POG",
+				"Could not generate Proof Obligations.\n\n" + message);
 	}
 
 	private void addPOsToRegistry(ICmlModel model) {
@@ -68,12 +68,12 @@ public class PogPluginDoStuff {
 
 		} catch (AnalysisException e) {
 			// FIXME ADD Submit to bug tracker.
-			popErrorMessage("Internal POG error. Please submit a bug report.");
+			popErrorMessage("Internal POG error. Please submit a bug report at: \n\nhttp://sourceforge.net/p/compassresearch/tickets/new/");
 			e.printStackTrace();
 			return;
 		}
 		model.setAttribute(POConstants.PO_REGISTRY_ID, poList);
-		posInRegistry=true;
+		posInRegistry = true;
 	}
 
 	public static void redrawPos(ICmlProject proj, IProofObligationList polist) {
