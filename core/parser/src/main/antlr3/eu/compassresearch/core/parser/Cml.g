@@ -48,6 +48,7 @@ tokens {
 
 @lexer::header {
 package eu.compassresearch.core.parser;
+import eu.compassresearch.core.parser.CmlParserError;
 }
 @parser::header {
 package eu.compassresearch.core.parser;
@@ -63,6 +64,7 @@ import java.util.ListIterator;
 import java.util.LinkedList;
 
 import static org.overture.ast.lex.Dialect.VDM_PP;
+import org.overture.ast.assistant.definition.PDefinitionAssistant;
 import org.overture.ast.factory.AstFactory;
 import org.overture.ast.definitions.*;
 import org.overture.ast.expressions.*;
@@ -100,12 +102,56 @@ import eu.compassresearch.ast.types.*;
 // for the main() method
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CommonTokenStream;
+
+
+
 }
 
-// @lexer::members {
-// }
+
+
+@lexer::members {
+
+public String sourceFileName = "";
+private List<CmlParserError> errors = new java.util.LinkedList<CmlParserError>();
+@Override
+public void displayRecognitionError(String[] tokenNames,
+                                        RecognitionException e) {
+                                        //TODO see http://www.antlr.org/wiki/display/ANTLR3/Error+reporting+and+recovery
+        //String hdr = getErrorHeader(e);
+		String msg = getErrorMessage(e, tokenNames);
+		
+		errors.add(new CmlParserError(msg,e,sourceFileName,getLine(),getCharPositionInLine(),getCharIndex(),getCharIndex()));
+    }	
+    
+      public List<CmlParserError> getErrors() {
+        return errors;
+    }
+
+}
 
 @parser::members {
+
+private List<CmlParserError> errors = new java.util.LinkedList<CmlParserError>();
+@Override
+public void displayRecognitionError(String[] tokenNames,
+                                        RecognitionException e) {
+                                        //TODO see http://www.antlr.org/wiki/display/ANTLR3/Error+reporting+and+recovery
+        //String hdr = getErrorHeader(e);
+		String msg = getErrorMessage(e, tokenNames);
+		if (e.token == null)
+		{
+			errors.add(new CmlParserError( msg, e,sourceFileName, e.line, e.charPositionInLine, e.index, e.index));
+		} else
+		{
+			errors.add(new CmlParserError( msg, e,sourceFileName, e.token));
+		}
+    }	
+    
+      public List<CmlParserError> getErrors() {
+        return errors;
+    }
+
+
 public String sourceFileName = "";
 
 public String getErrorMessage(RecognitionException e, String[] tokenNames) {
@@ -120,19 +166,19 @@ public String getErrorMessage(RecognitionException e, String[] tokenNames) {
     } else {
         msg = super.getErrorMessage(e, tokenNames);
     }
-    return stack+" "+msg;
+    return /*stack+" "+*/msg;
 }
 public String getTokenErrorDisplay(CommonToken t) {
     return t.toString();
 }
 
-protected Object recoverFromMismatchedToken(IntStream input, int ttype, BitSet follow) throws RecognitionException {
-    throw new MismatchedTokenException(ttype, input);
-}
+//protected Object recoverFromMismatchedToken(IntStream input, int ttype, BitSet follow) throws RecognitionException {
+//    throw new MismatchedTokenException(ttype, input);
+//}
 
-public Object recoverFromMismatchedSet(IntStream input, RecognitionException e, BitSet follow) throws RecognitionException {
-    throw e;
-}
+//public Object recoverFromMismatchedSet(IntStream input, RecognitionException e, BitSet follow) throws RecognitionException {
+//    throw e;
+//}
 
 private DecimalFormat decimalFormatParser = new DecimalFormat();
 public static final String CML_LANG_VERSION = "CML M16";
@@ -327,8 +373,10 @@ public static void main(String[] args) throws Exception {
 } // end @parser::members
 
 @rulecatch {
-catch (RecognitionException e) {
-    throw e;
+catch (RecognitionException re) {
+	reportError(re);
+	//recover(input,re);
+    throw re;
 }
 }
 
@@ -340,7 +388,7 @@ catch (RecognitionException e) {
 
 source returns[List<PDefinition> defs]
 @init { $defs = new ArrayList<PDefinition>(); }
-    : ( programParagraph { $defs.add($programParagraph.defs); } )+ EOF
+    : ( programParagraph { $defs.add($programParagraph.defs); } )* EOF
     ;
 
 programParagraph returns[PDefinition defs]
@@ -362,11 +410,55 @@ classDefinition returns[ACmlClassDefinition def]
              */
             $def = new ACmlClassDefinition(); // FIXME
             $def.setName(new LexNameToken("", $id.getText(), extractLexLocation($id)));
+            
+            //default values -- Added by AKM
+            $def.setAccess(getDefaultAccessSpecifier(false, false, extractLexLocation($start)));
+            $def.setUsed(true);
+            $def.setTypeChecked(false);
+        	$def.setGettingInvDefs(false);
+			$def.setHasContructors(false);
+			$def.setGettingInheritable(false);
+			$def.setSupernames(new ArrayList<ILexNameToken>());
+			$def.setSuperDefs(new ArrayList<SClassDefinition>());
+			$def.setSupertypes(new ArrayList<PType>());
+			$def.setSuperInheritedDefinitions(new ArrayList<PDefinition>());
+			$def.setLocalInheritedDefinitions(new ArrayList<PDefinition>());
+			$def.setAllInheritedDefinitions(new ArrayList<PDefinition>());
+			$def.setIsAbstract(false);
+            
             /* FIXME --- need to set the parent's name once we've
              * settled on how that works
              */
             // $def.setParent(new LexNameToken("", $parent.getText(), extractLexLocation($parent)));
-            $def.setBody($classDefinitionBlockOptList.defs);
+            $def.setDefinitions($classDefinitionBlockOptList.defs);
+            
+            if($classDefinitionBlockOptList.defs!=null)
+			{
+				for (PDefinition p : $classDefinitionBlockOptList.defs)
+				{
+					p.parent($def);
+					if(p instanceof AOperationsDefinition)
+						for(SCmlOperationDefinition op : ((AOperationsDefinition)p).getOperations())
+							op.setClassDefinition($def);
+					else if(p instanceof AClassInvariantDefinition)
+					{
+						p.setName($def.getName().getInvName(p.getLocation()));
+					}
+					else if(p instanceof AInitialDefinition)
+					{
+						p.setName(new LexNameToken("", $def.getName().getName() + "_initial",p.getLocation()));
+					}
+					else
+						p.setClassDefinition($def);
+					
+				}
+			}
+		
+			// Classes are all effectively public types
+			PDefinitionAssistant.setClassDefinition($def.getDefinitions(),$def);
+			
+			//others
+			//$def.setSettingHierarchy(ClassDefinitionSettings.UNSET);
         }
     ;
 
@@ -1669,21 +1761,28 @@ namesetDef returns [ANamesetDefinition def]
 
 classDefinitionBlockOptList returns[List<PDefinition> defs]
 @init { $defs = new ArrayList<PDefinition>(); }
-    : ( classDefinitionBlock { $defs.add($classDefinitionBlock.defs); } )*
+    : ( classDefinitionBlock { $defs.addAll($classDefinitionBlock.defs); } )*
     ;
 
-classDefinitionBlock returns[PDefinition defs]
-    : typeDefs                  { $defs = $typeDefs.defs; }
-    | valueDefs                 { $defs = $valueDefs.defs; }
-    | stateDefs                 { $defs = $stateDefs.defs; }
-    | functionDefs              { $defs = $functionDefs.defs; }
-    | operationDefs             { $defs = $operationDefs.defs; }
+classDefinitionBlock returns[List<? extends PDefinition> defs]
+    : typeDefs                  { $defs = $typeDefs.defs.getTypes(); }
+    | valueDefs                 { $defs = $valueDefs.defs.getValueDefinitions(); }
+    | stateDefs                 { $defs = $stateDefs.defs.getStateDefs(); }
+    | functionDefs              { $defs = $functionDefs.defs.getFunctionDefinitions(); }
+    | operationDefs             { 
+    								//List<PDefinition> opsDef = new LinkedList<PDefinition>();
+    								//opsDef.add($operationDefs.defs);
+    								//$defs = opsDef;
+    							  $defs = $operationDefs.defs.getOperations(); 
+    							}
     | 'initial' operationDef
         {
             AInitialDefinition def = new AInitialDefinition();
             def.setOperationDefinition($operationDef.def);
             def.setLocation(extractLexLocation(extractLexLocation($classDefinitionBlock.start), $operationDef.def.getLocation()));
-            $defs = def;
+            LinkedList<PDefinition> dl = new LinkedList<PDefinition>();
+            dl.add(def);
+            $defs = dl;
         }
     ;
 
@@ -2178,7 +2277,7 @@ operationBody returns[PAction body]
     ;
 
 
-typeDefs returns[PDefinition defs]
+typeDefs returns[ATypesDefinition defs]
 @init {
     List<ATypeDefinition> typeDefList = new ArrayList<ATypeDefinition>();
     ATypeDefinition last = null;
@@ -3337,7 +3436,7 @@ WHITESPACE
     ;
 
 LINECOMMENT
-    : ( '//' | '--' ) .* '\n' { $channel=HIDDEN; }
+    : ( '//' | '--' ) ~('\r'|'\n')*  { $channel=HIDDEN; }
     ;
 
 MLINECOMMENT

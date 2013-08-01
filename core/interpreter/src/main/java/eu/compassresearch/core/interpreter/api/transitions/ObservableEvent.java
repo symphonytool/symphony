@@ -12,7 +12,7 @@ public interface ObservableEvent extends CmlTransition{
 	
 	/**
 	 * Two Observable events are comparable if the are occurring on the same channel and
-	 * the sources of one must either be a subset of the other or equal to.
+	 * the sources of one must either be a subset of the other.
 	 * 
 	 * Values do not have to be identical
 	 * @param other

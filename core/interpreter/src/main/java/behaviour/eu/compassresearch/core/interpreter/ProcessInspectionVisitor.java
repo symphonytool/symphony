@@ -122,7 +122,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 				}
 
 				//Create a temporary context to evaluate the definitions in
-				Context tmpContext = CmlContextFactory.newContext(node.getLocation(),"tmp",null);
+				Context tmpContext = CmlContextFactory.newContext(node.getLocation(),"Action Process definitions evaluation context",null);
 
 				//Evaluate and add paragraph definitions and add the result to the state
 				for (PDefinition def : node.getDefinitionParagraphs())

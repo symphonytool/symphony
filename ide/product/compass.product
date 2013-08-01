@@ -65,14 +65,7 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
    </plugins>
 
    <features>
-      <feature id="eu.compassresearch.ide.features.core"/>
       <feature id="eu.compassresearch.ide.features.rcp"/>
-      <feature id="eu.compassresearch.ide.features.plugins.interpreter"/>
-      <feature id="eu.compassresearch.ide.features.plugins.pog"/>
-      <feature id="eu.compassresearch.ide.features.plugins.rtt"/>
-      <feature id="eu.compassresearch.ide.features.plugins.security"/>
-      <feature id="eu.compassresearch.ide.features.plugins.tp"/>
-	  <feature id="eu.compassresearch.ide.features.plugins.mc"/>
       <feature id="org.eclipse.equinox.p2.core.feature"/>
       <feature id="org.eclipse.platform"/>
       <feature id="org.eclipse.rcp"/>

@@ -3,6 +3,7 @@ package eu.compassresearch.core.interpreter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.node.INode;
@@ -32,10 +33,20 @@ public class ConsoleSelectionStrategy implements
 SelectionStrategy {
 	
 	Scanner scanIn = new Scanner(System.in);
-
-	@Override
-	public CmlTransition select(CmlAlphabet availableChannelEvents) {
-
+	private RandomSelectionStrategy rndSelect = new RandomSelectionStrategy();
+	
+	private boolean isSystemSelect(CmlAlphabet availableChannelEvents)
+	{
+		return availableChannelEvents.getSilentTransitions().size() > 0;
+	}
+	
+	private CmlTransition systemSelect(CmlAlphabet availableChannelEvents)
+	{
+		return rndSelect.select(new CmlAlphabet((Set)availableChannelEvents.getSilentTransitions()));
+	}
+	
+	private CmlTransition userSelect(CmlAlphabet availableChannelEvents)
+	{
 		System.out.println("Available events : ");
 		List<CmlTransition> events = new ArrayList<CmlTransition>(availableChannelEvents.getAllEvents());
 
@@ -66,6 +77,18 @@ SelectionStrategy {
 		return chosenEvent;
 	}
 
+	@Override
+	public CmlTransition select(CmlAlphabet availableChannelEvents) {
+
+		//At this point we don't want the internal transition to propagate 
+		//to the user, so we randomly choose all the possible internal transitions
+		//before we let anything through to the user
+		if(isSystemSelect(availableChannelEvents))
+			return systemSelect(availableChannelEvents);
+		else
+			return userSelect(availableChannelEvents);
+	}
+	
 	class ValueParser extends QuestionAnswerCMLAdaptor<ChannelEvent,Value>
 	{
 		@Override

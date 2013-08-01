@@ -9,6 +9,7 @@ import java.util.Set;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.types.AIntNumericBasicType;
 import org.overture.ast.types.ANamedInvariantType;
+import org.overture.ast.types.AProductType;
 import org.overture.ast.types.AQuoteType;
 import org.overture.ast.types.AUnionType;
 import org.overture.ast.types.PType;
@@ -47,7 +48,7 @@ class CommunicationEvent extends AbstractChannelEvent implements ObservableEvent
 		this.value = value;
 	}
 	
-	//Converts communication parameters int the corresponding value
+	//Converts communication parameters into their corresponding value
 	private void initValueFromComParams(List<CommunicationParameter> params)
 	{
 		if(params != null)
@@ -64,8 +65,18 @@ class CommunicationEvent extends AbstractChannelEvent implements ObservableEvent
 				value = new TupleValue(argvals);
 			}
 		}
+		//if this is instantiated from a channelexpression and the channel type is a Tuple
+		//the it must be a tuple with anyvalues
+		else if(((AChannelType)channel.getType()).getType() instanceof AProductType)
+		{
+			ValueList argvals = new ValueList();
+			AProductType productType = (AProductType)((AChannelType)channel.getType()).getType();
+			for(PType t : productType.getTypes())
+				argvals.add(new AnyValue(t));
+			value = new TupleValue(argvals);
+		}
 		else
-			value = new AnyValue();
+			value = new AnyValue(new AChannelType());
 	}
 	
 	@Override 
@@ -142,8 +153,12 @@ class CommunicationEvent extends AbstractChannelEvent implements ObservableEvent
 		sources.addAll(this.getEventSources());
 		sources.addAll(syncEvent.getEventSources());
 		
-		return new CommunicationEvent(sources, channel,
-				AbstractValueInterpreter.meet(this.getValue(), ((ChannelEvent)syncEvent).getValue()));
+		Value meetValue = AbstractValueInterpreter.meet(this.getValue(), ((ChannelEvent)syncEvent).getValue()); 
+		if(meetValue != null)
+			return new CommunicationEvent(sources, channel,meetValue);
+		else
+			//the events are not comparable!
+			return null;
 	}
 
 	@Override

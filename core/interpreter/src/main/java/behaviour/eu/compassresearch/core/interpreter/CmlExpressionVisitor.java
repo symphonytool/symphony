@@ -9,7 +9,9 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.intf.lex.ILexNameToken;
+import org.overture.ast.util.definitions.ClassList;
 import org.overture.interpreter.eval.DelegateExpressionEvaluator;
+import org.overture.interpreter.runtime.ClassInterpreter;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.VdmRuntime;
 import org.overture.interpreter.scheduler.BasicSchedulableThread;
@@ -36,7 +38,13 @@ import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
 class CmlExpressionVisitor extends QuestionAnswerCMLAdaptor<Context, Value>
 {
 	static{
-      VdmRuntime.initialize(new CmlExpressionVisitor());
+		VdmRuntime.initialize(new CmlExpressionVisitor());
+		try {
+			new ClassInterpreter(new ClassList());
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	class VdmExpressionEvaluator extends DelegateExpressionEvaluator{

@@ -150,8 +150,8 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 						public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
 								throws AnalysisException {
 							//first find the operation value in the context
-							CmlOperationValue opVal = (CmlOperationValue)question.check(node.getName()); 
-
+							CmlOperationValue opVal = (CmlOperationValue)lookupName(node.getName(),question); 
+							
 							//evaluate all the arguments
 							ValueList argValues = new ValueList();
 							for (PExp arg: node.getArgs())
@@ -163,8 +163,15 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 							// that TransactionValues pass the local "new" value to the far end.
 							ValueList constValues = argValues.getConstant();
 
+							//find the self object
+							ObjectValue self = null;
+							if(opVal.getSelf() != null)
+								self = opVal.getSelf();
+							else
+								self = question.getSelf();
+							
 							//Create a new object context to perform the operation call 
-							Context callContext = CmlContextFactory.newObjectContext(node.getLocation(), "CML Operation Call", question, question.getSelf());
+							Context callContext = CmlContextFactory.newObjectContext(node.getLocation(), "CML Operation Call", question, self);
 
 							if (argValues.size() != opVal.getParamPatterns().size())
 							{
@@ -253,7 +260,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 								//INode seqComp = new ASequentialCompositionAction(node.getLocation(), opVal.getBody(), assignmentNode);
 								//return new Pair<INode, Context>(seqComp,resultContext);
 							}
-							
+							//the left child is the actual call executing
 							setLeftChild(new ConcreteCmlBehaviour(opVal.getBody(), callContext, owner));
 							return new Pair<INode, Context>(node, question);
 						}
@@ -261,6 +268,8 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 			
 			
 		}
+		//The left child is the actual call so if it is not terminated then we execute 
+		//the next action of it
 		else if(!owner.getLeftChild().finished())
 		{
 			return newInspection(owner.getLeftChild().inspect(), 
@@ -274,6 +283,8 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 						}
 					});
 		}
+		//The right child contains the postcondition of the call, so if we are here and its
+		//non-empty then we execute it
 		else if(owner.getRightChild() != null)
 		{
 			return newInspection(owner.getRightChild().inspect(), 
@@ -536,14 +547,8 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 			public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
 					throws AnalysisException {
 				
-				//question.putNew(new NameValuePair(new LexNameToken("", new LexIdentifierToken("a", false, new LexLocation())), new IntegerValue(2)));
 				Value expValue = node.getExpression().apply(cmlExpressionVisitor,question);
-				
-				//TODO Change this to deal with it in general
-				//LexNameToken stateDesignatorName = CmlActionAssistant.extractNameFromStateDesignator(node.getStateDesignator(),question);
-
 				Value oldVal = node.getStateDesignator().apply(cmlExpressionVisitor,question);
-				
 				oldVal.set(node.getLocation(), expValue, question);
 				
 				//System.out.println(stateDesignatorName + " = " + expValue);

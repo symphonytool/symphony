@@ -18,18 +18,26 @@ import org.overture.interpreter.values.ValueList;
 
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
 import eu.compassresearch.ast.actions.AExternalChoiceReplicatedAction;
+import eu.compassresearch.ast.actions.AGeneralisedParallelismParallelAction;
+import eu.compassresearch.ast.actions.AGeneralisedParallelismReplicatedAction;
 import eu.compassresearch.ast.actions.AHidingAction;
 import eu.compassresearch.ast.actions.AInterleavingParallelAction;
 import eu.compassresearch.ast.actions.AInterleavingReplicatedAction;
+import eu.compassresearch.ast.actions.AInternalChoiceAction;
+import eu.compassresearch.ast.actions.AInternalChoiceReplicatedAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASynchronousParallelismParallelAction;
 import eu.compassresearch.ast.actions.ASynchronousParallelismReplicatedAction;
 import eu.compassresearch.ast.actions.ATimeoutAction;
 import eu.compassresearch.ast.actions.AUntimedTimeoutAction;
+import eu.compassresearch.ast.actions.SReplicatedAction;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
+import eu.compassresearch.ast.process.AGeneralisedParallelismProcess;
+import eu.compassresearch.ast.process.AGeneralisedParallelismReplicatedProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.ASynchronousParallelismProcess;
 import eu.compassresearch.ast.process.ASynchronousParallelismReplicatedProcess;
+import eu.compassresearch.ast.process.SReplicatedProcess;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.utility.Pair;
 import eu.compassresearch.core.interpreter.utility.SetMath;
@@ -47,8 +55,14 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 		super(owner,visitorAccess);
 	}
 
+	/*
+	 * Sequential Composition -- Start 
+	 */
+	
 	private INode caseASequentialComposition(INode node, INode leftNode, Context question) throws AnalysisException
 	{
+		//We set up the left child of the sequential process/action before entering. The right will not
+		//be touched before the left has terminated
 		setLeftChild(new ConcreteCmlBehaviour(leftNode, question,new LexNameToken("",owner.name().getSimpleName() + ";",owner.name().getLocation()), owner));
 		return node;
 	}
@@ -68,6 +82,10 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 
 		return caseASequentialComposition(node, node.getLeft(), question);
 	}
+	
+	/*
+	 * Sequential Composition -- End
+	 */
 
 	@Override
 	public INode caseAHidingAction(AHidingAction node, Context question)
@@ -95,19 +113,23 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 		setLeftChild(new ConcreteCmlBehaviour(node.getLeft(),question,owner));
 		return node;
 	}
-
-	@Override
-	public INode caseAInterleavingReplicatedAction(
-			AInterleavingReplicatedAction node, Context question)
-					throws AnalysisException {
-
+	
+	
+	interface ReplicationFactory
+	{
+		INode createNextReplication();
+		INode createLastReplication();
+	}
+	
+	protected INode caseReplicatedAction(SReplicatedAction node, ReplicationFactory factory, Context question) throws AnalysisException
+	{
 		NameValuePairList replicationDecls = new  NameValuePairList();
 		Pair<SetValue,Context> pair = getCurrentReplicationValue(node.getLocation(), node.getReplicationDeclaration(),replicationDecls, question);
 		
 		SetValue setValue = pair.first;
 		Context nextContext = pair.second;
 
-		INode interleavingNode = null;
+		INode nextNode = null;
 
 		if(setValue.values.size() == 1)
 			throw new AnalysisException("A replicated action must have at least two enumeration values");
@@ -115,11 +137,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 		//each value represents one process replication 
 		else if(setValue.values.size() == 2)
 		{
-			interleavingNode = new AInterleavingParallelAction(node.getLocation(), 
-					node.getReplicatedAction().clone(), 
-					node.getNamesetExpression().clone(),
-					node.getNamesetExpression().clone(),
-					node.getReplicatedAction().clone());
+			nextNode = factory.createLastReplication();
 
 			setChildContexts(new Pair<Context,Context>(
 					convertReplicationToContext(setValue.values.get(0),replicationDecls,node.getLocation(),question),
@@ -129,11 +147,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 		//first value and the rest of the replicated values
 		else
 		{
-			interleavingNode = new AInterleavingParallelAction(node.getLocation(), 
-					node.getReplicatedAction().clone(), 
-					node.getNamesetExpression().clone(),
-					node.getNamesetExpression().clone(),
-					node);
+			nextNode = factory.createNextReplication();
 
 			setChildContexts(new Pair<Context,Context>(
 					convertReplicationToContext(setValue.values.get(0),replicationDecls,node.getLocation(),question),
@@ -142,143 +156,154 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 			setValue.values.remove(0);
 		}
 
-		return interleavingNode;
+		return nextNode;
+	}
+	
+	@Override
+	public INode caseAInterleavingReplicatedAction(
+			final AInterleavingReplicatedAction node, Context question)
+					throws AnalysisException {
+
+		return caseReplicatedAction(node,new ReplicationFactory() {
+			
+			@Override
+			public INode createNextReplication() {
+				//TODO The i'th namesetexpression should be evaluated in the i'th context 
+				return new AInterleavingParallelAction(node.getLocation(), 
+						node.getReplicatedAction().clone(), 
+						node.getNamesetExpression().clone(),
+						node.getNamesetExpression().clone(),
+						node.clone());
+			}
+			
+			@Override
+			public INode createLastReplication() {
+				//TODO The i'th namesetexpression should be evaluated in the i'th context 
+				return new AInterleavingParallelAction(node.getLocation(), 
+						node.getReplicatedAction().clone(), 
+						node.getNamesetExpression().clone(),
+						node.getNamesetExpression().clone(),
+						node.getReplicatedAction().clone());
+			}
+			
+		},question);
 	}
 
-	
+	@Override
+	public INode caseAGeneralisedParallelismReplicatedAction(
+			final AGeneralisedParallelismReplicatedAction node, Context question)
+			throws AnalysisException {
+
+		return caseReplicatedAction(node, new ReplicationFactory() {
+			
+			@Override
+			public INode createNextReplication() {
+				//TODO The i'th namesetexpression should be evaluated in the i'th context 
+				return new AGeneralisedParallelismParallelAction(node.getLocation(),
+						node.getReplicatedAction().clone(),
+						node.getNamesetExpression(),
+						node.getNamesetExpression(),
+						node.clone(),
+						node.getChansetExpression().clone());
+			}
+			
+			@Override
+			public INode createLastReplication() {
+				//TODO The i'th namesetexpression should be evaluated in the i'th context 
+				return new AGeneralisedParallelismParallelAction(node.getLocation(), 
+						node.getReplicatedAction().clone(),
+						node.getNamesetExpression(),
+						node.getNamesetExpression(),
+						node.getReplicatedAction().clone(),
+						node.getChansetExpression().clone());
+			}
+		}, question);
+	}
 	
 	@Override
 	public INode caseASynchronousParallelismReplicatedAction(
-			ASynchronousParallelismReplicatedAction node, Context question)
+			final ASynchronousParallelismReplicatedAction node, Context question)
 			throws AnalysisException {
 		
-		NameValuePairList replicationDecls = new  NameValuePairList();
-		Pair<SetValue,Context> pair = getCurrentReplicationValue(node.getLocation(), node.getReplicationDeclaration(),replicationDecls, question);
-		
-		SetValue setValue = pair.first;
-		Context nextContext = pair.second;
-
-		INode returnNode = null;
-
-		if(setValue.values.size() == 1)
-			throw new AnalysisException("A replicated action must have at least two enumeration values");
-		//If we have two replication values then we need to have one interleaving action, since
-		//each value represents one process replication 
-		else if(setValue.values.size() == 2)
-		{
-			//TODO The i'th namesetexpression should be evaluated in the i'th context 
-			returnNode = new ASynchronousParallelismParallelAction(node.getLocation(), 
-					node.getReplicatedAction().clone(),
-					node.getNamesetExpression(),
-					node.getNamesetExpression(),
-					node.getReplicatedAction().clone());
-
-			setChildContexts(new Pair<Context,Context>(
-					convertReplicationToContext(setValue.values.get(0),replicationDecls,node.getLocation(),question),
-					convertReplicationToContext(setValue.values.get(1),replicationDecls,node.getLocation(),question)));
-
-			setValue.values.remove(0);
-			setValue.values.remove(0);
-		}
-		//If we have more than two replication values then we make an interleaving between the
-		//first value and the rest of the replicated values
-		else
-		{
-			returnNode = new ASynchronousParallelismParallelAction(node.getLocation(),
-					node.getReplicatedAction().clone(),
-					node.getNamesetExpression(),
-					node.getNamesetExpression(),
-					node);
-
-			setChildContexts(new Pair<Context,Context>(
-					convertReplicationToContext(setValue.values.get(0),replicationDecls,node.getLocation(),question),
-					nextContext));
-
-			setValue.values.remove(0);
-		}
-
-		return returnNode;
-	}
-
-	@Override
-	public INode caseASynchronousParallelismReplicatedProcess(
-			ASynchronousParallelismReplicatedProcess node, Context question)
-					throws AnalysisException {
-		
-		NameValuePairList replicationDecls = new  NameValuePairList();
-		Pair<SetValue,Context> pair = getCurrentReplicationValue(node.getLocation(), node.getReplicationDeclaration(),replicationDecls, question);
-		
-		SetValue setValue = pair.first;
-		Context nextContext = pair.second;
-
-		INode returnNode = null;
-
-		if(setValue.values.size() == 1)
-			throw new AnalysisException("A replicated action must have at least two enumeration values");
-		//If we have two replication values then we need to have one interleaving action, since
-		//each value represents one process replication 
-		else if(setValue.values.size() == 2)
-		{
-			returnNode = new ASynchronousParallelismProcess(node.getLocation(), 
-					node.getReplicatedProcess().clone(),
-					node.getReplicatedProcess().clone());
-
-			setChildContexts(new Pair<Context,Context>(
-					convertReplicationToContext(setValue.values.get(0),replicationDecls,node.getLocation(),question),
-					convertReplicationToContext(setValue.values.get(1),replicationDecls,node.getLocation(),question)));
-
-			setValue.values.remove(0);
-			setValue.values.remove(0);
-		}
-		//If we have more than two replication values then we make an interleaving between the
-		//first value and the rest of the replicated values
-		else
-		{
-			returnNode = new ASynchronousParallelismProcess(node.getLocation(),
-					node.getReplicatedProcess().clone(), 
-					node);
-
-			setChildContexts(new Pair<Context,Context>(
-					convertReplicationToContext(setValue.values.get(0),replicationDecls,node.getLocation(),question),
-					nextContext));
-
-			setValue.values.remove(0);
-		}
-
-		return returnNode;
+		return caseReplicatedAction(node, new ReplicationFactory() {
+			
+			@Override
+			public INode createNextReplication() {
+				//TODO The i'th namesetexpression should be evaluated in the i'th context 
+				return new ASynchronousParallelismParallelAction(node.getLocation(),
+						node.getReplicatedAction().clone(),
+						node.getNamesetExpression(),
+						node.getNamesetExpression(),
+						node.clone());
+			}
+			
+			@Override
+			public INode createLastReplication() {
+				//TODO The i'th namesetexpression should be evaluated in the i'th context 
+				return new ASynchronousParallelismParallelAction(node.getLocation(), 
+						node.getReplicatedAction().clone(),
+						node.getNamesetExpression(),
+						node.getNamesetExpression(),
+						node.getReplicatedAction().clone());
+			}
+		}, question);
 	}
 	
 	@Override
 	public INode caseAExternalChoiceReplicatedAction(
-			AExternalChoiceReplicatedAction node, Context question)
+			final AExternalChoiceReplicatedAction node, Context question)
 					throws AnalysisException {
 
-		//The name of the value holding the state of the remaining values of the replication
-		LexNameToken replicationContextValueName = new LexNameToken("|REPLICATION|",node.getLocation().toShortString(),node.getLocation()); 
+		return caseReplicatedAction(node, new ReplicationFactory() {
+			
+			@Override
+			public INode createNextReplication() {
+				return new AExternalChoiceAction(node.getLocation(),
+						node.getReplicatedAction().clone(), 
+						node.clone());
+			}
+			
+			@Override
+			public INode createLastReplication() {
+				return new AExternalChoiceAction(node.getLocation(), 
+						node.getReplicatedAction().clone(),
+						node.getReplicatedAction().clone());
+			}
+		}, question);
+	}
+	
+	@Override
+	public INode caseAInternalChoiceReplicatedAction(
+			final AInternalChoiceReplicatedAction node, Context question)
+			throws AnalysisException {
+		
+		return caseReplicatedAction(node, new ReplicationFactory() {
+			
+			@Override
+			public INode createNextReplication() {
+				return new AInternalChoiceAction(node.getLocation(),
+						node.getReplicatedAction().clone(), 
+						node.clone());
+			}
 
-		Value value = question.check(replicationContextValueName);
+			@Override
+			public INode createLastReplication() {
+				return new AInternalChoiceAction(node.getLocation(), 
+						node.getReplicatedAction().clone(),
+						node.getReplicatedAction().clone());
+			}
+		}, question);
+	}
+	
+	protected INode caseReplicatedProcess(SReplicatedProcess node, ReplicationFactory factory, Context question) throws AnalysisException
+	{
 		NameValuePairList replicationDecls = new  NameValuePairList();
+		Pair<SetValue,Context> pair = getCurrentReplicationValue(node.getLocation(), node.getReplicationDeclaration(),replicationDecls, question);
+		
+		SetValue setValue = pair.first;
+		Context nextContext = pair.second;
 
-		//Convert all the single decls into a NameValuePairList
-		for(PSingleDeclaration singleDecl :  node.getReplicationDeclaration())
-			replicationDecls.addAll(singleDecl.apply(this.cmlDefEvaluator,question));
-
-		SetValue setValue = null;
-		Context nextContext = question;
-
-		//if null then this is the first action of the replication
-		//then we need to evaluate the 
-		if(value == null)
-		{
-			setValue = convertReplDeclToSetValue(replicationDecls,question);
-			//Make a set of tuples
-			nextContext = CmlContextFactory.newContext(node.getLocation(), "replication contexts", question);
-			nextContext.putNew(new NameValuePair(replicationContextValueName,setValue));
-		}
-		else
-			setValue = new SetValue(value.setValue(question));
-
-		INode returnNode = null;
+		INode nextNode = null;
 
 		if(setValue.values.size() == 1)
 			throw new AnalysisException("A replicated action must have at least two enumeration values");
@@ -286,24 +311,17 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 		//each value represents one process replication 
 		else if(setValue.values.size() == 2)
 		{
-			returnNode = new AExternalChoiceAction(node.getLocation(), 
-					node.getReplicatedAction().clone(),
-					node.getReplicatedAction().clone());
+			nextNode = factory.createLastReplication();
 
 			setChildContexts(new Pair<Context,Context>(
 					convertReplicationToContext(setValue.values.get(0),replicationDecls,node.getLocation(),question),
 					convertReplicationToContext(setValue.values.get(1),replicationDecls,node.getLocation(),question)));
-
-			setValue.values.remove(0);
-			setValue.values.remove(0);
 		}
 		//If we have more than two replication values then we make an interleaving between the
 		//first value and the rest of the replicated values
 		else
 		{
-			returnNode = new AExternalChoiceAction(node.getLocation(),
-					node.getReplicatedAction().clone(), 
-					node);
+			nextNode = factory.createNextReplication();
 
 			setChildContexts(new Pair<Context,Context>(
 					convertReplicationToContext(setValue.values.get(0),replicationDecls,node.getLocation(),question),
@@ -312,11 +330,101 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 			setValue.values.remove(0);
 		}
 
-		return returnNode;
+		return nextNode;
+	}
+	
+	@Override
+	public INode caseAGeneralisedParallelismReplicatedProcess(
+			final AGeneralisedParallelismReplicatedProcess node, Context question)
+			throws AnalysisException {
+		
+		return caseReplicatedProcess(node, new ReplicationFactory() {
+			
+			@Override
+			public INode createNextReplication() {
+				return new AGeneralisedParallelismProcess(node.getLocation(), 
+						node.getReplicatedProcess().clone(),
+						node.getChansetExpression().clone(),
+						node.clone());
+			}
+			
+			@Override
+			public INode createLastReplication() {
+				return new AGeneralisedParallelismProcess(node.getLocation(), 
+						node.getReplicatedProcess().clone(),
+						node.getChansetExpression().clone(),
+						node.getReplicatedProcess().clone());
+			}
+		}, question);
+	}
+
+	@Override
+	public INode caseASynchronousParallelismReplicatedProcess(
+			final ASynchronousParallelismReplicatedProcess node, Context question)
+					throws AnalysisException {
+		
+		return caseReplicatedProcess(node, new ReplicationFactory() {
+			
+			@Override
+			public INode createNextReplication() {
+				return new ASynchronousParallelismProcess(node.getLocation(),
+						node.getReplicatedProcess().clone(), 
+						node.clone());
+			}
+			
+			@Override
+			public INode createLastReplication() {
+				return new ASynchronousParallelismProcess(node.getLocation(), 
+						node.getReplicatedProcess().clone(),
+						node.getReplicatedProcess().clone());
+			}
+		}, question);
+		
+//		NameValuePairList replicationDecls = new  NameValuePairList();
+//		Pair<SetValue,Context> pair = getCurrentReplicationValue(node.getLocation(), node.getReplicationDeclaration(),replicationDecls, question);
+//		
+//		SetValue setValue = pair.first;
+//		Context nextContext = pair.second;
+//
+//		INode returnNode = null;
+//
+//		if(setValue.values.size() == 1)
+//			throw new AnalysisException("A replicated action must have at least two enumeration values");
+//		//If we have two replication values then we need to have one interleaving action, since
+//		//each value represents one process replication 
+//		else if(setValue.values.size() == 2)
+//		{
+//			returnNode = new ASynchronousParallelismProcess(node.getLocation(), 
+//					node.getReplicatedProcess().clone(),
+//					node.getReplicatedProcess().clone());
+//
+//			setChildContexts(new Pair<Context,Context>(
+//					convertReplicationToContext(setValue.values.get(0),replicationDecls,node.getLocation(),question),
+//					convertReplicationToContext(setValue.values.get(1),replicationDecls,node.getLocation(),question)));
+//
+//			setValue.values.remove(0);
+//			setValue.values.remove(0);
+//		}
+//		//If we have more than two replication values then we make an interleaving between the
+//		//first value and the rest of the replicated values
+//		else
+//		{
+//			returnNode = new ASynchronousParallelismProcess(node.getLocation(),
+//					node.getReplicatedProcess().clone(), 
+//					node);
+//
+//			setChildContexts(new Pair<Context,Context>(
+//					convertReplicationToContext(setValue.values.get(0),replicationDecls,node.getLocation(),question),
+//					nextContext));
+//
+//			setValue.values.remove(0);
+//		}
+//
+//		return returnNode;
 	}
 	
 	/*
-	 * Non public helper methods
+	 * Non public replication helper methods -- Start
 	 */
 	
 	private Context convertReplicationToContext(Value value, NameValuePairList replicationDecls,ILexLocation location, Context outer) throws ValueException
@@ -359,11 +467,6 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 		return setValue;
 	}
 	
-//	protected INode caseReplicatedOperator()
-//			throws AnalysisException {
-//		
-//	}
-	
 	protected Pair<SetValue,Context> getCurrentReplicationValue(ILexLocation location,List<PSingleDeclaration> replicationDeclaration, NameValuePairList replicationNvpl, Context question) throws AnalysisException
 	{
 		//The name of the value holding the state of the remaining values of the replication
@@ -392,4 +495,8 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 
 		return new Pair<SetValue,Context>(setValue,nextContext);
 	}
+	
+	/*
+	 * Non public replication helper methods -- End
+	 */
 }

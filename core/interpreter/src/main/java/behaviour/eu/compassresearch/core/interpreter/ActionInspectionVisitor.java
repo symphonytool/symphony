@@ -116,7 +116,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 
 		if(!owner.hasChildren())
 		{
-			final Value value = question.lookup(node.getName()); 
+			final Value value = lookupName(node.getName(),question); 
 			if(value instanceof CmlOperationValue)
 				return node.apply(statementInspectionVisitor,question);
 			else if (value instanceof ActionValue)
@@ -344,15 +344,31 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 	public Inspection caseAInternalChoiceAction(
 			final AInternalChoiceAction node, final Context question)
 					throws AnalysisException {
-		//TODO: make it random
-		//For now we always pick the left action
-		return newInspection(createSilentTransition(node,node.getLeft()), 
-				new AbstractCalculationStep(owner, visitorAccess) {
 
+		final int rndChoice = this.rnd.nextInt(2);
+		INode tmpNode = null;
+		Context tmpContext = null;
+		if(rndChoice == 0)
+		{
+			tmpNode = node.getLeft();
+			tmpContext = this.visitorAccess.getChildContexts(question).first; 
+		}
+		else
+		{
+			tmpNode = node.getRight();
+			tmpContext = this.visitorAccess.getChildContexts(question).second;
+		}
+		
+		final INode nextNode = tmpNode;
+		final Context nextContext = tmpContext;
+		
+		return newInspection(createSilentTransition(node,nextNode), 
+				new AbstractCalculationStep(owner, visitorAccess) {
+			
 			@Override
 			public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
 					throws AnalysisException {
-				return new Pair<INode,Context>(node.getLeft(), question);
+				return new Pair<INode,Context>(nextNode, nextContext);
 			}
 		}); 
 	}

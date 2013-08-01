@@ -208,7 +208,6 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 
 	protected Inspection caseGeneralisedParallelismParallel(final INode node,final parallelCompositionHelper helper, 
 			PVarsetExpression chansetExp, final Context question) throws AnalysisException
-
 			{
 		//TODO: This only implements the "A [| cs |] B (no state)" and not "A [| ns1 | cs | ns2 |] B"
 
@@ -254,15 +253,30 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 		//Then if both left and right have them the next step will combine them.
 		CmlAlphabet syncAlpha = leftChildAlphabet.intersectImprecise(cs).union(rightChildAlphabet.intersectImprecise(cs));
 
-		//combine all the common events that are in the channel set 
+		//combine all the common channel events that are in the channel set 
 		Set<CmlTransition> syncEvents = new HashSet<CmlTransition>();
-		for(ObservableEvent ref : cs.getObservableEvents())
+		for(ObservableEvent csChannel : cs.getObservableEvents())
 		{
-			CmlAlphabet commonEvents = syncAlpha.intersectImprecise(ref.getAsAlphabet());
+			CmlAlphabet commonEvents = syncAlpha.intersectImprecise(csChannel.getAsAlphabet());
+			/*	
+			 * 	if we have two channel events to intersect with a channel from the cs then they might
+			 *	be able to synchronize.
+			 *	If all the most precise values are identical and they only differ at fields containing an anyvalue
+			 *	then they can sync otherwise they can not.
+			 */
 			if(commonEvents.getObservableEvents().size() == 2)
 			{
+				/*
+				 * 	Ok so now we know that they intersect imprecisely with the channel in the channelset.
+				 *	However, since it could be a complex type like a record, tuple or class we must check that all
+				 *	of the fields where both have precise values are identical.
+				 */
 				Iterator<ObservableEvent> it = commonEvents.getObservableEvents().iterator(); 
-				syncEvents.add( it.next().synchronizeWith(it.next()));
+
+				ObservableEvent elem1 = it.next();
+				ObservableEvent elem2 = it.next();
+				//CmlAlphabet testAlpha = elem1.getAsAlphabet().intersectImprecise(elem2.getAsAlphabet());
+				syncEvents.add( elem1.synchronizeWith(elem2));
 			}
 		}
 

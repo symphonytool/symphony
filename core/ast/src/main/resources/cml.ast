@@ -74,7 +74,6 @@ definition {-> package='eu.compassresearch.ast.definitions'}
    
 #class {-> package='eu.compassresearch.ast.definitions'}
 	= {cml}
-        [body]: definition*
         (cmlInvariant):definition.#cmlOperation.explicit
 	;
 /*

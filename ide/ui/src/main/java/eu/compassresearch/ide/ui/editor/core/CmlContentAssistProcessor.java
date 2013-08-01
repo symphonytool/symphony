@@ -14,7 +14,6 @@ import org.eclipse.swt.graphics.Point;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ide.ui.editor.core.VdmDocument;
 
-import eu.compassresearch.ide.core.resources.CmlSourceUnit;
 import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
 
 public class CmlContentAssistProcessor implements IContentAssistProcessor
@@ -25,7 +24,7 @@ public class CmlContentAssistProcessor implements IContentAssistProcessor
 	{
 		// FIXME: this sometimes returns an VdmDocument
 		VdmDocument doc = (VdmDocument) viewer.getDocument();
-		CmlSourceUnit csu = (CmlSourceUnit) doc.getSourceUnit().getAdapter(ICmlSourceUnit.class);
+		ICmlSourceUnit csu = (ICmlSourceUnit) doc.getSourceUnit().getAdapter(ICmlSourceUnit.class);
 		Point selectedRange = viewer.getSelectedRange();
 
 		// Making sure of whats been asked
@@ -68,13 +67,13 @@ public class CmlContentAssistProcessor implements IContentAssistProcessor
 	}
 
 	private void computeQualifiedProposals(String qualifier,
-			int documentOffset, CmlSourceUnit csu,
+			int documentOffset, ICmlSourceUnit csu,
 			List<ICompletionProposal> proposalList)
 	{
 
 		int qlen = qualifier.length();
 
-		for (PDefinition spd : csu.getSourceAst().getParagraphs())
+		for (PDefinition spd : csu.getParseListDefinitions())
 		{
 			computeSingleProposal(spd, qualifier, documentOffset, qlen, proposalList);
 			// if (spd.getName() != null)

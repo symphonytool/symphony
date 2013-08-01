@@ -1,45 +1,54 @@
 package eu.compassresearch.ide.cml.tpplugin
 
-import scala.actors.Actor._
-
-import isabelle.{Command, Session, Document}
-import isabelle.Document.Snapshot
-import isabelle.Text.Range
-import isabelle.eclipse.core.text.DocumentModel
-import isabelle.eclipse.core.util.{LoggingActor, SessionEvents}
-import eu.compassresearch.theoremprover.IsabelleTheory
-import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList
-import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligation
-import eu.compassresearch.ast.program.PSource
-import eu.compassresearch.core.common.Registry
+import scala.actors.Actor.loop
+import scala.actors.Actor.react
+import scala.collection.JavaConversions
+import org.overture.pog.pub.POStatus
+import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligationList
 import eu.compassresearch.core.common.RegistryFactory
-import eu.compassresearch.ide.core.resources.ICmlSourceUnit
 import eu.compassresearch.ide.cml.pogplugin.POConstants
-import org.overture.pog.obligation.POStatus
-import scala.collection.JavaConversions;
+import eu.compassresearch.ide.core.resources.ICmlModel
+import eu.compassresearch.theoremprover.IsabelleTheory
+import isabelle.Command
+import isabelle.Document
+import isabelle.Session
+import isabelle.eclipse.core.util.LoggingActor
+import isabelle.eclipse.core.util.SessionEvents
+import eu.compassresearch.ide.cml.pogplugin.PogPluginDoStuff
 
 object TPListener {
-  
-  def updatePOListFromThy(poList: CMLProofObligationList, ithy: IsabelleTheory) = {
-    for (p <- JavaConversions.asScalaIterable(poList)) {      
+
+  def updatePOListFromThy(poList: CmlProofObligationList, ithy: IsabelleTheory, ischanged : IPoStatusChanged) = {
+    var flag: Boolean = false
+    for (p <- JavaConversions.asScalaIterable(poList)) {
       // FIXME: Add code to update POs from the theory
-      if (ithy.thmIsProved("po" + p.name)) {
-        p.status = POStatus.PROVED;
-        println(p.name + " is proved!");
+      if (ithy.thmIsProved("po" + p.getUniqueName())) {
+        p.setStatus(POStatus.PROVED);
+        println(p.getName() + " is proved!");
+        ischanged.statusChanges(p)
+        flag = true
       }
     }
+//    if (flag == true) {
+//      val pol = new CmlProofObligationList()
+//      for (po <- JavaConversions.asScalaIterable(poList)) {
+//        pol.add(po)
+//      }
+//       PogPluginDoStuff.redrawPos(proj, pol)
+//    }
   }
-  
+
 }
 
-class TPListener(session: Session) extends SessionEvents {
+class TPListener(session: Session, ischanged : IPoStatusChanged) extends SessionEvents {
 
-  var nodeCMLMap:Map[Document.Node.Name, PSource] = Map()
+  var nodeCMLMap: Map[Document.Node.Name, ICmlModel] = Map()
+  var statusChangedThing : IPoStatusChanged = ischanged
   
-  def registerNode(n: Document.Node.Name, s: PSource) {
-    nodeCMLMap += (n -> s)
+  def registerNode(n: Document.Node.Name, m: ICmlModel) {
+    nodeCMLMap += (n -> m)
   }
-  
+
   // When commands change (e.g. results from the prover), notify the handler about changed ranges.
   /** Subscribe to commands change session events */
   override protected def sessionEvents(session: Session) = List(session.commands_changed)
@@ -59,14 +68,15 @@ class TPListener(session: Session) extends SessionEvents {
           if (changed.nodes contains docModel.name) {
             notifyCommandsChanged(Some(changed.commands))
           } */
-          
-          val registry = RegistryFactory.getInstance(POConstants.PO_REGISTRY_ID).getRegistry()
-          
+
+          // FIXME Need to use the new refistry
+
           for (c <- changed.commands) {
-            val ast  = nodeCMLMap(c.node_name)
-            val poList = registry.lookup(ast, classOf[CMLProofObligationList]);
-            val ithy   = registry.lookup(ast, classOf[IsabelleTheory])
-            TPListener.updatePOListFromThy(poList, ithy)
+            val model = nodeCMLMap(c.node_name)
+            val poList = model.getAttribute(POConstants.PO_REGISTRY_ID, classOf[CmlProofObligationList]);
+            //FIXME Hardcoded ID string. scala cannot solve the path
+            val ithy = model.getAttribute("eu.compassresearch.ide.cml.tp-plugin", classOf[IsabelleTheory]);
+            TPListener.updatePOListFromThy(poList, ithy, statusChangedThing)
           }
         }
       }
@@ -88,6 +98,5 @@ class TPListener(session: Session) extends SessionEvents {
     * 
     */
   }
-
 
 }

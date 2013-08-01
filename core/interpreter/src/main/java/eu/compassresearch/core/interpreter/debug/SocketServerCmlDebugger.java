@@ -14,11 +14,15 @@ import java.util.Set;
 import java.util.concurrent.SynchronousQueue;
 
 import org.overture.ast.intf.lex.ILexLocation;
+import org.overture.ast.lex.LexLocation;
+import org.overture.ast.node.INode;
 import org.overture.interpreter.values.IntegerValue;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.process.PProcess;
+import eu.compassresearch.ast.program.AFileSource;
+import eu.compassresearch.ast.types.ASourceType;
 import eu.compassresearch.core.interpreter.CmlRuntime;
 import eu.compassresearch.core.interpreter.RandomSelectionStrategy;
 import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
@@ -34,6 +38,7 @@ import eu.compassresearch.core.interpreter.api.events.CmlInterpreterStatusObserv
 import eu.compassresearch.core.interpreter.api.events.InterpreterStatusEvent;
 import eu.compassresearch.core.interpreter.api.transitions.ChannelEvent;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
+import eu.compassresearch.core.interpreter.utility.LocationExtractor;
 import eu.compassresearch.core.interpreter.utility.Pair;
 import eu.compassresearch.core.interpreter.utility.messaging.CmlRequest;
 import eu.compassresearch.core.interpreter.utility.messaging.MessageCommunicator;
@@ -161,18 +166,15 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 					{
 						sendStatusMessage(CmlDbgpStatus.CHOICE, cmlInterpreter.getStatus());
 
-						//convert to list of strings for now
-						 List<Choice> transitions = new LinkedList<Choice>();
+						List<Choice> transitions = new LinkedList<Choice>();
 						for(CmlTransition transition : availableChannelEvents.getAllEvents())
 						{
 							//First find all the locations of the transition sources
 							List<ILexLocation> locations = new LinkedList<ILexLocation>();
 							for(CmlBehaviour source : transition.getEventSources())
 							{
-								if(source.getNextState().first instanceof PAction)
-									locations.add(((PAction)source.getNextState().first).getLocation());
-								else if(source.getNextState().first instanceof PProcess)
-									locations.add(((PProcess)source.getNextState().first).getLocation());
+								INode node = source.getNextState().first;
+								locations.add(LocationExtractor.extractLocation(node));
 							}
 							 	
 							transitions.add(new Choice(System.identityHashCode(transition),transition.toString(),locations));
@@ -183,8 +185,7 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 						if(response.isRequestInterrupted())
 							throw new InterpreterRuntimeException("The simulation was interrupted");
 
-						//TODO At the moment if there are two identical events from different processes on the same channel
-						//	then the user cannot distuingiues between the two and for now it will only be the first event in the list
+						//Grab the response 
 						Choice choice = response.getContent();
 						//System.out.println("response: " + responseStr);
 
