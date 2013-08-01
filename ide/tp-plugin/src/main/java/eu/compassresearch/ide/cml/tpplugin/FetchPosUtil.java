@@ -22,7 +22,7 @@ import org.overture.pog.pub.IProofObligation;
 import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligationList;
 import eu.compassresearch.ide.cml.pogplugin.POConstants;
 import eu.compassresearch.ide.cml.pogplugin.PogPluginDoStuff;
-import eu.compassresearch.ide.cml.pogplugin.PogPluginUtility;
+import eu.compassresearch.ide.cml.pogplugin.PogPluginUtils;
 import eu.compassresearch.ide.core.resources.ICmlModel;
 import eu.compassresearch.ide.core.resources.ICmlProject;
 import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
