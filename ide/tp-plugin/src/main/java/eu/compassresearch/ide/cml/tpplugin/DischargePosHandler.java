@@ -34,7 +34,8 @@ public class DischargePosHandler extends AbstractHandler
 			util = new FetchPosUtil(HandlerUtil.getActiveShell(event),cmlProject);
 		}
 		
-		util.fetchPOs(PogPluginUtility.getPoggedProject());
+//		util.fetchPOs(PogPluginUtility.getPoggedProject());
+		util.fetchPOs();
 		
 //		String message = "Proof Obligations sent to Theorem Prover (Coming soon!)";
 //		

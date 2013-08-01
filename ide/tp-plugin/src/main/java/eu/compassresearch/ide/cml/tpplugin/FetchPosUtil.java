@@ -114,7 +114,8 @@ public class FetchPosUtil
 				{
 					String name = sourceUnit.getFile().getName();
 					String thyFileName = name.substring(0,name.length()-sourceUnit.getFile().getFileExtension().length())+".ity";
-					translateCmltoThy(sourceUnit,output.getFile(thyFileName));
+					translateCmltoThy(model,output.getFile(thyFileName));
+//					translateCmltoThy(sourceUnit,output.getFile(thyFileName));
 				}
 
 				IsabelleTheory ithy = model.getAttribute(ITpConstants.PLUGIN_ID, IsabelleTheory.class);
@@ -154,41 +155,43 @@ public class FetchPosUtil
 				+ message);
 	}
 
-	private void translateCmltoThy(ICmlSourceUnit source, IFile outputFile) throws IOException,
+	private void translateCmltoThy(ICmlModel model, IFile outputFile) throws IOException,
 			AnalysisException
 	{
-		TPVisitor tpv = new TPVisitor();
-		source.getParseNode().apply(tpv);
+	
+		TPVisitor tp = new TPVisitor(model.getAstSource());
+	//	source.getParseNode().apply(tpv);
 
-		String name = source.getFile().getName();
+		//String name = source.getFile().getName();
 
-		String thyName = name.substring(0, name.lastIndexOf("."));
+//		String thyName = name.substring(0, name.lastIndexOf("."));
 		StringBuilder sb = new StringBuilder();
-
-		sb.append("theory " + thyName + " \n" + "  imports utp_vdm \n"
-				+ "begin \n" + "\n");
-
-		sb.append("text {* VDM value declarations *}\n\n");
-
-		for (ThmValue tv : tpv.getValueList())
-		{
-			sb.append(tv.toString());
-			sb.append("\n");
-		}
-
-		sb.append("\n");
-		sb.append("text {* VDM type declarations *}\n\n");
-
-		for (ThmType ty : tpv.getTypeList())
-		{
-			sb.append(ty.toString());
-			sb.append("\n");
-		}
-
-		sb.append("\n");
-
-		sb.append("\n" + "end");
-
+//
+//		sb.append("theory " + thyName + " \n" + "  imports utp_vdm \n"
+//				+ "begin \n" + "\n");
+//
+//		sb.append("text {* VDM value declarations *}\n\n");
+//
+//		for (ThmValue tv : tpv.getValueList())
+//		{
+//			sb.append(tv.toString());
+//			sb.append("\n");
+//		}
+//
+//		sb.append("\n");
+//		sb.append("text {* VDM type declarations *}\n\n");
+//
+//		for (ThmType ty : tpv.getTypeList())
+//		{
+//			sb.append(ty.toString());
+//			sb.append("\n");
+//		}
+//
+//		sb.append("\n");
+//
+//		sb.append("\n" + "end");
+		String thmString = tp.generateThyString();
+		
 		try{
 		outputFile.delete(true, null);
 		outputFile.create( new ByteArrayInputStream(sb.toString().getBytes()), true, new NullProgressMonitor());
