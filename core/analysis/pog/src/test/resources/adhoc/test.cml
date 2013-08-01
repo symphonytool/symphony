@@ -1,0 +1,6 @@
+process bob = begin @Skip end
+
+functions
+
+f : int -> int
+f (x) == 10/x
