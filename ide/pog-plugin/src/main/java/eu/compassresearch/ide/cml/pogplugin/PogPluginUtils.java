@@ -20,7 +20,7 @@ import org.overture.ide.core.resources.IVdmProject;
 
 import eu.compassresearch.ide.cml.pogplugin.view.PoListView;
 
-public class PogPluginUtility
+public class PogPluginUtils
 {
 
 	private IWorkbenchSite site;
@@ -36,7 +36,7 @@ public class PogPluginUtility
 		return allCFiles;
 	}
 
-	public PogPluginUtility(IWorkbenchSite site)
+	public PogPluginUtils(IWorkbenchSite site)
 	{
 		this.site = site;
 	}

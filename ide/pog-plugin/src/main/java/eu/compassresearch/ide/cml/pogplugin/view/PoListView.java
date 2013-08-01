@@ -27,18 +27,16 @@ import org.overture.ide.plugins.poviewer.IPoviewerConstants;
 import org.overture.ide.plugins.poviewer.view.PoOverviewTableView;
 import org.overture.ide.ui.utility.EditorUtility;
 import org.overture.pog.pub.IProofObligation;
+import org.overture.pog.pub.IProofObligationList;
 import org.overture.pog.pub.POStatus;
 
 import eu.compassresearch.ide.cml.pogplugin.POConstants;
+import eu.compassresearch.ide.core.resources.ICmlProject;
 
-public class PoListView extends PoOverviewTableView
-{
-
-	
+public class PoListView extends PoOverviewTableView {
 
 	@Override
-	public void createPartControl(Composite parent)
-	{
+	public void createPartControl(Composite parent) {
 		viewer = new TableViewer(parent, SWT.FULL_SELECTION | SWT.H_SCROLL
 				| SWT.V_SCROLL);
 		// test setup columns...
@@ -72,27 +70,24 @@ public class PoListView extends PoOverviewTableView
 		viewer.setContentProvider(new ViewContentProvider());
 		viewer.setLabelProvider(new ViewLabelProvider());
 
-		
 		makeActions();
 		super.hookDoubleClickAction();
 
-		viewer.addSelectionChangedListener(new ISelectionChangedListener()
-		{
+		viewer.addSelectionChangedListener(new ISelectionChangedListener() {
 
-			public void selectionChanged(SelectionChangedEvent event)
-			{
+			public void selectionChanged(SelectionChangedEvent event) {
 
-				Object first = ((IStructuredSelection) event.getSelection()).getFirstElement();
-				if (first instanceof IProofObligation)
-				{
-					try
-					{
-						IViewPart v = getSite().getPage().showView(POConstants.PO_DETAIL_VIEW);
+				Object first = ((IStructuredSelection) event.getSelection())
+						.getFirstElement();
+				if (first instanceof IProofObligation) {
+					try {
+						IViewPart v = getSite().getPage().showView(
+								POConstants.PO_DETAIL_VIEW);
 
 						if (v instanceof PoView)
-							((PoView) v).setDataList(project, (IProofObligation) first);
-					} catch (PartInitException e)
-					{
+							((PoView) v).setDataList(project,
+									(IProofObligation) first);
+					} catch (PartInitException e) {
 
 						e.printStackTrace();
 					}
@@ -102,58 +97,45 @@ public class PoListView extends PoOverviewTableView
 		});
 	}
 
-	public IVdmProject getProject(){
-		return project;
-	}
-
-	protected void makeActions()
-	{
+	protected void makeActions() {
 		doubleClickAction = new Action() {
 			@Override
-			public void run()
-			{
+			public void run() {
 				ISelection selection = viewer.getSelection();
-				Object obj = ((IStructuredSelection) selection).getFirstElement();
-				if (obj instanceof IProofObligation)
-				{
+				Object obj = ((IStructuredSelection) selection)
+						.getFirstElement();
+				if (obj instanceof IProofObligation) {
 					gotoDefinition((IProofObligation) obj);
 					// showMessage(((ProofObligation) obj).toString());
 				}
 			}
 
-			private void gotoDefinition(IProofObligation po)
-			{
+			private void gotoDefinition(IProofObligation po) {
 				IFile file = project.findIFile(po.getLocation().getFile());
-				if(IVdmProject.externalFileContentType.isAssociatedWith(file.getName()))
-				{
-					EditorUtility.gotoLocation(IPoviewerConstants.ExternalEditorId,file, po.getLocation(), po.getName());
-				}else{
-					EditorUtility.gotoLocation(file, po.getLocation(), po.getName());	
+				if (IVdmProject.externalFileContentType.isAssociatedWith(file
+						.getName())) {
+					EditorUtility.gotoLocation(
+							IPoviewerConstants.ExternalEditorId, file,
+							po.getLocation(), po.getName());
+				} else {
+					EditorUtility.gotoLocation(file, po.getLocation(),
+							po.getName());
 				}
-				
+
 			}
 		};
-		
-		
-	
+
 	}
-	
-	
-	
-	class ViewContentProvider implements IStructuredContentProvider
-	{
-		public void inputChanged(Viewer v, Object oldInput, Object newInput)
-		{
+
+	class ViewContentProvider implements IStructuredContentProvider {
+		public void inputChanged(Viewer v, Object oldInput, Object newInput) {
 		}
 
-		public void dispose()
-		{
+		public void dispose() {
 		}
 
-		public Object[] getElements(Object inputElement)
-		{
-			if (inputElement instanceof List)
-			{
+		public Object[] getElements(Object inputElement) {
+			if (inputElement instanceof List) {
 				@SuppressWarnings("rawtypes")
 				List list = (List) inputElement;
 				return list.toArray();
@@ -164,59 +146,52 @@ public class PoListView extends PoOverviewTableView
 	}
 
 	class ViewLabelProvider extends LabelProvider implements
-			ITableLabelProvider
-	{
+			ITableLabelProvider {
 
-		public void resetCounter()
-		{
+		public void resetCounter() {
 			count = 0;
 		}
 
 		private Integer count = 0;
 
-		public String getColumnText(Object element, int columnIndex)
-		{
+		public String getColumnText(Object element, int columnIndex) {
 			IProofObligation data = (IProofObligation) element;
 			String columnText;
-			switch (columnIndex)
-			{
-				case 0:
-					count++;
-					columnText = new Integer(data.getNumber()).toString();// count.toString();
-					break;
-				case 1:
-					// FIXME replace this with Node Name when we're using it
-					if (!data.getLocation().getFile().toString().equals(""))
-						columnText = data.getLocation().getFile().getName()  + " - "
-								+ data.getName();
-					else
-						columnText = data.getName();
-					break;
-				case 2:
-					columnText = data.getKind().toString();
-					break;
-				case 3:
-					columnText = "";// data.status.toString();
-					break;
-				default:
-					columnText = "not set";
+			switch (columnIndex) {
+			case 0:
+				count++;
+				columnText = new Integer(data.getNumber()).toString();// count.toString();
+				break;
+			case 1:
+				// FIXME replace this with Node Name when we're using it
+				if (!data.getLocation().getFile().toString().equals(""))
+					columnText = data.getLocation().getFile().getName() + " - "
+							+ data.getName();
+				else
+					columnText = data.getName();
+				break;
+			case 2:
+				columnText = data.getKind().toString();
+				break;
+			case 3:
+				columnText = "";// data.status.toString();
+				break;
+			default:
+				columnText = "not set";
 			}
 			return columnText;
 
 		}
 
-		public Image getColumnImage(Object obj, int index)
-		{
-			if (index == 3)
-			{
+		public Image getColumnImage(Object obj, int index) {
+			if (index == 3) {
 				return getImage(obj);
 			}
 			return null;
 		}
 
 		@Override
-		public Image getImage(Object obj)
-		{
+		public Image getImage(Object obj) {
 			IProofObligation data = (IProofObligation) obj;
 
 			String imgPath = "icons/cview16/unproved.png";
@@ -228,5 +203,32 @@ public class PoListView extends PoOverviewTableView
 		}
 
 	}
-	
+
+	public void setDataList(ICmlProject project, final IProofObligationList pol) {
+
+		this.project = (IVdmProject) project.getAdapter(IVdmProject.class);
+		display.asyncExec(new Runnable() {
+
+			public void run() {
+				if (viewer.getLabelProvider() instanceof ViewLabelProvider)
+					((ViewLabelProvider) viewer.getLabelProvider())
+							.resetCounter(); // this
+												// is
+												// needed
+												// to
+												// reset
+												// the
+				// numbering
+
+				viewer.setInput(pol);
+
+				for (TableColumn col : viewer.getTable().getColumns()) {
+					col.pack();
+				}
+			}
+
+		});
+
+	}
+
 }
