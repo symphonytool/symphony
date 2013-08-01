@@ -55,8 +55,8 @@ public class POGTestWithStrings {
     public void testGeneratePOsfromSource() throws IOException, AnalysisException {
 	PSource psAux = (Utilities.makeSourceFromString(sourceFromString));
 	
-	ProofObligationGenerator pog = new ProofObligationGenerator(psAux);
-	IProofObligationList actual = pog.generatePOs();
+	ProofObligationGenerator pog = new ProofObligationGenerator();
+	IProofObligationList actual = pog.generatePOs(psAux.getParagraphs());
 
 	// Haven't figured out a way to manually create expected POs (mostly
 	// because of ContextStack and LexLocation)

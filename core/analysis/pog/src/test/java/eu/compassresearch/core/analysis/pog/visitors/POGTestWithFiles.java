@@ -55,9 +55,9 @@ public class POGTestWithFiles {
 	System.out.println("Testing on " + filePath);
 	PSource psAux = (Utilities.makeSourceFromFile(filePath));
 	
-	ProofObligationGenerator pog = new ProofObligationGenerator(psAux);
+	ProofObligationGenerator pog = new ProofObligationGenerator();
 	//TODO-ldc make asserts and PO comparisons
-	IProofObligationList actual = pog.generatePOs(); 
+	IProofObligationList actual = pog.generatePOs(psAux.getParagraphs()); 
 	int posGenerated=0;
 	if (actual!=null)
 	    posGenerated=actual.size();
