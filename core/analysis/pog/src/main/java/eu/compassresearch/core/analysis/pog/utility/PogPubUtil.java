@@ -19,6 +19,7 @@ public class PogPubUtil {
 			r.addAll(node.apply(new ProofObligationGenerator(),
 					new CmlPOContextStack()));
 		}
+		r.renumber();
 		return r;
 	}
 
