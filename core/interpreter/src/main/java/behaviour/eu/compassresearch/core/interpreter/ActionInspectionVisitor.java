@@ -3,8 +3,8 @@ package eu.compassresearch.core.interpreter;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.expressions.PExp;
@@ -17,6 +17,7 @@ import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.PPattern;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.typechecker.Pass;
+import org.overture.ast.types.AProductType;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.NameValuePair;
 import org.overture.interpreter.values.NameValuePairList;
@@ -53,7 +54,7 @@ import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
 import eu.compassresearch.ast.lex.LexNameToken;
-import eu.compassresearch.ast.process.AGeneralisedParallelismProcess;
+import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
@@ -71,6 +72,7 @@ import eu.compassresearch.core.interpreter.api.transitions.ObservableEvent;
 import eu.compassresearch.core.interpreter.api.transitions.OutputParameter;
 import eu.compassresearch.core.interpreter.api.transitions.SignalParameter;
 import eu.compassresearch.core.interpreter.api.values.ActionValue;
+import eu.compassresearch.core.interpreter.api.values.AnyValue;
 import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
 import eu.compassresearch.core.interpreter.api.values.CmlOperationValue;
 import eu.compassresearch.core.interpreter.utility.Pair;
@@ -176,8 +178,11 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 		else
 		{
 			List<CommunicationParameter> params = new LinkedList<CommunicationParameter>();
-			for(PCommunicationParameter p : node.getCommunicationParameters())
+			int comParamSize = node.getCommunicationParameters().size(); 
+			for(int i = 0;i < comParamSize; i++)
 			{
+				PCommunicationParameter p = node.getCommunicationParameters().get(i);
+				
 				CommunicationParameter param = null;
 				if(p instanceof ASignalCommunicationParameter)
 				{
@@ -193,9 +198,19 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 				}
 				else if(p instanceof AReadCommunicationParameter)
 				{
-					//TODO: At this point the 'in set exp' is not supported
 					AReadCommunicationParameter readParam = (AReadCommunicationParameter)p;
-					param = new InputParameter(readParam);
+					AnyValue val = null;
+					if(comParamSize > 1)
+					{
+						//Must be a product type
+						AProductType productType = (AProductType)((AChannelType)chanValue.getType()).getType();
+						val = new AnyValue(productType.getTypes().get(i));
+					}
+					else
+						val = new AnyValue(((AChannelType)chanValue.getType()).getType());
+					
+					Context constraintContext = CmlContextFactory.newContext(p.getLocation(),"Constraint evaluation context", question);
+					param = new InputParameter(readParam,val,constraintContext);
 				}
 
 				params.add(param);

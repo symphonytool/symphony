@@ -1269,20 +1269,7 @@ class TCDeclAndDefVisitor extends
 		// Add all available classes in the current environment as overture
 		// classes.
 		List<PDefinition> surrogateDefinitions = new LinkedList<PDefinition>();
-		if (question instanceof CmlTypeCheckInfo) {
-			CmlTypeCheckInfo info = (CmlTypeCheckInfo) question;
-			Environment env = info.env;
-//			while (env != null) {
-//				for (PDefinition def : env.getDefinitions()) {
-//					if (def instanceof ACmlClassDefinition) {
-//						ACmlClassDefinition cdef = (ACmlClassDefinition) def;
-//						surrogateDefinitions.add(createSurrogateClass(cdef,
-//								info));
-//					}
-//				}
-//				env = env.getOuter();
-//			}
-		} else {
+		if (!(question instanceof CmlTypeCheckInfo)) {
 			node.setType(issueHandler.addTypeError(
 					node,
 					TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(""
@@ -1738,24 +1725,23 @@ class TCDeclAndDefVisitor extends
 			// create old names
 			for (int i = 0; i < paramPatterns.size(); i++) {
 				PType t = paramTypes.get(i);
-				for (PPattern p : paramPatterns) {
-					PType pType = p.apply(parentChecker, question);
-					if (!successfulType(pType)) {
-						node.setType(issueHandler.addTypeError(node,
-								TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-										.customizeMessage("" + p)));
-						return node.getType();
-					}
-					for (PDefinition normalDef : pType.getDefinitions()) {
-						ILexNameToken normName = normalDef.getName();
-						ILexNameToken oldName = new LexNameToken("",
-								new LexIdentifierToken(normName.getFullName(),
-										true, normName.getLocation()));
-						PDefinition oldDefinition = normalDef.clone();
-						oldDefinition.setName(oldName);
-						postEnv.addVariable(oldName, oldDefinition);
-						oldDefinition.setType(t);
-					}
+				PPattern p = paramPatterns.get(i);
+				PType pType = p.apply(parentChecker, question);
+				if (!successfulType(pType)) {
+					node.setType(issueHandler.addTypeError(node,
+							TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+							.customizeMessage("" + p)));
+					return node.getType();
+				}
+				for (PDefinition normalDef : pType.getDefinitions()) {
+					ILexNameToken normName = normalDef.getName();
+					ILexNameToken oldName = new LexNameToken("",
+							new LexIdentifierToken(normName.getFullName(),
+									true, normName.getLocation()));
+					PDefinition oldDefinition = normalDef.clone();
+					oldDefinition.setName(oldName);
+					postEnv.addVariable(oldName, oldDefinition);
+					oldDefinition.setType(t);
 				}
 			}
 

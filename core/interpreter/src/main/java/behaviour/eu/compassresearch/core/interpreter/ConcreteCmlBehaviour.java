@@ -161,9 +161,8 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 			}
 		};
 
-		//cmlEvaluationVisitor = new CmlEvaluationVisitor(null,this,visitorAccess);
+		//Initialize the visitors
 		cmlSetupVisitor = new ActionSetupVisitor(this, visitorAccess);
-		//alphabetInspectionVisitor = new AlphabetInspectVisitor(this, visitorAccess);
 		alphabetInspectionVisitor = new CmlInspectionVisitor(this, visitorAccess);
 	}
 
@@ -185,12 +184,12 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 		setNext(new Pair<INode, Context>(action, context));
 	}
 
-	public ConcreteCmlBehaviour(INode action, Context context, CmlBehaviour parent, Pair<Context,Context> childContexts) throws AnalysisException
-	{
-		this(parent,new LexNameToken("", "Child of " + parent.name(),parent.name().getLocation()));
-		setNext(new Pair<INode, Context>(action, context));
-		preConstructedChildContexts = childContexts;
-	}
+//	public ConcreteCmlBehaviour(INode action, Context context, CmlBehaviour parent, Pair<Context,Context> childContexts) throws AnalysisException
+//	{
+//		this(parent,new LexNameToken("", "Child of " + parent.name(),parent.name().getLocation()));
+//		setNext(new Pair<INode, Context>(action, context));
+//		preConstructedChildContexts = childContexts;
+//	}
 
 	protected void setNext(Pair<INode, Context> newNext) throws AnalysisException
 	{
@@ -198,7 +197,6 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 		if(next == null || (newNext.first != next.first && !hasChildren()))
 		{
 			next = new Pair<INode,Context>(newNext.first.apply(cmlSetupVisitor,newNext.second),newNext.second);
-			//INode newNextNode = newNext.first.apply(cmlSetupVisitor,newNext.second);
 			started = false;
 		}
 		else
