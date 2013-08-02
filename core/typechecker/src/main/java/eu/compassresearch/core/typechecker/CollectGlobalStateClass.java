@@ -8,6 +8,8 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import org.overture.ast.definitions.AImplicitFunctionDefinition;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.typechecker.assistant.definition.AImplicitFunctionDefinitionAssistantTC;
+import org.overture.typechecker.assistant.definition.PDefinitionListAssistantTC;
 
 import eu.compassresearch.ast.analysis.AnalysisCMLAdaptor;
 import eu.compassresearch.ast.definitions.AChannelNameDefinition;
@@ -126,6 +128,7 @@ public class CollectGlobalStateClass extends AnalysisCMLAdaptor {
 			}
 
 			if (fdef instanceof AImplicitFunctionDefinition) {
+				AImplicitFunctionDefinitionAssistantTC.implicitDefinitions((AImplicitFunctionDefinition) fdef, null);
 				predef = ((AImplicitFunctionDefinition) fdef).getPredef();
 				postdef = ((AImplicitFunctionDefinition) fdef).getPostdef();
 			}

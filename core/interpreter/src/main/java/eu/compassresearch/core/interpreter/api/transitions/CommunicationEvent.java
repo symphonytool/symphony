@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.Vector;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.types.AIntNumericBasicType;
@@ -13,6 +14,7 @@ import org.overture.ast.types.AProductType;
 import org.overture.ast.types.AQuoteType;
 import org.overture.ast.types.AUnionType;
 import org.overture.ast.types.PType;
+import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.values.QuoteValue;
 import org.overture.interpreter.values.TupleValue;
 import org.overture.interpreter.values.Value;
@@ -28,18 +30,25 @@ import eu.compassresearch.core.interpreter.api.values.AnyValue;
 
 class CommunicationEvent extends AbstractChannelEvent implements ObservableEvent {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2217645151439301812L;
 	private Value value;
+	private List<CommunicationParameter> params = new Vector<CommunicationParameter>();
 	
 	public CommunicationEvent(CmlBehaviour source, CmlChannel channel, List<CommunicationParameter> params)
 	{
 		super(source,channel);
-		initValueFromComParams(params);		
+		this.params = params;
+		initValueFromComParams();		
 	}
 	
 	public CommunicationEvent(CmlChannel channel, List<CommunicationParameter> params)
 	{
 		super(channel);
-		initValueFromComParams(params);
+		this.params = params;
+		initValueFromComParams();
 	}
 			
 	private CommunicationEvent(Set<CmlBehaviour> sources, CmlChannel channel, Value value)
@@ -49,7 +58,7 @@ class CommunicationEvent extends AbstractChannelEvent implements ObservableEvent
 	}
 	
 	//Converts communication parameters into their corresponding value
-	private void initValueFromComParams(List<CommunicationParameter> params)
+	private void initValueFromComParams()
 	{
 		if(params != null)
 		{
@@ -147,18 +156,45 @@ class CommunicationEvent extends AbstractChannelEvent implements ObservableEvent
 	}
 
 	@Override
-	public ObservableEvent synchronizeWith(ObservableEvent syncEvent) {
+	public ObservableEvent synchronizeWith(ObservableEvent syncEvent){
+
+		CommunicationEvent otherComEvent = (CommunicationEvent)syncEvent;
+		Value meetValue = AbstractValueInterpreter.meet(this.getValue(), ((ChannelEvent)otherComEvent).getValue());
 		
-		Set<CmlBehaviour> sources = new HashSet<CmlBehaviour>();
-		sources.addAll(this.getEventSources());
-		sources.addAll(syncEvent.getEventSources());
-		
-		Value meetValue = AbstractValueInterpreter.meet(this.getValue(), ((ChannelEvent)syncEvent).getValue()); 
-		if(meetValue != null)
+		if(meetValue != null) //&& isContraintValid(meetValue,otherComEvent))
+		{
+			Set<CmlBehaviour> sources = new HashSet<CmlBehaviour>();
+			sources.addAll(this.getEventSources());
+			sources.addAll(otherComEvent.getEventSources());
 			return new CommunicationEvent(sources, channel,meetValue);
+		}
 		else
 			//the events are not comparable!
 			return null;
+	}
+	
+	private boolean isContraintValid(Value value, CommunicationEvent otherComEvent)
+	{
+		boolean result = true;
+		try
+		{
+			if(otherComEvent.params.size() == 1 && otherComEvent.params.get(0) instanceof InputParameter)
+			{
+				result &= ((InputParameter)otherComEvent.params.get(0)).evaluateContraint(value);
+				result &= ((InputParameter)params.get(0)).evaluateContraint(value);
+			}
+		}
+		catch(AnalysisException ex)
+		{
+			ex.printStackTrace();
+			result = false;
+		}
+		
+//		for(CommunicationParameter param : otherComEvent.params)
+//			if(param instanceof InputParameter)
+//				((InputParameter) param).getContraintExpression()
+//		
+		return result;
 	}
 
 	@Override

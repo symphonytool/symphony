@@ -111,7 +111,6 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 					CmlBehaviour rightInstance = new ConcreteCmlBehaviour(rightNode, childContexts.second.deepCopy(), new LexNameToken(name().getModule(),"[]" + name().getIdentifier().getName(), new LexLocation()),this.owner); 
 					setRightChild(rightInstance);
 
-					//Now let this process wait for the children to get into a waitForEvent state
 					return new Pair<INode, Context>(node, question);
 				}
 			});
