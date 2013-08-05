@@ -1,0 +1,27 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: COMPASS FORMULA Plugin
+Bundle-SymbolicName: eu.compassresearch.ide.modelchecker;singleton:=true
+Bundle-Version: 0.1.2.qualifier
+Bundle-Activator: eu.compassresearch.ide.modelchecker.Activator
+Bundle-Vendor: The COMPASS Project
+Require-Bundle: org.eclipse.debug.ui,
+ org.eclipse.ui.workbench.texteditor,
+ org.eclipse.ui.views,
+ org.eclipse.swt,
+ org.eclipse.ui,
+ org.eclipse.ui.ide,
+ org.overture.ide.ui,
+ eu.compassresearch.ide.core,
+ eu.compassresearch.ide.ui
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ActivationPolicy: lazy
+Eclipse-BuddyPolicy: registered
+Bundle-ClassPath: .,
+ jars/modelchecker.jar
+Import-Package: org.eclipse.core.filesystem,
+ org.eclipse.ui.console
+Export-Package: eu.compassresearch.core.analysis.modelchecker.api,
+ eu.compassresearch.core.analysis.modelchecker.visitors,
+ eu.compassresearch.ide.modelchecker,
+ eu.compassresearch.ide.modelchecker.view

@@ -25,17 +25,10 @@
   <modules>
     <module>core</module>
     <module>ui</module>
-    <module>rtt-plugin</module>
-    <module>tp-plugin</module>
-  
-    <module>pog-plugin</module>
-    <module>security-plugin</module>
-	<module>mc-plugin</module>
+    <module>plugins</module>
     <module>platform</module>
     <module>features</module>
     <module>product</module>
-
-	<module>plugins</module>
   </modules>
 
   <build>

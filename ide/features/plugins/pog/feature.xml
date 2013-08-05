@@ -23,7 +23,7 @@
    </requires>
 
    <plugin
-         id="eu.compassresearch.ide.cml.pog-plugin"
+         id="eu.compassresearch.ide.pog"
          download-size="0"
          install-size="0"
          version="0.0.0"

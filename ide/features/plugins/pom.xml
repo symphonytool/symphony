@@ -16,12 +16,12 @@
   <name>COMPASS Tool Plugin Eclipse features</name>
   
   <modules>
-    <module>pog</module>
-    <module>tp</module>
     <module>interpreter</module>
-    <module>rtt</module>
-    <module>security</module>
-	<module>mc</module>
+    <module>pog</module>
+    <module>theoremprover</module>
+    <module>rtt-mbt</module>
+    <module>securityanalysis</module>
+    <module>modelchecker</module>
   </modules>
 
 </project>

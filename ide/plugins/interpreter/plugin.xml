@@ -16,19 +16,19 @@
 	
 	
 		<view 
-        id="eu.compassresearch.ide.plugins.interpreter.OptionsView"
+        id="eu.compassresearch.ide.interpreter.OptionsView"
         name="CML Event Options"
         category="eu.compassresearch.ide.ui.category"
 
-        class="eu.compassresearch.ide.plugins.interpreter.views.CmlEventOptionView" />
+        class="eu.compassresearch.ide.interpreter.views.CmlEventOptionView" />
 
 		
 		<view 
-        id="eu.compassresearch.ide.plugins.interpreter.historyView"
+        id="eu.compassresearch.ide.interpreter.historyView"
         name="Observable Event History"
         category="eu.compassresearch.ide.ui.category"
 
-        class="eu.compassresearch.ide.plugins.interpreter.views.CmlEventHistoryView" />
+        class="eu.compassresearch.ide.interpreter.views.CmlEventHistoryView" />
 
 		
 	</extension>
@@ -36,30 +36,30 @@
 	<!-- Declare launch configuration type -->
 	<extension point="org.eclipse.debug.core.launchConfigurationTypes">
 		<launchConfigurationType
-        delegate="eu.compassresearch.ide.plugins.interpreter.launch.CmlLaunchConfigurationDelegate"
-        id="eu.compassresearch.ide.plugins.interpreter.launchConfigurationType"
+        delegate="eu.compassresearch.ide.interpreter.launch.CmlLaunchConfigurationDelegate"
+        id="eu.compassresearch.ide.interpreter.launchConfigurationType"
         modes="debug,run"
         name="CML Model"
         public="true"
-        sourceLocatorId="eu.compassresearch.ide.plugins.interpreter.sourceLookupDirector">
+        sourceLocatorId="eu.compassresearch.ide.interpreter.sourceLookupDirector">
 		</launchConfigurationType>
 	</extension>
 
 	<extension point="org.eclipse.debug.core.sourceLocators">
 		<sourceLocator
 	       name="CML Source Lookup Director"
-	    class="eu.compassresearch.ide.plugins.interpreter.launch.CmlSourceLookupDirector"
-	    id="eu.compassresearch.ide.plugins.interpreter.sourceLookupDirector">
+	    class="eu.compassresearch.ide.interpreter.launch.CmlSourceLookupDirector"
+	    id="eu.compassresearch.ide.interpreter.sourceLookupDirector">
 		</sourceLocator>
 	</extension>
 
 	<!-- Add the launch config group to the launch dialog -->
 	<extension point="org.eclipse.debug.ui.launchConfigurationTabGroups">
 		<launchConfigurationTabGroup
-			class="eu.compassresearch.ide.plugins.interpreter.launch.CmlLaunchConfigurationTabGroup"
+			class="eu.compassresearch.ide.interpreter.launch.CmlLaunchConfigurationTabGroup"
 			description="COMPASS Launch Tab" 
-			id="eu.compassresearch.ide.plugins.interpreter.launchConfigurationTabGroup"
-			type="eu.compassresearch.ide.plugins.interpreter.launchConfigurationType">
+			id="eu.compassresearch.ide.interpreter.launchConfigurationTabGroup"
+			type="eu.compassresearch.ide.interpreter.launchConfigurationType">
 			<launchMode 
                   mode="debug"
                   perspective="org.eclipse.debug.ui.DebugPerspective"
@@ -75,8 +75,8 @@
 	<!-- Shoutcut for launching project. Extends the Debug and Run context menu in the CML Explorer -->
 	<extension point="org.eclipse.debug.ui.launchShortcuts">
 		<shortcut
-	  		id="eu.compassresearch.ide.plugins.interpreter.CmlShortcut"
-	        class="eu.compassresearch.ide.plugins.interpreter.launch.CmlApplicationLaunchShortcut"
+	  		id="eu.compassresearch.ide.interpreter.CmlShortcut"
+	        class="eu.compassresearch.ide.interpreter.launch.CmlApplicationLaunchShortcut"
 	        label="CML Application"
 	        modes="debug, run"
 	        category="compass_eu.compassresearch.ide.ui.category"
@@ -107,7 +107,7 @@
 				</enablement>
 			</contextualLaunch>
 			<configurationType
-	    	id="eu.compassresearch.ide.plugins.interpreter.launchConfigurationType">
+	    	id="eu.compassresearch.ide.interpreter.launchConfigurationType">
 			</configurationType>
 		</shortcut>
 	</extension>
@@ -138,11 +138,11 @@
 		<perspectiveExtension 
 	targetID="org.eclipse.debug.ui.DebugPerspective">
 
-			<view id="eu.compassresearch.ide.plugins.interpreter.historyView" 
+			<view id="eu.compassresearch.ide.interpreter.historyView" 
         	relative="org.eclipse.debug.ui.ExpressionView" 
     		relationship="stack"/>	
 
-			<view id="eu.compassresearch.ide.plugins.interpreter.OptionsView" 
+			<view id="eu.compassresearch.ide.interpreter.OptionsView" 
         	relative="org.eclipse.ui.views.ContentOutline" 
     		relationship="stack"/>	
 
@@ -152,8 +152,8 @@
  <extension
        point="org.eclipse.ui.preferencePages">
     <page
-          class="eu.compassresearch.ide.plugins.interpreter.preferences.WorkbenchPreferencePageInterpreter"
-          id="eu.compassresearch.ide.plugins.interpreter.page1"
+          class="eu.compassresearch.ide.interpreter.preferences.WorkbenchPreferencePageInterpreter"
+          id="eu.compassresearch.ide.interpreter.page1"
           name="CML Interpreter">
     </page>
  </extension>
