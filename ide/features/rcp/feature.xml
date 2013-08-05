@@ -37,19 +37,19 @@
        version="0.0.0"/>
 
    <includes
-       id="eu.compassresearch.ide.features.plugins.rtt"
+       id="eu.compassresearch.ide.features.plugins.rttmbt"
        version="0.0.0"/>
 
    <includes
-       id="eu.compassresearch.ide.features.plugins.security"
+       id="eu.compassresearch.ide.features.plugins.securityanalysis"
        version="0.0.0"/>
 
    <includes
-       id="eu.compassresearch.ide.features.plugins.tp"
+       id="eu.compassresearch.ide.features.plugins.theoremprover"
        version="0.0.0"/>
 
 	<includes
-       id="eu.compassresearch.ide.features.plugins.mc"
+       id="eu.compassresearch.ide.features.plugins.modelchecker"
        version="0.0.0"/>
 	   
    <plugin
