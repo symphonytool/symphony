@@ -3,8 +3,8 @@ package eu.compassresearch.core.interpreter;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.expressions.PExp;
@@ -17,6 +17,7 @@ import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.PPattern;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.typechecker.Pass;
+import org.overture.ast.types.AProductType;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.NameValuePair;
 import org.overture.interpreter.values.NameValuePairList;
@@ -53,7 +54,7 @@ import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
 import eu.compassresearch.ast.lex.LexNameToken;
-import eu.compassresearch.ast.process.AGeneralisedParallelismProcess;
+import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
@@ -71,6 +72,7 @@ import eu.compassresearch.core.interpreter.api.transitions.ObservableEvent;
 import eu.compassresearch.core.interpreter.api.transitions.OutputParameter;
 import eu.compassresearch.core.interpreter.api.transitions.SignalParameter;
 import eu.compassresearch.core.interpreter.api.values.ActionValue;
+import eu.compassresearch.core.interpreter.api.values.AnyValue;
 import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
 import eu.compassresearch.core.interpreter.api.values.CmlOperationValue;
 import eu.compassresearch.core.interpreter.utility.Pair;
@@ -176,8 +178,11 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 		else
 		{
 			List<CommunicationParameter> params = new LinkedList<CommunicationParameter>();
-			for(PCommunicationParameter p : node.getCommunicationParameters())
+			int comParamSize = node.getCommunicationParameters().size(); 
+			for(int i = 0;i < comParamSize; i++)
 			{
+				PCommunicationParameter p = node.getCommunicationParameters().get(i);
+				
 				CommunicationParameter param = null;
 				if(p instanceof ASignalCommunicationParameter)
 				{
@@ -193,9 +198,19 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 				}
 				else if(p instanceof AReadCommunicationParameter)
 				{
-					//TODO: At this point the 'in set exp' is not supported
 					AReadCommunicationParameter readParam = (AReadCommunicationParameter)p;
-					param = new InputParameter(readParam);
+					AnyValue val = null;
+					if(comParamSize > 1)
+					{
+						//Must be a product type
+						AProductType productType = (AProductType)((AChannelType)chanValue.getType()).getType();
+						val = new AnyValue(productType.getTypes().get(i));
+					}
+					else
+						val = new AnyValue(((AChannelType)chanValue.getType()).getType());
+					
+					Context constraintContext = CmlContextFactory.newContext(p.getLocation(),"Constraint evaluation context", question);
+					param = new InputParameter(readParam,val,constraintContext);
 				}
 
 				params.add(param);
@@ -472,51 +487,51 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 
 	/**
 	 * Hiding - section 7.5.8 D23.2
+	 * syntax : Action \\ channelsetExpression
 	 */
 	@Override
 	public Inspection caseAHidingAction(final AHidingAction node,
 			final Context question) throws AnalysisException {
-
-		if(!owner.getLeftChild().finished())
-		{
-			CmlAlphabet hidingAlpha = (CmlAlphabet)node.getChansetExpression().apply(cmlExpressionVisitor,question);
-
-			CmlAlphabet alpha = owner.getLeftChild().inspect();
-
-			CmlAlphabet hiddenEvents = alpha.intersect(hidingAlpha);
-
-			CmlAlphabet resultAlpha = alpha.subtract(hiddenEvents);
-
-			for(ObservableEvent obsEvent : hiddenEvents.getObservableEvents())
-				if(obsEvent instanceof ChannelEvent)
-					resultAlpha = resultAlpha.union(new HiddenEvent(owner,(ChannelEvent)obsEvent));	
-
-			return newInspection(resultAlpha,
-					new AbstractCalculationStep(owner, visitorAccess) {
-
-				@Override
-				public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
-						throws AnalysisException {
-					owner.getLeftChild().execute(supervisor());
-					return new Pair<INode,Context>(node, question);
-				}
-			});
-		}
-		else
-			return newInspection(createSilentTransition(node, new ASkipAction()),
-					new AbstractCalculationStep(owner, visitorAccess) {
-
-				@Override
-				public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
-						throws AnalysisException {
-					setLeftChild(null);
-					return new Pair<INode,Context>(new ASkipAction(), question);
-				}
-			});
-
-		//FIXME This is actually not a tau transition. This should produced an entirely 
-		//different event which has no denotational trace but only for debugging
-		//return createSilentTransition(node, node.getLeft(), "Hiding (This should not be a tau)");
+		return caseHiding(node,node.getChansetExpression(),question);
+//		//We do the hiding behavior as long as the Action is not terminated
+//		if(!owner.getLeftChild().finished())
+//		{
+//			//first we convert the channelset expression into a Cmlalpabet
+//			CmlAlphabet hidingAlpha = (CmlAlphabet)node.getChansetExpression().apply(cmlExpressionVisitor,question);
+//			//next we inspect the action to get the current available transitions
+//			CmlAlphabet alpha = owner.getLeftChild().inspect();
+//			//Intersect the two to find which transitions should be converted to silents transitions
+//			CmlAlphabet hiddenEvents = alpha.intersect(hidingAlpha);
+//			//remove the events that has to be silent
+//			CmlAlphabet resultAlpha = alpha.subtract(hiddenEvents);
+//			//convert them into silent events and add the again
+//			for(ObservableEvent obsEvent : hiddenEvents.getObservableEvents())
+//				if(obsEvent instanceof ChannelEvent)
+//					resultAlpha = resultAlpha.union(new HiddenEvent(owner,(ChannelEvent)obsEvent));	
+//
+//			return newInspection(resultAlpha,
+//					new AbstractCalculationStep(owner, visitorAccess) {
+//
+//				@Override
+//				public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+//						throws AnalysisException {
+//					owner.getLeftChild().execute(supervisor());
+//					return new Pair<INode,Context>(node, question);
+//				}
+//			});
+//		}
+//		//If the Action is terminated then it evolves into Skip
+//		else
+//			return newInspection(createSilentTransition(node, new ASkipAction()),
+//					new AbstractCalculationStep(owner, visitorAccess) {
+//
+//				@Override
+//				public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+//						throws AnalysisException {
+//					setLeftChild(null);
+//					return new Pair<INode,Context>(new ASkipAction(), question);
+//				}
+//			});
 	}
 
 	/**

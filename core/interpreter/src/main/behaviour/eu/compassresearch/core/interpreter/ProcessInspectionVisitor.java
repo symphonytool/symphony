@@ -32,6 +32,7 @@ import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.ast.process.AExternalChoiceProcess;
 import eu.compassresearch.ast.process.AGeneralisedParallelismProcess;
+import eu.compassresearch.ast.process.AHidingProcess;
 import eu.compassresearch.ast.process.AInterleavingProcess;
 import eu.compassresearch.ast.process.AInternalChoiceProcess;
 import eu.compassresearch.ast.process.AReferenceProcess;
@@ -510,4 +511,9 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 		return resultAlpha;
 	}
 	
+	@Override
+	public Inspection caseAHidingProcess(AHidingProcess node, Context question)
+			throws AnalysisException {
+		return caseHiding(node,node.getChansetExpression(),question);
+	}
 }

@@ -26,6 +26,7 @@ import eu.compassresearch.core.interpreter.api.behaviour.Inspection;
 import eu.compassresearch.core.interpreter.api.transitions.ChannelEvent;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTock;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
+import eu.compassresearch.core.interpreter.api.transitions.HiddenEvent;
 import eu.compassresearch.core.interpreter.api.transitions.ObservableEvent;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
@@ -34,7 +35,6 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 	interface parallelCompositionHelper
 	{
 		void caseParallelBegin() throws AnalysisException;
-
 	}
 
 	public CommonInspectionVisitor(CmlBehaviour ownerProcess,
@@ -111,7 +111,6 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 					CmlBehaviour rightInstance = new ConcreteCmlBehaviour(rightNode, childContexts.second.deepCopy(), new LexNameToken(name().getModule(),"[]" + name().getIdentifier().getName(), new LexLocation()),this.owner); 
 					setRightChild(rightInstance);
 
-					//Now let this process wait for the children to get into a waitForEvent state
 					return new Pair<INode, Context>(node, question);
 				}
 			});
@@ -336,7 +335,57 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 			}
 		};
 	}
+	
+	/**
+	 * Common Hiding handler methods
+	 * @throws AnalysisException 
+	 */
+	protected Inspection caseHiding(final INode node, PVarsetExpression chansetExpression, final Context question) throws AnalysisException
+	{
+		//We do the hiding behavior as long as the Action is not terminated
+		if(!owner.getLeftChild().finished())
+		{
+			//first we convert the channelset expression into a Cmlalpabet
+			CmlAlphabet hidingAlpha = (CmlAlphabet)chansetExpression.apply(cmlExpressionVisitor,question);
+			//next we inspect the action to get the current available transitions
+			CmlAlphabet alpha = owner.getLeftChild().inspect();
+			//Intersect the two to find which transitions should be converted to silents transitions
+			CmlAlphabet hiddenEvents = alpha.intersect(hidingAlpha);
+			//remove the events that has to be silent
+			CmlAlphabet resultAlpha = alpha.subtract(hiddenEvents);
+			//convert them into silent events and add the again
+			for(ObservableEvent obsEvent : hiddenEvents.getObservableEvents())
+				if(obsEvent instanceof ChannelEvent)
+					resultAlpha = resultAlpha.union(new HiddenEvent(owner,(ChannelEvent)obsEvent));	
 
+			return newInspection(resultAlpha,
+					new AbstractCalculationStep(owner, visitorAccess) {
+
+				@Override
+				public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+						throws AnalysisException {
+					owner.getLeftChild().execute(supervisor());
+					return new Pair<INode,Context>(node, question);
+				}
+			});
+		}
+		//If the Action is terminated then it evolves into Skip
+		else
+			return newInspection(createSilentTransition(node, new ASkipAction()),
+					new AbstractCalculationStep(owner, visitorAccess) {
+
+				@Override
+				public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+						throws AnalysisException {
+					setLeftChild(null);
+					return new Pair<INode,Context>(new ASkipAction(), question);
+				}
+			});
+	}
+	
+	/**
+	 * Common Sequential composition handler methods
+	 */
 	protected Inspection caseASequentialComposition(final INode node, INode leftNode, 
 			final INode rightNode, final Context question) throws AnalysisException {
 		//we execute the left action until it successfully terminates
