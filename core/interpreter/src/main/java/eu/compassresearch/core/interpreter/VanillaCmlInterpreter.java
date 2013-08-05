@@ -320,7 +320,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	public static void main(String[] args) throws IOException, InterpreterException
 	{
 		File cml_example = new File(
-				"src/test/resources/action/interpretable-implicitfunction.cml");
+				"src/test/resources/action/communications/action-communication-input4.cml");
 		runOnFile(cml_example);
 
 	}
