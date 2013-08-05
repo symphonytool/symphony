@@ -93,11 +93,11 @@
             class="eu.compassresearch.ide.cml.mcplugin.view.MCListView"
             icon="icons/mc.png"
             id="eu.compassresearch.ide.cml.mcplugin.view.mc-listview"
-            name="CML MC List">
+            name="CML Model Checker List">
       </view>
       <view
                id="eu.compassresearch.ide.cml.mcplugin.view.progressview"
-               name="MC Progress View"
+               name="Model Checker Progress View"
                class="org.eclipse.ui.ExtensionFactory:progressView">
          </view>
    </extension>
@@ -107,7 +107,7 @@
             class="eu.compassresearch.ide.cml.mcplugin.MCPerspectiveFactory"
             icon="icons/mc.png"
             id="eu.compassresearch.ide.mc-plugin.perspective"
-            name="MC">
+            name="Model Checker">
             <description>
                CML Model Checker Perspective
             </description>
