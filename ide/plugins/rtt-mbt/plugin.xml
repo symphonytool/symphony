@@ -4,16 +4,16 @@
    <extension
          point="org.eclipse.ui.perspectives">
       <perspective
-            class="eu.compassresearch.ide.rttplugin.PerspectiveFactory"
+            class="eu.compassresearch.ide.rttmbt.PerspectiveFactory"
             icon="icons/rtt-mbt-small.png"
-            id="eu.compassresearch.ide.rttplugin.rtt-perspective"
+            id="eu.compassresearch.ide.rttmbt.rtt-perspective"
             name="RttPerspective">
       </perspective>
    </extension>
    <extension
          point="org.eclipse.ui.perspectiveExtensions">
       <perspectiveExtension
-            targetID="eu.compassresearch.ide.rttplugin.rtt-perspective">
+            targetID="eu.compassresearch.ide.rttmbt.rtt-perspective">
          <view
                id="eu.compassresearch.ide.rttmbt.RttMbtProjectExplorer"
                minimized="false"
@@ -23,7 +23,7 @@
                visible="true">
          </view>
          <view
-               id="eu.compassresearch.ide.rttplugin.ConsoleView"
+               id="eu.compassresearch.ide.rttmbt.ConsoleView"
                minimized="false"
                ratio="0.80"
                relationship="bottom"
@@ -31,7 +31,7 @@
                visible="true">
          </view>
          <view
-               id="eu.compassresearch.ide.rttplugin.ProgressView"
+               id="eu.compassresearch.ide.rttmbt.ProgressView"
                minimized="false"
                ratio="0.75"
                relationship="right"
@@ -43,7 +43,7 @@
                minimized="false"
                ratio="0.75"
                relationship="top"
-               relative="eu.compassresearch.ide.rttplugin.ProgressView"
+               relative="eu.compassresearch.ide.rttmbt.ProgressView"
                visible="true">
          </view>
       </perspectiveExtension>
@@ -52,24 +52,24 @@
          point="org.eclipse.ui.views">
       <view
             category="eu.compassresearch.ide.ui.category"
-            class="eu.compassresearch.ide.rttplugin.RttMbtConsoleView"
+            class="eu.compassresearch.ide.rttmbt.RttMbtConsoleView"
             icon="icons/rtt-mbt-small.png"
-            id="eu.compassresearch.ide.rttplugin.ConsoleView"
+            id="eu.compassresearch.ide.rttmbt.ConsoleView"
             name="Console"
             restorable="true">
       </view>
       <view
             category="eu.compassresearch.ide.ui.category"
-            class="eu.compassresearch.ide.rttplugin.RttMbtProgressView"
+            class="eu.compassresearch.ide.rttmbt.RttMbtProgressView"
             icon="icons/rtt-mbt-small.png"
-            id="eu.compassresearch.ide.rttplugin.ProgressView"
+            id="eu.compassresearch.ide.rttmbt.ProgressView"
             name="ProgressView"
             restorable="true">
       </view>
       <view
             allowMultiple="false"
             category="eu.compassresearch.ide.ui.category"
-            class="eu.compassresearch.ide.rttplugin.RttMbtProjectExplorer"
+            class="eu.compassresearch.ide.rttmbt.RttMbtProjectExplorer"
             icon="icons/rtt-mbt-small.png"
             id="eu.compassresearch.ide.rttmbt.RttMbtProjectExplorer"
             name="ProjectExplorer"
@@ -108,9 +108,9 @@
          point="org.eclipse.ui.newWizards">
       <wizard
             category="compass_eu.compassresearch.ide.ui.category"
-            class="eu.compassresearch.ide.rttplugin.RttMbtComponentWizard"
+            class="eu.compassresearch.ide.rttmbt.RttMbtComponentWizard"
             icon="icons/rtt-mbt-small.png"
-            id="eu.compassresearch.ide.rttplugin.RttMbtComponentWizard"
+            id="eu.compassresearch.ide.rttmbt.RttMbtComponentWizard"
             name="RTT-MBT Project">
       </wizard>
       <category
@@ -123,19 +123,19 @@
          point="org.eclipse.ui.preferencePages">
       <page
             category="compass_eu.compassresearch.ide.ui.category"
-            class="eu.compassresearch.ide.rttplugin.RttMbtPreferencesPage"
-            id="eu.compassresearch.ide.rttplugin.RttMbtPreferencesMainPage"
+            class="eu.compassresearch.ide.rttmbt.RttMbtPreferencesPage"
+            id="eu.compassresearch.ide.rttmbt.RttMbtPreferencesMainPage"
             name="RT-Tester">
       </page>
       <page
-            category="eu.compassresearch.ide.rttplugin.RttMbtPreferencesMainPage"
-            class="eu.compassresearch.ide.rttplugin.RttMbtPreferencesServerPage"
+            category="eu.compassresearch.ide.rttmbt.RttMbtPreferencesMainPage"
+            class="eu.compassresearch.ide.rttmbt.RttMbtPreferencesServerPage"
             id="eu.compassresearch.ide.rttmbt.RttMbtPreferencesServerPage"
             name="Server">
       </page>
       <page
-            category="eu.compassresearch.ide.rttplugin.RttMbtPreferencesMainPage"
-            class="eu.compassresearch.ide.rttplugin.RttMbtPreferencesProjectPage"
+            category="eu.compassresearch.ide.rttmbt.RttMbtPreferencesMainPage"
+            class="eu.compassresearch.ide.rttmbt.RttMbtPreferencesProjectPage"
             id="eu.compassresearch.ide.rttmbt.RttMbtPreferencesProjectPage"
             name="Project">
       </page>
@@ -149,9 +149,9 @@
    <extension
          point="org.eclipse.core.expressions.propertyTesters">
       <propertyTester
-            class="eu.compassresearch.ide.rttplugin.RttMbtPropertyTester"
-            id="eu.compassresearch.ide.rttplugin.RttMbtPropertyTester"
-            namespace="eu.compassresearch.ide.rttplugin.RttMbtPropertyTester"
+            class="eu.compassresearch.ide.rttmbt.RttMbtPropertyTester"
+            id="eu.compassresearch.ide.rttmbt.RttMbtPropertyTester"
+            namespace="eu.compassresearch.ide.rttmbt.RttMbtPropertyTester"
             properties="isRttMbtProject, isTestGenerationContext, isRttTestprocedure"
             type="java.lang.Object">
       </propertyTester>
@@ -160,45 +160,45 @@
          point="org.eclipse.ui.commands">
       <category
             description="RT-Tester Model Based Testing Commands"
-            id="eu.compassresearch.ide.rttplugin.RttMbtCommands"
+            id="eu.compassresearch.ide.rttmbt.RttMbtCommands"
             name="RTT-MBT">
       </category>
       <command
-            defaultHandler="eu.compassresearch.ide.rttplugin.RttMbtNewProject"
-            id="eu.compassresearch.ide.rttplugin.RttMbtNewProject"
+            defaultHandler="eu.compassresearch.ide.rttmbt.RttMbtNewProject"
+            id="eu.compassresearch.ide.rttmbt.RttMbtNewProject"
             name="New Project">
       </command>
       <command
-            defaultHandler="eu.compassresearch.ide.rttplugin.RttMbtAddProject"
-            id="eu.compassresearch.ide.rttplugin.RttMbtAddProject"
+            defaultHandler="eu.compassresearch.ide.rttmbt.RttMbtAddProject"
+            id="eu.compassresearch.ide.rttmbt.RttMbtAddProject"
             name="Add Project">
       </command>
       <command
-            defaultHandler="eu.compassresearch.ide.rttplugin.RttMbtAbort"
-            id="eu.compassresearch.ide.rttplugin.RttMbtAbort"
+            defaultHandler="eu.compassresearch.ide.rttmbt.RttMbtAbort"
+            id="eu.compassresearch.ide.rttmbt.RttMbtAbort"
             name="Abort Current Task">
       </command>
       <command
-            defaultHandler="eu.compassresearch.ide.rttplugin.RttMbtRetrieveFileOrDirectory"
-            id="eu.compassresearch.ide.rttplugin.RttMbtPullFromServer"
+            defaultHandler="eu.compassresearch.ide.rttmbt.RttMbtRetrieveFileOrDirectory"
+            id="eu.compassresearch.ide.rttmbt.RttMbtPullFromServer"
             name="Pull from Server">
       </command>
       <command
-            defaultHandler="eu.compassresearch.ide.rttplugin.RttMbtSendFileOrDirectory"
-            id="eu.compassresearch.ide.rttplugin.RttMbtPushToServer"
+            defaultHandler="eu.compassresearch.ide.rttmbt.RttMbtSendFileOrDirectory"
+            id="eu.compassresearch.ide.rttmbt.RttMbtPushToServer"
             name="Push to Server">
       </command>
       <command
-            defaultHandler="eu.compassresearch.ide.rttplugin.RttMbtDeleteFile"
-            id="eu.compassresearch.ide.rttplugin.DeleteLocalAndServer"
+            defaultHandler="eu.compassresearch.ide.rttmbt.RttMbtDeleteFile"
+            id="eu.compassresearch.ide.rttmbt.DeleteLocalAndServer"
             name="Delete RTT-MBT Resource">
       </command>
    </extension>
    <extension
          point="org.eclipse.ui.handlers">
       <handler
-            class="eu.compassresearch.ide.rttplugin.RttMbtGenerateTest"
-            commandId="eu.compassresearch.ide.rttplugin.RttMbtGenerateTest">
+            class="eu.compassresearch.ide.rttmbt.RttMbtGenerateTest"
+            commandId="eu.compassresearch.ide.rttmbt.RttMbtGenerateTest">
          <activeWhen>
             <with
                   variable="eu.compassresearch.ide.rttmbt.IsGenerationContextTP">
@@ -209,8 +209,8 @@
          </activeWhen>
       </handler>
       <handler
-            class="eu.compassresearch.ide.rttplugin.RttMbtGenerateSimulation"
-            commandId="eu.compassresearch.ide.rttplugin.RttMbtGenerateSimulation">
+            class="eu.compassresearch.ide.rttmbt.RttMbtGenerateSimulation"
+            commandId="eu.compassresearch.ide.rttmbt.RttMbtGenerateSimulation">
          <activeWhen>
             <with
                   variable="eu.compassresearch.ide.rttmbt.IsGenerationContextTP">
@@ -221,8 +221,8 @@
          </activeWhen>
       </handler>
       <handler
-            class="eu.compassresearch.ide.rttplugin.RttMbtCleanRttTestProcedure"
-            commandId="eu.compassresearch.ide.rttplugin.RttMbtCleanTest">
+            class="eu.compassresearch.ide.rttmbt.RttMbtCleanRttTestProcedure"
+            commandId="eu.compassresearch.ide.rttmbt.RttMbtCleanTest">
          <activeWhen>
             <with
                   variable="eu.compassresearch.ide.rttmbt.IsExecutionContextTP">
@@ -233,8 +233,8 @@
          </activeWhen>
       </handler>
       <handler
-            class="eu.compassresearch.ide.rttplugin.RttMbtCompileRttTestProcedure"
-            commandId="eu.compassresearch.ide.rttplugin.RttMbtCompileTest">
+            class="eu.compassresearch.ide.rttmbt.RttMbtCompileRttTestProcedure"
+            commandId="eu.compassresearch.ide.rttmbt.RttMbtCompileTest">
          <activeWhen>
             <with
                   variable="eu.compassresearch.ide.rttmbt.IsExecutionContextTP">
@@ -245,8 +245,8 @@
          </activeWhen>
       </handler>
       <handler
-            class="eu.compassresearch.ide.rttplugin.RttMbtRunRttTestProcedure"
-            commandId="eu.compassresearch.ide.rttplugin.RttMbtRunTest">
+            class="eu.compassresearch.ide.rttmbt.RttMbtRunRttTestProcedure"
+            commandId="eu.compassresearch.ide.rttmbt.RttMbtRunTest">
          <activeWhen>
             <with
                   variable="eu.compassresearch.ide.rttmbt.IsExecutionContextTP">
@@ -257,8 +257,8 @@
          </activeWhen>
       </handler>
       <handler
-            class="eu.compassresearch.ide.rttplugin.RttMbtReplayTestprocedure"
-            commandId="eu.compassresearch.ide.rttplugin.RttMbtReplayTest">
+            class="eu.compassresearch.ide.rttmbt.RttMbtReplayTestprocedure"
+            commandId="eu.compassresearch.ide.rttmbt.RttMbtReplayTest">
          <activeWhen>
             <or>
                <with
@@ -277,8 +277,8 @@
          </activeWhen>
       </handler>
       <handler
-            class="eu.compassresearch.ide.rttplugin.RttMbtDocRttTestProcedure"
-            commandId="eu.compassresearch.ide.rttplugin.RttMbtDocTest">
+            class="eu.compassresearch.ide.rttmbt.RttMbtDocRttTestProcedure"
+            commandId="eu.compassresearch.ide.rttmbt.RttMbtDocTest">
          <activeWhen>
             <with
                   variable="eu.compassresearch.ide.rttmbt.IsExecutionContextTP">
@@ -289,8 +289,8 @@
          </activeWhen>
       </handler>
       <handler
-            class="eu.compassresearch.ide.rttplugin.RttMbtCheckModel"
-            commandId="eu.compassresearch.ide.rttplugin.RttMbtCheckModel">
+            class="eu.compassresearch.ide.rttmbt.RttMbtCheckModel"
+            commandId="eu.compassresearch.ide.rttmbt.RttMbtCheckModel">
          <activeWhen>
             <with
                   variable="eu.compassresearch.ide.rttmbt.IsModelDumpSelected">
@@ -301,8 +301,8 @@
          </activeWhen>
       </handler>
       <handler
-            class="eu.compassresearch.ide.rttplugin.RttMbtImportModel"
-            commandId="eu.compassresearch.ide.rttplugin.RttMbtImportModel">
+            class="eu.compassresearch.ide.rttmbt.RttMbtImportModel"
+            commandId="eu.compassresearch.ide.rttmbt.RttMbtImportModel">
          <activeWhen>
             <with
                   variable="eu.compassresearch.ide.rttmbt.IsRttMbtProjectSelected">
@@ -313,8 +313,8 @@
          </activeWhen>
       </handler>
       <handler
-            class="eu.compassresearch.ide.rttplugin.RttMbtCleanProject"
-            commandId="eu.compassresearch.ide.rttplugin.RttMbtCleanProject">
+            class="eu.compassresearch.ide.rttmbt.RttMbtCleanProject"
+            commandId="eu.compassresearch.ide.rttmbt.RttMbtCleanProject">
          <activeWhen>
             <with
                   variable="eu.compassresearch.ide.rttmbt.IsRttMbtProjectSelected">
@@ -331,10 +331,10 @@
             allPopups="false"
             locationURI="menu:org.eclipse.ui.main.menu?after=additions">
          <menu
-               id="eu.compassresearch.ide.rttplugin.RttMbtMenu"
+               id="eu.compassresearch.ide.rttmbt.RttMbtMenu"
                label="RTT-MBT">
             <command
-                  commandId="eu.compassresearch.ide.rttplugin.RttMbtCleanProject"
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtCleanProject"
                   icon="icons/mbt_clean.png"
                   label="Clean Project"
                   style="push"
@@ -342,14 +342,14 @@
             </command>
             <!--
             <command
-                  commandId="eu.compassresearch.ide.rttplugin.RttMbtNewProject"
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtNewProject"
                   icon="icons/rtt-mbt-small.png"
                   label="New Project"
                   style="push"
                   tooltip="Creates a new RTT-MBT project structure locally and on the initialize the RTT-MBT server work area">
             </command>
             <command
-                  commandId="eu.compassresearch.ide.rttplugin.RttMbtAddProject"
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtAddProject"
                   icon="icons/add.png"
                   label="Add Project"
                   style="push"
@@ -357,103 +357,103 @@
             </command>
             -->
             <command
-                  commandId="eu.compassresearch.ide.rttplugin.RttMbtImportModel"
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtImportModel"
                   icon="icons/mbt_import_model.png"
                   label="Import Model"
                   style="push"
                   tooltip="Imports the XMI representation of a model into the selected RTT-MBT project">
             </command>
             <command
-                  commandId="eu.compassresearch.ide.rttplugin.RttMbtCheckModel"
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtCheckModel"
                   icon="icons/rtt-mbt-small.png"
                   label="Check Model"
                   style="push"
                   tooltip="Perform Livelock Check on the model of this RTT-MBT Project">
             </command>
             <separator
-                  name="eu.compassresearch.ide.rttplugin.separator-002"
+                  name="eu.compassresearch.ide.rttmbt.separator-002"
                   visible="true">
             </separator>
             <command
-                  commandId="eu.compassresearch.ide.rttplugin.RttMbtGenerateTest"
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtGenerateTest"
                   icon="icons/mbt_generate.png"
                   label="Generate Test"
                   style="push"
                   tooltip="Generate Test Procedure for this Generation Context">
             </command>
             <command
-                  commandId="eu.compassresearch.ide.rttplugin.RttMbtGenerateSimulation"
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtGenerateSimulation"
                   icon="icons/mbt_check.png"
                   label="Generate Simulation"
                   style="push"
                   tooltip="Generate Simulation for this Generation Context">
             </command>
             <separator
-                  name="eu.compassresearch.ide.rttplugin.separator-003"
+                  name="eu.compassresearch.ide.rttmbt.separator-003"
                   visible="true">
             </separator>
             <command
-                  commandId="eu.compassresearch.ide.rttplugin.RttMbtCleanTest"
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtCleanTest"
                   icon="icons/clean.png"
                   label="Clean Test"
                   style="push"
                   tooltip="Clean Test Procedure">
             </command>
             <command
-                  commandId="eu.compassresearch.ide.rttplugin.RttMbtCompileTest"
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtCompileTest"
                   icon="icons/compile.png"
                   label="Compile Test"
                   style="push"
                   tooltip="Compile Test Procedure">
             </command>
             <command
-                  commandId="eu.compassresearch.ide.rttplugin.RttMbtRunTest"
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtRunTest"
                   icon="icons/run.png"
                   label="Run Test"
                   style="push"
                   tooltip="Execute Test Procedure">
             </command>
             <command
-                  commandId="eu.compassresearch.ide.rttplugin.RttMbtReplayTest"
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtReplayTest"
                   icon="icons/mbt_replay.png"
                   label="Replay Test Result"
                   style="push"
                   tooltip="Replay Test Result against the Model">
             </command>
             <command
-                  commandId="eu.compassresearch.ide.rttplugin.RttMbtDocTest"
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtDocTest"
                   icon="icons/documentate.png"
                   label="Generate Test Documentation"
                   style="push"
                   tooltip="Generate Test Procedure Documentation">
             </command>
             <separator
-                  name="eu.compassresearch.ide.rttplugin.separator-004"
+                  name="eu.compassresearch.ide.rttmbt.separator-004"
                   visible="true">
             </separator>
             <command
-                  commandId="eu.compassresearch.ide.rttplugin.RttMbtAbort"
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtAbort"
                   icon="icons/stop.png"
                   label="Abort Current task"
                   style="push"
                   tooltip="Abort Current task">
             </command>
             <command
-                  commandId="eu.compassresearch.ide.rttplugin.RttMbtPushToServer"
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtPushToServer"
                   icon="icons/back.png"
                   label="Push to Server"
                   style="push"
                   tooltip="Send File(s) to RTT-MBT server">
             </command>
             <command
-                  commandId="eu.compassresearch.ide.rttplugin.RttMbtPullFromServer"
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtPullFromServer"
                   icon="icons/forward.png"
                   label="Pull from Server"
                   style="push"
                   tooltip="Retrieve Files/Directories from RTT-MBT server">
             </command>
             <command
-                  commandId="eu.compassresearch.ide.rttplugin.DeleteLocalAndServer"
+                  commandId="eu.compassresearch.ide.rttmbt.DeleteLocalAndServer"
                   icon="icons/delete.png"
                   label="Delete RTT-MBT Resource"
                   style="push"
@@ -474,10 +474,10 @@
             allPopups="false"
             locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
          <toolbar
-               id="eu.compassresearch.ide.rttplugin.RttMbtToolbar"
+               id="eu.compassresearch.ide.rttmbt.RttMbtToolbar"
                label="RT-Tester">
             <command
-                  commandId="eu.compassresearch.ide.rttplugin.RttMbtCleanProject"
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtCleanProject"
                   icon="icons/mbt_clean.png"
                   label="Clean Project"
                   style="push"
@@ -493,14 +493,14 @@
             </command>
             <!--
             <command
-                  commandId="eu.compassresearch.ide.rttplugin.RttMbtNewProject"
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtNewProject"
                   icon="icons/rtt-mbt-small.png"
                   label="New Project"
                   style="push"
                   tooltip="Creates a new RTT-MBT project structure locally and on the initialize the RTT-MBT server work area">
             </command>
             <command
-                  commandId="eu.compassresearch.ide.rttplugin.RttMbtAddProject"
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtAddProject"
                   icon="icons/add.png"
                   label="Add Project"
                   style="push"
@@ -508,7 +508,7 @@
             </command>
             -->
             <command
-                  commandId="eu.compassresearch.ide.rttplugin.RttMbtImportModel"
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtImportModel"
                   icon="icons/mbt_import_model.png"
                   label="Import Model"
                   style="push"
@@ -523,7 +523,7 @@
                </visibleWhen>
             </command>
             <command
-                  commandId="eu.compassresearch.ide.rttplugin.RttMbtCheckModel"
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtCheckModel"
                   icon="icons/rtt-mbt-small.png"
                   label="Check Model"
                   style="push"
@@ -538,11 +538,11 @@
                </visibleWhen>
             </command>
             <separator
-                  name="eu.compassresearch.ide.rttplugin.separator-002"
+                  name="eu.compassresearch.ide.rttmbt.separator-002"
                   visible="true">
             </separator>
             <command
-                  commandId="eu.compassresearch.ide.rttplugin.RttMbtGenerateTest"
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtGenerateTest"
                   icon="icons/mbt_generate.png"
                   label="Generate Test"
                   style="push"
@@ -557,7 +557,7 @@
                </visibleWhen>
             </command>
             <command
-                  commandId="eu.compassresearch.ide.rttplugin.RttMbtGenerateSimulation"
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtGenerateSimulation"
                   icon="icons/mbt_check.png"
                   label="Generate Simulation"
                   style="push"
@@ -572,11 +572,11 @@
                </visibleWhen>
             </command>
             <separator
-                  name="eu.compassresearch.ide.rttplugin.separator-003"
+                  name="eu.compassresearch.ide.rttmbt.separator-003"
                   visible="true">
             </separator>
             <command
-                  commandId="eu.compassresearch.ide.rttplugin.RttMbtCleanTest"
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtCleanTest"
                   icon="icons/clean.png"
                   label="Clean Test"
                   style="push"
@@ -591,7 +591,7 @@
                </visibleWhen>
             </command>
             <command
-                  commandId="eu.compassresearch.ide.rttplugin.RttMbtCompileTest"
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtCompileTest"
                   icon="icons/compile.png"
                   label="Compile Test"
                   style="push"
@@ -606,7 +606,7 @@
                </visibleWhen>
             </command>
             <command
-                  commandId="eu.compassresearch.ide.rttplugin.RttMbtRunTest"
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtRunTest"
                   icon="icons/run.png"
                   label="Run Test"
                   style="push"
@@ -621,7 +621,7 @@
                </visibleWhen>
             </command>
             <command
-                  commandId="eu.compassresearch.ide.rttplugin.RttMbtReplayTest"
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtReplayTest"
                   icon="icons/mbt_replay.png"
                   label="Replay Test Result"
                   style="push"
@@ -636,7 +636,7 @@
                </visibleWhen>
             </command>
             <command
-                  commandId="eu.compassresearch.ide.rttplugin.RttMbtDocTest"
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtDocTest"
                   icon="icons/documentate.png"
                   label="Generate Test Documentation"
                   style="push"
@@ -651,11 +651,11 @@
                </visibleWhen>
             </command>
             <separator
-                  name="eu.compassresearch.ide.rttplugin.separator-004"
+                  name="eu.compassresearch.ide.rttmbt.separator-004"
                   visible="true">
             </separator>
             <command
-                  commandId="eu.compassresearch.ide.rttplugin.RttMbtAbort"
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtAbort"
                   icon="icons/stop.png"
                   label="Abort Current task"
                   style="push"
@@ -670,7 +670,7 @@
                </visibleWhen>
             </command>
             <command
-                  commandId="eu.compassresearch.ide.rttplugin.RttMbtPushToServer"
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtPushToServer"
                   icon="icons/back.png"
                   label="Push to Server"
                   style="push"
@@ -685,7 +685,7 @@
                </visibleWhen>
             </command>
             <command
-                  commandId="eu.compassresearch.ide.rttplugin.RttMbtPullFromServer"
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtPullFromServer"
                   icon="icons/forward.png"
                   label="Pull from Server"
                   style="push"
@@ -700,7 +700,7 @@
                </visibleWhen>
             </command>
             <command
-                  commandId="eu.compassresearch.ide.rttplugin.DeleteLocalAndServer"
+                  commandId="eu.compassresearch.ide.rttmbt.DeleteLocalAndServer"
                   icon="icons/delete.png"
                   label="Delete RTT-MBT Resource"
                   style="push"
@@ -720,18 +720,18 @@
             allPopups="false"
             locationURI="popup:org.eclipse.ui.popup.any?after=additions">
          <menu
-               id="eu.compassresearch.ide.rttplugin.RttMbtProjectMenu"
+               id="eu.compassresearch.ide.rttmbt.RttMbtProjectMenu"
                label="Resource">
             <!--
             <command
-                  commandId="eu.compassresearch.ide.rttplugin.RttMbtNewProject"
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtNewProject"
                   icon="icons/rtt-mbt-small.png"
                   label="New Project"
                   style="push"
                   tooltip="Creates a new RTT-MBT project structure locally and on the initialize the RTT-MBT server work area">
             </command>
             <command
-                  commandId="eu.compassresearch.ide.rttplugin.RttMbtAddProject"
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtAddProject"
                   icon="icons/add.png"
                   label="Add Project"
                   style="push"
@@ -739,21 +739,21 @@
             </command>
             -->
             <command
-                  commandId="eu.compassresearch.ide.rttplugin.RttMbtPushToServer"
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtPushToServer"
                   icon="icons/back.png"
                   label="Push to Server"
                   style="push"
                   tooltip="Send File(s) to RTT-MBT server">
             </command>
             <command
-                  commandId="eu.compassresearch.ide.rttplugin.RttMbtPullFromServer"
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtPullFromServer"
                   icon="icons/forward.png"
                   label="Pull from Server"
                   style="push"
                   tooltip="Retrieve Files/Directories from RTT-MBT server">
             </command>
             <command
-                  commandId="eu.compassresearch.ide.rttplugin.DeleteLocalAndServer"
+                  commandId="eu.compassresearch.ide.rttmbt.DeleteLocalAndServer"
                   icon="icons/delete.png"
                   label="Delete RTT-MBT Resource"
                   style="push"
@@ -774,24 +774,24 @@
             allPopups="false"
             locationURI="popup:org.eclipse.ui.popup.any?after=additions">
          <menu
-               id="eu.compassresearch.ide.rttplugin.RttMbtModelMenu"
+               id="eu.compassresearch.ide.rttmbt.RttMbtModelMenu"
                label="Model">
             <command
-                  commandId="eu.compassresearch.ide.rttplugin.RttMbtCleanProject"
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtCleanProject"
                   icon="icons/mbt_clean.png"
                   label="Clean Project"
                   style="push"
                   tooltip="Cleanup Project">
             </command>
             <command
-                  commandId="eu.compassresearch.ide.rttplugin.RttMbtImportModel"
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtImportModel"
                   icon="icons/mbt_import_model.png"
                   label="Import Model"
                   style="push"
                   tooltip="Imports the XMI representation of a model into the selected RTT-MBT project">
             </command>
             <command
-                  commandId="eu.compassresearch.ide.rttplugin.RttMbtCheckModel"
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtCheckModel"
                   icon="icons/rtt-mbt-small.png"
                   label="Check Model"
                   style="push"
@@ -828,17 +828,17 @@
             allPopups="false"
             locationURI="popup:org.eclipse.ui.popup.any?after=additions">
          <menu
-               id="eu.compassresearch.ide.rttplugin.RttMbtTPgenContextMenu"
+               id="eu.compassresearch.ide.rttmbt.RttMbtTPgenContextMenu"
                label="Test Generation Context">
             <command
-                  commandId="eu.compassresearch.ide.rttplugin.RttMbtGenerateTest"
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtGenerateTest"
                   icon="icons/mbt_generate.png"
                   label="Generate Test"
                   style="push"
                   tooltip="Generate Test Procedure for this Generation Context">
             </command>
             <command
-                  commandId="eu.compassresearch.ide.rttplugin.RttMbtGenerateSimulation"
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtGenerateSimulation"
                   icon="icons/mbt_check.png"
                   label="Generate Simulation"
                   style="push"
@@ -859,38 +859,38 @@
             allPopups="false"
             locationURI="popup:org.eclipse.ui.popup.any?after=additions">
          <menu
-               id="eu.compassresearch.ide.rttplugin.RttMbtTestProcedureMenu"
+               id="eu.compassresearch.ide.rttmbt.RttMbtTestProcedureMenu"
                label="Test Execution Context">
             <command
-                  commandId="eu.compassresearch.ide.rttplugin.RttMbtCleanTest"
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtCleanTest"
                   icon="icons/clean.png"
                   label="Clean Test"
                   style="push"
                   tooltip="Clean Test Procedure">
             </command>
             <command
-                  commandId="eu.compassresearch.ide.rttplugin.RttMbtCompileTest"
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtCompileTest"
                   icon="icons/compile.png"
                   label="Compile Test"
                   style="push"
                   tooltip="Compile Test Procedure">
             </command>
             <command
-                  commandId="eu.compassresearch.ide.rttplugin.RttMbtRunTest"
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtRunTest"
                   icon="icons/run.png"
                   label="Run Test"
                   style="push"
                   tooltip="Execute Test Procedure">
             </command>
             <command
-                  commandId="eu.compassresearch.ide.rttplugin.RttMbtReplayTest"
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtReplayTest"
                   icon="icons/mbt_replay.png"
                   label="Replay Test Result"
                   style="push"
                   tooltip="Replay Test Result against the Model">
             </command>
             <command
-                  commandId="eu.compassresearch.ide.rttplugin.RttMbtDocTest"
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtDocTest"
                   icon="icons/documentate.png"
                   label="Generate Test Documentation"
                   style="push"
@@ -911,46 +911,46 @@
    <extension
          point="org.eclipse.ui.editors">
       <editor
-            class="eu.compassresearch.ide.rttplugin.RttMbtSignalmapEditor"
-            contributorClass="eu.compassresearch.ide.rttplugin.RttMbtSignalmapEditorContributor"
+            class="eu.compassresearch.ide.rttmbt.RttMbtSignalmapEditor"
+            contributorClass="eu.compassresearch.ide.rttmbt.RttMbtSignalmapEditorContributor"
             default="true"
             filenames="signalmap.csv"
             icon="icons/configure.png"
-            id="eu.compassresearch.ide.rttplugin.signalmapeditor"
+            id="eu.compassresearch.ide.rttmbt.signalmapeditor"
             name="Signalmap Editor">
       </editor>
       <editor
-            class="eu.compassresearch.ide.rttplugin.RttMbtConfigEditor"
-            contributorClass="eu.compassresearch.ide.rttplugin.RttMbtConfigEditorContributor"
+            class="eu.compassresearch.ide.rttmbt.RttMbtConfigEditor"
+            contributorClass="eu.compassresearch.ide.rttmbt.RttMbtConfigEditorContributor"
             default="true"
             filenames="configuration.csv"
             icon="icons/configure.png"
-            id="eu.compassresearch.ide.rttplugin.configeditor"
+            id="eu.compassresearch.ide.rttmbt.configeditor"
             name="Configuration Editor">
       </editor>
       <editor
-            class="eu.compassresearch.ide.rttplugin.RttMbtRequirementsCoverage"
-            contributorClass="eu.compassresearch.ide.rttplugin.RttMbtRequirementsCoverageContributor"
+            class="eu.compassresearch.ide.rttmbt.RttMbtRequirementsCoverage"
+            contributorClass="eu.compassresearch.ide.rttmbt.RttMbtRequirementsCoverageContributor"
             default="true"
             filenames="overall_coverage.csv"
             icon="icons/configure.png"
-            id="eu.compassresearch.ide.rttplugin.overallcoverageeditor"
+            id="eu.compassresearch.ide.rttmbt.overallcoverageeditor"
             name="Overall Coverage Editor">
       </editor>
       <editor
-            class="eu.compassresearch.ide.rttplugin.RttMbtSignalViewEditor"
-            contributorClass="eu.compassresearch.ide.rttplugin.RttMbtSignalViewEditorContributor"
+            class="eu.compassresearch.ide.rttmbt.RttMbtSignalViewEditor"
+            contributorClass="eu.compassresearch.ide.rttmbt.RttMbtSignalViewEditorContributor"
             default="true"
             filenames="signals.json"
             icon="icons/mbt_run.png"
-            id="eu.compassresearch.ide.rttplugin.signalviewer"
+            id="eu.compassresearch.ide.rttmbt.signalviewer"
             name="Signal Viewer">
       </editor>
    </extension>
    <extension
          point="org.eclipse.ui.services">
       <sourceProvider
-            provider="eu.compassresearch.ide.rttplugin.RttMbtCommandState">
+            provider="eu.compassresearch.ide.rttmbt.RttMbtCommandState">
          <variable
                name="eu.compassresearch.ide.rttmbt.IsGenerationContextTP"
                priorityLevel="workbench">

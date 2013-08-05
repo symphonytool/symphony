@@ -32,7 +32,13 @@
     </repository>
   </repositories>
 
+  <!-- these let the scala compile pass, even though they don't affect the packaging -->
   <dependencies>
+    <dependency>
+      <groupId>eu.compassresearch.core.analysis</groupId>
+      <artifactId>pog</artifactId>
+      <version>${project.version}</version>
+    </dependency>
     <dependency>
       <groupId>eu.compassresearch.core.analysis</groupId>
       <artifactId>theoremprover</artifactId>
