@@ -29,6 +29,7 @@ import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
 import eu.compassresearch.ide.interpreter.CmlDebugPlugin;
 import eu.compassresearch.ide.interpreter.CmlUtil;
 import eu.compassresearch.ide.interpreter.ICmlDebugConstants;
+import eu.compassresearch.ide.interpreter.launching.GlobalProcessSelectorDialog;
 
 //import eu.compassresearch.core.interpreter.debug.CmlInterpreterLaunchConfigurationConstants;
 
