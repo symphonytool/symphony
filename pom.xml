@@ -13,7 +13,8 @@
 		<module>tools</module>
 		<module>core</module>
 		<!-- <module>ide</module> -->
-		<module>docs/core-examples</module>
+                <!-- I would like to deprecate the core-examples module -jwc/6Aug2013 -->
+		<!-- <module>docs/core-examples</module> -->
 	</modules>
 
 	<properties>
