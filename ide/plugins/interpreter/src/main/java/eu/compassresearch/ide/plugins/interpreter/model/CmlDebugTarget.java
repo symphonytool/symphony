@@ -19,6 +19,7 @@ import org.eclipse.osgi.util.NLS;
 
 import eu.compassresearch.ide.core.resources.ICmlProject;
 import eu.compassresearch.ide.plugins.interpreter.CmlDebugPlugin;
+import eu.compassresearch.ide.plugins.interpreter.debug.ui.model.CmlLineBreakpoint;
 import eu.compassresearch.ide.plugins.interpreter.protocol.CmlCommunicationManager;
 import eu.compassresearch.ide.plugins.interpreter.protocol.CmlThreadManager;
 
@@ -75,30 +76,25 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 	@Override
 	public void terminate() throws DebugException
 	{
-
 		communicationManager.terminate();
-
 	}
 
 	@Override
 	public boolean canResume()
 	{
-		// TODO Auto-generated method stub
-		return false;
+		return threadManager.isSuspended();
 	}
 
 	@Override
 	public boolean canSuspend()
 	{
-		// TODO Auto-generated method stub
-		return false;
+		return threadManager.isRunning();
 	}
 
 	@Override
 	public boolean isSuspended()
 	{
-		// TODO Auto-generated method stub
-		return false;
+		return threadManager.isSuspended();
 	}
 
 	@Override
@@ -116,22 +112,49 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 	@Override
 	public void breakpointAdded(IBreakpoint breakpoint)
 	{
-		// TODO Auto-generated method stub
-
+		if (breakpoint instanceof CmlLineBreakpoint)
+		{
+			CmlLineBreakpoint cb = (CmlLineBreakpoint) breakpoint;
+			try
+			{
+				communicationManager.addBreakpoint(cb.getResourceURI(), ((CmlLineBreakpoint) breakpoint).getLineNumber(), breakpoint.isEnabled());
+			} catch (CoreException e)
+			{
+				CmlDebugPlugin.logError("Faild to add breakpoint", e);
+			}
+		}
 	}
 
 	@Override
 	public void breakpointRemoved(IBreakpoint breakpoint, IMarkerDelta delta)
 	{
-		// TODO Auto-generated method stub
-
+		if (breakpoint instanceof CmlLineBreakpoint)
+		{
+			CmlLineBreakpoint cb = (CmlLineBreakpoint) breakpoint;
+			try
+			{
+				communicationManager.removeBreakpoint(cb.getResourceURI(), ((CmlLineBreakpoint) breakpoint).getLineNumber());
+			} catch (CoreException e)
+			{
+				CmlDebugPlugin.logError("Faild to remove breakpoint", e);
+			}
+		}
 	}
 
 	@Override
 	public void breakpointChanged(IBreakpoint breakpoint, IMarkerDelta delta)
 	{
-		// TODO Auto-generated method stub
-
+		if (breakpoint instanceof CmlLineBreakpoint)
+		{
+			CmlLineBreakpoint cb = (CmlLineBreakpoint) breakpoint;
+			try
+			{
+				communicationManager.updateBreakpoint(cb.getResourceURI(), ((CmlLineBreakpoint) breakpoint).getLineNumber(), breakpoint.isEnabled());
+			} catch (CoreException e)
+			{
+				CmlDebugPlugin.logError("Faild to update breakpoint", e);
+			}
+		}
 	}
 
 	public List<IBreakpoint> getBreakpoints()
@@ -189,7 +212,6 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 	@Override
 	public boolean supportsStorageRetrieval()
 	{
-		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -197,7 +219,6 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 	public IMemoryBlock getMemoryBlock(long startAddress, long length)
 			throws DebugException
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -228,8 +249,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 	@Override
 	public boolean supportsBreakpoint(IBreakpoint breakpoint)
 	{
-		// TODO Auto-generated method stub
-		return false;
+		return (breakpoint instanceof CmlLineBreakpoint);
 	}
 
 	/**

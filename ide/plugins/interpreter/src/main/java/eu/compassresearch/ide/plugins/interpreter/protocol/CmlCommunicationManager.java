@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -386,6 +387,21 @@ public class CmlCommunicationManager extends Thread
 	public boolean isConnected()
 	{
 		return (fRequestSocket == null ? false : !fRequestSocket.isClosed());
+	}
+	
+	public void addBreakpoint(URI file, int linenumber, boolean enabled)
+	{
+		
+	}
+	
+	public void removeBreakpoint(URI file, int linenumber )
+	{
+		
+	}
+	
+	public void updateBreakpoint(URI file, int linenumber, boolean enabled)
+	{
+		
 	}
 
 }
