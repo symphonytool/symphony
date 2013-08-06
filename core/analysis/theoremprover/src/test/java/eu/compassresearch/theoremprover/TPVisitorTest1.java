@@ -20,18 +20,18 @@ public class TPVisitorTest1 {
 	@Test
 	public void testBasicTypes() throws AnalysisException, IOException{
 		List<ThmType> expRes = new LinkedList<ThmType>();
-		Collections.addAll(expRes, new ThmTypeAbbrev("basic1", "@nat")
-		                         , new ThmTypeAbbrev("basic2", "@int")
-		                         , new ThmTypeAbbrev("basic3", "@char"));
+//		Collections.addAll(expRes, new ThmTypeAbbrev("basic1", "@nat")
+//		                         , new ThmTypeAbbrev("basic2", "@int")
+//		                         , new ThmTypeAbbrev("basic3", "@char"));
 		test(basicTypesPath, expRes);	
 	}
 	
 	@Test
 	public void testCompoundsTypes() throws AnalysisException, IOException{
 		List<ThmType> expRes = new LinkedList<ThmType>();
-		Collections.addAll(expRes, new ThmTypeAbbrev("seqnat", "@seq of @nat")
-								 , new ThmTypeAbbrev("setreal", "@set of @real")
-		                         , new ThmTypeAbbrev("seq1char", "@seq1 of @char"));
+//		Collections.addAll(expRes, new ThmTypeAbbrev("seqnat", "@seq of @nat")
+//								 , new ThmTypeAbbrev("setreal", "@set of @real")
+//		                         , new ThmTypeAbbrev("seq1char", "@seq1 of @char"));
 		test(compoundTypesPath, expRes);	
 	}
 	

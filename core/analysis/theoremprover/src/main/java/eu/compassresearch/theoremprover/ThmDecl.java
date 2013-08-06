@@ -1,5 +1,5 @@
 package eu.compassresearch.theoremprover;
 
-public abstract class ThmDecl {
+public abstract class ThmDecl implements ThmArtifact{
 
 }

@@ -3,6 +3,7 @@ package eu.compassresearch.theoremprover;
 import java.util.LinkedList;
 import java.util.Vector;
 
+import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.lex.LexNameToken;
 
 import eu.compassresearch.core.common.AnalysisArtifact;
@@ -25,7 +26,7 @@ public class ThmNodeList extends Vector<ThmNode> implements AnalysisArtifact {
 
     	for (ThmNode tp : this) {
     		sb.append(tp.toString());
-    		//Add line break?
+    		sb.append("\n\n");
     	}
 
 		return sb.toString();
@@ -33,16 +34,22 @@ public class ThmNodeList extends Vector<ThmNode> implements AnalysisArtifact {
     
     
     /******
-     * Checks if all dependancies have been fulfilled in the ordered list
+     * Checks if all dependencies have been fulfilled in the ordered list
      ******/
-    public boolean allDepsFulfilled(LinkedList<LexNameToken> depIds){
+    public boolean allDepsFulfilled(LinkedList<ILexNameToken> depIds){
     	boolean flag = false;
     	
-    	for (LexNameToken d : depIds){
+    	for (ILexNameToken d : depIds){
     		flag = false;
     		
+    		ILexNameToken tempdepId = d;
     		for (ThmNode tp : this){
-    			if (d == tp.getId()){
+
+        		ILexNameToken temptpId = tp.getId();
+        		boolean idNameMatch = tempdepId.getName().equals(temptpId.getName());
+
+    			//if (d == tp.getId()){
+    			if (tempdepId.getName().equals(temptpId.getName())){
     				flag = true;
     				break;
     			}

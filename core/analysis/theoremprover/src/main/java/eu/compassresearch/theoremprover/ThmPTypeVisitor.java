@@ -1,7 +1,16 @@
 package eu.compassresearch.theoremprover;
 
+import java.util.LinkedList;
+
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.definitions.ATypeDefinition;
+import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
+import org.overture.ast.intf.lex.ILexNameToken;
+import org.overture.ast.types.ANamedInvariantType;
+import org.overture.ast.types.ANatNumericBasicType;
+import org.overture.ast.types.ARecordInvariantType;
+import org.overture.ast.types.PType;
 //import org.overture.ast.types.ACharBasicType;
 //import org.overture.ast.types.AIntNumericBasicType;
 //import org.overture.ast.types.ANamedInvariantType;
@@ -14,29 +23,97 @@ import org.overture.ast.expressions.PExp;
 //import org.overture.ast.types.ASetType;
 
 import eu.compassresearch.ast.analysis.AnswerCMLAdaptor;
+import eu.compassresearch.ast.definitions.AChansetDefinition;
+import eu.compassresearch.ast.definitions.ATypesDefinition;
 
 @SuppressWarnings("serial")
 public class ThmPTypeVisitor extends AnswerCMLAdaptor<ThmNodeList> {
 
 
-
+	private static String typeDelim = "\\<parallel>";
+	private static String isaType = "definition";
+	
     final private AnswerCMLAdaptor<ThmNodeList> parentVisitor;
 
     public ThmPTypeVisitor(
     		AnswerCMLAdaptor<ThmNodeList> parentVisitor) {
     	this.parentVisitor = parentVisitor;
     }
+
+
+	@Override
+	public ThmNodeList caseATypesDefinition(ATypesDefinition node)
+			throws AnalysisException {
+		ThmNodeList tnl = new ThmNodeList();
+		
+		for(ATypeDefinition t : node.getTypes())
+		{
+			tnl.addAll(t.apply(this));
+		}
+		return tnl;
+	}
 	
 
-	// Call Overture for the other expressions
-    @Override
-    public ThmNodeList defaultPExp(PExp node)
-	    throws AnalysisException {
-    	ThmNodeList tnl = new ThmNodeList();
-//    	pol.addAll(node.apply(overtureVisitor, question));
-    	return tnl;
-    }
+	@Override
+	public ThmNodeList caseATypeDefinition(ATypeDefinition node)
+			throws AnalysisException {
 
+		ThmNodeList tnl = new ThmNodeList();
+		
+		ILexNameToken name = node.getName();
+		PType nType = node.getType();
+		String type = "";
+		LinkedList<ILexNameToken> nodeDeps = new LinkedList();
+		
+		if (nType instanceof ANamedInvariantType)
+		{
+			ANamedInvariantType nametype = (ANamedInvariantType) nType;
+			PType tp = nametype.getType();
+			//IS A REF NAMED TYPE
+			if (tp instanceof ANamedInvariantType)
+			{
+				ANamedInvariantType tempType = (ANamedInvariantType) tp;
+				type = tempType.toString();
+				nodeDeps.add(tempType.getName());
+			}
+			//ELSE IS A NOT REF TYPE
+			else 
+			{
+				 type = ThmUtil.getIsabelleNamedInvType(tp);
+			}
+		}
+		else
+		{
+			type = "Top Level Type not handled: " + nType.toString() + ", type = " + nType.getClass();
+		}
+//		else if (nType instanceof ARecordInvariantType)
+//		{
+//			ARecordInvariantType rtype = (ARecordInvariantType)type;
+//			
+//			for (AFieldField field: rtype.getFields())
+//			{
+//				if (PTypeAssistantTC.narrowerThan(field.getType(), node.getAccess()))
+//				{
+//					TypeCheckerErrors.report(3321, "Field type visibility less than type's definition", field.getTagname().getLocation(), field.getTagname());
+//				}
+//			}
+//		}
+		
+		ThmNode tn = new ThmNode(name, nodeDeps, new ThmType(name.toString(), type));
+		tnl.add(tn);
+		return tnl;
+	}
+
+//	@Override
+//	public ThmNodeList caseANatNumericBasicType(ANatNumericBasicType node)
+//			throws AnalysisException {
+//		ThmNodeList tnl = new ThmNodeList();
+//		ThmNode tn = new ThmNode();
+//		tn.setString(node.toString() +  "@nat");
+//		tnl.add(tn);
+//		return tnl;
+//	}
+	
     
 	
 //	@Override
@@ -78,11 +155,6 @@ public class ThmPTypeVisitor extends AnswerCMLAdaptor<ThmNodeList> {
 //		return "@int";
 //	}
 //
-//	@Override
-//	public String caseANatNumericBasicType(ANatNumericBasicType node)
-//			throws AnalysisException {
-//		return "@nat";
-//	}
 //
 //	@Override
 //	public String caseARationalNumericBasicType(ARationalNumericBasicType node)

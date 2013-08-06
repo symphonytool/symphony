@@ -1,5 +1,6 @@
 package eu.compassresearch.theoremprover;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -13,6 +14,7 @@ import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.AStringLiteralExp;
 import org.overture.ast.expressions.PExp;
+import org.overture.ast.node.INode;
 
 import eu.compassresearch.ast.analysis.AnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
@@ -33,7 +35,7 @@ public class TPVisitor extends
 	
 //	private ThmStmtVisitor stmtVisitor;
 //	private ThmProcVisitor procVisitor;
-//	private ThmDeclAndDefVisitor declAndDefVisitor;
+	private ThmDeclAndDefVisitor declAndDefVisitor;
 //	private ThmActVisitor actVisitor;
 
 	private void initialize()
@@ -42,7 +44,7 @@ public class TPVisitor extends
 		typeVisitor = new ThmPTypeVisitor(this);
 //		statementVisitor = new ThmStmtVisitor(this);
 //		processVisitor = new ThmProcVisitor(this);
-//		declAndDefVisitor = new ThmDeclAndDefVisitor(this);
+		declAndDefVisitor = new ThmDeclAndDefVisitor(this);
 //		actionVisitor = new ThmActVisitor(this);
 	}
 	
@@ -57,6 +59,21 @@ public class TPVisitor extends
 	public ThmNodeList defaultPExp(PExp node)
 			throws AnalysisException {
 		return node.apply(this.expVisitor);
+	}
+	
+
+	@Override
+	public ThmNodeList defaultPDefinition(PDefinition node) 
+			throws AnalysisException
+	{
+		return node.apply(this.declAndDefVisitor);
+	}
+
+	@Override
+	public ThmNodeList defaultPSingleDeclaration(PSingleDeclaration node)
+			throws AnalysisException
+	{
+		return node.apply(this.declAndDefVisitor);
 	}
 	
 	/**
@@ -93,7 +110,13 @@ public class TPVisitor extends
 		this.sources = new LinkedList<PSource>();
 		this.sources.add(singleSource);
 	}
-
+	
+	/**
+	 * Construct a ThmVisitor with no source indicated
+	 */
+	public TPVisitor() {
+		initialize();
+	}
 
 
 	/********************
@@ -102,6 +125,7 @@ public class TPVisitor extends
 	public String generateThyString() throws IOException, AnalysisException {
 		ThmNodeList nodes = new ThmNodeList();
 	
+		
 		for (PSource source : sources) {
 			for (PDefinition paragraph : source.getParagraphs()) {
 				try {
@@ -110,20 +134,59 @@ public class TPVisitor extends
 					System.out.println("The COMPASS Theorem Prover could not generate \n" 		
 						+ "a theory file for this cml-source: \n" + e.getMessage());
 				}
-			}
+			}			
 		}
+		
 	
 		//Sort nodes into dependency-order
 		nodes = sortThmNodes(nodes);
-	
-		return nodes.toString();
+
+		StringBuilder sb = new StringBuilder();
+
+		//TODO: Obtain model/project/filename
+		String name = "TempName";
+
+		//TODO: May need to obtain thy name by trimming cml filename...
+//		String thyName = name.substring(0, name.lastIndexOf("."));
+		String thyName = name;
+		
+		//Add thy header 
+		sb.append("theory " + thyName + " \n" + "  imports utp_vdm \n"
+				+ "begin \n" + "\n");
+		sb.append("text {* Auto-generated THY file f "+  thyName + ".cml *}\n\n");
+		
+		//Add generated node strings
+		sb.append(nodes.toString());
+			
+		sb.append("\n" + "end");
+		
+		return sb.toString();
+		
+		
+		//for (ThmValue tv : tpv.getValueList())
+		//{
+		//	sb.append(tv.toString());
+		//	sb.append("\n");
+		//}
+		//
+		//sb.append("\n");
+		//sb.append("text {* VDM type declarations *}\n\n");
+		//
+		//for (ThmType ty : tpv.getTypeList())
+		//{
+		//	sb.append(ty.toString());
+		//	sb.append("\n");
+		//}
+		//
+		//sb.append("\n");
+		//
 	}
 
 
 	/********************
 	 * Method to sort a list of nodes into dependent-order
 	 ********************/
-	public ThmNodeList sortThmNodes(ThmNodeList tpnodes){
+	public static ThmNodeList sortThmNodes(ThmNodeList tpnodes){
    
 		ThmNodeList sortedNodes = new ThmNodeList();
 		ThmNode tempNode = null;
@@ -136,13 +199,52 @@ public class TPVisitor extends
 					//Add to returned list.
 					sortedNodes.add(tempNode);
 					//Removes from original list passed to method.
-					tpnodes.remove(tempNode); 
+					itr.remove(); 
+				}
+				if( tpnodes.isEmpty()){
+					break;
 				}
 			}
 		}
 	
 		return sortedNodes;
 	}
+	
+	public static String generateThyStr(List<INode> ast, String thyFileName) 
+			throws AnalysisException {
+		
+
+		ThmNodeList nodes = new ThmNodeList();
+		for (INode node : ast) {
+			try {
+				nodes.addAll(node.apply(new TPVisitor()));
+			}catch (Exception e) {
+					System.out.println("The COMPASS Theorem Prover could not generate \n" 		
+						+ "a theory file for this cml-source: \n" + e.getMessage());
+				}
+		}
+	
+	
+		//Sort nodes into dependency-order
+		nodes = sortThmNodes(nodes);
+
+		StringBuilder sb = new StringBuilder();
+		
+		//Add thy header 
+		sb.append("theory " + thyFileName + " \n" + "  imports utp_vdm \n"
+				+ "begin \n" + "\n");
+		sb.append("text {* Auto-generated THY file for "+  thyFileName + ".cml *}\n\n");
+		
+		//Add generated node strings
+		sb.append(nodes.toString());
+			
+		sb.append("\n" + "end");
+		
+		return sb.toString();
+
+	}
+
+	
 }
 	
 //	
