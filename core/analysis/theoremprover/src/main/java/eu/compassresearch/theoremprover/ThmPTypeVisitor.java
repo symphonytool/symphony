@@ -11,6 +11,8 @@ import org.overture.ast.types.ANamedInvariantType;
 import org.overture.ast.types.ANatNumericBasicType;
 import org.overture.ast.types.ARecordInvariantType;
 import org.overture.ast.types.PType;
+import org.overture.ast.types.SBasicType;
+import org.overture.ast.types.SMapType;
 //import org.overture.ast.types.ACharBasicType;
 //import org.overture.ast.types.AIntNumericBasicType;
 //import org.overture.ast.types.ANamedInvariantType;
@@ -63,29 +65,23 @@ public class ThmPTypeVisitor extends AnswerCMLAdaptor<ThmNodeList> {
 		ILexNameToken name = node.getName();
 		PType nType = node.getType();
 		String type = "";
-		LinkedList<ILexNameToken> nodeDeps = new LinkedList();
+		LinkedList<ILexNameToken> nodeDeps = new LinkedList<ILexNameToken>();
 		
 		if (nType instanceof ANamedInvariantType)
 		{
+			//TODO: May need to move the following two lines into the getIsabelleType method...
 			ANamedInvariantType nametype = (ANamedInvariantType) nType;
 			PType tp = nametype.getType();
-			//IS A REF NAMED TYPE
-			if (tp instanceof ANamedInvariantType)
-			{
-				ANamedInvariantType tempType = (ANamedInvariantType) tp;
-				type = tempType.toString();
-				nodeDeps.add(tempType.getName());
-			}
-			//ELSE IS A NOT REF TYPE
-			else 
-			{
-				 type = ThmUtil.getIsabelleNamedInvType(tp);
-			}
+			//Send to Utils for Type String
+			type = ThmUtil.getIsabelleType(tp);
+			//Send to Utils for Deplist
+			nodeDeps.addAll(ThmUtil.getIsabelleTypeDeps(tp));
 		}
 		else
 		{
 			type = "Top Level Type not handled: " + nType.toString() + ", type = " + nType.getClass();
 		}
+		//TODO: Handle Record Types.
 //		else if (nType instanceof ARecordInvariantType)
 //		{
 //			ARecordInvariantType rtype = (ARecordInvariantType)type;
