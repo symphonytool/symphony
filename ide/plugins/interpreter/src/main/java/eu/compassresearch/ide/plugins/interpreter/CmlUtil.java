@@ -34,18 +34,18 @@ public final class CmlUtil
 		if (projectSources.isEmpty())
 			return new LinkedList<AProcessDefinition>();
 
-		try{
+		try
+		{
 			GlobalEnvironmentBuilder builder = new GlobalEnvironmentBuilder(projectSources);
 
 			return builder.getGlobalProcesses();
-		}
-		catch(AnalysisException e)
+		} catch (AnalysisException e)
 		{
 			e.printStackTrace();
 		}
-		
+
 		return new Vector<AProcessDefinition>();
-		
+
 	}
 
 	public static List<String> collectJars(String bundleId)

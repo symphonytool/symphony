@@ -56,7 +56,7 @@
 	<!-- Add the launch config group to the launch dialog -->
 	<extension point="org.eclipse.debug.ui.launchConfigurationTabGroups">
 		<launchConfigurationTabGroup
-			class="eu.compassresearch.ide.plugins.interpreter.launch.CmlLaunchConfigurationTabGroup"
+			class="eu.compassresearch.ide.plugins.interpreter.launching.CmlLaunchConfigurationTabGroup"
 			description="COMPASS Launch Tab" 
 			id="eu.compassresearch.ide.plugins.interpreter.launchConfigurationTabGroup"
 			type="eu.compassresearch.ide.plugins.interpreter.launchConfigurationType">
@@ -75,12 +75,12 @@
 	<!-- Shoutcut for launching project. Extends the Debug and Run context menu in the CML Explorer -->
 	<extension point="org.eclipse.debug.ui.launchShortcuts">
 		<shortcut
-	  		id="eu.compassresearch.ide.plugins.interpreter.CmlShortcut"
-	        class="eu.compassresearch.ide.plugins.interpreter.launch.CmlApplicationLaunchShortcut"
-	        label="CML Application"
-	        modes="debug, run"
-	        category="compass_eu.compassresearch.ide.ui.category"
-	        description="Launch a CML model">
+        class="eu.compassresearch.ide.plugins.interpreter.launch.CmlApplicationLaunchShortcut"
+        description="Launch a CML model"
+        icon="icons/cview16/cml_file_tsk.png"
+        id="eu.compassresearch.ide.plugins.interpreter.CmlShortcut"
+        label="CML Application"
+        modes="debug, run">
 			<description
 	     description="Runs a local CML model"
 	     mode="run">
@@ -96,7 +96,8 @@
 					<with variable="selection">
 						<count value="1"/>
 						<iterate>
-							<adapt type="org.eclipse.core.resources.IResource">
+						<!-- wrap the next part in something that is not a project -->
+							<adapt type="org.eclipse.core.resources.IFile">
 								<and>
 									 <test property="org.eclipse.core.resources.contentTypeId" 
            	    	value="eu.compassresearch.ide.core.content-type-cml"/>
@@ -157,4 +158,54 @@
           name="CML Interpreter">
     </page>
  </extension>
+ <extension
+       point="org.eclipse.debug.ui.launchConfigurationTypeImages">
+    <launchConfigurationTypeImage
+          configTypeID="eu.compassresearch.ide.plugins.interpreter.launchConfigurationType"
+          icon="icons/cview16/cml_file_tsk.png"
+          id="eu.compassresearch.ide.plugins.interpreter.launchConfigurationTypeImage1">
+    </launchConfigurationTypeImage>
+ </extension>
+ 
+ 
+ <extension point="org.eclipse.core.runtime.adapters">
+		<factory adaptableType="eu.compassresearch.ide.ui.editor.core.CmlEditor"
+			class="eu.compassresearch.ide.plugins.interpreter.debug.ui.model.CmlBreakpointAdapterFactory">
+			<adapter type="org.eclipse.debug.ui.actions.IToggleBreakpointsTarget">
+			</adapter>
+		</factory>
+	</extension>
+ 
+ 	<extension
+        point="org.eclipse.ui.popupMenus">
+     <viewerContribution
+           id="eu.compassresearch.ide.plugins.interpreter.ui.RulerBarPopupActions"
+           targetID="eu.compassresearch.ide.ui.editor.RulerContext">
+        <action
+              class="org.eclipse.debug.ui.actions.RulerToggleBreakpointActionDelegate"
+              icon="icons/cview16/brkp_obj.gif"
+              id="eu.compassresearch.ide.plugins.interpreter.ui.ToggleBreakpointRuler"
+              label="Toggle Breakpoint"
+              menubarPath="additions">
+        </action>
+     </viewerContribution>
+  </extension>
+  
+  
+    <!-- Enables double click on ruler for breakpoint creation -->
+	 <extension
+         point="org.eclipse.ui.editorActions">
+      <editorContribution
+            targetID="eu.compassresearch.ide.ui.editor"
+            id="eu.compassresearch.ide.ui.editor.BreakpointRulerActions">
+         <action
+               actionID="RulerDoubleClick"
+               class="org.eclipse.debug.ui.actions.RulerToggleBreakpointActionDelegate"
+               id="org.overture.ide.debug.ui.actions.ManageBreakpointRulerAction"
+               label="%AddBreakpoint.label"
+               style="toggle">
+         </action>
+         
+      </editorContribution>
+	</extension>
 </plugin>
