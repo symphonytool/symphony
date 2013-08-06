@@ -29,6 +29,7 @@ import eu.compassresearch.core.interpreter.utility.messaging.RequestMessage;
 import eu.compassresearch.core.interpreter.utility.messaging.ResponseMessage;
 import eu.compassresearch.ide.plugins.interpreter.CmlDebugPlugin;
 import eu.compassresearch.ide.plugins.interpreter.ICmlDebugConstants;
+import eu.compassresearch.ide.plugins.interpreter.debug.ui.model.CmlLineBreakpoint;
 import eu.compassresearch.ide.plugins.interpreter.model.CmlChoiceMediator;
 import eu.compassresearch.ide.plugins.interpreter.model.CmlDebugTarget;
 
@@ -128,10 +129,10 @@ public class CmlCommunicationManager extends Thread
 				
 				for(IBreakpoint bp : target.getBreakpoints())
 				{
-					if(bp instanceof ILineBreakpoint)
+					if(bp instanceof CmlLineBreakpoint)
 					{
 						try {
-							Breakpoint cmlBP = new Breakpoint(System.identityHashCode(bp), "test", ((ILineBreakpoint) bp).getLineNumber());
+							Breakpoint cmlBP = new Breakpoint(System.identityHashCode(bp), ((CmlLineBreakpoint) bp).getResourceURI().getPath(), ((ILineBreakpoint) bp).getLineNumber());
 							sendCommandMessage(CmlDebugCommand.SET_BREAKPOINT,cmlBP);
 						} catch (CoreException e) {
 							// TODO Auto-generated catch block

@@ -62,6 +62,7 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 	private InputStream requestIS;
 	private BufferedReader requestReader;
 	private boolean connected = false;
+	private CmlInterpreter runningInterpreter;
 	
 	/**
 	 * Response Queue
@@ -144,7 +145,6 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 	
 	private void animate(final CmlInterpreter cmlInterpreter) throws AnalysisException
 	{
-
 		//Create the supervisor environment with the a selction strategy that has a connection to
 		//the eclipse debugger
 		CmlSupervisorEnvironment sve = 
@@ -335,6 +335,10 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 		case SET_BREAKPOINT:	
 			Breakpoint bp = message.getContent();
 			System.out.println("Break point added : " + bp);
+			if(runningInterpreter != null){
+				runningInterpreter.addBreakpoint(bp);
+				
+			}
 		default:
 			return true;
 		}
@@ -377,12 +381,11 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 	public void initialize() throws UnknownHostException, IOException{
 		connect();
 		init();
-		requestSetup();
 	}
 	
 	private void requestSetup()
 	{
-		ResponseMessage response = sendRequestSynchronous(new RequestMessage(CmlRequest.SETUP));
+		sendRequestSynchronous(new RequestMessage(CmlRequest.SETUP));
 	}
 	
 	@Override
@@ -391,7 +394,12 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 		try{
 			cmlInterpreter.onStatusChanged().registerObserver(this);
 			if(mode == DebugMode.ANIMATE)
+			{
+				runningInterpreter = cmlInterpreter;
+				requestSetup();
 				animate(cmlInterpreter);
+				runningInterpreter = null;
+			}
 			else if (mode == DebugMode.SIMULATE)
 				simulate(cmlInterpreter);
 			

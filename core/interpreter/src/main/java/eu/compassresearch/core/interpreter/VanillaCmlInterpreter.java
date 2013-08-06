@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.logging.Level;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.lex.LexLocation;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.scheduler.BasicSchedulableThread;
@@ -31,6 +32,7 @@ import eu.compassresearch.core.interpreter.api.events.InterpreterStatusEvent;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.ObservableEvent;
 import eu.compassresearch.core.interpreter.api.values.ProcessObjectValue;
+import eu.compassresearch.core.interpreter.utility.LocationExtractor;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
@@ -208,6 +210,15 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			//Let the given decision function select one of the observable events 
 			CmlTransition selectedEvent = null;
 			selectedEvent = currentSupervisor.decisionFunction().select(availableEvents);
+			
+			//see if any of the next executing processes/actions are hitting any breakpoints
+			for(CmlBehaviour b : selectedEvent.getEventSources())
+			{
+				ILexLocation loc = LocationExtractor.extractLocation(b.getNextState().first);
+				System.out.println(loc.getFile().getAbsolutePath());
+				if(this.breakpoints.containsKey(loc.getFile().getAbsolutePath() + ":"+ loc.getStartLine()))
+					System.out.println("BREEEEEEAAAAAAAK!!!!");
+			}
 			//Set the selected event on the supervisor
 			currentSupervisor.setSelectedTransition(selectedEvent);
 
