@@ -65,8 +65,7 @@ public class CmlLineBreakpointAdapter implements IToggleBreakpointsTarget
 					IVdmSourceUnit sourceUnti = (IVdmSourceUnit) element;
 					for (INode node : sourceUnti.getParseList())
 					{
-						executable = node != null || true;// FIXME only the executable locations should be accepted
-															// ExecutableAnalysis.isExecutable(node, lineNumber, true);
+						executable = ExecutableAnalysis.isExecutable(node, lineNumber, true);
 
 						if (executable)
 						{
