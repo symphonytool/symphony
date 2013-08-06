@@ -53,6 +53,7 @@ import eu.compassresearch.ast.actions.SStatementAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
+import eu.compassresearch.ast.expressions.ANameChannelExp;
 import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
@@ -652,14 +653,16 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 			ASynchronousParallelismParallelAction node, Context question)
 			throws AnalysisException {
 		
-		Context globalContext = question.getGlobal();
-		List<ILexNameToken> channelNames = new LinkedList<ILexNameToken>();
+		//TODO Change AFatEnumVarsetExpression expects List of ANameChannelExp instead of List of ILexNameToken
+//		Context globalContext = question.getGlobal();
+//		List<ILexNameToken> channelNames = new LinkedList<ILexNameToken>();
+//		
+//		//Get all the channel objects
+//		for(Entry<ILexNameToken,Value> entry : globalContext.entrySet())
+//			if(entry.getValue() instanceof CMLChannelValue)
+//				channelNames.add(entry.getKey().clone());
 		
-		//Get all the channel objects
-		for(Entry<ILexNameToken,Value> entry : globalContext.entrySet())
-			if(entry.getValue() instanceof CMLChannelValue)
-				channelNames.add(entry.getKey().clone());
-				
+		List<ANameChannelExp> channelNames = new LinkedList<ANameChannelExp>();
 		AFatEnumVarsetExpression varsetNode = new AFatEnumVarsetExpression(new LexLocation(), channelNames);
 			
 		AGeneralisedParallelismParallelAction nextNode = new AGeneralisedParallelismParallelAction(node.getLocation(), 

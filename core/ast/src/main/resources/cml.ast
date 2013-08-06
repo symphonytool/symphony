@@ -136,7 +136,7 @@ VarsetExpression {-> package='eu.compassresearch.ast.expressions'}
         = {identifier} [identifier]:LexIdentifierToken
         | {enum} [channelNames]:exp.#Channel.name*
         | {comp} [channelNameExp]:exp.#Channel.name [bindings]:multipleBind* [predicate]:exp
-        | {fatEnum} [identifiers]:exp.#Channel.name*
+        | {fatEnum} [channelNames]:exp.#Channel.name*
         | {fatComp} [channelNameExp]:exp.#Channel.name [bindings]:multipleBind* [predicate]:exp
 	| #VOp
 	;
