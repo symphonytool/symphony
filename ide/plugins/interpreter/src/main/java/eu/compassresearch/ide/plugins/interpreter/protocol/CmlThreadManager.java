@@ -23,6 +23,13 @@ public class CmlThreadManager
 	private List<IThread> threads = new LinkedList<IThread>();
 	private CmlDebugTarget target;
 
+	enum RunningStatus
+	{
+		Terminated, Running, Suspended, Unknown
+	};
+
+	RunningStatus status = RunningStatus.Unknown;
+
 	public CmlThreadManager(CmlDebugTarget target)
 	{
 		this.target = target;
@@ -96,5 +103,15 @@ public class CmlThreadManager
 	public List<IThread> getThreads()
 	{
 		return this.threads;
+	}
+
+	public boolean isSuspended()
+	{
+		return status == RunningStatus.Suspended;
+	}
+
+	public boolean isRunning()
+	{
+		return status == RunningStatus.Running;
 	}
 }
