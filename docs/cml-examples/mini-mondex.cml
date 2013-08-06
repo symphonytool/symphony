@@ -1,0 +1,84 @@
+values
+  N: nat = 10
+  V: nat = 10
+  M: nat = N*V
+ 
+types
+  Index = nat
+    inv i == i in set {1,...,N}
+ 
+  Money = nat
+    inv m == m in set {0,...,M}
+  
+channels 
+  pay, transfer: Index * Index * Money
+  accept, reject: Index
+ 
+process Card = val i: Index @
+  begin
+    state value: nat
+    operations
+      Init: () ==> ()
+      Init() == value := V
+  
+      Credit: nat ==> ()
+      Credit(n) == value := value + n
+  
+      Debit: nat ==> ()
+      Debit(n) == value := value - n
+ 
+    actions
+      Transfer =
+        pay.i?j?n ->
+          ( [n > value] & reject!i -> Skip
+            []
+            [n <= value] & 
+              transfer.i.j!n -> 
+                accept!i -> Debit(n) )
+    
+      Receive = transfer?j.i?n -> Credit(n)
+ 
+      Cycle = ( Transfer [] Receive ); Cycle
+  @ 
+    Init(); Cycle
+  end
+ 
+process Cards =
+  || i: Index @
+    [ {| pay.i, 
+         transfer.i, 
+         accept.i, 
+         reject.i |}
+      union
+      { transfer.j.i.n | j : Index, n : Money } ]
+      Card(i)
+      
+process Network = Cards \\ {|transfer|}    
+ 
+process Spec =
+  begin
+    state
+      valueseq: seq of nat
+    inv
+      len(valueseq) = N
+    operations
+      Init: () ==> ()
+      Init() == valueseq := initseq(N)
+    actions
+      Pay = i,j: Index, n: Money @
+        pay.i.j.n -> 
+          if n > valueseq(i) then
+            reject.i -> Skip
+          else
+            ( valueseq := subtseq(valueseq,i,n);
+              valueseq := addseq(valueseq,j,n);
+              accept.i -> Skip
+            )
+ 
+      Cycle =
+        ( |~| i,j: Index, n: Money @ Pay(i,j,n) ); 
+        Cycle
+  @
+    Cycle
+  end
+ 

@@ -123,8 +123,8 @@ exp {-> package='eu.compassresearch.ast.expressions'}
 
 #Channel  {-> package='eu.compassresearch.ast.expressions'}
         = #Rename
-        | {name}        [identifier]:LexNameToken
-                        [expression]:exp //This was expressions, then patterns, and is now an expression again
+        | {name} [identifier]:LexIdentifierToken
+                 [expressions]:exp*
         ;
 
 #Rename   {-> package='eu.compassresearch.ast.expressions'}
@@ -134,8 +134,9 @@ exp {-> package='eu.compassresearch.ast.expressions'}
 
 VarsetExpression {-> package='eu.compassresearch.ast.expressions'}
         = {identifier} [identifier]:LexIdentifierToken
-        | {enum} [identifiers]:LexIdentifierToken*
-        | {fatEnum} [identifiers]:LexIdentifierToken*
+        | {enum} [channelNames]:exp.#Channel.name*
+        | {comp} [channelNameExp]:exp.#Channel.name [bindings]:multipleBind* [predicate]:exp
+        | {fatEnum} [identifiers]:exp.#Channel.name*
         | {fatComp} [channelNameExp]:exp.#Channel.name [bindings]:multipleBind* [predicate]:exp
 	| #VOp
 	;
