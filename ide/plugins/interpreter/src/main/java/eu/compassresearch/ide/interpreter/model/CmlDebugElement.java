@@ -68,7 +68,7 @@ public class CmlDebugElement extends PlatformObject implements IDebugElement
 	/**
 	 * Fires a <code>CREATE</code> event for this element.
 	 */
-	protected void fireCreationEvent()
+	public void fireCreationEvent()
 	{
 		fireEvent(new DebugEvent(this, DebugEvent.CREATE));
 	}

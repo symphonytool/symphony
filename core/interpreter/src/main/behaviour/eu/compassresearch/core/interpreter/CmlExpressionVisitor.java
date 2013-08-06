@@ -35,7 +35,8 @@ import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionFactory;
 import eu.compassresearch.core.interpreter.api.transitions.ObservableEvent;
 import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
 
-class CmlExpressionVisitor extends QuestionAnswerCMLAdaptor<Context, Value>
+@SuppressWarnings("serial")
+public class CmlExpressionVisitor extends QuestionAnswerCMLAdaptor<Context, Value>
 {
 	static{
 		VdmRuntime.initialize(new CmlExpressionVisitor());

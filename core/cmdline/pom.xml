@@ -7,7 +7,7 @@
   <parent>
     <groupId>eu.compassresearch.core</groupId>
     <artifactId>core</artifactId>
-    <version>0.1.3-SNAPSHOT<!--Replaceable: Main Version--></version>
+    <version>0.1.5-SNAPSHOT<!--Replaceable: Main Version--></version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -26,7 +26,7 @@
     </dependency>
 
     <!-- 
-       Link with the parser
+         Link with the parser
     -->
     <dependency>
       <groupId>eu.compassresearch.core</groupId>
@@ -48,11 +48,11 @@
     -->
 
     <!-- Type Checker Analysis
-    <dependency>
-      <groupId>eu.compassresearch.core</groupId>
-      <artifactId>typechecker</artifactId>
-      <version>${project.version}</version>
-    </dependency> -->
+         <dependency>
+         <groupId>eu.compassresearch.core</groupId>
+         <artifactId>typechecker</artifactId>
+         <version>${project.version}</version>
+         </dependency> -->
 
     <!-- Interpreter-->
     <dependency>
@@ -62,13 +62,13 @@
     </dependency>
 
     <!-- Div Warn Exp Analysis -->
-    <dependency>
-      <groupId>eu.compassresearch.examples</groupId>
-      <artifactId>divwarnanalysis</artifactId>
-      <version>${project.version}</version>
-    </dependency>
+    <!-- <dependency> -->
+    <!--   <groupId>eu.compassresearch.examples</groupId> -->
+    <!--   <artifactId>divwarnanalysis</artifactId> -->
+    <!--   <version>${project.version}</version> -->
+    <!-- </dependency> -->
     
-	<!-- POG Analysis -->
+    <!-- POG Analysis -->
     <dependency>
       <groupId>eu.compassresearch.core.analysis</groupId>
       <artifactId>pog</artifactId>

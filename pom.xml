@@ -6,14 +6,15 @@
 	<groupId>eu.compassresearch</groupId>
 	<artifactId>root</artifactId>
 	<name>The COMPASS Tool Top-Level</name>
-	<version>0.1.3-SNAPSHOT<!--Replaceable: Main Version-->
+	<version>0.1.5-SNAPSHOT<!--Replaceable: Main Version-->
 	</version>
 
 	<modules>
 		<module>tools</module>
 		<module>core</module>
 		<!-- <module>ide</module> -->
-		<module>docs/core-examples</module>
+                <!-- I would like to deprecate the core-examples module -jwc/6Aug2013 -->
+		<!-- <module>docs/core-examples</module> -->
 	</modules>
 
 	<properties>

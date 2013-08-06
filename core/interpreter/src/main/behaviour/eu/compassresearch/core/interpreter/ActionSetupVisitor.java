@@ -34,6 +34,7 @@ import eu.compassresearch.ast.actions.SReplicatedAction;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.process.AGeneralisedParallelismProcess;
 import eu.compassresearch.ast.process.AGeneralisedParallelismReplicatedProcess;
+import eu.compassresearch.ast.process.AHidingProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.ASynchronousParallelismProcess;
 import eu.compassresearch.ast.process.ASynchronousParallelismReplicatedProcess;
@@ -90,7 +91,14 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 	@Override
 	public INode caseAHidingAction(AHidingAction node, Context question)
 			throws AnalysisException {
-
+		//We setup the child node for the hiding operator
+		setLeftChild(new ConcreteCmlBehaviour(node.getLeft(),question,owner));
+		return node;
+	}
+	
+	@Override
+	public INode caseAHidingProcess(AHidingProcess node, Context question)
+			throws AnalysisException {
 		//We setup the child node for the hiding operator
 		setLeftChild(new ConcreteCmlBehaviour(node.getLeft(),question,owner));
 		return node;
@@ -158,7 +166,16 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 
 		return nextNode;
 	}
-	
+
+	/**
+	 * Replicated interleaving
+	 * Syntax 	: '|||' , replication declarations , @ , action
+	 * 
+	 * Example 	: |||i:e @ A(i)
+	 * 
+	 * Execute all the actions A(i) in parallel without sync
+	 * 
+	 */
 	@Override
 	public INode caseAInterleavingReplicatedAction(
 			final AInterleavingReplicatedAction node, Context question)

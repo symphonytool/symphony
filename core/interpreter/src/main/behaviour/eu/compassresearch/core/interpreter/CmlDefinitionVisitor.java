@@ -10,6 +10,7 @@ import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.factory.AstFactory;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.intf.lex.ILexNameToken;
@@ -180,7 +181,16 @@ class CmlDefinitionVisitor extends
 		else
 			node.setIsTypeInvariant(false);
 		
-		FunctionValue funcValue = new FunctionValue(node,null ,null,null);
+		//make the pre and post functions
+		FunctionValue postFuncValue = null;
+		FunctionValue preFuncValue = null;
+	
+		if(node.getPredef() != null)
+			preFuncValue =  new FunctionValue(node.getPredef(),null,null,null);
+		if(node.getPostdef() != null)
+			postFuncValue = new FunctionValue(node.getPostdef(),null,null,null);	
+				
+		FunctionValue funcValue = new FunctionValue(node,preFuncValue ,postFuncValue,null);
 		
 		vpl.add(new NameValuePair(node.getName(),funcValue));
 		
@@ -192,8 +202,22 @@ class CmlDefinitionVisitor extends
 			AImplicitFunctionDefinition node, Context question)
 			throws AnalysisException {
 		
-		throw new AnalysisException("The function " + node.toString() + 
-				" is implicit. This is not supported by the simulator at the moment");
+		//make the pre and post functions
+		FunctionValue postFuncValue = null;
+		FunctionValue preFuncValue = null;
+
+		if(node.getPredef() != null)
+			preFuncValue =  new FunctionValue(node.getPredef(),null,null,null);
+		if(node.getPostdef() != null)
+			postFuncValue = new FunctionValue(node.getPostdef(),null,null,null);
+		
+		FunctionValue funcValue = new FunctionValue(node,preFuncValue,postFuncValue,null);
+		NameValuePairList vpl = new NameValuePairList();
+		vpl.add(new NameValuePair(node.getName(),funcValue));
+		
+		return vpl;
+//		throw new AnalysisException("The function " + node.toString() + 
+//				" is implicit. This is not supported by the simulator at the moment");
 	}
 	
 	/*

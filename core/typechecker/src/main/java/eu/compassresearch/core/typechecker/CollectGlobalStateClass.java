@@ -8,6 +8,10 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import org.overture.ast.definitions.AImplicitFunctionDefinition;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.typechecker.assistant.definition.AExplicitFunctionDefinitionAssistantTC;
+import org.overture.typechecker.assistant.definition.AImplicitFunctionDefinitionAssistantTC;
+import org.overture.typechecker.assistant.definition.PDefinitionListAssistantTC;
+import org.overture.typechecker.assistant.definition.SClassDefinitionAssistantTC;
 
 import eu.compassresearch.ast.analysis.AnalysisCMLAdaptor;
 import eu.compassresearch.ast.definitions.AChannelNameDefinition;
@@ -88,6 +92,15 @@ public class CollectGlobalStateClass extends AnalysisCMLAdaptor {
 	@Override
 	public void caseACmlClassDefinition(ACmlClassDefinition node)
 			throws AnalysisException {
+		//this will generate all the pre and post defs for functions
+		SClassDefinitionAssistantTC.implicitDefinitions(node, null);
+		/*		
+		 * 		Overture sets the invariant field on a CmlClassDefinition. This field is 
+		 * 		not used in CML because it uses the ExplicitCmlOperationDefinition instead 
+		 * 		of the ExplicitOperationDefinition in VDM. So we reset it to null
+		 * 
+		 * */
+		node.setInvariant(null);
 		members.add(node);
 	}
 
@@ -121,11 +134,15 @@ public class CollectGlobalStateClass extends AnalysisCMLAdaptor {
 			PDefinition predef = null;
 			PDefinition postdef = null;
 			if (fdef instanceof AExplicitFunctionDefinition) {
+				//this will generate all the pre and post defs
+				AExplicitFunctionDefinitionAssistantTC.implicitDefinitions((AExplicitFunctionDefinition) fdef,null);
 				predef = ((AExplicitFunctionDefinition) fdef).getPredef();
 				postdef = ((AExplicitFunctionDefinition) fdef).getPostdef();
 			}
 
 			if (fdef instanceof AImplicitFunctionDefinition) {
+				//this will generate all the pre and post defs
+				AImplicitFunctionDefinitionAssistantTC.implicitDefinitions((AImplicitFunctionDefinition) fdef, null);
 				predef = ((AImplicitFunctionDefinition) fdef).getPredef();
 				postdef = ((AImplicitFunctionDefinition) fdef).getPostdef();
 			}
