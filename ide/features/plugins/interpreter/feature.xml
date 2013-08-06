@@ -2,7 +2,7 @@
 <feature
       id="eu.compassresearch.ide.features.plugins.interpreter"
       label="CML Interpreter"
-      version="0.1.2.qualifier">
+      version="0.1.5.qualifier">
 
    <description>
       %description
@@ -23,7 +23,7 @@
    </requires>
 
    <plugin
-         id="eu.compassresearch.ide.plugins.interpreter"
+         id="eu.compassresearch.ide.interpreter"
          download-size="0"
          install-size="0"
          version="0.0.0"

@@ -6,12 +6,15 @@ import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
+import org.overture.ast.definitions.AExplicitFunctionDefinition;
+import org.overture.ast.definitions.AImplicitFunctionDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.types.PType;
 import org.overture.typechecker.TypeCheckException;
 import org.overture.typechecker.TypeCheckInfo;
 import org.overture.typechecker.assistant.definition.PDefinitionListAssistantTC;
 
+import eu.compassresearch.ast.definitions.ACmlClassDefinition;
 import eu.compassresearch.ast.messages.InternalException;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.common.RegistryFactory;
@@ -101,7 +104,7 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 //				PType channelType = channel.apply(rootVisitor, cmlTopEnv);
 //				if (!CmlTCUtil.successfulType(channelType))
 //					return false;
-//			}			
+//			}
 			
 			// Resolve everything before hand (Overture does this)
 			PDefinitionListAssistantTC.typeResolve(this.globalDefinitions,

@@ -40,7 +40,7 @@ public class UpgradeProjectHandler extends AbstractHandler implements IHandler
 					IProjectDescription d = project.getDescription();
 					List<String> natureIds = Arrays.asList(d.getNatureIds());
 
-					natureIds.remove("eu.compassresearch.ide.cml.ui.cmlnature");
+					natureIds.remove("eu.compassresearch.ide.ui.cmlnature");
 					d.setNatureIds(natureIds.toArray(new String[] {}));
 					project.setDescription(d, new NullProgressMonitor());
 					project.refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());

@@ -4,7 +4,7 @@
   <parent>
     <groupId>eu.compassresearch.ide</groupId>
     <artifactId>ide</artifactId>
-    <version>0.1.2-SNAPSHOT<!--Replaceable: Main Version--></version>
+    <version>0.1.5-SNAPSHOT<!--Replaceable: Main Version--></version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -53,8 +53,9 @@
       </plugin>
     </plugins>
   </build>
-   <developers>
-<developer>
+
+  <developers>
+    <developer>
       <id>lausdahl</id>
       <name>Kenneth Lausdahl</name>
       <email>lausdahl@users.sourceforge.net</email>
