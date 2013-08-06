@@ -11,7 +11,10 @@ public enum CmlDebugCommand {
 	STOP,
 	SUSPEND,
 	RESUME,
-	DISCONNECT;
+	DISCONNECT,
+	SET_BREAKPOINT,
+	REMOVE_BREAKPOINT;
+	
 
 	@Override
 	public String toString()

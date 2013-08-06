@@ -13,6 +13,11 @@ public class RequestMessage extends DialogMessage {
 		super(request,value);
 	}
 	
+	public RequestMessage(CmlRequest request)
+	{
+		super(request,"");
+	}
+	
 	@Override
 	public MessageType getType() {
 		return MessageType.REQUEST;

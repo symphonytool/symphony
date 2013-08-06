@@ -13,6 +13,7 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.concurrent.SynchronousQueue;
 
+import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.node.INode;
@@ -133,7 +134,7 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 		return connected;
 	}
 	
-	private void simulate(CmlInterpreter cmlInterpreter) throws Exception
+	private void simulate(CmlInterpreter cmlInterpreter) throws AnalysisException
 	{
 		CmlSupervisorEnvironment sve = 
 				VanillaInterpreterFactory.newDefaultCmlSupervisorEnvironment(new RandomSelectionStrategy());
@@ -141,7 +142,7 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 		cmlInterpreter.execute(sve);
 	}
 	
-	private void animate(final CmlInterpreter cmlInterpreter) throws Exception
+	private void animate(final CmlInterpreter cmlInterpreter) throws AnalysisException
 	{
 
 		//Create the supervisor environment with the a selction strategy that has a connection to
@@ -272,6 +273,7 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 		MessageCommunicator.sendMessage(requestOS, message);
 		ResponseMessage responseMessage = null;
 		try {
+			//check message id
 			responseMessage = responseQueue.take();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
@@ -329,8 +331,10 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 		{
 		case STOP:
 			stopping();
-			
 			return false;
+		case SET_BREAKPOINT:	
+			Breakpoint bp = message.getContent();
+			System.out.println("Break point added : " + bp);
 		default:
 			return true;
 		}
@@ -370,11 +374,17 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 	 */
 	
 	@Override
-	public void initialize() throws Exception{
+	public void initialize() throws UnknownHostException, IOException{
 		connect();
 		init();
+		requestSetup();
 	}
-
+	
+	private void requestSetup()
+	{
+		ResponseMessage response = sendRequestSynchronous(new RequestMessage(CmlRequest.SETUP));
+	}
+	
 	@Override
 	public void start(DebugMode mode, CmlInterpreter cmlInterpreter) {
 		
@@ -387,7 +397,7 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 			
 			stopped(cmlInterpreter.getStatus());
 		}
-		catch(Exception e)
+		catch(AnalysisException e)
 		{
 			InterpreterStatus status = cmlInterpreter.getStatus();
 			status.AddError(new InterpreterError(e.getMessage()));

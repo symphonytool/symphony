@@ -12,7 +12,9 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.model.IBreakpoint;
+import org.eclipse.debug.core.model.ILineBreakpoint;
 
+import eu.compassresearch.core.interpreter.debug.Breakpoint;
 import eu.compassresearch.core.interpreter.debug.Choice;
 import eu.compassresearch.core.interpreter.debug.CmlDbgCommandMessage;
 import eu.compassresearch.core.interpreter.debug.CmlDbgStatusMessage;
@@ -23,6 +25,7 @@ import eu.compassresearch.core.interpreter.utility.messaging.Message;
 import eu.compassresearch.core.interpreter.utility.messaging.MessageCommunicator;
 import eu.compassresearch.core.interpreter.utility.messaging.MessageContainer;
 import eu.compassresearch.core.interpreter.utility.messaging.RequestMessage;
+import eu.compassresearch.core.interpreter.utility.messaging.ResponseMessage;
 import eu.compassresearch.ide.plugins.interpreter.CmlDebugPlugin;
 import eu.compassresearch.ide.plugins.interpreter.ICmlDebugConstants;
 import eu.compassresearch.ide.plugins.interpreter.model.CmlChoiceMediator;
@@ -68,6 +71,12 @@ public class CmlCommunicationManager extends Thread
 		CmlDbgCommandMessage message = new CmlDbgCommandMessage(cmd);
 		MessageCommunicator.sendMessage(requestOutputStream, message);
 	}
+	
+	public void sendCommandMessage(CmlDebugCommand cmd, Object content)
+	{
+		CmlDbgCommandMessage message = new CmlDbgCommandMessage(cmd,content);
+		MessageCommunicator.sendMessage(requestOutputStream, message);
+	}
 
 	public void sendMessage(Message message)
 	{
@@ -104,6 +113,33 @@ public class CmlCommunicationManager extends Thread
 
 				final List<Choice> events = message.getContent();
 				new CmlChoiceMediator(target, CmlCommunicationManager.this).setChoiceOptions(events, message);
+				
+//				sendMessage(new ResponseMessage(message.getRequestId(), CmlRequest.CHOICE, selectChoice(events)));
+				return true;
+			}
+		});
+		
+		handlers.put(CmlRequest.SETUP.toString(), new MessageEventHandler<RequestMessage>()
+		{
+			@Override
+			public boolean handleMessage(RequestMessage message)
+			{
+				
+				for(IBreakpoint bp : target.getBreakpoints())
+				{
+					if(bp instanceof ILineBreakpoint)
+					{
+						try {
+							Breakpoint cmlBP = new Breakpoint(System.identityHashCode(bp), "test", ((ILineBreakpoint) bp).getLineNumber());
+							sendCommandMessage(CmlDebugCommand.SET_BREAKPOINT,cmlBP);
+						} catch (CoreException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				}
+				
+				sendMessage(new ResponseMessage(message.getRequestId(), CmlRequest.SETUP,""));
 				return true;
 			}
 		});

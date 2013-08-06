@@ -19,9 +19,11 @@ import com.fasterxml.jackson.core.JsonGenerator.Feature;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
 import eu.compassresearch.ast.lex.LexNameToken;
+import eu.compassresearch.core.interpreter.debug.Breakpoint;
 import eu.compassresearch.core.interpreter.debug.CmlDebugCommand;
 
 
@@ -40,13 +42,13 @@ public class MessageCommunicator {
 				  
 				  @JsonIgnore List<PType> typeQualifier;
 			}
-//			abstract class OvertureLexNameTokenMixIn {
-//				OvertureLexNameTokenMixIn(@JsonProperty("module")String module, 
-//						  @JsonProperty("name")String name, 
-//						  @JsonProperty("location")ILexLocation location){}
-//				  
-//				  @JsonIgnore List<PType> typeQualifier;
-//			}
+			
+			abstract class BreakpointMixIn {
+				BreakpointMixIn(@JsonProperty("id")int id, 
+						  @JsonProperty("file")String file, 
+						  @JsonProperty("line")int line){}
+				  
+			}
 			
 			abstract class NodeMixIn {
 				@JsonIgnore INode parent;	
@@ -64,6 +66,7 @@ public class MessageCommunicator {
 				    context.setMixInAnnotations(LexNameToken.class, MixIn.class);
 				    context.setMixInAnnotations(org.overture.ast.lex.LexNameToken.class, MixIn.class);
 				    context.setMixInAnnotations(Node.class,NodeMixIn.class);
+				    context.setMixInAnnotations(Breakpoint.class,BreakpointMixIn.class);
 				    // and other set up, if any
 				  }
 			}
@@ -76,6 +79,7 @@ public class MessageCommunicator {
 			mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
 			mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 			mapper.configure(Feature.FLUSH_PASSED_TO_STREAM, false);
+			mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
 			mapper.configure(Feature.AUTO_CLOSE_TARGET, false);
 			
 		}

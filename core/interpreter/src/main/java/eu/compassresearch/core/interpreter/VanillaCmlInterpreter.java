@@ -207,13 +207,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 
 			//Let the given decision function select one of the observable events 
 			CmlTransition selectedEvent = null;
-			try {
-				selectedEvent = currentSupervisor.decisionFunction().select(availableEvents);
-			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} 
-
+			selectedEvent = currentSupervisor.decisionFunction().select(availableEvents);
 			//Set the selected event on the supervisor
 			currentSupervisor.setSelectedTransition(selectedEvent);
 

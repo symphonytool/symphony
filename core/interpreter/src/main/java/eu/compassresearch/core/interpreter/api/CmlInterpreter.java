@@ -7,6 +7,7 @@ import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.events.CmlInterpreterStatusObserver;
+import eu.compassresearch.core.interpreter.debug.Breakpoint;
 import eu.compassresearch.core.interpreter.utility.events.EventSource;
 /**
  * The CML interpreter interface. This has the responsibility of simulating/animating
@@ -62,6 +63,10 @@ public interface CmlInterpreter
 	public CmlBehaviour getTopLevelCmlBehaviour();
 
 	public EventSource<CmlInterpreterStatusObserver> onStatusChanged();
+	
+	//Breakpoints
+	
+	public boolean addBreakpoint(Breakpoint bp);
 
 //	/**
 //	 * Get the filename that contains the default process.

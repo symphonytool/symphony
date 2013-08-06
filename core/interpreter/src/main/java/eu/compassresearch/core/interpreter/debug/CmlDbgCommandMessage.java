@@ -14,6 +14,12 @@ public class CmlDbgCommandMessage extends Message {
 		setCommand(command);
 	}
 
+	public CmlDbgCommandMessage(CmlDebugCommand command, Object content)
+	{
+		setCommand(command);
+		setContent(content);
+	}
+	
 	public CmlDebugCommand getCommand() {
 		return command;
 	}

@@ -1,12 +1,14 @@
 package eu.compassresearch.core.interpreter.debug;
 
+import java.io.IOException;
+import java.net.UnknownHostException;
 import java.rmi.Remote;
 
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 
 public interface CmlDebugger extends Remote {
 
-	public void initialize() throws Exception;
+	public void initialize() throws UnknownHostException, IOException;
 	
 	public void start(DebugMode mode, CmlInterpreter cmlInterpreter);
 	
