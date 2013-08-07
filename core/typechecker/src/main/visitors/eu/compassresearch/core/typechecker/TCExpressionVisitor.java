@@ -294,7 +294,7 @@ class TCExpressionVisitor extends
 	public PType caseACompVarsetExpression(ACompVarsetExpression node,
 			TypeCheckInfo question) throws AnalysisException
 	{
-		//bnd { a.x.y.z | x : Type, z : Money : z : Type } ]
+		//bnd { a.x.y.z | x : Type, z : Type : z : Type } ]
 		
 		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
 		if (cmlEnv == null) {
@@ -305,13 +305,15 @@ class TCExpressionVisitor extends
 			return node.getType();
 		}
 
+		
+		ANameChannelExp chanNameExp = node.getChannelNameExp();
 		PExp predicate = node.getPredicate();
 		LinkedList<PMultipleBind> bindings = node.getBindings();
 
 		CmlTypeCheckInfo compScope = cmlEnv.newScope();
 
 		for (PMultipleBind mbnd : bindings) {
-			PType mbndType = mbnd.apply(parent, question);
+			PType mbndType = mbnd.apply(parent, compScope);
 			if (!successfulType(mbndType)) {
 				node.setType(issueHandler.addTypeError(mbnd,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
@@ -329,6 +331,16 @@ class TCExpressionVisitor extends
 				return node.getType();
 			}
 		}
+		
+
+		PType chanType = chanNameExp.apply(parent, compScope);
+		if (!successfulType(chanType)) {
+			node.setType(issueHandler.addTypeError(chanNameExp,
+					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+							.customizeMessage(node + "")));
+			return node.getType();
+		}
+		
 		node.setType(new AVarsetExpressionType(node.getLocation(), true));
 		return node.getType();
 	}

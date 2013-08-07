@@ -169,6 +169,8 @@ class TCBindVisitor extends QuestionAnswerCMLAdaptor<TypeCheckInfo, PType>
 							.customizeMessage("" + node));
 		}
 		
+		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
+		
 		//Its a type bind and we know the type
 		LinkedList<PPattern> patterns = node.getPlist();
 		for (PPattern p : patterns) {
@@ -180,10 +182,13 @@ class TCBindVisitor extends QuestionAnswerCMLAdaptor<TypeCheckInfo, PType>
 				//as expected; no worries, we know the type
 				for (PDefinition def : pType.getDefinitions()) {
 					def.setType(type);
+					
+					cmlEnv.addType(def.getName(), def);
+
 				}
 			}
 		}
-		
+	
 		return type;
 	}
 
