@@ -62,10 +62,10 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	 * @param cmlSources
 	 *          - Source containing CML Paragraphs for type checking.
 	 */
-	public VanillaCmlInterpreter(List<PSource> cmlSources) throws InterpreterException
+	public VanillaCmlInterpreter(List<PSource> cmlSources)
 	{
 		this.sourceForest = cmlSources;
-		initialize();
+		//initialize();
 	}
 
 	/**
@@ -74,34 +74,27 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	 * 
 	 * @param singleSource
 	 */
-	public VanillaCmlInterpreter(PSource singleSource) throws InterpreterException
+	public VanillaCmlInterpreter(PSource singleSource)
 	{
 		this.sourceForest = new LinkedList<PSource>();
 		this.sourceForest.add(singleSource);
-		initialize();
+		//initialize();
 	}
 
 	/**
 	 * Initializes the interpreter by making a global context and setting the 
 	 * last defined process as the top process
-	 * @throws InterpreterException
+	 * @throws AnalysisException
 	 */
-	protected void initialize() throws InterpreterException
+	public void initialize() throws AnalysisException
 	{
-		try
-		{
-			GlobalEnvironmentBuilder envBuilder = new GlobalEnvironmentBuilder(sourceForest);
-
-			//Build the global context
-			globalContext = envBuilder.getGlobalContext();
-			//set the last defined process as the top process
-			//FIXME When there are multiple files there are no way to determine which one it will be!
-			topProcess = envBuilder.getLastDefinedProcess();
-		}
-		catch(AnalysisException e)
-		{
-			throw new InterpreterException("An exception occured while collecting the global environment", e);
-		}
+		GlobalEnvironmentBuilder envBuilder = new GlobalEnvironmentBuilder(sourceForest);
+		//Build the global context
+		globalContext = envBuilder.getGlobalContext();
+		//set the last defined process as the top process
+		//FIXME When there are multiple files there are no way to determine which one it will be!
+		topProcess = envBuilder.getLastDefinedProcess();
+		setNewState(CmlInterpreterState.INITIALIZED);
 	}
 
 	@Override
@@ -119,9 +112,12 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	@Override
 	public Value execute(CmlSupervisorEnvironment sve) throws AnalysisException
 	{
+		if(this.getCurrentState() == null)
+			throw new InterpreterException("The interprer has not been initialized, please call the initialize method before invoking the start method");
+		
 		if(null == sve)
-			throw new NullPointerException("The supervisor must not be set to null in the cml scheduler");
-
+			throw new InterpreterException("The supervisor must not be set to null in the cml scheduler");
+		
 		currentSupervisor = sve; 
 
 		//Find and initialize the top process value
@@ -143,7 +139,6 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			setNewState(CmlInterpreterState.FAILED);
 			throw ex;
 		}
-
 
 		//Finally we return the top process value
 		return pov;
@@ -209,16 +204,19 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 
 			//Let the given decision function select one of the observable events 
 			CmlTransition selectedEvent = null;
+			//set the state of the interpreter to be waiting for the environment
+			setNewState(CmlInterpreterState.WAITING_FOR_ENVIRONMENT);
+			//this is potentially a blocking call
 			selectedEvent = currentSupervisor.decisionFunction().select(availableEvents);
-			
-			//see if any of the next executing processes/actions are hitting any breakpoints
-			for(CmlBehaviour b : selectedEvent.getEventSources())
-			{
-				ILexLocation loc = LocationExtractor.extractLocation(b.getNextState().first);
-				System.out.println(loc.getFile().getAbsolutePath());
-				if(this.breakpoints.containsKey(loc.getFile().getAbsolutePath() + ":"+ loc.getStartLine()))
-					System.out.println("BREEEEEEAAAAAAAK!!!!");
-			}
+
+			//Handle the breakpoints if any
+			handleBreakpoints(selectedEvent);
+
+			//TODO add suspension code here
+
+			//if we get here it means that it in a running state again
+			setNewState(CmlInterpreterState.RUNNING);
+
 			//Set the selected event on the supervisor
 			currentSupervisor.setSelectedTransition(selectedEvent);
 
@@ -244,6 +242,25 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			setNewState(CmlInterpreterState.DEADLOCKED);
 		else
 			setNewState(CmlInterpreterState.TERMINATED);
+	}
+
+	private void handleBreakpoints(CmlTransition selectedEvent)
+	{
+		//see if any of the next executing processes/actions are hitting any breakpoints
+		for(CmlBehaviour b : selectedEvent.getEventSources())
+		{
+			ILexLocation loc = LocationExtractor.extractLocation(b.getNextState().first);
+			String key = loc.getFile().getAbsolutePath() + ":"+ loc.getStartLine();
+			if(this.breakpoints.containsKey(key))
+			{
+				setNewState(CmlInterpreterState.SUSPENDED);
+				//				this.statusEventHandler.fireEvent(
+				//						new InterpreterStatusEvent(this, 
+				//								CmlInterpreterState.SUSPENDED,
+				//								this.breakpoints.get(key)));
+				//System.out.println("BREEEEEEAAAAAAAK!!!!");
+			}
+		}
 	}
 
 	@Override
@@ -291,6 +308,15 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 
 		// interpret
 		VanillaCmlInterpreter cmlInterp = new VanillaCmlInterpreter(source);
+		cmlInterp.onStatusChanged().registerObserver(new CmlInterpreterStatusObserver() {
+
+			@Override
+			public void onStatusChanged(Object source, InterpreterStatusEvent event) {
+				System.out.println("Simulator status event : " + event.getStatus());
+
+			}
+		});
+
 		try
 		{
 			CmlSupervisorEnvironment sve = 
@@ -299,15 +325,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			//				VanillaInterpreterFactory.newDefaultCmlSupervisorEnvironment(new RandomSelectionStrategy());
 
 			CmlRuntime.logger().setLevel(Level.FINEST);
-			cmlInterp.onStatusChanged().registerObserver(new CmlInterpreterStatusObserver() {
-
-				@Override
-				public void onStatusChanged(Object source, InterpreterStatusEvent event) {
-					System.out.println("Simulator status event : " + event.getStatus());
-
-				}
-			});
-
+			cmlInterp.initialize();
 			cmlInterp.execute(sve);
 		} catch (Exception ex)
 		{
@@ -325,7 +343,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	public static void main(String[] args) throws IOException, InterpreterException
 	{
 		File cml_example = new File(
-				"src/test/resources/process/replicated/interleaving-parallelism.cml");
+				"src/test/resources/action/communications/action-prefix.cml");
 		runOnFile(cml_example);
 
 	}

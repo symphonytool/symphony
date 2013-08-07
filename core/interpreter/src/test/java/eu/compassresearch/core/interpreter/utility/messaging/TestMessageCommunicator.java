@@ -10,8 +10,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import junit.framework.Assert;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,10 +38,8 @@ import eu.compassresearch.core.interpreter.api.behaviour.Reason;
 import eu.compassresearch.core.interpreter.api.events.CmlBehaviorStateObserver;
 import eu.compassresearch.core.interpreter.api.events.TraceObserver;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTock;
-import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.ObservableEvent;
 import eu.compassresearch.core.interpreter.debug.CmlDbgStatusMessage;
-import eu.compassresearch.core.interpreter.debug.CmlDbgpStatus;
 import eu.compassresearch.core.interpreter.utility.Pair;
 import eu.compassresearch.core.interpreter.utility.events.EventSource;
 
@@ -64,7 +60,7 @@ public class TestMessageCommunicator {
 		ByteArrayOutputStream outStream = new ByteArrayOutputStream();
 		
 		//MessageContainer message = new MessageContainer(new CmlDbgStatusMessage(CmlDbgpStatus.STARTING));
-		Message sentMessage = new CmlDbgStatusMessage(CmlDbgpStatus.STARTING);
+		Message sentMessage = new CmlDbgStatusMessage(new InterpreterStatus(null,CmlInterpreterState.INITIALIZED));
 		MessageCommunicator.sendMessage(outStream, sentMessage);
 		
 		//ObjectMapper mapper = new ObjectMapper();
@@ -83,7 +79,7 @@ public class TestMessageCommunicator {
 		
 		BufferedReader reader = new BufferedReader(new InputStreamReader(in));
 		MessageContainer messageContainter = MessageCommunicator.receiveMessage(reader,
-				new MessageContainer(new CmlDbgStatusMessage(CmlDbgpStatus.CONNECTION_CLOSED)));
+				new MessageContainer(new CmlDbgStatusMessage()));
 		
 		Message recvMessage = messageContainter.getMessage();
 		
@@ -266,7 +262,7 @@ public class TestMessageCommunicator {
 				return new LinkedList<CmlBehaviour>();
 			}
 		}, CmlInterpreterState.TERMINATED);
-		Message sentMessage = new CmlDbgStatusMessage(CmlDbgpStatus.STOPPED,status);
+		Message sentMessage = new CmlDbgStatusMessage(status);
 		MessageCommunicator.sendMessage(outStream, sentMessage);
 		
 		//ObjectMapper mapper = new ObjectMapper();
@@ -285,7 +281,7 @@ public class TestMessageCommunicator {
 		
 		BufferedReader reader = new BufferedReader(new InputStreamReader(in));
 		MessageContainer messageContainter = MessageCommunicator.receiveMessage(reader,
-				new MessageContainer(new CmlDbgStatusMessage(CmlDbgpStatus.CONNECTION_CLOSED)));
+				new MessageContainer(new CmlDbgStatusMessage()));
 		
 		Message recvMessage = messageContainter.getMessage();
 		

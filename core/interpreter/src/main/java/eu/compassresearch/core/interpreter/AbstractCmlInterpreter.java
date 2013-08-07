@@ -32,13 +32,17 @@ abstract class AbstractCmlInterpreter implements CmlInterpreter {
 				}
 			});
 	
+	/**
+	 * A map of the active breakpoints where the key has the following format
+	 * "<filepath>:<linenumber>"
+	 */
 	protected Map<String,Breakpoint> 	breakpoints = new HashMap<>();
 
 	protected CmlSupervisorEnvironment 	currentSupervisor;
 	/**
 	 * The current state of the interpreter
 	 */
-	private CmlInterpreterState      	currentState = CmlInterpreterState.INITIALIZED;
+	private CmlInterpreterState      	currentState = null;
 
 	/**
 	 * Set the new state of the interpreter

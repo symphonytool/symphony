@@ -34,7 +34,7 @@ public class DebugMain {
 		try{
 			//Since the process that started expects the debugger to connect
 			//we do this first so the connection doesn't time out
-			debugger.initialize();
+			debugger.connect();
 
 			//Index 0 of args is the JSON config
 			JSONObject config =(JSONObject)JSONValue.parse(args[0]);
@@ -85,12 +85,14 @@ public class DebugMain {
 
 				CmlInterpreter cmlInterpreter = VanillaInterpreterFactory.newInterpreter(sourceForest);
 				cmlInterpreter.setDefaultName(startProcessName);
-
+				System.out.println("Initializing the interpreter...");
+				debugger.initialize(cmlInterpreter);
+				
 				System.out.println("Starting the interpreter...");
 				if(mode.equals("run"))
-					debugger.start(DebugMode.SIMULATE, cmlInterpreter);
+					debugger.start(DebugMode.SIMULATE);
 				else if(mode.equals("debug"))
-					debugger.start(DebugMode.ANIMATE, cmlInterpreter);
+					debugger.start(DebugMode.ANIMATE);
 				//			else if(mode.equals("animate"))
 				//				runner.debug();
 			}
@@ -101,7 +103,7 @@ public class DebugMain {
 				System.out.println(ih.getTypeErrors());
 			}
 
-		} catch (IOException | InterpreterException e) {
+		} catch (IOException | AnalysisException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

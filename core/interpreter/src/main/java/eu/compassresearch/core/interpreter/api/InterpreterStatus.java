@@ -18,28 +18,30 @@ public class InterpreterStatus {
 	final private List<CmlProcessInfo> processInfos;
 	private InterpreterError[] errors = null;
 	private final CmlInterpreterState state;
-	
+
 	protected InterpreterStatus()
 	{
 		state = null;
 		processInfos = null;
 	}
-	
+
 	private static List<CmlBehaviour> extractAllRunningProcesses(CmlBehaviour topProcess)
 	{
 		List<CmlBehaviour> children = new LinkedList<CmlBehaviour>();
-		
-		children.add(topProcess);
-		
-		if(topProcess.getLeftChild() != null)
-			children.addAll(extractAllRunningProcesses(topProcess.getLeftChild()));
-		
-		if(topProcess.getRightChild() != null)
-			children.addAll(extractAllRunningProcesses(topProcess.getLeftChild()));
-		
+		if(topProcess != null)
+		{
+			children.add(topProcess);
+
+			if(topProcess.getLeftChild() != null)
+				children.addAll(extractAllRunningProcesses(topProcess.getLeftChild()));
+
+			if(topProcess.getRightChild() != null)
+				children.addAll(extractAllRunningProcesses(topProcess.getLeftChild()));
+		}
+
 		return children;
 	}
-	
+
 	public InterpreterStatus(CmlBehaviour topProcess, CmlInterpreterState state)
 	{
 		this.processInfos = new LinkedList<CmlProcessInfo>();
@@ -55,17 +57,17 @@ public class InterpreterStatus {
 
 		this.state = state;
 	}
-			
+
 	public List<CmlProcessInfo> getAllProcessInfos()
 	{
 		return this.processInfos;
 	}
-	
+
 	public CmlProcessInfo getToplevelProcessInfo()
 	{
 		return processInfos.get(0);
 	}
-	
+
 	public List<InterpreterError> getErrors() {
 		if(errors != null)
 			return Arrays.asList(errors);
@@ -74,7 +76,7 @@ public class InterpreterStatus {
 	}
 
 	public void AddError(InterpreterError error) {
-		
+
 		if(errors == null)
 			errors = new InterpreterError[]{error};
 		else
@@ -87,15 +89,15 @@ public class InterpreterStatus {
 	{
 		return errors != null;
 	}
-	
+
 	public CmlInterpreterState getInterpreterState()
 	{
 		return state;
 	}
-			
+
 	@Override
 	public String toString() {
 		return "CmlInterpreterState: " + state + System.lineSeparator() + 
-				"topProcess: " + this.processInfos.get(0);
+				"topProcess: " + (this.processInfos.size() > 0 ? this.processInfos.get(0).toString() : "NA");
 	}
 }

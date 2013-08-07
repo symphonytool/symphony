@@ -17,14 +17,28 @@ public class InterpreterStatusEvent extends Event<CmlInterpreter> {
 	 */
 	private static final long serialVersionUID = 6478492523089731326L;
 	private final CmlInterpreterState status;
+	private final Object content;
 
 	public InterpreterStatusEvent(CmlInterpreter interpreter,CmlInterpreterState status)
 	{
 		super(interpreter);
 		this.status = status;
+		this.content = null;
+	}
+	
+	public InterpreterStatusEvent(CmlInterpreter interpreter,CmlInterpreterState status, Object content)
+	{
+		super(interpreter);
+		this.status = status;
+		this.content = content;
 	}
 	
 	public CmlInterpreterState getStatus() {
 		return status;
 	}
+	
+	public <T> T getContent()
+	{
+		return (T)this.content;
+	} 
 }

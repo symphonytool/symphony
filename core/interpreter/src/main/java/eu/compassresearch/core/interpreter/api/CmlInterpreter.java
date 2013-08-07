@@ -49,6 +49,13 @@ public interface CmlInterpreter
 	public CmlSupervisorEnvironment getCurrentSupervisor();
 
 	/**
+	 * Initializes the interpreter by making a global context and setting the 
+	 * last defined process as the top process
+	 * @throws InterpreterException
+	 */
+	public void initialize() throws AnalysisException;
+	
+	/**
 	 * Executes the defined default process from the given sourceForest, with the given selection strategy
 	 * @param selectionStrategy
 	 * @return

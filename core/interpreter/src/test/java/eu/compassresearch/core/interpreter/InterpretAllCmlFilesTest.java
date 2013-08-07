@@ -126,6 +126,7 @@ public class InterpretAllCmlFilesTest {
 		
 		Exception exception = null;
 		try{
+			interpreter.initialize();
 			interpreter.execute(sve);
 		}
 		catch(Exception ex)

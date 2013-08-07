@@ -15,11 +15,11 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.model.IBreakpoint;
 import org.eclipse.debug.core.model.ILineBreakpoint;
 
+import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
 import eu.compassresearch.core.interpreter.debug.Breakpoint;
 import eu.compassresearch.core.interpreter.debug.Choice;
 import eu.compassresearch.core.interpreter.debug.CmlDbgCommandMessage;
 import eu.compassresearch.core.interpreter.debug.CmlDbgStatusMessage;
-import eu.compassresearch.core.interpreter.debug.CmlDbgpStatus;
 import eu.compassresearch.core.interpreter.debug.CmlDebugCommand;
 import eu.compassresearch.core.interpreter.utility.messaging.CmlRequest;
 import eu.compassresearch.core.interpreter.utility.messaging.Message;
@@ -73,7 +73,7 @@ public class CmlCommunicationManager extends Thread
 		CmlDbgCommandMessage message = new CmlDbgCommandMessage(cmd);
 		MessageCommunicator.sendMessage(requestOutputStream, message);
 	}
-	
+
 	public void sendCommandMessage(CmlDebugCommand cmd, Object content)
 	{
 		CmlDbgCommandMessage message = new CmlDbgCommandMessage(cmd,content);
@@ -105,8 +105,7 @@ public class CmlCommunicationManager extends Thread
 		Map<String, MessageEventHandler<RequestMessage>> handlers = new HashMap<String, MessageEventHandler<RequestMessage>>();
 
 		// Handler for the Choice request
-		handlers.put(CmlRequest.CHOICE.toString(), new MessageEventHandler<RequestMessage>()
-		{
+		handlers.put(CmlRequest.CHOICE.toString(), new MessageEventHandler<RequestMessage>(){
 
 			@Override
 			public boolean handleMessage(RequestMessage message)
@@ -115,18 +114,15 @@ public class CmlCommunicationManager extends Thread
 
 				final List<Choice> events = message.getContent();
 				new CmlChoiceMediator(target, CmlCommunicationManager.this).setChoiceOptions(events, message);
-				
-//				sendMessage(new ResponseMessage(message.getRequestId(), CmlRequest.CHOICE, selectChoice(events)));
 				return true;
 			}
 		});
-		
-		handlers.put(CmlRequest.SETUP.toString(), new MessageEventHandler<RequestMessage>()
-		{
+
+		handlers.put(CmlRequest.SETUP.toString(), new MessageEventHandler<RequestMessage>(){
 			@Override
 			public boolean handleMessage(RequestMessage message)
 			{
-				
+
 				for(IBreakpoint bp : target.getBreakpoints())
 				{
 					if(bp instanceof CmlLineBreakpoint)
@@ -140,7 +136,7 @@ public class CmlCommunicationManager extends Thread
 						}
 					}
 				}
-				
+
 				sendMessage(new ResponseMessage(message.getRequestId(), CmlRequest.SETUP,""));
 				return true;
 			}
@@ -158,8 +154,7 @@ public class CmlCommunicationManager extends Thread
 	{
 		Map<String, MessageEventHandler<CmlDbgStatusMessage>> handlers = new HashMap<String, MessageEventHandler<CmlDbgStatusMessage>>();
 
-		handlers.put(CmlDbgpStatus.STARTING.toString(), new MessageEventHandler<CmlDbgStatusMessage>()
-		{
+		handlers.put(CmlInterpreterState.INITIALIZED.toString(), new MessageEventHandler<CmlDbgStatusMessage>() {
 			@Override
 			public boolean handleMessage(CmlDbgStatusMessage message)
 			{
@@ -181,8 +176,7 @@ public class CmlCommunicationManager extends Thread
 			}
 		});
 
-		handlers.put(CmlDbgpStatus.RUNNING.toString(), new MessageEventHandler<CmlDbgStatusMessage>()
-		{
+		handlers.put(CmlInterpreterState.RUNNING.toString(), new MessageEventHandler<CmlDbgStatusMessage>() {
 			@Override
 			public boolean handleMessage(CmlDbgStatusMessage message)
 			{
@@ -191,8 +185,7 @@ public class CmlCommunicationManager extends Thread
 			}
 		});
 
-		handlers.put(CmlDbgpStatus.CHOICE.toString(), new MessageEventHandler<CmlDbgStatusMessage>()
-		{
+		handlers.put(CmlInterpreterState.WAITING_FOR_ENVIRONMENT.toString(), new MessageEventHandler<CmlDbgStatusMessage>() {
 			@Override
 			public boolean handleMessage(CmlDbgStatusMessage message)
 			{
@@ -201,35 +194,34 @@ public class CmlCommunicationManager extends Thread
 			}
 		});
 
-		handlers.put(CmlDbgpStatus.STOPPING.toString(), new MessageEventHandler<CmlDbgStatusMessage>()
-		{
+		//		handlers.put(CmlDbgpStatus.STOPPING.toString(), new MessageEventHandler<CmlDbgStatusMessage>()
+		//				{
+		//			@Override
+		//			public boolean handleMessage(CmlDbgStatusMessage message)
+		//			{
+		//				threadManager.stopping();
+		//				return true;
+		//			}
+		//				});
+
+		handlers.put(CmlInterpreterState.TERMINATED.toString(), new MessageEventHandler<CmlDbgStatusMessage>() {
 			@Override
 			public boolean handleMessage(CmlDbgStatusMessage message)
 			{
 				threadManager.stopping();
-				return true;
-			}
-		});
-
-		handlers.put(CmlDbgpStatus.STOPPED.toString(), new MessageEventHandler<CmlDbgStatusMessage>()
-		{
-			@Override
-			public boolean handleMessage(CmlDbgStatusMessage message)
-			{
 				threadManager.updateDebuggerInfo(message.getInterpreterStatus());
 				return false;
 			}
 		});
 
-		handlers.put(CmlDbgpStatus.CONNECTION_CLOSED.toString(), new MessageEventHandler<CmlDbgStatusMessage>()
-		{
+		handlers.put(null, new MessageEventHandler<CmlDbgStatusMessage>() {
 			@Override
 			public boolean handleMessage(CmlDbgStatusMessage message)
 			{
 				connectionClosed();
 				return false;
 			}
-		});
+				});
 
 		return handlers;
 	}
@@ -242,7 +234,7 @@ public class CmlCommunicationManager extends Thread
 	 */
 	public MessageContainer receiveMessage() throws IOException
 	{
-		return MessageCommunicator.receiveMessage(fRequestReader, new MessageContainer(new CmlDbgStatusMessage(CmlDbgpStatus.CONNECTION_CLOSED)));
+		return MessageCommunicator.receiveMessage(fRequestReader, new MessageContainer(new CmlDbgStatusMessage()));
 	}
 
 	/**
@@ -277,12 +269,12 @@ public class CmlCommunicationManager extends Thread
 
 		switch (messageContainer.getType())
 		{
-			case STATUS:
-				return dispatchMessageHandler(statusHandlers, (CmlDbgStatusMessage) messageContainer.getMessage());
-			case REQUEST:
-				return dispatchMessageHandler(requestHandlers, (RequestMessage) messageContainer.getMessage());
-			default:
-				break;
+		case STATUS:
+			return dispatchMessageHandler(statusHandlers, (CmlDbgStatusMessage) messageContainer.getMessage());
+		case REQUEST:
+			return dispatchMessageHandler(requestHandlers, (RequestMessage) messageContainer.getMessage());
+		default:
+			break;
 		}
 
 		return result;
@@ -389,20 +381,20 @@ public class CmlCommunicationManager extends Thread
 	{
 		return (fRequestSocket == null ? false : !fRequestSocket.isClosed());
 	}
-	
+
 	public void addBreakpoint(URI file, int linenumber, boolean enabled)
 	{
-		
+
 	}
-	
+
 	public void removeBreakpoint(URI file, int linenumber )
 	{
-		
+
 	}
-	
+
 	public void updateBreakpoint(URI file, int linenumber, boolean enabled)
 	{
-		
+
 	}
 
 }
