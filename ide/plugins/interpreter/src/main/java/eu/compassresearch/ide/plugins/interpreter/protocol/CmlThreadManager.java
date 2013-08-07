@@ -10,6 +10,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
+import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
 import eu.compassresearch.core.interpreter.api.CmlProcessInfo;
 import eu.compassresearch.core.interpreter.api.InterpreterStatus;
 import eu.compassresearch.ide.plugins.interpreter.ICmlDebugConstants;
@@ -23,12 +24,7 @@ public class CmlThreadManager
 	private List<IThread> threads = new LinkedList<IThread>();
 	private CmlDebugTarget target;
 
-	enum RunningStatus
-	{
-		Terminated, Running, Suspended, Unknown
-	};
-
-	RunningStatus status = RunningStatus.Unknown;
+	InterpreterStatus status = null;
 
 	public CmlThreadManager(CmlDebugTarget target)
 	{
@@ -37,6 +33,7 @@ public class CmlThreadManager
 
 	public void updateDebuggerInfo(final InterpreterStatus status)
 	{
+		this.status = status;
 		// cmlThread = new CmlThread(this,status.getToplevelProcessInfo());
 		threads.clear();
 		for (CmlProcessInfo t : status.getAllProcessInfos())
@@ -74,7 +71,6 @@ public class CmlThreadManager
 	 */
 	public void started(InterpreterStatus status)
 	{
-
 		updateDebuggerInfo(status);
 		target.fireCreationEvent();
 
@@ -107,11 +103,11 @@ public class CmlThreadManager
 
 	public boolean isSuspended()
 	{
-		return status == RunningStatus.Suspended;
+		return status != null && status.getInterpreterState() == CmlInterpreterState.SUSPENDED;
 	}
 
 	public boolean isRunning()
 	{
-		return status == RunningStatus.Running;
+		return status != null && status.getInterpreterState() == CmlInterpreterState.RUNNING;
 	}
 }

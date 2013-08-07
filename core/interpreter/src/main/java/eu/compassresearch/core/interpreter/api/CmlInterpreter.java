@@ -63,6 +63,8 @@ public interface CmlInterpreter
 	 */
 	public Value execute(CmlSupervisorEnvironment sve) throws AnalysisException;
 	
+	public void resume();
+	
 	public InterpreterStatus getStatus();
 	
 	public CmlInterpreterState getCurrentState();

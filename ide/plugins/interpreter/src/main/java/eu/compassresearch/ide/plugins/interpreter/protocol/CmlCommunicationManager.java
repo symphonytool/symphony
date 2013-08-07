@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IBreakpoint;
 import org.eclipse.debug.core.model.ILineBreakpoint;
 
@@ -194,16 +195,34 @@ public class CmlCommunicationManager extends Thread
 			}
 		});
 
-		//		handlers.put(CmlDbgpStatus.STOPPING.toString(), new MessageEventHandler<CmlDbgStatusMessage>()
-		//				{
-		//			@Override
-		//			public boolean handleMessage(CmlDbgStatusMessage message)
-		//			{
-		//				threadManager.stopping();
-		//				return true;
-		//			}
-		//				});
+		handlers.put(CmlInterpreterState.SUSPENDED.toString(), new MessageEventHandler<CmlDbgStatusMessage>() {
+			@Override
+			public boolean handleMessage(CmlDbgStatusMessage message)
+			{
+				//threadManager.stopping();
+				threadManager.updateDebuggerInfo(message.getInterpreterStatus());
+				try {
+					CmlCommunicationManager.this.target.suspend();
+				} catch (DebugException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				//System.out.println("SUUUUUUSPEEEEEEND!!!!!!");
+				return true;
+			}
+		});
 
+		handlers.put(CmlInterpreterState.FAILED.toString(), new MessageEventHandler<CmlDbgStatusMessage>() {
+			@Override
+			public boolean handleMessage(CmlDbgStatusMessage message)
+			{
+//				threadManager.stopping();
+//				threadManager.updateDebuggerInfo(message.getInterpreterStatus());
+				System.out.println("message: " + message);
+				return false;
+			}
+		});
+		
 		handlers.put(CmlInterpreterState.TERMINATED.toString(), new MessageEventHandler<CmlDbgStatusMessage>() {
 			@Override
 			public boolean handleMessage(CmlDbgStatusMessage message)

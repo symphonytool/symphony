@@ -17,6 +17,7 @@ import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IThread;
 import org.eclipse.osgi.util.NLS;
 
+import eu.compassresearch.core.interpreter.debug.CmlDebugCommand;
 import eu.compassresearch.ide.core.resources.ICmlProject;
 import eu.compassresearch.ide.plugins.interpreter.CmlDebugPlugin;
 import eu.compassresearch.ide.plugins.interpreter.debug.ui.model.CmlLineBreakpoint;
@@ -100,6 +101,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 	@Override
 	public void resume() throws DebugException
 	{
+		this.communicationManager.sendCommandMessage(CmlDebugCommand.RESUME);
 		fireResumeEvent(0);
 	}
 

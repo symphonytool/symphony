@@ -8,22 +8,16 @@ import eu.compassresearch.core.interpreter.utility.messaging.MessageType;
 
 public class CmlDbgStatusMessage extends Message {
 
-	//private CmlDbgpStatus status;
 	private InterpreterStatus interpreterStatus;
-	
-//	protected CmlDbgStatusMessage()
-//	{}
 	
 	public CmlDbgStatusMessage(InterpreterStatus interpreterStatus)
 	{
 		this.interpreterStatus = interpreterStatus;
-		//this.setStatus(status);
 	}
 	
 	public CmlDbgStatusMessage()
 	{
 		this.interpreterStatus = null;
-		//this.setStatus(status);
 	}
 	
 	public CmlInterpreterState getStatus() {
@@ -37,14 +31,9 @@ public class CmlDbgStatusMessage extends Message {
 		return interpreterStatus;
 	}
 
-//	protected void setStatus(CmlDbgpStatus status) {
-//		this.status = status;
-//	}
-			
 	@Override
 	public String toString() {
 		return CmlDbgStatusMessage.class.getSimpleName() + System.lineSeparator() +
-			   "Status: "+ getStatus() + System.lineSeparator() +
 			   this.interpreterStatus;
 				
 	}

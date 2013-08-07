@@ -50,9 +50,10 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	private static final long          serialVersionUID = 6664128061930795395L;
 	protected List<PSource>            sourceForest;
 	protected Context                  globalContext;
-	protected String 				   defaultName      = null;	
+	protected String 				   defaultName      	= null;	
 	protected AProcessDefinition       topProcess;
-	protected CmlBehaviour	   		   runningTopProcess = null;	
+	protected CmlBehaviour	   		   runningTopProcess 	= null;
+	private Object 					   suspendtionObject		= new Object();
 
 	/**
 	 * Construct a CmlInterpreter with a list of PSources. These source may
@@ -65,7 +66,6 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	public VanillaCmlInterpreter(List<PSource> cmlSources)
 	{
 		this.sourceForest = cmlSources;
-		//initialize();
 	}
 
 	/**
@@ -78,7 +78,6 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	{
 		this.sourceForest = new LinkedList<PSource>();
 		this.sourceForest.add(singleSource);
-		//initialize();
 	}
 
 	/**
@@ -137,7 +136,8 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		catch(Exception ex)
 		{
 			setNewState(CmlInterpreterState.FAILED);
-			throw ex;
+			ex.printStackTrace();
+			throw new AnalysisException(ex);
 		}
 
 		//Finally we return the top process value
@@ -172,8 +172,9 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	 * Main loop for executing the top process
 	 * @param topProcess
 	 * @throws AnalysisException
+	 * @throws InterruptedException 
 	 */
-	private void executeTopProcess(CmlBehaviour topProcess) throws AnalysisException
+	private void executeTopProcess(CmlBehaviour topProcess) throws AnalysisException, InterruptedException
 	{
 		//continue until the top process is not finished and not deadlocked
 		while(!topProcess.finished() && !topProcess.deadlocked())
@@ -213,6 +214,12 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			handleBreakpoints(selectedEvent);
 
 			//TODO add suspension code here
+			while(getCurrentState() == CmlInterpreterState.SUSPENDED){
+				synchronized (suspendtionObject) {
+					this.suspendtionObject.wait();
+				}
+			}
+				
 
 			//if we get here it means that it in a running state again
 			setNewState(CmlInterpreterState.RUNNING);
@@ -243,6 +250,16 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		else
 			setNewState(CmlInterpreterState.TERMINATED);
 	}
+	
+	public void resume()
+	{
+		synchronized (suspendtionObject) {
+			this.suspendtionObject.notifyAll();
+		}
+		
+		//if we get here it means that it in a running state again
+		setNewState(CmlInterpreterState.RUNNING);
+	}
 
 	private void handleBreakpoints(CmlTransition selectedEvent)
 	{
@@ -254,11 +271,6 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			if(this.breakpoints.containsKey(key))
 			{
 				setNewState(CmlInterpreterState.SUSPENDED);
-				//				this.statusEventHandler.fireEvent(
-				//						new InterpreterStatusEvent(this, 
-				//								CmlInterpreterState.SUSPENDED,
-				//								this.breakpoints.get(key)));
-				//System.out.println("BREEEEEEAAAAAAAK!!!!");
 			}
 		}
 	}
@@ -275,7 +287,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	}
 
 	// ---------------------------------------
-	// Static stuff for running the Interpreter from Eclipse
+	// Static stuff for running the Interpreter from the commandline with any gui stuff
 	// ---------------------------------------
 
 	private static void runOnFile(File f) throws IOException, InterpreterException
