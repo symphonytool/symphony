@@ -1,4 +1,4 @@
-package eu.compassresearch.theoremprover;
+package eu.compassresearch.theoremprover.visitors;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,6 +21,8 @@ import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.definitions.AFunctionsDefinition;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.ast.types.AFunctionParagraphType;
+import eu.compassresearch.theoremprover.thms.ThmNode;
+import eu.compassresearch.theoremprover.thms.ThmNodeList;
 
 @SuppressWarnings("serial")
 public class TPVisitor extends
@@ -223,7 +225,8 @@ public class TPVisitor extends
 						+ "a theory file for this cml-source: \n" + e.getMessage());
 				}
 		}
-	
+		
+		String thyName = thyFileName.substring(0, thyFileName.lastIndexOf('.'));
 	
 		//Sort nodes into dependency-order
 		nodes = sortThmNodes(nodes);
@@ -231,9 +234,9 @@ public class TPVisitor extends
 		StringBuilder sb = new StringBuilder();
 		
 		//Add thy header 
-		sb.append("theory " + thyFileName + " \n" + "  imports utp_vdm \n"
+		sb.append("theory " + thyName + " \n" + "  imports utp_cml \n"
 				+ "begin \n" + "\n");
-		sb.append("text {* Auto-generated THY file for "+  thyFileName + ".cml *}\n\n");
+		sb.append("text {* Auto-generated THY file for "+  thyName + ".cml *}\n\n");
 		
 		//Add generated node strings
 		sb.append(nodes.toString());

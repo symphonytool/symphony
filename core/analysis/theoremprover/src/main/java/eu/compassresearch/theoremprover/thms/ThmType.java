@@ -1,10 +1,12 @@
-package eu.compassresearch.theoremprover;
+package eu.compassresearch.theoremprover.thms;
 
 import java.util.LinkedList;
 
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.types.ANamedInvariantType;
 import org.overture.ast.types.PType;
+
+import eu.compassresearch.theoremprover.utils.ThmTypeUtil;
 
 public class ThmType extends ThmDecl {
 
@@ -23,7 +25,7 @@ public class ThmType extends ThmDecl {
 	{
 		this.name = name;
 		this.type = type;
-		this.invariant = inv;
+		setInv(inv);
 	}
 	
 	public void setName(String name) {
@@ -35,7 +37,7 @@ public class ThmType extends ThmDecl {
 	}
 	
 	public void setInv(String inv) {
-		this.invariant = " " + ThmUtil.isaInv + " " + invariant;
+		this.invariant = inv;
 	}
 
 	public String getName() {
@@ -45,13 +47,15 @@ public class ThmType extends ThmDecl {
 	public String getType() {
 		return type;
 	}
+	
 	public String getInv() {
 		return invariant;
 	}
 	
 	public String toString(){
-		return (ThmUtil.isaType + " \"" + name + " = " + 
-			    ThmUtil.typeDelim + type + invariant + ThmUtil.typeDelim + " \"");
+		return (ThmTypeUtil.isaType + " \"" + name + " = " + 
+		    ThmTypeUtil.typeDelim + type + invariant + ThmTypeUtil.typeDelim + "\"");
+		
 	}
 	
 }

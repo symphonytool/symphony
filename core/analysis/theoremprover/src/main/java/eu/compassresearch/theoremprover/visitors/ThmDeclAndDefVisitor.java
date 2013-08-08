@@ -1,4 +1,4 @@
-package eu.compassresearch.theoremprover;
+package eu.compassresearch.theoremprover.visitors;
 
 //POG-related imports
 import java.util.LinkedList;
@@ -39,6 +39,7 @@ import eu.compassresearch.ast.definitions.AValuesDefinition;
 import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
 import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
 import eu.compassresearch.ast.process.PProcess;
+import eu.compassresearch.theoremprover.thms.ThmNodeList;
 
 @SuppressWarnings("serial")
 public class ThmDeclAndDefVisitor  extends

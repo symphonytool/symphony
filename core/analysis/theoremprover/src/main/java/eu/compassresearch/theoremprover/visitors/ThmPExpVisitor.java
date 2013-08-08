@@ -1,8 +1,9 @@
-package eu.compassresearch.theoremprover;
+package eu.compassresearch.theoremprover.visitors;
 
 import org.overture.ast.analysis.AnalysisException;
 
 import eu.compassresearch.ast.analysis.AnswerCMLAdaptor;
+import eu.compassresearch.theoremprover.thms.ThmNodeList;
 
 @SuppressWarnings("serial")
 public class ThmPExpVisitor extends AnswerCMLAdaptor<ThmNodeList> {
@@ -10,11 +11,11 @@ public class ThmPExpVisitor extends AnswerCMLAdaptor<ThmNodeList> {
 
     final private AnswerCMLAdaptor<ThmNodeList> parentVisitor;
 
-    public ThmPExpVisitor(
-    		AnswerCMLAdaptor<ThmNodeList> parentVisitor) {
-	this.parentVisitor = parentVisitor;
+    public ThmPExpVisitor(AnswerCMLAdaptor<ThmNodeList> parentVisitor) {
+    	this.parentVisitor = parentVisitor;
     }
 	
+    
 	
 //	@Override
 //	public ThmNodeList caseBoolean(Boolean node) throws AnalysisException {

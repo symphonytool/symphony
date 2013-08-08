@@ -1,4 +1,4 @@
-package eu.compassresearch.theoremprover;
+package eu.compassresearch.theoremprover.thms;
 
 public class ThmValue extends ThmDecl {
 

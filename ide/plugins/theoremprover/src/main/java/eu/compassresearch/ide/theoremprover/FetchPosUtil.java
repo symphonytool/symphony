@@ -29,9 +29,9 @@ import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
 import eu.compassresearch.ide.ui.utility.CmlProjectUtil;
 import eu.compassresearch.theoremprover.IsabelleTheory;
 import eu.compassresearch.theoremprover.IsabelleTheory.IsabelleTheorem;
-import eu.compassresearch.theoremprover.TPVisitor;
-import eu.compassresearch.theoremprover.ThmType;
-import eu.compassresearch.theoremprover.ThmValue;
+import eu.compassresearch.theoremprover.visitors.TPVisitor;
+import eu.compassresearch.theoremprover.thms.ThmType;
+import eu.compassresearch.theoremprover.thms.ThmValue;
 
 public class FetchPosUtil
 {
@@ -155,47 +155,47 @@ public class FetchPosUtil
 	private void translateCmltoThy(ICmlSourceUnit source, IFile outputFile) throws IOException,
 			AnalysisException
 	{
-		TPVisitor tpv = new TPVisitor();
-		source.getParseNode().apply(tpv);
-
-		String name = source.getFile().getName();
-
-		String thyName = name.substring(0, name.lastIndexOf("."));
-		StringBuilder sb = new StringBuilder();
-
-		sb.append("theory " + thyName + " \n" + "  imports utp_vdm \n"
-				+ "begin \n" + "\n");
-
-		sb.append("text {* VDM value declarations *}\n\n");
-
-		for (ThmValue tv : tpv.getValueList())
-		{
-			sb.append(tv.toString());
-			sb.append("\n");
-		}
-
-		sb.append("\n");
-		sb.append("text {* VDM type declarations *}\n\n");
-
-		for (ThmType ty : tpv.getTypeList())
-		{
-			sb.append(ty.toString());
-			sb.append("\n");
-		}
-
-		sb.append("\n");
-
-		sb.append("\n" + "end");
-
-		try{
-		outputFile.delete(true, null);
-		outputFile.create( new ByteArrayInputStream(sb.toString().getBytes()), true, new NullProgressMonitor());
-		}catch(CoreException e)
-		{
-			Activator.log(e);
-		}
-		
-		return;
+//		TPVisitor tpv = new TPVisitor();
+//		source.getParseNode().apply(tpv);
+//
+//		String name = source.getFile().getName();
+//
+//		String thyName = name.substring(0, name.lastIndexOf("."));
+//		StringBuilder sb = new StringBuilder();
+//
+//		sb.append("theory " + thyName + " \n" + "  imports utp_vdm \n"
+//				+ "begin \n" + "\n");
+//
+//		sb.append("text {* VDM value declarations *}\n\n");
+//
+//		for (ThmValue tv : tpv.getValueList())
+//		{
+//			sb.append(tv.toString());
+//			sb.append("\n");
+//		}
+//
+//		sb.append("\n");
+//		sb.append("text {* VDM type declarations *}\n\n");
+//
+//		for (ThmType ty : tpv.getTypeList())
+//		{
+//			sb.append(ty.toString());
+//			sb.append("\n");
+//		}
+//
+//		sb.append("\n");
+//
+//		sb.append("\n" + "end");
+//
+//		try{
+//		outputFile.delete(true, null);
+//		outputFile.create( new ByteArrayInputStream(sb.toString().getBytes()), true, new NullProgressMonitor());
+//		}catch(CoreException e)
+//		{
+//			Activator.log(e);
+//		}
+//		
+//		return;
 
 	}
 

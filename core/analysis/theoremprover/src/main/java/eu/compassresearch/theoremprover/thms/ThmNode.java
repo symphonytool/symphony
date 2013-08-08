@@ -1,4 +1,4 @@
-package eu.compassresearch.theoremprover;
+package eu.compassresearch.theoremprover.thms;
 
 import java.util.LinkedList;
 

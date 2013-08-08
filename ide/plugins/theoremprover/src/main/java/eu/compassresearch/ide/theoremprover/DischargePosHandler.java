@@ -6,7 +6,6 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.ui.handlers.HandlerUtil;
 
-import eu.compassresearch.ide.cml.pogplugin.PogPluginUtility;
 import eu.compassresearch.ide.core.resources.ICmlProject;
 
 

@@ -11,6 +11,7 @@ import org.junit.Test;
 import org.overture.ast.analysis.AnalysisException;
 
 import eu.compassresearch.ast.program.PSource;
+import eu.compassresearch.theoremprover.thms.ThmType;
 
 public class TPVisitorTest1 {
 	
