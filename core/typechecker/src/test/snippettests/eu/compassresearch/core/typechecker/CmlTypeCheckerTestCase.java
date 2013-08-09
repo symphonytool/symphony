@@ -250,6 +250,16 @@ public class CmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase {
 		addTestProgram(testData, 
 				"types CP :: c : nat p : nat process test =  begin state myCP : CP operations op1: () ==> () op1() ==  (  dcl x : nat @ x := myCP.c  ) op2: (nat) ==> () op2(n) ==  (  myCP.c :=n ) @ Skip end", 
 				true, true, new String[0]);
+		
+		//237 // Test case for bug https://sourceforge.net/p/compassresearch/tickets/27/
+		addTestProgram(testData, "functions Good : () -> nat Good () ==  let aux = 1 in aux process Test = begin state x : int functions	Bad : () -> nat	Bad () ==  let aux = 1 in aux @ Skip end", 
+				true, true, new String[0]);
+		//238 // Test case for bug https://sourceforge.net/p/compassresearch/tickets/27/
+		addTestProgram(testData, "functions Good : () -> nat Good () ==  let aux = 1 in aux process Test = begin functions	Bad : () -> nat	Bad () ==  let aux = 1 in aux @ Skip end", 
+						true, true, new String[0]);
+		//238 // Test case for bug https://sourceforge.net/p/compassresearch/tickets/27/
+		addTestProgram(testData, "process Test = begin functions Bad : () -> nat	Bad () ==  let aux = 1 in aux  Bad2 : () -> nat	Bad2 () ==  aux @ Skip end", 
+						true, false, new String[0]);
 		return testData;
 	}
 

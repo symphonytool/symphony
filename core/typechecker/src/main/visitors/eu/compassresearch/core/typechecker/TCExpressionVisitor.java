@@ -707,7 +707,7 @@ class TCExpressionVisitor extends
 		// or operation... We wish to find an abstraction with the right args.
 		name.setTypeQualifier(question.qualifiers);
 
-		// The defintion is set on the VariableExp for convenience
+		// The definition is set on the VariableExp for convenience
 		if (question.scope == null)
 			question.scope = NameScope.LOCAL;
 		node.setVardef(env.findName(name, question.scope));

@@ -336,10 +336,11 @@ class TCDeclAndDefVisitor extends
 			TypeCheckInfo question) throws AnalysisException {
 
 		CmlTypeCheckInfo cmlenv = CmlTCUtil.getCmlEnv(question);
-
+		
+		CmlTypeCheckInfo stateScope = cmlenv.newScope();
 		LinkedList<PDefinition> defs = node.getStateDefs();
 		for (PDefinition def : defs) {
-			question.scope = NameScope.STATE;
+			stateScope.scope = NameScope.STATE;
 			PType defType = def.apply(parentChecker, cmlenv);
 			if (!successfulType(defType)) {
 				node.setType(issueHandler.addTypeError(def,
@@ -2029,7 +2030,7 @@ class TCDeclAndDefVisitor extends
 		PType actualResult = node.getBody().apply(parentChecker,
 				new TypeCheckInfo(question.assistantFactory,local, question.scope));
 		OvertureRootCMLAdapter.popQuestion(question);
-
+		
 		node.setActualResult(actualResult);
 
 		if (!org.overture.typechecker.TypeComparator.compatible(expectedResult, node.getActualResult())) {
