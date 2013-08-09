@@ -5,8 +5,10 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import org.overture.ast.definitions.ATypeDefinition;
+import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.intf.lex.ILexNameToken;
+import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.PPattern;
 import org.overture.ast.types.ABooleanBasicType;
 import org.overture.ast.types.ABracketType;
@@ -375,7 +377,7 @@ public class ThmTypeUtil {
 	
 	
 	public static LinkedList<ILexNameToken> getIsabelleTypeDeps(PType tp){
-		LinkedList<ILexNameToken> nodeDeps = new LinkedList();
+		LinkedList<ILexNameToken> nodeDeps = new LinkedList<ILexNameToken>();
 		
 		if (tp instanceof ANamedInvariantType)
 		{
@@ -412,7 +414,7 @@ public class ThmTypeUtil {
 	
 	private static LinkedList<ILexNameToken> getIsabelleRecordDeps(
 			PType tp) {
-		LinkedList<ILexNameToken> nodeDeps = new LinkedList();
+		LinkedList<ILexNameToken> nodeDeps = new LinkedList<ILexNameToken>();
 		
 		//TODO: Deduce deps for records (essentially look at each field type
 
@@ -427,7 +429,7 @@ public class ThmTypeUtil {
 
 
 	public static LinkedList<ILexNameToken> getIsabelleMapDeps(PType type) {
-		LinkedList<ILexNameToken> nodeDeps = new LinkedList();
+		LinkedList<ILexNameToken> nodeDeps = new LinkedList<ILexNameToken>();
 		
 		if (type instanceof AInMapMapType)
 		{
@@ -448,7 +450,7 @@ public class ThmTypeUtil {
 	}
 
 	public static LinkedList<ILexNameToken> getIsabelleSeqDeps(PType type) {
-		LinkedList<ILexNameToken> nodeDeps = new LinkedList();
+		LinkedList<ILexNameToken> nodeDeps = new LinkedList<ILexNameToken>();
 		
 		if (type instanceof ASeqSeqType)
 		{
@@ -469,7 +471,7 @@ public class ThmTypeUtil {
 	public static LinkedList<ILexNameToken> getIsabelleTypeBaseDeps(PType type) {
 		//TODO: Here need to return type in Isabelle syntax 
 		//return type.toString();
-		LinkedList<ILexNameToken> nodeDeps = new LinkedList();
+		LinkedList<ILexNameToken> nodeDeps = new LinkedList<ILexNameToken>();
 		
 		if (type instanceof ASetType)
 		{
@@ -548,7 +550,10 @@ public class ThmTypeUtil {
 		PExp invExp = node.getInvExpression();
 		PPattern invPatt = node.getInvPattern();
 		if(invExp != null && invPatt != null){
-			inv = (" " + ThmTypeUtil.isaInv  + " " + invPatt.toString() + " == " + ThmExprUtil.getIsabelleExprStr(invExp));
+			LinkedList<ILexNameToken> svars = new LinkedList<ILexNameToken>();
+			LinkedList<ILexNameToken> evars = new LinkedList<ILexNameToken>();
+			evars.add(((AIdentifierPattern) invPatt).getName());
+			inv = (" " + ThmTypeUtil.isaInv  + " " + invPatt.toString() + " == " + ThmExprUtil.getIsabelleExprStr(svars, evars, invExp));
 		}
 		
 		return inv;
