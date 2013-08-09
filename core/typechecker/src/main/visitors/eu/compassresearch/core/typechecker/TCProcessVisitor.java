@@ -17,6 +17,8 @@ import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.actions.PParametrisation;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
+import eu.compassresearch.ast.definitions.AFunctionsDefinition;
+import eu.compassresearch.ast.definitions.AOperationsDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.expressions.SRenameChannelExp;
@@ -726,6 +728,27 @@ public class TCProcessVisitor extends
 
 		CmlTypeCheckInfo actionScope = cmlEnv.newScope();
 
+		//resolve functions/operation names prior to TC  
+		for (PDefinition def : node.getDefinitionParagraphs())
+		{
+			if(def.getName() != null) {
+				if(def instanceof AFunctionsDefinition){
+					AFunctionsDefinition funcDef = (AFunctionsDefinition) def;
+					for (PDefinition d : funcDef.getFunctionDefinitions()) {
+						actionScope.addVariable(d.getName(), d); 
+					}
+				} else
+				if(def instanceof AOperationsDefinition){
+					AOperationsDefinition opDef = (AOperationsDefinition) def;
+					for (PDefinition d : opDef.getOperations()) {
+						actionScope.addVariable(d.getName(), d); 
+					}
+				} else {
+					actionScope.addVariable(def.getName(), def);
+				}
+			}
+		}
+	
 		// Type check all the paragraph definitions
 		List<PDefinition> fixedDefinitions = new LinkedList<PDefinition>();
 		for (PDefinition def : node.getDefinitionParagraphs()) {
@@ -736,9 +759,9 @@ public class TCProcessVisitor extends
 								.customizeMessage(def.getName() + ""));
 			fixedDefinitions.addAll(TCDeclAndDefVisitor
 					.handleDefinitionsForOverture(def));
-			for (PDefinition d : type.getDefinitions()) {
-				actionScope.addVariable(d.getName(), d);
-			}
+//			for (PDefinition d : type.getDefinitions()) {
+//				actionScope.addVariable(d.getName(), d);
+//			}
 		}
 		node.getDefinitionParagraphs().clear();
 		node.getDefinitionParagraphs().addAll(fixedDefinitions);

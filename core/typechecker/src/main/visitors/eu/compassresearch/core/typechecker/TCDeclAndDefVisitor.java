@@ -217,7 +217,7 @@ class TCDeclAndDefVisitor extends
 								.customizeMessage("" + def)));
 				return node.getType();
 			}
-			// cmlEnv.addVariable(def.getName(), def);
+//			cmlEnv.addVariable(def.getName(), def);
 			positiveResult.getDefinitions().add(def);
 		}
 
