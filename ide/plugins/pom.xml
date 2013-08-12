@@ -22,6 +22,5 @@
     <module>pog</module>
     <module>theoremprover</module>
     <module>modelchecker</module>   
-    <module>securityanalysis</module>
   </modules>
 </project>
