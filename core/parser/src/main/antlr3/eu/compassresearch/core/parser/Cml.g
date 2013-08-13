@@ -86,6 +86,7 @@ import org.overture.ast.statements.*;
 import org.overture.ast.types.*;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.typechecker.Pass;
+import org.overture.ast.typechecker.ClassDefinitionSettings;
 
 import eu.compassresearch.ast.actions.*;
 import eu.compassresearch.ast.declarations.*;
@@ -425,6 +426,7 @@ classDefinition returns[ACmlClassDefinition def]
 			$def.setLocalInheritedDefinitions(new ArrayList<PDefinition>());
 			$def.setAllInheritedDefinitions(new ArrayList<PDefinition>());
 			$def.setIsAbstract(false);
+            $def.setSettingHierarchy(ClassDefinitionSettings.UNSET);
             
             /* FIXME --- need to set the parent's name once we've
              * settled on how that works
@@ -1975,6 +1977,10 @@ explicitFunctionDefinitionTail returns[AExplicitFunctionDefinition tail]
             $tail.setBody($functionBody.exp);
             $tail.setIsUndefined(false);
             $tail.setRecursive(false);
+            $tail.setPrecondition($pre.exp);
+            $tail.setPostcondition($post.exp);
+            $tail.setType($type.type);
+            /*
             if ($pre.exp != null)
                 $tail.setPrecondition($pre.exp);
             else
@@ -1985,9 +1991,9 @@ explicitFunctionDefinitionTail returns[AExplicitFunctionDefinition tail]
                 $tail.setPostcondition(AstFactory.newABooleanConstExp(new LexBooleanToken(true, extractLexLocation($functionBody.stop))));
 
             LexNameToken preDefName = new LexNameToken("", new LexIdentifierToken("pre_"+$tail.getName().getName(), false, location));
-            AFunctionType preDefType = AstFactory.newAFunctionType(location, true /* partial */, ((AFunctionType)$type.type).getParameters(), AstFactory.newABooleanBasicType(location));
-
-            $tail.setType($type.type);
+            AFunctionType preDefType = AstFactory.newAFunctionType(location, true /* partial , ((AFunctionType)$type.type).getParameters(), AstFactory.newABooleanBasicType(location));
+        
+            
             List<List<PPattern>> predefParamPatterns = new LinkedList<List<PPattern>>();
             for(List<PPattern> list : $parameterGroupList.pgroups)
             {
@@ -2004,12 +2010,12 @@ explicitFunctionDefinitionTail returns[AExplicitFunctionDefinition tail]
                                                     NameScope.LOCAL, // LOCAL ofcause
                                                     null,  // typeParams
                                                     preDefType,  // the type of the precondition
-                                                    predefParamPatterns /* params */,
-                                                    $tail.getPrecondition() /* body */,
-                                                    null /* precond */,
-                                                    null /* postcond */,
-                                                    false /* type invariant */,
-                                                    null /* measure */);
+                                                    predefParamPatterns /* params ,
+                                                    $tail.getPrecondition() /* body ,
+                                                    null /* precond ,
+                                                    null /* postcond ,
+                                                    false /* type invariant ,
+                                                    null /* measure );
 			predef.parent(null);
             $tail.setPredef(predef);
 
@@ -2024,21 +2030,21 @@ explicitFunctionDefinitionTail returns[AExplicitFunctionDefinition tail]
 
 
             LexNameToken postDefName = new LexNameToken("", new LexIdentifierToken("post_"+$tail.getName().getName(), false, location));
-            AFunctionType postDefType = AstFactory.newAFunctionType(location, true /* partial */, ((AFunctionType)$type.type).getParameters(), AstFactory.newABooleanBasicType(location));
+            AFunctionType postDefType = AstFactory.newAFunctionType(location, true /* partial , ((AFunctionType)$type.type).getParameters(), AstFactory.newABooleanBasicType(location));
             AExplicitFunctionDefinition postdef = AstFactory.newAExplicitFunctionDefinition(
                                                     postDefName, // name pre_fn
                                                     NameScope.LOCAL, // LOCAL ofcause
                                                     null,  // typeParams
                                                     postDefType,  // the type of the precondition
-                                                    postdefParamPatterns /* params */,
-                                                    $tail.getPostcondition() /* body */,
-                                                    null /* precond */,
-                                                    null /* postcond */,
-                                                    false /* type invariant */,
-                                                    null /* measure */);
+                                                    postdefParamPatterns /* params ,
+                                                    $tail.getPostcondition() /* body ,
+                                                    null /* precond ,
+                                                    null /* postcond ,
+                                                    false /* type invariant ,
+                                                    null /* measure );
 			postdef.parent(null);
             $tail.setPostdef(postdef);
-
+            */
             $tail.setIsCurried(false);
             $tail.setMeasure($name.name);
             $tail.setAccess(getPrivateAccessSpecifier(false, false, extractLexLocation($IDENTIFIER)));
@@ -2090,13 +2096,8 @@ implicitFunctionDefinitionTail returns[AImplicitFunctionDefinition tail]
             }
             $tail.setResult(resultTypePair);
 
-            PExp preExp = $tail.getPrecondition();
-            if ($pre.exp != null)
-                preExp = $pre.exp;
-            else
-                preExp = AstFactory.newABooleanConstExp(new LexBooleanToken(true, extractLexLocation($resultTypeList.stop)));
-            $tail.setPrecondition(preExp);
-
+            // pre may be null, but that is ok
+            $tail.setPrecondition($pre.exp);
             $tail.setPostcondition($post.exp);
 
             // figure out the overall function type
@@ -2107,47 +2108,63 @@ implicitFunctionDefinitionTail returns[AImplicitFunctionDefinition tail]
             ILexLocation typeloc = extractLexLocation($implicitFunctionDefinitionTail.start, $resultTypeList.stop);
             $tail.setType(AstFactory.newAFunctionType(typeloc, true, paramTypes, resultTypePair.getType()));
 
-            // set predef
-            ILexNameToken prename = new LexNameToken("", new LexIdentifierToken("pre_"+$tail.getName(), false, preExp.getLocation()));
-            NameScope prescope = NameScope.LOCAL;
-            List<ILexNameToken> pretypeParams = new LinkedList<ILexNameToken>();
-            AFunctionType pretype = (AFunctionType)$tail.getType().clone();
+            // set predef only if $pre.exp is present
+            //AFunctionType prepostType = (AFunctionType)$tail.getType().clone();
+            /*if ($pre.exp != null) {
+                ILexNameToken prename = new LexNameToken("", new LexIdentifierToken("pre_"+$tail.getName(), false, $pre.exp.getLocation()));
+                NameScope prescope = NameScope.LOCAL;
+                List<ILexNameToken> pretypeParams = new LinkedList<ILexNameToken>();
+                prepostType.setResult(new ABooleanBasicType($pre.exp.getLocation(), true));
             
-		    pretype.setResult(new ABooleanBasicType(preExp.getLocation(), true));
-            
-            PExp preprecondition = null;
-            PExp prepostcondition = null;
-            List<List<PPattern>> preparameterGroupList = new LinkedList<List<PPattern>>();
-            List<PPattern> currentp = new LinkedList<PPattern>();
-            for(APatternListTypePair pt : paramPatterns)
-            {
-                for(PPattern p : pt.getPatterns())
-                        currentp.add(p.clone());   
+                PExp preprecondition = null;
+                PExp prepostcondition = null;
+                List<List<PPattern>> preparameterGroupList = new LinkedList<List<PPattern>>();
+                List<PPattern> currentp = new LinkedList<PPattern>();
+                for(APatternListTypePair pt : paramPatterns) {
+                    for(PPattern p : pt.getPatterns()) {
+                        currentp.add(p.clone());
+                    }
+                }
+                preparameterGroupList.add(currentp);
+                AExplicitFunctionDefinition predef =
+                    AstFactory.newAExplicitFunctionDefinition(prename, prescope, pretypeParams, prepostType, preparameterGroupList, $pre.exp, preprecondition, prepostcondition, false, null);
+                predef.parent(null);
+                $tail.setPredef(predef);
             }
-            preparameterGroupList.add(currentp);
-            AExplicitFunctionDefinition predef =  AstFactory.newAExplicitFunctionDefinition(prename, prescope, pretypeParams, pretype, preparameterGroupList, preExp, preprecondition, prepostcondition, false, null);
-            predef.parent(null);
-            $tail.setPredef(predef);
-
+            */
             // set postdef
-            ILexNameToken name = new LexNameToken("", new LexIdentifierToken("post_"+$tail.getName(), false, $post.exp.getLocation()));
-            NameScope scope = NameScope.LOCAL;
-            List<ILexNameToken> typeParams = null;
-            PType type = $tail.getType();
-            PExp body = $tail.getPostcondition();
-            PExp precondition = null;
-            PExp postcondition = null;
-            List<List<PPattern>> postParameterGroupList = new LinkedList<List<PPattern>>();
-            for(APatternListTypePair pt : paramPatterns)
-            {
-                List<PPattern> current = new LinkedList<PPattern>();
-                for(PPattern p : pt.getPatterns())
-                        current.add(p.clone());
-                postParameterGroupList.add(current);
-            }
-            AExplicitFunctionDefinition postdef =  AstFactory.newAExplicitFunctionDefinition(name, scope, typeParams, (AFunctionType)type, postParameterGroupList, body, precondition, postcondition, false, null);
-            postdef.parent(null);
-            $tail.setPostdef(postdef);
+            //ILexNameToken name = new LexNameToken("", new LexIdentifierToken("post_"+$tail.getName(), false, $post.exp.getLocation()));
+            //NameScope scope = NameScope.LOCAL;
+            //List<ILexNameToken> typeParams = null;
+            //PType type = $tail.getType();
+            //PExp body = $tail.getPostcondition();
+            //PExp precondition = null;
+            //PExp postcondition = null;
+            //List<List<PPattern>> postParameterGroupList = new LinkedList<List<PPattern>>();
+            //for(APatternListTypePair pt : paramPatterns) {
+            //    List<PPattern> current = new LinkedList<PPattern>();
+            //    for(PPattern p : pt.getPatterns())
+            //        current.add(p.clone());
+            //    postParameterGroupList.add(current);
+            //}
+            //prepostType = prepostType.clone();
+            //prepostType.setResult(new ABooleanBasicType($post.exp.getLocation(), true));
+            //AExplicitFunctionDefinition postdef =
+            //    AstFactory.newAExplicitFunctionDefinition(name, scope, typeParams, prepostType.clone(), postParameterGroupList, body, precondition, postcondition, false, null);
+            //postdef.parent(null);
+            //$tail.setPostdef(postdef);
+            
+            //implicit function interpretation
+			if($post.exp != null && $post.exp instanceof AInSetBinaryExp 
+			    && ((AInSetBinaryExp)$post.exp).getLeft() instanceof AVariableExp)
+			{
+			   AInSetBinaryExp exp = (AInSetBinaryExp)$post.exp;
+			   List<PPattern> patterns = new LinkedList<PPattern>();
+			   AVariableExp varExp = (AVariableExp)exp.getLeft();
+			   patterns.add(AstFactory.newAIdentifierPattern(varExp.getName().clone()));
+			   ASetMultipleBind bind = AstFactory.newASetMultipleBind(patterns, exp.getRight().clone());
+			   $tail.setBody(AstFactory.newALetBeStExp(exp.getLocation(), bind, null, exp.getLeft().clone()));
+			}
         }
     ;
 
@@ -3330,10 +3347,11 @@ ISUNDERBASIC
     : 'is_' ('bool' | 'nat' | 'nat1' | 'int' | 'rat' | 'real' | 'char' | 'token')
     ;
 
-/* FIXME Need to fix this, yet --- right now "\"" will fail
+/* FIXME Need to fix this, yet
+ * We should have a java method that converts things like \n into newline and such.
  */
 TEXTLITERAL
-    : '"' .* '"'
+    : '"' ('\\"' | ~'"' )* '"'
     ;
 
 SELF

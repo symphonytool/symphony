@@ -66,7 +66,7 @@ public class NewCmlProjectWizard extends BasicNewProjectResourceWizard
 	{
 		addNature(prj, ICmlCoreConstants.NATURE);
 		// addBuilder(prj,
-		// "eu.compassresearch.ide.cml.CmlIncrementalBuilder",
+		// "eu.compassresearch.ide.CmlIncrementalBuilder",
 		// "", "");
 		addBuilder(prj, ICoreConstants.BUILDER_ID, null, null);
 	}
