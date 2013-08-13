@@ -77,18 +77,18 @@ public class DebugMain {
 			//create the typechecker and typecheck the source forest
 			TypeIssueHandler ih = VanillaFactory.newCollectingIssueHandle();
 			CmlTypeChecker tc = VanillaFactory.newTypeChecker(sourceForest, ih);
-			System.out.println("Typechecking...");
+			System.out.println("Debug Thread: Typechecking...");
 			if(tc.typeCheck())
 			{
-				System.out.println("Typechecking: OK");
+				System.out.println("Debug Thread: Typechecking: OK");
 				String mode = (String)config.get("mode");
 
 				CmlInterpreter cmlInterpreter = VanillaInterpreterFactory.newInterpreter(sourceForest);
 				cmlInterpreter.setDefaultName(startProcessName);
-				System.out.println("Initializing the interpreter...");
+				System.out.println("Debug Thread: Initializing the interpreter...");
 				debugger.initialize(cmlInterpreter);
 				
-				System.out.println("Starting the interpreter...");
+				System.out.println("Debug Thread: Starting the interpreter...");
 				if(mode.equals("run"))
 					debugger.start(DebugMode.SIMULATE);
 				else if(mode.equals("debug"))

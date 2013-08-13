@@ -53,7 +53,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	protected String 				   defaultName      	= null;	
 	protected AProcessDefinition       topProcess;
 	protected CmlBehaviour	   		   runningTopProcess 	= null;
-	private Object 					   suspendtionObject		= new Object();
+	private Object 					   suspensionObject		= new Object();
 
 	/**
 	 * Construct a CmlInterpreter with a list of PSources. These source may
@@ -214,21 +214,17 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			handleBreakpoints(selectedEvent);
 
 			//TODO add suspension code here
-			while(getCurrentState() == CmlInterpreterState.SUSPENDED){
-				synchronized (suspendtionObject) {
-					this.suspendtionObject.wait();
+			if(getCurrentState() == CmlInterpreterState.SUSPENDED)
+				synchronized (suspensionObject) {
+					this.suspensionObject.wait();
 				}
-			}
-				
 
 			//if we get here it means that it in a running state again
 			setNewState(CmlInterpreterState.RUNNING);
 
 			//Set the selected event on the supervisor
 			currentSupervisor.setSelectedTransition(selectedEvent);
-
 			topProcess.execute(currentSupervisor);
-
 			CmlTrace trace = topProcess.getTraceModel();
 
 			if(trace.getLastEvent() instanceof ObservableEvent)
@@ -248,17 +244,14 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		if(topProcess.deadlocked())
 			setNewState(CmlInterpreterState.DEADLOCKED);
 		else
-			setNewState(CmlInterpreterState.TERMINATED);
+			setNewState(CmlInterpreterState.FINISHED);
 	}
 	
 	public void resume()
 	{
-		synchronized (suspendtionObject) {
-			this.suspendtionObject.notifyAll();
+		synchronized (suspensionObject) {
+			this.suspensionObject.notifyAll();
 		}
-		
-		//if we get here it means that it in a running state again
-		setNewState(CmlInterpreterState.RUNNING);
 	}
 
 	private void handleBreakpoints(CmlTransition selectedEvent)

@@ -83,7 +83,7 @@ public class CmlChoiceMediator implements IDoubleClickListener,
 					CmlEventOptionView view = (CmlEventOptionView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(ICmlDebugConstants.ID_CML_OPTION_VIEW.toString());
 					view.getListViewer().addDoubleClickListener(CmlChoiceMediator.this);
 					view.getListViewer().addSelectionChangedListener(CmlChoiceMediator.this);
-					CmlChoiceMediator.this.cmlDebugTarget.resume();
+					//CmlChoiceMediator.this.cmlDebugTarget.resume();
 
 				} catch (PartInitException e)
 				{

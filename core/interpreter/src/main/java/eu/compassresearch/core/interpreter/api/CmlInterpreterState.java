@@ -5,9 +5,9 @@ package eu.compassresearch.core.interpreter.api;
  * Enum of the possible states an CML interpreter can be in. 
  * <p>
  * The following state are possible
- * <p>RUNNING: 					The interpreter is running
- * <p>TERMINATED:	 			The interpreter has successfully terminated	 
  * <p>DEADLOCKED: 				The interpreter has deadlocked
+ * <p>RUNNING: 					The interpreter is running
+ * <p>FINISHED:		 			The interpreter has successfully terminated	 
  * <p>INITIALIZED:  			The interpreter is initialized but not started
  * <p>FAILED:					The interpreter threw an exception 
  * <p>SUSPENDED: 				The interpreter is suspended, this state enables inspection of processes and actions
@@ -18,7 +18,7 @@ package eu.compassresearch.core.interpreter.api;
 public enum CmlInterpreterState{
 
 	/**
-	 * The interpreter has deadlocked
+	 * The interpreter is deadlocked
 	 */
 	DEADLOCKED,         
 	/**
@@ -26,7 +26,7 @@ public enum CmlInterpreterState{
 	 */
 	FAILED,
 	/**
-	 * The interpreter is initialized but not started
+	 * The interpreter is initialized but not yet started
 	 */
 	INITIALIZED,
 	/**
@@ -38,13 +38,18 @@ public enum CmlInterpreterState{
 	 */
 	SUSPENDED,
 	/**
-	 * The interpreter has successfully terminated
+	 * The interpreter has successfully terminated the simulation/animation
+	 * of a model
 	 */
-	TERMINATED,
-	
+	FINISHED,
 	/**
 	 * The interpreter is waiting for the environment to make a choice
 	 */
-	WAITING_FOR_ENVIRONMENT
+	WAITING_FOR_ENVIRONMENT,
+	/**
+	 *  The interpreter has been terminated by an external user and has finished the simulation/animation
+	 * 	the model. 
+	 */
+	TERMINATED
 	 		
 }

@@ -37,4 +37,10 @@ public class CmlDbgCommandMessage extends Message {
 	public String getKey() {
 		return getCommand().toString();
 	}
+	
+	@Override
+	public String toString() {
+
+		return getCommand().toString();
+	}
 }

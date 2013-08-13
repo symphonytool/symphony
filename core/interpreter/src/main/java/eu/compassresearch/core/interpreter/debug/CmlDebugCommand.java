@@ -14,7 +14,6 @@ public enum CmlDebugCommand {
 	DISCONNECT,
 	SET_BREAKPOINT,
 	REMOVE_BREAKPOINT;
-	
 
 	@Override
 	public String toString()

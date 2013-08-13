@@ -10,21 +10,24 @@ public class CmlDbgStatusMessage extends Message {
 
 	private InterpreterStatus interpreterStatus;
 	
+	//dummy for serialization
+	private CmlDbgStatusMessage(){}
+	
 	public CmlDbgStatusMessage(InterpreterStatus interpreterStatus)
 	{
 		this.interpreterStatus = interpreterStatus;
 	}
 	
-	public CmlDbgStatusMessage()
+	public CmlDbgStatusMessage(CmlInterpreterState state)
 	{
-		this.interpreterStatus = null;
+		this.interpreterStatus = new InterpreterStatus(state);
 	}
 	
 	public CmlInterpreterState getStatus() {
 		if(this.interpreterStatus != null)
 			return this.interpreterStatus.getInterpreterState();
 		else 
-			return null;
+			return CmlInterpreterState.TERMINATED;
 	}
 	
 	public InterpreterStatus getInterpreterStatus() {

@@ -173,6 +173,7 @@ public class CmlCommunicationManager extends Thread
 						CmlDebugPlugin.logError("Failed to set breakpoint", e);
 					}
 				}
+				threadManager.started(message.getInterpreterStatus());
 				return true;
 			}
 		});
@@ -181,7 +182,7 @@ public class CmlCommunicationManager extends Thread
 			@Override
 			public boolean handleMessage(CmlDbgStatusMessage message)
 			{
-				threadManager.started(message.getInterpreterStatus());
+
 				return true;
 			}
 		});
@@ -207,7 +208,6 @@ public class CmlCommunicationManager extends Thread
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				//System.out.println("SUUUUUUSPEEEEEEND!!!!!!");
 				return true;
 			}
 		});
@@ -216,14 +216,14 @@ public class CmlCommunicationManager extends Thread
 			@Override
 			public boolean handleMessage(CmlDbgStatusMessage message)
 			{
-//				threadManager.stopping();
-//				threadManager.updateDebuggerInfo(message.getInterpreterStatus());
+				//				threadManager.stopping();
+				//				threadManager.updateDebuggerInfo(message.getInterpreterStatus());
 				System.out.println("message: " + message);
 				return false;
 			}
 		});
-		
-		handlers.put(CmlInterpreterState.TERMINATED.toString(), new MessageEventHandler<CmlDbgStatusMessage>() {
+
+		handlers.put(CmlInterpreterState.FINISHED.toString(), new MessageEventHandler<CmlDbgStatusMessage>() {
 			@Override
 			public boolean handleMessage(CmlDbgStatusMessage message)
 			{
@@ -233,14 +233,14 @@ public class CmlCommunicationManager extends Thread
 			}
 		});
 
-		handlers.put(null, new MessageEventHandler<CmlDbgStatusMessage>() {
+		handlers.put(CmlInterpreterState.TERMINATED.toString(), new MessageEventHandler<CmlDbgStatusMessage>() {
 			@Override
 			public boolean handleMessage(CmlDbgStatusMessage message)
 			{
 				connectionClosed();
 				return false;
 			}
-				});
+		});
 
 		return handlers;
 	}
@@ -253,7 +253,7 @@ public class CmlCommunicationManager extends Thread
 	 */
 	public MessageContainer receiveMessage() throws IOException
 	{
-		return MessageCommunicator.receiveMessage(fRequestReader, new MessageContainer(new CmlDbgStatusMessage()));
+		return MessageCommunicator.receiveMessage(fRequestReader, new MessageContainer(new CmlDbgStatusMessage(CmlInterpreterState.TERMINATED)));
 	}
 
 	/**

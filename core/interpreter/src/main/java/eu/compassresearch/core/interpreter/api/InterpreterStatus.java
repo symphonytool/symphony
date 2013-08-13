@@ -57,6 +57,12 @@ public class InterpreterStatus {
 
 		this.state = state;
 	}
+	
+	public InterpreterStatus(CmlInterpreterState state)
+	{
+		this.processInfos = new LinkedList<CmlProcessInfo>();
+		this.state = state;
+	}
 
 	public List<CmlProcessInfo> getAllProcessInfos()
 	{

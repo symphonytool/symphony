@@ -23,6 +23,7 @@ import eu.compassresearch.core.interpreter.CmlRuntime;
 import eu.compassresearch.core.interpreter.RandomSelectionStrategy;
 import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
+import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.api.InterpreterError;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
@@ -95,7 +96,7 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 				do
 				{
 					messageContainer = recvMessage();
-					CmlRuntime.logger().finest("Receiving message: " + messageContainer.toString());
+					CmlRuntime.logger().finest("Debug event thread received a message: " + messageContainer.toString());
 				}
 				while (!stopped && processMessage(messageContainer));
 
@@ -221,8 +222,6 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 		cmlInterpreter.execute(sve);
 	}
 
-
-
 	/**
 	 * Message communication methods
 	 */
@@ -237,14 +236,6 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 		sendStatusMessage(status);
 		commandDispatcher.stop();
 	}
-	/**
-	 * This message sends a status message to the eclipse debug target UI
-	 * @param status The status to send
-	 */
-	//	private void sendStatusMessage(CmlInterpreterState status)
-	//	{
-	//		sendStatusMessage(null);
-	//	}
 
 	private void sendStatusMessage(InterpreterStatus interpreterStatus)
 	{
@@ -275,7 +266,7 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 	private MessageContainer recvMessage() throws IOException
 	{
 		return MessageCommunicator.receiveMessage(requestReader,
-				new MessageContainer(new CmlDbgStatusMessage())); 
+				new MessageContainer(new CmlDbgStatusMessage(CmlInterpreterState.TERMINATED))); 
 	}
 
 
@@ -296,7 +287,6 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 	 */
 	private boolean processStatusMessage(CmlDbgStatusMessage message)
 	{
-		System.out.println("message from Eclipse: " + message);
 		if(message.getStatus() != null)
 		{
 			switch(message.getStatus())
@@ -331,8 +321,8 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 
 			}
 		case RESUME:
-			System.out.println("Resume received: ");
 			runningInterpreter.resume();
+			System.out.println("Debug thread: Resume received");
 		default:
 			return true;
 		}
@@ -411,15 +401,15 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 		finally{
 			runningInterpreter.onStatusChanged().unregisterObserver(this);
 		}
-
 	}
 
 	@Override
 	public void onStatusChanged(Object source, InterpreterStatusEvent event) {
+		System.out.println("Debug thread sending Status event to controller: " + event);
 		sendStatusMessage(this.runningInterpreter.getStatus());
 		//		if(event.getStatus() == CmlInterpreterState.SUSPENDED)
 		//			sendRequestSynchronous(new RequestMessage(CmlRequest.BREAKPOINT_HIT,event.getContent()));
-		System.out.println("Interpreter Status event: " + event);
+		
 	}
 
 }

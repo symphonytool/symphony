@@ -41,4 +41,10 @@ public class InterpreterStatusEvent extends Event<CmlInterpreter> {
 	{
 		return (T)this.content;
 	} 
+	
+	@Override
+	public String toString() {
+		
+		return getStatus().toString();
+	}
 }

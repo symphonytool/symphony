@@ -13,6 +13,7 @@ import org.eclipse.ui.PlatformUI;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
 import eu.compassresearch.core.interpreter.api.CmlProcessInfo;
 import eu.compassresearch.core.interpreter.api.InterpreterStatus;
+import eu.compassresearch.ide.plugins.interpreter.CmlDebugPlugin;
 import eu.compassresearch.ide.plugins.interpreter.ICmlDebugConstants;
 import eu.compassresearch.ide.plugins.interpreter.model.CmlDebugTarget;
 import eu.compassresearch.ide.plugins.interpreter.model.CmlThread;
@@ -55,7 +56,7 @@ public class CmlThreadManager
 					view.getListViewer().setInput(trace);
 				} catch (PartInitException e)
 				{
-					e.printStackTrace();
+					CmlDebugPlugin.logError("Failed to update the event history view", e);
 				}
 
 				if (status.hasErrors())
@@ -71,7 +72,7 @@ public class CmlThreadManager
 	 */
 	public void started(InterpreterStatus status)
 	{
-		updateDebuggerInfo(status);
+		//updateDebuggerInfo(status);
 		target.fireCreationEvent();
 
 		// installDeferredBreakpoints();
