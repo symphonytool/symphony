@@ -38,6 +38,7 @@ public class AdHocTest {
 		System.out.println("Processing " + file);
 		IProofObligationList poList = runPog(file);
 
+		
 		for (IProofObligation po : poList) {
 			String pretty = po.getValueTree().toString();
 			System.out.println(pretty);
