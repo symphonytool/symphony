@@ -1,6 +1,14 @@
-process bob = begin @Skip end
+process bob =
+begin
 
 functions
+f : nat -> bool
+f (x) ==false
 
-f : int -> int
-f (x) == 10/x
+operations
+opi (x: int) r : int
+post f(x)
+
+@Skip
+
+end
