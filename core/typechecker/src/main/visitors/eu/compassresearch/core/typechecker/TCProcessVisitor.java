@@ -152,20 +152,26 @@ public class TCProcessVisitor extends
 		LinkedList<PSingleDeclaration> repdecl = node
 				.getReplicationDeclaration();
 
+		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);	
+		
+		CmlTypeCheckInfo repProcEnv = cmlEnv.newScope();
 		for (PSingleDeclaration decl : repdecl) {
 			PType declType = decl.apply(parentChecker, question);
 			if (!successfulType(declType))
 				return issueHandler.addTypeError(declType,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 								.customizeMessage(declType + ""));
+			
+			for (PDefinition def : declType.getDefinitions())
+				repProcEnv.addVariable(def.getName(), def);
 		}
 
-		PType procType = proc.apply(parentChecker, question);
+		PType procType = proc.apply(parentChecker, repProcEnv);
 		if (!successfulType(procType))
 			return issueHandler.addTypeError(proc,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage("" + proc));
-
+		
 		return new AProcessType();
 	}
 
@@ -243,15 +249,20 @@ public class TCProcessVisitor extends
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage(csExp + ""));
 
+		CmlTypeCheckInfo repProcEnv = cmlEnv.newScope();
 		for (PSingleDeclaration decl : repDecl) {
 			PType declType = decl.apply(parentChecker, question);
 			if (!successfulType(declType))
 				return issueHandler.addTypeError(decl,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 								.customizeMessage("" + decl));
+			
+			for (PDefinition def : declType.getDefinitions())
+				repProcEnv.addVariable(def.getName(), def);
 		}
 
-		PType repProcType = repProc.apply(parentChecker, question);
+	
+		PType repProcType = repProc.apply(parentChecker, repProcEnv);
 		if (!successfulType(repProcType))
 			return issueHandler.addTypeError(repProc,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
@@ -695,6 +706,17 @@ public class TCProcessVisitor extends
 			org.overture.typechecker.TypeCheckInfo question)
 			throws AnalysisException {
 		eu.compassresearch.core.typechecker.CmlTypeCheckInfo newQ = (eu.compassresearch.core.typechecker.CmlTypeCheckInfo) question;
+		
+		LinkedList<PExp> args = node.getArgs();
+		for (PExp arg : args)
+		{
+			PType type = arg.apply(this.parentChecker, question);
+			if (!successfulType(type))
+				return issueHandler.addTypeError(arg,
+						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+								.customizeMessage(arg + ""));
+		}
+			
 		PDefinition processDef = newQ.lookup(node.getProcessName(),
 				PDefinition.class);
 
@@ -704,6 +726,8 @@ public class TCProcessVisitor extends
 					TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(node
 							.getProcessName() + ""));
 		}
+		
+		
 
 		if (!(processDef instanceof AProcessDefinition))
 			return issueHandler.addTypeError(processDef,
@@ -711,6 +735,9 @@ public class TCProcessVisitor extends
 							.customizeMessage(node.getProcessName() + ""));
 		node.setProcessDefinition((AProcessDefinition) processDef);
 
+		
+		
+		
 		return new AProcessType();
 	}
 

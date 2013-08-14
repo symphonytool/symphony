@@ -37,6 +37,7 @@ import org.overture.ast.types.AIntNumericBasicType;
 import org.overture.ast.types.ANatNumericBasicType;
 import org.overture.ast.types.AOperationType;
 import org.overture.ast.types.AProductType;
+import org.overture.ast.types.ASeq1SeqType;
 import org.overture.ast.types.ASetType;
 import org.overture.ast.types.AUnknownType;
 import org.overture.ast.types.AUnresolvedType;
@@ -1471,6 +1472,17 @@ class TCActionVisitor extends
 		PAction replicatedAction = node.getReplicatedAction();
 		LinkedList<PSingleDeclaration> decls = node.getReplicationDeclaration();
 
+		// get CML environment
+		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
+		if (cmlEnv == null) {
+			node.setType(issueHandler.addTypeError(
+					node,
+					TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(node
+							+ "")));
+			return node.getType();
+		}
+		
+		CmlTypeCheckInfo repActionEnv = cmlEnv.newScope();
 		for (PSingleDeclaration decl : decls) {
 			PType declType = decl.apply(parentChecker, question);
 			if (!successfulType(declType))
@@ -1478,12 +1490,20 @@ class TCActionVisitor extends
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 								.customizeMessage(decl + ""));
 
+			if(declType instanceof ASetType){
+				return issueHandler.addTypeError(declType, 
+						TypeErrorMessages.SEQ_TYPE_EXPECTED.customizeMessage(decl + "", declType + ""));
+			}
+			
 			issueHandler.addTypeWarning(decl,
 					"This declaration should expand the environment: " + decl);
+			
+			for (PDefinition def : declType.getDefinitions())
+				repActionEnv.addVariable(def.getName(), def);
 		}
 
 		PType replicatedActionType = replicatedAction.apply(parentChecker,
-				question);
+				repActionEnv);
 		if (!successfulType(replicatedActionType))
 			return issueHandler.addTypeError(replicatedAction,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
