@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
-import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
+import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.api.events.CmlInterpreterStatusObserver;
 import eu.compassresearch.core.interpreter.api.events.InterpreterStatusEvent;
@@ -42,12 +42,12 @@ abstract class AbstractCmlInterpreter implements CmlInterpreter {
 	/**
 	 * The current state of the interpreter
 	 */
-	private CmlInterpreterState      	currentState = null;
+	private CmlInterpretationStatus      	currentState = null;
 
 	/**
 	 * Set the new state of the interpreter
 	 */
-	protected void setNewState(CmlInterpreterState newState) 
+	protected void setNewState(CmlInterpretationStatus newState) 
 	{
 		if(currentState != newState)
 		{
@@ -60,7 +60,7 @@ abstract class AbstractCmlInterpreter implements CmlInterpreter {
 	 * Retrieves the current state of the interpreter
 	 * @return The current state of the interpreter
 	 */
-	public CmlInterpreterState getCurrentState()
+	public CmlInterpretationStatus getCurrentState()
 	{
 		return currentState;
 	}

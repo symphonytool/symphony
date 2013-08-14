@@ -27,9 +27,9 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.lex.LexIdentifierToken;
 import eu.compassresearch.ast.lex.LexNameToken;
-import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
+import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
-import eu.compassresearch.core.interpreter.api.InterpreterStatus;
+import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorState;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
@@ -60,7 +60,7 @@ public class TestMessageCommunicator {
 		ByteArrayOutputStream outStream = new ByteArrayOutputStream();
 		
 		//MessageContainer message = new MessageContainer(new CmlDbgStatusMessage(CmlDbgpStatus.STARTING));
-		Message sentMessage = new CmlDbgStatusMessage(new InterpreterStatus(null,CmlInterpreterState.INITIALIZED));
+		Message sentMessage = new CmlDbgStatusMessage(new CmlInterpreterState(null,CmlInterpretationStatus.INITIALIZED));
 		MessageCommunicator.sendMessage(outStream, sentMessage);
 		
 		//ObjectMapper mapper = new ObjectMapper();
@@ -79,7 +79,7 @@ public class TestMessageCommunicator {
 		
 		BufferedReader reader = new BufferedReader(new InputStreamReader(in));
 		MessageContainer messageContainter = MessageCommunicator.receiveMessage(reader,
-				new MessageContainer(new CmlDbgStatusMessage(CmlInterpreterState.TERMINATED)));
+				new MessageContainer(new CmlDbgStatusMessage(CmlInterpretationStatus.TERMINATED)));
 		
 		Message recvMessage = messageContainter.getMessage();
 		
@@ -94,7 +94,7 @@ public class TestMessageCommunicator {
 		ByteArrayOutputStream outStream = new ByteArrayOutputStream();
 		
 		//MessageContainer message = new MessageContainer(new CmlDbgStatusMessage(CmlDbgpStatus.STARTING));
-		InterpreterStatus status = new InterpreterStatus(new CmlBehaviour() {
+		CmlInterpreterState status = new CmlInterpreterState(new CmlBehaviour() {
 			
 			@Override
 			public boolean waiting() {
@@ -261,7 +261,7 @@ public class TestMessageCommunicator {
 			public List<CmlBehaviour> children() {
 				return new LinkedList<CmlBehaviour>();
 			}
-		}, CmlInterpreterState.FINISHED);
+		}, CmlInterpretationStatus.FINISHED);
 		Message sentMessage = new CmlDbgStatusMessage(status);
 		MessageCommunicator.sendMessage(outStream, sentMessage);
 		
@@ -281,7 +281,7 @@ public class TestMessageCommunicator {
 		
 		BufferedReader reader = new BufferedReader(new InputStreamReader(in));
 		MessageContainer messageContainter = MessageCommunicator.receiveMessage(reader,
-				new MessageContainer(new CmlDbgStatusMessage(CmlInterpreterState.TERMINATED)));
+				new MessageContainer(new CmlDbgStatusMessage(CmlInterpretationStatus.TERMINATED)));
 		
 		Message recvMessage = messageContainter.getMessage();
 		

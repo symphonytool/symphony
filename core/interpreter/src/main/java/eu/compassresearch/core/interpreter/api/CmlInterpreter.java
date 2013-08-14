@@ -65,9 +65,9 @@ public interface CmlInterpreter
 	
 	public void resume();
 	
-	public InterpreterStatus getStatus();
+	public CmlInterpreterState getStatus();
 	
-	public CmlInterpreterState getCurrentState();
+	public CmlInterpretationStatus getCurrentState();
 	
 	public CmlBehaviour getTopLevelCmlBehaviour();
 

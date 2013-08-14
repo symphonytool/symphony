@@ -23,11 +23,11 @@ import eu.compassresearch.core.interpreter.CmlRuntime;
 import eu.compassresearch.core.interpreter.RandomSelectionStrategy;
 import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
-import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
+import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.api.InterpreterError;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
-import eu.compassresearch.core.interpreter.api.InterpreterStatus;
+import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
 import eu.compassresearch.core.interpreter.api.SelectionStrategy;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
@@ -231,13 +231,13 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 		stopped(null);
 	}
 
-	private void stopped(InterpreterStatus status)
+	private void stopped(CmlInterpreterState status)
 	{
 		sendStatusMessage(status);
 		commandDispatcher.stop();
 	}
 
-	private void sendStatusMessage(InterpreterStatus interpreterStatus)
+	private void sendStatusMessage(CmlInterpreterState interpreterStatus)
 	{
 		CmlDbgStatusMessage dm = new CmlDbgStatusMessage(interpreterStatus);
 		CmlRuntime.logger().finest("Sending status message : " + dm.toString());
@@ -266,7 +266,7 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 	private MessageContainer recvMessage() throws IOException
 	{
 		return MessageCommunicator.receiveMessage(requestReader,
-				new MessageContainer(new CmlDbgStatusMessage(CmlInterpreterState.TERMINATED))); 
+				new MessageContainer(new CmlDbgStatusMessage(CmlInterpretationStatus.TERMINATED))); 
 	}
 
 
@@ -394,7 +394,7 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 		}
 		catch(AnalysisException e)
 		{
-			InterpreterStatus status = runningInterpreter.getStatus();
+			CmlInterpreterState status = runningInterpreter.getStatus();
 			status.AddError(new InterpreterError(e.getMessage()));
 			stopped(status);
 		}

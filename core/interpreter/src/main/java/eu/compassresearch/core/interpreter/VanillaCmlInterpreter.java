@@ -20,10 +20,10 @@ import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.PSource;
-import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
+import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.api.InterpreterException;
-import eu.compassresearch.core.interpreter.api.InterpreterStatus;
+import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlTrace;
@@ -32,6 +32,7 @@ import eu.compassresearch.core.interpreter.api.events.InterpreterStatusEvent;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.ObservableEvent;
 import eu.compassresearch.core.interpreter.api.values.ProcessObjectValue;
+import eu.compassresearch.core.interpreter.debug.Breakpoint;
 import eu.compassresearch.core.interpreter.utility.LocationExtractor;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
@@ -93,7 +94,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		//set the last defined process as the top process
 		//FIXME When there are multiple files there are no way to determine which one it will be!
 		topProcess = envBuilder.getLastDefinedProcess();
-		setNewState(CmlInterpreterState.INITIALIZED);
+		setNewState(CmlInterpretationStatus.INITIALIZED);
 	}
 
 	@Override
@@ -128,14 +129,14 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		currentSupervisor.addPupil(runningTopProcess);
 
 		//Fire the interpreter running event before we start
-		setNewState(CmlInterpreterState.RUNNING);
+		setNewState(CmlInterpretationStatus.RUNNING);
 		//start the execution of the top process
 		try{
 			executeTopProcess(runningTopProcess);
 		}
 		catch(Exception ex)
 		{
-			setNewState(CmlInterpreterState.FAILED);
+			setNewState(CmlInterpretationStatus.FAILED);
 			ex.printStackTrace();
 			throw new AnalysisException(ex);
 		}
@@ -206,24 +207,25 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			//Let the given decision function select one of the observable events 
 			CmlTransition selectedEvent = null;
 			//set the state of the interpreter to be waiting for the environment
-			setNewState(CmlInterpreterState.WAITING_FOR_ENVIRONMENT);
+			setNewState(CmlInterpretationStatus.WAITING_FOR_ENVIRONMENT);
 			//this is potentially a blocking call
 			selectedEvent = currentSupervisor.decisionFunction().select(availableEvents);
 
+			//Set the selected event on the supervisor
+			currentSupervisor.setSelectedTransition(selectedEvent);
+			
 			//Handle the breakpoints if any
 			handleBreakpoints(selectedEvent);
 
 			//TODO add suspension code here
-			if(getCurrentState() == CmlInterpreterState.SUSPENDED)
+			if(getCurrentState() == CmlInterpretationStatus.SUSPENDED)
 				synchronized (suspensionObject) {
 					this.suspensionObject.wait();
 				}
 
 			//if we get here it means that it in a running state again
-			setNewState(CmlInterpreterState.RUNNING);
-
-			//Set the selected event on the supervisor
-			currentSupervisor.setSelectedTransition(selectedEvent);
+			setNewState(CmlInterpretationStatus.RUNNING);
+			
 			topProcess.execute(currentSupervisor);
 			CmlTrace trace = topProcess.getTraceModel();
 
@@ -242,9 +244,9 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		}
 
 		if(topProcess.deadlocked())
-			setNewState(CmlInterpreterState.DEADLOCKED);
+			setNewState(CmlInterpretationStatus.DEADLOCKED);
 		else
-			setNewState(CmlInterpreterState.FINISHED);
+			setNewState(CmlInterpretationStatus.FINISHED);
 	}
 	
 	public void resume()
@@ -256,22 +258,41 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 
 	private void handleBreakpoints(CmlTransition selectedEvent)
 	{
+		if(findActiveBreakpoint(selectedEvent) != null)
+		{
+			setNewState(CmlInterpretationStatus.SUSPENDED);
+		}
+	}
+	
+	private Breakpoint findActiveBreakpoint(CmlTransition selectedEvent)
+	{
+		Breakpoint bp = null;
+
 		//see if any of the next executing processes/actions are hitting any breakpoints
 		for(CmlBehaviour b : selectedEvent.getEventSources())
 		{
 			ILexLocation loc = LocationExtractor.extractLocation(b.getNextState().first);
+			if(loc == null)
+				continue;
 			String key = loc.getFile().getAbsolutePath() + ":"+ loc.getStartLine();
 			if(this.breakpoints.containsKey(key))
 			{
-				setNewState(CmlInterpreterState.SUSPENDED);
+				bp = this.breakpoints.get(key); 
 			}
 		}
+
+		return bp;
 	}
 
 	@Override
-	public InterpreterStatus getStatus()
+	public CmlInterpreterState getStatus()
 	{
-		return new InterpreterStatus(runningTopProcess,getCurrentState());
+		//find the active breakpoint if any
+		Breakpoint bp = null;
+		if(currentSupervisor != null && this.currentSupervisor.isSelectedEventValid())
+			 bp = findActiveBreakpoint((this.currentSupervisor.selectedObservableEvent()));
+		
+		return new CmlInterpreterState(runningTopProcess,getCurrentState(),bp);
 	}
 
 	@Override

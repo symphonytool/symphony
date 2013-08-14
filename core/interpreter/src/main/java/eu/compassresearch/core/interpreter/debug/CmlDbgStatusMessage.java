@@ -1,36 +1,36 @@
 package eu.compassresearch.core.interpreter.debug;
 
+import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
-import eu.compassresearch.core.interpreter.api.InterpreterStatus;
 import eu.compassresearch.core.interpreter.utility.messaging.Message;
 import eu.compassresearch.core.interpreter.utility.messaging.MessageType;
 
 
 public class CmlDbgStatusMessage extends Message {
 
-	private InterpreterStatus interpreterStatus;
+	private CmlInterpreterState interpreterStatus;
 	
 	//dummy for serialization
 	private CmlDbgStatusMessage(){}
 	
-	public CmlDbgStatusMessage(InterpreterStatus interpreterStatus)
+	public CmlDbgStatusMessage(CmlInterpreterState interpreterStatus)
 	{
 		this.interpreterStatus = interpreterStatus;
 	}
 	
-	public CmlDbgStatusMessage(CmlInterpreterState state)
+	public CmlDbgStatusMessage(CmlInterpretationStatus state)
 	{
-		this.interpreterStatus = new InterpreterStatus(state);
+		this.interpreterStatus = new CmlInterpreterState(state);
 	}
 	
-	public CmlInterpreterState getStatus() {
+	public CmlInterpretationStatus getStatus() {
 		if(this.interpreterStatus != null)
 			return this.interpreterStatus.getInterpreterState();
 		else 
-			return CmlInterpreterState.TERMINATED;
+			return CmlInterpretationStatus.TERMINATED;
 	}
 	
-	public InterpreterStatus getInterpreterStatus() {
+	public CmlInterpreterState getInterpreterStatus() {
 		return interpreterStatus;
 	}
 
