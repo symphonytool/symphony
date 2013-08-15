@@ -11,6 +11,7 @@ public enum CmlDebugCommand {
 	STOP,
 	SUSPEND,
 	RESUME,
+	STEP,
 	DISCONNECT,
 	SET_BREAKPOINT,
 	REMOVE_BREAKPOINT;

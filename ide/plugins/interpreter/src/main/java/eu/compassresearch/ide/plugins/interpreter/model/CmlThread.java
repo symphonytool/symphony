@@ -5,16 +5,16 @@ import org.eclipse.debug.core.model.IBreakpoint;
 import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.core.model.IThread;
 
-import eu.compassresearch.core.interpreter.api.CmlProcessInfo;
+import eu.compassresearch.core.interpreter.api.CmlProcessDTO;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorState;
 
 public class CmlThread extends CmlDebugElement implements IThread
 {
 
-	private CmlProcessInfo cmlProcessInfo;
+	private CmlProcessDTO cmlProcessInfo;
 	private CmlStackFrame cmlStackFrame = null;
 
-	public CmlThread(CmlDebugTarget debugTarget, CmlProcessInfo cmlProcessInfo)
+	public CmlThread(CmlDebugTarget debugTarget, CmlProcessDTO cmlProcessInfo)
 	{
 		super(debugTarget);
 		this.cmlProcessInfo = cmlProcessInfo;

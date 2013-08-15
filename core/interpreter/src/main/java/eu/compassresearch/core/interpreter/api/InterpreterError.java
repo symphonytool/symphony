@@ -5,6 +5,9 @@ public class InterpreterError {
 	private final String message;
 	private final Throwable throwable;
 	
+	/*
+	 * Dummy constructor for serialization
+	 */
 	private InterpreterError(){
 		message = null;
 		throwable = null;

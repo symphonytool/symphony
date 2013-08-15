@@ -10,7 +10,7 @@ import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorState;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlTrace;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 
-public class CmlProcessInfo {
+public class CmlProcessDTO {
 
 	private final ILexNameToken name;
 	private final List<String> trace;
@@ -19,7 +19,7 @@ public class CmlProcessInfo {
 	private final CmlBehaviorState state;
 	private final ILexLocation location;
 
-	protected CmlProcessInfo()
+	protected CmlProcessDTO()
 	{
 		name = null;
 		trace = new LinkedList<String>();
@@ -29,7 +29,7 @@ public class CmlProcessInfo {
 		location = null;		
 	}
 	
-	public CmlProcessInfo(ILexNameToken name, CmlTrace trace,long level, 
+	public CmlProcessDTO(ILexNameToken name, CmlTrace trace,long level, 
 			boolean isProcess, CmlBehaviorState state,
 			ILexLocation currentLocation)
 	{

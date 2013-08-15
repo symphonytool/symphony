@@ -141,7 +141,7 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 
 	private void animate(final CmlInterpreter cmlInterpreter) throws AnalysisException
 	{
-		//Create the supervisor environment with the a selction strategy that has a connection to
+		//Create the supervisor environment with the a selection strategy that has a connection to
 		//the eclipse debugger
 		CmlSupervisorEnvironment sve = 
 				VanillaInterpreterFactory.newDefaultCmlSupervisorEnvironment(new SelectionStrategy() {
@@ -320,9 +320,13 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 				runningInterpreter.addBreakpoint(bp);
 
 			}
+			return true;
 		case RESUME:
 			runningInterpreter.resume();
-			System.out.println("Debug thread: Resume received");
+			return true;
+		case STEP:
+			runningInterpreter.step();
+			return true;
 		default:
 			return true;
 		}

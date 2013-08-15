@@ -48,14 +48,17 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	/**
 	 * 
 	 */
-	private static final long          serialVersionUID = 6664128061930795395L;
+	private static final long          serialVersionUID 	= 6664128061930795395L;
 	protected List<PSource>            sourceForest;
 	protected Context                  globalContext;
 	protected String 				   defaultName      	= null;	
 	protected AProcessDefinition       topProcess;
 	protected CmlBehaviour	   		   runningTopProcess 	= null;
+	/**
+	 * Sync object used to suspend the execution
+	 */
 	private Object 					   suspensionObject		= new Object();
-
+	private boolean 				   stepping				= false;	
 	/**
 	 * Construct a CmlInterpreter with a list of PSources. These source may
 	 * refer to each other.
@@ -252,14 +255,24 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	public void resume()
 	{
 		synchronized (suspensionObject) {
+			stepping = false;
+			this.suspensionObject.notifyAll();
+		}
+	}
+	
+	public void step()
+	{
+		synchronized (suspensionObject) {
+			stepping = true;
 			this.suspensionObject.notifyAll();
 		}
 	}
 
 	private void handleBreakpoints(CmlTransition selectedEvent)
 	{
-		if(findActiveBreakpoint(selectedEvent) != null)
+		if(findActiveBreakpoint(selectedEvent) != null || stepping)
 		{
+			//System.out.println("suspending " + stepping);
 			setNewState(CmlInterpretationStatus.SUSPENDED);
 		}
 	}

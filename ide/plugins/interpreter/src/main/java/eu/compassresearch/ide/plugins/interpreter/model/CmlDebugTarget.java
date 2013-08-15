@@ -27,7 +27,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 
 import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
-import eu.compassresearch.core.interpreter.api.CmlProcessInfo;
+import eu.compassresearch.core.interpreter.api.CmlProcessDTO;
 import eu.compassresearch.core.interpreter.debug.Breakpoint;
 import eu.compassresearch.core.interpreter.debug.Choice;
 import eu.compassresearch.core.interpreter.debug.CmlDbgStatusMessage;
@@ -217,7 +217,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 						if(message.getInterpreterStatus().hasActiveBreakpoint())
 						{
 							Breakpoint bp = message.getInterpreterStatus().getActiveBreakpoint();
-							for(CmlProcessInfo pi : message.getInterpreterStatus().getAllProcessInfos())
+							for(CmlProcessDTO pi : message.getInterpreterStatus().getAllProcessInfos())
 								if(pi.getLocation().getStartLine() == bp.getLine()){
 									CmlUtil.setSelectionFromLocation(pi.getLocation(), lastSelectedRanges);
 									break;

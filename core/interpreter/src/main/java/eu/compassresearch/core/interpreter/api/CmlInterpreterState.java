@@ -17,7 +17,7 @@ import eu.compassresearch.core.interpreter.utility.LocationExtractor;
  */
 public class CmlInterpreterState {
 
-	final private List<CmlProcessInfo> processInfos;
+	final private List<CmlProcessDTO> processInfos;
 	private InterpreterError[] errors = null;
 	private final CmlInterpretationStatus state;
 	private Breakpoint bp = null;
@@ -47,10 +47,10 @@ public class CmlInterpreterState {
 
 	public CmlInterpreterState(CmlBehaviour topProcess, CmlInterpretationStatus state)
 	{
-		this.processInfos = new LinkedList<CmlProcessInfo>();
+		this.processInfos = new LinkedList<CmlProcessDTO>();
 		for(CmlBehaviour cmlBehavior : extractAllRunningProcesses(topProcess))
 		{
-			this.processInfos.add(new CmlProcessInfo(cmlBehavior.name(),
+			this.processInfos.add(new CmlProcessDTO(cmlBehavior.name(),
 					cmlBehavior.getTraceModel(),
 					cmlBehavior.level(),
 					cmlBehavior instanceof CmlBehaviour,
@@ -69,16 +69,16 @@ public class CmlInterpreterState {
 	
 	public CmlInterpreterState(CmlInterpretationStatus state)
 	{
-		this.processInfos = new LinkedList<CmlProcessInfo>();
+		this.processInfos = new LinkedList<CmlProcessDTO>();
 		this.state = state;
 	}
 
-	public List<CmlProcessInfo> getAllProcessInfos()
+	public List<CmlProcessDTO> getAllProcessInfos()
 	{
 		return this.processInfos;
 	}
 
-	public CmlProcessInfo getToplevelProcessInfo()
+	public CmlProcessDTO getToplevelProcessInfo()
 	{
 		return processInfos.get(0);
 	}

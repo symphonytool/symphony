@@ -12,7 +12,7 @@ import org.eclipse.ui.PlatformUI;
 
 import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
-import eu.compassresearch.core.interpreter.api.CmlProcessInfo;
+import eu.compassresearch.core.interpreter.api.CmlProcessDTO;
 import eu.compassresearch.ide.plugins.interpreter.CmlDebugPlugin;
 import eu.compassresearch.ide.plugins.interpreter.ICmlDebugConstants;
 import eu.compassresearch.ide.plugins.interpreter.model.CmlDebugTarget;
@@ -37,7 +37,7 @@ public class CmlThreadManager
 		this.status = status;
 		// cmlThread = new CmlThread(this,status.getToplevelProcessInfo());
 		threads.clear();
-		for (CmlProcessInfo t : status.getAllProcessInfos())
+		for (CmlProcessDTO t : status.getAllProcessInfos())
 		{
 			threads.add(new CmlThread(target, t));
 		}
