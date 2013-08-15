@@ -15,15 +15,11 @@ public class ThmImpFunc extends ThmDecl {
 	public String expr;
 	public String post;
 	public String pre;
-	private APatternTypePair res;
 	private String resType;
-	private LinkedList<APatternListTypePair> params;
-
-
+	
 	public ThmImpFunc(String name, String post, String pre, LinkedList<APatternListTypePair> params, APatternTypePair res , String resType)
 	{
 		this.name = name;
-		this.params = params;
 		if(post == null)
 			this.post = "true";
 		else 
@@ -34,7 +30,6 @@ public class ThmImpFunc extends ThmDecl {
 			this.pre = fixFuncExpr(pre,params);
 		if(res != null)
 		{
-			this.res = res;
 			this.post = fixFuncPostExpr(post, res);
 		}
 		this.resType = resType;
@@ -76,7 +71,6 @@ public class ThmImpFunc extends ThmDecl {
 		return (ThmTypeUtil.isaFunc + " \"" + name + " = " + 
 			ThmTypeUtil.isaFuncBar + ThmTypeUtil.isaFuncLambda + " " +ThmTypeUtil.isaFuncLambaVal+" @ " +
 		    createFuncExp() + ThmTypeUtil.isaFuncBar + "\"");
-		
 	}
 
 	private String createFuncExp() {
@@ -86,8 +80,6 @@ public class ThmImpFunc extends ThmDecl {
 		sb.append("then (" + ThmTypeUtil.isaFuncLambdaPost + " " + ThmTypeUtil.isaFuncLambdaPostVal+ " : " + resType + " @ (" + post +"))\n");
 		sb.append("else undefined");
 		
-		
 		return sb.toString();
 	}
-	
 }

@@ -3,18 +3,12 @@ package eu.compassresearch.theoremprover.thms;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.types.AFieldField;
-import org.overture.ast.types.ANamedInvariantType;
-import org.overture.ast.types.ARecordInvariantType;
-import org.overture.ast.types.PType;
-
 import eu.compassresearch.theoremprover.utils.ThmTypeUtil;
 
 public class ThmRecType extends ThmDecl {
 
 	public String name;
-	//public String type;
 	public LinkedList<AFieldField> fields;
 	public String invariant = "";
 	
@@ -36,10 +30,6 @@ public class ThmRecType extends ThmDecl {
 		this.name = name;
 	}
 	
-//	public void setType(String type) {
-//		this.type = type;
-//	}
-	
 	public void setInv(String inv) {
 		this.invariant = inv;
 	}
@@ -48,17 +38,12 @@ public class ThmRecType extends ThmDecl {
 		return name;
 	}
 	
-//	public String getType() {
-//		return type;
-//	}
-	
 	public String getInv() {
 		return invariant;
 	}
 	
 	public String toString(){
-	//	ARecordInvariantType rtype = (ARecordInvariantType) tp;
-	//	String name = rtype.getName().toString();
+
 		StringBuilder sb = new StringBuilder();
 		
 		sb.append("typedef " + name + "_Tag = \"{True}\" by auto \n");
@@ -84,7 +69,7 @@ public class ThmRecType extends ThmDecl {
 		for (AFieldField field: fields)
 		{
 			String fldNm = field.getTag();
-			String fldTp = ThmTypeUtil.getIsabelleType(field.getType());
+			//String fldTp = ThmTypeUtil.getIsabelleType(field.getType());
 		
 			sb.append(ThmTypeUtil.isaAbbr + "\"" + fldNm + " " + ThmTypeUtil.isaEquiv + " SelectRec " + fldNm + "_fld\"\n");  
 				

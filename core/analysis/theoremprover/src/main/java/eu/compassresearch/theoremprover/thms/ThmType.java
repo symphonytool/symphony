@@ -1,11 +1,5 @@
 package eu.compassresearch.theoremprover.thms;
 
-import java.util.LinkedList;
-
-import org.overture.ast.intf.lex.ILexNameToken;
-import org.overture.ast.types.ANamedInvariantType;
-import org.overture.ast.types.PType;
-
 import eu.compassresearch.theoremprover.utils.ThmTypeUtil;
 
 public class ThmType extends ThmDecl {

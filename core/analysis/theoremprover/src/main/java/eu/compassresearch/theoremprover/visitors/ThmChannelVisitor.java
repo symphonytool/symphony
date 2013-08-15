@@ -1,16 +1,12 @@
 package eu.compassresearch.theoremprover.visitors;
 
 import java.util.LinkedList;
-import java.util.jar.Attributes.Name;
-
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.analysis.AnswerAdaptor;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.lex.LexNameToken;
 
 import eu.compassresearch.ast.analysis.AnswerCMLAdaptor;
-import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.definitions.AChannelNameDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
@@ -22,18 +18,17 @@ import eu.compassresearch.theoremprover.thms.ThmNodeList;
 import eu.compassresearch.theoremprover.utils.ThmChanUtil;
 import eu.compassresearch.theoremprover.utils.ThmExprUtil;
 import eu.compassresearch.theoremprover.utils.ThmTypeUtil;
-import eu.compassresearch.theoremprover.utils.ThmValueUtil;
 
 public class ThmChannelVisitor extends
 AnswerCMLAdaptor<ThmNodeList>
 {
 
 	// Errors and other things are recorded on this guy
-	final private AnswerAdaptor<ThmNodeList> parentVisitor;
+	//final private AnswerAdaptor<ThmNodeList> parentVisitor;
 
 	public ThmChannelVisitor(AnswerCMLAdaptor<ThmNodeList> parent)
 	{
-		this.parentVisitor = parent;
+	//	this.parentVisitor = parent;
 	}
 
 
@@ -52,7 +47,7 @@ AnswerCMLAdaptor<ThmNodeList>
 		PDefinition chan = chandefs.getFirst();
 		name = chan.getName();
 		type = ThmTypeUtil.getIsabelleType(((AChannelType) chan.getType()).getType());
-		//TODO: Generate Channel syntax
+		//Generate Channel syntax
 		LinkedList<ILexNameToken> nodeDeps = ThmChanUtil.getIsabelleChanDeps(node);
 
 		ThmNode tn = new ThmNode(name, nodeDeps, new ThmChannel(name.toString(), type));

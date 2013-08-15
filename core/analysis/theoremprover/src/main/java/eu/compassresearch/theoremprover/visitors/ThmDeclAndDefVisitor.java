@@ -86,25 +86,6 @@ public class ThmDeclAndDefVisitor  extends
 		return tnl;
 	}
 
-//	/**
-//	 * CML channel definition CURRENTLY JUST PRINT TO SCREEN
-//	 */
-//	@Override
-//	public ThmNodeList caseAChannelNameDefinition(AChannelNameDefinition node)
-//			throws AnalysisException
-//	{
-//
-//		System.out.println("----------***----------");
-//		System.out.println("AChannelNameDefinition");
-//		System.out.println(node.toString());
-//		System.out.println("----------***----------");
-//
-//		ThmNodeList tnl = new ThmNodeList();
-//		
-//		//TODO: Generate Channel syntax
-//
-//		return tnl;
-//	}
 
 	/**
 	 * CML ELEMENT - Chansets
@@ -125,29 +106,6 @@ public class ThmDeclAndDefVisitor  extends
 		return tnl;
 	}
 
-//	/**
-//	 * CML chanset definition CURRENTLY JUST PRINT TO SCREEN
-//	 */
-//	@Override
-//	public ThmNodeList caseAChansetDefinition(AChansetDefinition node) throws AnalysisException
-//	{
-//
-//		System.out.println("----------***----------");
-//		System.out.println("AChansetDefinition");
-//		System.out.println(node.toString());
-//		System.out.println("----------***----------");
-//
-//		ThmNodeList tnl = new ThmNodeList();
-//
-//		/*
-//		 * Not clear what POs these may generate? May be useful for generating CMLPOContext
-//		 */
-//		// Commented out by RWL: Unused variables creates warnings.
-//		// LexIdentifierToken id = node.getIdentifier();
-//		// PVarsetExpression expr = node.getChansetExpression();
-//
-//		return tnl;
-//	}
 
 	/**
 	 * CML ELEMENT - Classes
@@ -376,24 +334,34 @@ public class ThmDeclAndDefVisitor  extends
 			throws AnalysisException
 	{
 		ThmNodeList tnl = new ThmNodeList();
-
-		ILexNameToken name = node.getName();
-
-		LinkedList<ILexNameToken> b = new LinkedList();
-		LinkedList<ILexNameToken> s = new LinkedList();
-		String exp = ThmExprUtil.getIsabelleExprStr(b, s, node.getBody());
-		LinkedList<List<PPattern>> params = node.getParamPatternList();
-		String pre = null;
-		if (node.getPrecondition() != null)
-			pre = ThmExprUtil.getIsabelleExprStr(b, s, node.getPrecondition());
-
-		String post = null;
-		if (node.getPostcondition() != null)
-			post = ThmExprUtil.getIsabelleExprStr(b, s, node.getPostcondition());
-		
-		String resType = ThmTypeUtil.getIsabelleType(node.getExpectedResult());
 		LinkedList<ILexNameToken> nodeDeps = new LinkedList();
 
+		ILexNameToken name = node.getName();
+		LinkedList<List<PPattern>> params = node.getParamPatternList();
+		//Find bound values to exclude from dependancy list
+		LinkedList<ILexNameToken> b = new LinkedList();
+		for(PPattern p : params.getFirst() )
+		{
+			b.add(((AIdentifierPattern) p).getName());
+		}
+		
+		LinkedList<ILexNameToken> s = new LinkedList();
+		String exp = ThmExprUtil.getIsabelleExprStr(s, b, node.getBody());
+		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(b, node.getBody()));
+		String pre = null;
+		if (node.getPrecondition() != null){
+			pre = ThmExprUtil.getIsabelleExprStr(s, b, node.getPrecondition());
+			nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(b, node.getPrecondition()));
+		}
+		String post = null;
+		if (node.getPostcondition() != null){
+			post = ThmExprUtil.getIsabelleExprStr(s, b, node.getPostcondition());
+			nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(b, node.getPostcondition()));
+		}
+		
+		String resType = ThmTypeUtil.getIsabelleType(node.getExpectedResult());
+		nodeDeps.addAll(ThmTypeUtil.getIsabelleTypeDeps(node.getExpectedResult()));
+		
 		ThmNode tn = new ThmNode(name, nodeDeps, new ThmExpFunc(name.getName(), exp, post, pre, params, resType));
 		tnl.add(tn);
 		
@@ -404,23 +372,37 @@ public class ThmDeclAndDefVisitor  extends
 			throws AnalysisException
 	{
 		ThmNodeList tnl = new ThmNodeList();
+		LinkedList<ILexNameToken> nodeDeps = new LinkedList();
 
 		ILexNameToken name = node.getName();
 		LinkedList<APatternListTypePair> params = node.getParamPatterns();
-		
+		APatternTypePair res = node.getResult();
+
 		LinkedList<ILexNameToken> b = new LinkedList();
+		//Find bound values to exclude from dependancy list
+		for(APatternListTypePair p : params )
+		{
+			LinkedList<PPattern> pats = p.getPatterns();
+			for(PPattern param : pats )
+			{
+				b.add(((AIdentifierPattern) param).getName());
+			}
+		}
+		b.add(((AIdentifierPattern) res.getPattern()).getName());
+		
 		LinkedList<ILexNameToken> s = new LinkedList();
 		String pre = null;
-		if (node.getPrecondition() != null)
-			pre = ThmExprUtil.getIsabelleExprStr(b, s, node.getPrecondition());
-
+		if (node.getPrecondition() != null){
+			pre = ThmExprUtil.getIsabelleExprStr(s, b, node.getPrecondition());
+			nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(b, node.getPrecondition()));
+		}
 		String post = null;
-		if (node.getPostcondition() != null)
-			post = ThmExprUtil.getIsabelleExprStr(b, s, node.getPostcondition());
-		
-		APatternTypePair res = node.getResult();
+		if (node.getPostcondition() != null){
+			post = ThmExprUtil.getIsabelleExprStr(s, b, node.getPostcondition());
+			nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(b, node.getPostcondition()));
+		}
 		String resType = ThmTypeUtil.getIsabelleType(res.getType());
-		LinkedList<ILexNameToken> nodeDeps = new LinkedList();
+		nodeDeps.addAll(ThmTypeUtil.getIsabelleTypeDeps(res.getType()));
 
 		ThmNode tn = new ThmNode(name, nodeDeps, new ThmImpFunc(name.getName(), post, pre, params, res, resType));
 		tnl.add(tn);

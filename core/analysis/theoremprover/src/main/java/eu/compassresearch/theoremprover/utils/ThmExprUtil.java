@@ -16,9 +16,8 @@ import org.overture.ast.patterns.ATypeMultipleBind;
 import org.overture.ast.patterns.PBind;
 import org.overture.ast.patterns.PMultipleBind;
 import org.overture.ast.patterns.PPattern;
-import org.overture.ast.types.ANamedInvariantType;
-import org.overture.ast.types.PType;
 
+import eu.compassresearch.ast.expressions.ABracketedExp;
 import eu.compassresearch.ast.expressions.AEnumVarsetExpression;
 import eu.compassresearch.ast.expressions.AFatCompVarsetExpression;
 import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
@@ -26,6 +25,7 @@ import eu.compassresearch.ast.expressions.AIdentifierVarsetExpression;
 import eu.compassresearch.ast.expressions.AInterVOpVarsetExpression;
 import eu.compassresearch.ast.expressions.ASubVOpVarsetExpression;
 import eu.compassresearch.ast.expressions.AUnionVOpVarsetExpression;
+import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
 
 public class ThmExprUtil {
@@ -66,7 +66,7 @@ public class ThmExprUtil {
 		else if (ex instanceof SBinaryExpBase){
 			expr = ThmExprUtil.getBinaryExp(svars, bvars, ex);
 		}
-		else if (ex instanceof PExpBase){
+		else{//if (ex instanceof PExpBase){
 			expr = ThmExprUtil.getOtherExp(svars, bvars, ex);
 		}
 		return expr;
@@ -161,8 +161,8 @@ public class ThmExprUtil {
 			return "card " + "(" + ThmExprUtil.getIsabelleExprStr(svars, bvars, card.getExp())+ ")";
 		}
 		else if(ex instanceof ADistConcatUnaryExp){
-			ADistConcatUnaryExp en = (ADistConcatUnaryExp) ex;
-			return "expr not handled";
+			ADistConcatUnaryExp conc = (ADistConcatUnaryExp) ex;
+			return "conc " + "(" + ThmExprUtil.getIsabelleExprStr(svars, bvars, conc.getExp())+ ")";
 		}
 		else if(ex instanceof ADistIntersectUnaryExp){
 			ADistIntersectUnaryExp dinter = (ADistIntersectUnaryExp) ex;
@@ -379,14 +379,23 @@ public class ThmExprUtil {
 		}
 		else if(ex instanceof AApplyExp){
 			AApplyExp app = (AApplyExp) ex;
-			//TODO: Handle function apply
-			return "expr not yet handled";
+			StringBuilder sb = new StringBuilder();
+			for (Iterator<PExp> itr = app.getArgs().listIterator(); itr.hasNext(); ) {
+				PExp e = itr.next();
+				
+				sb.append(ThmExprUtil.getIsabelleExprStr(svars, bvars,e));
+				//If there are remaining expressions, add a ","
+				if(itr.hasNext()){	
+					sb.append(", ");
+				}
+			}
+			return ThmExprUtil.getIsabelleExprStr(svars, bvars,app.getRoot()) + "(" + sb.toString() + ")";
 		}		
 		else if(ex instanceof ACasesExp){
-			ACasesExp c = (ACasesExp) ex;
-			PExp exp = c.getExpression();
-			LinkedList<ACaseAlternative> cases = c.getCases();
-			PExp others = c.getOthers();
+//			ACasesExp c = (ACasesExp) ex;
+//			PExp exp = c.getExpression();
+//			LinkedList<ACaseAlternative> cases = c.getCases();
+//			PExp others = c.getOthers();
 			//TODO: Handle cases
 			return "expr not yet handled";
 		}
@@ -473,7 +482,7 @@ public class ThmExprUtil {
 		else if(ex instanceof AMkBasicExp){
 			AMkBasicExp mk = (AMkBasicExp) ex;
 			
-			return "?? " + ThmExprUtil.getIsabelleExprStr(svars, bvars, mk.getArg());
+			return "mk_token(" + ThmExprUtil.getIsabelleExprStr(svars, bvars, mk.getArg()) + ")";
 		}
 		else if(ex instanceof AMkTypeExp){
 			AMkTypeExp mk = (AMkTypeExp) ex;
@@ -496,12 +505,12 @@ public class ThmExprUtil {
 			return "is not yet specified";
 		}
 		else if(ex instanceof APostOpExp){
-			APostOpExp i = (APostOpExp) ex;
+//			APostOpExp i = (APostOpExp) ex;
 			//TODO: Handle postop exp
 			return "expr not yet handled";
 		}
 		else if(ex instanceof APreExp){
-			APreExp i = (APreExp) ex;
+//			APreExp i = (APreExp) ex;
 			//TODO: Handle pre exp
 			return "expr not yet handled";
 		}
@@ -521,7 +530,7 @@ public class ThmExprUtil {
 		else if(ex instanceof ASubseqExp){
 			ASubseqExp sub = (ASubseqExp) ex;
 			
-			return ThmExprUtil.getIsabelleExprStr(svars, bvars, sub.getSeq()) + "(" + ThmExprUtil.getIsabelleExprStr(svars, bvars, sub.getFrom()) + ",...," + ThmExprUtil.getIsabelleExprStr(svars, bvars, sub.getTo());
+			return ThmExprUtil.getIsabelleExprStr(svars, bvars, sub.getSeq()) + "(" + ThmExprUtil.getIsabelleExprStr(svars, bvars, sub.getFrom()) + ",...," + ThmExprUtil.getIsabelleExprStr(svars, bvars, sub.getTo()) + ")";
 		}
 		else if(ex instanceof ATupleExp){
 			ATupleExp tup = (ATupleExp) ex;
@@ -560,93 +569,149 @@ public class ThmExprUtil {
 			//assume is value?
 			return "^" + varName.toString() + "^";
 		}
-		
-		
-		
-		
-
-//		else if(ex instanceof ADefExp){
-//			ADefExp i = (ADefExp) ex;
-//			return "expr not yet handled";
-//		}
-//		else if(ex instanceof AFuncInstatiationExp){
-//			AFuncInstatiationExp i = (AFuncInstatiationExp) ex;
-//			return "expr not yet handled";
-//		}
-//		else if(ex instanceof AHistoryExp){
-//			AHistoryExp i = (AHistoryExp) ex;
-//			return "expr not yet handled";
-//		}
-//		else if(ex instanceof ANarrowExp){
-//			ANarrowExp i = (ANarrowExp) ex;
-//			return "expr not yet handled";
-//		}
-//		else if(ex instanceof AStateInitExp){
-//			AStateInitExp i = (AStateInitExp) ex;
-//			return "expr not yet handled";
-//		}
-//		else if(ex instanceof AIsExp){
-//			AIsExp i = (AIsExp) ex;
-//			return "expr not yet handled";
-//		}
-//		else if(ex instanceof AIsOfBaseClassExp){
-//			AIsOfBaseClassExp i = (AIsOfBaseClassExp) ex;
-//			return "expr not yet handled";
-//		}
-//		else if(ex instanceof AIsOfClassExp){
-//			AIsOfClassExp i = (AIsOfClassExp) ex;
-//			return "expr not yet handled";
-//		}
-//		else if(ex instanceof ALetBeStExp){
-//			ALetBeStExp i = (ALetBeStExp) ex;
-//			return "expr not yet handled";
-//		}
-//		else if(ex instanceof AMuExp){
-//			AMuExp i = (AMuExp) ex;
-//			return "expr not yet handled";
-//		}
-//		else if(ex instanceof ASameBaseClassExp){
-//			ASameBaseClassExp i = (ASameBaseClassExp) ex;
-//			return "expr not yet handled";
-//		}
-//		else if(ex instanceof ASameClassExp){
-//			ASameClassExp i = (ASameClassExp) ex;
-//			return "expr not yet handled";
-//		}
-//		else if(ex instanceof ASelfExp){
-//			ASelfExp i = (ASelfExp) ex;
-//			return "expr not yet handled";
-//		}
-//		else if(ex instanceof ASubclassResponsibilityExp){
-//			ASubclassResponsibilityExp i = (ASubclassResponsibilityExp) ex;
-//			return "expr not yet handled";
-//		}
-//		else if(ex instanceof AThreadIdExp){
-//			AThreadIdExp i = (AThreadIdExp) ex;
-//			return "expr not yet handled";
-//		}
-//		else if(ex instanceof ATimeExp){
-//			ATimeExp i = (ATimeExp) ex;
-//			return "expr not yet handled";
-//		}
-//		else if(ex instanceof ANewExp){
-//			ANewExp i = (ANewExp) ex;
-//			return "expr not yet handled";
-//		}
-		
-		else{
-			return "base expr not handled";
+		else if(ex instanceof AUnresolvedPathExp){
+			AUnresolvedPathExp e = (AUnresolvedPathExp) ex;
+			StringBuilder sb = new StringBuilder();
+			
+			for (Iterator<ILexIdentifierToken> itr =  e.getIdentifiers().listIterator(); itr.hasNext(); ) {
+				ILexIdentifierToken i = itr.next();
+						
+				sb.append(i.getName().toString());
+				//If there are remaining exprs, add a ","
+				if(itr.hasNext()){	
+					sb.append(".");
+				}
+			}
+			return sb.toString();
 		}
-		
-		
-		
+		else if (ex instanceof ABracketedExp){
+			ABracketedExp e = (ABracketedExp) ex;
+			
+			return "(" + ThmExprUtil.getIsabelleExprStr(svars, bvars, e.getExpression()) + ")";
+		}
+		return "expr not handled";
 	}
+	
+
+	
+
+//	else if(ex instanceof ADefExp){
+//		ADefExp i = (ADefExp) ex;
+//		return "expr not yet handled";
+//	}
+//	else if(ex instanceof AFuncInstatiationExp){
+//		AFuncInstatiationExp i = (AFuncInstatiationExp) ex;
+//		return "expr not yet handled";
+//	}
+//	else if(ex instanceof AHistoryExp){
+//		AHistoryExp i = (AHistoryExp) ex;
+//		return "expr not yet handled";
+//	}
+//	else if(ex instanceof ANarrowExp){
+//		ANarrowExp i = (ANarrowExp) ex;
+//		return "expr not yet handled";
+//	}
+//	else if(ex instanceof AStateInitExp){
+//		AStateInitExp i = (AStateInitExp) ex;
+//		return "expr not yet handled";
+//	}
+//	else if(ex instanceof AIsExp){
+//		AIsExp i = (AIsExp) ex;
+//		return "expr not yet handled";
+//	}
+//	else if(ex instanceof AIsOfBaseClassExp){
+//		AIsOfBaseClassExp i = (AIsOfBaseClassExp) ex;
+//		return "expr not yet handled";
+//	}
+//	else if(ex instanceof AIsOfClassExp){
+//		AIsOfClassExp i = (AIsOfClassExp) ex;
+//		return "expr not yet handled";
+//	}
+//	else if(ex instanceof ALetBeStExp){
+//		ALetBeStExp i = (ALetBeStExp) ex;
+//		return "expr not yet handled";
+//	}
+//	else if(ex instanceof AMuExp){
+//		AMuExp i = (AMuExp) ex;
+//		return "expr not yet handled";
+//	}
+//	else if(ex instanceof ASameBaseClassExp){
+//		ASameBaseClassExp i = (ASameBaseClassExp) ex;
+//		return "expr not yet handled";
+//	}
+//	else if(ex instanceof ASameClassExp){
+//		ASameClassExp i = (ASameClassExp) ex;
+//		return "expr not yet handled";
+//	}
+//	else if(ex instanceof ASelfExp){
+//		ASelfExp i = (ASelfExp) ex;
+//		return "expr not yet handled";
+//	}
+//	else if(ex instanceof ASubclassResponsibilityExp){
+//		ASubclassResponsibilityExp i = (ASubclassResponsibilityExp) ex;
+//		return "expr not yet handled";
+//	}
+//	else if(ex instanceof AThreadIdExp){
+//		AThreadIdExp i = (AThreadIdExp) ex;
+//		return "expr not yet handled";
+//	}
+//	else if(ex instanceof ATimeExp){
+//		ATimeExp i = (ATimeExp) ex;
+//		return "expr not yet handled";
+//	}
+//	else if(ex instanceof ANewExp){
+//		ANewExp i = (ANewExp) ex;
+//		return "expr not yet handled";
+//	}
 
 	private static String getMapExp(LinkedList<ILexNameToken> svars, LinkedList<ILexNameToken> bvars, PExp ex) {
 		if(ex instanceof AMapCompMapExp){
 			AMapCompMapExp comp = (AMapCompMapExp) ex;
-			//TODO: Handle map comp
-			return "expr not handled";
+			StringBuilder bindstr = new StringBuilder();
+			
+			LinkedList<PMultipleBind> binds = comp.getBindings();
+			LinkedList<ILexNameToken> boundvars = new LinkedList<ILexNameToken>();
+			boundvars.addAll(bvars);
+			
+			for(PMultipleBind b: binds)
+			{
+				if (b instanceof ATypeMultipleBind)
+				{
+					ATypeMultipleBind tmb = (ATypeMultipleBind) b;
+					for (Iterator<PPattern> itr = tmb.getPlist().listIterator(); itr.hasNext(); ) {
+						AIdentifierPattern p = (AIdentifierPattern) itr.next();
+						
+						bindstr.append(p.getName());
+						boundvars.add(p.getName());
+						//If there are remaining patterns, add a ","
+						if(itr.hasNext()){	
+							bindstr.append(", ");
+						}
+					}
+					bindstr.append(" : ");
+					bindstr.append("@" + tmb.getType().toString());
+				}
+				else if (b instanceof ASetMultipleBind)
+				{
+					ASetMultipleBind smb = (ASetMultipleBind) b;
+					for (Iterator<PPattern> itr = smb.getPlist().listIterator(); itr.hasNext(); ) {
+						AIdentifierPattern p = (AIdentifierPattern) itr.next();
+						
+						bindstr.append(p.getName());
+						boundvars.add(p.getName());
+						//If there are remaining patterns, add a ","
+						if(itr.hasNext()){	
+							bindstr.append(", ");
+						}
+					}
+				//	sb.append(smb.getPlist().toString());
+					bindstr.append(" in @set ");
+					bindstr.append(ThmExprUtil.getIsabelleExprStr(svars, bvars, smb.getSet()));
+				}
+			}
+			String firstString = ThmExprUtil.getIsabelleExprStr(svars, boundvars, comp.getFirst()); 
+			String predString = ThmExprUtil.getIsabelleExprStr(svars, boundvars, comp.getPredicate()); 
+			return "{" + firstString + " | " + bindstr + " @ " + predString + "}";
 		}
 		else if(ex instanceof AMapEnumMapExp){
 			AMapEnumMapExp en = (AMapEnumMapExp) ex;
@@ -673,8 +738,20 @@ public class ThmExprUtil {
 	private static String getSeqExp(LinkedList<ILexNameToken> svars, LinkedList<ILexNameToken> bvars, PExp ex) {
 		if(ex instanceof ASeqCompSeqExp){
 			ASeqCompSeqExp comp = (ASeqCompSeqExp) ex;
-			//TODO: Handle seq comp
-			return "expr not handled";
+			StringBuilder bindstr = new StringBuilder();
+			
+			ASetBind bind = comp.getSetBind();
+			LinkedList<ILexNameToken> boundvars = new LinkedList<ILexNameToken>();
+			boundvars.addAll(bvars);
+			
+			bindstr.append(bind.getPattern().toString());
+			boundvars.add(((AIdentifierPattern) bind.getPattern()).getName());
+			bindstr.append(" in @set ");
+			bindstr.append(ThmExprUtil.getIsabelleExprStr(svars, bvars, bind.getSet()));
+			
+			String firstString = ThmExprUtil.getIsabelleExprStr(svars, boundvars, comp.getFirst()); 
+			String predString = ThmExprUtil.getIsabelleExprStr(svars, boundvars, comp.getPredicate()); 
+			return "{" + firstString + " | " + bindstr + " @ " + predString + "}";
 		}
 		else if(ex instanceof ASeqEnumSeqExp){
 			ASeqEnumSeqExp en = (ASeqEnumSeqExp) ex;
@@ -701,12 +778,50 @@ public class ThmExprUtil {
 	private static String getSetExp(LinkedList<ILexNameToken> svars, LinkedList<ILexNameToken> bvars, PExp ex) {
 		if(ex instanceof ASetCompSetExp){
 			ASetCompSetExp comp = (ASetCompSetExp) ex;
-			//TODO: Handle set comp
-			comp.getBindings();
-			comp.getSetType();
-			comp.getPredicate();
-			comp.getFirst();
-			return "expr not handled";
+			StringBuilder bindstr = new StringBuilder();
+			
+			LinkedList<PMultipleBind> binds = comp.getBindings();
+			LinkedList<ILexNameToken> boundvars = new LinkedList<ILexNameToken>();
+			boundvars.addAll(bvars);
+			
+			for(PMultipleBind b: binds)
+			{
+				if (b instanceof ATypeMultipleBind)
+				{
+					ATypeMultipleBind tmb = (ATypeMultipleBind) b;
+					for (Iterator<PPattern> itr = tmb.getPlist().listIterator(); itr.hasNext(); ) {
+						AIdentifierPattern p = (AIdentifierPattern) itr.next();
+						
+						bindstr.append(p.getName());
+						boundvars.add(p.getName());
+						//If there are remaining patterns, add a ","
+						if(itr.hasNext()){	
+							bindstr.append(", ");
+						}
+					}
+					bindstr.append(" : ");
+					bindstr.append("@" + tmb.getType().toString());
+				}
+				else if (b instanceof ASetMultipleBind)
+				{
+					ASetMultipleBind smb = (ASetMultipleBind) b;
+					for (Iterator<PPattern> itr = smb.getPlist().listIterator(); itr.hasNext(); ) {
+						AIdentifierPattern p = (AIdentifierPattern) itr.next();
+						
+						bindstr.append(p.getName());
+						boundvars.add(p.getName());
+						//If there are remaining patterns, add a ","
+						if(itr.hasNext()){	
+							bindstr.append(", ");
+						}
+					}
+					bindstr.append(" in @set ");
+					bindstr.append(ThmExprUtil.getIsabelleExprStr(svars, bvars, smb.getSet()));
+				}
+			}
+			String firstString = ThmExprUtil.getIsabelleExprStr(svars, boundvars, comp.getFirst()); 
+			String predString = ThmExprUtil.getIsabelleExprStr(svars, boundvars, comp.getPredicate()); 
+			return "{" + firstString + " | " + bindstr + " @ " + predString + "}";
 		}
 		else if(ex instanceof ASetEnumSetExp){
 			ASetEnumSetExp en = (ASetEnumSetExp) ex;
@@ -726,8 +841,11 @@ public class ThmExprUtil {
 		}
 		else if(ex instanceof ASetRangeSetExp){
 			ASetRangeSetExp en = (ASetRangeSetExp) ex;
-			//TODO: Handle set range
-			return "expr not handled";
+			
+			String first = ThmExprUtil.getIsabelleExprStr(svars, bvars, en.getFirst());
+			String last = ThmExprUtil.getIsabelleExprStr(svars, bvars, en.getLast());
+			
+			return "{" + first + ", ..., " + last + "}";
 		}
 		else
 		{
@@ -800,7 +918,9 @@ public class ThmExprUtil {
 			return "(" + ThmExprUtil.getIsabelleExprStr(svars, bvars, and.getLeft()) + " and " + ThmExprUtil.getIsabelleExprStr(svars, bvars, and.getRight())+ ")";
 		}
 		else if(ex instanceof AEquivalentBooleanBinaryExp){
-			return "expr not handled";
+			AEquivalentBooleanBinaryExp eq = (AEquivalentBooleanBinaryExp) ex;
+			return "(" +ThmExprUtil.getIsabelleExprStr(svars, bvars, eq.getLeft()) + " <=> " + ThmExprUtil.getIsabelleExprStr(svars, bvars, eq.getRight())+ ")";
+		
 		}
 		else if(ex instanceof AImpliesBooleanBinaryExp){
 			AImpliesBooleanBinaryExp imp = (AImpliesBooleanBinaryExp) ex;
@@ -845,7 +965,7 @@ public class ThmExprUtil {
 		else if (ex instanceof SBinaryExpBase){
 			nodeDeps = ThmExprUtil.getBinaryExpDeps(bvars, ex);
 		}
-		else if (ex instanceof PExpBase){
+		else{ //if (ex instanceof PExpBase){
 			nodeDeps = ThmExprUtil.getOtherExpDeps(bvars, ex);
 		}
 		return nodeDeps;
@@ -872,8 +992,7 @@ public class ThmExprUtil {
 			nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, ifExp.getThen()));	
 		}
 		else if(ex instanceof AExistsExp){
-			
-		//TODO: FIX!!!!	
+				
 			AExistsExp exists = (AExistsExp) ex;
 			LinkedList<PMultipleBind> binds = exists.getBindList();
 			LinkedList<ILexNameToken> boundvars = new LinkedList<ILexNameToken>();
@@ -906,7 +1025,6 @@ public class ThmExprUtil {
 			
 		}
 		else if(ex instanceof AExists1Exp){
-			//TODO: FIX!!!!	
 			AExists1Exp exists = (AExists1Exp) ex;
 
 			LinkedList<ILexNameToken> boundvars = new LinkedList<ILexNameToken>();
@@ -917,18 +1035,17 @@ public class ThmExprUtil {
 			{
 				ATypeBind tmb = (ATypeBind) b;
 				boundvars.add(((AIdentifierPattern) tmb.getPattern()).getName());
-				ThmTypeUtil.getIsabelleTypeDeps(tmb.getType());
+				nodeDeps.addAll(ThmTypeUtil.getIsabelleTypeDeps(tmb.getType()));
 			}
 			else if (b instanceof ASetBind)
 			{
 				ASetBind smb = (ASetBind) b;
 				boundvars.add(((AIdentifierPattern) smb.getPattern()).getName());
-				ThmExprUtil.getIsabelleExprDeps(bvars, smb.getSet());
+				nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, smb.getSet()));
 			}
 			nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(boundvars, exists.getPredicate()));
 		} 
 		else if(ex instanceof AForAllExp){
-			//TODO: FIX!!!!	
 			AForAllExp forall = (AForAllExp) ex;
 			LinkedList<PMultipleBind> binds = forall.getBindList();
 			LinkedList<ILexNameToken> boundvars = new LinkedList<ILexNameToken>();
@@ -944,7 +1061,7 @@ public class ThmExprUtil {
 						
 						boundvars.add(p.getName());
 					}
-					ThmTypeUtil.getIsabelleTypeDeps(tmb.getType());
+					nodeDeps.addAll(ThmTypeUtil.getIsabelleTypeDeps(tmb.getType()));
 				}
 				else if (b instanceof ASetMultipleBind)
 				{
@@ -954,7 +1071,7 @@ public class ThmExprUtil {
 						
 						boundvars.add(p.getName());
 					}
-					ThmExprUtil.getIsabelleExprDeps(bvars, smb.getSet());
+					nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, smb.getSet()));
 				}
 			}
 			nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(boundvars, forall.getPredicate()));
@@ -963,13 +1080,17 @@ public class ThmExprUtil {
 		}
 		else if(ex instanceof AApplyExp){
 			AApplyExp app = (AApplyExp) ex;
-			//TODO: Handle function apply
+			for (PExp a : app.getArgs())
+			{
+				nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, a));
+			}
+			nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, app.getRoot()));
 		}		
 		else if(ex instanceof ACasesExp){
-			ACasesExp c = (ACasesExp) ex;
-			PExp exp = c.getExpression();
-			LinkedList<ACaseAlternative> cases = c.getCases();
-			PExp others = c.getOthers();
+//			ACasesExp c = (ACasesExp) ex;
+//			PExp exp = c.getExpression();
+//			LinkedList<ACaseAlternative> cases = c.getCases();
+//			PExp others = c.getOthers();
 			//TODO: Handle cases
 		}
 		else if(ex instanceof AFieldExp){
@@ -978,7 +1099,6 @@ public class ThmExprUtil {
 		}
 		else if(ex instanceof AFieldNumberExp){}
 		else if(ex instanceof AIotaExp){
-			//TODO: FIX!!!!	
 			AIotaExp i = (AIotaExp) ex;
 
 			PBind b = i.getBind();
@@ -989,22 +1109,20 @@ public class ThmExprUtil {
 			{
 				ATypeBind tmb = (ATypeBind) b;
 				boundvars.add(((AIdentifierPattern) tmb.getPattern()).getName());
-				ThmTypeUtil.getIsabelleTypeDeps(tmb.getType());
+				nodeDeps.addAll(ThmTypeUtil.getIsabelleTypeDeps(tmb.getType()));
 			}
 			else if (b instanceof ASetBind)
 			{
 				ASetBind smb = (ASetBind) b;
 				boundvars.add(((AIdentifierPattern) smb.getPattern()).getName());
-				ThmExprUtil.getIsabelleExprDeps(bvars, smb.getSet());
+				nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, smb.getSet()));
 			}
 			nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(boundvars, i.getPredicate()));
 			
 		}
 		else if(ex instanceof ALambdaExp){
-			//TODO: FIX!!!!	
 			ALambdaExp l = (ALambdaExp) ex;
-			
-			StringBuilder sb = new StringBuilder();
+		
 			LinkedList<ATypeBind> b = l.getBindList();
 			LinkedList<ILexNameToken> boundvars = new LinkedList<ILexNameToken>();
 			boundvars.addAll(bvars);
@@ -1013,7 +1131,7 @@ public class ThmExprUtil {
 				ATypeBind p = itr.next();
 					
 				boundvars.add(((AIdentifierPattern) p.getPattern()).getName());
-				ThmTypeUtil.getIsabelleTypeDeps(p.getType());
+				nodeDeps.addAll(ThmTypeUtil.getIsabelleTypeDeps(p.getType()));
 
 			}
 			nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(boundvars, l.getExpression()));
@@ -1028,7 +1146,7 @@ public class ThmExprUtil {
 			for (PDefinition d : ldefs)
 			{
 				boundvars.add(((AIdentifierPattern) d).getName());
-				ThmTypeUtil.getIsabelleTypeDeps(d.getType());
+				nodeDeps.addAll(ThmTypeUtil.getIsabelleTypeDeps(d.getType()));
 			}
 			nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(boundvars, l.getExpression()));
 			
@@ -1041,32 +1159,26 @@ public class ThmExprUtil {
 		}
 		else if(ex instanceof AMkBasicExp){
 			AMkBasicExp mk = (AMkBasicExp) ex;
-			//TODO: Handle
+			nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, mk.getArg()));	
 		}
 		else if(ex instanceof AMkTypeExp){
 			AMkTypeExp mk = (AMkTypeExp) ex;
-//			StringBuilder sb = new StringBuilder();
-//			
-//			for (Iterator<PExp> itr = mk.getArgs().listIterator(); itr.hasNext(); ) {
-//				PExp p = itr.next();
-//					
-//				ThmExprUtil.getIsabelleExprStr(svars, bvars, p);
-//				//If there are remaining patterns, add a ","
-//				if(itr.hasNext()){	
-//					sb.append(", ");
-//				}
-//			}
-//			
-//			return "mk_" + mk.getRecordType().getName().toString() + "(" + sb.toString() + ")";
+			mk.getRecordType();
+			mk.getArgs();
+			for (PExp e : mk.getArgs())
+			{
+				nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, e));	
+			}
+			nodeDeps.addAll(ThmTypeUtil.getIsabelleTypeDeps(mk.getRecordType()));
 		}
 		
 		else if(ex instanceof ANotYetSpecifiedExp){}
 		else if(ex instanceof APostOpExp){
-			APostOpExp i = (APostOpExp) ex;
+//			APostOpExp i = (APostOpExp) ex;
 			//TODO: Handle postop exp
 		}
 		else if(ex instanceof APreExp){
-			APreExp i = (APreExp) ex;
+//			APreExp i = (APreExp) ex;
 			//TODO: Handle pre exp
 		}
 		else if(ex instanceof AQuoteLiteralExp){}
@@ -1089,7 +1201,6 @@ public class ThmExprUtil {
 		else if(ex instanceof AVariableExp){
 			AVariableExp v = (AVariableExp) ex;
 			
-			//TODO: VARIABLES !!!
 			boolean boundV = false;
 			ILexNameToken varName = v.getName();
 
@@ -1104,6 +1215,33 @@ public class ThmExprUtil {
 				nodeDeps.add(varName);
 			}
 			
+		}
+		else if(ex instanceof AUnresolvedPathExp){
+			AUnresolvedPathExp e = (AUnresolvedPathExp) ex;
+
+			//Get the first part of the path (this is assuming it is a record.field expression...
+			LinkedList<ILexIdentifierToken> ids = e.getIdentifiers();
+			ILexIdentifierToken fId = ids.getFirst();
+					
+			//check that the record part isn't a bound variable
+			boolean boundV = false;
+			LexNameToken lnt = new LexNameToken("", fId.getName().toString(), fId.getLocation());
+
+			for(ILexNameToken var : bvars){
+				if (!boundV && lnt.toString().equals(var.getName()))
+				{
+					boundV = true;
+				}
+			}
+			if(!boundV)
+			{
+				nodeDeps.add(lnt);
+			}
+		}
+		else if (ex instanceof ABracketedExp){
+			ABracketedExp e = (ABracketedExp) ex;
+
+			nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, e.getExpression()));
 		}
 		return nodeDeps;
 	}
@@ -1218,8 +1356,8 @@ public class ThmExprUtil {
 			nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, card.getExp()));
 		}
 		else if(ex instanceof ADistConcatUnaryExp){
-//			ADistConcatUnaryExp en = (ADistConcatUnaryExp) ex;
-			//TODO : Handle this
+			ADistConcatUnaryExp conc = (ADistConcatUnaryExp) ex;
+			nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, conc.getExp()));
 		}
 		else if(ex instanceof ADistIntersectUnaryExp){
 			ADistIntersectUnaryExp dinter = (ADistIntersectUnaryExp) ex;
@@ -1298,7 +1436,35 @@ public class ThmExprUtil {
 		
 		if(ex instanceof ASetCompSetExp){
 			ASetCompSetExp comp = (ASetCompSetExp) ex;
-			//TODO: Handle set comp
+
+			LinkedList<PMultipleBind> binds = comp.getBindings();
+			LinkedList<ILexNameToken> boundvars = new LinkedList<ILexNameToken>();
+			boundvars.addAll(bvars);
+			
+			for(PMultipleBind b: binds)
+			{
+				if (b instanceof ATypeMultipleBind)
+				{
+					ATypeMultipleBind tmb = (ATypeMultipleBind) b;					
+					for (Iterator<PPattern> itr = tmb.getPlist().listIterator(); itr.hasNext(); ) {
+						AIdentifierPattern p = (AIdentifierPattern) itr.next();
+						
+						boundvars.add(p.getName());
+					}
+					nodeDeps.addAll(ThmTypeUtil.getIsabelleTypeDeps(tmb.getType()));
+				}
+				else if (b instanceof ASetMultipleBind)
+				{
+					ASetMultipleBind smb = (ASetMultipleBind) b;
+					for (Iterator<PPattern> itr = smb.getPlist().listIterator(); itr.hasNext(); ) {
+						AIdentifierPattern p = (AIdentifierPattern) itr.next();
+						
+						boundvars.add(p.getName());
+					}
+					nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, smb.getSet()));
+				}
+			}
+			nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(boundvars, comp.getPredicate()));
 		}
 		else if(ex instanceof ASetEnumSetExp){
 			ASetEnumSetExp en = (ASetEnumSetExp) ex;
@@ -1309,7 +1475,9 @@ public class ThmExprUtil {
 		}
 		else if(ex instanceof ASetRangeSetExp){
 			ASetRangeSetExp en = (ASetRangeSetExp) ex;
-			//TODO: Handle set range
+
+			nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, en.getFirst()));
+			nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, en.getLast()));
 		}
 		
 		return nodeDeps;
@@ -1321,7 +1489,12 @@ public class ThmExprUtil {
 
 		if(ex instanceof ASeqCompSeqExp){
 			ASeqCompSeqExp comp = (ASeqCompSeqExp) ex;
-			//TODO: Handle seq comp
+			ASetBind binds = comp.getSetBind();
+			LinkedList<ILexNameToken> boundvars = new LinkedList<ILexNameToken>();
+			boundvars.addAll(bvars);			
+			boundvars.add(((AIdentifierPattern) binds.getPattern()).getName());
+			nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, binds.getSet()));
+			nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(boundvars, comp.getPredicate()));
 		}
 		else if(ex instanceof ASeqEnumSeqExp){
 			ASeqEnumSeqExp en = (ASeqEnumSeqExp) ex;
@@ -1341,7 +1514,34 @@ public class ThmExprUtil {
 		
 		if(ex instanceof AMapCompMapExp){
 			AMapCompMapExp comp = (AMapCompMapExp) ex;
-			//TODO: Handle map comp
+			LinkedList<PMultipleBind> binds = comp.getBindings();
+			LinkedList<ILexNameToken> boundvars = new LinkedList<ILexNameToken>();
+			boundvars.addAll(bvars);
+			
+			for(PMultipleBind b: binds)
+			{
+				if (b instanceof ATypeMultipleBind)
+				{
+					ATypeMultipleBind tmb = (ATypeMultipleBind) b;					
+					for (Iterator<PPattern> itr = tmb.getPlist().listIterator(); itr.hasNext(); ) {
+						AIdentifierPattern p = (AIdentifierPattern) itr.next();
+						
+						boundvars.add(p.getName());
+					}
+					nodeDeps.addAll(ThmTypeUtil.getIsabelleTypeDeps(tmb.getType()));
+				}
+				else if (b instanceof ASetMultipleBind)
+				{
+					ASetMultipleBind smb = (ASetMultipleBind) b;
+					for (Iterator<PPattern> itr = smb.getPlist().listIterator(); itr.hasNext(); ) {
+						AIdentifierPattern p = (AIdentifierPattern) itr.next();
+						
+						boundvars.add(p.getName());
+					}
+					nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, smb.getSet()));
+				}
+			}
+			nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(boundvars, comp.getPredicate()));
 		}
 		else if(ex instanceof AMapEnumMapExp){
 			AMapEnumMapExp en = (AMapEnumMapExp) ex;
@@ -1421,7 +1621,9 @@ public class ThmExprUtil {
 			nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, e.getRight()));		
 		}
 		else if(ex instanceof AEquivalentBooleanBinaryExp){
-			//TODO: Handle
+			AEquivalentBooleanBinaryExp e = (AEquivalentBooleanBinaryExp) ex;
+			nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, e.getLeft()));
+			nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, e.getRight()));	
 		}
 		else if(ex instanceof AImpliesBooleanBinaryExp){
 			AImpliesBooleanBinaryExp e = (AImpliesBooleanBinaryExp) ex;
@@ -1441,7 +1643,6 @@ public class ThmExprUtil {
 	public static LinkedList<ILexNameToken> getIsabelleVarsetExprDeps(PVarsetExpression vExpr) {
 		LinkedList<ILexNameToken> nodeDeps = new LinkedList<ILexNameToken>();
 	
-		// TODO Auto-generated method stub
 		if (vExpr instanceof AFatEnumVarsetExpression)
 		{
 			AFatEnumVarsetExpression e = (AFatEnumVarsetExpression) vExpr;
@@ -1455,13 +1656,15 @@ public class ThmExprUtil {
 		}
 		else if (vExpr instanceof AFatCompVarsetExpression)
 		{
-			AFatCompVarsetExpression e = (AFatCompVarsetExpression) vExpr;
+			//AFatCompVarsetExpression e = (AFatCompVarsetExpression) vExpr;
 
+			// TODO COMPLETE
 		}
 		else if (vExpr instanceof AIdentifierVarsetExpression)
 		{
-			AIdentifierVarsetExpression e = (AIdentifierVarsetExpression) vExpr;
+			//AIdentifierVarsetExpression e = (AIdentifierVarsetExpression) vExpr;
 
+			// TODO COMPLETE
 		}
 		else if (vExpr instanceof AEnumVarsetExpression)
 		{
@@ -1499,7 +1702,6 @@ public class ThmExprUtil {
 	
 	//Method to return VARSET expression. This is new to COMPASS AST
 		public static String getIsabelleVarsetExpr(PVarsetExpression vExpr) {
-			// TODO Auto-generated method stub
 			if (vExpr instanceof AFatEnumVarsetExpression)
 			{
 				AFatEnumVarsetExpression e = (AFatEnumVarsetExpression) vExpr;
@@ -1518,14 +1720,16 @@ public class ThmExprUtil {
 			}
 			else if (vExpr instanceof AFatCompVarsetExpression)
 			{
-				AFatCompVarsetExpression e = (AFatCompVarsetExpression) vExpr;
+				//AFatCompVarsetExpression e = (AFatCompVarsetExpression) vExpr;
 
+				// TODO COMPLETE
 				return "varset comp not handled";
 			}
 			else if (vExpr instanceof AIdentifierVarsetExpression)
 			{
-				AIdentifierVarsetExpression e = (AIdentifierVarsetExpression) vExpr;
+				//AIdentifierVarsetExpression e = (AIdentifierVarsetExpression) vExpr;
 
+				// TODO COMPLETE
 				return "varset id not handled";
 			}
 			else if (vExpr instanceof AEnumVarsetExpression)

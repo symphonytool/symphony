@@ -1,6 +1,5 @@
 package eu.compassresearch.theoremprover.thms;
 
-import eu.compassresearch.theoremprover.utils.ThmTypeUtil;
 import eu.compassresearch.theoremprover.utils.ThmValueUtil;
 
 public class ThmValue extends ThmDecl {

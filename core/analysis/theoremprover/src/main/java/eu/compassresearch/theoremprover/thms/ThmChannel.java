@@ -1,7 +1,6 @@
 package eu.compassresearch.theoremprover.thms;
 
 import eu.compassresearch.theoremprover.utils.ThmChanUtil;
-import eu.compassresearch.theoremprover.utils.ThmTypeUtil;
 
 public class ThmChannel extends ThmDecl {
 

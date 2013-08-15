@@ -3,9 +3,7 @@ package eu.compassresearch.theoremprover.thms;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.patterns.AIdentifierPattern;
-import org.overture.ast.patterns.APatternTypePair;
 import org.overture.ast.patterns.PPattern;
 
 import eu.compassresearch.theoremprover.utils.ThmTypeUtil;
@@ -17,7 +15,6 @@ public class ThmExpFunc extends ThmDecl {
 	public String post;
 	public String pre;
 	public LinkedList<List<PPattern>> pattern;
-	private APatternTypePair res;
 	private String resType;
 	
 
@@ -34,20 +31,9 @@ public class ThmExpFunc extends ThmDecl {
 			this.pre = "true";
 		else 
 			this.pre = fixFuncExpr(pre,pattern);
-//		if(res != null)
-//		{
-//			this.res = res;
-//			this.post = fixFuncPostExpr(post, res);
-//		}
 		this.resType = resType;
 	}
 	
-//	public ThmExpFunc(String name, String expr, LinkedList<List<PPattern>> pattern)
-//	{
-//		this.name = name;
-//		this.expr = fixFuncExpr(expr,pattern);
-//		this.pattern = pattern;
-//	}
 	
 	private String fixFuncExpr(String ex, LinkedList<List<PPattern>> pattern){
 		int count = 1;
@@ -60,18 +46,6 @@ public class ThmExpFunc extends ThmDecl {
 			ex = ex.replace(pName, lambdaName);
 			count++;
 		}
-	
-		return ex;
-	}
-
-	//MORE FORE IMPLICIT, I THINK
-	private String fixFuncPostExpr(String ex, APatternTypePair res){
-		PPattern p = res.getPattern();
-		
-		String pName = "^" + ((AIdentifierPattern) p).getName().toString() + "^";
-		String lambdaName = "^" +ThmTypeUtil.isaFuncLambdaPostVal+"^";
-			
-		ex = ex.replace(pName, lambdaName);
 	
 		return ex;
 	}

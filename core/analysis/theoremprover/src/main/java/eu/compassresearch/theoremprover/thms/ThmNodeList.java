@@ -4,7 +4,6 @@ import java.util.LinkedList;
 import java.util.Vector;
 
 import org.overture.ast.intf.lex.ILexNameToken;
-import org.overture.ast.lex.LexNameToken;
 
 import eu.compassresearch.core.common.AnalysisArtifact;
 
@@ -18,7 +17,7 @@ import eu.compassresearch.core.common.AnalysisArtifact;
 public class ThmNodeList extends Vector<ThmNode> implements AnalysisArtifact {
 
 
-    @Override
+	@Override
     // override superclass method
     public String toString() 
     {
@@ -46,7 +45,6 @@ public class ThmNodeList extends Vector<ThmNode> implements AnalysisArtifact {
     		for (ThmNode tp : this){
 
         		ILexNameToken temptpId = tp.getId();
-        		boolean idNameMatch = tempdepId.getName().equals(temptpId.getName());
 
     			//if (d == tp.getId()){
     			if (tempdepId.getName().equals(temptpId.getName())){

@@ -1,11 +1,9 @@
 package eu.compassresearch.theoremprover.utils;
 
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 
 import org.overture.ast.definitions.ATypeDefinition;
-import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.patterns.AIdentifierPattern;
@@ -135,8 +133,6 @@ public class ThmTypeUtil {
 	
 
 	public static String getIsabelleBasicType(PType type) {
-		//TODO: Here need to return type in Isabelle syntax 
-		//return type.toString();
 		
 		if (type instanceof ANatNumericBasicType)
 		{
@@ -177,8 +173,6 @@ public class ThmTypeUtil {
 	}
 	
 	public static String getIsabelleMapType(PType type) {
-		//TODO: Here need to return type in Isabelle syntax 
-		//return type.toString();
 		
 		if (type instanceof AInMapMapType)
 		{
@@ -197,9 +191,6 @@ public class ThmTypeUtil {
 	}
 	
 	public static String getIsabelleSeqType(PType type) {
-		//TODO: Here need to return type in Isabelle syntax 
-		//return type.toString();
-		
 		if (type instanceof ASeqSeqType)
 		{
 			ASeqSeqType s = (ASeqSeqType) type;
@@ -218,15 +209,12 @@ public class ThmTypeUtil {
 	
 
 	public static String getIsabelleTypeBaseType(PType type) {
-		//TODO: Here need to return type in Isabelle syntax 
-		//return type.toString();
 		
 		if (type instanceof ASetType)
 		{
 			ASetType s = (ASetType) type;
 			return (isaSet  + " " + ThmTypeUtil.getIsabelleType(s.getSetof()));
 		}
-		//TODO: Address other types
 		else if (type instanceof ABracketType)
 		{
 			ABracketType b = (ABracketType) type;

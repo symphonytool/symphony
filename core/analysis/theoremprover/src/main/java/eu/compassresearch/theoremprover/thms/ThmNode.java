@@ -3,7 +3,6 @@ package eu.compassresearch.theoremprover.thms;
 import java.util.LinkedList;
 
 import org.overture.ast.intf.lex.ILexNameToken;
-import org.overture.ast.lex.LexNameToken;
 
 public class ThmNode {
 
@@ -13,13 +12,13 @@ public class ThmNode {
 	
 
     public ThmNode() {
-    	depIds = new LinkedList();
+    	depIds = new LinkedList<ILexNameToken>();
     }
 	
 	
     public ThmNode(ILexNameToken iLexNameToken) {
     	this.id = iLexNameToken;
-    	depIds = new LinkedList();
+    	depIds = new LinkedList<ILexNameToken>();
     }
     
     public ThmNode(ILexNameToken iLexNameToken, LinkedList <ILexNameToken> ids) {
