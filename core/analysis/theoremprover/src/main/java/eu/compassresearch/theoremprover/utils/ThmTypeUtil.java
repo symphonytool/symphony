@@ -48,11 +48,15 @@ import org.overture.ast.types.SSeqType;
 
 public class ThmTypeUtil {
 
+	public static String isaFunc = "definition";
 	public static String typeDelim = "\\<parallel>";
 	public static String isaEquiv = "\\<equiv>";
 	public static String isaType = "definition";
+	public static String isaChan = "definition";
 	public static String isaAbbr = "abbreviation";
 	public static String isaInv = "inv";
+	public static String isaFuncLambaVal = "d";
+	
 	
 	static String isaNat = "@nat";
 	static String isaBool = "@bool";
@@ -77,13 +81,17 @@ public class ThmTypeUtil {
 	static String isaOtpOpen = "[";
 	static String isaOtpClose = "]";
 	static String isaProd = "\\<times>";
-	static String isaQuoteLeft = "<\"";
-	static String isaQuoteRight = "\">";
+	static String isaQuoteLeft = "<\'\'";
+	static String isaQuoteRight = "\'\'>";
 	static String isaUnion = "|";
  	static String isaErrTBT= "@unknownBaseType";
  	
  	static String notHandled = "NOT_YET_HANDLED";
  	static String isaUndefined = "undefined";
+	public static String isaFuncBar = "|";
+	public static String isaFuncLambda = "lambda";
+	public static String isaFuncLambdaPost = "iota";
+	public static String isaFuncLambdaPostVal = "r";
 	
 	
 	public static String getIsabelleType(PType tp){
@@ -265,7 +273,7 @@ public class ThmTypeUtil {
 		else if (type instanceof AQuoteType)
 		{
 			AQuoteType q = (AQuoteType) type;
-			return (ThmTypeUtil.isaQuoteLeft + q.getValue().toString() + ThmTypeUtil.isaQuoteRight);
+			return (ThmTypeUtil.isaQuoteLeft + q.getValue().getValue() + ThmTypeUtil.isaQuoteRight);
 		}
 		else if (type instanceof AUndefinedType)
 		{
@@ -559,4 +567,19 @@ public class ThmTypeUtil {
 		return inv;
 	}
 	
+	
+	public static LinkedList<ILexNameToken>  getIsabelleTypeInvDeps(ATypeDefinition node)
+	{
+		LinkedList<ILexNameToken> nodeDeps = new LinkedList<ILexNameToken>();
+
+		PExp invExp = node.getInvExpression();
+		PPattern invPatt = node.getInvPattern();
+		if(invExp != null && invPatt != null){
+			LinkedList<ILexNameToken> evars = new LinkedList<ILexNameToken>();
+			evars.add(((AIdentifierPattern) invPatt).getName());
+			nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(evars, invExp));
+		}
+		
+		return nodeDeps;
+	}
 }

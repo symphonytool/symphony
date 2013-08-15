@@ -5,7 +5,9 @@ import java.util.LinkedList;
 
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.*;
+import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.intf.lex.ILexNameToken;
+import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.ASetBind;
 import org.overture.ast.patterns.ASetMultipleBind;
@@ -17,6 +19,15 @@ import org.overture.ast.patterns.PPattern;
 import org.overture.ast.types.ANamedInvariantType;
 import org.overture.ast.types.PType;
 
+import eu.compassresearch.ast.expressions.AEnumVarsetExpression;
+import eu.compassresearch.ast.expressions.AFatCompVarsetExpression;
+import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
+import eu.compassresearch.ast.expressions.AIdentifierVarsetExpression;
+import eu.compassresearch.ast.expressions.AInterVOpVarsetExpression;
+import eu.compassresearch.ast.expressions.ASubVOpVarsetExpression;
+import eu.compassresearch.ast.expressions.AUnionVOpVarsetExpression;
+import eu.compassresearch.ast.expressions.PVarsetExpression;
+
 public class ThmExprUtil {
 	
 	public static String typeDelim = "\\<parallel>";
@@ -26,6 +37,7 @@ public class ThmExprUtil {
  	
  	static String notHandled = "NOT_YET_HANDLED";
  	static String isaUndefined = "undefined";
+	private static String isaDown = "\\<down>";
  
 
 	public static String getIsabelleExprStr(LinkedList<ILexNameToken> svars, LinkedList<ILexNameToken> bvars, PExp ex)
@@ -495,7 +507,7 @@ public class ThmExprUtil {
 		}
 		else if(ex instanceof AQuoteLiteralExp){
 			AQuoteLiteralExp q = (AQuoteLiteralExp) ex;
-			return "<''" + q.getValue().toString() + "''>";
+			return "<\'\'" + q.getValue().getValue() + "\'\'>";
 		}
 		else if(ex instanceof ARealLiteralExp){
 			ARealLiteralExp r = (ARealLiteralExp) ex;
@@ -545,7 +557,8 @@ public class ThmExprUtil {
 					return  "^" + varName.toString() + "^";
 				}
 			}
-			return "?" + varName.toString() + "?";
+			//assume is value?
+			return "^" + varName.toString() + "^";
 		}
 		
 		
@@ -689,6 +702,10 @@ public class ThmExprUtil {
 		if(ex instanceof ASetCompSetExp){
 			ASetCompSetExp comp = (ASetCompSetExp) ex;
 			//TODO: Handle set comp
+			comp.getBindings();
+			comp.getSetType();
+			comp.getPredicate();
+			comp.getFirst();
 			return "expr not handled";
 		}
 		else if(ex instanceof ASetEnumSetExp){
@@ -872,7 +889,7 @@ public class ThmExprUtil {
 						
 						boundvars.add(p.getName());
 					}
-					ThmTypeUtil.getIsabelleTypeDeps(tmb.getType());
+					nodeDeps.addAll(ThmTypeUtil.getIsabelleTypeDeps(tmb.getType()));
 				}
 				else if (b instanceof ASetMultipleBind)
 				{
@@ -882,9 +899,11 @@ public class ThmExprUtil {
 						
 						boundvars.add(p.getName());
 					}
-					ThmExprUtil.getIsabelleExprDeps(bvars, smb.getSet());
+					nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, smb.getSet()));
 				}
 			}
+			nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(boundvars, exists.getPredicate()));
+			
 		}
 		else if(ex instanceof AExists1Exp){
 			//TODO: FIX!!!!	
@@ -906,11 +925,12 @@ public class ThmExprUtil {
 				boundvars.add(((AIdentifierPattern) smb.getPattern()).getName());
 				ThmExprUtil.getIsabelleExprDeps(bvars, smb.getSet());
 			}
+			nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(boundvars, exists.getPredicate()));
 		} 
 		else if(ex instanceof AForAllExp){
 			//TODO: FIX!!!!	
-			AForAllExp exists = (AForAllExp) ex;
-			LinkedList<PMultipleBind> binds = exists.getBindList();
+			AForAllExp forall = (AForAllExp) ex;
+			LinkedList<PMultipleBind> binds = forall.getBindList();
 			LinkedList<ILexNameToken> boundvars = new LinkedList<ILexNameToken>();
 			boundvars.addAll(bvars);
 			
@@ -937,6 +957,7 @@ public class ThmExprUtil {
 					ThmExprUtil.getIsabelleExprDeps(bvars, smb.getSet());
 				}
 			}
+			nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(boundvars, forall.getPredicate()));
 		}
 		else if(ex instanceof AIntLiteralExp){
 		}
@@ -976,6 +997,7 @@ public class ThmExprUtil {
 				boundvars.add(((AIdentifierPattern) smb.getPattern()).getName());
 				ThmExprUtil.getIsabelleExprDeps(bvars, smb.getSet());
 			}
+			nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(boundvars, i.getPredicate()));
 			
 		}
 		else if(ex instanceof ALambdaExp){
@@ -994,6 +1016,7 @@ public class ThmExprUtil {
 				ThmTypeUtil.getIsabelleTypeDeps(p.getType());
 
 			}
+			nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(boundvars, l.getExpression()));
 			
 		}
 		else if(ex instanceof ALetDefExp){
@@ -1007,6 +1030,7 @@ public class ThmExprUtil {
 				boundvars.add(((AIdentifierPattern) d).getName());
 				ThmTypeUtil.getIsabelleTypeDeps(d.getType());
 			}
+			nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(boundvars, l.getExpression()));
 			
 		}
 		else if(ex instanceof AMapletExp){
@@ -1397,7 +1421,7 @@ public class ThmExprUtil {
 			nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, e.getRight()));		
 		}
 		else if(ex instanceof AEquivalentBooleanBinaryExp){
-			//TODO: HAndle
+			//TODO: Handle
 		}
 		else if(ex instanceof AImpliesBooleanBinaryExp){
 			AImpliesBooleanBinaryExp e = (AImpliesBooleanBinaryExp) ex;
@@ -1412,6 +1436,145 @@ public class ThmExprUtil {
 		return nodeDeps;
 	}
 	
+	
+	//Method to return VARSET expression. This is new to COMPASS AST
+	public static LinkedList<ILexNameToken> getIsabelleVarsetExprDeps(PVarsetExpression vExpr) {
+		LinkedList<ILexNameToken> nodeDeps = new LinkedList<ILexNameToken>();
+	
+		// TODO Auto-generated method stub
+		if (vExpr instanceof AFatEnumVarsetExpression)
+		{
+			AFatEnumVarsetExpression e = (AFatEnumVarsetExpression) vExpr;
+			
+			for (Iterator<ILexIdentifierToken> itr = e.getIdentifiers().listIterator(); itr.hasNext(); ) {
+				ILexIdentifierToken i = itr.next();
+				nodeDeps.add(new LexNameToken("", i.toString(), i.getLocation()));
+				
+				
+			}
+		}
+		else if (vExpr instanceof AFatCompVarsetExpression)
+		{
+			AFatCompVarsetExpression e = (AFatCompVarsetExpression) vExpr;
 
+		}
+		else if (vExpr instanceof AIdentifierVarsetExpression)
+		{
+			AIdentifierVarsetExpression e = (AIdentifierVarsetExpression) vExpr;
+
+		}
+		else if (vExpr instanceof AEnumVarsetExpression)
+		{
+			AEnumVarsetExpression e = (AEnumVarsetExpression) vExpr;
+			
+			for (Iterator<ILexIdentifierToken> itr = e.getIdentifiers().listIterator(); itr.hasNext(); ) {
+				ILexIdentifierToken i = itr.next();
+				nodeDeps.add(new LexNameToken("", i.toString(), i.getLocation()));
+			}
+		}
+		else if (vExpr instanceof AInterVOpVarsetExpression)
+		{
+			AInterVOpVarsetExpression e = (AInterVOpVarsetExpression) vExpr;
+
+			nodeDeps.addAll(ThmExprUtil.getIsabelleVarsetExprDeps(e.getLeft()));
+			nodeDeps.addAll(ThmExprUtil.getIsabelleVarsetExprDeps(e.getRight()));
+		}
+		else if (vExpr instanceof ASubVOpVarsetExpression)
+		{
+			ASubVOpVarsetExpression e = (ASubVOpVarsetExpression) vExpr;
+
+			nodeDeps.addAll(ThmExprUtil.getIsabelleVarsetExprDeps(e.getLeft()));
+			nodeDeps.addAll(ThmExprUtil.getIsabelleVarsetExprDeps(e.getRight()));
+		}
+		else if (vExpr instanceof AUnionVOpVarsetExpression)
+		{
+			AUnionVOpVarsetExpression e = (AUnionVOpVarsetExpression) vExpr;
+
+			nodeDeps.addAll(ThmExprUtil.getIsabelleVarsetExprDeps(e.getLeft()));
+			nodeDeps.addAll(ThmExprUtil.getIsabelleVarsetExprDeps(e.getRight()));
+		}
+
+		return nodeDeps;
+	}
+	
+	//Method to return VARSET expression. This is new to COMPASS AST
+		public static String getIsabelleVarsetExpr(PVarsetExpression vExpr) {
+			// TODO Auto-generated method stub
+			if (vExpr instanceof AFatEnumVarsetExpression)
+			{
+				AFatEnumVarsetExpression e = (AFatEnumVarsetExpression) vExpr;
+				StringBuilder sb = new StringBuilder();
+
+				for (Iterator<ILexIdentifierToken> itr = e.getIdentifiers().listIterator(); itr.hasNext(); ) {
+					ILexIdentifierToken i = itr.next();
+					sb.append(i.getName().toString());
+					sb.append(ThmExprUtil.isaDown );
+					//If there are remaining channels, add a ","
+					if(itr.hasNext()){	
+						sb.append(", ");
+					}
+				}
+				return "{" + sb.toString() +"}";
+			}
+			else if (vExpr instanceof AFatCompVarsetExpression)
+			{
+				AFatCompVarsetExpression e = (AFatCompVarsetExpression) vExpr;
+
+				return "varset comp not handled";
+			}
+			else if (vExpr instanceof AIdentifierVarsetExpression)
+			{
+				AIdentifierVarsetExpression e = (AIdentifierVarsetExpression) vExpr;
+
+				return "varset id not handled";
+			}
+			else if (vExpr instanceof AEnumVarsetExpression)
+			{
+				AEnumVarsetExpression e = (AEnumVarsetExpression) vExpr;
+				StringBuilder sb = new StringBuilder();
+
+				for (Iterator<ILexIdentifierToken> itr = e.getIdentifiers().listIterator(); itr.hasNext(); ) {
+					ILexIdentifierToken i = itr.next();
+					sb.append(i.getName().toString());
+					sb.append(ThmExprUtil.isaDown );
+					//If there are remaining channels, add a ","
+					if(itr.hasNext()){	
+						sb.append(", ");
+					}
+				}
+				return "{" + sb.toString() +"}";
+			}
+			else if (vExpr instanceof AInterVOpVarsetExpression)
+			{
+				AInterVOpVarsetExpression e = (AInterVOpVarsetExpression) vExpr;
+				
+				String left = ThmExprUtil.getIsabelleVarsetExpr(e.getLeft());
+				String right = ThmExprUtil.getIsabelleVarsetExpr(e.getRight());
+
+				return left + " inter " + right;
+			}
+			else if (vExpr instanceof ASubVOpVarsetExpression)
+			{
+				ASubVOpVarsetExpression e = (ASubVOpVarsetExpression) vExpr;
+
+				String left = ThmExprUtil.getIsabelleVarsetExpr(e.getLeft());
+				String right = ThmExprUtil.getIsabelleVarsetExpr(e.getRight());
+
+				return left + " setminus " + right;
+			}
+			else if (vExpr instanceof AUnionVOpVarsetExpression)
+			{
+				AUnionVOpVarsetExpression e = (AUnionVOpVarsetExpression) vExpr;
+
+				String left = ThmExprUtil.getIsabelleVarsetExpr(e.getLeft());
+				String right = ThmExprUtil.getIsabelleVarsetExpr(e.getRight());
+
+				return left + " union " + right;
+			}
+			else
+			{
+				return "varset expr not handled";
+			}
+		}
  	
 }

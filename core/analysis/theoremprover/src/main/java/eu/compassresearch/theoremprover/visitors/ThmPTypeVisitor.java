@@ -85,8 +85,7 @@ public class ThmPTypeVisitor extends AnswerCMLAdaptor<ThmNodeList> {
 			//Send to Utils for Deplist
 			nodeDeps.addAll(ThmTypeUtil.getIsabelleTypeDeps(tp));
 			//TODO: Handle invariant.
-	//		String invExp = ThmExprUtil.getIsabelleExprStr(node.getInvExpression());
-	//		String invPat = node.getInvPattern().toString();
+			nodeDeps.addAll(ThmTypeUtil.getIsabelleTypeInvDeps(node));
 			inv = ThmTypeUtil.getIsabelleTypeInv(node);
 			
 			tn = new ThmNode(name, nodeDeps, new ThmType(name.toString(), typeStr, inv));
@@ -102,9 +101,7 @@ public class ThmPTypeVisitor extends AnswerCMLAdaptor<ThmNodeList> {
 			nodeDeps.addAll(ThmTypeUtil.getIsabelleTypeDeps(rtype));
 
 			//TODO: Handle invariant.
-		//	String invExp = ThmExprUtil.getIsabelleExprStr(node.getInvExpression());
-		//	String invPat = node.getInvPattern().toString();
-		//	inv = ("inv " + invPat + " == " + invExp);
+			nodeDeps.addAll(ThmTypeUtil.getIsabelleTypeInvDeps(node));
 			inv = ThmTypeUtil.getIsabelleTypeInv(node);
 			
 			tn = new ThmNode(name, nodeDeps, new ThmRecType(name.toString(), rtype.getFields(), inv));

@@ -18,6 +18,8 @@ import org.overture.ast.node.INode;
 
 import eu.compassresearch.ast.analysis.AnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
+import eu.compassresearch.ast.definitions.AChannelNameDefinition;
+import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.definitions.AFunctionsDefinition;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.ast.types.AFunctionParagraphType;
@@ -34,20 +36,30 @@ public class TPVisitor extends
 
 	private ThmPExpVisitor expVisitor;
 	private ThmPTypeVisitor typeVisitor;
+	private ThmPValueVisitor valVisitor;
 	
 //	private ThmStmtVisitor stmtVisitor;
 //	private ThmProcVisitor procVisitor;
 	private ThmDeclAndDefVisitor declAndDefVisitor;
 //	private ThmActVisitor actVisitor;
 
+	private ThmChannelVisitor chanVisitor;
+
 	private void initialize()
 	{
 		expVisitor = new ThmPExpVisitor(this);
 		typeVisitor = new ThmPTypeVisitor(this);
+		chanVisitor = new ThmChannelVisitor(this);
 //		statementVisitor = new ThmStmtVisitor(this);
 //		processVisitor = new ThmProcVisitor(this);
 		declAndDefVisitor = new ThmDeclAndDefVisitor(this);
 //		actionVisitor = new ThmActVisitor(this);
+		valVisitor = new ThmPValueVisitor(this);
+	}
+	@Override
+	public ThmNodeList caseAValueDefinition(AValueDefinition node)
+			throws AnalysisException {		
+		return node.apply(this.valVisitor);
 	}
 	
 	@Override
@@ -56,7 +68,18 @@ public class TPVisitor extends
 		return node.apply(this.typeVisitor);
 	}
 
+	@Override
+	public ThmNodeList caseAChannelNameDefinition(AChannelNameDefinition node)
+			throws AnalysisException {		
+		return node.apply(this.chanVisitor);
+	}
 
+	@Override
+	public ThmNodeList caseAChansetDefinition(AChansetDefinition node)
+			throws AnalysisException {		
+		return node.apply(this.chanVisitor);
+	}
+	
 	@Override
 	public ThmNodeList defaultPExp(PExp node)
 			throws AnalysisException {

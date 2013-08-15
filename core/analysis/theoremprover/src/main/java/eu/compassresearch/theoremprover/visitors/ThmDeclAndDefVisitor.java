@@ -8,12 +8,17 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.AnswerAdaptor;
 import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.AClassInvariantDefinition;
+import org.overture.ast.definitions.AExplicitFunctionDefinition;
+import org.overture.ast.definitions.AImplicitFunctionDefinition;
 import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
+import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.lex.LexNameList;
 import org.overture.ast.node.INode;
+import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.APatternListTypePair;
+import org.overture.ast.patterns.APatternTypePair;
 import org.overture.ast.patterns.PPattern;
 import org.overture.ast.types.PType;
 import org.overture.typechecker.TypeComparator;
@@ -39,7 +44,12 @@ import eu.compassresearch.ast.definitions.AValuesDefinition;
 import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
 import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
 import eu.compassresearch.ast.process.PProcess;
+import eu.compassresearch.theoremprover.thms.ThmExpFunc;
+import eu.compassresearch.theoremprover.thms.ThmImpFunc;
+import eu.compassresearch.theoremprover.thms.ThmNode;
 import eu.compassresearch.theoremprover.thms.ThmNodeList;
+import eu.compassresearch.theoremprover.utils.ThmExprUtil;
+import eu.compassresearch.theoremprover.utils.ThmTypeUtil;
 
 @SuppressWarnings("serial")
 public class ThmDeclAndDefVisitor  extends
@@ -70,31 +80,31 @@ public class ThmDeclAndDefVisitor  extends
 		LinkedList<AChannelNameDefinition> cns = node.getChannelNameDeclarations();
 		for (AChannelNameDefinition c : cns)
 		{
-			tnl.addAll(c.apply(this));
+			tnl.addAll(c.apply(parentVisitor));
 		}
 
 		return tnl;
 	}
 
-	/**
-	 * CML channel definition CURRENTLY JUST PRINT TO SCREEN
-	 */
-	@Override
-	public ThmNodeList caseAChannelNameDefinition(AChannelNameDefinition node)
-			throws AnalysisException
-	{
-
-		System.out.println("----------***----------");
-		System.out.println("AChannelNameDefinition");
-		System.out.println(node.toString());
-		System.out.println("----------***----------");
-
-		ThmNodeList tnl = new ThmNodeList();
-		
-		//TODO: Generate Channel syntax
-
-		return tnl;
-	}
+//	/**
+//	 * CML channel definition CURRENTLY JUST PRINT TO SCREEN
+//	 */
+//	@Override
+//	public ThmNodeList caseAChannelNameDefinition(AChannelNameDefinition node)
+//			throws AnalysisException
+//	{
+//
+//		System.out.println("----------***----------");
+//		System.out.println("AChannelNameDefinition");
+//		System.out.println(node.toString());
+//		System.out.println("----------***----------");
+//
+//		ThmNodeList tnl = new ThmNodeList();
+//		
+//		//TODO: Generate Channel syntax
+//
+//		return tnl;
+//	}
 
 	/**
 	 * CML ELEMENT - Chansets
@@ -109,35 +119,35 @@ public class ThmDeclAndDefVisitor  extends
 
 		for (AChansetDefinition d : subNodes)
 		{
-			tnl.addAll(d.apply(this));
+			tnl.addAll(d.apply(parentVisitor));
 		}
 
 		return tnl;
 	}
 
-	/**
-	 * CML chanset definition CURRENTLY JUST PRINT TO SCREEN
-	 */
-	@Override
-	public ThmNodeList caseAChansetDefinition(AChansetDefinition node) throws AnalysisException
-	{
-
-		System.out.println("----------***----------");
-		System.out.println("AChansetDefinition");
-		System.out.println(node.toString());
-		System.out.println("----------***----------");
-
-		ThmNodeList tnl = new ThmNodeList();
-
-		/*
-		 * Not clear what POs these may generate? May be useful for generating CMLPOContext
-		 */
-		// Commented out by RWL: Unused variables creates warnings.
-		// LexIdentifierToken id = node.getIdentifier();
-		// PVarsetExpression expr = node.getChansetExpression();
-
-		return tnl;
-	}
+//	/**
+//	 * CML chanset definition CURRENTLY JUST PRINT TO SCREEN
+//	 */
+//	@Override
+//	public ThmNodeList caseAChansetDefinition(AChansetDefinition node) throws AnalysisException
+//	{
+//
+//		System.out.println("----------***----------");
+//		System.out.println("AChansetDefinition");
+//		System.out.println(node.toString());
+//		System.out.println("----------***----------");
+//
+//		ThmNodeList tnl = new ThmNodeList();
+//
+//		/*
+//		 * Not clear what POs these may generate? May be useful for generating CMLPOContext
+//		 */
+//		// Commented out by RWL: Unused variables creates warnings.
+//		// LexIdentifierToken id = node.getIdentifier();
+//		// PVarsetExpression expr = node.getChansetExpression();
+//
+//		return tnl;
+//	}
 
 	/**
 	 * CML ELEMENT - Classes
@@ -351,17 +361,73 @@ public class ThmDeclAndDefVisitor  extends
 	public ThmNodeList caseAFunctionsDefinition(AFunctionsDefinition node)
 			throws AnalysisException
 	{
-		ThmNodeList obligations = new ThmNodeList();
-
-		// add the name stuff HERE
+		ThmNodeList tnl = new ThmNodeList();
 
 		for (PDefinition def : node.getFunctionDefinitions())
 		{
-			obligations.addAll(def.apply(parentVisitor));
+			tnl.addAll(def.apply(parentVisitor));
 		}
 
-		return obligations;
+		return tnl;
 	}
+	
+	@Override
+	public ThmNodeList caseAExplicitFunctionDefinition(AExplicitFunctionDefinition node)
+			throws AnalysisException
+	{
+		ThmNodeList tnl = new ThmNodeList();
+
+		ILexNameToken name = node.getName();
+
+		LinkedList<ILexNameToken> b = new LinkedList();
+		LinkedList<ILexNameToken> s = new LinkedList();
+		String exp = ThmExprUtil.getIsabelleExprStr(b, s, node.getBody());
+		LinkedList<List<PPattern>> params = node.getParamPatternList();
+		String pre = null;
+		if (node.getPrecondition() != null)
+			pre = ThmExprUtil.getIsabelleExprStr(b, s, node.getPrecondition());
+
+		String post = null;
+		if (node.getPostcondition() != null)
+			post = ThmExprUtil.getIsabelleExprStr(b, s, node.getPostcondition());
+		
+		String resType = ThmTypeUtil.getIsabelleType(node.getExpectedResult());
+		LinkedList<ILexNameToken> nodeDeps = new LinkedList();
+
+		ThmNode tn = new ThmNode(name, nodeDeps, new ThmExpFunc(name.getName(), exp, post, pre, params, resType));
+		tnl.add(tn);
+		
+		return tnl;
+	}
+	
+	public ThmNodeList caseAImplicitFunctionDefinition(AImplicitFunctionDefinition node)
+			throws AnalysisException
+	{
+		ThmNodeList tnl = new ThmNodeList();
+
+		ILexNameToken name = node.getName();
+		LinkedList<APatternListTypePair> params = node.getParamPatterns();
+		
+		LinkedList<ILexNameToken> b = new LinkedList();
+		LinkedList<ILexNameToken> s = new LinkedList();
+		String pre = null;
+		if (node.getPrecondition() != null)
+			pre = ThmExprUtil.getIsabelleExprStr(b, s, node.getPrecondition());
+
+		String post = null;
+		if (node.getPostcondition() != null)
+			post = ThmExprUtil.getIsabelleExprStr(b, s, node.getPostcondition());
+		
+		APatternTypePair res = node.getResult();
+		String resType = ThmTypeUtil.getIsabelleType(res.getType());
+		LinkedList<ILexNameToken> nodeDeps = new LinkedList();
+
+		ThmNode tn = new ThmNode(name, nodeDeps, new ThmImpFunc(name.getName(), post, pre, params, res, resType));
+		tnl.add(tn);
+		
+		return tnl;
+	}
+	
 
 	/**
 	 * VDM ELEMENT - Operations
