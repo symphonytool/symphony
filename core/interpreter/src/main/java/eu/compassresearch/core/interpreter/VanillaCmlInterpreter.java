@@ -23,7 +23,6 @@ import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.api.InterpreterException;
-import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlTrace;
@@ -33,6 +32,7 @@ import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.ObservableEvent;
 import eu.compassresearch.core.interpreter.api.values.ProcessObjectValue;
 import eu.compassresearch.core.interpreter.debug.Breakpoint;
+import eu.compassresearch.core.interpreter.debug.CmlInterpreterStateDTO;
 import eu.compassresearch.core.interpreter.utility.LocationExtractor;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
@@ -58,7 +58,8 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	 * Sync object used to suspend the execution
 	 */
 	private Object 					   suspensionObject		= new Object();
-	private boolean 				   stepping				= false;	
+	private boolean 				   stepping				= false;
+	private Breakpoint 				   activeBP				= null;
 	/**
 	 * Construct a CmlInterpreter with a list of PSources. These source may
 	 * refer to each other.
@@ -115,7 +116,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	@Override
 	public Value execute(CmlSupervisorEnvironment sve) throws AnalysisException
 	{
-		if(this.getCurrentState() == null)
+		if(this.getStatus() == null)
 			throw new InterpreterException("The interprer has not been initialized, please call the initialize method before invoking the start method");
 		
 		if(null == sve)
@@ -221,7 +222,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			handleBreakpoints(selectedEvent);
 
 			//TODO add suspension code here
-			if(getCurrentState() == CmlInterpretationStatus.SUSPENDED)
+			if(getStatus() == CmlInterpretationStatus.SUSPENDED)
 				synchronized (suspensionObject) {
 					this.suspensionObject.wait();
 				}
@@ -270,11 +271,9 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 
 	private void handleBreakpoints(CmlTransition selectedEvent)
 	{
-		if(findActiveBreakpoint(selectedEvent) != null || stepping)
-		{
-			//System.out.println("suspending " + stepping);
+		activeBP = findActiveBreakpoint(selectedEvent);
+		if(activeBP != null || stepping)
 			setNewState(CmlInterpretationStatus.SUSPENDED);
-		}
 	}
 	
 	private Breakpoint findActiveBreakpoint(CmlTransition selectedEvent)
@@ -296,16 +295,10 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 
 		return bp;
 	}
-
+	
 	@Override
-	public CmlInterpreterState getStatus()
-	{
-		//find the active breakpoint if any
-		Breakpoint bp = null;
-		if(currentSupervisor != null && this.currentSupervisor.isSelectedEventValid())
-			 bp = findActiveBreakpoint((this.currentSupervisor.selectedObservableEvent()));
-		
-		return new CmlInterpreterState(runningTopProcess,getCurrentState(),bp);
+	public Breakpoint getActiveBreakpoint() {
+		return activeBP;
 	}
 
 	@Override
@@ -388,7 +381,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	}
 
 	@Override
-	public CmlBehaviour getTopLevelCmlBehaviour() {
+	public CmlBehaviour getTopLevelProcess() {
 
 		return runningTopProcess;
 	}

@@ -11,8 +11,8 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
 import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
-import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
-import eu.compassresearch.core.interpreter.api.CmlProcessDTO;
+import eu.compassresearch.core.interpreter.debug.CmlInterpreterStateDTO;
+import eu.compassresearch.core.interpreter.debug.CmlProcessDTO;
 import eu.compassresearch.ide.plugins.interpreter.CmlDebugPlugin;
 import eu.compassresearch.ide.plugins.interpreter.ICmlDebugConstants;
 import eu.compassresearch.ide.plugins.interpreter.model.CmlDebugTarget;
@@ -25,25 +25,25 @@ public class CmlThreadManager
 	private List<IThread> threads = new LinkedList<IThread>();
 	private CmlDebugTarget target;
 
-	CmlInterpreterState status = null;
+	CmlInterpreterStateDTO status = null;
 
 	public CmlThreadManager(CmlDebugTarget target)
 	{
 		this.target = target;
 	}
 
-	public void updateDebuggerInfo(final CmlInterpreterState status)
+	public void updateDebuggerInfo(final CmlInterpreterStateDTO status)
 	{
 		this.status = status;
 		// cmlThread = new CmlThread(this,status.getToplevelProcessInfo());
 		threads.clear();
-		for (CmlProcessDTO t : status.getAllProcessInfos())
+		for (CmlProcessDTO t : status.getAllProcesses())
 		{
 			threads.add(new CmlThread(target, t));
 		}
 		// fireSuspendEvent(0);
 
-		final List<String> trace = status.getToplevelProcessInfo().getTrace();
+		final List<String> trace = status.getToplevelProcess().getTrace();
 
 		Display.getDefault().asyncExec(new Runnable()
 		{
@@ -70,7 +70,7 @@ public class CmlThreadManager
 	/**
 	 * Notification we have connected to the VM and it has started. Resume the VM.
 	 */
-	public void started(CmlInterpreterState status)
+	public void started(CmlInterpreterStateDTO status)
 	{
 		//updateDebuggerInfo(status);
 		target.fireCreationEvent();

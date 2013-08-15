@@ -1,4 +1,4 @@
-package eu.compassresearch.core.interpreter.api;
+package eu.compassresearch.core.interpreter.debug;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -6,8 +6,9 @@ import java.util.List;
 
 import org.overture.ast.lex.LexLocation;
 
+import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
+import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
-import eu.compassresearch.core.interpreter.debug.Breakpoint;
 import eu.compassresearch.core.interpreter.utility.LocationExtractor;
 
 /**
@@ -15,19 +16,22 @@ import eu.compassresearch.core.interpreter.utility.LocationExtractor;
  * @author akm
  *
  */
-public class CmlInterpreterState {
+public class CmlInterpreterStateDTO {
 
-	final private List<CmlProcessDTO> processInfos;
-	private InterpreterError[] errors = null;
-	private final CmlInterpretationStatus state;
-	private Breakpoint bp = null;
-
-	protected CmlInterpreterState()
+	/**
+	 * Static methods for creating the DTO
+	 * @param activeInterpreter
+	 * @return
+	 */
+	
+	public static CmlInterpreterStateDTO createCmlInterpreterStateDTO(CmlInterpreter activeInterpreter)
 	{
-		state = null;
-		processInfos = null;
+		return new CmlInterpreterStateDTO(
+				activeInterpreter.getTopLevelProcess(), 
+				activeInterpreter.getStatus(),
+				activeInterpreter.getActiveBreakpoint()); 
 	}
-
+	
 	private static List<CmlBehaviour> extractAllRunningProcesses(CmlBehaviour topProcess)
 	{
 		List<CmlBehaviour> children = new LinkedList<CmlBehaviour>();
@@ -44,8 +48,19 @@ public class CmlInterpreterState {
 
 		return children;
 	}
+	
+	final private List<CmlProcessDTO> processInfos;
+	private InterpreterErrorDTO[] errors = null;
+	private final CmlInterpretationStatus state;
+	private Breakpoint bp = null;
 
-	public CmlInterpreterState(CmlBehaviour topProcess, CmlInterpretationStatus state)
+	protected CmlInterpreterStateDTO()
+	{
+		state = null;
+		processInfos = null;
+	}
+
+	public CmlInterpreterStateDTO(CmlBehaviour topProcess, CmlInterpretationStatus state)
 	{
 		this.processInfos = new LinkedList<CmlProcessDTO>();
 		for(CmlBehaviour cmlBehavior : extractAllRunningProcesses(topProcess))
@@ -61,39 +76,39 @@ public class CmlInterpreterState {
 		this.state = state;
 	}
 	
-	public CmlInterpreterState(CmlBehaviour topProcess, CmlInterpretationStatus state, Breakpoint bp)
+	public CmlInterpreterStateDTO(CmlBehaviour topProcess, CmlInterpretationStatus state, Breakpoint bp)
 	{
 		this(topProcess,state);
 		this.bp = bp;
 	}
 	
-	public CmlInterpreterState(CmlInterpretationStatus state)
+	public CmlInterpreterStateDTO(CmlInterpretationStatus state)
 	{
 		this.processInfos = new LinkedList<CmlProcessDTO>();
 		this.state = state;
 	}
 
-	public List<CmlProcessDTO> getAllProcessInfos()
+	public List<CmlProcessDTO> getAllProcesses()
 	{
 		return this.processInfos;
 	}
 
-	public CmlProcessDTO getToplevelProcessInfo()
+	public CmlProcessDTO getToplevelProcess()
 	{
 		return processInfos.get(0);
 	}
 
-	public List<InterpreterError> getErrors() {
+	public List<InterpreterErrorDTO> getErrors() {
 		if(errors != null)
 			return Arrays.asList(errors);
 		else
 			return null;
 	}
 
-	public void AddError(InterpreterError error) {
+	public void AddError(InterpreterErrorDTO error) {
 
 		if(errors == null)
-			errors = new InterpreterError[]{error};
+			errors = new InterpreterErrorDTO[]{error};
 		else
 		{
 			errors = Arrays.copyOf(errors, errors.length + 1);

@@ -56,24 +56,24 @@ public interface CmlInterpreter
 	public void initialize() throws AnalysisException;
 	
 	/**
-	 * Executes the defined default process from the given sourceForest, with the given selection strategy
-	 * @param selectionStrategy
-	 * @return
-	 * @throws InterpreterException
+	 * Executes the defined default process from the given sourceForest
+	 * @param sve the top supervisor environment
+	 * @return Ifthe process value of the top process if
+	 * @throws AnalysisException
 	 */
 	public Value execute(CmlSupervisorEnvironment sve) throws AnalysisException;
 	
-	public CmlInterpreterState getStatus();
+	public CmlInterpretationStatus getStatus();
 	
-	public CmlInterpretationStatus getCurrentState();
-	
-	public CmlBehaviour getTopLevelCmlBehaviour();
+	public CmlBehaviour getTopLevelProcess();
 
 	public EventSource<CmlInterpreterStatusObserver> onStatusChanged();
 	
-	//Breakpoints
+	//Debugging control methods
 	
 	public boolean addBreakpoint(Breakpoint bp);
+	
+	public Breakpoint getActiveBreakpoint();
 	
 	public void resume();
 	

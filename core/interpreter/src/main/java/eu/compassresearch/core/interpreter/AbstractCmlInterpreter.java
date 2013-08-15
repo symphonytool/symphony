@@ -60,7 +60,7 @@ abstract class AbstractCmlInterpreter implements CmlInterpreter {
 	 * Retrieves the current state of the interpreter
 	 * @return The current state of the interpreter
 	 */
-	public CmlInterpretationStatus getCurrentState()
+	public CmlInterpretationStatus getStatus()
 	{
 		return currentState;
 	}

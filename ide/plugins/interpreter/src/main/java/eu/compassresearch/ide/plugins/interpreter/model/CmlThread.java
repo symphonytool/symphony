@@ -5,8 +5,8 @@ import org.eclipse.debug.core.model.IBreakpoint;
 import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.core.model.IThread;
 
-import eu.compassresearch.core.interpreter.api.CmlProcessDTO;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorState;
+import eu.compassresearch.core.interpreter.debug.CmlProcessDTO;
 
 public class CmlThread extends CmlDebugElement implements IThread
 {

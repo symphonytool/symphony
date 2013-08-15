@@ -29,7 +29,6 @@ import eu.compassresearch.ast.lex.LexIdentifierToken;
 import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
-import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorState;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
@@ -40,6 +39,7 @@ import eu.compassresearch.core.interpreter.api.events.TraceObserver;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTock;
 import eu.compassresearch.core.interpreter.api.transitions.ObservableEvent;
 import eu.compassresearch.core.interpreter.debug.CmlDbgStatusMessage;
+import eu.compassresearch.core.interpreter.debug.CmlInterpreterStateDTO;
 import eu.compassresearch.core.interpreter.utility.Pair;
 import eu.compassresearch.core.interpreter.utility.events.EventSource;
 
@@ -60,7 +60,7 @@ public class TestMessageCommunicator {
 		ByteArrayOutputStream outStream = new ByteArrayOutputStream();
 		
 		//MessageContainer message = new MessageContainer(new CmlDbgStatusMessage(CmlDbgpStatus.STARTING));
-		Message sentMessage = new CmlDbgStatusMessage(new CmlInterpreterState(null,CmlInterpretationStatus.INITIALIZED));
+		Message sentMessage = new CmlDbgStatusMessage(new CmlInterpreterStateDTO(null,CmlInterpretationStatus.INITIALIZED));
 		MessageCommunicator.sendMessage(outStream, sentMessage);
 		
 		//ObjectMapper mapper = new ObjectMapper();
@@ -94,7 +94,7 @@ public class TestMessageCommunicator {
 		ByteArrayOutputStream outStream = new ByteArrayOutputStream();
 		
 		//MessageContainer message = new MessageContainer(new CmlDbgStatusMessage(CmlDbgpStatus.STARTING));
-		CmlInterpreterState status = new CmlInterpreterState(new CmlBehaviour() {
+		CmlInterpreterStateDTO status = new CmlInterpreterStateDTO(new CmlBehaviour() {
 			
 			@Override
 			public boolean waiting() {

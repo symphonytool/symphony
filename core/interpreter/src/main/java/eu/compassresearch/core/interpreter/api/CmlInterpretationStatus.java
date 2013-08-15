@@ -2,15 +2,14 @@ package eu.compassresearch.core.interpreter.api;
 
 
 /**
- * The possible states a CML interpreter can be in. 
- * <p>
- * The following state are possible
+ * The possible states a CML interpreter can be in: 
  * <p>DEADLOCKED: 				The interpreter has deadlocked
- * <p>RUNNING: 					The interpreter is running
+ * <p>FAILED:					The interpreter threw an exception 
  * <p>FINISHED:		 			The interpreter has successfully terminated	 
  * <p>INITIALIZED:  			The interpreter is initialized but not started
- * <p>FAILED:					The interpreter threw an exception 
  * <p>SUSPENDED: 				The interpreter is suspended, this state enables inspection of processes and actions
+ * <p>TERMINATED: 				The interpreter has been stopped by an external user
+ * <p>RUNNING: 					The interpreter is running
  * <p>WAITING_FOR_ENVIRONMENT:	THE interpreter is waiting for an external response from the environment
  * @author akm
  *

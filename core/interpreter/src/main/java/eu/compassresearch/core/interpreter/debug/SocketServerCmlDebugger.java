@@ -25,9 +25,7 @@ import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
-import eu.compassresearch.core.interpreter.api.InterpreterError;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
-import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
 import eu.compassresearch.core.interpreter.api.SelectionStrategy;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
@@ -231,13 +229,13 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 		stopped(null);
 	}
 
-	private void stopped(CmlInterpreterState status)
+	private void stopped(CmlInterpreterStateDTO status)
 	{
 		sendStatusMessage(status);
 		commandDispatcher.stop();
 	}
 
-	private void sendStatusMessage(CmlInterpreterState interpreterStatus)
+	private void sendStatusMessage(CmlInterpreterStateDTO interpreterStatus)
 	{
 		CmlDbgStatusMessage dm = new CmlDbgStatusMessage(interpreterStatus);
 		CmlRuntime.logger().finest("Sending status message : " + dm.toString());
@@ -394,12 +392,12 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 			else if (mode == DebugMode.SIMULATE)
 				simulate(runningInterpreter);
 
-			stopped(runningInterpreter.getStatus());
+			stopped(CmlInterpreterStateDTO.createCmlInterpreterStateDTO(runningInterpreter));
 		}
 		catch(AnalysisException e)
 		{
-			CmlInterpreterState status = runningInterpreter.getStatus();
-			status.AddError(new InterpreterError(e.getMessage()));
+			CmlInterpreterStateDTO status = CmlInterpreterStateDTO.createCmlInterpreterStateDTO(runningInterpreter);
+			status.AddError(new InterpreterErrorDTO(e.getMessage()));
 			stopped(status);
 		}
 		finally{
@@ -410,10 +408,7 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 	@Override
 	public void onStatusChanged(Object source, InterpreterStatusEvent event) {
 		System.out.println("Debug thread sending Status event to controller: " + event);
-		sendStatusMessage(this.runningInterpreter.getStatus());
-		//		if(event.getStatus() == CmlInterpreterState.SUSPENDED)
-		//			sendRequestSynchronous(new RequestMessage(CmlRequest.BREAKPOINT_HIT,event.getContent()));
-		
+		sendStatusMessage(CmlInterpreterStateDTO.createCmlInterpreterStateDTO(runningInterpreter));
 	}
 
 }
