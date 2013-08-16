@@ -24,7 +24,7 @@ import eu.compassresearch.core.parser.CmlParser;
 public class Utilities {
 	public static final String CML_EXAMPLES_DIRECTORY = "src/test/resources";
 	//public static final String BASIC_FORMULA_SCRIPT = "src/test/resources/basic_formula_script.fml";
-	public static final String BASIC_FORMULA_SCRIPT = "/basic_formula_script.fml";
+	public static final String BASIC_FORMULA_SCRIPT = "/basic_formula_script-new.fml";
 	public static final String DEADLOCK_PROPERTY = "Deadlock";
 	public static final String LIVELOCK_PROPERTY = "Livelock";
 	public static final String NONDETERMINISM_PROPERTY = "Nondeterminism";
@@ -32,6 +32,8 @@ public class Utilities {
 	public static final int INTERNAL_CHOICE = 2;
 	public static final int SEQUENTIAL_COMPOSITION = 3;
 	public static final String LOCAL_DEFINITIONS_KEY = "LOCAL_DEFINITIONS";
+	public static final String CHANNEL_DEFINITIONS_KEY = "CHANNEL_DEFINITIONS";
+	public static final String IOCOMM_DEFINITIONS_KEY = "IOCOMM_DEF";
 	
 	
 	private static boolean parseWithANTLR(PSource sourceIn) throws IOException
