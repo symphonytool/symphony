@@ -19,6 +19,7 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.LaunchConfigurationDelegate;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
@@ -30,6 +31,7 @@ import org.overture.ide.core.resources.IVdmSourceUnit;
 import eu.compassresearch.core.interpreter.debug.CmlDebugDefaultValues;
 import eu.compassresearch.core.interpreter.debug.CmlInterpreterLaunchConfigurationConstants;
 import eu.compassresearch.ide.core.resources.ICmlProject;
+import eu.compassresearch.ide.plugins.interpreter.CmlDebugPlugin;
 import eu.compassresearch.ide.plugins.interpreter.CmlUtil;
 import eu.compassresearch.ide.plugins.interpreter.ICmlDebugConstants;
 import eu.compassresearch.ide.plugins.interpreter.model.CmlDebugTarget;
@@ -95,16 +97,12 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 		{
 			launch.terminate();
 			throw e;
-		} catch (IOException e)
+		} catch (IOException | URISyntaxException e)
 		{
+			CmlDebugPlugin.logError("Failed to connect to debugger", e);
+			MessageDialog.openError(null, "Failed to connect to debugger", e.getMessage());
 			launch.terminate();
-			e.printStackTrace();
-			// throw new CoreException()e;
-		} catch (URISyntaxException e)
-		{
-			launch.terminate();
-			e.printStackTrace();
-			// throw new CoreException()e;
+			monitor.setCanceled(true);
 		} finally
 		{
 			monitor.done();

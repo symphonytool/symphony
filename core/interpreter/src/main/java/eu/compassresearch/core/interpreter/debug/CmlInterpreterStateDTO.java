@@ -9,6 +9,7 @@ import org.overture.ast.lex.LexLocation;
 import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
+import eu.compassresearch.core.interpreter.api.values.CmlOperationValue;
 import eu.compassresearch.core.interpreter.utility.LocationExtractor;
 
 /**
@@ -32,47 +33,43 @@ public class CmlInterpreterStateDTO {
 				activeInterpreter.getActiveBreakpoint()); 
 	}
 	
-	private static List<CmlBehaviour> extractAllRunningProcesses(CmlBehaviour topProcess)
+	private static List<CmlProcessDTO> convertProcessTreeIntoList(CmlProcessDTO process)
 	{
-		List<CmlBehaviour> children = new LinkedList<CmlBehaviour>();
-		if(topProcess != null)
+		List<CmlProcessDTO> children = new LinkedList<CmlProcessDTO>();
+		if(process != null)
 		{
-			children.add(topProcess);
+			children.add(process);
 
-			if(topProcess.getLeftChild() != null)
-				children.addAll(extractAllRunningProcesses(topProcess.getLeftChild()));
+			if(process.getLeftChild() != null)
+				children.addAll(convertProcessTreeIntoList(process.getLeftChild()));
 
-			if(topProcess.getRightChild() != null)
-				children.addAll(extractAllRunningProcesses(topProcess.getLeftChild()));
+			if(process.getRightChild() != null)
+				children.addAll(convertProcessTreeIntoList(process.getLeftChild()));
 		}
 
 		return children;
 	}
 	
-	final private List<CmlProcessDTO> processInfos;
+	private final CmlProcessDTO topLevelProcess;
 	private InterpreterErrorDTO[] errors = null;
 	private final CmlInterpretationStatus state;
 	private Breakpoint bp = null;
 
+	/**
+	 * Dummy constructor for serialization
+	 */
 	protected CmlInterpreterStateDTO()
 	{
 		state = null;
-		processInfos = null;
+		topLevelProcess = null;
 	}
 
 	public CmlInterpreterStateDTO(CmlBehaviour topProcess, CmlInterpretationStatus state)
 	{
-		this.processInfos = new LinkedList<CmlProcessDTO>();
-		for(CmlBehaviour cmlBehavior : extractAllRunningProcesses(topProcess))
-		{
-			this.processInfos.add(new CmlProcessDTO(cmlBehavior.name(),
-					cmlBehavior.getTraceModel(),
-					cmlBehavior.level(),
-					cmlBehavior instanceof CmlBehaviour,
-					cmlBehavior.getState(),
-					LocationExtractor.extractLocation(cmlBehavior.getNextState().first)));
-		}
-
+		if(topProcess != null)
+			topLevelProcess = new CmlProcessDTO(topProcess, null);
+		else
+			topLevelProcess = null;
 		this.state = state;
 	}
 	
@@ -84,18 +81,21 @@ public class CmlInterpreterStateDTO {
 	
 	public CmlInterpreterStateDTO(CmlInterpretationStatus state)
 	{
-		this.processInfos = new LinkedList<CmlProcessDTO>();
 		this.state = state;
+		topLevelProcess = null;
 	}
 
 	public List<CmlProcessDTO> getAllProcesses()
 	{
-		return this.processInfos;
+		if(topLevelProcess != null)
+			return convertProcessTreeIntoList(this.topLevelProcess);
+		else
+			return new LinkedList<CmlProcessDTO>();
 	}
 
 	public CmlProcessDTO getToplevelProcess()
 	{
-		return processInfos.get(0);
+		return this.topLevelProcess;
 	}
 
 	public List<InterpreterErrorDTO> getErrors() {
@@ -138,6 +138,6 @@ public class CmlInterpreterStateDTO {
 	@Override
 	public String toString() {
 		return "CmlInterpreterState: " + state + System.lineSeparator() + 
-				"topProcess: " + (this.processInfos.size() > 0 ? this.processInfos.get(0).toString() : "NA");
+				"topProcess: " + (this.topLevelProcess != null ? this.topLevelProcess.toString() : "NA");
 	}
 }

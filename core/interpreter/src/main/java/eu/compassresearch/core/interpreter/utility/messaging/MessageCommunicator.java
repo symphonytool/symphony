@@ -12,8 +12,10 @@ import org.overture.ast.node.Node;
 import org.overture.ast.types.PType;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonGenerator.Feature;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -24,7 +26,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 
 import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.core.interpreter.debug.Breakpoint;
-import eu.compassresearch.core.interpreter.debug.CmlDebugCommand;
+import eu.compassresearch.core.interpreter.debug.CmlProcessDTO;
 
 
 public class MessageCommunicator {
@@ -55,6 +57,11 @@ public class MessageCommunicator {
 				@JsonIgnore Set _visitedNodes;
 			}
 			
+			@JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class, 
+	                  property = "@id")
+			abstract class CmlProcessDTOMixIn {
+			}
+			
 			class MyModule extends SimpleModule
 			{
 				public MyModule() {
@@ -67,6 +74,7 @@ public class MessageCommunicator {
 				    context.setMixInAnnotations(org.overture.ast.lex.LexNameToken.class, MixIn.class);
 				    context.setMixInAnnotations(Node.class,NodeMixIn.class);
 				    context.setMixInAnnotations(Breakpoint.class,BreakpointMixIn.class);
+				    context.setMixInAnnotations(CmlProcessDTO.class, CmlProcessDTOMixIn.class);
 				    // and other set up, if any
 				  }
 			}

@@ -217,10 +217,12 @@ public class CmlCommunicationManager extends Thread
 
 	public void terminate()
 	{
-
-		synchronized (fRequestSocket)
+		if(fRequestSocket != null)
 		{
-			sendCommandMessage(CmlDebugCommand.STOP);
+			synchronized (fRequestSocket)
+			{
+				sendCommandMessage(CmlDebugCommand.STOP);
+			}
 		}
 
 	}

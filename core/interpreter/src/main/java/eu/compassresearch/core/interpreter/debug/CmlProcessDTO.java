@@ -6,39 +6,57 @@ import java.util.List;
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.intf.lex.ILexNameToken;
 
+import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorState;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlTrace;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
+import eu.compassresearch.core.interpreter.utility.LocationExtractor;
 
 public class CmlProcessDTO {
 
-	private final ILexNameToken name;
-	private final List<String> trace;
-	private final long level;
-	private final boolean isProcess;
-	private final CmlBehaviorState state;
-	private final ILexLocation location;
+	private final ILexNameToken 	name;
+	private final List<String> 		trace;
+	private final boolean 			isProcess;
+	private final CmlBehaviorState 	state;
+	private final ILexLocation 		location;
+	private final CmlProcessDTO		leftChild;
+	private final CmlProcessDTO		rightChild;
+	private final CmlProcessDTO		parent;
 
+	
+	/**
+	 * Dummy constructor for serialization
+	 */
 	protected CmlProcessDTO()
 	{
 		name = null;
 		trace = new LinkedList<String>();
-		level = 0;
 		isProcess = false;
 		state = null;
-		location = null;		
+		location = null;
+		this.leftChild = null;
+		this.rightChild = null;
+		this.parent = null;
 	}
 	
-	public CmlProcessDTO(ILexNameToken name, CmlTrace trace,long level, 
-			boolean isProcess, CmlBehaviorState state,
-			ILexLocation currentLocation)
+	public CmlProcessDTO(CmlBehaviour process, CmlProcessDTO parent)
 	{
-		this.name = name;
-		this.trace = convertCmlEventsToStringList(trace.getObservableTrace());
-		this.level = level;
-		this.isProcess = isProcess;
-		this.state = state;
-		this.location = currentLocation;
+		this.name = process.name();
+		this.trace = convertCmlEventsToStringList(process.getTraceModel().getObservableTrace());
+		this.isProcess = process.getNextState().first instanceof PProcess;
+		this.state = process.getState();
+		this.location = LocationExtractor.extractLocation(process.getNextState().first);
+		this.parent = parent;
+		
+		if(process.getLeftChild() != null)
+			this.leftChild = new CmlProcessDTO(process.getLeftChild(), this);
+		else
+			this.leftChild = null;
+		
+		if(process.getRightChild() != null)
+			this.rightChild = new CmlProcessDTO(process.getRightChild(), this);
+		else
+			this.rightChild = null;
 	}
 	
 	public String getName() {
@@ -47,7 +65,10 @@ public class CmlProcessDTO {
 	
 	public long level()
 	{
-		return level;
+		if(this.parent == null)
+			return 0;
+		else
+			return 1 + parent.level();
 	}
 	
 	public CmlBehaviorState getState() {
@@ -74,6 +95,21 @@ public class CmlProcessDTO {
 	public ILexLocation getLocation()
 	{
 		return this.location;
+	}
+	
+	public CmlProcessDTO getParent()
+	{
+		return parent;
+	}
+	
+	public CmlProcessDTO getLeftChild()
+	{
+		return leftChild;
+	}
+	
+	public CmlProcessDTO getRightChild()
+	{
+		return rightChild;
 	}
 	
 	@Override

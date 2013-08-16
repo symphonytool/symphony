@@ -9,6 +9,7 @@ import java.util.Vector;
 
 import org.eclipse.core.resources.IMarkerDelta;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.IBreakpointManager;
@@ -19,6 +20,7 @@ import org.eclipse.debug.core.model.ILineBreakpoint;
 import org.eclipse.debug.core.model.IMemoryBlock;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IThread;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
@@ -56,7 +58,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 	CmlThreadManager threadManager;
 
 	public CmlDebugTarget(ILaunch launch, IProcess process,
-			ICmlProject project, int communicationPort) throws CoreException
+			ICmlProject project, int communicationPort) throws CoreException, IOException
 	{
 		super(null);
 		this.launch = launch;
@@ -70,15 +72,8 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 						initializeRequestHandlers(),
 						initializeStatusHandlers(),
 						communicationPort);
-		try
-		{
-			communicationManager.connect();
-			DebugPlugin.getDefault().getBreakpointManager().addBreakpointListener(this);
-		} catch (IOException e)
-		{
-			CmlDebugPlugin.logError("Failed to connect to debugger", e);
-		}
-
+		communicationManager.connect();
+		DebugPlugin.getDefault().getBreakpointManager().addBreakpointListener(this);
 	}
 	
 //	public void initializeHandlers()
