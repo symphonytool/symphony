@@ -389,7 +389,18 @@ public class ThmExprUtil {
 					sb.append(", ");
 				}
 			}
-			return ThmExprUtil.getIsabelleExprStr(svars, bvars,app.getRoot()) + "(" + sb.toString() + ")";
+			
+			//Need to remove final  ^'s due to the way we handle variable expressions. 
+			//Can't currently determine if root expression is a function variable.
+			StringBuilder rootsb = new StringBuilder(ThmExprUtil.getIsabelleExprStr(svars, bvars,app.getRoot()));
+			int count = 0;
+			while(count <2){
+				int lastHat = rootsb.lastIndexOf("^");
+				rootsb.deleteCharAt(lastHat);
+				count++;
+			}
+			
+			return rootsb.toString() + "(" + sb.toString() + ")";
 		}		
 		else if(ex instanceof ACasesExp){
 //			ACasesExp c = (ACasesExp) ex;
@@ -557,7 +568,7 @@ public class ThmExprUtil {
 			for(ILexNameToken var : svars){
 				if (varName.toString().equals(var.getName()))
 				{
-					return  "$" + varName.toString() + "$";
+					return  "$" + varName.toString();
 				}
 			}
 			for(ILexNameToken var : bvars){
@@ -570,10 +581,31 @@ public class ThmExprUtil {
 			return "^" + varName.toString() + "^";
 		}
 		else if(ex instanceof AUnresolvedPathExp){
+			//As this is a slightly iffy bit of syntax, we hack the Isabelle string a bit.
+			//First need to check if the first element is a state variable. If it is, then use
+			//$$, otherwise if a bound value, use ^^, otherwise, ??
 			AUnresolvedPathExp e = (AUnresolvedPathExp) ex;
 			StringBuilder sb = new StringBuilder();
 			
-			for (Iterator<ILexIdentifierToken> itr =  e.getIdentifiers().listIterator(); itr.hasNext(); ) {
+			Iterator<ILexIdentifierToken> itr = e.getIdentifiers().listIterator();
+			ILexIdentifierToken first = itr.next();
+			boolean isState = false;
+//			boolean isBound = false;
+			for(ILexNameToken var : svars){
+				
+				if (first.toString().equals(var.getName()))
+				{
+					sb.append("$" + first.toString() + "$.");
+					isState = true;
+					break;
+				}
+			}
+			if(!isState)
+			{
+				sb.append("^" + first.toString() + "^.");
+			}
+			
+			while( itr.hasNext() ) {
 				ILexIdentifierToken i = itr.next();
 						
 				sb.append(i.getName().toString());

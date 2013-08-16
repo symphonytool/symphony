@@ -30,7 +30,7 @@ public class ThmImpFunc extends ThmDecl {
 			this.pre = fixFuncExpr(pre,params);
 		if(res != null)
 		{
-			this.post = fixFuncPostExpr(post, res);
+			this.post = fixFuncPostExpr(this.post, res);
 		}
 		this.resType = resType;
 	}
@@ -53,7 +53,6 @@ public class ThmImpFunc extends ThmDecl {
 		return ex;
 	}
 
-	//MORE FORE IMPLICIT, I THINK
 	private String fixFuncPostExpr(String ex, APatternTypePair res){
 		PPattern p = res.getPattern();
 		
