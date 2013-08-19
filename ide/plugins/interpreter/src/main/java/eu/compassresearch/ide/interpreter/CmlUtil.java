@@ -18,7 +18,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.custom.StyleRange;
@@ -27,7 +26,6 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
@@ -42,13 +40,13 @@ import org.overture.ide.core.ICoreConstants;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.GlobalEnvironmentBuilder;
-import eu.compassresearch.core.interpreter.debug.Choice;
 import eu.compassresearch.ide.ui.editor.core.CmlEditor;
 
 public final class CmlUtil
 {
 
-	public static void clearSelections(StyledText styledText, List<StyleRange> lastSelectedRanges)
+	public static void clearSelections(StyledText styledText,
+			List<StyleRange> lastSelectedRanges)
 	{
 		for (StyleRange sr : lastSelectedRanges)
 		{
@@ -57,69 +55,71 @@ public final class CmlUtil
 		}
 		lastSelectedRanges.clear();
 	}
-	
-	public static void setSelectionFromLocation(ILexLocation lexLocation, List<StyleRange> lastSelectedRanges)
+
+	public static void setSelectionFromLocation(ILexLocation lexLocation,
+			List<StyleRange> lastSelectedRanges)
 	{
 		List<ILexLocation> locations = new LinkedList<ILexLocation>();
 		locations.add(lexLocation);
 		setSelectionFromLocation(locations, lastSelectedRanges);
 	}
-	
-	public static void setSelectionFromLocation(List<ILexLocation> lexLocations, List<StyleRange> lastSelectedRanges)
+
+	public static void setSelectionFromLocation(
+			List<ILexLocation> lexLocations, List<StyleRange> lastSelectedRanges)
 	{
-			IWorkspace workspace = ResourcesPlugin.getWorkspace();
-			IPath location = Path.fromOSString(lexLocations.get(0).getFile().getAbsolutePath());
-			IFile file = workspace.getRoot().getFileForLocation(location);
-			// It may be a linked resource
-			if (file == null
-					&& workspace.getRoot().findFilesForLocation(location).length > 0)
-				file = workspace.getRoot().findFilesForLocation(location)[0];
-			IEditorPart editor = null;
-			try
+		IWorkspace workspace = ResourcesPlugin.getWorkspace();
+		IPath location = Path.fromOSString(lexLocations.get(0).getFile().getAbsolutePath());
+		IFile file = workspace.getRoot().getFileForLocation(location);
+		// It may be a linked resource
+		if (file == null
+				&& workspace.getRoot().findFilesForLocation(location).length > 0)
+			file = workspace.getRoot().findFilesForLocation(location)[0];
+		IEditorPart editor = null;
+		try
+		{
+			IWorkbenchWindow wbw = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+			editor = IDE.openEditor(wbw.getActivePage(), file, true);
+		} catch (PartInitException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		// CmlEditor cmlEditor = (CmlEditor)
+		// PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
+		if (editor != null)
+		{
+			StyledText styledText = (StyledText) ((CmlEditor) editor).getAdapter(Control.class);
+			// clear the last selection
+			clearSelections(styledText, lastSelectedRanges);
+
+			for (ILexLocation loc : lexLocations)
 			{
-				IWorkbenchWindow wbw = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-				editor = IDE.openEditor(wbw.getActivePage(), file, true);
-			} catch (PartInitException e)
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+				int length = loc.getEndOffset() - loc.getStartOffset() + 1;
+				StyleRange sr = styledText.getStyleRangeAtOffset(loc.getStartOffset());
 
-			// CmlEditor cmlEditor = (CmlEditor)
-			// PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
-			if (editor != null)
-			{
-				StyledText styledText = (StyledText) ((CmlEditor) editor).getAdapter(Control.class);
-				// clear the last selection
-				clearSelections(styledText, lastSelectedRanges);
-
-				for (ILexLocation loc : lexLocations)
-				{
-					int length = loc.getEndOffset() - loc.getStartOffset() + 1;
-					StyleRange sr = styledText.getStyleRangeAtOffset(loc.getStartOffset());
-
-					// if nothing is found we try to look nearby
-					if (sr == null)
-						for (int i = loc.getStartOffset() - 50; i < loc.getStartOffset() + 50; i++)
-						{
-							sr = styledText.getStyleRangeAtOffset(i);
-							if (sr != null)
-								break;
-						}
-
-					if (sr != null)
+				// if nothing is found we try to look nearby
+				if (sr == null)
+					for (int i = loc.getStartOffset() - 50; i < loc.getStartOffset() + 50; i++)
 					{
-						sr.length = length;
-						sr.background = new Color(null, new RGB(java.awt.Color.GRAY.getRed(), java.awt.Color.GRAY.getGreen(), java.awt.Color.GRAY.getBlue()));
-						styledText.setStyleRange(sr);
-						lastSelectedRanges.add(sr);
+						sr = styledText.getStyleRangeAtOffset(i);
+						if (sr != null)
+							break;
 					}
+
+				if (sr != null)
+				{
+					sr.length = length;
+					sr.background = new Color(null, new RGB(java.awt.Color.GRAY.getRed(), java.awt.Color.GRAY.getGreen(), java.awt.Color.GRAY.getBlue()));
+					styledText.setStyleRange(sr);
+					lastSelectedRanges.add(sr);
 				}
-				styledText.setCaretOffset(lexLocations.get(0).getStartOffset());
-				styledText.showSelection();
+			}
+			styledText.setCaretOffset(lexLocations.get(0).getStartOffset());
+			styledText.showSelection();
 		}
 	}
-	
+
 	public static List<AProcessDefinition> getGlobalProcessesFromSource(
 			List<PSource> projectSources)
 	{

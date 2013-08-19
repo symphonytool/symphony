@@ -9,7 +9,6 @@ import java.util.Vector;
 
 import org.eclipse.core.resources.IMarkerDelta;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.IBreakpointManager;
@@ -20,7 +19,6 @@ import org.eclipse.debug.core.model.ILineBreakpoint;
 import org.eclipse.debug.core.model.IMemoryBlock;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IThread;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
@@ -38,11 +36,11 @@ import eu.compassresearch.core.interpreter.utility.messaging.CmlRequest;
 import eu.compassresearch.core.interpreter.utility.messaging.RequestMessage;
 import eu.compassresearch.core.interpreter.utility.messaging.ResponseMessage;
 import eu.compassresearch.ide.core.resources.ICmlProject;
-import eu.compassresearch.ide.plugins.interpreter.CmlDebugPlugin;
-import eu.compassresearch.ide.plugins.interpreter.CmlUtil;
-import eu.compassresearch.ide.plugins.interpreter.debug.ui.model.CmlLineBreakpoint;
-import eu.compassresearch.ide.plugins.interpreter.protocol.CmlCommunicationManager;
-import eu.compassresearch.ide.plugins.interpreter.protocol.CmlThreadManager;
+import eu.compassresearch.ide.interpreter.CmlDebugPlugin;
+import eu.compassresearch.ide.interpreter.CmlUtil;
+import eu.compassresearch.ide.interpreter.debug.ui.model.CmlLineBreakpoint;
+import eu.compassresearch.ide.interpreter.protocol.CmlCommunicationManager;
+import eu.compassresearch.ide.interpreter.protocol.CmlThreadManager;
 import eu.compassresearch.ide.plugins.interpreter.protocol.MessageEventHandler;
 import eu.compassresearch.ide.ui.editor.core.CmlEditor;
 
@@ -58,7 +56,8 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 	CmlThreadManager threadManager;
 
 	public CmlDebugTarget(ILaunch launch, IProcess process,
-			ICmlProject project, int communicationPort) throws CoreException, IOException
+			ICmlProject project, int communicationPort) throws CoreException,
+			IOException
 	{
 		super(null);
 		this.launch = launch;
@@ -67,22 +66,18 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 		cmlDebugTarget = this;
 
 		threadManager = new CmlThreadManager(this);
-		communicationManager = new CmlCommunicationManager(this, 
-						threadManager, 
-						initializeRequestHandlers(),
-						initializeStatusHandlers(),
-						communicationPort);
+		communicationManager = new CmlCommunicationManager(this, threadManager, initializeRequestHandlers(), initializeStatusHandlers(), communicationPort);
 		communicationManager.connect();
 		DebugPlugin.getDefault().getBreakpointManager().addBreakpointListener(this);
 	}
-	
-//	public void initializeHandlers()
-//	{
-//		requestHandlers = initializeRequestHandlers();
-//		statusHandlers = initializeStatusHandlers();
-//
-//	}
-	
+
+	// public void initializeHandlers()
+	// {
+	// requestHandlers = initializeRequestHandlers();
+	// statusHandlers = initializeStatusHandlers();
+	//
+	// }
+
 	/**
 	 * Initialises all the request message handlers
 	 * 
@@ -93,7 +88,8 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 		Map<String, MessageEventHandler<RequestMessage>> handlers = new HashMap<String, MessageEventHandler<RequestMessage>>();
 
 		// Handler for the Choice request
-		handlers.put(CmlRequest.CHOICE.toString(), new MessageEventHandler<RequestMessage>(){
+		handlers.put(CmlRequest.CHOICE.toString(), new MessageEventHandler<RequestMessage>()
+		{
 
 			@Override
 			public boolean handleMessage(RequestMessage message)
@@ -106,33 +102,36 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 			}
 		});
 
-		handlers.put(CmlRequest.SETUP.toString(), new MessageEventHandler<RequestMessage>(){
+		handlers.put(CmlRequest.SETUP.toString(), new MessageEventHandler<RequestMessage>()
+		{
 			@Override
 			public boolean handleMessage(RequestMessage message)
 			{
 
-				for(IBreakpoint bp : getBreakpoints())
+				for (IBreakpoint bp : getBreakpoints())
 				{
-					if(bp instanceof CmlLineBreakpoint)
+					if (bp instanceof CmlLineBreakpoint)
 					{
-						try {
+						try
+						{
 							Breakpoint cmlBP = new Breakpoint(System.identityHashCode(bp), ((CmlLineBreakpoint) bp).getResourceURI().getPath(), ((ILineBreakpoint) bp).getLineNumber());
-							communicationManager.sendCommandMessage(CmlDebugCommand.SET_BREAKPOINT,cmlBP);
-						} catch (CoreException e) {
+							communicationManager.sendCommandMessage(CmlDebugCommand.SET_BREAKPOINT, cmlBP);
+						} catch (CoreException e)
+						{
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
 					}
 				}
 
-				communicationManager.sendMessage(new ResponseMessage(message.getRequestId(), CmlRequest.SETUP,""));
+				communicationManager.sendMessage(new ResponseMessage(message.getRequestId(), CmlRequest.SETUP, ""));
 				return true;
 			}
 		});
 
 		return handlers;
 	}
-	
+
 	/**
 	 * Initializes all the status message handlers
 	 * 
@@ -141,8 +140,9 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 	private Map<String, MessageEventHandler<CmlDbgStatusMessage>> initializeStatusHandlers()
 	{
 		Map<String, MessageEventHandler<CmlDbgStatusMessage>> handlers = new HashMap<String, MessageEventHandler<CmlDbgStatusMessage>>();
-		
-		handlers.put(CmlInterpretationStatus.INITIALIZED.toString(), new MessageEventHandler<CmlDbgStatusMessage>() {
+
+		handlers.put(CmlInterpretationStatus.INITIALIZED.toString(), new MessageEventHandler<CmlDbgStatusMessage>()
+		{
 			@Override
 			public boolean handleMessage(CmlDbgStatusMessage message)
 			{
@@ -165,7 +165,8 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 			}
 		});
 
-		handlers.put(CmlInterpretationStatus.RUNNING.toString(), new MessageEventHandler<CmlDbgStatusMessage>() {
+		handlers.put(CmlInterpretationStatus.RUNNING.toString(), new MessageEventHandler<CmlDbgStatusMessage>()
+		{
 			@Override
 			public boolean handleMessage(CmlDbgStatusMessage message)
 			{
@@ -178,7 +179,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 						if (cmlEditor != null)
 						{
 							StyledText styledText = (StyledText) cmlEditor.getAdapter(Control.class);
-							CmlUtil.clearSelections(styledText,lastSelectedRanges);
+							CmlUtil.clearSelections(styledText, lastSelectedRanges);
 						}
 
 					}
@@ -187,7 +188,8 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 			}
 		});
 
-		handlers.put(CmlInterpretationStatus.WAITING_FOR_ENVIRONMENT.toString(), new MessageEventHandler<CmlDbgStatusMessage>() {
+		handlers.put(CmlInterpretationStatus.WAITING_FOR_ENVIRONMENT.toString(), new MessageEventHandler<CmlDbgStatusMessage>()
+		{
 			@Override
 			public boolean handleMessage(CmlDbgStatusMessage message)
 			{
@@ -196,35 +198,38 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 			}
 		});
 
-		handlers.put(CmlInterpretationStatus.SUSPENDED.toString(), new MessageEventHandler<CmlDbgStatusMessage>() {
-			
+		handlers.put(CmlInterpretationStatus.SUSPENDED.toString(), new MessageEventHandler<CmlDbgStatusMessage>()
+		{
+
 			@Override
 			public boolean handleMessage(final CmlDbgStatusMessage message)
 			{
-				//threadManager.stopping();
+				// threadManager.stopping();
 				threadManager.updateDebuggerInfo(message.getInterpreterStatus());
-				
+
 				Display.getDefault().syncExec(new Runnable()
 				{
 					@Override
 					public void run()
 					{
-						if(message.getInterpreterStatus().hasActiveBreakpoint())
+						if (message.getInterpreterStatus().hasActiveBreakpoint())
 						{
 							Breakpoint bp = message.getInterpreterStatus().getActiveBreakpoint();
-							for(CmlProcessDTO pi : message.getInterpreterStatus().getAllProcesses())
-								if(pi.getLocation().getStartLine() == bp.getLine()){
+							for (CmlProcessDTO pi : message.getInterpreterStatus().getAllProcesses())
+								if (pi.getLocation().getStartLine() == bp.getLine())
+								{
 									CmlUtil.setSelectionFromLocation(pi.getLocation(), lastSelectedRanges);
 									break;
 								}
 						}
 					}
 				});
-				
-				
-				try {
+
+				try
+				{
 					suspend();
-				} catch (DebugException e) {
+				} catch (DebugException e)
+				{
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
@@ -232,18 +237,20 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 			}
 		});
 
-		handlers.put(CmlInterpretationStatus.FAILED.toString(), new MessageEventHandler<CmlDbgStatusMessage>() {
+		handlers.put(CmlInterpretationStatus.FAILED.toString(), new MessageEventHandler<CmlDbgStatusMessage>()
+		{
 			@Override
 			public boolean handleMessage(CmlDbgStatusMessage message)
 			{
-				//				threadManager.stopping();
-				//				threadManager.updateDebuggerInfo(message.getInterpreterStatus());
+				// threadManager.stopping();
+				// threadManager.updateDebuggerInfo(message.getInterpreterStatus());
 				System.out.println("message: " + message);
 				return false;
 			}
 		});
 
-		handlers.put(CmlInterpretationStatus.FINISHED.toString(), new MessageEventHandler<CmlDbgStatusMessage>() {
+		handlers.put(CmlInterpretationStatus.FINISHED.toString(), new MessageEventHandler<CmlDbgStatusMessage>()
+		{
 			@Override
 			public boolean handleMessage(CmlDbgStatusMessage message)
 			{
@@ -253,11 +260,12 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 			}
 		});
 
-		handlers.put(CmlInterpretationStatus.TERMINATED.toString(), new MessageEventHandler<CmlDbgStatusMessage>() {
+		handlers.put(CmlInterpretationStatus.TERMINATED.toString(), new MessageEventHandler<CmlDbgStatusMessage>()
+		{
 			@Override
 			public boolean handleMessage(CmlDbgStatusMessage message)
 			{
-				//communicationManager.connectionClosed();
+				// communicationManager.connectionClosed();
 				return false;
 			}
 		});

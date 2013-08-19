@@ -19,9 +19,10 @@ import eu.compassresearch.core.interpreter.utility.messaging.Message;
 import eu.compassresearch.core.interpreter.utility.messaging.MessageCommunicator;
 import eu.compassresearch.core.interpreter.utility.messaging.MessageContainer;
 import eu.compassresearch.core.interpreter.utility.messaging.RequestMessage;
-import eu.compassresearch.ide.plugins.interpreter.CmlDebugPlugin;
-import eu.compassresearch.ide.plugins.interpreter.ICmlDebugConstants;
-import eu.compassresearch.ide.plugins.interpreter.model.CmlDebugTarget;
+import eu.compassresearch.ide.interpreter.CmlDebugPlugin;
+import eu.compassresearch.ide.interpreter.ICmlDebugConstants;
+import eu.compassresearch.ide.interpreter.model.CmlDebugTarget;
+import eu.compassresearch.ide.plugins.interpreter.protocol.MessageEventHandler;
 
 public class CmlCommunicationManager extends Thread
 {
@@ -37,8 +38,9 @@ public class CmlCommunicationManager extends Thread
 	private CmlThreadManager threadManager;
 	private int port;
 
-	public CmlCommunicationManager(CmlDebugTarget target,
-			CmlThreadManager threadManager, 
+	public CmlCommunicationManager(
+			CmlDebugTarget target,
+			CmlThreadManager threadManager,
 			Map<String, MessageEventHandler<RequestMessage>> requestHandlers,
 			Map<String, MessageEventHandler<CmlDbgStatusMessage>> statusHandlers,
 			int port)
@@ -66,7 +68,7 @@ public class CmlCommunicationManager extends Thread
 
 	public void sendCommandMessage(CmlDebugCommand cmd, Object content)
 	{
-		CmlDbgCommandMessage message = new CmlDbgCommandMessage(cmd,content);
+		CmlDbgCommandMessage message = new CmlDbgCommandMessage(cmd, content);
 		MessageCommunicator.sendMessage(requestOutputStream, message);
 	}
 
@@ -78,12 +80,12 @@ public class CmlCommunicationManager extends Thread
 	/**
 	 * Initialisation methods
 	 */
-//	public void initializeHandlers()
-//	{
-//		requestHandlers = initializeRequestHandlers();
-//		statusHandlers = initializeStatusHandlers();
-//
-//	}
+	// public void initializeHandlers()
+	// {
+	// requestHandlers = initializeRequestHandlers();
+	// statusHandlers = initializeStatusHandlers();
+	//
+	// }
 
 	/**
 	 * Receives a message from the debugger
@@ -128,12 +130,12 @@ public class CmlCommunicationManager extends Thread
 
 		switch (messageContainer.getType())
 		{
-		case STATUS:
-			return dispatchMessageHandler(statusHandlers, (CmlDbgStatusMessage) messageContainer.getMessage());
-		case REQUEST:
-			return dispatchMessageHandler(requestHandlers, (RequestMessage) messageContainer.getMessage());
-		default:
-			break;
+			case STATUS:
+				return dispatchMessageHandler(statusHandlers, (CmlDbgStatusMessage) messageContainer.getMessage());
+			case REQUEST:
+				return dispatchMessageHandler(requestHandlers, (RequestMessage) messageContainer.getMessage());
+			default:
+				break;
 		}
 
 		return result;
@@ -160,11 +162,10 @@ public class CmlCommunicationManager extends Thread
 			do
 			{
 				message = receiveMessage();
-			}
-			while (processMessage(message));
+			} while (processMessage(message));
 		} catch (IOException e)
 		{
-			CmlDebugPlugin.logError("Error while receving/processing incomming messages from the debugger",e);
+			CmlDebugPlugin.logError("Error while receving/processing incomming messages from the debugger", e);
 		} finally
 		{
 			connectionClosed();
@@ -181,7 +182,7 @@ public class CmlCommunicationManager extends Thread
 	{
 		if (waitForConnect(port))
 		{
-			//initializeHandlers();
+			// initializeHandlers();
 			start();
 		}
 	}
@@ -217,7 +218,7 @@ public class CmlCommunicationManager extends Thread
 
 	public void terminate()
 	{
-		if(fRequestSocket != null)
+		if (fRequestSocket != null)
 		{
 			synchronized (fRequestSocket)
 			{
@@ -242,7 +243,7 @@ public class CmlCommunicationManager extends Thread
 
 	}
 
-	public void removeBreakpoint(URI file, int linenumber )
+	public void removeBreakpoint(URI file, int linenumber)
 	{
 
 	}

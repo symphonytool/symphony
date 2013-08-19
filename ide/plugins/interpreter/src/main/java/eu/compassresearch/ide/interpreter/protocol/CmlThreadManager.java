@@ -13,11 +13,11 @@ import org.eclipse.ui.PlatformUI;
 import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
 import eu.compassresearch.core.interpreter.debug.CmlInterpreterStateDTO;
 import eu.compassresearch.core.interpreter.debug.CmlProcessDTO;
-import eu.compassresearch.ide.plugins.interpreter.CmlDebugPlugin;
-import eu.compassresearch.ide.plugins.interpreter.ICmlDebugConstants;
-import eu.compassresearch.ide.plugins.interpreter.model.CmlDebugTarget;
-import eu.compassresearch.ide.plugins.interpreter.model.CmlThread;
-import eu.compassresearch.ide.plugins.interpreter.views.CmlEventHistoryView;
+import eu.compassresearch.ide.interpreter.CmlDebugPlugin;
+import eu.compassresearch.ide.interpreter.ICmlDebugConstants;
+import eu.compassresearch.ide.interpreter.model.CmlDebugTarget;
+import eu.compassresearch.ide.interpreter.model.CmlThread;
+import eu.compassresearch.ide.interpreter.views.CmlEventHistoryView;
 
 public class CmlThreadManager
 {
@@ -72,7 +72,7 @@ public class CmlThreadManager
 	 */
 	public void started(CmlInterpreterStateDTO status)
 	{
-		//updateDebuggerInfo(status);
+		// updateDebuggerInfo(status);
 		target.fireCreationEvent();
 
 		// installDeferredBreakpoints();
@@ -104,11 +104,13 @@ public class CmlThreadManager
 
 	public boolean isSuspended()
 	{
-		return status != null && status.getInterpreterState() == CmlInterpretationStatus.SUSPENDED;
+		return status != null
+				&& status.getInterpreterState() == CmlInterpretationStatus.SUSPENDED;
 	}
 
 	public boolean isRunning()
 	{
-		return status != null && status.getInterpreterState() == CmlInterpretationStatus.RUNNING;
+		return status != null
+				&& status.getInterpreterState() == CmlInterpretationStatus.RUNNING;
 	}
 }

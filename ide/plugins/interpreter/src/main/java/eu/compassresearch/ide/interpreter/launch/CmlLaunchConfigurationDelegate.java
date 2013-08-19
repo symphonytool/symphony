@@ -31,10 +31,10 @@ import org.overture.ide.core.resources.IVdmSourceUnit;
 import eu.compassresearch.core.interpreter.debug.CmlDebugDefaultValues;
 import eu.compassresearch.core.interpreter.debug.CmlInterpreterLaunchConfigurationConstants;
 import eu.compassresearch.ide.core.resources.ICmlProject;
-import eu.compassresearch.ide.plugins.interpreter.CmlDebugPlugin;
-import eu.compassresearch.ide.plugins.interpreter.CmlUtil;
-import eu.compassresearch.ide.plugins.interpreter.ICmlDebugConstants;
-import eu.compassresearch.ide.plugins.interpreter.model.CmlDebugTarget;
+import eu.compassresearch.ide.interpreter.CmlDebugPlugin;
+import eu.compassresearch.ide.interpreter.CmlUtil;
+import eu.compassresearch.ide.interpreter.ICmlDebugConstants;
+import eu.compassresearch.ide.interpreter.model.CmlDebugTarget;
 
 public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 {

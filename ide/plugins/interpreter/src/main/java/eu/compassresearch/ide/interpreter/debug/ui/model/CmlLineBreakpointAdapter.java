@@ -39,6 +39,7 @@ import org.overture.ide.core.resources.IVdmSourceUnit;
 import org.overture.ide.debug.core.VdmDebugPlugin;
 
 import eu.compassresearch.ide.interpreter.ICmlDebugConstants;
+import eu.compassresearch.ide.plugins.interpreter.debug.ui.model.ExecutableAnalysis;
 import eu.compassresearch.ide.ui.editor.core.CmlEditor;
 
 public class CmlLineBreakpointAdapter implements IToggleBreakpointsTarget
