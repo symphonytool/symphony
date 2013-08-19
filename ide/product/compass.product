@@ -24,7 +24,7 @@
       startupProgressRect="0,0,300,20"
       startupMessageRect="75,200,300,15"
       startupForegroundColor="7F7F7F" />
-    <launcher name="Overture">
+    <launcher name="COMPASS">
       <linux icon="/icons/linux/compass.xpm"/>
       <macosx icon="/icons/osx/compass.icns"/>
       <solaris/>
