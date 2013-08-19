@@ -26,7 +26,8 @@
                minimized="false"
                ratio="0.25"
                relationship="left"
-               relative="org.eclipse.ui.editorss">
+               relative="org.eclipse.ui.editorss"
+               visible="true">
 			</view>
 			<newWizardShortcut
            id="eu.compassresearch.ide.ui.newcmlfilewizard">
@@ -196,7 +197,7 @@
          point="org.eclipse.ui.ide.projectNatureImages">
 		<image
             icon="icons/ovr16/cml_ovr.gif"
-            id="eu.compassresearch.ide.cml-ui.cmlnature.image"
+            id="eu.compassresearch.ide.ui.cmlnature.image"
             natureId="eu.compassresearch.ide.core.cmlnature">
 		</image>
 	</extension>
@@ -247,7 +248,7 @@
 
 								<test
                        property="org.eclipse.core.resources.projectNature"
-                       value="eu.compassresearch.ide.cml.ui.cmlnature">
+                       value="eu.compassresearch.ide.ui.cmlnature">
 								</test>
 							</adapt>
 							

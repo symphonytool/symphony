@@ -45,7 +45,7 @@ import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
-import eu.compassresearch.examples.DivWarnAnalysis;
+//import eu.compassresearch.examples.DivWarnAnalysis;
 
 public class CheckCml {
 
@@ -478,6 +478,8 @@ public class CheckCml {
 		}
 
 		// Example Analysis DivWarnAnalysis
+                /*
+                // commented out by jwc/6Aug2013; deprecating the divwarn module
 		if (input.isSwitchOn(Switch.DWA)) {
 			final DivWarnAnalysis dwa = new DivWarnAnalysis();
 			AnalysisRunAdaptor r = new AnalysisRunAdaptor(dwa) {
@@ -491,6 +493,7 @@ public class CheckCml {
 			for (String thing : dwa.getWarnings())
 				System.out.println("\t" + thing);
 		}
+                */
 
 		// POG Analysis
 		if (input.isSwitchOn(Switch.POG)) {
