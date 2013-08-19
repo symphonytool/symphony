@@ -36,6 +36,7 @@ import eu.compassresearch.core.interpreter.debug.Choice;
 import eu.compassresearch.core.interpreter.utility.messaging.CmlRequest;
 import eu.compassresearch.core.interpreter.utility.messaging.RequestMessage;
 import eu.compassresearch.core.interpreter.utility.messaging.ResponseMessage;
+import eu.compassresearch.ide.plugins.interpreter.CmlUtil;
 import eu.compassresearch.ide.plugins.interpreter.ICmlDebugConstants;
 import eu.compassresearch.ide.plugins.interpreter.protocol.CmlCommunicationManager;
 import eu.compassresearch.ide.plugins.interpreter.views.CmlEventOptionView;
@@ -83,7 +84,7 @@ public class CmlChoiceMediator implements IDoubleClickListener,
 					CmlEventOptionView view = (CmlEventOptionView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(ICmlDebugConstants.ID_CML_OPTION_VIEW.toString());
 					view.getListViewer().addDoubleClickListener(CmlChoiceMediator.this);
 					view.getListViewer().addSelectionChangedListener(CmlChoiceMediator.this);
-					CmlChoiceMediator.this.cmlDebugTarget.resume();
+					//CmlChoiceMediator.this.cmlDebugTarget.resume();
 
 				} catch (PartInitException e)
 				{
@@ -112,7 +113,7 @@ public class CmlChoiceMediator implements IDoubleClickListener,
 					if (cmlEditor != null)
 					{
 						StyledText styledText = (StyledText) cmlEditor.getAdapter(Control.class);
-						clearSelections(styledText);
+						CmlUtil.clearSelections(styledText,lastSelectedRanges);
 					}
 					view.getListViewer().setInput(null);
 					view.getListViewer().refresh();
@@ -190,78 +191,75 @@ public class CmlChoiceMediator implements IDoubleClickListener,
 		selectChoice(choice);
 	}
 
-	private void clearSelections(StyledText styledText)
-	{
-		for (StyleRange sr : lastSelectedRanges)
-		{
-			sr.background = null;
-			styledText.setStyleRange(sr);
-		}
-		lastSelectedRanges.clear();
-	}
+//	private void clearSelections(StyledText styledText)
+//	{
+//		for (StyleRange sr : lastSelectedRanges)
+//		{
+//			sr.background = null;
+//			styledText.setStyleRange(sr);
+//		}
+//		lastSelectedRanges.clear();
+//	}
 
 	@Override
 	public void selectionChanged(SelectionChangedEvent event)
 	{
-
 		if (event.getSelection() instanceof IStructuredSelection)
 		{
 			IStructuredSelection selection = (IStructuredSelection) event.getSelection();
 
 			Choice choice = (Choice) selection.getFirstElement();
-
-			// Path path = new Path(choice.getLocations().get(0).getFile().getAbsolutePath());
-			// IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(path);
-			IWorkspace workspace = ResourcesPlugin.getWorkspace();
-			IPath location = Path.fromOSString(choice.getLocations().get(0).getFile().getAbsolutePath());
-			IFile file = workspace.getRoot().getFileForLocation(location);
-			// It may be a linked resource
-			if (file == null
-					&& workspace.getRoot().findFilesForLocation(location).length > 0)
-				file = workspace.getRoot().findFilesForLocation(location)[0];
-			IEditorPart editor = null;
-			try
-			{
-				editor = IDE.openEditor(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), file, true);
-			} catch (PartInitException e)
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-			// CmlEditor cmlEditor = (CmlEditor)
-			// PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
-			if (editor != null)
-			{
-				StyledText styledText = (StyledText) ((CmlEditor) editor).getAdapter(Control.class);
-				// clear the last selection
-				clearSelections(styledText);
-
-				for (ILexLocation loc : choice.getLocations())
-				{
-					int length = loc.getEndOffset() - loc.getStartOffset() + 1;
-					StyleRange sr = styledText.getStyleRangeAtOffset(loc.getStartOffset());
-
-					// if nothing is found we try to look nearby
-					if (sr == null)
-						for (int i = loc.getStartOffset() - 50; i < loc.getStartOffset() + 50; i++)
-						{
-							sr = styledText.getStyleRangeAtOffset(i);
-							if (sr != null)
-								break;
-						}
-
-					if (sr != null)
-					{
-						sr.length = length;
-						sr.background = new Color(null, new RGB(java.awt.Color.GRAY.getRed(), java.awt.Color.GRAY.getGreen(), java.awt.Color.GRAY.getBlue()));
-						styledText.setStyleRange(sr);
-						lastSelectedRanges.add(sr);
-					}
-				}
-				styledText.setCaretOffset(choice.getLocations().get(0).getStartOffset());
-				styledText.showSelection();
-			}
+			CmlUtil.setSelectionFromLocation(choice.getLocations(), lastSelectedRanges);
+//			IWorkspace workspace = ResourcesPlugin.getWorkspace();
+//			IPath location = Path.fromOSString(choice.getLocations().get(0).getFile().getAbsolutePath());
+//			IFile file = workspace.getRoot().getFileForLocation(location);
+//			// It may be a linked resource
+//			if (file == null
+//					&& workspace.getRoot().findFilesForLocation(location).length > 0)
+//				file = workspace.getRoot().findFilesForLocation(location)[0];
+//			IEditorPart editor = null;
+//			try
+//			{
+//				editor = IDE.openEditor(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), file, true);
+//			} catch (PartInitException e)
+//			{
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//
+//			// CmlEditor cmlEditor = (CmlEditor)
+//			// PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
+//			if (editor != null)
+//			{
+//				StyledText styledText = (StyledText) ((CmlEditor) editor).getAdapter(Control.class);
+//				// clear the last selection
+//				clearSelections(styledText);
+//
+//				for (ILexLocation loc : choice.getLocations())
+//				{
+//					int length = loc.getEndOffset() - loc.getStartOffset() + 1;
+//					StyleRange sr = styledText.getStyleRangeAtOffset(loc.getStartOffset());
+//
+//					// if nothing is found we try to look nearby
+//					if (sr == null)
+//						for (int i = loc.getStartOffset() - 50; i < loc.getStartOffset() + 50; i++)
+//						{
+//							sr = styledText.getStyleRangeAtOffset(i);
+//							if (sr != null)
+//								break;
+//						}
+//
+//					if (sr != null)
+//					{
+//						sr.length = length;
+//						sr.background = new Color(null, new RGB(java.awt.Color.GRAY.getRed(), java.awt.Color.GRAY.getGreen(), java.awt.Color.GRAY.getBlue()));
+//						styledText.setStyleRange(sr);
+//						lastSelectedRanges.add(sr);
+//					}
+//				}
+//				styledText.setCaretOffset(choice.getLocations().get(0).getStartOffset());
+//				styledText.showSelection();
+//			}
 		}
 	}
 }

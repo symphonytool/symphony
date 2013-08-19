@@ -161,7 +161,7 @@ class CommunicationEvent extends AbstractChannelEvent implements ObservableEvent
 		CommunicationEvent otherComEvent = (CommunicationEvent)syncEvent;
 		Value meetValue = AbstractValueInterpreter.meet(this.getValue(), ((ChannelEvent)otherComEvent).getValue());
 		
-		if(meetValue != null) //&& isContraintValid(meetValue,otherComEvent))
+		if(meetValue != null && isContraintValid(meetValue,otherComEvent))
 		{
 			Set<CmlBehaviour> sources = new HashSet<CmlBehaviour>();
 			sources.addAll(this.getEventSources());
@@ -178,11 +178,15 @@ class CommunicationEvent extends AbstractChannelEvent implements ObservableEvent
 		boolean result = true;
 		try
 		{
-			if(otherComEvent.params.size() == 1 && otherComEvent.params.get(0) instanceof InputParameter)
-			{
+			if(otherComEvent.params.size() == 1 && 
+					otherComEvent.params.get(0) instanceof InputParameter)
 				result &= ((InputParameter)otherComEvent.params.get(0)).evaluateContraint(value);
-				result &= ((InputParameter)params.get(0)).evaluateContraint(value);
-			}
+
+			
+			if(otherComEvent.params.size() == 1 && 
+					this.params.get(0) instanceof InputParameter)
+				result &= ((InputParameter)this.params.get(0)).evaluateContraint(value);				
+			
 		}
 		catch(AnalysisException ex)
 		{

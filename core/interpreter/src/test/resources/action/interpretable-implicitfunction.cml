@@ -1,0 +1,11 @@
+channels 
+a : int
+
+process A = 
+begin 
+	functions
+	select (sn : set of int ) r : int
+	post r in set sn
+
+	@ a.(select({1,2,3})) -> Skip
+end

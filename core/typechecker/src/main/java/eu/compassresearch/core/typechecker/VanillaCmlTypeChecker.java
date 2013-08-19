@@ -6,9 +6,10 @@ import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
+import org.overture.ast.definitions.AExplicitFunctionDefinition;
+import org.overture.ast.definitions.AImplicitFunctionDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.types.PType;
-import org.overture.typechecker.Environment;
 import org.overture.typechecker.TypeCheckException;
 import org.overture.typechecker.TypeCheckInfo;
 import org.overture.typechecker.assistant.definition.PDefinitionListAssistantTC;
@@ -104,13 +105,6 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 //				if (!CmlTCUtil.successfulType(channelType))
 //					return false;
 //			}
-			
-			//generate all the implicit definitions like pre and post conditions
-			PDefinitionListAssistantTC.implicitDefinitions(this.globalDefinitions, cmlTopEnv.env);
-			//Reset the invariant on the cml classes since they are not used in CML
-			for(PDefinition pdef : this.globalDefinitions )
-				if(pdef instanceof ACmlClassDefinition)
-					((ACmlClassDefinition) pdef).setInvariant(null);
 			
 			// Resolve everything before hand (Overture does this)
 			PDefinitionListAssistantTC.typeResolve(this.globalDefinitions,

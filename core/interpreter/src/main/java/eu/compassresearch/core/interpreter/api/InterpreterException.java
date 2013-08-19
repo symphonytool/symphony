@@ -1,8 +1,9 @@
 package eu.compassresearch.core.interpreter.api;
 
+import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.lex.LexLocation;
 
-public class InterpreterException extends Exception {
+public class InterpreterException extends AnalysisException {
 
 	final LexLocation location;
 	

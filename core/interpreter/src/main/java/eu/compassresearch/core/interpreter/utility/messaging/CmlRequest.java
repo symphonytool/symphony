@@ -2,7 +2,8 @@ package eu.compassresearch.core.interpreter.utility.messaging;
 
 public enum CmlRequest {
 
-	CHOICE;
+	CHOICE,
+	SETUP;
 	
 	@Override
 	public String toString()

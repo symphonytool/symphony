@@ -10,8 +10,10 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
-import eu.compassresearch.core.interpreter.api.CmlProcessInfo;
-import eu.compassresearch.core.interpreter.api.InterpreterStatus;
+import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
+import eu.compassresearch.core.interpreter.debug.CmlInterpreterStateDTO;
+import eu.compassresearch.core.interpreter.debug.CmlProcessDTO;
+import eu.compassresearch.ide.plugins.interpreter.CmlDebugPlugin;
 import eu.compassresearch.ide.plugins.interpreter.ICmlDebugConstants;
 import eu.compassresearch.ide.plugins.interpreter.model.CmlDebugTarget;
 import eu.compassresearch.ide.plugins.interpreter.model.CmlThread;
@@ -23,29 +25,25 @@ public class CmlThreadManager
 	private List<IThread> threads = new LinkedList<IThread>();
 	private CmlDebugTarget target;
 
-	enum RunningStatus
-	{
-		Terminated, Running, Suspended, Unknown
-	};
-
-	RunningStatus status = RunningStatus.Unknown;
+	CmlInterpreterStateDTO status = null;
 
 	public CmlThreadManager(CmlDebugTarget target)
 	{
 		this.target = target;
 	}
 
-	public void updateDebuggerInfo(final InterpreterStatus status)
+	public void updateDebuggerInfo(final CmlInterpreterStateDTO status)
 	{
+		this.status = status;
 		// cmlThread = new CmlThread(this,status.getToplevelProcessInfo());
 		threads.clear();
-		for (CmlProcessInfo t : status.getAllProcessInfos())
+		for (CmlProcessDTO t : status.getAllProcesses())
 		{
 			threads.add(new CmlThread(target, t));
 		}
 		// fireSuspendEvent(0);
 
-		final List<String> trace = status.getToplevelProcessInfo().getTrace();
+		final List<String> trace = status.getToplevelProcess().getTrace();
 
 		Display.getDefault().asyncExec(new Runnable()
 		{
@@ -58,7 +56,7 @@ public class CmlThreadManager
 					view.getListViewer().setInput(trace);
 				} catch (PartInitException e)
 				{
-					e.printStackTrace();
+					CmlDebugPlugin.logError("Failed to update the event history view", e);
 				}
 
 				if (status.hasErrors())
@@ -72,10 +70,9 @@ public class CmlThreadManager
 	/**
 	 * Notification we have connected to the VM and it has started. Resume the VM.
 	 */
-	public void started(InterpreterStatus status)
+	public void started(CmlInterpreterStateDTO status)
 	{
-
-		updateDebuggerInfo(status);
+		//updateDebuggerInfo(status);
 		target.fireCreationEvent();
 
 		// installDeferredBreakpoints();
@@ -107,11 +104,11 @@ public class CmlThreadManager
 
 	public boolean isSuspended()
 	{
-		return status == RunningStatus.Suspended;
+		return status != null && status.getInterpreterState() == CmlInterpretationStatus.SUSPENDED;
 	}
 
 	public boolean isRunning()
 	{
-		return status == RunningStatus.Running;
+		return status != null && status.getInterpreterState() == CmlInterpretationStatus.RUNNING;
 	}
 }
