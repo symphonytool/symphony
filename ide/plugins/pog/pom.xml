@@ -10,7 +10,6 @@
 
   <packaging>eclipse-plugin</packaging>
 
-  <groupId>eu.compassresearch.ide</groupId>
   <artifactId>eu.compassresearch.ide.pog</artifactId>
   <name>COMPASS IDE POG Plugin</name>
 
