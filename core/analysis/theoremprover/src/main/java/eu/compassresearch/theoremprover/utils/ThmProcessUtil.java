@@ -1,12 +1,28 @@
 package eu.compassresearch.theoremprover.utils;
 
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedList;
 
+import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.definitions.AAssignmentDefinition;
+import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.intf.lex.ILexNameToken;
+import org.overture.ast.lex.LexNameList;
+import org.overture.ast.patterns.APatternListTypePair;
+import org.overture.ast.patterns.PPattern;
+
 import eu.compassresearch.ast.actions.PAction;
+import eu.compassresearch.ast.definitions.AActionDefinition;
+import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
+import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
+import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
 import eu.compassresearch.ast.process.AActionProcess;
+import eu.compassresearch.theoremprover.thms.ThmExplicitOperation;
+import eu.compassresearch.theoremprover.thms.ThmImplicitOperation;
 import eu.compassresearch.theoremprover.thms.ThmNode;
+import eu.compassresearch.theoremprover.thms.ThmNodeList;
 
 
 public class ThmProcessUtil {
@@ -37,6 +53,231 @@ public class ThmProcessUtil {
 
 		return tn;
 	}
+	
+	public static LinkedList<ILexNameToken> getStateNames(LinkedList<AStateDefinition> statements)
+	
+	{
+		//first we need to get all the state identifier names so expressions use correct
+		//reference
+		LinkedList<ILexNameToken> statenames = new LinkedList<ILexNameToken>();
+		for (AStateDefinition pdef : statements)
+		{
+			for (PDefinition sdef : pdef.getStateDefs())
+			{
+				if (sdef instanceof AAssignmentDefinition)
+				{
+					AAssignmentDefinition st = (AAssignmentDefinition) sdef;
+	
+					ILexNameToken name = st.getName();
+					statenames.add(name);
+				}
+			}
+		}
+		return statenames;
+	}
+
+	public static LinkedList<ILexNameToken> getOperationNames(
+			LinkedList<SCmlOperationDefinition> operations) {
+		
+		LinkedList<ILexNameToken> opNames = new LinkedList<ILexNameToken>();
+		
+		for(SCmlOperationDefinition op : operations)
+			opNames.add(op.getName());
+		
+		return opNames;
+	}
+
+	public static LinkedList<ILexNameToken> getActionNames(
+			LinkedList<AActionDefinition> actions) {
+
+		LinkedList<ILexNameToken> actNames = new LinkedList<ILexNameToken>();
+		for(AActionDefinition a : actions)
+			actNames.add(a.getName());
+		return actNames;
+	}
+
+	public static LinkedList<ILexNameToken> removeProcessDeps(
+			LinkedList<ILexNameToken> nodeDeps,
+			LinkedList<ILexNameToken> procNames) {
+		
+		//Need to add remove all inter-process dependancies 
+		//For each name used within a process		
+		for(ILexNameToken pn :procNames)
+		{
+			//for each dependancy 
+			for(Iterator<ILexNameToken> itr = nodeDeps.listIterator(); itr.hasNext(); )
+			{
+				ILexNameToken nd = itr.next();
+				//if the dependancy is a process name, remove it.
+				if(pn.toString().equals(nd.toString()))
+				{
+					itr.remove();
+				}
+			}
+		}
+		return nodeDeps;
+	}
+	
+	
+
+	public static LinkedList<ILexNameToken> removeExtDeps(
+			LinkedList<ILexNameToken> nodeDeps,
+			LinkedList<ILexNameToken> procNames) {
+		
+		LinkedList<ILexNameToken> nodeNames = new LinkedList<ILexNameToken>();
+		
+		//Need to add remove all extra-process dependancies 
+		//For each node dependancy
+		for(ILexNameToken nd : nodeDeps)
+		{
+			//For each name used within a process		
+			for(ILexNameToken pn :procNames)
+			{
+				//if the depandancy is a process name, then add to the new list
+				if(pn.toString().equals(nd.toString()))
+				{
+					nodeNames.add(nd);
+				}
+			}
+		}
+		
+		//return only the node dependancies that are intra-process names 
+		return nodeNames;
+	}
+
+	public static LinkedList<ThmNode> getIsabelleOperations(
+			LinkedList<SCmlOperationDefinition> operations, LinkedList<ILexNameToken> svars) {
+		LinkedList<ThmNode> tnl = new LinkedList<ThmNode>();
+		
+		for(SCmlOperationDefinition op : operations)
+			tnl.add(ThmProcessUtil.getIsabelleOperation(op, svars));
+		
+		return tnl;
+	}
+
+	private static ThmNode getIsabelleOperation(SCmlOperationDefinition op, LinkedList<ILexNameToken> svars) {
+		ThmNode tn = null;
+		if (op instanceof AImplicitCmlOperationDefinition)
+		{
+			AImplicitCmlOperationDefinition exOp = (AImplicitCmlOperationDefinition) op;
+			LinkedList<ILexNameToken> nodeDeps = new LinkedList();
+			String pre = null;
+			String post = null;
+			if (exOp.getPrecondition() != null)
+				pre = ThmExprUtil.getIsabelleExprStr(svars, new LinkedList(), exOp.getPrecondition());
+			if (exOp.getPostcondition() != null)
+				post = ThmExprUtil.getIsabelleExprStr(svars, new LinkedList(), exOp.getPostcondition());
+				
+			tn = new ThmNode(exOp.getName(), nodeDeps, new ThmImplicitOperation(exOp.getName().toString(), pre, post));
+
+		}
+		else if (op instanceof AExplicitCmlOperationDefinition)
+		{
+			AExplicitCmlOperationDefinition exOp = (AExplicitCmlOperationDefinition) op;
+			LinkedList<ILexNameToken> nodeDeps = new LinkedList();
+			String body = "";//exOp.getBody();
+			String pre = null;
+			String post = null;
+			if (exOp.getPrecondition() != null)
+				pre = ThmExprUtil.getIsabelleExprStr(svars, new LinkedList(), exOp.getPrecondition());
+			if (exOp.getPostcondition() != null)
+				post = ThmExprUtil.getIsabelleExprStr(svars, new LinkedList(), exOp.getPostcondition());
+				
+			tn = new ThmNode(exOp.getName(), nodeDeps, new ThmExplicitOperation(exOp.getName().toString(), pre, post, body.toString()));
+
+		}
+		return tn;
+	}
+	
+	
+	
+	
+//	/**
+//	 * Implicit operations - CML does not reuse Overture operations
+//	 */
+//	@Override
+//	public ThmNodeList caseAImplicitCmlOperationDefinition(
+//			AImplicitCmlOperationDefinition node)
+//			throws AnalysisException
+//	{
+//
+//		System.out.println("----------***----------");
+//		System.out.println("AImplicitOperationDefinition");
+//		System.out.println(node.toString());
+//		System.out.println("----------***----------");
+//
+//		ThmNodeList tnl = new ThmNodeList();
+//
+//		// Taken from Overture - Needed?
+//		LexNameList pids = new LexNameList();
+//
+//		for (APatternListTypePair tp : node.getParameterPatterns())
+//			for (PPattern p : tp.getPatterns())
+//				for (PDefinition def : p.getDefinitions())
+//					pids.add(def.getName());
+//
+//		
+//		// if implicit operation has a precondition, dispatch for PO checking
+//		if (node.getPrecondition() != null)
+//		{
+//			//TODO:Gen Node For preConditionExpression
+//			//tnl.addAll(node.getPrecondition().apply(parentVisitor));
+//		}
+//		
+//
+//		// if implicit operation has a precondition, dispatch for PO checking
+//		// and generate OperationPostConditionObligation
+//		if (node.getPostcondition() != null)
+//		{
+//
+//			//TODO:Gen Node For preConditionExpression
+//			//tnl.addAll(node.getPostcondition().apply(parentVisitor));
+//		}
+//
+//		return tnl;
+//	}
+//
+//	//
+//	@Override
+//	public ThmNodeList caseAExplicitCmlOperationDefinition(
+//			AExplicitCmlOperationDefinition node)
+//			throws AnalysisException
+//	{
+//
+//		ThmNodeList tnl = new ThmNodeList();
+//
+//		LexNameList pids = new LexNameList();
+//
+//		// add all defined names from the function parameter list
+//		for (PPattern p : node.getParameterPatterns())
+//			for (PDefinition def : p.getDefinitions())
+//				pids.add(def.getName());
+//
+//
+//		// if operation has a precondition, dispatch for PO checking
+//		if (node.getPrecondition() != null)
+//		{
+//			//TODO:Gen Node For preConditionExpression
+//			//tnl.addAll(node.getPrecondition().apply(parentVisitor));
+//		}
+//		
+//
+//		// if implicit operation has a precondition, dispatch for PO checking
+//		// and generate OperationPostConditionObligation
+//		if (node.getPostcondition() != null)
+//		{
+//
+//			//TODO:Gen Node For preConditionExpression
+//			//tnl.addAll(node.getPostcondition().apply(parentVisitor));
+//		}
+//
+//		// dispatch operation body for PO checking
+//		//TODO:Gen Node For body
+//		//tnl.addAll(node.getBody().apply(parentVisitor);
+//
+//		return tnl;
+//	}
+	
 
 }
 

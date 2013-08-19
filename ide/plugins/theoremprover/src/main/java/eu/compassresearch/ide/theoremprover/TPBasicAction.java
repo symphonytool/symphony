@@ -3,12 +3,14 @@ package eu.compassresearch.ide.theoremprover;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourceAttributes;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
@@ -76,26 +78,41 @@ public class TPBasicAction implements IWorkbenchWindowActionDelegate {
 //			thyfile = translateCmltoThy(model, thyfile);
 				
 			//Translate CML specification files to Isabelle
-			//TODO:Create project folder (needs to be timestamped)
-			IFolder output = cmlProj.getModelBuildPath().getOutput().getFolder(new Path("Isabelle"));
-			if(!output.exists())
+			//Create project folder (needs to be timestamped)
+			Date date = new Date();
+			IFolder isaFolder = cmlProj.getModelBuildPath().getOutput().getFolder(new Path("Isabelle/" + date.toString()));
+			if(!isaFolder.exists())
 			{
-				if (!output.getParent().exists())
+				//if generated folder doesn't exist
+				if (!isaFolder.getParent().getParent().exists())
 				{
-					((IFolder) output.getParent()).create(true, true, new NullProgressMonitor());
+					//create 'generated' folder
+					((IFolder) isaFolder.getParent().getParent()).create(true, true, new NullProgressMonitor());
+					//create 'Isabelle' folder
+					((IFolder) isaFolder.getParent()).create(true, true, new NullProgressMonitor());
+
+				}
+				//if 'generated' folder does exist and Isabelle folder doesn't exist
+				else if (!isaFolder.getParent().exists())
+				{
+					
+					((IFolder) isaFolder.getParent()).create(true, true, new NullProgressMonitor());
 						
 				}
-				output.create(true, true, new NullProgressMonitor());
-				output.refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());
+				//Create timestamped folder
+				isaFolder.create(true, true, new NullProgressMonitor());
+				isaFolder.refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());
 			}
-			
+
 			for (ICmlSourceUnit sourceUnit : model.getSourceUnits())
 			{
 				//TODO:Copy .cml file into folder
 				String name = sourceUnit.getFile().getName();
 				String thyFileName = name.substring(0,name.length()-sourceUnit.getFile().getFileExtension().length())+"thy";
-				translateCmltoThy(model,output.getFile(thyFileName), thyFileName);
-//				translateCmltoThy(sourceUnit,output.getFile(thyFileName));
+				translateCmltoThy(model, isaFolder.getFile(thyFileName), thyFileName);
+				//Create empty thy file which imports generated file
+				String userThyFileName = "User"+ thyFileName;
+				createEmptyThy(isaFolder.getFile(userThyFileName), userThyFileName, thyFileName);
 			}
 			
 			//TODO: Should this really be fetching POs at this point?? Don't think we should... (RJP)
@@ -164,74 +181,57 @@ public class TPBasicAction implements IWorkbenchWindowActionDelegate {
 		}
 
 	}
-
-	private void popErrorMessage(String message) {
-		MessageDialog.openInformation(window.getShell(), "COMPASS",
-				"Could not generate THY.\n\n" + message);
-	}
 	
+	private void createEmptyThy(IFile file, String userThyFileName, String modelThyName) {
+		StringBuilder sb = new StringBuilder();
+		
+		String usrthyName = userThyFileName.substring(0, userThyFileName.lastIndexOf('.'));
+		String modelthyName = modelThyName.substring(0, modelThyName.lastIndexOf('.'));
+
+		//Add thy header 
+		sb.append("theory " + usrthyName + " \n" + "  imports utp_cml " + modelthyName +"\n"
+				+ "begin \n" + "\n");
+		sb.append("text {* Auto-generated THY file for user created proof with "+  modelthyName + ".thy *}\n\n");
+		
+			
+		sb.append("\n\n\n" + "end");
+		
+		try{
+			file.delete(true, null);
+			file.create(new ByteArrayInputStream(sb.toString().getBytes()), true, new NullProgressMonitor());
+
+		}catch(CoreException e)
+		{
+			Activator.log(e);
+		}
+	}
+
 	private IFile translateCmltoThy(ICmlModel model, IFile outputFile, String thyFileName) throws IOException,
 	AnalysisException
 	{
-		
-//		TPVisitor tp = new TPVisitor(model.getAstSource());
-//		StringBuilder sb = new StringBuilder();
 
 		String thmString = TPVisitor.generateThyStr(model.getAst(), thyFileName);
-//		String thmString = "test thy";
 		
 		try{
 			outputFile.delete(true, null);
 			outputFile.create(new ByteArrayInputStream(thmString.toString().getBytes()), true, new NullProgressMonitor());
+			
+			//set .thy file to be read only
+			ResourceAttributes attributes = new ResourceAttributes();
+			attributes.setReadOnly(true);
+			outputFile.setResourceAttributes(attributes); 
+
 		}catch(CoreException e)
 		{
 			Activator.log(e);
 		}
 		
 		return outputFile;
-		
-		
-//		 r = new ProofObligationList();
-//			for (INode node : ast) {
-//				r.addAll(node.apply(new ProofObligationGenerator(),
-//						new CmlPOContextStack()));
-//			}
-//			r.renumber();
-//			return r;
-			
-			
+	}
 
-		
-
-
-			
-			
-		
-		//
-		//sb.append("theory " + thyName + " \n" + "  imports utp_vdm \n"
-		//		+ "begin \n" + "\n");
-		//
-		//sb.append("text {* VDM value declarations *}\n\n");
-		//
-		//for (ThmValue tv : tpv.getValueList())
-		//{
-		//	sb.append(tv.toString());
-		//	sb.append("\n");
-		//}
-		//
-		//sb.append("\n");
-		//sb.append("text {* VDM type declarations *}\n\n");
-		//
-		//for (ThmType ty : tpv.getTypeList())
-		//{
-		//	sb.append(ty.toString());
-		//	sb.append("\n");
-		//}
-		//
-		//sb.append("\n");
-		//
-		//sb.append("\n" + "end");
-
+	private void popErrorMessage(String message) {
+		MessageDialog.openInformation(window.getShell(), "COMPASS",
+				"Could not generate THY.\n\n" + message);
 	}
 	
 	@Override

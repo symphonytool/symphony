@@ -536,7 +536,10 @@ public class ThmExprUtil {
 		else if(ex instanceof AStringLiteralExp){
 			AStringLiteralExp s = (AStringLiteralExp) ex;
 			
-			return "<<''" + s.getValue().toString() + "''>>";
+			String value = s.getValue().toString();
+			value = value.replaceAll("\"","");
+			
+			return "<<''" + value + "''>>";
 		}
 		else if(ex instanceof ASubseqExp){
 			ASubseqExp sub = (ASubseqExp) ex;
@@ -890,7 +893,7 @@ public class ThmExprUtil {
 
 		if(ex instanceof ADivideNumericBinaryExp){
 			ADivideNumericBinaryExp div = (ADivideNumericBinaryExp) ex;
-			return "(" +ThmExprUtil.getIsabelleExprStr(svars, bvars, div.getLeft()) + " \'/ " + ThmExprUtil.getIsabelleExprStr(svars, bvars, div.getRight())+ ")";
+			return "(" +ThmExprUtil.getIsabelleExprStr(svars, bvars, div.getLeft()) + " / " + ThmExprUtil.getIsabelleExprStr(svars, bvars, div.getRight())+ ")";
 		}
 		else if(ex instanceof ADivNumericBinaryExp){
 			ADivNumericBinaryExp div = (ADivNumericBinaryExp) ex;

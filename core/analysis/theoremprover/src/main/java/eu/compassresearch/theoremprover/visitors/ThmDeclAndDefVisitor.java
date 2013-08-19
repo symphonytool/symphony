@@ -130,14 +130,14 @@ public class ThmDeclAndDefVisitor  extends
 			throws AnalysisException
 	{
 		ThmNodeList tnl = new ThmNodeList();
-		LinkedList<ILexNameToken> nodeDeps = new LinkedList();
+		LinkedList<ILexNameToken> nodeDeps = new LinkedList<ILexNameToken>();
 
 		ILexNameToken name = node.getName();
 		
 		//Deal with the parameters
 		LinkedList<List<PPattern>> params = node.getParamPatternList();
 		//Find bound values to exclude from dependancy list
-		LinkedList<ILexNameToken> b = new LinkedList();
+		LinkedList<ILexNameToken> b = new LinkedList<ILexNameToken>();
 		for(PPattern p : params.getFirst() )
 		{
 			b.add(((AIdentifierPattern) p).getName());
@@ -149,7 +149,7 @@ public class ThmDeclAndDefVisitor  extends
 		}
 		
 		//Deal with the function body
-		LinkedList<ILexNameToken> s = new LinkedList();
+		LinkedList<ILexNameToken> s = new LinkedList<ILexNameToken>();
 		String exp = ThmExprUtil.getIsabelleExprStr(s, b, node.getBody());
 		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(b, node.getBody()));
 
@@ -181,13 +181,13 @@ public class ThmDeclAndDefVisitor  extends
 			throws AnalysisException
 	{
 		ThmNodeList tnl = new ThmNodeList();
-		LinkedList<ILexNameToken> nodeDeps = new LinkedList();
+		LinkedList<ILexNameToken> nodeDeps = new LinkedList<ILexNameToken>();
 
 		ILexNameToken name = node.getName();
 		LinkedList<APatternListTypePair> params = node.getParamPatterns();
 		APatternTypePair res = node.getResult();
 
-		LinkedList<ILexNameToken> b = new LinkedList();
+		LinkedList<ILexNameToken> b = new LinkedList<ILexNameToken>();
 		//Find bound values to exclude from dependancy list
 		for(APatternListTypePair p : params )
 		{
@@ -206,7 +206,7 @@ public class ThmDeclAndDefVisitor  extends
 		
 		
 		
-		LinkedList<ILexNameToken> s = new LinkedList();
+		LinkedList<ILexNameToken> s = new LinkedList<ILexNameToken>();
 		String pre = null;
 		if (node.getPrecondition() != null){
 			pre = ThmExprUtil.getIsabelleExprStr(s, b, node.getPrecondition());
@@ -296,20 +296,23 @@ public class ThmDeclAndDefVisitor  extends
 		LinkedList<ILexNameToken> nodeDeps = new LinkedList<ILexNameToken>();
 		ILexNameToken procName = node.getName();
 		
-		PProcess pProc = node.getProcess();
-		if (pProc instanceof AActionProcess)
+		if (node.getProcess() instanceof AActionProcess)
 		{
-			AActionProcess act = (AActionProcess) pProc;
+			AActionProcess act = (AActionProcess) node.getProcess();
 			PAction mainAction = act.getAction();
 			
 			//need to define a new collection of node lists for the definitions inside a 
 			//process. This is because we need to limit scope and dependancies within a 
 			//action process, and output it as a single (contained) node.
 			ThmNodeList actTnl = new ThmNodeList();
-			LinkedList<AStateDefinition> statements = new LinkedList();
-			LinkedList<PDefinition> operations = new LinkedList();
-			LinkedList<PDefinition> actions = new LinkedList();
-			LinkedList<PDefinition> others = new LinkedList();
+			//Require a list of all names used within a process, so to ensure the dependancy 
+			//relationships within and outside the process can be dealt with.
+			LinkedList<ILexNameToken> procNodeNames = new LinkedList<ILexNameToken>();
+
+			LinkedList<AStateDefinition> statements = new LinkedList<AStateDefinition>();
+			LinkedList<SCmlOperationDefinition> operations = new LinkedList<SCmlOperationDefinition>();
+			LinkedList<AActionDefinition> actions = new LinkedList<AActionDefinition>();
+			LinkedList<PDefinition> others = new LinkedList<PDefinition>();
 			
 			for (PDefinition pdef : act.getDefinitionParagraphs())
 			{
@@ -336,26 +339,18 @@ public class ThmDeclAndDefVisitor  extends
 			
 			//first we need to get all the state identifier names so expressions use correct
 			//reference
-			LinkedList<ILexNameToken> svars = new LinkedList();
-			for (AStateDefinition pdef : statements)
-			{
-				for (PDefinition sdef : pdef.getStateDefs())
-				{
-					if (sdef instanceof AAssignmentDefinition)
-					{
-						AAssignmentDefinition st = (AAssignmentDefinition) sdef;
-
-						ILexNameToken name = st.getName();
-						svars.add(name);
-					}
-				}
-			}
-			
+			LinkedList<ILexNameToken> svars = ThmProcessUtil.getStateNames(statements);
+			//Add all state, operation and action names to list
+			procNodeNames.addAll(ThmProcessUtil.getStateNames(statements));
+			procNodeNames.addAll(ThmProcessUtil.getOperationNames(operations));
+			procNodeNames.addAll(ThmProcessUtil.getActionNames(actions));
+					
+						
 			//next generate nodes for the state variables, and add their initialised 
 			//assignments to a collection for initialisation in main action
 			//Also generate the invariant functions...
-			LinkedList<String> initExprs = new LinkedList();
-			LinkedList<ILexNameToken> initExprNodeDeps = new LinkedList();
+			LinkedList<String> initExprs = new LinkedList<String>();
+			LinkedList<ILexNameToken> initExprNodeDeps = new LinkedList<ILexNameToken>();
 			for (AStateDefinition pdef : statements)
 			{
 				for (PDefinition sdef : pdef.getStateDefs())
@@ -365,9 +360,19 @@ public class ThmDeclAndDefVisitor  extends
 						AAssignmentDefinition st = (AAssignmentDefinition) sdef;
 
 						ILexNameToken sName = st.getName();
-						LinkedList<ILexNameToken> sNodeDeps = new LinkedList();
-						initExprs.add("$" +sName.toString() + " := "+ ThmExprUtil.getIsabelleExprStr(svars, new LinkedList(), st.getExpression()));
-						initExprNodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(new LinkedList(),  st.getExpression()));
+						LinkedList<ILexNameToken> sNodeDeps = new LinkedList<ILexNameToken>();
+						if (st.getExpression() != null)
+						{
+							initExprs.add("$" +sName.toString() + " := "+ ThmExprUtil.getIsabelleExprStr(svars, new LinkedList<ILexNameToken>(), st.getExpression()));
+							initExprNodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(new LinkedList<ILexNameToken>(),  st.getExpression()));
+
+							nodeDeps.addAll(initExprNodeDeps);
+							initExprNodeDeps = ThmProcessUtil.removeExtDeps(initExprNodeDeps,procNodeNames);
+						}
+						else
+						{
+							initExprs.add("$" +sName.toString() + " := undefined");
+						}
 						String type = ThmTypeUtil.getIsabelleType(st.getType());
 			
 						ThmNode stn = new ThmNode(sName, sNodeDeps, new ThmState(sName.getName(), type));
@@ -394,13 +399,19 @@ public class ThmDeclAndDefVisitor  extends
 			
 			
 			//TODO: Handle the operations.
-			
+			actTnl.addAll(ThmProcessUtil.getIsabelleOperations(operations, svars));
+//			nodeDeps.addAll(ThmProcessUtil.getIsabelleOperationDeps(operations));
 			//TODO: Handle the actions.
+//			actTnl.addAll(ThmProcessUtil.getIsabelleActions(operations, svars));
+//			nodeDeps.addAll(ThmProcessUtil.getIsabelleActions(operations));
+			
+			
 			
 			//sort the state, operation and actions, so that they are in dependancy order
-			//TODO: BREAKS HERE!!!!
 			actTnl = TPVisitor.sortThmNodes(actTnl);
 			String mainStr = "";//ThmActionUtil.getIsabelleAction(mainAction);
+			
+			nodeDeps = ThmProcessUtil.removeProcessDeps(nodeDeps,procNodeNames);
 			
 			tn = new ThmNode(procName, nodeDeps, new ThmProcAction(procName.toString(), actTnl.toString(), mainStr));
 
