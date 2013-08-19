@@ -34,6 +34,9 @@ public class Utilities {
 	public static final String LOCAL_DEFINITIONS_KEY = "LOCAL_DEFINITIONS";
 	public static final String CHANNEL_DEFINITIONS_KEY = "CHANNEL_DEFINITIONS";
 	public static final String IOCOMM_DEFINITIONS_KEY = "IOCOMM_DEF";
+	public static final String CONDITION_KEY = "CONDITION";
+	public static int OCCUR_COUNT = 1;
+	
 	
 	
 	private static boolean parseWithANTLR(PSource sourceIn) throws IOException
