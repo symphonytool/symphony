@@ -13,24 +13,19 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.concurrent.SynchronousQueue;
 
+import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.intf.lex.ILexLocation;
-import org.overture.ast.lex.LexLocation;
 import org.overture.ast.node.INode;
 import org.overture.interpreter.values.IntegerValue;
 import org.overture.interpreter.values.Value;
 
-import eu.compassresearch.ast.actions.PAction;
-import eu.compassresearch.ast.process.PProcess;
-import eu.compassresearch.ast.program.AFileSource;
-import eu.compassresearch.ast.types.ASourceType;
 import eu.compassresearch.core.interpreter.CmlRuntime;
 import eu.compassresearch.core.interpreter.RandomSelectionStrategy;
 import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
+import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
-import eu.compassresearch.core.interpreter.api.InterpreterError;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
-import eu.compassresearch.core.interpreter.api.InterpreterStatus;
 import eu.compassresearch.core.interpreter.api.SelectionStrategy;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
@@ -39,7 +34,6 @@ import eu.compassresearch.core.interpreter.api.events.InterpreterStatusEvent;
 import eu.compassresearch.core.interpreter.api.transitions.ChannelEvent;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.utility.LocationExtractor;
-import eu.compassresearch.core.interpreter.utility.Pair;
 import eu.compassresearch.core.interpreter.utility.messaging.CmlRequest;
 import eu.compassresearch.core.interpreter.utility.messaging.MessageCommunicator;
 import eu.compassresearch.core.interpreter.utility.messaging.MessageContainer;
@@ -61,7 +55,9 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 	private InputStream requestIS;
 	private BufferedReader requestReader;
 	private boolean connected = false;
-	
+	private CmlInterpreter runningInterpreter;
+	private DebugMode currentMode = null;
+
 	/**
 	 * Response Queue
 	 */
@@ -70,7 +66,7 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 	 * Dispatches incomming messages
 	 */
 	private CommandDispatcher commandDispatcher;
-	
+
 	/**
 	 * Processes incomming messages
 	 * @author akm
@@ -89,7 +85,7 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 				e.printStackTrace();
 			}
 		}
-		
+
 		@Override
 		public void run() {
 			MessageContainer messageContainer = null;
@@ -98,10 +94,10 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 				do
 				{
 					messageContainer = recvMessage();
-					CmlRuntime.logger().finest("Receiving message: " + messageContainer.toString());
+					CmlRuntime.logger().finest("Debug event thread received a message: " + messageContainer.toString());
 				}
 				while (!stopped && processMessage(messageContainer));
-			
+
 			}catch(IOException e)
 			{
 				stopped();
@@ -109,14 +105,14 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 			}
 		}
 	}
-	
+
 	/**
 	 * Connects to the request tcp connection on "localhost" (for now) 
 	 * where the eclipse UI should listening.
 	 * @throws UnknownHostException
 	 * @throws IOException
 	 */
-	private void connect() throws UnknownHostException, IOException
+	public void connect() throws UnknownHostException, IOException
 	{
 		if(!isConnected())
 		{
@@ -127,44 +123,43 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 			connected = true;
 		}
 	}
-	
+
 	private boolean isConnected()
 	{
 		return connected;
 	}
-	
-	private void simulate(CmlInterpreter cmlInterpreter) throws Exception
+
+	private void simulate(CmlInterpreter cmlInterpreter) throws AnalysisException
 	{
 		CmlSupervisorEnvironment sve = 
 				VanillaInterpreterFactory.newDefaultCmlSupervisorEnvironment(new RandomSelectionStrategy());
 
 		cmlInterpreter.execute(sve);
 	}
-	
-	private void animate(final CmlInterpreter cmlInterpreter) throws Exception
-	{
 
-		//Create the supervisor environment with the a selction strategy that has a connection to
+	private void animate(final CmlInterpreter cmlInterpreter) throws AnalysisException
+	{
+		//Create the supervisor environment with the a selection strategy that has a connection to
 		//the eclipse debugger
 		CmlSupervisorEnvironment sve = 
 				VanillaInterpreterFactory.newDefaultCmlSupervisorEnvironment(new SelectionStrategy() {
-					
+
 					private Scanner scanIn = new Scanner(System.in);
 					private RandomSelectionStrategy rndSelect = new RandomSelectionStrategy();
-					
+
 					private boolean isSystemSelect(CmlAlphabet availableChannelEvents)
 					{
 						return availableChannelEvents.getSilentTransitions().size() > 0;
 					}
-					
+
 					private CmlTransition systemSelect(CmlAlphabet availableChannelEvents)
 					{
 						return rndSelect.select(new CmlAlphabet((Set)availableChannelEvents.getSilentTransitions()));
 					}
-					
+
 					private CmlTransition userSelect(CmlAlphabet availableChannelEvents)
 					{
-						sendStatusMessage(CmlDbgpStatus.CHOICE, cmlInterpreter.getStatus());
+						//sendStatusMessage(CmlDbgpStatus.CHOICE, cmlInterpreter.getStatus());
 
 						List<Choice> transitions = new LinkedList<Choice>();
 						for(CmlTransition transition : availableChannelEvents.getAllEvents())
@@ -176,7 +171,7 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 								INode node = source.getNextState().first;
 								locations.add(LocationExtractor.extractLocation(node));
 							}
-							 	
+
 							transitions.add(new Choice(System.identityHashCode(transition),transition.toString(),locations));
 						}
 
@@ -208,7 +203,7 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 
 						return selectedEvent;
 					}
-					
+
 					@Override
 					public CmlTransition select(CmlAlphabet availableChannelEvents) {
 
@@ -224,59 +219,40 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 
 		cmlInterpreter.execute(sve);
 	}
-	
-	
-	
+
 	/**
 	 * Message communication methods
 	 */
-	
-	/**
-	 * Sends the initialization message to the eclipse debug target
-	 */
-	private void init()
-	{
-		sendStatusMessage(CmlDbgpStatus.STARTING);
-		commandDispatcher = new CommandDispatcher();
-		new Thread(commandDispatcher, "CMLInterpreterRunner event dipsatcher").start();
-	}
-	
+
 	private void stopped()
 	{
 		stopped(null);
 	}
-	
-	private void stopped(InterpreterStatus status)
+
+	private void stopped(CmlInterpreterStateDTO status)
 	{
-		sendStatusMessage(CmlDbgpStatus.STOPPED,status);
+		sendStatusMessage(status);
 		commandDispatcher.stop();
 	}
-	/**
-	 * This message sends a status message to the eclipse debug target UI
-	 * @param status The status to send
-	 */
-	private void sendStatusMessage(CmlDbgpStatus status)
+
+	private void sendStatusMessage(CmlInterpreterStateDTO interpreterStatus)
 	{
-		sendStatusMessage(status, null);
-	}
-	
-	private void sendStatusMessage(CmlDbgpStatus status, InterpreterStatus interpreterStatus)
-	{
-		CmlDbgStatusMessage dm = new CmlDbgStatusMessage(status,interpreterStatus);
+		CmlDbgStatusMessage dm = new CmlDbgStatusMessage(interpreterStatus);
 		CmlRuntime.logger().finest("Sending status message : " + dm.toString());
 		MessageCommunicator.sendMessage(requestOS, dm);
 	}
-	
+
 	private ResponseMessage sendRequestSynchronous(RequestMessage message)
 	{
 		MessageCommunicator.sendMessage(requestOS, message);
 		ResponseMessage responseMessage = null;
 		try {
+			//check message id
 			responseMessage = responseQueue.take();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		
+
 		return responseMessage;
 	}
 
@@ -288,20 +264,20 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 	private MessageContainer recvMessage() throws IOException
 	{
 		return MessageCommunicator.receiveMessage(requestReader,
-				new MessageContainer(new CmlDbgStatusMessage(CmlDbgpStatus.CONNECTION_CLOSED))); 
+				new MessageContainer(new CmlDbgStatusMessage(CmlInterpretationStatus.TERMINATED))); 
 	}
-	
-	
+
+
 	private void stopping()
 	{
-		sendStatusMessage(CmlDbgpStatus.STOPPING);
+		//sendStatusMessage(CmlDbgpStatus.STOPPING);
 		responseQueue.add(new ResponseMessage());
 	}
 
 	/*
 	 * Message handlers
 	 */
-	
+
 	/**
 	 * Processes messages of type MessageType.STATUS, this is status messages from the other end.
 	 * @param message The status message
@@ -309,15 +285,20 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 	 */
 	private boolean processStatusMessage(CmlDbgStatusMessage message)
 	{
-		switch(message.getStatus())
+		if(message.getStatus() != null)
 		{
-		case CONNECTION_CLOSED:
-			return false;
-		default:
-			return true;
+			switch(message.getStatus())
+			{
+			//		case null:
+			//			return false;
+			default:
+				return false;
+			}
 		}
+		else
+			return false;
 	}
-	
+
 	/**
 	 * Processes messages of type MessageType.COMMAND, this is commands from the other end.
 	 * @param message the message containing a command
@@ -329,13 +310,26 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 		{
 		case STOP:
 			stopping();
-			
 			return false;
+		case SET_BREAKPOINT:	
+			Breakpoint bp = message.getContent();
+			System.out.println("Break point added : " + bp);
+			if(currentMode == DebugMode.ANIMATE){
+				runningInterpreter.addBreakpoint(bp);
+
+			}
+			return true;
+		case RESUME:
+			runningInterpreter.resume();
+			return true;
+		case STEP:
+			runningInterpreter.step();
+			return true;
 		default:
 			return true;
 		}
 	}
-	
+
 	/**
 	 * Handles the response messages sent
 	 * @param message
@@ -346,8 +340,8 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 		responseQueue.offer(message);
 		return true;
 	}
-		
-	
+
+
 	private boolean processMessage(MessageContainer messageContainer)
 	{
 		switch(messageContainer.getType())
@@ -360,49 +354,61 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 			return processResponse((ResponseMessage)messageContainer.getMessage());
 		default:
 		}
-		
+
 		return false;
 	}
-	
-	
+
+
 	/*
 	 * CmlDebugger methods
 	 */
-	
+
 	@Override
-	public void initialize() throws Exception{
-		connect();
-		init();
+	public void initialize(CmlInterpreter cmlInterpreter) throws AnalysisException {
+
+		runningInterpreter = cmlInterpreter;
+		runningInterpreter.onStatusChanged().registerObserver(this);
+		//sendStatusMessage(this.runningInterpreter.getStatus());
+		commandDispatcher = new CommandDispatcher();
+		new Thread(commandDispatcher, "CMLInterpreterRunner event dipsatcher").start();
+		runningInterpreter.initialize();
+	}
+
+	private void requestSetup()
+	{
+		sendRequestSynchronous(new RequestMessage(CmlRequest.SETUP));
 	}
 
 	@Override
-	public void start(DebugMode mode, CmlInterpreter cmlInterpreter) {
-		
+	public void start(DebugMode mode) {
+
 		try{
-			cmlInterpreter.onStatusChanged().registerObserver(this);
+			currentMode = mode;
 			if(mode == DebugMode.ANIMATE)
-				animate(cmlInterpreter);
+			{
+				requestSetup();
+				animate(runningInterpreter);
+			}
 			else if (mode == DebugMode.SIMULATE)
-				simulate(cmlInterpreter);
-			
-			stopped(cmlInterpreter.getStatus());
+				simulate(runningInterpreter);
+
+			stopped(CmlInterpreterStateDTO.createCmlInterpreterStateDTO(runningInterpreter));
 		}
-		catch(Exception e)
+		catch(AnalysisException e)
 		{
-			InterpreterStatus status = cmlInterpreter.getStatus();
-			status.AddError(new InterpreterError(e.getMessage()));
+			CmlInterpreterStateDTO status = CmlInterpreterStateDTO.createCmlInterpreterStateDTO(runningInterpreter);
+			status.AddError(new InterpreterErrorDTO(e.getMessage()));
 			stopped(status);
 		}
 		finally{
-			cmlInterpreter.onStatusChanged().unregisterObserver(this);
+			runningInterpreter.onStatusChanged().unregisterObserver(this);
 		}
-		
 	}
 
 	@Override
 	public void onStatusChanged(Object source, InterpreterStatusEvent event) {
-		// TODO Auto-generated method stub
-		
+		System.out.println("Debug thread sending Status event to controller: " + event);
+		sendStatusMessage(CmlInterpreterStateDTO.createCmlInterpreterStateDTO(runningInterpreter));
 	}
 
 }
