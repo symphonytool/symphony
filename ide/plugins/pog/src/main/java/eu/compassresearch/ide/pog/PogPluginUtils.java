@@ -17,7 +17,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.WorkbenchException;
 
-public class PogPluginUtility
+public class PogPluginUtils
 {
 
 	private IWorkbenchSite site;
@@ -33,7 +33,7 @@ public class PogPluginUtility
 		return allCFiles;
 	}
 
-	public PogPluginUtility(IWorkbenchSite site)
+	public PogPluginUtils(IWorkbenchSite site)
 	{
 		this.site = site;
 	}

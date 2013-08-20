@@ -23,10 +23,18 @@ package eu.compassresearch.core.analysis.pog.obligations;
 ******************************************************************************/
 
 
+import java.util.List;
+
+import org.overture.ast.expressions.AAndBooleanBinaryExp;
+import org.overture.ast.expressions.AOrBooleanBinaryExp;
+import org.overture.ast.expressions.PExp;
+import org.overture.ast.statements.AErrorCase;
+
 import org.overture.pog.pub.IPOContextStack;
 
 import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
+
 public class CmlOperationPostConditionObligation extends CmlProofObligation{
 	
 //	private final PExp preexp;
@@ -43,7 +51,7 @@ public class CmlOperationPostConditionObligation extends CmlProofObligation{
 	{
 		super(op, CmlPOType.OP_POST_CONDITION, ctxt);
 		//FIXME implement ast based PO predicate
-	
+		valuetree.setPredicate(ctxt.getPredWithContext(buildExp(op.getPrecondition(), op.getPostcondition(), null)));
 	}
 
 	public CmlOperationPostConditionObligation(AImplicitCmlOperationDefinition op,
@@ -51,7 +59,60 @@ public class CmlOperationPostConditionObligation extends CmlProofObligation{
 	{
 		super(op, CmlPOType.OP_POST_CONDITION, ctxt);
 		//FIXME implement ast based PO predicate
-
+		valuetree.setPredicate(ctxt.getPredWithContext(buildExp(op.getPrecondition(), op.getPostcondition(), op.getErrors())));
 	}
 
+	private PExp buildExp(PExp preexp, PExp postexp, List<AErrorCase> errs)
+	{
+		if (errs == null || errs.isEmpty())
+		{
+			return postexp;
+		} else
+		{// handled prepost or errors
+			AOrBooleanBinaryExp orExp = new AOrBooleanBinaryExp();
+			orExp.setLeft(handlePrePost(preexp, postexp, errs));
+			PExp errorsExp = (buildErrsExp(errs));
+			orExp.setRight(errorsExp);
+	
+			return orExp;
+		}
+	}
+
+	private PExp handlePrePost(PExp preexp, PExp postexp, List<AErrorCase> errs)
+	{
+		if (preexp != null)
+		{
+			// (preexp and postexp)
+			AAndBooleanBinaryExp andExp = new AAndBooleanBinaryExp();
+			andExp.setLeft(preexp);
+			andExp.setRight(postexp);
+			return andExp;
+		} else
+		{
+			return postexp;
+		}
+	}
+
+	private PExp handleErrorCase(AErrorCase err)
+	{
+		// (errlet and errright)
+		AAndBooleanBinaryExp andExp = new AAndBooleanBinaryExp();
+		andExp.setLeft(err.getLeft());
+		andExp.setRight(err.getRight());
+		return andExp;
+	}
+	
+	private PExp buildErrsExp(List<AErrorCase> errs)
+	{
+		if (errs.size() == 1)
+		{ // termination case
+			return handleErrorCase(errs.get(0));
+		} else
+		{ // recurse on error list
+			AOrBooleanBinaryExp orExp = new AOrBooleanBinaryExp();
+			orExp.setLeft(handleErrorCase(errs.get(0)));
+			orExp.setRight(buildErrsExp(errs.subList(1, errs.size() - 1)));
+			return orExp;
+		}
+	}
 }
