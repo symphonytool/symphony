@@ -7,8 +7,8 @@ Bundle-Activator: eu.compassresearch.ide.pog.Activator
 Bundle-Vendor: The COMPASS Project
 Import-Package: eu.compassresearch.ast.actions,
  eu.compassresearch.ast.analysis,
- eu.compassresearch.ast.definitions,
  eu.compassresearch.ast.declarations,
+ eu.compassresearch.ast.definitions,
  eu.compassresearch.ast.expressions,
  eu.compassresearch.ast.process,
  eu.compassresearch.ast.program,

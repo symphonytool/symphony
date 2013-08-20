@@ -30,8 +30,8 @@ import org.overture.pog.pub.IProofObligation;
 import org.overture.pog.pub.IProofObligationList;
 import org.overture.pog.pub.POStatus;
 
-import eu.compassresearch.ide.core.resources.ICmlProject;
 import eu.compassresearch.ide.pog.POConstants;
+import eu.compassresearch.ide.core.resources.ICmlProject;
 
 public class PoListView extends PoOverviewTableView {
 
@@ -230,5 +230,7 @@ public class PoListView extends PoOverviewTableView {
 		}
 
 	}
+
+
 
 }
