@@ -1,11 +1,12 @@
 package eu.compassresearch.theoremprover;
 
-public class ThmTypeAbbrev extends ThmType {
+public class ThmTypeAbbrev {//extends ThmType {
 
 	String body;
+	String name;
 
 	public ThmTypeAbbrev(String name, String body) {
-		super();
+	//	super();
 		this.name = name;
 		this.body = body;
 	}

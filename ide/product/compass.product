@@ -24,11 +24,12 @@
       startupProgressRect="0,0,300,20"
       startupMessageRect="75,200,300,15"
       startupForegroundColor="7F7F7F" />
-   <launcher name="COMPASS">
-      <linux icon="/icons/compassToolIcon.png"/>
+    <launcher name="COMPASS">
+      <linux icon="/icons/linux/compass.xpm"/>
+      <macosx icon="/icons/osx/compass.icns"/>
       <solaris/>
       <win useIco="true">
-         <ico path="/icons/compassToolIcon.png"/>
+         <ico path="/icons/win/compass.ico"/>
          <bmp/>
       </win>
    </launcher>

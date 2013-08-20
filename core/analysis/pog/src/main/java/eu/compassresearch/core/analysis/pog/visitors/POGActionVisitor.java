@@ -579,9 +579,14 @@ try{
 
 		pol.addAll(leftAction.apply(parentPOG, question));
 		pol.addAll(rightAction.apply(parentPOG, question));
+		
+		// GUard against empty nameset expressions
+		if (leftNamesetExp != null){
 		pol.addAll(leftNamesetExp.apply(parentPOG, question));
+		}
+		if (leftNamesetExp != null){
 		pol.addAll(rightnamesetExp.apply(parentPOG, question));
-
+		}
 		// TODO: Consider AInterleavingParallelAction POs
 
 		return pol;

@@ -126,6 +126,7 @@ public class InterpretAllCmlFilesTest {
 		
 		Exception exception = null;
 		try{
+			interpreter.initialize();
 			interpreter.execute(sve);
 		}
 		catch(Exception ex)
@@ -138,7 +139,7 @@ public class InterpretAllCmlFilesTest {
 	
 	private void checkResult(ExpectedTestResult testResult, CmlInterpreter interpreter, Exception exception) {
 
-		CmlBehaviour topProcess = interpreter.getTopLevelCmlBehaviour();
+		CmlBehaviour topProcess = interpreter.getTopLevelProcess();
 		
 		//Exceptions check
 		//testResult.throwsException() => exception != null
@@ -163,7 +164,7 @@ public class InterpretAllCmlFilesTest {
 		}
 		
 		//Interpreter state
-		Assert.assertEquals(testResult.getInterpreterState(), interpreter.getCurrentState());
+		Assert.assertEquals(testResult.getInterpreterState(), interpreter.getStatus());
 	}
 	
 	private String traceToString(List<CmlTransition> trace)

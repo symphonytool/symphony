@@ -14,6 +14,12 @@ public class CmlDbgCommandMessage extends Message {
 		setCommand(command);
 	}
 
+	public CmlDbgCommandMessage(CmlDebugCommand command, Object content)
+	{
+		setCommand(command);
+		setContent(content);
+	}
+	
 	public CmlDebugCommand getCommand() {
 		return command;
 	}
@@ -29,6 +35,12 @@ public class CmlDbgCommandMessage extends Message {
 
 	@Override
 	public String getKey() {
+		return getCommand().toString();
+	}
+	
+	@Override
+	public String toString() {
+
 		return getCommand().toString();
 	}
 }

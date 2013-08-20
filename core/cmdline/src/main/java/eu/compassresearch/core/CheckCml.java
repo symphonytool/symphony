@@ -498,8 +498,7 @@ public class CheckCml {
 		// POG Analysis
 		if (input.isSwitchOn(Switch.POG)) {
 			// define pog object
-			final ProofObligationGenerator pog = new ProofObligationGenerator(
-					sources);
+			final ProofObligationGenerator pog = new ProofObligationGenerator();
 
 			System.out.println(pog.getAnalysisName());
 

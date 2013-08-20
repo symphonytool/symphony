@@ -6,35 +6,25 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.HashMap;
-import java.util.List;
+import java.net.URI;
 import java.util.Map;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.debug.core.model.IBreakpoint;
 
-import eu.compassresearch.core.interpreter.debug.Choice;
+import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
 import eu.compassresearch.core.interpreter.debug.CmlDbgCommandMessage;
 import eu.compassresearch.core.interpreter.debug.CmlDbgStatusMessage;
-import eu.compassresearch.core.interpreter.debug.CmlDbgpStatus;
 import eu.compassresearch.core.interpreter.debug.CmlDebugCommand;
-import eu.compassresearch.core.interpreter.utility.messaging.CmlRequest;
 import eu.compassresearch.core.interpreter.utility.messaging.Message;
 import eu.compassresearch.core.interpreter.utility.messaging.MessageCommunicator;
 import eu.compassresearch.core.interpreter.utility.messaging.MessageContainer;
 import eu.compassresearch.core.interpreter.utility.messaging.RequestMessage;
 import eu.compassresearch.ide.interpreter.CmlDebugPlugin;
 import eu.compassresearch.ide.interpreter.ICmlDebugConstants;
-import eu.compassresearch.ide.interpreter.model.CmlChoiceMediator;
 import eu.compassresearch.ide.interpreter.model.CmlDebugTarget;
 
 public class CmlCommunicationManager extends Thread
 {
-	interface MessageEventHandler<T extends Message>
-	{
-		public boolean handleMessage(T message);
-	};
-
 	private Map<String, MessageEventHandler<RequestMessage>> requestHandlers;
 	private Map<String, MessageEventHandler<CmlDbgStatusMessage>> statusHandlers;
 	private BufferedReader fRequestReader;
@@ -47,12 +37,18 @@ public class CmlCommunicationManager extends Thread
 	private CmlThreadManager threadManager;
 	private int port;
 
-	public CmlCommunicationManager(CmlDebugTarget target,
-			CmlThreadManager threadManager, int port)
+	public CmlCommunicationManager(
+			CmlDebugTarget target,
+			CmlThreadManager threadManager,
+			Map<String, MessageEventHandler<RequestMessage>> requestHandlers,
+			Map<String, MessageEventHandler<CmlDbgStatusMessage>> statusHandlers,
+			int port)
 	{
 		this.target = target;
 		this.threadManager = threadManager;
 		this.port = port;
+		this.requestHandlers = requestHandlers;
+		this.statusHandlers = statusHandlers;
 	}
 
 	/**
@@ -69,6 +65,12 @@ public class CmlCommunicationManager extends Thread
 		MessageCommunicator.sendMessage(requestOutputStream, message);
 	}
 
+	public void sendCommandMessage(CmlDebugCommand cmd, Object content)
+	{
+		CmlDbgCommandMessage message = new CmlDbgCommandMessage(cmd, content);
+		MessageCommunicator.sendMessage(requestOutputStream, message);
+	}
+
 	public void sendMessage(Message message)
 	{
 		MessageCommunicator.sendMessage(requestOutputStream, message);
@@ -77,124 +79,12 @@ public class CmlCommunicationManager extends Thread
 	/**
 	 * Initialisation methods
 	 */
-	public void initializeHandlers()
-	{
-		requestHandlers = initializeRequestHandlers();
-		statusHandlers = initializeStatusHandlers();
-
-	}
-
-	/**
-	 * Initialises all the request message handlers
-	 * 
-	 * @return
-	 */
-	private Map<String, MessageEventHandler<RequestMessage>> initializeRequestHandlers()
-	{
-		Map<String, MessageEventHandler<RequestMessage>> handlers = new HashMap<String, MessageEventHandler<RequestMessage>>();
-
-		// Handler for the Choice request
-		handlers.put(CmlRequest.CHOICE.toString(), new MessageEventHandler<RequestMessage>()
-		{
-
-			@Override
-			public boolean handleMessage(RequestMessage message)
-			{
-				// Type listType = new TypeToken<List<String>>(){}.getType();
-
-				final List<Choice> events = message.getContent();
-				new CmlChoiceMediator(target, CmlCommunicationManager.this).setChoiceOptions(events, message);
-				return true;
-			}
-		});
-
-		return handlers;
-	}
-
-	/**
-	 * Initializes all the status message handlers
-	 * 
-	 * @return
-	 */
-	private Map<String, MessageEventHandler<CmlDbgStatusMessage>> initializeStatusHandlers()
-	{
-		Map<String, MessageEventHandler<CmlDbgStatusMessage>> handlers = new HashMap<String, MessageEventHandler<CmlDbgStatusMessage>>();
-
-		handlers.put(CmlDbgpStatus.STARTING.toString(), new MessageEventHandler<CmlDbgStatusMessage>()
-		{
-			@Override
-			public boolean handleMessage(CmlDbgStatusMessage message)
-			{
-				for (IBreakpoint b : target.getBreakpoints())
-				{
-					try
-					{
-						if (b.isEnabled())
-						{
-							System.out.println("Adding breakpoint: " + b);
-							// TODO communnicate the setting of the breakpoint to the interpreter
-						}
-					} catch (CoreException e)
-					{
-						CmlDebugPlugin.logError("Failed to set breakpoint", e);
-					}
-				}
-				return true;
-			}
-		});
-
-		handlers.put(CmlDbgpStatus.RUNNING.toString(), new MessageEventHandler<CmlDbgStatusMessage>()
-		{
-			@Override
-			public boolean handleMessage(CmlDbgStatusMessage message)
-			{
-				threadManager.started(message.getInterpreterStatus());
-				return true;
-			}
-		});
-
-		handlers.put(CmlDbgpStatus.CHOICE.toString(), new MessageEventHandler<CmlDbgStatusMessage>()
-		{
-			@Override
-			public boolean handleMessage(CmlDbgStatusMessage message)
-			{
-				threadManager.updateDebuggerInfo(message.getInterpreterStatus());
-				return true;
-			}
-		});
-
-		handlers.put(CmlDbgpStatus.STOPPING.toString(), new MessageEventHandler<CmlDbgStatusMessage>()
-		{
-			@Override
-			public boolean handleMessage(CmlDbgStatusMessage message)
-			{
-				threadManager.stopping();
-				return true;
-			}
-		});
-
-		handlers.put(CmlDbgpStatus.STOPPED.toString(), new MessageEventHandler<CmlDbgStatusMessage>()
-		{
-			@Override
-			public boolean handleMessage(CmlDbgStatusMessage message)
-			{
-				threadManager.updateDebuggerInfo(message.getInterpreterStatus());
-				return false;
-			}
-		});
-
-		handlers.put(CmlDbgpStatus.CONNECTION_CLOSED.toString(), new MessageEventHandler<CmlDbgStatusMessage>()
-		{
-			@Override
-			public boolean handleMessage(CmlDbgStatusMessage message)
-			{
-				connectionClosed();
-				return false;
-			}
-		});
-
-		return handlers;
-	}
+	// public void initializeHandlers()
+	// {
+	// requestHandlers = initializeRequestHandlers();
+	// statusHandlers = initializeStatusHandlers();
+	//
+	// }
 
 	/**
 	 * Receives a message from the debugger
@@ -204,7 +94,7 @@ public class CmlCommunicationManager extends Thread
 	 */
 	public MessageContainer receiveMessage() throws IOException
 	{
-		return MessageCommunicator.receiveMessage(fRequestReader, new MessageContainer(new CmlDbgStatusMessage(CmlDbgpStatus.CONNECTION_CLOSED)));
+		return MessageCommunicator.receiveMessage(fRequestReader, new MessageContainer(new CmlDbgStatusMessage(CmlInterpretationStatus.TERMINATED)));
 	}
 
 	/**
@@ -265,23 +155,16 @@ public class CmlCommunicationManager extends Thread
 	@Override
 	public void run()
 	{
-		// CmlDebugStatusMessage event = new CmlDebugStatusMessage(CmlDbgpStatus.WAITING_FOR_CONNECTION);
 		MessageContainer message = null;
 		try
 		{
 			do
 			{
 				message = receiveMessage();
-				System.out.println(message);
-			}
-			// while (!isTerminated() && message != null && processMessage(message));
-			while (processMessage(message));
+			} while (processMessage(message));
 		} catch (IOException e)
 		{
-			System.out.println(e);
-			connectionClosed();
-			threadManager.terminated();
-
+			CmlDebugPlugin.logError("Error while receving/processing incomming messages from the debugger", e);
 		} finally
 		{
 			connectionClosed();
@@ -298,7 +181,7 @@ public class CmlCommunicationManager extends Thread
 	{
 		if (waitForConnect(port))
 		{
-			initializeHandlers();
+			// initializeHandlers();
 			start();
 		}
 	}
@@ -334,10 +217,12 @@ public class CmlCommunicationManager extends Thread
 
 	public void terminate()
 	{
-
-		synchronized (fRequestSocket)
+		if (fRequestSocket != null)
 		{
-			sendCommandMessage(CmlDebugCommand.STOP);
+			synchronized (fRequestSocket)
+			{
+				sendCommandMessage(CmlDebugCommand.STOP);
+			}
 		}
 
 	}
@@ -350,6 +235,21 @@ public class CmlCommunicationManager extends Thread
 	public boolean isConnected()
 	{
 		return (fRequestSocket == null ? false : !fRequestSocket.isClosed());
+	}
+
+	public void addBreakpoint(URI file, int linenumber, boolean enabled)
+	{
+
+	}
+
+	public void removeBreakpoint(URI file, int linenumber)
+	{
+
+	}
+
+	public void updateBreakpoint(URI file, int linenumber, boolean enabled)
+	{
+
 	}
 
 }

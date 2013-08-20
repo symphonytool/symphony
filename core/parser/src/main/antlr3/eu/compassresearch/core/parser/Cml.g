@@ -2475,7 +2475,7 @@ patternIdentifier returns[PPattern pattern]
         }
     | minus='-'
         {
-            $pattern = new AIgnorePattern(extractLexLocation($minus), null, true);
+            $pattern = new AIgnorePattern(extractLexLocation($minus), null, true,null);
         }
     ;
 

@@ -4,14 +4,12 @@ import isabelle.Session;
 import isabelle.eclipse.core.IsabelleCore;
 import isabelle.eclipse.core.app.Isabelle;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -20,18 +18,13 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.pog.pub.IProofObligation;
 
 import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligationList;
-import eu.compassresearch.ide.pog.POConstants;
-import eu.compassresearch.ide.pog.PogPluginDoStuff;
-import eu.compassresearch.ide.pog.PogPluginUtility;
 import eu.compassresearch.ide.core.resources.ICmlModel;
 import eu.compassresearch.ide.core.resources.ICmlProject;
 import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
+import eu.compassresearch.ide.pog.POConstants;
+import eu.compassresearch.ide.pog.PogPluginDoStuff;
 import eu.compassresearch.ide.ui.utility.CmlProjectUtil;
 import eu.compassresearch.theoremprover.IsabelleTheory;
-import eu.compassresearch.theoremprover.IsabelleTheory.IsabelleTheorem;
-import eu.compassresearch.theoremprover.TPVisitor;
-import eu.compassresearch.theoremprover.ThmType;
-import eu.compassresearch.theoremprover.ThmValue;
 
 public class FetchPosUtil
 {
@@ -155,47 +148,47 @@ public class FetchPosUtil
 	private void translateCmltoThy(ICmlSourceUnit source, IFile outputFile) throws IOException,
 			AnalysisException
 	{
-		TPVisitor tpv = new TPVisitor();
-		source.getParseNode().apply(tpv);
-
-		String name = source.getFile().getName();
-
-		String thyName = name.substring(0, name.lastIndexOf("."));
-		StringBuilder sb = new StringBuilder();
-
-		sb.append("theory " + thyName + " \n" + "  imports utp_vdm \n"
-				+ "begin \n" + "\n");
-
-		sb.append("text {* VDM value declarations *}\n\n");
-
-		for (ThmValue tv : tpv.getValueList())
-		{
-			sb.append(tv.toString());
-			sb.append("\n");
-		}
-
-		sb.append("\n");
-		sb.append("text {* VDM type declarations *}\n\n");
-
-		for (ThmType ty : tpv.getTypeList())
-		{
-			sb.append(ty.toString());
-			sb.append("\n");
-		}
-
-		sb.append("\n");
-
-		sb.append("\n" + "end");
-
-		try{
-		outputFile.delete(true, null);
-		outputFile.create( new ByteArrayInputStream(sb.toString().getBytes()), true, new NullProgressMonitor());
-		}catch(CoreException e)
-		{
-			Activator.log(e);
-		}
-		
-		return;
+//		TPVisitor tpv = new TPVisitor();
+//		source.getParseNode().apply(tpv);
+//
+//		String name = source.getFile().getName();
+//
+//		String thyName = name.substring(0, name.lastIndexOf("."));
+//		StringBuilder sb = new StringBuilder();
+//
+//		sb.append("theory " + thyName + " \n" + "  imports utp_vdm \n"
+//				+ "begin \n" + "\n");
+//
+//		sb.append("text {* VDM value declarations *}\n\n");
+//
+//		for (ThmValue tv : tpv.getValueList())
+//		{
+//			sb.append(tv.toString());
+//			sb.append("\n");
+//		}
+//
+//		sb.append("\n");
+//		sb.append("text {* VDM type declarations *}\n\n");
+//
+//		for (ThmType ty : tpv.getTypeList())
+//		{
+//			sb.append(ty.toString());
+//			sb.append("\n");
+//		}
+//
+//		sb.append("\n");
+//
+//		sb.append("\n" + "end");
+//
+//		try{
+//		outputFile.delete(true, null);
+//		outputFile.create( new ByteArrayInputStream(sb.toString().getBytes()), true, new NullProgressMonitor());
+//		}catch(CoreException e)
+//		{
+//			Activator.log(e);
+//		}
+//		
+//		return;
 
 	}
 
