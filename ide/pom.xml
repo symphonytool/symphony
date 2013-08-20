@@ -108,18 +108,16 @@
   </build>
 
   <repositories>
-  
-  
-      <repository>
-      <id>eclipse-juno</id>
-      <url>http://eclipse.cu.be/releases/juno</url>
+    <repository>
+      <id>eclipse-kepler</id>
+      <url>http://eclipse.cu.be/releases/kepler</url>
       <layout>p2</layout>
     </repository>
-    <!--repository>
-      <id>eclipse-juno</id>
-      <url>http://download.eclipse.org/releases/juno</url>
-      <layout>p2</layout>
-    </repository-->
+    <!-- <repository> -->
+    <!--   <id>eclipse-juno</id> -->
+    <!--   <url>http://download.eclipse.org/releases/juno</url> -->
+    <!--   <layout>p2</layout> -->
+    <!-- </repository> -->
     <repository>
       <id>overture.iha.dk-p2</id>
       <url>http://build.overturetool.org/builds/overture-compass-p2repo/</url>
