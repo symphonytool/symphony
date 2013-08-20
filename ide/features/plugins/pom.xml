@@ -20,7 +20,6 @@
     <module>pog</module>
     <module>theoremprover</module>
     <module>rtt-mbt</module>
-    <module>securityanalysis</module>
     <module>modelchecker</module>
   </modules>
 

@@ -21,9 +21,6 @@
    <feature url="features/eu.compassresearch.ide.features.plugins.rttmbt_0.0.0.qualifier.jar" id="eu.compassresearch.ide.features.plugins.rttmbt" version="0.0.0">
       <category name="COMPASS"/>
    </feature>
-   <feature url="features/eu.compassresearch.ide.features.plugins.securityanalysis_0.0.0.qualifier.jar" id="eu.compassresearch.ide.features.plugins.securityanalysis" version="0.0.0">
-      <category name="COMPASS"/>
-   </feature>
    <feature url="features/eu.compassresearch.ide.features.plugins.modelchecker_0.0.0.qualifier.jar" id="eu.compassresearch.ide.features.plugins.modelchecker" version="0.0.0">
       <category name="COMPASS"/>
    </feature>

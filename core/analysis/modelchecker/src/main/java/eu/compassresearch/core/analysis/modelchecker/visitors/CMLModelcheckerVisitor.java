@@ -12,6 +12,7 @@ import org.overture.ast.expressions.ASetEnumSetExp;
 import org.overture.ast.expressions.PExp;
 
 import eu.compassresearch.ast.actions.ABlockStatementAction;
+import eu.compassresearch.ast.actions.ACallStatementAction;
 import eu.compassresearch.ast.actions.AChaosAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.ADivAction;
@@ -26,10 +27,14 @@ import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionReplicatedAction;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.AStopAction;
+import eu.compassresearch.ast.actions.AValParametrisation;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.actions.PActionBase;
+import eu.compassresearch.ast.actions.PCommunicationParameter;
+import eu.compassresearch.ast.actions.PParametrisation;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.AExpressionSingleDeclaration;
+import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AActionsDefinition;
@@ -71,15 +76,15 @@ public class CMLModelcheckerVisitor extends
 	public StringBuilder caseAProcessDefinition(AProcessDefinition node,
 			CMLModelcheckerContext question) throws AnalysisException {
 
-		question.getScriptContent()
-				.append("domain StartProcDomain includes CSP_Properties {\n");
-		        //.append("domain StartProcDomain includes CSP_Properties at \"./basic_formula_script.fml\" {\n");
-				//.append("domain StartProcDomain includes CSP_Properties at \"../resources/basic_formula_script.fml\" {\n");
+		question.getScriptContent().append(
+				"domain StartProcDomain includes CSP_Properties {\n");
+		// .append("domain StartProcDomain includes CSP_Properties at \"./basic_formula_script.fml\" {\n");
+		// .append("domain StartProcDomain includes CSP_Properties at \"../resources/basic_formula_script.fml\" {\n");
 
 		// it converts all structures defined in the process body (auxiliary
 		// actions, etc).
 		node.getProcess().apply(this, question);
-
+		
 		int startIndex = question.getScriptContent().indexOf("#");
 		int endIndex = question.getScriptContent().lastIndexOf("#");
 		question.getScriptContent().replace(startIndex, endIndex + 1,
@@ -91,9 +96,9 @@ public class CMLModelcheckerVisitor extends
 		// ///PPPPPPPPPPPPPPPP
 		// it applies recursivelly in the internal structure (the process body)
 		// question.append(").\n");
-		
+
 		question.getScriptContent().append(
-				"  conforms := CSP_Properties." + this.propertyToCheck+ ".\n");
+				"  conforms := CSP_Properties." + this.propertyToCheck + ".\n");
 		question.getScriptContent().append("}\n\n");
 		question.getScriptContent().append(
 				"partial model StartProcModel of StartProcDomain{\n");
@@ -115,15 +120,18 @@ public class CMLModelcheckerVisitor extends
 	public StringBuilder caseAActionProcess(AActionProcess node,
 			CMLModelcheckerContext question) throws AnalysisException {
 		// it applies to each definition of this action process
-		//for (PDefinition definition : node.getDefinitionParagraphs()) {
-		//	definition.apply(this, question);
-		//}
-		//question.info.put(node.getAction(), node.getDefinitionParagraphs());
-		question.info.put(Utilities.LOCAL_DEFINITIONS_KEY, node.getDefinitionParagraphs());
+		// for (PDefinition definition : node.getDefinitionParagraphs()) {
+		// definition.apply(this, question);
+		// }
+		// question.info.put(node.getAction(), node.getDefinitionParagraphs());
+		question.info.put(Utilities.LOCAL_DEFINITIONS_KEY,
+				node.getDefinitionParagraphs());
+		
+		node.getDefinitionParagraphs().getFirst().apply(this, question);
 
-		//Auxiliary processes will be written here
+		// Auxiliary processes will be written here
 		question.getScriptContent().append("#AUXILIARY_PROCESSES#");
-				
+
 		// it converts the top level process
 		question.getScriptContent().append("  ProcDef(");
 		question.getScriptContent().append("#PROCNAME#");
@@ -134,13 +142,15 @@ public class CMLModelcheckerVisitor extends
 		// the body
 		node.getAction().apply(this, question);
 		question.getScriptContent().append(").\n");
-		
-		//if there is no auxiliary definitions, then remove the TAG
-		int index = question.getScriptContent().indexOf("#AUXILIARY_PROCESSES#");
-		if(index != -1){
-			question.getScriptContent().replace(index, index + "#AUXILIARY_PROCESSES#".length() , "");
+
+		// if there is no auxiliary definitions, then remove the TAG
+		int index = question.getScriptContent()
+				.indexOf("#AUXILIARY_PROCESSES#");
+		if (index != -1) {
+			question.getScriptContent().replace(index,
+					index + "#AUXILIARY_PROCESSES#".length(), "");
 		}
-		
+
 		return question.getScriptContent();
 	}
 
@@ -160,149 +170,176 @@ public class CMLModelcheckerVisitor extends
 	public StringBuilder caseAExternalChoiceReplicatedAction(
 			AExternalChoiceReplicatedAction node,
 			CMLModelcheckerContext question) throws AnalysisException {
-		
+
 		PSingleDeclaration sDecl = node.getReplicationDeclaration().getFirst();
 		LinkedList<PExp> indexes = new LinkedList<PExp>();
-		if(sDecl instanceof AExpressionSingleDeclaration){
-			 PExp pExp = ((AExpressionSingleDeclaration)sDecl).getExpression();
-			 if(pExp instanceof ASetEnumSetExp){
-				 indexes = ((ASetEnumSetExp) pExp).getMembers();
-			 }
+		if (sDecl instanceof AExpressionSingleDeclaration) {
+			PExp pExp = ((AExpressionSingleDeclaration) sDecl).getExpression();
+			if (pExp instanceof ASetEnumSetExp) {
+				indexes = ((ASetEnumSetExp) pExp).getMembers();
+			}
 		}
-		//building combination of processses based on simple constructs
-		StringBuilder replicatedAction = buildReplicatedAction(node.getReplicatedAction(), Utilities.EXTERNAL_CHOICE, indexes.size());
+		// building combination of processses based on simple constructs
+		StringBuilder replicatedAction = buildReplicatedAction(
+				node.getReplicatedAction(), Utilities.EXTERNAL_CHOICE,
+				indexes.size());
 		question.getScriptContent().append(replicatedAction.toString());
-		
-		//for (PExp indexValue : indexes) {
-		//	CMLModelcheckerContext ctxt = new CMLModelcheckerContext();
-		//	StringBuilder txtToBeReplicated = actionToBeReplicated.apply(this,ctxt);
-			//String variableToBeReplaced = new String((String)ctxt.info.get(actionToBeReplicated.getName()));
-					
-		//	question.getScriptContent().append(txtToBeReplicated.toString().replace(variableToBeReplaced, indexValue.toString()));
-		//}
-		
-		//Adding auxiliary definitions
-		//LinkedList<PDefinition> localDefinitions = (LinkedList<PDefinition>) question.info.get(node);
-		LinkedList<PDefinition> localDefinitions = (LinkedList<PDefinition>) question.info.get(Utilities.LOCAL_DEFINITIONS_KEY);
-		CMLModelcheckerContext auxCtxt = new CMLModelcheckerContext();		
+
+		// for (PExp indexValue : indexes) {
+		// CMLModelcheckerContext ctxt = new CMLModelcheckerContext();
+		// StringBuilder txtToBeReplicated =
+		// actionToBeReplicated.apply(this,ctxt);
+		// String variableToBeReplaced = new
+		// String((String)ctxt.info.get(actionToBeReplicated.getName()));
+
+		// question.getScriptContent().append(txtToBeReplicated.toString().replace(variableToBeReplaced,
+		// indexValue.toString()));
+		// }
+
+		// Adding auxiliary definitions
+		// LinkedList<PDefinition> localDefinitions = (LinkedList<PDefinition>)
+		// question.info.get(node);
+		LinkedList<PDefinition> localDefinitions = (LinkedList<PDefinition>) question.info
+				.get(Utilities.LOCAL_DEFINITIONS_KEY);
+		CMLModelcheckerContext auxCtxt = new CMLModelcheckerContext();
 		for (PDefinition pDefinition : localDefinitions) {
 			pDefinition.apply(this, auxCtxt);
 		}
-		int auxIndex = question.getScriptContent().indexOf("#AUXILIARY_PROCESSES#");
-		if(auxIndex != -1){
-			question.getScriptContent().replace(auxIndex, auxIndex + "#AUXILIARY_PROCESSES#".length(), auxCtxt.getScriptContent().toString());
+		int auxIndex = question.getScriptContent().indexOf(
+				"#AUXILIARY_PROCESSES#");
+		if (auxIndex != -1) {
+			question.getScriptContent().replace(auxIndex,
+					auxIndex + "#AUXILIARY_PROCESSES#".length(),
+					auxCtxt.getScriptContent().toString());
 		}
-		
-		
+
 		return question.getScriptContent();
 	}
-	
+
 	@Override
 	public StringBuilder caseASequentialCompositionReplicatedAction(
 			ASequentialCompositionReplicatedAction node,
 			CMLModelcheckerContext question) throws AnalysisException {
-		
+
 		PSingleDeclaration sDecl = node.getReplicationDeclaration().getFirst();
 		LinkedList<PExp> indexes = new LinkedList<PExp>();
-		if(sDecl instanceof AExpressionSingleDeclaration){
-			 PExp pExp = ((AExpressionSingleDeclaration)sDecl).getExpression();
-			 if(pExp instanceof ASetEnumSetExp){
-				 indexes = ((ASetEnumSetExp) pExp).getMembers();
-			 }
+		if (sDecl instanceof AExpressionSingleDeclaration) {
+			PExp pExp = ((AExpressionSingleDeclaration) sDecl).getExpression();
+			if (pExp instanceof ASetEnumSetExp) {
+				indexes = ((ASetEnumSetExp) pExp).getMembers();
+			}
 		}
-		//building combination of processses based on simple constructs
-		StringBuilder replicatedAction = buildReplicatedAction(node.getReplicatedAction(), Utilities.SEQUENTIAL_COMPOSITION, indexes.size());
+		// building combination of processses based on simple constructs
+		StringBuilder replicatedAction = buildReplicatedAction(
+				node.getReplicatedAction(), Utilities.SEQUENTIAL_COMPOSITION,
+				indexes.size());
 		question.getScriptContent().append(replicatedAction.toString());
-		
-		//for (PExp indexValue : indexes) {
-		//	CMLModelcheckerContext ctxt = new CMLModelcheckerContext();
-		//	StringBuilder txtToBeReplicated = actionToBeReplicated.apply(this,ctxt);
-			//String variableToBeReplaced = new String((String)ctxt.info.get(actionToBeReplicated.getName()));
-					
-		//	question.getScriptContent().append(txtToBeReplicated.toString().replace(variableToBeReplaced, indexValue.toString()));
-		//}
-		
-		//Adding auxiliary definitions
-		//LinkedList<PDefinition> localDefinitions = (LinkedList<PDefinition>) question.info.get(node);
-		LinkedList<PDefinition> localDefinitions = (LinkedList<PDefinition>) question.info.get(Utilities.LOCAL_DEFINITIONS_KEY);
-		CMLModelcheckerContext auxCtxt = new CMLModelcheckerContext();		
+
+		// for (PExp indexValue : indexes) {
+		// CMLModelcheckerContext ctxt = new CMLModelcheckerContext();
+		// StringBuilder txtToBeReplicated =
+		// actionToBeReplicated.apply(this,ctxt);
+		// String variableToBeReplaced = new
+		// String((String)ctxt.info.get(actionToBeReplicated.getName()));
+
+		// question.getScriptContent().append(txtToBeReplicated.toString().replace(variableToBeReplaced,
+		// indexValue.toString()));
+		// }
+
+		// Adding auxiliary definitions
+		// LinkedList<PDefinition> localDefinitions = (LinkedList<PDefinition>)
+		// question.info.get(node);
+		LinkedList<PDefinition> localDefinitions = (LinkedList<PDefinition>) question.info
+				.get(Utilities.LOCAL_DEFINITIONS_KEY);
+		CMLModelcheckerContext auxCtxt = new CMLModelcheckerContext();
 		for (PDefinition pDefinition : localDefinitions) {
 			pDefinition.apply(this, auxCtxt);
 		}
-		int auxIndex = question.getScriptContent().indexOf("#AUXILIARY_PROCESSES#");
-		if(auxIndex != -1){
-			question.getScriptContent().replace(auxIndex, auxIndex + "#AUXILIARY_PROCESSES#".length(), auxCtxt.getScriptContent().toString());
+		int auxIndex = question.getScriptContent().indexOf(
+				"#AUXILIARY_PROCESSES#");
+		if (auxIndex != -1) {
+			question.getScriptContent().replace(auxIndex,
+					auxIndex + "#AUXILIARY_PROCESSES#".length(),
+					auxCtxt.getScriptContent().toString());
 		}
-		
-		
+
 		return question.getScriptContent();
 	}
-	
+
 	@Override
 	public StringBuilder caseAInternalChoiceReplicatedAction(
 			AInternalChoiceReplicatedAction node,
 			CMLModelcheckerContext question) throws AnalysisException {
-		
+
 		PSingleDeclaration sDecl = node.getReplicationDeclaration().getFirst();
 		LinkedList<PExp> indexes = new LinkedList<PExp>();
-		if(sDecl instanceof AExpressionSingleDeclaration){
-			 PExp pExp = ((AExpressionSingleDeclaration)sDecl).getExpression();
-			 if(pExp instanceof ASetEnumSetExp){
-				 indexes = ((ASetEnumSetExp) pExp).getMembers();
-			 }
+		if (sDecl instanceof AExpressionSingleDeclaration) {
+			PExp pExp = ((AExpressionSingleDeclaration) sDecl).getExpression();
+			if (pExp instanceof ASetEnumSetExp) {
+				indexes = ((ASetEnumSetExp) pExp).getMembers();
+			}
 		}
-		//building combination of processses based on simple constructs
-		StringBuilder replicatedAction = buildReplicatedAction(node.getReplicatedAction(), Utilities.INTERNAL_CHOICE, indexes.size());
+		// building combination of processses based on simple constructs
+		StringBuilder replicatedAction = buildReplicatedAction(
+				node.getReplicatedAction(), Utilities.INTERNAL_CHOICE,
+				indexes.size());
 		question.getScriptContent().append(replicatedAction.toString());
-		
-		//for (PExp indexValue : indexes) {
-		//	CMLModelcheckerContext ctxt = new CMLModelcheckerContext();
-		//	StringBuilder txtToBeReplicated = actionToBeReplicated.apply(this,ctxt);
-			//String variableToBeReplaced = new String((String)ctxt.info.get(actionToBeReplicated.getName()));
-					
-		//	question.getScriptContent().append(txtToBeReplicated.toString().replace(variableToBeReplaced, indexValue.toString()));
-		//}
-		
-		//Adding auxiliary definitions
-		//LinkedList<PDefinition> localDefinitions = (LinkedList<PDefinition>) question.info.get(node);
-		LinkedList<PDefinition> localDefinitions = (LinkedList<PDefinition>) question.info.get(Utilities.LOCAL_DEFINITIONS_KEY);
-		CMLModelcheckerContext auxCtxt = new CMLModelcheckerContext();		
+
+		// for (PExp indexValue : indexes) {
+		// CMLModelcheckerContext ctxt = new CMLModelcheckerContext();
+		// StringBuilder txtToBeReplicated =
+		// actionToBeReplicated.apply(this,ctxt);
+		// String variableToBeReplaced = new
+		// String((String)ctxt.info.get(actionToBeReplicated.getName()));
+
+		// question.getScriptContent().append(txtToBeReplicated.toString().replace(variableToBeReplaced,
+		// indexValue.toString()));
+		// }
+
+		// Adding auxiliary definitions
+		// LinkedList<PDefinition> localDefinitions = (LinkedList<PDefinition>)
+		// question.info.get(node);
+		LinkedList<PDefinition> localDefinitions = (LinkedList<PDefinition>) question.info
+				.get(Utilities.LOCAL_DEFINITIONS_KEY);
+		CMLModelcheckerContext auxCtxt = new CMLModelcheckerContext();
 		for (PDefinition pDefinition : localDefinitions) {
 			pDefinition.apply(this, auxCtxt);
 		}
-		int auxIndex = question.getScriptContent().indexOf("#AUXILIARY_PROCESSES#");
-		if(auxIndex != -1){
-			question.getScriptContent().replace(auxIndex, auxIndex + "#AUXILIARY_PROCESSES#".length(), auxCtxt.getScriptContent().toString());
+		int auxIndex = question.getScriptContent().indexOf(
+				"#AUXILIARY_PROCESSES#");
+		if (auxIndex != -1) {
+			question.getScriptContent().replace(auxIndex,
+					auxIndex + "#AUXILIARY_PROCESSES#".length(),
+					auxCtxt.getScriptContent().toString());
 		}
-		
-		
+
 		return question.getScriptContent();
 	}
-	
-	private StringBuilder buildReplicatedAction(PAction action,int kindOfAction, int times)
-			throws AnalysisException{
-		
-		
+
+	private StringBuilder buildReplicatedAction(PAction action,
+			int kindOfAction, int times) throws AnalysisException {
+
 		CMLModelcheckerContext localCtxt = new CMLModelcheckerContext();
-		if(times == 1){
-			action.apply(this,localCtxt);
-		} else if (times > 1){
-			if(kindOfAction == Utilities.EXTERNAL_CHOICE){
+		if (times == 1) {
+			action.apply(this, localCtxt);
+		} else if (times > 1) {
+			if (kindOfAction == Utilities.EXTERNAL_CHOICE) {
 				localCtxt.getScriptContent().append("eChoice(");
-			} else if (kindOfAction == Utilities.INTERNAL_CHOICE){
+			} else if (kindOfAction == Utilities.INTERNAL_CHOICE) {
 				localCtxt.getScriptContent().append("iChoice(");
-			} else if (kindOfAction == Utilities.SEQUENTIAL_COMPOSITION){
+			} else if (kindOfAction == Utilities.SEQUENTIAL_COMPOSITION) {
 				localCtxt.getScriptContent().append("seqC(");
 			}
-			action.apply(this,localCtxt);
+			action.apply(this, localCtxt);
 			localCtxt.getScriptContent().append(",");
-			StringBuilder rest = buildReplicatedAction(action, kindOfAction, times-1);
+			StringBuilder rest = buildReplicatedAction(action, kindOfAction,
+					times - 1);
 			localCtxt.getScriptContent().append(rest.toString());
 			localCtxt.getScriptContent().append(")");
 		}
 		return localCtxt.getScriptContent();
 	}
-	
+
 	@Override
 	public StringBuilder caseAHidingAction(AHidingAction node,
 			CMLModelcheckerContext question) throws AnalysisException {
@@ -332,12 +369,38 @@ public class CMLModelcheckerVisitor extends
 		question.getScriptContent().append("  ProcDef(");
 		question.getScriptContent().append("\"" + node.getName() + "\",");
 		// parameters
-		question.getScriptContent().append("nopar");
+		LinkedList<PParametrisation> parameters = node.getDeclarations();
+		if(parameters.size()==0){
+			question.getScriptContent().append("nopar");
+		} else if(parameters.size()==1){
+			question.getScriptContent().append("SPar(");
+			node.getDeclarations().getFirst().apply(this, question);
+			question.getScriptContent().append(")");
+		}
 		question.getScriptContent().append(",");
 		// it converts the internal action (body)
 		node.getAction().apply(this, question);
 		question.getScriptContent().append(").\n");
 
+		return question.getScriptContent();
+	}
+		
+	@Override
+	public StringBuilder caseAValParametrisation(AValParametrisation node,
+			CMLModelcheckerContext question) throws AnalysisException {
+		question.getScriptContent().append("Int(");
+		question.getScriptContent().append(node.getDeclaration().getIdentifiers().getFirst().toString());
+		question.getScriptContent().append(")");
+		return question.getScriptContent();
+	}
+
+	@Override
+	public StringBuilder caseATypeSingleDeclaration(
+			ATypeSingleDeclaration node, CMLModelcheckerContext question)
+			throws AnalysisException {
+		question.getScriptContent().append("Int(");
+		question.getScriptContent().append(node.getIdentifiers().getFirst().getName());
+		question.getScriptContent().append(")");
 		return question.getScriptContent();
 	}
 
@@ -349,23 +412,20 @@ public class CMLModelcheckerVisitor extends
 
 		return question.getScriptContent();
 	}
-	
-	
 
 	@Override
 	public StringBuilder caseAChaosAction(AChaosAction node,
 			CMLModelcheckerContext question) throws AnalysisException {
-		
+
 		question.getScriptContent().append(node.toString());
 
 		return question.getScriptContent();
 	}
 
-	
 	@Override
 	public StringBuilder caseADivAction(ADivAction node,
 			CMLModelcheckerContext question) throws AnalysisException {
-		
+
 		question.getScriptContent().append("Div");
 
 		return question.getScriptContent();
@@ -374,22 +434,55 @@ public class CMLModelcheckerVisitor extends
 	@Override
 	public StringBuilder caseACommunicationAction(ACommunicationAction node,
 			CMLModelcheckerContext question) throws AnalysisException {
-		question.getScriptContent().append(
+		//if the communication action does not involves values
+		LinkedList<PCommunicationParameter> parameters = node.getCommunicationParameters();
+		if(parameters.size() == 0){
+			question.getScriptContent().append(
 				"Prefix(BasicEv(\"" + node.getIdentifier() + "\"), ");
 
-		// it applies recursivelly in the internal structure
-		node.getAction().apply(this, question);
+			//it applies recursivelly in the internal structure
+			node.getAction().apply(this, question);
 
-		question.getScriptContent().append(")");
+			question.getScriptContent().append(")");
+		}else if(parameters.size() == 1){
+			question.getScriptContent().append(
+					"Prefix(CommEv(\"" + node.getIdentifier() + "\",");
+			
+			question.getScriptContent().append("Int(" + parameters.getFirst().toString() + ")");
+			question.getScriptContent().append("),");
+			
+				
+				//it applies recursivelly in the internal structure
+				node.getAction().apply(this, question);
+
+				question.getScriptContent().append(")");
+			
+		}
 
 		return question.getScriptContent();
 	}
 	
+	
+	
+	@Override
+	public StringBuilder caseACallStatementAction(ACallStatementAction node,
+			CMLModelcheckerContext question) throws AnalysisException {
+		LinkedList<PExp> args = node.getArgs();
+		if(args.size() == 1){
+			question.getScriptContent().append("proc(\"");
+			question.getScriptContent().append(node.getName()+"\",SPar(");
+			node.getArgs().getFirst().apply(this, question);
+			question.getScriptContent().append("))");
+		}
+		
+		return question.getScriptContent();
+	}
+
 	@Override
 	public StringBuilder caseASkipAction(ASkipAction node,
 			CMLModelcheckerContext question) throws AnalysisException {
 		question.getScriptContent().append(node.toString());
-		
+
 		return question.getScriptContent();
 
 	}
@@ -462,7 +555,6 @@ public class CMLModelcheckerVisitor extends
 		node.getRight().apply(this, question);
 		question.getScriptContent().append(")");
 
-					
 		return question.getScriptContent();
 	}
 
@@ -472,20 +564,25 @@ public class CMLModelcheckerVisitor extends
 		// the parameters also need to be written
 		question.getScriptContent().append(
 				"proc(\"" + node.getName() + "\", nopar)");
-		
-		//Adding auxiliary definitions
-		//LinkedList<PDefinition> localDefinitions = (LinkedList<PDefinition>) question.info.get(node);
-		LinkedList<PDefinition> localDefinitions = (LinkedList<PDefinition>) question.info.get(Utilities.LOCAL_DEFINITIONS_KEY);
-		
+
+		// Adding auxiliary definitions
+		// LinkedList<PDefinition> localDefinitions = (LinkedList<PDefinition>)
+		// question.info.get(node);
+		LinkedList<PDefinition> localDefinitions = (LinkedList<PDefinition>) question.info
+				.get(Utilities.LOCAL_DEFINITIONS_KEY);
+
 		CMLModelcheckerContext auxCtxt = new CMLModelcheckerContext();
-		if(localDefinitions != null){
+		if (localDefinitions != null) {
 			for (PDefinition pDefinition : localDefinitions) {
 				pDefinition.apply(this, auxCtxt);
 			}
 		}
-		int auxIndex = question.getScriptContent().indexOf("#AUXILIARY_PROCESSES#");
-		if(auxIndex != -1){
-			question.getScriptContent().replace(auxIndex, auxIndex + "#AUXILIARY_PROCESSES#".length(), auxCtxt.getScriptContent().toString());
+		int auxIndex = question.getScriptContent().indexOf(
+				"#AUXILIARY_PROCESSES#");
+		if (auxIndex != -1) {
+			question.getScriptContent().replace(auxIndex,
+					auxIndex + "#AUXILIARY_PROCESSES#".length(),
+					auxCtxt.getScriptContent().toString());
 		}
 		return question.getScriptContent();
 	}
@@ -507,7 +604,7 @@ public class CMLModelcheckerVisitor extends
 	public StringBuilder caseAIntLiteralExp(AIntLiteralExp node,
 			CMLModelcheckerContext question) throws AnalysisException {
 
-		question.getScriptContent().append("Nat(");
+		question.getScriptContent().append("Int(");
 		question.getScriptContent().append(node.getValue());
 		question.getScriptContent().append(")");
 

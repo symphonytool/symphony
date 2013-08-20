@@ -11,12 +11,12 @@
 
   <packaging>eclipse-plugin</packaging>
 
-  <groupId>eu.compassresearch.ide</groupId>
   <artifactId>eu.compassresearch.ide.theoremprover</artifactId>
   <name>COMPASS IDE Theorem Prover (Isabelle) Plugin</name>
 
   <properties>
     <scala.version>2.10.1</scala.version>
+    <scala.maven.version>2.15.2</scala.maven.version>
   </properties>
 
   <repositories>
@@ -137,6 +137,21 @@
 		    <execute>
 		      <runOnIncremental>false</runOnIncremental>
 		    </execute>
+		  </action>
+		</pluginExecution>
+		<pluginExecution>
+		  <pluginExecutionFilter>
+	            <groupId>org.scala-tools</groupId>
+	            <artifactId>maven-scala-plugin</artifactId>
+	            <versionRange>${scala.maven.version}</versionRange>
+		    <goals>
+		      <goal>add-source</goal>
+		      <goal>compile</goal>
+		      <goal>testCompile</goal>
+		    </goals>
+		  </pluginExecutionFilter>
+		  <action>
+		    <execute />
 		  </action>
 		</pluginExecution>
 	      </pluginExecutions>

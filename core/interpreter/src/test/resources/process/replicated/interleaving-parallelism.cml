@@ -1,0 +1,9 @@
+values
+  NodeIDs = {1,2,3}  
+
+channels 
+a : int  
+ 
+process A = val i : nat @ begin @ a.i -> Skip end
+
+process Network = ||| i in set NodeIDs @ A(i)
