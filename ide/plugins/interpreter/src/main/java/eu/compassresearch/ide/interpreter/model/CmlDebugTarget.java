@@ -41,7 +41,7 @@ import eu.compassresearch.ide.interpreter.CmlUtil;
 import eu.compassresearch.ide.interpreter.debug.ui.model.CmlLineBreakpoint;
 import eu.compassresearch.ide.interpreter.protocol.CmlCommunicationManager;
 import eu.compassresearch.ide.interpreter.protocol.CmlThreadManager;
-import eu.compassresearch.ide.plugins.interpreter.protocol.MessageEventHandler;
+import eu.compassresearch.ide.interpreter.protocol.MessageEventHandler;
 import eu.compassresearch.ide.ui.editor.core.CmlEditor;
 
 public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
@@ -114,7 +114,8 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 					{
 						try
 						{
-							Breakpoint cmlBP = new Breakpoint(System.identityHashCode(bp), ((CmlLineBreakpoint) bp).getResourceURI().getPath(), ((ILineBreakpoint) bp).getLineNumber());
+							Breakpoint cmlBP = new Breakpoint(System.identityHashCode(bp), ((CmlLineBreakpoint) bp).getResourceURI().toString(), ((ILineBreakpoint) bp).getLineNumber());
+							System.out.println("Debug target: " + cmlBP);
 							communicationManager.sendCommandMessage(CmlDebugCommand.SET_BREAKPOINT, cmlBP);
 						} catch (CoreException e)
 						{

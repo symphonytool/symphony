@@ -22,7 +22,6 @@ import eu.compassresearch.core.interpreter.utility.messaging.RequestMessage;
 import eu.compassresearch.ide.interpreter.CmlDebugPlugin;
 import eu.compassresearch.ide.interpreter.ICmlDebugConstants;
 import eu.compassresearch.ide.interpreter.model.CmlDebugTarget;
-import eu.compassresearch.ide.plugins.interpreter.protocol.MessageEventHandler;
 
 public class CmlCommunicationManager extends Thread
 {
