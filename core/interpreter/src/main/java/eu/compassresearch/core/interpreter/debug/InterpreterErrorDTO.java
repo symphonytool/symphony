@@ -1,22 +1,25 @@
-package eu.compassresearch.core.interpreter.api;
+package eu.compassresearch.core.interpreter.debug;
 
-public class InterpreterError {
+public class InterpreterErrorDTO {
 
 	private final String message;
 	private final Throwable throwable;
 	
-	private InterpreterError(){
+	/*
+	 * Dummy constructor for serialization
+	 */
+	private InterpreterErrorDTO(){
 		message = null;
 		throwable = null;
 	}
 	
-	public InterpreterError(String message)
+	public InterpreterErrorDTO(String message)
 	{
 		this.message = message;
 		this.throwable = null;
 	}
 	
-	public InterpreterError(String message, Throwable throwable)
+	public InterpreterErrorDTO(String message, Throwable throwable)
 	{
 		this.message = message;
 		this.throwable = throwable;

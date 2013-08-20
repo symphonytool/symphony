@@ -39,6 +39,7 @@ import org.overture.ide.core.resources.IVdmSourceUnit;
 import org.overture.ide.debug.core.VdmDebugPlugin;
 
 import eu.compassresearch.ide.interpreter.ICmlDebugConstants;
+import eu.compassresearch.ide.plugins.interpreter.debug.ui.model.ExecutableAnalysis;
 import eu.compassresearch.ide.ui.editor.core.CmlEditor;
 
 public class CmlLineBreakpointAdapter implements IToggleBreakpointsTarget
@@ -65,8 +66,7 @@ public class CmlLineBreakpointAdapter implements IToggleBreakpointsTarget
 					IVdmSourceUnit sourceUnti = (IVdmSourceUnit) element;
 					for (INode node : sourceUnti.getParseList())
 					{
-						executable = node != null || true;// FIXME only the executable locations should be accepted
-															// ExecutableAnalysis.isExecutable(node, lineNumber, true);
+						executable = ExecutableAnalysis.isExecutable(node, lineNumber, true);
 
 						if (executable)
 						{

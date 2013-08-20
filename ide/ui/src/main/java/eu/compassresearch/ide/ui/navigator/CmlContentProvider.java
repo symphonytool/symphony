@@ -13,6 +13,7 @@ import org.overture.ide.core.IVdmElement;
 import org.overture.ide.core.IVdmElementDelta;
 import org.overture.ide.core.VdmCore;
 import org.overture.ide.core.ElementChangedEvent.DeltaType;
+import org.overture.ide.core.resources.IVdmSourceUnit;
 
 import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
 import eu.compassresearch.ide.ui.adapters.AdapterFactoryWorkbenchAdapter;
@@ -34,7 +35,7 @@ public class CmlContentProvider extends WorkbenchContentProvider
 				if (event.getDelta().getKind() == IVdmElementDelta.CHANGED)
 				{
 					IVdmElement source = event.getDelta().getElement();
-					if (source instanceof ICmlSourceUnit)
+					if (source instanceof IVdmSourceUnit)
 					{
 						refreshView();
 					}
@@ -45,7 +46,7 @@ public class CmlContentProvider extends WorkbenchContentProvider
 				if (event.getDelta().getKind() == IVdmElementDelta.ADDED)
 				{
 					IVdmElement source = event.getDelta().getElement();
-					if (source instanceof ICmlSourceUnit)
+					if (source instanceof IVdmSourceUnit)
 					{
 						refreshView();
 					}
