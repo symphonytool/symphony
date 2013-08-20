@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.overture.ast.node.INode;
@@ -126,8 +127,23 @@ public interface ICmlModel extends IAdaptable
 	 * <p/>
 	 * Note that the intension is that PLUG_IN ids should be used as the attribyteName
 	 * 
-	 * @param attributeName the plugin id to store the state under
-	 * @param value the state to be stored
+	 * @param attributeName
+	 *            the plugin id to store the state under
+	 * @param value
+	 *            the state to be stored
 	 */
 	public <K> void setAttribute(String attributeName, K value);
+
+	/**
+	 * Creates a back of the source files of this model to the specified location.</br> The location should preferable
+	 * be located inside the projects output location obtained through
+	 * <p>
+	 * IFolder location = (IFolder) project.getModelBuildPath().getOutput(); </br> and the backup specific folder given
+	 * like location = location.getFolder("back up folder name");
+	 * </p>
+	 * 
+	 * @param location
+	 *            the location where the back will be written to
+	 */
+	void backup(IFolder location);
 }
