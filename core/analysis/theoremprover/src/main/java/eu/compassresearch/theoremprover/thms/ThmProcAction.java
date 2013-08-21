@@ -33,6 +33,6 @@ public class ThmProcAction extends ThmDecl{
 	public String toString() {
 	//	return "abbreviation \"" + name + " == |" + body +"|\""; 
 		return (ThmProcessUtil.isaActProc + " " + name + "\n" + ThmProcessUtil.isaProcBegin + "\n" + 
-				body + "\n " + mainAction + "\n" + ThmProcessUtil.isaProcEnd);
+				body + "\n" + mainAction + "\n" + ThmProcessUtil.isaProcEnd);
 	}
 }

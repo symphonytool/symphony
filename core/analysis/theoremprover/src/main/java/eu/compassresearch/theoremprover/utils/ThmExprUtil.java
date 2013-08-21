@@ -27,6 +27,7 @@ import eu.compassresearch.ast.expressions.ASubVOpVarsetExpression;
 import eu.compassresearch.ast.expressions.AUnionVOpVarsetExpression;
 import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
+import eu.compassresearch.ast.expressions.SRenameChannelExp;
 
 public class ThmExprUtil {
 	
@@ -1810,10 +1811,13 @@ public class ThmExprUtil {
 
 				return left + " union " + right;
 			}
-			else
-			{
-				return "varset expr not handled";
-			}
+			return "varset expr not handled";
+			
 		}
+		
+
+	public static String getIsabelleRenamingExpr(SRenameChannelExp rnExp) {
+		return "renaming exp not handled";
+	}
  	
 }

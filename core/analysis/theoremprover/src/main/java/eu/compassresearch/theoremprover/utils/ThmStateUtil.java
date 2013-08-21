@@ -10,6 +10,7 @@ public class ThmStateUtil {
 	public static String stateEquiv = " \\<equiv> ";
 	public static String isaState= "definition";
 	public static String mkvar = "MkVarD";
+	public static String typeDelim = "\\<parallel>";;
 
 	public static LinkedList<ILexNameToken> getIsabelleStateDeps(AAssignmentDefinition node){
 		LinkedList<ILexNameToken> nodeDeps = new LinkedList<ILexNameToken>();

@@ -14,28 +14,13 @@ public class ThmValue extends ThmDecl {
 		this.value = value;
 	}
 
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getName() {
-		return name;
-	}
-	
-	public String getValue() {
-		return value;
-	}
-	
-	public String getType() {
-		return type;
-	}
-
 
 	@Override
 	public String toString() {
-	//	return "abbreviation \"" + name + " == |" + body +"|\""; 
+	//	return "definition \"" + name + " == |" + body +"|\""; 
 		return (ThmValueUtil.isaValue + " \"" + name + " = " + 
-			    ThmValueUtil.valDelimLeft + value + " : " + type + ThmValueUtil.valDelimRight + "\"");
+			    ThmValueUtil.valDelimLeft + value + " : " + type + ThmValueUtil.valDelimRight + "\"" + "\n" +
+			    tacHook(name));
 	}
 
 	

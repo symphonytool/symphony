@@ -79,6 +79,7 @@ public class ThmRecType extends ThmDecl {
 		sb.append(ThmTypeUtil.isaType +"\n");
 		sb.append("\"" + name + " " + ThmTypeUtil.isaEquiv + ThmTypeUtil.typeDelim + "[");
 		
+		
 		//For each type in the product, add it to the string
 		for (Iterator<AFieldField> itr = fields.listIterator(); itr.hasNext(); ) {
 			AFieldField fld = itr.next();
@@ -89,8 +90,8 @@ public class ThmRecType extends ThmDecl {
 				sb.append(", ");
 			}
 		}
-		sb.append("]" + invariant + ThmTypeUtil.typeDelim + "\"\n\n");
-		sb.append(ThmTypeUtil.isaType + " \"mk_" + name + ThmTypeUtil.isaEquiv + "MkRec "+ name+ "\"\n");
+		sb.append("]" + invariant + ThmTypeUtil.typeDelim + "\"\n" + tacHook(name) + "\n\n");
+		sb.append(ThmTypeUtil.isaType + " \"mk_" + name + ThmTypeUtil.isaEquiv + "MkRec "+ name+ "\"\n" + tacHook("mk_"+name));
 		
 		return sb.toString();
 	}
