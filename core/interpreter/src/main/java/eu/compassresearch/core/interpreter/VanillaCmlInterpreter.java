@@ -286,7 +286,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			ILexLocation loc = LocationExtractor.extractLocation(b.getNextState().first);
 			if(loc == null)
 				continue;
-			String key = loc.getFile().getAbsolutePath() + ":"+ loc.getStartLine();
+			String key = loc.getFile().toURI().toString() + ":"+ loc.getStartLine();
 			if(this.breakpoints.containsKey(key))
 			{
 				bp = this.breakpoints.get(key); 

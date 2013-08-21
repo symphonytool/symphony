@@ -110,7 +110,7 @@
   <repositories>
     <repository>
       <id>eclipse-kepler</id>
-      <url>http://eclipse.cu.be/releases/kepler</url>
+      <url>http://download.eclipse.org/releases/kepler</url>
       <layout>p2</layout>
     </repository>
     <!-- <repository> -->
