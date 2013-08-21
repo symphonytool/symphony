@@ -8,9 +8,9 @@ import eu.compassresearch.core.interpreter.api.CmlChannel;
 import eu.compassresearch.core.interpreter.api.events.ChannelActivity;
 import eu.compassresearch.core.interpreter.api.events.ChannelEvent;
 import eu.compassresearch.core.interpreter.api.events.ChannelObserver;
-import eu.compassresearch.core.interpreter.utility.events.EventFireMediator;
-import eu.compassresearch.core.interpreter.utility.events.EventSource;
-import eu.compassresearch.core.interpreter.utility.events.EventSourceHandler;
+import eu.compassresearch.core.interpreter.api.events.EventFireMediator;
+import eu.compassresearch.core.interpreter.api.events.EventSource;
+import eu.compassresearch.core.interpreter.api.events.EventSourceHandler;
 
 public class CMLChannelValue extends Value implements CmlChannel //CmlIOChannel<Value>
 {

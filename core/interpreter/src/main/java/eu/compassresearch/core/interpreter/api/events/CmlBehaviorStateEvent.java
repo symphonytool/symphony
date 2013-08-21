@@ -2,7 +2,6 @@ package eu.compassresearch.core.interpreter.api.events;
 
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorState;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
-import eu.compassresearch.core.interpreter.utility.events.Event;
 
 public class CmlBehaviorStateEvent extends Event<CmlBehaviour> {
 

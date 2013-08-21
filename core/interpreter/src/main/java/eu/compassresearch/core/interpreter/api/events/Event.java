@@ -1,4 +1,4 @@
-package eu.compassresearch.core.interpreter.utility.events;
+package eu.compassresearch.core.interpreter.api.events;
 
 import java.io.Serializable;
 import java.util.LinkedList;

@@ -1,26 +1,15 @@
-package eu.compassresearch.core.interpreter;
+package eu.compassresearch.core.interpreter.api;
 
 import java.util.ArrayList;
 import java.util.Random;
 
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.types.AIntNumericBasicType;
-import org.overture.ast.types.ANamedInvariantType;
-import org.overture.ast.types.AProductType;
-import org.overture.ast.types.AQuoteType;
-import org.overture.ast.types.AUnionType;
 import org.overture.ast.types.PType;
-import org.overture.interpreter.values.IntegerValue;
-import org.overture.interpreter.values.QuoteValue;
-import org.overture.interpreter.values.TupleValue;
 import org.overture.interpreter.values.UndefinedValue;
 import org.overture.interpreter.values.Value;
-import org.overture.interpreter.values.ValueList;
 
-import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.interpreter.CmlRuntime;
-import eu.compassresearch.core.interpreter.api.SelectionStrategy;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
 import eu.compassresearch.core.interpreter.api.transitions.ChannelEvent;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
