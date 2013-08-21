@@ -2,7 +2,6 @@ package eu.compassresearch.core.analysis.pog.visitors;
 
 //POG-related imports
 import java.util.LinkedList;
-import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
@@ -15,6 +14,7 @@ import org.overture.ast.lex.LexNameList;
 import org.overture.ast.node.INode;
 import org.overture.ast.patterns.APatternListTypePair;
 import org.overture.ast.patterns.PPattern;
+import org.overture.ast.types.AOperationType;
 import org.overture.ast.types.PType;
 import org.overture.pog.obligation.PONameContext;
 import org.overture.pog.obligation.StateInvariantObligation;
@@ -26,7 +26,6 @@ import org.overture.typechecker.TypeComparator;
 
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
-import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AActionsDefinition;
@@ -44,12 +43,13 @@ import eu.compassresearch.ast.definitions.ATypesDefinition;
 import eu.compassresearch.ast.definitions.AValuesDefinition;
 import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
 import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
-import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.analysis.pog.obligations.CmlOperationDefinitionContext;
-import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligationList;
 import eu.compassresearch.core.analysis.pog.obligations.CmlOperationPostConditionObligation;
 import eu.compassresearch.core.analysis.pog.obligations.CmlParameterPatternObligation;
+import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligationList;
 import eu.compassresearch.core.analysis.pog.obligations.CmlSatisfiabilityObligation;
+import eu.compassresearch.core.analysis.pog.obligations.CmlStateInvariantObligation;
+import eu.compassresearch.core.analysis.pog.obligations.CmlSubTypeObligation;
 
 @SuppressWarnings("serial")
 public class POGDeclAndDefVisitor extends
@@ -326,8 +326,6 @@ public class POGDeclAndDefVisitor extends
 				}
 			}
 
-			// TODO we need to process state invariants
-
 			return list;
 		} catch (Exception e)
 		{
@@ -531,12 +529,6 @@ public class POGDeclAndDefVisitor extends
 			pol.addAll(node.getPostcondition().apply(parentPOG, question));
 			pol.add(new CmlOperationPostConditionObligation(node, question));
 
-			// COMMENTED AS CONTEXT GENERATES VARIOUS NULL OBJECTS, DUE TO NEW AST...
-			// AS SUCH SAT OBLIG DOESN'T DO MUCH
-
-			// FIXME Satisfiability PO clashing with implict operation
-			// .getPostDef() is returning null
-
 			question.push(new CmlOperationDefinitionContext(node, false, node.getStateDefinition()));
 			pol.add(new CmlSatisfiabilityObligation(node, node.getStateDefinition(), question));
 			question.pop();
@@ -582,17 +574,15 @@ public class POGDeclAndDefVisitor extends
 		// dispatch operation body for PO checking
 		pol.addAll(node.getBody().apply(parentPOG, question));
 
-		// FIXME Taken from Overture POG - not currently working
-		//
-		// if (node.getIsConstructor() && node.getClassDefinition() != null
-		// && node.getClassDefinition().getInvariant() != null){
-		// pol.add(new CMLStateInvariantObligation(node, question));
-		// }
-		//
-		// if (!node.getIsConstructor()
-		// && !TypeComparator.isSubType(node.getActualResult(), node.getType().getResult())){
-		// pol.add(new SubTypeObligation(node, node.getActualResult(), question));
-		// }
+		 if (node.getIsConstructor() && node.getClassDefinition() != null
+		 && node.getClassDefinition().getInvariant() != null){
+		 pol.add(new CmlStateInvariantObligation(node, question));
+		 }
+		
+		 if (!node.getIsConstructor()
+		 && !TypeComparator.isSubType(node.getActualResult(), ( (AOperationType) node.getType()).getResult())){
+		 pol.add(new CmlSubTypeObligation(node, node.getActualResult(), question));
+		 }
 
 		return pol;
 	}

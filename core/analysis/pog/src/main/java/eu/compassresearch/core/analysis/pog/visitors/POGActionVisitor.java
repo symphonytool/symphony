@@ -92,6 +92,8 @@ public class POGActionVisitor extends
 
 	private ProofObligationGenerator parentPOG;
 
+	//FIXME dispatch chan and varsets to the apropriate visitors
+	
 	/**
 	 * Constructor - simply initialise parent POG
 	 * 

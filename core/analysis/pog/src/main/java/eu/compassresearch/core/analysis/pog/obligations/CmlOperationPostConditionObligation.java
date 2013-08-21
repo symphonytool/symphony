@@ -44,7 +44,6 @@ public class CmlOperationPostConditionObligation extends CmlProofObligation{
 				IPOContextStack ctxt)
 	{
 		super(op, CmlPOType.OP_POST_CONDITION, ctxt);
-		//FIXME implement ast based PO predicate
 		valuetree.setPredicate(ctxt.getPredWithContext(buildExp(op.getPrecondition(), op.getPostcondition(), null)));
 	}
 
@@ -52,7 +51,6 @@ public class CmlOperationPostConditionObligation extends CmlProofObligation{
 				IPOContextStack ctxt)
 	{
 		super(op, CmlPOType.OP_POST_CONDITION, ctxt);
-		//FIXME implement ast based PO predicate
 		valuetree.setPredicate(ctxt.getPredWithContext(buildExp(op.getPrecondition(), op.getPostcondition(), op.getErrors())));
 	}
 
