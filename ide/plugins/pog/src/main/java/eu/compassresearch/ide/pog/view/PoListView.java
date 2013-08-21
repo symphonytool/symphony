@@ -190,16 +190,12 @@ public class PoListView extends PoOverviewTableView {
 				count++;
 				columnText = new Integer(data.getNumber()).toString();// count.toString();
 				break;
-			case 1:
-				// FIXME replace this with Node Name when we're using it
-				if (data.getLocation() != null)
-				{
+			case 1:			
 				if (!data.getLocation().getFile().toString().equals(""))
 					columnText = data.getLocation().getFile().getName() + " - "
 							+ data.getName();
 				else
-					columnText = data.getName();}
-				else columnText = "UnnamedPO";
+					columnText = data.getName();
 				break;
 			case 2:
 				columnText = handlePoKind(data);
