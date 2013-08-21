@@ -208,7 +208,7 @@ public class POGDeclAndDefVisitor extends
 
 		return pol;
 		
-		//FIXME RIGHT NOW the pog does not visit processes.
+		//FIXME have pog visit processes and state. No actions!
 //		
 //		List<ATypeSingleDeclaration> lstate = node.getLocalState();
 //
