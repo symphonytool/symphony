@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>eu.compassresearch.core</groupId>
 		<artifactId>core</artifactId>
-		<version>0.1.5-SNAPSHOT<!--Replaceable: Main Version--></version>
+		<version>0.1.6<!--Replaceable: Main Version--></version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 

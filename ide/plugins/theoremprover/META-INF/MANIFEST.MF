@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: COMPASS Isabelle Plugin
 Bundle-SymbolicName: eu.compassresearch.ide.theoremprover;singleton:=true
-Bundle-Version: 0.1.5.qualifier
+Bundle-Version: 0.1.6
 Bundle-Activator: eu.compassresearch.ide.theoremprover.Activator
 Bundle-Vendor: The COMPASS Project
 Bundle-Localization: plugin
