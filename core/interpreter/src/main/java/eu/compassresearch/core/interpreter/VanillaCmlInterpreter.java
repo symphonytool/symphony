@@ -22,6 +22,7 @@ import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
+import eu.compassresearch.core.interpreter.api.ConsoleSelectionStrategy;
 import eu.compassresearch.core.interpreter.api.InterpreterException;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
@@ -286,7 +287,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			ILexLocation loc = LocationExtractor.extractLocation(b.getNextState().first);
 			if(loc == null)
 				continue;
-			String key = loc.getFile().getAbsolutePath() + ":"+ loc.getStartLine();
+			String key = loc.getFile().toURI().toString() + ":"+ loc.getStartLine();
 			if(this.breakpoints.containsKey(key))
 			{
 				bp = this.breakpoints.get(key); 

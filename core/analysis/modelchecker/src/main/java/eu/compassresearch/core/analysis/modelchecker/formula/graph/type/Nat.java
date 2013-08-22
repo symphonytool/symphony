@@ -9,4 +9,9 @@ public class Nat implements Type {
 		this.nat = nat;
 	}
 
+	@Override
+	public String toString() {
+		return nat.toString();
+	}
+
 }

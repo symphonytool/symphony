@@ -11,5 +11,9 @@ public class IR implements Type{
 		
 	}
 	
+	@Override
+	public String toString() {
+		return val.toString();
+	}
 
 }

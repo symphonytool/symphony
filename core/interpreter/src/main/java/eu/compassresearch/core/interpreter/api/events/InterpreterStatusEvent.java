@@ -2,7 +2,6 @@ package eu.compassresearch.core.interpreter.api.events;
 
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
-import eu.compassresearch.core.interpreter.utility.events.Event;
 
 /**
  * This represents a change of CmlInterpreterState in a specific CmlInterpreter instance.

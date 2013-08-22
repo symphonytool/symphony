@@ -1,4 +1,4 @@
-package eu.compassresearch.ide.plugins.interpreter.protocol;
+package eu.compassresearch.ide.interpreter.protocol;
 
 import eu.compassresearch.core.interpreter.utility.messaging.Message;
 

@@ -6,19 +6,27 @@ import java.util.List;
 import java.util.Vector;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.ResourceAttributes;
+import org.eclipse.core.resources.WorkspaceJob;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.Status;
 import org.overture.ast.node.INode;
 import org.overture.ide.core.IVdmModel;
 import org.overture.ide.core.resources.IVdmSourceUnit;
 
 import eu.compassresearch.ast.program.PSource;
+import eu.compassresearch.ide.core.ICmlCoreConstants;
 import eu.compassresearch.ide.core.resources.ICmlModel;
 import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
 
- class CmlModel implements ICmlModel
+class CmlModel implements ICmlModel
 {
-	 final IVdmModel model;
+	final IVdmModel model;
 
 	public CmlModel(IVdmModel model)
 	{
@@ -60,11 +68,11 @@ import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
 	{
 		return model.hasFile(file);
 	}
-	
+
 	@Override
 	public boolean hasFile(ICmlSourceUnit file)
 	{
-		return model.hasFile(((IVdmSourceUnit)file.getAdapter(IVdmSourceUnit.class)));
+		return model.hasFile(((IVdmSourceUnit) file.getAdapter(IVdmSourceUnit.class)));
 	}
 
 	@Override
@@ -83,7 +91,7 @@ import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
 	public ICmlSourceUnit getSourceUnit(IFile file)
 	{
 		IVdmSourceUnit source = model.getVdmSourceUnit(file);
-		if(source!=null)
+		if (source != null)
 		{
 			return (ICmlSourceUnit) source.getAdapter(ICmlSourceUnit.class);
 		}
@@ -101,7 +109,7 @@ import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
 	{
 		List<IVdmSourceUnit> vdmsources = model.getSourceUnits();
 		List<ICmlSourceUnit> sources = new Vector<ICmlSourceUnit>();
-		
+
 		for (IVdmSourceUnit s : vdmsources)
 		{
 			sources.add((ICmlSourceUnit) s.getAdapter(ICmlSourceUnit.class));
@@ -114,11 +122,11 @@ import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
 	{
 		model.refresh(completeRefresh, monitor);
 	}
-	
+
 	@Override
 	public boolean equals(Object obj)
 	{
-		if(obj instanceof CmlModel)
+		if (obj instanceof CmlModel)
 		{
 			return model.equals(((CmlModel) obj).model);
 		}
@@ -161,4 +169,69 @@ import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
 		model.setAttribute(attributeName, value);
 	}
 
+	@Override
+	public void backup(final IFolder location)
+	{
+		final ICmlModel model = this;
+		WorkspaceJob job = new WorkspaceJob("Backing up model to: " + location)
+		{
+
+			private void prepare(IFolder folder) throws CoreException
+			{
+				if (!folder.exists())
+				{
+					if (folder.getParent() instanceof IFolder)
+					{
+						prepare((IFolder) folder.getParent());
+					}
+					folder.create(true, false, null);
+				}
+			}
+
+			@Override
+			public IStatus runInWorkspace(IProgressMonitor monitor)
+					throws CoreException
+			{
+				if (!location.exists())
+				{
+					try
+					{
+						prepare(location);
+					} catch (CoreException e)
+					{
+						return new Status(IStatus.ERROR, ICmlCoreConstants.PLUGIN_ID, "failed at creating output location for back of model", e);
+					}
+				}
+				for (ICmlSourceUnit su : model.getSourceUnits())
+				{
+					IFile f = location.getFile(new Path(su.getFile().getName()
+							+ ".bak"));
+					if (f.exists())
+					{
+						try
+						{
+							f.delete(true, null);
+						} catch (CoreException e)
+						{
+							return new Status(IStatus.ERROR, ICmlCoreConstants.PLUGIN_ID, "failed to delete existing file", e);
+						}
+					}
+					try
+					{
+						f.create(su.getFile().getContents(), true, null);
+						ResourceAttributes attributes = new ResourceAttributes();
+						attributes.setReadOnly(true);
+						f.setResourceAttributes(attributes);
+					} catch (CoreException e)
+					{
+						return new Status(IStatus.ERROR, ICmlCoreConstants.PLUGIN_ID, "failed at creating backup for location: "
+								+ location, e);
+					}
+				}
+
+				return Status.OK_STATUS;
+			}
+		};
+		job.schedule();
+	}
 }
