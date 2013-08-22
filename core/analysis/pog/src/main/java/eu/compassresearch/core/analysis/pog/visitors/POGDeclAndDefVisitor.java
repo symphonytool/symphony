@@ -200,38 +200,42 @@ public class POGDeclAndDefVisitor extends
 			IPOContextStack question) throws AnalysisException
 	{
 
-		System.out.println("----------***----------");
-		System.out.println("AProcessDefinition");
-		System.out.println(node.toString());
+//		System.out.println("----------***----------");
+//		System.out.println("AProcessDefinition");
+//		System.out.println(node.toString());
 
 		CmlProofObligationList pol = new CmlProofObligationList();
 
-		List<ATypeSingleDeclaration> lstate = node.getLocalState();
-
-		PProcess pdef = node.getProcess();
-		System.out.println("State :" + lstate.toString() + ", process :"
-				+ pdef.toString());
-
-		System.out.println("----------***----------");
-
-		// NEED TO WORK OUT CONTENTS OF PROCESS AND DISPATCH RELEVANT PARTS
-		// LinkedList<> lstate = node.getLocalState();
-		// for ( s : lstate)
-		// {
-		// System.out.println("----------***----------");
-		// CMLProofObligationList td = s.apply(this, question);
-		// System.out.println("----------***----------");
-		// }
-
-		// Dispatch local state?
-		// for (PDeclaration s : node.getLocalState())
-		// {
-		// pol.addAll(s.apply(parentPOG, question));
-		// }
-
-		// return pdef.apply(this, question);
-		pol.addAll(pdef.apply(parentPOG, question));
 		return pol;
+		
+		//FIXME have pog visit processes and state. No actions!
+//		
+//		List<ATypeSingleDeclaration> lstate = node.getLocalState();
+//
+//		PProcess pdef = node.getProcess();
+//		System.out.println("State :" + lstate.toString() + ", process :"
+//				+ pdef.toString());
+//
+//		System.out.println("----------***----------");
+//
+//		// NEED TO WORK OUT CONTENTS OF PROCESS AND DISPATCH RELEVANT PARTS
+//		// LinkedList<> lstate = node.getLocalState();
+//		// for ( s : lstate)
+//		// {
+//		// System.out.println("----------***----------");
+//		// CMLProofObligationList td = s.apply(this, question);
+//		// System.out.println("----------***----------");
+//		// }
+//
+//		// Dispatch local state?
+//		// for (PDeclaration s : node.getLocalState())
+//		// {
+//		// pol.addAll(s.apply(parentPOG, question));
+//		// }
+//
+//		// return pdef.apply(this, question);
+//		pol.addAll(pdef.apply(parentPOG, question));
+//		return pol;
 	}
 
 	@Override
@@ -578,9 +582,7 @@ public class POGDeclAndDefVisitor extends
 		// dispatch operation body for PO checking
 		pol.addAll(node.getBody().apply(parentPOG, question));
 
-		// /*
-		// * Taken from Overture POG - not currently working
-		// */
+		// FIXME Taken from Overture POG - not currently working
 		//
 		// if (node.getIsConstructor() && node.getClassDefinition() != null
 		// && node.getClassDefinition().getInvariant() != null){

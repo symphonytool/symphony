@@ -557,6 +557,7 @@ class TCDeclAndDefVisitor extends
 						true, node.getLocation()));
 			preDef = CmlTCUtil.buildCondition("pre", node, node.getType()
 					.clone(), parameters, preBody);
+			node.setPredef(preDef);
 		}
 
 		// Create post def if it is not there
@@ -569,6 +570,7 @@ class TCDeclAndDefVisitor extends
 						true, node.getLocation()));
 			postDef = CmlTCUtil.buildCondition("post", node, node.getType()
 					.clone(), parameters, postBody);
+			node.setPostdef(postDef);
 		}
 
 		// pre cond env.

@@ -1,4 +1,18 @@
 -----------------------------------------------------------
+RTTMBTAPI_0.1.7
+
+Changes: none
+
+Step forward to the development version
+
+-----------------------------------------------------------
+RTTMBTAPI_0.1.6
+
+Changes: none
+
+Update version to bring it in step with the main COMPASS versions, and this corresponds to the 0.1.6 COMPASS release
+
+-----------------------------------------------------------
 RTTMBTAPI_0.1.3
 
 Changes:
