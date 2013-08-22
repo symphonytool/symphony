@@ -71,8 +71,12 @@ public class TPBasicAction implements IWorkbenchWindowActionDelegate {
 			//Grab the model from the project
 			final ICmlModel model = cmlProj.getModel();
 
-			
-			 
+//			ICmlProject cp = (ICmlProject) p.getAdapter(ICmlProject.class);
+//			
+//			IFolder output = (IFolder) cmlProj.getModelBuildPath().getOutput();
+//			output = output.getFolder("Isabelle").getFolder("989");
+//			cp.getModel().backup(output);
+//			 
 			
 //			IFile thyfile = new IFile();
 //			thyfile = translateCmltoThy(model, thyfile);
@@ -81,6 +85,7 @@ public class TPBasicAction implements IWorkbenchWindowActionDelegate {
 			//Create project folder (needs to be timestamped)
 			Date date = new Date();
 			IFolder isaFolder = cmlProj.getModelBuildPath().getOutput().getFolder(new Path("Isabelle/" + date.toString()));
+			IFolder modelBk = isaFolder.getFolder("model");
 			if(!isaFolder.exists())
 			{
 				//if generated folder doesn't exist
@@ -102,11 +107,19 @@ public class TPBasicAction implements IWorkbenchWindowActionDelegate {
 				//Create timestamped folder
 				isaFolder.create(true, true, new NullProgressMonitor());
 				isaFolder.refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());
-			}
 
+				//Create timestamped folder
+				modelBk.create(true, true, new NullProgressMonitor());
+				modelBk.refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());
+			}
+			
+			//Save the original model to the Isabelle folder for reference
+			cmlProj.getModel().backup(modelBk);
+			
+			
+			
 			for (ICmlSourceUnit sourceUnit : model.getSourceUnits())
 			{
-				//TODO:Copy .cml file into folder
 				String name = sourceUnit.getFile().getName();
 				String thyFileName = name.substring(0,name.length()-sourceUnit.getFile().getFileExtension().length())+"thy";
 				translateCmltoThy(model, isaFolder.getFile(thyFileName), thyFileName);

@@ -20,7 +20,9 @@ import org.overture.ast.patterns.APatternListTypePair;
 import org.overture.ast.patterns.APatternTypePair;
 import org.overture.ast.patterns.PPattern;
 import org.overture.ast.types.AFunctionType;
+import org.overture.ast.types.ARecordInvariantType;
 import org.overture.ast.types.PType;
+
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.AnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
@@ -352,7 +354,7 @@ public class ThmDeclAndDefVisitor extends AnswerCMLAdaptor<ThmNodeList>
 						//Get the state variable name
 						ILexNameToken sName = st.getName();
 						LinkedList<ILexNameToken> sNodeDeps = new LinkedList<ILexNameToken>();
-						//if the variable is initialise straight away, add it to the initExprs string
+						//if the variable is initialised straight away, add it to the initExprs string
 						//and get the dependancies
 						if (st.getExpression() != null)
 						{
@@ -398,7 +400,7 @@ public class ThmDeclAndDefVisitor extends AnswerCMLAdaptor<ThmNodeList>
 			actTnl.add(stn);
 			
 			
-			//TODO: Handle the operations.
+			//TODO: Handle the operations - BODIES REQUIRED
 			LinkedList<ThmNode> opNodes = ThmProcessUtil.getIsabelleOperations(operations, svars);
 			//Add all dependancies to the list of process deps
 			nodeDeps.addAll(ThmProcessUtil.getIsabelleOperationsDeps(opNodes));

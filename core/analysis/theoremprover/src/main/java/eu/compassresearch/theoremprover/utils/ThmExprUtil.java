@@ -503,7 +503,7 @@ public class ThmExprUtil {
 			for (Iterator<PExp> itr = mk.getArgs().listIterator(); itr.hasNext(); ) {
 				PExp p = itr.next();
 					
-				ThmExprUtil.getIsabelleExprStr(svars, bvars, p);
+				sb.append(ThmExprUtil.getIsabelleExprStr(svars, bvars, p));
 				//If there are remaining patterns, add a ","
 				if(itr.hasNext()){	
 					sb.append(", ");

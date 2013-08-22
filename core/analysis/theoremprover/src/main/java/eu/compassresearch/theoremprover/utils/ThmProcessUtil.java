@@ -288,7 +288,7 @@ public class ThmProcessUtil {
 			AExplicitCmlOperationDefinition exOp = (AExplicitCmlOperationDefinition) op;
 			LinkedList<ILexNameToken> nodeDeps = new LinkedList<ILexNameToken>();
 			LinkedList<PPattern> params = exOp.getParameterPatterns();
-			//TODO:Need parameters for local bound vars
+			//Need parameters for local bound vars
 			LinkedList<ILexNameToken> bvars = new LinkedList<ILexNameToken>();
 			for(PPattern p : params)
 			{

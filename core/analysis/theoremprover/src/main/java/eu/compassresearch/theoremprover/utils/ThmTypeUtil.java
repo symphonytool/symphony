@@ -317,57 +317,58 @@ public class ThmTypeUtil {
 	private static String getIsabelleRecordType(PType tp) {
 
 		ARecordInvariantType rtype = (ARecordInvariantType) tp;
-		String recName = rtype.getName().toString();
-		StringBuilder sb = new StringBuilder();
-		
-		sb.append("typedef " + recName + "_Tag = \"{True}\" by auto \n");
-		sb.append("instantiation " + recName + "_Tag :: tag\n");
-		sb.append("begin \n");
-		sb.append(isaType + " \"tagName_" + recName + "_Tag (x::" + recName + "_Tag) = \'\'"+ recName +"\'\'\" \n");
-		sb.append("instance  \n");
-		sb.append("by (intro_classes, metis (full_types) Abs_" + recName +"_Tag_cases singleton_iff) \n");
-		sb.append("end \n\n");
-
-		int count = 1;
-		for (AFieldField field: rtype.getFields())
-		{
-			String fldNm = field.getTag();
-			String fldTp = ThmTypeUtil.getIsabelleType(field.getType());
-	
-			sb.append(ThmTypeUtil.isaAbbr + "\"" + fldNm +"_fld " + ThmTypeUtil.isaEquiv + " MkField TYPE(" + recName + "_Tag) #" + count+ ThmTypeUtil.typeDelim + fldTp + ThmTypeUtil.typeDelim + "\"\n");  
-		
-			count ++;
-		}
-		sb.append("\n");
-
-		for (AFieldField field: rtype.getFields())
-		{
-			String fldNm = field.getTag();
-			String fldTp = ThmTypeUtil.getIsabelleType(field.getType());
-		
-			sb.append(ThmTypeUtil.isaAbbr + "\"" + fldNm + " " + ThmTypeUtil.isaEquiv + " SelectRec " + fldNm + "_fld\"\n");  
-				
-		}
-		sb.append("\n");
-				
-		sb.append(ThmTypeUtil.isaType +"\n");
-		sb.append("\"" + recName + " " + ThmTypeUtil.isaEquiv + ThmTypeUtil.typeDelim + "[");
-		
-		LinkedList<AFieldField> flds = rtype.getFields();
-		//For each type in the product, add it to the string
-		for (Iterator<AFieldField> itr = flds.listIterator(); itr.hasNext(); ) {
-			AFieldField fld = itr.next();
-			sb.append(fld.getTag() + "_fld");
-			
-			//If there are remaining fields, add a ","
-			if(itr.hasNext()){	
-				sb.append(", ");
-			}
-		}
-		sb.append("]" + ThmTypeUtil.typeDelim + "\"\n\n");
-		sb.append(ThmTypeUtil.isaType + " \"mk_" + recName + ThmTypeUtil.isaEquiv + "MkRec "+ recName+ "\"\n");
-		
-		return sb.toString();
+		String recName = "@" + rtype.getName().toString();
+		return recName;
+//		StringBuilder sb = new StringBuilder();
+//		
+//		sb.append("typedef " + recName + "_Tag = \"{True}\" by auto \n");
+//		sb.append("instantiation " + recName + "_Tag :: tag\n");
+//		sb.append("begin \n");
+//		sb.append(isaType + " \"tagName_" + recName + "_Tag (x::" + recName + "_Tag) = \'\'"+ recName +"\'\'\" \n");
+//		sb.append("instance  \n");
+//		sb.append("by (intro_classes, metis (full_types) Abs_" + recName +"_Tag_cases singleton_iff) \n");
+//		sb.append("end \n\n");
+//
+//		int count = 1;
+//		for (AFieldField field: rtype.getFields())
+//		{
+//			String fldNm = field.getTag();
+//			String fldTp = ThmTypeUtil.getIsabelleType(field.getType());
+//	
+//			sb.append(ThmTypeUtil.isaAbbr + "\"" + fldNm +"_fld " + ThmTypeUtil.isaEquiv + " MkField TYPE(" + recName + "_Tag) #" + count+ ThmTypeUtil.typeDelim + fldTp + ThmTypeUtil.typeDelim + "\"\n");  
+//		
+//			count ++;
+//		}
+//		sb.append("\n");
+//
+//		for (AFieldField field: rtype.getFields())
+//		{
+//			String fldNm = field.getTag();
+//			String fldTp = ThmTypeUtil.getIsabelleType(field.getType());
+//		
+//			sb.append(ThmTypeUtil.isaAbbr + "\"" + fldNm + " " + ThmTypeUtil.isaEquiv + " SelectRec " + fldNm + "_fld\"\n");  
+//				
+//		}
+//		sb.append("\n");
+//				
+//		sb.append(ThmTypeUtil.isaType +"\n");
+//		sb.append("\"" + recName + " " + ThmTypeUtil.isaEquiv + ThmTypeUtil.typeDelim + "[");
+//		
+//		LinkedList<AFieldField> flds = rtype.getFields();
+//		//For each type in the product, add it to the string
+//		for (Iterator<AFieldField> itr = flds.listIterator(); itr.hasNext(); ) {
+//			AFieldField fld = itr.next();
+//			sb.append(fld.getTag() + "_fld");
+//			
+//			//If there are remaining fields, add a ","
+//			if(itr.hasNext()){	
+//				sb.append(", ");
+//			}
+//		}
+//		sb.append("]" + ThmTypeUtil.typeDelim + "\"\n\n");
+//		sb.append(ThmTypeUtil.isaType + " \"mk_" + recName + ThmTypeUtil.isaEquiv + "MkRec "+ recName+ "\"\n");
+//		
+//		return sb.toString();
 	}
 
 	
