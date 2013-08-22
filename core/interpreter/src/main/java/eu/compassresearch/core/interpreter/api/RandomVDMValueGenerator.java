@@ -1,4 +1,4 @@
-package eu.compassresearch.core.interpreter;
+package eu.compassresearch.core.interpreter.api;
 
 import java.util.Random;
 

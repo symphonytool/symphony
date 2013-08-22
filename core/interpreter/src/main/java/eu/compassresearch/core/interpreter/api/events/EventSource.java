@@ -1,4 +1,4 @@
-package eu.compassresearch.core.interpreter.utility.events;
+package eu.compassresearch.core.interpreter.api.events;
 /**
  * Generic interface to register/unregister for events on a specific event source
  * @author akm

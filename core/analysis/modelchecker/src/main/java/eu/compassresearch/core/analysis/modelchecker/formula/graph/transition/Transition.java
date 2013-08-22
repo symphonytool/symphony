@@ -3,7 +3,6 @@ package eu.compassresearch.core.analysis.modelchecker.formula.graph.transition;
 import eu.compassresearch.core.analysis.modelchecker.formula.graph.State;
 import eu.compassresearch.core.analysis.modelchecker.formula.graph.event.Event;
 
-
 public class Transition {
 	
 	private State sourceState;
