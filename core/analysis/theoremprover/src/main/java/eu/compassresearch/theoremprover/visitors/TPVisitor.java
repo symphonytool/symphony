@@ -31,12 +31,7 @@ public class TPVisitor extends
 	private ThmPExpVisitor expVisitor;
 	private ThmPTypeVisitor typeVisitor;
 	private ThmPValueVisitor valVisitor;
-	
-//	private ThmStmtVisitor stmtVisitor;
-//	private ThmProcVisitor procVisitor;
 	private ThmDeclAndDefVisitor declAndDefVisitor;
-//	private ThmActVisitor actVisitor;
-
 	private ThmChannelVisitor chanVisitor;
 
 	private void initialize()
@@ -44,10 +39,7 @@ public class TPVisitor extends
 		expVisitor = new ThmPExpVisitor(this);
 		typeVisitor = new ThmPTypeVisitor(this);
 		chanVisitor = new ThmChannelVisitor(this);
-//		statementVisitor = new ThmStmtVisitor(this);
-//		processVisitor = new ThmProcVisitor(this);
 		declAndDefVisitor = new ThmDeclAndDefVisitor(this);
-//		actionVisitor = new ThmActVisitor(this);
 		valVisitor = new ThmPValueVisitor(this);
 	}
 	@Override
@@ -201,38 +193,18 @@ public class TPVisitor extends
 		//
 	}
 
-
-	/********************
-	 * Method to sort a list of nodes into dependent-order
-	 ********************/
-	public static ThmNodeList sortThmNodes(ThmNodeList tpnodes){
-   
-		ThmNodeList sortedNodes = new ThmNodeList();
-		ThmNode tempNode = null;
-   
-		while (! tpnodes.isEmpty()){
-			for (Iterator<ThmNode> itr = tpnodes.listIterator(); itr.hasNext(); ) {
-				tempNode = itr.next();
-				if(tempNode.getnumDep() == 0 ||
-				   sortedNodes.allDepsFulfilled(tempNode.getDepIds())){
-					//Add to returned list.
-					sortedNodes.add(tempNode);
-					//Removes from original list passed to method.
-					itr.remove(); 
-				}
-				if( tpnodes.isEmpty()){
-					break;
-				}
-			}
-		}
 	
-		return sortedNodes;
-	}
-	
+	/*****
+	 * Method to generate the String for a Isabelle Theory file, given the theory file name
+	 * and a list of AST nodes for a CML model
+	 * @param ast - the ast nodes
+	 * @param thyFileName - the filename this theory file will use
+	 * @return String for the theory file
+	 * @throws AnalysisException
+	 */
 	public static String generateThyStr(List<INode> ast, String thyFileName) 
 			throws AnalysisException {
 		
-
 		ThmNodeList nodes = new ThmNodeList();
 		for (INode node : ast) {
 			try {
@@ -243,6 +215,7 @@ public class TPVisitor extends
 				}
 		}
 		
+		//retrieve the file name without the .thy file exetension
 		String thyName = thyFileName.substring(0, thyFileName.lastIndexOf('.'));
 	
 		//Sort nodes into dependency-order
@@ -261,6 +234,39 @@ public class TPVisitor extends
 		sb.append("\n" + "end");
 		
 		return sb.toString();
+	}
+	
 
+	/*******
+	 * Method to sort a list of nodes into dependent-order
+	 * @param tpnodes - list of ThmNodes to sort
+	 * @return list of sorted nodes
+	 *******/
+	public static ThmNodeList sortThmNodes(ThmNodeList tpnodes)
+	{
+		ThmNodeList sortedNodes = new ThmNodeList();
+		ThmNode tempNode = null;
+   
+		//while there are nodes still to be sorted
+		while (! tpnodes.isEmpty()){
+			//iterate through nodes which still need sorting
+			for (Iterator<ThmNode> itr = tpnodes.listIterator(); itr.hasNext(); ) {
+				tempNode = itr.next();
+				//if the current node has no dependancies, or all the nodes it depends upon
+				//have already been sorted...
+				if(tempNode.getnumDep() == 0 ||
+				   sortedNodes.allDepsFulfilled(tempNode.getDepIds())){
+					//Add to returned list.
+					sortedNodes.add(tempNode);
+					//Removes from original list passed to method.
+					itr.remove(); 
+				}
+				//if there are no nodes left to sort.
+				if( tpnodes.isEmpty()){
+					break;
+				}
+			}
+		}
+		return sortedNodes;
 	}
 }

@@ -1,6 +1,7 @@
 package eu.compassresearch.theoremprover.thms;
 
 import java.util.LinkedList;
+import java.util.List;
 
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.patterns.APatternListTypePair;
@@ -20,23 +21,38 @@ public class ThmImplicitOperation extends ThmDecl{
 		this.params = getParams(params);
 		if (pre == null)
 		{
-			this.pre = "true";
+			this.pre = createPrePostFunc(name, "true", "pre", params);
 		}
 		else
 		{
-			this.pre = pre;
+			//TODO: CHECK THIS WORKS!!
+			//generate function for precondition
+			this.pre = createPrePostFunc(name, pre, "pre", params);
 		}
 		
 		if (post == null)
 		{
-			this.post = "true";
+			this.post = createPrePostFunc(name, "true", "post", params);
 		}
 		else
 		{
-			this.post = post;
+			//TODO: generate function for postcondition
+			this.post = createPrePostFunc(name, post, "post", params);
 		}
 	}
 
+	private String createPrePostFunc(String name, String exp, String prepost, LinkedList<APatternListTypePair> params)
+	{
+		LinkedList<List<PPattern>> pats = new LinkedList();
+		for(APatternListTypePair p : params)
+		{
+			pats.add(p.getPatterns());
+		}
+		
+		ThmExpFunc preFunc = new ThmExpFunc((prepost + "_" + name), exp, pats);
+		return preFunc.getRefFunction();
+	}
+	
 	private String getParams(LinkedList<APatternListTypePair> parPair) {
 		StringBuilder sb = new StringBuilder();
 		for(APatternListTypePair p : parPair)
@@ -62,7 +78,15 @@ public class ThmImplicitOperation extends ThmDecl{
 	
 	@Override
 	public String toString() {
-		return (ThmProcessUtil.isaOp + " \"" + name + " " + params + " = `" + ThmProcessUtil.opExpLeft + pre + ThmProcessUtil.opExpRight + " " +  
-				ThmProcessUtil.opTurn + " " + ThmProcessUtil.opExpLeft + post + ThmProcessUtil.opExpRight + "`\"\n" + tacHook(name));
+		StringBuilder res = new StringBuilder();
+		
+		res.append(pre + "\n\n");
+
+		res.append(post + "\n\n");
+		
+		res.append(ThmProcessUtil.isaOp + " \"" + name + " " + params + " = `" + ThmProcessUtil.opExpLeft + "pre_"+ name + ThmProcessUtil.opExpRight + " " +  
+				ThmProcessUtil.opTurn + " " + ThmProcessUtil.opExpLeft + "post_" + name + ThmProcessUtil.opExpRight + "`\"\n" + tacHook(name));
+	
+		return res.toString();
 	}
 }

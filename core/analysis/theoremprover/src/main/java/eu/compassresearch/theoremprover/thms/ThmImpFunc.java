@@ -23,6 +23,8 @@ public class ThmImpFunc extends ThmDecl {
 		if(post == null)
 			this.post = "true";
 		else 
+
+			//generate function for precondition
 			this.post = fixFuncExpr(post,params);
 		if(pre == null)
 			this.pre = "true";
@@ -30,6 +32,8 @@ public class ThmImpFunc extends ThmDecl {
 			this.pre = fixFuncExpr(pre,params);
 		if(res != null)
 		{
+
+			//generate function for postcondition
 			this.post = fixFuncPostExpr(this.post, res);
 		}
 		this.resType = resType;

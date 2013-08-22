@@ -1,7 +1,9 @@
 package eu.compassresearch.theoremprover.utils;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 
 import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.AStateDefinition;
@@ -11,7 +13,11 @@ import org.overture.ast.expressions.PExp;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.APatternListTypePair;
+import org.overture.ast.patterns.APatternTypePair;
 import org.overture.ast.patterns.PPattern;
+import org.overture.ast.types.AFunctionType;
+import org.overture.ast.types.AOperationType;
+import org.overture.ast.types.PType;
 
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.ABlockStatementAction;
@@ -201,6 +207,19 @@ public class ThmProcessUtil {
 		//return only the node dependancies that are intra-process names 
 		return nodeNames;
 	}
+	
+
+	public static LinkedList<ThmNode> restrictExtOperationsDeps(
+			LinkedList<ThmNode> opNodes, LinkedList<ILexNameToken> procNodeNames) {
+
+		for(ThmNode o: opNodes)
+		{
+			o.restrictDeps(procNodeNames);
+		}		
+		return opNodes;
+	}
+
+	
 
 	public static LinkedList<ThmNode> getIsabelleOperations(
 			LinkedList<SCmlOperationDefinition> operations, LinkedList<ILexNameToken> svars) {
@@ -210,6 +229,17 @@ public class ThmProcessUtil {
 			tnl.add(ThmProcessUtil.getIsabelleOperation(op, svars));
 		
 		return tnl;
+	}
+	
+	
+	public static LinkedList<ILexNameToken> getIsabelleOperationsDeps(
+			LinkedList<ThmNode> operations) 
+	{
+		LinkedList<ILexNameToken> nodeDeps = new LinkedList<ILexNameToken>();
+		
+		for(ThmNode op : operations)
+			nodeDeps.addAll(op.getDepIds());
+		return nodeDeps;
 	}
 
 	private static ThmNode getIsabelleOperation(SCmlOperationDefinition op, LinkedList<ILexNameToken> svars) {
@@ -221,35 +251,77 @@ public class ThmProcessUtil {
 
 			String pre = null;
 			String post = null;
-			LinkedList<APatternListTypePair> params = imOp.getParameterPatterns();
-			//TODO:Need parameters for local bound vars
+			LinkedList<APatternListTypePair> params = imOp.getParameterPatterns();			
+			//Deal with the parameters
+			//Find bound values to exclude from dependancy list and add node dependancies
+			LinkedList<ILexNameToken> bvars = new LinkedList<ILexNameToken>();
+			for(APatternListTypePair p : params)
+			{
+				for(PPattern pat : p.getPatterns())
+				{
+					bvars.add(((AIdentifierPattern) pat).getName());
+				}
+				nodeDeps.addAll(ThmTypeUtil.getIsabelleTypeDeps(p.getType()));
+			}	
+			//Add return type(s) to dependancy list and list of bound values
+			for(APatternTypePair p : imOp.getResult())
+			{
+				bvars.add(((AIdentifierPattern) p.getPattern()).getName());
+				nodeDeps.addAll(ThmTypeUtil.getIsabelleTypeDeps(p.getType()));
+			}		
 			
 			if (imOp.getPrecondition() != null)
-				pre = ThmExprUtil.getIsabelleExprStr(svars, new LinkedList<ILexNameToken>(), imOp.getPrecondition());
+			{
+				pre = ThmExprUtil.getIsabelleExprStr(svars, bvars, imOp.getPrecondition());
+				nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, imOp.getPrecondition()));
+			}
 			if (imOp.getPostcondition() != null)
-				post = ThmExprUtil.getIsabelleExprStr(svars, new LinkedList<ILexNameToken>(), imOp.getPostcondition());
+			{
+				post = ThmExprUtil.getIsabelleExprStr(svars, bvars, imOp.getPostcondition());
+				nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, imOp.getPostcondition()));
 
+			}
 			tn = new ThmNode(imOp.getName(), nodeDeps, new ThmImplicitOperation(imOp.getName().toString(), params, pre, post));
-
 		}
 		else if (op instanceof AExplicitCmlOperationDefinition)
 		{
 			AExplicitCmlOperationDefinition exOp = (AExplicitCmlOperationDefinition) op;
 			LinkedList<ILexNameToken> nodeDeps = new LinkedList<ILexNameToken>();
-			PAction actBody = exOp.getBody();
 			LinkedList<PPattern> params = exOp.getParameterPatterns();
 			//TODO:Need parameters for local bound vars
+			LinkedList<ILexNameToken> bvars = new LinkedList<ILexNameToken>();
+			for(PPattern p : params)
+			{
+				bvars.add(((AIdentifierPattern) p).getName());
+			}
+			//Deal with the parameters
+			//add the parameter types as dependancies
+			AOperationType opType = (AOperationType) exOp.getType();
+			for(PType pType : opType.getParameters())
+			{
+				nodeDeps.addAll(ThmTypeUtil.getIsabelleTypeDeps(pType));
+			}
+			//Add result type to dependancy list
+			nodeDeps.addAll(ThmTypeUtil.getIsabelleTypeDeps(opType.getResult()));
+			
+			
 			//TODO: Don't think it's handling the body, or params quite right (op1 in TPTest)
-			String body = ThmProcessUtil.getIsabelleStatementStr(actBody, svars, new LinkedList<ILexNameToken>());
+			String body = ThmProcessUtil.getIsabelleStatementStr(exOp.getBody(), svars, bvars);
 			String pre = null;
 			String post = null;
 			if (exOp.getPrecondition() != null)
-				pre = ThmExprUtil.getIsabelleExprStr(svars, new LinkedList<ILexNameToken>(), exOp.getPrecondition());
+			{
+				pre = ThmExprUtil.getIsabelleExprStr(svars, bvars, exOp.getPrecondition());
+				nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, exOp.getPrecondition()));
+			}
 			if (exOp.getPostcondition() != null)
-				post = ThmExprUtil.getIsabelleExprStr(svars, new LinkedList<ILexNameToken>(), exOp.getPostcondition());
-				
-			tn = new ThmNode(exOp.getName(), nodeDeps, new ThmExplicitOperation(exOp.getName().toString(), params, pre, post, body.toString()));
+			{
+				post = ThmExprUtil.getIsabelleExprStr(svars, bvars, exOp.getPostcondition());
+				nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, exOp.getPostcondition()));
 
+			}
+			
+			tn = new ThmNode(exOp.getName(), nodeDeps, new ThmExplicitOperation(exOp.getName().toString(), params, pre, post, body.toString()));
 		}
 		return tn;
 	}
@@ -526,7 +598,10 @@ public class ThmProcessUtil {
 		{
 			ABlockStatementAction a = (ABlockStatementAction) stmt;
 			StringBuilder assignStr = new StringBuilder();
-			LinkedList<PDefinition> assigns = a.getDeclareStatement().getAssignmentDefs();
+			if(a.getDeclareStatement() != null) 
+			{
+				LinkedList<PDefinition> assigns = a.getDeclareStatement().getAssignmentDefs();
+			}
 			//TODO: Handle local defs
 			
 			String actStr = ThmProcessUtil.getIsabelleStatementStr(a.getAction(), svars, bvars);
@@ -628,4 +703,7 @@ public class ThmProcessUtil {
 		}
 		return nodeDeps;
 	}
+
+
+			
 }

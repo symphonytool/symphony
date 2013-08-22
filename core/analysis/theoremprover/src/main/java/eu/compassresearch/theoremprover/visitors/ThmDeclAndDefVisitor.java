@@ -51,21 +51,17 @@ import eu.compassresearch.theoremprover.utils.ThmProcessUtil;
 import eu.compassresearch.theoremprover.utils.ThmTypeUtil;
 
 @SuppressWarnings("serial")
-public class ThmDeclAndDefVisitor  extends
-		AnswerCMLAdaptor<ThmNodeList>
+public class ThmDeclAndDefVisitor extends AnswerCMLAdaptor<ThmNodeList>
 {
-
-	// Errors and other things are recorded on this guy
 	final private AnswerAdaptor<ThmNodeList> parentVisitor;
 
 	public ThmDeclAndDefVisitor(AnswerCMLAdaptor<ThmNodeList> parent)
 	{
 		this.parentVisitor = parent;
-
 	}
 	
 	/**
-	 * VDM ELEMENT - Types
+	 * Visitor method for collection of type definitions
 	 */
 	@Override
 	public ThmNodeList caseATypesDefinition(ATypesDefinition node) throws AnalysisException
@@ -81,7 +77,7 @@ public class ThmDeclAndDefVisitor  extends
 	}
 
 	/**
-	 * VDM ELEMENT - Values
+	 * Visitor method for collection of value definitions
 	 */
 	@Override
 	public ThmNodeList caseAValuesDefinition(AValuesDefinition node) throws AnalysisException
@@ -99,7 +95,7 @@ public class ThmDeclAndDefVisitor  extends
 	}
 
 	/**
-	 * VDM ELEMENT - Functions
+	 * Visitor method for collection of function definitions
 	 */
 	@Override
 	public ThmNodeList caseAFunctionsDefinition(AFunctionsDefinition node)
@@ -114,7 +110,10 @@ public class ThmDeclAndDefVisitor  extends
 
 		return tnl;
 	}
-	
+
+	/**
+	 * Visitor method for an explicitly defined function
+	 */
 	@Override
 	public ThmNodeList caseAExplicitFunctionDefinition(AExplicitFunctionDefinition node)
 			throws AnalysisException
@@ -166,7 +165,11 @@ public class ThmDeclAndDefVisitor  extends
 		
 		return tnl;
 	}
-	
+
+
+	/**
+	 * Visitor method for an implicitly defined function
+	 */
 	public ThmNodeList caseAImplicitFunctionDefinition(AImplicitFunctionDefinition node)
 			throws AnalysisException
 	{
@@ -195,18 +198,21 @@ public class ThmDeclAndDefVisitor  extends
 		}
 		
 		
-		
+		//Empty list for state variables (functions won't use any)
 		LinkedList<ILexNameToken> s = new LinkedList<ILexNameToken>();
+		//deal with the precondition
 		String pre = null;
 		if (node.getPrecondition() != null){
 			pre = ThmExprUtil.getIsabelleExprStr(s, b, node.getPrecondition());
 			nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(b, node.getPrecondition()));
 		}
+		//deal with the postcondition
 		String post = null;
 		if (node.getPostcondition() != null){
 			post = ThmExprUtil.getIsabelleExprStr(s, b, node.getPostcondition());
 			nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(b, node.getPostcondition()));
 		}
+		//deal with the return type
 		String resType = ThmTypeUtil.getIsabelleType(res.getType());
 		nodeDeps.addAll(ThmTypeUtil.getIsabelleTypeDeps(res.getType()));
 
@@ -215,11 +221,11 @@ public class ThmDeclAndDefVisitor  extends
 		
 		return tnl;
 	}
-	
-	/**
-	 * CML ELEMENT - Channels
-	 */
 
+
+	/**
+	 * Visitor method for a collection of channel definitions
+	 */
 	@Override
 	public ThmNodeList caseAChannelsDefinition(AChannelsDefinition node)
 			throws AnalysisException
@@ -238,7 +244,7 @@ public class ThmDeclAndDefVisitor  extends
 
 
 	/**
-	 * CML ELEMENT - Chansets
+	 * Visitor method for a collection of chanset definitions
 	 */
 	@Override
 	public ThmNodeList caseAChansetsDefinition(AChansetsDefinition node)
@@ -256,28 +262,21 @@ public class ThmDeclAndDefVisitor  extends
 		return tnl;
 	}
 
-
 	/**
-	 * CML ELEMENT - Classes
+	 * Visitor method for a class
 	 */
 	@Override
 	public ThmNodeList caseACmlClassDefinition(ACmlClassDefinition node) throws AnalysisException
 	{
-		System.out.println("------");
-		System.out.println("Reached ThmDeclAndDefVisitor - caseAClassParagraphDefinition");
-
+		//TODO: NOT YET HANDLED
 		ThmNodeList tnl = new ThmNodeList();
-
-		for (PDefinition def : node.getDefinitions())
-		{
-		
-			System.out.println("In defn Paragraph Loop: " + def.toString());
-			tnl.addAll(def.apply(parentVisitor));
-		}
-
 		return tnl;
 	}
 
+
+	/**
+	 * Visitor method for a CML process
+	 */
 	@Override
 	public ThmNodeList caseAProcessDefinition(AProcessDefinition node) throws AnalysisException
 	{
@@ -286,10 +285,10 @@ public class ThmDeclAndDefVisitor  extends
 		LinkedList<ILexNameToken> nodeDeps = new LinkedList<ILexNameToken>();
 		ILexNameToken procName = node.getName();
 		
+		//If the process is an action process (with encapsulated state
 		if (node.getProcess() instanceof AActionProcess)
 		{
 			AActionProcess act = (AActionProcess) node.getProcess();
-			PAction mainAction = act.getAction();
 			
 			//need to define a new collection of node lists for the definitions inside a 
 			//process. This is because we need to limit scope and dependancies within a 
@@ -299,11 +298,12 @@ public class ThmDeclAndDefVisitor  extends
 			//relationships within and outside the process can be dealt with.
 			LinkedList<ILexNameToken> procNodeNames = new LinkedList<ILexNameToken>();
 
+			//Collect all the statement/operation/action paragraphs and deal with them 
+			//all together.
 			LinkedList<AStateDefinition> statements = new LinkedList<AStateDefinition>();
 			LinkedList<SCmlOperationDefinition> operations = new LinkedList<SCmlOperationDefinition>();
 			LinkedList<AActionDefinition> actions = new LinkedList<AActionDefinition>();
 			LinkedList<PDefinition> others = new LinkedList<PDefinition>();
-			
 			for (PDefinition pdef : act.getDefinitionParagraphs())
 			{
 				if (pdef instanceof AStateDefinition)
@@ -349,21 +349,29 @@ public class ThmDeclAndDefVisitor  extends
 					{
 						AAssignmentDefinition st = (AAssignmentDefinition) sdef;
 
+						//Get the state variable name
 						ILexNameToken sName = st.getName();
 						LinkedList<ILexNameToken> sNodeDeps = new LinkedList<ILexNameToken>();
+						//if the variable is initialise straight away, add it to the initExprs string
+						//and get the dependancies
 						if (st.getExpression() != null)
 						{
 							initExprs.add(sName.toString() + " := "+ ThmExprUtil.getIsabelleExprStr(svars, new LinkedList<ILexNameToken>(), st.getExpression()));
 							initExprNodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(new LinkedList<ILexNameToken>(),  st.getExpression()));
-
+							//Add all dependancies to the processes dependancies
 							nodeDeps.addAll(initExprNodeDeps);
+							//As we only care about the internal dependancies in initExprNodeDeps, remove
+							//any dependancies to CML elements external to the process
 							initExprNodeDeps = ThmProcessUtil.removeExtDeps(initExprNodeDeps,procNodeNames);
 						}
+						//if the variable is not initialised straight away, leave it as undefined.
 						else
 						{
 							initExprs.add(sName.toString() + " := undefined");
 						}
+						//obtain the type of the state variable, and the type dependancies
 						String type = ThmTypeUtil.getIsabelleType(st.getType());
+						nodeDeps.addAll(ThmTypeUtil.getIsabelleTypeDeps(st.getType()));
 			
 						ThmNode stn = new ThmNode(sName, sNodeDeps, new ThmState(sName.getName(), type));
 						actTnl.add(stn);
@@ -373,6 +381,7 @@ public class ThmDeclAndDefVisitor  extends
 				//TODO: Define state invariants
 			}
 
+			//Build the initialisation operation
 			StringBuilder initExpStr = new StringBuilder();
 			for (Iterator<String> itr = initExprs.listIterator(); itr.hasNext(); ) {
 				String ep = itr.next();
@@ -390,28 +399,43 @@ public class ThmDeclAndDefVisitor  extends
 			
 			
 			//TODO: Handle the operations.
-			actTnl.addAll(ThmProcessUtil.getIsabelleOperations(operations, svars));
-//			nodeDeps.addAll(ThmProcessUtil.getIsabelleOperationDeps(operations));
+			LinkedList<ThmNode> opNodes = ThmProcessUtil.getIsabelleOperations(operations, svars);
+			//Add all dependancies to the list of process deps
+			nodeDeps.addAll(ThmProcessUtil.getIsabelleOperationsDeps(opNodes));
+			//restrict the operation dependancies to only those names used within the process
+			opNodes = ThmProcessUtil.restrictExtOperationsDeps(opNodes, procNodeNames);
+			actTnl.addAll(opNodes);
 			//TODO: Handle the actions.
-			actTnl.addAll(ThmProcessUtil.getIsabelleActions(actions, svars, new LinkedList<ILexNameToken>()));
-//			nodeDeps.addAll(ThmProcessUtil.getIsabelleActions(actions));
+			LinkedList<ThmNode> actNodes =(ThmProcessUtil.getIsabelleActions(actions, svars, new LinkedList<ILexNameToken>()));
+
+			//Add all dependancies to the list of process deps
+//			nodeDeps.addAll(ThmProcessUtil.getIsabelleActionDeps(actNodes));
+			//restrict the operation dependancies to only those names used within the process
+//			actNodes = ThmProcessUtil.restrictExtActionDeps(opNodes, procNodeNames);
+			actTnl.addAll(actNodes);
 			
 			//sort the state, operation and actions, so that they are in dependancy order
 			actTnl = TPVisitor.sortThmNodes(actTnl);
+			//Remove all inner dependancies from the process dependancy list. We only care about the 
+			//things external to the process that we depend upon.
 			nodeDeps = ThmProcessUtil.removeProcessDeps(nodeDeps,procNodeNames);
 
-			//Main action string
+			//Obtain the main action string
+			PAction mainAction = act.getAction();
 			String mainStr = ThmProcessUtil.isaProc + " \"" + ThmProcessUtil.isaMainAction + " = IsabelleStateInit; " + ThmProcessUtil.getIsabelleActionString(mainAction, svars, new LinkedList<ILexNameToken>()) +  "\"";
 			
+			//Finally construct the node to represent the process
 			tn = new ThmNode(procName, nodeDeps, new ThmProcAction(procName.toString(), actTnl.toString(), mainStr));
 		}
+		//Is not a stateful process
+		//TODO: Handle other process types.
 		else
 		{
 			String procBody = ""; //ThmProcessUtil.getIsabelleProcess(pProc);
 			tn = new ThmNode(procName, nodeDeps, new ThmProcStand(procName.toString(), procBody));
 		}
 		
-
+		//add the process to the process list
 		tnl.add(tn);
 
 		return tnl;

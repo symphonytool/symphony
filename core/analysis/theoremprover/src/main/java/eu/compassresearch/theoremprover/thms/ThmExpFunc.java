@@ -26,14 +26,24 @@ public class ThmExpFunc extends ThmDecl {
 		if(post == null)
 			this.post = "true";
 		else 
+
+			//generate function for postcondition
 			this.post = fixFuncExpr(post,pattern);
 		if(pre == null)
 			this.pre = "true";
 		else 
+
+			//generate function for precondition
 			this.pre = fixFuncExpr(pre,pattern);
 		this.resType = resType;
 	}
 	
+	public ThmExpFunc(String name, String expr, LinkedList<List<PPattern>> pattern)
+	{
+		this.name = name;
+		this.pattern = pattern;
+		this.expr = fixFuncExpr(expr,pattern);
+	}
 	
 	private String fixFuncExpr(String ex, LinkedList<List<PPattern>> pattern){
 		int count = 1;
@@ -66,7 +76,21 @@ public class ThmExpFunc extends ThmDecl {
 		sb.append("then (" + ThmTypeUtil.isaFuncLambdaPost + " " + ThmTypeUtil.isaFuncLambdaPostVal+ " : " + resType + " @ (" + post + " and ^" + ThmTypeUtil.isaFuncLambdaPostVal +  "^ = " + expr +"))\n");
 		sb.append("else undefined");
 		
+		return sb.toString();
+	}
+	
+	public String getRefFunction()
+	{
+		return (ThmTypeUtil.isaFunc + " \"" + name + " = " + 
+				ThmTypeUtil.isaFuncBar + ThmTypeUtil.isaFuncLambda + " " +ThmTypeUtil.isaFuncLambaVal+" @ " +
+				createSimpFuncExp() + ThmTypeUtil.isaFuncBar + "\"\n" + tacHook(name));
+	}
+
+	private String createSimpFuncExp() {
+		StringBuilder sb = new StringBuilder();
 		
+		sb.append("(" + ThmTypeUtil.isaFuncLambdaPost + " " + ThmTypeUtil.isaFuncLambdaPostVal+ " : " +
+		         resType + " @ (^" + ThmTypeUtil.isaFuncLambdaPostVal +  "^ = " + expr +"))");		
 		return sb.toString();
 	}
 	
