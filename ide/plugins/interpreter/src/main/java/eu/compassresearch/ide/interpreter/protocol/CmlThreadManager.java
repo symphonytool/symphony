@@ -6,6 +6,7 @@ import java.util.List;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IThread;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
@@ -14,6 +15,7 @@ import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
 import eu.compassresearch.core.interpreter.debug.CmlInterpreterStateDTO;
 import eu.compassresearch.core.interpreter.debug.CmlProcessDTO;
 import eu.compassresearch.ide.interpreter.CmlDebugPlugin;
+import eu.compassresearch.ide.interpreter.CmlUtil;
 import eu.compassresearch.ide.interpreter.ICmlDebugConstants;
 import eu.compassresearch.ide.interpreter.model.CmlDebugTarget;
 import eu.compassresearch.ide.interpreter.model.CmlThread;
@@ -59,8 +61,12 @@ public class CmlThreadManager
 					CmlDebugPlugin.logError("Failed to update the event history view", e);
 				}
 
-				if (status.hasErrors())
+				if (status.hasErrors()){
+					if(status.getErrors().get(0).getLocation() != null)
+						CmlUtil.setSelectionFromLocation(status.getErrors().get(0).getLocation(), new LinkedList<StyleRange>());
 					MessageDialog.openError(null, "Simulation Error", status.getErrors().get(0).getErrorMessage());
+					CmlUtil.clearAllSelections();
+				}
 			}
 		});
 

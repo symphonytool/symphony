@@ -16,6 +16,7 @@ import java.util.concurrent.SynchronousQueue;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.node.INode;
+import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.values.IntegerValue;
 import org.overture.interpreter.values.Value;
 
@@ -23,6 +24,7 @@ import eu.compassresearch.core.interpreter.CmlRuntime;
 import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
+import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.RandomSelectionStrategy;
@@ -394,6 +396,21 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 
 			stopped(CmlInterpreterStateDTO.createCmlInterpreterStateDTO(runningInterpreter));
 		}
+		catch(CmlInterpreterException e)
+		{
+			CmlInterpreterStateDTO status = CmlInterpreterStateDTO.createCmlInterpreterStateDTO(runningInterpreter);
+			if(e.hasErrorNode())
+				status.AddError(new InterpreterErrorDTO(e.getMessage(),LocationExtractor.extractLocation(e.getErrorNode())));
+			else
+				status.AddError(new InterpreterErrorDTO(e.getMessage()));
+			stopped(status);
+		}
+		catch(ValueException e)
+		{
+			CmlInterpreterStateDTO status = CmlInterpreterStateDTO.createCmlInterpreterStateDTO(runningInterpreter);
+			status.AddError(new InterpreterErrorDTO(e.getMessage(),e.ctxt.location));
+			stopped(status);
+		}
 		catch(AnalysisException e)
 		{
 			CmlInterpreterStateDTO status = CmlInterpreterStateDTO.createCmlInterpreterStateDTO(runningInterpreter);
@@ -407,8 +424,13 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 
 	@Override
 	public void onStatusChanged(Object source, InterpreterStatusEvent event) {
-		System.out.println("Debug thread sending Status event to controller: " + event);
-		sendStatusMessage(CmlInterpreterStateDTO.createCmlInterpreterStateDTO(runningInterpreter));
+		//Only send this if status is not FAILED, this will be handled in the start method
+		//which appends the correct errors to the status
+		if(event.getStatus() != CmlInterpretationStatus.FAILED)
+		{
+			System.out.println("Debug thread sending Status event to controller: " + event);
+			sendStatusMessage(CmlInterpreterStateDTO.createCmlInterpreterStateDTO(runningInterpreter));
+		}
 	}
 
 }

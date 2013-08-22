@@ -125,7 +125,7 @@ operations
                       , dw.currentstate \ {l}
                       , dw.desiredproperstate)
   
-    pre l in set dw.turnon
+    pre l in set dw.turnoff
     post dw.lastproperstate = dw~.lastproperstate and
          dw.turnoff = dw~.turnoff \ {l} and
          dw.turnon  = dw~.turnon  \ {l} and 

@@ -23,7 +23,7 @@ import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.api.ConsoleSelectionStrategy;
-import eu.compassresearch.core.interpreter.api.InterpreterException;
+import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlTrace;
@@ -118,10 +118,10 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	public Value execute(CmlSupervisorEnvironment sve) throws AnalysisException
 	{
 		if(this.getStatus() == null)
-			throw new InterpreterException("The interprer has not been initialized, please call the initialize method before invoking the start method");
+			throw new CmlInterpreterException("The interprer has not been initialized, please call the initialize method before invoking the start method");
 		
 		if(null == sve)
-			throw new InterpreterException("The supervisor must not be set to null in the cml scheduler");
+			throw new CmlInterpreterException("The supervisor must not be set to null in the cml scheduler");
 		
 		currentSupervisor = sve; 
 
@@ -138,6 +138,11 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		//start the execution of the top process
 		try{
 			executeTopProcess(runningTopProcess);
+		}
+		catch(AnalysisException e)
+		{
+			setNewState(CmlInterpretationStatus.FAILED);
+			throw e;
 		}
 		catch(Exception ex)
 		{
@@ -311,7 +316,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	// Static stuff for running the Interpreter from the commandline with any gui stuff
 	// ---------------------------------------
 
-	private static void runOnFile(File f) throws IOException, InterpreterException
+	private static void runOnFile(File f) throws IOException, CmlInterpreterException
 	{
 		AFileSource source = new AFileSource();
 		source.setName(f.getName());
@@ -373,7 +378,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		System.out.println("The given CML Program is done simulating.");
 	}
 
-	public static void main(String[] args) throws IOException, InterpreterException
+	public static void main(String[] args) throws IOException, CmlInterpreterException
 	{
 		File cml_example = new File(
 				"src/test/resources/examples/BeoCLSoS.cml");
