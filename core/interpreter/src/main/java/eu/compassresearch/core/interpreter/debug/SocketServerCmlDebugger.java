@@ -33,12 +33,12 @@ import eu.compassresearch.core.interpreter.api.events.CmlInterpreterStatusObserv
 import eu.compassresearch.core.interpreter.api.events.InterpreterStatusEvent;
 import eu.compassresearch.core.interpreter.api.transitions.ChannelEvent;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
+import eu.compassresearch.core.interpreter.debug.messaging.CmlRequest;
+import eu.compassresearch.core.interpreter.debug.messaging.MessageCommunicator;
+import eu.compassresearch.core.interpreter.debug.messaging.MessageContainer;
+import eu.compassresearch.core.interpreter.debug.messaging.RequestMessage;
+import eu.compassresearch.core.interpreter.debug.messaging.ResponseMessage;
 import eu.compassresearch.core.interpreter.utility.LocationExtractor;
-import eu.compassresearch.core.interpreter.utility.messaging.CmlRequest;
-import eu.compassresearch.core.interpreter.utility.messaging.MessageCommunicator;
-import eu.compassresearch.core.interpreter.utility.messaging.MessageContainer;
-import eu.compassresearch.core.interpreter.utility.messaging.RequestMessage;
-import eu.compassresearch.core.interpreter.utility.messaging.ResponseMessage;
 
 /**
  * Implements a CmlDebugger that communicates through sockets
