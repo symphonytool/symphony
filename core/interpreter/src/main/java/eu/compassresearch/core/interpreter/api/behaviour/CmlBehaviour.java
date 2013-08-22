@@ -11,9 +11,9 @@ import org.overture.interpreter.runtime.ValueException;
 
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.api.events.CmlBehaviorStateObserver;
+import eu.compassresearch.core.interpreter.api.events.EventSource;
 import eu.compassresearch.core.interpreter.api.events.TraceObserver;
 import eu.compassresearch.core.interpreter.utility.Pair;
-import eu.compassresearch.core.interpreter.utility.events.EventSource;
 
 /**
  * This interfaces specifies a specific process behavior.

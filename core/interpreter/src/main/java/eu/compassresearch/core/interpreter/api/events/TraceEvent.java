@@ -4,7 +4,6 @@ import java.util.List;
 
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
-import eu.compassresearch.core.interpreter.utility.events.Event;
 
 public class TraceEvent extends Event<CmlBehaviour> {
 	

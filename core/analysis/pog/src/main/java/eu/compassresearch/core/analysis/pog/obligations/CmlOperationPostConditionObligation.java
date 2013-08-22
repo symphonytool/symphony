@@ -37,13 +37,7 @@ import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
 
 public class CmlOperationPostConditionObligation extends CmlProofObligation{
 	
-//	private final PExp preexp;
-//	private final PExp postexp;
-//	private final List<AErrorCase> errs;
-			
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = 1L;
 
 	public CmlOperationPostConditionObligation(AExplicitCmlOperationDefinition op,

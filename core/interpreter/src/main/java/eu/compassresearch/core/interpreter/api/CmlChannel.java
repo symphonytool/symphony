@@ -3,7 +3,7 @@ package eu.compassresearch.core.interpreter.api;
 import org.overture.ast.types.PType;
 
 import eu.compassresearch.core.interpreter.api.events.ChannelObserver;
-import eu.compassresearch.core.interpreter.utility.events.EventSource;
+import eu.compassresearch.core.interpreter.api.events.EventSource;
 
 public interface CmlChannel {
 	

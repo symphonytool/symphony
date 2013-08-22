@@ -1,0 +1,11 @@
+channels 
+choose : int
+ 
+process A = 
+begin 
+	actions
+	 
+	 TEST = val x : int @ choose.x -> Skip 
+	
+	@ TEST(1)
+end

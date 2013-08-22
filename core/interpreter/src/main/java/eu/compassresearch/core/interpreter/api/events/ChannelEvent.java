@@ -1,7 +1,6 @@
 package eu.compassresearch.core.interpreter.api.events;
 
 import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
-import eu.compassresearch.core.interpreter.utility.events.Event;
 
 /**
  * This represents  activity  change of CmlInterpreterState in a specific CmlInterpreter instance.

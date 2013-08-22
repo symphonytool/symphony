@@ -1,4 +1,4 @@
-package eu.compassresearch.core.interpreter.utility.events;
+package eu.compassresearch.core.interpreter.api.events;
 
 public interface EventFireMediator<O, E> {
 

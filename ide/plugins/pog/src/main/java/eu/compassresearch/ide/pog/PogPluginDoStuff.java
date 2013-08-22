@@ -67,7 +67,6 @@ public class PogPluginDoStuff {
 			poList = PogPubUtil.generateProofObligations(model.getAst());
 
 		} catch (AnalysisException e) {
-			// FIXME ADD Submit to bug tracker.
 			popErrorMessage("Internal POG error. Please submit a bug report at: \n\nhttp://sourceforge.net/p/compassresearch/tickets/new/");
 			e.printStackTrace();
 			return;
@@ -100,7 +99,6 @@ public class PogPluginDoStuff {
 					// PogPluginUtility ppu = new PogPluginUtility(site);
 					// ppu.openPoviewPerspective();
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
@@ -132,8 +130,7 @@ public class PogPluginDoStuff {
 							PogPluginUtils ppu = new PogPluginUtils(site);
 							ppu.openPoviewPerspective();
 						} catch (PartInitException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+						e.printStackTrace();
 						}
 					}
 

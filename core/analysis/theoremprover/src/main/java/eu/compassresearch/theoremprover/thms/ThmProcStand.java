@@ -30,6 +30,6 @@ public class ThmProcStand extends ThmDecl {
 	public String toString() {
 	//	return "abbreviation \"" + name + " == |" + body +"|\""; 
 		return (ThmProcessUtil.isaProc + " \"" + name + " = " + 
-				ThmProcessUtil.procDelimLeft + body + ThmProcessUtil.procDelimRight + "\"");
+				ThmProcessUtil.procDelimLeft + body + ThmProcessUtil.procDelimRight + "\"\n" + tacHook(name));
 	}
 }

@@ -8,14 +8,11 @@ import java.util.List;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.AnswerAdaptor;
 import org.overture.ast.definitions.AAssignmentDefinition;
-import org.overture.ast.definitions.AClassInvariantDefinition;
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import org.overture.ast.definitions.AImplicitFunctionDefinition;
 import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.PDefinition;
-import org.overture.ast.expressions.PExp;
 import org.overture.ast.intf.lex.ILexNameToken;
-import org.overture.ast.lex.LexNameList;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.patterns.AIdentifierPattern;
@@ -24,11 +21,8 @@ import org.overture.ast.patterns.APatternTypePair;
 import org.overture.ast.patterns.PPattern;
 import org.overture.ast.types.AFunctionType;
 import org.overture.ast.types.PType;
-import org.overture.typechecker.TypeComparator;
-
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.AnswerCMLAdaptor;
-import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AActionsDefinition;
@@ -37,17 +31,13 @@ import eu.compassresearch.ast.definitions.AChannelsDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.definitions.AChansetsDefinition;
 import eu.compassresearch.ast.definitions.ACmlClassDefinition;
-import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AFunctionsDefinition;
-import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AOperationsDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.definitions.ATypesDefinition;
 import eu.compassresearch.ast.definitions.AValuesDefinition;
 import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
-import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
 import eu.compassresearch.ast.process.AActionProcess;
-import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.theoremprover.thms.ThmExpFunc;
 import eu.compassresearch.theoremprover.thms.ThmExplicitOperation;
 import eu.compassresearch.theoremprover.thms.ThmImpFunc;
@@ -363,7 +353,7 @@ public class ThmDeclAndDefVisitor  extends
 						LinkedList<ILexNameToken> sNodeDeps = new LinkedList<ILexNameToken>();
 						if (st.getExpression() != null)
 						{
-							initExprs.add("$" +sName.toString() + " := "+ ThmExprUtil.getIsabelleExprStr(svars, new LinkedList<ILexNameToken>(), st.getExpression()));
+							initExprs.add(sName.toString() + " := "+ ThmExprUtil.getIsabelleExprStr(svars, new LinkedList<ILexNameToken>(), st.getExpression()));
 							initExprNodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(new LinkedList<ILexNameToken>(),  st.getExpression()));
 
 							nodeDeps.addAll(initExprNodeDeps);
@@ -371,7 +361,7 @@ public class ThmDeclAndDefVisitor  extends
 						}
 						else
 						{
-							initExprs.add("$" +sName.toString() + " := undefined");
+							initExprs.add(sName.toString() + " := undefined");
 						}
 						String type = ThmTypeUtil.getIsabelleType(st.getType());
 			
@@ -379,6 +369,7 @@ public class ThmDeclAndDefVisitor  extends
 						actTnl.add(stn);
 					}
 				}
+				
 				//TODO: Define state invariants
 			}
 
@@ -394,7 +385,7 @@ public class ThmDeclAndDefVisitor  extends
 			}
 			//hack a name for the initialisation op
 			LexNameToken initName = new LexNameToken("", "IsabelleStateInit", node.getLocation());
-			ThmNode stn = new ThmNode(initName, initExprNodeDeps, new ThmExplicitOperation(initName.getName(), null, null, initExpStr.toString()));
+			ThmNode stn = new ThmNode(initName, initExprNodeDeps, new ThmExplicitOperation(initName.getName(), new LinkedList<PPattern>(), null, null, initExpStr.toString()));
 			actTnl.add(stn);
 			
 			
@@ -402,26 +393,23 @@ public class ThmDeclAndDefVisitor  extends
 			actTnl.addAll(ThmProcessUtil.getIsabelleOperations(operations, svars));
 //			nodeDeps.addAll(ThmProcessUtil.getIsabelleOperationDeps(operations));
 			//TODO: Handle the actions.
-//			actTnl.addAll(ThmProcessUtil.getIsabelleActions(operations, svars));
-//			nodeDeps.addAll(ThmProcessUtil.getIsabelleActions(operations));
-			
-			
+			actTnl.addAll(ThmProcessUtil.getIsabelleActions(actions, svars, new LinkedList<ILexNameToken>()));
+//			nodeDeps.addAll(ThmProcessUtil.getIsabelleActions(actions));
 			
 			//sort the state, operation and actions, so that they are in dependancy order
 			actTnl = TPVisitor.sortThmNodes(actTnl);
-			String mainStr = "";//ThmActionUtil.getIsabelleAction(mainAction);
-			
 			nodeDeps = ThmProcessUtil.removeProcessDeps(nodeDeps,procNodeNames);
+
+			//Main action string
+			String mainStr = ThmProcessUtil.isaProc + " \"" + ThmProcessUtil.isaMainAction + " = IsabelleStateInit; " + ThmProcessUtil.getIsabelleActionString(mainAction, svars, new LinkedList<ILexNameToken>()) +  "\"";
 			
 			tn = new ThmNode(procName, nodeDeps, new ThmProcAction(procName.toString(), actTnl.toString(), mainStr));
-
 		}
 		else
 		{
 			String procBody = ""; //ThmProcessUtil.getIsabelleProcess(pProc);
 			tn = new ThmNode(procName, nodeDeps, new ThmProcStand(procName.toString(), procBody));
 		}
-		
 		
 
 		tnl.add(tn);
@@ -459,16 +447,16 @@ public class ThmDeclAndDefVisitor  extends
 		return tnl;
 	}
 
-	@Override
-	public ThmNodeList caseAActionDefinition(AActionDefinition node) throws AnalysisException
-	{
-		ThmNodeList tnl = new ThmNodeList();
-
-		PAction action = node.getAction();
-		//tnl.addAll(action.apply(parentVisitor));
-
-		return tnl;
-	}
+//	@Override
+//	public ThmNodeList caseAActionDefinition(AActionDefinition node) throws AnalysisException
+//	{
+//		ThmNodeList tnl = new ThmNodeList();
+//
+//		PAction action = node.getAction();
+//		//tnl.addAll(action.apply(parentVisitor));
+//
+//		return tnl;
+//	}
 
 	// Call Overture for the other expressions
 	@Override
@@ -497,131 +485,4 @@ public class ThmDeclAndDefVisitor  extends
 		tnl.addAll(node.apply(parentVisitor));
 		return tnl;
 	}
-
-	
-	
-
-	/**
-	 * VDM ELEMENT - Operations
-	 */
-	@Override
-	public ThmNodeList caseAOperationsDefinition(
-			AOperationsDefinition node)
-			throws AnalysisException
-	{
-
-		ThmNodeList tnl = new ThmNodeList();
-
-		for (SCmlOperationDefinition def : node.getOperations())
-		{
-			tnl.addAll(def.apply(parentVisitor));
-		}
-		return tnl;
-	}
-
-	/**
-	 * Implicit operations - CML does not reuse Overture operations
-	 */
-	@Override
-	public ThmNodeList caseAImplicitCmlOperationDefinition(
-			AImplicitCmlOperationDefinition node)
-			throws AnalysisException
-	{
-
-		System.out.println("----------***----------");
-		System.out.println("AImplicitOperationDefinition");
-		System.out.println(node.toString());
-		System.out.println("----------***----------");
-
-		ThmNodeList tnl = new ThmNodeList();
-
-		// Taken from Overture - Needed?
-		LexNameList pids = new LexNameList();
-
-		for (APatternListTypePair tp : node.getParameterPatterns())
-			for (PPattern p : tp.getPatterns())
-				for (PDefinition def : p.getDefinitions())
-					pids.add(def.getName());
-
-		
-		// if implicit operation has a precondition, dispatch for PO checking
-		if (node.getPrecondition() != null)
-		{
-			//TODO:Gen Node For preConditionExpression
-			//tnl.addAll(node.getPrecondition().apply(parentVisitor));
-		}
-		
-
-		// if implicit operation has a precondition, dispatch for PO checking
-		// and generate OperationPostConditionObligation
-		if (node.getPostcondition() != null)
-		{
-
-			//TODO:Gen Node For preConditionExpression
-			//tnl.addAll(node.getPostcondition().apply(parentVisitor));
-		}
-
-		return tnl;
-	}
-
-	//
-	@Override
-	public ThmNodeList caseAExplicitCmlOperationDefinition(
-			AExplicitCmlOperationDefinition node)
-			throws AnalysisException
-	{
-
-		ThmNodeList tnl = new ThmNodeList();
-
-		LexNameList pids = new LexNameList();
-
-		// add all defined names from the function parameter list
-		for (PPattern p : node.getParameterPatterns())
-			for (PDefinition def : p.getDefinitions())
-				pids.add(def.getName());
-
-
-		// if operation has a precondition, dispatch for PO checking
-		if (node.getPrecondition() != null)
-		{
-			//TODO:Gen Node For preConditionExpression
-			//tnl.addAll(node.getPrecondition().apply(parentVisitor));
-		}
-		
-
-		// if implicit operation has a precondition, dispatch for PO checking
-		// and generate OperationPostConditionObligation
-		if (node.getPostcondition() != null)
-		{
-
-			//TODO:Gen Node For preConditionExpression
-			//tnl.addAll(node.getPostcondition().apply(parentVisitor));
-		}
-
-		// dispatch operation body for PO checking
-		//TODO:Gen Node For body
-		//tnl.addAll(node.getBody().apply(parentVisitor);
-
-		return tnl;
-	}
-//	
-//	@Override
-//	public ThmNodeList caseAAssignmentDefinition(
-//			AAssignmentDefinition node)
-//			throws AnalysisException
-//	{
-//		ThmNodeList tnl = new ThmNodeList();
-//
-//		ILexNameToken name = node.getName();
-//		LinkedList<ILexNameToken> nodeDeps = new LinkedList();
-//		//TODO: MAY REQUIRE THAT THIS GOES INTO A UTIL - AS WILL NEED THE SVARS... LEAVE FOR NOW
-//		String expr = ThmExprUtil.getIsabelleExprStr(new LinkedList(), new LinkedList(), node.getExpression());
-//		String type = ThmTypeUtil.getIsabelleType(node.getType());
-//		
-//		ThmNode tn = new ThmNode(name, nodeDeps, new ThmState(name.getName(), type, expr));
-//		tnl.add(tn);
-//
-//		return tnl;
-//	}
-
 }

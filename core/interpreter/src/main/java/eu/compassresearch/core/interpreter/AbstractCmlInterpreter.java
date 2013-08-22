@@ -7,11 +7,11 @@ import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.api.events.CmlInterpreterStatusObserver;
+import eu.compassresearch.core.interpreter.api.events.EventFireMediator;
+import eu.compassresearch.core.interpreter.api.events.EventSource;
+import eu.compassresearch.core.interpreter.api.events.EventSourceHandler;
 import eu.compassresearch.core.interpreter.api.events.InterpreterStatusEvent;
 import eu.compassresearch.core.interpreter.debug.Breakpoint;
-import eu.compassresearch.core.interpreter.utility.events.EventFireMediator;
-import eu.compassresearch.core.interpreter.utility.events.EventSource;
-import eu.compassresearch.core.interpreter.utility.events.EventSourceHandler;
 
 abstract class AbstractCmlInterpreter implements CmlInterpreter {
 

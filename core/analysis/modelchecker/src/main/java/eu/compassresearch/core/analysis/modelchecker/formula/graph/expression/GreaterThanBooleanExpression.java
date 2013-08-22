@@ -10,5 +10,9 @@ public class GreaterThanBooleanExpression extends BinaryBooleanExpression{
 		super(firstType,secondType);
 		
 	}
-
+	
+	@Override
+	public String toString() {
+		return firstType.toString() + ">" + secondType.toString();
+	}
 }

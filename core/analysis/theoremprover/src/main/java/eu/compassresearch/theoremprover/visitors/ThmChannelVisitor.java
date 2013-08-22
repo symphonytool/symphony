@@ -19,18 +19,11 @@ import eu.compassresearch.theoremprover.utils.ThmChanUtil;
 import eu.compassresearch.theoremprover.utils.ThmExprUtil;
 import eu.compassresearch.theoremprover.utils.ThmTypeUtil;
 
-public class ThmChannelVisitor extends
-AnswerCMLAdaptor<ThmNodeList>
+public class ThmChannelVisitor extends AnswerCMLAdaptor<ThmNodeList>
 {
-
-	// Errors and other things are recorded on this guy
-	//final private AnswerAdaptor<ThmNodeList> parentVisitor;
-
 	public ThmChannelVisitor(AnswerCMLAdaptor<ThmNodeList> parent)
 	{
-	//	this.parentVisitor = parent;
 	}
-
 
 	/**
 	 * CML channel definition 
@@ -66,8 +59,7 @@ AnswerCMLAdaptor<ThmNodeList>
 		//TODO: FIX THIS ONCE RESOLVED
 		LexNameToken name = new LexNameToken("", node.getIdentifier().toString(), node.getIdentifier().getLocation());
 					
-		
-		
+
 		PVarsetExpression chExpr = node.getChansetExpression();
 		String expr = ThmExprUtil.getIsabelleVarsetExpr(chExpr);
 		
