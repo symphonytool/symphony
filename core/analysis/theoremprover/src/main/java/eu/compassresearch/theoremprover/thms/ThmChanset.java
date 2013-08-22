@@ -14,27 +14,8 @@ public class ThmChanset extends ThmDecl {
 		this.expr = expr;
 	}
 	
-	public void setName(String name) {
-		this.name = name;
-	}
-	
-	public void setExpr(String expr) {
-		this.expr = expr;
-	}
-
-	public String getName() {
-		return name;
-	}
-	
-	public String getExpr() {
-		return expr;
-	}
-	
 	//definition "cs = {ch1↓, ch2↓}"
 	public String toString(){
-		return (ThmChanUtil.isaChanset + " \"" + name + " = " + expr + "\"");
+		return (ThmChanUtil.isaChanset + " \"" + name + " = " + expr + "\"\n" + tacHook(name));
 	}
-
-	
-	
 }

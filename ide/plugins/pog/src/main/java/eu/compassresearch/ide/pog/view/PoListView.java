@@ -30,6 +30,7 @@ import org.overture.pog.pub.IProofObligation;
 import org.overture.pog.pub.IProofObligationList;
 import org.overture.pog.pub.POStatus;
 
+import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligation;
 import eu.compassresearch.ide.pog.POConstants;
 import eu.compassresearch.ide.core.resources.ICmlProject;
 
@@ -189,8 +190,7 @@ public class PoListView extends PoOverviewTableView {
 				count++;
 				columnText = new Integer(data.getNumber()).toString();// count.toString();
 				break;
-			case 1:
-				// FIXME replace this with Node Name when we're using it
+			case 1:			
 				if (!data.getLocation().getFile().toString().equals(""))
 					columnText = data.getLocation().getFile().getName() + " - "
 							+ data.getName();
@@ -198,7 +198,7 @@ public class PoListView extends PoOverviewTableView {
 					columnText = data.getName();
 				break;
 			case 2:
-				columnText = data.getKind().toString();
+				columnText = handlePoKind(data);
 				break;
 			case 3:
 				columnText = "";// data.status.toString();
@@ -208,6 +208,13 @@ public class PoListView extends PoOverviewTableView {
 			}
 			return columnText;
 
+		}
+
+		private String handlePoKind(IProofObligation data) {
+			if (data instanceof CmlProofObligation){
+				return ((CmlProofObligation)data).cmltype.toString();
+			}
+			return data.getKind().toString();
 		}
 
 		public Image getColumnImage(Object obj, int index) {

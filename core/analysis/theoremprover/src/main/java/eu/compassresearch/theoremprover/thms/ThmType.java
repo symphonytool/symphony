@@ -19,36 +19,12 @@ public class ThmType extends ThmDecl {
 	{
 		this.name = name;
 		this.type = type;
-		setInv(inv);
-	}
-	
-	public void setName(String name) {
-		this.name = name;
-	}
-	
-	public void setType(String type) {
-		this.type = type;
-	}
-	
-	public void setInv(String inv) {
 		this.invariant = inv;
-	}
-
-	public String getName() {
-		return name;
-	}
-	
-	public String getType() {
-		return type;
-	}
-	
-	public String getInv() {
-		return invariant;
 	}
 	
 	public String toString(){
 		return (ThmTypeUtil.isaType + " \"" + name + " = " + 
-		    ThmTypeUtil.typeDelim + type + invariant + ThmTypeUtil.typeDelim + "\"");
+		    ThmTypeUtil.typeDelim + type + invariant + ThmTypeUtil.typeDelim + "\"\n" + tacHook(name));
 		
 	}
 	
