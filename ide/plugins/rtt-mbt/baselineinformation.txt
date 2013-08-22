@@ -1,4 +1,11 @@
 -----------------------------------------------------------
+RTTPLGUIN_0.1.7
+
+Changes: none
+
+Step forward to the development version
+
+-----------------------------------------------------------
 RTTPLUGIN_0.1.6
 
 Changes: none
