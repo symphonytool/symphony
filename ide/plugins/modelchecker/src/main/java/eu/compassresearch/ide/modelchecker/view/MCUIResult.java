@@ -6,12 +6,14 @@ import eu.compassresearch.ide.modelchecker.FormulaResultWrapper;
 public class MCUIResult {
 	protected IResource file;
 	protected FormulaResultWrapper formulaResult;
+
 	
 	public MCUIResult(IResource file, FormulaResultWrapper formulaResult) {
 		super();
 		this.file = file;
 		this.formulaResult = formulaResult;
 	}
+
 
 	public IResource getFile() {
 		return file;

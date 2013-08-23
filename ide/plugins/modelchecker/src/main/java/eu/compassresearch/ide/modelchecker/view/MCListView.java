@@ -1,9 +1,18 @@
 package eu.compassresearch.ide.modelchecker.view;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ColumnWeightData;
@@ -32,13 +41,28 @@ import org.eclipse.ui.browser.IWorkbenchBrowserSupport;
 import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.part.ViewPart;
 
+
+
+
+
+
+
+
+
+
+
+
+import eu.compassresearch.core.analysis.modelchecker.visitors.Utilities;
 import eu.compassresearch.ide.modelchecker.Activator;
+import eu.compassresearch.ide.modelchecker.MCConstants;
+import eu.compassresearch.ide.modelchecker.MCPluginUtility;
 
 public class MCListView extends ViewPart {
 
 	//private IVdmProject project;
 	private TableViewer viewer;
 	final Display display = Display.getCurrent();
+	private MCUIResult data;
 
 	/**
 	 * The constructor.
@@ -63,15 +87,33 @@ public class MCListView extends ViewPart {
 		viewer.addDoubleClickListener(new IDoubleClickListener() {
 			@Override
 			public void doubleClick(DoubleClickEvent event) {
-				IWorkbenchBrowserSupport support = PlatformUI.getWorkbench().getBrowserSupport(); 
-				try {
-					IWebBrowser browser = support.createBrowser(IWorkbenchBrowserSupport.AS_EDITOR, null, "COMPASS", "COMPASS");
-					browser.openURL(new URL("http://www.eclipse.org")); 
-				} catch (PartInitException e) {
-					e.printStackTrace();
-				} catch (MalformedURLException e) {
-					e.printStackTrace();
-				}
+				
+				//if (data.getFormulaResult().getResult().isSatisfiable()){
+					if(data.getProperty().equals(MCConstants.DEADLOCK_PROPERTY)){
+						try {
+							//generateSVGFile();
+							IWorkbenchBrowserSupport support = PlatformUI.getWorkbench().getBrowserSupport();
+							IWebBrowser browser = support.createBrowser(IWorkbenchBrowserSupport.AS_EDITOR, null, "COMPASS", "COMPASS");
+							IFile counterExample = data.getFormulaResult().getSvgFile();
+							URL url = counterExample.getLocationURI().toURL();
+							browser.openURL(url); 
+						} catch (PartInitException e) {
+							e.printStackTrace();
+						} catch (MalformedURLException e) {
+							e.printStackTrace();
+						} catch(IOException e){
+							MessageDialog.openInformation(null, "COMPASS","IOException: " + e.getMessage());
+						} catch (CoreException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+							MessageDialog.openInformation(null, "COMPASS","IOException: " + e.getMessage());
+						}
+					}else{
+						popErrorMessage("Counterexample construction available only for deadlock property!");
+					}
+				//}else{
+				//	popErrorMessage("Counterexample construction available only for satisfiable models!");
+				//}
 			}
 		});
 
@@ -93,7 +135,46 @@ public class MCListView extends ViewPart {
 		makeActions();
 	}
 
+	private String generateSVGFile() throws IOException, CoreException{
+		String path = "";
+		if(this.data != null){
+			String facts = data.getFormulaResult().getResult().getFacts();
+			IResource file = data.getFile();
+			String filePath = file.getFullPath().toString();
+			IProject project = data.getFile().getProject();
+			
+			IPath projectPath = project.getLocation();
+			
+			IContainer container = file.getParent();
+			projectPath = projectPath.append(IPath.SEPARATOR + "generated");
+			
+			IFolder folder = container.getFolder(projectPath);
+			
+			if(!folder.exists()){
+				folder.create(true, true, null);
+			}
+			//MessageDialog.openInformation(null, "COMPASS","project.getRawLocation().toPortableString():" + projectPath.toPortableString());
+			String generatedDotPath = projectPath.toPortableString() + IPath.SEPARATOR + "generated" + IPath.SEPARATOR + file.getName() + ".facts";
+			File generatedDotPath2 = projectPath.append(IPath.SEPARATOR + "generated" + IPath.SEPARATOR + file.getName() + ".facts").toFile();
+			
+			
+			MCPluginUtility.writeToFile(projectPath.toFile(), new StringBuilder(facts));
+			
+			
+			MessageDialog.openInformation(null, "COMPASS","getFullPath:" + filePath);
+			filePath = data.getFile().getLocation().toOSString();
+			MessageDialog.openInformation(null, "COMPASS","getLocation:" + filePath);
+			filePath = data.getFile().getLocationURI().toString();
+			MessageDialog.openInformation(null, "COMPASS","getLocationURI:" + filePath);
+			filePath = data.getFile().getRawLocation().toOSString();
+			MessageDialog.openInformation(null, "COMPASS","getRawLocation:" + filePath);
+			filePath = data.getFile().getRawLocationURI().toString();
+			MessageDialog.openInformation(null, "COMPASS","getRawLocationURI:" + filePath);
+		}
+		return path;
+	}
 	public void setData(final MCUIResult data) {
+		this.data = data;
 		//it has to be a model check element
 		display.asyncExec(new Runnable() {
 			public void run(){
@@ -201,6 +282,14 @@ public class MCListView extends ViewPart {
 
 	}
 
+	private void popErrorMessage(Throwable e) {
+		MessageDialog.openInformation(null, "COMPASS",
+				"Counterexample is available only for satisfiable models!\n" + e.getClass() + "\n" + e.getMessage());
+	}
+	private void popErrorMessage(String message) {
+		MessageDialog.openInformation(null, "COMPASS", message);
+	}
+	
 	@Override
 	public void setFocus() {
 		viewer.getControl().setFocus();

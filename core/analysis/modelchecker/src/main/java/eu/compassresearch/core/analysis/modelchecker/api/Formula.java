@@ -13,10 +13,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-
 import java.util.StringTokenizer;
 
 import javax.swing.filechooser.FileSystemView;
+
+import eu.compassresearch.core.analysis.modelchecker.visitors.Utilities;
+
+
 
 
 
@@ -197,6 +200,27 @@ public class Formula implements IFORMULAInvoker {
 	}
 
 	@Override
+	public FormulaResult runFormulaUsingFile(String specificationPath) throws FormulaIntegrationException,
+		IOException{
+		
+		File file = new File(specificationPath);
+		StringBuilder specificationContent = Utilities.readScriptFromFile(specificationPath, true);
+		FormulaResult result = this.launchFormula();
+
+		if(this.formulaStatus == FormulaStatus.NOT_INSTALLED){
+	    	FormulaIntegrationException ex = new FormulaIntegrationException(result.getFormulaCmdMessage());
+	    	ex.printStackTrace();
+	    	throw ex;
+	    }
+		result.setFileContent(specificationContent.toString());
+		this.processRemainingCommands(file,result);
+
+    	return result;
+		
+		
+	}
+	
+	@Override
 	public FormulaResult runFormula(String specification) throws FormulaIntegrationException, IOException {
 		File file = createTmpFile(specification);
 		
@@ -215,13 +239,13 @@ public class Formula implements IFORMULAInvoker {
 	private File createTmpFile(String content) throws IOException{
 		//File temp = new File(FormulaIntegrationUtilities.WORKING_DIRECTORY, "formulaTmpFile.4ml");
 		File temp = new File(FileSystemView.getFileSystemView().getHomeDirectory(), "formulaTmpFile.4ml");
-		String basicContent = FormulaIntegrationUtilities.readScriptFromFile(FormulaIntegrationUtilities.BASIC_FORMULA_SCRIPT).toString();
+	//	String basicContent = FormulaIntegrationUtilities.readScriptFromFile(FormulaIntegrationUtilities.BASIC_FORMULA_SCRIPT).toString();
 		temp.deleteOnExit();
 		
 		FileWriter fw;
 		fw = new FileWriter(temp);
-		fw.write(basicContent);
-		fw.write("\n\n");
+	//	fw.write(basicContent);
+	//	fw.write("\n\n");
 		fw.write(content);
 		fw.flush();
 		fw.close();

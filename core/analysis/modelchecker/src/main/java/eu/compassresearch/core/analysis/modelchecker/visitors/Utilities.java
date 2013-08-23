@@ -5,6 +5,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,7 +25,8 @@ import eu.compassresearch.core.parser.CmlParser;
 public class Utilities {
 	public static final String CML_EXAMPLES_DIRECTORY = "src/test/resources";
 	//public static final String BASIC_FORMULA_SCRIPT = "src/test/resources/basic_formula_script.fml";
-	public static final String BASIC_FORMULA_SCRIPT = "/basic_formula_script-new.fml";
+	public static final String BASIC_FORMULA_SCRIPT = "/basic_formula_script.fml";
+	//public static final String BASIC_FORMULA_SCRIPT = "/basic_formula_script-new.fml";
 	public static final String DEADLOCK_PROPERTY = "Deadlock";
 	public static final String LIVELOCK_PROPERTY = "Livelock";
 	public static final String NONDETERMINISM_PROPERTY = "Nondeterminism";
@@ -34,9 +36,10 @@ public class Utilities {
 	public static final String LOCAL_DEFINITIONS_KEY = "LOCAL_DEFINITIONS";
 	public static final String CHANNEL_DEFINITIONS_KEY = "CHANNEL_DEFINITIONS";
 	public static final String IOCOMM_DEFINITIONS_KEY = "IOCOMM_DEF";
+	public static final String TYPE_USER_DEFINITION = "USER_DEF_TYPES";
 	public static final String CONDITION_KEY = "CONDITION";
 	public static int OCCUR_COUNT = 1;
-	
+	public static String VALUE_DEFINITIONS_KEY = "VALUES_DEFINITION";
 	
 	
 	private static boolean parseWithANTLR(PSource sourceIn) throws IOException
@@ -90,6 +93,29 @@ public class Utilities {
 		 is.close();
 		 br.close();
 		 text.append("\n");
+		 return text;
+	 }
+	 
+	 public static StringBuilder readScriptFromFile(String filePath, boolean useAbsolutePath) throws IOException {
+		 StringBuilder text = new StringBuilder();
+		 if(!useAbsolutePath){
+			 text = readScriptFromFile(filePath);
+		 }else{
+			 //InputStream is = Utilities.class.getResourceAsStream(filePath);
+			 //InputStreamReader isr = new InputStreamReader(is);
+			 File f = new File(filePath);
+			 FileReader fr = new FileReader(f);
+			 BufferedReader br = new BufferedReader(fr);
+			 String line = "";
+			 while((line=br.readLine()) != null ){
+				 text.append(line);
+				 text.append("\n");
+			 }
+			 fr.close();
+			 br.close();
+			 text.append("\n");
+		 }
+		 
 		 return text;
 	 }
 	 

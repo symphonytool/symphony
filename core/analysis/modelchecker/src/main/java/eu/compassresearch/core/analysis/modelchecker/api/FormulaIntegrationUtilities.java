@@ -15,7 +15,7 @@ public class FormulaIntegrationUtilities {
 
 	//public static final String WORKING_DIRECTORY = "src/test/resources";
 	//public static final String WORKING_DIRECTORY = FileSystemView.getFileSystemView().getHomeDirectory().getAbsolutePath();
-	public static final String BASIC_FORMULA_SCRIPT = "/basic_formula_script.fml";
+	public static final String BASIC_FORMULA_SCRIPT = "/basic_formula_script-new.fml";
 	
 	public static void buildSpecification(String specificContent){
 		//it obtains the basic content of the semantics

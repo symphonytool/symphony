@@ -11,19 +11,20 @@ domain AuxiliaryDefinitions {
     DerivableSeq        ::= (SeqType).     
 	
 	// User defined types
-	primitive Index         ::= (Natural). 
-	primitive Money         ::= (Natural). 
-	
-	// Channel Types
+	//USER_DEF_TYPES
 	primitive T1            ::= (d1: Integer, d2: Integer, m:Integer).
     primitive T2            ::= (d1: Integer).
-    ChannelTypes			::= T1 + T2.
 	
-	Types               ::= Int + Nat + Str + IR + Seq + Index + Money + ChannelTypes.
+	// Channel Types
+    //CHAN_TYPES
+	//CHAN_TYPES_UNION
+	
+	Types               ::= Int + Nat + Str + IR + Seq + T1 + T2 /*INCLUDE USER_DEF_TYPES*/ /*CHAN_TYPES_UNION*/.
 
 	// Bindings 
     NullBind            ::= { nBind }. 
-	primitive BBinding   ::= (d1: Integer, d2: Integer, m:Integer).
+	//BBINDING_DEF
+	primitive BBinding ::= (i: Natural). //REMOVE_LINE
 	Binding       ::= NullBind + BBinding.
 
 	//Guard evaluation to handle boolean expression evaluation
@@ -42,7 +43,7 @@ domain CML_SyntaxSpec includes AuxiliaryDefinitions {
     primitive Channel       ::= (level: Natural, chN : String, chT: Types).
     primitive BasicEv       ::= (name: String).
     
-    primitive IOComm        ::= (occur: Natural, chTerm: String).
+    primitive IOComm        ::= (occur: Natural, chTerm: String, val: Types).
     primitive CommEv        ::= (level: Natural, chExp: String, val: Types).
     IOCommDef               ::= (level: Natural, occur: Natural, exp: Types, st: Binding, st_: Binding).
     Sigma                   ::= BasicEv + CommEv + IOComm.
@@ -107,7 +108,7 @@ domain CML_SemanticsSpec extends CML_SyntaxSpec {
 	// a?x -> P
     State(l, st_,pN,P),
     trans(ini, CommEv(l,chExp,chType), State(l, st_,pN,P))
-            :- ini is State(l, st,pN,Prefix(IOComm(occ,chExp), P)), Channel(l,chName,chType), IOCommDef(l, occ,chType,st,st_).
+            :- ini is State(l, st,pN,Prefix(IOComm(occ,chExp,chType), P)), Channel(l,chName,chType), IOCommDef(l, occ,chType,st,st_).
     
 	// P |~| Q
     State(l, st,pN, P),
