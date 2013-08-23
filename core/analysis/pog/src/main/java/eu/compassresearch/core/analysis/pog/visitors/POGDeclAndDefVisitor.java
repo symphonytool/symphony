@@ -1,6 +1,8 @@
 package eu.compassresearch.core.analysis.pog.visitors;
 
 //POG-related imports
+import static eu.compassresearch.core.typechecker.CmlTCUtil.successfulType;
+
 import java.util.LinkedList;
 
 import org.overture.ast.analysis.AnalysisException;
@@ -23,6 +25,7 @@ import org.overture.pog.pub.IPOContextStack;
 import org.overture.pog.utility.POException;
 import org.overture.pog.visitors.PogParamDefinitionVisitor;
 import org.overture.typechecker.TypeComparator;
+import org.overture.typechecker.assistant.definition.PDefinitionAssistantTC;
 
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
@@ -51,6 +54,7 @@ import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligationList;
 import eu.compassresearch.core.analysis.pog.obligations.CmlSatisfiabilityObligation;
 import eu.compassresearch.core.analysis.pog.obligations.CmlStateInvariantObligation;
 import eu.compassresearch.core.analysis.pog.obligations.CmlSubTypeObligation;
+import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 
 @SuppressWarnings("serial")
 public class POGDeclAndDefVisitor extends
@@ -203,23 +207,28 @@ public class POGDeclAndDefVisitor extends
 			AProcessDefinition node, IPOContextStack question)
 			throws AnalysisException
 	{
-
 		CmlProofObligationList pol = new CmlProofObligationList();
 
-		// TODO POG does not visit processes 
-		// Use something like:
-		// PProcess pdef = node.getProcess();
-		// pol.addAll(pdef.apply(parentPOG, question));
+		// Get the parameter variable names
 
-		// // Dispatch local state
+		LexNameList params = new LexNameList();
 		LinkedList<ATypeSingleDeclaration> ls = node.getLocalState();
 		if (ls != null)
 		{
-			for (PSingleDeclaration s : ls)
+			for (ATypeSingleDeclaration s : ls)
 			{
-				pol.addAll(s.apply(parentPOG, question));
+				for (PDefinition def : s.getType().getDefinitions())
+				{
+					params.add(def.getName().clone());
+				}
 			}
 		}
+		
+		question.push(new PONameContext(params));
+		// FIXME add pos
+		question.pop();
+
+
 		return pol;
 	}
 
@@ -322,17 +331,16 @@ public class POGDeclAndDefVisitor extends
 		}
 	}
 
-	// Call Overture for the other expressions
+	// default case. stuff with no pos
 	@Override
 	public CmlProofObligationList defaultPSingleDeclaration(
 			PSingleDeclaration node, IPOContextStack question)
 			throws AnalysisException
 	{
-		CmlProofObligationList pol = new CmlProofObligationList();
-		pol.addAll(node.apply(overtureVisitor, question));
-		return pol;
+		return new CmlProofObligationList();
 	}
 
+	// Call Overture for the other defs
 	@Override
 	public CmlProofObligationList defaultPDefinition(PDefinition node,
 			IPOContextStack question) throws AnalysisException
