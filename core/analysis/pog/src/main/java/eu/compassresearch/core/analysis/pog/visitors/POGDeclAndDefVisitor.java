@@ -1,8 +1,6 @@
 package eu.compassresearch.core.analysis.pog.visitors;
 
 //POG-related imports
-import static eu.compassresearch.core.typechecker.CmlTCUtil.successfulType;
-
 import java.util.LinkedList;
 
 import org.overture.ast.analysis.AnalysisException;
@@ -25,9 +23,7 @@ import org.overture.pog.pub.IPOContextStack;
 import org.overture.pog.utility.POException;
 import org.overture.pog.visitors.PogParamDefinitionVisitor;
 import org.overture.typechecker.TypeComparator;
-import org.overture.typechecker.assistant.definition.PDefinitionAssistantTC;
 
-import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
@@ -47,6 +43,7 @@ import eu.compassresearch.ast.definitions.ATypesDefinition;
 import eu.compassresearch.ast.definitions.AValuesDefinition;
 import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
 import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
+import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.analysis.pog.obligations.CmlOperationDefinitionContext;
 import eu.compassresearch.core.analysis.pog.obligations.CmlOperationPostConditionObligation;
 import eu.compassresearch.core.analysis.pog.obligations.CmlParameterPatternObligation;
@@ -54,7 +51,6 @@ import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligationList;
 import eu.compassresearch.core.analysis.pog.obligations.CmlSatisfiabilityObligation;
 import eu.compassresearch.core.analysis.pog.obligations.CmlStateInvariantObligation;
 import eu.compassresearch.core.analysis.pog.obligations.CmlSubTypeObligation;
-import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 
 @SuppressWarnings("serial")
 public class POGDeclAndDefVisitor extends
@@ -223,11 +219,11 @@ public class POGDeclAndDefVisitor extends
 				}
 			}
 		}
-		
-		question.push(new PONameContext(params));
-		// TODO add pos
-		question.pop();
 
+		question.push(new PONameContext(params));
+		PProcess process = node.getProcess();
+		pol.addAll(process.apply(parentPOG, question));
+		question.pop();
 
 		return pol;
 	}
@@ -268,13 +264,15 @@ public class POGDeclAndDefVisitor extends
 
 		CmlProofObligationList pol = new CmlProofObligationList();
 
-		LinkedList<AActionDefinition> actions = node.getActions();
-		for (AActionDefinition action : actions)
-		{
-			// System.out.println("Action: " + action.toString() + ", Type: " +
-			// action.getType());
-			pol.addAll(action.apply(parentPOG, question));
-		}
+		//TODO re-enable pog action visits. for now, not doing it.
+		
+//		LinkedList<AActionDefinition> actions = node.getActions();
+//		for (AActionDefinition action : actions)
+//		{
+//			// System.out.println("Action: " + action.toString() + ", Type: " +
+//			// action.getType());
+//			pol.addAll(action.apply(parentPOG, question));
+//		}
 
 		return pol;
 	}
@@ -288,10 +286,12 @@ public class POGDeclAndDefVisitor extends
 
 		CmlProofObligationList pol = new CmlProofObligationList();
 
-		PAction action = node.getAction();
-		// System.out.println("Action: " + action.toString() + ", Type: " +
-		// action.getType());
-		pol.addAll(action.apply(parentPOG, question));
+		//TODO re-enable pog action visits. for now, not doing it.
+		
+//		PAction action = node.getAction();
+//		// System.out.println("Action: " + action.toString() + ", Type: " +
+//		// action.getType());
+//		pol.addAll(action.apply(parentPOG, question));
 
 		return pol;
 	}
@@ -577,6 +577,7 @@ public class POGDeclAndDefVisitor extends
 			pol.add(new CmlStateInvariantObligation(node, question));
 		}
 
+		//TODO cannot compute this until the getActualResult is not null anymore!
 		if (!node.getIsConstructor()
 				&& !TypeComparator.isSubType(node.getActualResult(), ((AOperationType) node.getType()).getResult()))
 		{
