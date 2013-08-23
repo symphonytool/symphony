@@ -23,18 +23,16 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
 import eu.compassresearch.core.interpreter.debug.Choice;
-import eu.compassresearch.core.interpreter.utility.messaging.CmlRequest;
-import eu.compassresearch.core.interpreter.utility.messaging.RequestMessage;
-import eu.compassresearch.core.interpreter.utility.messaging.ResponseMessage;
+import eu.compassresearch.core.interpreter.debug.messaging.CmlRequest;
+import eu.compassresearch.core.interpreter.debug.messaging.RequestMessage;
+import eu.compassresearch.core.interpreter.debug.messaging.ResponseMessage;
 import eu.compassresearch.ide.interpreter.CmlUtil;
 import eu.compassresearch.ide.interpreter.ICmlDebugConstants;
 import eu.compassresearch.ide.interpreter.protocol.CmlCommunicationManager;
 import eu.compassresearch.ide.interpreter.views.CmlEventOptionView;
 import eu.compassresearch.ide.ui.editor.core.CmlEditor;
 
-public class CmlChoiceMediator implements IDoubleClickListener,
-		ISelectionChangedListener
-{
+public class CmlChoiceMediator implements IDoubleClickListener, ISelectionChangedListener {
 
 	// SynchronousQueue<String> selectSync = new SynchronousQueue<String>();
 	final CmlDebugTarget cmlDebugTarget;
@@ -129,7 +127,7 @@ public class CmlChoiceMediator implements IDoubleClickListener,
 				{
 					CmlEventOptionView view = (CmlEventOptionView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(ICmlDebugConstants.ID_CML_OPTION_VIEW.toString());
 					Collections.sort(events, new Comparator<Choice>()
-					{
+							{
 
 						@Override
 						public int compare(Choice o1, Choice o2)
@@ -142,7 +140,7 @@ public class CmlChoiceMediator implements IDoubleClickListener,
 								return o1.getName().compareToIgnoreCase(o2.getName());
 						}
 
-					});
+							});
 					view.getListViewer().setInput(events);
 					view.getListViewer().setSelection(new StructuredSelection(events.get(0)));
 				} catch (PartInitException e)

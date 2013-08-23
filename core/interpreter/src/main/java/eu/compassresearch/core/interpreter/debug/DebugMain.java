@@ -15,7 +15,7 @@ import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.CmlParserUtil;
 import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
-import eu.compassresearch.core.interpreter.api.InterpreterException;
+import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
@@ -25,7 +25,7 @@ public class DebugMain {
 	/**
 	 * @param args
 	 * @throws IOException 
-	 * @throws InterpreterException 
+	 * @throws CmlInterpreterException 
 	 * @throws AnalysisException 
 	 */
 	public static void main(String[] args) {
@@ -111,17 +111,4 @@ public class DebugMain {
 			//debugger.close();
 		}
 	}
-
-	//	@Override
-	//	public void onStatusChanged(Object source, InterpreterStatusEvent event) {
-	//
-	//		switch(event.getStatus())
-	//		{
-	//		case RUNNING:
-	//			sendStatusMessage(CmlDbgpStatus.RUNNING, cmlInterpreter.getStatus());
-	//			break;
-	//		}
-	//		
-	//	}
-
 }

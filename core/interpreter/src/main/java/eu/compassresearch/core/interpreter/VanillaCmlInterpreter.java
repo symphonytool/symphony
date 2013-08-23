@@ -2,7 +2,6 @@ package eu.compassresearch.core.interpreter;
 
 import java.io.File;
 import java.io.IOException;
-import java.rmi.RemoteException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -21,9 +20,9 @@ import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
+import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
-import eu.compassresearch.core.interpreter.api.ConsoleSelectionStrategy;
-import eu.compassresearch.core.interpreter.api.InterpreterException;
+import eu.compassresearch.core.interpreter.api.RandomSelectionStrategy;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlTrace;
@@ -33,7 +32,6 @@ import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.ObservableEvent;
 import eu.compassresearch.core.interpreter.api.values.ProcessObjectValue;
 import eu.compassresearch.core.interpreter.debug.Breakpoint;
-import eu.compassresearch.core.interpreter.debug.CmlInterpreterStateDTO;
 import eu.compassresearch.core.interpreter.utility.LocationExtractor;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
@@ -118,10 +116,10 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	public Value execute(CmlSupervisorEnvironment sve) throws AnalysisException
 	{
 		if(this.getStatus() == null)
-			throw new InterpreterException("The interprer has not been initialized, please call the initialize method before invoking the start method");
+			throw new CmlInterpreterException("The interprer has not been initialized, please call the initialize method before invoking the start method");
 		
 		if(null == sve)
-			throw new InterpreterException("The supervisor must not be set to null in the cml scheduler");
+			throw new CmlInterpreterException("The supervisor must not be set to null in the cml scheduler");
 		
 		currentSupervisor = sve; 
 
@@ -138,6 +136,11 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		//start the execution of the top process
 		try{
 			executeTopProcess(runningTopProcess);
+		}
+		catch(AnalysisException e)
+		{
+			setNewState(CmlInterpretationStatus.FAILED);
+			throw e;
 		}
 		catch(Exception ex)
 		{
@@ -311,7 +314,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	// Static stuff for running the Interpreter from the commandline with any gui stuff
 	// ---------------------------------------
 
-	private static void runOnFile(File f) throws IOException, InterpreterException
+	private static void runOnFile(File f) throws IOException, CmlInterpreterException
 	{
 		AFileSource source = new AFileSource();
 		source.setName(f.getName());
@@ -352,10 +355,10 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 
 		try
 		{
-			CmlSupervisorEnvironment sve = 
-					VanillaInterpreterFactory.newDefaultCmlSupervisorEnvironment(new ConsoleSelectionStrategy());
 			//CmlSupervisorEnvironment sve = 
-			//				VanillaInterpreterFactory.newDefaultCmlSupervisorEnvironment(new RandomSelectionStrategy());
+			//		VanillaInterpreterFactory.newDefaultCmlSupervisorEnvironment(new ConsoleSelectionStrategy());
+			CmlSupervisorEnvironment sve = 
+							VanillaInterpreterFactory.newDefaultCmlSupervisorEnvironment(new RandomSelectionStrategy());
 
 			CmlRuntime.logger().setLevel(Level.FINEST);
 			cmlInterp.initialize();
@@ -373,10 +376,10 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		System.out.println("The given CML Program is done simulating.");
 	}
 
-	public static void main(String[] args) throws IOException, InterpreterException
+	public static void main(String[] args) throws IOException, CmlInterpreterException
 	{
 		File cml_example = new File(
-				"src/test/resources/action/communications/action-prefix.cml");
+				"src/test/resources/action/action-wait-parallel-composition.cml");
 		runOnFile(cml_example);
 
 	}

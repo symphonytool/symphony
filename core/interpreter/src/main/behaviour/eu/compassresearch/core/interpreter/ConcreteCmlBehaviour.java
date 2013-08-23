@@ -436,7 +436,7 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 			if(alpha.getAllEvents().size() == 1 && alpha.getObservableEvents().size() == 1)
 			{
 				ObservableEvent obsEvent = alpha.getObservableEvents().iterator().next();
-				return (obsEvent instanceof CmlTock) && !((CmlTock) obsEvent).hasLimit();
+				return (obsEvent instanceof CmlTock) && !((CmlTock) obsEvent).hasTimeLimit();
 			}
 			else
 				return false;

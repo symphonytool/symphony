@@ -38,7 +38,7 @@ import eu.compassresearch.core.analysis.pog.visitors.ProofObligationGenerator;
 import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
-import eu.compassresearch.core.interpreter.api.InterpreterException;
+import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.RandomSelectionStrategy;
 import eu.compassresearch.core.parser.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
@@ -546,7 +546,7 @@ public class CheckCml {
 						}
 					};
 					runAnalysis(input, re, sources);
-				} catch (InterpreterException e1) {
+				} catch (CmlInterpreterException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}

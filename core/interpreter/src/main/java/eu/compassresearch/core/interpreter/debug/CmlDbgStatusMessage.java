@@ -1,8 +1,8 @@
 package eu.compassresearch.core.interpreter.debug;
 
 import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
-import eu.compassresearch.core.interpreter.utility.messaging.Message;
-import eu.compassresearch.core.interpreter.utility.messaging.MessageType;
+import eu.compassresearch.core.interpreter.debug.messaging.Message;
+import eu.compassresearch.core.interpreter.debug.messaging.MessageType;
 
 
 public class CmlDbgStatusMessage extends Message {
