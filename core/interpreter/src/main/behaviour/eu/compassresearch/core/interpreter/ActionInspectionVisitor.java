@@ -743,8 +743,6 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 			final AUntimedTimeoutAction node, final Context question)
 					throws AnalysisException {
 
-		//throw new AnalysisException("case not implemented yet");
-
 		//the alphabet still need to be calculated before this is done, so uncomment when done
 
 		//Make a random decision whether the process should timeout and

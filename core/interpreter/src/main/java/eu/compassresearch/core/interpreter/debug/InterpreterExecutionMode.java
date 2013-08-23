@@ -1,6 +1,6 @@
 package eu.compassresearch.core.interpreter.debug;
 
-public enum DebugMode {
+public enum InterpreterExecutionMode {
 	SIMULATE,
 	ANIMATE
 }
