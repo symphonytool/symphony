@@ -1,51 +1,74 @@
 package eu.compassresearch.theoremprover.utils;
 
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 
 import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.AStateDefinition;
-import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
+import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.APatternListTypePair;
 import org.overture.ast.patterns.APatternTypePair;
 import org.overture.ast.patterns.PPattern;
-import org.overture.ast.types.AFunctionType;
 import org.overture.ast.types.AOperationType;
 import org.overture.ast.types.PType;
 
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
+import eu.compassresearch.ast.actions.AAlphabetisedParallelismReplicatedAction;
+import eu.compassresearch.ast.actions.AAssignmentCallStatementAction;
 import eu.compassresearch.ast.actions.ABlockStatementAction;
 import eu.compassresearch.ast.actions.ACallStatementAction;
+import eu.compassresearch.ast.actions.ACasesStatementAction;
 import eu.compassresearch.ast.actions.AChannelRenamingAction;
 import eu.compassresearch.ast.actions.AChaosAction;
+import eu.compassresearch.ast.actions.ACommonInterleavingReplicatedAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.ADivAction;
+import eu.compassresearch.ast.actions.AElseIfStatementAction;
 import eu.compassresearch.ast.actions.AEndDeadlineAction;
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
+import eu.compassresearch.ast.actions.AExternalChoiceReplicatedAction;
+import eu.compassresearch.ast.actions.AForIndexStatementAction;
+import eu.compassresearch.ast.actions.AForSequenceStatementAction;
+import eu.compassresearch.ast.actions.AForSetStatementAction;
 import eu.compassresearch.ast.actions.AGeneralisedParallelismParallelAction;
+import eu.compassresearch.ast.actions.AGeneralisedParallelismReplicatedAction;
 import eu.compassresearch.ast.actions.AGuardedAction;
 import eu.compassresearch.ast.actions.AHidingAction;
+import eu.compassresearch.ast.actions.AIfStatementAction;
 import eu.compassresearch.ast.actions.AInterleavingParallelAction;
+import eu.compassresearch.ast.actions.AInterleavingReplicatedAction;
 import eu.compassresearch.ast.actions.AInternalChoiceAction;
+import eu.compassresearch.ast.actions.AInternalChoiceReplicatedAction;
 import eu.compassresearch.ast.actions.AInterruptAction;
+import eu.compassresearch.ast.actions.ALetStatementAction;
 import eu.compassresearch.ast.actions.AMuAction;
+import eu.compassresearch.ast.actions.AMultipleGeneralAssignmentStatementAction;
+import eu.compassresearch.ast.actions.ANewStatementAction;
+import eu.compassresearch.ast.actions.ANonDeterministicAltStatementAction;
+import eu.compassresearch.ast.actions.ANonDeterministicDoStatementAction;
+import eu.compassresearch.ast.actions.ANonDeterministicIfStatementAction;
+import eu.compassresearch.ast.actions.ANotYetSpecifiedStatementAction;
 import eu.compassresearch.ast.actions.AReadCommunicationParameter;
 import eu.compassresearch.ast.actions.AReferenceAction;
+import eu.compassresearch.ast.actions.AReturnStatementAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
+import eu.compassresearch.ast.actions.ASequentialCompositionReplicatedAction;
+import eu.compassresearch.ast.actions.ASingleGeneralAssignmentStatementAction;
 import eu.compassresearch.ast.actions.ASkipAction;
+import eu.compassresearch.ast.actions.ASpecificationStatementAction;
 import eu.compassresearch.ast.actions.AStartDeadlineAction;
 import eu.compassresearch.ast.actions.AStopAction;
 import eu.compassresearch.ast.actions.ASynchronousParallelismParallelAction;
+import eu.compassresearch.ast.actions.ASynchronousParallelismReplicatedAction;
 import eu.compassresearch.ast.actions.ATimedInterruptAction;
 import eu.compassresearch.ast.actions.ATimeoutAction;
 import eu.compassresearch.ast.actions.AUntimedTimeoutAction;
 import eu.compassresearch.ast.actions.AWaitAction;
+import eu.compassresearch.ast.actions.AWhileStatementAction;
 import eu.compassresearch.ast.actions.AWriteCommunicationParameter;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.actions.PCommunicationParameter;
@@ -118,47 +141,75 @@ public class ThmProcessUtil {
 //		return tn;
 //	}
 	
+	/***
+	 * Method to retrieve all state variable names from a collection of state defintions
+	 * @param statements - the collection of state variables
+	 * @return a list of names (as ILexNameTokens)
+	 */
 	public static LinkedList<ILexNameToken> getStateNames(LinkedList<AStateDefinition> statements)
 	{
 		//first we need to get all the state identifier names so expressions use correct
 		//reference
 		LinkedList<ILexNameToken> statenames = new LinkedList<ILexNameToken>();
+		//for each state definiton
 		for (AStateDefinition pdef : statements)
 		{
+			//for each state def
 			for (PDefinition sdef : pdef.getStateDefs())
 			{
+				//if the state defintion is an assignment defn
 				if (sdef instanceof AAssignmentDefinition)
 				{
 					AAssignmentDefinition st = (AAssignmentDefinition) sdef;
 	
-					ILexNameToken name = st.getName();
-					statenames.add(name);
+					//get the name and add it to the list
+					statenames.add(st.getName());
 				}
 			}
 		}
 		return statenames;
 	}
 
+	/**
+	 * Method to retrieve all state variable names from a collection of operations definitions
+	 * @param operations - the collection of operations
+	 * @return a list of names (as ILexNameTokens)
+	 */
 	public static LinkedList<ILexNameToken> getOperationNames(
 			LinkedList<SCmlOperationDefinition> operations) {
 		
 		LinkedList<ILexNameToken> opNames = new LinkedList<ILexNameToken>();
-		
+		//for each operation
 		for(SCmlOperationDefinition op : operations)
+			//get the name and add it to the list
 			opNames.add(op.getName());
 		
 		return opNames;
 	}
 
+	/**
+	 * Method to retrieve all state variable names from a collection of actions definitions
+	 * @param actions - the collection of actions
+	 * @return a list of names (as ILexNameTokens)
+	 */
 	public static LinkedList<ILexNameToken> getActionNames(
 			LinkedList<AActionDefinition> actions) {
 
 		LinkedList<ILexNameToken> actNames = new LinkedList<ILexNameToken>();
+		//for each operation
 		for(AActionDefinition a : actions)
+			//get the name and add it to the list
 			actNames.add(a.getName());
 		return actNames;
 	}
 
+	/***
+	 * Method to remove a list of dependancies from a list of dependancies
+	 //TODO: MOVE SOMEWHERE ELSE?
+	 * @param nodeDeps
+	 * @param procNames
+	 * @return
+	 */
 	public static LinkedList<ILexNameToken> removeProcessDeps(
 			LinkedList<ILexNameToken> nodeDeps,
 			LinkedList<ILexNameToken> procNames) {
@@ -182,7 +233,12 @@ public class ThmProcessUtil {
 	}
 	
 	
-
+	/**
+	 * Method to restrict node dependancy list to only those in a second set 
+	 * @param nodeDeps
+	 * @param procNames
+	 * @return
+	 */
 	public static LinkedList<ILexNameToken> removeExtDeps(
 			LinkedList<ILexNameToken> nodeDeps,
 			LinkedList<ILexNameToken> procNames) {
@@ -304,9 +360,7 @@ public class ThmProcessUtil {
 			//Add result type to dependancy list
 			nodeDeps.addAll(ThmTypeUtil.getIsabelleTypeDeps(opType.getResult()));
 			
-			
-			//TODO: Don't think it's handling the body, or params quite right (op1 in TPTest)
-			String body = ThmProcessUtil.getIsabelleStatementStr(exOp.getBody(), svars, bvars);
+			String body = ThmProcessUtil.getIsabelleActionString(exOp.getBody(), svars, bvars);
 			String pre = null;
 			String post = null;
 			if (exOp.getPrecondition() != null)
@@ -326,26 +380,44 @@ public class ThmProcessUtil {
 		return tn;
 	}
 
+	/****
+	 * Operation to get the thm nodes for a list of actions
+	 * @param actions - list of Action Defintion nodes
+	 * @param svars - state variable names
+	 * @param bvars - bound variable names
+	 * @return the list of thm nodes generated
+	 */
 	public static LinkedList<ThmNode> getIsabelleActions(
 			LinkedList<AActionDefinition> actions,
 			LinkedList<ILexNameToken> svars,
 			LinkedList<ILexNameToken> bvars) {
 		LinkedList<ThmNode> tnl = new LinkedList<ThmNode>();
 			
+		//for each Action Definiton node
 		for(AActionDefinition act : actions)
 			tnl.add(ThmProcessUtil.getIsabelleAction(act, svars, bvars));
 		
 		return tnl;
 	}
 
-	public static ThmNode getIsabelleAction(AActionDefinition act, LinkedList<ILexNameToken> svars, LinkedList<ILexNameToken> bvars)
+	/***
+	 * Operation to provide a theorem node for a CML action.
+	 * 
+	 * @param act - the action definition
+	 * @param svars - process state variable names
+	 * @param bvars - bound variable names
+	 * @return the theorem node prduced
+	 */
+	private static ThmNode getIsabelleAction(AActionDefinition act, LinkedList<ILexNameToken> svars, LinkedList<ILexNameToken> bvars)
 	{
 		ThmNode tn = null;
-		
+		//get the action name
 		ILexNameToken actName = act.getName();
+		//get the Isabelle string for the action node's action.
 		String actString = ThmProcessUtil.getIsabelleActionString(act.getAction(), svars, bvars);
-		
+		//obtain the action dependancies
 		LinkedList<ILexNameToken> nodeDeps = new LinkedList<ILexNameToken>();
+		//create the theorem node.
 		tn = new ThmNode(actName, nodeDeps, new ThmAction(actName.toString(), actString));
 
 		return tn;
@@ -373,7 +445,7 @@ public class ThmProcessUtil {
 		else if(act instanceof AWaitAction)
 		{
 			AWaitAction a = (AWaitAction) act;
-			return ThmProcessUtil.wait + ThmExprUtil.getIsabelleExprStr(svars, new LinkedList<ILexNameToken>(), a.getExpression());
+			return ThmProcessUtil.wait + ThmExprUtil.getIsabelleExprStr(svars, bvars, a.getExpression());
 		}
 		else if(act instanceof ACommunicationAction)
 		{
@@ -387,21 +459,26 @@ public class ThmProcessUtil {
 				{
 					AReadCommunicationParameter cp = (AReadCommunicationParameter) p;
 					PPattern patt = cp.getPattern();
+					if(patt instanceof AIdentifierPattern)
+					{
+						AIdentifierPattern ip = (AIdentifierPattern) patt;
+						params.append("?");
+						params.append(ip.getName().toString());
+						bvars.add(ip.getName());
+					}
 					patt.getDefinitions();
-					//TODO: Handle read comms
 				}
 				else if (p instanceof AWriteCommunicationParameter)
 				{
 					AWriteCommunicationParameter cp = (AWriteCommunicationParameter) p;
 					params.append("!");
-					params.append(ThmExprUtil.getIsabelleExprStr(svars, new LinkedList<ILexNameToken>(), cp.getExpression()));
+					params.append(ThmExprUtil.getIsabelleExprStr(svars, bvars, cp.getExpression()));
 					
 				}else
 				{
 					params.append(".");
-					params.append(ThmExprUtil.getIsabelleExprStr(svars, new LinkedList<ILexNameToken>(), p.getExpression()));
+					params.append(ThmExprUtil.getIsabelleExprStr(svars, bvars, p.getExpression()));
 				}
-				//		bvars needed?
 			}
 			
 			return (a.getIdentifier().toString() + params.toString() + ThmProcessUtil.comm + ThmProcessUtil.getIsabelleActionString(a.getAction(), svars, bvars));
@@ -476,9 +553,23 @@ public class ThmProcessUtil {
 		else if(act instanceof AMuAction)
 		{
 			AMuAction a = (AMuAction) act;
-			a.getIdentifiers();
-			a.getActions();
-			//TODO: handle mu
+			StringBuilder idStr = new StringBuilder();
+			for (Iterator<ILexIdentifierToken> itr = a.getIdentifiers().listIterator(); itr.hasNext(); ) {
+				ILexIdentifierToken id = itr.next();
+				
+				idStr.append(id.getName().toString());
+				//If there are remaining expressions, add a ","
+				if(itr.hasNext()){	
+					idStr.append(" ");
+				}
+			}
+			
+			StringBuilder actStr = new StringBuilder();
+			for (PAction pa : a.getActions())
+			{
+				actStr.append(ThmProcessUtil.getIsabelleActionString(pa, svars, bvars));
+			}
+			return "\\<mu>" + idStr + "." + actStr;
 		}
 		if(act instanceof AReferenceAction)
 		{
@@ -491,7 +582,7 @@ public class ThmProcessUtil {
 				for (Iterator<PExp> itr = a.getArgs().listIterator(); itr.hasNext(); ) {
 					PExp e = itr.next();
 					
-					argStr.append(ThmExprUtil.getIsabelleExprStr(svars, new LinkedList<ILexNameToken>(),e));
+					argStr.append(ThmExprUtil.getIsabelleExprStr(svars, bvars,e));
 					//If there are remaining expressions, add a ","
 					if(itr.hasNext()){	
 						argStr.append(", ");
@@ -514,7 +605,7 @@ public class ThmProcessUtil {
 		{
 			return ThmProcessUtil.getIsabelleStatementStr(act, svars, bvars);
 		}
-		return "action not handled";	
+		return "(*unknown action not handled*)";	
 	}
 
 	
@@ -522,24 +613,48 @@ public class ThmProcessUtil {
 	private static String getIsabelleReplicatedActionStr(PAction act,
 			LinkedList<ILexNameToken> svars, LinkedList<ILexNameToken> bvars) {
 		//TODO: Handle replicated actions
-		
-//		{sequentialComposition}
-//        | {externalChoice}
-//        | {internalChoice}
-//        | {commonInterleaving}
-//                [namesetExpression]:VarsetExpression
-//        | {interleaving}
-//                [namesetExpression]:VarsetExpression
-//        | {generalisedParallelism}
-//                [chansetExpression]:VarsetExpression
-//                [namesetExpression]:VarsetExpression
-//        | {alphabetisedParallelism}
-//                [namesetExpression]:VarsetExpression
-//                [chansetExpression]:VarsetExpression
-//        | {synchronousParallelism}
-//                [namesetExpression]:VarsetExpression
-		
-		return "replicated actions not handled";
+		if(act instanceof ASequentialCompositionReplicatedAction)
+		{
+//			ASequentialCompositionReplicatedAction a = (ASequentialCompositionReplicatedAction) act;
+//			a.getReplicatedAction();
+//			a.getReplicationDeclaration();
+		}
+		else if(act instanceof AExternalChoiceReplicatedAction)
+		{
+//			AExternalChoiceReplicatedAction a = (AExternalChoiceReplicatedAction) act;
+		}
+		else if(act instanceof AInternalChoiceReplicatedAction)
+		{
+//			AInternalChoiceReplicatedAction a = (AInternalChoiceReplicatedAction) act;
+		}
+		else if(act instanceof ACommonInterleavingReplicatedAction)
+		{
+//			ACommonInterleavingReplicatedAction a = (ACommonInterleavingReplicatedAction) act;
+//          [namesetExpression]:VarsetExpression
+		}
+		else if(act instanceof AInterleavingReplicatedAction)
+		{
+//			AInterleavingReplicatedAction a = (AInterleavingReplicatedAction) act;
+//          [namesetExpression]:VarsetExpression
+		}
+		else if(act instanceof AGeneralisedParallelismReplicatedAction)
+		{
+//			AGeneralisedParallelismReplicatedAction a = (AGeneralisedParallelismReplicatedAction) act;
+//          [chansetExpression]:VarsetExpression
+//          [namesetExpression]:VarsetExpression
+		}
+		else if(act instanceof AAlphabetisedParallelismReplicatedAction)
+		{
+//			AAlphabetisedParallelismReplicatedAction a = (AAlphabetisedParallelismReplicatedAction) act;
+//          [namesetExpression]:VarsetExpression
+//          [chansetExpression]:VarsetExpression
+		}
+		else if(act instanceof ASynchronousParallelismReplicatedAction)
+		{
+//			ASynchronousParallelismReplicatedAction a = (ASynchronousParallelismReplicatedAction) act;
+//          [namesetExpression]:VarsetExpression
+		}
+		return "(*replicated actions not handled*)";
 	}
 
 	private static String getIsabelleParallelActionStr(PAction act,
@@ -557,20 +672,24 @@ public class ThmProcessUtil {
 		}
 		else if(act instanceof AGeneralisedParallelismParallelAction)
 		{
-//			AGeneralisedParallelismParallelAction a = (AGeneralisedParallelismParallelAction) act;
-//	        | {generalisedParallelism}
-//	                [chansetExpression]:VarsetExpression
-
-			//TODO: Handle generalised parallel
+			AGeneralisedParallelismParallelAction a = (AGeneralisedParallelismParallelAction) act;
+			String left = ThmProcessUtil.getIsabelleActionString(a.getLeftAction(), svars, bvars);
+			String right = ThmProcessUtil.getIsabelleActionString(a.getRightAction(), svars, bvars);
+			String chExp = ThmExprUtil.getIsabelleVarsetExpr(a.getChansetExpression());
+			
+			return left + "[|" + chExp +"|]" + right;
 		}
 		else if(act instanceof AAlphabetisedParallelismParallelAction)
 		{
-//			AAlphabetisedParallelismParallelAction a = (AAlphabetisedParallelismParallelAction) act;
-//          [leftChansetExpression]:VarsetExpression
-//          [rightChansetExpression]:VarsetExpression
-			//TODO: Handle alpha parallel
+			AAlphabetisedParallelismParallelAction a = (AAlphabetisedParallelismParallelAction) act;
+			String left = ThmProcessUtil.getIsabelleActionString(a.getLeftAction(), svars, bvars);
+			String right = ThmProcessUtil.getIsabelleActionString(a.getRightAction(), svars, bvars);
+			String leftChExp = ThmExprUtil.getIsabelleVarsetExpr(a.getLeftChansetExpression());
+			String rightChExp = ThmExprUtil.getIsabelleVarsetExpr(a.getRightChansetExpression());
+			
+			return left + "[" + leftChExp + "||" + rightChExp +"]" + right;
 		}
-		return "parallel actions not handled";
+		return "(*unknown parallel action not handled*)";
 	}
 
 	private static String getIsabelleStatementStr(PAction stmt,
@@ -585,7 +704,7 @@ public class ThmProcessUtil {
 			for (Iterator<PExp> itr = a.getArgs().listIterator(); itr.hasNext(); ) {
 				PExp e = itr.next();
 				
-				args.append(ThmExprUtil.getIsabelleExprStr(svars, new LinkedList<ILexNameToken>(),e));
+				args.append(ThmExprUtil.getIsabelleExprStr(svars, bvars,e));
 				//If there are remaining expressions, add a ","
 				if(itr.hasNext()){	
 					args.append(", ");
@@ -597,78 +716,159 @@ public class ThmProcessUtil {
 		else if (stmt instanceof ABlockStatementAction)
 		{
 			ABlockStatementAction a = (ABlockStatementAction) stmt;
+			LinkedList<String> varsStr = new LinkedList<String>();
 			StringBuilder assignStr = new StringBuilder();
+			LinkedList<PDefinition> assigns = new LinkedList<PDefinition>();
+
+			String blockStr = ThmProcessUtil.getIsabelleActionString(a.getAction(), svars, bvars);
 			if(a.getDeclareStatement() != null) 
 			{
-				LinkedList<PDefinition> assigns = a.getDeclareStatement().getAssignmentDefs();
+				assigns = a.getDeclareStatement().getAssignmentDefs();
+				
+				for (PDefinition pdef : assigns)
+				{
+					AAssignmentDefinition aDef = (AAssignmentDefinition) pdef;
+					varsStr.add(aDef.getName().toString());
+					assignStr.append(aDef.getName().toString() + ":=" + ThmExprUtil.getIsabelleExprStr(svars, bvars, aDef.getExpression()));
+				}
+
+				blockStr = assignStr.toString() + blockStr;
+				for(String as : varsStr)
+				{
+					blockStr = "var " + as + ";" + blockStr + "; end " + as; 
+				}
 			}
-			//TODO: Handle local defs
 			
-			String actStr = ThmProcessUtil.getIsabelleStatementStr(a.getAction(), svars, bvars);
-			return actStr; //TODO: include local defs.
+			return blockStr; 
 		}
-		return "statement not handled";
-		
-//        = {let} [action]:action [localDefinitions]:definition*
-//        | {nonDeterministicIf}
-//                [alternatives]:action.#Statement.nonDeterministicAlt*
-//        | {nonDeterministicAlt}
-//                [guard]:exp
-//                [action]:action
-//        | {if}
-//                [ifExp]:exp
-//                [thenStm]:action
-//                [elseIf]:action.#Statement.elseIf*
-//                [elseStm]:action
-//        | {elseIf}
-//                [elseIf]:exp
-//                [thenStm]:action
-//        | {cases}
-//                [exp]:exp
-//                [cases]:alternativeAction.case*
-//                [others]:action
-//        | #GeneralAssignment
-//        | {specification}
-//                [externals]:clause.external*
-//                [precondition]:exp
-//                [postcondition]:exp
-//        | {assignmentCall}
-//                [designator]:exp
-//                [call]:action.#Statement.call
-//        | {return}
-//                [exp]:exp
-//    | {notYetSpecified}
-//                [opname]:LexNameToken
-//                [args]:exp*
-//    | {new}
-//        [destination]:exp
-//        [className]:LexNameToken
-//        [args]:exp*
-//        (classdef):definition.#class
-//        (ctorDefinition):definition
-//    | {nonDeterministicDo}
-//        [alternatives]:action.#Statement.nonDeterministicAlt*
-//    | {forSet}
-//        [pattern]:pattern
-//        [set]:exp
-//        [action]:action
-//    | {forIndex}
-//        [var]:LexNameToken
-//        [from]:exp
-//        [to]:exp
-//        [by]:exp
-//        [action]:action
-//    | {forSequence}
-//        [patternBind]:patternBind.def
-//        [exp]:exp
-//        [action]:action
-//        (seqType):type.#seq
-//    | {while}
-//        [condition]:exp
-//        [action]:action
-//        | {declare}  [assignmentDefs]:definition*
-//        ;
-		
+		else if(stmt instanceof ALetStatementAction)
+		{
+//			ALetStatementAction a = (ALetStatementAction) stmt;
+			//[action]:action [localDefinitions]:definition*
+			//TODO: NOT YET HANDLED
+		}
+		else if(stmt instanceof ANonDeterministicIfStatementAction)
+		{
+			ANonDeterministicIfStatementAction a = (ANonDeterministicIfStatementAction) stmt;
+//           [alternatives]:action.#Statement.nonDeterministicAlt*
+
+		}
+		else if(stmt instanceof ANonDeterministicAltStatementAction)
+		{
+//			ANonDeterministicAltStatementAction a = (ANonDeterministicAltStatementAction) stmt;
+//           [guard]:exp
+//           [action]:action
+			//TODO: NOT YET HANDLED
+		}
+		else if(stmt instanceof AIfStatementAction)
+		{
+			AIfStatementAction a = (AIfStatementAction) stmt;
+//           [ifExp]:exp
+//           [thenStm]:action
+//           [elseIf]:action.#Statement.elseIf*
+//           [elseStm]:action
+		}
+		else if(stmt instanceof AElseIfStatementAction)
+		{
+			AElseIfStatementAction a = (AElseIfStatementAction) stmt;
+//           [elseIf]:exp
+//           [thenStm]:action
+		}
+		else if(stmt instanceof ACasesStatementAction)
+		{
+//			ACasesStatementAction a = (ACasesStatementAction) stmt;
+//           [exp]:exp
+//           [cases]:alternativeAction.case*
+//           [others]:action
+			//TODO: NOT YET HANDLED
+		}
+		else if(stmt instanceof AMultipleGeneralAssignmentStatementAction)
+		{
+//			AMultipleGeneralAssignmentStatementAction a = (AMultipleGeneralAssignmentStatementAction) stmt;
+			//TODO: NOT YET HANDLED
+		}
+		else if(stmt instanceof ASingleGeneralAssignmentStatementAction)
+		{
+			ASingleGeneralAssignmentStatementAction a = (ASingleGeneralAssignmentStatementAction) stmt;
+		}
+		else if(stmt instanceof ASpecificationStatementAction)
+		{
+//			ASpecificationStatementAction a = (ASpecificationStatementAction) stmt;
+//           [externals]:clause.external*
+//           [precondition]:exp
+//           [postcondition]:exp
+			//MAY GEN LEMMA TO PROVE STATING FRAME NOT VIOLATED
+			//TODO: NOT YET HANDLED
+		}
+		else if(stmt instanceof AAssignmentCallStatementAction)
+		{
+			 AAssignmentCallStatementAction a = (AAssignmentCallStatementAction) stmt;
+//           [designator]:exp
+//           [call]:action.#Statement.call
+		}
+		else if(stmt instanceof ANotYetSpecifiedStatementAction)
+		{
+			 ANotYetSpecifiedStatementAction a = (ANotYetSpecifiedStatementAction) stmt;
+//           [opname]:LexNameToken
+//           [args]:exp*
+		}
+		else if(stmt instanceof AReturnStatementAction)
+		{
+//			 AReturnStatementAction a = (AReturnStatementAction) stmt;
+//           [exp]:exp
+				//TODO: NOT YET HANDLED
+		}
+		else if(stmt instanceof ANewStatementAction)
+		{
+//			ANewStatementAction a = (ANewStatementAction) stmt;
+//	        [destination]:exp
+//	        [className]:LexNameToken
+//	        [args]:exp*
+//	        (classdef):definition.#class
+//	        (ctorDefinition):definition
+			//TODO: NOT YET HANDLED
+		}
+		else  if(stmt instanceof ANonDeterministicDoStatementAction)
+		{
+			ANonDeterministicDoStatementAction a = (ANonDeterministicDoStatementAction) stmt;
+//	        [alternatives]:action.#Statement.nonDeterministicAlt*
+		}
+		else if(stmt instanceof AForSetStatementAction)
+		{
+//			AForSetStatementAction a = (AForSetStatementAction) stmt;
+//	        [pattern]:pattern
+//	        [set]:exp
+//	        [action]:action
+			//TODO: NOT YET HANDLED
+		}
+		else if(stmt instanceof AForIndexStatementAction)
+		{
+//			AForIndexStatementAction a = (AForIndexStatementAction) stmt;
+//	        [var]:LexNameToken
+//	        [from]:exp
+//	        [to]:exp
+//	        [by]:exp
+//	        [action]:action
+			//TODO: NOT YET HANDLED
+
+		}
+		else if(stmt instanceof AForSequenceStatementAction)
+		{
+//			AForSequenceStatementAction a = (AForSequenceStatementAction) stmt;
+//	        [patternBind]:patternBind.def
+//	        [exp]:exp
+//	        [action]:action
+//	        (seqType):type.#seq
+			//TODO: NOT YET HANDLED
+		}
+		else if(stmt instanceof AWhileStatementAction)
+		{
+			AWhileStatementAction a = (AWhileStatementAction) stmt;
+//	        [condition]:exp
+//	        [action]:action
+//	        | {declare}  [assignmentDefs]:definition*
+		}
+		return "(*statement not handled*)";
 		
 	}
 	

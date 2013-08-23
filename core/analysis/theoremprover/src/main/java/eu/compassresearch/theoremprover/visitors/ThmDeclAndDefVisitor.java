@@ -408,6 +408,7 @@ public class ThmDeclAndDefVisitor extends AnswerCMLAdaptor<ThmNodeList>
 			opNodes = ThmProcessUtil.restrictExtOperationsDeps(opNodes, procNodeNames);
 			actTnl.addAll(opNodes);
 			//TODO: Handle the actions.
+			//TODO:NEED TO CHECK EACH ACT FOR RECURSION (See notepad :))
 			LinkedList<ThmNode> actNodes =(ThmProcessUtil.getIsabelleActions(actions, svars, new LinkedList<ILexNameToken>()));
 
 			//Add all dependancies to the list of process deps

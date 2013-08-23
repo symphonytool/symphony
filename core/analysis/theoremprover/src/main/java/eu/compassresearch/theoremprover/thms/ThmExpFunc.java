@@ -86,11 +86,11 @@ public class ThmExpFunc extends ThmDecl {
 				createSimpFuncExp() + ThmTypeUtil.isaFuncBar + "\"\n" + tacHook(name));
 	}
 
+	//RENAME - USED FOR PRE/POST conds.
 	private String createSimpFuncExp() {
 		StringBuilder sb = new StringBuilder();
 		
-		sb.append("(" + ThmTypeUtil.isaFuncLambdaPost + " " + ThmTypeUtil.isaFuncLambdaPostVal+ " : " +
-		         resType + " @ (^" + ThmTypeUtil.isaFuncLambdaPostVal +  "^ = " + expr +"))");		
+		sb.append("(" + ThmTypeUtil.isaFuncLambdaPost + " " + ThmTypeUtil.isaFuncLambdaPostVal+ " : @bool @ (^" + ThmTypeUtil.isaFuncLambdaPostVal +  "^ = " + expr +"))");		
 		return sb.toString();
 	}
 	
