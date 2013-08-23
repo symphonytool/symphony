@@ -11,7 +11,6 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
-import org.overture.ast.analysis.AnalysisException;
 import org.overture.ide.core.resources.IVdmProject;
 import org.overture.ide.plugins.poviewer.view.PoOverviewTableView;
 import org.overture.pog.obligation.ProofObligationList;
@@ -19,9 +18,9 @@ import org.overture.pog.pub.IProofObligationList;
 
 import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligationList;
 import eu.compassresearch.core.analysis.pog.utility.PogPubUtil;
-import eu.compassresearch.ide.pog.view.PoListView;
 import eu.compassresearch.ide.core.resources.ICmlModel;
 import eu.compassresearch.ide.core.resources.ICmlProject;
+import eu.compassresearch.ide.pog.view.PoListView;
 import eu.compassresearch.ide.ui.utility.CmlProjectUtil;
 
 public class PogPluginDoStuff {
@@ -66,7 +65,7 @@ public class PogPluginDoStuff {
 		try {
 			poList = PogPubUtil.generateProofObligations(model.getAst());
 
-		} catch (AnalysisException e) {
+		} catch (Exception e) {
 			popErrorMessage("Internal POG error. Please submit a bug report at: \n\nhttp://sourceforge.net/p/compassresearch/tickets/new/");
 			e.printStackTrace();
 			return;

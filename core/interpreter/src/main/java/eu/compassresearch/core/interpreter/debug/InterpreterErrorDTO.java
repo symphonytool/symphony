@@ -1,28 +1,30 @@
 package eu.compassresearch.core.interpreter.debug;
 
+import org.overture.ast.intf.lex.ILexLocation;
+
 public class InterpreterErrorDTO {
 
 	private final String message;
-	private final Throwable throwable;
+	private final ILexLocation location;
 	
 	/*
 	 * Dummy constructor for serialization
 	 */
 	private InterpreterErrorDTO(){
 		message = null;
-		throwable = null;
+		location = null;
 	}
 	
 	public InterpreterErrorDTO(String message)
 	{
 		this.message = message;
-		this.throwable = null;
+		location = null;
 	}
 	
-	public InterpreterErrorDTO(String message, Throwable throwable)
+	public InterpreterErrorDTO(String message, ILexLocation location)
 	{
 		this.message = message;
-		this.throwable = throwable;
+		this.location = location;
 	}
 	
 	public String getErrorMessage()
@@ -30,14 +32,13 @@ public class InterpreterErrorDTO {
 		return message;
 	}
 	
-	public Throwable getThrowable()
-	{
-		return throwable;
-	}
-	
 	@Override
 	public String toString() {
-		return message + " : " + throwable.toString();
+		return message + " at " + location;
+	}
+
+	public ILexLocation getLocation() {
+		return location;
 	}
 	
 }

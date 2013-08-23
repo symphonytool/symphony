@@ -51,7 +51,7 @@ public interface CmlInterpreter
 	/**
 	 * Initializes the interpreter by making a global context and setting the 
 	 * last defined process as the top process
-	 * @throws InterpreterException
+	 * @throws CmlInterpreterException
 	 */
 	public void initialize() throws AnalysisException;
 	
