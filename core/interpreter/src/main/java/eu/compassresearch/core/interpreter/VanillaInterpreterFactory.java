@@ -12,7 +12,7 @@ import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
-import eu.compassresearch.core.interpreter.api.InterpreterException;
+import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.SelectionStrategy;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 
@@ -24,9 +24,9 @@ public final class VanillaInterpreterFactory {
 	 * 
 	 * @param cmlSources
 	 *            - List of parsed and type-checked CML source to interpret
-	 * @throws InterpreterException 
+	 * @throws CmlInterpreterException 
 	 */
-	public static CmlInterpreter newInterpreter(List<PSource> cmlSources) throws InterpreterException {
+	public static CmlInterpreter newInterpreter(List<PSource> cmlSources) throws CmlInterpreterException {
 		return new VanillaCmlInterpreter(cmlSources);
 	}
 	
@@ -35,9 +35,9 @@ public final class VanillaInterpreterFactory {
 	 * 
 	 * @param cmlSource
 	 *            - A single parsed and type-checked CML source to interpret
-	 * @throws InterpreterException 
+	 * @throws CmlInterpreterException 
 	 */
-	public static CmlInterpreter newInterpreter(PSource cmlSource) throws InterpreterException {
+	public static CmlInterpreter newInterpreter(PSource cmlSource) throws CmlInterpreterException {
 		return new VanillaCmlInterpreter(cmlSource);
 	}
 	

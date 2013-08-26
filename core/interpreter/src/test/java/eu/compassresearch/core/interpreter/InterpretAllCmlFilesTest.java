@@ -31,7 +31,7 @@ import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
-import eu.compassresearch.core.interpreter.api.InterpreterException;
+import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.RandomSelectionStrategy;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
@@ -91,7 +91,7 @@ public class InterpretAllCmlFilesTest {
 
 	@Test
 	public void testParseCmlFile() throws IOException, AnalysisException,
-			InterpreterException {
+			CmlInterpreterException {
 
 		File f = new File(filePath);
 		AFileSource ast = new AFileSource();

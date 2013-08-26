@@ -1,4 +1,4 @@
-package eu.compassresearch.core.interpreter.utility.messaging;
+package eu.compassresearch.core.interpreter.debug.messaging;
 
 public enum MessageType {
 
