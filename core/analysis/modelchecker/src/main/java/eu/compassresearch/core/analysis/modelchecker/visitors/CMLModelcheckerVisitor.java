@@ -9,6 +9,8 @@ import org.overture.ast.definitions.ANamedTraceDefinition;
 import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.expressions.AAndBooleanBinaryExp;
+import org.overture.ast.expressions.ABooleanConstExp;
 import org.overture.ast.expressions.AEqualsBinaryExp;
 import org.overture.ast.expressions.AGreaterEqualNumericBinaryExp;
 import org.overture.ast.expressions.AGreaterNumericBinaryExp;
@@ -16,6 +18,8 @@ import org.overture.ast.expressions.AIntLiteralExp;
 import org.overture.ast.expressions.ALessEqualNumericBinaryExp;
 import org.overture.ast.expressions.ALessNumericBinaryExp;
 import org.overture.ast.expressions.ANotEqualBinaryExp;
+import org.overture.ast.expressions.ANotUnaryExp;
+import org.overture.ast.expressions.AOrBooleanBinaryExp;
 import org.overture.ast.expressions.ASetEnumSetExp;
 import org.overture.ast.expressions.ATimesNumericBinaryExp;
 import org.overture.ast.expressions.PExp;
@@ -133,13 +137,7 @@ public class CMLModelcheckerVisitor extends
 		int endIndex = question.getScriptContent().lastIndexOf("#");
 		question.getScriptContent().replace(startIndex, endIndex + 1,
 				"\"" + node.getName().toString() + "\"");
-		// question.re
-		// it converts the top level process
-		// question.append("  ProcDef(");
-		// question.append("\"" + node.getName() + "\", ");
-		// ///PPPPPPPPPPPPPPPP
-		// it applies recursivelly in the internal structure (the process body)
-		// question.append(").\n");
+		
 
 		question.getScriptContent().append(
 				"  conforms := CML_PropertiesSpec." + this.propertyToCheck + ".\n");
@@ -169,13 +167,7 @@ public class CMLModelcheckerVisitor extends
 				"  GivenProc(\"" + node.getName() + "\")\n");
 		question.getScriptContent().append("}");
 
-		// System.out.println("AProcessDefinition: " + node.toString());
-		// System.out.println("name: " + node.getName());
-		// System.out.println("_process: " + node.getProcess());
-
-		// System.out.println(": " + node.getProcess().);
-
-		// return node.getName() .apply(this, question);
+		
 		return question.getScriptContent();
 	}
 
@@ -238,12 +230,12 @@ public class CMLModelcheckerVisitor extends
 			StringBuilder condResult = auxCtxt.getScriptContent();
 			int indexGuardNDefHash = condResult.indexOf("#");
 			if(indexGuardNDefHash != -1){
-				question.getScriptContent().append("  guardNDef(l,occ,b) :- State(l,b,_,condChoice(occ,_,_)),");
+				question.getScriptContent().append("  guardNDef(l,occ,b) :- State(l,b,_,condChoice(occ,_,_))");
 				condResult = condResult.replace(0,indexGuardNDefHash+1,"");
 				question.getScriptContent().append(condResult.toString());
 				question.getScriptContent().append(".");
 			}else{
-				question.getScriptContent().append("  guardDef(l,occ,b) :- State(l,b,_,condChoice(occ,_,_)),");
+				question.getScriptContent().append("  guardDef(l,occ,b) :- State(l,b,_,condChoice(occ,_,_))");
 				question.getScriptContent().append(condResult.toString());
 				question.getScriptContent().append(".");
 			}
@@ -285,20 +277,7 @@ public class CMLModelcheckerVisitor extends
 				indexes.size());
 		question.getScriptContent().append(replicatedAction.toString());
 
-		// for (PExp indexValue : indexes) {
-		// CMLModelcheckerContext ctxt = new CMLModelcheckerContext();
-		// StringBuilder txtToBeReplicated =
-		// actionToBeReplicated.apply(this,ctxt);
-		// String variableToBeReplaced = new
-		// String((String)ctxt.info.get(actionToBeReplicated.getName()));
-
-		// question.getScriptContent().append(txtToBeReplicated.toString().replace(variableToBeReplaced,
-		// indexValue.toString()));
-		// }
-
-		// Adding auxiliary definitions
-		// LinkedList<PDefinition> localDefinitions = (LinkedList<PDefinition>)
-		// question.info.get(node);
+		
 		LinkedList<PDefinition> localDefinitions = (LinkedList<PDefinition>) question.info
 				.get(Utilities.LOCAL_DEFINITIONS_KEY);
 		CMLModelcheckerContext auxCtxt = new CMLModelcheckerContext();
@@ -335,20 +314,7 @@ public class CMLModelcheckerVisitor extends
 				indexes.size());
 		question.getScriptContent().append(replicatedAction.toString());
 
-		// for (PExp indexValue : indexes) {
-		// CMLModelcheckerContext ctxt = new CMLModelcheckerContext();
-		// StringBuilder txtToBeReplicated =
-		// actionToBeReplicated.apply(this,ctxt);
-		// String variableToBeReplaced = new
-		// String((String)ctxt.info.get(actionToBeReplicated.getName()));
-
-		// question.getScriptContent().append(txtToBeReplicated.toString().replace(variableToBeReplaced,
-		// indexValue.toString()));
-		// }
-
-		// Adding auxiliary definitions
-		// LinkedList<PDefinition> localDefinitions = (LinkedList<PDefinition>)
-		// question.info.get(node);
+		
 		LinkedList<PDefinition> localDefinitions = (LinkedList<PDefinition>) question.info
 				.get(Utilities.LOCAL_DEFINITIONS_KEY);
 		CMLModelcheckerContext auxCtxt = new CMLModelcheckerContext();
@@ -385,20 +351,7 @@ public class CMLModelcheckerVisitor extends
 				indexes.size());
 		question.getScriptContent().append(replicatedAction.toString());
 
-		// for (PExp indexValue : indexes) {
-		// CMLModelcheckerContext ctxt = new CMLModelcheckerContext();
-		// StringBuilder txtToBeReplicated =
-		// actionToBeReplicated.apply(this,ctxt);
-		// String variableToBeReplaced = new
-		// String((String)ctxt.info.get(actionToBeReplicated.getName()));
-
-		// question.getScriptContent().append(txtToBeReplicated.toString().replace(variableToBeReplaced,
-		// indexValue.toString()));
-		// }
-
-		// Adding auxiliary definitions
-		// LinkedList<PDefinition> localDefinitions = (LinkedList<PDefinition>)
-		// question.info.get(node);
+		
 		LinkedList<PDefinition> localDefinitions = (LinkedList<PDefinition>) question.info
 				.get(Utilities.LOCAL_DEFINITIONS_KEY);
 		CMLModelcheckerContext auxCtxt = new CMLModelcheckerContext();
@@ -780,6 +733,14 @@ public class CMLModelcheckerVisitor extends
 		
 		PExp left = node.getLeft();
 		PExp right = node.getRight();
+		String leftValue = ((AIntLiteralExp) left).getValue().toString();
+		String rightValue = ((AIntLiteralExp) right).getValue().toString();
+		if(ExpressionEvaluator.evaluate(node)){
+			question.getScriptContent().append("," + leftValue + " = " + rightValue);
+		}else{
+			question.getScriptContent().append("GUARDNDEF#,"+leftValue + " != " + rightValue);
+		}
+		/*
 		if(left instanceof AIntLiteralExp){
 			if(right instanceof AIntLiteralExp){
 				String leftValue = ((AIntLiteralExp) left).getValue().toString();
@@ -791,6 +752,7 @@ public class CMLModelcheckerVisitor extends
 				}
 			}
 		}
+		*/
 		//question.getScriptContent().append("EQ(");
 		//node.getLeft().apply(this, question);
 		//question.getScriptContent().append(",");
@@ -800,11 +762,21 @@ public class CMLModelcheckerVisitor extends
 		return question.getScriptContent();
 	}
 
+	
+	
 	@Override
 	public StringBuilder caseANotEqualBinaryExp(ANotEqualBinaryExp node,
 			CMLModelcheckerContext question) throws AnalysisException {
 		PExp left = node.getLeft();
 		PExp right = node.getRight();
+		String leftValue = ((AIntLiteralExp) left).getValue().toString();
+		String rightValue = ((AIntLiteralExp) right).getValue().toString();
+		if(ExpressionEvaluator.evaluate(node)){
+			question.getScriptContent().append("," + leftValue + " != " + rightValue);
+		}else{
+			question.getScriptContent().append("GUARDNDEF#,"+leftValue + " = " + rightValue);
+		}
+		/*
 		if(left instanceof AIntLiteralExp){
 			if(right instanceof AIntLiteralExp){
 				String leftValue = ((AIntLiteralExp) left).getValue().toString();
@@ -816,6 +788,7 @@ public class CMLModelcheckerVisitor extends
 				}
 			}
 		}
+		*/
 		return question.getScriptContent();
 	}
 
@@ -825,17 +798,26 @@ public class CMLModelcheckerVisitor extends
 			throws AnalysisException {
 		PExp left = node.getLeft();
 		PExp right = node.getRight();
+		String leftValue = ((AIntLiteralExp) left).getValue().toString();
+		String rightValue = ((AIntLiteralExp) right).getValue().toString();
+		if(ExpressionEvaluator.evaluate(node)){
+			question.getScriptContent().append("," + leftValue + " > " + rightValue);
+		}else{
+			question.getScriptContent().append("GUARDNDEF#,"+leftValue + " =< " + rightValue);
+		}
+		/*
 		if(left instanceof AIntLiteralExp){
 			if(right instanceof AIntLiteralExp){
 				Integer leftValue = new Integer(((AIntLiteralExp) left).getValue().toString());
 				Integer rightValue = new Integer(((AIntLiteralExp) right).getValue().toString());
 				if(!(leftValue > rightValue)){
-					question.getScriptContent().append("GUARDNDEF#"+leftValue + " < " + rightValue);
+					question.getScriptContent().append("GUARDNDEF#"+leftValue + " =< " + rightValue);
 				}else{
 					question.getScriptContent().append(leftValue + " > " + rightValue);
 				}
 			}
 		}
+		*/
 		return question.getScriptContent();
 	}
 
@@ -845,6 +827,14 @@ public class CMLModelcheckerVisitor extends
 			throws AnalysisException {
 		PExp left = node.getLeft();
 		PExp right = node.getRight();
+		String leftValue = ((AIntLiteralExp) left).getValue().toString();
+		String rightValue = ((AIntLiteralExp) right).getValue().toString();
+		if(ExpressionEvaluator.evaluate(node)){
+			question.getScriptContent().append("," + leftValue + " >= " + rightValue);
+		}else{
+			question.getScriptContent().append("GUARDNDEF#,"+leftValue + " < " + rightValue);
+		}
+		/*
 		if(left instanceof AIntLiteralExp){
 			if(right instanceof AIntLiteralExp){
 				Integer leftValue = new Integer(((AIntLiteralExp) left).getValue().toString());
@@ -856,6 +846,7 @@ public class CMLModelcheckerVisitor extends
 				}
 			}
 		}
+		*/
 		return question.getScriptContent();
 	}
 
@@ -865,6 +856,14 @@ public class CMLModelcheckerVisitor extends
 			throws AnalysisException {
 		PExp left = node.getLeft();
 		PExp right = node.getRight();
+		Integer leftValue = new Integer(((AIntLiteralExp) left).getValue().toString());
+		Integer rightValue = new Integer(((AIntLiteralExp) right).getValue().toString());
+		if(ExpressionEvaluator.evaluate(node)){
+			question.getScriptContent().append("," + leftValue + " <= " + rightValue);
+		}else{
+			question.getScriptContent().append("GUARDNDEF#,"+leftValue + " > " + rightValue);
+		}
+		/*
 		if(left instanceof AIntLiteralExp){
 			if(right instanceof AIntLiteralExp){
 				Integer leftValue = new Integer(((AIntLiteralExp) left).getValue().toString());
@@ -876,6 +875,7 @@ public class CMLModelcheckerVisitor extends
 				}
 			}
 		}
+		*/
 		return question.getScriptContent();
 	}
 
@@ -884,20 +884,120 @@ public class CMLModelcheckerVisitor extends
 			CMLModelcheckerContext question) throws AnalysisException {
 		PExp left = node.getLeft();
 		PExp right = node.getRight();
+		Integer leftValue = new Integer(((AIntLiteralExp) left).getValue().toString());
+		Integer rightValue = new Integer(((AIntLiteralExp) right).getValue().toString());
+		if(ExpressionEvaluator.evaluate(node)){
+			question.getScriptContent().append("," + leftValue + " < " + rightValue);
+		}else{
+			question.getScriptContent().append("GUARDNDEF#,"+leftValue + " >= " + rightValue);
+		}
+		/*
 		if(left instanceof AIntLiteralExp){
 			if(right instanceof AIntLiteralExp){
 				Integer leftValue = new Integer(((AIntLiteralExp) left).getValue().toString());
 				Integer rightValue = new Integer(((AIntLiteralExp) right).getValue().toString());
 				if(!(leftValue < rightValue)){
-					question.getScriptContent().append("GUARDNDEF#"+leftValue + " > " + rightValue);
+					question.getScriptContent().append("GUARDNDEF#"+leftValue + " >= " + rightValue);
 				}else{
 					question.getScriptContent().append(leftValue + " < " + rightValue);
 				}
 			}
 		}
+		*/
+		return question.getScriptContent();
+	}
+	
+	
+	
+	@Override
+	public StringBuilder caseABooleanConstExp(ABooleanConstExp node,
+			CMLModelcheckerContext question) throws AnalysisException {
+		
+		if(ExpressionEvaluator.evaluate(node)){
+			//question.getScriptContent().append("true");
+			//nothing todo
+		}else{
+			question.getScriptContent().append("GUARDNDEF#");
+		}
+		return super.caseABooleanConstExp(node, question);
+	}
+	@Override
+	public StringBuilder caseAAndBooleanBinaryExp(AAndBooleanBinaryExp node,
+			CMLModelcheckerContext question) throws AnalysisException {
+		PExp left = node.getLeft();
+		PExp right = node.getRight();
+		if(ExpressionEvaluator.evaluate(node)){
+			question.getScriptContent().append("," + left.toString() + " , "+ right.toString()+" = true");
+		}else{
+			question.getScriptContent().append("GUARDNDEF#,"+left.toString()+" , "+right.toString()+" = false");
+		}
+		/*
+		if(left instanceof ABooleanConstExp){
+			if(right instanceof ABooleanConstExp){
+				Boolean leftBoolean = new Boolean(left.toString());
+				Boolean rightBoolean = new Boolean(right.toString());
+				if(!(leftBoolean && rightBoolean)){
+					question.getScriptContent().append("GUARDNDEF#"+left.toString()+" and "+right.toString()+" = false");
+				} else{
+					question.getScriptContent().append(left.toString() + " and "+ right.toString()+" = true");
+				}
+			}
+		}
+		*/
 		return question.getScriptContent();
 	}
 
+	@Override
+	public StringBuilder caseANotUnaryExp(ANotUnaryExp node,
+			CMLModelcheckerContext question) throws AnalysisException {
+		
+	
+		if(ExpressionEvaluator.evaluate(node)){
+			//question.getScriptContent().append("not "+node.getExp().toString()+" = false");
+			//nothing todo
+		}else{
+			//question.getScriptContent().append("GUARDNDEF#"+"not "+node.getExp().toString()+" = true");
+			question.getScriptContent().append("GUARDNDEF#");
+		}
+		/*
+		if(node.getExp() instanceof ABooleanConstExp){
+			Boolean b = new Boolean(node.getExp().toString());
+			if(!b){
+				question.getScriptContent().append("GUARDNDEF#"+"not "+node.getExp().toString()+" = true");
+			} else{
+				question.getScriptContent().append("not "+node.getExp().toString()+" = false");
+			}
+		}
+		*/
+		return question.getScriptContent();
+	}
+	
+	@Override
+	public StringBuilder caseAOrBooleanBinaryExp(AOrBooleanBinaryExp node,
+			CMLModelcheckerContext question) throws AnalysisException {
+		PExp left = node.getLeft();
+		PExp right = node.getRight();
+		if(ExpressionEvaluator.evaluate(node)){
+			question.getScriptContent().append(left.toString() + " or "+ right.toString()+" = true");
+		}else{
+			question.getScriptContent().append("GUARDNDEF#"+left.toString()+" or "+right.toString()+" = false");
+		}
+		/*
+		if(left instanceof ABooleanConstExp){
+			if(right instanceof ABooleanConstExp){
+				Boolean leftBoolean = new Boolean(left.toString());
+				Boolean rightBoolean = new Boolean(right.toString());
+				if(!(leftBoolean || rightBoolean)){
+					question.getScriptContent().append("GUARDNDEF#"+left.toString()+" or "+right.toString()+" = false");
+				} else{
+					question.getScriptContent().append(left.toString() + " or "+ right.toString()+" = true");
+				}
+			}
+		}
+		*/
+		return question.getScriptContent();
+	}
+	
 	@Override
 	public StringBuilder caseAIntLiteralExp(AIntLiteralExp node,
 			CMLModelcheckerContext question) throws AnalysisException {
@@ -1054,7 +1154,7 @@ public class CMLModelcheckerVisitor extends
 	 * @throws Throwable
 	 */
 	public static void main(String[] args) throws Throwable {
-		String cml_example = "src/test/resources/action-stop.cml";
+		String cml_example = "src/test/resources/action-guard.cml";
 		System.out.println("Testing on " + cml_example);
 		
 		// List<PSource> sources = new LinkedList<PSource>();
