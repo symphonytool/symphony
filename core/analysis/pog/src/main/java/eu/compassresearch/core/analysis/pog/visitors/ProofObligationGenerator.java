@@ -178,14 +178,6 @@ public class ProofObligationGenerator extends
 		return node.getSet().apply(this.expressionVisitor, question);
 	}
 
-	// FIXME --what are pvarsets?
-	@Override
-	public CmlProofObligationList defaultPVarsetExpression(
-			PVarsetExpression node, IPOContextStack question)
-			throws AnalysisException
-	{
-		return new CmlProofObligationList();
-	}
 
 	@Override
 	public CmlProofObligationList caseACaseAlternative(ACaseAlternative node,

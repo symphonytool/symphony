@@ -47,19 +47,18 @@ import eu.compassresearch.core.analysis.pog.obligations.CmlNonZeroTimeObligation
 
 @SuppressWarnings("serial")
 public class POGProcessVisitor extends
-		QuestionAnswerCMLAdaptor<IPOContextStack, CmlProofObligationList>
-{
+		QuestionAnswerCMLAdaptor<IPOContextStack, CmlProofObligationList> {
 	private ProofObligationGenerator parentPOG;
 
-	public POGProcessVisitor(ProofObligationGenerator parent)
-	{
+	// FIXME dispatch chan and varsets to the apropriate visitors
+
+	public POGProcessVisitor(ProofObligationGenerator parent) {
 		this.parentPOG = parent;
 	}
 
 	@Override
 	public CmlProofObligationList defaultPProcess(PProcess node,
-			IPOContextStack question) throws AnalysisException
-	{
+			IPOContextStack question) throws AnalysisException {
 
 		System.out.println("PProcess: " + node.toString());
 		return new CmlProofObligationList();
@@ -67,8 +66,7 @@ public class POGProcessVisitor extends
 
 	@Override
 	public CmlProofObligationList caseAActionProcess(AActionProcess node,
-			IPOContextStack question) throws AnalysisException
-	{
+			IPOContextStack question) throws AnalysisException {
 		System.out.println("A AActionProcess: " + node.toString());
 		CmlProofObligationList pol = new CmlProofObligationList();
 
@@ -81,20 +79,16 @@ public class POGProcessVisitor extends
 		System.out.println("A StateProcess defintion paragraphs: " + pdef);
 		System.out.println("A StateProcess action: " + action);
 
-		for (PDefinition def : pdef)
-		{
+		for (PDefinition def : pdef) {
 			System.out.println(def.toString());
 			PONameContext name = def.apply(new PogNameContextVisitor());
-			if (name != null)
-			{
+			if (name != null) {
 				question.push(def.apply(new PogNameContextVisitor()));
 				pol.addAll(def.apply(parentPOG, question));
 				question.pop();
-			} else
-			{
+			} else {
 				pol.addAll(def.apply(parentPOG, question));
 			}
-			// FIXME possible names woes here
 		}
 
 		// TODO: Consider any AActionProcess POs
@@ -104,8 +98,7 @@ public class POGProcessVisitor extends
 	@Override
 	public CmlProofObligationList caseAInternalChoiceProcess(
 			AInternalChoiceProcess node, IPOContextStack question)
-			throws AnalysisException
-	{
+			throws AnalysisException {
 
 		System.out.println("A AInternalChoiceProcess: " + node.toString());
 
@@ -125,8 +118,7 @@ public class POGProcessVisitor extends
 	@Override
 	public CmlProofObligationList caseAUntimedTimeoutProcess(
 			AUntimedTimeoutProcess node, IPOContextStack question)
-			throws AnalysisException
-	{
+			throws AnalysisException {
 
 		System.out.println("A AUntimedTimeoutProcess: " + node.toString());
 		CmlProofObligationList pol = new CmlProofObligationList();
@@ -144,8 +136,7 @@ public class POGProcessVisitor extends
 
 	@Override
 	public CmlProofObligationList caseATimeoutProcess(ATimeoutProcess node,
-			IPOContextStack question) throws AnalysisException
-	{
+			IPOContextStack question) throws AnalysisException {
 
 		System.out.println("A ATimeoutProcess: " + node.toString());
 		CmlProofObligationList pol = new CmlProofObligationList();
@@ -168,8 +159,7 @@ public class POGProcessVisitor extends
 	@Override
 	public CmlProofObligationList caseASynchronousParallelismReplicatedProcess(
 			ASynchronousParallelismReplicatedProcess node,
-			IPOContextStack question) throws AnalysisException
-	{
+			IPOContextStack question) throws AnalysisException {
 
 		System.out.println("A ASynchronousParallelismReplicatedProcess: "
 				+ node.toString());
@@ -177,10 +167,10 @@ public class POGProcessVisitor extends
 
 		// Get subparts
 		PProcess proc = node.getReplicatedProcess();
-		LinkedList<PSingleDeclaration> repdecl = node.getReplicationDeclaration();
+		LinkedList<PSingleDeclaration> repdecl = node
+				.getReplicationDeclaration();
 
-		for (PSingleDeclaration decl : repdecl)
-		{
+		for (PSingleDeclaration decl : repdecl) {
 			// TODO: Ensure this it the correct way to handle declaration POs
 			pol.addAll(decl.apply(parentPOG, question));
 		}
@@ -194,8 +184,7 @@ public class POGProcessVisitor extends
 	@Override
 	public CmlProofObligationList caseASequentialCompositionReplicatedProcess(
 			ASequentialCompositionReplicatedProcess node,
-			IPOContextStack question) throws AnalysisException
-	{
+			IPOContextStack question) throws AnalysisException {
 
 		System.out.println("A ASequentialCompositionReplicatedProcess: "
 				+ node.toString());
@@ -203,10 +192,10 @@ public class POGProcessVisitor extends
 
 		// Get subparts
 		PProcess proc = node.getReplicatedProcess();
-		LinkedList<PSingleDeclaration> repdecl = node.getReplicationDeclaration();
+		LinkedList<PSingleDeclaration> repdecl = node
+				.getReplicationDeclaration();
 
-		for (PSingleDeclaration decl : repdecl)
-		{
+		for (PSingleDeclaration decl : repdecl) {
 			// TODO: Ensure this it the correct way to handle declaration POs
 			pol.addAll(decl.apply(parentPOG, question));
 		}
@@ -220,8 +209,7 @@ public class POGProcessVisitor extends
 	@Override
 	public CmlProofObligationList caseAInternalChoiceReplicatedProcess(
 			AInternalChoiceReplicatedProcess node, IPOContextStack question)
-			throws AnalysisException
-	{
+			throws AnalysisException {
 
 		System.out.println("A AInternalChoiceReplicatedProcess: "
 				+ node.toString());
@@ -229,10 +217,10 @@ public class POGProcessVisitor extends
 
 		// Get subparts
 		PProcess proc = node.getReplicatedProcess();
-		LinkedList<PSingleDeclaration> repdecl = node.getReplicationDeclaration();
+		LinkedList<PSingleDeclaration> repdecl = node
+				.getReplicationDeclaration();
 
-		for (PSingleDeclaration decl : repdecl)
-		{
+		for (PSingleDeclaration decl : repdecl) {
 			// TODO: Ensure this it the correct way to handle declaration POs
 			pol.addAll(decl.apply(parentPOG, question));
 		}
@@ -246,8 +234,7 @@ public class POGProcessVisitor extends
 	@Override
 	public CmlProofObligationList caseAGeneralisedParallelismReplicatedProcess(
 			AGeneralisedParallelismReplicatedProcess node,
-			IPOContextStack question) throws AnalysisException
-	{
+			IPOContextStack question) throws AnalysisException {
 
 		System.out.println("A AGeneralisedParallelismReplicatedProcess: "
 				+ node.toString());
@@ -256,11 +243,11 @@ public class POGProcessVisitor extends
 		// Get subparts
 		PVarsetExpression csExp = node.getChansetExpression();
 		PProcess proc = node.getReplicatedProcess();
-		LinkedList<PSingleDeclaration> repdecl = node.getReplicationDeclaration();
+		LinkedList<PSingleDeclaration> repdecl = node
+				.getReplicationDeclaration();
 
 		pol.addAll(csExp.apply(parentPOG, question));
-		for (PSingleDeclaration decl : repdecl)
-		{
+		for (PSingleDeclaration decl : repdecl) {
 			// TODO: Ensure this it the correct way to handle declaration POs
 			pol.addAll(decl.apply(parentPOG, question));
 		}
@@ -274,8 +261,7 @@ public class POGProcessVisitor extends
 	@Override
 	public CmlProofObligationList caseAExternalChoiceReplicatedProcess(
 			AExternalChoiceReplicatedProcess node, IPOContextStack question)
-			throws AnalysisException
-	{
+			throws AnalysisException {
 
 		System.out.println("A AExternalChoiceReplicatedProcess: "
 				+ node.toString());
@@ -283,10 +269,10 @@ public class POGProcessVisitor extends
 
 		// Get subparts
 		PProcess proc = node.getReplicatedProcess();
-		LinkedList<PSingleDeclaration> repdecl = node.getReplicationDeclaration();
+		LinkedList<PSingleDeclaration> repdecl = node
+				.getReplicationDeclaration();
 
-		for (PSingleDeclaration decl : repdecl)
-		{
+		for (PSingleDeclaration decl : repdecl) {
 			// TODO: Ensure this it the correct way to handle declaration POs
 			pol.addAll(decl.apply(parentPOG, question));
 		}
@@ -300,8 +286,7 @@ public class POGProcessVisitor extends
 	@Override
 	public CmlProofObligationList caseAAlphabetisedParallelismReplicatedProcess(
 			AAlphabetisedParallelismReplicatedProcess node,
-			IPOContextStack question) throws AnalysisException
-	{
+			IPOContextStack question) throws AnalysisException {
 
 		System.out.println("A AAlphabetisedParallelismReplicatedProcess: "
 				+ node.toString());
@@ -310,11 +295,11 @@ public class POGProcessVisitor extends
 		// Get subparts
 		PVarsetExpression csExp = node.getChansetExpression();
 		PProcess proc = node.getReplicatedProcess();
-		LinkedList<PSingleDeclaration> repdecl = node.getReplicationDeclaration();
+		LinkedList<PSingleDeclaration> repdecl = node
+				.getReplicationDeclaration();
 
 		pol.addAll(csExp.apply(parentPOG, question));
-		for (PSingleDeclaration decl : repdecl)
-		{
+		for (PSingleDeclaration decl : repdecl) {
 			// TODO: Ensure this it the correct way to handle declaration POs
 			pol.addAll(decl.apply(parentPOG, question));
 		}
@@ -327,8 +312,7 @@ public class POGProcessVisitor extends
 
 	@Override
 	public CmlProofObligationList caseAInterruptProcess(AInterruptProcess node,
-			IPOContextStack question) throws AnalysisException
-	{
+			IPOContextStack question) throws AnalysisException {
 
 		System.out.println("A AInterruptProcess: " + node.toString());
 		CmlProofObligationList pol = new CmlProofObligationList();
@@ -348,8 +332,7 @@ public class POGProcessVisitor extends
 	@Override
 	public CmlProofObligationList caseAInterleavingProcess(
 			AInterleavingProcess node, IPOContextStack question)
-			throws AnalysisException
-	{
+			throws AnalysisException {
 
 		System.out.println("A AInterleavingProcess: " + node.toString());
 		CmlProofObligationList pol = new CmlProofObligationList();
@@ -369,8 +352,7 @@ public class POGProcessVisitor extends
 	@Override
 	public CmlProofObligationList caseAInstantiationProcess(
 			AInstantiationProcess node, IPOContextStack question)
-			throws AnalysisException
-	{
+			throws AnalysisException {
 
 		System.out.println("A AInstantiationProcess: " + node.toString());
 		CmlProofObligationList pol = new CmlProofObligationList();
@@ -387,8 +369,7 @@ public class POGProcessVisitor extends
 
 	@Override
 	public CmlProofObligationList caseAHidingProcess(AHidingProcess node,
-			IPOContextStack question) throws AnalysisException
-	{
+			IPOContextStack question) throws AnalysisException {
 
 		System.out.println("A AHidingProcess: " + node.toString());
 		CmlProofObligationList pol = new CmlProofObligationList();
@@ -408,8 +389,7 @@ public class POGProcessVisitor extends
 	@Override
 	public CmlProofObligationList caseAGeneralisedParallelismProcess(
 			AGeneralisedParallelismProcess node, IPOContextStack question)
-			throws AnalysisException
-	{
+			throws AnalysisException {
 
 		System.out.println("A AGeneralisedParallelismProcess: "
 				+ node.toString());
@@ -431,8 +411,7 @@ public class POGProcessVisitor extends
 	@Override
 	public CmlProofObligationList caseAExternalChoiceProcess(
 			AExternalChoiceProcess node, IPOContextStack question)
-			throws AnalysisException
-	{
+			throws AnalysisException {
 
 		System.out.println("A AExternalChoiceProcess: " + node.toString());
 		CmlProofObligationList pol = new CmlProofObligationList();
@@ -452,8 +431,7 @@ public class POGProcessVisitor extends
 	@Override
 	public CmlProofObligationList caseAChannelRenamingProcess(
 			AChannelRenamingProcess node, IPOContextStack question)
-			throws AnalysisException
-	{
+			throws AnalysisException {
 
 		System.out.println("A AChannelRenamingProcess: " + node.toString());
 		CmlProofObligationList pol = new CmlProofObligationList();
@@ -472,8 +450,7 @@ public class POGProcessVisitor extends
 	@Override
 	public CmlProofObligationList caseAAlphabetisedParallelismProcess(
 			AAlphabetisedParallelismProcess node, IPOContextStack question)
-			throws AnalysisException
-	{
+			throws AnalysisException {
 
 		System.out.println("A AAlphabetisedParallelismProcess: "
 				+ node.toString());
@@ -498,8 +475,7 @@ public class POGProcessVisitor extends
 	@Override
 	public CmlProofObligationList caseAStartDeadlineProcess(
 			AStartDeadlineProcess node, IPOContextStack question)
-			throws AnalysisException
-	{
+			throws AnalysisException {
 
 		System.out.println("A AStartDeadlineProcess: " + node.toString());
 		CmlProofObligationList pol = new CmlProofObligationList();
@@ -519,8 +495,7 @@ public class POGProcessVisitor extends
 	@Override
 	public CmlProofObligationList caseAEndDeadlineProcess(
 			AEndDeadlineProcess node, IPOContextStack question)
-			throws AnalysisException
-	{
+			throws AnalysisException {
 
 		System.out.println("A AEndDeadlineProcess: " + node.toString());
 		CmlProofObligationList pol = new CmlProofObligationList();
@@ -537,19 +512,18 @@ public class POGProcessVisitor extends
 	@Override
 	public CmlProofObligationList caseAInterleavingReplicatedProcess(
 			AInterleavingReplicatedProcess node, IPOContextStack question)
-			throws AnalysisException
-	{
+			throws AnalysisException {
 
 		System.out.println("A AInterleavingReplicatedProcess: "
 				+ node.toString());
 		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// Get subparts
-		LinkedList<PSingleDeclaration> declarations = node.getReplicationDeclaration();
+		LinkedList<PSingleDeclaration> declarations = node
+				.getReplicationDeclaration();
 		PProcess replicatedProcess = node.getReplicatedProcess();
 
-		for (PSingleDeclaration singleDecl : declarations)
-		{
+		for (PSingleDeclaration singleDecl : declarations) {
 			pol.addAll(singleDecl.apply(parentPOG, question));
 		}
 
@@ -562,8 +536,7 @@ public class POGProcessVisitor extends
 	@Override
 	public CmlProofObligationList caseASynchronousParallelismProcess(
 			ASynchronousParallelismProcess node, IPOContextStack question)
-			throws AnalysisException
-	{
+			throws AnalysisException {
 
 		System.out.println("A ASynchronousParallelismProcess: "
 				+ node.toString());
@@ -581,8 +554,7 @@ public class POGProcessVisitor extends
 	@Override
 	public CmlProofObligationList caseASequentialCompositionProcess(
 			ASequentialCompositionProcess node, IPOContextStack question)
-			throws AnalysisException
-	{
+			throws AnalysisException {
 
 		System.out.println("A ASequentialCompositionProcess: "
 				+ node.toString());
@@ -599,8 +571,7 @@ public class POGProcessVisitor extends
 
 	@Override
 	public CmlProofObligationList caseAReferenceProcess(AReferenceProcess node,
-			IPOContextStack question) throws AnalysisException
-	{
+			IPOContextStack question) throws AnalysisException {
 
 		System.out.println("A AReferenceProcess: " + node.toString());
 		CmlProofObligationList pol = new CmlProofObligationList();
@@ -618,8 +589,7 @@ public class POGProcessVisitor extends
 	@Override
 	public CmlProofObligationList caseATimedInterruptProcess(
 			ATimedInterruptProcess node, IPOContextStack question)
-			throws AnalysisException
-	{
+			throws AnalysisException {
 		System.out.println("A ATimedInterruptProcess: " + node.toString());
 		CmlProofObligationList pol = new CmlProofObligationList();
 

@@ -70,3 +70,8 @@ bin/
 /core/parser/*.report
 output/
 reset-output.sh
+
+
+# vim swap files #
+##################
+*.swp
