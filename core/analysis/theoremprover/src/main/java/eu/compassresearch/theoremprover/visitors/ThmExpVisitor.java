@@ -4,10 +4,10 @@ import eu.compassresearch.ast.analysis.AnswerCMLAdaptor;
 import eu.compassresearch.theoremprover.thms.ThmNodeList;
 
 @SuppressWarnings("serial")
-public class ThmPExpVisitor extends AnswerCMLAdaptor<ThmNodeList> {
+public class ThmExpVisitor extends AnswerCMLAdaptor<ThmNodeList> {
 
 
-    public ThmPExpVisitor(AnswerCMLAdaptor<ThmNodeList> parentVisitor) {
+    public ThmExpVisitor(AnswerCMLAdaptor<ThmNodeList> parentVisitor) {
     }
 
 }

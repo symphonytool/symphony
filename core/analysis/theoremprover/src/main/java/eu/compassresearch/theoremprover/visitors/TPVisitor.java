@@ -28,19 +28,19 @@ public class TPVisitor extends
 
 	private List<PSource> sources;
 
-	private ThmPExpVisitor expVisitor;
-	private ThmPTypeVisitor typeVisitor;
-	private ThmPValueVisitor valVisitor;
+	private ThmExpVisitor expVisitor;
+	private ThmTypeVisitor typeVisitor;
+	private ThmValueVisitor valVisitor;
 	private ThmDeclAndDefVisitor declAndDefVisitor;
 	private ThmChannelVisitor chanVisitor;
 
 	private void initialize()
 	{
-		expVisitor = new ThmPExpVisitor(this);
-		typeVisitor = new ThmPTypeVisitor(this);
+		expVisitor = new ThmExpVisitor(this);
+		typeVisitor = new ThmTypeVisitor(this);
 		chanVisitor = new ThmChannelVisitor(this);
 		declAndDefVisitor = new ThmDeclAndDefVisitor(this);
-		valVisitor = new ThmPValueVisitor(this);
+		valVisitor = new ThmValueVisitor(this);
 	}
 	@Override
 	public ThmNodeList caseAValueDefinition(AValueDefinition node)

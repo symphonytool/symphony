@@ -1,6 +1,7 @@
 package eu.compassresearch.theoremprover.visitors;
 
 import java.util.LinkedList;
+
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.intf.lex.ILexNameToken;
@@ -19,6 +20,7 @@ import eu.compassresearch.theoremprover.utils.ThmChanUtil;
 import eu.compassresearch.theoremprover.utils.ThmExprUtil;
 import eu.compassresearch.theoremprover.utils.ThmTypeUtil;
 
+@SuppressWarnings("serial")
 public class ThmChannelVisitor extends AnswerCMLAdaptor<ThmNodeList>
 {
 	public ThmChannelVisitor(AnswerCMLAdaptor<ThmNodeList> parent)

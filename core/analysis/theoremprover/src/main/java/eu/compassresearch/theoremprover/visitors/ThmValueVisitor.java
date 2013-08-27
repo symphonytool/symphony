@@ -16,9 +16,9 @@ import eu.compassresearch.theoremprover.utils.ThmExprUtil;
 import eu.compassresearch.theoremprover.utils.ThmTypeUtil;
 import eu.compassresearch.theoremprover.utils.ThmValueUtil;
 
-public class ThmPValueVisitor extends AnswerCMLAdaptor<ThmNodeList> {
+public class ThmValueVisitor extends AnswerCMLAdaptor<ThmNodeList> {
 
-    public ThmPValueVisitor(
+    public ThmValueVisitor(
     		AnswerCMLAdaptor<ThmNodeList> parentVisitor) {
     }
 

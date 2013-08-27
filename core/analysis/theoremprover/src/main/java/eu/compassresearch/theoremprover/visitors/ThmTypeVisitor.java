@@ -17,12 +17,12 @@ import eu.compassresearch.theoremprover.thms.ThmType;
 import eu.compassresearch.theoremprover.utils.ThmTypeUtil;
 
 @SuppressWarnings("serial")
-public class ThmPTypeVisitor extends AnswerCMLAdaptor<ThmNodeList> {
+public class ThmTypeVisitor extends AnswerCMLAdaptor<ThmNodeList> {
 
 
   //  final private AnswerCMLAdaptor<ThmNodeList> parentVisitor;
 
-    public ThmPTypeVisitor(
+    public ThmTypeVisitor(
     		AnswerCMLAdaptor<ThmNodeList> parentVisitor) {
   //  	this.parentVisitor = parentVisitor;
     }

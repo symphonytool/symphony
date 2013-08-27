@@ -1814,7 +1814,10 @@ public class ThmExprUtil {
 			return "varset expr not handled";
 			
 		}
-		
+
+	public static LinkedList<ILexNameToken> getIsabelleRenamingExprDeps(SRenameChannelExp rnExp) {
+		return new LinkedList<ILexNameToken>();
+	}
 
 	public static String getIsabelleRenamingExpr(SRenameChannelExp rnExp) {
 		return "renaming exp not handled";

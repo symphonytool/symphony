@@ -61,5 +61,23 @@ public class ThmNodeList extends Vector<ThmNode> implements AnalysisArtifact {
     	
     	return true;
     }
-	
+    
+    public LinkedList<ILexNameToken> getAllNodeDeps() 
+	{
+		LinkedList<ILexNameToken> nodeDeps = new LinkedList<ILexNameToken>();
+		
+		for(ThmNode n : this)
+			nodeDeps.addAll(n.getDepIds());
+		return nodeDeps;
+	}	
+    
+
+	public ThmNodeList restrictExtOperationsDeps(LinkedList<ILexNameToken> procNodeNames) {
+
+		for(ThmNode o: this)
+		{
+			o.restrictDeps(procNodeNames);
+		}		
+		return this;
+	}    
 }
