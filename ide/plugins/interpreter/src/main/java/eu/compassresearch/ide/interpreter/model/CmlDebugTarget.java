@@ -32,9 +32,9 @@ import eu.compassresearch.core.interpreter.debug.Choice;
 import eu.compassresearch.core.interpreter.debug.CmlDbgStatusMessage;
 import eu.compassresearch.core.interpreter.debug.CmlDebugCommand;
 import eu.compassresearch.core.interpreter.debug.CmlProcessDTO;
-import eu.compassresearch.core.interpreter.utility.messaging.CmlRequest;
-import eu.compassresearch.core.interpreter.utility.messaging.RequestMessage;
-import eu.compassresearch.core.interpreter.utility.messaging.ResponseMessage;
+import eu.compassresearch.core.interpreter.debug.messaging.CmlRequest;
+import eu.compassresearch.core.interpreter.debug.messaging.RequestMessage;
+import eu.compassresearch.core.interpreter.debug.messaging.ResponseMessage;
 import eu.compassresearch.ide.core.resources.ICmlProject;
 import eu.compassresearch.ide.interpreter.CmlDebugPlugin;
 import eu.compassresearch.ide.interpreter.CmlUtil;
@@ -162,6 +162,15 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 					}
 				}
 				threadManager.started(message.getInterpreterStatus());
+				
+				Display.getDefault().syncExec(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						CmlUtil.clearAllSelections();
+					}
+				});
 				return true;
 			}
 		});
@@ -244,8 +253,8 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 			public boolean handleMessage(CmlDbgStatusMessage message)
 			{
 				// threadManager.stopping();
-				// threadManager.updateDebuggerInfo(message.getInterpreterStatus());
-				System.out.println("message: " + message);
+				threadManager.updateDebuggerInfo(message.getInterpreterStatus());
+				CmlDebugPlugin.logWarning(message + " : " + message.getInterpreterStatus().getErrors());
 				return false;
 			}
 		});
@@ -255,7 +264,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 			@Override
 			public boolean handleMessage(CmlDbgStatusMessage message)
 			{
-				threadManager.stopping();
+				//threadManager.stopping();
 				threadManager.updateDebuggerInfo(message.getInterpreterStatus());
 				return false;
 			}

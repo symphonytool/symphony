@@ -55,6 +55,25 @@ public final class CmlUtil
 		}
 		lastSelectedRanges.clear();
 	}
+	
+	public static void clearAllSelections()
+	{
+		IEditorPart editor = null;
+		IWorkbenchWindow wbw = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+		if(wbw != null)
+			editor = wbw.getActivePage().getActiveEditor();
+		//editor = IDE.openEditor(wbw.getActivePage(), file, true);
+
+		if (editor != null)
+		{
+			StyledText styledText = (StyledText) ((CmlEditor) editor).getAdapter(Control.class);
+			for(StyleRange sr : styledText.getStyleRanges())
+			{
+				sr.background = null;
+				styledText.setStyleRange(sr);
+			}
+		}
+	}
 
 	public static void setSelectionFromLocation(ILexLocation lexLocation,
 			List<StyleRange> lastSelectedRanges)
@@ -63,7 +82,7 @@ public final class CmlUtil
 		locations.add(lexLocation);
 		setSelectionFromLocation(locations, lastSelectedRanges);
 	}
-
+	
 	public static void setSelectionFromLocation(
 			List<ILexLocation> lexLocations, List<StyleRange> lastSelectedRanges)
 	{

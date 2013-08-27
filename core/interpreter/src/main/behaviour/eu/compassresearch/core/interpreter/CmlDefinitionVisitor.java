@@ -38,6 +38,7 @@ import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.definitions.ATypesDefinition;
 import eu.compassresearch.ast.definitions.AValuesDefinition;
 import eu.compassresearch.ast.lex.LexNameToken;
+import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.values.ActionValue;
 import eu.compassresearch.core.interpreter.api.values.AnyValue;
 import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
@@ -247,7 +248,8 @@ class CmlDefinitionVisitor extends
 	public NameValuePairList caseAImplicitCmlOperationDefinition(
 			AImplicitCmlOperationDefinition node, Context question)
 			throws AnalysisException {
-		throw new AnalysisException("Implicit operations cannot be interpreted. This feature might be implemented later");
+		//throw new CmlInterpreterException(node,"Implicit operations cannot be interpreted. This feature might be implemented later");
+		return new NameValuePairList();
 	}
 
 	@Override

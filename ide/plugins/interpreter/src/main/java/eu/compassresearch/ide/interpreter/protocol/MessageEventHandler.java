@@ -1,6 +1,6 @@
 package eu.compassresearch.ide.interpreter.protocol;
 
-import eu.compassresearch.core.interpreter.utility.messaging.Message;
+import eu.compassresearch.core.interpreter.debug.messaging.Message;
 
 public interface MessageEventHandler<T extends Message>
 {

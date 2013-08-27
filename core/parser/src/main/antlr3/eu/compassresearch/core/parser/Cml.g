@@ -2072,6 +2072,7 @@ implicitFunctionDefinitionTail returns[AImplicitFunctionDefinition tail]
         {
             $tail = new AImplicitFunctionDefinition();
             $tail.setNameScope(NameScope.LOCAL);
+            $tail.setIsUndefined(false);
             $tail.setUsed(Boolean.FALSE);
             $tail.setAccess(getDefaultAccessSpecifier(false,false,null));
             $tail.setRecursive(false);
