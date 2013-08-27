@@ -32,6 +32,7 @@ import eu.compassresearch.ast.actions.AGuardedAction;
 import eu.compassresearch.ast.actions.AHidingAction;
 import eu.compassresearch.ast.actions.AInterleavingParallelAction;
 import eu.compassresearch.ast.actions.AInternalChoiceAction;
+import eu.compassresearch.ast.actions.AInterruptAction;
 import eu.compassresearch.ast.actions.AMuAction;
 import eu.compassresearch.ast.actions.AReadCommunicationParameter;
 import eu.compassresearch.ast.actions.AReferenceAction;
@@ -823,5 +824,13 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 		else
 			//If the number of tocks has not exceeded val then behave as Stop
 			return newInspection(new CmlAlphabet(new CmlTock(owner,nTocks-val)), null);
+	}
+	
+	@Override
+	public Inspection caseAInterruptAction(AInterruptAction node,
+			Context question) throws AnalysisException {
+
+		
+		return super.caseAInterruptAction(node, question);
 	}
 }
