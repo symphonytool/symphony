@@ -280,8 +280,7 @@ class TCBindVisitor extends QuestionAnswerCMLAdaptor<TypeCheckInfo, PType>
 			} else
 				issueHandler.addTypeWarning(bind,
 						TypeWarningMessages.EXPECTED_AN_IDENTIFIER_PATTERN
-								.customizeMessage("" + bind,
-										"" + bind.kindPBind()));
+								.customizeMessage("" + bind, bind.getClass().getName()));
 		}
 
 		// return the type.

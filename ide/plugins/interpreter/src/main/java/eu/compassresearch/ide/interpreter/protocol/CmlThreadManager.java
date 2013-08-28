@@ -6,12 +6,16 @@ import java.util.List;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IThread;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
-import eu.compassresearch.core.interpreter.api.CmlProcessInfo;
-import eu.compassresearch.core.interpreter.api.InterpreterStatus;
+import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
+import eu.compassresearch.core.interpreter.debug.CmlInterpreterStateDTO;
+import eu.compassresearch.core.interpreter.debug.CmlProcessDTO;
+import eu.compassresearch.ide.interpreter.CmlDebugPlugin;
+import eu.compassresearch.ide.interpreter.CmlUtil;
 import eu.compassresearch.ide.interpreter.ICmlDebugConstants;
 import eu.compassresearch.ide.interpreter.model.CmlDebugTarget;
 import eu.compassresearch.ide.interpreter.model.CmlThread;
@@ -23,22 +27,25 @@ public class CmlThreadManager
 	private List<IThread> threads = new LinkedList<IThread>();
 	private CmlDebugTarget target;
 
+	CmlInterpreterStateDTO status = null;
+
 	public CmlThreadManager(CmlDebugTarget target)
 	{
 		this.target = target;
 	}
 
-	public void updateDebuggerInfo(final InterpreterStatus status)
+	public void updateDebuggerInfo(final CmlInterpreterStateDTO status)
 	{
+		this.status = status;
 		// cmlThread = new CmlThread(this,status.getToplevelProcessInfo());
 		threads.clear();
-		for (CmlProcessInfo t : status.getAllProcessInfos())
+		for (CmlProcessDTO t : status.getAllProcesses())
 		{
 			threads.add(new CmlThread(target, t));
 		}
 		// fireSuspendEvent(0);
 
-		final List<String> trace = status.getToplevelProcessInfo().getTrace();
+		final List<String> trace = status.getToplevelProcess().getTrace();
 
 		Display.getDefault().asyncExec(new Runnable()
 		{
@@ -51,11 +58,15 @@ public class CmlThreadManager
 					view.getListViewer().setInput(trace);
 				} catch (PartInitException e)
 				{
-					e.printStackTrace();
+					CmlDebugPlugin.logError("Failed to update the event history view", e);
 				}
 
-				if (status.hasErrors())
+				if (status.hasErrors()){
+					if(status.getErrors().get(0).getLocation() != null)
+						CmlUtil.setSelectionFromLocation(status.getErrors().get(0).getLocation(), new LinkedList<StyleRange>());
 					MessageDialog.openError(null, "Simulation Error", status.getErrors().get(0).getErrorMessage());
+					CmlUtil.clearAllSelections();
+				}
 			}
 		});
 
@@ -65,10 +76,9 @@ public class CmlThreadManager
 	/**
 	 * Notification we have connected to the VM and it has started. Resume the VM.
 	 */
-	public void started(InterpreterStatus status)
+	public void started(CmlInterpreterStateDTO status)
 	{
-
-		updateDebuggerInfo(status);
+		// updateDebuggerInfo(status);
 		target.fireCreationEvent();
 
 		// installDeferredBreakpoints();
@@ -96,5 +106,17 @@ public class CmlThreadManager
 	public List<IThread> getThreads()
 	{
 		return this.threads;
+	}
+
+	public boolean isSuspended()
+	{
+		return status != null
+				&& status.getInterpreterState() == CmlInterpretationStatus.SUSPENDED;
+	}
+
+	public boolean isRunning()
+	{
+		return status != null
+				&& status.getInterpreterState() == CmlInterpretationStatus.RUNNING;
 	}
 }

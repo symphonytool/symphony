@@ -31,7 +31,8 @@ import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
-import eu.compassresearch.core.interpreter.api.InterpreterException;
+import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
+import eu.compassresearch.core.interpreter.api.RandomSelectionStrategy;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.typechecker.VanillaFactory;
@@ -90,7 +91,7 @@ public class InterpretAllCmlFilesTest {
 
 	@Test
 	public void testParseCmlFile() throws IOException, AnalysisException,
-			InterpreterException {
+			CmlInterpreterException {
 
 		File f = new File(filePath);
 		AFileSource ast = new AFileSource();
@@ -126,6 +127,7 @@ public class InterpretAllCmlFilesTest {
 		
 		Exception exception = null;
 		try{
+			interpreter.initialize();
 			interpreter.execute(sve);
 		}
 		catch(Exception ex)
@@ -138,7 +140,7 @@ public class InterpretAllCmlFilesTest {
 	
 	private void checkResult(ExpectedTestResult testResult, CmlInterpreter interpreter, Exception exception) {
 
-		CmlBehaviour topProcess = interpreter.getTopLevelCmlBehaviour();
+		CmlBehaviour topProcess = interpreter.getTopLevelProcess();
 		
 		//Exceptions check
 		//testResult.throwsException() => exception != null
@@ -163,7 +165,7 @@ public class InterpretAllCmlFilesTest {
 		}
 		
 		//Interpreter state
-		Assert.assertEquals(testResult.getInterpreterState(), interpreter.getCurrentState());
+		Assert.assertEquals(testResult.getInterpreterState(), interpreter.getStatus());
 	}
 	
 	private String traceToString(List<CmlTransition> trace)

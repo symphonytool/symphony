@@ -2,7 +2,7 @@
 <feature
       id="eu.compassresearch.ide.features.core"
       label="COMPASS Core"
-      version="0.1.5.qualifier"
+      version="0.1.9.qualifier"
       plugin="eu.compassresearch.ide.core">
 
    <description>

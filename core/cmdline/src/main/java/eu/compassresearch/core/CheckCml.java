@@ -35,11 +35,11 @@ import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.analysis.pog.obligations.CmlPOContextStack;
 import eu.compassresearch.core.analysis.pog.visitors.ProofObligationGenerator;
-import eu.compassresearch.core.interpreter.RandomSelectionStrategy;
 import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
-import eu.compassresearch.core.interpreter.api.InterpreterException;
+import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
+import eu.compassresearch.core.interpreter.api.RandomSelectionStrategy;
 import eu.compassresearch.core.parser.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.typechecker.VanillaFactory;
@@ -498,8 +498,7 @@ public class CheckCml {
 		// POG Analysis
 		if (input.isSwitchOn(Switch.POG)) {
 			// define pog object
-			final ProofObligationGenerator pog = new ProofObligationGenerator(
-					sources);
+			final ProofObligationGenerator pog = new ProofObligationGenerator();
 
 			System.out.println(pog.getAnalysisName());
 
@@ -547,7 +546,7 @@ public class CheckCml {
 						}
 					};
 					runAnalysis(input, re, sources);
-				} catch (InterpreterException e1) {
+				} catch (CmlInterpreterException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}

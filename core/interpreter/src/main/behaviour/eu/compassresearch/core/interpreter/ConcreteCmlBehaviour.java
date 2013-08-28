@@ -28,15 +28,15 @@ import eu.compassresearch.core.interpreter.api.behaviour.Inspection;
 import eu.compassresearch.core.interpreter.api.behaviour.Reason;
 import eu.compassresearch.core.interpreter.api.events.CmlBehaviorStateEvent;
 import eu.compassresearch.core.interpreter.api.events.CmlBehaviorStateObserver;
+import eu.compassresearch.core.interpreter.api.events.EventFireMediator;
+import eu.compassresearch.core.interpreter.api.events.EventSource;
+import eu.compassresearch.core.interpreter.api.events.EventSourceHandler;
 import eu.compassresearch.core.interpreter.api.events.TraceEvent;
 import eu.compassresearch.core.interpreter.api.events.TraceObserver;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTock;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.ObservableEvent;
 import eu.compassresearch.core.interpreter.utility.Pair;
-import eu.compassresearch.core.interpreter.utility.events.EventFireMediator;
-import eu.compassresearch.core.interpreter.utility.events.EventSource;
-import eu.compassresearch.core.interpreter.utility.events.EventSourceHandler;
 
 class ConcreteCmlBehaviour implements CmlBehaviour
 {
@@ -436,7 +436,7 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 			if(alpha.getAllEvents().size() == 1 && alpha.getObservableEvents().size() == 1)
 			{
 				ObservableEvent obsEvent = alpha.getObservableEvents().iterator().next();
-				return (obsEvent instanceof CmlTock) && !((CmlTock) obsEvent).hasLimit();
+				return (obsEvent instanceof CmlTock) && !((CmlTock) obsEvent).hasTimeLimit();
 			}
 			else
 				return false;

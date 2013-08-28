@@ -5,7 +5,7 @@
   <parent>
     <groupId>eu.compassresearch</groupId>
     <artifactId>root</artifactId>
-    <version>0.1.5-SNAPSHOT<!--Replaceable: Main Version--></version>
+    <version>0.1.9-SNAPSHOT<!--Replaceable: Main Version--></version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -19,7 +19,7 @@
   <properties>
     <maven.test.skip>true</maven.test.skip>
     <maven.javadoc.skip>true</maven.javadoc.skip>
-    <tycho.version>0.16.0</tycho.version>
+    <tycho.version>0.18.1</tycho.version>
   </properties>
 
   <modules>
@@ -109,10 +109,15 @@
 
   <repositories>
     <repository>
-      <id>eclipse-juno</id>
-      <url>http://download.eclipse.org/releases/juno</url>
+      <id>eclipse-kepler</id>
+      <url>http://download.eclipse.org/releases/kepler</url>
       <layout>p2</layout>
     </repository>
+    <!-- <repository> -->
+    <!--   <id>eclipse-juno</id> -->
+    <!--   <url>http://download.eclipse.org/releases/juno</url> -->
+    <!--   <layout>p2</layout> -->
+    <!-- </repository> -->
     <repository>
       <id>overture.iha.dk-p2</id>
       <url>http://build.overturetool.org/builds/overture-compass-p2repo/</url>

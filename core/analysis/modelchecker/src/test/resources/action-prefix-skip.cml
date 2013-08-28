@@ -1,4 +1,4 @@
-channels a
+channels a 
 process A = 
 begin 
 	@ a -> Skip 

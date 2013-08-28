@@ -1,4 +1,32 @@
 -----------------------------------------------------------
+RTTMBTPLUGIN_0.1.9
+
+Changes: none
+
+Step forward to the development version
+
+-----------------------------------------------------------
+RTTMBTPLUGIN_0.1.8
+
+Changes: none
+
+Update version for COMPASS release
+
+-----------------------------------------------------------
+RTTPLGUIN_0.1.7
+
+Changes: none
+
+Step forward to the development version
+
+-----------------------------------------------------------
+RTTPLUGIN_0.1.6
+
+Changes: none
+
+Update version to bring it in step with the main COMPASS versions, and this corresponds to the 0.1.6 COMPASS release
+
+-----------------------------------------------------------
 RTTPLUGIN_0.1.3
 
 Changes:

@@ -2159,6 +2159,7 @@ implicitFunctionDefinitionTail returns[AImplicitFunctionDefinition tail]
         {
             $tail = new AImplicitFunctionDefinition();
             $tail.setNameScope(NameScope.LOCAL);
+            $tail.setIsUndefined(false);
             $tail.setUsed(Boolean.FALSE);
             $tail.setAccess(getDefaultAccessSpecifier(false,false,null));
             $tail.setRecursive(false);
@@ -2562,7 +2563,7 @@ patternIdentifier returns[PPattern pattern]
         }
     | minus='-'
         {
-            $pattern = new AIgnorePattern(extractLexLocation($minus), null, true);
+            $pattern = new AIgnorePattern(extractLexLocation($minus), null, true,null);
         }
     ;
 
@@ -3434,10 +3435,11 @@ ISUNDERBASIC
     : 'is_' ('bool' | 'nat' | 'nat1' | 'int' | 'rat' | 'real' | 'char' | 'token')
     ;
 
-/* FIXME Need to fix this, yet --- right now "\"" will fail
+/* FIXME Need to fix this, yet
+ * We should have a java method that converts things like \n into newline and such.
  */
 TEXTLITERAL
-    : '"' .* '"'
+    : '"' ('\\"' | ~'"' )* '"'
     ;
 
 SELF

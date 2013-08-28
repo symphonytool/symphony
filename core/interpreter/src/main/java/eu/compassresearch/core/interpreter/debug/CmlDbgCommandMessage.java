@@ -1,7 +1,7 @@
 package eu.compassresearch.core.interpreter.debug;
 
-import eu.compassresearch.core.interpreter.utility.messaging.Message;
-import eu.compassresearch.core.interpreter.utility.messaging.MessageType;
+import eu.compassresearch.core.interpreter.debug.messaging.Message;
+import eu.compassresearch.core.interpreter.debug.messaging.MessageType;
 
 public class CmlDbgCommandMessage extends Message {
 
@@ -14,6 +14,12 @@ public class CmlDbgCommandMessage extends Message {
 		setCommand(command);
 	}
 
+	public CmlDbgCommandMessage(CmlDebugCommand command, Object content)
+	{
+		setCommand(command);
+		setContent(content);
+	}
+	
 	public CmlDebugCommand getCommand() {
 		return command;
 	}
@@ -29,6 +35,12 @@ public class CmlDbgCommandMessage extends Message {
 
 	@Override
 	public String getKey() {
+		return getCommand().toString();
+	}
+	
+	@Override
+	public String toString() {
+
 		return getCommand().toString();
 	}
 }

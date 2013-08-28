@@ -23,19 +23,36 @@
 
 package eu.compassresearch.core.analysis.pog.obligations;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+
+import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.definitions.SClassDefinition;
+import org.overture.ast.expressions.AForAllExp;
+import org.overture.ast.expressions.AImpliesBooleanBinaryExp;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.intf.lex.ILexNameToken;
+import org.overture.ast.lex.LexStringToken;
 import org.overture.ast.types.AOperationType;
 import org.overture.ast.types.PType;
+import org.overture.ast.patterns.AIgnorePattern;
+import org.overture.ast.patterns.APatternListTypePair;
+import org.overture.ast.patterns.AStringPattern;
+import org.overture.ast.patterns.ATypeMultipleBind;
+import org.overture.ast.patterns.PMultipleBind;
+import org.overture.ast.patterns.PPattern;
+import org.overture.pog.obligation.POContext;
 
 import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
 
-	public class CmlOperationDefinitionContext implements CmlPOContext
+	public class CmlOperationDefinitionContext extends POContext
 	{
 		public final ILexNameToken name;
 		public final AOperationType deftype;
-//		public final List<PPattern> paramPatternList;
+		public final List<PPattern> paramPatternList;
 		public final boolean addPrecond;
 		public final PExp precondition;
 		public final PDefinition stateDefinition;
@@ -46,68 +63,145 @@ import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
 			this.name = definition.getName();
 			this.deftype = (AOperationType) definition.getType();
 			this.addPrecond = precond;
-//			this.paramPatternList = AImplicitOperationDefinitionAssistantTC.getParamPatternList(definition);
+			this.paramPatternList = getParamPatternList(definition);
 			this.precondition = definition.getPrecondition();
 			this.stateDefinition = stateDefinition;
 		}
 
+		public static List<PPattern> getParamPatternList(AImplicitCmlOperationDefinition definition)
+		{
+			List<PPattern> plist = new ArrayList<PPattern>();
+
+			for (APatternListTypePair pl: definition.getParameterPatterns() )
+			{
+				plist.addAll(pl.getPatterns());
+			}
+
+			return plist;
+		}
+		
 		@Override
 		public String getContext()
 		{
-			// TODO Auto-generated method stub
-			return null;
+			StringBuilder sb = new StringBuilder();
+
+			if (!deftype.getParameters().isEmpty())
+			{
+				sb.append("forall ");
+				String sep = "";
+				Iterator<PType> types = deftype.getParameters().iterator();
+
+				for (PPattern p : paramPatternList)
+				{
+					if (!(p instanceof AIgnorePattern))
+					{
+						sb.append(sep);
+						sb.append(p.toString());
+						sb.append(":");
+						sb.append(types.next());
+						sep = ", ";
+					}
+				}
+
+				if (stateDefinition != null)
+				{
+					appendStatePatterns(sb);
+				}
+
+				sb.append(" &");
+
+				if (addPrecond && precondition != null)
+				{
+					sb.append(" ");
+					sb.append(precondition);
+					sb.append(" =>");
+				}
+			}
+
+			return sb.toString();
 		}
+		
 
 		@Override
 		public PExp getContextNode(PExp stitch)
 		{
-			// TODO Auto-generated method stub
-			return null;
-		}
+			if (!deftype.getParameters().isEmpty())
+			{
+				AForAllExp forAllExp = new AForAllExp();
+				forAllExp.setBindList(makeBinds());
 
-		@Override
-		public String getName()
+				if (addPrecond && precondition != null)
+				{
+					AImpliesBooleanBinaryExp impliesExp = new AImpliesBooleanBinaryExp();
+					impliesExp.setLeft(precondition);
+					impliesExp.setRight(stitch);
+					forAllExp.setPredicate(impliesExp);
+				} else
+				{
+					forAllExp.setPredicate(stitch);
+				}
+
+				return forAllExp;
+
+			}
+			return stitch;
+
+		}
+		
+		private void appendStatePatterns(StringBuilder sb)
 		{
-			// TODO Auto-generated method stub
-			return null;
+			if (stateDefinition == null)
+			{
+				return;
+			} else if (stateDefinition instanceof AStateDefinition)
+			{
+				AStateDefinition def = (AStateDefinition) stateDefinition;
+				sb.append(", oldstate:");
+				sb.append(def.getName().getName());
+			} else
+			{
+				SClassDefinition def = (SClassDefinition) stateDefinition;
+				sb.append(", oldself:");
+				sb.append(def.getName().getName());
+			}
 		}
-
-		@Override
-		public boolean isScopeBoundary()
+		
+		private List<? extends PMultipleBind> makeBinds()
 		{
-			// TODO Auto-generated method stub
-			return false;
-		}
+			LinkedList<PMultipleBind> r = new LinkedList<PMultipleBind>();
 
-		@Override
-		public void noteType(PExp exp, PType type)
-		{
-			// TODO Auto-generated method stub
-			
-		}
+			ATypeMultipleBind tmBind = new ATypeMultipleBind();
+			tmBind.setPlist(paramPatternList);
+			tmBind.setType(deftype);
+			r.add(tmBind);
 
-		@Override
-		public PType checkType(PExp exp)
-		{
-			// TODO Auto-generated method stub
-			return null;
-		}
+			if (stateDefinition != null)
+			{
+				ATypeMultipleBind tmBind2 = new ATypeMultipleBind();
+				AStringPattern pattern = new AStringPattern();
 
-		@Override
-		public String getGUIContext()
-		{
-			// TODO Auto-generated method stub
-			return null;
-		}
+				if (stateDefinition instanceof AStateDefinition)
+				{
+					AStateDefinition def = (AStateDefinition) stateDefinition;
+					tmBind2.setType(def.getType());
+					pattern.setValue(new LexStringToken("oldstate", null));
+				} else
+				{
+					SClassDefinition def = (SClassDefinition) stateDefinition;
+					tmBind2.setType(def.getType());
+					pattern.setValue(new LexStringToken("oldself", null));
+				}
 
-		@Override
-		public String getIsabelleContext()
-		{
-			// TODO Auto-generated method stub
-			return null;
-		}
+				List<PPattern> plist = new LinkedList<PPattern>();
+				plist.add(pattern);
+				tmBind2.setPlist(plist);
+				r.add(tmBind2);
 
-		//FIXME implement ast based Context
+			}
+
+			return r;
+
+		}
 
 
 	}

@@ -1,13 +1,32 @@
 package eu.compassresearch.ide.theoremprover;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourceAttributes;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
+import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.node.INode;
 
+import eu.compassresearch.ide.core.resources.ICmlModel;
 import eu.compassresearch.ide.core.resources.ICmlProject;
+import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
+import eu.compassresearch.ide.ui.utility.CmlProjectUtil;
+import eu.compassresearch.theoremprover.visitors.TPVisitor;
 
 public class TPBasicAction implements IWorkbenchWindowActionDelegate {
 
@@ -36,14 +55,68 @@ public class TPBasicAction implements IWorkbenchWindowActionDelegate {
 
 			IProject proj = TPPluginUtils.getCurrentlySelectedProject();
 			if (proj == null) {
-				popErrorMessage("No project selected.");
+				popErrorMessage("No project is selected.");
 				return;
 			}
 
-			ICmlProject cmlProject = (ICmlProject) proj
-					.getAdapter(ICmlProject.class);
 			
-			new FetchPosUtil(this.window.getShell(),cmlProject).fetchPOs();
+			//Get the cml project
+			ICmlProject cmlProj = (ICmlProject) proj.getAdapter(ICmlProject.class);
+			
+			//Check there are no type errors.
+			if (!CmlProjectUtil.typeCheck(this.window.getShell(), cmlProj)) {
+				popErrorMessage("Errors in model.");
+				return;
+			}
+			//Grab the model from the project
+			final ICmlModel model = cmlProj.getModel();
+
+			
+			 
+			
+//			IFile thyfile = new IFile();
+//			thyfile = translateCmltoThy(model, thyfile);
+				
+			//Translate CML specification files to Isabelle
+			//Create project folder (needs to be timestamped)
+			Date date = new Date();
+			IFolder isaFolder = cmlProj.getModelBuildPath().getOutput().getFolder(new Path("Isabelle/" + date.toString()));
+			if(!isaFolder.exists())
+			{
+				//if generated folder doesn't exist
+				if (!isaFolder.getParent().getParent().exists())
+				{
+					//create 'generated' folder
+					((IFolder) isaFolder.getParent().getParent()).create(true, true, new NullProgressMonitor());
+					//create 'Isabelle' folder
+					((IFolder) isaFolder.getParent()).create(true, true, new NullProgressMonitor());
+
+				}
+				//if 'generated' folder does exist and Isabelle folder doesn't exist
+				else if (!isaFolder.getParent().exists())
+				{
+					
+					((IFolder) isaFolder.getParent()).create(true, true, new NullProgressMonitor());
+						
+				}
+				//Create timestamped folder
+				isaFolder.create(true, true, new NullProgressMonitor());
+				isaFolder.refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());
+			}
+
+			for (ICmlSourceUnit sourceUnit : model.getSourceUnits())
+			{
+				//TODO:Copy .cml file into folder
+				String name = sourceUnit.getFile().getName();
+				String thyFileName = name.substring(0,name.length()-sourceUnit.getFile().getFileExtension().length())+"thy";
+				translateCmltoThy(model, isaFolder.getFile(thyFileName), thyFileName);
+				//Create empty thy file which imports generated file
+				String userThyFileName = "User"+ thyFileName;
+				createEmptyThy(isaFolder.getFile(userThyFileName), userThyFileName, thyFileName);
+			}
+			
+			//TODO: Should this really be fetching POs at this point?? Don't think we should... (RJP)
+//			new FetchPosUtil(this.window.getShell(),cmlProject).fetchPOs();
 
 //			if (vdmProject == null) {
 //				return;
@@ -108,60 +181,58 @@ public class TPBasicAction implements IWorkbenchWindowActionDelegate {
 		}
 
 	}
+	
+	private void createEmptyThy(IFile file, String userThyFileName, String modelThyName) {
+		StringBuilder sb = new StringBuilder();
+		
+		String usrthyName = userThyFileName.substring(0, userThyFileName.lastIndexOf('.'));
+		String modelthyName = modelThyName.substring(0, modelThyName.lastIndexOf('.'));
+
+		//Add thy header 
+		sb.append("theory " + usrthyName + " \n" + "  imports utp_cml " + modelthyName +"\n"
+				+ "begin \n" + "\n");
+		sb.append("text {* Auto-generated THY file for user created proof with "+  modelthyName + ".thy *}\n\n");
+		
+			
+		sb.append("\n\n\n" + "end");
+		
+		try{
+			file.delete(true, null);
+			file.create(new ByteArrayInputStream(sb.toString().getBytes()), true, new NullProgressMonitor());
+
+		}catch(CoreException e)
+		{
+			Activator.log(e);
+		}
+	}
+
+	private IFile translateCmltoThy(ICmlModel model, IFile outputFile, String thyFileName) throws IOException,
+	AnalysisException
+	{
+
+		String thmString = TPVisitor.generateThyStr(model.getAst(), thyFileName);
+		
+		try{
+			outputFile.delete(true, null);
+			outputFile.create(new ByteArrayInputStream(thmString.toString().getBytes()), true, new NullProgressMonitor());
+			
+			//set .thy file to be read only
+			ResourceAttributes attributes = new ResourceAttributes();
+			attributes.setReadOnly(true);
+			outputFile.setResourceAttributes(attributes); 
+
+		}catch(CoreException e)
+		{
+			Activator.log(e);
+		}
+		
+		return outputFile;
+	}
 
 	private void popErrorMessage(String message) {
 		MessageDialog.openInformation(window.getShell(), "COMPASS",
 				"Could not generate THY.\n\n" + message);
 	}
-
-//	private void getThyFromCML(IResource cmlFile) throws IOException,
-//			AnalysisException {
-//
-//		ICmlSourceUnit source = (ICmlSourceUnit) cmlFile
-//				.getAdapter(ICmlSourceUnit.class);
-//
-//		String cmlLoc = cmlFile.getLocation().toString();
-//		String thyFile = cmlLoc.replaceAll("\\.cml", ".thy");
-//
-//		TPVisitor tpv = new TPVisitor();
-//		source.getSourceAst().apply(tpv);
-//
-//		String name = cmlFile.getName();
-//
-//		String thyName = name.substring(0, name.lastIndexOf("."));
-//		StringBuilder sb = new StringBuilder();
-//
-//		sb.append("theory " + thyName + " \n" + "  imports utp_vdm \n"
-//				+ "begin \n" + "\n");
-//
-//		sb.append("text {* VDM value declarations *}\n\n");
-//
-//		for (ThmValue tv : tpv.getValueList()) {
-//			sb.append(tv.toString());
-//			sb.append("\n");
-//		}
-//
-//		sb.append("\n");
-//		sb.append("text {* VDM type declarations *}\n\n");
-//
-//		for (ThmType ty : tpv.getTypeList()) {
-//			sb.append(ty.toString());
-//			sb.append("\n");
-//		}
-//
-//		sb.append("\n");
-//
-//		sb.append("\n" + "end");
-//
-//		File thy = new File(thyFile);
-//		FileWriter fw = new FileWriter(thy);
-//		fw.write(sb.toString());
-//		fw.flush();
-//		fw.close();
-//
-//		return;
-//
-//	}
 	
 	@Override
 	public void selectionChanged(IAction action, ISelection selection) {

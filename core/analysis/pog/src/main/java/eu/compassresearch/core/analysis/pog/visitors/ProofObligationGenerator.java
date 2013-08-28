@@ -13,7 +13,6 @@ package eu.compassresearch.core.analysis.pog.visitors;
 // Java libraries 
 import java.io.File;
 import java.io.IOException;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
@@ -71,8 +70,6 @@ public class ProofObligationGenerator extends
 	private static final long serialVersionUID = -4538022323752020155L;
 
 	private final static String ANALYSIS_NAME = "Proof Obligation Generator";
-
-	private List<PSource> sourceForest;
 	
 	private CmlPogAssistantFactory assistantFactory;
 
@@ -96,6 +93,8 @@ public class ProofObligationGenerator extends
 		actionVisitor = new POGActionVisitor(this);
 		assistantFactory = new CmlPogAssistantFactory();
 	}
+	
+	
 
 	// ---------------------------------------------
 	// -- Dispatch to sub-visitors
@@ -104,6 +103,12 @@ public class ProofObligationGenerator extends
 	// Duplicated main overture handlers. Necessary for now since we don't want
 	// to
 	// switch visitor context at the root level
+
+	public ProofObligationGenerator() {
+		this.initialize();
+	}
+
+
 
 	@Override
 	public CmlProofObligationList defaultPDefinition(PDefinition node,
@@ -173,14 +178,6 @@ public class ProofObligationGenerator extends
 		return node.getSet().apply(this.expressionVisitor, question);
 	}
 
-	// FIXME --what are pvarsets?
-	@Override
-	public CmlProofObligationList defaultPVarsetExpression(
-			PVarsetExpression node, IPOContextStack question)
-			throws AnalysisException
-	{
-		return new CmlProofObligationList();
-	}
 
 	@Override
 	public CmlProofObligationList caseACaseAlternative(ACaseAlternative node,
@@ -377,48 +374,25 @@ public class ProofObligationGenerator extends
 		return ANALYSIS_NAME;
 	}
 
-	/**
-	 * Construct a ProofObligationGenerator with the intension of checking a list of PSources. These source may refer to
-	 * each other.
-	 * 
-	 * @param cmlSources
-	 *            - Sources containing CML Paragraphs for PO gen.
-	 */
-	public ProofObligationGenerator(List<PSource> cmlSources)
-	{
-		initialize();
-		this.sourceForest = cmlSources;
-	}
 
-	/**
-	 * Construct a ProofObligationGenerator with the intension of checking a single source.
-	 * 
-	 * @param singleSource
-	 *            - Source containing CML Paragraphs for PO gen.
-	 */
-	public ProofObligationGenerator(PSource singleSource)
-	{
-		initialize();
-		this.sourceForest = new LinkedList<PSource>();
-		this.sourceForest.add(singleSource);
-	}
 
 	/**
 	 * Run the proof obligation generator. The POs are placed in the return value but we may eventually want to switch
 	 * them over to the registry
 	 * 
+	 * @param 
+	 * sources The list of definition to generate obligations for
 	 * @return - Returns CMLProofObligation list. This may need to change.
 	 */
-	public CmlProofObligationList generatePOs() throws AnalysisException
+	public CmlProofObligationList generatePOs(List<PDefinition> sources) throws AnalysisException
 	{
+		this.initialize();
 		CmlProofObligationList obligations = new CmlProofObligationList();
 		IPOContextStack ctxt = new POContextStack();
 
-		// for each source
-		for (PSource s : sourceForest)
-		{
+	
 			// for each CML paragraph
-			for (PDefinition paragraph : s.getParagraphs())
+			for (PDefinition paragraph : sources)
 			{
 				try
 				{
@@ -439,7 +413,7 @@ public class ProofObligationGenerator extends
 					throw ae;
 				}
 			}
-		}
+		
 
 		System.out.println(obligations.size() + " Proof Obligations generated");
 		System.out.println(obligations.toString());
@@ -504,10 +478,10 @@ public class ProofObligationGenerator extends
 		PSource source = prepareSource(f);
 
 		// generate POs
-		ProofObligationGenerator cmlPOG = new ProofObligationGenerator(source);
+		ProofObligationGenerator cmlPOG = new ProofObligationGenerator();
 		try
 		{
-			cmlPOG.generatePOs();
+			cmlPOG.generatePOs(source.getParagraphs());
 		} catch (AnalysisException e)
 		{
 			System.out.println("The COMPASS Proof Obligation Generator failed on this cml-source. Please submit it for investigation to richard.payne@ncl.ac.uk.\n");

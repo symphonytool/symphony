@@ -10,8 +10,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import junit.framework.Assert;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,23 +27,24 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.lex.LexIdentifierToken;
 import eu.compassresearch.ast.lex.LexNameToken;
-import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
+import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
-import eu.compassresearch.core.interpreter.api.InterpreterStatus;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorState;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlTrace;
 import eu.compassresearch.core.interpreter.api.behaviour.Reason;
 import eu.compassresearch.core.interpreter.api.events.CmlBehaviorStateObserver;
+import eu.compassresearch.core.interpreter.api.events.EventSource;
 import eu.compassresearch.core.interpreter.api.events.TraceObserver;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTock;
-import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.ObservableEvent;
 import eu.compassresearch.core.interpreter.debug.CmlDbgStatusMessage;
-import eu.compassresearch.core.interpreter.debug.CmlDbgpStatus;
+import eu.compassresearch.core.interpreter.debug.CmlInterpreterStateDTO;
+import eu.compassresearch.core.interpreter.debug.messaging.Message;
+import eu.compassresearch.core.interpreter.debug.messaging.MessageCommunicator;
+import eu.compassresearch.core.interpreter.debug.messaging.MessageContainer;
 import eu.compassresearch.core.interpreter.utility.Pair;
-import eu.compassresearch.core.interpreter.utility.events.EventSource;
 
 public class TestMessageCommunicator {
 
@@ -64,7 +63,7 @@ public class TestMessageCommunicator {
 		ByteArrayOutputStream outStream = new ByteArrayOutputStream();
 		
 		//MessageContainer message = new MessageContainer(new CmlDbgStatusMessage(CmlDbgpStatus.STARTING));
-		Message sentMessage = new CmlDbgStatusMessage(CmlDbgpStatus.STARTING);
+		Message sentMessage = new CmlDbgStatusMessage(new CmlInterpreterStateDTO(null,CmlInterpretationStatus.INITIALIZED));
 		MessageCommunicator.sendMessage(outStream, sentMessage);
 		
 		//ObjectMapper mapper = new ObjectMapper();
@@ -83,7 +82,7 @@ public class TestMessageCommunicator {
 		
 		BufferedReader reader = new BufferedReader(new InputStreamReader(in));
 		MessageContainer messageContainter = MessageCommunicator.receiveMessage(reader,
-				new MessageContainer(new CmlDbgStatusMessage(CmlDbgpStatus.CONNECTION_CLOSED)));
+				new MessageContainer(new CmlDbgStatusMessage(CmlInterpretationStatus.TERMINATED)));
 		
 		Message recvMessage = messageContainter.getMessage();
 		
@@ -98,7 +97,7 @@ public class TestMessageCommunicator {
 		ByteArrayOutputStream outStream = new ByteArrayOutputStream();
 		
 		//MessageContainer message = new MessageContainer(new CmlDbgStatusMessage(CmlDbgpStatus.STARTING));
-		InterpreterStatus status = new InterpreterStatus(new CmlBehaviour() {
+		CmlInterpreterStateDTO status = new CmlInterpreterStateDTO(new CmlBehaviour() {
 			
 			@Override
 			public boolean waiting() {
@@ -265,8 +264,8 @@ public class TestMessageCommunicator {
 			public List<CmlBehaviour> children() {
 				return new LinkedList<CmlBehaviour>();
 			}
-		}, CmlInterpreterState.TERMINATED);
-		Message sentMessage = new CmlDbgStatusMessage(CmlDbgpStatus.STOPPED,status);
+		}, CmlInterpretationStatus.FINISHED);
+		Message sentMessage = new CmlDbgStatusMessage(status);
 		MessageCommunicator.sendMessage(outStream, sentMessage);
 		
 		//ObjectMapper mapper = new ObjectMapper();
@@ -285,7 +284,7 @@ public class TestMessageCommunicator {
 		
 		BufferedReader reader = new BufferedReader(new InputStreamReader(in));
 		MessageContainer messageContainter = MessageCommunicator.receiveMessage(reader,
-				new MessageContainer(new CmlDbgStatusMessage(CmlDbgpStatus.CONNECTION_CLOSED)));
+				new MessageContainer(new CmlDbgStatusMessage(CmlInterpretationStatus.TERMINATED)));
 		
 		Message recvMessage = messageContainter.getMessage();
 		

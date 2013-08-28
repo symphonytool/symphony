@@ -6,7 +6,7 @@
 	<groupId>eu.compassresearch</groupId>
 	<artifactId>root</artifactId>
 	<name>The COMPASS Tool Top-Level</name>
-	<version>0.1.5-SNAPSHOT<!--Replaceable: Main Version-->
+	<version>0.1.9-SNAPSHOT<!--Replaceable: Main Version-->
 	</version>
 
 	<modules>
@@ -160,7 +160,7 @@
 					<configuration>
 						<testFailureIgnore>true</testFailureIgnore>
 						<!-- required for java7 to avoid verifier errors-->
-						<argLine>-XX:-UseSplitVerifier</argLine>
+						<argLine>-XX:-UseSplitVerifier -Djava.awt.headless=true</argLine>
 					</configuration>
 				</plugin>
 

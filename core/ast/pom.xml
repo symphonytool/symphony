@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>eu.compassresearch.core</groupId>
 		<artifactId>core</artifactId>
-		<version>0.1.5-SNAPSHOT<!--Replaceable: Main Version--></version>
+		<version>0.1.9-SNAPSHOT<!--Replaceable: Main Version--></version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -13,7 +13,7 @@
 	<name>COMPASS Core CML Abstract Syntax Tree</name>
 
 	<properties>
-		<astcreator.version>1.2.3</astcreator.version>
+		<astcreator.version>1.2.5</astcreator.version>
 	</properties>
 
 	<dependencies>
@@ -103,7 +103,7 @@
 										</goals>
 									</pluginExecutionFilter>
 									<action>
-										<execute />
+										<ignore />
 									</action>
 								</pluginExecution>
 							</pluginExecutions>

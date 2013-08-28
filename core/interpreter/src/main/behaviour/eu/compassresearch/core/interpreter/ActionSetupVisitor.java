@@ -35,6 +35,8 @@ import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.process.AGeneralisedParallelismProcess;
 import eu.compassresearch.ast.process.AGeneralisedParallelismReplicatedProcess;
 import eu.compassresearch.ast.process.AHidingProcess;
+import eu.compassresearch.ast.process.AInterleavingProcess;
+import eu.compassresearch.ast.process.AInterleavingReplicatedProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.ASynchronousParallelismProcess;
 import eu.compassresearch.ast.process.ASynchronousParallelismReplicatedProcess;
@@ -438,6 +440,32 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 //		}
 //
 //		return returnNode;
+	}
+	
+	@Override
+	public INode caseAInterleavingReplicatedProcess(
+			final AInterleavingReplicatedProcess node, Context question)
+			throws AnalysisException {
+		
+		return caseReplicatedProcess(node,new ReplicationFactory() {
+			
+			@Override
+			public INode createNextReplication() {
+				//TODO The i'th namesetexpression should be evaluated in the i'th context 
+				return new AInterleavingProcess(node.getLocation(), 
+						node.getReplicatedProcess().clone(), 
+						node.clone());
+			}
+			
+			@Override
+			public INode createLastReplication() {
+				//TODO The i'th namesetexpression should be evaluated in the i'th context 
+				return new AInterleavingProcess(node.getLocation(), 
+						node.getReplicatedProcess().clone(), 
+						node.getReplicatedProcess().clone());
+			}
+			
+		},question);
 	}
 	
 	/*

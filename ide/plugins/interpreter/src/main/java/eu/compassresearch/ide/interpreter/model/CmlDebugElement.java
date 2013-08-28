@@ -15,7 +15,6 @@ import eu.compassresearch.ide.interpreter.ICmlDebugConstants;
 
 public class CmlDebugElement extends PlatformObject implements IDebugElement
 {
-
 	protected CmlDebugTarget cmlDebugTarget;
 
 	public CmlDebugElement(CmlDebugTarget cmlDebugTarget)

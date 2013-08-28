@@ -5,7 +5,7 @@
   <parent>
     <groupId>eu.compassresearch.ide</groupId>
     <artifactId>features</artifactId>
-    <version>0.1.5-SNAPSHOT<!--Replaceable: Main Version--></version>
+    <version>0.1.9-SNAPSHOT<!--Replaceable: Main Version--></version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   
@@ -20,7 +20,6 @@
     <module>pog</module>
     <module>theoremprover</module>
     <module>rtt-mbt</module>
-    <module>securityanalysis</module>
     <module>modelchecker</module>
   </modules>
 

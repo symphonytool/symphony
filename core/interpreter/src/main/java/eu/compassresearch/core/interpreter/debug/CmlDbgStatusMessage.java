@@ -1,46 +1,41 @@
 package eu.compassresearch.core.interpreter.debug;
 
-import eu.compassresearch.core.interpreter.api.InterpreterStatus;
-import eu.compassresearch.core.interpreter.utility.messaging.Message;
-import eu.compassresearch.core.interpreter.utility.messaging.MessageType;
+import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
+import eu.compassresearch.core.interpreter.debug.messaging.Message;
+import eu.compassresearch.core.interpreter.debug.messaging.MessageType;
 
 
 public class CmlDbgStatusMessage extends Message {
 
-	private CmlDbgpStatus status;
-	private InterpreterStatus interpreterStatus;
+	private CmlInterpreterStateDTO interpreterStatus;
 	
-	protected CmlDbgStatusMessage()
-	{}
+	//dummy for serialization
+	private CmlDbgStatusMessage(){}
 	
-	public CmlDbgStatusMessage(CmlDbgpStatus status, InterpreterStatus interpreterStatus)
+	public CmlDbgStatusMessage(CmlInterpreterStateDTO interpreterStatus)
 	{
 		this.interpreterStatus = interpreterStatus;
-		this.setStatus(status);
 	}
 	
-	public CmlDbgStatusMessage(CmlDbgpStatus status)
+	public CmlDbgStatusMessage(CmlInterpretationStatus state)
 	{
-		this.interpreterStatus = null;
-		this.setStatus(status);
+		this.interpreterStatus = new CmlInterpreterStateDTO(state);
 	}
 	
-	public CmlDbgpStatus getStatus() {
-		return status;
+	public CmlInterpretationStatus getStatus() {
+		if(this.interpreterStatus != null)
+			return this.interpreterStatus.getInterpreterState();
+		else 
+			return CmlInterpretationStatus.TERMINATED;
 	}
 	
-	public InterpreterStatus getInterpreterStatus() {
+	public CmlInterpreterStateDTO getInterpreterStatus() {
 		return interpreterStatus;
 	}
 
-	protected void setStatus(CmlDbgpStatus status) {
-		this.status = status;
-	}
-			
 	@Override
 	public String toString() {
 		return CmlDbgStatusMessage.class.getSimpleName() + System.lineSeparator() +
-			   "Status: "+ status + System.lineSeparator() +
 			   this.interpreterStatus;
 				
 	}
