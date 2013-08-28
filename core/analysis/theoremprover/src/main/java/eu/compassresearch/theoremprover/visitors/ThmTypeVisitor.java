@@ -1,15 +1,15 @@
 package eu.compassresearch.theoremprover.visitors;
 
-import java.util.LinkedList;
-
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.types.ANamedInvariantType;
 import org.overture.ast.types.ARecordInvariantType;
 import org.overture.ast.types.PType;
+
 import eu.compassresearch.ast.analysis.AnswerCMLAdaptor;
 import eu.compassresearch.ast.definitions.ATypesDefinition;
+import eu.compassresearch.theoremprover.thms.NodeNameList;
 import eu.compassresearch.theoremprover.thms.ThmNode;
 import eu.compassresearch.theoremprover.thms.ThmNodeList;
 import eu.compassresearch.theoremprover.thms.ThmRecType;
@@ -50,7 +50,7 @@ public class ThmTypeVisitor extends AnswerCMLAdaptor<ThmNodeList> {
 		ILexNameToken name = node.getName();
 		PType type = node.getType();
 		String typeStr = "";
-		LinkedList<ILexNameToken> nodeDeps = new LinkedList<ILexNameToken>();
+		NodeNameList nodeDeps = new NodeNameList();
 		String inv = "";
 		
 		if (type instanceof ANamedInvariantType)

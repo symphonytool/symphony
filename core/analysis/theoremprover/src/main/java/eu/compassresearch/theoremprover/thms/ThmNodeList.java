@@ -1,6 +1,5 @@
 package eu.compassresearch.theoremprover.thms;
 
-import java.util.LinkedList;
 import java.util.Vector;
 
 import org.overture.ast.intf.lex.ILexNameToken;
@@ -14,6 +13,7 @@ import eu.compassresearch.core.common.AnalysisArtifact;
  *
  *
  *******************/
+@SuppressWarnings("serial")
 public class ThmNodeList extends Vector<ThmNode> implements AnalysisArtifact {
 
 
@@ -35,7 +35,7 @@ public class ThmNodeList extends Vector<ThmNode> implements AnalysisArtifact {
     /******
      * Checks if all dependencies have been fulfilled in the ordered list
      ******/
-    public boolean allDepsFulfilled(LinkedList<ILexNameToken> depIds){
+    public boolean allDepsFulfilled(NodeNameList depIds){
     	boolean flag = false;
     	
     	for (ILexNameToken d : depIds){
@@ -62,9 +62,9 @@ public class ThmNodeList extends Vector<ThmNode> implements AnalysisArtifact {
     	return true;
     }
     
-    public LinkedList<ILexNameToken> getAllNodeDeps() 
+    public NodeNameList getAllNodeDeps() 
 	{
-		LinkedList<ILexNameToken> nodeDeps = new LinkedList<ILexNameToken>();
+    	NodeNameList nodeDeps = new NodeNameList();
 		
 		for(ThmNode n : this)
 			nodeDeps.addAll(n.getDepIds());
@@ -72,7 +72,7 @@ public class ThmNodeList extends Vector<ThmNode> implements AnalysisArtifact {
 	}	
     
 
-	public ThmNodeList restrictExtOperationsDeps(LinkedList<ILexNameToken> procNodeNames) {
+	public ThmNodeList restrictExtOperationsDeps(NodeNameList procNodeNames) {
 
 		for(ThmNode o: this)
 		{

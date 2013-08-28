@@ -76,6 +76,7 @@ public class ThmExplicitOperation extends ThmDecl{
 		StringBuilder sb = new StringBuilder();
 		sb.append("(");
 		for (Iterator<PPattern> itr = paras.listIterator(); itr.hasNext(); ) {
+			
 			PPattern pat = itr.next();
 			sb.append("^");
 			sb.append(((AIdentifierPattern) pat).getName().toString());
@@ -102,7 +103,7 @@ public class ThmExplicitOperation extends ThmDecl{
 
 		res.append(post + "\n\n");
 		
-		res.append(ThmProcessUtil.isaOp + " \"" + name + " " + params + " = `" + ThmProcessUtil.opExpLeft + "pre_"+ name + prePostParamList + ThmProcessUtil.opExpRight + " " +  
+		res.append(ThmProcessUtil.isaOp + " \"" + name + " " + params + " = `" + ThmProcessUtil.opExpLeft+  "pre_"+ name + prePostParamList + ThmProcessUtil.opExpRight +" " +  
 				ThmProcessUtil.opTurn + " " + ThmProcessUtil.opExpLeft + "post_" + name + prePostParamList + ThmProcessUtil.opExpRight + " \\<and> (" +
 				body + ")`\"\n" + tacHook(name));
 		

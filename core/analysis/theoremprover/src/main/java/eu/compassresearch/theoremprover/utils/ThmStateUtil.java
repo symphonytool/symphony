@@ -1,9 +1,9 @@
 package eu.compassresearch.theoremprover.utils;
 
-import java.util.LinkedList;
 
 import org.overture.ast.definitions.AAssignmentDefinition;
-import org.overture.ast.intf.lex.ILexNameToken;
+
+import eu.compassresearch.theoremprover.thms.NodeNameList;
 
 public class ThmStateUtil {
 
@@ -12,12 +12,12 @@ public class ThmStateUtil {
 	public static String mkvar = "MkVarD";
 	public static String typeDelim = "\\<parallel>";;
 
-	public static LinkedList<ILexNameToken> getIsabelleStateDeps(AAssignmentDefinition node){
-		LinkedList<ILexNameToken> nodeDeps = new LinkedList<ILexNameToken>();
+	public static NodeNameList getIsabelleStateDeps(AAssignmentDefinition node){
+		NodeNameList nodeDeps = new NodeNameList();
 			
 		nodeDeps.addAll(ThmTypeUtil.getIsabelleTypeDeps(node.getType()));
 
-		LinkedList<ILexNameToken> vars = new LinkedList<ILexNameToken>();
+		NodeNameList vars = new NodeNameList();
 		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(vars, node.getExpression()));
 
 		return nodeDeps;

@@ -3,11 +3,11 @@ package eu.compassresearch.theoremprover.utils;
 import java.util.LinkedList;
 
 import org.overture.ast.definitions.PDefinition;
-import org.overture.ast.intf.lex.ILexNameToken;
 
 import eu.compassresearch.ast.definitions.AChannelNameDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.types.AChannelType;
+import eu.compassresearch.theoremprover.thms.NodeNameList;
 
 public class ThmChanUtil {
 
@@ -20,18 +20,17 @@ public class ThmChanUtil {
 	public static String isaChSetLeft = "{";
 	public static String isaChSetRight = "{";
 
-	public static LinkedList<ILexNameToken> getIsabelleChansetDeps(
+	public static NodeNameList getIsabelleChansetDeps(
 			AChansetDefinition node) {
 		// TODO Auto-generated method stub
-		LinkedList<ILexNameToken> nodeDeps = new LinkedList<ILexNameToken>();
+		NodeNameList nodeDeps = new NodeNameList();
 		
 		return nodeDeps;
 	}
 	
-	public static LinkedList<ILexNameToken> getIsabelleChanDeps(
+	public static NodeNameList getIsabelleChanDeps(
 			AChannelNameDefinition node) {
-		// TODO Auto-generated method stub
-		LinkedList<ILexNameToken> nodeDeps = new LinkedList<ILexNameToken>();
+		NodeNameList nodeDeps = new NodeNameList();
 		
 		LinkedList<PDefinition> chandefs = node.getSingleType().getType().getDefinitions();
 		PDefinition chan = chandefs.getFirst();

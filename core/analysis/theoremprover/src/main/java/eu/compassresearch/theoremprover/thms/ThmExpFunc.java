@@ -47,14 +47,17 @@ public class ThmExpFunc extends ThmDecl {
 	
 	private String fixFuncExpr(String ex, LinkedList<List<PPattern>> pattern){
 		int count = 1;
-		List<PPattern> pat = pattern.getFirst();
-		for(PPattern p : pat )
+		
+		for (List<PPattern> pat : pattern)
 		{
-			String pName = "^" + ((AIdentifierPattern) p).getName().toString() + "^";
-			String lambdaName = "^" +ThmTypeUtil.isaFuncLambaVal+"^.#" + count;
+			for(PPattern p : pat )
+			{
+				String pName = "^" + ((AIdentifierPattern) p).getName().toString() + "^";
+				String lambdaName = "^" +ThmTypeUtil.isaFuncLambaVal+"^.#" + count;
 			
-			ex = ex.replace(pName, lambdaName);
-			count++;
+				ex = ex.replace(pName, lambdaName);
+				count++;
+			}
 		}
 	
 		return ex;

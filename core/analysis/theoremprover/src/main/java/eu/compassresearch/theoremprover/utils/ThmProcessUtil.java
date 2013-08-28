@@ -1,6 +1,5 @@
 package eu.compassresearch.theoremprover.utils;
 
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -100,6 +99,7 @@ import eu.compassresearch.ast.process.ATimedInterruptProcess;
 import eu.compassresearch.ast.process.ATimeoutProcess;
 import eu.compassresearch.ast.process.AUntimedTimeoutProcess;
 import eu.compassresearch.ast.process.PProcess;
+import eu.compassresearch.theoremprover.thms.NodeNameList;
 import eu.compassresearch.theoremprover.thms.ThmAction;
 import eu.compassresearch.theoremprover.thms.ThmExplicitOperation;
 import eu.compassresearch.theoremprover.thms.ThmImplicitOperation;
@@ -126,11 +126,11 @@ public class ThmProcessUtil {
 	public static String isaMainAction = "MainAction";
 	
 
-	private static String skip = "Skip";
-	private static String stop = "Stop";
-	private static String chaos = "Chaos";
-	private static String div = "Div";
-	private static String wait = "Wait ";
+	private static String skip = "SKIP";
+	private static String stop = "STOP";
+	private static String chaos = "CHAOS";
+	private static String div = "DIV";
+	private static String wait = "WAIT ";
 	private static String comm = " -> ";
 	private static String guardLeftBrack = "[";
 	private static String guardRightBrack = "]";
@@ -159,130 +159,6 @@ public class ThmProcessUtil {
 	private static String isaOd = " od ";
 	
 		
-	/***
-	 * Method to retrieve all state variable names from a collection of state definitions
-	 * @param statements - the collection of state variables
-	 * @return a list of names (as ILexNameTokens)
-	 */
-	public static LinkedList<ILexNameToken> getStateNames(LinkedList<AStateDefinition> statements)
-	{
-		//first we need to get all the state identifier names so expressions use correct
-		//reference
-		LinkedList<ILexNameToken> statenames = new LinkedList<ILexNameToken>();
-		//for each state definition
-		for (AStateDefinition pdef : statements)
-		{
-			//for each state definition
-			for (PDefinition sdef : pdef.getStateDefs())
-			{
-				//if the state definition is an assignment definition
-				if (sdef instanceof AAssignmentDefinition)
-				{
-					AAssignmentDefinition st = (AAssignmentDefinition) sdef;
-	
-					//get the name and add it to the list
-					statenames.add(st.getName());
-				}
-			}
-		}
-		return statenames;
-	}
-
-	/**
-	 * Method to retrieve all state variable names from a collection of operations definitions
-	 * @param operations - the collection of operations
-	 * @return a list of names (as ILexNameTokens)
-	 */
-	public static LinkedList<ILexNameToken> getOperationNames(
-			LinkedList<SCmlOperationDefinition> operations) {
-		
-		LinkedList<ILexNameToken> opNames = new LinkedList<ILexNameToken>();
-		//for each operation
-		for(SCmlOperationDefinition op : operations)
-			//get the name and add it to the list
-			opNames.add(op.getName());
-		
-		return opNames;
-	}
-
-	/**
-	 * Method to retrieve all state variable names from a collection of actions definitions
-	 * @param actions - the collection of actions
-	 * @return a list of names (as ILexNameTokens)
-	 */
-	public static LinkedList<ILexNameToken> getActionNames(
-			LinkedList<AActionDefinition> actions) {
-
-		LinkedList<ILexNameToken> actNames = new LinkedList<ILexNameToken>();
-		//for each operation
-		for(AActionDefinition a : actions)
-			//get the name and add it to the list
-			actNames.add(a.getName());
-		return actNames;
-	}
-
-	/***
-	 * Method to remove a list of dependencies from a list of dependencies
-	 //TODO: MOVE SOMEWHERE ELSE?
-	 * @param nodeDeps
-	 * @param procNames
-	 * @return
-	 */
-	public static LinkedList<ILexNameToken> removeProcessDeps(
-			LinkedList<ILexNameToken> nodeDeps,
-			LinkedList<ILexNameToken> procNames) {
-		
-		//Need to add remove all inter-process dependencies 
-		//For each name used within a process		
-		for(ILexNameToken pn :procNames)
-		{
-			//for each dependency 
-			for(Iterator<ILexNameToken> itr = nodeDeps.listIterator(); itr.hasNext(); )
-			{
-				ILexNameToken nd = itr.next();
-				//if the dependency is a process name, remove it.
-				if(pn.toString().equals(nd.toString()))
-				{
-					itr.remove();
-				}
-			}
-		}
-		return nodeDeps;
-	}
-	
-	
-	/**
-	 * Method to restrict node dependency list to only those in a second set 
-	 * @param nodeDeps
-	 * @param procNames
-	 * @return
-	 */
-	public static LinkedList<ILexNameToken> removeExtDeps(
-			LinkedList<ILexNameToken> nodeDeps,
-			LinkedList<ILexNameToken> procNames) {
-		
-		LinkedList<ILexNameToken> nodeNames = new LinkedList<ILexNameToken>();
-		
-		//Need to add remove all extra-process dependencies 
-		//For each node dependency
-		for(ILexNameToken nd : nodeDeps)
-		{
-			//For each name used within a process		
-			for(ILexNameToken pn :procNames)
-			{
-				//if the depandency is a process name, then add to the new list
-				if(pn.toString().equals(nd.toString()))
-				{
-					nodeNames.add(nd);
-				}
-			}
-		}
-		
-		//return only the node dependencies that are intra-process names 
-		return nodeNames;
-	}
-	
-
 	
 	/***
 	 * Method to get the string of a process (not an Action Process)
@@ -347,7 +223,7 @@ public class ThmProcessUtil {
 			ATimedInterruptProcess p = (ATimedInterruptProcess) procProc;
 			
 			String left = ThmProcessUtil.getIsabelleProcessString(p.getLeft()) ;
-			String expr = ThmExprUtil.getIsabelleExprStr(new LinkedList<ILexNameToken>(), new LinkedList<ILexNameToken>(), p.getTimeExpression());
+			String expr = ThmExprUtil.getIsabelleExprStr(new NodeNameList(), new NodeNameList(), p.getTimeExpression());
 			String right = ThmProcessUtil.getIsabelleProcessString(p.getRight());
 
 			return left + ThmProcessUtil.timeIntLeft + expr + ThmProcessUtil.timeIntRight + right;
@@ -365,7 +241,7 @@ public class ThmProcessUtil {
 		{
 			ATimeoutProcess p = (ATimeoutProcess) procProc;
 			String left = ThmProcessUtil.getIsabelleProcessString(p.getLeft());
-			String expr = ThmExprUtil.getIsabelleExprStr(new LinkedList<ILexNameToken>(), new LinkedList<ILexNameToken>(), p.getTimeoutExpression());
+			String expr = ThmExprUtil.getIsabelleExprStr(new NodeNameList(), new NodeNameList(), p.getTimeoutExpression());
 			String right = ThmProcessUtil.getIsabelleProcessString(p.getRight());
 
 			return left + ThmProcessUtil.timeoutLeft +  expr + ThmProcessUtil.timeoutRight + right;
@@ -381,14 +257,14 @@ public class ThmProcessUtil {
 		{
 			AStartDeadlineProcess p = (AStartDeadlineProcess) procProc;
 			String left = ThmProcessUtil.getIsabelleProcessString(p.getLeft());
-			String expr = ThmExprUtil.getIsabelleExprStr(new LinkedList<ILexNameToken>(), new LinkedList<ILexNameToken>(), p.getExpression());		
+			String expr = ThmExprUtil.getIsabelleExprStr(new NodeNameList(), new NodeNameList(), p.getExpression());		
 			return left + ThmProcessUtil.startsby + expr;
 		}
 		else if(procProc instanceof AEndDeadlineProcess)
 		{
 			AEndDeadlineProcess p = (AEndDeadlineProcess) procProc;
 			String left = ThmProcessUtil.getIsabelleProcessString(p.getLeft());
-			String expr = ThmExprUtil.getIsabelleExprStr(new LinkedList<ILexNameToken>(), new LinkedList<ILexNameToken>(), p.getExpression());	
+			String expr = ThmExprUtil.getIsabelleExprStr(new NodeNameList(), new NodeNameList(), p.getExpression());	
 			return left + ThmProcessUtil.endsby + expr;	
 		}		
 		else if(procProc instanceof AReferenceProcess)
@@ -402,7 +278,7 @@ public class ThmProcessUtil {
 				for (Iterator<PExp> itr = p.getArgs().listIterator(); itr.hasNext(); ) {
 					PExp e = itr.next();
 					
-					argStr.append(ThmExprUtil.getIsabelleExprStr(new LinkedList<ILexNameToken>(), new LinkedList<ILexNameToken>(),e));
+					argStr.append(ThmExprUtil.getIsabelleExprStr(new NodeNameList(), new NodeNameList(),e));
 					//If there are remaining expressions, add a ","
 					if(itr.hasNext()){	
 						argStr.append(", ");
@@ -420,9 +296,9 @@ public class ThmProcessUtil {
 	 * @param procProc
 	 * @return
 	 */
-	public static LinkedList<ILexNameToken> getIsabelleProcessDeps(PProcess procProc)
+	public static NodeNameList getIsabelleProcessDeps(PProcess procProc)
 	{
-		LinkedList<ILexNameToken> nodeDeps = new LinkedList<ILexNameToken>();
+		NodeNameList nodeDeps = new NodeNameList();
 		if (procProc instanceof ASequentialCompositionProcess)
 		{
 			ASequentialCompositionProcess p = (ASequentialCompositionProcess) procProc;
@@ -481,7 +357,7 @@ public class ThmProcessUtil {
 			ATimedInterruptProcess p = (ATimedInterruptProcess) procProc;
 			
 			nodeDeps.addAll(ThmProcessUtil.getIsabelleProcessDeps(p.getLeft())) ;
-			nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(new LinkedList<ILexNameToken>(), p.getTimeExpression()));
+			nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(new NodeNameList(), p.getTimeExpression()));
 			nodeDeps.addAll(ThmProcessUtil.getIsabelleProcessDeps(p.getRight()));
 		}
 		else if(procProc instanceof AUntimedTimeoutProcess)
@@ -494,7 +370,7 @@ public class ThmProcessUtil {
 		{
 			ATimeoutProcess p = (ATimeoutProcess) procProc;
 			nodeDeps.addAll(ThmProcessUtil.getIsabelleProcessDeps(p.getLeft()));
-			nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(new LinkedList<ILexNameToken>(), p.getTimeoutExpression()));
+			nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(new NodeNameList(), p.getTimeoutExpression()));
 			nodeDeps.addAll(ThmProcessUtil.getIsabelleProcessDeps(p.getRight()));
 		}
 		else if(procProc instanceof AHidingProcess)
@@ -507,14 +383,14 @@ public class ThmProcessUtil {
 		{
 			AStartDeadlineProcess p = (AStartDeadlineProcess) procProc;
 			nodeDeps.addAll(ThmProcessUtil.getIsabelleProcessDeps(p.getLeft()));
-			nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(new LinkedList<ILexNameToken>(), p.getExpression()));		
+			nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(new NodeNameList(), p.getExpression()));		
 
 		}
 		else if(procProc instanceof AEndDeadlineProcess)
 		{
 			AEndDeadlineProcess p = (AEndDeadlineProcess) procProc;
 			nodeDeps.addAll(ThmProcessUtil.getIsabelleProcessDeps(p.getLeft()));
-			nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(new LinkedList<ILexNameToken>(), p.getExpression()));
+			nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(new NodeNameList(), p.getExpression()));
 		}		
 		else if(procProc instanceof AReferenceProcess)
 		{
@@ -525,7 +401,7 @@ public class ThmProcessUtil {
 			{
 				for (PExp e: p.getArgs()) 
 				{
-					nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(new LinkedList<ILexNameToken>(),e));				
+					nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(new NodeNameList(),e));				
 				}
 			}
 		}
@@ -536,7 +412,7 @@ public class ThmProcessUtil {
 	
 	public static ThmNode getIsabelleActionProcess(ILexNameToken procName, AActionProcess act)
 	{
-		LinkedList<ILexNameToken> nodeDeps = new LinkedList<ILexNameToken>();		
+		NodeNameList nodeDeps = new NodeNameList();		
 		
 		//need to define a new collection of node lists for the definitions inside a 
 		//process. This is because we need to limit scope and dependencies within a 
@@ -544,7 +420,7 @@ public class ThmProcessUtil {
 		ThmNodeList actTnl = new ThmNodeList();
 		//Require a list of all names used within a process, so to ensure the dependency 
 		//relationships within and outside the process can be dealt with.
-		LinkedList<ILexNameToken> procNodeNames = new LinkedList<ILexNameToken>();
+		NodeNameList procNodeNames = new NodeNameList();
 
 		//Collect all the statement/operation/action paragraphs and deal with them 
 		//all together.
@@ -577,7 +453,7 @@ public class ThmProcessUtil {
 		
 		//first we need to get all the state identifier names so expressions use correct
 		//reference
-		LinkedList<ILexNameToken> svars = ThmProcessUtil.getStateNames(statements);
+		NodeNameList svars = ThmProcessUtil.getStateNames(statements);
 		//Add all state, operation and action names to list
 		procNodeNames.addAll(ThmProcessUtil.getStateNames(statements));
 		procNodeNames.addAll(ThmProcessUtil.getOperationNames(operations));
@@ -588,7 +464,7 @@ public class ThmProcessUtil {
 		//assignments to a collection for initialisation in main action
 		//Also generate the invariant functions...
 		LinkedList<String> initExprs = new LinkedList<String>();
-		LinkedList<ILexNameToken> initExprNodeDeps = new LinkedList<ILexNameToken>();
+		NodeNameList initExprNodeDeps = new NodeNameList();
 		for (AStateDefinition pdef : statements)
 		{
 			for (PDefinition sdef : pdef.getStateDefs())
@@ -599,18 +475,19 @@ public class ThmProcessUtil {
 
 					//Get the state variable name
 					ILexNameToken sName = st.getName();
-					LinkedList<ILexNameToken> sNodeDeps = new LinkedList<ILexNameToken>();
+					NodeNameList sNodeDeps = new NodeNameList();
 					//if the variable is initialised straight away, add it to the initExprs string
 					//and get the dependancies
 					if (st.getExpression() != null)
 					{
-						initExprs.add(sName.toString() + ThmProcessUtil.assign + ThmExprUtil.getIsabelleExprStr(svars, new LinkedList<ILexNameToken>(), st.getExpression()));
-						initExprNodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(new LinkedList<ILexNameToken>(),  st.getExpression()));
+						initExprs.add(sName.toString() + ThmProcessUtil.assign + ThmExprUtil.getIsabelleExprStr(svars, new NodeNameList(), st.getExpression()));
+						initExprNodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(new NodeNameList(),  st.getExpression()));
 						//Add all dependancies to the processes dependancies
 						nodeDeps.addAll(initExprNodeDeps);
 						//As we only care about the internal dependancies in initExprNodeDeps, remove
 						//any dependancies to CML elements external to the process
-						initExprNodeDeps = ThmProcessUtil.removeExtDeps(initExprNodeDeps,procNodeNames);
+						initExprNodeDeps = initExprNodeDeps.restrictDeps(procNodeNames);
+								//ThmProcessUtil.removeExtDeps(initExprNodeDeps,procNodeNames);
 					}
 					//if the variable is not initialised straight away, leave it as undefined.
 					else
@@ -656,7 +533,7 @@ public class ThmProcessUtil {
 		
 		//Handle the actions.
 		//TODO:NEED TO CHECK EACH ACT FOR RECURSION (See notepad :))
-		ThmNodeList actNodes = (ThmProcessUtil.getIsabelleActions(actions, svars, new LinkedList<ILexNameToken>()));
+		ThmNodeList actNodes = (ThmProcessUtil.getIsabelleActions(actions, svars, new NodeNameList()));
 		//Add all action dependencies to the list of process dependencies
 		nodeDeps.addAll(actNodes.getAllNodeDeps());
 		//restrict the action dependencies to only those names used within the process
@@ -664,22 +541,92 @@ public class ThmProcessUtil {
 		actTnl.addAll(actNodes);
 		
 		//sort the state, operation and actions, so that they are in dependency order
-		actTnl = TPVisitor.sortThmNodes(actTnl);
+		String actString = "";
+		try
+		{
+			actTnl = TPVisitor.sortThmNodes(actTnl);
+			actString = actTnl.toString();
+		}catch(ThySortException thye)
+		{
+			actString = "{*Thy gen error:*}\n" + "{*Isabelle Error when sorting nodes - please submit bug report with CML file*}\n'n";
+		}
 		//Remove all inner dependencies from the process dependency list. We only care about the 
 		//things external to the process that we depend upon.
-		nodeDeps = ThmProcessUtil.removeProcessDeps(nodeDeps,procNodeNames);
+		nodeDeps = nodeDeps.removeDeps(procNodeNames);
+				
+		//		ThmProcessUtil.removeProcessDeps(nodeDeps,procNodeNames);
 
 		//Obtain the main action string
 		PAction mainAction = act.getAction();
-		String mainStr = ThmProcessUtil.isaProc + " \"" + ThmProcessUtil.isaMainAction + " = IsabelleStateInit; " + ThmProcessUtil.getIsabelleActionString(mainAction, svars, new LinkedList<ILexNameToken>()) +  "\"";
+		String mainStr = ThmProcessUtil.isaProc + " \"" + ThmProcessUtil.isaMainAction + " = `IsabelleStateInit; " + ThmProcessUtil.getIsabelleActionString(mainAction, svars, new NodeNameList()) +  "`\"";
 		
 		//Finally construct the node to represent the process
-		return new ThmNode(procName, nodeDeps, new ThmProcAction(procName.toString(), actTnl.toString(), mainStr));
+		return new ThmNode(procName, nodeDeps, new ThmProcAction(procName.toString(), actString, mainStr));
 	}
+	/***
+	 * Method to retrieve all state variable names from a collection of state definitions
+	 * @param statements - the collection of state variables
+	 * @return a list of names (as ILexNameTokens)
+	 */
+	private static NodeNameList getStateNames(LinkedList<AStateDefinition> statements)
+	{
+		//first we need to get all the state identifier names so expressions use correct
+		//reference
+		NodeNameList statenames = new NodeNameList();
+		//for each state definition
+		for (AStateDefinition pdef : statements)
+		{
+			//for each state definition
+			for (PDefinition sdef : pdef.getStateDefs())
+			{
+				//if the state definition is an assignment definition
+				if (sdef instanceof AAssignmentDefinition)
+				{
+					AAssignmentDefinition st = (AAssignmentDefinition) sdef;
 	
+					//get the name and add it to the list
+					statenames.add(st.getName());
+				}
+			}
+		}
+		return statenames;
+	}
+
+	/**
+	 * Method to retrieve all state variable names from a collection of operations definitions
+	 * @param operations - the collection of operations
+	 * @return a list of names (as ILexNameTokens)
+	 */
+	private static NodeNameList getOperationNames(
+			LinkedList<SCmlOperationDefinition> operations) {
+		
+		NodeNameList opNames = new NodeNameList();
+		//for each operation
+		for(SCmlOperationDefinition op : operations)
+			//get the name and add it to the list
+			opNames.add(op.getName());
+		
+		return opNames;
+	}
+
+	/**
+	 * Method to retrieve all state variable names from a collection of actions definitions
+	 * @param actions - the collection of actions
+	 * @return a list of names (as ILexNameTokens)
+	 */
+	private static NodeNameList getActionNames(
+			LinkedList<AActionDefinition> actions) {
+
+		NodeNameList actNames = new NodeNameList();
+		//for each operation
+		for(AActionDefinition a : actions)
+			//get the name and add it to the list
+			actNames.add(a.getName());
+		return actNames;
+	}
 
 	private static ThmNodeList getIsabelleOperations(
-			LinkedList<SCmlOperationDefinition> operations, LinkedList<ILexNameToken> svars) {
+			LinkedList<SCmlOperationDefinition> operations, NodeNameList svars) {
 		ThmNodeList tnl = new ThmNodeList();
 		
 		for(SCmlOperationDefinition op : operations)
@@ -688,19 +635,19 @@ public class ThmProcessUtil {
 		return tnl;
 	}
 		
-	private static ThmNode getIsabelleOperation(SCmlOperationDefinition op, LinkedList<ILexNameToken> svars) {
+	private static ThmNode getIsabelleOperation(SCmlOperationDefinition op, NodeNameList svars) {
 		ThmNode tn = null;
 		if (op instanceof AImplicitCmlOperationDefinition)
 		{
 			AImplicitCmlOperationDefinition imOp = (AImplicitCmlOperationDefinition) op;
-			LinkedList<ILexNameToken> nodeDeps = new LinkedList<ILexNameToken>();
+			NodeNameList nodeDeps = new NodeNameList();
 
 			String pre = null;
 			String post = null;
 			LinkedList<APatternListTypePair> params = imOp.getParameterPatterns();			
 			//Deal with the parameters
 			//Find bound values to exclude from dependancy list and add node dependancies
-			LinkedList<ILexNameToken> bvars = new LinkedList<ILexNameToken>();
+			NodeNameList bvars = new NodeNameList();
 			for(APatternListTypePair p : params)
 			{
 				for(PPattern pat : p.getPatterns())
@@ -732,10 +679,10 @@ public class ThmProcessUtil {
 		else if (op instanceof AExplicitCmlOperationDefinition)
 		{
 			AExplicitCmlOperationDefinition exOp = (AExplicitCmlOperationDefinition) op;
-			LinkedList<ILexNameToken> nodeDeps = new LinkedList<ILexNameToken>();
+			NodeNameList nodeDeps = new NodeNameList();
 			LinkedList<PPattern> params = exOp.getParameterPatterns();
 			//Need parameters for local bound vars
-			LinkedList<ILexNameToken> bvars = new LinkedList<ILexNameToken>();
+			NodeNameList bvars = new NodeNameList();
 			for(PPattern p : params)
 			{
 				bvars.add(((AIdentifierPattern) p).getName());
@@ -779,8 +726,8 @@ public class ThmProcessUtil {
 	 */
 	private static ThmNodeList getIsabelleActions(
 			LinkedList<AActionDefinition> actions,
-			LinkedList<ILexNameToken> svars,
-			LinkedList<ILexNameToken> bvars) {
+			NodeNameList svars,
+			NodeNameList bvars) {
 		ThmNodeList tnl = new ThmNodeList();
 			
 		//for each Action Definiton node
@@ -800,8 +747,8 @@ public class ThmProcessUtil {
 	 */
 	private static ThmNode getIsabelleAction(
 			AActionDefinition act, 
-			LinkedList<ILexNameToken> svars, 
-			LinkedList<ILexNameToken> bvars)
+			NodeNameList svars, 
+			NodeNameList bvars)
 	{
 		ThmNode tn = null;
 		//get the action name
@@ -809,7 +756,7 @@ public class ThmProcessUtil {
 		//get the Isabelle string for the action node's action.
 		String actString = ThmProcessUtil.getIsabelleActionString(act.getAction(), svars, bvars);
 		//obtain the action dependancies
-		LinkedList<ILexNameToken> nodeDeps = ThmProcessUtil.getIsabelleActionDeps(act.getAction(), bvars);
+		NodeNameList nodeDeps = ThmProcessUtil.getIsabelleActionDeps(act.getAction(), bvars);
 		//create the theorem node.
 		tn = new ThmNode(actName, nodeDeps, new ThmAction(actName.toString(), actString));
 
@@ -824,8 +771,8 @@ public class ThmProcessUtil {
 	 * @return the Isabelle string
 	 */
 	private static String getIsabelleActionString(PAction act, 
-			LinkedList<ILexNameToken> svars, 
-			LinkedList<ILexNameToken> bvars)
+			NodeNameList svars, 
+			NodeNameList bvars)
 	{
 		
 		if(act instanceof ASkipAction)
@@ -864,9 +811,10 @@ public class ThmProcessUtil {
 					if(patt instanceof AIdentifierPattern)
 					{
 						AIdentifierPattern ip = (AIdentifierPattern) patt;
-						params.append("?");
+						params.append("?(");
 						params.append(ip.getName().toString());
 						bvars.add(ip.getName());
+						params.append(")");
 					}
 					patt.getDefinitions();
 				}
@@ -878,18 +826,19 @@ public class ThmProcessUtil {
 					
 				}else
 				{
-					params.append(".");
+					params.append(".(");
 					params.append(ThmExprUtil.getIsabelleExprStr(svars, bvars, p.getExpression()));
+					params.append(")");
 				}
 			}
 			
-			return (a.getIdentifier().toString() + params.toString() + ThmProcessUtil.comm + ThmProcessUtil.getIsabelleActionString(a.getAction(), svars, bvars));
+			return "(" + a.getIdentifier().toString() + params.toString() + ThmProcessUtil.comm + ThmProcessUtil.getIsabelleActionString(a.getAction(), svars, bvars) + ")";
 		}
 		else if(act instanceof AGuardedAction)
 		{
 			AGuardedAction a = (AGuardedAction) act;
 			
-			return ThmProcessUtil.guardLeftBrack + ThmExprUtil.getIsabelleExprStr(svars, new LinkedList<ILexNameToken>(), a.getExpression()) + ThmProcessUtil.guardRightBrack + ThmProcessUtil.guardSep + ThmProcessUtil.getIsabelleActionString(a.getAction(), svars, bvars);
+			return ThmProcessUtil.guardLeftBrack + ThmExprUtil.getIsabelleExprStr(svars, new NodeNameList(), a.getExpression()) + ThmProcessUtil.guardRightBrack + ThmProcessUtil.guardSep + ThmProcessUtil.getIsabelleActionString(a.getAction(), svars, bvars);
 		}
 		else if(act instanceof ASequentialCompositionAction)
 		{
@@ -917,7 +866,7 @@ public class ThmProcessUtil {
 		{
 			ATimedInterruptAction a = (ATimedInterruptAction) act;
 			
-			return ThmProcessUtil.getIsabelleActionString(a.getLeft(), svars, bvars) + ThmProcessUtil.timeIntLeft +  ThmExprUtil.getIsabelleExprStr(svars, new LinkedList<ILexNameToken>(), a.getTimeExpression()) + ThmProcessUtil.timeIntRight + ThmProcessUtil.getIsabelleActionString(a.getRight(), svars, bvars);
+			return ThmProcessUtil.getIsabelleActionString(a.getLeft(), svars, bvars) + ThmProcessUtil.timeIntLeft +  ThmExprUtil.getIsabelleExprStr(svars, new NodeNameList(), a.getTimeExpression()) + ThmProcessUtil.timeIntRight + ThmProcessUtil.getIsabelleActionString(a.getRight(), svars, bvars);
 		}
 		else if(act instanceof AUntimedTimeoutAction)
 		{
@@ -927,7 +876,7 @@ public class ThmProcessUtil {
 		else if(act instanceof ATimeoutAction)
 		{
 			ATimeoutAction a = (ATimeoutAction) act;
-			return ThmProcessUtil.getIsabelleActionString(a.getLeft(), svars, bvars) + ThmProcessUtil.timeoutLeft +  ThmExprUtil.getIsabelleExprStr(svars, new LinkedList<ILexNameToken>(), a.getTimeoutExpression()) + ThmProcessUtil.timeoutRight + ThmProcessUtil.getIsabelleActionString(a.getRight(), svars, bvars);
+			return ThmProcessUtil.getIsabelleActionString(a.getLeft(), svars, bvars) + ThmProcessUtil.timeoutLeft +  ThmExprUtil.getIsabelleExprStr(svars, new NodeNameList(), a.getTimeoutExpression()) + ThmProcessUtil.timeoutRight + ThmProcessUtil.getIsabelleActionString(a.getRight(), svars, bvars);
 		}
 		else if(act instanceof AHidingAction)
 		{
@@ -1013,54 +962,61 @@ public class ThmProcessUtil {
 	
 	
 	private static String getIsabelleReplicatedActionStr(PAction act,
-			LinkedList<ILexNameToken> svars, LinkedList<ILexNameToken> bvars) {
-		//TODO: Handle replicated actions
+			NodeNameList svars, NodeNameList bvars) {
 		if(act instanceof ASequentialCompositionReplicatedAction)
 		{
 //			ASequentialCompositionReplicatedAction a = (ASequentialCompositionReplicatedAction) act;
 //			a.getReplicatedAction();
 //			a.getReplicationDeclaration();
+			//TODO: NOT YET HANDLED
 		}
 		else if(act instanceof AExternalChoiceReplicatedAction)
 		{
 //			AExternalChoiceReplicatedAction a = (AExternalChoiceReplicatedAction) act;
+			//TODO: NOT YET HANDLED
 		}
 		else if(act instanceof AInternalChoiceReplicatedAction)
 		{
 //			AInternalChoiceReplicatedAction a = (AInternalChoiceReplicatedAction) act;
+			//TODO: NOT YET HANDLED
 		}
 		else if(act instanceof ACommonInterleavingReplicatedAction)
 		{
 //			ACommonInterleavingReplicatedAction a = (ACommonInterleavingReplicatedAction) act;
 //          [namesetExpression]:VarsetExpression
+			//TODO: NOT YET HANDLED
 		}
 		else if(act instanceof AInterleavingReplicatedAction)
 		{
 //			AInterleavingReplicatedAction a = (AInterleavingReplicatedAction) act;
 //          [namesetExpression]:VarsetExpression
+			//TODO: NOT YET HANDLED
 		}
 		else if(act instanceof AGeneralisedParallelismReplicatedAction)
 		{
 //			AGeneralisedParallelismReplicatedAction a = (AGeneralisedParallelismReplicatedAction) act;
 //          [chansetExpression]:VarsetExpression
 //          [namesetExpression]:VarsetExpression
+			//TODO: NOT YET HANDLED
 		}
 		else if(act instanceof AAlphabetisedParallelismReplicatedAction)
 		{
 //			AAlphabetisedParallelismReplicatedAction a = (AAlphabetisedParallelismReplicatedAction) act;
 //          [namesetExpression]:VarsetExpression
 //          [chansetExpression]:VarsetExpression
+			//TODO: NOT YET HANDLED
 		}
 		else if(act instanceof ASynchronousParallelismReplicatedAction)
 		{
 //			ASynchronousParallelismReplicatedAction a = (ASynchronousParallelismReplicatedAction) act;
 //          [namesetExpression]:VarsetExpression
+			//TODO: NOT YET HANDLED
 		}
 		return "(*replicated actions not handled*)";
 	}
 
 	private static String getIsabelleParallelActionStr(PAction act,
-			LinkedList<ILexNameToken> svars, LinkedList<ILexNameToken> bvars) {
+			NodeNameList svars, NodeNameList bvars) {
 
 		if(act instanceof AInterleavingParallelAction)
 		{
@@ -1104,8 +1060,8 @@ public class ThmProcessUtil {
 	 * @return the Isabelle string
 	 */
 	private static String getIsabelleStatementStr(PAction stmt,
-			LinkedList<ILexNameToken> svars, 
-			LinkedList<ILexNameToken> bvars) {
+			NodeNameList svars, 
+			NodeNameList bvars) {
 		if(stmt instanceof ACallStatementAction)
 		{
 			ACallStatementAction a = (ACallStatementAction) stmt;
@@ -1140,13 +1096,13 @@ public class ThmProcessUtil {
 				{
 					AAssignmentDefinition aDef = (AAssignmentDefinition) pdef;
 					varsStr.add(aDef.getName().toString());
-					assignStr.append(aDef.getName().toString() + ":=" + ThmExprUtil.getIsabelleExprStr(svars, bvars, aDef.getExpression()));
+					assignStr.append(aDef.getName().toString() + ":=" + ThmExprUtil.getIsabelleExprStr(svars, bvars, aDef.getExpression()) + "; ");
 				}
 
 				blockStr = assignStr.toString() + blockStr;
 				for(String as : varsStr)
 				{
-					blockStr = "var " + as + ";" + blockStr + "; end " + as; 
+					blockStr = "var " + as + "; " + blockStr + "; end " + as; 
 				}
 			}
 			
@@ -1184,10 +1140,14 @@ public class ThmProcessUtil {
 		else if(stmt instanceof ASingleGeneralAssignmentStatementAction)
 		{
 			ASingleGeneralAssignmentStatementAction a = (ASingleGeneralAssignmentStatementAction) stmt;
-			String assExp = ThmExprUtil.getIsabelleExprStr(svars, bvars, a.getStateDesignator());
+			String aExp = ThmExprUtil.getIsabelleExprStr(svars, bvars, a.getStateDesignator());
 			String exp = ThmExprUtil.getIsabelleExprStr(svars, bvars, a.getExpression());
 			
-			return assExp + ThmProcessUtil.assign + exp;
+			//Isabelle doesn't want state variables to have a $ on the lhs of an assignment.
+			//TODO: This may be too harsh
+			aExp = aExp.replace("$", "");
+			
+			return aExp + ThmProcessUtil.assign + exp;
 		}
 		else if(stmt instanceof AAssignmentCallStatementAction)
 		{
@@ -1317,10 +1277,10 @@ public class ThmProcessUtil {
 	 * @param bvars - bound variables (basically the communication parameters)
 	 * @return the list of dependencies
 	 */
-	private static LinkedList<ILexNameToken> getIsabelleActionDeps(PAction act, 
-			LinkedList<ILexNameToken> bvars)
+	private static NodeNameList getIsabelleActionDeps(PAction act, 
+			NodeNameList bvars)
 	{
-		LinkedList<ILexNameToken> nodeDeps = new LinkedList<ILexNameToken>();
+		NodeNameList nodeDeps = new NodeNameList();
 		if(act instanceof ASkipAction)
 		{
 		}
@@ -1496,58 +1456,65 @@ public class ThmProcessUtil {
 
 	
 	
-	private static LinkedList<ILexNameToken> getIsabelleReplicatedActionDeps(PAction act, LinkedList<ILexNameToken> bvars) {
+	private static NodeNameList getIsabelleReplicatedActionDeps(PAction act, NodeNameList bvars) {
 
-		LinkedList<ILexNameToken> nodeDeps = new LinkedList<ILexNameToken>();
-		//TODO: Handle replicated actions
+		NodeNameList nodeDeps = new NodeNameList();
 		if(act instanceof ASequentialCompositionReplicatedAction)
 		{
 //			ASequentialCompositionReplicatedAction a = (ASequentialCompositionReplicatedAction) act;
 //			a.getReplicatedAction();
 //			a.getReplicationDeclaration();
+			//TODO: NOT YET HANDLED
 		}
 		else if(act instanceof AExternalChoiceReplicatedAction)
 		{
 //			AExternalChoiceReplicatedAction a = (AExternalChoiceReplicatedAction) act;
+			//TODO: NOT YET HANDLED
 		}
 		else if(act instanceof AInternalChoiceReplicatedAction)
 		{
 //			AInternalChoiceReplicatedAction a = (AInternalChoiceReplicatedAction) act;
+			//TODO: NOT YET HANDLED
 		}
 		else if(act instanceof ACommonInterleavingReplicatedAction)
 		{
 //			ACommonInterleavingReplicatedAction a = (ACommonInterleavingReplicatedAction) act;
 //          [namesetExpression]:VarsetExpression
+			//TODO: NOT YET HANDLED
 		}
 		else if(act instanceof AInterleavingReplicatedAction)
 		{
 //			AInterleavingReplicatedAction a = (AInterleavingReplicatedAction) act;
 //          [namesetExpression]:VarsetExpression
+			//TODO: NOT YET HANDLED
 		}
 		else if(act instanceof AGeneralisedParallelismReplicatedAction)
 		{
 //			AGeneralisedParallelismReplicatedAction a = (AGeneralisedParallelismReplicatedAction) act;
 //          [chansetExpression]:VarsetExpression
 //          [namesetExpression]:VarsetExpression
+			//TODO: NOT YET HANDLED
 		}
 		else if(act instanceof AAlphabetisedParallelismReplicatedAction)
 		{
 //			AAlphabetisedParallelismReplicatedAction a = (AAlphabetisedParallelismReplicatedAction) act;
 //          [namesetExpression]:VarsetExpression
 //          [chansetExpression]:VarsetExpression
+			//TODO: NOT YET HANDLED
 		}
 		else if(act instanceof ASynchronousParallelismReplicatedAction)
 		{
 //			ASynchronousParallelismReplicatedAction a = (ASynchronousParallelismReplicatedAction) act;
 //          [namesetExpression]:VarsetExpression
+			//TODO: NOT YET HANDLED
 		}
 		return nodeDeps;
 	}
 
-	private static LinkedList<ILexNameToken> getIsabelleParallelActionDeps(
-			PAction act, LinkedList<ILexNameToken> bvars) {
+	private static NodeNameList getIsabelleParallelActionDeps(
+			PAction act, NodeNameList bvars) {
 
-		LinkedList<ILexNameToken> nodeDeps = new LinkedList<ILexNameToken>();
+		NodeNameList nodeDeps = new NodeNameList();
 		
 		if(act instanceof AInterleavingParallelAction)
 		{
@@ -1588,10 +1555,10 @@ public class ThmProcessUtil {
 	 * @param bvars - the bound variables (mainly operation parameters, block variables)
 	 * @return the Isabelle string
 	 */
-	private static LinkedList<ILexNameToken> getIsabelleStatementDeps(PAction stmt,
-			LinkedList<ILexNameToken> bvars) {
+	private static NodeNameList getIsabelleStatementDeps(PAction stmt,
+			NodeNameList bvars) {
 
-		LinkedList<ILexNameToken> nodeDeps = new LinkedList<ILexNameToken>(); 
+		NodeNameList nodeDeps = new NodeNameList(); 
 		
 		if(stmt instanceof ACallStatementAction)
 		{
@@ -1780,8 +1747,8 @@ public class ThmProcessUtil {
 		PExp invExp = node.getInvExpression();
 		PPattern invPatt = node.getInvPattern();
 		if(invExp != null && invPatt != null){
-			LinkedList<ILexNameToken> svars = new LinkedList<ILexNameToken>();
-			LinkedList<ILexNameToken> evars = new LinkedList<ILexNameToken>();
+			NodeNameList svars = new NodeNameList();
+			NodeNameList evars = new NodeNameList();
 			evars.add(((AIdentifierPattern) invPatt).getName());
 			inv = (" " + ThmTypeUtil.isaInv  + " " + invPatt.toString() + " == " + ThmExprUtil.getIsabelleExprStr(svars, evars, invExp));
 		}
@@ -1790,15 +1757,15 @@ public class ThmProcessUtil {
 	}
 	
 	
-	private static LinkedList<ILexNameToken> getIsabelleStateInvDeps(AStateDefinition node)
+	private static NodeNameList getIsabelleStateInvDeps(AStateDefinition node)
 	{
 		//TODO: Need correcting for STATE.
-		LinkedList<ILexNameToken> nodeDeps = new LinkedList<ILexNameToken>();
+		NodeNameList nodeDeps = new NodeNameList();
 
 		PExp invExp = node.getInvExpression();
 		PPattern invPatt = node.getInvPattern();
 		if(invExp != null && invPatt != null){
-			LinkedList<ILexNameToken> evars = new LinkedList<ILexNameToken>();
+			NodeNameList evars = new NodeNameList();
 			evars.add(((AIdentifierPattern) invPatt).getName());
 			nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(evars, invExp));
 		}

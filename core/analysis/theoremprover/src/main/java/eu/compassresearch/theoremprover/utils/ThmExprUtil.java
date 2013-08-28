@@ -28,6 +28,7 @@ import eu.compassresearch.ast.expressions.AUnionVOpVarsetExpression;
 import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.expressions.SRenameChannelExp;
+import eu.compassresearch.theoremprover.thms.NodeNameList;
 
 public class ThmExprUtil {
 	
@@ -41,7 +42,7 @@ public class ThmExprUtil {
 	private static String isaDown = "\\<down>";
  
 
-	public static String getIsabelleExprStr(LinkedList<ILexNameToken> svars, LinkedList<ILexNameToken> bvars, PExp ex)
+	public static String getIsabelleExprStr(NodeNameList svars, NodeNameList bvars, PExp ex)
 	{
 		String expr = "";
 		// is a bool binary expression
@@ -73,7 +74,7 @@ public class ThmExprUtil {
 		return expr;
 	}
 
-	private static String getBinaryExp(LinkedList<ILexNameToken> svars, LinkedList<ILexNameToken> bvars, PExp ex) {
+	private static String getBinaryExp(NodeNameList svars, NodeNameList bvars, PExp ex) {
 		
 		if(ex instanceof ACompBinaryExp){
 			ACompBinaryExp comp = (ACompBinaryExp) ex;
@@ -152,7 +153,7 @@ public class ThmExprUtil {
 		}
 	}
 
-	private static String getUnaryExp(LinkedList<ILexNameToken> svars, LinkedList<ILexNameToken> bvars, PExp ex) {
+	private static String getUnaryExp(NodeNameList svars, NodeNameList bvars, PExp ex) {
 		if(ex instanceof AAbsoluteUnaryExp){
 			AAbsoluteUnaryExp abs = (AAbsoluteUnaryExp) ex;
 			return "abs " + "(" + ThmExprUtil.getIsabelleExprStr(svars, bvars, abs.getExp())+ ")";
@@ -238,7 +239,7 @@ public class ThmExprUtil {
 		}
 	}
 
-	private static String getOtherExp(LinkedList<ILexNameToken> svars, LinkedList<ILexNameToken> bvars, PExp ex) {
+	private static String getOtherExp(NodeNameList svars, NodeNameList bvars, PExp ex) {
 		if(ex instanceof ABooleanConstExp){
 			ABooleanConstExp bool = (ABooleanConstExp) ex;
 			return bool.getValue().toString();
@@ -262,7 +263,7 @@ public class ThmExprUtil {
 			AExistsExp exists = (AExistsExp) ex;
 			LinkedList<PMultipleBind> binds = exists.getBindList();
 			StringBuilder sb = new StringBuilder();
-			LinkedList<ILexNameToken> boundvars = new LinkedList<ILexNameToken>();
+			NodeNameList boundvars = new NodeNameList();
 			boundvars.addAll(bvars);
 			
 			for(PMultipleBind b: binds)
@@ -307,7 +308,7 @@ public class ThmExprUtil {
 			AExists1Exp exists = (AExists1Exp) ex;
 
 			StringBuilder sb = new StringBuilder();
-			LinkedList<ILexNameToken> boundvars = new LinkedList<ILexNameToken>();
+			NodeNameList boundvars = new NodeNameList();
 			boundvars.addAll(bvars);
 			PBind b = exists.getBind();
 			if (b instanceof ATypeBind)
@@ -333,7 +334,7 @@ public class ThmExprUtil {
 			AForAllExp exists = (AForAllExp) ex;
 			LinkedList<PMultipleBind> binds = exists.getBindList();
 			StringBuilder sb = new StringBuilder();
-			LinkedList<ILexNameToken> boundvars = new LinkedList<ILexNameToken>();
+			NodeNameList boundvars = new NodeNameList();
 			boundvars.addAll(bvars);
 			
 			for(PMultipleBind b: binds)
@@ -425,7 +426,7 @@ public class ThmExprUtil {
 			AIotaExp i = (AIotaExp) ex;
 			StringBuilder sb = new StringBuilder();
 			PBind b = i.getBind();
-			LinkedList<ILexNameToken> boundvars = new LinkedList<ILexNameToken>();
+			NodeNameList boundvars = new NodeNameList();
 			boundvars.addAll(bvars);
 			
 			if (b instanceof ATypeBind)
@@ -452,7 +453,7 @@ public class ThmExprUtil {
 			
 			StringBuilder sb = new StringBuilder();
 			LinkedList<ATypeBind> b = l.getBindList();
-			LinkedList<ILexNameToken> boundvars = new LinkedList<ILexNameToken>();
+			NodeNameList boundvars = new NodeNameList();
 			boundvars.addAll(bvars);
 			
 			for (Iterator<ATypeBind> itr = b.listIterator(); itr.hasNext(); ) {
@@ -474,7 +475,7 @@ public class ThmExprUtil {
 			ALetDefExp l = (ALetDefExp) ex;
 			StringBuilder sb = new StringBuilder();
 
-			LinkedList<ILexNameToken> boundvars = new LinkedList<ILexNameToken>();
+			NodeNameList boundvars = new NodeNameList();
 			boundvars.addAll(bvars);
 			
 			LinkedList<PDefinition> ldefs = l.getLocalDefs();
@@ -517,7 +518,7 @@ public class ThmExprUtil {
 			return "is not yet specified";
 		}
 		else if(ex instanceof APostOpExp){
-//			APostOpExp i = (APostOpExp) ex;
+			APostOpExp e = (APostOpExp) ex;
 			//TODO: Handle postop exp
 			return "expr not yet handled";
 		}
@@ -700,13 +701,13 @@ public class ThmExprUtil {
 //		return "expr not yet handled";
 //	}
 
-	private static String getMapExp(LinkedList<ILexNameToken> svars, LinkedList<ILexNameToken> bvars, PExp ex) {
+	private static String getMapExp(NodeNameList svars, NodeNameList bvars, PExp ex) {
 		if(ex instanceof AMapCompMapExp){
 			AMapCompMapExp comp = (AMapCompMapExp) ex;
 			StringBuilder bindstr = new StringBuilder();
 			
 			LinkedList<PMultipleBind> binds = comp.getBindings();
-			LinkedList<ILexNameToken> boundvars = new LinkedList<ILexNameToken>();
+			NodeNameList boundvars = new NodeNameList();
 			boundvars.addAll(bvars);
 			
 			for(PMultipleBind b: binds)
@@ -771,13 +772,13 @@ public class ThmExprUtil {
 		}
 	}
 	
-	private static String getSeqExp(LinkedList<ILexNameToken> svars, LinkedList<ILexNameToken> bvars, PExp ex) {
+	private static String getSeqExp(NodeNameList svars, NodeNameList bvars, PExp ex) {
 		if(ex instanceof ASeqCompSeqExp){
 			ASeqCompSeqExp comp = (ASeqCompSeqExp) ex;
 			StringBuilder bindstr = new StringBuilder();
 			
 			ASetBind bind = comp.getSetBind();
-			LinkedList<ILexNameToken> boundvars = new LinkedList<ILexNameToken>();
+			NodeNameList boundvars = new NodeNameList();
 			boundvars.addAll(bvars);
 			
 			bindstr.append(bind.getPattern().toString());
@@ -811,13 +812,13 @@ public class ThmExprUtil {
 		}
 	}
 	
-	private static String getSetExp(LinkedList<ILexNameToken> svars, LinkedList<ILexNameToken> bvars, PExp ex) {
+	private static String getSetExp(NodeNameList svars, NodeNameList bvars, PExp ex) {
 		if(ex instanceof ASetCompSetExp){
 			ASetCompSetExp comp = (ASetCompSetExp) ex;
 			StringBuilder bindstr = new StringBuilder();
 			
 			LinkedList<PMultipleBind> binds = comp.getBindings();
-			LinkedList<ILexNameToken> boundvars = new LinkedList<ILexNameToken>();
+			NodeNameList boundvars = new NodeNameList();
 			boundvars.addAll(bvars);
 			
 			for(PMultipleBind b: binds)
@@ -890,7 +891,7 @@ public class ThmExprUtil {
 	}
 
 
-	private static String getNumericBinaryExp(LinkedList<ILexNameToken> svars, LinkedList<ILexNameToken> bvars, PExp ex) {
+	private static String getNumericBinaryExp(NodeNameList svars, NodeNameList bvars, PExp ex) {
 
 		if(ex instanceof ADivideNumericBinaryExp){
 			ADivideNumericBinaryExp div = (ADivideNumericBinaryExp) ex;
@@ -947,7 +948,7 @@ public class ThmExprUtil {
 	}
 
 
-	private static String getBooleanBinaryExp(LinkedList<ILexNameToken> svars, LinkedList<ILexNameToken> bvars, PExp ex) {
+	private static String getBooleanBinaryExp(NodeNameList svars, NodeNameList bvars, PExp ex) {
 		
 		if(ex instanceof AAndBooleanBinaryExp){
 			AAndBooleanBinaryExp and = (AAndBooleanBinaryExp) ex;
@@ -974,9 +975,9 @@ public class ThmExprUtil {
 	}
 	
 	
-	public static LinkedList<ILexNameToken> getIsabelleExprDeps(LinkedList<ILexNameToken> bvars, PExp ex)
+	public static NodeNameList getIsabelleExprDeps(NodeNameList bvars, PExp ex)
 	{
-		LinkedList<ILexNameToken> nodeDeps = new LinkedList<ILexNameToken>();
+		NodeNameList nodeDeps = new NodeNameList();
 		
 		// is a bool binary expression
 		if (ex instanceof SBooleanBinaryExp){
@@ -1007,9 +1008,9 @@ public class ThmExprUtil {
 		return nodeDeps;
 	}
 
-	private static LinkedList<ILexNameToken> getOtherExpDeps(
-			LinkedList<ILexNameToken> bvars, PExp ex) {
-		LinkedList<ILexNameToken> nodeDeps = new LinkedList<ILexNameToken>();
+	private static NodeNameList getOtherExpDeps(
+			NodeNameList bvars, PExp ex) {
+		NodeNameList nodeDeps = new NodeNameList();
 		if(ex instanceof ABooleanConstExp){
 		}
 		else if(ex instanceof ANilExp){
@@ -1031,7 +1032,7 @@ public class ThmExprUtil {
 				
 			AExistsExp exists = (AExistsExp) ex;
 			LinkedList<PMultipleBind> binds = exists.getBindList();
-			LinkedList<ILexNameToken> boundvars = new LinkedList<ILexNameToken>();
+			NodeNameList boundvars = new NodeNameList();
 			boundvars.addAll(bvars);
 			
 			for(PMultipleBind b: binds)
@@ -1063,7 +1064,7 @@ public class ThmExprUtil {
 		else if(ex instanceof AExists1Exp){
 			AExists1Exp exists = (AExists1Exp) ex;
 
-			LinkedList<ILexNameToken> boundvars = new LinkedList<ILexNameToken>();
+			NodeNameList boundvars = new NodeNameList();
 			boundvars.addAll(bvars);
 			PBind b = exists.getBind();
 			
@@ -1084,7 +1085,7 @@ public class ThmExprUtil {
 		else if(ex instanceof AForAllExp){
 			AForAllExp forall = (AForAllExp) ex;
 			LinkedList<PMultipleBind> binds = forall.getBindList();
-			LinkedList<ILexNameToken> boundvars = new LinkedList<ILexNameToken>();
+			NodeNameList boundvars = new NodeNameList();
 			boundvars.addAll(bvars);
 			
 			for(PMultipleBind b: binds)
@@ -1138,7 +1139,7 @@ public class ThmExprUtil {
 			AIotaExp i = (AIotaExp) ex;
 
 			PBind b = i.getBind();
-			LinkedList<ILexNameToken> boundvars = new LinkedList<ILexNameToken>();
+			NodeNameList boundvars = new NodeNameList();
 			boundvars.addAll(bvars);
 			
 			if (b instanceof ATypeBind)
@@ -1160,7 +1161,7 @@ public class ThmExprUtil {
 			ALambdaExp l = (ALambdaExp) ex;
 		
 			LinkedList<ATypeBind> b = l.getBindList();
-			LinkedList<ILexNameToken> boundvars = new LinkedList<ILexNameToken>();
+			NodeNameList boundvars = new NodeNameList();
 			boundvars.addAll(bvars);
 			
 			for (Iterator<ATypeBind> itr = b.listIterator(); itr.hasNext(); ) {
@@ -1175,7 +1176,7 @@ public class ThmExprUtil {
 		}
 		else if(ex instanceof ALetDefExp){
 			ALetDefExp l = (ALetDefExp) ex;
-			LinkedList<ILexNameToken> boundvars = new LinkedList<ILexNameToken>();
+			NodeNameList boundvars = new NodeNameList();
 			boundvars.addAll(bvars);
 			
 			LinkedList<PDefinition> ldefs = l.getLocalDefs();
@@ -1282,9 +1283,9 @@ public class ThmExprUtil {
 		return nodeDeps;
 	}
 
-	private static LinkedList<ILexNameToken> getBinaryExpDeps(
-			LinkedList<ILexNameToken> bvars, PExp ex) {
-		LinkedList<ILexNameToken> nodeDeps = new LinkedList<ILexNameToken>();
+	private static NodeNameList getBinaryExpDeps(
+			NodeNameList bvars, PExp ex) {
+		NodeNameList nodeDeps = new NodeNameList();
 		
 		if(ex instanceof ACompBinaryExp){
 			ACompBinaryExp comp = (ACompBinaryExp) ex;
@@ -1379,9 +1380,9 @@ public class ThmExprUtil {
 		return nodeDeps;
 	}
 
-	private static LinkedList<ILexNameToken> getUnaryExpDeps(
-			LinkedList<ILexNameToken> bvars, PExp ex) {
-		LinkedList<ILexNameToken> nodeDeps = new LinkedList<ILexNameToken>();
+	private static NodeNameList getUnaryExpDeps(
+			NodeNameList bvars, PExp ex) {
+		NodeNameList nodeDeps = new NodeNameList();
 
 		if(ex instanceof AAbsoluteUnaryExp){
 			AAbsoluteUnaryExp abs = (AAbsoluteUnaryExp) ex;
@@ -1466,15 +1467,15 @@ public class ThmExprUtil {
 		return nodeDeps;
 	}
 
-	private static LinkedList<ILexNameToken> getSetExpDeps(
-			LinkedList<ILexNameToken> bvars, PExp ex) {
-		LinkedList<ILexNameToken> nodeDeps = new LinkedList<ILexNameToken>();
+	private static NodeNameList getSetExpDeps(
+			NodeNameList bvars, PExp ex) {
+		NodeNameList nodeDeps = new NodeNameList();
 		
 		if(ex instanceof ASetCompSetExp){
 			ASetCompSetExp comp = (ASetCompSetExp) ex;
 
 			LinkedList<PMultipleBind> binds = comp.getBindings();
-			LinkedList<ILexNameToken> boundvars = new LinkedList<ILexNameToken>();
+			NodeNameList boundvars = new NodeNameList();
 			boundvars.addAll(bvars);
 			
 			for(PMultipleBind b: binds)
@@ -1519,14 +1520,14 @@ public class ThmExprUtil {
 		return nodeDeps;
 	}
 
-	private static LinkedList<ILexNameToken> getSeqExpDeps(
-			LinkedList<ILexNameToken> bvars, PExp ex) {
-		LinkedList<ILexNameToken> nodeDeps = new LinkedList<ILexNameToken>();
+	private static NodeNameList getSeqExpDeps(
+			NodeNameList bvars, PExp ex) {
+		NodeNameList nodeDeps = new NodeNameList();
 
 		if(ex instanceof ASeqCompSeqExp){
 			ASeqCompSeqExp comp = (ASeqCompSeqExp) ex;
 			ASetBind binds = comp.getSetBind();
-			LinkedList<ILexNameToken> boundvars = new LinkedList<ILexNameToken>();
+			NodeNameList boundvars = new NodeNameList();
 			boundvars.addAll(bvars);			
 			boundvars.add(((AIdentifierPattern) binds.getPattern()).getName());
 			nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, binds.getSet()));
@@ -1543,15 +1544,15 @@ public class ThmExprUtil {
 		return nodeDeps;
 	}
 
-	private static LinkedList<ILexNameToken> getMapExpDeps(
-			LinkedList<ILexNameToken> bvars, PExp ex) {
+	private static NodeNameList getMapExpDeps(
+			NodeNameList bvars, PExp ex) {
 		
-		LinkedList<ILexNameToken> nodeDeps = new LinkedList<ILexNameToken>();
+		NodeNameList nodeDeps = new NodeNameList();
 		
 		if(ex instanceof AMapCompMapExp){
 			AMapCompMapExp comp = (AMapCompMapExp) ex;
 			LinkedList<PMultipleBind> binds = comp.getBindings();
-			LinkedList<ILexNameToken> boundvars = new LinkedList<ILexNameToken>();
+			NodeNameList boundvars = new NodeNameList();
 			boundvars.addAll(bvars);
 			
 			for(PMultipleBind b: binds)
@@ -1588,9 +1589,9 @@ public class ThmExprUtil {
 		return nodeDeps;
 	}
 
-	private static LinkedList<ILexNameToken> getNumericBinaryDeps(
-			LinkedList<ILexNameToken> bvars, PExp ex) {
-		LinkedList<ILexNameToken> nodeDeps = new LinkedList<ILexNameToken>();
+	private static NodeNameList getNumericBinaryDeps(
+			NodeNameList bvars, PExp ex) {
+		NodeNameList nodeDeps = new NodeNameList();
 		
 		if(ex instanceof ADivideNumericBinaryExp){
 			ADivideNumericBinaryExp e = (ADivideNumericBinaryExp) ex;
@@ -1648,9 +1649,9 @@ public class ThmExprUtil {
 	
 
 
-	private static LinkedList<ILexNameToken>  getBooleanBinaryDeps(LinkedList<ILexNameToken> bvars,
+	private static NodeNameList  getBooleanBinaryDeps(NodeNameList bvars,
 			PExp ex) {
-		LinkedList<ILexNameToken> nodeDeps = new LinkedList<ILexNameToken>();
+		NodeNameList nodeDeps = new NodeNameList();
 		if(ex instanceof AAndBooleanBinaryExp){
 			AAndBooleanBinaryExp e = (AAndBooleanBinaryExp) ex;
 			nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, e.getLeft()));
@@ -1676,8 +1677,8 @@ public class ThmExprUtil {
 	
 	
 	//Method to return VARSET expression. This is new to COMPASS AST
-	public static LinkedList<ILexNameToken> getIsabelleVarsetExprDeps(PVarsetExpression vExpr) {
-		LinkedList<ILexNameToken> nodeDeps = new LinkedList<ILexNameToken>();
+	public static NodeNameList getIsabelleVarsetExprDeps(PVarsetExpression vExpr) {
+		NodeNameList nodeDeps = new NodeNameList();
 	
 		if (vExpr instanceof AFatEnumVarsetExpression)
 		{
@@ -1815,8 +1816,8 @@ public class ThmExprUtil {
 			
 		}
 
-	public static LinkedList<ILexNameToken> getIsabelleRenamingExprDeps(SRenameChannelExp rnExp) {
-		return new LinkedList<ILexNameToken>();
+	public static NodeNameList getIsabelleRenamingExprDeps(SRenameChannelExp rnExp) {
+		return new NodeNameList();
 	}
 
 	public static String getIsabelleRenamingExpr(SRenameChannelExp rnExp) {

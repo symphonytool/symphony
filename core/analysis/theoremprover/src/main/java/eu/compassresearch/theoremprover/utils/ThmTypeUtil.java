@@ -5,7 +5,6 @@ import java.util.LinkedList;
 
 import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.expressions.PExp;
-import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.PPattern;
 import org.overture.ast.types.ABooleanBasicType;
@@ -43,6 +42,8 @@ import org.overture.ast.types.PTypeBase;
 import org.overture.ast.types.SBasicType;
 import org.overture.ast.types.SMapType;
 import org.overture.ast.types.SSeqType;
+
+import eu.compassresearch.theoremprover.thms.NodeNameList;
 
 public class ThmTypeUtil {
 
@@ -84,7 +85,7 @@ public class ThmTypeUtil {
 	static String isaUnion = "|";
  	static String isaErrTBT= "@unknownBaseType";
  	
- 	static String notHandled = "NOT_YET_HANDLED";
+ 	static String notHandled = "(*NOT_YET_HANDLED*)";
  	static String isaUndefined = "undefined";
 	public static String isaFuncBar = "|";
 	public static String isaFuncLambda = "lambda";
@@ -265,7 +266,6 @@ public class ThmTypeUtil {
 		}
 		else if (type instanceof AUndefinedType)
 		{
-			AUndefinedType u = (AUndefinedType) type;
 			return isaUndefined;
 		}
 		else if (type instanceof AUnionType)
@@ -294,17 +294,17 @@ public class ThmTypeUtil {
 		}
 		else if (type instanceof AUnresolvedType)
 		{
-			AUnresolvedType u = (AUnresolvedType) type;
+//			AUnresolvedType u = (AUnresolvedType) type;
 			return notHandled;
 		}
 		else if (type instanceof AVoidReturnType)
 		{
-			AVoidReturnType vr = (AVoidReturnType) type;
+//			AVoidReturnType vr = (AVoidReturnType) type;
 			return notHandled;
 		}
 		else if (type instanceof AVoidType)
 		{
-			AVoidType v = (AVoidType) type;
+//			AVoidType v = (AVoidType) type;
 			return notHandled;
 		}
 		else
@@ -373,8 +373,8 @@ public class ThmTypeUtil {
 
 	
 	
-	public static LinkedList<ILexNameToken> getIsabelleTypeDeps(PType tp){
-		LinkedList<ILexNameToken> nodeDeps = new LinkedList<ILexNameToken>();
+	public static NodeNameList getIsabelleTypeDeps(PType tp){
+		NodeNameList nodeDeps = new NodeNameList();
 		
 		if (tp instanceof ANamedInvariantType)
 		{
@@ -409,12 +409,10 @@ public class ThmTypeUtil {
 		return nodeDeps;
 	}
 	
-	private static LinkedList<ILexNameToken> getIsabelleRecordDeps(
+	private static NodeNameList getIsabelleRecordDeps(
 			PType tp) {
-		LinkedList<ILexNameToken> nodeDeps = new LinkedList<ILexNameToken>();
+		NodeNameList nodeDeps = new NodeNameList();
 		
-		//TODO: Deduce deps for records (essentially look at each field type
-
 		ARecordInvariantType rtype = (ARecordInvariantType) tp;
 
 		for (AFieldField field: rtype.getFields())
@@ -425,8 +423,8 @@ public class ThmTypeUtil {
 	}
 
 
-	public static LinkedList<ILexNameToken> getIsabelleMapDeps(PType type) {
-		LinkedList<ILexNameToken> nodeDeps = new LinkedList<ILexNameToken>();
+	public static NodeNameList getIsabelleMapDeps(PType type) {
+		NodeNameList nodeDeps = new NodeNameList();
 		
 		if (type instanceof AInMapMapType)
 		{
@@ -446,8 +444,8 @@ public class ThmTypeUtil {
 		return nodeDeps;
 	}
 
-	public static LinkedList<ILexNameToken> getIsabelleSeqDeps(PType type) {
-		LinkedList<ILexNameToken> nodeDeps = new LinkedList<ILexNameToken>();
+	public static NodeNameList getIsabelleSeqDeps(PType type) {
+		NodeNameList nodeDeps = new NodeNameList();
 		
 		if (type instanceof ASeqSeqType)
 		{
@@ -465,17 +463,14 @@ public class ThmTypeUtil {
 		return nodeDeps;
 	}
 	
-	public static LinkedList<ILexNameToken> getIsabelleTypeBaseDeps(PType type) {
-		//TODO: Here need to return type in Isabelle syntax 
-		//return type.toString();
-		LinkedList<ILexNameToken> nodeDeps = new LinkedList<ILexNameToken>();
+	public static NodeNameList getIsabelleTypeBaseDeps(PType type) {
+		NodeNameList nodeDeps = new NodeNameList();
 		
 		if (type instanceof ASetType)
 		{
 			ASetType s = (ASetType) type;
 			nodeDeps.addAll(ThmTypeUtil.getIsabelleTypeDeps(s.getSetof()));
 		}
-		//TODO: Address other types
 		else if (type instanceof ABracketType)
 		{
 			ABracketType b = (ABracketType) type;
@@ -547,8 +542,8 @@ public class ThmTypeUtil {
 		PExp invExp = node.getInvExpression();
 		PPattern invPatt = node.getInvPattern();
 		if(invExp != null && invPatt != null){
-			LinkedList<ILexNameToken> svars = new LinkedList<ILexNameToken>();
-			LinkedList<ILexNameToken> evars = new LinkedList<ILexNameToken>();
+			NodeNameList svars = new NodeNameList();
+			NodeNameList evars = new NodeNameList();
 			evars.add(((AIdentifierPattern) invPatt).getName());
 			inv = (" " + ThmTypeUtil.isaInv  + " " + invPatt.toString() + " == " + ThmExprUtil.getIsabelleExprStr(svars, evars, invExp));
 		}
@@ -557,14 +552,14 @@ public class ThmTypeUtil {
 	}
 	
 	
-	public static LinkedList<ILexNameToken>  getIsabelleTypeInvDeps(ATypeDefinition node)
+	public static NodeNameList  getIsabelleTypeInvDeps(ATypeDefinition node)
 	{
-		LinkedList<ILexNameToken> nodeDeps = new LinkedList<ILexNameToken>();
+		NodeNameList nodeDeps = new NodeNameList();
 
 		PExp invExp = node.getInvExpression();
 		PPattern invPatt = node.getInvPattern();
 		if(invExp != null && invPatt != null){
-			LinkedList<ILexNameToken> evars = new LinkedList<ILexNameToken>();
+			NodeNameList evars = new NodeNameList();
 			evars.add(((AIdentifierPattern) invPatt).getName());
 			nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(evars, invExp));
 		}

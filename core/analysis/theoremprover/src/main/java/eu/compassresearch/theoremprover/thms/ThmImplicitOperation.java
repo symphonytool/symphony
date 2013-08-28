@@ -4,7 +4,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.APatternListTypePair;
 import org.overture.ast.patterns.PPattern;
 
@@ -50,10 +50,7 @@ public class ThmImplicitOperation extends ThmDecl{
 		{
 			for(PPattern pat: p.getPatterns())
 			{
-				for (PDefinition def : pat.getDefinitions())
-				{
-					sb.append(def.getName().toString() + " ");
-				}
+				sb.append(((AIdentifierPattern) pat).getName().toString() + " ");
 			}
 		}
 		return sb.toString();
@@ -61,7 +58,7 @@ public class ThmImplicitOperation extends ThmDecl{
 
 	private String createPrePostFunc(String name, String exp, String prepost, LinkedList<APatternListTypePair> params)
 	{
-		LinkedList<List<PPattern>> pats = new LinkedList();
+		LinkedList<List<PPattern>> pats = new LinkedList<List<PPattern>>();
 		for(APatternListTypePair p : params)
 		{
 			pats.add(p.getPatterns());
@@ -74,20 +71,25 @@ public class ThmImplicitOperation extends ThmDecl{
 	public String getPrePostParamList(LinkedList<APatternListTypePair> parPair){
 		StringBuilder sb = new StringBuilder();
 		sb.append("(");
-		for(APatternListTypePair p : parPair)
+		
+		for (Iterator<APatternListTypePair> itr = parPair.listIterator(); itr.hasNext(); )
 		{
-			for(PPattern pat: p.getPatterns())
+			APatternListTypePair pat = itr.next();
+			for (Iterator<PPattern> itr2 = pat.getPatterns().listIterator(); itr2.hasNext(); ) 
 			{
-				for (Iterator<PDefinition> itr = pat.getDefinitions().listIterator(); itr.hasNext(); ) {
-					PDefinition def = itr.next();
-					sb.append("^");
-					sb.append(def.getName().toString());
-					sb.append("^");
-					//If there are remaining parameters, add a ","
-					if(itr.hasNext()){	
-						sb.append(", ");
-					}
+				PPattern p = itr2.next();
+				sb.append("^");
+				sb.append(((AIdentifierPattern) p).getName().toString());
+				sb.append("^");
+				//If there are remaining parameters, add a ","
+				if(itr2.hasNext()){	
+					sb.append(", ");
 				}
+			}
+
+			//If there are remaining parameters, add a ","
+			if(itr.hasNext()){	
+				sb.append(", ");
 			}
 		}
 		sb.append(")");

@@ -29,6 +29,7 @@ import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.definitions.ATypesDefinition;
 import eu.compassresearch.ast.definitions.AValuesDefinition;
 import eu.compassresearch.ast.process.AActionProcess;
+import eu.compassresearch.theoremprover.thms.NodeNameList;
 import eu.compassresearch.theoremprover.thms.ThmExpFunc;
 import eu.compassresearch.theoremprover.thms.ThmImpFunc;
 import eu.compassresearch.theoremprover.thms.ThmNode;
@@ -107,14 +108,14 @@ public class ThmDeclAndDefVisitor extends AnswerCMLAdaptor<ThmNodeList>
 			throws AnalysisException
 	{
 		ThmNodeList tnl = new ThmNodeList();
-		LinkedList<ILexNameToken> nodeDeps = new LinkedList<ILexNameToken>();
+		NodeNameList nodeDeps = new NodeNameList();
 
 		ILexNameToken name = node.getName();
 		
 		//Deal with the parameters
 		LinkedList<List<PPattern>> params = node.getParamPatternList();
 		//Find bound values to exclude from dependency list
-		LinkedList<ILexNameToken> b = new LinkedList<ILexNameToken>();
+		NodeNameList b = new NodeNameList();
 		for(PPattern p : params.getFirst() )
 		{
 			b.add(((AIdentifierPattern) p).getName());
@@ -126,7 +127,7 @@ public class ThmDeclAndDefVisitor extends AnswerCMLAdaptor<ThmNodeList>
 		}
 		
 		//Deal with the function body
-		LinkedList<ILexNameToken> s = new LinkedList<ILexNameToken>();
+		NodeNameList s = new NodeNameList();
 		String exp = ThmExprUtil.getIsabelleExprStr(s, b, node.getBody());
 		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(b, node.getBody()));
 
@@ -162,13 +163,13 @@ public class ThmDeclAndDefVisitor extends AnswerCMLAdaptor<ThmNodeList>
 			throws AnalysisException
 	{
 		ThmNodeList tnl = new ThmNodeList();
-		LinkedList<ILexNameToken> nodeDeps = new LinkedList<ILexNameToken>();
+		NodeNameList nodeDeps = new NodeNameList();
 
 		ILexNameToken name = node.getName();
 		LinkedList<APatternListTypePair> params = node.getParamPatterns();
 		APatternTypePair res = node.getResult();
 
-		LinkedList<ILexNameToken> b = new LinkedList<ILexNameToken>();
+		NodeNameList b = new NodeNameList();
 		//Find bound values to exclude from dependency list
 		for(APatternListTypePair p : params )
 		{
@@ -187,7 +188,7 @@ public class ThmDeclAndDefVisitor extends AnswerCMLAdaptor<ThmNodeList>
 		
 		
 		//Empty list for state variables (functions won't use any)
-		LinkedList<ILexNameToken> s = new LinkedList<ILexNameToken>();
+		NodeNameList s = new NodeNameList();
 		//deal with the precondition
 		String pre = null;
 		if (node.getPrecondition() != null){
@@ -281,7 +282,7 @@ public class ThmDeclAndDefVisitor extends AnswerCMLAdaptor<ThmNodeList>
 			//get the Isabelle string for the process node's process.
 			String procString = ThmProcessUtil.getIsabelleProcessString(node.getProcess());
 			//obtain the process dependencies
-			LinkedList<ILexNameToken> nodeDeps = ThmProcessUtil.getIsabelleProcessDeps(node.getProcess());
+			NodeNameList nodeDeps = ThmProcessUtil.getIsabelleProcessDeps(node.getProcess());
 			//create and return the theorem node.			
 			tn =  new ThmNode(node.getName(), nodeDeps, new ThmProcStand(node.getName().toString(), procString));
 		}

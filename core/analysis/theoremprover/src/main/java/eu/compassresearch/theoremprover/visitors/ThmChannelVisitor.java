@@ -12,6 +12,7 @@ import eu.compassresearch.ast.definitions.AChannelNameDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.types.AChannelType;
+import eu.compassresearch.theoremprover.thms.NodeNameList;
 import eu.compassresearch.theoremprover.thms.ThmChannel;
 import eu.compassresearch.theoremprover.thms.ThmChanset;
 import eu.compassresearch.theoremprover.thms.ThmNode;
@@ -43,7 +44,7 @@ public class ThmChannelVisitor extends AnswerCMLAdaptor<ThmNodeList>
 		name = chan.getName();
 		type = ThmTypeUtil.getIsabelleType(((AChannelType) chan.getType()).getType());
 		//Generate Channel syntax
-		LinkedList<ILexNameToken> nodeDeps = ThmChanUtil.getIsabelleChanDeps(node);
+		NodeNameList nodeDeps = ThmChanUtil.getIsabelleChanDeps(node);
 
 		ThmNode tn = new ThmNode(name, nodeDeps, new ThmChannel(name.toString(), type));
 		tnl.add(tn);
@@ -65,7 +66,7 @@ public class ThmChannelVisitor extends AnswerCMLAdaptor<ThmNodeList>
 		PVarsetExpression chExpr = node.getChansetExpression();
 		String expr = ThmExprUtil.getIsabelleVarsetExpr(chExpr);
 		
-		LinkedList<ILexNameToken> nodeDeps = ThmExprUtil.getIsabelleVarsetExprDeps(chExpr);
+		NodeNameList nodeDeps = ThmExprUtil.getIsabelleVarsetExprDeps(chExpr);
 
 
 		ThmNode tn = new ThmNode(name, nodeDeps, new ThmChanset(name.toString(), expr));

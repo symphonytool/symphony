@@ -1,6 +1,5 @@
 package eu.compassresearch.theoremprover.visitors;
 
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -19,6 +18,7 @@ import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.theoremprover.thms.ThmNode;
 import eu.compassresearch.theoremprover.thms.ThmNodeList;
+import eu.compassresearch.theoremprover.utils.ThySortException;
 
 @SuppressWarnings("serial")
 public class TPVisitor extends
@@ -130,68 +130,80 @@ public class TPVisitor extends
 	}
 
 
-	/********************
-	 * Method to generate string for a theory file from the provided source
-	 ********************/
-	public String generateThyString() throws IOException, AnalysisException {
-		ThmNodeList nodes = new ThmNodeList();
-	
-		
-		for (PSource source : sources) {
-			for (PDefinition paragraph : source.getParagraphs()) {
-				try {
-					paragraph.apply(this);
-				} catch (Exception e) {
-					System.out.println("The COMPASS Theorem Prover could not generate \n" 		
-						+ "a theory file for this cml-source: \n" + e.getMessage());
-				}
-			}			
-		}
-		
-	
-		//Sort nodes into dependency-order
-		nodes = sortThmNodes(nodes);
-
-		StringBuilder sb = new StringBuilder();
-
-		//TODO: Obtain model/project/filename
-		String name = "TempName";
-
-		//TODO: May need to obtain thy name by trimming cml filename...
-//		String thyName = name.substring(0, name.lastIndexOf("."));
-		String thyName = name;
-		
-		//Add thy header 
-		sb.append("theory " + thyName + " \n" + "  imports utp_vdm \n"
-				+ "begin \n" + "\n");
-		sb.append("text {* Auto-generated THY file f "+  thyName + ".cml *}\n\n");
-		
-		//Add generated node strings
-		sb.append(nodes.toString());
-			
-		sb.append("\n" + "end");
-		
-		return sb.toString();
-		
-		
-		//for (ThmValue tv : tpv.getValueList())
-		//{
-		//	sb.append(tv.toString());
-		//	sb.append("\n");
-		//}
-		//
-		//sb.append("\n");
-		//sb.append("text {* VDM type declarations *}\n\n");
-		//
-		//for (ThmType ty : tpv.getTypeList())
-		//{
-		//	sb.append(ty.toString());
-		//	sb.append("\n");
-		//}
-		//
-		//sb.append("\n");
-		//
-	}
+//	/********************
+//	 * Method to generate string for a theory file from the provided source
+//	 ********************/
+//	public String generateThyString() throws IOException, AnalysisException {
+//		ThmNodeList nodes = new ThmNodeList();
+//	
+//		String nodeErrors = "";
+//		String thyString = "";
+//		
+//		for (PSource source : sources) {
+//			for (PDefinition paragraph : source.getParagraphs()) {
+//				try {
+//					paragraph.apply(this);
+//				} catch (Exception e) {
+//					nodeErrors = nodeErrors + "{*Thy gen error:*}\n" + 
+//								"{*Could not generate Isabelle syntax for CML node - please submit bug report with CML file*}\n'n";
+//				}
+//			}
+//		}
+//		
+//		try
+//		{
+//			//Sort nodes into dependency-order
+//			thyString = sortThmNodes(nodes).toString();
+//		}catch(ThySortException thye)
+//		{
+//			thyString = "{*Thy gen error:*}\n" + 
+//					"{*Isabelle Error when sorting nodes - please submit bug report with CML file*}\n'n";
+//			
+//		}
+//
+//		StringBuilder sb = new StringBuilder();
+//
+//		//TODO: Obtain model/project/filename
+//		String name = "TempName";
+//
+//		//TODO: May need to obtain thy name by trimming cml filename...
+////		String thyName = name.substring(0, name.lastIndexOf("."));
+//		String thyName = name;
+//		
+//		//Add thy header 
+//		sb.append("theory " + thyName + " \n" + "  imports utp_vdm \n"
+//				+ "begin \n" + "\n");
+//		sb.append("text {* Auto-generated THY file f "+  thyName + ".cml *}\n\n");
+//
+//		//Add any node errors
+//		sb.append(nodeErrors);
+//		
+//		//Add generated node strings
+//		sb.append(thyString);
+//			
+//		sb.append("\n" + "end");
+//		
+//		return sb.toString();
+//		
+//		
+//		//for (ThmValue tv : tpv.getValueList())
+//		//{
+//		//	sb.append(tv.toString());
+//		//	sb.append("\n");
+//		//}
+//		//
+//		//sb.append("\n");
+//		//sb.append("text {* VDM type declarations *}\n\n");
+//		//
+//		//for (ThmType ty : tpv.getTypeList())
+//		//{
+//		//	sb.append(ty.toString());
+//		//	sb.append("\n");
+//		//}
+//		//
+//		//sb.append("\n");
+//		//
+//	}
 
 	
 	/*****
@@ -206,30 +218,43 @@ public class TPVisitor extends
 			throws AnalysisException {
 		
 		ThmNodeList nodes = new ThmNodeList();
+		String nodeErrors = "";
+		String thyString = "";
+		StringBuilder sb = new StringBuilder();
+		
+		
 		for (INode node : ast) {
 			try {
 				nodes.addAll(node.apply(new TPVisitor()));
 			}catch (Exception e) {
-					System.out.println("The COMPASS Theorem Prover could not generate \n" 		
-						+ "a theory file for this cml-source: \n" + e.getMessage());
+					nodeErrors = nodeErrors + "{*Thy gen error:*}\n" + 
+								"{*Could not generate Isabelle syntax for CML node - please submit bug report with CML file*}\n'n";
 				}
+		}
+
+		//Sort nodes into dependency-order
+		try
+		{
+			thyString = sortThmNodes(nodes).toString();
+		}catch(ThySortException thye)
+		{
+			thyString = "{*Thy gen error:*}\n" + 
+					"{*Isabelle Error when sorting nodes - please submit bug report with CML file*}\n'n";
 		}
 		
 		//retrieve the file name without the .thy file exetension
 		String thyName = thyFileName.substring(0, thyFileName.lastIndexOf('.'));
-	
-		//Sort nodes into dependency-order
-		nodes = sortThmNodes(nodes);
-
-		StringBuilder sb = new StringBuilder();
 		
 		//Add thy header 
 		sb.append("theory " + thyName + " \n" + "  imports utp_cml \n"
 				+ "begin \n" + "\n");
 		sb.append("text {* Auto-generated THY file for "+  thyName + ".cml *}\n\n");
 		
+		//Add any node errors
+		sb.append(nodeErrors);
+		
 		//Add generated node strings
-		sb.append(nodes.toString());
+		sb.append(thyString);
 			
 		sb.append("\n" + "end");
 		
@@ -241,14 +266,17 @@ public class TPVisitor extends
 	 * Method to sort a list of nodes into dependent-order
 	 * @param tpnodes - list of ThmNodes to sort
 	 * @return list of sorted nodes
+	 * @throws ThySortException 
 	 *******/
-	public static ThmNodeList sortThmNodes(ThmNodeList tpnodes)
+	public static ThmNodeList sortThmNodes(ThmNodeList tpnodes) throws ThySortException
 	{
 		ThmNodeList sortedNodes = new ThmNodeList();
 		ThmNode tempNode = null;
+		boolean passSort = false;
    
 		//while there are nodes still to be sorted
 		while (! tpnodes.isEmpty()){
+			passSort = false;
 			//iterate through nodes which still need sorting
 			for (Iterator<ThmNode> itr = tpnodes.listIterator(); itr.hasNext(); ) {
 				tempNode = itr.next();
@@ -260,11 +288,16 @@ public class TPVisitor extends
 					sortedNodes.add(tempNode);
 					//Removes from original list passed to method.
 					itr.remove(); 
+					passSort = true;
 				}
 				//if there are no nodes left to sort.
 				if( tpnodes.isEmpty()){
 					break;
 				}
+			}
+			if(!passSort)
+			{
+				throw new ThySortException();
 			}
 		}
 		return sortedNodes;

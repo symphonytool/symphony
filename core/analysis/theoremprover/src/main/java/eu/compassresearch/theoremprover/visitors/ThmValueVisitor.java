@@ -1,14 +1,14 @@
 package eu.compassresearch.theoremprover.visitors;
 
-import java.util.LinkedList;
-
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.patterns.AIdentifierPattern;
+
 import eu.compassresearch.ast.analysis.AnswerCMLAdaptor;
 import eu.compassresearch.ast.definitions.AValuesDefinition;
+import eu.compassresearch.theoremprover.thms.NodeNameList;
 import eu.compassresearch.theoremprover.thms.ThmNode;
 import eu.compassresearch.theoremprover.thms.ThmNodeList;
 import eu.compassresearch.theoremprover.thms.ThmValue;
@@ -46,11 +46,11 @@ public class ThmValueVisitor extends AnswerCMLAdaptor<ThmNodeList> {
 		
 		String typeStr = ThmTypeUtil.getIsabelleType(node.getType());
 
-		LinkedList<ILexNameToken> svars = new LinkedList<ILexNameToken>();
-		LinkedList<ILexNameToken> evars = new LinkedList<ILexNameToken>();
+		NodeNameList svars = new NodeNameList();
+		NodeNameList evars = new NodeNameList();
 		String exprStr = ThmExprUtil.getIsabelleExprStr(svars, evars, node.getExpression());
 
-		LinkedList<ILexNameToken> nodeDeps = ThmValueUtil.getIsabelleValueDeps(node);
+		NodeNameList nodeDeps = ThmValueUtil.getIsabelleValueDeps(node);
 		
 		ThmNode tn = new ThmNode(valName, nodeDeps, new ThmValue(nameStr, typeStr, exprStr));
 		tnl.add(tn);

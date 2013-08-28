@@ -1,33 +1,31 @@
 package eu.compassresearch.theoremprover.thms;
 
 import java.util.Iterator;
-import java.util.LinkedList;
-
 import org.overture.ast.intf.lex.ILexNameToken;
 
 public class ThmNode {
 
 	public ILexNameToken id;
-	public LinkedList <ILexNameToken> depIds;
+	public NodeNameList depIds;
 	public ThmArtifact art;
 	
 
     public ThmNode() {
-    	depIds = new LinkedList<ILexNameToken>();
+    	depIds = new NodeNameList();
     }
 	
 	
     public ThmNode(ILexNameToken iLexNameToken) {
     	this.id = iLexNameToken;
-    	depIds = new LinkedList<ILexNameToken>();
+    	depIds = new NodeNameList();
     }
     
-    public ThmNode(ILexNameToken iLexNameToken, LinkedList <ILexNameToken> ids) {
+    public ThmNode(ILexNameToken iLexNameToken, NodeNameList ids) {
     	this.id = iLexNameToken;
     	this.depIds = ids;
     }
     
-    public ThmNode(ILexNameToken iLexNameToken, LinkedList <ILexNameToken> ids, ThmArtifact art) {
+    public ThmNode(ILexNameToken iLexNameToken, NodeNameList ids, ThmArtifact art) {
     	this.id = iLexNameToken;
     	this.depIds = ids;
     	this.art = art;
@@ -37,7 +35,7 @@ public class ThmNode {
 		return id;
 	}
 	
-	public LinkedList <ILexNameToken> getDepIds(){
+	public NodeNameList getDepIds(){
 		return depIds;
 	}
 	
@@ -59,20 +57,13 @@ public class ThmNode {
 	  depIds.add(id);
 	}
 
-	public void addDependants(LinkedList <ILexNameToken> ids) {
+	public void addDependants(NodeNameList ids) {
 	  depIds.addAll(ids);
 	}
 	
 	public void setArtifact(ThmArtifact art) {
 	  this.art = art;
 	}	
-	
-	
-//		public void addNode(ThmNode tp){
-//			this.depIds.allAll(tp.getDepIds();
-//			this.dcl.append(tp.getDecl());		
-//		}
-	
 	
 		
 	@Override
@@ -81,7 +72,7 @@ public class ThmNode {
 	}
 
 
-	public void removeDeps(LinkedList<ILexNameToken> remNodeNames) {
+	public void removeDeps(NodeNameList remNodeNames) {
 		//Need to add remove all suplpied dependancies 
 		//For each name to be removed	
 		for(ILexNameToken pn :remNodeNames)
@@ -100,9 +91,9 @@ public class ThmNode {
 	}
 
 	//Restrict dependancies to only those supplied 
-	public void restrictDeps(LinkedList<ILexNameToken> restNodeNames) {
+	public void restrictDeps(NodeNameList restNodeNames) {
 		//Temp list of dependancies to keep
-		LinkedList<ILexNameToken> nodeNames = new LinkedList<ILexNameToken>();
+		NodeNameList nodeNames = new NodeNameList();
 		
 		//Need to add keep only those dependancies supplied
 		//For each node dependancy
