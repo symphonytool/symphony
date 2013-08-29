@@ -4,6 +4,5 @@
   <interpreterState>FINISHED</interpreterState>
   <trace>
     <events></events>
-    <timedTrace>(tock(,tock)*)?</timedTrace>
   </trace>
 </testResult>

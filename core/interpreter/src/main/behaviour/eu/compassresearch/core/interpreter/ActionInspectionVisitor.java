@@ -831,8 +831,23 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 	@Override
 	public Inspection caseAInterruptAction(final AInterruptAction node,
 			final Context question) throws AnalysisException {
-		
-		if(owner.getRightChild().getTraceModel().getLastTransition() instanceof ObservableEvent &&
+		if(owner.getLeftChild().finished())
+		{
+			return newInspection(createSilentTransition(node, owner.getLeftChild().getNextState().first) ,
+
+					new AbstractCalculationStep(owner, visitorAccess) {
+
+				@Override
+				public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+						throws AnalysisException {
+					final Pair<INode,Context> state = owner.getLeftChild().getNextState();
+					setLeftChild(null);
+					setRightChild(null);
+					return state;
+				}
+			});
+		}
+		else if(owner.getRightChild().getTraceModel().getLastTransition() instanceof ObservableEvent &&
 				owner.getRightChild().getTraceModel().getLastTransition() instanceof ChannelEvent)
 		{
 			return newInspection(createSilentTransition(node, owner.getRightChild().getNextState().first) ,
