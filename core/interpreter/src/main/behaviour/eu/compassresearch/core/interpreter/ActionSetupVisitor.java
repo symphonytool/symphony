@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.intf.lex.ILexLocation;
+import org.overture.ast.lex.LexLocation;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
@@ -25,6 +26,7 @@ import eu.compassresearch.ast.actions.AInterleavingParallelAction;
 import eu.compassresearch.ast.actions.AInterleavingReplicatedAction;
 import eu.compassresearch.ast.actions.AInternalChoiceAction;
 import eu.compassresearch.ast.actions.AInternalChoiceReplicatedAction;
+import eu.compassresearch.ast.actions.AInterruptAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASynchronousParallelismParallelAction;
 import eu.compassresearch.ast.actions.ASynchronousParallelismReplicatedAction;
@@ -544,4 +546,14 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 	/*
 	 * Non public replication helper methods -- End
 	 */
+	
+	@Override
+	public INode caseAInterruptAction(AInterruptAction node, Context question)
+			throws AnalysisException {
+		//TODO create proper names!!
+		setLeftChild(new ConcreteCmlBehaviour(node.getLeft(), question, new LexNameToken("","left /_\\",new LexLocation()), owner));
+		setRightChild(new ConcreteCmlBehaviour(node.getRight(), question, new LexNameToken("","/_\\ right",new LexLocation()), owner));
+		
+		return node;
+	}
 }

@@ -67,7 +67,6 @@ import eu.compassresearch.core.interpreter.api.transitions.CmlTock;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionFactory;
 import eu.compassresearch.core.interpreter.api.transitions.CommunicationParameter;
-import eu.compassresearch.core.interpreter.api.transitions.HiddenEvent;
 import eu.compassresearch.core.interpreter.api.transitions.InputParameter;
 import eu.compassresearch.core.interpreter.api.transitions.ObservableEvent;
 import eu.compassresearch.core.interpreter.api.transitions.OutputParameter;
@@ -774,7 +773,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 						throws AnalysisException {
 					CmlBehaviour leftChild = owner.getLeftChild();
 					setLeftChild(null);
-					return new Pair<INode, Context>(leftChild.getNextState().first, leftChild.getNextState().second);
+					return leftChild.getNextState();
 				}
 			});
 		}
@@ -825,12 +824,46 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 			//If the number of tocks has not exceeded val then behave as Stop
 			return newInspection(new CmlAlphabet(new CmlTock(owner,nTocks-val)), null);
 	}
-	
+	/**
+	 * Interrupt A /_\ B : The possible transitions from both A and B are exposed
+	 * as long as A is not finished or an observable event from B occurs.
+	 */
 	@Override
-	public Inspection caseAInterruptAction(AInterruptAction node,
-			Context question) throws AnalysisException {
-
+	public Inspection caseAInterruptAction(final AInterruptAction node,
+			final Context question) throws AnalysisException {
 		
-		return super.caseAInterruptAction(node, question);
+		if(owner.getRightChild().getTraceModel().getLastTransition() instanceof ObservableEvent &&
+				owner.getRightChild().getTraceModel().getLastTransition() instanceof ChannelEvent)
+		{
+			return newInspection(createSilentTransition(node, owner.getRightChild().getNextState().first) ,
+
+					new AbstractCalculationStep(owner, visitorAccess) {
+
+				@Override
+				public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+						throws AnalysisException {
+					final Pair<INode,Context> state = owner.getRightChild().getNextState();
+					setLeftChild(null);
+					setRightChild(null);
+					return state;
+				}
+			});
+		}
+		else
+		{
+			return newInspection(syncOnTockAndJoinChildren(),
+
+				new AbstractCalculationStep(owner, visitorAccess) {
+
+					@Override
+					public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+							throws AnalysisException {
+						//setLeftChild(null);
+						//setRightChild(null);
+						caseParallelNonSync();
+						return new Pair<INode, Context>(node, question);
+					}
+			});
+		}
 	}
 }
