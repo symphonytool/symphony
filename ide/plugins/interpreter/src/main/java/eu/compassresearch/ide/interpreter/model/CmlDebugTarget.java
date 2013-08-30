@@ -50,7 +50,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 	private ILaunch launch;
 	private IProcess process;
 	private ICmlProject project;
-	private List<StyleRange> lastSelectedRanges = new LinkedList<StyleRange>();
+	private Map<StyledText, List<StyleRange>> lastSelectedRanges = new HashMap<StyledText, List<StyleRange>>();
 
 	CmlCommunicationManager communicationManager;
 	CmlThreadManager threadManager;
@@ -187,13 +187,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 					@Override
 					public void run()
 					{
-						CmlEditor cmlEditor = (CmlEditor) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
-						if (cmlEditor != null)
-						{
-							StyledText styledText = (StyledText) cmlEditor.getAdapter(Control.class);
-							CmlUtil.clearSelections(styledText, lastSelectedRanges);
-						}
-
+						CmlUtil.clearSelections(lastSelectedRanges);
 					}
 				});
 				return true;
