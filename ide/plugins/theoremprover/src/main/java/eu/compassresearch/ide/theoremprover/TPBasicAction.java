@@ -2,7 +2,10 @@ package eu.compassresearch.ide.theoremprover;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -83,8 +86,14 @@ public class TPBasicAction implements IWorkbenchWindowActionDelegate {
 				
 			//Translate CML specification files to Isabelle
 			//Create project folder (needs to be timestamped)
-			Date date = new Date();
-			IFolder isaFolder = cmlProj.getModelBuildPath().getOutput().getFolder(new Path("Isabelle/" + date.toString()));
+			DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
+			// Get the date today using Calendar object.
+			Date today = Calendar.getInstance().getTime();        
+			// Using DateFormat format method we can create a string 
+			// representation of a date with the defined format.
+			String date = df.format(today);
+
+			IFolder isaFolder = cmlProj.getModelBuildPath().getOutput().getFolder(new Path("Isabelle/" + date));
 			IFolder modelBk = isaFolder.getFolder("model");
 			if(!isaFolder.exists())
 			{
