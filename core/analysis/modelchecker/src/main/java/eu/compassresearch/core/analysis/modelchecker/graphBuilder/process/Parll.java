@@ -84,7 +84,11 @@ public class Parll implements ParallelProcess {
 		return result;
 	}
 	
-	
+	@Override
+	public boolean isDeadlock(){
+		return false;
+	}
+
 	
 
 }

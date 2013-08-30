@@ -21,4 +21,10 @@ public class ExtChoice extends Choice {
 		}
 		return result;
 	}
+	
+	@Override
+	public boolean isDeadlock(){
+		return false;
+	}
+
 }

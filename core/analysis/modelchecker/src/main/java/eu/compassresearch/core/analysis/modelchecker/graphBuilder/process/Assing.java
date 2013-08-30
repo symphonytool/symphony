@@ -20,7 +20,7 @@ public class Assing implements Process {
 
 	@Override
 	public String toString() {
-		return number;
+		return "assgn";
 	}
 	
 	@Override
@@ -31,5 +31,9 @@ public class Assing implements Process {
 			result = this.getNumber().equals(other.getNumber());
 		}
 		return result;
+	}
+	
+	public boolean isDeadlock(){
+		return false;
 	}
 }

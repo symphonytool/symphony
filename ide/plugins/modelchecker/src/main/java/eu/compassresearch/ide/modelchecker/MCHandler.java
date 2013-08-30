@@ -98,7 +98,6 @@ public class MCHandler extends AbstractHandler {
 			final ICmlModel model = cmlProj.getModel();
 			
 			//get the selected cmlfile and analyse it
-			
 			ISelection selection = window.getSelectionService().getSelection();
 			if (selection instanceof IStructuredSelection) {
 				IStructuredSelection ssel = (IStructuredSelection) selection;
@@ -123,7 +122,7 @@ public class MCHandler extends AbstractHandler {
 								//((IFolder) mcFolder.getParent().getParent()).create(true, true, new NullProgressMonitor());
 								//create 'model checker' folder
 								//((IFolder) mcFolder.getParent()).create(true, true, new NullProgressMonitor());
-								((IFolder) mcFolder.getParent()).create(true, true, null);
+								((IFolder) mcFolder.getParent()).create(true, true, new NullProgressMonitor());
 							}
 							//if 'generated' folder does exist and Isabelle folder doesn't exist
 							//else if (!mcFolder.getParent().exists()){
@@ -134,7 +133,7 @@ public class MCHandler extends AbstractHandler {
 							if (!mcFolder.exists()){
 								mcFolder.create(true, true, new NullProgressMonitor());
 								//mcFolder.refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());
-								mcFolder.refreshLocal(IResource.DEPTH_ZERO, null);
+								mcFolder.refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());
 							}
 							
 						}
@@ -165,8 +164,6 @@ public class MCHandler extends AbstractHandler {
 							gv.runDot(file);
 							IFile svgFile = mcFolder.getFile(fileName+".svg");
 							frw.setSvgFile(svgFile);
-						}else{
-							throw new Exception("Counterexample is available only for satisfiable models.");
 						}
 						
 						//writeToConsole(cmlFile.getName(), formulaOutput);
@@ -247,10 +244,12 @@ public class MCHandler extends AbstractHandler {
 		String specificationContent = CMLModelcheckerVisitor.generateFormulaScript(basicContent, definitions,propertyToCheck);
 		//String specificationContent = "";
 		try{
-			if(outputFile.exists()){
-				outputFile.delete(true, new NullProgressMonitor());
+			if(!outputFile.exists()){
+				outputFile.create(new ByteArrayInputStream(specificationContent.toString().getBytes()), true, new NullProgressMonitor());
+			}else{
+				outputFile.setContents(new ByteArrayInputStream(specificationContent.toString().getBytes()), true, true, new NullProgressMonitor());
 			}
-			outputFile.create(new ByteArrayInputStream(specificationContent.toString().getBytes()), true, new NullProgressMonitor());
+			
 			
 			//set .fml file to be read only
 			//ResourceAttributes attributes = new ResourceAttributes();

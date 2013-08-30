@@ -13,4 +13,9 @@ public class Skip extends BasicProcess {
 	public String toString() {
 		return "Skip";
 	}
+	@Override
+	public boolean isDeadlock(){
+		return false;
+	}
+
 }

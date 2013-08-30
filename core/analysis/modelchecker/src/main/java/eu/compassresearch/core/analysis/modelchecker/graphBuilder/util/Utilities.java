@@ -4,6 +4,7 @@ import eu.compassresearch.core.analysis.modelchecker.graphBuilder.*;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.BBinding;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.Binding;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.NullBinding;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.SingleBind;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.event.*;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.expression.EqualBooleanExpression;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.expression.LessThanBooleanExpression;
@@ -21,6 +22,7 @@ import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Hide;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.IPar;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.IParll;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.IntChoice;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Let;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Par;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Parll;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Prefix;
@@ -30,6 +32,7 @@ import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Schema
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.SeqComposition;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Skip;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Stop;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.VarDeclaration;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.transition.Transition;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.IR;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Int;
@@ -39,6 +42,7 @@ import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.T1;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.T2;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.T3;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Type;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.UndefinedValue;
 
 
 import java.util.Hashtable;
@@ -88,6 +92,10 @@ public class Utilities {
 		constructors.put(Constructor.GivenProc.id, Constructor.GivenProc);
 		constructors.put(Constructor.ProcDef.id, Constructor.ProcDef);
 		
+		//VARIABLE DECLARATION
+		constructors.put(Constructor.VarDecl.id, Constructor.VarDecl);
+		constructors.put(Constructor.Let.id, Constructor.Let);
+		
 		//EVENT
 		constructors.put(Constructor.BasicEvent.id, Constructor.BasicEvent);
 		constructors.put(Constructor.IOComm.id, Constructor.IOComm);
@@ -98,6 +106,7 @@ public class Utilities {
 		//BINDING
 		constructors.put(Constructor.NullBind.id, Constructor.NullBind);
 		constructors.put(Constructor.BBind.id, Constructor.BBind);
+		constructors.put(Constructor.SingleBind.id, Constructor.SingleBind);
 		
 		//TYPE
 		constructors.put(Constructor.IntType.id, Constructor.IntType);
@@ -107,7 +116,7 @@ public class Utilities {
 		constructors.put(Constructor.T1.id, Constructor.T1);
 		constructors.put(Constructor.T2.id, Constructor.T2);
 		constructors.put(Constructor.T3.id, Constructor.T3);
-
+		constructors.put(Constructor.Undefined.id, Constructor.Undefined);
 		
 		//EXPRESSION
 		constructors.put(Constructor.EqualExpression.id, Constructor.EqualExpression);
@@ -129,7 +138,8 @@ public class Utilities {
 				"condChoice"), ExtraChoice("extraChoice"), EqualExpression("EQ"), NotEqualExpression(
 				"NEQ"), LessThanExpression("LT"), GreaterThanExpression("GT"), IntType(
 				"Int"), NatType("Nat"), StrType("Str"), IRType("IR"), GivenProc(
-				"GivenProc"), ProcDef("ProcDef"), CommEv("CommEv"),T1("T1"),T2("T2"),T3("T3");
+				"GivenProc"), ProcDef("ProcDef"), CommEv("CommEv"),T1("T1"),T2("T2"),T3("T3"),
+				SingleBind("SingleBind"), Undefined("undef"), VarDecl("var"), Let("let");
 		
 		String id;
 		
@@ -172,7 +182,8 @@ public class Utilities {
 			|| constructor.equals(Constructor.Div)
 			|| constructor.equals(Constructor.Tau)
 			|| constructor.equals(Constructor.NoPar)
-			|| constructor.equals(Constructor.NullBind)) {
+			|| constructor.equals(Constructor.NullBind)
+			|| constructor.equals(Constructor.Undefined)) {
 			
 			//result = content.substring(constructor.id.length() + 1, content.length()-1);
 			result = "";
@@ -272,6 +283,9 @@ public class Utilities {
 		case NullBind:
 			result = new NullBinding();
 			break;
+		case Undefined:
+			result = new UndefinedValue();
+			break;
 		case IntType:
 			result = new Int(this.buildInteger(arguments.pop()));
 			break;
@@ -292,6 +306,17 @@ public class Utilities {
 			break;
 		case T3:
 			result = new T3(arguments.pop());
+			break;
+		case VarDecl:
+			str = arguments.pop();
+			String typeStr =  arguments.pop();
+			auxProcess = (Process) createObject(arguments.pop());
+			result = new VarDeclaration(str,typeStr,auxProcess);
+			break;
+		case Let:
+			str = arguments.pop();
+			auxProcess = (Process) createObject(arguments.pop());
+			result = new Let(str,auxProcess);
 			break;
 		case Assing:
 			nmbr = arguments.pop();
@@ -376,14 +401,21 @@ public class Utilities {
 			result = new Prefix(auxEvent, auxProcess);
 			break;
 		case BBind:
+			String procName = arguments.pop();
+			SingleBind singleBind = (SingleBind)this.createObject(arguments.pop());
+			Binding tail = (Binding)this.createObject(arguments.pop());
+			result = new BBinding(procName,singleBind,tail);
+			break;
+			
+		case SingleBind:
+			str = arguments.pop();
+			Type varValue = (Type)this.createObject(arguments.pop());
+			result = new SingleBind(str,varValue);
+			break;
+			
+		case CommEv:
 			String begin = arguments.pop();
 			String middle = arguments.pop();
-			String end = arguments.pop();
-			result = new BBinding(begin,middle,end);
-			break;
-		case CommEv:
-			begin = arguments.pop();
-			middle = arguments.pop();
 			Type tipo = (Type) createObject(arguments.pop());
 			result = new CommEv(begin,middle,tipo);
 			break;

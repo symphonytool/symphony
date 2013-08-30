@@ -45,4 +45,10 @@ public class ExtraChoice extends Choice {
 		}
 		return result;
 	}
+	
+	@Override
+	public boolean isDeadlock(){
+		return false;
+	}
+
 }

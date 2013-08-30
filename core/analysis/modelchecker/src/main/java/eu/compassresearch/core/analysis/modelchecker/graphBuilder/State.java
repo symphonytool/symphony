@@ -13,6 +13,7 @@ public class State {
 	private int number;
 	private boolean visited;
 	private String shape = "circle"; 
+	private String fillCollor = "lightgrey";
 	
 	public String getShape() {
 		return shape;
@@ -93,6 +94,14 @@ public class State {
 		this.visited = visited;
 	}
 	
+	public String getFillCollor() {
+		return fillCollor;
+	}
+
+	public void setFillCollor(String fillCollor) {
+		this.fillCollor = fillCollor;
+	}
+
 	@Override
 	public String toString() {
 		

@@ -29,12 +29,14 @@
    
    <extension point="org.eclipse.ui.menus">
      <menuContribution
-            locationURI="popup:eu.compassresearch.ide.ui.CmlNavigator">
+            locationURI="popup:eu.compassresearch.ide.ui.CmlNavigator" >
             
       <!-- menuContribution
             locationURI="popup:org.eclipse.ui.popup.any?after=additions" -->
-            <menu
-                  label="Model check">
+            <menu 
+            	  id="eu.compassresearch.ide.modelchecker"
+                  label="Model check"
+                  icon="icons/mc.png">
                   <command
 	                  commandId="eu.compassresearch.ide.modelchecker.mcCommand"
 	                  id="eu.compassresearch.ide.modelchecker.deadlockCmd"

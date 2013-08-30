@@ -23,6 +23,12 @@ public class Schema implements Process {
 		}
 		return result;
 		
-	}	
+	}
+	
+	@Override
+	public boolean isDeadlock(){
+		return false;
+	}
+
 }
 	

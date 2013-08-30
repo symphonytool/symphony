@@ -43,7 +43,12 @@ public class Prefix implements Process {
 		}
 		return result;
 			
-		}
+	}
+
+	@Override
+	public boolean isDeadlock(){
+		return false;
+	}
 
 }
 

@@ -40,4 +40,10 @@ public class Hide implements Process {
 		return result;
 	}
 	
+	@Override
+	public boolean isDeadlock(){
+		return this.firstProcess instanceof Stop;
+	}
+
+	
 }

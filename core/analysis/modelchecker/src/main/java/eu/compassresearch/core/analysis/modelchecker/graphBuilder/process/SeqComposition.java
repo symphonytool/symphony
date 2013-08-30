@@ -41,5 +41,9 @@ public class SeqComposition implements Process {
 		}
 		return result;
 	}	
-	
+	@Override
+	public boolean isDeadlock(){
+		return false;
+	}
+
 }

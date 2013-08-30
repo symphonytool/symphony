@@ -1,6 +1,7 @@
 domain AuxiliaryDefinitions {
     //Types
-	primitive Int       ::= (v:Integer).
+	UNDEF               ::= {undef}.
+    primitive Int       ::= (v:Integer).
     primitive Nat       ::= (v:Natural).
     primitive Str       ::= (v:String).
     primitive IR        ::= (v:Real).
@@ -12,21 +13,26 @@ domain AuxiliaryDefinitions {
 	
 	// User defined types
 	//USER_DEF_TYPES
-	primitive T1            ::= (d1: Integer, d2: Integer, m:Integer).
-    primitive T2            ::= (d1: Integer).
 	
 	// Channel Types
     //CHAN_TYPES
 	//CHAN_TYPES_UNION
 	
-	Types               ::= Int + Nat + Str + IR + Seq + T1 + T2 /*INCLUDE USER_DEF_TYPES*/ /*CHAN_TYPES_UNION*/.
+	Types               ::= UNDEF + Int + Nat + Str + IR + Seq /*INCLUDE USER_DEF_TYPES*/ /*CHAN_TYPES_UNION*/.
 
 	// Bindings 
     NullBind            ::= { nBind }. 
+	primitive SingleBind ::= (name: String, val: Types).               
+	primitive BBinding    ::= (procName: String, b: SingleBind, rest: Binding). //THIS MUST CHANGE TO BBINDING
 	//BBINDING_DEF
-	primitive BBinding ::= (i: Natural). //REMOVE_LINE
+	//primitive BBinding ::= (i: Natural). //REMOVE_LINE
 	Binding       ::= NullBind + BBinding.
 
+	// Operations over bindings. 
+	primitive fetch ::= (vName: String, bind: Binding, b: SingleBind).
+	upd   ::= (bOld: Binding, b: SingleBind, bNew: Binding).
+	primitive del   ::= (bOld: Binding, vName: String, bNew: Binding).
+    
 	//Guard evaluation to handle boolean expression evaluation
 	guardDef      ::= (level: Natural, occur: Natural, st: Binding).
     guardNDef     ::= (level: Natural, occur: Natural, st: Binding).
@@ -85,7 +91,7 @@ domain CML_SyntaxSpec includes AuxiliaryDefinitions {
     primitive let           ::= (name: String, p: CMLProcess).                  //Let process
     
     
-    primitive assign        ::= (occur: Natural). 				//unnamed schema operation, where the precondition is always true.
+    primitive assign        ::= (occur: Natural). 				//unnamed schema operation, where the precondition is always true. 				
     assignDef               ::= (level: Natural, occur: Natural, st: Binding, st_: Binding). 
     preSchemaOk             ::= (level: Natural, schN: String, st: Binding).
     preSchemaNOk            ::= (level: Natural, schN: String, st: Binding).
@@ -263,9 +269,39 @@ domain CML_SemanticsSpec extends CML_SyntaxSpec {
     trans(n,tau,State(l,st_,pN,Skip)) :- n is State(l,st,pN,schema(schN)), schemaDef(l,schN,st,st_).
     trans(n,tau,State(l,st,pN,Chaos)) :- n is State(l,st,pN,schema(schN)), preSchemaNOk(l,schN,st).
 
+    //assign and assigndef produce uptates in the bindings
+    //upd(BBinding(SingleBind("x",valX),nBind),SingleBind("x",val),BBinding(SingleBind("x",val),nBind)) :- 
+    //    assign(number),assignDef(level,number,val).
+
+    //upd(st,SingleBind("x",val),st_) :- assign(number),assignDef(level,number,st,st_).
+
     // Assignment
-    trans(n,tau,State(l,st_, pN,Skip)) :- n is State(l,st,pN,assign(occ)),assignDef(l,occ,st,st_).
+    trans(n,tau,State(l,st_, pN,Skip)) :- n is State(l,st,pN,assign(occ)),assignDef(_,occ,st,st_). 
 	
+	// Var
+    trans(iS, tau, State(l,st,pName,let(nx, pBody))) :- iS is State(l,st, pName, var(nx, xT, pBody)).
+    //trans(iS, tau, State(st,pBody)) :- iS is State(st, var(nx, xT, pBody)). //, upd(st, SingleBind(nx, Int(0)), st_). FIX IT!!!
+
+    // Let
+	State(l, st, pName, P) :- State(l,st,pName,let(x, P)).
+    
+	// The next rule has a problem (infinite) if an st_ is used instead of st
+	trans(iS, ev, State(l,st_, pName,let(x,P_))) :- iS is State(l,st,pName, let(x,P)), trans(State(l,st,pName, P), ev, State(l,st_,pName, P_)). //update the binding
+	trans(iS, tau, State(l,st_,pName,Skip)) :- iS is State(l,st,pName,let(x,Skip)), del(_,vName,st_). 
+	
+	//trans(iS, eps, State(Binding(void, void, val), Skip)) :- val >= 9, val <= 11, iS is State(Binding(_, _, val), let(x, Skip)).//, delB(st, x, st_). FIX
+	//trans(iS, eps, State(Binding(void, void, val), Skip)) :- val < 9, iS is State(Binding(_, _, val), let(_, Skip)).//, delB(st, x, st_). FIX
+    //trans(iS,tau,State(st,Skip)) :- iS is State(st,par(stP,Skip,X,stQ,Skip)).//, delB(st, x, st_). FIX
+    //    trans(iS, eps, State(Binding(void, void, void), Skip)) :- val > 11, iS is State(Binding(_, _, val), let(x, Skip)).//, delB(st, x, st_). FIX
+    //    trans(iS, eps, State(Binding(void, void, void), Skip)) :- iS is State(Binding(_, _, val), let(x, Skip)).//, delB(st, x, st_). FIX IT!!!
+    //    trans(iS, eps, State(Binding(void, n, val), Skip)) :- iS is State(Binding(j, n, val), let(x, Skip)).//, delB(st, x, st_). FIX IT!!!
+
+    // Problem here: I had to change Int(0) for Byte(0). This is being dependent on the problem domain :-(
+    //    SingleBind(nx, Byte(0)), 
+    //    RecursiveBind(/*P,*/ SingleBind(nx, Byte(0)),st) :- State(st,var(nx,xT,pBody)).//, ProcDef(P,_,_).
+    //    trans(iS,tau,State(Binding(Byte(0),Byte(0)),let(nx,pBody))) :- iS is State(st,var(nx,xT,pBody)).//,upd(st,SingleBind(nx,Byte(0)),st_).
+
+
 	// The following primitive is used to mark the starting point
     primitive GivenProc ::= (name: String).
 }

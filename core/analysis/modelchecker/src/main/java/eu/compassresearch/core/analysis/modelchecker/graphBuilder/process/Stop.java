@@ -14,4 +14,9 @@ public class Stop extends BasicProcess {
 	public String toString() {
 		return "Stop";
 	}
+	@Override
+	public boolean isDeadlock(){
+		return true;
+	}
+
 }

@@ -63,5 +63,10 @@ public class IPar implements ParallelProcess {
 		return result;
 	}
 	
+	@Override
+	public boolean isDeadlock(){
+		return false;
+	}
+
 
 }

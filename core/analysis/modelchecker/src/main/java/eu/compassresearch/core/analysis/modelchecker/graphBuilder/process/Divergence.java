@@ -10,5 +10,11 @@ public class Divergence extends BasicProcess {
 	public boolean equals(Object arg0) {
 		return (arg0 instanceof Divergence);
 	}
+	
+	@Override
+	public boolean isDeadlock(){
+		return false;
+	}
+
 
 }

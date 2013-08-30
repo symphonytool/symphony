@@ -10,5 +10,10 @@ public class Chaos extends BasicProcess {
 	public boolean equals(Object arg0) {
 		return (arg0 instanceof Chaos);
 	}
+	
+	@Override
+	public boolean isDeadlock(){
+		return false;
+	}
 
 }

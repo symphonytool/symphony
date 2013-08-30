@@ -47,4 +47,9 @@ public class ProcessCall implements Process {
 		return result;
 		
 	}
+	@Override
+	public boolean isDeadlock(){
+		return false;
+	}
+
 }

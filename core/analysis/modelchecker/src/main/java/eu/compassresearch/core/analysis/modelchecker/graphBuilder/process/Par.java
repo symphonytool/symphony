@@ -88,6 +88,10 @@ public class Par implements ParallelProcess {
 	}
 	
 	
-			
+	@Override
+	public boolean isDeadlock(){
+		return false;
+	}
+	
 
 }

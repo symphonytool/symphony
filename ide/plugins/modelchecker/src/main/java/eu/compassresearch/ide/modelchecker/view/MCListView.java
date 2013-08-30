@@ -88,7 +88,7 @@ public class MCListView extends ViewPart {
 			@Override
 			public void doubleClick(DoubleClickEvent event) {
 				
-				//if (data.getFormulaResult().getResult().isSatisfiable()){
+				if (data.getFormulaResult().getResult().isSatisfiable()){
 					if(data.getProperty().equals(MCConstants.DEADLOCK_PROPERTY)){
 						try {
 							//generateSVGFile();
@@ -111,9 +111,9 @@ public class MCListView extends ViewPart {
 					}else{
 						popErrorMessage("Counterexample construction available only for deadlock property!");
 					}
-				//}else{
-				//	popErrorMessage("Counterexample construction available only for satisfiable models!");
-				//}
+				}else{
+					popErrorMessage("Counterexample construction available only for satisfiable models!");
+				}
 			}
 		});
 

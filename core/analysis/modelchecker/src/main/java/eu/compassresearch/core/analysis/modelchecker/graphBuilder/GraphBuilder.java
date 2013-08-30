@@ -1,6 +1,7 @@
 package eu.compassresearch.core.analysis.modelchecker.graphBuilder;
 
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.NullBinding;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.event.Tau;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Process;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Skip;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Stop;
@@ -86,6 +87,7 @@ public class GraphBuilder {
 	public String generateDot(String input) throws IOException{
 		STATE_NUMBER = 1; //resets the state number
 		StringBuilder result = new StringBuilder();
+		
 		LinkedList<Object> objects = this.loadLTSObjects(input);
 		GraphResult graph = this.shortestPathToDeadlock(objects);
 		
@@ -111,7 +113,7 @@ public class GraphBuilder {
 		result.append( "rankdir=\"LR\";\n ");
 		
 		for (State state : graph.getStates()) {
-			result.append( state.toString() + " [shape=" + state.getShape() + ",style=filled,fillcolor=lightgrey,label= " +"\"" + state.getNumber() + "\"]\n" );
+			result.append( state.toString() + " [shape=" + state.getShape() + ",style=filled,fillcolor="+state.getFillCollor()+",label= " +"\"" + state.getNumber() + "\"]\n" );
 			
 		}
 		
@@ -217,7 +219,8 @@ public class GraphBuilder {
 		State realFinalState = null; //this will be the real deadlock state found in the graph
 		
 		State basicDeadlock = new State(0, new NullBinding(),"Deadlock", new Stop());
-		if(initialState.getProcess() instanceof Stop){
+		//if(initialState.getProcess() instanceof Stop){
+		if(initialState.getProcess().isDeadlock()){
 			basicDeadlock = initialState;
 			realFinalState = basicDeadlock;
 		}
@@ -283,9 +286,10 @@ public class GraphBuilder {
 		
 		//singlePath contains the single path with numbered states. we separate states and transitions
 		LinkedList<State> pathStates = this.getSourceStates(singlePath);
-		if(pathStates.size() == 0){
-			realFinalState.setNumber(STATE_NUMBER++);
-		}
+		//if(pathStates.size() == 0){
+			//realFinalState.setNumber(STATE_NUMBER++);
+			//realFinalState.setFillCollor("\"#FF9696\"");
+		//}
 		LinkedList<State> targetStates = this.getTargetStates(singlePath);
 		for (State state : targetStates) {
 			if(!pathStates.contains(state)){
@@ -294,6 +298,7 @@ public class GraphBuilder {
 		}
 		
 		if(pathStates.size() == 0){
+			realFinalState.setFillCollor("\"#FF9696\"");
 			pathStates.add(realFinalState);
 		}
 		result.setStates(pathStates);
@@ -304,7 +309,80 @@ public class GraphBuilder {
 	}
 	
 	
+	public GraphResult shortestPathToLivelock(LinkedList<Object> objects){
+GraphResult result = new GraphResult();
 		
+		//this removes all procdefs and givenproc from the list 
+		State initialState = this.getInitialState(objects);
+		initialState.setShape("doublecircle");
+		
+		State tauFinalState = null; 
+		//this will be the real deadlock state found in the graph		
+		//it is better to see transitions as Transition objects
+		//LinkedList<Transition> transitions = new LinkedList<Transition>();
+		//for (Object current : objects) {
+		//	transitions.add((Transition)current);
+		//}
+		LinkedList<Transition> transitions = this.filterTransitions(objects);
+		
+		ArrayDeque<State> toVisit = new ArrayDeque<State>();
+		//LinkedList<State> visitedStates = new LinkedList<State>();
+		LinkedList<Transition> visitedTransitions = new LinkedList<Transition>(); 
+		LinkedList<Transition> cicleTransitions = new LinkedList<Transition>();
+		toVisit.addLast(initialState);
+		while(toVisit.size() > 0){
+			State current = toVisit.pollFirst();
+			current.setVisited(true);
+			//visitedStates.add(current);
+			LinkedList<Transition> transitionsFrom = this.getAllTransitionsFrom(transitions, current);
+			if(transitionsFrom.size() == 0){
+				//então eh deadLock
+				break;				
+			}
+			for (Transition transition : transitionsFrom) {
+				State target = transition.getTargetState();
+				if (transition.getEvent().equals(new Tau())) { // if the transition is basiclivelock
+					if (transition.getSourceState().equals(transition.getTargetState())){// tauFinalState = basicLivelock;
+						tauFinalState = transition.getTargetState();
+						if(cicleTransitions.getLast().getTargetState().equals(current)){
+							if (!cicleTransitions.contains(transition)){
+								cicleTransitions.add(transition);
+							}
+						}else{
+							if (!visitedTransitions.contains(transition)) 
+								visitedTransitions.add(transition);
+						}
+						break;
+					} else { // if is a cicle
+						if (!cicleTransitions.contains(transition)) {
+							if(cicleTransitions.size() == 0){
+								cicleTransitions.add(transition);							
+							}else if(cicleTransitions.getLast().getTargetState().equals(current)){
+								cicleTransitions.add(transition);
+							}
+						}
+					}
+					
+				}
+
+				if (!target.isVisited()) {
+					toVisit.addLast(target);
+				}
+				if (!visitedTransitions.contains(transition) && !cicleTransitions.contains(transition)) {
+					visitedTransitions.add(transition);
+				}
+
+			}
+			
+		}
+		
+		//reversePath 
+		//simglePath
+		
+		return result;
+	}
+
+
 	private void buildReversePath(	LinkedList<Transition> reversePath, 
 									LinkedList<Transition> transitions, 
 									State initialState, State finalState){
@@ -341,6 +419,8 @@ public class GraphBuilder {
 			transitions.removeAll(currentTransitions); //for optimization
 						
 			buildSinglePath(transitions, singlePath, newInitialState);
+		}else{ //initialState is a state withour outgoing transitions = deadlock
+			initialState.setFillCollor("\"#FF9696\"");
 		}
 		//at the end singlePath contains a single path
 	}
@@ -364,9 +444,10 @@ public class GraphBuilder {
 	
 	public static void main(String[] args) throws IOException {
 		GraphBuilder gb = new GraphBuilder();
-		String filePath = "/examples/action-parameterised.facts.D.txt";
+		String filePath = "/examples/action-vardecl.facts.D.txt";
 		String facts = "GivenProc(\"ImmediateDeadlock\")\n ProcDef(\"ImmediateDeadlock\",nopar,Stop)\n reachable(State(0,nBind,\"ImmediateDeadlock\",Stop))\n State(0,nBind,\"ImmediateDeadlock\",Stop)";
-		String dotCode = gb.generateDot(new StringBuilder(facts));
+		//String dotCode = gb.generateDot(new StringBuilder(facts));
+		String dotCode = gb.generateDot(filePath);
 		System.out.println(dotCode);
 	}
 	
