@@ -15,7 +15,9 @@ public class BBinding implements Binding {
 		this.head = head;
 		this.tail = tail;
 	}
-
+	public BBinding() {
+		// TODO Auto-generated constructor stub
+	}
 	public SingleBind getHead() {
 		return head;
 	}
@@ -56,6 +58,26 @@ public class BBinding implements Binding {
 		}
 		result.append("}");
 		
+		return result.toString();
+	}
+	
+	public String toFormula() {
+		StringBuilder result = new StringBuilder();
+		result.append("BBinding("+this.procName+",");
+		//result.append(head.toString());
+		LinkedList<SingleBind> bindList = new LinkedList<SingleBind>(); 
+		getSingleBindings(bindList, this);
+		for (Iterator iterator = bindList.iterator(); iterator.hasNext();) {
+			SingleBind singleBind = (SingleBind) iterator.next();
+			result.append(singleBind.toFormula());
+			if(iterator.hasNext()){
+				result.append(",");
+			}
+		}
+		result.append(",nBind");
+		for (int i = 0; i < bindList.size(); i++) {
+			result.append(")");
+		}
 		return result.toString();
 	}
 	

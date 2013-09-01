@@ -35,5 +35,8 @@ public class SingleBind {
 		return "(" + variableName + "," + variableValue.toString() + ")";
 	}
 	
+	public String toFormula() {
+		return "SingleBind(\"" + variableName + "\"," + variableValue.toString() + ")";
+	}
 	
 }

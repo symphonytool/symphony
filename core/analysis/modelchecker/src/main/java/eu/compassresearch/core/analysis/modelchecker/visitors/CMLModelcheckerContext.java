@@ -6,13 +6,21 @@ public class CMLModelcheckerContext {
 	
 	protected HashMap<Object, Object> info; 
 	
+	public static int ASSIGN_COUNTER;
+	
 	private StringBuilder scriptContent;
 
 	public CMLModelcheckerContext() {
 		info = new HashMap<Object,Object>();
 		scriptContent = new StringBuilder();
+		ASSIGN_COUNTER = 0;
 	}
-
+	
+	public Object putVarInBinding(Object key, Object value){
+		StringBuilder s =  (StringBuilder) info.get(key);
+		s.append(value);
+		return info.put(key, s);
+	}
 	public StringBuilder getScriptContent() {
 		return scriptContent;
 	}

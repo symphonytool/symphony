@@ -3,5 +3,5 @@ a
 
 process A = 
 begin 
-	@ dcl x : int @ x := 0;Skip
+	@ (dcl x : int @ x := 0;Skip)
 end

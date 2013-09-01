@@ -40,7 +40,9 @@ public class Utilities {
 	public static final String CONDITION_KEY = "CONDITION";
 	public static int OCCUR_COUNT = 1;
 	public static String VALUE_DEFINITIONS_KEY = "VALUES_DEFINITION";
-	
+	public static String ASSIGNMENT_DEFINITION_KEY = "ASSIGNMENT_DEFINITION";
+	public static String VAR_DECLARATIONS_KEY = "VAR_DECLARATIONS";
+	public static String DEL_BBINDING = "DEL_BB";
 	
 	private static boolean parseWithANTLR(PSource sourceIn) throws IOException
 	{

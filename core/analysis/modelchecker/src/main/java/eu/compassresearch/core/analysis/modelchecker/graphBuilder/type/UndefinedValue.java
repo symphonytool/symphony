@@ -9,7 +9,7 @@ public class UndefinedValue implements Type {
 
 	@Override
 	public String toString() {
-		return "UNDEF";
+		return "undef";
 	}
 	
 }

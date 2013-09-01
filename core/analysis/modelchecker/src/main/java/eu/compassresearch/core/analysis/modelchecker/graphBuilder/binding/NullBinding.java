@@ -14,4 +14,8 @@ public class NullBinding implements Binding {
 	public boolean equals(Object obj) {
 		return obj instanceof NullBinding;
 	}
+	
+	public String toFormula(){
+		return "nBind";
+	}
 }

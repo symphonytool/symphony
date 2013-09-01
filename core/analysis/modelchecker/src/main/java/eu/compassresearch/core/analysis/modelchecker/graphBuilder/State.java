@@ -108,6 +108,4 @@ public class State {
 		return "\"(" + this.binding.toString() + "," + this.name + "," + this.process.toString() + ")\"";
 	}
 
-	
-
 }
