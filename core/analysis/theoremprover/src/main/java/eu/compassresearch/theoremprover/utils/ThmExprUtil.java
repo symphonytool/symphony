@@ -37,7 +37,7 @@ public class ThmExprUtil {
 	public static String isaType = "definition";
 	public static String isaAbbr = "abbreviation";
  	
- 	static String notHandled = "NOT_YET_HANDLED";
+ 	static String notHandled = "(*expr not yet handled*)";
  	static String isaUndefined = "undefined";
 	private static String isaDown = "\\<down>";
  
@@ -149,7 +149,7 @@ public class ThmExprUtil {
 			return "(" +ThmExprUtil.getIsabelleExprStr(svars, bvars, subs.getLeft()) + " subset " + ThmExprUtil.getIsabelleExprStr(svars, bvars, subs.getRight())+ ")";
 		}
 		else{
-			return "binary expr not handled";
+			return ThmExprUtil.notHandled;
 		}
 	}
 
@@ -235,7 +235,7 @@ public class ThmExprUtil {
 			return "+" + "(" + ThmExprUtil.getIsabelleExprStr(svars, bvars, plus.getExp())+ ")";
 		}
 		else{
-			return "map expr not handled";
+			return ThmExprUtil.notHandled;
 		}
 	}
 
@@ -410,7 +410,7 @@ public class ThmExprUtil {
 //			LinkedList<ACaseAlternative> cases = c.getCases();
 //			PExp others = c.getOthers();
 			//TODO: Handle cases
-			return "expr not yet handled";
+			return ThmExprUtil.notHandled;
 		}
 		else if(ex instanceof AFieldExp){
 			AFieldExp fe = (AFieldExp) ex;
@@ -520,12 +520,12 @@ public class ThmExprUtil {
 		else if(ex instanceof APostOpExp){
 			APostOpExp e = (APostOpExp) ex;
 			//TODO: Handle postop exp
-			return "expr not yet handled";
+			return ThmExprUtil.notHandled;
 		}
 		else if(ex instanceof APreExp){
 //			APreExp i = (APreExp) ex;
 			//TODO: Handle pre exp
-			return "expr not yet handled";
+			return ThmExprUtil.notHandled;
 		}
 		else if(ex instanceof AQuoteLiteralExp){
 			AQuoteLiteralExp q = (AQuoteLiteralExp) ex;
@@ -626,7 +626,7 @@ public class ThmExprUtil {
 			
 			return "(" + ThmExprUtil.getIsabelleExprStr(svars, bvars, e.getExpression()) + ")";
 		}
-		return "expr not handled";
+		return ThmExprUtil.notHandled;
 	}
 	
 
@@ -808,7 +808,7 @@ public class ThmExprUtil {
 			return "[" + sb.toString() +"]";
 		}
 		else{
-			return "seq expr not handled";
+			return ThmExprUtil.notHandled;
 		}
 	}
 	
@@ -886,7 +886,7 @@ public class ThmExprUtil {
 		}
 		else
 		{
-			return "Set expr not handled";
+			return ThmExprUtil.notHandled;
 		}
 	}
 
@@ -943,7 +943,7 @@ public class ThmExprUtil {
 		}
 		else //ARemNumericBinaryExp?
 		{
-			return  "expr not handled";
+			return  ThmExprUtil.notHandled;
 		}
 	}
 
@@ -970,7 +970,7 @@ public class ThmExprUtil {
 		}
 		else
 		{
-			return "expr not handled";
+			return ThmExprUtil.notHandled;
 		}
 	}
 	
@@ -1812,7 +1812,7 @@ public class ThmExprUtil {
 
 				return left + " union " + right;
 			}
-			return "varset expr not handled";
+			return ThmExprUtil.notHandled;
 			
 		}
 
@@ -1821,7 +1821,7 @@ public class ThmExprUtil {
 	}
 
 	public static String getIsabelleRenamingExpr(SRenameChannelExp rnExp) {
-		return "renaming exp not handled";
+		return ThmExprUtil.notHandled;
 	}
  	
 }

@@ -227,8 +227,8 @@ public class TPVisitor extends
 			try {
 				nodes.addAll(node.apply(new TPVisitor()));
 			}catch (Exception e) {
-					nodeErrors = nodeErrors + "{*Thy gen error:*}\n" + 
-								"{*Could not generate Isabelle syntax for CML node - please submit bug report with CML file*}\n'n";
+					nodeErrors = nodeErrors + "(*Thy gen error:*)\n" + 
+								"(*Could not generate Isabelle syntax for CML node - please submit bug report with CML file*)\n\n";
 				}
 		}
 
@@ -238,8 +238,8 @@ public class TPVisitor extends
 			thyString = sortThmNodes(nodes).toString();
 		}catch(ThySortException thye)
 		{
-			thyString = "{*Thy gen error:*}\n" + 
-					"{*Isabelle Error when sorting nodes - please submit bug report with CML file*}\n'n";
+			thyString = "(*Thy gen error:*)\n" + 
+					"(*Isabelle Error when sorting nodes - please submit bug report with CML file*)\n\n";
 		}
 		
 		//retrieve the file name without the .thy file exetension
@@ -280,9 +280,10 @@ public class TPVisitor extends
 			//iterate through nodes which still need sorting
 			for (Iterator<ThmNode> itr = tpnodes.listIterator(); itr.hasNext(); ) {
 				tempNode = itr.next();
-				//if the current node has no dependancies, or all the nodes it depends upon
-				//have already been sorted...
+				//if the current node has no dependencies, or it has a self-dependency, 
+				//or all the nodes it depends upon have already been sorted...
 				if(tempNode.getnumDep() == 0 ||
+				   tempNode.selfDep() ||
 				   sortedNodes.allDepsFulfilled(tempNode.getDepIds())){
 					//Add to returned list.
 					sortedNodes.add(tempNode);

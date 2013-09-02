@@ -157,8 +157,9 @@ public class ThmProcessUtil {
 	private static String isaWhile = "while ";
 	private static String isaDo = " do ";
 	private static String isaOd = " od ";
-	
-		
+	private static String repActNotHandled = "(*replicated action not handled*)";
+	private static String stmtNotHandled = "(*statement not handled*)";
+	private static String procNotHandled = "(*process not handled*)";
 	
 	/***
 	 * Method to get the string of a process (not an Action Process)
@@ -288,7 +289,7 @@ public class ThmProcessUtil {
 			}
 			return p.getProcessName().toString() + argStr.toString();
 		}
-		return "(*process not handled*)";
+		return procNotHandled;
 
 	}
 	/***
@@ -1012,7 +1013,7 @@ public class ThmProcessUtil {
 //          [namesetExpression]:VarsetExpression
 			//TODO: NOT YET HANDLED
 		}
-		return "(*replicated actions not handled*)";
+		return repActNotHandled;
 	}
 
 	private static String getIsabelleParallelActionStr(PAction act,
@@ -1261,7 +1262,7 @@ public class ThmProcessUtil {
 //	        (seqType):type.#seq
 			//TODO: NOT YET HANDLED
 		}
-		return "(*statement not handled*)";
+		return stmtNotHandled;
 		
 	}
 	

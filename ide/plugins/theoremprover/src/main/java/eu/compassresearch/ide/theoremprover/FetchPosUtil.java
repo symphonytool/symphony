@@ -39,6 +39,10 @@ public class FetchPosUtil
 		this.project = project;
 	}
 
+	/**
+	 * This operation is called by the POG perspective and needs some attention... Currently it is repeating some of the thy gen code 
+	 * and this can be cut - needs to consider how best to ensure thy file is available, and then gen a new thy file for the POs. 
+	 */
 	public void fetchPOs()
 	{
 		try
@@ -109,7 +113,7 @@ public class FetchPosUtil
 					translateCmltoThy(sourceUnit,output.getFile(thyFileName));
 				}
 
-				IsabelleTheory ithy = model.getAttribute(ITpConstants.PLUGIN_ID, IsabelleTheory.class);
+				IsabelleTheory ithy = model.getAttribute(TPConstants.PLUGIN_ID, IsabelleTheory.class);
 
 					if (ithy == null )
 					{
@@ -119,8 +123,8 @@ public class FetchPosUtil
 						ithy.init();
 						TPPluginUtils2.addThyToListener(ithy, tpListener, model);
 
-						model.setAttribute(ITpConstants.PLUGIN_ID, ithy);
-					    Object bob = model.getAttribute(ITpConstants.PLUGIN_ID, IsabelleTheory.class);
+						model.setAttribute(TPConstants.PLUGIN_ID, ithy);
+					    Object bob = model.getAttribute(TPConstants.PLUGIN_ID, IsabelleTheory.class);
 					    System.out.println(bob.toString());
 					}
 

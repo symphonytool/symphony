@@ -85,7 +85,7 @@ public class ThmTypeUtil {
 	static String isaUnion = "|";
  	static String isaErrTBT= "@unknownBaseType";
  	
- 	static String notHandled = "(*NOT_YET_HANDLED*)";
+ 	static String notHandled = "(*type not yet handled*)";
  	static String isaUndefined = "undefined";
 	public static String isaFuncBar = "|";
 	public static String isaFuncLambda = "lambda";

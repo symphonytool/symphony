@@ -8,7 +8,7 @@
   topic=%2Forg.eclipse.platform.doc.isv%2Freference%2Fextension-points%2Findex.html
 
   -->
-  
+   <!-- 
      <extension
          point="org.eclipse.ui.actionSets">
       <actionSet
@@ -26,16 +26,62 @@
          </action>
       </actionSet>
    </extension>
+  -->
   
   
   <extension
       point="org.eclipse.ui.commands">
    <command
-         defaultHandler="eu.compassresearch.ide.theoremprover.DischargePosHandler"
+         defaultHandler="eu.compassresearch.ide.theoremprover.commands.DischargePosHandler"
          id="eu.compassresearch.ide.theoremprover.dischargepos"
          name="DischargePOs">
    </command>
 </extension>
+
+	<extension
+            point="org.eclipse.ui.commands">
+		<command
+        defaultHandler="eu.compassresearch.ide.theoremprover.commands.GenerateThyHandler"
+        id="eu.compassresearch.ide.theoremprover.generatethy"
+        name="GenerateThy">
+		</command>
+	</extension>
+  
+  <extension
+      point="org.eclipse.ui.menus">
+		<menuContribution
+         allPopups="false"
+         locationURI="popup:eu.compassresearch.ide.ui.CmlNavigator">
+			<menu
+              id="eu.compassresearch.ide.theoremprover"
+              icon="icons/thy_action.png"
+              label="CML-THY">
+				<command
+              	  commandId="eu.compassresearch.ide.theoremprover.generatethy"
+              	  label="Generate Theorem Prover THY"
+              	  style="push"
+              	  tooltip="Generate Theorem Prover file for selected Project">
+				</command>
+			  	<visibleWhen>
+					<iterate ifEmpty="false" >
+						<or>
+							<adapt type="org.eclipse.core.resources.IProject">
+ 								<test
+                	  	  		  property="org.eclipse.core.resources.projectNature"
+               		  	  		  value="eu.compassresearch.ide.core.cmlnature">
+								</test>
+							</adapt>
+							<test
+                  	  		  forcePluginActivation="true"
+                  	  		  property="org.overture.ide.core.resources.dialect"
+                  	  		  value="CML">
+							</test>
+						</or>
+					</iterate>
+			  	</visibleWhen>
+			</menu>
+		</menuContribution>
+	</extension>
   
   
   <extension

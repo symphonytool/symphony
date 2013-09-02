@@ -1,6 +1,7 @@
 package eu.compassresearch.theoremprover.thms;
 
 import java.util.Iterator;
+
 import org.overture.ast.intf.lex.ILexNameToken;
 
 public class ThmNode {
@@ -113,5 +114,19 @@ public class ThmNode {
 		//assign the new set of dependancies to keep
 		this.depIds = nodeNames;
 		
+	}
+
+
+	public boolean selfDep() {
+		boolean selfDep = false;
+		
+		for(ILexNameToken dep : depIds)
+		{
+			if (id.getName().equals(dep.getName())){
+				selfDep = true;
+				break;
+			}
+		}
+		return selfDep;
 	}
 }
