@@ -1251,7 +1251,7 @@ class TCActionVisitor extends
 		if (!typeComparator.isSubType(timedExpType, new AIntNumericBasicType())) {
 			node.setType(issueHandler.addTypeError(timedExpType,
 					TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT
-							.customizeMessage(timedExp + "")));
+							.customizeMessage(timedExp + "", timedExp + " (" +timedExpType + ")")));
 			return node.getType();
 		}
 

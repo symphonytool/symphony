@@ -269,6 +269,8 @@ public class CmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase {
 		//54 // Test case for bug https://sourceforge.net/p/compassresearch/tickets/26/
 		addTestProgram(testData, "process Test = begin functions BFunc : () -> nat BFunc() == AFunc(2) @ Skip end process Test2 = begin functions AFunc: nat -> nat AFunc(avar) == 1 BFunc : () -> nat BFunc() == AFunc(2) @ Skip end", 
 				true, false, new String[0]);
+		//55 // Test case for bug http://sourceforge.net/p/compassresearch/tickets/48/
+		addTestProgram(testData, "process Waiter = begin @ Wait \"ao\" ; Skip end",true, false, new String[0]);
 		
 		return testData;
 	}
