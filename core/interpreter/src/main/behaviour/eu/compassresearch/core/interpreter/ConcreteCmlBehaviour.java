@@ -433,7 +433,9 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 			CmlAlphabet alpha = inspect();
 
 			//A Process is deadlocked if its immediate alphabet is only tock with no limit
-			if(alpha.getAllEvents().size() == 1 && alpha.getObservableEvents().size() == 1)
+			if(alpha.getAllEvents().isEmpty())
+				return true;
+			else if(alpha.getAllEvents().size() == 1 && alpha.getObservableEvents().size() == 1)
 			{
 				ObservableEvent obsEvent = alpha.getObservableEvents().iterator().next();
 				return (obsEvent instanceof CmlTock) && !((CmlTock) obsEvent).hasTimeLimit();

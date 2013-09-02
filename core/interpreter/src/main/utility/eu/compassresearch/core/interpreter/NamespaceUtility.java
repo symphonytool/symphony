@@ -13,7 +13,7 @@ class NamespaceUtility {
 		return new LexNameToken("|CHANNELS|",id);
 	}
 	
-	public static ILexNameToken getTimeoutStartTimeName()
+	public static ILexNameToken getStartTimeName()
 	{
 		return new LexNameToken("|TIMEOUT|","STARTTIME",new LexLocation());
 	}

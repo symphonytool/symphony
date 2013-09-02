@@ -33,6 +33,7 @@ import eu.compassresearch.ast.actions.ASynchronousParallelismParallelAction;
 import eu.compassresearch.ast.actions.ASynchronousParallelismReplicatedAction;
 import eu.compassresearch.ast.actions.ATimeoutAction;
 import eu.compassresearch.ast.actions.AUntimedTimeoutAction;
+import eu.compassresearch.ast.actions.AWaitAction;
 import eu.compassresearch.ast.actions.SReplicatedAction;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.process.AGeneralisedParallelismProcess;
@@ -108,13 +109,23 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 		setLeftChild(new ConcreteCmlBehaviour(node.getLeft(),question,owner));
 		return new Pair<INode,Context>(node,question);
 	}
+	
+	@Override
+	public Pair<INode, Context> caseAWaitAction(AWaitAction node,
+			Context question) throws AnalysisException {
+
+		Context context = CmlContextFactory.newContext(node.getLocation(), "Wait context", question);
+		context.putNew(new NameValuePair(NamespaceUtility.getStartTimeName(),new IntegerValue(owner.getCurrentTime())));
+		
+		return new Pair<INode,Context>(node,context);
+	}
 
 	@Override
 	public Pair<INode,Context> caseATimeoutAction(ATimeoutAction node, Context question)
 			throws AnalysisException {
 
 		Context context = CmlContextFactory.newContext(node.getLocation(), "Timeout context", question);
-		context.putNew(new NameValuePair(NamespaceUtility.getTimeoutStartTimeName(),new IntegerValue(owner.getCurrentTime())));
+		context.putNew(new NameValuePair(NamespaceUtility.getStartTimeName(),new IntegerValue(owner.getCurrentTime())));
 		
 		//We setup the child nodes 
 		setLeftChild(new ConcreteCmlBehaviour(node.getLeft(),question,owner));

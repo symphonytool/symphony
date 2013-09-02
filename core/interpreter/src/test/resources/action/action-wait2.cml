@@ -1,0 +1,8 @@
+channels 
+a
+
+process A = 
+begin 
+
+	@ Wait 2;a -> Wait 1 
+end
