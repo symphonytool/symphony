@@ -73,7 +73,7 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	/**
 	 * The setup visitor
 	 */
-	final transient QuestionAnswerCMLAdaptor<Context,INode>						cmlSetupVisitor;
+	final transient QuestionAnswerCMLAdaptor<Context,Pair<INode,Context>>						cmlSetupVisitor;
 
 	/**
 	 * The alphabet inspection visitor
@@ -196,7 +196,7 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 
 		if(next == null || (newNext.first != next.first && !hasChildren()))
 		{
-			next = new Pair<INode,Context>(newNext.first.apply(cmlSetupVisitor,newNext.second),newNext.second);
+			next = newNext.first.apply(cmlSetupVisitor,newNext.second);
 			started = false;
 		}
 		else

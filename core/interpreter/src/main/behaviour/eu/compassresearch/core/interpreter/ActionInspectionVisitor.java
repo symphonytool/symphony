@@ -678,7 +678,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 
 		//Evaluate the expression into a natural number
 		long val = node.getTimeoutExpression().apply(cmlExpressionVisitor,question).natValue(question);
-
+		long startTimeVal = question.lookup(NamespaceUtility.getTimeoutStartTimeName()).intValue(question);
 		//If the left is Skip then the whole process becomes skip with the state of the left child
 		if(owner.getLeftChild().finished())
 		{
@@ -690,13 +690,13 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 						throws AnalysisException {
 					CmlBehaviour leftChild = owner.getLeftChild();
 					setLeftChild(null);
-					return new Pair<INode, Context>(leftChild.getNextState().first, leftChild.getNextState().second);
+					return leftChild.getNextState();
 				}
 			});
 		}
 		//if the current time of the process has passed the limit (val) then process
 		//behaves as the right process
-		else if(owner.getCurrentTime() >= val)
+		else if(owner.getCurrentTime() - startTimeVal >= val)
 		{
 			return newInspection(createSilentTransition(node, node.getRight(),"Timeout: time exceeded"), 
 					new AbstractCalculationStep(owner, visitorAccess) {
@@ -706,7 +706,9 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 						throws AnalysisException {
 					//We set the process to become the right behavior
 					setLeftChild(null);
-					return new Pair<INode, Context>(node.getRight(), question);
+					//We need to return the outer context because of the extra context
+					//containing the start time has been added in the setup visitor
+					return new Pair<INode, Context>(node.getRight(), question.outer);
 				}
 			});
 
@@ -720,15 +722,15 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 					new AbstractCalculationStep(owner, visitorAccess) {
 
 				@Override
-				public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
-						throws AnalysisException {
+				public Pair<INode, Context> execute(CmlSupervisorEnvironment sve) throws AnalysisException {
+					
 					leftBehavior.execute(supervisor());
 
 					if(supervisor().selectedObservableEvent() instanceof ObservableEvent &&
 						supervisor().selectedObservableEvent() instanceof ChannelEvent)
 					{
 						setLeftChild(null);
-						return new Pair<INode, Context>(leftBehavior.getNextState().first, leftBehavior.getNextState().second);
+						return leftBehavior.getNextState();
 					}
 					else
 						return new Pair<INode, Context>(node, question);
