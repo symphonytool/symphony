@@ -1698,6 +1698,7 @@ class TCDeclAndDefVisitor extends
 							.customizeMessage(operationBody + "")));
 			return node.getType();
 		}
+		node.setActualResult(bodyType);
 
 		// check constructor
 		boolean isCtor = node.getIsConstructor();
