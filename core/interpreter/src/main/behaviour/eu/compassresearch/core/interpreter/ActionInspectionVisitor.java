@@ -32,6 +32,7 @@ import eu.compassresearch.ast.actions.AGuardedAction;
 import eu.compassresearch.ast.actions.AHidingAction;
 import eu.compassresearch.ast.actions.AInterleavingParallelAction;
 import eu.compassresearch.ast.actions.AInternalChoiceAction;
+import eu.compassresearch.ast.actions.AInterruptAction;
 import eu.compassresearch.ast.actions.AMuAction;
 import eu.compassresearch.ast.actions.AReadCommunicationParameter;
 import eu.compassresearch.ast.actions.AReferenceAction;
@@ -66,7 +67,6 @@ import eu.compassresearch.core.interpreter.api.transitions.CmlTock;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionFactory;
 import eu.compassresearch.core.interpreter.api.transitions.CommunicationParameter;
-import eu.compassresearch.core.interpreter.api.transitions.HiddenEvent;
 import eu.compassresearch.core.interpreter.api.transitions.InputParameter;
 import eu.compassresearch.core.interpreter.api.transitions.ObservableEvent;
 import eu.compassresearch.core.interpreter.api.transitions.OutputParameter;
@@ -678,26 +678,9 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 
 		//Evaluate the expression into a natural number
 		long val = node.getTimeoutExpression().apply(cmlExpressionVisitor,question).natValue(question);
-
-		//if the current time of the process has passed the limit (val) then process
-		//behaves as the right process
-		if(owner.getCurrentTime() >= val)
-		{
-			return newInspection(createSilentTransition(node, node.getRight(),"Timeout: time exceeded"), 
-					new AbstractCalculationStep(owner, visitorAccess) {
-
-				@Override
-				public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
-						throws AnalysisException {
-					//We set the process to become the right behavior
-					setLeftChild(null);
-					return new Pair<INode, Context>(node.getRight(), question);
-				}
-			});
-
-		}
+		long startTimeVal = question.lookup(NamespaceUtility.getTimeoutStartTimeName()).intValue(question);
 		//If the left is Skip then the whole process becomes skip with the state of the left child
-		else if(owner.getLeftChild().finished())
+		if(owner.getLeftChild().finished())
 		{
 			return newInspection(createSilentTransition(node, owner.getLeftChild().getNextState().first,"Timeout: left behavior is finished"), 
 					new AbstractCalculationStep(owner, visitorAccess) {
@@ -707,9 +690,28 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 						throws AnalysisException {
 					CmlBehaviour leftChild = owner.getLeftChild();
 					setLeftChild(null);
-					return new Pair<INode, Context>(leftChild.getNextState().first, leftChild.getNextState().second);
+					return leftChild.getNextState();
 				}
 			});
+		}
+		//if the current time of the process has passed the limit (val) then process
+		//behaves as the right process
+		else if(owner.getCurrentTime() - startTimeVal >= val)
+		{
+			return newInspection(createSilentTransition(node, node.getRight(),"Timeout: time exceeded"), 
+					new AbstractCalculationStep(owner, visitorAccess) {
+
+				@Override
+				public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+						throws AnalysisException {
+					//We set the process to become the right behavior
+					setLeftChild(null);
+					//We need to return the outer context because of the extra context
+					//containing the start time has been added in the setup visitor
+					return new Pair<INode, Context>(node.getRight(), question.outer);
+				}
+			});
+
 		}
 		//if the current time of the process has not passed the limit (val) and the left process
 		//makes an observable transition then the whole process behaves as the left process 
@@ -720,14 +722,15 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 					new AbstractCalculationStep(owner, visitorAccess) {
 
 				@Override
-				public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
-						throws AnalysisException {
+				public Pair<INode, Context> execute(CmlSupervisorEnvironment sve) throws AnalysisException {
+					
 					leftBehavior.execute(supervisor());
 
-					if(supervisor().selectedObservableEvent() instanceof ObservableEvent)
+					if(supervisor().selectedObservableEvent() instanceof ObservableEvent &&
+						supervisor().selectedObservableEvent() instanceof ChannelEvent)
 					{
 						setLeftChild(null);
-						return new Pair<INode, Context>(leftBehavior.getNextState().first, leftBehavior.getNextState().second);
+						return leftBehavior.getNextState();
 					}
 					else
 						return new Pair<INode, Context>(node, question);
@@ -743,13 +746,26 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 			final AUntimedTimeoutAction node, final Context question)
 					throws AnalysisException {
 
-		//throw new AnalysisException("case not implemented yet");
-
 		//the alphabet still need to be calculated before this is done, so uncomment when done
+		//If the left is Skip then the whole process becomes skip with the state of the left child
+		if(owner.getLeftChild().finished())
+		{
+			return newInspection(createSilentTransition(node, owner.getLeftChild().getNextState().first),
+					new AbstractCalculationStep(owner, visitorAccess) {
 
+				@Override
+				public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+						throws AnalysisException {
+					CmlBehaviour leftChild = owner.getLeftChild();
+					setLeftChild(null);
+					setRightChild(null);
+					return leftChild.getNextState();
+				}
+			});
+		}
 		//Make a random decision whether the process should timeout and
 		//behaves as the right process
-		if(this.rnd.nextBoolean())
+		else if(this.rnd.nextBoolean())
 		{
 			return newInspection(createSilentTransition(node, node.getRight()), 
 					new AbstractCalculationStep(owner, visitorAccess) {
@@ -760,22 +776,6 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 					//We set the process to become the right behavior
 					setLeftChild(null);
 					return new Pair<INode, Context>(node.getRight(), question);
-				}
-			});
-
-		}
-		//If the left is Skip then the whole process becomes skip with the state of the left child
-		else if(owner.getLeftChild().finished())
-		{
-			return newInspection(createSilentTransition(node, owner.getLeftChild().getNextState().first),
-					new AbstractCalculationStep(owner, visitorAccess) {
-
-				@Override
-				public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
-						throws AnalysisException {
-					CmlBehaviour leftChild = owner.getLeftChild();
-					setLeftChild(null);
-					return new Pair<INode, Context>(leftChild.getNextState().first, leftChild.getNextState().second);
 				}
 			});
 		}
@@ -791,7 +791,8 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 					CmlBehaviour leftBehavior = owner.getLeftChild();
 					owner.getLeftChild().execute(supervisor());
 
-					if(supervisor().selectedObservableEvent() instanceof ObservableEvent)
+					if(supervisor().selectedObservableEvent() instanceof ObservableEvent &&
+							supervisor().selectedObservableEvent() instanceof ChannelEvent)
 					{
 						setLeftChild(null);
 						return new Pair<INode, Context>(leftBehavior.getNextState().first, leftBehavior.getNextState().second);
@@ -825,5 +826,62 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 		else
 			//If the number of tocks has not exceeded val then behave as Stop
 			return newInspection(new CmlAlphabet(new CmlTock(owner,nTocks-val)), null);
+	}
+	/**
+	 * Interrupt A /_\ B : The possible transitions from both A and B are exposed
+	 * as long as A is not finished or an observable event from B occurs.
+	 */
+	@Override
+	public Inspection caseAInterruptAction(final AInterruptAction node,
+			final Context question) throws AnalysisException {
+		if(owner.getLeftChild().finished())
+		{
+			return newInspection(createSilentTransition(node, owner.getLeftChild().getNextState().first) ,
+
+					new AbstractCalculationStep(owner, visitorAccess) {
+
+				@Override
+				public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+						throws AnalysisException {
+					final Pair<INode,Context> state = owner.getLeftChild().getNextState();
+					setLeftChild(null);
+					setRightChild(null);
+					return state;
+				}
+			});
+		}
+		else if(owner.getRightChild().getTraceModel().getLastTransition() instanceof ObservableEvent &&
+				owner.getRightChild().getTraceModel().getLastTransition() instanceof ChannelEvent)
+		{
+			return newInspection(createSilentTransition(node, owner.getRightChild().getNextState().first) ,
+
+					new AbstractCalculationStep(owner, visitorAccess) {
+
+				@Override
+				public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+						throws AnalysisException {
+					final Pair<INode,Context> state = owner.getRightChild().getNextState();
+					setLeftChild(null);
+					setRightChild(null);
+					return state;
+				}
+			});
+		}
+		else
+		{
+			return newInspection(syncOnTockAndJoinChildren(),
+
+				new AbstractCalculationStep(owner, visitorAccess) {
+
+					@Override
+					public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+							throws AnalysisException {
+						//setLeftChild(null);
+						//setRightChild(null);
+						caseParallelNonSync();
+						return new Pair<INode, Context>(node, question);
+					}
+			});
+		}
 	}
 }

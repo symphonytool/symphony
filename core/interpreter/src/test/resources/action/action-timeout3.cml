@@ -1,0 +1,17 @@
+channels 
+a : nat
+d
+
+process P1 =
+begin
+     actions
+     S_rec= mu X @ ((Wait 1; a!1->X) [_ 3 _> X)
+    @ (S_rec /_\d ->Skip)
+end
+
+process test =
+begin
+	@ a.1 -> a.1 -> d -> Skip
+end
+
+process testDriver = P1 [| {|a,d|} |] test

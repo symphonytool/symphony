@@ -14,7 +14,7 @@ import eu.compassresearch.core.interpreter.utility.Pair;
  * @author akm
  *
  */
-abstract class AbstractSetupVisitor extends QuestionAnswerCMLAdaptor<Context,INode> {
+abstract class AbstractSetupVisitor extends QuestionAnswerCMLAdaptor<Context,Pair<INode,Context>> {
 
 	//Interface that gives access to methods that control the behaviour
 	private final VisitorAccess 								controlAccess;
@@ -31,9 +31,9 @@ abstract class AbstractSetupVisitor extends QuestionAnswerCMLAdaptor<Context,INo
 	}
 	
 	@Override
-	public INode defaultINode(INode node, Context question)
+	public Pair<INode,Context> defaultINode(INode node, Context question)
 			throws AnalysisException {
-		return node;
+		return new Pair<INode,Context>(node,question);
 	}
 
 	protected void setLeftChild(CmlBehaviour child)

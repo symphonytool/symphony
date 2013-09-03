@@ -6,6 +6,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Vector;
 
 import org.eclipse.core.resources.IFile;
@@ -45,15 +47,17 @@ import eu.compassresearch.ide.ui.editor.core.CmlEditor;
 public final class CmlUtil
 {
 
-	public static void clearSelections(StyledText styledText,
-			List<StyleRange> lastSelectedRanges)
+	public static void clearSelections(Map<StyledText, List<StyleRange>> map)
 	{
-		for (StyleRange sr : lastSelectedRanges)
+		for (Entry<StyledText, List<StyleRange>> entry : map.entrySet())
 		{
-			sr.background = null;
-			styledText.setStyleRange(sr);
+			for(StyleRange sr : entry.getValue())
+			{
+				sr.background = null;
+				entry.getKey().setStyleRange(sr);
+			}
+			entry.getValue().clear();
 		}
-		lastSelectedRanges.clear();
 	}
 	
 	public static void clearAllSelections()
@@ -62,7 +66,6 @@ public final class CmlUtil
 		IWorkbenchWindow wbw = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 		if(wbw != null)
 			editor = wbw.getActivePage().getActiveEditor();
-		//editor = IDE.openEditor(wbw.getActivePage(), file, true);
 
 		if (editor != null)
 		{
@@ -74,20 +77,36 @@ public final class CmlUtil
 			}
 		}
 	}
-
-	public static void setSelectionFromLocation(ILexLocation lexLocation,
-			List<StyleRange> lastSelectedRanges)
+	
+	private static void setSelectionFromLocation(ILexLocation loc,
+			List<StyleRange> lastSelectedRanges, StyledText styledText)
 	{
-		List<ILexLocation> locations = new LinkedList<ILexLocation>();
-		locations.add(lexLocation);
-		setSelectionFromLocation(locations, lastSelectedRanges);
+		
+		int length = loc.getEndOffset() - loc.getStartOffset() + 1;
+		StyleRange sr = styledText.getStyleRangeAtOffset(loc.getStartOffset());
+
+		// if nothing is found we try to look nearby
+		if (sr == null)
+			for (int i = loc.getStartOffset() - 50; i < loc.getStartOffset() + 50; i++)
+			{
+				sr = styledText.getStyleRangeAtOffset(i);
+				if (sr != null)
+					break;
+			}
+
+		if (sr != null)
+		{
+			sr.length = length;
+			sr.background = new Color(null, new RGB(java.awt.Color.GRAY.getRed(), java.awt.Color.GRAY.getGreen(), java.awt.Color.GRAY.getBlue()));
+			styledText.setStyleRange(sr);
+			lastSelectedRanges.add(sr);
+		}
 	}
 	
-	public static void setSelectionFromLocation(
-			List<ILexLocation> lexLocations, List<StyleRange> lastSelectedRanges)
+	private static IEditorPart findEditorFromLocation(ILexLocation loc)
 	{
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
-		IPath location = Path.fromOSString(lexLocations.get(0).getFile().getAbsolutePath());
+		IPath location = Path.fromOSString(loc.getFile().getAbsolutePath());
 		IFile file = workspace.getRoot().getFileForLocation(location);
 		// It may be a linked resource
 		if (file == null
@@ -100,43 +119,49 @@ public final class CmlUtil
 			editor = IDE.openEditor(wbw.getActivePage(), file, true);
 		} catch (PartInitException e)
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		return editor;
+	}
 
-		// CmlEditor cmlEditor = (CmlEditor)
-		// PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
+	
+	public static void setSelectionFromLocation(ILexLocation loc, Map<StyledText, List<StyleRange>> map)
+	{
+		IEditorPart editor = findEditorFromLocation(loc);
+		
 		if (editor != null)
 		{
 			StyledText styledText = (StyledText) ((CmlEditor) editor).getAdapter(Control.class);
-			// clear the last selection
-			clearSelections(styledText, lastSelectedRanges);
-
-			for (ILexLocation loc : lexLocations)
+			
+			List<StyleRange> lastSelectedRanges = null;
+						
+			if(map.containsKey(styledText))
 			{
-				int length = loc.getEndOffset() - loc.getStartOffset() + 1;
-				StyleRange sr = styledText.getStyleRangeAtOffset(loc.getStartOffset());
-
-				// if nothing is found we try to look nearby
-				if (sr == null)
-					for (int i = loc.getStartOffset() - 50; i < loc.getStartOffset() + 50; i++)
-					{
-						sr = styledText.getStyleRangeAtOffset(i);
-						if (sr != null)
-							break;
-					}
-
-				if (sr != null)
-				{
-					sr.length = length;
-					sr.background = new Color(null, new RGB(java.awt.Color.GRAY.getRed(), java.awt.Color.GRAY.getGreen(), java.awt.Color.GRAY.getBlue()));
-					styledText.setStyleRange(sr);
-					lastSelectedRanges.add(sr);
-				}
+				lastSelectedRanges = map.get(styledText); 
 			}
-			styledText.setCaretOffset(lexLocations.get(0).getStartOffset());
-			styledText.showSelection();
+			else
+			{
+				lastSelectedRanges = new LinkedList<StyleRange>();
+				map.put(styledText, lastSelectedRanges);
+			}
+			
+			setSelectionFromLocation(loc,lastSelectedRanges,styledText);
 		}
+	}
+	
+	public static void setSelectionFromLocations(List<ILexLocation> lexLocations, Map<StyledText, List<StyleRange>> map)
+	{
+		for (ILexLocation loc : lexLocations)
+		{
+			setSelectionFromLocation(loc,map);
+		}
+	}
+	
+	public static void showLocation(StyledText st, ILexLocation loc)
+	{
+		st.setCaretOffset(loc.getStartOffset());
+		st.showSelection();
 	}
 
 	public static List<AProcessDefinition> getGlobalProcessesFromSource(
