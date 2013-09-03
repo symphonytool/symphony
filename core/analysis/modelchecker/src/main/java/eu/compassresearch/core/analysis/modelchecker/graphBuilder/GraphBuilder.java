@@ -444,7 +444,7 @@ GraphResult result = new GraphResult();
 	
 	public static void main(String[] args) throws IOException {
 		GraphBuilder gb = new GraphBuilder();
-		String filePath = "/examples/action-vardecl.facts.D.txt";
+		String filePath = "/examples/action-vardecl2.facts.D.txt";
 		String facts = "GivenProc(\"ImmediateDeadlock\")\n ProcDef(\"ImmediateDeadlock\",nopar,Stop)\n reachable(State(0,nBind,\"ImmediateDeadlock\",Stop))\n State(0,nBind,\"ImmediateDeadlock\",Stop)";
 		//String dotCode = gb.generateDot(new StringBuilder(facts));
 		String dotCode = gb.generateDot(filePath);

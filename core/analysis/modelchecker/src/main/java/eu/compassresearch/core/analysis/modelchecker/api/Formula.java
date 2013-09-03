@@ -51,7 +51,7 @@ public class Formula implements IFORMULAInvoker {
     }
     private Formula() throws IOException, FormulaIntegrationException {
     	defaultLogger = JavaFormulaLogger.obterInstancia();
-    	//this.launchFormula();
+    	this.launchFormula();
     }
 	
 

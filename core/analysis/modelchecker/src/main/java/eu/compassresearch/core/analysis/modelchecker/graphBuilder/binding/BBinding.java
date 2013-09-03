@@ -93,7 +93,8 @@ public class BBinding implements Binding {
 		boolean result = false;
 		if (obj instanceof BBinding){
 			BBinding other = (BBinding) obj;
-			//result = this.head.equals(other.getBegin()) && this.getMiddle().equals(other.getMiddle()) && this.getEnd().equals(other.getEnd());
+			result = this.head.equals(other.getHead()) 
+					&& this.getTail().equals(other.getTail());
 		}
 		return result;
 	}

@@ -26,7 +26,8 @@ public class SingleBind {
 	public boolean equals(Object obj) {
 		boolean resp = false;
 		if(obj instanceof SingleBind){
-			resp = this.variableName.equals(((SingleBind) obj).variableName);
+			resp = this.variableName.equals(((SingleBind) obj).variableName) 
+					&& this.variableValue.equals(((SingleBind) obj).variableValue);
 		}
 		return resp;
 	}

@@ -76,6 +76,12 @@ public class Transition {
 		}
 		return false;
 	}
+
+
+	@Override
+	public String toString() {
+		return this.sourceState.toString() + " -> " + this.targetState.toString();
+	}
 	
 
 }

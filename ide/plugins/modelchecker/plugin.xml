@@ -8,12 +8,12 @@
   topic=%2Forg.eclipse.platform.doc.isv%2Freference%2Fextension-points%2Findex.html
 
   -->
-  <!--
+  
   <extension
         point="org.eclipse.ui.startup">
      <startup class="eu.compassresearch.ide.modelchecker.Activator"> </startup>
   </extension>
-  -->
+  
   <extension point="org.eclipse.ui.commands">
       <command
             defaultHandler="eu.compassresearch.ide.modelchecker.MCHandler"

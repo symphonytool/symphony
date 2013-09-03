@@ -495,6 +495,7 @@ public class Utilities {
 		symbolicInteger = symbolicInteger.replace("_","");
 		symbolicInteger = symbolicInteger.replace("<","");
 		symbolicInteger = symbolicInteger.replace(">","");
+		result = Integer.parseInt(symbolicInteger);
 		return result;
 	}
 

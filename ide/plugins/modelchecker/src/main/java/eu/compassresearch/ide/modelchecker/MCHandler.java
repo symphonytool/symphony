@@ -203,10 +203,12 @@ public class MCHandler extends AbstractHandler {
 		IFile outputFile = mcFolder.getFile(dotFileName);
 		
 		try{
-			if(outputFile.exists()){
-				outputFile.delete(true, new NullProgressMonitor());
+			if(!outputFile.exists()){
+				outputFile.create(new ByteArrayInputStream(dotContent.toString().getBytes()), true, new NullProgressMonitor());
+			}else{
+				outputFile.setContents(new ByteArrayInputStream(dotContent.toString().getBytes()), true, true, new NullProgressMonitor());
 			}
-			outputFile.create(new ByteArrayInputStream(dotContent.toString().getBytes()), true, new NullProgressMonitor());
+			
 		}catch(CoreException e){
 			Activator.log(e);
 		}
