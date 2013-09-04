@@ -638,7 +638,8 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 			throws AnalysisException {
 
 		//return the alphabet only containing tock since Skip allows for time to pass
-		return newInspection(new CmlAlphabet(new CmlTock(owner)),null);
+		//return newInspection(new CmlAlphabet(new CmlTock(owner)),null);
+		return newInspection(new CmlAlphabet(),null);
 	}
 
 	@Override
@@ -681,7 +682,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 
 		//Evaluate the expression into a natural number
 		long val = node.getTimeoutExpression().apply(cmlExpressionVisitor,question).natValue(question);
-		long startTimeVal = question.lookup(NamespaceUtility.getTimeoutStartTimeName()).intValue(question);
+		long startTimeVal = question.lookup(NamespaceUtility.getStartTimeName()).intValue(question);
 		//If the left is Skip then the whole process becomes skip with the state of the left child
 		if(owner.getLeftChild().finished())
 		{
@@ -813,8 +814,9 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 
 		//Evaluate the expression into a natural number
 		long val = node.getExpression().apply(cmlExpressionVisitor,question).natValue(question);
-		long nTocks = owner.getCurrentTime();
-
+		long startTime = question.lookup(NamespaceUtility.getStartTimeName()).intValue(question);
+		long nTocks = owner.getCurrentTime() - startTime;
+		
 		//If the number of tocks exceeded val then we make a silent transition that ends the delay process
 		if( nTocks >= val)
 			return newInspection(createSilentTransition(node, new ASkipAction(),"Wait ended"),
@@ -823,7 +825,8 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 				@Override
 				public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
 						throws AnalysisException {
-					return new Pair<INode, Context>(new ASkipAction(), question);
+					//We need to remove the added context from the setup visitor
+					return new Pair<INode, Context>(new ASkipAction(), question.outer);
 				}
 			});
 		else

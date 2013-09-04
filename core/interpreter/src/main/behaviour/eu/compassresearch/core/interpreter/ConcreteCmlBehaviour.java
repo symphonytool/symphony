@@ -14,11 +14,11 @@ import org.overture.interpreter.runtime.StateContext;
 import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.values.Value;
 
+import eu.compassresearch.ast.actions.ASingleGeneralAssignmentStatementAction;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
-import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorState;
@@ -184,13 +184,6 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 		setNext(new Pair<INode, Context>(action, context));
 	}
 
-//	public ConcreteCmlBehaviour(INode action, Context context, CmlBehaviour parent, Pair<Context,Context> childContexts) throws AnalysisException
-//	{
-//		this(parent,new LexNameToken("", "Child of " + parent.name(),parent.name().getLocation()));
-//		setNext(new Pair<INode, Context>(action, context));
-//		preConstructedChildContexts = childContexts;
-//	}
-
 	protected void setNext(Pair<INode, Context> newNext) throws AnalysisException
 	{
 
@@ -237,7 +230,6 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 		this.env= env;
 
 		//inspect if there are any immediate events
-		//CmlAlphabet alpha = inspect();
 		inspect();
 
 		started = true;
@@ -280,26 +272,26 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	}
 
 	@Override
-	public CmlAlphabet inspect() 
+	public CmlAlphabet inspect() throws AnalysisException
 	{
-		try
+		//		try
+		//		{
+		if(lastInspection != null && lastInspection.getTrace().equals(this.getTraceModel()))
 		{
-			if(lastInspection != null && lastInspection.getTrace().equals(this.getTraceModel()))
-			{
-				return lastInspection.getTransitions();
-			}
-			else
-			{	
-				lastInspection = next.first.apply(alphabetInspectionVisitor,next.second);
+			return lastInspection.getTransitions();
+		}
+		else
+		{	
+			lastInspection = next.first.apply(alphabetInspectionVisitor,next.second);
 
-				return lastInspection.getTransitions();
-			}
+			return lastInspection.getTransitions();
 		}
-		catch(AnalysisException ex)
-		{
-			CmlRuntime.logger().throwing(this.toString(),"inspect()", ex);
-			throw new InterpreterRuntimeException(InterpretationErrorMessages.FATAL_ERROR.customizeMessage(),ex);
-		}
+		//		}
+		//		catch(AnalysisException ex)
+		//		{
+		//			CmlRuntime.logger().throwing(this.toString(),"inspect()", ex);
+		//			throw new InterpreterRuntimeException(InterpretationErrorMessages.FATAL_ERROR.customizeMessage(),ex);
+		//		}
 	}
 
 	/**
@@ -422,18 +414,22 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	@Override
 	public boolean finished() {
 		return !hasChildren() && 
-				next.first instanceof ASkipAction;
+				(next.first instanceof ASkipAction); 
+				//||
+				//next.first instanceof ASingleGeneralAssignmentStatementAction);
 	}
 
 	@Override
-	public boolean deadlocked() {
+	public boolean deadlocked() throws AnalysisException {
 
 		if(!finished())
 		{
 			CmlAlphabet alpha = inspect();
 
 			//A Process is deadlocked if its immediate alphabet is only tock with no limit
-			if(alpha.getAllEvents().size() == 1 && alpha.getObservableEvents().size() == 1)
+			if(alpha.getAllEvents().isEmpty())
+				return true;
+			else if(alpha.getAllEvents().size() == 1 && alpha.getObservableEvents().size() == 1)
 			{
 				ObservableEvent obsEvent = alpha.getObservableEvents().iterator().next();
 				return (obsEvent instanceof CmlTock) && !((CmlTock) obsEvent).hasTimeLimit();
@@ -461,13 +457,20 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	 * Process state methods 
 	 */
 	@Override
-	public CmlBehaviorState getState() {
-		if(finished())
-			return CmlBehaviorState.FINISHED;
-		else if(deadlocked())
-			return CmlBehaviorState.STOPPED;
-		else
-			return null;
+	public CmlBehaviorState getState(){
+		
+		try
+		{
+			if(finished())
+				return CmlBehaviorState.FINISHED;
+			else if(deadlocked())
+				return CmlBehaviorState.STOPPED;
+			else
+				return null;
+
+		} catch (AnalysisException e) {
+			return CmlBehaviorState.ERROR;
+		}
 	}
 
 	/*
