@@ -58,7 +58,7 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 	private BufferedReader requestReader;
 	private boolean connected = false;
 	private CmlInterpreter runningInterpreter;
-	private DebugMode currentMode = null;
+	private InterpreterExecutionMode currentMode = null;
 
 	/**
 	 * Response Queue
@@ -316,10 +316,7 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 		case SET_BREAKPOINT:	
 			Breakpoint bp = message.getContent();
 			System.out.println("Break point added : " + bp);
-			if(currentMode == DebugMode.ANIMATE){
-				runningInterpreter.addBreakpoint(bp);
-
-			}
+			runningInterpreter.addBreakpoint(bp);
 			return true;
 		case RESUME:
 			runningInterpreter.resume();
@@ -382,17 +379,20 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 	}
 
 	@Override
-	public void start(DebugMode mode) {
+	public void start(InterpreterExecutionMode mode) {
 
 		try{
 			currentMode = mode;
-			if(mode == DebugMode.ANIMATE)
+			if(mode == InterpreterExecutionMode.ANIMATE)
 			{
 				requestSetup();
 				animate(runningInterpreter);
 			}
-			else if (mode == DebugMode.SIMULATE)
+			else if (mode == InterpreterExecutionMode.SIMULATE)
+			{
+				requestSetup();
 				simulate(runningInterpreter);
+			}
 
 			stopped(CmlInterpreterStateDTO.createCmlInterpreterStateDTO(runningInterpreter));
 		}

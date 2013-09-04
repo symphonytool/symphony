@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AAssignmentDefinition;
+import org.overture.ast.definitions.AClassInvariantDefinition;
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import org.overture.ast.definitions.AImplicitFunctionDefinition;
 import org.overture.ast.definitions.AStateDefinition;
@@ -131,6 +132,13 @@ class CmlDefinitionVisitor extends
 		}
 		
 		return vpl;
+	}
+	
+	@Override
+	public NameValuePairList caseAClassInvariantDefinition(
+			AClassInvariantDefinition node, Context question)
+			throws AnalysisException {
+		return super.caseAClassInvariantDefinition(node, question);
 	}
 	
 	@Override
