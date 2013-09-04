@@ -369,7 +369,16 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 			}
 		}
 		
-		throw new InterpreterRuntimeException("Should not happen");
+		final ASkipAction skipAction = new ASkipAction(node.getLocation());
+		return newInspection(createSilentTransition(node,skipAction),
+				new AbstractCalculationStep(owner, visitorAccess) {
+			
+			@Override
+			public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+					throws AnalysisException {
+				return new Pair<INode, Context>(skipAction, question);
+			}
+		});
 	}
 	
 	@Override
