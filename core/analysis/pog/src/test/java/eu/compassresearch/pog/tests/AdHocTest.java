@@ -36,7 +36,7 @@ public class AdHocTest {
 	public void testPog() throws AnalysisException, IOException {
 		String file = "src/test/resources/adhoc/test.cml";
 		System.out.println("Processing " + file);
-		IProofObligationList poList = runPog(file);
+		IProofObligationList poList = buildPosFromFile(file);
 
 		
 		for (IProofObligation po : poList) {
@@ -46,7 +46,7 @@ public class AdHocTest {
 
 	}
 
-	private IProofObligationList runPog(String file) throws IOException,
+	private IProofObligationList buildPosFromFile(String file) throws IOException,
 			AnalysisException {
 
 		CmlProofObligationList poList = new CmlProofObligationList();
