@@ -3,6 +3,8 @@ package eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Type;
+
 
 public class BBinding implements Binding {
 	protected String procName;
@@ -80,6 +82,54 @@ public class BBinding implements Binding {
 		}
 		return result.toString();
 	}
+	
+	public String toFormulaWithUnderscore(){
+		StringBuilder result = new StringBuilder();
+		LinkedList<SingleBind> bindList = new LinkedList<SingleBind>(); 
+		getSingleBindings(bindList, this);
+		for (Iterator iterator = bindList.iterator(); iterator.hasNext();) {
+			result.append("BBinding(_,");
+			SingleBind singleBind = (SingleBind) iterator.next();
+			result.append(singleBind.toFormulaWithUnderscore());
+			if(iterator.hasNext()){
+				result.append(",");
+			}
+		}
+		result.append(",nBind");
+		for (int i = 0; i < bindList.size(); i++) {
+			result.append(")");
+		}
+		return result.toString();
+	}
+	
+	public Binding addBinding(String procName, String varName, Type varValue){
+		Binding result = this;
+		
+		if(head.getVariableName().equals(varName)){
+			head.setVariableValue(varValue);
+		} else{
+			tail = tail.addBinding(procName, varName, varValue);
+		}
+		return result;
+	}
+	public void updateBinding(String varName, Type varValue){
+		if(head.getVariableName().equals(varName)){
+			head.setVariableValue(varValue);
+		} else{
+			tail.updateBinding(varName, varValue);
+		}
+	}
+	public Binding deleteBinding(String varName){
+		Binding result = this;
+		
+		if(head.getVariableName().equals(varName)){
+			result = this.tail;
+		} else{
+			tail = tail.deleteBinding(varName);
+		}
+		return result;
+	}
+	
 	
 	private void getSingleBindings(LinkedList<SingleBind> bindList, Binding binding){
 		if(binding instanceof BBinding){

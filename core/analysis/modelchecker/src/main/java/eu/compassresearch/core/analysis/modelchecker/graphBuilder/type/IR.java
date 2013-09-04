@@ -2,18 +2,22 @@ package eu.compassresearch.core.analysis.modelchecker.graphBuilder.type;
 
 public class IR implements Type{
 	
-	private Object val;
+	private double value;
 	
 	
 	
-	public IR(Object val) {
-		this.val = val;
+	public IR(double val) {
+		this.value = val;
 		
 	}
 	
 	@Override
 	public String toString() {
-		return val.toString();
+		return String.valueOf(value);
+	}
+	
+	public String toFormula() {
+		return "IR("+String.valueOf(value)+")";
 	}
 
 }

@@ -12,4 +12,7 @@ public class UndefinedValue implements Type {
 		return "undef";
 	}
 	
+	public String toFormula() {
+		return this.toString();
+	}
 }

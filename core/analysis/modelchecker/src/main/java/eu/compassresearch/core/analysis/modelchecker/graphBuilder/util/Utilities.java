@@ -290,10 +290,10 @@ public class Utilities {
 			result = new Int(this.buildInteger(arguments.pop()));
 			break;
 		case NatType:
-			result = new Nat(createObject(arguments.pop()));
+			result = new Nat(this.buildNatural(arguments.pop()));
 			break;
 		case IRType:
-			result = new IR(createObject(arguments.pop()));
+			result = new IR(this.buildReal(arguments.pop()));
 			break;
 		case StrType:
 			result = new Str(arguments.pop());
@@ -496,6 +496,24 @@ public class Utilities {
 		symbolicInteger = symbolicInteger.replace("<","");
 		symbolicInteger = symbolicInteger.replace(">","");
 		result = Integer.parseInt(symbolicInteger);
+		return result;
+	}
+	
+	private int buildNatural(String symbolicNatural){
+		int result = 0;
+		symbolicNatural = symbolicNatural.replace("_","");
+		symbolicNatural = symbolicNatural.replace("<","");
+		symbolicNatural = symbolicNatural.replace(">","");
+		result = Integer.parseInt(symbolicNatural);
+		return result;
+	}
+	
+	private double buildReal(String symbolicNatural){
+		double result = 0;
+		symbolicNatural = symbolicNatural.replace("_","");
+		symbolicNatural = symbolicNatural.replace("<","");
+		symbolicNatural = symbolicNatural.replace(">","");
+		result = Double.parseDouble(symbolicNatural);
 		return result;
 	}
 

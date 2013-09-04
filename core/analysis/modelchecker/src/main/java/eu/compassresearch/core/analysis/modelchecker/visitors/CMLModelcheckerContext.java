@@ -1,10 +1,19 @@
 package eu.compassresearch.core.analysis.modelchecker.visitors;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.Binding;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.NullBinding;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.UndefinedValue;
 
 public class CMLModelcheckerContext {
 	
 	protected HashMap<Object, Object> info; 
+	
+	private Set<String> variables;
 	
 	public static int ASSIGN_COUNTER;
 	
@@ -13,14 +22,33 @@ public class CMLModelcheckerContext {
 	public CMLModelcheckerContext() {
 		info = new HashMap<Object,Object>();
 		scriptContent = new StringBuilder();
+		variables = new LinkedHashSet<String>();
 		ASSIGN_COUNTER = 0;
 	}
+	
+	public CMLModelcheckerContext(int i) {
+		info = new HashMap<Object,Object>();
+		scriptContent = new StringBuilder();
+		variables = new LinkedHashSet<String>();
+		ASSIGN_COUNTER = i;
+	}
+	
+	public Binding getMaxBinding(){
+		Binding maximalBinding = new NullBinding();
+		for (String currVarname : variables) {
+			maximalBinding = maximalBinding.addBinding("np", currVarname, new UndefinedValue());
+		}
+		return maximalBinding;
+	}
+	
 	
 	public Object putVarInBinding(Object key, Object value){
 		StringBuilder s =  (StringBuilder) info.get(key);
 		s.append(value);
 		return info.put(key, s);
 	}
+	
+	
 	public StringBuilder getScriptContent() {
 		return scriptContent;
 	}

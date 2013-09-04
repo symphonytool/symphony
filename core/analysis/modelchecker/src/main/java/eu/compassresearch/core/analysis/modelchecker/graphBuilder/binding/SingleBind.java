@@ -40,4 +40,7 @@ public class SingleBind {
 		return "SingleBind(\"" + variableName + "\"," + variableValue.toString() + ")";
 	}
 	
+	public String toFormulaWithUnderscore(){
+		return "SingleBind(\"" + variableName + "\",_)";
+	}
 }

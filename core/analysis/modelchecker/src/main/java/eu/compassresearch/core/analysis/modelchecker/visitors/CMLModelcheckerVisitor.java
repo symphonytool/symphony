@@ -360,16 +360,18 @@ public class CMLModelcheckerVisitor extends
 			CMLModelcheckerContext question) throws AnalysisException {
 		question.getScriptContent().append("assign("+CMLModelcheckerContext.ASSIGN_COUNTER +")");
 		StringBuilder str = new StringBuilder();
-		str.append("  assignDef(0, "+CMLModelcheckerContext.ASSIGN_COUNTER +", st, st_)  :- State(0,st,name,assign("+CMLModelcheckerContext.ASSIGN_COUNTER+")), st_ = ");
-		BBinding b = (BBinding) question.info.get(Utilities.VAR_DECLARATIONS_KEY);
-		StringBuilder s = new StringBuilder();
+		//this line is generated for this assignment. Each assignment must have a line like this
+		//probably the maximal binding is not ready to be put here and you need to put the assignment information into the context 
+		str.append("  assignDef(0, "+CMLModelcheckerContext.ASSIGN_COUNTER +", st, st_)  :- State(0,st,name,assign("+CMLModelcheckerContext.ASSIGN_COUNTER+")), st = OLD_BINDING, st_ = NEW_BINDING");
+		//BBinding b = (BBinding) question.info.get(Utilities.VAR_DECLARATIONS_KEY);
+		//StringBuilder s = new StringBuilder();
 		String procName = "np";
-		s.append(b.toFormula());
-		s.replace(s.indexOf(procName), s.indexOf(procName)+procName.length(), "name");
-		String val = "undef";
-		CMLModelcheckerContext aux = new CMLModelcheckerContext();
-		s.replace(s.indexOf(val), s.indexOf(val)+val.length(), node.getExpression().apply(this, aux).toString());
-		str.append(s);
+		//s.append(b.toFormula());
+		//s.replace(s.indexOf(procName), s.indexOf(procName)+procName.length(), "name");
+		//String val = "undef";
+		//CMLModelcheckerContext aux = new CMLModelcheckerContext();
+		//s.replace(s.indexOf(val), s.indexOf(val)+val.length(), node.getExpression().apply(this, aux).toString());
+		//str.append(s);
 		str.append(".\n");
 		
 		if (question.info.get(Utilities.ASSIGNMENT_DEFINITION_KEY) != null) {
@@ -382,12 +384,13 @@ public class CMLModelcheckerVisitor extends
 			
 		// para a construcao do partialmodel
 		StringBuilder del = new StringBuilder("  del(");
-		s = new StringBuilder();
-		s.append(b.toFormula());
-		s.replace(s.indexOf(procName), s.indexOf(procName)+procName.length(), "_");
-		s.replace(s.indexOf(val), s.indexOf(val)+val.length(), "_");
-		del.append(s);
-		del.append(",\""+node.getStateDesignator().toString()+"\",nBind)\n");
+		//StringBuilder s = new StringBuilder();
+		//b is supposed to be the maximal binding
+		//s.append(b.toFormula());
+		//s.replace(s.indexOf(procName), s.indexOf(procName)+procName.length(), "_");
+		//s.replace(s.indexOf(val), s.indexOf(val)+val.length(), "_");
+		//del.append(s);
+		//del.append(",\""+node.getStateDesignator().toString()+"\",nBind)\n");
 		question.info.put(Utilities.DEL_BBINDING, del);
 		
 		return question.getScriptContent();

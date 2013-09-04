@@ -23,6 +23,9 @@ public class Int implements Type {
 		return String.valueOf(value);
 	}
 	
+	public String toFormula() {
+		return "Int("+String.valueOf(value)+")";
+	}
 	
 	@Override
 	public boolean equals(Object obj) {
