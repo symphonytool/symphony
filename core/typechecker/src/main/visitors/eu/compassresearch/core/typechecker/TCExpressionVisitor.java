@@ -52,6 +52,7 @@ import eu.compassresearch.ast.definitions.AChannelNameDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.definitions.ACmlClassDefinition;
 import eu.compassresearch.ast.expressions.ABracketedExp;
+import eu.compassresearch.ast.expressions.ACompVarsetExpression;
 import eu.compassresearch.ast.expressions.AEnumVarsetExpression;
 import eu.compassresearch.ast.expressions.AEnumerationRenameChannelExp;
 import eu.compassresearch.ast.expressions.AFatCompVarsetExpression;
@@ -156,18 +157,8 @@ class TCExpressionVisitor extends
 							+ "")));
 			return node.getType();
 		}
-
-		PExp expression = node.getExpression();
-		ILexNameToken channelId = node.getIdentifier();
-
-		PType expressionType = expression.apply(parent, question);
-		if (!successfulType(expressionType)) {
-			node.setType(issueHandler.addTypeError(expression,
-					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-							.customizeMessage(expression + "")));
-			return node.getType();
-		}
-
+		
+		ILexIdentifierToken channelId = node.getIdentifier();
 		PDefinition chanDef = cmlEnv.lookupChannel(channelId);
 		if (!(chanDef instanceof AChannelNameDefinition)) {
 			node.setType(issueHandler.addTypeError(node,
@@ -175,13 +166,24 @@ class TCExpressionVisitor extends
 							.customizeMessage(channelId + "")));
 			return node.getType();
 		}
-
-		if (!typeComparator.isSubType(chanDef.getType(), expressionType)) {
-			node.setType(issueHandler.addTypeError(
-					expression,
-					TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(""
-							+ chanDef.getType(), "" + expressionType)));
-			return node.getType();
+		
+		for (PExp expression : node.getExpressions())
+		{
+			PType expressionType = expression.apply(parent, question);
+			if (!successfulType(expressionType)) {
+				node.setType(issueHandler.addTypeError(expression,
+						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+								.customizeMessage(expression + "")));
+				return node.getType();
+			}		
+			
+			if (!typeComparator.isSubType(chanDef.getType(), expressionType)) {
+				node.setType(issueHandler.addTypeError(
+						expression,
+						TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(""
+								+ chanDef.getType(), "" + expressionType)));
+				return node.getType();
+			}
 		}
 
 		node.setType(new AVarsetExpressionType(node.getLocation(), true));
@@ -236,16 +238,17 @@ class TCExpressionVisitor extends
 			return node.getType();
 		}
 
-		LinkedList<ILexIdentifierToken> ids = node.getIdentifiers();
+
+		LinkedList<ANameChannelExp> chanNames = node.getChannelNames();		
 		boolean seenState = false;
 		boolean seenChannel = false;
-		for (ILexIdentifierToken id : ids) {
-			PDefinition idDef = cmlEnv.lookupChannel(id);
+		for (ANameChannelExp chanName : chanNames) {
+			PDefinition idDef = cmlEnv.lookupChannel(chanName.getIdentifier());
 			if (idDef == null) {
 				node.setType(issueHandler.addTypeError(
 						node,
 						TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(""
-								+ id)));
+								+ chanName.getIdentifier())));
 				return node.getType();
 			}
 
@@ -258,7 +261,7 @@ class TCExpressionVisitor extends
 			if ((seenState && seenChannel)) {
 				node.setType(issueHandler.addTypeError(node,
 						TypeErrorMessages.MIXING_STATE_AND_CHANNEL_IN_SET
-								.customizeMessage(ids + "")));
+								.customizeMessage(chanNames + "")));
 				return node.getType();
 			}
 
@@ -285,6 +288,62 @@ class TCExpressionVisitor extends
 		return result;
 
 	}
+	
+	
+	@Override
+	public PType caseACompVarsetExpression(ACompVarsetExpression node,
+			TypeCheckInfo question) throws AnalysisException
+	{
+		//bnd { a.x.y.z | x : Type, z : Type : z : Type } ]
+		
+		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
+		if (cmlEnv == null) {
+			node.setType(issueHandler.addTypeError(
+					node,
+					TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(""
+							+ node)));
+			return node.getType();
+		}
+
+		
+		ANameChannelExp chanNameExp = node.getChannelNameExp();
+		PExp predicate = node.getPredicate();
+		LinkedList<PMultipleBind> bindings = node.getBindings();
+
+		CmlTypeCheckInfo compScope = cmlEnv.newScope();
+
+		for (PMultipleBind mbnd : bindings) {
+			PType mbndType = mbnd.apply(parent, compScope);
+			if (!successfulType(mbndType)) {
+				node.setType(issueHandler.addTypeError(mbnd,
+						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+								.customizeMessage(node + "")));
+				return node.getType();
+			}
+		}
+
+		if (predicate != null) {
+			PType predicateType = predicate.apply(parent, compScope);
+			if (!successfulType(predicateType)) {
+				node.setType(issueHandler.addTypeError(predicateType,
+						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+								.customizeMessage("" + predicate)));
+				return node.getType();
+			}
+		}
+		
+
+		PType chanType = chanNameExp.apply(parent, compScope);
+		if (!successfulType(chanType)) {
+			node.setType(issueHandler.addTypeError(chanNameExp,
+					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+							.customizeMessage(node + "")));
+			return node.getType();
+		}
+		
+		node.setType(new AVarsetExpressionType(node.getLocation(), true));
+		return node.getType();
+	}
 
 	@Override
 	public PType caseAFatCompVarsetExpression(AFatCompVarsetExpression node,
@@ -304,8 +363,6 @@ class TCExpressionVisitor extends
 		PExp predicate = node.getPredicate();
 		LinkedList<PMultipleBind> bindings = node.getBindings();
 
-		CmlTypeCheckInfo compScope = cmlEnv.newScope();
-
 		for (PMultipleBind mbnd : bindings) {
 			PType mbndType = mbnd.apply(parent, question);
 			if (!successfulType(mbndType)) {
@@ -317,6 +374,7 @@ class TCExpressionVisitor extends
 		}
 
 		if (predicate != null) {
+			CmlTypeCheckInfo compScope = cmlEnv.newScope();
 			PType predicateType = predicate.apply(parent, compScope);
 			if (!successfulType(predicateType)) {
 				node.setType(issueHandler.addTypeError(predicateType,
@@ -587,11 +645,12 @@ class TCExpressionVisitor extends
 			return node.getType();
 		}
 
-		LinkedList<ILexIdentifierToken> ids = node.getIdentifiers();
+		LinkedList<ANameChannelExp> chanNames = node.getChannelNames();
 		LinkedList<PDefinition> defs = new LinkedList<PDefinition>();
 		boolean seenChannel = false;
 		boolean seenState = false;
-		for (ILexIdentifierToken id : ids) {
+		for (ANameChannelExp chanName : chanNames) {
+			ILexIdentifierToken id = chanName.getIdentifier();
 			LexNameToken nameid = new LexNameToken("", id);
 			PDefinition def = cmlEnv.lookup(nameid, PDefinition.class);
 			if (def == null) {
@@ -648,7 +707,7 @@ class TCExpressionVisitor extends
 		// or operation... We wish to find an abstraction with the right args.
 		name.setTypeQualifier(question.qualifiers);
 
-		// The defintion is set on the VariableExp for convenience
+		// The definition is set on the VariableExp for convenience
 		if (question.scope == null)
 			question.scope = NameScope.LOCAL;
 		node.setVardef(env.findName(name, question.scope));
@@ -814,7 +873,7 @@ class TCExpressionVisitor extends
 				parent, issueHandler);
 
 		org.overture.typechecker.TypeCheckInfo quest = new org.overture.typechecker.TypeCheckInfo(question.assistantFactory,
-				question.env);
+				question.env); 
 		quest.scope = question.scope;
 		quest.qualifiers = new LinkedList<PType>();
 		try {
