@@ -468,11 +468,10 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 
 	/**
 	 * 
-	 * //TODO no semantics defined, resolve this!
 	 */
 	@Override
 	public Inspection caseANonDeterministicDoStatementAction(
-			ANonDeterministicDoStatementAction node, final Context question)
+			final ANonDeterministicDoStatementAction node, final Context question)
 			throws AnalysisException {
 
 		List<ANonDeterministicAltStatementAction> availableAlts = 
@@ -507,7 +506,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 						@Override
 						public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
 								throws AnalysisException {
-							return new Pair<INode,Context>(new ASkipAction(), question);
+							return new Pair<INode,Context>(new ASkipAction(node.getLocation()), question);
 						}
 					});
 		}

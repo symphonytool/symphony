@@ -18,9 +18,12 @@ public enum CmlBehaviorState {
 	 * Successfully terminated
 	 */
 	FINISHED, 		
-	//ABORTED,
 	/**
 	 * The process is deadlocked
 	 */
-	STOPPED         
+	STOPPED,
+	/**
+	 * An error occurred
+	 */
+	ERROR,
 }

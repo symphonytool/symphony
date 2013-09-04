@@ -209,7 +209,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 				else
 					state = context.toString();
 
-				CmlRuntime.logger().fine("State for "+event+" : " +  state);
+				CmlRuntime.logger().finer("State for "+event+" : " +  state);
 			}
 
 			//Let the given decision function select one of the observable events 
@@ -239,16 +239,19 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 
 			if(trace.getLastTransition() instanceof ObservableEvent)
 			{
-				CmlRuntime.logger().fine("----------------observable step by '"+ topProcess +"'----------------");
+				CmlRuntime.logger().fine("----------------observable step by '"+ topProcess +"'----------------------");
 				CmlRuntime.logger().fine("Observable trace of '"+topProcess+"': " + trace.getObservableTrace());
-
+				CmlRuntime.logger().fine("Eval. Status={ " + topProcess.nextStepToString() + " }");
+				CmlRuntime.logger().fine("-----------------------------------------------------------------");
 			}
 			else 
 			{
-				CmlRuntime.logger().fine("----------------Silent step by '"+ topProcess +"'----------------");
-				CmlRuntime.logger().fine("Trace of '"+topProcess+"': " + trace);
+				CmlRuntime.logger().finer("----------------Silent step by '"+ topProcess +"'--------------------");
+				CmlRuntime.logger().finer("Trace of '"+topProcess+"': " + trace);
+				CmlRuntime.logger().finer("Eval. Status={ " + topProcess.nextStepToString() + " }");
+				CmlRuntime.logger().finer("-----------------------------------------------------------------");
 			}
-			CmlRuntime.logger().fine("Eval. Status={ " + topProcess.nextStepToString() + " }");
+			
 		}
 
 		if(topProcess.deadlocked())
