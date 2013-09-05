@@ -29,7 +29,7 @@ import eu.compassresearch.ide.core.resources.ICmlModel;
 import eu.compassresearch.ide.core.resources.ICmlProject;
 import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
 import eu.compassresearch.ide.ui.utility.CmlProjectUtil;
-import eu.compassresearch.theoremprover.visitors.TPVisitor;
+import eu.compassresearch.core.analysis.theoremprover.visitors.TPVisitor;
 
 public class TPBasicAction implements IWorkbenchWindowActionDelegate {
 

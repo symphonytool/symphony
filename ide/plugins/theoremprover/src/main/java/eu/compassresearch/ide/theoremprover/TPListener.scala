@@ -8,7 +8,7 @@ import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligationList
 import eu.compassresearch.core.common.RegistryFactory
 import eu.compassresearch.ide.pog.POConstants
 import eu.compassresearch.ide.core.resources.ICmlModel
-import eu.compassresearch.theoremprover.IsabelleTheory
+import eu.compassresearch.core.analysis.theoremprover.IsabelleTheory
 import isabelle.Command
 import isabelle.Document
 import isabelle.Session

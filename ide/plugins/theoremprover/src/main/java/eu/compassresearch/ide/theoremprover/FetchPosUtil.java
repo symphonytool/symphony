@@ -24,7 +24,7 @@ import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
 import eu.compassresearch.ide.pog.POConstants;
 import eu.compassresearch.ide.pog.PogPluginDoStuff;
 import eu.compassresearch.ide.ui.utility.CmlProjectUtil;
-import eu.compassresearch.theoremprover.IsabelleTheory;
+import eu.compassresearch.core.analysis.theoremprover.IsabelleTheory;
 
 public class FetchPosUtil
 {
