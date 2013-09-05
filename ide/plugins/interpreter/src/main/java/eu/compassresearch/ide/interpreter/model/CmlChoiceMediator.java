@@ -2,8 +2,9 @@ package eu.compassresearch.ide.interpreter.model;
 
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.LinkedList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.DebugEvent;
@@ -17,7 +18,6 @@ import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
@@ -30,14 +30,13 @@ import eu.compassresearch.ide.interpreter.CmlUtil;
 import eu.compassresearch.ide.interpreter.ICmlDebugConstants;
 import eu.compassresearch.ide.interpreter.protocol.CmlCommunicationManager;
 import eu.compassresearch.ide.interpreter.views.CmlEventOptionView;
-import eu.compassresearch.ide.ui.editor.core.CmlEditor;
 
 public class CmlChoiceMediator implements IDoubleClickListener, ISelectionChangedListener {
 
 	// SynchronousQueue<String> selectSync = new SynchronousQueue<String>();
 	final CmlDebugTarget cmlDebugTarget;
 	RequestMessage requestMessage = null;
-	private List<StyleRange> lastSelectedRanges = new LinkedList<StyleRange>();
+	private Map<StyledText,List<StyleRange>> lastSelectedRanges = new HashMap<StyledText,List<StyleRange>>();
 	CmlCommunicationManager communication;
 
 	public CmlChoiceMediator(CmlDebugTarget cmlDebugTarget,
@@ -97,12 +96,7 @@ public class CmlChoiceMediator implements IDoubleClickListener, ISelectionChange
 					CmlEventOptionView view = (CmlEventOptionView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(ICmlDebugConstants.ID_CML_OPTION_VIEW.toString());
 					view.getListViewer().removeDoubleClickListener(CmlChoiceMediator.this);
 					view.getListViewer().removeSelectionChangedListener(CmlChoiceMediator.this);
-					CmlEditor cmlEditor = (CmlEditor) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
-					if (cmlEditor != null)
-					{
-						StyledText styledText = (StyledText) cmlEditor.getAdapter(Control.class);
-						CmlUtil.clearSelections(styledText, lastSelectedRanges);
-					}
+					CmlUtil.clearSelections(lastSelectedRanges);
 					view.getListViewer().setInput(null);
 					view.getListViewer().refresh();
 
@@ -179,16 +173,6 @@ public class CmlChoiceMediator implements IDoubleClickListener, ISelectionChange
 		selectChoice(choice);
 	}
 
-	// private void clearSelections(StyledText styledText)
-	// {
-	// for (StyleRange sr : lastSelectedRanges)
-	// {
-	// sr.background = null;
-	// styledText.setStyleRange(sr);
-	// }
-	// lastSelectedRanges.clear();
-	// }
-
 	@Override
 	public void selectionChanged(SelectionChangedEvent event)
 	{
@@ -197,59 +181,11 @@ public class CmlChoiceMediator implements IDoubleClickListener, ISelectionChange
 			IStructuredSelection selection = (IStructuredSelection) event.getSelection();
 
 			Choice choice = (Choice) selection.getFirstElement();
-			CmlUtil.setSelectionFromLocation(choice.getLocations(), lastSelectedRanges);
-			// IWorkspace workspace = ResourcesPlugin.getWorkspace();
-			// IPath location = Path.fromOSString(choice.getLocations().get(0).getFile().getAbsolutePath());
-			// IFile file = workspace.getRoot().getFileForLocation(location);
-			// // It may be a linked resource
-			// if (file == null
-			// && workspace.getRoot().findFilesForLocation(location).length > 0)
-			// file = workspace.getRoot().findFilesForLocation(location)[0];
-			// IEditorPart editor = null;
-			// try
-			// {
-			// editor = IDE.openEditor(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), file,
-			// true);
-			// } catch (PartInitException e)
-			// {
-			// // TODO Auto-generated catch block
-			// e.printStackTrace();
-			// }
-			//
-			// // CmlEditor cmlEditor = (CmlEditor)
-			// // PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
-			// if (editor != null)
-			// {
-			// StyledText styledText = (StyledText) ((CmlEditor) editor).getAdapter(Control.class);
-			// // clear the last selection
-			// clearSelections(styledText);
-			//
-			// for (ILexLocation loc : choice.getLocations())
-			// {
-			// int length = loc.getEndOffset() - loc.getStartOffset() + 1;
-			// StyleRange sr = styledText.getStyleRangeAtOffset(loc.getStartOffset());
-			//
-			// // if nothing is found we try to look nearby
-			// if (sr == null)
-			// for (int i = loc.getStartOffset() - 50; i < loc.getStartOffset() + 50; i++)
-			// {
-			// sr = styledText.getStyleRangeAtOffset(i);
-			// if (sr != null)
-			// break;
-			// }
-			//
-			// if (sr != null)
-			// {
-			// sr.length = length;
-			// sr.background = new Color(null, new RGB(java.awt.Color.GRAY.getRed(), java.awt.Color.GRAY.getGreen(),
-			// java.awt.Color.GRAY.getBlue()));
-			// styledText.setStyleRange(sr);
-			// lastSelectedRanges.add(sr);
-			// }
-			// }
-			// styledText.setCaretOffset(choice.getLocations().get(0).getStartOffset());
-			// styledText.showSelection();
-			// }
+			CmlUtil.clearSelections(lastSelectedRanges);
+			CmlUtil.setSelectionFromLocations(choice.getLocations(), lastSelectedRanges);
+			//get a random one and set the 
+			StyledText st = lastSelectedRanges.keySet().iterator().next();
+			CmlUtil.showLocation(st,choice.getLocations().get(0));
 		}
 	}
 }

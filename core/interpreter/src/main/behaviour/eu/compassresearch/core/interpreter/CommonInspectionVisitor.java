@@ -43,7 +43,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 		super(ownerProcess, visitorAccess, parentVisitor);
 	}
 
-	protected CmlAlphabet syncOnTockAndJoinChildren()
+	protected CmlAlphabet syncOnTockAndJoinChildren() throws AnalysisException
 	{
 		//even though they are external choice/interleaving they should always sync on tock
 		CmlAlphabet cs =  new CmlAlphabet(new CmlTock());

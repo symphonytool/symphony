@@ -2,6 +2,7 @@ package eu.compassresearch.core.interpreter;
 
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -9,6 +10,7 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.intf.lex.ILexNameToken;
+import org.overture.ast.intf.lex.ILexToken;
 import org.overture.ast.util.definitions.ClassList;
 import org.overture.interpreter.eval.DelegateExpressionEvaluator;
 import org.overture.interpreter.runtime.ClassInterpreter;
@@ -25,6 +27,7 @@ import eu.compassresearch.ast.expressions.ABracketedExp;
 import eu.compassresearch.ast.expressions.AEnumVarsetExpression;
 import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
 import eu.compassresearch.ast.expressions.AIdentifierVarsetExpression;
+import eu.compassresearch.ast.expressions.ANameChannelExp;
 import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
 import eu.compassresearch.ast.expressions.PCMLExp;
 import eu.compassresearch.ast.lex.LexNameToken;
@@ -81,14 +84,25 @@ public class CmlExpressionVisitor extends QuestionAnswerCMLAdaptor<Context, Valu
 	public Value caseAFatEnumVarsetExpression(AFatEnumVarsetExpression node,
 			Context question) throws AnalysisException {
 		
-		return caseEnumVarSetExp(node.getIdentifiers(), question);
+		List<ILexIdentifierToken> channelIds = new LinkedList<ILexIdentifierToken>();
+		for (ANameChannelExp chanNameExp : node.getChannelNames())
+		{
+			channelIds.add(chanNameExp.getIdentifier());
+		}
+		return caseEnumVarSetExp(channelIds, question);
 	}
 	
 	@Override
 	public Value caseAEnumVarsetExpression(AEnumVarsetExpression node,
 			Context question) throws AnalysisException {
 
-		return caseEnumVarSetExp(node.getIdentifiers(), question);
+		List<ILexIdentifierToken> channelIds = new LinkedList<ILexIdentifierToken>();
+		for (ANameChannelExp chanNameExp : node.getChannelNames())
+		{
+			channelIds.add(chanNameExp.getIdentifier());
+		}
+		
+		return caseEnumVarSetExp(channelIds, question);
 
 	}
 	

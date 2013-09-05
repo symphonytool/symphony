@@ -54,7 +54,7 @@
 			name="COMPASS"/>
 		<view
             category="eu.compassresearch.ide.ui.category"
-            class="eu.compassresearch.ide.pog.view.PoView"
+            class="eu.compassresearch.ide.pog.view.PoDetailView"
             icon="icons/cview16/po_tsk.png"
             id="eu.compassresearch.ide.pog.PoDetail"
             name="CML PO Details">

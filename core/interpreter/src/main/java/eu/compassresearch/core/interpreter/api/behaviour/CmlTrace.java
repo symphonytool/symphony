@@ -27,7 +27,7 @@ public class CmlTrace {
 		trace.add(event);
 	}
 	
-	public CmlTransition getLastEvent()
+	public CmlTransition getLastTransition()
 	{
 		if(trace.size() > 0)
 			return trace.get(trace.size()-1);

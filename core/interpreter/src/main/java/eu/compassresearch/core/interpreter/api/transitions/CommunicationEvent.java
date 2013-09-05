@@ -183,7 +183,7 @@ class CommunicationEvent extends AbstractChannelEvent implements ObservableEvent
 				result &= ((InputParameter)otherComEvent.params.get(0)).evaluateContraint(value);
 
 			
-			if(otherComEvent.params.size() == 1 && 
+			if(this.params.size() == 1 && 
 					this.params.get(0) instanceof InputParameter)
 				result &= ((InputParameter)this.params.get(0)).evaluateContraint(value);				
 			

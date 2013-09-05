@@ -18,12 +18,14 @@ import org.overture.ast.patterns.ARecordPattern;
 import org.overture.ast.patterns.ASetMultipleBind;
 import org.overture.ast.patterns.ATuplePattern;
 import org.overture.ast.patterns.ATypeBind;
+import org.overture.ast.patterns.ATypeMultipleBind;
 import org.overture.ast.patterns.PBind;
 import org.overture.ast.patterns.PPattern;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.types.ARecordInvariantType;
 import org.overture.ast.types.ASetType;
 import org.overture.ast.types.AUnknownType;
+import org.overture.ast.types.AUnresolvedType;
 import org.overture.ast.types.PType;
 import org.overture.typechecker.TypeCheckInfo;
 
@@ -155,6 +157,40 @@ class TCBindVisitor extends QuestionAnswerCMLAdaptor<TypeCheckInfo, PType>
 
 		return bindType;
 	}
+	
+	@Override
+	public PType caseATypeMultipleBind(ATypeMultipleBind node,
+			TypeCheckInfo question) throws AnalysisException {
+		PType type = node.getType();
+		
+		if(!successfulType(type)) {
+			issueHandler.addTypeError(node,
+					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+							.customizeMessage("" + node));
+		}
+		
+		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
+		
+		//Its a type bind and we know the type
+		LinkedList<PPattern> patterns = node.getPlist();
+		for (PPattern p : patterns) {
+			
+			//perform any additional type checking
+			PType pType = p.apply(parent, question);
+			
+			if(pType instanceof AUnresolvedType){
+				//as expected; no worries, we know the type
+				for (PDefinition def : pType.getDefinitions()) {
+					def.setType(type);
+					
+					cmlEnv.addType(def.getName(), def);
+
+				}
+			}
+		}
+	
+		return type;
+	}
 
 	@Override
 	public PType caseATuplePattern(ATuplePattern node, TypeCheckInfo question)
@@ -179,7 +215,7 @@ class TCBindVisitor extends QuestionAnswerCMLAdaptor<TypeCheckInfo, PType>
 	public PType caseAIdentifierPattern(AIdentifierPattern node,
 			TypeCheckInfo question) throws AnalysisException {
 
-		// This is a bit wierd. But we are simply adding a binding to an
+		// This is a bit weird. But we are simply adding a binding to an
 		// unresolved type
 		// which some one further up the tree needs to fix as that information
 		// is not available here

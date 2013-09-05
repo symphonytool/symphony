@@ -53,7 +53,7 @@ import eu.compassresearch.ast.util.ToStringUtil;
 %type->error = "Type Error"
 
 // varSetExpressions
-%VarsetExpression->fatEnum = "{|" [identifiers] "|}"
+%VarsetExpression->fatEnum = "{|" [channelNames] "|}"
 
 //  Expressions
  

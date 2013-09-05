@@ -43,13 +43,12 @@ import org.overture.ast.lex.VDMToken;
 import org.overture.ast.patterns.APatternListTypePair;
 import org.overture.ast.patterns.PMultipleBind;
 import org.overture.ast.patterns.PPattern;
-import org.overture.pog.pub.IPOContextStack;
-import org.overture.typechecker.assistant.pattern.PPatternAssistantTC;
-
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.types.AFunctionType;
 import org.overture.ast.types.AOperationType;
 import org.overture.ast.types.PType;
+import org.overture.pog.pub.IPOContextStack;
+import org.overture.typechecker.assistant.pattern.PPatternAssistantTC;
 
 import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
@@ -65,7 +64,6 @@ public class CmlParameterPatternObligation extends CmlProofObligation
 		AExplicitCmlOperationDefinition def, IPOContextStack ctxt) throws AnalysisException
 	{
 		super(def, CmlPOType.OPERATION_PATTERNS, ctxt);
-		//FIXME implement ast based PO predicate
 		valuetree.setPredicate(ctxt.getPredWithContext(generate(def.getPredef(), getParamPatternList(def), ((AOperationType) def.getType()).getParameters(), ((AOperationType) def.getType()).getResult())));
 
 	}
@@ -74,7 +72,6 @@ public class CmlParameterPatternObligation extends CmlProofObligation
 		AImplicitCmlOperationDefinition def, IPOContextStack ctxt) throws AnalysisException
 	{
 		super(def, CmlPOType.OPERATION_PATTERNS, ctxt);
-		//FIXME implement ast based PO predicate
 		valuetree.setPredicate(ctxt.getPredWithContext(generate(def.getPredef(), getListParamPatternList(def), ((AOperationType) def.getType()).getParameters(), ((AOperationType) def.getType()).getResult())));
 
 	}

@@ -1,0 +1,8 @@
+channels 
+a b c d
+
+process A = 
+begin 
+
+	@ a -> b -> c -> Skip /_\ d -> Skip
+end

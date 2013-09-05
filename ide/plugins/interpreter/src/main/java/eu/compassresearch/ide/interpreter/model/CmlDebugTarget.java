@@ -50,7 +50,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 	private ILaunch launch;
 	private IProcess process;
 	private ICmlProject project;
-	private List<StyleRange> lastSelectedRanges = new LinkedList<StyleRange>();
+	private Map<StyledText, List<StyleRange>> lastSelectedRanges = new HashMap<StyledText, List<StyleRange>>();
 
 	CmlCommunicationManager communicationManager;
 	CmlThreadManager threadManager;
@@ -107,20 +107,22 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 			@Override
 			public boolean handleMessage(RequestMessage message)
 			{
-
-				for (IBreakpoint bp : getBreakpoints())
+				if(getBreakpointManager().isEnabled())
 				{
-					if (bp instanceof CmlLineBreakpoint)
+					for (IBreakpoint bp : getBreakpoints())
 					{
-						try
+						if (bp instanceof CmlLineBreakpoint)
 						{
-							Breakpoint cmlBP = new Breakpoint(System.identityHashCode(bp), ((CmlLineBreakpoint) bp).getResourceURI().toString(), ((ILineBreakpoint) bp).getLineNumber());
-							System.out.println("Debug target: " + cmlBP);
-							communicationManager.sendCommandMessage(CmlDebugCommand.SET_BREAKPOINT, cmlBP);
-						} catch (CoreException e)
-						{
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+							try
+							{
+								Breakpoint cmlBP = new Breakpoint(System.identityHashCode(bp), ((CmlLineBreakpoint) bp).getResourceURI().toString(), ((ILineBreakpoint) bp).getLineNumber());
+								System.out.println("Debug target: " + cmlBP);
+								communicationManager.sendCommandMessage(CmlDebugCommand.SET_BREAKPOINT, cmlBP);
+							} catch (CoreException e)
+							{
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
 						}
 					}
 				}
@@ -185,13 +187,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 					@Override
 					public void run()
 					{
-						CmlEditor cmlEditor = (CmlEditor) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
-						if (cmlEditor != null)
-						{
-							StyledText styledText = (StyledText) cmlEditor.getAdapter(Control.class);
-							CmlUtil.clearSelections(styledText, lastSelectedRanges);
-						}
-
+						CmlUtil.clearSelections(lastSelectedRanges);
 					}
 				});
 				return true;

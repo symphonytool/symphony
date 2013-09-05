@@ -14,7 +14,7 @@ public interface CmlDebugger extends Remote {
 	
 	public void initialize(CmlInterpreter cmlInterpreter)  throws AnalysisException ;
 	
-	public void start(DebugMode mode);
+	public void start(InterpreterExecutionMode mode);
 	
 	//public void stop();
 	
