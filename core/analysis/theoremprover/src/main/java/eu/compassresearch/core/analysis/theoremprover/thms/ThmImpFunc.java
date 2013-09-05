@@ -79,7 +79,10 @@ public class ThmImpFunc extends ThmDecl {
 		String lambdaName = "^" +ThmTypeUtil.isaFuncLambdaPostVal+"^";
 			
 		ex = ex.replace(pName, lambdaName);
-	
+
+		//Replace the keyword "RESULT" with the Lambda post value - PROBABLY JUST FOR EXP FUNCS...
+		ex = ex.replace("^RESULT^", "^" + ThmTypeUtil.isaFuncLambdaPostVal + "^");
+		
 		return ex;
 	}
 	

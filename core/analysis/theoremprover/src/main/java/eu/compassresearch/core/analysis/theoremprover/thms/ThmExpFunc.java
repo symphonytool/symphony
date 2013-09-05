@@ -65,6 +65,9 @@ public class ThmExpFunc extends ThmDecl {
 				count++;
 			}
 		}
+		//Replace the keyword "RESULT" with the Lambda post value
+		ex = ex.replace("^RESULT^", "^" + ThmTypeUtil.isaFuncLambdaPostVal + "^");
+		
 	
 		return ex;
 	}

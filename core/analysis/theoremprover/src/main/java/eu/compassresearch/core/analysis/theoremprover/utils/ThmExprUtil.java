@@ -1242,15 +1242,17 @@ public class ThmExprUtil {
 			boolean boundV = false;
 			ILexNameToken varName = v.getName();
 
-			for(ILexNameToken var : bvars){
-				if (!boundV && varName.toString().equals(var.getName()))
-				{
-					boundV = true;
+			if(!(varName.getName().equals("RESULT"))){
+				for(ILexNameToken var : bvars){
+					if (!boundV && varName.toString().equals(var.getName()))
+					{
+						boundV = true;
+					}
 				}
-			}
-			if(!boundV)
-			{
-				nodeDeps.add(varName);
+				if(!boundV)
+				{
+					nodeDeps.add(varName);
+				}
 			}
 			
 		}

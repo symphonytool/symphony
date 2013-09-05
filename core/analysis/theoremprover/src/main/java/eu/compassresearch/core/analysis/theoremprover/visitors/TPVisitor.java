@@ -152,7 +152,7 @@ public class TPVisitor extends
 		}catch(ThySortException thye)
 		{
 			thyString = "(*Thy gen error:*)\n" + 
-					"(*Isabelle Error when sorting nodes - please submit bug report with CML file*)\n\n";
+					"(*Isabelle Error when sorting nodes -- please submit bug report with CML file*)\n\n";
 		}
 		
 		//retrieve the file name without the .thy file exetension

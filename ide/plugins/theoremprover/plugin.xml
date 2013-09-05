@@ -8,28 +8,10 @@
   topic=%2Forg.eclipse.platform.doc.isv%2Freference%2Fextension-points%2Findex.html
 
   -->
-   <!-- 
-     <extension
-         point="org.eclipse.ui.actionSets">
-      <actionSet
-            id="eu.compassresearch.ide.ui.actionSet"
-            label="Theorem Prover Basic Action Set"
-            visible="true">
+  
+  
 
-         <action
-               class="eu.compassresearch.ide.theoremprover.TPBasicAction"
-               icon="icons/thy_action.png"
-               id="eu.compassresearch.ide.theoremprover.TPBasicAction"
-               label="&amp;THY"
-               toolbarPath="THYGroup"
-               tooltip="Generate THYs for open file">
-         </action>
-      </actionSet>
-   </extension>
-  -->
-  
-  
-  <extension
+ <extension
       point="org.eclipse.ui.commands">
    <command
          defaultHandler="eu.compassresearch.ide.theoremprover.commands.DischargePosHandler"
@@ -37,6 +19,25 @@
          name="DischargePOs">
    </command>
 </extension>
+
+  
+  
+ 
+<extension
+      point="org.eclipse.ui.menus">
+   <menuContribution
+         allPopups="false"
+         locationURI="toolbar:eu.compassresearch.ide.pogplugin.POsTable">
+      <command
+            commandId="eu.compassresearch.ide.theoremprover.dischargepos"
+            icon="icons/tp.png"
+            label="Discharge"
+            style="push"
+            tooltip="Send POs to Theorem Prover">
+      </command>
+   </menuContribution>
+</extension>
+  
 
 	<extension
             point="org.eclipse.ui.commands">
@@ -83,20 +84,5 @@
 		</menuContribution>
 	</extension>
   
-  
-  <extension
-      point="org.eclipse.ui.menus">
-   <menuContribution
-         allPopups="false"
-         locationURI="toolbar:eu.compassresearch.ide.pogplugin.POsTable">
-      <command
-            commandId="eu.compassresearch.ide.theoremprover.dischargepos"
-            icon="icons/tp.png"
-            label="Discharge"
-            style="push"
-            tooltip="Send POs to Theorem Prover">
-      </command>
-   </menuContribution>
-</extension>
   
 </plugin>
