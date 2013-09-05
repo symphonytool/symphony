@@ -553,7 +553,8 @@ public class ThmProcessUtil {
 			actString = actTnl.toString();
 		}catch(ThySortException thye)
 		{
-			actString = "(*Thy gen error:*)\n" + "(*Isabelle Error when sorting nodes - please submit bug report with CML file*)\n'n";
+			actString = "(*Thy gen error:*)\n" + "(*Isabelle Error when sorting nodes - "
+					+ "please submit bug report with CML file*)\n\n" + thye.getSortErrorStatus() + "\n\n"; 
 		}
 		//Remove all inner dependencies from the process dependency list. We only care about the 
 		//things external to the process that we depend upon.
@@ -1119,7 +1120,10 @@ public class ThmProcessUtil {
 				{
 					AAssignmentDefinition aDef = (AAssignmentDefinition) pdef;
 					varsStr.add(aDef.getName().toString());
-					assignStr.append(aDef.getName().toString() + ":=" + ThmExprUtil.getIsabelleExprStr(svars, bvars, aDef.getExpression()) + "; ");
+					if(aDef.getExpression() != null)
+					{
+						assignStr.append(aDef.getName().toString() + ":=" + ThmExprUtil.getIsabelleExprStr(svars, bvars, aDef.getExpression()) + "; ");
+					}
 				}
 
 				blockStr = assignStr.toString() + blockStr;
@@ -1129,7 +1133,7 @@ public class ThmProcessUtil {
 				}
 			}
 			
-			return blockStr; 
+			return "(" + blockStr + ")"; 
 		}
 		else if(stmt instanceof AIfStatementAction)
 		{
@@ -1175,8 +1179,13 @@ public class ThmProcessUtil {
 		else if(stmt instanceof AAssignmentCallStatementAction)
 		{
 			 AAssignmentCallStatementAction a = (AAssignmentCallStatementAction) stmt;
-//           [designator]:exp
-//           [call]:action.#Statement.call
+			 String aExp = ThmExprUtil.getIsabelleExprStr(svars, bvars, a.getDesignator());
+			 String callExp = ThmProcessUtil.getIsabelleActionString(a.getCall(), svars, bvars);
+//           
+			//Isabelle doesn't want state variables to have a $ on the lhs of an assignment.
+			//TODO: This may be too harsh
+			aExp = aExp.replace("$", "");
+			return aExp + ThmProcessUtil.assign + callExp;
 		}
 		else if(stmt instanceof AWhileStatementAction)
 		{
@@ -1597,8 +1606,6 @@ public class ThmProcessUtil {
 		{
 			ABlockStatementAction a = (ABlockStatementAction) stmt;
 			
-
-			nodeDeps.addAll(ThmProcessUtil.getIsabelleActionDeps(a.getAction(), bvars));
 			if(a.getDeclareStatement() != null) 
 			{				
 				for (PDefinition pdef : a.getDeclareStatement().getAssignmentDefs())
