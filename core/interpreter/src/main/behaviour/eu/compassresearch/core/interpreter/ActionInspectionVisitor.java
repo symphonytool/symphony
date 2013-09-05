@@ -233,7 +233,6 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 
 				if(node.getCommunicationParameters() != null)
 				{
-					//FIXME this should be more general. It only support one com param at the moment
 					for(PCommunicationParameter param : node.getCommunicationParameters())
 					{
 						if(param instanceof AReadCommunicationParameter)
@@ -654,18 +653,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 			ASynchronousParallelismParallelAction node, Context question)
 			throws AnalysisException {
 		
-		//TODO Change AFatEnumVarsetExpression expects List of ANameChannelExp instead of List of ILexNameToken
-//		Context globalContext = question.getGlobal();
-//		List<ILexNameToken> channelNames = new LinkedList<ILexNameToken>();
-//		
-//		//Get all the channel objects
-//		for(Entry<ILexNameToken,Value> entry : globalContext.entrySet())
-//			if(entry.getValue() instanceof CMLChannelValue)
-//				channelNames.add(entry.getKey().clone());
-		
-		List<ANameChannelExp> channelNames = new LinkedList<ANameChannelExp>();
-		AFatEnumVarsetExpression varsetNode = new AFatEnumVarsetExpression(new LexLocation(), channelNames);
-			
+		AFatEnumVarsetExpression varsetNode = getAllChannelsAsFatEnum(node.getLocation(),question);
 		AGeneralisedParallelismParallelAction nextNode = new AGeneralisedParallelismParallelAction(node.getLocation(), 
 				node.getLeftAction().clone(),node.getLeftNamesetExpression(),node.getLeftNamesetExpression(), node.getRightAction().clone(),varsetNode);
 		

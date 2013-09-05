@@ -438,19 +438,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 			ASynchronousParallelismProcess node, Context question)
 			throws AnalysisException {
 
-		
-		//TODO Change AFatEnumVarsetExpression expects List of ANameChannelExp instead of List of ILexNameToken
-//		Context globalContext = question.getGlobal();
-//		List<ILexNameToken> channelNames = new LinkedList<ILexNameToken>();
-//		
-//		//Get all the channel objects
-//		for(Entry<ILexNameToken,Value> entry : globalContext.entrySet())
-//			if(entry.getValue() instanceof CMLChannelValue)
-//				channelNames.add(entry.getKey().clone());
-//		
-		//quick fix
-		List<ANameChannelExp> channelNames = new LinkedList<ANameChannelExp>();
-		AFatEnumVarsetExpression varsetNode = new AFatEnumVarsetExpression(new LexLocation(), channelNames);
+		AFatEnumVarsetExpression varsetNode = getAllChannelsAsFatEnum(node.getLocation(), question);
 			
 		AGeneralisedParallelismProcess nextNode = new AGeneralisedParallelismProcess(node.getLocation(), 
 				node.getLeft().clone(), varsetNode, node.getRight().clone());

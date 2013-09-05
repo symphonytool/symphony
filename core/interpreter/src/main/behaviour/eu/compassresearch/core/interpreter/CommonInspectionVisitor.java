@@ -2,22 +2,28 @@ package eu.compassresearch.core.interpreter;
 
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.expressions.PExp;
+import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ValueException;
+import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
+import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
+import eu.compassresearch.ast.expressions.ANameChannelExp;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.lex.LexNameToken;
-import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
-import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
@@ -28,6 +34,7 @@ import eu.compassresearch.core.interpreter.api.transitions.CmlTock;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.HiddenEvent;
 import eu.compassresearch.core.interpreter.api.transitions.ObservableEvent;
+import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
 class CommonInspectionVisitor extends AbstractInspectionVisitor {
@@ -381,6 +388,27 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 					return new Pair<INode,Context>(new ASkipAction(), question);
 				}
 			});
+	}
+	
+	
+	/**
+	 * 
+	 */
+	protected AFatEnumVarsetExpression getAllChannelsAsFatEnum(
+			ILexLocation location, Context question)
+					throws AnalysisException {
+		
+		//TODO Change AFatEnumVarsetExpression expects List of ANameChannelExp instead of List of ILexNameToken
+		Context globalContext = question.getGlobal();
+		List<ANameChannelExp> channelNames = new LinkedList<ANameChannelExp>();
+
+
+		//Get all the channel name exps objects
+		for(Entry<ILexNameToken,Value> entry : globalContext.entrySet())
+			if(entry.getValue() instanceof CMLChannelValue)
+				channelNames.add(new ANameChannelExp(entry.getKey().getLocation(), entry.getKey().clone(), new LinkedList<PExp>())  );
+
+		return new AFatEnumVarsetExpression(location, channelNames);
 	}
 	
 	/**
