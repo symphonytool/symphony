@@ -71,7 +71,7 @@ public class ValuesTypeCheckerTestCase extends AbstractTypeCheckerTestCase {
 				false);
 		// 27//escape seq not ready yet
 		add("class test = begin values public a:seq of char  = \"\\\\ \\r \\n \\t \\f \\e \\a \\x61 \\ucc61 \\cd \\\"  \" end",
-				false, false);
+				true, true);
 		// 28//
 		add("class test = begin values public a:char = <Test> end", false);
 		// 29//

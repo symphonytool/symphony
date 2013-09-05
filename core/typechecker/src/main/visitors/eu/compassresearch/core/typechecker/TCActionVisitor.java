@@ -2889,6 +2889,15 @@ class TCActionVisitor extends
 							.customizeMessage(guard + "")));
 			return node.getType();
 		}
+		
+		if (!(typeComparator.isSubType(guardType, new ABooleanBasicType()))) {
+			TypeErrorMessages.INCOMPATIBLE_TYPE
+					.customizeMessage("Boolean", guardType + "");
+			node.setType(issueHandler.addTypeError(guard,
+					TypeErrorMessages.INCOMPATIBLE_TYPE
+					.customizeMessage("Boolean", "a guard of type " + guardType )));
+			return node.getType();
+		}
 
 		PAction action = node.getAction();
 		PType actionType = action.apply(parentChecker, question);

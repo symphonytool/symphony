@@ -17,8 +17,12 @@ public class StatementCmlTypeCheckerTestCase extends
 		// be invoked from dcl's
 		add("channels a : int process A = begin state v : int := 2 operations Test : int ==> int Test(x) == return x + v @ (dcl z : int := test(2) @ a!(z) -> Skip ) end",
 				false);
-		// 2//
-
+		// 2//Negative test. This test was reported by AKM and checks that do statements only contain
+		// boolean types. 
+		add("process A = begin @ do [] -> Skip end end", false);
+		// 3// This test was reported by AKM and checks that do statements only contain
+		// boolean types
+		add("process A = begin @ do true -> Skip | false -> Skip end end");
 	}
 
 	public StatementCmlTypeCheckerTestCase(String cmlSource, boolean parsesOk,
