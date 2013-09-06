@@ -392,16 +392,28 @@ public class ThmExprUtil {
 					sb.append(", ");
 				}
 			}
-			
-			//Need to remove final  ^'s due to the way we handle variable expressions. 
-			//Can't currently determine if root expression is a function variable.
-			StringBuilder rootsb = new StringBuilder(ThmExprUtil.getIsabelleExprStr(svars, bvars,app.getRoot()));
-			int count = 0;
-			while(count <2){
-				int lastHat = rootsb.lastIndexOf("^");
-				rootsb.deleteCharAt(lastHat);
-				count++;
-			}
+			String root = ThmExprUtil.getIsabelleExprStr(svars, bvars,app.getRoot());
+			StringBuilder rootsb = new StringBuilder();
+			//Need to remove ^ and $ decoration from root, as can't currently determine
+			//if root expression is a function variable.
+			//if root is a state variable...
+//			if(root.contains("$"))
+//			{
+//				root = root.replace("$", "");
+//				rootsb.append(root);
+//			}
+			//else, if a value variable
+			//else 
+			if (root.contains("^"))
+			{
+				rootsb.append(root);
+				int count = 0;
+				while(count <2){
+					int lastHat = rootsb.lastIndexOf("^");
+					rootsb.deleteCharAt(lastHat);
+					count++;
+				}
+			}	
 			
 			return rootsb.toString() + "(" + sb.toString() + ")";
 		}		

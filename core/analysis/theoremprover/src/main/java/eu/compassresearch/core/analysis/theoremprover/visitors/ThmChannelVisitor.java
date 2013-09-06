@@ -40,14 +40,17 @@ public class ThmChannelVisitor extends AnswerCMLAdaptor<ThmNodeList>
 		String type = "";
 
 		LinkedList<PDefinition> chandefs = node.getSingleType().getType().getDefinitions();
-		PDefinition chan = chandefs.getFirst();
-		name = chan.getName();
-		type = ThmTypeUtil.getIsabelleType(((AChannelType) chan.getType()).getType());
-		//Generate Channel syntax
-		NodeNameList nodeDeps = ThmChanUtil.getIsabelleChanDeps(node);
+		
+		for(PDefinition chan : chandefs)
+		{
+			//Generate Channel syntax
+			name = chan.getName();
+			type = ThmTypeUtil.getIsabelleType(((AChannelType) chan.getType()).getType());
+			NodeNameList nodeDeps = ThmChanUtil.getIsabelleChanDeps(node);
 
-		ThmNode tn = new ThmNode(name, nodeDeps, new ThmChannel(name.toString(), type));
-		tnl.add(tn);
+			ThmNode tn = new ThmNode(name, nodeDeps, new ThmChannel(name.toString(), type));
+			tnl.add(tn);
+		}
 		
 		return tnl;
 	}
