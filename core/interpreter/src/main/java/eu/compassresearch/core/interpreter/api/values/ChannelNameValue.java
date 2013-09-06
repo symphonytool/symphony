@@ -3,7 +3,12 @@ package eu.compassresearch.core.interpreter.api.values;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.types.AProductType;
+import org.overture.ast.types.PType;
 import org.overture.interpreter.values.Value;
+
+import eu.compassresearch.ast.types.AChannelType;
 
 public class ChannelNameValue extends Value {
 
@@ -108,4 +113,37 @@ public class ChannelNameValue extends Value {
 		return (ChannelNameValue)AbstractValueInterpreter.meet(this, other);
 	}
 	
+	public boolean isConstraintValid() throws AnalysisException
+	{
+		boolean res = true;
+		
+		for(int i = 0 ; i < values.size() ; i++)
+			constraints.get(i).isValid(values.get(i));
+		
+		return res;
+	}
+
+	public List<PType> getValueTypes()
+	{
+		List<PType> types = new LinkedList<PType>();
+		
+		AChannelType channelType = (AChannelType)this.channel.getType(); 
+		
+		if(channelType.getType() instanceof AProductType)
+			types.addAll(((AProductType)channelType.getType()).getTypes());
+		else if (channelType.getType() != null)
+			types.add(channelType.getType());
+		
+		return types;
+	}
+	
+	public void updateValue(int index, Value value)
+	{
+		values.set(index, value);
+	}
+	
+//	public boolean isValuePrecise(int index)
+//	{
+//		return AbstractValueInterpreter.isValueMostPrecise(values.get(index));
+//	}
 }

@@ -64,11 +64,7 @@ import eu.compassresearch.core.interpreter.api.transitions.ChannelEvent;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTock;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionFactory;
-import eu.compassresearch.core.interpreter.api.transitions.CommunicationParameter;
-import eu.compassresearch.core.interpreter.api.transitions.InputParameter;
 import eu.compassresearch.core.interpreter.api.transitions.ObservableEvent;
-import eu.compassresearch.core.interpreter.api.transitions.OutputParameter;
-import eu.compassresearch.core.interpreter.api.transitions.SignalParameter;
 import eu.compassresearch.core.interpreter.api.values.ActionValue;
 import eu.compassresearch.core.interpreter.api.values.AnyValue;
 import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
@@ -179,7 +175,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 		//otherwise we convert the com params
 		else
 		{
-			List<CommunicationParameter> params = new LinkedList<CommunicationParameter>();
+//			List<CommunicationParameter> params = new LinkedList<CommunicationParameter>();
 			List<Value> values = new LinkedList<Value>();
 			List<ValueConstraint> constraints = new LinkedList<ValueConstraint>();
 			int comParamSize = node.getCommunicationParameters().size(); 
@@ -187,7 +183,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 			{
 				PCommunicationParameter p = node.getCommunicationParameters().get(i);
 				
-				CommunicationParameter param = null;
+//				CommunicationParameter param = null;
 				if(p instanceof ASignalCommunicationParameter)
 				{
 					ASignalCommunicationParameter signal = (ASignalCommunicationParameter)p;
@@ -196,7 +192,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 					values.add(valueExp);
 					constraints.add(new NoConstraint());
 					
-					param = new SignalParameter((ASignalCommunicationParameter)p, valueExp);
+//					param = new SignalParameter((ASignalCommunicationParameter)p, valueExp);
 				}
 				else if(p instanceof AWriteCommunicationParameter)
 				{
@@ -206,7 +202,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 					values.add(valueExp);
 					constraints.add(new NoConstraint());
 					
-					param = new OutputParameter((AWriteCommunicationParameter)p, valueExp);
+//					param = new OutputParameter((AWriteCommunicationParameter)p, valueExp);
 				}
 				else if(p instanceof AReadCommunicationParameter)
 				{
@@ -222,17 +218,17 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 						val = new AnyValue(((AChannelType)chanValue.getType()).getType());
 					
 					Context constraintContext = CmlContextFactory.newContext(p.getLocation(),"Constraint evaluation context", question);
-					param = new InputParameter(readParam,val,constraintContext);
+//					param = new InputParameter(readParam,val,constraintContext);
 					
 					values.add(val);
 					constraints.add(new ExpressionConstraint(readParam,constraintContext));
 				}
 
-				params.add(param);
+//				params.add(param);
 			}
 
 			ObservableEvent observableEvent = 
-					CmlTransitionFactory.newCmlCommunicationEvent(owner, new ChannelNameValue(chanValue,values,constraints), params);
+					CmlTransitionFactory.newCmlCommunicationEvent(owner, new ChannelNameValue(chanValue,values,constraints));
 			comset.add(observableEvent);
 		}
 		//TODO: do the rest here
@@ -244,22 +240,23 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 			public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
 					throws AnalysisException {
 				//At this point the supervisor has already given go to the event, or the event is hidden
-				Value value = ((ChannelEvent)sve.selectedObservableEvent()).getValue();
+				ChannelNameValue channelNameValue = ((ChannelEvent)sve.selectedObservableEvent()).getChannelName();
 
 				if(node.getCommunicationParameters() != null)
 				{
-					for(PCommunicationParameter param : node.getCommunicationParameters())
+					for(int i = 0 ; i < node.getCommunicationParameters().size() ; i++ )
 					{
+						PCommunicationParameter param = node.getCommunicationParameters().get(i);
+						
 						if(param instanceof AReadCommunicationParameter)
 						{
 							PPattern pattern = ((AReadCommunicationParameter) param).getPattern();
-
+							Value value = channelNameValue.getValues().get(i);
 							if(pattern instanceof AIdentifierPattern)
 							{
 								ILexNameToken name = ((AIdentifierPattern) pattern).getName();
 								question.put(name, value);
 							}
-
 						}
 					}
 				}

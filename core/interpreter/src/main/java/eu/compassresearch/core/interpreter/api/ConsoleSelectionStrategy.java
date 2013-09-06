@@ -21,12 +21,12 @@ import org.overture.interpreter.values.TupleValue;
 import org.overture.interpreter.values.Value;
 import org.overture.interpreter.values.ValueList;
 
-import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
-import eu.compassresearch.ast.types.AChannelType;
+import eu.compassresearch.ast.analysis.AnswerCMLAdaptor;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
 import eu.compassresearch.core.interpreter.api.transitions.ChannelEvent;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.values.AbstractValueInterpreter;
+import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
 
 public class ConsoleSelectionStrategy implements
 SelectionStrategy {
@@ -56,21 +56,29 @@ SelectionStrategy {
 		}
 		
 		CmlTransition chosenEvent = events.get(scanIn.nextInt());
-		
 
 		if(chosenEvent instanceof ChannelEvent && !((ChannelEvent)chosenEvent).isPrecise())
 		{
-			System.out.println("Enter value : "); 
-			Value val;
-			try {
-				val = ((AChannelType)((ChannelEvent)chosenEvent).getChannelName().getChannel().getType()).getType().
-						apply(new ValueParser(),(ChannelEvent)chosenEvent);
-				((ChannelEvent)chosenEvent).setValue(val);
-			} catch (AnalysisException e) {
-				e.printStackTrace();
-				System.exit(-1);
-			}
+			ChannelEvent chosenChannelEvent = (ChannelEvent)chosenEvent;
+			ChannelNameValue channnelName = chosenChannelEvent.getChannelName(); 
 			
+			for(int i = 0 ; i < channnelName.getValues().size() ; i++ )
+			{
+				Value currentValue = channnelName.getValues().get(i);
+				
+				if(AbstractValueInterpreter.isValueMostPrecise(currentValue))
+				{
+					System.out.println("Enter value : "); 
+					Value val;
+					try {
+						val = channnelName.getValueTypes().get(i).apply(new ValueParser());
+						channnelName.updateValue(i, val);
+					} catch (AnalysisException e) {
+						e.printStackTrace();
+						System.exit(-1);
+					}
+				}
+			}
 		}
 		
 		return chosenEvent;
@@ -88,76 +96,4 @@ SelectionStrategy {
 			return userSelect(availableChannelEvents);
 	}
 	
-	class ValueParser extends QuestionAnswerCMLAdaptor<ChannelEvent,Value>
-	{
-		@Override
-		public Value defaultINode(INode node, ChannelEvent chosenEvent) throws AnalysisException {
-
-			throw new AnalysisException(node + " is not supported by the console");
-		}
-		
-		@Override
-		public Value caseAIntNumericBasicType(AIntNumericBasicType node, ChannelEvent chosenEvent)
-				throws AnalysisException {
-
-			return new IntegerValue(scanIn.nextInt());
-		}
-		
-		@Override
-		public Value caseANatNumericBasicType(ANatNumericBasicType node,
-				ChannelEvent question) throws AnalysisException {
-
-			try {
-				return new NaturalValue(scanIn.nextLong());
-			} catch (Exception e) {
-				throw new AnalysisException(e.getMessage(),e);
-			}
-		}
-		
-		@Override
-		public Value caseANamedInvariantType(ANamedInvariantType node, ChannelEvent chosenEvent)
-				throws AnalysisException {
-
-			return node.getType().apply(this,chosenEvent);
-		}
-		
-		@Override
-		public Value caseAProductType(AProductType node, ChannelEvent chosenEvent)
-				throws AnalysisException {
-
-			ValueList argvals = new ValueList();
-			
-			for(int i = 0 ; i < node.getTypes().size();i++)
-			{
-				Value val = ((TupleValue)chosenEvent.getValue()).values.get(i);
-				if(AbstractValueInterpreter.isValueMostPrecise(val))
-					argvals.add(val);
-				else
-					argvals.add(node.getTypes().get(i).apply(this,chosenEvent));
-			}
-			return new TupleValue(argvals);
-		}
-		
-		@Override
-		public Value caseAUnionType(AUnionType node, ChannelEvent chosenEvent) throws AnalysisException {
-			
-			PType type;
-
-			for(int i = 0; i <  node.getTypes().size();i++)
-			{
-				type = node.getTypes().get(i);
-				System.out.println( "[" + i + "]" + type.toString());
-			}
-
-			type = node.getTypes().get(scanIn.nextInt());
-
-			return type.apply(this, chosenEvent);
-		}
-		
-		@Override
-		public Value caseAQuoteType(AQuoteType node, ChannelEvent chosenEvent) throws AnalysisException {
-			
-			return new QuoteValue(node.getValue().getValue());
-		}
-	}
 }

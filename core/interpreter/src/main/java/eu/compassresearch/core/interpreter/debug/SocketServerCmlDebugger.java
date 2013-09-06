@@ -22,19 +22,22 @@ import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.core.interpreter.CmlRuntime;
 import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
-import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
+import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.RandomSelectionStrategy;
 import eu.compassresearch.core.interpreter.api.SelectionStrategy;
+import eu.compassresearch.core.interpreter.api.ValueParser;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.events.CmlInterpreterStatusObserver;
 import eu.compassresearch.core.interpreter.api.events.InterpreterStatusEvent;
 import eu.compassresearch.core.interpreter.api.transitions.ChannelEvent;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
+import eu.compassresearch.core.interpreter.api.values.AbstractValueInterpreter;
+import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
 import eu.compassresearch.core.interpreter.debug.messaging.CmlRequest;
 import eu.compassresearch.core.interpreter.debug.messaging.MessageCommunicator;
 import eu.compassresearch.core.interpreter.debug.messaging.MessageContainer;
@@ -195,12 +198,36 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 								selectedEvent = transition;
 						}
 
+//						if(selectedEvent instanceof ChannelEvent && !((ChannelEvent)selectedEvent).isPrecise())
+//						{
+//							System.out.println("Enter value : "); 
+//
+//							Value val = new IntegerValue(scanIn.nextInt());
+//							((ChannelEvent)selectedEvent).setValue(val);
+//						}
+						
 						if(selectedEvent instanceof ChannelEvent && !((ChannelEvent)selectedEvent).isPrecise())
 						{
-							System.out.println("Enter value : "); 
-
-							Value val = new IntegerValue(scanIn.nextInt());
-							((ChannelEvent)selectedEvent).setValue(val);
+							ChannelEvent chosenChannelEvent = (ChannelEvent)selectedEvent;
+							ChannelNameValue channnelName = chosenChannelEvent.getChannelName(); 
+							
+							for(int i = 0 ; i < channnelName.getValues().size() ; i++ )
+							{
+								Value currentValue = channnelName.getValues().get(i);
+								
+								if(AbstractValueInterpreter.isValueMostPrecise(currentValue))
+								{
+									System.out.println("Enter value : "); 
+									Value val;
+									try {
+										val = channnelName.getValueTypes().get(i).apply(new ValueParser());
+										channnelName.updateValue(i, val);
+									} catch (AnalysisException e) {
+										e.printStackTrace();
+										System.exit(-1);
+									}
+								}
+							}
 						}
 
 						return selectedEvent;

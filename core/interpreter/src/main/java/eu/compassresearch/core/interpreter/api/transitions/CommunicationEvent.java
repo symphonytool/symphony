@@ -13,6 +13,7 @@ import org.overture.ast.types.ANamedInvariantType;
 import org.overture.ast.types.AQuoteType;
 import org.overture.ast.types.AUnionType;
 import org.overture.ast.types.PType;
+import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.values.QuoteValue;
 import org.overture.interpreter.values.Value;
 
@@ -152,12 +153,12 @@ class CommunicationEvent extends AbstractChannelEvent implements ObservableEvent
 	}
 
 	@Override
-	public ObservableEvent synchronizeWith(ObservableEvent syncEvent){
-
+	public ObservableEvent synchronizeWith(ObservableEvent syncEvent) throws AnalysisException
+	{
 		CommunicationEvent otherComEvent = (CommunicationEvent)syncEvent;
 		ChannelNameValue meetValue = this.getChannelName().meet(((ChannelEvent)otherComEvent).getChannelName());
 		
-		if(meetValue != null && isContraintValid(meetValue,otherComEvent))
+		if(meetValue != null && meetValue.isConstraintValid())
 		{
 			Set<CmlBehaviour> sources = new HashSet<CmlBehaviour>();
 			sources.addAll(this.getEventSources());
@@ -169,28 +170,28 @@ class CommunicationEvent extends AbstractChannelEvent implements ObservableEvent
 			return null;
 	}
 	
-	private boolean isContraintValid(Value value, CommunicationEvent otherComEvent)
-	{
-		boolean result = true;
-		try
-		{
-			if(otherComEvent.getChannelName().getValues().size() == 1 && 
-					otherComEvent.params.get(0) instanceof InputParameter)
-				result &= ((InputParameter)otherComEvent.params.get(0)).evaluateContraint(value);
-			
-			if(this.params.size() == 1 && 
-					this.params.get(0) instanceof InputParameter)
-				result &= ((InputParameter)this.params.get(0)).evaluateContraint(value);				
-			
-		}
-		catch(AnalysisException ex)
-		{
-			ex.printStackTrace();
-			result = false;
-		}
-		
-		return result;
-	}
+//	private boolean isContraintValid(Value value, CommunicationEvent otherComEvent)
+//	{
+//		boolean result = true;
+//		try
+//		{
+//			if(otherComEvent.getChannelName().getValues().size() == 1 && 
+//					otherComEvent.params.get(0) instanceof InputParameter)
+//				result &= ((InputParameter)otherComEvent.params.get(0)).evaluateContraint(value);
+//			
+//			if(this.params.size() == 1 && 
+//					this.params.get(0) instanceof InputParameter)
+//				result &= ((InputParameter)this.params.get(0)).evaluateContraint(value);				
+//			
+//		}
+//		catch(AnalysisException ex)
+//		{
+//			ex.printStackTrace();
+//			result = false;
+//		}
+//		
+//		return result;
+//	}
 
 	@Override
 	public ObservableEvent meet(ObservableEvent obj) {
