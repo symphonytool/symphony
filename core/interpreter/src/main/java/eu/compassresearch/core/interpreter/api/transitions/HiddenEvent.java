@@ -19,26 +19,26 @@ public class HiddenEvent extends AbstractChannelEvent implements SilentTransitio
 	private ChannelEvent hiddenEvent;
 	
 	public HiddenEvent(CmlBehaviour eventSource, ChannelEvent hiddenEvent) {
-		super(eventSource, hiddenEvent.getChannel());
+		super(eventSource, hiddenEvent.getChannelName());
 		this.hiddenEvent = hiddenEvent; 
 		this.eventSources.addAll(hiddenEvent.getEventSources());
 	}
 	
 	public HiddenEvent(Set<CmlBehaviour> eventSources, ChannelEvent hiddenEvent) {
-		super(eventSources, hiddenEvent.getChannel());
+		super(eventSources, hiddenEvent.getChannelName());
 		this.hiddenEvent = hiddenEvent; 
 		this.eventSources.addAll(hiddenEvent.getEventSources());
 	}
 
-	@Override
-	public Value getValue() {
-		return hiddenEvent.getValue();
-	}
-
-	@Override
-	public void setValue(Value value) {
-		hiddenEvent.setValue(value);
-	}
+//	@Override
+//	public Value getValue() {
+//		return hiddenEvent.getValue();
+//	}
+//
+//	@Override
+//	public void setValue(Value value) {
+//		hiddenEvent.setValue(value);
+//	}
 
 	@Override
 	public boolean isPrecise() {

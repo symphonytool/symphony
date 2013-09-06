@@ -10,7 +10,8 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.intf.lex.ILexNameToken;
-import org.overture.ast.intf.lex.ILexToken;
+import org.overture.ast.types.AProductType;
+import org.overture.ast.types.PType;
 import org.overture.ast.util.definitions.ClassList;
 import org.overture.interpreter.eval.DelegateExpressionEvaluator;
 import org.overture.interpreter.runtime.ClassInterpreter;
@@ -20,7 +21,9 @@ import org.overture.interpreter.scheduler.BasicSchedulableThread;
 import org.overture.interpreter.scheduler.InitThread;
 import org.overture.interpreter.values.ObjectValue;
 import org.overture.interpreter.values.RecordValue;
+import org.overture.interpreter.values.TupleValue;
 import org.overture.interpreter.values.Value;
+import org.overture.interpreter.values.ValueList;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.expressions.ABracketedExp;
@@ -36,7 +39,9 @@ import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionFactory;
 import eu.compassresearch.core.interpreter.api.transitions.ObservableEvent;
+import eu.compassresearch.core.interpreter.api.values.AnyValue;
 import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
+import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
 
 @SuppressWarnings("serial")
 public class CmlExpressionVisitor extends QuestionAnswerCMLAdaptor<Context, Value>
@@ -80,58 +85,93 @@ public class CmlExpressionVisitor extends QuestionAnswerCMLAdaptor<Context, Valu
 		return vdmExpEvaluator.defaultPExp(node,question);
 	}
 	
+	protected ChannelNameValue createChannelNameValue(ILexIdentifierToken id, Context question) throws AnalysisException
+	{
+		//find the channel value
+		//TODO this might change if channel renaming does not 
+		//require the renamed channel name to be defined
+		ILexNameToken channelName = NamespaceUtility.createChannelName(id);
+		CMLChannelValue chanValue = (CMLChannelValue)question.lookup(channelName);
+		
+		return new ChannelNameValue(chanValue);
+	}
+	
+	protected ChannelNameValue createChannelNameValue(ANameChannelExp chanNameExp, Context question) throws AnalysisException
+	{
+		//find the channel value
+		//TODO this might change if channel renaming does not 
+		//require the renamed channel name to be defined
+		ILexNameToken channelName = NamespaceUtility.createChannelName(chanNameExp.getIdentifier());
+		CMLChannelValue chanValue = (CMLChannelValue)question.lookup(channelName);
+		
+		List<PType> channelNameTypes = new LinkedList<PType>();
+		PType channelType = ((AChannelType)chanValue.getType()).getType();
+		
+		//extract the channel types
+		if(channelType instanceof AProductType)
+			channelNameTypes = ((AProductType)channelType).getTypes(); 
+		else
+			channelNameTypes.add(channelType);
+		
+		//extract the values
+		List<Value> values = new LinkedList<Value>();
+		for(int i = 0 ; i < channelNameTypes.size();i++)
+		{
+			//if the index is less than the number of expressions its defined
+			//else we put an anyValue
+			if(i < chanNameExp.getExpressions().size())
+				values.add(chanNameExp.getExpressions().get(i).apply(this,question));
+			else
+				values.add(new AnyValue(channelNameTypes.get(i)));
+		}
+		
+		return new ChannelNameValue(chanValue, values);
+	}
+	
 	@Override
 	public Value caseAFatEnumVarsetExpression(AFatEnumVarsetExpression node,
 			Context question) throws AnalysisException {
 		
-		List<ILexIdentifierToken> channelIds = new LinkedList<ILexIdentifierToken>();
+		Set<CmlTransition> coms = new HashSet<CmlTransition>();
+		
 		for (ANameChannelExp chanNameExp : node.getChannelNames())
 		{
-			channelIds.add(chanNameExp.getIdentifier());
+			
+			ChannelNameValue channelName = createChannelNameValue(chanNameExp, question);
+			
+			if(!channelName.hasValues())
+				coms.add(CmlTransitionFactory.newSynchronizationEvent(channelName));
+			else
+				coms.add(CmlTransitionFactory.newCmlCommunicationEvent(channelName,null));
 		}
-		return caseEnumVarSetExp(channelIds, question);
+		
+		return new CmlAlphabet(coms);
 	}
 	
 	@Override
 	public Value caseAEnumVarsetExpression(AEnumVarsetExpression node,
 			Context question) throws AnalysisException {
-
-		List<ILexIdentifierToken> channelIds = new LinkedList<ILexIdentifierToken>();
+		
+		Set<CmlTransition> coms = new HashSet<CmlTransition>();
 		for (ANameChannelExp chanNameExp : node.getChannelNames())
 		{
-			channelIds.add(chanNameExp.getIdentifier());
+			ChannelNameValue channelName = createChannelNameValue(chanNameExp, question);
+			coms.add(createEvent(channelName));
 		}
 		
-		return caseEnumVarSetExp(channelIds, question);
-
-	}
-	
-	private Value caseEnumVarSetExp(List<ILexIdentifierToken> ids, Context question)
-	{
-		Set<CmlTransition> coms = new HashSet<CmlTransition>();
-
-		for(ILexIdentifierToken id : ids)
-		{
-			coms.add(createEvent((ILexIdentifierToken)id.clone(), question));
-		}
-
 		return new CmlAlphabet(coms);
+
 	}
 	
-	private ObservableEvent createEvent(ILexIdentifierToken id, Context question )
+	private ObservableEvent createEvent(ChannelNameValue channelName)
 	{
-		//FIXME: This should be a name so the conversion is avoided
-		ILexNameToken channelName = NamespaceUtility.createChannelName(id);
-		CMLChannelValue chanValue = (CMLChannelValue)question.lookup(channelName);
-
-		AChannelType chanType = (AChannelType)chanValue.getType(); 
-		if(chanType.getType() == null)
+		if(!channelName.hasValues())
 		{		
-			return CmlTransitionFactory.newSynchronizationEvent(chanValue);
+			return CmlTransitionFactory.newSynchronizationEvent(channelName);
 		}
 		else
 		{
-			return CmlTransitionFactory.newCmlCommunicationEvent(chanValue, null);
+			return CmlTransitionFactory.newCmlCommunicationEvent(channelName, null);
 		}
 	}
 	
@@ -140,7 +180,7 @@ public class CmlExpressionVisitor extends QuestionAnswerCMLAdaptor<Context, Valu
 			AIdentifierVarsetExpression node, Context question)
 			throws AnalysisException {
 
-		return new CmlAlphabet(createEvent(node.getIdentifier(), question));
+		return new CmlAlphabet(createEvent(createChannelNameValue(node.getIdentifier(), question)));
 	}
 	
 	@Override

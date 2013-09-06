@@ -3,7 +3,6 @@ package eu.compassresearch.core.interpreter;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.overture.ast.analysis.AnalysisException;
@@ -11,7 +10,6 @@ import org.overture.ast.expressions.PExp;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.intf.lex.ILexNameToken;
-import org.overture.ast.lex.LexLocation;
 import org.overture.ast.node.INode;
 import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.PPattern;
@@ -54,7 +52,6 @@ import eu.compassresearch.ast.actions.SStatementAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
-import eu.compassresearch.ast.expressions.ANameChannelExp;
 import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
@@ -75,7 +72,11 @@ import eu.compassresearch.core.interpreter.api.transitions.SignalParameter;
 import eu.compassresearch.core.interpreter.api.values.ActionValue;
 import eu.compassresearch.core.interpreter.api.values.AnyValue;
 import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
+import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
 import eu.compassresearch.core.interpreter.api.values.CmlOperationValue;
+import eu.compassresearch.core.interpreter.api.values.ExpressionConstraint;
+import eu.compassresearch.core.interpreter.api.values.NoConstraint;
+import eu.compassresearch.core.interpreter.api.values.ValueConstraint;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
 public class ActionInspectionVisitor extends CommonInspectionVisitor {
@@ -173,12 +174,14 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 		//if there are no com params then we have a prefix event
 		if(node.getCommunicationParameters().isEmpty())
 		{
-			comset.add(CmlTransitionFactory.newSynchronizationEvent(owner, chanValue));
+			comset.add(CmlTransitionFactory.newSynchronizationEvent(owner, new ChannelNameValue(chanValue)));
 		}
 		//otherwise we convert the com params
 		else
 		{
 			List<CommunicationParameter> params = new LinkedList<CommunicationParameter>();
+			List<Value> values = new LinkedList<Value>();
+			List<ValueConstraint> constraints = new LinkedList<ValueConstraint>();
 			int comParamSize = node.getCommunicationParameters().size(); 
 			for(int i = 0;i < comParamSize; i++)
 			{
@@ -189,12 +192,20 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 				{
 					ASignalCommunicationParameter signal = (ASignalCommunicationParameter)p;
 					Value valueExp = signal.getExpression().apply(cmlExpressionVisitor,question);
+					
+					values.add(valueExp);
+					constraints.add(new NoConstraint());
+					
 					param = new SignalParameter((ASignalCommunicationParameter)p, valueExp);
 				}
 				else if(p instanceof AWriteCommunicationParameter)
 				{
 					AWriteCommunicationParameter signal = (AWriteCommunicationParameter)p;
 					Value valueExp = signal.getExpression().apply(cmlExpressionVisitor,question);
+					
+					values.add(valueExp);
+					constraints.add(new NoConstraint());
+					
 					param = new OutputParameter((AWriteCommunicationParameter)p, valueExp);
 				}
 				else if(p instanceof AReadCommunicationParameter)
@@ -212,12 +223,16 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 					
 					Context constraintContext = CmlContextFactory.newContext(p.getLocation(),"Constraint evaluation context", question);
 					param = new InputParameter(readParam,val,constraintContext);
+					
+					values.add(val);
+					constraints.add(new ExpressionConstraint(readParam,constraintContext));
 				}
 
 				params.add(param);
 			}
 
-			ObservableEvent observableEvent = CmlTransitionFactory.newCmlCommunicationEvent(owner, chanValue, params);
+			ObservableEvent observableEvent = 
+					CmlTransitionFactory.newCmlCommunicationEvent(owner, new ChannelNameValue(chanValue,values,constraints), params);
 			comset.add(observableEvent);
 		}
 		//TODO: do the rest here

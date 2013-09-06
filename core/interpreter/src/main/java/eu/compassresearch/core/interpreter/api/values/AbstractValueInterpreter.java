@@ -47,7 +47,10 @@ public class AbstractValueInterpreter {
 		boolean ret = true;
 		if(value != null )
 		{
-			if(value instanceof TupleValue)
+			if(value instanceof ChannelNameValue)
+				for(Value innerValue : ((ChannelNameValue) value).getValues())
+					ret &= !isAnyValue(innerValue);
+			else if(value instanceof TupleValue)
 				for(Value innerValue : ((TupleValue) value).values)
 					ret &= !isAnyValue(innerValue);
 			else

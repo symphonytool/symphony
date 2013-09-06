@@ -10,6 +10,7 @@ import org.overture.interpreter.values.Value;
 import eu.compassresearch.core.interpreter.api.CmlChannel;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
+import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
 
 class SynchronizationEvent extends AbstractChannelEvent implements ObservableEvent{
 
@@ -18,27 +19,27 @@ class SynchronizationEvent extends AbstractChannelEvent implements ObservableEve
 	 */
 	private static final long serialVersionUID = -7043128094830839293L;
 
-	public SynchronizationEvent(CmlBehaviour eventSource, CmlChannel channel) {
-		super(eventSource, channel);
+	public SynchronizationEvent(CmlBehaviour eventSource, ChannelNameValue channelName) {
+		super(eventSource, channelName);
 	}
 	
-	public SynchronizationEvent(Set<CmlBehaviour> eventSources, CmlChannel channel) {
-		super(eventSources, channel);
+	public SynchronizationEvent(Set<CmlBehaviour> eventSources, ChannelNameValue channelName) {
+		super(eventSources, channelName);
 	}
 	
-	public SynchronizationEvent(CmlChannel channel) {
-		super(channel);
+	public SynchronizationEvent(ChannelNameValue channelName) {
+		super(channelName);
 	}
 
 	@Override
 	public int hashCode() {
 		
-		return channel.getName().hashCode(); //(this.eventSource != null ? this.eventSource.hashCode() : "null".hashCode());
+		return channelName.getChannel().getName().hashCode(); //(this.eventSource != null ? this.eventSource.hashCode() : "null".hashCode());
 	}
 
 	@Override
 	public String toString() {
-		return channel.getName();// + " : " + this.getEventSources();
+		return channelName.getChannel().getName();// + " : " + this.getEventSources();
 	}
 
 	@Override
@@ -62,7 +63,7 @@ class SynchronizationEvent extends AbstractChannelEvent implements ObservableEve
 		sources.addAll(this.getEventSources());
 		sources.addAll(syncEvent.getEventSources());
 		
-		return new SynchronizationEvent(sources, channel);
+		return new SynchronizationEvent(sources, channelName);
 	}
 
 	@Override
@@ -70,15 +71,15 @@ class SynchronizationEvent extends AbstractChannelEvent implements ObservableEve
 		return this;
 	}
 
-	@Override
-	public Value getValue() {
-		return null;
-	}
-
-	@Override
-	public void setValue(Value value) {
-		// do nothing
-	}
+//	@Override
+//	public Value getValue() {
+//		return null;
+//	}
+//
+//	@Override
+//	public void setValue(Value value) {
+//		// do nothing
+//	}
 
 	@Override
 	public boolean isPrecise() {

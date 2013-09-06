@@ -51,7 +51,7 @@ public class RandomSelectionStrategy implements
 			//need to resolve this and let the environment take a random choice
 			if(selectedComm instanceof ChannelEvent && !((ChannelEvent)selectedComm).isPrecise())
 			{
-				AChannelType t = (AChannelType)((ChannelEvent)selectedComm).getChannel().getType();
+				AChannelType t = (AChannelType)((ChannelEvent)selectedComm).getChannelName().getChannel().getType();
 				
 				((ChannelEvent)selectedComm).setValue(
 						AbstractValueInterpreter.meet(

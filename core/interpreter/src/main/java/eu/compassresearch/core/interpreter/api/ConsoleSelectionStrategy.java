@@ -63,7 +63,7 @@ SelectionStrategy {
 			System.out.println("Enter value : "); 
 			Value val;
 			try {
-				val = ((AChannelType)((ChannelEvent)chosenEvent).getChannel().getType()).getType().
+				val = ((AChannelType)((ChannelEvent)chosenEvent).getChannelName().getChannel().getType()).getType().
 						apply(new ValueParser(),(ChannelEvent)chosenEvent);
 				((ChannelEvent)chosenEvent).setValue(val);
 			} catch (AnalysisException e) {

@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.overture.interpreter.values.Value;
 
-import eu.compassresearch.core.interpreter.api.CmlChannel;
+import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
 
 public interface ChannelEvent extends CmlTransition{
 
@@ -12,11 +12,11 @@ public interface ChannelEvent extends CmlTransition{
 	 * The channel of this involved in this events
 	 * @return
 	 */
-	public CmlChannel getChannel();
+	public ChannelNameValue getChannelName();
 	
-	public Value getValue();
-	
-	public void setValue(Value value);
+//	public Value getValue();
+//	
+//	public void setValue(Value value);
 	
 	public List<ChannelEvent> expand();
 	
