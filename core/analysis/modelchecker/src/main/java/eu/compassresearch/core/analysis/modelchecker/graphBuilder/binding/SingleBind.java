@@ -37,7 +37,7 @@ public class SingleBind {
 	}
 	
 	public String toFormula() {
-		return "SingleBind(\"" + variableName + "\"," + variableValue.toString() + ")";
+		return "SingleBind(\"" + variableName + "\"," + variableValue.toFormula() + ")";
 	}
 	
 	public String toFormulaWithUnderscore(){

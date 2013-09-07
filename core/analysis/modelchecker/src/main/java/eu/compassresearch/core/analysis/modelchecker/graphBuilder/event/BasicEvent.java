@@ -17,6 +17,11 @@ public class BasicEvent implements Event {
 	}
 	
 	@Override
+	public int hashCode() {
+		return "ev".hashCode();
+	}
+	
+	@Override
 	public boolean equals(Object obj) {
 		boolean result = false;
 		if (obj instanceof BasicEvent){

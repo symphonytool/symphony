@@ -1,8 +1,12 @@
 package eu.compassresearch.core.analysis.modelchecker.visitors;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AAssignmentDefinition;
@@ -70,9 +74,7 @@ import eu.compassresearch.core.analysis.modelchecker.api.FormulaResult;
 import eu.compassresearch.core.analysis.modelchecker.api.IFormulaIntegrator;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.BBinding;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.Binding;
-import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.NullBinding;
-import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.SingleBind;
-import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.UndefinedValue;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Int;
 
 @SuppressWarnings("serial")
 public class CMLModelcheckerVisitor extends
@@ -147,7 +149,25 @@ public class CMLModelcheckerVisitor extends
 		
 
 		if(question.info.containsKey(Utilities.ASSIGNMENT_DEFINITION_KEY)){
-			question.getScriptContent().append(question.info.get(Utilities.ASSIGNMENT_DEFINITION_KEY));
+			//question.getScriptContent().append(question.info.get(Utilities.ASSIGNMENT_DEFINITION_KEY));
+			Map<String, ArrayList<String>> assigns = (Map<String, ArrayList<String>>) question.info.get(Utilities.ASSIGNMENT_DEFINITION_KEY);
+			CMLModelcheckerContext.ASSIGN_COUNTER = 0;
+			Binding max = question.getMaxBinding();
+			for(Iterator<String> it = assigns.keySet().iterator(); it.hasNext();){
+				String key = it.next();
+				ArrayList<String> values = assigns.get(key);
+				for(int i=0; i < values.size(); i++){
+					Integer val = new Integer(values.get(i));
+					question.getScriptContent().append("  assignDef(0, "+CMLModelcheckerContext.ASSIGN_COUNTER +", st, st_)  :- State(0,st,name,assign("+CMLModelcheckerContext.ASSIGN_COUNTER+")), st = ");
+					question.getScriptContent().append(max.toFormula());					
+					question.getScriptContent().append(", st_ = ");
+					max.updateBinding(key, new Int(val.intValue()));
+					question.getScriptContent().append(max.toFormula());
+					question.getScriptContent().append(".\n");
+					CMLModelcheckerContext.ASSIGN_COUNTER++;
+					
+				}
+			}
 		}
 		
 		question.getScriptContent().append(
@@ -176,7 +196,18 @@ public class CMLModelcheckerVisitor extends
 		}
 		
 		if(question.info.containsKey(Utilities.DEL_BBINDING)){
-			question.getScriptContent().append(question.info.get(Utilities.DEL_BBINDING));
+			Set<String> varToDel = question.getVariables();
+			for(Iterator<String> var = varToDel.iterator(); var.hasNext();){
+				String s = var.next();
+				Binding b = question.getMaxBinding();
+				StringBuilder del = new StringBuilder("  del(");
+				del.append(question.getMaxBinding().toFormulaWithUnderscore());
+				del.append(",\""+s+"\",");
+				b = b.deleteBinding(s);
+				del.append(b.toFormulaWithUnderscore()+")\n");
+				question.getScriptContent().append(del);
+			}
+			
 		}
 		
 		question.getScriptContent().append(
@@ -227,8 +258,8 @@ public class CMLModelcheckerVisitor extends
 		
 		if(question.info.containsKey(Utilities.VAR_DECLARATIONS_KEY)){
 			question.getScriptContent().append("  State(0,");
-			Binding maximalBind = (Binding) question.info.get(Utilities.VAR_DECLARATIONS_KEY);
-			question.getScriptContent().append(maximalBind.toFormula());
+			//Binding maximalBind = (Binding) question.info.get(Utilities.VAR_DECLARATIONS_KEY);
+			question.getScriptContent().append(question.getMaxBinding().toFormula());
 			question.getScriptContent().append(",np,pBody)  :- GivenProc(np), ProcDef(np,nopar,pBody).\n");
 		} else {
 			//putting the initial state to be generated
@@ -359,39 +390,15 @@ public class CMLModelcheckerVisitor extends
 			ASingleGeneralAssignmentStatementAction node,
 			CMLModelcheckerContext question) throws AnalysisException {
 		question.getScriptContent().append("assign("+CMLModelcheckerContext.ASSIGN_COUNTER +")");
-		StringBuilder str = new StringBuilder();
+		//StringBuilder str = new StringBuilder();
 		//this line is generated for this assignment. Each assignment must have a line like this
 		//probably the maximal binding is not ready to be put here and you need to put the assignment information into the context 
-		str.append("  assignDef(0, "+CMLModelcheckerContext.ASSIGN_COUNTER +", st, st_)  :- State(0,st,name,assign("+CMLModelcheckerContext.ASSIGN_COUNTER+")), st = OLD_BINDING, st_ = NEW_BINDING");
-		//BBinding b = (BBinding) question.info.get(Utilities.VAR_DECLARATIONS_KEY);
-		//StringBuilder s = new StringBuilder();
-		String procName = "np";
-		//s.append(b.toFormula());
-		//s.replace(s.indexOf(procName), s.indexOf(procName)+procName.length(), "name");
-		//String val = "undef";
-		//CMLModelcheckerContext aux = new CMLModelcheckerContext();
-		//s.replace(s.indexOf(val), s.indexOf(val)+val.length(), node.getExpression().apply(this, aux).toString());
-		//str.append(s);
-		str.append(".\n");
+		//str.append("  assignDef(0, "+CMLModelcheckerContext.ASSIGN_COUNTER +", st, st_)  :- State(0,st,name,assign("+CMLModelcheckerContext.ASSIGN_COUNTER+")), st = OLD_BINDING, st_ = NEW_BINDING");
+		//str.append(".\n");
 		
-		if (question.info.get(Utilities.ASSIGNMENT_DEFINITION_KEY) != null) {
-			question.putVarInBinding(Utilities.ASSIGNMENT_DEFINITION_KEY, str);
-		} else {
-			question.info.put(Utilities.ASSIGNMENT_DEFINITION_KEY, str);
-		}
+		question.putVarAttInBinding(Utilities.ASSIGNMENT_DEFINITION_KEY, node.getStateDesignator().toString(), node.getExpression().toString());
 		
 		CMLModelcheckerContext.ASSIGN_COUNTER++;
-			
-		// para a construcao do partialmodel
-		StringBuilder del = new StringBuilder("  del(");
-		//StringBuilder s = new StringBuilder();
-		//b is supposed to be the maximal binding
-		//s.append(b.toFormula());
-		//s.replace(s.indexOf(procName), s.indexOf(procName)+procName.length(), "_");
-		//s.replace(s.indexOf(val), s.indexOf(val)+val.length(), "_");
-		//del.append(s);
-		//del.append(",\""+node.getStateDesignator().toString()+"\",nBind)\n");
-		question.info.put(Utilities.DEL_BBINDING, del);
 		
 		return question.getScriptContent();
 	}
@@ -703,9 +710,14 @@ public class CMLModelcheckerVisitor extends
 	@Override
 	public StringBuilder caseABlockStatementAction(ABlockStatementAction node,
 			CMLModelcheckerContext question) throws AnalysisException {
-		node.getDeclareStatement().apply(this, question);
+		ADeclareStatementAction declaredStatement = node.getDeclareStatement(); 
+		if(declaredStatement != null) {
+			declaredStatement.apply(this, question);
+		}
 		node.getAction().apply(this, question);
-		question.getScriptContent().append(")");
+		if(declaredStatement != null) {
+			question.getScriptContent().append(")");
+		}
 		return question.getScriptContent();
 	}
 
@@ -1159,8 +1171,9 @@ public class CMLModelcheckerVisitor extends
 		question.getScriptContent().append("var(\""+node.getName().toString()+"\",\"");
 		node.getType().apply(this, question);
 		question.getScriptContent().append("\",");
-		BBinding b = new BBinding("np", new SingleBind(node.getName().toString(), new UndefinedValue()), new NullBinding());
-		question.info.put(Utilities.VAR_DECLARATIONS_KEY, b);
+		question.updateVariables(node.getName().toString());
+		question.info.put(Utilities.VAR_DECLARATIONS_KEY, "add");
+		question.info.put(Utilities.DEL_BBINDING, "del");
 		return question.getScriptContent();
 	}
 	
@@ -1243,15 +1256,17 @@ public class CMLModelcheckerVisitor extends
 	 * @throws Throwable
 	 */
 	public static void main(String[] args) throws Throwable {
-		String cml_example = "src/test/resources/action-vardecl3.cml";
+		//String cml_example = "src/test/resources/action-vardecl3.cml";
+		//String cml_example = "src/test/resources/action-vardecl4.cml";
+		String cml_example = "src/test/resources/action-internalchoice.cml";
 		System.out.println("Testing on " + cml_example);
 		
 		// List<PSource> sources = new LinkedList<PSource>();
 		PSource source = Utilities.makeSourceFromFile(cml_example);
 		// sources.add(source);
-		String basic = Utilities.readScriptFromFile(Utilities.BASIC_FORMULA_SCRIPT).toString();
-		String code = CMLModelcheckerVisitor.generateFormulaScript(basic, source.getParagraphs(), Utilities.DEADLOCK_PROPERTY);
-		System.out.println(code);
+		//String basic = Utilities.readScriptFromFile(Utilities.BASIC_FORMULA_SCRIPT).toString();
+		//String code = CMLModelcheckerVisitor.generateFormulaScript(basic, source.getParagraphs(), Utilities.DEADLOCK_PROPERTY);
+		//System.out.println(code);
 		CMLModelcheckerVisitor visitor = new CMLModelcheckerVisitor(source);
 		visitor.setPropertyToCheck(Utilities.DEADLOCK_PROPERTY);
 		String[] codes = visitor.generateFormulaCodeForAll();

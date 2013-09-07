@@ -3,6 +3,7 @@ package eu.compassresearch.core.analysis.modelchecker.visitors;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.Binding;
@@ -41,6 +42,9 @@ public class CMLModelcheckerContext {
 		return maximalBinding;
 	}
 	
+	public void updateVariables(String s){
+		variables.add(s);
+	}
 	
 	public Object putVarInBinding(Object key, Object value){
 		StringBuilder s =  (StringBuilder) info.get(key);
@@ -48,6 +52,30 @@ public class CMLModelcheckerContext {
 		return info.put(key, s);
 	}
 	
+	public Object putVarAttInBinding(Object key, Object key2, Object value){
+		Map<String, ArrayList<String>> s;
+		if(info.get(key) != null){
+			s = (HashMap<String, ArrayList<String>>) info.get(key);
+			if(s.get(key2) != null){
+				s.get(key2).add((String) value);
+			} else{
+				ArrayList<String> aux = new ArrayList<String>();
+				aux.add((String) value);
+				s.put((String) key2, aux);
+			}
+			
+		} else{
+			s = new HashMap<String, ArrayList<String>>();
+			ArrayList<String> aux = new ArrayList<String>();
+			aux.add((String) value);
+			s.put((String) key2, aux);
+		}
+		return info.put(key, s);
+	}
+	
+	public Set<String> getVariables(){
+		return variables;
+	}
 	
 	public StringBuilder getScriptContent() {
 		return scriptContent;

@@ -43,6 +43,11 @@ public class CommEv implements Event{
 	public String toString() {
 		return middle;
 	}
+	
+	@Override
+	public int hashCode() {
+		return  ("ev" +getBegin() + getMiddle() + getEnd()).hashCode();
+	}
 
 	@Override
 	public boolean equals(Object obj) {

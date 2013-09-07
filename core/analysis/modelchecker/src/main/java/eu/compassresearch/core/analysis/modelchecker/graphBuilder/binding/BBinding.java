@@ -65,11 +65,10 @@ public class BBinding implements Binding {
 	
 	public String toFormula() {
 		StringBuilder result = new StringBuilder();
-		result.append("BBinding("+this.procName+",");
-		//result.append(head.toString());
 		LinkedList<SingleBind> bindList = new LinkedList<SingleBind>(); 
 		getSingleBindings(bindList, this);
 		for (Iterator iterator = bindList.iterator(); iterator.hasNext();) {
+			result.append("BBinding("+this.procName+",");
 			SingleBind singleBind = (SingleBind) iterator.next();
 			result.append(singleBind.toFormula());
 			if(iterator.hasNext()){

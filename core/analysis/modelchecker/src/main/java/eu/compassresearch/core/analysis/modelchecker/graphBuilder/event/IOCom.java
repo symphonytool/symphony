@@ -33,7 +33,11 @@ public class IOCom implements Event {
 		public String toString() {
 			return str;
 		}
-
+		
+		@Override
+		public int hashCode() {
+			return ("ev" + number.toString()).hashCode();
+		}
 		@Override
 		public boolean equals(Object obj) {
 			boolean result = false;

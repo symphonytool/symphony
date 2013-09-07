@@ -50,6 +50,10 @@ import java.util.LinkedList;
 
 public class Utilities {
 	
+	public static final String DEADLOCK = "Deadlock";
+	public static final String LIVELOCK = "Livelock";
+	public static final String NONDETERMINISM = "Nondeterminism";
+	
 	protected Hashtable<String, Constructor> constructors;
 	
 	

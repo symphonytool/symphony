@@ -50,9 +50,9 @@ public class MCListView extends ViewPart {
 				| SWT.V_SCROLL);
 		// test setup columns...
 		TableLayout layout = new TableLayout();
-		layout.addColumnData(new ColumnWeightData(40, true));
 		layout.addColumnData(new ColumnWeightData(20, true));
 		layout.addColumnData(new ColumnWeightData(10, true));
+		layout.addColumnData(new ColumnWeightData(5, true));
 		viewer.getTable().setLayout(layout);
 		viewer.getTable().setLinesVisible(true);
 		viewer.getTable().setHeaderVisible(true);
@@ -64,7 +64,7 @@ public class MCListView extends ViewPart {
 			public void doubleClick(DoubleClickEvent event) {
 				
 				if (data.getFormulaResult().getResult().isSatisfiable()){
-					if(data.getProperty().equals(MCConstants.DEADLOCK_PROPERTY)){
+					//if(data.getProperty().equals(MCConstants.DEADLOCK_PROPERTY)){
 						try {
 							IWorkbenchBrowserSupport support = PlatformUI.getWorkbench().getBrowserSupport();
 							IWebBrowser browser = support.createBrowser(IWorkbenchBrowserSupport.AS_EDITOR, Activator.PLUGIN_ID, "COMPASS", "Model checker counterexample");
@@ -76,9 +76,9 @@ public class MCListView extends ViewPart {
 						} catch (MalformedURLException e) {
 							e.printStackTrace();
 						} 
-					}else{
-						popErrorMessage("Counterexample construction available only for deadlock property!");
-					}
+					//}else{
+					//	popErrorMessage("Counterexample construction available only for deadlock property!");
+					//}
 				}else{
 					popErrorMessage("Counterexample construction available only for satisfiable models!");
 				}
@@ -87,7 +87,7 @@ public class MCListView extends ViewPart {
 
 		TableColumn column = new TableColumn(viewer.getTable(), SWT.CENTER);
 		column.setText("File");
-		column.setToolTipText("File");
+		column.setToolTipText("Selected file");
 		//column.setWidth(60);
 		column.setAlignment(SWT.LEFT);
 		
@@ -95,7 +95,7 @@ public class MCListView extends ViewPart {
 		
 		TableColumn column2 = new TableColumn(viewer.getTable(), SWT.CENTER);
 		column2.setText("Property");
-		column2.setToolTipText("Property");
+		column2.setToolTipText("Checked property");
 		//column2.setWidth(20);
 		column2.setAlignment(SWT.CENTER);
 
@@ -143,11 +143,11 @@ public class MCListView extends ViewPart {
 	
 	private String getProperty(MCUIResult data){
 		if(data.getProperty().equalsIgnoreCase("deadlock")){
-			return "Deadlock";
+			return MCConstants.DEADLOCK_PROPERTY;
 		} else if(data.getProperty().equalsIgnoreCase("livelock")){
-			return "Livelock";
+			return MCConstants.LIVELOCK_PROPERTY;
 		} else if(data.getProperty().equalsIgnoreCase("Nondeterminism")){
-			return "Nondeterminism";
+			return MCConstants.NONDETERMINISM_PROPERTY;
 		}
 		return "";
 	}

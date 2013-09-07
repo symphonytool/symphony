@@ -154,7 +154,7 @@ public class MCHandler extends AbstractHandler {
 						if(formulaOutput.isSatisfiable()){
 							//we build the counterexample
 							GraphBuilder gb = new GraphBuilder();
-							String dotContent = gb.generateDot(new StringBuilder(formulaOutput.getFacts()));
+							String dotContent = gb.generateDot(new StringBuilder(formulaOutput.getFacts()), propertyToCheck);
 							//save the graphviz code to a file
 							IFile dotFile = writeDotContentToFile(mcFolder,selectedUnit,dotContent);
 							//compile the generated graphviz
@@ -175,7 +175,7 @@ public class MCHandler extends AbstractHandler {
 					}else{
 						MessageDialog.openInformation(
 								window.getShell(),
-								"Test command",
+								"COMPASS",
 								"Only CML files can be analysed!");
 					}
 				}

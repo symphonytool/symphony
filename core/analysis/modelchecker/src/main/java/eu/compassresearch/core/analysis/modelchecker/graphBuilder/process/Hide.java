@@ -35,7 +35,8 @@ public class Hide implements Process {
 	public boolean equals(Object obj) {
 		boolean result = false;
 		if (obj instanceof Hide) {
-			result =  super.equals(obj);
+			Hide other = (Hide) obj;
+			result =  this.getFirstProcess().equals(other.getFirstProcess());
 		}
 		return result;
 	}

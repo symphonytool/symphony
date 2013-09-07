@@ -161,9 +161,9 @@ domain CML_SemanticsSpec extends CML_SyntaxSpec {
 	
     // P \ X --tau--> P' \ X. 
     State(l,st_,pN,hide(P_, X)),
-    trans(State(l,st,pN,hide(P,X)), tau, State(l,st_,pN,hide(P_, X))) :- State(l,st,pN,hide(P,X)), trans(State(l,st,pN,P), ev, State(l,st_,pN,P_)), lieIn(ev, X).    
+    trans(iS, tau, State(l,st_,pName,hide(P_, X))) :- iS is State(l,st,pN,hide(P,X)), trans(State(l,st,pName,P), ev, State(l,st_,pName,P_)), ev!= tau, lieIn(ev, X).    
     State(l,st_,pN,hide(P_, X)),
-    trans(State(l,st,pN,hide(P,X)), tau, State(l,st_, pN,hide(P_, X))) :- State(l,st,pN,hide(P,X)), trans(State(l,st,pN,P), tau, State(l,st_,pN,P_)).    
+    trans(iS, tau, State(l,st_, pName,hide(P_, X))) :- iS is State(l,st,pN,hide(P,X)), trans(State(l,st,pName,P), tau, State(l,st_,pName,P_)).
     // P \ X --ev--> P' \ X
     State(l,st_,pN,hide(P_, X)),
     trans(State(l,st,pN,hide(P,X)), ev, State(l,st_,pN,hide(P_, X))) :- State(l,st,pN,hide(P,X)), trans(State(l,st,pN,P), ev, State(l,st_,pN,P_)), fail lieIn(ev, X).    

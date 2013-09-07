@@ -1,25 +1,26 @@
 package eu.compassresearch.core.analysis.modelchecker.graphBuilder;
 
-import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.NullBinding;
-import eu.compassresearch.core.analysis.modelchecker.graphBuilder.event.Tau;
-import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Process;
-import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Skip;
-import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Stop;
-import eu.compassresearch.core.analysis.modelchecker.graphBuilder.transition.Transition;
-import eu.compassresearch.core.analysis.modelchecker.graphBuilder.util.GraphResult;
-import eu.compassresearch.core.analysis.modelchecker.graphBuilder.util.Utilities;
-import eu.compassresearch.core.analysis.modelchecker.graphBuilder.util.Utilities.Constructor;
-
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayDeque;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 
-import javax.sound.sampled.ReverbType;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.NullBinding;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.event.Event;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.event.Tau;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Process;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Skip;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Stop;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.transition.Transition;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.util.GraphResult;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.util.LinkedListTransition;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.util.Utilities;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.util.Utilities.Constructor;
 
 
 public class GraphBuilder {
@@ -83,19 +84,62 @@ public class GraphBuilder {
 		return result;
 	}
 
-	
+	public String generateDot(String input, String property) throws IOException{
+		STATE_NUMBER = 1; //resets the state number
+		StringBuilder result = new StringBuilder();
+		LinkedList<Object> objects = this.loadLTSObjects(input);
+		GraphResult graph = new GraphResult();
+		if(property.equals(Utilities.DEADLOCK)){
+			graph = this.shortestPathToDeadlock(objects);
+		}else if(property.equals(Utilities.LIVELOCK)){
+			graph = this.shortestPathToLivelock(objects);
+			
+			
+			
+			
+			
+			
+			
+			
+			
+		}else if(property.equals(Utilities.NONDETERMINISM)){
+			graph = this.shortestPathToNondeterminism(objects);
+		}
+		writeDotToBuffer(result, graph);
+		
+		return result.toString();
+	}
+	public String generateDot(StringBuilder input, String property) throws IOException{
+		STATE_NUMBER = 1; //resets the state number
+		StringBuilder result = new StringBuilder();
+		LinkedList<Object> objects = this.loadLTSObjects(input);
+		GraphResult graph = new GraphResult();
+		if(property.equals(Utilities.DEADLOCK)){
+			graph = this.shortestPathToDeadlock(objects);
+		}else if(property.equals(Utilities.LIVELOCK)){
+			graph = this.shortestPathToLivelock(objects);
+		}else if(property.equals(Utilities.NONDETERMINISM)){
+			graph = this.shortestPathToNondeterminism(objects);
+		}
+		writeDotToBuffer(result, graph);
+		
+		return result.toString();
+	}
+	/*
 	public String generateDot(String input) throws IOException{
 		STATE_NUMBER = 1; //resets the state number
 		StringBuilder result = new StringBuilder();
 		
 		LinkedList<Object> objects = this.loadLTSObjects(input);
-		GraphResult graph = this.shortestPathToDeadlock(objects);
+		GraphResult graph = this.shortestPathToLivelock(objects);
 		
 		writeDotToBuffer(result, graph);
 		return result.toString();
 		
 	}
+	*/
 
+	/*
 	public String generateDot(StringBuilder formulaOutput) throws IOException{
 		STATE_NUMBER = 1; //resets the state number
 		StringBuilder result = new StringBuilder();
@@ -107,6 +151,7 @@ public class GraphBuilder {
 		return result.toString();
 		
 	}
+	*/
 
 	private void writeDotToBuffer(StringBuilder result, GraphResult graph) {
 		result.append( "digraph { \n ");
@@ -196,6 +241,7 @@ public class GraphBuilder {
 		
 		return result;
 	}
+	
 	
 	private LinkedList<Transition> getAllTransitionsTo(LinkedList<Transition> transitions, State targetState){
 		LinkedList<Transition> result = new LinkedList<Transition>();
@@ -308,81 +354,277 @@ public class GraphBuilder {
 		return result;
 	}
 	
-	
-	public GraphResult shortestPathToLivelock(LinkedList<Object> objects){
-GraphResult result = new GraphResult();
+	public GraphResult shortestPathToNondeterminism(LinkedList<Object> objects){
+		GraphResult result = new GraphResult();
 		
 		//this removes all procdefs and givenproc from the list 
 		State initialState = this.getInitialState(objects);
 		initialState.setShape("doublecircle");
 		
-		State tauFinalState = null; 
-		//this will be the real deadlock state found in the graph		
-		//it is better to see transitions as Transition objects
-		//LinkedList<Transition> transitions = new LinkedList<Transition>();
-		//for (Object current : objects) {
-		//	transitions.add((Transition)current);
-		//}
-		LinkedList<Transition> transitions = this.filterTransitions(objects);
+		State nonDeterministicState = null; 
 		
+		LinkedList<Transition> transitions = this.filterTransitions(objects);
 		ArrayDeque<State> toVisit = new ArrayDeque<State>();
-		//LinkedList<State> visitedStates = new LinkedList<State>();
 		LinkedList<Transition> visitedTransitions = new LinkedList<Transition>(); 
-		LinkedList<Transition> cicleTransitions = new LinkedList<Transition>();
+		
 		toVisit.addLast(initialState);
 		while(toVisit.size() > 0){
 			State current = toVisit.pollFirst();
 			current.setVisited(true);
-			//visitedStates.add(current);
-			LinkedList<Transition> transitionsFrom = this.getAllTransitionsFrom(transitions, current);
-			if(transitionsFrom.size() == 0){
-				//então eh deadLock
-				break;				
-			}
-			for (Transition transition : transitionsFrom) {
-				State target = transition.getTargetState();
-				if (transition.getEvent().equals(new Tau())) { // if the transition is basiclivelock
-					if (transition.getSourceState().equals(transition.getTargetState())){// tauFinalState = basicLivelock;
-						tauFinalState = transition.getTargetState();
-						if(cicleTransitions.getLast().getTargetState().equals(current)){
-							if (!cicleTransitions.contains(transition)){
-								cicleTransitions.add(transition);
-							}
-						}else{
-							if (!visitedTransitions.contains(transition)) 
-								visitedTransitions.add(transition);
-						}
-						break;
-					} else { // if is a cicle
-						if (!cicleTransitions.contains(transition)) {
-							if(cicleTransitions.size() == 0){
-								cicleTransitions.add(transition);							
-							}else if(cicleTransitions.getLast().getTargetState().equals(current)){
-								cicleTransitions.add(transition);
-							}
-						}
-					}
+			if(this.isNondeterministic(current, transitions)){
+				nonDeterministicState = current;
+				break;
+			}else{
+				//vai continuando a BFS até encontrar um estado que seja nao deterministico
+				LinkedList<Transition> transitionsFrom = this.getAllTransitionsFrom(transitions, current);
+				for (Transition transition : transitionsFrom) {
+					State target = transition.getTargetState();
 					
+					if(!target.isVisited()){
+						toVisit.addLast(target);
+					}
+					if(!visitedTransitions.contains(transition)){
+						visitedTransitions.add(transition);
+					}
 				}
-
-				if (!target.isVisited()) {
-					toVisit.addLast(target);
-				}
-				if (!visitedTransitions.contains(transition) && !cicleTransitions.contains(transition)) {
-					visitedTransitions.add(transition);
-				}
-
+			}
+		}
+		
+		//at the end of this loop visitedTransitions contains transitions used to  
+		//reach the first nondeterminist state and the replicated transitions from it.
+		// We must build the path from initial state to the nondeterministic state plus replicated transitions.
+		LinkedList<Transition> reversePath = new LinkedList<Transition>();
+		buildReversePath(reversePath, visitedTransitions, initialState, nonDeterministicState);
+		
+		LinkedList<Transition> singlePath = new LinkedList<Transition>();
+		buildSinglePath(reversePath, singlePath, initialState);
+		
+		//adds the replicated transitions from the nondeterministic state
+		int[] indexes = this.indexesOfReplicatedTransition(nonDeterministicState, transitions);
+		for (int i : indexes) {
+			singlePath.add(transitions.get(i));
+		}
+		
+		//singlePath contains the single path with numbered states. we separate states and transitions
+		LinkedList<State> pathStates = this.getSourceStates(singlePath);
+		//if(pathStates.size() == 0){
+			//realFinalState.setNumber(STATE_NUMBER++);
+			//realFinalState.setFillCollor("\"#FF9696\"");
+		//}
+		LinkedList<State> targetStates = this.getTargetStates(singlePath);
+		for (State state : targetStates) {
+			if(!pathStates.contains(state)){
+				pathStates.add(state);
+			}
+		}
+		
+		//if(pathStates.size() == 0){
+		//	nonDeterministicState.setFillCollor("\"#FF9696\"");
+		//	pathStates.add(nonDeterministicState);
+		//}
+		result.setStates(pathStates);
+		result.setTransitions(singlePath);
+		
+		
+		return result;
+	}
+	
+	private HashMap<Event,LinkedList<Transition>> createMap(LinkedList<Transition> transitions){
+		HashMap<Event,LinkedList<Transition>> map = new HashMap<Event,LinkedList<Transition>>();
+		for (Transition transition : transitions) {
+			if(map.containsKey(transition.getEvent())){
+				map.get(transition.getEvent()).add(transition);
+			}else{
+				LinkedList<Transition> list = new LinkedList<Transition>();
+				list.add(transition);
+				map.put(transition.getEvent(), list);
 			}
 			
 		}
+		return map;
+	}
+	
+	private boolean isNondeterministic(State state, LinkedList<Transition> transitions){
+		boolean result = false;
+		LinkedList<Transition> transFrom = this.getAllTransitionsFrom(transitions, state);
+		HashMap<Event,LinkedList<Transition>> map = this.createMap(transFrom);
+
+		for (Event key : map.keySet()) {
+			if(map.get(key).size() > 1){
+				LinkedList<Transition> transSameEvent = map.get(key);
+				LinkedList<State> targetStates = this.getTargetStates(transSameEvent);
+				for (int i = 0; i < targetStates.size() - 1; i++) {
+					for (int j = i; j < targetStates.size(); j++) {
+						LinkedList<Event> firstEvents = this.getAllEvents(this.getAllTransitionsFrom(transitions, targetStates.get(i)));
+						LinkedList<Event> secondEvents = this.getAllEvents(this.getAllTransitionsFrom(transitions, targetStates.get(j)));
+						result = !firstEvents.containsAll(secondEvents)  || firstEvents.contains(new Tau());
+						if(result){
+							return result;
+						}
+					}
+				}
+			}
+		}
+
+			return result;
+	}
+	private LinkedList<Event> getAllEvents(LinkedList<Transition> transitions) {
+		LinkedList<Event> result = new LinkedList<Event>();
+		for (Transition transition : transitions) {
+			result.add(transition.getEvent());
+		}
 		
-		//reversePath 
-		//simglePath
+		return result;
+	}
+	
+	private boolean checkRefusals(	LinkedList<Transition> replicatedTransitions, 
+									LinkedList<Transition> originalTransitions){
+		boolean result = false;
+		LinkedList<State> targetStates = this.getTargetStates(replicatedTransitions);
+		while(targetStates.size() > 0){
+			State current = targetStates.removeFirst();
+			LinkedList<Transition> from = this.getAllTransitionsFrom(originalTransitions, current);
+			for (State otherState : targetStates) {
+				LinkedListTransition fromOtherState = new LinkedListTransition(this.getAllTransitionsFrom(originalTransitions, otherState));
+				for (Transition currFrom : from) {
+					if(!fromOtherState.containsByEvent(currFrom, 0)){
+						result = true;
+						return result;
+					}
+				}
+			}
+		}
+		return result;
+	}
+	
+	private int[] indexesOfReplicatedTransition(State state, LinkedList<Transition> transitions){
+		int[] indexesOf = new int[0];
+		
+		LinkedListTransition outTransitions = new LinkedListTransition(this.getAllTransitionsFrom(transitions, state));
+		
+		for (int i = 0; i < outTransitions.size(); i++) {
+			Transition current = outTransitions.get(i);
+			indexesOf = outTransitions.indexesOf(current);
+			if(indexesOf.length > 1){
+				break;
+			}
+		}
+		
+		return indexesOf;
+	}
+	
+	private void getCicles(State state, LinkedList<Transition> transitions,
+			LinkedList<Transition> visitedTrans,
+			LinkedList<LinkedList<Transition>> cicles) {
+		
+		LinkedList<Transition> auxList = new LinkedList<Transition>();
+		LinkedList<Transition> transFrom = this.getAllTransitionsFrom(transitions, state);
+		if (transFrom.size() > 0) {
+			for (Transition transition : transFrom) {
+				if (isCicle(visitedTrans, transition.getTargetState())) {// IS
+																			// CICLE
+					auxList.addAll(visitedTrans);
+					auxList.add(transition);
+					cicles.add(auxList);
+
+				} else {
+					visitedTrans.add(transition);
+					getCicles(transition.getTargetState(), transitions,visitedTrans, cicles);
+					visitedTrans.removeLast();
+				}
+			}
+
+		}
+	}
+	
+	private boolean isCicleOfTau(LinkedList<Transition> cicle){
+		LinkedList<Transition> auxList = new LinkedList<Transition>();
+		boolean result = false;
+		for (Transition transition : cicle) {
+			if (transition.getEvent().equals(new Tau())) {
+				auxList.add(transition);
+				result  = this.isCicle(auxList, transition.getSourceState());
+				if(result)
+					return result;
+			}		
+		}
+		return result;
+		
+	}
+		
+	
+	private boolean isCicle(LinkedList<Transition> transitions,State current){
+		boolean result = false;
+		if(transitions.size() != 0){
+			for (int i = 0; i < transitions.size(); i++) {
+				result = transitions.get(i).getTargetState().equals(current);
+				if(result)
+					return result || transitions.getFirst().getSourceState().equals(current) ;
+			}
+		}
+		
+		return result;
+		
+	}
+	
+	private LinkedList<Transition> getShortPath(LinkedList<LinkedList<Transition>> cicles) {
+		LinkedList<Transition> result = cicles.getFirst(); 
+		for (LinkedList<Transition> cicle : cicles) {
+			if (cicle.size() > result.size()) {
+				result = cicle;
+			}
+		}
 		
 		return result;
 	}
 
+	public GraphResult shortestPathToLivelock(LinkedList<Object> objects){
+		GraphResult result = new GraphResult();
+		//this removes all procdefs and givenproc from the list 
+		State initialState = this.getInitialState(objects);
+		LinkedList<LinkedList<Transition>> cicles = new LinkedList<LinkedList<Transition>>();
+		LinkedList<Transition> transitions = this.filterTransitions(objects);		
+		LinkedList<Transition> visitedTransitions = new LinkedList<Transition>(); 
+		this.getCicles(initialState, transitions, visitedTransitions, cicles);
+		
+		for (LinkedList<Transition> cicle : cicles) {
+			if (!this.isCicleOfTau(cicle)) {
+				cicles.remove(cicle);
+			}
+		}
+		
+		LinkedList<Transition> shortCicle = this.getShortPath(cicles); 	
+		initialState = shortCicle.getFirst().getSourceState();
+		State finalState = shortCicle.getLast().getSourceState();
+		
+		LinkedList<Transition> reversePath = new LinkedList<Transition>();
+		buildReversePath(reversePath, shortCicle, initialState,finalState);
+		//but we need to build a single path from initial state to deadlock
+		LinkedList<Transition> singlePath = new LinkedList<Transition>();
+		buildSinglePath(reversePath, singlePath, initialState);
+		
+		//singlePath contains the single path with numbered states. we separate states and transitions
+		LinkedList<State> pathStates = this.getSourceStates(singlePath);
+		if(pathStates.size() == 0){
+			shortCicle.getLast().getTargetState().setNumber(STATE_NUMBER++);
+		}
+		LinkedList<State> targetStates = this.getTargetStates(singlePath);
+		for (State state : targetStates) {
+			if(!pathStates.contains(state)){
+				pathStates.add(state);
+			}
+		}
+		
+		if(pathStates.size() == 0){
+			pathStates.add(shortCicle.getLast().getTargetState());
+		}
+		result.setStates(pathStates);
+		result.setTransitions(singlePath);
+		
+		return result;
+	}
 
+	
 	private void buildReversePath(	LinkedList<Transition> reversePath, 
 									LinkedList<Transition> transitions, 
 									State initialState, State finalState){
@@ -444,10 +686,8 @@ GraphResult result = new GraphResult();
 	
 	public static void main(String[] args) throws IOException {
 		GraphBuilder gb = new GraphBuilder();
-		String filePath = "/examples/action-vardecl2.facts.D.txt";
-		String facts = "GivenProc(\"ImmediateDeadlock\")\n ProcDef(\"ImmediateDeadlock\",nopar,Stop)\n reachable(State(0,nBind,\"ImmediateDeadlock\",Stop))\n State(0,nBind,\"ImmediateDeadlock\",Stop)";
-		//String dotCode = gb.generateDot(new StringBuilder(facts));
-		String dotCode = gb.generateDot(filePath);
+		String filePath = "/examples/action-nondet.facts.ND.txt";
+		String dotCode = gb.generateDot(filePath,Utilities.NONDETERMINISM);
 		System.out.println(dotCode);
 	}
 	

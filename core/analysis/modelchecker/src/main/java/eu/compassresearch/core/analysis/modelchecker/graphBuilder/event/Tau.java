@@ -6,6 +6,10 @@ public class Tau implements Event {
 		return "tau";
 	}
 	
+	@Override
+	public int hashCode() {
+		return "tau".hashCode();
+	}
 	
 	@Override
 	public boolean equals(Object obj) {
