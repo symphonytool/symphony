@@ -394,19 +394,11 @@ public class ThmExprUtil {
 			}
 			String root = ThmExprUtil.getIsabelleExprStr(svars, bvars,app.getRoot());
 			StringBuilder rootsb = new StringBuilder();
-			//Need to remove ^ and $ decoration from root, as can't currently determine
+			//Need to remove ^ decoration from root, as can't currently determine
 			//if root expression is a function variable.
-			//if root is a state variable...
-//			if(root.contains("$"))
-//			{
-//				root = root.replace("$", "");
-//				rootsb.append(root);
-//			}
-			//else, if a value variable
-			//else 
+			rootsb.append(root);
 			if (root.contains("^"))
 			{
-				rootsb.append(root);
 				int count = 0;
 				while(count <2){
 					int lastHat = rootsb.lastIndexOf("^");
@@ -428,7 +420,7 @@ public class ThmExprUtil {
 		else if(ex instanceof AFieldExp){
 			AFieldExp fe = (AFieldExp) ex;
 			
-			return fe.getMemberName().toString() + "." + fe.getField().toString();
+			return ThmExprUtil.getIsabelleExprStr(svars, bvars, fe.getObject()) + "." + fe.getField().toString();
 		}
 		else if(ex instanceof AFieldNumberExp){
 			AFieldNumberExp fe = (AFieldNumberExp) ex;
@@ -1145,7 +1137,13 @@ public class ThmExprUtil {
 		}
 		else if(ex instanceof AFieldExp){
 			AFieldExp fe = (AFieldExp) ex;
-			nodeDeps.add(fe.getMemberName());
+			//Don't actually depend on the field name - just the object!
+			//if(fe.getMemberName() != null)
+			//{	
+			//	nodeDeps.add(fe.getMemberName());
+			//}
+			//nodeDeps.add(new LexNameToken("", fe.getField().getName(), fe.getLocation()));
+			nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, fe.getObject()));
 		}
 		else if(ex instanceof AFieldNumberExp){}
 		else if(ex instanceof AIotaExp){
