@@ -1260,7 +1260,6 @@ public class CMLModelcheckerVisitor extends
 		//String cml_example = "src/test/resources/action-vardecl4.cml";
 		String cml_example = "src/test/resources/action-internalchoice.cml";
 		System.out.println("Testing on " + cml_example);
-		
 		// List<PSource> sources = new LinkedList<PSource>();
 		PSource source = Utilities.makeSourceFromFile(cml_example);
 		// sources.add(source);
