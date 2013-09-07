@@ -17,6 +17,8 @@ import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.actions.PParametrisation;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
+import eu.compassresearch.ast.definitions.AFunctionsDefinition;
+import eu.compassresearch.ast.definitions.AOperationsDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.expressions.SRenameChannelExp;
@@ -150,20 +152,26 @@ public class TCProcessVisitor extends
 		LinkedList<PSingleDeclaration> repdecl = node
 				.getReplicationDeclaration();
 
+		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);	
+		
+		CmlTypeCheckInfo repProcEnv = cmlEnv.newScope();
 		for (PSingleDeclaration decl : repdecl) {
 			PType declType = decl.apply(parentChecker, question);
 			if (!successfulType(declType))
 				return issueHandler.addTypeError(declType,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 								.customizeMessage(declType + ""));
+			
+			for (PDefinition def : declType.getDefinitions())
+				repProcEnv.addVariable(def.getName(), def);
 		}
 
-		PType procType = proc.apply(parentChecker, question);
+		PType procType = proc.apply(parentChecker, repProcEnv);
 		if (!successfulType(procType))
 			return issueHandler.addTypeError(proc,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage("" + proc));
-
+		
 		return new AProcessType();
 	}
 
@@ -241,15 +249,20 @@ public class TCProcessVisitor extends
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage(csExp + ""));
 
+		CmlTypeCheckInfo repProcEnv = cmlEnv.newScope();
 		for (PSingleDeclaration decl : repDecl) {
 			PType declType = decl.apply(parentChecker, question);
 			if (!successfulType(declType))
 				return issueHandler.addTypeError(decl,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 								.customizeMessage("" + decl));
+			
+			for (PDefinition def : declType.getDefinitions())
+				repProcEnv.addVariable(def.getName(), def);
 		}
 
-		PType repProcType = repProc.apply(parentChecker, question);
+	
+		PType repProcType = repProc.apply(parentChecker, repProcEnv);
 		if (!successfulType(repProcType))
 			return issueHandler.addTypeError(repProc,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
@@ -693,6 +706,17 @@ public class TCProcessVisitor extends
 			org.overture.typechecker.TypeCheckInfo question)
 			throws AnalysisException {
 		eu.compassresearch.core.typechecker.CmlTypeCheckInfo newQ = (eu.compassresearch.core.typechecker.CmlTypeCheckInfo) question;
+		
+		LinkedList<PExp> args = node.getArgs();
+		for (PExp arg : args)
+		{
+			PType type = arg.apply(this.parentChecker, question);
+			if (!successfulType(type))
+				return issueHandler.addTypeError(arg,
+						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+								.customizeMessage(arg + ""));
+		}
+			
 		PDefinition processDef = newQ.lookup(node.getProcessName(),
 				PDefinition.class);
 
@@ -702,6 +726,8 @@ public class TCProcessVisitor extends
 					TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(node
 							.getProcessName() + ""));
 		}
+		
+		
 
 		if (!(processDef instanceof AProcessDefinition))
 			return issueHandler.addTypeError(processDef,
@@ -709,6 +735,9 @@ public class TCProcessVisitor extends
 							.customizeMessage(node.getProcessName() + ""));
 		node.setProcessDefinition((AProcessDefinition) processDef);
 
+		
+		
+		
 		return new AProcessType();
 	}
 
@@ -726,6 +755,27 @@ public class TCProcessVisitor extends
 
 		CmlTypeCheckInfo actionScope = cmlEnv.newScope();
 
+		//resolve functions/operation names prior to TC  
+		for (PDefinition def : node.getDefinitionParagraphs())
+		{
+			if(def.getName() != null) {
+				if(def instanceof AFunctionsDefinition){
+					AFunctionsDefinition funcDef = (AFunctionsDefinition) def;
+					for (PDefinition d : funcDef.getFunctionDefinitions()) {
+						actionScope.addVariable(d.getName(), d); 
+					}
+				} else
+				if(def instanceof AOperationsDefinition){
+					AOperationsDefinition opDef = (AOperationsDefinition) def;
+					for (PDefinition d : opDef.getOperations()) {
+						actionScope.addVariable(d.getName(), d); 
+					}
+				} else {
+					actionScope.addVariable(def.getName(), def);
+				}
+			}
+		}
+	
 		// Type check all the paragraph definitions
 		List<PDefinition> fixedDefinitions = new LinkedList<PDefinition>();
 		for (PDefinition def : node.getDefinitionParagraphs()) {
@@ -736,9 +786,9 @@ public class TCProcessVisitor extends
 								.customizeMessage(def.getName() + ""));
 			fixedDefinitions.addAll(TCDeclAndDefVisitor
 					.handleDefinitionsForOverture(def));
-			for (PDefinition d : type.getDefinitions()) {
-				actionScope.addVariable(d.getName(), d);
-			}
+//			for (PDefinition d : type.getDefinitions()) {
+//				actionScope.addVariable(d.getName(), d);
+//			}
 		}
 		node.getDefinitionParagraphs().clear();
 		node.getDefinitionParagraphs().addAll(fixedDefinitions);

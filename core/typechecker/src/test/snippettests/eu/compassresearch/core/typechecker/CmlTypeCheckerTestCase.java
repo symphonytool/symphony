@@ -169,87 +169,109 @@ public class CmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase {
 				testData,
 				"class T = begin state a : int functions f:int * int -> int f(x,y) == a + x + y end",
 				true, true, new String[0]);
-		// 220
+		// 31
 		addTestProgram(
 				testData,
 				"types Quantity = int Price = int class C = begin state sellerBids : seq of Quantity buyerBids : seq of Quantity prices : seq of Price inv len(sellerBids) = len(buyerBids) and len(sellerBids) = len(prices) end",
 				true, true, new String[0]);
-		// 221
+		// 32
 		addTestProgram(
 				testData,
 				"functions f: int -> int f(a) == a+1 pre a > 0 process P = begin @ f(2) end ",
 				true, true, new String[0]);
-		// 222
+		// 33
 		addTestProgram(
 				testData,
 				"class C = begin operations public doit: int ==> () doit(a) == Skip end process P = begin state s : C @ s.doit(1) end",
 				true, true, new String[0]);
-		// 223
+		// 34
 		addTestProgram(
 				testData,
 				"functions f: int -> int f(a) == a+1 pre a > 0 process P = begin @ pre_f(2) end ",
 				true, true, new String[0]);
-		// 224
+		// 35
 		addTestProgram(
 				testData,
 				"types mac :: a:int b:int process P = begin functions f: mac * int -> int f(x,y) == x.a+y @ f(mk_mac(1,2),2) end",
 				true, true, new String[0]);
-		// 225
+		// 36
 		addTestProgram(
 				testData,
 				"functions f: int * int -> int f(x,y) == x+y pre x > 0 process P = begin actions A = [ pre_f(0,0) ] & Skip @ A end",
 				true, true, new String[0]);
-		// 226
+		// 37
 		addTestProgram(
 				testData,
 				"types ERUId = nat RescueDetails ::a:int b:int process P = begin state erus : set of ERUId eruRescues : map ERUId to RescueDetails operations findIdleERUs() idleERUs: set of ERUId frame rd erus: set of ERUId rd eruRescues: map ERUId to RescueDetails post idleERUs = erus \\ dom eruRescues @ findIdleERUs() end",
 				true, true, new String[0]);
-		// 227
+		// 38
 		addTestProgram(
 				testData,
 				"channels c: nat values a : nat = 10 - 11 b:nat = 20 - 10 process A = begin actions B = c!(a-b)->Skip @ Skip end",
 				true, true, new String[0]);
-		// 228
+		// 39
 		addTestProgram(
 				testData,
 				"process P = begin actions B = A1(1,2) A1 = val a:int, b: nat @ Skip  @ A1(1,1) end",
 				true, true, new String[0]);
-		// 229
+		// 40
 		addTestProgram(
 				testData,
 				"types Day = nat AvailDB = map Day to nat functions CkAvail (d:Day,av:AvailDB) n:nat post n = av(d)",
 				true, true, new String[0]);
-		// 230
+		// 41
 		addTestProgram(testData,
 				"class C = begin operations C:()==>C C() == Skip end", true,
 				true, new String[0]);
-		// 231
+		// 42
 		addTestProgram(
 				testData,
 				"class C = begin operations C:()==>C C() == Skip end process P = begin state c:C @ c := new C() end",
 				true, true, new String[0]);
-		// 232
+		// 43
 		addTestProgram(
 				testData,
 				"process A = begin state i:int := 0 m:map int to (map int to int) @ m(0)(0) := 1 end",
 				true, true, new String[0]);
-		// 233
+		// 44
 		addTestProgram(
 				testData,
 				"process P = begin state a: nat * nat := mk_(0,0) t: (nat * nat) * (nat * nat) @ t.#1 := a end",
 				true, true, new String[0]);
-		// 234 //test case for bug http://sourceforge.net/p/compassresearch/tickets/12/
+		// 45 //test case for bug http://sourceforge.net/p/compassresearch/tickets/12/
 		addTestProgram(testData, 
 				"channels a : int class A = begin state hello : int := 4 operations  A : () ==> A  A() == Skip getHello : () ==> int getHello() == return hello end process Test =  begin @ (dcl v : A, out : int @ v := new A(); out := v.getHello();a.(out) -> Skip) end", 
 				true, true, new String[0]);
-		//235 //test case for bug http://sourceforge.net/p/compassresearch/tickets/23/
+		//46 //test case for bug http://sourceforge.net/p/compassresearch/tickets/23/
 		addTestProgram(testData, 
 				"types CP :: c : nat p : nat process test =  begin state myCP : [CP] operations op1: () ==> () op1() ==  (  dcl x : nat @ x := myCP.c  ) op2: (nat) ==> () op2(n) ==  (  myCP.c :=n ) @ Skip end", 
 				true, true, new String[0]);
-		// 236 //Test case like above, with no optional value  
+		// 47 //Test case like above, with no optional value  
 		addTestProgram(testData, 
 				"types CP :: c : nat p : nat process test =  begin state myCP : CP operations op1: () ==> () op1() ==  (  dcl x : nat @ x := myCP.c  ) op2: (nat) ==> () op2(n) ==  (  myCP.c :=n ) @ Skip end", 
 				true, true, new String[0]);
+		
+		//48 // Test case for bug https://sourceforge.net/p/compassresearch/tickets/27/
+		addTestProgram(testData, "functions Good : () -> nat Good () ==  let aux = 1 in aux process Test = begin state x : int functions	Bad : () -> nat	Bad () ==  let aux = 1 in aux @ Skip end", 
+				true, true, new String[0]);
+		//49 // Test case for bug https://sourceforge.net/p/compassresearch/tickets/27/
+		addTestProgram(testData, "functions Good : () -> nat Good () ==  let aux = 1 in aux process Test = begin functions	Bad : () -> nat	Bad () ==  let aux = 1 in aux @ Skip end", 
+				true, true, new String[0]);
+		//50 // Test case for bug https://sourceforge.net/p/compassresearch/tickets/27/
+		addTestProgram(testData, "process Test = begin functions Bad : () -> nat	Bad () ==  let aux = 1 in aux  Bad2 : () -> nat	Bad2 () ==  aux @ Skip end", 
+				true, false, new String[0]);
+		//51 // Test case for bug https://sourceforge.net/p/compassresearch/tickets/26/
+		addTestProgram(testData, "process Test = begin functions AFunc: nat -> nat AFunc(l) == 1 BFunc: nat * nat -> nat BFunc(l,u) == AFunc(l) @ Skip end", 
+				true, true, new String[0]);
+		//53 // Test case for bug https://sourceforge.net/p/compassresearch/tickets/26/
+		addTestProgram(testData, "process Test2 = begin functions AFunc: nat -> nat AFunc(avar) == 1 BFunc : () -> nat BFunc() == AFunc(2) @ Skip end", 
+				true, true, new String[0]);
+		//54 // Test case for bug https://sourceforge.net/p/compassresearch/tickets/26/
+		addTestProgram(testData, "process Test = begin functions BFunc : () -> nat BFunc() == AFunc(2) @ Skip end process Test2 = begin functions AFunc: nat -> nat AFunc(avar) == 1 BFunc : () -> nat BFunc() == AFunc(2) @ Skip end", 
+				true, false, new String[0]);
+		//55 // Test case for bug http://sourceforge.net/p/compassresearch/tickets/48/
+		addTestProgram(testData, "process Waiter = begin @ Wait \"ao\" ; Skip end",true, false, new String[0]);
+		
 		return testData;
 	}
 

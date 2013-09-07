@@ -412,10 +412,13 @@ public class CmlTCUtil {
 
 		if (scope == null)
 			scope = NameScope.NAMESANDANYSTATE;
+		
+//		if(definition.getNameScope() == null)
+//			return true;
 
 		if (scope == NameScope.LOCAL)
 			return definition.getNameScope() == scope;
-
+		
 		return true;
 	}
 

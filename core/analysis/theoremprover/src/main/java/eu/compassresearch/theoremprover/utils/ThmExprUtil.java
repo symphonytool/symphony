@@ -23,6 +23,7 @@ import eu.compassresearch.ast.expressions.AFatCompVarsetExpression;
 import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
 import eu.compassresearch.ast.expressions.AIdentifierVarsetExpression;
 import eu.compassresearch.ast.expressions.AInterVOpVarsetExpression;
+import eu.compassresearch.ast.expressions.ANameChannelExp;
 import eu.compassresearch.ast.expressions.ASubVOpVarsetExpression;
 import eu.compassresearch.ast.expressions.AUnionVOpVarsetExpression;
 import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
@@ -1683,8 +1684,9 @@ public class ThmExprUtil {
 		{
 			AFatEnumVarsetExpression e = (AFatEnumVarsetExpression) vExpr;
 			
-			for (Iterator<ILexIdentifierToken> itr = e.getIdentifiers().listIterator(); itr.hasNext(); ) {
-				ILexIdentifierToken i = itr.next();
+			for (Iterator<ANameChannelExp> itr = e.getChannelNames().listIterator(); itr.hasNext(); ) {
+				ANameChannelExp chan = itr.next();
+				ILexIdentifierToken i = chan.getIdentifier();
 				nodeDeps.add(new LexNameToken("", i.toString(), i.getLocation()));
 				
 				
@@ -1706,8 +1708,9 @@ public class ThmExprUtil {
 		{
 			AEnumVarsetExpression e = (AEnumVarsetExpression) vExpr;
 			
-			for (Iterator<ILexIdentifierToken> itr = e.getIdentifiers().listIterator(); itr.hasNext(); ) {
-				ILexIdentifierToken i = itr.next();
+			for (Iterator<ANameChannelExp> itr = e.getChannelNames().listIterator(); itr.hasNext(); ) {
+				ANameChannelExp chan = itr.next();
+				ILexIdentifierToken i = chan.getIdentifier();
 				nodeDeps.add(new LexNameToken("", i.toString(), i.getLocation()));
 			}
 		}
@@ -1743,9 +1746,12 @@ public class ThmExprUtil {
 				AFatEnumVarsetExpression e = (AFatEnumVarsetExpression) vExpr;
 				StringBuilder sb = new StringBuilder();
 
-				for (Iterator<ILexIdentifierToken> itr = e.getIdentifiers().listIterator(); itr.hasNext(); ) {
-					ILexIdentifierToken i = itr.next();
-					sb.append(i.getName().toString());
+
+				for (Iterator<ANameChannelExp> itr = e.getChannelNames().listIterator(); itr.hasNext(); ) {
+					ANameChannelExp chan = itr.next();
+					
+					//ILexIdentifierToken
+					sb.append(chan.getIdentifier().getName().toString());
 					sb.append(ThmExprUtil.isaDown );
 					//If there are remaining channels, add a ","
 					if(itr.hasNext()){	
@@ -1773,9 +1779,9 @@ public class ThmExprUtil {
 				AEnumVarsetExpression e = (AEnumVarsetExpression) vExpr;
 				StringBuilder sb = new StringBuilder();
 
-				for (Iterator<ILexIdentifierToken> itr = e.getIdentifiers().listIterator(); itr.hasNext(); ) {
-					ILexIdentifierToken i = itr.next();
-					sb.append(i.getName().toString());
+				for (Iterator<ANameChannelExp> itr = e.getChannelNames().listIterator(); itr.hasNext(); ) {
+					ANameChannelExp chan = itr.next();
+					sb.append(chan.getIdentifier().getName().toString());
 					sb.append(ThmExprUtil.isaDown );
 					//If there are remaining channels, add a ","
 					if(itr.hasNext()){	

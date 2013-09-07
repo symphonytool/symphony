@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testResult>
+  <exception/>
+  <interpreterState>DEADLOCKED</interpreterState>
+  <trace>
+    <events>a</events>
+    <timedTrace>(tock,){2}(tock,)*a(,tock)*</timedTrace>
+  </trace>
+</testResult>

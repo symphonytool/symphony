@@ -1,0 +1,10 @@
+channels 
+a
+
+process A = 
+begin 
+	state
+	s :int
+
+	@ Wait 2;a -> s := 2 ||| Stop 
+end
