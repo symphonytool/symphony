@@ -37,10 +37,53 @@ public class ThmExprUtil {
 	public static String isaEquiv = "\\<equiv>";
 	public static String isaType = "definition";
 	public static String isaAbbr = "abbreviation";
- 	
- 	static String notHandled = "(*expr not yet handled*)";
+ 
+	public static String comp = " comp ";
+	public static String domainResBy = " <-: ";
+	public static String domainResTo = " <: ";
+	public static String equals = " = ";
+	public static String inSet = " in @set ";
+	public static String mapUnion= " munion ";
+	public static String notEqual = " <> ";
+	public static String notInSet= " not in @set ";
+	public static String plusPlus= " ++ ";
+	public static String properSubset = " psubset ";
+	public static String rangeResBy = ":->";
+	public static String rangeResTo = ":>";
+	public static String seqConcat = " ^ ";
+	public static String setDifference = " setminus " ;
+	public static String setIntersect = " inter ";
+	public static String setUnion = " union ";
+	public static String starStar = " ** ";
+	public static String subset = " subset ";
+	
+	public static String absolute = "abs ";
+	public static String cardinality = "card ";
+	public static String distConcat = "conc ";
+	public static String distIntersect = "dinter ";
+	public static String distMerge = "dmerge ";
+	public static String distUnion = "dunion ";
+	public static String elements = "elems ";
+	public static String floor = "floor ";
+	public static String head = "hd ";
+	public static String indices = "inds ";
+	public static String len = "len ";
+	public static String mapDomain = "dom ";
+	public static String mapInverse = "inverse ";
+	public static String mapRange = "rng ";
+	public static String not = "not ";
+	public static String powerSet = "power ";
+	public static String reverse = "reverse ";
+	public static String tail = "tl ";
+	public static String unaryMinus = "- ";
+	public static String unaryPlus = "+ ";
+ 
+	static String notHandled = "(*expr not yet handled*)";
  	static String isaUndefined = "undefined";
 	private static String isaDown = "\\<down>";
+	
+	
+	
  
 
 	public static String getIsabelleExprStr(NodeNameList svars, NodeNameList bvars, PExp ex)
@@ -79,75 +122,75 @@ public class ThmExprUtil {
 		
 		if(ex instanceof ACompBinaryExp){
 			ACompBinaryExp comp = (ACompBinaryExp) ex;
-			return "(" + ThmExprUtil.getIsabelleExprStr(svars, bvars, comp.getLeft()) + " comp " + ThmExprUtil.getIsabelleExprStr(svars, bvars, comp.getRight()) + ")";
+			return "(" + ThmExprUtil.getIsabelleExprStr(svars, bvars, comp.getLeft()) + ThmExprUtil.comp + ThmExprUtil.getIsabelleExprStr(svars, bvars, comp.getRight()) + ")";
 		}
 		else if(ex instanceof ADomainResByBinaryExp){
 			ADomainResByBinaryExp dres = (ADomainResByBinaryExp) ex;
-			return "(" +ThmExprUtil.getIsabelleExprStr(svars, bvars, dres.getLeft()) + " <-: " + ThmExprUtil.getIsabelleExprStr(svars, bvars, dres.getRight())+ ")";
+			return "(" +ThmExprUtil.getIsabelleExprStr(svars, bvars, dres.getLeft()) + ThmExprUtil.domainResBy + ThmExprUtil.getIsabelleExprStr(svars, bvars, dres.getRight())+ ")";
 		}
 		else if(ex instanceof ADomainResToBinaryExp){
 			ADomainResToBinaryExp dres = (ADomainResToBinaryExp) ex;
-			return "(" +ThmExprUtil.getIsabelleExprStr(svars, bvars, dres.getLeft()) + " <: " + ThmExprUtil.getIsabelleExprStr(svars, bvars, dres.getRight())+ ")";
+			return "(" +ThmExprUtil.getIsabelleExprStr(svars, bvars, dres.getLeft()) + ThmExprUtil.domainResTo + ThmExprUtil.getIsabelleExprStr(svars, bvars, dres.getRight())+ ")";
 		}
 		else if(ex instanceof AEqualsBinaryExp){
 			AEqualsBinaryExp eq = (AEqualsBinaryExp) ex;
-			return "(" +ThmExprUtil.getIsabelleExprStr(svars, bvars, eq.getLeft()) + " = " + ThmExprUtil.getIsabelleExprStr(svars, bvars, eq.getRight())+ ")";
+			return "(" +ThmExprUtil.getIsabelleExprStr(svars, bvars, eq.getLeft()) + ThmExprUtil.equals + ThmExprUtil.getIsabelleExprStr(svars, bvars, eq.getRight())+ ")";
 		}
 		else if(ex instanceof AInSetBinaryExp){
 			AInSetBinaryExp ins = (AInSetBinaryExp) ex;
-			return "(" +ThmExprUtil.getIsabelleExprStr(svars, bvars, ins.getLeft()) + " in @set " + ThmExprUtil.getIsabelleExprStr(svars, bvars, ins.getRight())+ ")";
+			return "(" +ThmExprUtil.getIsabelleExprStr(svars, bvars, ins.getLeft()) + ThmExprUtil.inSet + ThmExprUtil.getIsabelleExprStr(svars, bvars, ins.getRight())+ ")";
 		}
 		else if(ex instanceof AMapUnionBinaryExp){
 			AMapUnionBinaryExp mun = (AMapUnionBinaryExp) ex;
-			return "(" +ThmExprUtil.getIsabelleExprStr(svars, bvars, mun.getLeft()) + " munion " + ThmExprUtil.getIsabelleExprStr(svars, bvars, mun.getRight())+ ")";
+			return "(" +ThmExprUtil.getIsabelleExprStr(svars, bvars, mun.getLeft()) + ThmExprUtil.mapUnion + ThmExprUtil.getIsabelleExprStr(svars, bvars, mun.getRight())+ ")";
 		}
 		else if(ex instanceof ANotEqualBinaryExp){
 			ANotEqualBinaryExp neq = (ANotEqualBinaryExp) ex;
-			return "(" +ThmExprUtil.getIsabelleExprStr(svars, bvars, neq.getLeft()) + " <> " + ThmExprUtil.getIsabelleExprStr(svars, bvars, neq.getRight())+ ")";
+			return "(" +ThmExprUtil.getIsabelleExprStr(svars, bvars, neq.getLeft()) + ThmExprUtil.notEqual + ThmExprUtil.getIsabelleExprStr(svars, bvars, neq.getRight())+ ")";
 		}
 		else if(ex instanceof ANotInSetBinaryExp){
 			ANotInSetBinaryExp nins = (ANotInSetBinaryExp) ex;
-			return "(" +ThmExprUtil.getIsabelleExprStr(svars, bvars, nins.getLeft()) + " not in @set " + ThmExprUtil.getIsabelleExprStr(svars, bvars, nins.getRight())+ ")";
+			return "(" +ThmExprUtil.getIsabelleExprStr(svars, bvars, nins.getLeft()) + ThmExprUtil.notInSet + ThmExprUtil.getIsabelleExprStr(svars, bvars, nins.getRight())+ ")";
 		}
 		else if(ex instanceof APlusPlusBinaryExp){
 			APlusPlusBinaryExp plpl = (APlusPlusBinaryExp) ex;
-			return "(" +ThmExprUtil.getIsabelleExprStr(svars, bvars, plpl.getLeft()) + " ++ " + ThmExprUtil.getIsabelleExprStr(svars, bvars, plpl.getRight())+ ")";
+			return "(" +ThmExprUtil.getIsabelleExprStr(svars, bvars, plpl.getLeft()) + ThmExprUtil.plusPlus + ThmExprUtil.getIsabelleExprStr(svars, bvars, plpl.getRight())+ ")";
 		}
 		else if(ex instanceof AProperSubsetBinaryExp){
 			AProperSubsetBinaryExp psub = (AProperSubsetBinaryExp) ex;
-			return "(" +ThmExprUtil.getIsabelleExprStr(svars, bvars, psub.getLeft()) + " psubset " + ThmExprUtil.getIsabelleExprStr(svars, bvars, psub.getRight())+ ")";
+			return "(" +ThmExprUtil.getIsabelleExprStr(svars, bvars, psub.getLeft()) + ThmExprUtil.properSubset  + ThmExprUtil.getIsabelleExprStr(svars, bvars, psub.getRight())+ ")";
 		}
 		else if(ex instanceof ARangeResByBinaryExp){
 			ARangeResByBinaryExp rres = (ARangeResByBinaryExp) ex;
-			return "(" +ThmExprUtil.getIsabelleExprStr(svars, bvars, rres.getLeft()) + ":->" + ThmExprUtil.getIsabelleExprStr(svars, bvars, rres.getRight())+ ")";
+			return "(" +ThmExprUtil.getIsabelleExprStr(svars, bvars, rres.getLeft()) + ThmExprUtil.rangeResBy + ThmExprUtil.getIsabelleExprStr(svars, bvars, rres.getRight())+ ")";
 		}
 		else if(ex instanceof ARangeResToBinaryExp){
 			ARangeResToBinaryExp rres = (ARangeResToBinaryExp) ex;
-			return "(" +ThmExprUtil.getIsabelleExprStr(svars, bvars, rres.getLeft()) + ":>" + ThmExprUtil.getIsabelleExprStr(svars, bvars, rres.getRight())+ ")";
+			return "(" +ThmExprUtil.getIsabelleExprStr(svars, bvars, rres.getLeft()) + ThmExprUtil.rangeResTo + ThmExprUtil.getIsabelleExprStr(svars, bvars, rres.getRight())+ ")";
 		}
 		else if(ex instanceof ASeqConcatBinaryExp){
 			ASeqConcatBinaryExp scon = (ASeqConcatBinaryExp) ex;
-			return "(" +ThmExprUtil.getIsabelleExprStr(svars, bvars, scon.getLeft()) + " ^ " + ThmExprUtil.getIsabelleExprStr(svars, bvars, scon.getRight())+ ")";
+			return "(" +ThmExprUtil.getIsabelleExprStr(svars, bvars, scon.getLeft()) + ThmExprUtil.seqConcat + ThmExprUtil.getIsabelleExprStr(svars, bvars, scon.getRight())+ ")";
 		}
 		else if(ex instanceof ASetDifferenceBinaryExp){
 			ASetDifferenceBinaryExp sdiff = (ASetDifferenceBinaryExp) ex;
-			return "(" +ThmExprUtil.getIsabelleExprStr(svars, bvars, sdiff.getLeft()) + " setminus " + ThmExprUtil.getIsabelleExprStr(svars, bvars, sdiff.getRight())+ ")";
+			return "(" +ThmExprUtil.getIsabelleExprStr(svars, bvars, sdiff.getLeft()) + ThmExprUtil.setDifference + ThmExprUtil.getIsabelleExprStr(svars, bvars, sdiff.getRight())+ ")";
 		}
 		else if(ex instanceof ASetIntersectBinaryExp){
 			ASetIntersectBinaryExp inter = (ASetIntersectBinaryExp) ex;
-			return "(" +ThmExprUtil.getIsabelleExprStr(svars, bvars, inter.getLeft()) + " inter " + ThmExprUtil.getIsabelleExprStr(svars, bvars, inter.getRight())+ ")";
+			return "(" +ThmExprUtil.getIsabelleExprStr(svars, bvars, inter.getLeft()) + ThmExprUtil.setIntersect + ThmExprUtil.getIsabelleExprStr(svars, bvars, inter.getRight())+ ")";
 		}
 		else if(ex instanceof ASetUnionBinaryExp){
 			ASetUnionBinaryExp union = (ASetUnionBinaryExp) ex;
-			return "(" +ThmExprUtil.getIsabelleExprStr(svars, bvars, union.getLeft()) + " union " + ThmExprUtil.getIsabelleExprStr(svars, bvars, union.getRight())+ ")";
+			return "(" +ThmExprUtil.getIsabelleExprStr(svars, bvars, union.getLeft()) + ThmExprUtil.setUnion + ThmExprUtil.getIsabelleExprStr(svars, bvars, union.getRight())+ ")";
 		}
 		else if(ex instanceof AStarStarBinaryExp){
 			AStarStarBinaryExp star = (AStarStarBinaryExp) ex;
-			return "(" +ThmExprUtil.getIsabelleExprStr(svars, bvars, star.getLeft()) + " ** " + ThmExprUtil.getIsabelleExprStr(svars, bvars, star.getRight())+ ")";
+			return "(" +ThmExprUtil.getIsabelleExprStr(svars, bvars, star.getLeft()) + ThmExprUtil.starStar + ThmExprUtil.getIsabelleExprStr(svars, bvars, star.getRight())+ ")";
 		}
 		else if(ex instanceof ASubsetBinaryExp){
 			ASubsetBinaryExp subs = (ASubsetBinaryExp) ex;
-			return "(" +ThmExprUtil.getIsabelleExprStr(svars, bvars, subs.getLeft()) + " subset " + ThmExprUtil.getIsabelleExprStr(svars, bvars, subs.getRight())+ ")";
+			return "(" +ThmExprUtil.getIsabelleExprStr(svars, bvars, subs.getLeft()) + ThmExprUtil.subset + ThmExprUtil.getIsabelleExprStr(svars, bvars, subs.getRight())+ ")";
 		}
 		else{
 			return ThmExprUtil.notHandled;
@@ -157,83 +200,83 @@ public class ThmExprUtil {
 	private static String getUnaryExp(NodeNameList svars, NodeNameList bvars, PExp ex) {
 		if(ex instanceof AAbsoluteUnaryExp){
 			AAbsoluteUnaryExp abs = (AAbsoluteUnaryExp) ex;
-			return "abs " + "(" + ThmExprUtil.getIsabelleExprStr(svars, bvars, abs.getExp())+ ")";
+			return ThmExprUtil.absolute + "(" + ThmExprUtil.getIsabelleExprStr(svars, bvars, abs.getExp())+ ")";
 		}
 		else if(ex instanceof ACardinalityUnaryExp){
 			ACardinalityUnaryExp card = (ACardinalityUnaryExp) ex;
-			return "card " + "(" + ThmExprUtil.getIsabelleExprStr(svars, bvars, card.getExp())+ ")";
+			return ThmExprUtil.cardinality + "(" + ThmExprUtil.getIsabelleExprStr(svars, bvars, card.getExp())+ ")";
 		}
 		else if(ex instanceof ADistConcatUnaryExp){
 			ADistConcatUnaryExp conc = (ADistConcatUnaryExp) ex;
-			return "conc " + "(" + ThmExprUtil.getIsabelleExprStr(svars, bvars, conc.getExp())+ ")";
+			return ThmExprUtil.distConcat + "(" + ThmExprUtil.getIsabelleExprStr(svars, bvars, conc.getExp())+ ")";
 		}
 		else if(ex instanceof ADistIntersectUnaryExp){
 			ADistIntersectUnaryExp dinter = (ADistIntersectUnaryExp) ex;
-			return "dinter " + "(" +ThmExprUtil.getIsabelleExprStr(svars, bvars, dinter.getExp())+ ")";
+			return ThmExprUtil.distIntersect + "(" +ThmExprUtil.getIsabelleExprStr(svars, bvars, dinter.getExp())+ ")";
 		}
 		else if(ex instanceof ADistMergeUnaryExp){
 			ADistMergeUnaryExp dmerge = (ADistMergeUnaryExp) ex;
-			return "dmerge " + "(" + ThmExprUtil.getIsabelleExprStr(svars, bvars, dmerge.getExp())+ ")";
+			return ThmExprUtil.distMerge + "(" + ThmExprUtil.getIsabelleExprStr(svars, bvars, dmerge.getExp())+ ")";
 		}
 		else if(ex instanceof ADistUnionUnaryExp){
 			ADistUnionUnaryExp dunion = (ADistUnionUnaryExp) ex;
-			return "dunion " + "(" + ThmExprUtil.getIsabelleExprStr(svars, bvars, dunion.getExp())+ ")";
+			return ThmExprUtil.distUnion + "(" + ThmExprUtil.getIsabelleExprStr(svars, bvars, dunion.getExp())+ ")";
 		}
 		else if(ex instanceof AElementsUnaryExp){
 			AElementsUnaryExp e = (AElementsUnaryExp) ex;
-			return "elems " + "(" + ThmExprUtil.getIsabelleExprStr(svars, bvars, e.getExp())+ ")";
+			return ThmExprUtil.elements + "(" + ThmExprUtil.getIsabelleExprStr(svars, bvars, e.getExp())+ ")";
 		}
 		else if(ex instanceof AFloorUnaryExp){
 			AFloorUnaryExp fl = (AFloorUnaryExp) ex;
-			return "floor " + "(" + ThmExprUtil.getIsabelleExprStr(svars, bvars, fl.getExp())+ ")";
+			return ThmExprUtil.floor + "(" + ThmExprUtil.getIsabelleExprStr(svars, bvars, fl.getExp())+ ")";
 		}
 		else if(ex instanceof AHeadUnaryExp){
 			AHeadUnaryExp hd = (AHeadUnaryExp) ex;
-			return "hd " + "(" + ThmExprUtil.getIsabelleExprStr(svars, bvars, hd.getExp())+ ")";
+			return ThmExprUtil.head + "(" + ThmExprUtil.getIsabelleExprStr(svars, bvars, hd.getExp())+ ")";
 		}
 		else if(ex instanceof AIndicesUnaryExp){
 			AIndicesUnaryExp inds = (AIndicesUnaryExp) ex;
-			return "inds " + "(" + ThmExprUtil.getIsabelleExprStr(svars, bvars, inds.getExp())+ ")";
+			return ThmExprUtil.indices + "(" + ThmExprUtil.getIsabelleExprStr(svars, bvars, inds.getExp())+ ")";
 		}
 		else if(ex instanceof ALenUnaryExp){
 			ALenUnaryExp len = (ALenUnaryExp) ex;
-			return "len " + "(" + ThmExprUtil.getIsabelleExprStr(svars, bvars, len.getExp())+ ")";
+			return ThmExprUtil.len + "(" + ThmExprUtil.getIsabelleExprStr(svars, bvars, len.getExp())+ ")";
 		}
 		else if(ex instanceof AMapDomainUnaryExp){
 			AMapDomainUnaryExp dom = (AMapDomainUnaryExp) ex;
-			return "dom " + "(" + ThmExprUtil.getIsabelleExprStr(svars, bvars, dom.getExp())+ ")";
+			return ThmExprUtil.mapDomain + "(" + ThmExprUtil.getIsabelleExprStr(svars, bvars, dom.getExp())+ ")";
 		}
 		else if(ex instanceof AMapInverseUnaryExp){
 			AMapInverseUnaryExp inverse = (AMapInverseUnaryExp) ex;
-			return "inverse " + "(" + ThmExprUtil.getIsabelleExprStr(svars, bvars, inverse.getExp())+ ")";
+			return ThmExprUtil.mapInverse + "(" + ThmExprUtil.getIsabelleExprStr(svars, bvars, inverse.getExp())+ ")";
 		}
 		else if(ex instanceof AMapRangeUnaryExp){
 			AMapRangeUnaryExp rng = (AMapRangeUnaryExp) ex;
-			return "rng " + "(" + ThmExprUtil.getIsabelleExprStr(svars, bvars, rng.getExp())+ ")";
+			return ThmExprUtil.mapRange + "(" + ThmExprUtil.getIsabelleExprStr(svars, bvars, rng.getExp())+ ")";
 		}
 		else if(ex instanceof ANotUnaryExp){
 			ANotUnaryExp not = (ANotUnaryExp) ex;
-			return "not " + "(" + ThmExprUtil.getIsabelleExprStr(svars, bvars, not.getExp())+ ")";
+			return ThmExprUtil.not + "(" + ThmExprUtil.getIsabelleExprStr(svars, bvars, not.getExp())+ ")";
 		}
 		else if(ex instanceof APowerSetUnaryExp){
 			APowerSetUnaryExp pwr = (APowerSetUnaryExp) ex;
-			return "power " + "(" + ThmExprUtil.getIsabelleExprStr(svars, bvars, pwr.getExp())+ ")";
+			return ThmExprUtil.powerSet + "(" + ThmExprUtil.getIsabelleExprStr(svars, bvars, pwr.getExp())+ ")";
 		}
 		else if(ex instanceof AReverseUnaryExp){
 			AReverseUnaryExp rev = (AReverseUnaryExp) ex;
-			return "reverse " + "(" + ThmExprUtil.getIsabelleExprStr(svars, bvars, rev.getExp())+ ")";
+			return ThmExprUtil.reverse + "(" + ThmExprUtil.getIsabelleExprStr(svars, bvars, rev.getExp())+ ")";
 		}
 		else if(ex instanceof ATailUnaryExp){
 			ATailUnaryExp tl = (ATailUnaryExp) ex;
-			return "tl " + "(" + ThmExprUtil.getIsabelleExprStr(svars, bvars, tl.getExp())+ ")";
+			return ThmExprUtil.tail + "(" + ThmExprUtil.getIsabelleExprStr(svars, bvars, tl.getExp())+ ")";
 		}
 		else if(ex instanceof AUnaryMinusUnaryExp){
 			AUnaryMinusUnaryExp minus = (AUnaryMinusUnaryExp) ex;
-			return "- " + "(" + ThmExprUtil.getIsabelleExprStr(svars, bvars, minus.getExp())+ ")";
+			return ThmExprUtil.unaryMinus + "(" + ThmExprUtil.getIsabelleExprStr(svars, bvars, minus.getExp())+ ")";
 		}
 		else if(ex instanceof AUnaryPlusUnaryExp){
 			AUnaryPlusUnaryExp plus = (AUnaryPlusUnaryExp) ex;
-			return "+" + "(" + ThmExprUtil.getIsabelleExprStr(svars, bvars, plus.getExp())+ ")";
+			return ThmExprUtil.unaryPlus + "(" + ThmExprUtil.getIsabelleExprStr(svars, bvars, plus.getExp())+ ")";
 		}
 		else{
 			return ThmExprUtil.notHandled;
