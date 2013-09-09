@@ -64,8 +64,10 @@ abstract class AbstractChannelEvent extends AbstractCmlTransition implements Cha
 //	
 //	public abstract void setValue(Value value);
 	
-	public abstract boolean isPrecise();
+//	@Override
+//	public abstract boolean isPrecise();
 	
+	@Override
 	public abstract List<ChannelEvent> expand();
 	
 	/**

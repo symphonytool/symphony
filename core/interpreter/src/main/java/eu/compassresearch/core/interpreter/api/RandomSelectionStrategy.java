@@ -41,19 +41,9 @@ public class RandomSelectionStrategy implements
 			selectedComm = new ArrayList<CmlTransition>(
 					availableChannelEvents.getAllEvents()).get(rndChoice.nextInt(nElems));
 			
-			//If the selected transition contains a value that are not precise then we
+			//If the selected transition contains a channelname that are not precise then we
 			//need to resolve this and let the environment take a random choice
-//			if(selectedComm instanceof ChannelEvent && !((ChannelEvent)selectedComm).isPrecise())
-//			{
-//				AChannelType t = (AChannelType)((ChannelEvent)selectedComm).getChannelName().getChannel().getType();
-//				
-//				((ChannelEvent)selectedComm).setValue(
-//						AbstractValueInterpreter.meet(
-//						((ChannelEvent)selectedComm).getValue(),
-//						getRandomValueFromType(t.getType(),(ChannelEvent)selectedComm)));
-//			}
-			
-			if(selectedComm instanceof ChannelEvent && !((ChannelEvent)selectedComm).isPrecise())
+			if(selectedComm instanceof ChannelEvent && !((ChannelEvent)selectedComm).getChannelName().isPrecise())
 			{
 				ChannelEvent chosenChannelEvent = (ChannelEvent)selectedComm;
 				ChannelNameValue channnelName = chosenChannelEvent.getChannelName(); 
@@ -69,7 +59,6 @@ public class RandomSelectionStrategy implements
 				}
 			}
 		}
-		//CmlRuntime.logger().fine("Available events " + availableChannelEvents.getObservableEvents());
 		CmlRuntime.logger().fine("The supervisor environment picks : " + selectedComm);
 		
 		return selectedComm;
@@ -78,7 +67,6 @@ public class RandomSelectionStrategy implements
 	private Value getRandomValueFromType(PType type)
 	{
 		try {
-			//return type.apply(new RandomVDMValueGenerator(randomSeed),chosenEvent);
 			return type.apply(new RandomVDMValueGenerator(randomSeed));
 		} catch (AnalysisException e) {
 			e.printStackTrace();

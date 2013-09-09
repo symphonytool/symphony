@@ -71,21 +71,6 @@ class SynchronizationEvent extends AbstractChannelEvent implements ObservableEve
 		return this;
 	}
 
-//	@Override
-//	public Value getValue() {
-//		return null;
-//	}
-//
-//	@Override
-//	public void setValue(Value value) {
-//		// do nothing
-//	}
-
-	@Override
-	public boolean isPrecise() {
-		return true;
-	}
-
 	@Override
 	public List<ChannelEvent> expand() {
 		return Arrays.asList((ChannelEvent)this);

@@ -80,10 +80,10 @@ class CommunicationEvent extends AbstractChannelEvent implements ObservableEvent
 		return super.equals(other);
 	}
 	
-	@Override
-	public boolean isPrecise() {
-		return channelName.isPrecise();
-	}
+//	@Override
+//	public boolean isPrecise() {
+//		return channelName.isPrecise();
+//	}
 	
 	@Override
 	public CmlAlphabet getAsAlphabet() {
@@ -129,7 +129,7 @@ class CommunicationEvent extends AbstractChannelEvent implements ObservableEvent
 	@Override
 	public List<ChannelEvent> expand() {
 		
-		if(isPrecise())
+		if(channelName.isPrecise())
 			return Arrays.asList((ChannelEvent)this);
 		else
 			try {

@@ -206,7 +206,7 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 //							((ChannelEvent)selectedEvent).setValue(val);
 //						}
 						
-						if(selectedEvent instanceof ChannelEvent && !((ChannelEvent)selectedEvent).isPrecise())
+						if(selectedEvent instanceof ChannelEvent && !((ChannelEvent)selectedEvent).getChannelName().isPrecise())
 						{
 							ChannelEvent chosenChannelEvent = (ChannelEvent)selectedEvent;
 							ChannelNameValue channnelName = chosenChannelEvent.getChannelName(); 

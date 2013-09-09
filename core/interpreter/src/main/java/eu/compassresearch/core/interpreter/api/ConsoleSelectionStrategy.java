@@ -57,7 +57,7 @@ SelectionStrategy {
 		
 		CmlTransition chosenEvent = events.get(scanIn.nextInt());
 
-		if(chosenEvent instanceof ChannelEvent && !((ChannelEvent)chosenEvent).isPrecise())
+		if(chosenEvent instanceof ChannelEvent && !((ChannelEvent)chosenEvent).getChannelName().isPrecise())
 		{
 			ChannelEvent chosenChannelEvent = (ChannelEvent)chosenEvent;
 			ChannelNameValue channnelName = chosenChannelEvent.getChannelName(); 

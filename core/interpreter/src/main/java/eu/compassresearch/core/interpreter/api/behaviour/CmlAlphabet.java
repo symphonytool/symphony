@@ -171,7 +171,7 @@ public class CmlAlphabet extends Value {
 				if(thisEvent instanceof ChannelEvent &&
 						otherEvent instanceof ChannelEvent &&
 						thisEvent.isComparable(otherEvent) && 
-						(!((ChannelEvent)thisEvent).isPrecise() || !((ChannelEvent)otherEvent).isPrecise() ) && 
+						(!((ChannelEvent)thisEvent).getChannelName().isPrecise() || !((ChannelEvent)otherEvent).getChannelName().isPrecise() ) && 
 						!thisEvent.equals(otherEvent) )
 				{
 					//find the meet of the two values, meaning the most precise

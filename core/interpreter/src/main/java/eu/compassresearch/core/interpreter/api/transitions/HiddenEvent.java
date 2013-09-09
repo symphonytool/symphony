@@ -40,10 +40,10 @@ public class HiddenEvent extends AbstractChannelEvent implements SilentTransitio
 //		hiddenEvent.setValue(value);
 //	}
 
-	@Override
-	public boolean isPrecise() {
-		return hiddenEvent.isPrecise();
-	}
+//	@Override
+//	public boolean isPrecise() {
+//		return hiddenEvent.isPrecise();
+//	}
 
 	@Override
 	public List<ChannelEvent> expand() {

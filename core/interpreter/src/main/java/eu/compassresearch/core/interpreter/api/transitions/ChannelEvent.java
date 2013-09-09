@@ -14,13 +14,9 @@ public interface ChannelEvent extends CmlTransition{
 	 */
 	public ChannelNameValue getChannelName();
 	
-//	public Value getValue();
-//	
-//	public void setValue(Value value);
-	
 	public List<ChannelEvent> expand();
 	
-	public boolean isPrecise();
+//	public boolean isPrecise();
 	
 	/**
 	 * return the most precise of this and other
