@@ -14,6 +14,7 @@ public class MCPluginDoStuff {
 	protected IResource file;
 	protected FormulaResultWrapper formulaResult;
 	
+	
 	public MCPluginDoStuff(IWorkbenchSite s, IResource f, FormulaResultWrapper fr) {
 		this.file = f;
 		this.formulaResult = fr;

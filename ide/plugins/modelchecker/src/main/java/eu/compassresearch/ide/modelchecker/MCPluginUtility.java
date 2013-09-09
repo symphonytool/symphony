@@ -1,5 +1,9 @@
 package eu.compassresearch.ide.modelchecker;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import org.eclipse.core.resources.IContainer;
@@ -104,4 +108,33 @@ public class MCPluginUtility {
 		return (IResource) adapter;
 	}
 
+	public static void writeToFile(String filePath, StringBuilder content) throws IOException {
+		 File realFile = new File(filePath);
+		 boolean created = false;
+		
+		 if(!realFile.exists()){
+			 created = realFile.createNewFile();
+		 }
+		 FileWriter fw = new FileWriter(realFile);
+		 BufferedWriter bw = new BufferedWriter(fw);
+		 bw.write(content.toString());
+		 bw.flush();
+		 fw.close();
+		 bw.close();
+	 }
+	public static void writeToFile(File file, StringBuilder content) throws IOException {
+		 File parentFolder = file.getParentFile();
+		 if(!parentFolder.exists()){
+			 parentFolder.mkdir();
+		 }
+		 if(!file.exists()){
+			 file.createNewFile();
+		 }
+		 FileWriter fw = new FileWriter(file);
+		 BufferedWriter bw = new BufferedWriter(fw);
+		 bw.write(content.toString());
+		 bw.flush();
+		 fw.close();
+		 bw.close();
+	 }
 }

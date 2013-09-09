@@ -1,0 +1,7 @@
+channels 
+a
+
+process A = 
+begin 
+	@ (dcl x : int @ x := 1; x := 3; x := 5;Skip)
+end
