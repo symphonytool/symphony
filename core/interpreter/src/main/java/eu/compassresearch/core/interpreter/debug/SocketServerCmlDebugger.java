@@ -215,7 +215,7 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 							{
 								Value currentValue = channnelName.getValues().get(i);
 								
-								if(AbstractValueInterpreter.isValueMostPrecise(currentValue))
+								if(!AbstractValueInterpreter.isValueMostPrecise(currentValue))
 								{
 									System.out.println("Enter value : "); 
 									Value val;

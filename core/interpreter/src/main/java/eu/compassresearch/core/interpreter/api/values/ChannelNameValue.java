@@ -41,6 +41,16 @@ public class ChannelNameValue extends Value {
 		this(channel,new LinkedList<Value>(),new LinkedList<ValueConstraint>());
 	}
 	
+	/*
+	 * Copy constructor
+	 */
+	private ChannelNameValue(ChannelNameValue other)
+	{
+		this.channel = other.channel;
+		this.values = new LinkedList<Value>(other.values) ;
+		this.constraints= new LinkedList<ValueConstraint>(other.constraints) ;
+	}
+	
 	@Override
 	public String toString() {
 		
@@ -110,17 +120,23 @@ public class ChannelNameValue extends Value {
 
 	public ChannelNameValue meet(ChannelNameValue other)
 	{
-		return (ChannelNameValue)AbstractValueInterpreter.meet(this, other);
+		//find the meet value and make a copy
+		ChannelNameValue meetValue = new ChannelNameValue((ChannelNameValue)AbstractValueInterpreter.meet(this, other));
+		//clear all the constraint and combine them with the MultiConstraint
+		meetValue.constraints.clear();
+		for(int i = 0 ; i < values.size() ; i++)
+			meetValue.constraints.add(new MultiConstraint(this.constraints.get(i),other.constraints.get(i)));
+		
+		return meetValue;
 	}
 	
 	public boolean isConstraintValid() throws AnalysisException
 	{
-		boolean res = true;
-		
 		for(int i = 0 ; i < values.size() ; i++)
-			constraints.get(i).isValid(values.get(i));
+			if(!constraints.get(i).isValid(values.get(i)))
+				return false;
 		
-		return res;
+		return true;
 	}
 
 	public List<PType> getValueTypes()

@@ -217,11 +217,15 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 					else
 						val = new AnyValue(((AChannelType)chanValue.getType()).getType());
 					
-					Context constraintContext = CmlContextFactory.newContext(p.getLocation(),"Constraint evaluation context", question);
-//					param = new InputParameter(readParam,val,constraintContext);
 					
+//					param = new InputParameter(readParam,val,constraintContext);
 					values.add(val);
-					constraints.add(new ExpressionConstraint(readParam,constraintContext));
+					if(readParam.getExpression() != null){
+						Context constraintContext = CmlContextFactory.newContext(p.getLocation(),"Constraint evaluation context", question);
+						constraints.add(new ExpressionConstraint(readParam,constraintContext));
+					}
+					else
+						constraints.add(new NoConstraint());
 				}
 
 //				params.add(param);

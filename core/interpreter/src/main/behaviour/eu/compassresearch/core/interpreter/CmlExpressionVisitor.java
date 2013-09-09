@@ -110,7 +110,7 @@ public class CmlExpressionVisitor extends QuestionAnswerCMLAdaptor<Context, Valu
 		//extract the channel types
 		if(channelType instanceof AProductType)
 			channelNameTypes = ((AProductType)channelType).getTypes(); 
-		else
+		else if(channelType != null)
 			channelNameTypes.add(channelType);
 		
 		//extract the values
@@ -136,7 +136,6 @@ public class CmlExpressionVisitor extends QuestionAnswerCMLAdaptor<Context, Valu
 		
 		for (ANameChannelExp chanNameExp : node.getChannelNames())
 		{
-			
 			ChannelNameValue channelName = createChannelNameValue(chanNameExp, question);
 			
 			if(!channelName.hasValues())

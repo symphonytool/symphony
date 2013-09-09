@@ -85,7 +85,7 @@ abstract class AbstractChannelEvent extends AbstractCmlTransition implements Cha
 		
 		other = (ChannelEvent)obj;
 		
-		return other.getChannelName().equals(getChannelName()) && 
+		return other.getChannelName().getChannel().equals(getChannelName().getChannel()) && 
 				super.equals(obj);
 	}
 	

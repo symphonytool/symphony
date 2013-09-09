@@ -382,7 +382,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	public static void main(String[] args) throws IOException, CmlInterpreterException
 	{
 		File cml_example = new File(
-				"src/test/resources/action/communications/action-prefix.cml");
+				"src/test/resources/action/parallel-composition/action-generalised-parallelism-input-output3.cml");
 		//File cml_example = new File("/home/akm/phd/COMPASS-repo/Common/CaseStudies/Library/Library.cml");
 		runOnFile(cml_example);
 
