@@ -64,9 +64,10 @@ public class CmlThreadManager
 					CmlDebugPlugin.logError("Failed to update the event history view", e);
 				}
 
-				if (status.hasErrors()){
-					Map<StyledText,List<StyleRange>> map = new HashMap<StyledText, List<StyleRange>>();
-					if(status.getErrors().get(0).getLocation() != null)
+				if (status.hasErrors())
+				{
+					Map<StyledText, List<StyleRange>> map = new HashMap<StyledText, List<StyleRange>>();
+					if (status.getErrors().get(0).getLocation() != null)
 						CmlUtil.setSelectionFromLocation(status.getErrors().get(0).getLocation(), map);
 					MessageDialog.openError(null, "Simulation Error", status.getErrors().get(0).getErrorMessage());
 					CmlUtil.clearSelections(map);

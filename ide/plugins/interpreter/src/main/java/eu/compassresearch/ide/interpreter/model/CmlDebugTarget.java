@@ -2,7 +2,6 @@ package eu.compassresearch.ide.interpreter.model;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
@@ -22,9 +21,7 @@ import org.eclipse.debug.core.model.IThread;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.PlatformUI;
 
 import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
 import eu.compassresearch.core.interpreter.debug.Breakpoint;
@@ -42,7 +39,6 @@ import eu.compassresearch.ide.interpreter.debug.ui.model.CmlLineBreakpoint;
 import eu.compassresearch.ide.interpreter.protocol.CmlCommunicationManager;
 import eu.compassresearch.ide.interpreter.protocol.CmlThreadManager;
 import eu.compassresearch.ide.interpreter.protocol.MessageEventHandler;
-import eu.compassresearch.ide.ui.editor.core.CmlEditor;
 
 public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 {
@@ -107,7 +103,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 			@Override
 			public boolean handleMessage(RequestMessage message)
 			{
-				if(getBreakpointManager().isEnabled())
+				if (getBreakpointManager().isEnabled())
 				{
 					for (IBreakpoint bp : getBreakpoints())
 					{
@@ -164,7 +160,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 					}
 				}
 				threadManager.started(message.getInterpreterStatus());
-				
+
 				Display.getDefault().syncExec(new Runnable()
 				{
 					@Override
@@ -250,7 +246,8 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 			{
 				// threadManager.stopping();
 				threadManager.updateDebuggerInfo(message.getInterpreterStatus());
-				CmlDebugPlugin.logWarning(message + " : " + message.getInterpreterStatus().getErrors());
+				CmlDebugPlugin.logWarning(message + " : "
+						+ message.getInterpreterStatus().getErrors());
 				return false;
 			}
 		});
@@ -260,7 +257,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 			@Override
 			public boolean handleMessage(CmlDbgStatusMessage message)
 			{
-				//threadManager.stopping();
+				// threadManager.stopping();
 				threadManager.updateDebuggerInfo(message.getInterpreterStatus());
 				return false;
 			}

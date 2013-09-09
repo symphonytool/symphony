@@ -65,7 +65,7 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 			Map configurationMap = new HashMap();
 			configurationMap.put(CmlInterpreterLaunchConfigurationConstants.PROCESS_NAME.toString(), configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_PROCESS_NAME, ""));
 			configurationMap.put(CmlInterpreterLaunchConfigurationConstants.CML_SOURCES_PATH.toString(), getSources(configuration));
-			configurationMap.put(CmlInterpreterLaunchConfigurationConstants.CML_EXEC_MODE.toString(),configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_IS_ANIMATION, true));
+			configurationMap.put(CmlInterpreterLaunchConfigurationConstants.CML_EXEC_MODE.toString(), configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_IS_ANIMATION, true));
 
 			if (mode.equals(ILaunchManager.DEBUG_MODE))
 			{
@@ -79,7 +79,7 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 				// In run mode the debugger should not be enabled
 				DebugPlugin.getDefault().getBreakpointManager().setEnabled(false);
 			}
-			
+
 			// Execute in a new JVM process
 			CmlDebugTarget target = new CmlDebugTarget(launch, launchExternalProcess(launch, configuration, JSONObject.toJSONString(configurationMap), "CML Debugger"), project, CmlDebugDefaultValues.PORT);
 			launch.addDebugTarget(target);

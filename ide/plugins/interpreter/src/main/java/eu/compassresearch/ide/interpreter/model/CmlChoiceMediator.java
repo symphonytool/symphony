@@ -31,12 +31,14 @@ import eu.compassresearch.ide.interpreter.ICmlDebugConstants;
 import eu.compassresearch.ide.interpreter.protocol.CmlCommunicationManager;
 import eu.compassresearch.ide.interpreter.views.CmlEventOptionView;
 
-public class CmlChoiceMediator implements IDoubleClickListener, ISelectionChangedListener {
+public class CmlChoiceMediator implements IDoubleClickListener,
+		ISelectionChangedListener
+{
 
 	// SynchronousQueue<String> selectSync = new SynchronousQueue<String>();
 	final CmlDebugTarget cmlDebugTarget;
 	RequestMessage requestMessage = null;
-	private Map<StyledText,List<StyleRange>> lastSelectedRanges = new HashMap<StyledText,List<StyleRange>>();
+	private Map<StyledText, List<StyleRange>> lastSelectedRanges = new HashMap<StyledText, List<StyleRange>>();
 	CmlCommunicationManager communication;
 
 	public CmlChoiceMediator(CmlDebugTarget cmlDebugTarget,
@@ -121,7 +123,7 @@ public class CmlChoiceMediator implements IDoubleClickListener, ISelectionChange
 				{
 					CmlEventOptionView view = (CmlEventOptionView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(ICmlDebugConstants.ID_CML_OPTION_VIEW.toString());
 					Collections.sort(events, new Comparator<Choice>()
-							{
+					{
 
 						@Override
 						public int compare(Choice o1, Choice o2)
@@ -134,7 +136,7 @@ public class CmlChoiceMediator implements IDoubleClickListener, ISelectionChange
 								return o1.getName().compareToIgnoreCase(o2.getName());
 						}
 
-							});
+					});
 					view.getListViewer().setInput(events);
 					view.getListViewer().setSelection(new StructuredSelection(events.get(0)));
 				} catch (PartInitException e)
@@ -183,9 +185,9 @@ public class CmlChoiceMediator implements IDoubleClickListener, ISelectionChange
 			Choice choice = (Choice) selection.getFirstElement();
 			CmlUtil.clearSelections(lastSelectedRanges);
 			CmlUtil.setSelectionFromLocations(choice.getLocations(), lastSelectedRanges);
-			//get a random one and set the 
+			// get a random one and set the
 			StyledText st = lastSelectedRanges.keySet().iterator().next();
-			CmlUtil.showLocation(st,choice.getLocations().get(0));
+			CmlUtil.showLocation(st, choice.getLocations().get(0));
 		}
 	}
 }
