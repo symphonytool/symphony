@@ -62,21 +62,14 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 			launch.setAttribute(DebugPlugin.ATTR_CONSOLE_ENCODING, "UTF-8");
 
 			// Write out the launch configuration to the interpreter runner
-
 			Map configurationMap = new HashMap();
 			configurationMap.put(CmlInterpreterLaunchConfigurationConstants.PROCESS_NAME.toString(), configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_PROCESS_NAME, ""));
 			configurationMap.put(CmlInterpreterLaunchConfigurationConstants.CML_SOURCES_PATH.toString(), getSources(configuration));
-			configurationMap.put("mode", mode);
-			// Along with the current mode "debug" or "run"
+			configurationMap.put(CmlInterpreterLaunchConfigurationConstants.CML_EXEC_MODE.toString(),configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_IS_ANIMATION, true));
 
 			if (mode.equals(ILaunchManager.DEBUG_MODE))
 			{
 				DebugPlugin.getDefault().getBreakpointManager().setEnabled(true);
-				// Execute in a new JVM process
-				CmlDebugTarget target = new CmlDebugTarget(launch, launchExternalProcess(launch, configuration, JSONObject.toJSONString(configurationMap), "CML Debugger"), project, CmlDebugDefaultValues.PORT);
-				// target.setVdmProject(vdmProject);
-				launch.addDebugTarget(target);
-
 				// switch to the debugging perspective
 				SwitchToDebugPerspective();
 			}
@@ -85,13 +78,11 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 			{
 				// In run mode the debugger should not be enabled
 				DebugPlugin.getDefault().getBreakpointManager().setEnabled(false);
-
-				// Execute in a new JVM process
-				// launchExternalProcess(launch,JSONObject.toJSONString(configurationMap),"CML Runner");
-				// //Execute in a new JVM process
-				CmlDebugTarget target = new CmlDebugTarget(launch, launchExternalProcess(launch, configuration, JSONObject.toJSONString(configurationMap), "CML Runner"), project, CmlDebugDefaultValues.PORT);
-				launch.addDebugTarget(target);
 			}
+			
+			// Execute in a new JVM process
+			CmlDebugTarget target = new CmlDebugTarget(launch, launchExternalProcess(launch, configuration, JSONObject.toJSONString(configurationMap), "CML Debugger"), project, CmlDebugDefaultValues.PORT);
+			launch.addDebugTarget(target);
 
 		} catch (CoreException e)
 		{

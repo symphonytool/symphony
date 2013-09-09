@@ -1,5 +1,6 @@
 package eu.compassresearch.core.analysis.pog.obligations;
 
+import java.util.ListIterator;
 import java.util.Stack;
 
 import org.overture.ast.expressions.PExp;
@@ -33,15 +34,32 @@ public class CmlPOContextStack extends Stack<IPOContext> implements
 	@Override
 	public PType checkType(PExp exp, PType expected)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		ListIterator<IPOContext> p = this.listIterator(size());
+
+		while (p.hasPrevious())
+		{
+			IPOContext c = p.previous();
+
+			if (c.isScopeBoundary())
+			{
+				break; // Change of name scope for expressions.
+			}
+
+			PType t = c.checkType(exp);
+
+			if (t != null)
+			{
+				return t;
+			}
+		}
+
+		return expected;
 	}
 
 	@Override
 	public void noteType(PExp exp, PType PType)
 	{
-		// TODO Auto-generated method stub
-
+		this.peek().noteType(exp, PType);
 	}
 
 	@Override

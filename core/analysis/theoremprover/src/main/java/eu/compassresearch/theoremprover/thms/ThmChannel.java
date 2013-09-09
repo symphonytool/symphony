@@ -19,26 +19,11 @@ public class ThmChannel extends ThmDecl {
 		}
 	}
 	
-	public void setName(String name) {
-		this.name = name;
-	}
-	
-	public void setType(String type) {
-		this.type = type;
-	}
-
-	public String getName() {
-		return name;
-	}
-	
-	public String getType() {
-		return type;
-	}
-	
 	//definition "init = MkChanD ''init'' \<parallel>()\<parallel>"
 	public String toString(){
 		return (ThmChanUtil.isaChan + " \"" + name + " = " + ThmChanUtil.isaMkChan + ThmChanUtil.isaChanQuote +
-				name + ThmChanUtil.isaChanQuote + ThmChanUtil.chanTpDelim + type + ThmChanUtil.chanTpDelim + "\"");
+				name + ThmChanUtil.isaChanQuote + ThmChanUtil.chanTpDelim + type + ThmChanUtil.chanTpDelim + 
+				"\"\n" + tacHook(name));
 	}
 
 }

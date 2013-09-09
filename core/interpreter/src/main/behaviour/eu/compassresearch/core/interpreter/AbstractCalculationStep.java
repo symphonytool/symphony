@@ -7,8 +7,8 @@ import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
 
+import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
-import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlCalculationStep;
@@ -85,7 +85,7 @@ abstract class AbstractCalculationStep implements CmlCalculationStep {
 		}
 		else
 		{
-			throw new InterpreterRuntimeException("");
+			throw new CmlInterpreterException("A selected event that should have affected either left or right");
 		}
 	}
 

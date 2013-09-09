@@ -16,29 +16,34 @@ import java.util.concurrent.SynchronousQueue;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.node.INode;
+import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.values.IntegerValue;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.core.interpreter.CmlRuntime;
-import eu.compassresearch.core.interpreter.RandomSelectionStrategy;
 import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
-import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
+import eu.compassresearch.core.interpreter.api.CmlInterpreter;
+import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
+import eu.compassresearch.core.interpreter.api.RandomSelectionStrategy;
 import eu.compassresearch.core.interpreter.api.SelectionStrategy;
+import eu.compassresearch.core.interpreter.api.ValueParser;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.events.CmlInterpreterStatusObserver;
 import eu.compassresearch.core.interpreter.api.events.InterpreterStatusEvent;
 import eu.compassresearch.core.interpreter.api.transitions.ChannelEvent;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
+import eu.compassresearch.core.interpreter.api.values.AbstractValueInterpreter;
+import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
+import eu.compassresearch.core.interpreter.debug.messaging.CmlRequest;
+import eu.compassresearch.core.interpreter.debug.messaging.MessageCommunicator;
+import eu.compassresearch.core.interpreter.debug.messaging.MessageContainer;
+import eu.compassresearch.core.interpreter.debug.messaging.RequestMessage;
+import eu.compassresearch.core.interpreter.debug.messaging.ResponseMessage;
 import eu.compassresearch.core.interpreter.utility.LocationExtractor;
-import eu.compassresearch.core.interpreter.utility.messaging.CmlRequest;
-import eu.compassresearch.core.interpreter.utility.messaging.MessageCommunicator;
-import eu.compassresearch.core.interpreter.utility.messaging.MessageContainer;
-import eu.compassresearch.core.interpreter.utility.messaging.RequestMessage;
-import eu.compassresearch.core.interpreter.utility.messaging.ResponseMessage;
 
 /**
  * Implements a CmlDebugger that communicates through sockets
@@ -56,7 +61,7 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 	private BufferedReader requestReader;
 	private boolean connected = false;
 	private CmlInterpreter runningInterpreter;
-	private DebugMode currentMode = null;
+	private InterpreterExecutionMode currentMode = null;
 
 	/**
 	 * Response Queue
@@ -193,12 +198,36 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 								selectedEvent = transition;
 						}
 
+//						if(selectedEvent instanceof ChannelEvent && !((ChannelEvent)selectedEvent).isPrecise())
+//						{
+//							System.out.println("Enter value : "); 
+//
+//							Value val = new IntegerValue(scanIn.nextInt());
+//							((ChannelEvent)selectedEvent).setValue(val);
+//						}
+						
 						if(selectedEvent instanceof ChannelEvent && !((ChannelEvent)selectedEvent).isPrecise())
 						{
-							System.out.println("Enter value : "); 
-
-							Value val = new IntegerValue(scanIn.nextInt());
-							((ChannelEvent)selectedEvent).setValue(val);
+							ChannelEvent chosenChannelEvent = (ChannelEvent)selectedEvent;
+							ChannelNameValue channnelName = chosenChannelEvent.getChannelName(); 
+							
+							for(int i = 0 ; i < channnelName.getValues().size() ; i++ )
+							{
+								Value currentValue = channnelName.getValues().get(i);
+								
+								if(AbstractValueInterpreter.isValueMostPrecise(currentValue))
+								{
+									System.out.println("Enter value : "); 
+									Value val;
+									try {
+										val = channnelName.getValueTypes().get(i).apply(new ValueParser());
+										channnelName.updateValue(i, val);
+									} catch (AnalysisException e) {
+										e.printStackTrace();
+										System.exit(-1);
+									}
+								}
+							}
 						}
 
 						return selectedEvent;
@@ -314,10 +343,7 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 		case SET_BREAKPOINT:	
 			Breakpoint bp = message.getContent();
 			System.out.println("Break point added : " + bp);
-			if(currentMode == DebugMode.ANIMATE){
-				runningInterpreter.addBreakpoint(bp);
-
-			}
+			runningInterpreter.addBreakpoint(bp);
 			return true;
 		case RESUME:
 			runningInterpreter.resume();
@@ -380,19 +406,37 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 	}
 
 	@Override
-	public void start(DebugMode mode) {
+	public void start(InterpreterExecutionMode mode) {
 
 		try{
 			currentMode = mode;
-			if(mode == DebugMode.ANIMATE)
+			if(mode == InterpreterExecutionMode.ANIMATE)
 			{
 				requestSetup();
 				animate(runningInterpreter);
 			}
-			else if (mode == DebugMode.SIMULATE)
+			else if (mode == InterpreterExecutionMode.SIMULATE)
+			{
+				requestSetup();
 				simulate(runningInterpreter);
+			}
 
 			stopped(CmlInterpreterStateDTO.createCmlInterpreterStateDTO(runningInterpreter));
+		}
+		catch(CmlInterpreterException e)
+		{
+			CmlInterpreterStateDTO status = CmlInterpreterStateDTO.createCmlInterpreterStateDTO(runningInterpreter);
+			if(e.hasErrorNode())
+				status.AddError(new InterpreterErrorDTO(e.getMessage(),LocationExtractor.extractLocation(e.getErrorNode())));
+			else
+				status.AddError(new InterpreterErrorDTO(e.getMessage()));
+			stopped(status);
+		}
+		catch(ValueException e)
+		{
+			CmlInterpreterStateDTO status = CmlInterpreterStateDTO.createCmlInterpreterStateDTO(runningInterpreter);
+			status.AddError(new InterpreterErrorDTO(e.getMessage(),e.ctxt.location));
+			stopped(status);
 		}
 		catch(AnalysisException e)
 		{
@@ -407,8 +451,13 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 
 	@Override
 	public void onStatusChanged(Object source, InterpreterStatusEvent event) {
-		System.out.println("Debug thread sending Status event to controller: " + event);
-		sendStatusMessage(CmlInterpreterStateDTO.createCmlInterpreterStateDTO(runningInterpreter));
+		//Only send this if status is not FAILED, this will be handled in the start method
+		//which appends the correct errors to the status
+		if(event.getStatus() != CmlInterpretationStatus.FAILED)
+		{
+			System.out.println("Debug thread sending Status event to controller: " + event);
+			sendStatusMessage(CmlInterpreterStateDTO.createCmlInterpreterStateDTO(runningInterpreter));
+		}
 	}
 
 }

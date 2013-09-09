@@ -4,14 +4,12 @@ import isabelle.Session;
 import isabelle.eclipse.core.IsabelleCore;
 import isabelle.eclipse.core.app.Isabelle;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -20,18 +18,13 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.pog.pub.IProofObligation;
 
 import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligationList;
-import eu.compassresearch.ide.pog.POConstants;
-import eu.compassresearch.ide.pog.PogPluginDoStuff;
-import eu.compassresearch.ide.pog.PogPluginUtility;
 import eu.compassresearch.ide.core.resources.ICmlModel;
 import eu.compassresearch.ide.core.resources.ICmlProject;
 import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
+import eu.compassresearch.ide.pog.POConstants;
+import eu.compassresearch.ide.pog.PogPluginDoStuff;
 import eu.compassresearch.ide.ui.utility.CmlProjectUtil;
 import eu.compassresearch.theoremprover.IsabelleTheory;
-import eu.compassresearch.theoremprover.IsabelleTheory.IsabelleTheorem;
-import eu.compassresearch.theoremprover.visitors.TPVisitor;
-import eu.compassresearch.theoremprover.thms.ThmType;
-import eu.compassresearch.theoremprover.thms.ThmValue;
 
 public class FetchPosUtil
 {

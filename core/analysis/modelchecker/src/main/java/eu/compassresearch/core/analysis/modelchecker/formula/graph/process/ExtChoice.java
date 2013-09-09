@@ -1,15 +1,16 @@
 package eu.compassresearch.core.analysis.modelchecker.formula.graph.process;
 
-public class ExtChoice implements Choice {
-	
-	private Process firstProcess;
-	private Process secondProcess;
-	
 
+public class ExtChoice extends Choice {
+	
+	
 	public ExtChoice(Process firstProcess, Process secondProcess2) {
-		this.firstProcess = firstProcess;
-		this.secondProcess = secondProcess;
-		
+	   super(firstProcess, secondProcess2);
+	}
+	
+	@Override
+	public String toString() {
+		return this.getFirstProcess() + "[]" + this.getSecondProcess();
 	}
 
 }

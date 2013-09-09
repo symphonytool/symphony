@@ -8,6 +8,11 @@ public class EqualBooleanExpression extends BinaryBooleanExpression  {
 		super(firstType,secondType);
 		
 	}
+
+	@Override
+	public String toString() {
+		return firstType.toString() + "=" + secondType.toString();
+	}
 	
 	
 	

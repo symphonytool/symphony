@@ -2,11 +2,12 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: COMPASS IDE POG Plugin
 Bundle-SymbolicName: eu.compassresearch.ide.pog;singleton:=true
-Bundle-Version: 0.1.5.qualifier
+Bundle-Version: 0.1.9.qualifier
 Bundle-Activator: eu.compassresearch.ide.pog.Activator
 Bundle-Vendor: The COMPASS Project
 Import-Package: eu.compassresearch.ast.actions,
  eu.compassresearch.ast.analysis,
+ eu.compassresearch.ast.declarations,
  eu.compassresearch.ast.definitions,
  eu.compassresearch.ast.expressions,
  eu.compassresearch.ast.process,
@@ -14,6 +15,7 @@ Import-Package: eu.compassresearch.ast.actions,
  eu.compassresearch.core.common,
  eu.compassresearch.core.typechecker.api,
  eu.compassresearch.ide.core.resources,
+ eu.compassresearch.ide.ui.utility,
  org.eclipse.core.commands,
  org.eclipse.core.resources,
  org.eclipse.core.runtime,
@@ -41,15 +43,19 @@ Import-Package: eu.compassresearch.ast.actions,
  org.overture.ast.patterns,
  org.overture.ast.statements,
  org.overture.ast.types,
+ org.overture.ast.factory,
  org.overture.ide.core,
  org.overture.ide.core.resources,
  org.overture.ide.plugins.poviewer,
  org.overture.ide.plugins.poviewer.view,
  org.overture.ide.ui.utility,
+ org.overture.pof,
  org.overture.pog.obligation,
  org.overture.pog.pub,
  org.overture.pog.utility,
  org.overture.pog.visitors,
+ org.overture.typechecker,
+ org.overture.typechecker.assistant.type,
  org.overture.typechecker.assistant.definition
 Export-Package: eu.compassresearch.core.analysis.pog.obligations,
  eu.compassresearch.ide.pog

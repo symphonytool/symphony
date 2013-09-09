@@ -11,9 +11,9 @@ import org.overture.interpreter.runtime.ValueException;
 
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.api.events.CmlBehaviorStateObserver;
+import eu.compassresearch.core.interpreter.api.events.EventSource;
 import eu.compassresearch.core.interpreter.api.events.TraceObserver;
 import eu.compassresearch.core.interpreter.utility.Pair;
-import eu.compassresearch.core.interpreter.utility.events.EventSource;
 
 /**
  * This interfaces specifies a specific process behavior.
@@ -39,7 +39,7 @@ public interface CmlBehaviour extends Serializable //extends Transactable
 	 * Returns the immediate alphabet of the process, meaning the next possible cml event including tau
 	 * @return The immediate alphabet of the process
 	 */
-	public CmlAlphabet inspect();
+	public CmlAlphabet inspect() throws AnalysisException;
 	
 	/**
 	 * 
@@ -108,7 +108,7 @@ public interface CmlBehaviour extends Serializable //extends Transactable
 	 * Determines whether this process is deadlocked
 	 * @return true if the process is deadlocked else false
 	 */
-	public boolean deadlocked();
+	public boolean deadlocked() throws AnalysisException;
 	
 	/**
 	 * @return The current state of the process

@@ -49,6 +49,8 @@ import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.Inspection;
+import eu.compassresearch.core.interpreter.api.transitions.CmlTock;
+import eu.compassresearch.core.interpreter.api.transitions.InternalTransition;
 import eu.compassresearch.core.interpreter.api.values.CmlOperationValue;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
@@ -367,7 +369,16 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 			}
 		}
 		
-		throw new InterpreterRuntimeException("Should not happen");
+		final ASkipAction skipAction = new ASkipAction(node.getLocation());
+		return newInspection(createSilentTransition(node,skipAction),
+				new AbstractCalculationStep(owner, visitorAccess) {
+			
+			@Override
+			public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+					throws AnalysisException {
+				return new Pair<INode, Context>(skipAction, question);
+			}
+		});
 	}
 	
 	@Override
@@ -457,11 +468,10 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 
 	/**
 	 * 
-	 * //TODO no semantics defined, resolve this!
 	 */
 	@Override
 	public Inspection caseANonDeterministicDoStatementAction(
-			ANonDeterministicDoStatementAction node, final Context question)
+			final ANonDeterministicDoStatementAction node, final Context question)
 			throws AnalysisException {
 
 		List<ANonDeterministicAltStatementAction> availableAlts = 
@@ -496,7 +506,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 						@Override
 						public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
 								throws AnalysisException {
-							return new Pair<INode,Context>(new ASkipAction(), question);
+							return new Pair<INode,Context>(new ASkipAction(node.getLocation()), question);
 						}
 					});
 		}
@@ -540,8 +550,10 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 			final ASingleGeneralAssignmentStatementAction node, final Context question)
 					throws AnalysisException {
 		final INode skipNode = new ASkipAction(node.getLocation(),new AActionType());
-		
-		return newInspection(createSilentTransition(node,skipNode),new AbstractCalculationStep(owner,visitorAccess) {
+		//FIXME according to the semantics this should be performed instantly so time is not
+		//allowed to pass
+		return newInspection(new CmlAlphabet(new InternalTransition(owner,node,skipNode,null)),
+				new AbstractCalculationStep(owner,visitorAccess) {
 			
 			@Override
 			public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)

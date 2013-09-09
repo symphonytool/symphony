@@ -55,7 +55,7 @@ public class ThmExpFunc extends ThmDecl {
 	public String toString(){
 		return (ThmTypeUtil.isaFunc + " \"" + name + " = " + 
 			ThmTypeUtil.isaFuncBar + ThmTypeUtil.isaFuncLambda + " " +ThmTypeUtil.isaFuncLambaVal+" @ " +
-		    createFuncExp() + ThmTypeUtil.isaFuncBar + "\"");
+		    createFuncExp() + ThmTypeUtil.isaFuncBar + "\"\n" + tacHook(name));
 		
 	}
 

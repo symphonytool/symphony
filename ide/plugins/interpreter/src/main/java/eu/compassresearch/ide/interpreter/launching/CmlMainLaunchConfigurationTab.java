@@ -34,9 +34,7 @@ import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ide.core.ICmlCoreConstants;
 import eu.compassresearch.ide.interpreter.ICmlDebugConstants;
 
-public class CmlMainLaunchConfigurationTab extends
-		AbstractLaunchConfigurationTab
-{
+public class CmlMainLaunchConfigurationTab extends AbstractLaunchConfigurationTab {
 
 	class WidgetListener implements ModifyListener, SelectionListener
 	{
@@ -58,7 +56,8 @@ public class CmlMainLaunchConfigurationTab extends
 
 	private Text fProjectText;
 	private Text fTopProcessText;
-	// private String fTopProcessFilePath;
+	private Button rbAnimate;
+	private Button rbSimulate;
 	private WidgetListener fListener = new WidgetListener();
 
 	@Override
@@ -75,6 +74,7 @@ public class CmlMainLaunchConfigurationTab extends
 
 		createProjectSelection(comp);
 		createProcessSelection(comp);
+		createAnimateSimulateSelection(comp);
 
 	}
 
@@ -131,7 +131,7 @@ public class CmlMainLaunchConfigurationTab extends
 
 	private boolean isProcessValid(IProject project,
 			ILaunchConfiguration launchConfig) throws CoreException
-	{
+			{
 		String processName = launchConfig.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_PROCESS_NAME, "");
 
 		if (processName.length() == 0)
@@ -159,7 +159,7 @@ public class CmlMainLaunchConfigurationTab extends
 
 		// setErrorMessage("Process '" + processName + "' is not defined");
 		// return false;
-	}
+			}
 
 	// private List<CmlSourceUnit> getCmlSourcesFromProject(IProject project) throws CoreException
 	// {
@@ -268,7 +268,7 @@ public class CmlMainLaunchConfigurationTab extends
 				// dlg.setTitle("Project Selection");
 				// dlg.open();
 				class ProjectContentProvider extends
-						BaseWorkbenchContentProvider
+				BaseWorkbenchContentProvider
 				{
 					@Override
 					public boolean hasChildren(Object element)
@@ -294,11 +294,11 @@ public class CmlMainLaunchConfigurationTab extends
 								try
 								{
 									if (object instanceof IProject
-									// && (((IProject) object).getAdapter(IVdmProject.class) != null
+											// && (((IProject) object).getAdapter(IVdmProject.class) != null
 											&& isCmlProject((IProject) object)
-									// )
-									// && isSupported((IProject) object)
-									)
+											// )
+											// && isSupported((IProject) object)
+											)
 									{
 										elements.add((IProject) object);
 									}
@@ -317,7 +317,7 @@ public class CmlMainLaunchConfigurationTab extends
 
 					private boolean isCmlProject(IProject p)
 							throws CoreException
-					{
+							{
 						// FIXME this should be replaced by the adapter check that is commented
 
 						for (String nature : p.getDescription().getNatureIds())
@@ -328,7 +328,7 @@ public class CmlMainLaunchConfigurationTab extends
 							}
 						}
 						return false;
-					}
+							}
 
 				}
 				;
@@ -353,127 +353,37 @@ public class CmlMainLaunchConfigurationTab extends
 		});
 	}
 
-	// private void createProjectSelection(Composite parent)
-	// {
-	// Group group = new Group(parent, parent.getStyle());
-	// group.setText("Project");
-	// GridData gd = new GridData(GridData.FILL_HORIZONTAL);
-	//
-	// group.setLayoutData(gd);
-	//
-	// GridLayout layout = new GridLayout();
-	// layout.makeColumnsEqualWidth = false;
-	// layout.numColumns = 3;
-	// group.setLayout(layout);
-	//
-	// // editParent = group;
-	//
-	// Label label = new Label(group, SWT.MIN);
-	// label.setText("Project:");
-	// gd = new GridData(GridData.BEGINNING);
-	// label.setLayoutData(gd);
-	//
-	// fProjectText = new Text(group, SWT.SINGLE | SWT.BORDER);
-	//
-	// gd = new GridData(GridData.FILL_HORIZONTAL);
-	// fProjectText.setLayoutData(gd);
-	// fProjectText.addModifyListener(fListener);
-	//
-	// Button selectProjectButton = createPushButton(group, "Browse...", null);
-	//
-	// selectProjectButton.addSelectionListener(new SelectionAdapter()
-	// {
-	// @Override
-	// public void widgetSelected(SelectionEvent e)
-	// {
-	// // ListSelectionDialog dlg = new ListSelectionDialog(getShell(),
-	// // ResourcesPlugin.getWorkspace().getRoot(), new
-	// // BaseWorkbenchContentProvider(), new
-	// // WorkbenchLabelProvider(), "Select the Project:");
-	// // dlg.setTitle("Project Selection");
-	// // dlg.open();
-	// class ProjectContentProvider extends
-	// BaseWorkbenchContentProvider
-	// {
-	// @Override
-	// public boolean hasChildren(Object element)
-	// {
-	// if (element instanceof IProject)
-	// {
-	// return false;
-	// } else
-	// {
-	// return super.hasChildren(element);
-	// }
-	// }
-	//
-	// @Override
-	// public Object[] getElements(Object element)
-	// {
-	// List<IProject> elements = new Vector<IProject>();
-	// Object[] arr = super.getElements(element);
-	// if (arr != null)
-	// {
-	// for (Object object : arr)
-	// {
-	// // TODO Should only return cml projects. At the point every project is returned!
-	// // try
-	// // {
-	// if (object instanceof IProject)
-	// // && (((IProject) object).getAdapter(IVdmProject.class) != null)
-	// // && isSupported((IProject) object))
-	// {
-	// elements.add((IProject) object);
-	// }
-	// // }
-	// // catch (CoreException e)
-	// // {
-	// // // if (VdmDebugPlugin.DEBUG)
-	// // // {
-	// // // e.printStackTrace();
-	// // // }
-	// // }
-	// }
-	// return elements.toArray();
-	// }
-	// return null;
-	// }
-	//
-	// }
-	// ;
-	// ElementTreeSelectionDialog dialog = new ElementTreeSelectionDialog(getShell(), new WorkbenchLabelProvider(), new
-	// ProjectContentProvider());
-	// dialog.setTitle("Project Selection");
-	// dialog.setMessage("Select a project:");
-	// dialog.setComparator(new ViewerComparator());
-	//
-	// dialog.setInput(ResourcesPlugin.getWorkspace().getRoot());
-	//
-	// if (dialog.open() == Window.OK)
-	// {
-	// if (dialog.getFirstResult() != null
-	// && dialog.getFirstResult() instanceof IProject)
-	// // && ((IProject) dialog.getFirstResult()).getAdapter(IVdmProject.class) != null)
-	// {
-	// fProjectText.setText(((IProject) dialog.getFirstResult()).getName());
-	// }
-	//
-	// }
-	// }
-	// });
-	// }
+	private void createAnimateSimulateSelection(Composite parent)
+	{
+		Group group = new Group(parent, parent.getStyle());
+		group.setText("Animate/Simulate");
+		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
+
+		group.setLayoutData(gd);
+
+		GridLayout layout = new GridLayout();
+		layout.makeColumnsEqualWidth = false;
+		layout.numColumns = 2;
+		group.setLayout(layout);
+
+		rbAnimate = createRadioButton(group, "Animate");
+		rbAnimate.addSelectionListener(fListener);
+		//rbAnimate.setSelection(true);
+		rbSimulate = createRadioButton(group, "Simulate");
+		rbSimulate.addSelectionListener(fListener);
+	}
 
 	@Override
 	public void setDefaults(ILaunchConfigurationWorkingCopy configuration)
 	{
 		// TODO Auto-generated method stub
-
+		//rbAnimate.setSelection(true);
+		configuration.setAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_IS_ANIMATION, true);
 	}
 
 	@Override
 	public void initializeFrom(ILaunchConfiguration configuration)
 	{
-
 		try
 		{
 			fProjectText.setText(configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_PROJECT, ""));
@@ -481,7 +391,16 @@ public class CmlMainLaunchConfigurationTab extends
 			fTopProcessText.setText(configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_PROCESS_NAME, ""));
 			// fTopProcessFilePath = configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_PROCESS_FILE_PATH,
 			// "");
-
+			if(configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_IS_ANIMATION, true))
+			{
+				rbAnimate.setSelection(true);
+				rbSimulate.setSelection(false);
+			}
+			else
+			{
+				rbAnimate.setSelection(false);
+				rbSimulate.setSelection(true);
+			}
 		} catch (CoreException e)
 		{
 			e.printStackTrace();
@@ -493,6 +412,14 @@ public class CmlMainLaunchConfigurationTab extends
 	{
 		configuration.setAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_PROJECT, fProjectText.getText());
 		configuration.setAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_PROCESS_NAME, fTopProcessText.getText());
+		if(rbAnimate.getSelection())
+			configuration.setAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_IS_ANIMATION, true);
+		else
+			configuration.setAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_IS_ANIMATION, false);
+		
+		//CML_LAUNCH_CONFIG_IS_ANIMATION
+		
+		
 		// configuration.setAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_PROCESS_FILE_PATH, fTopProcessFilePath);
 
 		// configuration.setAttribute(ICmlLaunchConfigurationConstants.ATTR_PROJECT_NAME, fProjectText.getText());

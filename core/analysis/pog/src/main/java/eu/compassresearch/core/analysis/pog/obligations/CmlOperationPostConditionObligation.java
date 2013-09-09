@@ -37,20 +37,13 @@ import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
 
 public class CmlOperationPostConditionObligation extends CmlProofObligation{
 	
-//	private final PExp preexp;
-//	private final PExp postexp;
-//	private final List<AErrorCase> errs;
-			
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = 1L;
 
 	public CmlOperationPostConditionObligation(AExplicitCmlOperationDefinition op,
 				IPOContextStack ctxt)
 	{
 		super(op, CmlPOType.OP_POST_CONDITION, ctxt);
-		//FIXME implement ast based PO predicate
 		valuetree.setPredicate(ctxt.getPredWithContext(buildExp(op.getPrecondition(), op.getPostcondition(), null)));
 	}
 
@@ -58,7 +51,6 @@ public class CmlOperationPostConditionObligation extends CmlProofObligation{
 				IPOContextStack ctxt)
 	{
 		super(op, CmlPOType.OP_POST_CONDITION, ctxt);
-		//FIXME implement ast based PO predicate
 		valuetree.setPredicate(ctxt.getPredWithContext(buildExp(op.getPrecondition(), op.getPostcondition(), op.getErrors())));
 	}
 

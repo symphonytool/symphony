@@ -27,6 +27,7 @@ import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
+import eu.compassresearch.ast.expressions.ANameChannelExp;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.ast.process.AActionProcess;
@@ -437,15 +438,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 			ASynchronousParallelismProcess node, Context question)
 			throws AnalysisException {
 
-		Context globalContext = question.getGlobal();
-		List<ILexNameToken> channelNames = new LinkedList<ILexNameToken>();
-		
-		//Get all the channel objects
-		for(Entry<ILexNameToken,Value> entry : globalContext.entrySet())
-			if(entry.getValue() instanceof CMLChannelValue)
-				channelNames.add(entry.getKey().clone());
-				
-		AFatEnumVarsetExpression varsetNode = new AFatEnumVarsetExpression(new LexLocation(), channelNames);
+		AFatEnumVarsetExpression varsetNode = getAllChannelsAsFatEnum(node.getLocation(), question);
 			
 		AGeneralisedParallelismProcess nextNode = new AGeneralisedParallelismProcess(node.getLocation(), 
 				node.getLeft().clone(), varsetNode, node.getRight().clone());

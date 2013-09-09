@@ -27,14 +27,30 @@ import org.overture.ide.plugins.poviewer.IPoviewerConstants;
 import org.overture.ide.plugins.poviewer.view.PoOverviewTableView;
 import org.overture.ide.ui.utility.EditorUtility;
 import org.overture.pog.pub.IProofObligation;
+import org.overture.pog.pub.IProofObligationList;
 import org.overture.pog.pub.POStatus;
 
+import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligation;
+import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligationList;
 import eu.compassresearch.ide.pog.POConstants;
+import eu.compassresearch.ide.core.resources.ICmlProject;
 
 public class PoListView extends PoOverviewTableView
 {
 
-	
+	public void clearPos()
+	{
+		this.project = null;
+
+		display.asyncExec(new Runnable()
+		{
+
+			public void run()
+			{
+				viewer.setInput(new CmlProofObligationList());
+			}
+		});
+	}
 
 	@Override
 	public void createPartControl(Composite parent)
@@ -72,7 +88,6 @@ public class PoListView extends PoOverviewTableView
 		viewer.setContentProvider(new ViewContentProvider());
 		viewer.setLabelProvider(new ViewLabelProvider());
 
-		
 		makeActions();
 		super.hookDoubleClickAction();
 
@@ -89,8 +104,8 @@ public class PoListView extends PoOverviewTableView
 					{
 						IViewPart v = getSite().getPage().showView(POConstants.PO_DETAIL_VIEW);
 
-						if (v instanceof PoView)
-							((PoView) v).setDataList(project, (IProofObligation) first);
+						if (v instanceof PoDetailView)
+							((PoDetailView) v).setDataList(project, (IProofObligation) first);
 					} catch (PartInitException e)
 					{
 
@@ -102,11 +117,40 @@ public class PoListView extends PoOverviewTableView
 		});
 	}
 
-	
+	public void setDataList(ICmlProject project, final IProofObligationList pol)
+	{
+
+		this.project = (IVdmProject) project.getAdapter(IVdmProject.class);
+		display.asyncExec(new Runnable()
+		{
+
+			public void run()
+			{
+				if (viewer.getLabelProvider() instanceof ViewLabelProvider)
+					((ViewLabelProvider) viewer.getLabelProvider()).resetCounter(); // this
+																					// is
+																					// needed
+																					// to
+																					// reset
+																					// the
+				// numbering
+
+				viewer.setInput(pol);
+
+				for (TableColumn col : viewer.getTable().getColumns())
+				{
+					col.pack();
+				}
+			}
+
+		});
+
+	}
 
 	protected void makeActions()
 	{
-		doubleClickAction = new Action() {
+		doubleClickAction = new Action()
+		{
 			@Override
 			public void run()
 			{
@@ -122,22 +166,19 @@ public class PoListView extends PoOverviewTableView
 			private void gotoDefinition(IProofObligation po)
 			{
 				IFile file = project.findIFile(po.getLocation().getFile());
-				if(IVdmProject.externalFileContentType.isAssociatedWith(file.getName()))
+				if (IVdmProject.externalFileContentType.isAssociatedWith(file.getName()))
 				{
-					EditorUtility.gotoLocation(IPoviewerConstants.ExternalEditorId,file, po.getLocation(), po.getName());
-				}else{
-					EditorUtility.gotoLocation(file, po.getLocation(), po.getName());	
+					EditorUtility.gotoLocation(IPoviewerConstants.ExternalEditorId, file, po.getLocation(), po.getName());
+				} else
+				{
+					EditorUtility.gotoLocation(file, po.getLocation(), po.getName());
 				}
-				
+
 			}
 		};
-		
-		
-	
+
 	}
-	
-	
-	
+
 	class ViewContentProvider implements IStructuredContentProvider
 	{
 		public void inputChanged(Viewer v, Object oldInput, Object newInput)
@@ -183,15 +224,14 @@ public class PoListView extends PoOverviewTableView
 					columnText = new Integer(data.getNumber()).toString();// count.toString();
 					break;
 				case 1:
-					// FIXME replace this with Node Name when we're using it
 					if (!data.getLocation().getFile().toString().equals(""))
-						columnText = data.getLocation().getFile().getName()  + " - "
-								+ data.getName();
+						columnText = data.getLocation().getFile().getName()
+								+ " - " + data.getName();
 					else
 						columnText = data.getName();
 					break;
 				case 2:
-					columnText = data.getKind().toString();
+					columnText = handlePoKind(data);
 					break;
 				case 3:
 					columnText = "";// data.status.toString();
@@ -201,6 +241,15 @@ public class PoListView extends PoOverviewTableView
 			}
 			return columnText;
 
+		}
+
+		private String handlePoKind(IProofObligation data)
+		{
+			if (data instanceof CmlProofObligation)
+			{
+				return ((CmlProofObligation) data).cmltype.toString();
+			}
+			return data.getKind().toString();
 		}
 
 		public Image getColumnImage(Object obj, int index)
@@ -226,5 +275,5 @@ public class PoListView extends PoOverviewTableView
 		}
 
 	}
-	
+
 }

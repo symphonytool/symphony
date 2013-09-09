@@ -8,6 +8,7 @@ import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.core.interpreter.api.CmlChannel;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
+import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
 
 /**
  * This represents an observable channel event from a set of CmlBehaviourThread objects
@@ -16,34 +17,34 @@ import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
  */
 abstract class AbstractChannelEvent extends AbstractCmlTransition implements ChannelEvent{
 
-	final protected CmlChannel channel;
+	final protected ChannelNameValue channelName;
 	
 	
-	public AbstractChannelEvent(CmlBehaviour eventSource, CmlChannel channel)
+	public AbstractChannelEvent(CmlBehaviour eventSource, ChannelNameValue channelName)
 	{
 		super(eventSource);
-		this.channel = channel;
+		this.channelName = channelName;
 	}
 	
-	public AbstractChannelEvent(CmlChannel channel)
+	public AbstractChannelEvent(ChannelNameValue channelName)
 	{
 		super(new HashSet<CmlBehaviour>());
-		this.channel = channel;
+		this.channelName = channelName;
 	}
 	
-	protected AbstractChannelEvent(Set<CmlBehaviour> sources, CmlChannel channel)
+	protected AbstractChannelEvent(Set<CmlBehaviour> sources, ChannelNameValue channelName)
 	{
 		super(sources);
-		this.channel = channel;
+		this.channelName = channelName;
 	}
 	
 	/**
 	 * The channel of this involved in this events
 	 * @return
 	 */
-	public CmlChannel getChannel()
+	public ChannelNameValue getChannelName()
 	{
-		return channel;
+		return channelName;
 	}
 
 	/**
@@ -59,9 +60,9 @@ abstract class AbstractChannelEvent extends AbstractCmlTransition implements Cha
 		return this.equals(other);
 	}
 	
-	public abstract Value getValue();
-	
-	public abstract void setValue(Value value);
+//	public abstract Value getValue();
+//	
+//	public abstract void setValue(Value value);
 	
 	public abstract boolean isPrecise();
 	
@@ -84,7 +85,7 @@ abstract class AbstractChannelEvent extends AbstractCmlTransition implements Cha
 		
 		other = (ChannelEvent)obj;
 		
-		return other.getChannel().equals(getChannel()) && 
+		return other.getChannelName().equals(getChannelName()) && 
 				super.equals(obj);
 	}
 	

@@ -2,7 +2,6 @@ package eu.compassresearch.core.interpreter;
 
 import java.io.File;
 import java.io.IOException;
-import java.rmi.RemoteException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -21,8 +20,9 @@ import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
+import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
-import eu.compassresearch.core.interpreter.api.InterpreterException;
+import eu.compassresearch.core.interpreter.api.ConsoleSelectionStrategy;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlTrace;
@@ -32,7 +32,6 @@ import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.ObservableEvent;
 import eu.compassresearch.core.interpreter.api.values.ProcessObjectValue;
 import eu.compassresearch.core.interpreter.debug.Breakpoint;
-import eu.compassresearch.core.interpreter.debug.CmlInterpreterStateDTO;
 import eu.compassresearch.core.interpreter.utility.LocationExtractor;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
@@ -117,10 +116,10 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	public Value execute(CmlSupervisorEnvironment sve) throws AnalysisException
 	{
 		if(this.getStatus() == null)
-			throw new InterpreterException("The interprer has not been initialized, please call the initialize method before invoking the start method");
+			throw new CmlInterpreterException("The interprer has not been initialized, please call the initialize method before invoking the start method");
 		
 		if(null == sve)
-			throw new InterpreterException("The supervisor must not be set to null in the cml scheduler");
+			throw new CmlInterpreterException("The supervisor must not be set to null in the cml scheduler");
 		
 		currentSupervisor = sve; 
 
@@ -137,6 +136,11 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		//start the execution of the top process
 		try{
 			executeTopProcess(runningTopProcess);
+		}
+		catch(AnalysisException e)
+		{
+			setNewState(CmlInterpretationStatus.FAILED);
+			throw e;
 		}
 		catch(Exception ex)
 		{
@@ -205,7 +209,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 				else
 					state = context.toString();
 
-				CmlRuntime.logger().fine("State for "+event+" : " +  state);
+				CmlRuntime.logger().finer("State for "+event+" : " +  state);
 			}
 
 			//Let the given decision function select one of the observable events 
@@ -233,18 +237,21 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			topProcess.execute(currentSupervisor);
 			CmlTrace trace = topProcess.getTraceModel();
 
-			if(trace.getLastEvent() instanceof ObservableEvent)
+			if(trace.getLastTransition() instanceof ObservableEvent)
 			{
-				CmlRuntime.logger().fine("----------------observable step by '"+ topProcess +"'----------------");
+				CmlRuntime.logger().fine("----------------observable step by '"+ topProcess +"'----------------------");
 				CmlRuntime.logger().fine("Observable trace of '"+topProcess+"': " + trace.getObservableTrace());
-
+				CmlRuntime.logger().fine("Eval. Status={ " + topProcess.nextStepToString() + " }");
+				CmlRuntime.logger().fine("-----------------------------------------------------------------");
 			}
 			else 
 			{
-				CmlRuntime.logger().fine("----------------Silent step by '"+ topProcess +"'----------------");
-				CmlRuntime.logger().fine("Trace of '"+topProcess+"': " + trace);
+				CmlRuntime.logger().finer("----------------Silent step by '"+ topProcess +"'--------------------");
+				CmlRuntime.logger().finer("Trace of '"+topProcess+"': " + trace);
+				CmlRuntime.logger().finer("Eval. Status={ " + topProcess.nextStepToString() + " }");
+				CmlRuntime.logger().finer("-----------------------------------------------------------------");
 			}
-			CmlRuntime.logger().fine("Eval. Status={ " + topProcess.nextStepToString() + " }");
+			
 		}
 
 		if(topProcess.deadlocked())
@@ -286,7 +293,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			ILexLocation loc = LocationExtractor.extractLocation(b.getNextState().first);
 			if(loc == null)
 				continue;
-			String key = loc.getFile().getAbsolutePath() + ":"+ loc.getStartLine();
+			String key = loc.getFile().toURI().toString() + ":"+ loc.getStartLine();
 			if(this.breakpoints.containsKey(key))
 			{
 				bp = this.breakpoints.get(key); 
@@ -310,7 +317,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	// Static stuff for running the Interpreter from the commandline with any gui stuff
 	// ---------------------------------------
 
-	private static void runOnFile(File f) throws IOException, InterpreterException
+	private static void runOnFile(File f) throws IOException, CmlInterpreterException
 	{
 		AFileSource source = new AFileSource();
 		source.setName(f.getName());
@@ -372,10 +379,11 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		System.out.println("The given CML Program is done simulating.");
 	}
 
-	public static void main(String[] args) throws IOException, InterpreterException
+	public static void main(String[] args) throws IOException, CmlInterpreterException
 	{
 		File cml_example = new File(
 				"src/test/resources/action/communications/action-prefix.cml");
+		//File cml_example = new File("/home/akm/phd/COMPASS-repo/Common/CaseStudies/Library/Library.cml");
 		runOnFile(cml_example);
 
 	}

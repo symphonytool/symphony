@@ -18,12 +18,8 @@ import eu.compassresearch.theoremprover.utils.ThmValueUtil;
 
 public class ThmPValueVisitor extends AnswerCMLAdaptor<ThmNodeList> {
 
-	
-    //final private AnswerCMLAdaptor<ThmNodeList> parentVisitor;
-
     public ThmPValueVisitor(
     		AnswerCMLAdaptor<ThmNodeList> parentVisitor) {
-    //	this.parentVisitor = parentVisitor;
     }
 
 

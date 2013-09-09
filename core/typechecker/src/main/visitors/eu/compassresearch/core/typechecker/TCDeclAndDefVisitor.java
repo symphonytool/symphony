@@ -47,6 +47,7 @@ import org.overture.ast.types.AFunctionType;
 import org.overture.ast.types.ANatNumericBasicType;
 import org.overture.ast.types.AOperationType;
 import org.overture.ast.types.AProductType;
+import org.overture.ast.types.ASeq1SeqType;
 import org.overture.ast.types.ASetType;
 import org.overture.ast.types.PType;
 import org.overture.parser.messages.VDMError;
@@ -216,7 +217,7 @@ class TCDeclAndDefVisitor extends
 								.customizeMessage("" + def)));
 				return node.getType();
 			}
-			// cmlEnv.addVariable(def.getName(), def);
+//			cmlEnv.addVariable(def.getName(), def);
 			positiveResult.getDefinitions().add(def);
 		}
 
@@ -335,10 +336,11 @@ class TCDeclAndDefVisitor extends
 			TypeCheckInfo question) throws AnalysisException {
 
 		CmlTypeCheckInfo cmlenv = CmlTCUtil.getCmlEnv(question);
-
+		
+		CmlTypeCheckInfo stateScope = cmlenv.newScope();
 		LinkedList<PDefinition> defs = node.getStateDefs();
 		for (PDefinition def : defs) {
-			question.scope = NameScope.STATE;
+			stateScope.scope = NameScope.STATE;
 			PType defType = def.apply(parentChecker, cmlenv);
 			if (!successfulType(defType)) {
 				node.setType(issueHandler.addTypeError(def,
@@ -557,6 +559,7 @@ class TCDeclAndDefVisitor extends
 						true, node.getLocation()));
 			preDef = CmlTCUtil.buildCondition("pre", node, node.getType()
 					.clone(), parameters, preBody);
+			node.setPredef(preDef);
 		}
 
 		// Create post def if it is not there
@@ -569,6 +572,7 @@ class TCDeclAndDefVisitor extends
 						true, node.getLocation()));
 			postDef = CmlTCUtil.buildCondition("post", node, node.getType()
 					.clone(), parameters, postBody);
+			node.setPostdef(postDef);
 		}
 
 		// pre cond env.
@@ -669,29 +673,49 @@ class TCDeclAndDefVisitor extends
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage(expression + ""));
 
-		if (!(expressionType instanceof ASetType))
-			return issueHandler.addTypeError(
-					expression,
-					TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(""
-							+ new ASetType(), "" + expressionType));
-
 		List<PDefinition> defs = new LinkedList<PDefinition>();
 		LinkedList<ILexIdentifierToken> identifiers = node.getIdentifiers();
-		for (ILexIdentifierToken id : identifiers) {
-			ILexNameToken name = null;
-			if (id instanceof LexNameToken)
-				name = (LexNameToken) id;
-			else
-				name = new LexNameToken("", id.getName(), id.getLocation());
-
-			ASetType expressionSetType = (ASetType) expressionType;
-			ALocalDefinition localDef = AstFactory.newALocalDefinition(
-					id.getLocation(), name, node.getNameScope(),
-					expressionSetType.getSetof());
-			defs.add(localDef);
+		
+		if (expressionType instanceof ASetType){
+			for (ILexIdentifierToken id : identifiers) {
+				ILexNameToken name = null;
+				if (id instanceof LexNameToken)
+					name = (LexNameToken) id;
+				else
+					name = new LexNameToken("", id.getName(), id.getLocation());
+	
+				ASetType expressionSetType = (ASetType) expressionType;
+				ALocalDefinition localDef = AstFactory.newALocalDefinition(
+						id.getLocation(), name, node.getNameScope(),
+						expressionSetType.getSetof());
+				defs.add(localDef);
+			}
+			
+		} else if (expressionType instanceof ASeq1SeqType) {
+			for (ILexIdentifierToken id : identifiers) {
+				ILexNameToken name = null;
+				if (id instanceof LexNameToken)
+					name = (LexNameToken) id;
+				else
+					name = new LexNameToken("", id.getName(), id.getLocation());
+	
+				ASeq1SeqType expressionSeqType = (ASeq1SeqType) expressionType;
+				ALocalDefinition localDef = AstFactory.newALocalDefinition(
+						id.getLocation(), name, node.getNameScope(),
+						expressionSeqType.getSeqof());
+				defs.add(localDef);
+			}
+		} 
+		else {
+		
+			return issueHandler.addTypeError(
+				expression,
+				TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(""
+						+ new ASetType(), "" + expressionType));
 		}
-
+		
 		expressionType.setDefinitions(defs);
+		
 		return expressionType;
 	}
 
@@ -1674,6 +1698,7 @@ class TCDeclAndDefVisitor extends
 							.customizeMessage(operationBody + "")));
 			return node.getType();
 		}
+		node.setActualResult(bodyType);
 
 		// check constructor
 		boolean isCtor = node.getIsConstructor();
@@ -2008,7 +2033,7 @@ class TCDeclAndDefVisitor extends
 		PType actualResult = node.getBody().apply(parentChecker,
 				new TypeCheckInfo(question.assistantFactory,local, question.scope));
 		OvertureRootCMLAdapter.popQuestion(question);
-
+		
 		node.setActualResult(actualResult);
 
 		if (!org.overture.typechecker.TypeComparator.compatible(expectedResult, node.getActualResult())) {

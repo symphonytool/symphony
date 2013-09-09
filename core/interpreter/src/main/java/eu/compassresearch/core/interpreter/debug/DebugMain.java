@@ -15,7 +15,7 @@ import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.CmlParserUtil;
 import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
-import eu.compassresearch.core.interpreter.api.InterpreterException;
+import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
@@ -25,7 +25,7 @@ public class DebugMain {
 	/**
 	 * @param args
 	 * @throws IOException 
-	 * @throws InterpreterException 
+	 * @throws CmlInterpreterException 
 	 * @throws AnalysisException 
 	 */
 	public static void main(String[] args) {
@@ -50,7 +50,14 @@ public class DebugMain {
 
 			//retrieve the top process name
 			String startProcessName = (String)config.get(CmlInterpreterLaunchConfigurationConstants.PROCESS_NAME.toString());
-
+			//retrieve the interpretation mode
+			InterpreterExecutionMode interpreterExecutionMode = InterpreterExecutionMode.ANIMATE; 
+			boolean execMode = (boolean)config.get(CmlInterpreterLaunchConfigurationConstants.CML_EXEC_MODE.toString()); 
+			if(!execMode){
+				interpreterExecutionMode = InterpreterExecutionMode.SIMULATE;
+			}
+			System.out.println("interpreterExecutionMode: " +interpreterExecutionMode);
+				
 			if(sourcesPaths == null || sourcesPaths.size() == 0)
 			{
 				System.out.println("The path to the cml sources are not defined");
@@ -81,7 +88,6 @@ public class DebugMain {
 			if(tc.typeCheck())
 			{
 				System.out.println("Debug Thread: Typechecking: OK");
-				String mode = (String)config.get("mode");
 
 				CmlInterpreter cmlInterpreter = VanillaInterpreterFactory.newInterpreter(sourceForest);
 				cmlInterpreter.setDefaultName(startProcessName);
@@ -89,12 +95,7 @@ public class DebugMain {
 				debugger.initialize(cmlInterpreter);
 				
 				System.out.println("Debug Thread: Starting the interpreter...");
-				if(mode.equals("run"))
-					debugger.start(DebugMode.SIMULATE);
-				else if(mode.equals("debug"))
-					debugger.start(DebugMode.ANIMATE);
-				//			else if(mode.equals("animate"))
-				//				runner.debug();
+				debugger.start(interpreterExecutionMode);
 			}
 			else
 			{
@@ -111,17 +112,4 @@ public class DebugMain {
 			//debugger.close();
 		}
 	}
-
-	//	@Override
-	//	public void onStatusChanged(Object source, InterpreterStatusEvent event) {
-	//
-	//		switch(event.getStatus())
-	//		{
-	//		case RUNNING:
-	//			sendStatusMessage(CmlDbgpStatus.RUNNING, cmlInterpreter.getStatus());
-	//			break;
-	//		}
-	//		
-	//	}
-
 }

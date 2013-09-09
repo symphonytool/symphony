@@ -26,6 +26,7 @@
  * Note: don't use '()' as a token: it will probably end up
  * conflicting with '(' ')' in places where there is an optional
  * something inside the brackets.
+ *
  */
 grammar Cml;
 options {
@@ -524,6 +525,13 @@ processReplicated returns[PProcess proc]
             srp.setReplicatedProcess($repld.proc);
             $proc = srp;
         }
+    | ';' seqReplicationDeclarationList '@' repld=process
+        {
+            ASequentialCompositionReplicatedProcess ascrp = new ASequentialCompositionReplicatedProcess();
+            ascrp.setReplicationDeclaration($seqReplicationDeclarationList.rdecls);
+            ascrp.setReplicatedProcess($repld.proc);
+            $proc = ascrp;
+        }
     | '||' replicationDeclarationList '@' ( '[' varsetExpr ']' )? repld=process
         {
             if ($varsetExpr.vexp != null)
@@ -534,8 +542,7 @@ processReplicated returns[PProcess proc]
     ;
 
 processReplOp returns[SReplicatedProcess op]
-    : ';'       { $op = new ASequentialCompositionReplicatedProcess(); }
-    | '[]'      { $op = new AExternalChoiceReplicatedProcess(); }
+    : '[]'      { $op = new AExternalChoiceReplicatedProcess(); }
     | '|~|'     { $op = new AInternalChoiceReplicatedProcess(); }
     | '|||'     { $op = new AInterleavingReplicatedProcess(); }
     | '[|' varsetExpr '|]'
@@ -778,6 +785,21 @@ replicationDeclaration returns[PSingleDeclaration rdecl]
         }
     ;
 
+seqReplicationDeclarationList returns[List<PSingleDeclaration> rdecls]
+@init { $rdecls = new ArrayList<PSingleDeclaration>(); }
+    : item=seqReplicationDeclaration { $rdecls.add($item.rdecl); } ( ',' item=seqReplicationDeclaration { $rdecls.add($item.rdecl); } )*
+    ;
+
+seqReplicationDeclaration returns[PSingleDeclaration rdecl]
+    : identifierList ( ':' type | 'in' 'seq' expression )
+        {
+            if ($type.type != null)
+                $rdecl = new ATypeSingleDeclaration(extractLexLocation($identifierList.stop), NameScope.GLOBAL, $identifierList.ids, $type.type);
+            else
+                $rdecl = new AExpressionSingleDeclaration(extractLexLocation($identifierList.stop), NameScope.GLOBAL, $identifierList.ids, $expression.exp);
+        }
+    ;
+
 renamingExpr returns[SRenameChannelExp rexp]
 @after { $rexp.setLocation(extractLexLocation($start, $stop)); }
     : '[[' renamePair
@@ -812,12 +834,18 @@ renamePair returns[ARenamePair pair]
         {
             // FIXME --- We really ought take #Channel out of the exp tree in the AST
             ILexLocation floc = extractLexLocation($fid);
-            ANameChannelExp fromExp = new ANameChannelExp(floc, new LexNameToken("", $fid.getText(), floc), $fexp.exp);
+            List<PExp> fexprs = new ArrayList<PExp>();
+            if ($fexp.exp != null)
+                fexprs.add($fexp.exp);
+            ANameChannelExp fromExp = new ANameChannelExp(floc, new LexNameToken("", $fid.getText(), floc), fexprs);
             if ($fexp.exp != null)
                 fromExp.setLocation(extractLexLocation($fid,$fexp.stop));
 
             ILexLocation tloc = extractLexLocation($tid);
-            ANameChannelExp toExp = new ANameChannelExp(tloc, new LexNameToken("", $tid.getText(), tloc), $texp.exp);
+            List<PExp> texprs = new ArrayList<PExp>();
+            if ($texp.exp != null)
+                texprs.add($texp.exp);
+            ANameChannelExp toExp = new ANameChannelExp(tloc, new LexNameToken("", $tid.getText(), tloc), texprs);
             if ($texp.exp != null)
                 toExp.setLocation(extractLexLocation($tid,$texp.stop));
 
@@ -904,6 +932,13 @@ actionReplicated returns[PAction action]
             sra.setReplicatedAction($repld.action);
             $action = sra;
         }
+    | ';' seqReplicationDeclarationList '@' repld=action
+        {
+            ASequentialCompositionReplicatedAction ascra = new ASequentialCompositionReplicatedAction();
+            ascra.setReplicationDeclaration($seqReplicationDeclarationList.rdecls);
+            ascra.setReplicatedAction($repld.action);
+            $action = ascra;
+        }
     | actionSetReplOp replicationDeclarationList '@' '[' varsetExpr ']' repld=action
         {
             SReplicatedAction sra = $actionSetReplOp.op;
@@ -937,8 +972,7 @@ actionReplicated returns[PAction action]
     ;
 
 actionSimpleReplOp returns[SReplicatedAction op]
-    : ';'       { $op = new ASequentialCompositionReplicatedAction(); }
-    | '[]'      { $op = new AExternalChoiceReplicatedAction(); }
+    : '[]'      { $op = new AExternalChoiceReplicatedAction(); }
     | '|~|'     { $op = new AInternalChoiceReplicatedAction(); }
     | '[||' varsetExpr '||]'
         {
@@ -1718,20 +1752,73 @@ varsetExprbase returns[PVarsetExpression vexp]
         {
             $vexp = $varsetExpr.vexp;
         }
-    | '{' ( identifierList )? '}'
+    | '{' '}'
         {
-            List<LexIdentifierToken> ids = ($identifierList.ids!=null) ? $identifierList.ids : new ArrayList<LexIdentifierToken>();
-            $vexp = new AEnumVarsetExpression(null, ids);
+            $vexp = new AEnumVarsetExpression(null, new ArrayList<ANameChannelExp>());
         }
-    | '{|' ( identifierList )? '|}'
+    | '{' varsetName ( ',' varsetNameList | setMapExprBinding )? '}'
         {
-            List<LexIdentifierToken> ids = ($identifierList.ids!=null) ? $identifierList.ids : new ArrayList<LexIdentifierToken>();
-            $vexp = new AFatEnumVarsetExpression(null, ids);
+            if ($setMapExprBinding.bindings != null) {
+                // literal varset comprehension
+                $vexp = new ACompVarsetExpression(null, $varsetName.name, $setMapExprBinding.bindings, $setMapExprBinding.pred);
+            } else {
+                // literal varset enumeration
+                List<ANameChannelExp> names = $varsetNameList.names == null ? new ArrayList<ANameChannelExp>() : $varsetNameList.names;
+                names.add(0, $varsetName.name);
+                $vexp = new AEnumVarsetExpression(null, names);
+            }
         }
-    | '{|' IDENTIFIER ('.' expression)? setMapExprBinding '|}'
+    | '{|' '|}'
         {
-            // FIXME --- 2nd null below needs to be some combination of the IDENTIFIER and expression
-            $vexp = new AFatCompVarsetExpression(null, null, $setMapExprBinding.bindings, $setMapExprBinding.pred);
+            $vexp = new AFatEnumVarsetExpression(null, new ArrayList<ANameChannelExp>());
+        }
+    | '{|' varsetName ( ',' varsetNameList | setMapExprBinding )? '|}'
+        {
+            if ($setMapExprBinding.bindings != null) {
+                // prefix-wise (fat) varset comprehension
+                // 2nd null needs to be the channel name (varsetName)
+                $vexp = new AFatCompVarsetExpression(null, $varsetName.name, $setMapExprBinding.bindings, $setMapExprBinding.pred);
+                //$vexp = new AFatCompVarsetExpression(null, $varsetName.name, $setMapExprBinding.bindings, $setMapExprBinding.pred);
+            } else {
+                // prefix-wise (fat) varset enumeration
+                List<ANameChannelExp> names = $varsetNameList.names == null ? new ArrayList<ANameChannelExp>() : $varsetNameList.names;
+                names.add(0, $varsetName.name);
+                $vexp = new AFatEnumVarsetExpression(null, names);
+            }
+        }
+    ;
+
+varsetNameList returns[List<ANameChannelExp> names]
+@init { $names = new ArrayList<ANameChannelExp>(); }
+    : item=varsetName { $names.add($item.name); } ( ',' item=varsetName { $names.add($item.name); } )*
+    ;
+
+varsetName returns[ANameChannelExp name]
+@init {
+    ILexLocation loc;
+    LexNameToken lex;
+    List<PExp> exprs = new ArrayList<PExp>();
+}
+@after { $name.setLocation(extractLexLocation($start,$stop)); }
+    : base=IDENTIFIER
+        ( '.'
+            ( id=IDENTIFIER
+                {
+                    loc = extractLexLocation($id);
+                    ILexNameToken lexname = new LexNameToken("", $id.getText(), loc, false, false);
+                    exprs.add(new AVariableExp(loc, lexname, lexname.getName()));
+                }
+            | '(' expression ')'    { exprs.add($expression.exp); }
+            | symbolicLiteralExpr   { exprs.add($symbolicLiteralExpr.exp); }
+            | recordTupleExprs      { exprs.add($recordTupleExprs.exp); }
+            )
+        )*
+        {
+            loc = extractLexLocation($base);
+            LexIdentifierToken lexid = new LexIdentifierToken($base.getText(), false, loc);
+            $name = new ANameChannelExp();
+            $name.setIdentifier(lexid);
+            $name.setExpressions(exprs);
         }
     ;
 
@@ -2072,6 +2159,7 @@ implicitFunctionDefinitionTail returns[AImplicitFunctionDefinition tail]
         {
             $tail = new AImplicitFunctionDefinition();
             $tail.setNameScope(NameScope.LOCAL);
+            $tail.setIsUndefined(false);
             $tail.setUsed(Boolean.FALSE);
             $tail.setAccess(getDefaultAccessSpecifier(false,false,null));
             $tail.setRecursive(false);

@@ -24,6 +24,7 @@ public class ClassCmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase {
 		add("class A = begin end class B = begin end class C is subclass of A = begin end",
 				false, false);
 		add("class C = begin values k : int = 42 end functions f: int -> C f(v) == C.k + v", true, false);
+		add("class C = begin functions AFunc: nat -> nat AFunc(avar) == 1 BFunc : () -> nat BFunc() == AFunc(2) end", true, true);
 	}
 
 	@Parameters
