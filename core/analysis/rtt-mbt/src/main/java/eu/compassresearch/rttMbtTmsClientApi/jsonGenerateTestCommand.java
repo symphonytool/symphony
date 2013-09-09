@@ -3,7 +3,6 @@
  */
 package eu.compassresearch.rttMbtTmsClientApi;
 
-import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.json.simple.JSONObject;
