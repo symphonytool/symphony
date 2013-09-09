@@ -64,26 +64,21 @@ class CommunicationEvent extends AbstractChannelEvent implements ObservableEvent
 	@Override
 	public boolean equals(Object obj) {
 
-		CommunicationEvent other = null;
+		CommunicationEvent otherCom = null; 
 		
 		if(!(obj instanceof CommunicationEvent))
 			return false;
 		
-		other = (CommunicationEvent)obj;
+		otherCom = (CommunicationEvent)obj;
 		
-		return super.equals(other) &&
-				(other.getChannelName().equals(this.getChannelName()) );
+		return super.equals(obj) &&
+				this.channelName.equals(otherCom.channelName);
 	}
 	
 	@Override
 	public boolean isComparable(ObservableEvent other) {
 		return super.equals(other);
 	}
-	
-//	@Override
-//	public boolean isPrecise() {
-//		return channelName.isPrecise();
-//	}
 	
 	@Override
 	public CmlAlphabet getAsAlphabet() {

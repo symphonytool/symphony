@@ -13,10 +13,10 @@ public interface ObservableEvent extends CmlTransition{
 	public ObservableEvent synchronizeWith(ObservableEvent other) throws AnalysisException;
 	
 	/**
-	 * Two Observable events are comparable if the are occurring on the same channel and
-	 * the sources of one must either be a subset of the other.
+	 * Two Observable events are comparable if they are a tock events or if the are occurring on the same channel and
+	 * the sources of one must either be a subset of the other. 
 	 * 
-	 * Values do not have to be identical
+	 * Values in the channel name do not have to be identical
 	 * @param other
 	 * @return
 	 */

@@ -16,8 +16,6 @@ public interface ChannelEvent extends CmlTransition{
 	
 	public List<ChannelEvent> expand();
 	
-//	public boolean isPrecise();
-	
 	/**
 	 * return the most precise of this and other
 	 * @param other

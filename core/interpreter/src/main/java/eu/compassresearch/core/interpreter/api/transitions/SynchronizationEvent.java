@@ -39,7 +39,7 @@ class SynchronizationEvent extends AbstractChannelEvent implements ObservableEve
 
 	@Override
 	public String toString() {
-		return channelName.getChannel().getName();// + " : " + this.getEventSources();
+		return channelName.toString();
 	}
 
 	@Override
@@ -64,6 +64,12 @@ class SynchronizationEvent extends AbstractChannelEvent implements ObservableEve
 		sources.addAll(syncEvent.getEventSources());
 		
 		return new SynchronizationEvent(sources, channelName);
+	}
+	
+	@Override
+	public boolean isComparable(ObservableEvent other) {
+		
+		return this.equals(other);
 	}
 
 	@Override

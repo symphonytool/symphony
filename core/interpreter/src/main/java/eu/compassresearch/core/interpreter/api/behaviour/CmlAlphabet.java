@@ -13,7 +13,6 @@ import eu.compassresearch.core.interpreter.api.transitions.SilentTransition;
 
 /**
  * This represents a CML alphabet containing both silent and observable events
- * FIXME This is currently quite a mess, it needs comments and cleaning up!
  * @author akm
  *
  */
@@ -152,9 +151,8 @@ public class CmlAlphabet extends Value {
 	 * two events might intersect even though their value is not equal E.g.
 	 * Assume that we have the following two alphabets A = {a.3,b} and B = {a.?}
 	 * then the result after invoking this function would be
-	 *  A.intersectImprecise(B) == {a.3}
+	 *  A.intersectImprecise(B) == {a.3,a.?}
 	 *  As a.3 and a.? intersects even though a.? can be any value of the type of 'a'. 
-	 *  When two events intersect, then the most precise will be returned in the result alphabet.   
 	 * @param other
 	 * @return
 	 */
@@ -166,18 +164,7 @@ public class CmlAlphabet extends Value {
 		{
 			for(ObservableEvent otherEvent : other._observableEvents)
 			{
-				//if the events are comparable (the) and one of the values are imprecise
-				// and they are not equal
-				if(thisEvent instanceof ChannelEvent &&
-						otherEvent instanceof ChannelEvent &&
-						thisEvent.isComparable(otherEvent) && 
-						(!((ChannelEvent)thisEvent).getChannelName().isPrecise() || !((ChannelEvent)otherEvent).getChannelName().isPrecise() ) && 
-						!thisEvent.equals(otherEvent) )
-				{
-					//find the meet of the two values, meaning the most precise
-					resultSet.add(((ChannelEvent)thisEvent).meet(otherEvent));
-				}
-				else if(thisEvent.isComparable(otherEvent) && thisEvent.equals(otherEvent))
+				if(thisEvent.isComparable(otherEvent))
 					resultSet.add(thisEvent);
 			}
 		}
