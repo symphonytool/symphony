@@ -141,7 +141,7 @@ public class CmlExpressionVisitor extends QuestionAnswerCMLAdaptor<Context, Valu
 			if(!channelName.hasValues())
 				coms.add(CmlTransitionFactory.newSynchronizationEvent(channelName));
 			else
-				coms.add(CmlTransitionFactory.newCmlCommunicationEvent(channelName,null));
+				coms.add(CmlTransitionFactory.newCmlCommunicationEvent(channelName));
 		}
 		
 		return new CmlAlphabet(coms);
@@ -170,7 +170,7 @@ public class CmlExpressionVisitor extends QuestionAnswerCMLAdaptor<Context, Valu
 		}
 		else
 		{
-			return CmlTransitionFactory.newCmlCommunicationEvent(channelName, null);
+			return CmlTransitionFactory.newCmlCommunicationEvent(channelName);
 		}
 	}
 	

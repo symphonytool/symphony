@@ -160,8 +160,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 			final ACommunicationAction node, final Context question)
 					throws AnalysisException {
 
-		//FIXME: This should be a name so the conversion is avoided
-		LexNameToken channelName = new LexNameToken("|CHANNELS|",node.getIdentifier().getName(),node.getIdentifier().getLocation(),false,true);
+		ILexNameToken channelName = NamespaceUtility.createChannelName(node.getIdentifier());
 		//find the channel value
 		CMLChannelValue chanValue = (CMLChannelValue)question.lookup(channelName);
 
@@ -175,34 +174,31 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 		//otherwise we convert the com params
 		else
 		{
-//			List<CommunicationParameter> params = new LinkedList<CommunicationParameter>();
 			List<Value> values = new LinkedList<Value>();
 			List<ValueConstraint> constraints = new LinkedList<ValueConstraint>();
 			int comParamSize = node.getCommunicationParameters().size(); 
 			for(int i = 0;i < comParamSize; i++)
 			{
 				PCommunicationParameter p = node.getCommunicationParameters().get(i);
-				
-//				CommunicationParameter param = null;
 				if(p instanceof ASignalCommunicationParameter)
 				{
 					ASignalCommunicationParameter signal = (ASignalCommunicationParameter)p;
 					Value valueExp = signal.getExpression().apply(cmlExpressionVisitor,question);
-					
-					values.add(valueExp);
+					//TODO can we send ref variables over the channels?
+					//Deref the variable so no updatable values are added since this could
+					//change the trace at a latter point
+					values.add(valueExp.deref());
 					constraints.add(new NoConstraint());
-					
-//					param = new SignalParameter((ASignalCommunicationParameter)p, valueExp);
 				}
 				else if(p instanceof AWriteCommunicationParameter)
 				{
 					AWriteCommunicationParameter signal = (AWriteCommunicationParameter)p;
 					Value valueExp = signal.getExpression().apply(cmlExpressionVisitor,question);
-					
-					values.add(valueExp);
+					//TODO can we send ref variables over the channels?
+					//Deref the variable so no updatable values are added since this could
+					//change the trace at a latter point
+					values.add(valueExp.deref());
 					constraints.add(new NoConstraint());
-					
-//					param = new OutputParameter((AWriteCommunicationParameter)p, valueExp);
 				}
 				else if(p instanceof AReadCommunicationParameter)
 				{
@@ -217,8 +213,6 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 					else
 						val = new AnyValue(((AChannelType)chanValue.getType()).getType());
 					
-					
-//					param = new InputParameter(readParam,val,constraintContext);
 					values.add(val);
 					if(readParam.getExpression() != null){
 						Context constraintContext = CmlContextFactory.newContext(p.getLocation(),"Constraint evaluation context", question);
@@ -227,15 +221,12 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 					else
 						constraints.add(new NoConstraint());
 				}
-
-//				params.add(param);
 			}
 
 			ObservableEvent observableEvent = 
 					CmlTransitionFactory.newCmlCommunicationEvent(owner, new ChannelNameValue(chanValue,values,constraints));
 			comset.add(observableEvent);
 		}
-		//TODO: do the rest here
 
 		return newInspection(new CmlAlphabet(comset).union(new CmlTock(owner)),
 				new AbstractCalculationStep(owner, visitorAccess) {

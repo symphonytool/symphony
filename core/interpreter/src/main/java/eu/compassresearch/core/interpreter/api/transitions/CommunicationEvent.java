@@ -30,72 +30,25 @@ class CommunicationEvent extends AbstractChannelEvent implements ObservableEvent
 	 * 
 	 */
 	private static final long serialVersionUID = -2217645151439301812L;
-//	private Value value;
-//	private List<CommunicationParameter> params = new Vector<CommunicationParameter>();
 	
 	public CommunicationEvent(CmlBehaviour source, ChannelNameValue channelName)
 	{
 		super(source,channelName);
-//		this.params = params;
-//		initValueFromComParams();		
 	}
 	
-	public CommunicationEvent(ChannelNameValue channelName, List<CommunicationParameter> params)
+	public CommunicationEvent(ChannelNameValue channelName)
 	{
 		super(channelName);
-//		this.params = params;
-//		initValueFromComParams();
 	}
 			
 	private CommunicationEvent(Set<CmlBehaviour> sources, ChannelNameValue channelName)
 	{
 		super(sources,channelName);
-//		this.value = value;
 	}
-	
-//	//Converts communication parameters into their corresponding value
-//	private void initValueFromComParams()
-//	{
-//		if(params != null)
-//		{
-//			//simple value
-//			if(params.size() == 1)
-//				value = (Value)params.get(0).getValue().clone(); 
-//			//We have a product type value
-//			else
-//			{
-//				ValueList argvals = new ValueList();
-//				for(CommunicationParameter comParam : params)
-//					argvals.add((Value)comParam.getValue().clone());
-//				value = new TupleValue(argvals);
-//			}
-//		}
-//		//if this is instantiated from a channelexpression and the channel type is a Tuple
-//		//the it must be a tuple with anyvalues
-//		else if(((AChannelType)channel.getType()).getType() instanceof AProductType)
-//		{
-//			ValueList argvals = new ValueList();
-//			AProductType productType = (AProductType)((AChannelType)channel.getType()).getType();
-//			for(PType t : productType.getTypes())
-//				argvals.add(new AnyValue(t));
-//			value = new TupleValue(argvals);
-//		}
-//		else
-//			value = new AnyValue(new AChannelType());
-//	}
 	
 	@Override 
 	public String toString() 
 	{
-//		StringBuilder strBuilder = new StringBuilder(channelName.getName());
-//		if(value instanceof TupleValue)
-//			for(Value val : ((TupleValue)value).values )
-//				strBuilder.append("." + val);
-//		else
-//			strBuilder.append("." + value);
-//		//strBuilder.append(" : " + getEventSources());
-//		
-//		return strBuilder.toString();
 		return channelName.toString();
 	};
 	
@@ -104,9 +57,6 @@ class CommunicationEvent extends AbstractChannelEvent implements ObservableEvent
 		
 		StringBuilder strBuilder = new StringBuilder(channelName.getChannel().getName());
 		strBuilder.append(((AChannelType)channelName.getChannel().getType()).getType());
-//		for(CommunicationParameter param : params)
-//			strBuilder.append(param.getClass().getSimpleName());
-		
 		
 		return strBuilder.toString().hashCode();
 	}
@@ -129,17 +79,6 @@ class CommunicationEvent extends AbstractChannelEvent implements ObservableEvent
 	public boolean isComparable(ObservableEvent other) {
 		return super.equals(other);
 	}
-	
-//	@Override
-//	public Value getValue() {
-//
-//		return value;
-//	}
-//	
-//	@Override
-//	public void setValue(Value value) {
-//		this.value = value;
-//	}
 	
 	@Override
 	public boolean isPrecise() {
@@ -170,29 +109,6 @@ class CommunicationEvent extends AbstractChannelEvent implements ObservableEvent
 			return null;
 	}
 	
-//	private boolean isContraintValid(Value value, CommunicationEvent otherComEvent)
-//	{
-//		boolean result = true;
-//		try
-//		{
-//			if(otherComEvent.getChannelName().getValues().size() == 1 && 
-//					otherComEvent.params.get(0) instanceof InputParameter)
-//				result &= ((InputParameter)otherComEvent.params.get(0)).evaluateContraint(value);
-//			
-//			if(this.params.size() == 1 && 
-//					this.params.get(0) instanceof InputParameter)
-//				result &= ((InputParameter)this.params.get(0)).evaluateContraint(value);				
-//			
-//		}
-//		catch(AnalysisException ex)
-//		{
-//			ex.printStackTrace();
-//			result = false;
-//		}
-//		
-//		return result;
-//	}
-
 	@Override
 	public ObservableEvent meet(ObservableEvent obj) {
 		
