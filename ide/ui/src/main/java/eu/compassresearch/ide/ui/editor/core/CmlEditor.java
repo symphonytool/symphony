@@ -72,13 +72,14 @@ public class CmlEditor extends VdmEditor
 		return new CmlSourceViewerConfiguration();
 	}
 
-	protected VdmContentOutlinePage createOutlinePage()
-	{
-		VdmContentOutlinePage page = super.createOutlinePage();
-
-		page.configure(new CmlTreeContentProvider(), new DecorationgVdmLabelProvider(new CmlUiLabelProvider()));
-		return page;
-	}
+	//FIXME: we need a new extension in overture to do this now - caused by a fix for kepler in overture
+//	protected VdmContentOutlinePage createOutlinePage()
+//	{
+//		VdmContentOutlinePage page = super.createOutlinePage();
+//
+//		page.configure(new CmlTreeContentProvider(), new DecorationgVdmLabelProvider(new CmlUiLabelProvider()));
+//		return page;
+//	}
 
 	@Override
 	protected ISelectionChangedListener createOutlineSelectionChangedListener()
