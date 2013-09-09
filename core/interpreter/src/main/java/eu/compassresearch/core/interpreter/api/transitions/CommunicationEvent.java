@@ -56,7 +56,7 @@ class CommunicationEvent extends AbstractChannelEvent implements ObservableEvent
 	public int hashCode() {
 		
 		StringBuilder strBuilder = new StringBuilder(channelName.getChannel().getName());
-		strBuilder.append(((AChannelType)channelName.getChannel().getType()).getType());
+		strBuilder.append(channelName.getChannel().getValueTypes());
 		
 		return strBuilder.toString().hashCode();
 	}
@@ -123,16 +123,16 @@ class CommunicationEvent extends AbstractChannelEvent implements ObservableEvent
 	
 	@Override
 	public List<ChannelEvent> expand() {
-		
-		if(channelName.isPrecise())
-			return Arrays.asList((ChannelEvent)this);
-		else
-			try {
-				return ((AChannelType)channelName.getChannel().getType()).getType().apply(new EventExpander());
-			} catch (AnalysisException e) {
-				e.printStackTrace();
-				return new LinkedList<ChannelEvent>();
-			}
+		return Arrays.asList((ChannelEvent)this);
+//		if(channelName.isPrecise())
+//			return Arrays.asList((ChannelEvent)this);
+//		else 
+//			try {
+//				return channelName.getChannel().getValueTypes().apply(new EventExpander());
+//			} catch (AnalysisException e) {
+//				e.printStackTrace();
+//				return new LinkedList<ChannelEvent>();
+//			}
 	}
 	
 	class EventExpander extends AnswerCMLAdaptor<List<ChannelEvent> >

@@ -220,7 +220,7 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 									System.out.println("Enter value : "); 
 									Value val;
 									try {
-										val = channnelName.getValueTypes().get(i).apply(new ValueParser());
+										val = channnelName.getChannel().getValueTypes().get(i).apply(new ValueParser());
 										channnelName.updateValue(i, val);
 									} catch (AnalysisException e) {
 										e.printStackTrace();

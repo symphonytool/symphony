@@ -104,25 +104,16 @@ public class CmlExpressionVisitor extends QuestionAnswerCMLAdaptor<Context, Valu
 		ILexNameToken channelName = NamespaceUtility.createChannelName(chanNameExp.getIdentifier());
 		CMLChannelValue chanValue = (CMLChannelValue)question.lookup(channelName);
 		
-		List<PType> channelNameTypes = new LinkedList<PType>();
-		PType channelType = ((AChannelType)chanValue.getType()).getType();
-		
-		//extract the channel types
-		if(channelType instanceof AProductType)
-			channelNameTypes = ((AProductType)channelType).getTypes(); 
-		else if(channelType != null)
-			channelNameTypes.add(channelType);
-		
 		//extract the values
 		List<Value> values = new LinkedList<Value>();
-		for(int i = 0 ; i < channelNameTypes.size();i++)
+		for(int i = 0 ; i < chanValue.getValueTypes().size();i++)
 		{
 			//if the index is less than the number of expressions its defined
 			//else we put an anyValue
 			if(i < chanNameExp.getExpressions().size())
 				values.add(chanNameExp.getExpressions().get(i).apply(this,question));
 			else
-				values.add(new AnyValue(channelNameTypes.get(i)));
+				values.add(new AnyValue(chanValue.getValueTypes().get(i)));
 		}
 		
 		return new ChannelNameValue(chanValue, values);

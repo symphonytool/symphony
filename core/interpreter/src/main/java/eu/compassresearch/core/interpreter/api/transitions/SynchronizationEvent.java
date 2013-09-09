@@ -34,7 +34,7 @@ class SynchronizationEvent extends AbstractChannelEvent implements ObservableEve
 	@Override
 	public int hashCode() {
 		
-		return channelName.getChannel().getName().hashCode(); //(this.eventSource != null ? this.eventSource.hashCode() : "null".hashCode());
+		return channelName.getChannel().hashCode(); //(this.eventSource != null ? this.eventSource.hashCode() : "null".hashCode());
 	}
 
 	@Override

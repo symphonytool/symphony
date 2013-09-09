@@ -54,7 +54,7 @@ public class RandomSelectionStrategy implements
 					
 					if(!AbstractValueInterpreter.isValueMostPrecise(currentValue))
 					{
-						channnelName.updateValue(i, getRandomValueFromType(channnelName.getValueTypes().get(i)));
+						channnelName.updateValue(i, getRandomValueFromType(channnelName.getChannel().getValueTypes().get(i)));
 					}
 				}
 			}

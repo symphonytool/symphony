@@ -202,18 +202,9 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 				}
 				else if(p instanceof AReadCommunicationParameter)
 				{
+					values.add(new AnyValue(chanValue.getValueTypes().get(i)));
+					//Add constraints
 					AReadCommunicationParameter readParam = (AReadCommunicationParameter)p;
-					AnyValue val = null;
-					if(comParamSize > 1)
-					{
-						//Must be a product type
-						AProductType productType = (AProductType)((AChannelType)chanValue.getType()).getType();
-						val = new AnyValue(productType.getTypes().get(i));
-					}
-					else
-						val = new AnyValue(((AChannelType)chanValue.getType()).getType());
-					
-					values.add(val);
 					if(readParam.getExpression() != null){
 						Context constraintContext = CmlContextFactory.newContext(p.getLocation(),"Constraint evaluation context", question);
 						constraints.add(new ExpressionConstraint(readParam,constraintContext));
