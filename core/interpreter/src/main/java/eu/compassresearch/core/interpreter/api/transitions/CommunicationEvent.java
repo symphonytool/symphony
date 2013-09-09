@@ -19,6 +19,7 @@ import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.analysis.AnswerCMLAdaptor;
 import eu.compassresearch.ast.types.AChannelType;
+import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.values.AbstractValueInterpreter;
@@ -77,7 +78,16 @@ class CommunicationEvent extends AbstractChannelEvent implements ObservableEvent
 	
 	@Override
 	public boolean isComparable(ObservableEvent other) {
-		return super.equals(other);
+		
+		if(!(other instanceof ChannelEvent))
+			return false;
+
+		ChannelEvent otherChannelEvent = (ChannelEvent)other;
+		// other is subset of this or this is a subset of other
+		return (other.getEventSources().containsAll(getEventSources()) || 
+				getEventSources().containsAll(other.getEventSources())) &&
+				//and they are on the same channel
+				this.channelName.getChannel().equals(otherChannelEvent.getChannelName().getChannel());
 	}
 	
 	@Override
@@ -92,16 +102,21 @@ class CommunicationEvent extends AbstractChannelEvent implements ObservableEvent
 		CommunicationEvent otherComEvent = (CommunicationEvent)syncEvent;
 		ChannelNameValue meetValue = this.getChannelName().meet(((ChannelEvent)otherComEvent).getChannelName());
 		
-		if(meetValue != null && meetValue.isConstraintValid())
+		if(meetValue == null)
+			throw new CmlInterpreterException("Cannot synchronize " + this.toString() + " with " + syncEvent.toString() +
+					", since they are not comparable");
+		
+		if(meetValue.isConstraintValid())
 		{
 			Set<CmlBehaviour> sources = new HashSet<CmlBehaviour>();
 			sources.addAll(this.getEventSources());
 			sources.addAll(otherComEvent.getEventSources());
 			return new CommunicationEvent(sources, meetValue);
 		}
-		else
-			//the events are not comparable!
+		else 
 			return null;
+			
+			
 	}
 	
 	@Override
@@ -120,7 +135,7 @@ class CommunicationEvent extends AbstractChannelEvent implements ObservableEvent
 			return other;
 	}
 
-	
+	//TODO implement the expanding!
 	@Override
 	public List<ChannelEvent> expand() {
 		return Arrays.asList((ChannelEvent)this);

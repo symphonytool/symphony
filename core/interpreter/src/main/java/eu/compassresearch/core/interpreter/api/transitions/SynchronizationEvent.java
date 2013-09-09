@@ -69,7 +69,14 @@ class SynchronizationEvent extends AbstractChannelEvent implements ObservableEve
 	@Override
 	public boolean isComparable(ObservableEvent other) {
 		
-		return this.equals(other);
+		if(!(other instanceof ChannelEvent))
+			return false;
+
+		ChannelEvent otherChannelEvent = (ChannelEvent)other;
+		
+		return (other.getEventSources().containsAll(getEventSources()) || 
+				getEventSources().containsAll(other.getEventSources())) &&
+				this.channelName.getChannel().equals(otherChannelEvent.getChannelName().getChannel());
 	}
 
 	@Override
