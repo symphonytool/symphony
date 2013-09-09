@@ -57,17 +57,17 @@ public class Activator extends AbstractUIPlugin
 
 	public static void log(Exception exception)
 	{
-		getDefault().getLog().log(new Status(IStatus.ERROR, ITpConstants.PLUGIN_ID, Activator.class.getSimpleName(), exception));
+		getDefault().getLog().log(new Status(IStatus.ERROR, TPConstants.PLUGIN_ID, Activator.class.getSimpleName(), exception));
 	}
 
 	public static void log(String message, Exception exception)
 	{
-		getDefault().getLog().log(new Status(IStatus.ERROR, ITpConstants.PLUGIN_ID, message, exception));
+		getDefault().getLog().log(new Status(IStatus.ERROR, TPConstants.PLUGIN_ID, message, exception));
 	}
 
 	public static void logErrorMessage(String message)
 	{
-		getDefault().getLog().log(new Status(IStatus.ERROR, ITpConstants.PLUGIN_ID, message));
+		getDefault().getLog().log(new Status(IStatus.ERROR, TPConstants.PLUGIN_ID, message));
 
 	}
     

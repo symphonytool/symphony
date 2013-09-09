@@ -90,4 +90,17 @@
       </plugins>
     </pluginManagement>
   </build>
+  <developers>
+    <developer>
+      <id>acf</id>
+      <name>Adalberto Cajueiro de Farias</name>
+      <email>adalbertocaju@users.sourceforge.net</email>
+      <organization>BR</organization>
+      <roles>
+        <role>architect</role>
+        <role>developer</role>
+      </roles>
+      <timezone>-3</timezone>
+    </developer>
+  </developers>
 </project>
