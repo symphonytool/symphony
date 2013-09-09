@@ -3,6 +3,7 @@ package eu.compassresearch.ide.theoremprover;
 import java.util.ArrayList;
 
 import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -12,10 +13,28 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IWorkbenchSite;
 import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.WorkbenchException;
+import org.eclipse.ui.ide.IDE;
+import org.overture.ast.node.INode;
+
+import eu.compassresearch.ide.pog.POConstants;
+import eu.compassresearch.ide.ui.CmlUIPlugin;
+import eu.compassresearch.ide.ui.editor.core.CmlEditor;
 
 public class TPPluginUtils {
+	
+
+	private IWorkbenchSite site;
+
+	public TPPluginUtils(IWorkbenchSite site)
+	{
+		this.site = site;
+	}
 
 	public static ArrayList<IResource> getAllCFilesInProject(IProject project) {
 		ArrayList<IResource> allCFiles = new ArrayList<IResource>();
@@ -51,6 +70,35 @@ public class TPPluginUtils {
 		}
 	}
 
+	public void openTPPerspective()
+	{
+		try
+		{
+			PlatformUI.getWorkbench().showPerspective(TPConstants.TP_PERSPECTIVE_ID, site.getWorkbenchWindow());
+		} catch (WorkbenchException e)
+		{
+
+			e.printStackTrace();
+		}
+	}
+	
+	public void openThyFile(IFile file)
+	{
+		try
+		{
+			IEditorPart editor = IDE.openEditor(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), file, true);
+
+//			if (editor instanceof CmlEditor)
+//			{
+//				((CmlEditor) editor).selectAndReveal((INode) element);
+//			}
+		} catch (PartInitException e)
+		{
+			CmlUIPlugin.log("Failed to sync inode in navigator doubleclick with editor", e);
+		}
+	}
+	
+	
 	public static IProject getCurrentlySelectedProject() {
 
 		IWorkbenchWindow window = PlatformUI.getWorkbench()
