@@ -16,6 +16,7 @@ public class jsonCheckModelCommand extends jsonCommand {
 	    TINY, STANDARD, VERBOSE
 	}
 	
+	private String reportName;
 	private String modelName;
 	private String modelId;
 	private logExtent logOption;
@@ -25,8 +26,13 @@ public class jsonCheckModelCommand extends jsonCommand {
 		super(client);
 		logOption = logExtent.STANDARD;
 		guiPorts = false;
+		reportName = null;
 	}
 	
+	public void setReportName(String name) {
+		reportName = name;
+	}
+
 	public void setModelName(String name) {
 		modelName = name;
 	}
@@ -71,10 +77,10 @@ public class jsonCheckModelCommand extends jsonCommand {
 		}
 		String filename;
 		if (client.getProjectName() != null) {
-			File projectRoot = new File(client.getRttProjectRoot());
-			File modelDir = new File(projectRoot, "model");
-			File report = new File(modelDir, "LivelockReport.log");
-			filename = report.getPath();
+			if (reportName == null) {
+				reportName = client.getRttProjectRoot() + File.separator + "model" + File.separator + "LivelockReport.log";
+			}
+			filename = reportName;
 		} else {
 			filename = "LivelockReport.log";
 		}

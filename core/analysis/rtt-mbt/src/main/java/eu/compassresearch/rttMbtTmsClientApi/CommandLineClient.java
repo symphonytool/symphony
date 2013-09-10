@@ -43,6 +43,8 @@ public class CommandLineClient {
 	    ReceiveFileFromCache,
 	    ReceiveDirectoryFromCache,
 	    RemoveFileFromCache,
+	    CreateProjectDatabase,
+	    ImportTestcases,
 	    Undefined
 	}
 
@@ -76,7 +78,9 @@ public class CommandLineClient {
 				"--GetCacheFileList [<user name> <user id>] <local directory name>\n" +
 				"--ReceiveFileFromCache [<user name> <user id>] <local file name>\n" +
 				"--ReceiveDirectoryFromCache [<user name> <user id>] <local file name>\n" +
-				"--RemoveFileFromCache [<user name> <user id>] <local file name>");
+				"--RemoveFileFromCache [<user name> <user id>] <local file name>\n" +
+				"--CreateProjectDatabase [<user name> <user id>] <project name>\n" +
+				"--ImportTestcases [<user name> <user id>] <project name> <filename>");
 	}
 
 	public static void exitWithError(String msg) {
@@ -293,6 +297,22 @@ public class CommandLineClient {
 		if (args[0].compareTo("--RemoveFileFromCache") == 0) {
 			command = Commands.RemoveFileFromCache;
 			if ((args.length < 2) || (args.length > 4)) {
+				exitWithError("illegal number of arguments");
+			}
+			return;
+		}
+
+		if (args[0].compareTo("--CreateProjectDatabase") == 0) {
+			command = Commands.CreateProjectDatabase;
+			if ((args.length < 2) || (args.length > 4)) {
+				exitWithError("illegal number of arguments");
+			}
+			return;
+		}
+
+		if (args[0].compareTo("--ImportTestcases") == 0) {
+			command = Commands.ImportTestcases;
+			if ((args.length < 3) || (args.length > 5)) {
 				exitWithError("illegal number of arguments");
 			}
 			return;
@@ -778,6 +798,25 @@ public class CommandLineClient {
 	    CheckFileCacheExists,
 
  */
+
+		// CreateProjectDatabase
+		case CreateProjectDatabase:
+			client.setConsoleName("CreateProjectDatabase");
+			if (args.length > 3) {
+				client.setUserName(args[1]);
+				client.setUserId(args[2]);
+				client.setProjectName(args[3]);
+			} else {
+				client.setProjectName(args[3]);
+			}
+			if (client.createProjectDatabase()) {
+				System.out.println("[PASS]: create project database  " + client.getProjectDatabaseName());
+				System.exit(0);
+			} else {
+				System.err.println("[FAIL]: create project database  " + client.getProjectDatabaseName());
+				System.exit(1);
+			}
+			break;
 			
 		default:
 			System.err.println("*** error: command not implemented, yet!");

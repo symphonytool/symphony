@@ -3,7 +3,6 @@ package eu.compassresearch.ide.rttmbt;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
-import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.part.ViewPart;
@@ -18,8 +17,6 @@ public class RttMbtConsoleView extends ViewPart {
 	public void createPartControl(Composite parent) {
 		// create text field used for console output
 		org.eclipse.swt.widgets.Text console = new Text(parent, SWT.V_SCROLL);
-    	Font font = new Font(parent.getDisplay(), "Courier New", 10, SWT.NORMAL);
-    	console.setFont(font);
 
         // make console view accessable
         Activator.setConsole(console);

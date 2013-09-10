@@ -55,7 +55,7 @@ public class RttMbtDeleteFile extends RttMbtPopupMenuAction {
 					client.addErrorMessage("[FAIL]: Delete RTT-MBT Resource: error while removing resource from RTT-MBT server");
 				} else {
 					if (item.isDirectory()) {
-						success = client.deleteLocalDirectory(item);						
+						success = client.deleteLocalDirectory(item, false);						
 					} else if (item.isFile()) {
 						success = item.delete();
 					}

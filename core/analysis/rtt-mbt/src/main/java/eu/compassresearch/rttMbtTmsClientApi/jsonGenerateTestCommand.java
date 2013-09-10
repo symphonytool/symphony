@@ -15,9 +15,14 @@ public class jsonGenerateTestCommand extends jsonCommand {
 
 	private String testProcName;
 	private Boolean guiPorts;
+	private Boolean maximizeModelCoverage;
+	private Boolean abstractInterpreter;
 
 	public jsonGenerateTestCommand(RttMbtClient client) {
 		super(client);
+		guiPorts = false;
+		maximizeModelCoverage = true;
+		abstractInterpreter = false;
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -32,6 +37,14 @@ public class jsonGenerateTestCommand extends jsonCommand {
 		Map params = new LinkedHashMap();
 		params.put("project-name", client.toUnixPath(client.getProjectPath()));
 		params.put("test-procedure-path", client.toUnixPath(testProcName));
+		// maximize-model-coverage
+		if (maximizeModelCoverage) {
+			params.put("maximize-model-coverage", "true");			
+		}
+		// abstract-interpreter
+		if (abstractInterpreter) {
+			params.put("abstract-interpreter", "true");			
+		}
 		// use gui ports
 		if (guiPorts) {
 			params.put("progress-port", "true");
@@ -82,5 +95,21 @@ public class jsonGenerateTestCommand extends jsonCommand {
 		this.guiPorts = guiPorts;
 		hasProgress = guiPorts;
 		hasConsole = guiPorts;
+	}
+
+	public Boolean getMaximizeModelCoverage() {
+		return maximizeModelCoverage;
+	}
+
+	public void setMaximizeModelCoverage(Boolean maximizeModelCoverage) {
+		this.maximizeModelCoverage = maximizeModelCoverage;
+	}
+
+	public Boolean getAbstractInterpreter() {
+		return abstractInterpreter;
+	}
+
+	public void setAbstractInterpreter(Boolean abstractInterpreter) {
+		this.abstractInterpreter = abstractInterpreter;
 	}
 }
