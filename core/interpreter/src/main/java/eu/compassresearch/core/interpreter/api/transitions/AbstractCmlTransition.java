@@ -30,6 +30,14 @@ abstract class AbstractCmlTransition implements CmlTransition {
 	}
 	
 	@Override
+	public boolean isSourcesSubset(CmlTransition other) {
+		
+		return	(other.getEventSources().containsAll(getEventSources()) || 
+				getEventSources().containsAll(other.getEventSources()));
+		
+	}
+	
+	@Override
 	public boolean equals(Object obj) {
 		
 		CmlTransition other = null;
@@ -40,8 +48,7 @@ abstract class AbstractCmlTransition implements CmlTransition {
 		other = (CmlTransition)obj;
 		
 		 // other is subset of this or this is a subset of other
-		return	(other.getEventSources().containsAll(getEventSources()) || 
-					getEventSources().containsAll(other.getEventSources())); 
+		return	isSourcesSubset(other); 
 	}
 
 }

@@ -254,16 +254,16 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 		final CmlAlphabet leftChildAlphabet = leftChild.inspect();
 		final CmlBehaviour rightChild = owner.getRightChild();
 		final CmlAlphabet rightChildAlphabet = rightChild.inspect();
-
-		//Find the intersection between the child alphabets and the channel set and join them.
-		//Then if both left and right have them the next step will combine them.
-		CmlAlphabet syncAlpha = leftChildAlphabet.intersectImprecise(cs).union(rightChildAlphabet.intersectImprecise(cs));
-
+		
 		//combine all the common channel events that are in the channel set 
 		Set<CmlTransition> syncEvents = new HashSet<CmlTransition>();
 		for(ObservableEvent csChannel : cs.getObservableEvents())
 		{
-			CmlAlphabet commonEvents = syncAlpha.intersectImprecise(csChannel.getAsAlphabet());
+			//Find the intersection between the child alphabets and the channel set and join them.
+			//Then if both left and right have them the next step will combine them.
+			CmlAlphabet leftSyncAlpha = leftChildAlphabet.intersectImprecise(csChannel);
+			CmlAlphabet rightSyncAlpha = rightChildAlphabet.intersectImprecise(csChannel);
+			CmlAlphabet commonEvents = leftSyncAlpha.union(rightSyncAlpha);
 			/*	
 			 * 	if we have two channel events to intersect with a channel from the cs then they might
 			 *	be able to synchronize.
@@ -284,6 +284,19 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 				//CmlAlphabet testAlpha = elem1.getAsAlphabet().intersectImprecise(elem2.getAsAlphabet());
 				syncEvents.add( elem1.synchronizeWith(elem2));
 			}
+//			else if (commonEvents.getObservableEvents().size() > 2)
+//			{
+//				for(ObservableEvent obs : commonEvents.getObservableEvents())
+//				{
+//					CmlAlphabet alphaTmp = commonEvents.subtract(obs); 
+//					CmlAlphabet alpha = alphaTmp.intersectImprecise(obs);
+//					if(alpha.getObservableEvents().size() == 1)
+//					{
+//						syncEvents.add( alpha.getObservableEvents().iterator().next().synchronizeWith(obs));
+//					}
+//				}
+//			}
+			
 		}
 
 		/*

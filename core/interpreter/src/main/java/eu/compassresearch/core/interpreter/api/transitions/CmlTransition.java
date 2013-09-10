@@ -26,4 +26,6 @@ public interface CmlTransition extends Serializable {
 	 * @return
 	 */
 	public Set<CmlBehaviour> getEventSources();
+	
+	public boolean isSourcesSubset(CmlTransition other);
 }

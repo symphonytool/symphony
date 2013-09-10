@@ -74,9 +74,7 @@ class SynchronizationEvent extends AbstractChannelEvent implements ObservableEve
 
 		ChannelEvent otherChannelEvent = (ChannelEvent)other;
 		
-		return (other.getEventSources().containsAll(getEventSources()) || 
-				getEventSources().containsAll(other.getEventSources())) &&
-				this.channelName.getChannel().equals(otherChannelEvent.getChannelName().getChannel());
+		return this.channelName.getChannel().equals(otherChannelEvent.getChannelName().getChannel());
 	}
 
 	@Override

@@ -38,6 +38,7 @@ import eu.compassresearch.core.interpreter.api.events.CmlBehaviorStateObserver;
 import eu.compassresearch.core.interpreter.api.events.EventSource;
 import eu.compassresearch.core.interpreter.api.events.TraceObserver;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTock;
+import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.ObservableEvent;
 import eu.compassresearch.core.interpreter.debug.CmlDbgStatusMessage;
 import eu.compassresearch.core.interpreter.debug.CmlInterpreterStateDTO;
@@ -208,6 +209,12 @@ public class TestMessageCommunicator {
 					@Override
 					public String toString() {
 						return "a";
+					}
+
+					@Override
+					public boolean isSourcesSubset(CmlTransition other) {
+						// TODO Auto-generated method stub
+						return false;
 					}
 				}); 
 					

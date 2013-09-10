@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-import java.util.Vector;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.types.AIntNumericBasicType;
@@ -13,12 +12,8 @@ import org.overture.ast.types.ANamedInvariantType;
 import org.overture.ast.types.AQuoteType;
 import org.overture.ast.types.AUnionType;
 import org.overture.ast.types.PType;
-import org.overture.interpreter.runtime.ValueException;
-import org.overture.interpreter.values.QuoteValue;
-import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.analysis.AnswerCMLAdaptor;
-import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
@@ -83,10 +78,7 @@ class CommunicationEvent extends AbstractChannelEvent implements ObservableEvent
 			return false;
 
 		ChannelEvent otherChannelEvent = (ChannelEvent)other;
-		// other is subset of this or this is a subset of other
-		return (other.getEventSources().containsAll(getEventSources()) || 
-				getEventSources().containsAll(other.getEventSources())) &&
-				//and they are on the same channel
+		return //they are on the same channel
 				this.channelName.getChannel().equals(otherChannelEvent.getChannelName().getChannel());
 	}
 	

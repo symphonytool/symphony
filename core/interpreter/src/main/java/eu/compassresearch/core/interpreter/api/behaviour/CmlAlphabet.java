@@ -164,8 +164,25 @@ public class CmlAlphabet extends Value {
 		{
 			for(ObservableEvent otherEvent : other._observableEvents)
 			{
-				if(thisEvent.isComparable(otherEvent))
+				if(thisEvent.isComparable(otherEvent) && thisEvent.isSourcesSubset(otherEvent)){
 					resultSet.add(thisEvent);
+					//resultSet.add(otherEvent);
+				}
+			}
+		}
+		
+		return new CmlAlphabet(resultSet);
+	}
+	
+	public CmlAlphabet intersectImprecise(ObservableEvent other)
+	{
+		Set<CmlTransition> resultSet = new LinkedHashSet<CmlTransition>();
+		
+		for(ObservableEvent thisEvent : _observableEvents)
+		{
+			if(thisEvent.isComparable(other)  && thisEvent.isSourcesSubset(other)){
+				resultSet.add(thisEvent);
+				//resultSet.add(otherEvent);
 			}
 		}
 		
@@ -182,6 +199,15 @@ public class CmlAlphabet extends Value {
 		Set<ObservableEvent> newReferenceEvents = new LinkedHashSet<ObservableEvent>();
 		newReferenceEvents.addAll(_observableEvents);
 		newReferenceEvents.removeAll(other.getObservableEvents());
+		
+		return new CmlAlphabet(newReferenceEvents,specialEvents);
+	}
+	
+	public CmlAlphabet subtract(ObservableEvent other)
+	{
+		Set<ObservableEvent> newReferenceEvents = new LinkedHashSet<ObservableEvent>();
+		newReferenceEvents.addAll(_observableEvents);
+		newReferenceEvents.remove(other);
 		
 		return new CmlAlphabet(newReferenceEvents,specialEvents);
 	}
