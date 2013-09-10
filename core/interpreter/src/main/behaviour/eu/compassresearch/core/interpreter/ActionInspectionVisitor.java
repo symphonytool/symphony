@@ -329,7 +329,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 		//the process has children and must now handle either termination or event sync
 		else if (CmlBehaviourUtility.isAllChildrenFinished(owner))
 		{
-			return newInspection(createSilentTransition(node, new ASkipAction(), "End"),caseParallelEnd(question));
+			return newInspection(createSilentTransition(node, new ASkipAction(node.getLocation()), "End"),caseParallelEnd(question));
 		}
 		else
 		{

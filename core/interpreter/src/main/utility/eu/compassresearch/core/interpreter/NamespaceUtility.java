@@ -17,4 +17,9 @@ class NamespaceUtility {
 	{
 		return new LexNameToken("|TIMEOUT|","STARTTIME",new LexLocation());
 	}
+	
+	public static ILexNameToken getSeqForName()
+	{
+		return new LexNameToken("|FORSEQ|","v",new LexLocation());
+	}
 }
