@@ -48,6 +48,7 @@ import org.overture.typechecker.assistant.type.AOperationTypeAssistantTC;
 import org.overture.typechecker.assistant.type.PTypeAssistantTC;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
+import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.definitions.AChannelNameDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.definitions.ACmlClassDefinition;
@@ -239,7 +240,8 @@ class TCExpressionVisitor extends
 		}
 
 
-		LinkedList<ANameChannelExp> chanNames = node.getChannelNames();		
+		LinkedList<ANameChannelExp> chanNames = node.getChannelNames();	
+		LinkedList<PDefinition> defs = new LinkedList<PDefinition>();
 		boolean seenState = false;
 		boolean seenChannel = false;
 		for (ANameChannelExp chanName : chanNames) {
@@ -271,7 +273,7 @@ class TCExpressionVisitor extends
 								"state or channel", idDef.getType() + "")));
 				return node.getType();
 			}
-
+			defs.add(idDef);
 		}
 
 		PType result = null;
@@ -284,6 +286,8 @@ class TCExpressionVisitor extends
 					TypeErrorMessages.EXPECTED_CHANNEL_OR_STATE
 							.customizeMessage("" + node));
 
+		result.setDefinitions(new LinkedList<PDefinition>());
+		result.getDefinitions().addAll(defs);
 		node.setType(result);
 		return result;
 
@@ -653,8 +657,44 @@ class TCExpressionVisitor extends
 			ILexIdentifierToken id = chanName.getIdentifier();
 			LexNameToken nameid = new LexNameToken("", id);
 			PDefinition def = cmlEnv.lookup(nameid, PDefinition.class);
-			if (def == null) {
+			if (def == null) {		
+				
 				def = cmlEnv.lookupChannel(id);
+				
+				if (def != null && def instanceof AChannelNameDefinition) {						
+					ATypeSingleDeclaration chanTypeDecl = ((AChannelNameDefinition) def).getSingleType();
+					AChannelType chanType = (AChannelType) chanTypeDecl.getType();
+					PType chanValueType = chanType.getType();
+					
+					if(chanValueType instanceof AProductType) {
+						AProductType prodType = (AProductType) chanValueType;
+						LinkedList<PType> prodTypes = prodType.getTypes();
+						LinkedList<PExp> chanExpressions = chanName.getExpressions();
+
+						//product and channel call same size?
+						if(chanExpressions.size() != prodType.getTypes().size()){
+							node.setType(issueHandler.addTypeError(
+									id,
+									TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(chanType
+											+ "", chanName + "")));
+							return node.getType();
+						}
+						
+						//product and channel expressions same type?
+						int i = 0;
+						for (PExp pExp : chanExpressions){
+							PType expType = pExp.apply(this,question);
+							PType pt = prodTypes.get(i++);
+							
+							if(!typeComparator.isSubType(expType, pt)){
+								node.setType(issueHandler.addTypeError(
+										id,
+										TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(pt
+												+ "", expType + "")));
+							}
+						}
+					}
+				}
 				seenChannel = true;
 			} else {
 				seenState = true;
@@ -683,8 +723,7 @@ class TCExpressionVisitor extends
 		if (seenState) {
 			result = new ANamesetsType(node.getLocation(), true);
 		}
-		result.setDefinitions(new LinkedList<PDefinition>());
-		result.getDefinitions().addAll(defs);
+		result.setDefinitions(new LinkedList<PDefinition>(defs));
 		node.setType(result);
 		return node.getType();
 	}

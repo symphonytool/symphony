@@ -60,8 +60,8 @@ public class CmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase {
 		// 8
 		addTestProgram(
 				testData,
-				"channels c1:int*int process A = begin state a:int @ [| {c1} |] i in set {1,2,3} @ [{  a }] c1!i -> Skip end",
-				true, true, new String[0]);
+				"channels c1:int*int process A = begin state a:int @ [| { c1 } |] i in set {1,2,3} @ [{  a }] c1!i -> Skip end",
+				true, false, new String[0]);
 		// 9
 		addTestProgram(
 				testData,
@@ -246,7 +246,7 @@ public class CmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase {
 		addTestProgram(testData, 
 				"types CP :: c : nat p : nat process test =  begin state myCP : [CP] operations op1: () ==> () op1() ==  (  dcl x : nat @ x := myCP.c  ) op2: (nat) ==> () op2(n) ==  (  myCP.c :=n ) @ Skip end", 
 				true, true, new String[0]);
-		// 47 //Test case like above, with no optional value  
+		//47 //Test case like above, with no optional value  
 		addTestProgram(testData, 
 				"types CP :: c : nat p : nat process test =  begin state myCP : CP operations op1: () ==> () op1() ==  (  dcl x : nat @ x := myCP.c  ) op2: (nat) ==> () op2(n) ==  (  myCP.c :=n ) @ Skip end", 
 				true, true, new String[0]);
@@ -263,14 +263,34 @@ public class CmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase {
 		//51 // Test case for bug https://sourceforge.net/p/compassresearch/tickets/26/
 		addTestProgram(testData, "process Test = begin functions AFunc: nat -> nat AFunc(l) == 1 BFunc: nat * nat -> nat BFunc(l,u) == AFunc(l) @ Skip end", 
 				true, true, new String[0]);
-		//53 // Test case for bug https://sourceforge.net/p/compassresearch/tickets/26/
+		//52 // Test case for bug https://sourceforge.net/p/compassresearch/tickets/26/
 		addTestProgram(testData, "process Test2 = begin functions AFunc: nat -> nat AFunc(avar) == 1 BFunc : () -> nat BFunc() == AFunc(2) @ Skip end", 
 				true, true, new String[0]);
-		//54 // Test case for bug https://sourceforge.net/p/compassresearch/tickets/26/
+		//53 // Test case for bug https://sourceforge.net/p/compassresearch/tickets/26/
 		addTestProgram(testData, "process Test = begin functions BFunc : () -> nat BFunc() == AFunc(2) @ Skip end process Test2 = begin functions AFunc: nat -> nat AFunc(avar) == 1 BFunc : () -> nat BFunc() == AFunc(2) @ Skip end", 
 				true, false, new String[0]);
-		//55 // Test case for bug http://sourceforge.net/p/compassresearch/tickets/48/
+		//54 // Test case for bug http://sourceforge.net/p/compassresearch/tickets/48/
 		addTestProgram(testData, "process Waiter = begin @ Wait \"ao\" ; Skip end",true, false, new String[0]);
+		//55 //Negative test AEnumVarsetExpression
+		addTestProgram(testData, 
+				"channels c:int*int process A = begin @ c.(1).(1) -> Skip [| {c.(2).(4).(5)} |] c.(1).(1) -> Skip  end",
+				true, false, new String[0]);
+		//56 //Check for AEnumVarsetExpression
+		addTestProgram(testData, 
+				"channels c:int*int process A = begin @ c.(1).(1) -> Skip [| {c.(1).(1)} |] c.(1).(1) -> Skip  end",
+				true, true, new String[0]);
+		//57 //Check for FatEnumVarsetExpression
+		addTestProgram(testData, 
+				"channels c:int*int process A = begin @ c.(1).(1) -> Skip [| {|c|} |] c.(1).(1) -> Skip  end",
+				true, true, new String[0]);
+		//58 //Check for FatEnumVarsetExpression
+		addTestProgram(testData,
+				"channels c1:int*int process A = begin state a:int @ [| {|c1|} |] i in set {1,2,3} @ [{ a }] c1!i -> Skip end",
+				true, true, new String[0]);
+		//59 //Check for AEnumVarsetExpression. Wrong type in channel compared to product type. Negative test
+		addTestProgram(testData, 
+				"channels c:int*char process A = begin @ c.(1).(1) -> Skip [| {c.(1).(1)} |] c.(1).(1) -> Skip  end",
+				true, false, new String[0]);
 		
 		return testData;
 	}
