@@ -29,7 +29,7 @@ import eu.compassresearch.ast.lex.LexIdentifierToken;
 import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorState;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlTrace;
@@ -166,7 +166,7 @@ public class TestMessageCommunicator {
 			}
 			
 			@Override
-			public CmlAlphabet inspect() {
+			public CmlTransitionSet inspect() {
 				// TODO Auto-generated method stub
 				return null;
 			}
@@ -190,7 +190,7 @@ public class TestMessageCommunicator {
 					}
 					
 					@Override
-					public CmlAlphabet getAsAlphabet() {
+					public CmlTransitionSet getAsAlphabet() {
 						// TODO Auto-generated method stub
 						return null;
 					}

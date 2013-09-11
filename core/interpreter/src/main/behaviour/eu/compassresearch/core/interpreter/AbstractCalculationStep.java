@@ -9,7 +9,7 @@ import org.overture.interpreter.runtime.Context;
 
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlCalculationStep;
 import eu.compassresearch.core.interpreter.utility.Pair;
@@ -71,9 +71,9 @@ abstract class AbstractCalculationStep implements CmlCalculationStep {
 	protected void caseParallelNonSync() throws AnalysisException
 	{
 		CmlBehaviour leftChild =  owner.getLeftChild();
-		CmlAlphabet leftChildAlpha = owner.getLeftChild().inspect(); 
+		CmlTransitionSet leftChildAlpha = owner.getLeftChild().inspect(); 
 		CmlBehaviour rightChild = owner.getRightChild();
-		CmlAlphabet rightChildAlpha = rightChild.inspect();
+		CmlTransitionSet rightChildAlpha = rightChild.inspect();
 
 		if(leftChildAlpha.containsImprecise(supervisor().selectedObservableEvent()))
 		{

@@ -6,7 +6,7 @@ import java.util.Set;
 import org.overture.ast.node.INode;
 
 import eu.compassresearch.core.interpreter.CmlRuntime;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 
 public class InternalTransition extends AbstractCmlTransition implements SilentTransition {
@@ -67,11 +67,11 @@ public class InternalTransition extends AbstractCmlTransition implements SilentT
 	}
 
 	@Override
-	public CmlAlphabet getAsAlphabet() {
+	public CmlTransitionSet getAsAlphabet() {
 		
 		Set<CmlTransition> events = new HashSet<CmlTransition>();
 		events.add(this);
-		return new CmlAlphabet(events);
+		return new CmlTransitionSet(events);
 	}
 
 }

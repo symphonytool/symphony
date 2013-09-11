@@ -35,7 +35,7 @@ import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
 import eu.compassresearch.ast.expressions.PCMLExp;
 import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.ast.types.AChannelType;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionFactory;
 import eu.compassresearch.core.interpreter.api.transitions.ObservableEvent;
@@ -135,7 +135,7 @@ public class CmlExpressionVisitor extends QuestionAnswerCMLAdaptor<Context, Valu
 				coms.add(CmlTransitionFactory.newCmlCommunicationEvent(channelName));
 		}
 		
-		return new CmlAlphabet(coms);
+		return new CmlTransitionSet(coms);
 	}
 	
 	@Override
@@ -149,7 +149,7 @@ public class CmlExpressionVisitor extends QuestionAnswerCMLAdaptor<Context, Valu
 			coms.add(createEvent(channelName));
 		}
 		
-		return new CmlAlphabet(coms);
+		return new CmlTransitionSet(coms);
 
 	}
 	
@@ -170,7 +170,7 @@ public class CmlExpressionVisitor extends QuestionAnswerCMLAdaptor<Context, Valu
 			AIdentifierVarsetExpression node, Context question)
 			throws AnalysisException {
 
-		return new CmlAlphabet(createEvent(createChannelNameValue(node.getIdentifier(), question)));
+		return new CmlTransitionSet(createEvent(createChannelNameValue(node.getIdentifier(), question)));
 	}
 	
 	@Override

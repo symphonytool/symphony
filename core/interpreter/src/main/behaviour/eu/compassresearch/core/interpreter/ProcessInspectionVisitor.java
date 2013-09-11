@@ -43,7 +43,7 @@ import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.Inspection;
 import eu.compassresearch.core.interpreter.api.transitions.ChannelEvent;
@@ -466,26 +466,26 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 	 * @throws AnalysisException 
 	 */
 
-	private CmlAlphabet caseAGeneralisedParallelismInspectChildren(PVarsetExpression channelsetExp, Context question) throws AnalysisException
+	private CmlTransitionSet caseAGeneralisedParallelismInspectChildren(PVarsetExpression channelsetExp, Context question) throws AnalysisException
 	{
 		//convert the channel set of the current node to a alphabet
-		CmlAlphabet cs =  ((CmlAlphabet)channelsetExp.apply(cmlExpressionVisitor,question)).union(new CmlTock());
+		CmlTransitionSet cs =  ((CmlTransitionSet)channelsetExp.apply(cmlExpressionVisitor,question)).union(new CmlTock());
 
 		//Get all the child alphabets and add the events that are not in the channelset
 		CmlBehaviour leftChild = owner.getLeftChild();
-		CmlAlphabet leftChildAlphabet = leftChild.inspect();
+		CmlTransitionSet leftChildAlphabet = leftChild.inspect();
 		CmlBehaviour rightChild = owner.getRightChild();
-		CmlAlphabet rightChildAlphabet = rightChild.inspect();
+		CmlTransitionSet rightChildAlphabet = rightChild.inspect();
 
 		//Find the intersection between the child alphabets and the channel set and join them.
 		//Then if both left and right have them the next step will combine them.
-		CmlAlphabet syncAlpha = leftChildAlphabet.intersectImprecise(cs).union(rightChildAlphabet.intersectImprecise(cs));
+		CmlTransitionSet syncAlpha = leftChildAlphabet.intersectImprecise(cs).union(rightChildAlphabet.intersectImprecise(cs));
 
 		//combine all the common events that are in the channel set 
 		Set<CmlTransition> syncEvents = new HashSet<CmlTransition>();
 		for(ObservableEvent ref : cs.getObservableEvents())
 		{
-			CmlAlphabet commonEvents = syncAlpha.intersectImprecise(ref.getAsAlphabet());
+			CmlTransitionSet commonEvents = syncAlpha.intersectImprecise(ref.getAsAlphabet());
 			if(commonEvents.getObservableEvents().size() == 2)
 			{
 				Iterator<ObservableEvent> it = commonEvents.getObservableEvents().iterator(); 
@@ -498,7 +498,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 		 *  Synchronized events together with all the event of the children 
 		 *  that are not in the channel set.
 		 */
-		CmlAlphabet resultAlpha = new CmlAlphabet(syncEvents).union(leftChildAlphabet.subtractImprecise(cs));
+		CmlTransitionSet resultAlpha = new CmlTransitionSet(syncEvents).union(leftChildAlphabet.subtractImprecise(cs));
 		resultAlpha = resultAlpha.union(rightChildAlphabet.subtractImprecise(cs));
 
 		return resultAlpha;

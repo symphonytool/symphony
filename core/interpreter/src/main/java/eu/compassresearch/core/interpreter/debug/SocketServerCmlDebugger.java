@@ -30,7 +30,7 @@ import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.RandomSelectionStrategy;
 import eu.compassresearch.core.interpreter.api.SelectionStrategy;
 import eu.compassresearch.core.interpreter.api.ValueParser;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.events.CmlInterpreterStatusObserver;
 import eu.compassresearch.core.interpreter.api.events.InterpreterStatusEvent;
@@ -152,17 +152,17 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 					private Scanner scanIn = new Scanner(System.in);
 					private RandomSelectionStrategy rndSelect = new RandomSelectionStrategy();
 
-					private boolean isSystemSelect(CmlAlphabet availableChannelEvents)
+					private boolean isSystemSelect(CmlTransitionSet availableChannelEvents)
 					{
 						return availableChannelEvents.getSilentTransitions().size() > 0;
 					}
 
-					private CmlTransition systemSelect(CmlAlphabet availableChannelEvents)
+					private CmlTransition systemSelect(CmlTransitionSet availableChannelEvents)
 					{
-						return rndSelect.select(new CmlAlphabet((Set)availableChannelEvents.getSilentTransitions()));
+						return rndSelect.select(new CmlTransitionSet((Set)availableChannelEvents.getSilentTransitions()));
 					}
 
-					private CmlTransition userSelect(CmlAlphabet availableChannelEvents)
+					private CmlTransition userSelect(CmlTransitionSet availableChannelEvents)
 					{
 						//sendStatusMessage(CmlDbgpStatus.CHOICE, cmlInterpreter.getStatus());
 
@@ -234,7 +234,7 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 					}
 
 					@Override
-					public CmlTransition select(CmlAlphabet availableChannelEvents) {
+					public CmlTransition select(CmlTransitionSet availableChannelEvents) {
 
 						//At this point we don't want the internal transition to propagate 
 						//to the user, so we randomly choose all the possible internal transitions

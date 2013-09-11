@@ -16,7 +16,7 @@ import eu.compassresearch.core.interpreter.api.transitions.SilentTransition;
  * @author akm
  *
  */
-public class CmlAlphabet extends Value {
+public class CmlTransitionSet extends Value {
 
 	/**
 	 * 
@@ -28,27 +28,27 @@ public class CmlAlphabet extends Value {
 	//This contains all the special events like tau
 	private final Set<SilentTransition> specialEvents;
 	
-	public CmlAlphabet()
+	public CmlTransitionSet()
 	{
 		this.specialEvents = new LinkedHashSet<SilentTransition>();
 		this._observableEvents = new LinkedHashSet<ObservableEvent>();
 	}
 	
-	public CmlAlphabet(ObservableEvent obsEvent)
+	public CmlTransitionSet(ObservableEvent obsEvent)
 	{
 		this.specialEvents = new LinkedHashSet<SilentTransition>();
 		this._observableEvents = new LinkedHashSet<ObservableEvent>();
 		this._observableEvents.add(obsEvent);
 	}
 	
-	public CmlAlphabet(SilentTransition tauEvent)
+	public CmlTransitionSet(SilentTransition tauEvent)
 	{
 		this.specialEvents = new LinkedHashSet<SilentTransition>();
 		this._observableEvents = new LinkedHashSet<ObservableEvent>();
 		this.specialEvents.add(tauEvent);
 	}
 	
-	public CmlAlphabet(ObservableEvent obs, SilentTransition tauEvent)
+	public CmlTransitionSet(ObservableEvent obs, SilentTransition tauEvent)
 	{
 		this.specialEvents = new LinkedHashSet<SilentTransition>();
 		this.specialEvents.add(tauEvent);
@@ -56,13 +56,13 @@ public class CmlAlphabet extends Value {
 		this._observableEvents.add(obs);
 	}
 	
-	public CmlAlphabet(Set<ObservableEvent> comms, Set<SilentTransition> specialEvents)
+	public CmlTransitionSet(Set<ObservableEvent> comms, Set<SilentTransition> specialEvents)
 	{
 		this.specialEvents = specialEvents;
 		this._observableEvents = new LinkedHashSet<ObservableEvent>(comms);
 	}
 	
-	public CmlAlphabet(Set<CmlTransition> events)
+	public CmlTransitionSet(Set<CmlTransition> events)
 	{
 		this.specialEvents = new LinkedHashSet<SilentTransition>();
 		this._observableEvents = new LinkedHashSet<ObservableEvent>();
@@ -113,12 +113,12 @@ public class CmlAlphabet extends Value {
 	 * @param event 
 	 * @return The union of this alphabet and the given CmlEvent
 	 */
-	public CmlAlphabet union(CmlAlphabet other)
+	public CmlTransitionSet union(CmlTransitionSet other)
 	{
 		Set<CmlTransition> resultSet = this.getAllEvents();
 		resultSet.addAll(other.getAllEvents());
 		
-		return new CmlAlphabet(resultSet);
+		return new CmlTransitionSet(resultSet);
 	}
 	
 	/**
@@ -126,12 +126,12 @@ public class CmlAlphabet extends Value {
 	 * @param event 
 	 * @return The union of this alphabet and the given CmlEvent
 	 */
-	public CmlAlphabet union(CmlTransition event)
+	public CmlTransitionSet union(CmlTransition event)
 	{
 		Set<CmlTransition> resultSet = this.getAllEvents();
 		resultSet.add(event);
 		
-		return new CmlAlphabet(resultSet);
+		return new CmlTransitionSet(resultSet);
 	}
 	
 	/**
@@ -139,11 +139,11 @@ public class CmlAlphabet extends Value {
 	 * @param other
 	 * @return
 	 */
-	public CmlAlphabet intersect(CmlAlphabet other)
+	public CmlTransitionSet intersect(CmlTransitionSet other)
 	{
 		Set<CmlTransition> commonSet  = new LinkedHashSet<CmlTransition>(_observableEvents);
 		commonSet.retainAll(other._observableEvents);
-		return new CmlAlphabet(commonSet);
+		return new CmlTransitionSet(commonSet);
 	}
 	
 	/**
@@ -156,7 +156,7 @@ public class CmlAlphabet extends Value {
 	 * @param other
 	 * @return
 	 */
-	public CmlAlphabet intersectImprecise(CmlAlphabet other)
+	public CmlTransitionSet intersectImprecise(CmlTransitionSet other)
 	{
 		Set<CmlTransition> resultSet = new LinkedHashSet<CmlTransition>();
 		
@@ -165,28 +165,30 @@ public class CmlAlphabet extends Value {
 			for(ObservableEvent otherEvent : other._observableEvents)
 			{
 				if(thisEvent.isComparable(otherEvent) && thisEvent.isSourcesSubset(otherEvent)){
+				//if(thisEvent.isComparable(otherEvent)){
 					resultSet.add(thisEvent);
 					//resultSet.add(otherEvent);
 				}
 			}
 		}
 		
-		return new CmlAlphabet(resultSet);
+		return new CmlTransitionSet(resultSet);
 	}
 	
-	public CmlAlphabet intersectImprecise(ObservableEvent other)
+	public CmlTransitionSet intersectImprecise(ObservableEvent other)
 	{
 		Set<CmlTransition> resultSet = new LinkedHashSet<CmlTransition>();
 		
 		for(ObservableEvent thisEvent : _observableEvents)
 		{
 			if(thisEvent.isComparable(other)  && thisEvent.isSourcesSubset(other)){
+			//if(thisEvent.isComparable(other) ){
 				resultSet.add(thisEvent);
 				//resultSet.add(otherEvent);
 			}
 		}
 		
-		return new CmlAlphabet(resultSet);
+		return new CmlTransitionSet(resultSet);
 	}
 
 	/**
@@ -194,22 +196,22 @@ public class CmlAlphabet extends Value {
 	 * @param other
 	 * @return An alphabet containing all the events that are this
 	 */
-	public CmlAlphabet subtract(CmlAlphabet other)
+	public CmlTransitionSet subtract(CmlTransitionSet other)
 	{
 		Set<ObservableEvent> newReferenceEvents = new LinkedHashSet<ObservableEvent>();
 		newReferenceEvents.addAll(_observableEvents);
 		newReferenceEvents.removeAll(other.getObservableEvents());
 		
-		return new CmlAlphabet(newReferenceEvents,specialEvents);
+		return new CmlTransitionSet(newReferenceEvents,specialEvents);
 	}
 	
-	public CmlAlphabet subtract(ObservableEvent other)
+	public CmlTransitionSet subtract(ObservableEvent other)
 	{
 		Set<ObservableEvent> newReferenceEvents = new LinkedHashSet<ObservableEvent>();
 		newReferenceEvents.addAll(_observableEvents);
 		newReferenceEvents.remove(other);
 		
-		return new CmlAlphabet(newReferenceEvents,specialEvents);
+		return new CmlTransitionSet(newReferenceEvents,specialEvents);
 	}
 	
 	/**
@@ -217,13 +219,13 @@ public class CmlAlphabet extends Value {
 	 * @param other
 	 * @return An alphabet containing all the events that are this
 	 */
-	public CmlAlphabet subtractImprecise(CmlAlphabet other)
+	public CmlTransitionSet subtractImprecise(CmlTransitionSet other)
 	{
 		Set<ObservableEvent> newReferenceEvents = new LinkedHashSet<ObservableEvent>();
 		newReferenceEvents.addAll(_observableEvents);
 		newReferenceEvents.removeAll(this.intersectImprecise(other).getObservableEvents());
 		
-		return new CmlAlphabet(newReferenceEvents,specialEvents);
+		return new CmlTransitionSet(newReferenceEvents,specialEvents);
 	}
 	
 	
@@ -257,10 +259,10 @@ public class CmlAlphabet extends Value {
 	@Override
 	public boolean equals(Object other) {
 
-		if(!(other instanceof CmlAlphabet))
+		if(!(other instanceof CmlTransitionSet))
 			return false;
 			
-		return getAllEvents().equals(((CmlAlphabet)other).getAllEvents());
+		return getAllEvents().equals(((CmlTransitionSet)other).getAllEvents());
 	}
 
 	@Override
@@ -290,7 +292,7 @@ public class CmlAlphabet extends Value {
 	 * 
 	 * @return The same alphabet but with all the expandable events expanded
 	 */
-	public CmlAlphabet expandAlphabet()
+	public CmlTransitionSet expandAlphabet()
 	{
 		Set<CmlTransition> eventSet = new HashSet<CmlTransition>();
 		
@@ -300,14 +302,14 @@ public class CmlAlphabet extends Value {
 			else
 				eventSet.add(ev);
 		
-		return new CmlAlphabet(eventSet);
+		return new CmlTransitionSet(eventSet);
 		
 	}
 	
 	@Override
 	public Object clone() {
 
-		return new CmlAlphabet(new LinkedHashSet<ObservableEvent>(_observableEvents), 
+		return new CmlTransitionSet(new LinkedHashSet<ObservableEvent>(_observableEvents), 
 				new HashSet<SilentTransition>(specialEvents));
 	}
 }

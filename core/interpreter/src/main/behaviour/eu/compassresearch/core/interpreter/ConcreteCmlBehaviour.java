@@ -20,7 +20,7 @@ import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorState;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlTrace;
@@ -272,7 +272,7 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	}
 
 	@Override
-	public CmlAlphabet inspect() throws AnalysisException
+	public CmlTransitionSet inspect() throws AnalysisException
 	{
 		//		try
 		//		{
@@ -424,7 +424,7 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 
 		if(!finished())
 		{
-			CmlAlphabet alpha = inspect();
+			CmlTransitionSet alpha = inspect();
 
 			//A Process is deadlocked if its immediate alphabet is only tock with no limit
 			if(alpha.getAllEvents().isEmpty())

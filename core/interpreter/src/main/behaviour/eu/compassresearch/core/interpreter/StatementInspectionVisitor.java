@@ -48,7 +48,7 @@ import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.types.AActionType;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.Inspection;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTock;
@@ -464,7 +464,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 		{
 			//were stuck so return empty alphabet
 			//FIXME actually this diverges
-			return newInspection(new CmlAlphabet(),null);
+			return newInspection(new CmlTransitionSet(),null);
 		}
 	}
 
@@ -554,7 +554,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 		final INode skipNode = new ASkipAction(node.getLocation(),new AActionType());
 		//FIXME according to the semantics this should be performed instantly so time is not
 		//allowed to pass
-		return newInspection(new CmlAlphabet(new InternalTransition(owner,node,skipNode,null)),
+		return newInspection(new CmlTransitionSet(new InternalTransition(owner,node,skipNode,null)),
 				new AbstractCalculationStep(owner,visitorAccess) {
 			
 			@Override

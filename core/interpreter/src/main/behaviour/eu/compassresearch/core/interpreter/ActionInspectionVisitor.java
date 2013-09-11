@@ -57,7 +57,7 @@ import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.Inspection;
 import eu.compassresearch.core.interpreter.api.transitions.ChannelEvent;
@@ -219,7 +219,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 			comset.add(observableEvent);
 		}
 
-		return newInspection(new CmlAlphabet(comset).union(new CmlTock(owner)),
+		return newInspection(new CmlTransitionSet(comset).union(new CmlTock(owner)),
 				new AbstractCalculationStep(owner, visitorAccess) {
 
 			@Override
@@ -463,14 +463,14 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 		//First we evaluate the guard expression
 		Value guardExp = node.getExpression().apply(cmlExpressionVisitor,question);
 
-		CmlAlphabet alpha = null;
+		CmlTransitionSet alpha = null;
 
 		//if the gaurd is true then we return the silent transition to the guarded action
 		if(guardExp.boolValue(question))
 			alpha = createSilentTransition(node, node.getAction());
 		//else we return the empty alphabet since no transition is possible
 		else
-			alpha = new CmlAlphabet(new CmlTock(owner));
+			alpha = new CmlTransitionSet(new CmlTock(owner));
 
 		return newInspection(alpha, 
 				new AbstractCalculationStep(owner, visitorAccess) {
@@ -636,14 +636,14 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 
 		//return the alphabet only containing tock since Skip allows for time to pass
 		//return newInspection(new CmlAlphabet(new CmlTock(owner)),null);
-		return newInspection(new CmlAlphabet(),null);
+		return newInspection(new CmlTransitionSet(),null);
 	}
 
 	@Override
 	public Inspection caseAStopAction(AStopAction node, Context question)
 			throws AnalysisException {
 		//return the alphabet only containing tock since Stop allows for time to pass
-		return newInspection(new CmlAlphabet(new CmlTock(owner)),null);
+		return newInspection(new CmlTransitionSet(new CmlTock(owner)),null);
 	}
 	
 	@Override
@@ -817,7 +817,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 			});
 		else
 			//If the number of tocks has not exceeded val then behave as Stop
-			return newInspection(new CmlAlphabet(new CmlTock(owner,nTocks-val)), null);
+			return newInspection(new CmlTransitionSet(new CmlTock(owner,nTocks-val)), null);
 	}
 	/**
 	 * Interrupt A /_\ B : The possible transitions from both A and B are exposed

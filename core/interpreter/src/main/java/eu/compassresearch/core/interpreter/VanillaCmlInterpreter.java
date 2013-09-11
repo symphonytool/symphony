@@ -23,7 +23,7 @@ import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.api.ConsoleSelectionStrategy;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlTrace;
 import eu.compassresearch.core.interpreter.api.events.CmlInterpreterStatusObserver;
@@ -189,9 +189,9 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		while(!topProcess.finished() && !topProcess.deadlocked())
 		{
 			//inspect the top process to get the next possible trace element
-			CmlAlphabet topAlphabet = topProcess.inspect();
+			CmlTransitionSet topAlphabet = topProcess.inspect();
 			//expand what's possible in the alphabet
-			CmlAlphabet availableEvents = topAlphabet.expandAlphabet();
+			CmlTransitionSet availableEvents = topAlphabet.expandAlphabet();
 
 			CmlRuntime.logger().fine("Waiting for environment on : " + availableEvents.getAllEvents());
 
@@ -448,7 +448,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	public static void main(String[] args) throws IOException, CmlInterpreterException
 	{
 		File cml_example = new File(
-				"src/test/resources/action/action-seqForLoop.cml");
+				"src/test/resources/action/parallel-composition/action-generalised-parallelism-no-state-simple3.cml");
 		//File cml_example = new File("/home/akm/phd/COMPASS-repo/Common/CaseStudies/Library/Library.cml");
 			
 		runOnFile(cml_example);

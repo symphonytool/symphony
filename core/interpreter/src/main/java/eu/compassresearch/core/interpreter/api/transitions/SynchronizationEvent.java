@@ -8,7 +8,7 @@ import java.util.Set;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.core.interpreter.api.CmlChannel;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
 
@@ -52,8 +52,8 @@ class SynchronizationEvent extends AbstractChannelEvent implements ObservableEve
 	}
 
 	@Override
-	public CmlAlphabet getAsAlphabet() {
-		return new CmlAlphabet(this);
+	public CmlTransitionSet getAsAlphabet() {
+		return new CmlTransitionSet(this);
 	}
 
 	@Override

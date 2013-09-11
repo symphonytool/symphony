@@ -15,7 +15,7 @@ import org.overture.ast.types.PType;
 
 import eu.compassresearch.ast.analysis.AnswerCMLAdaptor;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.values.AbstractValueInterpreter;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
@@ -83,9 +83,9 @@ class CommunicationEvent extends AbstractChannelEvent implements ObservableEvent
 	}
 	
 	@Override
-	public CmlAlphabet getAsAlphabet() {
+	public CmlTransitionSet getAsAlphabet() {
 
-		return new CmlAlphabet(this);
+		return new CmlTransitionSet(this);
 	}
 
 	@Override

@@ -10,7 +10,7 @@ import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.interpreter.CmlRuntime;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.transitions.ChannelEvent;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.values.AbstractValueInterpreter;
@@ -27,7 +27,7 @@ public class RandomSelectionStrategy implements
 	private static final Random rndChoice = new Random(randomSeed);
 	
 	@Override
-	public CmlTransition select(CmlAlphabet availableChannelEvents) {
+	public CmlTransition select(CmlTransitionSet availableChannelEvents) {
 		
 		CmlTransition selectedComm = null;
 		
