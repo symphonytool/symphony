@@ -271,6 +271,12 @@ public class TestMessageCommunicator {
 			public List<CmlBehaviour> children() {
 				return new LinkedList<CmlBehaviour>();
 			}
+
+			@Override
+			public int getId() {
+				// TODO Auto-generated method stub
+				return 0;
+			}
 		}, CmlInterpretationStatus.FINISHED);
 		Message sentMessage = new CmlDbgStatusMessage(status);
 		MessageCommunicator.sendMessage(outStream, sentMessage);

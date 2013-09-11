@@ -6,6 +6,7 @@ import java.util.Map;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.events.CmlInterpreterStatusObserver;
 import eu.compassresearch.core.interpreter.api.events.EventFireMediator;
 import eu.compassresearch.core.interpreter.api.events.EventSource;
@@ -37,7 +38,7 @@ abstract class AbstractCmlInterpreter implements CmlInterpreter {
 	 * "<filepath>:<linenumber>"
 	 */
 	protected Map<String,Breakpoint> 	breakpoints = new HashMap<>();
-
+	protected CmlBehaviour	   		   runningTopProcess 	= null;
 	protected CmlSupervisorEnvironment 	currentSupervisor;
 	/**
 	 * The current state of the interpreter
@@ -89,5 +90,27 @@ abstract class AbstractCmlInterpreter implements CmlInterpreter {
 			breakpoints.put(key, bp);
 			return true;
 		}
+	}
+	
+	@Override
+	public CmlBehaviour findBehaviorById(int id) {
+		
+		return findBehaviorById(this.runningTopProcess,id);
+	}
+	
+	private CmlBehaviour findBehaviorById(CmlBehaviour behavior, int id) {
+		
+		if(behavior.getId() == id)
+			return behavior;
+		else if(behavior.getLeftChild() != null)
+		{
+			return findBehaviorById(behavior.getLeftChild(),id);
+		}
+		else if(behavior.getRightChild() != null)
+		{
+			return findBehaviorById(behavior.getRightChild(),id);
+		}
+		
+		return null;
 	}
 }

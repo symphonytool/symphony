@@ -52,7 +52,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	protected Context                  globalContext;
 	protected String 				   defaultName      	= null;	
 	protected AProcessDefinition       topProcess;
-	protected CmlBehaviour	   		   runningTopProcess 	= null;
+	
 	/**
 	 * Sync object used to suspend the execution
 	 */

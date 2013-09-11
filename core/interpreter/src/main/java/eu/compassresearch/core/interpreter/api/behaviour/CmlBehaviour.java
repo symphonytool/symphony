@@ -65,6 +65,8 @@ public interface CmlBehaviour extends Serializable //extends Transactable
 	 */
 	public ILexNameToken name();
 	
+	public int getId();
+	
 	/**
 	 * This constructs a string representing the next execution step of this process
 	 * @return

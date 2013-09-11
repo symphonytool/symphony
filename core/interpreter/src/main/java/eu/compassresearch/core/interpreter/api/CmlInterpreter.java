@@ -66,6 +66,8 @@ public interface CmlInterpreter
 	public CmlInterpretationStatus getStatus();
 	
 	public CmlBehaviour getTopLevelProcess();
+	
+	public CmlBehaviour findBehaviorById(int id);
 
 	public EventSource<CmlInterpreterStatusObserver> onStatusChanged();
 	

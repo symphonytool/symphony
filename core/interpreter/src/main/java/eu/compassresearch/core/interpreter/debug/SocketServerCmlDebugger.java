@@ -16,8 +16,8 @@ import java.util.concurrent.SynchronousQueue;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.node.INode;
+import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ValueException;
-import org.overture.interpreter.values.IntegerValue;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.core.interpreter.CmlRuntime;
@@ -30,8 +30,8 @@ import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.RandomSelectionStrategy;
 import eu.compassresearch.core.interpreter.api.SelectionStrategy;
 import eu.compassresearch.core.interpreter.api.ValueParser;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.events.CmlInterpreterStatusObserver;
 import eu.compassresearch.core.interpreter.api.events.InterpreterStatusEvent;
 import eu.compassresearch.core.interpreter.api.transitions.ChannelEvent;
@@ -284,6 +284,11 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 
 		return responseMessage;
 	}
+	
+	private void sendResponse(ResponseMessage message)
+	{
+		MessageCommunicator.sendMessage(requestOS, message);
+	}
 
 	/**
 	 * Receives a CML message. This is a blocking call
@@ -355,6 +360,35 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 			return true;
 		}
 	}
+	
+	private boolean processRequest(RequestMessage message)
+	{
+		switch(message.getRequest())
+		{
+		case GET_STACK_FRAMES:
+			System.out.println("processing request " + message.getRequestId());
+			int id = message.getContent();
+			CmlBehaviour foundBehavior = this.runningInterpreter.findBehaviorById(id);
+			Context context = foundBehavior.getNextState().second;
+			List<StackFrameDTO> stackframes = new LinkedList<StackFrameDTO>();
+			
+			Context nextContext = context;
+			
+			while(nextContext != null){
+				stackframes.add(new StackFrameDTO(nextContext.location.getStartLine(), 
+						nextContext.location.getFile().toString(), nextContext.getDepth()));
+				nextContext = nextContext.outer;
+			}
+			ResponseMessage responseMessage = new ResponseMessage(message.getRequestId(), 
+					CmlRequest.GET_STACK_FRAMES, stackframes);
+			sendResponse(responseMessage);
+			System.out.println("response sent" + responseMessage.getRequestId());
+			return true;
+			
+		default:
+			return true;
+		}
+	}
 
 	/**
 	 * Handles the response messages sent
@@ -376,6 +410,8 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 			return processStatusMessage((CmlDbgStatusMessage)messageContainer.getMessage());
 		case COMMAND:
 			return processCommand((CmlDbgCommandMessage)messageContainer.getMessage());
+		case REQUEST:
+			return processRequest((RequestMessage)messageContainer.getMessage());
 		case RESPONSE:
 			return processResponse((ResponseMessage)messageContainer.getMessage());
 		default:

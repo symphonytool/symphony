@@ -7,7 +7,9 @@ import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URI;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import org.eclipse.core.runtime.CoreException;
 
@@ -19,6 +21,7 @@ import eu.compassresearch.core.interpreter.debug.messaging.Message;
 import eu.compassresearch.core.interpreter.debug.messaging.MessageCommunicator;
 import eu.compassresearch.core.interpreter.debug.messaging.MessageContainer;
 import eu.compassresearch.core.interpreter.debug.messaging.RequestMessage;
+import eu.compassresearch.core.interpreter.debug.messaging.ResponseMessage;
 import eu.compassresearch.ide.interpreter.CmlDebugPlugin;
 import eu.compassresearch.ide.interpreter.ICmlDebugConstants;
 import eu.compassresearch.ide.interpreter.model.CmlDebugTarget;
@@ -27,6 +30,8 @@ public class CmlCommunicationManager extends Thread
 {
 	private Map<String, MessageEventHandler<RequestMessage>> requestHandlers;
 	private Map<String, MessageEventHandler<CmlDbgStatusMessage>> statusHandlers;
+	private Map<UUID, ResponseMessage> responses;
+	private Object incommingResponseSignal = new Object();
 	private BufferedReader fRequestReader;
 	final CmlDebugTarget target;
 
@@ -49,6 +54,7 @@ public class CmlCommunicationManager extends Thread
 		this.port = port;
 		this.requestHandlers = requestHandlers;
 		this.statusHandlers = statusHandlers;
+		responses = new HashMap<UUID, ResponseMessage>();
 	}
 
 	/**
@@ -75,16 +81,29 @@ public class CmlCommunicationManager extends Thread
 	{
 		MessageCommunicator.sendMessage(requestOutputStream, message);
 	}
+	
+	public ResponseMessage sendRequestSynchronous(RequestMessage message)
+	{
+		MessageCommunicator.sendMessage(requestOutputStream, message);
+		ResponseMessage responseMessage = null;
+		try {
+			while(responseMessage == null)
+			{
+				synchronized (this.incommingResponseSignal) {
 
-	/**
-	 * Initialisation methods
-	 */
-	// public void initializeHandlers()
-	// {
-	// requestHandlers = initializeRequestHandlers();
-	// statusHandlers = initializeStatusHandlers();
-	//
-	// }
+					this.incommingResponseSignal.wait();
+
+					if(responses.containsKey(message.getRequestId()))
+						responseMessage = responses.get(message.getRequestId());
+				}
+			}
+
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
+		return responseMessage;
+	}
 
 	/**
 	 * Receives a message from the debugger
@@ -133,7 +152,15 @@ public class CmlCommunicationManager extends Thread
 				return dispatchMessageHandler(statusHandlers, (CmlDbgStatusMessage) messageContainer.getMessage());
 			case REQUEST:
 				return dispatchMessageHandler(requestHandlers, (RequestMessage) messageContainer.getMessage());
+			case RESPONSE:
+				synchronized (incommingResponseSignal) {
+					ResponseMessage rm = (ResponseMessage) messageContainer.getMessage();
+					responses.put(rm.getRequestId(), rm);
+					incommingResponseSignal.notifyAll();
+				}
+				return true;
 			default:
+				System.out.println("Unkown message");
 				break;
 		}
 
