@@ -175,44 +175,6 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 	 * Private common helpers for Generalised Parallelism
 	 *
 	 */
-	//	private interface ParallelAction
-	//	{
-	//		public CmlAlphabet inspectChildren() throws AnalysisException;
-	//	}
-
-	//	protected Inspection caseParallelAction(final INode node, Context question,ParallelAction parallelAction)
-	//			throws AnalysisException {
-	//		
-	//		
-	//		//If there are no children or the children has finished, then either the interleaving 
-	//		//is beginning or ending and we make a silent transition.
-	//		if(!owner.hasChildren())
-	//		{
-	//			return newInspection(createSilentTransition(node, node, "Begin"),
-	//					new AbstractCalculationStep(owner, visitorAccess) {
-	//						
-	//						@Override
-	//						public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
-	//								throws AnalysisException {
-	//							
-	//							caseParallelBegin(node,node.getLeft(),node.getRight(),question);
-	//							//We push the current state, since this process will control the child processes created by it
-	//							return new Pair<INode,Context>(node, question);
-	//						}
-	//					});
-	//		}
-	//		else if(CmlBehaviourUtility.isAllChildrenFinished(owner))
-	//		{
-	//			return newInspection(createSilentTransition(node, new ASkipAction(), "End"), 
-	//					); 
-	//		}
-	//		else
-	//		//if we are here at least one of the children is alive and we must inspect them
-	//		//and forward it.
-	//		{
-	//			return parallelAction.inspectChildren();
-	//		}
-	//	}
 
 	protected Inspection caseGeneralisedParallelismParallel(final INode node,final parallelCompositionHelper helper, 
 			PVarsetExpression chansetExp, final Context question) throws AnalysisException
@@ -260,17 +222,27 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 		final CmlBehaviour rightChild = owner.getRightChild();
 		final CmlTransitionSet rightChildAlphabet = rightChild.inspect();
 		
+		//combine all the common channel events that are in the channel set
 		CmlTransitionSet leftSync = leftChildAlphabet.retainByChannelNameSet(cs);
 		CmlTransitionSet rightSync = rightChildAlphabet.retainByChannelNameSet(cs);
 		Set<CmlTransition> syncEvents = new HashSet<CmlTransition>();
+		//Find the intersection between the child alphabets and the channel set and join them.
+//		//Then if both left and right have them the next step will combine them.
 		for(ObservableEvent leftTrans : leftSync.getObservableChannelEvents())
 		{
-			CmlTransitionSet tmp = rightChildAlphabet.retainByChannelName(((ChannelEvent)leftTrans).getChannelName());
-			if(tmp.getObservableEvents().size() == 1)
+			for(ObservableEvent rightTrans : rightSync.getObservableChannelEvents())
 			{
-				syncEvents.add(tmp.getObservableEvents().iterator().next().synchronizeWith(leftTrans));
+				if(leftTrans.isComparable(rightTrans))
+				{
+
+					ChannelEvent leftChannelEvent = (ChannelEvent)leftTrans;
+					ChannelEvent rightChannelEvent = (ChannelEvent)rightTrans;
+
+					if(leftChannelEvent.getChannelName().isGTEQPrecise(rightChannelEvent.getChannelName()) ||
+							rightChannelEvent.getChannelName().isGTEQPrecise(leftChannelEvent.getChannelName()))
+						syncEvents.add(leftTrans.synchronizeWith(rightTrans));
+				}
 			}
-			
 		}
 		
 		CmlTock leftTock = leftChildAlphabet.getTockEvent();
@@ -278,51 +250,6 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 		if(leftTock != null && rightTock != null)
 			syncEvents.add(leftTock.synchronizeWith(rightTock));
 		
-		//combine all the common channel events that are in the channel set 
-		//Set<CmlTransition> syncEvents = new HashSet<CmlTransition>();
-//		for(ChannelNameValue csChannelName : cs)
-//		{
-//			//Find the intersection between the child alphabets and the channel set and join them.
-//			//Then if both left and right have them the next step will combine them.
-//			CmlTransitionSet leftSyncAlpha = leftChildAlphabet.retainByChannelName(csChannelName);
-//			CmlTransitionSet rightSyncAlpha = rightChildAlphabet.retainByChannelName(csChannelName);
-//			
-//			CmlTransitionSet commonEvents = leftSyncAlpha.union(rightSyncAlpha);
-//			/*	
-//			 * 	if we have two channel events to intersect with a channel from the cs then they might
-//			 *	be able to synchronize.
-//			 *	If all the most precise values are identical and they only differ at fields containing an anyvalue
-//			 *	then they can sync otherwise they can not.
-//			 */
-//			if(commonEvents.getObservableEvents().size() == 2)
-//			{
-//				/*
-//				 * 	Ok so now we know that they intersect imprecisely with the channel in the channelset.
-//				 *	However, since it could be a complex type like a record, tuple or class we must check that all
-//				 *	of the fields where both have precise values are identical.
-//				 */
-//				Iterator<ObservableEvent> it = commonEvents.getObservableEvents().iterator(); 
-//
-//				ObservableEvent elem1 = it.next();
-//				ObservableEvent elem2 = it.next();
-//				//CmlAlphabet testAlpha = elem1.getAsAlphabet().intersectImprecise(elem2.getAsAlphabet());
-//				syncEvents.add( elem1.synchronizeWith(elem2));
-//			}
-////			else if (commonEvents.getObservableEvents().size() > 2)
-////			{
-////				for(ObservableEvent obs : commonEvents.getObservableEvents())
-////				{
-////					CmlAlphabet alphaTmp = commonEvents.subtract(obs); 
-////					CmlAlphabet alpha = alphaTmp.intersectImprecise(obs);
-////					if(alpha.getObservableEvents().size() == 1)
-////					{
-////						syncEvents.add( alpha.getObservableEvents().iterator().next().synchronizeWith(obs));
-////					}
-////				}
-////			}
-//			
-//		}
-
 		/*
 		 *	Finally we create the returned alphabet by joining all the 
 		 *  Synchronized events together with all the event of the children 

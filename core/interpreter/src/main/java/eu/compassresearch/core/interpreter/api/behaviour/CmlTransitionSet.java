@@ -219,7 +219,7 @@ public class CmlTransitionSet extends Value {
 			
 			ChannelEvent obsChannelEvent = (ChannelEvent)obsTransition;   
 			if(obsChannelEvent.getChannelName().isComparable(channelNameValue) && 
-					obsChannelEvent.getChannelName().isGTEQPrecise(channelNameValue)){
+					channelNameValue.isGTEQPrecise(obsChannelEvent.getChannelName())){
 				resultSet.add(obsTransition);
 			}
 		}
@@ -247,7 +247,7 @@ public class CmlTransitionSet extends Value {
 			{
 
 				if(obsChannelEvent.getChannelName().isComparable(channelNameValue) && 
-						obsChannelEvent.getChannelName().isGTEQPrecise(channelNameValue)){
+						channelNameValue.isGTEQPrecise(obsChannelEvent.getChannelName())){
 					resultSet.add(obsTransition);
 				}
 			}
@@ -267,7 +267,7 @@ public class CmlTransitionSet extends Value {
 			
 			ChannelEvent obsChannelEvent = (ChannelEvent)obsTransition;   
 			if(!(obsChannelEvent.getChannelName().isComparable(channelNameValue) && 
-					obsChannelEvent.getChannelName().isGTEQPrecise(channelNameValue))){
+					channelNameValue.isGTEQPrecise(obsChannelEvent.getChannelName()))){
 				resultSet.add(obsTransition);
 			}
 		}
@@ -290,7 +290,7 @@ public class CmlTransitionSet extends Value {
 			{
 				ChannelEvent obsChannelEvent = (ChannelEvent)obsTransition;   
 				if(obsChannelEvent.getChannelName().isComparable(channelNameValue) && 
-						obsChannelEvent.getChannelName().isGTEQPrecise(channelNameValue))
+						channelNameValue.isGTEQPrecise(obsChannelEvent.getChannelName()))
 				{
 					retaintIt = false;
 					break;
