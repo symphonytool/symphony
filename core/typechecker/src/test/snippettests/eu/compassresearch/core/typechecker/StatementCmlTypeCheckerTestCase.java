@@ -23,6 +23,8 @@ public class StatementCmlTypeCheckerTestCase extends
 		// 3// This test was reported by AKM and checks that do statements only contain
 		// boolean types
 		add("process A = begin @ do true -> Skip | false -> Skip end end");
+		// 3// Test the lookup in for statements and pattern binds
+		add("channels  a : int process A = begin @ for x in [1,2,3,4] do a.x -> Skip end");
 	}
 
 	public StatementCmlTypeCheckerTestCase(String cmlSource, boolean parsesOk,
