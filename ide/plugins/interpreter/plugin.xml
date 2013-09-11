@@ -41,17 +41,12 @@
         modes="debug,run"
         name="CML Model"
         public="true"
-        sourceLocatorId="eu.compassresearch.ide.interpreter.sourceLookupDirector">
+        sourceLocatorId="eu.compassresearch.ide.interpreter.sourceLocator"
+        sourcePathComputerId="eu.compassresearch.ide.interpreter.sourcePathComputer">
 		</launchConfigurationType>
 	</extension>
 
-	<extension point="org.eclipse.debug.core.sourceLocators">
-		<sourceLocator
-	       name="CML Source Lookup Director"
-	    class="eu.compassresearch.ide.interpreter.launch.CmlSourceLookupDirector"
-	    id="eu.compassresearch.ide.interpreter.sourceLookupDirector">
-		</sourceLocator>
-	</extension>
+	
 
 	<!-- Add the launch config group to the launch dialog -->
 	<extension point="org.eclipse.debug.ui.launchConfigurationTabGroups">
@@ -207,5 +202,47 @@
          </action>
          
       </editorContribution>
+	</extension>
+	
+	
+	
+	
+		<!-- source locator -->
+	<extension point="org.eclipse.debug.core.sourceLocators">
+		<sourceLocator
+			class="eu.compassresearch.ide.interpreter.launching.CmlSourceLocatorDirector"
+			id="eu.compassresearch.ide.interpreter.sourceLocator" 
+			name="Cml Source Locator">
+		</sourceLocator>
+	</extension>
+	<extension point="org.eclipse.debug.core.sourcePathComputers">
+		<sourcePathComputer
+			class="eu.compassresearch.ide.interpreter.launching.CmlSourcePathComputerDelegate"
+			id="eu.compassresearch.ide.interpreter.sourcePathComputer">
+		</sourcePathComputer>
+	</extension>
+	<extension point="org.eclipse.debug.ui.debugModelPresentations">
+		<debugModelPresentation
+			class="eu.compassresearch.ide.interpreter.model.CmlDebugModelPresentation" 
+			id="eu.compassresearch.ide.interpreter.modelId">
+		</debugModelPresentation>
+	</extension>
+	
+	
+	<!-- Breakpoints -->
+
+	<extension point="org.eclipse.debug.core.breakpoints">
+		<breakpoint class="eu.compassresearch.ide.interpreter.debug.ui.model.CmlLineBreakpoint"
+					id="eu.compassresearch.ide.interpreter.breakpoint" 
+					markerType="cml.lineBreakpoint.marker"
+					name="Cml Line Breakpoint">
+		</breakpoint>
+	</extension>
+	<!-- breakpoint marker -->
+	<extension id="cml.lineBreakpoint.marker" 
+			   point="org.eclipse.core.resources.markers">
+		<super type="org.eclipse.debug.core.lineBreakpointMarker"></super>
+		<persistent value="true">
+		</persistent>
 	</extension>
 </plugin>

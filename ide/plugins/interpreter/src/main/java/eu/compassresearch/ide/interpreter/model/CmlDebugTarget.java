@@ -14,14 +14,15 @@ import org.eclipse.debug.core.IBreakpointManager;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IBreakpoint;
 import org.eclipse.debug.core.model.IDebugTarget;
-import org.eclipse.debug.core.model.ILineBreakpoint;
 import org.eclipse.debug.core.model.IMemoryBlock;
 import org.eclipse.debug.core.model.IProcess;
+import org.eclipse.debug.core.model.ITerminate;
 import org.eclipse.debug.core.model.IThread;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Display;
+import org.overture.ide.debug.core.model.DebugEventHelper;
 
 import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
 import eu.compassresearch.core.interpreter.debug.Breakpoint;
@@ -42,10 +43,10 @@ import eu.compassresearch.ide.interpreter.protocol.MessageEventHandler;
 
 public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 {
-
+	private static final int THREAD_TERMINATION_TIMEOUT = 5000; // 5 seconds
 	private ILaunch launch;
 	private IProcess process;
-	private ICmlProject project;
+	public final ICmlProject project;
 	private Map<StyledText, List<StyleRange>> lastSelectedRanges = new HashMap<StyledText, List<StyleRange>>();
 
 	CmlCommunicationManager communicationManager;
@@ -55,11 +56,9 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 			ICmlProject project, int communicationPort) throws CoreException,
 			IOException
 	{
-		super(null);
 		this.launch = launch;
 		this.process = process;
 		this.project = project;
-		cmlDebugTarget = this;
 
 		threadManager = new CmlThreadManager(this);
 		communicationManager = new CmlCommunicationManager(this, threadManager, initializeRequestHandlers(), initializeStatusHandlers(), communicationPort);
@@ -109,16 +108,18 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 					{
 						if (bp instanceof CmlLineBreakpoint)
 						{
+							CmlLineBreakpoint cmlBp = (CmlLineBreakpoint) bp;
 							try
 							{
-								Breakpoint cmlBP = new Breakpoint(System.identityHashCode(bp), ((CmlLineBreakpoint) bp).getResourceURI().toString(), ((ILineBreakpoint) bp).getLineNumber());
-								System.out.println("Debug target: " + cmlBP);
-								communicationManager.sendCommandMessage(CmlDebugCommand.SET_BREAKPOINT, cmlBP);
+								communicationManager.addBreakpoint(cmlBp.getResourceURI(), cmlBp.getLineNumber(), cmlBp.isEnabled());
 							} catch (CoreException e)
 							{
-								// TODO Auto-generated catch block
-								e.printStackTrace();
+								CmlDebugPlugin.logError("Failed to set breakpoint", e);
 							}
+						} else
+						{
+							System.err.println("unknown type of breakpoint found: "
+									+ bp);
 						}
 					}
 				}
@@ -145,20 +146,20 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 			@Override
 			public boolean handleMessage(CmlDbgStatusMessage message)
 			{
-				for (IBreakpoint b : getBreakpoints())
-				{
-					try
-					{
-						if (b.isEnabled())
-						{
-							System.out.println("Adding breakpoint: " + b);
-							// TODO communnicate the setting of the breakpoint to the interpreter
-						}
-					} catch (CoreException e)
-					{
-						CmlDebugPlugin.logError("Failed to set breakpoint", e);
-					}
-				}
+				// for (IBreakpoint b : getBreakpoints())
+				// {
+				// try
+				// {
+				// if (b.isEnabled())
+				// {
+				// System.out.println("Adding breakpoint: " + b);
+				// // TODO communnicate the setting of the breakpoint to the interpreter
+				// }
+				// } catch (CoreException e)
+				// {
+				// CmlDebugPlugin.logError("Failed to set breakpoint", e);
+				// }
+				// }
 				threadManager.started(message.getInterpreterStatus());
 
 				Display.getDefault().syncExec(new Runnable()
@@ -294,10 +295,54 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 		return process.isTerminated();
 	}
 
-	@Override
+	
 	public void terminate() throws DebugException
 	{
+		terminate(true);
+	}
+
+	protected void terminate(boolean waitTermination) throws DebugException
+	{
+//		fireTargetTerminating();
+
 		communicationManager.terminate();
+		if (waitTermination)
+		{
+			final IProcess p = getProcess();
+			final int CHUNK = 500;
+			if (!(waitTerminated(threadManager, CHUNK, THREAD_TERMINATION_TIMEOUT) && (p == null || waitTerminated(p, CHUNK, THREAD_TERMINATION_TIMEOUT))))
+			{
+				// Debugging process is not answering, so terminating it
+				if (p != null && p.canTerminate())
+				{
+					p.terminate();
+				}
+			}
+		}
+
+
+		DebugEventHelper.fireTerminateEvent(this);
+	}
+	
+	protected static boolean waitTerminated(ITerminate terminate, int chunk,
+			long timeout)
+	{
+		final long start = System.currentTimeMillis();
+		while (!terminate.isTerminated())
+		{
+			if (System.currentTimeMillis() - start > timeout)
+			{
+				return false;
+			}
+			try
+			{
+				Thread.sleep(chunk);
+			} catch (InterruptedException e)
+			{
+				// interrupted
+			}
+		}
+		return true;
 	}
 
 	@Override
@@ -453,7 +498,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 	@Override
 	public IThread[] getThreads() throws DebugException
 	{
-		return threadManager.getThreads().toArray(new IThread[] {});
+		return threadManager.getThreads().toArray(new IThread[threadManager.getThreads().size()]);
 	}
 
 	@Override
@@ -497,6 +542,12 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 				CmlDebugPlugin.logError("Failed to take down the interpreter process", e);
 			}
 		}
+	}
+
+	@Override
+	public IDebugTarget getDebugTarget()
+	{
+		return this;
 	}
 
 }

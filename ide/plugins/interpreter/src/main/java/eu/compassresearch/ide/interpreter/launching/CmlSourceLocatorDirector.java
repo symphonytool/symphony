@@ -1,15 +1,14 @@
-package eu.compassresearch.ide.interpreter.launch;
+package eu.compassresearch.ide.interpreter.launching;
 
 import org.eclipse.debug.core.sourcelookup.AbstractSourceLookupDirector;
 import org.eclipse.debug.core.sourcelookup.ISourceLookupParticipant;
 
-public class CmlSourceLookupDirector extends AbstractSourceLookupDirector
+public class CmlSourceLocatorDirector extends AbstractSourceLookupDirector
 {
 
-	@Override
 	public void initializeParticipants()
 	{
 		addParticipants(new ISourceLookupParticipant[] { new CmlSourceLookupParticipant() });
-	}
 
+	}
 }

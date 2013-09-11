@@ -54,7 +54,10 @@ public final class CmlUtil
 			for (StyleRange sr : entry.getValue())
 			{
 				sr.background = null;
-				entry.getKey().setStyleRange(sr);
+				if (!entry.getKey().isDisposed())
+				{
+					entry.getKey().setStyleRange(sr);
+				}
 			}
 			entry.getValue().clear();
 		}
@@ -67,7 +70,7 @@ public final class CmlUtil
 		if (wbw != null)
 			editor = wbw.getActivePage().getActiveEditor();
 
-		if (editor != null)
+		if (editor != null && editor instanceof CmlEditor)
 		{
 			StyledText styledText = (StyledText) ((CmlEditor) editor).getAdapter(Control.class);
 			for (StyleRange sr : styledText.getStyleRanges())

@@ -12,6 +12,7 @@ import java.util.Map;
 import org.eclipse.core.runtime.CoreException;
 
 import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
+import eu.compassresearch.core.interpreter.debug.Breakpoint;
 import eu.compassresearch.core.interpreter.debug.CmlDbgCommandMessage;
 import eu.compassresearch.core.interpreter.debug.CmlDbgStatusMessage;
 import eu.compassresearch.core.interpreter.debug.CmlDebugCommand;
@@ -239,12 +240,21 @@ public class CmlCommunicationManager extends Thread
 
 	public void addBreakpoint(URI file, int linenumber, boolean enabled)
 	{
-
+		if (enabled)
+		{
+			Breakpoint cmlBP = new Breakpoint(System.identityHashCode(file.toString()
+					+ linenumber), file.toString(), linenumber);
+			System.out.println("Debug target: " + cmlBP);
+			this.sendCommandMessage(CmlDebugCommand.SET_BREAKPOINT, cmlBP);
+		}
 	}
 
 	public void removeBreakpoint(URI file, int linenumber)
 	{
-
+		Breakpoint cmlBP = new Breakpoint(System.identityHashCode(file.toString()
+				+ linenumber), file.toString(), linenumber);
+		System.out.println("Debug target: " + cmlBP);
+		this.sendCommandMessage(CmlDebugCommand.REMOVE_BREAKPOINT, cmlBP);
 	}
 
 	public void updateBreakpoint(URI file, int linenumber, boolean enabled)

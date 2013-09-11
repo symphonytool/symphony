@@ -2,23 +2,33 @@ package eu.compassresearch.ide.interpreter.model;
 
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IBreakpoint;
+import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.core.model.IThread;
 
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorState;
 import eu.compassresearch.core.interpreter.debug.CmlProcessDTO;
+import eu.compassresearch.ide.interpreter.protocol.CmlThreadManager;
 
 public class CmlThread extends CmlDebugElement implements IThread
 {
 
-	private CmlProcessDTO cmlProcessInfo;
-	private CmlStackFrame cmlStackFrame = null;
+	private CmlProcessDTO info;
+	// private CmlStackFrame cmlStackFrame = null;
+	private final CmlDebugTarget debugTarget;
 
-	public CmlThread(CmlDebugTarget debugTarget, CmlProcessDTO cmlProcessInfo)
+	private final CmlStack stack;
+	private final CmlThreadManager manager;
+	public final int id;
+
+	public CmlThread(CmlDebugTarget debugTarget, CmlThreadManager manager,
+			CmlProcessDTO info)
 	{
-		super(debugTarget);
-		this.cmlProcessInfo = cmlProcessInfo;
-		cmlStackFrame = new CmlStackFrame(debugTarget, this, cmlProcessInfo.getLocation());
+		this.debugTarget = debugTarget;
+		this.stack = new CmlStack(this);
+		this.manager = manager;
+		this.info = info;
+		this.id = info.hashCode();
 	}
 
 	@Override
@@ -113,7 +123,7 @@ public class CmlThread extends CmlDebugElement implements IThread
 	@Override
 	public boolean isTerminated()
 	{
-		return this.cmlProcessInfo.getState() == CmlBehaviorState.FINISHED
+		return this.info.getState() == CmlBehaviorState.FINISHED
 				|| getDebugTarget().isTerminated();
 	}
 
@@ -125,19 +135,32 @@ public class CmlThread extends CmlDebugElement implements IThread
 	@Override
 	public IStackFrame[] getStackFrames() throws DebugException
 	{
-		return new CmlStackFrame[] { cmlStackFrame };
+		if (!isSuspended())
+		{
+			try
+			{
+				Thread.sleep(100);
+			} catch (Exception e)
+			{
+			}
+			if (!isSuspended())
+			{
+				return CmlStack.NO_STACK_FRAMES;
+			}
+		}
+
+		return stack.getFrames();
 	}
 
 	@Override
 	public boolean hasStackFrames() throws DebugException
 	{
-		return true;
+		return isSuspended() && !isTerminated();
 	}
 
-	@Override
-	public IStackFrame getTopStackFrame() throws DebugException
+	public IStackFrame getTopStackFrame()
 	{
-		return cmlStackFrame;
+		return stack.getTopFrame();
 	}
 
 	@Override
@@ -149,14 +172,44 @@ public class CmlThread extends CmlDebugElement implements IThread
 	@Override
 	public String getName() throws DebugException
 	{
-		return cmlProcessInfo.getName();
+		return info.getName();
 	}
+
+	// public String getName()
+	// {
+	// String name = session.getInfo().getThreadId();
+	// if (name.length() > 0)
+	// {
+	// name = name.substring(0, 1).toUpperCase() + name.substring(1);
+	// }
+	// // TODO remove state from name
+	// return name
+	// + new String(interpreterThreadState == null ? "" : " - "
+	// + interpreterThreadState.getState().toString());
+	// }
 
 	@Override
 	public IBreakpoint[] getBreakpoints()
 	{
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public IDebugTarget getDebugTarget()
+	{
+		return this.debugTarget;
+	}
+
+	public CmlThreadManager getThreadManager()
+	{
+		return this.manager;
+	}
+
+	public void initialize()
+	{
+		stack.update(true);
+
 	}
 
 }
