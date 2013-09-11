@@ -1,9 +1,14 @@
 package eu.compassresearch.core.interpreter.api.values;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import org.overture.ast.intf.lex.ILexNameToken;
+import org.overture.ast.types.AProductType;
 import org.overture.ast.types.PType;
 import org.overture.interpreter.values.Value;
 
+import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.interpreter.api.CmlChannel;
 import eu.compassresearch.core.interpreter.api.events.ChannelActivity;
 import eu.compassresearch.core.interpreter.api.events.ChannelEvent;
@@ -20,10 +25,8 @@ public class CMLChannelValue extends Value implements CmlChannel //CmlIOChannel<
 	 */
 	private static final long serialVersionUID = 6350630462785844551L;
 	private ILexNameToken 					name;
-	private PType 							channelType;
-//	private Value							value = null; 
-
-	//
+	private AChannelType					channelType;
+	private List<PType>						valueTypes;
 	
 	private class ChannelEventMediator implements EventFireMediator<ChannelObserver,ChannelEvent>
 	{
@@ -47,18 +50,15 @@ public class CMLChannelValue extends Value implements CmlChannel //CmlIOChannel<
 
 	public CMLChannelValue(PType channelType, ILexNameToken name)
 	{
-		this.channelType = channelType;
+		this.channelType = (AChannelType)channelType;
+		valueTypes = new LinkedList<PType>();
+
+		if(this.channelType.getType() instanceof AProductType)
+			valueTypes.addAll(((AProductType)this.channelType.getType()).getTypes());
+		else if (this.channelType.getType() != null)
+			valueTypes.add(this.channelType.getType());
+		
 		this.name = name;
-	}
-	
-	public CMLChannelValue(CMLChannelValue other)
-	{
-		this.channelType = other.channelType;
-		this.name = other.name;
-//		signalObservers = new EventSourceHandler<ChannelObserver,CmlChannelEvent>(other.signalObservers);
-//		readObservers = new EventSourceHandler<ChannelObserver,CmlChannelEvent>(other.readObservers);
-//		writeObservers = new EventSourceHandler<ChannelObserver,CmlChannelEvent>(other.writeObservers);
-		selectObservers = new EventSourceHandler<ChannelObserver,ChannelEvent>(other.selectObservers);
 	}
 	
 	@Override
@@ -70,10 +70,20 @@ public class CMLChannelValue extends Value implements CmlChannel //CmlIOChannel<
 	public PType getType() {
 		return this.channelType;
 	}
+	
+	@Override
+	public List<PType> getValueTypes() {
+		return valueTypes;
+	}
+	
+	@Override
+	public boolean isCommunicationChannel() {
+		return this.getValueTypes().size() > 0;
+	}
 
 	@Override
 	public String toString() {
-		return kind() + " " + getName() + " : " + getType();
+		return kind() + " " + getName() + " : " + getValueTypes();
 	}
 
 	@Override
@@ -161,5 +171,4 @@ public class CMLChannelValue extends Value implements CmlChannel //CmlIOChannel<
 	public EventSource<ChannelObserver> onSelect() {
 		return selectObservers;
 	}
-
 }

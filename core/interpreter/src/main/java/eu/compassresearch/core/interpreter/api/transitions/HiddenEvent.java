@@ -6,7 +6,7 @@ import java.util.Set;
 
 import org.overture.interpreter.values.Value;
 
-import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 
 public class HiddenEvent extends AbstractChannelEvent implements SilentTransition,
@@ -40,10 +40,10 @@ public class HiddenEvent extends AbstractChannelEvent implements SilentTransitio
 //		hiddenEvent.setValue(value);
 //	}
 
-	@Override
-	public boolean isPrecise() {
-		return hiddenEvent.isPrecise();
-	}
+//	@Override
+//	public boolean isPrecise() {
+//		return hiddenEvent.isPrecise();
+//	}
 
 	@Override
 	public List<ChannelEvent> expand() {
@@ -61,8 +61,8 @@ public class HiddenEvent extends AbstractChannelEvent implements SilentTransitio
 	}
 
 	@Override
-	public CmlAlphabet getAsAlphabet() {
-		return new CmlAlphabet(this);
+	public CmlTransitionSet getAsAlphabet() {
+		return new CmlTransitionSet(this);
 	}
 	
 	@Override

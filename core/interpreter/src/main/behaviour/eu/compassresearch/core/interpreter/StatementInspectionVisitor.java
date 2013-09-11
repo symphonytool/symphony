@@ -18,6 +18,7 @@ import org.overture.interpreter.assistant.pattern.PPatternAssistantInterpreter;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.PatternMatchException;
 import org.overture.interpreter.runtime.ValueException;
+import org.overture.interpreter.runtime.VdmRuntime;
 import org.overture.interpreter.values.NameValuePair;
 import org.overture.interpreter.values.NameValuePairMap;
 import org.overture.interpreter.values.ObjectValue;
@@ -31,6 +32,7 @@ import eu.compassresearch.ast.actions.AAssignmentCallStatementAction;
 import eu.compassresearch.ast.actions.ABlockStatementAction;
 import eu.compassresearch.ast.actions.ACallStatementAction;
 import eu.compassresearch.ast.actions.AElseIfStatementAction;
+import eu.compassresearch.ast.actions.AForSequenceStatementAction;
 import eu.compassresearch.ast.actions.AIfStatementAction;
 import eu.compassresearch.ast.actions.ALetStatementAction;
 import eu.compassresearch.ast.actions.ANewStatementAction;
@@ -46,7 +48,7 @@ import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.types.AActionType;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.Inspection;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTock;
@@ -462,7 +464,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 		{
 			//were stuck so return empty alphabet
 			//FIXME actually this diverges
-			return newInspection(new CmlAlphabet(),null);
+			return newInspection(new CmlTransitionSet(),null);
 		}
 	}
 
@@ -552,7 +554,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 		final INode skipNode = new ASkipAction(node.getLocation(),new AActionType());
 		//FIXME according to the semantics this should be performed instantly so time is not
 		//allowed to pass
-		return newInspection(new CmlAlphabet(new InternalTransition(owner,node,skipNode,null)),
+		return newInspection(new CmlTransitionSet(new InternalTransition(owner,node,skipNode,null)),
 				new AbstractCalculationStep(owner,visitorAccess) {
 			
 			@Override
@@ -571,6 +573,62 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 		});
 	}
 	
+	@Override
+	public Inspection caseAForSequenceStatementAction(
+			final AForSequenceStatementAction node, final Context question)
+			throws AnalysisException {
+
+		final ValueList v = question.lookup(NamespaceUtility.getSeqForName()).seqValue(question);
+		
+		if(v.isEmpty())
+		{
+			final ASkipAction skipAction = new ASkipAction(node.getLocation());
+			return newInspection(createSilentTransition(node,skipAction),
+					new AbstractCalculationStep(owner,visitorAccess) {
+				
+				@Override
+				public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+						throws AnalysisException {
+					
+					return new Pair<INode,Context>(skipAction, question.outer);
+				}
+			}); 
+		}
+		else
+		{
+			
+			final Inspection actionInspection = node.getAction().apply(parentVisitor,question);
+			return newInspection(actionInspection.getTransitions(),
+					new AbstractCalculationStep(owner,visitorAccess) {
+				
+				@Override
+				public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+						throws AnalysisException {
+					
+					Value x = v.firstElement();
+					v.remove(x);
+					
+					if (node.getPatternBind().getPattern() != null)
+					{
+							try
+							{
+								question.putList(PPatternAssistantInterpreter.getNamedValues(node.getPatternBind().getPattern(),x, question));
+								actionInspection.getNextStep().execute(sve);
+
+							}
+							catch (PatternMatchException e)
+							{
+								// Ignore mismatches
+							}
+					}
+					
+					return new Pair<INode, Context>(node,question);
+					
+				}
+			}); 
+		}
+		
+	}
 	/**
 	 * 
 	 * //TODO no semantics defined, resolve this!

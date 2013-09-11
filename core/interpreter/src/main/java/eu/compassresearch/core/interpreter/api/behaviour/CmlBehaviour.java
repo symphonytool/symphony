@@ -39,7 +39,7 @@ public interface CmlBehaviour extends Serializable //extends Transactable
 	 * Returns the immediate alphabet of the process, meaning the next possible cml event including tau
 	 * @return The immediate alphabet of the process
 	 */
-	public CmlAlphabet inspect() throws AnalysisException;
+	public CmlTransitionSet inspect() throws AnalysisException;
 	
 	/**
 	 * 
@@ -64,6 +64,8 @@ public interface CmlBehaviour extends Serializable //extends Transactable
 	 * @return The name of the process
 	 */
 	public ILexNameToken name();
+	
+	public int getId();
 	
 	/**
 	 * This constructs a string representing the next execution step of this process

@@ -10,7 +10,7 @@ import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.interpreter.CmlRuntime;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.transitions.ChannelEvent;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.values.AbstractValueInterpreter;
@@ -27,7 +27,7 @@ public class RandomSelectionStrategy implements
 	private static final Random rndChoice = new Random(randomSeed);
 	
 	@Override
-	public CmlTransition select(CmlAlphabet availableChannelEvents) {
+	public CmlTransition select(CmlTransitionSet availableChannelEvents) {
 		
 		CmlTransition selectedComm = null;
 		
@@ -41,19 +41,9 @@ public class RandomSelectionStrategy implements
 			selectedComm = new ArrayList<CmlTransition>(
 					availableChannelEvents.getAllEvents()).get(rndChoice.nextInt(nElems));
 			
-			//If the selected transition contains a value that are not precise then we
+			//If the selected transition contains a channelname that are not precise then we
 			//need to resolve this and let the environment take a random choice
-//			if(selectedComm instanceof ChannelEvent && !((ChannelEvent)selectedComm).isPrecise())
-//			{
-//				AChannelType t = (AChannelType)((ChannelEvent)selectedComm).getChannelName().getChannel().getType();
-//				
-//				((ChannelEvent)selectedComm).setValue(
-//						AbstractValueInterpreter.meet(
-//						((ChannelEvent)selectedComm).getValue(),
-//						getRandomValueFromType(t.getType(),(ChannelEvent)selectedComm)));
-//			}
-			
-			if(selectedComm instanceof ChannelEvent && !((ChannelEvent)selectedComm).isPrecise())
+			if(selectedComm instanceof ChannelEvent && !((ChannelEvent)selectedComm).getChannelName().isPrecise())
 			{
 				ChannelEvent chosenChannelEvent = (ChannelEvent)selectedComm;
 				ChannelNameValue channnelName = chosenChannelEvent.getChannelName(); 
@@ -62,14 +52,13 @@ public class RandomSelectionStrategy implements
 				{
 					Value currentValue = channnelName.getValues().get(i);
 					
-					if(AbstractValueInterpreter.isValueMostPrecise(currentValue))
+					if(!AbstractValueInterpreter.isValueMostPrecise(currentValue))
 					{
-						channnelName.updateValue(i, getRandomValueFromType(channnelName.getValueTypes().get(i)));
+						channnelName.updateValue(i, getRandomValueFromType(channnelName.getChannel().getValueTypes().get(i)));
 					}
 				}
 			}
 		}
-		//CmlRuntime.logger().fine("Available events " + availableChannelEvents.getObservableEvents());
 		CmlRuntime.logger().fine("The supervisor environment picks : " + selectedComm);
 		
 		return selectedComm;
@@ -78,7 +67,6 @@ public class RandomSelectionStrategy implements
 	private Value getRandomValueFromType(PType type)
 	{
 		try {
-			//return type.apply(new RandomVDMValueGenerator(randomSeed),chosenEvent);
 			return type.apply(new RandomVDMValueGenerator(randomSeed));
 		} catch (AnalysisException e) {
 			e.printStackTrace();

@@ -25,9 +25,9 @@ import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlCalculationStep;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.behaviour.Inspection;
 import eu.compassresearch.core.interpreter.api.transitions.ChannelEvent;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTock;
@@ -35,6 +35,8 @@ import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.HiddenEvent;
 import eu.compassresearch.core.interpreter.api.transitions.ObservableEvent;
 import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
+import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
+import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
 class CommonInspectionVisitor extends AbstractInspectionVisitor {
@@ -50,18 +52,18 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 		super(ownerProcess, visitorAccess, parentVisitor);
 	}
 
-	protected CmlAlphabet syncOnTockAndJoinChildren() throws AnalysisException
+	protected CmlTransitionSet syncOnTockAndJoinChildren() throws AnalysisException
 	{
 		//even though they are external choice/interleaving they should always sync on tock
-		CmlAlphabet cs =  new CmlAlphabet(new CmlTock());
+		CmlTransitionSet cs =  new CmlTransitionSet(new CmlTock());
 
 		//Get all the child alphabets 
-		CmlAlphabet leftChildAlphabet = owner.getLeftChild().inspect();
-		CmlAlphabet rightChildAlphabet = owner.getRightChild().inspect();
+		CmlTransitionSet leftChildAlphabet = owner.getLeftChild().inspect();
+		CmlTransitionSet rightChildAlphabet = owner.getRightChild().inspect();
 
 		//Find the intersection between the child alphabets and the channel set and join them.
 		//Then if both left and right have them the next step will combine them.
-		CmlAlphabet syncAlpha = leftChildAlphabet.intersectImprecise(cs).union(rightChildAlphabet.intersectImprecise(cs));
+		CmlTransitionSet syncAlpha = leftChildAlphabet.intersectImprecise(cs).union(rightChildAlphabet.intersectImprecise(cs));
 
 		//combine all the tock events 
 		if(syncAlpha.getObservableEvents().size() == 2)
@@ -173,44 +175,6 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 	 * Private common helpers for Generalised Parallelism
 	 *
 	 */
-	//	private interface ParallelAction
-	//	{
-	//		public CmlAlphabet inspectChildren() throws AnalysisException;
-	//	}
-
-	//	protected Inspection caseParallelAction(final INode node, Context question,ParallelAction parallelAction)
-	//			throws AnalysisException {
-	//		
-	//		
-	//		//If there are no children or the children has finished, then either the interleaving 
-	//		//is beginning or ending and we make a silent transition.
-	//		if(!owner.hasChildren())
-	//		{
-	//			return newInspection(createSilentTransition(node, node, "Begin"),
-	//					new AbstractCalculationStep(owner, visitorAccess) {
-	//						
-	//						@Override
-	//						public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
-	//								throws AnalysisException {
-	//							
-	//							caseParallelBegin(node,node.getLeft(),node.getRight(),question);
-	//							//We push the current state, since this process will control the child processes created by it
-	//							return new Pair<INode,Context>(node, question);
-	//						}
-	//					});
-	//		}
-	//		else if(CmlBehaviourUtility.isAllChildrenFinished(owner))
-	//		{
-	//			return newInspection(createSilentTransition(node, new ASkipAction(), "End"), 
-	//					); 
-	//		}
-	//		else
-	//		//if we are here at least one of the children is alive and we must inspect them
-	//		//and forward it.
-	//		{
-	//			return parallelAction.inspectChildren();
-	//		}
-	//	}
 
 	protected Inspection caseGeneralisedParallelismParallel(final INode node,final parallelCompositionHelper helper, 
 			PVarsetExpression chansetExp, final Context question) throws AnalysisException
@@ -246,53 +210,53 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 
 	private Inspection caseParallelSyncOrNonsync(final INode node, PVarsetExpression chansetExp, final Context question) throws AnalysisException
 	{
+		
 		//convert the channel set of the current node to a alphabet
-		CmlAlphabet cs =  ((CmlAlphabet)chansetExp.apply(cmlExpressionVisitor,question)).union(new CmlTock());
+		ChannelNameSetValue cs = (ChannelNameSetValue)chansetExp.apply(cmlExpressionVisitor,question);
+			
+		//CmlTransitionSet cs =  ((CmlTransitionSet)chansetExp.apply(cmlExpressionVisitor,question)).union(new CmlTock());
 
 		//Get all the child alphabets and add the events that are not in the channelset
 		final CmlBehaviour leftChild = owner.getLeftChild();
-		final CmlAlphabet leftChildAlphabet = leftChild.inspect();
+		final CmlTransitionSet leftChildAlphabet = leftChild.inspect();
 		final CmlBehaviour rightChild = owner.getRightChild();
-		final CmlAlphabet rightChildAlphabet = rightChild.inspect();
-
-		//Find the intersection between the child alphabets and the channel set and join them.
-		//Then if both left and right have them the next step will combine them.
-		CmlAlphabet syncAlpha = leftChildAlphabet.intersectImprecise(cs).union(rightChildAlphabet.intersectImprecise(cs));
-
-		//combine all the common channel events that are in the channel set 
+		final CmlTransitionSet rightChildAlphabet = rightChild.inspect();
+		
+		//combine all the common channel events that are in the channel set
+		CmlTransitionSet leftSync = leftChildAlphabet.retainByChannelNameSet(cs);
+		CmlTransitionSet rightSync = rightChildAlphabet.retainByChannelNameSet(cs);
 		Set<CmlTransition> syncEvents = new HashSet<CmlTransition>();
-		for(ObservableEvent csChannel : cs.getObservableEvents())
+		//Find the intersection between the child alphabets and the channel set and join them.
+//		//Then if both left and right have them the next step will combine them.
+		for(ObservableEvent leftTrans : leftSync.getObservableChannelEvents())
 		{
-			CmlAlphabet commonEvents = syncAlpha.intersectImprecise(csChannel.getAsAlphabet());
-			/*	
-			 * 	if we have two channel events to intersect with a channel from the cs then they might
-			 *	be able to synchronize.
-			 *	If all the most precise values are identical and they only differ at fields containing an anyvalue
-			 *	then they can sync otherwise they can not.
-			 */
-			if(commonEvents.getObservableEvents().size() == 2)
+			for(ObservableEvent rightTrans : rightSync.getObservableChannelEvents())
 			{
-				/*
-				 * 	Ok so now we know that they intersect imprecisely with the channel in the channelset.
-				 *	However, since it could be a complex type like a record, tuple or class we must check that all
-				 *	of the fields where both have precise values are identical.
-				 */
-				Iterator<ObservableEvent> it = commonEvents.getObservableEvents().iterator(); 
+				if(leftTrans.isComparable(rightTrans))
+				{
 
-				ObservableEvent elem1 = it.next();
-				ObservableEvent elem2 = it.next();
-				//CmlAlphabet testAlpha = elem1.getAsAlphabet().intersectImprecise(elem2.getAsAlphabet());
-				syncEvents.add( elem1.synchronizeWith(elem2));
+					ChannelEvent leftChannelEvent = (ChannelEvent)leftTrans;
+					ChannelEvent rightChannelEvent = (ChannelEvent)rightTrans;
+
+					if(leftChannelEvent.getChannelName().isGTEQPrecise(rightChannelEvent.getChannelName()) ||
+							rightChannelEvent.getChannelName().isGTEQPrecise(leftChannelEvent.getChannelName()))
+						syncEvents.add(leftTrans.synchronizeWith(rightTrans));
+				}
 			}
 		}
-
+		
+		CmlTock leftTock = leftChildAlphabet.getTockEvent();
+		CmlTock rightTock = rightChildAlphabet.getTockEvent();
+		if(leftTock != null && rightTock != null)
+			syncEvents.add(leftTock.synchronizeWith(rightTock));
+		
 		/*
 		 *	Finally we create the returned alphabet by joining all the 
 		 *  Synchronized events together with all the event of the children 
 		 *  that are not in the channel set.
 		 */
-		CmlAlphabet resultAlpha = new CmlAlphabet(syncEvents).union(leftChildAlphabet.subtractImprecise(cs));
-		resultAlpha = resultAlpha.union(rightChildAlphabet.subtractImprecise(cs));
+		CmlTransitionSet resultAlpha = new CmlTransitionSet(syncEvents).union(leftChildAlphabet.removeByChannelNameSet(cs));
+		resultAlpha = resultAlpha.union(rightChildAlphabet.removeByChannelNameSet(cs));
 
 		return newInspection(resultAlpha, 
 				new AbstractCalculationStep(owner, visitorAccess) {
@@ -352,14 +316,14 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 		//We do the hiding behavior as long as the Action is not terminated
 		if(!owner.getLeftChild().finished())
 		{
-			//first we convert the channelset expression into a Cmlalpabet
-			CmlAlphabet hidingAlpha = (CmlAlphabet)chansetExpression.apply(cmlExpressionVisitor,question);
+			//first we convert the channelset expression into a channelNameSetValue
+			ChannelNameSetValue cs = (ChannelNameSetValue)chansetExpression.apply(cmlExpressionVisitor,question);
 			//next we inspect the action to get the current available transitions
-			CmlAlphabet alpha = owner.getLeftChild().inspect();
+			CmlTransitionSet alpha = owner.getLeftChild().inspect();
 			//Intersect the two to find which transitions should be converted to silents transitions
-			CmlAlphabet hiddenEvents = alpha.intersect(hidingAlpha);
+			CmlTransitionSet hiddenEvents = alpha.retainByChannelNameSet(cs);
 			//remove the events that has to be silent
-			CmlAlphabet resultAlpha = alpha.subtract(hiddenEvents);
+			CmlTransitionSet resultAlpha = alpha.subtract(hiddenEvents);
 			//convert them into silent events and add the again
 			for(ObservableEvent obsEvent : hiddenEvents.getObservableEvents())
 				if(obsEvent instanceof ChannelEvent)

@@ -43,9 +43,9 @@ public class CmlTransitionFactory {
 		return new CommunicationEvent(source, channelName);
 	}
 	
-	public static ObservableEvent newCmlCommunicationEvent(ChannelNameValue channelName, List<CommunicationParameter> params)
+	public static ObservableEvent newCmlCommunicationEvent(ChannelNameValue channelName)
 	{
-		return new CommunicationEvent(channelName, params);
+		return new CommunicationEvent(channelName);
 	}
 	
 }

@@ -8,7 +8,7 @@ import java.util.Set;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.core.interpreter.api.CmlChannel;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
 
@@ -34,12 +34,12 @@ class SynchronizationEvent extends AbstractChannelEvent implements ObservableEve
 	@Override
 	public int hashCode() {
 		
-		return channelName.getChannel().getName().hashCode(); //(this.eventSource != null ? this.eventSource.hashCode() : "null".hashCode());
+		return channelName.getChannel().hashCode(); //(this.eventSource != null ? this.eventSource.hashCode() : "null".hashCode());
 	}
 
 	@Override
 	public String toString() {
-		return channelName.getChannel().getName();// + " : " + this.getEventSources();
+		return channelName.toString();
 	}
 
 	@Override
@@ -52,8 +52,8 @@ class SynchronizationEvent extends AbstractChannelEvent implements ObservableEve
 	}
 
 	@Override
-	public CmlAlphabet getAsAlphabet() {
-		return new CmlAlphabet(this);
+	public CmlTransitionSet getAsAlphabet() {
+		return new CmlTransitionSet(this);
 	}
 
 	@Override
@@ -65,25 +65,21 @@ class SynchronizationEvent extends AbstractChannelEvent implements ObservableEve
 		
 		return new SynchronizationEvent(sources, channelName);
 	}
+	
+	@Override
+	public boolean isComparable(ObservableEvent other) {
+		
+		if(!(other instanceof ChannelEvent))
+			return false;
+
+		ChannelEvent otherChannelEvent = (ChannelEvent)other;
+		
+		return this.channelName.getChannel().equals(otherChannelEvent.getChannelName().getChannel());
+	}
 
 	@Override
 	public ObservableEvent meet(ObservableEvent other) {
 		return this;
-	}
-
-//	@Override
-//	public Value getValue() {
-//		return null;
-//	}
-//
-//	@Override
-//	public void setValue(Value value) {
-//		// do nothing
-//	}
-
-	@Override
-	public boolean isPrecise() {
-		return true;
 	}
 
 	@Override

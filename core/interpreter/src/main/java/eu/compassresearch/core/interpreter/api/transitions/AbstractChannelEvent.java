@@ -17,6 +17,10 @@ import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
  */
 abstract class AbstractChannelEvent extends AbstractCmlTransition implements ChannelEvent{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1807730095394673285L;
 	final protected ChannelNameValue channelName;
 	
 	
@@ -42,30 +46,13 @@ abstract class AbstractChannelEvent extends AbstractCmlTransition implements Cha
 	 * The channel of this involved in this events
 	 * @return
 	 */
+	@Override
 	public ChannelNameValue getChannelName()
 	{
 		return channelName;
 	}
 
-	/**
-	 * Two Observable events are comparable if the are occurring on the same channel and
-	 * the sources of one must either be a subset of the other or equal to.
-	 * 
-	 * Values do not have to be identical
-	 * @param other
-	 * @return
-	 */
-	public boolean isComparable(ObservableEvent other) {
-
-		return this.equals(other);
-	}
-	
-//	public abstract Value getValue();
-//	
-//	public abstract void setValue(Value value);
-	
-	public abstract boolean isPrecise();
-	
+	@Override
 	public abstract List<ChannelEvent> expand();
 	
 	/**
@@ -73,6 +60,7 @@ abstract class AbstractChannelEvent extends AbstractCmlTransition implements Cha
 	 * @param other
 	 * @return
 	 */
+	@Override
 	public abstract ObservableEvent meet(ObservableEvent other); 
 	
 	@Override

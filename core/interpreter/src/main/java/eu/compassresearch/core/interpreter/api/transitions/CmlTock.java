@@ -3,7 +3,7 @@ package eu.compassresearch.core.interpreter.api.transitions;
 import java.util.HashSet;
 import java.util.Set;
 
-import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 
 public class CmlTock extends AbstractCmlTransition implements ObservableEvent {
@@ -63,11 +63,11 @@ public class CmlTock extends AbstractCmlTransition implements ObservableEvent {
 	}
 
 	@Override
-	public CmlAlphabet getAsAlphabet() {
+	public CmlTransitionSet getAsAlphabet() {
 
 		Set<CmlTransition> events = new HashSet<CmlTransition>();
 		events.add(this);
-		return new CmlAlphabet(events);
+		return new CmlTransitionSet(events);
 	}
 	
 	@Override

@@ -22,7 +22,7 @@ import org.overture.interpreter.values.Value;
 import org.overture.interpreter.values.ValueList;
 
 import eu.compassresearch.ast.analysis.AnswerCMLAdaptor;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.transitions.ChannelEvent;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.values.AbstractValueInterpreter;
@@ -34,17 +34,17 @@ SelectionStrategy {
 	Scanner scanIn = new Scanner(System.in);
 	private RandomSelectionStrategy rndSelect = new RandomSelectionStrategy();
 	
-	private boolean isSystemSelect(CmlAlphabet availableChannelEvents)
+	private boolean isSystemSelect(CmlTransitionSet availableChannelEvents)
 	{
 		return availableChannelEvents.getSilentTransitions().size() > 0;
 	}
 	
-	private CmlTransition systemSelect(CmlAlphabet availableChannelEvents)
+	private CmlTransition systemSelect(CmlTransitionSet availableChannelEvents)
 	{
-		return rndSelect.select(new CmlAlphabet((Set)availableChannelEvents.getSilentTransitions()));
+		return rndSelect.select(new CmlTransitionSet((Set)availableChannelEvents.getSilentTransitions()));
 	}
 	
-	private CmlTransition userSelect(CmlAlphabet availableChannelEvents)
+	private CmlTransition userSelect(CmlTransitionSet availableChannelEvents)
 	{
 		System.out.println("Available events : ");
 		List<CmlTransition> events = new ArrayList<CmlTransition>(availableChannelEvents.getAllEvents());
@@ -57,7 +57,7 @@ SelectionStrategy {
 		
 		CmlTransition chosenEvent = events.get(scanIn.nextInt());
 
-		if(chosenEvent instanceof ChannelEvent && !((ChannelEvent)chosenEvent).isPrecise())
+		if(chosenEvent instanceof ChannelEvent && !((ChannelEvent)chosenEvent).getChannelName().isPrecise())
 		{
 			ChannelEvent chosenChannelEvent = (ChannelEvent)chosenEvent;
 			ChannelNameValue channnelName = chosenChannelEvent.getChannelName(); 
@@ -66,12 +66,12 @@ SelectionStrategy {
 			{
 				Value currentValue = channnelName.getValues().get(i);
 				
-				if(AbstractValueInterpreter.isValueMostPrecise(currentValue))
+				if(!AbstractValueInterpreter.isValueMostPrecise(currentValue))
 				{
 					System.out.println("Enter value : "); 
 					Value val;
 					try {
-						val = channnelName.getValueTypes().get(i).apply(new ValueParser());
+						val = channnelName.getChannel().getValueTypes().get(i).apply(new ValueParser());
 						channnelName.updateValue(i, val);
 					} catch (AnalysisException e) {
 						e.printStackTrace();
@@ -85,7 +85,7 @@ SelectionStrategy {
 	}
 
 	@Override
-	public CmlTransition select(CmlAlphabet availableChannelEvents) {
+	public CmlTransition select(CmlTransitionSet availableChannelEvents) {
 
 		//At this point we don't want the internal transition to propagate 
 		//to the user, so we randomly choose all the possible internal transitions

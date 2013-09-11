@@ -61,7 +61,10 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 		this.project = project;
 
 		threadManager = new CmlThreadManager(this);
-		communicationManager = new CmlCommunicationManager(this, threadManager, initializeRequestHandlers(), initializeStatusHandlers(), communicationPort);
+		communicationManager = new CmlCommunicationManager(this, threadManager, 
+				initializeRequestHandlers(), 
+				initializeStatusHandlers(), 
+				communicationPort);
 		communicationManager.connect();
 		DebugPlugin.getDefault().getBreakpointManager().addBreakpointListener(this);
 	}
@@ -209,12 +212,16 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 			{
 				// threadManager.stopping();
 				threadManager.updateDebuggerInfo(message.getInterpreterStatus());
-
-				Display.getDefault().syncExec(new Runnable()
+				
+				
+				Display.getDefault().asyncExec(new Runnable()
 				{
 					@Override
 					public void run()
 					{
+						int id = message.getInterpreterStatus().getAllProcesses().get(0).getId();
+						ResponseMessage rm = communicationManager.sendRequestSynchronous(new RequestMessage(CmlRequest.GET_STACK_FRAMES,id));
+						
 						if (message.getInterpreterStatus().hasActiveBreakpoint())
 						{
 							Breakpoint bp = message.getInterpreterStatus().getActiveBreakpoint();

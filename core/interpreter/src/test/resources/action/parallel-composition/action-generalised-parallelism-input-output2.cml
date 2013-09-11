@@ -4,5 +4,5 @@ b : int
 
 process A = 
 begin 
-	@ (a?x -> b.(x) -> Skip) [| a |] (a.4 -> Skip)
+	@ (a?x -> b.(x) -> Skip) [| {|a|} |] (a.4 -> Skip)
 end

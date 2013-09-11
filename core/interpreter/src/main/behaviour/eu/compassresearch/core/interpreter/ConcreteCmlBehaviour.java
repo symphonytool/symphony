@@ -20,7 +20,7 @@ import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorState;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlTrace;
@@ -40,9 +40,13 @@ import eu.compassresearch.core.interpreter.utility.Pair;
 
 class ConcreteCmlBehaviour implements CmlBehaviour
 {
-
+	private static int globalIdCount = 0;
 	private static final long 					serialVersionUID = -4920762081111266274L;
 
+	private static int getNextId()
+	{
+		return globalIdCount++;
+	}
 	/*
 	 * Instance variables
 	 */
@@ -51,7 +55,10 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	 * Name of the instance
 	 */
 	protected ILexNameToken 					name;
-
+	/**
+	 * Unique id for the process
+	 */
+	protected int 								processId = getNextId();							
 	protected Inspection 						lastInspection = null;				
 
 	//Process/Action Graph variables
@@ -272,10 +279,8 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	}
 
 	@Override
-	public CmlAlphabet inspect() throws AnalysisException
+	public CmlTransitionSet inspect() throws AnalysisException
 	{
-		//		try
-		//		{
 		if(lastInspection != null && lastInspection.getTrace().equals(this.getTraceModel()))
 		{
 			return lastInspection.getTransitions();
@@ -286,12 +291,6 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 
 			return lastInspection.getTransitions();
 		}
-		//		}
-		//		catch(AnalysisException ex)
-		//		{
-		//			CmlRuntime.logger().throwing(this.toString(),"inspect()", ex);
-		//			throw new InterpreterRuntimeException(InterpretationErrorMessages.FATAL_ERROR.customizeMessage(),ex);
-		//		}
 	}
 
 	/**
@@ -333,6 +332,11 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	@Override
 	public ILexNameToken name() {
 		return this.name;
+	}
+	
+	@Override
+	public int getId() {
+		return this.processId;
 	}
 
 	/**
@@ -424,7 +428,7 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 
 		if(!finished())
 		{
-			CmlAlphabet alpha = inspect();
+			CmlTransitionSet alpha = inspect();
 
 			//A Process is deadlocked if its immediate alphabet is only tock with no limit
 			if(alpha.getAllEvents().isEmpty())

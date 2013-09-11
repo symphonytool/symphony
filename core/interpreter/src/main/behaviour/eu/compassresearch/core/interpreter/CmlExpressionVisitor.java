@@ -35,12 +35,13 @@ import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
 import eu.compassresearch.ast.expressions.PCMLExp;
 import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.ast.types.AChannelType;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionFactory;
 import eu.compassresearch.core.interpreter.api.transitions.ObservableEvent;
 import eu.compassresearch.core.interpreter.api.values.AnyValue;
 import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
+import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
 
 @SuppressWarnings("serial")
@@ -104,83 +105,70 @@ public class CmlExpressionVisitor extends QuestionAnswerCMLAdaptor<Context, Valu
 		ILexNameToken channelName = NamespaceUtility.createChannelName(chanNameExp.getIdentifier());
 		CMLChannelValue chanValue = (CMLChannelValue)question.lookup(channelName);
 		
-		List<PType> channelNameTypes = new LinkedList<PType>();
-		PType channelType = ((AChannelType)chanValue.getType()).getType();
-		
-		//extract the channel types
-		if(channelType instanceof AProductType)
-			channelNameTypes = ((AProductType)channelType).getTypes(); 
-		else
-			channelNameTypes.add(channelType);
-		
 		//extract the values
 		List<Value> values = new LinkedList<Value>();
-		for(int i = 0 ; i < channelNameTypes.size();i++)
+		for(int i = 0 ; i < chanValue.getValueTypes().size();i++)
 		{
 			//if the index is less than the number of expressions its defined
 			//else we put an anyValue
 			if(i < chanNameExp.getExpressions().size())
 				values.add(chanNameExp.getExpressions().get(i).apply(this,question));
 			else
-				values.add(new AnyValue(channelNameTypes.get(i)));
+				values.add(new AnyValue(chanValue.getValueTypes().get(i)));
 		}
 		
 		return new ChannelNameValue(chanValue, values);
 	}
 	
 	@Override
-	public Value caseAFatEnumVarsetExpression(AFatEnumVarsetExpression node,
+	public ChannelNameSetValue caseAFatEnumVarsetExpression(AFatEnumVarsetExpression node,
 			Context question) throws AnalysisException {
 		
-		Set<CmlTransition> coms = new HashSet<CmlTransition>();
+		Set<ChannelNameValue> coms = new HashSet<ChannelNameValue>();
 		
 		for (ANameChannelExp chanNameExp : node.getChannelNames())
 		{
-			
 			ChannelNameValue channelName = createChannelNameValue(chanNameExp, question);
-			
-			if(!channelName.hasValues())
-				coms.add(CmlTransitionFactory.newSynchronizationEvent(channelName));
-			else
-				coms.add(CmlTransitionFactory.newCmlCommunicationEvent(channelName,null));
+			coms.add(channelName);
 		}
 		
-		return new CmlAlphabet(coms);
+		return new ChannelNameSetValue(coms);
 	}
 	
 	@Override
-	public Value caseAEnumVarsetExpression(AEnumVarsetExpression node,
+	public ChannelNameSetValue caseAEnumVarsetExpression(AEnumVarsetExpression node,
 			Context question) throws AnalysisException {
 		
-		Set<CmlTransition> coms = new HashSet<CmlTransition>();
+		Set<ChannelNameValue> coms = new HashSet<ChannelNameValue>();
 		for (ANameChannelExp chanNameExp : node.getChannelNames())
 		{
 			ChannelNameValue channelName = createChannelNameValue(chanNameExp, question);
-			coms.add(createEvent(channelName));
+			coms.add(channelName);
 		}
 		
-		return new CmlAlphabet(coms);
-
+		return new ChannelNameSetValue(coms);
 	}
 	
-	private ObservableEvent createEvent(ChannelNameValue channelName)
-	{
-		if(!channelName.hasValues())
-		{		
-			return CmlTransitionFactory.newSynchronizationEvent(channelName);
-		}
-		else
-		{
-			return CmlTransitionFactory.newCmlCommunicationEvent(channelName, null);
-		}
-	}
+//	private ObservableEvent createEvent(ChannelNameValue channelName)
+//	{
+//		if(!channelName.hasValues())
+//		{		
+//			return CmlTransitionFactory.newSynchronizationEvent(channelName);
+//		}
+//		else
+//		{
+//			return CmlTransitionFactory.newCmlCommunicationEvent(channelName);
+//		}
+//	}
 	
 	@Override
 	public Value caseAIdentifierVarsetExpression(
 			AIdentifierVarsetExpression node, Context question)
 			throws AnalysisException {
 
-		return new CmlAlphabet(createEvent(createChannelNameValue(node.getIdentifier(), question)));
+		throw new AnalysisException("Chansets are not implemented yet");
+		
+		//return new CmlTransitionSet(createEvent(createChannelNameValue(node.getIdentifier(), question)));
 	}
 	
 	@Override

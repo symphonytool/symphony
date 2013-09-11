@@ -16,8 +16,8 @@ import java.util.concurrent.SynchronousQueue;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.node.INode;
+import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ValueException;
-import org.overture.interpreter.values.IntegerValue;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.core.interpreter.CmlRuntime;
@@ -30,8 +30,8 @@ import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.RandomSelectionStrategy;
 import eu.compassresearch.core.interpreter.api.SelectionStrategy;
 import eu.compassresearch.core.interpreter.api.ValueParser;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.events.CmlInterpreterStatusObserver;
 import eu.compassresearch.core.interpreter.api.events.InterpreterStatusEvent;
 import eu.compassresearch.core.interpreter.api.transitions.ChannelEvent;
@@ -152,17 +152,17 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 					private Scanner scanIn = new Scanner(System.in);
 					private RandomSelectionStrategy rndSelect = new RandomSelectionStrategy();
 
-					private boolean isSystemSelect(CmlAlphabet availableChannelEvents)
+					private boolean isSystemSelect(CmlTransitionSet availableChannelEvents)
 					{
 						return availableChannelEvents.getSilentTransitions().size() > 0;
 					}
 
-					private CmlTransition systemSelect(CmlAlphabet availableChannelEvents)
+					private CmlTransition systemSelect(CmlTransitionSet availableChannelEvents)
 					{
-						return rndSelect.select(new CmlAlphabet((Set)availableChannelEvents.getSilentTransitions()));
+						return rndSelect.select(new CmlTransitionSet((Set)availableChannelEvents.getSilentTransitions()));
 					}
 
-					private CmlTransition userSelect(CmlAlphabet availableChannelEvents)
+					private CmlTransition userSelect(CmlTransitionSet availableChannelEvents)
 					{
 						//sendStatusMessage(CmlDbgpStatus.CHOICE, cmlInterpreter.getStatus());
 
@@ -206,7 +206,7 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 //							((ChannelEvent)selectedEvent).setValue(val);
 //						}
 						
-						if(selectedEvent instanceof ChannelEvent && !((ChannelEvent)selectedEvent).isPrecise())
+						if(selectedEvent instanceof ChannelEvent && !((ChannelEvent)selectedEvent).getChannelName().isPrecise())
 						{
 							ChannelEvent chosenChannelEvent = (ChannelEvent)selectedEvent;
 							ChannelNameValue channnelName = chosenChannelEvent.getChannelName(); 
@@ -215,12 +215,12 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 							{
 								Value currentValue = channnelName.getValues().get(i);
 								
-								if(AbstractValueInterpreter.isValueMostPrecise(currentValue))
+								if(!AbstractValueInterpreter.isValueMostPrecise(currentValue))
 								{
 									System.out.println("Enter value : "); 
 									Value val;
 									try {
-										val = channnelName.getValueTypes().get(i).apply(new ValueParser());
+										val = channnelName.getChannel().getValueTypes().get(i).apply(new ValueParser());
 										channnelName.updateValue(i, val);
 									} catch (AnalysisException e) {
 										e.printStackTrace();
@@ -234,7 +234,7 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 					}
 
 					@Override
-					public CmlTransition select(CmlAlphabet availableChannelEvents) {
+					public CmlTransition select(CmlTransitionSet availableChannelEvents) {
 
 						//At this point we don't want the internal transition to propagate 
 						//to the user, so we randomly choose all the possible internal transitions
@@ -283,6 +283,11 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 		}
 
 		return responseMessage;
+	}
+	
+	private void sendResponse(ResponseMessage message)
+	{
+		MessageCommunicator.sendMessage(requestOS, message);
 	}
 
 	/**
@@ -355,6 +360,35 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 			return true;
 		}
 	}
+	
+	private boolean processRequest(RequestMessage message)
+	{
+		switch(message.getRequest())
+		{
+		case GET_STACK_FRAMES:
+			System.out.println("processing request " + message.getRequestId());
+			int id = message.getContent();
+			CmlBehaviour foundBehavior = this.runningInterpreter.findBehaviorById(id);
+			Context context = foundBehavior.getNextState().second;
+			List<StackFrameDTO> stackframes = new LinkedList<StackFrameDTO>();
+			
+			Context nextContext = context;
+			
+			while(nextContext != null){
+				stackframes.add(new StackFrameDTO(nextContext.location.getStartLine(), 
+						nextContext.location.getFile().toString(), nextContext.getDepth()));
+				nextContext = nextContext.outer;
+			}
+			ResponseMessage responseMessage = new ResponseMessage(message.getRequestId(), 
+					CmlRequest.GET_STACK_FRAMES, stackframes);
+			sendResponse(responseMessage);
+			System.out.println("response sent" + responseMessage.getRequestId());
+			return true;
+			
+		default:
+			return true;
+		}
+	}
 
 	/**
 	 * Handles the response messages sent
@@ -376,6 +410,8 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 			return processStatusMessage((CmlDbgStatusMessage)messageContainer.getMessage());
 		case COMMAND:
 			return processCommand((CmlDbgCommandMessage)messageContainer.getMessage());
+		case REQUEST:
+			return processRequest((RequestMessage)messageContainer.getMessage());
 		case RESPONSE:
 			return processResponse((ResponseMessage)messageContainer.getMessage());
 		default:

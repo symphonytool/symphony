@@ -23,7 +23,7 @@ import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.api.ConsoleSelectionStrategy;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlTrace;
 import eu.compassresearch.core.interpreter.api.events.CmlInterpreterStatusObserver;
@@ -52,7 +52,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	protected Context                  globalContext;
 	protected String 				   defaultName      	= null;	
 	protected AProcessDefinition       topProcess;
-	protected CmlBehaviour	   		   runningTopProcess 	= null;
+	
 	/**
 	 * Sync object used to suspend the execution
 	 */
@@ -189,9 +189,9 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		while(!topProcess.finished() && !topProcess.deadlocked())
 		{
 			//inspect the top process to get the next possible trace element
-			CmlAlphabet topAlphabet = topProcess.inspect();
+			CmlTransitionSet topAlphabet = topProcess.inspect();
 			//expand what's possible in the alphabet
-			CmlAlphabet availableEvents = topAlphabet.expandAlphabet();
+			CmlTransitionSet availableEvents = topAlphabet.expandAlphabet();
 
 			CmlRuntime.logger().fine("Waiting for environment on : " + availableEvents.getAllEvents());
 
@@ -317,6 +317,72 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	// Static stuff for running the Interpreter from the commandline with any gui stuff
 	// ---------------------------------------
 
+	private static void runOnFiles(List<File> files) throws IOException, CmlInterpreterException
+	{
+		List<PSource> sources = new LinkedList<PSource>();
+		for(File f : files)
+		{
+			AFileSource source = new AFileSource();
+			source.setName(f.getName());
+			source.setFile(f);
+			sources.add(source);
+
+			// Run the parser and lexer and report errors if any
+			if (!CmlParserUtil.parseSource(source))
+			{
+				System.out.println("Failed to parse: " + source.toString());
+				return;
+			}
+		}
+		
+		TypeIssueHandler issueHandler = VanillaFactory.newCollectingIssueHandle();
+
+		// Type check
+		CmlTypeChecker cmlTC = VanillaFactory.newTypeChecker(sources,issueHandler);
+
+		// Print result and report errors if any
+		if (!cmlTC.typeCheck())
+		{
+			System.out.println("Failed to type check: " + sources.toString());
+			System.out.println(issueHandler.getTypeErrors());
+			return;
+		}
+
+		// interpret
+		VanillaCmlInterpreter cmlInterp = new VanillaCmlInterpreter(sources);
+		cmlInterp.onStatusChanged().registerObserver(new CmlInterpreterStatusObserver() {
+
+			@Override
+			public void onStatusChanged(Object source, InterpreterStatusEvent event) {
+				System.out.println("Simulator status event : " + event.getStatus());
+
+			}
+		});
+
+		try
+		{
+			CmlSupervisorEnvironment sve = 
+					VanillaInterpreterFactory.newDefaultCmlSupervisorEnvironment(new ConsoleSelectionStrategy());
+			//CmlSupervisorEnvironment sve = 
+			//				VanillaInterpreterFactory.newDefaultCmlSupervisorEnvironment(new RandomSelectionStrategy());
+
+			CmlRuntime.logger().setLevel(Level.FINEST);
+			cmlInterp.initialize();
+			cmlInterp.execute(sve);
+		} catch (Exception ex)
+		{
+			System.out.println("Failed to interpret: " + sources.toString());
+			System.out.println("With Error : ");
+			ex.printStackTrace();
+			return;
+
+		}
+
+		// Report success
+		System.out.println("The given CML Program is done simulating.");
+
+	}
+	
 	private static void runOnFile(File f) throws IOException, CmlInterpreterException
 	{
 		AFileSource source = new AFileSource();
@@ -382,10 +448,15 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	public static void main(String[] args) throws IOException, CmlInterpreterException
 	{
 		File cml_example = new File(
-				"src/test/resources/action/communications/action-prefix.cml");
+				"src/test/resources/examples/jpcw-register-explicit.cml");
 		//File cml_example = new File("/home/akm/phd/COMPASS-repo/Common/CaseStudies/Library/Library.cml");
+			
 		runOnFile(cml_example);
-
+//		List<File> files = new LinkedList<File>();
+//		files.add(new File("/home/akm/phd/runtime-COMPASS/DwarfSimple/DwarfSimple.cml"));
+//		files.add(new File("/home/akm/phd/runtime-COMPASS/DwarfSimple/Ifm.cml"));
+//		
+//		runOnFiles(files);
 	}
 
 	@Override

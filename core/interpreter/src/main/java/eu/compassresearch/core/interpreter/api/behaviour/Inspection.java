@@ -2,24 +2,24 @@ package eu.compassresearch.core.interpreter.api.behaviour;
 
 public class Inspection {
 	private final CmlTrace 				trace;
-	private final CmlAlphabet 			transitions;
+	private final CmlTransitionSet 			transitions;
 	private final CmlCalculationStep 	nextStep;
 	
-	public Inspection(CmlTrace trace, CmlAlphabet transitions)
+	public Inspection(CmlTrace trace, CmlTransitionSet transitions)
 	{
 		this.trace = trace;
 		this.transitions = transitions;
 		this.nextStep = null;
 	}
 	
-	public Inspection(CmlTrace trace, CmlAlphabet transitions, CmlCalculationStep nextStep)
+	public Inspection(CmlTrace trace, CmlTransitionSet transitions, CmlCalculationStep nextStep)
 	{
 		this.trace = trace;
 		this.transitions = transitions;
 		this.nextStep = nextStep;
 	}
 
-	public CmlAlphabet getTransitions() {
+	public CmlTransitionSet getTransitions() {
 		return transitions;
 	}
 

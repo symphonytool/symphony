@@ -3,7 +3,7 @@ package eu.compassresearch.core.interpreter.api.transitions;
 import java.util.HashSet;
 import java.util.Set;
 
-import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 
 abstract class AbstractCmlTransition implements CmlTransition {
@@ -22,11 +22,19 @@ abstract class AbstractCmlTransition implements CmlTransition {
 	}
 	
 	@Override
-	public abstract CmlAlphabet getAsAlphabet();
+	public abstract CmlTransitionSet getAsAlphabet();
 
 	public Set<CmlBehaviour> getEventSources()
 	{
 		return eventSources;
+	}
+	
+	@Override
+	public boolean isSourcesSubset(CmlTransition other) {
+		
+		return	(other.getEventSources().containsAll(getEventSources()) || 
+				getEventSources().containsAll(other.getEventSources()));
+		
 	}
 	
 	@Override
@@ -40,8 +48,7 @@ abstract class AbstractCmlTransition implements CmlTransition {
 		other = (CmlTransition)obj;
 		
 		 // other is subset of this or this is a subset of other
-		return	(other.getEventSources().containsAll(getEventSources()) || 
-					getEventSources().containsAll(other.getEventSources())); 
+		return	isSourcesSubset(other); 
 	}
 
 }

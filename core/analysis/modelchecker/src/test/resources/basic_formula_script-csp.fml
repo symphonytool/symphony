@@ -246,5 +246,36 @@ domain TrRefinement extends CSP_Properties as Spec, CSP_Properties as Impl{
  //       C_Ex(_,_,_,Spec.State(omega),Impl.State(omega)).
  conforms                 := counterExample.
 }
+domain CML_PropertiesSpec extends CML_SemanticsSpec {
+    // Deadlock property
+    Deadlock := GivenProc(name),ProcDef(name,params,body),reachable(State(_,st,_,L)),trans(_,_,State(_,st,_,L)),fail trans(State(_,st,_,L),_,_),L != Skip.
+    Deadlock := GivenProc(name),ProcDef(name,params,body),fail trans(State(_,s,name,body),_,_), body != Skip.
+
+    //Livelock property
+    // Capturing tau-loops
+    tauPath      ::= (iS:State,fS:State).
+    tauPath(P,Q) :- trans (P,tau,Q).
+    tauPath(P,Q) :- tauPath(P,S),tauPath(S,Q).
+    Livelock := tauPath(L,L). 
+
+    // Nondeterminism property
+    accepts    ::= (iS:State,ev:SigmaTau).
+    accepts(P, ev) :- trans(P,ev,_), ev != tau.
+    accepts(P, ev) :- trans(P,tau,R),accepts(R,ev).
+    
+	reachable    ::= (fS:State).
+	//The initial binding is captured at initialisation
+    reachable(State(0,nBind,P,PBody)) :- GivenProc(P),ProcDef(P,pPar,PBody).
+	reachable(Q)  :- GivenProc(P),ProcDef(P,pPar,PBody), trans(State(_,_,P,PBody),_,Q).
+	reachable(Q)  :- reachable(R), trans(R,_,Q).
+	
+	//s^<a> \in traces(P) <=> reachable(PBody,L), accepts(L,a,_)
+	//(s,{a}) \in failures(P) <=> reachable(PBody,L), fail accepts(L,a,_)
+    Nondeterminism := trans(L,ev1,S1),trans(L,ev1,S2), S1 != S2, 
+						accepts(S1,ev), ev!= tau, fail accepts(S2,ev),
+						reachable(S1),reachable(S2).
+	
+    Chaos := GivenProc(name),ProcDef(name,params,body), trans(_,_,State(_,_,name,Chaos)).
+}
 
 

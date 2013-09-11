@@ -4,6 +4,6 @@ init, a
 process A = 
 begin 
 	actions
-		INIT = (init -> Skip) [| a |] (init -> Skip)
+		INIT = (init -> Skip) [| {a} |] (init -> Skip)
 	@  INIT
 end

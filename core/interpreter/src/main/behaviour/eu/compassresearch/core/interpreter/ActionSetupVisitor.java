@@ -13,6 +13,7 @@ import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.values.IntegerValue;
 import org.overture.interpreter.values.NameValuePair;
 import org.overture.interpreter.values.NameValuePairList;
+import org.overture.interpreter.values.SeqValue;
 import org.overture.interpreter.values.SetValue;
 import org.overture.interpreter.values.TupleValue;
 import org.overture.interpreter.values.Value;
@@ -20,6 +21,7 @@ import org.overture.interpreter.values.ValueList;
 
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
 import eu.compassresearch.ast.actions.AExternalChoiceReplicatedAction;
+import eu.compassresearch.ast.actions.AForSequenceStatementAction;
 import eu.compassresearch.ast.actions.AGeneralisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AGeneralisedParallelismReplicatedAction;
 import eu.compassresearch.ast.actions.AHidingAction;
@@ -570,5 +572,16 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 		setRightChild(new ConcreteCmlBehaviour(node.getRight(), question, new LexNameToken("","/_\\ right",new LexLocation()), owner));
 		
 		return new Pair<INode,Context>(node,question);
+	}
+	
+	@Override
+	public Pair<INode, Context> caseAForSequenceStatementAction(
+			AForSequenceStatementAction node, Context question)
+			throws AnalysisException {
+
+		Context context = CmlContextFactory.newContext(node.getLocation(), "Sequence for loop context", question);
+		context.putNew(new NameValuePair(NamespaceUtility.getSeqForName(), node.getExp().apply(cmlExpressionVisitor,question)));
+		
+		return new Pair<INode, Context>(node,context);
 	}
 }

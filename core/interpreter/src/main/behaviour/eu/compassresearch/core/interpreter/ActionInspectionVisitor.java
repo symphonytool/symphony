@@ -57,7 +57,7 @@ import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.Inspection;
 import eu.compassresearch.core.interpreter.api.transitions.ChannelEvent;
@@ -160,8 +160,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 			final ACommunicationAction node, final Context question)
 					throws AnalysisException {
 
-		//FIXME: This should be a name so the conversion is avoided
-		LexNameToken channelName = new LexNameToken("|CHANNELS|",node.getIdentifier().getName(),node.getIdentifier().getLocation(),false,true);
+		ILexNameToken channelName = NamespaceUtility.createChannelName(node.getIdentifier());
 		//find the channel value
 		CMLChannelValue chanValue = (CMLChannelValue)question.lookup(channelName);
 
@@ -175,65 +174,52 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 		//otherwise we convert the com params
 		else
 		{
-//			List<CommunicationParameter> params = new LinkedList<CommunicationParameter>();
 			List<Value> values = new LinkedList<Value>();
 			List<ValueConstraint> constraints = new LinkedList<ValueConstraint>();
 			int comParamSize = node.getCommunicationParameters().size(); 
 			for(int i = 0;i < comParamSize; i++)
 			{
 				PCommunicationParameter p = node.getCommunicationParameters().get(i);
-				
-//				CommunicationParameter param = null;
 				if(p instanceof ASignalCommunicationParameter)
 				{
 					ASignalCommunicationParameter signal = (ASignalCommunicationParameter)p;
 					Value valueExp = signal.getExpression().apply(cmlExpressionVisitor,question);
-					
-					values.add(valueExp);
+					//TODO can we send ref variables over the channels?
+					//Deref the variable so no updatable values are added since this could
+					//change the trace at a latter point
+					values.add(valueExp.deref());
 					constraints.add(new NoConstraint());
-					
-//					param = new SignalParameter((ASignalCommunicationParameter)p, valueExp);
 				}
 				else if(p instanceof AWriteCommunicationParameter)
 				{
 					AWriteCommunicationParameter signal = (AWriteCommunicationParameter)p;
 					Value valueExp = signal.getExpression().apply(cmlExpressionVisitor,question);
-					
-					values.add(valueExp);
+					//TODO can we send ref variables over the channels?
+					//Deref the variable so no updatable values are added since this could
+					//change the trace at a latter point
+					values.add(valueExp.deref());
 					constraints.add(new NoConstraint());
-					
-//					param = new OutputParameter((AWriteCommunicationParameter)p, valueExp);
 				}
 				else if(p instanceof AReadCommunicationParameter)
 				{
+					values.add(new AnyValue(chanValue.getValueTypes().get(i)));
+					//Add constraints
 					AReadCommunicationParameter readParam = (AReadCommunicationParameter)p;
-					AnyValue val = null;
-					if(comParamSize > 1)
-					{
-						//Must be a product type
-						AProductType productType = (AProductType)((AChannelType)chanValue.getType()).getType();
-						val = new AnyValue(productType.getTypes().get(i));
+					if(readParam.getExpression() != null){
+						Context constraintContext = CmlContextFactory.newContext(p.getLocation(),"Constraint evaluation context", question);
+						constraints.add(new ExpressionConstraint(readParam,constraintContext));
 					}
 					else
-						val = new AnyValue(((AChannelType)chanValue.getType()).getType());
-					
-					Context constraintContext = CmlContextFactory.newContext(p.getLocation(),"Constraint evaluation context", question);
-//					param = new InputParameter(readParam,val,constraintContext);
-					
-					values.add(val);
-					constraints.add(new ExpressionConstraint(readParam,constraintContext));
+						constraints.add(new NoConstraint());
 				}
-
-//				params.add(param);
 			}
 
 			ObservableEvent observableEvent = 
 					CmlTransitionFactory.newCmlCommunicationEvent(owner, new ChannelNameValue(chanValue,values,constraints));
 			comset.add(observableEvent);
 		}
-		//TODO: do the rest here
 
-		return newInspection(new CmlAlphabet(comset).union(new CmlTock(owner)),
+		return newInspection(new CmlTransitionSet(comset).union(new CmlTock(owner)),
 				new AbstractCalculationStep(owner, visitorAccess) {
 
 			@Override
@@ -343,7 +329,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 		//the process has children and must now handle either termination or event sync
 		else if (CmlBehaviourUtility.isAllChildrenFinished(owner))
 		{
-			return newInspection(createSilentTransition(node, new ASkipAction(), "End"),caseParallelEnd(question));
+			return newInspection(createSilentTransition(node, new ASkipAction(node.getLocation()), "End"),caseParallelEnd(question));
 		}
 		else
 		{
@@ -477,14 +463,14 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 		//First we evaluate the guard expression
 		Value guardExp = node.getExpression().apply(cmlExpressionVisitor,question);
 
-		CmlAlphabet alpha = null;
+		CmlTransitionSet alpha = null;
 
 		//if the gaurd is true then we return the silent transition to the guarded action
 		if(guardExp.boolValue(question))
 			alpha = createSilentTransition(node, node.getAction());
 		//else we return the empty alphabet since no transition is possible
 		else
-			alpha = new CmlAlphabet(new CmlTock(owner));
+			alpha = new CmlTransitionSet(new CmlTock(owner));
 
 		return newInspection(alpha, 
 				new AbstractCalculationStep(owner, visitorAccess) {
@@ -505,45 +491,6 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 	public Inspection caseAHidingAction(final AHidingAction node,
 			final Context question) throws AnalysisException {
 		return caseHiding(node,node.getChansetExpression(),question);
-//		//We do the hiding behavior as long as the Action is not terminated
-//		if(!owner.getLeftChild().finished())
-//		{
-//			//first we convert the channelset expression into a Cmlalpabet
-//			CmlAlphabet hidingAlpha = (CmlAlphabet)node.getChansetExpression().apply(cmlExpressionVisitor,question);
-//			//next we inspect the action to get the current available transitions
-//			CmlAlphabet alpha = owner.getLeftChild().inspect();
-//			//Intersect the two to find which transitions should be converted to silents transitions
-//			CmlAlphabet hiddenEvents = alpha.intersect(hidingAlpha);
-//			//remove the events that has to be silent
-//			CmlAlphabet resultAlpha = alpha.subtract(hiddenEvents);
-//			//convert them into silent events and add the again
-//			for(ObservableEvent obsEvent : hiddenEvents.getObservableEvents())
-//				if(obsEvent instanceof ChannelEvent)
-//					resultAlpha = resultAlpha.union(new HiddenEvent(owner,(ChannelEvent)obsEvent));	
-//
-//			return newInspection(resultAlpha,
-//					new AbstractCalculationStep(owner, visitorAccess) {
-//
-//				@Override
-//				public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
-//						throws AnalysisException {
-//					owner.getLeftChild().execute(supervisor());
-//					return new Pair<INode,Context>(node, question);
-//				}
-//			});
-//		}
-//		//If the Action is terminated then it evolves into Skip
-//		else
-//			return newInspection(createSilentTransition(node, new ASkipAction()),
-//					new AbstractCalculationStep(owner, visitorAccess) {
-//
-//				@Override
-//				public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
-//						throws AnalysisException {
-//					setLeftChild(null);
-//					return new Pair<INode,Context>(new ASkipAction(), question);
-//				}
-//			});
 	}
 
 	/**
@@ -650,14 +597,14 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 
 		//return the alphabet only containing tock since Skip allows for time to pass
 		//return newInspection(new CmlAlphabet(new CmlTock(owner)),null);
-		return newInspection(new CmlAlphabet(),null);
+		return newInspection(new CmlTransitionSet(),null);
 	}
 
 	@Override
 	public Inspection caseAStopAction(AStopAction node, Context question)
 			throws AnalysisException {
 		//return the alphabet only containing tock since Stop allows for time to pass
-		return newInspection(new CmlAlphabet(new CmlTock(owner)),null);
+		return newInspection(new CmlTransitionSet(new CmlTock(owner)),null);
 	}
 	
 	@Override
@@ -831,7 +778,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 			});
 		else
 			//If the number of tocks has not exceeded val then behave as Stop
-			return newInspection(new CmlAlphabet(new CmlTock(owner,nTocks-val)), null);
+			return newInspection(new CmlTransitionSet(new CmlTock(owner,nTocks-val)), null);
 	}
 	/**
 	 * Interrupt A /_\ B : The possible transitions from both A and B are exposed
