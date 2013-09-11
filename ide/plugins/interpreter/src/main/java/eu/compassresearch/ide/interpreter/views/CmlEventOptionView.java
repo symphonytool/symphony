@@ -41,8 +41,8 @@ public class CmlEventOptionView extends ViewPart
 			public void inputChanged(Viewer viewer, Object oldInput,
 					Object newInput)
 			{
-				System.out.println("Input changed: old=" + oldInput + ", new="
-						+ newInput);
+//				System.out.println("Input changed: old=" + oldInput + ", new="
+//						+ newInput);
 			}
 
 			@Override

@@ -36,7 +36,7 @@ public class CmlStack
 
 	protected IDbgpStackLevel[] requrestStackLevels()
 	{
-		return thread.getThreadManager().getStackLevels(thread);
+		return thread.getCommunicationManager().getStackLevels(thread);
 	}
 
 	protected void readFrames()

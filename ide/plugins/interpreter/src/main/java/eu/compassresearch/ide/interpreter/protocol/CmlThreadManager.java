@@ -4,9 +4,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.ITerminate;
 import org.eclipse.debug.core.model.IThread;
@@ -16,14 +14,10 @@ import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
-import org.overture.ide.debug.core.dbgp.IDbgpProperty;
-import org.overture.ide.debug.core.dbgp.IDbgpStackLevel;
 
 import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
 import eu.compassresearch.core.interpreter.debug.CmlInterpreterStateDTO;
 import eu.compassresearch.core.interpreter.debug.CmlProcessDTO;
-import eu.compassresearch.ide.core.resources.ICmlProject;
-import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
 import eu.compassresearch.ide.interpreter.CmlDebugPlugin;
 import eu.compassresearch.ide.interpreter.CmlUtil;
 import eu.compassresearch.ide.interpreter.ICmlDebugConstants;
@@ -44,17 +38,23 @@ public class CmlThreadManager implements ITerminate
 		this.target = target;
 	}
 
+	public void updateThreads(final CmlInterpreterStateDTO status,
+			CmlCommunicationManager communication)
+	{
+		threads.clear();
+		for (CmlProcessDTO t : status.getAllProcesses())
+		{
+			CmlThread thread = new CmlThread(target, this, communication, t);
+			thread.initialize();
+			threads.add(thread);
+		}
+	}
+
 	public void updateDebuggerInfo(final CmlInterpreterStateDTO status)
 	{
 		this.status = status;
 		// cmlThread = new CmlThread(this,status.getToplevelProcessInfo());
-		threads.clear();
-		for (CmlProcessDTO t : status.getAllProcesses())
-		{
-			CmlThread thread = new CmlThread(target, this, t);
-			thread.initialize();
-			threads.add(thread);
-		}
+
 		// fireSuspendEvent(0);
 
 		final List<String> trace = status.getToplevelProcess().getTrace();
@@ -78,7 +78,7 @@ public class CmlThreadManager implements ITerminate
 					Map<StyledText, List<StyleRange>> map = new HashMap<StyledText, List<StyleRange>>();
 					if (status.getErrors().get(0).getLocation() != null)
 						CmlUtil.setSelectionFromLocation(status.getErrors().get(0).getLocation(), map);
-					MessageDialog.openError(null, "Simulation Error", status.getErrors().get(0).getErrorMessage());
+//					MessageDialog.openError(null, "Simulation Error", status.getErrors().get(0).getErrorMessage());
 					CmlUtil.clearSelections(map);
 				}
 			}
@@ -134,72 +134,11 @@ public class CmlThreadManager implements ITerminate
 				&& status.getInterpreterState() == CmlInterpretationStatus.RUNNING;
 	}
 
-	public IDbgpStackLevel[] getStackLevels(CmlThread thread)
-	{
-		
-		// TODO Auto-generated method stub
-		List<IDbgpStackLevel> levels = new Vector<IDbgpStackLevel>();
-
-		ICmlProject p = ((CmlDebugTarget) thread.getDebugTarget()).project;
-
-		try
-		{
-			// for (ICmlSourceUnit su : p.getSourceUnits())
-			// {
-			ICmlSourceUnit su = p.getSourceUnits().get(0);
-			levels.add(new CmlStackLevel(su.getFile().getLocationURI(), "A -"
-					+ su.getFile().getName(), 1, 1, 1, 1));
-			levels.add(new CmlStackLevel(su.getFile().getLocationURI(), "B -"
-					+ su.getFile().getName(), 2, 2, 1, 1));
-			levels.add(new CmlStackLevel(su.getFile().getLocationURI(), "C -"
-					+ su.getFile().getName(), 3, 3, 1, 1));
-			// }
-		} catch (CoreException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		return levels.toArray(new IDbgpStackLevel[] {});
-	}
-
-	private static IDbgpProperty[] getChilds()
-	{
-		List<IDbgpProperty> properties = new Vector<IDbgpProperty>();
-		properties.add(new DbgpProperty("a1", "A`a", "int", "1", 0, false, false, "A`a", "", new IDbgpProperty[] {}, 0, 0));
-		properties.add(new DbgpProperty("a2", "A`a", "int", "2", 0, false, false, "A`a", "", new IDbgpProperty[] {}, 0, 0));
-		return properties.toArray(new IDbgpProperty[properties.size()]);
-	}
-
-	public IDbgpProperty[] getContextProperties(int threadId, int level,
-			int contextId2)
-	{
-		List<IDbgpProperty> properties = new Vector<IDbgpProperty>();
-		switch (level)
-		{
-			case 1:
-				properties.add(new DbgpProperty("a" + threadId, "A`a", "int", "8", 2, true, false, "A`a", "", getChilds(), 0, 0));
-				properties.add(new DbgpProperty("b" + threadId, "A`a", "int", "8", 0, false, false, "A`a", "", new IDbgpProperty[] {}, 0, 0));
-				break;
-			case 2:
-				properties.add(new DbgpProperty("c" + threadId, "A`a", "int", "8", 0, false, false, "A`a", "", new IDbgpProperty[] {}, 0, 0));
-				properties.add(new DbgpProperty("d" + threadId, "A`a", "int", "8", 0, false, false, "A`a", "", new IDbgpProperty[] {}, 0, 0));
-				break;
-			case 3:
-				properties.add(new DbgpProperty("e" + threadId, "A`a", "int", "8", 0, false, false, "A`a", "", new IDbgpProperty[] {}, 0, 0));
-				properties.add(new DbgpProperty("f" + threadId, "A`a", "int", "8", 0, false, false, "A`a", "", new IDbgpProperty[] {}, 0, 0));
-				properties.add(new DbgpProperty("g" + threadId, "A`a", "int", "8", 0, false, false, "A`a", "", new IDbgpProperty[] {}, 0, 0));
-				break;
-		}
-
-		return properties.toArray(new IDbgpProperty[properties.size()]);
-	}
-
 	@Override
 	public boolean canTerminate()
 	{
 		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	@Override

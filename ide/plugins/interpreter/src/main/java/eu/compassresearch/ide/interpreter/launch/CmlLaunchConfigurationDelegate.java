@@ -19,7 +19,6 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.LaunchConfigurationDelegate;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
@@ -91,7 +90,6 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 		} catch (IOException | URISyntaxException e)
 		{
 			CmlDebugPlugin.logError("Failed to connect to debugger", e);
-			MessageDialog.openError(null, "Failed to connect to debugger", e.getMessage());
 			launch.terminate();
 			monitor.setCanceled(true);
 		} finally
@@ -169,10 +167,14 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 			System.out.println("Debugger Arguments:\n"
 					+ getArgumentString(commandArray.subList(4, commandArray.size())));
 			process = Runtime.getRuntime().exec("java -version");
+			return null;
 		}
 		IProcess iprocess = DebugPlugin.newProcess(launch, process, name);
 
-		launch.addProcess(iprocess);
+		if (!configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_REMOTE_DEBUG, false))
+		{
+			launch.addProcess(iprocess);
+		}
 
 		return iprocess;
 	}

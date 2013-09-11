@@ -164,7 +164,6 @@ public class CmlStackFrame extends CmlDebugElement implements IStackFrame
 
 	private boolean needRefreshVariables = false;
 
-
 	public CmlStackFrame(CmlStack stack, IDbgpStackLevel stackLevel)
 	{
 		this.stack = stack;
@@ -484,7 +483,7 @@ public class CmlStackFrame extends CmlDebugElement implements IStackFrame
 		try
 		{
 
-			IDbgpProperty[] properties = parentFrame.thread.getThreadManager().getContextProperties(parentFrame.thread.id, parentFrame.getLevel(), contextId);
+			IDbgpProperty[] properties = parentFrame.thread.getCommunicationManager().getContextProperties(parentFrame.thread.id, parentFrame.getLevel(), contextId);
 
 			CmlVariable[] variables = new CmlVariable[properties.length];
 

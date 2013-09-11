@@ -301,7 +301,7 @@ public final class CmlUtil
 		} catch (Exception e)
 		{
 			final String msg = NLS.bind(PLUGIN_LOCATION_ERROR, bundleId);
-			System.out.println(msg);
+			System.err.println(msg);
 		}
 
 	}

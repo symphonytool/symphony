@@ -8,6 +8,10 @@ import java.util.Vector;
 
 import org.eclipse.core.resources.IMarkerDelta;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.IBreakpointManager;
@@ -61,11 +65,9 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 		this.project = project;
 
 		threadManager = new CmlThreadManager(this);
-		communicationManager = new CmlCommunicationManager(this, threadManager, 
-				initializeRequestHandlers(), 
-				initializeStatusHandlers(), 
-				communicationPort);
+		communicationManager = new CmlCommunicationManager(this, threadManager, initializeRequestHandlers(), initializeStatusHandlers(), communicationPort);
 		communicationManager.connect();
+
 		DebugPlugin.getDefault().getBreakpointManager().addBreakpointListener(this);
 	}
 
@@ -213,15 +215,28 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 				// threadManager.stopping();
 				threadManager.updateDebuggerInfo(message.getInterpreterStatus());
 				
+				Job setupThreads = new Job("setup cml threads")
+				{
+					
+					@Override
+					protected IStatus run(IProgressMonitor monitor)
+					{
+						threadManager.updateThreads(message.getInterpreterStatus(), communicationManager);
+						return Status.OK_STATUS;
+					}
+				};
+				setupThreads.setSystem(true);
+				setupThreads.schedule();
 				
+
 				Display.getDefault().asyncExec(new Runnable()
 				{
 					@Override
 					public void run()
 					{
 						int id = message.getInterpreterStatus().getAllProcesses().get(0).getId();
-						ResponseMessage rm = communicationManager.sendRequestSynchronous(new RequestMessage(CmlRequest.GET_STACK_FRAMES,id));
-						
+						/*ResponseMessage rm =*/ communicationManager.sendRequestSynchronous(new RequestMessage(CmlRequest.GET_STACK_FRAMES, id));
+
 						if (message.getInterpreterStatus().hasActiveBreakpoint())
 						{
 							Breakpoint bp = message.getInterpreterStatus().getActiveBreakpoint();
@@ -293,16 +308,15 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 	@Override
 	public boolean canTerminate()
 	{
-		return process.canTerminate();
+		return(process!=null &&process.canTerminate());
 	}
 
 	@Override
 	public boolean isTerminated()
 	{
-		return process.isTerminated();
+		return (process!=null &&process.isTerminated());
 	}
 
-	
 	public void terminate() throws DebugException
 	{
 		terminate(true);
@@ -310,7 +324,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 
 	protected void terminate(boolean waitTermination) throws DebugException
 	{
-//		fireTargetTerminating();
+		// fireTargetTerminating();
 
 		communicationManager.terminate();
 		if (waitTermination)
@@ -327,10 +341,9 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 			}
 		}
 
-
 		DebugEventHelper.fireTerminateEvent(this);
 	}
-	
+
 	protected static boolean waitTerminated(ITerminate terminate, int chunk,
 			long timeout)
 	{

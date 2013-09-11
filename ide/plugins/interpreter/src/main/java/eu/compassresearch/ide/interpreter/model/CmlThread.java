@@ -8,6 +8,7 @@ import org.eclipse.debug.core.model.IThread;
 
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorState;
 import eu.compassresearch.core.interpreter.debug.CmlProcessDTO;
+import eu.compassresearch.ide.interpreter.protocol.CmlCommunicationManager;
 import eu.compassresearch.ide.interpreter.protocol.CmlThreadManager;
 
 public class CmlThread extends CmlDebugElement implements IThread
@@ -19,16 +20,18 @@ public class CmlThread extends CmlDebugElement implements IThread
 
 	private final CmlStack stack;
 	private final CmlThreadManager manager;
+	private final CmlCommunicationManager communication;
 	public final int id;
 
 	public CmlThread(CmlDebugTarget debugTarget, CmlThreadManager manager,
-			CmlProcessDTO info)
+			CmlCommunicationManager communication, CmlProcessDTO info)
 	{
 		this.debugTarget = debugTarget;
 		this.stack = new CmlStack(this);
 		this.manager = manager;
+		this.communication = communication;
 		this.info = info;
-		this.id = info.hashCode();
+		this.id = info.getId();
 	}
 
 	@Override
@@ -212,4 +215,8 @@ public class CmlThread extends CmlDebugElement implements IThread
 
 	}
 
+	public CmlCommunicationManager getCommunicationManager()
+	{
+		return this.communication;
+	}
 }
