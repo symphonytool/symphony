@@ -170,7 +170,9 @@ public class CmlExpressionVisitor extends QuestionAnswerCMLAdaptor<Context, Valu
 			AIdentifierVarsetExpression node, Context question)
 			throws AnalysisException {
 
-		return new CmlTransitionSet(createEvent(createChannelNameValue(node.getIdentifier(), question)));
+		throw new AnalysisException("Chansets are not implemented yet");
+		
+		//return new CmlTransitionSet(createEvent(createChannelNameValue(node.getIdentifier(), question)));
 	}
 	
 	@Override

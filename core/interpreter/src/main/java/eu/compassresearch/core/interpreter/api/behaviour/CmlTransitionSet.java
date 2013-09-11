@@ -244,7 +244,7 @@ public class CmlTransitionSet extends Value {
 	 */
 	public boolean containsImprecise(CmlTransition event)
 	{
-		return !intersectImprecise(event.getAsAlphabet()).isEmpty() || contains(event);
+		return (event instanceof ObservableEvent && !intersectImprecise((ObservableEvent)event).isEmpty()) || contains(event);
 	}
 	
 	public boolean isEmpty(){

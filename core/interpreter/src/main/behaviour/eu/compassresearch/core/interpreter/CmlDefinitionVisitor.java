@@ -30,6 +30,7 @@ import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AActionsDefinition;
 import eu.compassresearch.ast.definitions.AChannelNameDefinition;
 import eu.compassresearch.ast.definitions.AChannelsDefinition;
+import eu.compassresearch.ast.definitions.AChansetsDefinition;
 import eu.compassresearch.ast.definitions.ACmlClassDefinition;
 import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AFunctionsDefinition;
@@ -167,6 +168,15 @@ class CmlDefinitionVisitor extends
 		
 		return new NameValuePairList();
 	}
+	
+//	@Override
+//	public NameValuePairList caseAChansetsDefinition(AChansetsDefinition node,
+//			Context question) throws AnalysisException {
+//
+//		node.g
+//		
+//		return super.caseAChansetsDefinition(node, question);
+//	}
 	
 	/*
 	 * Function  
