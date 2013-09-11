@@ -8,12 +8,12 @@
   topic=%2Forg.eclipse.platform.doc.isv%2Freference%2Fextension-points%2Findex.html
 
   -->
-  <!--
+  
   <extension
         point="org.eclipse.ui.startup">
      <startup class="eu.compassresearch.ide.modelchecker.Activator"> </startup>
   </extension>
-  -->
+  
   <extension point="org.eclipse.ui.commands">
       <command
             defaultHandler="eu.compassresearch.ide.modelchecker.MCHandler"
@@ -29,12 +29,14 @@
    
    <extension point="org.eclipse.ui.menus">
      <menuContribution
-            locationURI="popup:eu.compassresearch.ide.ui.CmlNavigator">
+            locationURI="popup:eu.compassresearch.ide.ui.CmlNavigator" >
             
       <!-- menuContribution
             locationURI="popup:org.eclipse.ui.popup.any?after=additions" -->
-            <menu
-                  label="Model check">
+            <menu 
+            	  id="eu.compassresearch.ide.modelchecker"
+                  label="Model check"
+                  icon="icons/mc.png">
                   <command
 	                  commandId="eu.compassresearch.ide.modelchecker.mcCommand"
 	                  id="eu.compassresearch.ide.modelchecker.deadlockCmd"

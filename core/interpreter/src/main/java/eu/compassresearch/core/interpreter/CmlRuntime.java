@@ -57,7 +57,7 @@ public class CmlRuntime {
 		return showHiddenEvents;
 	}
 
-	protected static void setShowHiddenEvents(boolean showHiddenEvents) {
+	public static void setShowHiddenEvents(boolean showHiddenEvents) {
 		CmlRuntime.showHiddenEvents = showHiddenEvents;
 	}
 	

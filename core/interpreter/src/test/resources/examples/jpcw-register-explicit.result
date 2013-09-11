@@ -4,6 +4,6 @@
   <interpreterState>DEADLOCKED</interpreterState>
   <trace>
     <events>init,load.56,add.44,read.100,sub.101,underflow,read.0</events>
-    <timedTrace>(tock,)*init,(tock,)*load.56,(tock,)*add.44,(tock,)*read.100,(tock,)*sub.101,(tock,)*underflow,(tock,)*read.0,(tock,)*(tock)?</timedTrace>
+    <timedTrace>(tock,)*init,(tock,)*load.56,(tock,)*add.44,(tock,)*read.100,(tock,)*sub.101,(tock,)*underflow,(tock,)*read.0</timedTrace>
   </trace>
 </testResult>

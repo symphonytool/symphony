@@ -1,12 +1,15 @@
 package eu.compassresearch.ide.interpreter.protocol;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IThread;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.custom.StyleRange;
+import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
@@ -62,10 +65,11 @@ public class CmlThreadManager
 				}
 
 				if (status.hasErrors()){
+					Map<StyledText,List<StyleRange>> map = new HashMap<StyledText, List<StyleRange>>();
 					if(status.getErrors().get(0).getLocation() != null)
-						CmlUtil.setSelectionFromLocation(status.getErrors().get(0).getLocation(), new LinkedList<StyleRange>());
+						CmlUtil.setSelectionFromLocation(status.getErrors().get(0).getLocation(), map);
 					MessageDialog.openError(null, "Simulation Error", status.getErrors().get(0).getErrorMessage());
-					CmlUtil.clearAllSelections();
+					CmlUtil.clearSelections(map);
 				}
 			}
 		});

@@ -2,6 +2,8 @@ package eu.compassresearch.core.analysis.modelchecker.api;
 
 import java.io.IOException;
 
+import eu.compassresearch.core.analysis.modelchecker.visitors.Utilities;
+
 public class FormulaIntegrator implements IFormulaIntegrator {
 
 	private static FormulaIntegrator instance;
@@ -38,6 +40,19 @@ public class FormulaIntegrator implements IFormulaIntegrator {
 	}
 	
 	@Override
+	public FormulaResult analyseFile(String specificationPath) throws FormulaIntegrationException{
+		FormulaResult result = new FormulaResult();
+
+		try {
+			result = executor.runFormulaUsingFile(specificationPath);
+		} catch (IOException e) {
+			throw new FormulaIntegrationException(e.getMessage());
+		}  
+		
+		return result;
+	}
+	
+	@Override
 	public void finalize() throws Throwable {
 		executor.finalizeProcess();
 		super.finalize();
@@ -45,8 +60,9 @@ public class FormulaIntegrator implements IFormulaIntegrator {
 
 	public static void main(String[] args) throws Throwable {
 		String file = "D:\\UFCG\\projects\\COMPASS\\FORMULA\\formula_script_skip.4ml";
+		//String file = "A.4ml";
 		FormulaIntegrator fi = new FormulaIntegrator();
-		fi.analyse(file);
+		fi.analyseFile(file);
 		fi.finalize();
 	}
 }

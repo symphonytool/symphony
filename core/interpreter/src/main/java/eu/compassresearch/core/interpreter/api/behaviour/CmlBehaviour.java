@@ -39,7 +39,7 @@ public interface CmlBehaviour extends Serializable //extends Transactable
 	 * Returns the immediate alphabet of the process, meaning the next possible cml event including tau
 	 * @return The immediate alphabet of the process
 	 */
-	public CmlAlphabet inspect();
+	public CmlAlphabet inspect() throws AnalysisException;
 	
 	/**
 	 * 
@@ -108,7 +108,7 @@ public interface CmlBehaviour extends Serializable //extends Transactable
 	 * Determines whether this process is deadlocked
 	 * @return true if the process is deadlocked else false
 	 */
-	public boolean deadlocked();
+	public boolean deadlocked() throws AnalysisException;
 	
 	/**
 	 * @return The current state of the process

@@ -5,10 +5,12 @@ import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.intf.lex.ILexLocation;
+import org.overture.ast.lex.LexLocation;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ValueException;
+import org.overture.interpreter.values.IntegerValue;
 import org.overture.interpreter.values.NameValuePair;
 import org.overture.interpreter.values.NameValuePairList;
 import org.overture.interpreter.values.SetValue;
@@ -25,11 +27,13 @@ import eu.compassresearch.ast.actions.AInterleavingParallelAction;
 import eu.compassresearch.ast.actions.AInterleavingReplicatedAction;
 import eu.compassresearch.ast.actions.AInternalChoiceAction;
 import eu.compassresearch.ast.actions.AInternalChoiceReplicatedAction;
+import eu.compassresearch.ast.actions.AInterruptAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASynchronousParallelismParallelAction;
 import eu.compassresearch.ast.actions.ASynchronousParallelismReplicatedAction;
 import eu.compassresearch.ast.actions.ATimeoutAction;
 import eu.compassresearch.ast.actions.AUntimedTimeoutAction;
+import eu.compassresearch.ast.actions.AWaitAction;
 import eu.compassresearch.ast.actions.SReplicatedAction;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.process.AGeneralisedParallelismProcess;
@@ -62,16 +66,16 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 	 * Sequential Composition -- Start 
 	 */
 	
-	private INode caseASequentialComposition(INode node, INode leftNode, Context question) throws AnalysisException
+	private Pair<INode,Context> caseASequentialComposition(INode node, INode leftNode, Context question) throws AnalysisException
 	{
 		//We set up the left child of the sequential process/action before entering. The right will not
 		//be touched before the left has terminated
 		setLeftChild(new ConcreteCmlBehaviour(leftNode, question,new LexNameToken("",owner.name().getSimpleName() + ";",owner.name().getLocation()), owner));
-		return node;
+		return new Pair<INode,Context>(node,question);
 	}
 
 	@Override
-	public INode caseASequentialCompositionAction(
+	public Pair<INode,Context> caseASequentialCompositionAction(
 			ASequentialCompositionAction node, Context question)
 					throws AnalysisException {
 
@@ -79,7 +83,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 	}
 
 	@Override
-	public INode caseASequentialCompositionProcess(
+	public Pair<INode,Context> caseASequentialCompositionProcess(
 			ASequentialCompositionProcess node, Context question)
 					throws AnalysisException {
 
@@ -91,37 +95,50 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 	 */
 
 	@Override
-	public INode caseAHidingAction(AHidingAction node, Context question)
+	public Pair<INode,Context> caseAHidingAction(AHidingAction node, Context question)
 			throws AnalysisException {
 		//We setup the child node for the hiding operator
 		setLeftChild(new ConcreteCmlBehaviour(node.getLeft(),question,owner));
-		return node;
+		return new Pair<INode,Context>(node,question);
 	}
 	
 	@Override
-	public INode caseAHidingProcess(AHidingProcess node, Context question)
+	public Pair<INode,Context> caseAHidingProcess(AHidingProcess node, Context question)
 			throws AnalysisException {
 		//We setup the child node for the hiding operator
 		setLeftChild(new ConcreteCmlBehaviour(node.getLeft(),question,owner));
-		return node;
+		return new Pair<INode,Context>(node,question);
 	}
-
+	
 	@Override
-	public INode caseATimeoutAction(ATimeoutAction node, Context question)
-			throws AnalysisException {
-
-		//We setup the child nodes 
-		setLeftChild(new ConcreteCmlBehaviour(node.getLeft(),question,owner));
-		return node;
-	}
-
-	@Override
-	public INode caseAUntimedTimeoutAction(AUntimedTimeoutAction node,
+	public Pair<INode, Context> caseAWaitAction(AWaitAction node,
 			Context question) throws AnalysisException {
 
+		Context context = CmlContextFactory.newContext(node.getLocation(), "Wait context", question);
+		context.putNew(new NameValuePair(NamespaceUtility.getStartTimeName(),new IntegerValue(owner.getCurrentTime())));
+		
+		return new Pair<INode,Context>(node,context);
+	}
+
+	@Override
+	public Pair<INode,Context> caseATimeoutAction(ATimeoutAction node, Context question)
+			throws AnalysisException {
+
+		Context context = CmlContextFactory.newContext(node.getLocation(), "Timeout context", question);
+		context.putNew(new NameValuePair(NamespaceUtility.getStartTimeName(),new IntegerValue(owner.getCurrentTime())));
+		
 		//We setup the child nodes 
 		setLeftChild(new ConcreteCmlBehaviour(node.getLeft(),question,owner));
-		return node;
+		return new Pair<INode,Context>(node,context);
+	}
+
+	@Override
+	public Pair<INode,Context> caseAUntimedTimeoutAction(AUntimedTimeoutAction node,
+			Context question) throws AnalysisException {
+		
+		//We setup the child nodes 
+		setLeftChild(new ConcreteCmlBehaviour(node.getLeft(),question,owner));
+		return new Pair<INode,Context>(node,question);
 	}
 	
 	
@@ -131,7 +148,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 		INode createLastReplication();
 	}
 	
-	protected INode caseReplicatedAction(SReplicatedAction node, ReplicationFactory factory, Context question) throws AnalysisException
+	protected Pair<INode,Context> caseReplicatedAction(SReplicatedAction node, ReplicationFactory factory, Context question) throws AnalysisException
 	{
 		NameValuePairList replicationDecls = new  NameValuePairList();
 		Pair<SetValue,Context> pair = getCurrentReplicationValue(node.getLocation(), node.getReplicationDeclaration(),replicationDecls, question);
@@ -166,7 +183,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 			setValue.values.remove(0);
 		}
 
-		return nextNode;
+		return new Pair<INode,Context>(nextNode,question);
 	}
 
 	/**
@@ -179,7 +196,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 	 * 
 	 */
 	@Override
-	public INode caseAInterleavingReplicatedAction(
+	public Pair<INode,Context> caseAInterleavingReplicatedAction(
 			final AInterleavingReplicatedAction node, Context question)
 					throws AnalysisException {
 
@@ -209,7 +226,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 	}
 
 	@Override
-	public INode caseAGeneralisedParallelismReplicatedAction(
+	public Pair<INode,Context> caseAGeneralisedParallelismReplicatedAction(
 			final AGeneralisedParallelismReplicatedAction node, Context question)
 			throws AnalysisException {
 
@@ -240,7 +257,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 	}
 	
 	@Override
-	public INode caseASynchronousParallelismReplicatedAction(
+	public Pair<INode,Context> caseASynchronousParallelismReplicatedAction(
 			final ASynchronousParallelismReplicatedAction node, Context question)
 			throws AnalysisException {
 		
@@ -269,7 +286,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 	}
 	
 	@Override
-	public INode caseAExternalChoiceReplicatedAction(
+	public Pair<INode,Context> caseAExternalChoiceReplicatedAction(
 			final AExternalChoiceReplicatedAction node, Context question)
 					throws AnalysisException {
 
@@ -292,7 +309,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 	}
 	
 	@Override
-	public INode caseAInternalChoiceReplicatedAction(
+	public Pair<INode,Context> caseAInternalChoiceReplicatedAction(
 			final AInternalChoiceReplicatedAction node, Context question)
 			throws AnalysisException {
 		
@@ -314,7 +331,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 		}, question);
 	}
 	
-	protected INode caseReplicatedProcess(SReplicatedProcess node, ReplicationFactory factory, Context question) throws AnalysisException
+	protected Pair<INode,Context> caseReplicatedProcess(SReplicatedProcess node, ReplicationFactory factory, Context question) throws AnalysisException
 	{
 		NameValuePairList replicationDecls = new  NameValuePairList();
 		Pair<SetValue,Context> pair = getCurrentReplicationValue(node.getLocation(), node.getReplicationDeclaration(),replicationDecls, question);
@@ -349,11 +366,11 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 			setValue.values.remove(0);
 		}
 
-		return nextNode;
+		return new Pair<INode,Context>(nextNode,question);
 	}
 	
 	@Override
-	public INode caseAGeneralisedParallelismReplicatedProcess(
+	public Pair<INode,Context> caseAGeneralisedParallelismReplicatedProcess(
 			final AGeneralisedParallelismReplicatedProcess node, Context question)
 			throws AnalysisException {
 		
@@ -378,7 +395,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 	}
 
 	@Override
-	public INode caseASynchronousParallelismReplicatedProcess(
+	public Pair<INode,Context> caseASynchronousParallelismReplicatedProcess(
 			final ASynchronousParallelismReplicatedProcess node, Context question)
 					throws AnalysisException {
 		
@@ -443,7 +460,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 	}
 	
 	@Override
-	public INode caseAInterleavingReplicatedProcess(
+	public Pair<INode,Context> caseAInterleavingReplicatedProcess(
 			final AInterleavingReplicatedProcess node, Context question)
 			throws AnalysisException {
 		
@@ -544,4 +561,14 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 	/*
 	 * Non public replication helper methods -- End
 	 */
+	
+	@Override
+	public Pair<INode,Context> caseAInterruptAction(AInterruptAction node, Context question)
+			throws AnalysisException {
+		//TODO create proper names!!
+		setLeftChild(new ConcreteCmlBehaviour(node.getLeft(), question, new LexNameToken("","left /_\\",new LexLocation()), owner));
+		setRightChild(new ConcreteCmlBehaviour(node.getRight(), question, new LexNameToken("","/_\\ right",new LexLocation()), owner));
+		
+		return new Pair<INode,Context>(node,question);
+	}
 }

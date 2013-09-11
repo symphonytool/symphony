@@ -19,6 +19,7 @@ import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.Level;
 
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CommonTokenStream;
@@ -35,6 +36,7 @@ import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.analysis.pog.obligations.CmlPOContextStack;
 import eu.compassresearch.core.analysis.pog.visitors.ProofObligationGenerator;
+import eu.compassresearch.core.interpreter.CmlRuntime;
 import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
@@ -321,7 +323,7 @@ public class CheckCml {
 
 		for (PSource source : sources) {
 			try {
-				System.out.print(" Running " + getAnalysisName(analysis)
+				System.out.println(" Running " + getAnalysisName(analysis)
 						+ " on " + source.toString() + " ");
 				analysis.apply(source);
 				System.out.println();
@@ -533,11 +535,13 @@ public class CheckCml {
 					AnalysisRunAdaptor re = new AnalysisRunAdaptor(null) {
 						public void apply(INode root) throws AnalysisException {
 							try {
+								CmlRuntime.logger().setLevel(Level.FINE);
+								CmlRuntime.setShowHiddenEvents(false);
 								interpreter.setDefaultName(Switch.EXEC.getValue());
 								
 								CmlSupervisorEnvironment sve = 
 										VanillaInterpreterFactory.newDefaultCmlSupervisorEnvironment(new RandomSelectionStrategy());
-								
+								interpreter.initialize();
 								interpreter.execute(sve);
 							} catch (Exception e) {
 

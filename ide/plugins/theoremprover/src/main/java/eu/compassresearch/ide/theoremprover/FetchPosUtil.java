@@ -24,7 +24,7 @@ import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
 import eu.compassresearch.ide.pog.POConstants;
 import eu.compassresearch.ide.pog.PogPluginDoStuff;
 import eu.compassresearch.ide.ui.utility.CmlProjectUtil;
-import eu.compassresearch.theoremprover.IsabelleTheory;
+import eu.compassresearch.core.analysis.theoremprover.IsabelleTheory;
 
 public class FetchPosUtil
 {
@@ -39,103 +39,107 @@ public class FetchPosUtil
 		this.project = project;
 	}
 
+	/**
+	 * This operation is called by the POG perspective and needs some attention... Currently it is repeating some of the thy gen code 
+	 * and this can be cut - needs to consider how best to ensure thy file is available, and then gen a new thy file for the POs. 
+	 */
 	public void fetchPOs()
 	{
-		try
-		{
-			Isabelle isabelle = IsabelleCore.isabelle();
-			Session session = null;
-
-			if (isabelle.session().isDefined())
-			{
-				session = isabelle.session().get();
-			} else
-			{
-				popErrorMessage("Isabelle is not started. See http://www.cl.cam.ac.uk/research/hvg/Isabelle/");
-				return;
-			}
-
-			if (tpListener == null)
-			{
-				tpListener = new TPListener(isabelle.session().get(), new IPoStatusChanged() {
-					
-					@Override
-					public void statusChanges(IProofObligation po) {
-						CmlProofObligationList poList = project.getModel().getAttribute(POConstants.PO_REGISTRY_ID, CmlProofObligationList.class);
-						
-						PogPluginDoStuff.redrawPos(project, poList);
-						
-					}
-				});
-				tpListener.init();
-			}
-
-
-			if (project == null)
-			{
-				popErrorMessage("No project selected.");
-				return;
-			}
-
-			if (CmlProjectUtil.typeCheck(shell, project))
-			{
-				ICmlModel model = project.getModel();
-				
-				CmlProofObligationList poList = model.getAttribute(POConstants.PO_REGISTRY_ID, CmlProofObligationList.class);
-				
-				if (poList == null)
-				{
-					popErrorMessage("There are no Proof Oligations to discharge.");
-					return;
-				}
-				
-				//Translate CML specification files to Isabelle
-				IFolder output = project.getModelBuildPath().getOutput().getFolder(new Path("Isabelle"));
-				if(!output.exists())
-				{
-					if (!output.getParent().exists())
-					{
-						((IFolder) output.getParent()).create(true, true, new NullProgressMonitor());
-							
-					}
-					output.create(true, true, new NullProgressMonitor());
-					output.refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());
-				}
-				
-				for (ICmlSourceUnit sourceUnit : model.getSourceUnits())
-				{
-					String name = sourceUnit.getFile().getName();
-					String thyFileName = name.substring(0,name.length()-sourceUnit.getFile().getFileExtension().length())+".ity";
-					translateCmltoThy(sourceUnit,output.getFile(thyFileName));
-				}
-
-				IsabelleTheory ithy = model.getAttribute(ITpConstants.PLUGIN_ID, IsabelleTheory.class);
-
-					if (ithy == null )
-					{
-						IProject p = ((IProject) project.getAdapter(IProject.class));
-						String thyName = p.getName()+"_POs";
-						ithy = new IsabelleTheory(session, thyName,output.getLocation().toString());
-						ithy.init();
-						TPPluginUtils2.addThyToListener(ithy, tpListener, model);
-
-						model.setAttribute(ITpConstants.PLUGIN_ID, ithy);
-					    Object bob = model.getAttribute(ITpConstants.PLUGIN_ID, IsabelleTheory.class);
-					    System.out.println(bob.toString());
-					}
-
-					for (IProofObligation po : poList)
-					{
-						ithy.addThm(ithy.new IsabelleTheorem("po" + po.getUniqueName(), "True", "auto"));
-					}
-			}
-
-		} catch (Exception e)
-		{
-			e.printStackTrace();
-			popErrorMessage(e.getMessage());
-			Activator.log(e);
-		}
+//		try
+//		{
+//			Isabelle isabelle = IsabelleCore.isabelle();
+//			Session session = null;
+//
+//			if (isabelle.session().isDefined())
+//			{
+//				session = isabelle.session().get();
+//			} else
+//			{
+//				popErrorMessage("Isabelle is not started. See http://www.cl.cam.ac.uk/research/hvg/Isabelle/");
+//				return;
+//			}
+//
+//			if (tpListener == null)
+//			{
+//				tpListener = new TPListener(isabelle.session().get(), new IPoStatusChanged() {
+//					
+//					@Override
+//					public void statusChanges(IProofObligation po) {
+//						CmlProofObligationList poList = project.getModel().getAttribute(POConstants.PO_REGISTRY_ID, CmlProofObligationList.class);
+//						
+//						PogPluginDoStuff.redrawPos(project, poList);
+//						
+//					}
+//				});
+//				tpListener.init();
+//			}
+//
+//
+//			if (project == null)
+//			{
+//				popErrorMessage("No project selected.");
+//				return;
+//			}
+//
+//			if (CmlProjectUtil.typeCheck(shell, project))
+//			{
+//				ICmlModel model = project.getModel();
+//				
+//				CmlProofObligationList poList = model.getAttribute(POConstants.PO_REGISTRY_ID, CmlProofObligationList.class);
+//				
+//				if (poList == null)
+//				{
+//					popErrorMessage("There are no Proof Oligations to discharge.");
+//					return;
+//				}
+//				
+//				//Translate CML specification files to Isabelle
+//				IFolder output = project.getModelBuildPath().getOutput().getFolder(new Path("Isabelle"));
+//				if(!output.exists())
+//				{
+//					if (!output.getParent().exists())
+//					{
+//						((IFolder) output.getParent()).create(true, true, new NullProgressMonitor());
+//							
+//					}
+//					output.create(true, true, new NullProgressMonitor());
+//					output.refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());
+//				}
+//				
+//				for (ICmlSourceUnit sourceUnit : model.getSourceUnits())
+//				{
+//					String name = sourceUnit.getFile().getName();
+//					String thyFileName = name.substring(0,name.length()-sourceUnit.getFile().getFileExtension().length())+".ity";
+//					translateCmltoThy(sourceUnit,output.getFile(thyFileName));
+//				}
+//
+//				IsabelleTheory ithy = model.getAttribute(TPConstants.PLUGIN_ID, IsabelleTheory.class);
+//
+//					if (ithy == null )
+//					{
+//						IProject p = ((IProject) project.getAdapter(IProject.class));
+//						String thyName = p.getName()+"_POs";
+//						ithy = new IsabelleTheory(session, thyName,output.getLocation().toString());
+//						ithy.init();
+//						TPPluginUtils2.addThyToListener(ithy, tpListener, model);
+//
+//						model.setAttribute(TPConstants.PLUGIN_ID, ithy);
+//					    Object bob = model.getAttribute(TPConstants.PLUGIN_ID, IsabelleTheory.class);
+//					    System.out.println(bob.toString());
+//					}
+//
+//					for (IProofObligation po : poList)
+//					{
+//						ithy.addThm(ithy.new IsabelleTheorem("po" + po.getUniqueName(), "True", "auto"));
+//					}
+//			}
+//
+//		} catch (Exception e)
+//		{
+//			e.printStackTrace();
+//			popErrorMessage(e.getMessage());
+//			Activator.log(e);
+//		}
 
 	}
 

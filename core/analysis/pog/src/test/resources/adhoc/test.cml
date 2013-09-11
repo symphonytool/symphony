@@ -1,327 +1,404 @@
---
--- BeDOZa Ideal Model
---
--- Author: Rasmus Lauritsen, Aarhus University
--- Created: 2013 Feb
---
---
--- Purpose: 
---
--- The purpose of this model is to get a view of how ideal  
--- version of the BeDOZa can be modelled in CML_1. 
--- 
---
--- This is work carried out in the European FP 7 Project 
--- COMPASS grant 287829.
--- 
+ types
+
+	public SUBS = token
+	public STATUS = (<connecting> | <engaged> | <ringing> | <speech> | <suspended>)
+	public MSG = (<vcallmsg> | <vclearmsg> | <callokmsg> | <callerrormsg>)
+
+
+values
+	Connected = {<ringing>,<speech>,<suspended>}
+	n: nat = 0
+	LOC = {1,...,n-1}
+	 
 types
-  -- -~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~
-  -- Type Value
-  --  
-  -- The Value type is used for values in the underlying 
-  -- field.
-  --
-  -- -~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~
-  Value = int
-  
-  -- -~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~
-  -- Type ValueID
-  -- 
-  -- The ValueID type is for refering to a the 
-  -- representation of a shared value.
-  --
-  -- -~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~
-    ValueID = nat
-    
-  -- -~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~
-  -- Type PartyID
-  --
-  -- Every party has a unique ID of type PartyID 
-  -- -~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~
-  PartyID = nat
+ 	public LOCType = nat inv l == l >= 1 and l < n
 
-  --
-  -- An Add instruction for the MPC protocol
-  -- [*] id1 is the id for the left operand to add
-  -- [*] id2 is the id for the second operand to add
-  -- [*] rid is the id for the result of the add operation
-  --
-  Add :: 
-          id1 : ValueID
-          id2 : ValueID
-          rid : ValueID
-    inv add == 
-        add.id1 <> add.id2 and 
-        add.id1 <> add.rid and 
-        add.id2 <> add.rid
-    --
-    -- A Multiplication instruction for the MPC protocol
-    -- [*] id1 is the id for the left operand 
-    -- [*] id2 is the id for the right operand
-    -- [*] rid is the id for the result
-    --
-    Mul ::
-            id1 : ValueID
-            id2 : ValueID
-            rid : ValueID
-    inv mul ==  
-        mul.id1 <> mul.id2 and 
-        mul.id1 <> mul.rid and 
-        mul.id2 <> mul.rid
-    --
-    -- A Minimum instruction for the MPC protocol
-    -- [*] id1 is the left operand  
-    -- [*] id2 is the right operand 
-    -- [*] rid is the id for the result  
-    --
-    Min ::
-            id1 : ValueID
-            id2 : ValueID
-            rid : ValueID
-    inv min == 
-            min.id1 <> min.id2 and 
-            min.id1 <> min.rid and 
-            min.id2 <> min.rid
-    
-    --
-    -- An input instruction inputs a value to the circuit 
-    -- [*] is the id the inputted value shall have
-    -- [*] pid is the party inputting the value 
-    --
-    Inp ::
-            vid : ValueID
-            pid : PartyID
-    
-    --
-    -- Open a value as output to a party 
-    -- [*] id is the id of the value to output
-    -- [*] party is the PartyID of the 
-    --
-    Out ::
-            id : ValueID
-            party: PartyID
-            
-    --
-    -- An MPC circuit consists of any combination of the 
-    -- above instructions.  
-    --
-    MpcInstructionSet = Add | Mul | Min | <Abort> | <Stop>
-    
-    --
-    -- An MPC circuit is defined to be a sequence of 
-    -- MpcInstructionSet 
-    --
-    Circuit =  seq of MpcInstructionSet
+functions
+	next(i: nat) j: nat
+	pre 
+		i in set LOC    
+	post 
+		j = (i+1) mod n 
 
-
+	home(i: nat) s: set of SUBS
+	pre
+		i in set LOC
+	post
+		forall j in set LOC @ s inter home(j) = {}
+	 
+	callers: (map SUBS to STATUS) +> (set of SUBS)
+	callers(status) == dom(status :> Connected)
+		
+	connected: (map SUBS to STATUS) * (map SUBS to SUBS) +> (inmap SUBS to SUBS)
+	connected(status,number) == callers(status) <: number
+		
+	free: (map SUBS to STATUS) * (map SUBS to SUBS) * (set of SUBS) +> (set of SUBS)
+	free(status,number,subs) == subs \ dom(status) \ rng(connected(status,number))
+		
+	connectable: (map SUBS to STATUS) * (map SUBS to SUBS) +> (set of SUBS)
+	connectable(status,number) == rng((dom(status:>{<connecting>}))<:number)
+		
+	suspendable: (map SUBS to STATUS) * (map SUBS to SUBS) +> (set of SUBS)
+	suspendable(status,number) == rng((dom(status:>{<speech>}))<:connected(status,number))
+		
+	ringing: (map SUBS to STATUS) * (map SUBS to SUBS) +> (set of SUBS)
+	ringing(status,number) == rng((dom(status:>{<ringing>}))<:connected(status,number))
+		
+	suspended: (map SUBS to STATUS) * (map SUBS to SUBS) +> (set of SUBS)
+	suspended(status,number) == rng((dom(status:>{<suspended>}))<:connected(status,number))
+	 
 channels
-  input: PartyID * Value
-  output: PartyID  * Value
+	init
+	call: SUBS*SUBS
+	clear, suspend: SUBS
+	answer, unsuspend: SUBS
+	callok clearok suspendok answerok unsuspendok
+	callerror clearerror suspenderror answererror unsuspenderror
+	connectfree, connnectbusy: SUBS
+	left, right : nat
+	-- RWL TC:
+	mid: MSG * nat * nat * SUBS * SUBS
+	link: nat * MSG * nat * nat * SUBS * SUBS
 
--- -~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~
--- Process AMPC for ONLINE BeDOZa
---
---  circuit  : circuit     - the circuit to compute
---  
--- This process is the ideal functionality for AMPC 
--- it is initialised with the circuit to compute.
--- -~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~
-process AMPC = 
-  val circuit : Circuit 
-@
-  begin
-    state
-      memory       : map ValueID to Value
-      mycircuit    : Circuit := circuit
-      
-    operations
-     NextInstr: () ==> MpcInstructionSet
-     NextInstr() == 
-     (dcl result : MpcInstructionSet := hd mycircuit @
-       mycircuit := tl mycircuit ; 
-       return result)
-     
-    actions
-      Ready =
-      if (len(mycircuit) = 0)
-      then Skip 
-      else 
-      (dcl
-        curinstr : MpcInstructionSet := NextInstr()
-      @
-        cases curinstr :  
-         mk_Inp(pid,vid) -> 
-           input!pid?v -> 
-             memory(vid) := v ; Ready, 
-         mk_Out(pid,vid) -> 
-           output!pid!(memory(vid)) -> 
-             Skip,
-         mk_Add(vid1,vid2,vid3) ->
-           (dcl
-             v1 : Value := memory(vid1),
-             v2 : Value := memory(vid2)
-           @
-             memory(vid3) := v1 + v2
-           ) ; Ready, 
-         mk_Mul(vid1,vid2,vid3) ->
-           (dcl
-             v1 : Value := memory(vid1),
-             v2 : Value := memory(vid2)
-           @
-             memory(vid3) := v1 * v2
-           ) ; Ready,
-         mk_Min(vid1,vid2,vid3) ->
-           (dcl
-             v1 : Value := memory(vid1),
-             v2 : Value := memory(vid2)
-           @
-             if (v1 < v2) 
-             then 
-               memory(vid3) := v1
-             else
-               memory(vid3) := v2
-           ) ; Ready,
-          others -> Stop
-        end
-      )
-  @
-    Ready
+class Exchange =
+begin
+ 
+
+	state
+		public lSUBS: set of SUBS 	-- this is actually the parameter of the process. 
+						-- because I need the name to be in scope,
+						-- I've put it in the state of the class.
+
+		public status: map SUBS to STATUS
+		public number: map SUBS to SUBS
+		public subs: set of SUBS
+
+		inv
+			exists n1: nat @ card(subs) = n1 and -- is card a partial or total function?
+			dom(status) = dom(number) and
+			dom(number) subset subs --and
+			--is_(dom(dom(status :> Node`Connected) <: number)) 
+			--,inmap Node.SUBS to Node.SUBS)
+			
+			
+	functions
+--		callers: (map SUBS to STATUS) +>  (set of SUBS)
+--		callers(status) == dom(status :> Connected)
+		
+--		connected: (map SUBS to STATUS) * (map SUBS to SUBS) +> (inmap SUBS to SUBS)
+--		connected(status,number) == callers(status) <: number
+		
+--		free: (map SUBS to STATUS) * (map SUBS to SUBS) * (set of SUBS) +> (set of SUBS)
+--		free(status,number,subs) == subs \ dom(status) \ rng(connected(status,number))
+		
+--		connectable: (map SUBS to STATUS) * (map SUBS to SUBS) +> (set of SUBS)
+--		connectable(status,number) == rng((dom(status:>{<connecting>}))<:number)
+		
+--		suspendable: (map SUBS to STATUS) * (map SUBS to SUBS) +> (set of SUBS)
+--		suspendable(status,number) == rng((dom(status:>{<speech>}))<:connected(status,number))
+		
+--		ringing: (map SUBS to STATUS) * (map SUBS to SUBS) +> (set of SUBS)
+--		ringing(status,number) == rng((dom(status:>{<ringing>}))<:connected(status,number))
+		
+--		suspended: (map SUBS to STATUS) * (map SUBS to SUBS) +> (set of SUBS)
+--		suspended(status,number) == rng((dom(status:>{<suspended>}))<:connected(status,number))
+		
+	operations
+		private InitExchange(a : int)  
+		frame wr status, number, subs
+		      rd lSUBS
+		post 
+			status = {|->} and 
+			number = {|->} and 
+			subs = lSUBS
+		
+		Add (s: SUBS)
+		frame wr subs
+		post 
+			subs = subs~ union {s}
+		
+		Del (s: SUBS)
+		frame wr subs
+		post 
+			subs = subs~ \ {s}
+		
+		Call (s,t: SUBS)
+		frame wr status, number
+			rd subs
+		pre 
+			s in set subs and 
+			t in set subs and 
+			s in set free(status,number,subs)
+		post 
+			status = status~ ++ {s |-> <connecting>} and 
+			number = number~ ++ {s |-> t}
+		
+		Clear (s,t: SUBS)
+		frame wr status, number
+			rd subs
+		pre 
+			s in set subs and 
+			t in set subs and 
+			s in set dom(status) and 
+			t = number(s)
+		post 
+			status = {s}<-: status~ and number = {s}<-: number~
+		
+		Suspend(s,t: SUBS)
+		frame wr status
+			rd subs, number
+		pre 
+			s in set subs and
+			t in set subs and
+			s in set dom(status) and
+			status(s) = <speech> and
+			t = number(s)
+		post
+			status = status~ ++ {s |-> <suspended>}
+			
+		ConnectFree(s,t: SUBS)
+		frame wr status
+			rd subs, number
+		pre 
+			s in set subs and 
+			t in set subs and
+			s in set dom(status) and
+			status(s) = <connecting> and
+			t = number(s) and
+			t not in set rng(connected(status,number))
+		post
+			status = status~ ++ {s |-> <ringing>}
+			
+		ConnectBusy(s,t: SUBS)
+		frame wr status
+			rd subs, number
+		pre 
+			s in set subs and 
+			t in set subs and
+			s in set dom(status) and
+			status(s) = <connecting> and
+			t = number(s) and
+			t in set rng(connected(status,number))
+		post
+			status = status~ ++ {s |-> <engaged>}
+			
+		Answer(s,t: SUBS)
+		frame wr status
+			rd subs, number
+		pre 
+			s in set subs and 
+			t in set subs and
+			s in set dom(status) and
+			status(s) = <ringing> and
+			t = number(s)
+		post
+			status = status~ ++ {s |-> <speech>}
+				
+		Unsuspend(s,t: SUBS)
+		frame wr status
+			rd subs, number
+		pre 
+			s in set subs and 
+			t in set subs and
+			s in set dom(status) and
+			status(s) = <suspended> and
+			t = number(s)
+		post
+			status = status~ ++ {s |-> <speech>}
 end
 
--- -~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~
--- Process Party for ONLINE BeDOZa
---
---  partyID   : PartyID      - the id this Party shall have 
---  inputs    : seq of Value - private inputs for this party
---  nooutputs : int          - number of expected output before
---                             successful termination.
--- 
--- The Party process participates in given its inpus to 
--- the ideal AMPC functionality and in receiving output
--- from the AMPC. 
--- -~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~
-process Party = 
-    val partyID     : PartyID, 
-    val inputs      : seq of Value,
-    val nooutputs   : int
-@
-  begin
-    state
-      myinputs : seq of Value := inputs
-      mynoo    : int := nooutputs
-    operations
-      
-      NextInput: () ==> Value
-      NextInput() == 
-      (dcl 
-        result : Value := hd myinputs 
-      @
-        myinputs := tl myinputs
-      )
-       
-    actions 
-        GiveInput  = if (len(myinputs) = 0)
-                    then Skip
-                    else (input?myid!(NextInput()) -> GiveInput)
-                    
-        TakeOutput = if (nooutputs - mynoo = 0) 
-                     then Skip
-                     else ( mynoo := mynoo + 1 ; TakeOutput ) 
-        Done = Skip
-    @ GiveInput ; TakeOutput ; Done
-  end
-  
-  
-values
-    -- ~-~-~-~-~-~-~-~-~-~-~-~-~-~~-~-~-~-~-~-~-~-~-~-~
-    -- SCENARIO: Three party double auction
-    --
-    -- Prices = [ 10, 20, 30 ]
-    -- 
-    -- Mnemomic   |        Bids         | PartyID  
-    -- Buyer   =  [  8,  4,  2 ]          0
-    -- Seller1 =  [  3,  5,  6 ]          1
-    -- Seller2 =  [  0,  1,  10]          2
-    -- Seller3 =  [  2,  4,   8]          3
-    --
-    -- Deffic =   [ -3,  6,  22] 
-    --
-    -- The expected clearing price for the double auction 
-    -- above is 10 as the absolute of the Deficiency of 
-    -- the market is lowest at that price.     
-    --
-    ThreePartyDoubleAuction: Circuit =
-    [  
-        mk_Inp( 0,0), -- Party 0 inputs value at id 0
-        mk_Inp( 1,0), -- Party 0 inputs value at id 1
-        mk_Inp( 2,0), -- Party 0 inputs value at id 2
-        mk_Inp( 3,1), -- Party 1 inputs value at id 3
-        mk_Inp( 4,1), -- Party 1 inputs value at id 4
-        mk_Inp( 5,1), -- Party 1 inputs value at id 5
-        mk_Inp( 6,2), -- Party 2 inputs value at id 6
-        mk_Inp( 7,2), -- Party 2 inputs value at id 7
-        mk_Inp( 8,2), -- Party 2 inputs value at id 8
-        mk_Inp( 9,3), -- Party 3 inputs value at id 9
-        mk_Inp(10,3), -- Party 3 inputs value at id 10
-        mk_Inp(11,3), -- Party 3 inputs value at id 11
-        
-        -- Compute the total supply for price 10:
-        mk_Add(3,6,12),-- Add Seller1 bid at price 10
-                       -- with Seller2 bid at price 10
-                       -- store the result with id 12
-                                   
-        mk_Add(12,9,13),-- Add Seller3 bid at price 10
-                        -- to the sum above and store
-                        -- the result with id 13
-        -- Total supply is store in 13 for price 10
-        
-        -- Compute the total supply for price 20:
-        mk_Add(4,7,14),
-        mk_Add(14,10,15),
-        -- Total supply is stored in 15 for price 20
-        
-        -- Compute the total supply for price 20:
-        mk_Add(5,8,16),
-        mk_Add(16,11,17),
-        -- Total supply is stored in 17 for price 30
-        
-        -- Compute the total Demand at each price
-        -- is alread done as there is only one buyer.
-        
-        -- Compute difference between supply and demand
-        -- we assume as for the AMPC and Single System
-        -- models that demand is given as negative 
-        -- numbers and demand is given as positive
-        -- numbers.
-        mk_Add(13,0,20), 
-        mk_Add(15,1,21),
-        mk_Add(17,2,22),
-         -- Compute the min value in 20,21,22 and
-        -- store the result in 24 using 23 as inter-
-        -- mediate result.
-        mk_Min(20,21,23),
-        mk_Min(23,22,24),
-        
-        -- Everybody learns the output
-        mk_Out(24,0), 
-        mk_Out(24,1), 
-        mk_Out(24,2),
-        mk_Out(24,3)
-     ]                 
--- ~-~-~-~-~-~-~-~-~-~-~-~-~-~~-~-~-~-~-~-~-~-~-~-~
--- Instantiate participating processes
--- ~-~-~-~-~-~-~-~-~-~-~-~-~-~~-~-~-~-~-~-~-~-~-~-~     
-process IdealF  = AMPC(ThreePartyDoubleAuction)
 
-values 
- inputs : seq of (seq of int) = [ [-8,-4, -2],[3,5,6],
-                                  [0,1,10],[2,4,8] ]
-                                  
-process Auction = ||| k in set {0,1,2,3} @ 
-                    ( Party(k,inputs(k),1) 
-                        [| {| input.i | i in set {k} |} union 
-                           {| output.i | i in set {k} |} |]  
-                      IdealF
-                    )
-                  
-                    
+process ExchangeProc = lSUBS: set of SUBS @ begin -- there's not type "finite set of", and there's not way of putting an invariant at this point
+	state ex : Exchange 
+	
+	actions
+		Exch = 
+				call?s: (s in set ex.subs)?t: (t in set ex.subs) -> 
+					(if s in set free(ex.status,ex.number,ex.subs) then callok -> ex.Call(s,t)
+					else callerror -> Skip); Exch
+	
+				[]
+				clear?s: (s in set lSUBS) ->
+					(if s in set dom(ex.status) then clearok -> 
+						(dcl t: SUBS @ t := ex.number(s); ex.Clear(s,t))
+					else clearerror -> Skip); Exch
+		
+				[]
+				suspend?t: (t in set lSUBS) ->
+					(if t in set suspendable(ex.status,ex.number) then suspendok ->
+						(dcl s: SUBS @ s := ex.number(t); ex.Suspend(s,t))
+					else suspenderror -> Skip); Exch
+				[]
+				connectfree?s: (s in set connectable(ex.status,ex.number) union free(ex.status,ex.number,ex.subs)) ->
+					(dcl t: SUBS @ t:=ex.number(s); ex.ConnectFree(s,t)); Exch
+
+				[]
+
+				connectbusy?s: (s in set connectable(ex.status,ex.number) \ free(ex.status,ex.number,ex.subs)) ->
+					(dcl t: SUBS @ t:=ex.number(s); ex.ConnectBusy(s,t)); Exch
+				[]
+				answer?t: (t in set ex.subs) ->
+					(if t in set ringing(ex.status,ex.number) then answerok ->
+						(dcl s: SUBS @ s:=ex.number(t); ex.Answer(s,t))
+					else answererror -> Skip); Exch
+				[]
+				unsuspend?t: (t in set ex.subs) ->
+					(if t in set suspended(ex.status,ex.number) then unsuspendok ->
+						(dcl s: SUBS @ s:=ex.number(t); ex.Unsuspend(s,t))
+					else unsuspenderror -> Skip); Exch
+		
+		@ init -> ex.InitExchange(42); Exch
+end		
+
+
+class NodeState =
+begin		
+	
+	functions
+--		next(i: nat) j: nat
+--		pre
+--			i in set LOC
+--		post
+--			j = (i+1) mod n
+
+--		home(i: nat) s: set of SUBS
+--		pre
+--			i in set LOC
+--		post
+--			forall j in set LOC @ s inter home(j) = {}
+	
+	state
+		i: nat -- process parameter
+		away: map SUBS to nat
+		origin: map SUBS to nat
+		inv
+			i in set LOC and
+			rng(away) subset LOC and
+			rng(origin) subset LOC and
+			dom(away) subset home(i) and
+			dom(origin) inter home(i) = {}
+			
+	operations
+		InitNode ()
+		frame wr away, origin
+		post
+			away = { |-> } and
+			origin = { |-> } 
+			
+end  
+
+channels
+	my_init
+	my_call: SUBS*SUBS
+	my_clear,my_suspend,my_connectfree,my_connectbusy,connectbusy: SUBS
+	my_answer,my_unsuspend: SUBS
+	my_callok,my_clearok,my_suspendok,my_answerok,my_unsuspendok
+	my_callerror,my_clearerror,my_suspenderror,my_answererror,my_unsuspenderror
+	my_del,my_add: SUBS
+	my_addok,my_delok
+	my_delerror
+	
+process NodeProc = i: nat @ begin -- no way of putting an invariant here. we could define LOC as a type instead of a constant.
+--	state Node
+	state n: NodeState
+	actions
+		Node = 
+--			call?s -> (s in set ( home(i)\(dom(n.away))))?t:(t in set home(i) \ (dom(n.away))) ->
+--				my_call!s!t -> (my_callok -> callok -> Skip [] my_callerror -> callerror -> Skip); Node
+--			[] -- RWL I need other eyes on this 
+			call?s?t -> [ (s in set dom(n.away)) ] & callerror -> Node
+			[]
+			call?s?t -> [ (s in set home(i)) and (t not in set home(i)) ] & 
+				(dcl m:nat := 1 @ -- was [true,t in set home(m)]; --- RWL TC: Syntax error meaning not clear !
+							  n.away := n.away ++ {s |-> m};
+							  mid!(<vcallmsg>)!i!m!s!t -> Skip); Node
+			[]
+			clear?s?t -> [ (s in set home(i) \ (dom(n.away))) and (t in set home(i) \ (dom(n.away))) ] &
+				my_clear!s!t -> (my_clearok -> clearok -> Skip [] my_clearerror -> clearerror -> Skip); Node
+			[]
+			clear?s?t -> [ (s in set dom(n.away)) and (t not in set home(i)) ] &
+				mid!(<vclearmsg>)!i!(n.away(s))!s!t -> n.away:={s}<-:n.away; Node
+			[]
+			suspend?s -> [ (s in set home(i))] & my_suspend!s ->
+				(my_suspendok -> suspend.(mk_token("ok")) -> Skip [] my_suspenderror -> suspenderror -> Skip); Node
+			[]
+			answer?t -> [ (t in set home(i)) ] & my_answer!t ->
+				(my_answerok -> answerok -> Skip [] my_answererror -> answererror -> Skip ); Node
+			[]
+			suspend?t -> [ (t in set home(i)) ] & my_unsuspend!t ->
+				(my_unsuspendok -> unsuspendok -> Skip
+				[]
+				my_unsuspenderror -> unsuspenderror -> Skip); Node
+			[]
+			link!i!(<vcallmsg>)?j?k?s?t ->
+				(if k = i then my_add!s ->
+					(my_addok -> my_call!s!t -> 
+						(my_callok -> mid!(<callokmsg>)!j!j!s!t -> Skip
+						[]
+						-- RWL TC: mu is an operator and not defined as a channel?
+						Skip -- mu.callerror -> mid!callerrormsg!j!j!s!t -> Skip)
+					[]
+					-- RWL TC: mu is an operator and not defined as a channel?
+					Skip)) -- mu.adderror -> mid!callerrormsg!j!j!s!t -> Skip)
+				else mid!(<vcallmsg>)!j!k!s!t -> Skip); Node
+			[]
+			link.i.(<vclearmsg>)?j?k?s?t ->
+				(if k = i then my_clear!s ->
+					(my_clearok -> my_del!s ->
+						(my_delok -> clearok -> Skip
+						[]
+						my_delerror -> clearerror -> Skip)
+					[]
+					my_clearerror -> clearerror -> Skip)
+				else mid!(<vclearmsg>)!j!k!s!t -> Skip); Node
+			[]
+			link.i.(<callokmsg>)?j?k?s?t ->
+				(if k = i then callok -> Skip
+				else mid.(<callokmsg>)!j!k!s!t -> Skip); Node
+			[]
+			link.i.(<callerrormsg>)?j?k?s?t ->
+				(if k = i then callerror -> Skip
+				else mid.(<callerrormsg>)!j!k!s!t -> Skip); Node
+				
+				
+		@ init -> my_init -> n.InitNode(); Node
+end
+
+process LinkProc = i: nat @ begin
+	@ mu X @ (mid?msg?l?m?s?t -> link.(next(i)).msg!l!m!s!t -> X)
+end
+-- RWL TC: parser does not accept advanced channel names yet ! mid.i changed to mid
+process NodeLinkProc = i: nat @ begin @ Skip end -- (NodeProc(i) [| { mid } |] LinkProc(i)) \ { mid }
+
+process SlaveExchangeProc = i: LOCType @
+	(ExchangeProc(home(i))) [[
+		call <- my_call, clear <- my_clear, suspend <- my_suspend,
+		connectfree <- my_connectfree, connectbusy <- my_connectbusy,
+		answer <- my_answer, unsuspend <- my_unsuspend,
+		callok <- my_callok, clearok <- my_clearok,
+		suspendok <- my_suspendok, answerok <- my_answerok,
+		unsuspendok <- my_unsuspendok,
+		callerror <- my_callerror, clearerror <- my_clearerror,
+		suspenderror <- my_suspenderror, answererror <- my_answererror, 
+		unsuspenderror <- my_unsuspenderror]]
+		
+chansets
+	SlaveChannels = {| call, clear, suspend, connectfree,
+					   my_connectbusy, answer, unsuspend,
+					   callok, clearok,my_suspendok,answerok,
+					   unsuspendok,callerror,clearerror,suspenderror,
+					   answererror,unsuspenderror |}
+    -- RWL TC: This is not valid CML, a channel set cannot take parameters
+	-- RingChannels(i: nat) = {| left.i, right.i |}
+	RingChannels = {| left, right |}
+
+process NodeLink = val i : nat @ begin @ Skip end				   
+process NodeLinkExchange = i: nat @
+	(NodeLink(i) [| { SlaveChannels } |] SlaveExchangeProc(i)) \\ SlaveChannels
+
+
+-- in this case i can range over LOC because we made it possible in the syntax, perhaps we should change to "i in set"
+-- for all iterated except for sequential composition which should be someting like "i in seq".
+ 
+process ExchangeSoS = || i: LOCType @ [ RingChannels /*(i)*/ ] NodeLinkExchange(i)
+
