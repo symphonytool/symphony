@@ -4,7 +4,8 @@ public enum CmlRequest {
 
 	CHOICE,
 	SETUP,
-	GET_STACK_FRAMES;
+	GET_STACK_FRAMES,
+	GET_CONTEXT_PROPERTIES;
 	
 	@Override
 	public String toString()

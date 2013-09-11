@@ -4,13 +4,9 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.overture.ast.lex.LexLocation;
-
 import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
-import eu.compassresearch.core.interpreter.api.values.CmlOperationValue;
-import eu.compassresearch.core.interpreter.utility.LocationExtractor;
 
 /**
  * Represents the status of the interpreter at a specific simulation point. 
@@ -105,7 +101,7 @@ public class CmlInterpreterStateDTO {
 			return null;
 	}
 
-	public void AddError(InterpreterErrorDTO error) {
+	public void addError(InterpreterErrorDTO error) {
 
 		if(errors == null)
 			errors = new InterpreterErrorDTO[]{error};

@@ -9,18 +9,24 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Scanner;
+import java.util.Map.Entry;
 import java.util.Set;
+import java.util.Vector;
 import java.util.concurrent.SynchronousQueue;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.intf.lex.ILexLocation;
+import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ValueException;
+import org.overture.interpreter.values.SeqValue;
+import org.overture.interpreter.values.SetValue;
+import org.overture.interpreter.values.UpdatableValue;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.core.interpreter.CmlRuntime;
+import eu.compassresearch.core.interpreter.Console;
 import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
@@ -44,6 +50,7 @@ import eu.compassresearch.core.interpreter.debug.messaging.MessageContainer;
 import eu.compassresearch.core.interpreter.debug.messaging.RequestMessage;
 import eu.compassresearch.core.interpreter.debug.messaging.ResponseMessage;
 import eu.compassresearch.core.interpreter.utility.LocationExtractor;
+import eu.compassresearch.core.parser.CmlParser.instanceVariableDefinition_return;
 
 /**
  * Implements a CmlDebugger that communicates through sockets
@@ -61,7 +68,7 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 	private BufferedReader requestReader;
 	private boolean connected = false;
 	private CmlInterpreter runningInterpreter;
-	private InterpreterExecutionMode currentMode = null;
+//	private InterpreterExecutionMode currentMode = null;
 
 	/**
 	 * Response Queue
@@ -149,7 +156,7 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 		CmlSupervisorEnvironment sve = 
 				VanillaInterpreterFactory.newDefaultCmlSupervisorEnvironment(new SelectionStrategy() {
 
-					private Scanner scanIn = new Scanner(System.in);
+					/*private Scanner scanIn = new Scanner(System.in);*/
 					private RandomSelectionStrategy rndSelect = new RandomSelectionStrategy();
 
 					private boolean isSystemSelect(CmlTransitionSet availableChannelEvents)
@@ -260,6 +267,13 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 
 	private void stopped(CmlInterpreterStateDTO status)
 	{
+		if(status!=null && status.hasErrors())
+		{
+			for (InterpreterErrorDTO error : status.getErrors())
+			{
+				Console.err.println(error);
+			}
+		}
 		sendStatusMessage(status);
 		commandDispatcher.stop();
 	}
@@ -347,7 +361,7 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 			return false;
 		case SET_BREAKPOINT:	
 			Breakpoint bp = message.getContent();
-			System.out.println("Break point added : " + bp);
+			Console.debug.println("Break point added : " + bp);
 			runningInterpreter.addBreakpoint(bp);
 			return true;
 		case RESUME:
@@ -363,30 +377,54 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 	
 	private boolean processRequest(RequestMessage message)
 	{
-		switch(message.getRequest())
+		switch (message.getRequest())
 		{
-		case GET_STACK_FRAMES:
-			System.out.println("processing request " + message.getRequestId());
-			int id = message.getContent();
-			CmlBehaviour foundBehavior = this.runningInterpreter.findBehaviorById(id);
-			Context context = foundBehavior.getNextState().second;
-			List<StackFrameDTO> stackframes = new LinkedList<StackFrameDTO>();
-			
-			Context nextContext = context;
-			
-			while(nextContext != null){
-				stackframes.add(new StackFrameDTO(nextContext.location.getStartLine(), 
-						nextContext.location.getFile().toString(), nextContext.getDepth()));
-				nextContext = nextContext.outer;
+			case GET_STACK_FRAMES:
+			{
+				Console.debug.println("processing request "
+						+ message.getRequestId());
+				int id = message.getContent();
+				CmlBehaviour foundBehavior = this.runningInterpreter.findBehaviorById(id);
+				Context context = foundBehavior.getNextState().second;
+				List<StackFrameDTO> stackframes = new LinkedList<StackFrameDTO>();
+
+				Context nextContext = context;
+
+				while (nextContext != null)
+				{
+					stackframes.add(new StackFrameDTO(nextContext.location.getStartLine(), nextContext.location.getFile().toURI(), nextContext.getDepth()));
+					nextContext = nextContext.outer;
+				}
+				ResponseMessage responseMessage = new ResponseMessage(message.getRequestId(), CmlRequest.GET_STACK_FRAMES, stackframes);
+				sendResponse(responseMessage);
+				Console.debug.println("response sent"
+						+ responseMessage.getRequestId());
+				return true;
 			}
-			ResponseMessage responseMessage = new ResponseMessage(message.getRequestId(), 
-					CmlRequest.GET_STACK_FRAMES, stackframes);
-			sendResponse(responseMessage);
-			System.out.println("response sent" + responseMessage.getRequestId());
-			return true;
-			
-		default:
-			return true;
+				
+			case GET_CONTEXT_PROPERTIES:
+			{
+				int[] args = message.getContent();
+				
+				int threadId = args[0];
+				int level = args[1];
+				
+				CmlBehaviour foundBehavior = this.runningInterpreter.findBehaviorById(threadId);
+				Context context = foundBehavior.getNextState().second;
+				
+				for (int i = 0;context!=null &&  i < level-1; i++)
+				{
+					context = context.outer;
+				}
+				
+				ResponseMessage responseMessage = new ResponseMessage(message.getRequestId(), CmlRequest.GET_CONTEXT_PROPERTIES, VariableDTO.extractVariables(context));
+				sendResponse(responseMessage);
+				
+				return true;
+			}
+
+			default:
+				return true;
 		}
 	}
 
@@ -445,7 +483,7 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 	public void start(InterpreterExecutionMode mode) {
 
 		try{
-			currentMode = mode;
+//			currentMode = mode;
 			if(mode == InterpreterExecutionMode.ANIMATE)
 			{
 				requestSetup();
@@ -463,21 +501,21 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 		{
 			CmlInterpreterStateDTO status = CmlInterpreterStateDTO.createCmlInterpreterStateDTO(runningInterpreter);
 			if(e.hasErrorNode())
-				status.AddError(new InterpreterErrorDTO(e.getMessage(),LocationExtractor.extractLocation(e.getErrorNode())));
+				status.addError(new InterpreterErrorDTO(e.getMessage(),LocationExtractor.extractLocation(e.getErrorNode())));
 			else
-				status.AddError(new InterpreterErrorDTO(e.getMessage()));
+				status.addError(new InterpreterErrorDTO(e.getMessage()));
 			stopped(status);
 		}
 		catch(ValueException e)
 		{
 			CmlInterpreterStateDTO status = CmlInterpreterStateDTO.createCmlInterpreterStateDTO(runningInterpreter);
-			status.AddError(new InterpreterErrorDTO(e.getMessage(),e.ctxt.location));
+			status.addError(new InterpreterErrorDTO(e.getMessage(),e.ctxt.location));
 			stopped(status);
 		}
 		catch(AnalysisException e)
 		{
 			CmlInterpreterStateDTO status = CmlInterpreterStateDTO.createCmlInterpreterStateDTO(runningInterpreter);
-			status.AddError(new InterpreterErrorDTO(e.getMessage()));
+			status.addError(new InterpreterErrorDTO(e.getMessage()));
 			stopped(status);
 		}
 		finally{
@@ -491,7 +529,7 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 		//which appends the correct errors to the status
 		if(event.getStatus() != CmlInterpretationStatus.FAILED)
 		{
-			System.out.println("Debug thread sending Status event to controller: " + event);
+			Console.debug.println("Debug thread sending Status event to controller: " + event);
 			sendStatusMessage(CmlInterpreterStateDTO.createCmlInterpreterStateDTO(runningInterpreter));
 		}
 	}

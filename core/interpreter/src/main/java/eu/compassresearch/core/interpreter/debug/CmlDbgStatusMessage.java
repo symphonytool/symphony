@@ -10,6 +10,7 @@ public class CmlDbgStatusMessage extends Message {
 	private CmlInterpreterStateDTO interpreterStatus;
 	
 	//dummy for serialization
+	@SuppressWarnings("unused")
 	private CmlDbgStatusMessage(){}
 	
 	public CmlDbgStatusMessage(CmlInterpreterStateDTO interpreterStatus)

@@ -23,7 +23,7 @@ public class CmlRuntime {
 
 				@Override
 				public void publish(LogRecord record) {
-					System.out.println(record.getMessage());
+					Console.out.println(record.getMessage());
 				}
 
 				@Override

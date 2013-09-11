@@ -1,14 +1,17 @@
 package eu.compassresearch.core.interpreter.debug;
 
+import java.net.URI;
+
 public class StackFrameDTO {
 	
 	private final int lineNumber;
 	private final int level;
-	private final String file;
+	private final URI file;
 	
 	/**
 	 * Dummy constructor for serialization
 	 */
+	@SuppressWarnings("unused")
 	private StackFrameDTO()
 	{
 		this.lineNumber = -1;
@@ -16,7 +19,7 @@ public class StackFrameDTO {
 		this.level = -1;
 	}
 	
-	public StackFrameDTO(int lineNumber, String file, int level)
+	public StackFrameDTO(int lineNumber, URI file, int level)
 	{
 		this.lineNumber = lineNumber;
 		this.file = file;
@@ -26,8 +29,13 @@ public class StackFrameDTO {
 	public int getLineNumber() {
 		return lineNumber;
 	}
+	
+	public int getLevel()
+	{
+		return level;
+	}
 
-	public String getFile() {
+	public URI getFile() {
 		return file;
 	}
 }
