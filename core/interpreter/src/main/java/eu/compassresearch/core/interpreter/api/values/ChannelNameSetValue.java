@@ -17,20 +17,17 @@ public class ChannelNameSetValue extends Value implements Set<ChannelNameValue>{
 	
 	@Override
 	public String toString() {
-		// TODO Auto-generated method stub
-		return null;
+		return channelNames.toString();
 	}
 
 	@Override
 	public boolean equals(Object other) {
-		// TODO Auto-generated method stub
-		return false;
+		return channelNames.equals(other);
 	}
 
 	@Override
 	public int hashCode() {
-		// TODO Auto-generated method stub
-		return 0;
+		return channelNames.hashCode();
 	}
 
 	@Override

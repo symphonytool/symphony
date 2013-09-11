@@ -491,45 +491,6 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 	public Inspection caseAHidingAction(final AHidingAction node,
 			final Context question) throws AnalysisException {
 		return caseHiding(node,node.getChansetExpression(),question);
-//		//We do the hiding behavior as long as the Action is not terminated
-//		if(!owner.getLeftChild().finished())
-//		{
-//			//first we convert the channelset expression into a Cmlalpabet
-//			CmlAlphabet hidingAlpha = (CmlAlphabet)node.getChansetExpression().apply(cmlExpressionVisitor,question);
-//			//next we inspect the action to get the current available transitions
-//			CmlAlphabet alpha = owner.getLeftChild().inspect();
-//			//Intersect the two to find which transitions should be converted to silents transitions
-//			CmlAlphabet hiddenEvents = alpha.intersect(hidingAlpha);
-//			//remove the events that has to be silent
-//			CmlAlphabet resultAlpha = alpha.subtract(hiddenEvents);
-//			//convert them into silent events and add the again
-//			for(ObservableEvent obsEvent : hiddenEvents.getObservableEvents())
-//				if(obsEvent instanceof ChannelEvent)
-//					resultAlpha = resultAlpha.union(new HiddenEvent(owner,(ChannelEvent)obsEvent));	
-//
-//			return newInspection(resultAlpha,
-//					new AbstractCalculationStep(owner, visitorAccess) {
-//
-//				@Override
-//				public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
-//						throws AnalysisException {
-//					owner.getLeftChild().execute(supervisor());
-//					return new Pair<INode,Context>(node, question);
-//				}
-//			});
-//		}
-//		//If the Action is terminated then it evolves into Skip
-//		else
-//			return newInspection(createSilentTransition(node, new ASkipAction()),
-//					new AbstractCalculationStep(owner, visitorAccess) {
-//
-//				@Override
-//				public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
-//						throws AnalysisException {
-//					setLeftChild(null);
-//					return new Pair<INode,Context>(new ASkipAction(), question);
-//				}
-//			});
 	}
 
 	/**

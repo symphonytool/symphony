@@ -25,9 +25,9 @@ import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlCalculationStep;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.behaviour.Inspection;
 import eu.compassresearch.core.interpreter.api.transitions.ChannelEvent;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTock;
@@ -35,6 +35,8 @@ import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.HiddenEvent;
 import eu.compassresearch.core.interpreter.api.transitions.ObservableEvent;
 import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
+import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
+import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
 class CommonInspectionVisitor extends AbstractInspectionVisitor {
@@ -246,8 +248,11 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 
 	private Inspection caseParallelSyncOrNonsync(final INode node, PVarsetExpression chansetExp, final Context question) throws AnalysisException
 	{
+		
 		//convert the channel set of the current node to a alphabet
-		CmlTransitionSet cs =  ((CmlTransitionSet)chansetExp.apply(cmlExpressionVisitor,question)).union(new CmlTock());
+		ChannelNameSetValue cs = (ChannelNameSetValue)chansetExp.apply(cmlExpressionVisitor,question);
+			
+		//CmlTransitionSet cs =  ((CmlTransitionSet)chansetExp.apply(cmlExpressionVisitor,question)).union(new CmlTock());
 
 		//Get all the child alphabets and add the events that are not in the channelset
 		final CmlBehaviour leftChild = owner.getLeftChild();
@@ -255,57 +260,76 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 		final CmlBehaviour rightChild = owner.getRightChild();
 		final CmlTransitionSet rightChildAlphabet = rightChild.inspect();
 		
-		//combine all the common channel events that are in the channel set 
+		CmlTransitionSet leftSync = leftChildAlphabet.retainByChannelNameSet(cs);
+		CmlTransitionSet rightSync = rightChildAlphabet.retainByChannelNameSet(cs);
 		Set<CmlTransition> syncEvents = new HashSet<CmlTransition>();
-		for(ObservableEvent csChannel : cs.getObservableEvents())
+		for(ObservableEvent leftTrans : leftSync.getObservableChannelEvents())
 		{
-			//Find the intersection between the child alphabets and the channel set and join them.
-			//Then if both left and right have them the next step will combine them.
-			CmlTransitionSet leftSyncAlpha = leftChildAlphabet.intersectImprecise(csChannel);
-			CmlTransitionSet rightSyncAlpha = rightChildAlphabet.intersectImprecise(csChannel);
-			CmlTransitionSet commonEvents = leftSyncAlpha.union(rightSyncAlpha);
-			/*	
-			 * 	if we have two channel events to intersect with a channel from the cs then they might
-			 *	be able to synchronize.
-			 *	If all the most precise values are identical and they only differ at fields containing an anyvalue
-			 *	then they can sync otherwise they can not.
-			 */
-			if(commonEvents.getObservableEvents().size() == 2)
+			CmlTransitionSet tmp = rightChildAlphabet.retainByChannelName(((ChannelEvent)leftTrans).getChannelName());
+			if(tmp.getObservableEvents().size() == 1)
 			{
-				/*
-				 * 	Ok so now we know that they intersect imprecisely with the channel in the channelset.
-				 *	However, since it could be a complex type like a record, tuple or class we must check that all
-				 *	of the fields where both have precise values are identical.
-				 */
-				Iterator<ObservableEvent> it = commonEvents.getObservableEvents().iterator(); 
-
-				ObservableEvent elem1 = it.next();
-				ObservableEvent elem2 = it.next();
-				//CmlAlphabet testAlpha = elem1.getAsAlphabet().intersectImprecise(elem2.getAsAlphabet());
-				syncEvents.add( elem1.synchronizeWith(elem2));
+				syncEvents.add(tmp.getObservableEvents().iterator().next().synchronizeWith(leftTrans));
 			}
-//			else if (commonEvents.getObservableEvents().size() > 2)
-//			{
-//				for(ObservableEvent obs : commonEvents.getObservableEvents())
-//				{
-//					CmlAlphabet alphaTmp = commonEvents.subtract(obs); 
-//					CmlAlphabet alpha = alphaTmp.intersectImprecise(obs);
-//					if(alpha.getObservableEvents().size() == 1)
-//					{
-//						syncEvents.add( alpha.getObservableEvents().iterator().next().synchronizeWith(obs));
-//					}
-//				}
-//			}
 			
 		}
+		
+		CmlTock leftTock = leftChildAlphabet.getTockEvent();
+		CmlTock rightTock = rightChildAlphabet.getTockEvent();
+		if(leftTock != null && rightTock != null)
+			syncEvents.add(leftTock.synchronizeWith(rightTock));
+		
+		//combine all the common channel events that are in the channel set 
+		//Set<CmlTransition> syncEvents = new HashSet<CmlTransition>();
+//		for(ChannelNameValue csChannelName : cs)
+//		{
+//			//Find the intersection between the child alphabets and the channel set and join them.
+//			//Then if both left and right have them the next step will combine them.
+//			CmlTransitionSet leftSyncAlpha = leftChildAlphabet.retainByChannelName(csChannelName);
+//			CmlTransitionSet rightSyncAlpha = rightChildAlphabet.retainByChannelName(csChannelName);
+//			
+//			CmlTransitionSet commonEvents = leftSyncAlpha.union(rightSyncAlpha);
+//			/*	
+//			 * 	if we have two channel events to intersect with a channel from the cs then they might
+//			 *	be able to synchronize.
+//			 *	If all the most precise values are identical and they only differ at fields containing an anyvalue
+//			 *	then they can sync otherwise they can not.
+//			 */
+//			if(commonEvents.getObservableEvents().size() == 2)
+//			{
+//				/*
+//				 * 	Ok so now we know that they intersect imprecisely with the channel in the channelset.
+//				 *	However, since it could be a complex type like a record, tuple or class we must check that all
+//				 *	of the fields where both have precise values are identical.
+//				 */
+//				Iterator<ObservableEvent> it = commonEvents.getObservableEvents().iterator(); 
+//
+//				ObservableEvent elem1 = it.next();
+//				ObservableEvent elem2 = it.next();
+//				//CmlAlphabet testAlpha = elem1.getAsAlphabet().intersectImprecise(elem2.getAsAlphabet());
+//				syncEvents.add( elem1.synchronizeWith(elem2));
+//			}
+////			else if (commonEvents.getObservableEvents().size() > 2)
+////			{
+////				for(ObservableEvent obs : commonEvents.getObservableEvents())
+////				{
+////					CmlAlphabet alphaTmp = commonEvents.subtract(obs); 
+////					CmlAlphabet alpha = alphaTmp.intersectImprecise(obs);
+////					if(alpha.getObservableEvents().size() == 1)
+////					{
+////						syncEvents.add( alpha.getObservableEvents().iterator().next().synchronizeWith(obs));
+////					}
+////				}
+////			}
+//			
+//		}
 
 		/*
 		 *	Finally we create the returned alphabet by joining all the 
 		 *  Synchronized events together with all the event of the children 
 		 *  that are not in the channel set.
 		 */
-		CmlTransitionSet resultAlpha = new CmlTransitionSet(syncEvents).union(leftChildAlphabet.subtractImprecise(cs));
-		resultAlpha = resultAlpha.union(rightChildAlphabet.subtractImprecise(cs));
+		CmlTransitionSet resultAlpha = new CmlTransitionSet(syncEvents).union(leftChildAlphabet.removeByChannelNameSet(cs));
+		resultAlpha = resultAlpha.union(rightChildAlphabet.removeByChannelNameSet(cs));
 
 		return newInspection(resultAlpha, 
 				new AbstractCalculationStep(owner, visitorAccess) {
@@ -365,12 +389,12 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 		//We do the hiding behavior as long as the Action is not terminated
 		if(!owner.getLeftChild().finished())
 		{
-			//first we convert the channelset expression into a Cmlalpabet
-			CmlTransitionSet hidingAlpha = (CmlTransitionSet)chansetExpression.apply(cmlExpressionVisitor,question);
+			//first we convert the channelset expression into a channelNameSetValue
+			ChannelNameSetValue cs = (ChannelNameSetValue)chansetExpression.apply(cmlExpressionVisitor,question);
 			//next we inspect the action to get the current available transitions
 			CmlTransitionSet alpha = owner.getLeftChild().inspect();
 			//Intersect the two to find which transitions should be converted to silents transitions
-			CmlTransitionSet hiddenEvents = alpha.intersect(hidingAlpha);
+			CmlTransitionSet hiddenEvents = alpha.retainByChannelNameSet(cs);
 			//remove the events that has to be silent
 			CmlTransitionSet resultAlpha = alpha.subtract(hiddenEvents);
 			//convert them into silent events and add the again

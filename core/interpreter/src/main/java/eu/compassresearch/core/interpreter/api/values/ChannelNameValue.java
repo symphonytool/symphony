@@ -130,6 +130,24 @@ public class ChannelNameValue extends Value {
 		return meetValue;
 	}
 	
+	public boolean isComparable(ChannelNameValue channelNameValue)
+	{
+		return this.getChannel().equals(channelNameValue.channel);
+	}
+	
+	public boolean isGTEQPrecise(ChannelNameValue other)
+	{
+		boolean res = true;
+		for(int i = 0; i < values.size() ; i++)
+		{
+			Value thisValue = values.get(i);
+			Value otherValue = other.values.get(i);
+			res &= AbstractValueInterpreter.isEquallyOrMorePrecise(otherValue,thisValue);
+		}
+
+		return res;
+	}
+	
 	public boolean isConstraintValid() throws AnalysisException
 	{
 		for(int i = 0 ; i < values.size() ; i++)

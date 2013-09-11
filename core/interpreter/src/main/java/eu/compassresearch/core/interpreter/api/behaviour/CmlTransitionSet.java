@@ -7,9 +7,12 @@ import java.util.Set;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.core.interpreter.api.transitions.ChannelEvent;
+import eu.compassresearch.core.interpreter.api.transitions.CmlTock;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.ObservableEvent;
 import eu.compassresearch.core.interpreter.api.transitions.SilentTransition;
+import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
+import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
 
 /**
  * This represents a CML alphabet containing both silent and observable events
@@ -84,6 +87,14 @@ public class CmlTransitionSet extends Value {
 	public Set<ObservableEvent> getObservableEvents()
 	{
 		return new LinkedHashSet<ObservableEvent>(_observableEvents);
+	}
+	
+	public Set<ObservableEvent> getObservableChannelEvents()
+	{
+		Set<ObservableEvent> observableChannelEvents = new LinkedHashSet<ObservableEvent>(_observableEvents);
+		observableChannelEvents.remove(new CmlTock());
+		
+		return observableChannelEvents;
 	}
 	
 	/**
@@ -189,6 +200,124 @@ public class CmlTransitionSet extends Value {
 		}
 		
 		return new CmlTransitionSet(resultSet);
+	}
+	
+	public CmlTransitionSet retainByChannelName(ChannelNameValue channelNameValue)
+	{
+		Set<CmlTransition> resultSet = new LinkedHashSet<CmlTransition>();
+		
+		for(ObservableEvent obsTransition : _observableEvents)
+		{
+//			if(obsTransition instanceof CmlTock)
+//			{
+//				resultSet.add(obsTransition);
+//				continue;
+//			}
+//			else 
+				if(!(obsTransition instanceof ChannelEvent))
+				continue;
+			
+			ChannelEvent obsChannelEvent = (ChannelEvent)obsTransition;   
+			if(obsChannelEvent.getChannelName().isComparable(channelNameValue) && 
+					obsChannelEvent.getChannelName().isGTEQPrecise(channelNameValue)){
+				resultSet.add(obsTransition);
+			}
+		}
+		
+		return new CmlTransitionSet(resultSet);
+	}
+	
+	public CmlTransitionSet retainByChannelNameSet(ChannelNameSetValue channelNameSetValue)
+	{
+		Set<CmlTransition> resultSet = new LinkedHashSet<CmlTransition>();
+		
+		for(ObservableEvent obsTransition : _observableEvents)
+		{
+//			if(obsTransition instanceof CmlTock){
+//				resultSet.add(obsTransition);
+//				continue;
+//			}
+//			else 
+				if(!(obsTransition instanceof ChannelEvent))
+				continue;
+
+			ChannelEvent obsChannelEvent = (ChannelEvent)obsTransition;
+
+			for(ChannelNameValue channelNameValue : channelNameSetValue)
+			{
+
+				if(obsChannelEvent.getChannelName().isComparable(channelNameValue) && 
+						obsChannelEvent.getChannelName().isGTEQPrecise(channelNameValue)){
+					resultSet.add(obsTransition);
+				}
+			}
+		}
+		
+		return new CmlTransitionSet(resultSet);
+	}
+	
+	public CmlTransitionSet removeByChannelName(ChannelNameValue channelNameValue)
+	{
+		Set<ObservableEvent> resultSet = new LinkedHashSet<ObservableEvent>();
+		
+		for(ObservableEvent obsTransition : _observableEvents)
+		{
+			if(!(obsTransition instanceof ChannelEvent))
+				continue;
+			
+			ChannelEvent obsChannelEvent = (ChannelEvent)obsTransition;   
+			if(!(obsChannelEvent.getChannelName().isComparable(channelNameValue) && 
+					obsChannelEvent.getChannelName().isGTEQPrecise(channelNameValue))){
+				resultSet.add(obsTransition);
+			}
+		}
+		
+		return new CmlTransitionSet(resultSet,specialEvents);
+	}
+	
+	public CmlTransitionSet removeByChannelNameSet(ChannelNameSetValue channelNameSetValue)
+	{
+		Set<ObservableEvent> resultSet = new LinkedHashSet<ObservableEvent>();
+		
+		for(ObservableEvent obsTransition : _observableEvents)
+		{
+			if(!(obsTransition instanceof ChannelEvent))
+				continue;
+			
+			boolean retaintIt = true; 
+			
+			for(ChannelNameValue channelNameValue : channelNameSetValue)
+			{
+				ChannelEvent obsChannelEvent = (ChannelEvent)obsTransition;   
+				if(obsChannelEvent.getChannelName().isComparable(channelNameValue) && 
+						obsChannelEvent.getChannelName().isGTEQPrecise(channelNameValue))
+				{
+					retaintIt = false;
+					break;
+				}
+					
+			}
+			
+			if(retaintIt)
+				resultSet.add(obsTransition);
+		}
+		
+		return new CmlTransitionSet(resultSet,specialEvents);
+	}
+	
+	public CmlTock getTockEvent()
+	{
+		
+		CmlTock tock = null;
+				
+		for(ObservableEvent obs : _observableEvents)
+			if(obs instanceof CmlTock)
+			{
+				tock = (CmlTock)obs;
+				break;
+			}
+		
+		return tock;
 	}
 
 	/**

@@ -41,6 +41,7 @@ import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionFactory;
 import eu.compassresearch.core.interpreter.api.transitions.ObservableEvent;
 import eu.compassresearch.core.interpreter.api.values.AnyValue;
 import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
+import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
 
 @SuppressWarnings("serial")
@@ -120,50 +121,45 @@ public class CmlExpressionVisitor extends QuestionAnswerCMLAdaptor<Context, Valu
 	}
 	
 	@Override
-	public Value caseAFatEnumVarsetExpression(AFatEnumVarsetExpression node,
+	public ChannelNameSetValue caseAFatEnumVarsetExpression(AFatEnumVarsetExpression node,
 			Context question) throws AnalysisException {
 		
-		Set<CmlTransition> coms = new HashSet<CmlTransition>();
+		Set<ChannelNameValue> coms = new HashSet<ChannelNameValue>();
 		
 		for (ANameChannelExp chanNameExp : node.getChannelNames())
 		{
 			ChannelNameValue channelName = createChannelNameValue(chanNameExp, question);
-			
-			if(!channelName.hasValues())
-				coms.add(CmlTransitionFactory.newSynchronizationEvent(channelName));
-			else
-				coms.add(CmlTransitionFactory.newCmlCommunicationEvent(channelName));
+			coms.add(channelName);
 		}
 		
-		return new CmlTransitionSet(coms);
+		return new ChannelNameSetValue(coms);
 	}
 	
 	@Override
-	public Value caseAEnumVarsetExpression(AEnumVarsetExpression node,
+	public ChannelNameSetValue caseAEnumVarsetExpression(AEnumVarsetExpression node,
 			Context question) throws AnalysisException {
 		
-		Set<CmlTransition> coms = new HashSet<CmlTransition>();
+		Set<ChannelNameValue> coms = new HashSet<ChannelNameValue>();
 		for (ANameChannelExp chanNameExp : node.getChannelNames())
 		{
 			ChannelNameValue channelName = createChannelNameValue(chanNameExp, question);
-			coms.add(createEvent(channelName));
+			coms.add(channelName);
 		}
 		
-		return new CmlTransitionSet(coms);
-
+		return new ChannelNameSetValue(coms);
 	}
 	
-	private ObservableEvent createEvent(ChannelNameValue channelName)
-	{
-		if(!channelName.hasValues())
-		{		
-			return CmlTransitionFactory.newSynchronizationEvent(channelName);
-		}
-		else
-		{
-			return CmlTransitionFactory.newCmlCommunicationEvent(channelName);
-		}
-	}
+//	private ObservableEvent createEvent(ChannelNameValue channelName)
+//	{
+//		if(!channelName.hasValues())
+//		{		
+//			return CmlTransitionFactory.newSynchronizationEvent(channelName);
+//		}
+//		else
+//		{
+//			return CmlTransitionFactory.newCmlCommunicationEvent(channelName);
+//		}
+//	}
 	
 	@Override
 	public Value caseAIdentifierVarsetExpression(
