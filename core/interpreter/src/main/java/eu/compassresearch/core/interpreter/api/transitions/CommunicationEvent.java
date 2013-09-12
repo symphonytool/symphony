@@ -32,11 +32,6 @@ class CommunicationEvent extends AbstractChannelEvent implements ObservableEvent
 		super(source,channelName);
 	}
 	
-	public CommunicationEvent(ChannelNameValue channelName)
-	{
-		super(channelName);
-	}
-			
 	private CommunicationEvent(Set<CmlBehaviour> sources, ChannelNameValue channelName)
 	{
 		super(sources,channelName);
@@ -51,10 +46,7 @@ class CommunicationEvent extends AbstractChannelEvent implements ObservableEvent
 	@Override 
 	public int hashCode() {
 		
-		StringBuilder strBuilder = new StringBuilder(channelName.getChannel().getName());
-		strBuilder.append(channelName.getChannel().getValueTypes());
-		
-		return strBuilder.toString().hashCode();
+		return this.eventSources.hashCode() + channelName.hashCode(); 
 	}
 			
 	@Override
@@ -78,8 +70,7 @@ class CommunicationEvent extends AbstractChannelEvent implements ObservableEvent
 			return false;
 
 		ChannelEvent otherChannelEvent = (ChannelEvent)other;
-		return //they are on the same channel
-				this.channelName.getChannel().equals(otherChannelEvent.getChannelName().getChannel());
+		return channelName.isComparable(otherChannelEvent.getChannelName());
 	}
 	
 	@Override

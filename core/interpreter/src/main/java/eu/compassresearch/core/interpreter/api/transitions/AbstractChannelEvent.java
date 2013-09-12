@@ -1,12 +1,8 @@
 package eu.compassresearch.core.interpreter.api.transitions;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.overture.interpreter.values.Value;
-
-import eu.compassresearch.core.interpreter.api.CmlChannel;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
 
@@ -27,12 +23,6 @@ abstract class AbstractChannelEvent extends AbstractCmlTransition implements Cha
 	public AbstractChannelEvent(CmlBehaviour eventSource, ChannelNameValue channelName)
 	{
 		super(eventSource);
-		this.channelName = channelName;
-	}
-	
-	public AbstractChannelEvent(ChannelNameValue channelName)
-	{
-		super(new HashSet<CmlBehaviour>());
 		this.channelName = channelName;
 	}
 	

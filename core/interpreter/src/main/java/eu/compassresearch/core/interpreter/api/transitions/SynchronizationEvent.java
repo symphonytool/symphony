@@ -23,14 +23,10 @@ class SynchronizationEvent extends AbstractChannelEvent implements ObservableEve
 		super(eventSource, channelName);
 	}
 	
-	public SynchronizationEvent(Set<CmlBehaviour> eventSources, ChannelNameValue channelName) {
+	private SynchronizationEvent(Set<CmlBehaviour> eventSources, ChannelNameValue channelName) {
 		super(eventSources, channelName);
 	}
 	
-	public SynchronizationEvent(ChannelNameValue channelName) {
-		super(channelName);
-	}
-
 	@Override
 	public int hashCode() {
 		
@@ -73,8 +69,7 @@ class SynchronizationEvent extends AbstractChannelEvent implements ObservableEve
 			return false;
 
 		ChannelEvent otherChannelEvent = (ChannelEvent)other;
-		
-		return this.channelName.getChannel().equals(otherChannelEvent.getChannelName().getChannel());
+		return channelName.isComparable(otherChannelEvent.getChannelName());
 	}
 
 	@Override

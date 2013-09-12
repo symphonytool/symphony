@@ -1,5 +1,6 @@
 package eu.compassresearch.core.interpreter.api.values;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -78,8 +79,7 @@ public class ChannelNameValue extends Value {
 
 	@Override
 	public int hashCode() {
-		// TODO Auto-generated method stub
-		return 0;
+		return channel.hashCode() + values.hashCode();
 	}
 
 	@Override
@@ -132,7 +132,28 @@ public class ChannelNameValue extends Value {
 	
 	public boolean isComparable(ChannelNameValue channelNameValue)
 	{
-		return this.getChannel().equals(channelNameValue.channel);
+		return this.getChannel().equals(channelNameValue.channel) &&
+				isValuesComparable(channelNameValue);
+	}
+	
+	private boolean isValuesComparable(ChannelNameValue channelNameValue)
+	{
+		for(Iterator<Value> thisIt = values.listIterator(), 
+				otherIt = channelNameValue.values.listIterator(); 
+				thisIt.hasNext() && otherIt.hasNext();)
+		{
+			Value thisValue = thisIt.next();
+			Value otherValue = otherIt.next();
+			
+			//if both values are not loose and they differ then we cannot compare them
+			if(AbstractValueInterpreter.isValueMostPrecise(thisValue) &&
+					AbstractValueInterpreter.isValueMostPrecise(otherValue) &&
+					!thisValue.equals(otherValue))
+				return false;
+			
+		}
+		
+		return true;
 	}
 	
 	public boolean isGTEQPrecise(ChannelNameValue other)

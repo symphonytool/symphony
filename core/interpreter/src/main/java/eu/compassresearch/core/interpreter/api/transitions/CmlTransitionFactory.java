@@ -30,10 +30,6 @@ public class CmlTransitionFactory {
 		return new SynchronizationEvent(eventSource,channelName);
 	}
 		
-	public static ObservableEvent newSynchronizationEvent(ChannelNameValue channelName) {
-		return new SynchronizationEvent(channelName);
-	}
-	
 	/*
 	 * communication event factory methods 
 	 */
@@ -42,10 +38,4 @@ public class CmlTransitionFactory {
 	{
 		return new CommunicationEvent(source, channelName);
 	}
-	
-	public static ObservableEvent newCmlCommunicationEvent(ChannelNameValue channelName)
-	{
-		return new CommunicationEvent(channelName);
-	}
-	
 }

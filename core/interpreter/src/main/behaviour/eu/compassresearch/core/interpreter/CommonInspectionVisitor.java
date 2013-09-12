@@ -36,9 +36,9 @@ import eu.compassresearch.core.interpreter.api.transitions.HiddenEvent;
 import eu.compassresearch.core.interpreter.api.transitions.ObservableEvent;
 import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
-import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
+@SuppressWarnings("serial")
 class CommonInspectionVisitor extends AbstractInspectionVisitor {
 
 	interface parallelCompositionHelper

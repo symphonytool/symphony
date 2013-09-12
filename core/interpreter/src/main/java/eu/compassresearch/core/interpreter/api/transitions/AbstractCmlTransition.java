@@ -8,6 +8,10 @@ import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 
 abstract class AbstractCmlTransition implements CmlTransition {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5555627737673754975L;
 	final protected Set<CmlBehaviour> eventSources;
 	
 	public AbstractCmlTransition(CmlBehaviour eventSource)
@@ -48,7 +52,9 @@ abstract class AbstractCmlTransition implements CmlTransition {
 		other = (CmlTransition)obj;
 		
 		 // other is subset of this or this is a subset of other
-		return	isSourcesSubset(other); 
+		return	isSourcesSubset(other);
+		//TODO it should like this but it does not work as it should!
+		//return eventSources.equals(other.getEventSources());
 	}
 
 }

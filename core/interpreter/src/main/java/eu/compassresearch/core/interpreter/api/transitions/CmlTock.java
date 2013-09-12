@@ -49,7 +49,10 @@ public class CmlTock extends AbstractCmlTransition implements ObservableEvent {
 	@Override
 	public boolean isComparable(ObservableEvent other) {
 
-		return equals(other);
+		if(!(other instanceof CmlTock))
+			return false;
+		
+		return isSourcesSubset(other);
 	}
 	
 	public long getTimeLimit()
