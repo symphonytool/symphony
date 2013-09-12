@@ -308,7 +308,8 @@ class CmlDefinitionVisitor extends
     	{
     		for (ILexIdentifierToken channelName : cnd.getSingleType().getIdentifiers())
     		{
-    			ILexNameToken name = new LexNameToken("|CHANNELS|", channelName);
+    			
+    			ILexNameToken name = NamespaceUtility.createChannelName(channelName);
     			vpl.add(new NameValuePair(name, new CMLChannelValue(cnd.getSingleType().getType(),name)));
     		}
     	}

@@ -10,12 +10,12 @@ class NamespaceUtility {
 
 	public static ILexNameToken createChannelName(ILexIdentifierToken id)
 	{
-		return new LexNameToken("|CHANNELS|",id.getName(),id.getLocation(),false,true);
+		return new LexNameToken("|CHANNELS|",id.getName(),id.getLocation(), false, true);
 	}
 	
 	public static ILexNameToken createChansetName(ILexIdentifierToken id)
 	{
-		return new LexNameToken("|CHANSET|",id.clone());
+		return new LexNameToken("|CHANSET|",id.getName(),id.getLocation(), false, true);
 	}
 	
 	public static ILexNameToken getStartTimeName()

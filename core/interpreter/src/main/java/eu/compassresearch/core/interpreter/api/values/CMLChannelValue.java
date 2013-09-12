@@ -63,7 +63,7 @@ public class CMLChannelValue extends Value implements CmlChannel //CmlIOChannel<
 	
 	@Override
 	public String getName() {
-		return name.getFullName();
+		return name.getName();
 	}
 
 	@Override
