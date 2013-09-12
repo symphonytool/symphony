@@ -47,10 +47,10 @@ class SynchronizationEvent extends AbstractChannelEvent implements ObservableEve
 		return super.equals(obj);
 	}
 
-	@Override
-	public CmlTransitionSet getAsAlphabet() {
-		return new CmlTransitionSet(this);
-	}
+//	@Override
+//	public CmlTransitionSet getAsAlphabet() {
+//		return new CmlTransitionSet(this);
+//	}
 
 	@Override
 	public ObservableEvent synchronizeWith(ObservableEvent syncEvent) {
@@ -72,10 +72,10 @@ class SynchronizationEvent extends AbstractChannelEvent implements ObservableEve
 		return channelName.isComparable(otherChannelEvent.getChannelName());
 	}
 
-	@Override
-	public ObservableEvent meet(ObservableEvent other) {
-		return this;
-	}
+//	@Override
+//	public ObservableEvent meet(ObservableEvent other) {
+//		return this;
+//	}
 
 	@Override
 	public List<ChannelEvent> expand() {

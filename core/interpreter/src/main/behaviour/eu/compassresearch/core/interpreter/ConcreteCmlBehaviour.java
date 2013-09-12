@@ -247,7 +247,7 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 		 *  
 		 */
 		if(env.isSelectedEventValid() &&  
-				lastInspection.getTransitions().containsImprecise(env.selectedObservableEvent()))
+				lastInspection.getTransitions().contains(env.selectedObservableEvent()))
 		{
 
 			//If the selected event is not a tock event then we can evaluate

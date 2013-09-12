@@ -73,11 +73,11 @@ class CommunicationEvent extends AbstractChannelEvent implements ObservableEvent
 		return channelName.isComparable(otherChannelEvent.getChannelName());
 	}
 	
-	@Override
-	public CmlTransitionSet getAsAlphabet() {
-
-		return new CmlTransitionSet(this);
-	}
+//	@Override
+//	public CmlTransitionSet getAsAlphabet() {
+//
+//		return new CmlTransitionSet(this);
+//	}
 
 	@Override
 	public ObservableEvent synchronizeWith(ObservableEvent syncEvent) throws AnalysisException
@@ -102,21 +102,21 @@ class CommunicationEvent extends AbstractChannelEvent implements ObservableEvent
 			
 	}
 	
-	@Override
-	public ObservableEvent meet(ObservableEvent obj) {
-		
-		CommunicationEvent other = null;
-		
-		if(!(obj instanceof CommunicationEvent))
-			return this;
-		
-		other = (CommunicationEvent)obj;
-		
-		if(AbstractValueInterpreter.isEquallyOrMorePrecise(this.channelName, other.channelName))
-			return this;
-		else
-			return other;
-	}
+//	@Override
+//	public ObservableEvent meet(ObservableEvent obj) {
+//		
+//		CommunicationEvent other = null;
+//		
+//		if(!(obj instanceof CommunicationEvent))
+//			return this;
+//		
+//		other = (CommunicationEvent)obj;
+//		
+//		if(AbstractValueInterpreter.isEquallyOrMorePrecise(this.channelName, other.channelName))
+//			return this;
+//		else
+//			return other;
+//	}
 
 	//TODO implement the expanding!
 	@Override

@@ -66,12 +66,12 @@ public class InternalTransition extends AbstractCmlTransition implements SilentT
 			return super.equals(obj);
 	}
 
-	@Override
-	public CmlTransitionSet getAsAlphabet() {
-		
-		Set<CmlTransition> events = new HashSet<CmlTransition>();
-		events.add(this);
-		return new CmlTransitionSet(events);
-	}
+//	@Override
+//	public CmlTransitionSet getAsAlphabet() {
+//		
+//		Set<CmlTransition> events = new HashSet<CmlTransition>();
+//		events.add(this);
+//		return new CmlTransitionSet(events);
+//	}
 
 }

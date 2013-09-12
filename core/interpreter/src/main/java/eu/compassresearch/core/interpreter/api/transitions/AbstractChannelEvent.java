@@ -45,13 +45,13 @@ abstract class AbstractChannelEvent extends AbstractCmlTransition implements Cha
 	@Override
 	public abstract List<ChannelEvent> expand();
 	
-	/**
-	 * return the most precise of this and other
-	 * @param other
-	 * @return
-	 */
-	@Override
-	public abstract ObservableEvent meet(ObservableEvent other); 
+//	/**
+//	 * return the most precise of this and other
+//	 * @param other
+//	 * @return
+//	 */
+//	@Override
+//	public abstract ObservableEvent meet(ObservableEvent other); 
 	
 	@Override
 	public boolean equals(Object obj) {

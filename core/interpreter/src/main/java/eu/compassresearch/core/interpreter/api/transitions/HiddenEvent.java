@@ -39,16 +39,16 @@ public class HiddenEvent extends AbstractChannelEvent implements SilentTransitio
 		return result;
 	}
 
-	@Override
-	public ObservableEvent meet(ObservableEvent other) {
-		//TODO the result must also be hidden
-		return hiddenEvent.meet(other);
-	}
+//	@Override
+//	public ObservableEvent meet(ObservableEvent other) {
+//		//TODO the result must also be hidden
+//		return hiddenEvent.meet(other);
+//	}
 
-	@Override
-	public CmlTransitionSet getAsAlphabet() {
-		return new CmlTransitionSet(this);
-	}
+//	@Override
+//	public CmlTransitionSet getAsAlphabet() {
+//		return new CmlTransitionSet(this);
+//	}
 	
 	@Override
 	public String toString() {

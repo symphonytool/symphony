@@ -49,10 +49,7 @@ public class CmlTock extends AbstractCmlTransition implements ObservableEvent {
 	@Override
 	public boolean isComparable(ObservableEvent other) {
 
-		if(!(other instanceof CmlTock))
-			return false;
-		
-		return isSourcesSubset(other);
+		return other instanceof CmlTock;
 	}
 	
 	public long getTimeLimit()
@@ -65,13 +62,13 @@ public class CmlTock extends AbstractCmlTransition implements ObservableEvent {
 		return timeLimit != 0;
 	}
 
-	@Override
-	public CmlTransitionSet getAsAlphabet() {
-
-		Set<CmlTransition> events = new HashSet<CmlTransition>();
-		events.add(this);
-		return new CmlTransitionSet(events);
-	}
+//	@Override
+//	public CmlTransitionSet getAsAlphabet() {
+//
+//		Set<CmlTransition> events = new HashSet<CmlTransition>();
+//		events.add(this);
+//		return new CmlTransitionSet(events);
+//	}
 	
 	@Override
 	public boolean equals(Object obj) {

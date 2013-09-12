@@ -189,11 +189,11 @@ public class TestMessageCommunicator {
 						return new HashSet<CmlBehaviour>();
 					}
 					
-					@Override
-					public CmlTransitionSet getAsAlphabet() {
-						// TODO Auto-generated method stub
-						return null;
-					}
+//					@Override
+//					public CmlTransitionSet getAsAlphabet() {
+//						// TODO Auto-generated method stub
+//						return null;
+//					}
 					
 					@Override
 					public ObservableEvent synchronizeWith(ObservableEvent other) {

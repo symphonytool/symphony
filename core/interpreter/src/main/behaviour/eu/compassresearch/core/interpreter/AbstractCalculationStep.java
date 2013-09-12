@@ -75,11 +75,11 @@ abstract class AbstractCalculationStep implements CmlCalculationStep {
 		CmlBehaviour rightChild = owner.getRightChild();
 		CmlTransitionSet rightChildAlpha = rightChild.inspect();
 
-		if(leftChildAlpha.containsImprecise(supervisor().selectedObservableEvent()))
+		if(leftChildAlpha.contains(supervisor().selectedObservableEvent()))
 		{
 			leftChild.execute(supervisor());
 		}
-		else if(rightChildAlpha.containsImprecise(supervisor().selectedObservableEvent()))
+		else if(rightChildAlpha.contains(supervisor().selectedObservableEvent()))
 		{
 			rightChild.execute(supervisor());
 		}

@@ -63,7 +63,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 
 		//Find the intersection between the child alphabets and the channel set and join them.
 		//Then if both left and right have them the next step will combine them.
-		CmlTransitionSet syncAlpha = leftChildAlphabet.intersectImprecise(cs).union(rightChildAlphabet.intersectImprecise(cs));
+		CmlTransitionSet syncAlpha = leftChildAlphabet.intersect(cs).union(rightChildAlphabet.intersect(cs));
 
 		//combine all the tock events 
 		if(syncAlpha.getObservableEvents().size() == 2)
@@ -149,7 +149,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 
 					for(CmlBehaviour child : children())
 					{
-						if(child.inspect().containsImprecise(supervisor().selectedObservableEvent()))
+						if(child.inspect().contains(supervisor().selectedObservableEvent()))
 						{
 							if(supervisor().selectedObservableEvent() instanceof ChannelEvent)
 							{
@@ -265,17 +265,17 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 			public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
 					throws AnalysisException {
 				//if both contains the selected event it must be a sync event
-				if(leftChildAlphabet.containsImprecise(owner.supervisor().selectedObservableEvent()) &&
-						rightChildAlphabet.containsImprecise(owner.supervisor().selectedObservableEvent()))
+				if(leftChildAlphabet.contains(owner.supervisor().selectedObservableEvent()) &&
+						rightChildAlphabet.contains(owner.supervisor().selectedObservableEvent()))
 				{
 					leftChild.execute(sve);
 					rightChild.execute(sve);
 				}
-				else if(leftChildAlphabet.containsImprecise(owner.supervisor().selectedObservableEvent()))
+				else if(leftChildAlphabet.contains(owner.supervisor().selectedObservableEvent()))
 				{
 					leftChild.execute(sve);
 				}
-				else if(rightChildAlphabet.containsImprecise(owner.supervisor().selectedObservableEvent()))
+				else if(rightChildAlphabet.contains(owner.supervisor().selectedObservableEvent()))
 				{
 					rightChild.execute(sve);
 				}

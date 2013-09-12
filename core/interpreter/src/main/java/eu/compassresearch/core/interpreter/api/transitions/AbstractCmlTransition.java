@@ -25,8 +25,8 @@ abstract class AbstractCmlTransition implements CmlTransition {
 		this.eventSources = eventSources;
 	}
 	
-	@Override
-	public abstract CmlTransitionSet getAsAlphabet();
+//	@Override
+//	public abstract CmlTransitionSet getAsAlphabet();
 
 	public Set<CmlBehaviour> getEventSources()
 	{

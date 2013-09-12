@@ -223,7 +223,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 						throws AnalysisException {
 					for(CmlBehaviour child : children())
 					{
-						if(child.inspect().containsImprecise(supervisor().selectedObservableEvent()))
+						if(child.inspect().contains(supervisor().selectedObservableEvent()))
 						{
 							if(supervisor().selectedObservableEvent() instanceof ChannelEvent)
 							{
@@ -466,43 +466,43 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 	 * @throws AnalysisException 
 	 */
 
-	private CmlTransitionSet caseAGeneralisedParallelismInspectChildren(PVarsetExpression channelsetExp, Context question) throws AnalysisException
-	{
-		//convert the channel set of the current node to a alphabet
-		CmlTransitionSet cs =  ((CmlTransitionSet)channelsetExp.apply(cmlExpressionVisitor,question)).union(new CmlTock());
-
-		//Get all the child alphabets and add the events that are not in the channelset
-		CmlBehaviour leftChild = owner.getLeftChild();
-		CmlTransitionSet leftChildAlphabet = leftChild.inspect();
-		CmlBehaviour rightChild = owner.getRightChild();
-		CmlTransitionSet rightChildAlphabet = rightChild.inspect();
-
-		//Find the intersection between the child alphabets and the channel set and join them.
-		//Then if both left and right have them the next step will combine them.
-		CmlTransitionSet syncAlpha = leftChildAlphabet.intersectImprecise(cs).union(rightChildAlphabet.intersectImprecise(cs));
-
-		//combine all the common events that are in the channel set 
-		Set<CmlTransition> syncEvents = new HashSet<CmlTransition>();
-		for(ObservableEvent ref : cs.getObservableEvents())
-		{
-			CmlTransitionSet commonEvents = syncAlpha.intersectImprecise(ref.getAsAlphabet());
-			if(commonEvents.getObservableEvents().size() == 2)
-			{
-				Iterator<ObservableEvent> it = commonEvents.getObservableEvents().iterator(); 
-				syncEvents.add( it.next().synchronizeWith(it.next()));
-			}
-		}
-
-		/*
-		 *	Finally we create the returned alphabet by joining all the 
-		 *  Synchronized events together with all the event of the children 
-		 *  that are not in the channel set.
-		 */
-		CmlTransitionSet resultAlpha = new CmlTransitionSet(syncEvents).union(leftChildAlphabet.subtractImprecise(cs));
-		resultAlpha = resultAlpha.union(rightChildAlphabet.subtractImprecise(cs));
-
-		return resultAlpha;
-	}
+//	private CmlTransitionSet caseAGeneralisedParallelismInspectChildren(PVarsetExpression channelsetExp, Context question) throws AnalysisException
+//	{
+//		//convert the channel set of the current node to a alphabet
+//		CmlTransitionSet cs =  ((CmlTransitionSet)channelsetExp.apply(cmlExpressionVisitor,question)).union(new CmlTock());
+//
+//		//Get all the child alphabets and add the events that are not in the channelset
+//		CmlBehaviour leftChild = owner.getLeftChild();
+//		CmlTransitionSet leftChildAlphabet = leftChild.inspect();
+//		CmlBehaviour rightChild = owner.getRightChild();
+//		CmlTransitionSet rightChildAlphabet = rightChild.inspect();
+//
+//		//Find the intersection between the child alphabets and the channel set and join them.
+//		//Then if both left and right have them the next step will combine them.
+//		CmlTransitionSet syncAlpha = leftChildAlphabet.intersectImprecise(cs).union(rightChildAlphabet.intersectImprecise(cs));
+//
+//		//combine all the common events that are in the channel set 
+//		Set<CmlTransition> syncEvents = new HashSet<CmlTransition>();
+//		for(ObservableEvent ref : cs.getObservableEvents())
+//		{
+//			CmlTransitionSet commonEvents = syncAlpha.intersectImprecise(ref.getAsAlphabet());
+//			if(commonEvents.getObservableEvents().size() == 2)
+//			{
+//				Iterator<ObservableEvent> it = commonEvents.getObservableEvents().iterator(); 
+//				syncEvents.add( it.next().synchronizeWith(it.next()));
+//			}
+//		}
+//
+//		/*
+//		 *	Finally we create the returned alphabet by joining all the 
+//		 *  Synchronized events together with all the event of the children 
+//		 *  that are not in the channel set.
+//		 */
+//		CmlTransitionSet resultAlpha = new CmlTransitionSet(syncEvents).union(leftChildAlphabet.subtractImprecise(cs));
+//		resultAlpha = resultAlpha.union(rightChildAlphabet.subtractImprecise(cs));
+//
+//		return resultAlpha;
+//	}
 	
 	@Override
 	public Inspection caseAHidingProcess(AHidingProcess node, Context question)

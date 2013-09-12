@@ -15,11 +15,11 @@ public interface CmlTransition extends Serializable {
 	
 	public abstract boolean equals(Object obj);
 	
-	/**
-	 * Wraps the event in a CmlAlphabet
-	 * @return
-	 */
-	public CmlTransitionSet getAsAlphabet();
+//	/**
+//	 * Wraps the event in a CmlAlphabet
+//	 * @return
+//	 */
+//	public CmlTransitionSet getAsAlphabet();
 	
 	/**
 	 * Returns the set of CmlBehaviourThreads that are prepared to engage in this event

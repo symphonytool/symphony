@@ -16,10 +16,10 @@ public interface ChannelEvent extends CmlTransition{
 	
 	public List<ChannelEvent> expand();
 	
-	/**
-	 * return the most precise of this and other
-	 * @param other
-	 * @return
-	 */
-	public ObservableEvent meet(ObservableEvent other); 
+//	/**
+//	 * return the most precise of this and other
+//	 * @param other
+//	 * @return
+//	 */
+//	public ObservableEvent meet(ObservableEvent other); 
 }
