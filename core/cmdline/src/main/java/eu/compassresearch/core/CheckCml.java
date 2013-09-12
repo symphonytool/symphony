@@ -536,7 +536,7 @@ public class CheckCml {
 						public void apply(INode root) throws AnalysisException {
 							try {
 								CmlRuntime.logger().setLevel(Level.FINE);
-								CmlRuntime.setShowHiddenEvents(false);
+								CmlRuntime.expandHiddenEvents(false);
 								interpreter.setDefaultName(Switch.EXEC.getValue());
 								
 								CmlSupervisorEnvironment sve = 

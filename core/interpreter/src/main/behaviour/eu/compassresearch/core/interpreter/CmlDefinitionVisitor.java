@@ -30,6 +30,7 @@ import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AActionsDefinition;
 import eu.compassresearch.ast.definitions.AChannelNameDefinition;
 import eu.compassresearch.ast.definitions.AChannelsDefinition;
+import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.definitions.AChansetsDefinition;
 import eu.compassresearch.ast.definitions.ACmlClassDefinition;
 import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
@@ -169,14 +170,24 @@ class CmlDefinitionVisitor extends
 		return new NameValuePairList();
 	}
 	
-//	@Override
-//	public NameValuePairList caseAChansetsDefinition(AChansetsDefinition node,
-//			Context question) throws AnalysisException {
-//
-//		node.g
-//		
-//		return super.caseAChansetsDefinition(node, question);
-//	}
+	@Override
+	public NameValuePairList caseAChansetsDefinition(AChansetsDefinition node,
+			Context question) throws AnalysisException {
+
+		return definitionListHelper(node.getChansets(), node.getLocation(), question);
+	}
+	
+	@Override
+	public NameValuePairList caseAChansetDefinition(AChansetDefinition node,
+			Context question) throws AnalysisException
+	{
+		NameValuePairList nvpl = new NameValuePairList();
+		ILexNameToken name =  NamespaceUtility.createChansetName(node.getIdentifier());
+		Value val = node.getChansetExpression().apply(cmlExpressionVisitor,question);
+		nvpl.add(new NameValuePair(name, val));
+		
+		return nvpl;
+	}
 	
 	/*
 	 * Function  

@@ -149,26 +149,13 @@ public class CmlExpressionVisitor extends QuestionAnswerCMLAdaptor<Context, Valu
 		return new ChannelNameSetValue(coms);
 	}
 	
-//	private ObservableEvent createEvent(ChannelNameValue channelName)
-//	{
-//		if(!channelName.hasValues())
-//		{		
-//			return CmlTransitionFactory.newSynchronizationEvent(channelName);
-//		}
-//		else
-//		{
-//			return CmlTransitionFactory.newCmlCommunicationEvent(channelName);
-//		}
-//	}
-	
 	@Override
 	public Value caseAIdentifierVarsetExpression(
 			AIdentifierVarsetExpression node, Context question)
 			throws AnalysisException {
 
-		throw new AnalysisException("Chansets are not implemented yet");
-		
-		//return new CmlTransitionSet(createEvent(createChannelNameValue(node.getIdentifier(), question)));
+		ILexNameToken name = NamespaceUtility.createChansetName(node.getIdentifier());
+		return question.lookup(name);
 	}
 	
 	@Override

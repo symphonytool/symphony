@@ -53,11 +53,11 @@ public class CmlRuntime {
 
 	}
 
-	public static boolean isShowHiddenEvents() {
+	public static boolean expandShowHiddenEvents() {
 		return showHiddenEvents;
 	}
 
-	public static void setShowHiddenEvents(boolean showHiddenEvents) {
+	public static void expandHiddenEvents(boolean showHiddenEvents) {
 		CmlRuntime.showHiddenEvents = showHiddenEvents;
 	}
 	

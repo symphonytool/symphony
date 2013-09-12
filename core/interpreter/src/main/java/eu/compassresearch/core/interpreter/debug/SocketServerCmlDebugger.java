@@ -381,15 +381,12 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 		{
 			case GET_STACK_FRAMES:
 			{
-				Console.debug.println("processing request "
-						+ message.getRequestId());
 				int id = message.getContent();
 				CmlBehaviour foundBehavior = this.runningInterpreter.findBehaviorById(id);
 				Context context = foundBehavior.getNextState().second;
 				List<StackFrameDTO> stackframes = new LinkedList<StackFrameDTO>();
 
 				Context nextContext = context;
-
 				while (nextContext != null)
 				{
 					stackframes.add(new StackFrameDTO(nextContext.location.getStartLine(), nextContext.location.getFile().toURI(), nextContext.getDepth()));
@@ -397,8 +394,6 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 				}
 				ResponseMessage responseMessage = new ResponseMessage(message.getRequestId(), CmlRequest.GET_STACK_FRAMES, stackframes);
 				sendResponse(responseMessage);
-				Console.debug.println("response sent"
-						+ responseMessage.getRequestId());
 				return true;
 			}
 				

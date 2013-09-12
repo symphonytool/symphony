@@ -1,8 +1,8 @@
-chansets
-I = {a}
-
 channels 
 a
+
+chansets
+I = {a}
 
 process A = 
 begin 

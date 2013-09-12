@@ -448,7 +448,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	public static void main(String[] args) throws IOException, CmlInterpreterException
 	{
 		File cml_example = new File(
-				"src/test/resources/examples/jpcw-register-explicit.cml");
+				"src/test/resources/action/action-varsetexpressions.cml");
 		//File cml_example = new File("/home/akm/phd/COMPASS-repo/Common/CaseStudies/Library/Library.cml");
 			
 		runOnFile(cml_example);

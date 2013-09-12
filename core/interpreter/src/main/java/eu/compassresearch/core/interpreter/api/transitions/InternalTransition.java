@@ -47,7 +47,7 @@ public class InternalTransition extends AbstractCmlTransition implements SilentT
 
 	@Override
 	public String toString() {
-		if(CmlRuntime.isShowHiddenEvents())
+		if(CmlRuntime.expandShowHiddenEvents())
 			return tauString + "(" + ( transitionSrcNode != null ? transitionSrcNode.getClass().getSimpleName(): "initial" ) 
 				
 					+ ( transitionText != null ? "--" + transitionText + "-->"  : "->" )
