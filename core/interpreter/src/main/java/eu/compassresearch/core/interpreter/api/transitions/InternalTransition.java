@@ -32,12 +32,6 @@ public class InternalTransition extends AbstractCmlTransition implements SilentT
 		this.transitionText = transitionText;
 	}
 	
-//	@Override
-//	public INode getDestinationNode()
-//	{
-//		return transitionDstNode;
-//	}
-	
 	@Override
 	public int hashCode() {
 		return tauString.hashCode();
@@ -64,9 +58,6 @@ public class InternalTransition extends AbstractCmlTransition implements SilentT
 		else
 		{
 			InternalTransition otherSilent = (InternalTransition)obj;
-//			return this.transitionSrcNode != null && otherSilent.transitionSrcNode != null && this.transitionSrcNode.equals(otherSilent.transitionSrcNode) &&
-//					this.transitionDstNode != null && otherSilent.transitionDstNode != null && this.transitionDstNode.equals(otherSilent.transitionDstNode) &&
-//					this.eventSources.equals(otherSilent.eventSources);
 			return super.equals(otherSilent);
 		}
 	}
