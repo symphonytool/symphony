@@ -580,53 +580,57 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 
 		final ValueList v = question.lookup(NamespaceUtility.getSeqForName()).seqValue(question);
 		
+		//if the sequece is empty we're done and evolve into skip
 		if(v.isEmpty())
 		{
 			final ASkipAction skipAction = new ASkipAction(node.getLocation());
 			return newInspection(createSilentTransition(skipAction),
 					new AbstractCalculationStep(owner,visitorAccess) {
-				
 				@Override
 				public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
 						throws AnalysisException {
-					
+					setLeftChild(null);
 					return new Pair<INode,Context>(skipAction, question.outer);
 				}
 			}); 
 		}
-		else
+		
+		//if the sequence is non empty and we either have no or a finished child
+		//we need to create a new one
+		if(!owner.hasChildren() || owner.getLeftChild().finished())
 		{
+			//put the front element in scope of the action
+			Value x = v.firstElement();
+			v.remove(x);
 			
-			final Inspection actionInspection = node.getAction().apply(parentVisitor,question);
-			return newInspection(actionInspection.getTransitions(),
-					new AbstractCalculationStep(owner,visitorAccess) {
-				
-				@Override
-				public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
-						throws AnalysisException {
-					
-					Value x = v.firstElement();
-					v.remove(x);
-					
-					if (node.getPatternBind().getPattern() != null)
-					{
-							try
-							{
-								question.putList(PPatternAssistantInterpreter.getNamedValues(node.getPatternBind().getPattern(),x, question));
-								actionInspection.getNextStep().execute(sve);
-
-							}
-							catch (PatternMatchException e)
-							{
-								// Ignore mismatches
-							}
-					}
-					
-					return new Pair<INode, Context>(node,question);
-					
+			if (node.getPatternBind().getPattern() != null)
+			{
+				try
+				{
+					question.putList(PPatternAssistantInterpreter.getNamedValues(node.getPatternBind().getPattern(),x, question));
 				}
-			}); 
+				catch (PatternMatchException e)
+				{
+					// Ignore mismatches
+				}
+			}
+			
+			visitorAccess.setLeftChild(new ConcreteCmlBehaviour(node.getAction(),question,owner));
 		}
+			
+		return newInspection(owner.getLeftChild().inspect(),
+				new AbstractCalculationStep(owner,visitorAccess) {
+
+			@Override
+			public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+					throws AnalysisException {
+
+				owner.getLeftChild().execute(sve);
+				
+				return new Pair<INode, Context>(node,question);
+			}
+		}); 
+		
 		
 	}
 	/**
@@ -641,7 +645,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 		if(node.getCondition().apply(cmlExpressionVisitor,question).boolValue(question))
 		{
 			//the next step is a sequential composition of the action and this node
-			return newInspection(createSilentTransition(node, null), 
+			return newInspection(createSilentTransition(node), 
 					new AbstractCalculationStep(owner,visitorAccess) {
 				
 				@Override
