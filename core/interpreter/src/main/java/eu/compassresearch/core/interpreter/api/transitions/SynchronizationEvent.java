@@ -30,7 +30,7 @@ class SynchronizationEvent extends AbstractChannelEvent implements ObservableEve
 	@Override
 	public int hashCode() {
 		
-		return channelName.getChannel().hashCode(); //(this.eventSource != null ? this.eventSource.hashCode() : "null".hashCode());
+		return channelName.getChannel().hashCode(); 
 	}
 
 	@Override
@@ -46,11 +46,6 @@ class SynchronizationEvent extends AbstractChannelEvent implements ObservableEve
 		
 		return super.equals(obj);
 	}
-
-//	@Override
-//	public CmlTransitionSet getAsAlphabet() {
-//		return new CmlTransitionSet(this);
-//	}
 
 	@Override
 	public ObservableEvent synchronizeWith(ObservableEvent syncEvent) {
@@ -71,11 +66,6 @@ class SynchronizationEvent extends AbstractChannelEvent implements ObservableEve
 		ChannelEvent otherChannelEvent = (ChannelEvent)other;
 		return channelName.isComparable(otherChannelEvent.getChannelName());
 	}
-
-//	@Override
-//	public ObservableEvent meet(ObservableEvent other) {
-//		return this;
-//	}
 
 	@Override
 	public List<ChannelEvent> expand() {

@@ -44,7 +44,7 @@ public class CmlInspectionVisitor extends AbstractInspectionVisitor {
 	public Inspection defaultPExp(final PExp node, final Context question)
 			throws AnalysisException {
 
-		return newInspection(createSilentTransition(node,null,"Post condition"),
+		return newInspection(createSilentTransition(null,"Post condition"),
 				new AbstractCalculationStep(owner,visitorAccess) {
 
 			@Override

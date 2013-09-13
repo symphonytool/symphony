@@ -62,14 +62,14 @@ public class AbstractInspectionVisitor extends
 	 * Common Helpers
 	 */
 	
-	protected CmlTransitionSet createSilentTransition(INode srcNode, INode dstNode, String transitionText)
+	protected CmlTransitionSet createSilentTransition(INode dstNode, String transitionText)
 	{
-		return new CmlTransitionSet(new CmlTock(owner),new InternalTransition(owner,srcNode,dstNode,transitionText));
+		return new CmlTransitionSet(new CmlTock(owner),new InternalTransition(owner,dstNode,transitionText));
 	}
 	
-	protected CmlTransitionSet createSilentTransition(INode srcNode, INode dstNode)
+	protected CmlTransitionSet createSilentTransition(INode dstNode)
 	{
-		return createSilentTransition(srcNode,dstNode,null);
+		return createSilentTransition(dstNode,null);
 	}
 	
 	protected Inspection newInspection(CmlTransitionSet transitions,CmlCalculationStep step)

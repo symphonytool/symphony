@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import org.overture.ast.node.INode;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.core.interpreter.api.behaviour.CmlTransitionSet;
@@ -38,18 +39,14 @@ public class HiddenEvent extends AbstractChannelEvent implements SilentTransitio
 			result.add(new HiddenEvent(this.eventSources, ce));
 		return result;
 	}
-
-//	@Override
-//	public ObservableEvent meet(ObservableEvent other) {
-//		//TODO the result must also be hidden
-//		return hiddenEvent.meet(other);
-//	}
-
-//	@Override
-//	public CmlTransitionSet getAsAlphabet() {
-//		return new CmlTransitionSet(this);
-//	}
 	
+//	@Override
+//	public INode getDestinationNode()
+//	{
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
+
 	@Override
 	public String toString() {
 		return InternalTransition.tauString + "(" + hiddenEvent.toString() + ")";
@@ -70,5 +67,4 @@ public class HiddenEvent extends AbstractChannelEvent implements SilentTransitio
 	public int hashCode() {
 		return this.hiddenEvent.hashCode();
 	}
-
 }

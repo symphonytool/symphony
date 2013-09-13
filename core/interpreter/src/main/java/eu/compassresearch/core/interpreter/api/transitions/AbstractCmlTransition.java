@@ -1,7 +1,10 @@
 package eu.compassresearch.core.interpreter.api.transitions;
 
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
+
+import org.overture.ast.node.INode;
 
 import eu.compassresearch.core.interpreter.api.behaviour.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
@@ -42,6 +45,16 @@ abstract class AbstractCmlTransition implements CmlTransition {
 	}
 	
 	@Override
+	public Set<INode> getSourceNodes()
+	{
+		HashSet<INode> nodes = new LinkedHashSet<INode>();
+		for(CmlBehaviour s : this.eventSources)
+			nodes.add(s.getNextState().first);
+
+		return nodes;
+	}
+
+	@Override
 	public boolean equals(Object obj) {
 		
 		CmlTransition other = null;
@@ -50,11 +63,7 @@ abstract class AbstractCmlTransition implements CmlTransition {
 			return false;
 		
 		other = (CmlTransition)obj;
-		
-		 // other is subset of this or this is a subset of other
-		return	isSourcesSubset(other);
-		//TODO it should like this but it does not work as it should!
-		//return eventSources.equals(other.getEventSources());
+		return eventSources.equals(other.getEventSources());
 	}
 
 }

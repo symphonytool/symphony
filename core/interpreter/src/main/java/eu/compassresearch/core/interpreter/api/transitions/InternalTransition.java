@@ -1,12 +1,8 @@
 package eu.compassresearch.core.interpreter.api.transitions;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.overture.ast.node.INode;
 
 import eu.compassresearch.core.interpreter.CmlRuntime;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 
 public class InternalTransition extends AbstractCmlTransition implements SilentTransition {
@@ -19,14 +15,12 @@ public class InternalTransition extends AbstractCmlTransition implements SilentT
 	protected static InternalTransition instance = null;
 	//public final static String tauString = "\u03C4".toLowerCase();
 	public final static String tauString = "tau";
-	private final INode transitionSrcNode;
 	private final INode transitionDstNode;
 	private String transitionText = null;
 						
-	public InternalTransition(CmlBehaviour source, INode transitionSrcNode, INode transitionDstNode, String transitionText)
+	public InternalTransition(CmlBehaviour source, INode transitionDstNode, String transitionText)
 	{
 		super(source);
-		this.transitionSrcNode = transitionSrcNode;
 		this.transitionDstNode = transitionDstNode;
 		this.transitionText = transitionText;
 	}
@@ -34,11 +28,15 @@ public class InternalTransition extends AbstractCmlTransition implements SilentT
 	public InternalTransition(CmlBehaviour source, String transitionText)
 	{
 		super(source);
-		this.transitionSrcNode = null;
 		this.transitionDstNode = null;
 		this.transitionText = transitionText;
 	}
 	
+//	@Override
+//	public INode getDestinationNode()
+//	{
+//		return transitionDstNode;
+//	}
 	
 	@Override
 	public int hashCode() {
@@ -47,9 +45,10 @@ public class InternalTransition extends AbstractCmlTransition implements SilentT
 
 	@Override
 	public String toString() {
+		//We now that it always has one source because it an internal transition
+		INode transitionSrcNode = this.getEventSources().iterator().next().getNextState().first;
 		if(CmlRuntime.expandShowHiddenEvents())
-			return tauString + "(" + ( transitionSrcNode != null ? transitionSrcNode.getClass().getSimpleName(): "initial" ) 
-				
+			return tauString + "(" + transitionSrcNode.getClass().getSimpleName() 
 					+ ( transitionText != null ? "--" + transitionText + "-->"  : "->" )
 			
 					+ ( transitionDstNode != null ? transitionDstNode.getClass().getSimpleName(): "" ) + ") : " + getEventSources();
@@ -60,18 +59,15 @@ public class InternalTransition extends AbstractCmlTransition implements SilentT
 	@Override
 	public boolean equals(Object obj) {
 		
-		if(!(obj instanceof SilentTransition))
+		if(!(obj instanceof InternalTransition))
 			return false;
 		else
-			return super.equals(obj);
+		{
+			InternalTransition otherSilent = (InternalTransition)obj;
+//			return this.transitionSrcNode != null && otherSilent.transitionSrcNode != null && this.transitionSrcNode.equals(otherSilent.transitionSrcNode) &&
+//					this.transitionDstNode != null && otherSilent.transitionDstNode != null && this.transitionDstNode.equals(otherSilent.transitionDstNode) &&
+//					this.eventSources.equals(otherSilent.eventSources);
+			return super.equals(otherSilent);
+		}
 	}
-
-//	@Override
-//	public CmlTransitionSet getAsAlphabet() {
-//		
-//		Set<CmlTransition> events = new HashSet<CmlTransition>();
-//		events.add(this);
-//		return new CmlTransitionSet(events);
-//	}
-
 }

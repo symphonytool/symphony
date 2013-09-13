@@ -107,7 +107,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 		//external choice begin
 		if(!owner.hasChildren())
 		{
-			return newInspection(createSilentTransition(node, node,"Begin"),
+			return newInspection(createSilentTransition(node,"Begin"),
 					new AbstractCalculationStep(owner,visitorAccess) {
 
 				@Override
@@ -128,7 +128,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 		//If this is true, the Skip rule is instantiated. This means that the entire choice evolves into Skip
 		//with the state from the skip. After this all the children processes are terminated
 		else if (CmlBehaviourUtility.finishedChildExists(owner))
-			return newInspection(createSilentTransition(node, node,"end"), 
+			return newInspection(createSilentTransition(node,"end"), 
 					new AbstractCalculationStep(owner,visitorAccess) {
 
 				@Override
@@ -183,7 +183,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 
 		//if true this means that this is the first time here, so the Parallel Begin rule is invoked.
 		if(!owner.hasChildren()){
-			return newInspection(createSilentTransition(node, node, "Begin"),
+			return newInspection(createSilentTransition(node, "Begin"),
 
 					new AbstractCalculationStep(owner, visitorAccess) {
 
@@ -199,7 +199,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 		//The process has children and they have all evolved into Skip so now the parallel end rule will be invoked 
 		else if (CmlBehaviourUtility.isAllChildrenFinished(owner))
 		{
-			return newInspection(createSilentTransition(node, new ASkipAction(), "End"), 
+			return newInspection(createSilentTransition(new ASkipAction(), "End"), 
 					caseParallelEnd(question));
 		}
 		else
@@ -342,7 +342,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 		}
 		//If the Action is terminated then it evolves into Skip
 		else
-			return newInspection(createSilentTransition(node, new ASkipAction()),
+			return newInspection(createSilentTransition(new ASkipAction()),
 					new AbstractCalculationStep(owner, visitorAccess) {
 
 				@Override
@@ -399,7 +399,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 		//if the left action is successfully finished then this node becomes the right action
 		else 
 		{
-			return newInspection(createSilentTransition(node,leftNode),
+			return newInspection(createSilentTransition(leftNode),
 					new AbstractCalculationStep(owner, visitorAccess) {
 
 				@Override

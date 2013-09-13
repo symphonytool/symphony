@@ -1,9 +1,11 @@
 package eu.compassresearch.core.interpreter.api.transitions;
 
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
-import eu.compassresearch.core.interpreter.api.behaviour.CmlTransitionSet;
+import org.overture.ast.node.INode;
+
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 
 public class CmlTock extends AbstractCmlTransition implements ObservableEvent {
@@ -45,6 +47,12 @@ public class CmlTock extends AbstractCmlTransition implements ObservableEvent {
 		
 		return new CmlTock(sources, Math.min(this.timeLimit,otherTock.timeLimit));
 	}
+	
+	//@Override
+	public Set<INode> getDestinationNodes()
+	{
+		return this.getSourceNodes();
+	}
 
 	@Override
 	public boolean isComparable(ObservableEvent other) {
@@ -61,14 +69,6 @@ public class CmlTock extends AbstractCmlTransition implements ObservableEvent {
 	{
 		return timeLimit != 0;
 	}
-
-//	@Override
-//	public CmlTransitionSet getAsAlphabet() {
-//
-//		Set<CmlTransition> events = new HashSet<CmlTransition>();
-//		events.add(this);
-//		return new CmlTransitionSet(events);
-//	}
 	
 	@Override
 	public boolean equals(Object obj) {

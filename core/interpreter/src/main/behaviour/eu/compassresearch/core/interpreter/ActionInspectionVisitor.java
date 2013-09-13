@@ -160,6 +160,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 			final ACommunicationAction node, final Context question)
 					throws AnalysisException {
 
+		//create the channel name
 		ILexNameToken channelName = NamespaceUtility.createChannelName(node.getIdentifier());
 		//find the channel value
 		CMLChannelValue chanValue = (CMLChannelValue)question.lookup(channelName);
@@ -176,8 +177,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 		{
 			List<Value> values = new LinkedList<Value>();
 			List<ValueConstraint> constraints = new LinkedList<ValueConstraint>();
-			int comParamSize = node.getCommunicationParameters().size(); 
-			for(int i = 0;i < comParamSize; i++)
+			for(int i = 0;i < node.getCommunicationParameters().size(); i++)
 			{
 				PCommunicationParameter p = node.getCommunicationParameters().get(i);
 				if(p instanceof ASignalCommunicationParameter)
@@ -233,7 +233,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 					for(int i = 0 ; i < node.getCommunicationParameters().size() ; i++ )
 					{
 						PCommunicationParameter param = node.getCommunicationParameters().get(i);
-						
+
 						if(param instanceof AReadCommunicationParameter)
 						{
 							PPattern pattern = ((AReadCommunicationParameter) param).getPattern();
@@ -312,7 +312,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 		//if true this means that this is the first time here, so the Parallel Begin rule is invoked.
 		if(!owner.hasChildren()){
 
-			return newInspection(createSilentTransition(node, node, "Begin"),
+			return newInspection(createSilentTransition(node, "Begin"),
 					new AbstractCalculationStep(owner, visitorAccess) {
 
 				@Override
@@ -329,7 +329,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 		//the process has children and must now handle either termination or event sync
 		else if (CmlBehaviourUtility.isAllChildrenFinished(owner))
 		{
-			return newInspection(createSilentTransition(node, new ASkipAction(node.getLocation()), "End"),caseParallelEnd(question));
+			return newInspection(createSilentTransition(new ASkipAction(node.getLocation()), "End"),caseParallelEnd(question));
 		}
 		else
 		{
@@ -371,13 +371,13 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 			tmpNode = node.getRight();
 			tmpContext = this.visitorAccess.getChildContexts(question).second;
 		}
-		
+
 		final INode nextNode = tmpNode;
 		final Context nextContext = tmpContext;
-		
-		return newInspection(createSilentTransition(node,nextNode), 
+
+		return newInspection(createSilentTransition(nextNode), 
 				new AbstractCalculationStep(owner, visitorAccess) {
-			
+
 			@Override
 			public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
 					throws AnalysisException {
@@ -467,7 +467,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 
 		//if the gaurd is true then we return the silent transition to the guarded action
 		if(guardExp.boolValue(question))
-			alpha = createSilentTransition(node, node.getAction());
+			alpha = createSilentTransition(node.getAction());
 		//else we return the empty alphabet since no transition is possible
 		else
 			alpha = new CmlTransitionSet(new CmlTock(owner));
@@ -527,7 +527,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 		//CMLActionInstance refchild = new CMLActionInstance(node.getActionDefinition().getAction(), question, node.getName()); 
 		final ActionValue actionValue = (ActionValue)question.check(node.getName()).deref();
 
-		return newInspection(createSilentTransition(node,actionValue.getActionDefinition().getAction()),
+		return newInspection(createSilentTransition(actionValue.getActionDefinition().getAction()),
 				new AbstractCalculationStep(owner, visitorAccess) {
 
 			@Override
@@ -606,16 +606,16 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 		//return the alphabet only containing tock since Stop allows for time to pass
 		return newInspection(new CmlTransitionSet(new CmlTock(owner)),null);
 	}
-	
+
 	@Override
 	public Inspection caseASynchronousParallelismParallelAction(
 			ASynchronousParallelismParallelAction node, Context question)
-			throws AnalysisException {
-		
+					throws AnalysisException {
+
 		AFatEnumVarsetExpression varsetNode = getAllChannelsAsFatEnum(node.getLocation(),question);
 		AGeneralisedParallelismParallelAction nextNode = new AGeneralisedParallelismParallelAction(node.getLocation(), 
 				node.getLeftAction().clone(),node.getLeftNamesetExpression(),node.getLeftNamesetExpression(), node.getRightAction().clone(),varsetNode);
-		
+
 		return caseAGeneralisedParallelismParallelAction(nextNode, question);
 	}
 
@@ -633,7 +633,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 		//If the left is Skip then the whole process becomes skip with the state of the left child
 		if(owner.getLeftChild().finished())
 		{
-			return newInspection(createSilentTransition(node, owner.getLeftChild().getNextState().first,"Timeout: left behavior is finished"), 
+			return newInspection(createSilentTransition(owner.getLeftChild().getNextState().first,"Timeout: left behavior is finished"), 
 					new AbstractCalculationStep(owner, visitorAccess) {
 
 				@Override
@@ -649,7 +649,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 		//behaves as the right process
 		else if(owner.getCurrentTime() - startTimeVal >= val)
 		{
-			return newInspection(createSilentTransition(node, node.getRight(),"Timeout: time exceeded"), 
+			return newInspection(createSilentTransition(node.getRight(),"Timeout: time exceeded"), 
 					new AbstractCalculationStep(owner, visitorAccess) {
 
 				@Override
@@ -674,11 +674,11 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 
 				@Override
 				public Pair<INode, Context> execute(CmlSupervisorEnvironment sve) throws AnalysisException {
-					
+
 					leftBehavior.execute(supervisor());
 
 					if(supervisor().selectedObservableEvent() instanceof ObservableEvent &&
-						supervisor().selectedObservableEvent() instanceof ChannelEvent)
+							supervisor().selectedObservableEvent() instanceof ChannelEvent)
 					{
 						setLeftChild(null);
 						return leftBehavior.getNextState();
@@ -701,7 +701,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 		//If the left is Skip then the whole process becomes skip with the state of the left child
 		if(owner.getLeftChild().finished())
 		{
-			return newInspection(createSilentTransition(node, owner.getLeftChild().getNextState().first),
+			return newInspection(createSilentTransition(owner.getLeftChild().getNextState().first),
 					new AbstractCalculationStep(owner, visitorAccess) {
 
 				@Override
@@ -718,7 +718,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 		//behaves as the right process
 		else if(this.rnd.nextBoolean())
 		{
-			return newInspection(createSilentTransition(node, node.getRight()), 
+			return newInspection(createSilentTransition(node.getRight()), 
 					new AbstractCalculationStep(owner, visitorAccess) {
 
 				@Override
@@ -763,10 +763,10 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 		long val = node.getExpression().apply(cmlExpressionVisitor,question).natValue(question);
 		long startTime = question.lookup(NamespaceUtility.getStartTimeName()).intValue(question);
 		long nTocks = owner.getCurrentTime() - startTime;
-		
+
 		//If the number of tocks exceeded val then we make a silent transition that ends the delay process
 		if( nTocks >= val)
-			return newInspection(createSilentTransition(node, new ASkipAction(),"Wait ended"),
+			return newInspection(createSilentTransition(new ASkipAction(),"Wait ended"),
 					new AbstractCalculationStep(owner, visitorAccess) {
 
 				@Override
@@ -789,7 +789,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 			final Context question) throws AnalysisException {
 		if(owner.getLeftChild().finished())
 		{
-			return newInspection(createSilentTransition(node, owner.getLeftChild().getNextState().first) ,
+			return newInspection(createSilentTransition(owner.getLeftChild().getNextState().first) ,
 
 					new AbstractCalculationStep(owner, visitorAccess) {
 
@@ -806,7 +806,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 		else if(owner.getRightChild().getTraceModel().getLastTransition() instanceof ObservableEvent &&
 				owner.getRightChild().getTraceModel().getLastTransition() instanceof ChannelEvent)
 		{
-			return newInspection(createSilentTransition(node, owner.getRightChild().getNextState().first) ,
+			return newInspection(createSilentTransition(owner.getRightChild().getNextState().first) ,
 
 					new AbstractCalculationStep(owner, visitorAccess) {
 
@@ -824,16 +824,16 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 		{
 			return newInspection(syncOnTockAndJoinChildren(),
 
-				new AbstractCalculationStep(owner, visitorAccess) {
+					new AbstractCalculationStep(owner, visitorAccess) {
 
-					@Override
-					public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
-							throws AnalysisException {
-						//setLeftChild(null);
-						//setRightChild(null);
-						caseParallelNonSync();
-						return new Pair<INode, Context>(node, question);
-					}
+				@Override
+				public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+						throws AnalysisException {
+					//setLeftChild(null);
+					//setRightChild(null);
+					caseParallelNonSync();
+					return new Pair<INode, Context>(node, question);
+				}
 			});
 		}
 	}

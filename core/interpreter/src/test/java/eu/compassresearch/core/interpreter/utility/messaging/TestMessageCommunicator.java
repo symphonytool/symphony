@@ -216,6 +216,13 @@ public class TestMessageCommunicator {
 						// TODO Auto-generated method stub
 						return false;
 					}
+
+					@Override
+					public Set<INode> getSourceNodes()
+					{
+						// TODO Auto-generated method stub
+						return null;
+					}
 				}); 
 					
 				

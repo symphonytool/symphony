@@ -72,11 +72,11 @@ public class CmlTransitionSet extends Value {
 		
 		for(CmlTransition e : events)
 		{
-			if(e instanceof ObservableEvent){
+			if(e instanceof SilentTransition)
+				this.silentEvents.add((SilentTransition)e);
+			else if(e instanceof ObservableEvent){
 				_observableEvents.add((ObservableEvent)e);
 			}
-			else if(e instanceof SilentTransition)
-				this.silentEvents.add((SilentTransition)e);
 		}
 	}
 	
@@ -91,8 +91,10 @@ public class CmlTransitionSet extends Value {
 	
 	public Set<ObservableEvent> getObservableChannelEvents()
 	{
-		Set<ObservableEvent> observableChannelEvents = new LinkedHashSet<ObservableEvent>(_observableEvents);
-		observableChannelEvents.remove(new CmlTock());
+		Set<ObservableEvent> observableChannelEvents = new LinkedHashSet<ObservableEvent>();
+		for(ObservableEvent obsEvent : _observableEvents)
+			if(obsEvent instanceof ChannelEvent)
+				observableChannelEvents.add(obsEvent);
 		
 		return observableChannelEvents;
 	}
@@ -336,8 +338,25 @@ public class CmlTransitionSet extends Value {
 	 */
 	public boolean contains(CmlTransition event)
 	{
-		return (event instanceof ObservableEvent && !intersect((ObservableEvent)event).isEmpty()) || 
-				_observableEvents.contains(event) || silentEvents.contains(event);
+		if(event instanceof ObservableEvent && !intersect((ObservableEvent)event).isEmpty())
+			return true;
+		else if(event instanceof SilentTransition)
+		{
+			return containsSilentTransition((SilentTransition)event);
+		}
+		else 
+			return _observableEvents.contains(event); 
+	}
+	
+	private boolean containsSilentTransition(SilentTransition transition)
+	{
+		for(CmlTransition thisTransition : getAllEvents())
+		{
+			if(thisTransition.isSourcesSubset(transition))
+				return true;
+		}
+		
+		return false;
 	}
 	
 	public boolean isEmpty(){

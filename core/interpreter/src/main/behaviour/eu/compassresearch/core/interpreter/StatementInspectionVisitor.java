@@ -113,7 +113,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 			final ABlockStatementAction node, final Context question)
 			throws AnalysisException {
 		
-		return newInspection(createSilentTransition(node, node.getAction()), 
+		return newInspection(createSilentTransition(node.getAction()), 
 				new AbstractCalculationStep(owner, visitorAccess) {
 					
 					@Override
@@ -147,7 +147,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 		
 		if(!owner.hasChildren()){
 			
-			return newInspection(createSilentTransition(node, node), 
+			return newInspection(createSilentTransition(node), 
 					new AbstractCalculationStep(owner, visitorAccess) {
 						
 						@Override
@@ -309,7 +309,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 		else
 		{
 			final INode skipNode = new ASkipAction();
-			return newInspection(createSilentTransition(node, skipNode), 
+			return newInspection(createSilentTransition(skipNode), 
 					new AbstractCalculationStep(owner, visitorAccess) {
 						
 						@Override
@@ -329,7 +329,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 
 		if (node.getIfExp().apply(cmlExpressionVisitor,question).boolValue(question))
 		{
-			return newInspection(createSilentTransition(node,node.getThenStm()), 
+			return newInspection(createSilentTransition(node.getThenStm()), 
 					new AbstractCalculationStep(owner, visitorAccess) {
 						
 						@Override
@@ -345,7 +345,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 			{
 				if(elseif.getElseIf().apply(cmlExpressionVisitor,question).boolValue(question))
 				{
-					return newInspection(createSilentTransition(node, elseif.getThenStm()), 
+					return newInspection(createSilentTransition(elseif.getThenStm()), 
 							new AbstractCalculationStep(owner, visitorAccess) {
 								
 								@Override
@@ -359,7 +359,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 
 			if (node.getElseStm() != null)
 			{
-				return newInspection(createSilentTransition(node, node.getElseStm()), 
+				return newInspection(createSilentTransition(node.getElseStm()), 
 						new AbstractCalculationStep(owner, visitorAccess) {
 							
 							@Override
@@ -372,7 +372,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 		}
 		
 		final ASkipAction skipAction = new ASkipAction(node.getLocation());
-		return newInspection(createSilentTransition(node,skipAction),
+		return newInspection(createSilentTransition(skipAction),
 				new AbstractCalculationStep(owner, visitorAccess) {
 			
 			@Override
@@ -387,7 +387,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 	public Inspection caseALetStatementAction(final ALetStatementAction node,
 			final Context question) throws AnalysisException {
 	
-		return newInspection(createSilentTransition(node, node.getAction()), 
+		return newInspection(createSilentTransition(node.getAction()), 
 		new AbstractCalculationStep(owner, visitorAccess) {
 			
 			@Override
@@ -412,7 +412,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 		ILexNameToken name = node.getClassdef().getName().clone();//new LexNameToken(node.getClassdef().getName().getName(), node.getClassName().getIdentifier().getName(), node.getLocation());
 		final ACallStatementAction callStm = new ACallStatementAction(name.getLocation(), name, node.getArgs());
 		
-		return newInspection(createSilentTransition(node, callStm),
+		return newInspection(createSilentTransition(callStm),
 				new AbstractCalculationStep(owner,visitorAccess) {
 					
 					@Override
@@ -446,7 +446,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 		{
 			final INode next = availableAlts.get(rnd.nextInt(availableAlts.size())).getAction();
 			
-			return newInspection(createSilentTransition(node, next),
+			return newInspection(createSilentTransition(next),
 					new AbstractCalculationStep(owner,visitorAccess) {
 						
 						@Override
@@ -488,7 +488,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 			final INode nextNode = new ASequentialCompositionAction(node.getLocation(), 
 					availableAlts.get(rnd.nextInt(availableAlts.size())).getAction().clone(), 
 						node.clone());
-			return newInspection(createSilentTransition(node, nextNode), 
+			return newInspection(createSilentTransition(nextNode), 
 					new AbstractCalculationStep(owner,visitorAccess) {
 						
 						@Override
@@ -502,7 +502,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 		}
 		else
 		{
-			return newInspection(createSilentTransition(node, new ASkipAction()),
+			return newInspection(createSilentTransition(new ASkipAction()),
 					new AbstractCalculationStep(owner,visitorAccess) {
 						
 						@Override
@@ -521,7 +521,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 			final AReturnStatementAction node, final Context question)
 			throws AnalysisException {
 
-		return newInspection(createSilentTransition(node,new ASkipAction()), 
+		return newInspection(createSilentTransition(new ASkipAction()), 
 				new AbstractCalculationStep(owner,visitorAccess) {
 			
 			@Override
@@ -554,7 +554,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 		final INode skipNode = new ASkipAction(node.getLocation(),new AActionType());
 		//FIXME according to the semantics this should be performed instantly so time is not
 		//allowed to pass
-		return newInspection(new CmlTransitionSet(new InternalTransition(owner,node,skipNode,null)),
+		return newInspection(new CmlTransitionSet(new InternalTransition(owner,skipNode,null)),
 				new AbstractCalculationStep(owner,visitorAccess) {
 			
 			@Override
@@ -583,7 +583,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 		if(v.isEmpty())
 		{
 			final ASkipAction skipAction = new ASkipAction(node.getLocation());
-			return newInspection(createSilentTransition(node,skipAction),
+			return newInspection(createSilentTransition(skipAction),
 					new AbstractCalculationStep(owner,visitorAccess) {
 				
 				@Override
@@ -656,7 +656,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 		{
 			//if the condition is false then the While evolves into Skip
 			final INode skipNode = new ASkipAction();
-			return newInspection(createSilentTransition(node, skipNode),
+			return newInspection(createSilentTransition(skipNode),
 					new AbstractCalculationStep(owner,visitorAccess) {
 				
 				@Override
