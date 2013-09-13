@@ -6,33 +6,31 @@ import java.util.Scanner;
 import java.util.Set;
 
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.node.INode;
-import org.overture.ast.types.AIntNumericBasicType;
-import org.overture.ast.types.ANamedInvariantType;
-import org.overture.ast.types.ANatNumericBasicType;
-import org.overture.ast.types.AProductType;
-import org.overture.ast.types.AQuoteType;
-import org.overture.ast.types.AUnionType;
-import org.overture.ast.types.PType;
-import org.overture.interpreter.values.IntegerValue;
-import org.overture.interpreter.values.NaturalValue;
-import org.overture.interpreter.values.QuoteValue;
-import org.overture.interpreter.values.TupleValue;
 import org.overture.interpreter.values.Value;
-import org.overture.interpreter.values.ValueList;
 
-import eu.compassresearch.ast.analysis.AnswerCMLAdaptor;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.transitions.ChannelEvent;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.values.AbstractValueInterpreter;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
 
-public class ConsoleSelectionStrategy implements
-SelectionStrategy {
+public class ConsoleSelectionStrategy implements SelectionStrategy {
 	
 	Scanner scanIn = new Scanner(System.in);
 	private RandomSelectionStrategy rndSelect = new RandomSelectionStrategy();
+	private boolean hideSilentTransitions;
+	
+	public ConsoleSelectionStrategy()
+	{
+		setHideSilentTransitions(true);
+	}
+	
+	
+	public ConsoleSelectionStrategy(boolean hideSilentTransitions)
+	{
+		this.setHideSilentTransitions(hideSilentTransitions);
+	}
+	
 	
 	private boolean isSystemSelect(CmlTransitionSet availableChannelEvents)
 	{
@@ -90,10 +88,22 @@ SelectionStrategy {
 		//At this point we don't want the internal transition to propagate 
 		//to the user, so we randomly choose all the possible internal transitions
 		//before we let anything through to the user
-		if(isSystemSelect(availableChannelEvents))
+		if(isSystemSelect(availableChannelEvents) && isHideSilentTransitions())
 			return systemSelect(availableChannelEvents);
 		else
 			return userSelect(availableChannelEvents);
+	}
+
+
+	public boolean isHideSilentTransitions()
+	{
+		return hideSilentTransitions;
+	}
+
+
+	public void setHideSilentTransitions(boolean hideSilentTransitions)
+	{
+		this.hideSilentTransitions = hideSilentTransitions;
 	}
 	
 }
