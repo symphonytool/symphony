@@ -580,7 +580,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 
 		final ValueList v = question.lookup(NamespaceUtility.getSeqForName()).seqValue(question);
 		
-		//if the sequece is empty we're done and evolve into skip
+		//if the sequence is empty we're done and evolve into skip
 		if(v.isEmpty())
 		{
 			final ASkipAction skipAction = new ASkipAction(node.getLocation());
@@ -589,6 +589,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 				@Override
 				public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
 						throws AnalysisException {
+					//clear the child nodes
 					setLeftChild(null);
 					return new Pair<INode,Context>(skipAction, question.outer);
 				}
