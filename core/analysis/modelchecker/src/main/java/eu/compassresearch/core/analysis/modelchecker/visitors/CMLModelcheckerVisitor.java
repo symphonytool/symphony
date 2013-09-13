@@ -10,6 +10,7 @@ import java.util.Set;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AAssignmentDefinition;
+import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.definitions.PDefinition;
@@ -26,6 +27,7 @@ import org.overture.ast.expressions.ANotUnaryExp;
 import org.overture.ast.expressions.AOrBooleanBinaryExp;
 import org.overture.ast.expressions.ASetEnumSetExp;
 import org.overture.ast.expressions.ATimesNumericBinaryExp;
+import org.overture.ast.expressions.AVariableExp;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.types.AIntNumericBasicType;
 import org.overture.ast.types.ANamedInvariantType;
@@ -72,7 +74,6 @@ import eu.compassresearch.core.analysis.modelchecker.api.FormulaIntegrationUtili
 import eu.compassresearch.core.analysis.modelchecker.api.FormulaIntegrator;
 import eu.compassresearch.core.analysis.modelchecker.api.FormulaResult;
 import eu.compassresearch.core.analysis.modelchecker.api.IFormulaIntegrator;
-import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.BBinding;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.Binding;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Int;
 
@@ -149,23 +150,32 @@ public class CMLModelcheckerVisitor extends
 		
 
 		if(question.info.containsKey(Utilities.ASSIGNMENT_DEFINITION_KEY)){
-			//question.getScriptContent().append(question.info.get(Utilities.ASSIGNMENT_DEFINITION_KEY));
-			Map<String, ArrayList<String>> assigns = (Map<String, ArrayList<String>>) question.info.get(Utilities.ASSIGNMENT_DEFINITION_KEY);
-			CMLModelcheckerContext.ASSIGN_COUNTER = 0;
-			Binding max = question.getMaxBinding();
+			Map<String, Map<String, String>> assigns = (Map<String, Map<String, String>>) question.info.get(Utilities.ASSIGNMENT_DEFINITION_KEY);
+
 			for(Iterator<String> it = assigns.keySet().iterator(); it.hasNext();){
 				String key = it.next();
-				ArrayList<String> values = assigns.get(key);
-				for(int i=0; i < values.size(); i++){
-					Integer val = new Integer(values.get(i));
-					question.getScriptContent().append("  assignDef(0, "+CMLModelcheckerContext.ASSIGN_COUNTER +", st, st_)  :- State(0,st,name,assign("+CMLModelcheckerContext.ASSIGN_COUNTER+")), st = ");
-					question.getScriptContent().append(max.toFormula());					
-					question.getScriptContent().append(", st_ = ");
-					max.updateBinding(key, new Int(val.intValue()));
-					question.getScriptContent().append(max.toFormula());
+				Map<String, String> aux = assigns.get(key);
+				for(Iterator<String> iterator = aux.keySet().iterator(); iterator.hasNext();){
+					String key2 = iterator.next();
+					String values = aux.get(key2);
+					Integer val = new Integer(values);
+					Binding max;
+					question.getScriptContent().append("  assignDef(0, "+ key +", st, st_)  :- State(0,st,name,assign("+key+")), st = ");
+					if(question.info.containsKey(Utilities.STATES_KEY)){
+						 max = question.getMaxBindingWithStates();
+						question.getScriptContent().append(max.toFormulaWithState());
+						question.getScriptContent().append(", st_ = ");
+						max.updateBinding(key2, new Int(key2+"_"));
+						question.getScriptContent().append(max.toFormulaWithState());
+						question.getScriptContent().append(", "+key2+"_ = "+key2+" + "+val.toString());
+					} else{
+						max = question.getMaxBinding();
+						question.getScriptContent().append(max.toFormula());
+						question.getScriptContent().append(", st_ = ");
+						max.updateBinding(key2, new Int(val.intValue()));
+						question.getScriptContent().append(max.toFormula());
+					}
 					question.getScriptContent().append(".\n");
-					CMLModelcheckerContext.ASSIGN_COUNTER++;
-					
 				}
 			}
 		}
@@ -195,19 +205,46 @@ public class CMLModelcheckerVisitor extends
 			
 		}
 		
-		if(question.info.containsKey(Utilities.DEL_BBINDING)){
-			Set<String> varToDel = question.getVariables();
-			for(Iterator<String> var = varToDel.iterator(); var.hasNext();){
-				String s = var.next();
-				Binding b = question.getMaxBinding();
-				StringBuilder del = new StringBuilder("  del(");
-				del.append(question.getMaxBinding().toFormulaWithUnderscore());
-				del.append(",\""+s+"\",");
-				b = b.deleteBinding(s);
-				del.append(b.toFormulaWithUnderscore()+")\n");
-				question.getScriptContent().append(del);
+		if(question.info.containsKey(Utilities.STATES_KEY)){
+			ArrayList<StringBuilder> states = (ArrayList<StringBuilder>) question.info.get(Utilities.STATES_KEY);
+			StringBuilder s;
+			for (int i = 0; i < states.size(); i++) {
+				s = states.get(i);
+				String currentState = question.getStates().get(i);
+				StringBuilder aux = new StringBuilder(question.getMaxBindingWithStates().toFormulaWithState());
+				aux.replace(aux.indexOf("Int("), aux.indexOf(")")+1, currentState);
+				s.replace(s.indexOf("_"), s.indexOf("_")+1, aux.toString());
+				s.replace(s.indexOf("Int("), s.length(), currentState+")");
+				s.append("\n");
+				question.getScriptContent().append(" "+s);
 			}
-			
+		}
+		
+		if(question.info.containsKey(Utilities.DEL_BBINDING)){
+			if(question.getVariables().size() != 0){
+				Set<String> varToDel = question.getVariables();
+				for(Iterator<String> var = varToDel.iterator(); var.hasNext();){
+					String s = var.next();
+					Binding b = question.getMaxBinding();
+					StringBuilder del = new StringBuilder("  del(");
+					del.append(question.getMaxBinding().toFormulaWithUnderscore());
+					del.append(",\""+s+"\",");
+					b = b.deleteBinding(s);
+					del.append(b.toFormulaWithUnderscore()+")\n");
+					question.getScriptContent().append(del);
+				}
+			} else{
+				ArrayList<String> varToDel = question.getStates();
+				for(String s: varToDel){
+					Binding b = question.getMaxBinding();
+					StringBuilder del = new StringBuilder("  del(");
+					del.append(question.getMaxBindingWithStates().toFormulaWithUnderscore());
+					del.append(",\""+s+"\",");
+					b = b.deleteBinding(s);
+					del.append(b.toFormulaWithUnderscore()+")\n");
+					question.getScriptContent().append(del);
+				}
+			}
 		}
 		
 		question.getScriptContent().append(
@@ -222,12 +259,12 @@ public class CMLModelcheckerVisitor extends
 	public StringBuilder caseAActionProcess(AActionProcess node,
 			CMLModelcheckerContext question) throws AnalysisException {
 		// it applies to each definition of this action process
-		// for (PDefinition definition : node.getDefinitionParagraphs()) {
-		// definition.apply(this, question);
-		// }
+		for (PDefinition definition : node.getDefinitionParagraphs()) {
+			 definition.apply(this, question);
+		}
 		// question.info.put(node.getAction(), node.getDefinitionParagraphs());
-		question.info.put(Utilities.LOCAL_DEFINITIONS_KEY,
-				node.getDefinitionParagraphs());
+		//question.info.put(Utilities.LOCAL_DEFINITIONS_KEY,
+			//	node.getDefinitionParagraphs());
 		
 		//node.getDefinitionParagraphs().getFirst().apply(this, question);
 
@@ -258,8 +295,12 @@ public class CMLModelcheckerVisitor extends
 		
 		if(question.info.containsKey(Utilities.VAR_DECLARATIONS_KEY)){
 			question.getScriptContent().append("  State(0,");
-			//Binding maximalBind = (Binding) question.info.get(Utilities.VAR_DECLARATIONS_KEY);
 			question.getScriptContent().append(question.getMaxBinding().toFormula());
+			question.getScriptContent().append(",np,pBody)  :- GivenProc(np), ProcDef(np,nopar,pBody).\n");
+		}
+		if(question.info.containsKey(Utilities.STATES_KEY)){
+			question.getScriptContent().append("  State(0,");
+			question.getScriptContent().append(question.getMaxBindingWithStates().toFormula());
 			question.getScriptContent().append(",np,pBody)  :- GivenProc(np), ProcDef(np,nopar,pBody).\n");
 		} else {
 			//putting the initial state to be generated
@@ -269,12 +310,21 @@ public class CMLModelcheckerVisitor extends
 		int indexIoCommDef = question.getScriptContent().indexOf("#IOCOMM_DEFS#");
 		if(indexIoCommDef != -1){
 			if(question.info.containsKey(Utilities.IOCOMM_DEFINITIONS_KEY)){
-				question.getScriptContent().replace(indexIoCommDef, indexIoCommDef + "#IOCOMM_DEFS#".length(), question.info.get(Utilities.IOCOMM_DEFINITIONS_KEY).toString());
+				if(question.info.containsKey(Utilities.STATES_KEY)){
+					StringBuilder s = new StringBuilder(question.getScriptContent().toString());
+					s.replace(0, s.indexOf("nopar,"), "");
+					String ss = s.substring("nopar,".length(), s.indexOf(" :"));
+					StringBuilder io = new StringBuilder(question.info.get(Utilities.IOCOMM_DEFINITIONS_KEY).toString());
+					io.append(ss+".\n");
+					question.getScriptContent().replace(indexIoCommDef, indexIoCommDef + "#IOCOMM_DEFS#".length(), io.toString());
+				} else{
+					question.getScriptContent().replace(indexIoCommDef, indexIoCommDef + "#IOCOMM_DEFS#".length(), question.info.get(Utilities.IOCOMM_DEFINITIONS_KEY).toString());
+				}
+				
 			}else{
 				question.getScriptContent().replace(indexIoCommDef, indexIoCommDef + "#IOCOMM_DEFS#".length(), "");
 			}
 		}	
-		
 
 		if(question.info.containsKey(Utilities.CONDITION_KEY)){
 			PExp condition = (PExp)question.info.get(Utilities.CONDITION_KEY);
@@ -396,7 +446,7 @@ public class CMLModelcheckerVisitor extends
 		//str.append("  assignDef(0, "+CMLModelcheckerContext.ASSIGN_COUNTER +", st, st_)  :- State(0,st,name,assign("+CMLModelcheckerContext.ASSIGN_COUNTER+")), st = OLD_BINDING, st_ = NEW_BINDING");
 		//str.append(".\n");
 		
-		question.putVarAttInBinding(Utilities.ASSIGNMENT_DEFINITION_KEY, node.getStateDesignator().toString(), node.getExpression().toString());
+		question.putVarAttInBinding(Utilities.ASSIGNMENT_DEFINITION_KEY, ""+CMLModelcheckerContext.ASSIGN_COUNTER, node.getStateDesignator().toString(), node.getExpression().toString());
 		
 		CMLModelcheckerContext.ASSIGN_COUNTER++;
 		
@@ -499,7 +549,9 @@ public class CMLModelcheckerVisitor extends
 			question.getScriptContent().append(",");
 			// it converts the internal action (body)
 			node.getAction().apply(this, question);
-			question.getScriptContent().append(").\n");
+			if(!question.info.containsKey(Utilities.STATES_KEY)){
+				question.getScriptContent().append(").\n");
+			}
 		} else if(parameters.size()==1){
 			question.getScriptContent().append("SPar(");
 			node.getDeclarations().getFirst().apply(this, question);
@@ -583,31 +635,44 @@ public class CMLModelcheckerVisitor extends
 			
 			question.getScriptContent().append("Int(" + parameters.getFirst().toString() + ")");
 			question.getScriptContent().append("),");
-			
 				
 				//it applies recursivelly in the internal structure
 				node.getAction().apply(this, question);
 
 				question.getScriptContent().append("))");
 				
-				if(question.info.containsKey(Utilities.CHANNEL_DEFINITIONS_KEY)){
+				if(question.info.containsKey(Utilities.STATES_KEY)){
+					ArrayList<StringBuilder> states = (ArrayList<StringBuilder>) question.info.get(Utilities.STATES_KEY);
+					question.getScriptContent().append(") :- "+states.get(0));
+					for(int i = 1; i < states.size(); i++){
+						question.getScriptContent().append(",");
+						question.getScriptContent().append(states.get(i));
+					}
+					question.getScriptContent().append(".\n");
+					
+				} else if (question.info.containsKey(Utilities.CHANNEL_DEFINITIONS_KEY)){
 					LinkedList<AChannelNameDefinition> aux = (LinkedList<AChannelNameDefinition>) question.info.get(Utilities.CHANNEL_DEFINITIONS_KEY);
 					question.getScriptContent().append(" :- ");
 					aux.getFirst().apply(this, question);
 					int i = question.getScriptContent().lastIndexOf("_");
 					question.getScriptContent().replace(i, i+1, parameters.getFirst().toString());
-					question.getScriptContent().append(".\n");
 				}
 				
 				CMLModelcheckerContext aux = new CMLModelcheckerContext();
 				aux.getScriptContent().append("  IOCommDef(0,0,");
-				aux.getScriptContent().append("Int(" + parameters.getFirst().toString() + ")");
-				aux.getScriptContent().append(",nBind,nBind) :- State(0,_,_,");
-				aux.getScriptContent().append("Prefix(IOComm(0,\"" + node.getIdentifier()+"."+parameters.getFirst().toString() + "\",");
-				aux.getScriptContent().append("Int(" + parameters.getFirst().toString() + ")");
-				aux.getScriptContent().append("),");
-				node.getAction().apply(this, aux);
-				aux.getScriptContent().append(")).\n");
+				aux.getScriptContent().append("Int(" + parameters.getFirst().toString() + "),");
+				if(question.info.containsKey(Utilities.STATES_KEY)){
+					aux.getScriptContent().append(question.getMaxBindingWithStates().toFormulaWithState()+","+question.getMaxBindingWithStates().toFormulaWithState());
+					aux.getScriptContent().append(") :- State(0,_,np,");					
+					
+				} else {
+					aux.getScriptContent().append(",nBind,nBind) :- State(0,_,_,");
+					aux.getScriptContent().append("Prefix(IOComm(0,\"" + node.getIdentifier()+"."+parameters.getFirst().toString() + "\",");
+					aux.getScriptContent().append("Int(" + parameters.getFirst().toString() + ")");
+					aux.getScriptContent().append("),");
+					node.getAction().apply(this, aux);
+					aux.getScriptContent().append(")).\n");
+				}
 				//aux.getScriptContent().append("  State(0,nBind,np,pBody)  :- GivenProc(np), ProcDef(np,_,pBody).\n");
 				
 				
@@ -617,7 +682,12 @@ public class CMLModelcheckerVisitor extends
 		return question.getScriptContent();
 	}
 	
-	
+	@Override
+	public StringBuilder caseAVariableExp(AVariableExp node,
+			CMLModelcheckerContext question) throws AnalysisException {
+		question.getScriptContent().append("Int("+node.getName()+")");
+		return question.getScriptContent();
+	}
 	
 	@Override
 	public StringBuilder caseACallStatementAction(ACallStatementAction node,
@@ -710,12 +780,11 @@ public class CMLModelcheckerVisitor extends
 	@Override
 	public StringBuilder caseABlockStatementAction(ABlockStatementAction node,
 			CMLModelcheckerContext question) throws AnalysisException {
-		ADeclareStatementAction declaredStatement = node.getDeclareStatement(); 
-		if(declaredStatement != null) {
-			declaredStatement.apply(this, question);
+		if(node.getDeclareStatement() != null){
+			node.getDeclareStatement().apply(this, question);
 		}
 		node.getAction().apply(this, question);
-		if(declaredStatement != null) {
+		if(node.getDeclareStatement() != null){
 			question.getScriptContent().append(")");
 		}
 		return question.getScriptContent();
@@ -753,7 +822,9 @@ public class CMLModelcheckerVisitor extends
 
 		// it writes the second action
 		node.getRight().apply(this, question);
-		question.getScriptContent().append(")");
+		if(!question.info.containsKey(Utilities.STATES_KEY)){
+			question.getScriptContent().append(")");
+		}
 
 		return question.getScriptContent();
 	}
@@ -799,6 +870,12 @@ public class CMLModelcheckerVisitor extends
 			question.getScriptContent().replace(auxIndex,
 					auxIndex + "#AUXILIARY_PROCESSES#".length(),
 					auxCtxt.getScriptContent().toString());
+			if(auxCtxt.getVariables().size() != 0){
+				question.setVariables(auxCtxt.getVariables());
+				question.copyVarDeclarationInfo(auxCtxt);
+				question.copyVarDelInfo(auxCtxt);
+				question.copyAssignmentDefInfo(auxCtxt);
+			}
 		}
 		return question.getScriptContent();
 	}
@@ -1195,6 +1272,27 @@ public class CMLModelcheckerVisitor extends
 		return question.getScriptContent();
 	}
 
+	@Override
+	public StringBuilder caseAStateDefinition(AStateDefinition node,
+			CMLModelcheckerContext question) throws AnalysisException {
+		CMLModelcheckerContext aux = new CMLModelcheckerContext();
+		AAssignmentDefinition a = (AAssignmentDefinition) node.getStateDefs().getFirst();
+		a.getExpression().apply(this, aux);
+		aux.getScriptContent().replace(aux.getScriptContent().indexOf("(")+1, aux.getScriptContent().indexOf(")"), node.getStateDefs().getFirst().getName().toString());
+		
+		StringBuilder s = new StringBuilder(" fetch(\"");
+		s.append(node.getStateDefs().getFirst().getName().toString());
+		s.append("\",_,");
+		s.append(aux.getScriptContent().toString());
+		s.append(")");
+		
+		question.putStates(Utilities.STATES_KEY, s);
+		question.updateStates(node.getStateDefs().getFirst().getName().toString());
+		question.info.put(Utilities.DEL_BBINDING, "del");
+		
+		return question.getScriptContent();
+	}
+	
 	public String[] generateFormulaCodeForAll() throws IOException,
 			AnalysisException {
 		// StringBuilder basicContent = new StringBuilder();
@@ -1256,9 +1354,7 @@ public class CMLModelcheckerVisitor extends
 	 * @throws Throwable
 	 */
 	public static void main(String[] args) throws Throwable {
-		//String cml_example = "src/test/resources/action-vardecl3.cml";
-		//String cml_example = "src/test/resources/action-vardecl4.cml";
-		String cml_example = "src/test/resources/action-internalchoice.cml";
+		String cml_example = "src/test/resources/simple-state.cml";
 		System.out.println("Testing on " + cml_example);
 		// List<PSource> sources = new LinkedList<PSource>();
 		PSource source = Utilities.makeSourceFromFile(cml_example);

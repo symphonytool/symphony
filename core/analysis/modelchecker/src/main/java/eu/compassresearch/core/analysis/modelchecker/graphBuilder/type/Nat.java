@@ -22,4 +22,9 @@ public class Nat implements Type {
 		return "Nat("+String.valueOf(value)+")";
 	}
 
+	@Override
+	public String toFormulaWithState() {
+		return "Nat("+String.valueOf(value)+")";
+	}
+
 }

@@ -29,7 +29,7 @@ domain AuxiliaryDefinitions {
 	Binding       ::= NullBind + BBinding.
 
 	// Operations over bindings. 
-	primitive fetch ::= (vName: String, bind: Binding, b: SingleBind).
+	primitive fetch ::= (vName: String, bind: Binding, val:Types).
 	upd   ::= (bOld: Binding, b: SingleBind, bNew: Binding).
 	primitive del   ::= (bOld: Binding, vName: String, bNew: Binding).
     

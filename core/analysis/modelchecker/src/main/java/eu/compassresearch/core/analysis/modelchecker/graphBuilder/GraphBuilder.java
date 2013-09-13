@@ -19,6 +19,7 @@ import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Stop;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.transition.Transition;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.util.GraphResult;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.util.LinkedListTransition;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.util.PathCollection;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.util.Utilities;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.util.Utilities.Constructor;
 
@@ -92,18 +93,12 @@ public class GraphBuilder {
 		if(property.equals(Utilities.DEADLOCK)){
 			graph = this.shortestPathToDeadlock(objects);
 		}else if(property.equals(Utilities.LIVELOCK)){
+			getLivelockPaths(objects);
 			graph = this.shortestPathToLivelock(objects);
-			
-			
-			
-			
-			
-			
-			
-			
 			
 		}else if(property.equals(Utilities.NONDETERMINISM)){
 			graph = this.shortestPathToNondeterminism(objects);
+			
 		}
 		writeDotToBuffer(result, graph);
 		
@@ -346,11 +341,27 @@ public class GraphBuilder {
 		if(pathStates.size() == 0){
 			realFinalState.setFillCollor("\"#FF9696\"");
 			pathStates.add(realFinalState);
+		} else{
+			State deadlock = this.getDeadlockState(targetStates, singlePath);
+			if(deadlock != null){
+				deadlock.setFillCollor("\"#FF9696\"");
+			}
 		}
 		result.setStates(pathStates);
 		result.setTransitions(singlePath);
 		
 		
+		return result;
+	}
+	private State getDeadlockState(LinkedList<State> targetStates, LinkedList<Transition> singlePath){
+		State result = null;
+		for (State state : targetStates) {
+			LinkedList<Transition> transitionsFrom = this.getAllTransitionsFrom(singlePath, state);
+			if(transitionsFrom.size() == 0){
+				result = state;
+				break;
+			}
+		}
 		return result;
 	}
 	
@@ -373,9 +384,9 @@ public class GraphBuilder {
 			current.setVisited(true);
 			if(this.isNondeterministic(current, transitions)){
 				nonDeterministicState = current;
+				nonDeterministicState.setFillCollor("\"#FFC864\"");
 				break;
 			}else{
-				//vai continuando a BFS até encontrar um estado que seja nao deterministico
 				LinkedList<Transition> transitionsFrom = this.getAllTransitionsFrom(transitions, current);
 				for (Transition transition : transitionsFrom) {
 					State target = transition.getTargetState();
@@ -402,6 +413,9 @@ public class GraphBuilder {
 		//adds the replicated transitions from the nondeterministic state
 		int[] indexes = this.indexesOfReplicatedTransition(nonDeterministicState, transitions);
 		for (int i : indexes) {
+			Transition current = transitions.get(i);
+			current.setSourceState(nonDeterministicState);
+			current.getTargetState().setNumber(STATE_NUMBER++);
 			singlePath.add(transitions.get(i));
 		}
 		
@@ -444,6 +458,31 @@ public class GraphBuilder {
 		return map;
 	}
 	
+	private boolean isSameEvents(State firststate,State secondState, LinkedList<Transition> transitions){
+		boolean result = false;
+		LinkedList<Event> firstEvents = this.getAllEvents(this.getAllTransitionsFrom(transitions, firststate));
+		LinkedList<Event> secondEvents = this.getAllEvents(this.getAllTransitionsFrom(transitions, secondState));
+		
+		for (Event event : firstEvents) {
+			if(!event.equals(new Tau())){
+				result = result || !secondEvents.contains(event);
+				if(result){
+					return result;
+				}
+			}
+		}
+		
+		for (Event event : secondEvents) {
+			if(!event.equals(new Tau())){
+				result = result || !firstEvents.contains(event);
+				if(result){
+					return result;
+				}
+			}
+		}
+		return result;		
+	}
+	
 	private boolean isNondeterministic(State state, LinkedList<Transition> transitions){
 		boolean result = false;
 		LinkedList<Transition> transFrom = this.getAllTransitionsFrom(transitions, state);
@@ -453,11 +492,10 @@ public class GraphBuilder {
 			if(map.get(key).size() > 1){
 				LinkedList<Transition> transSameEvent = map.get(key);
 				LinkedList<State> targetStates = this.getTargetStates(transSameEvent);
+				
 				for (int i = 0; i < targetStates.size() - 1; i++) {
-					for (int j = i; j < targetStates.size(); j++) {
-						LinkedList<Event> firstEvents = this.getAllEvents(this.getAllTransitionsFrom(transitions, targetStates.get(i)));
-						LinkedList<Event> secondEvents = this.getAllEvents(this.getAllTransitionsFrom(transitions, targetStates.get(j)));
-						result = !firstEvents.containsAll(secondEvents)  || firstEvents.contains(new Tau());
+					for (int j = i+1; j < targetStates.size(); j++) {
+						result = isSameEvents(targetStates.get(i), targetStates.get(j), transitions);
 						if(result){
 							return result;
 						}
@@ -476,6 +514,47 @@ public class GraphBuilder {
 		
 		return result;
 	}
+	
+	private void DFS(PathCollection paths, LinkedList<Transition> transitions, State fromState){
+		if(!fromState.isVisited()){
+			visit(fromState);
+			LinkedList<Transition> outTrans = this.getAllTransitionsFrom(transitions, fromState);
+			paths.replicatePaths(fromState, outTrans.size());
+			for (Transition transition : outTrans) {
+				LinkedList<State> neighbors = getTargetStates(outTrans);
+				for (State state : neighbors) {
+					if(state.isVisited()){ //if cycle
+						paths.addTransition(transition);
+					}else{ //not cycle
+						paths.addTransition(transition);
+						DFS(paths,transitions,state);
+					}
+				}
+			}
+		}
+	}
+	private void visit(State state){
+		state.setVisited(true);
+	}
+	
+	private boolean pathHasCycle(LinkedList<Transition> path){
+		boolean result = false;
+		
+		for (Transition transition : path) {
+			State sourceState = transition.getSourceState();
+			for (Transition transition2 : path) {
+				State targetState = transition.getTargetState();
+				if(sourceState.equals(targetState)){
+					result = true;
+					return result;
+				}
+			}
+		}
+		
+		return result;
+	}
+	
+	
 	
 	private boolean checkRefusals(	LinkedList<Transition> replicatedTransitions, 
 									LinkedList<Transition> originalTransitions){
@@ -500,10 +579,11 @@ public class GraphBuilder {
 	private int[] indexesOfReplicatedTransition(State state, LinkedList<Transition> transitions){
 		int[] indexesOf = new int[0];
 		
-		LinkedListTransition outTransitions = new LinkedListTransition(this.getAllTransitionsFrom(transitions, state));
+		LinkedList<Transition> transitionsFrom = this.getAllTransitionsFrom(transitions, state);
+		LinkedListTransition outTransitions = new LinkedListTransition(transitions);
 		
 		for (int i = 0; i < outTransitions.size(); i++) {
-			Transition current = outTransitions.get(i);
+			Transition current = transitionsFrom.get(i);
 			indexesOf = outTransitions.indexesOf(current);
 			if(indexesOf.length > 1){
 				break;
@@ -624,6 +704,16 @@ public class GraphBuilder {
 		return result;
 	}
 
+	public void getLivelockPaths(LinkedList<Object> objects){
+		PathCollection paths = new PathCollection();
+		State initialState = this.getInitialState(objects);
+		initialState.setShape("doublecircle");
+		
+		LinkedList<Transition> transitions = this.filterTransitions(objects);
+		this.DFS(paths, transitions, initialState);
+		
+		int k = 0;
+	}
 	
 	private void buildReversePath(	LinkedList<Transition> reversePath, 
 									LinkedList<Transition> transitions, 
@@ -661,8 +751,9 @@ public class GraphBuilder {
 			transitions.removeAll(currentTransitions); //for optimization
 						
 			buildSinglePath(transitions, singlePath, newInitialState);
-		}else{ //initialState is a state withour outgoing transitions = deadlock
-			initialState.setFillCollor("\"#FF9696\"");
+		}else{ //initialState is a state without outgoing transitions = deadlock
+			//initialState.setFillCollor("\"#FF9696\"");
+			
 		}
 		//at the end singlePath contains a single path
 	}
@@ -686,8 +777,14 @@ public class GraphBuilder {
 	
 	public static void main(String[] args) throws IOException {
 		GraphBuilder gb = new GraphBuilder();
-		String filePath = "/examples/action-nondet.facts.ND.txt";
-		String dotCode = gb.generateDot(filePath,Utilities.NONDETERMINISM);
+		//String filePath = "/examples/action-nondet.facts.ND.txt";
+		//String filePath = "/examples/NDet.facts.txt";
+		//String filePath = "/examples/NDet3.facts.txt";
+		//String filePath = "/examples/NDet2.facts.txt";
+		String filePath = "/examples/Livelock1.facts.txt";
+		//String filePath = "/examples/action-internal-choice.facts.D.txt";
+		//String filePath = "/examples/Livelock.facts.txt";
+		String dotCode = gb.generateDot(filePath,Utilities.LIVELOCK);
 		System.out.println(dotCode);
 	}
 	

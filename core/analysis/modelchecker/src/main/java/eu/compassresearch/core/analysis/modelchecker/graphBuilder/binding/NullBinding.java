@@ -25,6 +25,11 @@ public class NullBinding implements Binding {
 		return "nBind";
 	}
 	
+	@Override
+	public String toFormulaWithState() {
+		return "nBind";
+	}
+	
 	public Binding addBinding(String procName, String varName, Type varValue){
 		SingleBind newBind = new SingleBind(varName, varValue);
 		Binding result = new BBinding(procName,newBind,this);

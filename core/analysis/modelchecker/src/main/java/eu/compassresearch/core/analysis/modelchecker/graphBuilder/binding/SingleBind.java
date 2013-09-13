@@ -40,6 +40,10 @@ public class SingleBind {
 		return "SingleBind(\"" + variableName + "\"," + variableValue.toFormula() + ")";
 	}
 	
+	public String toFormulaWithState(){
+		return "SingleBind(\"" + variableName + "\"," + variableValue.toFormulaWithState() + ")";
+	}
+	
 	public String toFormulaWithUnderscore(){
 		return "SingleBind(\"" + variableName + "\",_)";
 	}
