@@ -170,7 +170,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 		//if there are no com params then we have a prefix event
 		if(node.getCommunicationParameters().isEmpty())
 		{
-			comset.add(CmlTransitionFactory.newSynchronizationEvent(owner, new ChannelNameValue(chanValue)));
+			comset.add(CmlTransitionFactory.newObservableChannelEvent(owner, new ChannelNameValue(chanValue)));
 		}
 		//otherwise we convert the com params
 		else
@@ -215,7 +215,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 			}
 
 			ObservableEvent observableEvent = 
-					CmlTransitionFactory.newCmlCommunicationEvent(owner, new ChannelNameValue(chanValue,values,constraints));
+					CmlTransitionFactory.newObservableChannelEvent(owner, new ChannelNameValue(chanValue,values,constraints));
 			comset.add(observableEvent);
 		}
 

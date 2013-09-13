@@ -32,7 +32,7 @@ import eu.compassresearch.core.interpreter.api.behaviour.Inspection;
 import eu.compassresearch.core.interpreter.api.transitions.ChannelEvent;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTock;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
-import eu.compassresearch.core.interpreter.api.transitions.HiddenEvent;
+import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionFactory;
 import eu.compassresearch.core.interpreter.api.transitions.ObservableEvent;
 import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
@@ -327,7 +327,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 			//convert them into silent events and add the again
 			for(ObservableEvent obsEvent : hiddenEvents.getObservableEvents())
 				if(obsEvent instanceof ChannelEvent)
-					resultAlpha = resultAlpha.union(new HiddenEvent(owner,(ChannelEvent)obsEvent));	
+					resultAlpha = resultAlpha.union(CmlTransitionFactory.newHiddenChannelEvent(owner,(ChannelEvent)obsEvent));	
 
 			return newInspection(resultAlpha,
 					new AbstractCalculationStep(owner, visitorAccess) {

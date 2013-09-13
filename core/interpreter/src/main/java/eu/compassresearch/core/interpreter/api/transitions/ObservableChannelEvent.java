@@ -20,19 +20,19 @@ import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.values.AbstractValueInterpreter;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
 
-class CommunicationEvent extends AbstractChannelEvent implements ObservableEvent {
+class ObservableChannelEvent extends AbstractChannelEvent implements ObservableEvent {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -2217645151439301812L;
 	
-	public CommunicationEvent(CmlBehaviour source, ChannelNameValue channelName)
+	public ObservableChannelEvent(CmlBehaviour source, ChannelNameValue channelName)
 	{
 		super(source,channelName);
 	}
 	
-	private CommunicationEvent(Set<CmlBehaviour> sources, ChannelNameValue channelName)
+	private ObservableChannelEvent(Set<CmlBehaviour> sources, ChannelNameValue channelName)
 	{
 		super(sources,channelName);
 	}
@@ -52,7 +52,7 @@ class CommunicationEvent extends AbstractChannelEvent implements ObservableEvent
 	@Override
 	public boolean equals(Object obj) {
 
-		if(!(obj instanceof CommunicationEvent))
+		if(!(obj instanceof ObservableChannelEvent))
 			return false;
 		
 		return super.equals(obj);
@@ -71,7 +71,7 @@ class CommunicationEvent extends AbstractChannelEvent implements ObservableEvent
 	@Override
 	public ObservableEvent synchronizeWith(ObservableEvent syncEvent) throws AnalysisException
 	{
-		CommunicationEvent otherComEvent = (CommunicationEvent)syncEvent;
+		ObservableChannelEvent otherComEvent = (ObservableChannelEvent)syncEvent;
 		ChannelNameValue meetValue = this.getChannelName().meet(((ChannelEvent)otherComEvent).getChannelName());
 		
 		if(meetValue == null)
@@ -83,7 +83,7 @@ class CommunicationEvent extends AbstractChannelEvent implements ObservableEvent
 			Set<CmlBehaviour> sources = new HashSet<CmlBehaviour>();
 			sources.addAll(this.getEventSources());
 			sources.addAll(otherComEvent.getEventSources());
-			return new CommunicationEvent(sources, meetValue);
+			return new ObservableChannelEvent(sources, meetValue);
 		}
 		else 
 			return null;
@@ -112,14 +112,14 @@ class CommunicationEvent extends AbstractChannelEvent implements ObservableEvent
 		public List<ChannelEvent> defaultPType(PType node)
 				throws AnalysisException {
 			
-			return Arrays.asList((ChannelEvent)CommunicationEvent.this);
+			return Arrays.asList((ChannelEvent)ObservableChannelEvent.this);
 		}
 		
 		@Override
 		public List<ChannelEvent> caseAIntNumericBasicType(AIntNumericBasicType node)
 				throws AnalysisException {
 
-			return Arrays.asList((ChannelEvent)CommunicationEvent.this);
+			return Arrays.asList((ChannelEvent)ObservableChannelEvent.this);
 		}
 		
 		@Override
@@ -142,7 +142,7 @@ class CommunicationEvent extends AbstractChannelEvent implements ObservableEvent
 				}
 			}
 			else
-				events.add(CommunicationEvent.this);
+				events.add(ObservableChannelEvent.this);
 			
 			return events;
 		}
@@ -151,9 +151,9 @@ class CommunicationEvent extends AbstractChannelEvent implements ObservableEvent
 		public List<ChannelEvent> caseAQuoteType(AQuoteType node)
 				throws AnalysisException {
 			
-			return Arrays.asList((ChannelEvent)new CommunicationEvent(
-					CommunicationEvent.this.getEventSources(), 
-					CommunicationEvent.this.channelName));
+			return Arrays.asList((ChannelEvent)new ObservableChannelEvent(
+					ObservableChannelEvent.this.getEventSources(), 
+					ObservableChannelEvent.this.channelName));
 //			return Arrays.asList((ChannelEvent)new CommunicationEvent(
 //					CommunicationEvent.this.getEventSources(), 
 //					CommunicationEvent.this.channelName, new QuoteValue(node.getValue().getValue())));
