@@ -1,10 +1,12 @@
 package eu.compassresearch.rttMbtTmsClientApi;
 
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -82,7 +84,7 @@ public class RttMbtClient {
 		String timestamp = "";
 		if (getVerboseLogging()) {
 			Date date = new Date();
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd:HH-mm-ss");
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 			String dateString = sdf.format(date);
 			timestamp = dateString + " ";
 		}
@@ -97,7 +99,7 @@ public class RttMbtClient {
 		String timestamp = "";
 		if (getVerboseLogging()) {
 			Date date = new Date();
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd:HH-mm-ss");
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 			String dateString = sdf.format(date);
 			timestamp = dateString + " ";
 		}
@@ -105,6 +107,44 @@ public class RttMbtClient {
 			log.addErrorMessage(timestamp + consoleName, msg + "\n");
 		} else {
 			System.err.println(timestamp + "[" + consoleName + "]: *** error: " + msg);
+		}
+	}
+
+	public void showErrorMessagesFromFile(String errorsFileName) {
+		File errors = new File(errorsFileName);
+		if (errors.isFile()) {
+			try {
+				String line;
+				FileReader readErrors = new FileReader (errors);
+				BufferedReader reader = new BufferedReader(readErrors);
+				while ((line = reader.readLine()) != null) {
+					addErrorMessage(line);
+				}
+				reader.close();
+			} catch (IOException e) {
+				addErrorMessage("Failure while reading " + errorsFileName + ": " + e.getMessage());
+			}
+		} else {
+			addErrorMessage("unable to find error log file " + errorsFileName);
+		}
+	}
+	
+	public void showLogMessagesFromFile(String FileName) {
+		File errors = new File(FileName);
+		if (errors.isFile()) {
+			try {
+				String line;
+				FileReader readErrors = new FileReader (errors);
+				BufferedReader reader = new BufferedReader(readErrors);
+				while ((line = reader.readLine()) != null) {
+					addLogMessage(line);
+				}
+				reader.close();
+			} catch (IOException e) {
+				addLogMessage("Failure while reading " + FileName + ": " + e.getMessage());
+			}
+		} else {
+			addLogMessage("unable to find error log file " + FileName);
 		}
 	}
 	
@@ -185,7 +225,7 @@ public class RttMbtClient {
 
 		// assert that server workspace exists
 		if (!checkServerWorkspace()) {
-			addErrorMessage("*** error: server working area does not exist an cannot be created!");
+			addErrorMessage("*** error: server working area does not exist and cannot be created!");
 			return false;
 		}
 		
@@ -263,6 +303,7 @@ public class RttMbtClient {
 			String subdirname = removeLocalWorkspace(folders.get(i));
 			System.out.println("uploading directory '" + subdirname + "'");
 			success = (uploadDirectory(subdirname, recursive) && success);
+			setProgress(IRttMbtProgressBar.Tasks.Global, (i * 100)/folders.size());
 		}
 		return success;
 	}
@@ -358,7 +399,7 @@ public class RttMbtClient {
 		return true;
 	}
 	
-	public Boolean deleteLocalDirectory(File dir) {
+	public Boolean deleteLocalDirectory(File dir, Boolean deleteContentOnly) {
 		if (dir == null) { return false; }
 		if (!dir.exists()) { return true; }
 		if (!dir.isDirectory()) { return false; }
@@ -369,14 +410,17 @@ public class RttMbtClient {
 		for (int i = 0; i < entries.length; i++) {
 			File entry = new File(dir, entries[i]);
 			if (entry.isDirectory()) {
-				if (!deleteLocalDirectory(entry))
+				if (!deleteLocalDirectory(entry, deleteContentOnly))
 					return false;
 			} else {
 				if (!entry.delete())
 					return false;
 			}
 		}
-		return dir.delete();
+		if (!deleteContentOnly) {
+			return dir.delete();
+		}
+		return true;
 	}
 
 	public Boolean deleteRemoteFileOrDir(String filename) {
@@ -467,8 +511,56 @@ public class RttMbtClient {
 		deleteLocalFile(new File(modelDirName + "unreachable_testcases.csv"));
 		deleteLocalFile(new File(modelDirName + "rtt-mbt-tms-execution.err"));
 		deleteLocalFile(new File(modelDirName + "rtt-mbt-tms-execution.out"));
-
-		// remove working area on the server
+		
+		// clean all test procedures in the test execution context
+		String dirname = getCmlWorkspace() + File.separator
+				+ getCmlProject() + File.separator
+				+ getProjectName() + File.separator
+				+ getRttMbtTestProcFolderName();
+		File dir = new File(dirname);
+		if ((dir.exists()) && (dir.isDirectory())) {
+			String[] entries = dir.list();
+			if (entries != null) {
+				for (int i = 0; i < entries.length; i++) {
+					if ((entries[i].compareTo(".svn") == 0) ||
+						(entries[i].compareTo("CVS") == 0) ||
+						(entries[i].compareTo("conf") == 0) ||
+						(entries[i].compareTo("inc") == 0) ||
+						(entries[i].compareTo("specs") == 0) ||
+						(entries[i].compareTo("stubs") == 0)) {
+						continue;
+					}
+					if (getVerboseLogging()) {
+						addLogMessage("clean Test Procedure " + entries[i]);
+					}
+					cleanTestProcedure(entries[i]);
+				}
+			}
+		}
+		
+		// clean all test procedures in the test generation context
+		dirname = getCmlWorkspace() + File.separator
+				+ getCmlProject() + File.separator
+				+ getProjectName() + File.separator
+				+ getRttMbtTProcGenCtxFolderName();
+		dir = new File(dirname);
+		if ((dir.exists()) && (dir.isDirectory())) {
+			String[] entries = dir.list();
+			if (entries != null) {
+				for (int i = 0; i < entries.length; i++) {
+					if ((entries[i].compareTo(".svn") == 0) ||
+							(entries[i].compareTo("CVS") == 0)) {
+							continue;
+						}
+					if (getVerboseLogging()) {
+						addLogMessage("clean Test Procedure Generation Context " + entries[i]);
+					}
+					cleanTestProcedureGenerationContext(entries[i]);
+				}
+			}
+		}
+		
+		// remove working area for this project on the server
 		success = deleteRemoteFileOrDir(getProjectPath());
 		return success;
 	}
@@ -482,6 +574,13 @@ public class RttMbtClient {
 		String modelName = getCmlProject() + "." + getProjectName() + ".model";
 		String modelVersion = "1.0";
 		String modelFile = model.getAbsolutePath();
+		int pos = modelFile.lastIndexOf(File.separator);
+		String modelReport = modelFile.substring(0,pos + 1)  + "LivelockReport.log";
+
+		// remove local (and old) log files
+		deleteLocalFile(new File(getRttProjectRoot() + File.separator + "rtt-mbt-tms-execution.err"));
+		deleteLocalFile(new File(getRttProjectRoot() + File.separator + "rtt-mbt-tms-execution.out"));
+		deleteLocalFile(new File(modelReport));
 
 		// store model
 		jsonStoreModelCommand storeModel= new jsonStoreModelCommand(this);
@@ -491,6 +590,15 @@ public class RttMbtClient {
 		storeModel.executeCommand();
 		if (!storeModel.executedSuccessfully()) {
 			addErrorMessage("[FAIL]: unable to store model file '" + modelFile + "' on RTT-MBT server!");
+			// download debug information:
+			// - rtt-mbt-tms-execution.out
+			// - rtt-mbt-tms-execution.err
+			String dirname = getProjectPath() + File.separator;
+			downloadFile(dirname + "rtt-mbt-tms-execution.err");
+			downloadFile(dirname + "rtt-mbt-tms-execution.out");
+			// print error messages from output file
+			String errorsFileName = getRttProjectRoot() +  File.separator + "rtt-mbt-tms-execution.err";
+			showErrorMessagesFromFile(errorsFileName);
 			return false;
 		} else {
 			addLogMessage("[PASS]: model file '" + modelFile + "' stored on RTT-MBT server!");
@@ -499,13 +607,16 @@ public class RttMbtClient {
 		// perform live lock check
 		jsonCheckModelCommand checkModel = new jsonCheckModelCommand(this);
 		checkModel.setGuiPorts(true);
+		checkModel.setReportName(modelReport);
 		checkModel.setModelName(modelName);
 		checkModel.setModelId(modelVersion);
 		checkModel.executeCommand();
 		if (!checkModel.executedSuccessfully()) {
 			System.err.println("[FAIL]: livelock check of model '" + modelName + "', version '" + modelVersion + "' on RTT-MBT server failed!");
+			showLogMessagesFromFile(modelReport);
 			return false;
 		}
+		showLogMessagesFromFile(modelReport);
 		
 		return true;
 	}
@@ -525,7 +636,7 @@ public class RttMbtClient {
 				+ getProjectName() + File.separator
 				+ "model";
 		File modeldir = new File(modelDirName);
-		deleteLocalDirectory(modeldir);
+		deleteLocalDirectory(modeldir, false);
 
 		// remove working area on the server
 		success = deleteRemoteFileOrDir(getProjectPath());
@@ -715,10 +826,47 @@ public class RttMbtClient {
 		return true;
 	}
 	
+	public Boolean cleanTestProcedureGenerationContext(String abstractTestProc) {
+		Boolean success = true;
+
+		// remove local (and old) log files
+		deleteLocalFile(new File(getRttProjectRoot() + File.separator + "rtt-mbt-tms-execution.err"));
+		deleteLocalFile(new File(getRttProjectRoot() + File.separator + "rtt-mbt-tms-execution.out"));
+
+		// remove local files
+		// /Testprocedure/<testproc>/model/*
+		// /Testprocedure/<testproc>/log/*
+		// /Testprocedure/<testproc>/testdata/*
+		String dirname = getRttProjectRoot() + File.separator
+				+ getRttMbtTProcGenCtxFolderName() + File.separator
+				+ abstractTestProc + File.separator;
+		deleteLocalDirectory(new File(dirname + File.separator + "model"), true);
+		deleteLocalDirectory(new File(dirname + File.separator + "log"), true);
+		deleteLocalDirectory(new File(dirname + File.separator + "testdata"), true);
+
+		// return result
+		return success;
+	}
+
 	public Boolean generateTestProcedure(String abstractTestProc) {
 		Boolean success = true;
 
+		// remove local (and old) log files
+		deleteLocalFile(new File(getRttProjectRoot() + File.separator + "rtt-mbt-tms-execution.err"));
+		deleteLocalFile(new File(getRttProjectRoot() + File.separator + "rtt-mbt-tms-execution.out"));
+		File logs = new File(getRttProjectRoot() + File.separator + "logs");
+		if (!logs.isDirectory()) {
+			logs.mkdirs();
+		}
+		deleteLocalFile(new File(getRttProjectRoot() + File.separator + "logs" + File.separator + "rtt-mbt-gen-tcgen-errors.log"));
+		deleteLocalFile(new File(getRttProjectRoot() + File.separator + "logs" + File.separator + "rtt-mbt-gen-tcgen-generation.log"));
+		deleteLocalFile(new File(getRttProjectRoot() + File.separator + "logs" + File.separator + "rtt-mbt-gen-tcgen-postprocessing.log"));
+		deleteLocalFile(new File(getRttProjectRoot() + File.separator + "logs" + File.separator + "rtt-mbt-gen-tcgen-preprocessing.log"));
+
 		// push necessary files to cache:
+		if (getVerboseLogging()) {
+			addLogMessage("pushing files to RTT-MBT server...");
+		}
 		// cache/<user-id>/<project-name>/model/
 		// - model_dump.xml
 		// - configuration.csv
@@ -751,21 +899,43 @@ public class RttMbtClient {
 		// cache/<user-id>/<project-name>/TMPL
 		confDirName = getProjectPath() + File.separator + "TMPL";
 		uploadDirectory(confDirName, true);
-
+		
 		// generate-test-command
-		System.out.println("generating concrete test procedure" + abstractTestProc + "...");
+		System.out.println("generating concrete test procedure " + abstractTestProc + "...");
 		jsonGenerateTestCommand cmd = new jsonGenerateTestCommand(this);
 		cmd.setGuiPorts(true);
 		cmd.setTestProcName("TestProcedures/" + abstractTestProc);
+		// read advanced.conf
+		RttMbtAdvConfParser advConf = new RttMbtAdvConfParser();
+		confDirName = getCmlWorkspace() + File.separator
+				+ getProjectPath() + File.separator
+				+ getRttMbtTProcGenCtxFolderName() + File.separator
+				+ abstractTestProc + File.separator
+				+ "conf" +  File.separator;
+		if (advConf.readAdvancedConfig(confDirName + "advanced.conf")) {
+			cmd.setMaximizeModelCoverage(advConf.getMM());
+			cmd.setAbstractInterpreter(advConf.getAI());
+		}
+		if (getVerboseLogging()) {
+			addLogMessage("starting test generation...");
+		}
 		cmd.executeCommand();
+		String dirname;
+		String errorsFileName;
+		if (getVerboseLogging()) {
+			addLogMessage("retrieving generated files from RTT-MBT server...");
+		}
 		if (!cmd.executedSuccessfully()) {
 			System.err.println("[FAIL]: generatig RTT_TestProcedures/" + abstractTestProc + " failed!");
 			// download debugging data to local directory
 			// - rtt-mbt-tms-execution.out
 			// - rtt-mbt-tms-execution.err
-			String dirname = getProjectPath() + File.separator;
+			dirname = getProjectPath() + File.separator;
 			downloadFile(dirname + "rtt-mbt-tms-execution.err");
 			downloadFile(dirname + "rtt-mbt-tms-execution.out");
+			// print error messages from output file
+			errorsFileName = getRttProjectRoot() + File.separator + "rtt-mbt-tms-execution.err";
+			showErrorMessagesFromFile(errorsFileName);
 			// - model/error.log
 			// - model/genertion.log
 			dirname = getProjectPath() + File.separator
@@ -780,6 +950,12 @@ public class RttMbtClient {
 					+ "log" + File.separator;
 			downloadFile(dirname + "generation.log");
 			downloadFile(dirname + "errors.log");
+			// print error messages from errors.log file
+			errorsFileName = getRttProjectRoot() +  File.separator 
+					+ getRttMbtTProcGenCtxFolderName() + File.separator
+					+ abstractTestProc + File.separator
+					+ "log" + File.separator + "errors.log";
+			showErrorMessagesFromFile(errorsFileName);
 			// - configuration.csv.bak
 			dirname = getProjectPath() + File.separator
 					+ getRttMbtTProcGenCtxFolderName() + File.separator
@@ -788,6 +964,14 @@ public class RttMbtClient {
 			downloadFile(dirname + "configuration.csv.bak");
 			return false;
 		}
+		// - rtt-mbt-tms-execution.out
+		// - rtt-mbt-tms-execution.err
+		dirname = getProjectPath() + File.separator;
+		downloadFile(dirname + "rtt-mbt-tms-execution.err");
+		downloadFile(dirname + "rtt-mbt-tms-execution.out");
+		// print error messages from output file
+		errorsFileName = getRttProjectRoot() + File.separator + "rtt-mbt-tms-execution.err";
+		showErrorMessagesFromFile(errorsFileName);
 		// download generated files to local directory:
 
 		// from cache/<user-id>/<project-name>/model/
@@ -799,7 +983,7 @@ public class RttMbtClient {
 		// - overall_coverage.csv
 		// - uncovered_testcases.csv
 		// - unreachable_testcases.csv
-		String dirname = getProjectPath() + File.separator
+		dirname = getProjectPath() + File.separator
 		+ "model" + File.separator;
 		downloadFile(dirname + "symbols.log");
 		downloadFile(dirname + "testcases.csv");
@@ -861,12 +1045,27 @@ public class RttMbtClient {
 		downloadDirectory(dirname + "conf");
 		downloadDirectory(dirname + "inc");
 		downloadDirectory(dirname + "specs");
-
+		if (getExtraFiles()) {
+			dirname = getProjectPath() + File.separator;
+			downloadDirectory(dirname + "logs");
+		}
 		return success;
 	}
 	
 	public Boolean replayTestProcedure(String abstractTestProc) {
 		Boolean success = true;
+
+		// remove local (and old) log files
+		deleteLocalFile(new File(getRttProjectRoot() + File.separator + "rtt-mbt-tms-execution.err"));
+		deleteLocalFile(new File(getRttProjectRoot() + File.separator + "rtt-mbt-tms-execution.out"));
+		File logs = new File(getRttProjectRoot() + File.separator + "logs");
+		if (!logs.isDirectory()) {
+			logs.mkdirs();
+		}
+		deleteLocalFile(new File(getRttProjectRoot() + File.separator + "logs" + File.separator + "rtt-mbt-replay-tcgen-errors.log"));
+		deleteLocalFile(new File(getRttProjectRoot() + File.separator + "logs" + File.separator + "rtt-mbt-replay-tcgen-generation.log"));
+		deleteLocalFile(new File(getRttProjectRoot() + File.separator + "logs" + File.separator + "rtt-mbt-replay-tcgen-postprocessing.log"));
+		deleteLocalFile(new File(getRttProjectRoot() + File.separator + "logs" + File.separator + "rtt-mbt-replay-tcgen-preprocessing.log"));
 
 		// push necessary files to cache:
 		// cache/<user-id>/<project-name>/model/
@@ -896,6 +1095,11 @@ public class RttMbtClient {
 		uploadFile(confDirName + "advanced.conf");
 		uploadFile(confDirName + "addgoals.conf");
 		uploadFile(confDirName + "addgoalsordered.conf");
+		// /RTT_Testprocedure/<testproc>/testdata/
+		String dirName = getProjectPath() + File.separator
+				+ getRttMbtTestProcFolderName() + File.separator
+				+ abstractTestProc + File.separator;
+		uploadDirectory(dirName + "testdata", false);
 
 		// replay-command
 		System.out.println("replay test execution " + abstractTestProc + "...");
@@ -913,6 +1117,9 @@ public class RttMbtClient {
 			String dirname = getProjectPath() + File.separator;
 			downloadFile(dirname + "rtt-mbt-tms-execution.err");
 			downloadFile(dirname + "rtt-mbt-tms-execution.out");
+			// print error messages from output file
+			String errorsFileName = getRttProjectRoot() +  File.separator + "rtt-mbt-tms-execution.err";
+			showErrorMessagesFromFile(errorsFileName);
 			// - model/error.log
 			// - model/genertion.log
 			dirname = getProjectPath() + File.separator
@@ -927,6 +1134,12 @@ public class RttMbtClient {
 					+ "log" + File.separator;
 			downloadFile(dirname + "generation.log");
 			downloadFile(dirname + "errors.log");
+			// print error messages from errors.log file
+			errorsFileName = getRttProjectRoot() +  File.separator 
+					+ getRttMbtTProcGenCtxFolderName() + File.separator
+					+ abstractTestProc + File.separator
+					+ "log" + File.separator + "errors.log";
+			showErrorMessagesFromFile(errorsFileName);
 			return false;
 		}
 
@@ -976,6 +1189,10 @@ public class RttMbtClient {
 	public Boolean generateSimulation(String abstractTestProc) {
 		Boolean success = true;
 
+		// remove local (and old) log files
+		deleteLocalFile(new File(getRttProjectRoot() + File.separator + "rtt-mbt-tms-execution.err"));
+		deleteLocalFile(new File(getRttProjectRoot() + File.separator + "rtt-mbt-tms-execution.out"));
+
 		// push necessary files to cache:
 		// cache/<user-id>/<project-name>/model/
 		// - model_dump.xml
@@ -1019,6 +1236,9 @@ public class RttMbtClient {
 			String dirname = getProjectPath() + File.separator;
 			downloadFile(dirname + "rtt-mbt-tms-execution.err");
 			downloadFile(dirname + "rtt-mbt-tms-execution.out");
+			// print error messages from output file
+			String errorsFileName = getRttProjectRoot() +  File.separator + "rtt-mbt-tms-execution.err";
+			showErrorMessagesFromFile(errorsFileName);
 			// - model/error.log
 			// - model/genertion.log
 			dirname = getProjectPath() + File.separator
@@ -1065,6 +1285,10 @@ public class RttMbtClient {
 	public Boolean cleanTestProcedure(String concreteTestProc) {
 		Boolean success = true;
 
+		// remove local (and old) log files
+		deleteLocalFile(new File(getRttProjectRoot() + File.separator + "rtt-mbt-tms-execution.err"));
+		deleteLocalFile(new File(getRttProjectRoot() + File.separator + "rtt-mbt-tms-execution.out"));
+
 		// push necessary files to cache:
 		// /project.rtp
 		// /RTT_Testprocedure/<testproc>/conf/
@@ -1091,6 +1315,9 @@ public class RttMbtClient {
 			String dirname = getProjectPath() + File.separator;
 			downloadFile(dirname + "rtt-mbt-tms-execution.err");
 			downloadFile(dirname + "rtt-mbt-tms-execution.out");
+			// print error messages from output file
+			String errorsFileName = getRttProjectRoot() +  File.separator + "rtt-mbt-tms-execution.err";
+			showErrorMessagesFromFile(errorsFileName);
 		} else {
 			// remove local files
 			// /stubsrc/
@@ -1099,16 +1326,16 @@ public class RttMbtClient {
 			// /RTT_Testprocedure/<testproc>/stubsrc/
 			// /RTT_Testprocedure/<testproc>/testdata/
 			String dirname = getRttProjectRoot() + File.separator;
-			deleteLocalDirectory(new File(dirname + File.separator + "stubsrc"));
+			deleteLocalDirectory(new File(dirname + File.separator + "stubsrc"), false);
 			dirname = getRttProjectRoot() + File.separator
 					+ getRttMbtTestProcFolderName() + File.separator;
-			deleteLocalDirectory(new File(dirname + File.separator + "stubsrc"));
+			deleteLocalDirectory(new File(dirname + File.separator + "stubsrc"), false);
 			dirname = getRttProjectRoot() + File.separator
 					+ getRttMbtTestProcFolderName() + File.separator
 					+ concreteTestProc + File.separator;
-			deleteLocalDirectory(new File(dirname + File.separator + "src"));
-			deleteLocalDirectory(new File(dirname + File.separator + "stubsrc"));
-			deleteLocalDirectory(new File(dirname + File.separator + "testdata"));
+			deleteLocalDirectory(new File(dirname + File.separator + "src"), false);
+			deleteLocalDirectory(new File(dirname + File.separator + "stubsrc"), false);
+			deleteLocalDirectory(new File(dirname + File.separator + "testdata"), false);
 		}
 
 		// return result
@@ -1117,6 +1344,10 @@ public class RttMbtClient {
 	
 	public Boolean compileTestProcedure(String concreteTestProc) {
 		Boolean success = true;
+
+		// remove local (and old) log files
+		deleteLocalFile(new File(getRttProjectRoot() + File.separator + "rtt-mbt-tms-execution.err"));
+		deleteLocalFile(new File(getRttProjectRoot() + File.separator + "rtt-mbt-tms-execution.out"));
 
 		// push necessary files to cache:
 		// /project.rtp
@@ -1167,6 +1398,9 @@ public class RttMbtClient {
 			String dirname = getProjectPath() + File.separator;
 			downloadFile(dirname + "rtt-mbt-tms-execution.err");
 			downloadFile(dirname + "rtt-mbt-tms-execution.out");
+			// print error messages from output file
+			String errorsFileName = getRttProjectRoot() +  File.separator + "rtt-mbt-tms-execution.err";
+			showErrorMessagesFromFile(errorsFileName);
 		} else {
 			// download generated files (not src, stubsrc, etc.)
 			dirName = getProjectPath() + File.separator
@@ -1191,6 +1425,10 @@ public class RttMbtClient {
 	public Boolean runTestProcedure(String concreteTestProc) {
 		Boolean success = true;
 
+		// remove local (and old) log files
+		deleteLocalFile(new File(getRttProjectRoot() + File.separator + "rtt-mbt-tms-execution.err"));
+		deleteLocalFile(new File(getRttProjectRoot() + File.separator + "rtt-mbt-tms-execution.out"));
+
 		// push necessary files to cache:
 		String dirName;
 
@@ -1203,6 +1441,15 @@ public class RttMbtClient {
 			// set result to false
 			success = false;
 			System.err.println("[FAIL]: run RTT_TestProcedures/" + concreteTestProc + " failed!");
+			// download debug information:
+			// - rtt-mbt-tms.out
+			// - rtt-mbt-tms.err
+			String dirname = getProjectPath() + File.separator;
+			downloadFile(dirname + "rtt-mbt-tms-execution.err");
+			downloadFile(dirname + "rtt-mbt-tms-execution.out");
+			// print error messages from output file
+			String errorsFileName = getRttProjectRoot() +  File.separator + "rtt-mbt-tms-execution.err";
+			showErrorMessagesFromFile(errorsFileName);
 			// download debug information:
 		} else {
 			// download generated files
@@ -1235,6 +1482,10 @@ public class RttMbtClient {
 	public Boolean docTestProcedure(String concreteTestProc) {
 		Boolean success = true;
 
+		// remove local (and old) log files
+		deleteLocalFile(new File(getRttProjectRoot() + File.separator + "rtt-mbt-tms-execution.err"));
+		deleteLocalFile(new File(getRttProjectRoot() + File.separator + "rtt-mbt-tms-execution.out"));
+
 		// push necessary files to cache:
 		// /project.rtp
 		// /TMPL
@@ -1242,6 +1493,11 @@ public class RttMbtClient {
 		uploadFile(fileName + "componentnames.txt");
 		String dirName = getProjectPath() + File.separator;
 		uploadDirectory(dirName + "TMPL", true);
+		// /RTT_Testprocedure/conf/
+		dirName = getProjectPath() + File.separator
+				+ getRttMbtTestProcFolderName() + File.separator
+				+ concreteTestProc + File.separator;
+		uploadDirectory(dirName + "conf", false);
 
 		// doc-test-command
 		System.out.println("doc concrete test procedure " + concreteTestProc + "...");
@@ -1252,6 +1508,15 @@ public class RttMbtClient {
 			// set result to false
 			success = false;
 			System.err.println("[FAIL]: doc RTT_TestProcedures/" + concreteTestProc + " failed!");
+			// download debug information:
+			// - rtt-mbt-tms.out
+			// - rtt-mbt-tms.err
+			String dirname = getProjectPath() + File.separator;
+			downloadFile(dirname + "rtt-mbt-tms-execution.err");
+			downloadFile(dirname + "rtt-mbt-tms-execution.out");
+			// print error messages from output file
+			String errorsFileName = getRttProjectRoot() +  File.separator + "rtt-mbt-tms-execution.err";
+			showErrorMessagesFromFile(errorsFileName);
 			// download debug information:
 		} else {
 			// download generated files
@@ -1269,7 +1534,38 @@ public class RttMbtClient {
 		// return result
 		return success;
 	}
+
+	public Boolean createProjectDatabase() {
+		Boolean success = true;
+		
+		// create-project-database-command
+		System.out.println("create project database " + getProjectDatabaseName() + "...");
+		jsonCreateProjectDatabaseCommand cmd = new jsonCreateProjectDatabaseCommand(this);
+		cmd.executeCommand();
+		if (!cmd.executedSuccessfully()) {
+			// set result to false
+			success = false;
+			System.err.println("[FAIL]: create project database " + getProjectDatabaseName() + " failed!");
+			// download debug information:
+		} else {
+			System.out.println("[PASS]: create project database " + getProjectDatabaseName());
+		}
+
+		return success;
+	}
 	
+	// substitute local names for generation or execution context in the
+	// path of <filename> with the ones from the RTT-MBT server
+	public String substituteIllegalDbNameCharacters(String rawName) {
+		String dbName = null;
+
+		dbName = rawName;
+		dbName.replaceAll("@", "_");
+		dbName.replaceAll(".", "_");
+
+		return dbName;
+	}
+
 	// substitute local names for generation or execution context in the
 	// path of <filename> with the ones from the RTT-MBT server
 	public String substituteContextFolderNamesLocal2Server(String filename) {
@@ -1355,7 +1651,7 @@ public class RttMbtClient {
 		// return new filename (with path)
 		return serverFilename;
 	}
-	
+
 	public String toUnixPath(String path) {
 		if (File.pathSeparatorChar != '/') {
 			return path.replace(File.separatorChar, '/');
@@ -1389,6 +1685,11 @@ public class RttMbtClient {
 
 	public void setProjectName(String projectName) {
 		this.projectName = projectName;
+	}
+	
+	public String getProjectDatabaseName() {
+		String databasename = substituteIllegalDbNameCharacters(userId + "_" + projectName);
+		return databasename;
 	}
 
 	public String getUserName() {

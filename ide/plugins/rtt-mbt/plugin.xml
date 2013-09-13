@@ -197,6 +197,18 @@
    <extension
          point="org.eclipse.ui.handlers">
       <handler
+            class="eu.compassresearch.ide.rttmbt.RttMbtCleanTestProcedureGenerationContext"
+            commandId="eu.compassresearch.ide.rttmbt.RttMbtCleanTestGenCtx">
+         <activeWhen>
+            <with
+                  variable="eu.compassresearch.ide.rttmbt.IsGenerationContextTP">
+               <equals
+                     value="truumpel">
+               </equals>
+            </with>
+         </activeWhen>
+      </handler>
+      <handler
             class="eu.compassresearch.ide.rttmbt.RttMbtGenerateTest"
             commandId="eu.compassresearch.ide.rttmbt.RttMbtGenerateTest">
          <activeWhen>
@@ -335,7 +347,7 @@
                label="RTT-MBT">
             <command
                   commandId="eu.compassresearch.ide.rttmbt.RttMbtCleanProject"
-                  icon="icons/mbt_clean.png"
+                  icon="icons/prj_clean.png"
                   label="Clean Project"
                   style="push"
                   tooltip="Cleanup Project">
@@ -374,6 +386,13 @@
                   name="eu.compassresearch.ide.rttmbt.separator-002"
                   visible="true">
             </separator>
+            <command
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtCleanTestGenCtx"
+                  icon="icons/mbt_clean.png"
+                  label="Clean Test Generation"
+                  style="push"
+                  tooltip="Cleanup this Test Procedure Generation Context">
+            </command>
             <command
                   commandId="eu.compassresearch.ide.rttmbt.RttMbtGenerateTest"
                   icon="icons/mbt_generate.png"
@@ -478,7 +497,7 @@
                label="RT-Tester">
             <command
                   commandId="eu.compassresearch.ide.rttmbt.RttMbtCleanProject"
-                  icon="icons/mbt_clean.png"
+                  icon="icons/prj_clean.png"
                   label="Clean Project"
                   style="push"
                   tooltip="Cleanup Project">
@@ -541,6 +560,13 @@
                   name="eu.compassresearch.ide.rttmbt.separator-002"
                   visible="true">
             </separator>
+            <command
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtCleanTestGenCtx"
+                  icon="icons/mbt_clean.png"
+                  label="Clean Test Generation"
+                  style="push"
+                  tooltip="Cleanup this Test Procedure Generation Context">
+            </command>
             <command
                   commandId="eu.compassresearch.ide.rttmbt.RttMbtGenerateTest"
                   icon="icons/mbt_generate.png"
@@ -778,7 +804,7 @@
                label="Model">
             <command
                   commandId="eu.compassresearch.ide.rttmbt.RttMbtCleanProject"
-                  icon="icons/mbt_clean.png"
+                  icon="icons/prj_clean.png"
                   label="Clean Project"
                   style="push"
                   tooltip="Cleanup Project">
@@ -830,6 +856,13 @@
          <menu
                id="eu.compassresearch.ide.rttmbt.RttMbtTPgenContextMenu"
                label="Test Generation Context">
+            <command
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtCleanTestGenCtx"
+                  icon="icons/mbt_clean.png"
+                  label="Clean Test Generation"
+                  style="push"
+                  tooltip="Cleanup this Test Procedure Generation Context">
+            </command>
             <command
                   commandId="eu.compassresearch.ide.rttmbt.RttMbtGenerateTest"
                   icon="icons/mbt_generate.png"

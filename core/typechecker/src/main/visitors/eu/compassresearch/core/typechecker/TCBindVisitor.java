@@ -253,7 +253,7 @@ class TCBindVisitor extends QuestionAnswerCMLAdaptor<TypeCheckInfo, PType>
 						pattern.getLocation(),
 						((AIdentifierPattern) pattern).getName(),
 						NameScope.LOCAL, topType);
-				node.getDefs().add(localDef);
+				node.getType().getDefinitions().add(localDef);
 			} else {
 				issueHandler.addTypeWarning(pattern,
 						"Type checking may be incomplete here.");
