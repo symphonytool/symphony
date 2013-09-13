@@ -67,7 +67,7 @@ public class CmlSatisfiabilityObligation extends CmlProofObligation
 	public CmlSatisfiabilityObligation(AImplicitFunctionDefinition func,
 			IPOContextStack ctxt) throws AnalysisException
 	{
-		super(func, CmlPOType.FUNC_SATISFIABILITY, ctxt);
+		super(func, CmlPOType.FUNC_SATISFIABILITY, ctxt, func.getLocation());
 
 		/**
 		 * f: A * B -> R [pre ...] post ... [pre_f(a, b) =>] exists r:R & post_f(a, b, r)
@@ -125,7 +125,7 @@ public class CmlSatisfiabilityObligation extends CmlProofObligation
 			PDefinition stateDefinition, IPOContextStack ctxt)
 			throws AnalysisException
 	{
-		super(op, CmlPOType.OP_SATISFIABILITY, ctxt);
+		super(op, CmlPOType.OP_SATISFIABILITY, ctxt, op.getLocation());
 
 		/**
 		 * op: A * B ==> R [pre ...] post ... [pre_op(a, b, state) =>] exists r:R, state:Sigma & post_op(a, b, r,
