@@ -32,10 +32,11 @@ public class RttMbtCheckModel extends RttMbtPopupMenuAction {
 		}
 
 		// get model file name
-		final File model = new File(client.getRttProjectRoot() + File.separator + "model" + File.separator + "model_dump.xml");
+		final File model = new File(client.getCmlWorkspace() + selectedObjectPath);
 		if (!model.exists()) {
 			client.addErrorMessage("[FAIL]: check model: unable to find model file " +
 		                           model.getAbsolutePath() + "!");
+			return null;
 		}
 
 		Job job = new Job("Check Model") {
