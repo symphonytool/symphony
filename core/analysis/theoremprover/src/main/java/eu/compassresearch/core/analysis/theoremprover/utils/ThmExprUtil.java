@@ -421,7 +421,7 @@ public class ThmExprUtil {
 		}
 		else if(ex instanceof AIntLiteralExp){
 			AIntLiteralExp i = (AIntLiteralExp) ex;
-			return i.getValue().toString();
+			return i.getValue().toString(); //"<<''" + i.getValue().toString() + "''>>";
 		}
 		else if(ex instanceof AApplyExp){
 			AApplyExp app = (AApplyExp) ex;
