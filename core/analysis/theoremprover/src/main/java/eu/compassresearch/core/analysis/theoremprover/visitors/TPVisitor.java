@@ -287,7 +287,7 @@ public class TPVisitor extends
 			for (IProofObligation po : poList)
 			{
 				//THIS BIT NEEDS MORE EFFORT!
-				String theoryBody = "true";//ThmExprUtil.getIsabelleExprStr(svars, new LinkedList(), )
+				String theoryBody = ThmExprUtil.getIsabelleExprStr(svars, new NodeNameList(), po.getValueTree().getPredicate());
 				poThys.add(new ThmTheorem("po" + po.getUniqueName(), theoryBody, "auto"));
 			}
 			pogString = poThys.toString();
