@@ -14,16 +14,14 @@ import org.overture.interpreter.runtime.StateContext;
 import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.values.Value;
 
-import eu.compassresearch.ast.actions.ASingleGeneralAssignmentStatementAction;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.lex.LexNameToken;
-import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorState;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlTrace;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.behaviour.Inspection;
 import eu.compassresearch.core.interpreter.api.behaviour.Reason;
 import eu.compassresearch.core.interpreter.api.events.CmlBehaviorStateEvent;
@@ -33,9 +31,9 @@ import eu.compassresearch.core.interpreter.api.events.EventSource;
 import eu.compassresearch.core.interpreter.api.events.EventSourceHandler;
 import eu.compassresearch.core.interpreter.api.events.TraceEvent;
 import eu.compassresearch.core.interpreter.api.events.TraceObserver;
-import eu.compassresearch.core.interpreter.api.transitions.TimedTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.ObservableEvent;
+import eu.compassresearch.core.interpreter.api.transitions.TimedTransition;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
 class ConcreteCmlBehaviour implements CmlBehaviour
@@ -92,9 +90,6 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	//The next INode to execute in the given Context
 	Pair<INode,Context>                         next;
 	Pair<Context,Context>   					preConstructedChildContexts = null;
-
-	//Current supervisor
-	protected CmlSupervisorEnvironment 			env;
 
 	//This might get used to boost the performance
 	//protected Map<INode,Object>                	localStore = new HashMap<INode,Object>();
@@ -243,9 +238,9 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	 * Executes the current process behaviour
 	 */
 	@Override
-	public void execute(CmlSupervisorEnvironment env) throws AnalysisException
+	public void execute(CmlTransition selectedTransition) throws AnalysisException
 	{
-		this.env= env;
+//		this.env= env;
 
 		//inspect if there are any immediate events
 		inspect();
@@ -257,30 +252,30 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 		 *	then we can continue.
 		 *  
 		 */
-		if(env.isSelectedEventValid() &&  
-				lastInspection.getTransitions().contains(env.selectedObservableEvent()))
+		if(selectedTransition != null &&  
+				lastInspection.getTransitions().contains(selectedTransition))
 		{
 
 
 			//If the selected event is tock then we need to execute the children as well to make
 			//time tick in the entire process tree
-			if(env.selectedObservableEvent() instanceof TimedTransition)
+			if(selectedTransition instanceof TimedTransition)
 			{
 				if(leftChild != null)
-					leftChild.execute(supervisor());
+					leftChild.execute(selectedTransition);
 
 				if(rightChild != null)
-					rightChild.execute(supervisor());
+					rightChild.execute(selectedTransition);
 			}
 			//If the selected event is not a tock event then we can evaluate
 			else
 			{
 				waitPrime = false;
 				//setNext(next.first.apply(cmlEvaluationVisitor,next.second));
-				setNext(lastInspection.getNextStep().execute(env));
+				setNext(lastInspection.getNextStep().execute(selectedTransition));
 			}
 
-			updateTrace(env.selectedObservableEvent());
+			updateTrace(selectedTransition);
 		}
 		//if no communication is selected by the supervisor or we cannot sync the selected events
 		//then we go to wait state and wait for channelEvent
@@ -318,11 +313,6 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	/*
 	 * Execute region end
 	 */
-
-	@Override
-	public CmlSupervisorEnvironment supervisor() {
-		return env;
-	}
 
 	@Override
 	public Pair<INode, Context> getNextState() {

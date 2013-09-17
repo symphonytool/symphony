@@ -24,6 +24,7 @@ import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.api.ConsoleSelectionStrategy;
 import eu.compassresearch.core.interpreter.api.RandomSelectionStrategy;
+import eu.compassresearch.core.interpreter.api.SelectionStrategy;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlTrace;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlTransitionSet;
@@ -114,15 +115,15 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	}
 
 	@Override
-	public Value execute(CmlSupervisorEnvironment sve) throws AnalysisException
+	public Value execute(SelectionStrategy env) throws AnalysisException
 	{
 		if(this.getStatus() == null)
 			throw new CmlInterpreterException("The interprer has not been initialized, please call the initialize method before invoking the start method");
 		
-		if(null == sve)
+		if(null == env)
 			throw new CmlInterpreterException("The supervisor must not be set to null in the cml scheduler");
 		
-		currentSupervisor = sve; 
+		environment = env; 
 
 		//Find and initialize the top process value
 		ProcessObjectValue pov = InitializeTopProcess();
@@ -130,7 +131,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		Context topContext = getInitialContext(null);
 		//Create a CmlBehaviour for the top process
 		runningTopProcess = new ConcreteCmlBehaviour(topProcess.getProcess(), topContext, topProcess.getName());
-		currentSupervisor.addPupil(runningTopProcess);
+//		currentSupervisor.addPupil(runningTopProcess);
 
 		//Fire the interpreter running event before we start
 		setNewState(CmlInterpretationStatus.RUNNING);
@@ -218,10 +219,10 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			//set the state of the interpreter to be waiting for the environment
 			setNewState(CmlInterpretationStatus.WAITING_FOR_ENVIRONMENT);
 			//this is potentially a blocking call
-			selectedEvent = currentSupervisor.decisionFunction().select(availableEvents);
+			selectedEvent = getEnvironment().select(availableEvents);
 
-			//Set the selected event on the supervisor
-			currentSupervisor.setSelectedTransition(selectedEvent);
+//			//Set the selected event on the supervisor
+//			currentSupervisor.setSelectedTransition(selectedEvent);
 			
 			//Handle the breakpoints if any
 			handleBreakpoints(selectedEvent);
@@ -235,7 +236,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			//if we get here it means that it in a running state again
 			setNewState(CmlInterpretationStatus.RUNNING);
 			
-			topProcess.execute(currentSupervisor);
+			topProcess.execute(selectedEvent);
 			CmlTrace trace = topProcess.getTraceModel();
 
 			if(trace.getLastTransition() instanceof ObservableEvent)
@@ -362,14 +363,14 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 
 		try
 		{
-			CmlSupervisorEnvironment sve = 
-					VanillaInterpreterFactory.newDefaultCmlSupervisorEnvironment(new ConsoleSelectionStrategy());
+//			CmlSupervisorEnvironment sve = 
+//					VanillaInterpreterFactory.newDefaultCmlSupervisorEnvironment(new ConsoleSelectionStrategy());
 			//CmlSupervisorEnvironment sve = 
 			//				VanillaInterpreterFactory.newDefaultCmlSupervisorEnvironment(new RandomSelectionStrategy());
 
 			CmlRuntime.logger().setLevel(Level.FINEST);
 			cmlInterp.initialize();
-			cmlInterp.execute(sve);
+			cmlInterp.execute(new ConsoleSelectionStrategy());
 		} catch (Exception ex)
 		{
 			System.out.println("Failed to interpret: " + sources.toString());
@@ -425,14 +426,14 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 
 		try
 		{
-			CmlSupervisorEnvironment sve = 
-					VanillaInterpreterFactory.newDefaultCmlSupervisorEnvironment(new ConsoleSelectionStrategy());
+//			CmlSupervisorEnvironment sve = 
+//					VanillaInterpreterFactory.newDefaultCmlSupervisorEnvironment(new ConsoleSelectionStrategy());
 			//CmlSupervisorEnvironment sve = 
 			//				VanillaInterpreterFactory.newDefaultCmlSupervisorEnvironment(new RandomSelectionStrategy());
 
 			CmlRuntime.logger().setLevel(Level.FINEST);
 			cmlInterp.initialize();
-			cmlInterp.execute(sve);
+			cmlInterp.execute(new ConsoleSelectionStrategy());
 		} catch (Exception ex)
 		{
 			System.out.println("Failed to interpret: " + source.toString());

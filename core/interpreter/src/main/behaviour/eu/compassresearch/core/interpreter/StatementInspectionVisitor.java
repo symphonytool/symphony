@@ -18,7 +18,6 @@ import org.overture.interpreter.assistant.pattern.PPatternAssistantInterpreter;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.PatternMatchException;
 import org.overture.interpreter.runtime.ValueException;
-import org.overture.interpreter.runtime.VdmRuntime;
 import org.overture.interpreter.values.NameValuePair;
 import org.overture.interpreter.values.NameValuePairMap;
 import org.overture.interpreter.values.ObjectValue;
@@ -46,12 +45,10 @@ import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.AWhileStatementAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.types.AActionType;
-import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
-import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.behaviour.Inspection;
-import eu.compassresearch.core.interpreter.api.transitions.TimedTransition;
+import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.InternalTransition;
 import eu.compassresearch.core.interpreter.api.values.CmlOperationValue;
 import eu.compassresearch.core.interpreter.utility.Pair;
@@ -78,7 +75,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 				new AbstractCalculationStep(owner, visitorAccess) {
 					
 					@Override
-					public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+					public Pair<INode, Context> execute(CmlTransition selectedTransition)
 							throws AnalysisException {
 						//put return value in a new context
 						Context resultContext = CmlContextFactory.newContext(node.getLocation(), "Call Result Context", question);
@@ -117,7 +114,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 				new AbstractCalculationStep(owner, visitorAccess) {
 					
 					@Override
-					public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+					public Pair<INode, Context> execute(CmlTransition selectedTransition)
 							throws AnalysisException {
 						
 						Context blockContext = CmlContextFactory.newContext(node.getLocation(), "block context", question);
@@ -151,7 +148,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 					new AbstractCalculationStep(owner, visitorAccess) {
 						
 						@Override
-						public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+						public Pair<INode, Context> execute(CmlTransition selectedTransition)
 								throws AnalysisException {
 							//first find the operation value in the context
 							CmlOperationValue opVal = (CmlOperationValue)lookupName(node.getName(),question); 
@@ -280,9 +277,9 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 					new AbstractCalculationStep(owner, visitorAccess) {
 						
 						@Override
-						public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+						public Pair<INode, Context> execute(CmlTransition selectedTransition)
 								throws AnalysisException {
-							owner.getLeftChild().execute(supervisor());
+							owner.getLeftChild().execute(selectedTransition);
 							return new Pair<INode, Context>(node, question);
 						}
 					});
@@ -295,10 +292,10 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 			new AbstractCalculationStep(owner, visitorAccess) {
 				
 				@Override
-				public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+				public Pair<INode, Context> execute(CmlTransition selectedTransition)
 						throws AnalysisException {
 					
-					owner.getRightChild().execute(supervisor());
+					owner.getRightChild().execute(selectedTransition);
 					setLeftChild(null);
 					setRightChild(null);
 					return new Pair<INode, Context>(new ASkipAction(), question);
@@ -313,7 +310,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 					new AbstractCalculationStep(owner, visitorAccess) {
 						
 						@Override
-						public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+						public Pair<INode, Context> execute(CmlTransition selectedTransition)
 								throws AnalysisException {
 							
 							setLeftChild(null);
@@ -333,7 +330,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 					new AbstractCalculationStep(owner, visitorAccess) {
 						
 						@Override
-						public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+						public Pair<INode, Context> execute(CmlTransition selectedTransition)
 								throws AnalysisException {
 							return new Pair<INode, Context>(node.getThenStm(), question);
 						}
@@ -349,7 +346,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 							new AbstractCalculationStep(owner, visitorAccess) {
 								
 								@Override
-								public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+								public Pair<INode, Context> execute(CmlTransition selectedTransition)
 										throws AnalysisException {
 									return new Pair<INode, Context>(elseif.getThenStm(), question);
 								}
@@ -363,7 +360,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 						new AbstractCalculationStep(owner, visitorAccess) {
 							
 							@Override
-							public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+							public Pair<INode, Context> execute(CmlTransition selectedTransition)
 									throws AnalysisException {
 								return new Pair<INode, Context>(node.getElseStm(), question);
 							}
@@ -376,7 +373,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 				new AbstractCalculationStep(owner, visitorAccess) {
 			
 			@Override
-			public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+			public Pair<INode, Context> execute(CmlTransition selectedTransition)
 					throws AnalysisException {
 				return new Pair<INode, Context>(skipAction, question);
 			}
@@ -391,7 +388,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 		new AbstractCalculationStep(owner, visitorAccess) {
 			
 			@Override
-			public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+			public Pair<INode, Context> execute(CmlTransition selectedTransition)
 					throws AnalysisException {
 				
 				//Create a new context for the let statement
@@ -416,7 +413,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 				new AbstractCalculationStep(owner,visitorAccess) {
 					
 					@Override
-					public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+					public Pair<INode, Context> execute(CmlTransition selectedTransition)
 							throws AnalysisException {
 						
 						ObjectValue classValue = CmlValueFactory.createClassValue(node, question);
@@ -450,7 +447,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 					new AbstractCalculationStep(owner,visitorAccess) {
 						
 						@Override
-						public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+						public Pair<INode, Context> execute(CmlTransition selectedTransition)
 								throws AnalysisException {
 							
 							//if we got here we already now that the must at least be one available action
@@ -492,7 +489,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 					new AbstractCalculationStep(owner,visitorAccess) {
 						
 						@Override
-						public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+						public Pair<INode, Context> execute(CmlTransition selectedTransition)
 								throws AnalysisException {
 							
 							return new Pair<INode, Context>(nextNode,question);
@@ -506,7 +503,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 					new AbstractCalculationStep(owner,visitorAccess) {
 						
 						@Override
-						public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+						public Pair<INode, Context> execute(CmlTransition selectedTransition)
 								throws AnalysisException {
 							return new Pair<INode,Context>(new ASkipAction(node.getLocation()), question);
 						}
@@ -525,7 +522,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 				new AbstractCalculationStep(owner,visitorAccess) {
 			
 			@Override
-			public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+			public Pair<INode, Context> execute(CmlTransition selectedTransition)
 					throws AnalysisException {
 				Context nameContext = (Context)question.locate(CmlOperationValue.ReturnValueName());
 				if(nameContext != null)
@@ -558,7 +555,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 				new AbstractCalculationStep(owner,visitorAccess) {
 			
 			@Override
-			public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+			public Pair<INode, Context> execute(CmlTransition selectedTransition)
 					throws AnalysisException {
 				
 				Value expValue = node.getExpression().apply(cmlExpressionVisitor,question);
@@ -587,7 +584,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 			return newInspection(createSilentTransition(skipAction),
 					new AbstractCalculationStep(owner,visitorAccess) {
 				@Override
-				public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+				public Pair<INode, Context> execute(CmlTransition selectedTransition)
 						throws AnalysisException {
 					//clear the child nodes
 					setLeftChild(null);
@@ -623,10 +620,10 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 				new AbstractCalculationStep(owner,visitorAccess) {
 
 			@Override
-			public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+			public Pair<INode, Context> execute(CmlTransition selectedTransition)
 					throws AnalysisException {
 
-				owner.getLeftChild().execute(sve);
+				owner.getLeftChild().execute(selectedTransition);
 				
 				return new Pair<INode, Context>(node,question);
 			}
@@ -650,7 +647,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 					new AbstractCalculationStep(owner,visitorAccess) {
 				
 				@Override
-				public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+				public Pair<INode, Context> execute(CmlTransition selectedTransition)
 						throws AnalysisException {
 					return new Pair<INode,Context>(
 							new ASequentialCompositionAction(node.getAction().getLocation(), node.getAction().clone(), node.clone()),question);
@@ -665,7 +662,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 					new AbstractCalculationStep(owner,visitorAccess) {
 				
 				@Override
-				public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+				public Pair<INode, Context> execute(CmlTransition selectedTransition)
 						throws AnalysisException {
 					return new Pair<INode,Context>(skipNode, question);
 				}

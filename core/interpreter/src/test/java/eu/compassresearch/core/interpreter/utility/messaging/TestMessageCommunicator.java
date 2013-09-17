@@ -107,12 +107,6 @@ public class TestMessageCommunicator {
 			}
 			
 			@Override
-			public CmlSupervisorEnvironment supervisor() {
-				// TODO Auto-generated method stub
-				return null;
-			}
-			
-			@Override
 			public boolean started() {
 				// TODO Auto-generated method stub
 				return false;
@@ -263,13 +257,6 @@ public class TestMessageCommunicator {
 			}
 			
 			@Override
-			public void execute(CmlSupervisorEnvironment supervisor)
-					throws AnalysisException {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
 			public boolean deadlocked() {
 				return false;
 			}
@@ -283,6 +270,14 @@ public class TestMessageCommunicator {
 			public int getId() {
 				// TODO Auto-generated method stub
 				return 0;
+			}
+
+			@Override
+			public void execute(CmlTransition selectedTransition)
+					throws AnalysisException
+			{
+				// TODO Auto-generated method stub
+				
 			}
 		}, CmlInterpretationStatus.FINISHED);
 		Message sentMessage = new CmlDbgStatusMessage(status);

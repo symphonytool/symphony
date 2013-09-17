@@ -23,17 +23,16 @@ import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
 import eu.compassresearch.ast.expressions.ANameChannelExp;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.lex.LexNameToken;
-import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlCalculationStep;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.behaviour.Inspection;
-import eu.compassresearch.core.interpreter.api.transitions.LabelledTransition;
-import eu.compassresearch.core.interpreter.api.transitions.TimedTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionFactory;
+import eu.compassresearch.core.interpreter.api.transitions.LabelledTransition;
 import eu.compassresearch.core.interpreter.api.transitions.ObservableEvent;
+import eu.compassresearch.core.interpreter.api.transitions.TimedTransition;
 import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
 import eu.compassresearch.core.interpreter.utility.Pair;
@@ -111,7 +110,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 					new AbstractCalculationStep(owner,visitorAccess) {
 
 				@Override
-				public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+				public Pair<INode, Context> execute(CmlTransition selectedTransition)
 						throws AnalysisException {
 					Pair<Context,Context> childContexts = visitorAccess.getChildContexts(question);
 					CmlBehaviour leftInstance = new ConcreteCmlBehaviour(leftNode, childContexts.first.deepCopy(), new LexNameToken(name().getModule(),name().getIdentifier().getName() + "[]" , new LexLocation()),this.owner);
@@ -132,7 +131,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 					new AbstractCalculationStep(owner,visitorAccess) {
 
 				@Override
-				public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+				public Pair<INode, Context> execute(CmlTransition selectedTransition)
 						throws AnalysisException {
 					return caseExternalChoiceEnd(findFinishedChild(),question);
 				}
@@ -144,22 +143,22 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 					new AbstractCalculationStep(owner, visitorAccess) {
 
 				@Override
-				public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+				public Pair<INode, Context> execute(CmlTransition selectedTransition)
 						throws AnalysisException {
 
 					for(CmlBehaviour child : children())
 					{
-						if(child.inspect().contains(supervisor().selectedObservableEvent()))
+						if(child.inspect().contains(selectedTransition))
 						{
-							if(supervisor().selectedObservableEvent() instanceof LabelledTransition)
+							if(selectedTransition instanceof LabelledTransition)
 							{
 								//first we execute the child
-								child.execute(supervisor());
+								child.execute(selectedTransition);
 								return caseExternalChoiceEnd(child,question);
 							}
 							else
 							{
-								child.execute(supervisor());
+								child.execute(selectedTransition);
 								return new Pair<INode, Context>(node, question);
 							}
 						}
@@ -188,7 +187,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 					new AbstractCalculationStep(owner, visitorAccess) {
 
 				@Override
-				public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+				public Pair<INode, Context> execute(CmlTransition selectedTransition)
 						throws AnalysisException {
 					helper.caseParallelBegin();
 					//We push the current state, since this process will control the child processes created by it
@@ -262,22 +261,22 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 				new AbstractCalculationStep(owner, visitorAccess) {
 
 			@Override
-			public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+			public Pair<INode, Context> execute(CmlTransition selectedTransition)
 					throws AnalysisException {
 				//if both contains the selected event it must be a sync event
-				if(leftChildAlphabet.contains(owner.supervisor().selectedObservableEvent()) &&
-						rightChildAlphabet.contains(owner.supervisor().selectedObservableEvent()))
+				if(leftChildAlphabet.contains(selectedTransition) &&
+						rightChildAlphabet.contains(selectedTransition))
 				{
-					leftChild.execute(sve);
-					rightChild.execute(sve);
+					leftChild.execute(selectedTransition);
+					rightChild.execute(selectedTransition);
 				}
-				else if(leftChildAlphabet.contains(owner.supervisor().selectedObservableEvent()))
+				else if(leftChildAlphabet.contains(selectedTransition))
 				{
-					leftChild.execute(sve);
+					leftChild.execute(selectedTransition);
 				}
-				else if(rightChildAlphabet.contains(owner.supervisor().selectedObservableEvent()))
+				else if(rightChildAlphabet.contains(selectedTransition))
 				{
-					rightChild.execute(sve);
+					rightChild.execute(selectedTransition);
 				}
 				else
 					//Something went wrong here
@@ -295,7 +294,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 		return new AbstractCalculationStep(owner, visitorAccess) {
 
 			@Override
-			public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+			public Pair<INode, Context> execute(CmlTransition selectedTransition)
 					throws AnalysisException {
 
 				setLeftChild(null);
@@ -333,9 +332,9 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 					new AbstractCalculationStep(owner, visitorAccess) {
 
 				@Override
-				public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+				public Pair<INode, Context> execute(CmlTransition selectedTransition)
 						throws AnalysisException {
-					owner.getLeftChild().execute(supervisor());
+					owner.getLeftChild().execute(selectedTransition);
 					return new Pair<INode,Context>(node, question);
 				}
 			});
@@ -346,7 +345,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 					new AbstractCalculationStep(owner, visitorAccess) {
 
 				@Override
-				public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+				public Pair<INode, Context> execute(CmlTransition selectedTransition)
 						throws AnalysisException {
 					setLeftChild(null);
 					return new Pair<INode,Context>(new ASkipAction(), question);
@@ -387,9 +386,9 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 					new AbstractCalculationStep(owner,visitorAccess) {
 
 				@Override
-				public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+				public Pair<INode, Context> execute(CmlTransition selectedTransition)
 						throws AnalysisException {
-					owner.getLeftChild().execute(supervisor());
+					owner.getLeftChild().execute(selectedTransition);
 					return new Pair<INode, Context>(node, question);
 				}
 			});
@@ -403,7 +402,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 					new AbstractCalculationStep(owner, visitorAccess) {
 
 				@Override
-				public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+				public Pair<INode, Context> execute(CmlTransition selectedTransition)
 						throws AnalysisException {
 
 					setLeftChild(null);

@@ -13,6 +13,7 @@ import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.Inspection;
+import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
 public class CmlInspectionVisitor extends AbstractInspectionVisitor {
@@ -48,7 +49,7 @@ public class CmlInspectionVisitor extends AbstractInspectionVisitor {
 				new AbstractCalculationStep(owner,visitorAccess) {
 
 			@Override
-			public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+			public Pair<INode, Context> execute(CmlTransition selectedTransition)
 					throws AnalysisException {
 
 				if(!node.apply(cmlExpressionVisitor,question).boolValue(question))

@@ -46,7 +46,7 @@ public interface CmlInterpreter
 	 * The top level supervisor for the interpreter
 	 * @return
 	 */
-	public CmlSupervisorEnvironment getCurrentSupervisor();
+	public SelectionStrategy getEnvironment();
 
 	/**
 	 * Initializes the interpreter by making a global context and setting the 
@@ -61,7 +61,7 @@ public interface CmlInterpreter
 	 * @return Ifthe process value of the top process if
 	 * @throws AnalysisException
 	 */
-	public Value execute(CmlSupervisorEnvironment sve) throws AnalysisException;
+	public Value execute(SelectionStrategy env) throws AnalysisException;
 	
 	public CmlInterpretationStatus getStatus();
 	

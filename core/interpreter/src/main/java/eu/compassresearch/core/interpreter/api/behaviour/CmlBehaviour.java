@@ -13,6 +13,7 @@ import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.api.events.CmlBehaviorStateObserver;
 import eu.compassresearch.core.interpreter.api.events.EventSource;
 import eu.compassresearch.core.interpreter.api.events.TraceObserver;
+import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
 /**
@@ -33,19 +34,13 @@ public interface CmlBehaviour extends Serializable //extends Transactable
 	 * Executes the behaviour of this process
 	 * @return
 	 */
-	public void execute(CmlSupervisorEnvironment supervisor) throws AnalysisException;
+	public void execute(CmlTransition selectedTransition) throws AnalysisException;
 	
 	/**
 	 * Returns the immediate alphabet of the process, meaning the next possible cml event including tau
 	 * @return The immediate alphabet of the process
 	 */
 	public CmlTransitionSet inspect() throws AnalysisException;
-	
-	/**
-	 * 
-	 * @return The current supervisor of this process
-	 */
-	public CmlSupervisorEnvironment supervisor();
 	
 	//public Reason abortReason();
 	public void setAbort(Reason reason);

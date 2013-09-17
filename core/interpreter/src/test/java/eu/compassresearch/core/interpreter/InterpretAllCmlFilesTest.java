@@ -122,13 +122,13 @@ public class InterpretAllCmlFilesTest {
 
 		CmlInterpreter interpreter = VanillaInterpreterFactory.newInterpreter(ast);
 
-		CmlSupervisorEnvironment sve = 
-				VanillaInterpreterFactory.newDefaultCmlSupervisorEnvironment(new RandomSelectionStrategy());
+//		CmlSupervisorEnvironment sve = 
+//				VanillaInterpreterFactory.newDefaultCmlSupervisorEnvironment(new RandomSelectionStrategy());
 		
 		Exception exception = null;
 		try{
 			interpreter.initialize();
-			interpreter.execute(sve);
+			interpreter.execute(new RandomSelectionStrategy());
 		}
 		catch(Exception ex)
 		{

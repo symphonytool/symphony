@@ -12,6 +12,7 @@ import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlCalculationStep;
+import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
 abstract class AbstractCalculationStep implements CmlCalculationStep {
@@ -30,7 +31,7 @@ abstract class AbstractCalculationStep implements CmlCalculationStep {
 	}
 	
 	@Override
-	public abstract Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+	public abstract Pair<INode, Context> execute(CmlTransition selectedTransition)
 			throws AnalysisException;
 	
 	
@@ -65,30 +66,25 @@ abstract class AbstractCalculationStep implements CmlCalculationStep {
 		return owner.name();
 	}
 		
-	protected CmlSupervisorEnvironment supervisor()
-	{
-		return owner.supervisor();
-	}
-	
 	protected List<CmlBehaviour> children()
 	{
 		return owner.children();
 	}
 			
-	protected void caseParallelNonSync() throws AnalysisException
+	protected void caseParallelNonSync(CmlTransition selectedTransition) throws AnalysisException
 	{
 		CmlBehaviour leftChild =  owner.getLeftChild();
 		CmlTransitionSet leftChildAlpha = owner.getLeftChild().inspect(); 
 		CmlBehaviour rightChild = owner.getRightChild();
 		CmlTransitionSet rightChildAlpha = rightChild.inspect();
 
-		if(leftChildAlpha.contains(supervisor().selectedObservableEvent()))
+		if(leftChildAlpha.contains(selectedTransition))
 		{
-			leftChild.execute(supervisor());
+			leftChild.execute(selectedTransition);
 		}
-		else if(rightChildAlpha.contains(supervisor().selectedObservableEvent()))
+		else if(rightChildAlpha.contains(selectedTransition))
 		{
-			rightChild.execute(supervisor());
+			rightChild.execute(selectedTransition);
 		}
 		else
 		{
