@@ -21,6 +21,7 @@
     <module>rtt-mbt</module>
     <module>pog</module>
     <module>theoremprover</module>
-    <module>modelchecker</module>   
+    <module>modelchecker</module>
+    <module>collaboration</module>  
   </modules>
 </project>
