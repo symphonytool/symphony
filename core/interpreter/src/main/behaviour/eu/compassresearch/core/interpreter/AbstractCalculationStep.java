@@ -48,6 +48,13 @@ abstract class AbstractCalculationStep implements CmlCalculationStep {
 		this.visitorAccess.setRightChild(child);
 	}
 	
+	protected Pair<INode,Context> replaceWithChild(CmlBehaviour child)
+	{
+		this.visitorAccess.setLeftChild(child.getLeftChild());
+		this.visitorAccess.setRightChild(child.getRightChild());
+		return child.getNextState();
+	}
+	
 	protected Pair<Context,Context> getChildContexts(Context context)
 	{
 		return visitorAccess.getChildContexts(context);

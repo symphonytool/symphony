@@ -581,7 +581,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 		final ValueList v = question.lookup(NamespaceUtility.getSeqForName()).seqValue(question);
 		
 		//if the sequence is empty we're done and evolve into skip
-		if(v.isEmpty())
+		if(v.isEmpty() && owner.hasChildren() && owner.getLeftChild().finished() )
 		{
 			final ASkipAction skipAction = new ASkipAction(node.getLocation());
 			return newInspection(createSilentTransition(skipAction),
@@ -598,7 +598,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 		
 		//if the sequence is non empty and we either have no or a finished child
 		//we need to create a new one
-		if(!owner.hasChildren() || owner.getLeftChild().finished())
+		else if(!owner.hasChildren() || owner.getLeftChild().finished())
 		{
 			//put the front element in scope of the action
 			Value x = v.firstElement();

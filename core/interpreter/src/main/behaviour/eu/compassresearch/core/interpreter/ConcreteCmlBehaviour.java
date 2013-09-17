@@ -250,22 +250,23 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 				lastInspection.getTransitions().contains(env.selectedObservableEvent()))
 		{
 
-			//If the selected event is not a tock event then we can evaluate
-			if(!(env.selectedObservableEvent() instanceof CmlTock))
-			{
-				waitPrime = false;
-				//setNext(next.first.apply(cmlEvaluationVisitor,next.second));
-				setNext(lastInspection.getNextStep().execute(env));
-			}
+
 			//If the selected event is tock then we need to execute the children as well to make
 			//time tick in the entire process tree
-			else
+			if(env.selectedObservableEvent() instanceof CmlTock)
 			{
 				if(leftChild != null)
 					leftChild.execute(supervisor());
 
 				if(rightChild != null)
 					rightChild.execute(supervisor());
+			}
+			//If the selected event is not a tock event then we can evaluate
+			else
+			{
+				waitPrime = false;
+				//setNext(next.first.apply(cmlEvaluationVisitor,next.second));
+				setNext(lastInspection.getNextStep().execute(env));
 			}
 
 			updateTrace(env.selectedObservableEvent());

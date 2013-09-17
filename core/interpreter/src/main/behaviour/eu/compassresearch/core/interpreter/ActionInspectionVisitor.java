@@ -16,6 +16,7 @@ import org.overture.ast.patterns.PPattern;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.typechecker.Pass;
 import org.overture.ast.types.AProductType;
+import org.overture.interpreter.assistant.pattern.PPatternAssistantInterpreter;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.NameValuePair;
 import org.overture.interpreter.values.NameValuePairList;
@@ -238,11 +239,14 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 						{
 							PPattern pattern = ((AReadCommunicationParameter) param).getPattern();
 							Value value = channelNameValue.getValues().get(i);
-							if(pattern instanceof AIdentifierPattern)
-							{
-								ILexNameToken name = ((AIdentifierPattern) pattern).getName();
-								question.put(name, value);
-							}
+							
+							question.putList(PPatternAssistantInterpreter.getNamedValues(pattern,value, question));
+							
+//							if(pattern instanceof AIdentifierPattern)
+//							{
+//								ILexNameToken name = ((AIdentifierPattern) pattern).getName();
+//								question.put(name, value);
+//							}
 						}
 					}
 				}
@@ -639,9 +643,8 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 				@Override
 				public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
 						throws AnalysisException {
-					CmlBehaviour leftChild = owner.getLeftChild();
-					setLeftChild(null);
-					return leftChild.getNextState();
+					
+					return replaceWithChild(owner.getLeftChild());
 				}
 			});
 		}
@@ -680,8 +683,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 					if(supervisor().selectedObservableEvent() instanceof ObservableEvent &&
 							supervisor().selectedObservableEvent() instanceof ChannelEvent)
 					{
-						setLeftChild(null);
-						return leftBehavior.getNextState();
+						return replaceWithChild(leftBehavior);
 					}
 					else
 						return new Pair<INode, Context>(node, question);
@@ -796,10 +798,8 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 				@Override
 				public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
 						throws AnalysisException {
-					final Pair<INode,Context> state = owner.getLeftChild().getNextState();
-					setLeftChild(null);
-					setRightChild(null);
-					return state;
+					
+					return replaceWithChild(owner.getLeftChild());
 				}
 			});
 		}
@@ -813,10 +813,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 				@Override
 				public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
 						throws AnalysisException {
-					final Pair<INode,Context> state = owner.getRightChild().getNextState();
-					setLeftChild(null);
-					setRightChild(null);
-					return state;
+					return replaceWithChild(owner.getRightChild());
 				}
 			});
 		}
@@ -829,8 +826,6 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 				@Override
 				public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
 						throws AnalysisException {
-					//setLeftChild(null);
-					//setRightChild(null);
 					caseParallelNonSync();
 					return new Pair<INode, Context>(node, question);
 				}

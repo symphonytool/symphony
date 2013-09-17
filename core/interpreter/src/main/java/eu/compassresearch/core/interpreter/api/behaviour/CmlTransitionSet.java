@@ -61,7 +61,7 @@ public class CmlTransitionSet extends Value {
 	
 	public CmlTransitionSet(Set<ObservableEvent> comms, Set<SilentTransition> specialEvents)
 	{
-		this.silentEvents = specialEvents;
+		this.silentEvents = new LinkedHashSet<SilentTransition>(specialEvents);
 		this._observableEvents = new LinkedHashSet<ObservableEvent>(comms);
 	}
 	
@@ -70,7 +70,7 @@ public class CmlTransitionSet extends Value {
 		this.silentEvents = new LinkedHashSet<SilentTransition>();
 		this._observableEvents = new LinkedHashSet<ObservableEvent>();
 		
-		for(CmlTransition e : events)
+		for(CmlTransition e : new LinkedHashSet<CmlTransition>(events))
 		{
 			if(e instanceof SilentTransition)
 				this.silentEvents.add((SilentTransition)e);
@@ -422,6 +422,6 @@ public class CmlTransitionSet extends Value {
 	public Object clone() {
 
 		return new CmlTransitionSet(new LinkedHashSet<ObservableEvent>(_observableEvents), 
-				new HashSet<SilentTransition>(silentEvents));
+				new LinkedHashSet<SilentTransition>(silentEvents));
 	}
 }

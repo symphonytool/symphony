@@ -8,10 +8,11 @@ import org.overture.ast.node.INode;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 
 
-public interface CmlTransition extends Serializable {
+public interface CmlTransition extends Serializable //, Comparable<CmlTransition> 
+{
 
 	/**
-	 * Returns the set of CmlBehaviourThreads that are prepared to engage in this event
+	 * Returns the set of CmlBehaviourThreads that participates in this transition 
 	 * @return
 	 */
 	public Set<CmlBehaviour> getEventSources();

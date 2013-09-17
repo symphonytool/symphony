@@ -1,6 +1,8 @@
 package eu.compassresearch.core.interpreter.api;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Random;
 
 import org.overture.ast.analysis.AnalysisException;
@@ -8,7 +10,6 @@ import org.overture.ast.types.PType;
 import org.overture.interpreter.values.UndefinedValue;
 import org.overture.interpreter.values.Value;
 
-import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.interpreter.CmlRuntime;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.transitions.ChannelEvent;
@@ -20,11 +21,10 @@ import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
  * @author akm
  *
  */
-public class RandomSelectionStrategy implements
-		SelectionStrategy {
+public class RandomSelectionStrategy implements SelectionStrategy {
 
 	private static final long randomSeed = 675674345;
-	private static final Random rndChoice = new Random(randomSeed);
+	private final Random rndChoice = new Random(randomSeed);
 	
 	@Override
 	public CmlTransition select(CmlTransitionSet availableChannelEvents) {
@@ -38,8 +38,11 @@ public class RandomSelectionStrategy implements
 			int nElems = availableChannelEvents.getAllEvents().size();
 			
 			//pick a random but deterministic choice
-			selectedComm = new ArrayList<CmlTransition>(
-					availableChannelEvents.getAllEvents()).get(rndChoice.nextInt(nElems));
+			
+			List<CmlTransition> transitions = new ArrayList<CmlTransition>(
+					availableChannelEvents.getAllEvents()); 
+			//Collections.sort(transitions);
+			selectedComm = transitions.get(rndChoice.nextInt(nElems));
 			
 			//If the selected transition contains a channelname that are not precise then we
 			//need to resolve this and let the environment take a random choice

@@ -6,7 +6,6 @@ import java.util.Set;
 
 import org.overture.ast.node.INode;
 
-import eu.compassresearch.core.interpreter.api.behaviour.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 
 abstract class AbstractCmlTransition implements CmlTransition {
@@ -66,4 +65,11 @@ abstract class AbstractCmlTransition implements CmlTransition {
 		return eventSources.equals(other.getEventSources());
 	}
 
+//	@Override
+//	public int compareTo(CmlTransition o)
+//	{
+//		if(equals(o))
+//			return 0;
+//		else if ()
+//	}
 }

@@ -86,7 +86,16 @@ public class CmlTock extends AbstractCmlTransition implements ObservableEvent {
 	
 	@Override
 	public int hashCode() {
-		return "tock".hashCode();
+		return "tock".hashCode() + this.eventSources.hashCode();
 	}
+
+//	@Override
+//	public int compareTo(CmlTransition o)
+//	{
+//		if(o instanceof CmlTock)
+//			return 0;
+//		else
+//			return -1;
+//	}
 	
 }
