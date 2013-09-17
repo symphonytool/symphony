@@ -41,6 +41,7 @@ import org.overture.ast.types.ASeq1SeqType;
 import org.overture.ast.types.ASetType;
 import org.overture.ast.types.AUnknownType;
 import org.overture.ast.types.AUnresolvedType;
+import org.overture.ast.types.AVoidType;
 import org.overture.ast.types.PType;
 import org.overture.ast.types.SSeqType;
 import org.overture.typechecker.Environment;
@@ -1659,7 +1660,7 @@ class TCActionVisitor extends
 			return node.getType();
 		}
 
-		node.setType(new AStatementType(node.getLocation(), true));
+		node.setType(new AVoidType(node.getLocation(), true));
 		return node.getType();
 	}
 
@@ -2073,7 +2074,7 @@ class TCActionVisitor extends
 			return acstm.getType();
 		}
 		else{
-			node.setType(new AStatementType());	
+			node.setType(new AVoidType());	
 			return node.getType();
 		}
 	}
