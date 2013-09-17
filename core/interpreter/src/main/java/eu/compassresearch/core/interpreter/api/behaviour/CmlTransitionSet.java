@@ -6,8 +6,8 @@ import java.util.Set;
 
 import org.overture.interpreter.values.Value;
 
-import eu.compassresearch.core.interpreter.api.transitions.ChannelEvent;
-import eu.compassresearch.core.interpreter.api.transitions.CmlTock;
+import eu.compassresearch.core.interpreter.api.transitions.LabelledTransition;
+import eu.compassresearch.core.interpreter.api.transitions.TimedTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.ObservableEvent;
 import eu.compassresearch.core.interpreter.api.transitions.SilentTransition;
@@ -93,7 +93,7 @@ public class CmlTransitionSet extends Value {
 	{
 		Set<ObservableEvent> observableChannelEvents = new LinkedHashSet<ObservableEvent>();
 		for(ObservableEvent obsEvent : _observableEvents)
-			if(obsEvent instanceof ChannelEvent)
+			if(obsEvent instanceof LabelledTransition)
 				observableChannelEvents.add(obsEvent);
 		
 		return observableChannelEvents;
@@ -194,10 +194,10 @@ public class CmlTransitionSet extends Value {
 
 		for(ObservableEvent obsTransition : _observableEvents)
 		{
-			if(!(obsTransition instanceof ChannelEvent))
+			if(!(obsTransition instanceof LabelledTransition))
 				continue;
 
-			ChannelEvent obsChannelEvent = (ChannelEvent)obsTransition;   
+			LabelledTransition obsChannelEvent = (LabelledTransition)obsTransition;   
 			if(obsChannelEvent.getChannelName().isComparable(channelNameValue) && 
 					channelNameValue.isGTEQPrecise(obsChannelEvent.getChannelName())){
 				resultSet.add(obsTransition);
@@ -213,10 +213,10 @@ public class CmlTransitionSet extends Value {
 
 		for(ObservableEvent obsTransition : _observableEvents)
 		{
-			if(!(obsTransition instanceof ChannelEvent))
+			if(!(obsTransition instanceof LabelledTransition))
 				continue;
 
-			ChannelEvent obsChannelEvent = (ChannelEvent)obsTransition;
+			LabelledTransition obsChannelEvent = (LabelledTransition)obsTransition;
 
 			for(ChannelNameValue channelNameValue : channelNameSetValue)
 			{
@@ -237,10 +237,10 @@ public class CmlTransitionSet extends Value {
 		
 		for(ObservableEvent obsTransition : _observableEvents)
 		{
-			if(!(obsTransition instanceof ChannelEvent))
+			if(!(obsTransition instanceof LabelledTransition))
 				continue;
 			
-			ChannelEvent obsChannelEvent = (ChannelEvent)obsTransition;   
+			LabelledTransition obsChannelEvent = (LabelledTransition)obsTransition;   
 			if(!(obsChannelEvent.getChannelName().isComparable(channelNameValue) && 
 					channelNameValue.isGTEQPrecise(obsChannelEvent.getChannelName()))){
 				resultSet.add(obsTransition);
@@ -256,14 +256,14 @@ public class CmlTransitionSet extends Value {
 		
 		for(ObservableEvent obsTransition : _observableEvents)
 		{
-			if(!(obsTransition instanceof ChannelEvent))
+			if(!(obsTransition instanceof LabelledTransition))
 				continue;
 			
 			boolean retaintIt = true; 
 			
 			for(ChannelNameValue channelNameValue : channelNameSetValue)
 			{
-				ChannelEvent obsChannelEvent = (ChannelEvent)obsTransition;   
+				LabelledTransition obsChannelEvent = (LabelledTransition)obsTransition;   
 				if(obsChannelEvent.getChannelName().isComparable(channelNameValue) && 
 						channelNameValue.isGTEQPrecise(obsChannelEvent.getChannelName()))
 				{
@@ -280,15 +280,15 @@ public class CmlTransitionSet extends Value {
 		return new CmlTransitionSet(resultSet,silentEvents);
 	}
 	
-	public CmlTock getTockEvent()
+	public TimedTransition getTockEvent()
 	{
 		
-		CmlTock tock = null;
+		TimedTransition tock = null;
 				
 		for(ObservableEvent obs : _observableEvents)
-			if(obs instanceof CmlTock)
+			if(obs instanceof TimedTransition)
 			{
-				tock = (CmlTock)obs;
+				tock = (TimedTransition)obs;
 				break;
 			}
 		
@@ -409,8 +409,8 @@ public class CmlTransitionSet extends Value {
 		Set<CmlTransition> eventSet = new HashSet<CmlTransition>();
 		
 		for(CmlTransition ev : getAllEvents())
-			if(ev instanceof ChannelEvent)
-				eventSet.addAll(((ChannelEvent)ev).expand());
+			if(ev instanceof LabelledTransition)
+				eventSet.addAll(((LabelledTransition)ev).expand());
 			else
 				eventSet.add(ev);
 		

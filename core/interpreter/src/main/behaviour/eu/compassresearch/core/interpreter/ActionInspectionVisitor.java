@@ -61,8 +61,8 @@ import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.Inspection;
-import eu.compassresearch.core.interpreter.api.transitions.ChannelEvent;
-import eu.compassresearch.core.interpreter.api.transitions.CmlTock;
+import eu.compassresearch.core.interpreter.api.transitions.LabelledTransition;
+import eu.compassresearch.core.interpreter.api.transitions.TimedTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionFactory;
 import eu.compassresearch.core.interpreter.api.transitions.ObservableEvent;
@@ -220,14 +220,14 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 			comset.add(observableEvent);
 		}
 
-		return newInspection(new CmlTransitionSet(comset).union(new CmlTock(owner)),
+		return newInspection(new CmlTransitionSet(comset).union(new TimedTransition(owner)),
 				new AbstractCalculationStep(owner, visitorAccess) {
 
 			@Override
 			public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
 					throws AnalysisException {
 				//At this point the supervisor has already given go to the event, or the event is hidden
-				ChannelNameValue channelNameValue = ((ChannelEvent)sve.selectedObservableEvent()).getChannelName();
+				ChannelNameValue channelNameValue = ((LabelledTransition)sve.selectedObservableEvent()).getChannelName();
 
 				if(node.getCommunicationParameters() != null)
 				{
@@ -474,7 +474,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 			alpha = createSilentTransition(node.getAction());
 		//else we return the empty alphabet since no transition is possible
 		else
-			alpha = new CmlTransitionSet(new CmlTock(owner));
+			alpha = new CmlTransitionSet(new TimedTransition(owner));
 
 		return newInspection(alpha, 
 				new AbstractCalculationStep(owner, visitorAccess) {
@@ -608,7 +608,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 	public Inspection caseAStopAction(AStopAction node, Context question)
 			throws AnalysisException {
 		//return the alphabet only containing tock since Stop allows for time to pass
-		return newInspection(new CmlTransitionSet(new CmlTock(owner)),null);
+		return newInspection(new CmlTransitionSet(new TimedTransition(owner)),null);
 	}
 
 	@Override
@@ -681,7 +681,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 					leftBehavior.execute(supervisor());
 
 					if(supervisor().selectedObservableEvent() instanceof ObservableEvent &&
-							supervisor().selectedObservableEvent() instanceof ChannelEvent)
+							supervisor().selectedObservableEvent() instanceof LabelledTransition)
 					{
 						return replaceWithChild(leftBehavior);
 					}
@@ -745,7 +745,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 					owner.getLeftChild().execute(supervisor());
 
 					if(supervisor().selectedObservableEvent() instanceof ObservableEvent &&
-							supervisor().selectedObservableEvent() instanceof ChannelEvent)
+							supervisor().selectedObservableEvent() instanceof LabelledTransition)
 					{
 						setLeftChild(null);
 						return new Pair<INode, Context>(leftBehavior.getNextState().first, leftBehavior.getNextState().second);
@@ -780,7 +780,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 			});
 		else
 			//If the number of tocks has not exceeded val then behave as Stop
-			return newInspection(new CmlTransitionSet(new CmlTock(owner,nTocks-val)), null);
+			return newInspection(new CmlTransitionSet(new TimedTransition(owner,nTocks-val)), null);
 	}
 	/**
 	 * Interrupt A /_\ B : The possible transitions from both A and B are exposed
@@ -804,7 +804,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 			});
 		}
 		else if(owner.getRightChild().getTraceModel().getLastTransition() instanceof ObservableEvent &&
-				owner.getRightChild().getTraceModel().getLastTransition() instanceof ChannelEvent)
+				owner.getRightChild().getTraceModel().getLastTransition() instanceof LabelledTransition)
 		{
 			return newInspection(createSilentTransition(owner.getRightChild().getNextState().first) ,
 

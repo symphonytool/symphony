@@ -34,7 +34,7 @@ public class InternalTransition extends AbstractCmlTransition implements SilentT
 	
 	@Override
 	public int hashCode() {
-		return tauString.hashCode();
+		return tauString.hashCode() + this.eventSources.hashCode();
 	}
 
 	@Override

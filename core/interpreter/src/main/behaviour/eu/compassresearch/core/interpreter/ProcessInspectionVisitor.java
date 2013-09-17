@@ -37,7 +37,7 @@ import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.Inspection;
-import eu.compassresearch.core.interpreter.api.transitions.ChannelEvent;
+import eu.compassresearch.core.interpreter.api.transitions.LabelledTransition;
 import eu.compassresearch.core.interpreter.api.values.ActionValue;
 import eu.compassresearch.core.interpreter.api.values.CmlOperationValue;
 import eu.compassresearch.core.interpreter.api.values.ProcessObjectValue;
@@ -212,7 +212,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 					{
 						if(child.inspect().contains(supervisor().selectedObservableEvent()))
 						{
-							if(supervisor().selectedObservableEvent() instanceof ChannelEvent)
+							if(supervisor().selectedObservableEvent() instanceof LabelledTransition)
 							{
 								//first we execute the child
 								child.execute(supervisor());

@@ -6,7 +6,7 @@ import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
 
-public interface ChannelEvent extends CmlTransition{
+public interface LabelledTransition extends CmlTransition{
 
 	/**
 	 * The channel of this involved in this events
@@ -14,6 +14,6 @@ public interface ChannelEvent extends CmlTransition{
 	 */
 	public ChannelNameValue getChannelName();
 	
-	public List<ChannelEvent> expand();
+	public List<LabelledTransition> expand();
 	
 }

@@ -6,7 +6,7 @@ import java.util.List;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.api.SelectionStrategy;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
-import eu.compassresearch.core.interpreter.api.transitions.ChannelEvent;
+import eu.compassresearch.core.interpreter.api.transitions.LabelledTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 
 class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment {
@@ -43,8 +43,8 @@ class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment {
 	public void setSelectedTransition(CmlTransition comm) {
 		selectedCommunication = comm;
 		//signal all the processes that are listening for events on this channel
-		if(selectedCommunication instanceof ChannelEvent)
-			((ChannelEvent) selectedCommunication).getChannelName().getChannel().select();
+		if(selectedCommunication instanceof LabelledTransition)
+			((LabelledTransition) selectedCommunication).getChannelName().getChannel().select();
 	}
 
 	@Override

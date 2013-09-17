@@ -11,7 +11,7 @@ import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
  * @author akm
  *
  */
-abstract class AbstractChannelEvent extends AbstractCmlTransition implements ChannelEvent{
+abstract class AbstractChannelEvent extends AbstractCmlTransition implements LabelledTransition{
 
 	/**
 	 * 
@@ -43,7 +43,7 @@ abstract class AbstractChannelEvent extends AbstractCmlTransition implements Cha
 	}
 
 	@Override
-	public abstract List<ChannelEvent> expand();
+	public abstract List<LabelledTransition> expand();
 	
 //	/**
 //	 * return the most precise of this and other
@@ -56,12 +56,12 @@ abstract class AbstractChannelEvent extends AbstractCmlTransition implements Cha
 	@Override
 	public boolean equals(Object obj) {
 
-		ChannelEvent other = null;
+		LabelledTransition other = null;
 		
-		if(!(obj instanceof ChannelEvent))
+		if(!(obj instanceof LabelledTransition))
 			return false;
 		
-		other = (ChannelEvent)obj;
+		other = (LabelledTransition)obj;
 		
 		return other.getChannelName().equals(getChannelName()) && 
 				super.equals(obj);

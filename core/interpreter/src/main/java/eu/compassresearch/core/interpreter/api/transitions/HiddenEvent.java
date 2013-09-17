@@ -6,31 +6,31 @@ import java.util.Set;
 
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 
-class HiddenEvent extends AbstractChannelEvent implements SilentTransition, ChannelEvent {
+class HiddenEvent extends AbstractChannelEvent implements SilentTransition {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -4227425913454070026L;
-	private ChannelEvent hiddenEvent;
+	private LabelledTransition hiddenEvent;
 
-	public HiddenEvent(CmlBehaviour eventSource, ChannelEvent hiddenEvent) {
+	public HiddenEvent(CmlBehaviour eventSource, LabelledTransition hiddenEvent) {
 		super(eventSource, hiddenEvent.getChannelName());
 		this.hiddenEvent = hiddenEvent; 
 		this.eventSources.addAll(hiddenEvent.getEventSources());
 	}
 
-	private HiddenEvent(Set<CmlBehaviour> eventSources, ChannelEvent hiddenEvent) {
+	private HiddenEvent(Set<CmlBehaviour> eventSources, LabelledTransition hiddenEvent) {
 		super(eventSources, hiddenEvent.getChannelName());
 		this.hiddenEvent = hiddenEvent; 
 		this.eventSources.addAll(hiddenEvent.getEventSources());
 	}
 
 	@Override
-	public List<ChannelEvent> expand() {
+	public List<LabelledTransition> expand() {
 		//TODO The expanded events should also be wrapped in a HiddenEvent
-		List<ChannelEvent> result = new LinkedList<ChannelEvent>();
-		for(ChannelEvent ce : hiddenEvent.expand())
+		List<LabelledTransition> result = new LinkedList<LabelledTransition>();
+		for(LabelledTransition ce : hiddenEvent.expand())
 			result.add(new HiddenEvent(this.eventSources, ce));
 		return result;
 	}

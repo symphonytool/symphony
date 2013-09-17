@@ -17,7 +17,7 @@ public class CmlTransitionFactory {
 		return new ObservableChannelEvent(source, channelName);
 	}
 	
-	public static SilentTransition newHiddenChannelEvent(CmlBehaviour source, ChannelEvent channelEvent)
+	public static SilentTransition newHiddenChannelEvent(CmlBehaviour source, LabelledTransition channelEvent)
 	{
 		return new HiddenEvent(source, channelEvent);
 	}

@@ -4,7 +4,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import eu.compassresearch.core.interpreter.api.transitions.ChannelEvent;
+import eu.compassresearch.core.interpreter.api.transitions.LabelledTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.ObservableEvent;
 
@@ -63,7 +63,7 @@ public class CmlTrace {
 			
 		for(CmlTransition e : trace)
 		{
-			if(e instanceof ChannelEvent && e instanceof ObservableEvent)
+			if(e instanceof LabelledTransition && e instanceof ObservableEvent)
 				visibleEvents.add(e);
 		}
 		

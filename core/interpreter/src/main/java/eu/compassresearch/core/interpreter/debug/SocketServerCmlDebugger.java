@@ -40,7 +40,7 @@ import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.events.CmlInterpreterStatusObserver;
 import eu.compassresearch.core.interpreter.api.events.InterpreterStatusEvent;
-import eu.compassresearch.core.interpreter.api.transitions.ChannelEvent;
+import eu.compassresearch.core.interpreter.api.transitions.LabelledTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.values.AbstractValueInterpreter;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
@@ -213,9 +213,9 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 //							((ChannelEvent)selectedEvent).setValue(val);
 //						}
 						
-						if(selectedEvent instanceof ChannelEvent && !((ChannelEvent)selectedEvent).getChannelName().isPrecise())
+						if(selectedEvent instanceof LabelledTransition && !((LabelledTransition)selectedEvent).getChannelName().isPrecise())
 						{
-							ChannelEvent chosenChannelEvent = (ChannelEvent)selectedEvent;
+							LabelledTransition chosenChannelEvent = (LabelledTransition)selectedEvent;
 							ChannelNameValue channnelName = chosenChannelEvent.getChannelName(); 
 							
 							for(int i = 0 ; i < channnelName.getValues().size() ; i++ )

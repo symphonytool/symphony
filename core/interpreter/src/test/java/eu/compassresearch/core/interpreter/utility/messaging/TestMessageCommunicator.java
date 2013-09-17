@@ -37,7 +37,7 @@ import eu.compassresearch.core.interpreter.api.behaviour.Reason;
 import eu.compassresearch.core.interpreter.api.events.CmlBehaviorStateObserver;
 import eu.compassresearch.core.interpreter.api.events.EventSource;
 import eu.compassresearch.core.interpreter.api.events.TraceObserver;
-import eu.compassresearch.core.interpreter.api.transitions.CmlTock;
+import eu.compassresearch.core.interpreter.api.transitions.TimedTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.ObservableEvent;
 import eu.compassresearch.core.interpreter.debug.CmlDbgStatusMessage;
@@ -181,7 +181,7 @@ public class TestMessageCommunicator {
 			public CmlTrace getTraceModel() {
 				CmlTrace trace = new CmlTrace();
 				
-				trace.addEvent(new CmlTock());
+				trace.addEvent(new TimedTransition());
 				trace.addEvent(new ObservableEvent() {
 					
 					@Override

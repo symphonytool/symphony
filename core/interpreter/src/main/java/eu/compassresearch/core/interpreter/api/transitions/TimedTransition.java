@@ -8,7 +8,7 @@ import org.overture.ast.node.INode;
 
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 
-public class CmlTock extends AbstractCmlTransition implements ObservableEvent {
+public class TimedTransition extends AbstractCmlTransition implements ObservableEvent {
 
 	/**
 	 * 
@@ -16,21 +16,21 @@ public class CmlTock extends AbstractCmlTransition implements ObservableEvent {
 	private static final long serialVersionUID = 5584770741085270746L;
 	private final long timeLimit;
 	
-	public CmlTock(CmlBehaviour eventSource, long limit) {
+	public TimedTransition(CmlBehaviour eventSource, long limit) {
 		super(eventSource);
 		this.timeLimit = limit;
 	}
 	
-	public CmlTock(CmlBehaviour eventSource) {
+	public TimedTransition(CmlBehaviour eventSource) {
 		this(eventSource,0);
 	}
 	
-	public CmlTock() {
+	public TimedTransition() {
 		super(new HashSet<CmlBehaviour>());
 		timeLimit = 0;
 	}
 	
-	protected CmlTock(Set<CmlBehaviour> eventSources, long timeLimit) {
+	protected TimedTransition(Set<CmlBehaviour> eventSources, long timeLimit) {
 		super(eventSources);
 		this.timeLimit = timeLimit;
 	}
@@ -40,12 +40,12 @@ public class CmlTock extends AbstractCmlTransition implements ObservableEvent {
 		
 //		if(!isComparable(other))
 //			throw new NotComparableException();
-		CmlTock otherTock = (CmlTock)syncEvent;
+		TimedTransition otherTock = (TimedTransition)syncEvent;
 		Set<CmlBehaviour> sources = new HashSet<CmlBehaviour>();
 		sources.addAll(this.getEventSources());
 		sources.addAll(otherTock.getEventSources());
 		
-		return new CmlTock(sources, Math.min(this.timeLimit,otherTock.timeLimit));
+		return new TimedTransition(sources, Math.min(this.timeLimit,otherTock.timeLimit));
 	}
 	
 	//@Override
@@ -57,7 +57,7 @@ public class CmlTock extends AbstractCmlTransition implements ObservableEvent {
 	@Override
 	public boolean isComparable(ObservableEvent other) {
 
-		return other instanceof CmlTock;
+		return other instanceof TimedTransition;
 	}
 	
 	public long getTimeLimit()
@@ -73,7 +73,7 @@ public class CmlTock extends AbstractCmlTransition implements ObservableEvent {
 	@Override
 	public boolean equals(Object obj) {
 		
-		if(!(obj instanceof CmlTock))
+		if(!(obj instanceof TimedTransition))
 			return false;
 		
 		return super.equals(obj);

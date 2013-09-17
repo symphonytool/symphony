@@ -29,8 +29,8 @@ import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlCalculationStep;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.behaviour.Inspection;
-import eu.compassresearch.core.interpreter.api.transitions.ChannelEvent;
-import eu.compassresearch.core.interpreter.api.transitions.CmlTock;
+import eu.compassresearch.core.interpreter.api.transitions.LabelledTransition;
+import eu.compassresearch.core.interpreter.api.transitions.TimedTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionFactory;
 import eu.compassresearch.core.interpreter.api.transitions.ObservableEvent;
@@ -55,7 +55,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 	protected CmlTransitionSet syncOnTockAndJoinChildren() throws AnalysisException
 	{
 		//even though they are external choice/interleaving they should always sync on tock
-		CmlTransitionSet cs =  new CmlTransitionSet(new CmlTock());
+		CmlTransitionSet cs =  new CmlTransitionSet(new TimedTransition());
 
 		//Get all the child alphabets 
 		CmlTransitionSet leftChildAlphabet = owner.getLeftChild().inspect();
@@ -151,7 +151,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 					{
 						if(child.inspect().contains(supervisor().selectedObservableEvent()))
 						{
-							if(supervisor().selectedObservableEvent() instanceof ChannelEvent)
+							if(supervisor().selectedObservableEvent() instanceof LabelledTransition)
 							{
 								//first we execute the child
 								child.execute(supervisor());
@@ -235,8 +235,8 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 				if(leftTrans.isComparable(rightTrans))
 				{
 
-					ChannelEvent leftChannelEvent = (ChannelEvent)leftTrans;
-					ChannelEvent rightChannelEvent = (ChannelEvent)rightTrans;
+					LabelledTransition leftChannelEvent = (LabelledTransition)leftTrans;
+					LabelledTransition rightChannelEvent = (LabelledTransition)rightTrans;
 
 					if(leftChannelEvent.getChannelName().isGTEQPrecise(rightChannelEvent.getChannelName()) ||
 							rightChannelEvent.getChannelName().isGTEQPrecise(leftChannelEvent.getChannelName()))
@@ -245,8 +245,8 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 			}
 		}
 		
-		CmlTock leftTock = leftChildAlphabet.getTockEvent();
-		CmlTock rightTock = rightChildAlphabet.getTockEvent();
+		TimedTransition leftTock = leftChildAlphabet.getTockEvent();
+		TimedTransition rightTock = rightChildAlphabet.getTockEvent();
 		if(leftTock != null && rightTock != null)
 			syncEvents.add(leftTock.synchronizeWith(rightTock));
 		
@@ -326,8 +326,8 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 			CmlTransitionSet resultAlpha = alpha.subtract(hiddenEvents);
 			//convert them into silent events and add the again
 			for(ObservableEvent obsEvent : hiddenEvents.getObservableEvents())
-				if(obsEvent instanceof ChannelEvent)
-					resultAlpha = resultAlpha.union(CmlTransitionFactory.newHiddenChannelEvent(owner,(ChannelEvent)obsEvent));	
+				if(obsEvent instanceof LabelledTransition)
+					resultAlpha = resultAlpha.union(CmlTransitionFactory.newHiddenChannelEvent(owner,(LabelledTransition)obsEvent));	
 
 			return newInspection(resultAlpha,
 					new AbstractCalculationStep(owner, visitorAccess) {

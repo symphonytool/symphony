@@ -33,7 +33,7 @@ import eu.compassresearch.core.interpreter.api.events.EventSource;
 import eu.compassresearch.core.interpreter.api.events.EventSourceHandler;
 import eu.compassresearch.core.interpreter.api.events.TraceEvent;
 import eu.compassresearch.core.interpreter.api.events.TraceObserver;
-import eu.compassresearch.core.interpreter.api.transitions.CmlTock;
+import eu.compassresearch.core.interpreter.api.transitions.TimedTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.ObservableEvent;
 import eu.compassresearch.core.interpreter.utility.Pair;
@@ -88,10 +88,7 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	protected final transient QuestionAnswerCMLAdaptor<Context, Inspection>		alphabetInspectionVisitor;
 
 	//Process/Action state variables
-
-	protected boolean 							started = false;
-	protected boolean							waitPrime = false;
-	protected boolean 							aborted = false;
+	
 	//The next INode to execute in the given Context
 	Pair<INode,Context>                         next;
 	Pair<Context,Context>   					preConstructedChildContexts = null;
@@ -103,8 +100,22 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	//protected Map<INode,Object>                	localStore = new HashMap<INode,Object>();
 
 	//Denotational semantics
-	//This contains the current trace of this process
-	protected final CmlTrace 					trace = new CmlTrace();
+	
+	/**
+	 * This contains the current trace of this proces
+	 * This corresponds to the observation tr' in the CML semantics
+	 */
+	protected final CmlTrace 					trPrime = new CmlTrace();
+	/**
+	 * This is true when the process is started
+	 * This corresponds to the observation ok in the CML semantics
+	 */
+	protected boolean 							ok = false;
+	/**
+	 * This is true when the process is waiting for the environment
+	 */
+	protected boolean							waitPrime = false;
+	protected boolean 							aborted = false;
 
 	protected EventSourceHandler<CmlBehaviorStateObserver,CmlBehaviorStateEvent>  stateEventhandler = 
 			new EventSourceHandler<CmlBehaviorStateObserver,CmlBehaviorStateEvent>(this,
@@ -138,7 +149,7 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 		this.parent = parent;
 		this.name = name;
 		waitPrime = false;
-		started = false;
+		ok = false;
 
 		VisitorAccess visitorAccess = new VisitorAccess() {
 
@@ -197,7 +208,7 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 		if(next == null || (newNext.first != next.first && !hasChildren()))
 		{
 			next = newNext.first.apply(cmlSetupVisitor,newNext.second);
-			started = false;
+			ok = false;
 		}
 		else
 			next = newNext;
@@ -239,7 +250,7 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 		//inspect if there are any immediate events
 		inspect();
 
-		started = true;
+		ok = true;
 
 		/*
 		 *	If the selected event is valid and is in the immediate alphabet of the process 
@@ -253,7 +264,7 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 
 			//If the selected event is tock then we need to execute the children as well to make
 			//time tick in the entire process tree
-			if(env.selectedObservableEvent() instanceof CmlTock)
+			if(env.selectedObservableEvent() instanceof TimedTransition)
 			{
 				if(leftChild != null)
 					leftChild.execute(supervisor());
@@ -300,7 +311,7 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	 */
 	private void updateTrace(CmlTransition event)
 	{
-		trace.addEvent(event);
+		trPrime.addEvent(event);
 		notifyOnTraceChange(new TraceEvent(this,event));
 	}
 
@@ -409,7 +420,7 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	 */
 	@Override
 	public boolean started() {
-		return started;
+		return ok;
 	}
 
 	@Override public boolean waiting() {
@@ -437,7 +448,7 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 			else if(alpha.getAllEvents().size() == 1 && alpha.getObservableEvents().size() == 1)
 			{
 				ObservableEvent obsEvent = alpha.getObservableEvents().iterator().next();
-				return (obsEvent instanceof CmlTock) && !((CmlTock) obsEvent).hasTimeLimit();
+				return (obsEvent instanceof TimedTransition) && !((TimedTransition) obsEvent).hasTimeLimit();
 			}
 			else
 				return false;
@@ -483,7 +494,7 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	 */
 	@Override
 	public CmlTrace getTraceModel() {
-		return trace;
+		return trPrime;
 	}
 
 	@Override
@@ -491,7 +502,7 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 		long nTocks = 0;
 
 		for(CmlTransition ev : getTraceModel().getTrace())
-			if(ev instanceof CmlTock)
+			if(ev instanceof TimedTransition)
 				nTocks++;
 
 		return nTocks;

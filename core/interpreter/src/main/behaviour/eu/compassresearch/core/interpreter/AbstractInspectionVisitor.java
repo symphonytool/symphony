@@ -21,7 +21,7 @@ import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlCalculationStep;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlTrace;
 import eu.compassresearch.core.interpreter.api.behaviour.Inspection;
-import eu.compassresearch.core.interpreter.api.transitions.CmlTock;
+import eu.compassresearch.core.interpreter.api.transitions.TimedTransition;
 import eu.compassresearch.core.interpreter.api.transitions.InternalTransition;
 
 public class AbstractInspectionVisitor extends
@@ -64,7 +64,7 @@ public class AbstractInspectionVisitor extends
 	
 	protected CmlTransitionSet createSilentTransition(INode dstNode, String transitionText)
 	{
-		return new CmlTransitionSet(new CmlTock(owner),new InternalTransition(owner,dstNode,transitionText));
+		return new CmlTransitionSet(new TimedTransition(owner),new InternalTransition(owner,dstNode,transitionText));
 	}
 	
 	protected CmlTransitionSet createSilentTransition(INode dstNode)

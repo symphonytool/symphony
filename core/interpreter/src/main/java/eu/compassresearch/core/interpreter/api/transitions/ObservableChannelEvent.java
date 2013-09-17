@@ -61,10 +61,10 @@ class ObservableChannelEvent extends AbstractChannelEvent implements ObservableE
 	@Override
 	public boolean isComparable(ObservableEvent other) {
 		
-		if(!(other instanceof ChannelEvent))
+		if(!(other instanceof LabelledTransition))
 			return false;
 
-		ChannelEvent otherChannelEvent = (ChannelEvent)other;
+		LabelledTransition otherChannelEvent = (LabelledTransition)other;
 		return channelName.isComparable(otherChannelEvent.getChannelName());
 	}
 	
@@ -72,7 +72,7 @@ class ObservableChannelEvent extends AbstractChannelEvent implements ObservableE
 	public ObservableEvent synchronizeWith(ObservableEvent syncEvent) throws AnalysisException
 	{
 		ObservableChannelEvent otherComEvent = (ObservableChannelEvent)syncEvent;
-		ChannelNameValue meetValue = this.getChannelName().meet(((ChannelEvent)otherComEvent).getChannelName());
+		ChannelNameValue meetValue = this.getChannelName().meet(((LabelledTransition)otherComEvent).getChannelName());
 		
 		if(meetValue == null)
 			throw new CmlInterpreterException("Cannot synchronize " + this.toString() + " with " + syncEvent.toString() +
@@ -93,8 +93,8 @@ class ObservableChannelEvent extends AbstractChannelEvent implements ObservableE
 	
 	//TODO implement the expanding!
 	@Override
-	public List<ChannelEvent> expand() {
-		return Arrays.asList((ChannelEvent)this);
+	public List<LabelledTransition> expand() {
+		return Arrays.asList((LabelledTransition)this);
 //		if(channelName.isPrecise())
 //			return Arrays.asList((ChannelEvent)this);
 //		else 
@@ -106,33 +106,33 @@ class ObservableChannelEvent extends AbstractChannelEvent implements ObservableE
 //			}
 	}
 	
-	class EventExpander extends AnswerCMLAdaptor<List<ChannelEvent> >
+	class EventExpander extends AnswerCMLAdaptor<List<LabelledTransition> >
 	{
 		@Override
-		public List<ChannelEvent> defaultPType(PType node)
+		public List<LabelledTransition> defaultPType(PType node)
 				throws AnalysisException {
 			
-			return Arrays.asList((ChannelEvent)ObservableChannelEvent.this);
+			return Arrays.asList((LabelledTransition)ObservableChannelEvent.this);
 		}
 		
 		@Override
-		public List<ChannelEvent> caseAIntNumericBasicType(AIntNumericBasicType node)
+		public List<LabelledTransition> caseAIntNumericBasicType(AIntNumericBasicType node)
 				throws AnalysisException {
 
-			return Arrays.asList((ChannelEvent)ObservableChannelEvent.this);
+			return Arrays.asList((LabelledTransition)ObservableChannelEvent.this);
 		}
 		
 		@Override
-		public List<ChannelEvent> caseANamedInvariantType(ANamedInvariantType node)
+		public List<LabelledTransition> caseANamedInvariantType(ANamedInvariantType node)
 				throws AnalysisException {
 			//TODO remove unwanted onces
 			return node.getType().apply(this);
 		}
 		
 		@Override
-		public List<ChannelEvent> caseAUnionType(AUnionType node) throws AnalysisException {
+		public List<LabelledTransition> caseAUnionType(AUnionType node) throws AnalysisException {
 			
-			List<ChannelEvent> events = new LinkedList<ChannelEvent>();
+			List<LabelledTransition> events = new LinkedList<LabelledTransition>();
 			
 			if(!node.getInfinite())
 			{
@@ -148,10 +148,10 @@ class ObservableChannelEvent extends AbstractChannelEvent implements ObservableE
 		}
 		
 		@Override
-		public List<ChannelEvent> caseAQuoteType(AQuoteType node)
+		public List<LabelledTransition> caseAQuoteType(AQuoteType node)
 				throws AnalysisException {
 			
-			return Arrays.asList((ChannelEvent)new ObservableChannelEvent(
+			return Arrays.asList((LabelledTransition)new ObservableChannelEvent(
 					ObservableChannelEvent.this.getEventSources(), 
 					ObservableChannelEvent.this.channelName));
 //			return Arrays.asList((ChannelEvent)new CommunicationEvent(
