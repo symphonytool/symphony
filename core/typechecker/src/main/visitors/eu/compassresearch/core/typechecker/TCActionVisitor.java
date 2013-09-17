@@ -1660,7 +1660,7 @@ class TCActionVisitor extends
 			return node.getType();
 		}
 
-		node.setType(new AStatementType(node.getLocation(), true));
+		node.setType(new AVoidType(node.getLocation(), true));
 		return node.getType();
 	}
 
