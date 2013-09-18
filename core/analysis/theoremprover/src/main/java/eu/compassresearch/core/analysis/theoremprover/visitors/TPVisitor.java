@@ -232,7 +232,7 @@ public class TPVisitor extends
 		//generate theory name without extension
 		String thyName = thyFileName.substring(0, thyFileName.lastIndexOf('.'));
 		//new file name for user files
-		String usrThyName = "User"+ thyName;
+		String usrThyName = thyName+ "_User";
 
 		//Add thy header 
 		sb.append("theory " + usrThyName + " \n" + "  imports utp_cml " + thyName +"\n"

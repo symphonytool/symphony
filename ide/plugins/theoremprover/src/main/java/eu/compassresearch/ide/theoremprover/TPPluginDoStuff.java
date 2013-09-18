@@ -116,13 +116,14 @@ public class TPPluginDoStuff {
 			{
 				//create a generated thy file for the model
 				String name = sourceUnit.getFile().getName();
-				String thyFileName = name.substring(0,name.length()-sourceUnit.getFile().getFileExtension().length())+"thy";
+				String fileName = name.substring(0,name.length()-(sourceUnit.getFile().getFileExtension().length()+1));
+				String thyFileName = fileName+".thy";
 				IFile thyFile = isaFolder.getFile(thyFileName);
 				translateCmltoThy(model, thyFile, thyFileName);
 				thyFiles.add(thyFile);
 				
 				//Create empty thy file which imports generated file
-				String userThyFileName = "User"+ thyFileName;
+				String userThyFileName = fileName + "_User.thy";
 				IFile userThyFile = isaFolder.getFile(userThyFileName);
 				createEmptyThy(userThyFile, thyFileName);
 				thyFiles.add(userThyFile);
@@ -272,12 +273,13 @@ public class TPPluginDoStuff {
 			{
 				//create a generated thy file for the model
 				String name = sourceUnit.getFile().getName();
-				String thyFileName = name.substring(0,name.length()-sourceUnit.getFile().getFileExtension().length())+"thy";
+				String fileName = name.substring(0,name.length()-(sourceUnit.getFile().getFileExtension().length()+1));
+				String thyFileName = fileName+".thy";
 				IFile thyFile = isaFolder.getFile(thyFileName);
 				translateCmltoThy(model, thyFile, thyFileName);
 				
 				//Create empty thy file which imports generated file
-				IFile pogThyFile = isaFolder.getFile("PO"+ thyFileName);
+				IFile pogThyFile = isaFolder.getFile(thyFileName + "_PO.thy");
 				createPogThy(model, pogThyFile, thyFileName, poList);
 			}
 	
