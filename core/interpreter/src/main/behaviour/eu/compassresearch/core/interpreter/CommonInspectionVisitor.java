@@ -26,12 +26,13 @@ import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlCalculationStep;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.behaviour.Inspection;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionFactory;
+import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
+import eu.compassresearch.core.interpreter.api.transitions.HiddenTransition;
 import eu.compassresearch.core.interpreter.api.transitions.LabelledTransition;
-import eu.compassresearch.core.interpreter.api.transitions.ObservableEvent;
+import eu.compassresearch.core.interpreter.api.transitions.ObservableTransition;
 import eu.compassresearch.core.interpreter.api.transitions.TimedTransition;
 import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
@@ -67,7 +68,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 		//combine all the tock events 
 		if(syncAlpha.getObservableEvents().size() == 2)
 		{
-			Iterator<ObservableEvent> it = syncAlpha.getObservableEvents().iterator(); 
+			Iterator<ObservableTransition> it = syncAlpha.getObservableEvents().iterator(); 
 			return leftChildAlphabet.union(rightChildAlphabet).subtract(syncAlpha).union(it.next().synchronizeWith(it.next()));
 		}
 		else
@@ -227,9 +228,9 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 		Set<CmlTransition> syncEvents = new HashSet<CmlTransition>();
 		//Find the intersection between the child alphabets and the channel set and join them.
 //		//Then if both left and right have them the next step will combine them.
-		for(ObservableEvent leftTrans : leftSync.getObservableChannelEvents())
+		for(ObservableTransition leftTrans : leftSync.getObservableChannelEvents())
 		{
-			for(ObservableEvent rightTrans : rightSync.getObservableChannelEvents())
+			for(ObservableTransition rightTrans : rightSync.getObservableChannelEvents())
 			{
 				if(leftTrans.isComparable(rightTrans))
 				{
@@ -318,15 +319,14 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 			//first we convert the channelset expression into a channelNameSetValue
 			ChannelNameSetValue cs = (ChannelNameSetValue)chansetExpression.apply(cmlExpressionVisitor,question);
 			//next we inspect the action to get the current available transitions
-			CmlTransitionSet alpha = owner.getLeftChild().inspect();
+			final CmlTransitionSet alpha = owner.getLeftChild().inspect();
 			//Intersect the two to find which transitions should be converted to silents transitions
 			CmlTransitionSet hiddenEvents = alpha.retainByChannelNameSet(cs);
 			//remove the events that has to be silent
 			CmlTransitionSet resultAlpha = alpha.subtract(hiddenEvents);
 			//convert them into silent events and add the again
-			for(ObservableEvent obsEvent : hiddenEvents.getObservableEvents())
-				if(obsEvent instanceof LabelledTransition)
-					resultAlpha = resultAlpha.union(CmlTransitionFactory.newHiddenChannelEvent(owner,(LabelledTransition)obsEvent));	
+			for(ObservableTransition obsEvent : hiddenEvents.getObservableChannelEvents())
+				resultAlpha = resultAlpha.union(new HiddenTransition(owner,(LabelledTransition)obsEvent));	
 
 			return newInspection(resultAlpha,
 					new AbstractCalculationStep(owner, visitorAccess) {
@@ -334,6 +334,11 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 				@Override
 				public Pair<INode, Context> execute(CmlTransition selectedTransition)
 						throws AnalysisException {
+					
+					if(selectedTransition instanceof HiddenTransition &&
+							alpha.contains(((HiddenTransition) selectedTransition).getHiddenEvent()))
+						selectedTransition = ((HiddenTransition) selectedTransition).getHiddenEvent();
+					
 					owner.getLeftChild().execute(selectedTransition);
 					return new Pair<INode,Context>(node, question);
 				}

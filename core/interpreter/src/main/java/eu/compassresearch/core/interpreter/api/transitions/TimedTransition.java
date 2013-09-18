@@ -8,7 +8,7 @@ import org.overture.ast.node.INode;
 
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 
-public class TimedTransition extends AbstractCmlTransition implements ObservableEvent {
+public class TimedTransition extends AbstractCmlTransition implements ObservableTransition {
 
 	/**
 	 * 
@@ -36,7 +36,7 @@ public class TimedTransition extends AbstractCmlTransition implements Observable
 	}
 
 	@Override
-	public ObservableEvent synchronizeWith(ObservableEvent syncEvent) {
+	public ObservableTransition synchronizeWith(ObservableTransition syncEvent) {
 		
 //		if(!isComparable(other))
 //			throw new NotComparableException();
@@ -55,7 +55,7 @@ public class TimedTransition extends AbstractCmlTransition implements Observable
 	}
 
 	@Override
-	public boolean isComparable(ObservableEvent other) {
+	public boolean isComparable(ObservableTransition other) {
 
 		return other instanceof TimedTransition;
 	}

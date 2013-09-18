@@ -15,24 +15,23 @@ import org.overture.ast.types.PType;
 
 import eu.compassresearch.ast.analysis.AnswerCMLAdaptor;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.values.AbstractValueInterpreter;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
 
-class ObservableChannelEvent extends AbstractChannelEvent implements ObservableEvent {
+class ObservableLabelledTransition extends AbstractLabelledTransition implements ObservableTransition {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -2217645151439301812L;
 	
-	public ObservableChannelEvent(CmlBehaviour source, ChannelNameValue channelName)
+	public ObservableLabelledTransition(CmlBehaviour source, ChannelNameValue channelName)
 	{
 		super(source,channelName);
 	}
 	
-	private ObservableChannelEvent(Set<CmlBehaviour> sources, ChannelNameValue channelName)
+	private ObservableLabelledTransition(Set<CmlBehaviour> sources, ChannelNameValue channelName)
 	{
 		super(sources,channelName);
 	}
@@ -52,14 +51,14 @@ class ObservableChannelEvent extends AbstractChannelEvent implements ObservableE
 	@Override
 	public boolean equals(Object obj) {
 
-		if(!(obj instanceof ObservableChannelEvent))
+		if(!(obj instanceof ObservableLabelledTransition))
 			return false;
 		
 		return super.equals(obj);
 	}
 	
 	@Override
-	public boolean isComparable(ObservableEvent other) {
+	public boolean isComparable(ObservableTransition other) {
 		
 		if(!(other instanceof LabelledTransition))
 			return false;
@@ -69,9 +68,9 @@ class ObservableChannelEvent extends AbstractChannelEvent implements ObservableE
 	}
 	
 	@Override
-	public ObservableEvent synchronizeWith(ObservableEvent syncEvent) throws AnalysisException
+	public ObservableTransition synchronizeWith(ObservableTransition syncEvent) throws AnalysisException
 	{
-		ObservableChannelEvent otherComEvent = (ObservableChannelEvent)syncEvent;
+		ObservableLabelledTransition otherComEvent = (ObservableLabelledTransition)syncEvent;
 		ChannelNameValue meetValue = this.getChannelName().meet(((LabelledTransition)otherComEvent).getChannelName());
 		
 		if(meetValue == null)
@@ -83,7 +82,7 @@ class ObservableChannelEvent extends AbstractChannelEvent implements ObservableE
 			Set<CmlBehaviour> sources = new HashSet<CmlBehaviour>();
 			sources.addAll(this.getEventSources());
 			sources.addAll(otherComEvent.getEventSources());
-			return new ObservableChannelEvent(sources, meetValue);
+			return new ObservableLabelledTransition(sources, meetValue);
 		}
 		else 
 			return null;
@@ -112,14 +111,14 @@ class ObservableChannelEvent extends AbstractChannelEvent implements ObservableE
 		public List<LabelledTransition> defaultPType(PType node)
 				throws AnalysisException {
 			
-			return Arrays.asList((LabelledTransition)ObservableChannelEvent.this);
+			return Arrays.asList((LabelledTransition)ObservableLabelledTransition.this);
 		}
 		
 		@Override
 		public List<LabelledTransition> caseAIntNumericBasicType(AIntNumericBasicType node)
 				throws AnalysisException {
 
-			return Arrays.asList((LabelledTransition)ObservableChannelEvent.this);
+			return Arrays.asList((LabelledTransition)ObservableLabelledTransition.this);
 		}
 		
 		@Override
@@ -142,7 +141,7 @@ class ObservableChannelEvent extends AbstractChannelEvent implements ObservableE
 				}
 			}
 			else
-				events.add(ObservableChannelEvent.this);
+				events.add(ObservableLabelledTransition.this);
 			
 			return events;
 		}
@@ -151,9 +150,9 @@ class ObservableChannelEvent extends AbstractChannelEvent implements ObservableE
 		public List<LabelledTransition> caseAQuoteType(AQuoteType node)
 				throws AnalysisException {
 			
-			return Arrays.asList((LabelledTransition)new ObservableChannelEvent(
-					ObservableChannelEvent.this.getEventSources(), 
-					ObservableChannelEvent.this.channelName));
+			return Arrays.asList((LabelledTransition)new ObservableLabelledTransition(
+					ObservableLabelledTransition.this.getEventSources(), 
+					ObservableLabelledTransition.this.channelName));
 //			return Arrays.asList((ChannelEvent)new CommunicationEvent(
 //					CommunicationEvent.this.getEventSources(), 
 //					CommunicationEvent.this.channelName, new QuoteValue(node.getValue().getValue())));

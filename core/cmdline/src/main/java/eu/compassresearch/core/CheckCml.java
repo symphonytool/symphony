@@ -539,10 +539,10 @@ public class CheckCml {
 								CmlRuntime.expandHiddenEvents(false);
 								interpreter.setDefaultName(Switch.EXEC.getValue());
 								
-								CmlSupervisorEnvironment sve = 
-										VanillaInterpreterFactory.newDefaultCmlSupervisorEnvironment(new RandomSelectionStrategy());
+//								CmlSupervisorEnvironment sve = 
+//										VanillaInterpreterFactory.newDefaultCmlSupervisorEnvironment(new RandomSelectionStrategy());
 								interpreter.initialize();
-								interpreter.execute(sve);
+								interpreter.execute(new RandomSelectionStrategy());
 							} catch (Exception e) {
 
 								e.printStackTrace();

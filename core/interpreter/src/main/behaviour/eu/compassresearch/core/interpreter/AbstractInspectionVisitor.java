@@ -16,11 +16,11 @@ import org.overture.interpreter.values.RecordValue;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlCalculationStep;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlTrace;
 import eu.compassresearch.core.interpreter.api.behaviour.Inspection;
+import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.transitions.TimedTransition;
 import eu.compassresearch.core.interpreter.api.transitions.InternalTransition;
 

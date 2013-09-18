@@ -28,18 +28,16 @@ import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.lex.LexIdentifierToken;
 import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
-import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorState;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlTrace;
-import eu.compassresearch.core.interpreter.api.behaviour.Reason;
 import eu.compassresearch.core.interpreter.api.events.CmlBehaviorStateObserver;
 import eu.compassresearch.core.interpreter.api.events.EventSource;
 import eu.compassresearch.core.interpreter.api.events.TraceObserver;
-import eu.compassresearch.core.interpreter.api.transitions.TimedTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
-import eu.compassresearch.core.interpreter.api.transitions.ObservableEvent;
+import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
+import eu.compassresearch.core.interpreter.api.transitions.ObservableTransition;
+import eu.compassresearch.core.interpreter.api.transitions.TimedTransition;
 import eu.compassresearch.core.interpreter.debug.CmlDbgStatusMessage;
 import eu.compassresearch.core.interpreter.debug.CmlInterpreterStateDTO;
 import eu.compassresearch.core.interpreter.debug.messaging.Message;
@@ -113,12 +111,6 @@ public class TestMessageCommunicator {
 			}
 			
 			@Override
-			public void setAbort(Reason reason) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
 			public void replaceState(Context context) throws ValueException {
 				// TODO Auto-generated method stub
 				
@@ -176,7 +168,7 @@ public class TestMessageCommunicator {
 				CmlTrace trace = new CmlTrace();
 				
 				trace.addEvent(new TimedTransition());
-				trace.addEvent(new ObservableEvent() {
+				trace.addEvent(new ObservableTransition() {
 					
 					@Override
 					public Set<CmlBehaviour> getEventSources() {
@@ -190,13 +182,13 @@ public class TestMessageCommunicator {
 //					}
 					
 					@Override
-					public ObservableEvent synchronizeWith(ObservableEvent other) {
+					public ObservableTransition synchronizeWith(ObservableTransition other) {
 						// TODO Auto-generated method stub
 						return null;
 					}
 					
 					@Override
-					public boolean isComparable(ObservableEvent other) {
+					public boolean isComparable(ObservableTransition other) {
 						// TODO Auto-generated method stub
 						return false;
 					}

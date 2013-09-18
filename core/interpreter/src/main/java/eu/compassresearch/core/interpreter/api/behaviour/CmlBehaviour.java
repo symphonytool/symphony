@@ -14,6 +14,7 @@ import eu.compassresearch.core.interpreter.api.events.CmlBehaviorStateObserver;
 import eu.compassresearch.core.interpreter.api.events.EventSource;
 import eu.compassresearch.core.interpreter.api.events.TraceObserver;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
+import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
 /**
@@ -43,7 +44,7 @@ public interface CmlBehaviour extends Serializable //extends Transactable
 	public CmlTransitionSet inspect() throws AnalysisException;
 	
 	//public Reason abortReason();
-	public void setAbort(Reason reason);
+//	public void setAbort(Reason reason);
 	
 	/**
 	 * Returns the current execution state of the process

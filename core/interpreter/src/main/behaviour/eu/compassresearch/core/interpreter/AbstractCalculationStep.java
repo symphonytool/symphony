@@ -9,10 +9,10 @@ import org.overture.interpreter.runtime.Context;
 
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlCalculationStep;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
+import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
 abstract class AbstractCalculationStep implements CmlCalculationStep {

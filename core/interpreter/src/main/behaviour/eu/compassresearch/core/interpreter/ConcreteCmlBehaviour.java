@@ -21,9 +21,7 @@ import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorState;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlTrace;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.behaviour.Inspection;
-import eu.compassresearch.core.interpreter.api.behaviour.Reason;
 import eu.compassresearch.core.interpreter.api.events.CmlBehaviorStateEvent;
 import eu.compassresearch.core.interpreter.api.events.CmlBehaviorStateObserver;
 import eu.compassresearch.core.interpreter.api.events.EventFireMediator;
@@ -32,7 +30,8 @@ import eu.compassresearch.core.interpreter.api.events.EventSourceHandler;
 import eu.compassresearch.core.interpreter.api.events.TraceEvent;
 import eu.compassresearch.core.interpreter.api.events.TraceObserver;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
-import eu.compassresearch.core.interpreter.api.transitions.ObservableEvent;
+import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
+import eu.compassresearch.core.interpreter.api.transitions.ObservableTransition;
 import eu.compassresearch.core.interpreter.api.transitions.TimedTransition;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
@@ -78,18 +77,18 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	/**
 	 * The setup visitor
 	 */
-	final transient QuestionAnswerCMLAdaptor<Context,Pair<INode,Context>>						cmlSetupVisitor;
+	final transient QuestionAnswerCMLAdaptor<Context,Pair<INode,Context>>		setupVisitor;
 
 	/**
-	 * The alphabet inspection visitor
+	 * The inspection visitor
 	 */
-	protected final transient QuestionAnswerCMLAdaptor<Context, Inspection>		alphabetInspectionVisitor;
+	protected final transient QuestionAnswerCMLAdaptor<Context, Inspection>		inspectionVisitor;
 
 	//Process/Action state variables
 	
 	//The next INode to execute in the given Context
-	Pair<INode,Context>                         next;
-	Pair<Context,Context>   					preConstructedChildContexts = null;
+	Pair<INode,Context>                         								next;
+	Pair<Context,Context>   													preConstructedChildContexts = null;
 
 	//This might get used to boost the performance
 	//protected Map<INode,Object>                	localStore = new HashMap<INode,Object>();
@@ -110,7 +109,7 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	 * This is true when the process is waiting for the environment
 	 */
 	protected boolean							waitPrime = false;
-	protected boolean 							aborted = false;
+//	protected boolean 							aborted = false;
 
 	protected EventSourceHandler<CmlBehaviorStateObserver,CmlBehaviorStateEvent>  stateEventhandler = 
 			new EventSourceHandler<CmlBehaviorStateObserver,CmlBehaviorStateEvent>(this,
@@ -175,8 +174,8 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 		};
 
 		//Initialize the visitors
-		cmlSetupVisitor = new ActionSetupVisitor(this, visitorAccess);
-		alphabetInspectionVisitor = new CmlInspectionVisitor(this, visitorAccess);
+		setupVisitor = new ActionSetupVisitor(this, visitorAccess);
+		inspectionVisitor = new CmlInspectionVisitor(this, visitorAccess);
 	}
 
 	public ConcreteCmlBehaviour(INode action, Context context, ILexNameToken name) throws AnalysisException
@@ -202,7 +201,7 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 
 		if(next == null || (newNext.first != next.first && !hasChildren()))
 		{
-			next = newNext.first.apply(cmlSetupVisitor,newNext.second);
+			next = newNext.first.apply(setupVisitor,newNext.second);
 			ok = false;
 		}
 		else
@@ -252,11 +251,8 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 		 *	then we can continue.
 		 *  
 		 */
-		if(selectedTransition != null &&  
-				lastInspection.getTransitions().contains(selectedTransition))
+		if(lastInspection.getTransitions().contains(selectedTransition))
 		{
-
-
 			//If the selected event is tock then we need to execute the children as well to make
 			//time tick in the entire process tree
 			if(selectedTransition instanceof TimedTransition)
@@ -294,7 +290,7 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 		}
 		else
 		{	
-			lastInspection = next.first.apply(alphabetInspectionVisitor,next.second);
+			lastInspection = next.first.apply(inspectionVisitor,next.second);
 
 			return lastInspection.getTransitions();
 		}
@@ -319,17 +315,17 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 		return next;
 	}
 
-	@Override
-	public void setAbort(Reason reason) {
-
-		//abort all the children
-		for(CmlBehaviour child : children())
-			child.setAbort(reason);
-
-		aborted = true;
-
-		notifyOnStateChange(CmlBehaviorState.FINISHED);
-	}
+//	@Override
+//	public void setAbort(Reason reason) {
+//
+//		//abort all the children
+//		for(CmlBehaviour child : children())
+//			child.setAbort(reason);
+//
+//		aborted = true;
+//
+//		notifyOnStateChange(CmlBehaviorState.FINISHED);
+//	}
 
 	@Override
 	public ILexNameToken name() {
@@ -437,7 +433,7 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 				return true;
 			else if(alpha.getAllEvents().size() == 1 && alpha.getObservableEvents().size() == 1)
 			{
-				ObservableEvent obsEvent = alpha.getObservableEvents().iterator().next();
+				ObservableTransition obsEvent = alpha.getObservableEvents().iterator().next();
 				return (obsEvent instanceof TimedTransition) && !((TimedTransition) obsEvent).hasTimeLimit();
 			}
 			else

@@ -11,7 +11,7 @@ import org.overture.interpreter.values.UndefinedValue;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.core.interpreter.CmlRuntime;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlTransitionSet;
+import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.transitions.LabelledTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.values.AbstractValueInterpreter;

@@ -1,4 +1,4 @@
-package eu.compassresearch.core.interpreter.api.behaviour;
+package eu.compassresearch.core.interpreter.api.transitions;
 
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -6,11 +6,6 @@ import java.util.Set;
 
 import org.overture.interpreter.values.Value;
 
-import eu.compassresearch.core.interpreter.api.transitions.LabelledTransition;
-import eu.compassresearch.core.interpreter.api.transitions.TimedTransition;
-import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
-import eu.compassresearch.core.interpreter.api.transitions.ObservableEvent;
-import eu.compassresearch.core.interpreter.api.transitions.SilentTransition;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
 
@@ -27,55 +22,55 @@ public class CmlTransitionSet extends Value {
 	private static final long serialVersionUID = 5192258370825756900L;
 	
 	//This contains the observable events
-	private final Set<ObservableEvent> _observableEvents;
+	private final Set<ObservableTransition> _observableEvents;
 	//This contains all the special events like tau
 	private final Set<SilentTransition> silentEvents;
 	
 	public CmlTransitionSet()
 	{
 		this.silentEvents = new LinkedHashSet<SilentTransition>();
-		this._observableEvents = new LinkedHashSet<ObservableEvent>();
+		this._observableEvents = new LinkedHashSet<ObservableTransition>();
 	}
 	
-	public CmlTransitionSet(ObservableEvent obsEvent)
+	public CmlTransitionSet(ObservableTransition obsEvent)
 	{
 		this.silentEvents = new LinkedHashSet<SilentTransition>();
-		this._observableEvents = new LinkedHashSet<ObservableEvent>();
+		this._observableEvents = new LinkedHashSet<ObservableTransition>();
 		this._observableEvents.add(obsEvent);
 	}
 	
 	public CmlTransitionSet(SilentTransition tauEvent)
 	{
 		this.silentEvents = new LinkedHashSet<SilentTransition>();
-		this._observableEvents = new LinkedHashSet<ObservableEvent>();
+		this._observableEvents = new LinkedHashSet<ObservableTransition>();
 		this.silentEvents.add(tauEvent);
 	}
 	
-	public CmlTransitionSet(ObservableEvent obs, SilentTransition tauEvent)
+	public CmlTransitionSet(ObservableTransition obs, SilentTransition tauEvent)
 	{
 		this.silentEvents = new LinkedHashSet<SilentTransition>();
 		this.silentEvents.add(tauEvent);
-		this._observableEvents = new LinkedHashSet<ObservableEvent>();
+		this._observableEvents = new LinkedHashSet<ObservableTransition>();
 		this._observableEvents.add(obs);
 	}
 	
-	public CmlTransitionSet(Set<ObservableEvent> comms, Set<SilentTransition> specialEvents)
+	public CmlTransitionSet(Set<ObservableTransition> comms, Set<SilentTransition> specialEvents)
 	{
 		this.silentEvents = new LinkedHashSet<SilentTransition>(specialEvents);
-		this._observableEvents = new LinkedHashSet<ObservableEvent>(comms);
+		this._observableEvents = new LinkedHashSet<ObservableTransition>(comms);
 	}
 	
 	public CmlTransitionSet(Set<CmlTransition> events)
 	{
 		this.silentEvents = new LinkedHashSet<SilentTransition>();
-		this._observableEvents = new LinkedHashSet<ObservableEvent>();
+		this._observableEvents = new LinkedHashSet<ObservableTransition>();
 		
 		for(CmlTransition e : new LinkedHashSet<CmlTransition>(events))
 		{
 			if(e instanceof SilentTransition)
 				this.silentEvents.add((SilentTransition)e);
-			else if(e instanceof ObservableEvent){
-				_observableEvents.add((ObservableEvent)e);
+			else if(e instanceof ObservableTransition){
+				_observableEvents.add((ObservableTransition)e);
 			}
 		}
 	}
@@ -84,15 +79,15 @@ public class CmlTransitionSet extends Value {
 	 * Returns all the observable events in the alphabet
 	 * @return
 	 */
-	public Set<ObservableEvent> getObservableEvents()
+	public Set<ObservableTransition> getObservableEvents()
 	{
-		return new LinkedHashSet<ObservableEvent>(_observableEvents);
+		return new LinkedHashSet<ObservableTransition>(_observableEvents);
 	}
 	
-	public Set<ObservableEvent> getObservableChannelEvents()
+	public Set<ObservableTransition> getObservableChannelEvents()
 	{
-		Set<ObservableEvent> observableChannelEvents = new LinkedHashSet<ObservableEvent>();
-		for(ObservableEvent obsEvent : _observableEvents)
+		Set<ObservableTransition> observableChannelEvents = new LinkedHashSet<ObservableTransition>();
+		for(ObservableTransition obsEvent : _observableEvents)
 			if(obsEvent instanceof LabelledTransition)
 				observableChannelEvents.add(obsEvent);
 		
@@ -161,9 +156,9 @@ public class CmlTransitionSet extends Value {
 	{
 		Set<CmlTransition> resultSet = new LinkedHashSet<CmlTransition>();
 		
-		for(ObservableEvent thisEvent : _observableEvents)
+		for(ObservableTransition thisEvent : _observableEvents)
 		{
-			for(ObservableEvent otherEvent : other._observableEvents)
+			for(ObservableTransition otherEvent : other._observableEvents)
 			{
 				if(thisEvent.isComparable(otherEvent) && thisEvent.isSourcesSubset(otherEvent)){
 					resultSet.add(thisEvent);
@@ -174,11 +169,11 @@ public class CmlTransitionSet extends Value {
 		return new CmlTransitionSet(resultSet);
 	}
 	
-	public CmlTransitionSet intersect(ObservableEvent other)
+	public CmlTransitionSet intersect(ObservableTransition other)
 	{
 		Set<CmlTransition> resultSet = new LinkedHashSet<CmlTransition>();
 		
-		for(ObservableEvent thisEvent : _observableEvents)
+		for(ObservableTransition thisEvent : _observableEvents)
 		{
 			if(thisEvent.isComparable(other)  && thisEvent.isSourcesSubset(other)){
 				resultSet.add(thisEvent);
@@ -192,7 +187,7 @@ public class CmlTransitionSet extends Value {
 	{
 		Set<CmlTransition> resultSet = new LinkedHashSet<CmlTransition>();
 
-		for(ObservableEvent obsTransition : _observableEvents)
+		for(ObservableTransition obsTransition : _observableEvents)
 		{
 			if(!(obsTransition instanceof LabelledTransition))
 				continue;
@@ -211,7 +206,7 @@ public class CmlTransitionSet extends Value {
 	{
 		Set<CmlTransition> resultSet = new LinkedHashSet<CmlTransition>();
 
-		for(ObservableEvent obsTransition : _observableEvents)
+		for(ObservableTransition obsTransition : _observableEvents)
 		{
 			if(!(obsTransition instanceof LabelledTransition))
 				continue;
@@ -233,9 +228,9 @@ public class CmlTransitionSet extends Value {
 	
 	public CmlTransitionSet removeByChannelName(ChannelNameValue channelNameValue)
 	{
-		Set<ObservableEvent> resultSet = new LinkedHashSet<ObservableEvent>();
+		Set<ObservableTransition> resultSet = new LinkedHashSet<ObservableTransition>();
 		
-		for(ObservableEvent obsTransition : _observableEvents)
+		for(ObservableTransition obsTransition : _observableEvents)
 		{
 			if(!(obsTransition instanceof LabelledTransition))
 				continue;
@@ -252,9 +247,9 @@ public class CmlTransitionSet extends Value {
 	
 	public CmlTransitionSet removeByChannelNameSet(ChannelNameSetValue channelNameSetValue)
 	{
-		Set<ObservableEvent> resultSet = new LinkedHashSet<ObservableEvent>();
+		Set<ObservableTransition> resultSet = new LinkedHashSet<ObservableTransition>();
 		
-		for(ObservableEvent obsTransition : _observableEvents)
+		for(ObservableTransition obsTransition : _observableEvents)
 		{
 			if(!(obsTransition instanceof LabelledTransition))
 				continue;
@@ -285,7 +280,7 @@ public class CmlTransitionSet extends Value {
 		
 		TimedTransition tock = null;
 				
-		for(ObservableEvent obs : _observableEvents)
+		for(ObservableTransition obs : _observableEvents)
 			if(obs instanceof TimedTransition)
 			{
 				tock = (TimedTransition)obs;
@@ -302,16 +297,16 @@ public class CmlTransitionSet extends Value {
 	 */
 	public CmlTransitionSet subtract(CmlTransitionSet other)
 	{
-		Set<ObservableEvent> newReferenceEvents = new LinkedHashSet<ObservableEvent>();
+		Set<ObservableTransition> newReferenceEvents = new LinkedHashSet<ObservableTransition>();
 		newReferenceEvents.addAll(_observableEvents);
 		newReferenceEvents.removeAll(other.getObservableEvents());
 		
 		return new CmlTransitionSet(newReferenceEvents,silentEvents);
 	}
 	
-	public CmlTransitionSet subtract(ObservableEvent other)
+	public CmlTransitionSet subtract(ObservableTransition other)
 	{
-		Set<ObservableEvent> newReferenceEvents = new LinkedHashSet<ObservableEvent>();
+		Set<ObservableTransition> newReferenceEvents = new LinkedHashSet<ObservableTransition>();
 		newReferenceEvents.addAll(_observableEvents);
 		newReferenceEvents.remove(other);
 		
@@ -325,7 +320,7 @@ public class CmlTransitionSet extends Value {
 	 */
 	public CmlTransitionSet subtractImprecise(CmlTransitionSet other)
 	{
-		Set<ObservableEvent> newReferenceEvents = new LinkedHashSet<ObservableEvent>();
+		Set<ObservableTransition> newReferenceEvents = new LinkedHashSet<ObservableTransition>();
 		newReferenceEvents.addAll(_observableEvents);
 		newReferenceEvents.removeAll(this.intersect(other).getObservableEvents());
 		
@@ -338,7 +333,7 @@ public class CmlTransitionSet extends Value {
 	 */
 	public boolean contains(CmlTransition event)
 	{
-		if(event instanceof ObservableEvent && !intersect((ObservableEvent)event).isEmpty())
+		if(event instanceof ObservableTransition && !intersect((ObservableTransition)event).isEmpty())
 			return true;
 		else if(event instanceof SilentTransition)
 		{
@@ -421,7 +416,7 @@ public class CmlTransitionSet extends Value {
 	@Override
 	public Object clone() {
 
-		return new CmlTransitionSet(new LinkedHashSet<ObservableEvent>(_observableEvents), 
+		return new CmlTransitionSet(new LinkedHashSet<ObservableTransition>(_observableEvents), 
 				new LinkedHashSet<SilentTransition>(silentEvents));
 	}
 }

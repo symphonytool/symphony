@@ -12,13 +12,13 @@ public class CmlTransitionFactory {
 	 * communication event factory methods 
 	 */
 	
-	public static ObservableEvent newObservableChannelEvent(CmlBehaviour source, ChannelNameValue channelName)
+	public static ObservableTransition newObservableChannelEvent(CmlBehaviour source, ChannelNameValue channelName)
 	{
-		return new ObservableChannelEvent(source, channelName);
+		return new ObservableLabelledTransition(source, channelName);
 	}
 	
-	public static SilentTransition newHiddenChannelEvent(CmlBehaviour source, LabelledTransition channelEvent)
-	{
-		return new HiddenEvent(source, channelEvent);
-	}
+//	public static SilentTransition newHiddenChannelEvent(CmlBehaviour source, LabelledTransition channelEvent)
+//	{
+//		return new HiddenEvent(source, channelEvent);
+//	}
 }

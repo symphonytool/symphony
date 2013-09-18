@@ -27,11 +27,11 @@ import eu.compassresearch.core.interpreter.api.RandomSelectionStrategy;
 import eu.compassresearch.core.interpreter.api.SelectionStrategy;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlTrace;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.events.CmlInterpreterStatusObserver;
 import eu.compassresearch.core.interpreter.api.events.InterpreterStatusEvent;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
-import eu.compassresearch.core.interpreter.api.transitions.ObservableEvent;
+import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
+import eu.compassresearch.core.interpreter.api.transitions.ObservableTransition;
 import eu.compassresearch.core.interpreter.api.values.ProcessObjectValue;
 import eu.compassresearch.core.interpreter.debug.Breakpoint;
 import eu.compassresearch.core.interpreter.utility.LocationExtractor;
@@ -239,7 +239,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			topProcess.execute(selectedEvent);
 			CmlTrace trace = topProcess.getTraceModel();
 
-			if(trace.getLastTransition() instanceof ObservableEvent)
+			if(trace.getLastTransition() instanceof ObservableTransition)
 			{
 				CmlRuntime.logger().fine("----------------observable step by '"+ topProcess +"'----------------------");
 				CmlRuntime.logger().fine("Observable trace of '"+topProcess+"': " + trace.getObservableTrace());

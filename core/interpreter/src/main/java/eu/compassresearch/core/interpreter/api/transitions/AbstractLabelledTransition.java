@@ -11,7 +11,7 @@ import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
  * @author akm
  *
  */
-abstract class AbstractChannelEvent extends AbstractCmlTransition implements LabelledTransition{
+abstract class AbstractLabelledTransition extends AbstractCmlTransition implements LabelledTransition{
 
 	/**
 	 * 
@@ -20,13 +20,13 @@ abstract class AbstractChannelEvent extends AbstractCmlTransition implements Lab
 	final protected ChannelNameValue channelName;
 	
 	
-	public AbstractChannelEvent(CmlBehaviour eventSource, ChannelNameValue channelName)
+	public AbstractLabelledTransition(CmlBehaviour eventSource, ChannelNameValue channelName)
 	{
 		super(eventSource);
 		this.channelName = channelName;
 	}
 	
-	protected AbstractChannelEvent(Set<CmlBehaviour> sources, ChannelNameValue channelName)
+	protected AbstractLabelledTransition(Set<CmlBehaviour> sources, ChannelNameValue channelName)
 	{
 		super(sources);
 		this.channelName = channelName;

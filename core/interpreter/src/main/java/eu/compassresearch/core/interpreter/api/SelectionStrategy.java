@@ -2,8 +2,8 @@ package eu.compassresearch.core.interpreter.api;
 
 import java.rmi.RemoteException;
 
-import eu.compassresearch.core.interpreter.api.behaviour.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
+import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
 
 /**
  * Implements a specific strategy for selecting a CMLtransition from a CMLAlphabet

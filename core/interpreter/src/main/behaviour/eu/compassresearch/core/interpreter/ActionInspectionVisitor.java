@@ -55,12 +55,12 @@ import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.behaviour.Inspection;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionFactory;
+import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.transitions.LabelledTransition;
-import eu.compassresearch.core.interpreter.api.transitions.ObservableEvent;
+import eu.compassresearch.core.interpreter.api.transitions.ObservableTransition;
 import eu.compassresearch.core.interpreter.api.transitions.TimedTransition;
 import eu.compassresearch.core.interpreter.api.values.ActionValue;
 import eu.compassresearch.core.interpreter.api.values.AnyValue;
@@ -211,7 +211,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 				}
 			}
 
-			ObservableEvent observableEvent = 
+			ObservableTransition observableEvent = 
 					CmlTransitionFactory.newObservableChannelEvent(owner, new ChannelNameValue(chanValue,values,constraints));
 			comset.add(observableEvent);
 		}
@@ -676,7 +676,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 
 					leftBehavior.execute(selectedTransition);
 
-					if(selectedTransition instanceof ObservableEvent &&
+					if(selectedTransition instanceof ObservableTransition &&
 							selectedTransition instanceof LabelledTransition)
 					{
 						return replaceWithChild(leftBehavior);
@@ -740,7 +740,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 					CmlBehaviour leftBehavior = owner.getLeftChild();
 					owner.getLeftChild().execute(selectedTransition);
 
-					if(selectedTransition instanceof ObservableEvent &&
+					if(selectedTransition instanceof ObservableTransition &&
 							selectedTransition instanceof LabelledTransition)
 					{
 						setLeftChild(null);
@@ -799,7 +799,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 				}
 			});
 		}
-		else if(owner.getRightChild().getTraceModel().getLastTransition() instanceof ObservableEvent &&
+		else if(owner.getRightChild().getTraceModel().getLastTransition() instanceof ObservableTransition &&
 				owner.getRightChild().getTraceModel().getLastTransition() instanceof LabelledTransition)
 		{
 			return newInspection(createSilentTransition(owner.getRightChild().getNextState().first) ,
