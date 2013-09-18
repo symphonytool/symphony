@@ -49,7 +49,7 @@ import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.Inspection;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
-import eu.compassresearch.core.interpreter.api.transitions.InternalTransition;
+import eu.compassresearch.core.interpreter.api.transitions.TauTransition;
 import eu.compassresearch.core.interpreter.api.values.CmlOperationValue;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
@@ -71,7 +71,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 			final AAssignmentCallStatementAction node, final Context question)
 			throws AnalysisException {
 
-		return newInspection(createSilentTransition(node, null), 
+		return newInspection(createTauTransitionWithTime(node, null), 
 				new AbstractCalculationStep(owner, visitorAccess) {
 					
 					@Override
@@ -110,7 +110,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 			final ABlockStatementAction node, final Context question)
 			throws AnalysisException {
 		
-		return newInspection(createSilentTransition(node.getAction()), 
+		return newInspection(createTauTransitionWithTime(node.getAction()), 
 				new AbstractCalculationStep(owner, visitorAccess) {
 					
 					@Override
@@ -144,7 +144,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 		
 		if(!owner.hasChildren()){
 			
-			return newInspection(createSilentTransition(node), 
+			return newInspection(createTauTransitionWithTime(node), 
 					new AbstractCalculationStep(owner, visitorAccess) {
 						
 						@Override
@@ -306,7 +306,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 		else
 		{
 			final INode skipNode = new ASkipAction();
-			return newInspection(createSilentTransition(skipNode), 
+			return newInspection(createTauTransitionWithTime(skipNode), 
 					new AbstractCalculationStep(owner, visitorAccess) {
 						
 						@Override
@@ -326,7 +326,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 
 		if (node.getIfExp().apply(cmlExpressionVisitor,question).boolValue(question))
 		{
-			return newInspection(createSilentTransition(node.getThenStm()), 
+			return newInspection(createTauTransitionWithTime(node.getThenStm()), 
 					new AbstractCalculationStep(owner, visitorAccess) {
 						
 						@Override
@@ -342,7 +342,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 			{
 				if(elseif.getElseIf().apply(cmlExpressionVisitor,question).boolValue(question))
 				{
-					return newInspection(createSilentTransition(elseif.getThenStm()), 
+					return newInspection(createTauTransitionWithTime(elseif.getThenStm()), 
 							new AbstractCalculationStep(owner, visitorAccess) {
 								
 								@Override
@@ -356,7 +356,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 
 			if (node.getElseStm() != null)
 			{
-				return newInspection(createSilentTransition(node.getElseStm()), 
+				return newInspection(createTauTransitionWithTime(node.getElseStm()), 
 						new AbstractCalculationStep(owner, visitorAccess) {
 							
 							@Override
@@ -369,7 +369,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 		}
 		
 		final ASkipAction skipAction = new ASkipAction(node.getLocation());
-		return newInspection(createSilentTransition(skipAction),
+		return newInspection(createTauTransitionWithTime(skipAction),
 				new AbstractCalculationStep(owner, visitorAccess) {
 			
 			@Override
@@ -384,7 +384,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 	public Inspection caseALetStatementAction(final ALetStatementAction node,
 			final Context question) throws AnalysisException {
 	
-		return newInspection(createSilentTransition(node.getAction()), 
+		return newInspection(createTauTransitionWithTime(node.getAction()), 
 		new AbstractCalculationStep(owner, visitorAccess) {
 			
 			@Override
@@ -409,7 +409,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 		ILexNameToken name = node.getClassdef().getName().clone();//new LexNameToken(node.getClassdef().getName().getName(), node.getClassName().getIdentifier().getName(), node.getLocation());
 		final ACallStatementAction callStm = new ACallStatementAction(name.getLocation(), name, node.getArgs());
 		
-		return newInspection(createSilentTransition(callStm),
+		return newInspection(createTauTransitionWithTime(callStm),
 				new AbstractCalculationStep(owner,visitorAccess) {
 					
 					@Override
@@ -443,7 +443,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 		{
 			final INode next = availableAlts.get(rnd.nextInt(availableAlts.size())).getAction();
 			
-			return newInspection(createSilentTransition(next),
+			return newInspection(createTauTransitionWithTime(next),
 					new AbstractCalculationStep(owner,visitorAccess) {
 						
 						@Override
@@ -485,7 +485,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 			final INode nextNode = new ASequentialCompositionAction(node.getLocation(), 
 					availableAlts.get(rnd.nextInt(availableAlts.size())).getAction().clone(), 
 						node.clone());
-			return newInspection(createSilentTransition(nextNode), 
+			return newInspection(createTauTransitionWithTime(nextNode), 
 					new AbstractCalculationStep(owner,visitorAccess) {
 						
 						@Override
@@ -499,7 +499,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 		}
 		else
 		{
-			return newInspection(createSilentTransition(new ASkipAction()),
+			return newInspection(createTauTransitionWithTime(new ASkipAction()),
 					new AbstractCalculationStep(owner,visitorAccess) {
 						
 						@Override
@@ -518,7 +518,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 			final AReturnStatementAction node, final Context question)
 			throws AnalysisException {
 
-		return newInspection(createSilentTransition(new ASkipAction()), 
+		return newInspection(createTauTransitionWithTime(new ASkipAction()), 
 				new AbstractCalculationStep(owner,visitorAccess) {
 			
 			@Override
@@ -551,7 +551,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 		final INode skipNode = new ASkipAction(node.getLocation(),new AActionType());
 		//FIXME according to the semantics this should be performed instantly so time is not
 		//allowed to pass
-		return newInspection(new CmlTransitionSet(new InternalTransition(owner,skipNode,null)),
+		return newInspection(createTauTransitionWithoutTime(skipNode),
 				new AbstractCalculationStep(owner,visitorAccess) {
 			
 			@Override
@@ -581,7 +581,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 		if(v.isEmpty() && owner.hasChildren() && owner.getLeftChild().finished() )
 		{
 			final ASkipAction skipAction = new ASkipAction(node.getLocation());
-			return newInspection(createSilentTransition(skipAction),
+			return newInspection(createTauTransitionWithTime(skipAction),
 					new AbstractCalculationStep(owner,visitorAccess) {
 				@Override
 				public Pair<INode, Context> execute(CmlTransition selectedTransition)
@@ -643,7 +643,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 		if(node.getCondition().apply(cmlExpressionVisitor,question).boolValue(question))
 		{
 			//the next step is a sequential composition of the action and this node
-			return newInspection(createSilentTransition(node), 
+			return newInspection(createTauTransitionWithTime(node), 
 					new AbstractCalculationStep(owner,visitorAccess) {
 				
 				@Override
@@ -658,7 +658,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 		{
 			//if the condition is false then the While evolves into Skip
 			final INode skipNode = new ASkipAction();
-			return newInspection(createSilentTransition(skipNode),
+			return newInspection(createTauTransitionWithTime(skipNode),
 					new AbstractCalculationStep(owner,visitorAccess) {
 				
 				@Override

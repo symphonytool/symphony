@@ -9,7 +9,6 @@ import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ValueException;
 
-import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.api.events.CmlBehaviorStateObserver;
 import eu.compassresearch.core.interpreter.api.events.EventSource;
 import eu.compassresearch.core.interpreter.api.events.TraceObserver;

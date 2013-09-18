@@ -9,29 +9,21 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Set;
-import java.util.Vector;
 import java.util.concurrent.SynchronousQueue;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.intf.lex.ILexLocation;
-import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ValueException;
-import org.overture.interpreter.values.SeqValue;
-import org.overture.interpreter.values.SetValue;
-import org.overture.interpreter.values.UpdatableValue;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.core.interpreter.CmlRuntime;
 import eu.compassresearch.core.interpreter.Console;
-import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
-import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.RandomSelectionStrategy;
 import eu.compassresearch.core.interpreter.api.SelectionStrategy;
@@ -39,9 +31,9 @@ import eu.compassresearch.core.interpreter.api.ValueParser;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.events.CmlInterpreterStatusObserver;
 import eu.compassresearch.core.interpreter.api.events.InterpreterStatusEvent;
+import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.transitions.LabelledTransition;
-import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.values.AbstractValueInterpreter;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
 import eu.compassresearch.core.interpreter.debug.messaging.CmlRequest;
@@ -50,7 +42,6 @@ import eu.compassresearch.core.interpreter.debug.messaging.MessageContainer;
 import eu.compassresearch.core.interpreter.debug.messaging.RequestMessage;
 import eu.compassresearch.core.interpreter.debug.messaging.ResponseMessage;
 import eu.compassresearch.core.interpreter.utility.LocationExtractor;
-import eu.compassresearch.core.parser.CmlParser.instanceVariableDefinition_return;
 
 /**
  * Implements a CmlDebugger that communicates through sockets

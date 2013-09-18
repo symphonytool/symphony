@@ -24,51 +24,51 @@ public class CmlTransitionSet extends Value {
 	//This contains the observable events
 	private final Set<ObservableTransition> _observableEvents;
 	//This contains all the special events like tau
-	private final Set<SilentTransition> silentEvents;
+	private final Set<AbstractSilentTransition> silentEvents;
 	
 	public CmlTransitionSet()
 	{
-		this.silentEvents = new LinkedHashSet<SilentTransition>();
+		this.silentEvents = new LinkedHashSet<AbstractSilentTransition>();
 		this._observableEvents = new LinkedHashSet<ObservableTransition>();
 	}
 	
 	public CmlTransitionSet(ObservableTransition obsEvent)
 	{
-		this.silentEvents = new LinkedHashSet<SilentTransition>();
+		this.silentEvents = new LinkedHashSet<AbstractSilentTransition>();
 		this._observableEvents = new LinkedHashSet<ObservableTransition>();
 		this._observableEvents.add(obsEvent);
 	}
 	
-	public CmlTransitionSet(SilentTransition tauEvent)
+	public CmlTransitionSet(AbstractSilentTransition tauEvent)
 	{
-		this.silentEvents = new LinkedHashSet<SilentTransition>();
+		this.silentEvents = new LinkedHashSet<AbstractSilentTransition>();
 		this._observableEvents = new LinkedHashSet<ObservableTransition>();
 		this.silentEvents.add(tauEvent);
 	}
 	
-	public CmlTransitionSet(ObservableTransition obs, SilentTransition tauEvent)
+	public CmlTransitionSet(ObservableTransition obs, AbstractSilentTransition tauEvent)
 	{
-		this.silentEvents = new LinkedHashSet<SilentTransition>();
+		this.silentEvents = new LinkedHashSet<AbstractSilentTransition>();
 		this.silentEvents.add(tauEvent);
 		this._observableEvents = new LinkedHashSet<ObservableTransition>();
 		this._observableEvents.add(obs);
 	}
 	
-	public CmlTransitionSet(Set<ObservableTransition> comms, Set<SilentTransition> specialEvents)
+	public CmlTransitionSet(Set<ObservableTransition> comms, Set<AbstractSilentTransition> specialEvents)
 	{
-		this.silentEvents = new LinkedHashSet<SilentTransition>(specialEvents);
+		this.silentEvents = new LinkedHashSet<AbstractSilentTransition>(specialEvents);
 		this._observableEvents = new LinkedHashSet<ObservableTransition>(comms);
 	}
 	
 	public CmlTransitionSet(Set<CmlTransition> events)
 	{
-		this.silentEvents = new LinkedHashSet<SilentTransition>();
+		this.silentEvents = new LinkedHashSet<AbstractSilentTransition>();
 		this._observableEvents = new LinkedHashSet<ObservableTransition>();
 		
 		for(CmlTransition e : new LinkedHashSet<CmlTransition>(events))
 		{
-			if(e instanceof SilentTransition)
-				this.silentEvents.add((SilentTransition)e);
+			if(e instanceof AbstractSilentTransition)
+				this.silentEvents.add((AbstractSilentTransition)e);
 			else if(e instanceof ObservableTransition){
 				_observableEvents.add((ObservableTransition)e);
 			}
@@ -98,9 +98,9 @@ public class CmlTransitionSet extends Value {
 	 * Returns all the special events in the alphabet
 	 * @return
 	 */
-	public Set<SilentTransition> getSilentTransitions()
+	public Set<AbstractSilentTransition> getSilentTransitions()
 	{
-		return new LinkedHashSet<SilentTransition>(silentEvents);
+		return new LinkedHashSet<AbstractSilentTransition>(silentEvents);
 	}
 	
 	/**
@@ -335,15 +335,15 @@ public class CmlTransitionSet extends Value {
 	{
 		if(event instanceof ObservableTransition && !intersect((ObservableTransition)event).isEmpty())
 			return true;
-		else if(event instanceof SilentTransition)
+		else if(event instanceof AbstractSilentTransition)
 		{
-			return containsSilentTransition((SilentTransition)event);
+			return containsSilentTransition((AbstractSilentTransition)event);
 		}
 		else 
 			return _observableEvents.contains(event); 
 	}
 	
-	private boolean containsSilentTransition(SilentTransition transition)
+	private boolean containsSilentTransition(AbstractSilentTransition transition)
 	{
 		for(CmlTransition thisTransition : getAllEvents())
 		{
@@ -417,6 +417,6 @@ public class CmlTransitionSet extends Value {
 	public Object clone() {
 
 		return new CmlTransitionSet(new LinkedHashSet<ObservableTransition>(_observableEvents), 
-				new LinkedHashSet<SilentTransition>(silentEvents));
+				new LinkedHashSet<AbstractSilentTransition>(silentEvents));
 	}
 }

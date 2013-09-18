@@ -8,7 +8,6 @@ import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
 
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
-import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlCalculationStep;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;

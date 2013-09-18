@@ -107,7 +107,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 		//external choice begin
 		if(!owner.hasChildren())
 		{
-			return newInspection(createSilentTransition(node,"Begin"),
+			return newInspection(createTauTransitionWithTime(node,"Begin"),
 					new AbstractCalculationStep(owner,visitorAccess) {
 
 				@Override
@@ -128,7 +128,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 		//If this is true, the Skip rule is instantiated. This means that the entire choice evolves into Skip
 		//with the state from the skip. After this all the children processes are terminated
 		else if (CmlBehaviourUtility.finishedChildExists(owner))
-			return newInspection(createSilentTransition(node,"end"), 
+			return newInspection(createTauTransitionWithTime(node,"end"), 
 					new AbstractCalculationStep(owner,visitorAccess) {
 
 				@Override
@@ -177,13 +177,12 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 	 */
 
 	protected Inspection caseGeneralisedParallelismParallel(final INode node,final parallelCompositionHelper helper, 
-			PVarsetExpression chansetExp, final Context question) throws AnalysisException
-			{
+			PVarsetExpression chansetExp, final Context question) throws AnalysisException {
 		//TODO: This only implements the "A [| cs |] B (no state)" and not "A [| ns1 | cs | ns2 |] B"
 
 		//if true this means that this is the first time here, so the Parallel Begin rule is invoked.
 		if(!owner.hasChildren()){
-			return newInspection(createSilentTransition(node, "Begin"),
+			return newInspection(createTauTransitionWithTime(node, "Begin"),
 
 					new AbstractCalculationStep(owner, visitorAccess) {
 
@@ -199,21 +198,21 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 		//The process has children and they have all evolved into Skip so now the parallel end rule will be invoked 
 		else if (CmlBehaviourUtility.isAllChildrenFinished(owner))
 		{
-			return newInspection(createSilentTransition(new ASkipAction(), "End"), 
+			return newInspection(createTauTransitionWithoutTime(new ASkipAction(), "End"), 
 					caseParallelEnd(question));
 		}
 		else
 		{
 			return caseParallelSyncOrNonsync(node,chansetExp, question);
 		}
-			}
+	}
 
 	private Inspection caseParallelSyncOrNonsync(final INode node, PVarsetExpression chansetExp, final Context question) throws AnalysisException
 	{
-		
+
 		//convert the channel set of the current node to a alphabet
 		ChannelNameSetValue cs = (ChannelNameSetValue)chansetExp.apply(cmlExpressionVisitor,question);
-			
+
 		//CmlTransitionSet cs =  ((CmlTransitionSet)chansetExp.apply(cmlExpressionVisitor,question)).union(new CmlTock());
 
 		//Get all the child alphabets and add the events that are not in the channelset
@@ -221,13 +220,13 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 		final CmlTransitionSet leftChildAlphabet = leftChild.inspect();
 		final CmlBehaviour rightChild = owner.getRightChild();
 		final CmlTransitionSet rightChildAlphabet = rightChild.inspect();
-		
+
 		//combine all the common channel events that are in the channel set
 		CmlTransitionSet leftSync = leftChildAlphabet.retainByChannelNameSet(cs);
 		CmlTransitionSet rightSync = rightChildAlphabet.retainByChannelNameSet(cs);
 		Set<CmlTransition> syncEvents = new HashSet<CmlTransition>();
 		//Find the intersection between the child alphabets and the channel set and join them.
-//		//Then if both left and right have them the next step will combine them.
+		//		//Then if both left and right have them the next step will combine them.
 		for(ObservableTransition leftTrans : leftSync.getObservableChannelEvents())
 		{
 			for(ObservableTransition rightTrans : rightSync.getObservableChannelEvents())
@@ -244,12 +243,12 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 				}
 			}
 		}
-		
+
 		TimedTransition leftTock = leftChildAlphabet.getTockEvent();
 		TimedTransition rightTock = rightChildAlphabet.getTockEvent();
 		if(leftTock != null && rightTock != null)
 			syncEvents.add(leftTock.synchronizeWith(rightTock));
-		
+
 		/*
 		 *	Finally we create the returned alphabet by joining all the 
 		 *  Synchronized events together with all the event of the children 
@@ -306,7 +305,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 			}
 		};
 	}
-	
+
 	/**
 	 * Common Hiding handler methods
 	 * @throws AnalysisException 
@@ -326,7 +325,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 			CmlTransitionSet resultAlpha = alpha.subtract(hiddenEvents);
 			//convert them into silent events and add the again
 			for(ObservableTransition obsEvent : hiddenEvents.getObservableChannelEvents())
-				resultAlpha = resultAlpha.union(new HiddenTransition(owner,(LabelledTransition)obsEvent));	
+				resultAlpha = resultAlpha.union(new HiddenTransition(owner,node,(LabelledTransition)obsEvent));	
 
 			return newInspection(resultAlpha,
 					new AbstractCalculationStep(owner, visitorAccess) {
@@ -334,11 +333,11 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 				@Override
 				public Pair<INode, Context> execute(CmlTransition selectedTransition)
 						throws AnalysisException {
-					
+
 					if(selectedTransition instanceof HiddenTransition &&
 							alpha.contains(((HiddenTransition) selectedTransition).getHiddenEvent()))
 						selectedTransition = ((HiddenTransition) selectedTransition).getHiddenEvent();
-					
+
 					owner.getLeftChild().execute(selectedTransition);
 					return new Pair<INode,Context>(node, question);
 				}
@@ -346,7 +345,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 		}
 		//If the Action is terminated then it evolves into Skip
 		else
-			return newInspection(createSilentTransition(new ASkipAction()),
+			return newInspection(createTauTransitionWithTime(new ASkipAction()),
 					new AbstractCalculationStep(owner, visitorAccess) {
 
 				@Override
@@ -357,15 +356,15 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 				}
 			});
 	}
-	
-	
+
+
 	/**
 	 * 
 	 */
 	protected AFatEnumVarsetExpression getAllChannelsAsFatEnum(
 			ILexLocation location, Context question)
 					throws AnalysisException {
-		
+
 		//TODO Change AFatEnumVarsetExpression expects List of ANameChannelExp instead of List of ILexNameToken
 		Context globalContext = question.getGlobal();
 		List<ANameChannelExp> channelNames = new LinkedList<ANameChannelExp>();
@@ -378,7 +377,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 
 		return new AFatEnumVarsetExpression(location, channelNames);
 	}
-	
+
 	/**
 	 * Common Sequential composition handler methods
 	 */
@@ -403,7 +402,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 		//if the left action is successfully finished then this node becomes the right action
 		else 
 		{
-			return newInspection(createSilentTransition(leftNode),
+			return newInspection(createTauTransitionWithTime(leftNode),
 					new AbstractCalculationStep(owner, visitorAccess) {
 
 				@Override

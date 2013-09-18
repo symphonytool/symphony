@@ -121,7 +121,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 				//first find the action value in the context
 				final ActionValue actionVal = (ActionValue)value;
 
-				return newInspection(createSilentTransition(actionVal.getActionDefinition().getAction(), null), 
+				return newInspection(createTauTransitionWithTime(actionVal.getActionDefinition().getAction(), null), 
 						new AbstractCalculationStep(owner, visitorAccess) {
 
 					@Override
@@ -312,7 +312,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 		//if true this means that this is the first time here, so the Parallel Begin rule is invoked.
 		if(!owner.hasChildren()){
 
-			return newInspection(createSilentTransition(node, "Begin"),
+			return newInspection(createTauTransitionWithTime(node, "Begin"),
 					new AbstractCalculationStep(owner, visitorAccess) {
 
 				@Override
@@ -329,7 +329,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 		//the process has children and must now handle either termination or event sync
 		else if (CmlBehaviourUtility.isAllChildrenFinished(owner))
 		{
-			return newInspection(createSilentTransition(new ASkipAction(node.getLocation()), "End"),caseParallelEnd(question));
+			return newInspection(createTauTransitionWithoutTime(new ASkipAction(node.getLocation()), "End"),caseParallelEnd(question));
 		}
 		else
 		{
@@ -375,7 +375,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 		final INode nextNode = tmpNode;
 		final Context nextContext = tmpContext;
 
-		return newInspection(createSilentTransition(nextNode), 
+		return newInspection(createTauTransitionWithTime(nextNode), 
 				new AbstractCalculationStep(owner, visitorAccess) {
 
 			@Override
@@ -394,7 +394,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 	public Inspection caseAMuAction(final AMuAction node, final Context question)
 			throws AnalysisException {
 
-		return newInspection(createSilentTransition(node, null), 
+		return newInspection(createTauTransitionWithTime(node, null), 
 				new AbstractCalculationStep(owner, visitorAccess) {
 
 			@Override
@@ -467,7 +467,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 
 		//if the gaurd is true then we return the silent transition to the guarded action
 		if(guardExp.boolValue(question))
-			alpha = createSilentTransition(node.getAction());
+			alpha = createTauTransitionWithTime(node.getAction());
 		//else we return the empty alphabet since no transition is possible
 		else
 			alpha = new CmlTransitionSet(new TimedTransition(owner));
@@ -527,7 +527,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 		//CMLActionInstance refchild = new CMLActionInstance(node.getActionDefinition().getAction(), question, node.getName()); 
 		final ActionValue actionValue = (ActionValue)question.check(node.getName()).deref();
 
-		return newInspection(createSilentTransition(actionValue.getActionDefinition().getAction()),
+		return newInspection(createTauTransitionWithoutTime(actionValue.getActionDefinition().getAction()),
 				new AbstractCalculationStep(owner, visitorAccess) {
 
 			@Override
@@ -633,7 +633,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 		//If the left is Skip then the whole process becomes skip with the state of the left child
 		if(owner.getLeftChild().finished())
 		{
-			return newInspection(createSilentTransition(owner.getLeftChild().getNextState().first,"Timeout: left behavior is finished"), 
+			return newInspection(createTauTransitionWithTime(owner.getLeftChild().getNextState().first,"Timeout: left behavior is finished"), 
 					new AbstractCalculationStep(owner, visitorAccess) {
 
 				@Override
@@ -648,7 +648,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 		//behaves as the right process
 		else if(owner.getCurrentTime() - startTimeVal >= val)
 		{
-			return newInspection(createSilentTransition(node.getRight(),"Timeout: time exceeded"), 
+			return newInspection(createTauTransitionWithTime(node.getRight(),"Timeout: time exceeded"), 
 					new AbstractCalculationStep(owner, visitorAccess) {
 
 				@Override
@@ -699,7 +699,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 		//If the left is Skip then the whole process becomes skip with the state of the left child
 		if(owner.getLeftChild().finished())
 		{
-			return newInspection(createSilentTransition(owner.getLeftChild().getNextState().first),
+			return newInspection(createTauTransitionWithTime(owner.getLeftChild().getNextState().first),
 					new AbstractCalculationStep(owner, visitorAccess) {
 
 				@Override
@@ -716,7 +716,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 		//behaves as the right process
 		else if(this.rnd.nextBoolean())
 		{
-			return newInspection(createSilentTransition(node.getRight()), 
+			return newInspection(createTauTransitionWithTime(node.getRight()), 
 					new AbstractCalculationStep(owner, visitorAccess) {
 
 				@Override
@@ -764,7 +764,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 
 		//If the number of tocks exceeded val then we make a silent transition that ends the delay process
 		if( nTocks >= val)
-			return newInspection(createSilentTransition(new ASkipAction(),"Wait ended"),
+			return newInspection(createTauTransitionWithTime(new ASkipAction(),"Wait ended"),
 					new AbstractCalculationStep(owner, visitorAccess) {
 
 				@Override
@@ -787,7 +787,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 			final Context question) throws AnalysisException {
 		if(owner.getLeftChild().finished())
 		{
-			return newInspection(createSilentTransition(owner.getLeftChild().getNextState().first) ,
+			return newInspection(createTauTransitionWithTime(owner.getLeftChild().getNextState().first) ,
 
 					new AbstractCalculationStep(owner, visitorAccess) {
 
@@ -802,7 +802,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 		else if(owner.getRightChild().getTraceModel().getLastTransition() instanceof ObservableTransition &&
 				owner.getRightChild().getTraceModel().getLastTransition() instanceof LabelledTransition)
 		{
-			return newInspection(createSilentTransition(owner.getRightChild().getNextState().first) ,
+			return newInspection(createTauTransitionWithTime(owner.getRightChild().getNextState().first) ,
 
 					new AbstractCalculationStep(owner, visitorAccess) {
 

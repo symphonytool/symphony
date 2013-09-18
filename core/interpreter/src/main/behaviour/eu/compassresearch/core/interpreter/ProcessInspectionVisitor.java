@@ -68,7 +68,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 	@Override
 	public Inspection caseAActionProcess(final AActionProcess node, final Context question)
 			throws AnalysisException {
-		return newInspection(createSilentTransition(node.getAction()),
+		return newInspection(createTauTransitionWithoutTime(node.getAction()),
 				new AbstractCalculationStep(owner, visitorAccess) {
 
 			@Override
@@ -167,7 +167,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 		//return caseAExternalChoice(node,node.getLeft(),node.getRight(), question);
 		//if true this means that this is the first time here, so the Parallel Begin rule is invoked.
 		if(!owner.hasChildren()){
-			return newInspection(createSilentTransition(node,"Begin"), 
+			return newInspection(createTauTransitionWithTime(node,"Begin"), 
 					new AbstractCalculationStep(owner, visitorAccess) {
 
 				@Override
@@ -187,7 +187,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 		//with the state from the skip. After this all the children processes are terminated
 		else if(CmlBehaviourUtility.finishedChildExists(owner))
 		{
-			return newInspection(createSilentTransition(node,"End"), 
+			return newInspection(createTauTransitionWithTime(node,"End"), 
 					new AbstractCalculationStep(owner, visitorAccess) {
 
 				@Override
@@ -277,7 +277,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 		//if true this means that this is the first time here, so the Parallel Begin rule is invoked.
 		if(!owner.hasChildren()){
 
-			return newInspection(createSilentTransition(node, "Begin"),
+			return newInspection(createTauTransitionWithTime(node, "Begin"),
 					new AbstractCalculationStep(owner, visitorAccess) {
 
 				@Override
@@ -293,7 +293,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 		//the process has children and must now handle either termination or event sync
 		else if (CmlBehaviourUtility.isAllChildrenFinished(owner))
 		{
-			return newInspection(createSilentTransition(new ASkipAction(), "End"),caseParallelEnd(question));
+			return newInspection(createTauTransitionWithTime(new ASkipAction(), "End"),caseParallelEnd(question));
 
 		}
 		else
@@ -340,7 +340,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 
 		if(rnd.nextInt(2) == 0)
 		{
-			return newInspection(createSilentTransition(node.getLeft()), 
+			return newInspection(createTauTransitionWithTime(node.getLeft()), 
 					new AbstractCalculationStep(owner, visitorAccess) {
 
 				@Override
@@ -352,7 +352,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 		}
 		else
 		{
-			return newInspection(createSilentTransition(node.getRight()), 
+			return newInspection(createTauTransitionWithTime(node.getRight()), 
 					new AbstractCalculationStep(owner, visitorAccess) {
 
 				@Override
@@ -373,7 +373,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 	public Inspection caseAReferenceProcess(final AReferenceProcess node,
 			final Context question) throws AnalysisException {
 
-		return newInspection(createSilentTransition(node.getProcessDefinition().getProcess()),
+		return newInspection(createTauTransitionWithTime(node.getProcessDefinition().getProcess()),
 				new AbstractCalculationStep(owner, visitorAccess) {
 
 			@Override

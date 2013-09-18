@@ -1,12 +1,10 @@
 package eu.compassresearch.core.interpreter.api.transitions;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import org.overture.ast.node.INode;
 
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 
-public class HiddenTransition extends AbstractLabelledTransition implements SilentTransition {
+public class HiddenTransition extends AbstractSilentTransition {
 
 	/**
 	 * 
@@ -14,37 +12,11 @@ public class HiddenTransition extends AbstractLabelledTransition implements Sile
 	private static final long serialVersionUID = -4227425913454070026L;
 	private final LabelledTransition hiddenEvent;
 
-	public HiddenTransition(CmlBehaviour eventSource, LabelledTransition hiddenEvent) {
-		super(eventSource, hiddenEvent.getChannelName());
+	public HiddenTransition(CmlBehaviour eventSource, INode transitionDstNode, LabelledTransition hiddenEvent) {
+		//super(eventSource, hiddenEvent.getChannelName());
+		super(eventSource,transitionDstNode,"hidden");
 		this.hiddenEvent = hiddenEvent; 
 		this.eventSources.addAll(hiddenEvent.getEventSources());
-	}
-
-	private HiddenTransition(Set<CmlBehaviour> eventSources, LabelledTransition hiddenEvent) {
-		super(eventSources, hiddenEvent.getChannelName());
-		this.hiddenEvent = hiddenEvent;
-		this.eventSources.addAll(hiddenEvent.getEventSources());
-	}
-
-	@Override
-	public List<LabelledTransition> expand() {
-		//TODO The expanded events should also be wrapped in a HiddenEvent
-		List<LabelledTransition> result = new LinkedList<LabelledTransition>();
-		for(LabelledTransition ce : getHiddenEvent().expand())
-			result.add(new HiddenTransition(this.eventSources, ce));
-		return result;
-	}
-
-	//	@Override
-	//	public INode getDestinationNode()
-	//	{
-	//		// TODO Auto-generated method stub
-	//		return null;
-	//	}
-
-	@Override
-	public String toString() {
-		return InternalTransition.tauString + "(" + getHiddenEvent().toString() + ")";
 	}
 
 	@Override
@@ -60,7 +32,7 @@ public class HiddenTransition extends AbstractLabelledTransition implements Sile
 
 	@Override
 	public int hashCode() {
-		return this.getHiddenEvent().hashCode();
+		return super.hashCode() + this.getHiddenEvent().hashCode();
 	}
 
 	public LabelledTransition getHiddenEvent()

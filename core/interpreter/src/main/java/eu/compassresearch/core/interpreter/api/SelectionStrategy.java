@@ -1,7 +1,5 @@
 package eu.compassresearch.core.interpreter.api;
 
-import java.rmi.RemoteException;
-
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
 

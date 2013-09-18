@@ -22,7 +22,7 @@ import eu.compassresearch.core.interpreter.api.behaviour.CmlTrace;
 import eu.compassresearch.core.interpreter.api.behaviour.Inspection;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.transitions.TimedTransition;
-import eu.compassresearch.core.interpreter.api.transitions.InternalTransition;
+import eu.compassresearch.core.interpreter.api.transitions.TauTransition;
 
 public class AbstractInspectionVisitor extends
 		QuestionAnswerCMLAdaptor<Context, Inspection> {
@@ -62,14 +62,24 @@ public class AbstractInspectionVisitor extends
 	 * Common Helpers
 	 */
 	
-	protected CmlTransitionSet createSilentTransition(INode dstNode, String transitionText)
+	protected CmlTransitionSet createTauTransitionWithTime(INode dstNode, String transitionText)
 	{
-		return new CmlTransitionSet(new TimedTransition(owner),new InternalTransition(owner,dstNode,transitionText));
+		return new CmlTransitionSet(new TimedTransition(owner),new TauTransition(owner,dstNode,transitionText));
 	}
 	
-	protected CmlTransitionSet createSilentTransition(INode dstNode)
+	protected CmlTransitionSet createTauTransitionWithTime(INode dstNode)
 	{
-		return createSilentTransition(dstNode,null);
+		return createTauTransitionWithTime(dstNode,null);
+	}
+	
+	protected CmlTransitionSet createTauTransitionWithoutTime(INode dstNode)
+	{
+		return createTauTransitionWithoutTime(dstNode, null);
+	}
+	
+	protected CmlTransitionSet createTauTransitionWithoutTime(INode dstNode, String transitionText)
+	{
+		return new CmlTransitionSet(new TauTransition(owner,dstNode,transitionText));
 	}
 	
 	protected Inspection newInspection(CmlTransitionSet transitions,CmlCalculationStep step)

@@ -21,9 +21,7 @@ import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
-import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.api.ConsoleSelectionStrategy;
-import eu.compassresearch.core.interpreter.api.RandomSelectionStrategy;
 import eu.compassresearch.core.interpreter.api.SelectionStrategy;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlTrace;
@@ -214,20 +212,15 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 				CmlRuntime.logger().finer("State for "+event+" : " +  state);
 			}
 
-			//Let the given decision function select one of the observable events 
-			CmlTransition selectedEvent = null;
 			//set the state of the interpreter to be waiting for the environment
 			setNewState(CmlInterpretationStatus.WAITING_FOR_ENVIRONMENT);
-			//this is potentially a blocking call
-			selectedEvent = getEnvironment().select(availableEvents);
+			//Get the environment to select the next transition. 
+			//this is potentially a blocking call!!
+			CmlTransition selectedEvent = getEnvironment().select(availableEvents);
 
-//			//Set the selected event on the supervisor
-//			currentSupervisor.setSelectedTransition(selectedEvent);
-			
 			//Handle the breakpoints if any
 			handleBreakpoints(selectedEvent);
 
-			//TODO add suspension code here
 			if(getStatus() == CmlInterpretationStatus.SUSPENDED)
 				synchronized (suspensionObject) {
 					this.suspensionObject.wait();
@@ -363,14 +356,12 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 
 		try
 		{
-//			CmlSupervisorEnvironment sve = 
-//					VanillaInterpreterFactory.newDefaultCmlSupervisorEnvironment(new ConsoleSelectionStrategy());
-			//CmlSupervisorEnvironment sve = 
-			//				VanillaInterpreterFactory.newDefaultCmlSupervisorEnvironment(new RandomSelectionStrategy());
-
 			CmlRuntime.logger().setLevel(Level.FINEST);
 			cmlInterp.initialize();
-			cmlInterp.execute(new ConsoleSelectionStrategy());
+			//cmlInterp.execute(new RandomSelectionStrategy());
+			ConsoleSelectionStrategy ss = new ConsoleSelectionStrategy(); 
+			ss.setHideSilentTransitions(false);
+			cmlInterp.execute(ss);
 		} catch (Exception ex)
 		{
 			System.out.println("Failed to interpret: " + sources.toString());
@@ -433,7 +424,10 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 
 			CmlRuntime.logger().setLevel(Level.FINEST);
 			cmlInterp.initialize();
-			cmlInterp.execute(new ConsoleSelectionStrategy());
+			//cmlInterp.execute(new RandomSelectionStrategy());
+			ConsoleSelectionStrategy ss = new ConsoleSelectionStrategy(); 
+			ss.setHideSilentTransitions(false);
+			cmlInterp.execute(ss);
 		} catch (Exception ex)
 		{
 			System.out.println("Failed to interpret: " + source.toString());
@@ -450,8 +444,8 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	public static void main(String[] args) throws IOException, CmlInterpreterException
 	{
 		File cml_example = new File(
-				"/home/akm/phd/runtime-COMPASS/simpleDLNA/SimpleDLNA.cml");
-				//"src/test/resources/action/action-seqForLoop.cml");
+				//"/home/akm/phd/runtime-COMPASS/simpleDLNA/SimpleDLNA.cml");
+				"src/test/resources/action/parallel-composition/action-interleaving.cml");
 		//File cml_example = new File("/home/akm/phd/COMPASS-repo/Common/CaseStudies/Library/Library.cml");
 		runOnFile(cml_example);
 		
