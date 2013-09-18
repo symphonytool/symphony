@@ -22,6 +22,7 @@ import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.ConsoleSelectionStrategy;
+import eu.compassresearch.core.interpreter.api.RandomSelectionStrategy;
 import eu.compassresearch.core.interpreter.api.SelectionStrategy;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlTrace;
@@ -426,7 +427,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			cmlInterp.initialize();
 			//cmlInterp.execute(new RandomSelectionStrategy());
 			ConsoleSelectionStrategy ss = new ConsoleSelectionStrategy(); 
-			ss.setHideSilentTransitions(false);
+			//ss.setHideSilentTransitions(false);
 			cmlInterp.execute(ss);
 		} catch (Exception ex)
 		{
@@ -445,7 +446,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	{
 		File cml_example = new File(
 				//"/home/akm/phd/runtime-COMPASS/simpleDLNA/SimpleDLNA.cml");
-				"src/test/resources/action/parallel-composition/action-interleaving.cml");
+				"src/test/resources/action/external-choice/action-externalchoice-state2.cml");
 		//File cml_example = new File("/home/akm/phd/COMPASS-repo/Common/CaseStudies/Library/Library.cml");
 		runOnFile(cml_example);
 		
