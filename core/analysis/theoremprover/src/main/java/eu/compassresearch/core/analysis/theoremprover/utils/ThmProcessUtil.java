@@ -124,6 +124,7 @@ public class ThmProcessUtil {
 	public static String opExpRight = "\\<rparr>";
 	public static String opTurn = "\\<turnstile>";
 	public static String isaMainAction = "MainAction";
+	public static String isaMu = "\\<mu>";
 
 	private static String skip = "SKIP";
 	private static String stop = "STOP";
@@ -718,7 +719,10 @@ public class ThmProcessUtil {
 			}
 			if (imOp.getPostcondition() != null)
 			{
+				//Set the expression utility postcondition flag to true - so to generate primed variables
+				ThmExprUtil.setPostExpr(true);
 				post = ThmExprUtil.getIsabelleExprStr(svars, bvars, imOp.getPostcondition());
+				ThmExprUtil.setPostExpr(false);
 				nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, imOp.getPostcondition()));
 
 			}
@@ -755,7 +759,10 @@ public class ThmProcessUtil {
 			}
 			if (exOp.getPostcondition() != null)
 			{
+				//Set the expression utility postcondition flag to true - so to generate primed variables
+				ThmExprUtil.setPostExpr(true);
 				post = ThmExprUtil.getIsabelleExprStr(svars, bvars, exOp.getPostcondition());
+				ThmExprUtil.setPostExpr(false);
 				nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, exOp.getPostcondition()));
 
 			}
@@ -778,7 +785,7 @@ public class ThmProcessUtil {
 			NodeNameList bvars) {
 		ThmNodeList tnl = new ThmNodeList();
 			
-		//for each Action Definiton node
+		//for each Action Definition node
 		for(AActionDefinition act : actions)
 			tnl.add(ThmProcessUtil.getIsabelleAction(act, svars, bvars));
 		
@@ -791,7 +798,7 @@ public class ThmProcessUtil {
 	 * @param act - the action definition
 	 * @param svars - process state variable names
 	 * @param bvars - bound variable names
-	 * @return the theorem node prduced
+	 * @return the theorem node produced
 	 */
 	private static ThmNode getIsabelleAction(
 			AActionDefinition act, 
@@ -801,10 +808,19 @@ public class ThmProcessUtil {
 		ThmNode tn = null;
 		//get the action name
 		ILexNameToken actName = act.getName();
+		//obtain the action dependencies
+		NodeNameList nodeDeps = ThmProcessUtil.getIsabelleActionDeps(act.getAction(), bvars);
 		//get the Isabelle string for the action node's action.
 		String actString = ThmProcessUtil.getIsabelleActionString(act.getAction(), svars, bvars);
-		//obtain the action dependancies
-		NodeNameList nodeDeps = ThmProcessUtil.getIsabelleActionDeps(act.getAction(), bvars);
+		//check for self dependencies - if present, require a MU
+		for(ILexNameToken n : nodeDeps)
+		{
+			if(n.toString().equals(actName.toString()))
+			{
+				actString = isaMu + " " + actName.toString() + ". " + actString;
+				break;
+			}
+		}
 		//create the theorem node.
 		tn = new ThmNode(actName, nodeDeps, new ThmAction(actName.toString(), actString));
 

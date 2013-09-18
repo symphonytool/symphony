@@ -35,6 +35,7 @@ public class ThmExprUtil {
 	
 	public static String typeDelim = "\\<parallel>";
 	public static String isaEquiv = "\\<equiv>";
+	public static String isaAcute = "\\<acute>";
 	public static String isaType = "definition";
 	public static String isaAbbr = "abbreviation";
  
@@ -82,7 +83,12 @@ public class ThmExprUtil {
  	static String isaUndefined = "undefined";
 	private static String isaDown = "\\<down>";
 	
+	private static boolean isPost = false;
 	
+	public static void setPostExpr(boolean post)
+	{
+		isPost = post;
+	}
 	
  
 
@@ -621,7 +627,17 @@ public class ThmExprUtil {
 			for(ILexNameToken var : svars){
 				if (varName.toString().equals(var.getName()))
 				{
-					return  "$" + varName.toString();
+					if (isPost)
+					{
+						if (varName.isOld())
+							return  "$" + varName.getName().toString();
+						else
+							return "$" + varName.getName().toString() + isaAcute;
+					}
+					else
+					{
+						return  "$" + varName.getName().toString();
+					}
 				}
 			}
 			for(ILexNameToken var : bvars){
@@ -636,7 +652,7 @@ public class ThmExprUtil {
 		else if(ex instanceof AUnresolvedPathExp){
 			//As this is a slightly iffy bit of syntax, we hack the Isabelle string a bit.
 			//First need to check if the first element is a state variable. If it is, then use
-			//$$, otherwise if a bound value, use ^^, otherwise, ??
+			//$, otherwise if a bound value, use ^^, otherwise, ??
 			AUnresolvedPathExp e = (AUnresolvedPathExp) ex;
 			StringBuilder sb = new StringBuilder();
 			
@@ -645,17 +661,28 @@ public class ThmExprUtil {
 			boolean isState = false;
 //			boolean isBound = false;
 			for(ILexNameToken var : svars){
-				
-				if (first.toString().equals(var.getName()))
+				//Need to do getName on the LexIdentToken, as toString directly may incorporate the 
+				//~ in before state
+				if (first.getName().toString().equals(var.getName()))
 				{
-					sb.append("$" + first.toString() + "$.");
+					if (isPost)
+					{
+						if (first.isOld())
+							sb.append("($" + first.getName().toString() + ").");
+						else
+							sb.append("($" + first.getName().toString() + isaAcute +").");
+					}
+					else
+					{
+						sb.append("($" + first.getName().toString()+ ").");
+					}
 					isState = true;
 					break;
 				}
 			}
 			if(!isState)
 			{
-				sb.append("^" + first.toString() + "^.");
+				sb.append("(^" + first.toString() + "^).");
 			}
 			
 			while( itr.hasNext() ) {
