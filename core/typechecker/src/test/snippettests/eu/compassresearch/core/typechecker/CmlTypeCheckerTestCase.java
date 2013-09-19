@@ -291,7 +291,15 @@ public class CmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase {
 		addTestProgram(testData, 
 				"channels c:int*char process A = begin @ c.(1).(1) -> Skip [| {c.(1).(1)} |] c.(1).(1) -> Skip  end",
 				true, false, new String[0]);
-		
+		//60  //Check TC in caseANameChannelExp within CompVarsetExpressions. Fixed lookup and type comparison
+		addTestProgram(testData, 
+				"channels pay, transfer: nat process Card = val i: nat @ begin state value: nat @ Skip end process Cards = || i: nat @  [ {| pay.i,transfer.i |} union { transfer.j.i.n| j:nat,n:nat}] Card(i)",
+				true, true, new String[0]);
+		//61 //Check TC in caseANameChannelExp within CompVarsetExpressions. Fixed lookup and type comparison
+		addTestProgram(testData, 
+				"channels pay, transfer: nat * nat * nat process Card = val i: nat @ begin state value: nat @ Skip end process Cards = || i: nat @  [ {| pay.i,transfer.i |} union { transfer.j.i.n| j:nat,n:nat}] Card(i)",
+				true, true, new String[0]);
+
 		return testData;
 	}
 

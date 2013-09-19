@@ -315,12 +315,6 @@ public class TCProcessVisitor extends
 		LinkedList<PSingleDeclaration> repDec = node
 				.getReplicationDeclaration();
 
-		PType csExpType = csExp.apply(parentChecker, question);
-		if (!successfulType(csExpType))
-			return issueHandler.addTypeError(csExp,
-					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-							.customizeMessage("" + csExp));
-
 		CmlTypeCheckInfo local = cmlEnv.newScope();
 
 		for (PSingleDeclaration d : repDec) {
@@ -333,6 +327,13 @@ public class TCProcessVisitor extends
 				local.addVariable(def.getName(), def);
 			}
 		}
+		
+		PType csExpType = csExp.apply(parentChecker, local);
+		if (!successfulType(csExpType))
+			return issueHandler.addTypeError(csExp,
+					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+							.customizeMessage("" + csExp));
+
 
 		// TODO: Maybe the declarations above needs to go into the environment ?
 		issueHandler.addTypeWarning(repProcess,

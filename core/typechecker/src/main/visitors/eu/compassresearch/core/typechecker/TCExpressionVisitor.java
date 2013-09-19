@@ -2,6 +2,7 @@ package eu.compassresearch.core.typechecker;
 
 import static eu.compassresearch.core.typechecker.CmlTCUtil.successfulType;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -168,23 +169,43 @@ class TCExpressionVisitor extends
 			return node.getType();
 		}
 		
+		ATypeSingleDeclaration chanTypeDef = ((AChannelNameDefinition) chanDef).getSingleType();
+		AChannelType chan = (AChannelType) chanTypeDef.getType();
+		PType chanCncrtType = chan.getType();
+		
+		LinkedList<PType> chanConcType = new LinkedList<PType>();
+		
+		if(chanCncrtType instanceof AProductType){
+			
+			LinkedList<PType> prodTypes = ((AProductType) chanCncrtType).getTypes();
+			chanConcType.addAll(prodTypes);
+			
+		} else {
+			chanConcType.add(chanCncrtType);
+		}
+		
+		Iterator<PType> iterator = chanConcType.iterator();
+		PType singleChanConcType = null;
 		for (PExp expression : node.getExpressions())
 		{
+			if(iterator.hasNext()) singleChanConcType = iterator.next();
+			
 			PType expressionType = expression.apply(parent, question);
 			if (!successfulType(expressionType)) {
 				node.setType(issueHandler.addTypeError(expression,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 								.customizeMessage(expression + "")));
 				return node.getType();
-			}		
+			}
 			
-			if (!typeComparator.isSubType(chanDef.getType(), expressionType)) {
+			if (!typeComparator.isSubType(singleChanConcType,expressionType)) {
 				node.setType(issueHandler.addTypeError(
 						expression,
 						TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(""
-								+ chanDef.getType(), "" + expressionType)));
+								+ singleChanConcType, "" + expressionType)));
 				return node.getType();
 			}
+			
 		}
 
 		node.setType(new AVarsetExpressionType(node.getLocation(), true));
