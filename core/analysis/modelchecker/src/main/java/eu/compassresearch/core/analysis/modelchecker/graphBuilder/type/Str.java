@@ -19,4 +19,9 @@ public class Str implements Type {
 		return "Str(\""+ value + "\")";
 	}
 
+	@Override
+	public String toFormulaWithState() {
+		return "Str(\""+ value + "\")";
+	}
+
 }
