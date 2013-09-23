@@ -1,0 +1,6 @@
+instructions.configure= \
+  remove(path:${installFolder}/OvertureIDEUserGuide.pdf);\
+  remove(path:${installFolder}/QuickOverviewofVDMOperators.pdf);\
+  remove(path:${installFolder}/VDM10_lang_man.pdf);
+instructions.configure.import= \
+  org.eclipse.equinox.p2.touchpoint.natives.remove
