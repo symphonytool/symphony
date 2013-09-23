@@ -12,6 +12,12 @@ public class IR implements Type{
 	}
 	
 	@Override
+	public IR copy(){
+		IR result = new IR(this.value);
+		return result;
+	}
+	
+	@Override
 	public String toString() {
 		return String.valueOf(value);
 	}

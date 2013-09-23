@@ -28,7 +28,7 @@ import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Parll;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Prefix;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Process;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.ProcessCall;
-import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Schema;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Operation;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.SeqComposition;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Skip;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Stop;
@@ -53,12 +53,15 @@ public class Utilities {
 	public static final String DEADLOCK = "Deadlock";
 	public static final String LIVELOCK = "Livelock";
 	public static final String NONDETERMINISM = "Nondeterminism";
+	public static final String DEADLOCK_STATE_COLOUR = "\"#FF9696\"";
+	public static final String NONDETERMINISTIC_STATE_COLOUR = "\"#FFC864\"";
+	public static final String LIVELOCK_STATE_COLOUR = "\"#64FFFF\"";
 	
-	protected Hashtable<String, Constructor> constructors;
+	protected static Hashtable<String, Constructor> constructors;
 	
 	
 	
-	public Utilities(){
+	static{
 		constructors = new Hashtable<String, Constructor>();
 		//BASICPROCESS
 		constructors.put(Constructor.Skip.id, Constructor.Skip);
@@ -70,7 +73,7 @@ public class Utilities {
 		constructors.put(Constructor.Hide.id, Constructor.Hide);
 		constructors.put(Constructor.SeqComposition.id, Constructor.SeqComposition);
 		constructors.put(Constructor.ProcessCall.id, Constructor.ProcessCall);
-		constructors.put(Constructor.Schema.id, Constructor.Schema);
+		constructors.put(Constructor.Operation.id, Constructor.Operation);
 		constructors.put(Constructor.Assing.id, Constructor.Assing);
 
 		//CHOICE
@@ -137,7 +140,7 @@ public class Utilities {
 				"parll"), IParll("iParll"), Prefix("Prefix"), BasicEvent(
 				"BasicEv"), IOComm("IOComm"), Hide("hide"), BBind("BBinding"), State(
 				"State"), Transition("trans"), ProcessCall("proc"), SeqComposition(
-				"seqC"), Spar("SPar"), Dpar("Dpar"), Schema("schema"), Assing(
+				"seqC"), Spar("SPar"), Dpar("Dpar"), Operation("operation"), Assing(
 				"assign"), IntChoice("iChoice"), ExtChoice("eChoice"), CondChoice(
 				"condChoice"), ExtraChoice("extraChoice"), EqualExpression("EQ"), NotEqualExpression(
 				"NEQ"), LessThanExpression("LT"), GreaterThanExpression("GT"), IntType(
@@ -154,7 +157,7 @@ public class Utilities {
 	}
 	
 	//determina que construtor est� sendo usado em uma string
-	public Constructor determineConstructor(String content){
+	public static Constructor determineConstructor(String content){
 		StringBuilder constructor = new StringBuilder();
 		
 		int currCharIndex = 0;
@@ -175,7 +178,7 @@ public class Utilities {
 	}
 	
 	//extrai o construtor e os seus parenteses, se for o caso 
-	public String extractConstructor(String content){
+	public static String extractConstructor(String content){
 		String result = "";
 		content = content.trim();
 		Constructor constructor = determineConstructor(content);
@@ -199,13 +202,13 @@ public class Utilities {
 	}
 	
 	//dado os argumentos de um construtor, extrai os termos como strings
-	public LinkedList<String> extractAllTerms(String arguments){
+	public static LinkedList<String> extractAllTerms(String arguments){
 		LinkedList<String> result = new LinkedList<String>();
 		extractTerms(result,arguments);
 		return result;
 	}
 	
-	private void extractTerms(LinkedList<String> terms, String arguments){
+	private static void extractTerms(LinkedList<String> terms, String arguments){
 		StringBuilder currentTerm = new StringBuilder();
 		int currIndex = 0;
 		int leftParen = 0;
@@ -248,18 +251,18 @@ public class Utilities {
 	}
 	
 	
-	public Object createObject(String content){
+	public static Object createObject(String content){
 		Object result = new Object();
-		Constructor c = this.determineConstructor(content);
-		content = this.extractConstructor(content);
+		Constructor c = determineConstructor(content);
+		content = extractConstructor(content);
 		content = content.replaceAll(" ","");
 		result = createObject(c, content);
 		return result;
 	}
 	
-	private Object createObject(Constructor constructor, String terms) {
+	private static Object createObject(Constructor constructor, String terms) {
 		Object result = new Object();
-		LinkedList<String> arguments = this.extractAllTerms(terms);
+		LinkedList<String> arguments = extractAllTerms(terms);
 		Process auxProcess;
 		Event auxEvent;
 
@@ -291,13 +294,13 @@ public class Utilities {
 			result = new UndefinedValue();
 			break;
 		case IntType:
-			result = new Int(this.buildInteger(arguments.pop()));
+			result = new Int(buildInteger(arguments.pop()));
 			break;
 		case NatType:
-			result = new Nat(this.buildNatural(arguments.pop()));
+			result = new Nat(buildNatural(arguments.pop()));
 			break;
 		case IRType:
-			result = new IR(this.buildReal(arguments.pop()));
+			result = new IR(buildReal(arguments.pop()));
 			break;
 		case StrType:
 			result = new Str(arguments.pop());
@@ -326,9 +329,10 @@ public class Utilities {
 			nmbr = arguments.pop();
 			result = new Assing(nmbr);
 			break;
-		case Schema:
+		case Operation:
 			str = arguments.pop();
-			result = new Schema(str);
+			param = (Param) createObject(arguments.pop());
+			result = new Operation(str,param);
 			break;
 		case ProcessCall:
 			str = arguments.pop();
@@ -351,7 +355,7 @@ public class Utilities {
 			result = new ExtChoice(auxProcess,process);
 			break;
 		case ExtraChoice:
-			number = this.buildInteger(arguments.pop());
+			number = buildInteger(arguments.pop());
 			Binding leftBiding = (Binding) createObject(arguments.pop());
 			process = (Process) createObject(arguments.pop());
 			Binding rightBiding = (Binding) createObject(arguments.pop());
@@ -386,10 +390,10 @@ public class Utilities {
 			result = new LessThanBooleanExpression(typ,typ2);
 			break;
 		case Transition:
-			State source = (State) this.createObject(arguments.pop());
-			auxEvent = (Event) this.createObject(arguments.pop());
+			State source = (State) createObject(arguments.pop());
+			auxEvent = (Event) createObject(arguments.pop());
 			System.out.println();
-			State target = (State) this.createObject(arguments.pop());
+			State target = (State) createObject(arguments.pop());
 			result = new Transition(source, auxEvent, target);
 			break;
 		case State:
@@ -400,20 +404,20 @@ public class Utilities {
 			result = new State(number, binding, srt, auxProcess);
 			break;
 		case Prefix:
-			auxEvent = (Event) this.createObject(arguments.pop());
-			auxProcess = (Process) this.createObject(arguments.pop());
+			auxEvent = (Event) createObject(arguments.pop());
+			auxProcess = (Process) createObject(arguments.pop());
 			result = new Prefix(auxEvent, auxProcess);
 			break;
 		case BBind:
 			String procName = arguments.pop();
-			SingleBind singleBind = (SingleBind)this.createObject(arguments.pop());
-			Binding tail = (Binding)this.createObject(arguments.pop());
+			SingleBind singleBind = (SingleBind)createObject(arguments.pop());
+			Binding tail = (Binding)createObject(arguments.pop());
 			result = new BBinding(procName,singleBind,tail);
 			break;
 			
 		case SingleBind:
 			str = arguments.pop();
-			Type varValue = (Type)this.createObject(arguments.pop());
+			Type varValue = (Type)createObject(arguments.pop());
 			result = new SingleBind(str,varValue);
 			break;
 			
@@ -494,7 +498,7 @@ public class Utilities {
 		return result;
 	}
 	
-	private int buildInteger(String symbolicInteger){
+	private static int buildInteger(String symbolicInteger){
 		int result = 0;
 		symbolicInteger = symbolicInteger.replace("_","");
 		symbolicInteger = symbolicInteger.replace("<","");
@@ -503,7 +507,7 @@ public class Utilities {
 		return result;
 	}
 	
-	private int buildNatural(String symbolicNatural){
+	private static int buildNatural(String symbolicNatural){
 		int result = 0;
 		symbolicNatural = symbolicNatural.replace("_","");
 		symbolicNatural = symbolicNatural.replace("<","");
@@ -512,7 +516,7 @@ public class Utilities {
 		return result;
 	}
 	
-	private double buildReal(String symbolicNatural){
+	private static double buildReal(String symbolicNatural){
 		double result = 0;
 		symbolicNatural = symbolicNatural.replace("_","");
 		symbolicNatural = symbolicNatural.replace("<","");

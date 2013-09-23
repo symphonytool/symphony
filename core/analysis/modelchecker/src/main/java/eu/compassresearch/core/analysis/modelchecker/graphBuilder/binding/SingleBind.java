@@ -22,6 +22,10 @@ public class SingleBind {
 	public void setVariableValue(Type variableValue) {
 		this.variableValue = variableValue;
 	}
+	public SingleBind copy(){
+		SingleBind copy = new SingleBind(variableName, variableValue.copy());
+		return copy;
+	}
 	@Override
 	public boolean equals(Object obj) {
 		boolean resp = false;

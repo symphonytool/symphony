@@ -8,6 +8,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.Binding;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.NullBinding;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Int;
@@ -25,11 +26,20 @@ public class CMLModelcheckerContext {
 	
 	private StringBuilder scriptContent;
 
+	protected SetStack setStack; 
+	
+	protected ArrayList<String> lieIn;
+	
+	protected ArrayList<SCmlOperationDefinition> operations;
+	
 	public CMLModelcheckerContext() {
 		info = new HashMap<Object,Object>();
 		scriptContent = new StringBuilder();
 		variables = new LinkedHashSet<String>();
 		states = new ArrayList<String>();
+		setStack = new SetStack();
+		lieIn = new ArrayList<String>();
+		operations = new ArrayList<SCmlOperationDefinition>(); 
 		ASSIGN_COUNTER = 0;
 	}
 	
@@ -38,6 +48,9 @@ public class CMLModelcheckerContext {
 		scriptContent = new StringBuilder();
 		variables = new LinkedHashSet<String>();
 		states = new ArrayList<String>();
+		setStack = new SetStack();
+		lieIn = new ArrayList<String>();
+		operations = new ArrayList<SCmlOperationDefinition>();
 		ASSIGN_COUNTER = i;
 	}
 	
@@ -120,11 +133,21 @@ public class CMLModelcheckerContext {
 	public void setVariables(Set<String> vars){
 		this.variables = vars;
 	}
-
+	
 	public void setScriptContent(StringBuilder scriptContent) {
 		this.scriptContent = scriptContent;
 	}
 	
+	public void reset(){
+		this.info = new HashMap<Object,Object>();
+		this.scriptContent = new StringBuilder();
+		this.variables = new LinkedHashSet<String>();
+		this.states = new ArrayList<String>();
+		this.setStack = new SetStack();
+		this.lieIn = new ArrayList<String>();
+		this.operations = new ArrayList<SCmlOperationDefinition>(); 
+		this.ASSIGN_COUNTER = 0;
+	}
 	public void copyVarDeclarationInfo(CMLModelcheckerContext otherContext){
 		if(otherContext.info.containsKey(Utilities.VAR_DECLARATIONS_KEY)){
 			this.info.put(Utilities.VAR_DECLARATIONS_KEY, otherContext.info.get(Utilities.VAR_DECLARATIONS_KEY));
