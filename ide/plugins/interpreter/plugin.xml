@@ -58,11 +58,11 @@
 			<launchMode 
                   mode="debug"
                   perspective="org.eclipse.debug.ui.DebugPerspective"
-                  description="Debug CML Model">
+                  description="CML Model">
 			</launchMode>
 			<launchMode
                   mode="run"
-                  description="Run CML Model">
+                  description="CML Model">
 			</launchMode>
 		</launchConfigurationTabGroup>
 	</extension>

@@ -16,9 +16,11 @@ import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.typechecker.Pass;
 import org.overture.interpreter.assistant.pattern.PPatternAssistantInterpreter;
 import org.overture.interpreter.runtime.Context;
+import org.overture.interpreter.runtime.ContextException;
 import org.overture.interpreter.values.NameValuePair;
 import org.overture.interpreter.values.NameValuePairList;
 import org.overture.interpreter.values.NameValuePairMap;
+import org.overture.interpreter.values.UpdatableValue;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.actions.ACallStatementAction;
@@ -63,12 +65,13 @@ import eu.compassresearch.core.interpreter.api.transitions.LabelledTransition;
 import eu.compassresearch.core.interpreter.api.transitions.ObservableTransition;
 import eu.compassresearch.core.interpreter.api.transitions.TimedTransition;
 import eu.compassresearch.core.interpreter.api.values.ActionValue;
-import eu.compassresearch.core.interpreter.api.values.AnyValue;
 import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
 import eu.compassresearch.core.interpreter.api.values.CmlOperationValue;
 import eu.compassresearch.core.interpreter.api.values.ExpressionConstraint;
+import eu.compassresearch.core.interpreter.api.values.LatticeTopValue;
 import eu.compassresearch.core.interpreter.api.values.NoConstraint;
+import eu.compassresearch.core.interpreter.api.values.UnresolvedExpressionValue;
 import eu.compassresearch.core.interpreter.api.values.ValueConstraint;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
@@ -163,58 +166,58 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 		CMLChannelValue chanValue = (CMLChannelValue)question.lookup(channelName);
 
 		Set<CmlTransition> comset = new HashSet<CmlTransition>();
-
-		//if there are no com params then we have a prefix event
-		if(node.getCommunicationParameters().isEmpty())
+		List<Value> values = new LinkedList<Value>();
+		List<ValueConstraint> constraints = new LinkedList<ValueConstraint>();
+		boolean hasLooseValue = false;
+		for(int i = 0;i < node.getCommunicationParameters().size(); i++)
 		{
-			comset.add(CmlTransitionFactory.newObservableChannelEvent(owner, new ChannelNameValue(chanValue)));
-		}
-		//otherwise we convert the com params
-		else
-		{
-			List<Value> values = new LinkedList<Value>();
-			List<ValueConstraint> constraints = new LinkedList<ValueConstraint>();
-			for(int i = 0;i < node.getCommunicationParameters().size(); i++)
+			PCommunicationParameter p = node.getCommunicationParameters().get(i);
+			if(p instanceof ASignalCommunicationParameter || 
+				p instanceof AWriteCommunicationParameter)
 			{
-				PCommunicationParameter p = node.getCommunicationParameters().get(i);
-				if(p instanceof ASignalCommunicationParameter)
+				Value valueExp = null;
+				//if we have had any loose values we need to make sure that it can be evaluated
+				//and if not we create a UnresolvedExpressionValue to defer the evaluation
+				if(hasLooseValue)
 				{
-					ASignalCommunicationParameter signal = (ASignalCommunicationParameter)p;
-					Value valueExp = signal.getExpression().apply(cmlExpressionVisitor,question);
-					//TODO can we send ref variables over the channels?
-					//Deref the variable so no updatable values are added since this could
-					//change the trace at a latter point
-					values.add(valueExp.deref());
-					constraints.add(new NoConstraint());
-				}
-				else if(p instanceof AWriteCommunicationParameter)
-				{
-					AWriteCommunicationParameter signal = (AWriteCommunicationParameter)p;
-					Value valueExp = signal.getExpression().apply(cmlExpressionVisitor,question);
-					//TODO can we send ref variables over the channels?
-					//Deref the variable so no updatable values are added since this could
-					//change the trace at a latter point
-					values.add(valueExp.deref());
-					constraints.add(new NoConstraint());
-				}
-				else if(p instanceof AReadCommunicationParameter)
-				{
-					values.add(new AnyValue(chanValue.getValueTypes().get(i)));
-					//Add constraints
-					AReadCommunicationParameter readParam = (AReadCommunicationParameter)p;
-					if(readParam.getExpression() != null){
-						Context constraintContext = CmlContextFactory.newContext(p.getLocation(),"Constraint evaluation context", question);
-						constraints.add(new ExpressionConstraint(readParam,constraintContext));
+					try{
+						valueExp = p.getExpression().apply(cmlExpressionVisitor,question);
+					}catch(ContextException e)
+					{
+						valueExp = new UnresolvedExpressionValue(p.getExpression(), question);
 					}
-					else
-						constraints.add(new NoConstraint());
 				}
+				else
+					valueExp = p.getExpression().apply(cmlExpressionVisitor,question);
+				//Deref the variable if updatable since this could
+				//change the trace at a latter point
+				if(valueExp instanceof UpdatableValue)
+					values.add(valueExp.deref());
+				else
+					values.add(valueExp);
+				constraints.add(new NoConstraint());
 			}
-
-			ObservableTransition observableEvent = 
-					CmlTransitionFactory.newObservableChannelEvent(owner, new ChannelNameValue(chanValue,values,constraints));
-			comset.add(observableEvent);
+			else if(p instanceof AReadCommunicationParameter)
+			{
+				//This value can be any value of the given type so we need to set it
+				//to the latticeTopElement which means exactly that
+				values.add(new LatticeTopValue(chanValue.getValueTypes().get(i)));
+				//Add constraints if any
+				AReadCommunicationParameter readParam = (AReadCommunicationParameter)p;
+				if(readParam.getExpression() != null){
+					Context constraintContext = CmlContextFactory.newContext(p.getLocation(),"Constraint evaluation context", question);
+					constraints.add(new ExpressionConstraint(readParam, constraintContext));
+				}
+				else
+					constraints.add(new NoConstraint());
+				
+				hasLooseValue = true;
+			}
 		}
+
+		ObservableTransition observableEvent = 
+				CmlTransitionFactory.newObservableChannelEvent(owner, new ChannelNameValue(chanValue,values,constraints));
+		comset.add(observableEvent);
 
 		return newInspection(new CmlTransitionSet(comset).union(new TimedTransition(owner)),
 				new AbstractCalculationStep(owner, visitorAccess) {
@@ -235,14 +238,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 						{
 							PPattern pattern = ((AReadCommunicationParameter) param).getPattern();
 							Value value = channelNameValue.getValues().get(i);
-							
 							question.putList(PPatternAssistantInterpreter.getNamedValues(pattern,value, question));
-							
-//							if(pattern instanceof AIdentifierPattern)
-//							{
-//								ILexNameToken name = ((AIdentifierPattern) pattern).getName();
-//								question.put(name, value);
-//							}
 						}
 					}
 				}

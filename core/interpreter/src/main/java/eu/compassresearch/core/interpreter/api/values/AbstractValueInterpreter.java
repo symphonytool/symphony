@@ -1,6 +1,7 @@
 package eu.compassresearch.core.interpreter.api.values;
 
 import org.overture.interpreter.values.TupleValue;
+import org.overture.interpreter.values.UndefinedValue;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.core.interpreter.CmlRuntime;
@@ -11,11 +12,12 @@ public class AbstractValueInterpreter {
 	public static Value meet(Value val1, Value val2)
 	{
 		//The meet operator is reflexive so if both are AnyValue we can return either of them
+		//and since they only are comparable if 
 		if(isValueMostPrecise(val1) && isValueMostPrecise(val2))
 			return val1;
 		else if(!isValueMostPrecise(val1) && !isValueMostPrecise(val2))
 		{
-			//If both are a value and they differ the meet would be the set of of them, for now we
+			//If both are a nonprecise value and they differ the meet would be the set of of them, for now we
 			//just return the AnyValue
 			//TODO we need to be able to represent a AnyValue with a restriction, maybe an 
 			//additional constraint expression would do?
@@ -23,7 +25,7 @@ public class AbstractValueInterpreter {
 			{
 				CmlRuntime.logger().warning("A Value just descreased in precision");
 				//return new AnyValue();
-				return null;
+				return new UndefinedValue();
 			}
 			//any value would do here since they are identical
 			else
@@ -49,10 +51,10 @@ public class AbstractValueInterpreter {
 		{
 			if(value instanceof ChannelNameValue)
 				for(Value innerValue : ((ChannelNameValue) value).getValues())
-					ret &= !isAnyValue(innerValue);
+					ret &= isValueMostPrecise(innerValue);
 			else if(value instanceof TupleValue)
 				for(Value innerValue : ((TupleValue) value).values)
-					ret &= !isAnyValue(innerValue);
+					ret &= isValueMostPrecise(innerValue);
 			else
 				ret = !isAnyValue(value);
 
@@ -82,6 +84,6 @@ public class AbstractValueInterpreter {
 
 	public static boolean isAnyValue(Value value)
 	{
-		return value instanceof AnyValue;
+		return value instanceof ImpreciseValue;
 	}
 }

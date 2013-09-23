@@ -10,7 +10,7 @@ import org.overture.interpreter.values.Value;
  * 
  * E.g for the nat type:
  * 
- * 		AnyValue
+ * 	  LatticeTopValue
  * 		/	|   \
  * 	   1,2,....,infinite								
  * 		\   |   /
@@ -19,14 +19,18 @@ import org.overture.interpreter.values.Value;
  * @author akm
  *
  */
-public class AnyValue extends Value {
+public class LatticeTopValue extends Value implements ImpreciseValue{
 
-	//unicode seems to be causing problems on Windows and Mac
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2580417766834032898L;
+	//FIXME unicode seems to be causing problems on Windows and Mac
 	//private static final String topString = "\u22A4"; 
 	private static final String topString = "?"; 
 	private PType type;
 	
-	public AnyValue(PType type)
+	public LatticeTopValue(PType type)
 	{
 		this.type = type;
 	}
@@ -37,8 +41,14 @@ public class AnyValue extends Value {
 	}
 
 	@Override
+	public boolean isResolvable(Value val)
+	{
+		return true;
+	}
+
+	@Override
 	public boolean equals(Object other) {
-		return other instanceof AnyValue;
+		return other instanceof LatticeTopValue;
 	}
 
 	@Override
@@ -58,7 +68,7 @@ public class AnyValue extends Value {
 
 	@Override
 	public Object clone() {
-		return new AnyValue(type);
+		return new LatticeTopValue(type);
 	}
 
 }

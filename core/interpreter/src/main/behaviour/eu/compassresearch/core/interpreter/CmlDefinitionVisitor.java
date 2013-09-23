@@ -43,7 +43,7 @@ import eu.compassresearch.ast.definitions.AValuesDefinition;
 import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.values.ActionValue;
-import eu.compassresearch.core.interpreter.api.values.AnyValue;
+import eu.compassresearch.core.interpreter.api.values.LatticeTopValue;
 import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
 import eu.compassresearch.core.interpreter.api.values.ProcessObjectValue;
 
@@ -389,7 +389,7 @@ class CmlDefinitionVisitor extends
 		
 		NameValuePairList vpl = new NameValuePairList();
 		
-		Value value = new AnyValue(node.getType());
+		Value value = new LatticeTopValue(node.getType());
 		for(ILexIdentifierToken id : node.getIdentifiers())
 			vpl.add(new NameValuePair(new LexNameToken("", id.clone()), value));
 		

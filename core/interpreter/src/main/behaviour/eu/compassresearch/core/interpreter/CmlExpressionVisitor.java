@@ -39,7 +39,7 @@ import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionFactory;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.transitions.ObservableTransition;
-import eu.compassresearch.core.interpreter.api.values.AnyValue;
+import eu.compassresearch.core.interpreter.api.values.LatticeTopValue;
 import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
@@ -114,7 +114,7 @@ public class CmlExpressionVisitor extends QuestionAnswerCMLAdaptor<Context, Valu
 			if(i < chanNameExp.getExpressions().size())
 				values.add(chanNameExp.getExpressions().get(i).apply(this,question));
 			else
-				values.add(new AnyValue(chanValue.getValueTypes().get(i)));
+				values.add(new LatticeTopValue(chanValue.getValueTypes().get(i)));
 		}
 		
 		return new ChannelNameValue(chanValue, values);
