@@ -61,6 +61,7 @@ import org.overture.typechecker.TypeCheckInfo;
 import org.overture.typechecker.TypeChecker;
 import org.overture.typechecker.TypeCheckerErrors;
 import org.overture.typechecker.assistant.definition.AExplicitFunctionDefinitionAssistantTC;
+import org.overture.typechecker.assistant.definition.AImplicitFunctionDefinitionAssistantTC;
 import org.overture.typechecker.assistant.definition.ATypeDefinitionAssistantTC;
 import org.overture.typechecker.assistant.definition.PAccessSpecifierAssistantTC;
 import org.overture.typechecker.assistant.definition.PDefinitionAssistantTC;
@@ -210,6 +211,16 @@ class TCDeclAndDefVisitor extends
 
 		LinkedList<PDefinition> functions = node.getFunctionDefinitions();
 		for (PDefinition def : functions) {
+			
+			//this will generate all the pre and post defs
+			if (def instanceof AExplicitFunctionDefinition) {
+				//this will generate all the pre and post defs
+				AExplicitFunctionDefinitionAssistantTC.implicitDefinitions((AExplicitFunctionDefinition) def,null);
+			} 
+			else if (def instanceof AImplicitFunctionDefinition) {
+				AImplicitFunctionDefinitionAssistantTC.implicitDefinitions((AImplicitFunctionDefinition) def, null);
+			}	
+			
 			PType defType = def.apply(parentChecker, question);
 			if (!successfulType(defType)) {
 				node.setType(issueHandler.addTypeError(def,

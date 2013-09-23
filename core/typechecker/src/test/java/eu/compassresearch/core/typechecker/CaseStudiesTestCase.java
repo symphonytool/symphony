@@ -136,7 +136,9 @@ public class CaseStudiesTestCase extends AbstractTypeCheckerTestCase {
 			// 22// Syntax bug
 			add("/TravelAgent/Hotel2");
 			// 23// Jeremy and Zoe working on master students
-			add("/Alarm");
+			//add("/Alarm");
+			//23 //
+			add("/MiniMondex");
 
 		} else {
 			// ensure that the sources is initialised before the parameterized test runner gets to it

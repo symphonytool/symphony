@@ -20,4 +20,9 @@ public class IR implements Type{
 		return "IR("+String.valueOf(value)+")";
 	}
 
+	@Override
+	public String toFormulaWithState() {
+		return "IR("+String.valueOf(value)+")";
+	}
+
 }

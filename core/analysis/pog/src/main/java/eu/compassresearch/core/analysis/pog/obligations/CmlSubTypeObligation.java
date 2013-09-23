@@ -61,7 +61,7 @@ public class CmlSubTypeObligation extends CmlProofObligation {
 	public CmlSubTypeObligation(AExplicitCmlOperationDefinition def,
 			PType actualResult, IPOContextStack ctxt) {
 		
-		super(def, CmlPOType.SUB_TYPE, ctxt);
+		super(def, CmlPOType.SUB_TYPE, ctxt, def.getLocation());
 
 		AVariableExp result = AstFactory.newAVariableExp(
 				new LexNameToken(def.getName().getModule(), "RESULT", def.getLocation()));

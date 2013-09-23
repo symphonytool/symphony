@@ -283,6 +283,16 @@ public class ThmDeclAndDefVisitor extends AnswerCMLAdaptor<ThmNodeList>
 			String procString = ThmProcessUtil.getIsabelleProcessString(node.getProcess());
 			//obtain the process dependencies
 			NodeNameList nodeDeps = ThmProcessUtil.getIsabelleProcessDeps(node.getProcess());
+
+			//check for self dependencies - if present, require a MU
+			for(ILexNameToken n : nodeDeps)
+			{
+				if(n.toString().equals(node.getName().toString()))
+				{
+					procString = ThmProcessUtil.isaMu + " " + node.getName().toString() + ". " + procString;
+					break;
+				}
+			}
 			//create and return the theorem node.			
 			tn =  new ThmNode(node.getName(), nodeDeps, new ThmProcStand(node.getName().toString(), procString));
 		}

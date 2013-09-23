@@ -9,14 +9,22 @@ import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.node.INode;
+import org.overture.pog.pub.IProofObligation;
 
 import eu.compassresearch.ast.analysis.AnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.definitions.AChannelNameDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
+import eu.compassresearch.ast.definitions.AProcessDefinition;
+import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.ast.program.PSource;
+import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligationList;
+import eu.compassresearch.core.analysis.theoremprover.thms.NodeNameList;
 import eu.compassresearch.core.analysis.theoremprover.thms.ThmNode;
 import eu.compassresearch.core.analysis.theoremprover.thms.ThmNodeList;
+import eu.compassresearch.core.analysis.theoremprover.thms.ThmTheorem;
+import eu.compassresearch.core.analysis.theoremprover.utils.ThmExprUtil;
+import eu.compassresearch.core.analysis.theoremprover.utils.ThmProcessUtil;
 import eu.compassresearch.core.analysis.theoremprover.utils.ThySortException;
 
 @SuppressWarnings("serial")
@@ -155,7 +163,7 @@ public class TPVisitor extends
 					"(*Isabelle Error when sorting nodes -- please submit bug report with CML file*)\n\n"+ thye.getSortErrorStatus() +"\n\n";
 		}
 		
-		//retrieve the file name without the .thy file exetension
+		//retrieve the file name without the .thy file extension
 		String thyName = thyFileName.substring(0, thyFileName.lastIndexOf('.'));
 		
 		//Add thy header 
@@ -216,6 +224,99 @@ public class TPVisitor extends
 		}
 		return sortedNodes;
 	}
+	
+
+	public static String generateEmptyThyStr(String thyFileName) 
+	{
+		StringBuilder sb = new StringBuilder();
+		//generate theory name without extension
+		String thyName = thyFileName.substring(0, thyFileName.lastIndexOf('.'));
+		//new file name for user files
+		String usrThyName = thyName+ "_User";
+
+		//Add thy header 
+		sb.append("theory " + usrThyName + " \n" + "  imports utp_cml " + thyName +"\n"
+				+ "begin \n" + "\n");
+		sb.append("text {* Auto-generated THY file for user created proof with "+  usrThyName + ".thy *}\n\n");
+
+
+		sb.append("\n\n\n" + "end");
+		
+		return sb.toString();
+	}
+	
+	/****
+	 * PLACEHOLDER FOR THY-PO GENERATION - DOES NOT YET WORK!
+	 * @param ast
+	 * @param poList
+	 * @param thyFileName
+	 * @return
+	 */
+	public static String generatePogThyStr(List<INode> ast, CmlProofObligationList poList, String thyFileName) 
+	{
+		String pogErrors = "";
+		String pogString = "";
+		
+		//First, obtain all the state variable names so that the theorem expressions use the correct
+		//variable identifiers : $ or ^^
+		NodeNameList svars = new NodeNameList();// ThmProcessUtil.getStateNames(statements);
+		for (INode node : ast) {
+			try 
+			{
+				if (node instanceof AProcessDefinition)
+				{
+					AProcessDefinition proc = (AProcessDefinition) node;
+					if (proc.getProcess() instanceof AActionProcess)
+					{
+						AActionProcess act = (AActionProcess) proc.getProcess();
+						svars.addAll(ThmProcessUtil.getProcessStatementNames(act));
+					}
+				}
+			}
+			catch (Exception e)
+			{
+				pogErrors = pogErrors + "(*Thy gen error:*)\n" + 
+						"(*Could not generate Isabelle syntax for POs - please submit bug report with CML file*)\n\n";
+			}
+		}
+	
+		try 
+		{
+			//For each proof obligation, create a theorem
+			LinkedList<ThmTheorem> poThys = new LinkedList<ThmTheorem>();
+			for (IProofObligation po : poList)
+			{
+				//THIS BIT NEEDS MORE EFFORT!
+				String theoryBody = ThmExprUtil.getIsabelleExprStr(svars, new NodeNameList(), po.getValueTree().getPredicate());
+				poThys.add(new ThmTheorem("po" + po.getUniqueName(), theoryBody, "auto"));
+			}
+			pogString = poThys.toString();
+		}
+		catch (Exception e)
+		{
+			pogErrors = pogErrors + "(*Thy gen error:*)\n" + 
+					"(*Could not generate Isabelle syntax for POs - please submit bug report with CML file*)\n\n";
+		}
+
+		//retrieve the file name without the .thy file extension
+		String thyName = thyFileName.substring(0, thyFileName.lastIndexOf('.'));
+
+		StringBuilder sb = new StringBuilder();
+		//Add thy header 
+		sb.append("theory " + thyName + " \n" + "  imports utp_cml \n"
+				+ "begin \n" + "\n");
+		sb.append("text {* Auto-generated THY file for proof obligations generated for "+  thyName + ".cml *}\n\n");
+		
+		//Add any node errors
+		sb.append(pogErrors);
+		
+		//Add generated node strings
+		sb.append(pogString);
+			
+		sb.append("\n" + "end");
+		
+		return sb.toString();
+	}	
 }
 
 

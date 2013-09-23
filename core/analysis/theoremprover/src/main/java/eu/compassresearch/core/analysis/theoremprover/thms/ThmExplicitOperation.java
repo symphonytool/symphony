@@ -7,6 +7,7 @@ import java.util.List;
 import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.PPattern;
 
+import eu.compassresearch.core.analysis.theoremprover.utils.ThmExprUtil;
 import eu.compassresearch.core.analysis.theoremprover.utils.ThmProcessUtil;
 
 public class ThmExplicitOperation extends ThmDecl{
@@ -26,23 +27,23 @@ public class ThmExplicitOperation extends ThmDecl{
 		if (pre == null)
 		{
 			//generate function for precondition with a expression: 'true'
-			this.pre = createPrePostFunc(name, "true", "pre", params);
+			this.pre = createPreFunc(name, "true", "pre", params);
 		}
 		else
 		{
 			//generate function for precondition
-			this.pre = createPrePostFunc(name, pre, "pre", params);
+			this.pre = createPreFunc(name, pre, "pre", params);
 		}
 		
 		if (post == null)
 		{
 			//generate function for postcondition with an expression: 'true'
-			this.post = createPrePostFunc(name, "true", "post", params);
+			this.post = createPostFunc(name, "true", "post", params);
 		}
 		else
 		{
 			//generate function for postcondition
-			this.post = createPrePostFunc(name, post, "post", params);
+			this.post = createPostFunc(name, post, "post", params);
 		}
 	}
 	
@@ -56,7 +57,17 @@ public class ThmExplicitOperation extends ThmDecl{
 	}
 	
 
-	private String createPrePostFunc(String name, String exp, String prepost, LinkedList<PPattern> params)
+	private String createPreFunc(String name, String exp, String prepost, LinkedList<PPattern> params)
+	{
+		LinkedList<List<PPattern>> pats = new LinkedList<List<PPattern>>();
+		pats.add(params);
+		
+		ThmExpFunc preFunc = new ThmExpFunc((prepost + "_" + name), exp, pats);
+		return preFunc.getRefFunction();
+	}
+
+
+	private String createPostFunc(String name, String exp, String prepost, LinkedList<PPattern> params)
 	{
 		LinkedList<List<PPattern>> pats = new LinkedList<List<PPattern>>();
 		pats.add(params);

@@ -14,7 +14,7 @@ public class CmlNonZeroTimeObligation extends CmlProofObligation
 
 	public CmlNonZeroTimeObligation(PExp exp, IPOContextStack ctxt)
 	{
-		super(exp, CmlPOType.NON_ZERO_TIME, ctxt);
+		super(exp, CmlPOType.NON_ZERO_TIME, ctxt, exp.getLocation());
 		//FIXME implement ast based PO predicate
 
 	}

@@ -43,6 +43,7 @@ public class Utilities {
 	public static String ASSIGNMENT_DEFINITION_KEY = "ASSIGNMENT_DEFINITION";
 	public static String VAR_DECLARATIONS_KEY = "VAR_DECLARATIONS";
 	public static String DEL_BBINDING = "DEL_BB";
+	public static String STATES_KEY = "STATES_DEFINITION";
 	
 	private static boolean parseWithANTLR(PSource sourceIn) throws IOException
 	{

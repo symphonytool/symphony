@@ -64,68 +64,13 @@ public class CmlSatisfiabilityObligation extends CmlProofObligation
 	private static final ILexNameToken STATE_ARG = new LexNameToken(null, "state", null);
 	private static final ILexNameToken SELF_ARG = new LexNameToken(null, "self", null);
 
-	public CmlSatisfiabilityObligation(AImplicitFunctionDefinition func,
-			IPOContextStack ctxt) throws AnalysisException
-	{
-		super(func, CmlPOType.FUNC_SATISFIABILITY, ctxt);
-
-		/**
-		 * f: A * B -> R [pre ...] post ... [pre_f(a, b) =>] exists r:R & post_f(a, b, r)
-		 */
-
-		List<PExp> arglist = new Vector<PExp>();
-
-		for (APatternListTypePair pltp : func.getParamPatterns())
-		{
-			for (PPattern pattern : pltp.getPatterns())
-			{
-				arglist.add(patternToExp(pattern));
-			}
-		}
-
-		AApplyExp preApply = null;
-
-		if (func.getPredef() != null)
-		{
-			preApply = getApplyExp(getVarExp(func.getPredef().getName()), arglist);
-		}
-
-		AExistsExp existsExp = new AExistsExp();
-		List<PExp> postArglist = new Vector<PExp>(arglist);
-
-		if (func.getResult().getPattern() instanceof AIdentifierPattern)
-		{
-			AIdentifierPattern ip = (AIdentifierPattern) func.getResult().getPattern();
-			postArglist.add(patternToExp(func.getResult().getPattern()));
-			existsExp.setBindList(getMultipleTypeBindList(func.getResult().getType(), ip.getName()));
-		} else
-		{
-			throw new RuntimeException("Expecting identifier pattern in function result");
-		}
-
-		AApplyExp postApply = getApplyExp(getVarExp(func.getPostdef().getName()), postArglist);
-		existsExp.setPredicate(ctxt.getPredWithContext(postApply));
-
-		if (preApply != null)
-		{
-			AImpliesBooleanBinaryExp implies = new AImpliesBooleanBinaryExp();
-			implies.setLeft(preApply);
-			implies.setOp(new LexKeywordToken(VDMToken.IMPLIES, null));
-			implies.setRight(existsExp);
-			valuetree.setPredicate(ctxt.getPredWithContext(implies));
-		} else
-		{
-			valuetree.setPredicate(ctxt.getPredWithContext(existsExp));
-		}
-
-		// valuetree.setContext(ctxt.getContextNodeList());
-	}
+	
 
 	public CmlSatisfiabilityObligation(AImplicitCmlOperationDefinition op,
 			PDefinition stateDefinition, IPOContextStack ctxt)
 			throws AnalysisException
 	{
-		super(op, CmlPOType.OP_SATISFIABILITY, ctxt);
+		super(op, CmlPOType.OP_SATISFIABILITY, ctxt, op.getLocation());
 
 		/**
 		 * op: A * B ==> R [pre ...] post ... [pre_op(a, b, state) =>] exists r:R, state:Sigma & post_op(a, b, r,

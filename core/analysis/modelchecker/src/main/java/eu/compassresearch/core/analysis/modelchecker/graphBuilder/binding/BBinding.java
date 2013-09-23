@@ -101,6 +101,24 @@ public class BBinding implements Binding {
 		return result.toString();
 	}
 	
+	public String toFormulaWithState() {
+		StringBuilder result = new StringBuilder();
+		LinkedList<SingleBind> bindList = new LinkedList<SingleBind>(); 
+		getSingleBindings(bindList, this);
+		for (Iterator iterator = bindList.iterator(); iterator.hasNext();) {
+			result.append("BBinding("+this.procName+",");
+			SingleBind singleBind = (SingleBind) iterator.next();
+			result.append(singleBind.toFormulaWithState());
+			if(iterator.hasNext()){
+				result.append(",");
+			}
+		}
+		result.append(","+new NullBinding().toFormulaWithState());
+		for (int i = 0; i < bindList.size(); i++) {
+			result.append(")");
+		}
+		return result.toString();
+	}
 	public Binding addBinding(String procName, String varName, Type varValue){
 		Binding result = this;
 		
