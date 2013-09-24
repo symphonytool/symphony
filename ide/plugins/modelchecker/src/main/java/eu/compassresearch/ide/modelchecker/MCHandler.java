@@ -40,6 +40,7 @@ import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.node.INode;
 
 import eu.compassresearch.ast.program.PSource;
+import eu.compassresearch.core.analysis.modelchecker.api.FormulaIntegrationException;
 import eu.compassresearch.core.analysis.modelchecker.api.FormulaIntegrator;
 import eu.compassresearch.core.analysis.modelchecker.api.FormulaResult;
 import eu.compassresearch.core.analysis.modelchecker.api.IFormulaIntegrator;
@@ -75,125 +76,128 @@ public class MCHandler extends AbstractHandler {
 		//	popErrorMessage("No project selected.");
 		//	return null;
 		//}
-		
-		try {
-			this.window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-			IProject proj = MCPluginUtility.getCurrentlySelectedProject();
-			if (proj == null) {
-				popErrorMessage(new RuntimeException("No project is selected."));
-				return null;
-			}
-			
-			//Get the cml project
-			ICmlProject cmlProj = (ICmlProject) proj.getAdapter(ICmlProject.class);
-			
-			//Check there are no type errors.
-			final Shell shell = this.window.getShell();
-			if (!CmlProjectUtil.typeCheck(shell, cmlProj)) {
-				popErrorMessage(new RuntimeException("Errors in model."));
-				return null;
-			}
-			
-			//Grab the model from the project
-			final ICmlModel model = cmlProj.getModel();
-			
-			//get the selected cmlfile and analyse it
-			ISelection selection = window.getSelectionService().getSelection();
-			if (selection instanceof IStructuredSelection) {
-				IStructuredSelection ssel = (IStructuredSelection) selection;
-				Object obj = ssel.getFirstElement();
-				IResource cmlFile = (IResource) Platform.getAdapterManager().getAdapter(obj,IResource.class);
-				if (cmlFile == null) {
-					if (obj instanceof IAdaptable) {
-						cmlFile = (IResource) ((IAdaptable) obj).getAdapter(IResource.class);
-					}
+		if(!Activator.FORMULA_OK){
+			popErrorMessage(Activator.formulaNotInstalledMsg);
+		}else{
+			try {
+				this.window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+				IProject proj = MCPluginUtility.getCurrentlySelectedProject();
+				if (proj == null) {
+					popErrorMessage(new RuntimeException("No project is selected."));
+					return null;
 				}
-				if (cmlFile != null) {
-					if("cml".equalsIgnoreCase(cmlFile.getFileExtension())){
-						String propertyToCheck = this.getProperty(event.getParameter("eu.compassresearch.ide.modelchecker.property"));
-					    
-						//Date date = new Date();
-						IFolder mcFolder = cmlProj.getModelBuildPath().getOutput().getFolder(new Path("modelchecker"));
-						if(!mcFolder.exists()){
-							//if generated folder doesn't exist
-							IContainer mcParent = mcFolder.getParent();
-							if (!mcFolder.getParent().exists()){
-								//create 'generated' folder
-								//((IFolder) mcFolder.getParent().getParent()).create(true, true, new NullProgressMonitor());
-								//create 'model checker' folder
-								//((IFolder) mcFolder.getParent()).create(true, true, new NullProgressMonitor());
-								((IFolder) mcFolder.getParent()).create(true, true, new NullProgressMonitor());
+				
+				//Get the cml project
+				ICmlProject cmlProj = (ICmlProject) proj.getAdapter(ICmlProject.class);
+				
+				//Check there are no type errors.
+				final Shell shell = this.window.getShell();
+				if (!CmlProjectUtil.typeCheck(shell, cmlProj)) {
+					popErrorMessage(new RuntimeException("Errors in model."));
+					return null;
+				}
+				
+				//Grab the model from the project
+				final ICmlModel model = cmlProj.getModel();
+				
+				//get the selected cmlfile and analyse it
+				ISelection selection = window.getSelectionService().getSelection();
+				if (selection instanceof IStructuredSelection) {
+					IStructuredSelection ssel = (IStructuredSelection) selection;
+					Object obj = ssel.getFirstElement();
+					IResource cmlFile = (IResource) Platform.getAdapterManager().getAdapter(obj,IResource.class);
+					if (cmlFile == null) {
+						if (obj instanceof IAdaptable) {
+							cmlFile = (IResource) ((IAdaptable) obj).getAdapter(IResource.class);
+						}
+					}
+					if (cmlFile != null) {
+						if("cml".equalsIgnoreCase(cmlFile.getFileExtension())){
+							String propertyToCheck = this.getProperty(event.getParameter("eu.compassresearch.ide.modelchecker.property"));
+						    
+							IFolder mcFolder = cmlProj.getModelBuildPath().getOutput().getFolder(new Path("modelchecker"));
+							if(!mcFolder.exists()){
+								//if generated folder doesn't exist
+								IContainer mcParent = mcFolder.getParent();
+								if (!mcFolder.getParent().exists()){
+									((IFolder) mcFolder.getParent()).create(true, true, new NullProgressMonitor());
+								}
+								//if the model checker folder does not exist
+								if (!mcFolder.exists()){
+									mcFolder.create(true, true, new NullProgressMonitor());
+									mcFolder.refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());
+								}
+								
 							}
-							//if 'generated' folder does exist and Isabelle folder doesn't exist
-							//else if (!mcFolder.getParent().exists()){
-							//	((IFolder) mcFolder.getParent()).create(true, true, new NullProgressMonitor());
-									
-							//}
-							//if the model checker folder does not exist
-							if (!mcFolder.exists()){
-								mcFolder.create(true, true, new NullProgressMonitor());
-								//mcFolder.refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());
-								mcFolder.refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());
+							ICmlSourceUnit selectedUnit = getSelectedSourceUnit(model, (IFile)cmlFile);
+							IFile outputFile = translateCmlToFormula(model, (IFile)cmlFile, mcFolder, propertyToCheck);
+						
+							FormulaResult formulaOutput = new FormulaResult();
+							MCJob job = new MCJob("Model checker progress", outputFile);
+							formulaOutput = job.getFormulaResult();
+							job.schedule();
+	
+							FormulaResultWrapper frw = new FormulaResultWrapper(formulaOutput, null, propertyToCheck);
+							
+							//if the model is satisfiable then we save the formula output and 
+							//to build the graph of the counterexample on demand.
+							if(formulaOutput.isSatisfiable()){
+								//we build the counterexample
+								GraphBuilder gb = new GraphBuilder();
+								String dotContent = gb.generateDot(new StringBuilder(formulaOutput.getFacts()), propertyToCheck);
+								//save the graphviz code to a file
+								IFile dotFile = writeDotContentToFile(mcFolder,selectedUnit,dotContent);
+								//compile the generated graphviz
+								GraphViz gv = new GraphViz();
+								File file = dotFile.getRawLocation().toFile();
+								String fileName = file.getName();
+								gv.runDot(file);
+								IFile svgFile = mcFolder.getFile(fileName+".svg");
+								frw.setSvgFile(svgFile);
 							}
 							
+							//writeToConsole(cmlFile.getName(), formulaOutput);
+						
+							
+							MCPluginDoStuff mcp = new MCPluginDoStuff(window.getActivePage().getActivePart().getSite(), cmlFile, frw);
+							mcp.run();
+							registry.store(selectedUnit.getParseNode(), frw);
+						}else{
+							MessageDialog.openInformation(
+									window.getShell(),
+									"COMPASS",
+									"Only CML files can be analysed!");
 						}
-						ICmlSourceUnit selectedUnit = getSelectedSourceUnit(model, (IFile)cmlFile);
-						IFile outputFile = translateCmlToFormula(model, (IFile)cmlFile, mcFolder, propertyToCheck);
-					
-						//PSource sourceAst = Utilities.makeSourceFromFile(cmlFile.getLocation().toFile().getAbsolutePath());
-					        	
-						FormulaResult formulaOutput = new FormulaResult();
-						MCJob job = new MCJob("Model checker progress", outputFile);
-						formulaOutput = job.getFormulaResult();
-						job.schedule();
-
-						FormulaResultWrapper frw = new FormulaResultWrapper(formulaOutput, null, propertyToCheck);
-						
-						//if the model is satisfiable then we save the formula output and 
-						//to build the graph of the counterexample on demand.
-						if(formulaOutput.isSatisfiable()){
-							//we build the counterexample
-							GraphBuilder gb = new GraphBuilder();
-							String dotContent = gb.generateDot(new StringBuilder(formulaOutput.getFacts()), propertyToCheck);
-							//save the graphviz code to a file
-							IFile dotFile = writeDotContentToFile(mcFolder,selectedUnit,dotContent);
-							//compile the generated graphviz
-							GraphViz gv = new GraphViz();
-							File file = dotFile.getRawLocation().toFile();
-							String fileName = file.getName();
-							gv.runDot(file);
-							IFile svgFile = mcFolder.getFile(fileName+".svg");
-							frw.setSvgFile(svgFile);
+					}
 						}
-						
-						//writeToConsole(cmlFile.getName(), formulaOutput);
-					
-						
-						MCPluginDoStuff mcp = new MCPluginDoStuff(window.getActivePage().getActivePart().getSite(), cmlFile, frw);
-						mcp.run();
-						registry.store(selectedUnit.getParseNode(), frw);
-					}else{
-						MessageDialog.openInformation(
-								window.getShell(),
-								"COMPASS",
-								"Only CML files can be analysed!");
-					}
-				}
-					}
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-			popErrorMessage(e);
-			//if(mc != null){
-			//	try {
-			//		mc.finalize();
-			//	} catch (Throwable e1) {
-			//		popErrorMessage(e1.getMessage());
-			//	}
-			//}
-			//popErrorMessage(e.getMessage());
+				
+			} catch(IOException e){
+				//probably an error in the visitor occurred
+				logStackTrace(e);
+				popErrorMessage(new RuntimeException("Some problem happened in the model checker visitor."));
+			}catch (Exception e) {
+				//the exception of formula must be cautch here
+				//String msg = e.getMessage();
+				//e.printStackTrace();
+				logStackTrace(e);
+				popErrorMessage(e);
+				//if(mc != null){
+				//	try {
+				//		mc.finalize();
+				//	} catch (Throwable e1) {
+				//		popErrorMessage(e1.getMessage());
+				//	}
+				//}
+				//popErrorMessage(e.getMessage());
+			}
 		}
 		return null;
+	}
+	private void logStackTrace(Exception e) {
+		StackTraceElement[] trace = e.getStackTrace();
+		for (int i = 0; i < trace.length; i++) {
+			Activator.logErrorMessage(trace[i].toString());
+		}
 	}
 	private IFile writeDotContentToFile(IFolder mcFolder,
 			ICmlSourceUnit selectedUnit, String dotContent) {
@@ -244,21 +248,12 @@ public class MCHandler extends AbstractHandler {
 		List<PDefinition> definitions = selectedCmlSourceUnit.getParseListDefinitions();
 		String basicContent = Utilities.readScriptFromFile(Utilities.BASIC_FORMULA_SCRIPT).toString();
 		String specificationContent = CMLModelcheckerVisitor.generateFormulaScript(basicContent, definitions,propertyToCheck);
-		//String specificationContent = "";
 		try{
 			if(!outputFile.exists()){
 				outputFile.create(new ByteArrayInputStream(specificationContent.toString().getBytes()), true, new NullProgressMonitor());
 			}else{
 				outputFile.setContents(new ByteArrayInputStream(specificationContent.toString().getBytes()), true, true, new NullProgressMonitor());
 			}
-			
-			
-			//set .fml file to be read only
-			//ResourceAttributes attributes = new ResourceAttributes();
-			//attributes.setReadOnly(true);
-			//outputFile.setResourceAttributes(attributes); 
-			
-
 		}catch(CoreException e){
 			Activator.log(e);
 		}

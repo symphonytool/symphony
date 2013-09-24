@@ -119,6 +119,10 @@ public class BBinding implements Binding {
 		}
 		return result.toString();
 	}
+	@Override
+	public BBinding copy(){
+		return new BBinding(this.procName,this.head.copy(),this.tail.copy());
+	}
 	public Binding addBinding(String procName, String varName, Type varValue){
 		Binding result = this;
 		

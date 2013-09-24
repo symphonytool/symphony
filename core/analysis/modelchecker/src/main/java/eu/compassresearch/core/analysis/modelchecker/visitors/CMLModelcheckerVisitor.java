@@ -25,10 +25,13 @@ import org.overture.ast.expressions.ALessNumericBinaryExp;
 import org.overture.ast.expressions.ANotEqualBinaryExp;
 import org.overture.ast.expressions.ANotUnaryExp;
 import org.overture.ast.expressions.AOrBooleanBinaryExp;
+import org.overture.ast.expressions.APlusNumericBinaryExp;
 import org.overture.ast.expressions.ASetEnumSetExp;
 import org.overture.ast.expressions.ATimesNumericBinaryExp;
 import org.overture.ast.expressions.AVariableExp;
 import org.overture.ast.expressions.PExp;
+import org.overture.ast.intf.lex.ILexLocation;
+import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.types.AIntNumericBasicType;
 import org.overture.ast.types.ANamedInvariantType;
 import org.overture.ast.types.ANatNumericBasicType;
@@ -41,6 +44,7 @@ import eu.compassresearch.ast.actions.ADeclareStatementAction;
 import eu.compassresearch.ast.actions.ADivAction;
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
 import eu.compassresearch.ast.actions.AExternalChoiceReplicatedAction;
+import eu.compassresearch.ast.actions.AGeneralisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AGuardedAction;
 import eu.compassresearch.ast.actions.AHidingAction;
 import eu.compassresearch.ast.actions.AInternalChoiceAction;
@@ -63,10 +67,17 @@ import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AActionsDefinition;
 import eu.compassresearch.ast.definitions.AChannelNameDefinition;
 import eu.compassresearch.ast.definitions.AChannelsDefinition;
+import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
+import eu.compassresearch.ast.definitions.AOperationsDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.definitions.ATypesDefinition;
 import eu.compassresearch.ast.definitions.AValuesDefinition;
+import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
 import eu.compassresearch.ast.expressions.AEnumVarsetExpression;
+import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
+import eu.compassresearch.ast.expressions.ANameChannelExp;
+import eu.compassresearch.ast.expressions.PVarsetExpression;
+import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.ast.types.AChannelType;
@@ -75,6 +86,7 @@ import eu.compassresearch.core.analysis.modelchecker.api.FormulaIntegrator;
 import eu.compassresearch.core.analysis.modelchecker.api.FormulaResult;
 import eu.compassresearch.core.analysis.modelchecker.api.IFormulaIntegrator;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.Binding;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.SingleBind;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Int;
 
 @SuppressWarnings("serial")
@@ -180,6 +192,8 @@ public class CMLModelcheckerVisitor extends
 			}
 		}
 		
+		generateOperationsDefinitions(question);
+		
 		question.getScriptContent().append(
 				"  conforms := CML_PropertiesSpec." + this.propertyToCheck + ".\n");
 		question.getScriptContent().append("}\n\n");
@@ -247,6 +261,10 @@ public class CMLModelcheckerVisitor extends
 			}
 		}
 		
+		generateLieInFacts(question);
+		
+		
+		
 		question.getScriptContent().append(
 				"  GivenProc(\"" + node.getName() + "\")\n");
 		question.getScriptContent().append("}");
@@ -254,6 +272,131 @@ public class CMLModelcheckerVisitor extends
 		
 		return question.getScriptContent();
 	}
+	private void generateLieInFacts(CMLModelcheckerContext context){
+		if(context.lieIn.size() != 0){
+			context.getScriptContent().append("\n");
+			for (String lieIn : context.lieIn) {
+				context.getScriptContent().append(lieIn + "\n");
+			}
+		}
+	}
+	private void generateOperationsDefinitions(CMLModelcheckerContext context) throws AnalysisException{
+		Binding maximalBinding = context.getMaxBindingWithStates();
+		for (SCmlOperationDefinition operation : context.operations) {
+			AExplicitCmlOperationDefinition op = (AExplicitCmlOperationDefinition) operation;
+			StringBuilder opStr = new StringBuilder();
+			opStr.append("operationDef(");
+			opStr.append("\"" + op.getName().toString() + "\"");
+			opStr.append(",");
+			if(op.getParamDefinitions().size()==0){
+				opStr.append("nopar");
+			}else if(op.getParamDefinitions().size()==1){
+				PDefinition pDef = op.getParamDefinitions().getFirst();
+				CMLModelcheckerContext newCtxt = new CMLModelcheckerContext();
+				StringBuilder result = pDef.apply(this,newCtxt);
+				opStr.append(result.toString());
+			}
+			opStr.append(",");
+			//write the original maximal bind
+			//opStr.append(maximalBinding.toFormula());
+			opStr.append("st");
+			opStr.append(",");
+			//writes the maximal bind modified. it is good to make a copy and modify it
+			Binding maximalCopy = maximalBinding.copy();
+			//modificar o value da variavel 
+			PAction body = op.getBody();
+			ASingleGeneralAssignmentStatementAction actionBody = null;
+			if(body instanceof ASingleGeneralAssignmentStatementAction){
+				actionBody = (ASingleGeneralAssignmentStatementAction) body;
+			}
+			
+			if(actionBody != null){
+				PExp stateDesignator = actionBody.getStateDesignator();
+				if(stateDesignator instanceof AVariableExp){
+					AVariableExp nextStateDesignator = (AVariableExp) stateDesignator.clone();
+					String module = ((AVariableExp) stateDesignator).getName().getModule();
+					String nextName = ((AVariableExp) stateDesignator).getName().getName() + "_";
+					ILexLocation location = stateDesignator.getLocation();
+					LexNameToken nextNameToken = new LexNameToken(module,nextName,location);
+					CMLModelcheckerContext localCtxt = new CMLModelcheckerContext();
+					StringBuilder nextValue = stateDesignator.apply(this,localCtxt);
+					stateDesignator.apply(this,localCtxt).replace(nextValue.indexOf("("), nextValue.indexOf(")")+1, nextName);
+					//we assume that only Int() are used here
+					Int newValue = new Int(0);
+					newValue.setS(nextName);
+					maximalCopy.updateBinding(((AVariableExp) stateDesignator).getName().toString(), newValue);
+				}
+			}
+			//depois verificar se rpecisa gerar o complemento RHS para essa operacao.
+			//opStr.append(maximalCopy.toFormulaWithState());
+			opStr.append("st_");
+			opStr.append(")");
+			
+			opStr.append(" :- ");
+			
+			//put the state information
+			StringBuilder stateFact = new StringBuilder();
+			stateFact.append("State(l,st,_,operation(\"" + op.getName().toString() + "\",");
+			if(op.getParamDefinitions().size()==0){
+				stateFact.append("nopar");
+			}else if(op.getParamDefinitions().size()==1){
+				PDefinition pDef = op.getParamDefinitions().getFirst();
+				CMLModelcheckerContext newCtxt = new CMLModelcheckerContext();
+				StringBuilder result = pDef.apply(this,newCtxt);
+				stateFact.append(result.toString());
+			}
+			stateFact.append("))");
+			opStr.append(stateFact);
+			opStr.append(",");
+			//put the st = maximal bind information
+			opStr.append("st = " + maximalBinding.toFormulaWithState());
+			opStr.append(",");
+			//put the next bind information
+			opStr.append("st_ = " + maximalCopy.toFormulaWithState());
+			opStr.append(",");
+			
+			//put the expression
+			CMLModelcheckerContext newCtxt = new CMLModelcheckerContext();
+			
+			if(actionBody != null){
+				newCtxt.getScriptContent().append(((AVariableExp) actionBody.getStateDesignator()).getName().getName() + "_" + " = ");
+				String expression = actionBody.getExpression().apply(this, newCtxt).toString();
+				opStr.append(expression);
+				
+			}
+			opStr.append(".\n");
+			
+			//generate the preconditionOK e preconditioNOk
+			//"preOpOk("Init", nopar, BBinding(SingleBind("a",Int(a)),nBind)) :- State(BBinding(SingleBind("a",Int(a)),nBind),_)."
+			//PExp exp = actionBody.getExpression();
+			if(op.getPrecondition() != null){
+				//convert precondition
+			}else{
+				//we assume that all preconditions are true for the moment
+				StringBuilder preOpOkFact = new StringBuilder();
+				preOpOkFact.append("preOpOk(\"" + op.getName().toString() + "\",");
+				if(op.getParamDefinitions().size()==0){
+					preOpOkFact.append("nopar");
+				}else if(op.getParamDefinitions().size()==1){
+					PDefinition pDef = op.getParamDefinitions().getFirst();
+					CMLModelcheckerContext localCtxt = new CMLModelcheckerContext();
+					StringBuilder result = pDef.apply(this,localCtxt);
+					preOpOkFact.append(result.toString());
+				}
+				preOpOkFact.append(",");
+				preOpOkFact.append(maximalBinding.toFormulaWithState());
+				preOpOkFact.append(")");
+				preOpOkFact.append(" :- ");
+				preOpOkFact.append("State(l," + maximalBinding.toFormulaWithState() + ",np,_).");
+				preOpOkFact.append("\n");
+				opStr.append(preOpOkFact.toString());
+			}
+			//we assume that post conditions are not present
+
+			//puts the oepration definition and the precondition
+			context.getScriptContent().append(opStr);
+		}
+	} 
 
 	@Override
 	public StringBuilder caseAActionProcess(AActionProcess node,
@@ -349,6 +492,28 @@ public class CMLModelcheckerVisitor extends
 		return question.getScriptContent();
 	}
 
+	//visitor methods for operations
+	@Override
+	public StringBuilder caseAOperationsDefinition(AOperationsDefinition node,
+			CMLModelcheckerContext question) throws AnalysisException {
+		LinkedList<SCmlOperationDefinition> operations = node.getOperations();
+		for (SCmlOperationDefinition currentOperationDefinition : operations) {
+			currentOperationDefinition.apply(this, question);
+		}
+		return question.getScriptContent();
+	}
+	
+	
+	@Override
+	public StringBuilder caseAExplicitCmlOperationDefinition(
+			AExplicitCmlOperationDefinition node,
+			CMLModelcheckerContext question) throws AnalysisException {
+		
+		//it builds the operation definition in formula and put it into the context
+		question.operations.add(node); 
+		
+		return question.getScriptContent();
+	}
 	// Visitor methods for actions
 	@Override
 	public StringBuilder caseAActionsDefinition(AActionsDefinition node,
@@ -361,6 +526,7 @@ public class CMLModelcheckerVisitor extends
 		return question.getScriptContent();
 	}
 
+	
 	@Override
 	public StringBuilder caseAExternalChoiceReplicatedAction(
 			AExternalChoiceReplicatedAction node,
@@ -384,8 +550,10 @@ public class CMLModelcheckerVisitor extends
 		LinkedList<PDefinition> localDefinitions = (LinkedList<PDefinition>) question.info
 				.get(Utilities.LOCAL_DEFINITIONS_KEY);
 		CMLModelcheckerContext auxCtxt = new CMLModelcheckerContext();
-		for (PDefinition pDefinition : localDefinitions) {
-			pDefinition.apply(this, auxCtxt);
+		if(localDefinitions != null){
+			for (PDefinition pDefinition : localDefinitions) {
+				pDefinition.apply(this, auxCtxt);
+			}
 		}
 		int auxIndex = question.getScriptContent().indexOf(
 				"#AUXILIARY_PROCESSES#");
@@ -439,6 +607,7 @@ public class CMLModelcheckerVisitor extends
 	public StringBuilder caseASingleGeneralAssignmentStatementAction(
 			ASingleGeneralAssignmentStatementAction node,
 			CMLModelcheckerContext question) throws AnalysisException {
+		
 		question.getScriptContent().append("assign("+CMLModelcheckerContext.ASSIGN_COUNTER +")");
 		//StringBuilder str = new StringBuilder();
 		//this line is generated for this assignment. Each assignment must have a line like this
@@ -517,41 +686,78 @@ public class CMLModelcheckerVisitor extends
 	@Override
 	public StringBuilder caseAHidingAction(AHidingAction node,
 			CMLModelcheckerContext question) throws AnalysisException {
-		// "acoes \ {ev}" hide(acoes,{ev})
+
+		//it puts the event set in the context so the internal process can access and generate lieIn
+		question.setStack.add(node.getChansetExpression());
+		
+		// "actions\ {ev}" hide(actions,"{ev}")
 		question.getScriptContent().append("hide(");
+		
+		//the internal action mut check if there is some event set to generate lieInEvents
 		node.getLeft().apply(this, question);
 		question.getScriptContent().append(",");
 		node.getChansetExpression().apply(this, question);
 		question.getScriptContent().append(")");
-		// gerar os lieIn. fixo tem que mudar
-		// question.append("lieIn(Sigma(\"b\"),\"[b]\").\n");
+		
+		//it remover the event set from the context at the end
+		question.setStack.pop();
+		
 		return question.getScriptContent();
 	}
 
+	
+	@Override
+	public StringBuilder caseAPlusNumericBinaryExp(APlusNumericBinaryExp node,
+			CMLModelcheckerContext question) throws AnalysisException {
+		
+		CMLModelcheckerContext localCtxt = new CMLModelcheckerContext(); 
+		String result = node.getLeft().apply(this, localCtxt).toString();
+		result = eu.compassresearch.core.analysis.modelchecker.graphBuilder.util.Utilities.extractConstructor(result);
+		question.getScriptContent().append(result);
+		question.getScriptContent().append(" + ");
+		localCtxt.reset();
+		result = node.getRight().apply(this, localCtxt).toString();
+		result = eu.compassresearch.core.analysis.modelchecker.graphBuilder.util.Utilities.extractConstructor(result);
+		question.getScriptContent().append(result);
+		
+		return question.getScriptContent();
+	}
 	@Override
 	public StringBuilder caseAEnumVarsetExpression(AEnumVarsetExpression node,
 			CMLModelcheckerContext question) throws AnalysisException {
 		// question.append("\"" + node.toString() + "\"");
-		question.getScriptContent().append("\"X\"");
+		question.getScriptContent().append("\"" + node.toString() + "\"");
 
 		return question.getScriptContent();
 	}
+	
+	@Override
+	public StringBuilder caseAFatEnumVarsetExpression(
+			AFatEnumVarsetExpression node, CMLModelcheckerContext question)
+			throws AnalysisException {
 
+		question.getScriptContent().append("\"" + node.toString() + "\"");
+		
+		return question.getScriptContent();
+	}
 	@Override
 	public StringBuilder caseAActionDefinition(AActionDefinition node,
 			CMLModelcheckerContext question) throws AnalysisException {
 		question.getScriptContent().append("  ProcDef(");
 		question.getScriptContent().append("\"" + node.getName() + "\",");
 		// parameters
+		
 		LinkedList<PParametrisation> parameters = node.getDeclarations();
 		if(parameters.size()==0){
 			question.getScriptContent().append("nopar");
 			question.getScriptContent().append(",");
 			// it converts the internal action (body)
 			node.getAction().apply(this, question);
-			if(!question.info.containsKey(Utilities.STATES_KEY)){
-				question.getScriptContent().append(").\n");
-			}
+			//if the action does not depend on the state
+			question.getScriptContent().append(").\n");
+			//if(!question.info.containsKey(Utilities.STATES_KEY)){
+			//	question.getScriptContent().append(").\n");
+			//}
 		} else if(parameters.size()==1){
 			question.getScriptContent().append("SPar(");
 			node.getDeclarations().getFirst().apply(this, question);
@@ -629,6 +835,47 @@ public class CMLModelcheckerVisitor extends
 			node.getAction().apply(this, question);
 
 			question.getScriptContent().append(")");
+			
+			//if there is some set of event in the context we must generate lieIn events.
+			SetStack chanSetStack = question.setStack.copy();
+			while(!chanSetStack.isEmpty()){
+				
+				PVarsetExpression setExp = (PVarsetExpression)chanSetStack.pop();
+				LinkedList<ANameChannelExp> chanNames = null;
+				if(setExp instanceof AEnumVarsetExpression){
+					chanNames = ((AEnumVarsetExpression) setExp).getChannelNames();
+				}
+				if(setExp instanceof AFatEnumVarsetExpression){
+					chanNames = ((AFatEnumVarsetExpression) setExp).getChannelNames();
+				}
+				if(chanNames != null){
+					boolean generateLieIn = false;
+					for (ANameChannelExp aNameChannelExp : chanNames) {
+						if(aNameChannelExp.getIdentifier().toString().equals(node.getIdentifier().toString())){
+							generateLieIn = true;
+							break;
+						}
+					}
+					if(!generateLieIn && chanSetStack.size()==0){
+						break;
+					}else{
+						StringBuilder lieIn = new StringBuilder();
+						lieIn.append("lieIn(");
+						lieIn.append("BasicEv(\"" + node.getIdentifier().toString() + "\")");
+						lieIn.append(",");
+						lieIn.append("\"");
+						lieIn.append(setExp.toString());
+						lieIn.append("\"");
+						lieIn.append(")");
+						
+						if(!question.lieIn.contains(lieIn.toString())){
+							question.lieIn.add(lieIn.toString());
+						}
+					}
+				}
+				
+			}
+			
 		}else if(parameters.size() == 1){
 			question.getScriptContent().append(
 					"Prefix(IOComm(0,\"" + node.getIdentifier()+"."+parameters.getFirst().toString() + "\",");
@@ -656,6 +903,7 @@ public class CMLModelcheckerVisitor extends
 					aux.getFirst().apply(this, question);
 					int i = question.getScriptContent().lastIndexOf("_");
 					question.getScriptContent().replace(i, i+1, parameters.getFirst().toString());
+					question.getScriptContent().append(".\n");
 				}
 				
 				CMLModelcheckerContext aux = new CMLModelcheckerContext();
@@ -693,18 +941,50 @@ public class CMLModelcheckerVisitor extends
 	public StringBuilder caseACallStatementAction(ACallStatementAction node,
 			CMLModelcheckerContext question) throws AnalysisException {
 		LinkedList<PExp> args = node.getArgs();
-		if(args.size() == 1){
-			question.getScriptContent().append("proc(\"");
-			question.getScriptContent().append(node.getName()+"\",SPar(");
-			node.getArgs().getFirst().apply(this, question);
-			question.getScriptContent().append("))");
+		
+		StringBuilder callStr = new StringBuilder();
+		LinkedList<PDefinition> localDefinitions = (LinkedList<PDefinition>) question.info.get(Utilities.LOCAL_DEFINITIONS_KEY);
+		if(localDefinitions != null){ //if there are auxiliary actions
+			for (PDefinition pDefinition : localDefinitions) {
+				if(pDefinition.getName().toString().equals(node.getName().toString())){
+					callStr.append("proc(\"" + pDefinition.getName().toString() + "\",");
+					if(args.size()==0){
+						callStr.append("nopar");
+					}
+					if(args.size()==1){
+						CMLModelcheckerContext newCtxt = new CMLModelcheckerContext(); 
+						String argStr = args.getFirst().apply(this, newCtxt).toString();
+						callStr.append(argStr);
+					}
+					callStr.append(")");
+				}
+			}
+		}else {
+			for (SCmlOperationDefinition pDefinition : question.operations) {
+				if(pDefinition.getName().toString().equals(node.getName().toString())){
+					callStr.append("operation(\"" + pDefinition.getName().toString() + "\",");
+					if(args.size()==0){
+						callStr.append("nopar");
+					}
+					if(args.size()==1){
+						CMLModelcheckerContext newCtxt = new CMLModelcheckerContext(); 
+						String argStr = args.getFirst().apply(this, newCtxt).toString();
+						callStr.append(argStr);
+					}
+					callStr.append(")");
+				}
+			}
+			question.getScriptContent().append(callStr);
+			
 		}
+		
+		
 		
 		// Adding auxiliary definitions
 				// LinkedList<PDefinition> localDefinitions = (LinkedList<PDefinition>)
 				// question.info.get(node);
-				LinkedList<PDefinition> localDefinitions = (LinkedList<PDefinition>) question.info
-						.get(Utilities.LOCAL_DEFINITIONS_KEY);
+				//LinkedList<PDefinition> localDefinitions = (LinkedList<PDefinition>) question.info
+				//		.get(Utilities.LOCAL_DEFINITIONS_KEY);
 
 				CMLModelcheckerContext auxCtxt = new CMLModelcheckerContext();
 				auxCtxt.copyChannelInfo(question);
@@ -776,7 +1056,29 @@ public class CMLModelcheckerVisitor extends
 
 		return question.getScriptContent();
 	}
+	
+	@Override
+	public StringBuilder caseAGeneralisedParallelismParallelAction(
+			AGeneralisedParallelismParallelAction node,
+			CMLModelcheckerContext question) throws AnalysisException {
+		
+		//it puts the event set in the context so the internal process can access and generate lieIn
+		question.setStack.add(node.getChansetExpression());
+	
+		// it writes the left process into the buffer
+		question.getScriptContent().append("genPar(");
+		node.getLeftAction().apply(this, question);
+		question.getScriptContent().append(",");
+		node.getChansetExpression().apply(this, question);
+		question.getScriptContent().append(",");
+		// it writes the right process into the buffer
+		node.getRightAction().apply(this, question);
+		question.getScriptContent().append(")");
 
+		question.setStack.pop();
+		
+		return question.getScriptContent();
+	}
 	@Override
 	public StringBuilder caseABlockStatementAction(ABlockStatementAction node,
 			CMLModelcheckerContext question) throws AnalysisException {
@@ -822,9 +1124,11 @@ public class CMLModelcheckerVisitor extends
 
 		// it writes the second action
 		node.getRight().apply(this, question);
-		if(!question.info.containsKey(Utilities.STATES_KEY)){
-			question.getScriptContent().append(")");
-		}
+		//if the action does not depend on the state.
+		question.getScriptContent().append(")");
+		//if(!question.info.containsKey(Utilities.STATES_KEY)){
+		//	question.getScriptContent().append(")");
+		//}
 
 		return question.getScriptContent();
 	}
@@ -1305,8 +1609,8 @@ public class CMLModelcheckerVisitor extends
 
 		for (PSource source : sources) {
 			CMLModelcheckerContext content = new CMLModelcheckerContext();
-			
-			content.getScriptContent().append(FormulaIntegrationUtilities.readScriptFromFile(FormulaIntegrationUtilities.BASIC_FORMULA_SCRIPT));
+			//PPPPPPP
+			//content.getScriptContent().append(FormulaIntegrationUtilities.readScriptFromFile(FormulaIntegrationUtilities.BASIC_FORMULA_SCRIPT));
 			
 			// content.getScriptContent().append(basicContent.toString());
 			for (PDefinition paragraph : source.getParagraphs()) {
@@ -1354,7 +1658,9 @@ public class CMLModelcheckerVisitor extends
 	 * @throws Throwable
 	 */
 	public static void main(String[] args) throws Throwable {
-		String cml_example = "src/test/resources/simple-state.cml";
+		//String cml_example = "src/test/resources/action-operationcall-noargs.cml";
+		//String cml_example = "src/test/resources/replicated-externalchoice.cml";
+		String cml_example = "src/test/resources/replicated-seqcomp.cml";
 		System.out.println("Testing on " + cml_example);
 		// List<PSource> sources = new LinkedList<PSource>();
 		PSource source = Utilities.makeSourceFromFile(cml_example);

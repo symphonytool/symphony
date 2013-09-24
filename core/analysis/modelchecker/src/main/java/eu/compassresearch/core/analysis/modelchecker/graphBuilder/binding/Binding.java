@@ -9,4 +9,5 @@ public interface Binding {
 	public Binding addBinding(String procName, String varName, Type type);
 	public void updateBinding(String varName, Type type);
 	public Binding deleteBinding(String varName);
+	public Binding copy();
 }

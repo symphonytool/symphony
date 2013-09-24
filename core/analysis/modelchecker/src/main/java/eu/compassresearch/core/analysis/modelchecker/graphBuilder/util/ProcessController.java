@@ -10,9 +10,14 @@
  *******************************************************************************/
 package eu.compassresearch.core.analysis.modelchecker.graphBuilder.util;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 
 /**
  * Executes an external process synchronously, allowing the client to define a
@@ -199,4 +204,23 @@ public class ProcessController {
 	public boolean wasKilled() {
 		return killed;
 	}
+	
+	public static boolean checkDotInstallation(){
+		boolean result = true;
+		Runtime rt = Runtime.getRuntime();
+		Process process;
+		try {
+			process = rt.exec("dot -h");
+		} catch (IOException e) {
+			
+			String message = e.getMessage();
+			System.out.println(message);
+			if( (message.indexOf("Cannot run program") != -1) || (message.indexOf("error=2") != -1)){
+				result = false;
+			}
+		}
+		
+		return result;
+	}
+	
 }

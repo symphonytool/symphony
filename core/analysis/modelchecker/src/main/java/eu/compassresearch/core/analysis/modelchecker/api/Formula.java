@@ -228,7 +228,7 @@ public class Formula implements IFORMULAInvoker {
 		
 		if(this.formulaStatus == FormulaStatus.NOT_INSTALLED){
 	    	FormulaIntegrationException ex = new FormulaIntegrationException(result.getFormulaCmdMessage());
-	    	ex.printStackTrace();
+	    	//ex.printStackTrace();
 	    	throw ex;
 	    }
 		result.setFileContent(specification);

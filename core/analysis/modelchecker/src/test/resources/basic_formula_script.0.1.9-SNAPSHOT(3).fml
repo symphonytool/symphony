@@ -88,18 +88,18 @@ domain CML_SyntaxSpec includes AuxiliaryDefinitions {
     Param                   ::= NoPar + SPar + DPar.
 
     primitive proc          ::= (name : String, p: Param).                      //Process call
-    operation               ::= (schN: String, p:Param).                        //operation
+    schema                  ::= (schN: String).                                 //Schema
     primitive var           ::= (name: String, tName: String, p: CMLProcess).   //Variable declaration
     primitive let           ::= (name: String, p: CMLProcess).                  //Let process
     
     
     primitive assign        ::= (occur: Natural). 				//unnamed schema operation, where the precondition is always true. 				
     assignDef               ::= (level: Natural, occur: Natural, st: Binding, st_: Binding). 
-    preOpOk             	::= (schN: String, schPar:Param,st: Binding).
-    preOpNOk            	::= (schN: String, schPar:Param,st: Binding).
-    operationDef            ::= (schN: String, schPar:Param,st: Binding, st_: Binding).
+    preSchemaOk             ::= (level: Natural, schN: String, st: Binding).
+    preSchemaNOk            ::= (level: Natural, schN: String, st: Binding).
+    schemaDef               ::= (level: Natural, schN: String, st: Binding, st_: Binding).
     CMLProcess              ::= BasicProcess + Prefix + iChoice + eChoice + extraChoice + condChoice + seqC + hide + parll + genPar + par + 
-								iPar + iParll + proc + var + let + operation + assign.
+								iPar + iParll + proc + var + let + schema + assign.
     ProcDef                 ::= (name:String, pproc: Param, proc:CMLProcess).
 }
 
@@ -236,9 +236,9 @@ domain CML_SemanticsSpec extends CML_SyntaxSpec {
     State(l,st,Pn,PBody),
     trans(n,tau,State(l,st,Pn,PBody)) :- n is State(l,st,P,proc(Pn, pP)), ProcDef(Pn,pP,PBody), P != Pn.
 
-	// operations
-    trans(n,tau,State(l,st_,pN,Skip)) :- n is State(l,st,pN,operation(schN,pSch)), operationDef(schN,pSch,st,st_), preOpOk(schN,pSch,st).
-    trans(n,tau,State(l,st,pN,Chaos)) :- n is State(l,st,pN,operation(schN,pSch)), preOpNOk(schN,pSch,st).
+	// Schema operations
+    trans(n,tau,State(l,st_,pN,Skip)) :- n is State(l,st,pN,schema(schN)), schemaDef(l,schN,st,st_).
+    trans(n,tau,State(l,st,pN,Chaos)) :- n is State(l,st,pN,schema(schN)), preSchemaNOk(l,schN,st).
 
     //assign and assigndef produce uptates in the bindings
     //upd(BBinding(SingleBind("x",valX),nBind),SingleBind("x",val),BBinding(SingleBind("x",val),nBind)) :- 

@@ -105,7 +105,7 @@ public class State {
 	@Override
 	public String toString() {
 		
-		return "\"(" + this.binding.toString() + "," + this.name + "," + this.process.toString() + ")\"";
+		return "\"(" + this.binding.toString() + "," + this.process.toString() + ")\"";
 	}
 
 }

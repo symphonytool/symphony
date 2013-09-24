@@ -70,9 +70,7 @@ domain CML_SyntaxSpec includes AuxiliaryDefinitions {
     primitive hide          ::= (proc : CMLProcess, hideS : String).        //Hiding
     
 	//Usual generalised parallelism
-    primitive genPar        ::= (lProc: CMLProcess, SyncS : String, rProc: CMLProcess).
     primitive par           ::= (lSt: Binding, lProc: CMLProcess, SyncS : String, rSt: Binding, rProc: CMLProcess).
-
     primitive iPar          ::= (lProc: CMLProcess, SyncS : String, rProc: CMLProcess).
 	primitive iParll        ::= (lSt: Binding, lProc: CMLProcess, SyncS : String, rSt: Binding, rProc: CMLProcess).
     
@@ -88,18 +86,18 @@ domain CML_SyntaxSpec includes AuxiliaryDefinitions {
     Param                   ::= NoPar + SPar + DPar.
 
     primitive proc          ::= (name : String, p: Param).                      //Process call
-    operation               ::= (schN: String, p:Param).                        //operation
+    schema                  ::= (schN: String).                                 //Schema
     primitive var           ::= (name: String, tName: String, p: CMLProcess).   //Variable declaration
     primitive let           ::= (name: String, p: CMLProcess).                  //Let process
     
     
     primitive assign        ::= (occur: Natural). 				//unnamed schema operation, where the precondition is always true. 				
     assignDef               ::= (level: Natural, occur: Natural, st: Binding, st_: Binding). 
-    preOpOk             	::= (schN: String, schPar:Param,st: Binding).
-    preOpNOk            	::= (schN: String, schPar:Param,st: Binding).
-    operationDef            ::= (schN: String, schPar:Param,st: Binding, st_: Binding).
-    CMLProcess              ::= BasicProcess + Prefix + iChoice + eChoice + extraChoice + condChoice + seqC + hide + parll + genPar + par + 
-								iPar + iParll + proc + var + let + operation + assign.
+    preSchemaOk             ::= (level: Natural, schN: String, st: Binding).
+    preSchemaNOk            ::= (level: Natural, schN: String, st: Binding).
+    schemaDef               ::= (level: Natural, schN: String, st: Binding, st_: Binding).
+    CMLProcess              ::= BasicProcess + Prefix + iChoice + eChoice + extraChoice + condChoice + seqC + hide + parll + par + 
+								iPar + iParll + proc + var + let + schema + assign.
     ProcDef                 ::= (name:String, pproc: Param, proc:CMLProcess).
 }
 
@@ -189,33 +187,64 @@ domain CML_SemanticsSpec extends CML_SyntaxSpec {
     State(l,st_,pN,seqC(P_,Q)),// This rule has a serious problem that maybe is related to other rules as well :-(
     trans(iS,ev,State(l,st_,pN,seqC(P_,Q))) :- iS is State(l,st,pN,seqC(P,Q)),trans(State(l,st,pN,P),ev,State(l,st_,nnP,P_)).
 
-	// P [|X|] Q - parallel begin
-	State(l,st,n,P),
-	State(l,st,n,Q),
-	State(l,st,n,par(st,P,X,st,Q)),  
-    trans(iS,tau,State(l,st,n,par(st,P,X,st,Q))) :- iS is State(l,st,n,genPar(P,X,Q)).
+	    // P [|X|] Q
+	State(l,st,P,PBody),
+	trans(State(l,st,P,proc(P,pP)),tau,State(l,st,P,PBody)),
+	State(l,st,Q,QBody),
+	trans(State(l,st, Q,proc(Q, pQ)), tau, State(l, st, Q, QBody)),
+	State(l,st, P,proc(P, pP)),
+	State(l,st, Q,proc(Q, pQ)),
+	State(l,nBind,pN,iParll(st,PBody,X,st,QBody)),  //semantic parallelism works over empty bindinds
+    trans(iS,tau,State(l,nBind,pN,iParll(st,proc(P,pP),X,st,proc(Q,pQ)))) :- iS is State(l,st,pN,iPar(proc(P,pP),X,proc(Q,pQ))), 
+                                                                             ProcDef(P, pP, PBody), ProcDef(Q, pQ, QBody).
     
-	//BACKING ON DEMAND STATE GENERATION!!!! :-(
+	//The name of each state is owned by the name of the iParll process [REVISE THIS]
+	//State(l,stP,pN,P),
+	//State(l,stQ,pN,Q) :- State(l,st, pN,iParll(stP,P,X,stQ,Q)).
+    
+    //State(l,stP,P,PBody),
+	//trans(State(l,stP,P,proc(P,pP)),tau,State(l,stP,P,PBody)),
+	//State(l,stQ,Q,QBody),
+	//trans(State(l,stQ, Q,proc(Q, pQ)), tau, State(l, stQ, Q, QBody)),
+	//State(l,stP, P,proc(P, pP)),
+	//State(l,stQ, Q,proc(Q, pQ)) :- iS is State(l,st,pN,iParll(stP,proc(P,pP),X,stQ,proc(Q,pQ))), ProcDef(P, pP, PBody), ProcDef(Q, pQ, QBody).
+    //State(l,stP,P,PBody),
+	//trans(State(l,stP,P,proc(P,pP)),tau,State(l,stP,P,PBody)),
+	//State(l,stQ,Q,QBody),
+	//trans(State(l,stQ, Q,proc(Q, pQ)), tau, State(l, stQ, Q, QBody)),
+	//State(l,stP,P,PBody),   
+    State(l,stP,P,proc(P,pP)),
+    State(l,stQ,Q,proc(Q,pQ)) :- iS is State(l,st,pN,iParll(stP,proc(P,pP),X,stQ,proc(Q,pQ))), 
+                                    ProcDef(P,pP,PBody),ProcDef(Q,pQ,QBody).
+
+    //BACKING ON DEMAND STATE GENERATION!!!! :-(
     State(l,st,name,body) :- trans(S,ev,State(l,st,name,body)).
 
-    //parallel independent
-    //P || Q --ev--> P' || Q
-    State(l,st,n,par(stP_,P_,X,stQ,Q)),
-    trans(iS, ev, State(l,st,n,par(stP_,P_,X,stQ,Q))) :- iS is State(l,st,n,par(stP,P,X,stQ,Q)),  
-													    trans(State(l,stP,n,P),ev,State(l,stP_,n,P_)),fail lieIn(ev, X).
-    //P || Q --ev--> P || Q'
-    State(l,st,n,par(stP,P,X,stQ_,Q_)),
-    trans(iS, ev, State(l,st,n,par(stP,P,X,stQ_,Q_))) :- iS is State(l,st,n,par(stP,P,X,stQ,Q)),  
-													    trans(State(l,stQ,n,Q), ev, State(l,stQ_,n,Q_)), fail lieIn(ev, X).
-    
-    //parallel synchronised
+    // P || Q --tau--> P' || Q  e P || Q --tau--> P || Q'
+    State(l,st, pN, iParll(stP_,P_,X,stQ,Q)),
+    trans(iS, tau, State(l,st, pN, iParll(stP_,P_,X,stQ,Q))) :- trans(State(l,stP,nP,P), tau, State(l,stP_,nP,P_)), iS is State(l,st, pN,iParll(stP,P,X,stQ,Q)).
+	
+    State(l,st,pN,iParll(stP,P,X,stQ_,Q_)),
+    trans(iS, tau, State(l,st,pN,iParll(stP,P,X,stQ_,Q_))) :- trans(State(l,stQ,nQ,Q), tau, State(l,stQ_,nQ,Q_)), iS is State(l,st, pN,iParll(stP,P,X,stQ,Q)).
+	
     // P || Q --ev--> P' || Q'
-    State(l,st,n,par(stP_,P_,X,stQ_,Q_)),
-    trans(iS, ev, State(l,st,n,par(stP_,P_,X,stQ_,Q_))) :- iS is State(l,st,n,par(stP,P,X,stQ,Q)), trans(State(l,stP,n,P),ev,State(l,stP_,n,P_)),
-													      trans(State(l,stQ,n,Q),ev,State(l,stQ_,n,Q_)), ev!=tau, lieIn(ev, X).
-    //parallel end
-    State(l,st,n,Skip),
-    trans(iS, tau, State(l,st,n,Skip)) :- iS is State(l,st,n,par(stP,Skip,X,stQ,Skip)).
+    State(l,st,pN,iParll(stP_,P_,X,stQ_,Q_)),
+    trans(iS, ev, State(l,st,pN,iParll(stP_,P_,X,stQ_,Q_))) :- iS is State(l,st,pN,iParll(stP,P,X,stQ,Q)), trans(State(l,stP,nP,P),ev,State(l,stP_,nP,P_)),
+													   trans(State(l,stQ,nQ,Q),ev,State(l,stQ_,nQ,Q_)), ev!=tau, lieIn(ev, X).
+    //P || Q --ev--> P' || Q
+    State(l,st,pN,iParll(stP_,P_,X,stQ,Q)),
+    trans(iS, ev, State(l,st,pN,iParll(stP_,P_,X,stQ,Q))) :- iS is State(l,st,pN,iParll(stP,P,X,stQ,Q)), ev!=tau, 
+													  trans(State(l,stP,nP,P),ev,State(l,stP_,nP,P_)),fail lieIn(ev, X).
+    //P || Q --ev--> P || Q'
+    State(l,st,pN,iParll(stP,P,X,stQ_,Q_)),
+    trans(iS, ev, State(l,st,pN,iParll(stP,P,X,stQ_,Q_))) :- iS is State(l,st,pN,iParll(stP,P,X,stQ,Q)), ev!=tau, 
+													  trans(State(l,stQ,nQ,Q), ev, State(l,stQ_,nQ,Q_)), fail lieIn(ev, X).
+    State(l,st,pN,Skip),
+    trans(iS, tau, State(l,st,pN,Skip)) :- iS is State(l,st,pN,iParll(stP,Skip,X,stQ,Skip)).
+	
+	State(l,st,nP,par(st,P,X,st,Q)) :- State(l,st,nP,parll(P,lV,X,rV,Q)). 
+    State(l,st,nP,P) :- State(l,st,nP,parll(P,lV,X,rV,Q)). 
+    State(l,st,nP,Q) :- State(l,st,nP,parll(P,lV,X,rV,Q)).
 	//TO BE COMPLETED
 	
 	// Call reusing state
@@ -236,9 +265,9 @@ domain CML_SemanticsSpec extends CML_SyntaxSpec {
     State(l,st,Pn,PBody),
     trans(n,tau,State(l,st,Pn,PBody)) :- n is State(l,st,P,proc(Pn, pP)), ProcDef(Pn,pP,PBody), P != Pn.
 
-	// operations
-    trans(n,tau,State(l,st_,pN,Skip)) :- n is State(l,st,pN,operation(schN,pSch)), operationDef(schN,pSch,st,st_), preOpOk(schN,pSch,st).
-    trans(n,tau,State(l,st,pN,Chaos)) :- n is State(l,st,pN,operation(schN,pSch)), preOpNOk(schN,pSch,st).
+	// Schema operations
+    trans(n,tau,State(l,st_,pN,Skip)) :- n is State(l,st,pN,schema(schN)), schemaDef(l,schN,st,st_).
+    trans(n,tau,State(l,st,pN,Chaos)) :- n is State(l,st,pN,schema(schN)), preSchemaNOk(l,schN,st).
 
     //assign and assigndef produce uptates in the bindings
     //upd(BBinding(SingleBind("x",valX),nBind),SingleBind("x",val),BBinding(SingleBind("x",val),nBind)) :- 

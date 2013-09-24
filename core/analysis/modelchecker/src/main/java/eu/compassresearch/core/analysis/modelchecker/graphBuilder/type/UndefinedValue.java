@@ -8,6 +8,11 @@ public class UndefinedValue implements Type {
 	}
 
 	@Override
+	public UndefinedValue copy(){
+		return new UndefinedValue();
+	}
+	
+	@Override
 	public String toString() {
 		return "undef";
 	}
