@@ -418,11 +418,6 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 
 		try
 		{
-//			CmlSupervisorEnvironment sve = 
-//					VanillaInterpreterFactory.newDefaultCmlSupervisorEnvironment(new ConsoleSelectionStrategy());
-			//CmlSupervisorEnvironment sve = 
-			//				VanillaInterpreterFactory.newDefaultCmlSupervisorEnvironment(new RandomSelectionStrategy());
-
 			CmlRuntime.logger().setLevel(Level.FINEST);
 			cmlInterp.initialize();
 			//cmlInterp.execute(new RandomSelectionStrategy());

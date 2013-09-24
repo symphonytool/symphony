@@ -1,17 +1,22 @@
 package eu.compassresearch.core.interpreter.debug;
 
 import java.util.List;
-import java.util.Vector;
 import java.util.Map.Entry;
+import java.util.Vector;
 
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.interpreter.runtime.Context;
+import org.overture.interpreter.runtime.ObjectContext;
 import org.overture.interpreter.values.FunctionValue;
+import org.overture.interpreter.values.NameValuePair;
+import org.overture.interpreter.values.ObjectValue;
 import org.overture.interpreter.values.OperationValue;
 import org.overture.interpreter.values.SeqValue;
 import org.overture.interpreter.values.SetValue;
 import org.overture.interpreter.values.UpdatableValue;
 import org.overture.interpreter.values.Value;
+
+import eu.compassresearch.core.interpreter.api.values.ActionValue;
 
 public class VariableDTO
 {
@@ -107,20 +112,41 @@ public class VariableDTO
 	{
 		List<VariableDTO> variables = new Vector<VariableDTO>();
 		
-		for (Entry<ILexNameToken, Value> var : context.getVisibleVariables().entrySet())
+		for (Entry<ILexNameToken, Value> var : context.entrySet())
 		{
-			
 			ILexNameToken name = var.getKey();
 			Value val = var.getValue();
 			
-			if(val instanceof FunctionValue || val instanceof OperationValue){
+			if(!showValue(val))
 				continue;
-			}
 			
 			variables.add(extractVariable(name.getName(),name.getFullName(),val));
 		}
 		
+		//
+		ObjectValue selfVal = context.getSelf();
+		if(selfVal != null)
+		{
+			for (NameValuePair nvp : selfVal.getMemberValues().asList())
+			{
+				if(!showValue(nvp.value))
+					continue;
+				
+				variables.add(extractVariable(nvp.name.getName(),nvp.name.getFullName(),nvp.value));
+			}
+		}
+		
 		return variables;
+	}
+	
+	private static boolean showValue(Value value)
+	{
+		if(value instanceof FunctionValue || value instanceof OperationValue || value instanceof ActionValue){
+			return false;
+		}
+		else
+			return true;
+		
 	}
 	
 	public static VariableDTO extractVariable(String name, String fullName, Value val)

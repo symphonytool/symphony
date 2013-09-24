@@ -7,6 +7,7 @@ public class Breakpoint {
 	private final int id;
 	private final URI file;
 	private final int line;
+	private boolean isEnabled;
 	
 	@SuppressWarnings("unused")
 	private Breakpoint()

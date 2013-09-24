@@ -234,9 +234,6 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 					@Override
 					public void run()
 					{
-						int id = message.getInterpreterStatus().getAllProcesses().get(0).getId();
-						/*ResponseMessage rm =*/ communicationManager.sendRequestSynchronous(new RequestMessage(CmlRequest.GET_STACK_FRAMES, id));
-
 						if (message.getInterpreterStatus().hasActiveBreakpoint())
 						{
 							Breakpoint bp = message.getInterpreterStatus().getActiveBreakpoint();

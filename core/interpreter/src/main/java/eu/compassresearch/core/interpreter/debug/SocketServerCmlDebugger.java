@@ -474,12 +474,21 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 				Context context = foundBehavior.getNextState().second;
 				List<StackFrameDTO> stackframes = new LinkedList<StackFrameDTO>();
 
+				List<Context> contextStack = new LinkedList<Context>();
 				Context nextContext = context;
-				while (nextContext != null)
+				int contextCount = 0;
+				//First count the contexts since the getDepth method does not do what you would expect
+				//we remove the global context
+				for(;nextContext.outer != null ; contextCount++)
 				{
-					stackframes.add(new StackFrameDTO(nextContext.location.getStartLine(), nextContext.location.getFile().toURI(), nextContext.getDepth()));
+					contextStack.add(nextContext);
 					nextContext = nextContext.outer;
 				}
+				//
+
+				for(Context c : contextStack)
+					stackframes.add(new StackFrameDTO(c.location.getStartLine(), c.location.getFile().toURI(), contextCount--));
+
 				ResponseMessage responseMessage = new ResponseMessage(message.getRequestId(), CmlRequest.GET_STACK_FRAMES, stackframes);
 				sendResponse(responseMessage);
 				return true;
@@ -495,12 +504,14 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 				CmlBehaviour foundBehavior = this.runningInterpreter.findBehaviorById(threadId);
 				Context context = foundBehavior.getNextState().second;
 				
-				for (int i = 0;context!=null &&  i < level-1; i++)
+				List<Context> contexts = new LinkedList<Context>();
+				while(context.outer != null)
 				{
+					contexts.add(0,context);
 					context = context.outer;
 				}
-				
-				ResponseMessage responseMessage = new ResponseMessage(message.getRequestId(), CmlRequest.GET_CONTEXT_PROPERTIES, VariableDTO.extractVariables(context));
+								
+				ResponseMessage responseMessage = new ResponseMessage(message.getRequestId(), CmlRequest.GET_CONTEXT_PROPERTIES, VariableDTO.extractVariables(contexts.get(level-1)));
 				sendResponse(responseMessage);
 				
 				return true;

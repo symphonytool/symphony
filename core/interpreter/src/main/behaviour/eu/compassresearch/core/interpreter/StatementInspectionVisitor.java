@@ -173,7 +173,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 								self = question.getSelf();
 							
 							//Create a new object context to perform the operation call 
-							Context callContext = CmlContextFactory.newObjectContext(node.getLocation(), "CML Operation Call", question, self);
+							Context callContext = CmlContextFactory.newObjectContext(opVal.getBody().getLocation(), "CML Operation Call", question, self);
 
 							if (argValues.size() != opVal.getParamPatterns().size())
 							{
