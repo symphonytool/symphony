@@ -142,108 +142,6 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 
 	private void animate(final CmlInterpreter cmlInterpreter) throws AnalysisException
 	{
-		//Create the supervisor environment with the a selection strategy that has a connection to
-		//the eclipse debugger
-//		CmlSupervisorEnvironment sve = 
-//				VanillaInterpreterFactory.newDefaultCmlSupervisorEnvironment(new SelectionStrategy() {
-//
-//					/*private Scanner scanIn = new Scanner(System.in);*/
-//					private RandomSelectionStrategy rndSelect = new RandomSelectionStrategy();
-//
-//					private boolean isSystemSelect(CmlTransitionSet availableChannelEvents)
-//					{
-//						return availableChannelEvents.getSilentTransitions().size() > 0;
-//					}
-//
-//					private CmlTransition systemSelect(CmlTransitionSet availableChannelEvents)
-//					{
-//						return rndSelect.select(new CmlTransitionSet((Set)availableChannelEvents.getSilentTransitions()));
-//					}
-//
-//					private CmlTransition userSelect(CmlTransitionSet availableChannelEvents)
-//					{
-//						//sendStatusMessage(CmlDbgpStatus.CHOICE, cmlInterpreter.getStatus());
-//
-//						List<Choice> transitions = new LinkedList<Choice>();
-//						for(CmlTransition transition : availableChannelEvents.getAllEvents())
-//						{
-//							//First find all the locations of the transition sources
-//							List<ILexLocation> locations = new LinkedList<ILexLocation>();
-//							for(CmlBehaviour source : transition.getEventSources())
-//							{
-//								INode node = source.getNextState().first;
-//								locations.add(LocationExtractor.extractLocation(node));
-//							}
-//
-//							transitions.add(new Choice(System.identityHashCode(transition),transition.toString(),locations));
-//						}
-//
-//						ResponseMessage response = sendRequestSynchronous(new RequestMessage(CmlRequest.CHOICE,transitions));
-//
-//						if(response.isRequestInterrupted())
-//							throw new InterpreterRuntimeException("The simulation was interrupted");
-//
-//						//Grab the response 
-//						Choice choice = response.getContent();
-//						//System.out.println("response: " + responseStr);
-//
-//						CmlTransition selectedEvent = null;
-//						//For now we just search naively to find the event
-//						for(CmlTransition transition : availableChannelEvents.getAllEvents())
-//						{
-//							//System.out.println("found: " + comEvent.getChannel().getName());
-//							if(System.identityHashCode(transition) == choice.getTransitionObjectId())
-//								selectedEvent = transition;
-//						}
-//
-////						if(selectedEvent instanceof ChannelEvent && !((ChannelEvent)selectedEvent).isPrecise())
-////						{
-////							System.out.println("Enter value : "); 
-////
-////							Value val = new IntegerValue(scanIn.nextInt());
-////							((ChannelEvent)selectedEvent).setValue(val);
-////						}
-//						
-//						if(selectedEvent instanceof LabelledTransition && !((LabelledTransition)selectedEvent).getChannelName().isPrecise())
-//						{
-//							LabelledTransition chosenChannelEvent = (LabelledTransition)selectedEvent;
-//							ChannelNameValue channnelName = chosenChannelEvent.getChannelName(); 
-//							
-//							for(int i = 0 ; i < channnelName.getValues().size() ; i++ )
-//							{
-//								Value currentValue = channnelName.getValues().get(i);
-//								
-//								if(!AbstractValueInterpreter.isValueMostPrecise(currentValue))
-//								{
-//									System.out.println("Enter value : "); 
-//									Value val;
-//									try {
-//										val = channnelName.getChannel().getValueTypes().get(i).apply(new ValueParser());
-//										channnelName.updateValue(i, val);
-//									} catch (AnalysisException e) {
-//										e.printStackTrace();
-//										System.exit(-1);
-//									}
-//								}
-//							}
-//						}
-//
-//						return selectedEvent;
-//					}
-//
-//					@Override
-//					public CmlTransition select(CmlTransitionSet availableChannelEvents) {
-//
-//						//At this point we don't want the internal transition to propagate 
-//						//to the user, so we randomly choose all the possible internal transitions
-//						//before we let anything through to the user
-//						if(isSystemSelect(availableChannelEvents))
-//							return systemSelect(availableChannelEvents);
-//						else
-//							return userSelect(availableChannelEvents);
-//					}
-//				});
-
 		cmlInterpreter.execute(new SelectionStrategy() {
 
 			/*private Scanner scanIn = new Scanner(System.in);*/
@@ -484,8 +382,7 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 					contextStack.add(nextContext);
 					nextContext = nextContext.outer;
 				}
-				//
-
+				
 				for(Context c : contextStack)
 					stackframes.add(new StackFrameDTO(c.location.getStartLine(), c.location.getFile().toURI(), contextCount--));
 

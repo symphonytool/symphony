@@ -32,16 +32,13 @@ public class CmlInterpreterStateDTO {
 	private static List<CmlProcessDTO> convertProcessTreeIntoList(CmlProcessDTO process)
 	{
 		List<CmlProcessDTO> children = new LinkedList<CmlProcessDTO>();
-		if(process != null)
-		{
-			children.add(process);
+		children.add(process);
 
-			if(process.getLeftChild() != null)
-				children.addAll(convertProcessTreeIntoList(process.getLeftChild()));
+		if(process.getLeftChild() != null)
+			children.addAll(convertProcessTreeIntoList(process.getLeftChild()));
 
-			if(process.getRightChild() != null)
-				children.addAll(convertProcessTreeIntoList(process.getLeftChild()));
-		}
+		if(process.getRightChild() != null)
+			children.addAll(convertProcessTreeIntoList(process.getRightChild()));
 
 		return children;
 	}
