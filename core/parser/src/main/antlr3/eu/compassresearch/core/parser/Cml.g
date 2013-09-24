@@ -1495,6 +1495,8 @@ communication returns[PCommunicationParameter comm]
         | '(' expression ')'            { $comm.setExpression($expression.exp); }
         | symbolicLiteralExpr           { $comm.setExpression($symbolicLiteralExpr.exp); }
         | recordTupleExprs              { $comm.setExpression($recordTupleExprs.exp); }
+        | eseq='[]'                     { $comm.setExpression(new ASeqEnumSeqExp(extractLexLocation($eseq), new ArrayList<PExp>())); }
+        | '[' seqExpr? ']'              { $comm.setExpression($seqExpr.seqExpr); }
         )
     | '?' bindablePattern ( ':' '(' expression ')' )?
         {
