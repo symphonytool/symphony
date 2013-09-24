@@ -14,6 +14,7 @@ import org.overture.interpreter.runtime.StateContext;
 import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.values.Value;
 
+import eu.compassresearch.ast.actions.ADivAction;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.lex.LexNameToken;
@@ -413,6 +414,12 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 		return waitPrime;
 	}
 
+	@Override
+	public boolean isDivergent()
+	{
+		return next.first instanceof ADivAction;
+	}
+	
 	@Override
 	public boolean finished() {
 		return !hasChildren() && 

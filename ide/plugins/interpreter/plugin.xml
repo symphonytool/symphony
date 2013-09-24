@@ -58,11 +58,11 @@
 			<launchMode 
                   mode="debug"
                   perspective="org.eclipse.debug.ui.DebugPerspective"
-                  description="CML Model">
+                  description="Debugs a CML Model">
 			</launchMode>
 			<launchMode
                   mode="run"
-                  description="CML Model">
+                  description="Runs a CML Model">
 			</launchMode>
 		</launchConfigurationTabGroup>
 	</extension>
@@ -85,8 +85,8 @@
 		     mode="debug">
 			</description>
 			<contextualLaunch>
-				<contextLabel mode="run" label="Run CML model" />
-				<contextLabel mode="debug" label="Debug CML model" />
+				<contextLabel mode="run" label="CML model" />
+				<contextLabel mode="debug" label="CML model" />
 				<enablement >
 					<with variable="selection">
 						<count value="1"/>

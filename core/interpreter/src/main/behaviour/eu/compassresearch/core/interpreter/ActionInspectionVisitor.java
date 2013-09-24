@@ -25,6 +25,7 @@ import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.actions.ACallStatementAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
+import eu.compassresearch.ast.actions.ADivAction;
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
 import eu.compassresearch.ast.actions.AGeneralisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AGuardedAction;
@@ -57,6 +58,7 @@ import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlCalculationStep;
 import eu.compassresearch.core.interpreter.api.behaviour.Inspection;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionFactory;
@@ -247,6 +249,27 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 		});
 	}
 
+	/**
+	 * This implements divergens. As described in the operational semantics of D23.4:
+	 * Div -tau-> Div
+	 */
+	@Override
+	public Inspection caseADivAction(final ADivAction node, final Context question)
+			throws AnalysisException
+	{
+		return newInspection(createTauTransitionWithoutTime(node), new CmlCalculationStep()
+		{
+			
+			@Override
+			public Pair<INode, Context> execute(CmlTransition selectedTransition)
+					throws AnalysisException
+			{
+				// TODO Auto-generated method stub
+				return new Pair<INode, Context>(node, question);
+			}
+		});
+	}
+	
 	/**
 	 * External Choice section 7.5.4 D23.2
 	 * 
@@ -781,6 +804,8 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 	@Override
 	public Inspection caseAInterruptAction(final AInterruptAction node,
 			final Context question) throws AnalysisException {
+		
+		//If the left child is Skip then the while interrupt construct is Skip
 		if(owner.getLeftChild().finished())
 		{
 			return newInspection(createTauTransitionWithTime(owner.getLeftChild().getNextState().first) ,
@@ -795,6 +820,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 				}
 			});
 		}
+		//If the right action has taken a labelled transition then the whole becomes the right action
 		else if(owner.getRightChild().getTraceModel().getLastTransition() instanceof ObservableTransition &&
 				owner.getRightChild().getTraceModel().getLastTransition() instanceof LabelledTransition)
 		{

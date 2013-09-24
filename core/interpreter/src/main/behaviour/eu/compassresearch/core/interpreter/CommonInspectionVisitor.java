@@ -69,11 +69,12 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 		if(syncAlpha.getObservableEvents().size() == 2)
 		{
 			Iterator<ObservableTransition> it = syncAlpha.getObservableEvents().iterator(); 
+			//remove the tocks from each action and add them sync'ed tock instead
 			return leftChildAlphabet.union(rightChildAlphabet).subtract(syncAlpha).union(it.next().synchronizeWith(it.next()));
 		}
 		else
 		{
-			return leftChildAlphabet.union(rightChildAlphabet);
+			return leftChildAlphabet.union(rightChildAlphabet).subtract(syncAlpha);
 		}
 	}
 
@@ -402,7 +403,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 		//if the left action is successfully finished then this node becomes the right action
 		else 
 		{
-			return newInspection(createTauTransitionWithTime(leftNode),
+			return newInspection(createTauTransitionWithoutTime(leftNode),
 					new AbstractCalculationStep(owner, visitorAccess) {
 
 				@Override

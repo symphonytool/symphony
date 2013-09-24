@@ -30,6 +30,7 @@ import org.overture.interpreter.values.VoidValue;
 import eu.compassresearch.ast.actions.AAssignmentCallStatementAction;
 import eu.compassresearch.ast.actions.ABlockStatementAction;
 import eu.compassresearch.ast.actions.ACallStatementAction;
+import eu.compassresearch.ast.actions.ADivAction;
 import eu.compassresearch.ast.actions.AElseIfStatementAction;
 import eu.compassresearch.ast.actions.AForSequenceStatementAction;
 import eu.compassresearch.ast.actions.AIfStatementAction;
@@ -435,7 +436,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 			throws AnalysisException {
 
 		
-		final List<ANonDeterministicAltStatementAction> availableAlts = 
+		List<ANonDeterministicAltStatementAction> availableAlts = 
 				ActionVisitorHelper.findAllTrueAlternatives(
 				node.getAlternatives(),question,cmlExpressionVisitor);
 		
@@ -457,11 +458,19 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 						}
 					});
 		}
+		//If no alternative are true then the whole thing diverges
 		else
 		{
-			//were stuck so return empty alphabet
-			//FIXME actually this diverges
-			return newInspection(new CmlTransitionSet(),null);
+			final ADivAction divAction = new ADivAction(node.getLocation());
+			return newInspection(createTauTransitionWithoutTime(divAction),new AbstractCalculationStep(owner,visitorAccess)
+			{
+				@Override
+				public Pair<INode, Context> execute(CmlTransition selectedTransition)
+						throws AnalysisException
+				{
+					return new Pair<INode, Context>(divAction, question);
+				}
+			});
 		}
 	}
 
@@ -499,13 +508,14 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 		}
 		else
 		{
-			return newInspection(createTauTransitionWithTime(new ASkipAction()),
+			final ASkipAction skipAction = new ASkipAction(node.getLocation());
+			return newInspection(createTauTransitionWithoutTime(skipAction),
 					new AbstractCalculationStep(owner,visitorAccess) {
 						
 						@Override
 						public Pair<INode, Context> execute(CmlTransition selectedTransition)
 								throws AnalysisException {
-							return new Pair<INode,Context>(new ASkipAction(node.getLocation()), question);
+							return new Pair<INode,Context>(skipAction, question);
 						}
 					});
 		}

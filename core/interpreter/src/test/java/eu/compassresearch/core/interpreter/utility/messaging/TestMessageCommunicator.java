@@ -271,6 +271,13 @@ public class TestMessageCommunicator {
 				// TODO Auto-generated method stub
 				
 			}
+
+			@Override
+			public boolean isDivergent()
+			{
+				// TODO Auto-generated method stub
+				return false;
+			}
 		}, CmlInterpretationStatus.FINISHED);
 		Message sentMessage = new CmlDbgStatusMessage(status);
 		MessageCommunicator.sendMessage(outStream, sentMessage);

@@ -94,6 +94,7 @@ public interface CmlBehaviour extends Serializable //extends Transactable
 	 */
 	public boolean started();
 	public boolean finished();
+	public boolean isDivergent();
 	
 	/**
 	 * Determines whether the process is in a waiting state.

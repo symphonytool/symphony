@@ -535,11 +535,12 @@ public class CheckCml {
 						public void apply(INode root) throws AnalysisException {
 							try {
 								CmlRuntime.logger().setLevel(Level.FINE);
-								CmlRuntime.expandHiddenEvents(false);
+								CmlRuntime.expandHiddenEvents(true);
 								interpreter.setDefaultName(Switch.EXEC.getValue());
 								
 								interpreter.initialize();
 								interpreter.execute(new ConsoleSelectionStrategy());
+								System.out.println("Terminated with following state: " + interpreter.getStatus());
 							} catch (Exception e) {
 
 								e.printStackTrace();

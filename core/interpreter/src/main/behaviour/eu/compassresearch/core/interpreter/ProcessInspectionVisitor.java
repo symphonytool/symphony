@@ -373,7 +373,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 	public Inspection caseAReferenceProcess(final AReferenceProcess node,
 			final Context question) throws AnalysisException {
 
-		return newInspection(createTauTransitionWithTime(node.getProcessDefinition().getProcess()),
+		return newInspection(createTauTransitionWithoutTime(node.getProcessDefinition().getProcess()),
 				new AbstractCalculationStep(owner, visitorAccess) {
 
 			@Override

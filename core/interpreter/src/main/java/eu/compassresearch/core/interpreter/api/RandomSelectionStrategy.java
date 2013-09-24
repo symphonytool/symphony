@@ -62,7 +62,7 @@ public class RandomSelectionStrategy implements SelectionStrategy {
 				}
 			}
 		}
-		CmlRuntime.logger().fine("The supervisor environment picks : " + selectedComm);
+		CmlRuntime.logger().finest("The environment picked : " + selectedComm);
 		
 		return selectedComm;
 	}
