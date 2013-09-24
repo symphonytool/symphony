@@ -645,7 +645,7 @@ class TCDeclAndDefVisitor extends
 							+ node)));
 			return node.getType();
 		}
-
+		
 		node.setType(new AOperationParagraphType());
 		LinkedList<SCmlOperationDefinition> operations = node.getOperations();
 		for (SCmlOperationDefinition odef : operations) {
