@@ -27,7 +27,7 @@
       point="org.eclipse.ui.menus">
    <menuContribution
          allPopups="false"
-         locationURI="toolbar:eu.compassresearch.ide.pogplugin.POsTable">
+         locationURI="toolbar:eu.compassresearch.ide.pog.POsTable">
       <command
             commandId="eu.compassresearch.ide.theoremprover.dischargepos"
             icon="icons/tp.png"

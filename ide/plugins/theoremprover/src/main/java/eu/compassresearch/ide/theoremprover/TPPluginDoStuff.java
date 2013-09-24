@@ -23,6 +23,7 @@ import org.eclipse.ui.IWorkbenchSite;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.pog.obligation.ProofObligationList;
 import org.overture.pog.pub.IProofObligation;
 
 import eu.compassresearch.ide.core.resources.ICmlModel;
@@ -220,9 +221,11 @@ public class TPPluginDoStuff {
 			//Grab the model from the project
 			final ICmlModel model = cmlProj.getModel();
 			
-			CmlProofObligationList poList = model.getAttribute(POConstants.PO_REGISTRY_ID, CmlProofObligationList.class);
+			final ProofObligationList pol = new ProofObligationList();
+
+			pol.addAll(model.getAttribute(POConstants.PO_REGISTRY_ID, CmlProofObligationList.class));
 				
-			if (poList == null)
+			if (pol == null)
 			{
 				popErrorMessage("There are no Proof Oligations to discharge.");
 				return;
@@ -279,8 +282,8 @@ public class TPPluginDoStuff {
 				translateCmltoThy(model, thyFile, thyFileName);
 				
 				//Create empty thy file which imports generated file
-				IFile pogThyFile = isaFolder.getFile(thyFileName + "_PO.thy");
-				createPogThy(model, pogThyFile, thyFileName, poList);
+				IFile pogThyFile = isaFolder.getFile(fileName + "_PO.thy");
+				createPogThy(model, pogThyFile, thyFileName, pol);
 			}
 	
 		} catch (Exception e)
@@ -296,13 +299,13 @@ public class TPPluginDoStuff {
 	 * @param model
 	 * @param pogThyFile
 	 * @param thyFileName
-	 * @param poList
+	 * @param pol
 	 * @return
 	 */
-	private IFile createPogThy(ICmlModel model, IFile pogThyFile, String thyFileName, CmlProofObligationList poList) {
+	private IFile createPogThy(ICmlModel model, IFile pogThyFile, String thyFileName, ProofObligationList pol) {
 		
 		//Get the thy string for a given model and it's proof obligations
-		String thmString = TPVisitor.generatePogThyStr(model.getAst(), poList, thyFileName);
+		String thmString = TPVisitor.generatePogThyStr(model.getAst(), pol, thyFileName);
 		
 		//create the file
 		try
@@ -320,7 +323,7 @@ public class TPPluginDoStuff {
 		
 		
 		
-		
+//REMOVING SCALA STUFF FOR NOW - GET PROOF OF CONCEPT THY GEN SORTED FIRST.		
 //			Isabelle isabelle = IsabelleCore.isabelle();
 //			Session session = null;
 //
