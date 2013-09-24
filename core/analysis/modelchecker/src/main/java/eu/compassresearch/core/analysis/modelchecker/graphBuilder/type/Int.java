@@ -4,12 +4,16 @@ package eu.compassresearch.core.analysis.modelchecker.graphBuilder.type;
 public class Int implements Type {
 	
 	private int value;
-	
+	private String s;
 	
 	public Int(int value) {
 		this.value = value;
 	}
 	
+	public Int(String s){
+		this.s = s;
+	}
+		
 	public int getValue() {
 		return value;
 	}
@@ -17,7 +21,21 @@ public class Int implements Type {
 	public void setValue(int value) {
 		this.value = value;
 	}
+	
+	public String getS() {
+		return s;
+	}
 
+	public void setS(String s) {
+		this.s = s;
+	}
+
+	@Override
+	public Int copy(){
+		Int result = new Int(this.value);
+		result.s = new String(this.s);
+		return result;
+	}
 	@Override
 	public String toString() {
 		return String.valueOf(value);
@@ -25,6 +43,10 @@ public class Int implements Type {
 	
 	public String toFormula() {
 		return "Int("+String.valueOf(value)+")";
+	}
+	
+	public String toFormulaWithState(){
+		return "Int("+s+")";
 	}
 	
 	@Override

@@ -14,6 +14,7 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.overture.ast.node.INode;
 
 import eu.compassresearch.ast.program.PSource;
+import eu.compassresearch.core.analysis.modelchecker.api.FormulaIntegrationException;
 import eu.compassresearch.core.analysis.modelchecker.api.FormulaIntegrator;
 import eu.compassresearch.core.analysis.modelchecker.api.FormulaResult;
 import eu.compassresearch.core.analysis.modelchecker.api.IFormulaIntegrator;
@@ -40,6 +41,7 @@ public class MCJob extends Job{
 			
 		} catch (Exception e) {
 			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
 		monitor.done();
 		return Status.OK_STATUS;

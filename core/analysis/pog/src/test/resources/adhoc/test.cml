@@ -1,32 +1,30 @@
- types
 
+/*this definitions should be global, but I had to put them in the class to type check the VDM++ specification
+*/
+types
 	public SUBS = token
-	public STATUS = (<connecting> | <engaged> | <ringing> | <speech> | <suspended>)
-	public MSG = (<vcallmsg> | <vclearmsg> | <callokmsg> | <callerrormsg>)
-
-
+	public STATUS = <connecting> | <engaged> | <ringing> | <speech> | <suspended>
+	public MSG = <vcallmsg> | <vclearmsg> | <callokmsg> | <callerrormsg>
+		
 values
 	Connected = {<ringing>,<speech>,<suspended>}
 	n: nat = 0
 	LOC = {1,...,n-1}
-	 
-types
- 	public LOCType = nat inv l == l >= 1 and l < n
-
+	
 functions
 	next(i: nat) j: nat
-	pre 
-		i in set LOC    
-	post 
-		j = (i+1) mod n 
+	pre
+		i in set LOC
+	post
+		j = (i+1) mod n
 
 	home(i: nat) s: set of SUBS
 	pre
 		i in set LOC
 	post
 		forall j in set LOC @ s inter home(j) = {}
-	 
-	callers: (map SUBS to STATUS) +> (set of SUBS)
+	
+	callers: (map SUBS to STATUS) +>  (set of SUBS)
 	callers(status) == dom(status :> Connected)
 		
 	connected: (map SUBS to STATUS) * (map SUBS to SUBS) +> (inmap SUBS to SUBS)
@@ -40,73 +38,60 @@ functions
 		
 	suspendable: (map SUBS to STATUS) * (map SUBS to SUBS) +> (set of SUBS)
 	suspendable(status,number) == rng((dom(status:>{<speech>}))<:connected(status,number))
-		
+		 
 	ringing: (map SUBS to STATUS) * (map SUBS to SUBS) +> (set of SUBS)
 	ringing(status,number) == rng((dom(status:>{<ringing>}))<:connected(status,number))
 		
 	suspended: (map SUBS to STATUS) * (map SUBS to SUBS) +> (set of SUBS)
 	suspended(status,number) == rng((dom(status:>{<suspended>}))<:connected(status,number))
-	 
+	
 channels
 	init
 	call: SUBS*SUBS
 	clear, suspend: SUBS
 	answer, unsuspend: SUBS
-	callok clearok suspendok answerok unsuspendok
-	callerror clearerror suspenderror answererror unsuspenderror
-	connectfree, connnectbusy: SUBS
-	left, right : nat
-	-- RWL TC:
-	mid: MSG * nat * nat * SUBS * SUBS
-	link: nat * MSG * nat * nat * SUBS * SUBS
+	callok,clearok,suspendok,answerok,unsuspendok
+	callerror,clearerror,suspenderror,answererror,unsuspenderror
+	connectfree,connnectbusy: SUBS
+	mydelerror,mydelok,mydel,myadderror,myaddok,myadd: SUBS
 
-class Exchange =
-begin
- 
-
-	state
-		public lSUBS: set of SUBS 	-- this is actually the parameter of the process. 
-						-- because I need the name to be in scope,
-						-- I've put it in the state of the class.
-
-		public status: map SUBS to STATUS
-		public number: map SUBS to SUBS
-		public subs: set of SUBS
-
+process ExchangeProc = lSUBS: (set of SUBS) @ begin -- there's not type "finite set of", and there's not way of putting an invariant at this point
+	state 
+		status: map SUBS to STATUS
+		number: map SUBS to SUBS
+		subs: set of SUBS
 		inv
-			exists n1: nat @ card(subs) = n1 and -- is card a partial or total function?
+			exists n: nat @ card(subs) = n and -- is card a partial or total function?
 			dom(status) = dom(number) and
-			dom(number) subset subs --and
-			--is_(dom(dom(status :> Node`Connected) <: number)) 
-			--,inmap Node.SUBS to Node.SUBS)
-			
+			dom(number) subset subs and
+			is_(dom(dom(status:>Connected)<:number),inmap SUBS to SUBS)
 			
 	functions
---		callers: (map SUBS to STATUS) +>  (set of SUBS)
---		callers(status) == dom(status :> Connected)
+		callers: (map SUBS to STATUS) +>  (set of SUBS)
+		callers(status) == dom(status :> Connected)
 		
---		connected: (map SUBS to STATUS) * (map SUBS to SUBS) +> (inmap SUBS to SUBS)
---		connected(status,number) == callers(status) <: number
+		connected: (map SUBS to STATUS) * (map SUBS to SUBS) +> (inmap SUBS to SUBS)
+		connected(status,number) == callers(status) <: number
 		
---		free: (map SUBS to STATUS) * (map SUBS to SUBS) * (set of SUBS) +> (set of SUBS)
---		free(status,number,subs) == subs \ dom(status) \ rng(connected(status,number))
+		free: (map SUBS to STATUS) * (map SUBS to SUBS) * (set of SUBS) +> (set of SUBS)
+		free(status,number,subs) == subs \ dom(status) \ rng(connected(status,number))
 		
---		connectable: (map SUBS to STATUS) * (map SUBS to SUBS) +> (set of SUBS)
---		connectable(status,number) == rng((dom(status:>{<connecting>}))<:number)
+		connectable: (map SUBS to STATUS) * (map SUBS to SUBS) +> (set of SUBS)
+		connectable(status,number) == rng((dom(status:>{<connecting>}))<:number)
 		
---		suspendable: (map SUBS to STATUS) * (map SUBS to SUBS) +> (set of SUBS)
---		suspendable(status,number) == rng((dom(status:>{<speech>}))<:connected(status,number))
+		suspendable: (map SUBS to STATUS) * (map SUBS to SUBS) +> (set of SUBS)
+		suspendable(status,number) == rng((dom(status:>{<speech>}))<:connected(status,number))
 		
---		ringing: (map SUBS to STATUS) * (map SUBS to SUBS) +> (set of SUBS)
---		ringing(status,number) == rng((dom(status:>{<ringing>}))<:connected(status,number))
+		ringing: (map SUBS to STATUS) * (map SUBS to SUBS) +> (set of SUBS)
+		ringing(status,number) == rng((dom(status:>{<ringing>}))<:connected(status,number))
 		
---		suspended: (map SUBS to STATUS) * (map SUBS to SUBS) +> (set of SUBS)
---		suspended(status,number) == rng((dom(status:>{<suspended>}))<:connected(status,number))
+		suspended: (map SUBS to STATUS) * (map SUBS to SUBS) +> (set of SUBS)
+		suspended(status,number) == rng((dom(status:>{<suspended>}))<:connected(status,number))
 		
 	operations
-		private InitExchange(a : int)  
+		InitExchange ()
 		frame wr status, number, subs
-		      rd lSUBS
+			rd lSUBS
 		post 
 			status = {|->} and 
 			number = {|->} and 
@@ -204,68 +189,69 @@ begin
 			status(s) = <suspended> and
 			t = number(s)
 		post
-			status = status~ ++ {s |-> <speech>}
-end
+			status = status~ ++ {s |-> <speech>}		
 
-
-process ExchangeProc = lSUBS: set of SUBS @ begin -- there's not type "finite set of", and there's not way of putting an invariant at this point
-	state ex : Exchange 
-	
 	actions
 		Exch = 
-				call?s: (s in set ex.subs)?t: (t in set ex.subs) -> 
-					(if s in set free(ex.status,ex.number,ex.subs) then callok -> ex.Call(s,t)
+				call?s: (s in set subs)?t: (t in set subs) ->
+					(if s in set free(status,number,subs) then callok -> Call(s,t)
 					else callerror -> Skip); Exch
-	
 				[]
-				clear?s: (s in set lSUBS) ->
-					(if s in set dom(ex.status) then clearok -> 
-						(dcl t: SUBS @ t := ex.number(s); ex.Clear(s,t))
+				clear?s1: (s1 in set subs) ->
+					(if s1 in set dom(status) then clearok -> 
+						(dcl t: SUBS @ t := number(s1); Clear(s1,t))
 					else clearerror -> Skip); Exch
-		
 				[]
-				suspend?t: (t in set lSUBS) ->
-					(if t in set suspendable(ex.status,ex.number) then suspendok ->
-						(dcl s: SUBS @ s := ex.number(t); ex.Suspend(s,t))
+				suspend?t1: (t1 in set subs) ->
+					(if t1 in set suspendable(status,number) 
+					then suspendok -> (dcl s: SUBS @ s := number(t1); Suspend(s,t1))
 					else suspenderror -> Skip); Exch
 				[]
-				connectfree?s: (s in set connectable(ex.status,ex.number) union free(ex.status,ex.number,ex.subs)) ->
-					(dcl t: SUBS @ t:=ex.number(s); ex.ConnectFree(s,t)); Exch
-
+				connectfree?s2: (s2 in set connectable(status,number) union free(status,number,subs)) ->
+					(dcl t: SUBS @ t:=number(s2); ConnectFree(s2,t)); Exch
 				[]
-
-				connectbusy?s: (s in set connectable(ex.status,ex.number) \ free(ex.status,ex.number,ex.subs)) ->
-					(dcl t: SUBS @ t:=ex.number(s); ex.ConnectBusy(s,t)); Exch
-				[]
-				answer?t: (t in set ex.subs) ->
-					(if t in set ringing(ex.status,ex.number) then answerok ->
-						(dcl s: SUBS @ s:=ex.number(t); ex.Answer(s,t))
+--				connectbusy?s3 in set (connectable(status,number) \ free(status,number,subs)) ->
+--					(dcl t: SUBS @ t:=number(s3); ConnectBusy(s3,t)); Exch
+--				[]
+				answer?t2: (t2 in set subs) ->
+					(if t2 in set ringing(status,number)
+					then answerok -> (dcl s: SUBS @ s:=number(t2); Answer(s,t2))
 					else answererror -> Skip); Exch
 				[]
-				unsuspend?t: (t in set ex.subs) ->
-					(if t in set suspended(ex.status,ex.number) then unsuspendok ->
-						(dcl s: SUBS @ s:=ex.number(t); ex.Unsuspend(s,t))
+				unsuspend?t3: (t3 in set subs) ->
+					(if t3 in set suspended(status,number) 
+					then unsuspendok -> (dcl s: SUBS @ s:=number(t3); Unsuspend(s,t3))
 					else unsuspenderror -> Skip); Exch
 		
-		@ init -> ex.InitExchange(42); Exch
+		@ init -> InitExchange(); Exch
 end		
 
+types
+ LOCType = nat inv loc == loc in set LOC --- RWL TC: ADDED 
 
-class NodeState =
-begin		
+channels
+	connectbusy
+	myinit
+ 	mycall: SUBS*SUBS
+	myclear,mysuspend,myconnectfree,myconnectbusy: SUBS
+	myanswer,myunsuspend: SUBS
+	mycallok,myclearok,mysuspendok,myanswerok,myunsuspendok
+	mycallerror,myclearerror,mysuspenderror,myanswererror,myunsuspenderror
+	link,mid: LOCType*MSG*LOCType*LOCType*SUBS*SUBS -- RWL TC: sets are not Types in CML and VDM++, LOC should be declared in the types section. 
 	
+process NodeProc = i: nat @ begin
 	functions
---		next(i: nat) j: nat
---		pre
---			i in set LOC
---		post
---			j = (i+1) mod n
+		next ( i: nat ) j: nat
+		pre
+			i in set LOC
+		post
+			j = (i+1) mod n
 
---		home(i: nat) s: set of SUBS
---		pre
---			i in set LOC
---		post
---			forall j in set LOC @ s inter home(j) = {}
+		home(i: nat) s: set of SUBS
+		pre
+			i in set LOC
+		post
+			forall j in set LOC @ s inter home(j) = {}
 	
 	state
 		i: nat -- process parameter
@@ -282,123 +268,103 @@ begin
 		InitNode ()
 		frame wr away, origin
 		post
-			away = { |-> } and
-			origin = { |-> } 
+			away = {|->} and
+			origin = {|->}
 			
-end  
 
-channels
-	my_init
-	my_call: SUBS*SUBS
-	my_clear,my_suspend,my_connectfree,my_connectbusy,connectbusy: SUBS
-	my_answer,my_unsuspend: SUBS
-	my_callok,my_clearok,my_suspendok,my_answerok,my_unsuspendok
-	my_callerror,my_clearerror,my_suspenderror,my_answererror,my_unsuspenderror
-	my_del,my_add: SUBS
-	my_addok,my_delok
-	my_delerror
-	
-process NodeProc = i: nat @ begin -- no way of putting an invariant here. we could define LOC as a type instead of a constant.
---	state Node
-	state n: NodeState
 	actions
 		Node = 
---			call?s -> (s in set ( home(i)\(dom(n.away))))?t:(t in set home(i) \ (dom(n.away))) ->
---				my_call!s!t -> (my_callok -> callok -> Skip [] my_callerror -> callerror -> Skip); Node
---			[] -- RWL I need other eyes on this 
-			call?s?t -> [ (s in set dom(n.away)) ] & callerror -> Node
+			call?s: (s in set home(i) \ (dom(away)))?t: (t in set home(i) \ (dom(away))) ->
+				mycall!s!t -> (mycallok -> callok -> Skip [] mycallerror -> callerror -> Skip); Node
 			[]
-			call?s?t -> [ (s in set home(i)) and (t not in set home(i)) ] & 
-				(dcl m:nat := 1 @ -- was [true,t in set home(m)]; --- RWL TC: Syntax error meaning not clear !
-							  n.away := n.away ++ {s |-> m};
-							  mid!(<vcallmsg>)!i!m!s!t -> Skip); Node
+			call?s1: (s1 in set dom(away))?t2 -> callerror -> Node
 			[]
-			clear?s?t -> [ (s in set home(i) \ (dom(n.away))) and (t in set home(i) \ (dom(n.away))) ] &
-				my_clear!s!t -> (my_clearok -> clearok -> Skip [] my_clearerror -> clearerror -> Skip); Node
+			call?s2: (s2 in set home(i))?t3: (t3 in set {x | x: SUBS @ x not in set home(i)}) ->
+				(dcl m: nat @ [frame wr m pre true post t3 in set home(m)];
+							  away := away ++ {s2 |-> m};
+							  mid!i!(<vcallmsg>)!i!m!s2!t3 -> Skip); Node
 			[]
-			clear?s?t -> [ (s in set dom(n.away)) and (t not in set home(i)) ] &
-				mid!(<vclearmsg>)!i!(n.away(s))!s!t -> n.away:={s}<-:n.away; Node
+			clear?s3: (s3 in set home(i) \ (dom(away)))?t4: (t4 in set home(i) \ (dom(away))) ->
+
+				myclear!s3!t4 -> (myclearok -> clearok -> Skip [] myclearerror -> clearerror -> Skip); Node
 			[]
-			suspend?s -> [ (s in set home(i))] & my_suspend!s ->
-				(my_suspendok -> suspend.(mk_token("ok")) -> Skip [] my_suspenderror -> suspenderror -> Skip); Node
+			clear?s4: (s4 in set dom(away))?t5: (t5 in set {x | x: SUBS @ x not in set home(i)}) ->
+				mid!i!(<vclearmsg>)!i!(away(s4))!s4!t5 -> away:={s4}<-:away; Node
 			[]
-			answer?t -> [ (t in set home(i)) ] & my_answer!t ->
-				(my_answerok -> answerok -> Skip [] my_answererror -> answererror -> Skip ); Node
+			suspend?s5: (s5 in set home(i)) -> mysuspend!s5 ->
+				(mysuspendok -> suspendok -> Skip [] mysuspenderror -> suspenderror -> Skip); Node
 			[]
-			suspend?t -> [ (t in set home(i)) ] & my_unsuspend!t ->
-				(my_unsuspendok -> unsuspendok -> Skip
+			answer?t: (t in set home(i)) -> myanswer!t ->
+				(myanswerok -> answerok -> Skip [] myanswererror -> answererror -> Skip); Node
+			[]
+			suspend?t: (t in set home(i)) -> myunsuspend!t ->
+				(myunsuspendok -> unsuspendok -> Skip
 				[]
-				my_unsuspenderror -> unsuspenderror -> Skip); Node
+				myunsuspenderror -> unsuspenderror -> Skip); Node
 			[]
-			link!i!(<vcallmsg>)?j?k?s?t ->
-				(if k = i then my_add!s ->
-					(my_addok -> my_call!s!t -> 
-						(my_callok -> mid!(<callokmsg>)!j!j!s!t -> Skip
+			link!i!(<vcallmsg>)?j?k?s6?t8 ->
+				(if k = i then myadd!s6 ->
+					(myaddok -> mycall!s6!t8 -> 
+						(mycallok -> mid!i!(<callokmsg>)!i!j!s6!t8 -> Skip
 						[]
-						-- RWL TC: mu is an operator and not defined as a channel?
-						Skip -- mu.callerror -> mid!callerrormsg!j!j!s!t -> Skip)
+						mycallerror -> mid!i!(<callerrormsg>)!i!j!s6!t8 -> Skip)
 					[]
-					-- RWL TC: mu is an operator and not defined as a channel?
-					Skip)) -- mu.adderror -> mid!callerrormsg!j!j!s!t -> Skip)
-				else mid!(<vcallmsg>)!j!k!s!t -> Skip); Node
+					myadderror -> mid!i!(<callerrormsg>)!i!j!s6!t8 -> Skip)
+				else mid!i!(<vcallmsg>)!j!k!s6!t8 -> Skip); Node
 			[]
-			link.i.(<vclearmsg>)?j?k?s?t ->
-				(if k = i then my_clear!s ->
-					(my_clearok -> my_del!s ->
-						(my_delok -> clearok -> Skip
+			link!i!(<vclearmsg>)?j1?k1?s7?t9 ->
+				(if k1 = i then myclear!s7 ->
+					(myclearok -> mydel!s7 ->
+						(mydelok -> clearok -> Skip
 						[]
-						my_delerror -> clearerror -> Skip)
+						mydelerror -> clearerror -> Skip)
 					[]
-					my_clearerror -> clearerror -> Skip)
-				else mid!(<vclearmsg>)!j!k!s!t -> Skip); Node
+					myclearerror -> clearerror -> Skip)
+				else mid!i!(<vclearmsg>)!j1!k1!s7!t9 -> Skip); Node
 			[]
-			link.i.(<callokmsg>)?j?k?s?t ->
-				(if k = i then callok -> Skip
-				else mid.(<callokmsg>)!j!k!s!t -> Skip); Node
+			link!i!(<callokmsg>)?j2?k2?s8?t10 ->
+				(if k2 = i then callok -> Skip
+				else mid!i!(<callokmsg>)!j2!k2!s8!t10 -> Skip); Node
 			[]
-			link.i.(<callerrormsg>)?j?k?s?t ->
-				(if k = i then callerror -> Skip
-				else mid.(<callerrormsg>)!j!k!s!t -> Skip); Node
-				
-				
-		@ init -> my_init -> n.InitNode(); Node
+			link!i!(<callerrormsg>)?j3?k3?s9?t11 ->
+				(if k3 = i then callerror -> Skip
+				else mid!i!(<callerrormsg>)!j3!k3!s9!t11 -> Skip); Node
+		@ init -> myinit -> InitNode(); Node
 end
 
 process LinkProc = i: nat @ begin
-	@ mu X @ (mid?msg?l?m?s?t -> link.(next(i)).msg!l!m!s!t -> X)
+	@ mu X @ ( mid!i?msg?l?m?s?t -> link!(next(i))!msg!l!m!s!t -> X )
 end
--- RWL TC: parser does not accept advanced channel names yet ! mid.i changed to mid
-process NodeLinkProc = i: nat @ begin @ Skip end -- (NodeProc(i) [| { mid } |] LinkProc(i)) \ { mid }
 
-process SlaveExchangeProc = i: LOCType @
-	(ExchangeProc(home(i))) [[
-		call <- my_call, clear <- my_clear, suspend <- my_suspend,
-		connectfree <- my_connectfree, connectbusy <- my_connectbusy,
-		answer <- my_answer, unsuspend <- my_unsuspend,
-		callok <- my_callok, clearok <- my_clearok,
-		suspendok <- my_suspendok, answerok <- my_answerok,
-		unsuspendok <- my_unsuspendok,
-		callerror <- my_callerror, clearerror <- my_clearerror,
-		suspenderror <- my_suspenderror, answererror <- my_answererror, 
-		unsuspenderror <- my_unsuspenderror]]
-		
+--process NodeLinkProc = i: nat @ (NodeProc(i) [|{|mid.i|}|] LinkProc(i)) \\ {|mid.i|}
+process NodeLinkProc = i: nat @ (NodeProc(i) [|{|mid|}|] LinkProc(i)) \\ {|mid|}
+
+process SlaveExchangeProc = i: LOCType @ 
+	ExchangeProc--(home(i))
+	[[
+		call <- mycall, clear <- myclear, suspend <- mysuspend,
+		connectfree <- myconnectfree, connectbusy <- myconnectbusy,
+		answer <- myanswer, unsuspend <- myunsuspend,
+		callok <- mycallok, clearok <- myclearok,
+		suspendok <- mysuspendok, answerok <- myanswerok,
+		unsuspendok <- myunsuspendok,
+		callerror <- mycallerror, clearerror <- myclearerror,
+		suspenderror <- mysuspenderror, answererror <- myanswererror,  
+		unsuspenderror <- myunsuspenderror]]
+	
 chansets
-	SlaveChannels = {| call, clear, suspend, connectfree,
-					   my_connectbusy, answer, unsuspend,
-					   callok, clearok,my_suspendok,answerok,
-					   unsuspendok,callerror,clearerror,suspenderror,
-					   answererror,unsuspenderror |}
-    -- RWL TC: This is not valid CML, a channel set cannot take parameters
-	-- RingChannels(i: nat) = {| left.i, right.i |}
-	RingChannels = {| left, right |}
+	SlaveChannels = {| mycall, myclear, mysuspend, myconnectfree,
+					   myconnectbusy, myanswer, myunsuspend,
+					   mycallok, myclearok,mysuspendok,myanswerok,
+					   myunsuspendok,mycallerror,myclearerror,mysuspenderror,
+					   myanswererror,myunsuspenderror |}
 
-process NodeLink = val i : nat @ begin @ Skip end				   
-process NodeLinkExchange = i: nat @
-	(NodeLink(i) [| { SlaveChannels } |] SlaveExchangeProc(i)) \\ SlaveChannels
+channels
+	left, right: LOCType
+	
+-- process ExchangeSoS =
+--   || i: LOC @ [|{|left.i, right.i|}|] NodeLinkExchange(i)
+process ExchangeSoS =
+  || i: LOCType @ [{|left, right|}] begin @ Skip end --- RWL TC: NodeLinkExchange(i) is undefined
 
-
--- in this case i can range over LOC because we made it possible in the syntax, perhaps we should change to "i in set"
--- for all iterated except for sequential composition which should be someting like "i in seq".
- 
-process ExchangeSoS = || i: LOCType @ [ RingChannels /*(i)*/ ] NodeLinkExchange(i)
-
+  

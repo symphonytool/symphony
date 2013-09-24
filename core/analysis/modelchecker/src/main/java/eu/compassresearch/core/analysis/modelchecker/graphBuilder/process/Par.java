@@ -4,73 +4,19 @@ import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.Bindin
 
 public class Par implements ParallelProcess {
 	
-	public Binding getBinding1() {
-		return binding1;
-	}
-
-
-	public void setBinding1(Binding binding1) {
-		this.binding1 = binding1;
-	}
-
-
-	public Process getProcess1() {
-		return process1;
-	}
-
-
-	public void setProcess1(Process process1) {
-		this.process1 = process1;
-	}
-
-
-	public String getStr() {
-		return str;
-	}
-
-
-	public void setStr(String str) {
-		this.str = str;
-	}
-
-
-	public Binding getBinding2() {
-		return binding2;
-	}
-
-
-	public void setBinding2(Binding binding2) {
-		this.binding2 = binding2;
-	}
-
-
-	public Process getProcess2() {
-		return process2;
-	}
-
-
-	public void setProcess2(Process process2) {
-		this.process2 = process2;
-	}
-
-
-	private Binding binding1;
-	private Process process1;
-	private String str;
-	private Binding binding2;
-	private Process process2;
+	private Binding leftBinding;
+	private Process left;
+	private String syncSet;
+	private Binding rightBinding;
+	private Process right;
 	
-	
-	public Par(Binding binding1, Process process1, String str, Process process2,Binding binding2) {
-		this.binding1 = binding1;
-		this.process1 = process1;
-		this.str = str;
-		this.binding2 = binding2;
-		this.process2 = process2;
-		
-		
-		
-		
+
+	public Par(Binding leftBinding, Process left, String syncSet, Binding rightBinding, Process right) {
+		this.leftBinding = leftBinding;
+		this.left = left;
+		this.syncSet = syncSet;
+		this.rightBinding = rightBinding;
+		this.right = right;
 	}
 
 	@Override
@@ -80,18 +26,63 @@ public class Par implements ParallelProcess {
 			Par other = (Par) obj;
 			result = //this.getBinding1().equals(other.getBinding1())
 					//&& this.getBinding2().equals(other.getBinding2())
-					this.getProcess1().equals(other.getProcess1())
-					&& this.getProcess2().equals(other.getProcess2())
-					&& this.getStr().equals(other.getStr());
+					this.getLeft().equals(other.getLeft())
+					&& this.getRight().equals(other.getRight())
+					&& this.getSyncSet().equals(other.getSyncSet());
 		}
 		return result;
 	}
 	
+	@Override
+	public String toString() {
+		return "(" +this.leftBinding.toString() + "," + this.getLeft().toString() + ") " + this.syncSet + " ("+ this.rightBinding.toString() + "," + this.getRight().toString() + ")";
+	}
 	
 	@Override
 	public boolean isDeadlock(){
 		return false;
 	}
-	
 
+	public Binding getLeftBinding() {
+		return leftBinding;
+	}
+
+	public void setLeftBinding(Binding leftBinding) {
+		this.leftBinding = leftBinding;
+	}
+
+	public Process getLeft() {
+		return left;
+	}
+
+	public void setLeft(Process left) {
+		this.left = left;
+	}
+
+	public String getSyncSet() {
+		return syncSet;
+	}
+
+	public void setSyncSet(String syncSet) {
+		this.syncSet = syncSet;
+	}
+
+	public Binding getRightBinding() {
+		return rightBinding;
+	}
+
+	public void setRightBinding(Binding rightBinding) {
+		this.rightBinding = rightBinding;
+	}
+
+	public Process getRight() {
+		return right;
+	}
+
+	public void setRight(Process right) {
+		this.right = right;
+	}
+	
+	
+	
 }

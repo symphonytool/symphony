@@ -33,16 +33,20 @@ import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 public class AdHocTest {
 
 	@Test
-	public void testPog() throws AnalysisException, IOException {
+	public void testCmlPog() throws AnalysisException, IOException {
 		String file = "src/test/resources/adhoc/test.cml";
 		System.out.println("Processing " + file);
 		IProofObligationList poList = buildPosFromFile(file);
 
+		System.out.println("------------------------");
+		System.out.println("POS FOR: "+file);
+		System.out.println("------------------------");		
 		
 		for (IProofObligation po : poList) {
 			String pretty = po.getValueTree().toString();
 			System.out.println(pretty);
 		}
+		System.out.println("------DONE---------");
 
 	}
 

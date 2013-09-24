@@ -8,11 +8,21 @@ public class UndefinedValue implements Type {
 	}
 
 	@Override
+	public UndefinedValue copy(){
+		return new UndefinedValue();
+	}
+	
+	@Override
 	public String toString() {
 		return "undef";
 	}
 	
 	public String toFormula() {
+		return this.toString();
+	}
+
+	@Override
+	public String toFormulaWithState() {
 		return this.toString();
 	}
 }

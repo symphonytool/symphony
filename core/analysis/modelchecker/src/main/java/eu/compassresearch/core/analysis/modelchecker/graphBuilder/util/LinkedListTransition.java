@@ -22,13 +22,13 @@ public class LinkedListTransition extends LinkedList<Transition> {
 		ArrayList<Integer> indexes = new ArrayList<Integer>();
 		for (int i = 0; i < this.size(); i++) {
 			Transition t = this.get(i);
-			if(t.getEvent().equals(transition.getEvent())){
+			if(t.getEvent().equals(transition.getEvent()) && t.getSourceState().equals(transition.getSourceState())){
 				indexes.add(i);
 			}
 		}
 		int[] result = new int[indexes.size()];
 		for (int i = 0; i < indexes.size(); i++) {
-			result[i] = indexes.get(0);
+			result[i] = indexes.get(i);
 		}
 		
 		return result;
