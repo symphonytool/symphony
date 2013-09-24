@@ -124,6 +124,7 @@ public class ThmProcessUtil {
 	public static String opExpRight = "\\<rparr>";
 	public static String opTurn = "\\<turnstile>";
 	public static String isaMainAction = "MainAction";
+	public static String isaMu = "\\<mu>";
 
 	private static String skip = "SKIP";
 	private static String stop = "STOP";
@@ -408,6 +409,20 @@ public class ThmProcessUtil {
 		return nodeDeps;
 	}
 	
+	public static NodeNameList getProcessStatementNames(AActionProcess act)
+	{
+		LinkedList<AStateDefinition> statements = new LinkedList<AStateDefinition>();
+		for (PDefinition pdef : act.getDefinitionParagraphs())
+		{
+			if (pdef instanceof AStateDefinition)
+			{
+				AStateDefinition sdef = (AStateDefinition) pdef;
+				statements.add(sdef);
+			}
+		}
+		return ThmProcessUtil.getStateNames(statements);
+	}
+	
 	
 	/**
 	 * Return the ThmNode for a Action Process - this is more complex than most other
@@ -427,6 +442,8 @@ public class ThmProcessUtil {
 		//Require a list of all names used within a process, so to ensure the dependency 
 		//relationships within and outside the process can be dealt with.
 		NodeNameList procNodeNames = new NodeNameList();
+		//Placeholder for main action - only changed if there are state variables
+		String mainActStateStr = " = `";
 
 		//Collect all the statement/operation/action paragraphs and deal with them 
 		//all together.
@@ -457,93 +474,107 @@ public class ThmProcessUtil {
 			}
 		}
 		
-		//first we need to get all the state identifier names so expressions use correct
-		//reference
+		//first we need to get all the state identifier names so expressions use correct reference
 		NodeNameList svars = ThmProcessUtil.getStateNames(statements);
-		//Add all state, operation and action names to list
-		procNodeNames.addAll(ThmProcessUtil.getStateNames(statements));
-		procNodeNames.addAll(ThmProcessUtil.getOperationNames(operations));
-		procNodeNames.addAll(ThmProcessUtil.getActionNames(actions));
-				
-					
-		//next generate nodes for the state variables, and add their initialised 
-		//assignments to a collection for initialisation in main action
-		//Also generate the invariant functions...
-		LinkedList<String> initExprs = new LinkedList<String>();
-		NodeNameList initExprNodeDeps = new NodeNameList();
-		for (AStateDefinition pdef : statements)
-		{
-			for (PDefinition sdef : pdef.getStateDefs())
-			{
-				if (sdef instanceof AAssignmentDefinition)
-				{
-					AAssignmentDefinition st = (AAssignmentDefinition) sdef;
-
-					//Get the state variable name
-					ILexNameToken sName = st.getName();
-					NodeNameList sNodeDeps = new NodeNameList();
-					//if the variable is initialised straight away, add it to the initExprs string
-					//and get the dependencies
-					if (st.getExpression() != null)
-					{
-						initExprs.add(sName.toString() + ThmProcessUtil.assign + ThmExprUtil.getIsabelleExprStr(svars, new NodeNameList(), st.getExpression()));
-						initExprNodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(new NodeNameList(),  st.getExpression()));
-						//Add all dependencies to the processes dependencies
-						nodeDeps.addAll(initExprNodeDeps);
-						//As we only care about the internal dependencies in initExprNodeDeps, remove
-						//any dependencies to CML elements external to the process
-						initExprNodeDeps = initExprNodeDeps.restrictDeps(procNodeNames);
-					}
-					//if the variable is not initialised straight away, leave it as undefined.
-					else
-					{
-						initExprs.add(sName.toString() + " := undefined");
-					}
-					//obtain the type of the state variable, and the type dependencies
-					String type = ThmTypeUtil.getIsabelleType(st.getType());
-					nodeDeps.addAll(ThmTypeUtil.getIsabelleTypeDeps(st.getType()));
+		//also get operation and action names
+		NodeNameList opNames = ThmProcessUtil.getOperationNames(operations);
+		NodeNameList actNames = ThmProcessUtil.getActionNames(actions);
 		
-					ThmNode stn = new ThmNode(sName, sNodeDeps, new ThmState(sName.getName(), type));
-					actTnl.add(stn);
+		//Add all state, operation and action names to list
+		procNodeNames.addAll(svars);
+		procNodeNames.addAll(opNames);
+		procNodeNames.addAll(actNames);
+				
+		//if there are state variables
+		if (!svars.isEmpty())
+		{
+			//next generate nodes for the state variables, and add their initialised 
+			//assignments to a collection for initialisation in main action
+			//Also generate the invariant functions...
+			LinkedList<String> initExprs = new LinkedList<String>();
+			NodeNameList initExprNodeDeps = new NodeNameList();
+			for (AStateDefinition pdef : statements)
+			{
+				for (PDefinition sdef : pdef.getStateDefs())
+				{
+					if (sdef instanceof AAssignmentDefinition)
+					{
+						AAssignmentDefinition st = (AAssignmentDefinition) sdef;
+	
+						//Get the state variable name
+						ILexNameToken sName = st.getName();
+						NodeNameList sNodeDeps = new NodeNameList();
+						//if the variable is initialised straight away, add it to the initExprs string
+						//and get the dependencies
+						if (st.getExpression() != null)
+						{
+							initExprs.add(sName.toString() + ThmProcessUtil.assign + ThmExprUtil.getIsabelleExprStr(svars, new NodeNameList(), st.getExpression()));
+							initExprNodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(new NodeNameList(),  st.getExpression()));
+							//Add all dependencies to the processes dependencies
+							nodeDeps.addAll(initExprNodeDeps);
+							//As we only care about the internal dependencies in initExprNodeDeps, remove
+							//any dependencies to CML elements external to the process
+							initExprNodeDeps = initExprNodeDeps.restrictDeps(procNodeNames);
+						}
+						//if the variable is not initialised straight away, leave it as undefined.
+						else
+						{
+							initExprs.add(sName.toString() + " := undefined");
+						}
+						//obtain the type of the state variable, and the type dependencies
+						String type = ThmTypeUtil.getIsabelleType(st.getType());
+						nodeDeps.addAll(ThmTypeUtil.getIsabelleTypeDeps(st.getType()));
+			
+						ThmNode stn = new ThmNode(sName, sNodeDeps, new ThmState(sName.getName(), type));
+						actTnl.add(stn);
+					}
+				}
+				//TODO: Define state invariants
+			}
+	
+			//Build the initialisation operation
+			StringBuilder initExpStr = new StringBuilder();
+			for (Iterator<String> itr = initExprs.listIterator(); itr.hasNext(); ) {
+				String ep = itr.next();
+						
+				initExpStr.append(ep);
+				//If there are remaining exprs, add a ","
+				if(itr.hasNext()){	
+					initExpStr.append("; ");
 				}
 			}
+			//hack a name for the initialisation op
+			LexNameToken initName = new LexNameToken("", "IsabelleStateInit", act.getLocation());
+			ThmNode stn = new ThmNode(initName, initExprNodeDeps, new ThmExplicitOperation(initName.getName(), new LinkedList<PPattern>(), null, null, initExpStr.toString()));
+			actTnl.add(stn);		
 			
-			//TODO: Define state invariants
+			mainActStateStr = " = `IsabelleStateInit; ";
+		}
+		
+		//if the process has operations
+		if(!opNames.isEmpty())
+		{
+			//Handle the operations
+			ThmNodeList opNodes = ThmProcessUtil.getIsabelleOperations(operations, svars);
+			//Add all operation dependencies to the list of process dependencies
+			nodeDeps.addAll(opNodes.getAllNodeDeps());
+			//restrict the operation dependencies to only those names used within the process
+			opNodes = opNodes.restrictExtOperationsDeps(procNodeNames);
+			actTnl.addAll(opNodes);
 		}
 
-		//Build the initialisation operation
-		StringBuilder initExpStr = new StringBuilder();
-		for (Iterator<String> itr = initExprs.listIterator(); itr.hasNext(); ) {
-			String ep = itr.next();
-					
-			initExpStr.append(ep);
-			//If there are remaining exprs, add a ","
-			if(itr.hasNext()){	
-				initExpStr.append("; ");
-			}
+		//if the process has actions
+		if(!actNames.isEmpty())
+		{
+			//Handle the actions.
+			//TODO:NEED TO CHECK EACH ACT FOR RECURSION (See notepad :))
+			ThmNodeList actNodes = (ThmProcessUtil.getIsabelleActions(actions, svars, new NodeNameList()));
+			//Add all action dependencies to the list of process dependencies
+			nodeDeps.addAll(actNodes.getAllNodeDeps());
+			//restrict the action dependencies to only those names used within the process
+			actNodes = actNodes.restrictExtOperationsDeps(procNodeNames);
+			actTnl.addAll(actNodes);
 		}
-		//hack a name for the initialisation op
-		LexNameToken initName = new LexNameToken("", "IsabelleStateInit", act.getLocation());
-		ThmNode stn = new ThmNode(initName, initExprNodeDeps, new ThmExplicitOperation(initName.getName(), new LinkedList<PPattern>(), null, null, initExpStr.toString()));
-		actTnl.add(stn);
-		
-		
-		//Handle the operations
-		ThmNodeList opNodes = ThmProcessUtil.getIsabelleOperations(operations, svars);
-		//Add all operation dependencies to the list of process dependencies
-		nodeDeps.addAll(opNodes.getAllNodeDeps());
-		//restrict the operation dependencies to only those names used within the process
-		opNodes = opNodes.restrictExtOperationsDeps(procNodeNames);
-		actTnl.addAll(opNodes);
-		
-		//Handle the actions.
-		//TODO:NEED TO CHECK EACH ACT FOR RECURSION (See notepad :))
-		ThmNodeList actNodes = (ThmProcessUtil.getIsabelleActions(actions, svars, new NodeNameList()));
-		//Add all action dependencies to the list of process dependencies
-		nodeDeps.addAll(actNodes.getAllNodeDeps());
-		//restrict the action dependencies to only those names used within the process
-		actNodes = actNodes.restrictExtOperationsDeps(procNodeNames);
-		actTnl.addAll(actNodes);
 		
 		//sort the state, operation and actions, so that they are in dependency order
 		String actString = "";
@@ -551,7 +582,8 @@ public class ThmProcessUtil {
 		{
 			actTnl = TPVisitor.sortThmNodes(actTnl);
 			actString = actTnl.toString();
-		}catch(ThySortException thye)
+		}
+		catch(ThySortException thye)
 		{
 			actString = "(*Thy gen error:*)\n" + "(*Isabelle Error when sorting nodes - "
 					+ "please submit bug report with CML file*)\n\n" + thye.getSortErrorStatus() + "\n\n"; 
@@ -562,7 +594,7 @@ public class ThmProcessUtil {
 				
 		//Obtain the main action string
 		PAction mainAction = act.getAction();
-		String mainStr = ThmProcessUtil.isaProc + " \"" + ThmProcessUtil.isaMainAction + " = `IsabelleStateInit; " + ThmProcessUtil.getIsabelleActionString(mainAction, svars, new NodeNameList()) +  "`\"";
+		String mainStr = ThmProcessUtil.isaProc + " \"" + ThmProcessUtil.isaMainAction + mainActStateStr + ThmProcessUtil.getIsabelleActionString(mainAction, svars, new NodeNameList()) +  "`\"";
 		
 		//Finally construct the node to represent the process
 		return new ThmNode(procName, nodeDeps, new ThmProcAction(procName.toString(), actString, mainStr));
@@ -687,7 +719,10 @@ public class ThmProcessUtil {
 			}
 			if (imOp.getPostcondition() != null)
 			{
+				//Set the expression utility postcondition flag to true - so to generate primed variables
+				ThmExprUtil.setPostExpr(true);
 				post = ThmExprUtil.getIsabelleExprStr(svars, bvars, imOp.getPostcondition());
+				ThmExprUtil.setPostExpr(false);
 				nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, imOp.getPostcondition()));
 
 			}
@@ -724,7 +759,10 @@ public class ThmProcessUtil {
 			}
 			if (exOp.getPostcondition() != null)
 			{
+				//Set the expression utility postcondition flag to true - so to generate primed variables
+				ThmExprUtil.setPostExpr(true);
 				post = ThmExprUtil.getIsabelleExprStr(svars, bvars, exOp.getPostcondition());
+				ThmExprUtil.setPostExpr(false);
 				nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, exOp.getPostcondition()));
 
 			}
@@ -747,7 +785,7 @@ public class ThmProcessUtil {
 			NodeNameList bvars) {
 		ThmNodeList tnl = new ThmNodeList();
 			
-		//for each Action Definiton node
+		//for each Action Definition node
 		for(AActionDefinition act : actions)
 			tnl.add(ThmProcessUtil.getIsabelleAction(act, svars, bvars));
 		
@@ -760,7 +798,7 @@ public class ThmProcessUtil {
 	 * @param act - the action definition
 	 * @param svars - process state variable names
 	 * @param bvars - bound variable names
-	 * @return the theorem node prduced
+	 * @return the theorem node produced
 	 */
 	private static ThmNode getIsabelleAction(
 			AActionDefinition act, 
@@ -770,10 +808,19 @@ public class ThmProcessUtil {
 		ThmNode tn = null;
 		//get the action name
 		ILexNameToken actName = act.getName();
+		//obtain the action dependencies
+		NodeNameList nodeDeps = ThmProcessUtil.getIsabelleActionDeps(act.getAction(), bvars);
 		//get the Isabelle string for the action node's action.
 		String actString = ThmProcessUtil.getIsabelleActionString(act.getAction(), svars, bvars);
-		//obtain the action dependancies
-		NodeNameList nodeDeps = ThmProcessUtil.getIsabelleActionDeps(act.getAction(), bvars);
+		//check for self dependencies - if present, require a MU
+		for(ILexNameToken n : nodeDeps)
+		{
+			if(n.toString().equals(actName.toString()))
+			{
+				actString = isaMu + " " + actName.toString() + ". " + actString;
+				break;
+			}
+		}
 		//create the theorem node.
 		tn = new ThmNode(actName, nodeDeps, new ThmAction(actName.toString(), actString));
 

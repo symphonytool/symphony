@@ -16,7 +16,7 @@ public class CmlStateInvariantObligation extends CmlProofObligation {
 	public CmlStateInvariantObligation(AExplicitCmlOperationDefinition def,
 			IPOContextStack ctxt) {
 		
-		super(def, CmlPOType.STATE_INVARIANT, ctxt);
+		super(def, CmlPOType.STATE_INVARIANT, ctxt, def.getLocation());
 		valuetree.setPredicate(ctxt.getPredWithContext(invDefs(def.getClassDefinition().clone())));
 
 	}

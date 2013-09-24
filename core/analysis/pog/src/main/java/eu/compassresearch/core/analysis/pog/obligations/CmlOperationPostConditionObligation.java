@@ -43,14 +43,14 @@ public class CmlOperationPostConditionObligation extends CmlProofObligation{
 	public CmlOperationPostConditionObligation(AExplicitCmlOperationDefinition op,
 				IPOContextStack ctxt)
 	{
-		super(op, CmlPOType.OP_POST_CONDITION, ctxt);
+		super(op, CmlPOType.OP_POST_CONDITION, ctxt, op.getLocation());
 		valuetree.setPredicate(ctxt.getPredWithContext(buildExp(op.getPrecondition(), op.getPostcondition(), null)));
 	}
 
 	public CmlOperationPostConditionObligation(AImplicitCmlOperationDefinition op,
 				IPOContextStack ctxt)
 	{
-		super(op, CmlPOType.OP_POST_CONDITION, ctxt);
+		super(op, CmlPOType.OP_POST_CONDITION, ctxt, op.getLocation());
 		valuetree.setPredicate(ctxt.getPredWithContext(buildExp(op.getPrecondition(), op.getPostcondition(), op.getErrors())));
 	}
 

@@ -14,11 +14,21 @@ public class Nat implements Type {
 	}
 
 	@Override
+	public Nat copy(){
+		Nat result = new Nat(this.value);
+		return result;
+	}
+	@Override
 	public String toString() {
 		return String.valueOf(value);
 	}
 	
 	public String toFormula() {
+		return "Nat("+String.valueOf(value)+")";
+	}
+
+	@Override
+	public String toFormulaWithState() {
 		return "Nat("+String.valueOf(value)+")";
 	}
 

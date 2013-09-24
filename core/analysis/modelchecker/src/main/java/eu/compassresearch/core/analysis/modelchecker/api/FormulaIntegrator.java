@@ -25,6 +25,15 @@ public class FormulaIntegrator implements IFormulaIntegrator {
 		}
 	}
 	
+	public static boolean checkFormulaInstallation(){
+		boolean result = true;
+		try {
+			FormulaIntegrator.getInstance();
+		} catch (FormulaIntegrationException e) {
+			result = false;
+		}
+		return result;
+	}
 	@Override
 	public synchronized FormulaResult analyse(String specificationContent)
 			throws FormulaIntegrationException {

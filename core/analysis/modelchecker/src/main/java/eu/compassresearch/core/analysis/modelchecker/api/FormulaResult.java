@@ -21,6 +21,7 @@ public class FormulaResult {
 	private double elapsedTimeKnows;
     private String filePath;
     private String fileContent;
+     
 	
     public String getFileContent() {
 		return fileContent;
