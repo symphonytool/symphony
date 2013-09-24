@@ -115,27 +115,16 @@ public class MCHandler extends AbstractHandler {
 						if("cml".equalsIgnoreCase(cmlFile.getFileExtension())){
 							String propertyToCheck = this.getProperty(event.getParameter("eu.compassresearch.ide.modelchecker.property"));
 						    
-							//Date date = new Date();
 							IFolder mcFolder = cmlProj.getModelBuildPath().getOutput().getFolder(new Path("modelchecker"));
 							if(!mcFolder.exists()){
 								//if generated folder doesn't exist
 								IContainer mcParent = mcFolder.getParent();
 								if (!mcFolder.getParent().exists()){
-									//create 'generated' folder
-									//((IFolder) mcFolder.getParent().getParent()).create(true, true, new NullProgressMonitor());
-									//create 'model checker' folder
-									//((IFolder) mcFolder.getParent()).create(true, true, new NullProgressMonitor());
 									((IFolder) mcFolder.getParent()).create(true, true, new NullProgressMonitor());
 								}
-								//if 'generated' folder does exist and Isabelle folder doesn't exist
-								//else if (!mcFolder.getParent().exists()){
-								//	((IFolder) mcFolder.getParent()).create(true, true, new NullProgressMonitor());
-										
-								//}
 								//if the model checker folder does not exist
 								if (!mcFolder.exists()){
 									mcFolder.create(true, true, new NullProgressMonitor());
-									//mcFolder.refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());
 									mcFolder.refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());
 								}
 								
@@ -143,8 +132,6 @@ public class MCHandler extends AbstractHandler {
 							ICmlSourceUnit selectedUnit = getSelectedSourceUnit(model, (IFile)cmlFile);
 							IFile outputFile = translateCmlToFormula(model, (IFile)cmlFile, mcFolder, propertyToCheck);
 						
-							//PSource sourceAst = Utilities.makeSourceFromFile(cmlFile.getLocation().toFile().getAbsolutePath());
-						        	
 							FormulaResult formulaOutput = new FormulaResult();
 							MCJob job = new MCJob("Model checker progress", outputFile);
 							formulaOutput = job.getFormulaResult();
@@ -184,10 +171,15 @@ public class MCHandler extends AbstractHandler {
 					}
 						}
 				
-			} catch (Exception e) {
+			} catch(IOException e){
+				//probably an error in the visitor occurred
+				logStackTrace(e);
+				popErrorMessage(new RuntimeException("Some problem happened in the model checker visitor."));
+			}catch (Exception e) {
 				//the exception of formula must be cautch here
 				//String msg = e.getMessage();
 				//e.printStackTrace();
+				logStackTrace(e);
 				popErrorMessage(e);
 				//if(mc != null){
 				//	try {
@@ -200,6 +192,12 @@ public class MCHandler extends AbstractHandler {
 			}
 		}
 		return null;
+	}
+	private void logStackTrace(Exception e) {
+		StackTraceElement[] trace = e.getStackTrace();
+		for (int i = 0; i < trace.length; i++) {
+			Activator.logErrorMessage(trace[i].toString());
+		}
 	}
 	private IFile writeDotContentToFile(IFolder mcFolder,
 			ICmlSourceUnit selectedUnit, String dotContent) {
@@ -250,21 +248,12 @@ public class MCHandler extends AbstractHandler {
 		List<PDefinition> definitions = selectedCmlSourceUnit.getParseListDefinitions();
 		String basicContent = Utilities.readScriptFromFile(Utilities.BASIC_FORMULA_SCRIPT).toString();
 		String specificationContent = CMLModelcheckerVisitor.generateFormulaScript(basicContent, definitions,propertyToCheck);
-		//String specificationContent = "";
 		try{
 			if(!outputFile.exists()){
 				outputFile.create(new ByteArrayInputStream(specificationContent.toString().getBytes()), true, new NullProgressMonitor());
 			}else{
 				outputFile.setContents(new ByteArrayInputStream(specificationContent.toString().getBytes()), true, true, new NullProgressMonitor());
 			}
-			
-			
-			//set .fml file to be read only
-			//ResourceAttributes attributes = new ResourceAttributes();
-			//attributes.setReadOnly(true);
-			//outputFile.setResourceAttributes(attributes); 
-			
-
 		}catch(CoreException e){
 			Activator.log(e);
 		}

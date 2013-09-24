@@ -20,7 +20,7 @@ import eu.compassresearch.core.analysis.modelchecker.api.FormulaIntegrationExcep
 import eu.compassresearch.core.analysis.modelchecker.api.FormulaIntegrator;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.util.ProcessController;
 
-public class Activator extends AbstractUIPlugin implements IStartup {
+public class Activator extends AbstractUIPlugin implements IStartup{
 	
 	public static final String PLUGIN_ID = "eu.compassresearch.ide.modelchecker";
 	public static final String SAT_IMG_ID = "sat.png";
@@ -34,7 +34,7 @@ public class Activator extends AbstractUIPlugin implements IStartup {
 	public static final String dotNotInstalledMsg = "GraphViz is not found.\n If you have installed GraphViz, include the $GRAPHVIZ_DIR\\bin\\ folder  in your PATH environment variable. \n\n" + "GraphViz is used to build the counterexample graph.";
 	
     
-	@Override
+	
 	public void earlyStartup() {
     	checkAuxiliarySoftware();
 	}
@@ -56,17 +56,17 @@ public class Activator extends AbstractUIPlugin implements IStartup {
 	@Override
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
-		checkAuxiliarySoftware();
+		//checkAuxiliarySoftware();
 	}
 	
 	private void checkAuxiliarySoftware(){
 		if(!FormulaIntegrator.checkFormulaInstallation()){
     		FORMULA_OK = false;
-    		logErrorMessage(formulaNotInstalledMsg);
+    		logWarningMessage(formulaNotInstalledMsg);
     	}
 		if(!ProcessController.checkDotInstallation()){
 			DOT_OK = false;
-			logErrorMessage(dotNotInstalledMsg);
+			logWarningMessage(dotNotInstalledMsg);
 		}
 	}
 
@@ -115,9 +115,12 @@ public class Activator extends AbstractUIPlugin implements IStartup {
 
 	public static void logErrorMessage(String message){
 		getDefault().getLog().log(new Status(IStatus.ERROR, MCConstants.PLUGIN_ID, message));
-
 	}
-	
+
+	public static void logWarningMessage(String message){
+		getDefault().getLog().log(new Status(IStatus.WARNING, MCConstants.PLUGIN_ID, message));
+	}
+
 	private void popErrorMessage(Throwable e) {
 		MessageDialog.openInformation(null, "COMPASS",
 				formulaNotInstalledMsg);

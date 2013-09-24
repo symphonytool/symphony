@@ -18,6 +18,7 @@ import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Condit
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Divergence;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.ExtChoice;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.ExtraChoice;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.GenPar;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Hide;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.IPar;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.IParll;
@@ -90,6 +91,9 @@ public class Utilities {
 		
 		//PARALLEL
 		constructors.put(Constructor.Par.id, Constructor.Par);
+		constructors.put(Constructor.GenPar.id, Constructor.GenPar);
+		
+		//these constructores will be removed
 		constructors.put(Constructor.IPar.id, Constructor.IPar);
 		constructors.put(Constructor.IParll.id, Constructor.IParll);
 		constructors.put(Constructor.Parll.id, Constructor.Parll);
@@ -146,7 +150,8 @@ public class Utilities {
 				"NEQ"), LessThanExpression("LT"), GreaterThanExpression("GT"), IntType(
 				"Int"), NatType("Nat"), StrType("Str"), IRType("IR"), GivenProc(
 				"GivenProc"), ProcDef("ProcDef"), CommEv("CommEv"),T1("T1"),T2("T2"),T3("T3"),
-				SingleBind("SingleBind"), Undefined("undef"), VarDecl("var"), Let("let");
+				SingleBind("SingleBind"), Undefined("undef"), VarDecl("var"), Let("let"), 
+				GenPar("genPar");
 		
 		String id;
 		
@@ -477,9 +482,16 @@ public class Utilities {
 			binding = (Binding) createObject(arguments.pop());
 			process = (Process) createObject(arguments.pop());
 			str = arguments.pop();
-			auxProcess = (Process) createObject(arguments.pop());
 			leftBiding = (Binding) createObject(arguments.pop());
-			result = new Par(binding,process,str,auxProcess,leftBiding);
+			auxProcess = (Process) createObject(arguments.pop());
+			result = new Par(binding,process,str,leftBiding,auxProcess);
+			break;
+		
+		case GenPar:
+			process = (Process) createObject(arguments.pop());
+			str = arguments.pop();
+			auxProcess = (Process) createObject(arguments.pop());
+			result = new GenPar(process,str,auxProcess);
 			break;
 			
 		case Parll:
