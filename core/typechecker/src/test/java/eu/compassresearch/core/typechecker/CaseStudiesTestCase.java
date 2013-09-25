@@ -105,39 +105,41 @@ public class CaseStudiesTestCase extends AbstractTypeCheckerTestCase {
 			add("/LeaderElection/Election-NonLeaders");
 			// 7// LexNameToken
 			add("/LeaderElection/Election-Original");
-			// 8// LexNameToken
-			add("/LeaderElection");
+			// 8//
+			add("/LeaderElection/LeaderElection-Ncl");
 			// 9// LexNameToken
-			add("/Library");
+			add("/LeaderElection");
 			// 10// LexNameToken
-			add("/Parwsum");
+			add("/Library");
 			// 11// LexNameToken
-			add("/RingBuffer");
+			add("/Parwsum");
 			// 12// LexNameToken
-			add("/Simpler BitRegister");
+			add("/RingBuffer");
 			// 13// LexNameToken
-			add("/SoSMpc/ideal");
+			add("/Simpler BitRegister");
 			// 14// LexNameToken
-			add("/SoSMpc/protocol");
+			add("/SoSMpc/ideal");
 			// 15// LexNameToken
-			add("/SoSMpc/singlesystem");
+			add("/SoSMpc/protocol");
 			// 16// LexNameToken
-			add("/TelephoneExchange/ClassesVersion");
+			add("/SoSMpc/singlesystem");
 			// 17// LexNameToken
-			add("/TelephoneExchange/Original");
+			add("/TelephoneExchange/ClassesVersion");
 			// 18// LexNameToken
-			add("/TrafficManager/CityAndCars/City");
+			add("/TelephoneExchange/Original");
 			// 19// LexNameToken
+			add("/TrafficManager/CityAndCars/City");
+			// 20// LexNameToken
 			add("/TrafficManager/CityAndCars/City-Working");
-			// 20// Maybe a model error, multiple def of var i
+			// 21// Maybe a model error, multiple def of var i
 			add("/TrafficManager/Junctions");
-			// 21// LexNameToken
+			// 22// LexNameToken
 			add("/TravelAgent/Hotel1");
-			// 22// Syntax bug
+			// 23// Syntax bug
 			add("/TravelAgent/Hotel2");
 			// 23// Jeremy and Zoe working on master students
 			//add("/Alarm");
-			//23 //
+			//24 //
 			add("/MiniMondex");
 
 		} else {

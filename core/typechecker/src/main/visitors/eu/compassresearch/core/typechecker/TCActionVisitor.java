@@ -1695,7 +1695,7 @@ class TCActionVisitor extends
 			return node.getType();
 		}
 
-		if (!(actionType instanceof AActionType || actionType instanceof AStatementType)) {
+		if (!(actionType instanceof AActionType || actionType instanceof AStatementType || actionType instanceof AVoidType)) {
 			node.setType(issueHandler.addTypeError(action,
 					TypeErrorMessages.EXPECTED_AN_ACTION_OR_OPERATION
 							.customizeMessage("" + action)));

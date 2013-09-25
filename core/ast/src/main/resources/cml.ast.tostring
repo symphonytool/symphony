@@ -56,6 +56,7 @@ import eu.compassresearch.ast.util.ToStringUtil;
 %VarsetExpression->fatEnum = "{|" [channelNames] "|}"
 
 //  Expressions
+%exp->#Channel->name = [identifier]+ $($[expressions]$!=null && !$[expressions]$.isEmpty()?_expressions.toString():"")$+""
  
 //  Patterns
 
