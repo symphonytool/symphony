@@ -25,7 +25,8 @@ Require-Bundle: org.eclipse.debug.ui,
  org.scala-ide.scala.library,
  eu.compassresearch.ide.pog
 Import-Package: org.overture.pog.obligation,
- org.overture.pog.pub
+ org.overture.pog.pub,
+ org.overture.pof
 Export-Package: eu.compassresearch.ide.theoremprover
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
