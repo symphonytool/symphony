@@ -31,7 +31,7 @@ public class DebugMain {
 	public static void main(String[] args) {
 
 		Console.enableDebug(false);
-		Console.enableOut(false);
+		Console.enableOut(true);
 		CmlDebugger debugger = new SocketServerCmlDebugger();
 		try{
 			//Since the process that started expects the debugger to connect

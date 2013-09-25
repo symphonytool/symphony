@@ -43,7 +43,8 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 
 	private static int getNextId()
 	{
-		return globalIdCount++;
+		CmlRuntime.logger().finest("New behavior id created " +  ++globalIdCount);
+		return globalIdCount;
 	}
 	/*
 	 * Instance variables

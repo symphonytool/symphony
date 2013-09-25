@@ -368,7 +368,10 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 			case GET_STACK_FRAMES:
 			{
 				int id = message.getContent();
+				
 				CmlBehaviour foundBehavior = this.runningInterpreter.findBehaviorById(id);
+				System.out.println(id + " foundBehavior: " + foundBehavior);
+				
 				Context context = foundBehavior.getNextState().second;
 				List<StackFrameDTO> stackframes = new LinkedList<StackFrameDTO>();
 
