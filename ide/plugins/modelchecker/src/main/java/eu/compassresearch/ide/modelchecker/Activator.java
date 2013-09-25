@@ -28,10 +28,10 @@ public class Activator extends AbstractUIPlugin implements IStartup{
     
 	// The shared instance
 	private static Activator plugin;
-	protected static boolean FORMULA_OK = true;
-	protected static boolean DOT_OK = true;
+	public static boolean FORMULA_OK = true;
+	public static boolean DOT_OK = true;
 	public static final String formulaNotInstalledMsg = "Microsoft FORMULA could not be started.\n If you have installed FORMULA, include the $FORMULA_DIR\\Base System\\ folder  in your PATH environment variable. \n\n" + "The CML model checker depends on FORMULA to work.";
-	public static final String dotNotInstalledMsg = "GraphViz is not found.\n If you have installed GraphViz, include the $GRAPHVIZ_DIR\\bin\\ folder  in your PATH environment variable. \n\n" + "GraphViz is used to build the counterexample graph.";
+	public static final String dotNotInstalledMsg = "GraphViz is not found.\n If you have installed GraphViz, include the $GRAPHVIZ_DIR\\bin\\ folder  in your PATH environment variable. \n\n" + "GraphViz is necessary to build the counterexample.";
 	
     
 	

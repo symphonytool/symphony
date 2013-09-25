@@ -8,6 +8,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.Binding;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.NullBinding;
@@ -19,18 +20,30 @@ public class CMLModelcheckerContext {
 	protected HashMap<Object, Object> info; 
 	
 	private Set<String> variables;
-	
+		
 	private ArrayList<String> states;
 	
 	public static int ASSIGN_COUNTER;
 	
-	private StringBuilder scriptContent;
+	public static int GUARD_COUNTER;
+	
+	public static int IOCOMM_COUNTER;
+	
+	//public static int GUARD_COUNTER;
+	
+	protected StringBuilder scriptContent;
 
 	protected SetStack setStack; 
 	
 	protected ArrayList<String> lieIn;
 	
 	protected ArrayList<SCmlOperationDefinition> operations;
+	
+	protected ArrayList<AActionDefinition> localActions;
+	
+	protected ArrayList<String> channelDependencies;
+	
+	protected ArrayList<String> ioCommDefs;
 	
 	public CMLModelcheckerContext() {
 		info = new HashMap<Object,Object>();
@@ -40,7 +53,12 @@ public class CMLModelcheckerContext {
 		setStack = new SetStack();
 		lieIn = new ArrayList<String>();
 		operations = new ArrayList<SCmlOperationDefinition>(); 
+		localActions = new ArrayList<AActionDefinition>();
+		channelDependencies = new ArrayList<String>();
+		ioCommDefs = new ArrayList<String>();
 		ASSIGN_COUNTER = 0;
+		GUARD_COUNTER = 0;
+		IOCOMM_COUNTER = 0;
 	}
 	
 	public CMLModelcheckerContext(int i) {
@@ -51,7 +69,31 @@ public class CMLModelcheckerContext {
 		setStack = new SetStack();
 		lieIn = new ArrayList<String>();
 		operations = new ArrayList<SCmlOperationDefinition>();
+		localActions = new ArrayList<AActionDefinition>();
+		channelDependencies = new ArrayList<String>();
+		ioCommDefs = new ArrayList<String>();
 		ASSIGN_COUNTER = i;
+		GUARD_COUNTER = 0;
+		IOCOMM_COUNTER = 0;
+	}
+	
+	public CMLModelcheckerContext copy(){
+		CMLModelcheckerContext result = new CMLModelcheckerContext();
+		result.info = new HashMap<Object,Object>(this.info);
+		result.scriptContent = new StringBuilder(this.scriptContent.toString());
+		result.variables = new LinkedHashSet<String>(this.variables);
+		result.states = new ArrayList<String>(this.states);
+		result.setStack = this.setStack.copy();
+		result.lieIn = new ArrayList<String>(this.lieIn);
+		result.operations = new ArrayList<SCmlOperationDefinition>(this.operations);
+		result.localActions = new ArrayList<AActionDefinition>(this.localActions);
+		result.channelDependencies = new ArrayList<String>(this.channelDependencies);
+		result.ioCommDefs = new ArrayList<String>(this.ioCommDefs);
+		result.ASSIGN_COUNTER = this.ASSIGN_COUNTER;
+		result.GUARD_COUNTER = this.GUARD_COUNTER;
+		result.IOCOMM_COUNTER = this.IOCOMM_COUNTER;
+		
+		return result;
 	}
 	
 	public Binding getMaxBinding(){
@@ -139,14 +181,19 @@ public class CMLModelcheckerContext {
 	}
 	
 	public void reset(){
-		this.info = new HashMap<Object,Object>();
-		this.scriptContent = new StringBuilder();
-		this.variables = new LinkedHashSet<String>();
-		this.states = new ArrayList<String>();
-		this.setStack = new SetStack();
-		this.lieIn = new ArrayList<String>();
-		this.operations = new ArrayList<SCmlOperationDefinition>(); 
-		this.ASSIGN_COUNTER = 0;
+		info = new HashMap<Object,Object>();
+		scriptContent = new StringBuilder();
+		variables = new LinkedHashSet<String>();
+		states = new ArrayList<String>();
+		setStack = new SetStack();
+		lieIn = new ArrayList<String>();
+		operations = new ArrayList<SCmlOperationDefinition>(); 
+		localActions = new ArrayList<AActionDefinition>();
+		channelDependencies = new ArrayList<String>();
+		ioCommDefs = new ArrayList<String>();
+		ASSIGN_COUNTER = 0;
+		GUARD_COUNTER = 0;
+		IOCOMM_COUNTER = 0;
 	}
 	public void copyVarDeclarationInfo(CMLModelcheckerContext otherContext){
 		if(otherContext.info.containsKey(Utilities.VAR_DECLARATIONS_KEY)){
