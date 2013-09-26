@@ -28,10 +28,14 @@ import eu.compassresearch.ast.process.AGeneralisedParallelismProcess;
 import eu.compassresearch.ast.process.AHidingProcess;
 import eu.compassresearch.ast.process.AInterleavingProcess;
 import eu.compassresearch.ast.process.AInternalChoiceProcess;
+import eu.compassresearch.ast.process.AInterruptProcess;
 import eu.compassresearch.ast.process.AReferenceProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.ASynchronousParallelismProcess;
+import eu.compassresearch.ast.process.ATimeoutProcess;
+import eu.compassresearch.ast.process.AUntimedTimeoutProcess;
 import eu.compassresearch.ast.process.PProcess;
+import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
@@ -61,7 +65,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 	public Inspection defaultPProcess(PProcess node, Context question)
 			throws AnalysisException {
 
-		throw new InterpreterRuntimeException(InterpretationErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName()));
+		throw new CmlInterpreterException(InterpretationErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName()));
 
 	}
 
@@ -447,6 +451,27 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 		return caseAGeneralisedParallelismProcess(nextNode, question);
 	}
 
+	@Override
+	public Inspection caseATimeoutProcess(ATimeoutProcess node, Context question)
+			throws AnalysisException
+	{
+		return caseATimeout(node,node.getLeft(),node.getRight(),node.getTimeoutExpression(),question);
+	}
+	
+	@Override
+	public Inspection caseAUntimedTimeoutProcess(AUntimedTimeoutProcess node,
+			Context question) throws AnalysisException
+	{
+		return caseAUntimedTimeout(node, node.getRight(), question);
+	}
+	
+	@Override
+	public Inspection caseAInterruptProcess(AInterruptProcess node,
+			Context question) throws AnalysisException
+	{
+		return caseAInterrupt(node,question);
+	}
+	
 	/**
 	 * Private helper methods
 	 * @throws AnalysisException 

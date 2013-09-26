@@ -25,47 +25,48 @@ public class RandomSelectionStrategy implements SelectionStrategy {
 
 	private static final long randomSeed = 675674345;
 	private final Random rndChoice = new Random(randomSeed);
+	CmlTransitionSet availableChannelEvents;
 	
-	@Override
-	public CmlTransition select(CmlTransitionSet availableChannelEvents) {
-		
-		CmlTransition selectedComm = null;
-		
-		//If nothing is available then we do nothing
-		//TODO This is probably not the best thing to do
-		if(!availableChannelEvents.isEmpty())
-		{
-			int nElems = availableChannelEvents.getAllEvents().size();
-			
-			//pick a random but deterministic choice
-			
-			List<CmlTransition> transitions = new ArrayList<CmlTransition>(
-					availableChannelEvents.getAllEvents()); 
-			//Collections.sort(transitions);
-			selectedComm = transitions.get(rndChoice.nextInt(nElems));
-			
-			//If the selected transition contains a channelname that are not precise then we
-			//need to resolve this and let the environment take a random choice
-			if(selectedComm instanceof LabelledTransition && !((LabelledTransition)selectedComm).getChannelName().isPrecise())
-			{
-				LabelledTransition chosenChannelEvent = (LabelledTransition)selectedComm;
-				ChannelNameValue channnelName = chosenChannelEvent.getChannelName(); 
-				
-				for(int i = 0 ; i < channnelName.getValues().size() ; i++ )
-				{
-					Value currentValue = channnelName.getValues().get(i);
-					
-					if(!AbstractValueInterpreter.isValueMostPrecise(currentValue))
-					{
-						channnelName.updateValue(i, getRandomValueFromType(channnelName.getChannel().getValueTypes().get(i)));
-					}
-				}
-			}
-		}
-		CmlRuntime.logger().finest("The environment picked : " + selectedComm);
-		
-		return selectedComm;
-	}
+//	@Override
+//	public CmlTransition select(CmlTransitionSet availableChannelEvents) {
+//		
+//		CmlTransition selectedComm = null;
+//		
+//		//If nothing is available then we do nothing
+//		//TODO This is probably not the best thing to do
+//		if(!availableChannelEvents.isEmpty())
+//		{
+//			int nElems = availableChannelEvents.getAllEvents().size();
+//			
+//			//pick a random but deterministic choice
+//			
+//			List<CmlTransition> transitions = new ArrayList<CmlTransition>(
+//					availableChannelEvents.getAllEvents()); 
+//			//Collections.sort(transitions);
+//			selectedComm = transitions.get(rndChoice.nextInt(nElems));
+//			
+//			//If the selected transition contains a channelname that are not precise then we
+//			//need to resolve this and let the environment take a random choice
+//			if(selectedComm instanceof LabelledTransition && !((LabelledTransition)selectedComm).getChannelName().isPrecise())
+//			{
+//				LabelledTransition chosenChannelEvent = (LabelledTransition)selectedComm;
+//				ChannelNameValue channnelName = chosenChannelEvent.getChannelName(); 
+//				
+//				for(int i = 0 ; i < channnelName.getValues().size() ; i++ )
+//				{
+//					Value currentValue = channnelName.getValues().get(i);
+//					
+//					if(!AbstractValueInterpreter.isValueMostPrecise(currentValue))
+//					{
+//						channnelName.updateValue(i, getRandomValueFromType(channnelName.getChannel().getValueTypes().get(i)));
+//					}
+//				}
+//			}
+//		}
+//		CmlRuntime.logger().finest("The environment picked : " + selectedComm);
+//		
+//		return selectedComm;
+//	}
 	
 	private Value getRandomValueFromType(PType type)
 	{
@@ -76,6 +77,53 @@ public class RandomSelectionStrategy implements SelectionStrategy {
 		}
 		
 		return new UndefinedValue();
+	}
+
+	@Override
+	public void choices(CmlTransitionSet availableTransitions)
+	{
+		this.availableChannelEvents = availableTransitions;
+	}
+
+	@Override
+	public CmlTransition resolveChoice()
+	{
+		CmlTransition selectedComm = null;
+
+		//If nothing is available then we do nothing
+		//TODO This is probably not the best thing to do
+		if(!availableChannelEvents.isEmpty())
+		{
+			int nElems = availableChannelEvents.getAllEvents().size();
+
+			//pick a random but deterministic choice
+
+			List<CmlTransition> transitions = new ArrayList<CmlTransition>(
+					availableChannelEvents.getAllEvents()); 
+			//Collections.sort(transitions);
+			selectedComm = transitions.get(rndChoice.nextInt(nElems));
+
+			//If the selected transition contains a channelname that are not precise then we
+			//need to resolve this and let the environment take a random choice
+			if(selectedComm instanceof LabelledTransition && !((LabelledTransition)selectedComm).getChannelName().isPrecise())
+			{
+				LabelledTransition chosenChannelEvent = (LabelledTransition)selectedComm;
+				ChannelNameValue channnelName = chosenChannelEvent.getChannelName(); 
+
+				for(int i = 0 ; i < channnelName.getValues().size() ; i++ )
+				{
+					Value currentValue = channnelName.getValues().get(i);
+
+					if(!AbstractValueInterpreter.isValueMostPrecise(currentValue))
+					{
+						channnelName.updateValue(i, getRandomValueFromType(channnelName.getChannel().getValueTypes().get(i)));
+					}
+				}
+			}
+		}
+		CmlRuntime.logger().finest("The environment picked : " + selectedComm);
+
+		return selectedComm;
 	}
 	
 }

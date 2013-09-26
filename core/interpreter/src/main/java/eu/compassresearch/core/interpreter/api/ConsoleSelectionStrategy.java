@@ -20,6 +20,7 @@ public class ConsoleSelectionStrategy implements SelectionStrategy {
 	Scanner scanIn = new Scanner(System.in);
 	private RandomSelectionStrategy rndSelect = new RandomSelectionStrategy();
 	private boolean hideSilentTransitions;
+	CmlTransitionSet availableChannelEvents;
 	
 	public ConsoleSelectionStrategy()
 	{
@@ -48,7 +49,8 @@ public class ConsoleSelectionStrategy implements SelectionStrategy {
 	
 	private CmlTransition systemSelect(CmlTransitionSet availableChannelEvents)
 	{
-		return rndSelect.select(new CmlTransitionSet((Set)availableChannelEvents.getSilentTransitions()));
+		rndSelect.choices(new CmlTransitionSet((Set)availableChannelEvents.getSilentTransitions()));
+		return rndSelect.resolveChoice();
 	}
 	
 	private void printTransitions(List<CmlTransition> events)
@@ -101,9 +103,48 @@ public class ConsoleSelectionStrategy implements SelectionStrategy {
 		return chosenEvent;
 	}
 
-	@Override
-	public CmlTransition select(CmlTransitionSet availableChannelEvents) {
+//	@Override
+//	public CmlTransition select(CmlTransitionSet availableChannelEvents) {
+//
+//		//At this point we don't want the internal transition to propagate 
+//		//to the user, so we randomly choose all the possible internal transitions
+//		//before we let anything through to the user
+//		if(isSystemSelect(availableChannelEvents) && isHideSilentTransitions())
+//		{
+//			CmlTransition t = systemSelect(availableChannelEvents);
+//			System.out.println("The system picked: " + t);
+//			return t;
+//		}
+//		else{
+//			CmlTransition t = userSelect(availableChannelEvents);
+//			System.out.println("The environment picked: " + t);
+//			return t;
+//		}
+//	}
 
+
+	public boolean isHideSilentTransitions()
+	{
+		return hideSilentTransitions;
+	}
+
+
+	public void setHideSilentTransitions(boolean hideSilentTransitions)
+	{
+		this.hideSilentTransitions = hideSilentTransitions;
+	}
+
+
+	@Override
+	public void choices(CmlTransitionSet availableTransitions)
+	{
+		this.availableChannelEvents = availableChannelEvents;
+	}
+
+
+	@Override
+	public CmlTransition resolveChoice()
+	{
 		//At this point we don't want the internal transition to propagate 
 		//to the user, so we randomly choose all the possible internal transitions
 		//before we let anything through to the user
@@ -118,18 +159,6 @@ public class ConsoleSelectionStrategy implements SelectionStrategy {
 			System.out.println("The environment picked: " + t);
 			return t;
 		}
-	}
-
-
-	public boolean isHideSilentTransitions()
-	{
-		return hideSilentTransitions;
-	}
-
-
-	public void setHideSilentTransitions(boolean hideSilentTransitions)
-	{
-		this.hideSilentTransitions = hideSilentTransitions;
 	}
 	
 }

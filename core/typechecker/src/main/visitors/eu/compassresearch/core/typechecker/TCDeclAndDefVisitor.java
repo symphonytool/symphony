@@ -16,6 +16,7 @@ import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.AClassClassDefinition;
 import org.overture.ast.definitions.AClassInvariantDefinition;
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
+import org.overture.ast.definitions.AExplicitOperationDefinition;
 import org.overture.ast.definitions.AExternalDefinition;
 import org.overture.ast.definitions.AImplicitFunctionDefinition;
 import org.overture.ast.definitions.ALocalDefinition;
@@ -61,6 +62,7 @@ import org.overture.typechecker.TypeCheckInfo;
 import org.overture.typechecker.TypeChecker;
 import org.overture.typechecker.TypeCheckerErrors;
 import org.overture.typechecker.assistant.definition.AExplicitFunctionDefinitionAssistantTC;
+import org.overture.typechecker.assistant.definition.AExplicitOperationDefinitionAssistantTC;
 import org.overture.typechecker.assistant.definition.AImplicitFunctionDefinitionAssistantTC;
 import org.overture.typechecker.assistant.definition.ATypeDefinitionAssistantTC;
 import org.overture.typechecker.assistant.definition.PAccessSpecifierAssistantTC;
@@ -215,7 +217,6 @@ class TCDeclAndDefVisitor extends
 			
 			//this will generate all the pre and post defs
 			if (def instanceof AExplicitFunctionDefinition) {
-				//this will generate all the pre and post defs
 				AExplicitFunctionDefinitionAssistantTC.implicitDefinitions((AExplicitFunctionDefinition) def,null);
 			} 
 			else if (def instanceof AImplicitFunctionDefinition) {
@@ -648,13 +649,29 @@ class TCDeclAndDefVisitor extends
 							+ node)));
 			return node.getType();
 		}
-
+		
 		node.setType(new AOperationParagraphType());
 		LinkedList<SCmlOperationDefinition> operations = node.getOperations();
 		for (SCmlOperationDefinition odef : operations) {
 			odef.apply(parentChecker, question);
 			node.getType().getDefinitions().add(odef);
 			//cmlEnv.addVariable(odef.getName(), odef);
+			
+			PDefinition predef = null;
+			PDefinition postdef = null;
+			if(odef instanceof AExplicitCmlOperationDefinition){
+				predef = ((AExplicitCmlOperationDefinition)odef).getPredef();
+				postdef = ((AExplicitCmlOperationDefinition)odef).getPostdef();
+			} else if (odef instanceof AImplicitCmlOperationDefinition) {
+				predef = ((AImplicitCmlOperationDefinition)odef).getPredef();
+				postdef = ((AImplicitCmlOperationDefinition)odef).getPostdef();
+			}
+			
+			if(predef != null)
+				cmlEnv.addVariable(predef.getName(), predef);
+			
+			if(postdef != null)
+				cmlEnv.addVariable(postdef.getName(), postdef);
 		}
 		
 		return node.getType();
@@ -1673,7 +1690,7 @@ class TCDeclAndDefVisitor extends
 		// add the parameter to the Environment
 
 		// check the body
-		CmlTypeCheckInfo newQuestion = (CmlTypeCheckInfo) createEnvironmentWithFormals(
+  		CmlTypeCheckInfo newQuestion = (CmlTypeCheckInfo) createEnvironmentWithFormals(
 				question, node);
 
 		newQuestion.env.setEnclosingDefinition(node);

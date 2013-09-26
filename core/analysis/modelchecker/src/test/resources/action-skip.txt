@@ -1,6 +1,0 @@
-ProcDef("A",nopar,Skip)
-ProcHasDeadlock("A")
-State(omega)
-State(Skip)
-trans(State(Skip),tick,State(omega))
-

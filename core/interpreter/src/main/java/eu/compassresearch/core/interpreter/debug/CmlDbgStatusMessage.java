@@ -36,8 +36,7 @@ public class CmlDbgStatusMessage extends Message {
 
 	@Override
 	public String toString() {
-		return CmlDbgStatusMessage.class.getSimpleName() + System.lineSeparator() +
-			   this.interpreterStatus;
+		return this.interpreterStatus.getInterpreterState().toString();
 				
 	}
 

@@ -17,7 +17,7 @@ public class CmlRuntime {
 		if(null == logger)
 		{
 			logger = Logger.getLogger("CMLInterpreterLogger");
-			logger.setLevel(Level.FINER);
+			logger.setLevel(Level.FINE);
 			
 			logHandler = new Handler() {
 

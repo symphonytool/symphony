@@ -1,6 +1,0 @@
-ProcDef("A",nopar,Prefix(Sigma("a"),Stop))
-ProcHasDeadlock("A")
-State(Prefix(Sigma("a"),Stop))
-State(Stop)
-trans(State(Prefix(Sigma("a"),Stop)),Sigma("a"),State(Stop))
-
