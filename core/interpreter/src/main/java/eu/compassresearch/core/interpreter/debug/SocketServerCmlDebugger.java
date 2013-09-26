@@ -409,8 +409,6 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 				int id = message.getContent();
 				
 				CmlBehaviour foundBehavior = this.runningInterpreter.findBehaviorById(id);
-				System.out.println(id + " foundBehavior: " + foundBehavior);
-				
 				Context context = foundBehavior.getNextState().second;
 				List<StackFrameDTO> stackframes = new LinkedList<StackFrameDTO>();
 
@@ -573,6 +571,7 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 			Console.debug.println("Debug thread sending Status event to controller: " + event);
 			sendStatusMessage(CmlInterpreterStateDTO.createCmlInterpreterStateDTO(runningInterpreter,waitingChoices));
 		}
+		CmlRuntime.logger().fine(event.getStatus().toString());
 		
 	}
 

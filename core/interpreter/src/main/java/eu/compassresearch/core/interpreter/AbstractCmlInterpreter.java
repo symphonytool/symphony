@@ -99,18 +99,22 @@ abstract class AbstractCmlInterpreter implements CmlInterpreter {
 	}
 	
 	private CmlBehaviour findBehaviorById(CmlBehaviour behavior, int id) {
+
+		CmlBehaviour foundBehavior = null;
 		
 		if(behavior.getId() == id)
-			return behavior;
-		else if(behavior.getLeftChild() != null)
+			foundBehavior = behavior;
+		
+		if(behavior.getLeftChild() != null && foundBehavior == null)
 		{
-			return findBehaviorById(behavior.getLeftChild(),id);
-		}
-		else if(behavior.getRightChild() != null)
-		{
-			return findBehaviorById(behavior.getRightChild(),id);
+			foundBehavior = findBehaviorById(behavior.getLeftChild(),id);
 		}
 		
-		return null;
+		if(behavior.getRightChild() != null && foundBehavior == null)
+		{
+			foundBehavior = findBehaviorById(behavior.getRightChild(),id);
+		}
+		
+		return foundBehavior;
 	}
 }

@@ -91,21 +91,6 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 	{
 		Map<String, MessageEventHandler<RequestMessage>> handlers = new HashMap<String, MessageEventHandler<RequestMessage>>();
 
-		// Handler for the Choice request
-//		handlers.put(CmlRequest.CHOICE.toString(), new MessageEventHandler<RequestMessage>()
-//		{
-//
-//			@Override
-//			public boolean handleMessage(RequestMessage message)
-//			{
-//				// Type listType = new TypeToken<List<String>>(){}.getType();
-//
-//				final List<Choice> events = message.getContent();
-//				new CmlChoiceMediator(CmlDebugTarget.this, communicationManager).setChoiceOptions(events, message);
-//				return true;
-//			}
-//		});
-
 		handlers.put(CmlRequest.SETUP.toString(), new MessageEventHandler<RequestMessage>()
 		{
 			@Override
@@ -256,6 +241,17 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 					protected IStatus run(IProgressMonitor monitor)
 					{
 						threadManager.updateThreads(message.getInterpreterStatus(), communicationManager);
+						return Status.OK_STATUS;
+					}
+				};
+				setupThreads.setSystem(true);
+				setupThreads.schedule();
+				
+				Display.getDefault().syncExec(new Runnable()
+				{
+					@Override
+					public void run()
+					{
 						if (message.getInterpreterStatus().hasActiveBreakpoint())
 						{
 							Breakpoint bp = message.getInterpreterStatus().getActiveBreakpoint();
@@ -263,24 +259,23 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 								if (pi.getLocation().getStartLine() == bp.getLine())
 								{
 									CmlUtil.setSelectionFromLocation(pi.getLocation(), lastSelectedRanges);
+									CmlUtil.showLocation(lastSelectedRanges.keySet().iterator().next(), pi.getLocation());
 									break;
 								}
 						}
 						
-						return Status.OK_STATUS;
+						try
+						{
+							suspend();
+						} catch (DebugException e)
+						{
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 					}
-				};
-				setupThreads.setSystem(true);
-				setupThreads.schedule();
+				});
+				
 
-				try
-				{
-					suspend();
-				} catch (DebugException e)
-				{
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
 				return true;
 			}
 		});
