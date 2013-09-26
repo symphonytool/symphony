@@ -95,7 +95,7 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
 					<redirectTestOutputToFile>true</redirectTestOutputToFile>
-					<testFailureIgnore>true</testFailureIgnore>
+					<testFailureIgnore>false</testFailureIgnore>
 					<enableAssertions>false</enableAssertions>
 				</configuration>
 			</plugin>
