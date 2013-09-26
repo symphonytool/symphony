@@ -446,7 +446,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	{
 		File cml_example = new File(
 				//"/home/akm/phd/runtime-COMPASS/simpleDLNA/SimpleDLNA.cml");
-				"src/test/resources/process/timeout.cml");
+				"src/test/resources/process/untimed-interrupt.cml");
 		//File cml_example = new File("/home/akm/phd/COMPASS-repo/Common/CaseStudies/Library/Library.cml");
 		runOnFile(cml_example);
 		

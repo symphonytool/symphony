@@ -47,6 +47,7 @@ import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.ASynchronousParallelismProcess;
 import eu.compassresearch.ast.process.ASynchronousParallelismReplicatedProcess;
 import eu.compassresearch.ast.process.ATimeoutProcess;
+import eu.compassresearch.ast.process.AUntimedTimeoutProcess;
 import eu.compassresearch.ast.process.SReplicatedProcess;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.utility.LocationExtractor;
@@ -149,15 +150,29 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 		return caseATimeout(node,node.getLeft(),question);
 	}
 
+	public Pair<INode,Context> caseAUntimedTimeout(INode node, INode leftNode,
+			Context question) throws AnalysisException {
+		
+		//We setup the child nodes 
+		setLeftChild(new ConcreteCmlBehaviour(leftNode,question,owner));
+		return new Pair<INode,Context>(node,question);
+	}
+	
+	
 	@Override
 	public Pair<INode,Context> caseAUntimedTimeoutAction(AUntimedTimeoutAction node,
 			Context question) throws AnalysisException {
 		
-		//We setup the child nodes 
-		setLeftChild(new ConcreteCmlBehaviour(node.getLeft(),question,owner));
-		return new Pair<INode,Context>(node,question);
+		return caseAUntimedTimeout(node,node.getLeft(),question);
 	}
 	
+	@Override
+	public Pair<INode, Context> caseAUntimedTimeoutProcess(
+			AUntimedTimeoutProcess node, Context question)
+			throws AnalysisException
+	{
+		return caseAUntimedTimeout(node,node.getLeft(),question);
+	}
 	
 	interface ReplicationFactory
 	{

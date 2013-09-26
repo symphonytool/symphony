@@ -32,6 +32,7 @@ import eu.compassresearch.ast.process.AReferenceProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.ASynchronousParallelismProcess;
 import eu.compassresearch.ast.process.ATimeoutProcess;
+import eu.compassresearch.ast.process.AUntimedTimeoutProcess;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
@@ -454,6 +455,13 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 			throws AnalysisException
 	{
 		return caseATimeout(node,node.getLeft(),node.getRight(),node.getTimeoutExpression(),question);
+	}
+	
+	@Override
+	public Inspection caseAUntimedTimeoutProcess(AUntimedTimeoutProcess node,
+			Context question) throws AnalysisException
+	{
+		return caseAUntimedTimeout(node, node.getRight(), question);
 	}
 	
 	/**

@@ -651,68 +651,12 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 
 		return caseATimeout(node,node.getLeft(),node.getRight(),node.getTimeoutExpression(),question);
 	}
-
+	
 	@Override
 	public Inspection caseAUntimedTimeoutAction(
 			final AUntimedTimeoutAction node, final Context question)
 					throws AnalysisException {
-
-		//the alphabet still need to be calculated before this is done, so uncomment when done
-		//If the left is Skip then the whole process becomes skip with the state of the left child
-		if(owner.getLeftChild().finished())
-		{
-			return newInspection(createTauTransitionWithTime(owner.getLeftChild().getNextState().first),
-					new AbstractCalculationStep(owner, visitorAccess) {
-
-				@Override
-				public Pair<INode, Context> execute(CmlTransition selectedTransition)
-						throws AnalysisException {
-					CmlBehaviour leftChild = owner.getLeftChild();
-					setLeftChild(null);
-					setRightChild(null);
-					return leftChild.getNextState();
-				}
-			});
-		}
-		//Make a random decision whether the process should timeout and
-		//behaves as the right process
-		else if(this.rnd.nextBoolean())
-		{
-			return newInspection(createTauTransitionWithTime(node.getRight()), 
-					new AbstractCalculationStep(owner, visitorAccess) {
-
-				@Override
-				public Pair<INode, Context> execute(CmlTransition selectedTransition)
-						throws AnalysisException {
-					//We set the process to become the right behavior
-					setLeftChild(null);
-					return new Pair<INode, Context>(node.getRight(), question);
-				}
-			});
-		}
-		//if no timeout has occurred the whole process behaves as the left process
-		else
-		{
-			return newInspection(owner.getLeftChild().inspect(), 
-					new AbstractCalculationStep(owner, visitorAccess) {
-
-				@Override
-				public Pair<INode, Context> execute(CmlTransition selectedTransition)
-						throws AnalysisException {
-					CmlBehaviour leftBehavior = owner.getLeftChild();
-					owner.getLeftChild().execute(selectedTransition);
-
-					if(selectedTransition instanceof ObservableTransition &&
-							selectedTransition instanceof LabelledTransition)
-					{
-						setLeftChild(null);
-						return new Pair<INode, Context>(leftBehavior.getNextState().first, leftBehavior.getNextState().second);
-					}
-					else
-						return new Pair<INode, Context>(node, question);
-				}
-			});
-		}
+		return caseAUntimedTimeout(node, node.getRight(), question);
 	}
 
 	@Override

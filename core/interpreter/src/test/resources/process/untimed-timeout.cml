@@ -1,0 +1,16 @@
+channels 
+a b
+
+process A = 
+begin 
+
+	@ a -> Skip
+end
+
+process B = 
+begin 
+
+	@ b -> Skip
+end
+
+process C = A [_> B
