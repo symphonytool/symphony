@@ -13,5 +13,8 @@ public interface SelectionStrategy{
 	 * Implements a specific strategy for selecting a CMLtransition from a CMLAlphabet
 	 * @return The selected transition to be performed
 	 */
-	public CmlTransition select(CmlTransitionSet availableTransitions);
+	public void choices(CmlTransitionSet availableTransitions);
+	
+	public CmlTransition resolveChoice();
+	
 }

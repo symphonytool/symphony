@@ -32,6 +32,7 @@ import org.overture.ide.debug.core.model.DebugEventHelper;
 import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
 import eu.compassresearch.core.interpreter.debug.Breakpoint;
 import eu.compassresearch.core.interpreter.debug.Choice;
+import eu.compassresearch.core.interpreter.debug.CmlDbgCommandMessage;
 import eu.compassresearch.core.interpreter.debug.CmlDbgStatusMessage;
 import eu.compassresearch.core.interpreter.debug.CmlDebugCommand;
 import eu.compassresearch.core.interpreter.debug.CmlInterpreterStateDTO;
@@ -91,19 +92,19 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 		Map<String, MessageEventHandler<RequestMessage>> handlers = new HashMap<String, MessageEventHandler<RequestMessage>>();
 
 		// Handler for the Choice request
-		handlers.put(CmlRequest.CHOICE.toString(), new MessageEventHandler<RequestMessage>()
-		{
-
-			@Override
-			public boolean handleMessage(RequestMessage message)
-			{
-				// Type listType = new TypeToken<List<String>>(){}.getType();
-
-				final List<Choice> events = message.getContent();
-				new CmlChoiceMediator(CmlDebugTarget.this, communicationManager).setChoiceOptions(events, message);
-				return true;
-			}
-		});
+//		handlers.put(CmlRequest.CHOICE.toString(), new MessageEventHandler<RequestMessage>()
+//		{
+//
+//			@Override
+//			public boolean handleMessage(RequestMessage message)
+//			{
+//				// Type listType = new TypeToken<List<String>>(){}.getType();
+//
+//				final List<Choice> events = message.getContent();
+//				new CmlChoiceMediator(CmlDebugTarget.this, communicationManager).setChoiceOptions(events, message);
+//				return true;
+//			}
+//		});
 
 		handlers.put(CmlRequest.SETUP.toString(), new MessageEventHandler<RequestMessage>()
 		{
@@ -223,7 +224,14 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 					protected IStatus run(IProgressMonitor monitor)
 					{
 						threadManager.updateThreads(message.getInterpreterStatus(), communicationManager);
-						
+						try
+						{
+							suspend();
+						} catch (DebugException e)
+						{
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 						return Status.OK_STATUS;
 					}
 				};
@@ -416,13 +424,20 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 	public boolean isSuspended()
 	{
 		return lastState != null && 
-				lastState.getInterpreterState() ==  CmlInterpretationStatus.SUSPENDED;
+				(lastState.getInterpreterState() ==  CmlInterpretationStatus.SUSPENDED ||
+						lastState.getInterpreterState() == CmlInterpretationStatus.WAITING_FOR_ENVIRONMENT);
 	}
 
 	@Override
 	public void resume() throws DebugException
 	{
 		this.communicationManager.sendCommandMessage(CmlDebugCommand.RESUME);
+		fireResumeEvent(0);
+	}
+	
+	public void select(Choice choice)
+	{
+		this.communicationManager.sendMessage(new CmlDbgCommandMessage(CmlDebugCommand.SET_CHOICE,choice));
 		fireResumeEvent(0);
 	}
 

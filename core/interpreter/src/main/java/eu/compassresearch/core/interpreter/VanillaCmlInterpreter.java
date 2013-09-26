@@ -57,7 +57,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	/**
 	 * Sync object used to suspend the execution
 	 */
-	private Object 					   suspensionObject		= new Object();
+	private Object 					   suspendObject		= new Object();
 	private boolean 				   stepping				= false;
 	private Breakpoint 				   activeBP				= null;
 	/**
@@ -214,17 +214,18 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			}
 
 			//set the state of the interpreter to be waiting for the environment
+			getEnvironment().choices(availableEvents);
 			setNewState(CmlInterpretationStatus.WAITING_FOR_ENVIRONMENT);
 			//Get the environment to select the next transition. 
 			//this is potentially a blocking call!!
-			CmlTransition selectedEvent = getEnvironment().select(availableEvents);
+			CmlTransition selectedEvent = getEnvironment().resolveChoice();
 
 			//Handle the breakpoints if any
 			handleBreakpoints(selectedEvent);
 
 			if(getStatus() == CmlInterpretationStatus.SUSPENDED)
-				synchronized (suspensionObject) {
-					this.suspensionObject.wait();
+				synchronized (suspendObject) {
+					this.suspendObject.wait();
 				}
 
 			//if we get here it means that it in a running state again
@@ -258,17 +259,17 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	
 	public void resume()
 	{
-		synchronized (suspensionObject) {
+		synchronized (suspendObject) {
 			stepping = false;
-			this.suspensionObject.notifyAll();
+			this.suspendObject.notifyAll();
 		}
 	}
 	
 	public void step()
 	{
-		synchronized (suspensionObject) {
+		synchronized (suspendObject) {
 			stepping = true;
-			this.suspensionObject.notifyAll();
+			this.suspendObject.notifyAll();
 		}
 	}
 
