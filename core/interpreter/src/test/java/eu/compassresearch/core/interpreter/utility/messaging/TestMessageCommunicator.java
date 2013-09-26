@@ -28,17 +28,16 @@ import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.lex.LexIdentifierToken;
 import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
-import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorState;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlTrace;
-import eu.compassresearch.core.interpreter.api.behaviour.Reason;
 import eu.compassresearch.core.interpreter.api.events.CmlBehaviorStateObserver;
 import eu.compassresearch.core.interpreter.api.events.EventSource;
 import eu.compassresearch.core.interpreter.api.events.TraceObserver;
-import eu.compassresearch.core.interpreter.api.transitions.CmlTock;
-import eu.compassresearch.core.interpreter.api.transitions.ObservableEvent;
+import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
+import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
+import eu.compassresearch.core.interpreter.api.transitions.ObservableTransition;
+import eu.compassresearch.core.interpreter.api.transitions.TimedTransition;
 import eu.compassresearch.core.interpreter.debug.CmlDbgStatusMessage;
 import eu.compassresearch.core.interpreter.debug.CmlInterpreterStateDTO;
 import eu.compassresearch.core.interpreter.debug.messaging.Message;
@@ -106,21 +105,9 @@ public class TestMessageCommunicator {
 			}
 			
 			@Override
-			public CmlSupervisorEnvironment supervisor() {
-				// TODO Auto-generated method stub
-				return null;
-			}
-			
-			@Override
 			public boolean started() {
 				// TODO Auto-generated method stub
 				return false;
-			}
-			
-			@Override
-			public void setAbort(Reason reason) {
-				// TODO Auto-generated method stub
-				
 			}
 			
 			@Override
@@ -165,7 +152,7 @@ public class TestMessageCommunicator {
 			}
 			
 			@Override
-			public CmlAlphabet inspect() {
+			public CmlTransitionSet inspect() {
 				// TODO Auto-generated method stub
 				return null;
 			}
@@ -180,34 +167,47 @@ public class TestMessageCommunicator {
 			public CmlTrace getTraceModel() {
 				CmlTrace trace = new CmlTrace();
 				
-				trace.addEvent(new CmlTock());
-				trace.addEvent(new ObservableEvent() {
+				trace.addEvent(new TimedTransition());
+				trace.addEvent(new ObservableTransition() {
 					
 					@Override
 					public Set<CmlBehaviour> getEventSources() {
 						return new HashSet<CmlBehaviour>();
 					}
 					
+//					@Override
+//					public CmlTransitionSet getAsAlphabet() {
+//						// TODO Auto-generated method stub
+//						return null;
+//					}
+					
 					@Override
-					public CmlAlphabet getAsAlphabet() {
+					public ObservableTransition synchronizeWith(ObservableTransition other) {
 						// TODO Auto-generated method stub
 						return null;
 					}
 					
 					@Override
-					public ObservableEvent synchronizeWith(ObservableEvent other) {
-						// TODO Auto-generated method stub
-						return null;
-					}
-					
-					@Override
-					public boolean isComparable(ObservableEvent other) {
+					public boolean isComparable(ObservableTransition other) {
 						// TODO Auto-generated method stub
 						return false;
 					}
 					@Override
 					public String toString() {
 						return "a";
+					}
+
+					@Override
+					public boolean isSourcesSubset(CmlTransition other) {
+						// TODO Auto-generated method stub
+						return false;
+					}
+
+					@Override
+					public Set<INode> getSourceNodes()
+					{
+						// TODO Auto-generated method stub
+						return null;
 					}
 				}); 
 					
@@ -249,13 +249,6 @@ public class TestMessageCommunicator {
 			}
 			
 			@Override
-			public void execute(CmlSupervisorEnvironment supervisor)
-					throws AnalysisException {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
 			public boolean deadlocked() {
 				return false;
 			}
@@ -263,6 +256,27 @@ public class TestMessageCommunicator {
 			@Override
 			public List<CmlBehaviour> children() {
 				return new LinkedList<CmlBehaviour>();
+			}
+
+			@Override
+			public int getId() {
+				// TODO Auto-generated method stub
+				return 0;
+			}
+
+			@Override
+			public void execute(CmlTransition selectedTransition)
+					throws AnalysisException
+			{
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public boolean isDivergent()
+			{
+				// TODO Auto-generated method stub
+				return false;
 			}
 		}, CmlInterpretationStatus.FINISHED);
 		Message sentMessage = new CmlDbgStatusMessage(status);

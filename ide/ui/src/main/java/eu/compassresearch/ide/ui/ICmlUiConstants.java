@@ -24,5 +24,6 @@ public interface ICmlUiConstants
 	static public final String PLUGIN_ID = "eu.compassresearch.ide.ui";
 	static public final String TEMPLATE_CONTEXT_TYPE = PLUGIN_ID
 			+ ".contextType";
+	public static final String CML_EDITOR_ID="eu.compassresearch.ide.ui.editor";
 
 }

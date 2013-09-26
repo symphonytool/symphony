@@ -10,11 +10,12 @@ import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.process.PProcess;
-import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.Inspection;
+import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
+@SuppressWarnings("serial")
 public class CmlInspectionVisitor extends AbstractInspectionVisitor {
 
 	private QuestionAnswerCMLAdaptor<Context, Inspection> processVisitor;
@@ -43,19 +44,20 @@ public class CmlInspectionVisitor extends AbstractInspectionVisitor {
 	@Override
 	public Inspection defaultPExp(final PExp node, final Context question)
 			throws AnalysisException {
-
-		return newInspection(createSilentTransition(node,null,"Post condition"),
+		//TODO should this really evolve into skip?
+		final ASkipAction skipAction = new ASkipAction(node.getLocation());
+		return newInspection(createTauTransitionWithTime(skipAction,"Pre/Post condition"),
 				new AbstractCalculationStep(owner,visitorAccess) {
 
 			@Override
-			public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+			public Pair<INode, Context> execute(CmlTransition selectedTransition)
 					throws AnalysisException {
 
 				if(!node.apply(cmlExpressionVisitor,question).boolValue(question))
 				{
 					throw new ValueException(4061, question.prepostMsg, question);
 				}
-				return new Pair<INode, Context>(new ASkipAction(), question);
+				return new Pair<INode, Context>(skipAction, question);
 			}
 		});
 	}

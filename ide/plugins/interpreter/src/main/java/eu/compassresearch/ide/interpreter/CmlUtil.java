@@ -51,37 +51,40 @@ public final class CmlUtil
 	{
 		for (Entry<StyledText, List<StyleRange>> entry : map.entrySet())
 		{
-			for(StyleRange sr : entry.getValue())
+			for (StyleRange sr : entry.getValue())
 			{
 				sr.background = null;
-				entry.getKey().setStyleRange(sr);
+				if (!entry.getKey().isDisposed())
+				{
+					entry.getKey().setStyleRange(sr);
+				}
 			}
 			entry.getValue().clear();
 		}
 	}
-	
+
 	public static void clearAllSelections()
 	{
 		IEditorPart editor = null;
 		IWorkbenchWindow wbw = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-		if(wbw != null)
+		if (wbw != null)
 			editor = wbw.getActivePage().getActiveEditor();
 
-		if (editor != null)
+		if (editor != null && editor instanceof CmlEditor)
 		{
 			StyledText styledText = (StyledText) ((CmlEditor) editor).getAdapter(Control.class);
-			for(StyleRange sr : styledText.getStyleRanges())
+			for (StyleRange sr : styledText.getStyleRanges())
 			{
 				sr.background = null;
 				styledText.setStyleRange(sr);
 			}
 		}
 	}
-	
+
 	private static void setSelectionFromLocation(ILexLocation loc,
 			List<StyleRange> lastSelectedRanges, StyledText styledText)
 	{
-		
+
 		int length = loc.getEndOffset() - loc.getStartOffset() + 1;
 		StyleRange sr = styledText.getStyleRangeAtOffset(loc.getStartOffset());
 
@@ -102,7 +105,7 @@ public final class CmlUtil
 			lastSelectedRanges.add(sr);
 		}
 	}
-	
+
 	private static IEditorPart findEditorFromLocation(ILexLocation loc)
 	{
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
@@ -121,43 +124,44 @@ public final class CmlUtil
 		{
 			e.printStackTrace();
 		}
-		
+
 		return editor;
 	}
 
-	
-	public static void setSelectionFromLocation(ILexLocation loc, Map<StyledText, List<StyleRange>> map)
+	public static void setSelectionFromLocation(ILexLocation loc,
+			Map<StyledText, List<StyleRange>> map)
 	{
 		IEditorPart editor = findEditorFromLocation(loc);
-		
+
 		if (editor != null)
 		{
 			StyledText styledText = (StyledText) ((CmlEditor) editor).getAdapter(Control.class);
-			
+
 			List<StyleRange> lastSelectedRanges = null;
-						
-			if(map.containsKey(styledText))
+
+			if (map.containsKey(styledText))
 			{
-				lastSelectedRanges = map.get(styledText); 
-			}
-			else
+				lastSelectedRanges = map.get(styledText);
+			} else
 			{
 				lastSelectedRanges = new LinkedList<StyleRange>();
 				map.put(styledText, lastSelectedRanges);
 			}
-			
-			setSelectionFromLocation(loc,lastSelectedRanges,styledText);
+
+			setSelectionFromLocation(loc, lastSelectedRanges, styledText);
 		}
 	}
-	
-	public static void setSelectionFromLocations(List<ILexLocation> lexLocations, Map<StyledText, List<StyleRange>> map)
+
+	public static void setSelectionFromLocations(
+			List<ILexLocation> lexLocations,
+			Map<StyledText, List<StyleRange>> map)
 	{
 		for (ILexLocation loc : lexLocations)
 		{
-			setSelectionFromLocation(loc,map);
+			setSelectionFromLocation(loc, map);
 		}
 	}
-	
+
 	public static void showLocation(StyledText st, ILexLocation loc)
 	{
 		st.setCaretOffset(loc.getStartOffset());
@@ -297,7 +301,7 @@ public final class CmlUtil
 		} catch (Exception e)
 		{
 			final String msg = NLS.bind(PLUGIN_LOCATION_ERROR, bundleId);
-			System.out.println(msg);
+			System.err.println(msg);
 		}
 
 	}

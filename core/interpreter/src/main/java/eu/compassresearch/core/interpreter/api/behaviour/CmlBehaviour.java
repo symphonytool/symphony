@@ -9,10 +9,11 @@ import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ValueException;
 
-import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.api.events.CmlBehaviorStateObserver;
 import eu.compassresearch.core.interpreter.api.events.EventSource;
 import eu.compassresearch.core.interpreter.api.events.TraceObserver;
+import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
+import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
 /**
@@ -33,22 +34,16 @@ public interface CmlBehaviour extends Serializable //extends Transactable
 	 * Executes the behaviour of this process
 	 * @return
 	 */
-	public void execute(CmlSupervisorEnvironment supervisor) throws AnalysisException;
+	public void execute(CmlTransition selectedTransition) throws AnalysisException;
 	
 	/**
 	 * Returns the immediate alphabet of the process, meaning the next possible cml event including tau
 	 * @return The immediate alphabet of the process
 	 */
-	public CmlAlphabet inspect() throws AnalysisException;
-	
-	/**
-	 * 
-	 * @return The current supervisor of this process
-	 */
-	public CmlSupervisorEnvironment supervisor();
+	public CmlTransitionSet inspect() throws AnalysisException;
 	
 	//public Reason abortReason();
-	public void setAbort(Reason reason);
+//	public void setAbort(Reason reason);
 	
 	/**
 	 * Returns the current execution state of the process
@@ -64,6 +59,8 @@ public interface CmlBehaviour extends Serializable //extends Transactable
 	 * @return The name of the process
 	 */
 	public ILexNameToken name();
+	
+	public int getId();
 	
 	/**
 	 * This constructs a string representing the next execution step of this process
@@ -97,6 +94,7 @@ public interface CmlBehaviour extends Serializable //extends Transactable
 	 */
 	public boolean started();
 	public boolean finished();
+	public boolean isDivergent();
 	
 	/**
 	 * Determines whether the process is in a waiting state.

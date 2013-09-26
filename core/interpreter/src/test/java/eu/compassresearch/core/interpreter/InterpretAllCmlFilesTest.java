@@ -19,7 +19,6 @@ import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.internal.runners.statements.Fail;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
@@ -30,7 +29,6 @@ import org.overture.ast.analysis.AnalysisException;
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
-import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.RandomSelectionStrategy;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
@@ -122,13 +120,13 @@ public class InterpretAllCmlFilesTest {
 
 		CmlInterpreter interpreter = VanillaInterpreterFactory.newInterpreter(ast);
 
-		CmlSupervisorEnvironment sve = 
-				VanillaInterpreterFactory.newDefaultCmlSupervisorEnvironment(new RandomSelectionStrategy());
+//		CmlSupervisorEnvironment sve = 
+//				VanillaInterpreterFactory.newDefaultCmlSupervisorEnvironment(new RandomSelectionStrategy());
 		
 		Exception exception = null;
 		try{
 			interpreter.initialize();
-			interpreter.execute(sve);
+			interpreter.execute(new RandomSelectionStrategy());
 		}
 		catch(Exception ex)
 		{
@@ -187,7 +185,7 @@ public class InterpretAllCmlFilesTest {
 	@Parameters
 	public static Collection<Object[]> getCmlfilePaths() {
 
-		List<Object[]> paths = findAllCmlFiles("src/test/resources/");
+		List<Object[]> paths = findAllCmlFiles("src/test/resources");
 		
 		//List<Object[]> paths = findAllCmlFiles("src/test/resources/action/parallel-composition");
 		

@@ -34,7 +34,9 @@ import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ide.core.ICmlCoreConstants;
 import eu.compassresearch.ide.interpreter.ICmlDebugConstants;
 
-public class CmlMainLaunchConfigurationTab extends AbstractLaunchConfigurationTab {
+public class CmlMainLaunchConfigurationTab extends
+		AbstractLaunchConfigurationTab
+{
 
 	class WidgetListener implements ModifyListener, SelectionListener
 	{
@@ -131,7 +133,7 @@ public class CmlMainLaunchConfigurationTab extends AbstractLaunchConfigurationTa
 
 	private boolean isProcessValid(IProject project,
 			ILaunchConfiguration launchConfig) throws CoreException
-			{
+	{
 		String processName = launchConfig.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_PROCESS_NAME, "");
 
 		if (processName.length() == 0)
@@ -159,7 +161,7 @@ public class CmlMainLaunchConfigurationTab extends AbstractLaunchConfigurationTa
 
 		// setErrorMessage("Process '" + processName + "' is not defined");
 		// return false;
-			}
+	}
 
 	// private List<CmlSourceUnit> getCmlSourcesFromProject(IProject project) throws CoreException
 	// {
@@ -268,7 +270,7 @@ public class CmlMainLaunchConfigurationTab extends AbstractLaunchConfigurationTa
 				// dlg.setTitle("Project Selection");
 				// dlg.open();
 				class ProjectContentProvider extends
-				BaseWorkbenchContentProvider
+						BaseWorkbenchContentProvider
 				{
 					@Override
 					public boolean hasChildren(Object element)
@@ -294,11 +296,11 @@ public class CmlMainLaunchConfigurationTab extends AbstractLaunchConfigurationTa
 								try
 								{
 									if (object instanceof IProject
-											// && (((IProject) object).getAdapter(IVdmProject.class) != null
+									// && (((IProject) object).getAdapter(IVdmProject.class) != null
 											&& isCmlProject((IProject) object)
-											// )
-											// && isSupported((IProject) object)
-											)
+									// )
+									// && isSupported((IProject) object)
+									)
 									{
 										elements.add((IProject) object);
 									}
@@ -317,7 +319,7 @@ public class CmlMainLaunchConfigurationTab extends AbstractLaunchConfigurationTa
 
 					private boolean isCmlProject(IProject p)
 							throws CoreException
-							{
+					{
 						// FIXME this should be replaced by the adapter check that is commented
 
 						for (String nature : p.getDescription().getNatureIds())
@@ -328,7 +330,7 @@ public class CmlMainLaunchConfigurationTab extends AbstractLaunchConfigurationTa
 							}
 						}
 						return false;
-							}
+					}
 
 				}
 				;
@@ -368,7 +370,7 @@ public class CmlMainLaunchConfigurationTab extends AbstractLaunchConfigurationTa
 
 		rbAnimate = createRadioButton(group, "Animate");
 		rbAnimate.addSelectionListener(fListener);
-		//rbAnimate.setSelection(true);
+		// rbAnimate.setSelection(true);
 		rbSimulate = createRadioButton(group, "Simulate");
 		rbSimulate.addSelectionListener(fListener);
 	}
@@ -377,7 +379,7 @@ public class CmlMainLaunchConfigurationTab extends AbstractLaunchConfigurationTa
 	public void setDefaults(ILaunchConfigurationWorkingCopy configuration)
 	{
 		// TODO Auto-generated method stub
-		//rbAnimate.setSelection(true);
+		// rbAnimate.setSelection(true);
 		configuration.setAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_IS_ANIMATION, true);
 	}
 
@@ -391,12 +393,11 @@ public class CmlMainLaunchConfigurationTab extends AbstractLaunchConfigurationTa
 			fTopProcessText.setText(configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_PROCESS_NAME, ""));
 			// fTopProcessFilePath = configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_PROCESS_FILE_PATH,
 			// "");
-			if(configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_IS_ANIMATION, true))
+			if (configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_IS_ANIMATION, true))
 			{
 				rbAnimate.setSelection(true);
 				rbSimulate.setSelection(false);
-			}
-			else
+			} else
 			{
 				rbAnimate.setSelection(false);
 				rbSimulate.setSelection(true);
@@ -412,14 +413,13 @@ public class CmlMainLaunchConfigurationTab extends AbstractLaunchConfigurationTa
 	{
 		configuration.setAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_PROJECT, fProjectText.getText());
 		configuration.setAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_PROCESS_NAME, fTopProcessText.getText());
-		if(rbAnimate.getSelection())
+		if (rbAnimate.getSelection())
 			configuration.setAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_IS_ANIMATION, true);
 		else
 			configuration.setAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_IS_ANIMATION, false);
-		
-		//CML_LAUNCH_CONFIG_IS_ANIMATION
-		
-		
+
+		// CML_LAUNCH_CONFIG_IS_ANIMATION
+
 		// configuration.setAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_PROCESS_FILE_PATH, fTopProcessFilePath);
 
 		// configuration.setAttribute(ICmlLaunchConfigurationConstants.ATTR_PROJECT_NAME, fProjectText.getText());

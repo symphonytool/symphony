@@ -10,6 +10,7 @@ public class InterpreterErrorDTO {
 	/*
 	 * Dummy constructor for serialization
 	 */
+	@SuppressWarnings("unused")
 	private InterpreterErrorDTO(){
 		message = null;
 		location = null;

@@ -13,6 +13,7 @@ import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.values.IntegerValue;
 import org.overture.interpreter.values.NameValuePair;
 import org.overture.interpreter.values.NameValuePairList;
+import org.overture.interpreter.values.SeqValue;
 import org.overture.interpreter.values.SetValue;
 import org.overture.interpreter.values.TupleValue;
 import org.overture.interpreter.values.Value;
@@ -20,6 +21,7 @@ import org.overture.interpreter.values.ValueList;
 
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
 import eu.compassresearch.ast.actions.AExternalChoiceReplicatedAction;
+import eu.compassresearch.ast.actions.AForSequenceStatementAction;
 import eu.compassresearch.ast.actions.AGeneralisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AGeneralisedParallelismReplicatedAction;
 import eu.compassresearch.ast.actions.AHidingAction;
@@ -44,8 +46,11 @@ import eu.compassresearch.ast.process.AInterleavingReplicatedProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.ASynchronousParallelismProcess;
 import eu.compassresearch.ast.process.ASynchronousParallelismReplicatedProcess;
+import eu.compassresearch.ast.process.ATimeoutProcess;
+import eu.compassresearch.ast.process.AUntimedTimeoutProcess;
 import eu.compassresearch.ast.process.SReplicatedProcess;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
+import eu.compassresearch.core.interpreter.utility.LocationExtractor;
 import eu.compassresearch.core.interpreter.utility.Pair;
 import eu.compassresearch.core.interpreter.utility.SetMath;
 
@@ -120,27 +125,54 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 		return new Pair<INode,Context>(node,context);
 	}
 
-	@Override
-	public Pair<INode,Context> caseATimeoutAction(ATimeoutAction node, Context question)
+	private Pair<INode,Context> caseATimeout(INode node, INode leftNode, Context question)
 			throws AnalysisException {
-
-		Context context = CmlContextFactory.newContext(node.getLocation(), "Timeout context", question);
+		
+		Context context = CmlContextFactory.newContext(LocationExtractor.extractLocation(node), "Timeout context", question);
 		context.putNew(new NameValuePair(NamespaceUtility.getStartTimeName(),new IntegerValue(owner.getCurrentTime())));
 		
 		//We setup the child nodes 
-		setLeftChild(new ConcreteCmlBehaviour(node.getLeft(),question,owner));
+		setLeftChild(new ConcreteCmlBehaviour(leftNode,question,owner));
 		return new Pair<INode,Context>(node,context);
+		
+	}
+	
+	@Override
+	public Pair<INode,Context> caseATimeoutAction(ATimeoutAction node, Context question)
+			throws AnalysisException {
+		return caseATimeout(node,node.getLeft(),question);
+	}
+	
+	@Override
+	public Pair<INode, Context> caseATimeoutProcess(ATimeoutProcess node,
+			Context question) throws AnalysisException
+	{
+		return caseATimeout(node,node.getLeft(),question);
 	}
 
+	public Pair<INode,Context> caseAUntimedTimeout(INode node, INode leftNode,
+			Context question) throws AnalysisException {
+		
+		//We setup the child nodes 
+		setLeftChild(new ConcreteCmlBehaviour(leftNode,question,owner));
+		return new Pair<INode,Context>(node,question);
+	}
+	
+	
 	@Override
 	public Pair<INode,Context> caseAUntimedTimeoutAction(AUntimedTimeoutAction node,
 			Context question) throws AnalysisException {
 		
-		//We setup the child nodes 
-		setLeftChild(new ConcreteCmlBehaviour(node.getLeft(),question,owner));
-		return new Pair<INode,Context>(node,question);
+		return caseAUntimedTimeout(node,node.getLeft(),question);
 	}
 	
+	@Override
+	public Pair<INode, Context> caseAUntimedTimeoutProcess(
+			AUntimedTimeoutProcess node, Context question)
+			throws AnalysisException
+	{
+		return caseAUntimedTimeout(node,node.getLeft(),question);
+	}
 	
 	interface ReplicationFactory
 	{
@@ -570,5 +602,16 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 		setRightChild(new ConcreteCmlBehaviour(node.getRight(), question, new LexNameToken("","/_\\ right",new LexLocation()), owner));
 		
 		return new Pair<INode,Context>(node,question);
+	}
+	
+	@Override
+	public Pair<INode, Context> caseAForSequenceStatementAction(
+			AForSequenceStatementAction node, Context question)
+			throws AnalysisException {
+
+		Context context = CmlContextFactory.newContext(node.getLocation(), "Sequence for loop context", question);
+		context.putNew(new NameValuePair(NamespaceUtility.getSeqForName(), node.getExp().apply(cmlExpressionVisitor,question)));
+		
+		return new Pair<INode, Context>(node,context);
 	}
 }

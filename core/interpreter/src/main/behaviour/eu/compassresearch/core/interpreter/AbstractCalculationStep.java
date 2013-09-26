@@ -8,10 +8,10 @@ import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
 
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
-import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlCalculationStep;
+import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
+import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
 abstract class AbstractCalculationStep implements CmlCalculationStep {
@@ -30,7 +30,7 @@ abstract class AbstractCalculationStep implements CmlCalculationStep {
 	}
 	
 	@Override
-	public abstract Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+	public abstract Pair<INode, Context> execute(CmlTransition selectedTransition)
 			throws AnalysisException;
 	
 	
@@ -48,6 +48,13 @@ abstract class AbstractCalculationStep implements CmlCalculationStep {
 		this.visitorAccess.setRightChild(child);
 	}
 	
+	protected Pair<INode,Context> replaceWithChild(CmlBehaviour child)
+	{
+		this.visitorAccess.setLeftChild(child.getLeftChild());
+		this.visitorAccess.setRightChild(child.getRightChild());
+		return child.getNextState();
+	}
+	
 	protected Pair<Context,Context> getChildContexts(Context context)
 	{
 		return visitorAccess.getChildContexts(context);
@@ -58,30 +65,25 @@ abstract class AbstractCalculationStep implements CmlCalculationStep {
 		return owner.name();
 	}
 		
-	protected CmlSupervisorEnvironment supervisor()
-	{
-		return owner.supervisor();
-	}
-	
 	protected List<CmlBehaviour> children()
 	{
 		return owner.children();
 	}
 			
-	protected void caseParallelNonSync() throws AnalysisException
+	protected void caseParallelNonSync(CmlTransition selectedTransition) throws AnalysisException
 	{
 		CmlBehaviour leftChild =  owner.getLeftChild();
-		CmlAlphabet leftChildAlpha = owner.getLeftChild().inspect(); 
+		CmlTransitionSet leftChildAlpha = owner.getLeftChild().inspect(); 
 		CmlBehaviour rightChild = owner.getRightChild();
-		CmlAlphabet rightChildAlpha = rightChild.inspect();
+		CmlTransitionSet rightChildAlpha = rightChild.inspect();
 
-		if(leftChildAlpha.containsImprecise(supervisor().selectedObservableEvent()))
+		if(leftChildAlpha.contains(selectedTransition))
 		{
-			leftChild.execute(supervisor());
+			leftChild.execute(selectedTransition);
 		}
-		else if(rightChildAlpha.containsImprecise(supervisor().selectedObservableEvent()))
+		else if(rightChildAlpha.contains(selectedTransition))
 		{
-			rightChild.execute(supervisor());
+			rightChild.execute(selectedTransition);
 		}
 		else
 		{
