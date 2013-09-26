@@ -136,7 +136,7 @@ public class CmlSatisfiabilityObligation extends CmlProofObligation
 			}
 
 			AApplyExp postApply = getApplyExp(getVarExp(op.getPostdef().getName()), postArglist);
-			existsExp.setPredicate(ctxt.getPredWithContext(postApply));
+			existsExp.setPredicate(postApply);
 			mainExp = existsExp;
 		} else
 		{

@@ -576,7 +576,6 @@ public class POGDeclAndDefVisitor extends
 			pol.add(new CmlStateInvariantObligation(node, question));
 		}
 
-		//TODO cannot compute subtypes as long as getActualResult is null
 		if (!node.getIsConstructor()
 				&& !TypeComparator.isSubType(node.getActualResult(), ((AOperationType) node.getType()).getResult()))
 		{
