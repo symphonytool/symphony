@@ -124,6 +124,7 @@ import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 class TCDeclAndDefVisitor extends
 		QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
+	private final CmlTypeCheckerAssistantFactory af = new CmlTypeCheckerAssistantFactory();
 	// private final TCActionVisitor actionVisitor;
 
 	@Override
@@ -218,7 +219,9 @@ class TCDeclAndDefVisitor extends
 				AExplicitFunctionDefinitionAssistantTC.implicitDefinitions((AExplicitFunctionDefinition) def,null);
 			} 
 			else if (def instanceof AImplicitFunctionDefinition) {
-				AImplicitFunctionDefinitionAssistantTC.implicitDefinitions((AImplicitFunctionDefinition) def, null);
+//				AImplicitFunctionDefinitionAssistantTC.implicitDefinitions((AImplicitFunctionDefinition) def, null);
+			
+				def.apply(af.getImplicitDefinitionFinder(),null);
 			}	
 			
 			PType defType = def.apply(parentChecker, question);
