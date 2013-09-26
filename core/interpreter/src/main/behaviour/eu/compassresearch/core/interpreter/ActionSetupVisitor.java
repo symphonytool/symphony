@@ -43,6 +43,7 @@ import eu.compassresearch.ast.process.AGeneralisedParallelismReplicatedProcess;
 import eu.compassresearch.ast.process.AHidingProcess;
 import eu.compassresearch.ast.process.AInterleavingProcess;
 import eu.compassresearch.ast.process.AInterleavingReplicatedProcess;
+import eu.compassresearch.ast.process.AInterruptProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.ASynchronousParallelismProcess;
 import eu.compassresearch.ast.process.ASynchronousParallelismReplicatedProcess;
@@ -594,14 +595,26 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 	 * Non public replication helper methods -- End
 	 */
 	
+	protected Pair<INode,Context> caseAInterrupt(INode node, INode leftNode, INode rightNode, Context question)
+			throws AnalysisException {
+		//TODO create proper names!!
+		setLeftChild(new ConcreteCmlBehaviour(leftNode, question, new LexNameToken("","left /_\\",new LexLocation()), owner));
+		setRightChild(new ConcreteCmlBehaviour(rightNode, question, new LexNameToken("","/_\\ right",new LexLocation()), owner));
+		
+		return new Pair<INode,Context>(node,question);
+	}
+	
 	@Override
 	public Pair<INode,Context> caseAInterruptAction(AInterruptAction node, Context question)
 			throws AnalysisException {
-		//TODO create proper names!!
-		setLeftChild(new ConcreteCmlBehaviour(node.getLeft(), question, new LexNameToken("","left /_\\",new LexLocation()), owner));
-		setRightChild(new ConcreteCmlBehaviour(node.getRight(), question, new LexNameToken("","/_\\ right",new LexLocation()), owner));
-		
-		return new Pair<INode,Context>(node,question);
+		return caseAInterrupt(node,node.getLeft(),node.getRight(), question);
+	}
+	
+	@Override
+	public Pair<INode, Context> caseAInterruptProcess(AInterruptProcess node,
+			Context question) throws AnalysisException
+	{
+		return caseAInterrupt(node,node.getLeft(),node.getRight(), question);
 	}
 	
 	@Override

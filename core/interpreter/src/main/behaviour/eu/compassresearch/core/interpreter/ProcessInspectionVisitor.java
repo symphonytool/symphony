@@ -28,6 +28,7 @@ import eu.compassresearch.ast.process.AGeneralisedParallelismProcess;
 import eu.compassresearch.ast.process.AHidingProcess;
 import eu.compassresearch.ast.process.AInterleavingProcess;
 import eu.compassresearch.ast.process.AInternalChoiceProcess;
+import eu.compassresearch.ast.process.AInterruptProcess;
 import eu.compassresearch.ast.process.AReferenceProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.ASynchronousParallelismProcess;
@@ -462,6 +463,13 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 			Context question) throws AnalysisException
 	{
 		return caseAUntimedTimeout(node, node.getRight(), question);
+	}
+	
+	@Override
+	public Inspection caseAInterruptProcess(AInterruptProcess node,
+			Context question) throws AnalysisException
+	{
+		return caseAInterrupt(node,question);
 	}
 	
 	/**
