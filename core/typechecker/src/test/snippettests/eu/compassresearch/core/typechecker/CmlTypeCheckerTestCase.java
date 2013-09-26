@@ -303,6 +303,9 @@ public class CmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase {
 		addTestProgram(testData, 
 				"channels a b process test = begin state v : int := 2 @   (dcl x : int := 2 @ (([v = 2] & x := v + x ; a -> Skip) [] ([v = 1] & x := 3 + x ; b -> Skip ) ) ; [x = 4] & b -> Skip ) end",
 				true, true, new String[0]);
+		//63 //
+		addTestProgram(testData, "channels	a : int	process A =	val x : nat @ begin	@ a.x -> Skip end process  = |~| i in set {1,2,3} @ A(i)", 
+				true, true, new String[0]);
 
 		return testData;
 				

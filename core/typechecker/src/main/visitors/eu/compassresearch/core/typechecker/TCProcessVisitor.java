@@ -206,19 +206,30 @@ public class TCProcessVisitor extends
 			AInternalChoiceReplicatedProcess node, TypeCheckInfo question)
 			throws AnalysisException {
 
+		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
+		if (cmlEnv == null)
+			return issueHandler.addTypeError(
+					node,
+					TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(""
+							+ node));
+		
 		PProcess proc = node.getReplicatedProcess();
 		LinkedList<PSingleDeclaration> repdecl = node
 				.getReplicationDeclaration();
-
+		
+		CmlTypeCheckInfo repProcEnv = cmlEnv.newScope();
 		for (PSingleDeclaration decl : repdecl) {
 			PType declType = decl.apply(parentChecker, question);
 			if (!successfulType(declType))
 				return issueHandler.addTypeError(declType,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 								.customizeMessage(declType + ""));
+			
+			for (PDefinition def : declType.getDefinitions())
+				repProcEnv.addVariable(def.getName(), def);
 		}
 
-		PType procType = proc.apply(parentChecker, question);
+		PType procType = proc.apply(parentChecker, repProcEnv);
 		if (!successfulType(procType))
 			return issueHandler.addTypeError(proc,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
