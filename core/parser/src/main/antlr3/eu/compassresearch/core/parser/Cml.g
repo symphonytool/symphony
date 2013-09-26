@@ -2377,8 +2377,8 @@ opType returns[PType type]
 operationBody returns[PAction body]
 @after { $body.setLocation(extractLexLocation($start, $stop)); }
     : action                           { $body = $action.action; }
-    | 'is' 'not' 'yet' 'specified'     { $body = new ASubclassResponsibilityAction(); }
-    | 'is' 'subclass' 'responsibility' { $body = new ANotYetSpecifiedStatementAction(); }
+    | 'is' 'not' 'yet' 'specified'     { $body = new ANotYetSpecifiedStatementAction(); }
+    | 'is' 'subclass' 'responsibility' { $body = new ASubclassResponsibilityAction(); }
     ;
 
 
