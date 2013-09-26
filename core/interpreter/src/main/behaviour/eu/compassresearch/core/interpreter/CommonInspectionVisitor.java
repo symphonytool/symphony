@@ -358,6 +358,70 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 			});
 	}
 
+	protected Inspection caseATimeout(final INode node,final INode leftNode, final INode rightNode,PExp timeoutExpression, final Context question) throws ValueException, AnalysisException
+	{
+		//Evaluate the expression into a natural number
+		long val = timeoutExpression.apply(cmlExpressionVisitor,question).natValue(question);
+		long startTimeVal = question.lookup(NamespaceUtility.getStartTimeName()).intValue(question);
+		//If the left is Skip then the whole process becomes skip with the state of the left child
+		if(owner.getLeftChild().finished())
+		{
+			return newInspection(createTauTransitionWithTime(owner.getLeftChild().getNextState().first,"Timeout: left behavior is finished"), 
+					new AbstractCalculationStep(owner, visitorAccess) {
+
+				@Override
+				public Pair<INode, Context> execute(CmlTransition selectedTransition)
+						throws AnalysisException {
+
+					return replaceWithChild(owner.getLeftChild());
+				}
+			});
+		}
+		//if the current time of the process has passed the limit (val) then process
+		//behaves as the right process
+		else if(owner.getCurrentTime() - startTimeVal >= val)
+		{
+			return newInspection(createTauTransitionWithTime(leftNode,"Timeout: time exceeded"), 
+					new AbstractCalculationStep(owner, visitorAccess) {
+
+				@Override
+				public Pair<INode, Context> execute(CmlTransition selectedTransition)
+						throws AnalysisException {
+					//We set the process to become the right behavior
+					setLeftChild(null);
+					//We need to return the outer context because of the extra context
+					//containing the start time has been added in the setup visitor
+					return new Pair<INode, Context>(rightNode, question.outer);
+				}
+			});
+
+		}
+		//if the current time of the process has not passed the limit (val) and the left process
+		//makes an observable transition then the whole process behaves as the left process 
+		else
+		{
+			final CmlBehaviour leftBehavior = owner.getLeftChild();
+			return newInspection(leftBehavior.inspect(), 
+					new AbstractCalculationStep(owner, visitorAccess) {
+
+				@Override
+				public Pair<INode, Context> execute(CmlTransition selectedTransition) throws AnalysisException {
+
+					leftBehavior.execute(selectedTransition);
+
+					if(selectedTransition instanceof ObservableTransition &&
+							selectedTransition instanceof LabelledTransition)
+					{
+						return replaceWithChild(leftBehavior);
+					}
+					else
+						return new Pair<INode, Context>(node, question);
+				}
+			});
+
+
+		}
+	}
 
 	/**
 	 * 

@@ -17,6 +17,7 @@ import org.overture.ast.typechecker.Pass;
 import org.overture.interpreter.assistant.pattern.PPatternAssistantInterpreter;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ContextException;
+import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.values.NameValuePair;
 import org.overture.interpreter.values.NameValuePairList;
 import org.overture.interpreter.values.NameValuePairMap;
@@ -640,73 +641,15 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 
 	/**
 	 * Timed actions
+	 * @throws AnalysisException 
+	 * @throws ValueException 
 	 */
 
 	@Override
 	public Inspection caseATimeoutAction(final ATimeoutAction node,
 			final Context question) throws AnalysisException {
 
-		//Evaluate the expression into a natural number
-		long val = node.getTimeoutExpression().apply(cmlExpressionVisitor,question).natValue(question);
-		long startTimeVal = question.lookup(NamespaceUtility.getStartTimeName()).intValue(question);
-		//If the left is Skip then the whole process becomes skip with the state of the left child
-		if(owner.getLeftChild().finished())
-		{
-			return newInspection(createTauTransitionWithTime(owner.getLeftChild().getNextState().first,"Timeout: left behavior is finished"), 
-					new AbstractCalculationStep(owner, visitorAccess) {
-
-				@Override
-				public Pair<INode, Context> execute(CmlTransition selectedTransition)
-						throws AnalysisException {
-					
-					return replaceWithChild(owner.getLeftChild());
-				}
-			});
-		}
-		//if the current time of the process has passed the limit (val) then process
-		//behaves as the right process
-		else if(owner.getCurrentTime() - startTimeVal >= val)
-		{
-			return newInspection(createTauTransitionWithTime(node.getRight(),"Timeout: time exceeded"), 
-					new AbstractCalculationStep(owner, visitorAccess) {
-
-				@Override
-				public Pair<INode, Context> execute(CmlTransition selectedTransition)
-						throws AnalysisException {
-					//We set the process to become the right behavior
-					setLeftChild(null);
-					//We need to return the outer context because of the extra context
-					//containing the start time has been added in the setup visitor
-					return new Pair<INode, Context>(node.getRight(), question.outer);
-				}
-			});
-
-		}
-		//if the current time of the process has not passed the limit (val) and the left process
-		//makes an observable transition then the whole process behaves as the left process 
-		else
-		{
-			final CmlBehaviour leftBehavior = owner.getLeftChild();
-			return newInspection(leftBehavior.inspect(), 
-					new AbstractCalculationStep(owner, visitorAccess) {
-
-				@Override
-				public Pair<INode, Context> execute(CmlTransition selectedTransition) throws AnalysisException {
-
-					leftBehavior.execute(selectedTransition);
-
-					if(selectedTransition instanceof ObservableTransition &&
-							selectedTransition instanceof LabelledTransition)
-					{
-						return replaceWithChild(leftBehavior);
-					}
-					else
-						return new Pair<INode, Context>(node, question);
-				}
-			});
-
-
-		}
+		return caseATimeout(node,node.getLeft(),node.getRight(),node.getTimeoutExpression(),question);
 	}
 
 	@Override

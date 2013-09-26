@@ -31,7 +31,9 @@ import eu.compassresearch.ast.process.AInternalChoiceProcess;
 import eu.compassresearch.ast.process.AReferenceProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.ASynchronousParallelismProcess;
+import eu.compassresearch.ast.process.ATimeoutProcess;
 import eu.compassresearch.ast.process.PProcess;
+import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
@@ -61,7 +63,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 	public Inspection defaultPProcess(PProcess node, Context question)
 			throws AnalysisException {
 
-		throw new InterpreterRuntimeException(InterpretationErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName()));
+		throw new CmlInterpreterException(InterpretationErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName()));
 
 	}
 
@@ -447,6 +449,13 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 		return caseAGeneralisedParallelismProcess(nextNode, question);
 	}
 
+	@Override
+	public Inspection caseATimeoutProcess(ATimeoutProcess node, Context question)
+			throws AnalysisException
+	{
+		return caseATimeout(node,node.getLeft(),node.getRight(),node.getTimeoutExpression(),question);
+	}
+	
 	/**
 	 * Private helper methods
 	 * @throws AnalysisException 

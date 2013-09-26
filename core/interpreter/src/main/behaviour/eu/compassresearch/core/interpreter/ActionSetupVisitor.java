@@ -46,8 +46,10 @@ import eu.compassresearch.ast.process.AInterleavingReplicatedProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.ASynchronousParallelismProcess;
 import eu.compassresearch.ast.process.ASynchronousParallelismReplicatedProcess;
+import eu.compassresearch.ast.process.ATimeoutProcess;
 import eu.compassresearch.ast.process.SReplicatedProcess;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
+import eu.compassresearch.core.interpreter.utility.LocationExtractor;
 import eu.compassresearch.core.interpreter.utility.Pair;
 import eu.compassresearch.core.interpreter.utility.SetMath;
 
@@ -122,16 +124,29 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 		return new Pair<INode,Context>(node,context);
 	}
 
-	@Override
-	public Pair<INode,Context> caseATimeoutAction(ATimeoutAction node, Context question)
+	private Pair<INode,Context> caseATimeout(INode node, INode leftNode, Context question)
 			throws AnalysisException {
-
-		Context context = CmlContextFactory.newContext(node.getLocation(), "Timeout context", question);
+		
+		Context context = CmlContextFactory.newContext(LocationExtractor.extractLocation(node), "Timeout context", question);
 		context.putNew(new NameValuePair(NamespaceUtility.getStartTimeName(),new IntegerValue(owner.getCurrentTime())));
 		
 		//We setup the child nodes 
-		setLeftChild(new ConcreteCmlBehaviour(node.getLeft(),question,owner));
+		setLeftChild(new ConcreteCmlBehaviour(leftNode,question,owner));
 		return new Pair<INode,Context>(node,context);
+		
+	}
+	
+	@Override
+	public Pair<INode,Context> caseATimeoutAction(ATimeoutAction node, Context question)
+			throws AnalysisException {
+		return caseATimeout(node,node.getLeft(),question);
+	}
+	
+	@Override
+	public Pair<INode, Context> caseATimeoutProcess(ATimeoutProcess node,
+			Context question) throws AnalysisException
+	{
+		return caseATimeout(node,node.getLeft(),question);
 	}
 
 	@Override
