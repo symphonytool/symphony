@@ -56,7 +56,9 @@ import eu.compassresearch.ast.util.ToStringUtil;
 %VarsetExpression->fatEnum = "{|" [channelNames] "|}"
 
 //  Expressions
- 
+%exp->unresolvedPath = "("+  $org.overture.ast.util.Utils.listToString($[identifiers] $ , ".")$ +")"
+
+
 //  Patterns
 
 //  Definitions
