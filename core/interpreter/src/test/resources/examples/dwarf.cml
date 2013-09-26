@@ -70,7 +70,7 @@ state
 operations
   Init : () ==> ()
   Init() ==
-    dw := mk_DwarfType(stop, {}, {}, warning, stop, stop) 
+    dw := mk_DwarfType(stop, {}, {}, stop, stop, stop) 
 
     post dw.lastproperstate = stop and 
          dw.turnoff = {} and 

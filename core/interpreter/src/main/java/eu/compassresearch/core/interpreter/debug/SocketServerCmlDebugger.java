@@ -60,7 +60,7 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 	private BufferedReader requestReader;
 	private boolean connected = false;
 	private CmlInterpreter runningInterpreter;
-	private List<Choice> waitingChoices = new LinkedList<Choice>();
+	private List<TransitionDTO> waitingChoices = new LinkedList<TransitionDTO>();
 	CmlTransitionSet availableChannelEvents;
 
 	/**
@@ -70,7 +70,7 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 	/**
 	 * Response Queue
 	 */
-	private SynchronousQueue<Choice> choiceQueue = new SynchronousQueue<Choice>();
+	private SynchronousQueue<TransitionDTO> choiceQueue = new SynchronousQueue<TransitionDTO>();
 	/**
 	 * Dispatches incomming messages
 	 */
@@ -175,7 +175,7 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 //					throw new InterpreterRuntimeException("The simulation was interrupted");
 //
 //				//Grab the response 
-				Choice choice = choiceQueue.take();
+				TransitionDTO choice = choiceQueue.take();
 //				//System.out.println("response: " + responseStr);
 
 				CmlTransition selectedEvent = null;
@@ -261,7 +261,7 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 		});
 	}
 
-	private void convertTransitionsToChoices(CmlTransitionSet availableTransitions, List<Choice> choices)
+	private void convertTransitionsToChoices(CmlTransitionSet availableTransitions, List<TransitionDTO> choices)
 	{
 		for(CmlTransition transition : availableChannelEvents.getAllEvents())
 		{
@@ -273,7 +273,7 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 				locations.add(LocationExtractor.extractLocation(node));
 			}
 
-			waitingChoices.add(new Choice(System.identityHashCode(transition),transition.toString(),locations));
+			waitingChoices.add(new TransitionDTO(System.identityHashCode(transition),transition.toString(),locations));
 		}
 	}
 	
@@ -345,7 +345,7 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 		{
 			//This is to release the interpreter thread if stuck here
 			responseQueue.offer(new ResponseMessage(), 1, TimeUnit.MILLISECONDS);
-			choiceQueue.offer(new Choice(Integer.MAX_VALUE, "", new LinkedList<ILexLocation>()), 1, TimeUnit.MILLISECONDS);
+			choiceQueue.offer(new TransitionDTO(Integer.MAX_VALUE, "", new LinkedList<ILexLocation>()), 1, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e){}
 		
 //		if(choiceQueue.isEmpty())
@@ -402,7 +402,7 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 			runningInterpreter.step();
 			return true;
 		case SET_CHOICE:
-			Choice c = message.getContent();
+			TransitionDTO c = message.getContent();
 			//notify if a choice is selected
 			choiceQueue.offer(c);
 			return true;

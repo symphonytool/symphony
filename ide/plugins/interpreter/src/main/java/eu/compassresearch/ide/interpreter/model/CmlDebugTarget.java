@@ -31,7 +31,7 @@ import org.overture.ide.debug.core.model.DebugEventHelper;
 
 import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
 import eu.compassresearch.core.interpreter.debug.Breakpoint;
-import eu.compassresearch.core.interpreter.debug.Choice;
+import eu.compassresearch.core.interpreter.debug.TransitionDTO;
 import eu.compassresearch.core.interpreter.debug.CmlDbgCommandMessage;
 import eu.compassresearch.core.interpreter.debug.CmlDbgStatusMessage;
 import eu.compassresearch.core.interpreter.debug.CmlDebugCommand;
@@ -440,7 +440,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 		fireResumeEvent(0);
 	}
 	
-	public void select(Choice choice)
+	public void select(TransitionDTO choice)
 	{
 		this.communicationManager.sendMessage(new CmlDbgCommandMessage(CmlDebugCommand.SET_CHOICE,choice));
 		fireResumeEvent(0);

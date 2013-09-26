@@ -32,10 +32,10 @@ public class CmlInterpreterStateDTO {
 				activeInterpreter.getTopLevelProcess(), 
 				activeInterpreter.getStatus(),
 				activeInterpreter.getActiveBreakpoint(),
-				new LinkedList<Choice>()); 
+				new LinkedList<TransitionDTO>()); 
 	}
 	
-	public static CmlInterpreterStateDTO createCmlInterpreterStateDTO(CmlInterpreter activeInterpreter, List<Choice> events)
+	public static CmlInterpreterStateDTO createCmlInterpreterStateDTO(CmlInterpreter activeInterpreter, List<TransitionDTO> events)
 	{
 		return new CmlInterpreterStateDTO(
 				activeInterpreter.getTopLevelProcess(), 
@@ -66,7 +66,7 @@ public class CmlInterpreterStateDTO {
 	private InterpreterErrorDTO[] errors = null;
 	private final CmlInterpretationStatus state;
 	private Breakpoint bp;
-	private List<Choice> transitions;
+	private List<TransitionDTO> transitions;
 
 	/**
 	 * Dummy constructor for serialization
@@ -87,7 +87,7 @@ public class CmlInterpreterStateDTO {
 		this.state = state;
 	}
 	
-	public CmlInterpreterStateDTO(CmlBehaviour topProcess, CmlInterpretationStatus state, Breakpoint bp, List<Choice> transitions)
+	public CmlInterpreterStateDTO(CmlBehaviour topProcess, CmlInterpretationStatus state, Breakpoint bp, List<TransitionDTO> transitions)
 	{
 		this(topProcess,state);
 		this.bp = bp;
@@ -157,7 +157,7 @@ public class CmlInterpreterStateDTO {
 				"topProcess: " + (this.topLevelProcess != null ? this.topLevelProcess.toString() : "NA");
 	}
 
-	public List<Choice> getTransitions()
+	public List<TransitionDTO> getTransitions()
 	{
 		return transitions;
 	}

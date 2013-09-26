@@ -5,18 +5,18 @@ import java.util.List;
 
 import org.overture.ast.intf.lex.ILexLocation;
 
-public class Choice {
+public class TransitionDTO {
 
 	private int transitionObjectId;
 	private String name;
 	private List<ILexLocation> locations;
 	
-	private Choice()
+	private TransitionDTO()
 	{
 		locations = new LinkedList<ILexLocation>();
 	}
 	
-	public Choice(int transitionObjectId, String name, List<ILexLocation> locations)
+	public TransitionDTO(int transitionObjectId, String name, List<ILexLocation> locations)
 	{
 		this.transitionObjectId = transitionObjectId;
 		this.name = name;

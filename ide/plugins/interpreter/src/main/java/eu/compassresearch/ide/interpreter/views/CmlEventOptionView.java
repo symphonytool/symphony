@@ -24,7 +24,7 @@ import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.part.ViewPart;
 
-import eu.compassresearch.core.interpreter.debug.Choice;
+import eu.compassresearch.core.interpreter.debug.TransitionDTO;
 import eu.compassresearch.ide.interpreter.CmlUtil;
 import eu.compassresearch.ide.interpreter.model.CmlDebugTarget;
 
@@ -51,14 +51,14 @@ public class CmlEventOptionView extends ViewPart implements IDebugEventSetListen
 			{
 				for(DebugEvent e : events)
 				{
-					if(e.getKind() == DebugEvent.BREAKPOINT || e.getKind() == DebugEvent.SUSPEND)
+					if(e.getKind() == DebugEvent.SUSPEND)
 					{
 						target = (CmlDebugTarget)DebugPlugin.getDefault().getLaunchManager().getDebugTargets()[0];
-						List<Choice> transitions = target.getLastState().getTransitions();
-						Collections.sort(transitions, new Comparator<Choice>(){
+						List<TransitionDTO> transitions = target.getLastState().getTransitions();
+						Collections.sort(transitions, new Comparator<TransitionDTO>(){
 
 							@Override
-							public int compare(Choice o1, Choice o2)
+							public int compare(TransitionDTO o1, TransitionDTO o2)
 							{
 								if (o1.getName().equals("tock"))
 									return -1;
@@ -125,7 +125,7 @@ public class CmlEventOptionView extends ViewPart implements IDebugEventSetListen
 		});
 	}
 
-	private void selectChoice(Choice event)
+	private void selectChoice(TransitionDTO event)
 	{
 		target.select(event);
 		finish();
@@ -150,12 +150,12 @@ public class CmlEventOptionView extends ViewPart implements IDebugEventSetListen
 	public void doubleClick(DoubleClickEvent event)
 	{
 		IStructuredSelection selection = null;
-		Choice choice = null;
+		TransitionDTO choice = null;
 
 		if (event.getSelection() instanceof IStructuredSelection)
 		{
 			selection = (IStructuredSelection) event.getSelection();
-			choice = (Choice) selection.getFirstElement();
+			choice = (TransitionDTO) selection.getFirstElement();
 		}
 
 		selectChoice(choice);
@@ -169,7 +169,7 @@ public class CmlEventOptionView extends ViewPart implements IDebugEventSetListen
 		{
 			IStructuredSelection selection = (IStructuredSelection) event.getSelection();
 
-			Choice choice = (Choice) selection.getFirstElement();
+			TransitionDTO choice = (TransitionDTO) selection.getFirstElement();
 			CmlUtil.clearSelections(lastSelectedRanges);
 			CmlUtil.setSelectionFromLocations(choice.getLocations(), lastSelectedRanges);
 			// get a random one and set the
