@@ -1628,15 +1628,20 @@ channelDef returns[List<AChannelNameDefinition> def]
                 List<ILexIdentifierToken> idList = new ArrayList<ILexIdentifierToken>();
                 idList.add(id);
                 ILexLocation loc = id.getLocation();
-                if ($type.type != null)
+                AChannelType chanType = new AChannelType(loc, true);
+                if ($type.type != null) {
                     loc = extractLexLocation(loc, extractLexLocation($type.stop));
-                ATypeSingleDeclaration typeDecl = new ATypeSingleDeclaration(loc, NameScope.GLOBAL, idList, new AChannelType(loc, true));
+                    chanType.setLocation(extractLexLocation($type.start,$type.stop));
+                    chanType.setType($type.type);
+                }    
+                ATypeSingleDeclaration typeDecl = new ATypeSingleDeclaration(loc, NameScope.GLOBAL, idList, chanType);
+                
                 AChannelNameDefinition chanDecl = new AChannelNameDefinition();
                 //chanDecl.setName(??); // not sure if this needs set; one cml.y case has an empty LexNameToken, the other uses the first element of the identifierList
                 chanDecl.setNameScope(NameScope.GLOBAL);
                 chanDecl.setUsed(false);            
                 chanDecl.setSingleType(typeDecl);
-                chanDecl.setType($type.type == null? $type.type : new AChannelType(loc, true));
+                chanDecl.setType(new AChannelType(loc, true));
                 $def.add(chanDecl);
             }
         }

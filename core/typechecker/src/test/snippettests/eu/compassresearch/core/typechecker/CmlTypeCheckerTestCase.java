@@ -299,8 +299,13 @@ public class CmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase {
 		addTestProgram(testData, 
 				"channels pay, transfer: nat * nat * nat process Card = val i: nat @ begin state value: nat @ Skip end process Cards = || i: nat @  [ {| pay.i,transfer.i |} union { transfer.j.i.n| j:nat,n:nat}] Card(i)",
 				true, true, new String[0]);
+		//62 //Bug reported by AKM. The actionType in a Guarded action can be void type. 
+		addTestProgram(testData, 
+				"channels a b process test = begin state v : int := 2 @   (dcl x : int := 2 @ (([v = 2] & x := v + x ; a -> Skip) [] ([v = 1] & x := 3 + x ; b -> Skip ) ) ; [x = 4] & b -> Skip ) end",
+				true, true, new String[0]);
 
 		return testData;
+				
 	}
 
 	public CmlTypeCheckerTestCase(String cmlSource, boolean parsesOk,

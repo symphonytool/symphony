@@ -169,19 +169,19 @@ class TCExpressionVisitor extends
 			return node.getType();
 		}
 		
-		ATypeSingleDeclaration chanTypeDef = ((AChannelNameDefinition) chanDef).getSingleType();
-		AChannelType chan = (AChannelType) chanTypeDef.getType();
-		PType chanCncrtType = chan.getType();
+		ATypeSingleDeclaration chanTypeDecl = ((AChannelNameDefinition) chanDef).getSingleType();
+		AChannelType chan = (AChannelType) chanTypeDecl.getType();
+		PType chanConcreteType = chan.getType();
 		
 		LinkedList<PType> chanConcType = new LinkedList<PType>();
 		
-		if(chanCncrtType instanceof AProductType){
+		if(chanConcreteType instanceof AProductType){
 			
-			LinkedList<PType> prodTypes = ((AProductType) chanCncrtType).getTypes();
+			LinkedList<PType> prodTypes = ((AProductType) chanConcreteType).getTypes();
 			chanConcType.addAll(prodTypes);
 			
 		} else {
-			chanConcType.add(chanCncrtType);
+			chanConcType.add(chanConcreteType);
 		}
 		
 		Iterator<PType> iterator = chanConcType.iterator();
@@ -205,7 +205,6 @@ class TCExpressionVisitor extends
 								+ singleChanConcType, "" + expressionType)));
 				return node.getType();
 			}
-			
 		}
 
 		node.setType(new AVarsetExpressionType(node.getLocation(), true));
