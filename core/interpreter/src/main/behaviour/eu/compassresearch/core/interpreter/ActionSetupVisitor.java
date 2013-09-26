@@ -364,6 +364,10 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 		}, question);
 	}
 	
+	/*
+	 * Replicated processes
+	 */
+	
 	protected Pair<INode,Context> caseReplicatedProcess(SReplicatedProcess node, ReplicationFactory factory, Context question) throws AnalysisException
 	{
 		NameValuePairList replicationDecls = new  NameValuePairList();
@@ -448,48 +452,6 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 						node.getReplicatedProcess().clone());
 			}
 		}, question);
-		
-//		NameValuePairList replicationDecls = new  NameValuePairList();
-//		Pair<SetValue,Context> pair = getCurrentReplicationValue(node.getLocation(), node.getReplicationDeclaration(),replicationDecls, question);
-//		
-//		SetValue setValue = pair.first;
-//		Context nextContext = pair.second;
-//
-//		INode returnNode = null;
-//
-//		if(setValue.values.size() == 1)
-//			throw new AnalysisException("A replicated action must have at least two enumeration values");
-//		//If we have two replication values then we need to have one interleaving action, since
-//		//each value represents one process replication 
-//		else if(setValue.values.size() == 2)
-//		{
-//			returnNode = new ASynchronousParallelismProcess(node.getLocation(), 
-//					node.getReplicatedProcess().clone(),
-//					node.getReplicatedProcess().clone());
-//
-//			setChildContexts(new Pair<Context,Context>(
-//					convertReplicationToContext(setValue.values.get(0),replicationDecls,node.getLocation(),question),
-//					convertReplicationToContext(setValue.values.get(1),replicationDecls,node.getLocation(),question)));
-//
-//			setValue.values.remove(0);
-//			setValue.values.remove(0);
-//		}
-//		//If we have more than two replication values then we make an interleaving between the
-//		//first value and the rest of the replicated values
-//		else
-//		{
-//			returnNode = new ASynchronousParallelismProcess(node.getLocation(),
-//					node.getReplicatedProcess().clone(), 
-//					node);
-//
-//			setChildContexts(new Pair<Context,Context>(
-//					convertReplicationToContext(setValue.values.get(0),replicationDecls,node.getLocation(),question),
-//					nextContext));
-//
-//			setValue.values.remove(0);
-//		}
-//
-//		return returnNode;
 	}
 	
 	@Override
