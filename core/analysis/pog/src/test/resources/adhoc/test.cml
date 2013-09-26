@@ -1,32 +1,10 @@
-     types
-        Value = nat
-        CellId = nat inv id == id > 0 and id <= maxring
-        Direction =  <req> | <ack>
-
-    values
-        maxbuff = 4
-        maxring = maxbuff - 1
-
-    channels
-        input, output : Value
-        write, read: CellId * Direction * Value
-        rrd, wrt: Direction * Value
-        rd_i, wrt_i: CellId * Direction * Value
-
-
-
     process Controller =
     begin
-        state cache:Value
-              size:nat
-              top:CellId
-              bot:CellId
+
 
         operations
-
-            InitSetCache(x:Value) r:Value
-                frame wr cache:Value
-                post cache = x
+        INIT : () ==> ()
+        INIT () == is not yet specified
 
 
 

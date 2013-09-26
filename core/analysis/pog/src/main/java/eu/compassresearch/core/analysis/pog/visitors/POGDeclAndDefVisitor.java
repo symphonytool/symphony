@@ -14,9 +14,11 @@ import org.overture.ast.lex.LexNameList;
 import org.overture.ast.node.INode;
 import org.overture.ast.patterns.APatternListTypePair;
 import org.overture.ast.patterns.PPattern;
+import org.overture.ast.statements.ANotYetSpecifiedStm;
 import org.overture.ast.types.AOperationType;
 import org.overture.ast.types.PType;
 import org.overture.pog.obligation.PONameContext;
+import org.overture.pog.obligation.ProofObligationList;
 import org.overture.pog.obligation.StateInvariantObligation;
 import org.overture.pog.obligation.SubTypeObligation;
 import org.overture.pog.pub.IPOContextStack;
@@ -24,6 +26,7 @@ import org.overture.pog.utility.POException;
 import org.overture.pog.visitors.PogParamDefinitionVisitor;
 import org.overture.typechecker.TypeComparator;
 
+import eu.compassresearch.ast.actions.ANotYetSpecifiedStatementAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
@@ -540,6 +543,10 @@ public class POGDeclAndDefVisitor extends
 			throws AnalysisException
 	{
 
+		if ( node.getBody() instanceof ANotYetSpecifiedStatementAction)
+		{
+			return new CmlProofObligationList();
+		}
 		CmlProofObligationList pol = new CmlProofObligationList();
 
 		LexNameList pids = new LexNameList();
