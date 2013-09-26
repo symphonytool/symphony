@@ -1,0 +1,7 @@
+channels a
+process A = 
+begin 
+	actions
+	INIT = (a -> Skip) ||| (a -> Skip) 
+	@ INIT
+end

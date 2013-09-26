@@ -80,7 +80,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
-				<version>2.4</version>
 				<executions>
 					<execution>
 						<goals>
@@ -95,7 +94,7 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
 					<redirectTestOutputToFile>true</redirectTestOutputToFile>
-					<testFailureIgnore>true</testFailureIgnore>
+					<testFailureIgnore>false</testFailureIgnore>
 					<enableAssertions>false</enableAssertions>
 				</configuration>
 			</plugin>
