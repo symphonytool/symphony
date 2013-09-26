@@ -317,6 +317,16 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 			public boolean handleMessage(CmlDbgStatusMessage message)
 			{
 				lastState = message.getInterpreterStatus();
+				Display.getDefault().syncExec(new Runnable()
+				{
+					
+					@Override
+					public void run()
+					{
+						CmlUtil.clearAllSelections();
+					}
+				});
+				
 				// threadManager.stopping();
 				return false;
 			}

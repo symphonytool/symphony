@@ -50,6 +50,7 @@ public class CmlEventOptionView extends ViewPart implements IDebugEventSetListen
 			public void run()
 			{
 				for(DebugEvent e : events)
+				{
 					if(e.getKind() == DebugEvent.BREAKPOINT || e.getKind() == DebugEvent.SUSPEND)
 					{
 						target = (CmlDebugTarget)DebugPlugin.getDefault().getLaunchManager().getDebugTargets()[0];
@@ -71,6 +72,11 @@ public class CmlEventOptionView extends ViewPart implements IDebugEventSetListen
 						viewer.setInput(transitions);
 						viewer.setSelection(new StructuredSelection(transitions.get(0)));
 					}
+					else if(e.getKind() == DebugEvent.TERMINATE)
+					{
+						viewer.setInput(null);
+					}
+				}
 			}
 		});
 	}

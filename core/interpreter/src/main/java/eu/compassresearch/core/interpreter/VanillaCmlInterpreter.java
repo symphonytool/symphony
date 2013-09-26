@@ -219,6 +219,10 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			//Get the environment to select the next transition. 
 			//this is potentially a blocking call!!
 			CmlTransition selectedEvent = getEnvironment().resolveChoice();
+			
+			//if its null we terminate
+			if(selectedEvent == null)
+				break;
 
 			//Handle the breakpoints if any
 			handleBreakpoints(selectedEvent);

@@ -11,6 +11,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.TimeUnit;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.intf.lex.ILexLocation;
@@ -339,7 +340,17 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 	private void stopping()
 	{
 		//sendStatusMessage(CmlDbgpStatus.STOPPING);
-		responseQueue.add(new ResponseMessage());
+		
+		try
+		{
+			//This is to release the interpreter thread if stuck here
+			responseQueue.offer(new ResponseMessage(), 1, TimeUnit.MILLISECONDS);
+			choiceQueue.offer(new Choice(Integer.MAX_VALUE, "", new LinkedList<ILexLocation>()), 1, TimeUnit.MILLISECONDS);
+		} catch (InterruptedException e){}
+		
+//		if(choiceQueue.isEmpty())
+//			choiceQueue.add(null);
+			
 	}
 
 	/*
