@@ -14,7 +14,7 @@ import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -98,7 +98,7 @@ public class InterpretAllCmlFilesTest {
 
 		String resultPath = filePath.split("[.]")[0] + ".result";
 
-		ExpectedTestResult testResult = ExpectedTestResult.parseTestResultFile(resultPath);
+		ExpectedTestResult testResult =(new File(resultPath).exists()? ExpectedTestResult.parseTestResultFile(resultPath):null);
 		
 		if(testResult == null)
 			Assert.fail("The testResult is not formatted correctly");
