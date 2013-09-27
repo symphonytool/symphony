@@ -313,7 +313,7 @@ public class TPVisitor extends
 
 		StringBuilder sb = new StringBuilder();
 		//Add thy header 
-		sb.append("theory " + poThyName + " \n" + "  imports utp_cml \n"
+		sb.append("theory " + poThyName + " \n" + "  imports utp_cml " + thyName +"\n"
 				+ "begin \n" + "\n");
 		sb.append("text {* Auto-generated THY file for proof obligations generated for "+  thyName + ".cml *}\n\n");
 		

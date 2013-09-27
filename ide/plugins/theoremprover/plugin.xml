@@ -22,8 +22,8 @@
 
   
   
- 
-<extension
+ <!-- REMOVED FOR M24 Deliverable - not working correctly yet-->
+<!--<extension
       point="org.eclipse.ui.menus">
    <menuContribution
          allPopups="false"
@@ -36,7 +36,7 @@
             tooltip="Send POs to Theorem Prover">
       </command>
    </menuContribution>
-</extension>
+</extension>-->
   
 
 	<extension
