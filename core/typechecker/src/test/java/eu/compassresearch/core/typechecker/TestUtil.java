@@ -24,8 +24,10 @@ import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.parser.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
+import eu.compassresearch.core.parser.CmlParserError;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
+import eu.compassresearch.core.typechecker.api.TypeIssueHandler.CMLIssue;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler.CMLTypeError;
 
 public class TestUtil {
@@ -128,17 +130,27 @@ public class TestUtil {
 			CmlLexer lexer = new CmlLexer(in);
 			CommonTokenStream tokens = new CommonTokenStream(lexer);
 			CmlParser parser = new CmlParser(tokens);
-
+			
 			try {
 				List<PDefinition> forest = parser.source();
 				s.setParagraphs(new LinkedList<PDefinition>());
-				if (forest != null) {
+				if (forest != null && parser.getErrors().isEmpty()) {
 					for (PDefinition def : forest)
 						if (def != null)
 							s.getParagraphs().add(def);
 					result.parsedOk = true;
 				} else
+				{
 					result.parsedOk = false;
+					List<String> parseErrors = new LinkedList<String>();
+					for (CmlParserError issue : parser.getErrors())
+					{
+						parseErrors.add(issue.toString());
+					}
+					result.parseErrors = parseErrors;
+					
+					return result;	
+				}
 			} catch (RecognitionException e) {
 				String expectedToken = "";
 				CommonToken ct = null;
