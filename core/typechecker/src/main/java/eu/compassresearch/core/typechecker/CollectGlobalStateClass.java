@@ -7,9 +7,11 @@ import java.util.List;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import org.overture.ast.definitions.AImplicitFunctionDefinition;
+import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.typechecker.assistant.definition.AExplicitFunctionDefinitionAssistantTC;
 import org.overture.typechecker.assistant.definition.AImplicitFunctionDefinitionAssistantTC;
+import org.overture.typechecker.assistant.definition.ATypeDefinitionAssistantTC;
 import org.overture.typechecker.assistant.definition.PDefinitionListAssistantTC;
 import org.overture.typechecker.assistant.definition.SClassDefinitionAssistantTC;
 
@@ -111,6 +113,12 @@ public class CollectGlobalStateClass extends AnalysisCMLAdaptor {
 
 		List<PDefinition> defs = TCDeclAndDefVisitor
 				.handleDefinitionsForOverture(node);
+		
+		
+		for (PDefinition tdef : defs) {
+			ATypeDefinitionAssistantTC.implicitDefinitions((ATypeDefinition) tdef, null);
+		}
+		
 		members.addAll(defs);
 		super.caseATypesDefinition(node);
 	}
