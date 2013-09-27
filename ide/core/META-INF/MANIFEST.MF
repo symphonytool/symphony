@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: COMPASS IDE CML Core
 Bundle-SymbolicName: eu.compassresearch.ide.core;singleton:=true
-Bundle-Version: 0.1.9.qualifier
+Bundle-Version: 2.0.0
 Bundle-Activator: eu.compassresearch.ide.core.CmlCorePlugin
 Bundle-Vendor: The COMPASS Project
 Bundle-Localization: plugin

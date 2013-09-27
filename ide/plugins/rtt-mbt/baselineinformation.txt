@@ -1,4 +1,11 @@
 -----------------------------------------------------------
+RTTMBTPLUGIN_0.2.0
+
+Changes: none
+
+Step forward for the M24 milestone release
+
+-----------------------------------------------------------
 RTTMBTPLUGIN_0.1.9
 
 Changes: none
