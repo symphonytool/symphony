@@ -79,5 +79,5 @@ public class ThmNodeList extends Vector<ThmNode> implements AnalysisArtifact {
 			o.restrictDeps(procNodeNames);
 		}		
 		return this;
-	}    
+	}
 }

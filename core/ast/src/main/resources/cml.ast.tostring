@@ -57,7 +57,8 @@ import eu.compassresearch.ast.util.ToStringUtil;
 
 //  Expressions
 %exp->#Channel->name = [identifier]+ $($[expressions]$!=null && !$[expressions]$.isEmpty()?_expressions.toString():"")$+""
- 
+%exp->unresolvedPath = "("+  $org.overture.ast.util.Utils.listToString($[identifiers] $ , ".")$ +")"
+
 //  Patterns
 
 //  Definitions
