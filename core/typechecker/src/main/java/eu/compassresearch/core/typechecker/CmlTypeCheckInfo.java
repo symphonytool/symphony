@@ -335,7 +335,7 @@ class CmlTypeCheckInfo extends TypeCheckInfo implements TypeCheckQuestion {
 							++count;
 							if(count > 1)
 							{
-								newChannel.setType(issueHandler.addTypeError(newChannel,
+								newChannel.setType(issueHandler.addTypeError(newChannel.getType(),
 										TypeErrorMessages.DUPLICATE_DEFINITION
 												.customizeMessage(newChannelIdentName + " " + newChannelIdentName.getLocation()
 														, existingChannelName + "  " + existingChannelName.getLocation())));
