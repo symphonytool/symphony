@@ -274,7 +274,9 @@ class TCDeclAndDefVisitor extends
 			return node.getType();
 		}
 
-		cmlEnv.checkChannelDuplicate(node);
+		if(cmlEnv.hasChannelDuplicates(node)){
+			return node.getType();
+		}
 		
 		PType declType = decl.apply(parentChecker, question);
 		if (!successfulType(declType)) {
