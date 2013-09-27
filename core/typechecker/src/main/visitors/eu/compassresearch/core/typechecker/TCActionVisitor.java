@@ -1658,9 +1658,10 @@ class TCActionVisitor extends
 					TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(""
 							+ operType.getResult(), "" + type)));
 			return node.getType();
-		}
+		} 
 
-		node.setType(new AVoidType(node.getLocation(), true));
+		
+		node.setType(type); 
 		return node.getType();
 	}
 
