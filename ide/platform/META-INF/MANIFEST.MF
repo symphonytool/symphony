@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: COMPASS IDE CML Product
 Bundle-SymbolicName: eu.compassresearch.ide.platform;singleton:=true
-Bundle-Version: 2.0.0
+Bundle-Version: 0.2.0
 Bundle-Localization: plugin
 Bundle-Activator: eu.compassresearch.ide.platform.Activator
 Bundle-Vendor: The COMPASS Project
