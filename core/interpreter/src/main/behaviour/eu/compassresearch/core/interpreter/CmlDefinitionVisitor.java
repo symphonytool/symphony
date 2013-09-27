@@ -30,6 +30,8 @@ import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AActionsDefinition;
 import eu.compassresearch.ast.definitions.AChannelNameDefinition;
 import eu.compassresearch.ast.definitions.AChannelsDefinition;
+import eu.compassresearch.ast.definitions.AChansetDefinition;
+import eu.compassresearch.ast.definitions.AChansetsDefinition;
 import eu.compassresearch.ast.definitions.ACmlClassDefinition;
 import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AFunctionsDefinition;
@@ -41,7 +43,7 @@ import eu.compassresearch.ast.definitions.AValuesDefinition;
 import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.values.ActionValue;
-import eu.compassresearch.core.interpreter.api.values.AnyValue;
+import eu.compassresearch.core.interpreter.api.values.LatticeTopValue;
 import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
 import eu.compassresearch.core.interpreter.api.values.ProcessObjectValue;
 
@@ -168,6 +170,25 @@ class CmlDefinitionVisitor extends
 		return new NameValuePairList();
 	}
 	
+	@Override
+	public NameValuePairList caseAChansetsDefinition(AChansetsDefinition node,
+			Context question) throws AnalysisException {
+
+		return definitionListHelper(node.getChansets(), node.getLocation(), question);
+	}
+	
+	@Override
+	public NameValuePairList caseAChansetDefinition(AChansetDefinition node,
+			Context question) throws AnalysisException
+	{
+		NameValuePairList nvpl = new NameValuePairList();
+		ILexNameToken name =  NamespaceUtility.createChansetName(node.getIdentifier());
+		Value val = node.getChansetExpression().apply(cmlExpressionVisitor,question);
+		nvpl.add(new NameValuePair(name, val));
+		
+		return nvpl;
+	}
+	
 	/*
 	 * Function  
 	 */
@@ -287,7 +308,8 @@ class CmlDefinitionVisitor extends
     	{
     		for (ILexIdentifierToken channelName : cnd.getSingleType().getIdentifiers())
     		{
-    			ILexNameToken name = new LexNameToken("|CHANNELS|", channelName);
+    			
+    			ILexNameToken name = NamespaceUtility.createChannelName(channelName);
     			vpl.add(new NameValuePair(name, new CMLChannelValue(cnd.getSingleType().getType(),name)));
     		}
     	}
@@ -367,7 +389,7 @@ class CmlDefinitionVisitor extends
 		
 		NameValuePairList vpl = new NameValuePairList();
 		
-		Value value = new AnyValue(node.getType());
+		Value value = new LatticeTopValue(node.getType());
 		for(ILexIdentifierToken id : node.getIdentifiers())
 			vpl.add(new NameValuePair(new LexNameToken("", id.clone()), value));
 		

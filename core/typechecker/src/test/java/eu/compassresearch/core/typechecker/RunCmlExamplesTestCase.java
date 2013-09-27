@@ -283,7 +283,7 @@ public class RunCmlExamplesTestCase {
 				System.out.println("addFailingFile(\""
 						+ file.getName()
 						+ "\",\""
-						+ tc.getTypeErrors().get(0).getDescription()
+						+ (tc.getTypeErrors().get(0).getDescription() + " " + tc.getTypeErrors().get(0).getLocation())
 								.replace("\"", "\\\"") + "\");");
 
 			Assert.assertTrue("Type checker dies with errors: " + errorString,

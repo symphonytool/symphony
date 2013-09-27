@@ -10,7 +10,8 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.intf.lex.ILexNameToken;
-import org.overture.ast.intf.lex.ILexToken;
+import org.overture.ast.types.AProductType;
+import org.overture.ast.types.PType;
 import org.overture.ast.util.definitions.ClassList;
 import org.overture.interpreter.eval.DelegateExpressionEvaluator;
 import org.overture.interpreter.runtime.ClassInterpreter;
@@ -20,7 +21,9 @@ import org.overture.interpreter.scheduler.BasicSchedulableThread;
 import org.overture.interpreter.scheduler.InitThread;
 import org.overture.interpreter.values.ObjectValue;
 import org.overture.interpreter.values.RecordValue;
+import org.overture.interpreter.values.TupleValue;
 import org.overture.interpreter.values.Value;
+import org.overture.interpreter.values.ValueList;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.expressions.ABracketedExp;
@@ -32,11 +35,14 @@ import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
 import eu.compassresearch.ast.expressions.PCMLExp;
 import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.ast.types.AChannelType;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionFactory;
-import eu.compassresearch.core.interpreter.api.transitions.ObservableEvent;
+import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
+import eu.compassresearch.core.interpreter.api.transitions.ObservableTransition;
+import eu.compassresearch.core.interpreter.api.values.LatticeTopValue;
 import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
+import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
+import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
 
 @SuppressWarnings("serial")
 public class CmlExpressionVisitor extends QuestionAnswerCMLAdaptor<Context, Value>
@@ -80,59 +86,67 @@ public class CmlExpressionVisitor extends QuestionAnswerCMLAdaptor<Context, Valu
 		return vdmExpEvaluator.defaultPExp(node,question);
 	}
 	
-	@Override
-	public Value caseAFatEnumVarsetExpression(AFatEnumVarsetExpression node,
-			Context question) throws AnalysisException {
-		
-		List<ILexIdentifierToken> channelIds = new LinkedList<ILexIdentifierToken>();
-		for (ANameChannelExp chanNameExp : node.getChannelNames())
-		{
-			channelIds.add(chanNameExp.getIdentifier());
-		}
-		return caseEnumVarSetExp(channelIds, question);
-	}
-	
-	@Override
-	public Value caseAEnumVarsetExpression(AEnumVarsetExpression node,
-			Context question) throws AnalysisException {
-
-		List<ILexIdentifierToken> channelIds = new LinkedList<ILexIdentifierToken>();
-		for (ANameChannelExp chanNameExp : node.getChannelNames())
-		{
-			channelIds.add(chanNameExp.getIdentifier());
-		}
-		
-		return caseEnumVarSetExp(channelIds, question);
-
-	}
-	
-	private Value caseEnumVarSetExp(List<ILexIdentifierToken> ids, Context question)
+	protected ChannelNameValue createChannelNameValue(ILexIdentifierToken id, Context question) throws AnalysisException
 	{
-		Set<CmlTransition> coms = new HashSet<CmlTransition>();
-
-		for(ILexIdentifierToken id : ids)
-		{
-			coms.add(createEvent((ILexIdentifierToken)id.clone(), question));
-		}
-
-		return new CmlAlphabet(coms);
-	}
-	
-	private ObservableEvent createEvent(ILexIdentifierToken id, Context question )
-	{
-		//FIXME: This should be a name so the conversion is avoided
+		//find the channel value
+		//TODO this might change if channel renaming does not 
+		//require the renamed channel name to be defined
 		ILexNameToken channelName = NamespaceUtility.createChannelName(id);
 		CMLChannelValue chanValue = (CMLChannelValue)question.lookup(channelName);
-
-		AChannelType chanType = (AChannelType)chanValue.getType(); 
-		if(chanType.getType() == null)
-		{		
-			return CmlTransitionFactory.newSynchronizationEvent(chanValue);
-		}
-		else
+		
+		return new ChannelNameValue(chanValue);
+	}
+	
+	protected ChannelNameValue createChannelNameValue(ANameChannelExp chanNameExp, Context question) throws AnalysisException
+	{
+		//find the channel value
+		//TODO this might change if channel renaming does not 
+		//require the renamed channel name to be defined
+		ILexNameToken channelName = NamespaceUtility.createChannelName(chanNameExp.getIdentifier());
+		CMLChannelValue chanValue = (CMLChannelValue)question.lookup(channelName);
+		
+		//extract the values
+		List<Value> values = new LinkedList<Value>();
+		for(int i = 0 ; i < chanValue.getValueTypes().size();i++)
 		{
-			return CmlTransitionFactory.newCmlCommunicationEvent(chanValue, null);
+			//if the index is less than the number of expressions its defined
+			//else we put an anyValue
+			if(i < chanNameExp.getExpressions().size())
+				values.add(chanNameExp.getExpressions().get(i).apply(this,question));
+			else
+				values.add(new LatticeTopValue(chanValue.getValueTypes().get(i)));
 		}
+		
+		return new ChannelNameValue(chanValue, values);
+	}
+	
+	@Override
+	public ChannelNameSetValue caseAFatEnumVarsetExpression(AFatEnumVarsetExpression node,
+			Context question) throws AnalysisException {
+		
+		Set<ChannelNameValue> coms = new HashSet<ChannelNameValue>();
+		
+		for (ANameChannelExp chanNameExp : node.getChannelNames())
+		{
+			ChannelNameValue channelName = createChannelNameValue(chanNameExp, question);
+			coms.add(channelName);
+		}
+		
+		return new ChannelNameSetValue(coms);
+	}
+	
+	@Override
+	public ChannelNameSetValue caseAEnumVarsetExpression(AEnumVarsetExpression node,
+			Context question) throws AnalysisException {
+		
+		Set<ChannelNameValue> coms = new HashSet<ChannelNameValue>();
+		for (ANameChannelExp chanNameExp : node.getChannelNames())
+		{
+			ChannelNameValue channelName = createChannelNameValue(chanNameExp, question);
+			coms.add(channelName);
+		}
+		
+		return new ChannelNameSetValue(coms);
 	}
 	
 	@Override
@@ -140,7 +154,8 @@ public class CmlExpressionVisitor extends QuestionAnswerCMLAdaptor<Context, Valu
 			AIdentifierVarsetExpression node, Context question)
 			throws AnalysisException {
 
-		return new CmlAlphabet(createEvent(node.getIdentifier(), question));
+		ILexNameToken name = NamespaceUtility.createChansetName(node.getIdentifier());
+		return question.lookup(name);
 	}
 	
 	@Override

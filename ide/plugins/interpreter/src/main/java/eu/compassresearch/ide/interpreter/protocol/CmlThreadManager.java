@@ -1,80 +1,38 @@
 package eu.compassresearch.ide.interpreter.protocol;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.debug.core.DebugException;
+import org.eclipse.debug.core.model.ITerminate;
 import org.eclipse.debug.core.model.IThread;
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.swt.custom.StyleRange;
-import org.eclipse.swt.custom.StyledText;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
 
-import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
 import eu.compassresearch.core.interpreter.debug.CmlInterpreterStateDTO;
 import eu.compassresearch.core.interpreter.debug.CmlProcessDTO;
-import eu.compassresearch.ide.interpreter.CmlDebugPlugin;
-import eu.compassresearch.ide.interpreter.CmlUtil;
-import eu.compassresearch.ide.interpreter.ICmlDebugConstants;
 import eu.compassresearch.ide.interpreter.model.CmlDebugTarget;
 import eu.compassresearch.ide.interpreter.model.CmlThread;
-import eu.compassresearch.ide.interpreter.views.CmlEventHistoryView;
 
-public class CmlThreadManager
+public class CmlThreadManager implements ITerminate
 {
 	// threads
 	private List<IThread> threads = new LinkedList<IThread>();
 	private CmlDebugTarget target;
-
-	CmlInterpreterStateDTO status = null;
 
 	public CmlThreadManager(CmlDebugTarget target)
 	{
 		this.target = target;
 	}
 
-	public void updateDebuggerInfo(final CmlInterpreterStateDTO status)
+	public void updateThreads(final CmlInterpreterStateDTO status,
+			CmlCommunicationManager communication)
 	{
-		this.status = status;
-		// cmlThread = new CmlThread(this,status.getToplevelProcessInfo());
 		threads.clear();
 		for (CmlProcessDTO t : status.getAllProcesses())
 		{
-			threads.add(new CmlThread(target, t));
+			CmlThread thread = new CmlThread(target, this, communication, t);
+			thread.initialize();
+			threads.add(thread);
 		}
-		// fireSuspendEvent(0);
-
-		final List<String> trace = status.getToplevelProcess().getTrace();
-
-		Display.getDefault().asyncExec(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				try
-				{
-					CmlEventHistoryView view = (CmlEventHistoryView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(ICmlDebugConstants.ID_CML_HISTORY_VIEW.toString());
-					view.getListViewer().setInput(trace);
-				} catch (PartInitException e)
-				{
-					CmlDebugPlugin.logError("Failed to update the event history view", e);
-				}
-
-				if (status.hasErrors()){
-					Map<StyledText,List<StyleRange>> map = new HashMap<StyledText, List<StyleRange>>();
-					if(status.getErrors().get(0).getLocation() != null)
-						CmlUtil.setSelectionFromLocation(status.getErrors().get(0).getLocation(), map);
-					MessageDialog.openError(null, "Simulation Error", status.getErrors().get(0).getErrorMessage());
-					CmlUtil.clearSelections(map);
-				}
-			}
-		});
-
-		target.fireResumeEvent(0);
 	}
 
 	/**
@@ -112,15 +70,24 @@ public class CmlThreadManager
 		return this.threads;
 	}
 
-	public boolean isSuspended()
+	@Override
+	public boolean canTerminate()
 	{
-		return status != null
-				&& status.getInterpreterState() == CmlInterpretationStatus.SUSPENDED;
+		// TODO Auto-generated method stub
+		return true;
 	}
 
-	public boolean isRunning()
+	@Override
+	public boolean isTerminated()
 	{
-		return status != null
-				&& status.getInterpreterState() == CmlInterpretationStatus.RUNNING;
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void terminate() throws DebugException
+	{
+		target.terminate();
+
 	}
 }

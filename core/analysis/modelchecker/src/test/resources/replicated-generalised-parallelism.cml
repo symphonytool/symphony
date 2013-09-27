@@ -1,0 +1,12 @@
+channels 
+a : int 
+b
+ 
+process A = 
+begin
+
+	actions
+	 TEST = val x : int @ a.x -> b -> Skip 
+	
+	@ [| {b} |] i in set {1,2,3} @ [{TEST}] TEST(i)
+end

@@ -2,7 +2,6 @@ package eu.compassresearch.core.interpreter.debug;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.UnknownHostException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -13,6 +12,7 @@ import org.overture.ast.analysis.AnalysisException;
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.CmlParserUtil;
+import eu.compassresearch.core.interpreter.Console;
 import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
@@ -30,6 +30,8 @@ public class DebugMain {
 	 */
 	public static void main(String[] args) {
 
+		Console.enableDebug(false);
+		Console.enableOut(true);
 		CmlDebugger debugger = new SocketServerCmlDebugger();
 		try{
 			//Since the process that started expects the debugger to connect
@@ -56,11 +58,11 @@ public class DebugMain {
 			if(!execMode){
 				interpreterExecutionMode = InterpreterExecutionMode.SIMULATE;
 			}
-			System.out.println("interpreterExecutionMode: " +interpreterExecutionMode);
+			Console.debug.println("interpreterExecutionMode: " +interpreterExecutionMode);
 				
 			if(sourcesPaths == null || sourcesPaths.size() == 0)
 			{
-				System.out.println("The path to the cml sources are not defined");
+				Console.err.println("The path to the cml sources are not defined");
 				return;
 			}
 
@@ -69,7 +71,7 @@ public class DebugMain {
 			for (String path : sourcesPaths) {
 
 				File source = new File(path);
-				System.out.println("Parsing file: " + source);
+				Console.debug.println("Parsing file: " + source);
 				AFileSource currentFileSource = new AFileSource();
 				currentFileSource.setName(source.getName());
 				currentFileSource.setFile(source);
@@ -84,29 +86,29 @@ public class DebugMain {
 			//create the typechecker and typecheck the source forest
 			TypeIssueHandler ih = VanillaFactory.newCollectingIssueHandle();
 			CmlTypeChecker tc = VanillaFactory.newTypeChecker(sourceForest, ih);
-			System.out.println("Debug Thread: Typechecking...");
+			Console.debug.println("Debug Thread: Typechecking...");
 			if(tc.typeCheck())
 			{
-				System.out.println("Debug Thread: Typechecking: OK");
+				Console.debug.println("Debug Thread: Typechecking: OK");
 
 				CmlInterpreter cmlInterpreter = VanillaInterpreterFactory.newInterpreter(sourceForest);
 				cmlInterpreter.setDefaultName(startProcessName);
-				System.out.println("Debug Thread: Initializing the interpreter...");
+				Console.debug.println("Debug Thread: Initializing the interpreter...");
 				debugger.initialize(cmlInterpreter);
 				
-				System.out.println("Debug Thread: Starting the interpreter...");
+				Console.debug.println("Debug Thread: Starting the interpreter...");
 				debugger.start(interpreterExecutionMode);
 			}
 			else
 			{
 				//TODO send this to Eclipse also
-				System.out.println("Typechecking: Error(s)");
-				System.out.println(ih.getTypeErrors());
+				Console.err.println("Typechecking: Error(s)");
+				Console.err.println(ih.getTypeErrors());
 			}
 
 		} catch (IOException | AnalysisException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			e.printStackTrace(Console.err);
 		}
 		finally{
 			//debugger.close();

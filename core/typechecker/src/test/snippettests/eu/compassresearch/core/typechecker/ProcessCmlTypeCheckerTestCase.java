@@ -102,6 +102,8 @@ public class ProcessCmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase {
 		add("process p = begin types A :: a : int state aa:A operations o:int==>int o(i) == return (aa.a + i) post aa~.a = i @ o(2) end");
 		//27 //check for variable name in action being the same as state variable
 		add("process Q = begin state q : nat := 10 actions INIT = (dcl q : nat @ q := 10) @ INIT() end");
+		//28
+		add("process = begin @ Skip end", false, false);
 		
 	}
 

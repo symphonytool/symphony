@@ -17,13 +17,12 @@ import org.overture.interpreter.values.TupleValue;
 import org.overture.interpreter.values.Value;
 import org.overture.interpreter.values.ValueList;
 
-import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
-import eu.compassresearch.core.interpreter.api.transitions.ChannelEvent;
+import eu.compassresearch.ast.analysis.AnswerCMLAdaptor;
 import eu.compassresearch.core.interpreter.api.values.AbstractValueInterpreter;
+import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
 
-class RandomVDMValueGenerator extends QuestionAnswerCMLAdaptor<ChannelEvent,Value>
+class RandomVDMValueGenerator extends AnswerCMLAdaptor<Value>
 {
-	
 	/**
 	 * 
 	 */
@@ -36,15 +35,14 @@ class RandomVDMValueGenerator extends QuestionAnswerCMLAdaptor<ChannelEvent,Valu
 	}
 	
 	@Override
-	public Value caseAIntNumericBasicType(AIntNumericBasicType node, ChannelEvent chosenEvent)
+	public Value caseAIntNumericBasicType(AIntNumericBasicType node)
 			throws AnalysisException {
 
 		return new IntegerValue(rndValue.nextInt());
 	}
 	
 	@Override
-	public Value caseANatNumericBasicType(ANatNumericBasicType node,
-			ChannelEvent question) throws AnalysisException {
+	public Value caseANatNumericBasicType(ANatNumericBasicType node) throws AnalysisException {
 
 		try {
 			
@@ -55,7 +53,7 @@ class RandomVDMValueGenerator extends QuestionAnswerCMLAdaptor<ChannelEvent,Valu
 	}
 
 	@Override
-	public Value caseANamedInvariantType(ANamedInvariantType node, ChannelEvent chosenEvent)
+	public Value caseANamedInvariantType(ANamedInvariantType node)
 			throws AnalysisException {
 
 		//			if(node.getInvDef() != null)
@@ -67,36 +65,36 @@ class RandomVDMValueGenerator extends QuestionAnswerCMLAdaptor<ChannelEvent,Valu
 		//				
 		//			}
 
-		return node.getType().apply(this,chosenEvent);
+		return node.getType().apply(this);
 	}
 
 	@Override
-	public Value caseAUnionType(AUnionType node, ChannelEvent chosenEvent) throws AnalysisException {
+	public Value caseAUnionType(AUnionType node) throws AnalysisException {
 
 		PType type = node.getTypes().get(rndValue.nextInt(node.getTypes().size()));
 
-		return type.apply(this,chosenEvent);
+		return type.apply(this);
 	}
 
 	@Override
-	public Value caseAQuoteType(AQuoteType node, ChannelEvent chosenEvent) throws AnalysisException {
+	public Value caseAQuoteType(AQuoteType node) throws AnalysisException {
 
 		return new QuoteValue(node.getValue().getValue());
 	}
 
 	@Override
-	public Value caseAProductType(AProductType node, ChannelEvent chosenEvent)
+	public Value caseAProductType(AProductType node)
 			throws AnalysisException {
 
 		ValueList argvals = new ValueList();
 
 		for(int i = 0 ; i < node.getTypes().size();i++)
 		{
-			Value val = ((TupleValue)chosenEvent.getValue()).values.get(i);
-			if(AbstractValueInterpreter.isValueMostPrecise(val))
-				argvals.add(val);
-			else
-				argvals.add(node.getTypes().get(i).apply(this,chosenEvent));
+//			Value val = ((TupleValue)chosenEvent.getValue()).values.get(i);
+//			if(AbstractValueInterpreter.isValueMostPrecise(val))
+//				argvals.add(val);
+//			else
+				argvals.add(node.getTypes().get(i).apply(this));
 		}
 		return new TupleValue(argvals);
 	}

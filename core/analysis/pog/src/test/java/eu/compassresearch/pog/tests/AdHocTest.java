@@ -22,6 +22,7 @@ import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.analysis.pog.obligations.CmlPOContextStack;
+import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligation;
 import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligationList;
 import eu.compassresearch.core.analysis.pog.visitors.ProofObligationGenerator;
 import eu.compassresearch.core.parser.CmlLexer;
@@ -38,16 +39,34 @@ public class AdHocTest {
 		System.out.println("Processing " + file);
 		IProofObligationList poList = buildPosFromFile(file);
 
-		System.out.println("------------------------");
+		System.out.println("\n------------------------");
 		System.out.println("POS FOR: "+file);
-		System.out.println("------------------------");		
-		
+				
 		for (IProofObligation po : poList) {
-			String pretty = po.getValueTree().toString();
+			System.out.println("------------------------");	
+			String preamble = getPreamble(po);
+			String pretty = preamble + po.getValueTree().toString();
 			System.out.println(pretty);
-		}
-		System.out.println("------DONE---------");
 
+		}
+		System.out.println("--------DONE-----------");
+
+	}
+
+	private String getPreamble(IProofObligation po)
+	
+	{
+		StringBuilder sb = new StringBuilder();
+		if (po instanceof CmlProofObligation)
+		{
+			sb.append(((CmlProofObligation) po).cmltype.toString());
+		}
+		else {
+			sb.append(po.getKind().toString());
+		}
+		
+		sb.append(" obligation // \n");
+		return sb.toString();
 	}
 
 	private IProofObligationList buildPosFromFile(String file) throws IOException,
@@ -78,7 +97,7 @@ public class AdHocTest {
 		CmlTypeChecker cmlTC = VanillaFactory.newTypeChecker(
 				Arrays.asList(new PSource[] { ast }), errors);
 		boolean tcResult = cmlTC.typeCheck();
-		assertTrue("Test failed on TC errors", tcResult);
+		assertTrue("Test failed on TC", tcResult);
 
 		List<INode> r = new LinkedList<INode>();
 		for (INode n : ast.getParagraphs()) {

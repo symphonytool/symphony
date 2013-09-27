@@ -15,6 +15,7 @@ import eu.compassresearch.core.interpreter.utility.LocationExtractor;
 public class CmlProcessDTO {
 
 	private final ILexNameToken 	name;
+	private final int 				id;
 	private final List<String> 		trace;
 	private final boolean 			isProcess;
 	private final CmlBehaviorState 	state;
@@ -30,6 +31,7 @@ public class CmlProcessDTO {
 	protected CmlProcessDTO()
 	{
 		name = null;
+		id = -1;
 		trace = new LinkedList<String>();
 		isProcess = false;
 		state = null;
@@ -42,6 +44,7 @@ public class CmlProcessDTO {
 	public CmlProcessDTO(CmlBehaviour process, CmlProcessDTO parent)
 	{
 		this.name = process.name();
+		this.id = process.getId();
 		this.trace = convertCmlEventsToStringList(process.getTraceModel().getObservableTrace());
 		this.isProcess = process.getNextState().first instanceof PProcess;
 		this.state = process.getState();
@@ -61,6 +64,11 @@ public class CmlProcessDTO {
 	
 	public String getName() {
 		return (isProcess ? "Process:" : "Action:") + " "+ name;
+	}
+	
+	public int getId()
+	{
+		return this.id;
 	}
 	
 	public long level()

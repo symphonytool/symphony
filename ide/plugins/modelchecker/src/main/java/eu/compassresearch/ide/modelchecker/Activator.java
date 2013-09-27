@@ -10,13 +10,17 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.ui.IStartup;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.application.WorkbenchAdvisor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
+import eu.compassresearch.core.analysis.modelchecker.api.FormulaIntegrationException;
 import eu.compassresearch.core.analysis.modelchecker.api.FormulaIntegrator;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.util.ProcessController;
 
-public class Activator extends AbstractUIPlugin implements IStartup {
+public class Activator extends AbstractUIPlugin implements IStartup{
 	
 	public static final String PLUGIN_ID = "eu.compassresearch.ide.modelchecker";
 	public static final String SAT_IMG_ID = "sat.png";
@@ -24,19 +28,18 @@ public class Activator extends AbstractUIPlugin implements IStartup {
     
 	// The shared instance
 	private static Activator plugin;
+	public static boolean FORMULA_OK = true;
+	public static boolean DOT_OK = true;
+	public static final String formulaNotInstalledMsg = "Microsoft FORMULA could not be started.\n If you have installed FORMULA, include the $FORMULA_DIR\\Base System\\ folder  in your PATH environment variable. \n\n" + "The CML model checker depends on FORMULA to work.";
+	public static final String dotNotInstalledMsg = "GraphViz is not found.\n If you have installed GraphViz, include the $GRAPHVIZ_DIR\\bin\\ folder  in your PATH environment variable. \n\n" + "GraphViz is necessary to build the counterexample.";
 	
     
-	@Override
+	
 	public void earlyStartup() {
-    	
-    	try {
-			FormulaIntegrator.getInstance();
-		} catch (Throwable e) {
-			popErrorMessage(e);
-		}
+    	checkAuxiliarySoftware();
 	}
 	
-
+	
 	
 	@Override
 	public void shutdown() throws CoreException {
@@ -53,27 +56,35 @@ public class Activator extends AbstractUIPlugin implements IStartup {
 	@Override
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
-		checkAuxiliarySoftware();
+		//checkAuxiliarySoftware();
 	}
 	
 	private void checkAuxiliarySoftware(){
-		try{
-			FormulaIntegrator.getInstance();
-		}catch(Throwable e){
-			popErrorMessage(e);
+		if(!FormulaIntegrator.checkFormulaInstallation()){
+    		FORMULA_OK = false;
+    		logWarningMessage(formulaNotInstalledMsg);
+    	}
+		if(!ProcessController.checkDotInstallation()){
+			DOT_OK = false;
+			logWarningMessage(dotNotInstalledMsg);
 		}
 	}
 
 	@Override
 	public void stop(BundleContext context) throws Exception {
 		super.stop(context);
-		try{
-			FormulaIntegrator.getInstance().finalize();
-		}catch(Throwable e){
-			throw new Exception(e);
-		}
+		shutDownAuxiliarySoftware();
 	}
 
+	private void shutDownAuxiliarySoftware(){
+		try {
+			FormulaIntegrator.getInstance().finalize();
+		} catch (FormulaIntegrationException e) {
+			log(e);
+		} catch (Throwable e) {
+			logErrorMessage(e.getMessage());
+		}
+	}
 	@Override
     protected void initializeImageRegistry(ImageRegistry registry) {
         super.initializeImageRegistry(registry);
@@ -104,12 +115,15 @@ public class Activator extends AbstractUIPlugin implements IStartup {
 
 	public static void logErrorMessage(String message){
 		getDefault().getLog().log(new Status(IStatus.ERROR, MCConstants.PLUGIN_ID, message));
-
 	}
-	
+
+	public static void logWarningMessage(String message){
+		getDefault().getLog().log(new Status(IStatus.WARNING, MCConstants.PLUGIN_ID, message));
+	}
+
 	private void popErrorMessage(Throwable e) {
 		MessageDialog.openInformation(null, "COMPASS",
-				"FORMULA could not be started.\n\n" + e.getMessage());
+				formulaNotInstalledMsg);
 	}
     
   }

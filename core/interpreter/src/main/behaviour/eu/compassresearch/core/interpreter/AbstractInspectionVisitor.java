@@ -16,13 +16,13 @@ import org.overture.interpreter.values.RecordValue;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlCalculationStep;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlTrace;
 import eu.compassresearch.core.interpreter.api.behaviour.Inspection;
-import eu.compassresearch.core.interpreter.api.transitions.CmlTock;
-import eu.compassresearch.core.interpreter.api.transitions.InternalTransition;
+import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
+import eu.compassresearch.core.interpreter.api.transitions.TimedTransition;
+import eu.compassresearch.core.interpreter.api.transitions.TauTransition;
 
 public class AbstractInspectionVisitor extends
 		QuestionAnswerCMLAdaptor<Context, Inspection> {
@@ -62,17 +62,27 @@ public class AbstractInspectionVisitor extends
 	 * Common Helpers
 	 */
 	
-	protected CmlAlphabet createSilentTransition(INode srcNode, INode dstNode, String transitionText)
+	protected CmlTransitionSet createTauTransitionWithTime(INode dstNode, String transitionText)
 	{
-		return new CmlAlphabet(new CmlTock(owner),new InternalTransition(owner,srcNode,dstNode,transitionText));
+		return new CmlTransitionSet(new TimedTransition(owner),new TauTransition(owner,dstNode,transitionText));
 	}
 	
-	protected CmlAlphabet createSilentTransition(INode srcNode, INode dstNode)
+	protected CmlTransitionSet createTauTransitionWithTime(INode dstNode)
 	{
-		return createSilentTransition(srcNode,dstNode,null);
+		return createTauTransitionWithTime(dstNode,null);
 	}
 	
-	protected Inspection newInspection(CmlAlphabet transitions,CmlCalculationStep step)
+	protected CmlTransitionSet createTauTransitionWithoutTime(INode dstNode)
+	{
+		return createTauTransitionWithoutTime(dstNode, null);
+	}
+	
+	protected CmlTransitionSet createTauTransitionWithoutTime(INode dstNode, String transitionText)
+	{
+		return new CmlTransitionSet(new TauTransition(owner,dstNode,transitionText));
+	}
+	
+	protected Inspection newInspection(CmlTransitionSet transitions,CmlCalculationStep step)
 	{
 		return new Inspection(new CmlTrace(owner.getTraceModel()), transitions,step);
 	}
