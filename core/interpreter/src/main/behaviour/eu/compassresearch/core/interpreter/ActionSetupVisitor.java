@@ -43,6 +43,7 @@ import eu.compassresearch.ast.process.AGeneralisedParallelismReplicatedProcess;
 import eu.compassresearch.ast.process.AHidingProcess;
 import eu.compassresearch.ast.process.AInterleavingProcess;
 import eu.compassresearch.ast.process.AInterleavingReplicatedProcess;
+import eu.compassresearch.ast.process.AInterruptProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.ASynchronousParallelismProcess;
 import eu.compassresearch.ast.process.ASynchronousParallelismReplicatedProcess;
@@ -363,6 +364,10 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 		}, question);
 	}
 	
+	/*
+	 * Replicated processes
+	 */
+	
 	protected Pair<INode,Context> caseReplicatedProcess(SReplicatedProcess node, ReplicationFactory factory, Context question) throws AnalysisException
 	{
 		NameValuePairList replicationDecls = new  NameValuePairList();
@@ -447,48 +452,6 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 						node.getReplicatedProcess().clone());
 			}
 		}, question);
-		
-//		NameValuePairList replicationDecls = new  NameValuePairList();
-//		Pair<SetValue,Context> pair = getCurrentReplicationValue(node.getLocation(), node.getReplicationDeclaration(),replicationDecls, question);
-//		
-//		SetValue setValue = pair.first;
-//		Context nextContext = pair.second;
-//
-//		INode returnNode = null;
-//
-//		if(setValue.values.size() == 1)
-//			throw new AnalysisException("A replicated action must have at least two enumeration values");
-//		//If we have two replication values then we need to have one interleaving action, since
-//		//each value represents one process replication 
-//		else if(setValue.values.size() == 2)
-//		{
-//			returnNode = new ASynchronousParallelismProcess(node.getLocation(), 
-//					node.getReplicatedProcess().clone(),
-//					node.getReplicatedProcess().clone());
-//
-//			setChildContexts(new Pair<Context,Context>(
-//					convertReplicationToContext(setValue.values.get(0),replicationDecls,node.getLocation(),question),
-//					convertReplicationToContext(setValue.values.get(1),replicationDecls,node.getLocation(),question)));
-//
-//			setValue.values.remove(0);
-//			setValue.values.remove(0);
-//		}
-//		//If we have more than two replication values then we make an interleaving between the
-//		//first value and the rest of the replicated values
-//		else
-//		{
-//			returnNode = new ASynchronousParallelismProcess(node.getLocation(),
-//					node.getReplicatedProcess().clone(), 
-//					node);
-//
-//			setChildContexts(new Pair<Context,Context>(
-//					convertReplicationToContext(setValue.values.get(0),replicationDecls,node.getLocation(),question),
-//					nextContext));
-//
-//			setValue.values.remove(0);
-//		}
-//
-//		return returnNode;
 	}
 	
 	@Override
@@ -594,14 +557,26 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 	 * Non public replication helper methods -- End
 	 */
 	
+	protected Pair<INode,Context> caseAInterrupt(INode node, INode leftNode, INode rightNode, Context question)
+			throws AnalysisException {
+		//TODO create proper names!!
+		setLeftChild(new ConcreteCmlBehaviour(leftNode, question, new LexNameToken("","left /_\\",new LexLocation()), owner));
+		setRightChild(new ConcreteCmlBehaviour(rightNode, question, new LexNameToken("","/_\\ right",new LexLocation()), owner));
+		
+		return new Pair<INode,Context>(node,question);
+	}
+	
 	@Override
 	public Pair<INode,Context> caseAInterruptAction(AInterruptAction node, Context question)
 			throws AnalysisException {
-		//TODO create proper names!!
-		setLeftChild(new ConcreteCmlBehaviour(node.getLeft(), question, new LexNameToken("","left /_\\",new LexLocation()), owner));
-		setRightChild(new ConcreteCmlBehaviour(node.getRight(), question, new LexNameToken("","/_\\ right",new LexLocation()), owner));
-		
-		return new Pair<INode,Context>(node,question);
+		return caseAInterrupt(node,node.getLeft(),node.getRight(), question);
+	}
+	
+	@Override
+	public Pair<INode, Context> caseAInterruptProcess(AInterruptProcess node,
+			Context question) throws AnalysisException
+	{
+		return caseAInterrupt(node,node.getLeft(),node.getRight(), question);
 	}
 	
 	@Override

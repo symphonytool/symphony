@@ -1,0 +1,17 @@
+channels 
+a b c d
+
+process A = 
+begin 
+
+	@ a -> b -> c -> Skip
+end
+
+
+process B = 
+begin 
+
+	@ d -> Skip
+end
+
+process C = A /_\ B

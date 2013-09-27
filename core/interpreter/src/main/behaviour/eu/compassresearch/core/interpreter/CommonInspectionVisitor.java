@@ -484,6 +484,56 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 		}
 	}
 
+	protected Inspection caseAInterrupt(final INode node,
+			final Context question) throws AnalysisException {
+
+		//If the left child is Skip then the while interrupt construct is Skip
+		if(owner.getLeftChild().finished())
+		{
+			return newInspection(createTauTransitionWithTime(owner.getLeftChild().getNextState().first) ,
+
+					new AbstractCalculationStep(owner, visitorAccess) {
+
+				@Override
+				public Pair<INode, Context> execute(CmlTransition selectedTransition)
+						throws AnalysisException {
+
+					return replaceWithChild(owner.getLeftChild());
+				}
+			});
+		}
+		//If the right action has taken a labelled transition then the whole becomes the right action
+		else if(owner.getRightChild().getTraceModel().getLastTransition() instanceof ObservableTransition &&
+				owner.getRightChild().getTraceModel().getLastTransition() instanceof LabelledTransition)
+		{
+			return newInspection(createTauTransitionWithTime(owner.getRightChild().getNextState().first) ,
+
+					new AbstractCalculationStep(owner, visitorAccess) {
+
+				@Override
+				public Pair<INode, Context> execute(CmlTransition selectedTransition)
+						throws AnalysisException {
+					return replaceWithChild(owner.getRightChild());
+				}
+			});
+		}
+		else
+		{
+			return newInspection(syncOnTockAndJoinChildren(),
+
+					new AbstractCalculationStep(owner, visitorAccess) {
+
+				@Override
+				public Pair<INode, Context> execute(CmlTransition selectedTransition)
+						throws AnalysisException {
+					caseParallelNonSync(selectedTransition);
+					return new Pair<INode, Context>(node, question);
+				}
+			});
+		}
+
+	}
+	
 	/**
 	 * 
 	 */
