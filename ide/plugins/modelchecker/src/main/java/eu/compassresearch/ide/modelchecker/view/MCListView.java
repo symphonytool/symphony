@@ -20,6 +20,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.ui.PartInitException;
@@ -64,7 +65,7 @@ public class MCListView extends ViewPart {
 			public void doubleClick(DoubleClickEvent event) {
 				
 				if (data.getFormulaResult().getResult().isSatisfiable()){
-					//if(data.getProperty().equals(MCConstants.DEADLOCK_PROPERTY)){
+					if(Activator.DOT_OK){
 						try {
 							IWorkbenchBrowserSupport support = PlatformUI.getWorkbench().getBrowserSupport();
 							IWebBrowser browser = support.createBrowser(IWorkbenchBrowserSupport.AS_EDITOR, Activator.PLUGIN_ID, "COMPASS", "Model checker counterexample");
@@ -76,9 +77,9 @@ public class MCListView extends ViewPart {
 						} catch (MalformedURLException e) {
 							e.printStackTrace();
 						} 
-					//}else{
-					//	popErrorMessage("Counterexample construction available only for deadlock property!");
-					//}
+					}else{
+						popErrorMessage(Activator.dotNotInstalledMsg);
+					}
 				}else{
 					popErrorMessage("Counterexample construction available only for satisfiable models!");
 				}
@@ -117,8 +118,12 @@ public class MCListView extends ViewPart {
 		//it has to be a model check element
 		display.asyncExec(new Runnable() {
 			public void run(){
-				viewer.getTable().removeAll();
-				TableItem ti = new TableItem(viewer.getTable(), SWT.NONE);
+				Table table = viewer.getTable();
+				table.removeAll();
+				table.getColumn(0).setWidth(120);
+				table.getColumn(1).setWidth(100);
+				table.getColumn(2).setWidth(40);
+				TableItem ti = new TableItem(table, SWT.NONE);
 				if(data != null){
 					ti.setText(0, data.getFile().getName());
 					//ti.setText(new String[] {data.getFile().getName(), getProperty(data), getSat(data)});

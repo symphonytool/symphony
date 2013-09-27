@@ -11,15 +11,17 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.NullBinding;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.event.BasicEvent;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.event.Event;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.event.Tau;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Divergence;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Process;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Skip;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Stop;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.transition.Transition;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.util.GraphResult;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.util.LinkedListTransition;
-import eu.compassresearch.core.analysis.modelchecker.graphBuilder.util.PathCollection;
+//import eu.compassresearch.core.analysis.modelchecker.graphBuilder.util.PathCollection;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.util.Utilities;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.util.Utilities.Constructor;
 
@@ -45,8 +47,8 @@ public class GraphBuilder {
 				Constructor c = util.determineConstructor(line);
 				if(c != null){
 					if (c.equals(Constructor.GivenProc ) ||
-					    c.equals(Constructor.ProcDef ) ||
-					    c.equals(Constructor.Transition ) )  {
+						c.equals(Constructor.ProcDef ) ||
+						c.equals(Constructor.Transition ) )  {
 						result.add(util.createObject(line));					
 					}
 				}
@@ -69,8 +71,8 @@ public class GraphBuilder {
 				Constructor c = util.determineConstructor(line);
 				if(c != null){
 					if (c.equals(Constructor.GivenProc ) ||
-					    c.equals(Constructor.ProcDef ) ||
-					    c.equals(Constructor.Transition ) )  {
+						c.equals(Constructor.ProcDef ) ||
+						c.equals(Constructor.Transition ) )  {
 						Object o = util.createObject(line);
 						result.add(o);					
 					}
@@ -93,7 +95,7 @@ public class GraphBuilder {
 		if(property.equals(Utilities.DEADLOCK)){
 			graph = this.shortestPathToDeadlock(objects);
 		}else if(property.equals(Utilities.LIVELOCK)){
-			getLivelockPaths(objects);
+	//		getLivelockPaths(objects);
 			graph = this.shortestPathToLivelock(objects);
 			
 		}else if(property.equals(Utilities.NONDETERMINISM)){
@@ -327,10 +329,7 @@ public class GraphBuilder {
 		
 		//singlePath contains the single path with numbered states. we separate states and transitions
 		LinkedList<State> pathStates = this.getSourceStates(singlePath);
-		//if(pathStates.size() == 0){
-			//realFinalState.setNumber(STATE_NUMBER++);
-			//realFinalState.setFillCollor("\"#FF9696\"");
-		//}
+		
 		LinkedList<State> targetStates = this.getTargetStates(singlePath);
 		for (State state : targetStates) {
 			if(!pathStates.contains(state)){
@@ -339,12 +338,12 @@ public class GraphBuilder {
 		}
 		
 		if(pathStates.size() == 0){
-			realFinalState.setFillCollor("\"#FF9696\"");
+			realFinalState.setFillCollor(Utilities.DEADLOCK_STATE_COLOUR);
 			pathStates.add(realFinalState);
 		} else{
 			State deadlock = this.getDeadlockState(targetStates, singlePath);
 			if(deadlock != null){
-				deadlock.setFillCollor("\"#FF9696\"");
+				deadlock.setFillCollor(Utilities.DEADLOCK_STATE_COLOUR);
 			}
 		}
 		result.setStates(pathStates);
@@ -384,7 +383,7 @@ public class GraphBuilder {
 			current.setVisited(true);
 			if(this.isNondeterministic(current, transitions)){
 				nonDeterministicState = current;
-				nonDeterministicState.setFillCollor("\"#FFC864\"");
+				nonDeterministicState.setFillCollor(Utilities.NONDETERMINISTIC_STATE_COLOUR);
 				break;
 			}else{
 				LinkedList<Transition> transitionsFrom = this.getAllTransitionsFrom(transitions, current);
@@ -421,10 +420,7 @@ public class GraphBuilder {
 		
 		//singlePath contains the single path with numbered states. we separate states and transitions
 		LinkedList<State> pathStates = this.getSourceStates(singlePath);
-		//if(pathStates.size() == 0){
-			//realFinalState.setNumber(STATE_NUMBER++);
-			//realFinalState.setFillCollor("\"#FF9696\"");
-		//}
+		
 		LinkedList<State> targetStates = this.getTargetStates(singlePath);
 		for (State state : targetStates) {
 			if(!pathStates.contains(state)){
@@ -432,10 +428,7 @@ public class GraphBuilder {
 			}
 		}
 		
-		//if(pathStates.size() == 0){
-		//	nonDeterministicState.setFillCollor("\"#FF9696\"");
-		//	pathStates.add(nonDeterministicState);
-		//}
+		
 		result.setStates(pathStates);
 		result.setTransitions(singlePath);
 		
@@ -514,7 +507,7 @@ public class GraphBuilder {
 		
 		return result;
 	}
-	
+/*	
 	private void DFS(PathCollection paths, LinkedList<Transition> transitions, State fromState){
 		if(!fromState.isVisited()){
 			visit(fromState);
@@ -533,6 +526,7 @@ public class GraphBuilder {
 			}
 		}
 	}
+	*/
 	private void visit(State state){
 		state.setVisited(true);
 	}
@@ -597,36 +591,50 @@ public class GraphBuilder {
 			LinkedList<Transition> visitedTrans,
 			LinkedList<LinkedList<Transition>> cicles) {
 		
+		this.filterLiveLockTransitions(transitions);
 		LinkedList<Transition> auxList = new LinkedList<Transition>();
 		LinkedList<Transition> transFrom = this.getAllTransitionsFrom(transitions, state);
 		if (transFrom.size() > 0) {
 			for (Transition transition : transFrom) {
 				if (isCicle(visitedTrans, transition.getTargetState())) {// IS
-																			// CICLE
 					auxList.addAll(visitedTrans);
-					auxList.add(transition);
+				//	auxList.add(transition); //  TRANSICAO QUE FECHA O CICLO
+					if(!cicles.contains(auxList))
 					cicles.add(auxList);
-
 				} else {
 					visitedTrans.add(transition);
 					getCicles(transition.getTargetState(), transitions,visitedTrans, cicles);
-					visitedTrans.removeLast();
+					visitedTrans.remove(transition);
 				}
 			}
 
+		}else{
+			if(state.equals(new Divergence())){
+				auxList.addAll(visitedTrans);
+				if(!cicles.contains(auxList))
+					cicles.add(auxList);
+				return;
+			}
+		}
+	}
+	
+	private void filterLiveLockTransitions(LinkedList<Transition> transitions){
+		for (Transition transition : transitions) {
+			LinkedList<Transition> transFrom = this.getAllTransitionsFrom(transitions, transition.getSourceState());
+			if (transFrom.size() == 0) {
+				transitions.remove(transition);
+			}
 		}
 	}
 	
 	private boolean isCicleOfTau(LinkedList<Transition> cicle){
 		LinkedList<Transition> auxList = new LinkedList<Transition>();
-		boolean result = false;
+		boolean result = true;
 		for (Transition transition : cicle) {
-			if (transition.getEvent().equals(new Tau())) {
-				auxList.add(transition);
-				result  = this.isCicle(auxList, transition.getSourceState());
-				if(result)
-					return result;
-			}		
+			if (!transition.getEvent().equals(new Tau())) {
+				return !result;
+			}
+			
 		}
 		return result;
 		
@@ -637,9 +645,9 @@ public class GraphBuilder {
 		boolean result = false;
 		if(transitions.size() != 0){
 			for (int i = 0; i < transitions.size(); i++) {
-				result = transitions.get(i).getTargetState().equals(current);
+				result = transitions.get(i).getTargetState().equals(current) || transitions.getFirst().getSourceState().equals(current);
 				if(result)
-					return result || transitions.getFirst().getSourceState().equals(current) ;
+					return result  ;
 			}
 		}
 		
@@ -666,19 +674,23 @@ public class GraphBuilder {
 		LinkedList<Transition> transitions = this.filterTransitions(objects);		
 		LinkedList<Transition> visitedTransitions = new LinkedList<Transition>(); 
 		this.getCicles(initialState, transitions, visitedTransitions, cicles);
+		LinkedList<LinkedList<Transition>> ciclesOfTau = new LinkedList<LinkedList<Transition>>();
+		
 		
 		for (LinkedList<Transition> cicle : cicles) {
-			if (!this.isCicleOfTau(cicle)) {
-				cicles.remove(cicle);
+			if (this.isCicleOfTau(cicle)) {
+				ciclesOfTau.add(cicle);
 			}
 		}
 		
-		LinkedList<Transition> shortCicle = this.getShortPath(cicles); 	
+		LinkedList<Transition> shortCicle = this.getShortPath(ciclesOfTau); 	
 		initialState = shortCicle.getFirst().getSourceState();
-		State finalState = shortCicle.getLast().getSourceState();
+		initialState.setShape("doublecircle");
+		State finalState = shortCicle.getLast().getTargetState();
+		finalState.setFillCollor("\"#64FFFF\"");
 		
 		LinkedList<Transition> reversePath = new LinkedList<Transition>();
-		buildReversePath(reversePath, shortCicle, initialState,finalState);
+		buildReversePathToLiveLock(reversePath, shortCicle, initialState,finalState);
 		//but we need to build a single path from initial state to deadlock
 		LinkedList<Transition> singlePath = new LinkedList<Transition>();
 		buildSinglePath(reversePath, singlePath, initialState);
@@ -703,18 +715,42 @@ public class GraphBuilder {
 		
 		return result;
 	}
-
+	
+/*
 	public void getLivelockPaths(LinkedList<Object> objects){
 		PathCollection paths = new PathCollection();
 		State initialState = this.getInitialState(objects);
 		initialState.setShape("doublecircle");
-		
+
 		LinkedList<Transition> transitions = this.filterTransitions(objects);
 		this.DFS(paths, transitions, initialState);
-		
+
 		int k = 0;
 	}
 	
+*/	
+	private void buildReversePathToLiveLock(LinkedList<Transition> reversePath,
+			LinkedList<Transition> transitions, State initialState,
+			State finalState) {
+
+		State currentState = finalState;
+		if (currentState != null) {
+			if (transitions.size() > 0) {
+				LinkedList<Transition> transitionsTo = this.getAllTransitionsTo(transitions, finalState);
+				for (Transition transition : transitionsTo) {
+					reversePath.add(transition);
+					transitions.remove(transition);
+				}
+				LinkedList<State> previousStates = this.getSourceStates(transitionsTo);
+				for (State previousState : previousStates) {
+
+
+					buildReversePathToLiveLock(reversePath, transitions, initialState,previousState);
+				}
+			}
+		}
+	}
+
 	private void buildReversePath(	LinkedList<Transition> reversePath, 
 									LinkedList<Transition> transitions, 
 									State initialState, State finalState){
@@ -735,6 +771,8 @@ public class GraphBuilder {
 		}
 	}
 	
+	
+	
 	private void buildSinglePath(LinkedList<Transition> transitions,LinkedList<Transition> singlePath, State initialState){
 		
 		LinkedList<Transition> currentTransitions = this.getAllTransitionsFrom(transitions,initialState);
@@ -752,7 +790,7 @@ public class GraphBuilder {
 						
 			buildSinglePath(transitions, singlePath, newInitialState);
 		}else{ //initialState is a state without outgoing transitions = deadlock
-			//initialState.setFillCollor("\"#FF9696\"");
+			
 			
 		}
 		//at the end singlePath contains a single path
@@ -780,11 +818,14 @@ public class GraphBuilder {
 		//String filePath = "/examples/action-nondet.facts.ND.txt";
 		//String filePath = "/examples/NDet.facts.txt";
 		//String filePath = "/examples/NDet3.facts.txt";
+		//String filePath = "/examples/operation.facts.txt";
+		String filePath = "/examples/simple-state.facts.txt";
 		//String filePath = "/examples/NDet2.facts.txt";
-		String filePath = "/examples/Livelock1.facts.txt";
+		//String filePath = "/examples/Livelock2.facts.txt";
+		//String filePath = "/examples/Livelock1.facts.txt";
 		//String filePath = "/examples/action-internal-choice.facts.D.txt";
 		//String filePath = "/examples/Livelock.facts.txt";
-		String dotCode = gb.generateDot(filePath,Utilities.LIVELOCK);
+		String dotCode = gb.generateDot(filePath,Utilities.DEADLOCK);
 		System.out.println(dotCode);
 	}
 	

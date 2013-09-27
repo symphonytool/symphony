@@ -1495,6 +1495,8 @@ communication returns[PCommunicationParameter comm]
         | '(' expression ')'            { $comm.setExpression($expression.exp); }
         | symbolicLiteralExpr           { $comm.setExpression($symbolicLiteralExpr.exp); }
         | recordTupleExprs              { $comm.setExpression($recordTupleExprs.exp); }
+        | eseq='[]'                     { $comm.setExpression(new ASeqEnumSeqExp(extractLexLocation($eseq), new ArrayList<PExp>())); }
+        | '[' seqExpr? ']'              { $comm.setExpression($seqExpr.seqExpr); }
         )
     | '?' bindablePattern ( ':' '(' expression ')' )?
         {
@@ -1615,24 +1617,33 @@ channelDefs returns[AChannelsDefinition defs]
 
 channelDefOptList returns[List<AChannelNameDefinition> defs]
 @init { $defs = new ArrayList<AChannelNameDefinition>(); }
-    : ( channelDef { $defs.add($channelDef.def); } )*
+    : ( channelDef { $defs.addAll($channelDef.def); } )*
     ;
 
-channelDef returns[AChannelNameDefinition def]
-@after { $def.setLocation(extractLexLocation($start, $stop));
-          if ($def.getType() == null)
-            $def.setType(new AChannelType($def.getLocation(), true));
-        }
+channelDef returns[List<AChannelNameDefinition> def]
+@init { $def = new ArrayList<AChannelNameDefinition>(); }
     : identifierList (':' type)?
         {
-            AChannelType channelType = new AChannelType();
-            $def = new AChannelNameDefinition();//, false, null, null, singleTypeDeclaration);
-            //$def.setName(??); // not sure if this needs set; one cml.y case has an empty LexNameToken, the other uses the first element of the identifierList
-            $def.setNameScope(NameScope.GLOBAL);
-            $def.setUsed(false);
-            $def.setSingleType(new ATypeSingleDeclaration(extractLexLocation($identifierList.stop), NameScope.GLOBAL, $identifierList.ids, channelType));
-            if ($type.type!= null)
-              channelType.setType($type.type);
+            for (ILexIdentifierToken id : $identifierList.ids) {
+                List<ILexIdentifierToken> idList = new ArrayList<ILexIdentifierToken>();
+                idList.add(id);
+                ILexLocation loc = id.getLocation();
+                AChannelType chanType = new AChannelType(loc, true);
+                if ($type.type != null) {
+                    loc = extractLexLocation(loc, extractLexLocation($type.stop));
+                    chanType.setLocation(extractLexLocation($type.start,$type.stop));
+                    chanType.setType($type.type);
+                }    
+                ATypeSingleDeclaration typeDecl = new ATypeSingleDeclaration(loc, NameScope.GLOBAL, idList, chanType);
+                
+                AChannelNameDefinition chanDecl = new AChannelNameDefinition();
+                //chanDecl.setName(??); // not sure if this needs set; one cml.y case has an empty LexNameToken, the other uses the first element of the identifierList
+                chanDecl.setNameScope(NameScope.GLOBAL);
+                chanDecl.setUsed(false);            
+                chanDecl.setSingleType(typeDecl);
+                chanDecl.setType(new AChannelType(loc, true));
+                $def.add(chanDecl);
+            }
         }
     ;
 

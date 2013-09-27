@@ -26,6 +26,7 @@ package eu.compassresearch.core.analysis.pog.obligations;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.overture.ast.definitions.AImplicitOperationDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.patterns.APatternListTypePair;
 import org.overture.ast.patterns.PPattern;
@@ -42,7 +43,7 @@ public class CmlOperationDefinitionContext extends POOperationDefinitionContext
 			PDefinition stateDefinition)
 	{
 		super(definition.getName(), (AOperationType) definition.getType(), 
-				getParamPatternList(definition), precond, definition.getPrecondition(), stateDefinition, null);
+				getParamPatternList(definition), precond, definition.getPrecondition(), stateDefinition,(AImplicitOperationDefinition) null);//FIXME
 	}
 
 

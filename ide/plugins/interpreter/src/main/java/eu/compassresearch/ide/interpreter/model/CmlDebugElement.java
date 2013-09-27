@@ -9,24 +9,58 @@ import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IDebugElement;
 import org.eclipse.debug.core.model.IDebugTarget;
+import org.eclipse.debug.core.model.ITerminate;
 
 import eu.compassresearch.ide.interpreter.CmlDebugPlugin;
 import eu.compassresearch.ide.interpreter.ICmlDebugConstants;
 
-public class CmlDebugElement extends PlatformObject implements IDebugElement
+public abstract class CmlDebugElement extends PlatformObject implements
+		IDebugElement
 {
-	protected CmlDebugTarget cmlDebugTarget;
+	// protected CmlDebugTarget cmlDebugTarget;
 
-	public CmlDebugElement(CmlDebugTarget cmlDebugTarget)
-	{
-		this.cmlDebugTarget = cmlDebugTarget;
-	}
+	// public CmlDebugElement(CmlDebugTarget cmlDebugTarget)
+	// {
+	// this.cmlDebugTarget = cmlDebugTarget;
+	// }
 
 	@Override
 	public Object getAdapter(@SuppressWarnings("rawtypes") Class adapter)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		if (adapter == IDebugElement.class)
+		{
+			return this;
+		}
+
+		/*
+		 * Not implemented currently if (adapter == IStepFilters.class) { return getDebugTarget(); }
+		 */
+
+		if (adapter == IDebugTarget.class)
+		{
+			return getDebugTarget();
+		}
+
+		if (adapter == ITerminate.class)
+		{
+			return getDebugTarget();
+		}
+
+		// if (adapter == IVdmDebugTarget.class)
+		// {
+		// return getVdmDebugTarget();
+		// }
+
+		if (adapter == ILaunch.class)
+		{
+			return getLaunch();
+		}
+		// if (adapter == IModelProxyFactory.class)
+		// {
+		// return new VdmModelProxyFactory();
+		// }
+
+		return super.getAdapter(adapter);
 	}
 
 	@Override
@@ -35,11 +69,11 @@ public class CmlDebugElement extends PlatformObject implements IDebugElement
 		return ICmlDebugConstants.ID_CML_DEBUG_MODEL.toString();
 	}
 
-	@Override
-	public IDebugTarget getDebugTarget()
-	{
-		return cmlDebugTarget;
-	}
+	// @Override
+	// public IDebugTarget getDebugTarget()
+	// {
+	// return cmlDebugTarget;
+	// }
 
 	@Override
 	public ILaunch getLaunch()

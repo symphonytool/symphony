@@ -1,13 +1,19 @@
 package eu.compassresearch.core.interpreter.api.transitions;
 
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
-import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
+import org.overture.ast.node.INode;
+
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 
 abstract class AbstractCmlTransition implements CmlTransition {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5555627737673754975L;
 	final protected Set<CmlBehaviour> eventSources;
 	
 	public AbstractCmlTransition(CmlBehaviour eventSource)
@@ -21,14 +27,32 @@ abstract class AbstractCmlTransition implements CmlTransition {
 		this.eventSources = eventSources;
 	}
 	
-	@Override
-	public abstract CmlAlphabet getAsAlphabet();
+//	@Override
+//	public abstract CmlTransitionSet getAsAlphabet();
 
 	public Set<CmlBehaviour> getEventSources()
 	{
 		return eventSources;
 	}
 	
+	@Override
+	public boolean isSourcesSubset(CmlTransition other) {
+		
+		return	(other.getEventSources().containsAll(getEventSources()) || 
+				getEventSources().containsAll(other.getEventSources()));
+		
+	}
+	
+	@Override
+	public Set<INode> getSourceNodes()
+	{
+		HashSet<INode> nodes = new LinkedHashSet<INode>();
+		for(CmlBehaviour s : this.eventSources)
+			nodes.add(s.getNextState().first);
+
+		return nodes;
+	}
+
 	@Override
 	public boolean equals(Object obj) {
 		
@@ -38,10 +62,14 @@ abstract class AbstractCmlTransition implements CmlTransition {
 			return false;
 		
 		other = (CmlTransition)obj;
-		
-		 // other is subset of this or this is a subset of other
-		return	(other.getEventSources().containsAll(getEventSources()) || 
-					getEventSources().containsAll(other.getEventSources())); 
+		return eventSources.equals(other.getEventSources());
 	}
 
+//	@Override
+//	public int compareTo(CmlTransition o)
+//	{
+//		if(equals(o))
+//			return 0;
+//		else if ()
+//	}
 }

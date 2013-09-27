@@ -39,9 +39,8 @@ import eu.compassresearch.core.analysis.pog.visitors.ProofObligationGenerator;
 import eu.compassresearch.core.interpreter.CmlRuntime;
 import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
-import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
-import eu.compassresearch.core.interpreter.api.RandomSelectionStrategy;
+import eu.compassresearch.core.interpreter.api.ConsoleSelectionStrategy;
 import eu.compassresearch.core.parser.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.typechecker.VanillaFactory;
@@ -536,13 +535,12 @@ public class CheckCml {
 						public void apply(INode root) throws AnalysisException {
 							try {
 								CmlRuntime.logger().setLevel(Level.FINE);
-								CmlRuntime.setShowHiddenEvents(false);
+								CmlRuntime.expandHiddenEvents(true);
 								interpreter.setDefaultName(Switch.EXEC.getValue());
 								
-								CmlSupervisorEnvironment sve = 
-										VanillaInterpreterFactory.newDefaultCmlSupervisorEnvironment(new RandomSelectionStrategy());
 								interpreter.initialize();
-								interpreter.execute(sve);
+								interpreter.execute(new ConsoleSelectionStrategy());
+								System.out.println("Terminated with following state: " + interpreter.getStatus());
 							} catch (Exception e) {
 
 								e.printStackTrace();

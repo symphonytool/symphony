@@ -10,7 +10,11 @@ public class NullBinding implements Binding {
 		return "{}";
 	}
 
-	
+	@Override
+	public NullBinding copy(){
+		
+		return new NullBinding();
+	}
 	
 	@Override
 	public boolean equals(Object obj) {

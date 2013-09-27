@@ -1,0 +1,339 @@
+domain AuxiliaryDefinitions {
+    //Types
+	UNDEF               ::= {undef}.
+    primitive Int       ::= (v:Integer).
+    primitive Nat       ::= (v:Natural).
+    primitive Str       ::= (v:String).
+    primitive IR        ::= (v:Real).
+    primitive Seq       ::= (v:SeqType).
+    EmptySeq                ::= { empty }.
+    primitive NonEmptySeq   ::= ( first: Types, rest: SeqType ).
+    SeqType                 ::= EmptySeq + NonEmptySeq.
+    DerivableSeq        ::= (SeqType).     
+	
+	// User defined types
+	//USER_DEF_TYPES
+	
+	// Channel Types
+    //CHAN_TYPES
+	//CHAN_TYPES_UNION
+	
+	Types               ::= UNDEF + Int + Nat + Str + IR + Seq /*INCLUDE USER_DEF_TYPES*/ /*CHAN_TYPES_UNION*/.
+
+	// Bindings 
+    NullBind            ::= { nBind }. 
+	primitive SingleBind ::= (name: String, val: Types).               
+	primitive BBinding    ::= (procName: String, b: SingleBind, rest: Binding). //THIS MUST CHANGE TO BBINDING
+	//BBINDING_DEF
+	//primitive BBinding ::= (i: Natural). //REMOVE_LINE
+	Binding       ::= NullBind + BBinding.
+
+	// Operations over bindings. 
+	primitive fetch ::= (vName: String, bind: Binding, val:Types).
+	upd   ::= (bOld: Binding, b: SingleBind, bNew: Binding).
+	primitive del   ::= (bOld: Binding, vName: String, bNew: Binding).
+    
+	//Guard evaluation to handle boolean expression evaluation
+	guardDef      ::= (level: Natural, occur: Natural, st: Binding).
+    guardNDef     ::= (level: Natural, occur: Natural, st: Binding).
+
+	
+}
+
+domain CML_SyntaxSpec includes AuxiliaryDefinitions {
+    
+    primitive Var ::= (val:Types).
+	primitive Bound         ::= (Natural).
+    
+    primitive lieIn         ::= (ev : Sigma, sourceSet: String).
+    primitive Channel       ::= (level: Natural, chN : String, chT: Types).
+    primitive BasicEv       ::= (name: String).
+    
+    primitive IOComm        ::= (occur: Natural, chTerm: String, val: Types).
+    primitive CommEv        ::= (level: Natural, chExp: String, val: Types).
+    IOCommDef               ::= (level: Natural, occur: Natural, exp: Types, st: Binding, st_: Binding).
+    Sigma                   ::= BasicEv + CommEv + IOComm.
+    Tau                     ::= { tau }.
+    SigmaTau                ::= Sigma + Tau.
+    BasicProcess            ::= {Stop, Skip, Chaos, Div}.
+    primitive Prefix        ::= (ev : Sigma, proc : CMLProcess).            //Prefix
+    primitive iChoice       ::= (lProc : CMLProcess, rProc : CMLProcess).   //Internal choice
+    primitive eChoice       ::= (lProc : CMLProcess, rProc : CMLProcess).   //External choice
+	
+    //The Extra Choice operator of CML. The external choice is transformed into this operator
+    extraChoice   ::= (level: Natural, lSt: Binding, lProc: CMLProcess, rSt: Binding, rProc: CMLProcess).  
+
+    //Conditional choice. Guarded choice are supposed to be mapped to this constructor directly from the CML file    
+    primitive condChoice    ::= (cond: Natural, procTrue: CMLProcess, procFalse:CMLProcess).
+    
+    primitive seqC          ::= (lProc : CMLProcess, rProc : CMLProcess).   //Sequential composition
+    primitive hide          ::= (proc : CMLProcess, hideS : String).        //Hiding
+    
+	//Usual generalised parallelism
+    primitive par           ::= (lSt: Binding, lProc: CMLProcess, SyncS : String, rSt: Binding, rProc: CMLProcess).
+    primitive iPar          ::= (lProc: CMLProcess, SyncS : String, rProc: CMLProcess).
+	primitive iParll        ::= (lSt: Binding, lProc: CMLProcess, SyncS : String, rSt: Binding, rProc: CMLProcess).
+    
+	//CML parallelism operator
+    primitive parll         ::= (lProc : CMLProcess, lVars: String, SyncS : String, rVars: String, rProc : CMLProcess).
+    lStVars                 ::= (refName: String, vName: String).
+    rStVars                 ::= (refName: String, vName: String).
+
+    //Parameters. 
+    NoPar                   ::= { nopar }.
+    SPar                    ::= (Types).
+    DPar                    ::= (p1: Types, p2: Types).
+    Param                   ::= NoPar + SPar + DPar.
+
+    primitive proc          ::= (name : String, p: Param).                      //Process call
+    schema                  ::= (schN: String).                                 //Schema
+    primitive var           ::= (name: String, tName: String, p: CMLProcess).   //Variable declaration
+    primitive let           ::= (name: String, p: CMLProcess).                  //Let process
+    
+    
+    primitive assign        ::= (occur: Natural). 				//unnamed schema operation, where the precondition is always true. 				
+    assignDef               ::= (level: Natural, occur: Natural, st: Binding, st_: Binding). 
+    preSchemaOk             ::= (level: Natural, schN: String, st: Binding).
+    preSchemaNOk            ::= (level: Natural, schN: String, st: Binding).
+    schemaDef               ::= (level: Natural, schN: String, st: Binding, st_: Binding).
+    CMLProcess              ::= BasicProcess + Prefix + iChoice + eChoice + extraChoice + condChoice + seqC + hide + parll + par + 
+								iPar + iParll + proc + var + let + schema + assign.
+    ProcDef                 ::= (name:String, pproc: Param, proc:CMLProcess).
+}
+
+domain CML_SemanticsSpec extends CML_SyntaxSpec {
+    
+	State ::= (level: Natural, b: Binding, procName: String, p: CMLProcess). 
+	
+    trans ::= (source: State, ev: SigmaTau, target: State).
+
+    // a -> P 
+    State(l,st,pN,P),
+    trans(State(l, st,pN,Prefix(BasicEv(a),P)),BasicEv(a),State(l, st,pN,P)) :- State(l,st,pN,Prefix(BasicEv(a),P)).
+    
+	// a?x -> P
+    State(l, st_,pN,P),
+    trans(ini, CommEv(l,chExp,chType), State(l, st_,pN,P))
+            :- ini is State(l, st,pN,Prefix(IOComm(occ,chExp,chType), P)), Channel(l,chName,chType), IOCommDef(l, occ,chType,st,st_).
+    
+	// P |~| Q
+    State(l, st,pN, P),
+    trans(State(l, st,pN,iChoice(P,Q)),tau,State(l, st, pN,P)) :- State(l, st,pN,iChoice(P,Q)).
+    State(l, st, pN,Q),
+    trans(State(l, st,pN,iChoice(P,Q)),tau,State(l, st, pN,Q)) :- State(l, st,pN,iChoice(P,Q)).
+    
+    
+    // P [] Q
+    State(l, st,pN,P),
+    State(l, st,pN,Q),
+    State(l, nBind, pN,extraChoice(l, st,P,st,Q)),
+    trans(iS, tau, State(l, nBind, pN,extraChoice(l,st,P,st,Q))) :- iS is State(l, st,pN,eChoice(P,Q)).
+    
+	//if one of the operands terminates (external choice:skip)
+	State(l, st1,pN,Skip),
+    trans(iS,tau,State(l, st1,pN,Skip)) :- iS is State(l, st,pN,extraChoice(l,st1,Skip,st2,_)).
+    State(l, st2,pN,Skip),
+    trans(iS,tau,State(l, st2,pN,Skip)) :- iS is State(l, st,pN,extraChoice(l,st1,_,st2,Skip)).
+
+    //if one of the operands has internal progress (external choice:silent)
+    State(l, st3,pName_,P_), //State(l, st2, pName,Q),
+    State(l, st,pN,extraChoice(l,st3,P_,st2,Q)),
+    trans(iS,tau,State(l, st,pN,extraChoice(l,st3,P_,st2,Q))) :- iS is State(l, st,pN,extraChoice(l,st1,P,st2,Q)),trans(State(l,st1,pName,P),tau,State(l,st3,pName_,P_)).
+	
+    State(l, st3, qName_,Q_), //State(l, st1, pN,P), 
+    State(l, st,pN,extraChoice(l,st1,P,st3,Q_)),
+    trans(iS,tau,State(l, st,pN,extraChoice(l,st1,P,st3,Q_))) :- iS is State(l, st,pN,extraChoice(l,st1,P,st2,Q)),trans(State(l,st2,qName,Q),tau,State(l, st3,qName_,Q_)).
+
+    //using a visible event (external choice: end)
+    State(l, st3,pName,P_),
+    trans(iS,ev,State(l, st3,pN,P_)) :- iS is State(l, st,pN,extraChoice(l,st1,P,st2,Q)), trans(State(l, st1,pName,P),ev,State(l, st3,pName,P_)), ev != tau.
+    State(l, st3,qName,Q_),
+    trans(iS,ev,State(l, st3,pN,Q_)) :- iS is State(l, st,pN,extraChoice(l,st1,P,st2,Q)), trans(State(l, st2,qName,Q),ev,State(l, st3,qName,Q_)), ev != tau.
+
+	// if cond then P else Q
+    State(l,st,pN,p),
+    trans(iS,tau,State(l, st,pN,p)) :- iS is State(l,st,pN,condChoice(cond,p,q)),guardDef(l,cond,st).
+    State(l,st,pN,q),
+    trans(iS, tau, State(l,st,pN,q)) :- iS is State(l,st,pN,condChoice(cond, p, q)), guardNDef(l,cond, st).
+
+	// P \ X 
+    State(l,st,pN,p) :- State(l,st,pN,hide(p,X)). 
+	
+    // P \ X --tau--> P' \ X. 
+    State(l,st_,pN,hide(P_, X)),
+    trans(iS, tau, State(l,st_,pName,hide(P_, X))) :- iS is State(l,st,pN,hide(P,X)), trans(State(l,st,pName,P), ev, State(l,st_,pName,P_)), ev!= tau, lieIn(ev, X).    
+    State(l,st_,pN,hide(P_, X)),
+    trans(iS, tau, State(l,st_, pName,hide(P_, X))) :- iS is State(l,st,pN,hide(P,X)), trans(State(l,st,pName,P), tau, State(l,st_,pName,P_)).
+    // P \ X --ev--> P' \ X
+    State(l,st_,pN,hide(P_, X)),
+    trans(State(l,st,pN,hide(P,X)), ev, State(l,st_,pN,hide(P_, X))) :- State(l,st,pN,hide(P,X)), trans(State(l,st,pN,P), ev, State(l,st_,pN,P_)), fail lieIn(ev, X).    
+    //Skip \ X --tick--> Skip
+    State(l,st,pN,Skip),
+    trans(State(l,st,pN,hide(Skip,X)), tau, State(l,st,pN,Skip)) :- State(l,st,pN,hide(Skip,X)).
+
+	// P ; Q 
+    State(l,st, pN,P) :- State(l,st,pN,seqC(P, Q)), P != Skip.
+    State(l,st,pN,Q),
+    trans(iS,tau,State(l,st,pN,Q)) :- iS is State(l,st,pN,seqC(Skip,Q)).
+    trans(iS,tau,State(l,st,pN,Chaos)) :- iS is State(l,st,pN,seqC(Chaos,Q)).
+	
+//	State(st_, Q),// This rule has a serious problem that maybe is related to other rules as well :-(
+//    trans(iS, tau, State(st_, Q)) :- preSchemaOk(schN, st), iS is State(st, seqC(schema(schN), Q)),
+//                                     schemaDef(schN, st, st_).
+//    State(st, Chaos),// This rule has a serious problem that maybe is related to other rules as well :-(
+//    trans(iS, tau, State(st, Chaos)) :- iS is State(st, seqC(schema(schN), Q)),
+//                                       preSchemaNOk(schN, st).
+
+    State(l,st_,pN,seqC(P_,Q)),// This rule has a serious problem that maybe is related to other rules as well :-(
+    trans(iS,ev,State(l,st_,pN,seqC(P_,Q))) :- iS is State(l,st,pN,seqC(P,Q)),trans(State(l,st,pN,P),ev,State(l,st_,nnP,P_)).
+
+	    // P [|X|] Q
+	State(l,st,P,PBody),
+	trans(State(l,st,P,proc(P,pP)),tau,State(l,st,P,PBody)),
+	State(l,st,Q,QBody),
+	trans(State(l,st, Q,proc(Q, pQ)), tau, State(l, st, Q, QBody)),
+	State(l,st, P,proc(P, pP)),
+	State(l,st, Q,proc(Q, pQ)),
+	State(l,nBind,pN,iParll(st,PBody,X,st,QBody)),  //semantic parallelism works over empty bindinds
+    trans(iS,tau,State(l,nBind,pN,iParll(st,proc(P,pP),X,st,proc(Q,pQ)))) :- iS is State(l,st,pN,iPar(proc(P,pP),X,proc(Q,pQ))), 
+                                                                             ProcDef(P, pP, PBody), ProcDef(Q, pQ, QBody).
+    
+	//The name of each state is owned by the name of the iParll process [REVISE THIS]
+	//State(l,stP,pN,P),
+	//State(l,stQ,pN,Q) :- State(l,st, pN,iParll(stP,P,X,stQ,Q)).
+    
+    //State(l,stP,P,PBody),
+	//trans(State(l,stP,P,proc(P,pP)),tau,State(l,stP,P,PBody)),
+	//State(l,stQ,Q,QBody),
+	//trans(State(l,stQ, Q,proc(Q, pQ)), tau, State(l, stQ, Q, QBody)),
+	//State(l,stP, P,proc(P, pP)),
+	//State(l,stQ, Q,proc(Q, pQ)) :- iS is State(l,st,pN,iParll(stP,proc(P,pP),X,stQ,proc(Q,pQ))), ProcDef(P, pP, PBody), ProcDef(Q, pQ, QBody).
+    //State(l,stP,P,PBody),
+	//trans(State(l,stP,P,proc(P,pP)),tau,State(l,stP,P,PBody)),
+	//State(l,stQ,Q,QBody),
+	//trans(State(l,stQ, Q,proc(Q, pQ)), tau, State(l, stQ, Q, QBody)),
+	//State(l,stP,P,PBody),   
+    State(l,stP,P,proc(P,pP)),
+    State(l,stQ,Q,proc(Q,pQ)) :- iS is State(l,st,pN,iParll(stP,proc(P,pP),X,stQ,proc(Q,pQ))), 
+                                    ProcDef(P,pP,PBody),ProcDef(Q,pQ,QBody).
+
+    //BACKING ON DEMAND STATE GENERATION!!!! :-(
+    State(l,st,name,body) :- trans(S,ev,State(l,st,name,body)).
+
+    // P || Q --tau--> P' || Q  e P || Q --tau--> P || Q'
+    State(l,st, pN, iParll(stP_,P_,X,stQ,Q)),
+    trans(iS, tau, State(l,st, pN, iParll(stP_,P_,X,stQ,Q))) :- trans(State(l,stP,nP,P), tau, State(l,stP_,nP,P_)), iS is State(l,st, pN,iParll(stP,P,X,stQ,Q)).
+	
+    State(l,st,pN,iParll(stP,P,X,stQ_,Q_)),
+    trans(iS, tau, State(l,st,pN,iParll(stP,P,X,stQ_,Q_))) :- trans(State(l,stQ,nQ,Q), tau, State(l,stQ_,nQ,Q_)), iS is State(l,st, pN,iParll(stP,P,X,stQ,Q)).
+	
+    // P || Q --ev--> P' || Q'
+    State(l,st,pN,iParll(stP_,P_,X,stQ_,Q_)),
+    trans(iS, ev, State(l,st,pN,iParll(stP_,P_,X,stQ_,Q_))) :- iS is State(l,st,pN,iParll(stP,P,X,stQ,Q)), trans(State(l,stP,nP,P),ev,State(l,stP_,nP,P_)),
+													   trans(State(l,stQ,nQ,Q),ev,State(l,stQ_,nQ,Q_)), ev!=tau, lieIn(ev, X).
+    //P || Q --ev--> P' || Q
+    State(l,st,pN,iParll(stP_,P_,X,stQ,Q)),
+    trans(iS, ev, State(l,st,pN,iParll(stP_,P_,X,stQ,Q))) :- iS is State(l,st,pN,iParll(stP,P,X,stQ,Q)), ev!=tau, 
+													  trans(State(l,stP,nP,P),ev,State(l,stP_,nP,P_)),fail lieIn(ev, X).
+    //P || Q --ev--> P || Q'
+    State(l,st,pN,iParll(stP,P,X,stQ_,Q_)),
+    trans(iS, ev, State(l,st,pN,iParll(stP,P,X,stQ_,Q_))) :- iS is State(l,st,pN,iParll(stP,P,X,stQ,Q)), ev!=tau, 
+													  trans(State(l,stQ,nQ,Q), ev, State(l,stQ_,nQ,Q_)), fail lieIn(ev, X).
+    State(l,st,pN,Skip),
+    trans(iS, tau, State(l,st,pN,Skip)) :- iS is State(l,st,pN,iParll(stP,Skip,X,stQ,Skip)).
+	
+	State(l,st,nP,par(st,P,X,st,Q)) :- State(l,st,nP,parll(P,lV,X,rV,Q)). 
+    State(l,st,nP,P) :- State(l,st,nP,parll(P,lV,X,rV,Q)). 
+    State(l,st,nP,Q) :- State(l,st,nP,parll(P,lV,X,rV,Q)).
+	//TO BE COMPLETED
+	
+	// Call reusing state
+    //State(l,st,P,PBody),
+    //trans(n,tau,State(l,st,P,PBody)) :- n is State(l,st,P,proc(P,pP)), ProcDef(P,pP,PBody).
+    trans(n,tau,State(l,st,P,PBody)) :- n is State(l,st,P,proc(P,pP)), State(l,st,P,PBody), ProcDef(P,pP,PBody).
+
+	//The body of a process is a call to another process
+    State(l,st,name2,PBody), 
+    trans(n,tau,State(l,st,name2,PBody)) :- n is State(l,st,name1,proc(name2,pP)), ProcDef(name2,_,PBody).
+	
+    // Call without reusing state
+    State(l_,st,P,PBody),
+    trans(n,tau,State(l_,st,P,PBody)) :- n is State(l,st,P,proc(P,pP)),State(l,st1,P,PBody),
+                                         ProcDef(P,pP,PBody), st != st1,
+                                           l_ = l + 1, Bound(B), l_ <= B. // These two rules mean "the unfolding        // The conv construct depends on the     
+    // Calling another process with differing state
+    State(l,st,Pn,PBody),
+    trans(n,tau,State(l,st,Pn,PBody)) :- n is State(l,st,P,proc(Pn, pP)), ProcDef(Pn,pP,PBody), P != Pn.
+
+	// Schema operations
+    trans(n,tau,State(l,st_,pN,Skip)) :- n is State(l,st,pN,schema(schN)), schemaDef(l,schN,st,st_).
+    trans(n,tau,State(l,st,pN,Chaos)) :- n is State(l,st,pN,schema(schN)), preSchemaNOk(l,schN,st).
+
+    //assign and assigndef produce uptates in the bindings
+    //upd(BBinding(SingleBind("x",valX),nBind),SingleBind("x",val),BBinding(SingleBind("x",val),nBind)) :- 
+    //    assign(number),assignDef(level,number,val).
+
+    //upd(st,SingleBind("x",val),st_) :- assign(number),assignDef(level,number,st,st_).
+
+    // Assignment
+    trans(n,tau,State(l,st_, pN,Skip)) :- n is State(l,st,pN,assign(occ)),assignDef(_,occ,st,st_). 
+	
+	// Var
+    trans(iS, tau, State(l,st,pName,let(nx, pBody))) :- iS is State(l,st, pName, var(nx, xT, pBody)).
+    //trans(iS, tau, State(st,pBody)) :- iS is State(st, var(nx, xT, pBody)). //, upd(st, SingleBind(nx, Int(0)), st_). FIX IT!!!
+
+    // Let
+	State(l, st, pName, P) :- State(l,st,pName,let(x, P)).
+    
+	// The next rule has a problem (infinite) if an st_ is used instead of st
+	trans(iS, ev, State(l,st_, pName,let(x,P_))) :- iS is State(l,st,pName, let(x,P)), trans(State(l,st,pName, P), ev, State(l,st_,pName, P_)). //update the binding
+	trans(iS, tau, State(l,st_,pName,Skip)) :- iS is State(l,st,pName,let(x,Skip)), del(_,vName,st_). 
+	
+	//trans(iS, eps, State(Binding(void, void, val), Skip)) :- val >= 9, val <= 11, iS is State(Binding(_, _, val), let(x, Skip)).//, delB(st, x, st_). FIX
+	//trans(iS, eps, State(Binding(void, void, val), Skip)) :- val < 9, iS is State(Binding(_, _, val), let(_, Skip)).//, delB(st, x, st_). FIX
+    //trans(iS,tau,State(st,Skip)) :- iS is State(st,par(stP,Skip,X,stQ,Skip)).//, delB(st, x, st_). FIX
+    //    trans(iS, eps, State(Binding(void, void, void), Skip)) :- val > 11, iS is State(Binding(_, _, val), let(x, Skip)).//, delB(st, x, st_). FIX
+    //    trans(iS, eps, State(Binding(void, void, void), Skip)) :- iS is State(Binding(_, _, val), let(x, Skip)).//, delB(st, x, st_). FIX IT!!!
+    //    trans(iS, eps, State(Binding(void, n, val), Skip)) :- iS is State(Binding(j, n, val), let(x, Skip)).//, delB(st, x, st_). FIX IT!!!
+
+    // Problem here: I had to change Int(0) for Byte(0). This is being dependent on the problem domain :-(
+    //    SingleBind(nx, Byte(0)), 
+    //    RecursiveBind(/*P,*/ SingleBind(nx, Byte(0)),st) :- State(st,var(nx,xT,pBody)).//, ProcDef(P,_,_).
+    //    trans(iS,tau,State(Binding(Byte(0),Byte(0)),let(nx,pBody))) :- iS is State(st,var(nx,xT,pBody)).//,upd(st,SingleBind(nx,Byte(0)),st_).
+
+
+	// The following primitive is used to mark the starting point
+    primitive GivenProc ::= (name: String).
+}
+
+domain CML_PropertiesSpec extends CML_SemanticsSpec {
+    // Deadlock property
+    Deadlock := GivenProc(name),ProcDef(name,params,body),reachable(State(_,st,_,L)),trans(_,_,State(_,st,_,L)),fail trans(State(_,st,_,L),_,_),L != Skip.
+    Deadlock := GivenProc(name),ProcDef(name,params,body),fail trans(State(_,s,name,body),_,_), body != Skip.
+
+    //Livelock property
+    // Capturing tau-loops
+    tauPath      ::= (iS:State,fS:State).
+    tauPath(P,Q) :- trans (P,tau,Q).
+    tauPath(P,Q) :- tauPath(P,S),tauPath(S,Q).
+    Livelock := tauPath(L,L). 
+
+    // Nondeterminism property
+    accepts    ::= (iS:State,ev:SigmaTau).
+    accepts(P, ev) :- trans(P,ev,_), ev != tau.
+    accepts(P, ev) :- trans(P,tau,R),accepts(R,ev).
+    
+	reachable    ::= (fS:State).
+	//The initial binding is captured at initialisation
+    reachable(State(0,nBind,P,PBody)) :- GivenProc(P),ProcDef(P,pPar,PBody).
+	reachable(Q)  :- GivenProc(P),ProcDef(P,pPar,PBody), trans(State(_,_,P,PBody),_,Q).
+	reachable(Q)  :- reachable(R), trans(R,_,Q).
+	
+	//s^<a> \in traces(P) <=> reachable(PBody,L), accepts(L,a,_)
+	//(s,{a}) \in failures(P) <=> reachable(PBody,L), fail accepts(L,a,_)
+    Nondeterminism := trans(L,ev1,S1),trans(L,ev1,S2), S1 != S2, 
+						accepts(S1,ev), ev!= tau, fail accepts(S2,ev),
+						reachable(S1),reachable(S2).
+	
+    Chaos := GivenProc(name),ProcDef(name,params,body), trans(_,_,State(_,_,name,Chaos)).
+}

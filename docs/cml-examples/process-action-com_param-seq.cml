@@ -1,0 +1,9 @@
+process RegisterProc = 
+begin 
+   
+   @
+   init![]-> REG;
+   init![ ]-> REG;
+   init![1,2] -> REG;
+   init![x | x in set ordered @ P(x) ] -> REG
+end

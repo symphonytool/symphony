@@ -35,9 +35,9 @@ import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.model.Breakpoint;
 import org.eclipse.debug.core.model.IBreakpoint;
-import org.overture.ide.debug.core.IDebugConstants;
 
 import eu.compassresearch.ide.interpreter.CmlDebugPlugin;
+import eu.compassresearch.ide.interpreter.ICmlDebugConstants;
 
 public class CmlLineBreakpoint extends Breakpoint implements
 		org.eclipse.debug.core.model.ILineBreakpoint
@@ -45,7 +45,7 @@ public class CmlLineBreakpoint extends Breakpoint implements
 
 	protected String getMarkerId()
 	{
-		return IDebugConstants.LINE_BREAKPOINT_MARKER_ID;
+		return ICmlDebugConstants.LINE_BREAKPOINT_MARKER_ID;
 	}
 
 	protected void addLineBreakpointAttributes(Map<String, Object> attributes,
