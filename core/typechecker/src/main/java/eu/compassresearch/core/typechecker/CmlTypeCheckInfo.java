@@ -313,7 +313,9 @@ class CmlTypeCheckInfo extends TypeCheckInfo implements TypeCheckQuestion {
 		return env.getDefinitions();
 	}
 	
-	public void checkChannelDuplicate(AChannelNameDefinition newChannel){
+	public boolean hasChannelDuplicates(AChannelNameDefinition newChannel){
+		
+		boolean hasDuplicates = false;
 		//run through all identifiers of new channel
 		for (ILexIdentifierToken newChannelIdent : newChannel.getSingleType().getIdentifiers()) {
 			int count = 0;
@@ -335,14 +337,16 @@ class CmlTypeCheckInfo extends TypeCheckInfo implements TypeCheckQuestion {
 							{
 								newChannel.setType(issueHandler.addTypeError(newChannel,
 										TypeErrorMessages.DUPLICATE_DEFINITION
-												.customizeMessage(newChannelIdentName + " " + newChannel.getLocation()
-														, existingChannelName + "  " + existingChanDef.getLocation())));
+												.customizeMessage(newChannelIdentName + " " + newChannelIdentName.getLocation()
+														, existingChannelName + "  " + existingChannelName.getLocation())));
+								hasDuplicates = true;
 							}
 						}
 					}
 				}
 			}
 		}
+		return hasDuplicates; 
 	}
 
 	/**
