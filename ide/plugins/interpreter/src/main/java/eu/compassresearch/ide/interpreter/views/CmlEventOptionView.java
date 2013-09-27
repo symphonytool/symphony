@@ -10,6 +10,7 @@ import java.util.Map;
 import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.IDebugEventSetListener;
+import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -35,12 +36,6 @@ public class CmlEventOptionView extends ViewPart implements IDebugEventSetListen
 	private Map<StyledText, List<StyleRange>> lastSelectedRanges = new HashMap<StyledText, List<StyleRange>>();
 	CmlDebugTarget target;
 
-	public CmlEventOptionView()
-	{
-		DebugPlugin.getDefault().addDebugEventListener(this);
-		//FIXME this is very unsafe
-	}
-	
 	@Override
 	public void handleDebugEvents(final DebugEvent[] events)
 	{
@@ -51,28 +46,11 @@ public class CmlEventOptionView extends ViewPart implements IDebugEventSetListen
 			{
 				for(DebugEvent e : events)
 				{
-					if(e.getKind() == DebugEvent.SUSPEND)
+					if(e.getKind() == DebugEvent.SUSPEND && e.getSource() instanceof CmlDebugTarget)
 					{
-						target = (CmlDebugTarget)DebugPlugin.getDefault().getLaunchManager().getDebugTargets()[0];
-						List<TransitionDTO> transitions = target.getLastState().getTransitions();
-						Collections.sort(transitions, new Comparator<TransitionDTO>(){
-
-							@Override
-							public int compare(TransitionDTO o1, TransitionDTO o2)
-							{
-								if (o1.getName().equals("tock"))
-									return -1;
-								else if (o2.getName().equals("tock"))
-									return 1;
-								else
-									return o1.getName().compareToIgnoreCase(o2.getName());
-							}
-
-						});
-						viewer.setInput(transitions);
-						viewer.setSelection(new StructuredSelection(transitions.get(0)));
+						filltransitionList((CmlDebugTarget)e.getSource());
 					}
-					else if(e.getKind() == DebugEvent.TERMINATE)
+					else if(e.getKind() == DebugEvent.TERMINATE && e.getSource() instanceof CmlDebugTarget)
 					{
 						viewer.setInput(null);
 					}
@@ -123,8 +101,16 @@ public class CmlEventOptionView extends ViewPart implements IDebugEventSetListen
 				return ((List) inputElement).toArray();
 			}
 		});
+		
+		target = CmlUtil.findCmlDebugTarget();
+		
+		if(target != null)
+		{
+			filltransitionList(target);
+		}
+		DebugPlugin.getDefault().addDebugEventListener(this);
 	}
-
+	
 	private void selectChoice(TransitionDTO event)
 	{
 		target.select(event);
@@ -176,5 +162,28 @@ public class CmlEventOptionView extends ViewPart implements IDebugEventSetListen
 			StyledText st = lastSelectedRanges.keySet().iterator().next();
 			CmlUtil.showLocation(st, choice.getLocations().get(0));
 		}
+	}
+
+	private void filltransitionList(CmlDebugTarget target)
+	{
+		this.target = target;
+		List<TransitionDTO> transitions = target.getLastState().getTransitions();
+		Collections.sort(transitions, new Comparator<TransitionDTO>(){
+
+			@Override
+			public int compare(TransitionDTO o1, TransitionDTO o2)
+			{
+				if (o1.getName().equals("tock"))
+					return -1;
+				else if (o2.getName().equals("tock"))
+					return 1;
+				else
+					return o1.getName().compareToIgnoreCase(o2.getName());
+			}
+
+		});
+		viewer.setInput(transitions);
+		viewer.setSelection(new StructuredSelection(transitions.get(0)));
+		viewer.refresh();
 	}
 }
