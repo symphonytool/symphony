@@ -44,10 +44,6 @@ class ProcessDefinitionAdaptor extends SClassDefinitionBase
 		return this.processDefinition;
 	}
 
-	@Override
-	public String kindNode() {
-		return processDefinition.kindNode();
-	}
 
 	@Override
 	public void setLocation(ILexLocation value) {
@@ -163,10 +159,6 @@ class ProcessDefinitionAdaptor extends SClassDefinitionBase
 		return processDefinition.apply(caller, question);
 	}
 
-	@Override
-	public String kindPDefinition() {
-		return processDefinition.kindPDefinition();
-	}
 
 	@Override
 	public SClassDefinition clone() {
@@ -184,11 +176,6 @@ class ProcessDefinitionAdaptor extends SClassDefinitionBase
 		return null;
 	}
 
-	@Override
-	public String kindSClassDefinition() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 	@Override
 	public void setSupertypes(List<? extends PType> value) {
