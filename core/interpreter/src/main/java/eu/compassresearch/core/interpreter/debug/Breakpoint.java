@@ -1,12 +1,23 @@
 package eu.compassresearch.core.interpreter.debug;
 
+import java.net.URI;
+
 public class Breakpoint {
 
 	private final int id;
-	private final String file;
+	private final URI file;
 	private final int line;
+	private boolean isEnabled;
 	
-	public Breakpoint(int id, String file, int line)
+	@SuppressWarnings("unused")
+	private Breakpoint()
+	{
+		id = -1;
+		file = null;
+		line = -1;
+	}
+	
+	public Breakpoint(int id, URI file, int line)
 	{
 		this.id = id;
 		this.file = file;
@@ -17,7 +28,7 @@ public class Breakpoint {
 		return id;
 	}
 
-	public String getFile() {
+	public URI getFile() {
 		return file;
 	}
 

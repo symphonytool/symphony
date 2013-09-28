@@ -28,7 +28,7 @@ public class CmlPDefinitionAssistantTC extends PDefinitionAssistantTC
 		PType t =  super.getType(def);
 		if(t==null)
 		{
-			System.out.println("----------------------------------CML should be handled!!!");
+//			System.out.println("----------------------------------CML should be handled!!!");
 		}
 		return t;
 	}

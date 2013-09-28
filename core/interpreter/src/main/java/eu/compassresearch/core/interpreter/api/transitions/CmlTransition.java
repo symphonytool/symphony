@@ -3,27 +3,25 @@ package eu.compassresearch.core.interpreter.api.transitions;
 import java.io.Serializable;
 import java.util.Set;
 
-import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
+import org.overture.ast.node.INode;
+
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 
 
-public interface CmlTransition extends Serializable {
-	
-	public abstract int hashCode();
-	
-	public abstract String toString();
-	
-	public abstract boolean equals(Object obj);
-	
+public interface CmlTransition extends Serializable //, Comparable<CmlTransition> 
+{
+
 	/**
-	 * Wraps the event in a CmlAlphabet
-	 * @return
-	 */
-	public CmlAlphabet getAsAlphabet();
-	
-	/**
-	 * Returns the set of CmlBehaviourThreads that are prepared to engage in this event
+	 * Returns the set of CmlBehaviourThreads that participates in this transition 
 	 * @return
 	 */
 	public Set<CmlBehaviour> getEventSources();
+
+	/**
+	 * Convenience methods to get all the current nodes of the source
+	 * @return
+	 */
+	public Set<INode> getSourceNodes();
+	
+	public boolean isSourcesSubset(CmlTransition other);
 }

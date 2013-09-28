@@ -33,6 +33,7 @@ public class CollectGlobalStateClass extends AnalysisCMLAdaptor {
 
 	private final Collection<PDefinition> members;
 	private final Collection<PDefinition> channels;
+	private final CmlTypeCheckerAssistantFactory af = new CmlTypeCheckerAssistantFactory();
 
 	public static class GlobalDefinitions {
 		public final Collection<PDefinition> definitions;
@@ -150,7 +151,9 @@ public class CollectGlobalStateClass extends AnalysisCMLAdaptor {
 
 			if (fdef instanceof AImplicitFunctionDefinition) {
 				//this will generate all the pre and post defs
-				AImplicitFunctionDefinitionAssistantTC.implicitDefinitions((AImplicitFunctionDefinition) fdef, null);
+//				AImplicitFunctionDefinitionAssistantTC.implicitDefinitions((AImplicitFunctionDefinition) fdef, null);
+				fdef.apply(af.getImplicitDefinitionFinder(),null);
+				
 				predef = ((AImplicitFunctionDefinition) fdef).getPredef();
 				postdef = ((AImplicitFunctionDefinition) fdef).getPostdef();
 			}

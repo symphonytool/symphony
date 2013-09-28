@@ -4,12 +4,13 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.overture.ast.lex.LexLocation;
+import org.overture.ast.intf.lex.ILexLocation;
+import org.overture.ast.node.INode;
 
 import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
-import eu.compassresearch.core.interpreter.api.values.CmlOperationValue;
+import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.utility.LocationExtractor;
 
 /**
@@ -30,22 +31,33 @@ public class CmlInterpreterStateDTO {
 		return new CmlInterpreterStateDTO(
 				activeInterpreter.getTopLevelProcess(), 
 				activeInterpreter.getStatus(),
-				activeInterpreter.getActiveBreakpoint()); 
+				activeInterpreter.getActiveBreakpoint(),
+				new LinkedList<TransitionDTO>()); 
+	}
+	
+	public static CmlInterpreterStateDTO createCmlInterpreterStateDTO(CmlInterpreter activeInterpreter, List<TransitionDTO> events)
+	{
+		return new CmlInterpreterStateDTO(
+				activeInterpreter.getTopLevelProcess(), 
+				activeInterpreter.getStatus(),
+				activeInterpreter.getActiveBreakpoint(),
+				events); 
 	}
 	
 	private static List<CmlProcessDTO> convertProcessTreeIntoList(CmlProcessDTO process)
 	{
 		List<CmlProcessDTO> children = new LinkedList<CmlProcessDTO>();
-		if(process != null)
-		{
-			children.add(process);
+		
+		if(process == null)
+			return children;
+		
+		children.add(process);
 
-			if(process.getLeftChild() != null)
-				children.addAll(convertProcessTreeIntoList(process.getLeftChild()));
+		if(process.getLeftChild() != null)
+			children.addAll(convertProcessTreeIntoList(process.getLeftChild()));
 
-			if(process.getRightChild() != null)
-				children.addAll(convertProcessTreeIntoList(process.getLeftChild()));
-		}
+		if(process.getRightChild() != null)
+			children.addAll(convertProcessTreeIntoList(process.getRightChild()));
 
 		return children;
 	}
@@ -53,7 +65,8 @@ public class CmlInterpreterStateDTO {
 	private final CmlProcessDTO topLevelProcess;
 	private InterpreterErrorDTO[] errors = null;
 	private final CmlInterpretationStatus state;
-	private Breakpoint bp = null;
+	private Breakpoint bp;
+	private List<TransitionDTO> transitions;
 
 	/**
 	 * Dummy constructor for serialization
@@ -62,6 +75,7 @@ public class CmlInterpreterStateDTO {
 	{
 		state = null;
 		topLevelProcess = null;
+		bp = null;
 	}
 
 	public CmlInterpreterStateDTO(CmlBehaviour topProcess, CmlInterpretationStatus state)
@@ -73,16 +87,18 @@ public class CmlInterpreterStateDTO {
 		this.state = state;
 	}
 	
-	public CmlInterpreterStateDTO(CmlBehaviour topProcess, CmlInterpretationStatus state, Breakpoint bp)
+	public CmlInterpreterStateDTO(CmlBehaviour topProcess, CmlInterpretationStatus state, Breakpoint bp, List<TransitionDTO> transitions)
 	{
 		this(topProcess,state);
 		this.bp = bp;
+		this.transitions  = transitions;
 	}
 	
 	public CmlInterpreterStateDTO(CmlInterpretationStatus state)
 	{
 		this.state = state;
 		topLevelProcess = null;
+		bp = null;
 	}
 
 	public List<CmlProcessDTO> getAllProcesses()
@@ -105,7 +121,7 @@ public class CmlInterpreterStateDTO {
 			return null;
 	}
 
-	public void AddError(InterpreterErrorDTO error) {
+	public void addError(InterpreterErrorDTO error) {
 
 		if(errors == null)
 			errors = new InterpreterErrorDTO[]{error};
@@ -139,5 +155,10 @@ public class CmlInterpreterStateDTO {
 	public String toString() {
 		return "CmlInterpreterState: " + state + System.lineSeparator() + 
 				"topProcess: " + (this.topLevelProcess != null ? this.topLevelProcess.toString() : "NA");
+	}
+
+	public List<TransitionDTO> getTransitions()
+	{
+		return transitions;
 	}
 }

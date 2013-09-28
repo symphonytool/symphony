@@ -3,9 +3,10 @@ package eu.compassresearch.core.interpreter;
 import java.util.HashMap;
 import java.util.Map;
 
-import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
-import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
+import eu.compassresearch.core.interpreter.api.CmlInterpreter;
+import eu.compassresearch.core.interpreter.api.SelectionStrategy;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.events.CmlInterpreterStatusObserver;
 import eu.compassresearch.core.interpreter.api.events.EventFireMediator;
 import eu.compassresearch.core.interpreter.api.events.EventSource;
@@ -37,8 +38,8 @@ abstract class AbstractCmlInterpreter implements CmlInterpreter {
 	 * "<filepath>:<linenumber>"
 	 */
 	protected Map<String,Breakpoint> 	breakpoints = new HashMap<>();
-
-	protected CmlSupervisorEnvironment 	currentSupervisor;
+	protected CmlBehaviour	   		   	runningTopProcess 	= null;
+	protected SelectionStrategy 		environment;
 	/**
 	 * The current state of the interpreter
 	 */
@@ -66,9 +67,9 @@ abstract class AbstractCmlInterpreter implements CmlInterpreter {
 	}
 
 	@Override
-	public CmlSupervisorEnvironment getCurrentSupervisor()
+	public SelectionStrategy getEnvironment()
 	{
-		return currentSupervisor;
+		return environment;
 	}
 
 	@Override
@@ -89,5 +90,31 @@ abstract class AbstractCmlInterpreter implements CmlInterpreter {
 			breakpoints.put(key, bp);
 			return true;
 		}
+	}
+	
+	@Override
+	public CmlBehaviour findBehaviorById(int id) {
+		
+		return findBehaviorById(this.runningTopProcess,id);
+	}
+	
+	private CmlBehaviour findBehaviorById(CmlBehaviour behavior, int id) {
+
+		CmlBehaviour foundBehavior = null;
+		
+		if(behavior.getId() == id)
+			foundBehavior = behavior;
+		
+		if(behavior.getLeftChild() != null && foundBehavior == null)
+		{
+			foundBehavior = findBehaviorById(behavior.getLeftChild(),id);
+		}
+		
+		if(behavior.getRightChild() != null && foundBehavior == null)
+		{
+			foundBehavior = findBehaviorById(behavior.getRightChild(),id);
+		}
+		
+		return foundBehavior;
 	}
 }

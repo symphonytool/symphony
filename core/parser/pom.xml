@@ -5,7 +5,7 @@
   <parent>
     <groupId>eu.compassresearch.core</groupId>
     <artifactId>core</artifactId>
-    <version>0.1.9-SNAPSHOT<!--Replaceable: Main Version--></version>
+    <version>0.2.1-SNAPSHOT<!--Replaceable: Main Version--></version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -54,7 +54,7 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
-          <testFailureIgnore>true</testFailureIgnore>
+          <testFailureIgnore>false</testFailureIgnore>
         </configuration>
       </plugin>
     </plugins>

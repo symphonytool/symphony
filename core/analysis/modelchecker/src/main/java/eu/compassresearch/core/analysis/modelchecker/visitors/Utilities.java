@@ -33,6 +33,7 @@ public class Utilities {
 	public static final int EXTERNAL_CHOICE = 1;
 	public static final int INTERNAL_CHOICE = 2;
 	public static final int SEQUENTIAL_COMPOSITION = 3;
+	public static final int GEN_PARALLELISM = 4;
 	public static final String LOCAL_DEFINITIONS_KEY = "LOCAL_DEFINITIONS";
 	public static final String CHANNEL_DEFINITIONS_KEY = "CHANNEL_DEFINITIONS";
 	public static final String IOCOMM_DEFINITIONS_KEY = "IOCOMM_DEF";
@@ -46,6 +47,7 @@ public class Utilities {
 	public static String STATES_KEY = "STATES_DEFINITION";
 	public static String LIEIN_SETS = "LIEIN_SETS";
 	public static String LIEIN_FACTS = "LIEIN_FACTS";
+	public static String MAX_BIND = "MAX_BIND";
 	
 	private static boolean parseWithANTLR(PSource sourceIn) throws IOException
 	{

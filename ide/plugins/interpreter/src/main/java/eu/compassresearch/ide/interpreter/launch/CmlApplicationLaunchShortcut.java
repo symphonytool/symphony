@@ -52,7 +52,7 @@ public class CmlApplicationLaunchShortcut implements ILaunchShortcut2
 	@Override
 	public void launch(IEditorPart editor, String mode)
 	{
-		System.out.println(editor.toString());
+//		System.out.println(editor.toString());
 	}
 
 	@Override

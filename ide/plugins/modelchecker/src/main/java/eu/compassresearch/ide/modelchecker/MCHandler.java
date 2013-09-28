@@ -142,18 +142,20 @@ public class MCHandler extends AbstractHandler {
 							//if the model is satisfiable then we save the formula output and 
 							//to build the graph of the counterexample on demand.
 							if(formulaOutput.isSatisfiable()){
-								//we build the counterexample
-								GraphBuilder gb = new GraphBuilder();
-								String dotContent = gb.generateDot(new StringBuilder(formulaOutput.getFacts()), propertyToCheck);
-								//save the graphviz code to a file
-								IFile dotFile = writeDotContentToFile(mcFolder,selectedUnit,dotContent);
-								//compile the generated graphviz
-								GraphViz gv = new GraphViz();
-								File file = dotFile.getRawLocation().toFile();
-								String fileName = file.getName();
-								gv.runDot(file);
-								IFile svgFile = mcFolder.getFile(fileName+".svg");
-								frw.setSvgFile(svgFile);
+								if(Activator.DOT_OK){
+									//we build the counterexample
+									GraphBuilder gb = new GraphBuilder();
+									String dotContent = gb.generateDot(new StringBuilder(formulaOutput.getFacts()), propertyToCheck);
+									//save the graphviz code to a file
+									IFile dotFile = writeDotContentToFile(mcFolder,selectedUnit,dotContent);
+									//compile the generated graphviz
+									GraphViz gv = new GraphViz();
+									File file = dotFile.getRawLocation().toFile();
+									String fileName = file.getName();
+									gv.runDot(file);
+									IFile svgFile = mcFolder.getFile(fileName+".svg");
+									frw.setSvgFile(svgFile);
+								}
 							}
 							
 							//writeToConsole(cmlFile.getName(), formulaOutput);

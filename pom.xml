@@ -6,7 +6,7 @@
 	<groupId>eu.compassresearch</groupId>
 	<artifactId>root</artifactId>
 	<name>The COMPASS Tool Top-Level</name>
-	<version>0.1.9-SNAPSHOT<!--Replaceable: Main Version-->
+	<version>0.2.1-SNAPSHOT<!--Replaceable: Main Version-->
 	</version>
 
 	<modules>
@@ -100,6 +100,26 @@
 			<url>http://overture.sourceforge.net/maven/repo</url>
 			<layout>default</layout>
 		</pluginRepository-->
+		
+		
+        <pluginRepository>
+          <id>overture-astcreator-github</id>
+			<name>Overture AST Creator Maven plugin</name>
+          <releases>
+            <enabled>true</enabled>
+            <updatePolicy>always</updatePolicy>
+            <checksumPolicy>warn</checksumPolicy>
+          </releases>
+          <snapshots>
+            <enabled>false</enabled>
+            <updatePolicy>daily</updatePolicy>
+            <checksumPolicy>warn</checksumPolicy>
+          </snapshots>
+         <url>https://github.com/overturetool/astcreator/raw/mvn-repo/release</url>
+          <layout>default</layout>
+        </pluginRepository>
+      
+		
 	</pluginRepositories>
 
 	<build>
@@ -158,7 +178,6 @@
 					<artifactId>maven-surefire-plugin</artifactId>
 					<version>2.14.1</version>
 					<configuration>
-						<testFailureIgnore>true</testFailureIgnore>
 						<!-- required for java7 to avoid verifier errors-->
 						<argLine>-XX:-UseSplitVerifier -Djava.awt.headless=true</argLine>
 					</configuration>
