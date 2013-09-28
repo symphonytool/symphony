@@ -1734,13 +1734,13 @@ class TCDeclAndDefVisitor extends
 			return node.getType();
 		}
 		
-		if (operationBody instanceof AActionType || operationBody instanceof PAction  && 
-				!(operationBody instanceof ASequentialCompositionAction 
-						||  operationBody instanceof ASkipAction) ) {
-			return issueHandler.addTypeError(node,
-					TypeErrorMessages.REACTIVE_CONSTRUCTS_IN_OP_NOT_ALLOWED
-							.customizeMessage("" + operationBody));
-		} 
+//		if (operationBody instanceof AActionType || operationBody instanceof PAction  && 
+//				!(operationBody instanceof ASequentialCompositionAction 
+//						||  operationBody instanceof ASkipAction) ) {
+//			return issueHandler.addTypeError(node,
+//					TypeErrorMessages.REACTIVE_CONSTRUCTS_IN_OP_NOT_ALLOWED
+//							.customizeMessage("" + operationBody));
+//		} 
 		
 		node.setActualResult(bodyType);
 
