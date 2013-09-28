@@ -20,6 +20,8 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.debug.core.DebugPlugin;
+import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.custom.StyleRange;
@@ -42,6 +44,7 @@ import org.overture.ide.core.ICoreConstants;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.GlobalEnvironmentBuilder;
+import eu.compassresearch.ide.interpreter.model.CmlDebugTarget;
 import eu.compassresearch.ide.ui.editor.core.CmlEditor;
 
 public final class CmlUtil
@@ -79,6 +82,15 @@ public final class CmlUtil
 				styledText.setStyleRange(sr);
 			}
 		}
+	}
+	
+	public static CmlDebugTarget findCmlDebugTarget()
+	{
+		for(IDebugTarget f : DebugPlugin.getDefault().getLaunchManager().getDebugTargets())
+			if(f instanceof CmlDebugTarget && f.isSuspended())
+				return (CmlDebugTarget)f;
+		
+		return null;
 	}
 
 	private static void setSelectionFromLocation(ILexLocation loc,
