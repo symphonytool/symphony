@@ -2474,7 +2474,7 @@ class TCActionVisitor extends
 			return node.getType();
 		}
 
-		node.setType(new AActionType());
+		node.setType(new AVoidType());
 		return node.getType();
 	}
 
