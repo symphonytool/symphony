@@ -2296,8 +2296,10 @@ class TCActionVisitor extends
 						}
 						theType = pType.getTypes().get(paramIndex);
 						paramIndex++;
-					} else
+					} else {
 						theType = type.getType();
+					}
+					
 					ALocalDefinition readVariable = AstFactory
 							.newALocalDefinition(commPattern.getLocation(),
 									id.getName(), NameScope.LOCAL, theType);
