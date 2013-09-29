@@ -21,7 +21,7 @@ package eu.compassresearch.ide.core;
 public interface ICmlCoreConstants
 {
 	public static final String PLUGIN_ID = "eu.compassresearch.ide.core";
-	public static final String CONTENT_TYPE = PLUGIN_ID + ".content-type";
+	public static final String CONTENT_TYPE = PLUGIN_ID + ".content-type-cml";
 	public static final String LANGUAGE_NAME = "CML";
 	// public static final String UI_PLUGIN_ID = "eu.compassresearch.ide.ui";
 	public static final String NATURE = PLUGIN_ID + ".cmlnature";

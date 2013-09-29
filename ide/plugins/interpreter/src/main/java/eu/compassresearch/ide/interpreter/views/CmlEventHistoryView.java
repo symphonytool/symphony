@@ -1,18 +1,45 @@
 package eu.compassresearch.ide.interpreter.views;
 
-import java.util.LinkedList;
 import java.util.List;
 
+import org.eclipse.debug.core.DebugEvent;
+import org.eclipse.debug.core.DebugPlugin;
+import org.eclipse.debug.core.IDebugEventSetListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.ListViewer;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.part.ViewPart;
 
-public class CmlEventHistoryView extends ViewPart
+import eu.compassresearch.ide.interpreter.CmlUtil;
+import eu.compassresearch.ide.interpreter.model.CmlDebugTarget;
+
+public class CmlEventHistoryView extends ViewPart implements IDebugEventSetListener
 {
 	ListViewer viewer;
-	List<String> options = new LinkedList<String>();
 
+	public CmlEventHistoryView()
+	{
+		DebugPlugin.getDefault().addDebugEventListener(this);
+	}
+	
+	@Override
+	public void handleDebugEvents(final DebugEvent[] events)
+	{
+		Display.getDefault().asyncExec(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				for(DebugEvent e : events)
+					if((e.getKind() == DebugEvent.BREAKPOINT || e.getKind() == DebugEvent.SUSPEND) && e.getSource() instanceof CmlDebugTarget)
+					{
+						fillHistoryList((CmlDebugTarget) e.getSource());
+					}
+			}
+		});
+	}
+	
 	@Override
 	public String getTitle()
 	{
@@ -41,8 +68,8 @@ public class CmlEventHistoryView extends ViewPart
 			public void inputChanged(Viewer viewer, Object oldInput,
 					Object newInput)
 			{
-				System.out.println("Input changed: old=" + oldInput + ", new="
-						+ newInput);
+//				System.out.println("Input changed: old=" + oldInput + ", new="
+//						+ newInput);
 			}
 
 			@Override
@@ -58,6 +85,9 @@ public class CmlEventHistoryView extends ViewPart
 				return ((List) inputElement).toArray();
 			}
 		});
+		CmlDebugTarget target = CmlUtil.findCmlDebugTarget();
+		if(target != null)
+			fillHistoryList(target);
 
 		// viewer.addDoubleClickListener(new IDoubleClickListener() {
 		//
@@ -85,5 +115,10 @@ public class CmlEventHistoryView extends ViewPart
 		// canvas.setBackground(new Color(parent.getDisplay(), 0, 213, 220));
 		// }
 		// });
+	}
+	
+	private void fillHistoryList(CmlDebugTarget target)
+	{
+		viewer.setInput(target.getLastState().getToplevelProcess().getTrace());
 	}
 }

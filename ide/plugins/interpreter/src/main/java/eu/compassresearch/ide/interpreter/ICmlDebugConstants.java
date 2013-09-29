@@ -18,5 +18,6 @@ public interface ICmlDebugConstants
 	// public final String PREFERENCES_REMOTE_DEBUG = "PREFERENCES_REMOTE_DEBUG".toLowerCase();
 	public final String CML_LAUNCH_CONFIG_REMOTE_DEBUG = "CML_LAUNCH_CONFIG_REMOTE_DEBUG".toLowerCase();
 	public final String CML_LAUNCH_CONFIG_ENABLE_LOGGING = "CML_LAUNCH_CONFIG_ENABLE_LOGGING".toLowerCase();
+	public static final String LINE_BREAKPOINT_MARKER_ID = "cml.lineBreakpoint.marker"; //$NON-NLS-1$
 
 }

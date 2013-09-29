@@ -1658,9 +1658,10 @@ class TCActionVisitor extends
 					TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(""
 							+ operType.getResult(), "" + type)));
 			return node.getType();
-		}
+		} 
 
-		node.setType(new AVoidType(node.getLocation(), true));
+		
+		node.setType(type); 
 		return node.getType();
 	}
 
@@ -2295,8 +2296,10 @@ class TCActionVisitor extends
 						}
 						theType = pType.getTypes().get(paramIndex);
 						paramIndex++;
-					} else
+					} else {
 						theType = type.getType();
+					}
+					
 					ALocalDefinition readVariable = AstFactory
 							.newALocalDefinition(commPattern.getLocation(),
 									id.getName(), NameScope.LOCAL, theType);
@@ -2471,7 +2474,7 @@ class TCActionVisitor extends
 			return node.getType();
 		}
 
-		node.setType(new AActionType());
+		node.setType(new AVoidType());
 		return node.getType();
 	}
 

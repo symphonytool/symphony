@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: COMPASS IDE CML UI
 Bundle-SymbolicName: eu.compassresearch.ide.ui;singleton:=true
-Bundle-Version: 0.1.9.qualifier
+Bundle-Version: 0.2.1.qualifier
 Bundle-Activator: eu.compassresearch.ide.ui.CmlUIPlugin
 Bundle-Vendor: The COMPASS Project
 Eclipse-BundleShape: dir
@@ -48,6 +48,7 @@ Import-Package: org.eclipse.jface.text,
  org.eclipse.ui.texteditor,
  org.eclipse.ui.wizards.newresource,
  org.overture.ide.ui,
+ org.overture.ide.ui.adapters,
  org.overture.ide.ui.editor.core,
  org.overture.ide.ui.editor.syntax,
  org.overture.ide.ui.internal.viewsupport,

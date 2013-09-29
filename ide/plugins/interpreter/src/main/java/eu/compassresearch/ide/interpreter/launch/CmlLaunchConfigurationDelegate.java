@@ -19,7 +19,6 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.LaunchConfigurationDelegate;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
@@ -65,7 +64,7 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 			Map configurationMap = new HashMap();
 			configurationMap.put(CmlInterpreterLaunchConfigurationConstants.PROCESS_NAME.toString(), configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_PROCESS_NAME, ""));
 			configurationMap.put(CmlInterpreterLaunchConfigurationConstants.CML_SOURCES_PATH.toString(), getSources(configuration));
-			configurationMap.put(CmlInterpreterLaunchConfigurationConstants.CML_EXEC_MODE.toString(),configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_IS_ANIMATION, true));
+			configurationMap.put(CmlInterpreterLaunchConfigurationConstants.CML_EXEC_MODE.toString(), configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_IS_ANIMATION, true));
 
 			if (mode.equals(ILaunchManager.DEBUG_MODE))
 			{
@@ -78,8 +77,10 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 			{
 				// In run mode the debugger should not be enabled
 				DebugPlugin.getDefault().getBreakpointManager().setEnabled(false);
+				// switch to the debugging perspective even though we are in run mode
+				SwitchToDebugPerspective();
 			}
-			
+
 			// Execute in a new JVM process
 			CmlDebugTarget target = new CmlDebugTarget(launch, launchExternalProcess(launch, configuration, JSONObject.toJSONString(configurationMap), "CML Debugger"), project, CmlDebugDefaultValues.PORT);
 			launch.addDebugTarget(target);
@@ -91,7 +92,6 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 		} catch (IOException | URISyntaxException e)
 		{
 			CmlDebugPlugin.logError("Failed to connect to debugger", e);
-			MessageDialog.openError(null, "Failed to connect to debugger", e.getMessage());
 			launch.terminate();
 			monitor.setCanceled(true);
 		} finally
@@ -132,6 +132,8 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 				{
 					IWorkbench workbench = PlatformUI.getWorkbench();
 					workbench.showPerspective("org.eclipse.debug.ui.DebugPerspective", workbench.getActiveWorkbenchWindow());
+					PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(ICmlDebugConstants.ID_CML_OPTION_VIEW);
+					PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(ICmlDebugConstants.ID_CML_HISTORY_VIEW);
 				} catch (WorkbenchException e)
 				{
 					// TODO Auto-generated catch block
@@ -169,10 +171,14 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 			System.out.println("Debugger Arguments:\n"
 					+ getArgumentString(commandArray.subList(4, commandArray.size())));
 			process = Runtime.getRuntime().exec("java -version");
+			return null;
 		}
 		IProcess iprocess = DebugPlugin.newProcess(launch, process, name);
 
-		launch.addProcess(iprocess);
+		if (!configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_REMOTE_DEBUG, false))
+		{
+			launch.addProcess(iprocess);
+		}
 
 		return iprocess;
 	}

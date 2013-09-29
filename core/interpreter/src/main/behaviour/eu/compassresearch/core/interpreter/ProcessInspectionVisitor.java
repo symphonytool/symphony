@@ -1,18 +1,12 @@
 package eu.compassresearch.core.interpreter;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.intf.lex.ILexNameToken;
-import org.overture.ast.lex.LexLocation;
 import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ObjectContext;
@@ -27,8 +21,6 @@ import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
-import eu.compassresearch.ast.expressions.ANameChannelExp;
-import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.ast.process.AExternalChoiceProcess;
@@ -36,30 +28,29 @@ import eu.compassresearch.ast.process.AGeneralisedParallelismProcess;
 import eu.compassresearch.ast.process.AHidingProcess;
 import eu.compassresearch.ast.process.AInterleavingProcess;
 import eu.compassresearch.ast.process.AInternalChoiceProcess;
+import eu.compassresearch.ast.process.AInterruptProcess;
 import eu.compassresearch.ast.process.AReferenceProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.ASynchronousParallelismProcess;
+import eu.compassresearch.ast.process.ATimeoutProcess;
+import eu.compassresearch.ast.process.AUntimedTimeoutProcess;
 import eu.compassresearch.ast.process.PProcess;
-import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
+import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.Inspection;
-import eu.compassresearch.core.interpreter.api.transitions.ChannelEvent;
-import eu.compassresearch.core.interpreter.api.transitions.CmlTock;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
-import eu.compassresearch.core.interpreter.api.transitions.ObservableEvent;
+import eu.compassresearch.core.interpreter.api.transitions.LabelledTransition;
 import eu.compassresearch.core.interpreter.api.values.ActionValue;
-import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
 import eu.compassresearch.core.interpreter.api.values.CmlOperationValue;
 import eu.compassresearch.core.interpreter.api.values.ProcessObjectValue;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
 
+@SuppressWarnings("serial")
 public class ProcessInspectionVisitor extends CommonInspectionVisitor
 {
-
 	public ProcessInspectionVisitor(CmlBehaviour ownerProcess,
 			VisitorAccess visitorAccess,
 			QuestionAnswerCMLAdaptor<Context, Inspection> parentVisitor) {
@@ -74,18 +65,18 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 	public Inspection defaultPProcess(PProcess node, Context question)
 			throws AnalysisException {
 
-		throw new InterpreterRuntimeException(InterpretationErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName()));
+		throw new CmlInterpreterException(InterpretationErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName()));
 
 	}
 
 	@Override
 	public Inspection caseAActionProcess(final AActionProcess node, final Context question)
 			throws AnalysisException {
-		return newInspection(createSilentTransition(node,node.getAction()),
+		return newInspection(createTauTransitionWithoutTime(node.getAction()),
 				new AbstractCalculationStep(owner, visitorAccess) {
 
 			@Override
-			public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+			public Pair<INode, Context> execute(CmlTransition selectedTransition)
 					throws AnalysisException {
 				AProcessDefinition processDef;
 				
@@ -180,11 +171,11 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 		//return caseAExternalChoice(node,node.getLeft(),node.getRight(), question);
 		//if true this means that this is the first time here, so the Parallel Begin rule is invoked.
 		if(!owner.hasChildren()){
-			return newInspection(createSilentTransition(node, node,"Begin"), 
+			return newInspection(createTauTransitionWithTime(node,"Begin"), 
 					new AbstractCalculationStep(owner, visitorAccess) {
 
 				@Override
-				public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+				public Pair<INode, Context> execute(CmlTransition selectedTransition)
 						throws AnalysisException {
 					CmlBehaviour leftInstance = new ConcreteCmlBehaviour(node.getLeft(), question, new LexNameToken(name().getModule(),name().getIdentifier().getName() + "[]" ,node.getLeft().getLocation()) ,this.owner);
 					setLeftChild(leftInstance);
@@ -200,11 +191,11 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 		//with the state from the skip. After this all the children processes are terminated
 		else if(CmlBehaviourUtility.finishedChildExists(owner))
 		{
-			return newInspection(createSilentTransition(node, node,"End"), 
+			return newInspection(createTauTransitionWithTime(node,"End"), 
 					new AbstractCalculationStep(owner, visitorAccess) {
 
 				@Override
-				public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+				public Pair<INode, Context> execute(CmlTransition selectedTransition)
 						throws AnalysisException {
 					CmlBehaviour theChoosenOne = findFinishedChild();
 					setLeftChild(theChoosenOne.getLeftChild());
@@ -219,23 +210,23 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 					new AbstractCalculationStep(owner, visitorAccess) {
 
 				@Override
-				public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+				public Pair<INode, Context> execute(CmlTransition selectedTransition)
 						throws AnalysisException {
 					for(CmlBehaviour child : children())
 					{
-						if(child.inspect().containsImprecise(supervisor().selectedObservableEvent()))
+						if(child.inspect().contains(selectedTransition))
 						{
-							if(supervisor().selectedObservableEvent() instanceof ChannelEvent)
+							if(selectedTransition instanceof LabelledTransition)
 							{
 								//first we execute the child
-								child.execute(supervisor());
+								child.execute(selectedTransition);
 								setLeftChild(child.getLeftChild());
 								setRightChild(child.getRightChild());
 								return child.getNextState();
 							}
 							else
 							{
-								child.execute(supervisor());
+								child.execute(selectedTransition);
 								return new Pair<INode, Context>(node, question);
 							}
 						}
@@ -246,6 +237,21 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 			});
 		}
 	}
+	
+	/**
+	 * Parallel process
+	 * 
+	 * In general all the parallel processes have three transition rules that can be invoked
+	 * Parallel Begin:
+	 * 	At this step the interleaving action are not yet created. So this will be a silent (tau) transition
+	 * 	where they will be created and started. So the alphabet returned here is {tau}
+	 * 
+	 * Parallel Sync/Non-sync:
+	 * 
+	 * Parallel End:
+	 *  At this step both child actions are in the FINISHED state and they will be removed from the running process network
+	 *  and this will make a silent transition into Skip. So the alphabet returned here is {tau}
+	 */
 
 	@Override
 	public Inspection caseAGeneralisedParallelismProcess(
@@ -275,11 +281,11 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 		//if true this means that this is the first time here, so the Parallel Begin rule is invoked.
 		if(!owner.hasChildren()){
 
-			return newInspection(createSilentTransition(node, node, "Begin"),
+			return newInspection(createTauTransitionWithTime(node, "Begin"),
 					new AbstractCalculationStep(owner, visitorAccess) {
 
 				@Override
-				public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+				public Pair<INode, Context> execute(CmlTransition selectedTransition)
 						throws AnalysisException {
 
 					caseParallelBegin(node,node.getLeft(),node.getRight(),question);
@@ -291,7 +297,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 		//the process has children and must now handle either termination or event sync
 		else if (CmlBehaviourUtility.isAllChildrenFinished(owner))
 		{
-			return newInspection(createSilentTransition(node, new ASkipAction(), "End"),caseParallelEnd(question));
+			return newInspection(createTauTransitionWithTime(new ASkipAction(), "End"),caseParallelEnd(question));
 
 		}
 		else
@@ -300,10 +306,10 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 					new AbstractCalculationStep(owner, visitorAccess) {
 
 				@Override
-				public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+				public Pair<INode, Context> execute(CmlTransition selectedTransition)
 						throws AnalysisException {
 					//At least one child is not finished and waiting for event, this will invoke the Parallel Non-sync 
-					caseParallelNonSync();
+					caseParallelNonSync(selectedTransition);
 					//We push the current state, 
 					return new Pair<INode,Context>(node, question);
 				}
@@ -338,11 +344,11 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 
 		if(rnd.nextInt(2) == 0)
 		{
-			return newInspection(createSilentTransition(node,node.getLeft()), 
+			return newInspection(createTauTransitionWithTime(node.getLeft()), 
 					new AbstractCalculationStep(owner, visitorAccess) {
 
 				@Override
-				public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+				public Pair<INode, Context> execute(CmlTransition selectedTransition)
 						throws AnalysisException {
 					return new Pair<INode,Context>(node.getLeft(), question);
 				}
@@ -350,11 +356,11 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 		}
 		else
 		{
-			return newInspection(createSilentTransition(node,node.getRight()), 
+			return newInspection(createTauTransitionWithTime(node.getRight()), 
 					new AbstractCalculationStep(owner, visitorAccess) {
 
 				@Override
-				public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+				public Pair<INode, Context> execute(CmlTransition selectedTransition)
 						throws AnalysisException {
 					return new Pair<INode,Context>(node.getRight(), question);
 				}
@@ -371,11 +377,11 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 	public Inspection caseAReferenceProcess(final AReferenceProcess node,
 			final Context question) throws AnalysisException {
 
-		return newInspection(createSilentTransition(node,node.getProcessDefinition().getProcess()),
+		return newInspection(createTauTransitionWithoutTime(node.getProcessDefinition().getProcess()),
 				new AbstractCalculationStep(owner, visitorAccess) {
 
 			@Override
-			public Pair<INode, Context> execute(CmlSupervisorEnvironment sve)
+			public Pair<INode, Context> execute(CmlTransition selectedTransition)
 					throws AnalysisException {
 		
 				//evaluate all the arguments
@@ -417,7 +423,6 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 				}
 					
 //				Context refProcessContext = 
-
 //				refProcessContext.putAll(evaluatedArgs);
 				
 				return new Pair<INode,Context>( node.getProcessDefinition().getProcess(), nextContext); 
@@ -438,19 +443,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 			ASynchronousParallelismProcess node, Context question)
 			throws AnalysisException {
 
-		
-		//TODO Change AFatEnumVarsetExpression expects List of ANameChannelExp instead of List of ILexNameToken
-//		Context globalContext = question.getGlobal();
-//		List<ILexNameToken> channelNames = new LinkedList<ILexNameToken>();
-//		
-//		//Get all the channel objects
-//		for(Entry<ILexNameToken,Value> entry : globalContext.entrySet())
-//			if(entry.getValue() instanceof CMLChannelValue)
-//				channelNames.add(entry.getKey().clone());
-//		
-		//quick fix
-		List<ANameChannelExp> channelNames = new LinkedList<ANameChannelExp>();
-		AFatEnumVarsetExpression varsetNode = new AFatEnumVarsetExpression(new LexLocation(), channelNames);
+		AFatEnumVarsetExpression varsetNode = getAllChannelsAsFatEnum(node.getLocation(), question);
 			
 		AGeneralisedParallelismProcess nextNode = new AGeneralisedParallelismProcess(node.getLocation(), 
 				node.getLeft().clone(), varsetNode, node.getRight().clone());
@@ -458,64 +451,32 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 		return caseAGeneralisedParallelismProcess(nextNode, question);
 	}
 
-	/**
-	 * Parallel action
-	 * 
-	 * In general all the parallel action have three transition rules that can be invoked
-	 * Parallel Begin:
-	 * 	At this step the interleaving action are not yet created. So this will be a silent (tau) transition
-	 * 	where they will be created and started. So the alphabet returned here is {tau}
-	 * 
-	 * Parallel Sync/Non-sync:
-	 * 
-	 * Parallel End:
-	 *  At this step both child actions are in the FINISHED state and they will be removed from the running process network
-	 *  and this will make a silent transition into Skip. So the alphabet returned here is {tau}
-	 */
-
+	@Override
+	public Inspection caseATimeoutProcess(ATimeoutProcess node, Context question)
+			throws AnalysisException
+	{
+		return caseATimeout(node,node.getLeft(),node.getRight(),node.getTimeoutExpression(),question);
+	}
+	
+	@Override
+	public Inspection caseAUntimedTimeoutProcess(AUntimedTimeoutProcess node,
+			Context question) throws AnalysisException
+	{
+		return caseAUntimedTimeout(node, node.getRight(), question);
+	}
+	
+	@Override
+	public Inspection caseAInterruptProcess(AInterruptProcess node,
+			Context question) throws AnalysisException
+	{
+		return caseAInterrupt(node,question);
+	}
+	
 	/**
 	 * Private helper methods
 	 * @throws AnalysisException 
 	 */
 
-	private CmlAlphabet caseAGeneralisedParallelismInspectChildren(PVarsetExpression channelsetExp, Context question) throws AnalysisException
-	{
-		//convert the channel set of the current node to a alphabet
-		CmlAlphabet cs =  ((CmlAlphabet)channelsetExp.apply(cmlExpressionVisitor,question)).union(new CmlTock());
-
-		//Get all the child alphabets and add the events that are not in the channelset
-		CmlBehaviour leftChild = owner.getLeftChild();
-		CmlAlphabet leftChildAlphabet = leftChild.inspect();
-		CmlBehaviour rightChild = owner.getRightChild();
-		CmlAlphabet rightChildAlphabet = rightChild.inspect();
-
-		//Find the intersection between the child alphabets and the channel set and join them.
-		//Then if both left and right have them the next step will combine them.
-		CmlAlphabet syncAlpha = leftChildAlphabet.intersectImprecise(cs).union(rightChildAlphabet.intersectImprecise(cs));
-
-		//combine all the common events that are in the channel set 
-		Set<CmlTransition> syncEvents = new HashSet<CmlTransition>();
-		for(ObservableEvent ref : cs.getObservableEvents())
-		{
-			CmlAlphabet commonEvents = syncAlpha.intersectImprecise(ref.getAsAlphabet());
-			if(commonEvents.getObservableEvents().size() == 2)
-			{
-				Iterator<ObservableEvent> it = commonEvents.getObservableEvents().iterator(); 
-				syncEvents.add( it.next().synchronizeWith(it.next()));
-			}
-		}
-
-		/*
-		 *	Finally we create the returned alphabet by joining all the 
-		 *  Synchronized events together with all the event of the children 
-		 *  that are not in the channel set.
-		 */
-		CmlAlphabet resultAlpha = new CmlAlphabet(syncEvents).union(leftChildAlphabet.subtractImprecise(cs));
-		resultAlpha = resultAlpha.union(rightChildAlphabet.subtractImprecise(cs));
-
-		return resultAlpha;
-	}
-	
 	@Override
 	public Inspection caseAHidingProcess(AHidingProcess node, Context question)
 			throws AnalysisException {

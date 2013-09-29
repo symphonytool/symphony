@@ -11,4 +11,4 @@ begin
 	@ b -> c -> Skip
 end
 
-process C = A [| c |] B \\ {c}
+process C = A [| {c} |] B \\ {c}

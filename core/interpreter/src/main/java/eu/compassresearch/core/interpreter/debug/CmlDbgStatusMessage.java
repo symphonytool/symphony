@@ -10,6 +10,7 @@ public class CmlDbgStatusMessage extends Message {
 	private CmlInterpreterStateDTO interpreterStatus;
 	
 	//dummy for serialization
+	@SuppressWarnings("unused")
 	private CmlDbgStatusMessage(){}
 	
 	public CmlDbgStatusMessage(CmlInterpreterStateDTO interpreterStatus)
@@ -35,8 +36,7 @@ public class CmlDbgStatusMessage extends Message {
 
 	@Override
 	public String toString() {
-		return CmlDbgStatusMessage.class.getSimpleName() + System.lineSeparator() +
-			   this.interpreterStatus;
+		return this.interpreterStatus.getInterpreterState().toString();
 				
 	}
 

@@ -17,13 +17,13 @@ public class CmlRuntime {
 		if(null == logger)
 		{
 			logger = Logger.getLogger("CMLInterpreterLogger");
-			logger.setLevel(Level.FINER);
+			logger.setLevel(Level.FINE);
 			
 			logHandler = new Handler() {
 
 				@Override
 				public void publish(LogRecord record) {
-					System.out.println(record.getMessage());
+					Console.out.println(record.getMessage());
 				}
 
 				@Override
@@ -53,11 +53,11 @@ public class CmlRuntime {
 
 	}
 
-	public static boolean isShowHiddenEvents() {
+	public static boolean expandShowHiddenEvents() {
 		return showHiddenEvents;
 	}
 
-	public static void setShowHiddenEvents(boolean showHiddenEvents) {
+	public static void expandHiddenEvents(boolean showHiddenEvents) {
 		CmlRuntime.showHiddenEvents = showHiddenEvents;
 	}
 	

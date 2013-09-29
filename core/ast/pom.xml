@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>eu.compassresearch.core</groupId>
 		<artifactId>core</artifactId>
-		<version>0.1.9-SNAPSHOT<!--Replaceable: Main Version--></version>
+		<version>0.2.1-SNAPSHOT<!--Replaceable: Main Version--></version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -13,7 +13,7 @@
 	<name>COMPASS Core CML Abstract Syntax Tree</name>
 
 	<properties>
-		<astcreator.version>1.2.5</astcreator.version>
+		<astcreator.version>1.4.0</astcreator.version>
 	</properties>
 
 	<dependencies>
@@ -27,8 +27,8 @@
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>org.overture.tools.maven</groupId>
-				<artifactId>ast-creator</artifactId>
+				<groupId>org.overture.maven.tools</groupId>
+				<artifactId>ast-creator-plugin</artifactId>
 				<version>${astcreator.version}</version>
 				<executions>
 					<execution>
@@ -95,8 +95,8 @@
 							<pluginExecutions>
 								<pluginExecution>
 									<pluginExecutionFilter>
-										<groupId>org.overture.tools.maven</groupId>
-										<artifactId>ast-creator</artifactId>
+										<groupId>org.overture.maven.tools</groupId>
+										<artifactId>ast-creator-plugin</artifactId>
 										<versionRange>${astcreator.version}</versionRange>
 										<goals>
 											<goal>generate</goal>
