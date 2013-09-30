@@ -81,7 +81,7 @@ public class TestMessageCommunicator {
 		
 		BufferedReader reader = new BufferedReader(new InputStreamReader(in));
 		MessageContainer messageContainter = MessageCommunicator.receiveMessage(reader,
-				new MessageContainer(new CmlDbgStatusMessage(CmlInterpretationStatus.TERMINATED)));
+				new MessageContainer(new CmlDbgStatusMessage(CmlInterpretationStatus.TERMINATED_BY_USER)));
 		
 		Message recvMessage = messageContainter.getMessage();
 		
@@ -298,7 +298,7 @@ public class TestMessageCommunicator {
 		
 		BufferedReader reader = new BufferedReader(new InputStreamReader(in));
 		MessageContainer messageContainter = MessageCommunicator.receiveMessage(reader,
-				new MessageContainer(new CmlDbgStatusMessage(CmlInterpretationStatus.TERMINATED)));
+				new MessageContainer(new CmlDbgStatusMessage(CmlInterpretationStatus.TERMINATED_BY_USER)));
 		
 		Message recvMessage = messageContainter.getMessage();
 		

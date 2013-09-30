@@ -22,6 +22,7 @@ import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.ConsoleSelectionStrategy;
+import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.RandomSelectionStrategy;
 import eu.compassresearch.core.interpreter.api.SelectionStrategy;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
@@ -120,7 +121,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			throw new CmlInterpreterException("The interprer has not been initialized, please call the initialize method before invoking the start method");
 		
 		if(null == env)
-			throw new CmlInterpreterException("The supervisor must not be set to null in the cml scheduler");
+			throw new CmlInterpreterException("The SelectionStrategy must not be set to null in the cml scheduler");
 		
 		environment = env; 
 
@@ -167,8 +168,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			ProcessObjectValue pov = (ProcessObjectValue)globalContext.check(name);
 
 			if (pov == null)
-				throw new AnalysisException("No process identified by '"
-						+ getDefaultName() + "' exists");
+				throw new CmlInterpreterException(InterpretationErrorMessages.NO_PROCESS_WITH_DEFINED_NAME_FOUND.customizeMessage(getDefaultName()));
 
 			topProcess = pov.getProcessDefinition();
 

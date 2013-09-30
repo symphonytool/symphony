@@ -1,14 +1,20 @@
 package eu.compassresearch.ide.interpreter.views;
 
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.util.List;
 
 import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.IDebugEventSetListener;
+import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.ListViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IActionBars;
+import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.part.ViewPart;
 
 import eu.compassresearch.ide.interpreter.CmlUtil;
@@ -18,11 +24,6 @@ public class CmlEventHistoryView extends ViewPart implements IDebugEventSetListe
 {
 	ListViewer viewer;
 
-	public CmlEventHistoryView()
-	{
-		DebugPlugin.getDefault().addDebugEventListener(this);
-	}
-	
 	@Override
 	public void handleDebugEvents(final DebugEvent[] events)
 	{
@@ -51,15 +52,9 @@ public class CmlEventHistoryView extends ViewPart implements IDebugEventSetListe
 	{
 	}
 
-	public ListViewer getListViewer()
-	{
-		return viewer;
-	}
-
 	@Override
 	public void createPartControl(final org.eclipse.swt.widgets.Composite parent)
 	{
-		// Composite composite = new Composite(parent, SWT.NONE);
 		viewer = new ListViewer(parent);
 		viewer.setContentProvider(new IStructuredContentProvider()
 		{
@@ -89,6 +84,23 @@ public class CmlEventHistoryView extends ViewPart implements IDebugEventSetListe
 		if(target != null)
 			fillHistoryList(target);
 
+		//add this view to the debugevent listener, this is what causes the updates in the view
+		DebugPlugin.getDefault().addDebugEventListener(this);
+		
+		//this action copies the list into the clipboard
+		Action copyAction = new Action() {
+			  public void run() {
+				@SuppressWarnings("unchecked")
+				List<String> events = (List<String>)viewer.getInput();
+			    StringSelection selection = new StringSelection(events.toString());
+			    Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+			    clipboard.setContents(selection, selection);
+			  }
+			};
+
+		IActionBars bars = this.getViewSite().getActionBars();
+		bars.setGlobalActionHandler(ActionFactory.COPY.getId(), copyAction);
+		
 		// viewer.addDoubleClickListener(new IDoubleClickListener() {
 		//
 		// @Override

@@ -49,6 +49,6 @@ public enum CmlInterpretationStatus {
 	 *  The interpreter has been terminated by an external user and has finished the simulation/animation
 	 * 	the model. 
 	 */
-	TERMINATED
+	TERMINATED_BY_USER;
 	 		
 }

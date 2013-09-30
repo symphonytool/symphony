@@ -332,7 +332,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 			}
 		});
 
-		handlers.put(CmlInterpretationStatus.TERMINATED.toString(), new MessageEventHandler<CmlDbgStatusMessage>()
+		handlers.put(CmlInterpretationStatus.TERMINATED_BY_USER.toString(), new MessageEventHandler<CmlDbgStatusMessage>()
 		{
 			@Override
 			public boolean handleMessage(CmlDbgStatusMessage message)

@@ -27,7 +27,7 @@ public class CmlDbgStatusMessage extends Message {
 		if(this.interpreterStatus != null)
 			return this.interpreterStatus.getInterpreterState();
 		else 
-			return CmlInterpretationStatus.TERMINATED;
+			return CmlInterpretationStatus.TERMINATED_BY_USER;
 	}
 	
 	public CmlInterpreterStateDTO getInterpreterStatus() {
