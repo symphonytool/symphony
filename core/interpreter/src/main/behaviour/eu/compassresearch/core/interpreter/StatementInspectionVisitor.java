@@ -52,6 +52,7 @@ import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.transitions.TauTransition;
 import eu.compassresearch.core.interpreter.api.values.CmlOperationValue;
+import eu.compassresearch.core.interpreter.api.values.ProcessObjectValue;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
 public class StatementInspectionVisitor extends AbstractInspectionVisitor {
@@ -572,10 +573,21 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 				Value oldVal = node.getStateDesignator().apply(cmlExpressionVisitor,question);
 				oldVal.set(node.getLocation(), expValue, question);
 				
-				//System.out.println(stateDesignatorName + " = " + expValue);
+				PExp invExp = null;
+				if(question.getSelf() instanceof ProcessObjectValue) 
+					invExp = ((ProcessObjectValue)question.getSelf()).getInvariantExpression();
 				
-				//now this process evolves into Skip
-				return new Pair<INode,Context>(skipNode, question);
+				if(invExp != null){
+					
+					Context preConditionContext = CmlContextFactory.newContext(invExp.getLocation(), 
+							"Process " + question.getSelf() + " invariant context", question);
+					preConditionContext.setPrepost(0, "Process invariant for " + question.getSelf() + " is violated");
+					
+					return new Pair<INode,Context>(invExp, question);
+				}
+				else
+					//now this process evolves into Skip
+					return new Pair<INode,Context>(skipNode, question);
 			}
 		});
 	}

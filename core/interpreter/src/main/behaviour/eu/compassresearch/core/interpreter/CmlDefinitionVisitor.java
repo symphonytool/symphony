@@ -140,7 +140,7 @@ class CmlDefinitionVisitor extends
 	public NameValuePairList caseAClassInvariantDefinition(
 			AClassInvariantDefinition node, Context question)
 			throws AnalysisException {
-		return super.caseAClassInvariantDefinition(node, question);
+		return new NameValuePairList();
 	}
 	
 	@Override

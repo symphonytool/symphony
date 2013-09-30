@@ -3,6 +3,9 @@ package eu.compassresearch.core.interpreter;
 import java.util.Map.Entry;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.definitions.AClassClassDefinition;
+import org.overture.ast.definitions.AClassInvariantDefinition;
+import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
@@ -118,8 +121,17 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 				Context tmpContext = CmlContextFactory.newContext(node.getLocation(),"Action Process definitions evaluation context",null);
 
 				//Evaluate and add paragraph definitions and add the result to the state
+				PExp processInv = null;
 				for (PDefinition def : node.getDefinitionParagraphs())
 				{
+					//Take out the invariant expression if any
+					if(def instanceof AStateDefinition)
+					{
+						for(PDefinition stateDef : ((AStateDefinition) def).getStateDefs())
+							if(stateDef instanceof AClassInvariantDefinition)
+							processInv = ((AClassInvariantDefinition) stateDef).getExpression();
+					}
+					
 					NameValuePairList nvps = def.apply(cmlDefEvaluator, tmpContext);
 					tmpContext.putList(nvps);
 
@@ -139,7 +151,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 					}
 				}
 
-				ProcessObjectValue self = new ProcessObjectValue(processDef,valueMap,question.getSelf());
+				ProcessObjectValue self = new ProcessObjectValue(processDef,valueMap,question.getSelf(), processInv);
 
 				ObjectContext processObjectContext = CmlContextFactory.newObjectContext(node.getLocation(), "Action Process Context", question, self);
 
