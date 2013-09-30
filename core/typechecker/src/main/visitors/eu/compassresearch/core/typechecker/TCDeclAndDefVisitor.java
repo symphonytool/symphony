@@ -74,6 +74,8 @@ import org.overture.typechecker.assistant.type.PTypeAssistantTC;
 import org.overture.typechecker.util.HelpLexNameToken;
 import org.overture.typechecker.visitor.TypeCheckerDefinitionVisitor;
 
+import eu.compassresearch.ast.actions.ASequentialCompositionAction;
+import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.actions.PParametrisation;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
@@ -1731,6 +1733,15 @@ class TCDeclAndDefVisitor extends
 							.customizeMessage(operationBody + "")));
 			return node.getType();
 		}
+		
+//		if (operationBody instanceof AActionType || operationBody instanceof PAction  && 
+//				!(operationBody instanceof ASequentialCompositionAction 
+//						||  operationBody instanceof ASkipAction) ) {
+//			return issueHandler.addTypeError(node,
+//					TypeErrorMessages.REACTIVE_CONSTRUCTS_IN_OP_NOT_ALLOWED
+//							.customizeMessage("" + operationBody));
+//		} 
+		
 		node.setActualResult(bodyType);
 
 		// check constructor

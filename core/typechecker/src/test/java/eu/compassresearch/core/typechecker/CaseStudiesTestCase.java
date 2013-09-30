@@ -90,18 +90,17 @@ public class CaseStudiesTestCase extends AbstractTypeCheckerTestCase {
 		if (canFindCaseStudies) {
 			// 0//
 			add("/BitRegister");
-			// 1// Failing due to LexNameToken conflict
+			// 1// 
 			add("/Dwarf");
-			// 2// one file has a parse error others - fails due to LexNameToken
-			// conflict
+			// 2// 
 			add("/EmergencyResponse/Expert-Led/model");
 			// 3//
 			add("/EmergencyResponse/Rules-Led/model");
-			// 4// Failing do to LexNameToken
+			// 4// 
 			add("/GridManager/FarmB");
-			// 5// LexNameToken
+			// 5// 
 			add("/LeaderElection/Election-BigProcess");
-			// 6// LexNameToken
+			// 6// 
 			add("/LeaderElection/Election-NonLeaders");
 			// 7// LexNameToken
 			add("/LeaderElection/Election-Original");
