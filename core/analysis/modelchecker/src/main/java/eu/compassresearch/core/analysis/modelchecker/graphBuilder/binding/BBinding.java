@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Type;
+import eu.compassresearch.core.analysis.modelchecker.visitors.Utilities;
 
 
 public class BBinding implements Binding {
@@ -87,7 +88,7 @@ public class BBinding implements Binding {
 		LinkedList<SingleBind> bindList = new LinkedList<SingleBind>(); 
 		getSingleBindings(bindList, this);
 		for (Iterator iterator = bindList.iterator(); iterator.hasNext();) {
-			result.append("BBinding(_,");
+			result.append("BBinding(" + this.procName + ",");
 			SingleBind singleBind = (SingleBind) iterator.next();
 			result.append(singleBind.toFormulaWithUnderscore());
 			if(iterator.hasNext()){
@@ -157,6 +158,34 @@ public class BBinding implements Binding {
 			bindList.add(((BBinding) binding).getHead());
 			getSingleBindings(bindList, ((BBinding) binding).getTail());
 		}
+	}
+	@Override
+	public StringBuilder generateAllFetchFacts(int number){
+		StringBuilder result = new StringBuilder();
+		
+		LinkedList<SingleBind> bindList = new LinkedList<SingleBind>(); 
+		getSingleBindings(bindList, this);
+		for (Iterator iterator = bindList.iterator(); iterator.hasNext();) {
+			SingleBind singleBind = (SingleBind) iterator.next();
+			result.append("fetch(\"" + singleBind.variableName + "\"," + this.toFormulaWithState() + ","+ singleBind.variableValue.toFormulaWithState() + ")\n");
+		}
+		
+		return result;
+	}
+	
+	public StringBuilder generateAllUpdFacts(int number){
+		StringBuilder result = new StringBuilder();
+		
+		//TODO
+		
+		return result;
+	}
+	public StringBuilder generateAllDelFacts(int number){
+		StringBuilder result = new StringBuilder();
+		
+		//TODO
+		
+		return result;
 	}
 
 	@Override

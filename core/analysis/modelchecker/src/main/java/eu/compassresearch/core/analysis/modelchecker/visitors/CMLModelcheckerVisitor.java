@@ -27,6 +27,7 @@ import org.overture.ast.expressions.ANotUnaryExp;
 import org.overture.ast.expressions.AOrBooleanBinaryExp;
 import org.overture.ast.expressions.APlusNumericBinaryExp;
 import org.overture.ast.expressions.ASetEnumSetExp;
+import org.overture.ast.expressions.ASubtractNumericBinaryExp;
 import org.overture.ast.expressions.ATimesNumericBinaryExp;
 import org.overture.ast.expressions.AVariableExp;
 import org.overture.ast.expressions.PExp;
@@ -37,6 +38,8 @@ import org.overture.ast.node.NodeList;
 import org.overture.ast.types.AIntNumericBasicType;
 import org.overture.ast.types.ANamedInvariantType;
 import org.overture.ast.types.ANatNumericBasicType;
+import org.overture.ast.types.AProductType;
+import org.overture.ast.types.PType;
 
 import eu.compassresearch.ast.actions.ABlockStatementAction;
 import eu.compassresearch.ast.actions.ACallStatementAction;
@@ -94,6 +97,8 @@ import eu.compassresearch.core.analysis.modelchecker.api.IFormulaIntegrator;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.Binding;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.SingleBind;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Int;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Type;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.UndefinedValue;
 
 @SuppressWarnings("serial")
 public class CMLModelcheckerVisitor extends
@@ -102,11 +107,14 @@ public class CMLModelcheckerVisitor extends
 	private List<PSource> sources;
 	private final static String ANALYSIS_NAME = "Model Checker Visitor";
 	private String propertyToCheck = Utilities.DEADLOCK_PROPERTY;
+	private StringBuilder basicContent;
 
 	public CMLModelcheckerVisitor(List<PSource> sources) {
 		this.sources = sources;
 	}
 	public CMLModelcheckerVisitor() {
+		this.sources = new LinkedList<PSource>();
+		basicContent = new StringBuilder();
 	}
 	public CMLModelcheckerVisitor(PSource singleSource) {
 		this.sources = new LinkedList<PSource>();
@@ -125,24 +133,9 @@ public class CMLModelcheckerVisitor extends
 	public StringBuilder caseAProcessDefinition(AProcessDefinition node,
 			CMLModelcheckerContext question) throws AnalysisException {
 
-		if(question.info.containsKey(Utilities.TYPE_USER_DEFINITION)){
-			LinkedList<ATypeDefinition> t = (LinkedList<ATypeDefinition>) question.info.get(Utilities.TYPE_USER_DEFINITION);
-			String s = "//USER_DEF_TYPES";
-			String s2 = "/*INCLUDE USER_DEF_TYPES*/";
-			int aux = question.getScriptContent().indexOf(s);
-			CMLModelcheckerContext context = new CMLModelcheckerContext();
-			StringBuilder str2 = new StringBuilder();
-			for (int i = 0; i < t.size(); i++) {
-				t.get(i).apply(this, context);
-				str2.append(" + " + t.get(i).getInvType().toString());
-			}
-			str2.append(".\n");
-			question.getScriptContent().replace(aux, aux+s.length(), "");
-			question.getScriptContent().replace(aux, aux+1, context.getScriptContent().toString());
-			int aux2 = question.getScriptContent().indexOf(s2);
-			question.getScriptContent().replace(aux2, aux2+s2.length(), "");
-			question.getScriptContent().replace(aux2, aux2+1, str2.toString());
-		}
+		generateUserTypeDefinitions(question);
+		
+		generateChannelTypes(question);
 		
 		question.getScriptContent().append(
 				"domain StartProcDomain includes CML_PropertiesSpec {\n");
@@ -152,12 +145,12 @@ public class CMLModelcheckerVisitor extends
 		// it converts all structures defined in the process body (auxiliary
 		// actions, etc).
 		
-		if(question.info.containsKey(Utilities.VALUE_DEFINITIONS_KEY)){
-			LinkedList<AValueDefinition> values = (LinkedList<AValueDefinition>) question.info.get(Utilities.VALUE_DEFINITIONS_KEY);
-			for(int i = 0; i < values.size(); i++){
-				values.get(i).apply(this, question);
-			}
-		}
+		//if(question.info.containsKey(Utilities.VALUE_DEFINITIONS_KEY)){
+		//	LinkedList<AValueDefinition> values = (LinkedList<AValueDefinition>) question.info.get(Utilities.VALUE_DEFINITIONS_KEY);
+		//	for(int i = 0; i < values.size(); i++){
+		//		values.get(i).apply(this, question);
+		//	}
+		//}
 		
 		node.getProcess().apply(this, question);
 		
@@ -179,18 +172,25 @@ public class CMLModelcheckerVisitor extends
 					Integer val = new Integer(values);
 					Binding max;
 					question.getScriptContent().append("  assignDef(0, "+ key +", st, st_)  :- State(0,st,name,assign("+key+")), st = ");
-					if(question.info.containsKey(Utilities.STATES_KEY)){
-						 max = question.getMaxBindingWithStates();
+					//if(question.info.containsKey(Utilities.STATES_KEY)){
+					if(question.stateVariables.size() > 0){
+						//max = question.getMaxBindingWithStates();
+						max = question.getMaxBinding();
+						max.setProcName("name");
+						//question.getScriptContent().append(max.toFormulaWithState());
 						question.getScriptContent().append(max.toFormulaWithState());
 						question.getScriptContent().append(", st_ = ");
 						max.updateBinding(key2, new Int(key2+"_"));
 						question.getScriptContent().append(max.toFormulaWithState());
-						question.getScriptContent().append(", "+key2+"_ = "+key2+" + "+val.toString());
+						question.getScriptContent().append(", "+key2+"_ = "+ val.toString());
 					} else{
 						max = question.getMaxBinding();
-						question.getScriptContent().append(max.toFormula());
+						max.setProcName("name");
+						//question.getScriptContent().append(max.toFormula());
+						question.getScriptContent().append(max.toFormulaWithUnderscore());
 						question.getScriptContent().append(", st_ = ");
 						max.updateBinding(key2, new Int(val.intValue()));
+						//question.getScriptContent().append(max.toFormula());
 						question.getScriptContent().append(max.toFormula());
 					}
 					question.getScriptContent().append(".\n");
@@ -202,32 +202,22 @@ public class CMLModelcheckerVisitor extends
 		
 		generateIOCommDefs(question);
 		
+		generateGuardDefinitions(question);
+		
 		question.getScriptContent().append(
 				"  conforms := CML_PropertiesSpec." + this.propertyToCheck + ".\n");
 		question.getScriptContent().append("}\n\n");
 		question.getScriptContent().append(
 				"partial model StartProcModel of StartProcDomain{\n");
+
+		generateValueDefinitions(question);
 		
-		if(question.info.containsKey(Utilities.VALUE_DEFINITIONS_KEY)){
-			LinkedList<AValueDefinition> values = (LinkedList<AValueDefinition>) question.info.get(Utilities.VALUE_DEFINITIONS_KEY);
-			for(AValueDefinition v: values){
-				if(v.getExpression() instanceof AIntLiteralExp){
-					question.getScriptContent().append(v.getPattern()+"("+v.getExpression()+")\n");
-				}
-			}
-		}
 		
-		if(question.info.containsKey(Utilities.CHANNEL_DEFINITIONS_KEY)){
-			LinkedList<AChannelNameDefinition> aux = (LinkedList<AChannelNameDefinition>) question.info.get(Utilities.CHANNEL_DEFINITIONS_KEY);
-			question.getScriptContent().append("  ");
-			for (AChannelNameDefinition aChannelNameDefinition : aux) {
-				aChannelNameDefinition.apply(this, question);
-				question.getScriptContent().append("\n");
-			}
-			
-		}
 		
-		if(question.info.containsKey(Utilities.STATES_KEY)){
+		//if(question.info.containsKey(Utilities.STATES_KEY)){
+		/*
+		if(question.stateVariables.size() > 0){
+			//pppppppp
 			ArrayList<StringBuilder> states = (ArrayList<StringBuilder>) question.info.get(Utilities.STATES_KEY);
 			StringBuilder s;
 			for (int i = 0; i < states.size(); i++) {
@@ -241,12 +231,13 @@ public class CMLModelcheckerVisitor extends
 				question.getScriptContent().append(" "+s);
 			}
 		}
-		
+		*/
+		/* generate del biind facts
 		if(question.info.containsKey(Utilities.DEL_BBINDING)){
 			if(question.getVariables().size() != 0){
-				Set<String> varToDel = question.getVariables();
-				for(Iterator<String> var = varToDel.iterator(); var.hasNext();){
-					String s = var.next();
+				Set<SingleBind> varToDel = question.getVariables();
+				for(Iterator<SingleBind> var = varToDel.iterator(); var.hasNext();){
+					String s = var.next().getVariableName();
 					Binding b = question.getMaxBinding();
 					StringBuilder del = new StringBuilder("  del(");
 					del.append(question.getMaxBinding().toFormulaWithUnderscore());
@@ -268,31 +259,266 @@ public class CMLModelcheckerVisitor extends
 				}
 			}
 		}
+		*/
 		
 		generateLieInFacts(question);
 		
+		//pppp
+		//generate fetch facts
+		//generate del facts
+		//generate upd facts (if necessary)
 		
+		generateBindingFacts(question);
+		
+		generateChannelDefinitions(question);
 		
 		question.getScriptContent().append(
 				"  GivenProc(\"" + node.getName() + "\")\n");
 		question.getScriptContent().append("}");
 
 		
+		String content = question.getScriptContent().toString();
+		Binding maxBinding = question.getMaxBinding();
+		content = content.replaceAll(Utilities.MAX_BIND, maxBinding.toFormula());
+		StringBuilder newContent = new StringBuilder();
+		newContent.append(content);
+		question.setScriptContent(newContent);
+		
 		return question.getScriptContent();
 	}
+	
+	private void generateChannelDefinitions(CMLModelcheckerContext context) throws AnalysisException{
+		for (ChannelTypeDefinition channelDef : context.channelDefinitions) {
+			channelDef.chanDef.apply(this, context);
+			context.getScriptContent().append("\n");
+		}
+	}
+	
+	private void generateBindingFacts(CMLModelcheckerContext context){
+		//generate fetch facts
+		Binding maxBinding = context.getMaxBinding();
+		context.getScriptContent().append(maxBinding.generateAllFetchFacts(context.numberOfFetchFacts));
+		
+		//generate upd facts
+		
+		
+		//generate del facts
+	}
+	
+	private void generateChannelTypes(CMLModelcheckerContext context) throws AnalysisException{
+		LinkedList<ChannelTypeDefinition> channels = context.channelDefinitions;
+		LinkedList<String> createdChanTypes = new LinkedList<String>();
+		CMLModelcheckerContext auxctxt = new CMLModelcheckerContext();
+		for (ChannelTypeDefinition aChanTypeDef : channels) {
+			ATypeSingleDeclaration typeSingleDecl = aChanTypeDef.chanDef.getSingleType();
+			PType type = typeSingleDecl.getType();
+			
+			if(type instanceof AChannelType){
+				StringBuilder chanTypeBuilder = new StringBuilder();
+				PType realtype = ((AChannelType) type).getType();
+				
+				//if it is AChannelType (with internal type null) = non typed channel
+				if (realtype instanceof AChannelType){
+					if(((AChannelType) realtype).getType() == null){
+						//no channel type to create
+					}
+				}
+				//if it is AProductType
+				if(realtype instanceof AProductType){
+					auxctxt.getScriptContent().append("primitive ");
+					auxctxt.getScriptContent().append("ChanType" + auxctxt.CHANTYPE_COUNTER);
+					createdChanTypes.add("ChanType" + auxctxt.CHANTYPE_COUNTER);
+					auxctxt.getScriptContent().append(" ::= (");
+					realtype.apply(this, auxctxt);
+					auxctxt.getScriptContent().append(").\n");
+				}
+				//if it is ANamedInvariantType
+				if (realtype instanceof ANamedInvariantType){
+					auxctxt.getScriptContent().append("primitive ");
+					auxctxt.getScriptContent().append("ChanType" + auxctxt.CHANTYPE_COUNTER);
+					createdChanTypes.add("ChanType" + auxctxt.CHANTYPE_COUNTER);
+					auxctxt.getScriptContent().append(" ::= (");
+					realtype.apply(this, auxctxt);
+					auxctxt.getScriptContent().append(").\n");
+				}
+				//if it is AIntNumericBasicType
+				if (realtype instanceof AIntNumericBasicType){
+					//channel of int type are already manipulated 
+					/*
+					auxctxt.getScriptContent().append("primitive ");
+					auxctxt.getScriptContent().append("ChanType" + auxctxt.CHANTYPE_COUNTER);
+					createdChanTypes.add("ChanType" + auxctxt.CHANTYPE_COUNTER);
+					auxctxt.getScriptContent().append(" ::= (");
+					realtype.apply(this, auxctxt);
+					auxctxt.getScriptContent().append(").\n");
+					*/
+				}
+				
+				context.CHANTYPE_COUNTER++;
+			}
+		}
+		
+		if(createdChanTypes.size() == 0){
+			//nothing to do
+		}else if (createdChanTypes.size() == 1){ //do not use type union
+			//chan
+			String s = "//CHAN_TYPES";
+			String s2 = "/*UNION_CHAN_TYPES*/";
+			int aux = this.basicContent.indexOf(s);
+			this.basicContent.replace(aux, aux+s.length(), "");
+			this.basicContent.replace(aux, aux+1, auxctxt.getScriptContent().toString());
+			
+			int aux2 = this.basicContent.indexOf(s2);
+			this.basicContent.replace(aux2, aux2+s2.length(), "");
+			this.basicContent.replace(aux2, aux2+1, " + " + createdChanTypes.getFirst());
+		}
+		if(createdChanTypes.size() > 1){ //we have to use type union 
+				
+			String s = "//CHAN_TYPES";
+			String s2 = "/*UNION_CHAN_TYPES*/";
+			int aux = this.basicContent.indexOf(s);
+			StringBuilder str2 = new StringBuilder();
+			str2.append("ChannTypes ::= ");
+			while(!createdChanTypes.isEmpty()){
+				String currChanType = createdChanTypes.pollFirst();
+				str2.append(currChanType);
+				if(!createdChanTypes.isEmpty()){
+					str2.append(" + ");
+				}
+			}
+			str2.append(".\n");
+			auxctxt.getScriptContent().append(str2);
+			this.basicContent.replace(aux, aux+s.length(), "");
+			this.basicContent.replace(aux, aux+1, auxctxt.getScriptContent().toString() + "\n");
+	
+			int aux2 = this.basicContent.indexOf(s2);
+			this.basicContent.replace(aux2, aux2+s2.length(), "");
+			this.basicContent.replace(aux2, aux2 + 1, "+ ChannTypes.");
+
+		} 
+	}
+	
+	private void generateUserTypeDefinitions(CMLModelcheckerContext context) throws AnalysisException{
+		if(context.typeDefinitions.size() > 0){
+			//LinkedList<ATypeDefinition> t = (LinkedList<ATypeDefinition>) question.info.get(Utilities.TYPE_USER_DEFINITION);
+			LinkedList<UserTypeDefinition> types = context.typeDefinitions;
+			String s = "//USER_DEF_TYPES";
+			String s2 = "/*INCLUDE USER_DEF_TYPES*/";
+			int aux = this.basicContent.indexOf(s);
+			CMLModelcheckerContext auxCtxt = new CMLModelcheckerContext();
+			StringBuilder str2 = new StringBuilder();
+			while(!types.isEmpty()){
+				UserTypeDefinition type = types.pollFirst();
+				ATypeDefinition typeDef = type.typeDefinition;
+				//typeDef.apply(this, auxCtxt);
+				auxCtxt.getScriptContent().append("primitive ");
+				auxCtxt.getScriptContent().append(typeDef.getName().toString());
+				auxCtxt.getScriptContent().append(" ::= (");
+				//auxCtxt.getScriptContent().append(typeDef.getType().toString());
+				//ppppppppppppp
+				auxCtxt.getScriptContent().append("Natural");
+				auxCtxt.getScriptContent().append(").\n");
+				
+				str2.append(" + " + typeDef.getInvType().toString());
+			}
+			str2.append(" ");
+			//str2.append(".\n");
+			this.basicContent.replace(aux, aux+s.length(), "");
+			this.basicContent.replace(aux, aux+1, auxCtxt.getScriptContent().toString());
+			int aux2 = this.basicContent.indexOf(s2);
+			this.basicContent.replace(aux2, aux2+s2.length(), "");
+			this.basicContent.replace(aux2, aux2+1, str2.toString());
+		}
+	}
+	private void generateValueDefinitions(CMLModelcheckerContext context) throws AnalysisException{
+		LinkedList<UserDefinedValue> userValues = context.valueDefinitions;
+		for (UserDefinedValue userDefinedValue : userValues) {
+			AValueDefinition def = userDefinedValue.getValueDef();
+			StringBuilder userValueDefBuilder = new StringBuilder(); 
+			if(def.getExpression() instanceof AIntLiteralExp){
+				context.getScriptContent().append("primitive ");
+			} 
+			context.getScriptContent().append(def.getPattern().toString()+" ::= (");		
+			def.getType().apply(this, context);
+			context.getScriptContent().append(").\n");
+			if(def.getExpression() instanceof ATimesNumericBinaryExp){
+				context.getScriptContent().append(def.getPattern().toString());
+				//context.getScriptContent().append("(" + def.getPattern().toString().toLowerCase() + ") :- #, " + def.getPattern().toString().toLowerCase()+" = @");
+				context.getScriptContent().append("(" + def.getPattern().toString().toLowerCase() + ") :- #, " + def.getPattern().toString().toLowerCase()+" = @");
+				def.getExpression().apply(this, context);
+				context.getScriptContent().append(".\n");
+			}
+		}
+		
+	}
+	private void generateGuardDefinitions(CMLModelcheckerContext context) throws AnalysisException{
+		//for all guard conditions found in the specification
+		for (Condition condition : context.guards) {
+			CMLModelcheckerContext auxCtxt = new CMLModelcheckerContext();
+			condition.expression.apply(this,context);
+			
+			Binding maxBinding = context.getMaxBinding();
+			
+			//generating positive guards
+			String positiveGuardExp = context.positiveGuardExps.get(condition.expression);
+			StringBuilder positiveGuardBuilder = new StringBuilder();
+			//context.getScriptContent().append(condResult.toString());
+			if(positiveGuardExp != null){
+				positiveGuardBuilder.append("  guardDef(l," + condition.counter + "," + maxBinding.toFormulaWithState() + ")");
+				positiveGuardBuilder.append(" :- State(l," + maxBinding.toFormulaWithState() + "," +maxBinding.getProcName()+ ",condChoice(" + condition.counter + ",_,_))");				positiveGuardBuilder.append(",");
+				positiveGuardBuilder.append(positiveGuardExp);
+				positiveGuardBuilder.append(".\n");
+			}
+			
+			
+			//generating negative guards
+			String negativeGuardExp = context.negativeGuardExps.get(condition.expression);
+			StringBuilder negativeGuardBuilder = new StringBuilder();
+			//context.getScriptContent().append(condResult.toString());
+			if(negativeGuardExp != null){
+				negativeGuardBuilder.append("  guardNDef(l," + condition.counter + "," + maxBinding.toFormulaWithState() + ")");
+				negativeGuardBuilder.append(" :- State(l," + maxBinding.toFormulaWithState() + "," +maxBinding.getProcName()+ ",condChoice(" + condition.counter + ",_,_))");
+				negativeGuardBuilder.append(",");
+				negativeGuardBuilder.append(negativeGuardExp);
+				negativeGuardBuilder.append(".\n");
+			}
+			
+			context.getScriptContent().append(positiveGuardBuilder.toString());
+			context.getScriptContent().append(negativeGuardBuilder.toString());
+			/*
+			StringBuilder condResult = auxCtxt.getScriptContent();
+			int indexGuardNDefHash = condResult.indexOf("#");
+			if(indexGuardNDefHash != -1){
+				context.getScriptContent().append("  guardNDef(l,occ,b) :- State(l,b,_,condChoice(occ,_,_))");
+				condResult = condResult.replace(0,indexGuardNDefHash+1,"");
+				context.getScriptContent().append(condResult.toString());
+				context.getScriptContent().append(".");
+			}else{
+				context.getScriptContent().append("  guardDef(l,occ,b) :- State(l,b,_,condChoice(occ,_,_))");
+				context.getScriptContent().append(condResult.toString());
+				context.getScriptContent().append(".");
+			}
+			*/
+			//context.getScriptContent().append("\n");
+			
+		}
+	}
+	
 	private void generateIOCommDefs(CMLModelcheckerContext context){
 			//if(question.info.containsKey(Utilities.IOCOMM_DEFINITIONS_KEY)){
 			if(context.ioCommDefs.size() > 0){
 				Binding maximalBinding = context.getMaxBinding();
-				if(context.info.containsKey(Utilities.STATES_KEY)){
-					StringBuilder s = new StringBuilder(context.getScriptContent().toString());
-					s.replace(0, s.indexOf("nopar,"), "");
-					String ss = s.substring("nopar,".length(), s.indexOf(" :"));
-					StringBuilder io = new StringBuilder(context.info.get(Utilities.IOCOMM_DEFINITIONS_KEY).toString());
-					io.append(ss+".\n");
+				//if(context.info.containsKey(Utilities.STATES_KEY)){
+				//if(context.stateVariables.size() > 0){
+				//	StringBuilder s = new StringBuilder(context.getScriptContent().toString());
+				//	s.replace(0, s.indexOf("nopar,"), "");
+				//	String ss = s.substring("nopar,".length(), s.indexOf(" :"));
+					
+				//	StringBuilder io = new StringBuilder(context.info.get(Utilities.IOCOMM_DEFINITIONS_KEY).toString());
+				//	io.append(ss+".\n");
 					//context.getScriptContent().replace(indexIoCommDef, indexIoCommDef + "#IOCOMM_DEFS#".length(), io.toString());
-					context.getScriptContent().append(io.toString());
-				} else{
+					//context.getScriptContent().append(io.toString());
+				//} else{
 					StringBuilder ioCommDefs = new StringBuilder();
 					for (String ioCommDef : context.ioCommDefs) {
 						ioCommDef = ioCommDef.replaceAll(Utilities.MAX_BIND, maximalBinding.toFormula());
@@ -301,7 +527,7 @@ public class CMLModelcheckerVisitor extends
 					//question.getScriptContent().replace(indexIoCommDef, indexIoCommDef + "#IOCOMM_DEFS#".length(), question.info.get(Utilities.IOCOMM_DEFINITIONS_KEY).toString());
 					//context.getScriptContent().replace(indexIoCommDef, indexIoCommDef + "#IOCOMM_DEFS#".length(), ioCommDefs.toString());
 					context.getScriptContent().append(ioCommDefs.toString());
-				}
+				//}
 				
 			}
 		
@@ -354,7 +580,7 @@ public class CMLModelcheckerVisitor extends
 					LexNameToken nextNameToken = new LexNameToken(module,nextName,location);
 					CMLModelcheckerContext localCtxt = new CMLModelcheckerContext();
 					StringBuilder nextValue = stateDesignator.apply(this,localCtxt);
-					stateDesignator.apply(this,localCtxt).replace(nextValue.indexOf("("), nextValue.indexOf(")")+1, nextName);
+					nextValue.replace(nextValue.indexOf("(")+1, nextValue.indexOf(")"), nextName);
 					//we assume that only Int() are used here
 					Int newValue = new Int(0);
 					newValue.setS(nextName);
@@ -443,6 +669,10 @@ public class CMLModelcheckerVisitor extends
 			question.setStack.add(chanSet);
 		}
 		
+		if(mainAction instanceof AGeneralisedParallelismParallelAction){
+			PVarsetExpression chanSet = ((AGeneralisedParallelismParallelAction) mainAction).getChansetExpression();
+			question.setStack.add(chanSet);
+		}
 		// it applies to each definition of this action process
 		for (PDefinition definition : node.getDefinitionParagraphs()) {
 			 definition.apply(this, question);
@@ -486,14 +716,15 @@ public class CMLModelcheckerVisitor extends
 		//			index + "#AUXILIARY_PROCESSES#".length(), "");
 		//}
 		
-		if(question.info.containsKey(Utilities.VAR_DECLARATIONS_KEY)){
+		//if(question.info.containsKey(Utilities.VAR_DECLARATIONS_KEY)){
+		//	question.getScriptContent().append("  State(0,");
+		//	question.getScriptContent().append(question.getMaxBinding().toFormula());
+		//	question.getScriptContent().append(",np,pBody)  :- GivenProc(np), ProcDef(np,nopar,pBody).\n");
+		//}
+		//if(question.info.containsKey(Utilities.STATES_KEY)){ //this should change to look at the variable states in the context
+		if(question.stateVariables.size() > 0){
 			question.getScriptContent().append("  State(0,");
 			question.getScriptContent().append(question.getMaxBinding().toFormula());
-			question.getScriptContent().append(",np,pBody)  :- GivenProc(np), ProcDef(np,nopar,pBody).\n");
-		}
-		if(question.info.containsKey(Utilities.STATES_KEY)){
-			question.getScriptContent().append("  State(0,");
-			question.getScriptContent().append(question.getMaxBindingWithStates().toFormula());
 			question.getScriptContent().append(",np,pBody)  :- GivenProc(np), ProcDef(np,nopar,pBody).\n");
 		} else {
 			//putting the initial state to be generated
@@ -529,8 +760,11 @@ public class CMLModelcheckerVisitor extends
 		}
 		*/	
 
-		if(question.info.containsKey(Utilities.CONDITION_KEY)){
-			PExp condition = (PExp)question.info.get(Utilities.CONDITION_KEY);
+		//if(question.info.containsKey(Utilities.CONDITION_KEY)){
+		/*
+		for (PExp condition : question.guards) {
+		
+			//PExp condition = (PExp)question.info.get(Utilities.CONDITION_KEY);
 			CMLModelcheckerContext auxCtxt = new CMLModelcheckerContext();
 			condition.apply(this,auxCtxt);
 			StringBuilder condResult = auxCtxt.getScriptContent();
@@ -548,6 +782,7 @@ public class CMLModelcheckerVisitor extends
 			question.getScriptContent().append("\n");
 			
 		}
+		*/
 		
 		return question.getScriptContent();
 	}
@@ -784,17 +1019,17 @@ public class CMLModelcheckerVisitor extends
 		
 		//LinkedList<PDefinition> localDefinitions = (LinkedList<PDefinition>) question.info
 		//		.get(Utilities.LOCAL_DEFINITIONS_KEY);
-		CMLModelcheckerContext auxCtxt = new CMLModelcheckerContext();
+		//CMLModelcheckerContext auxCtxt = new CMLModelcheckerContext();
 		//for (PDefinition pDefinition : localDefinitions) {
 		//	pDefinition.apply(this, auxCtxt);
 		//}
-		int auxIndex = question.getScriptContent().indexOf(
-				"#AUXILIARY_PROCESSES#");
-		if (auxIndex != -1) {
-			question.getScriptContent().replace(auxIndex,
-					auxIndex + "#AUXILIARY_PROCESSES#".length(),
-					auxCtxt.getScriptContent().toString());
-		}
+		//int auxIndex = question.getScriptContent().indexOf(
+		//		"#AUXILIARY_PROCESSES#");
+		//if (auxIndex != -1) {
+		//	question.getScriptContent().replace(auxIndex,
+		//			auxIndex + "#AUXILIARY_PROCESSES#".length(),
+		//			auxCtxt.getScriptContent().toString());
+		//}
 
 		return question.getScriptContent();
 	}
@@ -863,6 +1098,23 @@ public class CMLModelcheckerVisitor extends
 		result = eu.compassresearch.core.analysis.modelchecker.graphBuilder.util.Utilities.extractConstructor(result);
 		question.getScriptContent().append(result);
 		question.getScriptContent().append(" + ");
+		localCtxt.reset();
+		result = node.getRight().apply(this, localCtxt).toString();
+		result = eu.compassresearch.core.analysis.modelchecker.graphBuilder.util.Utilities.extractConstructor(result);
+		question.getScriptContent().append(result);
+		
+		return question.getScriptContent();
+	}
+	
+	@Override
+	public StringBuilder caseASubtractNumericBinaryExp(
+			ASubtractNumericBinaryExp node, CMLModelcheckerContext question)
+			throws AnalysisException {
+		CMLModelcheckerContext localCtxt = new CMLModelcheckerContext(); 
+		String result = node.getLeft().apply(this, localCtxt).toString();
+		result = eu.compassresearch.core.analysis.modelchecker.graphBuilder.util.Utilities.extractConstructor(result);
+		question.getScriptContent().append(result);
+		question.getScriptContent().append(" - ");
 		localCtxt.reset();
 		result = node.getRight().apply(this, localCtxt).toString();
 		result = eu.compassresearch.core.analysis.modelchecker.graphBuilder.util.Utilities.extractConstructor(result);
@@ -1035,24 +1287,70 @@ public class CMLModelcheckerVisitor extends
 				
 			}
 			
-		}else if(parameters.size() == 1){
-			question.getScriptContent().append(
-					"Prefix(IOComm(" + question.IOCOMM_COUNTER + ",\"" + node.getIdentifier()+"."+parameters.getFirst().toString() + "\",");
+		}//else if(parameters.size() == 1){
+		else { //there are parameters
 			
-			question.getScriptContent().append("Int(" + parameters.getFirst().toString() + ")");
+			question.getScriptContent().append(
+					//"Prefix(IOComm(" + question.IOCOMM_COUNTER + ",\"" + node.getIdentifier()+"."+parameters.getFirst().toString() + "\",");
+					"Prefix(IOComm(" + question.IOCOMM_COUNTER + ",\"" + node.getIdentifier()+"."+ parameters.toString() + "\",");
+			String varName = parameters.getFirst().toString();
+			if(parameters.size() == 1){
+				//we assume that only integers are communicated on channels
+				question.getScriptContent().append("Int(" + varName + ")");
+			}
 			question.getScriptContent().append("),");
+			
 				
 				//it applies recursivelly in the internal structure
 				node.getAction().apply(this, question);
 
 				//question.getScriptContent().append("))");
 				question.getScriptContent().append(")");
-				
-				if(question.info.containsKey(Utilities.STATES_KEY)){
+			
+			//if this communication depends on a state variable. then we must add a code for fetching it in the bindings
+			SingleBind bind = question.getBindByVariable(varName);
+			if(bind != null){
+				question.getScriptContent().append(" :- ");
+				question.getScriptContent().append("fetch(" + "\"" + varName + "\"," + Utilities.MAX_BIND + "," + "Int(" + varName + ")");
+			}else{
+				//if this communication depends on a communicated variable (channel)
+				PCommunicationParameter param = parameters.getFirst();
+				if(param instanceof ASignalCommunicationParameter){
+					PExp exp = param.getExpression();
+					if(exp instanceof AVariableExp){
+						CMLModelcheckerContext copyCtxt = question.copy();
+						copyCtxt.scriptContent = new StringBuilder();
+						
+						//LinkedList<ChannelTypeDefinition> channelDefs = question.channelDefinitions;
+						ChannelTypeDefinition channDef = question.getChannelDefinition(node.getIdentifier().toString());
+						//question.getScriptContent().append(" :- ");
+						//copyCtxt.scriptContent.append(" :- ");
+						//aux.getFirst().apply(this, question);
+						if(channDef != null){
+							channDef.getChanDef().apply(this, copyCtxt);
+							//int i = question.getScriptContent().lastIndexOf("_");
+							int i = copyCtxt.getScriptContent().lastIndexOf("_");
+							//question.getScriptContent().replace(i, i+1, parameters.getFirst().toString());
+							copyCtxt.getScriptContent().replace(i, i+1, param.toString());
+							//question.getScriptContent().append(".\n");
+						
+							//puts the information in the main context to be recovered at the end
+							question.channelDependencies.add(copyCtxt.getScriptContent().toString());
+						}
+					}
+					
+				}
+			}
+				//if(question.info.containsKey(Utilities.STATES_KEY)){
+				//if(question.stateVariables.size() > 0){
 					//StringBuilder channelsStr = new StringBuilder(); 
-					ArrayList<StringBuilder> states = (ArrayList<StringBuilder>) question.info.get(Utilities.STATES_KEY);
-					question.getScriptContent().append(") :- "+states.get(0));
+					//ppppppppp
+				//	Set stateVariables = question.stateVariables;
+					//question.getScriptContent().append(")");
+					//ArrayList<StringBuilder> states = (ArrayList<StringBuilder>) question.info.get(Utilities.STATES_KEY);
+					//question.getScriptContent().append(") :- " + states.get(0));
 					//channelsStr.append(") :- "+states.get(0));
+					/*
 					for(int i = 1; i < states.size(); i++){
 						question.getScriptContent().append(",");
 						//channelsStr.append(",");
@@ -1060,8 +1358,11 @@ public class CMLModelcheckerVisitor extends
 						//channelsStr.append(states.get(i));
 					}
 					question.getScriptContent().append(".\n");
-					
-				} else if (question.info.containsKey(Utilities.CHANNEL_DEFINITIONS_KEY)){
+					*/
+				//} //else if (question.info.containsKey(Utilities.CHANNEL_DEFINITIONS_KEY)){
+				/*
+				 else if (question.info.containsKey(Utilities.CHANNEL_DEFINITIONS_KEY)){
+				 
 					PCommunicationParameter param = parameters.getFirst();
 					if(param instanceof ASignalCommunicationParameter){
 						PExp exp = param.getExpression();
@@ -1085,11 +1386,13 @@ public class CMLModelcheckerVisitor extends
 						
 					}
 				}
+				*/
 				
 				CMLModelcheckerContext aux = new CMLModelcheckerContext();
 				aux.getScriptContent().append("  IOCommDef(0," + question.IOCOMM_COUNTER + ",");
 				aux.getScriptContent().append("Int(" + parameters.getFirst().toString() + "),");
-				if(question.info.containsKey(Utilities.STATES_KEY)){
+				//if(question.info.containsKey(Utilities.STATES_KEY)){
+				if(question.stateVariables.size() > 0){
 					aux.getScriptContent().append(question.getMaxBindingWithStates().toFormulaWithState()+","+question.getMaxBindingWithStates().toFormulaWithState());
 					aux.getScriptContent().append(") :- State(0,_,np,");					
 					
@@ -1097,7 +1400,7 @@ public class CMLModelcheckerVisitor extends
 					aux.getScriptContent().append(Utilities.MAX_BIND + "," + Utilities.MAX_BIND + ") :- State(0,_,_,");
 					
 					//aux.getScriptContent().append("Prefix(IOComm(0,\"" + node.getIdentifier()+"."+parameters.getFirst().toString() + "\",");
-					aux.getScriptContent().append("Prefix(IOComm("+ question.IOCOMM_COUNTER +",\"" + node.getIdentifier()+"."+parameters.getFirst().toString() + "\",");
+					aux.getScriptContent().append("Prefix(IOComm("+ question.IOCOMM_COUNTER +",\"" + node.getIdentifier()+"."+parameters.toString() + "\",");
 					aux.getScriptContent().append("Int(" + parameters.getFirst().toString() + ")");
 					aux.getScriptContent().append("),");
 					node.getAction().apply(this, aux);
@@ -1127,22 +1430,27 @@ public class CMLModelcheckerVisitor extends
 		
 		StringBuilder callStr = new StringBuilder();
 		ArrayList<AActionDefinition> localActions = question.localActions;
+		boolean callResolved = false;
 		if(localActions != null){ //if there are auxiliary actions
 			for (AActionDefinition localAction : localActions) {
 				if(localAction.getName().toString().equals(node.getName().toString())){
+					callResolved = true;
 					callStr.append("proc(\"" + localAction.getName().toString() + "\",");
 					if(args.size()==0){
 						callStr.append("nopar");
 					}
 					if(args.size()==1){
-						CMLModelcheckerContext newCtxt = new CMLModelcheckerContext(); 
-						String argStr = args.getFirst().apply(this, newCtxt).toString();
-						callStr.append(argStr);
+						CMLModelcheckerContext newCtxt = new CMLModelcheckerContext();
+						newCtxt.getScriptContent().append("SPar(");
+						args.getFirst().apply(this, newCtxt);
+						newCtxt.getScriptContent().append(")");
+						callStr.append(newCtxt.getScriptContent().toString());
 					}
 					callStr.append(")");
 				}
 			}
-		}else {
+		}
+		if (!callResolved) {
 			for (SCmlOperationDefinition pDefinition : question.operations) {
 				if(pDefinition.getName().toString().equals(node.getName().toString())){
 					callStr.append("operation(\"" + pDefinition.getName().toString() + "\",");
@@ -1157,8 +1465,6 @@ public class CMLModelcheckerVisitor extends
 					callStr.append(")");
 				}
 			}
-			question.getScriptContent().append(callStr);
-			
 		}
 		
 		question.getScriptContent().append(callStr);
@@ -1169,21 +1475,21 @@ public class CMLModelcheckerVisitor extends
 				//LinkedList<PDefinition> localDefinitions = (LinkedList<PDefinition>) question.info
 				//		.get(Utilities.LOCAL_DEFINITIONS_KEY);
 
-				CMLModelcheckerContext auxCtxt = new CMLModelcheckerContext();
-				auxCtxt.copyChannelInfo(question);
+				//CMLModelcheckerContext auxCtxt = new CMLModelcheckerContext();
+				//auxCtxt.copyChannelInfo(question);
 				//if (localActions != null) {
 				//	for (PDefinition pDefinition : localActions) {
 				//		pDefinition.apply(this, auxCtxt);
 				//	}
 				//}
-				question.copyIOCommDefInfo(auxCtxt);
-				int auxIndex = question.getScriptContent().indexOf(
-						"#AUXILIARY_PROCESSES#");
-				if (auxIndex != -1) {
-					question.getScriptContent().replace(auxIndex,
-							auxIndex + "#AUXILIARY_PROCESSES#".length(),
-							auxCtxt.getScriptContent().toString());
-				}
+				//question.copyIOCommDefInfo(auxCtxt);
+				//int auxIndex = question.getScriptContent().indexOf(
+				//		"#AUXILIARY_PROCESSES#");
+				//if (auxIndex != -1) {
+				//	question.getScriptContent().replace(auxIndex,
+				//			auxIndex + "#AUXILIARY_PROCESSES#".length(),
+				//			auxCtxt.getScriptContent().toString());
+				//}
 				//if(question.info.containsKey(Utilities.IOCOMM_DEFINITIONS_KEY)){
 				//	question.getScriptContent().append(question.info.get(Utilities.IOCOMM_DEFINITIONS_KEY));
 				//}
@@ -1221,7 +1527,12 @@ public class CMLModelcheckerVisitor extends
 		//question.getScriptContent().append("Channel(0,\"");
 		//node.getChannelNameDeclarations().getFirst().apply(this, question);
 		//question.getScriptContent().append(")");
-		question.info.put(Utilities.CHANNEL_DEFINITIONS_KEY, node.getChannelNameDeclarations());		
+		for (AChannelNameDefinition chanDef : node.getChannelNameDeclarations()) {
+			ChannelTypeDefinition newChanTypeDef = new ChannelTypeDefinition(chanDef);
+			question.channelDefinitions.add(newChanTypeDef);
+		}
+		
+		//question.info.put(Utilities.CHANNEL_DEFINITIONS_KEY, node.getChannelNameDeclarations());		
 		
 		return question.getScriptContent();
 	}
@@ -1282,10 +1593,13 @@ public class CMLModelcheckerVisitor extends
 		question.getScriptContent().append("condChoice(");
 		// it writes the condition as an integer and puts the expression
 		//to be evaluated in the context
-		question.info.put(Utilities.CONDITION_KEY, node.getExpression());
+		question.getScriptContent().append(CMLModelcheckerContext.GUARD_COUNTER + ",");
+		//question.info.put(Utilities.CONDITION_KEY, node.getExpression());
+		Condition newCondition = new Condition(node.getExpression(),CMLModelcheckerContext.GUARD_COUNTER++);
+		question.guards.add(newCondition);
 		//node.getExpression().apply(this, question);
 		//question.getScriptContent().append(Utilities.OCCUR_COUNT++ + ",");
-		question.getScriptContent().append(CMLModelcheckerContext.GUARD_COUNTER++ + ",");
+		//question.getScriptContent().append(CMLModelcheckerContext.GUARD_COUNTER++ + ",");
 		// it writes the behaviour in the if-true branch
 		node.getAction().apply(this, question);
 		question.getScriptContent().append(",Stop)"); // the else branch of a
@@ -1321,6 +1635,7 @@ public class CMLModelcheckerVisitor extends
 	public StringBuilder caseAChannelNameDefinition(
 			AChannelNameDefinition node, CMLModelcheckerContext question)
 			throws AnalysisException {
+		
 		if( ((AChannelType)node.getSingleType().getType()).getType() != null){
 			question.getScriptContent().append("Channel(0,\"");
 			String type = node.getSingleType().getType().toString();
@@ -1342,7 +1657,7 @@ public class CMLModelcheckerVisitor extends
 
 		// Adding auxiliary definitions
 		// LinkedList<PDefinition> localDefinitions = (LinkedList<PDefinition>)
-		// question.info.get(node);
+		// question.info.get(node); ppppppppppppppp mudar para pegar de localActions
 		LinkedList<PDefinition> localDefinitions = (LinkedList<PDefinition>) question.info
 				.get(Utilities.LOCAL_DEFINITIONS_KEY);
 
@@ -1375,32 +1690,36 @@ public class CMLModelcheckerVisitor extends
 		
 		PExp left = node.getLeft();
 		PExp right = node.getRight();
-		String leftValue = ((AIntLiteralExp) left).getValue().toString();
-		String rightValue = ((AIntLiteralExp) right).getValue().toString();
-		if(ExpressionEvaluator.evaluate(node)){
-			question.getScriptContent().append("," + leftValue + " = " + rightValue);
-		}else{
-			question.getScriptContent().append("GUARDNDEF#,"+leftValue + " != " + rightValue);
-		}
-		/*
+		String leftValue = "";
+		String rightValue = "";
 		if(left instanceof AIntLiteralExp){
+			leftValue = ((AIntLiteralExp) left).getValue().toString();
 			if(right instanceof AIntLiteralExp){
-				String leftValue = ((AIntLiteralExp) left).getValue().toString();
-				String rightValue = ((AIntLiteralExp) right).getValue().toString();
-				if(!leftValue.equals(rightValue)){
-					question.getScriptContent().append("GUARDNDEF#"+leftValue + " != " + rightValue);
+				rightValue = ((AIntLiteralExp) right).getValue().toString();
+				if(ExpressionEvaluator.evaluate(node)){
+					//question.getScriptContent().append(leftValue + " = " + rightValue);
+				   question.positiveGuardExps.put(node, leftValue + " = " + rightValue);
 				}else{
-					question.getScriptContent().append(leftValue + " = " + rightValue);
+					//question.getScriptContent().append("GUARDNDEF#" + leftValue + " != " + rightValue);
+					question.negativeGuardExps.put(node, leftValue + " != " + rightValue);
 				}
+			}else if(right instanceof AVariableExp){
+				rightValue = ((AVariableExp) right).toString();
+				question.positiveGuardExps.put(node, leftValue + " = " + rightValue);
+				question.negativeGuardExps.put(node, leftValue + " != " + rightValue);
 			}
+		} else if (left instanceof AVariableExp){
+			leftValue = ((AVariableExp) left).toString();
+			if(right instanceof AIntLiteralExp){
+				rightValue = ((AIntLiteralExp) right).getValue().toString();
+			}else if(right instanceof AVariableExp){
+				rightValue = ((AVariableExp) right).toString();
+			}
+			question.positiveGuardExps.put(node, leftValue + " = " + rightValue);
+			question.negativeGuardExps.put(node, leftValue + " != " + rightValue);
 		}
-		*/
-		//question.getScriptContent().append("EQ(");
-		//node.getLeft().apply(this, question);
-		//question.getScriptContent().append(",");
-		//node.getRight().apply(this, question);
-		//question.getScriptContent().append(")");
-
+		
+		
 		return question.getScriptContent();
 	}
 
@@ -1409,28 +1728,38 @@ public class CMLModelcheckerVisitor extends
 	@Override
 	public StringBuilder caseANotEqualBinaryExp(ANotEqualBinaryExp node,
 			CMLModelcheckerContext question) throws AnalysisException {
+
 		PExp left = node.getLeft();
 		PExp right = node.getRight();
-		String leftValue = ((AIntLiteralExp) left).getValue().toString();
-		String rightValue = ((AIntLiteralExp) right).getValue().toString();
-		if(ExpressionEvaluator.evaluate(node)){
-			question.getScriptContent().append("," + leftValue + " != " + rightValue);
-		}else{
-			question.getScriptContent().append("GUARDNDEF#,"+leftValue + " = " + rightValue);
-		}
-		/*
+		String leftValue = "";
+		String rightValue = "";
 		if(left instanceof AIntLiteralExp){
+			leftValue = ((AIntLiteralExp) left).getValue().toString();
 			if(right instanceof AIntLiteralExp){
-				String leftValue = ((AIntLiteralExp) left).getValue().toString();
-				String rightValue = ((AIntLiteralExp) right).getValue().toString();
-				if(leftValue.equals(rightValue)){
-					question.getScriptContent().append("GUARDNDEF#"+leftValue + " = " + rightValue);
+				rightValue = ((AIntLiteralExp) right).getValue().toString();
+				if(ExpressionEvaluator.evaluate(node)){
+					//question.getScriptContent().append(leftValue + " = " + rightValue);
+				   question.positiveGuardExps.put(node, leftValue + " != " + rightValue);
 				}else{
-					question.getScriptContent().append(leftValue + " != " + rightValue);
+					//question.getScriptContent().append("GUARDNDEF#" + leftValue + " != " + rightValue);
+					question.negativeGuardExps.put(node, leftValue + " = " + rightValue);
 				}
+			}else if(right instanceof AVariableExp){
+				rightValue = ((AVariableExp) right).toString();
+				question.positiveGuardExps.put(node, leftValue + " != " + rightValue);
+				question.negativeGuardExps.put(node, leftValue + " = " + rightValue);
 			}
+		} else if (left instanceof AVariableExp){
+			leftValue = ((AVariableExp) left).toString();
+			if(right instanceof AIntLiteralExp){
+				rightValue = ((AIntLiteralExp) right).getValue().toString();
+			}else if(right instanceof AVariableExp){
+				rightValue = ((AVariableExp) right).toString();
+			}
+			question.positiveGuardExps.put(node, leftValue + " != " + rightValue);
+			question.negativeGuardExps.put(node, leftValue + " = " + rightValue);
 		}
-		*/
+
 		return question.getScriptContent();
 	}
 
@@ -1438,28 +1767,39 @@ public class CMLModelcheckerVisitor extends
 	public StringBuilder caseAGreaterNumericBinaryExp(
 			AGreaterNumericBinaryExp node, CMLModelcheckerContext question)
 			throws AnalysisException {
+
 		PExp left = node.getLeft();
 		PExp right = node.getRight();
-		String leftValue = ((AIntLiteralExp) left).getValue().toString();
-		String rightValue = ((AIntLiteralExp) right).getValue().toString();
-		if(ExpressionEvaluator.evaluate(node)){
-			question.getScriptContent().append("," + leftValue + " > " + rightValue);
-		}else{
-			question.getScriptContent().append("GUARDNDEF#,"+leftValue + " =< " + rightValue);
-		}
-		/*
+		String leftValue = "";
+		String rightValue = "";
 		if(left instanceof AIntLiteralExp){
+			leftValue = ((AIntLiteralExp) left).getValue().toString();
 			if(right instanceof AIntLiteralExp){
-				Integer leftValue = new Integer(((AIntLiteralExp) left).getValue().toString());
-				Integer rightValue = new Integer(((AIntLiteralExp) right).getValue().toString());
-				if(!(leftValue > rightValue)){
-					question.getScriptContent().append("GUARDNDEF#"+leftValue + " =< " + rightValue);
+				rightValue = ((AIntLiteralExp) right).getValue().toString();
+				if(ExpressionEvaluator.evaluate(node)){
+					//question.getScriptContent().append(leftValue + " = " + rightValue);
+				   question.positiveGuardExps.put(node, leftValue + " > " + rightValue);
 				}else{
-					question.getScriptContent().append(leftValue + " > " + rightValue);
+					//question.getScriptContent().append("GUARDNDEF#" + leftValue + " != " + rightValue);
+					question.negativeGuardExps.put(node, leftValue + " <= " + rightValue);
 				}
+			}else if(right instanceof AVariableExp){
+				rightValue = ((AVariableExp) right).toString();
+				question.positiveGuardExps.put(node, leftValue + " > " + rightValue);
+				question.negativeGuardExps.put(node, leftValue + " <= " + rightValue);
 			}
+		} else if (left instanceof AVariableExp){
+			leftValue = ((AVariableExp) left).toString();
+			if(right instanceof AIntLiteralExp){
+				rightValue = ((AIntLiteralExp) right).getValue().toString();
+			}else if(right instanceof AVariableExp){
+				rightValue = ((AVariableExp) right).toString();
+			}
+			question.positiveGuardExps.put(node, leftValue + " > " + rightValue);
+			question.negativeGuardExps.put(node, leftValue + " <= " + rightValue);
 		}
-		*/
+		
+		
 		return question.getScriptContent();
 	}
 
@@ -1469,26 +1809,36 @@ public class CMLModelcheckerVisitor extends
 			throws AnalysisException {
 		PExp left = node.getLeft();
 		PExp right = node.getRight();
-		String leftValue = ((AIntLiteralExp) left).getValue().toString();
-		String rightValue = ((AIntLiteralExp) right).getValue().toString();
-		if(ExpressionEvaluator.evaluate(node)){
-			question.getScriptContent().append("," + leftValue + " >= " + rightValue);
-		}else{
-			question.getScriptContent().append("GUARDNDEF#,"+leftValue + " < " + rightValue);
-		}
-		/*
+		String leftValue = "";
+		String rightValue = "";
 		if(left instanceof AIntLiteralExp){
+			leftValue = ((AIntLiteralExp) left).getValue().toString();
 			if(right instanceof AIntLiteralExp){
-				Integer leftValue = new Integer(((AIntLiteralExp) left).getValue().toString());
-				Integer rightValue = new Integer(((AIntLiteralExp) right).getValue().toString());
-				if(!(leftValue >= rightValue)){
-					question.getScriptContent().append("GUARDNDEF#"+leftValue + " < " + rightValue);
+				rightValue = ((AIntLiteralExp) right).getValue().toString();
+				if(ExpressionEvaluator.evaluate(node)){
+					//question.getScriptContent().append(leftValue + " = " + rightValue);
+				   question.positiveGuardExps.put(node, leftValue + " >= " + rightValue);
 				}else{
-					question.getScriptContent().append(leftValue + " >= " + rightValue);
+					//question.getScriptContent().append("GUARDNDEF#" + leftValue + " != " + rightValue);
+					question.negativeGuardExps.put(node, leftValue + " < " + rightValue);
 				}
+			}else if(right instanceof AVariableExp){
+				rightValue = ((AVariableExp) right).toString();
+				question.positiveGuardExps.put(node, leftValue + " >= " + rightValue);
+				question.negativeGuardExps.put(node, leftValue + " < " + rightValue);
 			}
+		} else if (left instanceof AVariableExp){
+			leftValue = ((AVariableExp) left).toString();
+			if(right instanceof AIntLiteralExp){
+				rightValue = ((AIntLiteralExp) right).getValue().toString();
+			}else if(right instanceof AVariableExp){
+				rightValue = ((AVariableExp) right).toString();
+			}
+			question.positiveGuardExps.put(node, leftValue + " >= " + rightValue);
+			question.negativeGuardExps.put(node, leftValue + " < " + rightValue);
 		}
-		*/
+
+		
 		return question.getScriptContent();
 	}
 
@@ -1496,56 +1846,78 @@ public class CMLModelcheckerVisitor extends
 	public StringBuilder caseALessEqualNumericBinaryExp(
 			ALessEqualNumericBinaryExp node, CMLModelcheckerContext question)
 			throws AnalysisException {
+		
 		PExp left = node.getLeft();
 		PExp right = node.getRight();
-		Integer leftValue = new Integer(((AIntLiteralExp) left).getValue().toString());
-		Integer rightValue = new Integer(((AIntLiteralExp) right).getValue().toString());
-		if(ExpressionEvaluator.evaluate(node)){
-			question.getScriptContent().append("," + leftValue + " <= " + rightValue);
-		}else{
-			question.getScriptContent().append("GUARDNDEF#,"+leftValue + " > " + rightValue);
-		}
-		/*
+		String leftValue = "";
+		String rightValue = "";
 		if(left instanceof AIntLiteralExp){
+			leftValue = ((AIntLiteralExp) left).getValue().toString();
 			if(right instanceof AIntLiteralExp){
-				Integer leftValue = new Integer(((AIntLiteralExp) left).getValue().toString());
-				Integer rightValue = new Integer(((AIntLiteralExp) right).getValue().toString());
-				if(!(leftValue <= rightValue)){
-					question.getScriptContent().append("GUARDNDEF#"+leftValue + " > " + rightValue);
+				rightValue = ((AIntLiteralExp) right).getValue().toString();
+				if(ExpressionEvaluator.evaluate(node)){
+					
+				   question.positiveGuardExps.put(node, leftValue + " <= " + rightValue);
 				}else{
-					question.getScriptContent().append(leftValue + " <= " + rightValue);
+					
+					question.negativeGuardExps.put(node, leftValue + " > " + rightValue);
 				}
+			}else if(right instanceof AVariableExp){
+				rightValue = ((AVariableExp) right).toString();
+				question.positiveGuardExps.put(node, leftValue + " <= " + rightValue);
+				question.negativeGuardExps.put(node, leftValue + " > " + rightValue);
 			}
+		} else if (left instanceof AVariableExp){
+			leftValue = ((AVariableExp) left).toString();
+			if(right instanceof AIntLiteralExp){
+				rightValue = ((AIntLiteralExp) right).getValue().toString();
+			}else if(right instanceof AVariableExp){
+				rightValue = ((AVariableExp) right).toString();
+			}
+			question.positiveGuardExps.put(node, leftValue + " <= " + rightValue);
+			question.negativeGuardExps.put(node, leftValue + " > " + rightValue);
 		}
-		*/
+
+		
 		return question.getScriptContent();
 	}
 
 	@Override
 	public StringBuilder caseALessNumericBinaryExp(ALessNumericBinaryExp node,
 			CMLModelcheckerContext question) throws AnalysisException {
+		
 		PExp left = node.getLeft();
 		PExp right = node.getRight();
-		Integer leftValue = new Integer(((AIntLiteralExp) left).getValue().toString());
-		Integer rightValue = new Integer(((AIntLiteralExp) right).getValue().toString());
-		if(ExpressionEvaluator.evaluate(node)){
-			question.getScriptContent().append("," + leftValue + " < " + rightValue);
-		}else{
-			question.getScriptContent().append("GUARDNDEF#,"+leftValue + " >= " + rightValue);
-		}
-		/*
+		String leftValue = "";
+		String rightValue = "";
 		if(left instanceof AIntLiteralExp){
+			leftValue = ((AIntLiteralExp) left).getValue().toString();
 			if(right instanceof AIntLiteralExp){
-				Integer leftValue = new Integer(((AIntLiteralExp) left).getValue().toString());
-				Integer rightValue = new Integer(((AIntLiteralExp) right).getValue().toString());
-				if(!(leftValue < rightValue)){
-					question.getScriptContent().append("GUARDNDEF#"+leftValue + " >= " + rightValue);
+				rightValue = ((AIntLiteralExp) right).getValue().toString();
+				if(ExpressionEvaluator.evaluate(node)){
+					//question.getScriptContent().append(leftValue + " = " + rightValue);
+				   question.positiveGuardExps.put(node, leftValue + " < " + rightValue);
 				}else{
-					question.getScriptContent().append(leftValue + " < " + rightValue);
+					//question.getScriptContent().append("GUARDNDEF#" + leftValue + " != " + rightValue);
+					question.negativeGuardExps.put(node, leftValue + " >= " + rightValue);
 				}
+			}else if(right instanceof AVariableExp){
+				rightValue = ((AVariableExp) right).toString();
+				question.positiveGuardExps.put(node, leftValue + " < " + rightValue);
+				question.negativeGuardExps.put(node, leftValue + " >= " + rightValue);
 			}
+		} else if (left instanceof AVariableExp){
+			leftValue = ((AVariableExp) left).toString();
+			if(right instanceof AIntLiteralExp){
+				rightValue = ((AIntLiteralExp) right).getValue().toString();
+			}else if(right instanceof AVariableExp){
+				rightValue = ((AVariableExp) right).toString();
+			}
+			question.positiveGuardExps.put(node, leftValue + " < " + rightValue);
+			question.negativeGuardExps.put(node, leftValue + " >= " + rightValue);
 		}
-		*/
+
+		
 		return question.getScriptContent();
 	}
 	
@@ -1659,18 +2031,24 @@ public class CMLModelcheckerVisitor extends
 	@Override
 	public StringBuilder caseAValuesDefinition(AValuesDefinition node,
 			CMLModelcheckerContext question) throws AnalysisException {
-		question.info.put(Utilities.VALUE_DEFINITIONS_KEY, node.getValueDefinitions());
-		/*List<PDefinition> values = node.getValueDefinitions();
-		for(int i = 0; i < values.size(); i++){
-			values.get(i).apply(this, question);
-		}*/
+		//question.info.put(Utilities.VALUE_DEFINITIONS_KEY, node.getValueDefinitions());
+		for (PDefinition valueDef : node.getValueDefinitions()) {
+			valueDef.apply(this, question);
+		}
+		
 		return question.getScriptContent();
 	}
 	
 	@Override
 	public StringBuilder caseAValueDefinition(AValueDefinition node,
 			CMLModelcheckerContext question) throws AnalysisException {
+		
+		question.valueDefinitions.add(new UserDefinedValue(node));
+		/* lets put the information in the context to be processed as bellow in the partial 
+		 * model construction.
+		 
 		if(node.getExpression() instanceof AIntLiteralExp){
+		 
 			question.getScriptContent().append("  primitive ");
 		} else{
 			question.getScriptContent().append("  ");
@@ -1683,7 +2061,7 @@ public class CMLModelcheckerVisitor extends
 			node.getExpression().apply(this, question);
 			question.getScriptContent().append(".\n");
 		}
-		
+		*/
 		return question.getScriptContent();
 	}
 	
@@ -1710,15 +2088,23 @@ public class CMLModelcheckerVisitor extends
 	@Override
 	public StringBuilder caseATypesDefinition(ATypesDefinition node,
 			CMLModelcheckerContext question) throws AnalysisException {
-		question.info.put(Utilities.TYPE_USER_DEFINITION, node.getTypes());
+		
+		for (ATypeDefinition typeDef : node.getTypes()) {
+			typeDef.apply(this, question);
+		}
+		//question.info.put(Utilities.TYPE_USER_DEFINITION, node.getTypes());
+		
 		return question.getScriptContent();
 	}
 	
 	@Override
 	public StringBuilder caseATypeDefinition(ATypeDefinition node,
 			CMLModelcheckerContext question) throws AnalysisException {
-		node.getInvType().apply(this, question);
-		question.getScriptContent().append(".\n");
+		
+		question.typeDefinitions.add(new UserTypeDefinition(node));
+		//node.getInvType().apply(this, question);
+		//question.getScriptContent().append(".\n");
+		
 		return question.getScriptContent();
 	}
 
@@ -1736,8 +2122,17 @@ public class CMLModelcheckerVisitor extends
 		question.getScriptContent().append("var(\""+node.getName().toString()+"\",\"");
 		node.getType().apply(this, question);
 		question.getScriptContent().append("\",");
-		question.updateVariables(node.getName().toString());
-		question.info.put(Utilities.VAR_DECLARATIONS_KEY, "add");
+		//question.updateVariables(node.getName().toString());
+		//question.info.put(Utilities.VAR_DECLARATIONS_KEY, "add");
+		//puts the local variable in the bindings
+		String varName = node.getName().toString();
+		//Type varValue = new UndefinedValue();
+		Int varValue = new Int(0);
+		varValue.setS(varName);
+		SingleBind newBind = new SingleBind(varName,varValue);
+		question.stateVariables.add(newBind);
+
+		//ppppp
 		question.info.put(Utilities.DEL_BBINDING, "del");
 		return question.getScriptContent();
 	}
@@ -1745,26 +2140,72 @@ public class CMLModelcheckerVisitor extends
 	@Override
 	public StringBuilder caseAIntNumericBasicType(AIntNumericBasicType node,
 			CMLModelcheckerContext question) throws AnalysisException {
-		question.getScriptContent().append("int");
+		
+		//question.getScriptContent().append("int");
+		question.getScriptContent().append("Natural");
+		
 		return question.getScriptContent();
 	}
+	
 	
 	@Override
 	public StringBuilder caseANamedInvariantType(ANamedInvariantType node,
 			CMLModelcheckerContext question) throws AnalysisException {
-		question.getScriptContent().append("primitive ");
+		
+		//question.getScriptContent().append("primitive ");
 		question.getScriptContent().append(node.getName());
-		question.getScriptContent().append("  ::= (");
-		node.getType().apply(this, question);
-		question.getScriptContent().append(")");
+		//question.getScriptContent().append("  ::= (");
+		//node.getType().apply(this, question);
+		//question.getScriptContent().append(")");
 		return question.getScriptContent();
 	}
 
+	
+	
+	@Override
+	public StringBuilder caseAChannelType(AChannelType node,
+			CMLModelcheckerContext question) throws AnalysisException {
+		if(node.getType() != null){
+			node.getType().apply(this, question);
+		}
+			
+		return question.getScriptContent();
+	}
+	
+	
+	
+	@Override
+	public StringBuilder caseAProductType(AProductType node,
+			CMLModelcheckerContext question) throws AnalysisException {
+		
+		LinkedList<PType> types = new LinkedList<PType>(node.getTypes());
+		do{
+			PType auxType = types.pollFirst();
+			question.getScriptContent().append(auxType.toString());
+			if(!types.isEmpty()){
+				question.getScriptContent().append(",");
+			}
+		}while(!types.isEmpty());
+		
+		
+		return question.getScriptContent();
+	}
 	@Override
 	public StringBuilder caseAStateDefinition(AStateDefinition node,
 			CMLModelcheckerContext question) throws AnalysisException {
 		CMLModelcheckerContext aux = new CMLModelcheckerContext();
-		AAssignmentDefinition a = (AAssignmentDefinition) node.getStateDefs().getFirst();
+		
+		while(!node.getStateDefs().isEmpty()){
+			PDefinition currDef = node.getStateDefs().pollFirst();
+			if (currDef instanceof AAssignmentDefinition){
+				String varName = currDef.getName().toString();
+				Type value = Utilities.createValue(((AAssignmentDefinition) currDef).getExpression());
+				SingleBind newBind = new SingleBind(varName,value);
+				question.stateVariables.add(newBind);
+			}
+			//SingleBind newBind = new SingleBind(node);
+		}
+		/*
 		a.getExpression().apply(this, aux);
 		aux.getScriptContent().replace(aux.getScriptContent().indexOf("(")+1, aux.getScriptContent().indexOf(")"), node.getStateDefs().getFirst().getName().toString());
 		
@@ -1775,11 +2216,14 @@ public class CMLModelcheckerVisitor extends
 		s.append(")");
 		
 		question.putStates(Utilities.STATES_KEY, s);
-		question.updateStates(node.getStateDefs().getFirst().getName().toString());
+		*/
+		//question.updateStates(node.getStateDefs().getFirst().getName().toString());
+		//pppp
 		question.info.put(Utilities.DEL_BBINDING, "del");
 		
 		return question.getScriptContent();
 	}
+	
 	
 	public String[] generateFormulaCodeForAll() throws IOException,
 			AnalysisException {
@@ -1792,19 +2236,19 @@ public class CMLModelcheckerVisitor extends
 		}
 
 		for (PSource source : sources) {
-			CMLModelcheckerContext content = new CMLModelcheckerContext();
+			CMLModelcheckerContext context = new CMLModelcheckerContext();
 			//PPPPPPP
-			//content.getScriptContent().append(FormulaIntegrationUtilities.readScriptFromFile(FormulaIntegrationUtilities.BASIC_FORMULA_SCRIPT));
+			this.basicContent = FormulaIntegrationUtilities.readScriptFromFile(FormulaIntegrationUtilities.BASIC_FORMULA_SCRIPT);
 			
 			// content.getScriptContent().append(basicContent.toString());
 			for (PDefinition paragraph : source.getParagraphs()) {
 				try {
-					paragraph.apply(this, content);
+					paragraph.apply(this, context);
 				} catch (Exception e) {
 					System.out.println("Error: " + e.getMessage());
 				}
 			}
-			codes[sources.indexOf(source)] = content.getScriptContent()
+			codes[sources.indexOf(source)] = context.getScriptContent()
 					.toString();
 			// it saves the current generated formula file
 			// String formulaFileName =
@@ -1822,11 +2266,11 @@ public class CMLModelcheckerVisitor extends
 		//adds the basic content (semantics embedding) to the generated script
 		
 		//content.getScriptContent().append(FormulaIntegrationUtilities.readScriptFromFile(FormulaIntegrationUtilities.BASIC_FORMULA_SCRIPT));
-		content.getScriptContent().append(basicContent);
+		//content.getScriptContent().append(basicContent); ppppppppppppppp
 		CMLModelcheckerVisitor mcVisitor = new CMLModelcheckerVisitor();
 		mcVisitor.setPropertyToCheck(propertyToCheck);
-		
-		// content.getScriptContent().append(basicContent.toString());
+		mcVisitor.basicContent.append(basicContent);
+		content.getScriptContent().append(mcVisitor.basicContent);
 		for (PDefinition paragraph : definitions) {
 			try {
 				paragraph.apply(mcVisitor, content);
@@ -1846,7 +2290,14 @@ public class CMLModelcheckerVisitor extends
 		//String cml_example = "src/test/resources/replicated-externalchoice.cml";
 		//String cml_example = "src/test/resources/replicated-generalised-parallelism.cml";
 		//String cml_example = "src/test/resources/action-seq-comp2.cml";
-		String cml_example = "src/test/resources/action-vardecl.cml";
+		//String cml_example = "src/test/resources/action-vardecl.cml";
+		//String cml_example = "src/test/resources/action-vardecl2.cml";
+		String cml_example = "src/test/resources/action-reference-parametrised.cml";
+		//String cml_example = "src/test/resources/action-guard-stateVar.cml";
+		//String cml_example = "src/test/resources/action-guard.cml";
+		//String cml_example = "src/test/resources/minimondex.cml";
+		//String cml_example = "src/test/resources/replicated-seqcomp.cml";
+		//String cml_example = "src/test/resources/Dphils.cml";
 		System.out.println("Testing on " + cml_example);
 		// List<PSource> sources = new LinkedList<PSource>();
 		PSource source = Utilities.makeSourceFromFile(cml_example);

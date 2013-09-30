@@ -77,6 +77,8 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 			{
 				// In run mode the debugger should not be enabled
 				DebugPlugin.getDefault().getBreakpointManager().setEnabled(false);
+				// switch to the debugging perspective even though we are in run mode
+				SwitchToDebugPerspective();
 			}
 
 			// Execute in a new JVM process
@@ -130,6 +132,8 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 				{
 					IWorkbench workbench = PlatformUI.getWorkbench();
 					workbench.showPerspective("org.eclipse.debug.ui.DebugPerspective", workbench.getActiveWorkbenchWindow());
+					PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(ICmlDebugConstants.ID_CML_OPTION_VIEW);
+					PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(ICmlDebugConstants.ID_CML_HISTORY_VIEW);
 				} catch (WorkbenchException e)
 				{
 					// TODO Auto-generated catch block

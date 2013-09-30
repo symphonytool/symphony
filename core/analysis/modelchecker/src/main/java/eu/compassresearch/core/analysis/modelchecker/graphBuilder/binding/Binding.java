@@ -10,4 +10,9 @@ public interface Binding {
 	public void updateBinding(String varName, Type type);
 	public Binding deleteBinding(String varName);
 	public Binding copy();
+	public void setProcName(String procName);
+	public String getProcName();
+	public StringBuilder generateAllFetchFacts(int number);
+	public StringBuilder generateAllUpdFacts(int number);
+	public StringBuilder generateAllDelFacts(int number);
 }
