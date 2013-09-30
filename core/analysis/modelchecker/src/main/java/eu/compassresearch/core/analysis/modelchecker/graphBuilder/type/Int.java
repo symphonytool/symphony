@@ -60,5 +60,8 @@ public class Int implements Type {
 		
 	}
 
+	public String toFormulaWithUnderscore(){
+		return "Int(_)";
+	}
 
 }
