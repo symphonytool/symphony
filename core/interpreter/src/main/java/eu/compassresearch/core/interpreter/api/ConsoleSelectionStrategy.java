@@ -138,7 +138,7 @@ public class ConsoleSelectionStrategy implements SelectionStrategy {
 	@Override
 	public void choices(CmlTransitionSet availableTransitions)
 	{
-		this.availableChannelEvents = availableChannelEvents;
+		this.availableChannelEvents = availableTransitions;
 	}
 
 

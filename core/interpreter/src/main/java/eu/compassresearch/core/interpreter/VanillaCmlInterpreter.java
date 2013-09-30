@@ -220,7 +220,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			//this is potentially a blocking call!!
 			CmlTransition selectedEvent = getEnvironment().resolveChoice();
 			
-			//if its null we terminate
+			//if its null we terminate and assume that this happended because of a user interrupt
 			if(selectedEvent == null)
 				break;
 
@@ -257,6 +257,8 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 
 		if(topProcess.deadlocked())
 			setNewState(CmlInterpretationStatus.DEADLOCKED);
+		else if(topProcess.waiting())
+			setNewState(CmlInterpretationStatus.TERMINATED_BY_USER);
 		else
 			setNewState(CmlInterpretationStatus.FINISHED);
 	}
@@ -446,7 +448,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	{
 		File cml_example = new File(
 				//"/home/akm/phd/runtime-COMPASS/simpleDLNA/SimpleDLNA.cml");
-				"src/test/resources/process/replicated/replicated-internalchoice.cml");
+				"src/test/resources/action/communications/action-prefix.cml");
 		//File cml_example = new File("/home/akm/phd/COMPASS-repo/Common/CaseStudies/Library/Library.cml");
 		runOnFile(cml_example);
 		

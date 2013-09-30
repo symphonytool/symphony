@@ -24,6 +24,7 @@ import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.transitions.TimedTransition;
 import eu.compassresearch.core.interpreter.api.transitions.TauTransition;
 
+@SuppressWarnings("serial")
 public class AbstractInspectionVisitor extends
 		QuestionAnswerCMLAdaptor<Context, Inspection> {
 
@@ -85,6 +86,11 @@ public class AbstractInspectionVisitor extends
 	protected Inspection newInspection(CmlTransitionSet transitions,CmlCalculationStep step)
 	{
 		return new Inspection(new CmlTrace(owner.getTraceModel()), transitions,step);
+	}
+	
+	protected void setWaiting()
+	{
+		visitorAccess.setWaiting();
 	}
 	
 	protected Value lookupName(ILexNameToken name, Context question) throws ValueException

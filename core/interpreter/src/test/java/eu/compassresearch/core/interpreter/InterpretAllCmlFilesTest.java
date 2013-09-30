@@ -98,10 +98,10 @@ public class InterpretAllCmlFilesTest {
 
 		String resultPath = filePath.split("[.]")[0] + ".result";
 
-		ExpectedTestResult testResult =(new File(resultPath).exists()? ExpectedTestResult.parseTestResultFile(resultPath):null);
-		
-		if(testResult == null)
-			Assert.fail("The testResult is not formatted correctly");
+		//ExpectedTestResult testResult =(new File(resultPath).exists()? ExpectedTestResult.parseTestResultFile(resultPath):null);
+		ExpectedTestResult testResult = ExpectedTestResult.parseTestResultFile(resultPath);
+		//if(testResult == null)
+		//	Assert.fail("The testResult is not formatted correctly");
 		
 		assertTrue(CmlParserUtil.parseSource(ast));
 
@@ -120,9 +120,6 @@ public class InterpretAllCmlFilesTest {
 
 		CmlInterpreter interpreter = VanillaInterpreterFactory.newInterpreter(ast);
 
-//		CmlSupervisorEnvironment sve = 
-//				VanillaInterpreterFactory.newDefaultCmlSupervisorEnvironment(new RandomSelectionStrategy());
-		
 		Exception exception = null;
 		try{
 			interpreter.initialize();

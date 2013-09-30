@@ -17,4 +17,5 @@ interface VisitorAccess
 	void setRightChild(CmlBehaviour child);
 	Pair<Context,Context> getChildContexts(Context context);
 	void setChildContexts(Pair<Context,Context> contexts);
+	void setWaiting();
 }

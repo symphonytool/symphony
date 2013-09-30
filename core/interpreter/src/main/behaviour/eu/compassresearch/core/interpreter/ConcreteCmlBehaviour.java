@@ -173,6 +173,12 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 
 				ConcreteCmlBehaviour.this.preConstructedChildContexts = contexts; 
 			}
+
+			@Override
+			public void setWaiting()
+			{
+				waitPrime = true;
+			}
 		};
 
 		//Initialize the visitors
@@ -275,12 +281,12 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 
 			updateTrace(selectedTransition);
 		}
-		//if no communication is selected by the supervisor or we cannot sync the selected events
-		//then we go to wait state and wait for channelEvent
-		else 
-		{
-			waitPrime = true;
-		}
+//		//if no communication is selected by the supervisor or we cannot sync the selected events
+//		//then we go to wait state and wait for channelEvent
+//		else 
+//		{
+//			waitPrime = true;
+//		}
 	}
 
 	@Override
@@ -412,7 +418,15 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	}
 
 	@Override public boolean waiting() {
-		return waitPrime;
+		if(!hasChildren())
+			return waitPrime;
+		else{
+			boolean ret = getLeftChild().waiting();
+			if(getRightChild() != null)
+				ret &= getRightChild().waiting();
+			
+			return ret;
+		}
 	}
 
 	@Override
