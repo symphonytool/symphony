@@ -432,9 +432,6 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			ConsoleSelectionStrategy ss = new ConsoleSelectionStrategy(); 
 			//ss.setHideSilentTransitions(false);
 			cmlInterp.execute(ss);
-			
-			
-			
 		} 
 		catch(ValueException e)
 		{
@@ -460,7 +457,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	{
 		File cml_example = new File(
 				//"/home/akm/phd/runtime-COMPASS/simpleDLNA/SimpleDLNA.cml");
-				"src/test/resources/examples/Library.cml");
+				"src/test/resources/classes/class-methodcall2.cml");
 		//File cml_example = new File("/home/akm/phd/COMPASS-repo/Common/CaseStudies/Library/Library.cml");
 		runOnFile(cml_example);
 		
