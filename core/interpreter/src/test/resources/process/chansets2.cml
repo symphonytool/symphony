@@ -1,0 +1,11 @@
+channels 
+a b c
+
+chansets
+I = {|a, b, c|}
+
+process A = 
+begin 
+
+	@ a -> b -> c -> Skip [| I |] a -> b -> c -> Skip
+end
