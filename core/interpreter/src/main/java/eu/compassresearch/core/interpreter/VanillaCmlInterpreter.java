@@ -11,6 +11,7 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.lex.LexLocation;
 import org.overture.interpreter.runtime.Context;
+import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.scheduler.BasicSchedulableThread;
 import org.overture.interpreter.scheduler.InitThread;
 import org.overture.interpreter.values.Value;
@@ -431,13 +432,24 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			ConsoleSelectionStrategy ss = new ConsoleSelectionStrategy(); 
 			//ss.setHideSilentTransitions(false);
 			cmlInterp.execute(ss);
-		} catch (Exception ex)
+			
+			
+			
+		} 
+		catch(ValueException e)
+		{
+			System.out.println("With Error : " + e);
+			System.out.println(e.ctxt.location); 
+			System.out.println("With stack trace : ");
+			e.printStackTrace();
+		}
+		catch (Exception ex)
 		{
 			System.out.println("Failed to interpret: " + source.toString());
-			System.out.println("With Error : ");
+			System.out.println("With Error : " + ex.getMessage());
+			System.out.println("With stack trace : ");
 			ex.printStackTrace();
 			return;
-
 		}
 
 		// Report success
@@ -448,7 +460,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	{
 		File cml_example = new File(
 				//"/home/akm/phd/runtime-COMPASS/simpleDLNA/SimpleDLNA.cml");
-				"src/test/resources/process/invariant.cml");
+				"src/test/resources/examples/Library.cml");
 		//File cml_example = new File("/home/akm/phd/COMPASS-repo/Common/CaseStudies/Library/Library.cml");
 		runOnFile(cml_example);
 		

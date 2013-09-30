@@ -579,11 +579,11 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 				
 				if(invExp != null){
 					
-					Context preConditionContext = CmlContextFactory.newContext(invExp.getLocation(), 
+					Context invContext = CmlContextFactory.newContext(invExp.getLocation(), 
 							"Process " + question.getSelf() + " invariant context", question);
-					preConditionContext.setPrepost(0, "Process invariant for " + question.getSelf() + " is violated");
+					invContext.setPrepost(0, "Process invariant for '" + ((ProcessObjectValue)question.getSelf()).getProcessDefinition() + "' is violated");
 					
-					return new Pair<INode,Context>(invExp, question);
+					return new Pair<INode,Context>(invExp, invContext);
 				}
 				else
 					//now this process evolves into Skip
