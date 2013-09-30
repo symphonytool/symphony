@@ -1,24 +1,15 @@
 package eu.compassresearch.ide.collaboration;
 
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
 
-public class Activator implements BundleActivator
+public class Activator extends AbstractUIPlugin
 {
 
-	@Override
-	public void start(BundleContext arg0) throws Exception
-	{
-
-	}
-
-	@Override
-	public void stop(BundleContext arg0) throws Exception
-	{
-		/*
-		 * Do what needs to be done for tearing down this plug-in
-		 */
-
-	}
+	public static final String PLUGIN_ID = "eu.compassresearch.ide.collaboration"; 
+	
+	private static Activator plugin;
+	
+	
+	
 
 }
