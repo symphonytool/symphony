@@ -11,6 +11,7 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.part.ViewPart;
 
+import eu.compassresearch.ide.interpreter.CmlUtil;
 import eu.compassresearch.ide.interpreter.model.CmlDebugTarget;
 
 public class CmlEventHistoryView extends ViewPart implements IDebugEventSetListener
@@ -31,11 +32,9 @@ public class CmlEventHistoryView extends ViewPart implements IDebugEventSetListe
 			public void run()
 			{
 				for(DebugEvent e : events)
-					if(e.getKind() == DebugEvent.BREAKPOINT || e.getKind() == DebugEvent.SUSPEND)
+					if((e.getKind() == DebugEvent.BREAKPOINT || e.getKind() == DebugEvent.SUSPEND) && e.getSource() instanceof CmlDebugTarget)
 					{
-						//FIXME this is very unsafe
-						CmlDebugTarget target = (CmlDebugTarget)DebugPlugin.getDefault().getLaunchManager().getDebugTargets()[0];
-						viewer.setInput(target.getLastState().getToplevelProcess().getTrace());
+						fillHistoryList((CmlDebugTarget) e.getSource());
 					}
 			}
 		});
@@ -86,6 +85,9 @@ public class CmlEventHistoryView extends ViewPart implements IDebugEventSetListe
 				return ((List) inputElement).toArray();
 			}
 		});
+		CmlDebugTarget target = CmlUtil.findCmlDebugTarget();
+		if(target != null)
+			fillHistoryList(target);
 
 		// viewer.addDoubleClickListener(new IDoubleClickListener() {
 		//
@@ -113,5 +115,10 @@ public class CmlEventHistoryView extends ViewPart implements IDebugEventSetListe
 		// canvas.setBackground(new Color(parent.getDisplay(), 0, 213, 220));
 		// }
 		// });
+	}
+	
+	private void fillHistoryList(CmlDebugTarget target)
+	{
+		viewer.setInput(target.getLastState().getToplevelProcess().getTrace());
 	}
 }
