@@ -354,15 +354,18 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 			final AInternalChoiceProcess node, final Context question)
 					throws AnalysisException {
 
+		//we need to pass these on to the children if set
+		final Pair<Context,Context> childContexts = visitorAccess.getChildContexts(question);
+		
 		if(rnd.nextInt(2) == 0)
 		{
 			return newInspection(createTauTransitionWithTime(node.getLeft()), 
 					new AbstractCalculationStep(owner, visitorAccess) {
-
+				
 				@Override
 				public Pair<INode, Context> execute(CmlTransition selectedTransition)
 						throws AnalysisException {
-					return new Pair<INode,Context>(node.getLeft(), question);
+					return new Pair<INode,Context>(node.getLeft(), childContexts.first);
 				}
 			});
 		}
@@ -374,7 +377,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 				@Override
 				public Pair<INode, Context> execute(CmlTransition selectedTransition)
 						throws AnalysisException {
-					return new Pair<INode,Context>(node.getRight(), question);
+					return new Pair<INode,Context>(node.getRight(), childContexts.second);
 				}
 			});
 		}
