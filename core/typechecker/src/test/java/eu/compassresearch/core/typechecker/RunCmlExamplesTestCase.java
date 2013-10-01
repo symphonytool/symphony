@@ -272,6 +272,7 @@ public class RunCmlExamplesTestCase {
 		// Okay we need to go through these examples in more depth to see
 		// which are supposed to pass type checking !
 		// However no expections should occur.
+		
 		Assume.assumeTrue(false);
 
 		TypeIssueHandler tc = res.issueHandler;
@@ -279,13 +280,14 @@ public class RunCmlExamplesTestCase {
 		boolean tcOK = res.tcOk;
 		if (!failingTC.containsKey(file.getName())) {
 			System.out.println("\t" + (tcOK ? "[OK]" : "[FAIL]"));
+			System.out.println(tc.getTypeErrors().get(0).getDescription() + " " + tc.getTypeErrors().get(0).getLocation());
+			System.out.println(tc.getTypeErrors().get(0).getStackTrace());
 			if (tc.getTypeErrors().size() > 0)
 				System.out.println("addFailingFile(\""
 						+ file.getName()
 						+ "\",\""
 						+ (tc.getTypeErrors().get(0).getDescription() + " " + tc.getTypeErrors().get(0).getLocation())
-								.replace("\"", "\\\"") + "\");");
-
+								.replace("\"", "\\\"") + "\");"); 
 			Assert.assertTrue("Type checker dies with errors: " + errorString,
 					tcOK);
 		} else {

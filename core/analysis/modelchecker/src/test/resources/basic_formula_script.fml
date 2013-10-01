@@ -16,9 +16,8 @@ domain AuxiliaryDefinitions {
 	
 	// Channel Types
     //CHAN_TYPES
-	//CHAN_TYPES_UNION
-	
-	Types               ::= UNDEF + Int + Nat + Str + IR + Seq /*INCLUDE USER_DEF_TYPES*/ /*CHAN_TYPES_UNION*/.
+		
+	Types               ::= UNDEF + Int + Nat + Str + IR + Seq /*INCLUDE USER_DEF_TYPES*/ /*UNION_CHAN_TYPES*/.
 
 	// Bindings 
     NullBind            ::= { nBind }. 
@@ -116,7 +115,7 @@ domain CML_SemanticsSpec extends CML_SyntaxSpec {
 	// a?x -> P
     State(l, st_,pN,P),
     trans(ini, CommEv(l,chExp,chType), State(l, st_,pN,P))
-            :- ini is State(l, st,pN,Prefix(IOComm(occ,chExp,chType), P)), Channel(l,chName,chType), IOCommDef(l, occ,chType,st,st_).
+            :- ini is State(l, st,pN,Prefix(IOComm(occ,chExp,chType), P)), /*Channel(l,chName,chType),*/ IOCommDef(l, occ,chType,st,st_).
     
 	// P |~| Q
     State(l, st,pN, P),
@@ -190,29 +189,31 @@ domain CML_SemanticsSpec extends CML_SyntaxSpec {
     trans(iS,ev,State(l,st_,pN,seqC(P_,Q))) :- iS is State(l,st,pN,seqC(P,Q)),trans(State(l,st,pN,P),ev,State(l,st_,nnP,P_)).
 
 	// P [|X|] Q - parallel begin
-	State(l,st,n,P),
+    State(l,st,n,P),
 	State(l,st,n,Q),
 	State(l,st,n,par(st,P,X,st,Q)),  
     trans(iS,tau,State(l,st,n,par(st,P,X,st,Q))) :- iS is State(l,st,n,genPar(P,X,Q)).
     
+    State(l,stP,n,P), State(l,stQ,n,Q) :- State(l,st,n,par(stP,P,X,stQ,Q)).
+	
 	//BACKING ON DEMAND STATE GENERATION!!!! :-(
     State(l,st,name,body) :- trans(S,ev,State(l,st,name,body)).
-
+	
     //parallel independent
     //P || Q --ev--> P' || Q
     State(l,st,n,par(stP_,P_,X,stQ,Q)),
-    trans(iS, ev, State(l,st,n,par(stP_,P_,X,stQ,Q))) :- iS is State(l,st,n,par(stP,P,X,stQ,Q)),  
-													    trans(State(l,stP,n,P),ev,State(l,stP_,n,P_)),fail lieIn(ev, X).
+    trans(iS, ev, State(l,st,n,par(stP_,P_,X,stQ,Q))) :- iS is State(l,st,n,par(stP,P,X,stQ,Q)), 
+													    trans(State(l,stP,nP,P),ev,State(l,stP_,nP,P_)),fail lieIn(ev, X).
     //P || Q --ev--> P || Q'
     State(l,st,n,par(stP,P,X,stQ_,Q_)),
     trans(iS, ev, State(l,st,n,par(stP,P,X,stQ_,Q_))) :- iS is State(l,st,n,par(stP,P,X,stQ,Q)),  
-													    trans(State(l,stQ,n,Q), ev, State(l,stQ_,n,Q_)), fail lieIn(ev, X).
+													    trans(State(l,stQ,nQ,Q), ev, State(l,stQ_,nQ,Q_)), fail lieIn(ev, X).
     
     //parallel synchronised
     // P || Q --ev--> P' || Q'
     State(l,st,n,par(stP_,P_,X,stQ_,Q_)),
-    trans(iS, ev, State(l,st,n,par(stP_,P_,X,stQ_,Q_))) :- iS is State(l,st,n,par(stP,P,X,stQ,Q)), trans(State(l,stP,n,P),ev,State(l,stP_,n,P_)),
-													      trans(State(l,stQ,n,Q),ev,State(l,stQ_,n,Q_)), ev!=tau, lieIn(ev, X).
+    trans(iS, ev, State(l,st,n,par(stP_,P_,X,stQ_,Q_))) :- iS is State(l,st,n,par(stP,P,X,stQ,Q)), trans(State(l,stP,nP,P),ev,State(l,stP_,nP,P_)),
+													      trans(State(l,stQ,nQ,Q),ev,State(l,stQ_,nQ,Q_)), ev!=tau, lieIn(ev, X).
     //parallel end
     State(l,st,n,Skip),
     trans(iS, tau, State(l,st,n,Skip)) :- iS is State(l,st,n,par(stP,Skip,X,stQ,Skip)).
@@ -221,20 +222,20 @@ domain CML_SemanticsSpec extends CML_SyntaxSpec {
 	// Call reusing state
     //State(l,st,P,PBody),
     //trans(n,tau,State(l,st,P,PBody)) :- n is State(l,st,P,proc(P,pP)), ProcDef(P,pP,PBody).
-    trans(n,tau,State(l,st,P,PBody)) :- n is State(l,st,P,proc(P,pP)), State(l,st,P,PBody), ProcDef(P,pP,PBody).
+    trans(n,tau,State(l,st,nP,PBody)) :- n is State(l,st,nP,proc(P,pPar)), ProcDef(P,pP,PBody).
 
 	//The body of a process is a call to another process
-    State(l,st,name2,PBody), 
-    trans(n,tau,State(l,st,name2,PBody)) :- n is State(l,st,name1,proc(name2,pP)), ProcDef(name2,_,PBody).
+    //State(l,st,name2,PBody), 
+    //trans(n,tau,State(l,st,name2,PBody)) :- n is State(l,st,name1,proc(name2,pP)), ProcDef(name2,_,PBody).
 	
     // Call without reusing state
-    State(l_,st,P,PBody),
-    trans(n,tau,State(l_,st,P,PBody)) :- n is State(l,st,P,proc(P,pP)),State(l,st1,P,PBody),
-                                         ProcDef(P,pP,PBody), st != st1,
-                                           l_ = l + 1, Bound(B), l_ <= B. // These two rules mean "the unfolding        // The conv construct depends on the     
+    //State(l_,st,P,PBody),
+    //trans(n,tau,State(l_,st,P,PBody)) :- n is State(l,st,P,proc(P,pP)),State(l,st1,P,PBody),
+    //                                    ProcDef(P,pP,PBody), st != st1,
+    //                                       l_ = l + 1, Bound(B), l_ <= B. // These two rules mean "the unfolding        // The conv construct depends on the     
     // Calling another process with differing state
-    State(l,st,Pn,PBody),
-    trans(n,tau,State(l,st,Pn,PBody)) :- n is State(l,st,P,proc(Pn, pP)), ProcDef(Pn,pP,PBody), P != Pn.
+    //State(l,st,Pn,PBody),
+    //trans(n,tau,State(l,st,Pn,PBody)) :- n is State(l,st,P,proc(Pn, pP)), ProcDef(Pn,pP,PBody), P != Pn.
 
 	// operations
     trans(n,tau,State(l,st_,pN,Skip)) :- n is State(l,st,pN,operation(schN,pSch)), operationDef(schN,pSch,st,st_), preOpOk(schN,pSch,st).

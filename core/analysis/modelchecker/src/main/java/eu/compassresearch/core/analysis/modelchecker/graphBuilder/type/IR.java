@@ -30,5 +30,8 @@ public class IR implements Type{
 	public String toFormulaWithState() {
 		return "IR("+String.valueOf(value)+")";
 	}
-
+	
+	public String toFormulaWithUnderscore(){
+		return "IR(_)";
+	}
 }
