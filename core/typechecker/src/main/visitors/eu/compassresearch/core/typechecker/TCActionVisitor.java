@@ -2048,9 +2048,9 @@ class TCActionVisitor extends
 			{
 				List<ILexIdentifierToken> ids = ((AUnresolvedPathExp)applyExp.getRoot()).getIdentifiers(); 
 				StringBuilder strBuilder = new StringBuilder();
-				for(Iterator<ILexIdentifierToken> iter = ids.iterator();iter.hasNext();)
-					strBuilder.append(iter.next() + (iter.hasNext() ? "." + iter.next() : ""));
-				name = new LexNameToken("",strBuilder.toString(),applyExp.getRoot().getLocation());
+				for(int i = 0; i < ids.size()-1;i++)
+					strBuilder.append(ids.get(i) + ( (i+1) < ids.size()-1 ? "." + ids.get(++i) : ""));
+				name = new LexNameToken(strBuilder.toString(),ids.get(ids.size()-1).toString(),applyExp.getRoot().getLocation());
 			}
 			else if(applyExp.getRoot() instanceof AVariableExp)
 			{
