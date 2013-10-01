@@ -6,11 +6,11 @@ import java.util.List;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.definitions.SClassDefinition;
-import org.overture.ast.intf.lex.ILexIdentifierToken;
-import org.overture.ast.lex.LexNameToken;
+import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.types.AClassType;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.CPUValue;
+import org.overture.interpreter.values.FunctionValue;
 import org.overture.interpreter.values.NameValuePair;
 import org.overture.interpreter.values.NameValuePairMap;
 import org.overture.interpreter.values.ObjectValue;
@@ -19,6 +19,7 @@ import eu.compassresearch.ast.actions.ANewStatementAction;
 import eu.compassresearch.ast.definitions.ACmlClassDefinition;
 import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
+import eu.compassresearch.core.interpreter.api.values.ActionValue;
 import eu.compassresearch.core.interpreter.api.values.CmlOperationValue;
 
 class CmlValueFactory {
@@ -37,8 +38,16 @@ class CmlValueFactory {
 		{
 			for(NameValuePair nvp : pdef.apply(new CmlDefinitionVisitor() ,question))
 			{
-				NameValuePair newNvp = new NameValuePair(new LexNameToken(classDefinition.getName().getName(),(ILexIdentifierToken)nvp.name.getIdentifier().clone()),nvp.value);
-				members.put(newNvp);
+				ILexNameToken name = nvp.name.getModifiedName(classDefinition.getName().getName());								
+				if(nvp.value instanceof FunctionValue ||
+						nvp.value instanceof CmlOperationValue ||
+						nvp.value instanceof ActionValue)
+					members.put(new NameValuePair(name,nvp.value));
+				else
+					members.put(new NameValuePair(name,nvp.value.getUpdatable(null)));
+				
+				//NameValuePair newNvp = new NameValuePair(new LexNameToken(classDefinition.getName().getName(),(ILexIdentifierToken)nvp.name.getIdentifier().clone()),nvp.value);
+				//members.put(newNvp);
 			}
 		}
 		
