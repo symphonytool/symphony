@@ -20,8 +20,16 @@
     </dynamic>
   </menuContribution>
 </extension>
-</plugin>
 
+<extension
+         point="org.eclipse.ecf.start">
+      <run
+            class="eu.compassresearch.ide.collaboration.ECFInitiation">
+      </run>
+ </extension>
+
+
+</plugin>
 
 	<!--	<menuContribution
          allPopups="false"

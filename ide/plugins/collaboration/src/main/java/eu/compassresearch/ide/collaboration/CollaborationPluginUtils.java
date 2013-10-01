@@ -1,6 +1,8 @@
 package eu.compassresearch.ide.collaboration;
 
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IProject;
@@ -93,4 +95,16 @@ public class CollaborationPluginUtils
 		return (IResource) adapter;
 	}
 
+	
+	public static String convertStreamToString(InputStream is) {
+		Scanner scanner = new Scanner(is,"UTF-8");
+		if(scanner.hasNext()){
+			String inputStreamString = scanner.useDelimiter("\\A").next();
+			scanner.close();
+			return inputStreamString;
+		} else {
+			return "";
+		}
+	}
+	
 }

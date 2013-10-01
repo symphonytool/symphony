@@ -39,21 +39,13 @@ public class CollabRosterMenuContributionItem extends
 	
 	protected IContributionItem[] getContributionItems() {
 		
-		final List presenceContainerAdapters = getPresenceContainerAdapters();
-		List contributions = new ArrayList();
-		for (final Iterator i = presenceContainerAdapters.iterator(); i.hasNext();) {
-			final IPresenceContainerAdapter pca = (IPresenceContainerAdapter) i.next();
-			
-//			final DocShare docShare = getDocShareForPresenceContainerAdapter(pca);
-//			if (docShare != null && docShare.isSharing() && docShare.getTextEditor().equals(editorPart)) {
-//				return getMenuContributionForStopShare(pca.getRosterManager().getRoster(), docShare, docShare.getOtherID());
-//			}
-		}	
-		
+
 		MenuManager menuManager = createMenuManagerForTop();
 		
-		if(contributions.isEmpty()){
-		
+		IContributionItem[] contributions = super.getContributionItems();
+
+		//No collaborators connected 
+		if(contributions == NO_CONTRIBUTIONS){
 			final IAction notConnected = new Action() {
 				public void run() {
 				}
@@ -63,14 +55,12 @@ public class CollabRosterMenuContributionItem extends
 			notConnected.setImageDescriptor(getTopMenuImageDescriptor());
 			menuManager.add(new ActionContributionItem(notConnected));
 		} else {
-			IContributionItem[] items = (IContributionItem[]) contributions.toArray(new IContributionItem[] {});
-			for (int i = 0; i < items.length; i++)
-				menuManager.add(items[i]);
+			for (int i = 0; i < contributions.length; i++)
+			{
+				menuManager.add(contributions[i]);
+			}
 		}
 		
 		return new IContributionItem[] {new Separator(), menuManager};
-	}
+	}	
 }
-
-
-

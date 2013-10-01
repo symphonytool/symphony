@@ -2,11 +2,30 @@ package eu.compassresearch.ide.collaboration.menu;
 
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.ecf.core.IContainer;
+import org.eclipse.ecf.core.user.IUser;
+import org.eclipse.ecf.core.util.ECFException;
 import org.eclipse.ecf.presence.roster.IRoster;
 import org.eclipse.ecf.presence.roster.IRosterEntry;
 import org.eclipse.ecf.presence.ui.menu.AbstractRosterMenuHandler;
+import org.eclipse.ecf.sync.SerializationException;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.ui.ISelectionService;
+import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.handlers.HandlerUtil;
 
+import eu.compassresearch.ide.collaboration.Activator;
+import eu.compassresearch.ide.collaboration.CollaborationPluginUtils;
+import eu.compassresearch.ide.collaboration.management.CollaborationManager;
+import eu.compassresearch.ide.collaboration.messages.NewFileMessage;
+import eu.compassresearch.ide.collaboration.messages.TestMessage;
 import eu.compassresearch.ide.collaboration.notifications.Notification;
 
 public class CollabMenuRosterMenuHandler extends AbstractRosterMenuHandler
@@ -18,33 +37,72 @@ public class CollabMenuRosterMenuHandler extends AbstractRosterMenuHandler
 	}
 
 	@Override
-	public Object execute(ExecutionEvent arg0) throws ExecutionException
+	public Object execute(ExecutionEvent event) throws ExecutionException
 	{
+		ISelection selection = HandlerUtil.getCurrentSelection(event);
+
+		IWorkbench wb = PlatformUI.getWorkbench();
+		IWorkbenchWindow wbw = wb.getActiveWorkbenchWindow();
+		ISelectionService ss = wbw.getSelectionService();
+		selection = ss.getSelection();
+		
 		IRosterEntry rosterEntry = getRosterEntry();
 		if (rosterEntry != null) {
+			
 			IRoster roster = rosterEntry.getRoster();
 			final IContainer container = (IContainer) roster.getPresenceContainerAdapter().getAdapter(IContainer.class);
 			if (container.getConnectedID() == null)
 				Notification.showErrorMessage(Notification.CollabMenuRosterMenuHandler_ERROR_NOT_CONNECTED);
 			
-//			final DocShare sender = Activator.getDefault().getDocShare(container.getID());
-//			if (sender == null)
-//				showErrorMessage(Messages.DocShareRosterMenuHandler_ERROR_NO_SENDER);
-//			if (sender.isSharing())
-//				showErrorMessage(Messages.DocShareRosterMenuHandler_ERROR_EDITOR_ALREADY_SHARING);
-//			final ITextEditor textEditor = getTextEditor();
-//			if (textEditor == null)
-//				showErrorMessage(Messages.DocShareRosterMenuHandler_EXCEPTION_EDITOR_NOT_TEXT);
-//			final String inputName = getInputName(textEditor);
-//			if (inputName == null)
-//				showErrorMessage(Messages.DocShareRosterMenuHandler_NO_FILENAME_WITH_CONTENT);
-//			final IUser user = roster.getUser();
-//			sender.startShare(user.getID(), user.getName(), rosterEntry.getUser().getID(), inputName, textEditor);
+			CollaborationManager collabMgm = Activator.getDefault().getCollaborationManager(container.getID()); 
+			if (collabMgm == null)
+				Notification.showErrorMessage(Notification.CollabMenuRosterMenuHandler_ERROR_NO_COLLAB_CHANNEL);
+			
+			//find file
+			String filename = null;
+			String fileContents = null; 
+			if (selection instanceof IStructuredSelection) {
+			    IStructuredSelection ssel = (IStructuredSelection) selection;
+			    Object obj = ssel.getFirstElement();
+			    IFile file = (IFile) Platform.getAdapterManager().getAdapter(obj, IFile.class);
+	
+			    if (file == null) {
+			        if (obj instanceof IAdaptable) {
+			            file = (IFile) ((IAdaptable) obj).getAdapter(IFile.class);
+			        }
+			    }
+			    
+			    if (file != null) {
+						try
+						{
+							fileContents = CollaborationPluginUtils.convertStreamToString(file.getContents());
+						} catch (CoreException e)
+						{
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						filename = file.getName();
+			    }
+			}
+			
+			IUser self = roster.getUser();	
+			IUser receiver = rosterEntry.getUser();
+			NewFileMessage msg = new NewFileMessage(self.getID(), filename, fileContents);
+			try
+			{
+				collabMgm.sendMessage(receiver.getID(), msg.serialize());
+			} catch (SerializationException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ECFException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}	
 		}
-
-		Notification.showErrorMessage(Notification.CollabMenuRosterMenuHandler_ERROR_NOT_CONNECTED);
-		
 		return null;
 	}
-
+	
+	
 }

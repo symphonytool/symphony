@@ -34,7 +34,8 @@ Import-Package: eu.compassresearch.ast.actions,
  org.eclipse.ui.handlers,
  org.eclipse.ui.part,
  org.eclipse.ui.plugin,
- org.osgi.framework
+ org.osgi.framework,
+ org.osgi.util.tracker;version="1.5.1"
 Export-Package: eu.compassresearch.ide.collaboration
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Eclipse-BuddyPolicy: registered
@@ -44,4 +45,6 @@ Require-Bundle: org.eclipse.ecf;bundle-version="3.2.0",
  org.eclipse.ecf.datashare;bundle-version="3.0.100",
  org.eclipse.ecf.docshare;bundle-version="2.1.0",
  org.eclipse.ecf.presence;bundle-version="2.0.0",
- org.eclipse.ecf.presence.ui;bundle-version="2.2.0"
+ org.eclipse.ecf.presence.ui;bundle-version="2.2.0",
+ org.eclipse.ecf.sync;bundle-version="2.0.0",
+ org.eclipse.ecf.provider.xmpp;bundle-version="3.2.100"
