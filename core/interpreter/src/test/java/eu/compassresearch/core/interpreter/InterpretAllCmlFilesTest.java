@@ -144,7 +144,9 @@ public class InterpretAllCmlFilesTest {
 		assertTrue("The test threw an unexpected exception : " + exception,testResult.throwsException() || exception == null);
 
 		//events
-		String eventTrace = traceToString(topProcess.getTraceModel().getEventTrace());
+		String eventTrace = "";
+		if(null != topProcess)
+			eventTrace = traceToString(topProcess.getTraceModel().getEventTrace());
 		Pattern trace = testResult.getExpectedEventTracePattern();
 		Matcher matcher = trace.matcher(eventTrace);
 		assertTrue(testResult.getExpectedEventTracePattern() + " != " + eventTrace,matcher.matches());

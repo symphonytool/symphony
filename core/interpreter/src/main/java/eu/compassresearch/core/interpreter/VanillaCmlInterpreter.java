@@ -118,11 +118,20 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	@Override
 	public Value execute(SelectionStrategy env) throws AnalysisException
 	{
-		if(this.getStatus() == null)
+		if(this.getStatus() == null){
+			setNewState(CmlInterpretationStatus.FAILED);
 			throw new CmlInterpreterException("The interprer has not been initialized, please call the initialize method before invoking the start method");
+		}
 		
-		if(null == env)
+		if(null == env){
+			setNewState(CmlInterpretationStatus.FAILED);
 			throw new CmlInterpreterException("The SelectionStrategy must not be set to null in the cml scheduler");
+		}
+		
+		if(null == topProcess){
+			setNewState(CmlInterpretationStatus.FAILED);
+			throw new CmlInterpreterException("No process is defined");
+		}
 		
 		environment = env; 
 
@@ -457,7 +466,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	{
 		File cml_example = new File(
 				//"/home/akm/phd/runtime-COMPASS/simpleDLNA/SimpleDLNA.cml");
-				"src/test/resources/process/replicated/replicated-internalchoice.cml");
+				"src/test/resources/process/no-process-defined.cml");
 		//File cml_example = new File("/home/akm/phd/COMPASS-repo/Common/CaseStudies/Library/Library.cml");
 		runOnFile(cml_example);
 		
