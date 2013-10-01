@@ -1,0 +1,7 @@
+types
+T = bool | nat
+channels
+c: T
+process P = begin
+@ c?x -> (if is_bool(x) then Skip else Stop)
+end

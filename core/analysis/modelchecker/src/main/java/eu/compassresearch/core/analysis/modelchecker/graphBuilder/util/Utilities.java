@@ -217,6 +217,7 @@ public class Utilities {
 		StringBuilder currentTerm = new StringBuilder();
 		int currIndex = 0;
 		int leftParen = 0;
+		int leftBracket = 0;
 		if(arguments.length() > 0){
 			char currChar = arguments.charAt(currIndex);
 			if((currChar == ',')){
@@ -228,16 +229,25 @@ public class Utilities {
 					if(currChar == '('){
 						leftParen++;
 					}
+					if(currChar == '['){
+						leftBracket++;
+					}
 					if(currChar == ')'){
 						leftParen--;
-						if(leftParen == 0){
+						if(leftParen == 0 ){
 							finish = true;
 						}
+					}
+					if(currChar == ']'){
+						leftBracket--;
+						//if(leftParen == 0 ){
+						//	finish = true;
+						//}
 					}
 					if((currChar == '\"')){
 						currChar = ' ';
 					}
-					if((currChar == ',') && (leftParen == 0)){
+					if((currChar == ',') && (leftParen == 0) && (leftBracket == 0)){
 						break;
 					}
 

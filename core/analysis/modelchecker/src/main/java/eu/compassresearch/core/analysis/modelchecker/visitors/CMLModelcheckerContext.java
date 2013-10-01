@@ -5,21 +5,30 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 
+import org.overture.ast.expressions.PExp;
+import org.overture.ast.intf.lex.ILexIdentifierToken;
+
 import eu.compassresearch.ast.definitions.AActionDefinition;
+import eu.compassresearch.ast.definitions.AChannelNameDefinition;
 import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.Binding;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.NullBinding;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.SingleBind;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Int;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Type;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.UndefinedValue;
 
 public class CMLModelcheckerContext {
 	
 	protected HashMap<Object, Object> info; 
 	
-	private Set<String> variables;
+	public Set<SingleBind> stateVariables;
+	
+	public Set<String> communicationVariables;
 		
 	private ArrayList<String> states;
 	
@@ -29,7 +38,7 @@ public class CMLModelcheckerContext {
 	
 	public static int IOCOMM_COUNTER;
 	
-	//public static int GUARD_COUNTER;
+	public static int CHANTYPE_COUNTER;
 	
 	protected StringBuilder scriptContent;
 
@@ -41,84 +50,122 @@ public class CMLModelcheckerContext {
 	
 	protected ArrayList<AActionDefinition> localActions;
 	
+	protected ArrayList<Condition> guards;
+	
+	protected HashMap<PExp, String> positiveGuardExps;
+	
+	protected HashMap<PExp, String> negativeGuardExps;
+	
 	protected ArrayList<String> channelDependencies;
 	
 	protected ArrayList<String> ioCommDefs;
 	
+	protected LinkedList<UserDefinedValue> valueDefinitions;
+	
+	protected LinkedList<UserTypeDefinition> typeDefinitions;
+	
+	protected LinkedList<ChannelTypeDefinition> channelDefinitions;
+	
+	protected int numberOfFetchFacts = 1;
+	protected int numberOfUpdFacts = 1;
+	protected int numberOfDelFacts = 1;
+	
 	public CMLModelcheckerContext() {
 		info = new HashMap<Object,Object>();
 		scriptContent = new StringBuilder();
-		variables = new LinkedHashSet<String>();
+		stateVariables = new LinkedHashSet<SingleBind>();
 		states = new ArrayList<String>();
 		setStack = new SetStack();
 		lieIn = new ArrayList<String>();
 		operations = new ArrayList<SCmlOperationDefinition>(); 
 		localActions = new ArrayList<AActionDefinition>();
+		guards = new ArrayList<Condition>();
 		channelDependencies = new ArrayList<String>();
 		ioCommDefs = new ArrayList<String>();
+		positiveGuardExps = new HashMap<PExp, String>();
+		negativeGuardExps = new HashMap<PExp, String>();
+		valueDefinitions = new LinkedList<UserDefinedValue>();
+		typeDefinitions = new LinkedList<UserTypeDefinition>();
+		channelDefinitions = new LinkedList<ChannelTypeDefinition>();
 		ASSIGN_COUNTER = 0;
 		GUARD_COUNTER = 0;
 		IOCOMM_COUNTER = 0;
+		CHANTYPE_COUNTER = 0;
 	}
 	
 	public CMLModelcheckerContext(int i) {
 		info = new HashMap<Object,Object>();
 		scriptContent = new StringBuilder();
-		variables = new LinkedHashSet<String>();
+		stateVariables = new LinkedHashSet<SingleBind>();
 		states = new ArrayList<String>();
 		setStack = new SetStack();
 		lieIn = new ArrayList<String>();
 		operations = new ArrayList<SCmlOperationDefinition>();
 		localActions = new ArrayList<AActionDefinition>();
+		guards = new ArrayList<Condition>();
 		channelDependencies = new ArrayList<String>();
 		ioCommDefs = new ArrayList<String>();
+		positiveGuardExps = new HashMap<PExp, String>();
+		negativeGuardExps = new HashMap<PExp, String>();
+		valueDefinitions = new LinkedList<UserDefinedValue>();
+		typeDefinitions = new LinkedList<UserTypeDefinition>();
+		channelDefinitions = new LinkedList<ChannelTypeDefinition>();
 		ASSIGN_COUNTER = i;
 		GUARD_COUNTER = 0;
 		IOCOMM_COUNTER = 0;
+		CHANTYPE_COUNTER = 0;
 	}
 	
 	public CMLModelcheckerContext copy(){
 		CMLModelcheckerContext result = new CMLModelcheckerContext();
 		result.info = new HashMap<Object,Object>(this.info);
 		result.scriptContent = new StringBuilder(this.scriptContent.toString());
-		result.variables = new LinkedHashSet<String>(this.variables);
+		result.stateVariables = new LinkedHashSet<SingleBind>(this.stateVariables);
 		result.states = new ArrayList<String>(this.states);
 		result.setStack = this.setStack.copy();
 		result.lieIn = new ArrayList<String>(this.lieIn);
 		result.operations = new ArrayList<SCmlOperationDefinition>(this.operations);
 		result.localActions = new ArrayList<AActionDefinition>(this.localActions);
+		result.guards = new ArrayList<Condition>(this.guards);
 		result.channelDependencies = new ArrayList<String>(this.channelDependencies);
 		result.ioCommDefs = new ArrayList<String>(this.ioCommDefs);
+		result.positiveGuardExps = new HashMap<PExp, String>(this.positiveGuardExps);
+		result.negativeGuardExps = new HashMap<PExp, String>(this.negativeGuardExps);
+		result.valueDefinitions = new LinkedList<UserDefinedValue>(this.valueDefinitions);
+		result.typeDefinitions = new LinkedList<UserTypeDefinition>(this.typeDefinitions);
+		result.channelDefinitions = new LinkedList<ChannelTypeDefinition>(this.channelDefinitions);
 		result.ASSIGN_COUNTER = this.ASSIGN_COUNTER;
 		result.GUARD_COUNTER = this.GUARD_COUNTER;
 		result.IOCOMM_COUNTER = this.IOCOMM_COUNTER;
+		CHANTYPE_COUNTER = 0;
 		
 		return result;
 	}
 	
 	public Binding getMaxBinding(){
 		Binding maximalBinding = new NullBinding();
-		for (String currVarname : variables) {
-			maximalBinding = maximalBinding.addBinding("np", currVarname, new UndefinedValue());
+		for (SingleBind currVar : stateVariables) {
+			maximalBinding = maximalBinding.addBinding("np", currVar.getVariableName(), currVar.getVariableValue());
 		}
 		return maximalBinding;
 	}
 	
 	public Binding getMaxBindingWithStates(){
 		Binding maximalBinding = new NullBinding();
-		for (String currVarname : states) {
-			maximalBinding = maximalBinding.addBinding("np", currVarname, new Int(currVarname));
+		for (SingleBind currVar : stateVariables) {
+			String varName = currVar.getVariableName();
+			Type value = currVar.getVariableValue();
+			if(value instanceof Int){
+				((Int) value).setS(currVar.getVariableName());
+			}
+			maximalBinding = maximalBinding.addBinding("np", varName, value);
 		}
 		return maximalBinding;
 	}
 	
-	public void updateVariables(String s){
-		variables.add(s);
-	}
-	
-	public void updateStates(String s){
-		states.add(s);
-	}
+	//public void updateStateVariable(String s){
+	//	states.add(s);
+	//}
 	
 	public Object putVarInBinding(Object key, Object value){
 		StringBuilder s =  (StringBuilder) info.get(key);
@@ -160,8 +207,8 @@ public class CMLModelcheckerContext {
 		return info.put(key, state);
 	}
 	
-	public Set<String> getVariables(){
-		return variables;
+	public Set<SingleBind> getVariables(){
+		return stateVariables;
 	}
 	
 	public ArrayList<String> getStates(){
@@ -172,28 +219,48 @@ public class CMLModelcheckerContext {
 		return scriptContent;
 	}
 	
-	public void setVariables(Set<String> vars){
-		this.variables = vars;
+	public void setVariables(Set<SingleBind> vars){
+		this.stateVariables = vars;
 	}
 	
 	public void setScriptContent(StringBuilder scriptContent) {
 		this.scriptContent = scriptContent;
 	}
 	
+	public SingleBind getBindByVariable(String varName){
+		SingleBind result = null;
+		
+		for (SingleBind bind : this.stateVariables) {
+			if(bind.getVariableName().equals(varName)){
+				result = bind;
+				break;
+			}
+		}
+		
+		return result;
+	}
+	
 	public void reset(){
 		info = new HashMap<Object,Object>();
 		scriptContent = new StringBuilder();
-		variables = new LinkedHashSet<String>();
+		stateVariables = new LinkedHashSet<SingleBind>();
 		states = new ArrayList<String>();
 		setStack = new SetStack();
 		lieIn = new ArrayList<String>();
 		operations = new ArrayList<SCmlOperationDefinition>(); 
 		localActions = new ArrayList<AActionDefinition>();
+		guards = new ArrayList<Condition>();
 		channelDependencies = new ArrayList<String>();
 		ioCommDefs = new ArrayList<String>();
+		positiveGuardExps = new HashMap<PExp, String>();
+		negativeGuardExps = new HashMap<PExp, String>();
+		valueDefinitions = new LinkedList<UserDefinedValue>();
+		typeDefinitions = new LinkedList<UserTypeDefinition>();
+		channelDefinitions = new LinkedList<ChannelTypeDefinition>();
 		ASSIGN_COUNTER = 0;
 		GUARD_COUNTER = 0;
 		IOCOMM_COUNTER = 0;
+		CHANTYPE_COUNTER = 0;
 	}
 	public void copyVarDeclarationInfo(CMLModelcheckerContext otherContext){
 		if(otherContext.info.containsKey(Utilities.VAR_DECLARATIONS_KEY)){
@@ -232,6 +299,21 @@ public class CMLModelcheckerContext {
 		if(otherContext.info.containsKey(Utilities.IOCOMM_DEFINITIONS_KEY)){
 			this.info.put(Utilities.IOCOMM_DEFINITIONS_KEY, otherContext.info.get(Utilities.IOCOMM_DEFINITIONS_KEY));
 		}
+	}
+	
+	public ChannelTypeDefinition getChannelDefinition(String channelName){
+		ChannelTypeDefinition result = null;
+		
+		for (ChannelTypeDefinition channelDef : this.channelDefinitions) {
+			for (ILexIdentifierToken token : channelDef.getChanDef().getSingleType().getIdentifiers()) {
+				if(token.toString().equals(channelName)){
+					result = channelDef;
+					return result;
+				}
+			}
+		}
+		
+		return result;
 	}
 	
 }

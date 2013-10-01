@@ -11,6 +11,7 @@ import org.overture.ast.expressions.ALessNumericBinaryExp;
 import org.overture.ast.expressions.ANotEqualBinaryExp;
 import org.overture.ast.expressions.ANotUnaryExp;
 import org.overture.ast.expressions.AOrBooleanBinaryExp;
+import org.overture.ast.expressions.AVariableExp;
 import org.overture.ast.expressions.PExp;
 
 /**
@@ -33,12 +34,24 @@ public class ExpressionEvaluator {
 		PExp left = node.getLeft();
 		PExp right = node.getRight();
 		if(left instanceof AIntLiteralExp){
+			String leftValue = ((AIntLiteralExp) left).getValue().toString();
+			if(right instanceof AIntLiteralExp){
+				String rightValue = ((AIntLiteralExp) right).getValue().toString();
+				if(leftValue.equals(rightValue)){
+					resp = true;
+				}
+			}else if(right instanceof AVariableExp){
+				String rightValue = ((AVariableExp) right).toString();
+			}
+		} else if(left instanceof AVariableExp){
 			if(right instanceof AIntLiteralExp){
 				String leftValue = ((AIntLiteralExp) left).getValue().toString();
 				String rightValue = ((AIntLiteralExp) right).getValue().toString();
 				if(leftValue.equals(rightValue)){
 					resp = true;
 				}
+			}else if(right instanceof AVariableExp){
+				
 			}
 		}
 		return resp;
