@@ -157,7 +157,6 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		catch(Exception ex)
 		{
 			setNewState(CmlInterpretationStatus.FAILED);
-			ex.printStackTrace();
 			throw new AnalysisException(ex);
 		}
 
@@ -466,7 +465,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	{
 		File cml_example = new File(
 				//"/home/akm/phd/runtime-COMPASS/simpleDLNA/SimpleDLNA.cml");
-				"src/test/resources/examples/LE-interpreter.cml");
+				"src/test/resources/examples/LE_KRT_HACK.cml");
 		//File cml_example = new File("/home/akm/phd/COMPASS-repo/Common/CaseStudies/Library/Library.cml");
 		runOnFile(cml_example);
 		

@@ -11,6 +11,8 @@ import org.overture.interpreter.values.ObjectValue;
 
 class CmlContextFactory {
 
+	public static final String PARAMETRISED_PROCESS_CONTEXT_NAME = "Parametrised process context";
+	
 	/**
 	 * This creates a normal context which
 	 * @param location The location the scope context covers

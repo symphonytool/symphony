@@ -126,14 +126,7 @@ class CmlDefinitionVisitor extends
 	public NameValuePairList caseAStateDefinition(AStateDefinition node,
 			Context question) throws AnalysisException {
 		
-		NameValuePairList vpl = new NameValuePairList();
-		
-		for(PDefinition def : node.getStateDefs())
-		{
-			vpl.addAll(def.apply(this,question));
-		}
-		
-		return vpl;
+		return definitionListHelper(node.getStateDefs(),node.getLocation(),question);
 	}
 	
 	@Override

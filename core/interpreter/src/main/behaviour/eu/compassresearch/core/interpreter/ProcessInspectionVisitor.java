@@ -84,7 +84,9 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 				AProcessDefinition processDef;
 				
 				NameValuePairMap valueMap = new NameValuePairMap();
-				
+				//Create a temporary context to evaluate the definitions in
+				//Context tmpContext = CmlContextFactory.newContext(node.getLocation(),"Action Process definitions evaluation context",question);
+				Context tmpContext = null;
 				//We have a named process
 				if(node.parent() instanceof AProcessDefinition)
 				{
@@ -94,6 +96,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 						for(Entry<ILexNameToken,Value> entry : question.entrySet())
 							valueMap.putNew(new NameValuePair(entry.getKey().getModifiedName(processDef.getName().getSimpleName()),entry.getValue()));
 					}
+					tmpContext = CmlContextFactory.newObjectContext(node.getLocation(), "Action Process Context", question.outer, new ProcessObjectValue(processDef,valueMap,null, null));
 				}
 				//Unnamed process
 				else
@@ -115,10 +118,8 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 								valueMap.putNew(new NameValuePair(paramName.getModifiedName(processDef.getName().getSimpleName()),val));
 							}
 					}
+					tmpContext = CmlContextFactory.newObjectContext(node.getLocation(), "Action Process Context", question, new ProcessObjectValue(processDef,valueMap,null, null));
 				}
-
-				//Create a temporary context to evaluate the definitions in
-				Context tmpContext = CmlContextFactory.newContext(node.getLocation(),"Action Process definitions evaluation context",null);
 
 				//Evaluate and add paragraph definitions and add the result to the state
 				PExp processInv = null;
@@ -129,7 +130,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 					{
 						for(PDefinition stateDef : ((AStateDefinition) def).getStateDefs())
 							if(stateDef instanceof AClassInvariantDefinition)
-							processInv = ((AClassInvariantDefinition) stateDef).getExpression();
+								processInv = ((AClassInvariantDefinition) stateDef).getExpression();
 					}
 					
 					NameValuePairList nvps = def.apply(cmlDefEvaluator, tmpContext);
@@ -153,8 +154,16 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 
 				ProcessObjectValue self = new ProcessObjectValue(processDef,valueMap,question.getSelf(), processInv);
 
-				ObjectContext processObjectContext = CmlContextFactory.newObjectContext(node.getLocation(), "Action Process Context", question, self);
-
+				ObjectContext processObjectContext = null;
+				
+				//If params si defined in the above context them we need to add them to the created processContext since it 
+				//cannot look above that, meaning they won't be visible if we dont
+				if(question.title.equals(CmlContextFactory.PARAMETRISED_PROCESS_CONTEXT_NAME)){
+					processObjectContext = CmlContextFactory.newObjectContext(node.getLocation(), "Action Process Context", question.outer, self);
+				}
+				else
+					processObjectContext = CmlContextFactory.newObjectContext(node.getLocation(), "Action Process Context", question, self);
+				
 				//push this node onto the execution stack again since this should execute
 				//the action behaviour until it terminates
 				return new Pair<INode,Context>(node.getAction(), processObjectContext);
@@ -413,6 +422,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 						Value value = arg.apply(cmlExpressionVisitor,question).getConstant();
 						
 						LexNameToken argName = new LexNameToken(node.getProcessDefinition().getName().getSimpleName(),(ILexIdentifierToken)id.clone());
+						//LexNameToken argName = new LexNameToken("",(ILexIdentifierToken)id.clone());
 						
 						evaluatedArgs.put(argName, value);
 						//update the index
@@ -427,7 +437,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 				if(node.getProcessDefinition().getProcess() instanceof AActionProcess)
 				{
 					nextContext = CmlContextFactory.newContext(node.getLocation(), 
-							"Parametrised reference process context", question);
+							CmlContextFactory.PARAMETRISED_PROCESS_CONTEXT_NAME, question);
 					nextContext.putAll(evaluatedArgs);
 				}
 				//if not then we create a new process object
