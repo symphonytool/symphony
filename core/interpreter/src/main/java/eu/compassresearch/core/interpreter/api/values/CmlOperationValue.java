@@ -1,6 +1,5 @@
 package eu.compassresearch.core.interpreter.api.values;
 
-import java.util.LinkedList;
 import java.util.List;
 
 import org.overture.ast.definitions.AExplicitOperationDefinition;
@@ -11,8 +10,8 @@ import org.overture.ast.expressions.PExp;
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.lex.LexLocation;
+import org.overture.ast.patterns.APatternListTypePair;
 import org.overture.ast.patterns.PPattern;
-import org.overture.ast.statements.AErrorCase;
 import org.overture.ast.statements.ASkipStm;
 import org.overture.ast.types.AOperationType;
 import org.overture.interpreter.runtime.Context;
@@ -78,7 +77,7 @@ public class CmlOperationValue extends OperationValue {
 												def.getUsed(),def.getClassDefinition() != null ? def.getClassDefinition().clone() : null,
 												def.getAccess().clone(), 
 												def.getPass(), 
-												def.getParameterPatterns(), 
+												(List<? extends PPattern>)def.getParameterPatterns().clone(), 
 												new ASkipStm(), 
 												def.getPrecondition() != null ? def.getPrecondition().clone() : null, 
 												def.getPostcondition() != null ? def.getPostcondition().clone() : null,
@@ -100,7 +99,7 @@ public class CmlOperationValue extends OperationValue {
 												def.getClassDefinition() != null ? def.getClassDefinition().clone() : null, 
 												def.getAccess().clone(), 
 												def.getPass(), 
-												def.getParameterPatterns(), 
+												(List<? extends APatternListTypePair>)def.getParameterPatterns().clone(), 
 												def.getResult().size() > 0 ? def.getResult().get(0) : null, 
 												null, //body 
 												def.getExternals(), 

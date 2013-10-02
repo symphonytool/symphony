@@ -268,7 +268,7 @@ class CmlDefinitionVisitor extends
 	
 		NameValuePairList vpl = new NameValuePairList();
 		
-		vpl.add(new NameValuePair(node.getName(), CmlValueFactory.createOperationValue(node,question)));
+		vpl.add(new NameValuePair(node.getName().clone(), CmlValueFactory.createOperationValue(node,question)));
 		
 		return vpl;
 	}
