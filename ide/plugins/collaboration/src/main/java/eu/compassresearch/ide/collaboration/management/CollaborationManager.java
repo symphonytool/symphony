@@ -61,7 +61,23 @@ public class CollaborationManager extends AbstractShare
 					public void run() {
 						try {
 								 MessageDialog.openQuestion(null, "Receiving new file" + filename, "Do Or not");
-							
+								 
+//								 IWorkspace workspace = ResourcesPlugin.getWorkspace();
+//								 IWorkspaceRoot root = workspace.getRoot();
+//								 IProject project  = root.getProject("MyProject");
+//								 IFolder folder = project.getFolder("Folder1");
+//								 IFile file = folder.getFile("hello.txt");
+//								 //at this point, no resources have been created
+//								 if (!project.exists()) project.create(null);
+//								 if (!project.isOpen()) project.open(null);
+//								 if (!folder.exists()) 
+//								     folder.create(IResource.NONE, true, null);
+//								 if (!file.exists()) {
+//								     byte[] bytes = "File contents".getBytes();
+//								     InputStream source = new ByteArrayInputStream(bytes);
+//								     file.create(source, IResource.NONE, null);
+//								 }
+								 
 						} finally {}
 					}
 				});

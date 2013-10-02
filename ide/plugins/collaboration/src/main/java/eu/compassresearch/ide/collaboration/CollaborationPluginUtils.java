@@ -1,9 +1,14 @@
 package eu.compassresearch.ide.collaboration;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -95,16 +100,29 @@ public class CollaborationPluginUtils
 		return (IResource) adapter;
 	}
 
-	
 	public static String convertStreamToString(InputStream is) {
 		Scanner scanner = new Scanner(is,"UTF-8");
-		if(scanner.hasNext()){
-			String inputStreamString = scanner.useDelimiter("\\A").next();
+		try {
+			if(scanner.hasNext()){
+				String inputStreamString = scanner.useDelimiter("\\A").next();
+				
+				return inputStreamString;
+			} else {
+				return "";
+			}
+		} finally {
 			scanner.close();
-			return inputStreamString;
-		} else {
-			return "";
 		}
 	}
-	
+
+	IFileStore getTempFileStore(String fromUsername, String fileName,
+			String content) throws IOException, CoreException
+	{
+		final IFileStore fileStore = EFS.getLocalFileSystem().fromLocalFile(File.createTempFile(fromUsername, fileName));
+		final OutputStream outs = fileStore.openOutputStream(EFS.OVERWRITE, null);
+		outs.write(content.getBytes());
+		outs.close();
+		return fileStore;
+	}
+
 }
