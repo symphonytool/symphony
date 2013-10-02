@@ -277,8 +277,11 @@ class CmlDefinitionVisitor extends
 	public NameValuePairList caseAImplicitCmlOperationDefinition(
 			AImplicitCmlOperationDefinition node, Context question)
 			throws AnalysisException {
-		//throw new CmlInterpreterException(node,"Implicit operations cannot be interpreted. This feature might be implemented later");
-		return new NameValuePairList();
+
+		NameValuePairList vpl = new NameValuePairList();
+		vpl.add(new NameValuePair(node.getName(), CmlValueFactory.createOperationValue(node,question)));
+		
+		return vpl;
 	}
 
 	@Override

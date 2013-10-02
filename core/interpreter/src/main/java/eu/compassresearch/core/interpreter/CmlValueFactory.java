@@ -18,6 +18,7 @@ import org.overture.interpreter.values.ObjectValue;
 import eu.compassresearch.ast.actions.ANewStatementAction;
 import eu.compassresearch.ast.definitions.ACmlClassDefinition;
 import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
+import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
 import eu.compassresearch.core.interpreter.api.values.ActionValue;
 import eu.compassresearch.core.interpreter.api.values.CmlOperationValue;
@@ -78,6 +79,11 @@ class CmlValueFactory {
 			
 			ret = new CmlOperationValue(def, null);
 			
+		}
+		else if (node instanceof AImplicitCmlOperationDefinition)
+		{
+			AImplicitCmlOperationDefinition def = (AImplicitCmlOperationDefinition)node;
+			ret = new CmlOperationValue(def, null);
 		}
 		
 		

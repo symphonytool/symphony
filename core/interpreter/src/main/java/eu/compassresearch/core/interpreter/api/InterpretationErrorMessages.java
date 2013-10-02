@@ -4,7 +4,9 @@ public enum InterpretationErrorMessages {
 
 	NO_PROCESS_WITH_DEFINED_NAME_FOUND("No process identified by '%s' exists"),
 	FATAL_ERROR("A fatal unrecoverable error has occured, please report this error to akm@iha.dk"),
-	CASE_NOT_IMPLEMENTED("%s case is not yet implemented")
+	CASE_NOT_IMPLEMENTED("%s case is not yet implemented"),
+	EVAL_OF_UNDEFINED_VALUE("You are trying to evaluate an undefined value : %s %s"),
+	EVAL_OF_IMPLICIT_OP("The operation '%s' is implicit, this is not possible to interpret")
 	;
 	
 	private String template;

@@ -46,6 +46,8 @@ import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.AWhileStatementAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.types.AActionType;
+import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
+import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.Inspection;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
@@ -154,6 +156,9 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 								throws AnalysisException {
 							//first find the operation value in the context
 							CmlOperationValue opVal = (CmlOperationValue)lookupName(node.getName(),question); 
+							
+							if(opVal.getBody() == null)
+								throw new CmlInterpreterException(node,InterpretationErrorMessages.EVAL_OF_IMPLICIT_OP.customizeMessage(node.getName().toString()));
 							
 							//evaluate all the arguments
 							ValueList argValues = new ValueList();
