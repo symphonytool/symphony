@@ -14,11 +14,9 @@ import org.overture.ast.lex.LexNameList;
 import org.overture.ast.node.INode;
 import org.overture.ast.patterns.APatternListTypePair;
 import org.overture.ast.patterns.PPattern;
-import org.overture.ast.statements.ANotYetSpecifiedStm;
 import org.overture.ast.types.AOperationType;
 import org.overture.ast.types.PType;
 import org.overture.pog.obligation.PONameContext;
-import org.overture.pog.obligation.ProofObligationList;
 import org.overture.pog.obligation.StateInvariantObligation;
 import org.overture.pog.obligation.SubTypeObligation;
 import org.overture.pog.pub.IPOContextStack;
@@ -267,15 +265,15 @@ public class POGDeclAndDefVisitor extends
 
 		CmlProofObligationList pol = new CmlProofObligationList();
 
-		//TODO re-enable pog action visits. for now, not doing it.
-		
-//		LinkedList<AActionDefinition> actions = node.getActions();
-//		for (AActionDefinition action : actions)
-//		{
-//			// System.out.println("Action: " + action.toString() + ", Type: " +
-//			// action.getType());
-//			pol.addAll(action.apply(parentPOG, question));
-//		}
+		// TODO re-enable pog action visits. for now, not doing it.
+
+		// LinkedList<AActionDefinition> actions = node.getActions();
+		// for (AActionDefinition action : actions)
+		// {
+		// // System.out.println("Action: " + action.toString() + ", Type: " +
+		// // action.getType());
+		// pol.addAll(action.apply(parentPOG, question));
+		// }
 
 		return pol;
 	}
@@ -289,12 +287,12 @@ public class POGDeclAndDefVisitor extends
 
 		CmlProofObligationList pol = new CmlProofObligationList();
 
-		//TODO re-enable pog action visits. for now, not doing it.
-		
-//		PAction action = node.getAction();
-//		// System.out.println("Action: " + action.toString() + ", Type: " +
-//		// action.getType());
-//		pol.addAll(action.apply(parentPOG, question));
+		// TODO re-enable pog action visits. for now, not doing it.
+
+		// PAction action = node.getAction();
+		// // System.out.println("Action: " + action.toString() + ", Type: " +
+		// // action.getType());
+		// pol.addAll(action.apply(parentPOG, question));
 
 		return pol;
 	}
@@ -527,7 +525,7 @@ public class POGDeclAndDefVisitor extends
 		if (node.getPostcondition() != null)
 		{
 			pol.addAll(node.getPostcondition().apply(parentPOG, question));
-			
+
 			question.push(new CmlOperationDefinitionContext(node, false, node.getStateDefinition()));
 			pol.add(new CmlSatisfiabilityObligation(node, node.getStateDefinition(), question));
 			question.pop();
@@ -543,7 +541,7 @@ public class POGDeclAndDefVisitor extends
 			throws AnalysisException
 	{
 
-		if ( node.getBody() instanceof ANotYetSpecifiedStatementAction)
+		if (node.getBody() instanceof ANotYetSpecifiedStatementAction)
 		{
 			return new CmlProofObligationList();
 		}
@@ -586,7 +584,10 @@ public class POGDeclAndDefVisitor extends
 		if (!node.getIsConstructor()
 				&& !TypeComparator.isSubType(node.getActualResult(), ((AOperationType) node.getType()).getResult()))
 		{
-			pol.add(new CmlSubTypeObligation(node, node.getActualResult(), question));
+			CmlSubTypeObligation sto = CmlSubTypeObligation.newInstance(node, node.getActualResult(), question);
+			if (sto !=null){
+				pol.add(sto);
+			}
 		}
 
 		return pol;
@@ -613,10 +614,13 @@ public class POGDeclAndDefVisitor extends
 
 		if (!TypeComparator.isSubType(question.checkType(expression, expType), type))
 		{
-			obligations.add(new SubTypeObligation(expression, type, expType, question));
+			SubTypeObligation sto = SubTypeObligation.newInstance(expression, type, expType, question);
+			if (sto!=null)
+			{
+				obligations.add(sto);
+			}
 		}
 
 		return obligations;
 	}
-
 }
