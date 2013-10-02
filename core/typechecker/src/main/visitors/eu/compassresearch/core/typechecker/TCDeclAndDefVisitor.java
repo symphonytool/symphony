@@ -2209,11 +2209,6 @@ class TCDeclAndDefVisitor extends
 			node.setType(issueHandler.addTypeError(node, e.getMessage()));
 		}
 
-		AExplicitFunctionDefinition invDef = node.getInvdef();
-		if(invDef != null){
-			invDef.apply(parentChecker, question);
-		}
-		
 		return node.getType();
 	}
 
