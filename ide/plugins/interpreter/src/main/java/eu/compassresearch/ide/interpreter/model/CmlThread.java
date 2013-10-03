@@ -199,7 +199,7 @@ public class CmlThread extends CmlDebugElement implements IThread
 	}
 
 	@Override
-	public IDebugTarget getDebugTarget()
+	public CmlDebugTarget getDebugTarget()
 	{
 		return this.debugTarget;
 	}

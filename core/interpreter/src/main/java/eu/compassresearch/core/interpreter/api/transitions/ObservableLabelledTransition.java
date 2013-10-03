@@ -16,6 +16,7 @@ import org.overture.ast.types.PType;
 
 import eu.compassresearch.ast.analysis.AnswerCMLAdaptor;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
+import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.values.AbstractValueInterpreter;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
@@ -75,8 +76,8 @@ class ObservableLabelledTransition extends AbstractLabelledTransition implements
 		ChannelNameValue meetValue = this.getChannelName().meet(((LabelledTransition)otherComEvent).getChannelName());
 		
 		if(meetValue == null)
-			throw new CmlInterpreterException("Cannot synchronize " + this.toString() + " with " + syncEvent.toString() +
-					", since they are not comparable");
+			throw new CmlInterpreterException(
+					InterpretationErrorMessages.SYNC_OF_NONCOMPARABLE_EVENTS.customizeMessage(this.toString(),syncEvent.toString()));
 		
 		if(meetValue.isConstraintValid())
 		{

@@ -29,7 +29,7 @@ import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Display;
 import org.overture.ide.debug.core.model.DebugEventHelper;
 
-import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
+import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
 import eu.compassresearch.core.interpreter.debug.Breakpoint;
 import eu.compassresearch.core.interpreter.debug.TransitionDTO;
 import eu.compassresearch.core.interpreter.debug.CmlDbgCommandMessage;
@@ -135,7 +135,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 	{
 		Map<String, MessageEventHandler<CmlDbgStatusMessage>> handlers = new HashMap<String, MessageEventHandler<CmlDbgStatusMessage>>();
 
-		handlers.put(CmlInterpretationStatus.INITIALIZED.toString(), new MessageEventHandler<CmlDbgStatusMessage>()
+		handlers.put(CmlInterpreterState.INITIALIZED.toString(), new MessageEventHandler<CmlDbgStatusMessage>()
 		{
 			@Override
 			public boolean handleMessage(CmlDbgStatusMessage message)
@@ -169,7 +169,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 			}
 		});
 
-		handlers.put(CmlInterpretationStatus.RUNNING.toString(), new MessageEventHandler<CmlDbgStatusMessage>()
+		handlers.put(CmlInterpreterState.RUNNING.toString(), new MessageEventHandler<CmlDbgStatusMessage>()
 		{
 			@Override
 			public boolean handleMessage(CmlDbgStatusMessage message)
@@ -187,7 +187,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 			}
 		});
 
-		handlers.put(CmlInterpretationStatus.WAITING_FOR_ENVIRONMENT.toString(), new MessageEventHandler<CmlDbgStatusMessage>()
+		handlers.put(CmlInterpreterState.WAITING_FOR_ENVIRONMENT.toString(), new MessageEventHandler<CmlDbgStatusMessage>()
 		{
 			@Override
 			public boolean handleMessage(final CmlDbgStatusMessage message)
@@ -227,7 +227,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 			}
 		});
 
-		handlers.put(CmlInterpretationStatus.SUSPENDED.toString(), new MessageEventHandler<CmlDbgStatusMessage>()
+		handlers.put(CmlInterpreterState.SUSPENDED.toString(), new MessageEventHandler<CmlDbgStatusMessage>()
 		{
 
 			@Override
@@ -280,7 +280,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 			}
 		});
 
-		handlers.put(CmlInterpretationStatus.FAILED.toString(), new MessageEventHandler<CmlDbgStatusMessage>()
+		handlers.put(CmlInterpreterState.FAILED.toString(), new MessageEventHandler<CmlDbgStatusMessage>()
 		{
 			@Override
 			public boolean handleMessage(CmlDbgStatusMessage message)
@@ -311,7 +311,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 			}
 		});
 
-		handlers.put(CmlInterpretationStatus.FINISHED.toString(), new MessageEventHandler<CmlDbgStatusMessage>()
+		handlers.put(CmlInterpreterState.FINISHED.toString(), new MessageEventHandler<CmlDbgStatusMessage>()
 		{
 			@Override
 			public boolean handleMessage(CmlDbgStatusMessage message)
@@ -332,7 +332,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 			}
 		});
 
-		handlers.put(CmlInterpretationStatus.TERMINATED_BY_USER.toString(), new MessageEventHandler<CmlDbgStatusMessage>()
+		handlers.put(CmlInterpreterState.TERMINATED_BY_USER.toString(), new MessageEventHandler<CmlDbgStatusMessage>()
 		{
 			@Override
 			public boolean handleMessage(CmlDbgStatusMessage message)
@@ -422,15 +422,15 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 	public boolean canSuspend()
 	{
 		return lastState != null && 
-				lastState.getInterpreterState() ==  CmlInterpretationStatus.RUNNING;
+				lastState.getInterpreterState() ==  CmlInterpreterState.RUNNING;
 	}
 
 	@Override
 	public boolean isSuspended()
 	{
 		return lastState != null && 
-				(lastState.getInterpreterState() ==  CmlInterpretationStatus.SUSPENDED ||
-						lastState.getInterpreterState() == CmlInterpretationStatus.WAITING_FOR_ENVIRONMENT);
+				(lastState.getInterpreterState() ==  CmlInterpreterState.SUSPENDED 
+				||lastState.getInterpreterState() == CmlInterpreterState.WAITING_FOR_ENVIRONMENT);
 	}
 
 	@Override

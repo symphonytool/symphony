@@ -3,15 +3,15 @@ package eu.compassresearch.core.interpreter;
 import java.util.HashMap;
 import java.util.Map;
 
-import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
+import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.SelectionStrategy;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
-import eu.compassresearch.core.interpreter.api.events.CmlInterpreterStatusObserver;
+import eu.compassresearch.core.interpreter.api.events.CmlInterpreterStateObserver;
 import eu.compassresearch.core.interpreter.api.events.EventFireMediator;
 import eu.compassresearch.core.interpreter.api.events.EventSource;
 import eu.compassresearch.core.interpreter.api.events.EventSourceHandler;
-import eu.compassresearch.core.interpreter.api.events.InterpreterStatusEvent;
+import eu.compassresearch.core.interpreter.api.events.InterpreterStateChangedEvent;
 import eu.compassresearch.core.interpreter.debug.Breakpoint;
 
 abstract class AbstractCmlInterpreter implements CmlInterpreter {
@@ -19,16 +19,16 @@ abstract class AbstractCmlInterpreter implements CmlInterpreter {
 	/**
 	 * Event handler for notifying when the interpreter status changes 
 	 */
-	protected EventSourceHandler<CmlInterpreterStatusObserver, InterpreterStatusEvent> statusEventHandler =
-			new EventSourceHandler<CmlInterpreterStatusObserver, InterpreterStatusEvent>(this, 
-					new EventFireMediator<CmlInterpreterStatusObserver, InterpreterStatusEvent>() {
+	protected EventSourceHandler<CmlInterpreterStateObserver, InterpreterStateChangedEvent> stateChangedEventHandler =
+			new EventSourceHandler<CmlInterpreterStateObserver, InterpreterStateChangedEvent>(this, 
+					new EventFireMediator<CmlInterpreterStateObserver, InterpreterStateChangedEvent>() {
 
 				@Override
 				public void fireEvent (
-						CmlInterpreterStatusObserver observer,
-						Object source, InterpreterStatusEvent event) {
+						CmlInterpreterStateObserver observer,
+						Object source, InterpreterStateChangedEvent event) {
 
-					observer.onStatusChanged(source, event);
+					observer.onStateChanged(source, event);
 
 				}
 			});
@@ -43,17 +43,17 @@ abstract class AbstractCmlInterpreter implements CmlInterpreter {
 	/**
 	 * The current state of the interpreter
 	 */
-	private CmlInterpretationStatus      	currentState = null;
+	private CmlInterpreterState      	currentState = null;
 
 	/**
 	 * Set the new state of the interpreter
 	 */
-	protected void setNewState(CmlInterpretationStatus newState) 
+	protected void setNewState(CmlInterpreterState newState) 
 	{
 		if(currentState != newState)
 		{
 			currentState = newState;
-			statusEventHandler.fireEvent(new InterpreterStatusEvent(this, currentState));
+			stateChangedEventHandler.fireEvent(new InterpreterStateChangedEvent(this, currentState));
 		}
 	}
 
@@ -61,7 +61,8 @@ abstract class AbstractCmlInterpreter implements CmlInterpreter {
 	 * Retrieves the current state of the interpreter
 	 * @return The current state of the interpreter
 	 */
-	public CmlInterpretationStatus getStatus()
+	@Override
+	public CmlInterpreterState getState()
 	{
 		return currentState;
 	}
@@ -73,9 +74,9 @@ abstract class AbstractCmlInterpreter implements CmlInterpreter {
 	}
 
 	@Override
-	public EventSource<CmlInterpreterStatusObserver> onStatusChanged() {
+	public EventSource<CmlInterpreterStateObserver> onStateChanged() {
 
-		return statusEventHandler;
+		return stateChangedEventHandler;
 	}
 	
 	//Breakpoints

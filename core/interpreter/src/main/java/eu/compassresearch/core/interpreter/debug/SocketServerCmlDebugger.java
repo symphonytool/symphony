@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.intf.lex.ILexLocation;
@@ -22,16 +23,15 @@ import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.core.interpreter.CmlRuntime;
 import eu.compassresearch.core.interpreter.Console;
-import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
+import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
-import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.RandomSelectionStrategy;
 import eu.compassresearch.core.interpreter.api.SelectionStrategy;
 import eu.compassresearch.core.interpreter.api.ValueParser;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
-import eu.compassresearch.core.interpreter.api.events.CmlInterpreterStatusObserver;
-import eu.compassresearch.core.interpreter.api.events.InterpreterStatusEvent;
+import eu.compassresearch.core.interpreter.api.events.CmlInterpreterStateObserver;
+import eu.compassresearch.core.interpreter.api.events.InterpreterStateChangedEvent;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.transitions.LabelledTransition;
@@ -49,7 +49,7 @@ import eu.compassresearch.core.interpreter.utility.LocationExtractor;
  * @author akm
  *
  */
-public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStatusObserver {
+public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStateObserver {
 
 	/**
 	 * The communication socket 
@@ -68,7 +68,7 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 	 */
 	private SynchronousQueue<ResponseMessage> responseQueue = new SynchronousQueue<ResponseMessage>();
 	/**
-	 * Response Queue
+	 * Transition Choice Queue
 	 */
 	private SynchronousQueue<TransitionDTO> choiceQueue = new SynchronousQueue<TransitionDTO>();
 	/**
@@ -91,7 +91,7 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 			try {
 				requestSocket.shutdownInput();
 			} catch (IOException e) {
-				e.printStackTrace();
+				CmlRuntime.logger().log(Level.WARNING, "",e);
 			}
 		}
 
@@ -110,7 +110,7 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 			}catch(IOException e)
 			{
 				stopped();
-				e.printStackTrace();
+				CmlRuntime.logger().log(Level.WARNING, "",e);
 			}
 		}
 	}
@@ -147,36 +147,23 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 	{
 		cmlInterpreter.execute(new SelectionStrategy() {
 
-			/*private Scanner scanIn = new Scanner(System.in);*/
 			private RandomSelectionStrategy rndSelect = new RandomSelectionStrategy();
-			
+
 			private boolean isSystemSelect(CmlTransitionSet availableChannelEvents)
 			{
 				return availableChannelEvents.getSilentTransitions().size() > 0;
 			}
 
-			private CmlTransition systemSelect(CmlTransitionSet availableChannelEvents)
+			private CmlTransition systemSelect()
 			{
 				rndSelect.choices(new CmlTransitionSet((Set)availableChannelEvents.getSilentTransitions()));
-				
 				return rndSelect.resolveChoice();
 			}
 
 			private CmlTransition userSelect() throws InterruptedException
 			{
-				//sendStatusMessage(CmlDbgpStatus.CHOICE, cmlInterpreter.getStatus());
-
-				//List<Choice> transitions = new LinkedList<Choice>();
-				
-//
-//				ResponseMessage response = sendRequestSynchronous(new RequestMessage(CmlRequest.CHOICE,transitions));
-//
-//				if(response.isRequestInterrupted())
-//					throw new InterpreterRuntimeException("The simulation was interrupted");
-//
-//				//Grab the response 
+				//				//Wait for a transition choice taken by the user
 				TransitionDTO choice = choiceQueue.take();
-//				//System.out.println("response: " + responseStr);
 
 				CmlTransition selectedEvent = null;
 				//For now we just search naively to find the event
@@ -190,11 +177,11 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 				{
 					LabelledTransition chosenChannelEvent = (LabelledTransition)selectedEvent;
 					ChannelNameValue channnelName = chosenChannelEvent.getChannelName(); 
-					
+
 					for(int i = 0 ; i < channnelName.getValues().size() ; i++ )
 					{
 						Value currentValue = channnelName.getValues().get(i);
-						
+
 						if(!AbstractValueInterpreter.isValueMostPrecise(currentValue))
 						{
 							System.out.println("Enter value : "); 
@@ -216,22 +203,16 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 			@Override
 			public void choices(CmlTransitionSet availableTransitions)
 			{
-				waitingChoices.clear();
 				availableChannelEvents = availableTransitions;
+
+				//We only convert the CmlTransitions into DTO's if no silent transitions
+				//can occur, since we only send the transitions to Eclipse if so.
 				if(!isSystemSelect(availableChannelEvents))
 				{
-					convertTransitionsToChoices(availableChannelEvents,waitingChoices);
+					waitingChoices = convertTransitionsToChoices(availableChannelEvents,waitingChoices);
 				}
-				//At this point we don't want the internal transition to propagate 
-				//to the user, so we randomly choose all the possible internal transitions
-				//before we let anything through to the user
-//				if(isSystemSelect(availableTransitions))
-//					return systemSelect(availableTransitions);
-//				else
-//					return userSelect(availableTransitions);
-				
 			}
-			
+
 			@Override
 			public CmlTransition resolveChoice() {
 
@@ -239,11 +220,10 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 				//to the user, so we randomly choose all the possible internal transitions
 				//before we let anything through to the user
 				if(isSystemSelect(availableChannelEvents))
-					return systemSelect(availableChannelEvents);
+					return systemSelect();
 				else
-					//return userSelect(availableChannelEvents);
 				{
-					
+
 					try
 					{
 						return userSelect();
@@ -256,13 +236,15 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 						waitingChoices.clear();
 					}
 				}
-				
+
 			}
 		});
 	}
 
-	private void convertTransitionsToChoices(CmlTransitionSet availableTransitions, List<TransitionDTO> choices)
+	private List<TransitionDTO> convertTransitionsToChoices(CmlTransitionSet availableTransitions, List<TransitionDTO> choices)
 	{
+		List<TransitionDTO> convertedTransitionObjs = new LinkedList<TransitionDTO>();
+		
 		for(CmlTransition transition : availableChannelEvents.getAllEvents())
 		{
 			//First find all the locations of the transition sources
@@ -273,10 +255,12 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 				locations.add(LocationExtractor.extractLocation(node));
 			}
 
-			waitingChoices.add(new TransitionDTO(System.identityHashCode(transition),transition.toString(),locations));
+			convertedTransitionObjs.add(new TransitionDTO(System.identityHashCode(transition),transition.toString(),locations));
 		}
+		
+		return convertedTransitionObjs;
 	}
-	
+
 	/**
 	 * Message communication methods
 	 */
@@ -311,7 +295,7 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 		MessageCommunicator.sendMessage(requestOS, message);
 		ResponseMessage responseMessage = null;
 		try {
-			//check message id
+			//TODO check message id
 			responseMessage = responseQueue.take();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
@@ -319,7 +303,7 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 
 		return responseMessage;
 	}
-	
+
 	private void sendResponse(ResponseMessage message)
 	{
 		MessageCommunicator.sendMessage(requestOS, message);
@@ -333,50 +317,25 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 	private MessageContainer recvMessage() throws IOException
 	{
 		return MessageCommunicator.receiveMessage(requestReader,
-				new MessageContainer(new CmlDbgStatusMessage(CmlInterpretationStatus.TERMINATED_BY_USER))); 
+				new MessageContainer(new CmlDbgStatusMessage(CmlInterpreterState.TERMINATED_BY_USER))); 
 	}
 
 
 	private void stopping()
 	{
 		//sendStatusMessage(CmlDbgpStatus.STOPPING);
-		
+
 		try
 		{
 			//This is to release the interpreter thread if stuck here
 			responseQueue.offer(new ResponseMessage(), 1, TimeUnit.MILLISECONDS);
 			choiceQueue.offer(new TransitionDTO(Integer.MAX_VALUE, "", new LinkedList<ILexLocation>()), 1, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e){}
-		
-//		if(choiceQueue.isEmpty())
-//			choiceQueue.add(null);
-			
 	}
 
 	/*
 	 * Message handlers
 	 */
-
-	/**
-	 * Processes messages of type MessageType.STATUS, this is status messages from the other end.
-	 * @param message The status message
-	 * @return false if the connection has been closed by the other end else false
-	 */
-	private boolean processStatusMessage(CmlDbgStatusMessage message)
-	{
-		if(message.getStatus() != null)
-		{
-			switch(message.getStatus())
-			{
-			//		case null:
-			//			return false;
-			default:
-				return false;
-			}
-		}
-		else
-			return false;
-	}
 
 	/**
 	 * Processes messages of type MessageType.COMMAND, this is commands from the other end.
@@ -387,30 +346,30 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 	{
 		switch(message.getCommand())
 		{
-		case STOP:
-			stopping();
-			return false;
-		case SET_BREAKPOINT:	
-			Breakpoint bp = message.getContent();
-			Console.debug.println("Break point added : " + bp);
-			runningInterpreter.addBreakpoint(bp);
-			return true;
-		case RESUME:
-			runningInterpreter.resume();
-			return true;
-		case STEP:
-			runningInterpreter.step();
-			return true;
-		case SET_CHOICE:
-			TransitionDTO c = message.getContent();
-			//notify if a choice is selected
-			choiceQueue.offer(c);
-			return true;
-		default:
-			return true;
+			case STOP:
+				stopping();
+				return false;
+			case SET_BREAKPOINT:	
+				Breakpoint bp = message.getContent();
+				Console.debug.println("Break point added : " + bp);
+				runningInterpreter.addBreakpoint(bp);
+				return true;
+			case RESUME:
+				runningInterpreter.resume();
+				return true;
+			case STEP:
+				runningInterpreter.step();
+				return true;
+			case SET_CHOICE:
+				TransitionDTO c = message.getContent();
+				//notify if a choice is selected
+				choiceQueue.offer(c);
+				return true;
+			default:
+				return true;
 		}
 	}
-	
+
 	private boolean processRequest(RequestMessage message)
 	{
 		switch (message.getRequest())
@@ -418,7 +377,7 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 			case GET_STACK_FRAMES:
 			{
 				int id = message.getContent();
-				
+
 				CmlBehaviour foundBehavior = this.runningInterpreter.findBehaviorById(id);
 				Context context = foundBehavior.getNextState().second;
 				List<StackFrameDTO> stackframes = new LinkedList<StackFrameDTO>();
@@ -433,7 +392,7 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 					contextStack.add(nextContext);
 					nextContext = nextContext.outer;
 				}
-				
+
 				for(Context c : contextStack)
 					stackframes.add(new StackFrameDTO(c.location.getStartLine(), c.location.getFile().toURI(), contextCount--));
 
@@ -441,27 +400,27 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 				sendResponse(responseMessage);
 				return true;
 			}
-				
+
 			case GET_CONTEXT_PROPERTIES:
 			{
 				int[] args = message.getContent();
-				
+
 				int threadId = args[0];
 				int level = args[1];
-				
+
 				CmlBehaviour foundBehavior = this.runningInterpreter.findBehaviorById(threadId);
 				Context context = foundBehavior.getNextState().second;
-				
+
 				List<Context> contexts = new LinkedList<Context>();
 				while(context.outer != null)
 				{
 					contexts.add(0,context);
 					context = context.outer;
 				}
-								
+
 				ResponseMessage responseMessage = new ResponseMessage(message.getRequestId(), CmlRequest.GET_CONTEXT_PROPERTIES, VariableDTO.extractVariables(contexts.get(level-1)));
 				sendResponse(responseMessage);
-				
+
 				return true;
 			}
 
@@ -486,15 +445,16 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 	{
 		switch(messageContainer.getType())
 		{
-		case STATUS:
-			return processStatusMessage((CmlDbgStatusMessage)messageContainer.getMessage());
-		case COMMAND:
-			return processCommand((CmlDbgCommandMessage)messageContainer.getMessage());
-		case REQUEST:
-			return processRequest((RequestMessage)messageContainer.getMessage());
-		case RESPONSE:
-			return processResponse((ResponseMessage)messageContainer.getMessage());
-		default:
+			case STATUS:
+				//We ignore status messages since they should only be sent in the other direction
+				return true;
+			case COMMAND:
+				return processCommand((CmlDbgCommandMessage)messageContainer.getMessage());
+			case REQUEST:
+				return processRequest((RequestMessage)messageContainer.getMessage());
+			case RESPONSE:
+				return processResponse((ResponseMessage)messageContainer.getMessage());
+			default:
 		}
 
 		return false;
@@ -509,7 +469,7 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 	public void initialize(CmlInterpreter cmlInterpreter) throws AnalysisException {
 
 		runningInterpreter = cmlInterpreter;
-		runningInterpreter.onStatusChanged().registerObserver(this);
+		runningInterpreter.onStateChanged().registerObserver(this);
 		//sendStatusMessage(this.runningInterpreter.getStatus());
 		commandDispatcher = new CommandDispatcher();
 		new Thread(commandDispatcher, "CMLInterpreterRunner event dipsatcher").start();
@@ -525,7 +485,7 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 	public void start(InterpreterExecutionMode mode) {
 
 		try{
-//			currentMode = mode;
+			//			currentMode = mode;
 			if(mode == InterpreterExecutionMode.ANIMATE)
 			{
 				requestSetup();
@@ -561,15 +521,15 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 			stopped(status);
 		}
 		finally{
-			runningInterpreter.onStatusChanged().unregisterObserver(this);
+			runningInterpreter.onStateChanged().unregisterObserver(this);
 		}
 	}
 
 	@Override
-	public void onStatusChanged(Object source, InterpreterStatusEvent event) {
+	public void onStateChanged(Object source, InterpreterStateChangedEvent event) {
 		//Only send this if status is not FAILED, this will be handled in the start method
 		//which appends the correct errors to the status
-		if(event.getStatus() == CmlInterpretationStatus.WAITING_FOR_ENVIRONMENT)
+		if(event.getStatus() == CmlInterpreterState.WAITING_FOR_ENVIRONMENT)
 		{
 			if(!waitingChoices.isEmpty())
 			{
@@ -577,13 +537,13 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 				sendStatusMessage(CmlInterpreterStateDTO.createCmlInterpreterStateDTO(runningInterpreter,waitingChoices));
 			}
 		}
-		else if(event.getStatus() != CmlInterpretationStatus.FAILED)
+		else if(event.getStatus() != CmlInterpreterState.FAILED)
 		{
 			Console.debug.println("Debug thread sending Status event to controller: " + event);
 			sendStatusMessage(CmlInterpreterStateDTO.createCmlInterpreterStateDTO(runningInterpreter,waitingChoices));
 		}
 		CmlRuntime.logger().fine(event.getStatus().toString());
-		
+
 	}
 
 }

@@ -1,6 +1,6 @@
 package eu.compassresearch.core.interpreter.debug;
 
-import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
+import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
 import eu.compassresearch.core.interpreter.debug.messaging.Message;
 import eu.compassresearch.core.interpreter.debug.messaging.MessageType;
 
@@ -18,16 +18,16 @@ public class CmlDbgStatusMessage extends Message {
 		this.interpreterStatus = interpreterStatus;
 	}
 	
-	public CmlDbgStatusMessage(CmlInterpretationStatus state)
+	public CmlDbgStatusMessage(CmlInterpreterState state)
 	{
 		this.interpreterStatus = new CmlInterpreterStateDTO(state);
 	}
 	
-	public CmlInterpretationStatus getStatus() {
+	public CmlInterpreterState getStatus() {
 		if(this.interpreterStatus != null)
 			return this.interpreterStatus.getInterpreterState();
 		else 
-			return CmlInterpretationStatus.TERMINATED_BY_USER;
+			return CmlInterpreterState.TERMINATED_BY_USER;
 	}
 	
 	public CmlInterpreterStateDTO getInterpreterStatus() {
