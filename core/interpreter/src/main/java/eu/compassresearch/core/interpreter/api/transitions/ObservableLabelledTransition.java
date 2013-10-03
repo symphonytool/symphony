@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.node.INode;
 import org.overture.ast.types.AIntNumericBasicType;
 import org.overture.ast.types.ANamedInvariantType;
 import org.overture.ast.types.AQuoteType;
@@ -156,6 +157,20 @@ class ObservableLabelledTransition extends AbstractLabelledTransition implements
 //			return Arrays.asList((ChannelEvent)new CommunicationEvent(
 //					CommunicationEvent.this.getEventSources(), 
 //					CommunicationEvent.this.channelName, new QuoteValue(node.getValue().getValue())));
+		}
+
+		@Override
+		public List<LabelledTransition> createNewReturnValue(INode node)
+		{
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public List<LabelledTransition> createNewReturnValue(Object node)
+		{
+			// TODO Auto-generated method stub
+			return null;
 		}
 	}
 	

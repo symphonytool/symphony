@@ -14,7 +14,7 @@ import eu.compassresearch.core.interpreter.utility.Pair;
  * @author akm
  *
  */
-abstract class AbstractSetupVisitor extends QuestionAnswerCMLAdaptor<Context,Pair<INode,Context>> {
+ abstract class AbstractSetupVisitor extends QuestionAnswerCMLAdaptor<Context,Pair<INode,Context>> {
 
 	//Interface that gives access to methods that control the behaviour
 	private final VisitorAccess 								controlAccess;
@@ -49,5 +49,21 @@ abstract class AbstractSetupVisitor extends QuestionAnswerCMLAdaptor<Context,Pai
 	protected void setChildContexts(Pair<Context,Context> preBuildContexts)
 	{
 		this.controlAccess.setChildContexts(preBuildContexts);
+	}
+
+	@Override
+	public Pair<INode, Context> createNewReturnValue(INode node,
+			Context question)
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Pair<INode, Context> createNewReturnValue(Object node,
+			Context question)
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

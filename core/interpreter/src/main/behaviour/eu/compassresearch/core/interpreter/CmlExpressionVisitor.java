@@ -10,6 +10,7 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.intf.lex.ILexNameToken;
+import org.overture.ast.node.INode;
 import org.overture.ast.types.AProductType;
 import org.overture.ast.types.PType;
 import org.overture.ast.util.definitions.ClassList;
@@ -190,6 +191,20 @@ public class CmlExpressionVisitor extends QuestionAnswerCMLAdaptor<Context, Valu
 		}
 		
 		return val;
+	}
+
+	@Override
+	public Value createNewReturnValue(INode node, Context question)
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Value createNewReturnValue(Object node, Context question)
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 }

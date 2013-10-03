@@ -128,5 +128,19 @@ public class AbstractInspectionVisitor extends
 		
 		return retVal;
 	}
+
+	@Override
+	public Inspection createNewReturnValue(INode node, Context question)
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Inspection createNewReturnValue(Object node, Context question)
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
 }

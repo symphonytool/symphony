@@ -88,5 +88,17 @@ public class InputCommunicationPatternVisitor extends
 		// TODO Auto-generated method stub
 		return super.caseARealPattern(node, question);
 	}
+
+	@Override
+	public LatticeElement createNewReturnValue(INode node, PType question)throws AnalysisException
+	{
+		throw new AnalysisException("Unsupported construct slipped through the parser");
+	}
+
+	@Override
+	public LatticeElement createNewReturnValue(Object node, PType question)throws AnalysisException
+	{
+		throw new AnalysisException("Unsupported construct slipped through the parser");
+	}
 	
 }

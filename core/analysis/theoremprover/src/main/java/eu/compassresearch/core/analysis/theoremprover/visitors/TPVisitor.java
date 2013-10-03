@@ -316,6 +316,20 @@ public class TPVisitor extends
 		sb.append("\n" + "end");
 		
 		return sb.toString();
+	}
+	@Override
+	public ThmNodeList createNewReturnValue(INode node)
+			throws AnalysisException
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public ThmNodeList createNewReturnValue(Object node)
+			throws AnalysisException
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}	
 }
 

@@ -58,6 +58,18 @@ class CmlOpsToString  {
 
 			return "[|" + node.getChansetExpression() + "|]";
 		}
+
+		@Override
+		public String createNewReturnValue(INode node)
+		{
+			return "NA";
+		}
+
+		@Override
+		public String createNewReturnValue(Object node)
+		{
+			return "NA";
+		}
 	}
 	
 }

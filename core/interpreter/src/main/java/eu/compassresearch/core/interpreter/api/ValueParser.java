@@ -92,4 +92,18 @@ public class ValueParser extends AnswerCMLAdaptor<Value>
 		
 		return new QuoteValue(node.getValue().getValue());
 	}
+
+	@Override
+	public Value createNewReturnValue(INode node)
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Value createNewReturnValue(Object node)
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

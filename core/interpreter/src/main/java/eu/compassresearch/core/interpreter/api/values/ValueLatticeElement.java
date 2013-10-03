@@ -1,6 +1,7 @@
 package eu.compassresearch.core.interpreter.api.values;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.node.INode;
 import org.overture.ast.types.AProductType;
 import org.overture.ast.types.PType;
 import org.overture.interpreter.values.Value;
@@ -130,6 +131,18 @@ public class ValueLatticeElement extends Value implements LatticeElement
 		@Override
 		public Boolean caseAProductType(AProductType node,
 				LatticeElement question) throws AnalysisException
+		{
+			return null;
+		}
+
+		@Override
+		public Boolean createNewReturnValue(INode node, LatticeElement question)
+		{
+			return null;
+		}
+
+		@Override
+		public Boolean createNewReturnValue(Object node, LatticeElement question)
 		{
 			return null;
 		}

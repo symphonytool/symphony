@@ -15,6 +15,7 @@ import org.overture.ast.factory.AstFactory;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.intf.lex.ILexNameToken;
+import org.overture.ast.node.INode;
 import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.FunctionValue;
@@ -394,6 +395,20 @@ class CmlDefinitionVisitor extends
 			vpl.add(new NameValuePair(new LexNameToken("", id.clone()), value));
 		
 		return vpl;
+	}
+
+	@Override
+	public NameValuePairList createNewReturnValue(INode node, Context question)
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public NameValuePairList createNewReturnValue(Object node, Context question)
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
 

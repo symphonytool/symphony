@@ -3,6 +3,7 @@ package eu.compassresearch.core.interpreter.api;
 import java.util.Random;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.node.INode;
 import org.overture.ast.types.AIntNumericBasicType;
 import org.overture.ast.types.ANamedInvariantType;
 import org.overture.ast.types.ANatNumericBasicType;
@@ -97,5 +98,19 @@ class RandomVDMValueGenerator extends AnswerCMLAdaptor<Value>
 				argvals.add(node.getTypes().get(i).apply(this));
 		}
 		return new TupleValue(argvals);
+	}
+
+	@Override
+	public Value createNewReturnValue(INode node)
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Value createNewReturnValue(Object node)
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

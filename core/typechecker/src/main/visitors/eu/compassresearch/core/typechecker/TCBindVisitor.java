@@ -12,6 +12,7 @@ import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.factory.AstFactory;
 import org.overture.ast.intf.lex.ILexNameToken;
+import org.overture.ast.node.INode;
 import org.overture.ast.patterns.ADefPatternBind;
 import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.ARecordPattern;
@@ -285,6 +286,20 @@ class TCBindVisitor extends QuestionAnswerCMLAdaptor<TypeCheckInfo, PType>
 
 		// return the type.
 		return node.getType();
+	}
+
+	@Override
+	public PType createNewReturnValue(INode node, TypeCheckInfo question)
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public PType createNewReturnValue(Object node, TypeCheckInfo question)
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
