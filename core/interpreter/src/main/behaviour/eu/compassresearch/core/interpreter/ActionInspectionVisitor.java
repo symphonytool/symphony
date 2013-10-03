@@ -128,7 +128,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 				//first find the action value in the context
 				final ActionValue actionVal = (ActionValue)value;
 
-				return newInspection(createTauTransitionWithTime(actionVal.getActionDefinition().getAction(), null), 
+				return newInspection(createTauTransitionWithoutTime(actionVal.getActionDefinition().getAction(), null), 
 						new AbstractCalculationStep(owner, visitorAccess) {
 
 					@Override

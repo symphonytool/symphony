@@ -114,7 +114,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 			final ABlockStatementAction node, final Context question)
 			throws AnalysisException {
 		
-		return newInspection(createTauTransitionWithTime(node.getAction()), 
+		return newInspection(createTauTransitionWithoutTime(node.getAction()), 
 				new AbstractCalculationStep(owner, visitorAccess) {
 					
 					@Override
@@ -148,7 +148,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 		
 		if(!owner.hasChildren()){
 			
-			return newInspection(createTauTransitionWithTime(node), 
+			return newInspection(createTauTransitionWithoutTime(node), 
 					new AbstractCalculationStep(owner, visitorAccess) {
 						
 						@Override
@@ -181,12 +181,12 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 							//Create a new object context to perform the operation call 
 							Context callContext = CmlContextFactory.newObjectContext(opVal.getBody().getLocation(), "CML Operation Call", question, self);
 
-							if (argValues.size() != opVal.getParamPatterns().size())
+							if (constValues.size() != opVal.getParamPatterns().size())
 							{
 								opVal.abort(4068, "Wrong number of arguments passed to " + node.getName(), question);
 							}
 
-							ListIterator<Value> valIter = argValues.listIterator();
+							ListIterator<Value> valIter = constValues.listIterator();
 							Iterator<PType> typeIter = opVal.getType().getParameters().iterator();
 							NameValuePairMap args = new NameValuePairMap();
 
@@ -313,7 +313,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 		else
 		{
 			final INode skipNode = new ASkipAction();
-			return newInspection(createTauTransitionWithTime(skipNode), 
+			return newInspection(createTauTransitionWithoutTime(skipNode), 
 					new AbstractCalculationStep(owner, visitorAccess) {
 						
 						@Override
@@ -534,7 +534,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 			final AReturnStatementAction node, final Context question)
 			throws AnalysisException {
 
-		return newInspection(createTauTransitionWithTime(new ASkipAction()), 
+		return newInspection(createTauTransitionWithoutTime(new ASkipAction()), 
 				new AbstractCalculationStep(owner,visitorAccess) {
 			
 			@Override

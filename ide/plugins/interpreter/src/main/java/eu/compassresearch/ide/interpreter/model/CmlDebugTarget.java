@@ -429,8 +429,8 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 	public boolean isSuspended()
 	{
 		return lastState != null && 
-				(lastState.getInterpreterState() ==  CmlInterpreterState.SUSPENDED ||
-						lastState.getInterpreterState() == CmlInterpreterState.WAITING_FOR_ENVIRONMENT);
+				(lastState.getInterpreterState() ==  CmlInterpreterState.SUSPENDED 
+				||lastState.getInterpreterState() == CmlInterpreterState.WAITING_FOR_ENVIRONMENT);
 	}
 
 	@Override
