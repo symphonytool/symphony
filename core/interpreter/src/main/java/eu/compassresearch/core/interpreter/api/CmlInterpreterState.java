@@ -14,7 +14,7 @@ package eu.compassresearch.core.interpreter.api;
  * @author akm
  *
  */
-public enum CmlInterpretationStatus {
+public enum CmlInterpreterState {
 
 	/**
 	 * The interpreter is deadlocked

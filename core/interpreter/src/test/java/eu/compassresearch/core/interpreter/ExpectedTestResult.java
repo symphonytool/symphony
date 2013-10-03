@@ -19,7 +19,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
+import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
 
 public class ExpectedTestResult {
 
@@ -62,7 +62,7 @@ public class ExpectedTestResult {
 			Pattern timedTraces = extractPatternFromNodeList(docEle.getElementsByTagName("timedTrace"));
 			
 			//Parse the interpreter state
-			CmlInterpretationStatus interpreterState = parseInterpreterState(docEle);
+			CmlInterpreterState interpreterState = parseInterpreterState(docEle);
 			
 			testResult = new ExpectedTestResult(traces,timedTraces,exceptionName,interpreterState);
 
@@ -75,13 +75,13 @@ public class ExpectedTestResult {
 		return testResult;
 	}
 	
-	private static CmlInterpretationStatus parseInterpreterState(Element docEle)
+	private static CmlInterpreterState parseInterpreterState(Element docEle)
 	{
 		Node stateNode = docEle.getElementsByTagName("interpreterState").item(0).getFirstChild();
 		
 		if(stateNode != null)
 		{
-			return CmlInterpretationStatus.valueOf(stateNode.getNodeValue());
+			return CmlInterpreterState.valueOf(stateNode.getNodeValue());
 		}
 		else
 			return null;
@@ -121,9 +121,9 @@ public class ExpectedTestResult {
 	/**
 	 * The state of the interpreter when the test are executed
 	 */
-	private final CmlInterpretationStatus state;
+	private final CmlInterpreterState state;
 	
-	public ExpectedTestResult(Pattern eventTraces,Pattern timedTraces, String exceptionName,CmlInterpretationStatus state)
+	public ExpectedTestResult(Pattern eventTraces,Pattern timedTraces, String exceptionName,CmlInterpreterState state)
 	{
 		this.eventTraces = eventTraces;
 		this.timedTraces = timedTraces;
@@ -131,7 +131,7 @@ public class ExpectedTestResult {
 		this.state = state;
 	}
 	
-	public CmlInterpretationStatus getInterpreterState() {
+	public CmlInterpreterState getInterpreterState() {
 		return state;
 	}
 	

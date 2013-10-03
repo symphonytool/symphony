@@ -162,7 +162,7 @@ public class InterpretAllCmlFilesTest {
 		}
 		
 		//Interpreter state
-		Assert.assertEquals(testResult.getInterpreterState(), interpreter.getStatus());
+		Assert.assertEquals(testResult.getInterpreterState(), interpreter.getState());
 	}
 	
 	private String traceToString(List<CmlTransition> trace)

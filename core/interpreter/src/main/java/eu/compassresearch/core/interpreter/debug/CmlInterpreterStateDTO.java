@@ -7,7 +7,7 @@ import java.util.List;
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.node.INode;
 
-import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
+import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
@@ -30,7 +30,7 @@ public class CmlInterpreterStateDTO {
 	{
 		return new CmlInterpreterStateDTO(
 				activeInterpreter.getTopLevelProcess(), 
-				activeInterpreter.getStatus(),
+				activeInterpreter.getState(),
 				activeInterpreter.getActiveBreakpoint(),
 				new LinkedList<TransitionDTO>()); 
 	}
@@ -39,7 +39,7 @@ public class CmlInterpreterStateDTO {
 	{
 		return new CmlInterpreterStateDTO(
 				activeInterpreter.getTopLevelProcess(), 
-				activeInterpreter.getStatus(),
+				activeInterpreter.getState(),
 				activeInterpreter.getActiveBreakpoint(),
 				events); 
 	}
@@ -64,7 +64,7 @@ public class CmlInterpreterStateDTO {
 	
 	private final CmlProcessDTO topLevelProcess;
 	private InterpreterErrorDTO[] errors = null;
-	private final CmlInterpretationStatus state;
+	private final CmlInterpreterState state;
 	private Breakpoint bp;
 	private List<TransitionDTO> transitions;
 
@@ -78,7 +78,7 @@ public class CmlInterpreterStateDTO {
 		bp = null;
 	}
 
-	public CmlInterpreterStateDTO(CmlBehaviour topProcess, CmlInterpretationStatus state)
+	public CmlInterpreterStateDTO(CmlBehaviour topProcess, CmlInterpreterState state)
 	{
 		if(topProcess != null)
 			topLevelProcess = new CmlProcessDTO(topProcess, null);
@@ -87,14 +87,14 @@ public class CmlInterpreterStateDTO {
 		this.state = state;
 	}
 	
-	public CmlInterpreterStateDTO(CmlBehaviour topProcess, CmlInterpretationStatus state, Breakpoint bp, List<TransitionDTO> transitions)
+	public CmlInterpreterStateDTO(CmlBehaviour topProcess, CmlInterpreterState state, Breakpoint bp, List<TransitionDTO> transitions)
 	{
 		this(topProcess,state);
 		this.bp = bp;
 		this.transitions  = transitions;
 	}
 	
-	public CmlInterpreterStateDTO(CmlInterpretationStatus state)
+	public CmlInterpreterStateDTO(CmlInterpreterState state)
 	{
 		this.state = state;
 		topLevelProcess = null;
@@ -136,7 +136,7 @@ public class CmlInterpreterStateDTO {
 		return errors != null;
 	}
 
-	public CmlInterpretationStatus getInterpreterState()
+	public CmlInterpreterState getInterpreterState()
 	{
 		return state;
 	}

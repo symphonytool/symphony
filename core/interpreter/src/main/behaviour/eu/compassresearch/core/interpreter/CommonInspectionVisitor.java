@@ -23,12 +23,12 @@ import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
 import eu.compassresearch.ast.expressions.ANameChannelExp;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.lex.LexNameToken;
-import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
+import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
+import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlCalculationStep;
 import eu.compassresearch.core.interpreter.api.behaviour.Inspection;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
-import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionFactory;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.transitions.HiddenTransition;
 import eu.compassresearch.core.interpreter.api.transitions.LabelledTransition;
@@ -214,8 +214,6 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 		//convert the channel set of the current node to a alphabet
 		ChannelNameSetValue cs = (ChannelNameSetValue)chansetExp.apply(cmlExpressionVisitor,question);
 
-		//CmlTransitionSet cs =  ((CmlTransitionSet)chansetExp.apply(cmlExpressionVisitor,question)).union(new CmlTock());
-
 		//Get all the child alphabets and add the events that are not in the channelset
 		final CmlBehaviour leftChild = owner.getLeftChild();
 		final CmlTransitionSet leftChildAlphabet = leftChild.inspect();
@@ -227,7 +225,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 		CmlTransitionSet rightSync = rightChildAlphabet.retainByChannelNameSet(cs);
 		Set<CmlTransition> syncEvents = new HashSet<CmlTransition>();
 		//Find the intersection between the child alphabets and the channel set and join them.
-		//		//Then if both left and right have them the next step will combine them.
+		//Then if both left and right have them the next step will combine them.
 		for(ObservableTransition leftTrans : leftSync.getObservableChannelEvents())
 		{
 			for(ObservableTransition rightTrans : rightSync.getObservableChannelEvents())
@@ -281,7 +279,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor {
 				}
 				else
 					//Something went wrong here
-					throw new InterpreterRuntimeException("");
+					throw new CmlInterpreterException(node,InterpretationErrorMessages.FATAL_ERROR.customizeMessage(""));
 
 				//We push the current state,
 				return new Pair<INode,Context>(node, question);

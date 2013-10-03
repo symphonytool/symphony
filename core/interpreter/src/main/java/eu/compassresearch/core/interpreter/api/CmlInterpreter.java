@@ -6,7 +6,7 @@ import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
-import eu.compassresearch.core.interpreter.api.events.CmlInterpreterStatusObserver;
+import eu.compassresearch.core.interpreter.api.events.CmlInterpreterStateObserver;
 import eu.compassresearch.core.interpreter.api.events.EventSource;
 import eu.compassresearch.core.interpreter.debug.Breakpoint;
 /**
@@ -63,13 +63,13 @@ public interface CmlInterpreter
 	 */
 	public Value execute(SelectionStrategy env) throws AnalysisException;
 	
-	public CmlInterpretationStatus getStatus();
+	public CmlInterpreterState getState();
 	
 	public CmlBehaviour getTopLevelProcess();
 	
 	public CmlBehaviour findBehaviorById(int id);
 
-	public EventSource<CmlInterpreterStatusObserver> onStatusChanged();
+	public EventSource<CmlInterpreterStateObserver> onStateChanged();
 	
 	//Debugging control methods
 	

@@ -540,7 +540,7 @@ public class CheckCml {
 								
 								interpreter.initialize();
 								interpreter.execute(new ConsoleSelectionStrategy());
-								System.out.println("Terminated with following state: " + interpreter.getStatus());
+								System.out.println("Terminated with following state: " + interpreter.getState());
 							} catch (Exception e) {
 
 								e.printStackTrace();

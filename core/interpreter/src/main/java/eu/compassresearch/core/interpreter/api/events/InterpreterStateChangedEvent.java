@@ -1,7 +1,7 @@
 package eu.compassresearch.core.interpreter.api.events;
 
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
-import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
+import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
 
 /**
  * This represents a change of CmlInterpreterState in a specific CmlInterpreter instance.
@@ -9,30 +9,30 @@ import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
  * @author akm
  *
  */
-public class InterpreterStatusEvent extends Event<CmlInterpreter> {
+public class InterpreterStateChangedEvent extends Event<CmlInterpreter> {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 6478492523089731326L;
-	private final CmlInterpretationStatus status;
+	private final CmlInterpreterState status;
 	private final Object content;
 
-	public InterpreterStatusEvent(CmlInterpreter interpreter,CmlInterpretationStatus status)
+	public InterpreterStateChangedEvent(CmlInterpreter interpreter,CmlInterpreterState status)
 	{
 		super(interpreter);
 		this.status = status;
 		this.content = null;
 	}
 	
-	public InterpreterStatusEvent(CmlInterpreter interpreter,CmlInterpretationStatus status, Object content)
+	public InterpreterStateChangedEvent(CmlInterpreter interpreter,CmlInterpreterState status, Object content)
 	{
 		super(interpreter);
 		this.status = status;
 		this.content = content;
 	}
 	
-	public CmlInterpretationStatus getStatus() {
+	public CmlInterpreterState getStatus() {
 		return status;
 	}
 	

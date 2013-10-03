@@ -56,6 +56,7 @@ import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
 import eu.compassresearch.ast.lex.LexNameToken;
+import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
@@ -105,7 +106,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 	public Inspection defaultPAction(PAction node, Context question)
 			throws AnalysisException {
 
-		throw new InterpreterRuntimeException(InterpretationErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName()));
+		throw new CmlInterpreterException(node,InterpretationErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName()));
 	}
 
 	/**
@@ -140,7 +141,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 
 			}
 			else
-				throw new InterpreterRuntimeException(InterpretationErrorMessages.FATAL_ERROR.customizeMessage());
+				throw new CmlInterpreterException(node,InterpretationErrorMessages.FATAL_ERROR.customizeMessage());
 		}
 		else
 		{
