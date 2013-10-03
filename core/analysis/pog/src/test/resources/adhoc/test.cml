@@ -1,196 +1,284 @@
----------------------------------------------
--- Model of cars in a city				   --
--- Authors: RJP and JWB.				   --
--- Version 0.1							   --
----------------------------------------------
-
 types
--- We define a general directed graph of Nodes and Edges
+    
+RecType :: rt_f1 : nat
+           rt_f2 : nat
+           rt_f3 : nat
+               
+RecType2 :: rt2_f1 : nat
+            rt2_f2 : nat
+   
+EnumT = <A>|<B>|<C>|<D>
+   
+EnumT2 = RecType|RecType2
 
-	NodeId = token
-	
-	EdgeId = token
-	
-	Node = token -- The intention is to replace this with the Junction model
-	
-	-- An Edge links Nodes. An Edge has direction.
-	-- An Edge could have capacity (not included in this version)
-	   
-	Edge :: frNode : NodeId
-			toNode : NodeId
-			
-	-- Distinct Node identifiers are mapped to distinct Nodes	 	
-	Nodes = inmap NodeId to Node
-	-- inv n == forall n1, n2 in set dom n @ n1<>n2 => n(n1) <> n(n2)
-		
-	Edges = inmap EdgeId to Edge
-	--inv e == forall e1, e2 in set dom e @ 
-	--			e1 <> e2 => e(e1).fromNode <>  e(e2).fromNode
-	--						or
-	--						e(e1).toNode <>  e(e2).toNode							
-									
-process City = n : Nodes, e: Edges @
-begin
+SeqT = seq of nat
+    
+SetT = set of nat
+    
+MapT = map nat to nat
+   
+MapT2 = map SeqT to EnumT
+    
+MapT3 = map SeqT to SeqT
+   
+UT1 = (int * int) | int
 
-state
+values
 
--- A city network is a directed graph, with the additional restriction that there is a path between every Node.
--- The existsPath operation is defined above. 
+n1 : nat = 3
 
-	nodes : Nodes
-	edges : Edges
+functions
 
-operations
 
-	private nextEdges : NodeId ==> set of Edge
-	nextEdges(n) == 
-		return {e1 | e1 in set rng edges @ e1.frNode = n}
-	pre n in set dom nodes -- any others?
-	
-	private existsPath : NodeId * NodeId * set of NodeId ==> bool 
-	existsPath(nId1, nId2, visited)	== 
-	(
-		dcl possEdges  : set of Edge :=  nextEdges(nId1),
-		 notVisited : set of Edge := {} @ -- {e | e in set possEdges @ e.toNode not in set visited} @ --TYPECHECKER/PARSER DID NOT SPOT TYPO IN VAR NAME (VISITED) 
-	   ( -- possEdges  := nextEdges(nId1);
-		notVisited := {e1 | e1 in set possEdges @ e1.toNode not in set visited} ;
-		if exists pe in set possEdges @ pe.frNode = nId1 and pe.toNode = nId2
-		then return true
-		elseif notVisited = {}
-			then return false
-			else for all edge in set notVisited 
-				 do existsPath(edge.toNode, nId2, visited union {nId1})
-	   )
-	)
-	pre nId1 in set dom nodes and 
-	    nId2 in set dom nodes -- are there any more?
-		
-state
-
-	inv forall nId1, nId2 in set dom nodes @ nId1 <> nId2 => existsPath(nId1,nId2,{})
+  --Tests for:
+  -- Satisfiability PO
+  -- NonZero PO
+  impF1 (p1 : nat, p2 : nat, p3 : bool) result : nat
+  pre p3 => p1 / p2 > 0
+  post result = p1 /p2
+       
+    
+  --Tests for:
+  -- MapT Apply PO
+  -- PostCondition PO
+  expF1 : nat * MapT -> nat
+  expF1(n, m) ==
+  (
+      m(n)
+  )
+  pre n in set dom m
+  post RESULT > n
   
-operations
-	
-	private Init : Nodes * Edges ==> ()
-	Init(n, e) ==
-	(
-		nodes := n;
-		edges := e
-	)
--- In this version, the city has no behaviour.
-	
-	@ Init(n, e)
-	
-end
-
--- A car is initialised by giving it a route
--- The car does not have a location before it gets a route (The initialisation operation gives a car a route)
--- After the car is initialised the location is the first point on the route.
--- The car does not currently check that it receives a valid route.
-
-process Car = r : seq of EdgeId @
-begin
-
-state 
-
-	route : seq of EdgeId  
-	loc : nat
-	-- A route is economical: it must not traverse the same Edge twice.
-	-- Further, it has no cycles.  We can make this restriction because all routes through a Node are valid.  
-	-- A car therefore has no reason to revisit a node.
-	-- Later, we will restrict the set of valid routes through a junction, and have to remove this invariant.
-	inv loc <= len route -- A car cannot leave its route. 
-	    -- card elems route = len route and 
-		-- no cycles.  -- a car must not enter a Node twice.
-		-- this subsumes the first conjunct.
-		-- and card {route(i)   .toNode | i in set 1..len route} = len route
-	
-operations
-
-	private Init : seq of EdgeId ==> ()
-	Init(eseq) ==
-	(
-		route := eseq;
-		loc := 1
-	)
-	
-	private AtDest: () ==> bool
-	AtDest() ==
-		return loc = len route
-		
-    private Move : () ==> ()
-	Move() ==
-		loc := loc + 1
-	pre not AtDest()
-	post loc = loc~ + 1
-			
-actions
-	
-	Stopped = Skip
-	
-	Driving = [not AtDest()] & Move();Driving
-			  []
-			  [AtDest()] & Stopped
-			  
-@ Init(r); Driving
-
-end
-
--- There is no communication between Cars and TestCity
-
-process World = Cars ||| TestCity 
-
--- There is no communication between Cars
----                       TestRoutes RWL RC: TestRoutes does not exists
-process Cars = ||| r in set {} @ Car(r)
-
-process TestCity = City(TestNodesEmpty,TestEdgesEmpty)
-
-values 
-   TestNodesEmpty : Nodes = {|->}
-   TestEdgesEmpty : Edges = {|->}
-   TestRoutesEmpty : set of seq of Edges = {} 
-   
-   n1 :NodeId  = mk_token("n1")
-   n2 :NodeId  = mk_token("n2")
-   n3 :NodeId  = mk_token("n3")
-   n4 :NodeId  = mk_token("n4")
-   n5 :NodeId  = mk_token("n5")
   
-   node1: Node = mk_token("node1")
-   node2: Node = mk_token("node2")
-   node3: Node = mk_token("node3")
-   node4: Node = mk_token("node4")
-   node5: Node = mk_token("node5")
+  --Tests for:
+  -- MapT Compatible PO
+  expF2 : MapT * MapT -> MapT
+  expF2 (m1, m2) ==
+      m1 munion m2
+        
+        
+  --Tests for:
+  -- SeqT Apply PO
+  -- Non-zero PO in explicit func body
+  -- Non-zero PO in explicit func precondition
+  expF3 : nat * SeqT -> nat
+  expF3 (n, s) ==
+      if (len s / n > 4) 
+      then s(n)
+      else n
+  pre len s > n and (len s / n > 4)
+    
+    
+  --Tests for:
+  -- SeqT Modification PO
+  expF4 : SeqT * MapT -> SeqT
+  expF4(s, m) ==
+      s ++ m
+        
+
+  --Tests for:
+  --  Function Apply PO
+  expF5 : nat -> nat
+  expF5(n) ==
+      expF3(n, [])
+      
+      
+  --Tests for:
+  --  Map Iteration PO
+  expF6 : MapT * nat -> MapT
+  expF6(m,n) ==
+      m ** n
+     
+           
+  --Tests for:
+  --  Non-empty Sequence PO
+  expF7 : SeqT -> nat
+  expF7(s) ==
+      hd s
+  pre s <> []
+    
+    
+  --Tests for:
+  --  Non-empty Set PO
+  --  (hint: only seems to be required in DistributedIntersection operator)
+  expF8 : set of set of nat -> set of nat
+  expF8(setn) ==
+    dinter setn
+
+
+  -- Tests for:
+  --  Basic CasesExhaustive PO
+  expF9 : EnumT -> bool
+  expF9(e) ==
+    cases e:
+      <A> -> true,
+      <B> -> true
+     end
+     
+     
+   --Tests for:
+   -- Cases PO in expression
+--  expF10 : nat -> nat
+--  expF5(n) ==
+--  ( 
+--      cases n :
+--        (n > 4)  -> 44,
+--        (n / 5)  -> 43,
+--        others -> 42
+--      end
+--  )
+         
+  -- Tests for:
+  --  Complex CasesExhaustive PO
+--  expF11 : EnumT2 -> bool
+--  expF11(e) == 
+--    cases e:
+--       mk_RecType(a,b,c) -> true,
+--       mk_RecType2(a,c) -> true
+--    end
+       
+       
+  -- Tests for:
+  --  LetBeExists
+--  expF12 : SetT -> bool
+--  expF12(s) == 
+--    (let x in set s be st x > 5 in
+--         true) 
+--      or
+--      (let x : SetT in
+--         false) 
+         
+
+  --Tests for:
+  --  Map Compose PO
+  --  Function ParameterPatterns PO
+  expF13 : MapT2 * MapT3 -> MapT2
+  expF13(m,m2) ==
+      m comp m2
+        
+  --Tests for:
+  --  MapSeqCompatible PO
+  expF14 : () -> MapT
+  expF14() ==
+      {1|-> 2,3 |->4 ,4 |->3 ,3 |-> 4}
+     
+       
+  --Tests for:
+  --  MapSetCompatible PO
+  expF15 : set of MapT -> MapT
+  expF15(s) ==
+      merge s
+        
+        
+  --Tests for:
+  --  FiniteMap PO
+  --  MapSetCompatible PO
+  --  Function ParameterPatterns PO
+  expF16 : () -> MapT
+  expF16() ==
+  {a |-> b | a:nat, b:nat @ auxFunc(a,b)}
+     
+  auxFunc: nat * nat -> bool
+  auxFunc(n1, n2) == n1 > n2  
+    
+    
+  --Tests for:
+  --  FiniteSet PO
+  --  Function ParameterPatterns PO
+  expF17 : () -> SetT
+  expF17() ==
+    {a | a:nat @ auxFunc2(a)}
+    
+  auxFunc2: nat -> bool
+  auxFunc2(n) == n > 2  
    
-   allnodes :Nodes = {n1|->node1, n2|->node2, n3|->node3, n4|->node4, n5|->node5}
-   
-   e12 :EdgeId  = mk_token("e12")
-   e21 :EdgeId  = mk_token("e21")
-   e23 :EdgeId  = mk_token("e23")
-   e31 :EdgeId  = mk_token("e31")
-   e34 :EdgeId  = mk_token("e34")
-   e45 :EdgeId  = mk_token("e45")
-   
-   edge12 :Edge = mk_Edge(n1, n2) 
-   edge21 :Edge = mk_Edge(n2, n1) 
-   edge23 :Edge = mk_Edge(n2, n3) 
-   edge31 :Edge = mk_Edge(n3, n1) 
-   edge34 :Edge = mk_Edge(n3, n4) 
-   edge45 :Edge = mk_Edge(n4, n5) 
-   
-   alledges :Edges = {e12|->edge12, e21 |->edge21, e23|->edge23, e31|->edge31, e34|->edge34, e45|->edge45}
-   
-   w1nodes : Nodes = {|->}
-   w2nodes : Nodes = {n1|->node1, n2|->node2}
-   w3nodes : Nodes = {n1|->node1, n2|->node2}
-   w4nodes : Nodes = {n1|->node1, n2|->node2, n3|->node3}
-   w5nodes : Nodes = {n1|->node1, n2|->node2, n3|->node3}
-   w6nodes : Nodes = {n1|->node1, n2|->node2, n3|->node3, n4|->node4}
+            
+  --Tests for:
+  --  FuncitonIteration PO
+  --  FunctionApply PO
+  expF18: nat -> nat
+  expF18(n) == (auxFunc3 ** n)(0)
+    
+  auxFunc3: nat -> nat1
+  auxFunc3(a) == a + 1
+  pre a < 10
   
-   w1edges :Edges = {|->}
-   w2edges :Edges = {e12|->edge12}
-   w3edges :Edges = {e12|->edge12, e21 |->edge21}
-   w4edges :Edges = {e12|->edge12, e23|->edge23, e31|->edge31}
-   w5edges :Edges = {e12|->edge12}
-   w6edges :Edges = {e12|->edge12, e34|->edge34}
+  
+  --Tests for:
+  --  FuncCompose PO
+  --  FunctionApply PO
+  expF19: nat  -> nat
+  expF19(n) == (auxFunc4a comp auxFunc4b)(n)
+  
+  --Tests for:
+  --  Func Satisfiability PO
+  auxFunc4a(n:nat) rs : nat
+  pre n < 14
+  post  rs = n * 4
+  
+  --Tests for:
+  --  Func Satisfiability PO
+  auxFunc4b(n:nat) rs : nat 
+  pre n >6
+  post rs = n
+  
+  --Tests for:
+  --TupleSelect PO
+  -- NOTE: TC bug causes it to reject this function. Comment back in when fixed.
+  --expF20 : UT1 -> int
+  --expF20 (x) == x.#1
+  
+ process testProc1 = 
+ begin
+ 
+   state 
+   
+ 
+   operations
+      
+    --Tests for:
+    --  Operation Satisfiability PO
+    impOp1 (s :SeqT) r: nat
+    pre s <> [] 
+    post r = hd s
+      
+      
+    --Tests for:
+    --  OperationPostcondition PO
+    --  Non-Empty Sequence PO
+    --  Subtype PO
+    expOp1 :(SeqT) ==> nat
+    expOp1(s) ==
+    (
+      return hd s
+    )
+    pre s <> [] 
+    post RESULT = hd s
+        
+            
+    --Tests for:
+    --  WhileLoop PO
+    --  Non-Empty Sequence PO
+    --  Subtype PO
+    expOp2 : (SeqT) ==> nat
+    expOp2(seqT) ==
+    (
+        dcl s : SeqT := seqT @
+        (dcl n : nat @
+        (while s <> [] do
+        (
+          n := hd s;
+          s := tl s
+        );
+        return n)  ) 
+    )
+    
+    --Tests for:
+    --  Unique Exisitence PO
+    expOp3 : (SetT) ==> nat
+    expOp3(setT) == 
+      return iota x in set setT @ x > 1
+ 
+ @ Skip
+ 
+ end

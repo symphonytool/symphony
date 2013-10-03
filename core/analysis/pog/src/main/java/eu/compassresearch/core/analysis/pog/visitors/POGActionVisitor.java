@@ -112,11 +112,6 @@ public class POGActionVisitor extends
 	{
 		CmlProofObligationList pol = new CmlProofObligationList();
 
-		System.out.println("----------***----------");
-		System.out.println("defaultPAction");
-		System.out.println(node.toString());
-		System.out.println("----------***----------");
-
 		return pol;
 	}
 
@@ -141,7 +136,6 @@ public class POGActionVisitor extends
 	{
 		try
 		{
-			System.out.println("A ABlockStatementAction: " + node.toString());
 			CmlProofObligationList pol = new CmlProofObligationList();
 
 			// Get subparts
@@ -169,8 +163,6 @@ public class POGActionVisitor extends
 	{
 		try
 		{
-			System.out.println("A ASingleGeneralAssignmentStatementAction: "
-					+ node.toString());
 			CmlProofObligationList pol = new CmlProofObligationList();
 
 			// Get subparts
@@ -198,8 +190,6 @@ public class POGActionVisitor extends
 	{
 		try
 		{
-			System.out.println("A ASequentialCompositionAction: "
-					+ node.toString());
 			CmlProofObligationList pol = new CmlProofObligationList();
 
 			// Get subparts
@@ -227,7 +217,6 @@ public class POGActionVisitor extends
 	{
 		try
 		{
-			System.out.println("A caseAIfStatementAction: " + node.toString());
 			CmlProofObligationList pol = new CmlProofObligationList();
 
 			// Get subparts
@@ -262,8 +251,6 @@ public class POGActionVisitor extends
 	{
 		try
 		{
-			System.out.println("A caseAElseIfStatementAction: "
-					+ node.toString());
 			CmlProofObligationList pol = new CmlProofObligationList();
 
 			// Get subparts
@@ -285,8 +272,6 @@ public class POGActionVisitor extends
 	{
 		try
 		{
-			System.out.println("A caseAWhileStatementAction: "
-					+ node.toString());
 			CmlProofObligationList pol = new CmlProofObligationList();
 
 			// Get subparts
@@ -309,7 +294,6 @@ public class POGActionVisitor extends
 	{
 		try
 		{
-			System.out.println("A ATimedInterruptAction: " + node.toString());
 			CmlProofObligationList pol = new CmlProofObligationList();
 
 			// Get subparts
@@ -406,8 +390,7 @@ public class POGActionVisitor extends
 		try
 		{
 			CmlProofObligationList pol = new CmlProofObligationList();
-			System.out.println("A ATimeoutAction: " + node.toString());
-
+			
 			// Get subparts
 			PAction left = node.getLeft();
 			PAction right = node.getRight();
@@ -1283,7 +1266,6 @@ public class POGActionVisitor extends
 	{
 		try
 		{
-			System.out.println("A AExternalChoiceAction: " + node.toString());
 			CmlProofObligationList pol = new CmlProofObligationList();
 
 			// Get subparts

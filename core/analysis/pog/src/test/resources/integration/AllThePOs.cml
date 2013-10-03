@@ -79,14 +79,14 @@ functions
   --Tests for:
   --  Function Apply PO
   expF5 : nat -> nat
-  expF6(n) ==
+  expF5(n) ==
       expF3(n, [])
       
       
   --Tests for:
   --  Map Iteration PO
   expF6 : MapT * nat -> MapT
-  expF7(m,n) ==
+  expF6(m,n) ==
       m ** n
      
            

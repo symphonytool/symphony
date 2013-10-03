@@ -103,19 +103,9 @@ public class POGDeclAndDefVisitor extends
 			throws AnalysisException
 	{
 
-		System.out.println("----------***----------");
-		System.out.println("AChannelNameDefinition");
-		System.out.println(node.toString());
-		System.out.println("----------***----------");
-
 		CmlProofObligationList pol = new CmlProofObligationList();
 
-		/*
-		 * Not clear what POs these may generate? May be useful for generating CMLPOContext
-		 */
-		// Commented out by RWL, unused variables creates warnings
-		// LinkedList ids = node.getSingleType().getIdentifiers();
-		// PType type = node.getSingleType().getType();
+		// NO POs here yet.
 
 		return pol;
 	}
@@ -149,19 +139,9 @@ public class POGDeclAndDefVisitor extends
 			throws AnalysisException
 	{
 
-		System.out.println("----------***----------");
-		System.out.println("AChansetDefinition");
-		System.out.println(node.toString());
-		System.out.println("----------***----------");
-
 		CmlProofObligationList pol = new CmlProofObligationList();
 
-		/*
-		 * Not clear what POs these may generate? May be useful for generating CMLPOContext
-		 */
-		// Commented out by RWL: Unused variables creates warnings.
-		// LexIdentifierToken id = node.getIdentifier();
-		// PVarsetExpression expr = node.getChansetExpression();
+		// NO POs here yet
 
 		return pol;
 	}
@@ -174,8 +154,6 @@ public class POGDeclAndDefVisitor extends
 			ACmlClassDefinition node, IPOContextStack question)
 			throws AnalysisException
 	{
-		System.out.println("------");
-		System.out.println("Reached POGDeclAndDefVisitor - caseAClassParagraphDefinition");
 
 		CmlProofObligationList pol = new CmlProofObligationList();
 
@@ -185,13 +163,11 @@ public class POGDeclAndDefVisitor extends
 			if (name != null)
 			{
 				question.push(def.apply(new PogNameContextVisitor()));
-				System.out.println("In defn Paragraph Loop: " + def.toString());
 				pol.addAll(def.apply(parentPOG, question));
 				question.pop();
 			} else
 			{
 				pol.addAll(def.apply(parentPOG, question));
-				System.out.println("In defn Paragraph Loop: " + def.toString());
 			}
 
 		}
@@ -233,19 +209,10 @@ public class POGDeclAndDefVisitor extends
 	public CmlProofObligationList caseAStateDefinition(AStateDefinition node,
 			IPOContextStack question) throws AnalysisException
 	{
-		System.out.println("------");
-		System.out.println("Reached POGDeclAndDefVisitor - caseAStateParagraphDefinition");
-
-		System.out.println("State: " + node.toString() + ", Type: "
-				+ node.getType());
-
 		CmlProofObligationList pol = new CmlProofObligationList();
 
 		for (PDefinition def : node.getStateDefs())
 		{
-			System.out.println("In State Paragraph Loop");
-			System.out.println("Def: " + def.toString() + ", Type: "
-					+ def.getType());
 			pol.addAll(def.apply(parentPOG, question));
 		}
 
@@ -260,8 +227,6 @@ public class POGDeclAndDefVisitor extends
 			AActionsDefinition node, IPOContextStack question)
 			throws AnalysisException
 	{
-		System.out.println("------");
-		System.out.println("Reached POGDeclAndDefVisitor - caseAActionParagraphDefinition");
 
 		CmlProofObligationList pol = new CmlProofObligationList();
 
@@ -270,8 +235,6 @@ public class POGDeclAndDefVisitor extends
 		// LinkedList<AActionDefinition> actions = node.getActions();
 		// for (AActionDefinition action : actions)
 		// {
-		// // System.out.println("Action: " + action.toString() + ", Type: " +
-		// // action.getType());
 		// pol.addAll(action.apply(parentPOG, question));
 		// }
 
@@ -282,16 +245,11 @@ public class POGDeclAndDefVisitor extends
 	public CmlProofObligationList caseAActionDefinition(AActionDefinition node,
 			IPOContextStack question) throws AnalysisException
 	{
-		System.out.println("------");
-		System.out.println("Reached POGDeclAndDefVisitor - caseAActionDefinition");
-
 		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// TODO re-enable pog action visits. for now, not doing it.
 
 		// PAction action = node.getAction();
-		// // System.out.println("Action: " + action.toString() + ", Type: " +
-		// // action.getType());
 		// pol.addAll(action.apply(parentPOG, question));
 
 		return pol;
@@ -378,27 +336,6 @@ public class POGDeclAndDefVisitor extends
 		return pol;
 	}
 
-	/**
-	 * Invariant definition CURRENTLY PRINT TO SCREEN
-	 */
-
-	// DOES NOT EXIST ANYMORE
-	// @Override
-	// public CMLProofObligationList caseAInvariantDefinition(
-	// AInvariantDefinition node, POContextStack question)
-	// throws AnalysisException {
-	//
-	// CMLProofObligationList pol = new CMLProofObligationList();
-	//
-	// System.out.println("----------***----------");
-	// System.out.println("AInvariantDefinition");
-	// System.out.println(node.toString());
-	// System.out.println(node.getPattern());
-	// System.out.println(node.getExpression());
-	// System.out.println("----------***----------");
-	//
-	// return pol;
-	// }
 
 	/**
 	 * VDM ELEMENT - Values
@@ -492,12 +429,6 @@ public class POGDeclAndDefVisitor extends
 			AImplicitCmlOperationDefinition node, IPOContextStack question)
 			throws AnalysisException
 	{
-
-		System.out.println("----------***----------");
-		System.out.println("AImplicitOperationDefinition");
-		System.out.println(node.toString());
-		System.out.println("----------***----------");
-
 		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// Taken from Overture - Needed?
@@ -585,7 +516,8 @@ public class POGDeclAndDefVisitor extends
 				&& !TypeComparator.isSubType(node.getActualResult(), ((AOperationType) node.getType()).getResult()))
 		{
 			CmlSubTypeObligation sto = CmlSubTypeObligation.newInstance(node, node.getActualResult(), question);
-			if (sto !=null){
+			if (sto != null)
+			{
 				pol.add(sto);
 			}
 		}
@@ -615,7 +547,7 @@ public class POGDeclAndDefVisitor extends
 		if (!TypeComparator.isSubType(question.checkType(expression, expType), type))
 		{
 			SubTypeObligation sto = SubTypeObligation.newInstance(expression, type, expType, question);
-			if (sto!=null)
+			if (sto != null)
 			{
 				obligations.add(sto);
 			}
