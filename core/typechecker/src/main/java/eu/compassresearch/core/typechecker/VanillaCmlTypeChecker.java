@@ -98,13 +98,6 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 			TypeCheckInfo cmlTopEnv = CmlTypeCheckInfo.getNewTopLevelInstance(new CmlTypeCheckerAssistantFactory(),
 					issueHandler, globalDefinitions,
 					new LinkedList<PDefinition>(globalDefs.channels));
-
-			// Resolve channels
-//			for (PDefinition channel : globalDefs.channels) {
-//				PType channelType = channel.apply(rootVisitor, cmlTopEnv);
-//				if (!CmlTCUtil.successfulType(channelType))
-//					return false;
-//			}
 			
 			// Resolve everything before hand (Overture does this)
 			PDefinitionListAssistantTC.typeResolve(this.globalDefinitions,
@@ -116,7 +109,7 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 				PType srcType = src.apply(rootVisitor, cmlTopEnv);
 				if (!CmlTCUtil.successfulType(srcType))
 					return false;
-			}
+			}	
 
 		} catch (TypeCheckException tce) {
 			// Overture Type Checker complaining
