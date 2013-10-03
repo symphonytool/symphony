@@ -96,7 +96,6 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 						for(Entry<ILexNameToken,Value> entry : question.entrySet())
 							valueMap.putNew(new NameValuePair(entry.getKey().getModifiedName(processDef.getName().getSimpleName()),entry.getValue()));
 					}
-					tmpContext = CmlContextFactory.newObjectContext(node.getLocation(), "Action Process Context", question.outer, new ProcessObjectValue(processDef,valueMap,null, null));
 				}
 				//Unnamed process
 				else
@@ -118,8 +117,12 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 								valueMap.putNew(new NameValuePair(paramName.getModifiedName(processDef.getName().getSimpleName()),val));
 							}
 					}
-					tmpContext = CmlContextFactory.newObjectContext(node.getLocation(), "Action Process Context", question, new ProcessObjectValue(processDef,valueMap,null, null));
 				}
+				
+				if(question.title.equals(CmlContextFactory.PARAMETRISED_PROCESS_CONTEXT_NAME))
+					tmpContext = CmlContextFactory.newObjectContext(node.getLocation(), "Tmp Action Process Context", question.outer, new ProcessObjectValue(processDef,valueMap,null, null));
+				else
+					tmpContext = CmlContextFactory.newObjectContext(node.getLocation(), "Tmp Action Process Context", question, new ProcessObjectValue(processDef,valueMap,null, null));
 
 				//Evaluate and add paragraph definitions and add the result to the state
 				PExp processInv = null;
