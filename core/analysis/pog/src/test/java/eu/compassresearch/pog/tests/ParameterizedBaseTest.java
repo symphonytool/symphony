@@ -62,7 +62,7 @@ public class ParameterizedBaseTest
 /**
  * A very simple test. Just prints the names of generated test inputs and results.
  */
-	@Test
+	//@Test
 	public void printFileNames()
 	{
 		System.out.println("Testing " + micromodel);
@@ -79,7 +79,15 @@ public class ParameterizedBaseTest
 	public void printPOs() throws IOException, AnalysisException
 	{
 		List<INode> ast = TestInputHelper.getAstFromName(micromodel);
+		System.out.println("Testing " + micromodel);
+		System.out.println("Result at " + poresult);
+		
 		try {IProofObligationList polist = generatePOs(ast);
+		
+		if (polist.isEmpty()){
+			System.out.println("No proof obligations.");
+		}
+		
 		for (IProofObligation po : polist){
 			printPo(po);
 		}
@@ -88,9 +96,8 @@ public class ParameterizedBaseTest
 			Assert.fail("POG crashed on " + micromodel);
 			throw e;
 		}
-		System.out.println("Testing " + micromodel);
-		System.out.println("Result at " + poresult);
-		
+
+		System.out.println("========================================");	
 		
 	
 	}
