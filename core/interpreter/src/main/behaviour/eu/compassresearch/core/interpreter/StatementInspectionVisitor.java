@@ -44,6 +44,7 @@ import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASingleGeneralAssignmentStatementAction;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.AWhileStatementAction;
+import eu.compassresearch.ast.actions.SStatementAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.types.AActionType;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
@@ -64,6 +65,13 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 			QuestionAnswerCMLAdaptor<Context, Inspection> parentVisitor) {
 
 		super(ownerProcess, visitorAccess, parentVisitor);
+	}
+	
+	@Override
+	public Inspection defaultSStatementAction(SStatementAction node,
+			Context question) throws AnalysisException
+	{
+		throw new CmlInterpreterException(node,InterpretationErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName()));
 	}
 
 	/**
