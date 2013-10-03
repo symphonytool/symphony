@@ -43,7 +43,7 @@ public class CmlOperationDefinitionContext extends POOperationDefinitionContext
 			PDefinition stateDefinition)
 	{
 		super(definition.getName(), (AOperationType) definition.getType(), 
-				getParamPatternList(definition), precond, definition.getPrecondition(), stateDefinition,(AImplicitOperationDefinition) null);//FIXME
+				getParamPatternList(definition), precond, definition.getPrecondition(), stateDefinition,(AImplicitOperationDefinition) null);
 	}
 
 
