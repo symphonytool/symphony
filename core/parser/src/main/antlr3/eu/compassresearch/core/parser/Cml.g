@@ -1639,7 +1639,6 @@ channelDef returns[List<AChannelNameDefinition> def]
                 ATypeSingleDeclaration typeDecl = new ATypeSingleDeclaration(loc, NameScope.GLOBAL, idList, chanType);
                 
                 AChannelNameDefinition chanDecl = new AChannelNameDefinition();
-                //chanDecl.setName(??); // not sure if this needs set; one cml.y case has an empty LexNameToken, the other uses the first element of the identifierList
                 chanDecl.setName(new LexNameToken("", id)); // this is ok, as each identifier in the identifierList gets its own ACNDef
                 chanDecl.setNameScope(NameScope.GLOBAL);
                 chanDecl.setUsed(false);            
@@ -1910,7 +1909,6 @@ qualValueDefinition returns[AValueDefinition def]
 @init { $def = new AValueDefinition(); }
     : QUALIFIER? valueDefinition
         {
-
             $def = $valueDefinition.def;
             if ($def != null) {
               $def.setAccess(extractQualifier($QUALIFIER));
@@ -1936,6 +1934,7 @@ valueDefinition returns[AValueDefinition def]
     : bindablePattern (':' type)? '=' expression
         {
             $def = AstFactory.newAValueDefinition($bindablePattern.pattern, NameScope.LOCAL, $type.type, $expression.exp);
+            // This almost works, but causes a TC crash for some reason; related to bug #91 -jwc/3Oct2013
             //$def.setName(new LexNameToken("", $bindablePattern.pattern.toString(), $bindablePattern.pattern.getLocation()));
         }
     ;
@@ -1945,6 +1944,8 @@ stateDefs returns[AStateDefinition defs]
     : 'state' instanceVariableDefinitionList?
         {
             $defs = new AStateDefinition();
+            // This almost works, but causes a TC crash for some reason; related to bug #91 -jwc/3Oct2013
+            //$defs.setName(new LexNameToken("", "State", extractLexLocation($start)));
             if ($instanceVariableDefinitionList.defs != null)
                 $defs.setStateDefs($instanceVariableDefinitionList.defs);
         }
@@ -2320,7 +2321,6 @@ operationDefs returns[AOperationsDefinition defs]
             $defs.setNameScope(NameScope.LOCAL);
             $defs.setUsed(false);
             $defs.setAccess(getDefaultAccessSpecifier(true, false, extractLexLocation($operationDefs.start)));
-
         }
     ;
 
