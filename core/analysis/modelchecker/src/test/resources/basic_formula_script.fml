@@ -220,8 +220,6 @@ domain CML_SemanticsSpec extends CML_SyntaxSpec {
 	//TO BE COMPLETED
 	
 	// Call reusing state
-    //State(l,st,P,PBody),
-    //trans(n,tau,State(l,st,P,PBody)) :- n is State(l,st,P,proc(P,pP)), ProcDef(P,pP,PBody).
     trans(n,tau,State(l,st,nP,PBody)) :- n is State(l,st,nP,proc(P,pPar)), ProcDef(P,pP,PBody).
 
 	//The body of a process is a call to another process
@@ -297,7 +295,7 @@ domain CML_PropertiesSpec extends CML_SemanticsSpec {
     
 	reachable    ::= (fS:State).
 	//The initial binding is captured at initialisation
-    reachable(State(0,nBind,P,PBody)) :- GivenProc(P),ProcDef(P,pPar,PBody).
+    reachable(State(0,b,P,PBody)) :- State(0,b,P,PBody), GivenProc(P),ProcDef(P,pPar,PBody).
 	reachable(Q)  :- GivenProc(P),ProcDef(P,pPar,PBody), trans(State(_,_,P,PBody),_,Q).
 	reachable(Q)  :- reachable(R), trans(R,_,Q).
 	

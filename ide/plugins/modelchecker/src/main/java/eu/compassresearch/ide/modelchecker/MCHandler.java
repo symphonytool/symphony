@@ -137,11 +137,12 @@ public class MCHandler extends AbstractHandler {
 							formulaOutput = job.getFormulaResult();
 							job.schedule();
 	
-							FormulaResultWrapper frw = new FormulaResultWrapper(formulaOutput, null, propertyToCheck);
+							FormulaResultWrapper frw = new FormulaResultWrapper(formulaOutput, null, propertyToCheck, mcFolder, selectedUnit);
 							
 							//if the model is satisfiable then we save the formula output and 
 							//to build the graph of the counterexample on demand.
 							if(formulaOutput.isSatisfiable()){
+								/*
 								if(Activator.DOT_OK){
 									//we build the counterexample
 									GraphBuilder gb = new GraphBuilder();
@@ -156,6 +157,7 @@ public class MCHandler extends AbstractHandler {
 									IFile svgFile = mcFolder.getFile(fileName+".svg");
 									frw.setSvgFile(svgFile);
 								}
+								*/
 							}
 							
 							//writeToConsole(cmlFile.getName(), formulaOutput);
