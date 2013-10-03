@@ -11,6 +11,7 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.lex.LexLocation;
 import org.overture.interpreter.runtime.Context;
+import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.scheduler.BasicSchedulableThread;
 import org.overture.interpreter.scheduler.InitThread;
 import org.overture.interpreter.values.Value;
@@ -22,6 +23,7 @@ import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.ConsoleSelectionStrategy;
+import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.RandomSelectionStrategy;
 import eu.compassresearch.core.interpreter.api.SelectionStrategy;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
@@ -116,11 +118,20 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	@Override
 	public Value execute(SelectionStrategy env) throws AnalysisException
 	{
-		if(this.getStatus() == null)
+		if(this.getStatus() == null){
+			setNewState(CmlInterpretationStatus.FAILED);
 			throw new CmlInterpreterException("The interprer has not been initialized, please call the initialize method before invoking the start method");
+		}
 		
-		if(null == env)
-			throw new CmlInterpreterException("The supervisor must not be set to null in the cml scheduler");
+		if(null == env){
+			setNewState(CmlInterpretationStatus.FAILED);
+			throw new CmlInterpreterException("The SelectionStrategy must not be set to null in the cml scheduler");
+		}
+		
+		if(null == topProcess){
+			setNewState(CmlInterpretationStatus.FAILED);
+			throw new CmlInterpreterException("No process is defined");
+		}
 		
 		environment = env; 
 
@@ -146,7 +157,6 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		catch(Exception ex)
 		{
 			setNewState(CmlInterpretationStatus.FAILED);
-			ex.printStackTrace();
 			throw new AnalysisException(ex);
 		}
 
@@ -167,8 +177,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			ProcessObjectValue pov = (ProcessObjectValue)globalContext.check(name);
 
 			if (pov == null)
-				throw new AnalysisException("No process identified by '"
-						+ getDefaultName() + "' exists");
+				throw new CmlInterpreterException(InterpretationErrorMessages.NO_PROCESS_WITH_DEFINED_NAME_FOUND.customizeMessage(getDefaultName()));
 
 			topProcess = pov.getProcessDefinition();
 
@@ -220,7 +229,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			//this is potentially a blocking call!!
 			CmlTransition selectedEvent = getEnvironment().resolveChoice();
 			
-			//if its null we terminate
+			//if its null we terminate and assume that this happended because of a user interrupt
 			if(selectedEvent == null)
 				break;
 
@@ -257,6 +266,8 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 
 		if(topProcess.deadlocked())
 			setNewState(CmlInterpretationStatus.DEADLOCKED);
+		else if(topProcess.waiting())
+			setNewState(CmlInterpretationStatus.TERMINATED_BY_USER);
 		else
 			setNewState(CmlInterpretationStatus.FINISHED);
 	}
@@ -429,13 +440,21 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			ConsoleSelectionStrategy ss = new ConsoleSelectionStrategy(); 
 			//ss.setHideSilentTransitions(false);
 			cmlInterp.execute(ss);
-		} catch (Exception ex)
+		} 
+		catch(ValueException e)
+		{
+			System.out.println("With Error : " + e);
+			System.out.println(e.ctxt.location); 
+			System.out.println("With stack trace : ");
+			e.printStackTrace();
+		}
+		catch (Exception ex)
 		{
 			System.out.println("Failed to interpret: " + source.toString());
-			System.out.println("With Error : ");
+			System.out.println("With Error : " + ex.getMessage());
+			System.out.println("With stack trace : ");
 			ex.printStackTrace();
 			return;
-
 		}
 
 		// Report success
@@ -446,7 +465,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	{
 		File cml_example = new File(
 				//"/home/akm/phd/runtime-COMPASS/simpleDLNA/SimpleDLNA.cml");
-				"src/test/resources/process/replicated/replicated-internalchoice.cml");
+				"src/test/resources/examples/Ifm.cml");
 		//File cml_example = new File("/home/akm/phd/COMPASS-repo/Common/CaseStudies/Library/Library.cml");
 		runOnFile(cml_example);
 		

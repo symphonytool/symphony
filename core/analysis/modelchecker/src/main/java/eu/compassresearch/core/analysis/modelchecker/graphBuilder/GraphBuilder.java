@@ -819,7 +819,8 @@ public class GraphBuilder {
 		//String filePath = "/examples/NDet.facts.txt";
 		//String filePath = "/examples/NDet3.facts.txt";
 		//String filePath = "/examples/operation.facts.txt";
-		String filePath = "/examples/simple-state.facts.txt";
+		//String filePath = "/examples/simple-state.facts.txt";
+		String filePath = "/examples/dphils.facts.txt";
 		//String filePath = "/examples/NDet2.facts.txt";
 		//String filePath = "/examples/Livelock2.facts.txt";
 		//String filePath = "/examples/Livelock1.facts.txt";

@@ -127,21 +127,14 @@ class CmlDefinitionVisitor extends
 	public NameValuePairList caseAStateDefinition(AStateDefinition node,
 			Context question) throws AnalysisException {
 		
-		NameValuePairList vpl = new NameValuePairList();
-		
-		for(PDefinition def : node.getStateDefs())
-		{
-			vpl.addAll(def.apply(this,question));
-		}
-		
-		return vpl;
+		return definitionListHelper(node.getStateDefs(),node.getLocation(),question);
 	}
 	
 	@Override
 	public NameValuePairList caseAClassInvariantDefinition(
 			AClassInvariantDefinition node, Context question)
 			throws AnalysisException {
-		return super.caseAClassInvariantDefinition(node, question);
+		return new NameValuePairList();
 	}
 	
 	@Override
@@ -269,7 +262,7 @@ class CmlDefinitionVisitor extends
 	
 		NameValuePairList vpl = new NameValuePairList();
 		
-		vpl.add(new NameValuePair(node.getName(), CmlValueFactory.createOperationValue(node,question)));
+		vpl.add(new NameValuePair(node.getName().clone(), CmlValueFactory.createOperationValue(node,question)));
 		
 		return vpl;
 	}
@@ -278,8 +271,11 @@ class CmlDefinitionVisitor extends
 	public NameValuePairList caseAImplicitCmlOperationDefinition(
 			AImplicitCmlOperationDefinition node, Context question)
 			throws AnalysisException {
-		//throw new CmlInterpreterException(node,"Implicit operations cannot be interpreted. This feature might be implemented later");
-		return new NameValuePairList();
+
+		NameValuePairList vpl = new NameValuePairList();
+		vpl.add(new NameValuePair(node.getName(), CmlValueFactory.createOperationValue(node,question)));
+		
+		return vpl;
 	}
 
 	@Override

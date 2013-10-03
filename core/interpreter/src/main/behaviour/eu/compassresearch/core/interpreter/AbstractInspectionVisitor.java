@@ -1,6 +1,7 @@
 package eu.compassresearch.core.interpreter;
 
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
@@ -21,9 +22,10 @@ import eu.compassresearch.core.interpreter.api.behaviour.CmlCalculationStep;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlTrace;
 import eu.compassresearch.core.interpreter.api.behaviour.Inspection;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
-import eu.compassresearch.core.interpreter.api.transitions.TimedTransition;
 import eu.compassresearch.core.interpreter.api.transitions.TauTransition;
+import eu.compassresearch.core.interpreter.api.transitions.TimedTransition;
 
+@SuppressWarnings("serial")
 public class AbstractInspectionVisitor extends
 		QuestionAnswerCMLAdaptor<Context, Inspection> {
 
@@ -87,16 +89,22 @@ public class AbstractInspectionVisitor extends
 		return new Inspection(new CmlTrace(owner.getTraceModel()), transitions,step);
 	}
 	
+	protected void setWaiting()
+	{
+		visitorAccess.setWaiting();
+	}
+	
 	protected Value lookupName(ILexNameToken name, Context question) throws ValueException
 	{
-		if(!name.getName().contains("."))
+		if(name.getModule().equals(""))
 		{
 			return question.lookup(name);
 		}
 		else
 		{
-			String[] tokens = name.getName().split("\\.");
-			List<String> ids = Arrays.asList(tokens);
+			String[] tokens = name.getModule().split("\\.");
+			List<String> ids = new LinkedList<String>(Arrays.asList(tokens));
+			ids.add(name.getName());
 			Value val = question.lookup(new LexNameToken("", ids.get(0),name.getLocation()));
 			return lookupName(val,ids.subList(1, ids.size()),question);
 		}

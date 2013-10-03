@@ -1653,9 +1653,10 @@ class TCActionVisitor extends
 					TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(""
 							+ operType.getResult(), "" + type)));
 			return node.getType();
-		}
+		} 
 
-		node.setType(new AVoidType(node.getLocation(), true));
+		
+		node.setType(type); 
 		return node.getType();
 	}
 
@@ -2042,9 +2043,9 @@ class TCActionVisitor extends
 			{
 				List<ILexIdentifierToken> ids = ((AUnresolvedPathExp)applyExp.getRoot()).getIdentifiers(); 
 				StringBuilder strBuilder = new StringBuilder();
-				for(Iterator<ILexIdentifierToken> iter = ids.iterator();iter.hasNext();)
-					strBuilder.append(iter.next() + (iter.hasNext() ? "." + iter.next() : ""));
-				name = new LexNameToken("",strBuilder.toString(),applyExp.getRoot().getLocation());
+				for(int i = 0; i < ids.size()-1;i++)
+					strBuilder.append(ids.get(i) + ( (i+1) < ids.size()-1 ? "." + ids.get(++i) : ""));
+				name = new LexNameToken(strBuilder.toString(),ids.get(ids.size()-1).toString(),applyExp.getRoot().getLocation());
 			}
 			else if(applyExp.getRoot() instanceof AVariableExp)
 			{
@@ -2290,8 +2291,10 @@ class TCActionVisitor extends
 						}
 						theType = pType.getTypes().get(paramIndex);
 						paramIndex++;
-					} else
+					} else {
 						theType = type.getType();
+					}
+					
 					ALocalDefinition readVariable = AstFactory
 							.newALocalDefinition(commPattern.getLocation(),
 									id.getName(), NameScope.LOCAL, theType);
@@ -2466,7 +2469,7 @@ class TCActionVisitor extends
 			return node.getType();
 		}
 
-		node.setType(new AActionType());
+		node.setType(new AVoidType());
 		return node.getType();
 	}
 

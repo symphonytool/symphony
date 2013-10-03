@@ -46,12 +46,15 @@ import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.AWhileStatementAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.types.AActionType;
+import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
+import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.Inspection;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.transitions.TauTransition;
 import eu.compassresearch.core.interpreter.api.values.CmlOperationValue;
+import eu.compassresearch.core.interpreter.api.values.ProcessObjectValue;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
 public class StatementInspectionVisitor extends AbstractInspectionVisitor {
@@ -153,6 +156,9 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 								throws AnalysisException {
 							//first find the operation value in the context
 							CmlOperationValue opVal = (CmlOperationValue)lookupName(node.getName(),question); 
+							
+							if(opVal.getBody() == null)
+								throw new CmlInterpreterException(node,InterpretationErrorMessages.EVAL_OF_IMPLICIT_OP.customizeMessage(node.getName().toString()));
 							
 							//evaluate all the arguments
 							ValueList argValues = new ValueList();
@@ -572,10 +578,21 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor {
 				Value oldVal = node.getStateDesignator().apply(cmlExpressionVisitor,question);
 				oldVal.set(node.getLocation(), expValue, question);
 				
-				//System.out.println(stateDesignatorName + " = " + expValue);
+				PExp invExp = null;
+				if(question.getSelf() instanceof ProcessObjectValue) 
+					invExp = ((ProcessObjectValue)question.getSelf()).getInvariantExpression();
 				
-				//now this process evolves into Skip
-				return new Pair<INode,Context>(skipNode, question);
+				if(invExp != null){
+					
+					Context invContext = CmlContextFactory.newContext(invExp.getLocation(), 
+							"Process " + question.getSelf() + " invariant context", question);
+					invContext.setPrepost(0, "Process invariant for '" + ((ProcessObjectValue)question.getSelf()).getProcessDefinition() + "' is violated");
+					
+					return new Pair<INode,Context>(invExp, invContext);
+				}
+				else
+					//now this process evolves into Skip
+					return new Pair<INode,Context>(skipNode, question);
 			}
 		});
 	}

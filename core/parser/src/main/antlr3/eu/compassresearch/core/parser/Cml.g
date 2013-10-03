@@ -2388,8 +2388,8 @@ opType returns[PType type]
 operationBody returns[PAction body]
 @after { $body.setLocation(extractLexLocation($start, $stop)); }
     : action                           { $body = $action.action; }
-    | 'is' 'not' 'yet' 'specified'     { $body = new ASubclassResponsibilityAction(); }
-    | 'is' 'subclass' 'responsibility' { $body = new ANotYetSpecifiedStatementAction(); }
+    | 'is' 'not' 'yet' 'specified'     { $body = new ANotYetSpecifiedStatementAction(); }
+    | 'is' 'subclass' 'responsibility' { $body = new ASubclassResponsibilityAction(); }
     ;
 
 
@@ -3165,6 +3165,9 @@ exprbase returns[PExp exp]
         }
     | 'cases' cexp=expression ':' caseExprAltList ( ',' 'others' '->' oexp=expression )? 'end'
         {
+            for (ACaseAlternative alt : $caseExprAltList.alts) {
+                alt.setCexp($cexp.exp);
+            }
             $exp = new ACasesExp(null, $cexp.exp, $caseExprAltList.alts, $oexp.exp);
         }
     ;
@@ -3442,9 +3445,9 @@ ISUNDER
     : 'is_'
     ;
 
-ISUNDERBASIC
-    : 'is_' ('bool' | 'nat' | 'nat1' | 'int' | 'rat' | 'real' | 'char' | 'token')
-    ;
+// ISUNDERBASIC
+//     : 'is_' ('bool' | 'nat' | 'nat1' | 'int' | 'rat' | 'real' | 'char' | 'token')
+//     ;
 
 /* FIXME Need to fix this, yet
  * We should have a java method that converts things like \n into newline and such.

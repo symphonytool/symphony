@@ -27,6 +27,11 @@ class CmlOpsToString  {
 	private static class OpsVisitor extends AnswerCMLAdaptor<String>
 	{
 
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
 		@Override
 		public String defaultPProcess(PProcess node)
 				throws AnalysisException {

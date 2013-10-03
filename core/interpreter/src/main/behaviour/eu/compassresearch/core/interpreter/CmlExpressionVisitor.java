@@ -36,6 +36,8 @@ import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
 import eu.compassresearch.ast.expressions.PCMLExp;
 import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.ast.types.AChannelType;
+import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
+import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionFactory;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
@@ -189,6 +191,9 @@ public class CmlExpressionVisitor extends QuestionAnswerCMLAdaptor<Context, Valu
 			ObjectValue objectVal = val.objectValue(question);
 			return objectVal.get(new LexNameToken("",(ILexIdentifierToken)iter.next().clone()), false) ;
 		}
+		
+		if(val.isUndefined())
+			throw new CmlInterpreterException(node,InterpretationErrorMessages.EVAL_OF_UNDEFINED_VALUE.customizeMessage(node.toString(), node.getLocation().toString()));
 		
 		return val;
 	}

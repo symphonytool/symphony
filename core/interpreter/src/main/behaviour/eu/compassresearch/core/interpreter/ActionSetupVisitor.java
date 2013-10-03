@@ -43,6 +43,8 @@ import eu.compassresearch.ast.process.AGeneralisedParallelismReplicatedProcess;
 import eu.compassresearch.ast.process.AHidingProcess;
 import eu.compassresearch.ast.process.AInterleavingProcess;
 import eu.compassresearch.ast.process.AInterleavingReplicatedProcess;
+import eu.compassresearch.ast.process.AInternalChoiceProcess;
+import eu.compassresearch.ast.process.AInternalChoiceReplicatedProcess;
 import eu.compassresearch.ast.process.AInterruptProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.ASynchronousParallelismProcess;
@@ -463,7 +465,6 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 			
 			@Override
 			public INode createNextReplication() {
-				//TODO The i'th namesetexpression should be evaluated in the i'th context 
 				return new AInterleavingProcess(node.getLocation(), 
 						node.getReplicatedProcess().clone(), 
 						node.clone());
@@ -471,8 +472,31 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 			
 			@Override
 			public INode createLastReplication() {
-				//TODO The i'th namesetexpression should be evaluated in the i'th context 
 				return new AInterleavingProcess(node.getLocation(), 
+						node.getReplicatedProcess().clone(), 
+						node.getReplicatedProcess().clone());
+			}
+			
+		},question);
+	}
+	
+	@Override
+	public Pair<INode, Context> caseAInternalChoiceReplicatedProcess(
+			final AInternalChoiceReplicatedProcess node, Context question)
+			throws AnalysisException
+	{
+		return caseReplicatedProcess(node,new ReplicationFactory() {
+			
+			@Override
+			public INode createNextReplication() {
+				return new AInternalChoiceProcess(node.getLocation(), 
+						node.getReplicatedProcess().clone(), 
+						node.clone());
+			}
+			
+			@Override
+			public INode createLastReplication() {
+				return new AInternalChoiceProcess(node.getLocation(), 
 						node.getReplicatedProcess().clone(), 
 						node.getReplicatedProcess().clone());
 			}

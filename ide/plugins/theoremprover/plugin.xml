@@ -22,12 +22,12 @@
 
   
   
- 
-<extension
+ <!-- REMOVED FOR M24 Deliverable - not working correctly yet-->
+<!--<extension
       point="org.eclipse.ui.menus">
    <menuContribution
          allPopups="false"
-         locationURI="toolbar:eu.compassresearch.ide.pogplugin.POsTable">
+         locationURI="toolbar:eu.compassresearch.ide.pog.POsTable">
       <command
             commandId="eu.compassresearch.ide.theoremprover.dischargepos"
             icon="icons/tp.png"
@@ -36,7 +36,7 @@
             tooltip="Send POs to Theorem Prover">
       </command>
    </menuContribution>
-</extension>
+</extension>-->
   
 
 	<extension

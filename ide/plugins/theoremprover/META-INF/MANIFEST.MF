@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: COMPASS Isabelle Plugin
 Bundle-SymbolicName: eu.compassresearch.ide.theoremprover;singleton:=true
-Bundle-Version: 0.1.9.qualifier
+Bundle-Version: 0.2.1.qualifier
 Bundle-Activator: eu.compassresearch.ide.theoremprover.Activator
 Bundle-Vendor: The COMPASS Project
 Bundle-Localization: plugin
@@ -24,7 +24,9 @@ Require-Bundle: org.eclipse.debug.ui,
  isabelle.pure;bundle-version="2013.0.1",
  org.scala-ide.scala.library,
  eu.compassresearch.ide.pog
-Import-Package: org.overture.pog.pub
+Import-Package: org.overture.pog.obligation,
+ org.overture.pog.pub,
+ org.overture.pof
 Export-Package: eu.compassresearch.ide.theoremprover
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy

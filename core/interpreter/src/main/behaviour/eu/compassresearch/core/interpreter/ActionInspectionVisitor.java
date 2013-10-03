@@ -163,6 +163,8 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 			final ACommunicationAction node, final Context question)
 					throws AnalysisException {
 
+		setWaiting();
+		
 		//create the channel name
 		ILexNameToken channelName = NamespaceUtility.createChannelName(node.getIdentifier());
 		//find the channel value

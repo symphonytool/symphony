@@ -333,7 +333,7 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 	private MessageContainer recvMessage() throws IOException
 	{
 		return MessageCommunicator.receiveMessage(requestReader,
-				new MessageContainer(new CmlDbgStatusMessage(CmlInterpretationStatus.TERMINATED))); 
+				new MessageContainer(new CmlDbgStatusMessage(CmlInterpretationStatus.TERMINATED_BY_USER))); 
 	}
 
 

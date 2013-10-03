@@ -46,7 +46,7 @@ public class CmlInspectionVisitor extends AbstractInspectionVisitor {
 			throws AnalysisException {
 		//TODO should this really evolve into skip?
 		final ASkipAction skipAction = new ASkipAction(node.getLocation());
-		return newInspection(createTauTransitionWithTime(skipAction,"Pre/Post condition"),
+		return newInspection(createTauTransitionWithoutTime(skipAction,"inv/Pre/Post expression"),
 				new AbstractCalculationStep(owner,visitorAccess) {
 
 			@Override
@@ -55,6 +55,7 @@ public class CmlInspectionVisitor extends AbstractInspectionVisitor {
 
 				if(!node.apply(cmlExpressionVisitor,question).boolValue(question))
 				{
+					//FIXME whats with this number shit
 					throw new ValueException(4061, question.prepostMsg, question);
 				}
 				return new Pair<INode, Context>(skipAction, question);

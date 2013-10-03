@@ -2,7 +2,6 @@ channels
 a, b
 
 process A = 
-begin 
-			
-	@ [5 >= 4] & a -> b -> Skip 
+begin 	
+	@ [2 = 1] & a -> b -> Skip 
 end

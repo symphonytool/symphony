@@ -8,7 +8,11 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.expressions.PExp;
 import org.overture.ast.node.INode;
+import org.overture.pof.AVdmPoTree;
+import org.overture.pog.obligation.ProofObligation;
+import org.overture.pog.obligation.ProofObligationList;
 import org.overture.pog.pub.IProofObligation;
 
 import eu.compassresearch.ast.analysis.AnswerCMLAdaptor;
@@ -23,6 +27,7 @@ import eu.compassresearch.core.analysis.theoremprover.thms.NodeNameList;
 import eu.compassresearch.core.analysis.theoremprover.thms.ThmNode;
 import eu.compassresearch.core.analysis.theoremprover.thms.ThmNodeList;
 import eu.compassresearch.core.analysis.theoremprover.thms.ThmTheorem;
+import eu.compassresearch.core.analysis.theoremprover.thms.ThmTheoremList;
 import eu.compassresearch.core.analysis.theoremprover.utils.ThmExprUtil;
 import eu.compassresearch.core.analysis.theoremprover.utils.ThmProcessUtil;
 import eu.compassresearch.core.analysis.theoremprover.utils.ThySortException;
@@ -252,10 +257,11 @@ public class TPVisitor extends
 	 * @param thyFileName
 	 * @return
 	 */
-	public static String generatePogThyStr(List<INode> ast, CmlProofObligationList poList, String thyFileName) 
+	public static String generatePogThyStr(List<INode> ast, ProofObligationList poList, String thyFileName) 
 	{
 		String pogErrors = "";
 		String pogString = "";
+		ThmTheoremList poThys = new ThmTheoremList();
 		
 		//First, obtain all the state variable names so that the theorem expressions use the correct
 		//variable identifiers : $ or ^^
@@ -283,12 +289,15 @@ public class TPVisitor extends
 		try 
 		{
 			//For each proof obligation, create a theorem
-			LinkedList<ThmTheorem> poThys = new LinkedList<ThmTheorem>();
-			for (IProofObligation po : poList)
+			for (IProofObligation ipo : poList)
 			{
+				ProofObligation po = (ProofObligation) ipo;
 				//THIS BIT NEEDS MORE EFFORT!
-				String theoryBody = ThmExprUtil.getIsabelleExprStr(svars, new NodeNameList(), po.getValueTree().getPredicate());
-				poThys.add(new ThmTheorem("po" + po.getUniqueName(), theoryBody, "auto"));
+				AVdmPoTree poValTree = po.getValueTree();
+				PExp poExp = poValTree.getPredicate();
+				NodeNameList bvars = new NodeNameList();
+				String theoryBody = ThmExprUtil.getIsabelleExprStr(svars, bvars, poExp);//"true";
+				poThys.add(new ThmTheorem("po" + po.getUniqueName(), theoryBody, "by (cml_auto_tac)"));
 			}
 			pogString = poThys.toString();
 		}
@@ -300,10 +309,11 @@ public class TPVisitor extends
 
 		//retrieve the file name without the .thy file extension
 		String thyName = thyFileName.substring(0, thyFileName.lastIndexOf('.'));
+		String poThyName = thyName+ "_PO";
 
 		StringBuilder sb = new StringBuilder();
 		//Add thy header 
-		sb.append("theory " + thyName + " \n" + "  imports utp_cml \n"
+		sb.append("theory " + poThyName + " \n" + "  imports utp_cml " + thyName +"\n"
 				+ "begin \n" + "\n");
 		sb.append("text {* Auto-generated THY file for proof obligations generated for "+  thyName + ".cml *}\n\n");
 		
