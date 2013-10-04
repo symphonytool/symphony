@@ -2,10 +2,11 @@ package eu.compassresearch.core.interpreter.api;
 
 import org.overture.ast.lex.LexLocation;
 
-public class InterpreterRuntimeException extends RuntimeException {
+public class InterpreterRuntimeException extends RuntimeException
+{
 
 	final LexLocation location;
-	
+
 	/**
 	 * 
 	 */
@@ -21,25 +22,25 @@ public class InterpreterRuntimeException extends RuntimeException {
 		super(message);
 		location = null;
 	}
-	
+
 	public InterpreterRuntimeException(LexLocation location, String message)
 	{
 		super(message);
 		this.location = location;
 	}
-	
-	public InterpreterRuntimeException(String message,Throwable cause)
+
+	public InterpreterRuntimeException(String message, Throwable cause)
 	{
-		super(message,cause);
+		super(message, cause);
 		this.location = null;
 	}
-	
+
 	public InterpreterRuntimeException(Throwable cause)
 	{
 		super(cause);
 		this.location = null;
 	}
-	
+
 	public InterpreterRuntimeException(LexLocation location, Throwable cause)
 	{
 		super(cause);

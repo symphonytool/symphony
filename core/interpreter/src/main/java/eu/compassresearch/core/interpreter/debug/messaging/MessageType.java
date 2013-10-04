@@ -1,8 +1,9 @@
 package eu.compassresearch.core.interpreter.debug.messaging;
 
-public enum MessageType {
+public enum MessageType
+{
 
-	RESPONSE,REQUEST,STATUS,COMMAND;
+	RESPONSE, REQUEST, STATUS, COMMAND;
 
 	@Override
 	public String toString()

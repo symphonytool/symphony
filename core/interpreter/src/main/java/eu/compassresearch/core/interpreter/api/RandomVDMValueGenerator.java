@@ -18,8 +18,6 @@ import org.overture.interpreter.values.Value;
 import org.overture.interpreter.values.ValueList;
 
 import eu.compassresearch.ast.analysis.AnswerCMLAdaptor;
-import eu.compassresearch.core.interpreter.api.values.AbstractValueInterpreter;
-import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
 
 class RandomVDMValueGenerator extends AnswerCMLAdaptor<Value>
 {
@@ -28,48 +26,55 @@ class RandomVDMValueGenerator extends AnswerCMLAdaptor<Value>
 	 */
 	private static final long serialVersionUID = -1235299489392276483L;
 	private final Random rndValue;
-	
+
 	public RandomVDMValueGenerator(long seed)
 	{
 		rndValue = new Random(seed);
 	}
-	
+
 	@Override
 	public Value caseAIntNumericBasicType(AIntNumericBasicType node)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 
 		return new IntegerValue(rndValue.nextInt());
 	}
-	
-	@Override
-	public Value caseANatNumericBasicType(ANatNumericBasicType node) throws AnalysisException {
 
-		try {
-			
+	@Override
+	public Value caseANatNumericBasicType(ANatNumericBasicType node)
+			throws AnalysisException
+	{
+
+		try
+		{
+
 			return new NaturalValue(Math.abs(rndValue.nextLong()));
-		} catch (Exception e) {
-			throw new AnalysisException(e.getMessage(),e);
+		} catch (Exception e)
+		{
+			throw new AnalysisException(e.getMessage(), e);
 		}
 	}
 
 	@Override
 	public Value caseANamedInvariantType(ANamedInvariantType node)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 
-		//			if(node.getInvDef() != null)
-		//			{
-		//				StateContext stateContext = new StateContext(node.getLocation(), "invaraint function context");
-		//				NameValuePairList nvpl = node.getInvDef().apply(new CmlDefinitionEvaluator(),stateContext);
-		//				FunctionValue func  = nvpl.get(0).value.functionValue(stateContext);
-		//				func.e
-		//				
-		//			}
+		// if(node.getInvDef() != null)
+		// {
+		// StateContext stateContext = new StateContext(node.getLocation(), "invaraint function context");
+		// NameValuePairList nvpl = node.getInvDef().apply(new CmlDefinitionEvaluator(),stateContext);
+		// FunctionValue func = nvpl.get(0).value.functionValue(stateContext);
+		// func.e
+		//
+		// }
 
 		return node.getType().apply(this);
 	}
 
 	@Override
-	public Value caseAUnionType(AUnionType node) throws AnalysisException {
+	public Value caseAUnionType(AUnionType node) throws AnalysisException
+	{
 
 		PType type = node.getTypes().get(rndValue.nextInt(node.getTypes().size()));
 
@@ -77,24 +82,25 @@ class RandomVDMValueGenerator extends AnswerCMLAdaptor<Value>
 	}
 
 	@Override
-	public Value caseAQuoteType(AQuoteType node) throws AnalysisException {
+	public Value caseAQuoteType(AQuoteType node) throws AnalysisException
+	{
 
 		return new QuoteValue(node.getValue().getValue());
 	}
 
 	@Override
-	public Value caseAProductType(AProductType node)
-			throws AnalysisException {
+	public Value caseAProductType(AProductType node) throws AnalysisException
+	{
 
 		ValueList argvals = new ValueList();
 
-		for(int i = 0 ; i < node.getTypes().size();i++)
+		for (int i = 0; i < node.getTypes().size(); i++)
 		{
-//			Value val = ((TupleValue)chosenEvent.getValue()).values.get(i);
-//			if(AbstractValueInterpreter.isValueMostPrecise(val))
-//				argvals.add(val);
-//			else
-				argvals.add(node.getTypes().get(i).apply(this));
+			// Value val = ((TupleValue)chosenEvent.getValue()).values.get(i);
+			// if(AbstractValueInterpreter.isValueMostPrecise(val))
+			// argvals.add(val);
+			// else
+			argvals.add(node.getTypes().get(i).apply(this));
 		}
 		return new TupleValue(argvals);
 	}

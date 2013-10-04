@@ -16,26 +16,26 @@ public class ValueLatticeElement extends Value implements LatticeElement
 	private static final long serialVersionUID = -3172714347731268950L;
 	private final Value value;
 	private final PType type;
-	
+
 	public ValueLatticeElement(PType type, Value value)
 	{
 		this.type = type;
 		this.value = value;
 	}
-	
+
 	@Override
 	public LatticeElement meet(LatticeElement other)
 	{
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
-//	@Override
-//	public Value meet(Value other)
-//	{
-//		return other;
-//	}
-	
+
+	// @Override
+	// public Value meet(Value other)
+	// {
+	// return other;
+	// }
+
 	@Override
 	public PType getType()
 	{
@@ -45,24 +45,23 @@ public class ValueLatticeElement extends Value implements LatticeElement
 	@Override
 	public boolean isComparable(LatticeElement other)
 	{
-		if(this.type.equals(other.getType()))
+		if (this.type.equals(other.getType()))
 		{
-			if(other.isTopElement())
+			if (other.isTopElement())
 				return true;
-			else if(isMostPrecise() && other.isMostPrecise())
+			else if (isMostPrecise() && other.isMostPrecise())
 				return this.equals(other);
-			else 
+			else
 				return false;
-		}
-		else
+		} else
 			return false;
 	}
-	
-//	@Override
-//	public boolean isComparable(Value other)
-//	{
-//		return this.value.equals(other);
-//	}
+
+	// @Override
+	// public boolean isComparable(Value other)
+	// {
+	// return this.value.equals(other);
+	// }
 
 	@Override
 	public String toString()
@@ -73,12 +72,11 @@ public class ValueLatticeElement extends Value implements LatticeElement
 	@Override
 	public boolean equals(Object other)
 	{
-		if(other instanceof LatticeElement)
+		if (other instanceof LatticeElement)
 		{
-			return this.type.equals(((LatticeElement) other).getType()) &&
-					this.value.equals(((LatticeElement) other).getValue());
-		}
-		else
+			return this.type.equals(((LatticeElement) other).getType())
+					&& this.value.equals(((LatticeElement) other).getValue());
+		} else
 			return false;
 	}
 
@@ -97,7 +95,7 @@ public class ValueLatticeElement extends Value implements LatticeElement
 	@Override
 	public Object clone()
 	{
-		return new ValueLatticeElement(type,value);
+		return new ValueLatticeElement(type, value);
 	}
 
 	@Override
@@ -111,14 +109,15 @@ public class ValueLatticeElement extends Value implements LatticeElement
 	{
 		return value;
 	}
-	
+
 	@Override
 	public boolean isMostPrecise()
 	{
 		return false;
 	}
 
-	private class IsComparableVisitor extends QuestionAnswerCMLAdaptor<LatticeElement, Boolean>
+	private class IsComparableVisitor extends
+			QuestionAnswerCMLAdaptor<LatticeElement, Boolean>
 	{
 		@Override
 		public Boolean defaultPType(PType node, LatticeElement question)
@@ -126,7 +125,7 @@ public class ValueLatticeElement extends Value implements LatticeElement
 		{
 			return super.defaultPType(node, question);
 		}
-		
+
 		@Override
 		public Boolean caseAProductType(AProductType node,
 				LatticeElement question) throws AnalysisException

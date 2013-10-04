@@ -43,7 +43,7 @@ public class Console
 			debug = new PrintStream(new SilentOutputStream());
 		}
 	}
-	
+
 	public static void enableOut(boolean enable)
 	{
 		if (enable)

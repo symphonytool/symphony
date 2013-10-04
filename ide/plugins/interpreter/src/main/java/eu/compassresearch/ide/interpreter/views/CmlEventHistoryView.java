@@ -20,7 +20,8 @@ import org.eclipse.ui.part.ViewPart;
 import eu.compassresearch.ide.interpreter.CmlUtil;
 import eu.compassresearch.ide.interpreter.model.CmlDebugTarget;
 
-public class CmlEventHistoryView extends ViewPart implements IDebugEventSetListener
+public class CmlEventHistoryView extends ViewPart implements
+		IDebugEventSetListener
 {
 	ListViewer viewer;
 
@@ -32,15 +33,16 @@ public class CmlEventHistoryView extends ViewPart implements IDebugEventSetListe
 			@Override
 			public void run()
 			{
-				for(DebugEvent e : events)
-					if((e.getKind() == DebugEvent.BREAKPOINT || e.getKind() == DebugEvent.SUSPEND) && e.getSource() instanceof CmlDebugTarget)
+				for (DebugEvent e : events)
+					if ((e.getKind() == DebugEvent.BREAKPOINT || e.getKind() == DebugEvent.SUSPEND)
+							&& e.getSource() instanceof CmlDebugTarget)
 					{
 						fillHistoryList((CmlDebugTarget) e.getSource());
 					}
 			}
 		});
 	}
-	
+
 	@Override
 	public String getTitle()
 	{
@@ -63,8 +65,8 @@ public class CmlEventHistoryView extends ViewPart implements IDebugEventSetListe
 			public void inputChanged(Viewer viewer, Object oldInput,
 					Object newInput)
 			{
-//				System.out.println("Input changed: old=" + oldInput + ", new="
-//						+ newInput);
+				// System.out.println("Input changed: old=" + oldInput + ", new="
+				// + newInput);
 			}
 
 			@Override
@@ -81,26 +83,28 @@ public class CmlEventHistoryView extends ViewPart implements IDebugEventSetListe
 			}
 		});
 		CmlDebugTarget target = CmlUtil.findCmlDebugTarget();
-		if(target != null)
+		if (target != null)
 			fillHistoryList(target);
 
-		//add this view to the debugevent listener, this is what causes the updates in the view
+		// add this view to the debugevent listener, this is what causes the updates in the view
 		DebugPlugin.getDefault().addDebugEventListener(this);
-		
-		//this action copies the list into the clipboard
-		Action copyAction = new Action() {
-			  public void run() {
+
+		// this action copies the list into the clipboard
+		Action copyAction = new Action()
+		{
+			public void run()
+			{
 				@SuppressWarnings("unchecked")
-				List<String> events = (List<String>)viewer.getInput();
-			    StringSelection selection = new StringSelection(events.toString());
-			    Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-			    clipboard.setContents(selection, selection);
-			  }
-			};
+				List<String> events = (List<String>) viewer.getInput();
+				StringSelection selection = new StringSelection(events.toString());
+				Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+				clipboard.setContents(selection, selection);
+			}
+		};
 
 		IActionBars bars = this.getViewSite().getActionBars();
 		bars.setGlobalActionHandler(ActionFactory.COPY.getId(), copyAction);
-		
+
 		// viewer.addDoubleClickListener(new IDoubleClickListener() {
 		//
 		// @Override
@@ -128,7 +132,7 @@ public class CmlEventHistoryView extends ViewPart implements IDebugEventSetListe
 		// }
 		// });
 	}
-	
+
 	private void fillHistoryList(CmlDebugTarget target)
 	{
 		viewer.setInput(target.getLastState().getToplevelProcess().getTrace());

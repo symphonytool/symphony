@@ -6,7 +6,6 @@ import java.util.Vector;
 
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.interpreter.runtime.Context;
-import org.overture.interpreter.runtime.ObjectContext;
 import org.overture.interpreter.values.FunctionValue;
 import org.overture.interpreter.values.NameValuePair;
 import org.overture.interpreter.values.ObjectValue;
@@ -106,75 +105,76 @@ public class VariableDTO
 	{
 		return hasChildren;
 	}
-	
-	
+
 	public static List<VariableDTO> extractVariables(Context context)
 	{
 		List<VariableDTO> variables = new Vector<VariableDTO>();
-		
+
 		for (Entry<ILexNameToken, Value> var : context.entrySet())
 		{
 			ILexNameToken name = var.getKey();
 			Value val = var.getValue();
-			
-			if(!showValue(val))
+
+			if (!showValue(val))
 				continue;
-			
-			variables.add(extractVariable(name.getName(),name.getFullName(),val));
+
+			variables.add(extractVariable(name.getName(), name.getFullName(), val));
 		}
-		
+
 		//
 		ObjectValue selfVal = context.getSelf();
-		if(selfVal != null)
+		if (selfVal != null)
 		{
 			for (NameValuePair nvp : selfVal.getMemberValues().asList())
 			{
-				if(!showValue(nvp.value))
+				if (!showValue(nvp.value))
 					continue;
-				
-				variables.add(extractVariable(nvp.name.getName(),nvp.name.getFullName(),nvp.value));
+
+				variables.add(extractVariable(nvp.name.getName(), nvp.name.getFullName(), nvp.value));
 			}
 		}
-		
+
 		return variables;
 	}
-	
+
 	private static boolean showValue(Value value)
 	{
-		if(value instanceof FunctionValue || value instanceof OperationValue || value instanceof ActionValue){
+		if (value instanceof FunctionValue || value instanceof OperationValue
+				|| value instanceof ActionValue)
+		{
 			return false;
-		}
-		else
+		} else
 			return true;
-		
+
 	}
-	
-	public static VariableDTO extractVariable(String name, String fullName, Value val)
+
+	public static VariableDTO extractVariable(String name, String fullName,
+			Value val)
 	{
 		List<VariableDTO> children = new Vector<VariableDTO>();
 		Value derefedVal = val.deref();
-		if(derefedVal instanceof SetValue)
+		if (derefedVal instanceof SetValue)
 		{
 			SetValue v = (SetValue) derefedVal;
 			int i = 0;
 			for (Value vv : v.values)
 			{
 				i++;
-				children.add(extractVariable("["+i+"]", "["+i+"]", vv));
+				children.add(extractVariable("[" + i + "]", "[" + i + "]", vv));
 			}
-		}else if(derefedVal instanceof SeqValue)
+		} else if (derefedVal instanceof SeqValue)
 		{
 			SeqValue v = (SeqValue) derefedVal;
 			int i = 0;
 			for (Value vv : v.values)
 			{
 				i++;
-				children.add(extractVariable("["+i+"]", "["+i+"]", vv));
-			}	
-		}else
+				children.add(extractVariable("[" + i + "]", "[" + i + "]", vv));
+			}
+		} else
 		{
-			//TODO
+			// TODO
 		}
-		return new VariableDTO(name, fullName, val.kind(), val.toString(), children.size(), !children.isEmpty(),!( val instanceof UpdatableValue), children);
+		return new VariableDTO(name, fullName, val.kind(), val.toString(), children.size(), !children.isEmpty(), !(val instanceof UpdatableValue), children);
 	}
 }

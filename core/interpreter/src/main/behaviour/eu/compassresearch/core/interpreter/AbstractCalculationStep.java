@@ -14,78 +14,78 @@ import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
-abstract class AbstractCalculationStep implements CmlCalculationStep {
+abstract class AbstractCalculationStep implements CmlCalculationStep
+{
 
 	/**
 	 * Interface that gives access to methods that access protected parts of a CmlBehaviour
 	 */
-	private VisitorAccess 													visitorAccess;
-	protected final CmlBehaviour 											owner;			
-	
-	public AbstractCalculationStep(CmlBehaviour owner, VisitorAccess visitorAccess)
+	private VisitorAccess visitorAccess;
+	protected final CmlBehaviour owner;
+
+	public AbstractCalculationStep(CmlBehaviour owner,
+			VisitorAccess visitorAccess)
 	{
-		//this.parentVisitor = parentVisitor;
+		// this.parentVisitor = parentVisitor;
 		this.owner = owner;
 		this.visitorAccess = visitorAccess;
 	}
-	
+
 	@Override
-	public abstract Pair<INode, Context> execute(CmlTransition selectedTransition)
-			throws AnalysisException;
-	
-	
+	public abstract Pair<INode, Context> execute(
+			CmlTransition selectedTransition) throws AnalysisException;
+
 	/*
-	 * Protected Helper Methods 
+	 * Protected Helper Methods
 	 */
 
 	protected void setLeftChild(CmlBehaviour child)
 	{
 		this.visitorAccess.setLeftChild(child);
 	}
-	
+
 	protected void setRightChild(CmlBehaviour child)
 	{
 		this.visitorAccess.setRightChild(child);
 	}
-	
-	protected Pair<INode,Context> replaceWithChild(CmlBehaviour child)
+
+	protected Pair<INode, Context> replaceWithChild(CmlBehaviour child)
 	{
 		this.visitorAccess.setLeftChild(child.getLeftChild());
 		this.visitorAccess.setRightChild(child.getRightChild());
 		return child.getNextState();
 	}
-	
-	protected Pair<Context,Context> getChildContexts(Context context)
+
+	protected Pair<Context, Context> getChildContexts(Context context)
 	{
 		return visitorAccess.getChildContexts(context);
 	}
-	
+
 	protected ILexNameToken name()
 	{
 		return owner.name();
 	}
-		
+
 	protected List<CmlBehaviour> children()
 	{
 		return owner.children();
 	}
-			
-	protected void caseParallelNonSync(CmlTransition selectedTransition) throws AnalysisException
+
+	protected void caseParallelNonSync(CmlTransition selectedTransition)
+			throws AnalysisException
 	{
-		CmlBehaviour leftChild =  owner.getLeftChild();
-		CmlTransitionSet leftChildAlpha = owner.getLeftChild().inspect(); 
+		CmlBehaviour leftChild = owner.getLeftChild();
+		CmlTransitionSet leftChildAlpha = owner.getLeftChild().inspect();
 		CmlBehaviour rightChild = owner.getRightChild();
 		CmlTransitionSet rightChildAlpha = rightChild.inspect();
 
-		if(leftChildAlpha.contains(selectedTransition))
+		if (leftChildAlpha.contains(selectedTransition))
 		{
 			leftChild.execute(selectedTransition);
-		}
-		else if(rightChildAlpha.contains(selectedTransition))
+		} else if (rightChildAlpha.contains(selectedTransition))
 		{
 			rightChild.execute(selectedTransition);
-		}
-		else
+		} else
 		{
 			throw new CmlInterpreterException("A selected event that should have affected either left or right");
 		}
@@ -93,16 +93,17 @@ abstract class AbstractCalculationStep implements CmlCalculationStep {
 
 	/**
 	 * Finds the first finished child if any
+	 * 
 	 * @return The first finished child, if none then null is returned
 	 */
 	protected CmlBehaviour findFinishedChild()
 	{
-		for(CmlBehaviour child : children())
+		for (CmlBehaviour child : children())
 		{
-			if(child.finished())
+			if (child.finished())
 				return child;
 		}
-		
+
 		return null;
 	}
 }
