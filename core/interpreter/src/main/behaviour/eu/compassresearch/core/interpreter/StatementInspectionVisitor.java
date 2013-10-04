@@ -35,6 +35,7 @@ import eu.compassresearch.ast.actions.AElseIfStatementAction;
 import eu.compassresearch.ast.actions.AForSequenceStatementAction;
 import eu.compassresearch.ast.actions.AIfStatementAction;
 import eu.compassresearch.ast.actions.ALetStatementAction;
+import eu.compassresearch.ast.actions.AMultipleGeneralAssignmentStatementAction;
 import eu.compassresearch.ast.actions.ANewStatementAction;
 import eu.compassresearch.ast.actions.ANonDeterministicAltStatementAction;
 import eu.compassresearch.ast.actions.ANonDeterministicDoStatementAction;
@@ -102,11 +103,14 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 
 				// To access the result we put it in a Value named "|CALL|.|CALLRETURN|" this can never be created
 				// in a cml model. This is a little ugly but it works and statys until something better comes up.
+				@SuppressWarnings("deprecation")
 				AVariableExp varExp = new AVariableExp(node.getType(), node.getCall().getLocation(), CmlOperationValue.ReturnValueName(), "", null);
 				// Next we create the assignment statement with the expressions that graps the result
+				@SuppressWarnings("deprecation")
 				ASingleGeneralAssignmentStatementAction assignmentNode = new ASingleGeneralAssignmentStatementAction(node.getLocation(), node.getType(), node.getDesignator().clone(), varExp);
 
 				// We now compose the call statement and assignment statement into sequential composition
+				@SuppressWarnings("deprecation")
 				INode seqComp = new ASequentialCompositionAction(node.getLocation(), node.getCall().clone(), assignmentNode.clone());
 				return new Pair<INode, Context>(seqComp, resultContext);
 			}
@@ -616,30 +620,63 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 			public Pair<INode, Context> execute(CmlTransition selectedTransition)
 					throws AnalysisException
 			{
-
-				Value expValue = node.getExpression().apply(cmlExpressionVisitor, question);
-				Value oldVal = node.getStateDesignator().apply(cmlExpressionVisitor, question);
-				oldVal.set(node.getLocation(), expValue, question);
-
-				PExp invExp = null;
-				if (question.getSelf() instanceof ProcessObjectValue)
-					invExp = ((ProcessObjectValue) question.getSelf()).getInvariantExpression();
-
-				if (invExp != null)
-				{
-
-					Context invContext = CmlContextFactory.newContext(invExp.getLocation(), "Process "
-							+ question.getSelf() + " invariant context", question);
-					invContext.setPrepost(0, "Process invariant for '"
-							+ ((ProcessObjectValue) question.getSelf()).getProcessDefinition()
-							+ "' is violated");
-
-					return new Pair<INode, Context>(invExp, invContext);
-				} else
-					// now this process evolves into Skip
-					return new Pair<INode, Context>(skipNode, question);
+				return evalSingleAssignmentStatement(node, question, skipNode,true);
 			}
 		});
+	}
+	
+	@Override
+	public Inspection caseAMultipleGeneralAssignmentStatementAction(
+			final AMultipleGeneralAssignmentStatementAction node,final Context question)
+			throws AnalysisException
+	{
+		@SuppressWarnings("deprecation")
+		final INode skipNode = new ASkipAction(node.getLocation(), new AActionType());
+		// FIXME according to the semantics this should be performed instantly so time is not
+		// allowed to pass
+		return newInspection(createTauTransitionWithoutTime(skipNode), new AbstractCalculationStep(owner, visitorAccess)
+		{
+
+			@Override
+			public Pair<INode, Context> execute(CmlTransition selectedTransition)
+					throws AnalysisException
+			{
+				Pair<INode, Context> result = null;
+				for (Iterator<ASingleGeneralAssignmentStatementAction> itr = node.getAssignments().iterator(); itr.hasNext();)
+				{
+					result = evalSingleAssignmentStatement(itr.next(), question, skipNode,!itr.hasNext());
+				}
+				return result;
+			}
+		});
+	}
+	
+	private Pair<INode, Context> evalSingleAssignmentStatement(
+			final ASingleGeneralAssignmentStatementAction node,
+			final Context question, final INode skipNode,boolean checkInv)
+			throws AnalysisException, ValueException
+	{
+		Value expValue = node.getExpression().apply(cmlExpressionVisitor, question);
+		Value oldVal = node.getStateDesignator().apply(cmlExpressionVisitor, question);
+		oldVal.set(node.getLocation(), expValue, question);
+
+		PExp invExp = null;
+		if (question.getSelf() instanceof ProcessObjectValue)
+			invExp = ((ProcessObjectValue) question.getSelf()).getInvariantExpression();
+
+		if (invExp != null &&checkInv)
+		{
+
+			Context invContext = CmlContextFactory.newContext(invExp.getLocation(), "Process "
+					+ question.getSelf() + " invariant context", question);
+			invContext.setPrepost(0, "Process invariant for '"
+					+ ((ProcessObjectValue) question.getSelf()).getProcessDefinition()
+					+ "' is violated");
+
+			return new Pair<INode, Context>(invExp, invContext);
+		} else
+			// now this process evolves into Skip
+			return new Pair<INode, Context>(skipNode, question);
 	}
 
 	@Override
