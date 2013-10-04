@@ -153,6 +153,7 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 	private void animate(final CmlInterpreter cmlInterpreter)
 			throws AnalysisException
 	{
+		cmlInterpreter.setSuspendBeforeTermination(true);
 		cmlInterpreter.execute(new SelectionStrategy()
 		{
 
@@ -346,6 +347,7 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 			// This is to release the interpreter thread if stuck here
 			responseQueue.offer(new ResponseMessage(), 1, TimeUnit.MILLISECONDS);
 			choiceQueue.offer(new TransitionDTO(Integer.MAX_VALUE, "", new LinkedList<ILexLocation>()), 1, TimeUnit.MILLISECONDS);
+			runningInterpreter.resume();
 		} catch (InterruptedException e)
 		{
 		}

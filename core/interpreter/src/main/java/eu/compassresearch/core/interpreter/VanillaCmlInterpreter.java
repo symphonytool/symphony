@@ -118,7 +118,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		if (this.getState() == null)
 		{
 			setNewState(CmlInterpreterState.FAILED);
-			throw new CmlInterpreterException("The interprer has not been initialized, please call the initialize method before invoking the start method");
+			throw new CmlInterpreterException("The interpreter has not been initialized, please call the initialize method before invoking the start method");
 		}
 
 		if (null == env)
@@ -272,14 +272,23 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 
 		}
 
-		if (topProcess.deadlocked())
+		if (topProcess.deadlocked()){
 			setNewState(CmlInterpreterState.DEADLOCKED);
-		else if (topProcess.waiting())
+			if(suspendBeforeTermination())
+				synchronized (suspendObject)
+				{
+					this.suspendObject.wait();
+				}
+		}
+		else if (!topProcess.finished())
 			setNewState(CmlInterpreterState.TERMINATED_BY_USER);
 		else
 			setNewState(CmlInterpreterState.FINISHED);
+		
+		
 	}
 
+	@Override
 	public void resume()
 	{
 		synchronized (suspendObject)

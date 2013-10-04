@@ -39,6 +39,7 @@ abstract class AbstractCmlInterpreter implements CmlInterpreter
 	protected Map<String, Breakpoint> breakpoints = new HashMap<>();
 	protected CmlBehaviour runningTopProcess = null;
 	protected SelectionStrategy environment;
+	private boolean suspendBeforeTermination = false;
 	/**
 	 * The current state of the interpreter
 	 */
@@ -52,7 +53,7 @@ abstract class AbstractCmlInterpreter implements CmlInterpreter
 		if (currentState != newState)
 		{
 			currentState = newState;
-			stateChangedEventHandler.fireEvent(new InterpreterStateChangedEvent(this, currentState));
+			stateChangedEventHandler.fireEvent(new InterpreterStateChangedEvent(this));
 		}
 	}
 
@@ -122,5 +123,17 @@ abstract class AbstractCmlInterpreter implements CmlInterpreter
 		}
 
 		return foundBehavior;
+	}
+
+	@Override
+	public boolean suspendBeforeTermination()
+	{
+		return suspendBeforeTermination;
+	}
+
+	@Override
+	public void setSuspendBeforeTermination(boolean suspendBeforeTermination)
+	{
+		this.suspendBeforeTermination = suspendBeforeTermination;
 	}
 }

@@ -331,13 +331,40 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 			}
 		});
 
+		handlers.put(CmlInterpreterState.DEADLOCKED.toString(), new MessageEventHandler<CmlDbgStatusMessage>()
+		{
+			@Override
+			public boolean handleMessage(CmlDbgStatusMessage message)
+			{
+				lastState = message.getInterpreterStatus();
+				Display.getDefault().syncExec(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						CmlUtil.clearAllSelections();
+					}
+				});
+
+				// threadManager.stopping();
+				return true;
+			}
+		});
+
 		handlers.put(CmlInterpreterState.TERMINATED_BY_USER.toString(), new MessageEventHandler<CmlDbgStatusMessage>()
 		{
 			@Override
 			public boolean handleMessage(CmlDbgStatusMessage message)
 			{
 				lastState = message.getInterpreterStatus();
-				// communicationManager.connectionClosed();
+				Display.getDefault().syncExec(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						CmlUtil.clearAllSelections();
+					}
+				});
 				return false;
 			}
 		});
@@ -428,7 +455,9 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 	public boolean isSuspended()
 	{
 		return lastState != null
-				&& (lastState.getInterpreterState() == CmlInterpreterState.SUSPENDED || lastState.getInterpreterState() == CmlInterpreterState.WAITING_FOR_ENVIRONMENT);
+				&& (lastState.getInterpreterState() == CmlInterpreterState.SUSPENDED 
+				|| lastState.getInterpreterState() == CmlInterpreterState.WAITING_FOR_ENVIRONMENT
+				|| lastState.getInterpreterState() == CmlInterpreterState.DEADLOCKED);
 	}
 
 	@Override
