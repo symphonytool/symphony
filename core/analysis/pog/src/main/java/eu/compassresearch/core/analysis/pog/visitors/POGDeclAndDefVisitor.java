@@ -336,7 +336,6 @@ public class POGDeclAndDefVisitor extends
 		return pol;
 	}
 
-
 	/**
 	 * VDM ELEMENT - Values
 	 */
@@ -453,18 +452,28 @@ public class POGDeclAndDefVisitor extends
 
 		// if implicit operation has a precondition, dispatch for PO checking
 		// and generate OperationPostConditionObligation
+
 		if (node.getPostcondition() != null)
 		{
 			pol.addAll(node.getPostcondition().apply(parentPOG, question));
 
 			PDefinition stateDef;
-			
-			if (node.getClassDefinition() != null){
-				stateDef=node.getClassDefinition();
-			}			else {
-			stateDef=node.getStateDefinition();	
+
+			if (node.getClassDefinition() != null)
+			{
+				stateDef = node.getClassDefinition();
+			} else
+			{
+				AProcessDefinition stater = node.getAncestor(AProcessDefinition.class);
+				if (stater != null)
+				{
+					stateDef = stater;
+				} else
+				{
+					stateDef = node.getStateDefinition();
+				}
 			}
-			
+
 			question.push(new CmlOperationDefinitionContext(node, false, stateDef));
 			pol.add(new CmlSatisfiabilityObligation(node, stateDef, question));
 			question.pop();

@@ -46,7 +46,7 @@ public class CmlOperationDefinitionContext extends POOperationDefinitionContext
 				getParamPatternList(definition), precond, definition.getPrecondition(), stateDefinition,(AImplicitOperationDefinition) null);
 	}
 
-
+// FIXME State Definition Handling for processes is broken
 
 	public static List<PPattern> getParamPatternList(
 			AImplicitCmlOperationDefinition definition)
