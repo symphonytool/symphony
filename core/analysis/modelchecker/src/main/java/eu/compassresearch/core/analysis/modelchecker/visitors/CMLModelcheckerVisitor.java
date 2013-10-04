@@ -98,7 +98,7 @@ import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.Bindin
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.SingleBind;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Int;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Type;
-import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.UndefinedValue;
+
 
 @SuppressWarnings("serial")
 public class CMLModelcheckerVisitor extends
@@ -1088,7 +1088,6 @@ public class CMLModelcheckerVisitor extends
 		return question.getScriptContent();
 	}
 
-	
 	@Override
 	public StringBuilder caseAPlusNumericBinaryExp(APlusNumericBinaryExp node,
 			CMLModelcheckerContext question) throws AnalysisException {
@@ -1122,10 +1121,10 @@ public class CMLModelcheckerVisitor extends
 		
 		return question.getScriptContent();
 	}
+	
 	@Override
 	public StringBuilder caseAEnumVarsetExpression(AEnumVarsetExpression node,
 			CMLModelcheckerContext question) throws AnalysisException {
-		// question.append("\"" + node.toString() + "\"");
 		question.getScriptContent().append("\"" + node.toString() + "\"");
 
 		return question.getScriptContent();
@@ -1140,6 +1139,7 @@ public class CMLModelcheckerVisitor extends
 		
 		return question.getScriptContent();
 	}
+
 	@Override
 	public StringBuilder caseAActionDefinition(AActionDefinition node,
 			CMLModelcheckerContext question) throws AnalysisException {
@@ -1573,6 +1573,7 @@ public class CMLModelcheckerVisitor extends
 		
 		return question.getScriptContent();
 	}
+
 	@Override
 	public StringBuilder caseABlockStatementAction(ABlockStatementAction node,
 			CMLModelcheckerContext question) throws AnalysisException {
@@ -1921,8 +1922,6 @@ public class CMLModelcheckerVisitor extends
 		return question.getScriptContent();
 	}
 	
-	
-	
 	@Override
 	public StringBuilder caseABooleanConstExp(ABooleanConstExp node,
 			CMLModelcheckerContext question) throws AnalysisException {
@@ -2190,6 +2189,7 @@ public class CMLModelcheckerVisitor extends
 		
 		return question.getScriptContent();
 	}
+
 	@Override
 	public StringBuilder caseAStateDefinition(AStateDefinition node,
 			CMLModelcheckerContext question) throws AnalysisException {
@@ -2260,7 +2260,7 @@ public class CMLModelcheckerVisitor extends
 		return codes;
 	}
 	
-	public static String generateFormulaScript(String basicContent, List<PDefinition> definitions, String propertyToCheck) throws IOException{
+	public static String generateFormulaScript(String basicContent, List<PDefinition> definitions, String propertyToCheck) throws IOException, AnalysisException{
 				
 		CMLModelcheckerContext content = new CMLModelcheckerContext();
 		//adds the basic content (semantics embedding) to the generated script
@@ -2272,15 +2272,25 @@ public class CMLModelcheckerVisitor extends
 		mcVisitor.basicContent.append(basicContent);
 		content.getScriptContent().append(mcVisitor.basicContent);
 		for (PDefinition paragraph : definitions) {
-			try {
+			//try {
 				paragraph.apply(mcVisitor, content);
-			} catch (Exception e) {
-				System.out.println("Error: " + e.getMessage());
-			}
+			//} catch (Exception e) {
+			//	System.out.println("Error: " + e.getMessage());
+			//}
 		}
 		return content.getScriptContent().toString();
 	}
+	
+	
 
+	@Override
+	public StringBuilder defaultPAction(PAction node,
+			CMLModelcheckerContext question) throws AnalysisException {
+		
+		throw new ModelcheckerRuntimeException(ModelcheckerErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName()));
+	}
+	
+	
 	/**
 	 * @param args
 	 * @throws Throwable
@@ -2297,7 +2307,8 @@ public class CMLModelcheckerVisitor extends
 		//String cml_example = "src/test/resources/action-guard.cml";
 		//String cml_example = "src/test/resources/minimondex.cml";
 		//String cml_example = "src/test/resources/replicated-seqcomp.cml";
-		String cml_example = "src/test/resources/Dphils.cml";
+		//String cml_example = "src/test/resources/Dphils.cml";
+		String cml_example = "src/test/resources/action-not-implemented.cml";
 		System.out.println("Testing on " + cml_example);
 		// List<PSource> sources = new LinkedList<PSource>();
 		PSource source = Utilities.makeSourceFromFile(cml_example);
