@@ -45,6 +45,7 @@ import eu.compassresearch.core.interpreter.api.values.LatticeTopValue;
 import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
+import eu.compassresearch.core.interpreter.api.values.NamesetValue;
 
 @SuppressWarnings("serial")
 public class CmlExpressionVisitor extends QuestionAnswerCMLAdaptor<Context, Value>
@@ -138,17 +139,29 @@ public class CmlExpressionVisitor extends QuestionAnswerCMLAdaptor<Context, Valu
 	}
 	
 	@Override
-	public ChannelNameSetValue caseAEnumVarsetExpression(AEnumVarsetExpression node,
+	public Value caseAEnumVarsetExpression(AEnumVarsetExpression node,
 			Context question) throws AnalysisException {
-		
-		Set<ChannelNameValue> coms = new HashSet<ChannelNameValue>();
-		for (ANameChannelExp chanNameExp : node.getChannelNames())
+				
+		if(question.containsKey(NamespaceUtility.getVarExpContextName()))
 		{
-			ChannelNameValue channelName = createChannelNameValue(chanNameExp, question);
-			coms.add(channelName);
+			Set<ILexNameToken> names = new HashSet<ILexNameToken>();
+			for (ANameChannelExp chanNameExp : node.getChannelNames())
+			{
+				names.add(new LexNameToken("", chanNameExp.getIdentifier().clone()));
+			}
+			
+			return new NamesetValue(names);
 		}
-		
-		return new ChannelNameSetValue(coms);
+		else{
+			Set<ChannelNameValue> coms = new HashSet<ChannelNameValue>();
+			for (ANameChannelExp chanNameExp : node.getChannelNames())
+			{
+				ChannelNameValue channelName = createChannelNameValue(chanNameExp, question);
+				coms.add(channelName);
+			}
+
+			return new ChannelNameSetValue(coms);
+		}
 	}
 	
 	@Override

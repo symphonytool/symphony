@@ -10,6 +10,7 @@ import org.overture.ast.expressions.PExp;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.intf.lex.ILexNameToken;
+import org.overture.ast.lex.LexLocation;
 import org.overture.ast.node.INode;
 import org.overture.ast.patterns.PPattern;
 import org.overture.ast.typechecker.NameScope;
@@ -18,6 +19,7 @@ import org.overture.interpreter.assistant.pattern.PPatternAssistantInterpreter;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ContextException;
 import org.overture.interpreter.runtime.ValueException;
+import org.overture.interpreter.values.BooleanValue;
 import org.overture.interpreter.values.NameValuePair;
 import org.overture.interpreter.values.NameValuePairList;
 import org.overture.interpreter.values.NameValuePairMap;
@@ -74,6 +76,7 @@ import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
 import eu.compassresearch.core.interpreter.api.values.CmlOperationValue;
 import eu.compassresearch.core.interpreter.api.values.ExpressionConstraint;
 import eu.compassresearch.core.interpreter.api.values.LatticeTopValue;
+import eu.compassresearch.core.interpreter.api.values.NamesetValue;
 import eu.compassresearch.core.interpreter.api.values.NoConstraint;
 import eu.compassresearch.core.interpreter.api.values.UnresolvedExpressionValue;
 import eu.compassresearch.core.interpreter.api.values.ValueConstraint;
@@ -331,7 +334,21 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor {
 					throws AnalysisException {
 
 		//TODO: This only implements the "A ||| B (no state)" and not "A [|| ns1 | ns2 ||] B"
-
+		
+		/*
+		 * This is a little hack to come around that the cmlExpressionVisitor does not now if it has to proc
+		 */
+		Context varsetContext = CmlContextFactory.newContext(node.getLocation(), "varset expression context", question);
+		varsetContext.putNew(new NameValuePair(NamespaceUtility.getVarExpContextName(), new BooleanValue(true)));
+		
+		NamesetValue leftNamesetValue = null;
+		NamesetValue rightNamesetValue = null;
+		
+		if(node.getLeftNamesetExpression() != null)
+			leftNamesetValue = (NamesetValue)node.getLeftNamesetExpression().apply(cmlExpressionVisitor,varsetContext);
+		if(node.getRightNamesetExpression() != null)
+			rightNamesetValue = (NamesetValue)node.getRightNamesetExpression().apply(cmlExpressionVisitor,varsetContext);
+		
 		//if true this means that this is the first time here, so the Parallel Begin rule is invoked.
 		if(!owner.hasChildren()){
 
