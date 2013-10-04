@@ -193,7 +193,7 @@ public class InterpretAllCmlFilesTest
 		return result.toString();
 	}
 
-	@Parameters
+	@Parameters(name="{index} : {0}")
 	public static Collection<Object[]> getCmlfilePaths()
 	{
 
