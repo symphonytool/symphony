@@ -16,7 +16,6 @@ import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.AClassClassDefinition;
 import org.overture.ast.definitions.AClassInvariantDefinition;
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
-import org.overture.ast.definitions.AExplicitOperationDefinition;
 import org.overture.ast.definitions.AExternalDefinition;
 import org.overture.ast.definitions.AImplicitFunctionDefinition;
 import org.overture.ast.definitions.ALocalDefinition;
@@ -50,6 +49,7 @@ import org.overture.ast.types.AOperationType;
 import org.overture.ast.types.AProductType;
 import org.overture.ast.types.ASeq1SeqType;
 import org.overture.ast.types.ASetType;
+import org.overture.ast.types.AVoidType;
 import org.overture.ast.types.PType;
 import org.overture.parser.messages.VDMError;
 import org.overture.typechecker.Environment;
@@ -62,8 +62,6 @@ import org.overture.typechecker.TypeCheckInfo;
 import org.overture.typechecker.TypeChecker;
 import org.overture.typechecker.TypeCheckerErrors;
 import org.overture.typechecker.assistant.definition.AExplicitFunctionDefinitionAssistantTC;
-import org.overture.typechecker.assistant.definition.AExplicitOperationDefinitionAssistantTC;
-import org.overture.typechecker.assistant.definition.AImplicitFunctionDefinitionAssistantTC;
 import org.overture.typechecker.assistant.definition.ATypeDefinitionAssistantTC;
 import org.overture.typechecker.assistant.definition.PAccessSpecifierAssistantTC;
 import org.overture.typechecker.assistant.definition.PDefinitionAssistantTC;
@@ -74,8 +72,6 @@ import org.overture.typechecker.assistant.type.PTypeAssistantTC;
 import org.overture.typechecker.util.HelpLexNameToken;
 import org.overture.typechecker.visitor.TypeCheckerDefinitionVisitor;
 
-import eu.compassresearch.ast.actions.ASequentialCompositionAction;
-import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.actions.PParametrisation;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
@@ -919,6 +915,9 @@ class TCDeclAndDefVisitor extends
 			org.overture.typechecker.TypeCheckInfo question)
 			throws AnalysisException {
 		CmlTypeCheckInfo newQ = (CmlTypeCheckInfo) question;
+		
+		NameScope oldScope = question.scope;
+		question.scope = NameScope.NAMES;
 		LinkedList<ATypeDefinition> defs = node.getTypes();
 		for (ATypeDefinition d : defs) {
 			PType type = d.apply(parentChecker, question);
@@ -932,6 +931,8 @@ class TCDeclAndDefVisitor extends
 			newQ.addType(d.getName(), d);
 			d.setType(type);
 		}
+		
+		question.scope = oldScope;
 		node.setType(new ATypeParagraphType());
 		return node.getType();
 	}
@@ -1164,7 +1165,7 @@ class TCDeclAndDefVisitor extends
 
 			} while (false);
 
-			flattenProductParamterType(fnType);
+			flattenProductParameterType(fnType);
 			result.add(def);
 
 			return result;
@@ -1177,16 +1178,28 @@ class TCDeclAndDefVisitor extends
 		 * 
 		 * @param pdef
 		 */
-		private void flattenProductParamterType(AFunctionType fnType) {
+		private void flattenProductParameterType(AFunctionType fnType) {
 			if (fnType.getParameters().size() == 1) {
-				PType firstType = fnType.getParameters().get(0);
-				LinkedList<PType> res = new LinkedList<PType>();
-				if (firstType instanceof AProductType) {
-
-					res.addAll(((AProductType) firstType).getTypes());
-					fnType.setParameters(res);
-					// Collections.reverse(res);
+				PType parameters = fnType.getParameters().get(0);
+				LinkedList<PType> types = new LinkedList<PType>();
+				
+				if (parameters instanceof AProductType)
+				{
+					// Expand unbracketed product types
+					AProductType pt = (AProductType)parameters;
+					types.addAll(pt.getTypes());
 				}
+				else if (parameters instanceof AVoidType)
+				{
+					// No type
+				}
+				else
+				{
+					// One parameter, including bracketed product types
+					types.add(parameters);
+				}
+				
+				fnType.setParameters(types);
 			}
 
 		}
@@ -1691,6 +1704,21 @@ class TCDeclAndDefVisitor extends
 			org.overture.typechecker.TypeCheckInfo question)
 			throws AnalysisException {
 
+		List<PType> ptypes = ((AOperationType) node.getType()).getParameters();
+		
+		if (node.getParameterPatterns().size() > ptypes.size()) {
+			node.setType(issueHandler.addTypeError(node,
+					TypeErrorMessages.TOO_MANY_PARAM_PATTERNS
+							.customizeMessage("" + ptypes.size(), "" + node.getParameterPatterns().size())));
+			return node.getType();
+
+		} else if (node.getParameterPatterns().size() < ptypes.size()) {
+			node.setType(issueHandler.addTypeError(node,
+					TypeErrorMessages.TOO_FEW_PARAM_PATTERNS
+							.customizeMessage("" + ptypes.size(), "" + node.getParameterPatterns().size())));
+			return node.getType();
+		}
+		
 		// add the parameter to the Environment
 
 		// check the body
@@ -1962,26 +1990,22 @@ class TCDeclAndDefVisitor extends
 			org.overture.typechecker.TypeCheckInfo questionIn)
 			throws AnalysisException {
 
-		OvertureToCmlFunctionHandler fnHandler = new OvertureToCmlFunctionHandler();
-		List<PDefinition> fixedDefinition = fnHandler.handle(node);
-		node = (AExplicitFunctionDefinition) fixedDefinition.get(0);
+//		OvertureToCmlFunctionHandler fnHandler = new OvertureToCmlFunctionHandler();
+//		List<PDefinition> fixedDefinition = fnHandler.handle(node);
+//		node = (AExplicitFunctionDefinition) fixedDefinition.get(0);
 
 		NodeList<PDefinition> defs = new NodeList<PDefinition>(node);
 
 		if (node.getTypeParams() != null) {
 			defs.addAll(AExplicitFunctionDefinitionAssistantTC
 					.getTypeParamDefinitions(node));
-		}
+		} 
 
-		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(questionIn);
-
-		// CML Variant, we need to check the patterns
-		TypeCheckInfo question = (TypeCheckInfo) createEnvironmentWithFormals(
-				questionIn, node);
+		CmlTCUtil.getCmlEnv(questionIn); //FIXME What is this?
 
 		// CML Variant, we need to check for zero arguments
 		PType expectedResult = null;
-		if (node.getParamDefinitionList().size() > 0) {
+		if (node.getParamPatternList().size() > 0) {
 			ListIterator<List<PPattern>> lIter = node.getParamPatternList()
 					.listIterator();
 			expectedResult = AExplicitFunctionDefinitionAssistantTC
@@ -1991,7 +2015,7 @@ class TCDeclAndDefVisitor extends
 			if (!(fnType instanceof AFunctionType)) {
 				return issueHandler.addTypeError(node,
 						TypeErrorMessages.EXPECTED_TYPE_DEFINITION
-								.customizeMessage("" + new AFunctionType()));
+								.customizeMessage("" + new AFunctionType(fnType.getLocation(), true, false)));
 			}
 			AFunctionType funType = (AFunctionType) fnType;
 			expectedResult = funType.getResult();
@@ -2006,6 +2030,11 @@ class TCDeclAndDefVisitor extends
 		for (List<PDefinition> pdef : paramDefinitionList) {
 			defs.addAll(pdef); // All definitions of all parameter lists
 		}
+		
+		// CML Variant, we need to check the patterns
+		TypeCheckInfo question = (TypeCheckInfo) createEnvironmentWithFormals(
+				questionIn, node);
+		
 
 		OvertureRootCMLAdapter.pushQuestion(question);
 		FlatCheckedEnvironment local = new FlatCheckedEnvironment(question.assistantFactory,defs,
@@ -2078,6 +2107,13 @@ class TCDeclAndDefVisitor extends
 		PType actualResult = node.getBody().apply(parentChecker,
 				new TypeCheckInfo(question.assistantFactory,local, question.scope));
 		OvertureRootCMLAdapter.popQuestion(question);
+		
+		if (!successfulType(actualResult)) {
+			node.setType(issueHandler.addTypeError(actualResult,
+					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+							.customizeMessage("" + actualResult)));
+			return node.getType();
+		}
 		
 		node.setActualResult(actualResult);
 
@@ -2209,6 +2245,19 @@ class TCDeclAndDefVisitor extends
 			node.setType(issueHandler.addTypeError(node, e.getMessage()));
 		}
 
+		AExplicitFunctionDefinition invDef = node.getInvdef();
+		
+//		if(invDef != null){
+//			PType invDefType = invDef.apply(parentChecker, question);
+//			
+//			if (!successfulType(invDefType)) {
+//				node.setType(issueHandler.addTypeError(node,
+//						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+//								.customizeMessage("" + invDefType)));
+//				return node.getType();
+//			}
+//		}
+		
 		return node.getType();
 	}
 
