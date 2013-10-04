@@ -19,7 +19,7 @@ begin
 
 	
 	operations
-		addCD: (seq of char * (seq of Track)) ==> ()
+		addCD: (seq of char) * (seq of Track) ==> ()
 		addCD(title, tracks) == cds := cds ^ [mk_CD(title,tracks)]
 		
 		findByTitle: (seq of char) ==> [CD]
