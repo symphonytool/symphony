@@ -11,7 +11,6 @@ import org.overture.ast.definitions.PDefinition;
 import org.overture.typechecker.assistant.definition.AExplicitFunctionDefinitionAssistantTC;
 import org.overture.typechecker.assistant.definition.SClassDefinitionAssistantTC;
 import org.overture.typechecker.utilities.ImplicitDefinitionFinder;
-
 import eu.compassresearch.ast.analysis.AnalysisCMLAdaptor;
 import eu.compassresearch.ast.definitions.AChannelNameDefinition;
 import eu.compassresearch.ast.definitions.AChannelsDefinition;
@@ -111,14 +110,11 @@ public class CollectGlobalStateClass extends AnalysisCMLAdaptor {
 		List<PDefinition> defs = TCDeclAndDefVisitor
 				.handleDefinitionsForOverture(node);
 		
-		PDefinition typeInvDef = null;
 		for (PDefinition tdef : defs) {
 			tdef.apply(new ImplicitDefinitionFinder(af), null);
-	
 		}
 		
 		members.addAll(defs);
-		super.caseATypesDefinition(node);
 	}
 
 	@Override
@@ -132,7 +128,7 @@ public class CollectGlobalStateClass extends AnalysisCMLAdaptor {
 	@Override
 	public void caseAFunctionsDefinition(AFunctionsDefinition node)
 			throws AnalysisException {
-
+ 
 		List<PDefinition> defs = TCDeclAndDefVisitor
 				.handleDefinitionsForOverture(node);
 
