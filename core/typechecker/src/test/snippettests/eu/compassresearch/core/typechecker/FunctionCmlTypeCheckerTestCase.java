@@ -33,7 +33,10 @@ public class FunctionCmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase 
 		add("functions test: int * int -> bool test(a,b) == true channels InOut: int * int * int process A = begin state b:int actions A = InOut?a!b?c -> test(a,c) @ Skip end");
 		// 10// implicit function
 		add("process T = begin functions f(a:int) r:int pre true post true @ f(2) end");
-
+		//11
+		add("functions ExeBorrow2: (int * rat * real) -> int ExeBorrow2(t) == t.#1  f: int * int -> int f(x,y) == x + y");
+		//12 //negative test. Pattern and parameter mismatch
+		add("functions free: int * int +> int free(status,number,subs) == is not yet specified", true, false);
 	}
 
 	@Parameters
