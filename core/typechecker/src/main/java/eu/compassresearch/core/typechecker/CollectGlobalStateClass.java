@@ -111,9 +111,10 @@ public class CollectGlobalStateClass extends AnalysisCMLAdaptor {
 		List<PDefinition> defs = TCDeclAndDefVisitor
 				.handleDefinitionsForOverture(node);
 		
-		
+		PDefinition typeInvDef = null;
 		for (PDefinition tdef : defs) {
 			tdef.apply(new ImplicitDefinitionFinder(af), null);
+	
 		}
 		
 		members.addAll(defs);
