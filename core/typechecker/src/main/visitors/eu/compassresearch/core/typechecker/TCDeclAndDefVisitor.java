@@ -1838,6 +1838,7 @@ class TCDeclAndDefVisitor extends
 			}
 			node.setPostdef(postDef);
 		}
+		
 
 		return caseSCmlOperation(node,node.getType(),question);
 		//return node.getType();

@@ -13,7 +13,7 @@ begin
    PHILS = PHIL0 ||| PHIL1
    FORKS = FORK0 ||| FORK1
    
-   @ PHILS [| {get00,get10,get01,get11,puts00,puts01,puts10,puts11,eat0,eat1} |] FORKS 
+   @ PHILS [| {get00,get10,get01,get11,puts00,puts01,puts10,puts11,eat1} |] FORKS 
 
 
 end

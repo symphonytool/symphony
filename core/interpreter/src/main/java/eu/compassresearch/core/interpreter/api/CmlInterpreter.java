@@ -80,6 +80,10 @@ public interface CmlInterpreter
 	public boolean addBreakpoint(Breakpoint bp);
 
 	public Breakpoint getActiveBreakpoint();
+	
+	public void setSuspendBeforeTermination(boolean suspend);
+
+	public boolean suspendBeforeTermination();
 
 	public void resume();
 

@@ -1,10 +1,16 @@
 package eu.compassresearch.ide.modelchecker.view;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.jface.viewers.ColumnWeightData;
@@ -30,6 +36,10 @@ import org.eclipse.ui.browser.IWorkbenchBrowserSupport;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
+import eu.compassresearch.core.analysis.modelchecker.api.FormulaResult;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.GraphBuilder;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.util.GraphViz;
+import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
 import eu.compassresearch.ide.modelchecker.Activator;
 import eu.compassresearch.ide.modelchecker.MCConstants;
 
@@ -67,6 +77,39 @@ public class MCListView extends ViewPart {
 				if (data.getFormulaResult().getResult().isSatisfiable()){
 					if(Activator.DOT_OK){
 						try {
+							//generate the dot file and compile it to svg, and show in the browser
+								//we build the counterexample
+							GraphBuilder gb = new GraphBuilder();
+							FormulaResult formulaOutput = data.getFormulaResult().getResult();
+							String propertyToCheck = data.getProperty();
+							String dotContent = gb.generateDot(new StringBuilder(formulaOutput.getFacts()), propertyToCheck);
+							
+							//save the graphviz code to a file
+							IContainer mcFolder = data.getFormulaResult().getMcFolder();
+							ICmlSourceUnit selectedUnit = data.getFormulaResult().getSelectedUnit();
+							//IFile dotFile = writeDotContentToFile(mcFolder,selectedUnit,dotContent);
+							String name = selectedUnit.getFile().getName();
+							String dotFileName = name.substring(0,name.length()-selectedUnit.getFile().getFileExtension().length())+"gv";
+							IFile dotFile = ((IFolder)mcFolder).getFile(dotFileName);
+							
+							try{
+								if(!dotFile.exists()){
+									dotFile.create(new ByteArrayInputStream(dotContent.toString().getBytes()), true, new NullProgressMonitor());
+								}else{
+									dotFile.setContents(new ByteArrayInputStream(dotContent.toString().getBytes()), true, true, new NullProgressMonitor());
+								}
+								
+							}catch(CoreException e){
+								Activator.log(e);
+							}
+							
+							//compile the generated graphviz
+							GraphViz gv = new GraphViz();
+							File file = dotFile.getRawLocation().toFile();
+							String fileName = file.getName();
+							gv.runDot(file);
+							IFile svgFile = ((IFolder)mcFolder).getFile(fileName+".svg");
+							data.getFormulaResult().setSvgFile(svgFile);
 							IWorkbenchBrowserSupport support = PlatformUI.getWorkbench().getBrowserSupport();
 							IWebBrowser browser = support.createBrowser(IWorkbenchBrowserSupport.AS_EDITOR, Activator.PLUGIN_ID, "COMPASS", "Model checker counterexample");
 							IFile counterExample = data.getFormulaResult().getSvgFile();
@@ -76,7 +119,14 @@ public class MCListView extends ViewPart {
 							e.printStackTrace();
 						} catch (MalformedURLException e) {
 							e.printStackTrace();
-						} 
+						} catch(Exception e){
+							//log stack trace
+							StackTraceElement[] trace = e.getStackTrace();
+							for (int i = 0; i < trace.length; i++) {
+								Activator.logErrorMessage(trace[i].toString());
+							}
+							popErrorMessage(e.getMessage());
+						}
 					}else{
 						popErrorMessage(Activator.dotNotInstalledMsg);
 					}
