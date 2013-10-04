@@ -2485,7 +2485,7 @@ type1 returns[PType type]
 typebase returns[PType type]
 @after { $type.setLocation(extractLexLocation($start, $stop)); }
     : basicType           { $type = $basicType.basicType; }
-    | '(' inside=type ')' { $type = $inside.type; }
+    | '(' inside=type ')' { $type = new ABracketType(null, false, null, $inside.type); }
     | '[' inside=type ']' { $type = new AOptionalType(null, false, null, $inside.type); }
     | QUOTELITERAL
         {
