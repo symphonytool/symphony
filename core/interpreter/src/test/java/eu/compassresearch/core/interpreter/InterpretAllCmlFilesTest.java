@@ -42,7 +42,7 @@ public class InterpretAllCmlFilesTest
 
 	private String filePath;
 
-	public InterpretAllCmlFilesTest(String filePath)
+	public InterpretAllCmlFilesTest(String filePath,String name)
 	{
 		CmlRuntime.logger().setLevel(Level.OFF);
 		this.filePath = filePath;
@@ -94,7 +94,7 @@ public class InterpretAllCmlFilesTest
 	}
 
 	@Test
-	public void testParseCmlFile() throws IOException, AnalysisException,
+	public void testInterpretCmlFile() throws IOException, AnalysisException,
 			CmlInterpreterException
 	{
 
@@ -193,11 +193,12 @@ public class InterpretAllCmlFilesTest
 		return result.toString();
 	}
 
-	@Parameters(name="{index} : {0}")
+	@Parameters(name="{index} : {1}")
 	public static Collection<Object[]> getCmlfilePaths()
 	{
 
-		List<Object[]> paths = findAllCmlFiles("src/test/resources");
+		final String initialPath = "src/test/resources";
+		List<Object[]> paths = findAllCmlFiles(initialPath);
 
 		// List<Object[]> paths = findAllCmlFiles("src/test/resources/action/parallel-composition");
 
@@ -206,8 +207,17 @@ public class InterpretAllCmlFilesTest
 		// paths.addAll(findAllCmlFiles("src/test/resources/examples/"));
 		// paths.addAll(findAllCmlFiles("src/test/resources/classes/"));
 		// paths.addAll(findAllCmlFiles("src/test/resources/action/replicated/"));
+		
+		List<Object[]>  tests = new Vector<Object[]>();
+		
+		for (Object[] p : paths)
+		{
+			String path = p[0].toString();
+			String name = path.substring(initialPath.length()+1);
+			tests.add(new Object[]{path,name});
+		}
 
-		return paths;
+		return tests;
 	}
 
 	private static List<Object[]> findAllCmlFiles(String folderPath)
@@ -270,7 +280,7 @@ public class InterpretAllCmlFilesTest
 			for (int i = 0; i < children.length; i++)
 			{
 				// Get filename of file or directory
-				paths.add(new Object[] { folder.getPath() + "/" + children[i] });
+				paths.add(new Object[] { folder.getPath() + File.separatorChar + children[i] });
 			}
 		}
 		return paths;
