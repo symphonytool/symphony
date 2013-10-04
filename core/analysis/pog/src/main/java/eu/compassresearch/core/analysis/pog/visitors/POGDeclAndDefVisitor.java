@@ -457,8 +457,16 @@ public class POGDeclAndDefVisitor extends
 		{
 			pol.addAll(node.getPostcondition().apply(parentPOG, question));
 
-			question.push(new CmlOperationDefinitionContext(node, false, node.getStateDefinition()));
-			pol.add(new CmlSatisfiabilityObligation(node, node.getStateDefinition(), question));
+			PDefinition stateDef;
+			
+			if (node.getClassDefinition() != null){
+				stateDef=node.getClassDefinition();
+			}			else {
+			stateDef=node.getStateDefinition();	
+			}
+			
+			question.push(new CmlOperationDefinitionContext(node, false, stateDef));
+			pol.add(new CmlSatisfiabilityObligation(node, stateDef, question));
 			question.pop();
 		}
 

@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Vector;
 
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.definitions.AImplicitFunctionDefinition;
 import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.AApplyExp;
@@ -42,6 +41,7 @@ import org.overture.ast.lex.VDMToken;
 import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.APatternListTypePair;
 import org.overture.ast.patterns.APatternTypePair;
+import org.overture.ast.patterns.PMultipleBind;
 import org.overture.ast.patterns.PPattern;
 import org.overture.pog.pub.IPOContextStack;
 
@@ -61,10 +61,8 @@ public class CmlSatisfiabilityObligation extends CmlProofObligation
 	private static final long serialVersionUID = 1L;
 	private static final ILexNameToken OLD_STATE_ARG = new LexNameToken(null, "oldstate", null);
 	private static final ILexNameToken OLD_SELF_ARG = new LexNameToken(null, "oldself", null);
-	private static final ILexNameToken STATE_ARG = new LexNameToken(null, "state", null);
-	private static final ILexNameToken SELF_ARG = new LexNameToken(null, "self", null);
-
-	
+	private static final ILexNameToken NEW_STATE_ARG = new LexNameToken(null, "newstate", null);
+	private static final ILexNameToken NEW_SELF_ARG = new LexNameToken(null, "newself", null);
 
 	public CmlSatisfiabilityObligation(AImplicitCmlOperationDefinition op,
 			PDefinition stateDefinition, IPOContextStack ctxt)
@@ -89,10 +87,10 @@ public class CmlSatisfiabilityObligation extends CmlProofObligation
 
 		if (stateDefinition instanceof AStateDefinition)
 		{
-			arglist.add(getVarExp(STATE_ARG));
+			arglist.add(getVarExp(OLD_STATE_ARG));
 		} else
 		{
-			arglist.add(getVarExp(SELF_ARG));
+			arglist.add(getVarExp(OLD_SELF_ARG));
 		}
 
 		AApplyExp preApply = null;
@@ -104,6 +102,7 @@ public class CmlSatisfiabilityObligation extends CmlProofObligation
 
 		PExp mainExp;
 
+		// Operation Has a Result. Add it in the post condition.
 		if (op.getResult() != null && !op.getResult().isEmpty())
 		{
 
@@ -119,17 +118,20 @@ public class CmlSatisfiabilityObligation extends CmlProofObligation
 				AIdentifierPattern ip = (AIdentifierPattern) res.getFirst().getPattern();
 				postArglist.add(patternToExp(res.getFirst().getPattern()));
 
+				List<PMultipleBind> exists_binds;
+
 				if (stateDefinition instanceof AStateDefinition)
 				{
-					postArglist.add(getVarExp(OLD_STATE_ARG));
-					postArglist.add(getVarExp(STATE_ARG));
+					postArglist.add(getVarExp(NEW_STATE_ARG));
+					exists_binds = getMultipleTypeBindList(stateDefinition.getType(), NEW_STATE_ARG);
 				} else
 				{
-					postArglist.add(getVarExp(OLD_SELF_ARG));
-					postArglist.add(getVarExp(SELF_ARG));
+					postArglist.add(getVarExp(NEW_SELF_ARG));
+					exists_binds = getMultipleTypeBindList(stateDefinition.getType(), NEW_SELF_ARG);
 				}
+				exists_binds.add(getMultipleTypeBind(res.getFirst().getType(), ip.getName()));
 
-				existsExp.setBindList(getMultipleTypeBindList(res.getFirst().getType(), ip.getName()));
+				existsExp.setBindList(exists_binds);
 			} else
 			{
 				throw new RuntimeException("Expecting single identifier pattern in operation result");
@@ -138,9 +140,26 @@ public class CmlSatisfiabilityObligation extends CmlProofObligation
 			AApplyExp postApply = getApplyExp(getVarExp(op.getPostdef().getName()), postArglist);
 			existsExp.setPredicate(postApply);
 			mainExp = existsExp;
-		} else
+		}
+
+		// No Result. Just add new state to post condition
+		else
 		{
-			mainExp = getApplyExp(getVarExp(op.getPostdef().getName()), new Vector<PExp>(arglist));
+
+			AExistsExp exists_exp = new AExistsExp();
+			List<PExp> postArglist = new Vector<PExp>(arglist);
+			if (stateDefinition instanceof AStateDefinition)
+			{
+				postArglist.add(getVarExp(NEW_STATE_ARG));
+				exists_exp.setBindList(getMultipleTypeBindList(stateDefinition.getType(), NEW_STATE_ARG));
+			} else
+			{
+				postArglist.add(getVarExp(NEW_SELF_ARG));
+				exists_exp.setBindList(getMultipleTypeBindList(stateDefinition.getType(), NEW_SELF_ARG));
+			}
+
+			exists_exp.setPredicate(getApplyExp(getVarExp(op.getPostdef().getName()), new Vector<PExp>(postArglist)));
+			mainExp = exists_exp;
 		}
 
 		if (preApply != null)
@@ -157,4 +176,5 @@ public class CmlSatisfiabilityObligation extends CmlProofObligation
 
 		// valuetree.setContext(ctxt.getContextNodeList());
 	}
+
 }
