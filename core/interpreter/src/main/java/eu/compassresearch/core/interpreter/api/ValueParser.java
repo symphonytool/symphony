@@ -23,73 +23,82 @@ import eu.compassresearch.ast.analysis.AnswerCMLAdaptor;
 public class ValueParser extends AnswerCMLAdaptor<Value>
 {
 	Scanner scanIn = new Scanner(System.in);
-	
+
 	@Override
-	public Value defaultINode(INode node) throws AnalysisException {
+	public Value defaultINode(INode node) throws AnalysisException
+	{
 
 		throw new AnalysisException(node + " is not supported by the console");
 	}
-	
+
 	@Override
 	public Value caseAIntNumericBasicType(AIntNumericBasicType node)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 
 		return new IntegerValue(scanIn.nextInt());
 	}
-	
-	@Override
-	public Value caseANatNumericBasicType(ANatNumericBasicType node) throws AnalysisException {
 
-		try {
+	@Override
+	public Value caseANatNumericBasicType(ANatNumericBasicType node)
+			throws AnalysisException
+	{
+
+		try
+		{
 			return new NaturalValue(scanIn.nextLong());
-		} catch (Exception e) {
-			throw new AnalysisException(e.getMessage(),e);
+		} catch (Exception e)
+		{
+			throw new AnalysisException(e.getMessage(), e);
 		}
 	}
-	
+
 	@Override
 	public Value caseANamedInvariantType(ANamedInvariantType node)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 
 		return node.getType().apply(this);
 	}
-	
+
 	@Override
-	public Value caseAProductType(AProductType node)
-			throws AnalysisException {
+	public Value caseAProductType(AProductType node) throws AnalysisException
+	{
 
 		ValueList argvals = new ValueList();
-		
-		for(int i = 0 ; i < node.getTypes().size();i++)
+
+		for (int i = 0; i < node.getTypes().size(); i++)
 		{
-//			Value val = ((TupleValue)chosenEvent.getValue()).values.get(i);
-//			if(AbstractValueInterpreter.isValueMostPrecise(val))
-//				argvals.add(val);
-//			else
-				argvals.add(node.getTypes().get(i).apply(this));
+			// Value val = ((TupleValue)chosenEvent.getValue()).values.get(i);
+			// if(AbstractValueInterpreter.isValueMostPrecise(val))
+			// argvals.add(val);
+			// else
+			argvals.add(node.getTypes().get(i).apply(this));
 		}
 		return new TupleValue(argvals);
 	}
-	
+
 	@Override
-	public Value caseAUnionType(AUnionType node) throws AnalysisException {
-		
+	public Value caseAUnionType(AUnionType node) throws AnalysisException
+	{
+
 		PType type;
 
-		for(int i = 0; i <  node.getTypes().size();i++)
+		for (int i = 0; i < node.getTypes().size(); i++)
 		{
 			type = node.getTypes().get(i);
-			System.out.println( "[" + i + "]" + type.toString());
+			System.out.println("[" + i + "]" + type.toString());
 		}
 
 		type = node.getTypes().get(scanIn.nextInt());
 
 		return type.apply(this);
 	}
-	
+
 	@Override
-	public Value caseAQuoteType(AQuoteType node) throws AnalysisException {
-		
+	public Value caseAQuoteType(AQuoteType node) throws AnalysisException
+	{
+
 		return new QuoteValue(node.getValue().getValue());
 	}
 

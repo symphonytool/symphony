@@ -10,12 +10,10 @@ import org.overture.ast.patterns.ARecordPattern;
 import org.overture.ast.patterns.AStringPattern;
 import org.overture.ast.patterns.ATuplePattern;
 import org.overture.ast.types.PType;
-import org.overture.interpreter.values.TupleValue;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.core.interpreter.api.values.LatticeElement;
 import eu.compassresearch.core.interpreter.api.values.LatticeTopElement;
-import eu.compassresearch.core.interpreter.api.values.ValueLatticeElement;
 
 public class InputCommunicationPatternVisitor extends
 		QuestionAnswerCMLAdaptor<PType, LatticeElement>
@@ -26,14 +24,14 @@ public class InputCommunicationPatternVisitor extends
 	{
 		throw new AnalysisException("Unsupported construct slipped through the parser");
 	}
-	
+
 	@Override
 	public LatticeElement caseAIdentifierPattern(AIdentifierPattern node,
 			PType question) throws AnalysisException
 	{
 		return new LatticeTopElement(question);
 	}
-	
+
 	@Override
 	public LatticeElement caseAExpressionPattern(AExpressionPattern node,
 			PType question) throws AnalysisException
@@ -41,18 +39,18 @@ public class InputCommunicationPatternVisitor extends
 		// TODO Auto-generated method stub
 		return super.caseAExpressionPattern(node, question);
 	}
-	
+
 	@Override
 	public LatticeElement caseATuplePattern(ATuplePattern node, PType question)
 			throws AnalysisException
 	{
-//		List<>
-//		for(PPattern p : node.getPlist())
-			
-//		return new ValueLatticeElement(type, new TupleValue(argvals));
+		// List<>
+		// for(PPattern p : node.getPlist())
+
+		// return new ValueLatticeElement(type, new TupleValue(argvals));
 		return null;
 	}
-	
+
 	@Override
 	public LatticeElement caseARecordPattern(ARecordPattern node, PType question)
 			throws AnalysisException
@@ -60,11 +58,11 @@ public class InputCommunicationPatternVisitor extends
 		// TODO Auto-generated method stub
 		return super.caseARecordPattern(node, question);
 	}
-	
+
 	/*
 	 * Symbolic literals
 	 */
-	
+
 	@Override
 	public LatticeElement caseACharacterPattern(ACharacterPattern node,
 			PType question) throws AnalysisException
@@ -72,7 +70,7 @@ public class InputCommunicationPatternVisitor extends
 		// TODO Auto-generated method stub
 		return super.caseACharacterPattern(node, question);
 	}
-	
+
 	@Override
 	public LatticeElement caseAStringPattern(AStringPattern node, PType question)
 			throws AnalysisException
@@ -80,7 +78,7 @@ public class InputCommunicationPatternVisitor extends
 		// TODO Auto-generated method stub
 		return super.caseAStringPattern(node, question);
 	}
-	
+
 	@Override
 	public LatticeElement caseARealPattern(ARealPattern node, PType question)
 			throws AnalysisException
@@ -90,15 +88,17 @@ public class InputCommunicationPatternVisitor extends
 	}
 
 	@Override
-	public LatticeElement createNewReturnValue(INode node, PType question)throws AnalysisException
+	public LatticeElement createNewReturnValue(INode node, PType question)
+			throws AnalysisException
 	{
 		throw new AnalysisException("Unsupported construct slipped through the parser");
 	}
 
 	@Override
-	public LatticeElement createNewReturnValue(Object node, PType question)throws AnalysisException
+	public LatticeElement createNewReturnValue(Object node, PType question)
+			throws AnalysisException
 	{
 		throw new AnalysisException("Unsupported construct slipped through the parser");
 	}
-	
+
 }

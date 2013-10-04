@@ -14,36 +14,37 @@ public class UnresolvedExpressionValue extends Value implements ImpreciseValue
 	 */
 	private static final long serialVersionUID = -8816224487604268890L;
 	private static CmlExpressionVisitor expVisitor = new CmlExpressionVisitor();
-	
+
 	private PExp unresolvedExpression;
 	private Context evalContext;
-		
-	public UnresolvedExpressionValue(PExp unresolvedExpression, Context evalContext)
+
+	public UnresolvedExpressionValue(PExp unresolvedExpression,
+			Context evalContext)
 	{
 		this.unresolvedExpression = unresolvedExpression;
 		this.evalContext = evalContext;
 	}
-	
+
 	@Override
 	public boolean isResolvable(Value val)
 	{
 		try
 		{
-			unresolvedExpression.apply(expVisitor,evalContext);
+			unresolvedExpression.apply(expVisitor, evalContext);
 		} catch (AnalysisException e)
 		{
 			return false;
 		}
-		
+
 		return true;
 	}
-	
-//	@Override
-//	public Value resolve() throws AnalysisException
-//	{
-//		return unresolvedExpression.apply(expVisitor,evalContext);
-//	}
-	
+
+	// @Override
+	// public Value resolve() throws AnalysisException
+	// {
+	// return unresolvedExpression.apply(expVisitor,evalContext);
+	// }
+
 	@Override
 	public String toString()
 	{
@@ -53,12 +54,11 @@ public class UnresolvedExpressionValue extends Value implements ImpreciseValue
 	@Override
 	public boolean equals(Object other)
 	{
-		if(other instanceof UnresolvedExpressionValue)
+		if (other instanceof UnresolvedExpressionValue)
 		{
-			return unresolvedExpression.equals(((UnresolvedExpressionValue) other).unresolvedExpression) && 
-					evalContext.equals(((UnresolvedExpressionValue) other).evalContext);
-		}
-		else
+			return unresolvedExpression.equals(((UnresolvedExpressionValue) other).unresolvedExpression)
+					&& evalContext.equals(((UnresolvedExpressionValue) other).evalContext);
+		} else
 			return false;
 	}
 

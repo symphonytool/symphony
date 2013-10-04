@@ -18,146 +18,154 @@ import eu.compassresearch.ast.analysis.AnswerCMLAdaptor;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
-import eu.compassresearch.core.interpreter.api.values.AbstractValueInterpreter;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
 
-class ObservableLabelledTransition extends AbstractLabelledTransition implements ObservableTransition {
+class ObservableLabelledTransition extends AbstractLabelledTransition implements
+		ObservableTransition
+{
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -2217645151439301812L;
-	
-	public ObservableLabelledTransition(CmlBehaviour source, ChannelNameValue channelName)
+
+	public ObservableLabelledTransition(CmlBehaviour source,
+			ChannelNameValue channelName)
 	{
-		super(source,channelName);
+		super(source, channelName);
 	}
-	
-	private ObservableLabelledTransition(Set<CmlBehaviour> sources, ChannelNameValue channelName)
+
+	private ObservableLabelledTransition(Set<CmlBehaviour> sources,
+			ChannelNameValue channelName)
 	{
-		super(sources,channelName);
+		super(sources, channelName);
 	}
-	
-	@Override 
-	public String toString() 
+
+	@Override
+	public String toString()
 	{
 		return channelName.toString();
 	};
-	
-	@Override 
-	public int hashCode() {
-		
-		return this.eventSources.hashCode() + channelName.hashCode(); 
-	}
-			
-	@Override
-	public boolean equals(Object obj) {
 
-		if(!(obj instanceof ObservableLabelledTransition))
+	@Override
+	public int hashCode()
+	{
+
+		return this.eventSources.hashCode() + channelName.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+
+		if (!(obj instanceof ObservableLabelledTransition))
 			return false;
-		
+
 		return super.equals(obj);
 	}
-	
+
 	@Override
-	public boolean isComparable(ObservableTransition other) {
-		
-		if(!(other instanceof LabelledTransition))
+	public boolean isComparable(ObservableTransition other)
+	{
+
+		if (!(other instanceof LabelledTransition))
 			return false;
 
-		LabelledTransition otherChannelEvent = (LabelledTransition)other;
+		LabelledTransition otherChannelEvent = (LabelledTransition) other;
 		return channelName.isComparable(otherChannelEvent.getChannelName());
 	}
-	
+
 	@Override
-	public ObservableTransition synchronizeWith(ObservableTransition syncEvent) throws AnalysisException
+	public ObservableTransition synchronizeWith(ObservableTransition syncEvent)
+			throws AnalysisException
 	{
-		ObservableLabelledTransition otherComEvent = (ObservableLabelledTransition)syncEvent;
-		ChannelNameValue meetValue = this.getChannelName().meet(((LabelledTransition)otherComEvent).getChannelName());
-		
-		if(meetValue == null)
-			throw new CmlInterpreterException(
-					InterpretationErrorMessages.SYNC_OF_NONCOMPARABLE_EVENTS.customizeMessage(this.toString(),syncEvent.toString()));
-		
-		if(meetValue.isConstraintValid())
+		ObservableLabelledTransition otherComEvent = (ObservableLabelledTransition) syncEvent;
+		ChannelNameValue meetValue = this.getChannelName().meet(((LabelledTransition) otherComEvent).getChannelName());
+
+		if (meetValue == null)
+			throw new CmlInterpreterException(InterpretationErrorMessages.SYNC_OF_NONCOMPARABLE_EVENTS.customizeMessage(this.toString(), syncEvent.toString()));
+
+		if (meetValue.isConstraintValid())
 		{
 			Set<CmlBehaviour> sources = new HashSet<CmlBehaviour>();
 			sources.addAll(this.getEventSources());
 			sources.addAll(otherComEvent.getEventSources());
 			return new ObservableLabelledTransition(sources, meetValue);
-		}
-		else 
+		} else
 			return null;
-			
-			
+
 	}
-	
-	//TODO implement the expanding!
+
+	// TODO implement the expanding!
 	@Override
-	public List<LabelledTransition> expand() {
-		return Arrays.asList((LabelledTransition)this);
-//		if(channelName.isPrecise())
-//			return Arrays.asList((ChannelEvent)this);
-//		else 
-//			try {
-//				return channelName.getChannel().getValueTypes().apply(new EventExpander());
-//			} catch (AnalysisException e) {
-//				e.printStackTrace();
-//				return new LinkedList<ChannelEvent>();
-//			}
+	public List<LabelledTransition> expand()
+	{
+		return Arrays.asList((LabelledTransition) this);
+		// if(channelName.isPrecise())
+		// return Arrays.asList((ChannelEvent)this);
+		// else
+		// try {
+		// return channelName.getChannel().getValueTypes().apply(new EventExpander());
+		// } catch (AnalysisException e) {
+		// e.printStackTrace();
+		// return new LinkedList<ChannelEvent>();
+		// }
 	}
-	
-	class EventExpander extends AnswerCMLAdaptor<List<LabelledTransition> >
+
+	class EventExpander extends AnswerCMLAdaptor<List<LabelledTransition>>
 	{
 		@Override
 		public List<LabelledTransition> defaultPType(PType node)
-				throws AnalysisException {
-			
-			return Arrays.asList((LabelledTransition)ObservableLabelledTransition.this);
-		}
-		
-		@Override
-		public List<LabelledTransition> caseAIntNumericBasicType(AIntNumericBasicType node)
-				throws AnalysisException {
+				throws AnalysisException
+		{
 
-			return Arrays.asList((LabelledTransition)ObservableLabelledTransition.this);
+			return Arrays.asList((LabelledTransition) ObservableLabelledTransition.this);
 		}
-		
+
 		@Override
-		public List<LabelledTransition> caseANamedInvariantType(ANamedInvariantType node)
-				throws AnalysisException {
-			//TODO remove unwanted onces
+		public List<LabelledTransition> caseAIntNumericBasicType(
+				AIntNumericBasicType node) throws AnalysisException
+		{
+
+			return Arrays.asList((LabelledTransition) ObservableLabelledTransition.this);
+		}
+
+		@Override
+		public List<LabelledTransition> caseANamedInvariantType(
+				ANamedInvariantType node) throws AnalysisException
+		{
+			// TODO remove unwanted onces
 			return node.getType().apply(this);
 		}
-		
+
 		@Override
-		public List<LabelledTransition> caseAUnionType(AUnionType node) throws AnalysisException {
-			
+		public List<LabelledTransition> caseAUnionType(AUnionType node)
+				throws AnalysisException
+		{
+
 			List<LabelledTransition> events = new LinkedList<LabelledTransition>();
-			
-			if(!node.getInfinite())
+
+			if (!node.getInfinite())
 			{
-				for(PType type : node.getTypes())
+				for (PType type : node.getTypes())
 				{
 					events.addAll(type.apply(this));
 				}
-			}
-			else
+			} else
 				events.add(ObservableLabelledTransition.this);
-			
+
 			return events;
 		}
-		
+
 		@Override
 		public List<LabelledTransition> caseAQuoteType(AQuoteType node)
-				throws AnalysisException {
-			
-			return Arrays.asList((LabelledTransition)new ObservableLabelledTransition(
-					ObservableLabelledTransition.this.getEventSources(), 
-					ObservableLabelledTransition.this.channelName));
-//			return Arrays.asList((ChannelEvent)new CommunicationEvent(
-//					CommunicationEvent.this.getEventSources(), 
-//					CommunicationEvent.this.channelName, new QuoteValue(node.getValue().getValue())));
+				throws AnalysisException
+		{
+
+			return Arrays.asList((LabelledTransition) new ObservableLabelledTransition(ObservableLabelledTransition.this.getEventSources(), ObservableLabelledTransition.this.channelName));
+			// return Arrays.asList((ChannelEvent)new CommunicationEvent(
+			// CommunicationEvent.this.getEventSources(),
+			// CommunicationEvent.this.channelName, new QuoteValue(node.getValue().getValue())));
 		}
 
 		@Override
@@ -174,6 +182,5 @@ class ObservableLabelledTransition extends AbstractLabelledTransition implements
 			return null;
 		}
 	}
-	
-	
+
 }

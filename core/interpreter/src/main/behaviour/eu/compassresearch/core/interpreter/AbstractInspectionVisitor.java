@@ -27,113 +27,120 @@ import eu.compassresearch.core.interpreter.api.transitions.TimedTransition;
 
 @SuppressWarnings("serial")
 public class AbstractInspectionVisitor extends
-		QuestionAnswerCMLAdaptor<Context, Inspection> {
+		QuestionAnswerCMLAdaptor<Context, Inspection>
+{
 
-	//The process that contains this instance
-	protected final CmlBehaviour 									owner;
-	protected final CmlExpressionVisitor							cmlExpressionVisitor = new CmlExpressionVisitor();
-	
+	// The process that contains this instance
+	protected final CmlBehaviour owner;
+	protected final CmlExpressionVisitor cmlExpressionVisitor = new CmlExpressionVisitor();
+
 	/**
 	 * Used for making random but deterministic decisions
 	 */
-	protected final Random											rnd = new Random(9784345);
-	
+	protected final Random rnd = new Random(9784345);
+
 	/**
 	 * Evaluator for definitions
 	 */
-	protected QuestionAnswerCMLAdaptor<Context, NameValuePairList>	cmlDefEvaluator = new CmlDefinitionVisitor();
-	
+	protected QuestionAnswerCMLAdaptor<Context, NameValuePairList> cmlDefEvaluator = new CmlDefinitionVisitor();
+
 	/**
 	 * Interface that gives access to methods that access protected parts of a CmlBehaviour
 	 */
-	protected final VisitorAccess 									visitorAccess;
-	
-	protected final QuestionAnswerCMLAdaptor<Context, Inspection>	parentVisitor;
+	protected final VisitorAccess visitorAccess;
+
+	protected final QuestionAnswerCMLAdaptor<Context, Inspection> parentVisitor;
+
 	/**
-	 * 
 	 * @param ownerProcess
 	 */
-	public AbstractInspectionVisitor(CmlBehaviour ownerProcess, VisitorAccess visitorAccess, QuestionAnswerCMLAdaptor<Context, Inspection>	parentVisitor)
+	public AbstractInspectionVisitor(CmlBehaviour ownerProcess,
+			VisitorAccess visitorAccess,
+			QuestionAnswerCMLAdaptor<Context, Inspection> parentVisitor)
 	{
 		this.owner = ownerProcess;
 		this.visitorAccess = visitorAccess;
 		this.parentVisitor = parentVisitor;
 	}
-	
+
 	/**
 	 * Common Helpers
 	 */
-	
-	protected CmlTransitionSet createTauTransitionWithTime(INode dstNode, String transitionText)
+
+	protected CmlTransitionSet createTauTransitionWithTime(INode dstNode,
+			String transitionText)
 	{
-		return new CmlTransitionSet(new TimedTransition(owner),new TauTransition(owner,dstNode,transitionText));
+		return new CmlTransitionSet(new TimedTransition(owner), new TauTransition(owner, dstNode, transitionText));
 	}
-	
+
 	protected CmlTransitionSet createTauTransitionWithTime(INode dstNode)
 	{
-		return createTauTransitionWithTime(dstNode,null);
+		return createTauTransitionWithTime(dstNode, null);
 	}
-	
+
 	protected CmlTransitionSet createTauTransitionWithoutTime(INode dstNode)
 	{
 		return createTauTransitionWithoutTime(dstNode, null);
 	}
-	
-	protected CmlTransitionSet createTauTransitionWithoutTime(INode dstNode, String transitionText)
+
+	protected CmlTransitionSet createTauTransitionWithoutTime(INode dstNode,
+			String transitionText)
 	{
-		return new CmlTransitionSet(new TauTransition(owner,dstNode,transitionText));
+		return new CmlTransitionSet(new TauTransition(owner, dstNode, transitionText));
 	}
-	
-	protected Inspection newInspection(CmlTransitionSet transitions,CmlCalculationStep step)
+
+	protected Inspection newInspection(CmlTransitionSet transitions,
+			CmlCalculationStep step)
 	{
-		return new Inspection(new CmlTrace(owner.getTraceModel()), transitions,step);
+		return new Inspection(new CmlTrace(owner.getTraceModel()), transitions, step);
 	}
-	
+
 	protected void setWaiting()
 	{
 		visitorAccess.setWaiting();
 	}
-	
-	protected Value lookupName(ILexNameToken name, Context question) throws ValueException
+
+	protected Value lookupName(ILexNameToken name, Context question)
+			throws ValueException
 	{
-		if(name.getModule().equals(""))
+		if (name.getModule().equals(""))
 		{
 			return question.lookup(name);
-		}
-		else
+		} else
 		{
 			String[] tokens = name.getModule().split("\\.");
 			List<String> ids = new LinkedList<String>(Arrays.asList(tokens));
 			ids.add(name.getName());
-			Value val = question.lookup(new LexNameToken("", ids.get(0),name.getLocation()));
-			return lookupName(val,ids.subList(1, ids.size()),question);
+			Value val = question.lookup(new LexNameToken("", ids.get(0), name.getLocation()));
+			return lookupName(val, ids.subList(1, ids.size()), question);
 		}
 	}
-	
-	protected Value lookupName(Value val, List<String> ids, Context question) throws ValueException
+
+	protected Value lookupName(Value val, List<String> ids, Context question)
+			throws ValueException
 	{
 		Value retVal = null;
-		
-		if(ids.size() == 0)
+
+		if (ids.size() == 0)
 			retVal = val;
 		else
 		{
 
 			String nextId = ids.get(0);
-			//Value nextVal = question.check(new LexNameToken("",nextId,new LexLocation())); 
-			if(val.deref() instanceof RecordValue)
+			// Value nextVal = question.check(new LexNameToken("",nextId,new LexLocation()));
+			if (val.deref() instanceof RecordValue)
 			{
 				RecordValue recordVal = val.recordValue(question);
 				Value fieldValue = recordVal.fieldmap.get(nextId);
-				retVal = lookupName(fieldValue,ids.subList(1, ids.size()),question);;
-			}
-			else if(val.deref() instanceof ObjectValue)
+				retVal = lookupName(fieldValue, ids.subList(1, ids.size()), question);
+				;
+			} else if (val.deref() instanceof ObjectValue)
 			{
 				ObjectValue objectVal = val.objectValue(question);
-				retVal = lookupName(objectVal.get(new LexNameToken("",nextId,new LexLocation()), false), ids.subList(1, ids.size()) ,question) ;
+				retVal = lookupName(objectVal.get(new LexNameToken("", nextId, new LexLocation()), false), ids.subList(1, ids.size()), question);
 			}
 		}
-		
+
 		return retVal;
 	}
 
@@ -150,5 +157,5 @@ public class AbstractInspectionVisitor extends
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
+
 }

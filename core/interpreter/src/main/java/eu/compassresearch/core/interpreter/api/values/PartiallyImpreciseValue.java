@@ -5,12 +5,12 @@ import org.overture.interpreter.values.Value;
 public class PartiallyImpreciseValue extends Value implements ImpreciseValue
 {
 	private Value complexValue;
-	
+
 	public PartiallyImpreciseValue(Value complexValue)
 	{
 		this.complexValue = complexValue;
 	}
-	
+
 	@Override
 	public boolean isResolvable(Value val)
 	{

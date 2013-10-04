@@ -71,12 +71,12 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 
 		super(ownerProcess, visitorAccess, parentVisitor);
 	}
-	
+
 	@Override
 	public Inspection defaultSStatementAction(SStatementAction node,
 			Context question) throws AnalysisException
 	{
-		throw new CmlInterpreterException(node,InterpretationErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName()));
+		throw new CmlInterpreterException(node, InterpretationErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName()));
 	}
 
 	/**
@@ -120,24 +120,26 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 	@Override
 	public Inspection caseABlockStatementAction(
 			final ABlockStatementAction node, final Context question)
-			throws AnalysisException {
-		
-		return newInspection(createTauTransitionWithoutTime(node.getAction()), 
-				new AbstractCalculationStep(owner, visitorAccess) {
-					
-					@Override
-					public Pair<INode, Context> execute(CmlTransition selectedTransition)
-							throws AnalysisException {
-						
-						Context blockContext = CmlContextFactory.newContext(node.getLocation(), "block context", question);
-						
-						//add the assignment definitions to the block context
-						if(node.getDeclareStatement() != null)
-						{
-							for(PDefinition def : node.getDeclareStatement().getAssignmentDefs())
-							{
-								NameValuePair nvp = def.apply(cmlDefEvaluator,question).get(0);
-								blockContext.put(nvp.name, nvp.value.getUpdatable(null));
+			throws AnalysisException
+	{
+
+		return newInspection(createTauTransitionWithoutTime(node.getAction()), new AbstractCalculationStep(owner, visitorAccess)
+		{
+
+			@Override
+			public Pair<INode, Context> execute(CmlTransition selectedTransition)
+					throws AnalysisException
+			{
+
+				Context blockContext = CmlContextFactory.newContext(node.getLocation(), "block context", question);
+
+				// add the assignment definitions to the block context
+				if (node.getDeclareStatement() != null)
+				{
+					for (PDefinition def : node.getDeclareStatement().getAssignmentDefs())
+					{
+						NameValuePair nvp = def.apply(cmlDefEvaluator, question).get(0);
+						blockContext.put(nvp.name, nvp.value.getUpdatable(null));
 					}
 				}
 
@@ -150,53 +152,57 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 	 * 
 	 */
 	@Override
-	public Inspection caseACallStatementAction(
-			final ACallStatementAction node, final Context question)
-					throws AnalysisException {
-		
-		if(!owner.hasChildren()){
-			
-			return newInspection(createTauTransitionWithoutTime(node), 
-					new AbstractCalculationStep(owner, visitorAccess) {
-						
-						@Override
-						public Pair<INode, Context> execute(CmlTransition selectedTransition)
-								throws AnalysisException {
-							//first find the operation value in the context
-							CmlOperationValue opVal = (CmlOperationValue)lookupName(node.getName(),question); 
-							
-							if(opVal.getBody() == null)
-								throw new CmlInterpreterException(node,InterpretationErrorMessages.EVAL_OF_IMPLICIT_OP.customizeMessage(node.getName().toString()));
-							
-							//evaluate all the arguments
-							ValueList argValues = new ValueList();
-							for (PExp arg: node.getArgs())
-							{
-								argValues.add(arg.apply(cmlExpressionVisitor,question));
-							}
+	public Inspection caseACallStatementAction(final ACallStatementAction node,
+			final Context question) throws AnalysisException
+	{
 
-							// Note args cannot be Updateable, so we convert them here. This means
-							// that TransactionValues pass the local "new" value to the far end.
-							ValueList constValues = argValues.getConstant();
+		if (!owner.hasChildren())
+		{
 
-							//find the self object
-							ObjectValue self = null;
-							if(opVal.getSelf() != null)
-								self = opVal.getSelf();
-							else
-								self = question.getSelf();
-							
-							//Create a new object context to perform the operation call 
-							Context callContext = CmlContextFactory.newObjectContext(opVal.getBody().getLocation(), "CML Operation Call", question, self);
+			return newInspection(createTauTransitionWithoutTime(node), new AbstractCalculationStep(owner, visitorAccess)
+			{
 
-							if (constValues.size() != opVal.getParamPatterns().size())
-							{
-								opVal.abort(4068, "Wrong number of arguments passed to " + node.getName(), question);
-							}
+				@Override
+				public Pair<INode, Context> execute(
+						CmlTransition selectedTransition)
+						throws AnalysisException
+				{
+					// first find the operation value in the context
+					CmlOperationValue opVal = (CmlOperationValue) lookupName(node.getName(), question);
 
-							ListIterator<Value> valIter = constValues.listIterator();
-							Iterator<PType> typeIter = opVal.getType().getParameters().iterator();
-							NameValuePairMap args = new NameValuePairMap();
+					if (opVal.getBody() == null)
+						throw new CmlInterpreterException(node, InterpretationErrorMessages.EVAL_OF_IMPLICIT_OP.customizeMessage(node.getName().toString()));
+
+					// evaluate all the arguments
+					ValueList argValues = new ValueList();
+					for (PExp arg : node.getArgs())
+					{
+						argValues.add(arg.apply(cmlExpressionVisitor, question));
+					}
+
+					// Note args cannot be Updateable, so we convert them here. This means
+					// that TransactionValues pass the local "new" value to the far end.
+					ValueList constValues = argValues.getConstant();
+
+					// find the self object
+					ObjectValue self = null;
+					if (opVal.getSelf() != null)
+						self = opVal.getSelf();
+					else
+						self = question.getSelf();
+
+					// Create a new object context to perform the operation call
+					Context callContext = CmlContextFactory.newObjectContext(opVal.getBody().getLocation(), "CML Operation Call", question, self);
+
+					if (constValues.size() != opVal.getParamPatterns().size())
+					{
+						opVal.abort(4068, "Wrong number of arguments passed to "
+								+ node.getName(), question);
+					}
+
+					ListIterator<Value> valIter = constValues.listIterator();
+					Iterator<PType> typeIter = opVal.getType().getParameters().iterator();
+					NameValuePairMap args = new NameValuePairMap();
 
 					for (PPattern p : opVal.getParamPatterns())
 					{
@@ -329,17 +335,19 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 		} else
 		{
 			final INode skipNode = new ASkipAction();
-			return newInspection(createTauTransitionWithoutTime(skipNode), 
-					new AbstractCalculationStep(owner, visitorAccess) {
-						
-						@Override
-						public Pair<INode, Context> execute(CmlTransition selectedTransition)
-								throws AnalysisException {
-							
-							setLeftChild(null);
-							return new Pair<INode, Context>(skipNode, question);
-						}
-					});
+			return newInspection(createTauTransitionWithoutTime(skipNode), new AbstractCalculationStep(owner, visitorAccess)
+			{
+
+				@Override
+				public Pair<INode, Context> execute(
+						CmlTransition selectedTransition)
+						throws AnalysisException
+				{
+
+					setLeftChild(null);
+					return new Pair<INode, Context>(skipNode, question);
+				}
+			});
 		}
 	}
 

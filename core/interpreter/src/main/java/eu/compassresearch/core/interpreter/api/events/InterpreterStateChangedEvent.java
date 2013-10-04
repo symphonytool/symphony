@@ -4,12 +4,13 @@ import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
 
 /**
- * This represents a change of CmlInterpreterState in a specific CmlInterpreter instance.
- * This event is fired whenever a CmlInterpreter changes its state.
+ * This represents a change of CmlInterpreterState in a specific CmlInterpreter instance. This event is fired whenever a
+ * CmlInterpreter changes its state.
+ * 
  * @author akm
- *
  */
-public class InterpreterStateChangedEvent extends Event<CmlInterpreter> {
+public class InterpreterStateChangedEvent extends Event<CmlInterpreter>
+{
 
 	/**
 	 * 
@@ -18,32 +19,36 @@ public class InterpreterStateChangedEvent extends Event<CmlInterpreter> {
 	private final CmlInterpreterState status;
 	private final Object content;
 
-	public InterpreterStateChangedEvent(CmlInterpreter interpreter,CmlInterpreterState status)
+	public InterpreterStateChangedEvent(CmlInterpreter interpreter,
+			CmlInterpreterState status)
 	{
 		super(interpreter);
 		this.status = status;
 		this.content = null;
 	}
-	
-	public InterpreterStateChangedEvent(CmlInterpreter interpreter,CmlInterpreterState status, Object content)
+
+	public InterpreterStateChangedEvent(CmlInterpreter interpreter,
+			CmlInterpreterState status, Object content)
 	{
 		super(interpreter);
 		this.status = status;
 		this.content = content;
 	}
-	
-	public CmlInterpreterState getStatus() {
+
+	public CmlInterpreterState getStatus()
+	{
 		return status;
 	}
-	
+
 	public <T> T getContent()
 	{
-		return (T)this.content;
-	} 
-	
+		return (T) this.content;
+	}
+
 	@Override
-	public String toString() {
-		
+	public String toString()
+	{
+
 		return getStatus().toString();
 	}
 }

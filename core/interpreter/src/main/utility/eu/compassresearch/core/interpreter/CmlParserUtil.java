@@ -17,32 +17,34 @@ import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.parser.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
 
-public class CmlParserUtil {
+public class CmlParserUtil
+{
 
 	public static boolean parseSource(PSource source) throws IOException
 	{
 		boolean parseOK = false;
-		
+
 		ANTLRInputStream in = null;
 		File file = null;
 		if (source instanceof AFileSource)
 		{
-			in = new ANTLRInputStream(new FileInputStream(((AFileSource)source).getFile()));
+			in = new ANTLRInputStream(new FileInputStream(((AFileSource) source).getFile()));
 			file = ((AFileSource) source).getFile();
 		}
 
 		if (source instanceof AInputStreamSource)
-			in = new ANTLRInputStream(((AInputStreamSource)source).getStream());
+			in = new ANTLRInputStream(((AInputStreamSource) source).getStream());
 
 		if (in == null)
 			return false;
-		
+
 		CmlLexer lexer = new CmlLexer(in);
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
 		CmlParser parser = new CmlParser(tokens);
 		parser.sourceFileName = file.getAbsolutePath();
 
-		try {
+		try
+		{
 			List<PDefinition> sourceDefs = parser.source();
 			source.setParagraphs(new LinkedList<PDefinition>());
 			if (sourceDefs != null)
@@ -51,15 +53,14 @@ public class CmlParserUtil {
 					if (def != null)
 						source.getParagraphs().add(def);
 				parseOK = true;
-			}
-			else
+			} else
 				parseOK = false;
-		} catch (RecognitionException e) {
+		} catch (RecognitionException e)
+		{
 			e.printStackTrace();
 			parseOK = false;
 		}
-		
-		
+
 		return parseOK;
 	}
 }

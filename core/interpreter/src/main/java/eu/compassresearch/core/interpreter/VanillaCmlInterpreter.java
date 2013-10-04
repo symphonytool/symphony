@@ -20,11 +20,10 @@ import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.PSource;
-import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
+import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
 import eu.compassresearch.core.interpreter.api.ConsoleSelectionStrategy;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
-import eu.compassresearch.core.interpreter.api.RandomSelectionStrategy;
 import eu.compassresearch.core.interpreter.api.SelectionStrategy;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlTrace;
@@ -50,25 +49,24 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	/**
 	 * 
 	 */
-	private static final long          serialVersionUID 	= 6664128061930795395L;
-	protected List<PSource>            sourceForest;
-	protected Context                  globalContext;
-	protected String 				   defaultName      	= null;	
-	protected AProcessDefinition       topProcess;
-	
+	private static final long serialVersionUID = 6664128061930795395L;
+	protected List<PSource> sourceForest;
+	protected Context globalContext;
+	protected String defaultName = null;
+	protected AProcessDefinition topProcess;
+
 	/**
 	 * Sync object used to suspend the execution
 	 */
-	private Object 					   suspendObject		= new Object();
-	private boolean 				   stepping				= false;
-	private Breakpoint 				   activeBP				= null;
+	private Object suspendObject = new Object();
+	private boolean stepping = false;
+	private Breakpoint activeBP = null;
+
 	/**
-	 * Construct a CmlInterpreter with a list of PSources. These source may
-	 * refer to each other.
-	 * 
+	 * Construct a CmlInterpreter with a list of PSources. These source may refer to each other.
 	 * 
 	 * @param cmlSources
-	 *          - Source containing CML Paragraphs for type checking.
+	 *            - Source containing CML Paragraphs for type checking.
 	 */
 	public VanillaCmlInterpreter(List<PSource> cmlSources)
 	{
@@ -76,8 +74,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	}
 
 	/**
-	 * Construct a CmlTypeInterpreter with the intension of checking a single
-	 * source.
+	 * Construct a CmlTypeInterpreter with the intension of checking a single source.
 	 * 
 	 * @param singleSource
 	 */
@@ -88,17 +85,17 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	}
 
 	/**
-	 * Initializes the interpreter by making a global context and setting the 
-	 * last defined process as the top process
+	 * Initializes the interpreter by making a global context and setting the last defined process as the top process
+	 * 
 	 * @throws AnalysisException
 	 */
 	public void initialize() throws AnalysisException
 	{
 		GlobalEnvironmentBuilder envBuilder = new GlobalEnvironmentBuilder(sourceForest);
-		//Build the global context
+		// Build the global context
 		globalContext = envBuilder.getGlobalContext();
-		//set the last defined process as the top process
-		//FIXME When there are multiple files there are no way to determine which one it will be!
+		// set the last defined process as the top process
+		// FIXME When there are multiple files there are no way to determine which one it will be!
 		topProcess = envBuilder.getLastDefinedProcess();
 		setNewState(CmlInterpreterState.INITIALIZED);
 	}
@@ -110,7 +107,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	}
 
 	@Override
-	public void setDefaultName(String name) 
+	public void setDefaultName(String name)
 	{
 		defaultName = name;
 	}
@@ -118,62 +115,65 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	@Override
 	public Value execute(SelectionStrategy env) throws AnalysisException
 	{
-		if(this.getState() == null){
+		if (this.getState() == null)
+		{
 			setNewState(CmlInterpreterState.FAILED);
 			throw new CmlInterpreterException("The interprer has not been initialized, please call the initialize method before invoking the start method");
 		}
-		
-		if(null == env){
+
+		if (null == env)
+		{
 			setNewState(CmlInterpreterState.FAILED);
 			throw new CmlInterpreterException("The SelectionStrategy must not be set to null in the cml scheduler");
 		}
-		
-		if(null == topProcess){
+
+		if (null == topProcess)
+		{
 			setNewState(CmlInterpreterState.FAILED);
 			throw new CmlInterpreterException("No process is defined");
 		}
-		
-		environment = env; 
 
-		//Find and initialize the top process value
+		environment = env;
+
+		// Find and initialize the top process value
 		ProcessObjectValue pov = InitializeTopProcess();
-		//Create the initial context with the global definitions
+		// Create the initial context with the global definitions
 		Context topContext = getInitialContext(null);
-		//Create a CmlBehaviour for the top process
+		// Create a CmlBehaviour for the top process
 		runningTopProcess = new ConcreteCmlBehaviour(topProcess.getProcess(), topContext, topProcess.getName());
 
-		//Fire the interpreter running event before we start
+		// Fire the interpreter running event before we start
 		setNewState(CmlInterpreterState.RUNNING);
-		//start the execution of the top process
-		try{
+		// start the execution of the top process
+		try
+		{
 			executeTopProcess(runningTopProcess);
-		}
-		catch(AnalysisException e)
+		} catch (AnalysisException e)
 		{
 			setNewState(CmlInterpreterState.FAILED);
 			throw e;
-		}
-		catch(Exception ex)
+		} catch (Exception ex)
 		{
 			setNewState(CmlInterpreterState.FAILED);
 			throw new AnalysisException(ex);
 		}
 
-		//Finally we return the top process value
+		// Finally we return the top process value
 		return pov;
 	}
 
 	/**
 	 * Finds and initializes the top process
-	 * @return 
+	 * 
+	 * @return
 	 * @throws AnalysisException
 	 */
 	private ProcessObjectValue InitializeTopProcess() throws AnalysisException
 	{
-		if(defaultName != null && !defaultName.equals(""))
+		if (defaultName != null && !defaultName.equals(""))
 		{
-			LexNameToken name = new LexNameToken("",getDefaultName(),null);
-			ProcessObjectValue pov = (ProcessObjectValue)globalContext.check(name);
+			LexNameToken name = new LexNameToken("", getDefaultName(), null);
+			ProcessObjectValue pov = (ProcessObjectValue) globalContext.check(name);
 
 			if (pov == null)
 				throw new CmlInterpreterException(InterpretationErrorMessages.NO_PROCESS_WITH_DEFINED_NAME_FOUND.customizeMessage(getDefaultName()));
@@ -188,100 +188,111 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 
 	/**
 	 * Main loop for executing the top process
+	 * 
 	 * @param topProcess
 	 * @throws AnalysisException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
-	private void executeTopProcess(CmlBehaviour topProcess) throws AnalysisException, InterruptedException
+	private void executeTopProcess(CmlBehaviour topProcess)
+			throws AnalysisException, InterruptedException
 	{
-		//continue until the top process is not finished and not deadlocked
-		while(!topProcess.finished() && !topProcess.deadlocked())
+		// continue until the top process is not finished and not deadlocked
+		while (!topProcess.finished() && !topProcess.deadlocked())
 		{
-			//inspect the top process to get the next possible trace element
+			// inspect the top process to get the next possible trace element
 			CmlTransitionSet topAlphabet = topProcess.inspect();
-			//expand what's possible in the alphabet
+			// expand what's possible in the alphabet
 			CmlTransitionSet availableEvents = topAlphabet.expandAlphabet();
 
-			CmlRuntime.logger().fine("Waiting for environment on : " + availableEvents.getAllEvents());
+			CmlRuntime.logger().fine("Waiting for environment on : "
+					+ availableEvents.getAllEvents());
 
-			for(CmlTransition event : availableEvents.getAllEvents())
+			for (CmlTransition event : availableEvents.getAllEvents())
 			{
-				//TODO this should be handled differently
+				// TODO this should be handled differently
 				Context context = event.getEventSources().iterator().next().getNextState().second;
 
 				String state;
 
-				if(context.getSelf() != null)
+				if (context.getSelf() != null)
 					state = context.getSelf().toString();
 				else if (context.outer != null)
 					state = context.getRoot().toString();
 				else
 					state = context.toString();
 
-				CmlRuntime.logger().finer("State for "+event+" : " +  state);
+				CmlRuntime.logger().finer("State for " + event + " : " + state);
 			}
 
-			//set the state of the interpreter to be waiting for the environment
+			// set the state of the interpreter to be waiting for the environment
 			getEnvironment().choices(availableEvents);
 			setNewState(CmlInterpreterState.WAITING_FOR_ENVIRONMENT);
-			//Get the environment to select the next transition. 
-			//this is potentially a blocking call!!
+			// Get the environment to select the next transition.
+			// this is potentially a blocking call!!
 			CmlTransition selectedEvent = getEnvironment().resolveChoice();
-			
-			//if its null we terminate and assume that this happended because of a user interrupt
-			if(selectedEvent == null)
+
+			// if its null we terminate and assume that this happended because of a user interrupt
+			if (selectedEvent == null)
 				break;
 
-			//Handle the breakpoints if any
+			// Handle the breakpoints if any
 			handleBreakpoints(selectedEvent);
 
-			if(getState() == CmlInterpreterState.SUSPENDED)
-				synchronized (suspendObject) {
+			if (getState() == CmlInterpreterState.SUSPENDED)
+				synchronized (suspendObject)
+				{
 					this.suspendObject.wait();
 				}
 
-			//if we get here it means that it in a running state again
+			// if we get here it means that it in a running state again
 			setNewState(CmlInterpreterState.RUNNING);
-			
+
 			topProcess.execute(selectedEvent);
 			CmlTrace trace = topProcess.getTraceModel();
 
-			if(trace.getLastTransition() instanceof ObservableTransition)
+			if (trace.getLastTransition() instanceof ObservableTransition)
 			{
-				CmlRuntime.logger().fine("----------------observable step by '"+ topProcess +"'----------------------");
-				CmlRuntime.logger().fine("Observable trace of '"+topProcess+"': " + trace.getObservableTrace());
-				CmlRuntime.logger().fine("Eval. Status={ " + topProcess.nextStepToString() + " }");
+				CmlRuntime.logger().fine("----------------observable step by '"
+						+ topProcess + "'----------------------");
+				CmlRuntime.logger().fine("Observable trace of '" + topProcess
+						+ "': " + trace.getObservableTrace());
+				CmlRuntime.logger().fine("Eval. Status={ "
+						+ topProcess.nextStepToString() + " }");
 				CmlRuntime.logger().fine("-----------------------------------------------------------------");
-			}
-			else 
+			} else
 			{
-				CmlRuntime.logger().finer("----------------Silent step by '"+ topProcess +"'--------------------");
-				CmlRuntime.logger().finer("Trace of '"+topProcess+"': " + trace);
-				CmlRuntime.logger().finer("Eval. Status={ " + topProcess.nextStepToString() + " }");
+				CmlRuntime.logger().finer("----------------Silent step by '"
+						+ topProcess + "'--------------------");
+				CmlRuntime.logger().finer("Trace of '" + topProcess + "': "
+						+ trace);
+				CmlRuntime.logger().finer("Eval. Status={ "
+						+ topProcess.nextStepToString() + " }");
 				CmlRuntime.logger().finer("-----------------------------------------------------------------");
 			}
-			
+
 		}
 
-		if(topProcess.deadlocked())
+		if (topProcess.deadlocked())
 			setNewState(CmlInterpreterState.DEADLOCKED);
-		else if(topProcess.waiting())
+		else if (topProcess.waiting())
 			setNewState(CmlInterpreterState.TERMINATED_BY_USER);
 		else
 			setNewState(CmlInterpreterState.FINISHED);
 	}
-	
+
 	public void resume()
 	{
-		synchronized (suspendObject) {
+		synchronized (suspendObject)
+		{
 			stepping = false;
 			this.suspendObject.notifyAll();
 		}
 	}
-	
+
 	public void step()
 	{
-		synchronized (suspendObject) {
+		synchronized (suspendObject)
+		{
 			stepping = true;
 			this.suspendObject.notifyAll();
 		}
@@ -290,37 +301,40 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	private void handleBreakpoints(CmlTransition selectedEvent)
 	{
 		activeBP = findActiveBreakpoint(selectedEvent);
-		if(activeBP != null || stepping)
+		if (activeBP != null || stepping)
 			setNewState(CmlInterpreterState.SUSPENDED);
 	}
-	
+
 	private Breakpoint findActiveBreakpoint(CmlTransition selectedEvent)
 	{
 		Breakpoint bp = null;
 
-		//see if any of the next executing processes/actions are hitting any breakpoints
-		for(CmlBehaviour b : selectedEvent.getEventSources())
+		// see if any of the next executing processes/actions are hitting any breakpoints
+		for (CmlBehaviour b : selectedEvent.getEventSources())
 		{
 			ILexLocation loc = LocationExtractor.extractLocation(b.getNextState().first);
-			if(loc == null)
+			if (loc == null)
 				continue;
-			String key = loc.getFile().toURI().toString() + ":"+ loc.getStartLine();
-			if(this.breakpoints.containsKey(key))
+			String key = loc.getFile().toURI().toString() + ":"
+					+ loc.getStartLine();
+			if (this.breakpoints.containsKey(key))
 			{
-				bp = this.breakpoints.get(key); 
+				bp = this.breakpoints.get(key);
 			}
 		}
 
 		return bp;
 	}
-	
+
 	@Override
-	public Breakpoint getActiveBreakpoint() {
+	public Breakpoint getActiveBreakpoint()
+	{
 		return activeBP;
 	}
 
 	@Override
-	public Context getInitialContext(LexLocation location) {
+	public Context getInitialContext(LexLocation location)
+	{
 		return globalContext;
 	}
 
@@ -328,10 +342,11 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	// Static stuff for running the Interpreter from the commandline with any gui stuff
 	// ---------------------------------------
 
-	private static void runOnFiles(List<File> files) throws IOException, CmlInterpreterException
+	private static void runOnFiles(List<File> files) throws IOException,
+			CmlInterpreterException
 	{
 		List<PSource> sources = new LinkedList<PSource>();
-		for(File f : files)
+		for (File f : files)
 		{
 			AFileSource source = new AFileSource();
 			source.setName(f.getName());
@@ -345,11 +360,11 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 				return;
 			}
 		}
-		
+
 		TypeIssueHandler issueHandler = VanillaFactory.newCollectingIssueHandle();
 
 		// Type check
-		CmlTypeChecker cmlTC = VanillaFactory.newTypeChecker(sources,issueHandler);
+		CmlTypeChecker cmlTC = VanillaFactory.newTypeChecker(sources, issueHandler);
 
 		// Print result and report errors if any
 		if (!cmlTC.typeCheck())
@@ -361,11 +376,15 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 
 		// interpret
 		VanillaCmlInterpreter cmlInterp = new VanillaCmlInterpreter(sources);
-		cmlInterp.onStateChanged().registerObserver(new CmlInterpreterStateObserver() {
+		cmlInterp.onStateChanged().registerObserver(new CmlInterpreterStateObserver()
+		{
 
 			@Override
-			public void onStateChanged(Object source, InterpreterStateChangedEvent event) {
-				System.out.println("Simulator status event : " + event.getStatus());
+			public void onStateChanged(Object source,
+					InterpreterStateChangedEvent event)
+			{
+				System.out.println("Simulator status event : "
+						+ event.getStatus());
 
 			}
 		});
@@ -374,8 +393,8 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		{
 			CmlRuntime.logger().setLevel(Level.FINEST);
 			cmlInterp.initialize();
-			//cmlInterp.execute(new RandomSelectionStrategy());
-			ConsoleSelectionStrategy ss = new ConsoleSelectionStrategy(); 
+			// cmlInterp.execute(new RandomSelectionStrategy());
+			ConsoleSelectionStrategy ss = new ConsoleSelectionStrategy();
 			ss.setHideSilentTransitions(false);
 			cmlInterp.execute(ss);
 		} catch (Exception ex)
@@ -391,8 +410,9 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		System.out.println("The given CML Program is done simulating.");
 
 	}
-	
-	private static void runOnFile(File f) throws IOException, CmlInterpreterException
+
+	private static void runOnFile(File f) throws IOException,
+			CmlInterpreterException
 	{
 		AFileSource source = new AFileSource();
 		source.setName(f.getName());
@@ -408,9 +428,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		TypeIssueHandler issueHandler = VanillaFactory.newCollectingIssueHandle();
 
 		// Type check
-		CmlTypeChecker cmlTC = VanillaFactory.newTypeChecker(
-				Arrays.asList(new PSource[] { source }),issueHandler);
-
+		CmlTypeChecker cmlTC = VanillaFactory.newTypeChecker(Arrays.asList(new PSource[] { source }), issueHandler);
 
 		// Print result and report errors if any
 		if (!cmlTC.typeCheck())
@@ -422,11 +440,15 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 
 		// interpret
 		VanillaCmlInterpreter cmlInterp = new VanillaCmlInterpreter(source);
-		cmlInterp.onStateChanged().registerObserver(new CmlInterpreterStateObserver() {
+		cmlInterp.onStateChanged().registerObserver(new CmlInterpreterStateObserver()
+		{
 
 			@Override
-			public void onStateChanged(Object source, InterpreterStateChangedEvent event) {
-				System.out.println("Simulator status event : " + event.getStatus());
+			public void onStateChanged(Object source,
+					InterpreterStateChangedEvent event)
+			{
+				System.out.println("Simulator status event : "
+						+ event.getStatus());
 
 			}
 		});
@@ -435,19 +457,17 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		{
 			CmlRuntime.logger().setLevel(Level.FINEST);
 			cmlInterp.initialize();
-			//cmlInterp.execute(new RandomSelectionStrategy());
-			ConsoleSelectionStrategy ss = new ConsoleSelectionStrategy(); 
-			//ss.setHideSilentTransitions(false);
+			// cmlInterp.execute(new RandomSelectionStrategy());
+			ConsoleSelectionStrategy ss = new ConsoleSelectionStrategy();
+			// ss.setHideSilentTransitions(false);
 			cmlInterp.execute(ss);
-		} 
-		catch(ValueException e)
+		} catch (ValueException e)
 		{
 			System.out.println("With Error : " + e);
-			System.out.println(e.ctxt.location); 
+			System.out.println(e.ctxt.location);
 			System.out.println("With stack trace : ");
 			e.printStackTrace();
-		}
-		catch (Exception ex)
+		} catch (Exception ex)
 		{
 			System.out.println("Failed to interpret: " + source.toString());
 			System.out.println("With Error : " + ex.getMessage());
@@ -460,22 +480,24 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		System.out.println("The given CML Program is done simulating.");
 	}
 
-	public static void main(String[] args) throws IOException, CmlInterpreterException
+	public static void main(String[] args) throws IOException,
+			CmlInterpreterException
 	{
 		File cml_example = new File(
-				//"/home/akm/phd/runtime-COMPASS/simpleDLNA/SimpleDLNA.cml");
-				"src/test/resources/examples/B&OTransportLayer.cml");
-		//File cml_example = new File("/home/akm/phd/COMPASS-repo/Common/CaseStudies/Library/Library.cml");
+		// "/home/akm/phd/runtime-COMPASS/simpleDLNA/SimpleDLNA.cml");
+		"src/test/resources/examples/B&OTransportLayer.cml");
+		// File cml_example = new File("/home/akm/phd/COMPASS-repo/Common/CaseStudies/Library/Library.cml");
 		runOnFile(cml_example);
-		
-//		List<File> files = new LinkedList<File>();
-//		files.add(new File("/home/akm/phd/runtime-COMPASS/DwarfSimple/DwarfSimple.cml"));
-//		files.add(new File("/home/akm/phd/runtime-COMPASS/DwarfSimple/Ifm.cml"));
-//		runOnFiles(files);
+
+		// List<File> files = new LinkedList<File>();
+		// files.add(new File("/home/akm/phd/runtime-COMPASS/DwarfSimple/DwarfSimple.cml"));
+		// files.add(new File("/home/akm/phd/runtime-COMPASS/DwarfSimple/Ifm.cml"));
+		// runOnFiles(files);
 	}
 
 	@Override
-	public CmlBehaviour getTopLevelProcess() {
+	public CmlBehaviour getTopLevelProcess()
+	{
 
 		return runningTopProcess;
 	}

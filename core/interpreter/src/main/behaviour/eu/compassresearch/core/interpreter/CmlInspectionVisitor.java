@@ -16,13 +16,15 @@ import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
 @SuppressWarnings("serial")
-public class CmlInspectionVisitor extends AbstractInspectionVisitor {
+public class CmlInspectionVisitor extends AbstractInspectionVisitor
+{
 
 	private QuestionAnswerCMLAdaptor<Context, Inspection> processVisitor;
 	private QuestionAnswerCMLAdaptor<Context, Inspection> actionVisitor;
 
 	public CmlInspectionVisitor(CmlBehaviour ownerProcess,
-			VisitorAccess visitorAccess) {
+			VisitorAccess visitorAccess)
+	{
 
 		super(ownerProcess, visitorAccess, null);
 		this.actionVisitor = new ActionInspectionVisitor(ownerProcess, visitorAccess, this);
@@ -31,31 +33,35 @@ public class CmlInspectionVisitor extends AbstractInspectionVisitor {
 
 	@Override
 	public Inspection defaultPProcess(PProcess node, Context question)
-			throws AnalysisException {
-		return node.apply(this.processVisitor,question);
+			throws AnalysisException
+	{
+		return node.apply(this.processVisitor, question);
 	}
 
 	@Override
 	public Inspection defaultPAction(PAction node, Context question)
-			throws AnalysisException {
-		return node.apply(this.actionVisitor,question);
+			throws AnalysisException
+	{
+		return node.apply(this.actionVisitor, question);
 	}
 
 	@Override
 	public Inspection defaultPExp(final PExp node, final Context question)
-			throws AnalysisException {
-		//TODO should this really evolve into skip?
+			throws AnalysisException
+	{
+		// TODO should this really evolve into skip?
 		final ASkipAction skipAction = new ASkipAction(node.getLocation());
-		return newInspection(createTauTransitionWithoutTime(skipAction,"inv/Pre/Post expression"),
-				new AbstractCalculationStep(owner,visitorAccess) {
+		return newInspection(createTauTransitionWithoutTime(skipAction, "inv/Pre/Post expression"), new AbstractCalculationStep(owner, visitorAccess)
+		{
 
 			@Override
 			public Pair<INode, Context> execute(CmlTransition selectedTransition)
-					throws AnalysisException {
+					throws AnalysisException
+			{
 
-				if(!node.apply(cmlExpressionVisitor,question).boolValue(question))
+				if (!node.apply(cmlExpressionVisitor, question).boolValue(question))
 				{
-					//FIXME whats with this number shit
+					// FIXME whats with this number shit
 					throw new ValueException(4061, question.prepostMsg, question);
 				}
 				return new Pair<INode, Context>(skipAction, question);
