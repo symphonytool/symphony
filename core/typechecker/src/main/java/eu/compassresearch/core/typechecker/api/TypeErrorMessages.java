@@ -1,5 +1,6 @@
 package eu.compassresearch.core.typechecker.api;
 
+
 public enum TypeErrorMessages {
 	DUPLICATE_DEFINITION(
 			"Definition \"%s\" is conflicting with definition \"%s\"."),
@@ -66,8 +67,9 @@ public enum TypeErrorMessages {
 			"Operation %s has identical name to encloding class, but has wrong type: %s."), EXPECTED_LVALUE(
 			"%s is not an assignable expression."), EXPECTED_AN_ACTION(
 			"Expected an entity of type Action. %s was found."), ILLEGAL_ACCESS(
-			"Cannot access %s in this context."),
-
+			"Cannot access %s in this context."), 
+			TOO_MANY_PARAM_PATTERNS("Too many parameter patterns. Type params %s. Patterns %s"), 
+			TOO_FEW_PARAM_PATTERNS("Too few parameter patterns. Type params %s. Patterns %s"),
 	;
 
 	private String template;

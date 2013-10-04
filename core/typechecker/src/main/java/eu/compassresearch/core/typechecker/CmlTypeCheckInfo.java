@@ -300,8 +300,8 @@ class CmlTypeCheckInfo extends TypeCheckInfo implements TypeCheckQuestion {
 					&& d.getName().getOld() == variable.getName().getOld()) {
 				variable.setType(issueHandler.addTypeError(variable,
 						TypeErrorMessages.DUPLICATE_DEFINITION
-								.customizeMessage(" " + variable.getLocation()
-										+ " " + ident, "" + d.getLocation())));
+								.customizeMessage(variable + " " + variable.getLocation()
+										, d + " " + d.getLocation())));
 				return;
 			}
 			fenv.add(variable);

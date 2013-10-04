@@ -2485,7 +2485,7 @@ type1 returns[PType type]
 typebase returns[PType type]
 @after { $type.setLocation(extractLexLocation($start, $stop)); }
     : basicType           { $type = $basicType.basicType; }
-    | '(' inside=type ')' { $type = $inside.type; }
+    | '(' inside=type ')' { $type = new ABracketType(null, false, null, $inside.type); }
     | '[' inside=type ']' { $type = new AOptionalType(null, false, null, $inside.type); }
     | QUOTELITERAL
         {
@@ -3165,6 +3165,9 @@ exprbase returns[PExp exp]
         }
     | 'cases' cexp=expression ':' caseExprAltList ( ',' 'others' '->' oexp=expression )? 'end'
         {
+            for (ACaseAlternative alt : $caseExprAltList.alts) {
+                alt.setCexp($cexp.exp);
+            }
             $exp = new ACasesExp(null, $cexp.exp, $caseExprAltList.alts, $oexp.exp);
         }
     ;
@@ -3442,9 +3445,9 @@ ISUNDER
     : 'is_'
     ;
 
-ISUNDERBASIC
-    : 'is_' ('bool' | 'nat' | 'nat1' | 'int' | 'rat' | 'real' | 'char' | 'token')
-    ;
+// ISUNDERBASIC
+//     : 'is_' ('bool' | 'nat' | 'nat1' | 'int' | 'rat' | 'real' | 'char' | 'token')
+//     ;
 
 /* FIXME Need to fix this, yet
  * We should have a java method that converts things like \n into newline and such.

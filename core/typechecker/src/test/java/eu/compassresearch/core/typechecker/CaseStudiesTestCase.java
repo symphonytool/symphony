@@ -35,7 +35,7 @@ public class CaseStudiesTestCase extends AbstractTypeCheckerTestCase {
 
 	}
 
-	@Parameters
+	@Parameters(name="{index} : {0}")
 	public static Collection<Object[]> parameter() {
 		return testData.get(CaseStudiesTestCase.class);
 	}
@@ -140,6 +140,7 @@ public class CaseStudiesTestCase extends AbstractTypeCheckerTestCase {
 			//add("/Alarm");
 			//24 //
 			add("/MiniMondex");
+			//add("/Test");
 
 		} else {
 			// ensure that the sources is initialised before the parameterized test runner gets to it

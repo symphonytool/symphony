@@ -30,4 +30,7 @@ public class Str implements Type {
 		return "Str(\""+ value + "\")";
 	}
 
+	public String toFormulaWithUnderscore(){
+		return "Str(_)";
+	}
 }

@@ -40,7 +40,8 @@ public class OperationCmlTypeCheckerTestCase extends
 		// 11// op-call
 		add("class test = begin operations op1: int ==> int op1(a) == return (a+1) values k : int = op1(10) end",
 				true, true);
-		// 12//
+		// 12//Negative Test check on parameter list with product type.  
+		add("class A = begin operations addCD: (seq of char * (seq of Track)) ==> () addCD(title, tracks) == Skip end", true, false);
 
 	}
 

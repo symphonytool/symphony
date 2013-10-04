@@ -25,4 +25,8 @@ public class UndefinedValue implements Type {
 	public String toFormulaWithState() {
 		return this.toString();
 	}
+	
+	public String toFormulaWithUnderscore(){
+		return toString();
+	}
 }

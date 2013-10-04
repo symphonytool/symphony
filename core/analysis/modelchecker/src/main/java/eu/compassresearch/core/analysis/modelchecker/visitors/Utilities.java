@@ -15,10 +15,15 @@ import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.expressions.AIntLiteralExp;
+import org.overture.ast.expressions.PExp;
 
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.PSource;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Int;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Type;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.UndefinedValue;
 import eu.compassresearch.core.parser.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
 
@@ -38,6 +43,8 @@ public class Utilities {
 	public static final String CHANNEL_DEFINITIONS_KEY = "CHANNEL_DEFINITIONS";
 	public static final String IOCOMM_DEFINITIONS_KEY = "IOCOMM_DEF";
 	public static final String TYPE_USER_DEFINITION = "USER_DEF_TYPES";
+	public static final String CHAN_TYPE_DEFINITION = "CHAN_TYPES";
+	public static final String CHAN_TYPES_UNION = "UNION_CHAN_TYPES";
 	public static final String CONDITION_KEY = "CONDITION";
 	public static int OCCUR_COUNT = 1;
 	public static String VALUE_DEFINITIONS_KEY = "VALUES_DEFINITION";
@@ -48,6 +55,7 @@ public class Utilities {
 	public static String LIEIN_SETS = "LIEIN_SETS";
 	public static String LIEIN_FACTS = "LIEIN_FACTS";
 	public static String MAX_BIND = "MAX_BIND";
+	public static String CHANTYPE_STRING = "ChanType";
 	
 	private static boolean parseWithANTLR(PSource sourceIn) throws IOException
 	{
@@ -71,6 +79,19 @@ public class Utilities {
 			return false;
 		}
 
+	}
+	
+	public static Type createValue(PExp expression){
+		Type result = null;
+		
+		if(expression == null){
+			result = new UndefinedValue();
+		}
+		if(expression instanceof AIntLiteralExp){
+			result = new Int(Integer.valueOf(((AIntLiteralExp) expression).getValue().toString()));
+		}
+		
+		return result;
 	}
 	
 	 public static PSource makeSourceFromFile(String filePath)
