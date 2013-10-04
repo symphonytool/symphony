@@ -11,7 +11,7 @@ package eu.compassresearch.pog.tests;
  * @author ldc
  *
  */
-public class BaseFilesProvider
+public class BaseInputProvider
 {
 
 	// Files provided as {<input>,<result}

@@ -50,13 +50,13 @@ public class ParameterizedBaseTest
 	}
 
 	/**
-	 * Generate the test data. Actually just fetches it from {@link BaseFilesProvider}.
+	 * Generate the test data. Actually just fetches it from {@link BaseInputProvider}.
 	 * @return test data.
 	 */
 	@Parameters
 	public static Collection<Object[]> testData()
 	{
-		Object[][] data = BaseFilesProvider.files;
+		Object[][] data = BaseInputProvider.files;
 		return Arrays.asList(data);
 	}
 /**
