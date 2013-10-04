@@ -102,14 +102,11 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 
 				// To access the result we put it in a Value named "|CALL|.|CALLRETURN|" this can never be created
 				// in a cml model. This is a little ugly but it works and statys until something better comes up.
-				@SuppressWarnings("deprecation")
 				AVariableExp varExp = new AVariableExp(node.getType(), node.getCall().getLocation(), CmlOperationValue.ReturnValueName(), "", null);
 				// Next we create the assignment statement with the expressions that graps the result
-				@SuppressWarnings("deprecation")
 				ASingleGeneralAssignmentStatementAction assignmentNode = new ASingleGeneralAssignmentStatementAction(node.getLocation(), node.getType(), node.getDesignator().clone(), varExp);
 
 				// We now compose the call statement and assignment statement into sequential composition
-				@SuppressWarnings("deprecation")
 				INode seqComp = new ASequentialCompositionAction(node.getLocation(), node.getCall().clone(), assignmentNode.clone());
 				return new Pair<INode, Context>(seqComp, resultContext);
 			}
@@ -579,7 +576,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 			throws AnalysisException
 	{
 
-		return newInspection(createTauTransitionWithTime(new ASkipAction()), new AbstractCalculationStep(owner, visitorAccess)
+		return newInspection(createTauTransitionWithoutTime(new ASkipAction()), new AbstractCalculationStep(owner, visitorAccess)
 		{
 
 			@Override

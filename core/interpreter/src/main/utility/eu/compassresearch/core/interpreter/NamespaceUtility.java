@@ -28,4 +28,9 @@ class NamespaceUtility
 	{
 		return new LexNameToken("|FORSEQ|", "v", new LexLocation());
 	}
+
+	public static ILexNameToken getVarExpContextName()
+	{
+		return new LexNameToken("|VARSET|", "namesetExpression", new LexLocation());
+	}
 }
