@@ -1,21 +1,49 @@
 package eu.compassresearch.ide.modelchecker;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 
 import eu.compassresearch.core.analysis.modelchecker.api.FormulaResult;
 import eu.compassresearch.core.common.AnalysisArtifact;
+import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
 
 public class FormulaResultWrapper implements AnalysisArtifact {
 	private FormulaResult result;
 	private IFile svgFile;
 	private String property;
+	private IContainer mcFolder;
+	private ICmlSourceUnit selectedUnit;
 
-	public FormulaResultWrapper(FormulaResult result, IFile svgFile, String property) {
+	public FormulaResultWrapper(FormulaResult result, IFile svgFile, String property,
+			IContainer mcFolder, ICmlSourceUnit selectedUnit) {
 		super();
 		this.result = result;
 		this.svgFile = svgFile;
 		this.property = property;
+		this.mcFolder = mcFolder;
+		this.selectedUnit = selectedUnit;
 	}
+
+	
+	public IContainer getMcFolder() {
+		return mcFolder;
+	}
+
+
+	public void setMcFolder(IContainer mcFolder) {
+		this.mcFolder = mcFolder;
+	}
+
+
+	public ICmlSourceUnit getSelectedUnit() {
+		return selectedUnit;
+	}
+
+
+	public void setSelectedUnit(ICmlSourceUnit selectedUnit) {
+		this.selectedUnit = selectedUnit;
+	}
+
 
 	public IFile getSvgFile() {
 		return svgFile;
