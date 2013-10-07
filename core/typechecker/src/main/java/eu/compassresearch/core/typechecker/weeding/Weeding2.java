@@ -41,7 +41,6 @@ public class Weeding2 extends DepthFirstAnalysisCMLAdaptor
 	@Override
 	public void caseABracketType(ABracketType node) throws AnalysisException
 	{
-		System.out.println("Replacing: ("+node + ") width: "+ node.getType()+" on "+node.parent().parent());
 		node.parent().replaceChild(node, node.getType());
 		node.getType().apply(this);
 	}
