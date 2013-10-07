@@ -65,11 +65,11 @@ public class CmlInterpreterStateDTO
 		if(process.getLeftChild() == null && process.getRightChild() == null)
 			children.add(process);
 
-		if (process.getLeftChild() != null)
-			children.addAll(convertProcessTreeIntoList(process.getLeftChild()));
+		//if (process.getLeftChild() != null)
+			children.addAll(convertProcessTreeIntoLeafList(process.getLeftChild()));
 
-		if (process.getRightChild() != null)
-			children.addAll(convertProcessTreeIntoList(process.getRightChild()));
+		//if (process.getRightChild() != null)
+			children.addAll(convertProcessTreeIntoLeafList(process.getRightChild()));
 
 		return children;
 	}

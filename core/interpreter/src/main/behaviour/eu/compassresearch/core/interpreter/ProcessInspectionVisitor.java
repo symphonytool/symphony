@@ -25,6 +25,7 @@ import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
 import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.ast.process.AActionProcess;
+import eu.compassresearch.ast.process.AAlphabetisedParallelismProcess;
 import eu.compassresearch.ast.process.AExternalChoiceProcess;
 import eu.compassresearch.ast.process.AGeneralisedParallelismProcess;
 import eu.compassresearch.ast.process.AHidingProcess;
@@ -45,6 +46,7 @@ import eu.compassresearch.core.interpreter.api.behaviour.Inspection;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.LabelledTransition;
 import eu.compassresearch.core.interpreter.api.values.ActionValue;
+import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
 import eu.compassresearch.core.interpreter.api.values.CmlOperationValue;
 import eu.compassresearch.core.interpreter.api.values.ProcessObjectValue;
 import eu.compassresearch.core.interpreter.utility.Pair;
@@ -71,7 +73,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 		throw new CmlInterpreterException(InterpretationErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName()));
 
 	}
-
+	
 	@Override
 	public Inspection caseAActionProcess(final AActionProcess node,
 			final Context question) throws AnalysisException
@@ -266,13 +268,31 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 		}
 	}
 
+	
 	/**
 	 * Parallel process In general all the parallel processes have three transition rules that can be invoked Parallel
 	 * Begin: At this step the interleaving action are not yet created. So this will be a silent (tau) transition where
-	 * they will be created and started. So the alphabet returned here is {tau} Parallel Sync/Non-sync: Parallel End: At
+	 * they will be created and started. So the alphabet returned here is {tau} Parallel 
+	 * Sync/Non-sync: Parallel End: At
 	 * this step both child actions are in the FINISHED state and they will be removed from the running process network
 	 * and this will make a silent transition into Skip. So the alphabet returned here is {tau}
 	 */
+	
+	@Override
+	public Inspection caseAAlphabetisedParallelismProcess(
+			AAlphabetisedParallelismProcess node, Context question)
+			throws AnalysisException
+	{
+		ChannelNameSetValue leftChanset  = (ChannelNameSetValue )node.getLeftChansetExpression().apply(cmlExpressionVisitor,question);
+		ChannelNameSetValue rightChanset  = (ChannelNameSetValue )node.getRightChansetExpression().apply(cmlExpressionVisitor,question);
+
+		ChannelNameSetValue intersection = new ChannelNameSetValue(leftChanset);
+		intersection.retainAll(rightChanset);
+		
+		
+		
+		return super.caseAAlphabetisedParallelismProcess(node, question);
+	}
 
 	@Override
 	public Inspection caseAGeneralisedParallelismProcess(

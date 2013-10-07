@@ -80,6 +80,7 @@ import eu.compassresearch.core.interpreter.api.values.UnresolvedExpressionValue;
 import eu.compassresearch.core.interpreter.api.values.ValueConstraint;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
+@SuppressWarnings("serial")
 public class ActionInspectionVisitor extends CommonInspectionVisitor
 {
 
