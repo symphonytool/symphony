@@ -8,5 +8,6 @@ ExplFn(n) ==
   n ** 6
 pre n > 5
 post RESULT = n * n * n * n * n * n
--- PO generated (forall n:nat & (pre_ExplFn() => post_ExplFn(n, (n ** 6))))
--- should be:   (forall n:nat & (pre_ExplFn(n) => post_ExplFn(n, (n ** 6))))
+
+
+-- Expected Ouput:   (forall n:nat & (pre_ExplFn(n) => post_ExplFn(n, (n ** 6))))
