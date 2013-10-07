@@ -13,10 +13,10 @@ Op1(a: nat, b : nat)
 frame wr st1
 pre a < 0
 post b > a and st1~ = st1 -3
--- PO generated: (forall a:nat, b:nat & 
---                   (pre_Op1(a, b, self) => post_Op1(a, b, self)))
--- should be: (forall a:nat, b:nat, oldst : nat & 
---                (pre_Op1(a, b, oldst) => 
---                 exists newst : nat & post_Op1(a, b, oldst, newst)))
 @ Skip
 end 
+
+
+-- Expected Result (forall a:nat, b:nat, st1 : nat & 
+--                    (pre_Op1(a, b, st1) => 
+--                            exists newst : nat & post_Op1(a, b, st1, newst1)))

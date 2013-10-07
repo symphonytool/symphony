@@ -53,7 +53,7 @@ public class ParameterizedBaseTest
 	 * Generate the test data. Actually just fetches it from {@link BaseInputProvider}.
 	 * @return test data.
 	 */
-	@Parameters
+	@Parameters(name="{index} : {0}")
 	public static Collection<Object[]> testData()
 	{
 		Object[][] data = BaseInputProvider.files;

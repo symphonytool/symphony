@@ -2,6 +2,7 @@ package eu.compassresearch.core.analysis.pog.visitors;
 
 //POG-related imports
 import java.util.LinkedList;
+import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
@@ -44,6 +45,7 @@ import eu.compassresearch.ast.definitions.ATypesDefinition;
 import eu.compassresearch.ast.definitions.AValuesDefinition;
 import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
 import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
+import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.analysis.pog.obligations.CmlOperationDefinitionContext;
 import eu.compassresearch.core.analysis.pog.obligations.CmlOperationPostConditionObligation;
@@ -52,6 +54,7 @@ import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligationList;
 import eu.compassresearch.core.analysis.pog.obligations.CmlSatisfiabilityObligation;
 import eu.compassresearch.core.analysis.pog.obligations.CmlStateInvariantObligation;
 import eu.compassresearch.core.analysis.pog.obligations.CmlSubTypeObligation;
+import eu.compassresearch.core.analysis.pog.utility.ProcessStateCloner;
 
 @SuppressWarnings("serial")
 public class POGDeclAndDefVisitor extends
@@ -459,24 +462,28 @@ public class POGDeclAndDefVisitor extends
 
 			PDefinition stateDef;
 
-			if (node.getClassDefinition() != null)
+			AActionProcess stater = node.getAncestor(AActionProcess.class);
+			if (stater != null)
 			{
-				stateDef = node.getClassDefinition();
+				List<AAssignmentDefinition> stateDefs = stater.apply(new ProcessStateCloner());
+				stateDefs.size();
+				question.push(new CmlOperationDefinitionContext(node, false, stateDefs));
+				pol.add(new CmlSatisfiabilityObligation(node, stateDefs, question));
+				question.pop();
 			} else
 			{
-				AProcessDefinition stater = node.getAncestor(AProcessDefinition.class);
-				if (stater != null)
+				if (node.getClassDefinition() != null)
 				{
-					stateDef = stater;
+					stateDef = node.getClassDefinition();
 				} else
 				{
 					stateDef = node.getStateDefinition();
+				
 				}
+				question.push(new CmlOperationDefinitionContext(node, false, stateDef));
+				pol.add(new CmlSatisfiabilityObligation(node, stateDef, question));
+				question.pop();
 			}
-
-			question.push(new CmlOperationDefinitionContext(node, false, stateDef));
-			pol.add(new CmlSatisfiabilityObligation(node, stateDef, question));
-			question.pop();
 		}
 
 		return pol;
