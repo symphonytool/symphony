@@ -138,14 +138,14 @@ public interface TypeIssueHandler {
 		@Override
 		public String toString() {
 			ILexLocation location = super.getLocation();
-			return "TypeError: " + location + " : " + description;
+			return "TypeError: " + location + " : \n\t" + description;
 		}
 
 		public String getStackTrace() {
 			int i = 0;
 			StringBuilder sb = new StringBuilder();
-			sb.append("Type Error Details: " + "\n\t" + description
-					+ "\nOffending node: "
+			sb.append(toString()
+					+ "\n\n\nOffending node: "
 					+ (subtree == null ? "null" : subtree) + "\n");
 			for (i = 4; i < stackTrace.length && i < 20; i++) {
 				StackTraceElement e = stackTrace[i];
