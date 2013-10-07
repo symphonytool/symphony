@@ -5,4 +5,6 @@
 values
 
 v_real : real = if true then 42 / 0 else 42
+
+
 -- Expected Output: true => (0 <> 0)

@@ -17,6 +17,6 @@ post b > a and st1~ = st1 -3
 end 
 
 
--- Expected Result: (forall a:nat, b:nat, oldself : C & 
---                   (pre_Op1(a, b, oldself) => 
+-- Expected Output: (forall a:nat, b:nat, oldself : C & 
+--                    (pre_Op1(a, b, oldself) => 
 --                       exists newself : C & post_Op1(a, b, oldself, newself)))
