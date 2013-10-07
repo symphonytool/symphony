@@ -10,21 +10,21 @@ public class ThmNode {
 	private NodeNameList depIds;
 	private ThmArtifact art;
 	
-
-    public ThmNode() {
-    	depIds = new NodeNameList();
-    }
+//
+//    public ThmNode() {
+//    	depIds = new NodeNameList();
+//    }
 	
 	
-    public ThmNode(ILexNameToken iLexNameToken) {
-    	this.id = iLexNameToken;
-    	depIds = new NodeNameList();
-    }
+//    public ThmNode(ILexNameToken iLexNameToken) {
+//    	this.id = iLexNameToken;
+//    	depIds = new NodeNameList();
+//    }
     
-    public ThmNode(ILexNameToken iLexNameToken, NodeNameList ids) {
-    	this.id = iLexNameToken;
-    	this.depIds = ids;
-    }
+//    public ThmNode(ILexNameToken iLexNameToken, NodeNameList ids) {
+//    	this.id = iLexNameToken;
+//    	this.depIds = ids;
+//    }
     
     public ThmNode(ILexNameToken iLexNameToken, NodeNameList ids, ThmArtifact art) {
     	this.id = iLexNameToken;

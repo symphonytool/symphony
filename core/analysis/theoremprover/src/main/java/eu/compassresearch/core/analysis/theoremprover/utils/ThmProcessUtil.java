@@ -147,7 +147,6 @@ public class ThmProcessUtil {
 	private static String hiding = " \\\\ ";
 	private static String startsby = " startby ";
 	private static String endsby = " endby ";
-	private static String mu = "mu ";
 	private static String interleave = " ||| ";
 	private static String syncParallel = " || ";
 	
@@ -984,7 +983,7 @@ public class ThmProcessUtil {
 			{
 				actStr.append(ThmProcessUtil.getIsabelleActionString(pa, svars, bvars));
 			}
-			return ThmProcessUtil.mu + idStr + "." + actStr;
+			return ThmProcessUtil.isaMu + idStr + ". " + actStr;
 		}
 		if(act instanceof AReferenceAction)
 		{
@@ -1493,16 +1492,16 @@ public class ThmProcessUtil {
 		{
 			AMuAction a = (AMuAction) act;
 			
-			for (ILexIdentifierToken id : a.getIdentifiers()) 
-			{
-				
-				nodeDeps.add(new LexNameToken("", id.getName().toString(), a.getLocation()));
-			}
+		//	for (ILexIdentifierToken id : a.getIdentifiers()) 
+		//	{
+		//		
+		//		nodeDeps.add(new LexNameToken("", id.getName().toString(), a.getLocation()));
+		//	}
 			
-			for (PAction pa : a.getActions())
-			{
-				nodeDeps.addAll(ThmProcessUtil.getIsabelleActionDeps(pa, bvars));
-			}
+		//	for (PAction pa : a.getActions())
+		//	{
+		//		nodeDeps.addAll(ThmProcessUtil.getIsabelleActionDeps(pa, bvars));
+		//	}
 		}
 		if(act instanceof AReferenceAction)
 		{

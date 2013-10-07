@@ -52,6 +52,7 @@ public class NodeNameList extends Vector<ILexNameToken>{
 		for(Iterator<ILexNameToken> itr = this.listIterator(); itr.hasNext(); )
 		{
 			ILexNameToken n = itr.next();
+			match = false;
 			
 			//For each name to restrict		
 			for(ILexNameToken r :restr)
