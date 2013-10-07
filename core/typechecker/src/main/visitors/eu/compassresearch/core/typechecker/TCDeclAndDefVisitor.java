@@ -2071,7 +2071,7 @@ class TCDeclAndDefVisitor extends
 		// all of the curried parameter sets are provided.
 
 		OvertureRootCMLAdapter.pushQuestion(question);
-		PType actualResult = node.getBody().apply(parentChecker, new TypeCheckInfo(question.assistantFactory, local, question.scope));
+		PType actualResult = node.getBody().apply(parentChecker, new TypeCheckInfo(question.assistantFactory, local, NameScope.NAMES));
 		OvertureRootCMLAdapter.popQuestion(question);
 
 		if (!successfulType(actualResult))
