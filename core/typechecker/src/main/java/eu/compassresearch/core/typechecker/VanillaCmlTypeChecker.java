@@ -6,15 +6,12 @@ import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
-import org.overture.ast.definitions.AExplicitFunctionDefinition;
-import org.overture.ast.definitions.AImplicitFunctionDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.types.PType;
 import org.overture.typechecker.TypeCheckException;
 import org.overture.typechecker.TypeCheckInfo;
 import org.overture.typechecker.assistant.definition.PDefinitionListAssistantTC;
 
-import eu.compassresearch.ast.definitions.ACmlClassDefinition;
 import eu.compassresearch.ast.messages.InternalException;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.common.RegistryFactory;
@@ -22,6 +19,8 @@ import eu.compassresearch.core.typechecker.CollectGlobalStateClass.GlobalDefinit
 import eu.compassresearch.core.typechecker.api.CmlRootVisitor;
 import eu.compassresearch.core.typechecker.api.TypeComparator;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
+import eu.compassresearch.core.typechecker.weeding.Weeding1;
+import eu.compassresearch.core.typechecker.weeding.Weeding2;
 
 class VanillaCmlTypeChecker extends AbstractTypeChecker {
 
@@ -87,7 +86,13 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 		try {
 			// Update LexLocation "file" entity on all nodes
 			SetLocationVisitor.updateLocations(sourceForest);
-
+			
+			// Transform the AST before analysis
+			// W: Stage 1 remove intermediate product types in functions
+			Weeding1.apply(sourceForest);
+			// W: Stage 2 remove all bracket types
+			Weeding2.apply(sourceForest);
+			
 			// Collect all Top-level entities
 			GlobalDefinitions globalDefs = CollectGlobalStateClass
 					.getGlobalRoot(sourceForest, issueHandler);
