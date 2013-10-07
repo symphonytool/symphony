@@ -85,17 +85,23 @@ public class CmlOperationDefinitionContext extends POOperationDefinitionContext
 	@Override
 	protected void addStateBinds(LinkedList<PMultipleBind> r)
 	{
-		for (AAssignmentDefinition pdef : psdefs)
+		if (psdefs == null)
 		{
-			ATypeMultipleBind tmBind2 = new ATypeMultipleBind();
-			tmBind2.setType(pdef.getType().clone());
-			AIdentifierPattern pattern = new AIdentifierPattern();
-			pattern.setName(pdef.getName().clone());
+			super.addStateBinds(r);
+		} else
+		{
+			for (AAssignmentDefinition pdef : psdefs)
+			{
+				ATypeMultipleBind tmBind2 = new ATypeMultipleBind();
+				tmBind2.setType(pdef.getType().clone());
+				AIdentifierPattern pattern = new AIdentifierPattern();
+				pattern.setName(pdef.getName().clone());
 
-			List<PPattern> plist = new LinkedList<PPattern>();
-			plist.add(pattern);
-			tmBind2.setPlist(plist);
-			r.add(tmBind2);
+				List<PPattern> plist = new LinkedList<PPattern>();
+				plist.add(pattern);
+				tmBind2.setPlist(plist);
+				r.add(tmBind2);
+			}
 		}
 	}
 
