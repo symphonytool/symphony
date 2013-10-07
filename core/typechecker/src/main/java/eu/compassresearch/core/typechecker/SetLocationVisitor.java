@@ -43,6 +43,7 @@ public class SetLocationVisitor extends DepthFirstAnalysisCMLAdaptor {
 
 	private void setTheLocation(Object node) {
 		try {
+			//FIXME: set the location for final fields as well e.g. LexToken
 			Class<?> clz = node.getClass();
 			Method getLocation = clz.getMethod("getLocation", new Class<?>[0]);
 			if (getLocation == null)
