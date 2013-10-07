@@ -1,0 +1,1 @@
+class T = begin end class N = begin end types TorN = T | N

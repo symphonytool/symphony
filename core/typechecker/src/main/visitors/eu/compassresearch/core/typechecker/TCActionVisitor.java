@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import org.overture.ast.definitions.AImplicitFunctionDefinition;
 import org.overture.ast.definitions.ALocalDefinition;
@@ -37,7 +36,6 @@ import org.overture.ast.types.AIntNumericBasicType;
 import org.overture.ast.types.ANatNumericBasicType;
 import org.overture.ast.types.AOperationType;
 import org.overture.ast.types.AProductType;
-import org.overture.ast.types.ASeq1SeqType;
 import org.overture.ast.types.ASetType;
 import org.overture.ast.types.AUnknownType;
 import org.overture.ast.types.AUnresolvedType;
@@ -118,11 +116,9 @@ import eu.compassresearch.ast.declarations.AExpressionSingleDeclaration;
 import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionDefinition;
-import eu.compassresearch.ast.definitions.AActionsDefinition;
 import eu.compassresearch.ast.definitions.AChannelNameDefinition;
 import eu.compassresearch.ast.definitions.ACmlClassDefinition;
 import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
-import eu.compassresearch.ast.definitions.AFunctionsDefinition;
 import eu.compassresearch.ast.definitions.AOperationsDefinition;
 import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
 import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
@@ -130,7 +126,6 @@ import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.expressions.SRenameChannelExp;
 import eu.compassresearch.ast.lex.LexIdentifierToken;
 import eu.compassresearch.ast.lex.LexNameToken;
-import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.ast.types.AActionType;
 import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.ast.types.AChansetType;
@@ -2048,9 +2043,9 @@ class TCActionVisitor extends
 			{
 				List<ILexIdentifierToken> ids = ((AUnresolvedPathExp)applyExp.getRoot()).getIdentifiers(); 
 				StringBuilder strBuilder = new StringBuilder();
-				for(Iterator<ILexIdentifierToken> iter = ids.iterator();iter.hasNext();)
-					strBuilder.append(iter.next() + (iter.hasNext() ? "." + iter.next() : ""));
-				name = new LexNameToken("",strBuilder.toString(),applyExp.getRoot().getLocation());
+				for(int i = 0; i < ids.size()-1;i++)
+					strBuilder.append(ids.get(i) + ( (i+1) < ids.size()-1 ? "." + ids.get(++i) : ""));
+				name = new LexNameToken(strBuilder.toString(),ids.get(ids.size()-1).toString(),applyExp.getRoot().getLocation());
 			}
 			else if(applyExp.getRoot() instanceof AVariableExp)
 			{
@@ -2939,6 +2934,20 @@ class TCActionVisitor extends
 
 		node.setType(new AActionType());
 		return node.getType();
+	}
+
+	@Override
+	public PType createNewReturnValue(INode node, TypeCheckInfo question)
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public PType createNewReturnValue(Object node, TypeCheckInfo question)
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

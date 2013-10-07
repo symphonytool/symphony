@@ -1,0 +1,6 @@
+channels 
+a : int 
+ 
+process A = val i : nat @ begin state v : int := i @ a.v -> Skip end
+
+process B = A(2)

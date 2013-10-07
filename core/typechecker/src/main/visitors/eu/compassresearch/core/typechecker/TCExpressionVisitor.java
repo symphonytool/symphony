@@ -42,7 +42,6 @@ import org.overture.typechecker.TypeCheckException;
 import org.overture.typechecker.TypeCheckInfo;
 import org.overture.typechecker.TypeChecker;
 import org.overture.typechecker.TypeCheckerErrors;
-import org.overture.typechecker.assistant.definition.PDefinitionAssistantTC;
 import org.overture.typechecker.assistant.expression.AApplyExpAssistantTC;
 import org.overture.typechecker.assistant.type.AFunctionTypeAssistantTC;
 import org.overture.typechecker.assistant.type.AOperationTypeAssistantTC;
@@ -800,7 +799,7 @@ class TCExpressionVisitor extends
 			if (type == null)
 				type = node.getVardef().getType();
 			try {
-				node.setType(PTypeAssistantTC.typeResolve(type, null,
+				node.setType(question.assistantFactory.createPTypeAssistant().typeResolve(type, null,
 						(QuestionAnswerAdaptor<TypeCheckInfo, PType>) parent,
 						question));
 			} catch (TypeCheckException tce) {
@@ -1090,7 +1089,7 @@ class TCExpressionVisitor extends
 
 		if (basictype != null) {
 			try {
-				basictype = PTypeAssistantTC.typeResolve(basictype, null,
+				basictype = question.assistantFactory.createPTypeAssistant().typeResolve(basictype, null,
 						(QuestionAnswerAdaptor<TypeCheckInfo, PType>) parent,
 						question);
 			} catch (TypeCheckException tce) {
@@ -1166,6 +1165,20 @@ class TCExpressionVisitor extends
 
 		node.setType(cdef.getType());
 		return cdef.getType();
+	}
+
+	@Override
+	public PType createNewReturnValue(INode node, TypeCheckInfo question)
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public PType createNewReturnValue(Object node, TypeCheckInfo question)
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

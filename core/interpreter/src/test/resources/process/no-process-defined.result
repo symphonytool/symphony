@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testResult>
+  <exception>eu.compassresearch.core.interpreter.api.CmlInterpreterException</exception>
+  <interpreterState>FAILED</interpreterState>
+  <trace>
+    <events></events>
+  </trace>
+</testResult>

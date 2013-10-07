@@ -33,6 +33,10 @@ class CmlRootVisitor extends
 		QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType>
 		implements eu.compassresearch.core.typechecker.api.CmlRootVisitor {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3231597110935151449L;
 	private IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> exp; // expressions
 	private IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> act; // actions
 	private IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> dad; // definition
@@ -197,6 +201,20 @@ class CmlRootVisitor extends
 	public PType defaultPClause(PClause node, TypeCheckInfo question)
 			throws AnalysisException {
 		return addErrorForMissingType(node, node.apply(act, question));
+	}
+
+	@Override
+	public PType createNewReturnValue(INode node, TypeCheckInfo question)
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public PType createNewReturnValue(Object node, TypeCheckInfo question)
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

@@ -45,6 +45,22 @@ QuestionAnswerCMLAdaptor<IPOContextStack, CmlProofObligationList> {
 	pol.addAll(node.apply(parentVisitor, question));
 	return pol;
     }
+
+	@Override
+	public CmlProofObligationList createNewReturnValue(INode node,
+			IPOContextStack question)
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public CmlProofObligationList createNewReturnValue(Object node,
+			IPOContextStack question)
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
    
     
       

@@ -12,19 +12,19 @@ import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.utility.LocationExtractor;
 
-public class CmlProcessDTO {
+public class CmlProcessDTO
+{
 
-	private final ILexNameToken 	name;
-	private final int 				id;
-	private final List<String> 		trace;
-	private final boolean 			isProcess;
-	private final CmlBehaviorState 	state;
-	private final ILexLocation 		location;
-	private final CmlProcessDTO		leftChild;
-	private final CmlProcessDTO		rightChild;
-	private final CmlProcessDTO		parent;
+	private final ILexNameToken name;
+	private final int id;
+	private final List<String> trace;
+	private final boolean isProcess;
+	private final CmlBehaviorState state;
+	private final ILexLocation location;
+	private final CmlProcessDTO leftChild;
+	private final CmlProcessDTO rightChild;
+	private final CmlProcessDTO parent;
 
-	
 	/**
 	 * Dummy constructor for serialization
 	 */
@@ -40,7 +40,7 @@ public class CmlProcessDTO {
 		this.rightChild = null;
 		this.parent = null;
 	}
-	
+
 	public CmlProcessDTO(CmlBehaviour process, CmlProcessDTO parent)
 	{
 		this.name = process.name();
@@ -50,79 +50,81 @@ public class CmlProcessDTO {
 		this.state = process.getState();
 		this.location = LocationExtractor.extractLocation(process.getNextState().first);
 		this.parent = parent;
-		
-		if(process.getLeftChild() != null)
+
+		if (process.getLeftChild() != null)
 			this.leftChild = new CmlProcessDTO(process.getLeftChild(), this);
 		else
 			this.leftChild = null;
-		
-		if(process.getRightChild() != null)
+
+		if (process.getRightChild() != null)
 			this.rightChild = new CmlProcessDTO(process.getRightChild(), this);
 		else
 			this.rightChild = null;
 	}
-	
-	public String getName() {
-		return (isProcess ? "Process:" : "Action:") + " "+ name;
+
+	public String getName()
+	{
+		return (isProcess ? "Process:" : "Action:") + " " + name;
 	}
-	
+
 	public int getId()
 	{
 		return this.id;
 	}
-	
+
 	public long level()
 	{
-		if(this.parent == null)
+		if (this.parent == null)
 			return 0;
 		else
 			return 1 + parent.level();
 	}
-	
-	public CmlBehaviorState getState() {
+
+	public CmlBehaviorState getState()
+	{
 		return state;
 	}
-	
+
 	public List<String> getTrace()
-	{	
+	{
 		return this.trace;
 	}
-	
+
 	private List<String> convertCmlEventsToStringList(List<CmlTransition> events)
 	{
 		List<String> result = new LinkedList<String>();
 
-		for(CmlTransition e : events)
+		for (CmlTransition e : events)
 		{
 			result.add(e.toString());
 		}
 
 		return result;
 	}
-	
+
 	public ILexLocation getLocation()
 	{
 		return this.location;
 	}
-	
+
 	public CmlProcessDTO getParent()
 	{
 		return parent;
 	}
-	
+
 	public CmlProcessDTO getLeftChild()
 	{
 		return leftChild;
 	}
-	
+
 	public CmlProcessDTO getRightChild()
 	{
 		return rightChild;
 	}
-	
+
 	@Override
-	public String toString() {
-		return "Name: " + name + System.lineSeparator() +
-				"trace :" + trace;
+	public String toString()
+	{
+		return "Name: " + name + System.lineSeparator() + "trace :" + trace;
 	}
 }

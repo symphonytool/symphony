@@ -8,32 +8,36 @@ import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
 
 /**
  * This represents an observable channel event from a set of CmlBehaviourThread objects
+ * 
  * @author akm
- *
  */
-abstract class AbstractLabelledTransition extends AbstractCmlTransition implements LabelledTransition{
+abstract class AbstractLabelledTransition extends AbstractCmlTransition
+		implements LabelledTransition
+{
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -1807730095394673285L;
 	final protected ChannelNameValue channelName;
-	
-	
-	public AbstractLabelledTransition(CmlBehaviour eventSource, ChannelNameValue channelName)
+
+	public AbstractLabelledTransition(CmlBehaviour eventSource,
+			ChannelNameValue channelName)
 	{
 		super(eventSource);
 		this.channelName = channelName;
 	}
-	
-	protected AbstractLabelledTransition(Set<CmlBehaviour> sources, ChannelNameValue channelName)
+
+	protected AbstractLabelledTransition(Set<CmlBehaviour> sources,
+			ChannelNameValue channelName)
 	{
 		super(sources);
 		this.channelName = channelName;
 	}
-	
+
 	/**
 	 * The channel of this involved in this events
+	 * 
 	 * @return
 	 */
 	@Override
@@ -44,27 +48,28 @@ abstract class AbstractLabelledTransition extends AbstractCmlTransition implemen
 
 	@Override
 	public abstract List<LabelledTransition> expand();
-	
-//	/**
-//	 * return the most precise of this and other
-//	 * @param other
-//	 * @return
-//	 */
-//	@Override
-//	public abstract ObservableEvent meet(ObservableEvent other); 
-	
+
+	// /**
+	// * return the most precise of this and other
+	// * @param other
+	// * @return
+	// */
+	// @Override
+	// public abstract ObservableEvent meet(ObservableEvent other);
+
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(Object obj)
+	{
 
 		LabelledTransition other = null;
-		
-		if(!(obj instanceof LabelledTransition))
+
+		if (!(obj instanceof LabelledTransition))
 			return false;
-		
-		other = (LabelledTransition)obj;
-		
-		return other.getChannelName().equals(getChannelName()) && 
-				super.equals(obj);
+
+		other = (LabelledTransition) obj;
+
+		return other.getChannelName().equals(getChannelName())
+				&& super.equals(obj);
 	}
-	
+
 }

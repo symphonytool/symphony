@@ -6,6 +6,7 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.intf.lex.ILexNameToken;
+import org.overture.ast.node.INode;
 import org.overture.pog.obligation.PONameContext;
 import org.overture.pog.pub.IPOContextStack;
 
@@ -97,6 +98,22 @@ public class POGProcessVisitor extends
 
 		// TODO: Consider any AActionProcess POs
 		return pol;
+	}
+
+	@Override
+	public CmlProofObligationList createNewReturnValue(INode node,
+			IPOContextStack question)
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public CmlProofObligationList createNewReturnValue(Object node,
+			IPOContextStack question)
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	//At the moment the pog will only visit action process

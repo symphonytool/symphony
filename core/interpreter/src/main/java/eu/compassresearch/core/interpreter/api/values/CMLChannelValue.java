@@ -17,158 +17,173 @@ import eu.compassresearch.core.interpreter.api.events.EventFireMediator;
 import eu.compassresearch.core.interpreter.api.events.EventSource;
 import eu.compassresearch.core.interpreter.api.events.EventSourceHandler;
 
-public class CMLChannelValue extends Value implements CmlChannel //CmlIOChannel<Value>
+public class CMLChannelValue extends Value implements CmlChannel // CmlIOChannel<Value>
 {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 6350630462785844551L;
-	private ILexNameToken 					name;
-	private AChannelType					channelType;
-	private List<PType>						valueTypes;
-	
-	private class ChannelEventMediator implements EventFireMediator<ChannelObserver,ChannelEvent>
+	private ILexNameToken name;
+	private AChannelType channelType;
+	private List<PType> valueTypes;
+
+	private class ChannelEventMediator implements
+			EventFireMediator<ChannelObserver, ChannelEvent>
 	{
 		@Override
 		public void fireEvent(ChannelObserver observer, Object source,
-				ChannelEvent event) {
-			observer.onChannelEvent(CMLChannelValue.this,event);			
+				ChannelEvent event)
+		{
+			observer.onChannelEvent(CMLChannelValue.this, event);
 		}
 	}
-	
-//	private EventSourceHandler<ChannelObserver,CmlChannelEvent> signalObservers = 
-//			new EventSourceHandler<ChannelObserver,CmlChannelEvent>(this, new ChannelEventMediator());
-//					
-//	private EventSourceHandler<ChannelObserver,CmlChannelEvent> readObservers =
-//			new EventSourceHandler<ChannelObserver,CmlChannelEvent>(this, new ChannelEventMediator());
-//	private EventSourceHandler<ChannelObserver,CmlChannelEvent> writeObservers = 
-//			new EventSourceHandler<ChannelObserver,CmlChannelEvent>(this, new ChannelEventMediator());
-	
-	private EventSourceHandler<ChannelObserver,ChannelEvent> selectObservers = 
-			new EventSourceHandler<ChannelObserver,ChannelEvent>(this, new ChannelEventMediator());
+
+	// private EventSourceHandler<ChannelObserver,CmlChannelEvent> signalObservers =
+	// new EventSourceHandler<ChannelObserver,CmlChannelEvent>(this, new ChannelEventMediator());
+	//
+	// private EventSourceHandler<ChannelObserver,CmlChannelEvent> readObservers =
+	// new EventSourceHandler<ChannelObserver,CmlChannelEvent>(this, new ChannelEventMediator());
+	// private EventSourceHandler<ChannelObserver,CmlChannelEvent> writeObservers =
+	// new EventSourceHandler<ChannelObserver,CmlChannelEvent>(this, new ChannelEventMediator());
+
+	private EventSourceHandler<ChannelObserver, ChannelEvent> selectObservers = new EventSourceHandler<ChannelObserver, ChannelEvent>(this, new ChannelEventMediator());
 
 	public CMLChannelValue(PType channelType, ILexNameToken name)
 	{
-		this.channelType = (AChannelType)channelType;
+		this.channelType = (AChannelType) channelType;
 		valueTypes = new LinkedList<PType>();
 
-		if(this.channelType.getType() instanceof AProductType)
-			valueTypes.addAll(((AProductType)this.channelType.getType()).getTypes());
+		if (this.channelType.getType() instanceof AProductType)
+			valueTypes.addAll(((AProductType) this.channelType.getType()).getTypes());
 		else if (this.channelType.getType() != null)
 			valueTypes.add(this.channelType.getType());
-		
+
 		this.name = name;
 	}
-	
+
 	@Override
-	public String getName() {
+	public String getName()
+	{
 		return name.getName();
 	}
 
 	@Override
-	public PType getType() {
+	public PType getType()
+	{
 		return this.channelType;
 	}
-	
+
 	@Override
-	public List<PType> getValueTypes() {
+	public List<PType> getValueTypes()
+	{
 		return valueTypes;
 	}
-	
+
 	@Override
-	public boolean isCommunicationChannel() {
+	public boolean isCommunicationChannel()
+	{
 		return this.getValueTypes().size() > 0;
 	}
 
 	@Override
-	public String toString() {
+	public String toString()
+	{
 		return kind() + " " + getName() + " : " + getValueTypes();
 	}
 
 	@Override
-	public boolean equals(Object other) {
-		
+	public boolean equals(Object other)
+	{
+
 		CMLChannelValue otherValue = null;
-		
-		if(!(other instanceof CMLChannelValue))
+
+		if (!(other instanceof CMLChannelValue))
 			return false;
-		
-		otherValue = (CMLChannelValue)other;
-		
-		return otherValue.getName().equals(getName()) &&
-				getType().equals(otherValue.getType());
+
+		otherValue = (CMLChannelValue) other;
+
+		return otherValue.getName().equals(getName())
+				&& getType().equals(otherValue.getType());
 	}
 
 	@Override
-	public int hashCode() {
+	public int hashCode()
+	{
 		return toString().hashCode();
 	}
 
 	@Override
-	public String kind() {
+	public String kind()
+	{
 		return "Channel";
 	}
 
 	@Override
-	public Object clone() {
-		
-		//return new CMLChannelValue(this);
+	public Object clone()
+	{
+
+		// return new CMLChannelValue(this);
 		return this;
 	}
 
-//	@Override
-//	public Value read() {
-//		notifyObservers(readObservers,CmlCommunicationType.READ);
-//		return value;
-//	}
-//
-//	@Override
-//	public void write(Value value) {
-//		this.value= value; 
-//		notifyObservers(writeObservers,CmlCommunicationType.WRITE);
-//	}
-//
-//	@Override
-//	public void signal() {
-//		notifyObservers(signalObservers, CmlCommunicationType.SIGNAL);
-//	}
-	
+	// @Override
+	// public Value read() {
+	// notifyObservers(readObservers,CmlCommunicationType.READ);
+	// return value;
+	// }
+	//
+	// @Override
+	// public void write(Value value) {
+	// this.value= value;
+	// notifyObservers(writeObservers,CmlCommunicationType.WRITE);
+	// }
+	//
+	// @Override
+	// public void signal() {
+	// notifyObservers(signalObservers, CmlCommunicationType.SIGNAL);
+	// }
+
 	/**
 	 * Helper method to fire away the channel events
+	 * 
 	 * @param source
 	 * @param eventType
 	 */
-	private void notifyObservers(EventSourceHandler<ChannelObserver,ChannelEvent> source, ChannelActivity eventType)
+	private void notifyObservers(
+			EventSourceHandler<ChannelObserver, ChannelEvent> source,
+			ChannelActivity eventType)
 	{
 		source.fireEvent(new ChannelEvent(this, eventType));
 	}
-	
-//	@Override
-//	public EventSource<ChannelObserver> onChannelRead()
-//	{
-//		return readObservers;
-//	}
-//	
-//	@Override
-//	public EventSource<ChannelObserver> onChannelWrite()
-//	{
-//		return writeObservers;
-//	}
-//	
-//	@Override
-//	public EventSource<ChannelObserver> onChannelSignal()
-//	{
-//		return signalObservers;
-//	}
+
+	// @Override
+	// public EventSource<ChannelObserver> onChannelRead()
+	// {
+	// return readObservers;
+	// }
+	//
+	// @Override
+	// public EventSource<ChannelObserver> onChannelWrite()
+	// {
+	// return writeObservers;
+	// }
+	//
+	// @Override
+	// public EventSource<ChannelObserver> onChannelSignal()
+	// {
+	// return signalObservers;
+	// }
 
 	@Override
-	public void select() {
+	public void select()
+	{
 		notifyObservers(selectObservers, ChannelActivity.SELECT);
 	}
 
 	@Override
-	public EventSource<ChannelObserver> onSelect() {
+	public EventSource<ChannelObserver> onSelect()
+	{
 		return selectObservers;
 	}
 }

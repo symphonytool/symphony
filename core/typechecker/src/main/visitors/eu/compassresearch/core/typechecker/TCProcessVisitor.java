@@ -8,6 +8,7 @@ import java.util.List;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
+import org.overture.ast.node.INode;
 import org.overture.ast.types.ANatNumericBasicType;
 import org.overture.ast.types.PType;
 import org.overture.typechecker.TypeCheckInfo;
@@ -865,6 +866,20 @@ public class TCProcessVisitor extends
 			TypeCheckInfo question) throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseATimedInterruptAction(node, question);
+	}
+
+	@Override
+	public PType createNewReturnValue(INode node, TypeCheckInfo question)
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public PType createNewReturnValue(Object node, TypeCheckInfo question)
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
