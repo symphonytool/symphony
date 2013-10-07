@@ -95,7 +95,7 @@ public class TypesCmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase {
 		// 40//
 		add("types A = int | token inv a == a > 0");
 		// 41//
-		add("types T = int * rat * real inv t == t.#1 > 0 and t.#2 < 22/7 and 3.1415");
+		add("types T = int * rat * real inv t == t.#1 > 0 and t.#2 < 22/7 and 3.1415", true, false);
 		// 42//
 		add("types T=[int] inv t == t <> nil");
 		// 43//
