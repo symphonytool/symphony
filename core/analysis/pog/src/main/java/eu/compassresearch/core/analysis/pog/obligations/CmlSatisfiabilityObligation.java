@@ -92,6 +92,60 @@ public class CmlSatisfiabilityObligation extends CmlProofObligation
 		// valuetree.setContext(ctxt.getContextNodeList());
 	}
 
+	void stateInPre(List<PExp> args, PDefinition stateDefinition,
+			List<AAssignmentDefinition> procState)
+	{
+		if (procState != null)
+		{
+			for (AAssignmentDefinition def : procState)
+			{
+				args.add(getVarExp(def.getName().clone()));
+			}
+		} else
+		{
+			// replace with super call
+			if (stateDefinition instanceof AStateDefinition)
+			{
+				args.add(getVarExp(OLD_STATE_ARG));
+			} else
+			{
+				args.add(getVarExp(OLD_SELF_ARG));
+			}
+		}
+
+	}
+
+	void stateInPost(List<AAssignmentDefinition> procState,
+			List<PMultipleBind> exists_binds,
+			List<PExp> postArglist, PDefinition stateDefinition)
+	{
+		if (procState != null)
+		{
+		
+			for (AAssignmentDefinition def : procState)
+			{
+				StringBuilder sb = new StringBuilder();
+				sb.append("new");
+				sb.append(def.getName().getName());
+				ILexNameToken name = new eu.compassresearch.ast.lex.LexNameToken("", sb.toString(), null);
+				postArglist.add(getVarExp(name));
+				exists_binds.add(getMultipleTypeBind(def.getType().clone(), def.getName().clone()));
+			}
+		} else
+		{
+			// replace with super call
+			if (stateDefinition instanceof AStateDefinition)
+			{
+				postArglist.add(getVarExp(NEW_STATE_ARG));
+				exists_binds = getMultipleTypeBindList(stateDefinition.getType(), NEW_STATE_ARG);
+			} else
+			{
+				postArglist.add(getVarExp(NEW_SELF_ARG));
+				exists_binds = getMultipleTypeBindList(stateDefinition.getType(), NEW_SELF_ARG);
+			}
+		}
+	}
+
 	PExp buildPredicate(AImplicitCmlOperationDefinition op,
 			PDefinition stateDefinition, List<AAssignmentDefinition> procState)
 			throws AnalysisException
@@ -106,22 +160,8 @@ public class CmlSatisfiabilityObligation extends CmlProofObligation
 			}
 		}
 
-		if (procState != null)
-		{
-			for (AAssignmentDefinition def : procState)
-			{
-				arglist.add(getVarExp(def.getName().clone()));
-			}
-		} else
-		{
-			if (stateDefinition instanceof AStateDefinition)
-			{
-				arglist.add(getVarExp(OLD_STATE_ARG));
-			} else
-			{
-				arglist.add(getVarExp(OLD_SELF_ARG));
-			}
-		}
+		stateInPre(arglist, stateDefinition, procState);
+		
 		AApplyExp preApply = null;
 
 		if (op.getPredef() != null)
@@ -147,33 +187,9 @@ public class CmlSatisfiabilityObligation extends CmlProofObligation
 				AIdentifierPattern ip = (AIdentifierPattern) res.getFirst().getPattern();
 				postArglist.add(patternToExp(res.getFirst().getPattern()));
 
-				List<PMultipleBind> exists_binds;
-
-				if (procState != null)
-				{
-					exists_binds = new LinkedList<PMultipleBind>();
-					for (AAssignmentDefinition def : procState)
-					{
-						StringBuilder sb = new StringBuilder();
-						sb.append("old");
-						sb.append(def.getName().getName());
-						ILexNameToken name = new eu.compassresearch.ast.lex.LexNameToken("", sb.toString(), null);
-						postArglist.add(getVarExp(name));
-						exists_binds.add(getMultipleTypeBind(def.getType().clone(), def.getName().clone()));
-					}
-				} else
-				{
-					if (stateDefinition instanceof AStateDefinition)
-					{
-						postArglist.add(getVarExp(NEW_STATE_ARG));
-						exists_binds = getMultipleTypeBindList(stateDefinition.getType(), NEW_STATE_ARG);
-					} else
-					{
-						postArglist.add(getVarExp(NEW_SELF_ARG));
-						exists_binds = getMultipleTypeBindList(stateDefinition.getType(), NEW_SELF_ARG);
-					}
-				}
-
+				List<PMultipleBind> exists_binds = new LinkedList<PMultipleBind>();
+				stateInPost(procState, exists_binds, postArglist, stateDefinition);
+				
 				exists_binds.add(getMultipleTypeBind(res.getFirst().getType(), ip.getName()));
 
 				existsExp.setBindList(exists_binds);
@@ -194,32 +210,10 @@ public class CmlSatisfiabilityObligation extends CmlProofObligation
 			AExistsExp exists_exp = new AExistsExp();
 			List<PExp> postArglist = new Vector<PExp>(arglist);
 
-			if (procState != null)
-			{
-				List<PMultipleBind> exists_binds = new LinkedList<PMultipleBind>();
-				for (AAssignmentDefinition def : procState)
-				{
-					StringBuilder sb = new StringBuilder();
-					sb.append("new");
-					sb.append(def.getName().getName());
-					ILexNameToken name = new eu.compassresearch.ast.lex.LexNameToken("", sb.toString(), null);
-					postArglist.add(getVarExp(name));
-					exists_binds.add(getMultipleTypeBind(def.getType().clone(), name.clone()));
-				}
-				exists_exp.setBindList(exists_binds);
-
-			} else
-			{
-				if (stateDefinition instanceof AStateDefinition)
-				{
-					postArglist.add(getVarExp(NEW_STATE_ARG));
-					exists_exp.setBindList(getMultipleTypeBindList(stateDefinition.getType(), NEW_STATE_ARG));
-				} else
-				{
-					postArglist.add(getVarExp(NEW_SELF_ARG));
-					exists_exp.setBindList(getMultipleTypeBindList(stateDefinition.getType(), NEW_SELF_ARG));
-				}
-			}
+			List<PMultipleBind> exists_binds = new LinkedList<PMultipleBind>();
+			stateInPost(procState, exists_binds, postArglist, stateDefinition);
+			
+			exists_exp.setBindList(exists_binds);
 			exists_exp.setPredicate(getApplyExp(getVarExp(op.getPostdef().getName()), new Vector<PExp>(postArglist)));
 			mainExp = exists_exp;
 		}
