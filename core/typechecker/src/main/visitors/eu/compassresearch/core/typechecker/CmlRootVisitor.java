@@ -33,6 +33,10 @@ class CmlRootVisitor extends
 		QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType>
 		implements eu.compassresearch.core.typechecker.api.CmlRootVisitor {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3231597110935151449L;
 	private IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> exp; // expressions
 	private IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> act; // actions
 	private IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> dad; // definition
