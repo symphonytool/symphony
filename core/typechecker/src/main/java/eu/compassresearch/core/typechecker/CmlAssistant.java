@@ -28,6 +28,7 @@ import org.overture.ast.types.ARecordInvariantType;
 import org.overture.ast.types.PType;
 import org.overture.ast.types.SInvariantType;
 import org.overture.typechecker.LexNameTokenAssistent;
+import org.overture.typechecker.TypeCheckInfo;
 import org.overture.typechecker.assistant.definition.SClassDefinitionAssistantTC;
 import org.overture.typechecker.assistant.type.ARecordInvariantTypeAssistantTC;
 import org.overture.typechecker.util.HelpLexNameToken;
@@ -602,8 +603,10 @@ class CmlAssistant
 			ANamedInvariantType namedInvType, ILexIdentifierToken name,
 			Object... more)
 	{
-		CmlTypeCheckInfo cmlEnv = (CmlTypeCheckInfo) more[0];
+		TypeCheckInfo cmlEnv = (TypeCheckInfo) more[0];
 		PDefinition defOfTheTypeOfThisLocalDef = cmlEnv.env.findType(namedInvType.getName(), "");
+		
+		//FIXME missing support for ARecordInvariantType
 		while (defOfTheTypeOfThisLocalDef != null
 				&& defOfTheTypeOfThisLocalDef.getType() != null
 				&& defOfTheTypeOfThisLocalDef.getType() instanceof ANamedInvariantType)
