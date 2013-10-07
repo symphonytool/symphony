@@ -78,36 +78,36 @@ import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 
 class TCExpressionVisitor extends
-		QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
+		QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType>
+{
 
 	private final TypeComparator typeComparator;
 
 	@Override
 	public PType caseAEnumerationRenameChannelExp(
 			AEnumerationRenameChannelExp node, TypeCheckInfo question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 
 		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
-		if (cmlEnv == null) {
-			node.setType(issueHandler.addTypeError(
-					node,
-					TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(""
-							+ node)));
+		if (cmlEnv == null)
+		{
+			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(""
+					+ node)));
 			return node.getType();
 		}
 
 		LinkedList<ARenamePair> pairs = node.getRenamePairs();
-		for (ARenamePair p : pairs) {
+		for (ARenamePair p : pairs)
+		{
 			ANameChannelExp from = p.getFrom();
 			ANameChannelExp to = p.getTo();
 
-			PDefinition fromChanDef = cmlEnv
-					.lookupChannel(from.getIdentifier());
-			if (fromChanDef == null) {
-				node.setType(issueHandler.addTypeError(
-						from,
-						TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(""
-								+ from)));
+			PDefinition fromChanDef = cmlEnv.lookupChannel(from.getIdentifier());
+			if (fromChanDef == null)
+			{
+				node.setType(issueHandler.addTypeError(from, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(""
+						+ from)));
 				return node.getType();
 			}
 
@@ -122,24 +122,25 @@ class TCExpressionVisitor extends
 
 	@Override
 	public PType caseATupleSelectExp(ATupleSelectExp node,
-			TypeCheckInfo question) throws AnalysisException {
+			TypeCheckInfo question) throws AnalysisException
+	{
 
 		Integer entry = node.getEntry();
 
 		PExp tupleExp = node.getTuple();
 
 		PType tupleExpType = tupleExp.apply(parent, question);
-		if (!successfulType(tupleExpType)) {
-			node.setType(issueHandler.addTypeError(tupleExp,
-					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-							.customizeMessage(tupleExp + "")));
+		if (!successfulType(tupleExpType))
+		{
+			node.setType(issueHandler.addTypeError(tupleExp, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(tupleExp
+					+ "")));
 			return node.getType();
 		}
 
-		if (!(tupleExpType instanceof AProductType)) {
-			node.setType(issueHandler.addTypeError(tupleExp,
-					TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(
-							"Tuple type", "" + tupleExpType)));
+		if (!(tupleExpType instanceof AProductType))
+		{
+			node.setType(issueHandler.addTypeError(tupleExp, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage("Tuple type", ""
+					+ tupleExpType)));
 			return node.getType();
 		}
 
@@ -148,60 +149,62 @@ class TCExpressionVisitor extends
 
 	@Override
 	public PType caseANameChannelExp(ANameChannelExp node,
-			TypeCheckInfo question) throws AnalysisException {
+			TypeCheckInfo question) throws AnalysisException
+	{
 
 		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
-		if (cmlEnv == null) {
-			node.setType(issueHandler.addTypeError(
-					node,
-					TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(node
-							+ "")));
+		if (cmlEnv == null)
+		{
+			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(node
+					+ "")));
 			return node.getType();
 		}
-		
+
 		ILexIdentifierToken channelId = node.getIdentifier();
 		PDefinition chanDef = cmlEnv.lookupChannel(channelId);
-		if (!(chanDef instanceof AChannelNameDefinition)) {
-			node.setType(issueHandler.addTypeError(node,
-					TypeErrorMessages.EXPECTED_A_CHANNEL
-							.customizeMessage(channelId + "")));
+		if (!(chanDef instanceof AChannelNameDefinition))
+		{
+			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.EXPECTED_A_CHANNEL.customizeMessage(channelId
+					+ "")));
 			return node.getType();
 		}
-		
+
 		ATypeSingleDeclaration chanTypeDecl = ((AChannelNameDefinition) chanDef).getSingleType();
 		AChannelType chan = (AChannelType) chanTypeDecl.getType();
 		PType chanConcreteType = chan.getType();
-		
+
 		LinkedList<PType> chanConcType = new LinkedList<PType>();
-		
-		if(chanConcreteType instanceof AProductType){
-			
+
+		if (chanConcreteType instanceof AProductType)
+		{
+
 			LinkedList<PType> prodTypes = ((AProductType) chanConcreteType).getTypes();
 			chanConcType.addAll(prodTypes);
-			
-		} else {
+
+		} else
+		{
 			chanConcType.add(chanConcreteType);
 		}
-		
+
 		Iterator<PType> iterator = chanConcType.iterator();
 		PType singleChanConcType = null;
 		for (PExp expression : node.getExpressions())
 		{
-			if(iterator.hasNext()) singleChanConcType = iterator.next();
-			
+			if (iterator.hasNext())
+				singleChanConcType = iterator.next();
+
 			PType expressionType = expression.apply(parent, question);
-			if (!successfulType(expressionType)) {
-				node.setType(issueHandler.addTypeError(expression,
-						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-								.customizeMessage(expression + "")));
+			if (!successfulType(expressionType))
+			{
+				node.setType(issueHandler.addTypeError(expression, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(expression
+						+ "")));
 				return node.getType();
 			}
-			
-			if (!typeComparator.isSubType(singleChanConcType,expressionType)) {
-				node.setType(issueHandler.addTypeError(
-						expression,
-						TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(""
-								+ singleChanConcType, "" + expressionType)));
+
+			if (!typeComparator.isSubType(singleChanConcType, expressionType))
+			{
+				node.setType(issueHandler.addTypeError(expression, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(""
+						+ singleChanConcType, "" + expressionType)));
 				return node.getType();
 			}
 		}
@@ -213,32 +216,32 @@ class TCExpressionVisitor extends
 	@Override
 	public PType caseAIdentifierVarsetExpression(
 			AIdentifierVarsetExpression node, TypeCheckInfo question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 
 		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
-		if (cmlEnv == null) {
-			node.setType(issueHandler.addTypeError(node,
-					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-							.customizeMessage(node + "")));
+		if (cmlEnv == null)
+		{
+			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(node
+					+ "")));
 			return node.getType();
 		}
 
 		ILexIdentifierToken id = node.getIdentifier();
 		PDefinition idDef = cmlEnv.lookupChannel(id);
 
-		if (idDef == null) {
-			node.setType(issueHandler.addTypeError(
-					node,
-					TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(node
-							+ "")));
+		if (idDef == null)
+		{
+			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(node
+					+ "")));
 			return node.getType();
 		}
 
 		if (!(idDef instanceof AChansetDefinition
-				|| idDef instanceof AChannelNameDefinition || idDef instanceof AStateDefinition)) {
-			node.setType(issueHandler.addTypeError(node,
-					TypeErrorMessages.EXPECTED_CHANNEL_OR_STATE
-							.customizeMessage(idDef + "")));
+				|| idDef instanceof AChannelNameDefinition || idDef instanceof AStateDefinition))
+		{
+			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.EXPECTED_CHANNEL_OR_STATE.customizeMessage(idDef
+					+ "")));
 			return node.getType();
 		}
 
@@ -248,28 +251,28 @@ class TCExpressionVisitor extends
 
 	@Override
 	public PType caseAFatEnumVarsetExpression(AFatEnumVarsetExpression node,
-			TypeCheckInfo question) throws AnalysisException {
+			TypeCheckInfo question) throws AnalysisException
+	{
 
 		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
-		if (cmlEnv == null) {
-			node.setType(issueHandler.addTypeError(node,
-					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-							.customizeMessage(node + "")));
+		if (cmlEnv == null)
+		{
+			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(node
+					+ "")));
 			return node.getType();
 		}
 
-
-		LinkedList<ANameChannelExp> chanNames = node.getChannelNames();	
+		LinkedList<ANameChannelExp> chanNames = node.getChannelNames();
 		LinkedList<PDefinition> defs = new LinkedList<PDefinition>();
 		boolean seenState = false;
 		boolean seenChannel = false;
-		for (ANameChannelExp chanName : chanNames) {
+		for (ANameChannelExp chanName : chanNames)
+		{
 			PDefinition idDef = cmlEnv.lookupChannel(chanName.getIdentifier());
-			if (idDef == null) {
-				node.setType(issueHandler.addTypeError(
-						node,
-						TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(""
-								+ chanName.getIdentifier())));
+			if (idDef == null)
+			{
+				node.setType(issueHandler.addTypeError(node, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(""
+						+ chanName.getIdentifier())));
 				return node.getType();
 			}
 
@@ -279,17 +282,17 @@ class TCExpressionVisitor extends
 			if (idDef instanceof AStateDefinition)
 				seenState = true;
 
-			if ((seenState && seenChannel)) {
-				node.setType(issueHandler.addTypeError(node,
-						TypeErrorMessages.MIXING_STATE_AND_CHANNEL_IN_SET
-								.customizeMessage(chanNames + "")));
+			if ((seenState && seenChannel))
+			{
+				node.setType(issueHandler.addTypeError(node, TypeErrorMessages.MIXING_STATE_AND_CHANNEL_IN_SET.customizeMessage(chanNames
+						+ "")));
 				return node.getType();
 			}
 
-			if (!seenState && !seenChannel) {
-				node.setType(issueHandler.addTypeError(node,
-						TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(
-								"state or channel", idDef.getType() + "")));
+			if (!seenState && !seenChannel)
+			{
+				node.setType(issueHandler.addTypeError(node, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage("state or channel", idDef.getType()
+						+ "")));
 				return node.getType();
 			}
 			defs.add(idDef);
@@ -301,9 +304,8 @@ class TCExpressionVisitor extends
 		if (seenChannel)
 			result = new AChansetType(node.getLocation(), true);
 		if (result == null)
-			result = issueHandler.addTypeError(node,
-					TypeErrorMessages.EXPECTED_CHANNEL_OR_STATE
-							.customizeMessage("" + node));
+			result = issueHandler.addTypeError(node, TypeErrorMessages.EXPECTED_CHANNEL_OR_STATE.customizeMessage(""
+					+ node));
 
 		result.setDefinitions(new LinkedList<PDefinition>());
 		result.getDefinitions().addAll(defs);
@@ -311,98 +313,98 @@ class TCExpressionVisitor extends
 		return result;
 
 	}
-	
-	
+
 	@Override
 	public PType caseACompVarsetExpression(ACompVarsetExpression node,
 			TypeCheckInfo question) throws AnalysisException
 	{
-		//bnd { a.x.y.z | x : Type, z : Type : z : Type } ]
-		
+		// bnd { a.x.y.z | x : Type, z : Type : z : Type } ]
+
 		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
-		if (cmlEnv == null) {
-			node.setType(issueHandler.addTypeError(
-					node,
-					TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(""
-							+ node)));
+		if (cmlEnv == null)
+		{
+			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(""
+					+ node)));
 			return node.getType();
 		}
 
-		
 		ANameChannelExp chanNameExp = node.getChannelNameExp();
 		PExp predicate = node.getPredicate();
 		LinkedList<PMultipleBind> bindings = node.getBindings();
 
 		CmlTypeCheckInfo compScope = cmlEnv.newScope();
 
-		for (PMultipleBind mbnd : bindings) {
+		for (PMultipleBind mbnd : bindings)
+		{
 			PType mbndType = mbnd.apply(parent, compScope);
-			if (!successfulType(mbndType)) {
-				node.setType(issueHandler.addTypeError(mbnd,
-						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-								.customizeMessage(node + "")));
+			if (!successfulType(mbndType))
+			{
+				node.setType(issueHandler.addTypeError(mbnd, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(node
+						+ "")));
 				return node.getType();
 			}
 		}
 
-		if (predicate != null) {
+		if (predicate != null)
+		{
 			PType predicateType = predicate.apply(parent, compScope);
-			if (!successfulType(predicateType)) {
-				node.setType(issueHandler.addTypeError(predicateType,
-						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-								.customizeMessage("" + predicate)));
+			if (!successfulType(predicateType))
+			{
+				node.setType(issueHandler.addTypeError(predicateType, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
+						+ predicate)));
 				return node.getType();
 			}
 		}
-		
 
 		PType chanType = chanNameExp.apply(parent, compScope);
-		if (!successfulType(chanType)) {
-			node.setType(issueHandler.addTypeError(chanNameExp,
-					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-							.customizeMessage(node + "")));
+		if (!successfulType(chanType))
+		{
+			node.setType(issueHandler.addTypeError(chanNameExp, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(node
+					+ "")));
 			return node.getType();
 		}
-		
+
 		node.setType(new AVarsetExpressionType(node.getLocation(), true));
 		return node.getType();
 	}
 
 	@Override
 	public PType caseAFatCompVarsetExpression(AFatCompVarsetExpression node,
-			TypeCheckInfo question) throws AnalysisException {
+			TypeCheckInfo question) throws AnalysisException
+	{
 		// bnd predicate
 		// { a.x | x : int }
 
 		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
-		if (cmlEnv == null) {
-			node.setType(issueHandler.addTypeError(
-					node,
-					TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(""
-							+ node)));
+		if (cmlEnv == null)
+		{
+			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(""
+					+ node)));
 			return node.getType();
 		}
 
 		PExp predicate = node.getPredicate();
 		LinkedList<PMultipleBind> bindings = node.getBindings();
 
-		for (PMultipleBind mbnd : bindings) {
+		for (PMultipleBind mbnd : bindings)
+		{
 			PType mbndType = mbnd.apply(parent, question);
-			if (!successfulType(mbndType)) {
-				node.setType(issueHandler.addTypeError(mbnd,
-						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-								.customizeMessage(node + "")));
+			if (!successfulType(mbndType))
+			{
+				node.setType(issueHandler.addTypeError(mbnd, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(node
+						+ "")));
 				return node.getType();
 			}
 		}
 
-		if (predicate != null) {
+		if (predicate != null)
+		{
 			CmlTypeCheckInfo compScope = cmlEnv.newScope();
 			PType predicateType = predicate.apply(parent, compScope);
-			if (!successfulType(predicateType)) {
-				node.setType(issueHandler.addTypeError(predicateType,
-						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-								.customizeMessage("" + predicate)));
+			if (!successfulType(predicateType))
+			{
+				node.setType(issueHandler.addTypeError(predicateType, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
+						+ predicate)));
 				return node.getType();
 			}
 		}
@@ -412,24 +414,25 @@ class TCExpressionVisitor extends
 
 	@Override
 	public PType caseAUnionVOpVarsetExpression(AUnionVOpVarsetExpression node,
-			TypeCheckInfo question) throws AnalysisException {
+			TypeCheckInfo question) throws AnalysisException
+	{
 
 		PVarsetExpression left = node.getLeft();
 		PVarsetExpression right = node.getRight();
 
 		PType leftType = left.apply(parent, question);
-		if (!successfulType(leftType)) {
-			node.setType(issueHandler.addTypeError(left,
-					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-							.customizeMessage("" + left)));
+		if (!successfulType(leftType))
+		{
+			node.setType(issueHandler.addTypeError(left, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
+					+ left)));
 			return node.getType();
 		}
 
 		PType rightType = right.apply(parent, question);
-		if (!successfulType(rightType)) {
-			node.setType(issueHandler.addTypeError(right,
-					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-							.customizeMessage("" + right)));
+		if (!successfulType(rightType))
+		{
+			node.setType(issueHandler.addTypeError(right, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
+					+ right)));
 			return node.getType();
 		}
 
@@ -439,23 +442,24 @@ class TCExpressionVisitor extends
 
 	@Override
 	public PType caseAInterVOpVarsetExpression(AInterVOpVarsetExpression node,
-			TypeCheckInfo question) throws AnalysisException {
+			TypeCheckInfo question) throws AnalysisException
+	{
 		PVarsetExpression left = node.getLeft();
 		PVarsetExpression right = node.getRight();
 
 		PType leftType = left.apply(parent, question);
-		if (!successfulType(leftType)) {
-			node.setType(issueHandler.addTypeError(left,
-					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-							.customizeMessage("" + left)));
+		if (!successfulType(leftType))
+		{
+			node.setType(issueHandler.addTypeError(left, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
+					+ left)));
 			return node.getType();
 		}
 
 		PType rightType = right.apply(parent, question);
-		if (!successfulType(rightType)) {
-			node.setType(issueHandler.addTypeError(right,
-					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-							.customizeMessage("" + right)));
+		if (!successfulType(rightType))
+		{
+			node.setType(issueHandler.addTypeError(right, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
+					+ right)));
 			return node.getType();
 		}
 
@@ -465,23 +469,24 @@ class TCExpressionVisitor extends
 
 	@Override
 	public PType caseASubVOpVarsetExpression(ASubVOpVarsetExpression node,
-			TypeCheckInfo question) throws AnalysisException {
+			TypeCheckInfo question) throws AnalysisException
+	{
 		PVarsetExpression left = node.getLeft();
 		PVarsetExpression right = node.getRight();
 
 		PType leftType = left.apply(parent, question);
-		if (!successfulType(leftType)) {
-			node.setType(issueHandler.addTypeError(left,
-					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-							.customizeMessage("" + left)));
+		if (!successfulType(leftType))
+		{
+			node.setType(issueHandler.addTypeError(left, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
+					+ left)));
 			return node.getType();
 		}
 
 		PType rightType = right.apply(parent, question);
-		if (!successfulType(rightType)) {
-			node.setType(issueHandler.addTypeError(right,
-					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-							.customizeMessage("" + right)));
+		if (!successfulType(rightType))
+		{
+			node.setType(issueHandler.addTypeError(right, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
+					+ right)));
 			return node.getType();
 		}
 
@@ -491,35 +496,37 @@ class TCExpressionVisitor extends
 
 	@Override
 	public PType caseANilExp(ANilExp node, TypeCheckInfo question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 
 		return AstFactory.newAUnknownType(node.getLocation());
 	}
 
 	@Override
 	public PType caseAApplyExp(AApplyExp node, TypeCheckInfo question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 
-		try {
+		try
+		{
 			OvertureRootCMLAdapter.pushQuestion(question);
 			/*
 			 * The following is copied from Overture TypeCheckerExpVisitor
 			 */
 			TypeChecker.clearErrors();
-			if (!(node.getArgtypes() != null && node.getArgtypes().size() == node
-					.getArgs().size())) {
-				for (PExp a : node.getArgs()) {
+			if (!(node.getArgtypes() != null && node.getArgtypes().size() == node.getArgs().size()))
+			{
+				for (PExp a : node.getArgs())
+				{
 					question.qualifiers = null;
 					PType argType = a.apply(parent, question);
 					node.getArgtypes().add(argType);
 				}
 			}
-			node.setType(node.getRoot().apply(
-					parent,
-					new TypeCheckInfo(question.assistantFactory,question.env, question.scope, node
-							.getArgtypes())));
+			node.setType(node.getRoot().apply(parent, new TypeCheckInfo(question.assistantFactory, question.env, question.scope, node.getArgtypes())));
 
-			if (PTypeAssistantTC.isUnknown(node.getType())) {
+			if (PTypeAssistantTC.isUnknown(node.getType()))
+			{
 				return node.getType();
 			}
 
@@ -528,37 +535,44 @@ class TCExpressionVisitor extends
 			boolean inFunction = (func instanceof AExplicitFunctionDefinition
 					|| func instanceof AImplicitFunctionDefinition || func instanceof APerSyncDefinition);
 
-			if (inFunction) {
+			if (inFunction)
+			{
 				ILexNameToken called = null;
 
-				if (node.getRoot() instanceof AVariableExp) {
+				if (node.getRoot() instanceof AVariableExp)
+				{
 					AVariableExp var = (AVariableExp) node.getRoot();
 					called = var.getName();
-				} else if (node.getRoot() instanceof AFuncInstatiationExp) {
-					AFuncInstatiationExp fie = (AFuncInstatiationExp) node
-							.getRoot();
+				} else if (node.getRoot() instanceof AFuncInstatiationExp)
+				{
+					AFuncInstatiationExp fie = (AFuncInstatiationExp) node.getRoot();
 
-					if (fie.getExpdef() != null) {
+					if (fie.getExpdef() != null)
+					{
 						called = fie.getExpdef().getName();
-					} else if (fie.getImpdef() != null) {
+					} else if (fie.getImpdef() != null)
+					{
 						called = fie.getImpdef().getName();
 					}
 				}
 
-				if (called != null) {
-					if (func instanceof AExplicitFunctionDefinition) {
+				if (called != null)
+				{
+					if (func instanceof AExplicitFunctionDefinition)
+					{
 						AExplicitFunctionDefinition def = (AExplicitFunctionDefinition) func;
 
-						if (LexNameTokenAssistent
-								.isEqual(called, def.getName())) {
+						if (LexNameTokenAssistent.isEqual(called, def.getName()))
+						{
 							node.setRecursive(def);
 							def.setRecursive(true);
 						}
-					} else if (func instanceof AImplicitFunctionDefinition) {
+					} else if (func instanceof AImplicitFunctionDefinition)
+					{
 						AImplicitFunctionDefinition def = (AImplicitFunctionDefinition) func;
 
-						if (LexNameTokenAssistent
-								.isEqual(called, def.getName())) {
+						if (LexNameTokenAssistent.isEqual(called, def.getName()))
+						{
 							node.setRecursive(def);
 							def.setRecursive(true);
 						}
@@ -569,76 +583,74 @@ class TCExpressionVisitor extends
 			boolean isSimple = !PTypeAssistantTC.isUnion(node.getType());
 			PTypeSet results = new PTypeSet();
 
-			if (PTypeAssistantTC.isFunction(node.getType())) {
+			if (PTypeAssistantTC.isFunction(node.getType()))
+			{
 				AFunctionType ft = PTypeAssistantTC.getFunction(node.getType());
-				AFunctionTypeAssistantTC.typeResolve(ft, null,
-						(QuestionAnswerAdaptor<TypeCheckInfo, PType>) parent,
-						question);
-				results.add(AApplyExpAssistantTC.functionApply(node, isSimple,
-						ft));
+				AFunctionTypeAssistantTC.typeResolve(ft, null, (QuestionAnswerAdaptor<TypeCheckInfo, PType>) parent, question);
+				results.add(AApplyExpAssistantTC.functionApply(node, isSimple, ft));
 			}
 
-			if (PTypeAssistantTC.isOperation(node.getType())) {
-				AOperationType ot = PTypeAssistantTC.getOperation(node
-						.getType());
-				try {
-					AOperationTypeAssistantTC
-							.typeResolve(
-									ot,
-									null,
-									(QuestionAnswerAdaptor<TypeCheckInfo, PType>) parent,
-									question);
-				} catch (TypeCheckException tce) {
-					node.setType(issueHandler.addTypeError(node,
-							tce.getMessage()));
+			if (PTypeAssistantTC.isOperation(node.getType()))
+			{
+				AOperationType ot = PTypeAssistantTC.getOperation(node.getType());
+				try
+				{
+					AOperationTypeAssistantTC.typeResolve(ot, null, (QuestionAnswerAdaptor<TypeCheckInfo, PType>) parent, question);
+				} catch (TypeCheckException tce)
+				{
+					node.setType(issueHandler.addTypeError(node, tce.getMessage()));
 					return node.getType();
 				}
 
-				if (inFunction && Settings.release == Release.VDM_10) {
-					TypeCheckerErrors.report(3300,
-							"Operation '" + node.getRoot()
-									+ "' cannot be called from a function",
-							node.getLocation(), node);
+				if (inFunction && Settings.release == Release.VDM_10)
+				{
+					TypeCheckerErrors.report(3300, "Operation '"
+							+ node.getRoot()
+							+ "' cannot be called from a function", node.getLocation(), node);
 					results.add(AstFactory.newAUnknownType(node.getLocation()));
-				} else {
+				} else
+				{
 					// RWL TODO: HACK to satisfy the
 					// AApplyExpAssistant.operationApply
 					List<PType> ptypes = ot.getParameters();
-					if (ptypes.size() == 1) {
+					if (ptypes.size() == 1)
+					{
 						PType p0 = ptypes.get(0);
-						if (p0 instanceof AVoidType) {
+						if (p0 instanceof AVoidType)
+						{
 							ot.setParameters(new LinkedList<PType>());
 						}
 					}
 
-					results.add(AApplyExpAssistantTC.operationApply(node,
-							isSimple, ot));
+					results.add(AApplyExpAssistantTC.operationApply(node, isSimple, ot));
 				}
 			}
 
-			if (PTypeAssistantTC.isSeq(node.getType())) {
+			if (PTypeAssistantTC.isSeq(node.getType()))
+			{
 				SSeqType seq = PTypeAssistantTC.getSeq(node.getType());
-				results.add(AApplyExpAssistantTC.sequenceApply(node, isSimple,
-						seq));
+				results.add(AApplyExpAssistantTC.sequenceApply(node, isSimple, seq));
 			}
 
-			if (PTypeAssistantTC.isMap(node.getType())) {
+			if (PTypeAssistantTC.isMap(node.getType()))
+			{
 				SMapType map = PTypeAssistantTC.getMap(node.getType());
 				results.add(AApplyExpAssistantTC.mapApply(node, isSimple, map));
 			}
 			/*
-			 * Overture copy STOP Now collect any type errors created by
-			 * Overture assistants
+			 * Overture copy STOP Now collect any type errors created by Overture assistants
 			 */
 
-			if (results.isEmpty()) {
+			if (results.isEmpty())
+			{
 				TypeCheckerErrors.report(3054, "Type " + node.getType()
 						+ " cannot be applied", node.getLocation(), node);
 				return AstFactory.newAUnknownType(node.getLocation());
 			}
 
 			// Check for errors
-			if (TypeChecker.getErrorCount() > 0) {
+			if (TypeChecker.getErrorCount() > 0)
+			{
 				List<VDMError> errors = TypeChecker.getErrors();
 				for (VDMError e : errors)
 					issueHandler.addTypeError(node, e.message);
@@ -648,23 +660,24 @@ class TCExpressionVisitor extends
 
 			node.setType(results.getType(node.getLocation()));
 			return node.getType(); // Union of possible applications
-		} finally {
+		} finally
+		{
 			OvertureRootCMLAdapter.popQuestion(question);
 		}
 	}
 
 	@Override
 	public PType caseAEnumVarsetExpression(AEnumVarsetExpression node,
-			TypeCheckInfo question) throws AnalysisException {
+			TypeCheckInfo question) throws AnalysisException
+	{
 
 		PType result = AstFactory.newAUnknownType(node.getLocation());
 
 		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
-		if (cmlEnv == null) {
-			node.setType(issueHandler.addTypeError(
-					node,
-					TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(""
-							+ node)));
+		if (cmlEnv == null)
+		{
+			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(""
+					+ node)));
 			return node.getType();
 		}
 
@@ -672,74 +685,79 @@ class TCExpressionVisitor extends
 		LinkedList<PDefinition> defs = new LinkedList<PDefinition>();
 		boolean seenChannel = false;
 		boolean seenState = false;
-		for (ANameChannelExp chanName : chanNames) {
+		for (ANameChannelExp chanName : chanNames)
+		{
 			ILexIdentifierToken id = chanName.getIdentifier();
 			LexNameToken nameid = new LexNameToken("", id);
 			PDefinition def = cmlEnv.lookup(nameid, PDefinition.class);
-			if (def == null) {		
-				
+			if (def == null)
+			{
+
 				def = cmlEnv.lookupChannel(id);
-				
-				if (def != null && def instanceof AChannelNameDefinition) {						
+
+				if (def != null && def instanceof AChannelNameDefinition)
+				{
 					ATypeSingleDeclaration chanTypeDecl = ((AChannelNameDefinition) def).getSingleType();
 					AChannelType chanType = (AChannelType) chanTypeDecl.getType();
 					PType chanValueType = chanType.getType();
-					
-					if(chanValueType instanceof AProductType) {
+
+					if (chanValueType instanceof AProductType)
+					{
 						AProductType prodType = (AProductType) chanValueType;
 						LinkedList<PType> prodTypes = prodType.getTypes();
 						LinkedList<PExp> chanExpressions = chanName.getExpressions();
 
-						//product and channel call same size?
-						if(chanExpressions.size() != prodType.getTypes().size()){
-							node.setType(issueHandler.addTypeError(
-									id,
-									TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(chanType
-											+ "", chanName + "")));
+						// product and channel call same size?
+						if (chanExpressions.size() != prodType.getTypes().size())
+						{
+							node.setType(issueHandler.addTypeError(id, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(chanType
+									+ "", chanName + "")));
 							return node.getType();
 						}
-						
-						//product and channel expressions same type?
+
+						// product and channel expressions same type?
 						int i = 0;
-						for (PExp pExp : chanExpressions){
-							PType expType = pExp.apply(this,question);
+						for (PExp pExp : chanExpressions)
+						{
+							PType expType = pExp.apply(this, question);
 							PType pt = prodTypes.get(i++);
-							
-							if(!typeComparator.isSubType(expType, pt)){
-								node.setType(issueHandler.addTypeError(
-										id,
-										TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(pt
-												+ "", expType + "")));
+
+							if (!typeComparator.isSubType(expType, pt))
+							{
+								node.setType(issueHandler.addTypeError(id, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(pt
+										+ "", expType + "")));
 							}
 						}
 					}
 				}
 				seenChannel = true;
-			} else {
+			} else
+			{
 				seenState = true;
 			}
-			if (def == null) {
-				node.setType(issueHandler.addTypeError(
-						id,
-						TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(id
-								+ "")));
+			if (def == null)
+			{
+				node.setType(issueHandler.addTypeError(id, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(id
+						+ "")));
 				return node.getType();
 			}
 			defs.add(def);
 		}
 
-		if (seenChannel && seenState) {
-			node.setType(issueHandler.addTypeError(node,
-					TypeErrorMessages.MIXING_STATE_AND_CHANNEL_IN_SET
-							.customizeMessage("" + node)));
+		if (seenChannel && seenState)
+		{
+			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.MIXING_STATE_AND_CHANNEL_IN_SET.customizeMessage(""
+					+ node)));
 			return node.getType();
 		}
 
-		if (seenChannel) {
+		if (seenChannel)
+		{
 			result = new AChansetType(node.getLocation(), true);
 		}
 
-		if (seenState) {
+		if (seenState)
+		{
 			result = new ANamesetsType(node.getLocation(), true);
 		}
 		result.setDefinitions(new LinkedList<PDefinition>(defs));
@@ -749,16 +767,16 @@ class TCExpressionVisitor extends
 
 	@Override
 	public PType caseAVariableExp(AVariableExp node, TypeCheckInfo question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 
 		// for convenience take out name and env
 		org.overture.typechecker.Environment env = question.env;
 		ILexNameToken name = node.getName();
 
 		/*
-		 * CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question); if (cmlEnv
-		 * != null) { PDefinition def = cmlEnv.lookup(name,PDefinition.class);
-		 * if (def != null) return def.getType(); }
+		 * CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question); if (cmlEnv != null) { PDefinition def =
+		 * cmlEnv.lookup(name,PDefinition.class); if (def != null) return def.getType(); }
 		 */
 
 		// the qualifiers are the argument names for potential function
@@ -770,7 +788,8 @@ class TCExpressionVisitor extends
 			question.scope = NameScope.LOCAL;
 		node.setVardef(env.findName(name, question.scope));
 
-		do {
+		do
+		{
 
 			// definition successfully found with qualifiers on
 			if (node.getVardef() != null)
@@ -779,7 +798,8 @@ class TCExpressionVisitor extends
 			// The name was not found immediately, it could be a sequence or map
 			// in which case the qualifiers are not supposed to be set. See
 			// TypeCheckExpVisitor.java:2510,
-			if (question.qualifiers != null) {
+			if (question.qualifiers != null)
+			{
 				name.setTypeQualifier(null);
 				node.setVardef(env.findName(name, question.scope));
 				if (node.getVardef() == null)
@@ -788,21 +808,21 @@ class TCExpressionVisitor extends
 					break;
 			}
 
-			node.setVardef(CmlTCUtil
-					.findNearestFunctionOrOperationInEnvironment(name, env));
+			node.setVardef(CmlTCUtil.findNearestFunctionOrOperationInEnvironment(name, env));
 		} while (false);
 
 		// The name this variable expressions points to was found.
-		if (node.getVardef() != null) {
+		if (node.getVardef() != null)
+		{
 
 			PType type = question.assistantFactory.createPDefinitionAssistant().getType(node.getVardef());
 			if (type == null)
 				type = node.getVardef().getType();
-			try {
-				node.setType(question.assistantFactory.createPTypeAssistant().typeResolve(type, null,
-						(QuestionAnswerAdaptor<TypeCheckInfo, PType>) parent,
-						question));
-			} catch (TypeCheckException tce) {
+			try
+			{
+				node.setType(question.assistantFactory.createPTypeAssistant().typeResolve(type, null, (QuestionAnswerAdaptor<TypeCheckInfo, PType>) parent, question));
+			} catch (TypeCheckException tce)
+			{
 				node.setType(issueHandler.addTypeError(node, tce.getMessage()));
 			}
 			return node.getType();
@@ -813,18 +833,18 @@ class TCExpressionVisitor extends
 		// what we are looking for. Maybe its a CML class we are looking at.
 
 		CmlTypeCheckInfo nearestCmlEnvironment = CmlTCUtil.getCmlEnv(question);
-		if (nearestCmlEnvironment == null) {
-			node.setType(issueHandler.addTypeError(
-					node,
-					TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(node
-							+ "")));
+		if (nearestCmlEnvironment == null)
+		{
+			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(node
+					+ "")));
 			return node.getType();
 		}
 
 		// CML also uses LexNameToken.equals to compare names therefore the
 		// qualifiers must be taking in to account.
 		PDefinition definition = null;
-		do {
+		do
+		{
 			// Lookup in the CML context without the type qualifiers (arg
 			// types/param names)
 			name.setTypeQualifier(null);
@@ -839,14 +859,16 @@ class TCExpressionVisitor extends
 
 		} while (false);
 
-		if (definition == null) {
+		if (definition == null)
+		{
 			name.setTypeQualifier(null);
 			CmlAssistant assistant = new CmlAssistant();
-			while (env != null) {
+			while (env != null)
+			{
 				PDefinition enclosingDef = env.getEnclosingDefinition();
-				if (enclosingDef != null) {
-					definition = assistant.findMemberName(enclosingDef, name,
-							nearestCmlEnvironment);
+				if (enclosingDef != null)
+				{
+					definition = assistant.findMemberName(enclosingDef, name, nearestCmlEnvironment);
 					if (definition != null)
 						break;
 				}
@@ -856,24 +878,24 @@ class TCExpressionVisitor extends
 
 		// Check scope
 		// any luck?
-		if (definition != null) {
+		if (definition != null)
+		{
 			node.setVardef(definition);
 			node.setType(definition.getType());
-		} else // guess not
+		} else
+		// guess not
 		{
 
 			name.setTypeQualifier(null);
-			node.setType(issueHandler.addTypeError(
-					node,
-					TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(name
-							+ "")));
+			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(name
+					+ "")));
 		}
 
 		if (definition != null && question.scope != null
-				&& !CmlTCUtil.checkAccessInScope(definition, question.scope)) {
-			node.setType(issueHandler.addTypeError(node,
-					TypeErrorMessages.ILLEGAL_ACCESS
-							.customizeMessage(node + "")));
+				&& !CmlTCUtil.checkAccessInScope(definition, question.scope))
+		{
+			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.ILLEGAL_ACCESS.customizeMessage(node
+					+ "")));
 			return node.getType();
 		}
 
@@ -893,7 +915,8 @@ class TCExpressionVisitor extends
 	TCExpressionVisitor(
 			eu.compassresearch.core.typechecker.api.CmlRootVisitor parentChecker,
 			TypeIssueHandler issueHandler, CmlAssistant assistant,
-			TypeComparator typeComparator) {
+			TypeComparator typeComparator)
+	{
 		this.parent = parentChecker;
 		this.issueHandler = issueHandler;
 		this.assist = assistant;
@@ -903,7 +926,8 @@ class TCExpressionVisitor extends
 
 	TCExpressionVisitor(
 			eu.compassresearch.core.typechecker.api.CmlRootVisitor parentChecker,
-			TypeIssueHandler issueHandler, TypeComparator typeComparator) {
+			TypeIssueHandler issueHandler, TypeComparator typeComparator)
+	{
 		this(parentChecker, issueHandler, new CmlAssistant(), typeComparator);
 	}
 
@@ -922,29 +946,32 @@ class TCExpressionVisitor extends
 	@Override
 	public PType defaultPExp(PExp node,
 			org.overture.typechecker.TypeCheckInfo question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 		org.overture.typechecker.TypeChecker.clearErrors();
 
 		INode ovtNode = node;
 
-		OvertureRootCMLAdapter overtureExpVisitor = new OvertureRootCMLAdapter(
-				parent, issueHandler);
+		OvertureRootCMLAdapter overtureExpVisitor = new OvertureRootCMLAdapter(parent, issueHandler);
 
-		org.overture.typechecker.TypeCheckInfo quest = new org.overture.typechecker.TypeCheckInfo(question.assistantFactory,
-				question.env); 
+		org.overture.typechecker.TypeCheckInfo quest = new org.overture.typechecker.TypeCheckInfo(question.assistantFactory, question.env);
 		quest.scope = question.scope;
 		quest.qualifiers = new LinkedList<PType>();
-		try {
+		try
+		{
 			OvertureRootCMLAdapter.pushQuestion(question);
 			ovtNode.apply(overtureExpVisitor, quest);
 			OvertureRootCMLAdapter.popQuestion(question);
-		} catch (org.overture.ast.analysis.AnalysisException e1) {
+		} catch (org.overture.ast.analysis.AnalysisException e1)
+		{
 			e1.printStackTrace();
 		}
 
-		if (org.overture.typechecker.TypeChecker.getErrorCount() > 0) {
+		if (org.overture.typechecker.TypeChecker.getErrorCount() > 0)
+		{
 			List<VDMError> errorList = TypeChecker.getErrors();
-			for (VDMError err : errorList) {
+			for (VDMError err : errorList)
+			{
 				issueHandler.addTypeError(node, err.toProblemString());
 			}
 			return new AErrorType(node.getLocation(), true);
@@ -955,7 +982,8 @@ class TCExpressionVisitor extends
 
 	@Override
 	public PType caseAUnresolvedPathExp(AUnresolvedPathExp node,
-			TypeCheckInfo question) throws AnalysisException {
+			TypeCheckInfo question) throws AnalysisException
+	{
 
 		// So we are going to look up a path of the form <class>.<member> or
 		// <identifier>.<member>
@@ -964,11 +992,10 @@ class TCExpressionVisitor extends
 		//
 
 		CmlTypeCheckInfo cmlQuestion = CmlTCUtil.getCmlEnv(question);
-		if (cmlQuestion == null) {
-			node.setType(issueHandler.addTypeError(
-					node,
-					TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(node
-							+ "")));
+		if (cmlQuestion == null)
+		{
+			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(node
+					+ "")));
 			return node.getType();
 		}
 
@@ -992,18 +1019,18 @@ class TCExpressionVisitor extends
 			root = cmlQuestion.lookup(rootName, PDefinition.class);
 
 		// last option it is not in something else then in must be in this class
-		if (root == null) {
+		if (root == null)
+		{
 			root = question.env.getEnclosingDefinition();
 			if (root != null)
 				root = assist.findMemberName(root, rootName, cmlQuestion);
 		}
 
 		// did we find the top-level
-		if (root == null) {
-			node.setType(issueHandler.addTypeError(
-					node,
-					TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(""
-							+ rootName)));
+		if (root == null)
+		{
+			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(""
+					+ rootName)));
 			return node.getType();
 		}
 
@@ -1015,31 +1042,32 @@ class TCExpressionVisitor extends
 		List<PDefinition> defs = new LinkedList<PDefinition>();
 		defs.add(root);
 		PDefinition def = root;
-		
-		if(identifiers.size() == 1)
+
+		if (identifiers.size() == 1)
 		{
 			leafType = def.getType();
-			if (def.getType() == null) {
+			if (def.getType() == null)
+			{
 				issueHandler.addTypeWarning(def, "This \"" + def
 						+ "\" entered the environment with no type.");
 			}
-		}
-		else
+		} else
 		{
-			for (int i = 1; i < identifiers.size(); i++) {
+			for (int i = 1; i < identifiers.size(); i++)
+			{
 				ILexIdentifierToken id = identifiers.get(i);
 				LexNameToken idName = new LexNameToken("", id);
 				def = assist.findMemberName(def, idName, cmlQuestion, prevRoot);
-				if (def == null) {
-					node.setType(issueHandler.addTypeError(
-							node,
-							TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(id
-									+ " in " + node)));
+				if (def == null)
+				{
+					node.setType(issueHandler.addTypeError(node, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(id
+							+ " in " + node)));
 					return node.getType();
 				}
 				defs.add(def);
 				leafType = def.getType();
-				if (def.getType() == null) {
+				if (def.getType() == null)
+				{
 					issueHandler.addTypeWarning(def, "This \"" + def
 							+ "\" entered the environment with no type.");
 				}
@@ -1047,11 +1075,11 @@ class TCExpressionVisitor extends
 		}
 
 		// TODO: RWL Possible null if leafType is null ?
-		if (leafType == null) {
-			issueHandler
-					.addTypeWarning(node,
-							"This points to something that should have checked already, but isn't.");
-		} else {
+		if (leafType == null)
+		{
+			issueHandler.addTypeWarning(node, "This points to something that should have checked already, but isn't.");
+		} else
+		{
 			node.setType(leafType.clone());
 			if (node.getType().getDefinitions() == null)
 				node.getType().setDefinitions(new LinkedList<PDefinition>());
@@ -1062,7 +1090,8 @@ class TCExpressionVisitor extends
 
 	@Override
 	public PType caseABracketedExp(ABracketedExp node, TypeCheckInfo question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 
 		PType type = node.getExpression().apply(this, question);
 		node.setType(type);
@@ -1070,29 +1099,27 @@ class TCExpressionVisitor extends
 	}
 
 	/*
-	 * Copied from Overture and modified to handle CML Classes.
-	 * 
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.overture.ast.analysis.QuestionAnswerAdaptor#caseAIsExp(org.overture
-	 * .ast.expressions.AIsExp, java.lang.Object)
+	 * Copied from Overture and modified to handle CML Classes. (non-Javadoc)
+	 * @see org.overture.ast.analysis.QuestionAnswerAdaptor#caseAIsExp(org.overture .ast.expressions.AIsExp,
+	 * java.lang.Object)
 	 */
 	@Override
 	public PType caseAIsExp(AIsExp node, TypeCheckInfo question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 
 		question.qualifiers = null;
 		node.getTest().apply(parent, question);
 
 		PType basictype = node.getBasicType();
 
-		if (basictype != null) {
-			try {
-				basictype = question.assistantFactory.createPTypeAssistant().typeResolve(basictype, null,
-						(QuestionAnswerAdaptor<TypeCheckInfo, PType>) parent,
-						question);
-			} catch (TypeCheckException tce) {
+		if (basictype != null)
+		{
+			try
+			{
+				basictype = question.assistantFactory.createPTypeAssistant().typeResolve(basictype, null, (QuestionAnswerAdaptor<TypeCheckInfo, PType>) parent, question);
+			} catch (TypeCheckException tce)
+			{
 				node.setType(issueHandler.addTypeError(node, tce.getMessage()));
 				return node.getType();
 			}
@@ -1100,18 +1127,20 @@ class TCExpressionVisitor extends
 
 		ILexNameToken typename = node.getTypeName();
 
-		if (typename != null) {
-			PDefinition typeFound = question.env.findType(typename, node
-					.getLocation().getModule());
+		if (typename != null)
+		{
+			PDefinition typeFound = question.env.findType(typename, node.getLocation().getModule());
 
 			// It maybe an CML Class typically it will be lets look it up in the
 			// nearest cml environment
-			if (typeFound == null) {
+			if (typeFound == null)
+			{
 				CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
 				typeFound = cmlEnv.lookup(typename, ACmlClassDefinition.class);
 			}
 
-			if (typeFound == null) {
+			if (typeFound == null)
+			{
 				TypeCheckerErrors.report(3113, "Unknown type name '" + typename
 						+ "'", node.getLocation(), node);
 				node.setType(node.getTest().getType());
@@ -1126,29 +1155,24 @@ class TCExpressionVisitor extends
 	}
 
 	/*
-	 * Copied from Overture and modified to lookup in surrounding CML
-	 * environment if necessary.
-	 * 
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.overture.ast.analysis.QuestionAnswerAdaptor#caseASelfExp(org.overture
-	 * .ast.expressions.ASelfExp, java.lang.Object)
+	 * Copied from Overture and modified to lookup in surrounding CML environment if necessary. (non-Javadoc)
+	 * @see org.overture.ast.analysis.QuestionAnswerAdaptor#caseASelfExp(org.overture .ast.expressions.ASelfExp,
+	 * java.lang.Object)
 	 */
 	@Override
-	public PType caseASelfExp(ASelfExp node, TypeCheckInfo question) {
+	public PType caseASelfExp(ASelfExp node, TypeCheckInfo question)
+	{
 
-		PDefinition cdef = question.env
-				.findName(node.getName(), question.scope);
+		PDefinition cdef = question.env.findName(node.getName(), question.scope);
 
-		if (cdef == null) {
+		if (cdef == null)
+		{
 			// Get Cml Environment
 			CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
-			if (cmlEnv == null) {
-				node.setType(issueHandler.addTypeError(
-						node,
-						TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(""
-								+ node)));
+			if (cmlEnv == null)
+			{
+				node.setType(issueHandler.addTypeError(node, TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(""
+						+ node)));
 				return node.getType();
 			}
 
@@ -1156,9 +1180,9 @@ class TCExpressionVisitor extends
 			cdef = cmlEnv.lookup(node.getName(), PDefinition.class);
 		}
 
-		if (cdef == null) {
-			TypeCheckerErrors.report(3154, node.getName() + " not in scope",
-					node.getLocation(), node);
+		if (cdef == null)
+		{
+			TypeCheckerErrors.report(3154, node.getName() + " not in scope", node.getLocation(), node);
 			node.setType(AstFactory.newAUnknownType(node.getLocation()));
 			return node.getType();
 		}

@@ -1,7 +1,7 @@
 package eu.compassresearch.core.typechecker.api;
 
-
-public enum TypeErrorMessages {
+public enum TypeErrorMessages
+{
 	DUPLICATE_DEFINITION(
 			"Definition \"%s\" is conflicting with definition \"%s\"."),
 
@@ -18,9 +18,9 @@ public enum TypeErrorMessages {
 
 	EXPECTED_OPERATION_DEFINITION(
 			"Operation definition expected. %s is not an operation definition. "),
-			
+
 	REACTIVE_CONSTRUCTS_IN_OP_NOT_ALLOWED(
-					"Body construct \"%s\" is not allowed in operations. Operations may not contain reactive constructs."),
+			"Body construct \"%s\" is not allowed in operations. Operations may not contain reactive constructs."),
 
 	COULD_NOT_DETERMINE_TYPE("Could not determine type for %s."),
 
@@ -67,35 +67,35 @@ public enum TypeErrorMessages {
 			"Operation %s has identical name to encloding class, but has wrong type: %s."), EXPECTED_LVALUE(
 			"%s is not an assignable expression."), EXPECTED_AN_ACTION(
 			"Expected an entity of type Action. %s was found."), ILLEGAL_ACCESS(
-			"Cannot access %s in this context."), 
-			TOO_MANY_PARAM_PATTERNS("Too many parameter patterns. Type params %s. Patterns %s"), 
-			TOO_FEW_PARAM_PATTERNS("Too few parameter patterns. Type params %s. Patterns %s"),
-	;
+			"Cannot access %s in this context."), TOO_MANY_PARAM_PATTERNS(
+			"Too many parameter patterns. Type params %s. Patterns %s"), TOO_FEW_PARAM_PATTERNS(
+			"Too few parameter patterns. Type params %s. Patterns %s"), ;
 
 	private String template;
 
-	private TypeErrorMessages(String templateString) {
+	private TypeErrorMessages(String templateString)
+	{
 		this.template = templateString;
 	}
 
-	public String customizeMessage(String... strs) {
+	public String customizeMessage(String... strs)
+	{
 		// Check Arity
 		int arity = 0;
 		for (Character c : template.toCharArray())
 			if ('%' == c)
 				arity++;
 		if (arity != strs.length)
-			throw new RuntimeException(
-					"Error in the error-message. Template requires exactly "
-							+ arity + " arguments but " + strs.length
-							+ " were given.");
+			throw new RuntimeException("Error in the error-message. Template requires exactly "
+					+ arity + " arguments but " + strs.length + " were given.");
 
 		// Format String
 		return String.format(template, (Object[]) strs);
 	}
 
 	@Override
-	public String toString() {
+	public String toString()
+	{
 		return template;
 	}
 }

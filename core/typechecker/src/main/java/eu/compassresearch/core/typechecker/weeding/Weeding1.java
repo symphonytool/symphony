@@ -15,8 +15,6 @@ import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
 import eu.compassresearch.ast.program.PSource;
 
 /**
- * 
- * 
  * @author kel & cb
  */
 @SuppressWarnings("serial")

@@ -31,7 +31,8 @@ import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 
 class CmlRootVisitor extends
 		QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType>
-		implements eu.compassresearch.core.typechecker.api.CmlRootVisitor {
+		implements eu.compassresearch.core.typechecker.api.CmlRootVisitor
+{
 
 	/**
 	 * 
@@ -48,9 +49,9 @@ class CmlRootVisitor extends
 	private final TypeComparator typeComparator;
 	private final TypeIssueHandler issueHandler;
 
-	private void initialise() {
-		TCActionVisitor actionVisitor = new TCActionVisitor(this,
-				this.issueHandler, typeComparator);
+	private void initialise()
+	{
+		TCActionVisitor actionVisitor = new TCActionVisitor(this, this.issueHandler, typeComparator);
 		exp = new TCExpressionVisitor(this, this.issueHandler, typeComparator);
 		act = actionVisitor;
 		dad = new TCDeclAndDefVisitor(this, typeComparator, this.issueHandler);
@@ -59,15 +60,18 @@ class CmlRootVisitor extends
 		bnd = new TCBindVisitor(this, this.issueHandler);
 	}
 
-	CmlRootVisitor(TypeIssueHandler issueHandler, TypeComparator comparator) {
+	CmlRootVisitor(TypeIssueHandler issueHandler, TypeComparator comparator)
+	{
 		this.issueHandler = issueHandler;
 		this.typeComparator = comparator;
 		initialise();
 	}
 
 	// Utility methods
-	private PType addErrorForMissingType(INode node, PType type) {
-		if (type == null) {
+	private PType addErrorForMissingType(INode node, PType type)
+	{
+		if (type == null)
+		{
 			// addTypeError(node, "Insufficient type checker implementation.");
 			return new AErrorType();
 		} else
@@ -78,58 +82,68 @@ class CmlRootVisitor extends
 	// Default cases
 	@Override
 	public PType defaultPCommunicationParameter(PCommunicationParameter node,
-			TypeCheckInfo question) throws AnalysisException {
+			TypeCheckInfo question) throws AnalysisException
+	{
 		return super.defaultPCommunicationParameter(node, question);
 	}
 
 	@Override
 	public PType defaultPParametrisation(PParametrisation node,
-			TypeCheckInfo question) throws AnalysisException {
+			TypeCheckInfo question) throws AnalysisException
+	{
 		return addErrorForMissingType(node, node.apply(this.act, question));
 
 	}
 
 	@Override
 	public PType defaultPAlternativeAction(PAlternativeAction node,
-			TypeCheckInfo question) throws AnalysisException {
+			TypeCheckInfo question) throws AnalysisException
+	{
 		return addErrorForMissingType(node, node.apply(this.act, question));
 	}
 
 	@Override
 	public PType defaultPMultipleBind(PMultipleBind node, TypeCheckInfo question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 		return addErrorForMissingType(node, node.apply(bnd, question));
 	}
 
 	@Override
 	public PType defaultPVarsetExpression(PVarsetExpression node,
-			TypeCheckInfo question) throws AnalysisException {
+			TypeCheckInfo question) throws AnalysisException
+	{
 		return addErrorForMissingType(node, node.apply(exp, question));
 	}
 
 	@Override
 	public PType defaultPBind(PBind node, TypeCheckInfo question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 		return addErrorForMissingType(node, node.apply(bnd, question));
 	}
 
 	@Override
 	public PType defaultPType(PType node,
 			org.overture.typechecker.TypeCheckInfo question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 		return addErrorForMissingType(node, node.apply(typ, question));
 	}
 
 	@Override
 	public PType defaultPPattern(PPattern node, TypeCheckInfo question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 		return addErrorForMissingType(node, node.apply(bnd, question));
 	}
 
 	@Override
 	public PType defaultPSource(PSource node, TypeCheckInfo question)
-			throws AnalysisException {
-		for (PDefinition def : node.getParagraphs()) {
+			throws AnalysisException
+	{
+		for (PDefinition def : node.getParagraphs())
+		{
 			PType defType = def.apply(this, question);
 			if (!CmlTCUtil.successfulType(defType))
 				return defType;
@@ -140,66 +154,76 @@ class CmlRootVisitor extends
 
 	@Override
 	public PType defaultPPatternBind(PPatternBind node, TypeCheckInfo question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 		return addErrorForMissingType(node, node.apply(this.bnd, question));
 	}
 
 	@Override
 	public PType defaultINode(INode node,
 			org.overture.typechecker.TypeCheckInfo question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 		return addErrorForMissingType(node, super.defaultINode(node, question));
 	}
 
 	@Override
 	public PType defaultPSingleDeclaration(PSingleDeclaration node,
-			TypeCheckInfo question) throws AnalysisException {
+			TypeCheckInfo question) throws AnalysisException
+	{
 		return addErrorForMissingType(node, node.apply(this.dad, question));
 	}
 
 	@Override
 	public PType defaultPAlternative(PAlternative node, TypeCheckInfo question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 		return addErrorForMissingType(node, node.apply(this.act, question));
 	}
 
 	@Override
 	public PType defaultPAlternativeStm(PAlternativeStm node,
-			TypeCheckInfo question) throws AnalysisException {
+			TypeCheckInfo question) throws AnalysisException
+	{
 		return addErrorForMissingType(node, node.apply(this.act, question));
 	}
 
 	@Override
 	public PType defaultPDefinition(PDefinition node,
 			org.overture.typechecker.TypeCheckInfo question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 		return addErrorForMissingType(node, node.apply(this.dad, question));
 	}
 
 	@Override
 	public PType defaultPExp(PExp node,
 			org.overture.typechecker.TypeCheckInfo question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 		return addErrorForMissingType(node, node.apply(exp, question));
 	}
 
 	@Override
 	public PType defaultPProcess(PProcess node,
 			org.overture.typechecker.TypeCheckInfo question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 		return node.apply(prc, question);
 	}
 
 	@Override
 	public PType defaultPAction(PAction node,
 			org.overture.typechecker.TypeCheckInfo question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 		return node.apply(act, question);
 	}
 
 	@Override
 	public PType defaultPClause(PClause node, TypeCheckInfo question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 		return addErrorForMissingType(node, node.apply(act, question));
 	}
 

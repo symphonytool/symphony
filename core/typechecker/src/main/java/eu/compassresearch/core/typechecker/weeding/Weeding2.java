@@ -9,8 +9,6 @@ import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
 import eu.compassresearch.ast.program.PSource;
 
 /**
- * 
- * 
  * @author kel & cb
  */
 @SuppressWarnings("serial")
@@ -37,7 +35,6 @@ public class Weeding2 extends DepthFirstAnalysisCMLAdaptor
 	{
 	}
 
-	
 	@Override
 	public void caseABracketType(ABracketType node) throws AnalysisException
 	{

@@ -27,12 +27,13 @@ import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.parser.CmlParserError;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
-import eu.compassresearch.core.typechecker.api.TypeIssueHandler.CMLIssue;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler.CMLTypeError;
 
-public class TestUtil {
+public class TestUtil
+{
 
-	public static class TypeCheckerResult {
+	public static class TypeCheckerResult
+	{
 		public TypeIssueHandler issueHandler;
 		public boolean parsedOk;
 		public boolean tcOk;
@@ -49,14 +50,14 @@ public class TestUtil {
 	 * @throws IOException
 	 */
 	public static TypeCheckerResult parse(PSource s)
-			throws FileNotFoundException, IOException {
+			throws FileNotFoundException, IOException
+	{
 
 		TypeCheckerResult result = new TypeCheckerResult();
 
 		ANTLRInputStream in = null;
 		if (s instanceof AFileSource)
-			in = new ANTLRInputStream(new FileInputStream(
-					((AFileSource) s).getFile()));
+			in = new ANTLRInputStream(new FileInputStream(((AFileSource) s).getFile()));
 
 		if (s instanceof AInputStreamSource)
 			in = new ANTLRInputStream(((AInputStreamSource) s).getStream());
@@ -68,22 +69,27 @@ public class TestUtil {
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
 		CmlParser parser = new CmlParser(tokens);
 
-		try {
+		try
+		{
 			s.setParagraphs(new LinkedList<PDefinition>());
-			for (PDefinition d : parser.source()) {
+			for (PDefinition d : parser.source())
+			{
 				if (d != null)
 					s.getParagraphs().add(d);
-				else {
+				else
+				{
 				}
 			}
 			result.parsedOk = true;
 			return result;
-		} catch (RecognitionException e) {
+		} catch (RecognitionException e)
+		{
 			String expectedToken = "";
 			CommonToken ct = null;
 			List<String> parseErrors = new LinkedList<String>();
 			result.parseErrors = parseErrors;
-			if (e instanceof MismatchedTokenException) {
+			if (e instanceof MismatchedTokenException)
+			{
 				ct = (CommonToken) e.token;
 				MismatchedTokenException ee = (MismatchedTokenException) e;
 				expectedToken = CmlParser.tokenNames[ee.expecting];
@@ -94,7 +100,8 @@ public class TestUtil {
 				return result;
 			}
 
-			if (e.token != null) {
+			if (e.token != null)
+			{
 				ct = (org.antlr.runtime.CommonToken) e.token;
 				parseErrors.add("Syntax error in " + s + " near '"
 						+ ct.getText() + "'. Error at line " + e.line + " - "
@@ -115,14 +122,15 @@ public class TestUtil {
 	 * @throws IOException
 	 */
 	public static TypeCheckerResult runTypeChecker(List<PSource> ss)
-			throws FileNotFoundException, IOException {
+			throws FileNotFoundException, IOException
+	{
 		TypeCheckerResult result = new TypeCheckerResult();
 
-		for (PSource s : ss) {
+		for (PSource s : ss)
+		{
 			ANTLRInputStream in = null;
 			if (s instanceof AFileSource)
-				in = new ANTLRInputStream(new FileInputStream(
-						((AFileSource) s).getFile()));
+				in = new ANTLRInputStream(new FileInputStream(((AFileSource) s).getFile()));
 
 			if (s instanceof AInputStreamSource)
 				in = new ANTLRInputStream(((AInputStreamSource) s).getStream());
@@ -130,11 +138,13 @@ public class TestUtil {
 			CmlLexer lexer = new CmlLexer(in);
 			CommonTokenStream tokens = new CommonTokenStream(lexer);
 			CmlParser parser = new CmlParser(tokens);
-			
-			try {
+
+			try
+			{
 				List<PDefinition> forest = parser.source();
 				s.setParagraphs(new LinkedList<PDefinition>());
-				if (forest != null && parser.getErrors().isEmpty()) {
+				if (forest != null && parser.getErrors().isEmpty())
+				{
 					for (PDefinition def : forest)
 						if (def != null)
 							s.getParagraphs().add(def);
@@ -148,15 +158,17 @@ public class TestUtil {
 						parseErrors.add(issue.toString());
 					}
 					result.parseErrors = parseErrors;
-					
-					return result;	
+
+					return result;
 				}
-			} catch (RecognitionException e) {
+			} catch (RecognitionException e)
+			{
 				String expectedToken = "";
 				CommonToken ct = null;
 				List<String> parseErrors = new LinkedList<String>();
 				result.parseErrors = parseErrors;
-				if (e instanceof MismatchedTokenException) {
+				if (e instanceof MismatchedTokenException)
+				{
 					ct = (CommonToken) e.token;
 					MismatchedTokenException ee = (MismatchedTokenException) e;
 					if (ee.expecting >= 0
@@ -171,7 +183,8 @@ public class TestUtil {
 					return result;
 				}
 
-				if (e.token != null) {
+				if (e.token != null)
+				{
 					ct = (org.antlr.runtime.CommonToken) e.token;
 					parseErrors.add("Syntax error in " + s + " near '"
 							+ ct.getText() + "'. Error at line " + e.line
@@ -184,13 +197,11 @@ public class TestUtil {
 
 			}
 		}
-		TypeIssueHandler issueHandler = VanillaFactory
-				.newCollectingIssueHandle();
+		TypeIssueHandler issueHandler = VanillaFactory.newCollectingIssueHandle();
 		result.issueHandler = issueHandler;
 		List<PSource> cmlSources = new LinkedList<PSource>();
 		cmlSources.addAll(ss);
-		CmlTypeChecker checker = VanillaFactory.newTypeChecker(cmlSources,
-				issueHandler);
+		CmlTypeChecker checker = VanillaFactory.newTypeChecker(cmlSources, issueHandler);
 
 		result.tcOk = checker.typeCheck();
 		result.sources = ss.toArray(new PSource[0]);
@@ -206,7 +217,8 @@ public class TestUtil {
 	 * @throws IOException
 	 */
 	public static TypeCheckerResult runTypeChecker(String file)
-			throws IOException {
+			throws IOException
+	{
 		TypeCheckerResult res = new TypeCheckerResult();
 
 		AFileSource fileSource = new AFileSource();
@@ -215,25 +227,24 @@ public class TestUtil {
 
 		List<PSource> cmlSources = Arrays.asList(new PSource[] { fileSource });
 
-		ANTLRInputStream in = new ANTLRInputStream(new FileInputStream(
-				fileSource.getFile()));
+		ANTLRInputStream in = new ANTLRInputStream(new FileInputStream(fileSource.getFile()));
 		CmlLexer lexer = new CmlLexer(in);
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
 		CmlParser parser = new CmlParser(tokens);
 
-		try {
+		try
+		{
 			fileSource.setParagraphs(parser.source());
 			res.parsedOk = true;
-		} catch (RecognitionException e) {
+		} catch (RecognitionException e)
+		{
 			e.printStackTrace();
 			res.parsedOk = false;
 		}
 
-		TypeIssueHandler issueHandler = VanillaFactory
-				.newCollectingIssueHandle();
+		TypeIssueHandler issueHandler = VanillaFactory.newCollectingIssueHandle();
 		res.issueHandler = issueHandler;
-		CmlTypeChecker checker = VanillaFactory.newTypeChecker(cmlSources,
-				issueHandler);
+		CmlTypeChecker checker = VanillaFactory.newTypeChecker(cmlSources, issueHandler);
 
 		res.tcOk = checker.typeCheck();
 		res.sources = new PSource[] { fileSource };
@@ -249,23 +260,27 @@ public class TestUtil {
 	 * @return
 	 */
 	public static String buildErrorMessage(TypeIssueHandler tc,
-			boolean expectedTypesOk) {
+			boolean expectedTypesOk)
+	{
 		StringBuilder sb = new StringBuilder();
-		if (expectedTypesOk) {
+		if (expectedTypesOk)
+		{
 			sb.append("Expected type checking to be successful, the following errors were unexpected:\n");
 			for (CMLTypeError error : tc.getTypeErrors())
 				sb.append(error.getLocation() + ": " + error.toString()
 						+ "\n------\n");
 			if (tc.getTypeErrors().size() > 0)
 				System.out.println(tc.getTypeErrors().get(0).getStackTrace());
-		} else {
+		} else
+		{
 			sb.append("Expected type checking to fail but it was successful.");
 		}
 		return sb.toString();
 	}
 
 	public static <T> void addTestProgram(List<Object[]> col, String src,
-			Object... objs) {
+			Object... objs)
+	{
 		Object[] a = new Object[objs.length + 1];
 		a[0] = src;
 		System.arraycopy(objs, 0, a, 1, objs.length);
@@ -274,18 +289,23 @@ public class TestUtil {
 
 	@SuppressWarnings("serial")
 	public static Object findFirst(final Class<?> c, PSource s)
-			throws AnalysisException {
-		class Holder {
+			throws AnalysisException
+	{
+		class Holder
+		{
 			Object pointer;
 		}
 		final Holder h = new Holder();
 
-		DepthFirstAnalysisCMLAdaptor d = new DepthFirstAnalysisCMLAdaptor() {
+		DepthFirstAnalysisCMLAdaptor d = new DepthFirstAnalysisCMLAdaptor()
+		{
 
 			@Override
 			public void defaultInINode(org.overture.ast.node.INode node)
-					throws AnalysisException {
-				if (node.getClass().equals(c)) {
+					throws AnalysisException
+			{
+				if (node.getClass().equals(c))
+				{
 					h.pointer = node;
 					return;
 				}
@@ -297,7 +317,8 @@ public class TestUtil {
 		return h.pointer;
 	}
 
-	public static String readFile(String file) throws IOException {
+	public static String readFile(String file) throws IOException
+	{
 		File fin = new File(file);
 		InputStream is = new FileInputStream(fin);
 		byte[] buffer = new byte[is.available()];
@@ -307,7 +328,8 @@ public class TestUtil {
 	}
 
 	public static <T> void addFileProgram(List<Object[]> col, String filename,
-			Object... objs) throws IOException {
+			Object... objs) throws IOException
+	{
 		String progDir = "../../docs/cml-examples/";
 		Object[] args = new Object[objs.length + 1];
 		args[0] = readFile(progDir + filename);
@@ -315,7 +337,8 @@ public class TestUtil {
 		col.add(args);
 	}
 
-	public static PSource makeSource(String cmlSource, String... names) {
+	public static PSource makeSource(String cmlSource, String... names)
+	{
 		InputStream cmlSourceIn = new ByteArrayInputStream(cmlSource.getBytes());
 		AInputStreamSource source = new AInputStreamSource();
 		source.setOrigin(names != null && names.length > 0 ? names[0]

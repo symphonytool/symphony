@@ -29,17 +29,14 @@ import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 
 /**
- * TypeCheckInfo tracks the three scopes we care about in CML. These are
- * Variables - mapping from variable name to their Definition (and type) Types -
- * mapping from type-name to the actual PType Channels - mapping from
- * channel-name to its declaration (and carried type of any)
- * 
- * Creating a new scope is the responsibility of this class.
+ * TypeCheckInfo tracks the three scopes we care about in CML. These are Variables - mapping from variable name to their
+ * Definition (and type) Types - mapping from type-name to the actual PType Channels - mapping from channel-name to its
+ * declaration (and carried type of any) Creating a new scope is the responsibility of this class.
  * 
  * @author rwl
- * 
  */
-class CmlTypeCheckInfo extends TypeCheckInfo implements TypeCheckQuestion {
+class CmlTypeCheckInfo extends TypeCheckInfo implements TypeCheckQuestion
+{
 
 	private final FlatEnvironment channels;
 
@@ -53,33 +50,39 @@ class CmlTypeCheckInfo extends TypeCheckInfo implements TypeCheckQuestion {
 	/**
 	 * Create a new Type Check Info at top level
 	 * 
-	 * 
 	 * @param issueHandler
 	 *            -- Where to report issues
 	 * @return a fresh Type Check Info instance at top level
 	 */
-	public static CmlTypeCheckInfo getNewTopLevelInstance(ITypeCheckerAssistantFactory assistantFactory,
+	public static CmlTypeCheckInfo getNewTopLevelInstance(
+			ITypeCheckerAssistantFactory assistantFactory,
 			TypeIssueHandler issueHandler, List<PDefinition> globalDefs,
-			List<PDefinition> channels) {
-		return new CmlTypeCheckInfo(assistantFactory,issueHandler, globalDefs, channels);
+			List<PDefinition> channels)
+	{
+		return new CmlTypeCheckInfo(assistantFactory, issueHandler, globalDefs, channels);
 
 	}
 
 	private static class CmlEnvironmentSearchStrategy implements
-			EnvironmentSearchStrategy {
+			EnvironmentSearchStrategy
+	{
 
 		@Override
 		public PDefinition findType(ILexNameToken name, String fromModule,
 				PDefinition enclosingDefinition, Environment outer,
-				Collection<PDefinition> currentDefinitions) {
-			for (PDefinition d : currentDefinitions) {
+				Collection<PDefinition> currentDefinitions)
+		{
+			for (PDefinition d : currentDefinitions)
+			{
 				if (testEq(name, d, PDefinition.class))
 					return d;
 			}
 
-			while (outer != null) {
+			while (outer != null)
+			{
 				currentDefinitions = outer.getDefinitions();
-				for (PDefinition d : currentDefinitions) {
+				for (PDefinition d : currentDefinitions)
+				{
 					if (testEq(name, d, PDefinition.class))
 						return d;
 				}
@@ -91,16 +94,20 @@ class CmlTypeCheckInfo extends TypeCheckInfo implements TypeCheckQuestion {
 		@Override
 		public PDefinition findName(ILexNameToken name, NameScope scope,
 				PDefinition enclosingDefinition, Environment outer,
-				Collection<PDefinition> currentDefinitions) {
+				Collection<PDefinition> currentDefinitions)
+		{
 
-			for (PDefinition d : currentDefinitions) {
+			for (PDefinition d : currentDefinitions)
+			{
 				if (testEq(name, d, PDefinition.class))
 					return d;
 			}
 
-			while (outer != null) {
+			while (outer != null)
+			{
 				currentDefinitions = outer.getDefinitions();
-				for (PDefinition d : currentDefinitions) {
+				for (PDefinition d : currentDefinitions)
+				{
 					if (testEq(name, d, PDefinition.class))
 						return d;
 				}
@@ -112,16 +119,20 @@ class CmlTypeCheckInfo extends TypeCheckInfo implements TypeCheckQuestion {
 		@Override
 		public PDefinition find(ILexIdentifierToken name,
 				PDefinition enclosingDefinition, Environment outer,
-				Collection<PDefinition> currentDefinitions) {
+				Collection<PDefinition> currentDefinitions)
+		{
 
-			for (PDefinition d : currentDefinitions) {
+			for (PDefinition d : currentDefinitions)
+			{
 				if (testEq(name, d, PDefinition.class))
 					return d;
 			}
 
-			while (outer != null) {
+			while (outer != null)
+			{
 				currentDefinitions = outer.getDefinitions();
-				for (PDefinition d : currentDefinitions) {
+				for (PDefinition d : currentDefinitions)
+				{
 					if (testEq(name, d, PDefinition.class))
 						return d;
 				}
@@ -132,20 +143,22 @@ class CmlTypeCheckInfo extends TypeCheckInfo implements TypeCheckQuestion {
 
 	}
 
-	private CmlTypeCheckInfo(ITypeCheckerAssistantFactory assistantFactory,TypeIssueHandler issueHandler,
-			List<PDefinition> globalDefs, List<PDefinition> channels) {
-		super(assistantFactory,new FlatEnvironment(assistantFactory,globalDefs,
-				new CmlEnvironmentSearchStrategy()));
+	private CmlTypeCheckInfo(ITypeCheckerAssistantFactory assistantFactory,
+			TypeIssueHandler issueHandler, List<PDefinition> globalDefs,
+			List<PDefinition> channels)
+	{
+		super(assistantFactory, new FlatEnvironment(assistantFactory, globalDefs, new CmlEnvironmentSearchStrategy()));
 		this.issueHandler = issueHandler;
-		this.channels = new FlatEnvironment(assistantFactory,channels,
-				new CmlEnvironmentSearchStrategy());
+		this.channels = new FlatEnvironment(assistantFactory, channels, new CmlEnvironmentSearchStrategy());
 		this.globalDefinitions = globalDefs;
 	}
 
-	private CmlTypeCheckInfo(ITypeCheckerAssistantFactory assistantFactory,FlatEnvironment channelSurounding,
+	private CmlTypeCheckInfo(ITypeCheckerAssistantFactory assistantFactory,
+			FlatEnvironment channelSurounding,
 			org.overture.typechecker.Environment suroundingEnv,
-			TypeIssueHandler issueHandler, List<PDefinition> globalDefs) {
-		super(assistantFactory,new FlatEnvironment(assistantFactory,new LinkedList<PDefinition>(), suroundingEnv));
+			TypeIssueHandler issueHandler, List<PDefinition> globalDefs)
+	{
+		super(assistantFactory, new FlatEnvironment(assistantFactory, new LinkedList<PDefinition>(), suroundingEnv));
 		this.channels = channelSurounding;
 		this.issueHandler = issueHandler;
 		this.globalDefinitions = globalDefs;
@@ -153,7 +166,8 @@ class CmlTypeCheckInfo extends TypeCheckInfo implements TypeCheckQuestion {
 	}
 
 	@Override
-	public PType lookupType(ILexIdentifierToken ident) {
+	public PType lookupType(ILexIdentifierToken ident)
+	{
 		ILexNameToken name = null;
 		if (!(ident instanceof ILexNameToken))
 			name = new LexNameToken("", ident);
@@ -168,18 +182,22 @@ class CmlTypeCheckInfo extends TypeCheckInfo implements TypeCheckQuestion {
 	}
 
 	private static boolean testEq(ILexIdentifierToken name, PDefinition d,
-			Class<?> astClass) {
+			Class<?> astClass)
+	{
 		boolean isInstance = astClass.isInstance(d);
 		boolean sameName = HelpLexNameToken.isEqual(name, d.getName());
 		return (isInstance && sameName);
 	}
 
-	public PDefinition lookup(ILexIdentifierToken name, Class<?> astClass) {
+	public PDefinition lookup(ILexIdentifierToken name, Class<?> astClass)
+	{
 		org.overture.typechecker.Environment cur = env;
 
-		while (cur != null) {
+		while (cur != null)
+		{
 			List<PDefinition> defs = cur.getDefinitions();
-			for (PDefinition d : defs) {
+			for (PDefinition d : defs)
+			{
 				if (testEq(name, d, astClass))
 					return d;
 			}
@@ -189,8 +207,10 @@ class CmlTypeCheckInfo extends TypeCheckInfo implements TypeCheckQuestion {
 		return findGlobal(name, astClass);
 	}
 
-	private PDefinition findGlobal(ILexIdentifierToken name, Class<?> astClass) {
-		for (PDefinition d : globalDefinitions) {
+	private PDefinition findGlobal(ILexIdentifierToken name, Class<?> astClass)
+	{
+		for (PDefinition d : globalDefinitions)
+		{
 			if (testEq(name, d, astClass))
 				return d;
 		}
@@ -198,37 +218,42 @@ class CmlTypeCheckInfo extends TypeCheckInfo implements TypeCheckQuestion {
 	}
 
 	@Override
-	public void addType(ILexIdentifierToken ident, PDefinition typeDef) {
+	public void addType(ILexIdentifierToken ident, PDefinition typeDef)
+	{
 		if (ident == null)
 			throw new NullPointerException("Cannot add a type with null name");
 
 		PDefinition existingDef = lookup(ident, PDefinition.class);
 		boolean notSame = typeDef != existingDef;
-		if (existingDef != null && notSame) {
-			typeDef.setType(issueHandler.addTypeError(
-					typeDef,
-					TypeErrorMessages.DUPLICATE_DEFINITION.customizeMessage(""
-							+ typeDef.getName(), "" + existingDef.getLocation())));
+		if (existingDef != null && notSame)
+		{
+			typeDef.setType(issueHandler.addTypeError(typeDef, TypeErrorMessages.DUPLICATE_DEFINITION.customizeMessage(""
+					+ typeDef.getName(), "" + existingDef.getLocation())));
 			return;
 		}
 
-		if (env instanceof FlatEnvironment) {
+		if (env instanceof FlatEnvironment)
+		{
 			FlatEnvironment fenv = (FlatEnvironment) env;
 			fenv.add(typeDef);
 		}
 	}
 
 	@Override
-	public PDefinition lookupChannel(ILexIdentifierToken ident) {
+	public PDefinition lookupChannel(ILexIdentifierToken ident)
+	{
 		PDefinition res = null;
 		Environment chn = this.channels;
-		do {
-			for (PDefinition def : chn.getDefinitions()) {
-				if (def instanceof AChannelNameDefinition) {
+		do
+		{
+			for (PDefinition def : chn.getDefinitions())
+			{
+				if (def instanceof AChannelNameDefinition)
+				{
 					AChannelNameDefinition chanDef = (AChannelNameDefinition) def;
 
-					for (ILexIdentifierToken id : chanDef.getSingleType()
-							.getIdentifiers()) {
+					for (ILexIdentifierToken id : chanDef.getSingleType().getIdentifiers())
+					{
 						LexNameToken idName = new LexNameToken("", id);
 						LexNameToken identName = new LexNameToken("", ident);
 						if (HelpLexNameToken.isEqual(idName, identName))
@@ -236,11 +261,11 @@ class CmlTypeCheckInfo extends TypeCheckInfo implements TypeCheckQuestion {
 					}
 				}
 
-				if (def instanceof AChansetDefinition) {
+				if (def instanceof AChansetDefinition)
+				{
 					LexNameToken identName = new LexNameToken("", ident);
 					AChansetDefinition chanset = (AChansetDefinition) def;
-					LexNameToken chanName = new LexNameToken("",
-							chanset.getIdentifier());
+					LexNameToken chanName = new LexNameToken("", chanset.getIdentifier());
 					if (HelpLexNameToken.isEqual(identName, chanName))
 						return def;
 
@@ -254,28 +279,32 @@ class CmlTypeCheckInfo extends TypeCheckInfo implements TypeCheckQuestion {
 	}
 
 	@Override
-	public void addChannel(ILexIdentifierToken ident, PDefinition channel) {
+	public void addChannel(ILexIdentifierToken ident, PDefinition channel)
+	{
 		PDefinition chanDef = lookupChannel(ident);
-		if (chanDef != null) {
-			channel.setType(issueHandler.addTypeError(
-					channel,
-					TypeErrorMessages.DUPLICATE_DEFINITION.customizeMessage(""
-							+ ident, "" + chanDef.getLocation())));
+		if (chanDef != null)
+		{
+			channel.setType(issueHandler.addTypeError(channel, TypeErrorMessages.DUPLICATE_DEFINITION.customizeMessage(""
+					+ ident, "" + chanDef.getLocation())));
 			return;
 		}
 		channels.add(channel);
 	}
 
 	@Override
-	public PDefinition lookupVariable(ILexIdentifierToken ident) {
-		if (ident instanceof ILexNameToken) {
+	public PDefinition lookupVariable(ILexIdentifierToken ident)
+	{
+		if (ident instanceof ILexNameToken)
+		{
 			return env.findName((ILexNameToken) ident, NameScope.GLOBAL);
 		}
 		return null;
 	}
 
-	public PDefinition lookupCurrentScope(ILexIdentifierToken ident) {
-		for (PDefinition d : env.getDefinitions()) {
+	public PDefinition lookupCurrentScope(ILexIdentifierToken ident)
+	{
+		for (PDefinition d : env.getDefinitions())
+		{
 			if (HelpLexNameToken.isEqual(ident, d.getName()))
 				return d;
 		}
@@ -283,25 +312,27 @@ class CmlTypeCheckInfo extends TypeCheckInfo implements TypeCheckQuestion {
 	}
 
 	@Override
-	public void addVariable(ILexIdentifierToken ident, PDefinition variable) {
+	public void addVariable(ILexIdentifierToken ident, PDefinition variable)
+	{
 		if (ident == null)
 			return;
 		boolean isConstructor = false;
-		if (env instanceof FlatEnvironment) {
+		if (env instanceof FlatEnvironment)
+		{
 			FlatEnvironment fenv = (FlatEnvironment) env;
 			PDefinition d = lookupCurrentScope(ident);
 
-			if (variable instanceof AExplicitCmlOperationDefinition) {
-				isConstructor = ((AExplicitCmlOperationDefinition) variable)
-						.getIsConstructor();
+			if (variable instanceof AExplicitCmlOperationDefinition)
+			{
+				isConstructor = ((AExplicitCmlOperationDefinition) variable).getIsConstructor();
 			}
 
 			if (d != null && !isConstructor
-					&& d.getName().getOld() == variable.getName().getOld()) {
-				variable.setType(issueHandler.addTypeError(variable,
-						TypeErrorMessages.DUPLICATE_DEFINITION
-								.customizeMessage(variable + " " + variable.getLocation()
-										, d + " " + d.getLocation())));
+					&& d.getName().getOld() == variable.getName().getOld())
+			{
+				variable.setType(issueHandler.addTypeError(variable, TypeErrorMessages.DUPLICATE_DEFINITION.customizeMessage(variable
+						+ " " + variable.getLocation(), d + " "
+						+ d.getLocation())));
 				return;
 			}
 			fenv.add(variable);
@@ -309,36 +340,43 @@ class CmlTypeCheckInfo extends TypeCheckInfo implements TypeCheckQuestion {
 
 	}
 
-	public List<PDefinition> getDefinitions() {
+	public List<PDefinition> getDefinitions()
+	{
 		return env.getDefinitions();
 	}
-	
-	public boolean hasChannelDuplicates(AChannelNameDefinition newChannel){
-		
+
+	public boolean hasChannelDuplicates(AChannelNameDefinition newChannel)
+	{
+
 		boolean hasDuplicates = false;
-		//run through all identifiers of new channel
-		for (ILexIdentifierToken newChannelIdent : newChannel.getSingleType().getIdentifiers()) {
+		// run through all identifiers of new channel
+		for (ILexIdentifierToken newChannelIdent : newChannel.getSingleType().getIdentifiers())
+		{
 			int count = 0;
 			LexNameToken newChannelIdentName = new LexNameToken("", newChannelIdent);
-			
-			//run through each existing channels
-			for (PDefinition def : channels.getDefinitions()) {
-	
-				if (def instanceof AChannelNameDefinition) {
+
+			// run through each existing channels
+			for (PDefinition def : channels.getDefinitions())
+			{
+
+				if (def instanceof AChannelNameDefinition)
+				{
 					AChannelNameDefinition existingChanDef = (AChannelNameDefinition) def;
-					//compare identifiers
-					for (ILexIdentifierToken id : existingChanDef.getSingleType().getIdentifiers()) {
+					// compare identifiers
+					for (ILexIdentifierToken id : existingChanDef.getSingleType().getIdentifiers())
+					{
 						LexNameToken existingChannelName = new LexNameToken("", id);
-						
+
 						if (HelpLexNameToken.isEqual(existingChannelName, newChannelIdentName))
 						{
 							++count;
-							if(count > 1)
+							if (count > 1)
 							{
-								newChannel.setType(issueHandler.addTypeError(newChannel.getType(),
-										TypeErrorMessages.DUPLICATE_DEFINITION
-												.customizeMessage(newChannelIdentName + " " + newChannelIdentName.getLocation()
-														, existingChannelName + "  " + existingChannelName.getLocation())));
+								newChannel.setType(issueHandler.addTypeError(newChannel.getType(), TypeErrorMessages.DUPLICATE_DEFINITION.customizeMessage(newChannelIdentName
+										+ " "
+										+ newChannelIdentName.getLocation(), existingChannelName
+										+ "  "
+										+ existingChannelName.getLocation())));
 								hasDuplicates = true;
 							}
 						}
@@ -346,19 +384,19 @@ class CmlTypeCheckInfo extends TypeCheckInfo implements TypeCheckQuestion {
 				}
 			}
 		}
-		return hasDuplicates; 
+		return hasDuplicates;
 	}
 
 	/**
-	 * Create an environment with this environment being the outer environment
-	 * and the given definition being the surrounding definition.
+	 * Create an environment with this environment being the outer environment and the given definition being the
+	 * surrounding definition.
 	 */
 	@Override
-	public CmlTypeCheckInfo newScope(SClassDefinition def) {
+	public CmlTypeCheckInfo newScope(SClassDefinition def)
+	{
 		// Variables are scoped, types and channels are global (for now at
 		// least)
-		CmlTypeCheckInfo res = new CmlTypeCheckInfo(this.assistantFactory,this.channels, super.env,
-				issueHandler, globalDefinitions);
+		CmlTypeCheckInfo res = new CmlTypeCheckInfo(this.assistantFactory, this.channels, super.env, issueHandler, globalDefinitions);
 		res.env.setEnclosingDefinition(def);
 		return res;
 	}
@@ -368,37 +406,28 @@ class CmlTypeCheckInfo extends TypeCheckInfo implements TypeCheckQuestion {
 	 * 
 	 * @return
 	 */
-	public CmlTypeCheckInfo newScope() {
-		CmlTypeCheckInfo res = new CmlTypeCheckInfo(this.assistantFactory,channels, env,
-				issueHandler, globalDefinitions);
+	public CmlTypeCheckInfo newScope()
+	{
+		CmlTypeCheckInfo res = new CmlTypeCheckInfo(this.assistantFactory, channels, env, issueHandler, globalDefinitions);
 		res.scope = this.scope;
 		res.env.setEnclosingDefinition(env.getEnclosingDefinition());
 		return res;
 	}
 
 	static final Map<org.overture.ast.typechecker.NameScope, eu.compassresearch.ast.typechecker.NameScope> scopeMap;
-	static {
+	static
+	{
 		scopeMap = new HashMap<org.overture.ast.typechecker.NameScope, eu.compassresearch.ast.typechecker.NameScope>();
-		scopeMap.put(NameScope.CLASSNAME,
-				eu.compassresearch.ast.typechecker.NameScope.CLASSNAME);
-		scopeMap.put(NameScope.GLOBAL,
-				eu.compassresearch.ast.typechecker.NameScope.GLOBAL);
-		scopeMap.put(NameScope.LOCAL,
-				eu.compassresearch.ast.typechecker.NameScope.LOCAL);
-		scopeMap.put(NameScope.NAMES,
-				eu.compassresearch.ast.typechecker.NameScope.NAMES);
-		scopeMap.put(NameScope.NAMESANDANYSTATE,
-				eu.compassresearch.ast.typechecker.NameScope.NAMESANDANYSTATE);
-		scopeMap.put(NameScope.NAMESANDSTATE,
-				eu.compassresearch.ast.typechecker.NameScope.NAMESANDSTATE);
-		scopeMap.put(NameScope.OLDSTATE,
-				eu.compassresearch.ast.typechecker.NameScope.OLDSTATE);
-		scopeMap.put(NameScope.PROCESSNAME,
-				eu.compassresearch.ast.typechecker.NameScope.PROCESSNAME);
-		scopeMap.put(NameScope.STATE,
-				eu.compassresearch.ast.typechecker.NameScope.STATE);
-		scopeMap.put(NameScope.TYPENAME,
-				eu.compassresearch.ast.typechecker.NameScope.TYPENAME);
+		scopeMap.put(NameScope.CLASSNAME, eu.compassresearch.ast.typechecker.NameScope.CLASSNAME);
+		scopeMap.put(NameScope.GLOBAL, eu.compassresearch.ast.typechecker.NameScope.GLOBAL);
+		scopeMap.put(NameScope.LOCAL, eu.compassresearch.ast.typechecker.NameScope.LOCAL);
+		scopeMap.put(NameScope.NAMES, eu.compassresearch.ast.typechecker.NameScope.NAMES);
+		scopeMap.put(NameScope.NAMESANDANYSTATE, eu.compassresearch.ast.typechecker.NameScope.NAMESANDANYSTATE);
+		scopeMap.put(NameScope.NAMESANDSTATE, eu.compassresearch.ast.typechecker.NameScope.NAMESANDSTATE);
+		scopeMap.put(NameScope.OLDSTATE, eu.compassresearch.ast.typechecker.NameScope.OLDSTATE);
+		scopeMap.put(NameScope.PROCESSNAME, eu.compassresearch.ast.typechecker.NameScope.PROCESSNAME);
+		scopeMap.put(NameScope.STATE, eu.compassresearch.ast.typechecker.NameScope.STATE);
+		scopeMap.put(NameScope.TYPENAME, eu.compassresearch.ast.typechecker.NameScope.TYPENAME);
 	}
 
 	@Override
@@ -409,35 +438,34 @@ class CmlTypeCheckInfo extends TypeCheckInfo implements TypeCheckQuestion {
 	}
 
 	@Override
-	public void updateContextNameToCurrentScope(INode n) {
+	public void updateContextNameToCurrentScope(INode n)
+	{
 		// TODO: Set the current scope on the node n.
 	}
 
 	public TypeCheckQuestion newScope(
-			org.overture.typechecker.TypeCheckInfo current, PDefinition def) {
-		CmlTypeCheckInfo res = new CmlTypeCheckInfo(this.assistantFactory,channels, env,
-				issueHandler, this.globalDefinitions);
+			org.overture.typechecker.TypeCheckInfo current, PDefinition def)
+	{
+		CmlTypeCheckInfo res = new CmlTypeCheckInfo(this.assistantFactory, channels, env, issueHandler, this.globalDefinitions);
 		res.env.setEnclosingDefinition(def);
 		res.scope = this.scope;
 		return res;
 	}
 
 	public TypeCheckQuestion newScope(org.overture.typechecker.Environment env,
-			PDefinition def) {
-		CmlTypeCheckInfo res = new CmlTypeCheckInfo(this.assistantFactory,channels, env,
-				issueHandler, this.globalDefinitions);
+			PDefinition def)
+	{
+		CmlTypeCheckInfo res = new CmlTypeCheckInfo(this.assistantFactory, channels, env, issueHandler, this.globalDefinitions);
 		res.env.setEnclosingDefinition(def);
 
 		return res;
 	}
 
-	public CmlTypeCheckInfo emptyScope() {
-		org.overture.typechecker.Environment newenv = new FlatEnvironment(assistantFactory,
-				new LinkedList<PDefinition>());
-		FlatEnvironment newchannels = new FlatEnvironment(assistantFactory,
-				new LinkedList<PDefinition>());
-		CmlTypeCheckInfo res = new CmlTypeCheckInfo(this.assistantFactory,newchannels, newenv,
-				issueHandler, this.globalDefinitions);
+	public CmlTypeCheckInfo emptyScope()
+	{
+		org.overture.typechecker.Environment newenv = new FlatEnvironment(assistantFactory, new LinkedList<PDefinition>());
+		FlatEnvironment newchannels = new FlatEnvironment(assistantFactory, new LinkedList<PDefinition>());
+		CmlTypeCheckInfo res = new CmlTypeCheckInfo(this.assistantFactory, newchannels, newenv, issueHandler, this.globalDefinitions);
 		return res;
 	}
 
