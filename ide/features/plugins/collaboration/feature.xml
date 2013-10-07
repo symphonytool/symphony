@@ -2,7 +2,7 @@
 <feature
       id="eu.compassresearch.ide.features.plugins.collaboration"
       label="Collaboration"
-      version="0.1.9.qualifier">
+      version="0.2.1.qualifier">
 
    <description>
       %description

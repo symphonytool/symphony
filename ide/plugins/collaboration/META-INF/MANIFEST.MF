@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: COMPASS IDE Collaboration Plugin
 Bundle-SymbolicName: eu.compassresearch.ide.collaboration;singleton:=true
-Bundle-Version: 0.1.9.qualifier
+Bundle-Version: 0.2.1.qualifier
 Bundle-Activator: eu.compassresearch.ide.collaboration.Activator
 Bundle-Vendor: The COMPASS Project
 Import-Package: eu.compassresearch.ast.actions,
@@ -49,3 +49,4 @@ Require-Bundle: org.eclipse.ecf;bundle-version="3.2.0",
  org.eclipse.ecf.presence.ui;bundle-version="2.2.0",
  org.eclipse.ecf.sync;bundle-version="2.0.0",
  org.eclipse.ecf.provider.xmpp;bundle-version="3.2.100"
+Bundle-ClassPath: .
