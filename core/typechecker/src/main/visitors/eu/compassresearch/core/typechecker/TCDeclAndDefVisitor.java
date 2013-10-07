@@ -2209,16 +2209,16 @@ class TCDeclAndDefVisitor extends
 
 		AExplicitFunctionDefinition invDef = node.getInvdef();
 		
-//		if(invDef != null){
-//			PType invDefType = invDef.apply(parentChecker, question);
-//			
-//			if (!successfulType(invDefType)) {
-//				node.setType(issueHandler.addTypeError(node,
-//						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-//								.customizeMessage("" + invDefType)));
-//				return node.getType();
-//			}
-//		}
+		if(invDef != null){
+			PType invDefType = invDef.apply(parentChecker, question);
+			
+			if (!successfulType(invDefType)) {
+				node.setType(issueHandler.addTypeError(node,
+						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+								.customizeMessage("" + invDefType)));
+				return node.getType();
+			}
+		}
 		
 		return node.getType();
 	}
