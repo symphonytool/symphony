@@ -2683,7 +2683,7 @@ recordPattern returns[PPattern pattern]
     : MKUNDER name '(' ( first=pattern { patList.add($first.pattern); } ( ',' patItem=pattern { patList.add($patItem.pattern); } )* )? end=')'
         {
             ILexLocation loc = extractLexLocation($MKUNDER,$end);
-            ARecordPattern recPattern = new ARecordPattern(loc, null, true, $name.name, patList);
+            ARecordPattern recPattern = new ARecordPattern(loc, null, false, $name.name, patList);
             recPattern.setType(AstFactory.newAUnresolvedType($name.name));
             $pattern = recPattern;
         }
