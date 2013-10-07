@@ -1,0 +1,12 @@
+channels
+a
+
+process A = 
+begin
+	state
+	b : int  := 0
+	inv b = 0 
+	
+	@ a -> b := 1; a -> Skip
+end
+

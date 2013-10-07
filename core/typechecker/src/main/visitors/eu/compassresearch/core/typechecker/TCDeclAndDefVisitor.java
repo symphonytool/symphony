@@ -70,6 +70,7 @@ import org.overture.typechecker.assistant.definition.SClassDefinitionAssistantTC
 import org.overture.typechecker.assistant.pattern.PPatternAssistantTC;
 import org.overture.typechecker.assistant.type.PTypeAssistantTC;
 import org.overture.typechecker.util.HelpLexNameToken;
+import org.overture.typechecker.utilities.TypeResolver;
 import org.overture.typechecker.visitor.TypeCheckerDefinitionVisitor;
 
 import eu.compassresearch.ast.actions.PAction;
@@ -208,7 +209,7 @@ class TCDeclAndDefVisitor extends
 
 		PType positiveResult = new AFunctionParagraphType(node.getLocation(),
 				true);
-		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
+//		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
 
 		LinkedList<PDefinition> functions = node.getFunctionDefinitions();
 		for (PDefinition def : functions) {
@@ -2152,8 +2153,7 @@ class TCDeclAndDefVisitor extends
 				}
 
 				if (!(mtype.getResult() instanceof ANatNumericBasicType)) {
-					if (AProductType.kindPType.equals(mtype.getResult()
-							.kindPType())) {
+					if (mtype.getResult() instanceof AProductType) {
 						AProductType pt = PTypeAssistantTC.getProduct(mtype
 								.getResult());
 
@@ -2198,11 +2198,11 @@ class TCDeclAndDefVisitor extends
 			throws AnalysisException {
 
 		try {
-			ATypeDefinitionAssistantTC
-					.typeResolve(
-							node,
+			
+			
+							node.apply(af.getTypeResolver(),new TypeResolver.NewQuestion(
 							(QuestionAnswerAdaptor<TypeCheckInfo, PType>) parentChecker,
-							question);
+							question));
 		} catch (TypeCheckException e) {
 			node.setType(issueHandler.addTypeError(node, e.getMessage()));
 		}
@@ -2221,6 +2221,20 @@ class TCDeclAndDefVisitor extends
 		}
 		
 		return node.getType();
+	}
+
+	@Override
+	public PType createNewReturnValue(INode node, TypeCheckInfo question)
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public PType createNewReturnValue(Object node, TypeCheckInfo question)
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

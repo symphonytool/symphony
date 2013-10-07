@@ -39,13 +39,13 @@ import eu.compassresearch.core.interpreter.utility.Pair;
 class ConcreteCmlBehaviour implements CmlBehaviour
 {
 	private static int globalIdCount = 0;
-	private static final long 					serialVersionUID = -4920762081111266274L;
+	private static final long serialVersionUID = -4920762081111266274L;
 
 	private static int getNextId()
 	{
-		CmlRuntime.logger().finest("New behavior id created " +  ++globalIdCount);
 		return globalIdCount;
 	}
+
 	/*
 	 * Instance variables
 	 */
@@ -53,20 +53,20 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	/**
 	 * Name of the instance
 	 */
-	protected ILexNameToken 					name;
+	protected ILexNameToken name;
 	/**
 	 * Unique id for the process
 	 */
-	protected int 								processId = getNextId();							
-	protected Inspection 						lastInspection = null;				
+	protected int processId = getNextId();
+	protected Inspection lastInspection = null;
 
-	//Process/Action Graph variables
+	// Process/Action Graph variables
 	/**
 	 * Parent behavior
 	 */
-	protected final CmlBehaviour 				parent;
-	protected CmlBehaviour						leftChild = null;
-	protected CmlBehaviour						rightChild = null;
+	protected final CmlBehaviour parent;
+	protected CmlBehaviour leftChild = null;
+	protected CmlBehaviour rightChild = null;
 
 	/*
 	 * Visitor instances
@@ -75,71 +75,71 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	/**
 	 * The evaluation visitor
 	 */
-	//final transient QuestionAnswerCMLAdaptor<Context, Pair<INode, Context>> 	cmlEvaluationVisitor;
+	// final transient QuestionAnswerCMLAdaptor<Context, Pair<INode, Context>> cmlEvaluationVisitor;
 	/**
 	 * The setup visitor
 	 */
-	final transient QuestionAnswerCMLAdaptor<Context,Pair<INode,Context>>		setupVisitor;
+	final transient QuestionAnswerCMLAdaptor<Context, Pair<INode, Context>> setupVisitor;
 
 	/**
 	 * The inspection visitor
 	 */
-	protected final transient QuestionAnswerCMLAdaptor<Context, Inspection>		inspectionVisitor;
+	protected final transient QuestionAnswerCMLAdaptor<Context, Inspection> inspectionVisitor;
 
-	//Process/Action state variables
-	
-	//The next INode to execute in the given Context
-	Pair<INode,Context>                         								next;
-	Pair<Context,Context>   													preConstructedChildContexts = null;
+	// Process/Action state variables
 
-	//This might get used to boost the performance
-	//protected Map<INode,Object>                	localStore = new HashMap<INode,Object>();
+	// The next INode to execute in the given Context
+	Pair<INode, Context> next;
+	Pair<Context, Context> preConstructedChildContexts = null;
 
-	//Denotational semantics
-	
+	// This might get used to boost the performance
+	// protected Map<INode,Object> localStore = new HashMap<INode,Object>();
+
+	// Denotational semantics
+
 	/**
-	 * This contains the current trace of this proces
-	 * This corresponds to the observation tr' in the CML semantics
+	 * This contains the current trace of this proces This corresponds to the observation tr' in the CML semantics
 	 */
-	protected final CmlTrace 					trPrime = new CmlTrace();
+	protected final CmlTrace trPrime = new CmlTrace();
 	/**
-	 * This is true when the process is started
-	 * This corresponds to the observation ok in the CML semantics
+	 * This is true when the process is started This corresponds to the observation ok in the CML semantics
 	 */
-	protected boolean 							ok = false;
+	protected boolean ok = false;
 	/**
 	 * This is true when the process is waiting for the environment
 	 */
-	protected boolean							waitPrime = false;
-//	protected boolean 							aborted = false;
+	protected boolean waitPrime = false;
+	// protected boolean aborted = false;
 
-	protected EventSourceHandler<CmlBehaviorStateObserver,CmlBehaviorStateEvent>  stateEventhandler = 
-			new EventSourceHandler<CmlBehaviorStateObserver,CmlBehaviorStateEvent>(this,
-					new EventFireMediator<CmlBehaviorStateObserver,CmlBehaviorStateEvent>() {
+	protected EventSourceHandler<CmlBehaviorStateObserver, CmlBehaviorStateEvent> stateEventhandler = new EventSourceHandler<CmlBehaviorStateObserver, CmlBehaviorStateEvent>(this, new EventFireMediator<CmlBehaviorStateObserver, CmlBehaviorStateEvent>()
+	{
 
-				@Override
-				public void fireEvent(CmlBehaviorStateObserver observer,
-						Object source, CmlBehaviorStateEvent event) {
-					observer.onStateChange(event);
-				}
-			});
+		@Override
+		public void fireEvent(CmlBehaviorStateObserver observer, Object source,
+				CmlBehaviorStateEvent event)
+		{
+			observer.onStateChange(event);
+		}
+	});
 
-	protected EventSourceHandler<TraceObserver,TraceEvent>  			traceEventHandler = 
-			new EventSourceHandler<TraceObserver,TraceEvent>(this,
-					new EventFireMediator<TraceObserver,TraceEvent>() {
+	protected EventSourceHandler<TraceObserver, TraceEvent> traceEventHandler = new EventSourceHandler<TraceObserver, TraceEvent>(this, new EventFireMediator<TraceObserver, TraceEvent>()
+	{
 
-				@Override
-				public void fireEvent(TraceObserver observer,
-						Object source, TraceEvent event) {
-					observer.onTraceChange(event);
-				}
-			});
+		@Override
+		public void fireEvent(TraceObserver observer, Object source,
+				TraceEvent event)
+		{
+			observer.onTraceChange(event);
+		}
+	});
 
 	/**
 	 * Constructor
-	 * @param parent set the parent here if any else set to null
+	 * 
+	 * @param parent
+	 *            set the parent here if any else set to null
 	 */
-	private ConcreteCmlBehaviour(CmlBehaviour parent,ILexNameToken name)
+	private ConcreteCmlBehaviour(CmlBehaviour parent, ILexNameToken name)
 	{
 		notifyOnStateChange(CmlBehaviorState.INITIALIZED);
 		this.parent = parent;
@@ -147,90 +147,107 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 		waitPrime = false;
 		ok = false;
 
-		VisitorAccess visitorAccess = new VisitorAccess() {
+		VisitorAccess visitorAccess = new VisitorAccess()
+		{
 
 			@Override
-			public void setLeftChild(CmlBehaviour child) {
+			public void setLeftChild(CmlBehaviour child)
+			{
 				ConcreteCmlBehaviour.this.setLeftChild(child);
 			}
 
 			@Override
-			public void setRightChild(CmlBehaviour child) {
-				ConcreteCmlBehaviour.this.setRightChild(child);				
+			public void setRightChild(CmlBehaviour child)
+			{
+				ConcreteCmlBehaviour.this.setRightChild(child);
 			}
 
 			@Override
-			public Pair<Context, Context> getChildContexts(Context context) {
+			public Pair<Context, Context> getChildContexts(Context context)
+			{
 
-				if(preConstructedChildContexts != null)
+				if (preConstructedChildContexts != null)
 					return preConstructedChildContexts;
 				else
-					return new Pair<Context,Context>(context,context);
+					return new Pair<Context, Context>(context, context);
 			}
 
 			@Override
-			public void setChildContexts(Pair<Context, Context> contexts) {
+			public void setChildContexts(Pair<Context, Context> contexts)
+			{
 
-				ConcreteCmlBehaviour.this.preConstructedChildContexts = contexts; 
+				ConcreteCmlBehaviour.this.preConstructedChildContexts = contexts;
+			}
+
+			@Override
+			public void setWaiting()
+			{
+				waitPrime = true;
 			}
 		};
 
-		//Initialize the visitors
+		// Initialize the visitors
 		setupVisitor = new ActionSetupVisitor(this, visitorAccess);
 		inspectionVisitor = new CmlInspectionVisitor(this, visitorAccess);
 	}
 
-	public ConcreteCmlBehaviour(INode action, Context context, ILexNameToken name) throws AnalysisException
+	public ConcreteCmlBehaviour(INode action, Context context,
+			ILexNameToken name) throws AnalysisException
 	{
-		this(null,name);
+		this(null, name);
 		setNext(new Pair<INode, Context>(action, context));
 	}
 
-	public ConcreteCmlBehaviour(INode action, Context context, CmlBehaviour parent) throws AnalysisException
+	public ConcreteCmlBehaviour(INode action, Context context,
+			CmlBehaviour parent) throws AnalysisException
 	{
-		this(parent,new LexNameToken("", "Child of " + parent.name(),parent.name().getLocation()));
+		this(parent, new LexNameToken("", "Child of " + parent.name(), parent.name().getLocation()));
 		setNext(new Pair<INode, Context>(action, context));
 	}
 
-	public ConcreteCmlBehaviour(INode action, Context context, ILexNameToken name, CmlBehaviour parent) throws AnalysisException
+	public ConcreteCmlBehaviour(INode action, Context context,
+			ILexNameToken name, CmlBehaviour parent) throws AnalysisException
 	{
-		this(parent,name);
+		this(parent, name);
 		setNext(new Pair<INode, Context>(action, context));
 	}
 
-	protected void setNext(Pair<INode, Context> newNext) throws AnalysisException
+	protected void setNext(Pair<INode, Context> newNext)
+			throws AnalysisException
 	{
 
-		if(next == null || (newNext.first != next.first && !hasChildren()))
+		if (next == null || (newNext.first != next.first && !hasChildren()))
 		{
-			next = newNext.first.apply(setupVisitor,newNext.second);
+			next = newNext.first.apply(setupVisitor, newNext.second);
 			ok = false;
-		}
-		else
+		} else
 			next = newNext;
 	}
 
 	@Override
-	public String nextStepToString() {
+	public String nextStepToString()
+	{
 
-		if(hasChildren())
+		if (hasChildren())
 		{
-			String stringRep = "(" + getLeftChild().nextStepToString() + ")" + CmlOpsToString.toString(next.first);
+			String stringRep = "(" + getLeftChild().nextStepToString() + ")"
+					+ CmlOpsToString.toString(next.first);
 
-			if(children().size() > 1)
+			if (children().size() > 1)
 			{
-				stringRep += "(" + getRightChild().nextStepToString()+")";
+				stringRep += "(" + getRightChild().nextStepToString() + ")";
 			}
 
 			return stringRep;
-		}
-		else{
+		} else
+		{
 			return next.first.toString();
 		}
 	}
 
 	@Override
-	public String toString() {
+	public String toString()
+	{
 
 		return name.toString();
 	}
@@ -239,60 +256,59 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	 * Executes the current process behaviour
 	 */
 	@Override
-	public void execute(CmlTransition selectedTransition) throws AnalysisException
+	public void execute(CmlTransition selectedTransition)
+			throws AnalysisException
 	{
-//		this.env= env;
+		// this.env= env;
 
-		//inspect if there are any immediate events
+		// inspect if there are any immediate events
 		inspect();
 
 		ok = true;
 
 		/*
-		 *	If the selected event is valid and is in the immediate alphabet of the process 
-		 *	then we can continue.
-		 *  
+		 * If the selected event is valid and is in the immediate alphabet of the process then we can continue.
 		 */
-		if(lastInspection.getTransitions().contains(selectedTransition))
+		if (lastInspection.getTransitions().contains(selectedTransition))
 		{
-			//If the selected event is tock then we need to execute the children as well to make
-			//time tick in the entire process tree
-			if(selectedTransition instanceof TimedTransition)
+			// If the selected event is tock then we need to execute the children as well to make
+			// time tick in the entire process tree
+			if (selectedTransition instanceof TimedTransition)
 			{
-				if(leftChild != null)
+				if (leftChild != null)
 					leftChild.execute(selectedTransition);
 
-				if(rightChild != null)
+				if (rightChild != null)
 					rightChild.execute(selectedTransition);
 			}
-			//If the selected event is not a tock event then we can evaluate
+			// If the selected event is not a tock event then we can evaluate
 			else
 			{
 				waitPrime = false;
-				//setNext(next.first.apply(cmlEvaluationVisitor,next.second));
+				// setNext(next.first.apply(cmlEvaluationVisitor,next.second));
 				setNext(lastInspection.getNextStep().execute(selectedTransition));
 			}
 
 			updateTrace(selectedTransition);
 		}
-		//if no communication is selected by the supervisor or we cannot sync the selected events
-		//then we go to wait state and wait for channelEvent
-		else 
-		{
-			waitPrime = true;
-		}
+		// //if no communication is selected by the supervisor or we cannot sync the selected events
+		// //then we go to wait state and wait for channelEvent
+		// else
+		// {
+		// waitPrime = true;
+		// }
 	}
 
 	@Override
 	public CmlTransitionSet inspect() throws AnalysisException
 	{
-		if(lastInspection != null && lastInspection.getTrace().equals(this.getTraceModel()))
+		if (lastInspection != null
+				&& lastInspection.getTrace().equals(this.getTraceModel()))
 		{
 			return lastInspection.getTransitions();
-		}
-		else
-		{	
-			lastInspection = next.first.apply(inspectionVisitor,next.second);
+		} else
+		{
+			lastInspection = next.first.apply(inspectionVisitor, next.second);
 
 			return lastInspection.getTransitions();
 		}
@@ -300,12 +316,14 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 
 	/**
 	 * Update the trace and fires the trace event
-	 * @param The next event in the trace
+	 * 
+	 * @param The
+	 *            next event in the trace
 	 */
 	private void updateTrace(CmlTransition event)
 	{
 		trPrime.addEvent(event);
-		notifyOnTraceChange(new TraceEvent(this,event));
+		notifyOnTraceChange(new TraceEvent(this, event));
 	}
 
 	/*
@@ -313,29 +331,32 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	 */
 
 	@Override
-	public Pair<INode, Context> getNextState() {
+	public Pair<INode, Context> getNextState()
+	{
 		return next;
 	}
 
-//	@Override
-//	public void setAbort(Reason reason) {
-//
-//		//abort all the children
-//		for(CmlBehaviour child : children())
-//			child.setAbort(reason);
-//
-//		aborted = true;
-//
-//		notifyOnStateChange(CmlBehaviorState.FINISHED);
-//	}
+	// @Override
+	// public void setAbort(Reason reason) {
+	//
+	// //abort all the children
+	// for(CmlBehaviour child : children())
+	// child.setAbort(reason);
+	//
+	// aborted = true;
+	//
+	// notifyOnStateChange(CmlBehaviorState.FINISHED);
+	// }
 
 	@Override
-	public ILexNameToken name() {
+	public ILexNameToken name()
+	{
 		return this.name;
 	}
-	
+
 	@Override
-	public int getId() {
+	public int getId()
+	{
 		return this.processId;
 	}
 
@@ -344,24 +365,27 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	 */
 
 	@Override
-	public long level() {
+	public long level()
+	{
 
-		if(parent() == null)
+		if (parent() == null)
 			return 0;
-		else 
+		else
 			return parent().level() + 1;
 	}
 
 	@Override
-	public CmlBehaviour parent() {
+	public CmlBehaviour parent()
+	{
 		return parent;
 	}
 
 	@Override
-	public List<CmlBehaviour> children() {
+	public List<CmlBehaviour> children()
+	{
 		List<CmlBehaviour> children = new LinkedList<CmlBehaviour>();
 
-		if(leftChild != null)
+		if (leftChild != null)
 			children.add(leftChild);
 
 		if (rightChild != null)
@@ -371,48 +395,65 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	}
 
 	@Override
-	public CmlBehaviour getLeftChild() {
+	public CmlBehaviour getLeftChild()
+	{
 		return leftChild;
 	}
 
 	@Override
-	public CmlBehaviour getRightChild() {
+	public CmlBehaviour getRightChild()
+	{
 		return rightChild;
 	}
 
 	/**
 	 * Sets the left child node
+	 * 
 	 * @param child
 	 */
-	protected void setLeftChild(CmlBehaviour child) {
+	protected void setLeftChild(CmlBehaviour child)
+	{
 		leftChild = child;
 	}
 
 	/**
 	 * Sets the right child node
+	 * 
 	 * @param child
 	 */
-	protected void setRightChild(CmlBehaviour child) {
-		rightChild = child;		
+	protected void setRightChild(CmlBehaviour child)
+	{
+		rightChild = child;
 	}
 
 	@Override
-	public boolean hasChildren() {
+	public boolean hasChildren()
+	{
 		return leftChild != null || rightChild != null;
 	}
 
 	/**
-	 * 
 	 * State related methods
-	 * 
 	 */
 	@Override
-	public boolean started() {
+	public boolean started()
+	{
 		return ok;
 	}
 
-	@Override public boolean waiting() {
-		return waitPrime;
+	@Override
+	public boolean waiting()
+	{
+		if (!hasChildren())
+			return waitPrime;
+		else
+		{
+			boolean ret = getLeftChild().waiting();
+			if (getRightChild() != null)
+				ret &= getRightChild().waiting();
+
+			return ret;
+		}
 	}
 
 	@Override
@@ -420,34 +461,35 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	{
 		return next.first instanceof ADivAction;
 	}
-	
+
 	@Override
-	public boolean finished() {
-		return !hasChildren() && 
-				(next.first instanceof ASkipAction); 
-				//||
-				//next.first instanceof ASingleGeneralAssignmentStatementAction);
+	public boolean finished()
+	{
+		return !hasChildren() && (next.first instanceof ASkipAction);
+		// ||
+		// next.first instanceof ASingleGeneralAssignmentStatementAction);
 	}
 
 	@Override
-	public boolean deadlocked() throws AnalysisException {
+	public boolean deadlocked() throws AnalysisException
+	{
 
-		if(!finished())
+		if (!finished())
 		{
 			CmlTransitionSet alpha = inspect();
 
-			//A Process is deadlocked if its immediate alphabet is only tock with no limit
-			if(alpha.getAllEvents().isEmpty())
+			// A Process is deadlocked if its immediate alphabet is only tock with no limit
+			if (alpha.getAllEvents().isEmpty())
 				return true;
-			else if(alpha.getAllEvents().size() == 1 && alpha.getObservableEvents().size() == 1)
+			else if (alpha.getAllEvents().size() == 1
+					&& alpha.getObservableEvents().size() == 1)
 			{
 				ObservableTransition obsEvent = alpha.getObservableEvents().iterator().next();
-				return (obsEvent instanceof TimedTransition) && !((TimedTransition) obsEvent).hasTimeLimit();
-			}
-			else
+				return (obsEvent instanceof TimedTransition)
+						&& !((TimedTransition) obsEvent).hasTimeLimit();
+			} else
 				return false;
-		}
-		else
+		} else
 			return false;
 	}
 
@@ -464,21 +506,23 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	}
 
 	/**
-	 * Process state methods 
+	 * Process state methods
 	 */
 	@Override
-	public CmlBehaviorState getState(){
-		
+	public CmlBehaviorState getState()
+	{
+
 		try
 		{
-			if(finished())
+			if (finished())
 				return CmlBehaviorState.FINISHED;
-			else if(deadlocked())
+			else if (deadlocked())
 				return CmlBehaviorState.STOPPED;
 			else
 				return null;
 
-		} catch (AnalysisException e) {
+		} catch (AnalysisException e)
+		{
 			return CmlBehaviorState.ERROR;
 		}
 	}
@@ -487,16 +531,18 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	 * Denotational Semantics Information
 	 */
 	@Override
-	public CmlTrace getTraceModel() {
+	public CmlTrace getTraceModel()
+	{
 		return trPrime;
 	}
 
 	@Override
-	public long getCurrentTime() {
+	public long getCurrentTime()
+	{
 		long nTocks = 0;
 
-		for(CmlTransition ev : getTraceModel().getTrace())
-			if(ev instanceof TimedTransition)
+		for (CmlTransition ev : getTraceModel().getTrace())
+			if (ev instanceof TimedTransition)
 				nTocks++;
 
 		return nTocks;
@@ -522,64 +568,67 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	 */
 
 	@Override
-	public void replaceState(Context context) throws ValueException {
+	public void replaceState(Context context) throws ValueException
+	{
 
-		//stuck onto the given context
-		next = new Pair<INode, Context>(next.first, attachAdditionalContexts(next.second,context));
+		// stuck onto the given context
+		next = new Pair<INode, Context>(next.first, attachAdditionalContexts(next.second, context));
 
-		if(leftChild != null)
+		if (leftChild != null)
 			leftChild.replaceState(next.second);
 
-		if(rightChild != null)
+		if (rightChild != null)
 			rightChild.replaceState(next.second);
 	}
 
 	/**
-	 * Copies and attaches any additional contexts from src to dst. Where additional means that if 
-	 * src is deeper than dst then src.depth() - dst.depth() additional contexts will be copied from src to dst
-	 * @param src The contexts that are copied
-	 * @param dst The new outer context of the first copied context from src
+	 * Copies and attaches any additional contexts from src to dst. Where additional means that if src is deeper than
+	 * dst then src.depth() - dst.depth() additional contexts will be copied from src to dst
+	 * 
+	 * @param src
+	 *            The contexts that are copied
+	 * @param dst
+	 *            The new outer context of the first copied context from src
 	 * @return
 	 */
 	private Context attachAdditionalContexts(Context src, Context dst)
 	{
-		//now we collect all the context below the RootContext for both the copy and the current
-		//First we collect the copy contexts
+		// now we collect all the context below the RootContext for both the copy and the current
+		// First we collect the copy contexts
 		List<Context> copyContexts = new LinkedList<Context>();
 		Context tmp = src;
-		while(tmp != null)
+		while (tmp != null)
 		{
-			copyContexts.add(0,tmp);
+			copyContexts.add(0, tmp);
 			tmp = tmp.outer;
 		}
-		//Next we collect the current contexts
+		// Next we collect the current contexts
 		List<Context> contexts = new LinkedList<Context>();
 		tmp = dst;
-		while(tmp != null)
+		while (tmp != null)
 		{
-			contexts.add(0,tmp);
+			contexts.add(0, tmp);
 			tmp = tmp.outer;
 		}
-		Context newCurrent = contexts.get(contexts.size()-1);
-		//We know that the copy context must be at least as big as the current one so we iterate through those
-		for(int i = contexts.size() ; i < copyContexts.size();i++)
+		Context newCurrent = contexts.get(contexts.size() - 1);
+		// We know that the copy context must be at least as big as the current one so we iterate through those
+		for (int i = contexts.size(); i < copyContexts.size(); i++)
 		{
 			Context iCopy = copyContexts.get(i);
 
-			//newly Added contexts
-			//FIXME this should not be created like that a more general solution to this must
-			//be made. Eg. a method call that can clone the context with a new outer pointer
-			if(iCopy instanceof ClassContext)
+			// newly Added contexts
+			// FIXME this should not be created like that a more general solution to this must
+			// be made. Eg. a method call that can clone the context with a new outer pointer
+			if (iCopy instanceof ClassContext)
 				throw new InterpreterRuntimeException("Not yet implemented!");
-			else if(iCopy instanceof ObjectContext)
+			else if (iCopy instanceof ObjectContext)
 				newCurrent = CmlContextFactory.newObjectContext(iCopy.location, iCopy.title, newCurrent, iCopy.getSelf());
-			else if(iCopy instanceof StateContext)
+			else if (iCopy instanceof StateContext)
 				throw new InterpreterRuntimeException("Trying to merge a StateContext, this should never happen!");
 			else
 				newCurrent = CmlContextFactory.newContext(iCopy.location, iCopy.title, newCurrent);
 
-
-			for(Entry<ILexNameToken,Value> entry : iCopy.entrySet())
+			for (Entry<ILexNameToken, Value> entry : iCopy.entrySet())
 			{
 				newCurrent.put(entry.getKey(), entry.getValue());
 			}

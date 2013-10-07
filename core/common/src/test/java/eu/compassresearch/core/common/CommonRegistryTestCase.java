@@ -65,20 +65,12 @@ public class CommonRegistryTestCase {
 			return null;
 		}
 
-		@Override
-		public String kindPSource() {
-			return null;
-		}
 
 		@Override
 		public Map<String, Object> getChildren(Boolean includeInheritedFields) {
 			return null;
 		}
 
-		@Override
-		public String kindNode() {
-			return null;
-		}
 
 		@Override
 		public void removeChild(INode child) {
@@ -155,10 +147,6 @@ public class CommonRegistryTestCase {
 			return null;
 		}
 
-		@Override
-		public String kindNode() {
-			return null;
-		}
 
 		@Override
 		public void removeChild(INode child) {

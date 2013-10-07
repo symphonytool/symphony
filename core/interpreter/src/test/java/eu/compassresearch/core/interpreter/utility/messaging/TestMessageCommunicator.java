@@ -27,7 +27,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.lex.LexIdentifierToken;
 import eu.compassresearch.ast.lex.LexNameToken;
-import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
+import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorState;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlTrace;
@@ -45,160 +45,183 @@ import eu.compassresearch.core.interpreter.debug.messaging.MessageCommunicator;
 import eu.compassresearch.core.interpreter.debug.messaging.MessageContainer;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
-public class TestMessageCommunicator {
+public class TestMessageCommunicator
+{
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() throws Exception
+	{
 	}
 
 	@After
-	public void tearDown() throws Exception {
+	public void tearDown() throws Exception
+	{
 	}
 
-	
 	@Test
-	public void testStartingMessage() throws JsonGenerationException, JsonMappingException, IOException {
-		//1. Convert Java object to JSON format
+	public void testStartingMessage() throws JsonGenerationException,
+			JsonMappingException, IOException
+	{
+		// 1. Convert Java object to JSON format
 		ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-		
-		//MessageContainer message = new MessageContainer(new CmlDbgStatusMessage(CmlDbgpStatus.STARTING));
-		Message sentMessage = new CmlDbgStatusMessage(new CmlInterpreterStateDTO(null,CmlInterpretationStatus.INITIALIZED));
-		MessageCommunicator.sendMessage(outStream, sentMessage);
-		
-		//ObjectMapper mapper = new ObjectMapper();
-		//mapper.enableDefaultTyping();
-		//mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
-		//mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-		
-		
-		
-		//mapper.writeValue(out, message);
-		
-		System.out.println(outStream.toString());
-		
-		ByteArrayInputStream in = new ByteArrayInputStream(outStream.toByteArray());  
 
-		
+		// MessageContainer message = new MessageContainer(new CmlDbgStatusMessage(CmlDbgpStatus.STARTING));
+		Message sentMessage = new CmlDbgStatusMessage(new CmlInterpreterStateDTO(null, CmlInterpreterState.INITIALIZED));
+		MessageCommunicator.sendMessage(outStream, sentMessage);
+
+		// ObjectMapper mapper = new ObjectMapper();
+		// mapper.enableDefaultTyping();
+		// mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
+		// mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+		// mapper.writeValue(out, message);
+
+		System.out.println(outStream.toString());
+
+		ByteArrayInputStream in = new ByteArrayInputStream(outStream.toByteArray());
+
 		BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-		MessageContainer messageContainter = MessageCommunicator.receiveMessage(reader,
-				new MessageContainer(new CmlDbgStatusMessage(CmlInterpretationStatus.TERMINATED)));
-		
+		MessageContainer messageContainter = MessageCommunicator.receiveMessage(reader, new MessageContainer(new CmlDbgStatusMessage(CmlInterpreterState.TERMINATED_BY_USER)));
+
 		Message recvMessage = messageContainter.getMessage();
-		
-		//MessageContainer msg2 = mapper.readValue(in, MessageContainer.class);
-		
+
+		// MessageContainer msg2 = mapper.readValue(in, MessageContainer.class);
+
 		System.out.println(recvMessage);
 	}
-	
+
 	@Test
-	public void testStoppingMessage() throws JsonGenerationException, JsonMappingException, IOException {
-		//1. Convert Java object to JSON format
+	public void testStoppingMessage() throws JsonGenerationException,
+			JsonMappingException, IOException
+	{
+		// 1. Convert Java object to JSON format
 		ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-		
-		//MessageContainer message = new MessageContainer(new CmlDbgStatusMessage(CmlDbgpStatus.STARTING));
-		CmlInterpreterStateDTO status = new CmlInterpreterStateDTO(new CmlBehaviour() {
-			
+
+		// MessageContainer message = new MessageContainer(new CmlDbgStatusMessage(CmlDbgpStatus.STARTING));
+		CmlInterpreterStateDTO status = new CmlInterpreterStateDTO(new CmlBehaviour()
+		{
+
 			@Override
-			public boolean waiting() {
+			public boolean waiting()
+			{
 				// TODO Auto-generated method stub
 				return false;
 			}
-			
+
 			@Override
-			public boolean started() {
+			public boolean started()
+			{
 				// TODO Auto-generated method stub
 				return false;
 			}
-			
+
 			@Override
-			public void replaceState(Context context) throws ValueException {
+			public void replaceState(Context context) throws ValueException
+			{
 				// TODO Auto-generated method stub
-				
+
 			}
-			
+
 			@Override
-			public CmlBehaviour parent() {
-				// TODO Auto-generated method stub
-				return null;
-			}
-			
-			@Override
-			public EventSource<TraceObserver> onTraceChanged() {
+			public CmlBehaviour parent()
+			{
 				// TODO Auto-generated method stub
 				return null;
 			}
-			
+
 			@Override
-			public EventSource<CmlBehaviorStateObserver> onStateChanged() {
+			public EventSource<TraceObserver> onTraceChanged()
+			{
 				// TODO Auto-generated method stub
 				return null;
 			}
-			
+
 			@Override
-			public String nextStepToString() {
+			public EventSource<CmlBehaviorStateObserver> onStateChanged()
+			{
 				// TODO Auto-generated method stub
 				return null;
 			}
-			
+
 			@Override
-			public ILexNameToken name() {
+			public String nextStepToString()
+			{
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public ILexNameToken name()
+			{
 				return new LexNameToken("", new LexIdentifierToken("A", false, new LexLocation()));
 			}
-			
+
 			@Override
-			public long level() {
+			public long level()
+			{
 				// TODO Auto-generated method stub
 				return 0;
 			}
-			
+
 			@Override
-			public CmlTransitionSet inspect() {
+			public CmlTransitionSet inspect()
+			{
 				// TODO Auto-generated method stub
 				return null;
 			}
-			
+
 			@Override
-			public boolean hasChildren() {
+			public boolean hasChildren()
+			{
 				// TODO Auto-generated method stub
 				return false;
 			}
-			
+
 			@Override
-			public CmlTrace getTraceModel() {
+			public CmlTrace getTraceModel()
+			{
 				CmlTrace trace = new CmlTrace();
-				
+
 				trace.addEvent(new TimedTransition());
-				trace.addEvent(new ObservableTransition() {
-					
+				trace.addEvent(new ObservableTransition()
+				{
+
 					@Override
-					public Set<CmlBehaviour> getEventSources() {
+					public Set<CmlBehaviour> getEventSources()
+					{
 						return new HashSet<CmlBehaviour>();
 					}
-					
-//					@Override
-//					public CmlTransitionSet getAsAlphabet() {
-//						// TODO Auto-generated method stub
-//						return null;
-//					}
-					
+
+					// @Override
+					// public CmlTransitionSet getAsAlphabet() {
+					// // TODO Auto-generated method stub
+					// return null;
+					// }
+
 					@Override
-					public ObservableTransition synchronizeWith(ObservableTransition other) {
+					public ObservableTransition synchronizeWith(
+							ObservableTransition other)
+					{
 						// TODO Auto-generated method stub
 						return null;
 					}
-					
+
 					@Override
-					public boolean isComparable(ObservableTransition other) {
+					public boolean isComparable(ObservableTransition other)
+					{
 						// TODO Auto-generated method stub
 						return false;
 					}
+
 					@Override
-					public String toString() {
+					public String toString()
+					{
 						return "a";
 					}
 
 					@Override
-					public boolean isSourcesSubset(CmlTransition other) {
+					public boolean isSourcesSubset(CmlTransition other)
+					{
 						// TODO Auto-generated method stub
 						return false;
 					}
@@ -209,57 +232,65 @@ public class TestMessageCommunicator {
 						// TODO Auto-generated method stub
 						return null;
 					}
-				}); 
-					
-				
+				});
+
 				return trace;
 			}
-			
+
 			@Override
-			public CmlBehaviorState getState() {
+			public CmlBehaviorState getState()
+			{
 				// TODO Auto-generated method stub
 				return CmlBehaviorState.FINISHED;
 			}
-			
+
 			@Override
-			public CmlBehaviour getRightChild() {
+			public CmlBehaviour getRightChild()
+			{
 				// TODO Auto-generated method stub
 				return null;
 			}
-			
+
 			@Override
-			public Pair<INode, Context> getNextState() {
-				return new Pair<INode,Context>(new ASkipAction(),new Context(new InterpreterAssistantFactory(),new LexLocation(), "test", null));
+			public Pair<INode, Context> getNextState()
+			{
+				return new Pair<INode, Context>(new ASkipAction(), new Context(new InterpreterAssistantFactory(), new LexLocation(), "test", null));
 			}
-			
+
 			@Override
-			public CmlBehaviour getLeftChild() {
+			public CmlBehaviour getLeftChild()
+			{
 				// TODO Auto-generated method stub
 				return null;
 			}
-			
+
 			@Override
-			public long getCurrentTime() {
+			public long getCurrentTime()
+			{
 				return 0;
 			}
-			
+
 			@Override
-			public boolean finished() {
+			public boolean finished()
+			{
 				return true;
 			}
-			
+
 			@Override
-			public boolean deadlocked() {
+			public boolean deadlocked()
+			{
 				return false;
 			}
-			
+
 			@Override
-			public List<CmlBehaviour> children() {
+			public List<CmlBehaviour> children()
+			{
 				return new LinkedList<CmlBehaviour>();
 			}
 
 			@Override
-			public int getId() {
+			public int getId()
+			{
 				// TODO Auto-generated method stub
 				return 0;
 			}
@@ -269,7 +300,7 @@ public class TestMessageCommunicator {
 					throws AnalysisException
 			{
 				// TODO Auto-generated method stub
-				
+
 			}
 
 			@Override
@@ -278,34 +309,30 @@ public class TestMessageCommunicator {
 				// TODO Auto-generated method stub
 				return false;
 			}
-		}, CmlInterpretationStatus.FINISHED);
+		}, CmlInterpreterState.FINISHED);
 		Message sentMessage = new CmlDbgStatusMessage(status);
 		MessageCommunicator.sendMessage(outStream, sentMessage);
-		
-		//ObjectMapper mapper = new ObjectMapper();
-		//mapper.enableDefaultTyping();
-		//mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
-		//mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-		
-		
-		
-		//mapper.writeValue(out, message);
-		
-		System.out.println(outStream.toString());
-		
-		ByteArrayInputStream in = new ByteArrayInputStream(outStream.toByteArray());  
 
-		
+		// ObjectMapper mapper = new ObjectMapper();
+		// mapper.enableDefaultTyping();
+		// mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
+		// mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+		// mapper.writeValue(out, message);
+
+		System.out.println(outStream.toString());
+
+		ByteArrayInputStream in = new ByteArrayInputStream(outStream.toByteArray());
+
 		BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-		MessageContainer messageContainter = MessageCommunicator.receiveMessage(reader,
-				new MessageContainer(new CmlDbgStatusMessage(CmlInterpretationStatus.TERMINATED)));
-		
+		MessageContainer messageContainter = MessageCommunicator.receiveMessage(reader, new MessageContainer(new CmlDbgStatusMessage(CmlInterpreterState.TERMINATED_BY_USER)));
+
 		Message recvMessage = messageContainter.getMessage();
-		
-		//Assert.assertEquals(sentMessage., recvMessage);
-		
-		//MessageContainer msg2 = mapper.readValue(in, MessageContainer.class);
-		
+
+		// Assert.assertEquals(sentMessage., recvMessage);
+
+		// MessageContainer msg2 = mapper.readValue(in, MessageContainer.class);
+
 		System.out.println(recvMessage);
 	}
 

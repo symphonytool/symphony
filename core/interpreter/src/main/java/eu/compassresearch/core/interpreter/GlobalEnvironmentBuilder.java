@@ -19,49 +19,50 @@ public class GlobalEnvironmentBuilder extends AnalysisCMLAdaptor
 	/**
 	 * 
 	 */
-	private static final long        	serialVersionUID   = 493918199975006733L;
-	private AProcessDefinition       	lastDefinedProcess = null;
-	private StateContext          		globalState        = null;
-	private List<AProcessDefinition> 	globalProcesses	= null;
+	private static final long serialVersionUID = 493918199975006733L;
+	private AProcessDefinition lastDefinedProcess = null;
+	private StateContext globalState = null;
+	private List<AProcessDefinition> globalProcesses = null;
 
-	private CmlDefinitionVisitor cmlDefEval = new CmlDefinitionVisitor(); 
+	private CmlDefinitionVisitor cmlDefEval = new CmlDefinitionVisitor();
 
-	public GlobalEnvironmentBuilder(List<PSource> sources) throws AnalysisException
+	public GlobalEnvironmentBuilder(List<PSource> sources)
+			throws AnalysisException
 	{
 		BuildGlobalEnvironment(sources);
 	}
 
-	private void BuildGlobalEnvironment(List<PSource> sources) throws AnalysisException
+	private void BuildGlobalEnvironment(List<PSource> sources)
+			throws AnalysisException
 	{
-		//Make a state
+		// Make a state
 		globalState = CmlContextFactory.newStateContext(new LexLocation(), "Global Context");
 		globalProcesses = new LinkedList<AProcessDefinition>();
 
 		/*
-		 * Go through all the top level paragraphs in all the source files
-		 * And add them to the global state
-		 * FIXME: access modifier are not considered, should they?
+		 * Go through all the top level paragraphs in all the source files And add them to the global state FIXME:
+		 * access modifier are not considered, should they?
 		 */
 		for (PSource source : sources)
 		{
 			for (PDefinition def : source.getParagraphs())
 			{
-				globalState.putAllNew(def.apply(cmlDefEval,globalState));
+				globalState.putAllNew(def.apply(cmlDefEval, globalState));
 			}
 		}
 
-		//Search though all the found processes and add them to the process list
-		for(Value val : globalState.values())
+		// Search though all the found processes and add them to the process list
+		for (Value val : globalState.values())
 		{
-			if( val instanceof ProcessObjectValue)
+			if (val instanceof ProcessObjectValue)
 			{
-				AProcessDefinition pdef = ((ProcessObjectValue) val).getProcessDefinition(); 
+				AProcessDefinition pdef = ((ProcessObjectValue) val).getProcessDefinition();
 
 				globalProcesses.add(pdef);
 
-				if(lastDefinedProcess == null)
+				if (lastDefinedProcess == null)
 					lastDefinedProcess = pdef;
-				else if(pdef.getLocation().getStartLine() > lastDefinedProcess.getLocation().getStartLine())
+				else if (pdef.getLocation().getStartLine() > lastDefinedProcess.getLocation().getStartLine())
 					lastDefinedProcess = pdef;
 			}
 		}
@@ -69,8 +70,9 @@ public class GlobalEnvironmentBuilder extends AnalysisCMLAdaptor
 	}
 
 	/**
-	 * Returns the last defined process definition in the sources
-	 * FIXME: For more than one source file this is not well defined
+	 * Returns the last defined process definition in the sources FIXME: For more than one source file this is not well
+	 * defined
+	 * 
 	 * @return
 	 */
 	public AProcessDefinition getLastDefinedProcess()

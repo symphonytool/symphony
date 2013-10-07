@@ -11,6 +11,7 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.AEqualsBinaryExp;
 import org.overture.ast.expressions.AIntLiteralExp;
+import org.overture.ast.node.INode;
 
 import eu.compassresearch.ast.actions.ABlockStatementAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
@@ -382,5 +383,21 @@ public class CMLModelCheckerAdaptor extends QuestionAnswerCMLAdaptor<StringBuild
 			System.out.println(codes[i]);
 		}
 		
+	}
+
+	@Override
+	public StringBuilder createNewReturnValue(INode node, StringBuilder question)
+			throws AnalysisException
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public StringBuilder createNewReturnValue(Object node,
+			StringBuilder question) throws AnalysisException
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

@@ -8,18 +8,20 @@ import org.overture.ast.lex.LexLocation;
 
 import eu.compassresearch.ast.actions.AInterleavingReplicatedAction;
 
-public class TestLocationExtractor {
+public class TestLocationExtractor
+{
 
 	@Test
-	public void testExtractLocation() {
-		
+	public void testExtractLocation()
+	{
+
 		AInterleavingReplicatedAction node = new AInterleavingReplicatedAction(new LexLocation("test", "Test", 0, 0, 1, 1, 0, 1), null, null, null);
-		
+
 		ILexLocation loc = LocationExtractor.extractLocation(node);
-		
+
 		Assert.assertNotNull(loc);
-		
+
 		Assert.assertEquals("Test", loc.getModule());
-		
+
 	}
 }

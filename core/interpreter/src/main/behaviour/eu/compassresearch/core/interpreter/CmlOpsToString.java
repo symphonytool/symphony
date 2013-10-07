@@ -10,54 +10,77 @@ import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.AnswerCMLAdaptor;
 import eu.compassresearch.ast.process.PProcess;
 
-class CmlOpsToString  {
+class CmlOpsToString
+{
 
 	public static String toString(INode node)
 	{
-		try {
+		try
+		{
 			return node.apply(new OpsVisitor());
-		} catch (AnalysisException e) {
+		} catch (AnalysisException e)
+		{
 			e.printStackTrace();
 		}
-		
+
 		return "Error!";
 	}
-	
-	
+
 	private static class OpsVisitor extends AnswerCMLAdaptor<String>
 	{
 
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
 		@Override
-		public String defaultPProcess(PProcess node)
-				throws AnalysisException {
+		public String defaultPProcess(PProcess node) throws AnalysisException
+		{
 			return "NA";
 		}
 
 		@Override
-		public String defaultPAction(PAction node) throws AnalysisException {
+		public String defaultPAction(PAction node) throws AnalysisException
+		{
 			return "NA";
 		}
-		
+
 		@Override
 		public String caseAExternalChoiceAction(AExternalChoiceAction node)
-				throws AnalysisException {
+				throws AnalysisException
+		{
 			return "[]";
 		}
-		
+
 		@Override
 		public String caseAInterleavingParallelAction(
-				AInterleavingParallelAction node) throws AnalysisException {
-			
+				AInterleavingParallelAction node) throws AnalysisException
+		{
+
 			return "|||";
 		}
 
 		@Override
 		public String caseAGeneralisedParallelismParallelAction(
 				AGeneralisedParallelismParallelAction node)
-						throws AnalysisException {
+				throws AnalysisException
+		{
 
 			return "[|" + node.getChansetExpression() + "|]";
 		}
+
+		@Override
+		public String createNewReturnValue(INode node)
+		{
+			return "NA";
+		}
+
+		@Override
+		public String createNewReturnValue(Object node)
+		{
+			return "NA";
+		}
 	}
-	
+
 }

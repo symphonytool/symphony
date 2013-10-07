@@ -1,6 +1,7 @@
 package eu.compassresearch.core.analysis.pog.visitors;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.node.INode;
 import org.overture.pog.pub.IPOContextStack;
 
 import eu.compassresearch.ast.expressions.AEnumVarsetExpression;
@@ -43,6 +44,8 @@ public class ChansetVisitor extends VarSetVisitor {
 			throws AnalysisException {
 		return new CmlProofObligationList();
 	}
+
+	
 	
 	
 	

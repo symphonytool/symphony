@@ -4,7 +4,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Type;
-import eu.compassresearch.core.analysis.modelchecker.visitors.Utilities;
 
 
 public class BBinding implements Binding {

@@ -25,6 +25,7 @@ import org.overture.ast.modules.PExport;
 import org.overture.ast.modules.PExports;
 import org.overture.ast.modules.PImports;
 import org.overture.ast.modules.PModules;
+import org.overture.ast.node.INode;
 import org.overture.ast.patterns.ASetBind;
 import org.overture.ast.patterns.ASetMultipleBind;
 import org.overture.ast.patterns.ATypeBind;
@@ -525,5 +526,25 @@ public class ProofObligationGenerator extends
 
 		System.out.println(successes + " was successful, " + failures
 				+ " was failures.");
+	}
+
+
+
+	@Override
+	public CmlProofObligationList createNewReturnValue(INode node,
+			IPOContextStack question)
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	@Override
+	public CmlProofObligationList createNewReturnValue(Object node,
+			IPOContextStack question)
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

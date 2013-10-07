@@ -8,25 +8,27 @@ public class InternalTransition extends AbstractSilentTransition
 {
 	private static final String internalString = "internal";
 
-	public InternalTransition(CmlBehaviour source, INode transitionDstNode, String transitionText)
+	public InternalTransition(CmlBehaviour source, INode transitionDstNode,
+			String transitionText)
 	{
-		super(source,transitionDstNode,"internal");
+		super(source, transitionDstNode, "internal");
 		setTransitionMessage(transitionText);
 	}
-	
-//	public InternalTransition(CmlBehaviour source, String transitionText)
-//	{
-//		super(source,transitionText);
-//	}
-	
+
+	// public InternalTransition(CmlBehaviour source, String transitionText)
+	// {
+	// super(source,transitionText);
+	// }
+
 	@Override
-	public boolean equals(Object obj) {
-		
-		if(!(obj instanceof InternalTransition))
+	public boolean equals(Object obj)
+	{
+
+		if (!(obj instanceof InternalTransition))
 			return false;
 		else
 		{
-			InternalTransition otherSilent = (InternalTransition)obj;
+			InternalTransition otherSilent = (InternalTransition) obj;
 			return super.equals(otherSilent);
 		}
 	}

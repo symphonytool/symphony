@@ -330,4 +330,20 @@ public class ThmDeclAndDefVisitor extends AnswerCMLAdaptor<ThmNodeList>
 		tnl.addAll(node.apply(parentVisitor));
 		return tnl;
 	}
+
+	@Override
+	public ThmNodeList createNewReturnValue(INode node)
+			throws AnalysisException
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ThmNodeList createNewReturnValue(Object node)
+			throws AnalysisException
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

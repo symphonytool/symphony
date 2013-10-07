@@ -2,20 +2,13 @@ package eu.compassresearch.core.interpreter.debug;
 
 /**
  * Possible debugging commands
+ * 
  * @author akm
- *
  */
-public enum CmlDebugCommand {
+public enum CmlDebugCommand
+{
 
-	START,
-	STOP,
-	SUSPEND,
-	RESUME,
-	STEP,
-	DISCONNECT,
-	SET_BREAKPOINT,
-	REMOVE_BREAKPOINT,
-	SET_CHOICE;
+	START, STOP, SUSPEND, RESUME, STEP, DISCONNECT, SET_BREAKPOINT, REMOVE_BREAKPOINT, SET_CHOICE;
 
 	@Override
 	public String toString()

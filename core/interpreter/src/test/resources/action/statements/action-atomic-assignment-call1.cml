@@ -1,0 +1,30 @@
+channels 
+a : int
+
+process A = 
+begin 
+	state
+	v1 : int := 0
+	v2 : int := 0
+	v3 : int := 0
+
+	operations
+	
+
+		
+	Test : int ==> int
+	Test(x) ==
+	(
+		atomic
+		( 
+			v1 := 1;
+			v2 := 2;
+			v3 := 3
+		);
+		return v1+v2+v3
+	)
+	
+	
+	 
+	@ (dcl z : int @ z := Test(2);a!(z) -> Skip )
+end
