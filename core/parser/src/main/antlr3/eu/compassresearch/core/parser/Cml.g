@@ -1632,7 +1632,7 @@ channelDef returns[List<AChannelNameDefinition> def]
                 if ($type.type != null) {
                     loc = extractLexLocation(loc, extractLexLocation($type.stop));
                     chanType.setLocation(extractLexLocation($type.start,$type.stop));
-                    chanType.setType($type.type);
+                    chanType.setType($type.type.clone());
                 }    
                 ATypeSingleDeclaration typeDecl = new ATypeSingleDeclaration(loc, NameScope.GLOBAL, idList, chanType);
                 
