@@ -1165,44 +1165,13 @@ class TCDeclAndDefVisitor extends
 
 			} while (false);
 
-			flattenProductParameterType(fnType);
 			result.add(def);
 
 			return result;
 
 		}
 
-		/*
-		 * VDMPP parser adds types one by one for the outer product type. E.g.
-		 * f: int * int -> int has arg-types [int,int] rather than (int * int).
-		 * 
-		 * @param pdef
-		 */
-		private void flattenProductParameterType(AFunctionType fnType) {
-			if (fnType.getParameters().size() == 1) {
-				PType parameters = fnType.getParameters().get(0);
-				LinkedList<PType> types = new LinkedList<PType>();
-				
-				if (parameters instanceof AProductType)
-				{
-					// Expand unbracketed product types
-					AProductType pt = (AProductType)parameters;
-					types.addAll(pt.getTypes());
-				}
-				else if (parameters instanceof AVoidType)
-				{
-					// No type
-				}
-				else
-				{
-					// One parameter, including bracketed product types
-					types.add(parameters);
-				}
-				
-				fnType.setParameters(types);
-			}
-
-		}
+		
 
 	}
 
@@ -1944,15 +1913,14 @@ class TCDeclAndDefVisitor extends
 		CmlTypeCheckInfo functionBodyEnv = (CmlTypeCheckInfo) newQuestion
 				.newScope(current, funDef);
 
-		// Take product types out of the product one level
-		List<PType> flattenParamTypes = new LinkedList<PType>();
-		for (PType t : paramTypes) {
-			if (t instanceof AProductType)
-				flattenParamTypes.addAll(((AProductType) t).getTypes());
-			else
-				flattenParamTypes.add(t);
+		
+		if (patterns.size()!= paramTypes.size()) {
+			funDef.setType(issueHandler.addTypeError(funDef,
+					TypeErrorMessages.WRONG_NUMBER_OF_ARGUMENTS
+							.customizeMessage("" +patterns.size(),
+									paramTypes.size() + "")));
+			return functionBodyEnv;
 		}
-
 		// add formal arguments to the environment
 		int i = 0;
 		for (PPattern p : patterns) {
@@ -1965,17 +1933,11 @@ class TCDeclAndDefVisitor extends
 				return functionBodyEnv;
 			}
 
-			if (i > flattenParamTypes.size()) {
-				funDef.setType(issueHandler.addTypeError(funDef,
-						TypeErrorMessages.WRONG_NUMBER_OF_ARGUMENTS
-								.customizeMessage("" + i,
-										flattenParamTypes.size() + "")));
-				return functionBodyEnv;
-			}
+			
 
 			for (PDefinition def : patternType.getDefinitions()) {
 				functionBodyEnv.addVariable(def.getName(), def);
-				def.setType(flattenParamTypes.get(i));
+				def.setType(paramTypes.get(i));
 			}
 
 			i++;
