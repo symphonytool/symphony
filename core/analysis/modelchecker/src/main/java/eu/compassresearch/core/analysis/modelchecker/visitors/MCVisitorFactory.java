@@ -2,7 +2,16 @@ package eu.compassresearch.core.analysis.modelchecker.visitors;
 
 import java.util.HashMap;
 
+import org.overture.ast.node.INode;
+
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
+import eu.compassresearch.ast.declarations.PSingleDeclaration;
+import eu.compassresearch.ast.definitions.AActionDefinition;
+import eu.compassresearch.ast.definitions.AProcessDefinition;
+import eu.compassresearch.ast.expressions.PCMLExp;
+import eu.compassresearch.ast.process.AActionProcess;
+import eu.compassresearch.ast.process.PProcess;
+import eu.compassresearch.ast.types.PCMLType;
 
 public class MCVisitorFactory {
 
@@ -54,6 +63,38 @@ public class MCVisitorFactory {
 			result = visitors.get(visitorName);
 		}
 			
+		return result;
+	}
+	
+	public QuestionAnswerCMLAdaptor<CMLModelcheckerContext, StringBuilder> getMainVisitor(){
+		return this.visitors.get(MAIN_VISITOR_NAME);
+	}
+	
+	/*
+	 * It returns a visitor that is suitable for a specific INode.
+	 */
+	public QuestionAnswerCMLAdaptor<CMLModelcheckerContext, StringBuilder> getVisitor(INode node){
+		QuestionAnswerCMLAdaptor<CMLModelcheckerContext, StringBuilder> result = null;
+		
+		if(node instanceof AProcessDefinition || node instanceof AActionProcess){
+			result = this.visitors.get(PROCESS_VISITOR_NAME);
+		}
+		if(node instanceof AActionDefinition || node instanceof PSingleDeclaration){
+			result = this.visitors.get(ACTION_VISITOR_NAME);
+		}
+		if(node instanceof PCMLExp){
+			result = this.visitors.get(EXPRESSION_VISITOR_NAME);
+		}
+		if(node instanceof PCMLType){
+			result = this.visitors.get(TYPE_VISITOR_NAME);
+		}
+		
+		//what if node is operation definition, state definition, channel definition
+		
+		if(result == null){
+			result = new MCEmptyVisitor();
+		}
+		
 		return result;
 	}
 }

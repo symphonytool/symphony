@@ -2224,6 +2224,12 @@ public class CMLModelcheckerVisitor extends
 		return question.getScriptContent();
 	}
 	
+	@Override
+	public StringBuilder defaultPAction(PAction node,
+			CMLModelcheckerContext question) throws AnalysisException {
+		
+		throw new ModelcheckerRuntimeException(ModelcheckerErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName()));
+	}
 	
 	public String[] generateFormulaCodeForAll() throws IOException,
 			AnalysisException {
@@ -2283,12 +2289,7 @@ public class CMLModelcheckerVisitor extends
 	
 	
 
-	@Override
-	public StringBuilder defaultPAction(PAction node,
-			CMLModelcheckerContext question) throws AnalysisException {
-		
-		throw new ModelcheckerRuntimeException(ModelcheckerErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName()));
-	}
+	
 	
 	
 	/**
