@@ -1,7 +1,7 @@
 package eu.compassresearch.pog.tests;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -21,6 +21,7 @@ import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligation;
 import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligationList;
 import eu.compassresearch.core.analysis.pog.visitors.ProofObligationGenerator;
 import eu.compassresearch.pog.tests.utils.TestInputHelper;
+import eu.compassresearch.pog.tests.utils.TestResultHelper;
 /**
  * Main class for the new POG test framework.
  * 
@@ -38,13 +39,16 @@ public class ParameterizedBaseTest
 //FIXME Add POG test results
 	private String micromodel;
 	private String poresult;
+	private String testfolder;
 /**
  * Constructor for the test. Initialized with parameters from {@link #testData()}.
  * @param testParameter filename for the model to test
  * @param resultParameter test result file
  */
-	public ParameterizedBaseTest(String testParameter, String resultParameter)
+	
+	public ParameterizedBaseTest(String testFolder, String testParameter, String resultParameter)
 	{
+		this.testfolder = testFolder;
 		this.micromodel = testParameter;
 		this.poresult = resultParameter;
 	}
@@ -53,11 +57,10 @@ public class ParameterizedBaseTest
 	 * Generate the test data. Actually just fetches it from {@link BaseInputProvider}.
 	 * @return test data.
 	 */
-	@Parameters(name="{index} : {0}")
+	@Parameters(name="{index} : {1}")
 	public static Collection<Object[]> testData()
 	{
-		Object[][] data = BaseInputProvider.files;
-		return Arrays.asList(data);
+		return BaseInputProvider.files();
 	}
 /**
  * A very simple test. Just prints the names of generated test inputs and results.
@@ -78,9 +81,24 @@ public class ParameterizedBaseTest
 	@Test
 	public void printPOs() throws IOException, AnalysisException
 	{
-		List<INode> ast = TestInputHelper.getAstFromName(micromodel);
+		String modelpath = testfolder+micromodel;
+		String resultpath = testfolder+poresult;
+		List<INode> ast = TestInputHelper.getAstFromName(modelpath);
 		System.out.println("Testing " + micromodel);
-		System.out.println("Result at " + poresult);
+		
+		String testResult;
+		
+		//FIXME Remove catch of absent RESULT files
+		try{
+		testResult = TestResultHelper.getResultAsString(resultpath);
+		}
+		catch (FileNotFoundException e){
+			testResult="N/A yet";
+		}
+		
+		System.out.println("Result: " + testResult);
+		
+		
 		
 		try {IProofObligationList polist = generatePOs(ast);
 		
@@ -123,7 +141,7 @@ public class ParameterizedBaseTest
 			sb.append(po.getKind().toString());
 		}
 		
-		sb.append(po.getValueTree().toString());
+		sb.append(": " + po.getValueTree().toString());
 	
 		System.out.println(sb.toString());
 	}
