@@ -414,10 +414,13 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 					contextStack.add(nextContext);
 					nextContext = nextContext.outer;
 				}
-
-				for (Context c : contextStack)
-					stackframes.add(new StackFrameDTO(c.location.getStartLine(), c.location.getFile().toURI(), contextCount--));
-
+				int contextIndex = contextCount;
+				for (Context c : contextStack){
+					if(contextIndex == contextCount)
+						stackframes.add(new StackFrameDTO(LocationExtractor.extractLocation(foundBehavior.getNextState().first).getStartLine(), c.location.getFile().toURI(), contextIndex--));
+					else
+						stackframes.add(new StackFrameDTO(c.location.getStartLine(), c.location.getFile().toURI(), contextIndex--));
+				}
 				ResponseMessage responseMessage = new ResponseMessage(message.getRequestId(), CmlRequest.GET_STACK_FRAMES, stackframes);
 				sendResponse(responseMessage);
 				return true;
