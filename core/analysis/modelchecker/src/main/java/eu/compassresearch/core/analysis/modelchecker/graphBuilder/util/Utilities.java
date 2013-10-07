@@ -14,6 +14,7 @@ import eu.compassresearch.core.analysis.modelchecker.graphBuilder.param.NoPar;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.param.Param;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.param.SPar;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Assing;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Chaos;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.ConditionalChoice;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Divergence;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.ExtChoice;
@@ -292,6 +293,9 @@ public class Utilities {
 			break;
 		case Skip:
 			result = new Skip();
+			break;
+		case Chaos:
+			result = new Chaos();
 			break;
 		case Div:
 			result = new Divergence();

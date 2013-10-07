@@ -1,0 +1,93 @@
+channels
+  State : int
+  L1 : bool
+  L2 : bool
+  L3 : bool
+
+process Ifm = begin 
+
+actions
+
+  IFMLOOP = State!0 -> setPS.dark -> IFMLOOP
+            []
+            State!1 -> setPS.stop -> IFMLOOP
+            []
+            State!2 -> setPS.warning -> IFMLOOP
+            []
+            State!3 -> setPS.drive -> IFMLOOP
+            []
+            shine.dark -> L1.false -> L2.false -> L3.false -> IFMLOOP
+            []
+            shine.stop -> L1.true -> L2.true -> L3.false -> IFMLOOP
+            []
+            shine.warning -> L1.true -> L2.false -> L3.true -> IFMLOOP
+            []
+            shine.drive -> L1.false -> L2.true -> L3.true -> IFMLOOP
+
+@
+
+IFMLOOP
+
+end
+
+types
+  LampId      = <L1> | <L2> | <L3>
+  Signal      = set of LampId
+  ProperState = Signal
+  inv ps == ps in set {dark, stop, warning, drive}
+
+  DwarfType :: currentproperstate    : ProperState
+
+  DwarfSignal = DwarfType
+
+values
+  dark: Signal    = {}
+  stop: Signal    = {<L1>, <L2>}
+  warning: Signal = {<L1>, <L3>}
+  drive: Signal   = {<L2>, <L3>}
+
+channels
+  init
+  setPS: ProperState
+  shine: Signal
+
+process Dwarf = begin 
+
+state 
+  dw : DwarfType
+
+operations
+  Init : () ==> ()
+  Init() ==
+    dw := mk_DwarfType(stop) 
+    post dw.currentproperstate = stop
+
+  SetNewProperState: (ProperState) ==> ()
+  SetNewProperState(st) ==
+    dw := mk_DwarfType(st) 
+  
+  	pre dw.currentproperstate <> st
+  	     
+  	post dw.currentproperstate = st
+
+  actions
+    DWARF =
+      (setPS!dark -> SetNewProperState(dark); DWARF)
+      []
+      (setPS!stop -> SetNewProperState(stop); DWARF)
+      []
+      (setPS!warning -> SetNewProperState(warning); DWARF)
+      []
+      (setPS!drive -> SetNewProperState(drive); DWARF)
+      []
+      (shine!(dw.currentproperstate) -> DWARF)
+
+@ 
+
+init -> Init() ; DWARF
+
+end
+
+process Top =  Dwarf [| {| setPS, shine |} |] Ifm
+
+process testDriver = Top  [| {| State, setPS, shine |} |] begin @ State.0 -> setPS.dark ->  shine.dark -> Skip end 

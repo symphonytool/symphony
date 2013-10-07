@@ -10,6 +10,7 @@ import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.definitions.SClassDefinition;
+import org.overture.ast.node.INode;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.types.ABooleanBasicType;
 import org.overture.ast.types.ABracketType;
@@ -41,8 +42,8 @@ import org.overture.ast.types.AVoidReturnType;
 import org.overture.ast.types.AVoidType;
 import org.overture.ast.types.PType;
 import org.overture.typechecker.TypeCheckInfo;
-import org.overture.typechecker.assistant.definition.ATypeDefinitionAssistantTC;
 import org.overture.typechecker.assistant.definition.SClassDefinitionAssistantTC;
+import org.overture.typechecker.utilities.TypeResolver;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.definitions.ACmlClassDefinition;
@@ -289,9 +290,9 @@ class TCTypeVisitor extends
 
 		// The dereferenced type
 		ATypeDefinition dereferencedNameInvType = (ATypeDefinition) tDef;
-		ATypeDefinitionAssistantTC.typeResolve(dereferencedNameInvType,
+		dereferencedNameInvType.apply(question.assistantFactory.getTypeResolver(),new TypeResolver.NewQuestion(
 				(QuestionAnswerAdaptor<TypeCheckInfo, PType>) parentChecker,
-				question);
+				question));
 
 		if (dereferencedNameInvType.getType() instanceof ANamedInvariantType) {
 			ANamedInvariantType res = (ANamedInvariantType) dereferencedNameInvType
@@ -442,6 +443,20 @@ class TCTypeVisitor extends
 		node.setTo(toType);
 
 		return node;
+	}
+
+	@Override
+	public PType createNewReturnValue(INode node, TypeCheckInfo question)
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public PType createNewReturnValue(Object node, TypeCheckInfo question)
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

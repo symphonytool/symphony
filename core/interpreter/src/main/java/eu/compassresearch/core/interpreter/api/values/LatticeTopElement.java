@@ -10,39 +10,39 @@ public class LatticeTopElement extends Value implements LatticeElement
 	 */
 	private static final long serialVersionUID = 1438757665705569283L;
 	private PType type;
-	private static final String topString = "?"; 
+	private static final String topString = "?";
 
 	public LatticeTopElement(PType type)
 	{
 		this.type = type;
 	}
-	
+
 	@Override
 	public LatticeElement meet(LatticeElement other)
 	{
-		//this should always be the other element since
+		// this should always be the other element since
 		return other;
 	}
 
-//	@Override
-//	public Value meet(Value other)
-//	{
-//		//this should always be the other element since
-//		return other;
-//	}
-	
+	// @Override
+	// public Value meet(Value other)
+	// {
+	// //this should always be the other element since
+	// return other;
+	// }
+
 	@Override
 	public boolean isComparable(LatticeElement other)
 	{
-		//the top element is comparable with all the elements of the same type
+		// the top element is comparable with all the elements of the same type
 		return this.type.equals(other.getType());
 	}
 
-//	@Override
-//	public boolean isComparable(Value other)
-//	{
-//		return true;
-//	}
+	// @Override
+	// public boolean isComparable(Value other)
+	// {
+	// return true;
+	// }
 
 	@Override
 	public PType getType()
@@ -65,10 +65,10 @@ public class LatticeTopElement extends Value implements LatticeElement
 	@Override
 	public boolean equals(Object other)
 	{
-		if(other instanceof LatticeElement)
-			return ((LatticeTopElement) other).getType().equals(type) &&
-					((LatticeTopElement) other).isTopElement();
-					
+		if (other instanceof LatticeElement)
+			return ((LatticeTopElement) other).getType().equals(type)
+					&& ((LatticeTopElement) other).isTopElement();
+
 		else
 			return false;
 	}

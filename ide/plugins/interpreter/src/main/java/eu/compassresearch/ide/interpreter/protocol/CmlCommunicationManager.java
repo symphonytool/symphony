@@ -17,7 +17,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.overture.ide.debug.core.dbgp.IDbgpProperty;
 import org.overture.ide.debug.core.dbgp.IDbgpStackLevel;
 
-import eu.compassresearch.core.interpreter.api.CmlInterpretationStatus;
+import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
 import eu.compassresearch.core.interpreter.debug.Breakpoint;
 import eu.compassresearch.core.interpreter.debug.CmlDbgCommandMessage;
 import eu.compassresearch.core.interpreter.debug.CmlDbgStatusMessage;
@@ -125,7 +125,7 @@ public class CmlCommunicationManager extends Thread
 	 */
 	public MessageContainer receiveMessage() throws IOException
 	{
-		return MessageCommunicator.receiveMessage(fRequestReader, new MessageContainer(new CmlDbgStatusMessage(CmlInterpretationStatus.TERMINATED)));
+		return MessageCommunicator.receiveMessage(fRequestReader, new MessageContainer(new CmlDbgStatusMessage(CmlInterpreterState.TERMINATED_BY_USER)));
 	}
 
 	/**
@@ -149,28 +149,29 @@ public class CmlCommunicationManager extends Thread
 
 		return result;
 	}
-//	private <H extends Message> boolean dispatchMessageHandler(final 
-//			Map<String, MessageEventHandler<H>> handlers,final H message)
-//	{
-//		boolean result = false;
-//
-//		if (handlers.containsKey(message.getKey()))
-//		{
-//			result =true;
-//			new Thread(new Runnable()
-//			{
-//				
-//				@Override
-//				public void run()
-//				{
-//					handlers.get(message.getKey()).handleMessage(message);
-//				}
-//			}).start();
-//			
-//		}
-//
-//		return result;
-//	}
+
+	// private <H extends Message> boolean dispatchMessageHandler(final
+	// Map<String, MessageEventHandler<H>> handlers,final H message)
+	// {
+	// boolean result = false;
+	//
+	// if (handlers.containsKey(message.getKey()))
+	// {
+	// result =true;
+	// new Thread(new Runnable()
+	// {
+	//
+	// @Override
+	// public void run()
+	// {
+	// handlers.get(message.getKey()).handleMessage(message);
+	// }
+	// }).start();
+	//
+	// }
+	//
+	// return result;
+	// }
 
 	/**
 	 * Dispatches the message from messageContainer to the assigned handler of this message type
@@ -307,7 +308,7 @@ public class CmlCommunicationManager extends Thread
 		{
 			Breakpoint cmlBP = new Breakpoint(System.identityHashCode(file.toString()
 					+ linenumber), file, linenumber);
-//			System.out.println("Debug target: " + cmlBP);
+			// System.out.println("Debug target: " + cmlBP);
 			this.sendCommandMessage(CmlDebugCommand.SET_BREAKPOINT, cmlBP);
 		}
 	}
@@ -316,7 +317,7 @@ public class CmlCommunicationManager extends Thread
 	{
 		Breakpoint cmlBP = new Breakpoint(System.identityHashCode(file.toString()
 				+ linenumber), file, linenumber);
-//		System.out.println("Debug target: " + cmlBP);
+		// System.out.println("Debug target: " + cmlBP);
 		this.sendCommandMessage(CmlDebugCommand.REMOVE_BREAKPOINT, cmlBP);
 	}
 
@@ -372,50 +373,58 @@ public class CmlCommunicationManager extends Thread
 	public IDbgpProperty[] getContextProperties(int threadId, int level,
 			int contextId2)
 	{
-		
-		ResponseMessage rm = this.sendRequestSynchronous(new RequestMessage(CmlRequest.GET_CONTEXT_PROPERTIES, new int[]{threadId,level}));
+
+		ResponseMessage rm = this.sendRequestSynchronous(new RequestMessage(CmlRequest.GET_CONTEXT_PROPERTIES, new int[] {
+				threadId, level }));
 
 		List<VariableDTO> variables = rm.getContent();
 
 		List<IDbgpProperty> properties = new Vector<IDbgpProperty>();
-		
+
 		for (VariableDTO var : variables)
 		{
 			properties.add(convert(var));
 		}
-//		switch (level)
-//		{
-//			case 1:
-//				properties.add(new DbgpProperty("a" + threadId, "A`a", "int", "8", 2, true, false, "A`a", "", getChilds(), 0, 0));
-//				properties.add(new DbgpProperty("b" + threadId, "A`a", "int", "8", 0, false, false, "A`a", "", new IDbgpProperty[] {}, 0, 0));
-//				break;
-//			case 2:
-//				properties.add(new DbgpProperty("c" + threadId, "A`a", "int", "8", 0, false, false, "A`a", "", new IDbgpProperty[] {}, 0, 0));
-//				properties.add(new DbgpProperty("d" + threadId, "A`a", "int", "8", 0, false, false, "A`a", "", new IDbgpProperty[] {}, 0, 0));
-//				break;
-//			case 3:
-//				properties.add(new DbgpProperty("e" + threadId, "A`a", "int", "8", 0, false, false, "A`a", "", new IDbgpProperty[] {}, 0, 0));
-//				properties.add(new DbgpProperty("f" + threadId, "A`a", "int", "8", 0, false, false, "A`a", "", new IDbgpProperty[] {}, 0, 0));
-//				properties.add(new DbgpProperty("g" + threadId, "A`a", "int", "8", 0, false, false, "A`a", "", new IDbgpProperty[] {}, 0, 0));
-//				break;
-//		}
+		// switch (level)
+		// {
+		// case 1:
+		// properties.add(new DbgpProperty("a" + threadId, "A`a", "int", "8", 2, true, false, "A`a", "", getChilds(), 0,
+		// 0));
+		// properties.add(new DbgpProperty("b" + threadId, "A`a", "int", "8", 0, false, false, "A`a", "", new
+		// IDbgpProperty[] {}, 0, 0));
+		// break;
+		// case 2:
+		// properties.add(new DbgpProperty("c" + threadId, "A`a", "int", "8", 0, false, false, "A`a", "", new
+		// IDbgpProperty[] {}, 0, 0));
+		// properties.add(new DbgpProperty("d" + threadId, "A`a", "int", "8", 0, false, false, "A`a", "", new
+		// IDbgpProperty[] {}, 0, 0));
+		// break;
+		// case 3:
+		// properties.add(new DbgpProperty("e" + threadId, "A`a", "int", "8", 0, false, false, "A`a", "", new
+		// IDbgpProperty[] {}, 0, 0));
+		// properties.add(new DbgpProperty("f" + threadId, "A`a", "int", "8", 0, false, false, "A`a", "", new
+		// IDbgpProperty[] {}, 0, 0));
+		// properties.add(new DbgpProperty("g" + threadId, "A`a", "int", "8", 0, false, false, "A`a", "", new
+		// IDbgpProperty[] {}, 0, 0));
+		// break;
+		// }
 
 		return properties.toArray(new IDbgpProperty[properties.size()]);
 	}
-	
+
 	private IDbgpProperty convert(VariableDTO var)
 	{
 		List<IDbgpProperty> children = new Vector<IDbgpProperty>();
-		
-		if(var.hasChildren())
+
+		if (var.hasChildren())
 		{
-		for (VariableDTO child : var.getAvailableChildren())
-		{
-			children.add(convert(child));
+			for (VariableDTO child : var.getAvailableChildren())
+			{
+				children.add(convert(child));
+			}
 		}
-		}
-		
-		return new DbgpProperty(var.getName(), var.getFullName(), var.getType(),var.getValue(), var.getChildrenCount(),var.hasChildren(), var.isConstant(), var.getFullName(), "", children.toArray(new IDbgpProperty[children.size()]), 100, 100);
+
+		return new DbgpProperty(var.getName(), var.getFullName(), var.getType(), var.getValue(), var.getChildrenCount(), var.hasChildren(), var.isConstant(), var.getFullName(), "", children.toArray(new IDbgpProperty[children.size()]), 100, 100);
 	}
 
 }

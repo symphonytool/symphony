@@ -3,6 +3,7 @@ package eu.compassresearch.core.analysis.pog.visitors;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.lex.LexNameList;
+import org.overture.ast.node.INode;
 import org.overture.pog.obligation.PONameContext;
 import org.overture.typechecker.assistant.definition.PDefinitionAssistantTC;
 
@@ -62,6 +63,20 @@ public class PogNameContextVisitor extends AnswerCMLAdaptor<PONameContext>
 			throws AnalysisException
 	{
 		// no names to return
+		return null;
+	}
+
+	@Override
+	public PONameContext createNewReturnValue(INode node)
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public PONameContext createNewReturnValue(Object node)
+	{
+		// TODO Auto-generated method stub
 		return null;
 	}
 

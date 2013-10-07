@@ -10,7 +10,6 @@ import java.util.Map;
 import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.IDebugEventSetListener;
-import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -29,7 +28,8 @@ import eu.compassresearch.core.interpreter.debug.TransitionDTO;
 import eu.compassresearch.ide.interpreter.CmlUtil;
 import eu.compassresearch.ide.interpreter.model.CmlDebugTarget;
 
-public class CmlEventOptionView extends ViewPart implements IDebugEventSetListener ,IDoubleClickListener, ISelectionChangedListener
+public class CmlEventOptionView extends ViewPart implements
+		IDebugEventSetListener, IDoubleClickListener, ISelectionChangedListener
 {
 	ListViewer viewer;
 	List<String> options = new LinkedList<String>();
@@ -44,13 +44,14 @@ public class CmlEventOptionView extends ViewPart implements IDebugEventSetListen
 			@Override
 			public void run()
 			{
-				for(DebugEvent e : events)
+				for (DebugEvent e : events)
 				{
-					if(e.getKind() == DebugEvent.SUSPEND && e.getSource() instanceof CmlDebugTarget)
+					if (e.getKind() == DebugEvent.SUSPEND
+							&& e.getSource() instanceof CmlDebugTarget)
 					{
-						filltransitionList((CmlDebugTarget)e.getSource());
-					}
-					else if(e.getKind() == DebugEvent.TERMINATE && e.getSource() instanceof CmlDebugTarget)
+						filltransitionList((CmlDebugTarget) e.getSource());
+					} else if (e.getKind() == DebugEvent.TERMINATE
+							&& e.getSource() instanceof CmlDebugTarget)
 					{
 						viewer.setInput(null);
 					}
@@ -58,7 +59,7 @@ public class CmlEventOptionView extends ViewPart implements IDebugEventSetListen
 			}
 		});
 	}
-	
+
 	@Override
 	public String getTitle()
 	{
@@ -84,8 +85,8 @@ public class CmlEventOptionView extends ViewPart implements IDebugEventSetListen
 			public void inputChanged(Viewer viewer, Object oldInput,
 					Object newInput)
 			{
-//				System.out.println("Input changed: old=" + oldInput + ", new="
-//						+ newInput);
+				// System.out.println("Input changed: old=" + oldInput + ", new="
+				// + newInput);
 			}
 
 			@Override
@@ -101,22 +102,22 @@ public class CmlEventOptionView extends ViewPart implements IDebugEventSetListen
 				return ((List) inputElement).toArray();
 			}
 		});
-		
+
 		target = CmlUtil.findCmlDebugTarget();
-		
-		if(target != null)
+
+		if (target != null)
 		{
 			filltransitionList(target);
 		}
 		DebugPlugin.getDefault().addDebugEventListener(this);
 	}
-	
+
 	private void selectChoice(TransitionDTO event)
 	{
 		target.select(event);
 		finish();
 	}
-	
+
 	private void finish()
 	{
 		Display.getDefault().syncExec(new Runnable()
@@ -131,7 +132,6 @@ public class CmlEventOptionView extends ViewPart implements IDebugEventSetListen
 		});
 	}
 
-	
 	@Override
 	public void doubleClick(DoubleClickEvent event)
 	{
@@ -145,7 +145,7 @@ public class CmlEventOptionView extends ViewPart implements IDebugEventSetListen
 		}
 
 		selectChoice(choice);
-		
+
 	}
 
 	@Override
@@ -168,7 +168,8 @@ public class CmlEventOptionView extends ViewPart implements IDebugEventSetListen
 	{
 		this.target = target;
 		List<TransitionDTO> transitions = target.getLastState().getTransitions();
-		Collections.sort(transitions, new Comparator<TransitionDTO>(){
+		Collections.sort(transitions, new Comparator<TransitionDTO>()
+		{
 
 			@Override
 			public int compare(TransitionDTO o1, TransitionDTO o2)

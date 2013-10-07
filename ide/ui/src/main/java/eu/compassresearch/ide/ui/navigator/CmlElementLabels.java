@@ -284,6 +284,22 @@ public class CmlElementLabels extends VdmElementLabels
 			return new StyledString("Channel Sets");
 		}
 
+		@Override
+		public StyledString createNewReturnValue(INode node)
+				throws AnalysisException
+		{
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public StyledString createNewReturnValue(Object node)
+				throws AnalysisException
+		{
+			// TODO Auto-generated method stub
+			return null;
+		}
+
 	}
 
 }

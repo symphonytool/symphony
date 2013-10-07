@@ -2248,7 +2248,7 @@ public class CMLModelcheckerVisitor extends
 					System.out.println("Error: " + e.getMessage());
 				}
 			}
-			codes[sources.indexOf(source)] = context.getScriptContent()
+			codes[sources.indexOf(source)] = basicContent + "\n" + context.getScriptContent()
 					.toString();
 			// it saves the current generated formula file
 			// String formulaFileName =
@@ -2292,12 +2292,12 @@ public class CMLModelcheckerVisitor extends
 		//String cml_example = "src/test/resources/action-seq-comp2.cml";
 		//String cml_example = "src/test/resources/action-vardecl.cml";
 		//String cml_example = "src/test/resources/action-vardecl2.cml";
-		String cml_example = "src/test/resources/action-reference-parametrised.cml";
+		//String cml_example = "src/test/resources/action-reference-parametrised.cml";
 		//String cml_example = "src/test/resources/action-guard-stateVar.cml";
 		//String cml_example = "src/test/resources/action-guard.cml";
 		//String cml_example = "src/test/resources/minimondex.cml";
 		//String cml_example = "src/test/resources/replicated-seqcomp.cml";
-		//String cml_example = "src/test/resources/Dphils.cml";
+		String cml_example = "src/test/resources/Dphils.cml";
 		System.out.println("Testing on " + cml_example);
 		// List<PSource> sources = new LinkedList<PSource>();
 		PSource source = Utilities.makeSourceFromFile(cml_example);
@@ -2325,6 +2325,20 @@ public class CMLModelcheckerVisitor extends
 		System.out.println("Base of Facts: \n");
 		System.out.println(mcResult.getFacts());
 		mc.finalize();
+	}
+	@Override
+	public StringBuilder createNewReturnValue(INode node,
+			CMLModelcheckerContext question) throws AnalysisException
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public StringBuilder createNewReturnValue(Object node,
+			CMLModelcheckerContext question) throws AnalysisException
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

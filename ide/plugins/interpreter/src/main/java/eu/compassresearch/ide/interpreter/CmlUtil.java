@@ -83,13 +83,13 @@ public final class CmlUtil
 			}
 		}
 	}
-	
+
 	public static CmlDebugTarget findCmlDebugTarget()
 	{
-		for(IDebugTarget f : DebugPlugin.getDefault().getLaunchManager().getDebugTargets())
-			if(f instanceof CmlDebugTarget && f.isSuspended())
-				return (CmlDebugTarget)f;
-		
+		for (IDebugTarget f : DebugPlugin.getDefault().getLaunchManager().getDebugTargets())
+			if (f instanceof CmlDebugTarget && f.isSuspended())
+				return (CmlDebugTarget) f;
+
 		return null;
 	}
 

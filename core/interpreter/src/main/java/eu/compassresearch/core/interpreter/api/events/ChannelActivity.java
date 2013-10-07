@@ -2,10 +2,11 @@ package eu.compassresearch.core.interpreter.api.events;
 
 /**
  * This represents the activites that a CmlChannel can participate in
+ * 
  * @author akm
- *
  */
-public enum ChannelActivity {
+public enum ChannelActivity
+{
 	/**
 	 * An input communication is occurring.
 	 */

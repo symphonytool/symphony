@@ -572,4 +572,21 @@ public class POGDeclAndDefVisitor extends
 
 		return obligations;
 	}
+
+	@Override
+	public CmlProofObligationList createNewReturnValue(INode node,
+			IPOContextStack question)
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public CmlProofObligationList createNewReturnValue(Object node,
+			IPOContextStack question)
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }
