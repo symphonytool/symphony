@@ -51,6 +51,9 @@ public class ChannelsCmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase 
 		add("channels a: int process A = begin @ b? x : ({2,3}) -> Skip end", false); //negative test
 		//14// duplication of channel name
 		add("channels a : nat a : seq of char", false); //negative test
+		//15
+		add("types private Day = nat t = nat * nat channels d,book: (Day * Day * nat) process hotel2spec =  begin actions HOTEL =  book?mk_(s,e,n) -> Skip  @ Skip	end");
+				
 	}
 
 	public ChannelsCmlTypeCheckerTestCase(String cmlSource, boolean parsesOk,
