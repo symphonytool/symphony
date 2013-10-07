@@ -43,7 +43,7 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 
 	private static int getNextId()
 	{
-		return globalIdCount;
+		return globalIdCount++;
 	}
 
 	/*
