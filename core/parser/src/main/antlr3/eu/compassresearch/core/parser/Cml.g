@@ -2468,6 +2468,7 @@ type0 returns[PType type]
             } else {
                 ILexLocation loc = extractLexLocation($first.type.getLocation(), last);
                 AUnionType union = new AUnionType(loc, false, false, false);
+                union.setProdCard(-1);
                 typeList.add(0, $first.type);
                 union.setTypes(typeList);
                 $type = union;
