@@ -158,7 +158,7 @@ public class CmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase
 		addTestProgram(testData, "types String2 = seq of char Process2 :: id: String2 functions findPos(q: seq of Process2,id: String2) pos : nat pre  exists p in set (elems q) @ p.id = id post true", true, true, new String[0]);
 		addTestProgram(testData, "types String2 = seq of char Process2 :: id: String2 functions findPos(q: seq of Process2,id: String2) pos : nat pre  forall p in set (elems q) @ p.id = id post true", true, true, new String[0]);
 		addTestProgram(testData, "types String2 = seq of char Process2 :: id: String2 functions findPos(q: seq of Process2,id: String2) pos : nat pre  let mk_(-,p)= mk_(7, mk_Process2([])) in p.id = id  post true", true, true, new String[0]);
-		addTestProgram(testData, "types String2 = seq of char Process2 :: id: String2 functions findPos: seq of Process2* String2 -> nat findPos(q,id)==  let mk_(-,p)= mk_(7, mk_Process2([])) in p.id = id", true, true, new String[0]);
+		addTestProgram(testData, "types String2 = seq of char Process2 :: id: String2 functions findPos: seq of Process2* String2 -> nat findPos(q,id)==  let mk_(-,p)= mk_(7, mk_Process2([])) in p.id = id", true, false, new String[0]);
 		
 		
 			

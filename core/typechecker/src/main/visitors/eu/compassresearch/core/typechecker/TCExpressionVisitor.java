@@ -984,6 +984,21 @@ class TCExpressionVisitor extends
 	public PType caseAUnresolvedPathExp(AUnresolvedPathExp node,
 			TypeCheckInfo question) throws AnalysisException
 	{
+		
+		// All right lets get all the identifiers used in this path
+				LinkedList<ILexIdentifierToken> identifiers = node.getIdentifiers();
+
+				// Get parent identifier
+				LexNameToken rootName = new LexNameToken("", identifiers.get(0));
+
+				// is it a type like a class or global type this is not a type
+				// as we would be in the UnresolvedType case
+				// PDefinition root = question.env.findType(rootName, "");
+				PDefinition root = null;
+
+				// no then it may be a variable
+				if (root == null)
+					root = question.env.findName(rootName, question.scope);
 
 		// So we are going to look up a path of the form <class>.<member> or
 		// <identifier>.<member>
@@ -991,32 +1006,22 @@ class TCExpressionVisitor extends
 		// top-level and CML Specific.
 		//
 
-		CmlTypeCheckInfo cmlQuestion = CmlTCUtil.getCmlEnv(question);
-		if (cmlQuestion == null)
+		TypeCheckInfo cmlQuestion = CmlTCUtil.getCmlEnv(question);
+		if (cmlQuestion == null && root==null)
 		{
 			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(node
 					+ "")));
 			return node.getType();
+		}else
+		{
+			cmlQuestion = question;
 		}
 
-		// All right lets get all the identifiers used in this path
-		LinkedList<ILexIdentifierToken> identifiers = node.getIdentifiers();
-
-		// Get parent identifier
-		LexNameToken rootName = new LexNameToken("", identifiers.get(0));
-
-		// is it a type like a class or global type this is not a type
-		// as we would be in the UnresolvedType case
-		// PDefinition root = question.env.findType(rootName, "");
-		PDefinition root = null;
-
-		// no then it may be a variable
-		if (root == null)
-			root = question.env.findName(rootName, question.scope);
+		
 
 		// Use Cml environment to determine what rootName is
-		if (root == null)
-			root = cmlQuestion.lookup(rootName, PDefinition.class);
+		if (root == null && cmlQuestion instanceof CmlTypeCheckInfo)
+			root = ((CmlTypeCheckInfo)cmlQuestion).lookup(rootName, PDefinition.class);
 
 		// last option it is not in something else then in must be in this class
 		if (root == null)
