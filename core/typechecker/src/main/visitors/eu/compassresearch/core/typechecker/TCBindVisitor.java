@@ -15,6 +15,7 @@ import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.patterns.ADefPatternBind;
 import org.overture.ast.patterns.AIdentifierPattern;
+import org.overture.ast.patterns.AIntegerPattern;
 import org.overture.ast.patterns.ARecordPattern;
 import org.overture.ast.patterns.ASetMultipleBind;
 import org.overture.ast.patterns.ATuplePattern;
@@ -295,6 +296,13 @@ class TCBindVisitor extends QuestionAnswerCMLAdaptor<TypeCheckInfo, PType>
 
 		// return the type.
 		return node.getType();
+	}
+
+	@Override
+	public PType caseAIntegerPattern(AIntegerPattern node,
+			TypeCheckInfo question) throws AnalysisException
+	{
+		return question.assistantFactory.createPPatternAssistant().getPossibleType(node);
 	}
 
 	@Override

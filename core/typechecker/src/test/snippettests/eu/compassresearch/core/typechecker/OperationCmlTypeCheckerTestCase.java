@@ -47,6 +47,8 @@ public class OperationCmlTypeCheckerTestCase extends
 		add("class A = begin operations op1: () ==> () op1() == Skip ; Skip end", true, true);
 		// 16
 		add("class A = begin operations op1: () ==> () op1() == is subclass responsibility end", true, true);
+		// 17 Ticket: #90 Type Checker cannot determine type for pattern of 1 in cases statement
+		add("class A = begin operations op1: int ==> () op1(v) == cases v: 1 -> Skip end end", true, true);
 	}
 
 	public OperationCmlTypeCheckerTestCase(String cmlSource, boolean parsesOk,
