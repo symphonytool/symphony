@@ -873,6 +873,7 @@ actionDefs returns[AActionsDefinition defs]
     : 'actions' actionDefOptList
         {
             $defs = new AActionsDefinition();
+            $defs.setName(new LexNameToken("", "Actions", extractLexLocation($start)));
             $defs.setActions($actionDefOptList.defs);
         }
     ;
@@ -1608,6 +1609,7 @@ channelDefs returns[AChannelsDefinition defs]
     : 'channels' channelDefOptList
         {
             $defs = new AChannelsDefinition();//location, NameScope.GLOBAL, false, access, null/* Pass */, chanNameDecls);
+            $defs.setName(new LexNameToken("", "Channels", extractLexLocation($start)));
             $defs.setNameScope(NameScope.GLOBAL);
             $defs.setUsed(false);
             $defs.setAccess(getDefaultAccessSpecifier(true, false, extractLexLocation($channelDefs.start)));
@@ -1638,6 +1640,7 @@ channelDef returns[List<AChannelNameDefinition> def]
                 
                 AChannelNameDefinition chanDecl = new AChannelNameDefinition();
                 //chanDecl.setName(??); // not sure if this needs set; one cml.y case has an empty LexNameToken, the other uses the first element of the identifierList
+                chanDecl.setName(new LexNameToken("", id)); // this is ok, as each identifier in the identifierList gets its own ACNDef
                 chanDecl.setNameScope(NameScope.GLOBAL);
                 chanDecl.setUsed(false);            
                 chanDecl.setSingleType(typeDecl);
@@ -1652,6 +1655,7 @@ chansetDefs returns[AChansetsDefinition defs]
     : 'chansets' chansetDefOptList
         {
             $defs = new AChansetsDefinition();
+            $defs.setName(new LexNameToken("", "Chansets", extractLexLocation($start)));
             $defs.setNameScope(NameScope.GLOBAL);
             $defs.setUsed(false);
             $defs.setAccess(getDefaultAccessSpecifier(true, false, extractLexLocation($chansetDefs.start)));
@@ -1837,6 +1841,7 @@ namesetDefs returns[ANamesetsDefinition defs]
     : 'namesets' namesetDefOptList
         {
             $defs = new ANamesetsDefinition();
+            $defs.setName(new LexNameToken("", "Namesets", extractLexLocation($start)));
             $defs.setNameScope(NameScope.GLOBAL);
             $defs.setUsed(false);
             $defs.setAccess(getDefaultAccessSpecifier(true, false, extractLexLocation($namesetDefs.start)));
@@ -1892,6 +1897,7 @@ valueDefs returns[AValuesDefinition defs]
         {
             AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true, false, extractLexLocation($valueDefs.start));
             $defs = new AValuesDefinition(null, NameScope.NAMES, false, access, null, $qualValueDefinitionList.defs);
+            $defs.setName(new LexNameToken("", "Values", extractLexLocation($start)));
         }
     ;
 
@@ -1930,6 +1936,7 @@ valueDefinition returns[AValueDefinition def]
     : bindablePattern (':' type)? '=' expression
         {
             $def = AstFactory.newAValueDefinition($bindablePattern.pattern, NameScope.LOCAL, $type.type, $expression.exp);
+            //$def.setName(new LexNameToken("", $bindablePattern.pattern.toString(), $bindablePattern.pattern.getLocation()));
         }
     ;
 
@@ -2005,9 +2012,9 @@ functionDefs returns[AFunctionsDefinition defs]
     : 'functions' qualFunctionDefinitionOptList
         {
             AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true, false, extractLexLocation($functionDefs.start));
-            AFunctionsDefinition functions = new AFunctionsDefinition(null, NameScope.GLOBAL, false, access, null);
-            functions.setFunctionDefinitions($qualFunctionDefinitionOptList.defs);
-            $defs = functions;
+            $defs = new AFunctionsDefinition(null, NameScope.GLOBAL, false, access, null);
+            $defs.setName(new LexNameToken("", "Functions", extractLexLocation($start)));
+            $defs.setFunctionDefinitions($qualFunctionDefinitionOptList.defs);
         }
     ;
 
@@ -2308,6 +2315,7 @@ operationDefs returns[AOperationsDefinition defs]
     : 'operations' qualOperationDefOptList
         {
             $defs = new AOperationsDefinition(); // FIXME
+            $defs.setName(new LexNameToken("", "Operations", extractLexLocation($start)));
             $defs.setOperations($qualOperationDefOptList.defs);
             $defs.setNameScope(NameScope.LOCAL);
             $defs.setUsed(false);
@@ -2406,7 +2414,7 @@ typeDefs returns[ATypesDefinition defs]
             $defs = new ATypesDefinition(loc, NameScope.LOCAL, false,
                                          getDefaultAccessSpecifier(true, false, loc),
                                          Pass.TYPES, typeDefList);
-            $defs.setName(new LexNameToken("", $t.getText(), loc));
+            $defs.setName(new LexNameToken("", "Types", loc));
         }
     ;
 
