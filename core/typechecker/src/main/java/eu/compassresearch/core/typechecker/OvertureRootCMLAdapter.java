@@ -26,18 +26,16 @@ import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 
 /**
- * The OvertureRootCMLAdapter functions as a root visitor for Overture Visitor.
- * This visitor delegates all typecal Overture type checking to Overture and
- * diverts control to the VanillaCmlTypeChecker for cases that are special to
+ * The OvertureRootCMLAdapter functions as a root visitor for Overture Visitor. This visitor delegates all typecal
+ * Overture type checking to Overture and diverts control to the VanillaCmlTypeChecker for cases that are special to
  * CML.
  * 
- * 
  * @author rwl
- * 
  */
 @SuppressWarnings("serial")
 public class OvertureRootCMLAdapter extends
-		QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
+		QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType>
+{
 
 	private final TypeCheckerExpVisitor overtureExpressionVisitor;
 	private final TypeCheckerDefinitionVisitor overtureDefinitionVisitor;
@@ -49,26 +47,32 @@ public class OvertureRootCMLAdapter extends
 	@Override
 	public PType caseAEnumerationRenameChannelExp(
 			AEnumerationRenameChannelExp node, TypeCheckInfo question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 		return escapeFromOvertureContext(node, question);
 	}
 
-	static void pushQuestion(TypeCheckInfo question) {
-		if (question instanceof CmlTypeCheckInfo) {
+	static void pushQuestion(TypeCheckInfo question)
+	{
+		if (question instanceof CmlTypeCheckInfo)
+		{
 			CmlTypeCheckInfo info = (CmlTypeCheckInfo) question;
 			question.contextSet(CmlTypeCheckInfo.class, info);
 		}
 	}
 
-	static void popQuestion(TypeCheckInfo question) {
-		if (question instanceof CmlTypeCheckInfo) {
+	static void popQuestion(TypeCheckInfo question)
+	{
+		if (question instanceof CmlTypeCheckInfo)
+		{
 			CmlTypeCheckInfo info = (CmlTypeCheckInfo) question;
 			question.contextRem(info.getClass());
 		}
 	}
 
 	public OvertureRootCMLAdapter(CmlRootVisitor cmlTC,
-			TypeIssueHandler issueHandler) {
+			TypeIssueHandler issueHandler)
+	{
 		overtureDefinitionVisitor = new TypeCheckerDefinitionVisitor(this);
 		overtureExpressionVisitor = new TypeCheckerExpVisitor(this);
 		overturePatternVisitor = new TypeCheckerPatternVisitor(this);
@@ -78,33 +82,39 @@ public class OvertureRootCMLAdapter extends
 
 	@Override
 	public PType caseAAssignmentDefinition(AAssignmentDefinition node,
-			TypeCheckInfo question) throws AnalysisException {
+			TypeCheckInfo question) throws AnalysisException
+	{
 		return escapeFromOvertureContext(node, question);
 	}
 
 	private PType escapeFromOvertureContext(INode node,
-			org.overture.typechecker.TypeCheckInfo question) {
-		try {
+			org.overture.typechecker.TypeCheckInfo question)
+	{
+		try
+		{
 			pushQuestion(question);
 			PType res = node.apply(parent, question);
 			popQuestion(question);
 			return res;
-		} catch (AnalysisException e) {
+		} catch (AnalysisException e)
+		{
 			e.printStackTrace();
-			return issueHandler.addTypeError(node,
-					TypeErrorMessages.TYPE_CHECK_INTERNAL_FAILURE.toString());
+			return issueHandler.addTypeError(node, TypeErrorMessages.TYPE_CHECK_INTERNAL_FAILURE.toString());
 		}
 
 	}
 
 	@Override
 	public PType defaultPExp(PExp node, TypeCheckInfo question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 		PType type = null;
 		pushQuestion(question);
-		try {
+		try
+		{
 			type = node.apply(overtureExpressionVisitor, question);
-		} catch (TypeCheckException tce) {
+		} catch (TypeCheckException tce)
+		{
 			popQuestion(question);
 			return issueHandler.addTypeError(node, tce.getMessage());
 		}
@@ -114,72 +124,99 @@ public class OvertureRootCMLAdapter extends
 
 	@Override
 	public PType caseAEnumVarsetExpression(AEnumVarsetExpression node,
-			TypeCheckInfo question) throws AnalysisException {
+			TypeCheckInfo question) throws AnalysisException
+	{
 		return escapeFromOvertureContext(node, question);
 	}
 
 	@Override
 	public PType caseAApplyExp(AApplyExp node, TypeCheckInfo question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 		return escapeFromOvertureContext(node, question);
 	}
 
 	@Override
 	public PType defaultPDefinition(PDefinition node, TypeCheckInfo question)
-			throws AnalysisException {
-		try {
+			throws AnalysisException
+	{
+		try
+		{
 			pushQuestion(question);
 			PType type = node.apply(overtureDefinitionVisitor, question);
 			popQuestion(question);
 			return type;
-		} catch (TypeCheckException e) {
+		} catch (TypeCheckException e)
+		{
 			return issueHandler.addTypeError(node, e.getMessage());
 		}
 	}
 
 	@Override
 	public PType caseAVariableExp(AVariableExp node, TypeCheckInfo question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 		return escapeFromOvertureContext(node, question);
 	}
 
 	@Override
 	public PType caseANilExp(ANilExp node, TypeCheckInfo question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 		return escapeFromOvertureContext(node, question);
 	}
 
 	@Override
 	public PType caseAUnresolvedPathExp(AUnresolvedPathExp node,
-			TypeCheckInfo question) throws AnalysisException {
+			TypeCheckInfo question) throws AnalysisException
+	{
 
 		return escapeFromOvertureContext(node, question);
 	}
 
 	@Override
 	public PType caseABracketedExp(ABracketedExp node, TypeCheckInfo question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 		return escapeFromOvertureContext(node, question);
 	}
 
 	@Override
 	public PType defaultINode(INode node, TypeCheckInfo question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 		return escapeFromOvertureContext(node, question);
 	}
 
 	@Override
 	public PType defaultPMultipleBind(PMultipleBind node, TypeCheckInfo question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 
-		try {
+		try
+		{
 			pushQuestion(question);
 			PType type = node.apply(overturePatternVisitor, question);
 			popQuestion(question);
 			return type;
-		} catch (TypeCheckException e) {
+		} catch (TypeCheckException e)
+		{
 			return issueHandler.addTypeError(node, e.getMessage());
 		}
+	}
+
+	@Override
+	public PType createNewReturnValue(INode node, TypeCheckInfo question)
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public PType createNewReturnValue(Object node, TypeCheckInfo question)
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

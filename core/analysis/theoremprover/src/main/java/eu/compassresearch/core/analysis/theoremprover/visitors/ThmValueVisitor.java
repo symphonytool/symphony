@@ -4,6 +4,7 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.intf.lex.ILexNameToken;
+import org.overture.ast.node.INode;
 import org.overture.ast.patterns.AIdentifierPattern;
 
 import eu.compassresearch.ast.analysis.AnswerCMLAdaptor;
@@ -56,5 +57,23 @@ public class ThmValueVisitor extends AnswerCMLAdaptor<ThmNodeList> {
 		tnl.add(tn);
 		
 		return tnl;
+	}
+
+
+	@Override
+	public ThmNodeList createNewReturnValue(INode node)
+			throws AnalysisException
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public ThmNodeList createNewReturnValue(Object node)
+			throws AnalysisException
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

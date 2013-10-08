@@ -10,6 +10,7 @@ import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.definitions.SClassDefinition;
+import org.overture.ast.node.INode;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.types.ABooleanBasicType;
 import org.overture.ast.types.ABracketType;
@@ -41,8 +42,8 @@ import org.overture.ast.types.AVoidReturnType;
 import org.overture.ast.types.AVoidType;
 import org.overture.ast.types.PType;
 import org.overture.typechecker.TypeCheckInfo;
-import org.overture.typechecker.assistant.definition.ATypeDefinitionAssistantTC;
 import org.overture.typechecker.assistant.definition.SClassDefinitionAssistantTC;
+import org.overture.typechecker.utilities.TypeResolver;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.definitions.ACmlClassDefinition;
@@ -53,126 +54,129 @@ import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 
 @SuppressWarnings({ "serial" })
 class TCTypeVisitor extends
-		QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
+		QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType>
+{
 
 	private final eu.compassresearch.core.typechecker.api.CmlRootVisitor parentChecker;
 	private final TypeIssueHandler issueHandler;
 
 	@Override
 	public PType caseAErrorType(AErrorType node, TypeCheckInfo question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 		return node;
 	}
 
 	@Override
 	public PType caseABracketType(ABracketType node, TypeCheckInfo question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 		return node.getType();
 	}
 
 	@Override
 	public PType caseAOperationType(AOperationType node, TypeCheckInfo question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 
 		LinkedList<PType> paramTypes = node.getParameters();
 		PType resultType = node.getResult();
 
-		for (PType paramType : paramTypes) {
+		for (PType paramType : paramTypes)
+		{
 			PType paramTypeType = paramType.apply(parentChecker, question);
 			if (!successfulType(paramTypeType))
-				return issueHandler.addTypeError(paramType,
-						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-								.customizeMessage("" + paramType));
+				return issueHandler.addTypeError(paramType, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
+						+ paramType));
 		}
 
 		PType resultTypeType = resultType.apply(parentChecker, question);
 		if (!successfulType(resultTypeType))
-			return issueHandler.addTypeError(resultType,
-					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-							.customizeMessage(node + ""));
+			return issueHandler.addTypeError(resultType, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(node
+					+ ""));
 
 		return node;
 	}
 
 	@Override
 	public PType caseAOptionalType(AOptionalType node, TypeCheckInfo question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 
 		PType type = node.getType();
 		PType typeType = type.apply(parentChecker, question);
 		if (!successfulType(typeType))
-			return issueHandler.addTypeError(type,
-					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-							.customizeMessage(type + ""));
+			return issueHandler.addTypeError(type, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(type
+					+ ""));
 
 		return node;
 	}
 
 	@Override
 	public PType caseAParameterType(AParameterType node, TypeCheckInfo question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 
 		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
 		if (cmlEnv == null)
-			return issueHandler.addTypeError(
-					node,
-					TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(node
-							+ ""));
+			return issueHandler.addTypeError(node, TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(node
+					+ ""));
 
 		PType type = cmlEnv.lookupType(node.getName());
 		if (type == null)
-			issueHandler.addTypeError(
-					node,
-					TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(node
-							.getName() + ""));
+			issueHandler.addTypeError(node, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(node.getName()
+					+ ""));
 		return type;
 	}
 
 	@Override
 	public PType caseAProductType(AProductType node, TypeCheckInfo question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 
 		List<PType> types = node.getTypes();
-		for (PType type : types) {
+		for (PType type : types)
+		{
 			PType typeType = type.apply(parentChecker, question);
 			if (!successfulType(typeType))
-				return issueHandler.addTypeError(type,
-						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-								.customizeMessage(typeType + ""));
+				return issueHandler.addTypeError(type, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(typeType
+						+ ""));
 		}
 		return node;
 	}
 
 	@Override
 	public PType caseAQuoteType(AQuoteType node, TypeCheckInfo question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 
 		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
 		if (cmlEnv == null)
-			return issueHandler.addTypeError(node,
-					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-							.customizeMessage(node + ""));
+			return issueHandler.addTypeError(node, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(node
+					+ ""));
 
 		return node;
 	}
 
 	@Override
 	public PType caseAUndefinedType(AUndefinedType node, TypeCheckInfo question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 		return node;
 	}
 
 	@Override
 	public PType caseAUnionType(AUnionType node, TypeCheckInfo question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 
 		LinkedList<PType> types = node.getTypes();
-		for (PType type : types) {
+		for (PType type : types)
+		{
 			PType typeType = type.apply(parentChecker, question);
 			if (!successfulType(typeType))
-				return issueHandler.addTypeError(node,
-						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-								.customizeMessage("" + node));
+				return issueHandler.addTypeError(node, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
+						+ node));
 		}
 
 		return node;
@@ -180,88 +184,96 @@ class TCTypeVisitor extends
 
 	@Override
 	public PType caseAUnknownType(AUnknownType node, TypeCheckInfo question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 
 		return node;
 	}
 
 	@Override
 	public PType caseAVoidReturnType(AVoidReturnType node,
-			TypeCheckInfo question) throws AnalysisException {
+			TypeCheckInfo question) throws AnalysisException
+	{
 		return node;
 	}
 
 	@Override
 	public PType caseAVoidType(AVoidType node, TypeCheckInfo question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 		return node;
 	}
 
 	@Override
 	public PType caseAInMapMapType(AInMapMapType node, TypeCheckInfo question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 		return node;
 	}
 
 	@Override
 	public PType caseARecordInvariantType(ARecordInvariantType node,
-			TypeCheckInfo question) throws AnalysisException {
+			TypeCheckInfo question) throws AnalysisException
+	{
 		return node;
 	}
 
 	@Override
 	public PType defaultPType(PType node, TypeCheckInfo question)
-			throws AnalysisException {
-		OvertureRootCMLAdapter adapter = new OvertureRootCMLAdapter(
-				parentChecker, issueHandler);
+			throws AnalysisException
+	{
+		OvertureRootCMLAdapter adapter = new OvertureRootCMLAdapter(parentChecker, issueHandler);
 		return node.apply(adapter, question);
 	}
 
 	@Override
 	public PType caseAChannelType(AChannelType node, TypeCheckInfo question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 
 		if (node.getType() == null)
 			return node;
 
 		PType typeType = node.getType().apply(parentChecker, question);
 		if (!successfulType(typeType))
-			return issueHandler.addTypeError(node.getType(),
-					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-							.customizeMessage(node + ""));
+			return issueHandler.addTypeError(node.getType(), TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(node
+					+ ""));
 
 		return node;
 	}
 
 	@Override
 	public PType caseAFunctionType(AFunctionType node, TypeCheckInfo question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 		return node;
 	}
 
 	@Override
 	public PType caseAClassType(AClassType node, TypeCheckInfo question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 		return node;
 	}
 
 	@Override
 	public PType caseAUnresolvedType(AUnresolvedType node,
-			TypeCheckInfo question) throws AnalysisException {
+			TypeCheckInfo question) throws AnalysisException
+	{
 
 		// is it a globally declared type
 		List<SClassDefinition> classes = new LinkedList<SClassDefinition>();
-		if (question.env.getEnclosingDefinition() == null) {
+		if (question.env.getEnclosingDefinition() == null)
+		{
 			eu.compassresearch.core.typechecker.CmlTypeCheckInfo q = (eu.compassresearch.core.typechecker.CmlTypeCheckInfo) question;
 			// classes.add(q.getGlobalClassDefinitions());
 
-		} else {
+		} else
+		{
 			if (question.env.getEnclosingDefinition() instanceof SClassDefinition)
-				classes.add((SClassDefinition) question.env
-						.getEnclosingDefinition());
+				classes.add((SClassDefinition) question.env.getEnclosingDefinition());
 		}
-		PDefinition tDef = SClassDefinitionAssistantTC.findType(classes,
-				node.getName());
+		PDefinition tDef = SClassDefinitionAssistantTC.findType(classes, node.getName());
 
 		if (tDef == null)
 			tDef = question.env.findName(node.getName(), NameScope.GLOBAL);
@@ -273,29 +285,27 @@ class TCTypeVisitor extends
 			tDef = CmlTCUtil.findDefByAllMeans(question, node.getName());
 
 		if (tDef == null)
-			tDef = CmlTCUtil.findNearestFunctionOrOperationInEnvironment(
-					node.getName(), question.env);
+			tDef = CmlTCUtil.findNearestFunctionOrOperationInEnvironment(node.getName(), question.env);
 
-		if (tDef instanceof ACmlClassDefinition) {
+		if (tDef instanceof ACmlClassDefinition)
+		{
 			return tDef.getType();
 		}
 
-		if (!(tDef instanceof ATypeDefinition)) {
-			return issueHandler.addTypeError(node,
-					TypeErrorMessages.EXPECTED_TYPE_DEFINITION
-							.customizeMessage(node.getName() + ""));
+		if (!(tDef instanceof ATypeDefinition))
+		{
+			return issueHandler.addTypeError(node, TypeErrorMessages.EXPECTED_TYPE_DEFINITION.customizeMessage(node.getName()
+					+ ""));
 
 		}
 
 		// The dereferenced type
 		ATypeDefinition dereferencedNameInvType = (ATypeDefinition) tDef;
-		ATypeDefinitionAssistantTC.typeResolve(dereferencedNameInvType,
-				(QuestionAnswerAdaptor<TypeCheckInfo, PType>) parentChecker,
-				question);
+		dereferencedNameInvType.apply(question.assistantFactory.getTypeResolver(), new TypeResolver.NewQuestion((QuestionAnswerAdaptor<TypeCheckInfo, PType>) parentChecker, question));
 
-		if (dereferencedNameInvType.getType() instanceof ANamedInvariantType) {
-			ANamedInvariantType res = (ANamedInvariantType) dereferencedNameInvType
-					.getInvType();
+		if (dereferencedNameInvType.getType() instanceof ANamedInvariantType)
+		{
+			ANamedInvariantType res = (ANamedInvariantType) dereferencedNameInvType.getInvType();
 			return res.getType();
 		}
 
@@ -304,7 +314,8 @@ class TCTypeVisitor extends
 
 	public TCTypeVisitor(
 			eu.compassresearch.core.typechecker.api.CmlRootVisitor parentTypeChecker,
-			TypeIssueHandler issueHandler) {
+			TypeIssueHandler issueHandler)
+	{
 		this.parentChecker = parentTypeChecker;
 		this.issueHandler = issueHandler;
 	}
@@ -312,70 +323,78 @@ class TCTypeVisitor extends
 	@Override
 	public PType caseABooleanBasicType(ABooleanBasicType node,
 			org.overture.typechecker.TypeCheckInfo question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 		return node;
 	}
 
 	@Override
 	public PType caseACharBasicType(ACharBasicType node,
 			org.overture.typechecker.TypeCheckInfo question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 		return node;
 	}
 
 	@Override
 	public PType caseATokenBasicType(ATokenBasicType node,
 			org.overture.typechecker.TypeCheckInfo question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 		return node;
 	}
 
 	@Override
 	public PType caseAIntNumericBasicType(AIntNumericBasicType node,
 			org.overture.typechecker.TypeCheckInfo question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 		return node;
 	}
 
 	@Override
 	public PType caseANatOneNumericBasicType(ANatOneNumericBasicType node,
 			org.overture.typechecker.TypeCheckInfo question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 		return node;
 	}
 
 	@Override
 	public PType caseANatNumericBasicType(ANatNumericBasicType node,
 			org.overture.typechecker.TypeCheckInfo question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 		return node;
 	}
 
 	@Override
 	public PType caseARationalNumericBasicType(ARationalNumericBasicType node,
 			org.overture.typechecker.TypeCheckInfo question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 		return node;
 	}
 
 	@Override
 	public PType caseARealNumericBasicType(ARealNumericBasicType node,
 			org.overture.typechecker.TypeCheckInfo question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 		return node;
 	}
 
 	@Override
 	public PType caseANamedInvariantType(ANamedInvariantType node,
 			org.overture.typechecker.TypeCheckInfo question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 
 		PType type = node.getType().apply(parentChecker, question);
 
-		if (!successfulType(type)) {
-			return issueHandler.addTypeError(node,
-					TypeErrorMessages.NAMED_TYPE_UNDEFINED
-							.customizeMessage(node.getName().getName()));
+		if (!successfulType(type))
+		{
+			return issueHandler.addTypeError(node, TypeErrorMessages.NAMED_TYPE_UNDEFINED.customizeMessage(node.getName().getName()));
 		}
 
 		node.setType(type);
@@ -385,12 +404,12 @@ class TCTypeVisitor extends
 	@Override
 	public PType caseASeqSeqType(ASeqSeqType node,
 			org.overture.typechecker.TypeCheckInfo question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 		PType innerType = node.getSeqof().apply(parentChecker, question);
-		if (innerType == null) {
-			issueHandler.addTypeError(node,
-					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-							.customizeMessage(node.getSeqof().toString()));
+		if (innerType == null)
+		{
+			issueHandler.addTypeError(node, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(node.getSeqof().toString()));
 			return new AErrorType();
 		}
 		node.setSeqof(innerType);
@@ -400,14 +419,14 @@ class TCTypeVisitor extends
 	@Override
 	public PType caseASetType(ASetType node,
 			org.overture.typechecker.TypeCheckInfo question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 
 		PType setOfType = node.getSetof().apply(this, question);
 
-		if (setOfType == null) {
-			issueHandler.addTypeError(node,
-					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-							.customizeMessage(node.getSetof().toString()));
+		if (setOfType == null)
+		{
+			issueHandler.addTypeError(node, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(node.getSetof().toString()));
 			return new AErrorType();
 		}
 
@@ -419,21 +438,20 @@ class TCTypeVisitor extends
 	@Override
 	public PType caseAMapMapType(AMapMapType node,
 			org.overture.typechecker.TypeCheckInfo question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 
 		PType fromType = node.getFrom().apply(parentChecker, question);
-		if (fromType == null) {
-			issueHandler.addTypeError(node,
-					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-							.customizeMessage(node.getFrom().toString()));
+		if (fromType == null)
+		{
+			issueHandler.addTypeError(node, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(node.getFrom().toString()));
 			return new AErrorType();
 		}
 
 		PType toType = node.getTo().apply(parentChecker, question);
-		if (toType == null) {
-			issueHandler.addTypeError(node,
-					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-							.customizeMessage(node.getTo().toString()));
+		if (toType == null)
+		{
+			issueHandler.addTypeError(node, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(node.getTo().toString()));
 			return new AErrorType();
 		}
 
@@ -442,6 +460,20 @@ class TCTypeVisitor extends
 		node.setTo(toType);
 
 		return node;
+	}
+
+	@Override
+	public PType createNewReturnValue(INode node, TypeCheckInfo question)
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public PType createNewReturnValue(Object node, TypeCheckInfo question)
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

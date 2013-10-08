@@ -5,16 +5,16 @@ import org.overture.interpreter.values.Value;
 
 public interface LatticeElement
 {
-	//LatticeElement join(LatticeElement other);
+	// LatticeElement join(LatticeElement other);
 	LatticeElement meet(LatticeElement other);
-	
+
 	boolean isComparable(LatticeElement other);
-	
+
 	boolean isTopElement();
-	
+
 	boolean isMostPrecise();
-	
+
 	Value getValue();
-	
+
 	PType getType();
 }

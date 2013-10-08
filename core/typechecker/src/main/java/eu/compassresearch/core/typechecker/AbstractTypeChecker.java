@@ -7,23 +7,17 @@ import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 
 /**
- * 
- * @author rwl
- * 
- *         Abstract type checker place holder for errors and warnings.
- * 
- *         Also a place holder for the sourceForest is provided. However, it is
- *         up to the implementation to actually load and set the sourceForest.
- * 
- *         The constructor is kept package scoped as this class is intimate to
- *         the eu.compassresearch.core.typechecker package.
+ * @author rwl Abstract type checker place holder for errors and warnings. Also a place holder for the sourceForest is
+ *         provided. However, it is up to the implementation to actually load and set the sourceForest. The constructor
+ *         is kept package scoped as this class is intimate to the eu.compassresearch.core.typechecker package.
  */
-@SuppressWarnings("serial")
-abstract class AbstractTypeChecker implements CmlTypeChecker {
+abstract class AbstractTypeChecker implements CmlTypeChecker
+{
 	protected TypeIssueHandler issueHandler;
 	protected Collection<PSource> sourceForest;
 
-	AbstractTypeChecker() {
+	AbstractTypeChecker()
+	{
 		clear();
 	}
 

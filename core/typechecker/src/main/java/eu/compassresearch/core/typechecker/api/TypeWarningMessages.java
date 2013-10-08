@@ -4,9 +4,9 @@ package eu.compassresearch.core.typechecker.api;
  * Warning messages that can arise from the Type Checker.
  * 
  * @author rwl
- * 
  */
-public enum TypeWarningMessages {
+public enum TypeWarningMessages
+{
 
 	INCOMPLETE_TYPE_CHECKING("Potentially incomplete type checking at \"%s\"."),
 
@@ -18,11 +18,13 @@ public enum TypeWarningMessages {
 
 	private String fmt;
 
-	TypeWarningMessages(String fmt) {
+	TypeWarningMessages(String fmt)
+	{
 		this.fmt = fmt;
 	}
 
-	public String customizeMessage(String... args) {
+	public String customizeMessage(String... args)
+	{
 		return String.format(fmt, (Object[]) args);
 	}
 

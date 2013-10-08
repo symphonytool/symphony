@@ -7,8 +7,10 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 @RunWith(value = Parameterized.class)
-public class ValuesTypeCheckerTestCase extends AbstractTypeCheckerTestCase {
-	static {
+public class ValuesTypeCheckerTestCase extends AbstractTypeCheckerTestCase
+{
+	static
+	{
 		// 0// int literal
 		add("class test = begin values public a:int=42 end");
 		// 1// bool literal
@@ -64,14 +66,11 @@ public class ValuesTypeCheckerTestCase extends AbstractTypeCheckerTestCase {
 		// 24//
 		add("class test = begin values public a:char = '\\ucc61' end");
 		// 25// Not all escape seq are okay yet
-		add("class test = begin values public a:char = '\\cc' end", false,
-				false);
+		add("class test = begin values public a:char = '\\cc' end", false, false);
 		// 26// escape seq not ready yet
-		add("class test = begin values public a:char = '\\\"' end", false,
-				false);
+		add("class test = begin values public a:char = '\\\"' end", false, false);
 		// 27//escape seq not ready yet
-		add("class test = begin values public a:seq of char  = \"\\\\ \\r \\n \\t \\f \\e \\a \\x61 \\ucc61 \\cd \\\"  \" end",
-				true, true);
+		add("class test = begin values public a:seq of char  = \"\\\\ \\r \\n \\t \\f \\e \\a \\x61 \\ucc61 \\cd \\\"  \" end", true, true);
 		// 28//
 		add("class test = begin values public a:char = <Test> end", false);
 		// 29//
@@ -79,8 +78,7 @@ public class ValuesTypeCheckerTestCase extends AbstractTypeCheckerTestCase {
 		// 30//
 		add("class test = begin values a : int = if (let b:int=10 in b > 10) then 42 else 24 end");
 		// 31//
-		add("class test = begin values a : bool = if true then 1 else 0 end",
-				false);
+		add("class test = begin values a : bool = if true then 1 else 0 end", false);
 		// 32//
 		add("class test = begin values a : seq of char = if true then \"true\" else \"false\" end");
 		// 33//
@@ -98,8 +96,7 @@ public class ValuesTypeCheckerTestCase extends AbstractTypeCheckerTestCase {
 		// 39//
 		add("class test = begin values a:int = card {1,3,4,5,1,2,3} end ");
 		// 40//
-		add("class test = begin values a:seq of int = power {1,2,3} end ",
-				false);
+		add("class test = begin values a:seq of int = power {1,2,3} end ", false);
 		// 41//
 		add("class test = begin values a:set of int = dunion {{-1,2,3},{1,2,3},{3,4,5}} end");
 		// 42//
@@ -219,20 +216,17 @@ public class ValuesTypeCheckerTestCase extends AbstractTypeCheckerTestCase {
 		// 100//
 		add("class test = begin values a:seq of int = [ 10 + a | a in set {1,2,3} @ a > 1 ](1,...,2) end");
 		// 101//
-		add("class test = begin values a:seq of int = [ 10 + a | a in set {1,2,3} @ unexpectedid > 1 ](1,...,2) end",
-				true, false);
+		add("class test = begin values a:seq of int = [ 10 + a | a in set {1,2,3} @ unexpectedid > 1 ](1,...,2) end", true, false);
 		// 102//
 		add("class test = begin values even:map int to bool = {1|->false, 2|->true, 3|->false, 4|->true}  end");
 		// 103//
 		add("class test = begin values even:map int to bool = { |-> }  end");
 		// 104//
-		add("class test = begin values even:map int to bool = { a|->b| a in set {1,2,3,4,5}, b in set {1,2,3,4,5} @ a <> b } end",
-				true, false);
+		add("class test = begin values even:map int to bool = { a|->b| a in set {1,2,3,4,5}, b in set {1,2,3,4,5} @ a <> b } end", true, false);
 		// 105//
 		add("class test = begin values even:int*int = mk_(12,12) end");
 		// 106//
-		add("class test = begin values even:donotexists = mk_donotexists(12,12) end",
-				true, false);
+		add("class test = begin values even:donotexists = mk_donotexists(12,12) end", true, false);
 		// 107//
 		add("class test = begin values a:int = fn_int_to_int( 10 ) end", false);
 		// 108//
@@ -244,17 +238,13 @@ public class ValuesTypeCheckerTestCase extends AbstractTypeCheckerTestCase {
 		// 111//
 		add("class test = begin values one:test = self end", true, false);
 		// 112//
-		add("class test = begin values one:bool = is_test ( self ) end", true,
-				false);
+		add("class test = begin values one:bool = is_test ( self ) end", true, false);
 		// 113//
-		add("class test = begin values one:bool = is_(self, test) end", true,
-				false);
+		add("class test = begin values one:bool = is_(self, test) end", true, false);
 		// 114//
-		add("class test = begin values one:bool = isofclass( test , self) end",
-				false);
+		add("class test = begin values one:bool = isofclass( test , self) end", false);
 		// 115 TODO: So should we support unicode characters in identifiers?
-		add("class evil_letters_æøå = begin values even:int = fn_int_to_int( 10 ) end",
-				false, false);
+		add("class evil_letters_æøå = begin values even:int = fn_int_to_int( 10 ) end", false, false);
 
 		add("values a:int = 1 \n b : int = a ");
 
@@ -262,12 +252,14 @@ public class ValuesTypeCheckerTestCase extends AbstractTypeCheckerTestCase {
 	}
 
 	public ValuesTypeCheckerTestCase(String cmlSource, boolean parsesOk,
-			boolean typesOk, String[] errorMessages) {
+			boolean typesOk, String[] errorMessages)
+	{
 		super(cmlSource, parsesOk, typesOk, errorMessages);
 	}
 
 	@Parameters
-	public static Collection<Object[]> parameter() {
+	public static Collection<Object[]> parameter()
+	{
 		return testData.get(ValuesTypeCheckerTestCase.class);
 	}
 

@@ -1,0 +1,9 @@
+channels
+a
+c:nat
+
+
+process Mix_P2 = 
+begin
+  @ c.1 -> c.2 -> c.3 -> Skip /_\ a->Skip /_\ a->Skip /_\ a->Skip 
+end

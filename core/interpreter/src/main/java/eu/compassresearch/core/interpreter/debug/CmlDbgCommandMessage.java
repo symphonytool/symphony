@@ -3,12 +3,15 @@ package eu.compassresearch.core.interpreter.debug;
 import eu.compassresearch.core.interpreter.debug.messaging.Message;
 import eu.compassresearch.core.interpreter.debug.messaging.MessageType;
 
-public class CmlDbgCommandMessage extends Message {
+public class CmlDbgCommandMessage extends Message
+{
 
 	protected CmlDebugCommand command;
-	
-	protected CmlDbgCommandMessage(){}
-	
+
+	protected CmlDbgCommandMessage()
+	{
+	}
+
 	public CmlDbgCommandMessage(CmlDebugCommand command)
 	{
 		setCommand(command);
@@ -19,27 +22,32 @@ public class CmlDbgCommandMessage extends Message {
 		setCommand(command);
 		setContent(content);
 	}
-	
-	public CmlDebugCommand getCommand() {
+
+	public CmlDebugCommand getCommand()
+	{
 		return command;
 	}
 
-	public void setCommand(CmlDebugCommand command) {
+	public void setCommand(CmlDebugCommand command)
+	{
 		this.command = command;
-	} 
-	
+	}
+
 	@Override
-	public MessageType getType() {
+	public MessageType getType()
+	{
 		return MessageType.COMMAND;
 	}
 
 	@Override
-	public String getKey() {
+	public String getKey()
+	{
 		return getCommand().toString();
 	}
-	
+
 	@Override
-	public String toString() {
+	public String toString()
+	{
 
 		return getCommand().toString();
 	}

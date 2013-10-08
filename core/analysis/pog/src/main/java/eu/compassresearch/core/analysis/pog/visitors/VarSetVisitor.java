@@ -1,6 +1,7 @@
 package eu.compassresearch.core.analysis.pog.visitors;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.node.INode;
 import org.overture.pog.pub.IPOContextStack;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
@@ -58,6 +59,22 @@ public abstract class VarSetVisitor extends
 		obligations.addAll(node.getRight().apply(this, question));
 
 		return obligations;
+	}
+	
+	@Override
+	public CmlProofObligationList createNewReturnValue(INode node,
+			IPOContextStack question)
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public CmlProofObligationList createNewReturnValue(Object node,
+			IPOContextStack question)
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

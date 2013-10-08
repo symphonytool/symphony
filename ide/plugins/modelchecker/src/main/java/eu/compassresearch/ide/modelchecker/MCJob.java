@@ -33,7 +33,7 @@ public class MCJob extends Job{
 
 	@Override
 	protected IStatus run(IProgressMonitor monitor) {
-		monitor.beginTask("Analysing...", 100);
+		monitor.beginTask("Analysing in FORMULA...", 100);
 		try {
 			this.mc = FormulaIntegrator.getInstance();
 			String absolutePath = formulaScript.getLocation().toPortableString();
