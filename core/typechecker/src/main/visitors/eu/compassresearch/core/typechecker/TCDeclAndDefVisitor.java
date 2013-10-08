@@ -1938,8 +1938,8 @@ class TCDeclAndDefVisitor extends
 
 		if (patterns.size() != paramTypes.size())
 		{
-			funDef.setType(issueHandler.addTypeError(funDef, TypeErrorMessages.WRONG_NUMBER_OF_ARGUMENTS.customizeMessage(""
-					+ patterns.size(), paramTypes.size() + "")));
+			issueHandler.addTypeError(funDef, TypeErrorMessages.WRONG_NUMBER_OF_ARGUMENTS.customizeMessage(""
+					+ patterns.size(), paramTypes.size() + ""));
 			return functionBodyEnv;
 		}
 		// add formal arguments to the environment
@@ -2076,9 +2076,9 @@ class TCDeclAndDefVisitor extends
 
 		if (!successfulType(actualResult))
 		{
-			node.setType(issueHandler.addTypeError(actualResult, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
-					+ actualResult)));
-			return node.getType();
+			return issueHandler.addTypeError(actualResult, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
+					+ actualResult));
+//			return node.getType();
 		}
 
 		node.setActualResult(actualResult);
