@@ -1750,14 +1750,20 @@ class TCDeclAndDefVisitor extends
 
 		newQuestion.scope = NameScope.NAMESANDANYSTATE;
 		PAction operationBody = node.getBody();
+
+		if (!node.getBody().apply(new OperationBodyActionChecker(issueHandler)))
+		{
+			return null;
+		}
+
 		question.contextSet(CmlTypeCheckInfo.class, newQuestion);
 		PType bodyType = operationBody.apply(parentChecker, newQuestion);
 		question.contextRem(CmlTypeCheckInfo.class);
 		if (!successfulType(bodyType))
 		{
-			node.setType(issueHandler.addTypeError(operationBody, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(operationBody
-					+ "")));
-			return node.getType();
+			return issueHandler.addTypeError(operationBody, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(operationBody
+					+ ""));
+			// return node.getType();
 		}
 
 		// if (operationBody instanceof AActionType || operationBody instanceof PAction &&
@@ -1789,9 +1795,9 @@ class TCDeclAndDefVisitor extends
 			PType preDefType = preDef.apply(parentChecker, newQuestion);
 			if (!successfulType(preDefType))
 			{
-				node.setType(issueHandler.addTypeError(node, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
-						+ preDef)));
-				return node.getType();
+				return issueHandler.addTypeError(node, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
+						+ preDef));
+				// return node.getType();
 			}
 			node.setPredef(preDef);
 		}
@@ -2078,7 +2084,7 @@ class TCDeclAndDefVisitor extends
 		{
 			return issueHandler.addTypeError(actualResult, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
 					+ actualResult));
-//			return node.getType();
+			// return node.getType();
 		}
 
 		node.setActualResult(actualResult);

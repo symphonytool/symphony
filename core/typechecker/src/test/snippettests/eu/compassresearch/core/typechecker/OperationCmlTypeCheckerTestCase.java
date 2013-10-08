@@ -39,7 +39,14 @@ public class OperationCmlTypeCheckerTestCase extends
 		add("class test = begin operations op1: int ==> int op1(a) == return (a+1) values k : int = op1(10) end", true, true);
 		// 12//Negative Test check on parameter list with product type.
 		add("class A = begin operations addCD: (seq of char * (seq of Track)) ==> () addCD(title, tracks) == Skip end", true, false);
-
+		// 13
+		add("class A = begin operations op1: () ==> () op1() == Skip end", true, true);
+		// 14
+		add("class A = begin operations op1: () ==> () op1() == dlfk->Skip end", true, false);
+		// 15
+		add("class A = begin operations op1: () ==> () op1() == Skip ; Skip end", true, true);
+		// 16
+		add("class A = begin operations op1: () ==> () op1() == is subclass responsibility end", true, true);
 	}
 
 	public OperationCmlTypeCheckerTestCase(String cmlSource, boolean parsesOk,
