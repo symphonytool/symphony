@@ -1732,9 +1732,9 @@ class TCDeclAndDefVisitor extends
 				PType pTypeType = pType.apply(parentChecker, question);
 				if (!successfulType(pTypeType))
 				{
-					node.setType(issueHandler.addTypeError(node, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
-							+ pType)));
-					return node.getType();
+					return issueHandler.addTypeError(node, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
+							+ pType));
+//					return node.getType();
 				}
 			}
 
@@ -1742,9 +1742,9 @@ class TCDeclAndDefVisitor extends
 			PType retTypeType = retType.apply(parentChecker, question);
 			if (!successfulType(retTypeType))
 			{
-				node.setType(issueHandler.addTypeError(node, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
-						+ retType)));
-				return node.getType();
+				return issueHandler.addTypeError(node, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
+						+ retType));
+//				return node.getType();
 			}
 		}
 
@@ -1765,14 +1765,6 @@ class TCDeclAndDefVisitor extends
 					+ ""));
 			// return node.getType();
 		}
-
-		// if (operationBody instanceof AActionType || operationBody instanceof PAction &&
-		// !(operationBody instanceof ASequentialCompositionAction
-		// || operationBody instanceof ASkipAction) ) {
-		// return issueHandler.addTypeError(node,
-		// TypeErrorMessages.REACTIVE_CONSTRUCTS_IN_OP_NOT_ALLOWED
-		// .customizeMessage("" + operationBody));
-		// }
 
 		node.setActualResult(bodyType);
 
@@ -1825,9 +1817,9 @@ class TCDeclAndDefVisitor extends
 				PType pType = p.apply(parentChecker, question);
 				if (!successfulType(pType))
 				{
-					node.setType(issueHandler.addTypeError(node, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
-							+ p)));
-					return node.getType();
+					return issueHandler.addTypeError(node, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
+							+ p));
+//					return node.getType();
 				}
 				for (PDefinition normalDef : pType.getDefinitions())
 				{
@@ -1858,9 +1850,9 @@ class TCDeclAndDefVisitor extends
 			PType postDefType = postDef.apply(parentChecker, postEnv);
 			if (!successfulType(postDefType))
 			{
-				node.setType(issueHandler.addTypeError(node, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
-						+ postDef)));
-				return node.getType();
+				return issueHandler.addTypeError(node, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
+						+ postDef));
+//				return node.getType();
 			}
 			node.setPostdef(postDef);
 		}
