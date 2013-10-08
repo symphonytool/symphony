@@ -51,9 +51,8 @@ class CmlRootVisitor extends
 
 	private void initialise()
 	{
-		TCActionVisitor actionVisitor = new TCActionVisitor(this, this.issueHandler, typeComparator);
+		act = new TCActionVisitor(this, this.issueHandler, typeComparator);
 		exp = new TCExpressionVisitor(this, this.issueHandler, typeComparator);
-		act = actionVisitor;
 		dad = new TCDeclAndDefVisitor(this, typeComparator, this.issueHandler);
 		typ = new TCTypeVisitor(this, this.issueHandler);
 		prc = new TCProcessVisitor(this, this.issueHandler, typeComparator);
