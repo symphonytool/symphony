@@ -5,6 +5,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.overture.ast.patterns.AIdentifierPattern;
+import org.overture.ast.patterns.APatternListTypePair;
+import org.overture.ast.patterns.APatternTypePair;
 import org.overture.ast.patterns.PPattern;
 
 import eu.compassresearch.core.analysis.theoremprover.utils.ThmTypeUtil;
@@ -17,24 +19,26 @@ public class ThmExpFunc extends ThmDecl {
 	private String pre;
 	private LinkedList<List<PPattern>> pattern;
 	private String resType;
-	private String prePostParamList;
+	private String preParamList;
+	private String postParamList;
 	
 	public ThmExpFunc(String name, String expr, String post, String pre, LinkedList<List<PPattern>> pattern, String resType)
 	{
 		this.name = name;
 		this.pattern = pattern;
 		this.expr = fixFuncExpr(expr,pattern);
-		this.prePostParamList = getPrePostParamList(pattern);
+		this.preParamList = getPreParamList(pattern);
+		this.postParamList = getPostParamList(pattern);
 		if(post == null)
-			this.post = createPrePostFunc(name, "true","post", pattern);
+			this.post = createPostFunc(name, "true", pattern);
 		else 
 			//generate function for postcondition
-			this.post = createPrePostFunc(name, post,"post", pattern);
+			this.post = createPostFunc(name, post, pattern);
 		if(pre == null)
-			this.pre = createPrePostFunc(name, "true","pre", pattern);
+			this.pre = createPreFunc(name, "true", pattern);
 		else 
 			//generate function for precondition
-			this.pre = createPrePostFunc(name, pre,"pre", pattern);
+			this.pre = createPreFunc(name, pre, pattern);
 		this.resType = resType;
 	}
 	
@@ -85,16 +89,67 @@ public class ThmExpFunc extends ThmDecl {
 	 * Method to create a pre/post function for the Explicitly defined function 
 	 * @param name
 	 * @param exp
+	 * @param params
+	 * @return
+	 */
+	private String createPreFunc(String name, String exp, LinkedList<List<PPattern>> params)
+	{
+		//Create a simple function for the precondition
+		ThmExpFunc preFunc = new ThmExpFunc(("pre_" + name), exp, params);
+		return preFunc.getRefFunction();
+	}
+	
+	/*****
+	 * Method to create a pre/post function for the Explicitly defined function 
+	 * @param name
+	 * @param exp
 	 * @param prepost
 	 * @param params
 	 * @return
 	 */
-	private String createPrePostFunc(String name, String exp, String prepost, LinkedList<List<PPattern>> params)
-	{
+	private String createPostFunc(String name, String exp, LinkedList<List<PPattern>> params)
+	{				
+		String postExpr = fixPostFuncExpr(exp, params);
+		
 		//Create a simple function for the precondition
-		ThmExpFunc prePostFunc = new ThmExpFunc((prepost + "_" + name), exp, params);
+		ThmExpFunc prePostFunc = new ThmExpFunc(("post_" + name), postExpr, params);
 		return prePostFunc.getRefFunction();
 	}
+	
+	
+	/**
+	 * Method to change the value names in an expression when they are parameter names
+	 * This is so that the lambda expression of a function operates as expected. 
+	 * Parameters are determined by numeric order.
+	 * @param ex - expression to fix
+	 * @param pattern - the parameters
+	 * @return the new, fixed string
+	 */
+	private String fixPostFuncExpr(String ex, LinkedList<List<PPattern>> pattern){
+		int count = 0;
+
+		//first, need to determine how many parameters are supplied in the function.
+		for (List<PPattern> pat : pattern)
+		{
+			//for each parameter, add 1 to the parameter count
+			for(PPattern p : pat )
+			{
+				count++;
+			}
+		}
+		//the result is therefore the next parameter
+		int resCount = count+1;
+		
+		//replace the keyword RESULT with the result parameter
+		String lambdaName = "^" +ThmTypeUtil.isaFuncLambaVal+"^.#" + resCount;
+		ex = ex.replace("^RESULT^", lambdaName);
+	
+		return ex;
+	}
+	
+	
+	
+	
 	
 	/*****
 	 * Method to create the parameter list used in the explicit function - used when
@@ -102,7 +157,7 @@ public class ThmExpFunc extends ThmDecl {
 	 * @param paras
 	 * @return
 	 */
-	public String getPrePostParamList(LinkedList<List<PPattern>> paras){
+	public String getPreParamList(LinkedList<List<PPattern>> paras){
 		
 		StringBuilder sb = new StringBuilder();
 		sb.append("(");
@@ -122,9 +177,40 @@ public class ThmExpFunc extends ThmDecl {
 		}
 		sb.append(")");
 		
-		return sb.toString();
+		return fixFuncExpr(sb.toString(), paras);
 	}
 	
+	
+	/*****
+	 * Method to create the parameter list used in the explicit function - used when
+	 * calling the post functions
+	 * @param paras
+	 * @return
+	 */
+	public String getPostParamList(LinkedList<List<PPattern>> params){
+		
+		StringBuilder sb = new StringBuilder();
+		sb.append("(");
+		
+		for (List<PPattern> para : params)
+		{
+			for (Iterator<PPattern> itr = para.listIterator(); itr.hasNext(); ) {
+				
+				PPattern pat = itr.next();
+				sb.append("^");
+				sb.append(((AIdentifierPattern) pat).getName().toString());
+				sb.append("^");
+				//If there are remaining parameters, add a ","
+				if(itr.hasNext()){	
+					sb.append(", ");
+				}
+			}
+		}
+		sb.append(", ^RESULT^");
+		sb.append(")");
+
+		return fixFuncExpr(sb.toString(), params);
+	}
 
 	/****
 	 * To string method returns the function definition 
@@ -151,8 +237,8 @@ public class ThmExpFunc extends ThmDecl {
 	private String createFuncExp() {
 		StringBuilder sb = new StringBuilder();
 		
-		sb.append("if (pre_"+ name + prePostParamList + ")\n");
-		sb.append("then (" + ThmTypeUtil.isaFuncLambdaPost + " " + ThmTypeUtil.isaFuncLambdaPostVal+ " : " + resType + " @ (post_" + name + prePostParamList + " and ^" + ThmTypeUtil.isaFuncLambdaPostVal +  "^ = " + expr +"))\n");
+		sb.append("if (pre_"+ name + preParamList + ")\n");
+		sb.append("then (" + ThmTypeUtil.isaFuncLambdaPost + " " + ThmTypeUtil.isaFuncLambdaPostVal+ " : " + resType + " @ (post_" + name + postParamList + " and ^" + ThmTypeUtil.isaFuncLambdaPostVal +  "^ = " + expr +"))\n");
 		sb.append("else undefined");
 		
 		return sb.toString();
