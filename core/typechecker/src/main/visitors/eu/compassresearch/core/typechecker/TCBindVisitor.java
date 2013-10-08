@@ -39,14 +39,16 @@ import eu.compassresearch.core.typechecker.api.TypeWarningMessages;
 
 @SuppressWarnings({ "serial", "unused" })
 class TCBindVisitor extends QuestionAnswerCMLAdaptor<TypeCheckInfo, PType>
-		implements ICMLQuestionAnswer<TypeCheckInfo, PType> {
+		implements ICMLQuestionAnswer<TypeCheckInfo, PType>
+{
 
 	private final eu.compassresearch.core.typechecker.api.CmlRootVisitor parent;
 	private final TypeIssueHandler issueHandler;
 
 	public TCBindVisitor(
 			eu.compassresearch.core.typechecker.api.CmlRootVisitor vanillaCmlTypeChecker,
-			TypeIssueHandler issueHandler) {
+			TypeIssueHandler issueHandler)
+	{
 
 		this.parent = vanillaCmlTypeChecker;
 		this.issueHandler = issueHandler;
@@ -54,14 +56,14 @@ class TCBindVisitor extends QuestionAnswerCMLAdaptor<TypeCheckInfo, PType>
 
 	@Override
 	public PType caseARecordPattern(ARecordPattern node, TypeCheckInfo question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 
 		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
-		if (cmlEnv == null) {
-			node.setType(issueHandler.addTypeError(
-					node,
-					TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(""
-							+ node)));
+		if (cmlEnv == null)
+		{
+			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(""
+					+ node)));
 			return node.getType();
 		}
 
@@ -69,41 +71,42 @@ class TCBindVisitor extends QuestionAnswerCMLAdaptor<TypeCheckInfo, PType>
 		LinkedList<PPattern> ptrns = node.getPlist();
 
 		PType type = cmlEnv.lookupType(typeName);
-		if (!successfulType(type)) {
-			node.setType(issueHandler.addTypeError(
-					typeName,
-					TypeErrorMessages.UNDEFINED_TYPE.customizeMessage(""
-							+ typeName)));
+		if (!successfulType(type))
+		{
+			node.setType(issueHandler.addTypeError(typeName, TypeErrorMessages.UNDEFINED_TYPE.customizeMessage(""
+					+ typeName)));
 			return node.getType();
 		}
 
-		if (!(type instanceof ARecordInvariantType)) {
-			node.setType(issueHandler.addTypeError(type,
-					TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(
-							"RecordType", "" + type)));
+		if (!(type instanceof ARecordInvariantType))
+		{
+			node.setType(issueHandler.addTypeError(type, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage("RecordType", ""
+					+ type)));
 			return node.getType();
 		}
 
 		ARecordInvariantType recordType = (ARecordInvariantType) type;
 		node.setType(recordType);
 
-		if (recordType.getFields().size() != ptrns.size()) {
-			node.setType(issueHandler.addTypeError(node,
-					TypeErrorMessages.WRONG_NUMBER_OF_ARGUMENTS
-							.customizeMessage(node + "")));
+		if (recordType.getFields().size() != ptrns.size())
+		{
+			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.WRONG_NUMBER_OF_ARGUMENTS.customizeMessage(node
+					+ "")));
 			return node.getType();
 		}
 
 		int i = 0;
-		for (PPattern ptrn : ptrns) {
+		for (PPattern ptrn : ptrns)
+		{
 			PType ptrnType = ptrn.apply(parent, question);
-			if (!successfulType(ptrnType)) {
-				node.setType(issueHandler.addTypeError(ptrn,
-						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-								.customizeMessage(ptrn + "")));
+			if (!successfulType(ptrnType))
+			{
+				node.setType(issueHandler.addTypeError(ptrn, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(ptrn
+						+ "")));
 			}
 			PType curType = recordType.getFields().get(i).getType();
-			for (PDefinition def : ptrnType.getDefinitions()) {
+			for (PDefinition def : ptrnType.getDefinitions())
+			{
 				def.setType(curType);
 				node.getType().getDefinitions().add(def);
 			}
@@ -114,28 +117,29 @@ class TCBindVisitor extends QuestionAnswerCMLAdaptor<TypeCheckInfo, PType>
 
 	@Override
 	public PType caseAMultiBindListDefinition(AMultiBindListDefinition node,
-			TypeCheckInfo question) throws AnalysisException {
+			TypeCheckInfo question) throws AnalysisException
+	{
 		node.setNameScope(question.scope);
 		return node.getType();
 	}
 
 	@Override
 	public PType caseASetMultipleBind(ASetMultipleBind node,
-			TypeCheckInfo question) throws AnalysisException {
+			TypeCheckInfo question) throws AnalysisException
+	{
 
 		PExp set = node.getSet();
 		PType type = set.apply(parent, question);
-		if (!successfulType(type)) {
-			return issueHandler.addTypeError(set,
-					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-							.customizeMessage("" + set));
+		if (!successfulType(type))
+		{
+			return issueHandler.addTypeError(set, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
+					+ set));
 		}
 
-		if (!(type instanceof ASetType)) {
-			return issueHandler.addTypeError(
-					set,
-					TypeErrorMessages.SET_TYPE_EXPECTED.customizeMessage(set
-							+ "", type + ""));
+		if (!(type instanceof ASetType))
+		{
+			return issueHandler.addTypeError(set, TypeErrorMessages.SET_TYPE_EXPECTED.customizeMessage(set
+					+ "", type + ""));
 		}
 
 		ASetType setType = (ASetType) type;
@@ -143,14 +147,16 @@ class TCBindVisitor extends QuestionAnswerCMLAdaptor<TypeCheckInfo, PType>
 		LinkedList<PPattern> patterns = node.getPlist();
 		ABindType bindType = new ABindType(node.getLocation(), true);
 		bindType.setDefinitions(new LinkedList<PDefinition>());
-		for (PPattern p : patterns) {
+		for (PPattern p : patterns)
+		{
 			PType pType = p.apply(parent, question);
-			if (!successfulType(pType)) {
-				return issueHandler.addTypeError(p,
-						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-								.customizeMessage("" + p));
+			if (!successfulType(pType))
+			{
+				return issueHandler.addTypeError(p, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
+						+ p));
 			}
-			for (PDefinition def : pType.getDefinitions()) {
+			for (PDefinition def : pType.getDefinitions())
+			{
 				def.setType(setType.getSetof());
 				bindType.getDefinitions().add(def);
 			}
@@ -158,54 +164,59 @@ class TCBindVisitor extends QuestionAnswerCMLAdaptor<TypeCheckInfo, PType>
 
 		return bindType;
 	}
-	
+
 	@Override
 	public PType caseATypeMultipleBind(ATypeMultipleBind node,
-			TypeCheckInfo question) throws AnalysisException {
+			TypeCheckInfo question) throws AnalysisException
+	{
 		PType type = node.getType();
-		
-		if(!successfulType(type)) {
-			issueHandler.addTypeError(node,
-					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-							.customizeMessage("" + node));
+
+		if (!successfulType(type))
+		{
+			issueHandler.addTypeError(node, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
+					+ node));
 		}
-		
+
 		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
-		
-		//Its a type bind and we know the type
+
+		// Its a type bind and we know the type
 		LinkedList<PPattern> patterns = node.getPlist();
-		for (PPattern p : patterns) {
-			
-			//perform any additional type checking
+		for (PPattern p : patterns)
+		{
+
+			// perform any additional type checking
 			PType pType = p.apply(parent, question);
-			
-			if(pType instanceof AUnresolvedType){
-				//as expected; no worries, we know the type
-				for (PDefinition def : pType.getDefinitions()) {
+
+			if (pType instanceof AUnresolvedType)
+			{
+				// as expected; no worries, we know the type
+				for (PDefinition def : pType.getDefinitions())
+				{
 					def.setType(type);
-					
+
 					cmlEnv.addType(def.getName(), def);
 
 				}
 			}
 		}
-	
+
 		return type;
 	}
 
 	@Override
 	public PType caseATuplePattern(ATuplePattern node, TypeCheckInfo question)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 		PType result = new AUnknownType(node.getLocation(), false);
 
 		List<PDefinition> definitions = new LinkedList<PDefinition>();
 		LinkedList<PPattern> plist = node.getPlist();
-		for (PPattern p : plist) {
+		for (PPattern p : plist)
+		{
 			PType ptype = p.apply(parent, question);
 			if (!successfulType(ptype))
-				return issueHandler.addTypeError(p,
-						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-								.customizeMessage(p + ""));
+				return issueHandler.addTypeError(p, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(p
+						+ ""));
 			definitions.addAll(ptype.getDefinitions());
 		}
 		result.setDefinitions(definitions);
@@ -214,7 +225,8 @@ class TCBindVisitor extends QuestionAnswerCMLAdaptor<TypeCheckInfo, PType>
 
 	@Override
 	public PType caseAIdentifierPattern(AIdentifierPattern node,
-			TypeCheckInfo question) throws AnalysisException {
+			TypeCheckInfo question) throws AnalysisException
+	{
 
 		// This is a bit weird. But we are simply adding a binding to an
 		// unresolved type
@@ -225,8 +237,7 @@ class TCBindVisitor extends QuestionAnswerCMLAdaptor<TypeCheckInfo, PType>
 		// from the set expression "{1,2,3}" .
 
 		PType result = AstFactory.newAUnresolvedType(node.getName());
-		ALocalDefinition localDef = AstFactory.newALocalDefinition(
-				node.getLocation(), node.getName(), question.scope, result);
+		ALocalDefinition localDef = AstFactory.newALocalDefinition(node.getLocation(), node.getName(), question.scope, result);
 		result.getDefinitions().add(localDef);
 
 		return result;
@@ -234,54 +245,52 @@ class TCBindVisitor extends QuestionAnswerCMLAdaptor<TypeCheckInfo, PType>
 
 	@Override
 	public PType caseADefPatternBind(ADefPatternBind node,
-			TypeCheckInfo question) throws AnalysisException {
+			TypeCheckInfo question) throws AnalysisException
+	{
 
 		// this is a bit unusual, the type is expected to be already set
 		PType topType = node.getType();
-		if (topType == null) {
-			node.setType(issueHandler.addTypeError(node,
-					TypeErrorMessages.PATTERN_TYPE_MISSING
-							.customizeMessage(node + "")));
+		if (topType == null)
+		{
+			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.PATTERN_TYPE_MISSING.customizeMessage(node
+					+ "")));
 			return node.getType();
 		}
 
 		// TODO RWL: Maybe this should go recursively too, Okay we build the
 		// definition list
 		PPattern pattern = node.getPattern();
-		if (pattern != null) {
-			if (pattern instanceof AIdentifierPattern) {
-				ALocalDefinition localDef = AstFactory.newALocalDefinition(
-						pattern.getLocation(),
-						((AIdentifierPattern) pattern).getName(),
-						NameScope.LOCAL, topType);
+		if (pattern != null)
+		{
+			if (pattern instanceof AIdentifierPattern)
+			{
+				ALocalDefinition localDef = AstFactory.newALocalDefinition(pattern.getLocation(), ((AIdentifierPattern) pattern).getName(), NameScope.LOCAL, topType);
 				node.getType().getDefinitions().add(localDef);
-			} else {
-				issueHandler.addTypeWarning(pattern,
-						"Type checking may be incomplete here.");
+			} else
+			{
+				issueHandler.addTypeWarning(pattern, "Type checking may be incomplete here.");
 			}
 		}
 
 		// TODO RWL: maybe, just maybe this should also go recursively !
 		PBind bind = node.getBind();
-		if (bind != null) {
-			if (bind instanceof ATypeBind) {
+		if (bind != null)
+		{
+			if (bind instanceof ATypeBind)
+			{
 				ATypeBind typeBind = (ATypeBind) bind;
 				PPattern innerPattern = typeBind.getPattern();
 				PType type = typeBind.getType();
-				if (innerPattern instanceof AIdentifierPattern) {
+				if (innerPattern instanceof AIdentifierPattern)
+				{
 					AIdentifierPattern idPtern = (AIdentifierPattern) innerPattern;
-					ALocalDefinition localDef = AstFactory.newALocalDefinition(
-							innerPattern.getLocation(), idPtern.getName(),
-							NameScope.LOCAL, topType);
+					ALocalDefinition localDef = AstFactory.newALocalDefinition(innerPattern.getLocation(), idPtern.getName(), NameScope.LOCAL, topType);
 					node.getDefs().add(localDef);
 				} else
-					issueHandler
-							.addTypeWarning(innerPattern,
-									"Expecting an identifer pattern, type checking may be incomplete here.");
+					issueHandler.addTypeWarning(innerPattern, "Expecting an identifer pattern, type checking may be incomplete here.");
 			} else
-				issueHandler.addTypeWarning(bind,
-						TypeWarningMessages.EXPECTED_AN_IDENTIFIER_PATTERN
-								.customizeMessage("" + bind, bind.getClass().getName()));
+				issueHandler.addTypeWarning(bind, TypeWarningMessages.EXPECTED_AN_IDENTIFIER_PATTERN.customizeMessage(""
+						+ bind, bind.getClass().getName()));
 		}
 
 		// return the type.

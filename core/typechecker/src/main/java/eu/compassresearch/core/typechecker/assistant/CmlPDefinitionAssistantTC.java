@@ -20,15 +20,17 @@ public class CmlPDefinitionAssistantTC extends PDefinitionAssistantTC
 	@Override
 	public PType getType(PDefinition def)
 	{
-		//FIXME: handle CML type lookup
-		if(def instanceof AProcessDefinition || def instanceof AExplicitCmlOperationDefinition|| def instanceof AImplicitCmlOperationDefinition)
+		// FIXME: handle CML type lookup
+		if (def instanceof AProcessDefinition
+				|| def instanceof AExplicitCmlOperationDefinition
+				|| def instanceof AImplicitCmlOperationDefinition)
 		{
 			return null;
 		}
-		PType t =  super.getType(def);
-		if(t==null)
+		PType t = super.getType(def);
+		if (t == null)
 		{
-//			System.out.println("----------------------------------CML should be handled!!!");
+			// System.out.println("----------------------------------CML should be handled!!!");
 		}
 		return t;
 	}

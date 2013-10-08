@@ -4,10 +4,10 @@
     inv n == (n >= 0) and (n <= 255)
 
   functions
-   oflow : (Byte*Byte) -> bool
+   oflow : Byte*Byte -> bool
    oflow(i,j) == i+j > 255
 
-   uflow : (Byte*Byte) -> bool
+   uflow : Byte*Byte -> bool
    uflow(i,j) == i-j < 0
 
 
