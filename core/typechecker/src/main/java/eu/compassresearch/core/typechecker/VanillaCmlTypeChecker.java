@@ -19,6 +19,7 @@ import eu.compassresearch.core.typechecker.CollectGlobalStateClass.GlobalDefinit
 import eu.compassresearch.core.typechecker.api.CmlRootVisitor;
 import eu.compassresearch.core.typechecker.api.TypeComparator;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
+import eu.compassresearch.core.typechecker.weeding.SetLocationVisitor;
 import eu.compassresearch.core.typechecker.weeding.Weeding1;
 import eu.compassresearch.core.typechecker.weeding.Weeding2;
 

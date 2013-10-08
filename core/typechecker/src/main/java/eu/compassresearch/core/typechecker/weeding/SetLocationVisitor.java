@@ -1,4 +1,4 @@
-package eu.compassresearch.core.typechecker;
+package eu.compassresearch.core.typechecker.weeding;
 
 import java.lang.reflect.Method;
 import java.util.Collection;
