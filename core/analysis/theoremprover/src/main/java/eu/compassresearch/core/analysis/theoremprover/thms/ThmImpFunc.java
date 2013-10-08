@@ -1,6 +1,8 @@
 package eu.compassresearch.core.analysis.theoremprover.thms;
 
+import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 
 import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.APatternListTypePair;
@@ -85,6 +87,54 @@ public class ThmImpFunc extends ThmDecl {
 		
 		return ex;
 	}
+	
+	
+
+	/*****
+	 * Method to create a pre/post function for the Explicitly defined function 
+	 * @param name
+	 * @param exp
+	 * @param prepost
+	 * @param params
+	 * @return
+	 */
+	private String createPrePostFunc(String name, String exp, String prepost, LinkedList<List<PPattern>> params)
+	{
+		//Create a simple function for the precondition
+		ThmExpFunc prePostFunc = new ThmExpFunc((prepost + "_" + name), exp, params);
+		return prePostFunc.getRefFunction();
+	}
+	
+	/*****
+	 * Method to create the parameter list used in the explicit function - used when
+	 * calling the pre/post functions
+	 * @param paras
+	 * @return
+	 */
+	public String getPrePostParamList(LinkedList<List<PPattern>> paras){
+		
+		StringBuilder sb = new StringBuilder();
+		sb.append("(");
+		for (List<PPattern> para : paras)
+		{
+			for (Iterator<PPattern> itr = para.listIterator(); itr.hasNext(); ) {
+				
+				PPattern pat = itr.next();
+				sb.append("^");
+				sb.append(((AIdentifierPattern) pat).getName().toString());
+				sb.append("^");
+				//If there are remaining parameters, add a ","
+				if(itr.hasNext()){	
+					sb.append(", ");
+				}
+			}
+		}
+		sb.append(")");
+		
+		return sb.toString();
+	}
+	
+	
 	
 	/****
 	 * To string method returns the function definition 

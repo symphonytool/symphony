@@ -3,6 +3,7 @@ package eu.compassresearch.core.analysis.theoremprover.thms;
 import java.util.Iterator;
 import java.util.Vector;
 
+import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.intf.lex.ILexNameToken;
 
 public class NodeNameList extends Vector<ILexNameToken>{
@@ -70,5 +71,24 @@ public class NodeNameList extends Vector<ILexNameToken>{
 			}
 		}
 		return this;
+	}
+	
+	/****
+	 * Method to return the NodeNameList as a comma-separated string of the list contents and their line number
+	 */
+	public String nameAndLocs() {
+		StringBuilder sb = new StringBuilder();
+		//for each dependency 
+		for(Iterator<ILexNameToken> itr = this.listIterator(); itr.hasNext(); )
+		{
+			ILexNameToken nd = itr.next();
+			
+			sb.append(nd.toString());
+			sb.append(" (line number: " + nd.getLocation().getStartLine() +")");
+			if(itr.hasNext()){
+				sb.append(",\n");
+			}
+		}
+		return sb.toString();
 	}
 }

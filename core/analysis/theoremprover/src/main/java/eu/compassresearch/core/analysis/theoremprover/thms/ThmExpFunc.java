@@ -1,5 +1,6 @@
 package eu.compassresearch.core.analysis.theoremprover.thms;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -16,25 +17,34 @@ public class ThmExpFunc extends ThmDecl {
 	private String pre;
 	private LinkedList<List<PPattern>> pattern;
 	private String resType;
+	private String prePostParamList;
 	
 	public ThmExpFunc(String name, String expr, String post, String pre, LinkedList<List<PPattern>> pattern, String resType)
 	{
 		this.name = name;
 		this.pattern = pattern;
 		this.expr = fixFuncExpr(expr,pattern);
+		this.prePostParamList = getPrePostParamList(pattern);
 		if(post == null)
-			this.post = "true";
+			this.post = createPrePostFunc(name, "true","post", pattern);
 		else 
 			//generate function for postcondition
-			this.post = fixFuncExpr(post,pattern);
+			this.post = createPrePostFunc(name, post,"post", pattern);
 		if(pre == null)
-			this.pre = "true";
+			this.pre = createPrePostFunc(name, "true","pre", pattern);
 		else 
 			//generate function for precondition
-			this.pre = fixFuncExpr(pre,pattern);
+			this.pre = createPrePostFunc(name, pre,"pre", pattern);
 		this.resType = resType;
 	}
 	
+	/****
+	 * Constructor for functions with no pre/post conditions, typically for
+	 * pre/post functions
+	 * @param name
+	 * @param expr
+	 * @param pattern
+	 */
 	public ThmExpFunc(String name, String expr, LinkedList<List<PPattern>> pattern)
 	{
 		this.name = name;
@@ -68,18 +78,70 @@ public class ThmExpFunc extends ThmDecl {
 		//Replace the keyword "RESULT" with the Lambda post value
 		ex = ex.replace("^RESULT^", "^" + ThmTypeUtil.isaFuncLambdaPostVal + "^");
 		
-	
 		return ex;
 	}
+	
+	/*****
+	 * Method to create a pre/post function for the Explicitly defined function 
+	 * @param name
+	 * @param exp
+	 * @param prepost
+	 * @param params
+	 * @return
+	 */
+	private String createPrePostFunc(String name, String exp, String prepost, LinkedList<List<PPattern>> params)
+	{
+		//Create a simple function for the precondition
+		ThmExpFunc prePostFunc = new ThmExpFunc((prepost + "_" + name), exp, params);
+		return prePostFunc.getRefFunction();
+	}
+	
+	/*****
+	 * Method to create the parameter list used in the explicit function - used when
+	 * calling the pre/post functions
+	 * @param paras
+	 * @return
+	 */
+	public String getPrePostParamList(LinkedList<List<PPattern>> paras){
+		
+		StringBuilder sb = new StringBuilder();
+		sb.append("(");
+		for (List<PPattern> para : paras)
+		{
+			for (Iterator<PPattern> itr = para.listIterator(); itr.hasNext(); ) {
+				
+				PPattern pat = itr.next();
+				sb.append("^");
+				sb.append(((AIdentifierPattern) pat).getName().toString());
+				sb.append("^");
+				//If there are remaining parameters, add a ","
+				if(itr.hasNext()){	
+					sb.append(", ");
+				}
+			}
+		}
+		sb.append(")");
+		
+		return sb.toString();
+	}
+	
 
 	/****
 	 * To string method returns the function definition 
 	 */
 	public String toString(){
-		return (ThmTypeUtil.isaFunc + " \"" + name + " = " + 
+		
+		StringBuilder res = new StringBuilder();
+		
+		res.append(pre + "\n\n");
+
+		res.append(post + "\n\n");
+		
+		res.append(ThmTypeUtil.isaFunc + " \"" + name + " = " + 
 			ThmTypeUtil.isaFuncBar + ThmTypeUtil.isaFuncLambda + " " +ThmTypeUtil.isaFuncLambaVal+" @ " +
 		    createFuncExp() + ThmTypeUtil.isaFuncBar + "\"\n" + tacHook(name));
-		
+
+		return res.toString();
 	}
 
 	/****
@@ -89,8 +151,8 @@ public class ThmExpFunc extends ThmDecl {
 	private String createFuncExp() {
 		StringBuilder sb = new StringBuilder();
 		
-		sb.append("if (" + pre + ")\n");
-		sb.append("then (" + ThmTypeUtil.isaFuncLambdaPost + " " + ThmTypeUtil.isaFuncLambdaPostVal+ " : " + resType + " @ (" + post + " and ^" + ThmTypeUtil.isaFuncLambdaPostVal +  "^ = " + expr +"))\n");
+		sb.append("if (pre_"+ name + prePostParamList + ")\n");
+		sb.append("then (" + ThmTypeUtil.isaFuncLambdaPost + " " + ThmTypeUtil.isaFuncLambdaPostVal+ " : " + resType + " @ (post_" + name + prePostParamList + " and ^" + ThmTypeUtil.isaFuncLambdaPostVal +  "^ = " + expr +"))\n");
 		sb.append("else undefined");
 		
 		return sb.toString();

@@ -2,8 +2,12 @@ package eu.compassresearch.core.analysis.theoremprover.utils;
 
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 
+import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AAssignmentDefinition;
+import org.overture.ast.definitions.AExplicitFunctionDefinition;
+import org.overture.ast.definitions.AImplicitFunctionDefinition;
 import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
@@ -14,6 +18,7 @@ import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.APatternListTypePair;
 import org.overture.ast.patterns.APatternTypePair;
 import org.overture.ast.patterns.PPattern;
+import org.overture.ast.types.AFunctionType;
 import org.overture.ast.types.AOperationType;
 import org.overture.ast.types.PType;
 
@@ -79,6 +84,7 @@ import eu.compassresearch.ast.actions.SStatementAction;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AActionsDefinition;
 import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
+import eu.compassresearch.ast.definitions.AFunctionsDefinition;
 import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AOperationsDefinition;
 import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
@@ -100,7 +106,9 @@ import eu.compassresearch.ast.process.ATimeoutProcess;
 import eu.compassresearch.ast.process.AUntimedTimeoutProcess;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.analysis.theoremprover.thms.ThmAction;
+import eu.compassresearch.core.analysis.theoremprover.thms.ThmExpFunc;
 import eu.compassresearch.core.analysis.theoremprover.thms.ThmExplicitOperation;
+import eu.compassresearch.core.analysis.theoremprover.thms.ThmImpFunc;
 import eu.compassresearch.core.analysis.theoremprover.thms.ThmImplicitOperation;
 import eu.compassresearch.core.analysis.theoremprover.thms.ThmNode;
 import eu.compassresearch.core.analysis.theoremprover.thms.ThmNodeList;
@@ -448,6 +456,8 @@ public class ThmProcessUtil {
 		//all together.
 		LinkedList<AStateDefinition> statements = new LinkedList<AStateDefinition>();
 		LinkedList<SCmlOperationDefinition> operations = new LinkedList<SCmlOperationDefinition>();
+		LinkedList<AImplicitFunctionDefinition> impfunctions = new LinkedList<AImplicitFunctionDefinition>();
+		LinkedList<AExplicitFunctionDefinition> expfunctions = new LinkedList<AExplicitFunctionDefinition>();
 		LinkedList<AActionDefinition> actions = new LinkedList<AActionDefinition>();
 		LinkedList<PDefinition> others = new LinkedList<PDefinition>();
 		for (PDefinition pdef : act.getDefinitionParagraphs())
@@ -461,6 +471,16 @@ public class ThmProcessUtil {
 			{
 				AOperationsDefinition ops = (AOperationsDefinition) pdef;
 				operations.addAll(ops.getOperations());
+			}
+			else if (pdef instanceof AImplicitFunctionDefinition)
+			{
+				AImplicitFunctionDefinition exp = (AImplicitFunctionDefinition) pdef;
+				impfunctions.add(exp);
+			}
+			else if (pdef instanceof AExplicitFunctionDefinition)
+			{
+				AExplicitFunctionDefinition exp = (AExplicitFunctionDefinition) pdef;
+				expfunctions.add(exp);
 			}
 			else if (pdef instanceof AActionsDefinition)
 			{
@@ -477,12 +497,16 @@ public class ThmProcessUtil {
 		NodeNameList svars = ThmProcessUtil.getStateNames(statements);
 		//also get operation and action names
 		NodeNameList opNames = ThmProcessUtil.getOperationNames(operations);
+		NodeNameList efNames = ThmProcessUtil.getExpFunctionNames(expfunctions);
+		NodeNameList ifNames = ThmProcessUtil.getImpFunctionNames(impfunctions);
 		NodeNameList actNames = ThmProcessUtil.getActionNames(actions);
 		
 		//Add all state, operation and action names to list
 		procNodeNames.addAll(svars);
 		procNodeNames.addAll(opNames);
 		procNodeNames.addAll(actNames);
+		procNodeNames.addAll(efNames);
+		procNodeNames.addAll(ifNames);
 				
 		//if there are state variables
 		if (!svars.isEmpty())
@@ -549,6 +573,33 @@ public class ThmProcessUtil {
 			
 			mainActStateStr = " = `IsabelleStateInit; ";
 		}
+
+		
+		
+		
+		//if the process has explicit functions
+		if(!efNames.isEmpty())
+		{
+			//Handle the functions.
+			ThmNodeList funcNodes = getIsabelleExpFunctions(expfunctions);
+			//Add all function dependencies to the list of process dependencies
+			nodeDeps.addAll(funcNodes.getAllNodeDeps());
+			//restrict the function dependencies to only those names used within the process
+			funcNodes = funcNodes.restrictExtOperationsDeps(procNodeNames);
+			actTnl.addAll(funcNodes);
+		}
+		
+		//if the process has implicit functions
+		if(!ifNames.isEmpty())
+		{
+			//Handle the functions.
+			ThmNodeList funcNodes = getIsabelleImpFunctions(impfunctions);
+			//Add all function dependencies to the list of process dependencies
+			nodeDeps.addAll(funcNodes.getAllNodeDeps());
+			//restrict the function dependencies to only those names used within the process
+			funcNodes = funcNodes.restrictExtOperationsDeps(procNodeNames);
+			actTnl.addAll(funcNodes);
+		}
 		
 		//if the process has operations
 		if(!opNames.isEmpty())
@@ -600,6 +651,39 @@ public class ThmProcessUtil {
 	}
 	
 	/***
+	 * Method to retrieve all function names from a collection of explicit functions
+	 * @param statements - the collection of functions
+	 * @return a list of names (as ILexNameTokens)
+	 */
+	private static NodeNameList getExpFunctionNames(LinkedList<AExplicitFunctionDefinition> expfunctions) {
+		NodeNameList fNames = new NodeNameList();
+		
+		//for each function
+		for(AExplicitFunctionDefinition f : expfunctions){
+			//get the name and add it to the list
+			fNames.add(f.getName());
+		}
+		return fNames;
+	}
+
+	
+	/***
+	 * Method to retrieve all function names from a collection of implicit functions
+	 * @param statements - the collection of functions
+	 * @return a list of names (as ILexNameTokens)
+	 */
+	private static NodeNameList getImpFunctionNames(LinkedList<AImplicitFunctionDefinition> functions) {
+		NodeNameList fNames = new NodeNameList();
+		
+		//for each function
+		for(AImplicitFunctionDefinition f : functions){
+			//get the name and add it to the list
+			fNames.add(f.getName());
+		}
+		return fNames;
+	}
+	
+	/***
 	 * Method to retrieve all state variable names from a collection of state definitions
 	 * @param statements - the collection of state variables
 	 * @return a list of names (as ILexNameTokens)
@@ -629,7 +713,7 @@ public class ThmProcessUtil {
 	}
 
 	/**
-	 * Method to retrieve all state variable names from a collection of operations definitions
+	 * Method to retrieve all operation and operation precondition names from a collection of operations definitions
 	 * @param operations - the collection of operations
 	 * @return a list of names (as ILexNameTokens)
 	 */
@@ -638,10 +722,13 @@ public class ThmProcessUtil {
 		
 		NodeNameList opNames = new NodeNameList();
 		//for each operation
-		for(SCmlOperationDefinition op : operations)
+		for(SCmlOperationDefinition op : operations){
 			//get the name and add it to the list
 			opNames.add(op.getName());
-		
+			//Construct a name for the operation precondition
+			LexNameToken preOpName = new LexNameToken("", "pre_" + op.getName().toString(), op.getLocation());
+			opNames.add(preOpName);
+		}
 		return opNames;
 	}
 
@@ -1849,5 +1936,153 @@ public class ThmProcessUtil {
 //	}
 
 
+	
+	//THE FOLLOWING NEED TO BE REMOVED WHEN THIS CLASS IS CHANGED TO BE A VISITOR. 
+	//SHOULD REALLY BE USING THESE METHODS IN DECLANDDEFVISITOR
+
+
+	/***
+	 * Return the ThmNodeList for all the operations of a process 
+	 * @param operations - the operations to check
+	 * @param svars - the state variables
+	 * @return a ThmNodeList for all the operations
+	 */
+	private static ThmNodeList getIsabelleExpFunctions(
+			LinkedList<AExplicitFunctionDefinition> funcs) {
+		ThmNodeList tnl = new ThmNodeList();
+		
+		for(AExplicitFunctionDefinition f : funcs)
+			tnl.addAll(ThmProcessUtil.getAExplicitFunctionDefinition(f));
+		
+		return tnl;
+	}
+	
+	/**
+	 * Visitor method for an explicitly defined function
+	 */
+	private static ThmNodeList getAExplicitFunctionDefinition(AExplicitFunctionDefinition node)
+	{
+		ThmNodeList tnl = new ThmNodeList();
+		NodeNameList nodeDeps = new NodeNameList();
+
+		ILexNameToken name = node.getName();
+		
+		//Deal with the parameters
+		LinkedList<List<PPattern>> params = node.getParamPatternList();
+		//Find bound values to exclude from dependency list
+		NodeNameList b = new NodeNameList();
+		for(PPattern p : params.getFirst() )
+		{
+			b.add(((AIdentifierPattern) p).getName());
+		}
+		//add the parameter types as dependencies
+		for(PType pTp : ((AFunctionType) node.getType()).getParameters() )
+		{
+			nodeDeps.addAll(ThmTypeUtil.getIsabelleTypeDeps(pTp));
+		}
+		
+		//Deal with the function body
+		NodeNameList s = new NodeNameList();
+		String exp = ThmExprUtil.getIsabelleExprStr(s, b, node.getBody());
+		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(b, node.getBody()));
+
+		//Deal with the function precondition
+		String pre = null;
+		if (node.getPrecondition() != null){
+			pre = ThmExprUtil.getIsabelleExprStr(s, b, node.getPrecondition());
+			nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(b, node.getPrecondition()));
+		}
+		
+		//Deal with the function postcondition
+		String post = null;
+		if (node.getPostcondition() != null){
+			post = ThmExprUtil.getIsabelleExprStr(s, b, node.getPostcondition());
+			nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(b, node.getPostcondition()));
+		}
+		
+		//Deal with the function result
+		String resType = ThmTypeUtil.getIsabelleType(node.getExpectedResult());
+		nodeDeps.addAll(ThmTypeUtil.getIsabelleTypeDeps(node.getExpectedResult()));
+		
+		ThmNode tn = new ThmNode(name, nodeDeps, new ThmExpFunc(name.getName(), exp, post, pre, params, resType));
+		tnl.add(tn);
+		
+		return tnl;
+	}
+
+	/***
+	 * Return the ThmNodeList for all the operations of a process 
+	 * @param operations - the operations to check
+	 * @param svars - the state variables
+	 * @return a ThmNodeList for all the operations
+	 */
+	private static ThmNodeList getIsabelleImpFunctions(
+			LinkedList<AImplicitFunctionDefinition> funcs) {
+		ThmNodeList tnl = new ThmNodeList();
+		
+		for(AImplicitFunctionDefinition f : funcs)
+			tnl.addAll(ThmProcessUtil.getAImplicitFunctionDefinition(f));
+		
+		return tnl;
+	}
+
+	/**
+	 * Visitor method for an implicitly defined function
+	 */
+	private static ThmNodeList getAImplicitFunctionDefinition(AImplicitFunctionDefinition node)
+	{
+		ThmNodeList tnl = new ThmNodeList();
+		NodeNameList nodeDeps = new NodeNameList();
+
+		ILexNameToken name = node.getName();
+		LinkedList<APatternListTypePair> params = node.getParamPatterns();
+		APatternTypePair res = node.getResult();
+
+		NodeNameList b = new NodeNameList();
+		//Find bound values to exclude from dependency list
+		for(APatternListTypePair p : params )
+		{
+			LinkedList<PPattern> pats = p.getPatterns();
+			for(PPattern param : pats )
+			{
+				b.add(((AIdentifierPattern) param).getName());
+			}
+		}
+		b.add(((AIdentifierPattern) res.getPattern()).getName());
+		//add the parameter types as dependencies
+		for(PType pTp : ((AFunctionType) node.getType()).getParameters() )
+		{
+			nodeDeps.addAll(ThmTypeUtil.getIsabelleTypeDeps(pTp));
+		}
+		
+		
+		//Empty list for state variables (functions won't use any)
+		NodeNameList s = new NodeNameList();
+		//deal with the precondition
+		String pre = null;
+		if (node.getPrecondition() != null){
+			pre = ThmExprUtil.getIsabelleExprStr(s, b, node.getPrecondition());
+			nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(b, node.getPrecondition()));
+		}
+		//deal with the postcondition
+		String post = null;
+		if (node.getPostcondition() != null){
+			post = ThmExprUtil.getIsabelleExprStr(s, b, node.getPostcondition());
+			nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(b, node.getPostcondition()));
+		}
+		//deal with the return type
+		String resType = ThmTypeUtil.getIsabelleType(res.getType());
+		nodeDeps.addAll(ThmTypeUtil.getIsabelleTypeDeps(res.getType()));
+
+		ThmNode tn = new ThmNode(name, nodeDeps, new ThmImpFunc(name.getName(), post, pre, params, res, resType));
+		tnl.add(tn);
+		
+		return tnl;
+	}
+	
+	
+	
+	
+	
 			
 }
