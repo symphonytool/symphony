@@ -65,9 +65,10 @@ public class CollaborationPluginUtils
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
 	}
 
-	public static IProject getCurrentlySelectedProject()
+	public static IProject getCurrentSelectedProject()
 	{
 
 		IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();

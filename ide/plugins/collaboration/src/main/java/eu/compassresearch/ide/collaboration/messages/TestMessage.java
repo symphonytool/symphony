@@ -15,27 +15,16 @@ import eu.compassresearch.ide.collaboration.notifications.Notification;
 public class TestMessage extends BaseMessage
 {
 	private static final long serialVersionUID = 4816943224781454232L;
-	private final ID senderID;
 	private final String senderUsrname;
 	
-	
-	public TestMessage(){
-		senderID = null;
-		senderUsrname = "";
-	}
-	
-	public TestMessage(ID sender, String senderUsername)
+	public TestMessage(ID sender, ID receiver, String senderUsername)
 	{
-		senderID = sender;
+		super(sender,receiver);
 		senderUsrname = senderUsername;
 	}
 	
 	public String getData() {
 		return "Data Data";
-	}
-	
-	public ID getSenderID() {
-		return senderID;
 	}
 	
 	public String getFromUsername()

@@ -24,6 +24,8 @@ public class Activator extends AbstractUIPlugin
 	
 	private static final Hashtable<ID, CollaborationManager> collaborationChannels = new Hashtable<ID, CollaborationManager>();
 	
+	private CollaborationManager collabMgm;
+	
 	public Activator() {
 		// nothing to do
 	}
@@ -79,6 +81,11 @@ public class Activator extends AbstractUIPlugin
 	
 	public static Activator getDefault() {
 		return plugin;
+	}
+
+	public CollaborationManager getCollaborationManager()
+	{
+		return collabMgm;
 	}
 	
 }

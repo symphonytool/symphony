@@ -9,9 +9,9 @@ public class NewFileMessage extends BaseMessage
 	private final String filename;
 	private final String contents;
 	
-	public NewFileMessage(ID sendBy, String filename, String contents)
+	public NewFileMessage(ID sendBy, ID sendTo, String filename, String contents)
 	{
-		super(sendBy);
+		super(sendBy, sendTo);
 		this.filename = filename;
 		this.contents = contents;
 	}

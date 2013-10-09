@@ -25,7 +25,6 @@ import eu.compassresearch.ide.collaboration.Activator;
 import eu.compassresearch.ide.collaboration.CollaborationPluginUtils;
 import eu.compassresearch.ide.collaboration.management.CollaborationManager;
 import eu.compassresearch.ide.collaboration.messages.NewFileMessage;
-import eu.compassresearch.ide.collaboration.messages.TestMessage;
 import eu.compassresearch.ide.collaboration.notifications.Notification;
 
 public class CollabMenuRosterMenuHandler extends AbstractRosterMenuHandler
@@ -87,7 +86,7 @@ public class CollabMenuRosterMenuHandler extends AbstractRosterMenuHandler
 			
 			IUser self = roster.getUser();	
 			IUser receiver = rosterEntry.getUser();
-			NewFileMessage msg = new NewFileMessage(self.getID(), filename, fileContents);
+			NewFileMessage msg = new NewFileMessage(self.getID(), receiver.getID(), filename, fileContents);
 			try
 			{
 				collabMgm.sendMessage(receiver.getID(), msg.serialize());

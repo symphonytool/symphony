@@ -14,14 +14,12 @@ public class BaseMessage implements IModelChangeMessage, Serializable {
 	private static final long serialVersionUID = -70529594981572196L;
 
 	private final ID senderID;
+	private final ID receiverID;
 	
-	public BaseMessage(){
-		senderID = null;
-	}
-	
-	public BaseMessage(ID sender)
+	public BaseMessage(ID sender, ID receiver)
 	{
 		senderID = sender;
+		receiverID = receiver;
 	}
 	
 	public static IModelChangeMessage deserialize(byte[] bytes) throws SerializationException {
@@ -52,6 +50,11 @@ public class BaseMessage implements IModelChangeMessage, Serializable {
 	
 	public Object getAdapter(Class adapter) {
 		return null;
+	}
+
+	public ID getReceiverID()
+	{
+		return receiverID;
 	}
 
 }
