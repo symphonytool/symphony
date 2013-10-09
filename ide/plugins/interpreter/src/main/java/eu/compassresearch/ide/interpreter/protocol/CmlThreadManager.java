@@ -27,7 +27,7 @@ public class CmlThreadManager implements ITerminate
 			CmlCommunicationManager communication)
 	{
 		threads.clear();
-		for (CmlProcessDTO t : status.getAllProcesses())
+		for (CmlProcessDTO t : status.getAllLeafProcesses())
 		{
 			CmlThread thread = new CmlThread(target, this, communication, t);
 			thread.initialize();

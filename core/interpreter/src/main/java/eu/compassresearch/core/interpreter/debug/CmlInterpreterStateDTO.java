@@ -53,6 +53,26 @@ public class CmlInterpreterStateDTO
 
 		return children;
 	}
+	
+	private static List<CmlProcessDTO> convertProcessTreeIntoLeafList(
+			CmlProcessDTO process)
+	{
+		List<CmlProcessDTO> children = new LinkedList<CmlProcessDTO>();
+				
+		if (process == null)
+			return children;
+
+		if(process.getLeftChild() == null && process.getRightChild() == null)
+			children.add(process);
+
+		//if (process.getLeftChild() != null)
+			children.addAll(convertProcessTreeIntoLeafList(process.getLeftChild()));
+
+		//if (process.getRightChild() != null)
+			children.addAll(convertProcessTreeIntoLeafList(process.getRightChild()));
+
+		return children;
+	}
 
 	private final CmlProcessDTO topLevelProcess;
 	private InterpreterErrorDTO[] errors = null;
@@ -100,6 +120,14 @@ public class CmlInterpreterStateDTO
 	{
 		if (topLevelProcess != null)
 			return convertProcessTreeIntoList(this.topLevelProcess);
+		else
+			return new LinkedList<CmlProcessDTO>();
+	}
+	
+	public List<CmlProcessDTO> getAllLeafProcesses()
+	{
+		if (topLevelProcess != null)
+			return convertProcessTreeIntoLeafList(this.topLevelProcess);
 		else
 			return new LinkedList<CmlProcessDTO>();
 	}

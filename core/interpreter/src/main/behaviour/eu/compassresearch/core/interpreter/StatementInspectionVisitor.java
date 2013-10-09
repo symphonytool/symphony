@@ -131,12 +131,14 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 			public Pair<INode, Context> execute(CmlTransition selectedTransition)
 					throws AnalysisException
 			{
-
-				Context blockContext = CmlContextFactory.newContext(node.getLocation(), "block context", question);
+				//We only create a new context if any vars are declared
+				Context blockContext = question;
 
 				// add the assignment definitions to the block context
 				if (node.getDeclareStatement() != null)
 				{
+					blockContext = CmlContextFactory.newContext(node.getLocation(), "block context", question);
+
 					for (PDefinition def : node.getDeclareStatement().getAssignmentDefs())
 					{
 						NameValuePair nvp = def.apply(cmlDefEvaluator, question).get(0);
