@@ -7,7 +7,10 @@ import java.util.List;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.lex.Dialect;
 import org.overture.ast.types.PType;
+import org.overture.config.Release;
+import org.overture.config.Settings;
 import org.overture.typechecker.TypeCheckException;
 import org.overture.typechecker.TypeCheckInfo;
 import org.overture.typechecker.assistant.definition.PDefinitionListAssistantTC;
@@ -65,7 +68,9 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker
 	@Override
 	public boolean typeCheck()
 	{
-
+		Settings.release = Release.VDM_10;
+		Settings.dialect = Dialect.VDM_PP;
+		
 		// Top type checking
 
 		// [1] Collect all static entities in order:
