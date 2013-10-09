@@ -24,6 +24,10 @@ import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Undefined
 
 public class CMLModelcheckerContext {
 	
+	protected String propertyToCheck = Utilities.DEADLOCK_PROPERTY;
+	
+	protected StringBuilder basicContent = new StringBuilder(); 
+	
 	protected HashMap<Object, Object> info; 
 	
 	public Set<SingleBind> stateVariables;
@@ -241,6 +245,7 @@ public class CMLModelcheckerContext {
 	}
 	
 	public void reset(){
+		basicContent = new StringBuilder();
 		info = new HashMap<Object,Object>();
 		scriptContent = new StringBuilder();
 		stateVariables = new LinkedHashSet<SingleBind>();
@@ -314,6 +319,14 @@ public class CMLModelcheckerContext {
 		}
 		
 		return result;
+	}
+
+	public String getPropertyToCheck() {
+		return propertyToCheck;
+	}
+
+	public void setPropertyToCheck(String propertyToCheck) {
+		this.propertyToCheck = propertyToCheck;
 	}
 	
 }
