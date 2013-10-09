@@ -58,6 +58,12 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		super(ownerProcess, visitorAccess, parentVisitor);
 	}
 
+	/**
+	 * This syncs any tock event from the children if any and joins all the rest of the 
+	 * events
+	 * @return the joined transitions of the children syncing on tock if possible
+	 * @throws AnalysisException
+	 */
 	protected CmlTransitionSet syncOnTockAndJoinChildren()
 			throws AnalysisException
 	{

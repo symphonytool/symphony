@@ -162,12 +162,12 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 			private boolean isSystemSelect(
 					CmlTransitionSet availableChannelEvents)
 			{
-				return availableChannelEvents.getSilentTransitions().size() > 0;
+				return availableChannelEvents.getSilentTransitionsAsSet().size() > 0;
 			}
 
 			private CmlTransition systemSelect()
 			{
-				rndSelect.choices(new CmlTransitionSet((Set) availableChannelEvents.getSilentTransitions()));
+				rndSelect.choices(new CmlTransitionSet((Set) availableChannelEvents.getSilentTransitionsAsSet()));
 				return rndSelect.resolveChoice();
 			}
 

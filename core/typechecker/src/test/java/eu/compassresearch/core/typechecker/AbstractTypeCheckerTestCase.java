@@ -10,8 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
 import org.overture.ast.analysis.AnalysisException;
 
@@ -21,20 +20,15 @@ import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler.CMLTypeError;
 
 /**
- * Abstract Test Case for the COMPASS Modelling Language Type Checker.
- * 
- * This file is super class for parameterized junit classes.
- * 
- * Each parameterized test consists of:
- * 
- * [1] A list of sources [2] Whether the parser is expected to be successful [3]
- * Whether the type check is expected to be successful [4] A list of expected
- * error messages if [3] is false
+ * Abstract Test Case for the COMPASS Modelling Language Type Checker. This file is super class for parameterized junit
+ * classes. Each parameterized test consists of: [1] A list of sources [2] Whether the parser is expected to be
+ * successful [3] Whether the type check is expected to be successful [4] A list of expected error messages if [3] is
+ * false
  * 
  * @author rwl
- * 
  */
-public abstract class AbstractTypeCheckerTestCase {
+public abstract class AbstractTypeCheckerTestCase
+{
 
 	// Collected test from static initializer in subclasses
 	protected static Map<Class<?>, List<Object[]>> testData = new HashMap<Class<?>, List<Object[]>>();
@@ -50,27 +44,27 @@ public abstract class AbstractTypeCheckerTestCase {
 
 	// Get class of caller, add test data entry if not already existing and
 	// return it
-	private static List<Object[]> getTestDataForCallerClass(int a) {
-		try {
+	private static List<Object[]> getTestDataForCallerClass(int a)
+	{
+		try
+		{
 			StackTraceElement[] stack = Thread.currentThread().getStackTrace();
 			String callerClassFQCN = stack[a].getClassName();
-			Class<?> clz = AbstractTypeCheckerTestCase.class.getClassLoader()
-					.loadClass(callerClassFQCN);
+			Class<?> clz = AbstractTypeCheckerTestCase.class.getClassLoader().loadClass(callerClassFQCN);
 			if (testData.containsKey(clz))
 				return testData.get(clz);
 			else
 				testData.put(clz, new LinkedList<Object[]>());
 			return testData.get(clz);
-		} catch (Exception e) {
+		} catch (Exception e)
+		{
 			return null;
 		}
 	}
 
 	/**
-	 * Add a test scenario based on a single cml-source-text
-	 * 
-	 * E.g: static { add("types A = int",true,true,new String[0]); } Adds a test
-	 * with "types A = int" as the cml-source to test.
+	 * Add a test scenario based on a single cml-source-text E.g: static { add("types A = int",true,true,new String[0]);
+	 * } Adds a test with "types A = int" as the cml-source to test.
 	 * 
 	 * @param src
 	 *            - cml source text
@@ -82,17 +76,16 @@ public abstract class AbstractTypeCheckerTestCase {
 	 *            - which errors in case of !tc
 	 */
 	protected static void add(int stack, String src, boolean parseok,
-			boolean tcok, String[] err) {
-		TestUtil.addTestProgram(getTestDataForCallerClass(stack), src,
-				new Object[] { parseok, tcok, err });
+			boolean tcok, String[] err)
+	{
+		TestUtil.addTestProgram(getTestDataForCallerClass(stack), src, new Object[] {
+				parseok, tcok, err });
 	}
 
 	/**
-	 * Like {@code add} above but where the test can be given a name
-	 * 
-	 * E.g: static { add("types A = int",true,true,new
-	 * String[0],"Testing def of named int type"); } Adds a test with
-	 * "types A = int" as the cml-source to test with an informative name.
+	 * Like {@code add} above but where the test can be given a name E.g: static { add("types A = int",true,true,new
+	 * String[0],"Testing def of named int type"); } Adds a test with "types A = int" as the cml-source to test with an
+	 * informative name.
 	 * 
 	 * @param src
 	 * @param parseok
@@ -101,23 +94,23 @@ public abstract class AbstractTypeCheckerTestCase {
 	 * @param name
 	 */
 	protected static void add(String src, boolean parseok, boolean tcok,
-			String[] err, String name) {
-		TestUtil.addTestProgram(getTestDataForCallerClass(4), src,
-				new Object[] { parseok, tcok, err, name });
+			String[] err, String name)
+	{
+		TestUtil.addTestProgram(getTestDataForCallerClass(4), src, new Object[] {
+				parseok, tcok, err, name });
 	}
 
 	/**
-	 * Shortcut for the above
-	 * 
-	 * E.g.: static { add("types A = int",true,true); }
+	 * Shortcut for the above E.g.: static { add("types A = int",true,true); }
 	 * 
 	 * @param src
 	 * @param parseok
 	 * @param tcok
 	 */
-	protected static void add(String src, boolean parseok, boolean tcok) {
-		TestUtil.addTestProgram(getTestDataForCallerClass(3), src,
-				new Object[] { parseok, tcok, new String[0] });
+	protected static void add(String src, boolean parseok, boolean tcok)
+	{
+		TestUtil.addTestProgram(getTestDataForCallerClass(3), src, new Object[] {
+				parseok, tcok, new String[0] });
 	}
 
 	/**
@@ -125,50 +118,46 @@ public abstract class AbstractTypeCheckerTestCase {
 	 * 
 	 * @param src
 	 */
-	protected static void add(String src) {
+	protected static void add(String src)
+	{
 		add(4, src, true, true, new String[0]);
 	}
 
 	/**
-	 * Short cut method see above.
-	 * 
-	 * Only source and tcok provided.
+	 * Short cut method see above. Only source and tcok provided.
 	 * 
 	 * @param src
 	 * @param tcok
 	 */
-	protected static void add(String src, boolean tcok) {
+	protected static void add(String src, boolean tcok)
+	{
 		add(4, src, true, tcok, new String[0]);
 	}
 
 	/**
-	 * The last short cut method see above.
-	 * 
-	 * Only source (src), whether Type check should succeed (tcok) and error
+	 * The last short cut method see above. Only source (src), whether Type check should succeed (tcok) and error
 	 * messages provided
 	 * 
 	 * @param src
 	 * @param tcok
 	 * @param errmsg
 	 */
-	protected static void add(String src, boolean tcok, String[] errmsg) {
+	protected static void add(String src, boolean tcok, String[] errmsg)
+	{
 		add(4, src, true, tcok, errmsg);
 	}
 
 	/**
-	 * Given a list of PSources generate a complex test that type checks all of
-	 * those source together.
-	 * 
-	 * static { add(psourceList,true,true) } This is useful if psourceList is
-	 * the result of parsing a number of files from e.g. a directory structure.
-	 * 
-	 * See {@link CaseStudiesTestCase}.
+	 * Given a list of PSources generate a complex test that type checks all of those source together. static {
+	 * add(psourceList,true,true) } This is useful if psourceList is the result of parsing a number of files from e.g. a
+	 * directory structure. See {@link CaseStudiesTestCase}.
 	 * 
 	 * @param src
 	 * @param parsesok
 	 * @param tcok
 	 */
-	protected static void add(List<PSource> src, boolean parsesok, boolean tcok) {
+	protected static void add(List<PSource> src, boolean parsesok, boolean tcok)
+	{
 		Object[] o = new Object[4];
 		o[0] = src;
 		o[1] = parsesok;
@@ -178,17 +167,16 @@ public abstract class AbstractTypeCheckerTestCase {
 	}
 
 	/**
-	 * Create a singleton-list from a cml-source-text in cmlSource.
-	 * 
-	 * The single element in the result is a AInputStreamSource that has the
-	 * given name and the bytes from the cmlSource String as its data.
+	 * Create a singleton-list from a cml-source-text in cmlSource. The single element in the result is a
+	 * AInputStreamSource that has the given name and the bytes from the cmlSource String as its data.
 	 * 
 	 * @param cmlSource
 	 * @param name
 	 * @return
 	 */
 	protected static List<PSource> fromStringContent(String cmlSource,
-			String name) {
+			String name)
+	{
 		InputStream cmlSourceIn = new ByteArrayInputStream(cmlSource.getBytes());
 		AInputStreamSource source = new AInputStreamSource();
 		source.setOrigin(name);
@@ -199,8 +187,7 @@ public abstract class AbstractTypeCheckerTestCase {
 	}
 
 	/**
-	 * Create a test based on a cmlStource using {@code no} to create a unique
-	 * name for the test.
+	 * Create a test based on a cmlStource using {@code no} to create a unique name for the test.
 	 * 
 	 * @param cmlSource
 	 * @param parsesOk
@@ -208,13 +195,13 @@ public abstract class AbstractTypeCheckerTestCase {
 	 * @param errorMessages
 	 */
 	protected AbstractTypeCheckerTestCase(String cmlSource, boolean parsesOk,
-			boolean typesOk, String[] errorMessages) {
+			boolean typesOk, String[] errorMessages)
+	{
 		this(cmlSource, parsesOk, typesOk, errorMessages, "Test #" + (no++));
 	}
 
 	/**
-	 * Create a test using the {@code fromStringContent} method to produce the
-	 * sources of the test.
+	 * Create a test using the {@code fromStringContent} method to produce the sources of the test.
 	 * 
 	 * @param cmlSource
 	 * @param parsesOk
@@ -223,14 +210,13 @@ public abstract class AbstractTypeCheckerTestCase {
 	 * @param name
 	 */
 	protected AbstractTypeCheckerTestCase(String cmlSource, boolean parsesOk,
-			boolean typesOk, String[] errorMessages, String name) {
-		this(fromStringContent(cmlSource, name), parsesOk, typesOk,
-				errorMessages);
+			boolean typesOk, String[] errorMessages, String name)
+	{
+		this(fromStringContent(cmlSource, name), parsesOk, typesOk, errorMessages);
 	}
 
 	/**
-	 * Simple assigning only constructor, nothing but assigning inputs to fields
-	 * is done here.
+	 * Simple assigning only constructor, nothing but assigning inputs to fields is done here.
 	 * 
 	 * @param cmlSources
 	 * @param parsesOk
@@ -238,7 +224,8 @@ public abstract class AbstractTypeCheckerTestCase {
 	 * @param errorMessages
 	 */
 	protected AbstractTypeCheckerTestCase(List<PSource> cmlSources,
-			boolean parsesOk, boolean typesOk, String[] errorMessages) {
+			boolean parsesOk, boolean typesOk, String[] errorMessages)
+	{
 		expectedParserOk = parsesOk;
 		expectedTypesOk = typesOk;
 		this.errorMessages = errorMessages;
@@ -246,44 +233,42 @@ public abstract class AbstractTypeCheckerTestCase {
 	}
 
 	/**
-	 * The Test ! It proceeds as follows:
-	 * 
-	 * [1] Parse and Type check all sources [2] Check parser result and report
-	 * errors if any [3] Check type checker result and report error if any
-	 * unexpected ones [4] Check the expected errors are there (if any)
+	 * The Test ! It proceeds as follows: [1] Parse and Type check all sources [2] Check parser result and report errors
+	 * if any [3] Check type checker result and report error if any unexpected ones [4] Check the expected errors are
+	 * there (if any)
 	 * 
 	 * @throws IOException
 	 * @throws AnalysisException
 	 */
 	@Test
-	public void lexParseTypeCheck() throws IOException, AnalysisException {
+	public void lexParseTypeCheck() throws IOException, AnalysisException
+	{
 		// don't do anything if we have no sources to work on.
-		if (sources.size()==0 || sources == null)
+		if (sources.size() == 0 || sources == null)
 			return;
-		
+
 		// [1]
 		System.out.println(sources);
 		TestUtil.TypeCheckerResult res = TestUtil.runTypeChecker(sources);
-		
+
 		// [2]
 		boolean parserOk = res.parsedOk;
-		if (!parserOk) {
+		if (!parserOk)
+		{
 			StringBuilder parseMessages = new StringBuilder();
 			for (String s : res.parseErrors)
 				parseMessages.append(s);
-			Assert.assertSame(parseMessages.toString(), this.expectedParserOk,
-					parserOk);
+			Assert.assertSame(parseMessages.toString(), this.expectedParserOk, parserOk);
 		}
 
 		// [3]
 		TypeIssueHandler errors = res.issueHandler;
 		boolean typeCheckOk = res.tcOk;
-		Assert.assertEquals(
-				TestUtil.buildErrorMessage(errors, expectedTypesOk),
-				expectedTypesOk, typeCheckOk);
+		Assert.assertEquals(TestUtil.buildErrorMessage(errors, expectedTypesOk), expectedTypesOk, typeCheckOk);
 
 		// [4]
-		if (parserOk && errorMessages != null && errorMessages.length > 0) {
+		if (parserOk && errorMessages != null && errorMessages.length > 0)
+		{
 
 			Set<String> actualErrors = new HashSet<String>();
 			for (CMLTypeError e : errors.getTypeErrors())

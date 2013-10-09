@@ -4,6 +4,8 @@ import eu.compassresearch.core.analysis.modelchecker.graphBuilder.event.Event;
 
 public class Prefix implements Process {
 	protected Event event;
+	protected Process process;
+	
 	public Event getEvent() {
 		return event;
 	}
@@ -20,7 +22,7 @@ public class Prefix implements Process {
 		this.process = process;
 	}
 
-	protected Process process;
+	
 	
 	
 	public Prefix(Event event,Process process) {
@@ -39,7 +41,8 @@ public class Prefix implements Process {
 		boolean result = false;
 		if (obj instanceof Prefix) {
 			Prefix other = (Prefix) obj;
-			result = this.getEvent().equals(other.getEvent()) && this.getProcess().equals(other.getProcess());
+			result = this.getEvent().equals(other.getEvent()) 
+					 && this.getProcess().equals(other.getProcess());
 		}
 		return result;
 			

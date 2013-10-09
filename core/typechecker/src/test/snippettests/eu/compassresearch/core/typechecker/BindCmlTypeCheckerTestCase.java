@@ -7,16 +7,17 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 /**
- * Tests that checks bindings in any shape or form in any context can be put
- * here if testing the binding type is correct is the main purpose of the test.
+ * Tests that checks bindings in any shape or form in any context can be put here if testing the binding type is correct
+ * is the main purpose of the test.
  * 
  * @author rwl
- * 
  */
 @RunWith(value = Parameterized.class)
-public class BindCmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase {
+public class BindCmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase
+{
 
-	static {
+	static
+	{
 		// 0// Check set binds in external choice (so i should have the right
 		// type)
 		add("process P = begin actions A = val j :bool @ Skip @ ([] i in set {1,2,3} @ A(i > 2)) end");
@@ -24,12 +25,14 @@ public class BindCmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase {
 	}
 
 	public BindCmlTypeCheckerTestCase(String cmlSource, boolean parsesOk,
-			boolean typesOk, String[] errorMessages) {
+			boolean typesOk, String[] errorMessages)
+	{
 		super(cmlSource, parsesOk, typesOk, errorMessages);
 	}
 
 	@Parameters
-	public static Collection<Object[]> parameter() {
+	public static Collection<Object[]> parameter()
+	{
 		return testData.get(BindCmlTypeCheckerTestCase.class);
 	}
 
