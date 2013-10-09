@@ -27,23 +27,23 @@ public class ThmExplicitOperation extends ThmDecl{
 		if (pre == null)
 		{
 			//generate function for precondition with a expression: 'true'
-			this.pre = createPreFunc(name, "true", "pre", params);
+			this.pre = createPrePostFunc(name, "true", "pre", params);
 		}
 		else
 		{
 			//generate function for precondition
-			this.pre = createPreFunc(name, pre, "pre", params);
+			this.pre = createPrePostFunc(name, pre, "pre", params);
 		}
 		
 		if (post == null)
 		{
 			//generate function for postcondition with an expression: 'true'
-			this.post = createPostFunc(name, "true", "post", params);
+			this.post = createPrePostFunc(name, "true", "post", params);
 		}
 		else
 		{
 			//generate function for postcondition
-			this.post = createPostFunc(name, post, "post", params);
+			this.post = createPrePostFunc(name, post, "post", params);
 		}
 	}
 	
@@ -57,7 +57,7 @@ public class ThmExplicitOperation extends ThmDecl{
 	}
 	
 
-	private String createPreFunc(String name, String exp, String prepost, LinkedList<PPattern> params)
+	private String createPrePostFunc(String name, String exp, String prepost, LinkedList<PPattern> params)
 	{
 		LinkedList<List<PPattern>> pats = new LinkedList<List<PPattern>>();
 		pats.add(params);
@@ -65,17 +65,6 @@ public class ThmExplicitOperation extends ThmDecl{
 		ThmExpFunc preFunc = new ThmExpFunc((prepost + "_" + name), exp, pats);
 		return preFunc.getRefFunction();
 	}
-
-
-	private String createPostFunc(String name, String exp, String prepost, LinkedList<PPattern> params)
-	{
-		LinkedList<List<PPattern>> pats = new LinkedList<List<PPattern>>();
-		pats.add(params);
-		
-		ThmExpFunc preFunc = new ThmExpFunc((prepost + "_" + name), exp, pats);
-		return preFunc.getRefFunction();
-	}
-	
 
 
 	public String getPrePostParamList(LinkedList<PPattern> paras){

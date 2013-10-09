@@ -39,7 +39,21 @@ public class OperationCmlTypeCheckerTestCase extends
 		add("class test = begin operations op1: int ==> int op1(a) == return (a+1) values k : int = op1(10) end", true, true);
 		// 12//Negative Test check on parameter list with product type.
 		add("class A = begin operations addCD: (seq of char * (seq of Track)) ==> () addCD(title, tracks) == Skip end", true, false);
-
+		// 13
+		add("class A = begin operations op1: () ==> () op1() == Skip end", true, true);
+		// 14
+		add("class A = begin operations op1: () ==> () op1() == dlfk->Skip end", true, false);
+		// 15
+		add("class A = begin operations op1: () ==> () op1() == Skip ; Skip end", true, true);
+		// 16
+		add("class A = begin operations op1: () ==> () op1() == is subclass responsibility end", true, true);
+		// 17 Ticket: #90 Type Checker cannot determine type for pattern of 1 in cases statement
+		add("class A = begin operations op1: int ==> () op1(v) == cases v: 1 -> Skip end end", true, true);
+		// 18
+//		add("class A = begin operations op1: () ==> () op1() == Skip pre op1() end", true, true);
+		add("class A = begin operations op1: () ==> bool op1() == return true pre op1() end", true, true);
+// 19 Ticket: https://sourceforge.net/p/compassresearch/tickets/103/
+		add("process A = begin operations op1: () ==> bool op1() == return true pre op1() @ Skip end", true, true);
 	}
 
 	public OperationCmlTypeCheckerTestCase(String cmlSource, boolean parsesOk,

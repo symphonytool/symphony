@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.patterns.AIdentifierPattern;
+import org.overture.ast.patterns.ARecordPattern;
 import org.overture.ast.patterns.PPattern;
 import org.overture.ast.types.ABooleanBasicType;
 import org.overture.ast.types.ABracketType;
@@ -55,8 +56,7 @@ public class ThmTypeUtil {
 	public static String isaAbbr = "abbreviation";
 	public static String isaInv = "inv";
 	public static String isaFuncLambaVal = "d";
-	
-	
+		
 	static String isaNat = "@nat";
 	static String isaBool = "@bool";
 	static String isaChar = "@char";
@@ -555,7 +555,22 @@ public class ThmTypeUtil {
 		if(invExp != null && invPatt != null){
 			NodeNameList svars = new NodeNameList();
 			NodeNameList evars = new NodeNameList();
-			evars.add(((AIdentifierPattern) invPatt).getName());
+
+			if (invPatt instanceof AIdentifierPattern)
+			{
+				evars.add(((AIdentifierPattern) invPatt).getName());
+			}
+			else if (invPatt instanceof ARecordPattern)
+			{
+				ARecordPattern recInvPatt = (ARecordPattern) invPatt;
+				for(PPattern p : recInvPatt.getPlist())
+				{
+					if (p instanceof AIdentifierPattern)
+					{
+						evars.add(((AIdentifierPattern) p).getName());
+					}
+				}
+			}
 			inv = (" " + ThmTypeUtil.isaInv  + " " + invPatt.toString() + " == " + ThmExprUtil.getIsabelleExprStr(svars, evars, invExp));
 		}
 		
@@ -576,7 +591,22 @@ public class ThmTypeUtil {
 		PPattern invPatt = node.getInvPattern();
 		if(invExp != null && invPatt != null){
 			NodeNameList evars = new NodeNameList();
-			evars.add(((AIdentifierPattern) invPatt).getName());
+			if (invPatt instanceof AIdentifierPattern)
+			{
+				evars.add(((AIdentifierPattern) invPatt).getName());
+
+			}
+			else if (invPatt instanceof ARecordPattern)
+			{
+				ARecordPattern recInvPatt = (ARecordPattern) invPatt;
+				for(PPattern p : recInvPatt.getPlist())
+				{
+					if (p instanceof AIdentifierPattern)
+					{
+						evars.add(((AIdentifierPattern) p).getName());
+					}
+				}
+			}
 			nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(evars, invExp));
 		}
 		

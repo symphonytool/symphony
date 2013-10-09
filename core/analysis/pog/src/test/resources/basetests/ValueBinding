@@ -1,0 +1,13 @@
+-- This test exercises the generation of a ValueBindingObligation
+-- off a Value Definition and a Function Definition.
+-- Note: A sequence apply and subtype PO are also generated but these are not relevant for this test
+
+
+values
+    giver = [mk_(1,2),1]
+
+functions
+
+binder :() -> int   
+binder () == let mk_(x,y) = giver(1)
+                         in 1

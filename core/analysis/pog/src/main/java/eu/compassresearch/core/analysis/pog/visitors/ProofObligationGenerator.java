@@ -54,7 +54,6 @@ import org.overture.pog.pub.IProofObligationList;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
-import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.AInputStreamSource;
@@ -397,47 +396,22 @@ public class ProofObligationGenerator extends
 			{
 				try
 				{
-					System.out.println("--------------------------------PROCESSING--------------------------------");
-					System.out.println(paragraph.toString());
-					System.out.println("------------------------------------RESULT----------------------------------");
-
+			
 					// process paragraph:
 					obligations.addAll(paragraph.apply(this, ctxt));
 					// obligations.addAll(paragraph.apply(overturePog, ctxt));
 
-					System.out.println();
-					System.out.println();
 				} catch (AnalysisException ae)
 				{
-					// This means we have a bug in the pog
-					System.out.println("The COMPASS Proof Obligation Generator failed on this cml-source. Please submit it for investigation to richard.payne@ncl.ac.uk.\n");
+					// unexpected pog crash
 					throw ae;
 				}
 			}
-		
-
-		System.out.println(obligations.size() + " Proof Obligations generated");
-		System.out.println(obligations.toString());
+			
 		obligations.renumber();
 		return obligations;
 	}
 
-	// ensure drilldown to children (this is probably not needed)
-	// @Override
-	// public CMLProofObligationList defaultINode(INode node,
-	// POContextStack question) throws AnalysisException {
-	// CMLProofObligationList obligations = new CMLProofObligationList();
-	// Stack<INode> workQ = new Stack<INode>();
-	// for (Object o : node.getChildren(true).values()) {
-	// workQ.push((INode) o);
-	// }
-	// while (!workQ.isEmpty()) {
-	// INode aux = workQ.pop();
-	// obligations.addAll(aux.apply(this, question));
-	//
-	// }
-	// return obligations;
-	// }
 
 	// ---------------------------------------------
 	// Static stuff for running the POG from Eclipse

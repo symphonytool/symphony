@@ -122,6 +122,8 @@ public class TypesCmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase
 		add("types A = nat A = bool B = bool B = rat", true, false);
 		// 53 //Multiple type defs
 		add("types A = nat B = bool C = bool");
+		// 54 Ticket: #89 TypeChecker too aggressive with tuple selection
+		add("types A = (int*int) | int inv a == a.#1 >0");
 
 	}
 
