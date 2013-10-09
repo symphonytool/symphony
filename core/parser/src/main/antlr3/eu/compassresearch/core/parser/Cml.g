@@ -1632,7 +1632,7 @@ channelDef returns[List<AChannelNameDefinition> def]
                 if ($type.type != null) {
                     loc = extractLexLocation(loc, extractLexLocation($type.stop));
                     chanType.setLocation(extractLexLocation($type.start,$type.stop));
-                    chanType.setType($type.type);
+                    chanType.setType($type.type.clone());
                 }    
                 ATypeSingleDeclaration typeDecl = new ATypeSingleDeclaration(loc, NameScope.GLOBAL, idList, chanType);
                 
@@ -2485,7 +2485,7 @@ type1 returns[PType type]
 typebase returns[PType type]
 @after { $type.setLocation(extractLexLocation($start, $stop)); }
     : basicType           { $type = $basicType.basicType; }
-    | '(' inside=type ')' { $type = $inside.type; }
+    | '(' inside=type ')' { $type = new ABracketType(null, false, null, $inside.type); }
     | '[' inside=type ']' { $type = new AOptionalType(null, false, null, $inside.type); }
     | QUOTELITERAL
         {
@@ -2683,7 +2683,7 @@ recordPattern returns[PPattern pattern]
     : MKUNDER name '(' ( first=pattern { patList.add($first.pattern); } ( ',' patItem=pattern { patList.add($patItem.pattern); } )* )? end=')'
         {
             ILexLocation loc = extractLexLocation($MKUNDER,$end);
-            ARecordPattern recPattern = new ARecordPattern(loc, null, true, $name.name, patList);
+            ARecordPattern recPattern = new ARecordPattern(loc, null, false, $name.name, patList);
             recPattern.setType(AstFactory.newAUnresolvedType($name.name));
             $pattern = recPattern;
         }

@@ -60,6 +60,7 @@ target/
 .classpath
 .settings/
 .project
+.metadata
 
 # maybe from scala; definitely not desired
 .cache
