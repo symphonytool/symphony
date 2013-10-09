@@ -31,6 +31,7 @@ import eu.compassresearch.core.analysis.theoremprover.thms.ThmTheoremList;
 import eu.compassresearch.core.analysis.theoremprover.utils.ThmExprUtil;
 import eu.compassresearch.core.analysis.theoremprover.utils.ThmProcessUtil;
 import eu.compassresearch.core.analysis.theoremprover.utils.ThySortException;
+import eu.compassresearch.core.analysis.theoremprover.utils.UnhandledSyntaxException;
 
 @SuppressWarnings("serial")
 public class TPVisitor extends
@@ -141,7 +142,7 @@ public class TPVisitor extends
 	 * @throws AnalysisException
 	 */
 	public static String generateThyStr(List<INode> ast, String thyFileName) 
-			throws AnalysisException {
+			throws AnalysisException, UnhandledSyntaxException {
 		
 		ThmNodeList nodes = new ThmNodeList();
 		String nodeErrors = "";
@@ -184,6 +185,11 @@ public class TPVisitor extends
 			
 		sb.append("\n" + "end");
 		
+		NodeNameList errNodes = nodes.getErrorNodes();
+		if(! errNodes.isEmpty())
+		{
+			throw new UnhandledSyntaxException(sb.toString(), errNodes);
+		}
 		return sb.toString();
 	}
 	
@@ -194,17 +200,18 @@ public class TPVisitor extends
 	 * @return list of sorted nodes
 	 * @throws ThySortException 
 	 *******/
-	public static ThmNodeList sortThmNodes(ThmNodeList tpnodes) throws ThySortException
+	public static ThmNodeList sortThmNodes(ThmNodeList thmnodes) throws ThySortException
 	{
+		ThmNodeList unsortedNodes = thmnodes.duplicate();
 		ThmNodeList sortedNodes = new ThmNodeList();
 		ThmNode tempNode = null;
 		boolean passSort = false;
    
 		//while there are nodes still to be sorted
-		while (! tpnodes.isEmpty()){
+		while (! unsortedNodes.isEmpty()){
 			passSort = false;
 			//iterate through nodes which still need sorting
-			for (Iterator<ThmNode> itr = tpnodes.listIterator(); itr.hasNext(); ) {
+			for (Iterator<ThmNode> itr = unsortedNodes.listIterator(); itr.hasNext(); ) {
 				tempNode = itr.next();
 				//if the current node has no dependencies, or it has a self-dependency, 
 				//or all the nodes it depends upon have already been sorted...
@@ -218,13 +225,13 @@ public class TPVisitor extends
 					passSort = true;
 				}
 				//if there are no nodes left to sort.
-				if( tpnodes.isEmpty()){
+				if( unsortedNodes.isEmpty()){
 					break;
 				}
 			}
 			if(!passSort)
 			{
-				throw new ThySortException(sortedNodes, tpnodes);
+				throw new ThySortException(sortedNodes, unsortedNodes);
 			}
 		}
 		return sortedNodes;
