@@ -9,6 +9,7 @@ import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.ASetEnumSetExp;
 import org.overture.ast.expressions.AVariableExp;
 import org.overture.ast.expressions.PExp;
+import org.overture.ast.node.INode;
 
 import eu.compassresearch.ast.actions.ABlockStatementAction;
 import eu.compassresearch.ast.actions.ACallStatementAction;
@@ -723,5 +724,19 @@ public class MCActionVisitor extends
 			localCtxt.getScriptContent().append(")");
 		}
 		return localCtxt.getScriptContent();
+	}
+
+	@Override
+	public StringBuilder createNewReturnValue(INode node,
+			CMLModelcheckerContext question) throws AnalysisException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public StringBuilder createNewReturnValue(Object node,
+			CMLModelcheckerContext question) throws AnalysisException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

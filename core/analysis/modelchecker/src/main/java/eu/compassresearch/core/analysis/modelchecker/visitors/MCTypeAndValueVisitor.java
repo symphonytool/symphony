@@ -4,6 +4,7 @@ import java.util.LinkedList;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
+import org.overture.ast.node.INode;
 import org.overture.ast.types.AIntNumericBasicType;
 import org.overture.ast.types.ANamedInvariantType;
 import org.overture.ast.types.ANatNumericBasicType;
@@ -86,6 +87,20 @@ public class MCTypeAndValueVisitor extends
 		
 		
 		return question.getScriptContent();
+	}
+
+	@Override
+	public StringBuilder createNewReturnValue(INode node,
+			CMLModelcheckerContext question) throws AnalysisException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public StringBuilder createNewReturnValue(Object node,
+			CMLModelcheckerContext question) throws AnalysisException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 	

@@ -14,6 +14,7 @@ import org.overture.ast.expressions.ATimesNumericBinaryExp;
 import org.overture.ast.expressions.AVariableExp;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.intf.lex.ILexLocation;
+import org.overture.ast.node.INode;
 import org.overture.ast.types.AIntNumericBasicType;
 import org.overture.ast.types.ANamedInvariantType;
 import org.overture.ast.types.AProductType;
@@ -702,6 +703,20 @@ public class MCProcessVisitor extends
 		*/
 		
 		return question.getScriptContent();
+	}
+
+	@Override
+	public StringBuilder createNewReturnValue(INode node,
+			CMLModelcheckerContext question) throws AnalysisException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public StringBuilder createNewReturnValue(Object node,
+			CMLModelcheckerContext question) throws AnalysisException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 

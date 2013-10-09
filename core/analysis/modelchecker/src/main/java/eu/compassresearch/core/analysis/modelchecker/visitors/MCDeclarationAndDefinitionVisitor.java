@@ -10,6 +10,7 @@ import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.node.INode;
 
 import eu.compassresearch.ast.actions.PParametrisation;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
@@ -254,6 +255,20 @@ public class MCDeclarationAndDefinitionVisitor extends
 		question.getScriptContent().append(node.getIdentifiers().getFirst().getName());
 		question.getScriptContent().append(")");
 		return question.getScriptContent();
+	}
+
+	@Override
+	public StringBuilder createNewReturnValue(INode node,
+			CMLModelcheckerContext question) throws AnalysisException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public StringBuilder createNewReturnValue(Object node,
+			CMLModelcheckerContext question) throws AnalysisException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
