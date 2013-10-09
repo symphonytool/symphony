@@ -51,7 +51,7 @@ public class POGProcessVisitor extends
 		QuestionAnswerCMLAdaptor<IPOContextStack, CmlProofObligationList> {
 	private ProofObligationGenerator parentPOG;
 
-	// FIXME dispatch chan and varsets to the apropriate visitors
+	// FIXME figure out how to dispatch chan and varsets to the apropriate visitors
 
 	public POGProcessVisitor(ProofObligationGenerator parent) {
 		this.parentPOG = parent;
@@ -61,31 +61,19 @@ public class POGProcessVisitor extends
 	public CmlProofObligationList defaultPProcess(PProcess node,
 			IPOContextStack question) throws AnalysisException {
 
-		System.out.println("PProcess: " + node.toString());
 		return new CmlProofObligationList();
 	}
 
 	@Override
 	public CmlProofObligationList caseAActionProcess(AActionProcess node,
 			IPOContextStack question) throws AnalysisException {
-		System.out.println("A AActionProcess: " + node.toString());
 		CmlProofObligationList pol = new CmlProofObligationList();
 
-		//FIXME We only wanna visit the stateful bits
-		
 		// Get subparts
 		LinkedList<PDefinition> pdef = node.getDefinitionParagraphs();
 		PAction action = node.getAction();
-
-		// Print the separate parts to screen - TESTING
-		System.out.println("A StateProcess: " + node.toString());
-		System.out.println("A StateProcess defintion paragraphs: " + pdef);
-		System.out.println("A StateProcess action: " + action);
-
-		
 		
 		for (PDefinition def : pdef) {
-			System.out.println(def.toString());
 			PONameContext name = def.apply(new PogNameContextVisitor());
 			if (name != null) {
 				question.push(def.apply(new PogNameContextVisitor()));
@@ -124,7 +112,6 @@ public class POGProcessVisitor extends
 //			AInternalChoiceProcess node, IPOContextStack question)
 //			throws AnalysisException {
 //
-//		System.out.println("A AInternalChoiceProcess: " + node.toString());
 //
 //		CmlProofObligationList pol = new CmlProofObligationList();
 //
@@ -144,7 +131,6 @@ public class POGProcessVisitor extends
 //			AUntimedTimeoutProcess node, IPOContextStack question)
 //			throws AnalysisException {
 //
-//		System.out.println("A AUntimedTimeoutProcess: " + node.toString());
 //		CmlProofObligationList pol = new CmlProofObligationList();
 //
 //		// Get subparts
@@ -162,7 +148,6 @@ public class POGProcessVisitor extends
 //	public CmlProofObligationList caseATimeoutProcess(ATimeoutProcess node,
 //			IPOContextStack question) throws AnalysisException {
 //
-//		System.out.println("A ATimeoutProcess: " + node.toString());
 //		CmlProofObligationList pol = new CmlProofObligationList();
 //
 //		// Get subparts
@@ -185,8 +170,6 @@ public class POGProcessVisitor extends
 //			ASynchronousParallelismReplicatedProcess node,
 //			IPOContextStack question) throws AnalysisException {
 //
-//		System.out.println("A ASynchronousParallelismReplicatedProcess: "
-//				+ node.toString());
 //		CmlProofObligationList pol = new CmlProofObligationList();
 //
 //		// Get subparts
@@ -210,8 +193,6 @@ public class POGProcessVisitor extends
 //			ASequentialCompositionReplicatedProcess node,
 //			IPOContextStack question) throws AnalysisException {
 //
-//		System.out.println("A ASequentialCompositionReplicatedProcess: "
-//				+ node.toString());
 //		CmlProofObligationList pol = new CmlProofObligationList();
 //
 //		// Get subparts
@@ -235,8 +216,6 @@ public class POGProcessVisitor extends
 //			AInternalChoiceReplicatedProcess node, IPOContextStack question)
 //			throws AnalysisException {
 //
-//		System.out.println("A AInternalChoiceReplicatedProcess: "
-//				+ node.toString());
 //		CmlProofObligationList pol = new CmlProofObligationList();
 //
 //		// Get subparts
@@ -260,8 +239,6 @@ public class POGProcessVisitor extends
 //			AGeneralisedParallelismReplicatedProcess node,
 //			IPOContextStack question) throws AnalysisException {
 //
-//		System.out.println("A AGeneralisedParallelismReplicatedProcess: "
-//				+ node.toString());
 //		CmlProofObligationList pol = new CmlProofObligationList();
 //
 //		// Get subparts
@@ -287,8 +264,6 @@ public class POGProcessVisitor extends
 //			AExternalChoiceReplicatedProcess node, IPOContextStack question)
 //			throws AnalysisException {
 //
-//		System.out.println("A AExternalChoiceReplicatedProcess: "
-//				+ node.toString());
 //		CmlProofObligationList pol = new CmlProofObligationList();
 //
 //		// Get subparts
@@ -312,8 +287,6 @@ public class POGProcessVisitor extends
 //			AAlphabetisedParallelismReplicatedProcess node,
 //			IPOContextStack question) throws AnalysisException {
 //
-//		System.out.println("A AAlphabetisedParallelismReplicatedProcess: "
-//				+ node.toString());
 //		CmlProofObligationList pol = new CmlProofObligationList();
 //
 //		// Get subparts
@@ -338,7 +311,6 @@ public class POGProcessVisitor extends
 //	public CmlProofObligationList caseAInterruptProcess(AInterruptProcess node,
 //			IPOContextStack question) throws AnalysisException {
 //
-//		System.out.println("A AInterruptProcess: " + node.toString());
 //		CmlProofObligationList pol = new CmlProofObligationList();
 //
 //		// Get subparts
@@ -358,7 +330,6 @@ public class POGProcessVisitor extends
 //			AInterleavingProcess node, IPOContextStack question)
 //			throws AnalysisException {
 //
-//		System.out.println("A AInterleavingProcess: " + node.toString());
 //		CmlProofObligationList pol = new CmlProofObligationList();
 //
 //		// Get subparts
@@ -378,7 +349,6 @@ public class POGProcessVisitor extends
 //			AInstantiationProcess node, IPOContextStack question)
 //			throws AnalysisException {
 //
-//		System.out.println("A AInstantiationProcess: " + node.toString());
 //		CmlProofObligationList pol = new CmlProofObligationList();
 //
 //		// Get subparts
@@ -395,7 +365,6 @@ public class POGProcessVisitor extends
 //	public CmlProofObligationList caseAHidingProcess(AHidingProcess node,
 //			IPOContextStack question) throws AnalysisException {
 //
-//		System.out.println("A AHidingProcess: " + node.toString());
 //		CmlProofObligationList pol = new CmlProofObligationList();
 //
 //		// Get subparts
@@ -415,8 +384,6 @@ public class POGProcessVisitor extends
 //			AGeneralisedParallelismProcess node, IPOContextStack question)
 //			throws AnalysisException {
 //
-//		System.out.println("A AGeneralisedParallelismProcess: "
-//				+ node.toString());
 //		CmlProofObligationList pol = new CmlProofObligationList();
 //
 //		// Get subparts
@@ -437,7 +404,6 @@ public class POGProcessVisitor extends
 //			AExternalChoiceProcess node, IPOContextStack question)
 //			throws AnalysisException {
 //
-//		System.out.println("A AExternalChoiceProcess: " + node.toString());
 //		CmlProofObligationList pol = new CmlProofObligationList();
 //
 //		// Get subparts
@@ -457,7 +423,6 @@ public class POGProcessVisitor extends
 //			AChannelRenamingProcess node, IPOContextStack question)
 //			throws AnalysisException {
 //
-//		System.out.println("A AChannelRenamingProcess: " + node.toString());
 //		CmlProofObligationList pol = new CmlProofObligationList();
 //
 //		// Get subparts
@@ -476,8 +441,6 @@ public class POGProcessVisitor extends
 //			AAlphabetisedParallelismProcess node, IPOContextStack question)
 //			throws AnalysisException {
 //
-//		System.out.println("A AAlphabetisedParallelismProcess: "
-//				+ node.toString());
 //		CmlProofObligationList pol = new CmlProofObligationList();
 //
 //		// Get subparts
@@ -501,7 +464,6 @@ public class POGProcessVisitor extends
 //			AStartDeadlineProcess node, IPOContextStack question)
 //			throws AnalysisException {
 //
-//		System.out.println("A AStartDeadlineProcess: " + node.toString());
 //		CmlProofObligationList pol = new CmlProofObligationList();
 //
 //		// Get subparts
@@ -521,7 +483,6 @@ public class POGProcessVisitor extends
 //			AEndDeadlineProcess node, IPOContextStack question)
 //			throws AnalysisException {
 //
-//		System.out.println("A AEndDeadlineProcess: " + node.toString());
 //		CmlProofObligationList pol = new CmlProofObligationList();
 //
 //		// Get subparts
@@ -538,8 +499,6 @@ public class POGProcessVisitor extends
 //			AInterleavingReplicatedProcess node, IPOContextStack question)
 //			throws AnalysisException {
 //
-//		System.out.println("A AInterleavingReplicatedProcess: "
-//				+ node.toString());
 //		CmlProofObligationList pol = new CmlProofObligationList();
 //
 //		// Get subparts
@@ -562,8 +521,6 @@ public class POGProcessVisitor extends
 //			ASynchronousParallelismProcess node, IPOContextStack question)
 //			throws AnalysisException {
 //
-//		System.out.println("A ASynchronousParallelismProcess: "
-//				+ node.toString());
 //		CmlProofObligationList pol = new CmlProofObligationList();
 //
 //		// Get subparts
@@ -580,8 +537,6 @@ public class POGProcessVisitor extends
 //			ASequentialCompositionProcess node, IPOContextStack question)
 //			throws AnalysisException {
 //
-//		System.out.println("A ASequentialCompositionProcess: "
-//				+ node.toString());
 //		CmlProofObligationList pol = new CmlProofObligationList();
 //
 //		// Get subparts
@@ -597,7 +552,6 @@ public class POGProcessVisitor extends
 //	public CmlProofObligationList caseAReferenceProcess(AReferenceProcess node,
 //			IPOContextStack question) throws AnalysisException {
 //
-//		System.out.println("A AReferenceProcess: " + node.toString());
 //		CmlProofObligationList pol = new CmlProofObligationList();
 //
 //		// Get subparts
@@ -614,7 +568,6 @@ public class POGProcessVisitor extends
 //	public CmlProofObligationList caseATimedInterruptProcess(
 //			ATimedInterruptProcess node, IPOContextStack question)
 //			throws AnalysisException {
-//		System.out.println("A ATimedInterruptProcess: " + node.toString());
 //		CmlProofObligationList pol = new CmlProofObligationList();
 //
 //		// Get subparts
