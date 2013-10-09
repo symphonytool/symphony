@@ -1732,9 +1732,9 @@ class TCDeclAndDefVisitor extends
 				PType pTypeType = pType.apply(parentChecker, question);
 				if (!successfulType(pTypeType))
 				{
-					node.setType(issueHandler.addTypeError(node, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
-							+ pType)));
-					return node.getType();
+					return issueHandler.addTypeError(node, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
+							+ pType));
+//					return node.getType();
 				}
 			}
 
@@ -1742,31 +1742,29 @@ class TCDeclAndDefVisitor extends
 			PType retTypeType = retType.apply(parentChecker, question);
 			if (!successfulType(retTypeType))
 			{
-				node.setType(issueHandler.addTypeError(node, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
-						+ retType)));
-				return node.getType();
+				return issueHandler.addTypeError(node, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
+						+ retType));
+//				return node.getType();
 			}
 		}
 
 		newQuestion.scope = NameScope.NAMESANDANYSTATE;
 		PAction operationBody = node.getBody();
+
+		if (!node.getBody().apply(new OperationBodyActionChecker(issueHandler)))
+		{
+			return null;
+		}
+
 		question.contextSet(CmlTypeCheckInfo.class, newQuestion);
 		PType bodyType = operationBody.apply(parentChecker, newQuestion);
 		question.contextRem(CmlTypeCheckInfo.class);
 		if (!successfulType(bodyType))
 		{
-			node.setType(issueHandler.addTypeError(operationBody, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(operationBody
-					+ "")));
-			return node.getType();
+			return issueHandler.addTypeError(operationBody, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(operationBody
+					+ ""));
+			// return node.getType();
 		}
-
-		// if (operationBody instanceof AActionType || operationBody instanceof PAction &&
-		// !(operationBody instanceof ASequentialCompositionAction
-		// || operationBody instanceof ASkipAction) ) {
-		// return issueHandler.addTypeError(node,
-		// TypeErrorMessages.REACTIVE_CONSTRUCTS_IN_OP_NOT_ALLOWED
-		// .customizeMessage("" + operationBody));
-		// }
 
 		node.setActualResult(bodyType);
 
@@ -1789,9 +1787,9 @@ class TCDeclAndDefVisitor extends
 			PType preDefType = preDef.apply(parentChecker, newQuestion);
 			if (!successfulType(preDefType))
 			{
-				node.setType(issueHandler.addTypeError(node, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
-						+ preDef)));
-				return node.getType();
+				return issueHandler.addTypeError(node, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
+						+ preDef));
+				// return node.getType();
 			}
 			node.setPredef(preDef);
 		}
@@ -1819,9 +1817,9 @@ class TCDeclAndDefVisitor extends
 				PType pType = p.apply(parentChecker, question);
 				if (!successfulType(pType))
 				{
-					node.setType(issueHandler.addTypeError(node, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
-							+ p)));
-					return node.getType();
+					return issueHandler.addTypeError(node, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
+							+ p));
+//					return node.getType();
 				}
 				for (PDefinition normalDef : pType.getDefinitions())
 				{
@@ -1852,9 +1850,9 @@ class TCDeclAndDefVisitor extends
 			PType postDefType = postDef.apply(parentChecker, postEnv);
 			if (!successfulType(postDefType))
 			{
-				node.setType(issueHandler.addTypeError(node, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
-						+ postDef)));
-				return node.getType();
+				return issueHandler.addTypeError(node, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
+						+ postDef));
+//				return node.getType();
 			}
 			node.setPostdef(postDef);
 		}
@@ -1938,8 +1936,8 @@ class TCDeclAndDefVisitor extends
 
 		if (patterns.size() != paramTypes.size())
 		{
-			funDef.setType(issueHandler.addTypeError(funDef, TypeErrorMessages.WRONG_NUMBER_OF_ARGUMENTS.customizeMessage(""
-					+ patterns.size(), paramTypes.size() + "")));
+			issueHandler.addTypeError(funDef, TypeErrorMessages.WRONG_NUMBER_OF_ARGUMENTS.customizeMessage(""
+					+ patterns.size(), paramTypes.size() + ""));
 			return functionBodyEnv;
 		}
 		// add formal arguments to the environment
@@ -2076,9 +2074,9 @@ class TCDeclAndDefVisitor extends
 
 		if (!successfulType(actualResult))
 		{
-			node.setType(issueHandler.addTypeError(actualResult, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
-					+ actualResult)));
-			return node.getType();
+			return issueHandler.addTypeError(actualResult, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
+					+ actualResult));
+			// return node.getType();
 		}
 
 		node.setActualResult(actualResult);

@@ -20,7 +20,7 @@ public enum TypeErrorMessages
 			"Operation definition expected. %s is not an operation definition. "),
 
 	REACTIVE_CONSTRUCTS_IN_OP_NOT_ALLOWED(
-			"Body construct \"%s\" is not allowed in operations. Operations may not contain reactive constructs."),
+			"Body construct \"%s\" is not allowed in operations. Operations must not contain reactive constructs."),
 
 	COULD_NOT_DETERMINE_TYPE("Could not determine type for %s."),
 
