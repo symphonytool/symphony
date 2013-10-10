@@ -2428,10 +2428,10 @@ typeDef returns[ATypeDefinition def]
             $def.setAccess(extractQualifier($QUALIFIER));
 
         }
-    | QUALIFIER? IDENTIFIER '::' fieldList invariant?
+    | QUALIFIER? IDENTIFIER '::' fieldOptList invariant?
         {
             LexNameToken name = new LexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER));
-            ARecordInvariantType invType = AstFactory.newARecordInvariantType(name, $fieldList.fieldList);
+            ARecordInvariantType invType = AstFactory.newARecordInvariantType(name, $fieldOptList.fieldList);
             $def = AstFactory.newATypeDefinition(name,invType,$invariant.pattern,$invariant.exp);
             $def.setAccess(extractQualifier($QUALIFIER));
         }
@@ -2515,10 +2515,10 @@ typebase returns[PType type]
     | 'seq1' 'of' sub=typebase                  { $type = new ASeq1SeqType(null, false, null, $sub.type, false); }
     | 'map' from=type 'to' to=typebase      { $type = new AMapMapType(null, false, null, $from.type, $to.type, false); }
     | 'inmap' from=type 'to' to=typebase    { $type = new AInMapMapType(null, false, null, $from.type, $to.type, false); }
-    | 'compose' IDENTIFIER 'of' fieldList 'end'
+    | 'compose' IDENTIFIER 'of' fieldOptList 'end'
         {
             LexNameToken name = new LexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER));
-            $type = new ARecordInvariantType(null, false, null, false, false, null, name, $fieldList.fieldList, false);
+            $type = new ARecordInvariantType(null, false, null, false, false, null, name, $fieldOptList.fieldList, false);
         }
     ;
 
@@ -2533,9 +2533,9 @@ basicType returns[PType basicType]
     | t='token' { $basicType = new ATokenBasicType(extractLexLocation($t), false); }
     ;
 
-fieldList returns[List<AFieldField> fieldList]
+fieldOptList returns[List<AFieldField> fieldList]
 @init { $fieldList = new ArrayList<AFieldField>(); }
-    : ( item=field { $fieldList.add($item.field); } )+
+    : ( item=field { $fieldList.add($item.field); } )*
     ;
 
 field returns[AFieldField field]
