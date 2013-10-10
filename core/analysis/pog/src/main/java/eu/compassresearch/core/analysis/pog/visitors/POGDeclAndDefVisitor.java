@@ -27,7 +27,6 @@ import org.overture.typechecker.TypeComparator;
 
 import eu.compassresearch.ast.actions.ANotYetSpecifiedStatementAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
-import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AActionsDefinition;
@@ -185,25 +184,38 @@ public class POGDeclAndDefVisitor extends
 	{
 		CmlProofObligationList pol = new CmlProofObligationList();
 
-		// Get the parameter variable names
 
-		LexNameList params = new LexNameList();
-		LinkedList<ATypeSingleDeclaration> ls = node.getLocalState();
-		if (ls != null)
-		{
-			for (ATypeSingleDeclaration s : ls)
-			{
-				for (PDefinition def : s.getType().getDefinitions())
-				{
-					params.add(def.getName().clone());
-				}
-			}
-		}
+		//FIXME Process Name Context Generation is strange atm
+		// OLD one was
+//		LexNameList params = new LexNameList();
+//		LinkedList<ATypeSingleDeclaration> ls = node.getLocalState();
+//		if (ls != null)
+//		{
+//			for (ATypeSingleDeclaration s : ls)
+//			{
+//				for (PDefinition def : s.getType().getDefinitions())
+//				{
+//					params.add(def.getName().clone());
+//				}
+//			}
+//		}
+//
+//		question.push(new PONameContext(params));
 
-		question.push(new PONameContext(params));
+		
+		
 		PProcess process = node.getProcess();
-		pol.addAll(process.apply(parentPOG, question));
-		question.pop();
+		PONameContext name = process.apply(new PogNameContextVisitor());
+		
+		if (name != null)
+		{
+			question.push(process.apply(new PogNameContextVisitor()));
+			pol.addAll(process.apply(parentPOG, question));
+			question.pop();
+		} else
+		{
+			pol.addAll(process.apply(parentPOG, question));
+		}
 
 		return pol;
 	}

@@ -31,7 +31,7 @@ public class AdHocTest {
 	 */
 	@Test
 	public void testCmlPog() throws AnalysisException, IOException {
-		String file = "src/test/resources/adhoc/test.cml";
+		String file = "src/test/resources/adhoc/adhoc.cml";
 		System.out.println("Processing " + file);
 		IProofObligationList poList = buildPosFromFile(file);
 
