@@ -14,7 +14,10 @@ import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
+import org.overture.interpreter.runtime.ObjectContext;
+import org.overture.interpreter.runtime.RootContext;
 import org.overture.interpreter.runtime.ValueException;
+import org.overture.interpreter.values.ObjectValue;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.actions.ASkipAction;
@@ -36,6 +39,7 @@ import eu.compassresearch.core.interpreter.api.transitions.ObservableTransition;
 import eu.compassresearch.core.interpreter.api.transitions.TimedTransition;
 import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
+import eu.compassresearch.core.interpreter.utility.LocationExtractor;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
 @SuppressWarnings("serial")
@@ -54,6 +58,12 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		super(ownerProcess, visitorAccess, parentVisitor);
 	}
 
+	/**
+	 * This syncs any tock event from the children if any and joins all the rest of the 
+	 * events
+	 * @return the joined transitions of the children syncing on tock if possible
+	 * @throws AnalysisException
+	 */
 	protected CmlTransitionSet syncOnTockAndJoinChildren()
 			throws AnalysisException
 	{
@@ -90,8 +100,9 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 	{
 		// FIXME the children contexts also needs to be replaced!!!!!!
 		Context copyContext = theChoosenOne.getNextState().second;
-		Context newCurrentContext = CmlBehaviourUtility.mergeState(context, copyContext);
-
+		Context newCurrentContext = CmlBehaviourUtility.mergeAndReplaceState(context, copyContext);
+		//Context newCurrentContext = copyContext;
+		
 		if (theChoosenOne.getLeftChild() != null)
 			theChoosenOne.getLeftChild().replaceState(newCurrentContext);
 
@@ -114,7 +125,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		// external choice begin
 		if (!owner.hasChildren())
 		{
-			return newInspection(createTauTransitionWithTime(node, "Begin"), new AbstractCalculationStep(owner, visitorAccess)
+			return newInspection(createTauTransitionWithoutTime(node, "Begin"), new AbstractCalculationStep(owner, visitorAccess)
 			{
 
 				@Override
@@ -123,13 +134,19 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 						throws AnalysisException
 				{
 					Pair<Context, Context> childContexts = visitorAccess.getChildContexts(question);
-					CmlBehaviour leftInstance = new ConcreteCmlBehaviour(leftNode, childContexts.first.deepCopy(), new LexNameToken(name().getModule(), name().getIdentifier().getName()
-							+ "[]", new LexLocation()), this.owner);
-					setLeftChild(leftInstance);
+					
+					String module = name().getModule();
+					String nameStr = name().getIdentifier().getName();
+					
+					setLeftChild(new ConcreteCmlBehaviour(leftNode, 
+							CmlBehaviourUtility.deepCopyProcessContext(childContexts.first), 
+							new LexNameToken(module, nameStr	+ "[]", LocationExtractor.extractLocation(leftNode)), 
+							this.owner));
 
-					CmlBehaviour rightInstance = new ConcreteCmlBehaviour(rightNode, childContexts.second.deepCopy(), new LexNameToken(name().getModule(), "[]"
-							+ name().getIdentifier().getName(), new LexLocation()), this.owner);
-					setRightChild(rightInstance);
+					setRightChild(new ConcreteCmlBehaviour(rightNode, 
+							CmlBehaviourUtility.deepCopyProcessContext(childContexts.second), 
+							new LexNameToken(module, "[]" + nameStr, LocationExtractor.extractLocation(rightNode)), 
+							this.owner));
 
 					return new Pair<INode, Context>(node, question);
 				}
@@ -139,7 +156,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		// If this is true, the Skip rule is instantiated. This means that the entire choice evolves into Skip
 		// with the state from the skip. After this all the children processes are terminated
 		else if (CmlBehaviourUtility.finishedChildExists(owner))
-			return newInspection(createTauTransitionWithTime(node, "end"), new AbstractCalculationStep(owner, visitorAccess)
+			return newInspection(createTauTransitionWithoutTime(node, "end"), new AbstractCalculationStep(owner, visitorAccess)
 			{
 
 				@Override

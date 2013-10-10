@@ -24,12 +24,20 @@ public class Par implements ParallelProcess {
 		boolean result = false;
 		if (obj instanceof Par) {
 			Par other = (Par) obj;
-			result = //this.getBinding1().equals(other.getBinding1())
-					//&& this.getBinding2().equals(other.getBinding2())
+			result = //this.left.equals(other.getLeft())
+					//&& this.right.equals(other.getRight());
 					this.left.equals(other.getLeft())
-					&& this.right.equals(other.getRight())
-					&& this.syncSet.equals(other.getSyncSet());
-		}
+					&& this.right.equals(other.getRight());
+					
+		} //else if (obj instanceof GenPar) {
+		//	GenPar other = (GenPar) obj;
+		//	result = //this.left.equals(other.getLeft())
+					//&& this.right.equals(other.getRight());
+		//			this.left.equals(other.getLeft())
+		//			&& this.right.equals(other.getRight());
+					
+		//}
+
 		return result;
 	}
 	

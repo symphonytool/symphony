@@ -162,12 +162,12 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 			private boolean isSystemSelect(
 					CmlTransitionSet availableChannelEvents)
 			{
-				return availableChannelEvents.getSilentTransitions().size() > 0;
+				return availableChannelEvents.getSilentTransitionsAsSet().size() > 0;
 			}
 
 			private CmlTransition systemSelect()
 			{
-				rndSelect.choices(new CmlTransitionSet((Set) availableChannelEvents.getSilentTransitions()));
+				rndSelect.choices(new CmlTransitionSet((Set) availableChannelEvents.getSilentTransitionsAsSet()));
 				return rndSelect.resolveChoice();
 			}
 
@@ -399,7 +399,6 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 			case GET_STACK_FRAMES:
 			{
 				int id = message.getContent();
-
 				CmlBehaviour foundBehavior = this.runningInterpreter.findBehaviorById(id);
 				Context context = foundBehavior.getNextState().second;
 				List<StackFrameDTO> stackframes = new LinkedList<StackFrameDTO>();
@@ -414,10 +413,13 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 					contextStack.add(nextContext);
 					nextContext = nextContext.outer;
 				}
-
-				for (Context c : contextStack)
-					stackframes.add(new StackFrameDTO(c.location.getStartLine(), c.location.getFile().toURI(), contextCount--));
-
+				int contextIndex = contextCount;
+				for (Context c : contextStack){
+					if(contextIndex == contextCount)
+						stackframes.add(new StackFrameDTO(LocationExtractor.extractLocation(foundBehavior.getNextState().first).getStartLine(), c.location.getFile().toURI(), contextIndex--));
+					else
+						stackframes.add(new StackFrameDTO(c.location.getStartLine(), c.location.getFile().toURI(), contextIndex--));
+				}
 				ResponseMessage responseMessage = new ResponseMessage(message.getRequestId(), CmlRequest.GET_STACK_FRAMES, stackframes);
 				sendResponse(responseMessage);
 				return true;

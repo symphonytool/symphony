@@ -80,6 +80,7 @@ import eu.compassresearch.core.interpreter.api.values.UnresolvedExpressionValue;
 import eu.compassresearch.core.interpreter.api.values.ValueConstraint;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
+@SuppressWarnings("serial")
 public class ActionInspectionVisitor extends CommonInspectionVisitor
 {
 
@@ -232,6 +233,8 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 				// At this point the supervisor has already given go to the event, or the event is hidden
 				ChannelNameValue channelNameValue = ((LabelledTransition) selectedTransition).getChannelName();
 
+				Context nextContext = question;
+				
 				if (node.getCommunicationParameters() != null)
 				{
 					for (int i = 0; i < node.getCommunicationParameters().size(); i++)
@@ -242,11 +245,19 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 						{
 							PPattern pattern = ((AReadCommunicationParameter) param).getPattern();
 							Value value = channelNameValue.getValues().get(i);
-							question.putList(PPatternAssistantInterpreter.getNamedValues(pattern, value, question));
+							
+							/*
+							 *	Create s new context for the input params. We only want to create one 
+							 *	new context no matter the number of params so we check for equality. 
+							 */
+							if(nextContext == question)
+								nextContext = CmlContextFactory.newContext(node.getAction().getLocation(), "input communication context", question);
+							
+							nextContext.putList(PPatternAssistantInterpreter.getNamedValues(pattern, value, nextContext));
 						}
 					}
 				}
-				return new Pair<INode, Context>(node.getAction(), question);
+				return new Pair<INode, Context>(node.getAction(), nextContext);
 			}
 		});
 	}

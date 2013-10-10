@@ -2,9 +2,7 @@ package eu.compassresearch.ide.modelchecker;
 
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
-import java.util.Date;
 import java.util.List;
 
 import org.eclipse.core.commands.AbstractHandler;
@@ -175,24 +173,9 @@ public class MCHandler extends AbstractHandler {
 					}
 						}
 				
-			} catch(IOException e){
-				//probably an error in the visitor occurred
-				logStackTrace(e);
-				popErrorMessage(new RuntimeException("Some problem happened in the model checker visitor."));
-			}catch (Exception e) {
-				//the exception of formula must be cautch here
-				//String msg = e.getMessage();
-				//e.printStackTrace();
-				logStackTrace(e);
+			} catch(Exception e){
+				//logStackTrace(e);
 				popErrorMessage(e);
-				//if(mc != null){
-				//	try {
-				//		mc.finalize();
-				//	} catch (Throwable e1) {
-				//		popErrorMessage(e1.getMessage());
-				//	}
-				//}
-				//popErrorMessage(e.getMessage());
 			}
 		}
 		return null;
@@ -203,25 +186,7 @@ public class MCHandler extends AbstractHandler {
 			Activator.logErrorMessage(trace[i].toString());
 		}
 	}
-	private IFile writeDotContentToFile(IFolder mcFolder,
-			ICmlSourceUnit selectedUnit, String dotContent) {
-		
-		String name = selectedUnit.getFile().getName();
-		String dotFileName = name.substring(0,name.length()-selectedUnit.getFile().getFileExtension().length())+"gv";
-		IFile outputFile = mcFolder.getFile(dotFileName);
-		
-		try{
-			if(!outputFile.exists()){
-				outputFile.create(new ByteArrayInputStream(dotContent.toString().getBytes()), true, new NullProgressMonitor());
-			}else{
-				outputFile.setContents(new ByteArrayInputStream(dotContent.toString().getBytes()), true, true, new NullProgressMonitor());
-			}
-			
-		}catch(CoreException e){
-			Activator.log(e);
-		}
-		return outputFile;
-	}
+	
 	private ICmlSourceUnit getSelectedSourceUnit(ICmlModel model, IFile selectedFile){
 		ICmlSourceUnit selectedCmlSourceUnit = null;
 		
@@ -288,36 +253,10 @@ public class MCHandler extends AbstractHandler {
 		
 		return property;
 	}
-	/*private FormulaResult getMCOutputFromSource(PSource source, String propertyToCheck) throws Exception {
-
-		FormulaResult mcResult;
-		//StringBuilder sb = new StringBuilder();
-		//PSource psAux = source.getSourceAst();
-		//this.adaptor = new CMLModelcheckerVisitor(psAux);
-		this.adaptor = new CMLModelcheckerVisitor(source);
-		this.adaptor.setPropertyToCheck(propertyToCheck);
-		//this.mc = StandAloneFormulaIntegrationFactory.getInstance().createFormulaIntegrator();
-		this.mc = FormulaIntegrator.getInstance();
-		String[] codes = adaptor.generateFormulaCodeForAll();
-		//for (int i = 0; i < codes.length; i++) {
-				//save to a temp file, run formula, get and show the result for each file 
-				
-		mcResult = mc.analyse(codes[0]);
-				//mcResult = mc.analyse(codes[i]);
-				//sb.append("********************************\n");
-				//sb.append("Result: " + (mcResult.isSatisfiable()?"SAT":"UNSAT") + "\n");
-				//double loadTime = mcResult.getElapsedTimeLoad();
-				//double solveTime = mcResult.getElapsedTimeSolve();
-				//sb.append("Analysis time (load + solve) = " + "(" + loadTime + " + " + solveTime + ") = " + (loadTime+solveTime) + " seconds\n"); 
-				//sb.append("Base of Facts: \n");
-				//sb.append(mcResult.getFacts());
-		//}
-		//return sb.toString();
-		return mcResult;
-	}*/
+	
 	private void popErrorMessage(Throwable e) {
 		MessageDialog.openInformation(null, "COMPASS",
-				"Could not analyse the specification.\n\n" + e.getClass() + "\n" + e.getMessage());
+				"Could not analyse the specification.\n\n" + e.getMessage());
 	}
 	private void popErrorMessage(String message) {
 		MessageDialog.openInformation(null, "COMPASS",message);
