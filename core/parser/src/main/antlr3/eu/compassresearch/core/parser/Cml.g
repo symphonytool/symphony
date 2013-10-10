@@ -2006,10 +2006,11 @@ invariantDefinition returns[AClassInvariantDefinition def]
     ;
 
 functionDefs returns[AFunctionsDefinition defs]
-@after { $defs.setLocation(extractLexLocation($start, $stop));
-         LexNameToken name = new LexNameToken("", new LexIdentifierToken("", false, $defs.getLocation()));
-         $defs.setName(name );
-         }
+@after {
+    $defs.setLocation(extractLexLocation($start, $stop));
+    LexNameToken name = new LexNameToken("", new LexIdentifierToken("", false, $defs.getLocation()));
+    $defs.setName(name );
+}
     : 'functions' qualFunctionDefinitionOptList
         {
             AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true, false, extractLexLocation($functionDefs.start));
@@ -2024,37 +2025,45 @@ qualFunctionDefinitionOptList returns[List<PDefinition> defs]
     : (QUALIFIER? functionDefinition
             {
                 $functionDefinition.def.setAccess(extractQualifier($QUALIFIER));
-                ILexLocation loc = extractLexLocation(extractLexLocation($qualFunctionDefinitionOptList.start),
-                                                     $functionDefinition.def.getLocation());
-                $functionDefinition.def.setLocation(loc);
+                if ($QUALIFIER != null) {
+                    ILexLocation loc = extractLexLocation(extractLexLocation($QUALIFIER), $functionDefinition.def.getLocation());
+                    $functionDefinition.def.setLocation(loc);
+                }
                 $defs.add($functionDefinition.def);
+                // This resets the recognition of the QUALIFIER token,
+                // which ANTLR doesn't seem to do for us.  This way
+                // *only* the function for which there was a qualifier
+                // will get tagged with that qualifier, rather than
+                // qualifiers acting as section markers.  I think this
+                // is a bug in ANTLR. -jwc/10Oct2013
+                $QUALIFIER=null;
             }
         )*
     ;
 
 functionDefinition returns[PDefinition def]
-@after { $def.setLocation(extractLexLocation($start, $stop)); 
+@after {
+    $def.setLocation(extractLexLocation($start, $stop)); 
 
-         if ($def instanceof AExplicitFunctionDefinition) {
-	       AExplicitFunctionDefinition f = (AExplicitFunctionDefinition)$def;
-           if (f.getPredef() != null) { 
-              f.getPredef().setName(
-                 new LexNameToken("", new LexIdentifierToken("pre_"+f.getName().getName(), false, f.getLocation())));
-             // f.parent($def);
-           }
-       	   if (f.getPostdef() != null) { 
-       	     f.getPostdef().setName(new LexNameToken("", new LexIdentifierToken("post_"+f.getName().getName(), false, f.getLocation())));
-       	     //f.parent($def);
-       	   }
-         }
-
-        if ($def instanceof AImplicitFunctionDefinition) {
-		   AImplicitFunctionDefinition f = (AImplicitFunctionDefinition)$def;
-       	   if (f.getPredef() != null) f.getPredef().setName(new LexNameToken("", new LexIdentifierToken("pre_"+f.getName().getName(), false, f.getLocation())));
-       	   if (f.getPostdef() != null) f.getPostdef().setName(new LexNameToken("", new LexIdentifierToken("post_"+f.getName().getName(), false, f.getLocation())));
+    if ($def instanceof AExplicitFunctionDefinition) {
+        AExplicitFunctionDefinition f = (AExplicitFunctionDefinition)$def;
+        if (f.getPredef() != null) { 
+            f.getPredef().setName(
+                                  new LexNameToken("", new LexIdentifierToken("pre_"+f.getName().getName(), false, f.getLocation())));
+            // f.parent($def);
         }
+        if (f.getPostdef() != null) { 
+            f.getPostdef().setName(new LexNameToken("", new LexIdentifierToken("post_"+f.getName().getName(), false, f.getLocation())));
+            //f.parent($def);
+        }
+    }
 
-      }
+    if ($def instanceof AImplicitFunctionDefinition) {
+        AImplicitFunctionDefinition f = (AImplicitFunctionDefinition)$def;
+        if (f.getPredef() != null) f.getPredef().setName(new LexNameToken("", new LexIdentifierToken("pre_"+f.getName().getName(), false, f.getLocation())));
+        if (f.getPostdef() != null) f.getPostdef().setName(new LexNameToken("", new LexIdentifierToken("post_"+f.getName().getName(), false, f.getLocation())));
+    }
+}
     : IDENTIFIER (expl=explicitFunctionDefinitionTail | impl=implicitFunctionDefinitionTail)
         {
             if ($expl.tail != null) {
