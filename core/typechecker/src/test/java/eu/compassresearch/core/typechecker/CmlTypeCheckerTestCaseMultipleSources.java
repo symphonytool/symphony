@@ -44,19 +44,10 @@ public class CmlTypeCheckerTestCaseMultipleSources
 		// 6
 		TestUtil.addTestProgram(testData, "class A = begin operations f: () ==> int f() == (return (10)) end", "class B = begin state a : A operations g: () ==> int g() == (return (a.f())) end", true, new String[0]);
 		// 7
-		TestUtil.addTestProgram(testData, "class A = begin operations f: () ==> int f() == (return (10)) end", "class B = begin values a : A = nil functions g: int -> int g(i) == i + a.f() end", // functions
-																																																	// g:int
-																																																	// ->
-																																																	// int
-																																																	// g(i)
-																																																	// ==
-																																																	// a.f()
-																																																	// +
-																																																	// i
-																																																	// end",
-				true, new String[0]
+		TestUtil.addTestProgram(testData, "class A = begin operations f: () ==> int f() == (return (10)) end", "class B = begin values a : A = nil functions g: int -> int g(i) == i + a.f() end", false, new String[0]);
+		// 8
+		TestUtil.addTestProgram(testData, "class A = begin operations f: () ==> int f() == (return (10)) end", "class B = begin values a : A = nil operations g: int ==> int g(i) == return i + a.f() end", true, new String[0]);
 
-		);
 
 		return testData;
 	}
