@@ -8,11 +8,17 @@ import java.util.Map;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.viewers.IColorProvider;
+import org.eclipse.jface.viewers.ITableColorProvider;
 import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Display;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 
+import eu.compassresearch.ide.collaboration.messages.StatusMessage.NegotiationStatus;
 import eu.compassresearch.ide.collaboration.treeview.TreeViewerPlugin;
 import eu.compassresearch.ide.collaboration.treeview.model.CollaborationGroup;
 import eu.compassresearch.ide.collaboration.treeview.model.Contract;
@@ -23,7 +29,7 @@ import eu.compassresearch.ide.collaboration.treeview.model.User;
 import eu.compassresearch.ide.collaboration.treeview.model.Version;
 import eu.compassresearch.ide.collaboration.treeview.model.Versions;
 
-public class CollaborationLabelProvider extends LabelProvider {	
+public class CollaborationLabelProvider extends LabelProvider implements IColorProvider {	
 	private Map imageCache = new HashMap(11);
 	
 	public Image getImage(Object element) {
@@ -97,6 +103,30 @@ public class CollaborationLabelProvider extends LabelProvider {
 
 	protected RuntimeException unknownElement(Object element) {
 		return new RuntimeException("Unknown type of element in tree of type " + element.getClass().getName());
+	}
+
+
+	@Override
+	public Color getBackground(Object element)
+	{
+		if(element instanceof Contract){
+			Contract c = (Contract) element;
+			
+			if(c.getStatus() == NegotiationStatus.ACCEPT) {
+				return Display.getCurrent().getSystemColor(SWT.COLOR_GREEN);
+			} else if (c.getStatus() == NegotiationStatus.REJECT) {
+				return Display.getCurrent().getSystemColor(SWT.COLOR_RED);
+			}
+		}
+		
+		return null;
+	}
+
+	@Override
+	public Color getForeground(Object arg0)
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

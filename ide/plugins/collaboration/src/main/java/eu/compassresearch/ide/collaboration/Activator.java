@@ -52,9 +52,11 @@ public class Activator extends AbstractUIPlugin
 	
 	public CollaborationManager addCollaborationManager(ID containerID, IChannelContainerAdapter channelAdapter) throws ECFException {
 
-		CollaborationManager collabMgm = collaborationChannels.get(containerID);
+		collabMgm = collaborationChannels.get(containerID);
 		if (collabMgm == null){
-			return collaborationChannels.put(containerID, new CollaborationManager(channelAdapter));
+			collabMgm = new CollaborationManager(channelAdapter);
+			collaborationChannels.put(containerID, collabMgm);
+			return collabMgm;
 		}
 			
 		return collabMgm;

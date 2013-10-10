@@ -78,7 +78,6 @@ public class CollaborationManager extends AbstractShare
 					{
 						try
 						{
-
 							ErrorDialog.openError(null, "Message", recvString, new Status(IStatus.ERROR, Activator.PLUGIN_ID, recvString, null));
 
 						} finally
@@ -136,7 +135,7 @@ public class CollaborationManager extends AbstractShare
 									collabGrp.addCollaborator(usr);
 
 									Contracts contracts = (Contracts) root.getContracts().get(0);
-									Contract contract = new Contract(filename);
+									Contract contract = new Contract(filename, fileMsg.getSenderID(), fileMsg.getReceiverID());
 									contract.addShare(new Share(senderName));
 									contract.addShare(new Share("You"));
 
@@ -175,7 +174,9 @@ public class CollaborationManager extends AbstractShare
 					{
 						try
 						{
-							boolean recv = MessageDialog.openQuestion(null, "File received", statusMsg.getSenderID().getName() + " received " + statusMsg.getFilename());
+							NegotiationStatus status = statusMsg.getStatus();
+							if(status == NegotiationStatus.RECEIVED) {
+							MessageDialog.openInformation(null, "File received", statusMsg.getSenderID().getName() + " received " + statusMsg.getFilename());
 							
 							final IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 							final IViewPart view = page.findView("eu.compassresearch.ide.collaboration.treeview.ui.CollaborationView");
@@ -185,7 +186,7 @@ public class CollaborationManager extends AbstractShare
 	
 							String senderName = statusMsg.getSenderID().getName();
 							Contracts contracts = (Contracts) root.getContracts().get(0);
-							Contract contract = new Contract(statusMsg.getFilename());
+							Contract contract = new Contract(statusMsg.getFilename(), statusMsg.getSenderID(), statusMsg.getReceiverID());
 							contract.addShare(new Share(senderName));
 							contract.addShare(new Share("You"));
 	
@@ -200,6 +201,17 @@ public class CollaborationManager extends AbstractShare
 							collabGrp.addCollaborator(usr);
 							
 							page.showView("eu.compassresearch.ide.collaboration.treeview.ui.CollaborationView");
+							
+							} else if (status == NegotiationStatus.ACCEPT || status == NegotiationStatus.REJECT) {
+								
+								final IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+								final IViewPart view = page.findView("eu.compassresearch.ide.collaboration.treeview.ui.CollaborationView");
+								final CollaborationView collabview = (CollaborationView) view;
+								
+								Contracts cs = (Contracts) collabview.getRoot().getContracts().get(0);
+								Contract c = (Contract) cs.getContracts().get(0);
+								c.setStatus(status);
+							}
 							
 						} catch (PartInitException e)
 						{

@@ -1,7 +1,10 @@
 package eu.compassresearch.ide.collaboration.treeview.ui;
 
+import java.util.Date;
 import java.util.Iterator;
 
+import org.eclipse.ecf.core.util.ECFException;
+import org.eclipse.ecf.sync.SerializationException;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
@@ -22,11 +25,11 @@ import org.eclipse.ui.part.ViewPart;
 import eu.compassresearch.ide.collaboration.Activator;
 import eu.compassresearch.ide.collaboration.management.CollaborationManager;
 import eu.compassresearch.ide.collaboration.messages.StatusMessage;
+import eu.compassresearch.ide.collaboration.messages.StatusMessage.NegotiationStatus;
 import eu.compassresearch.ide.collaboration.treeview.model.CollaborationGroup;
 import eu.compassresearch.ide.collaboration.treeview.model.Contract;
 import eu.compassresearch.ide.collaboration.treeview.model.Contracts;
 import eu.compassresearch.ide.collaboration.treeview.model.Model;
-import eu.compassresearch.ide.collaboration.treeview.model.Share;
 import eu.compassresearch.ide.collaboration.treeview.model.TreeRoot;
 import eu.compassresearch.ide.collaboration.treeview.model.User;
 import eu.compassresearch.ide.collaboration.treeview.model.Version;
@@ -155,14 +158,32 @@ public class CollaborationView extends ViewPart {
 
 		approveContractAction = new Action("Approve") {
 			public void run() {
-				approveSelected();
+				try
+				{
+					approveSelected();
+				} catch (SerializationException e)
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (ECFException e)
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}			
 		};
 		approveContractAction.setToolTipText("Approve this file");
 		
 		rejectContractAction = new Action("Reject") {
 			public void run() {
-				rejectSelected();
+				try
+				{
+					rejectSelected();
+				} catch (ECFException e)
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}			
 		};
 		rejectContractAction.setToolTipText("Reject this file");
@@ -187,11 +208,9 @@ public class CollaborationView extends ViewPart {
 			
 			if ((selectedDomainObject instanceof Contracts)) {
 				Contracts contracts = (Contracts) selectedDomainObject;
-				contracts.addContract(new Contract("Test add"));
 						
 			} else if ((selectedDomainObject instanceof Contract)) {
 				Contract contract = (Contract) selectedDomainObject;
-				contract.addVersion(new Version("Version 2"));
 			} else {
 			
 				return;
@@ -199,7 +218,7 @@ public class CollaborationView extends ViewPart {
 		}
 	}
 	
-	protected void approveSelected() {
+	protected void approveSelected() throws SerializationException, ECFException {
 		if (treeViewer.getSelection().isEmpty()) {
 			return;
 		} else {
@@ -209,28 +228,26 @@ public class CollaborationView extends ViewPart {
 			if(selectedDomainObject instanceof Contract)
 			{
 				Contract contract = (Contract) selectedDomainObject;
-				
 				CollaborationManager collabMgM = Activator.getDefault().getCollaborationManager();
-				
-				//Need to put send and recv into the tree model. 
-				//StatusMessage statMsg = new StatusMessage();
-				
-				//collabMgM.sendMessage(toID, statMsg.serialize());
+				StatusMessage statMsg = new StatusMessage(contract.getReceiver(), contract.getSender(), contract.getFilename(), NegotiationStatus.ACCEPT, new Date());
+				collabMgM.sendMessage(contract.getSender(), statMsg.serialize());
 			}
 		}
 	}
 	
-	protected void rejectSelected() {
+	protected void rejectSelected() throws SerializationException, ECFException {
 		if (treeViewer.getSelection().isEmpty()) {
 			return;
 		} else {
 			IStructuredSelection selection = (IStructuredSelection) treeViewer.getSelection();
 			Model selectedDomainObject = (Model) selection.getFirstElement();
 		
-			if(selectedDomainObject instanceof CollaborationGroup)
+			if(selectedDomainObject instanceof Contract)
 			{
-				CollaborationGroup group = (CollaborationGroup) selectedDomainObject;
-				group.addCollaborator(new User("Bla"));
+				Contract contract = (Contract) selectedDomainObject;
+				CollaborationManager collabMgM = Activator.getDefault().getCollaborationManager();
+				StatusMessage statMsg = new StatusMessage(contract.getReceiver(), contract.getSender(), contract.getFilename(), NegotiationStatus.REJECT, new Date());
+				collabMgM.sendMessage(contract.getSender(), statMsg.serialize());
 			}
 		
 		}
