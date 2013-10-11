@@ -38,15 +38,21 @@ public class ThmNodeList extends Vector<ThmNode> implements AnalysisArtifact {
     	//for each dependency supplied in the parameter list
     	for (ILexNameToken d : depIds){
     		flag = false;
+
+			//remove 'pre_' on depandancies - preconditions are automatically generated, 
+			//as part of the function/operation, so must depend on the function/operation itself.
+    		String tempdepId = d.getName();
+    		if(tempdepId.startsWith("pre_"))
+    		{
+    			tempdepId = tempdepId.replace("pre_", "");
+    		}
     		
-    		ILexNameToken tempdepId = d;
     		//for each of the nodes already in this list
     		for (ThmNode tp : this){
-
-        		ILexNameToken temptpId = tp.getId();
-
-    			//if (the dependency d is the same as the node name temptp
-    			if (tempdepId.getName().equals(temptpId.getName())){
+        		String temptpId = tp.getId().getName();
+        		
+        		//if (the dependency tempdepId is the same as the node name temptpId
+    			if (tempdepId.equals(temptpId)){
     				//set the flag to true and break from the loop and return true 
     				flag = true;
     				break;
@@ -74,10 +80,36 @@ public class ThmNodeList extends Vector<ThmNode> implements AnalysisArtifact {
     //for each node in the list, restrict the dependencies
 	public ThmNodeList restrictExtOperationsDeps(NodeNameList procNodeNames) {
 
-		for(ThmNode o: this)
+		for(ThmNode n: this)
 		{
-			o.restrictDeps(procNodeNames);
+			n.restrictDeps(procNodeNames);
 		}		
 		return this;
+	}
+	
+	//BASIC ERROR DETECTION - JUST GETS ALL ThmNode IDs with errors.
+	public NodeNameList getErrorNodes(){
+
+    	NodeNameList errNodes = new NodeNameList();
+    	
+		for(ThmNode n: this)
+		{
+			if(n.isError())
+			{
+				errNodes.add(n.getId());
+			}
+		}
+		return errNodes;
+	}
+
+
+	/****
+	 * Method to duplicate contents of this list into a new object
+	 * @return Duplicated node list
+	 */
+	public ThmNodeList duplicate() {
+		ThmNodeList newList = new ThmNodeList();
+		newList.addAll(this);
+		return newList;
 	}
 }

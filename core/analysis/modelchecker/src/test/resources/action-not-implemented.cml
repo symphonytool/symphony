@@ -1,0 +1,4 @@
+process A = 
+begin 
+	@ if (2 > 3) then Skip else Stop 
+end

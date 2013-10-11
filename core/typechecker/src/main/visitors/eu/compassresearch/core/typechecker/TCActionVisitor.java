@@ -1923,7 +1923,7 @@ class TCActionVisitor extends
 			issueHandler.addTypeError(action, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(action.toString()));
 
 		// alright this block is okay.
-		node.setType(new AActionType(node.getLocation(), true));
+		node.setType(new AVoidType(node.getLocation(), true));
 		return node.getType();
 	}
 

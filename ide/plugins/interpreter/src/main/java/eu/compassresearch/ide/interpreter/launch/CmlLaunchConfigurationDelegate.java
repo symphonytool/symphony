@@ -26,6 +26,7 @@ import org.eclipse.ui.WorkbenchException;
 import org.json.simple.JSONObject;
 import org.overture.ide.core.resources.IVdmProject;
 import org.overture.ide.core.resources.IVdmSourceUnit;
+import org.overture.ide.debug.utils.VdmProjectClassPathCollector;
 
 import eu.compassresearch.core.interpreter.debug.CmlDebugDefaultValues;
 import eu.compassresearch.core.interpreter.debug.CmlInterpreterLaunchConfigurationConstants;
@@ -156,7 +157,8 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 		List<String> commandArray = new LinkedList<String>();
 
 		commandArray.add("java");
-		commandArray.addAll(getClassPath());
+//		commandArray.addAll(getClassPath());
+		commandArray.addAll(VdmProjectClassPathCollector.getClassPath(getProject(configuration), CmlUtil.collectRequiredBundleIds(ICmlDebugConstants.ID_CML_PLUGIN_NAME), new String[]{}));
 		commandArray.add("eu.compassresearch.core.interpreter.debug.DebugMain");
 		commandArray.add(config);
 
@@ -195,32 +197,6 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 
 	}
 
-	private List<String> getClassPath() throws CoreException
-	{
-		List<String> commandList = new Vector<String>();
-
-		// get the bundled class path of the debugger
-		List<String> entries = CmlUtil.collectJars(ICmlDebugConstants.ID_CML_PLUGIN_NAME);
-
-		if (entries.size() > 0)
-		{
-			commandList.add("-cp");
-			StringBuilder classPath = new StringBuilder();
-			for (String cp : entries)
-			{
-				if (cp.toLowerCase().replace("\"", "").trim().endsWith(".jar"))
-				{
-					classPath.append(toPlatformPath(cp));
-					classPath.append(getCpSeperator());
-				}
-			}
-			if (classPath.length() > 0)
-				commandList.add(classPath.toString());
-			else
-				commandList.add(" ");
-		}
-		return commandList;
-	}
 
 	public static boolean isWindowsPlatform()
 	{

@@ -32,6 +32,8 @@ import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
 import eu.compassresearch.ide.pog.POConstants;
 import eu.compassresearch.ide.ui.utility.CmlProjectUtil;
 import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligationList;
+import eu.compassresearch.core.analysis.theoremprover.thms.NodeNameList;
+import eu.compassresearch.core.analysis.theoremprover.utils.UnhandledSyntaxException;
 import eu.compassresearch.core.analysis.theoremprover.visitors.TPVisitor;
 
 public class TPPluginDoStuff {
@@ -55,7 +57,7 @@ public class TPPluginDoStuff {
 		{
 			IProject proj = TPPluginUtils.getCurrentlySelectedProject();
 			if (proj == null) {
-				popErrorMessage("No CML project is selected.");
+				popErrorMessage("Can not produce theory file for theorem Proving.\n\n No CML project is selected.");
 				return;
 			}
 			
@@ -64,7 +66,7 @@ public class TPPluginDoStuff {
 			
 			//Check there are no type errors.
 			if (!CmlProjectUtil.typeCheck(this.window.getShell(), cmlProj)) {
-				popErrorMessage("Can not produce theory file for theorem Proving. \n There are type errors in model.");
+				popErrorMessage("Can not produce theory file for theorem Proving.\n\n There are type errors in model.");
 				return;
 			}
 			//Grab the model from the project
@@ -158,21 +160,32 @@ public class TPPluginDoStuff {
 	private IFile translateCmltoThy(ICmlModel model, IFile outputFile, String thyFileName) 
 			throws IOException, AnalysisException
 	{
-		String thmString = TPVisitor.generateThyStr(model.getAst(), thyFileName);
-		
+		String thmString = "";
 		try
 		{
-			outputFile.delete(true, null);
-			outputFile.create(new ByteArrayInputStream(thmString.toString().getBytes()), true, new NullProgressMonitor());
-			
-			//set .thy file to be read only
-			ResourceAttributes attributes = new ResourceAttributes();
-			attributes.setReadOnly(true);
-			outputFile.setResourceAttributes(attributes); 
-
-		}catch(CoreException e)
+			thmString = TPVisitor.generateThyStr(model.getAst(), thyFileName);
+		}
+		catch (UnhandledSyntaxException use)
 		{
-			Activator.log(e);
+			thmString = use.getString();
+			popErrorMessage(use.getErrorString());
+		}
+		finally
+		{			
+			try
+			{
+				outputFile.delete(true, null);
+				outputFile.create(new ByteArrayInputStream(thmString.toString().getBytes()), true, new NullProgressMonitor());
+				
+				//set .thy file to be read only
+				ResourceAttributes attributes = new ResourceAttributes();
+				attributes.setReadOnly(true);
+				outputFile.setResourceAttributes(attributes); 
+	
+			}catch(CoreException e)
+			{
+				Activator.log(e);
+			}
 		}
 		
 		return outputFile;
@@ -422,8 +435,7 @@ public class TPPluginDoStuff {
 	
 
 	private void popErrorMessage(String message) {
-		MessageDialog.openInformation(window.getShell(), "COMPASS",
-				"Could not generate THY.\n\n" + message);
+		MessageDialog.openInformation(window.getShell(), "COMPASS", message);
 	}
 	
 	/**

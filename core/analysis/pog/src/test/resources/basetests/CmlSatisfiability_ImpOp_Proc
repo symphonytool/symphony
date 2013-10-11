@@ -1,0 +1,22 @@
+-- This test exercises the generation of a CmlSatisfiabilityObligation
+-- off a Process Definition and an Implicit Operation Definition
+
+
+process P =
+begin
+state
+  st1 : nat := 1
+  
+operations
+
+Op1(a: nat, b : nat)
+frame wr st1
+pre a < 0
+post b > a and st1~ = st1 -3
+@ Skip
+end 
+
+
+-- Expected Output: (forall a:nat, b:nat, st1 : nat & 
+--                    (pre_Op1(a, b, st1) => 
+--                            exists newst : nat & post_Op1(a, b, st1, newst1)))

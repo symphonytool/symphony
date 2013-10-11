@@ -37,7 +37,7 @@ public class FunctionCmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase
 		add("functions ExeBorrow2: (int * rat * real) -> int ExeBorrow2(t) == t.#1  f: int * int -> int f(x,y) == x + y");
 		// 12 //negative test. Pattern and parameter mismatch
 		add("functions free: int * int +> int free(status,number,subs) == is not yet specified", true, false);
-	    //13
+		//13
 		add("class test = begin functions fn: int -> int fn(a) == a + 2 pre op1() operations op1: () ==> bool op1()==return true end",true,false);
 	}
 

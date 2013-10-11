@@ -1,0 +1,101 @@
+types
+  String = seq of char
+  Status = <READY> | <BLOCKED>
+  Process :: id: String
+             status : Status
+
+channels
+  admit, wakeup : String
+  init, dispatch, timeout, block, terminate
+
+process ProcessManager =
+begin
+  state
+    running : [String]
+    waiting : seq of Process
+    inv
+      ( running <> nil => forall i in set inds waiting @ waiting(i).id <> running )
+      and
+      ( forall i,j in set inds waiting @ i <> j => waiting(i).id <> waiting(j).id )
+      
+  functions
+    findPos(q: seq of Process,id: String) pos : nat
+      pre  exists p in set (elems q) @ p.id = id
+      post pos in set elems [i | i in set inds q @ q(i) = id]
+      
+    findNext(q: seq of Process) pos : nat
+      pre exists p in set elems q @ p.status = <READY>
+      post 
+        q(pos).status = <READY>
+        and
+        forall i in set {1,...,pos-1} @ q(i).status = <READY>
+        
+    remove(q: seq of Process,pos: nat) r : seq of Process
+      pre  pos in set inds q
+      post r = q(1,...,pos-1) ^ q(pos+1,...,len q)
+      
+  operations
+    Init : () ==> ()
+    Init() ==
+      running := nil ; waiting := []
+
+    Admit(id: String)
+      frame rd running : [String]
+            wr waiting : seq of Process
+      pre   (running <> nil => id <> running)
+            and
+            forall p in set elems waiting @ p.id <> id
+      post  waiting = waiting~ ^ [mk_Process(id,<READY>)]    
+
+    Dispatch(id: String)
+      frame wr running : [String]
+            wr waiting : seq of Process
+      pre   running = nil
+            and
+            exists p in set elems waiting @ p.status = <READY>
+      post  running = waiting~(findNext(waiting~)).id
+            and
+            waiting = remove(waiting~,findNext(waiting~))
+
+    Timeout()
+      frame wr running : [String]
+            wr waiting : seq of Process
+      pre   running <> nil
+      post  waiting = waiting~ ^ [mk_Process(running~,<READY>)]
+            and
+            running = nil
+
+    Block()
+      frame wr running : [String]
+            wr waiting : seq of Process
+      pre   running <> nil
+      post  waiting = waiting~ ^ [mk_Process(running~,<BLOCKED>)]
+            and
+            running = nil
+
+    Wakeup(id: String)
+      frame wr waiting : seq of Process
+      pre   waiting(findPos(waiting,id)).status = <BLOCKED>
+      post  waiting = waiting~ ++ {findPos(waiting~,id) |-> mk_Process(id,<READY>)}
+
+    Terminate()
+      frame wr running : [String]
+      pre   running <> nil
+      post  running = nil
+
+  actions
+    Cycle =
+      ( admit?s -> Admit(s)
+        []
+        dispatch?s -> Dispatch(s)
+        []
+        timeout -> Timeout()
+        []
+        block -> Block()
+        []
+        wakeup?s -> Wakeup(s)
+        []
+        terminate -> Terminate() ) ; Cycle
+@
+  init -> Cycle
+end
