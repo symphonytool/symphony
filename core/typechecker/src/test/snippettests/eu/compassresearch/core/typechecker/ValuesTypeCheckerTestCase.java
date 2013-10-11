@@ -245,10 +245,15 @@ public class ValuesTypeCheckerTestCase extends AbstractTypeCheckerTestCase
 		add("class test = begin values one:bool = isofclass( test , self) end", false);
 		// 115 TODO: So should we support unicode characters in identifiers?
 		add("class evil_letters_æøå = begin values even:int = fn_int_to_int( 10 ) end", false, false);
-
+		// 116
 		add("values a:int = 1 \n b : int = a ");
-
+		// 117
 		add("values k : int = 2 class test = begin state a : int := k end");
+		// 118 reals
+		add("values a : real = 1.0 b : real = 0.01 c : real = 0.0 d : real = 1 / 8 ");
+		//119 rats
+		add("values a : nat = 1  b : nat = 2 c : rat =  a / b");
+		
 	}
 
 	public ValuesTypeCheckerTestCase(String cmlSource, boolean parsesOk,
