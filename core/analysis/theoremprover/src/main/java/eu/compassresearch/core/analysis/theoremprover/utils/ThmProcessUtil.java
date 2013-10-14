@@ -20,6 +20,7 @@ import org.overture.ast.patterns.APatternTypePair;
 import org.overture.ast.patterns.PPattern;
 import org.overture.ast.types.AFunctionType;
 import org.overture.ast.types.AOperationType;
+import org.overture.ast.types.AVoidType;
 import org.overture.ast.types.PType;
 
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
@@ -568,7 +569,7 @@ public class ThmProcessUtil {
 			}
 			//hack a name for the initialisation op
 			LexNameToken initName = new LexNameToken("", "IsabelleStateInit", act.getLocation());
-			ThmNode stn = new ThmNode(initName, initExprNodeDeps, new ThmExplicitOperation(initName.getName(), new LinkedList<PPattern>(), null, null, initExpStr.toString()));
+			ThmNode stn = new ThmNode(initName, initExprNodeDeps, new ThmExplicitOperation(initName.getName(), new LinkedList<PPattern>(), null, null, initExpStr.toString(), null));
 			actTnl.add(stn);		
 			
 			mainActStateStr = " = `IsabelleStateInit; ";
@@ -792,7 +793,13 @@ public class ThmProcessUtil {
 				nodeDeps.addAll(ThmTypeUtil.getIsabelleTypeDeps(p.getType()));
 			}	
 			//Add return type(s) to dependancy list and list of bound values
-			for(APatternTypePair p : imOp.getResult())
+			LinkedList<APatternTypePair> res = imOp.getResult();
+			String resType = null;
+			if (res != null && !(res.isEmpty()) && res.getFirst()!= null)
+			{
+				resType = ThmTypeUtil.getIsabelleType(res.getFirst().getType());
+			}
+			for(APatternTypePair p : res)
 			{
 				bvars.add(((AIdentifierPattern) p.getPattern()).getName());
 				nodeDeps.addAll(ThmTypeUtil.getIsabelleTypeDeps(p.getType()));
@@ -812,7 +819,7 @@ public class ThmProcessUtil {
 				nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, imOp.getPostcondition()));
 
 			}
-			tn = new ThmNode(imOp.getName(), nodeDeps, new ThmImplicitOperation(imOp.getName().toString(), params, pre, post));
+			tn = new ThmNode(imOp.getName(), nodeDeps, new ThmImplicitOperation(imOp.getName().toString(), params, pre, post, res, resType));
 		}
 		else if (op instanceof AExplicitCmlOperationDefinition)
 		{
@@ -852,8 +859,13 @@ public class ThmProcessUtil {
 				nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, exOp.getPostcondition()));
 
 			}
+			String resType = null;
+			if(! (exOp.getActualResult() instanceof AVoidType))
+			{
+				resType = ThmTypeUtil.getIsabelleType(exOp.getActualResult());
+			}
 			
-			tn = new ThmNode(exOp.getName(), nodeDeps, new ThmExplicitOperation(exOp.getName().toString(), params, pre, post, body.toString()));
+			tn = new ThmNode(exOp.getName(), nodeDeps, new ThmExplicitOperation(exOp.getName().toString(), params, pre, post, body.toString(), resType));
 		}
 		return tn;
 	}

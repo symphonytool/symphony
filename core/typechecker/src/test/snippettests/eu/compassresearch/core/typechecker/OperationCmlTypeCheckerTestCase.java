@@ -50,10 +50,10 @@ public class OperationCmlTypeCheckerTestCase extends
 		// 17 Ticket: #90 Type Checker cannot determine type for pattern of 1 in cases statement
 		add("class A = begin operations op1: int ==> () op1(v) == cases v: 1 -> Skip end end", true, true);
 		// 18
-//		add("class A = begin operations op1: () ==> () op1() == Skip pre op1() end", true, true);
-		add("class A = begin operations op1: () ==> bool op1() == return true pre op1() end", true, true);
-// 19 Ticket: https://sourceforge.net/p/compassresearch/tickets/103/
-		add("process A = begin operations op1: () ==> bool op1() == return true pre op1() @ Skip end", true, true);
+		//		add("class A = begin operations op1: () ==> () op1() == Skip pre op1() end", true, true);
+		add("class A = begin operations op1: () ==> bool op1() == return true pre op1() end", true, false);
+		// 19 Ticket: https://sourceforge.net/p/compassresearch/tickets/103/
+		add("process A = begin operations op1: () ==> bool op1() == return true pre op1() @ Skip end", true, false);
 	}
 
 	public OperationCmlTypeCheckerTestCase(String cmlSource, boolean parsesOk,

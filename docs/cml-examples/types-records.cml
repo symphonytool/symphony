@@ -1,0 +1,5 @@
+types
+  k1 ::
+  k2 ::
+  con :: b : bool
+  mytype = k1 | k2 | con

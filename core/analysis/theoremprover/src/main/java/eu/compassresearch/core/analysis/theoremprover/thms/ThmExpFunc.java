@@ -26,19 +26,13 @@ public class ThmExpFunc extends ThmDecl {
 	{
 		this.name = name;
 		this.pattern = pattern;
-		this.expr = fixFuncExpr(expr,pattern);
-		this.preParamList = getPreParamList(pattern);
-		this.postParamList = getPostParamList(pattern);
-		if(post == null)
-			this.post = createPostFunc(name, "true", pattern);
-		else 
-			//generate function for postcondition
-			this.post = createPostFunc(name, post, pattern);
-		if(pre == null)
-			this.pre = createPreFunc(name, "true", pattern);
-		else 
-			//generate function for precondition
-			this.pre = createPreFunc(name, pre, pattern);
+		this.expr = fixParamRefs(expr,pattern);
+		this.preParamList = getPrePostParamList(pattern, "pre");
+		this.postParamList = getPrePostParamList(pattern, "post");
+		//generate function for postcondition
+		this.post = createPrePostFunc(name, post, pattern, "post");
+		//generate function for precondition
+		this.pre = createPrePostFunc(name, pre, pattern, "pre");
 		this.resType = resType;
 	}
 	
@@ -53,7 +47,7 @@ public class ThmExpFunc extends ThmDecl {
 	{
 		this.name = name;
 		this.pattern = pattern;
-		this.expr = fixFuncExpr(expr,pattern);
+		this.expr = fixParamRefs(expr,pattern);
 	}
 	
 
@@ -65,7 +59,7 @@ public class ThmExpFunc extends ThmDecl {
 	 * @param pattern - the parameters
 	 * @return the new, fixed string
 	 */
-	private String fixFuncExpr(String ex, LinkedList<List<PPattern>> pattern){
+	private String fixParamRefs(String ex, LinkedList<List<PPattern>> pattern){
 		int count = 1;
 		
 		for (List<PPattern> pat : pattern)
@@ -89,30 +83,22 @@ public class ThmExpFunc extends ThmDecl {
 	 * Method to create a pre/post function for the Explicitly defined function 
 	 * @param name
 	 * @param exp
-	 * @param params
-	 * @return
-	 */
-	private String createPreFunc(String name, String exp, LinkedList<List<PPattern>> params)
-	{
-		//Create a simple function for the precondition
-		ThmExpFunc preFunc = new ThmExpFunc(("pre_" + name), exp, params);
-		return preFunc.getRefFunction();
-	}
-	
-	/*****
-	 * Method to create a pre/post function for the Explicitly defined function 
-	 * @param name
-	 * @param exp
 	 * @param prepost
 	 * @param params
 	 * @return
 	 */
-	private String createPostFunc(String name, String exp, LinkedList<List<PPattern>> params)
-	{				
-		String postExpr = fixPostFuncExpr(exp, params);
-		
+	private String createPrePostFunc(String name, String exp, LinkedList<List<PPattern>> params, String prepost)
+	{	
+		if (exp == null)
+		{
+			exp = "true";
+		}
+		if (prepost.equals("post"))
+		{
+			exp = fixPostFuncExpr(exp, params);
+		}		
 		//Create a simple function for the precondition
-		ThmExpFunc prePostFunc = new ThmExpFunc(("post_" + name), postExpr, params);
+		ThmExpFunc prePostFunc = new ThmExpFunc((prepost + "_" + name), exp, params);
 		return prePostFunc.getRefFunction();
 	}
 	
@@ -148,46 +134,13 @@ public class ThmExpFunc extends ThmDecl {
 	}
 	
 	
-	
-	
-	
-	/*****
-	 * Method to create the parameter list used in the explicit function - used when
-	 * calling the pre/post functions
-	 * @param paras
-	 * @return
-	 */
-	public String getPreParamList(LinkedList<List<PPattern>> paras){
-		
-		StringBuilder sb = new StringBuilder();
-		sb.append("(");
-		for (List<PPattern> para : paras)
-		{
-			for (Iterator<PPattern> itr = para.listIterator(); itr.hasNext(); ) {
-				
-				PPattern pat = itr.next();
-				sb.append("^");
-				sb.append(((AIdentifierPattern) pat).getName().toString());
-				sb.append("^");
-				//If there are remaining parameters, add a ","
-				if(itr.hasNext()){	
-					sb.append(", ");
-				}
-			}
-		}
-		sb.append(")");
-		
-		return fixFuncExpr(sb.toString(), paras);
-	}
-	
-	
 	/*****
 	 * Method to create the parameter list used in the explicit function - used when
 	 * calling the post functions
 	 * @param paras
 	 * @return
 	 */
-	public String getPostParamList(LinkedList<List<PPattern>> params){
+	private String getPrePostParamList(LinkedList<List<PPattern>> params, String prepost){
 		
 		StringBuilder sb = new StringBuilder();
 		sb.append("(");
@@ -206,10 +159,14 @@ public class ThmExpFunc extends ThmDecl {
 				}
 			}
 		}
-		sb.append(", ^RESULT^");
+		//if there is a result value
+		if (prepost.equals("post"))
+		{
+			sb.append(", ^RESULT^");
+		}
 		sb.append(")");
 
-		return fixFuncExpr(sb.toString(), params);
+		return fixParamRefs(sb.toString(), params);
 	}
 
 	/****

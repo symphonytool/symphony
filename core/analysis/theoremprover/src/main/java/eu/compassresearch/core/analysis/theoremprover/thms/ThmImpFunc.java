@@ -24,94 +24,41 @@ public class ThmImpFunc extends ThmDecl {
 	public ThmImpFunc(String name, String post, String pre, LinkedList<APatternListTypePair> params, APatternTypePair res , String resType)
 	{
 		this.name = name;
-		this.preParamList = getPreParamList(params);
-		this.postParamList = getPostParamList(params, res);
+		this.preParamList = getPrePostParamList(params, null, "pre");
+		this.postParamList = getPrePostParamList(params, res, "post");
 		this.result = res;
-		if(res != null)
-		{
-			//generate function for postcondition
-			this.post = fixFuncPostExpr(post, res);
-		}
-		if(post == null)
-			this.post = createPostFunc(name, "true", params); //"true";
-		else 
-			this.post = createPostFunc(name, post, params); //fixFuncExpr(post,params);
-		if(pre == null)
-			this.pre = createPreFunc(name, "true", params); //"true";
-		else 
-			this.pre = createPreFunc(name, pre, params); //fixFuncExpr(pre,params);
+		this.post = createPrePostFunc(name, post, params, "post"); //fixFuncExpr(post,params);
+		this.pre = createPrePostFunc(name, pre, params, "pre"); //fixFuncExpr(pre,params);
 		this.resType = resType;
 	}
 
-//	/**
-//	 * Method to change the value names in an expression when they are parameter names
-//	 * This is so that the lambda expression of a function operates as expected. 
-//	 * Parameters are determined by numeric order.
-//	 * @param ex - expression to fix
-//	 * @param pattern - the parameters
-//	 * @return the new, fixed string
-//	 */
-//	private String fixFuncExpr(String ex, LinkedList<APatternListTypePair> pattern){
-//		int count = 1;
-//		for(APatternListTypePair p : pattern )
-//		{
-//			LinkedList<PPattern> pats = p.getPatterns();
-//			//for each parameter, find it in the expression and replace with the lambda value
-//			for(PPattern param : pats )
-//			{
-//				String pName = "^" + ((AIdentifierPattern) param).getName().toString() + "^";
-//				String lambdaName = "^" +ThmTypeUtil.isaFuncLambaVal+"^.#" + count;
-//			
-//				ex = ex.replace(pName, lambdaName);
-//				count++;
-//			}
-//		}
-//	
-//		return ex;
-//	}
-
-	/***
-	 * Method to swap return value name in a postcondition for a Isabelle lambda result name
-	 * @param ex - postcondition expression
-	 * @param res - result of the function
-	 * @return fixed string
+	/**
+	 * Method to change the value names in an expression when they are parameter names
+	 * This is so that the lambda expression of a function operates as expected. 
+	 * Parameters are determined by numeric order.
+	 * @param ex - expression to fix
+	 * @param pattern - the parameters
+	 * @return the new, fixed string
 	 */
-	private String fixFuncPostExpr(String ex, APatternTypePair res){
-		PPattern p = res.getPattern();
-		
-		String pName = "^" + ((AIdentifierPattern) p).getName().toString() + "^";
-		String lambdaName = "^" +ThmTypeUtil.isaFuncLambdaPostVal+"^";
+	private String fixParamRefs(String ex, LinkedList<APatternListTypePair> pattern){
+		int count = 1;
+		for(APatternListTypePair p : pattern )
+		{
+			LinkedList<PPattern> pats = p.getPatterns();
+			//for each parameter, find it in the expression and replace with the lambda value
+			for(PPattern param : pats )
+			{
+				String pName = "^" + ((AIdentifierPattern) param).getName().toString() + "^";
+				String lambdaName = "^" +ThmTypeUtil.isaFuncLambaVal+"^.#" + count;
 			
-		ex = ex.replace(pName, lambdaName);
-
-		//Replace the keyword "RESULT" with the Lambda post value - PROBABLY JUST FOR EXP FUNCS...
-		ex = ex.replace("^RESULT^", "^" + ThmTypeUtil.isaFuncLambdaPostVal + "^");
-		
+				ex = ex.replace(pName, lambdaName);
+				count++;
+			}
+		}
+	
 		return ex;
 	}
-	
 
-
-	/*****
-	 * Method to create a pre/post function for the Explicitly defined function 
-	 * @param name
-	 * @param exp
-	 * @param prepost
-	 * @param params
-	 * @return
-	 */
-	private String createPreFunc(String name, String exp, LinkedList<APatternListTypePair> params)
-	{		
-		LinkedList<List<PPattern>> fixedparams = new LinkedList();
-		
-		for(APatternListTypePair p : params)
-		{
-			fixedparams.add(p.getPatterns());
-		}
-		//Create a simple function for the precondition
-		ThmExpFunc prePostFunc = new ThmExpFunc(("pre_" + name), exp, fixedparams);
-		return prePostFunc.getRefFunction();
-	}
 	
 	/*****
 	 * Method to create a pre/post function for the Explicitly defined function 
@@ -121,21 +68,52 @@ public class ThmImpFunc extends ThmDecl {
 	 * @param params
 	 * @return
 	 */
-	private String createPostFunc(String name, String exp, LinkedList<APatternListTypePair> params)
+	private String createPrePostFunc(String name, String exp, LinkedList<APatternListTypePair> params, String prepost)
 	{		
+		if (exp == null)
+		{
+			exp = "true";
+		}
 		LinkedList<List<PPattern>> fixedparams = new LinkedList();
 		
 		for(APatternListTypePair p : params)
 		{
 			fixedparams.add(p.getPatterns());
 		}
-				
-		String postExpr = fixPostFuncExpr(exp, params);
+
+		if (prepost.equals("post"))
+		{
+			exp = fixPostFuncExpr(exp, params);
+		}
 		
 		//Create a simple function for the precondition
-		ThmExpFunc prePostFunc = new ThmExpFunc(("post_" + name), postExpr, fixedparams);
+		ThmExpFunc prePostFunc = new ThmExpFunc((prepost+ "_" + name), exp, fixedparams);
 		return prePostFunc.getRefFunction();
 	}
+	
+//	/*****
+//	 * Method to create a pre/post function for the Explicitly defined function 
+//	 * @param name
+//	 * @param exp
+//	 * @param prepost
+//	 * @param params
+//	 * @return
+//	 */
+//	private String createPostFunc(String name, String exp, LinkedList<APatternListTypePair> params)
+//	{		
+//		LinkedList<List<PPattern>> fixedparams = new LinkedList();
+//		
+//		for(APatternListTypePair p : params)
+//		{
+//			fixedparams.add(p.getPatterns());
+//		}
+//				
+//		String postExpr = fixPostFuncExpr(exp, params);
+//		
+//		//Create a simple function for the precondition
+//		ThmExpFunc prePostFunc = new ThmExpFunc(("post_" + name), postExpr, fixedparams);
+//		return prePostFunc.getRefFunction();
+//	}
 	
 	
 	/**
@@ -178,7 +156,7 @@ public class ThmImpFunc extends ThmDecl {
 	 * @param paras
 	 * @return
 	 */
-	public String getPreParamList(LinkedList<APatternListTypePair> params){
+	private String getPrePostParamList(LinkedList<APatternListTypePair> params, APatternTypePair res, String prepost){
 		
 		StringBuilder sb = new StringBuilder();
 		sb.append("(");
@@ -204,52 +182,60 @@ public class ThmImpFunc extends ThmDecl {
 			}
 			
 		}
-		sb.append(")");
-		
-		return sb.toString();
-	}
-	/*****
-	 * Method to create the parameter list used in the explicit function - used when
-	 * calling the post functions
-	 * @param paras
-	 * @return
-	 */
-	public String getPostParamList(LinkedList<APatternListTypePair> params, APatternTypePair res){
-		
-		StringBuilder sb = new StringBuilder();
-		sb.append("(");
-		
-		for (Iterator<APatternListTypePair> itr1 = params.listIterator(); itr1.hasNext(); ) {
-			APatternListTypePair p = itr1.next();
-		
-			LinkedList<PPattern> pats = p.getPatterns();
-			for (Iterator<PPattern> itr2 = pats.listIterator(); itr2.hasNext(); ) {
-				
-				PPattern pat = itr2.next();
-				sb.append("^");
-				sb.append(((AIdentifierPattern) pat).getName().toString());
-				sb.append("^");
-				//If there are remaining parameters, add a ","
-				if(itr2.hasNext()){	
-					sb.append(", ");
-				}
-			}
-			//add a "," either more params to come, or for the result
-			sb.append(", ");
-			
-		}
 		//if there is a result value
-		if (res != null)
+		if (prepost.equals("post") && res != null)
 		{
 			//Add the result too
 			PPattern p = res.getPattern();
 		
-			sb.append("^" + ((AIdentifierPattern) p).getName().toString() + "^");
+			sb.append(", ^" + ((AIdentifierPattern) p).getName().toString() + "^");
 		}
 		sb.append(")");
 		
-		return sb.toString();
+		return fixParamRefs(sb.toString(), params);
 	}
+//	/*****
+//	 * Method to create the parameter list used in the explicit function - used when
+//	 * calling the post functions
+//	 * @param paras
+//	 * @return
+//	 */
+//	public String getPostParamList(LinkedList<APatternListTypePair> params, APatternTypePair res){
+//		
+//		StringBuilder sb = new StringBuilder();
+//		sb.append("(");
+//		
+//		for (Iterator<APatternListTypePair> itr1 = params.listIterator(); itr1.hasNext(); ) {
+//			APatternListTypePair p = itr1.next();
+//		
+//			LinkedList<PPattern> pats = p.getPatterns();
+//			for (Iterator<PPattern> itr2 = pats.listIterator(); itr2.hasNext(); ) {
+//				
+//				PPattern pat = itr2.next();
+//				sb.append("^");
+//				sb.append(((AIdentifierPattern) pat).getName().toString());
+//				sb.append("^");
+//				//If there are remaining parameters, add a ","
+//				if(itr2.hasNext()){	
+//					sb.append(", ");
+//				}
+//			}
+//			//add a "," either more params to come, or for the result
+//			sb.append(", ");
+//			
+//		}
+//		//if there is a result value
+//		if (res != null)
+//		{
+//			//Add the result too
+//			PPattern p = res.getPattern();
+//		
+//			sb.append("^" + ((AIdentifierPattern) p).getName().toString() + "^");
+//		}
+//		sb.append(")");
+//		
+//		return fixParamRefs(sb.toString(), params);
+//	}
 	
 	
 	
