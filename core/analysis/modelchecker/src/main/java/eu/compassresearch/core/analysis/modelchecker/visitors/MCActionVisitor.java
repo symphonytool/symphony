@@ -9,6 +9,7 @@ import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.ASetEnumSetExp;
 import org.overture.ast.expressions.AVariableExp;
 import org.overture.ast.expressions.PExp;
+import org.overture.ast.node.INode;
 
 import eu.compassresearch.ast.actions.ABlockStatementAction;
 import eu.compassresearch.ast.actions.ACallStatementAction;
@@ -29,6 +30,7 @@ import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionReplicatedAction;
 import eu.compassresearch.ast.actions.ASignalCommunicationParameter;
+import eu.compassresearch.ast.actions.ASingleGeneralAssignmentStatementAction;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.AStopAction;
 import eu.compassresearch.ast.actions.PAction;
@@ -110,10 +112,11 @@ public class MCActionVisitor extends
 		// "actions\ {ev}" hide(actions,"{ev}")
 		question.getScriptContent().append("hide(");
 		
-		//the internal action mut check if there is some event set to generate lieInEvents
+		//the internal action must check if there is some event set to generate lieInEvents
 		node.getLeft().apply(this, question);
 		question.getScriptContent().append(",");
-		node.getChansetExpression().apply(this, question);
+		//node.getChansetExpression().apply(this, question);
+		node.getChansetExpression().apply(rootVisitor, question);
 		question.getScriptContent().append(")");
 		
 		//it remover the event set from the context at the end
@@ -125,7 +128,9 @@ public class MCActionVisitor extends
 	@Override
 	public StringBuilder caseACommunicationAction(ACommunicationAction node,
 			CMLModelcheckerContext question) throws AnalysisException {
+		
 		//if the communication action does not involves values
+		
 		LinkedList<PCommunicationParameter> parameters = node.getCommunicationParameters();
 		if(parameters.size() == 0){
 			question.getScriptContent().append(
@@ -190,8 +195,8 @@ public class MCActionVisitor extends
 			question.getScriptContent().append("),");
 			
 				
-				//it applies recursivelly in the internal structure
-				node.getAction().apply(this, question);
+			//it applies recursivelly in the internal structure
+			node.getAction().apply(this, question);
 
 				//question.getScriptContent().append("))");
 				question.getScriptContent().append(")");
@@ -216,7 +221,7 @@ public class MCActionVisitor extends
 						//copyCtxt.scriptContent.append(" :- ");
 						//aux.getFirst().apply(this, question);
 						if(channDef != null){
-							channDef.getChanDef().apply(this, copyCtxt);
+							//channDef.getChanDef().apply(this, copyCtxt);
 							//int i = question.getScriptContent().lastIndexOf("_");
 							int i = copyCtxt.getScriptContent().lastIndexOf("_");
 							//question.getScriptContent().replace(i, i+1, parameters.getFirst().toString());
@@ -324,7 +329,8 @@ public class MCActionVisitor extends
 					if(args.size()==1){
 						CMLModelcheckerContext newCtxt = new CMLModelcheckerContext();
 						newCtxt.getScriptContent().append("SPar(");
-						args.getFirst().apply(this, newCtxt);
+						//args.getFirst().apply(this, newCtxt);
+						args.getFirst().apply(rootVisitor, newCtxt);
 						newCtxt.getScriptContent().append(")");
 						callStr.append(newCtxt.getScriptContent().toString());
 					}
@@ -341,7 +347,8 @@ public class MCActionVisitor extends
 					}
 					if(args.size()==1){
 						CMLModelcheckerContext newCtxt = new CMLModelcheckerContext(); 
-						String argStr = args.getFirst().apply(this, newCtxt).toString();
+						//String argStr = args.getFirst().apply(this, newCtxt).toString();
+						String argStr = args.getFirst().apply(rootVisitor, newCtxt).toString();
 						callStr.append(argStr);
 					}
 					callStr.append(")");
@@ -411,7 +418,8 @@ public class MCActionVisitor extends
 	public StringBuilder caseABlockStatementAction(ABlockStatementAction node,
 			CMLModelcheckerContext question) throws AnalysisException {
 		if(node.getDeclareStatement() != null){
-			node.getDeclareStatement().apply(this, question);
+			//node.getDeclareStatement().apply(this, question);
+			node.getDeclareStatement().apply(rootVisitor, question);
 		}
 		node.getAction().apply(this, question);
 		if(node.getDeclareStatement() != null){
@@ -504,7 +512,7 @@ public class MCActionVisitor extends
 	public StringBuilder caseADeclareStatementAction(
 			ADeclareStatementAction node, CMLModelcheckerContext question)
 			throws AnalysisException {
-		node.getAssignmentDefs().getFirst().apply(this,question);
+		node.getAssignmentDefs().getFirst().apply(rootVisitor,question);
 		return question.getScriptContent();
 	}
 	
@@ -540,7 +548,7 @@ public class MCActionVisitor extends
 		question.getScriptContent().append("genPar(");
 		node.getLeftAction().apply(this, question);
 		question.getScriptContent().append(",");
-		node.getChansetExpression().apply(this, question);
+		node.getChansetExpression().apply(rootVisitor, question);
 		question.getScriptContent().append(",");
 		// it writes the right process into the buffer
 		node.getRightAction().apply(this, question);
@@ -595,7 +603,7 @@ public class MCActionVisitor extends
 		String replicatedActionString = replicatedActionBuilder.toString();
 		for (PExp pExp : indexes) {
 			CMLModelcheckerContext argCtxt = new CMLModelcheckerContext();
-			StringBuilder argValue = pExp.apply(this, argCtxt);
+			StringBuilder argValue = pExp.apply(rootVisitor, argCtxt);
 			PAction replicatedAction = node.getReplicatedAction();
 			if(replicatedAction instanceof ACallStatementAction){
 				PExp arg0 = ((ACallStatementAction) replicatedAction).getArgs().getFirst();
@@ -714,7 +722,7 @@ public class MCActionVisitor extends
 			action.apply(this, localCtxt);
 			localCtxt.getScriptContent().append(",");
 			if(replicatedAction instanceof AGeneralisedParallelismReplicatedAction){
-				((AGeneralisedParallelismReplicatedAction) replicatedAction).getChansetExpression().apply(this, localCtxt);
+				((AGeneralisedParallelismReplicatedAction) replicatedAction).getChansetExpression().apply(rootVisitor, localCtxt);
 				localCtxt.getScriptContent().append(",");
 			}
 			StringBuilder rest = buildReplicatedAction(replicatedAction, context,action, kindOfAction,
@@ -723,5 +731,39 @@ public class MCActionVisitor extends
 			localCtxt.getScriptContent().append(")");
 		}
 		return localCtxt.getScriptContent();
+	}
+	
+	@Override
+	public StringBuilder caseASingleGeneralAssignmentStatementAction(
+			ASingleGeneralAssignmentStatementAction node,
+			CMLModelcheckerContext question) throws AnalysisException {
+		
+		question.getScriptContent().append("assign("+CMLModelcheckerContext.ASSIGN_COUNTER +")");
+		//StringBuilder str = new StringBuilder();
+		//this line is generated for this assignment. Each assignment must have a line like this
+		//probably the maximal binding is not ready to be put here and you need to put the assignment information into the context 
+		//str.append("  assignDef(0, "+CMLModelcheckerContext.ASSIGN_COUNTER +", st, st_)  :- State(0,st,name,assign("+CMLModelcheckerContext.ASSIGN_COUNTER+")), st = OLD_BINDING, st_ = NEW_BINDING");
+		//str.append(".\n");
+		
+		question.putVarAttInBinding(Utilities.ASSIGNMENT_DEFINITION_KEY, ""+CMLModelcheckerContext.ASSIGN_COUNTER, node.getStateDesignator().toString(), node.getExpression().toString());
+		
+		CMLModelcheckerContext.ASSIGN_COUNTER++;
+		
+		return question.getScriptContent();
+	}
+	
+	@Override
+	public StringBuilder createNewReturnValue(INode node,
+			CMLModelcheckerContext question) throws AnalysisException
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public StringBuilder createNewReturnValue(Object node,
+			CMLModelcheckerContext question) throws AnalysisException
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

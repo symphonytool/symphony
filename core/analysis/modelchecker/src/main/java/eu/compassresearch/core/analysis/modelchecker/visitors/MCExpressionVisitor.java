@@ -18,6 +18,7 @@ import org.overture.ast.expressions.ASubtractNumericBinaryExp;
 import org.overture.ast.expressions.ATimesNumericBinaryExp;
 import org.overture.ast.expressions.AVariableExp;
 import org.overture.ast.expressions.PExp;
+import org.overture.ast.node.INode;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.expressions.AEnumVarsetExpression;
@@ -28,7 +29,7 @@ public class MCExpressionVisitor extends
 		QuestionAnswerCMLAdaptor<CMLModelcheckerContext, StringBuilder> {
 	
 	final private QuestionAnswerAdaptor<CMLModelcheckerContext, StringBuilder> rootVisitor;
-	
+
 	public MCExpressionVisitor(QuestionAnswerAdaptor<CMLModelcheckerContext, StringBuilder> parentVisitor){
 		this.rootVisitor = parentVisitor;
 	}
@@ -47,11 +48,13 @@ public class MCExpressionVisitor extends
 			CMLModelcheckerContext question) throws AnalysisException {
 		
 		CMLModelcheckerContext localCtxt = new CMLModelcheckerContext(); 
+		//String result = node.getLeft().apply(this, localCtxt).toString();
 		String result = node.getLeft().apply(this, localCtxt).toString();
 		result = eu.compassresearch.core.analysis.modelchecker.graphBuilder.util.Utilities.extractConstructor(result);
 		question.getScriptContent().append(result);
 		question.getScriptContent().append(" + ");
 		localCtxt.reset();
+		//result = node.getRight().apply(this, localCtxt).toString();
 		result = node.getRight().apply(this, localCtxt).toString();
 		result = eu.compassresearch.core.analysis.modelchecker.graphBuilder.util.Utilities.extractConstructor(result);
 		question.getScriptContent().append(result);
@@ -65,12 +68,15 @@ public class MCExpressionVisitor extends
 	public StringBuilder caseASubtractNumericBinaryExp(
 			ASubtractNumericBinaryExp node, CMLModelcheckerContext question)
 			throws AnalysisException {
+		
 		CMLModelcheckerContext localCtxt = new CMLModelcheckerContext(); 
+		//String result = node.getLeft().apply(this, localCtxt).toString();
 		String result = node.getLeft().apply(this, localCtxt).toString();
 		result = eu.compassresearch.core.analysis.modelchecker.graphBuilder.util.Utilities.extractConstructor(result);
 		question.getScriptContent().append(result);
 		question.getScriptContent().append(" - ");
 		localCtxt.reset();
+		//result = node.getRight().apply(this, localCtxt).toString();
 		result = node.getRight().apply(this, localCtxt).toString();
 		result = eu.compassresearch.core.analysis.modelchecker.graphBuilder.util.Utilities.extractConstructor(result);
 		question.getScriptContent().append(result);
@@ -100,7 +106,9 @@ public class MCExpressionVisitor extends
 	@Override
 	public StringBuilder caseAVariableExp(AVariableExp node,
 			CMLModelcheckerContext question) throws AnalysisException {
+		
 		question.getScriptContent().append("Int("+node.getName()+")");
+		
 		return question.getScriptContent();
 	}
 	
@@ -403,6 +411,21 @@ public class MCExpressionVisitor extends
 		int second = question.getScriptContent().indexOf("@");
 		question.getScriptContent().replace(second, second+1, aux2);
 		return question.getScriptContent();
+	}
+	
+	@Override
+	public StringBuilder createNewReturnValue(INode node,
+			CMLModelcheckerContext question) throws AnalysisException
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public StringBuilder createNewReturnValue(Object node,
+			CMLModelcheckerContext question) throws AnalysisException
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 }

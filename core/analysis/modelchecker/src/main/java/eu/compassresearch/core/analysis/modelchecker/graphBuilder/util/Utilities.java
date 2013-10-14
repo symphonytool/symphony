@@ -1,11 +1,20 @@
 package eu.compassresearch.core.analysis.modelchecker.graphBuilder.util;
 
-import eu.compassresearch.core.analysis.modelchecker.graphBuilder.*;
+import java.util.Hashtable;
+import java.util.LinkedList;
+
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.GivenProc;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.ProcDef;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.State;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.BBinding;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.Binding;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.NullBinding;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.SingleBind;
-import eu.compassresearch.core.analysis.modelchecker.graphBuilder.event.*;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.event.BasicEvent;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.event.CommEv;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.event.Event;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.event.IOCom;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.event.Tau;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.expression.EqualBooleanExpression;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.expression.LessThanBooleanExpression;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.expression.NotEqualBooleanExpression;
@@ -25,12 +34,12 @@ import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.IPar;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.IParll;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.IntChoice;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Let;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Operation;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Par;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Parll;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Prefix;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Process;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.ProcessCall;
-import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Operation;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.SeqComposition;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Skip;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Stop;
@@ -45,10 +54,6 @@ import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.T2;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.T3;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Type;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.UndefinedValue;
-
-
-import java.util.Hashtable;
-import java.util.LinkedList;
 
 public class Utilities {
 	
