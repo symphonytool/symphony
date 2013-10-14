@@ -81,12 +81,14 @@ public class CmlOperationValue extends OperationValue
 	private static AImplicitOperationDefinition convertToVDMDefinition(
 			AImplicitCmlOperationDefinition def)
 	{
-		return new AImplicitOperationDefinition(def.getLocation(), def.getName().clone(), def.getNameScope(), def.getUsed(), def.getClassDefinition() != null ? def.getClassDefinition().clone()
-				: null, def.getAccess().clone(), def.getPass(), (List<? extends APatternListTypePair>) def.getParameterPatterns().clone(), def.getResult().size() > 0 ? def.getResult().get(0)
-				: null, null, // body
-		def.getExternals(), def.getPrecondition() != null ? def.getPrecondition().clone()
-				: null, def.getPostcondition() != null ? def.getPostcondition().clone()
-				: null, def.getErrors(), def.getType(), def.getPredef(), def.getPostdef(), def.getState(), def.getActualResult(), def.getStateDefinition(), def.getIsConstructor());
+		return new AImplicitOperationDefinition(def.getLocation(), def.getName().clone(), def.getNameScope(), def.getUsed(), 
+				def.getClassDefinition() != null ? def.getClassDefinition().clone()	: null, def.getAccess().clone(), 
+						def.getPass(), (List<? extends APatternListTypePair>) def.getParameterPatterns().clone(), 
+						def.getResult().size() > 0 ? def.getResult().get(0)	: null, 
+								null, // body
+								def.getExternals(), def.getPrecondition() != null ? def.getPrecondition().clone() : null, 
+										def.getPostcondition() != null ? def.getPostcondition().clone() : null, 
+												def.getErrors(), def.getType().clone(), def.getPredef(), def.getPostdef(), def.getState(), def.getActualResult(), def.getStateDefinition(), def.getIsConstructor());
 	}
 
 	// public CmlOperationValue(AImplicitCmlOperationDefinition def,
@@ -149,8 +151,7 @@ public class CmlOperationValue extends OperationValue
 			return new CmlOperationValue(expldef, state);
 		} else
 		{
-			return null;
-			// return new CmlOperationValue(impldef, state);
+			return new CmlOperationValue(impldef, state);
 		}
 	}
 
