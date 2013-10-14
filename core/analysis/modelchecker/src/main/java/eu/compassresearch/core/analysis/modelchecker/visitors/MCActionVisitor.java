@@ -759,10 +759,10 @@ public class MCActionVisitor extends
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
 	@Override
 	public StringBuilder createNewReturnValue(Object node,
-			CMLModelcheckerContext question) throws AnalysisException
-	{
+			CMLModelcheckerContext question) throws AnalysisException {
 		// TODO Auto-generated method stub
 		return null;
 	}

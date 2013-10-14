@@ -11,22 +11,18 @@ import eu.compassresearch.core.common.Registry;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 
 /**
- * Very simple LinkedList based TypeIssueHandler that simply collects errors and
- * warnings for future retrieval.
+ * Very simple LinkedList based TypeIssueHandler that simply collects errors and warnings for future retrieval.
  * 
  * @author rwl
- * 
  */
-class CollectingIssueHandler implements TypeIssueHandler {
+class CollectingIssueHandler implements TypeIssueHandler
+{
 
 	/**
-	 * Creating a collecting issue handler assumes you are going to do a fresh
-	 * type checking round.
-	 * 
-	 * 
-	 * 
+	 * Creating a collecting issue handler assumes you are going to do a fresh type checking round.
 	 */
-	CollectingIssueHandler(Registry reg) {
+	CollectingIssueHandler(Registry reg)
+	{
 		errors = new LinkedList<CMLTypeError>();
 		warnings = new LinkedList<CMLTypeWarning>();
 		registry = reg;
@@ -38,18 +34,21 @@ class CollectingIssueHandler implements TypeIssueHandler {
 	private final Registry registry;
 
 	@Override
-	public List<CMLTypeError> getTypeErrors() throws IllegalStateException {
+	public List<CMLTypeError> getTypeErrors() throws IllegalStateException
+	{
 		return errors;
 	}
 
 	@Override
-	public List<CMLTypeWarning> getTypeWarnings() throws IllegalStateException {
+	public List<CMLTypeWarning> getTypeWarnings() throws IllegalStateException
+	{
 		return warnings;
 	}
 
 	@SuppressWarnings("deprecation")
 	@Override
-	public AErrorType addTypeError(INode offendingSubtree, String message) {
+	public AErrorType addTypeError(INode offendingSubtree, String message)
+	{
 		CMLTypeError error = new CMLTypeError(offendingSubtree, message);
 		this.errors.add(error);
 		addIssueToRegistryForNode(offendingSubtree, registry, error);
@@ -57,9 +56,11 @@ class CollectingIssueHandler implements TypeIssueHandler {
 	}
 
 	private static void addIssueToRegistryForNode(INode node, Registry reg,
-			CMLIssue error) {
+			CMLIssue error)
+	{
 		CMLIssueList errors = reg.lookup(node, CMLIssueList.class);
-		if (errors == null) {
+		if (errors == null)
+		{
 			errors = new CMLIssueList();
 			reg.store(node, errors);
 		}
@@ -67,30 +68,36 @@ class CollectingIssueHandler implements TypeIssueHandler {
 	}
 
 	@Override
-	public void addTypeWarning(INode hazardousSubtree, String message) {
+	public void addTypeWarning(INode hazardousSubtree, String message)
+	{
 		CMLTypeWarning warning = new CMLTypeWarning(hazardousSubtree, message);
 		this.warnings.add(warning);
 		addIssueToRegistryForNode(hazardousSubtree, registry, warning);
 	}
 
 	@Override
-	public boolean hasErrors() {
+	public boolean hasErrors()
+	{
 		return !errors.isEmpty();
 	}
 
 	@Override
-	public boolean hasWarnings() {
+	public boolean hasWarnings()
+	{
 		return !warnings.isEmpty();
 	}
 
 	@Override
-	public boolean hasIssues() {
+	public boolean hasIssues()
+	{
 		return hasErrors() || hasWarnings();
 	}
 
 	@SuppressWarnings("deprecation")
 	@Override
-	public AErrorType addTypeError(INode parent, ILexLocation location, String message) {
+	public AErrorType addTypeError(INode parent, ILexLocation location,
+			String message)
+	{
 		CMLTypeError typeError = new CMLTypeError(parent, message);
 		typeError.setLocation(location);
 		this.errors.add(typeError);

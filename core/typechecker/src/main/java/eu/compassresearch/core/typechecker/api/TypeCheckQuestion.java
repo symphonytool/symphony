@@ -10,11 +10,10 @@ import org.overture.ast.types.PType;
 /**
  * The CML environment.
  * 
- * 
  * @author rwl
- * 
  */
-public interface TypeCheckQuestion {
+public interface TypeCheckQuestion
+{
 
 	/**
 	 * Given a name lookup the corresponding type in the type environment
@@ -41,8 +40,7 @@ public interface TypeCheckQuestion {
 	public abstract PDefinition lookupChannel(ILexIdentifierToken ident);
 
 	/**
-	 * Add a mapping from the given name and channel declaration to the channel
-	 * environment.
+	 * Add a mapping from the given name and channel declaration to the channel environment.
 	 * 
 	 * @param name
 	 * @param channel
@@ -59,8 +57,7 @@ public interface TypeCheckQuestion {
 	public abstract PDefinition lookupVariable(ILexIdentifierToken name);
 
 	/**
-	 * Add mapping from the given name to the given variable definition to the
-	 * variable environment.
+	 * Add mapping from the given name to the given variable definition to the variable environment.
 	 * 
 	 * @param name
 	 * @param variable
@@ -69,8 +66,7 @@ public interface TypeCheckQuestion {
 			PDefinition variable);
 
 	/**
-	 * Create a new scope. This only affects the variables evironment types and
-	 * channels are global.
+	 * Create a new scope. This only affects the variables evironment types and channels are global.
 	 * 
 	 * @param surroundingDefinition
 	 *            - The definition that defines and encapsulates this scope
@@ -80,24 +76,22 @@ public interface TypeCheckQuestion {
 			SClassDefinition surroundingDefinition);
 
 	/**
-	 * Takes an INode and set the module parameter to the current scope. The
-	 * top-level scope for CML should be hardcoded to "Default" and a special
-	 * scope named CML should be enforced for language specific constructs like
-	 * basic types. For example basic types exists in the CML namespace thus we
-	 * have CML`int, CML`bool etc...
+	 * Takes an INode and set the module parameter to the current scope. The top-level scope for CML should be hardcoded
+	 * to "Default" and a special scope named CML should be enforced for language specific constructs like basic types.
+	 * For example basic types exists in the CML namespace thus we have CML`int, CML`bool etc...
 	 * 
 	 * @param treenode
 	 */
 	public abstract void updateContextNameToCurrentScope(INode treenode);
 
 	/**
-	 * Translate this environment to an appropriate Overture environment for
-	 * type checking expressions in the current context.
+	 * Translate this environment to an appropriate Overture environment for type checking expressions in the current
+	 * context.
 	 * 
 	 * @return Overture Environment
 	 * @throws AnalysisException
-	 *             - if the variable and type environment contains overlapping
-	 *             names this function may throw an analysis exception
+	 *             - if the variable and type environment contains overlapping names this function may throw an analysis
+	 *             exception
 	 */
 	public abstract org.overture.typechecker.Environment getOvertureEnvironment()
 			throws AnalysisException;

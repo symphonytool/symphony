@@ -7,8 +7,10 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 @RunWith(value = Parameterized.class)
-public class TypesCmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase {
-	static {
+public class TypesCmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase
+{
+	static
+	{
 		// 0//
 		add("types A = real");
 		// 1//
@@ -95,7 +97,7 @@ public class TypesCmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase {
 		// 40//
 		add("types A = int | token inv a == a > 0");
 		// 41//
-		add("types T = int * rat * real inv t == t.#1 > 0 and t.#2 < 22/7 and 3.1415");
+		add("types T = int * rat * real inv t == t.#1 > 0 and t.#2 < 22/7 and 3.1415", true, false);
 		// 42//
 		add("types T=[int] inv t == t <> nil");
 		// 43//
@@ -116,20 +118,24 @@ public class TypesCmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase {
 		add("types R :: r : int inv r == r.r>0");
 		// 51// set type w. invariant
 		add("types C = set of int inv c == c = {1,2,3}");
-		//52 //Negative test: Check for duplicated type defs
+		// 52 //Negative test: Check for duplicated type defs
 		add("types A = nat A = bool B = bool B = rat", true, false);
-		//53 //Multiple type defs
+		// 53 //Multiple type defs
 		add("types A = nat B = bool C = bool");
+		// 54 Ticket: #89 TypeChecker too aggressive with tuple selection
+		add("types A = (int*int) | int inv a == a.#1 >0");
 
 	}
 
 	@Parameters
-	public static Collection<Object[]> parameter() {
+	public static Collection<Object[]> parameter()
+	{
 		return testData.get(TypesCmlTypeCheckerTestCase.class);
 	}
 
 	public TypesCmlTypeCheckerTestCase(String cmlSource, boolean parsesOk,
-			boolean typesOk, String[] errorMessages) {
+			boolean typesOk, String[] errorMessages)
+	{
 		super(cmlSource, parsesOk, typesOk, errorMessages);
 	}
 

@@ -89,21 +89,21 @@ public class MCTypeAndValueVisitor extends
 		return question.getScriptContent();
 	}
 
+	
 	@Override
-	public StringBuilder createNewReturnValue(INode arg0,
-			CMLModelcheckerContext arg1) throws AnalysisException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public StringBuilder createNewReturnValue(Object arg0,
-			CMLModelcheckerContext arg1) throws AnalysisException {
+	public StringBuilder createNewReturnValue(INode node,
+			CMLModelcheckerContext question) throws AnalysisException
+	{
 		// TODO Auto-generated method stub
 		return null;
 	}
 	
-	
+	@Override
+	public StringBuilder createNewReturnValue(Object node,
+			CMLModelcheckerContext question) throws AnalysisException {
+		// TODO Auto-generated method stub
+		return null;
+	}	
 	/////  VALUES
 
 }

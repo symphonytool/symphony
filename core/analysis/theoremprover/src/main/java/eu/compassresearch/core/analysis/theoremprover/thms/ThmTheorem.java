@@ -17,6 +17,6 @@ public class ThmTheorem {
 	//	  oops
 	public String toString()
 	{
-		return "theorem " + name + " : \"|" + body + "|\" \n " + proof;  
+		return "theorem " + name + " : \"|" + body + "| = |true|\" \n " + proof;  
 	}
 }

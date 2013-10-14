@@ -21,7 +21,6 @@ import org.overture.ast.types.AIntNumericBasicType;
 import org.overture.ast.types.ANamedInvariantType;
 import org.overture.ast.types.AProductType;
 import org.overture.ast.types.PType;
-
 import eu.compassresearch.ast.actions.ASingleGeneralAssignmentStatementAction;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.actions.PParametrisation;
@@ -480,21 +479,6 @@ public class MCDeclarationAndDefinitionVisitor extends
 		return question.getScriptContent();
 	}
 	
-	@Override
-	public StringBuilder createNewReturnValue(INode node,
-			CMLModelcheckerContext question) throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-	@Override
-	public StringBuilder createNewReturnValue(Object node,
-			CMLModelcheckerContext question) throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	//AUXILIARY METHODS
 	private void generateUserTypeDefinitions(CMLModelcheckerContext context) throws AnalysisException{
 		if(context.typeDefinitions.size() > 0){
@@ -867,5 +851,19 @@ public class MCDeclarationAndDefinitionVisitor extends
 			channelDef.chanDef.apply(rootVisitor, context);
 			context.getScriptContent().append("\n");
 		}
+	}
+	@Override
+	public StringBuilder createNewReturnValue(INode node,
+			CMLModelcheckerContext question) throws AnalysisException
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	@Override
+	public StringBuilder createNewReturnValue(Object node,
+			CMLModelcheckerContext question) throws AnalysisException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

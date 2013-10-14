@@ -1,6 +1,7 @@
 package eu.compassresearch.core.interpreter.api.values;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -13,7 +14,7 @@ public class ChannelNameSetValue extends Value implements Set<ChannelNameValue>
 
 	public ChannelNameSetValue(Set<ChannelNameValue> channelNames)
 	{
-		this.channelNames = channelNames;
+		this.channelNames = new HashSet<ChannelNameValue>(channelNames);
 	}
 
 	@Override

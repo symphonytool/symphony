@@ -36,7 +36,7 @@ public class ConsoleSelectionStrategy implements SelectionStrategy
 	private boolean isSystemSelect(CmlTransitionSet availableChannelEvents)
 	{
 
-		Set<AbstractSilentTransition> silentTransitions = availableChannelEvents.getSilentTransitions();
+		Set<AbstractSilentTransition> silentTransitions = availableChannelEvents.getSilentTransitionsAsSet();
 		// don't let the system run the divergent processes since it will never stop
 		int count = 0;
 
@@ -49,7 +49,7 @@ public class ConsoleSelectionStrategy implements SelectionStrategy
 
 	private CmlTransition systemSelect(CmlTransitionSet availableChannelEvents)
 	{
-		rndSelect.choices(new CmlTransitionSet((Set) availableChannelEvents.getSilentTransitions()));
+		rndSelect.choices(new CmlTransitionSet((Set) availableChannelEvents.getSilentTransitionsAsSet()));
 		return rndSelect.resolveChoice();
 	}
 

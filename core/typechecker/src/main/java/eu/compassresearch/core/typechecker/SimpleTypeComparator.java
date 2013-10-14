@@ -26,31 +26,35 @@ import org.overture.typechecker.Environment;
 
 import eu.compassresearch.core.typechecker.api.TypeComparator;
 
-class SimpleTypeComparator implements TypeComparator {
+class SimpleTypeComparator implements TypeComparator
+{
 
 	/*
-	 * 
 	 * Representation of a pair of types mostly used to return pairs
 	 */
-	private static class TypePair {
+	private static class TypePair
+	{
 		private static final int LARGEST_31_BITS_PRIME = 0x7FFFFFFF;
 		private final PType from;
 		private final PType to;
 
-		public TypePair(PType from, PType to) {
+		public TypePair(PType from, PType to)
+		{
 			this.from = from;
 			this.to = to;
 		}
 
 		@Override
-		public int hashCode() {
+		public int hashCode()
+		{
 			int fromHash = from.hashCode();
 			int toHash = to.hashCode();
 			return ((fromHash + toHash) % LARGEST_31_BITS_PRIME);
 		}
 
 		@Override
-		public boolean equals(Object obj) {
+		public boolean equals(Object obj)
+		{
 			if (!this.getClass().isInstance(obj))
 				return false;
 			TypePair other = this.getClass().cast(obj);
@@ -58,7 +62,8 @@ class SimpleTypeComparator implements TypeComparator {
 		}
 
 		@Override
-		public String toString() {
+		public String toString()
+		{
 			return "(" + from + ", " + to + ")";
 		}
 
@@ -69,7 +74,8 @@ class SimpleTypeComparator implements TypeComparator {
 	 * 
 	 * @return
 	 */
-	public static TypeComparator newInstance() {
+	public static TypeComparator newInstance()
+	{
 		TypeComparator res = new SimpleTypeComparator(null);
 		return res;
 	}
@@ -78,27 +84,27 @@ class SimpleTypeComparator implements TypeComparator {
 	private final Environment typeEnvironment;
 
 	// only created through factory method
-	private SimpleTypeComparator(Environment env) {
+	private SimpleTypeComparator(Environment env)
+	{
 		this.typeEnvironment = env;
 	}
 
 	// PUBLIC Interface
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * eu.compassresearch.core.typechecker.TypeComparator#compatible(java.util
-	 * .List, java.util.List)
+	 * @see eu.compassresearch.core.typechecker.TypeComparator#compatible(java.util .List, java.util.List)
 	 */
 	@Override
-	public boolean compatible(List<PType> to, List<PType> from) {
+	public boolean compatible(List<PType> to, List<PType> from)
+	{
 		// check size
 		if (to.size() != from.size())
 			return false;
 
 		int i = 0;
 
-		for (i = 0; i < to.size(); i++) {
+		for (i = 0; i < to.size(); i++)
+		{
 			boolean c = compatible(to.get(i), from.get(i));
 			if (!c)
 				return false; // the i'th pair are not compatible
@@ -108,12 +114,12 @@ class SimpleTypeComparator implements TypeComparator {
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see eu.compassresearch.core.typechecker.TypeComparator#compatible(eu.
-	 * compassresearch.ast.types.PType, eu.compassresearch.ast.types.PType)
+	 * @see eu.compassresearch.core.typechecker.TypeComparator#compatible(eu. compassresearch.ast.types.PType,
+	 * eu.compassresearch.ast.types.PType)
 	 */
 	@Override
-	public boolean compatible(PType to, PType from) {
+	public boolean compatible(PType to, PType from)
+	{
 		TypePair realTypes = obtainFundamentalTypes(to, from);
 		if (realTypes == null)
 			return false;
@@ -131,19 +137,19 @@ class SimpleTypeComparator implements TypeComparator {
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see eu.compassresearch.core.typechecker.TypeComparator#compatible(eu.
-	 * compassresearch.ast.types.PType, eu.compassresearch.ast.types.PType,
-	 * boolean)
+	 * @see eu.compassresearch.core.typechecker.TypeComparator#compatible(eu. compassresearch.ast.types.PType,
+	 * eu.compassresearch.ast.types.PType, boolean)
 	 */
 	@Override
-	public boolean compatible(PType to, PType from, boolean paramOnly) {
+	public boolean compatible(PType to, PType from, boolean paramOnly)
+	{
 		return false;
 	}
 
 	// map from super types to subtypes
 	private static final Map<Class<?>, List<Class<?>>> fixedSubTypeRelations;
-	static {
+	static
+	{
 		fixedSubTypeRelations = new HashMap<Class<?>, List<Class<?>>>();
 		List<Class<?>> basic = Arrays.asList(new Class<?>[] {
 				ARationalNumericBasicType.class, AIntNumericBasicType.class,
@@ -152,36 +158,31 @@ class SimpleTypeComparator implements TypeComparator {
 		for (Class<?> b : basic)
 			fixedSubTypeRelations.put(b, basic);
 		/*
-		 * 
-		 * 
-		 * fixedSubTypeRelations.put(AIntNumericBasicType.class,
-		 * Arrays.asList(new Class<?>[] { ANatNumericBasicType.class }));
-		 * fixedSubTypeRelations .put(ANatNumericBasicType.class,
-		 * Arrays.asList(new Class<?>[] { ANatOneNumericBasicType.class }));
-		 * fixedSubTypeRelations.put(ARationalNumericBasicType.class,
-		 * Arrays.asList(new Class<?>[] { AIntNumericBasicType.class }));
-		 * fixedSubTypeRelations.put( ARealNumericBasicType.class,
-		 * Arrays.asList(new Class<?>[] { AIntNumericBasicType.class,
-		 * ARationalNumericBasicType.class })); //
-		 * fixedSubTypeRelations.put(ANatNumericBasicType.class,
+		 * fixedSubTypeRelations.put(AIntNumericBasicType.class, Arrays.asList(new Class<?>[] {
+		 * ANatNumericBasicType.class })); fixedSubTypeRelations .put(ANatNumericBasicType.class, Arrays.asList(new
+		 * Class<?>[] { ANatOneNumericBasicType.class })); fixedSubTypeRelations.put(ARationalNumericBasicType.class,
+		 * Arrays.asList(new Class<?>[] { AIntNumericBasicType.class })); fixedSubTypeRelations.put(
+		 * ARealNumericBasicType.class, Arrays.asList(new Class<?>[] { AIntNumericBasicType.class,
+		 * ARationalNumericBasicType.class })); // fixedSubTypeRelations.put(ANatNumericBasicType.class,
 		 * Arrays.asList(new Class<?>[] {ARealNumericBasicType.class}));
 		 */
 	}
 
 	private static boolean checkClosureOnFixedTypeRelation(Class<?> top,
-			Class<?> bottom) {
+			Class<?> bottom)
+	{
 
 		if (top == bottom)
 			return true;
 
-		if (fixedSubTypeRelations.containsKey(top)) {
+		if (fixedSubTypeRelations.containsKey(top))
+		{
 			return fixedSubTypeRelations.get(top).contains(bottom);
 		}
 
 		/*
-		 * if (fixedSubTypeRelations.containsKey(top)) { boolean f = false; for
-		 * (Class<?> candidate : fixedSubTypeRelations.get(top)) f |=
-		 * checkClosureOnFixedTypeRelation(candidate, bottom); return f; }
+		 * if (fixedSubTypeRelations.containsKey(top)) { boolean f = false; for (Class<?> candidate :
+		 * fixedSubTypeRelations.get(top)) f |= checkClosureOnFixedTypeRelation(candidate, bottom); return f; }
 		 */
 
 		return false;
@@ -190,17 +191,19 @@ class SimpleTypeComparator implements TypeComparator {
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see eu.compassresearch.core.typechecker.TypeComparator#isSubType(eu.
-	 * compassresearch.ast.types.PType, eu.compassresearch.ast.types.PType)
+	 * @see eu.compassresearch.core.typechecker.TypeComparator#isSubType(eu. compassresearch.ast.types.PType,
+	 * eu.compassresearch.ast.types.PType)
 	 */
 	@Override
-	public boolean isSubType(PType sub, PType sup) {
+	public boolean isSubType(PType sub, PType sup)
+	{
 		// un-pack types
 		TypePair pair = obtainFundamentalTypes(sup, sub);
 
-		if (pair.from instanceof AMapMapType) {
-			if (pair.to instanceof AMapMapType) {
+		if (pair.from instanceof AMapMapType)
+		{
+			if (pair.to instanceof AMapMapType)
+			{
 				AMapMapType subMap = (AMapMapType) pair.from;
 				AMapMapType supMap = (AMapMapType) pair.to;
 				return isSubType(subMap.getFrom(), supMap.getFrom())
@@ -208,8 +211,10 @@ class SimpleTypeComparator implements TypeComparator {
 			}
 		}
 
-		if (pair.from instanceof AInMapMapType) {
-			if (pair.to instanceof AMapMapType) {
+		if (pair.from instanceof AInMapMapType)
+		{
+			if (pair.to instanceof AMapMapType)
+			{
 				AInMapMapType subMap = (AInMapMapType) pair.from;
 				AMapMapType supMap = (AMapMapType) pair.to;
 				return isSubType(subMap.getFrom(), supMap.getFrom())
@@ -218,8 +223,7 @@ class SimpleTypeComparator implements TypeComparator {
 		}
 
 		// Basic or built-in types can be handled by this
-		boolean fixedTypes = checkClosureOnFixedTypeRelation(
-				pair.from.getClass(), pair.to.getClass());
+		boolean fixedTypes = checkClosureOnFixedTypeRelation(pair.from.getClass(), pair.to.getClass());
 		if (fixedTypes)
 			return true;
 
@@ -234,8 +238,10 @@ class SimpleTypeComparator implements TypeComparator {
 		// TODO: sub type sets
 
 		// sub type sequences
-		if (pair.from instanceof SSeqType) {
-			if (pair.to instanceof SSeqType) {
+		if (pair.from instanceof SSeqType)
+		{
+			if (pair.to instanceof SSeqType)
+			{
 				PType innerFromType = ((SSeqType) pair.from).getSeqof();
 				PType innerToType = ((SSeqType) pair.to).getSeqof();
 				return isSubType(innerToType, innerFromType);
@@ -244,8 +250,10 @@ class SimpleTypeComparator implements TypeComparator {
 		}
 
 		// sub type set
-		if (pair.from instanceof ASetType) {
-			if (pair.to instanceof ASetType) {
+		if (pair.from instanceof ASetType)
+		{
+			if (pair.to instanceof ASetType)
+			{
 				PType innerFromType = ((ASetType) pair.from).getSetof();
 				PType innerToType = ((ASetType) pair.to).getSetof();
 				return isSubType(innerToType, innerFromType);
@@ -256,51 +264,63 @@ class SimpleTypeComparator implements TypeComparator {
 	}
 
 	// Un-pack types (copied from Overture)
-	private TypePair obtainFundamentalTypes(PType to, PType from) {
+	private TypePair obtainFundamentalTypes(PType to, PType from)
+	{
 		boolean resolved = false;
 
-		while (!resolved) {
+		while (!resolved)
+		{
 
-			if (to instanceof ASeqSeqType) {
+			if (to instanceof ASeqSeqType)
+			{
 				PType ofToType = ((ASeqSeqType) to).getSeqof();
-				if (from instanceof ASeqSeqType) {
+				if (from instanceof ASeqSeqType)
+				{
 					PType ofFromType = ((ASeqSeqType) from).getSeqof();
 					to = ofToType;
 					from = ofFromType;
 				}
 			}
 
-			if (to instanceof ASeq1SeqType) {
+			if (to instanceof ASeq1SeqType)
+			{
 				PType ofToType = ((ASeq1SeqType) to).getSeqof();
-				if (from instanceof ASeqSeqType) {
+				if (from instanceof ASeqSeqType)
+				{
 					PType ofFromType = ((ASeqSeqType) from).getSeqof();
 					to = ofToType;
 					from = ofFromType;
 				}
 			}
 
-			if (to instanceof ABracketType) {
+			if (to instanceof ABracketType)
+			{
 				to = ((ABracketType) to).getType();
 				continue;
 			}
 
-			if (from instanceof ABracketType) {
+			if (from instanceof ABracketType)
+			{
 				from = ((ABracketType) from).getType();
 				continue;
 			}
 
-			if (to instanceof ANamedInvariantType) {
+			if (to instanceof ANamedInvariantType)
+			{
 				to = ((ANamedInvariantType) to).getType();
 				continue;
 			}
 
-			if (from instanceof ANamedInvariantType) {
+			if (from instanceof ANamedInvariantType)
+			{
 				from = ((ANamedInvariantType) from).getType();
 				continue;
 			}
 
-			if (to instanceof AOptionalType) {
-				if (from instanceof AOptionalType) {
+			if (to instanceof AOptionalType)
+			{
+				if (from instanceof AOptionalType)
+				{
 					resolved = true;
 					break;
 				}
@@ -309,11 +329,13 @@ class SimpleTypeComparator implements TypeComparator {
 				continue;
 			}
 
-			if (from instanceof AOptionalType) {
+			if (from instanceof AOptionalType)
+			{
 				// Can't assign nil to a non-optional type? This should maybe
 				// generate a warning here?
 
-				if (to instanceof AOptionalType) {
+				if (to instanceof AOptionalType)
+				{
 					resolved = true;
 					break;
 				}

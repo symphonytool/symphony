@@ -26,32 +26,36 @@ import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 
 @SuppressWarnings("serial")
-public class CollectGlobalStateClass extends AnalysisCMLAdaptor {
+public class CollectGlobalStateClass extends AnalysisCMLAdaptor
+{
 
 	private final Collection<PDefinition> members;
 	private final Collection<PDefinition> channels;
 	private final CmlTypeCheckerAssistantFactory af = new CmlTypeCheckerAssistantFactory();
 
-	public static class GlobalDefinitions {
+	public static class GlobalDefinitions
+	{
 		public final Collection<PDefinition> definitions;
 		public final Collection<PDefinition> channels;
 
 		private GlobalDefinitions(Collection<PDefinition> defs,
-				Collection<PDefinition> chns) {
+				Collection<PDefinition> chns)
+		{
 			this.definitions = defs;
 			this.channels = chns;
 		}
 	}
 
 	public static GlobalDefinitions getGlobalRoot(Collection<PSource> sources,
-			TypeIssueHandler issueHandler) throws AnalysisException {
+			TypeIssueHandler issueHandler) throws AnalysisException
+	{
 
 		// Create visitor and visit each source collecting global definitions
 		List<PDefinition> members = new LinkedList<PDefinition>();
 		List<PDefinition> channels = new LinkedList<PDefinition>();
-		CollectGlobalStateClass me = new CollectGlobalStateClass(members,
-				channels);
-		for (PSource source : sources) {
+		CollectGlobalStateClass me = new CollectGlobalStateClass(members, channels);
+		for (PSource source : sources)
+		{
 			source.apply(me);
 		}
 
@@ -61,103 +65,107 @@ public class CollectGlobalStateClass extends AnalysisCMLAdaptor {
 
 	@Override
 	public void caseAChannelNameDefinition(AChannelNameDefinition node)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 		channels.add(node);
 	}
 
 	@Override
 	public void caseAChannelsDefinition(AChannelsDefinition node)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 
-		LinkedList<AChannelNameDefinition> channels = node
-				.getChannelNameDeclarations();
+		LinkedList<AChannelNameDefinition> channels = node.getChannelNameDeclarations();
 		for (AChannelNameDefinition channel : channels)
 			channel.apply(this);
 	}
 
 	@Override
-	public void defaultPSource(PSource node) throws AnalysisException {
+	public void defaultPSource(PSource node) throws AnalysisException
+	{
 		LinkedList<PDefinition> paragraphs = node.getParagraphs();
-		for (PDefinition paragraph : paragraphs) {
+		for (PDefinition paragraph : paragraphs)
+		{
 			paragraph.apply(this);
 		}
 	}
 
 	private CollectGlobalStateClass(List<PDefinition> members,
-			Collection<PDefinition> channels) {
+			Collection<PDefinition> channels)
+	{
 		this.members = members;
 		this.channels = channels;
 	}
 
 	@Override
 	public void caseACmlClassDefinition(ACmlClassDefinition node)
-			throws AnalysisException {
-		//this will generate all the pre and post defs for functions
+			throws AnalysisException
+	{
+		// this will generate all the pre and post defs for functions
 		SClassDefinitionAssistantTC.implicitDefinitions(node, null);
-		/*		
-		 * 		Overture sets the invariant field on a CmlClassDefinition. This field is 
-		 * 		not used in CML because it uses the ExplicitCmlOperationDefinition instead 
-		 * 		of the ExplicitOperationDefinition in VDM. So we reset it to null
-		 * 
-		 * */
+		/*
+		 * Overture sets the invariant field on a CmlClassDefinition. This field is not used in CML because it uses the
+		 * ExplicitCmlOperationDefinition instead of the ExplicitOperationDefinition in VDM. So we reset it to null
+		 */
 		node.setInvariant(null);
 		members.add(node);
 	}
 
 	@Override
 	public void caseATypesDefinition(ATypesDefinition node)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 
-		List<PDefinition> defs = TCDeclAndDefVisitor
-				.handleDefinitionsForOverture(node);
-		
-		
-		for (PDefinition tdef : defs) {
+		List<PDefinition> defs = TCDeclAndDefVisitor.handleDefinitionsForOverture(node);
+
+		for (PDefinition tdef : defs)
+		{
 			tdef.apply(new ImplicitDefinitionFinder(af), null);
 		}
-		
+
 		members.addAll(defs);
-		super.caseATypesDefinition(node);
 	}
 
 	@Override
 	public void caseAValuesDefinition(AValuesDefinition node)
-			throws AnalysisException {
-		List<PDefinition> defs = TCDeclAndDefVisitor
-				.handleDefinitionsForOverture(node);
+			throws AnalysisException
+	{
+		List<PDefinition> defs = TCDeclAndDefVisitor.handleDefinitionsForOverture(node);
 		members.addAll(defs);
 	}
 
 	@Override
 	public void caseAFunctionsDefinition(AFunctionsDefinition node)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 
-		List<PDefinition> defs = TCDeclAndDefVisitor
-				.handleDefinitionsForOverture(node);
+		List<PDefinition> defs = TCDeclAndDefVisitor.handleDefinitionsForOverture(node);
 
-		for (PDefinition fdef : defs) {
+		for (PDefinition fdef : defs)
+		{
 
 			PDefinition predef = null;
 			PDefinition postdef = null;
-			if (fdef instanceof AExplicitFunctionDefinition) {
-				//this will generate all the pre and post defs
-				AExplicitFunctionDefinitionAssistantTC.implicitDefinitions((AExplicitFunctionDefinition) fdef,null);
+			if (fdef instanceof AExplicitFunctionDefinition)
+			{
+				// this will generate all the pre and post defs
+				AExplicitFunctionDefinitionAssistantTC.implicitDefinitions((AExplicitFunctionDefinition) fdef, null);
 				predef = ((AExplicitFunctionDefinition) fdef).getPredef();
 				postdef = ((AExplicitFunctionDefinition) fdef).getPostdef();
 			}
 
-			if (fdef instanceof AImplicitFunctionDefinition) {
-				//this will generate all the pre and post defs
-//				AImplicitFunctionDefinitionAssistantTC.implicitDefinitions((AImplicitFunctionDefinition) fdef, null);
-				fdef.apply(af.getImplicitDefinitionFinder(),null);
-				
+			if (fdef instanceof AImplicitFunctionDefinition)
+			{
+				// this will generate all the pre and post defs
+				// AImplicitFunctionDefinitionAssistantTC.implicitDefinitions((AImplicitFunctionDefinition) fdef, null);
+				fdef.apply(af.getImplicitDefinitionFinder(), null);
+
 				predef = ((AImplicitFunctionDefinition) fdef).getPredef();
 				postdef = ((AImplicitFunctionDefinition) fdef).getPostdef();
 			}
 
 			if (predef != null)
-				members.addAll(TCDeclAndDefVisitor
-						.handleDefinitionsForOverture(predef));
+				members.addAll(TCDeclAndDefVisitor.handleDefinitionsForOverture(predef));
 			// if (postdef != null)
 			// members.addAll(TCDeclAndDefVisitor.handleDefinitionsForOverture(postdef));
 
@@ -168,19 +176,22 @@ public class CollectGlobalStateClass extends AnalysisCMLAdaptor {
 
 	@Override
 	public void caseAProcessDefinition(AProcessDefinition node)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 		members.add(node);
 	}
 
 	@Override
 	public void caseAChansetDefinition(AChansetDefinition node)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 		channels.add(node);
 	}
 
 	@Override
 	public void caseAChansetsDefinition(AChansetsDefinition node)
-			throws AnalysisException {
+			throws AnalysisException
+	{
 		for (PDefinition d : node.getChansets())
 			d.apply(this);
 	}

@@ -22,11 +22,15 @@ public class PogNameContextVisitor extends AnswerCMLAdaptor<PONameContext>
 	 */
 	private static final long serialVersionUID = 1L;
 
+	//FIXME Add/Incorporate Overture Assistants
+	
 	@Override
 	public PONameContext defaultPDefinition(PDefinition node) throws AnalysisException
 	{
 		return new PONameContext(PDefinitionAssistantTC.getVariableNames(node));
 	}
+	
+	//FIXME Do we need a name handler for friggin' processes?
 
 	@Override
 	public PONameContext caseAActionDefinition(AActionDefinition node)

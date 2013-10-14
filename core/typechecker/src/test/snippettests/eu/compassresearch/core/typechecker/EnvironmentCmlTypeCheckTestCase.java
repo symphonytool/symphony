@@ -8,9 +8,11 @@ import org.junit.runners.Parameterized.Parameters;
 
 @RunWith(value = Parameterized.class)
 public class EnvironmentCmlTypeCheckTestCase extends
-		AbstractTypeCheckerTestCase {
+		AbstractTypeCheckerTestCase
+{
 
-	static {
+	static
+	{
 		add("class K = begin state a: int functions f: int -> int f(x) == let y : int = 10 in x + y + a end");
 		add("values a : int = 2 class K = begin functions f: int -> int f(x) == let y : int = 10 in x + y + a end");
 	}
@@ -20,12 +22,14 @@ public class EnvironmentCmlTypeCheckTestCase extends
 	// }
 
 	public EnvironmentCmlTypeCheckTestCase(String source, boolean parsesOk,
-			boolean typesOk, String[] errorMessages) {
+			boolean typesOk, String[] errorMessages)
+	{
 		super(source, parsesOk, typesOk, errorMessages);
 	}
 
 	@Parameters
-	public static Collection<Object[]> parameter() {
+	public static Collection<Object[]> parameter()
+	{
 		return testData.get(EnvironmentCmlTypeCheckTestCase.class);
 	}
 

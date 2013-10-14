@@ -412,7 +412,8 @@ public class MCExpressionVisitor extends
 		question.getScriptContent().replace(second, second+1, aux2);
 		return question.getScriptContent();
 	}
-	
+
+
 	@Override
 	public StringBuilder createNewReturnValue(INode node,
 			CMLModelcheckerContext question) throws AnalysisException
@@ -420,10 +421,10 @@ public class MCExpressionVisitor extends
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
 	@Override
 	public StringBuilder createNewReturnValue(Object node,
-			CMLModelcheckerContext question) throws AnalysisException
-	{
+			CMLModelcheckerContext question) throws AnalysisException {
 		// TODO Auto-generated method stub
 		return null;
 	}

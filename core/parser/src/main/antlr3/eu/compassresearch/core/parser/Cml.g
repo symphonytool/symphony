@@ -873,6 +873,7 @@ actionDefs returns[AActionsDefinition defs]
     : 'actions' actionDefOptList
         {
             $defs = new AActionsDefinition();
+            $defs.setName(new LexNameToken("", "Actions", extractLexLocation($start)));
             $defs.setActions($actionDefOptList.defs);
         }
     ;
@@ -1608,6 +1609,7 @@ channelDefs returns[AChannelsDefinition defs]
     : 'channels' channelDefOptList
         {
             $defs = new AChannelsDefinition();//location, NameScope.GLOBAL, false, access, null/* Pass */, chanNameDecls);
+            $defs.setName(new LexNameToken("", "Channels", extractLexLocation($start)));
             $defs.setNameScope(NameScope.GLOBAL);
             $defs.setUsed(false);
             $defs.setAccess(getDefaultAccessSpecifier(true, false, extractLexLocation($channelDefs.start)));
@@ -1632,12 +1634,12 @@ channelDef returns[List<AChannelNameDefinition> def]
                 if ($type.type != null) {
                     loc = extractLexLocation(loc, extractLexLocation($type.stop));
                     chanType.setLocation(extractLexLocation($type.start,$type.stop));
-                    chanType.setType($type.type);
+                    chanType.setType($type.type.clone());
                 }    
                 ATypeSingleDeclaration typeDecl = new ATypeSingleDeclaration(loc, NameScope.GLOBAL, idList, chanType);
                 
                 AChannelNameDefinition chanDecl = new AChannelNameDefinition();
-                //chanDecl.setName(??); // not sure if this needs set; one cml.y case has an empty LexNameToken, the other uses the first element of the identifierList
+                chanDecl.setName(new LexNameToken("", id)); // this is ok, as each identifier in the identifierList gets its own ACNDef
                 chanDecl.setNameScope(NameScope.GLOBAL);
                 chanDecl.setUsed(false);            
                 chanDecl.setSingleType(typeDecl);
@@ -1652,6 +1654,7 @@ chansetDefs returns[AChansetsDefinition defs]
     : 'chansets' chansetDefOptList
         {
             $defs = new AChansetsDefinition();
+            $defs.setName(new LexNameToken("", "Chansets", extractLexLocation($start)));
             $defs.setNameScope(NameScope.GLOBAL);
             $defs.setUsed(false);
             $defs.setAccess(getDefaultAccessSpecifier(true, false, extractLexLocation($chansetDefs.start)));
@@ -1837,6 +1840,7 @@ namesetDefs returns[ANamesetsDefinition defs]
     : 'namesets' namesetDefOptList
         {
             $defs = new ANamesetsDefinition();
+            $defs.setName(new LexNameToken("", "Namesets", extractLexLocation($start)));
             $defs.setNameScope(NameScope.GLOBAL);
             $defs.setUsed(false);
             $defs.setAccess(getDefaultAccessSpecifier(true, false, extractLexLocation($namesetDefs.start)));
@@ -1892,6 +1896,7 @@ valueDefs returns[AValuesDefinition defs]
         {
             AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true, false, extractLexLocation($valueDefs.start));
             $defs = new AValuesDefinition(null, NameScope.NAMES, false, access, null, $qualValueDefinitionList.defs);
+            $defs.setName(new LexNameToken("", "Values", extractLexLocation($start)));
         }
     ;
 
@@ -1904,7 +1909,6 @@ qualValueDefinition returns[AValueDefinition def]
 @init { $def = new AValueDefinition(); }
     : QUALIFIER? valueDefinition
         {
-
             $def = $valueDefinition.def;
             if ($def != null) {
               $def.setAccess(extractQualifier($QUALIFIER));
@@ -1930,6 +1934,8 @@ valueDefinition returns[AValueDefinition def]
     : bindablePattern (':' type)? '=' expression
         {
             $def = AstFactory.newAValueDefinition($bindablePattern.pattern, NameScope.LOCAL, $type.type, $expression.exp);
+            // This almost works, but causes a TC crash for some reason; related to bug #91 -jwc/3Oct2013
+            //$def.setName(new LexNameToken("", $bindablePattern.pattern.toString(), $bindablePattern.pattern.getLocation()));
         }
     ;
 
@@ -1938,6 +1944,8 @@ stateDefs returns[AStateDefinition defs]
     : 'state' instanceVariableDefinitionList?
         {
             $defs = new AStateDefinition();
+            // This almost works, but causes a TC crash for some reason; related to bug #91 -jwc/3Oct2013
+            //$defs.setName(new LexNameToken("", "State", extractLexLocation($start)));
             if ($instanceVariableDefinitionList.defs != null)
                 $defs.setStateDefs($instanceVariableDefinitionList.defs);
         }
@@ -1998,16 +2006,17 @@ invariantDefinition returns[AClassInvariantDefinition def]
     ;
 
 functionDefs returns[AFunctionsDefinition defs]
-@after { $defs.setLocation(extractLexLocation($start, $stop));
-         LexNameToken name = new LexNameToken("", new LexIdentifierToken("", false, $defs.getLocation()));
-         $defs.setName(name );
-         }
+@after {
+    $defs.setLocation(extractLexLocation($start, $stop));
+    LexNameToken name = new LexNameToken("", new LexIdentifierToken("", false, $defs.getLocation()));
+    $defs.setName(name );
+}
     : 'functions' qualFunctionDefinitionOptList
         {
             AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true, false, extractLexLocation($functionDefs.start));
-            AFunctionsDefinition functions = new AFunctionsDefinition(null, NameScope.GLOBAL, false, access, null);
-            functions.setFunctionDefinitions($qualFunctionDefinitionOptList.defs);
-            $defs = functions;
+            $defs = new AFunctionsDefinition(null, NameScope.GLOBAL, false, access, null);
+            $defs.setName(new LexNameToken("", "Functions", extractLexLocation($start)));
+            $defs.setFunctionDefinitions($qualFunctionDefinitionOptList.defs);
         }
     ;
 
@@ -2016,37 +2025,45 @@ qualFunctionDefinitionOptList returns[List<PDefinition> defs]
     : (QUALIFIER? functionDefinition
             {
                 $functionDefinition.def.setAccess(extractQualifier($QUALIFIER));
-                ILexLocation loc = extractLexLocation(extractLexLocation($qualFunctionDefinitionOptList.start),
-                                                     $functionDefinition.def.getLocation());
-                $functionDefinition.def.setLocation(loc);
+                if ($QUALIFIER != null) {
+                    ILexLocation loc = extractLexLocation(extractLexLocation($QUALIFIER), $functionDefinition.def.getLocation());
+                    $functionDefinition.def.setLocation(loc);
+                }
                 $defs.add($functionDefinition.def);
+                // This resets the recognition of the QUALIFIER token,
+                // which ANTLR doesn't seem to do for us.  This way
+                // *only* the function for which there was a qualifier
+                // will get tagged with that qualifier, rather than
+                // qualifiers acting as section markers.  I think this
+                // is a bug in ANTLR. -jwc/10Oct2013
+                $QUALIFIER=null;
             }
         )*
     ;
 
 functionDefinition returns[PDefinition def]
-@after { $def.setLocation(extractLexLocation($start, $stop)); 
+@after {
+    $def.setLocation(extractLexLocation($start, $stop)); 
 
-         if ($def instanceof AExplicitFunctionDefinition) {
-	       AExplicitFunctionDefinition f = (AExplicitFunctionDefinition)$def;
-           if (f.getPredef() != null) { 
-              f.getPredef().setName(
-                 new LexNameToken("", new LexIdentifierToken("pre_"+f.getName().getName(), false, f.getLocation())));
-             // f.parent($def);
-           }
-       	   if (f.getPostdef() != null) { 
-       	     f.getPostdef().setName(new LexNameToken("", new LexIdentifierToken("post_"+f.getName().getName(), false, f.getLocation())));
-       	     //f.parent($def);
-       	   }
-         }
-
-        if ($def instanceof AImplicitFunctionDefinition) {
-		   AImplicitFunctionDefinition f = (AImplicitFunctionDefinition)$def;
-       	   if (f.getPredef() != null) f.getPredef().setName(new LexNameToken("", new LexIdentifierToken("pre_"+f.getName().getName(), false, f.getLocation())));
-       	   if (f.getPostdef() != null) f.getPostdef().setName(new LexNameToken("", new LexIdentifierToken("post_"+f.getName().getName(), false, f.getLocation())));
+    if ($def instanceof AExplicitFunctionDefinition) {
+        AExplicitFunctionDefinition f = (AExplicitFunctionDefinition)$def;
+        if (f.getPredef() != null) { 
+            f.getPredef().setName(
+                                  new LexNameToken("", new LexIdentifierToken("pre_"+f.getName().getName(), false, f.getLocation())));
+            // f.parent($def);
         }
+        if (f.getPostdef() != null) { 
+            f.getPostdef().setName(new LexNameToken("", new LexIdentifierToken("post_"+f.getName().getName(), false, f.getLocation())));
+            //f.parent($def);
+        }
+    }
 
-      }
+    if ($def instanceof AImplicitFunctionDefinition) {
+        AImplicitFunctionDefinition f = (AImplicitFunctionDefinition)$def;
+        if (f.getPredef() != null) f.getPredef().setName(new LexNameToken("", new LexIdentifierToken("pre_"+f.getName().getName(), false, f.getLocation())));
+        if (f.getPostdef() != null) f.getPostdef().setName(new LexNameToken("", new LexIdentifierToken("post_"+f.getName().getName(), false, f.getLocation())));
+    }
+}
     : IDENTIFIER (expl=explicitFunctionDefinitionTail | impl=implicitFunctionDefinitionTail)
         {
             if ($expl.tail != null) {
@@ -2308,11 +2325,11 @@ operationDefs returns[AOperationsDefinition defs]
     : 'operations' qualOperationDefOptList
         {
             $defs = new AOperationsDefinition(); // FIXME
+            $defs.setName(new LexNameToken("", "Operations", extractLexLocation($start)));
             $defs.setOperations($qualOperationDefOptList.defs);
             $defs.setNameScope(NameScope.LOCAL);
             $defs.setUsed(false);
             $defs.setAccess(getDefaultAccessSpecifier(true, false, extractLexLocation($operationDefs.start)));
-
         }
     ;
 
@@ -2406,7 +2423,7 @@ typeDefs returns[ATypesDefinition defs]
             $defs = new ATypesDefinition(loc, NameScope.LOCAL, false,
                                          getDefaultAccessSpecifier(true, false, loc),
                                          Pass.TYPES, typeDefList);
-            $defs.setName(new LexNameToken("", $t.getText(), loc));
+            $defs.setName(new LexNameToken("", "Types", loc));
         }
     ;
 
@@ -2420,10 +2437,10 @@ typeDef returns[ATypeDefinition def]
             $def.setAccess(extractQualifier($QUALIFIER));
 
         }
-    | QUALIFIER? IDENTIFIER '::' fieldList invariant?
+    | QUALIFIER? IDENTIFIER '::' fieldOptList invariant?
         {
             LexNameToken name = new LexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER));
-            ARecordInvariantType invType = AstFactory.newARecordInvariantType(name, $fieldList.fieldList);
+            ARecordInvariantType invType = AstFactory.newARecordInvariantType(name, $fieldOptList.fieldList);
             $def = AstFactory.newATypeDefinition(name,invType,$invariant.pattern,$invariant.exp);
             $def.setAccess(extractQualifier($QUALIFIER));
         }
@@ -2460,6 +2477,7 @@ type0 returns[PType type]
             } else {
                 ILexLocation loc = extractLexLocation($first.type.getLocation(), last);
                 AUnionType union = new AUnionType(loc, false, false, false);
+                union.setProdCard(-1);
                 typeList.add(0, $first.type);
                 union.setTypes(typeList);
                 $type = union;
@@ -2485,7 +2503,7 @@ type1 returns[PType type]
 typebase returns[PType type]
 @after { $type.setLocation(extractLexLocation($start, $stop)); }
     : basicType           { $type = $basicType.basicType; }
-    | '(' inside=type ')' { $type = $inside.type; }
+    | '(' inside=type ')' { $type = new ABracketType(null, false, null, $inside.type); }
     | '[' inside=type ']' { $type = new AOptionalType(null, false, null, $inside.type); }
     | QUOTELITERAL
         {
@@ -2506,10 +2524,10 @@ typebase returns[PType type]
     | 'seq1' 'of' sub=typebase                  { $type = new ASeq1SeqType(null, false, null, $sub.type, false); }
     | 'map' from=type 'to' to=typebase      { $type = new AMapMapType(null, false, null, $from.type, $to.type, false); }
     | 'inmap' from=type 'to' to=typebase    { $type = new AInMapMapType(null, false, null, $from.type, $to.type, false); }
-    | 'compose' IDENTIFIER 'of' fieldList 'end'
+    | 'compose' IDENTIFIER 'of' fieldOptList 'end'
         {
             LexNameToken name = new LexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER));
-            $type = new ARecordInvariantType(null, false, null, false, false, null, name, $fieldList.fieldList, false);
+            $type = new ARecordInvariantType(null, false, null, false, false, null, name, $fieldOptList.fieldList, false);
         }
     ;
 
@@ -2524,9 +2542,9 @@ basicType returns[PType basicType]
     | t='token' { $basicType = new ATokenBasicType(extractLexLocation($t), false); }
     ;
 
-fieldList returns[List<AFieldField> fieldList]
+fieldOptList returns[List<AFieldField> fieldList]
 @init { $fieldList = new ArrayList<AFieldField>(); }
-    : ( item=field { $fieldList.add($item.field); } )+
+    : ( item=field { $fieldList.add($item.field); } )*
     ;
 
 field returns[AFieldField field]
@@ -2683,7 +2701,7 @@ recordPattern returns[PPattern pattern]
     : MKUNDER name '(' ( first=pattern { patList.add($first.pattern); } ( ',' patItem=pattern { patList.add($patItem.pattern); } )* )? end=')'
         {
             ILexLocation loc = extractLexLocation($MKUNDER,$end);
-            ARecordPattern recPattern = new ARecordPattern(loc, null, true, $name.name, patList);
+            ARecordPattern recPattern = new ARecordPattern(loc, null, false, $name.name, patList);
             recPattern.setType(AstFactory.newAUnresolvedType($name.name));
             $pattern = recPattern;
         }
