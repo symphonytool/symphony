@@ -1,12 +1,24 @@
 package eu.compassresearch.core.interpreter.api;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.expressions.PExp;
+import org.overture.ast.lex.Dialect;
+import org.overture.ast.types.PType;
+import org.overture.interpreter.runtime.Context;
+import org.overture.interpreter.runtime.Interpreter;
+import org.overture.interpreter.runtime.VdmRuntime;
 import org.overture.interpreter.values.Value;
+import org.overture.parser.lex.LexTokenReader;
+import org.overture.parser.syntax.ExpressionReader;
+import org.overture.typechecker.TypeComparator;
 
 import eu.compassresearch.core.interpreter.api.transitions.AbstractSilentTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
@@ -80,51 +92,64 @@ public class ConsoleSelectionStrategy implements SelectionStrategy
 		if (chosenEvent instanceof LabelledTransition
 				&& !((LabelledTransition) chosenEvent).getChannelName().isPrecise())
 		{
-			LabelledTransition chosenChannelEvent = (LabelledTransition) chosenEvent;
-			ChannelNameValue channnelName = chosenChannelEvent.getChannelName();
-
-			for (int i = 0; i < channnelName.getValues().size(); i++)
-			{
-				Value currentValue = channnelName.getValues().get(i);
-
-				if (!AbstractValueInterpreter.isValueMostPrecise(currentValue))
-				{
-					System.out.println("Enter value : ");
-					Value val;
-					try
-					{
-						val = channnelName.getChannel().getValueTypes().get(i).apply(new ValueParser());
-						channnelName.updateValue(i, val);
-					} catch (AnalysisException e)
-					{
-						e.printStackTrace();
-						System.exit(-1);
-					}
-				}
-			}
+			readChannelNameValues((LabelledTransition) chosenEvent);
 		}
 
 		return chosenEvent;
 	}
 
-	// @Override
-	// public CmlTransition select(CmlTransitionSet availableChannelEvents) {
-	//
-	// //At this point we don't want the internal transition to propagate
-	// //to the user, so we randomly choose all the possible internal transitions
-	// //before we let anything through to the user
-	// if(isSystemSelect(availableChannelEvents) && isHideSilentTransitions())
-	// {
-	// CmlTransition t = systemSelect(availableChannelEvents);
-	// System.out.println("The system picked: " + t);
-	// return t;
-	// }
-	// else{
-	// CmlTransition t = userSelect(availableChannelEvents);
-	// System.out.println("The environment picked: " + t);
-	// return t;
-	// }
-	// }
+	// FIXME this should be moved to the console class not the selection class. This is two different things
+	public static void readChannelNameValues(LabelledTransition chosenEvent)
+	{
+		LabelledTransition chosenChannelEvent = (LabelledTransition) chosenEvent;
+		ChannelNameValue channnelName = chosenChannelEvent.getChannelName();
+
+		for (int i = 0; i < channnelName.getValues().size(); i++)
+		{
+			Value currentValue = channnelName.getValues().get(i);
+
+			if (!AbstractValueInterpreter.isValueMostPrecise(currentValue))
+			{
+				System.out.println("Enter value : ");
+				Value val;
+				try
+				{
+					LexTokenReader ltr = new LexTokenReader(new BufferedReader(new InputStreamReader(System.in)).readLine(), Dialect.VDM_PP);
+					ExpressionReader reader = new ExpressionReader(ltr);
+					reader.setCurrentModule("IO");
+					PExp exp = reader.readExpression();
+
+					Interpreter ip = Interpreter.getInstance();
+					PType expectedType = channnelName.getChannel().getValueTypes().get(i);
+					PType expType = ip.typeCheck(exp, ip.getGlobalEnvironment());
+					if (!TypeComparator.compatible(expectedType, expType))
+					{
+						throw new InterpreterRuntimeException("Wrong expression type read from console. Expected: "
+								+ expectedType + " Actual: " + expType);
+					}
+
+					Context ctxt = chosenEvent.getEventSources().iterator().next().getNextState().second;
+					val = exp.apply(VdmRuntime.getExpressionEvaluator(), ctxt);
+					// type compare
+					channnelName.updateValue(i, val);
+					return;
+				} catch (AnalysisException e)
+				{
+					throw new InterpreterRuntimeException("Analysis error in read user value", e);
+				} catch (IOException e)
+				{
+					throw new InterpreterRuntimeException("IO error in read user value", e);
+				} catch (Exception e)
+				{
+					if (e instanceof InterpreterRuntimeException)
+					{
+						throw (InterpreterRuntimeException) e;
+					}
+					throw new InterpreterRuntimeException("Unknown internal error in read user value", e);
+				}
+			}
+		}
+	}
 
 	public boolean isHideSilentTransitions()
 	{

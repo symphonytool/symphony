@@ -9,6 +9,7 @@ import org.overture.interpreter.values.UndefinedValue;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.core.interpreter.CmlRuntime;
+import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 
 public class ChannelNameValue extends Value
 {
@@ -61,7 +62,7 @@ public class ChannelNameValue extends Value
 		StringBuilder strBuilder = new StringBuilder();
 		strBuilder.append(this.channel.getName());
 		for (Value v : values)
-			strBuilder.append("." + v.toString());
+			strBuilder.append("." + v);
 
 		return strBuilder.toString();
 	}
@@ -225,6 +226,10 @@ public class ChannelNameValue extends Value
 
 	public void updateValue(int index, Value value)
 	{
+		if(value== null)
+		{
+			throw new InterpreterRuntimeException("Null value parsed to channel name value update index: "+index);
+		}
 		values.set(index, value);
 	}
 }
