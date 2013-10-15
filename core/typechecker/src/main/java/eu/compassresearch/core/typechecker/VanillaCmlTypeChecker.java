@@ -25,6 +25,7 @@ import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 import eu.compassresearch.core.typechecker.weeding.SetLocationVisitor;
 import eu.compassresearch.core.typechecker.weeding.Weeding1;
 import eu.compassresearch.core.typechecker.weeding.Weeding2;
+import eu.compassresearch.core.typechecker.weeding.Weeding3UnfoldSingleDeclIdentifiers;
 
 class VanillaCmlTypeChecker extends AbstractTypeChecker
 {
@@ -70,7 +71,7 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker
 	{
 		Settings.release = Release.VDM_10;
 		Settings.dialect = Dialect.VDM_PP;
-		
+
 		// Top type checking
 
 		// [1] Collect all static entities in order:
@@ -101,6 +102,8 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker
 			Weeding1.apply(sourceForest);
 			// W: Stage 2 remove all bracket types
 			Weeding2.apply(sourceForest);
+			// W: Stage 2 unfold identifiers in action definitions, parameter decl single type identifiers
+			Weeding3UnfoldSingleDeclIdentifiers.apply(sourceForest);
 
 			// Collect all Top-level entities
 			GlobalDefinitions globalDefs = CollectGlobalStateClass.getGlobalRoot(sourceForest, issueHandler);

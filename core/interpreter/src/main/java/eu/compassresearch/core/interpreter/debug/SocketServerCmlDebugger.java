@@ -19,24 +19,21 @@ import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ValueException;
-import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.core.interpreter.CmlRuntime;
 import eu.compassresearch.core.interpreter.Console;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
+import eu.compassresearch.core.interpreter.api.ConsoleSelectionStrategy;
 import eu.compassresearch.core.interpreter.api.RandomSelectionStrategy;
 import eu.compassresearch.core.interpreter.api.SelectionStrategy;
-import eu.compassresearch.core.interpreter.api.ValueParser;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.events.CmlInterpreterStateObserver;
 import eu.compassresearch.core.interpreter.api.events.InterpreterStateChangedEvent;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.transitions.LabelledTransition;
-import eu.compassresearch.core.interpreter.api.values.AbstractValueInterpreter;
-import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
 import eu.compassresearch.core.interpreter.debug.messaging.CmlRequest;
 import eu.compassresearch.core.interpreter.debug.messaging.MessageCommunicator;
 import eu.compassresearch.core.interpreter.debug.messaging.MessageContainer;
@@ -187,28 +184,7 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 				if (selectedEvent instanceof LabelledTransition
 						&& !((LabelledTransition) selectedEvent).getChannelName().isPrecise())
 				{
-					LabelledTransition chosenChannelEvent = (LabelledTransition) selectedEvent;
-					ChannelNameValue channnelName = chosenChannelEvent.getChannelName();
-
-					for (int i = 0; i < channnelName.getValues().size(); i++)
-					{
-						Value currentValue = channnelName.getValues().get(i);
-
-						if (!AbstractValueInterpreter.isValueMostPrecise(currentValue))
-						{
-							System.out.println("Enter value : ");
-							Value val;
-							try
-							{
-								val = channnelName.getChannel().getValueTypes().get(i).apply(new ValueParser());
-								channnelName.updateValue(i, val);
-							} catch (AnalysisException e)
-							{
-								e.printStackTrace();
-								System.exit(-1);
-							}
-						}
-					}
+					ConsoleSelectionStrategy.readChannelNameValues((LabelledTransition) selectedEvent);
 				}
 
 				return selectedEvent;
@@ -414,8 +390,9 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 					nextContext = nextContext.outer;
 				}
 				int contextIndex = contextCount;
-				for (Context c : contextStack){
-					if(contextIndex == contextCount)
+				for (Context c : contextStack)
+				{
+					if (contextIndex == contextCount)
 						stackframes.add(new StackFrameDTO(LocationExtractor.extractLocation(foundBehavior.getNextState().first).getStartLine(), c.location.getFile().toURI(), contextIndex--));
 					else
 						stackframes.add(new StackFrameDTO(c.location.getStartLine(), c.location.getFile().toURI(), contextIndex--));
