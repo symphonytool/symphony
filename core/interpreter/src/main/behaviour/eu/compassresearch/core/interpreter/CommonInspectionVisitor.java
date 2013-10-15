@@ -59,34 +59,37 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 	}
 
 	/**
-	 * This syncs any tock event from the children if any and joins all the rest of the 
+	 * This synchronizes any tock event from the children if both are running an and joins all the rest of the 
 	 * events
-	 * @return the joined transitions of the children syncing on tock if possible
+	 * @return The joined transitions of the children syncing on tock if possible
 	 * @throws AnalysisException
 	 */
 	protected CmlTransitionSet syncOnTockAndJoinChildren()
 			throws AnalysisException
 	{
-		// even though they are external choice/interleaving they should always sync on tock
-		CmlTransitionSet cs = new CmlTransitionSet(new TimedTransition());
-
 		// Get all the child alphabets
 		CmlTransitionSet leftChildAlphabet = owner.getLeftChild().inspect();
 		CmlTransitionSet rightChildAlphabet = owner.getRightChild().inspect();
 
-		// Find the intersection between the child alphabets and the channel set and join them.
-		// Then if both left and right have them the next step will combine them.
-		CmlTransitionSet syncAlpha = leftChildAlphabet.intersect(cs).union(rightChildAlphabet.intersect(cs));
-
-		// combine all the tock events
-		if (syncAlpha.getObservableEvents().size() == 2)
+		//if both are running and they both have tock event we sync them 
+		if(!owner.getLeftChild().finished() && !owner.getRightChild().finished() &&
+				leftChildAlphabet.hasTockEvent() && rightChildAlphabet.hasTockEvent())
 		{
-			Iterator<ObservableTransition> it = syncAlpha.getObservableEvents().iterator();
-			// remove the tocks from each action and add them sync'ed tock instead
-			return leftChildAlphabet.union(rightChildAlphabet).subtract(syncAlpha).union(it.next().synchronizeWith(it.next()));
-		} else
+			//get the tocks
+			TimedTransition leftTock = leftChildAlphabet.getTockEvent();
+			TimedTransition rightTock = rightChildAlphabet.getTockEvent();
+			
+			//sync them
+			CmlTransitionSet returnAlpha = new CmlTransitionSet(leftTock.synchronizeWith(rightTock));
+			
+			//remove the old tocks and add the synced one to the result
+			return returnAlpha.union(leftChildAlphabet.subtract(leftTock).
+					union(rightChildAlphabet.subtract(rightTock)));
+		}
+		//else we just joins all the event from both
+		else 
 		{
-			return leftChildAlphabet.union(rightChildAlphabet).subtract(syncAlpha);
+			return  leftChildAlphabet.union(rightChildAlphabet);
 		}
 	}
 

@@ -37,6 +37,8 @@ import eu.compassresearch.ast.actions.AUntimedTimeoutAction;
 import eu.compassresearch.ast.actions.AWaitAction;
 import eu.compassresearch.ast.actions.SReplicatedAction;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
+import eu.compassresearch.ast.process.AAlphabetisedParallelismProcess;
+import eu.compassresearch.ast.process.AAlphabetisedParallelismReplicatedProcess;
 import eu.compassresearch.ast.process.AGeneralisedParallelismProcess;
 import eu.compassresearch.ast.process.AGeneralisedParallelismReplicatedProcess;
 import eu.compassresearch.ast.process.AHidingProcess;
@@ -461,6 +463,40 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 			public INode createLastReplication()
 			{
 				return new AInterleavingProcess(node.getLocation(), node.getReplicatedProcess().clone(), node.getReplicatedProcess().clone());
+			}
+
+		}, question);
+	}
+	
+	@Override
+	public Pair<INode, Context> caseAAlphabetisedParallelismReplicatedProcess(
+			final AAlphabetisedParallelismReplicatedProcess node, final Context question)
+			throws AnalysisException
+	{
+		return caseReplicatedProcess(node, new ReplicationFactory()
+		{
+
+			@Override
+			public INode createNextReplication()
+			{
+				
+				return new AAlphabetisedParallelismProcess(
+						node.getLocation(), 
+						node.getReplicatedProcess().clone(),
+						node.getChansetExpression().clone(), 
+						node.getChansetExpression().clone(),
+						node);
+			}
+
+			@Override
+			public INode createLastReplication()
+			{
+				return new AAlphabetisedParallelismProcess(
+						node.getLocation(), 
+						node.getReplicatedProcess().clone(),
+						node.getChansetExpression().clone(), 
+						node.getChansetExpression().clone(),
+						node);
 			}
 
 		}, question);

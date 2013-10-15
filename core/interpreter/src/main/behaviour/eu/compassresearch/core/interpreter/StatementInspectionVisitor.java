@@ -410,7 +410,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 
 		@SuppressWarnings("deprecation")
 		final ASkipAction skipAction = new ASkipAction(node.getLocation());
-		return newInspection(createTauTransitionWithTime(skipAction), new AbstractCalculationStep(owner, visitorAccess)
+		return newInspection(createTauTransitionWithoutTime(skipAction), new AbstractCalculationStep(owner, visitorAccess)
 		{
 
 			@Override
