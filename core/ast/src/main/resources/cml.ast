@@ -10,7 +10,9 @@ Tokens
 
 Abstract Syntax Tree
 
-source {->  package='eu.compassresearch.ast.program'}
+source {->  package='eu.compassresearch.ast.program'
+		| [paragraphs]: definition* 
+		| (type):type }
       = {file} [name]: java_String (file): java_File
       | {tcpStream} [ip]: java_String [port]: java_String (stream): java_Stream
       | {inputStream} [origin]: java_String (stream): java_Stream
@@ -19,7 +21,9 @@ source {->  package='eu.compassresearch.ast.program'}
 /*
  Declarations
 */
-singleDeclaration {-> package='eu.compassresearch.ast.declarations'}
+singleDeclaration {-> package='eu.compassresearch.ast.declarations'
+		| [location]:location 
+		| [nameScope]:nameScope}
         = {type}
         [identifiers]:LexIdentifierToken*
         (type):type
@@ -113,7 +117,8 @@ definition {-> package='eu.compassresearch.ast.definitions'}
 /*
     Expressions
 */
-exp {-> package='eu.compassresearch.ast.expressions'}
+exp {-> package='eu.compassresearch.ast.expressions'
+	| (isVisited):java_Boolean}
     =   {bracketed} [expression]:exp /*cml*/
     |   {stateInit} (state):definition.state
     |   {tupleSelect} [tuple]:exp [entry]:java_Integer
@@ -132,7 +137,9 @@ exp {-> package='eu.compassresearch.ast.expressions'}
         | {enumeration} [renamePairs]:pair.rename*
     ;
 
-VarsetExpression {-> package='eu.compassresearch.ast.expressions'}
+VarsetExpression {-> package='eu.compassresearch.ast.expressions'
+					| [location]:location 
+					| (type):type}
         = {identifier} [identifier]:LexIdentifierToken
         | {enum} [channelNames]:exp.#Channel.name*
         | {comp} [channelNameExp]:exp.#Channel.name [bindings]:multipleBind* [predicate]:exp
@@ -141,7 +148,10 @@ VarsetExpression {-> package='eu.compassresearch.ast.expressions'}
 	| #VOp
 	;
 
-#VOp {-> package='eu.compassresearch.ast.expressions'}
+#VOp {-> package='eu.compassresearch.ast.expressions'
+		| [left]:VarsetExpression 
+		| [op]:LexToken 
+		| [right]:VarsetExpression}
         = {Union}
         | {Inter}
         | {Sub}
@@ -191,7 +201,8 @@ pair {-> package='eu.compassresearch.ast.patterns'}
 /*
         Process
 */
-process {-> package='eu.compassresearch.ast.process'}
+process {-> package='eu.compassresearch.ast.process'
+		| [location]:location}
         = {action}
                 [definitionParagraphs]:definition*
                 [action]:action
@@ -257,7 +268,9 @@ process {-> package='eu.compassresearch.ast.process'}
         | #Replicated
         ;
 
-#Replicated {-> package='eu.compassresearch.ast.process'}
+#Replicated {-> package='eu.compassresearch.ast.process'
+		| [replicationDeclaration]:singleDeclaration* 
+		| [replicatedProcess]:process}
         = {sequentialComposition}
         | {externalChoice}
         | {internalChoice}
@@ -273,7 +286,9 @@ process {-> package='eu.compassresearch.ast.process'}
 /*
         Actions
 */
-action {-> package='eu.compassresearch.ast.actions'}
+action {-> package='eu.compassresearch.ast.actions'
+		| [location]:location
+		| (type):type}
         = {skip}
         | {stop}
         | {chaos}
@@ -339,7 +354,11 @@ action {-> package='eu.compassresearch.ast.actions'}
                 (actionDefinition):definition.action
         ;
 
-#Parallel {-> package='eu.compassresearch.ast.actions'}
+#Parallel {-> package='eu.compassresearch.ast.actions'
+			| [leftAction]:action
+            | [leftNamesetExpression]:VarsetExpression
+            | [rightNamesetExpression]:VarsetExpression
+            | [rightAction]:action}
         = {interleaving}
         | {generalisedParallelism}
                 [chansetExpression]:VarsetExpression
@@ -349,7 +368,9 @@ action {-> package='eu.compassresearch.ast.actions'}
         | {synchronousParallelism}
         ;
 
-#Replicated {-> package='eu.compassresearch.ast.actions'}
+#Replicated {-> package='eu.compassresearch.ast.actions'
+			| [replicationDeclaration]:singleDeclaration* 
+			| [replicatedAction]:action}
         = {sequentialComposition}
         | {externalChoice}
         | {internalChoice}
@@ -372,13 +393,17 @@ action {-> package='eu.compassresearch.ast.actions'}
         | {parametrised} [action]:action.parametrised  [args]:exp*
         ;
 
-communicationParameter {-> package='eu.compassresearch.ast.actions'}
+communicationParameter {-> package='eu.compassresearch.ast.actions'
+		|	[location]:location 
+		|	[expression]:exp}
         = {read} [pattern]:pattern
         | {write}
         | {signal}
         ;
 
-parametrisation {-> package='eu.compassresearch.ast.actions'}
+parametrisation {-> package='eu.compassresearch.ast.actions'
+		| [location]:location 
+		| [declaration]:singleDeclaration.type}
         = {val}
         | {res}
         | {vres}
@@ -457,54 +482,4 @@ parametrisation {-> package='eu.compassresearch.ast.actions'}
 alternativeAction {-> package='eu.compassresearch.ast.actions'}
     = {case} [location]:location [pattern]:pattern* [result]:action (defs):definition*
     ;
-
-Aspect Declaration
-/* This section allows fields of root types to be declared e.g. exp*/
-
-%action =  [location]:location
-        ;
-
-%exp = (isVisited):java_Boolean
-     ;
-
-%varsetExpression = [location]:location (type):type
-        ;
-
-%varsetExpression->#VOp = [left]:VarsetExpression [op]:LexToken [right]:VarsetExpression
-	;
-
-%action->#Replicated = [replicationDeclaration]:singleDeclaration* [replicatedAction]:action
-        ;
-
-%action->#Parallel =    [leftAction]:action
-                        [leftNamesetExpression]:VarsetExpression
-                        [rightNamesetExpression]:VarsetExpression
-                        [rightAction]:action
-        ;
-
-%action = (type):type
-    ;
-
-%communicationParameter = [location]:location [expression]:exp
-        ;
-
-%singleDeclaration =  [location]:location [nameScope]:nameScope
-        ;
-
-%parametrisation = [location]:location [declaration]:singleDeclaration.type
-        ;
-
-%process =  [location]:location
-        ;
-
-%process->#Replicated = [replicationDeclaration]:singleDeclaration* [replicatedProcess]:process
-        ;
-
-/*
-%parameter = [location]:location
-        ;
-*/
-
-%source = [paragraphs]: definition* (type):type 
-        ;
 
