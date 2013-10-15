@@ -1,6 +1,5 @@
 package eu.compassresearch.core.analysis.modelchecker.graphBuilder.process;
 
-import eu.compassresearch.core.analysis.modelchecker.graphBuilder.param.DPar;
 
 
 public abstract class Choice implements Process {

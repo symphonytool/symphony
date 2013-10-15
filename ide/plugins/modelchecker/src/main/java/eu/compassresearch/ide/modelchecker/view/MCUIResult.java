@@ -1,6 +1,7 @@
 package eu.compassresearch.ide.modelchecker.view;
 
 import org.eclipse.core.resources.IResource;
+
 import eu.compassresearch.ide.modelchecker.FormulaResultWrapper;
 
 public class MCUIResult {

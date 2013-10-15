@@ -2,8 +2,6 @@ package eu.compassresearch.core.analysis.modelchecker.api;
 
 import java.io.IOException;
 
-import eu.compassresearch.core.analysis.modelchecker.visitors.Utilities;
-
 public class FormulaIntegrator implements IFormulaIntegrator {
 
 	private static FormulaIntegrator instance;
