@@ -605,8 +605,8 @@ class CmlAssistant
 	{
 		TypeCheckInfo cmlEnv = (TypeCheckInfo) more[0];
 		PDefinition defOfTheTypeOfThisLocalDef = cmlEnv.env.findType(namedInvType.getName(), "");
-		
-		//FIXME missing support for ARecordInvariantType
+
+		// FIXME missing support for ARecordInvariantType
 		while (defOfTheTypeOfThisLocalDef != null
 				&& defOfTheTypeOfThisLocalDef.getType() != null
 				&& defOfTheTypeOfThisLocalDef.getType() instanceof ANamedInvariantType)
