@@ -48,7 +48,6 @@ public class CmlTypeCheckerTestCaseMultipleSources
 		// 8
 		TestUtil.addTestProgram(testData, "class A = begin operations f: () ==> int f() == (return (10)) end", "class B = begin values a : A = nil operations g: int ==> int g(i) == return i + a.f() end", true, new String[0]);
 
-
 		return testData;
 	}
 

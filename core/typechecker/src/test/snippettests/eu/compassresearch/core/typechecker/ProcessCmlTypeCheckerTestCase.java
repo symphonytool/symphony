@@ -78,6 +78,8 @@ public class ProcessCmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase
 		add("process Q = begin state q : nat := 10 actions INIT = (dcl q : nat @ q := 10) @ INIT() end");
 		// 28
 		add("process = begin @ Skip end", false, false);
+		// 29
+		add("types  Index = nat Money = nat process Test = begin  actions Pay = i, j: Index, n: Money @ Skip @ Pay(1,1,1) end", true, true);
 
 	}
 

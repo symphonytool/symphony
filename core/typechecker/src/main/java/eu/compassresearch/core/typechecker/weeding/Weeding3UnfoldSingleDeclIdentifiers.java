@@ -16,7 +16,8 @@ import eu.compassresearch.ast.program.PSource;
  * @author kel & cb
  */
 @SuppressWarnings("serial")
-public class Weeding3UnfoldSingleDeclIdentifiers extends DepthFirstAnalysisCMLAdaptor
+public class Weeding3UnfoldSingleDeclIdentifiers extends
+		DepthFirstAnalysisCMLAdaptor
 {
 
 	public static void apply(Collection<PSource> lp)
@@ -49,7 +50,7 @@ public class Weeding3UnfoldSingleDeclIdentifiers extends DepthFirstAnalysisCMLAd
 		{
 
 			ATypeSingleDeclaration tDecl = decl.getDeclaration();
-			
+
 			if (tDecl.getIdentifiers().size() > 1)
 			{
 				// unfold
@@ -73,10 +74,4 @@ public class Weeding3UnfoldSingleDeclIdentifiers extends DepthFirstAnalysisCMLAd
 		node.setDeclarations(decelrations);
 	}
 
-	// @Override
-	// public void caseABracketType(ABracketType node) throws AnalysisException
-	// {
-	// node.parent().replaceChild(node, node.getType());
-	// node.getType().apply(this);
-	// }
 }

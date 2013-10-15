@@ -273,6 +273,16 @@ class TCTypeVisitor extends
 			if (question.env.getEnclosingDefinition() instanceof SClassDefinition)
 				classes.add((SClassDefinition) question.env.getEnclosingDefinition());
 		}
+
+		// no idea what the above code does, but this is how to find the class. Also dont know what happens if the type
+		// is in a process
+		SClassDefinition sc = node.getAncestor(SClassDefinition.class);
+		if (sc != null)
+		{
+			classes.add(sc);
+		}
+		//
+
 		PDefinition tDef = SClassDefinitionAssistantTC.findType(classes, node.getName());
 
 		if (tDef == null)

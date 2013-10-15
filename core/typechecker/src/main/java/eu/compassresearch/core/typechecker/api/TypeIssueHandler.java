@@ -7,9 +7,9 @@ import java.util.List;
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.node.INode;
+import org.overture.typechecker.TypeChecker.IStatusListner;
 
 import eu.compassresearch.ast.types.AErrorType;
-import eu.compassresearch.core.common.AnalysisArtifact;
 
 /**
  * All error reporting from the type checker is handled by a TypeIssueHandler. Consider to generalize this for all
@@ -17,13 +17,13 @@ import eu.compassresearch.core.common.AnalysisArtifact;
  * 
  * @author rwl
  */
-public interface TypeIssueHandler
+public interface TypeIssueHandler extends IStatusListner
 {
 	/**
 	 * @author rwl The result from the CML type checker is a set of CMLIssues. These can be warnings or error. A CML
 	 *         Issue points the a subtree node that is the least upper bound node in the AST spanning causing the issue.
 	 */
-	public static abstract class CMLIssue implements AnalysisArtifact
+	public static abstract class CMLIssue
 	{
 		protected final INode subtree;
 		private ILexLocation location;
@@ -108,8 +108,7 @@ public interface TypeIssueHandler
 
 	}
 
-	public static class CMLIssueList extends LinkedList<CMLIssue> implements
-			AnalysisArtifact
+	public static class CMLIssueList extends LinkedList<CMLIssue>
 	{
 		private static final long serialVersionUID = 7238951452951163635L;
 	}

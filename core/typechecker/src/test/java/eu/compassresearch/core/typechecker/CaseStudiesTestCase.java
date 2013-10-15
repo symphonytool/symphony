@@ -144,7 +144,7 @@ public class CaseStudiesTestCase extends AbstractTypeCheckerTestCase
 			// add("/Alarm");
 			// 24 //
 			add("/MiniMondex");
-//			 add("/Test");
+			// add("/Test");
 
 		} else
 		{

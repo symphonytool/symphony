@@ -31,7 +31,6 @@ import org.overture.ast.expressions.PExp;
 import org.overture.ast.factory.AstFactory;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.intf.lex.ILexNameToken;
-import org.overture.ast.lex.LexBooleanToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.node.NodeList;
 import org.overture.ast.patterns.AIdentifierPattern;
@@ -560,7 +559,7 @@ class TCDeclAndDefVisitor extends
 		}
 
 		if (resultTypes.size() == 0)
-			resultType = AstFactory.newAVoidReturnType(node.getLocation());
+			resultType = AstFactory.newAVoidType(node.getLocation());
 
 		if (resultTypes.size() == 1)
 			resultType = resultTypes.get(0);
@@ -583,29 +582,9 @@ class TCDeclAndDefVisitor extends
 			}
 		}
 
-		// Create predef if it is not there
-		if (preDef == null)
-		{
-			PExp preBody = null;
-			if (node.getPrecondition() != null)
-				preBody = node.getPrecondition();
-			else
-				preBody = AstFactory.newABooleanConstExp(new LexBooleanToken(true, node.getLocation()));
-			preDef = CmlTCUtil.buildCondition("pre", node, node.getType().clone(), parameters, preBody);
-			node.setPredef(preDef);
-		}
-
-		// Create post def if it is not there
-		if (postDef == null)
-		{
-			PExp postBody = null;
-			if (node.getPostcondition() != null)
-				postBody = node.getPostcondition();
-			else
-				postBody = AstFactory.newABooleanConstExp(new LexBooleanToken(true, node.getLocation()));
-			postDef = CmlTCUtil.buildCondition("post", node, node.getType().clone(), parameters, postBody);
-			node.setPostdef(postDef);
-		}
+		node.apply(af.getImplicitDefinitionFinder(), question.env);
+		preDef = node.getPredef();
+		postDef = node.getPostdef();
 
 		// pre cond env.
 		CmlTypeCheckInfo preEnv = cmlEnv.newScope();
@@ -621,35 +600,41 @@ class TCDeclAndDefVisitor extends
 			preEnv.addVariable(extDef.getName(), extDef);
 		}
 
-		PType preDefType = preDef.apply(parentChecker, preEnv);
-		if (!successfulType(preDefType))
+		if (preDef != null)
 		{
-			node.setType(issueHandler.addTypeError(preDef, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(preDef
-					+ "")));
-			return node.getType();
+			PType preDefType = preDef.apply(parentChecker, preEnv);
+			if (!successfulType(preDefType))
+			{
+				node.setType(issueHandler.addTypeError(preDef, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(preDef
+						+ "")));
+				return node.getType();
+			}
 		}
 
-		// post cond env.
-		CmlTypeCheckInfo postEnv = cmlEnv.newScope();
-		for (PDefinition def : prePostDefinitions)
+		if (postDef != null)
 		{
-			if (!statesShadowedByExternalClauses.contains(def))
-				postEnv.addVariable(def.getName(), def);
-		}
+			// post cond env.
+			CmlTypeCheckInfo postEnv = cmlEnv.newScope();
+			for (PDefinition def : prePostDefinitions)
+			{
+				if (!statesShadowedByExternalClauses.contains(def))
+					postEnv.addVariable(def.getName(), def);
+			}
 
-		// add after variables
-		for (AExternalDefinition extDef : externalDefinitions)
-		{
-			postEnv.addVariable(extDef.getName(), extDef);
-			postEnv.addVariable(extDef.getOldname(), extDef);
-		}
+			// add after variables
+			for (AExternalDefinition extDef : externalDefinitions)
+			{
+				postEnv.addVariable(extDef.getName(), extDef);
+				postEnv.addVariable(extDef.getOldname(), extDef);
+			}
 
-		PType postDefType = postDef.apply(parentChecker, postEnv);
-		if (!successfulType(postDefType))
-		{
-			node.setType(issueHandler.addTypeError(postDef, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(postDef
-					+ "")));
-			return node.getType();
+			PType postDefType = postDef.apply(parentChecker, postEnv);
+			if (!successfulType(postDefType))
+			{
+				node.setType(issueHandler.addTypeError(postDef, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(postDef
+						+ "")));
+				return node.getType();
+			}
 		}
 
 		node.setType(operationType);
@@ -1734,7 +1719,7 @@ class TCDeclAndDefVisitor extends
 				{
 					return issueHandler.addTypeError(node, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
 							+ pType));
-//					return node.getType();
+					// return node.getType();
 				}
 			}
 
@@ -1744,7 +1729,7 @@ class TCDeclAndDefVisitor extends
 			{
 				return issueHandler.addTypeError(node, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
 						+ retType));
-//				return node.getType();
+				// return node.getType();
 			}
 		}
 
@@ -1773,25 +1758,21 @@ class TCDeclAndDefVisitor extends
 		if (isCtor) // check type is of class type
 		{
 			AOperationType operType = (AOperationType) node.getType();
-			if (!operType.getResult().equals(node.getAncestor(ACmlClassDefinition.class).getType()))
-			{
-				node.setIsConstructor(false);
-			}
+			// FIXME wrong
+			// if (!operType.getResult().equals(node.getAncestor(ACmlClassDefinition.class).getType()))
+			// {
+			// node.setIsConstructor(false);
+			// }
 		}
 
 		List<PDefinition> enclosingStateDefinitions = findStateDefs(node, newQuestion);
-		PExp preExp = node.getPrecondition();
-		if (preExp != null)
+
+		node.apply(af.getImplicitDefinitionFinder(), question.env);
+
+		if (node.getPredef() != null)
 		{
-			AExplicitFunctionDefinition preDef = CmlTCUtil.buildCondition0("pre", node, node.getType().clone(), (List<PPattern>) node.getParameterPatterns().clone(), node.getPrecondition(), enclosingStateDefinitions, new LinkedList<PDefinition>());
-			PType preDefType = preDef.apply(parentChecker, newQuestion);
-			if (!successfulType(preDefType))
-			{
-				return issueHandler.addTypeError(node, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
-						+ preDef));
-				// return node.getType();
-			}
-			node.setPredef(preDef);
+			PType preDefType = node.getPredef().apply(parentChecker, newQuestion);
+			// TODO check for boolean
 		}
 
 		PExp postExp = node.getPostcondition();
@@ -1819,7 +1800,7 @@ class TCDeclAndDefVisitor extends
 				{
 					return issueHandler.addTypeError(node, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
 							+ p));
-//					return node.getType();
+					// return node.getType();
 				}
 				for (PDefinition normalDef : pType.getDefinitions())
 				{
@@ -1846,15 +1827,8 @@ class TCDeclAndDefVisitor extends
 				}
 			}
 			postEnv.scope = NameScope.NAMESANDANYSTATE;
-			AExplicitFunctionDefinition postDef = CmlTCUtil.buildCondition0("post", node, node.getType().clone(), paramPatterns, node.getPostcondition(), enclosingStateDefinitions, oldStateDefs);
-			PType postDefType = postDef.apply(parentChecker, postEnv);
-			if (!successfulType(postDefType))
-			{
-				return issueHandler.addTypeError(node, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
-						+ postDef));
-//				return node.getType();
-			}
-			node.setPostdef(postDef);
+			PType postDefType = node.getPostdef().apply(parentChecker, postEnv);
+			// TODO check for boolean type of post
 		}
 
 		return caseSCmlOperation(node, node.getType(), question);

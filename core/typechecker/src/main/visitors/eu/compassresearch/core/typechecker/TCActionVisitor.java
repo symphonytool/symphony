@@ -140,7 +140,7 @@ import eu.compassresearch.core.typechecker.api.TypeWarningMessages;
 /**
  * @author rwl
  */
-@SuppressWarnings({"serial","deprecation"})
+@SuppressWarnings({ "serial", "deprecation" })
 class TCActionVisitor extends
 		QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType>
 {
@@ -757,6 +757,7 @@ class TCActionVisitor extends
 			}
 		}
 
+		// FIXME what is this for a call statement action
 		ACallStatementAction callStm = new ACallStatementAction(node.getClassName().getLocation(), node.getClassName().clone(), node.getArgs());
 		PType applyCtorExpType = callStm.apply(parentChecker, ctorEnv);
 		if (!successfulType(applyCtorExpType))
@@ -1238,7 +1239,6 @@ class TCActionVisitor extends
 		return new AActionType(node.getLocation(), true);
 	}
 
-	
 	@Override
 	public PType caseAWaitAction(AWaitAction node,
 			org.overture.typechecker.TypeCheckInfo question)

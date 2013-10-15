@@ -154,14 +154,12 @@ public class CmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase
 		addTestProgram(testData, "channels	a : int	process A =	val x : nat @ begin	@ a.x -> Skip end process B  = |~| i in set {1,2,3} @ A(i)", true, true, new String[0]);
 		// 64 //
 		addTestProgram(testData, "channels	a : int	process A =	val x : nat @ begin	@ a.x -> Skip end process B = ; i in seq {1,2,3} @ A(i)", true, true, new String[0]);
-		//65 http://sourceforge.net/p/compassresearch/tickets/92/
+		// 65 http://sourceforge.net/p/compassresearch/tickets/92/
 		addTestProgram(testData, "types String2 = seq of char Process2 :: id: String2 functions findPos(q: seq of Process2,id: String2) pos : nat pre  exists p in set (elems q) @ p.id = id post true", true, true, new String[0]);
 		addTestProgram(testData, "types String2 = seq of char Process2 :: id: String2 functions findPos(q: seq of Process2,id: String2) pos : nat pre  forall p in set (elems q) @ p.id = id post true", true, true, new String[0]);
 		addTestProgram(testData, "types String2 = seq of char Process2 :: id: String2 functions findPos(q: seq of Process2,id: String2) pos : nat pre  let mk_(-,p)= mk_(7, mk_Process2([])) in p.id = id  post true", true, true, new String[0]);
 		addTestProgram(testData, "types String2 = seq of char Process2 :: id: String2 functions findPos: seq of Process2* String2 -> nat findPos(q,id)==  let mk_(-,p)= mk_(7, mk_Process2([])) in p.id = id", true, false, new String[0]);
-		
-		
-			
+
 		return testData;
 
 	}
