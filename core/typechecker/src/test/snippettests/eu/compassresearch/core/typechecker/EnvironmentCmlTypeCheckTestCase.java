@@ -22,9 +22,9 @@ public class EnvironmentCmlTypeCheckTestCase extends
 	// }
 
 	public EnvironmentCmlTypeCheckTestCase(String source, boolean parsesOk,
-			boolean typesOk, String[] errorMessages)
+			boolean typesOk, boolean expectNowarnings, String[] errorMessages)
 	{
-		super(source, parsesOk, typesOk, errorMessages);
+		super(source, parsesOk, typesOk, expectNowarnings, errorMessages);
 	}
 
 	@Parameters

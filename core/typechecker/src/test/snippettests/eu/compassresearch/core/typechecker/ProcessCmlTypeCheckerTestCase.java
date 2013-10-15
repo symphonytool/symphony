@@ -71,7 +71,7 @@ public class ProcessCmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase
 		// 24//
 		add("process O = begin state o : int @ for all i in set {1,2,3} do o := o + i end");
 		// 25//
-		add("process M = begin @ Skip end process L = begin @ Stop end process K = || i in set {1,2,3} @ [{ }] (M [| {| inp.k | k in set {5,6,7} |} union {| out.k | k in set {5,6,7} |} |] L)");
+		add("process M = begin @ Skip end process L = begin @ Stop end process K = || i in set {1,2,3} @ [{ }] (M [| {| inp.k | k in set {5,6,7} |} union {| out.k | k in set {5,6,7} |} |] L)", true, true, false);
 		// 26// old-record in operation
 		add("process p = begin types A :: a : int state aa:A operations o:int==>int o(i) == return (aa.a + i) post aa~.a = i @ o(2) end");
 		// 27 //check for variable name in action being the same as state variable
@@ -82,9 +82,9 @@ public class ProcessCmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase
 	}
 
 	public ProcessCmlTypeCheckerTestCase(String cmlSource, boolean parsesOk,
-			boolean typesOk, String[] errorMessages)
+			boolean typesOk, boolean expectNowarnings, String[] errorMessages)
 	{
-		super(cmlSource, parsesOk, typesOk, errorMessages);
+		super(cmlSource, parsesOk, typesOk, expectNowarnings, errorMessages);
 	}
 
 	@Parameters

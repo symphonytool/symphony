@@ -32,9 +32,9 @@ public class ClassCmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase
 	}
 
 	public ClassCmlTypeCheckerTestCase(String cmlSource, boolean parsesOk,
-			boolean typesOk, String[] errorMessages)
+			boolean typesOk, boolean expectNowarnings, String[] errorMessages)
 	{
-		super(cmlSource, parsesOk, typesOk, errorMessages);
+		super(cmlSource, parsesOk, typesOk, expectNowarnings, errorMessages);
 	}
 
 }

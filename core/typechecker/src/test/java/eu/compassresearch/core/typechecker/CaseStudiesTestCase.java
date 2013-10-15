@@ -28,9 +28,9 @@ public class CaseStudiesTestCase extends AbstractTypeCheckerTestCase
 	private static boolean canFindCaseStudies = caseStudyDir != null;
 
 	public CaseStudiesTestCase(List<PSource> cmlSource, boolean parsesOk,
-			boolean typesOk, String[] errorMessages)
+			boolean typesOk, boolean expectNoWarnings, String[] errorMessages)
 	{
-		super(cmlSource, parsesOk, typesOk, errorMessages);
+		super(cmlSource, parsesOk, typesOk, expectNoWarnings, errorMessages);
 
 	}
 
@@ -81,7 +81,32 @@ public class CaseStudiesTestCase extends AbstractTypeCheckerTestCase
 				fileSource.setName(source.getName());
 				sources.add(fileSource);
 			}
-			add(sources, true, true);
+			add(sources, true, true, true);
+		}
+	}
+	
+	/**
+	 * Given the name of a CaseStudy e.g. the directory name in compasssvn/Common/CaseStudies/{@value
+	 * pathRelToCaseStudiesDir} add a test including all cml-sources of the case study. E.g.: add("SoSMpc/ideal") or
+	 * add("TelephoneExchange/ClassesVersion")
+	 * 
+	 * @param pathRelToCaseStudiesDir
+	 */
+	protected static void add(String pathRelToCaseStudiesDir, boolean supressWarnings)
+	{
+		String caseStudySource = caseStudyDir + pathRelToCaseStudiesDir;
+		File caseStudySourceFile = new File(caseStudySource);
+		if (caseStudySourceFile.isDirectory())
+		{
+			List<PSource> sources = new LinkedList<PSource>();
+			for (File source : getCmlFiles(caseStudySourceFile))
+			{
+				AFileSource fileSource = new AFileSource();
+				fileSource.setFile(source);
+				fileSource.setName(source.getName());
+				sources.add(fileSource);
+			}
+			add(sources, true, true, !supressWarnings);
 		}
 	}
 
@@ -123,13 +148,13 @@ public class CaseStudiesTestCase extends AbstractTypeCheckerTestCase
 			// 14// LexNameToken
 			add("/SoSMpc/ideal");
 			// 15// LexNameToken
-			add("/SoSMpc/protocol");
+			add("/SoSMpc/protocol", true);
 			// 16// LexNameToken
 			add("/SoSMpc/singlesystem");
 			// 17// LexNameToken
-			add("/TelephoneExchange/ClassesVersion");
+			add("/TelephoneExchange/ClassesVersion", true);
 			// 18// LexNameToken
-			add("/TelephoneExchange/Original");
+			add("/TelephoneExchange/Original", true);
 			// 19// LexNameToken
 			add("/TrafficManager/CityAndCars/City");
 			// 20// LexNameToken
@@ -143,13 +168,13 @@ public class CaseStudiesTestCase extends AbstractTypeCheckerTestCase
 			// 23// Jeremy and Zoe working on master students
 			// add("/Alarm");
 			// 24 //
-			add("/MiniMondex");
-//			 add("/Test");
+			add("/MiniMondex", true);
+//			add("/Test");
 
 		} else
 		{
 			// ensure that the sources is initialised before the parameterized test runner gets to it
-			add(new LinkedList<PSource>(), true, true);
+			add(new LinkedList<PSource>(), true, true, true);
 			System.out.println("CASESTUDIES Not defined skipping tests.");
 		}
 	}

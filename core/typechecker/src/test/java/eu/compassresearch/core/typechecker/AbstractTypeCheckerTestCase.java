@@ -37,6 +37,7 @@ public abstract class AbstractTypeCheckerTestCase
 	protected List<PSource> sources;
 	protected final boolean expectedParserOk;
 	protected final boolean expectedTypesOk;
+	protected final boolean expectedNoWarnings;
 	protected String[] errorMessages;
 
 	// A number to uniquely identify each test-method
@@ -76,12 +77,54 @@ public abstract class AbstractTypeCheckerTestCase
 	 *            - which errors in case of !tc
 	 */
 	protected static void add(int stack, String src, boolean parseok,
-			boolean tcok, String[] err)
+			boolean tcok,  String[] err)
 	{
 		TestUtil.addTestProgram(getTestDataForCallerClass(stack), src, new Object[] {
-				parseok, tcok, err });
+				parseok, tcok, true, err });
 	}
-
+	
+	
+	/**
+	 * Add a test scenario based on a single cml-source-text E.g: static { add("types A = int",true,true,new String[0]);
+	 * } Adds a test with "types A = int" as the cml-source to test.
+	 * 
+	 * @param src
+	 *            - cml source text
+	 * @param parseok
+	 *            - should it parse?
+	 * @param tcok
+	 *            - should it tc?
+	 * @param expectNoWarnings
+	 *            - should there be no warnings?
+	 * @param err
+	 *            - which errors in case of !tc
+	 */
+	protected static void add(int stack, String src, boolean parseok,
+			boolean tcok, boolean expectNoWarnings,  String[] err)
+	{
+		TestUtil.addTestProgram(getTestDataForCallerClass(stack), src, new Object[] {
+				parseok, tcok, expectNoWarnings, err });
+	}
+	
+	/**
+	 * Like {@code add} above but where the test can be given a name E.g: static { add("types A = int",true,true,new
+	 * String[0],"Testing def of named int type"); } Adds a test with "types A = int" as the cml-source to test with an
+	 * informative name.
+	 * 
+	 * @param src
+	 * @param parseok
+	 * @param tcok
+	 * @param expectNoWarnings
+	 * @param err
+	 * @param name
+	 */
+	protected static void add(String src, boolean parseok, boolean tcok, boolean expectNoWarnings,
+			String[] err, String name)
+	{
+		TestUtil.addTestProgram(getTestDataForCallerClass(4), src, new Object[] {
+				parseok, tcok, expectNoWarnings, err, name });
+	}
+	
 	/**
 	 * Like {@code add} above but where the test can be given a name E.g: static { add("types A = int",true,true,new
 	 * String[0],"Testing def of named int type"); } Adds a test with "types A = int" as the cml-source to test with an
@@ -97,7 +140,20 @@ public abstract class AbstractTypeCheckerTestCase
 			String[] err, String name)
 	{
 		TestUtil.addTestProgram(getTestDataForCallerClass(4), src, new Object[] {
-				parseok, tcok, err, name });
+				parseok, tcok, true, err, name });
+	}
+	
+	/**
+	 * Shortcut for the above E.g.: static { add("types A = int",true,true); }
+	 * 
+	 * @param src
+	 * @param parseok
+	 * @param tcok
+	 */
+	protected static void add(String src, boolean parseok, boolean tcok, boolean expectNoParam)
+	{
+		TestUtil.addTestProgram(getTestDataForCallerClass(3), src, new Object[] {
+				parseok, tcok, expectNoParam, new String[0] });
 	}
 
 	/**
@@ -110,8 +166,9 @@ public abstract class AbstractTypeCheckerTestCase
 	protected static void add(String src, boolean parseok, boolean tcok)
 	{
 		TestUtil.addTestProgram(getTestDataForCallerClass(3), src, new Object[] {
-				parseok, tcok, new String[0] });
+				parseok, tcok, true, new String[0] });
 	}
+	
 
 	/**
 	 * Even shorter short cut see above.
@@ -120,7 +177,7 @@ public abstract class AbstractTypeCheckerTestCase
 	 */
 	protected static void add(String src)
 	{
-		add(4, src, true, true, new String[0]);
+		add(4, src, true, true, true, new String[0]);
 	}
 
 	/**
@@ -131,9 +188,9 @@ public abstract class AbstractTypeCheckerTestCase
 	 */
 	protected static void add(String src, boolean tcok)
 	{
-		add(4, src, true, tcok, new String[0]);
+		add(4, src, true, tcok, true, new String[0]);
 	}
-
+	
 	/**
 	 * The last short cut method see above. Only source (src), whether Type check should succeed (tcok) and error
 	 * messages provided
@@ -144,7 +201,7 @@ public abstract class AbstractTypeCheckerTestCase
 	 */
 	protected static void add(String src, boolean tcok, String[] errmsg)
 	{
-		add(4, src, true, tcok, errmsg);
+		add(4, src, true, tcok, true, errmsg);
 	}
 
 	/**
@@ -156,13 +213,14 @@ public abstract class AbstractTypeCheckerTestCase
 	 * @param parsesok
 	 * @param tcok
 	 */
-	protected static void add(List<PSource> src, boolean parsesok, boolean tcok)
+	protected static void add(List<PSource> src, boolean parsesok, boolean tcok, boolean expectNoWarning)
 	{
-		Object[] o = new Object[4];
+		Object[] o = new Object[5];
 		o[0] = src;
 		o[1] = parsesok;
 		o[2] = tcok;
-		o[3] = new String[0];
+		o[3] = expectNoWarning;
+		o[4] = new String[0];
 		getTestDataForCallerClass(3).add(o);
 	}
 
@@ -195,9 +253,9 @@ public abstract class AbstractTypeCheckerTestCase
 	 * @param errorMessages
 	 */
 	protected AbstractTypeCheckerTestCase(String cmlSource, boolean parsesOk,
-			boolean typesOk, String[] errorMessages)
+			boolean typesOk, boolean expectedNoWarnings, String[] errorMessages)
 	{
-		this(cmlSource, parsesOk, typesOk, errorMessages, "Test #" + (no++));
+		this(cmlSource, parsesOk, typesOk, expectedNoWarnings, errorMessages, "Test #" + (no++));
 	}
 
 	/**
@@ -210,9 +268,9 @@ public abstract class AbstractTypeCheckerTestCase
 	 * @param name
 	 */
 	protected AbstractTypeCheckerTestCase(String cmlSource, boolean parsesOk,
-			boolean typesOk, String[] errorMessages, String name)
+			boolean typesOk, boolean expectedNoWarnings, String[] errorMessages, String name)
 	{
-		this(fromStringContent(cmlSource, name), parsesOk, typesOk, errorMessages);
+		this(fromStringContent(cmlSource, name), parsesOk, typesOk, expectedNoWarnings, errorMessages);
 	}
 
 	/**
@@ -224,10 +282,11 @@ public abstract class AbstractTypeCheckerTestCase
 	 * @param errorMessages
 	 */
 	protected AbstractTypeCheckerTestCase(List<PSource> cmlSources,
-			boolean parsesOk, boolean typesOk, String[] errorMessages)
+			boolean parsesOk, boolean typesOk, boolean expectedNoWarnings, String[] errorMessages)
 	{
 		expectedParserOk = parsesOk;
 		expectedTypesOk = typesOk;
+		this.expectedNoWarnings = expectedNoWarnings;
 		this.errorMessages = errorMessages;
 		this.sources = cmlSources;
 	}
@@ -262,16 +321,22 @@ public abstract class AbstractTypeCheckerTestCase
 		}
 
 		// [3]
-		TypeIssueHandler errors = res.issueHandler;
+		TypeIssueHandler issueHandler = res.issueHandler;
 		boolean typeCheckOk = res.tcOk;
-		Assert.assertEquals(TestUtil.buildErrorMessage(errors, expectedTypesOk), expectedTypesOk, typeCheckOk);
 
+ 		Assert.assertEquals(TestUtil.buildErrorMessage(issueHandler, expectedTypesOk), expectedTypesOk, typeCheckOk);
+		
+ 		if(issueHandler != null ){
+ 			boolean hasWarnings = issueHandler.hasWarnings();
+ 			Assert.assertEquals(TestUtil.buildWarningMessage(issueHandler, expectedNoWarnings), expectedNoWarnings, !hasWarnings);
+ 		}
+ 		
 		// [4]
 		if (parserOk && errorMessages != null && errorMessages.length > 0)
 		{
 
 			Set<String> actualErrors = new HashSet<String>();
-			for (CMLTypeError e : errors.getTypeErrors())
+			for (CMLTypeError e : issueHandler.getTypeErrors())
 				actualErrors.add(e.getDescription());
 
 			for (String s : errorMessages)

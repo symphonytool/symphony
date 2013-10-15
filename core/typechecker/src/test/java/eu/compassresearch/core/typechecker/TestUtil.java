@@ -28,6 +28,7 @@ import eu.compassresearch.core.parser.CmlParserError;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler.CMLTypeError;
+import eu.compassresearch.core.typechecker.api.TypeIssueHandler.CMLTypeWarning;
 
 public class TestUtil
 {
@@ -277,6 +278,35 @@ public class TestUtil
 		}
 		return sb.toString();
 	}
+	
+	
+	/**
+	 * Returns a stack trace like string for the type errors.
+	 * 
+	 * @param Type Issue handler used in TC
+	 * @param expectedNoWarnings
+	 * @return
+	 */
+	public static String buildWarningMessage(TypeIssueHandler tc,
+			boolean expectedNoWarnings)
+	{
+		StringBuilder sb = new StringBuilder();
+		if (expectedNoWarnings)
+		{
+			sb.append("Expected no type checker warning, but the following warning were given:\n");
+			for (CMLTypeWarning warning : tc.getTypeWarnings()) {
+				sb.append(warning.getLocation() + ": " + warning.toString()
+						+ "\n------\n");
+				System.out.println(warning);
+			}
+
+		} else
+		{
+			sb.append("Expected type checker warning, but non were reported.");
+		}
+		return sb.toString();
+	}
+	
 
 	public static <T> void addTestProgram(List<Object[]> col, String src,
 			Object... objs)

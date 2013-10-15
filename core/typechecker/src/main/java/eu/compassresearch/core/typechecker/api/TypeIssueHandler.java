@@ -137,7 +137,7 @@ public interface TypeIssueHandler
 		public String toString()
 		{
 			ILexLocation location = super.getLocation();
-			return "TypeError: " + location + " : \n\t" + description;
+			return String.format("%s %s", description, location);
 		}
 
 		public String getStackTrace()
