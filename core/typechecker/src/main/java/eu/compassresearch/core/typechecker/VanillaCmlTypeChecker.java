@@ -26,7 +26,6 @@ import eu.compassresearch.core.typechecker.weeding.SetLocationVisitor;
 import eu.compassresearch.core.typechecker.weeding.Weeding1;
 import eu.compassresearch.core.typechecker.weeding.Weeding2;
 import eu.compassresearch.core.typechecker.weeding.Weeding3UnfoldSingleDeclIdentifiers;
-import eu.compassresearch.core.typechecker.weeding.Weeding4FixOperationTypes;
 
 class VanillaCmlTypeChecker extends AbstractTypeChecker
 {
@@ -108,7 +107,7 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker
 			// W: Stage 2 unfold identifiers in action definitions, parameter decl single type identifiers
 			Weeding3UnfoldSingleDeclIdentifiers.apply(sourceForest);
 
-			Weeding4FixOperationTypes.apply(sourceForest);
+			// Moved to parser Weeding4FixOperationTypes.apply(sourceForest);
 
 			// Collect all Top-level entities
 			GlobalDefinitions globalDefs = CollectGlobalStateClass.getGlobalRoot(sourceForest, issueHandler);

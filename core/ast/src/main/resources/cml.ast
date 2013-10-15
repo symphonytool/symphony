@@ -100,7 +100,7 @@ definition {-> package='eu.compassresearch.ast.definitions'}
 
     | {implicit}
     [parameterPatterns]:pair.patternListType*
-	[result]:pair.patternType*
+	[result]:pair.patternType
 	[externals]:clause.external*
 	[precondition]:exp
 	[postcondition]:exp

@@ -63,6 +63,8 @@ import java.text.ParseException;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.LinkedList;
+import java.util.Collection;
+import java.util.Vector;
 
 import static org.overture.ast.lex.Dialect.VDM_PP;
 import org.overture.ast.assistant.definition.PDefinitionAssistant;
@@ -371,6 +373,20 @@ public static void main(String[] args) throws Exception {
         throw e;
     }
 }
+
+
+	private Collection<? extends PType> getTypeList(APatternListTypePair node)
+	{
+		List<PType> list = new Vector<PType>();
+
+		for (int i = 0; i < node.getPatterns().size(); i++)
+		{
+			PType type = (PType) node.getType();
+			list.add(type);
+		}
+
+		return list;
+	}
 
 } // end @parser::members
 
@@ -2372,12 +2388,57 @@ operationDef returns[SCmlOperationDefinition def]
                 AImplicitCmlOperationDefinition opdef = new AImplicitCmlOperationDefinition();
                 opdef.setName(new LexNameToken("", $id.getText(), extractLexLocation($id)));
                 opdef.setParameterPatterns($parameterTypeList.ptypes);
-                opdef.setResult($resultTypeList.rtypes);
+               // opdef.setResult($resultTypeList.rtypes);
+               List<APatternTypePair> result = $resultTypeList.rtypes;
                 opdef.setExternals($frameSpecList.frameSpecs);
                 opdef.setPrecondition($pre.exp);
                 opdef.setPostcondition($post.exp);
                 opdef.setNameScope(NameScope.GLOBAL);
                 opdef.setAccess(getDefaultAccessSpecifier(true, false, extractLexLocation($id)));
+                
+                //
+                
+                // Fix: location, type
+		opdef.setLocation(opdef.getName().getLocation().clone());
+
+		List<PPattern> resultNames = new Vector<PPattern>();
+		List<PType> resultTypes = new Vector<PType>();
+
+		APatternTypePair resultPattern = null;
+
+		if(result!=null)
+		{
+			for (APatternTypePair plt : result)
+			{
+				resultNames.add(plt.getPattern().clone());
+				resultTypes.add(plt.getType().clone());
+			}
+		
+			if (resultNames.size() > 1)
+			{
+				resultPattern = AstFactory.newAPatternTypePair(AstFactory.newATuplePattern(resultNames.get(0).getLocation(), resultNames), AstFactory.newAProductType(resultNames.get(0).getLocation(), resultTypes));
+			} else if (!resultNames.isEmpty())
+			{
+				resultPattern = AstFactory.newAPatternTypePair(resultNames.get(0), resultTypes.get(0));
+			}
+		
+			opdef.setResult(resultPattern);
+		}
+
+		List<PType> ptypes = new Vector<PType>();
+
+		for (APatternListTypePair ptp : opdef.getParameterPatterns())
+		{
+			ptypes.addAll(getTypeList(ptp));
+		}
+
+		AOperationType operationType = AstFactory.newAOperationType(opdef.getLocation(), ptypes, (opdef.getResult() == null
+				 ? AstFactory.newAVoidType(opdef.getName().getLocation())
+				: resultPattern.getType()));
+		opdef.setType(operationType);
+                
+                //
+                
                 $def = opdef;
             }
         )

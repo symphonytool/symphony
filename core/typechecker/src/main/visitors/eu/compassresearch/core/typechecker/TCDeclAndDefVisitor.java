@@ -549,7 +549,8 @@ class TCDeclAndDefVisitor extends
 
 		PType resultType = null;
 		List<PType> resultTypes = new LinkedList<PType>();
-		for (APatternTypePair pt : node.getResult())
+		APatternTypePair pt = node.getResult();
+		if (pt != null)
 		{
 			PType patternType = pt.getPattern().apply(parentChecker, question);
 			for (PDefinition pd : patternType.getDefinitions())

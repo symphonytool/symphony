@@ -129,9 +129,9 @@ public class CmlImplicitDefinitionFinder extends
 			plist.addAll((Collection<PPattern>) pl.getPatterns().clone());
 		}
 
-		if (d.getResult() != null && !d.getResult().isEmpty())
+		if (d.getResult() != null )
 		{
-			plist.add(d.getResult().get(0).getPattern().clone());
+			plist.add(d.getResult().getPattern().clone());
 		}
 
 		AStateDefinition state = d.getState();
