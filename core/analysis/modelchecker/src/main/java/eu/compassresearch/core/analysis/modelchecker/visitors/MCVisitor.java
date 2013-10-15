@@ -8,10 +8,8 @@ import java.util.List;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
-import org.overture.ast.modules.AModuleModules;
 import org.overture.ast.node.INode;
 import org.overture.ast.statements.PStateDesignator;
-import org.overture.ast.statements.PStm;
 import org.overture.ast.types.PType;
 
 import eu.compassresearch.ast.actions.AValParametrisation;
@@ -201,35 +199,33 @@ public class MCVisitor extends
 	}
 
 	public static void main(String[] args) throws Throwable {
-		//String cml_example = "src/test/resources/action-operationcall-noargs.cml";
-		//String cml_example = "src/test/resources/replicated-externalchoice.cml";
-		//String cml_example = "src/test/resources/replicated-generalised-parallelism.cml";
-		//String cml_example = "src/test/resources/action-seq-comp2.cml";
-		//String cml_example = "src/test/resources/action-vardecl.cml";
-		//String cml_example = "src/test/resources/action-vardecl2.cml";
-		//String cml_example = "src/test/resources/action-reference-parametrised.cml";
-		//String cml_example = "src/test/resources/action-guard-stateVar.cml";
-		//String cml_example = "src/test/resources/action-guard.cml";
-		//String cml_example = "src/test/resources/minimondex.cml";
-		//String cml_example = "src/test/resources/action-stop.cml";
-		String cml_example = "src/test/resources/action-chaos.cml";
-		//String cml_example = "src/test/resources/replicated-seqcomp.cml";
-		//String cml_example = "src/test/resources/Dphils.cml";
-		//String cml_example = "src/test/resources/action-not-implemented.cml";
-		System.out.println("Testing on " + cml_example);
-		// List<PSource> sources = new LinkedList<PSource>();
-		PSource source = Utilities.makeSourceFromFile(cml_example);
-		// sources.add(source);
-		//String basic = Utilities.readScriptFromFile(Utilities.BASIC_FORMULA_SCRIPT).toString();
-		//String code = CMLModelcheckerVisitor.generateFormulaScript(basic, source.getParagraphs(), Utilities.DEADLOCK_PROPERTY);
-		//System.out.println(code);
-		MCVisitor visitor = new MCVisitor(source);
-		visitor.setPropertyToCheck(Utilities.DEADLOCK_PROPERTY);
-		String[] codes = visitor.generateFormulaCodeForAll(Utilities.DEADLOCK_PROPERTY);
-		for (int i = 0; i < codes.length; i++) {
-			System.out.println(codes[i]);
+		String cml_folder_name = "c";
+		String cml_folder = "D:\\COMPASS\\compassresearch-code\\core\\analysis\\modelchecker\\src\\test\\resources";
+		File folder = new File(cml_folder);
+		File[] files = new File[0];
+		if(folder.isDirectory()){
+			files = folder.listFiles();
 		}
-		
+		String cml_file = "src/test/resources/action-generalised-parallelism-no-state-simple.cml";
+		System.out.println("Testing on " + cml_file);
+		PSource source1 = Utilities.makeSourceFromFile(cml_file);
+		MCVisitor visitor1 = new MCVisitor(source1);
+		visitor1.setPropertyToCheck(Utilities.DEADLOCK_PROPERTY);
+		String[] codes1 = visitor1.generateFormulaCodeForAll(Utilities.DEADLOCK_PROPERTY);
+		for (int j = 0; j < codes1.length; j++) {
+			System.out.println(codes1[j]);
+		}
+		for (int i = 0; i < files.length; i++) {
+			String cml_example = cml_folder_name + "/" + files[i].getName();
+			System.out.println("Testing on " + cml_example);
+			PSource source = Utilities.makeSourceFromFile(cml_example);
+			MCVisitor visitor = new MCVisitor(source);
+			visitor.setPropertyToCheck(Utilities.DEADLOCK_PROPERTY);
+			String[] codes = visitor.generateFormulaCodeForAll(Utilities.DEADLOCK_PROPERTY);
+			for (int j = 0; j < codes.length; j++) {
+				System.out.println(codes[j]);
+			}
+		}
 	}
 	
 	
