@@ -32,6 +32,8 @@ import eu.compassresearch.ast.util.ToStringUtil;
 %action->#Parallel->interleaving = [leftAction] "|||" [rightAction]
 %action->#Parallel->generalisedParallelism = [leftAction] "[|" [chansetExpression] "|]" [rightAction]
 %action->#Statement->block = "Block {" [action] "}"
+%action->#Statement->new = [destination]" := new " [className] "("+ $Utils.listToString($[args]$)$ + ")"
+%action->#Statement->return = "return "[exp]
 %action->#Statement->#GeneralAssignment->single = [stateDesignator] " := " [expression]
 
 %action->parametrised = "params: " [parametrisations] " action: " [action]
