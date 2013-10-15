@@ -16,6 +16,7 @@ import eu.compassresearch.ast.actions.AValParametrisation;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
+import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.analysis.modelchecker.api.FormulaIntegrationUtilities;
@@ -87,6 +88,13 @@ public class MCVisitor extends
 		return node.apply(this.declAndDefVisitor, question);
 	}
 
+	
+	@Override
+	public StringBuilder defaultPVarsetExpression(PVarsetExpression node,
+			CMLModelcheckerContext question) throws AnalysisException {
+		
+		return node.apply(this.expressionVisitor, question);
+	}
 	@Override
 	public StringBuilder defaultPProcess(PProcess node,
 			CMLModelcheckerContext question) throws AnalysisException
@@ -199,14 +207,15 @@ public class MCVisitor extends
 	}
 
 	public static void main(String[] args) throws Throwable {
-		String cml_folder_name = "c";
+		String cml_folder_name = "src/test/resources";
 		String cml_folder = "D:\\COMPASS\\compassresearch-code\\core\\analysis\\modelchecker\\src\\test\\resources";
 		File folder = new File(cml_folder);
 		File[] files = new File[0];
 		if(folder.isDirectory()){
 			files = folder.listFiles();
 		}
-		String cml_file = "src/test/resources/action-generalised-parallelism-no-state-simple.cml";
+		
+		String cml_file = "src/test/resources/action-reference-parametrised.cml";
 		System.out.println("Testing on " + cml_file);
 		PSource source1 = Utilities.makeSourceFromFile(cml_file);
 		MCVisitor visitor1 = new MCVisitor(source1);
@@ -215,6 +224,7 @@ public class MCVisitor extends
 		for (int j = 0; j < codes1.length; j++) {
 			System.out.println(codes1[j]);
 		}
+		
 		for (int i = 0; i < files.length; i++) {
 			String cml_example = cml_folder_name + "/" + files[i].getName();
 			System.out.println("Testing on " + cml_example);
