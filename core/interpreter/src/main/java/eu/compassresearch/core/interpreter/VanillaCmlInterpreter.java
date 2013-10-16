@@ -152,10 +152,12 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		{
 			setNewState(CmlInterpreterState.FAILED);
 			throw e;
-		} catch (Exception ex)
+		}
+		catch(InterruptedException ex){ex.printStackTrace();}
+		catch (Exception ex)
 		{
 			setNewState(CmlInterpreterState.FAILED);
-			throw new AnalysisException(ex);
+			throw ex;
 		}
 
 		// Finally we return the top process value
@@ -492,10 +494,10 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	public static void main(String[] args) throws IOException,
 			CmlInterpreterException
 	{
-		File cml_example = new File(
+		//File cml_example = new File(
 		// "/home/akm/phd/runtime-COMPASS/simpleDLNA/SimpleDLNA.cml");
-		"src/test/resources/examples/IncubatorMonitor.cml");
-		//File cml_example = new File("/home/akm/phd/COMPASS-repo/Common/CaseStudies/RingBuffer/RingBuffer.cml");
+		//"src/test/resources/examples/IncubatorMonitor.cml");
+		File cml_example = new File("/home/akm/Stack.cml");
 		runOnFile(cml_example);
 
 		// List<File> files = new LinkedList<File>();
