@@ -4,11 +4,10 @@ import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.tools.JavaFileManager.Location;
-
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.node.INode;
+import org.overture.parser.messages.VDMError;
 import org.overture.typechecker.TypeChecker.IStatusListener;
 
 import eu.compassresearch.ast.types.AErrorType;
@@ -146,7 +145,7 @@ public interface TypeIssueHandler extends IStatusListener
 
 		@Override
 		public String toString()
-		{	
+		{
 			return String.format("%s %s", getDescription(), getLocation());
 		}
 
@@ -164,12 +163,12 @@ public interface TypeIssueHandler extends IStatusListener
 			}
 			return sb.toString();
 		}
-		
+
 		public String getDescription()
 		{
-			return (error != null ? error.toString() : description );
+			return (error != null ? error.toString() : description);
 		}
-		
+
 		@Override
 		public ILexLocation getLocation()
 		{

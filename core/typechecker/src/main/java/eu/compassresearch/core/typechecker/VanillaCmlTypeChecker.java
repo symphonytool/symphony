@@ -26,7 +26,6 @@ import eu.compassresearch.core.typechecker.weeding.SetLocationVisitor;
 import eu.compassresearch.core.typechecker.weeding.Weeding1;
 import eu.compassresearch.core.typechecker.weeding.Weeding2;
 import eu.compassresearch.core.typechecker.weeding.Weeding3UnfoldSingleDeclIdentifiers;
-import eu.compassresearch.core.typechecker.weeding.Weeding4FixOperationTypes;
 
 class VanillaCmlTypeChecker extends AbstractTypeChecker
 {
