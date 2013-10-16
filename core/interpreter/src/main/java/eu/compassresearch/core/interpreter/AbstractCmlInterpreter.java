@@ -96,6 +96,20 @@ abstract class AbstractCmlInterpreter implements CmlInterpreter
 			return true;
 		}
 	}
+	
+	@Override
+	public boolean removeBreakpoint(Breakpoint bp)
+	{
+		String key = bp.getFile() + ":" + bp.getLine();
+
+		if (!breakpoints.containsKey(key))
+			return false;
+		else
+		{
+			breakpoints.remove(key);
+			return true;
+		}
+	}
 
 	@Override
 	public CmlBehaviour findBehaviorById(int id)

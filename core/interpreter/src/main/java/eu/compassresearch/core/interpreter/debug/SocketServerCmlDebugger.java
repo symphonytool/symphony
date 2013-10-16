@@ -348,10 +348,19 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 				stopping();
 				return false;
 			case SET_BREAKPOINT:
+			{
 				Breakpoint bp = message.getContent();
 				Console.debug.println("Break point added : " + bp);
 				runningInterpreter.addBreakpoint(bp);
 				return true;
+			}
+			case REMOVE_BREAKPOINT:
+			{
+				Breakpoint bp = message.getContent();
+				Console.debug.println("Break point removed : " + bp);
+				runningInterpreter.removeBreakpoint(bp);
+				return true;
+			}
 			case RESUME:
 				runningInterpreter.resume();
 				return true;
