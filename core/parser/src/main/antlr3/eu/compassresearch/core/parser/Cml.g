@@ -1630,15 +1630,21 @@ channelDef returns[List<AChannelNameDefinition> def]
                 List<ILexIdentifierToken> idList = new ArrayList<ILexIdentifierToken>();
                 idList.add(id);
                 ILexLocation loc = id.getLocation();
-                AChannelType chanType = new AChannelType(loc, true);
+                AChannelType chanType = new AChannelType(loc.clone(), true);
                 if ($type.type != null) {
-                    loc = extractLexLocation(loc, extractLexLocation($type.stop));
-                    chanType.setLocation(extractLexLocation($type.start,$type.stop));
+                    // Decided to keep the locations down to only that
+                    // of the identifier, rather than from the
+                    // identifier out to the type definition.
+                    // Uncomment this to change that. -jwc/16Oct2013
+                    //
+                    // loc = extractLexLocation(loc, extractLexLocation($type.stop));
+                    // chanType.setLocation(extractLexLocation($type.start,$type.stop));
                     chanType.setType($type.type.clone());
                 }    
-                ATypeSingleDeclaration typeDecl = new ATypeSingleDeclaration(loc, NameScope.GLOBAL, idList, chanType);
+                ATypeSingleDeclaration typeDecl = new ATypeSingleDeclaration(loc.clone(), NameScope.GLOBAL, idList, chanType);
                 
                 AChannelNameDefinition chanDecl = new AChannelNameDefinition();
+                chanDecl.setLocation(loc.clone());
                 chanDecl.setName(new LexNameToken("", id)); // this is ok, as each identifier in the identifierList gets its own ACNDef
                 chanDecl.setNameScope(NameScope.GLOBAL);
                 chanDecl.setUsed(false);            
