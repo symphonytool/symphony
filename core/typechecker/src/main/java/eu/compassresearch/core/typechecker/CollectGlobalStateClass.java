@@ -4,9 +4,12 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.hamcrest.core.IsSame;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import org.overture.ast.definitions.AImplicitFunctionDefinition;
+import org.overture.ast.definitions.APublicAccess;
+import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.typechecker.PublicClassEnvironment;
 import org.overture.typechecker.assistant.definition.AExplicitFunctionDefinitionAssistantTC;
@@ -33,6 +36,7 @@ public class CollectGlobalStateClass extends AnalysisCMLAdaptor
 	private final Collection<PDefinition> members;
 	private final Collection<PDefinition> channels;
 	private final CmlTypeCheckerAssistantFactory af = new CmlTypeCheckerAssistantFactory();
+	private TypeIssueHandler issueHandler;
 
 	public static class GlobalDefinitions
 	{
@@ -54,7 +58,7 @@ public class CollectGlobalStateClass extends AnalysisCMLAdaptor
 		// Create visitor and visit each source collecting global definitions
 		List<PDefinition> members = new LinkedList<PDefinition>();
 		List<PDefinition> channels = new LinkedList<PDefinition>();
-		CollectGlobalStateClass me = new CollectGlobalStateClass(members, channels);
+		CollectGlobalStateClass me = new CollectGlobalStateClass(members, channels,issueHandler);
 		for (PSource source : sources)
 		{
 			source.apply(me);
@@ -92,10 +96,11 @@ public class CollectGlobalStateClass extends AnalysisCMLAdaptor
 	}
 
 	private CollectGlobalStateClass(List<PDefinition> members,
-			Collection<PDefinition> channels)
+			Collection<PDefinition> channels, TypeIssueHandler issueHandler)
 	{
 		this.members = members;
 		this.channels = channels;
+		this.issueHandler = issueHandler;
 	}
 
 	@Override
@@ -123,6 +128,16 @@ public class CollectGlobalStateClass extends AnalysisCMLAdaptor
 		for (PDefinition tdef : defs)
 		{
 			tdef.apply(new ImplicitDefinitionFinder(af), null);
+			
+			if(tdef instanceof ATypeDefinition)
+			{
+				if(!(tdef.getAccess().getAccess() instanceof APublicAccess))
+				{
+					//TODO when getAccess gets a location then report it here
+					issueHandler.addTypeWarning(tdef, "Access specifier ignored. Global types are default public.");
+				}
+				tdef.getAccess().setAccess(new APublicAccess());
+			}
 		}
 
 		members.addAll(defs);
