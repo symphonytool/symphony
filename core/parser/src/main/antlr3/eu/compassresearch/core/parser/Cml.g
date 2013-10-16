@@ -855,7 +855,13 @@ renamePair returns[ARenamePair pair]
 
 actionParagraphOptList returns[List<PDefinition> defs]
 @init { $defs = new ArrayList<PDefinition>(); }
-    : ( actionParagraph { $defs.add($actionParagraph.defs); } )*
+    : ( actionParagraph 
+            {
+                if ($actionParagraph.defs != null) {
+                    $defs.add($actionParagraph.defs); 
+                }
+            }
+        )*
     ;
 
 actionParagraph returns[PDefinition defs]
@@ -869,12 +875,17 @@ actionParagraph returns[PDefinition defs]
     ;
 
 actionDefs returns[AActionsDefinition defs]
-@after { $defs.setLocation(extractLexLocation($start, $stop)); }
+@after {
+    if ($defs != null)
+        $defs.setLocation(extractLexLocation($start, $stop));
+}
     : 'actions' actionDefOptList
         {
-            $defs = new AActionsDefinition();
-            $defs.setName(new LexNameToken("", "Actions", extractLexLocation($start)));
-            $defs.setActions($actionDefOptList.defs);
+            if ($actionDefOptList.defs.size()>0) {
+                $defs = new AActionsDefinition();
+                $defs.setName(new LexNameToken("", "Actions", extractLexLocation($start)));
+                $defs.setActions($actionDefOptList.defs);
+            }
         }
     ;
 
@@ -1875,16 +1886,24 @@ classDefinitionBlockOptList returns[List<PDefinition> defs]
     ;
 
 classDefinitionBlock returns[List<? extends PDefinition> defs]
+@init { $defs = null; }
     : typeDefs                  { $defs = $typeDefs.defs.getTypes(); }
     | valueDefs                 { $defs = $valueDefs.defs.getValueDefinitions(); }
-    | stateDefs                 { $defs = $stateDefs.defs.getStateDefs(); }
+    | stateDefs
+        {
+            if ($stateDefs.defs != null)
+                $defs = $stateDefs.defs.getStateDefs();
+            else
+                $defs = new ArrayList<AStateDefinition>();
+        }
     | functionDefs              { $defs = $functionDefs.defs.getFunctionDefinitions(); }
-    | operationDefs             { 
-    								//List<PDefinition> opsDef = new LinkedList<PDefinition>();
-    								//opsDef.add($operationDefs.defs);
-    								//$defs = opsDef;
-    							  $defs = $operationDefs.defs.getOperations(); 
-    							}
+    | operationDefs             
+        { 
+            if ($operationDefs.defs != null)
+                $defs = $operationDefs.defs.getOperations(); 
+            else
+                $defs = new ArrayList<SCmlOperationDefinition>();
+        }
     | 'initial' operationDef
         {
             AInitialDefinition def = new AInitialDefinition();
@@ -1946,14 +1965,19 @@ valueDefinition returns[AValueDefinition def]
     ;
 
 stateDefs returns[AStateDefinition defs]
-@after { $defs.setLocation(extractLexLocation($start, $stop)); }
+@after {
+    if ($defs != null) {
+        $defs.setLocation(extractLexLocation($start, $stop));
+    } 
+}
     : 'state' instanceVariableDefinitionList?
         {
-            $defs = new AStateDefinition();
-            // This almost works, but causes a TC crash for some reason; related to bug #91 -jwc/3Oct2013
-            //$defs.setName(new LexNameToken("", "State", extractLexLocation($start)));
-            if ($instanceVariableDefinitionList.defs != null)
+            if ($instanceVariableDefinitionList.defs != null && $instanceVariableDefinitionList.defs.size()>0) {
+                $defs = new AStateDefinition();
+                // This almost works, but causes a TC crash for some reason; related to bug #91 -jwc/3Oct2013
+                //$defs.setName(new LexNameToken("", "State", extractLexLocation($start)));
                 $defs.setStateDefs($instanceVariableDefinitionList.defs);
+            }
         }
     ;
 
@@ -2324,18 +2348,22 @@ functionBody returns[PExp exp]
     ;
 
 operationDefs returns[AOperationsDefinition defs]
-@after { $defs.setLocation(extractLexLocation($start, $stop));
-         $defs.setName(new LexNameToken("", new LexIdentifierToken("", false, $defs.getLocation())));
-
-        }
+@after {
+    if ($defs != null) {
+        $defs.setLocation(extractLexLocation($start, $stop));
+        $defs.setName(new LexNameToken("", new LexIdentifierToken("", false, $defs.getLocation())));
+    }
+}
     : 'operations' qualOperationDefOptList
         {
-            $defs = new AOperationsDefinition(); // FIXME
-            $defs.setName(new LexNameToken("", "Operations", extractLexLocation($start)));
-            $defs.setOperations($qualOperationDefOptList.defs);
-            $defs.setNameScope(NameScope.LOCAL);
-            $defs.setUsed(false);
-            $defs.setAccess(getDefaultAccessSpecifier(true, false, extractLexLocation($operationDefs.start)));
+            if ($qualOperationDefOptList.defs.size()>0) {
+                $defs = new AOperationsDefinition(); // FIXME
+                $defs.setName(new LexNameToken("", "Operations", extractLexLocation($start)));
+                $defs.setOperations($qualOperationDefOptList.defs);
+                $defs.setNameScope(NameScope.LOCAL);
+                $defs.setUsed(false);
+                $defs.setAccess(getDefaultAccessSpecifier(true, false, extractLexLocation($operationDefs.start)));
+            }
         }
     ;
 
