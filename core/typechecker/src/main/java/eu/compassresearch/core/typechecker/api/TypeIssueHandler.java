@@ -7,7 +7,7 @@ import java.util.List;
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.node.INode;
-import org.overture.typechecker.TypeChecker.IStatusListner;
+import org.overture.typechecker.TypeChecker.IStatusListener;
 
 import eu.compassresearch.ast.types.AErrorType;
 
@@ -17,7 +17,7 @@ import eu.compassresearch.ast.types.AErrorType;
  * 
  * @author rwl
  */
-public interface TypeIssueHandler extends IStatusListner
+public interface TypeIssueHandler extends IStatusListener
 {
 	/**
 	 * @author rwl The result from the CML type checker is a set of CMLIssues. These can be warnings or error. A CML
