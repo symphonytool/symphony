@@ -43,8 +43,8 @@ public class FunctionCmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase
 		// add("class Test = begin functions fn: int -> int fn(a) == is not yet specified operations t : () ==> int t()== return Test`fn(4) end",true,true);
 		// FIXME this case should be ok
 		add("class Test = begin operations Test : ()==> Test Test()==Skip public fn: int ==> int fn(a) == is not yet specified operations t : () ==> int t()==( dcl out : Test  @ out := new Test(); return out.fn(4)) end", true, false);
-		// 15
-		add("process PatientRegister = begin state reg : nat functions moreroom: () -> nat moreroom() == reg @ Skip end", true, false);
+//		// 15 FIXME
+//		add("process PatientRegister = begin state reg : nat functions moreroom: () -> nat moreroom() == reg @ Skip end", true, false);
 		// 16 negative test, strange post 
 		add("functions max (els :set of ID) maxel:ID post max = forall el in set els @ maxel >= el", true, false, true);
 	}

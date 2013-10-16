@@ -124,11 +124,13 @@ public class TypesCmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase
 		add("types A = nat B = bool C = bool");
 		// 54 Ticket: #89 TypeChecker too aggressive with tuple selection
 		add("types A = (int*int) | int inv a == a.#1 >0",true , true, false);
-		// 55 Negative test: use of public keyword in global types
-		add("types public A = nat public B = map nat to nat process C = begin functions public F : A * B -> bool F(a, b) == true @ Skip end ", true, true, false);
-		// 56 public visibility automatically assigned to B in global types
-		add("types public A = nat B = map nat to nat process C = begin functions public F : A * B -> bool F(a, b) == true @ Skip end ", true, true, true);
+		// 55 public visibility automatically assigned to B in global types
+		add("types public A = nat B = map nat to nat process C = begin functions public F : A * B -> bool F(a, b) == true @ Skip end ", true, true, false);
 
+		
+		
+		// 55 Negative test: use of public keyword in global types
+				//add("types public A = nat public B = map nat to nat process C = begin functions public F : A * B -> bool F(a, b) == true @ Skip end ", true, true, false);
 	}
 
 	@Parameters
