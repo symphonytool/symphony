@@ -11,8 +11,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import junit.framework.Assert;
 
+import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,7 +27,7 @@ import eu.compassresearch.core.typechecker.api.TypeIssueHandler.CMLTypeError;
 public class RunCmlExamplesTestCase
 {
 
-	@Parameters
+	@Parameters(name = "{index} : {1}")
 	public static Collection<Object[]> getData()
 	{
 		int i = 0;
@@ -184,7 +184,7 @@ public class RunCmlExamplesTestCase
 	public void test() throws IOException
 	{
 
-		System.out.print("#" + number + " " + file.getName());
+		System.out.print("\t#" + number + " " + file.getName() + "\n");
 
 		TestUtil.TypeCheckerResult res = TestUtil.runTypeChecker(file.getAbsolutePath());
 
