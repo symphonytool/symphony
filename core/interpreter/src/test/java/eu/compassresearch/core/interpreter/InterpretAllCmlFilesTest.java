@@ -107,7 +107,7 @@ public class InterpretAllCmlFilesTest
 
 		// ExpectedTestResult testResult =(new File(resultPath).exists()?
 		// ExpectedTestResult.parseTestResultFile(resultPath):null);
-		ExpectedTestResult testResult = ExpectedTestResult.parseTestResultFile(resultPath);
+		
 		// if(testResult == null)
 		// Assert.fail("The testResult is not formatted correctly");
 
@@ -120,7 +120,7 @@ public class InterpretAllCmlFilesTest
 		boolean isTypechecked = cmlTC.typeCheck();
 
 		if (!isTypechecked)
-			System.out.println(tcIssue.getTypeErrors());
+			System.err.println(tcIssue.getTypeErrors());
 
 		assertTrue(isTypechecked);
 
@@ -135,7 +135,7 @@ public class InterpretAllCmlFilesTest
 		{
 			exception = ex;
 		}
-
+		ExpectedTestResult testResult = ExpectedTestResult.parseTestResultFile(resultPath);
 		checkResult(testResult, interpreter, exception);
 	}
 
