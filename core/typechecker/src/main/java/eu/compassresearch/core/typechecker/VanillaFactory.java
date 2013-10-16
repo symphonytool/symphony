@@ -8,8 +8,6 @@ import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.types.PType;
 
 import eu.compassresearch.ast.program.PSource;
-import eu.compassresearch.core.common.Registry;
-import eu.compassresearch.core.common.RegistryFactory;
 import eu.compassresearch.core.typechecker.api.CmlRootVisitor;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.TypeCheckQuestion;
@@ -128,18 +126,6 @@ public final class VanillaFactory
 	}
 
 	/**
-	 * Returns an instance of the default issue handle in the package.
-	 * 
-	 * @param reg
-	 *            - provide a registry in which error are also placed.
-	 * @return
-	 */
-	public static TypeIssueHandler newCollectingIssueHandle(Registry reg)
-	{
-		return new CollectingIssueHandler(reg);
-	}
-
-	/**
 	 * Returns an instance of the default issue handler in the TC package. Static access to the default common-Regsitry
 	 * instance is used. NOTE! IssueHandlers and Registry are entangled behind the screens, this is unnecessary and
 	 * should be re-factored at some point. RWL
@@ -148,7 +134,7 @@ public final class VanillaFactory
 	 */
 	public static TypeIssueHandler newCollectingIssueHandle()
 	{
-		return new CollectingIssueHandler(RegistryFactory.getInstance().getRegistry());
+		return new CollectingIssueHandler();
 	}
 
 }

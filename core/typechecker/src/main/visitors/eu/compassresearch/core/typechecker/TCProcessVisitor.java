@@ -772,7 +772,13 @@ public class TCProcessVisitor extends
 		List<PDefinition> fixedDefinitions = new LinkedList<PDefinition>();
 		for (PDefinition def : node.getDefinitionParagraphs())
 		{
-			PType type = def.apply(this.parentChecker, actionScope);
+			CmlTypeCheckInfo scope = actionScope;
+
+			if (def.apply(question.assistantFactory.getFunctionChecker()))
+			{
+				scope = cmlEnv;
+			}
+			PType type = def.apply(this.parentChecker, scope);
 			if (!successfulType(type))
 				return issueHandler.addTypeError(def, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(def.getName()
 						+ ""));

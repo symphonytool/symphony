@@ -8,6 +8,7 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import org.overture.ast.definitions.AImplicitFunctionDefinition;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.typechecker.PublicClassEnvironment;
 import org.overture.typechecker.assistant.definition.AExplicitFunctionDefinitionAssistantTC;
 import org.overture.typechecker.assistant.definition.SClassDefinitionAssistantTC;
 import org.overture.typechecker.utilities.ImplicitDefinitionFinder;
@@ -102,7 +103,8 @@ public class CollectGlobalStateClass extends AnalysisCMLAdaptor
 			throws AnalysisException
 	{
 		// this will generate all the pre and post defs for functions
-		SClassDefinitionAssistantTC.implicitDefinitions(node, null);
+		SClassDefinitionAssistantTC.implicitDefinitions(node, new PublicClassEnvironment(af, null));// FIXME last
+																									// argument is wrong
 		/*
 		 * Overture sets the invariant field on a CmlClassDefinition. This field is not used in CML because it uses the
 		 * ExplicitCmlOperationDefinition instead of the ExplicitOperationDefinition in VDM. So we reset it to null

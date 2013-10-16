@@ -32,11 +32,11 @@
 			<version>${overture.version}</version>
 		</dependency>
 
-		<dependency>
+		<!-- dependency>
 			<groupId>eu.compassresearch.core</groupId>
 			<artifactId>common</artifactId>
 			<version>${project.version}</version>
-		</dependency>
+		</dependency-->
 
 	</dependencies>
 
