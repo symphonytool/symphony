@@ -3130,12 +3130,15 @@ exprbase returns[PExp exp]
         }
     | IDENTIFIER old='~'?
         {
-            boolean isOld = (old != null);
+            boolean isOld = ($old != null);
+            String origName = $IDENTIFIER.getText();
             ILexLocation loc = extractLexLocation($IDENTIFIER);
-            if (isOld)
+            if (isOld) {
                 loc = extractLexLocation(loc, extractLexLocation($old));
+                origName = origName + "~";
+            }
             LexNameToken name = new LexNameToken("", $IDENTIFIER.getText(), loc, isOld, false);
-            $exp = new AVariableExp(loc, name, name.getName());
+            $exp = new AVariableExp(loc, name, origName);
         }
     | symbolicLiteralExpr
         {
