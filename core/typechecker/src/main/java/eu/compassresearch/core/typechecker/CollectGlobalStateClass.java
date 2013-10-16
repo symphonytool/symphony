@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.hamcrest.core.IsSame;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import org.overture.ast.definitions.AImplicitFunctionDefinition;
@@ -58,7 +57,7 @@ public class CollectGlobalStateClass extends AnalysisCMLAdaptor
 		// Create visitor and visit each source collecting global definitions
 		List<PDefinition> members = new LinkedList<PDefinition>();
 		List<PDefinition> channels = new LinkedList<PDefinition>();
-		CollectGlobalStateClass me = new CollectGlobalStateClass(members, channels,issueHandler);
+		CollectGlobalStateClass me = new CollectGlobalStateClass(members, channels, issueHandler);
 		for (PSource source : sources)
 		{
 			source.apply(me);
@@ -128,13 +127,13 @@ public class CollectGlobalStateClass extends AnalysisCMLAdaptor
 		for (PDefinition tdef : defs)
 		{
 			tdef.apply(new ImplicitDefinitionFinder(af), null);
-			
-			if(tdef instanceof ATypeDefinition)
+
+			if (tdef instanceof ATypeDefinition)
 			{
-				if(!(tdef.getAccess().getAccess() instanceof APublicAccess))
+				if (!(tdef.getAccess().getAccess() instanceof APublicAccess))
 				{
-					//TODO when getAccess gets a location then report it here
-					issueHandler.addTypeWarning(tdef, "Access specifier ignored. Global types are default public.");
+					// TODO when getAccess gets a location then report it here. We also need it to have a token so we can see the difference from non parse from default
+//					issueHandler.addTypeWarning(tdef, "Access specifier ignored. Global types are default public.");
 				}
 				tdef.getAccess().setAccess(new APublicAccess());
 			}
