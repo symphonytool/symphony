@@ -43,7 +43,7 @@ public class ProcessCmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase
 		// 10//
 		add(3, "process A = begin @ Skip end process p1 = begin @ A ; Skip end", true, false, new String[] { TypeErrorMessages.EXPECTED_AN_ACTION.customizeMessage("A") });
 		// 11//
-		add("class processafterclass = begin types aunion = nat functions g:int -> aunion g(a) == if (a = 0) then  <None> else a end process A = A ; B", true, false);
+		add("class processafterclass = begin types aunion = nat functions g:int -> aunion g(a) == if (a = 0) then  <None> else a end process A = A ; B", true, false, false);
 		// 12//
 		add("process K = begin state a:int operations o: int ==> int o(b) == if a = 0 then a:=b; return a @ a := o(10) end");
 		// 13//
@@ -73,11 +73,13 @@ public class ProcessCmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase
 		// 25//
 		add("process M = begin @ Skip end process L = begin @ Stop end process K = || i in set {1,2,3} @ [{ }] (M [| {| inp.k | k in set {5,6,7} |} union {| out.k | k in set {5,6,7} |} |] L)", true, true, false);
 		// 26// old-record in operation
-		add("process p = begin types A :: a : int state aa:A operations o:int==>int o(i) == return (aa.a + i) post aa~.a = i @ o(2) end");
+		add("process p = begin types A :: a : int state aa:A operations o:int==>int o(i) == return (aa.a + i) post aa~.a = i @ o(2) end", true, true, false);
 		// 27 //check for variable name in action being the same as state variable
 		add("process Q = begin state q : nat := 10 actions INIT = (dcl q : nat @ q := 10) @ INIT() end");
 		// 28
 		add("process = begin @ Skip end", false, false);
+		// 29
+		add("types  Index = nat Money = nat process Test = begin  actions Pay = i, j: Index, n: Money @ Skip @ Pay(1,1,1) end", true, true);
 
 	}
 

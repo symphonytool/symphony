@@ -118,53 +118,53 @@ public class CaseStudiesTestCase extends AbstractTypeCheckerTestCase
 		if (canFindCaseStudies)
 		{
 			// 0//
-			add("/BitRegister");
+			add("/BitRegister", true);
 			// 1//
-			add("/Dwarf");
+			add("/Dwarf", true);
 			// 2//
-			add("/EmergencyResponse/Expert-Led/model");
+			add("/EmergencyResponse/Expert-Led/model", true);
 			// 3//
-			add("/EmergencyResponse/Rules-Led/model");
+			add("/EmergencyResponse/Rules-Led/model", true);
 			// 4//
-			add("/GridManager/FarmB");
+			add("/GridManager/FarmB", true);
 			// 5//
-			add("/LeaderElection/Election-BigProcess");
+			add("/LeaderElection/Election-BigProcess", true);
 			// 6//
-			add("/LeaderElection/Election-NonLeaders");
+			add("/LeaderElection/Election-NonLeaders", true);
 			// 7// LexNameToken
 			add("/LeaderElection/Election-Original");
 			// 8//
-			add("/LeaderElection/LeaderElection-Ncl");
+			add("/LeaderElection/LeaderElection-Ncl", true);
 			// 9// LexNameToken
-			add("/LeaderElection");
+			add("/LeaderElection", true);
 			// 10// LexNameToken
-			add("/Library");
+			add("/Library", true);
 			// 11// LexNameToken
-			add("/Parwsum");
+			add("/Parwsum", true);
 			// 12// LexNameToken
-			add("/RingBuffer");
+			add("/RingBuffer", true);
 			// 13// LexNameToken
-			add("/Simpler BitRegister");
+			add("/Simpler BitRegister", true);
 			// 14// LexNameToken
-			add("/SoSMpc/ideal");
+			add("/SoSMpc/ideal", true);
 			// 15// LexNameToken
 			add("/SoSMpc/protocol", true);
 			// 16// LexNameToken
-			add("/SoSMpc/singlesystem");
+			add("/SoSMpc/singlesystem", true);
 			// 17// LexNameToken
 			add("/TelephoneExchange/ClassesVersion", true);
 			// 18// LexNameToken
 			add("/TelephoneExchange/Original", true);
 			// 19// LexNameToken
-			add("/TrafficManager/CityAndCars/City");
+			add("/TrafficManager/CityAndCars/City", true);
 			// 20// LexNameToken
-			add("/TrafficManager/CityAndCars/City-Working");
+			add("/TrafficManager/CityAndCars/City-Working", true);
 			// 21// Maybe a model error, multiple def of var i
-			add("/TrafficManager/Junctions");
+			add("/TrafficManager/Junctions", true);
 			// 22// LexNameToken
-			add("/TravelAgent/Hotel1");
+			add("/TravelAgent/Hotel1", true);
 			// 23// Syntax bug
-			add("/TravelAgent/Hotel2");
+			add("/TravelAgent/Hotel2", true);
 			// 23// Jeremy and Zoe working on master students
 			// add("/Alarm");
 			// 24 //

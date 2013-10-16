@@ -66,7 +66,7 @@ public class CmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase
 		// 20
 		addTestProgram(testData, "process K = begin operations INIT: () ==> () INIT() == Skip @ INIT() end", true, true, true, new String[0]);
 		// 21
-		addTestProgram(testData, "values m: map int to int = {  1 |-> 2 } process K = begin state l:int functions f:map int to int -> int f(m) == m(42) @ l := f(m) end", true, true, true, new String[0]);
+		addTestProgram(testData, "values m: map int to int = {  1 |-> 2 } process K = begin state l:int functions f:map int to int -> int f(m) == m(42) @ l := f(m) end", true, true, false, new String[0]);
 		// 22
 		addTestProgram(testData, "values m = {  1 |-> 2 } process K = begin state l:int operations f:map int to int ==> int f(m) == return m(42) @ l := f(m) end", true, true, true, new String[0]);
 		// 23
@@ -74,37 +74,37 @@ public class CmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase
 		// 24
 		addTestProgram(testData, "types k = int channels a class A = begin end", true, true, true, new String[0]);
 		// 25
-		addTestProgram(testData, "types S = seq of char RescueDetails::k : int functions rescueDetailsToString(r : RescueDetails) s: S post s <> [] process P = begin actions MERGE2 = val eru: ERUId @ (dcl s: S,r:RescueDetails @ s := rescueDetailsToString(r); Skip ) @ Skip end", true, true, true, new String[0]);
+		addTestProgram(testData, "types S = seq of char RescueDetails::k : int functions rescueDetailsToString(r : RescueDetails) s: S post s <> [] process P = begin actions MERGE2 = val eru: ERUId @ (dcl s: S,r:RescueDetails @ s := rescueDetailsToString(r); Skip ) @ Skip end", true, true, false, new String[0]);
 		// 26
 		addTestProgram(testData, "channels c1: int process P = begin actions A = val r : int @ c1!r -> Skip @ Skip end", true, true, true, new String[0]);
 		// 27
-		addTestProgram(testData, "types Id ::   type : (<ERU> | <CC>) identifier : token ERUId = Id Location = token Criticality = nat inv c == c < 4 String = seq of char RescueDetails :: target : Location criticality : Criticality process CallCentreProc = begin state erus: set of ERUId eruRescues: map ERUId to RescueDetails inv dom eruRescues subset erus and (forall i in set erus @ i.type = <ERU>) operations reAllocateERU(eru : ERUId, r : RescueDetails) frame wr eruRescues : map ERUId to RescueDetails rd erus: set of ERUId pre eru in set erus and eru in set dom eruRescues and eruRescues(eru) <> r post eru in set dom eruRescues and eruRescues(eru) = r actions FORK1 = (dcl eru : ERUId @ (dcl r : RescueDetails @ (dcl oldr: RescueDetails @  reAllocateERU(eru,r)))) @ Skip end", true, true, true, new String[0]);
+		addTestProgram(testData, "types Id ::   type : (<ERU> | <CC>) identifier : token ERUId = Id Location = token Criticality = nat inv c == c < 4 String = seq of char RescueDetails :: target : Location criticality : Criticality process CallCentreProc = begin state erus: set of ERUId eruRescues: map ERUId to RescueDetails inv dom eruRescues subset erus and (forall i in set erus @ i.type = <ERU>) operations reAllocateERU(eru : ERUId, r : RescueDetails) frame wr eruRescues : map ERUId to RescueDetails rd erus: set of ERUId pre eru in set erus and eru in set dom eruRescues and eruRescues(eru) <> r post eru in set dom eruRescues and eruRescues(eru) = r actions FORK1 = (dcl eru : ERUId @ (dcl r : RescueDetails @ (dcl oldr: RescueDetails @  reAllocateERU(eru,r)))) @ Skip end", true, true, false, new String[0]);
 		// 28
-		addTestProgram(testData, "types SUBS = token STATUS = ( <ringing> | <speech> | <suspended>) values Connected = {<ringing>,<speech>,<suspended>} functions connected: (map SUBS to STATUS) * (map SUBS to SUBS) +> (inmap SUBS to SUBS) connected(status,number) == { |-> } free: (map SUBS to STATUS) * (map SUBS to SUBS) * (set of SUBS) +> (set of SUBS) free(status,number,subs) == subs \\ dom(status) \\ rng(connected(status,number)) class Exchange = begin end", true, true, true, new String[0]);
+		addTestProgram(testData, "types SUBS = token STATUS = ( <ringing> | <speech> | <suspended>) values Connected = {<ringing>,<speech>,<suspended>} functions connected: (map SUBS to STATUS) * (map SUBS to SUBS) +> (inmap SUBS to SUBS) connected(status,number) == { |-> } free: (map SUBS to STATUS) * (map SUBS to SUBS) * (set of SUBS) +> (set of SUBS) free(status,number,subs) == subs \\ dom(status) \\ rng(connected(status,number)) class Exchange = begin end", true, true, false, new String[0]);
 		// 29
 		addTestProgram(testData, "channels a:int process P = ||| i in set {1,2,3} @ begin @ a!i -> Skip end", true, true, true, new String[0]);
 		// 30
-		addTestProgram(testData, "class T = begin state a : int functions f:int * int -> int f(x,y) == a + x + y end", true, true, true, new String[0]);
+		addTestProgram(testData, "class T = begin state a : int functions f:int * int -> int f(x,y) == a + x + y end", true, true, false, new String[0]);
 		// 31
 		addTestProgram(testData, "types Quantity = int Price = int class C = begin state sellerBids : seq of Quantity buyerBids : seq of Quantity prices : seq of Price inv len(sellerBids) = len(buyerBids) and len(sellerBids) = len(prices) end", true, true, true, new String[0]);
 		// 32
-		addTestProgram(testData, "functions f: int -> int f(a) == a+1 pre a > 0 process P = begin @ f(2) end ", true, true, true, new String[0]);
+		addTestProgram(testData, "functions f: int -> int f(a) == a+1 pre a > 0 process P = begin @ f(2) end ", true, true, false, new String[0]);
 		// 33
 		addTestProgram(testData, "class C = begin operations public doit: int ==> () doit(a) == Skip end process P = begin state s : C @ s.doit(1) end", true, true, true, new String[0]);
 		// 34
-		addTestProgram(testData, "functions f: int -> int f(a) == a+1 pre a > 0 process P = begin @ pre_f(2) end ", true, true, true, new String[0]);
+		addTestProgram(testData, "functions f: int -> int f(a) == a+1 pre a > 0 process P = begin @ pre_f(2) end ", true, true, false, new String[0]);
 		// 35
-		addTestProgram(testData, "types mac :: a:int b:int process P = begin functions f: mac * int -> int f(x,y) == x.a+y @ f(mk_mac(1,2),2) end", true, true, true, new String[0]);
+		addTestProgram(testData, "types mac :: a:int b:int process P = begin functions f: mac * int -> int f(x,y) == x.a+y @ f(mk_mac(1,2),2) end", true, true, false, new String[0]);
 		// 36
-		addTestProgram(testData, "functions f: int * int -> int f(x,y) == x+y pre x > 0 process P = begin actions A = [ pre_f(0,0) ] & Skip @ A end", true, true, true, new String[0]);
+		addTestProgram(testData, "functions f: int * int -> int f(x,y) == x+y pre x > 0 process P = begin actions A = [ pre_f(0,0) ] & Skip @ A end", true, true, false, new String[0]);
 		// 37
-		addTestProgram(testData, "types ERUId = nat RescueDetails ::a:int b:int process P = begin state erus : set of ERUId eruRescues : map ERUId to RescueDetails operations findIdleERUs() idleERUs: set of ERUId frame rd erus: set of ERUId rd eruRescues: map ERUId to RescueDetails post idleERUs = erus \\ dom eruRescues @ findIdleERUs() end", true, true, true, new String[0]);
+		addTestProgram(testData, "types ERUId = nat RescueDetails ::a:int b:int process P = begin state erus : set of ERUId eruRescues : map ERUId to RescueDetails operations findIdleERUs() idleERUs: set of ERUId frame rd erus: set of ERUId rd eruRescues: map ERUId to RescueDetails post idleERUs = erus \\ dom eruRescues @ findIdleERUs() end", true, true, false, new String[0]);
 		// 38
 		addTestProgram(testData, "channels c: nat values a : nat = 10 - 11 b:nat = 20 - 10 process A = begin actions B = c!(a-b)->Skip @ Skip end", true, true, true, new String[0]);
 		// 39
 		addTestProgram(testData, "process P = begin actions B = A1(1,2) A1 = val a:int, b: nat @ Skip  @ A1(1,1) end", true, true, true, new String[0]);
 		// 40
-		addTestProgram(testData, "types Day = nat AvailDB = map Day to nat functions CkAvail (d:Day,av:AvailDB) n:nat post n = av(d)", true, true, true, new String[0]);
+		addTestProgram(testData, "types Day = nat AvailDB = map Day to nat functions CkAvail (d:Day,av:AvailDB) n:nat post n = av(d)", true, true, false, new String[0]);
 		// 41
 		addTestProgram(testData, "class C = begin operations C:()==>C C() == Skip end", true, true, true, new String[0]);
 		// 42
@@ -127,11 +127,11 @@ public class CmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase
 		// 50 // Test case for bug https://sourceforge.net/p/compassresearch/tickets/27/
 		addTestProgram(testData, "process Test = begin functions Bad : () -> nat	Bad () ==  let aux = 1 in aux  Bad2 : () -> nat	Bad2 () ==  aux @ Skip end", true, false, true, new String[0]);
 		// 51 // Test case for bug https://sourceforge.net/p/compassresearch/tickets/26/
-		addTestProgram(testData, "process Test = begin functions AFunc: nat -> nat AFunc(l) == 1 BFunc: nat * nat -> nat BFunc(l,u) == AFunc(l) @ Skip end", true, true, true, new String[0]);
+		addTestProgram(testData, "process Test = begin functions AFunc: nat -> nat AFunc(l) == 1 BFunc: nat * nat -> nat BFunc(l,u) == AFunc(l) @ Skip end", true, true, false, new String[0]);
 		// 52 // Test case for bug https://sourceforge.net/p/compassresearch/tickets/26/
-		addTestProgram(testData, "process Test2 = begin functions AFunc: nat -> nat AFunc(avar) == 1 BFunc : () -> nat BFunc() == AFunc(2) @ Skip end", true, true, true, new String[0]);
+		addTestProgram(testData, "process Test2 = begin functions AFunc: nat -> nat AFunc(avar) == 1 BFunc : () -> nat BFunc() == AFunc(2) @ Skip end", true, true, false, new String[0]);
 		// 53 // Test case for bug https://sourceforge.net/p/compassresearch/tickets/26/
-		addTestProgram(testData, "process Test = begin functions BFunc : () -> nat BFunc() == AFunc(2) @ Skip end process Test2 = begin functions AFunc: nat -> nat AFunc(avar) == 1 BFunc : () -> nat BFunc() == AFunc(2) @ Skip end", true, false, true,  new String[0]);
+		addTestProgram(testData, "process Test = begin functions BFunc : () -> nat BFunc() == AFunc(2) @ Skip end process Test2 = begin functions AFunc: nat -> nat AFunc(avar) == 1 BFunc : () -> nat BFunc() == AFunc(2) @ Skip end", true, false, false,  new String[0]);
 		// 54 // Test case for bug http://sourceforge.net/p/compassresearch/tickets/48/
 		addTestProgram(testData, "process Waiter = begin @ Wait \"ao\" ; Skip end", true, false, true, new String[0]);
 		// 55 //Negative test AEnumVarsetExpression
@@ -155,13 +155,13 @@ public class CmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase
 		// 64 //
 		addTestProgram(testData, "channels	a : int	process A =	val x : nat @ begin	@ a.x -> Skip end process B = ; i in seq {1,2,3} @ A(i)", true, true, true, new String[0]);
 		// 65 http://sourceforge.net/p/compassresearch/tickets/92/
-		addTestProgram(testData, "types String2 = seq of char Process2 :: id: String2 functions findPos(q: seq of Process2,id: String2) pos : nat pre  exists p in set (elems q) @ p.id = id post true", true, true, true, new String[0]);
+		addTestProgram(testData, "types String2 = seq of char Process2 :: id: String2 functions findPos(q: seq of Process2,id: String2) pos : nat pre  exists p in set (elems q) @ p.id = id post true", true, true, false, new String[0]);
 		// 66
-		addTestProgram(testData, "types String2 = seq of char Process2 :: id: String2 functions findPos(q: seq of Process2,id: String2) pos : nat pre  forall p in set (elems q) @ p.id = id post true", true, true, true, new String[0]);
+		addTestProgram(testData, "types String2 = seq of char Process2 :: id: String2 functions findPos(q: seq of Process2,id: String2) pos : nat pre  forall p in set (elems q) @ p.id = id post true", true, true, false, new String[0]);
 		// 67
-		addTestProgram(testData, "types String2 = seq of char Process2 :: id: String2 functions findPos(q: seq of Process2,id: String2) pos : nat pre  let mk_(-,p)= mk_(7, mk_Process2([])) in p.id = id  post true", true, true, true, new String[0]);
+		addTestProgram(testData, "types String2 = seq of char Process2 :: id: String2 functions findPos(q: seq of Process2,id: String2) pos : nat pre  let mk_(-,p)= mk_(7, mk_Process2([])) in p.id = id  post true", true, true, false, new String[0]);
 		// 68
-		addTestProgram(testData, "types String2 = seq of char Process2 :: id: String2 functions findPos: seq of Process2* String2 -> nat findPos(q,id)==  let mk_(-,p)= mk_(7, mk_Process2([])) in p.id = id", true, false, true, new String[0]);
+		addTestProgram(testData, "types String2 = seq of char Process2 :: id: String2 functions findPos: seq of Process2* String2 -> nat findPos(q,id)==  let mk_(-,p)= mk_(7, mk_Process2([])) in p.id = id", true, false, false, new String[0]);
 		
 		return testData;
 
