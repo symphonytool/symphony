@@ -13,7 +13,7 @@
 	<name>COMPASS Core CML Abstract Syntax Tree</name>
 
 	<properties>
-		<astcreator.version>1.4.4</astcreator.version>
+		<astcreator.version>1.4.5</astcreator.version>
 	</properties>
 
 	<dependencies>

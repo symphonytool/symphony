@@ -71,8 +71,8 @@ definition {-> package='eu.compassresearch.ast.definitions'}
         [operationDefinition]: definition
    | {state}
         [fields]:field.field*
-        [invPattern]:pattern [invExpression]:exp (invdef):definition.explicitFunction
-        [initPattern]:pattern [initExpression]:exp (initdef):definition.explicitFunction
+        [invPattern]:pattern [invExpression]:exp (invdef):definition.#Function.explicit
+        [initPattern]:pattern [initExpression]:exp (initdef):definition.#Function.explicit
         (stateDefs):definition*
    ;
    
@@ -92,8 +92,8 @@ definition {-> package='eu.compassresearch.ast.definitions'}
 	[precondition]:exp
 	[postcondition]:exp
 	(type):type
-	(predef):definition.explicitFunction
-	(postdef):definition.explicitFunction
+	(predef):definition.#Function.explicit
+	(postdef):definition.#Function.explicit
 	(paramDefinitions):definition*
 	(state):definition.state
 	(actualResult):type
@@ -107,8 +107,8 @@ definition {-> package='eu.compassresearch.ast.definitions'}
 	[isConstructor]:java_Boolean
 	[errors]:case.error*
 	(type):type
-	(predef):definition.explicitFunction
-	(postdef):definition.explicitFunction
+	(predef):definition.#Function.explicit
+	(postdef):definition.#Function.explicit
 	(state):definition.state
 	(actualResult):type
 	(stateDefinition):definition
