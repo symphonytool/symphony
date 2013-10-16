@@ -3184,7 +3184,7 @@ exprbase returns[PExp exp]
     | 'cases' cexp=expression ':' caseExprAltList ( ',' 'others' '->' oexp=expression )? 'end'
         {
             for (ACaseAlternative alt : $caseExprAltList.alts) {
-                alt.setCexp($cexp.exp);
+                alt.setCexp($cexp.exp.clone());
             }
             $exp = new ACasesExp(null, $cexp.exp, $caseExprAltList.alts, $oexp.exp);
         }
