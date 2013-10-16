@@ -34,15 +34,15 @@ public class ActionsCmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase
 		// 7// Self reference
 		add("process P = begin actions A = Skip ; A @ Skip end");
 		// 8//Sequential Composition Replicated Action with seq
-		add("process P = begin operations A : nat ==> () A(a)== Skip  @ ;i in seq [2,3] @ A(i) end", true, true);
+		add("process P = begin operations A : nat ==> () A(a)== Skip  @ ;i in seq [2,3] @ A(i) end", true, true, false);
 		// 9//Negative test: Sequential Composition Replicated Action with set
 		add("process P = begin @ ; i in seq {2,3} @ A(i) end", true, false);
 	}
 
 	public ActionsCmlTypeCheckerTestCase(String cmlSource, boolean parsesOk,
-			boolean typesOk, String[] errorMessages)
+			boolean typesOk, boolean expectNoWarnings, String[] errorMessages)
 	{
-		super(cmlSource, parsesOk, typesOk, errorMessages);
+		super(cmlSource, parsesOk, typesOk, expectNoWarnings, errorMessages);
 	}
 
 	@Parameters

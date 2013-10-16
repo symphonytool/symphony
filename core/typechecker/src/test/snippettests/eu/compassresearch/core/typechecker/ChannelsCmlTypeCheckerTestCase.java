@@ -33,10 +33,10 @@ public class ChannelsCmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase
 		add("channels a, b process A = begin actions INIT = (a -> b -> Skip) \\\\ {|b|} @ INIT end");
 		// 7// This test checks that an explicit operation body of type nat1 can
 		// be declared to return int.
-		add("channels a, b process A = begin functions test : int +> int test(x) == 2  @ a -> Skip end");
+		add("channels a, b process A = begin functions test : int +> int test(x) == 2  @ a -> Skip end", true, true, false);
 		// 8// This test was reported by AKM and checks that functions can be
 		// invoked from Guards
-		add("channels a process A = begin state x : nat := 3 functions isHigherThanTwo : (int) +> bool isHigherThanTwo(y) == y > 2 @ [isHigherThanTwo(x)] & a -> Skip end");
+		add("channels a process A = begin state x : nat := 3 functions isHigherThanTwo : (int) +> bool isHigherThanTwo(y) == y > 2 @ [isHigherThanTwo(x)] & a -> Skip end", true, true, false);
 		// 9// Test that the dot '.' prefix on channels works
 		add("channels a: int * int process A = begin state istate : int jstate : int @ a?i?j -> a.i.j -> (istate := i ; jstate := j) end");
 		// 10// test that constraints on input communications
@@ -55,9 +55,9 @@ public class ChannelsCmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase
 	}
 
 	public ChannelsCmlTypeCheckerTestCase(String cmlSource, boolean parsesOk,
-			boolean typesOk, String[] errorMessages)
+			boolean typesOk, boolean expectNowarnings, String[] errorMessages)
 	{
-		super(cmlSource, parsesOk, typesOk, errorMessages);
+		super(cmlSource, parsesOk, typesOk, expectNowarnings, errorMessages);
 	}
 
 	@Parameters

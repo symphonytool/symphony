@@ -14,6 +14,7 @@ import org.overture.ast.types.ANatNumericBasicType;
 import org.overture.ast.types.ANatOneNumericBasicType;
 import org.overture.ast.types.AOptionalType;
 import org.overture.ast.types.ARationalNumericBasicType;
+import org.overture.ast.types.ARealNumericBasicType;
 import org.overture.ast.types.ASeq1SeqType;
 import org.overture.ast.types.ASeqSeqType;
 import org.overture.ast.types.ASetType;
@@ -152,7 +153,7 @@ class SimpleTypeComparator implements TypeComparator
 	{
 		fixedSubTypeRelations = new HashMap<Class<?>, List<Class<?>>>();
 		List<Class<?>> basic = Arrays.asList(new Class<?>[] {
-				ARationalNumericBasicType.class, AIntNumericBasicType.class,
+				ARealNumericBasicType.class, ARationalNumericBasicType.class, AIntNumericBasicType.class,
 				ANatNumericBasicType.class, ANatOneNumericBasicType.class });
 
 		for (Class<?> b : basic)

@@ -192,7 +192,7 @@ public class ValuesTypeCheckerTestCase extends AbstractTypeCheckerTestCase
 		// 88//
 		add("class test = begin values a:int = 2 end");
 		// 89//
-		add("class test = begin values a:bool = forall i in set {1,2,3} @ 2+1 > 10 end");
+		add("class test = begin values a:bool = forall i in set {1,2,3} @ 2+1 > 10 end", true , true, false);
 		// 90//
 		add("class test = begin values a:bool= exists i in set {1,2,3} @ i+1 > 10 end");
 		// 91//
@@ -202,7 +202,7 @@ public class ValuesTypeCheckerTestCase extends AbstractTypeCheckerTestCase
 		// 93//
 		add("class test = begin values a:set of int = {1,2,3} end");
 		// 94//
-		add("class test = begin values a:set of int = {a+1 | a in set {1,2,3}} end");
+		add("class test = begin values a:set of int = {a+1 | a in set {1,2,3}} end", true , true, false);
 		// 95//
 		add("class test = begin values a:set of int = {1,...,3} end");
 		// 96//
@@ -210,13 +210,13 @@ public class ValuesTypeCheckerTestCase extends AbstractTypeCheckerTestCase
 		// 97//
 		add("class test = begin values a:int = [1,2,3](1) end");
 		// 98//
-		add("class test = begin values a:seq of int = [ 10 + a | a in set {1,2,3} @ a > 1 ] end");
+		add("class test = begin values a:seq of int = [ 10 + a | a in set {1,2,3} @ a > 1 ] end", true , true, false);
 		// 99//
-		add("class test = begin values a:int = [ 10 + a | a in set {1,2,3} @ a > 1 ](1) end");
+		add("class test = begin values a:int = [ 10 + a | a in set {1,2,3} @ a > 1 ](1) end", true , true, false);
 		// 100//
-		add("class test = begin values a:seq of int = [ 10 + a | a in set {1,2,3} @ a > 1 ](1,...,2) end");
+		add("class test = begin values a:seq of int = [ 10 + a | a in set {1,2,3} @ a > 1 ](1,...,2) end", true, true, false);
 		// 101//
-		add("class test = begin values a:seq of int = [ 10 + a | a in set {1,2,3} @ unexpectedid > 1 ](1,...,2) end", true, false);
+		add("class test = begin values a:seq of int = [ 10 + a | a in set {1,2,3} @ unexpectedid > 1 ](1,...,2) end", true, false, false);
 		// 102//
 		add("class test = begin values even:map int to bool = {1|->false, 2|->true, 3|->false, 4|->true}  end");
 		// 103//
@@ -245,16 +245,21 @@ public class ValuesTypeCheckerTestCase extends AbstractTypeCheckerTestCase
 		add("class test = begin values one:bool = isofclass( test , self) end", false);
 		// 115 TODO: So should we support unicode characters in identifiers?
 		add("class evil_letters_æøå = begin values even:int = fn_int_to_int( 10 ) end", false, false);
-
+		// 116
 		add("values a:int = 1 \n b : int = a ");
-
+		// 117
 		add("values k : int = 2 class test = begin state a : int := k end");
+		// 118 reals
+		add("values a : real = 1.0 b : real = 0.01 c : real = 0.0 d : real = 1 / 8 ");
+		//119 rats
+		add("values a : nat = 1  b : nat = 2 c : rat =  a / b");
+		
 	}
 
 	public ValuesTypeCheckerTestCase(String cmlSource, boolean parsesOk,
-			boolean typesOk, String[] errorMessages)
+			boolean typesOk, boolean expectNowarnings, String[] errorMessages)
 	{
-		super(cmlSource, parsesOk, typesOk, errorMessages);
+		super(cmlSource, parsesOk, typesOk, expectNowarnings, errorMessages);
 	}
 
 	@Parameters

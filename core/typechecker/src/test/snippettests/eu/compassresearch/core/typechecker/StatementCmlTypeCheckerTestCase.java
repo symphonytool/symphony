@@ -28,9 +28,9 @@ public class StatementCmlTypeCheckerTestCase extends
 	}
 
 	public StatementCmlTypeCheckerTestCase(String cmlSource, boolean parsesOk,
-			boolean typesOk, String[] errorMessages)
+			boolean typesOk, boolean expectNowarnings, String[] errorMessages)
 	{
-		super(cmlSource, parsesOk, typesOk, errorMessages);
+		super(cmlSource, parsesOk, typesOk, expectNowarnings, errorMessages);
 	}
 
 	@Parameters

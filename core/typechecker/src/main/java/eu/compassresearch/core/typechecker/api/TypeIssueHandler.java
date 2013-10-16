@@ -4,6 +4,8 @@ import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.tools.JavaFileManager.Location;
+
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.node.INode;
@@ -25,7 +27,7 @@ public interface TypeIssueHandler extends IStatusListener
 	 */
 	public static abstract class CMLIssue
 	{
-		protected final INode subtree;
+		protected final INode reportedAt;
 		private ILexLocation location;
 
 		/**
@@ -35,18 +37,18 @@ public interface TypeIssueHandler extends IStatusListener
 		 */
 		public INode getOffendingNode()
 		{
-			return subtree;
+			return reportedAt;
 		}
 
-		public CMLIssue(INode subtree)
+		public CMLIssue(INode reportedAt)
 		{
-			this.subtree = subtree;
+			this.reportedAt = reportedAt;
 			setFromNode();
 		}
 
 		public CMLIssue(LexLocation location)
 		{
-			subtree = null;
+			reportedAt = null;
 			this.location = location;
 		}
 
@@ -64,12 +66,12 @@ public interface TypeIssueHandler extends IStatusListener
 
 		private void setFromNode()
 		{
-			if (subtree != null)
+			if (reportedAt != null)
 			{
 				try
 				{
-					Method getLocation = subtree.getClass().getMethod("getLocation", new Class<?>[0]);
-					location = (LexLocation) getLocation.invoke(subtree, new Object[0]);
+					Method getLocation = reportedAt.getClass().getMethod("getLocation", new Class<?>[0]);
+					location = (LexLocation) getLocation.invoke(reportedAt, new Object[0]);
 				} catch (Exception e)
 				{
 					// no location :(
@@ -116,41 +118,62 @@ public interface TypeIssueHandler extends IStatusListener
 	/**
 	 * @author rwl CML Type Errors means that the CML model leads to an AST that cannot be given a proper semantics.
 	 */
-	public static class CMLTypeError extends CMLTypeWarning
+	public static class CMLTypeError extends CMLIssue
 	{
 
 		private StackTraceElement[] stackTrace;
+		private String description;
+		private VDMError error;
 
 		private void buildStack()
 		{
 			this.stackTrace = Thread.currentThread().getStackTrace();
 		}
 
-		public CMLTypeError(INode subtree, String message)
+		public CMLTypeError(INode subtree, String description)
 		{
-			super(subtree, message);
+			super(subtree);
+			this.description = description;
+			buildStack();
+		}
+
+		public CMLTypeError(INode subtree, VDMError error)
+		{
+			super(subtree);
+			this.error = error;
 			buildStack();
 		}
 
 		@Override
 		public String toString()
-		{
-			ILexLocation location = super.getLocation();
-			return "TypeError: " + location + " : \n\t" + description;
+		{	
+			return String.format("%s %s", getDescription(), getLocation());
 		}
 
 		public String getStackTrace()
 		{
 			int i = 0;
 			StringBuilder sb = new StringBuilder();
-			sb.append(toString() + "\n\n\nOffending node: "
-					+ (subtree == null ? "null" : subtree) + "\n");
+			sb.append(toString());
+			sb.append((reportedAt == null ? "\n\n" : "\nOffending node: "
+					+ reportedAt));
 			for (i = 4; i < stackTrace.length && i < 20; i++)
 			{
 				StackTraceElement e = stackTrace[i];
 				sb.append("\t" + e.toString() + "\n");
 			}
 			return sb.toString();
+		}
+		
+		public String getDescription()
+		{
+			return (error != null ? error.toString() : description );
+		}
+		
+		@Override
+		public ILexLocation getLocation()
+		{
+			return (error != null ? error.location : super.getLocation());
 		}
 
 		@Override
@@ -159,11 +182,14 @@ public interface TypeIssueHandler extends IStatusListener
 
 			if (obj instanceof CMLTypeError)
 			{
-				CMLTypeError error = (CMLTypeError) obj;
-				boolean sameSubTree = (error.subtree == null && subtree == null)
-						|| (error.subtree != null && subtree != null && subtree == error.subtree);
-				boolean sameDescription = (description == null && error.description == null)
-						|| (description != null && description.equals(error.description));
+				CMLTypeError errorEqualTo = (CMLTypeError) obj;
+				boolean sameSubTree = (errorEqualTo.reportedAt == null && reportedAt == null)
+						|| (errorEqualTo.reportedAt != null
+								&& reportedAt != null && reportedAt == errorEqualTo.reportedAt);
+				boolean sameDescription = (description == null && errorEqualTo.description == null)
+						|| (description != null && description.equals(errorEqualTo.description))
+						|| (error == null && errorEqualTo.error == null)
+						|| (error != null && error.equals(errorEqualTo.error));
 
 				return sameSubTree && sameDescription;
 			}
@@ -174,7 +200,7 @@ public interface TypeIssueHandler extends IStatusListener
 		@Override
 		public int hashCode()
 		{
-			int subtreeHash = subtree == null ? 0 : subtree.hashCode();
+			int subtreeHash = reportedAt == null ? 0 : reportedAt.hashCode();
 			int descriptionHash = description == null ? 0
 					: description.hashCode();
 			return subtreeHash + descriptionHash;

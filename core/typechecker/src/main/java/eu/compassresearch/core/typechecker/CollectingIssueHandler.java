@@ -110,8 +110,7 @@ class CollectingIssueHandler implements TypeIssueHandler
 	@Override
 	public void report(VDMError error)
 	{
-		CMLTypeError typeError = new CMLTypeError(null, error.message);
-		typeError.setLocation(error.location);
+		CMLTypeError typeError = new CMLTypeError(null, error);
 		this.errors.add(typeError);
 	}
 

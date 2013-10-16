@@ -35,8 +35,8 @@ public class TypesCmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase
 		add("types A = compose rec of real rat int nat nat1 char bool (token) token <SomeQuote> end");
 		// 11//
 		add("types A = compose rec of a:real b:rat c:int end");
-		// 12//
-		add("types A = compose rec of c:A end");
+		// 12// Negative test, infinite type
+		add("types A = compose rec of c:A end", true , false, true);
 		// 13//
 		add("types A = token | real | rat | int | nat | nat1 | char | bool | (token) | <SomeQuote>");
 		// 14//
@@ -70,60 +70,64 @@ public class TypesCmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase
 		// 28//
 		add("types A = int class test = begin state k:A end");
 		// 29// -- complex example taken from Emergency Response Case Study
-		add("types Id :: type : (<ERU> | <CC>) identifier : token ERUId = Id Location = token Criticality = nat inv c == c < 4 String = seq of char RescueDetails :: target : Location criticality : Criticality Message ::sender: Id	destn : Id message : String Log :: 	eru : ERUId	oldRescue : RescueDetails newRescue : RescueDetails values	functions  compareCriticalityFunction: RescueDetails * RescueDetails -> bool compareCriticalityFunction(r, r2) == r.criticality > r2.criticality rescueDetailsToString(r : RescueDetails) s: String post s <> [] stringToRescueDetails (s: String) r : RescueDetails pre s <> [] post true ");
+		add("types Id :: type : (<ERU> | <CC>) identifier : token ERUId = Id Location = token Criticality = nat inv c == c < 4 String = seq of char RescueDetails :: target : Location criticality : Criticality Message ::sender: Id	destn : Id message : String Log :: 	eru : ERUId	oldRescue : RescueDetails newRescue : RescueDetails values	functions  compareCriticalityFunction: RescueDetails * RescueDetails -> bool compareCriticalityFunction(r, r2) == r.criticality > r2.criticality rescueDetailsToString(r : RescueDetails) s: String post s <> [] stringToRescueDetails (s: String) r : RescueDetails pre s <> [] post true ", true , true, false);
 		// /--------------------------------------------------\
 		// | Types with invariants |
 		// \--------------------------------------------------/
 		// 30//
-		add("types R = real inv r == r > 3.1415 and r < 19.82");
+		add("types R = real inv r == r > 3.1415 and r < 19.82", true , true, false);
 		// 31//
-		add("types R = rat inv r == r > 22/7");
+		add("types R = rat inv r == r > 22/7", true , true, false);
 		// 32//
-		add("types I = int inv i == i < 0");
+		add("types I = int inv i == i < 0", true , true, false);
 		// 33//
-		add("types N = nat inv n == n <= 255");
+		add("types N = nat inv n == n <= 255", true , true, false);
 		// 34//
-		add("types N = nat1 inv n == n <= 1");
+		add("types N = nat1 inv n == n <= 1", true , true, false);
 		// 35//
-		add("types C = char inv c == c = 'a'");
+		add("types C = char inv c == c = 'a'", true , true, false);
 		// 36//
-		add("types B = bool inv b == b and true");
+		add("types B = bool inv b == b and true", true , true, false);
 		// 37//
-		add("types T = token inv t == t <> mk_token(\"42\")");
+		add("types T = token inv t == t <> mk_token(\"42\")", true , true, false);
 		// 38//
-		add("types Q1 = <A> Q = <A> inv q == is_Q1(q)");
+		add("types Q1 = <A> Q = <A> inv q == is_Q1(q)", true , true, false);
 		// 39//
-		add("types T = compose REC of a:int b:rat end inv t == t.a < t.b");
+		add("types T = compose REC of a:int b:rat end inv t == t.a < t.b", true , true, false);
 		// 40//
-		add("types A = int | token inv a == a > 0");
+		add("types A = int | token inv a == a > 0", true , true, false);
 		// 41//
 		add("types T = int * rat * real inv t == t.#1 > 0 and t.#2 < 22/7 and 3.1415", true, false);
 		// 42//
-		add("types T=[int] inv t == t <> nil");
+		add("types T=[int] inv t == t <> nil", true , true, false);
 		// 43//
-		add("types A = set of int inv s == card s > 0");
+		add("types A = set of int inv s == card s > 0", true , true, false);
 		// 44//
-		add("types A = seq of int inv s == len s > 0");
+		add("types A = seq of int inv s == len s > 0", true , true, false);
 		// 45//
-		add("types A = seq1 of int inv a == len a < 100");
+		add("types A = seq1 of int inv a == len a < 100", true , true, false);
 		// 46//
-		add("types A = map int to int inv m == dom(m) <> {}");
+		add("types A = map int to int inv m == dom(m) <> {}", true , true, false);
 		// 47//
-		add("types A = map int to int inv m == rng(m) <> {}");
+		add("types A = map int to int inv m == rng(m) <> {}", true , true, false);
 		// 48//
-		add("types A = inmap int to int inv im == card rng(im) > 0");
+		add("types A = inmap int to int inv im == card rng(im) > 0", true , true, false);
 		// 49//
-		add("types A = map int to int B = A inv b == card dom(b) > 0");
+		add("types A = map int to int B = A inv b == card dom(b) > 0", true , true, false);
 		// 50// Failing because of LexNameToken conflict
-		add("types R :: r : int inv r == r.r>0");
+		add("types R :: r : int inv r == r.r>0", true , true, false);
 		// 51// set type w. invariant
-		add("types C = set of int inv c == c = {1,2,3}");
+		add("types C = set of int inv c == c = {1,2,3}", true , true, false);
 		// 52 //Negative test: Check for duplicated type defs
 		add("types A = nat A = bool B = bool B = rat", true, false);
 		// 53 //Multiple type defs
 		add("types A = nat B = bool C = bool");
 		// 54 Ticket: #89 TypeChecker too aggressive with tuple selection
-		add("types A = (int*int) | int inv a == a.#1 >0");
+		add("types A = (int*int) | int inv a == a.#1 >0",true , true, false);
+		// 55 Negative test: use of public keyword in global types
+		add("types public A = nat public B = map nat to nat process C = begin functions public F : A * B -> bool F(a, b) == true @ Skip end ", true, true, false);
+		// 56 public visibility automatically assigned to B in global types
+		add("types public A = nat B = map nat to nat process C = begin functions public F : A * B -> bool F(a, b) == true @ Skip end ", true, true, true);
 
 	}
 
@@ -134,9 +138,9 @@ public class TypesCmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase
 	}
 
 	public TypesCmlTypeCheckerTestCase(String cmlSource, boolean parsesOk,
-			boolean typesOk, String[] errorMessages)
+			boolean typesOk, boolean expectNowarnings, String[] errorMessages)
 	{
-		super(cmlSource, parsesOk, typesOk, errorMessages);
+		super(cmlSource, parsesOk, typesOk, expectNowarnings, errorMessages);
 	}
 
 }

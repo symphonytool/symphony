@@ -13,8 +13,8 @@ public class EnvironmentCmlTypeCheckTestCase extends
 
 	static
 	{
-		add("class K = begin state a: int functions f: int -> int f(x) == let y : int = 10 in x + y + a end");
-		add("values a : int = 2 class K = begin functions f: int -> int f(x) == let y : int = 10 in x + y + a end");
+		add("class K = begin state a: int functions f: int -> int f(x) == let y : int = 10 in x + y + a end", true, true, false);
+		add("values a : int = 2 class K = begin functions f: int -> int f(x) == let y : int = 10 in x + y + a end", true, true, false);
 	}
 
 	// public EnvironmentCmlTypeCheckTestCase() {
@@ -22,9 +22,9 @@ public class EnvironmentCmlTypeCheckTestCase extends
 	// }
 
 	public EnvironmentCmlTypeCheckTestCase(String source, boolean parsesOk,
-			boolean typesOk, String[] errorMessages)
+			boolean typesOk, boolean expectNowarnings, String[] errorMessages)
 	{
-		super(source, parsesOk, typesOk, errorMessages);
+		super(source, parsesOk, typesOk, expectNowarnings, errorMessages);
 	}
 
 	@Parameters
