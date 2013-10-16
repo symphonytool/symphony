@@ -24,7 +24,7 @@ import eu.compassresearch.ide.pog.view.PoDetailView;
 import eu.compassresearch.ide.pog.view.PoListView;
 import eu.compassresearch.ide.ui.utility.CmlProjectUtil;
 
-public class PogPluginDoStuff
+public class PogPluginRunner
 {
 	private IWorkbenchWindow window;
 	private IWorkbenchSite site;
@@ -198,7 +198,7 @@ public class PogPluginDoStuff
 	 * 
 	 * @see IWorkbenchWindowActionDelegate#init
 	 */
-	public PogPluginDoStuff(IWorkbenchWindow window, IWorkbenchSite site)
+	public PogPluginRunner(IWorkbenchWindow window, IWorkbenchSite site)
 	{
 		this.window = window;
 		this.site = window.getActivePage().getActivePart().getSite();
