@@ -21,8 +21,6 @@ import org.overture.parser.messages.VDMWarning;
 
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.PSource;
-import eu.compassresearch.core.common.Registry;
-import eu.compassresearch.core.common.RegistryFactory;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
@@ -45,19 +43,19 @@ public class BuilderCml extends AbstractVdmBuilder
 		List<VDMError> errors = new ArrayList<VDMError>();
 		List<VDMWarning> warnings = new ArrayList<VDMWarning>();
 
-//		Collection<PSource> cmlSources = new Vector<PSource>();
-//		for (INode s : rooList.getRootElementList())
-//		{
-//			if (s instanceof PSource)
-//			{
-//				cmlSources.add((PSource) s);
-//			}
-//		}
-		
+		// Collection<PSource> cmlSources = new Vector<PSource>();
+		// for (INode s : rooList.getRootElementList())
+		// {
+		// if (s instanceof PSource)
+		// {
+		// cmlSources.add((PSource) s);
+		// }
+		// }
+
 		ICmlModel model = (ICmlModel) rooList.getAdapter(ICmlModel.class);
 
-		Registry reg = RegistryFactory.getInstance(getProject().getName()).getRegistry();
-		TypeIssueHandler issueHandler = VanillaFactory.newCollectingIssueHandle(reg);
+		// Registry reg = RegistryFactory.getInstance(getProject().getName()).getRegistry();
+		TypeIssueHandler issueHandler = VanillaFactory.newCollectingIssueHandle();
 		CmlTypeChecker typeChecker = VanillaFactory.newTypeChecker(model.getAstSource(), issueHandler);
 		try
 		{
@@ -130,7 +128,8 @@ public class BuilderCml extends AbstractVdmBuilder
 		AFileSource source = (AFileSource) error.getOffendingNode().getAncestor(PSource.class);
 		if (source != null)
 		{
-			addErrorMarker((source.getFile()==null?error.getLocation().getFile():source.getFile()), error.getDescription(), error.getLocation(), IBuilderVdmjConstants.PLUGIN_ID);
+			addErrorMarker((source.getFile() == null ? error.getLocation().getFile()
+					: source.getFile()), error.getDescription(), error.getLocation(), IBuilderVdmjConstants.PLUGIN_ID);
 		}
 	}
 
