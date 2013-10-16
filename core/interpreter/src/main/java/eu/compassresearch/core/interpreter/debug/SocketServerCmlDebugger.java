@@ -18,6 +18,7 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
+import org.overture.interpreter.runtime.ContextException;
 import org.overture.interpreter.runtime.ValueException;
 
 import eu.compassresearch.core.interpreter.CmlRuntime;
@@ -348,10 +349,19 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 				stopping();
 				return false;
 			case SET_BREAKPOINT:
+			{
 				Breakpoint bp = message.getContent();
 				Console.debug.println("Break point added : " + bp);
 				runningInterpreter.addBreakpoint(bp);
 				return true;
+			}
+			case REMOVE_BREAKPOINT:
+			{
+				Breakpoint bp = message.getContent();
+				Console.debug.println("Break point removed : " + bp);
+				runningInterpreter.removeBreakpoint(bp);
+				return true;
+			}
 			case RESUME:
 				runningInterpreter.resume();
 				return true;
@@ -519,7 +529,14 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 			CmlInterpreterStateDTO status = CmlInterpreterStateDTO.createCmlInterpreterStateDTO(runningInterpreter);
 			status.addError(new InterpreterErrorDTO(e.getMessage()));
 			stopped(status);
-		} finally
+		} 
+		catch (ContextException e)
+		{
+			CmlInterpreterStateDTO status = CmlInterpreterStateDTO.createCmlInterpreterStateDTO(runningInterpreter);
+			status.addError(new InterpreterErrorDTO(e.getMessage(), e.location));
+			stopped(status);
+		}
+		finally
 		{
 			runningInterpreter.onStateChanged().unregisterObserver(this);
 		}
