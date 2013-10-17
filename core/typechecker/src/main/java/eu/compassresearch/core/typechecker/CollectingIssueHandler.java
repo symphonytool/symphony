@@ -9,14 +9,14 @@ import org.overture.parser.messages.VDMError;
 import org.overture.parser.messages.VDMWarning;
 
 import eu.compassresearch.ast.types.AErrorType;
-import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
+import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 
 /**
  * Very simple LinkedList based TypeIssueHandler that simply collects errors and warnings for future retrieval.
  * 
  * @author rwl
  */
-class CollectingIssueHandler implements TypeIssueHandler
+class CollectingIssueHandler implements ITypeIssueHandler
 {
 
 	/**

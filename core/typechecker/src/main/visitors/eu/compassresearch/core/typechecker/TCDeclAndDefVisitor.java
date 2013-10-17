@@ -1,6 +1,6 @@
 package eu.compassresearch.core.typechecker;
 
-import static eu.compassresearch.core.typechecker.CmlTCUtil.successfulType;
+import static eu.compassresearch.core.typechecker.util.CmlTCUtil.successfulType;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -113,13 +113,15 @@ import eu.compassresearch.ast.types.AProcessParagraphType;
 import eu.compassresearch.ast.types.AStateParagraphType;
 import eu.compassresearch.ast.types.ATypeParagraphType;
 import eu.compassresearch.ast.types.AValueParagraphType;
-import eu.compassresearch.core.typechecker.api.TypeCheckQuestion;
-import eu.compassresearch.core.typechecker.api.TypeComparator;
+import eu.compassresearch.core.typechecker.analysis.OperationBodyActionChecker;
+import eu.compassresearch.core.typechecker.api.ITypeCheckQuestion;
+import eu.compassresearch.core.typechecker.api.ITypeComparator;
+import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
-import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
+import eu.compassresearch.core.typechecker.util.CmlTCUtil;
 
 @SuppressWarnings({ "unchecked", "deprecation", "serial" })
-class TCDeclAndDefVisitor extends
+public class TCDeclAndDefVisitor extends
 		QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType>
 {
 
@@ -867,13 +869,13 @@ class TCDeclAndDefVisitor extends
 	}
 
 	// Errors and other things are recorded on this guy
-	private final eu.compassresearch.core.typechecker.api.CmlRootVisitor parentChecker;
-	private final TypeComparator typeComparator;
-	private final TypeIssueHandler issueHandler;
+	private final eu.compassresearch.core.typechecker.api.ICmlRootVisitor parentChecker;
+	private final ITypeComparator typeComparator;
+	private final ITypeIssueHandler issueHandler;
 
 	public TCDeclAndDefVisitor(
-			eu.compassresearch.core.typechecker.api.CmlRootVisitor parent,
-			TypeComparator typeComparator, TypeIssueHandler issueHandler)
+			eu.compassresearch.core.typechecker.api.ICmlRootVisitor parent,
+			ITypeComparator typeComparator, ITypeIssueHandler issueHandler)
 	{
 		this.parentChecker = parent;
 		this.issueHandler = issueHandler;
@@ -891,7 +893,7 @@ class TCDeclAndDefVisitor extends
 	{
 
 		// Add this to the current scope
-		((TypeCheckQuestion) question).addVariable(node.getName().getIdentifier(), node);
+		((ITypeCheckQuestion) question).addVariable(node.getName().getIdentifier(), node);
 
 		// For every parametrisation add the decl to the action's environment.
 		LinkedList<PParametrisation> decls = node.getDeclarations();
@@ -1147,7 +1149,7 @@ class TCDeclAndDefVisitor extends
 	 * @param def
 	 * @return
 	 */
-	static List<PDefinition> handleDefinitionsForOverture(PDefinition def)
+	public static List<PDefinition> handleDefinitionsForOverture(PDefinition def)
 	{
 		OvertureToCmlHandler handler = overtureClassBits.get(def.getClass());
 		if (handler != null)
@@ -1509,7 +1511,7 @@ class TCDeclAndDefVisitor extends
 			Environment base,
 			QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> tc,
 			org.overture.typechecker.TypeCheckInfo question,
-			TypeIssueHandler issueHandler) throws AnalysisException
+			ITypeIssueHandler issueHandler) throws AnalysisException
 	{
 
 		CmlTypeCheckInfo cmlEnv = null;
@@ -1880,7 +1882,7 @@ class TCDeclAndDefVisitor extends
 		return result;
 	}
 
-	private TypeCheckQuestion createEnvironmentWithFormals(
+	private ITypeCheckQuestion createEnvironmentWithFormals(
 			org.overture.typechecker.TypeCheckInfo current, PDefinition funDef)
 			throws AnalysisException
 	{

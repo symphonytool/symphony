@@ -44,8 +44,8 @@ import eu.compassresearch.core.interpreter.api.ConsoleSelectionStrategy;
 import eu.compassresearch.core.parser.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.typechecker.VanillaFactory;
-import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
-import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
+import eu.compassresearch.core.typechecker.api.ICmlTypeChecker;
+import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 
 //import eu.compassresearch.examples.DivWarnAnalysis;
 
@@ -450,8 +450,8 @@ public class CheckCml
 
 		if (!input.isSwitchOn(Switch.NOTC)) // check no type checking switch
 		{
-			final TypeIssueHandler issueHandler = VanillaFactory.newCollectingIssueHandle();
-			final CmlTypeChecker typeChecker = VanillaFactory.newTypeChecker(sources, issueHandler);
+			final ITypeIssueHandler issueHandler = VanillaFactory.newCollectingIssueHandle();
+			final ICmlTypeChecker typeChecker = VanillaFactory.newTypeChecker(sources, issueHandler);
 
 			AnalysisRunAdaptor r = new AnalysisRunAdaptor(typeChecker)
 			{
@@ -460,7 +460,7 @@ public class CheckCml
 
 					if (!(typeChecker.typeCheck()))
 					{
-						for (TypeIssueHandler.CMLTypeError e : issueHandler.getTypeErrors())
+						for (ITypeIssueHandler.CMLTypeError e : issueHandler.getTypeErrors())
 							System.out.println("\t" + e);
 					} else
 					{

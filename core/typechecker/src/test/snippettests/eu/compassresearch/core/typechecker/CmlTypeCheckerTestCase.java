@@ -131,7 +131,7 @@ public class CmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase
 		// 52 // Test case for bug https://sourceforge.net/p/compassresearch/tickets/26/
 		addTestProgram(testData, "process Test2 = begin functions AFunc: nat -> nat AFunc(avar) == 1 BFunc : () -> nat BFunc() == AFunc(2) @ Skip end", true, true, false, new String[0]);
 		// 53 // Test case for bug https://sourceforge.net/p/compassresearch/tickets/26/
-		addTestProgram(testData, "process Test = begin functions BFunc : () -> nat BFunc() == AFunc(2) @ Skip end process Test2 = begin functions AFunc: nat -> nat AFunc(avar) == 1 BFunc : () -> nat BFunc() == AFunc(2) @ Skip end", true, false, false,  new String[0]);
+		addTestProgram(testData, "process Test = begin functions BFunc : () -> nat BFunc() == AFunc(2) @ Skip end process Test2 = begin functions AFunc: nat -> nat AFunc(avar) == 1 BFunc : () -> nat BFunc() == AFunc(2) @ Skip end", true, false, false, new String[0]);
 		// 54 // Test case for bug http://sourceforge.net/p/compassresearch/tickets/48/
 		addTestProgram(testData, "process Waiter = begin @ Wait \"ao\" ; Skip end", true, false, true, new String[0]);
 		// 55 //Negative test AEnumVarsetExpression
@@ -162,7 +162,7 @@ public class CmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase
 		addTestProgram(testData, "types String2 = seq of char Process2 :: id: String2 functions findPos(q: seq of Process2,id: String2) pos : nat pre  let mk_(-,p)= mk_(7, mk_Process2([])) in p.id = id  post true", true, true, false, new String[0]);
 		// 68
 		addTestProgram(testData, "types String2 = seq of char Process2 :: id: String2 functions findPos: seq of Process2* String2 -> nat findPos(q,id)==  let mk_(-,p)= mk_(7, mk_Process2([])) in p.id = id", true, false, false, new String[0]);
-		
+
 		return testData;
 
 	}

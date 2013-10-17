@@ -18,10 +18,12 @@ import org.overture.typechecker.assistant.definition.PDefinitionListAssistantTC;
 
 import eu.compassresearch.ast.messages.InternalException;
 import eu.compassresearch.ast.program.PSource;
-import eu.compassresearch.core.typechecker.CollectGlobalStateClass.GlobalDefinitions;
-import eu.compassresearch.core.typechecker.api.CmlRootVisitor;
-import eu.compassresearch.core.typechecker.api.TypeComparator;
-import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
+import eu.compassresearch.core.typechecker.analysis.CollectGlobalStateClass;
+import eu.compassresearch.core.typechecker.analysis.CollectGlobalStateClass.GlobalDefinitions;
+import eu.compassresearch.core.typechecker.api.ICmlRootVisitor;
+import eu.compassresearch.core.typechecker.api.ITypeComparator;
+import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
+import eu.compassresearch.core.typechecker.util.CmlTCUtil;
 import eu.compassresearch.core.typechecker.weeding.SetLocationVisitor;
 import eu.compassresearch.core.typechecker.weeding.Weeding1;
 import eu.compassresearch.core.typechecker.weeding.Weeding2;
@@ -34,16 +36,16 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker
 	// -- Type Checker State
 	// ---------------------------------------------m
 	private List<PDefinition> globalDefinitions;
-	private CmlRootVisitor rootVisitor;
+	private ICmlRootVisitor rootVisitor;
 
-	private void initialize(TypeIssueHandler issueHandler,
-			TypeComparator comparator)
+	private void initialize(ITypeIssueHandler issueHandler,
+			ITypeComparator comparator)
 	{
 		if (issueHandler != null)
 			this.issueHandler = issueHandler;
 		else
 			this.issueHandler = new CollectingIssueHandler();
-		rootVisitor = new eu.compassresearch.core.typechecker.CmlRootVisitor(issueHandler, comparator);
+		rootVisitor = new CmlRootVisitor(issueHandler, comparator);
 
 		Settings.release = Release.VDM_10;
 		Settings.dialect = Dialect.VDM_PP;
@@ -71,6 +73,7 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker
 		sourceForest = null;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public boolean typeCheck()
 	{
@@ -154,7 +157,7 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker
 	 * @param issueHandler
 	 */
 	public VanillaCmlTypeChecker(Collection<PSource> cmlSource,
-			TypeComparator typeComparator, TypeIssueHandler issueHandler)
+			ITypeComparator typeComparator, ITypeIssueHandler issueHandler)
 	{
 		this.sourceForest = new LinkedList<PSource>();
 		sourceForest.addAll(cmlSource);

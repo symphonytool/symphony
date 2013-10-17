@@ -1,4 +1,4 @@
-package eu.compassresearch.core.typechecker;
+package eu.compassresearch.core.typechecker.analysis;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -26,7 +26,9 @@ import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.definitions.ATypesDefinition;
 import eu.compassresearch.ast.definitions.AValuesDefinition;
 import eu.compassresearch.ast.program.PSource;
-import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
+import eu.compassresearch.core.typechecker.CmlTypeCheckerAssistantFactory;
+import eu.compassresearch.core.typechecker.TCDeclAndDefVisitor;
+import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 
 @SuppressWarnings("serial")
 public class CollectGlobalStateClass extends AnalysisCMLAdaptor
@@ -35,7 +37,7 @@ public class CollectGlobalStateClass extends AnalysisCMLAdaptor
 	private final Collection<PDefinition> members;
 	private final Collection<PDefinition> channels;
 	private final CmlTypeCheckerAssistantFactory af = new CmlTypeCheckerAssistantFactory();
-	private TypeIssueHandler issueHandler;
+//	private ITypeIssueHandler issueHandler;
 
 	public static class GlobalDefinitions
 	{
@@ -51,7 +53,7 @@ public class CollectGlobalStateClass extends AnalysisCMLAdaptor
 	}
 
 	public static GlobalDefinitions getGlobalRoot(Collection<PSource> sources,
-			TypeIssueHandler issueHandler) throws AnalysisException
+			ITypeIssueHandler issueHandler) throws AnalysisException
 	{
 
 		// Create visitor and visit each source collecting global definitions
@@ -95,11 +97,11 @@ public class CollectGlobalStateClass extends AnalysisCMLAdaptor
 	}
 
 	private CollectGlobalStateClass(List<PDefinition> members,
-			Collection<PDefinition> channels, TypeIssueHandler issueHandler)
+			Collection<PDefinition> channels, ITypeIssueHandler issueHandler)
 	{
 		this.members = members;
 		this.channels = channels;
-		this.issueHandler = issueHandler;
+//		this.issueHandler = issueHandler;
 	}
 
 	@Override
@@ -132,8 +134,9 @@ public class CollectGlobalStateClass extends AnalysisCMLAdaptor
 			{
 				if (!(tdef.getAccess().getAccess() instanceof APublicAccess))
 				{
-					// TODO when getAccess gets a location then report it here. We also need it to have a token so we can see the difference from non parse from default
-//					issueHandler.addTypeWarning(tdef, "Access specifier ignored. Global types are default public.");
+					// TODO when getAccess gets a location then report it here. We also need it to have a token so we
+					// can see the difference from non parse from default
+					// issueHandler.addTypeWarning(tdef, "Access specifier ignored. Global types are default public.");
 				}
 				tdef.getAccess().setAccess(new APublicAccess());
 			}
@@ -161,13 +164,13 @@ public class CollectGlobalStateClass extends AnalysisCMLAdaptor
 		{
 
 			PDefinition predef = null;
-			PDefinition postdef = null;
+			// PDefinition postdef = null;
 			if (fdef instanceof AExplicitFunctionDefinition)
 			{
 				// this will generate all the pre and post defs
 				AExplicitFunctionDefinitionAssistantTC.implicitDefinitions((AExplicitFunctionDefinition) fdef, null);
 				predef = ((AExplicitFunctionDefinition) fdef).getPredef();
-				postdef = ((AExplicitFunctionDefinition) fdef).getPostdef();
+				// postdef = ((AExplicitFunctionDefinition) fdef).getPostdef();
 			}
 
 			if (fdef instanceof AImplicitFunctionDefinition)
@@ -177,7 +180,7 @@ public class CollectGlobalStateClass extends AnalysisCMLAdaptor
 				fdef.apply(af.getImplicitDefinitionFinder(), null);
 
 				predef = ((AImplicitFunctionDefinition) fdef).getPredef();
-				postdef = ((AImplicitFunctionDefinition) fdef).getPostdef();
+				// postdef = ((AImplicitFunctionDefinition) fdef).getPostdef();
 			}
 
 			if (predef != null)

@@ -8,7 +8,7 @@ import eu.compassresearch.ast.types.AErrorType;
 /**
  * @author rwl A CML Type checker has the characteristics of this interface.
  */
-public interface CmlTypeChecker
+public interface ICmlTypeChecker
 {
 
 	/**

@@ -24,9 +24,9 @@ import eu.compassresearch.ast.definitions.AChannelNameDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
 import eu.compassresearch.ast.lex.LexNameToken;
-import eu.compassresearch.core.typechecker.api.TypeCheckQuestion;
+import eu.compassresearch.core.typechecker.api.ITypeCheckQuestion;
+import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
-import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 
 /**
  * TypeCheckInfo tracks the three scopes we care about in CML. These are Variables - mapping from variable name to their
@@ -35,7 +35,8 @@ import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
  * 
  * @author rwl
  */
-class CmlTypeCheckInfo extends TypeCheckInfo implements TypeCheckQuestion
+public class CmlTypeCheckInfo extends TypeCheckInfo implements
+		ITypeCheckQuestion
 {
 
 	private final FlatEnvironment channels;
@@ -45,7 +46,7 @@ class CmlTypeCheckInfo extends TypeCheckInfo implements TypeCheckQuestion
 	public final String CML_SCOPE = "CML";
 	public final String DEFAULT_SCOPE = "";
 
-	private final TypeIssueHandler issueHandler;
+	private final ITypeIssueHandler issueHandler;
 
 	/**
 	 * Create a new Type Check Info at top level
@@ -56,7 +57,7 @@ class CmlTypeCheckInfo extends TypeCheckInfo implements TypeCheckQuestion
 	 */
 	public static CmlTypeCheckInfo getNewTopLevelInstance(
 			ITypeCheckerAssistantFactory assistantFactory,
-			TypeIssueHandler issueHandler, List<PDefinition> globalDefs,
+			ITypeIssueHandler issueHandler, List<PDefinition> globalDefs,
 			List<PDefinition> channels)
 	{
 		return new CmlTypeCheckInfo(assistantFactory, issueHandler, globalDefs, channels);
@@ -144,7 +145,7 @@ class CmlTypeCheckInfo extends TypeCheckInfo implements TypeCheckQuestion
 	}
 
 	private CmlTypeCheckInfo(ITypeCheckerAssistantFactory assistantFactory,
-			TypeIssueHandler issueHandler, List<PDefinition> globalDefs,
+			ITypeIssueHandler issueHandler, List<PDefinition> globalDefs,
 			List<PDefinition> channels)
 	{
 		super(assistantFactory, new FlatEnvironment(assistantFactory, globalDefs, new CmlEnvironmentSearchStrategy()));
@@ -156,7 +157,7 @@ class CmlTypeCheckInfo extends TypeCheckInfo implements TypeCheckQuestion
 	private CmlTypeCheckInfo(ITypeCheckerAssistantFactory assistantFactory,
 			FlatEnvironment channelSurounding,
 			org.overture.typechecker.Environment suroundingEnv,
-			TypeIssueHandler issueHandler, List<PDefinition> globalDefs)
+			ITypeIssueHandler issueHandler, List<PDefinition> globalDefs)
 	{
 		super(assistantFactory, new FlatEnvironment(assistantFactory, new LinkedList<PDefinition>(), suroundingEnv));
 		this.channels = channelSurounding;
@@ -443,7 +444,7 @@ class CmlTypeCheckInfo extends TypeCheckInfo implements TypeCheckQuestion
 		// TODO: Set the current scope on the node n.
 	}
 
-	public TypeCheckQuestion newScope(
+	public ITypeCheckQuestion newScope(
 			org.overture.typechecker.TypeCheckInfo current, PDefinition def)
 	{
 		CmlTypeCheckInfo res = new CmlTypeCheckInfo(this.assistantFactory, channels, env, issueHandler, this.globalDefinitions);
@@ -452,8 +453,8 @@ class CmlTypeCheckInfo extends TypeCheckInfo implements TypeCheckQuestion
 		return res;
 	}
 
-	public TypeCheckQuestion newScope(org.overture.typechecker.Environment env,
-			PDefinition def)
+	public ITypeCheckQuestion newScope(
+			org.overture.typechecker.Environment env, PDefinition def)
 	{
 		CmlTypeCheckInfo res = new CmlTypeCheckInfo(this.assistantFactory, channels, env, issueHandler, this.globalDefinitions);
 		res.env.setEnclosingDefinition(def);

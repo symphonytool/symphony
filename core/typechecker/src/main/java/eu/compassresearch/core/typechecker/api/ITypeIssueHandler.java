@@ -18,7 +18,7 @@ import eu.compassresearch.ast.types.AErrorType;
  * 
  * @author rwl
  */
-public interface TypeIssueHandler extends IStatusListener
+public interface ITypeIssueHandler extends IStatusListener
 {
 	/**
 	 * @author rwl The result from the CML type checker is a set of CMLIssues. These can be warnings or error. A CML

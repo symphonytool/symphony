@@ -1,4 +1,4 @@
-package eu.compassresearch.core.typechecker;
+package eu.compassresearch.core.typechecker.analysis;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.node.INode;
@@ -9,8 +9,8 @@ import eu.compassresearch.ast.actions.ASubclassResponsibilityAction;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.actions.SStatementAction;
 import eu.compassresearch.ast.analysis.AnswerCMLAdaptor;
+import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
-import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 
 public class OperationBodyActionChecker extends AnswerCMLAdaptor<Boolean>
 {
@@ -19,9 +19,9 @@ public class OperationBodyActionChecker extends AnswerCMLAdaptor<Boolean>
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private TypeIssueHandler issueHandler;
+	private ITypeIssueHandler issueHandler;
 
-	public OperationBodyActionChecker(TypeIssueHandler issueHandler)
+	public OperationBodyActionChecker(ITypeIssueHandler issueHandler)
 	{
 		this.issueHandler = issueHandler;
 	}

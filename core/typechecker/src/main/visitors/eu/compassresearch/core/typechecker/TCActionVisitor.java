@@ -1,6 +1,6 @@
 package eu.compassresearch.core.typechecker;
 
-import static eu.compassresearch.core.typechecker.CmlTCUtil.successfulType;
+import static eu.compassresearch.core.typechecker.util.CmlTCUtil.successfulType;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -132,10 +132,12 @@ import eu.compassresearch.ast.types.AErrorType;
 import eu.compassresearch.ast.types.ANamesetsType;
 import eu.compassresearch.ast.types.AProcessType;
 import eu.compassresearch.ast.types.AStatementType;
-import eu.compassresearch.core.typechecker.api.TypeComparator;
+import eu.compassresearch.core.typechecker.api.ITypeComparator;
+import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
-import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 import eu.compassresearch.core.typechecker.api.TypeWarningMessages;
+import eu.compassresearch.core.typechecker.util.CmlAssistant;
+import eu.compassresearch.core.typechecker.util.CmlTCUtil;
 
 /**
  * @author rwl
@@ -1564,13 +1566,13 @@ class TCActionVisitor extends
 		return new AActionType(node.getLocation(), true);
 	}
 
-	private final eu.compassresearch.core.typechecker.api.CmlRootVisitor parentChecker;
-	private final TypeIssueHandler issueHandler;
-	private final TypeComparator typeComparator;
+	private final eu.compassresearch.core.typechecker.api.ICmlRootVisitor parentChecker;
+	private final ITypeIssueHandler issueHandler;
+	private final ITypeComparator typeComparator;
 
 	public TCActionVisitor(
-			eu.compassresearch.core.typechecker.api.CmlRootVisitor parentChecker,
-			TypeIssueHandler issueHandler, TypeComparator typeComparator)
+			eu.compassresearch.core.typechecker.api.ICmlRootVisitor parentChecker,
+			ITypeIssueHandler issueHandler, ITypeComparator typeComparator)
 	{
 		this.parentChecker = parentChecker;
 		this.issueHandler = issueHandler;

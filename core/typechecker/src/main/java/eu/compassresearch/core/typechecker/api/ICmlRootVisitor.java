@@ -12,7 +12,7 @@ import eu.compassresearch.ast.analysis.intf.ICMLQuestionAnswer;
  * 
  * @author rwl
  */
-public interface CmlRootVisitor extends
+public interface ICmlRootVisitor extends
 // CML cases
 		ICMLQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType>,
 		// Overture cases

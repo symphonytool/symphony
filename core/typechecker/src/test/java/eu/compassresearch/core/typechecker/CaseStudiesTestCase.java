@@ -84,7 +84,7 @@ public class CaseStudiesTestCase extends AbstractTypeCheckerTestCase
 			add(sources, true, true, true);
 		}
 	}
-	
+
 	/**
 	 * Given the name of a CaseStudy e.g. the directory name in compasssvn/Common/CaseStudies/{@value
 	 * pathRelToCaseStudiesDir} add a test including all cml-sources of the case study. E.g.: add("SoSMpc/ideal") or
@@ -92,7 +92,8 @@ public class CaseStudiesTestCase extends AbstractTypeCheckerTestCase
 	 * 
 	 * @param pathRelToCaseStudiesDir
 	 */
-	protected static void add(String pathRelToCaseStudiesDir, boolean supressWarnings)
+	protected static void add(String pathRelToCaseStudiesDir,
+			boolean supressWarnings)
 	{
 		String caseStudySource = caseStudyDir + pathRelToCaseStudiesDir;
 		File caseStudySourceFile = new File(caseStudySource);
@@ -169,7 +170,7 @@ public class CaseStudiesTestCase extends AbstractTypeCheckerTestCase
 			// add("/Alarm");
 			// 24 //
 			add("/MiniMondex", true);
-//			add("/Test");
+			// add("/Test");
 
 		} else
 		{

@@ -30,9 +30,9 @@ public class OperationCmlTypeCheckerTestCase extends
 		// 7// This test checks the positive case for invoking a Cml Operation
 		add("process K = begin state f : int := 0 operations op1: int ==> int op1(a) == return (a+1) @ f := op1(10) end");
 		// 8//
-		add("class test = begin operations o: int ==> int o(a) == return a pre a > 0 post a~ = a end ", true , true, false);
+		add("class test = begin operations o: int ==> int o(a) == return a pre a > 0 post a~ = a end ", true, true, false);
 		// 9//
-		add("class t = begin types A :: a : int operations o:A==>int o(b) == return b.a pre b.a > 0 post b.a = b~.a end", true , true, false);
+		add("class t = begin types A :: a : int operations o:A==>int o(b) == return b.a pre b.a > 0 post b.a = b~.a end", true, true, false);
 		// 10// Fix me the parser cannot handle the b.a in the pre condition ?
 		add("class t = begin types A :: a : int operations o:A==>int o(b) == return b.a pre b.a > 0 post b.a = b~.a and 'b.a' = b~.a end", true, false, false);
 		// 11// op-call

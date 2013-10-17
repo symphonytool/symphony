@@ -12,7 +12,7 @@ import org.overture.ast.types.PType;
  * 
  * @author rwl
  */
-public interface TypeCheckQuestion
+public interface ITypeCheckQuestion
 {
 
 	/**
@@ -72,7 +72,7 @@ public interface TypeCheckQuestion
 	 *            - The definition that defines and encapsulates this scope
 	 * @return
 	 */
-	public abstract TypeCheckQuestion newScope(
+	public abstract ITypeCheckQuestion newScope(
 			SClassDefinition surroundingDefinition);
 
 	/**

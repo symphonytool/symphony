@@ -16,8 +16,8 @@ import org.overture.ast.analysis.AnalysisException;
 
 import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.PSource;
-import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
-import eu.compassresearch.core.typechecker.api.TypeIssueHandler.CMLTypeError;
+import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
+import eu.compassresearch.core.typechecker.api.ITypeIssueHandler.CMLTypeError;
 
 /**
  * Abstract Test Case for the COMPASS Modelling Language Type Checker. This file is super class for parameterized junit
@@ -77,13 +77,12 @@ public abstract class AbstractTypeCheckerTestCase
 	 *            - which errors in case of !tc
 	 */
 	protected static void add(int stack, String src, boolean parseok,
-			boolean tcok,  String[] err)
+			boolean tcok, String[] err)
 	{
 		TestUtil.addTestProgram(getTestDataForCallerClass(stack), src, new Object[] {
 				parseok, tcok, true, err });
 	}
-	
-	
+
 	/**
 	 * Add a test scenario based on a single cml-source-text E.g: static { add("types A = int",true,true,new String[0]);
 	 * } Adds a test with "types A = int" as the cml-source to test.
@@ -100,12 +99,12 @@ public abstract class AbstractTypeCheckerTestCase
 	 *            - which errors in case of !tc
 	 */
 	protected static void add(int stack, String src, boolean parseok,
-			boolean tcok, boolean expectNoWarnings,  String[] err)
+			boolean tcok, boolean expectNoWarnings, String[] err)
 	{
 		TestUtil.addTestProgram(getTestDataForCallerClass(stack), src, new Object[] {
 				parseok, tcok, expectNoWarnings, err });
 	}
-	
+
 	/**
 	 * Like {@code add} above but where the test can be given a name E.g: static { add("types A = int",true,true,new
 	 * String[0],"Testing def of named int type"); } Adds a test with "types A = int" as the cml-source to test with an
@@ -118,13 +117,13 @@ public abstract class AbstractTypeCheckerTestCase
 	 * @param err
 	 * @param name
 	 */
-	protected static void add(String src, boolean parseok, boolean tcok, boolean expectNoWarnings,
-			String[] err, String name)
+	protected static void add(String src, boolean parseok, boolean tcok,
+			boolean expectNoWarnings, String[] err, String name)
 	{
 		TestUtil.addTestProgram(getTestDataForCallerClass(4), src, new Object[] {
 				parseok, tcok, expectNoWarnings, err, name });
 	}
-	
+
 	/**
 	 * Like {@code add} above but where the test can be given a name E.g: static { add("types A = int",true,true,new
 	 * String[0],"Testing def of named int type"); } Adds a test with "types A = int" as the cml-source to test with an
@@ -142,7 +141,7 @@ public abstract class AbstractTypeCheckerTestCase
 		TestUtil.addTestProgram(getTestDataForCallerClass(4), src, new Object[] {
 				parseok, tcok, true, err, name });
 	}
-	
+
 	/**
 	 * Shortcut for the above E.g.: static { add("types A = int",true,true); }
 	 * 
@@ -150,7 +149,8 @@ public abstract class AbstractTypeCheckerTestCase
 	 * @param parseok
 	 * @param tcok
 	 */
-	protected static void add(String src, boolean parseok, boolean tcok, boolean expectNoParam)
+	protected static void add(String src, boolean parseok, boolean tcok,
+			boolean expectNoParam)
 	{
 		TestUtil.addTestProgram(getTestDataForCallerClass(3), src, new Object[] {
 				parseok, tcok, expectNoParam, new String[0] });
@@ -168,7 +168,6 @@ public abstract class AbstractTypeCheckerTestCase
 		TestUtil.addTestProgram(getTestDataForCallerClass(3), src, new Object[] {
 				parseok, tcok, true, new String[0] });
 	}
-	
 
 	/**
 	 * Even shorter short cut see above.
@@ -190,7 +189,7 @@ public abstract class AbstractTypeCheckerTestCase
 	{
 		add(4, src, true, tcok, true, new String[0]);
 	}
-	
+
 	/**
 	 * The last short cut method see above. Only source (src), whether Type check should succeed (tcok) and error
 	 * messages provided
@@ -213,7 +212,8 @@ public abstract class AbstractTypeCheckerTestCase
 	 * @param parsesok
 	 * @param tcok
 	 */
-	protected static void add(List<PSource> src, boolean parsesok, boolean tcok, boolean expectNoWarning)
+	protected static void add(List<PSource> src, boolean parsesok,
+			boolean tcok, boolean expectNoWarning)
 	{
 		Object[] o = new Object[5];
 		o[0] = src;
@@ -255,7 +255,8 @@ public abstract class AbstractTypeCheckerTestCase
 	protected AbstractTypeCheckerTestCase(String cmlSource, boolean parsesOk,
 			boolean typesOk, boolean expectedNoWarnings, String[] errorMessages)
 	{
-		this(cmlSource, parsesOk, typesOk, expectedNoWarnings, errorMessages, "Test #" + (no++));
+		this(cmlSource, parsesOk, typesOk, expectedNoWarnings, errorMessages, "Test #"
+				+ (no++));
 	}
 
 	/**
@@ -268,7 +269,8 @@ public abstract class AbstractTypeCheckerTestCase
 	 * @param name
 	 */
 	protected AbstractTypeCheckerTestCase(String cmlSource, boolean parsesOk,
-			boolean typesOk, boolean expectedNoWarnings, String[] errorMessages, String name)
+			boolean typesOk, boolean expectedNoWarnings,
+			String[] errorMessages, String name)
 	{
 		this(fromStringContent(cmlSource, name), parsesOk, typesOk, expectedNoWarnings, errorMessages);
 	}
@@ -282,7 +284,8 @@ public abstract class AbstractTypeCheckerTestCase
 	 * @param errorMessages
 	 */
 	protected AbstractTypeCheckerTestCase(List<PSource> cmlSources,
-			boolean parsesOk, boolean typesOk, boolean expectedNoWarnings, String[] errorMessages)
+			boolean parsesOk, boolean typesOk, boolean expectedNoWarnings,
+			String[] errorMessages)
 	{
 		expectedParserOk = parsesOk;
 		expectedTypesOk = typesOk;
@@ -321,16 +324,17 @@ public abstract class AbstractTypeCheckerTestCase
 		}
 
 		// [3]
-		TypeIssueHandler issueHandler = res.issueHandler;
+		ITypeIssueHandler issueHandler = res.issueHandler;
 		boolean typeCheckOk = res.tcOk;
 
- 		Assert.assertEquals(TestUtil.buildErrorMessage(issueHandler, expectedTypesOk), expectedTypesOk, typeCheckOk);
-		
- 		if(issueHandler != null ){
- 			boolean hasWarnings = issueHandler.hasWarnings();
- 			Assert.assertEquals(TestUtil.buildWarningMessage(issueHandler, expectedNoWarnings), expectedNoWarnings, !hasWarnings);
- 		}
- 		
+		Assert.assertEquals(TestUtil.buildErrorMessage(issueHandler, expectedTypesOk), expectedTypesOk, typeCheckOk);
+
+		if (issueHandler != null)
+		{
+			boolean hasWarnings = issueHandler.hasWarnings();
+			Assert.assertEquals(TestUtil.buildWarningMessage(issueHandler, expectedNoWarnings), expectedNoWarnings, !hasWarnings);
+		}
+
 		// [4]
 		if (parserOk && errorMessages != null && errorMessages.length > 0)
 		{

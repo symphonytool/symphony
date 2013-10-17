@@ -11,7 +11,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Test;
@@ -19,9 +18,9 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
+import eu.compassresearch.core.typechecker.api.ITypeIssueHandler.CMLTypeError;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
-import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
-import eu.compassresearch.core.typechecker.api.TypeIssueHandler.CMLTypeError;
 
 @RunWith(value = Parameterized.class)
 public class RunCmlExamplesTestCase
@@ -200,7 +199,7 @@ public class RunCmlExamplesTestCase
 
 		Assume.assumeTrue(false);
 
-		TypeIssueHandler tc = res.issueHandler;
+		ITypeIssueHandler tc = res.issueHandler;
 		String errorString = buildErrorMessage(tc);
 		boolean tcOK = res.tcOk;
 		if (!failingTC.containsKey(file.getName()))
@@ -241,7 +240,7 @@ public class RunCmlExamplesTestCase
 		}
 	}
 
-	private String buildErrorMessage(TypeIssueHandler tc)
+	private String buildErrorMessage(ITypeIssueHandler tc)
 	{
 
 		StringBuilder sb = new StringBuilder();

@@ -1,4 +1,4 @@
-package eu.compassresearch.core.typechecker;
+package eu.compassresearch.core.typechecker.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -24,6 +24,8 @@ import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
 import eu.compassresearch.ast.lex.LexIdentifierToken;
 import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.ast.types.AErrorType;
+import eu.compassresearch.core.typechecker.CmlTypeCheckInfo;
+import eu.compassresearch.core.typechecker.TCDeclAndDefVisitor;
 
 public class CmlTCUtil
 {
@@ -180,8 +182,9 @@ public class CmlTCUtil
 	 * @param node
 	 * @return
 	 */
-	static CmlTypeCheckInfo createCmlClassEnvironment(CmlTypeCheckInfo info,
-			ACmlClassDefinition node) throws InvocationAssistantException
+	public static CmlTypeCheckInfo createCmlClassEnvironment(
+			CmlTypeCheckInfo info, ACmlClassDefinition node)
+			throws InvocationAssistantException
 	{
 
 		CmlTypeCheckInfo cmlClassEnv = info.newScope();
@@ -236,7 +239,8 @@ public class CmlTCUtil
 	 * @param scope
 	 * @return
 	 */
-	static boolean checkAccessInScope(PDefinition definition, NameScope scope)
+	public static boolean checkAccessInScope(PDefinition definition,
+			NameScope scope)
 	{
 
 		if (scope == null)

@@ -25,17 +25,17 @@ import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.parser.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.parser.CmlParserError;
-import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
-import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
-import eu.compassresearch.core.typechecker.api.TypeIssueHandler.CMLTypeError;
-import eu.compassresearch.core.typechecker.api.TypeIssueHandler.CMLTypeWarning;
+import eu.compassresearch.core.typechecker.api.ICmlTypeChecker;
+import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
+import eu.compassresearch.core.typechecker.api.ITypeIssueHandler.CMLTypeError;
+import eu.compassresearch.core.typechecker.api.ITypeIssueHandler.CMLTypeWarning;
 
 public class TestUtil
 {
 
 	public static class TypeCheckerResult
 	{
-		public TypeIssueHandler issueHandler;
+		public ITypeIssueHandler issueHandler;
 		public boolean parsedOk;
 		public boolean tcOk;
 		public List<String> parseErrors;
@@ -198,11 +198,11 @@ public class TestUtil
 
 			}
 		}
-		TypeIssueHandler issueHandler = VanillaFactory.newCollectingIssueHandle();
+		ITypeIssueHandler issueHandler = VanillaFactory.newCollectingIssueHandle();
 		result.issueHandler = issueHandler;
 		List<PSource> cmlSources = new LinkedList<PSource>();
 		cmlSources.addAll(ss);
-		CmlTypeChecker checker = VanillaFactory.newTypeChecker(cmlSources, issueHandler);
+		ICmlTypeChecker checker = VanillaFactory.newTypeChecker(cmlSources, issueHandler);
 
 		result.tcOk = checker.typeCheck();
 		result.sources = ss.toArray(new PSource[0]);
@@ -243,9 +243,9 @@ public class TestUtil
 			res.parsedOk = false;
 		}
 
-		TypeIssueHandler issueHandler = VanillaFactory.newCollectingIssueHandle();
+		ITypeIssueHandler issueHandler = VanillaFactory.newCollectingIssueHandle();
 		res.issueHandler = issueHandler;
-		CmlTypeChecker checker = VanillaFactory.newTypeChecker(cmlSources, issueHandler);
+		ICmlTypeChecker checker = VanillaFactory.newTypeChecker(cmlSources, issueHandler);
 
 		res.tcOk = checker.typeCheck();
 		res.sources = new PSource[] { fileSource };
@@ -260,7 +260,7 @@ public class TestUtil
 	 * @param expectedTypesOk
 	 * @return
 	 */
-	public static String buildErrorMessage(TypeIssueHandler tc,
+	public static String buildErrorMessage(ITypeIssueHandler tc,
 			boolean expectedTypesOk)
 	{
 		StringBuilder sb = new StringBuilder();
@@ -278,23 +278,24 @@ public class TestUtil
 		}
 		return sb.toString();
 	}
-	
-	
+
 	/**
 	 * Returns a stack trace like string for the type errors.
 	 * 
-	 * @param Type Issue handler used in TC
+	 * @param Type
+	 *            Issue handler used in TC
 	 * @param expectedNoWarnings
 	 * @return
 	 */
-	public static String buildWarningMessage(TypeIssueHandler tc,
+	public static String buildWarningMessage(ITypeIssueHandler tc,
 			boolean expectedNoWarnings)
 	{
 		StringBuilder sb = new StringBuilder();
 		if (expectedNoWarnings)
 		{
 			sb.append("Expected no type checker warning, but the following warning were given:\n");
-			for (CMLTypeWarning warning : tc.getTypeWarnings()) {
+			for (CMLTypeWarning warning : tc.getTypeWarnings())
+			{
 				sb.append(warning.getLocation() + ": " + warning.toString()
 						+ "\n------\n");
 				System.out.println(warning);
@@ -306,7 +307,6 @@ public class TestUtil
 		}
 		return sb.toString();
 	}
-	
 
 	public static <T> void addTestProgram(List<Object[]> col, String src,
 			Object... objs)

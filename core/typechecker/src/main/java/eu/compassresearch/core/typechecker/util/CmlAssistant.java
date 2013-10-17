@@ -1,4 +1,4 @@
-package eu.compassresearch.core.typechecker;
+package eu.compassresearch.core.typechecker.util;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.overture.ast.definitions.AAssignmentDefinition;
-import org.overture.ast.definitions.AClassClassDefinition;
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import org.overture.ast.definitions.AExternalDefinition;
 import org.overture.ast.definitions.AImplicitFunctionDefinition;
@@ -19,7 +18,6 @@ import org.overture.ast.factory.AstFactory;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.typechecker.NameScope;
-import org.overture.ast.typechecker.Pass;
 import org.overture.ast.types.AClassType;
 import org.overture.ast.types.AFieldField;
 import org.overture.ast.types.ANamedInvariantType;
@@ -48,7 +46,7 @@ import eu.compassresearch.ast.process.PProcess;
  * 
  * @author rwl
  */
-class CmlAssistant
+public class CmlAssistant
 {
 
 	/**
@@ -379,6 +377,7 @@ class CmlAssistant
 		 * @param name
 		 * @return
 		 */
+		@SuppressWarnings("deprecation")
 		@Override
 		public PDefinition findMemberName(PDefinition def,
 				ILexIdentifierToken name, Object... more)
@@ -533,51 +532,51 @@ class CmlAssistant
 
 	}
 
-	/*
-	 * Find a named member inside a class class definition (Overture class definition).
-	 * @author rwl
-	 */
-	private class ClassClassDefinitionFindMemberStrategy implements
-			FindMemberNameFinderStrategy
-	{
-
-		@Override
-		public Class<?> getType()
-		{
-			return ACmlClassDefinition.class;
-		}
-
-		@Override
-		public PDefinition findMemberName(PDefinition def,
-				ILexIdentifierToken name, Object... more)
-		{
-
-			CmlTypeCheckInfo cmlQuestion = (CmlTypeCheckInfo) more[0];
-
-			LexNameToken searchFor = new LexNameToken("", def.getName());
-
-			PDefinition classDef = cmlQuestion.lookup(searchFor, ACmlClassDefinition.class);
-			if (classDef != null)
-				return CmlAssistant.this.findMemberName(classDef, name, more);
-
-			AClassClassDefinition cdef = AClassClassDefinition.class.cast(def);
-
-			@SuppressWarnings("deprecation")
-			AFunctionsDefinition temp = new AFunctionsDefinition(def.getLocation(), NameScope.LOCAL, false, null, Pass.DEFS);
-			temp.setFunctionDefinitions(new LinkedList<PDefinition>());
-			for (PDefinition d : cdef.getDefinitions())
-			{
-				if (d instanceof AFunctionsDefinition)
-					temp.getFunctionDefinitions().add(d);
-			}
-
-			PDefinition res = CmlAssistant.this.findMemberName(temp, name, more);
-			if (res != null)
-				return res;
-			return SClassDefinitionAssistantTC.findName(cdef, (LexNameToken) name, NameScope.NAMESANDANYSTATE);
-
-		}
-	}
+	// /*
+	// * Find a named member inside a class class definition (Overture class definition).
+	// * @author rwl
+	// */
+	// private class ClassClassDefinitionFindMemberStrategy implements
+	// FindMemberNameFinderStrategy
+	// {
+	//
+	// @Override
+	// public Class<?> getType()
+	// {
+	// return ACmlClassDefinition.class;
+	// }
+	//
+	// @Override
+	// public PDefinition findMemberName(PDefinition def,
+	// ILexIdentifierToken name, Object... more)
+	// {
+	//
+	// CmlTypeCheckInfo cmlQuestion = (CmlTypeCheckInfo) more[0];
+	//
+	// LexNameToken searchFor = new LexNameToken("", def.getName());
+	//
+	// PDefinition classDef = cmlQuestion.lookup(searchFor, ACmlClassDefinition.class);
+	// if (classDef != null)
+	// return CmlAssistant.this.findMemberName(classDef, name, more);
+	//
+	// AClassClassDefinition cdef = AClassClassDefinition.class.cast(def);
+	//
+	// @SuppressWarnings("deprecation")
+	// AFunctionsDefinition temp = new AFunctionsDefinition(def.getLocation(), NameScope.LOCAL, false, null, Pass.DEFS);
+	// temp.setFunctionDefinitions(new LinkedList<PDefinition>());
+	// for (PDefinition d : cdef.getDefinitions())
+	// {
+	// if (d instanceof AFunctionsDefinition)
+	// temp.getFunctionDefinitions().add(d);
+	// }
+	//
+	// PDefinition res = CmlAssistant.this.findMemberName(temp, name, more);
+	// if (res != null)
+	// return res;
+	// return SClassDefinitionAssistantTC.findName(cdef, (LexNameToken) name, NameScope.NAMESANDANYSTATE);
+	//
+	// }
+	// }
 
 	// *********** Helper methods for LocalDefinitionFindMemberStrategy
 	// ************

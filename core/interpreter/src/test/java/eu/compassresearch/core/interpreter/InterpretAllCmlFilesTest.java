@@ -33,8 +33,8 @@ import eu.compassresearch.core.interpreter.api.RandomSelectionStrategy;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.typechecker.VanillaFactory;
-import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
-import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
+import eu.compassresearch.core.typechecker.api.ICmlTypeChecker;
+import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 
 @RunWith(Parameterized.class)
 public class InterpretAllCmlFilesTest
@@ -114,8 +114,8 @@ public class InterpretAllCmlFilesTest
 		assertTrue(CmlParserUtil.parseSource(ast));
 
 		// Type check
-		TypeIssueHandler tcIssue = VanillaFactory.newCollectingIssueHandle();
-		CmlTypeChecker cmlTC = VanillaFactory.newTypeChecker(Arrays.asList(new PSource[] { ast }), tcIssue);
+		ITypeIssueHandler tcIssue = VanillaFactory.newCollectingIssueHandle();
+		ICmlTypeChecker cmlTC = VanillaFactory.newTypeChecker(Arrays.asList(new PSource[] { ast }), tcIssue);
 
 		boolean isTypechecked = cmlTC.typeCheck();
 

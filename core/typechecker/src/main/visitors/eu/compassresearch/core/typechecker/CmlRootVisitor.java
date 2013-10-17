@@ -26,12 +26,13 @@ import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.ast.types.AErrorType;
 import eu.compassresearch.ast.types.ASourceType;
-import eu.compassresearch.core.typechecker.api.TypeComparator;
-import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
+import eu.compassresearch.core.typechecker.api.ITypeComparator;
+import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
+import eu.compassresearch.core.typechecker.util.CmlTCUtil;
 
 class CmlRootVisitor extends
 		QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType>
-		implements eu.compassresearch.core.typechecker.api.CmlRootVisitor
+		implements eu.compassresearch.core.typechecker.api.ICmlRootVisitor
 {
 
 	/**
@@ -46,8 +47,8 @@ class CmlRootVisitor extends
 	private IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> typ; // basic
 	private IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> prc; // process
 	private IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> bnd; // bind
-	private final TypeComparator typeComparator;
-	private final TypeIssueHandler issueHandler;
+	private final ITypeComparator typeComparator;
+	private final ITypeIssueHandler issueHandler;
 
 	private void initialise()
 	{
@@ -59,7 +60,7 @@ class CmlRootVisitor extends
 		bnd = new TCBindVisitor(this, this.issueHandler);
 	}
 
-	CmlRootVisitor(TypeIssueHandler issueHandler, TypeComparator comparator)
+	CmlRootVisitor(ITypeIssueHandler issueHandler, ITypeComparator comparator)
 	{
 		this.issueHandler = issueHandler;
 		this.typeComparator = comparator;

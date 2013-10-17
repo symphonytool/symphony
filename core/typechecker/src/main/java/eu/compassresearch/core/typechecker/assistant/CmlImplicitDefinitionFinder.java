@@ -129,7 +129,7 @@ public class CmlImplicitDefinitionFinder extends
 			plist.addAll((Collection<PPattern>) pl.getPatterns().clone());
 		}
 
-		if (d.getResult() != null )
+		if (d.getResult() != null)
 		{
 			plist.add(d.getResult().getPattern().clone());
 		}

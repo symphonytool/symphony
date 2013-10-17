@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.overture.ast.types.PType;
 
-public interface TypeComparator
+public interface ITypeComparator
 {
 
 	/**

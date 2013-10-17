@@ -1,6 +1,6 @@
 package eu.compassresearch.core.typechecker;
 
-import static eu.compassresearch.core.typechecker.CmlTCUtil.successfulType;
+import static eu.compassresearch.core.typechecker.util.CmlTCUtil.successfulType;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -73,15 +73,17 @@ import eu.compassresearch.ast.types.AChansetType;
 import eu.compassresearch.ast.types.AErrorType;
 import eu.compassresearch.ast.types.ANamesetsType;
 import eu.compassresearch.ast.types.AVarsetExpressionType;
-import eu.compassresearch.core.typechecker.api.TypeComparator;
+import eu.compassresearch.core.typechecker.api.ITypeComparator;
+import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
-import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
+import eu.compassresearch.core.typechecker.util.CmlAssistant;
+import eu.compassresearch.core.typechecker.util.CmlTCUtil;
 
 class TCExpressionVisitor extends
 		QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType>
 {
 
-	private final TypeComparator typeComparator;
+	private final ITypeComparator typeComparator;
 
 	@Override
 	public PType caseAEnumerationRenameChannelExp(
@@ -908,14 +910,14 @@ class TCExpressionVisitor extends
 	private static final long serialVersionUID = -6509187123701383525L;
 
 	// A parent checker may actually not be necessary on this
-	final private eu.compassresearch.core.typechecker.api.CmlRootVisitor parent;
-	private final TypeIssueHandler issueHandler;
+	final private eu.compassresearch.core.typechecker.api.ICmlRootVisitor parent;
+	private final ITypeIssueHandler issueHandler;
 	private final CmlAssistant assist;
 
 	TCExpressionVisitor(
-			eu.compassresearch.core.typechecker.api.CmlRootVisitor parentChecker,
-			TypeIssueHandler issueHandler, CmlAssistant assistant,
-			TypeComparator typeComparator)
+			eu.compassresearch.core.typechecker.api.ICmlRootVisitor parentChecker,
+			ITypeIssueHandler issueHandler, CmlAssistant assistant,
+			ITypeComparator typeComparator)
 	{
 		this.parent = parentChecker;
 		this.issueHandler = issueHandler;
@@ -925,8 +927,8 @@ class TCExpressionVisitor extends
 	}
 
 	TCExpressionVisitor(
-			eu.compassresearch.core.typechecker.api.CmlRootVisitor parentChecker,
-			TypeIssueHandler issueHandler, TypeComparator typeComparator)
+			eu.compassresearch.core.typechecker.api.ICmlRootVisitor parentChecker,
+			ITypeIssueHandler issueHandler, ITypeComparator typeComparator)
 	{
 		this(parentChecker, issueHandler, new CmlAssistant(), typeComparator);
 	}

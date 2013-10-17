@@ -25,9 +25,9 @@ import org.overture.ast.types.SBasicType;
 import org.overture.ast.types.SSeqType;
 import org.overture.typechecker.Environment;
 
-import eu.compassresearch.core.typechecker.api.TypeComparator;
+import eu.compassresearch.core.typechecker.api.ITypeComparator;
 
-class SimpleTypeComparator implements TypeComparator
+class SimpleTypeComparator implements ITypeComparator
 {
 
 	/*
@@ -75,9 +75,9 @@ class SimpleTypeComparator implements TypeComparator
 	 * 
 	 * @return
 	 */
-	public static TypeComparator newInstance()
+	public static ITypeComparator newInstance()
 	{
-		TypeComparator res = new SimpleTypeComparator(null);
+		ITypeComparator res = new SimpleTypeComparator(null);
 		return res;
 	}
 
@@ -153,8 +153,9 @@ class SimpleTypeComparator implements TypeComparator
 	{
 		fixedSubTypeRelations = new HashMap<Class<?>, List<Class<?>>>();
 		List<Class<?>> basic = Arrays.asList(new Class<?>[] {
-				ARealNumericBasicType.class, ARationalNumericBasicType.class, AIntNumericBasicType.class,
-				ANatNumericBasicType.class, ANatOneNumericBasicType.class });
+				ARealNumericBasicType.class, ARationalNumericBasicType.class,
+				AIntNumericBasicType.class, ANatNumericBasicType.class,
+				ANatOneNumericBasicType.class });
 
 		for (Class<?> b : basic)
 			fixedSubTypeRelations.put(b, basic);

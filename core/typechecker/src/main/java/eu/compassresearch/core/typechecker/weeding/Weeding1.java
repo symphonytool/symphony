@@ -55,13 +55,6 @@ public class Weeding1 extends DepthFirstAnalysisCMLAdaptor
 		flattenProductParameterType(node.getType());
 	}
 
-	private void flattenProductParameterType(PType type)
-	{
-		if (type instanceof AFunctionType)
-		{
-			flattenProductParameterType((AFunctionType) type);
-		}
-	}
 
 	/*
 	 * VDMPP parser adds types one by one for the outer product type. E.g. f: int * int -> int has arg-types [int,int]

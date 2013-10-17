@@ -36,8 +36,8 @@ import eu.compassresearch.core.interpreter.api.values.ProcessObjectValue;
 import eu.compassresearch.core.interpreter.debug.Breakpoint;
 import eu.compassresearch.core.interpreter.utility.LocationExtractor;
 import eu.compassresearch.core.typechecker.VanillaFactory;
-import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
-import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
+import eu.compassresearch.core.typechecker.api.ICmlTypeChecker;
+import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 
 class VanillaCmlInterpreter extends AbstractCmlInterpreter
 {
@@ -370,10 +370,10 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			}
 		}
 
-		TypeIssueHandler issueHandler = VanillaFactory.newCollectingIssueHandle();
+		ITypeIssueHandler issueHandler = VanillaFactory.newCollectingIssueHandle();
 
 		// Type check
-		CmlTypeChecker cmlTC = VanillaFactory.newTypeChecker(sources, issueHandler);
+		ICmlTypeChecker cmlTC = VanillaFactory.newTypeChecker(sources, issueHandler);
 
 		// Print result and report errors if any
 		if (!cmlTC.typeCheck())
@@ -434,10 +434,10 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			return;
 		}
 
-		TypeIssueHandler issueHandler = VanillaFactory.newCollectingIssueHandle();
+		ITypeIssueHandler issueHandler = VanillaFactory.newCollectingIssueHandle();
 
 		// Type check
-		CmlTypeChecker cmlTC = VanillaFactory.newTypeChecker(Arrays.asList(new PSource[] { source }), issueHandler);
+		ICmlTypeChecker cmlTC = VanillaFactory.newTypeChecker(Arrays.asList(new PSource[] { source }), issueHandler);
 
 		// Print result and report errors if any
 		if (!cmlTC.typeCheck())
