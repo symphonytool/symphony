@@ -809,7 +809,7 @@ class TCActionVisitor extends
 		}
 
 		// All done!
-		node.setType(new AActionType());
+		node.setType(new AVoidType());
 		return node.getType();
 	}
 
