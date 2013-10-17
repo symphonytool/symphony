@@ -855,7 +855,13 @@ renamePair returns[ARenamePair pair]
 
 actionParagraphOptList returns[List<PDefinition> defs]
 @init { $defs = new ArrayList<PDefinition>(); }
-    : ( actionParagraph { $defs.add($actionParagraph.defs); } )*
+    : ( actionParagraph 
+            {
+                if ($actionParagraph.defs != null) {
+                    $defs.add($actionParagraph.defs); 
+                }
+            }
+        )*
     ;
 
 actionParagraph returns[PDefinition defs]
@@ -869,12 +875,17 @@ actionParagraph returns[PDefinition defs]
     ;
 
 actionDefs returns[AActionsDefinition defs]
-@after { $defs.setLocation(extractLexLocation($start, $stop)); }
+@after {
+    if ($defs != null)
+        $defs.setLocation(extractLexLocation($start, $stop));
+}
     : 'actions' actionDefOptList
         {
-            $defs = new AActionsDefinition();
-            $defs.setName(new LexNameToken("", "Actions", extractLexLocation($start)));
-            $defs.setActions($actionDefOptList.defs);
+            if ($actionDefOptList.defs.size()>0) {
+                $defs = new AActionsDefinition();
+                $defs.setName(new LexNameToken("", "Actions", extractLexLocation($start)));
+                $defs.setActions($actionDefOptList.defs);
+            }
         }
     ;
 
@@ -1630,15 +1641,21 @@ channelDef returns[List<AChannelNameDefinition> def]
                 List<ILexIdentifierToken> idList = new ArrayList<ILexIdentifierToken>();
                 idList.add(id);
                 ILexLocation loc = id.getLocation();
-                AChannelType chanType = new AChannelType(loc, true);
+                AChannelType chanType = new AChannelType(loc.clone(), true);
                 if ($type.type != null) {
-                    loc = extractLexLocation(loc, extractLexLocation($type.stop));
-                    chanType.setLocation(extractLexLocation($type.start,$type.stop));
+                    // Decided to keep the locations down to only that
+                    // of the identifier, rather than from the
+                    // identifier out to the type definition.
+                    // Uncomment this to change that. -jwc/16Oct2013
+                    //
+                    // loc = extractLexLocation(loc, extractLexLocation($type.stop));
+                    // chanType.setLocation(extractLexLocation($type.start,$type.stop));
                     chanType.setType($type.type.clone());
                 }    
-                ATypeSingleDeclaration typeDecl = new ATypeSingleDeclaration(loc, NameScope.GLOBAL, idList, chanType);
+                ATypeSingleDeclaration typeDecl = new ATypeSingleDeclaration(loc.clone(), NameScope.GLOBAL, idList, chanType);
                 
                 AChannelNameDefinition chanDecl = new AChannelNameDefinition();
+                chanDecl.setLocation(loc.clone());
                 chanDecl.setName(new LexNameToken("", id)); // this is ok, as each identifier in the identifierList gets its own ACNDef
                 chanDecl.setNameScope(NameScope.GLOBAL);
                 chanDecl.setUsed(false);            
@@ -1869,16 +1886,24 @@ classDefinitionBlockOptList returns[List<PDefinition> defs]
     ;
 
 classDefinitionBlock returns[List<? extends PDefinition> defs]
+@init { $defs = null; }
     : typeDefs                  { $defs = $typeDefs.defs.getTypes(); }
     | valueDefs                 { $defs = $valueDefs.defs.getValueDefinitions(); }
-    | stateDefs                 { $defs = $stateDefs.defs.getStateDefs(); }
+    | stateDefs
+        {
+            if ($stateDefs.defs != null)
+                $defs = $stateDefs.defs.getStateDefs();
+            else
+                $defs = new ArrayList<AStateDefinition>();
+        }
     | functionDefs              { $defs = $functionDefs.defs.getFunctionDefinitions(); }
-    | operationDefs             { 
-    								//List<PDefinition> opsDef = new LinkedList<PDefinition>();
-    								//opsDef.add($operationDefs.defs);
-    								//$defs = opsDef;
-    							  $defs = $operationDefs.defs.getOperations(); 
-    							}
+    | operationDefs             
+        { 
+            if ($operationDefs.defs != null)
+                $defs = $operationDefs.defs.getOperations(); 
+            else
+                $defs = new ArrayList<SCmlOperationDefinition>();
+        }
     | 'initial' operationDef
         {
             AInitialDefinition def = new AInitialDefinition();
@@ -1940,14 +1965,19 @@ valueDefinition returns[AValueDefinition def]
     ;
 
 stateDefs returns[AStateDefinition defs]
-@after { $defs.setLocation(extractLexLocation($start, $stop)); }
+@after {
+    if ($defs != null) {
+        $defs.setLocation(extractLexLocation($start, $stop));
+    } 
+}
     : 'state' instanceVariableDefinitionList?
         {
-            $defs = new AStateDefinition();
-            // This almost works, but causes a TC crash for some reason; related to bug #91 -jwc/3Oct2013
-            //$defs.setName(new LexNameToken("", "State", extractLexLocation($start)));
-            if ($instanceVariableDefinitionList.defs != null)
+            if ($instanceVariableDefinitionList.defs != null && $instanceVariableDefinitionList.defs.size()>0) {
+                $defs = new AStateDefinition();
+                // This almost works, but causes a TC crash for some reason; related to bug #91 -jwc/3Oct2013
+                //$defs.setName(new LexNameToken("", "State", extractLexLocation($start)));
                 $defs.setStateDefs($instanceVariableDefinitionList.defs);
+            }
         }
     ;
 
@@ -2318,18 +2348,22 @@ functionBody returns[PExp exp]
     ;
 
 operationDefs returns[AOperationsDefinition defs]
-@after { $defs.setLocation(extractLexLocation($start, $stop));
-         $defs.setName(new LexNameToken("", new LexIdentifierToken("", false, $defs.getLocation())));
-
-        }
+@after {
+    if ($defs != null) {
+        $defs.setLocation(extractLexLocation($start, $stop));
+        $defs.setName(new LexNameToken("", new LexIdentifierToken("", false, $defs.getLocation())));
+    }
+}
     : 'operations' qualOperationDefOptList
         {
-            $defs = new AOperationsDefinition(); // FIXME
-            $defs.setName(new LexNameToken("", "Operations", extractLexLocation($start)));
-            $defs.setOperations($qualOperationDefOptList.defs);
-            $defs.setNameScope(NameScope.LOCAL);
-            $defs.setUsed(false);
-            $defs.setAccess(getDefaultAccessSpecifier(true, false, extractLexLocation($operationDefs.start)));
+            if ($qualOperationDefOptList.defs.size()>0) {
+                $defs = new AOperationsDefinition(); // FIXME
+                $defs.setName(new LexNameToken("", "Operations", extractLexLocation($start)));
+                $defs.setOperations($qualOperationDefOptList.defs);
+                $defs.setNameScope(NameScope.LOCAL);
+                $defs.setUsed(false);
+                $defs.setAccess(getDefaultAccessSpecifier(true, false, extractLexLocation($operationDefs.start)));
+            }
         }
     ;
 
@@ -3130,12 +3164,15 @@ exprbase returns[PExp exp]
         }
     | IDENTIFIER old='~'?
         {
-            boolean isOld = (old != null);
+            boolean isOld = ($old != null);
+            String origName = $IDENTIFIER.getText();
             ILexLocation loc = extractLexLocation($IDENTIFIER);
-            if (isOld)
+            if (isOld) {
                 loc = extractLexLocation(loc, extractLexLocation($old));
+                origName = origName + "~";
+            }
             LexNameToken name = new LexNameToken("", $IDENTIFIER.getText(), loc, isOld, false);
-            $exp = new AVariableExp(loc, name, name.getName());
+            $exp = new AVariableExp(loc, name, origName);
         }
     | symbolicLiteralExpr
         {
@@ -3184,7 +3221,7 @@ exprbase returns[PExp exp]
     | 'cases' cexp=expression ':' caseExprAltList ( ',' 'others' '->' oexp=expression )? 'end'
         {
             for (ACaseAlternative alt : $caseExprAltList.alts) {
-                alt.setCexp($cexp.exp);
+                alt.setCexp($cexp.exp.clone());
             }
             $exp = new ACasesExp(null, $cexp.exp, $caseExprAltList.alts, $oexp.exp);
         }
