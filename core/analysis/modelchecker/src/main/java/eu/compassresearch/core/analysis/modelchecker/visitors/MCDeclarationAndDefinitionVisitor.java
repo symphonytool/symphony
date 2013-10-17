@@ -266,7 +266,7 @@ public class MCDeclarationAndDefinitionVisitor extends
 			//}
 		} else if(parameters.size()==1){
 			question.getScriptContent().append("SPar(");
-			node.getDeclarations().getFirst().apply(this, question);
+			node.getDeclarations().getFirst().apply(rootVisitor, question);
 			question.getScriptContent().append("),");
 			//node.getAction().apply(this, question);
 			node.getAction().apply(rootVisitor, question);
