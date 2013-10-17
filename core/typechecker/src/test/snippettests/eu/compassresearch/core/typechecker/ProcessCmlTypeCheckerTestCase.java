@@ -80,7 +80,8 @@ public class ProcessCmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase
 		add("process = begin @ Skip end", false, false);
 		// 29
 		add("types  Index = nat Money = nat process Test = begin  actions Pay = i, j: Index, n: Money @ Skip @ Pay(1,1,1) end", true, true);
-
+		// 30 
+		add("channels send : nat process P = begin  @  (; t in seq [1,2,3] @ send.(t) -> Skip) end", true, true, false);
 	}
 
 	public ProcessCmlTypeCheckerTestCase(String cmlSource, boolean parsesOk,
