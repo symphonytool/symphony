@@ -68,7 +68,7 @@ public class ThmTypeUtil {
 	static String isaNat1 = "@nat1";
 
  	static String isaInMap= "@inmap of";
- 	static String isaMap= "@map of";
+ 	static String isaMap= "@map";
  	static String isaMapTo= "to ";
  	static String isaErrMT= "@unknownMapType";
  	

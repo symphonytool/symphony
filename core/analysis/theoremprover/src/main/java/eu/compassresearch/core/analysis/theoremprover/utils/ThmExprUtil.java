@@ -16,6 +16,9 @@ import org.overture.ast.patterns.ATypeMultipleBind;
 import org.overture.ast.patterns.PBind;
 import org.overture.ast.patterns.PMultipleBind;
 import org.overture.ast.patterns.PPattern;
+import org.overture.ast.types.ANamedInvariantType;
+import org.overture.ast.types.ARecordInvariantType;
+import org.overture.ast.types.PType;
 
 import eu.compassresearch.ast.expressions.ABracketedExp;
 import eu.compassresearch.ast.expressions.AEnumVarsetExpression;
@@ -313,13 +316,17 @@ public class ThmExprUtil {
 			AExistsExp exists = (AExistsExp) ex;
 			LinkedList<PMultipleBind> binds = exists.getBindList();
 			StringBuilder sb = new StringBuilder();
+			StringBuilder endBrackets = new StringBuilder();
 			NodeNameList boundvars = new NodeNameList();
 			boundvars.addAll(bvars);
 			
 			for(PMultipleBind b: binds)
 			{
+				endBrackets.append(")");
 				if (b instanceof ATypeMultipleBind)
 				{
+					sb.append("exists ");
+					
 					ATypeMultipleBind tmb = (ATypeMultipleBind) b;					
 					for (Iterator<PPattern> itr = tmb.getPlist().listIterator(); itr.hasNext(); ) {
 						AIdentifierPattern p = (AIdentifierPattern) itr.next();
@@ -332,10 +339,12 @@ public class ThmExprUtil {
 						}
 					}
 					sb.append(" : ");
-					sb.append("@" + tmb.getType().toString());
+					sb.append("@" + tmb.getType().toString() + " @ (");
 				}
 				else if (b instanceof ASetMultipleBind)
 				{
+					sb.append("exists ");
+					
 					ASetMultipleBind smb = (ASetMultipleBind) b;
 					for (Iterator<PPattern> itr = smb.getPlist().listIterator(); itr.hasNext(); ) {
 						AIdentifierPattern p = (AIdentifierPattern) itr.next();
@@ -350,9 +359,10 @@ public class ThmExprUtil {
 				//	sb.append(smb.getPlist().toString());
 					sb.append(" in @set ");
 					sb.append(ThmExprUtil.getIsabelleExprStr(svars, bvars, smb.getSet()));
+					sb.append(" @ ");
 				}
 			}
-			return "exists " + sb.toString() + " @ " + ThmExprUtil.getIsabelleExprStr(svars, boundvars, exists.getPredicate()); 
+			return "(" + sb.toString() + ThmExprUtil.getIsabelleExprStr(svars, boundvars, exists.getPredicate()) + endBrackets.toString() + ")"; 
 		}
 		else if(ex instanceof AExists1Exp){
 			AExists1Exp exists = (AExists1Exp) ex;
@@ -384,14 +394,19 @@ public class ThmExprUtil {
 			AForAllExp exists = (AForAllExp) ex;
 			LinkedList<PMultipleBind> binds = exists.getBindList();
 			StringBuilder sb = new StringBuilder();
+			StringBuilder endBrackets = new StringBuilder();
 			NodeNameList boundvars = new NodeNameList();
 			boundvars.addAll(bvars);
-			
+						
 			for(PMultipleBind b: binds)
 			{
+				endBrackets.append(")");
 				if (b instanceof ATypeMultipleBind)
 				{
 					ATypeMultipleBind tmb = (ATypeMultipleBind) b;
+
+					sb.append("forall ");
+					
 					for (Iterator<PPattern> itr = tmb.getPlist().listIterator(); itr.hasNext(); ) {
 						AIdentifierPattern p = (AIdentifierPattern) itr.next();
 						
@@ -403,10 +418,12 @@ public class ThmExprUtil {
 						}
 					}
 					sb.append(" : ");
-					sb.append("@" + tmb.getType().toString());
+					sb.append("@" + tmb.getType().toString() + " @ (");
 				}
 				else if (b instanceof ASetMultipleBind)
 				{
+					sb.append("forall ");
+					
 					ASetMultipleBind smb = (ASetMultipleBind) b;
 					for (Iterator<PPattern> itr = smb.getPlist().listIterator(); itr.hasNext(); ) {
 						AIdentifierPattern p = (AIdentifierPattern) itr.next();
@@ -415,15 +432,16 @@ public class ThmExprUtil {
 						boundvars.add(p.getName());
 						//If there are remaining patterns, add a ","
 						if(itr.hasNext()){	
-							sb.append(", ");
+							sb.append(", (");
 						}
 					}
 				//	sb.append(smb.getPlist().toString());
 					sb.append(" in @set ");
 					sb.append(ThmExprUtil.getIsabelleExprStr(svars, bvars, smb.getSet()));
+					sb.append(" @ ");
 				}
 			}
-			return "forall " + sb.toString() + " @ " + ThmExprUtil.getIsabelleExprStr(svars, boundvars, exists.getPredicate()); 
+			return "(" + sb.toString() + ThmExprUtil.getIsabelleExprStr(svars, boundvars, exists.getPredicate()) + endBrackets.toString() + ")"; 
 		}
 		else if(ex instanceof AIntLiteralExp){
 			AIntLiteralExp i = (AIntLiteralExp) ex;
@@ -441,20 +459,26 @@ public class ThmExprUtil {
 					sb.append(", ");
 				}
 			}
-			String root = ThmExprUtil.getIsabelleExprStr(svars, bvars,app.getRoot());
+			PExp appRoot = app.getRoot();
+			String root = ThmExprUtil.getIsabelleExprStr(svars, bvars,appRoot);
 			StringBuilder rootsb = new StringBuilder();
-			//Need to remove ^ decoration from root, as can't currently determine
-			//if root expression is a function variable.
 			rootsb.append(root);
-			if (root.contains("^"))
+			
+			if (!(appRoot.getType() instanceof ANamedInvariantType || appRoot.getType() instanceof ARecordInvariantType))
 			{
-				int count = 0;
-				while(count <2){
-					int lastHat = rootsb.lastIndexOf("^");
-					rootsb.deleteCharAt(lastHat);
-					count++;
-				}
-			}	
+				//Need to remove ^ decoration from root, as can't currently determine
+				//if root expression is a function variable.
+				if (root.contains("^"))
+				{
+					int count = 0;
+					while(count <2){
+						int lastHat = rootsb.lastIndexOf("^");
+						rootsb.deleteCharAt(lastHat);
+						count++;
+					}
+				}	
+			}
+			
 			
 			return rootsb.toString() + "(" + sb.toString() + ")";
 		}		

@@ -185,10 +185,7 @@ public class ThmImpFunc extends ThmDecl {
 		//if there is a result value
 		if (prepost.equals("post") && res != null)
 		{
-			//Add the result too
-			PPattern p = res.getPattern();
-		
-			sb.append(", ^" + ((AIdentifierPattern) p).getName().toString() + "^");
+			sb.append(", ^" + ThmTypeUtil.isaFuncLambdaPostVal + "^");
 		}
 		sb.append(")");
 		

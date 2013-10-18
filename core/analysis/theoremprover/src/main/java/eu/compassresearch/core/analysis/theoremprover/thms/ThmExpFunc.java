@@ -162,7 +162,7 @@ public class ThmExpFunc extends ThmDecl {
 		//if there is a result value
 		if (prepost.equals("post"))
 		{
-			sb.append(", ^RESULT^");
+			sb.append(", ^" + ThmTypeUtil.isaFuncLambdaPostVal + "^");
 		}
 		sb.append(")");
 
