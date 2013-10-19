@@ -15,8 +15,15 @@ public class MCAExternalChoiceAction implements MCPAction {
 
 	@Override
 	public String toFormula(String option) {
-		// TODO Auto-generated method stub
-		return null;
+		StringBuffer result = new StringBuffer();
+		
+		result.append("eChoice(");
+		result.append(this.left.toFormula(option));
+		result.append(",");
+		result.append(this.right.toFormula(option));
+		result.append(")");
+
+		return result.toString();
 	}
 
 	public MCPAction getLeft() {

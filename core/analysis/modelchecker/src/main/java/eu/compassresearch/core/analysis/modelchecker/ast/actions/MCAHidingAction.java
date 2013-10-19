@@ -1,6 +1,7 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.actions;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPVarsetExpression;
+import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 
 
 public class MCAHidingAction implements MCPAction {
@@ -17,8 +18,25 @@ public class MCAHidingAction implements MCPAction {
 
 	@Override
 	public String toFormula(String option) {
-		// TODO Auto-generated method stub
-		return null;
+		StringBuffer result = new StringBuffer();
+		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance(); 
+		
+		//it puts the event set in the context so the internal process can access and generate lieIn
+		context.setStack.add(varSetExpression);
+				
+		// "actions\ {ev}" hide(actions,"{ev}")
+		result.append("hide(");
+				
+		//the internal action must check if there is some event set to generate lieInEvents
+		result.append(this.action.toFormula(option));
+		result.append(",");
+		result.append(this.varSetExpression.toFormula(option));
+		result.append(")");
+				
+		//it removes the event set from the context at the end
+		context.setStack.pop();
+		
+		return result.toString();
 	}
 
 

@@ -47,86 +47,205 @@ import eu.compassresearch.ast.expressions.AEnumVarsetExpression;
 import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
 import eu.compassresearch.ast.expressions.ANameChannelExp;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
+import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCABlockStatementAction;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAChaosAction;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCADeclareStatementAction;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCADivAction;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAExternalChoiceAction;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAGeneralisedParallelismParallelAction;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAHidingAction;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAInterleavingParallelAction;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAInternalChoiceAction;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCASequentialCompositionAction;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCASkipAction;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAStopAction;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPAction;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCPCMLDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPVarsetExpression;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.SingleBind;
 
-public class MCActionVisitor extends
-		QuestionAnswerCMLAdaptor<CMLModelcheckerContext, StringBuilder> {
+public class NewMCActionVisitor extends
+		QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 
-	final private QuestionAnswerAdaptor<CMLModelcheckerContext, StringBuilder> rootVisitor;
+	final private QuestionAnswerAdaptor<NewCMLModelcheckerContext, MCNode> rootVisitor;
 	
-	public MCActionVisitor(QuestionAnswerAdaptor<CMLModelcheckerContext, StringBuilder> parentVisitor){
+	public NewMCActionVisitor(QuestionAnswerAdaptor<NewCMLModelcheckerContext, MCNode> parentVisitor){
 		this.rootVisitor = parentVisitor;
 	}
 	
 	//FOR THE CASE OF ACTIONS WHOSE VISIT METHOD IS NOT IMPLEMENTED
 	@Override
-	public StringBuilder defaultPAction(PAction node,
-			CMLModelcheckerContext question) throws AnalysisException {
+	public MCNode defaultPAction(PAction node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
 		
 		throw new ModelcheckerRuntimeException(ModelcheckerErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName()));
 	}
 	
 	///BASIC ACTIONS
 	@Override
-	public StringBuilder caseAStopAction(AStopAction node,
-			CMLModelcheckerContext question) throws AnalysisException {
+	public MCNode caseAStopAction(AStopAction node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
 
-		question.getScriptContent().append(node.toString());
-
-		return question.getScriptContent();
+		return new MCAStopAction();
 	}
 
+	
 	@Override
-	public StringBuilder caseAChaosAction(AChaosAction node,
-			CMLModelcheckerContext question) throws AnalysisException {
+	public MCNode caseAChaosAction(AChaosAction node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
 
-		question.getScriptContent().append(node.toString());
-
-		return question.getScriptContent();
+		return new MCAChaosAction();
 	}
 
+	
 	@Override
-	public StringBuilder caseADivAction(ADivAction node,
-			CMLModelcheckerContext question) throws AnalysisException {
+	public MCNode caseADivAction(ADivAction node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
 
-		question.getScriptContent().append("Div");
-
-		return question.getScriptContent();
+		return new MCADivAction();
 	}
 
+	
 	@Override
-	public StringBuilder caseASkipAction(ASkipAction node,
-			CMLModelcheckerContext question) throws AnalysisException {
-		question.getScriptContent().append(node.toString());
+	public MCNode caseASkipAction(ASkipAction node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
 
-		return question.getScriptContent();
+		return new MCASkipAction();
 
 	}
 
+	
 	///COMMON ACTIONS
 	@Override
-	public StringBuilder caseAHidingAction(AHidingAction node,
-			CMLModelcheckerContext question) throws AnalysisException {
+	public MCNode caseAHidingAction(AHidingAction node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
 
-		//it puts the event set in the context so the internal process can access and generate lieIn
-		question.setStack.add(node.getChansetExpression());
+		MCPAction action = (MCPAction) node.getLeft().apply(this, question);
+		MCPVarsetExpression chanSetExp = (MCPVarsetExpression) node.getChansetExpression().apply(rootVisitor, question);
+		MCAHidingAction result = new MCAHidingAction(action, chanSetExp);
 		
-		// "actions\ {ev}" hide(actions,"{ev}")
-		question.getScriptContent().append("hide(");
+		return result;
+	}
+	
+	@Override
+	public MCNode caseAExternalChoiceAction(AExternalChoiceAction node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
 		
-		//the internal action must check if there is some event set to generate lieInEvents
-		node.getLeft().apply(this, question);
-		question.getScriptContent().append(",");
-		//node.getChansetExpression().apply(this, question);
-		node.getChansetExpression().apply(rootVisitor, question);
-		question.getScriptContent().append(")");
+		MCPAction left = (MCPAction) node.getLeft().apply(this, question);
+		MCPAction right = (MCPAction) node.getRight().apply(this, question);
+		MCAExternalChoiceAction result = new MCAExternalChoiceAction(left, right);
 		
-		//it remover the event set from the context at the end
-		question.setStack.pop();
-		
-		return question.getScriptContent();
+		return result;
 	}
 
+	@Override
+	public MCNode caseAInternalChoiceAction(AInternalChoiceAction node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		
+		MCPAction left = (MCPAction) node.getLeft().apply(this, question);
+		MCPAction right = (MCPAction) node.getRight().apply(this, question);
+		MCAInternalChoiceAction result = new MCAInternalChoiceAction(left, right);
+		
+		return result;
+		
+	}
+	
+	@Override
+	public MCNode caseABlockStatementAction(ABlockStatementAction node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		
+		MCPAction action = (MCPAction) node.getAction().apply(this, question);
+		MCADeclareStatementAction declareStatement = null;
+		if(node.getDeclareStatement() != null) {
+			declareStatement = (MCADeclareStatementAction) node.getDeclareStatement().apply(rootVisitor, question);
+		}
+		MCABlockStatementAction result  = new MCABlockStatementAction(declareStatement, action);
+		
+		return result;
+	}
+	
+	@Override
+	public MCNode caseASequentialCompositionAction(
+			ASequentialCompositionAction node, NewCMLModelcheckerContext question)
+			throws AnalysisException {
+		
+		MCPAction left = (MCPAction) node.getLeft().apply(this, question);
+		MCPAction right = (MCPAction) node.getRight().apply(this, question);
+		MCASequentialCompositionAction result = new MCASequentialCompositionAction(left, right);
+		
+		return result;
+	}
+	
+	@Override
+	public MCNode caseADeclareStatementAction(
+			ADeclareStatementAction node, NewCMLModelcheckerContext question)
+			throws AnalysisException {
+		
+		LinkedList<MCPCMLDefinition>  mcAssignDefs = new LinkedList<MCPCMLDefinition>();
+		
+		LinkedList<PDefinition>  assignDefs = node.getAssignmentDefs();
+		for (PDefinition pDefinition : assignDefs) {
+			MCPCMLDefinition mcPDef =  (MCPCMLDefinition) pDefinition.apply(rootVisitor, question);
+			mcAssignDefs.add(mcPDef);
+		}
+
+		MCADeclareStatementAction result = new MCADeclareStatementAction(mcAssignDefs);
+		return result;
+	}
+	
+	@Override
+	public MCNode caseAInterleavingParallelAction(
+			AInterleavingParallelAction node, NewCMLModelcheckerContext question)
+			throws AnalysisException {
+		
+		MCPAction left = (MCPAction) node.getLeftAction().apply(this, question);
+		MCPAction right = (MCPAction) node.getRightAction().apply(this, question);
+		MCAInterleavingParallelAction result = new MCAInterleavingParallelAction(left, right);
+		
+		return result;
+		
+	}
+	
+	@Override
+	public MCNode caseAGeneralisedParallelismParallelAction(
+			AGeneralisedParallelismParallelAction node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+
+		MCPAction left = (MCPAction) node.getLeftAction().apply(this, question);
+		MCPVarsetExpression chanSetExpression = (MCPVarsetExpression) node.getChansetExpression().apply(rootVisitor, question);
+		MCPAction right = (MCPAction) node.getRightAction().apply(this, question);
+		MCAGeneralisedParallelismParallelAction result = new MCAGeneralisedParallelismParallelAction(left, chanSetExpression, right);
+		
+		return result;
+		
+	}
+	
+	@Override
+	public MCNode caseASequentialCompositionReplicatedAction(
+			ASequentialCompositionReplicatedAction node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+
+		/*
+		PSingleDeclaration sDecl = node.getReplicationDeclaration().getFirst();
+		LinkedList<PExp> indexes = new LinkedList<PExp>();
+		if (sDecl instanceof AExpressionSingleDeclaration) {
+			PExp pExp = ((AExpressionSingleDeclaration) sDecl).getExpression();
+			if (pExp instanceof ASetEnumSetExp) {
+				indexes = ((ASetEnumSetExp) pExp).getMembers();
+			}
+		}
+		// building combination of processses based on simple constructs
+		StringBuilder replicatedAction = buildReplicatedAction(node, question, 
+				node.getReplicatedAction(), Utilities.SEQUENTIAL_COMPOSITION,
+				indexes.size());
+		question.getScriptContent().append(replicatedAction.toString());
+
+		return question.getScriptContent();
+		*/
+		return null;
+	}
+	/*
 	@Override
 	public StringBuilder caseACommunicationAction(ACommunicationAction node,
 			CMLModelcheckerContext question) throws AnalysisException {
@@ -240,52 +359,7 @@ public class MCActionVisitor extends
 					
 				}
 			}
-				//if(question.info.containsKey(Utilities.STATES_KEY)){
-				//if(question.stateVariables.size() > 0){
-					//StringBuilder channelsStr = new StringBuilder(); 
-					//ppppppppp
-				//	Set stateVariables = question.stateVariables;
-					//question.getScriptContent().append(")");
-					//ArrayList<StringBuilder> states = (ArrayList<StringBuilder>) question.info.get(Utilities.STATES_KEY);
-					//question.getScriptContent().append(") :- " + states.get(0));
-					//channelsStr.append(") :- "+states.get(0));
-					/*
-					for(int i = 1; i < states.size(); i++){
-						question.getScriptContent().append(",");
-						//channelsStr.append(",");
-						question.getScriptContent().append(states.get(i));
-						//channelsStr.append(states.get(i));
-					}
-					question.getScriptContent().append(".\n");
-					*/
-				//} //else if (question.info.containsKey(Utilities.CHANNEL_DEFINITIONS_KEY)){
-				/*
-				 else if (question.info.containsKey(Utilities.CHANNEL_DEFINITIONS_KEY)){
-				 
-					PCommunicationParameter param = parameters.getFirst();
-					if(param instanceof ASignalCommunicationParameter){
-						PExp exp = param.getExpression();
-						if(exp instanceof AVariableExp){
-							CMLModelcheckerContext copyCtxt = question.copy();
-							copyCtxt.scriptContent = new StringBuilder();
-							LinkedList<AChannelNameDefinition> aux = (LinkedList<AChannelNameDefinition>) question.info.get(Utilities.CHANNEL_DEFINITIONS_KEY);
-							//question.getScriptContent().append(" :- ");
-							//copyCtxt.scriptContent.append(" :- ");
-							//aux.getFirst().apply(this, question);
-							aux.getFirst().apply(this, copyCtxt);
-							//int i = question.getScriptContent().lastIndexOf("_");
-							int i = copyCtxt.getScriptContent().lastIndexOf("_");
-							//question.getScriptContent().replace(i, i+1, parameters.getFirst().toString());
-							copyCtxt.getScriptContent().replace(i, i+1, param.toString());
-							//question.getScriptContent().append(".\n");
-							
-							//puts the information in the main context to be recovered at the end
-							question.channelDependencies.add(copyCtxt.getScriptContent().toString());
-						}
-						
-					}
-				}
-				*/
+				
 				
 				CMLModelcheckerContext aux = new CMLModelcheckerContext();
 				aux.getScriptContent().append("  IOCommDef(0," + question.IOCOMM_COUNTER + ",");
@@ -391,47 +465,11 @@ public class MCActionVisitor extends
 		return question.getScriptContent();
 	}
 
-	@Override
-	public StringBuilder caseAExternalChoiceAction(AExternalChoiceAction node,
-			CMLModelcheckerContext question) throws AnalysisException {
-		// it writes the left process into the buffer
-		question.getScriptContent().append("eChoice(");
-		node.getLeft().apply(this, question);
-		question.getScriptContent().append(",");
-		// it writes the right process into the buffer
-		node.getRight().apply(this, question);
-		question.getScriptContent().append(")");
-
-		return question.getScriptContent();
-	}
-
-	@Override
-	public StringBuilder caseAInternalChoiceAction(AInternalChoiceAction node,
-			CMLModelcheckerContext question) throws AnalysisException {
-		// it writes the left process into the buffer
-		question.getScriptContent().append("iChoice(");
-		node.getLeft().apply(this, question);
-		question.getScriptContent().append(",");
-		// it writes the right process into the buffer
-		node.getRight().apply(this, question);
-		question.getScriptContent().append(")");
-
-		return question.getScriptContent();
-	}
 	
-	@Override
-	public StringBuilder caseABlockStatementAction(ABlockStatementAction node,
-			CMLModelcheckerContext question) throws AnalysisException {
-		if(node.getDeclareStatement() != null){
-			//node.getDeclareStatement().apply(this, question);
-			node.getDeclareStatement().apply(rootVisitor, question);
-		}
-		node.getAction().apply(this, question);
-		if(node.getDeclareStatement() != null){
-			question.getScriptContent().append(")");
-		}
-		return question.getScriptContent();
-	}
+
+	
+	
+	
 	
 	@Override
 	public StringBuilder caseAGuardedAction(AGuardedAction node,
@@ -481,27 +519,7 @@ public class MCActionVisitor extends
 				return question.getScriptContent();
 	}
 
-	@Override
-	public StringBuilder caseASequentialCompositionAction(
-			ASequentialCompositionAction node, CMLModelcheckerContext question)
-			throws AnalysisException {
-		// it writes the sequential composition constructor
-		question.getScriptContent().append("seqC(");
-
-		// it writes the first action
-		node.getLeft().apply(this, question);
-		question.getScriptContent().append(",");
-
-		// it writes the second action
-		node.getRight().apply(this, question);
-		//if the action does not depend on the state.
-		question.getScriptContent().append(")");
-		//if(!question.info.containsKey(Utilities.STATES_KEY)){
-		//	question.getScriptContent().append(")");
-		//}
-
-		return question.getScriptContent();
-	}
+	
 
 	@Override
 	public StringBuilder caseAReferenceAction(AReferenceAction node,
@@ -538,80 +556,16 @@ public class MCActionVisitor extends
 		return question.getScriptContent();
 	}
 
-	@Override
-	public StringBuilder caseADeclareStatementAction(
-			ADeclareStatementAction node, CMLModelcheckerContext question)
-			throws AnalysisException {
-		node.getAssignmentDefs().getFirst().apply(rootVisitor,question);
-		return question.getScriptContent();
-	}
+	
 	
 	///PARALLEL ACTIONS
-	@Override
-	public StringBuilder caseAInterleavingParallelAction(
-			AInterleavingParallelAction node, CMLModelcheckerContext question)
-			throws AnalysisException {
-		
-		// it writes the interleave as a generalised parallelism with am empty synchronisation set
-		// it writes the left process into the buffer
-		question.getScriptContent().append("genPar(");
-		node.getLeftAction().apply(this, question);
-		question.getScriptContent().append(",");
-		question.getScriptContent().append("\"{}\"");
-		question.getScriptContent().append(",");
-		// it writes the right process into the buffer
-		node.getRightAction().apply(this, question);
-		question.getScriptContent().append(")");
-
-		return question.getScriptContent();
-	}
 	
-	@Override
-	public StringBuilder caseAGeneralisedParallelismParallelAction(
-			AGeneralisedParallelismParallelAction node,
-			CMLModelcheckerContext question) throws AnalysisException {
-		
-		//it puts the event set in the context so the internal process can access and generate lieIn
-		question.setStack.add(node.getChansetExpression());
 	
-		// it writes the left process into the buffer
-		question.getScriptContent().append("genPar(");
-		node.getLeftAction().apply(this, question);
-		question.getScriptContent().append(",");
-		node.getChansetExpression().apply(rootVisitor, question);
-		question.getScriptContent().append(",");
-		// it writes the right process into the buffer
-		node.getRightAction().apply(this, question);
-		question.getScriptContent().append(")");
-
-		question.setStack.pop();
-		
-		return question.getScriptContent();
-	}
+	
 	
 	
 	/////REPLICATED ACTIONS
-	@Override
-	public StringBuilder caseASequentialCompositionReplicatedAction(
-			ASequentialCompositionReplicatedAction node,
-			CMLModelcheckerContext question) throws AnalysisException {
-
-		PSingleDeclaration sDecl = node.getReplicationDeclaration().getFirst();
-		LinkedList<PExp> indexes = new LinkedList<PExp>();
-		if (sDecl instanceof AExpressionSingleDeclaration) {
-			PExp pExp = ((AExpressionSingleDeclaration) sDecl).getExpression();
-			if (pExp instanceof ASetEnumSetExp) {
-				indexes = ((ASetEnumSetExp) pExp).getMembers();
-			}
-		}
-		// building combination of processses based on simple constructs
-		StringBuilder replicatedAction = buildReplicatedAction(node, question, 
-				node.getReplicatedAction(), Utilities.SEQUENTIAL_COMPOSITION,
-				indexes.size());
-		question.getScriptContent().append(replicatedAction.toString());
-
-		return question.getScriptContent();
-	}
+	
 	
 	@Override
 	public StringBuilder caseAGeneralisedParallelismReplicatedAction(
@@ -781,18 +735,19 @@ public class MCActionVisitor extends
 		
 		return question.getScriptContent();
 	}
+	*/
 	
 	@Override
-	public StringBuilder createNewReturnValue(INode node,
-			CMLModelcheckerContext question) throws AnalysisException
+	public MCNode createNewReturnValue(INode node,
+			NewCMLModelcheckerContext question) throws AnalysisException
 	{
 		// TODO Auto-generated method stub
 		return null;
 	}
 	
 	@Override
-	public StringBuilder createNewReturnValue(Object node,
-			CMLModelcheckerContext question) throws AnalysisException {
+	public MCNode createNewReturnValue(Object node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
 		// TODO Auto-generated method stub
 		return null;
 	}

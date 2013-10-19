@@ -1,6 +1,7 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.actions;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPVarsetExpression;
+import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 
 
 public class MCAGeneralisedParallelismParallelAction extends
@@ -15,8 +16,24 @@ public class MCAGeneralisedParallelismParallelAction extends
 
 	@Override
 	public String toFormula(String option) {
-		// TODO Auto-generated method stub
-		return super.toFormula(option);
+		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+		StringBuffer result = new StringBuffer();
+		//it puts the event set in the context so the internal process can access and generate lieIn
+		context.setStack.add(this.chansetExpression);
+	
+		// it writes the left process into the buffer
+		result.append("genPar(");
+		result.append(this.leftAction.toFormula(option));
+		result.append(",");
+		result.append(this.chansetExpression.toFormula(option));
+		result.append(",");
+		result.append(this.rightAction.toFormula(option));
+		result.append(")");
+
+		context.setStack.pop();
+		
+		return result.toString();
+
 	}
 
 	public MCPVarsetExpression getChansetExpression() {

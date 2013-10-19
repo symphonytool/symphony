@@ -6,8 +6,7 @@ public class MCAChaosAction implements MCPAction{
 
 	@Override
 	public String toFormula(String option) {
-		// TODO Auto-generated method stub
-		return null;
+		return "Chaos";
 	}
 
 }

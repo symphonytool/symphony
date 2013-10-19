@@ -15,8 +15,16 @@ public class MCASequentialCompositionAction implements MCPAction {
 
 	@Override
 	public String toFormula(String option) {
-		// TODO Auto-generated method stub
-		return null;
+		StringBuffer result = new StringBuffer();
+		
+		// it writes the sequential composition constructor
+		result.append("seqC(");
+		result.append(this.left.toFormula(option));
+		result.append(",");
+		result.append(this.right.toFormula(option));
+		result.append(")");
+
+		return result.toString();
 	}
 
 

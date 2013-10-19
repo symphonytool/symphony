@@ -16,8 +16,18 @@ public class MCABlockStatementAction implements MCPAction {
 
 	@Override
 	public String toFormula(String option) {
-		// TODO Auto-generated method stub
-		return null;
+		StringBuffer result = new StringBuffer();
+		//if(node.getDeclareStatement() != null){
+		//	node.getDeclareStatement().apply(rootVisitor, question);
+		//}
+		result.append(this.action.toFormula(option));
+		
+		if(declareStatement != null){
+			result.append(")");
+		}
+		
+		return result.toString();
+
 	}
 
 	public MCADeclareStatementAction getDeclareStatement() {
