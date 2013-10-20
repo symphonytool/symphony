@@ -13,6 +13,7 @@ import org.overture.ast.intf.lex.ILexIdentifierToken;
 
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCLieInFact;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPVarsetExpression;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.Binding;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.NullBinding;
@@ -24,6 +25,8 @@ public class NewCMLModelcheckerContext {
 	
 	protected String propertyToCheck = Utilities.DEADLOCK_PROPERTY;
 	public NewSetStack<MCPVarsetExpression> setStack;
+	public ArrayList<MCLieInFact> lieIn;
+	
 	
 	
 	protected StringBuilder basicContent = new StringBuilder(); 
@@ -48,7 +51,7 @@ public class NewCMLModelcheckerContext {
 
 	 
 	
-	protected ArrayList<String> lieIn;
+	
 	
 	protected ArrayList<SCmlOperationDefinition> operations;
 	
@@ -90,7 +93,7 @@ public class NewCMLModelcheckerContext {
 		stateVariables = new LinkedHashSet<SingleBind>();
 		states = new ArrayList<String>();
 		setStack = new NewSetStack<MCPVarsetExpression>();
-		lieIn = new ArrayList<String>();
+		lieIn = new ArrayList<MCLieInFact>();
 		operations = new ArrayList<SCmlOperationDefinition>(); 
 		localActions = new ArrayList<AActionDefinition>();
 		guards = new ArrayList<Condition>();
@@ -113,7 +116,7 @@ public class NewCMLModelcheckerContext {
 		stateVariables = new LinkedHashSet<SingleBind>();
 		states = new ArrayList<String>();
 		setStack = new NewSetStack<MCPVarsetExpression>();
-		lieIn = new ArrayList<String>();
+		lieIn = new ArrayList<MCLieInFact>();
 		operations = new ArrayList<SCmlOperationDefinition>();
 		localActions = new ArrayList<AActionDefinition>();
 		guards = new ArrayList<Condition>();
@@ -137,7 +140,7 @@ public class NewCMLModelcheckerContext {
 		result.stateVariables = new LinkedHashSet<SingleBind>(this.stateVariables);
 		result.states = new ArrayList<String>(this.states);
 		result.setStack = this.setStack.copy();
-		result.lieIn = new ArrayList<String>(this.lieIn);
+		result.lieIn = new ArrayList<MCLieInFact>(this.lieIn);
 		result.operations = new ArrayList<SCmlOperationDefinition>(this.operations);
 		result.localActions = new ArrayList<AActionDefinition>(this.localActions);
 		result.guards = new ArrayList<Condition>(this.guards);
@@ -261,7 +264,7 @@ public class NewCMLModelcheckerContext {
 		stateVariables = new LinkedHashSet<SingleBind>();
 		states = new ArrayList<String>();
 		setStack = new NewSetStack<MCPVarsetExpression>();
-		lieIn = new ArrayList<String>();
+		lieIn = new ArrayList<MCLieInFact>();
 		operations = new ArrayList<SCmlOperationDefinition>(); 
 		localActions = new ArrayList<AActionDefinition>();
 		guards = new ArrayList<Condition>();

@@ -50,17 +50,25 @@ import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCABlockStatementAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAChaosAction;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCACommunicationAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCADeclareStatementAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCADivAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAExternalChoiceAction;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAExternalChoiceReplicatedAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAGeneralisedParallelismParallelAction;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAGeneralisedParallelismReplicatedAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAHidingAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAInterleavingParallelAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAInternalChoiceAction;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAInternalChoiceReplicatedAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCASequentialCompositionAction;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCASequentialCompositionReplicatedAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCASkipAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAStopAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPAction;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPCommunicationParameter;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCSReplicatedActionBase;
+import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCPSingleDeclaration;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCPCMLDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPVarsetExpression;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.SingleBind;
@@ -226,84 +234,111 @@ public class NewMCActionVisitor extends
 			ASequentialCompositionReplicatedAction node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
 
-		/*
-		PSingleDeclaration sDecl = node.getReplicationDeclaration().getFirst();
-		LinkedList<PExp> indexes = new LinkedList<PExp>();
-		if (sDecl instanceof AExpressionSingleDeclaration) {
-			PExp pExp = ((AExpressionSingleDeclaration) sDecl).getExpression();
-			if (pExp instanceof ASetEnumSetExp) {
-				indexes = ((ASetEnumSetExp) pExp).getMembers();
-			}
+		LinkedList<PSingleDeclaration> replicationDecls = node.getReplicationDeclaration();
+		LinkedList<MCPSingleDeclaration> replicationDeclarations = new LinkedList<MCPSingleDeclaration>();
+		for (PSingleDeclaration pSingleDecl : replicationDecls) {
+			replicationDeclarations.add((MCPSingleDeclaration) pSingleDecl.apply(rootVisitor, question));
 		}
-		// building combination of processses based on simple constructs
-		StringBuilder replicatedAction = buildReplicatedAction(node, question, 
-				node.getReplicatedAction(), Utilities.SEQUENTIAL_COMPOSITION,
-				indexes.size());
-		question.getScriptContent().append(replicatedAction.toString());
-
-		return question.getScriptContent();
-		*/
-		return null;
+		MCPAction replicatedAction = (MCPAction) node.getReplicatedAction().apply(this, question);
+		MCASequentialCompositionReplicatedAction result = 
+				new MCASequentialCompositionReplicatedAction(replicationDeclarations, replicatedAction);
+		
+		return result;
 	}
-	/*
+
 	@Override
-	public StringBuilder caseACommunicationAction(ACommunicationAction node,
-			CMLModelcheckerContext question) throws AnalysisException {
+	public MCNode caseAGeneralisedParallelismReplicatedAction(
+			AGeneralisedParallelismReplicatedAction node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
 		
-		//if the communication action does not involves values
+		LinkedList<PSingleDeclaration> replicationDecls = node.getReplicationDeclaration();
+		LinkedList<MCPSingleDeclaration> replicationDeclarations = new LinkedList<MCPSingleDeclaration>();
+		for (PSingleDeclaration pSingleDecl : replicationDecls) {
+			replicationDeclarations.add((MCPSingleDeclaration) pSingleDecl.apply(rootVisitor, question));
+		}
+		MCPAction replicatedAction = (MCPAction) node.getReplicatedAction().apply(this, question);
+		MCPVarsetExpression chansetExpression =  (MCPVarsetExpression) node.getChansetExpression().apply(rootVisitor, question);
+		MCAGeneralisedParallelismReplicatedAction result = 
+				new MCAGeneralisedParallelismReplicatedAction(replicationDeclarations, replicatedAction,chansetExpression);
 		
+		return result;
+		
+
+		/*
+		// building combination of processses based on simple constructs
+		StringBuilder replicatedActionBuilder = buildReplicatedAction(node, question,
+				node.getReplicatedAction(), Utilities.GEN_PARALLELISM,
+				indexes.size());
+		String replicatedActionString = replicatedActionBuilder.toString();
+		for (PExp pExp : indexes) {
+			CMLModelcheckerContext argCtxt = new CMLModelcheckerContext();
+			StringBuilder argValue = pExp.apply(rootVisitor, argCtxt);
+			PAction replicatedAction = node.getReplicatedAction();
+			if(replicatedAction instanceof ACallStatementAction){
+				PExp arg0 = ((ACallStatementAction) replicatedAction).getArgs().getFirst();
+				if(arg0 instanceof AVariableExp){
+					replicatedActionString = replicatedActionString.replaceFirst("(" +  ((AVariableExp) arg0).getName().toString() + ")", argValue.toString());
+				}
+			} 
+		}
+		question.getScriptContent().append(replicatedActionString);
+		*/
+	}
+	
+	@Override
+	public MCNode caseAExternalChoiceReplicatedAction(
+			AExternalChoiceReplicatedAction node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+
+		LinkedList<PSingleDeclaration> replicationDecls = node.getReplicationDeclaration();
+		LinkedList<MCPSingleDeclaration> replicationDeclarations = new LinkedList<MCPSingleDeclaration>();
+		for (PSingleDeclaration pSingleDecl : replicationDecls) {
+			replicationDeclarations.add((MCPSingleDeclaration) pSingleDecl.apply(rootVisitor, question));
+		}
+		MCPAction replicatedAction = (MCPAction) node.getReplicatedAction().apply(this, question);
+		MCAExternalChoiceReplicatedAction result = 
+				new MCAExternalChoiceReplicatedAction(replicationDeclarations, replicatedAction);
+		
+		return result;
+
+	}
+	
+	@Override
+	public MCNode caseAInternalChoiceReplicatedAction(
+			AInternalChoiceReplicatedAction node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+
+		LinkedList<PSingleDeclaration> replicationDecls = node.getReplicationDeclaration();
+		LinkedList<MCPSingleDeclaration> replicationDeclarations = new LinkedList<MCPSingleDeclaration>();
+		for (PSingleDeclaration pSingleDecl : replicationDecls) {
+			replicationDeclarations.add((MCPSingleDeclaration) pSingleDecl.apply(rootVisitor, question));
+		}
+		MCPAction replicatedAction = (MCPAction) node.getReplicatedAction().apply(this, question);
+		MCAInternalChoiceReplicatedAction result = 
+				new MCAInternalChoiceReplicatedAction(replicationDeclarations, replicatedAction);
+		
+		return result;
+	}
+	
+	
+	@Override
+	public MCNode caseACommunicationAction(ACommunicationAction node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		
+		//if the communication action does not involves parameters
 		LinkedList<PCommunicationParameter> parameters = node.getCommunicationParameters();
-		if(parameters.size() == 0){
-			question.getScriptContent().append(
-				"Prefix(BasicEv(\"" + node.getIdentifier() + "\"), ");
-
-			//it applies recursivelly in the internal structure
-			node.getAction().apply(this, question);
-
-			question.getScriptContent().append(")");
-			
-			//if there is some set of event in the context we must generate lieIn events.
-			SetStack chanSetStack = question.setStack.copy();
-			while(!chanSetStack.isEmpty()){
-				
-				PVarsetExpression setExp = (PVarsetExpression)chanSetStack.pop();
-				LinkedList<ANameChannelExp> chanNames = null;
-				if(setExp instanceof AEnumVarsetExpression){
-					chanNames = ((AEnumVarsetExpression) setExp).getChannelNames();
-				}
-				if(setExp instanceof AFatEnumVarsetExpression){
-					chanNames = ((AFatEnumVarsetExpression) setExp).getChannelNames();
-				}
-				if(chanNames != null){
-					boolean generateLieIn = false;
-					for (ANameChannelExp aNameChannelExp : chanNames) {
-						if(aNameChannelExp.getIdentifier().toString().equals(node.getIdentifier().toString())){
-							generateLieIn = true;
-							break;
-						}
-					}
-					if(!generateLieIn && chanSetStack.size()==0){
-						break;
-					}else{
-						StringBuilder lieIn = new StringBuilder();
-						lieIn.append("lieIn(");
-						lieIn.append("BasicEv(\"" + node.getIdentifier().toString() + "\")");
-						lieIn.append(",");
-						lieIn.append("\"");
-						lieIn.append(setExp.toString());
-						lieIn.append("\"");
-						lieIn.append(")");
-						
-						if(!question.lieIn.contains(lieIn.toString())){
-							question.lieIn.add(lieIn.toString());
-						}
-					}
-				}
-				
-			}
-			
-		}//else if(parameters.size() == 1){
-		else { //there are parameters
+		LinkedList<MCPCommunicationParameter> mcParameters = new LinkedList<MCPCommunicationParameter>();
+		for (PCommunicationParameter pCommunicationParameter : parameters) {
+			mcParameters.add((MCPCommunicationParameter) pCommunicationParameter.apply(rootVisitor, question));
+		}
+		String identifier = node.getIdentifier().getName().toString(); 
+		MCPAction action = (MCPAction) node.getAction().apply(this, question);
+		MCACommunicationAction result = new MCACommunicationAction(identifier, mcParameters, action);
+		
+		return result;
+		
+		/*else { //there are parameters
+		
 			
 			question.getScriptContent().append(
 					//"Prefix(IOComm(" + question.IOCOMM_COUNTER + ",\"" + node.getIdentifier()+"."+parameters.getFirst().toString() + "\",");
@@ -385,10 +420,12 @@ public class NewMCActionVisitor extends
 				//question.info.put(Utilities.IOCOMM_DEFINITIONS_KEY, aux.getScriptContent().toString());
 				question.ioCommDefs.add(aux.getScriptContent().toString());
 		}
-
+		
 		return question.getScriptContent();
+		*/
 	}
 	
+	/*
 	@Override
 	public StringBuilder caseACallStatementAction(ACallStatementAction node,
 			CMLModelcheckerContext question) throws AnalysisException {
@@ -565,157 +602,6 @@ public class NewMCActionVisitor extends
 	
 	
 	/////REPLICATED ACTIONS
-	
-	
-	@Override
-	public StringBuilder caseAGeneralisedParallelismReplicatedAction(
-			AGeneralisedParallelismReplicatedAction node,
-			CMLModelcheckerContext question) throws AnalysisException {
-		
-		PSingleDeclaration sDecl = node.getReplicationDeclaration().getFirst();
-		LinkedList<PExp> indexes = new LinkedList<PExp>();
-		if (sDecl instanceof AExpressionSingleDeclaration) {
-			PExp pExp = ((AExpressionSingleDeclaration) sDecl).getExpression();
-			if (pExp instanceof ASetEnumSetExp) {
-				indexes = ((ASetEnumSetExp) pExp).getMembers();
-			}
-		}
-		// building combination of processses based on simple constructs
-		StringBuilder replicatedActionBuilder = buildReplicatedAction(node, question,
-				node.getReplicatedAction(), Utilities.GEN_PARALLELISM,
-				indexes.size());
-		String replicatedActionString = replicatedActionBuilder.toString();
-		for (PExp pExp : indexes) {
-			CMLModelcheckerContext argCtxt = new CMLModelcheckerContext();
-			StringBuilder argValue = pExp.apply(rootVisitor, argCtxt);
-			PAction replicatedAction = node.getReplicatedAction();
-			if(replicatedAction instanceof ACallStatementAction){
-				PExp arg0 = ((ACallStatementAction) replicatedAction).getArgs().getFirst();
-				if(arg0 instanceof AVariableExp){
-					replicatedActionString = replicatedActionString.replaceFirst("(" +  ((AVariableExp) arg0).getName().toString() + ")", argValue.toString());
-				}
-			} 
-		}
-		question.getScriptContent().append(replicatedActionString);
-		
-		//it must put the sinchronisation set in the context before visiting the definitions
-		//to generate lieIn
-		//PVarsetExpression chanSet = node.getChansetExpression();
-		//question.setStack.add(chanSet);
-		
-		//LinkedList<PDefinition> localDefinitions = (LinkedList<PDefinition>) question.info
-		//		.get(Utilities.LOCAL_DEFINITIONS_KEY);
-		//CMLModelcheckerContext auxCtxt = new CMLModelcheckerContext();
-		//if(localDefinitions != null){
-		//	for (PDefinition pDefinition : localDefinitions) {
-		//		pDefinition.apply(this, auxCtxt);
-		//	}
-		//}
-		//question.setStack.pop();
-		
-		//int auxIndex = question.getScriptContent().indexOf(
-		//		"#AUXILIARY_PROCESSES#");
-		//if (auxIndex != -1) {
-		//	question.getScriptContent().replace(auxIndex,
-		//			auxIndex + "#AUXILIARY_PROCESSES#".length(),
-		//			auxCtxt.getScriptContent().toString());
-		//}
-
-		return question.getScriptContent();
-	}
-	
-	@Override
-	public StringBuilder caseAExternalChoiceReplicatedAction(
-			AExternalChoiceReplicatedAction node,
-			CMLModelcheckerContext question) throws AnalysisException {
-
-		PSingleDeclaration sDecl = node.getReplicationDeclaration().getFirst();
-		LinkedList<PExp> indexes = new LinkedList<PExp>();
-		if (sDecl instanceof AExpressionSingleDeclaration) {
-			PExp pExp = ((AExpressionSingleDeclaration) sDecl).getExpression();
-			if (pExp instanceof ASetEnumSetExp) {
-				indexes = ((ASetEnumSetExp) pExp).getMembers();
-			}
-		}
-		// building combination of processses based on simple constructs
-		StringBuilder replicatedAction = buildReplicatedAction( node, question,
-				node.getReplicatedAction(), Utilities.EXTERNAL_CHOICE,
-				indexes.size());
-		question.getScriptContent().append(replicatedAction.toString());
-
-		
-		//LinkedList<PDefinition> localDefinitions = (LinkedList<PDefinition>) question.info
-		//		.get(Utilities.LOCAL_DEFINITIONS_KEY);
-		//CMLModelcheckerContext auxCtxt = new CMLModelcheckerContext();
-		//if(localDefinitions != null){
-		//	for (PDefinition pDefinition : localDefinitions) {
-		//		pDefinition.apply(this, auxCtxt);
-		//	}
-		//}
-		//int auxIndex = question.getScriptContent().indexOf(
-		//		"#AUXILIARY_PROCESSES#");
-		//if (auxIndex != -1) {
-		//	question.getScriptContent().replace(auxIndex,
-		//			auxIndex + "#AUXILIARY_PROCESSES#".length(),
-		//			auxCtxt.getScriptContent().toString());
-		//}
-
-		return question.getScriptContent();
-	}
-	
-	@Override
-	public StringBuilder caseAInternalChoiceReplicatedAction(
-			AInternalChoiceReplicatedAction node,
-			CMLModelcheckerContext question) throws AnalysisException {
-
-		PSingleDeclaration sDecl = node.getReplicationDeclaration().getFirst();
-		LinkedList<PExp> indexes = new LinkedList<PExp>();
-		if (sDecl instanceof AExpressionSingleDeclaration) {
-			PExp pExp = ((AExpressionSingleDeclaration) sDecl).getExpression();
-			if (pExp instanceof ASetEnumSetExp) {
-				indexes = ((ASetEnumSetExp) pExp).getMembers();
-			}
-		}
-		// building combination of processses based on simple constructs
-		StringBuilder replicatedAction = buildReplicatedAction(node, question, 
-				node.getReplicatedAction(), Utilities.INTERNAL_CHOICE,
-				indexes.size());
-		question.getScriptContent().append(replicatedAction.toString());
-
-		return question.getScriptContent();
-	}
-
-	private StringBuilder buildReplicatedAction(SReplicatedActionBase replicatedAction, 
-			CMLModelcheckerContext context, PAction action,
-			int kindOfAction, int times) throws AnalysisException {
-
-		CMLModelcheckerContext localCtxt = new CMLModelcheckerContext();
-		localCtxt.localActions = context.localActions;
-		if (times == 1) {
-			action.apply(this, localCtxt);
-		} else if (times > 1) {
-			if (kindOfAction == Utilities.EXTERNAL_CHOICE) {
-				localCtxt.getScriptContent().append("eChoice(");
-			} else if (kindOfAction == Utilities.INTERNAL_CHOICE) {
-				localCtxt.getScriptContent().append("iChoice(");
-			} else if (kindOfAction == Utilities.SEQUENTIAL_COMPOSITION) {
-				localCtxt.getScriptContent().append("seqC(");
-			} else if (kindOfAction == Utilities.GEN_PARALLELISM) {
-				localCtxt.getScriptContent().append("genPar(");
-			}
-			action.apply(this, localCtxt);
-			localCtxt.getScriptContent().append(",");
-			if(replicatedAction instanceof AGeneralisedParallelismReplicatedAction){
-				((AGeneralisedParallelismReplicatedAction) replicatedAction).getChansetExpression().apply(rootVisitor, localCtxt);
-				localCtxt.getScriptContent().append(",");
-			}
-			StringBuilder rest = buildReplicatedAction(replicatedAction, context,action, kindOfAction,
-					times - 1);
-			localCtxt.getScriptContent().append(rest.toString());
-			localCtxt.getScriptContent().append(")");
-		}
-		return localCtxt.getScriptContent();
-	}
 	
 	@Override
 	public StringBuilder caseASingleGeneralAssignmentStatementAction(
