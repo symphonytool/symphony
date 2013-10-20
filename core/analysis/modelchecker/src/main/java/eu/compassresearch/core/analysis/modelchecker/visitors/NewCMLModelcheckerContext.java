@@ -23,7 +23,7 @@ import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Type;
 
 public class NewCMLModelcheckerContext {
 	
-	protected String propertyToCheck = Utilities.DEADLOCK_PROPERTY;
+	public String propertyToCheck = Utilities.DEADLOCK_PROPERTY;
 	public NewSetStack<MCPVarsetExpression> setStack;
 	public ArrayList<MCLieInFact> lieIn;
 	

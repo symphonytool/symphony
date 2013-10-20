@@ -16,11 +16,13 @@ import eu.compassresearch.ast.actions.AValParametrisation;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
+import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.analysis.modelchecker.api.FormulaIntegrationUtilities;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAProcessDefinition;
 
 /**
  * The main MC visitor. It obtains other visitors from a factory.
@@ -36,7 +38,11 @@ public class NewMCVisitor extends
 	private StringBuilder basicContent;
 	
 	private NewMCActionVisitor actionVisitor;
+	private NewMCDeclarationAndDefinitionVisitor declAndDefVisitor;
 	private NewMCEmptyVisitor emptyVisitor;
+	//private NewMCExpressionVisitor expressionVisitor;
+	private NewMCProcessVisitor processVisitor;
+	//private NewMCTypeAndValueVisitor typeAndValueVisitor;
 
 	public NewMCVisitor(List<PSource> sources) {
 		this.sources = sources;
@@ -55,6 +61,8 @@ public class NewMCVisitor extends
 	private void initialise(){
 		basicContent = new StringBuilder();
 		this.actionVisitor = new NewMCActionVisitor(this);
+		this.processVisitor = new NewMCProcessVisitor(this);
+		this.declAndDefVisitor = new NewMCDeclarationAndDefinitionVisitor(this);
 		this.emptyVisitor = new NewMCEmptyVisitor();
 	}
 	
@@ -66,42 +74,45 @@ public class NewMCVisitor extends
 		return  node.apply(emptyVisitor, question);
 	}
 	
-	/*
+	
 	@Override
 	public MCNode defaultPDefinition(PDefinition node,
-			CMLModelcheckerContext question) throws AnalysisException
-	{
+			NewCMLModelcheckerContext question) throws AnalysisException{
 		return node.apply(this.declAndDefVisitor, question);
 	}
 
 	@Override
-	public StringBuilder defaultPSingleDeclaration(
-			PSingleDeclaration node, CMLModelcheckerContext question)
-			throws AnalysisException
-	{
+	public MCNode defaultPSingleDeclaration(
+			PSingleDeclaration node, NewCMLModelcheckerContext question)
+			throws AnalysisException{
+		
 		return node.apply(this.declAndDefVisitor, question);
 	}
 
+	@Override
+	public MCNode defaultPProcess(PProcess node,
+			NewCMLModelcheckerContext question) throws AnalysisException{
+		
+		return node.apply(this.processVisitor, question);
+	}
 	
+	@Override
+	public MCNode defaultPAction(PAction node,
+			NewCMLModelcheckerContext question) throws AnalysisException{
+		
+		return node.apply(this.actionVisitor, question);
+	}
+	
+	/*
 	@Override
 	public StringBuilder defaultPVarsetExpression(PVarsetExpression node,
 			CMLModelcheckerContext question) throws AnalysisException {
 		
 		return node.apply(this.expressionVisitor, question);
 	}
-	@Override
-	public StringBuilder defaultPProcess(PProcess node,
-			CMLModelcheckerContext question) throws AnalysisException
-	{
-		return node.apply(this.processVisitor, question);
-	}
+	
 
-	@Override
-	public StringBuilder defaultPAction(PAction node,
-			CMLModelcheckerContext question) throws AnalysisException
-	{
-		return node.apply(this.actionVisitor, question);
-	}
+	
 
 	@Override
 	public StringBuilder defaultPStm(PStm node,
@@ -157,12 +168,15 @@ public class NewMCVisitor extends
 		for (PSource source : sources) {
 			NewCMLModelcheckerContext context = new NewCMLModelcheckerContext();
 			context.setPropertyToCheck(propertyToCheck);
+			String dependentCode = "";
 			this.basicContent = FormulaIntegrationUtilities.readScriptFromFile(FormulaIntegrationUtilities.BASIC_FORMULA_SCRIPT);
 			for (PDefinition paragraph : source.getParagraphs()) {
-				paragraph.apply(this, context);
+				if (paragraph instanceof AProcessDefinition){
+					MCAProcessDefinition mcNode =  (MCAProcessDefinition) paragraph.apply(this, context);
+					dependentCode = mcNode.toFormula(MCNode.DEFAULT);
+				}
 			}
-			codes[sources.indexOf(source)] = basicContent + "\n" + context.getScriptContent()
-					.toString();
+			codes[sources.indexOf(source)] = basicContent + "\n" + dependentCode;
 		}
 		return codes;
 	}
@@ -209,7 +223,7 @@ public class NewMCVisitor extends
 			files = folder.listFiles();
 		}
 		
-		String cml_file = "src/test/resources/action-reference-parametrised.cml";
+		String cml_file = "src/test/resources/action-externalchoice-nostate2.cml";
 		System.out.println("Testing on " + cml_file);
 		PSource source1 = Utilities.makeSourceFromFile(cml_file);
 		NewMCVisitor visitor1 = new NewMCVisitor(source1);
