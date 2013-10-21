@@ -19,8 +19,13 @@ public class MCAReferenceAction implements MCPAction {
 
 	@Override
 	public String toFormula(String option) {
-		// TODO Auto-generated method stub
-		return null;
+		StringBuilder result = new StringBuilder();
+		
+		// the parameters also need to be written
+		result.append("proc(\"" + this.name + "\", nopar)");
+
+		return result.toString();
+
 	}
 
 

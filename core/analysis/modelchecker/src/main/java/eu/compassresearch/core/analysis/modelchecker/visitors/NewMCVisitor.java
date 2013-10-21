@@ -166,7 +166,7 @@ public class NewMCVisitor extends
 			codes = new String[sources.size()];
 		}
 		for (PSource source : sources) {
-			NewCMLModelcheckerContext context = new NewCMLModelcheckerContext();
+			NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 			context.setPropertyToCheck(propertyToCheck);
 			String dependentCode = "";
 			this.basicContent = FormulaIntegrationUtilities.readScriptFromFile(FormulaIntegrationUtilities.BASIC_FORMULA_SCRIPT);
@@ -223,7 +223,7 @@ public class NewMCVisitor extends
 			files = folder.listFiles();
 		}
 		
-		String cml_file = "src/test/resources/action-externalchoice-nostate2.cml";
+		String cml_file = "src/test/resources/action-div.cml";
 		System.out.println("Testing on " + cml_file);
 		PSource source1 = Utilities.makeSourceFromFile(cml_file);
 		NewMCVisitor visitor1 = new NewMCVisitor(source1);

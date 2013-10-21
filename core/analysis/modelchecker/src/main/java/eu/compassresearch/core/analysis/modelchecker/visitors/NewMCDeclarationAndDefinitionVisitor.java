@@ -6,13 +6,20 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.node.INode;
 
+import eu.compassresearch.ast.actions.PParametrisation;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
+import eu.compassresearch.ast.definitions.AActionDefinition;
+import eu.compassresearch.ast.definitions.AActionsDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.definitions.PCMLDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPAction;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPParametrisation;
 import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCATypeSingleDeclaration;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAActionDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAActionsDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAProcessDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.process.MCPProcess;
 
@@ -57,71 +64,41 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 		
 	}
 
-	/*
+	
 	@Override
 	public MCNode caseAActionsDefinition(AActionsDefinition node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
 		// it applies to each internal definition
 		LinkedList<AActionDefinition> actions = node.getActions();
+		LinkedList<MCAActionDefinition> mcActions = new LinkedList<MCAActionDefinition>();
 		for (AActionDefinition currentActionDefinition : actions) {
-			question.localActions.add(currentActionDefinition);
-			currentActionDefinition.apply(this, question);
+			MCAActionDefinition mcActionDef = (MCAActionDefinition) currentActionDefinition.apply(this, question);
+			question.localActions.add(mcActionDef);
+			mcActions.add(mcActionDef);
 		}
-		return question.getScriptContent();
+		
+		MCAActionsDefinition result = new MCAActionsDefinition(mcActions);
+		return result;
 	}
+	
 	
 	@Override
-	public StringBuilder caseAActionDefinition(AActionDefinition node,
-			CMLModelcheckerContext question) throws AnalysisException {
-		
-		question.getScriptContent().append("  ProcDef(");
-		question.getScriptContent().append("\"" + node.getName() + "\",");
-		// parameters
+	public MCNode caseAActionDefinition(AActionDefinition node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
 		
 		LinkedList<PParametrisation> parameters = node.getDeclarations();
-		
-		if(parameters.size()==0){
-			question.getScriptContent().append("nopar");
-			question.getScriptContent().append(",");
-			
-			
-			// it converts the internal action (body)
-			//node.getAction().apply(this, question);
-			
-			node.getAction().apply(rootVisitor,question);
-			question.getScriptContent().append(")");
-			//if(!question.info.containsKey(Utilities.STATES_KEY)){
-			//	question.getScriptContent().append(").\n");
-			//}
-		} else if(parameters.size()==1){
-			question.getScriptContent().append("SPar(");
-			node.getDeclarations().getFirst().apply(rootVisitor, question);
-			question.getScriptContent().append("),");
-			//node.getAction().apply(this, question);
-			node.getAction().apply(rootVisitor, question);
-			question.getScriptContent().append(")");
+		LinkedList<MCPParametrisation> mcParameters = new LinkedList<MCPParametrisation>();
+		for (PParametrisation pParametrisation : parameters) {
+			mcParameters.add((MCPParametrisation) pParametrisation.apply(rootVisitor, question));
 		}
+		MCPAction action = (MCPAction) node.getAction().apply(rootVisitor, question);
+		String name = node.getName().toString();
+		MCAActionDefinition result = new MCAActionDefinition(name, mcParameters, action);
 		
-		//if the action has dependencies we get them from the context
-		if(question.channelDependencies.size() > 0){
-			question.getScriptContent().append(" :- ");
-			Iterator<String> it = question.channelDependencies.iterator(); 
-			do{
-				String channelDep = it.next();
-				question.getScriptContent().append(channelDep);
-				if(it.hasNext()){
-					question.getScriptContent().append(", ");
-				}
-			}while(it.hasNext());
-			
-		}
-		
-		question.getScriptContent().append(".\n");
-
-		return question.getScriptContent();
+		return result;
 	}
 	
-
+	/*
 	@Override
 	public StringBuilder caseAChannelsDefinition(AChannelsDefinition node,
 			CMLModelcheckerContext question) throws AnalysisException {

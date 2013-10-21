@@ -15,7 +15,7 @@ public class MCAExternalChoiceAction implements MCPAction {
 
 	@Override
 	public String toFormula(String option) {
-		StringBuffer result = new StringBuffer();
+		StringBuilder result = new StringBuilder();
 		
 		result.append("eChoice(");
 		result.append(this.left.toFormula(option));

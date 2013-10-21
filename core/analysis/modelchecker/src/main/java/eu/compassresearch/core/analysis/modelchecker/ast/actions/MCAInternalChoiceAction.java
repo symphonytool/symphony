@@ -14,7 +14,7 @@ public class MCAInternalChoiceAction implements MCPAction {
 
 	@Override
 	public String toFormula(String option) {
-StringBuffer result = new StringBuffer();
+		StringBuilder result = new StringBuilder();
 		
 		result.append("iChoice(");
 		result.append(this.left.toFormula(option));

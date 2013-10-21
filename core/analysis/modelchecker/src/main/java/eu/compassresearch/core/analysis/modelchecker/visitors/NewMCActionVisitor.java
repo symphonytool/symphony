@@ -61,6 +61,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAHidingAction
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAInterleavingParallelAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAInternalChoiceAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAInternalChoiceReplicatedAction;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAReferenceAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCASequentialCompositionAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCASequentialCompositionReplicatedAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCASkipAction;
@@ -70,6 +71,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPCommunicatio
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCSReplicatedActionBase;
 import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCPSingleDeclaration;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCPCMLDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPVarsetExpression;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.SingleBind;
 
@@ -425,6 +427,22 @@ public class NewMCActionVisitor extends
 		*/
 	}
 	
+	@Override
+	public MCNode caseAReferenceAction(AReferenceAction node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+
+		String name = node.getName().toString();
+		LinkedList<PExp> args = node.getArgs();
+		LinkedList<MCPCMLExp> mcArgs = new LinkedList<MCPCMLExp>();
+		for (PExp pExp : args) {
+			mcArgs.add((MCPCMLExp) pExp.apply(rootVisitor, question));
+		}
+		
+		MCAReferenceAction result = new MCAReferenceAction(name, mcArgs);
+	
+		return result;
+	}
+	
 	/*
 	@Override
 	public StringBuilder caseACallStatementAction(ACallStatementAction node,
@@ -558,40 +576,7 @@ public class NewMCActionVisitor extends
 
 	
 
-	@Override
-	public StringBuilder caseAReferenceAction(AReferenceAction node,
-			CMLModelcheckerContext question) throws AnalysisException {
-		// the parameters also need to be written
-		question.getScriptContent().append(
-				"proc(\"" + node.getName() + "\", nopar)");
-
-		// Adding auxiliary definitions
-		// LinkedList<PDefinition> localDefinitions = (LinkedList<PDefinition>)
-		// question.info.get(node); ppppppppppppppp mudar para pegar de localActions
-		LinkedList<PDefinition> localDefinitions = (LinkedList<PDefinition>) question.info
-				.get(Utilities.LOCAL_DEFINITIONS_KEY);
-
-		CMLModelcheckerContext auxCtxt = new CMLModelcheckerContext();
-		if (localDefinitions != null) {
-			for (PDefinition pDefinition : localDefinitions) {
-				pDefinition.apply(this, auxCtxt);
-			}
-		}
-		int auxIndex = question.getScriptContent().indexOf(
-				"#AUXILIARY_PROCESSES#");
-		if (auxIndex != -1) {
-			question.getScriptContent().replace(auxIndex,
-					auxIndex + "#AUXILIARY_PROCESSES#".length(),
-					auxCtxt.getScriptContent().toString());
-			if(auxCtxt.getVariables().size() != 0){
-				question.setVariables(auxCtxt.getVariables());
-				question.copyVarDeclarationInfo(auxCtxt);
-				question.copyVarDelInfo(auxCtxt);
-				question.copyAssignmentDefInfo(auxCtxt);
-			}
-		}
-		return question.getScriptContent();
-	}
+	
 
 	
 	

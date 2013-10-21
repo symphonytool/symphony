@@ -14,6 +14,7 @@ import org.overture.ast.intf.lex.ILexIdentifierToken;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCLieInFact;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAActionDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPVarsetExpression;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.Binding;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.NullBinding;
@@ -26,7 +27,7 @@ public class NewCMLModelcheckerContext {
 	public String propertyToCheck = Utilities.DEADLOCK_PROPERTY;
 	public NewSetStack<MCPVarsetExpression> setStack;
 	public ArrayList<MCLieInFact> lieIn;
-	
+	public ArrayList<MCAActionDefinition> localActions;
 	
 	
 	protected StringBuilder basicContent = new StringBuilder(); 
@@ -55,7 +56,7 @@ public class NewCMLModelcheckerContext {
 	
 	protected ArrayList<SCmlOperationDefinition> operations;
 	
-	protected ArrayList<AActionDefinition> localActions;
+	
 	
 	protected ArrayList<Condition> guards;
 	
@@ -95,7 +96,7 @@ public class NewCMLModelcheckerContext {
 		setStack = new NewSetStack<MCPVarsetExpression>();
 		lieIn = new ArrayList<MCLieInFact>();
 		operations = new ArrayList<SCmlOperationDefinition>(); 
-		localActions = new ArrayList<AActionDefinition>();
+		localActions = new ArrayList<MCAActionDefinition>();
 		guards = new ArrayList<Condition>();
 		channelDependencies = new ArrayList<String>();
 		ioCommDefs = new ArrayList<String>();
@@ -118,7 +119,7 @@ public class NewCMLModelcheckerContext {
 		setStack = new NewSetStack<MCPVarsetExpression>();
 		lieIn = new ArrayList<MCLieInFact>();
 		operations = new ArrayList<SCmlOperationDefinition>();
-		localActions = new ArrayList<AActionDefinition>();
+		localActions = new ArrayList<MCAActionDefinition>();
 		guards = new ArrayList<Condition>();
 		channelDependencies = new ArrayList<String>();
 		ioCommDefs = new ArrayList<String>();
@@ -142,7 +143,7 @@ public class NewCMLModelcheckerContext {
 		result.setStack = this.setStack.copy();
 		result.lieIn = new ArrayList<MCLieInFact>(this.lieIn);
 		result.operations = new ArrayList<SCmlOperationDefinition>(this.operations);
-		result.localActions = new ArrayList<AActionDefinition>(this.localActions);
+		result.localActions = new ArrayList<MCAActionDefinition>(this.localActions);
 		result.guards = new ArrayList<Condition>(this.guards);
 		result.channelDependencies = new ArrayList<String>(this.channelDependencies);
 		result.ioCommDefs = new ArrayList<String>(this.ioCommDefs);
@@ -266,7 +267,7 @@ public class NewCMLModelcheckerContext {
 		setStack = new NewSetStack<MCPVarsetExpression>();
 		lieIn = new ArrayList<MCLieInFact>();
 		operations = new ArrayList<SCmlOperationDefinition>(); 
-		localActions = new ArrayList<AActionDefinition>();
+		localActions = new ArrayList<MCAActionDefinition>();
 		guards = new ArrayList<Condition>();
 		channelDependencies = new ArrayList<String>();
 		ioCommDefs = new ArrayList<String>();

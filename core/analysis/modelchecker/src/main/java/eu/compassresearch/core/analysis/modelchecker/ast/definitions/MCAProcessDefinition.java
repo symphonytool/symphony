@@ -34,6 +34,7 @@ public class MCAProcessDefinition implements MCPCMLDefinition {
 		result.append("domain StartProcDomain includes CML_PropertiesSpec {\n");
 		
 		//generate auxiliary definitions (actions, operationDefs, iocommdefs, guardDefs, etc.) 
+		generateAuxiliaryActions(result,option);
 		
 		result.append("  ProcDef(\"");
 		result.append(this.name);
@@ -175,6 +176,13 @@ public class MCAProcessDefinition implements MCPCMLDefinition {
 	}
 
 
+	private void generateAuxiliaryActions(StringBuilder content, String option){
+		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+		for (MCAActionDefinition localAction : context.localActions) {
+			content.append(localAction.toFormula(option));
+			content.append("\n");
+		}
+	}
 
 	public LinkedList<MCATypeSingleDeclaration> getLocalState() {
 		return localState;
