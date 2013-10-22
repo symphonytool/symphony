@@ -8,6 +8,7 @@ import java.util.List;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
+import org.overture.ast.expressions.SBinaryExp;
 import org.overture.ast.node.INode;
 import org.overture.ast.statements.PStateDesignator;
 import org.overture.ast.types.PType;
@@ -17,6 +18,7 @@ import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
+import eu.compassresearch.ast.expressions.PCMLExp;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.ast.program.PSource;
@@ -73,6 +75,19 @@ public class NewMCVisitor extends
 		
 		
 		return  node.apply(emptyVisitor, question);
+	}
+	
+	
+	@Override
+	public MCNode defaultSBinaryExp(SBinaryExp node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		return node.apply(this.expressionVisitor, question);
+	}
+	
+	@Override
+	public MCNode defaultPCMLExp(PCMLExp node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		return node.apply(this.expressionVisitor, question);
 	}
 	
 	@Override
@@ -229,7 +244,7 @@ public class NewMCVisitor extends
 			files = folder.listFiles();
 		}
 		
-		String cml_file = "src/test/resources/action-hiding.cml";
+		String cml_file = "src/test/resources/action-not-implemented.cml";
 		System.out.println("Testing on " + cml_file);
 		PSource source1 = Utilities.makeSourceFromFile(cml_file);
 		NewMCVisitor visitor1 = new NewMCVisitor(source1);

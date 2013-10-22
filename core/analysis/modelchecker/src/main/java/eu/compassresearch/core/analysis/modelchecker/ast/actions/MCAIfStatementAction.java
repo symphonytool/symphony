@@ -8,6 +8,7 @@ import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelchecker
 
 public class MCAIfStatementAction implements MCPAction {
 
+	private int counterId;
 	private MCPCMLExp ifExp;
 	private MCPAction thenStm;
 	//private NodeList<AElseIfStatementAction> _elseIf = new NodeList<AElseIfStatementAction>(this);
@@ -16,7 +17,7 @@ public class MCAIfStatementAction implements MCPAction {
 	
 	public MCAIfStatementAction(MCPCMLExp ifExp, MCPAction thenStm,
 			MCPAction elseStm) {
-		
+		this.counterId = NewCMLModelcheckerContext.GUARD_COUNTER++;
 		this.ifExp = ifExp;
 		this.thenStm = thenStm;
 		this.elseStm = elseStm;
@@ -33,10 +34,12 @@ public class MCAIfStatementAction implements MCPAction {
 		
 		// it writes the condition as an integer and puts the expression
 		//to be evaluated in the context
-		result.append(NewCMLModelcheckerContext.GUARD_COUNTER + ",");
+		result.append(this.counterId + ",");
 		
-		MCCondition newCondition = new MCCondition(this.ifExp,NewCMLModelcheckerContext.GUARD_COUNTER++);
-		context.guards.add(newCondition);
+		MCCondition newCondition = new MCCondition(this,this.ifExp,this.counterId);
+		if(!context.conditions.contains(newCondition)){
+			context.conditions.add(newCondition);
+		}
 
 		// it writes the behaviour in the if-true branch
 		result.append(this.thenStm.toFormula(option));
@@ -75,6 +78,16 @@ public class MCAIfStatementAction implements MCPAction {
 
 	public void setElseStm(MCPAction elseStm) {
 		this.elseStm = elseStm;
+	}
+
+
+	public int getCounterId() {
+		return counterId;
+	}
+
+
+	public void setCounterId(int counterId) {
+		this.counterId = counterId;
 	}
 
 	

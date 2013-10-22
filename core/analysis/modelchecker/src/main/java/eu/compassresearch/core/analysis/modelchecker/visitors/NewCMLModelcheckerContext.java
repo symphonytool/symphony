@@ -15,7 +15,10 @@ import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCCondition;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCLieInFact;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCNegGuardDef;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCPosGuardDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAActionDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPVarsetExpression;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.Binding;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.NullBinding;
@@ -29,7 +32,10 @@ public class NewCMLModelcheckerContext {
 	public NewSetStack<MCPVarsetExpression> setStack;
 	public ArrayList<MCLieInFact> lieIn;
 	public ArrayList<MCAActionDefinition> localActions;
-	public ArrayList<MCCondition> guards;
+	public ArrayList<MCCondition> conditions;
+	public Binding maximalBinding = new NullBinding();
+	public HashMap<MCPCMLExp, MCPosGuardDef> positiveGuardDefs;
+	public HashMap<MCPCMLExp, MCNegGuardDef> negativeGuardDefs;
 	
 	
 	protected StringBuilder basicContent = new StringBuilder(); 
@@ -62,9 +68,7 @@ public class NewCMLModelcheckerContext {
 	
 	
 	
-	protected HashMap<PExp, String> positiveGuardExps;
 	
-	protected HashMap<PExp, String> negativeGuardExps;
 	
 	protected ArrayList<String> channelDependencies;
 	
@@ -99,11 +103,11 @@ public class NewCMLModelcheckerContext {
 		lieIn = new ArrayList<MCLieInFact>();
 		operations = new ArrayList<SCmlOperationDefinition>(); 
 		localActions = new ArrayList<MCAActionDefinition>();
-		guards = new ArrayList<MCCondition>();
+		conditions = new ArrayList<MCCondition>();
 		channelDependencies = new ArrayList<String>();
 		ioCommDefs = new ArrayList<String>();
-		positiveGuardExps = new HashMap<PExp, String>();
-		negativeGuardExps = new HashMap<PExp, String>();
+		positiveGuardDefs = new HashMap<MCPCMLExp, MCPosGuardDef>();
+		negativeGuardDefs = new HashMap<MCPCMLExp, MCNegGuardDef>();
 		valueDefinitions = new LinkedList<UserDefinedValue>();
 		typeDefinitions = new LinkedList<UserTypeDefinition>();
 		channelDefinitions = new LinkedList<ChannelTypeDefinition>();
@@ -122,11 +126,11 @@ public class NewCMLModelcheckerContext {
 		lieIn = new ArrayList<MCLieInFact>();
 		operations = new ArrayList<SCmlOperationDefinition>();
 		localActions = new ArrayList<MCAActionDefinition>();
-		guards = new ArrayList<MCCondition>();
+		conditions = new ArrayList<MCCondition>();
 		channelDependencies = new ArrayList<String>();
 		ioCommDefs = new ArrayList<String>();
-		positiveGuardExps = new HashMap<PExp, String>();
-		negativeGuardExps = new HashMap<PExp, String>();
+		positiveGuardDefs = new HashMap<MCPCMLExp, MCPosGuardDef>();
+		negativeGuardDefs = new HashMap<MCPCMLExp, MCNegGuardDef>();
 		valueDefinitions = new LinkedList<UserDefinedValue>();
 		typeDefinitions = new LinkedList<UserTypeDefinition>();
 		channelDefinitions = new LinkedList<ChannelTypeDefinition>();
@@ -146,11 +150,11 @@ public class NewCMLModelcheckerContext {
 		result.lieIn = new ArrayList<MCLieInFact>(this.lieIn);
 		result.operations = new ArrayList<SCmlOperationDefinition>(this.operations);
 		result.localActions = new ArrayList<MCAActionDefinition>(this.localActions);
-		result.guards = new ArrayList<MCCondition>(this.guards);
+		result.conditions = new ArrayList<MCCondition>(this.conditions);
 		result.channelDependencies = new ArrayList<String>(this.channelDependencies);
 		result.ioCommDefs = new ArrayList<String>(this.ioCommDefs);
-		result.positiveGuardExps = new HashMap<PExp, String>(this.positiveGuardExps);
-		result.negativeGuardExps = new HashMap<PExp, String>(this.negativeGuardExps);
+		positiveGuardDefs = new HashMap<MCPCMLExp, MCPosGuardDef>(this.positiveGuardDefs);
+		negativeGuardDefs = new HashMap<MCPCMLExp, MCNegGuardDef>(this.negativeGuardDefs);
 		result.valueDefinitions = new LinkedList<UserDefinedValue>(this.valueDefinitions);
 		result.typeDefinitions = new LinkedList<UserTypeDefinition>(this.typeDefinitions);
 		result.channelDefinitions = new LinkedList<ChannelTypeDefinition>(this.channelDefinitions);
@@ -270,11 +274,11 @@ public class NewCMLModelcheckerContext {
 		lieIn = new ArrayList<MCLieInFact>();
 		operations = new ArrayList<SCmlOperationDefinition>(); 
 		localActions = new ArrayList<MCAActionDefinition>();
-		guards = new ArrayList<MCCondition>();
+		conditions = new ArrayList<MCCondition>();
 		channelDependencies = new ArrayList<String>();
 		ioCommDefs = new ArrayList<String>();
-		positiveGuardExps = new HashMap<PExp, String>();
-		negativeGuardExps = new HashMap<PExp, String>();
+		positiveGuardDefs = new HashMap<MCPCMLExp, MCPosGuardDef>();
+		negativeGuardDefs = new HashMap<MCPCMLExp, MCNegGuardDef>();
 		valueDefinitions = new LinkedList<UserDefinedValue>();
 		typeDefinitions = new LinkedList<UserTypeDefinition>();
 		channelDefinitions = new LinkedList<ChannelTypeDefinition>();

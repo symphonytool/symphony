@@ -8,12 +8,14 @@ import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelchecker
 
 public class MCAGuardedAction implements MCPAction {
 
+	private int counterId;
 	private MCPCMLExp expression;
 	private MCPAction action;
 	
 	
 	public MCAGuardedAction(MCPCMLExp expression, MCPAction action) {
 		super();
+		this.counterId = NewCMLModelcheckerContext.GUARD_COUNTER++;
 		this.expression = expression;
 		this.action = action;
 	}
@@ -29,10 +31,12 @@ public class MCAGuardedAction implements MCPAction {
 		
 		// it writes the condition as an integer and puts the expression
 		//to be evaluated in the context
-		result.append(NewCMLModelcheckerContext.GUARD_COUNTER + ",");
+		result.append(this.counterId + ",");
 		
-		MCCondition newCondition = new MCCondition(this.expression,NewCMLModelcheckerContext.GUARD_COUNTER++);
-		context.guards.add(newCondition);
+		MCCondition newCondition = new MCCondition(this,this.expression, this.counterId);
+		if(!context.conditions.contains(newCondition)){
+			context.conditions.add(newCondition);
+		}
 
 		// it writes the behaviour in the if-true branch
 		result.append(this.action.toFormula(option));
@@ -61,6 +65,16 @@ public class MCAGuardedAction implements MCPAction {
 
 	public void setAction(MCPAction action) {
 		this.action = action;
+	}
+
+
+	public int getCounterId() {
+		return counterId;
+	}
+
+
+	public void setCounterId(int counterId) {
+		this.counterId = counterId;
 	}
 	
 }

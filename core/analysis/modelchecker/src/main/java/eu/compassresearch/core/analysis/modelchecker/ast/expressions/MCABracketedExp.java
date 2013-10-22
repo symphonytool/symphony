@@ -13,8 +13,7 @@ public class MCABracketedExp implements MCPCMLExp {
 
 	@Override
 	public String toFormula(String option) {
-		// TODO Auto-generated method stub
-		return null;
+		return getExp().toFormula(option);
 	}
 
 

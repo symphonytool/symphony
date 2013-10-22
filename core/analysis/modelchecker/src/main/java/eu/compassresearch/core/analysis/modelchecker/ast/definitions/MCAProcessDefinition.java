@@ -2,8 +2,16 @@ package eu.compassresearch.core.analysis.modelchecker.ast.definitions;
 
 import java.util.LinkedList;
 
+import org.overture.ast.analysis.AnalysisException;
+
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCCondition;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCNegGuardDef;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCPosGuardDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCATypeSingleDeclaration;
 import eu.compassresearch.core.analysis.modelchecker.ast.process.MCPProcess;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.Binding;
+import eu.compassresearch.core.analysis.modelchecker.visitors.CMLModelcheckerContext;
+import eu.compassresearch.core.analysis.modelchecker.visitors.Condition;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 
 public class MCAProcessDefinition implements MCPCMLDefinition {
@@ -44,6 +52,8 @@ public class MCAProcessDefinition implements MCPCMLDefinition {
 		result.append(this.process.toFormula(option));
 		result.append(").\n");
 		
+		generateGuardDefinitions(result,option);
+		
 		/*
 		if(question.info.containsKey(Utilities.ASSIGNMENT_DEFINITION_KEY)){
 			Map<String, Map<String, String>> assigns = (Map<String, Map<String, String>>) question.info.get(Utilities.ASSIGNMENT_DEFINITION_KEY);
@@ -83,7 +93,6 @@ public class MCAProcessDefinition implements MCPCMLDefinition {
 			}
 		}
 
-		generateOperationsDefinitions(question);
 
 		generateIOCommDefs(question);
 
@@ -180,10 +189,25 @@ public class MCAProcessDefinition implements MCPCMLDefinition {
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 		for (MCAActionDefinition localAction : context.localActions) {
 			content.append(localAction.toFormula(option));
-			content.append("\n");
 		}
 	}
 
+	private void generateGuardDefinitions(StringBuilder content, String option){
+		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+	
+		for (MCCondition condition : context.conditions) {
+			//generating positive guards
+			MCPosGuardDef positiveGuardDef = context.positiveGuardDefs.get(condition.getExpression());
+			MCNegGuardDef negativeGuardDef = context.negativeGuardDefs.get(condition.getExpression());
+
+			if(positiveGuardDef != null) {
+				content.append(positiveGuardDef.toFormula(option));
+			}
+			if(negativeGuardDef != null){
+				content.append(negativeGuardDef.toFormula(option));
+			}
+		}
+	}
 	public LinkedList<MCATypeSingleDeclaration> getLocalState() {
 		return localState;
 	}
