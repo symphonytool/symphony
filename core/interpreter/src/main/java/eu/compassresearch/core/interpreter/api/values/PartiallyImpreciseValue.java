@@ -2,7 +2,7 @@ package eu.compassresearch.core.interpreter.api.values;
 
 import org.overture.interpreter.values.Value;
 
-public class PartiallyImpreciseValue extends Value implements ImpreciseValue
+public class PartiallyImpreciseValue extends Value implements LooseValue
 {
 	private Value complexValue;
 

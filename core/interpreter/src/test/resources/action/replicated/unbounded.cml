@@ -1,0 +1,6 @@
+channels c : int
+process Cell = 
+begin
+@
+||| i : int @ [{}] Skip
+end

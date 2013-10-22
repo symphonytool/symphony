@@ -24,12 +24,15 @@ import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.expressions.ABracketedExp;
+import eu.compassresearch.ast.expressions.ACompVarsetExpression;
 import eu.compassresearch.ast.expressions.AEnumVarsetExpression;
 import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
 import eu.compassresearch.ast.expressions.AIdentifierVarsetExpression;
 import eu.compassresearch.ast.expressions.ANameChannelExp;
+import eu.compassresearch.ast.expressions.AUnionVOpVarsetExpression;
 import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
 import eu.compassresearch.ast.expressions.PCMLExp;
+import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
@@ -88,6 +91,20 @@ public class CmlExpressionVisitor extends
 		return vdmExpEvaluator.defaultPExp(node, question);
 	}
 
+	@Override
+	public Value defaultPCMLExp(PCMLExp node, Context question)
+			throws AnalysisException
+	{
+		throw new CmlInterpreterException(InterpretationErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName()));
+	}
+
+	@Override
+	public Value defaultPVarsetExpression(PVarsetExpression node,
+			Context question) throws AnalysisException
+	{
+		throw new CmlInterpreterException(InterpretationErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName()));
+	}
+
 	protected ChannelNameValue createChannelNameValue(ILexIdentifierToken id,
 			Context question) throws AnalysisException
 	{
@@ -105,8 +122,6 @@ public class CmlExpressionVisitor extends
 			throws AnalysisException
 	{
 		// find the channel value
-		// TODO this might change if channel renaming does not
-		// require the renamed channel name to be defined
 		ILexNameToken channelName = NamespaceUtility.createChannelName(chanNameExp.getIdentifier());
 		CMLChannelValue chanValue = (CMLChannelValue) question.lookup(channelName);
 
@@ -125,38 +140,62 @@ public class CmlExpressionVisitor extends
 		return new ChannelNameValue(chanValue, values);
 	}
 
-	@Override
-	public ChannelNameSetValue caseAFatEnumVarsetExpression(
-			AFatEnumVarsetExpression node, Context question)
-			throws AnalysisException
+	private boolean isChannelSetExp(ANameChannelExp varexp, Context question)
 	{
+		// find the channel value
+		ILexNameToken channelName = NamespaceUtility.createChannelName(varexp.getIdentifier());
+		return (CMLChannelValue) question.lookup(channelName) != null;
+	}
 
-		Set<ChannelNameValue> coms = new HashSet<ChannelNameValue>();
-
-		for (ANameChannelExp chanNameExp : node.getChannelNames())
+	@Override
+	public Value caseAFatEnumVarsetExpression(AFatEnumVarsetExpression node,
+			Context question) throws AnalysisException
+	{
+		/*
+		 * Before we do anything we need to find out if this is a channelexp or nameexp. In most cases it does not make
+		 * sense to make an empty channelset, so if its empty we assume that this is a nameset
+		 */
+		if (node.getChannelNames().size() > 0
+				&& isChannelSetExp(node.getChannelNames().get(0), question))
 		{
-			ChannelNameValue channelName = createChannelNameValue(chanNameExp, question);
-			coms.add(channelName);
-		}
 
-		return new ChannelNameSetValue(coms);
+			Set<ChannelNameValue> coms = new HashSet<ChannelNameValue>();
+
+			for (ANameChannelExp chanNameExp : node.getChannelNames())
+			{
+				ChannelNameValue channelName = createChannelNameValue(chanNameExp, question);
+				coms.add(channelName);
+			}
+
+			return new ChannelNameSetValue(coms);
+		}
+		// then it must be a nameset expression
+		else
+		{
+			Set<ILexNameToken> coms = new HashSet<ILexNameToken>();
+
+			for (ANameChannelExp chanNameExp : node.getChannelNames())
+			{
+				// FIXME At the moment we only support simple names without any expressions after it!
+				ILexNameToken name = NamespaceUtility.createSimpleName(chanNameExp.getIdentifier());
+				coms.add(name);
+			}
+
+			return new NamesetValue(coms);
+
+		}
 	}
 
 	@Override
 	public Value caseAEnumVarsetExpression(AEnumVarsetExpression node,
 			Context question) throws AnalysisException
 	{
-
-		if (question.containsKey(NamespaceUtility.getVarExpContextName()))
-		{
-			Set<ILexNameToken> names = new HashSet<ILexNameToken>();
-			for (ANameChannelExp chanNameExp : node.getChannelNames())
-			{
-				names.add(new LexNameToken("", chanNameExp.getIdentifier().clone()));
-			}
-
-			return new NamesetValue(names);
-		} else
+		/*
+		 * Before we do anything we need to find out if this is a channelexp or nameexp. In most cases it does not make
+		 * sense to make an empty channelset, so if its empty we assume that this is a nameset
+		 */
+		if (node.getChannelNames().size() > 0
+				&& isChannelSetExp(node.getChannelNames().get(0), question))
 		{
 			Set<ChannelNameValue> coms = new HashSet<ChannelNameValue>();
 			for (ANameChannelExp chanNameExp : node.getChannelNames())
@@ -166,8 +205,53 @@ public class CmlExpressionVisitor extends
 			}
 
 			return new ChannelNameSetValue(coms);
+
+		} else
+		{
+			// FIXME At the moment we only support simple names without any expressions after it!
+			Set<ILexNameToken> names = new HashSet<ILexNameToken>();
+			for (ANameChannelExp chanNameExp : node.getChannelNames())
+			{
+				names.add(NamespaceUtility.createSimpleName(chanNameExp.getIdentifier()));
+			}
+
+			return new NamesetValue(names);
 		}
 	}
+
+	@Override
+	public Value caseAUnionVOpVarsetExpression(AUnionVOpVarsetExpression node,
+			Context question) throws AnalysisException
+	{
+		Value leftValue = node.getLeft().apply(this,question);
+		Value rightValue = node.getRight().apply(this,question);
+		
+		if(leftValue instanceof ChannelNameSetValue &&
+				rightValue instanceof ChannelNameSetValue)
+		{
+			ChannelNameSetValue leftCNV = (ChannelNameSetValue)leftValue;
+			leftCNV.addAll((ChannelNameSetValue)rightValue);
+			return leftCNV; 
+		}
+		else if (leftValue instanceof NamesetValue &&
+				rightValue instanceof NamesetValue)
+		{
+			NamesetValue leftNameset = (NamesetValue)leftValue;
+			leftNameset.addAll((NamesetValue)rightValue);
+			return leftNameset;
+		}
+		else
+			throw new CmlInterpreterException(node, InterpretationErrorMessages.FATAL_ERROR.customizeMessage(""));
+		
+	}
+	
+//	@Override
+//	public Value caseACompVarsetExpression(ACompVarsetExpression node,
+//			Context question) throws AnalysisException
+//	{
+//		// TODO Auto-generated method stub
+//		return super.caseACompVarsetExpression(node, question);
+//	}
 
 	@Override
 	public Value caseAIdentifierVarsetExpression(

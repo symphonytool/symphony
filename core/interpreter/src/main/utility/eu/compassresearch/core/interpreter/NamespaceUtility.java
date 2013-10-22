@@ -8,6 +8,10 @@ import eu.compassresearch.ast.lex.LexNameToken;
 
 class NamespaceUtility
 {
+	public static ILexNameToken createSimpleName(ILexIdentifierToken id)
+	{
+		return new LexNameToken("", id.getName(), id.getLocation(), false, true);
+	}
 
 	public static ILexNameToken createChannelName(ILexIdentifierToken id)
 	{
@@ -29,8 +33,8 @@ class NamespaceUtility
 		return new LexNameToken("|FORSEQ|", "v", new LexLocation());
 	}
 
-	public static ILexNameToken getVarExpContextName()
-	{
-		return new LexNameToken("|VARSET|", "namesetExpression", new LexLocation());
-	}
+//	public static ILexNameToken getVarExpContextName()
+//	{
+//		return new LexNameToken("|VARSET|", "namesetExpression", new LexLocation());
+//	}
 }

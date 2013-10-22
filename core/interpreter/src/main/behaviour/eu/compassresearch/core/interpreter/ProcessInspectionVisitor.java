@@ -73,9 +73,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 	public Inspection defaultPProcess(PProcess node, Context question)
 			throws AnalysisException
 	{
-
 		throw new CmlInterpreterException(InterpretationErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName()));
-
 	}
 	
 	@Override
