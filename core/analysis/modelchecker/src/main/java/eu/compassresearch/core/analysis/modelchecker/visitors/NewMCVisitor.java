@@ -40,7 +40,7 @@ public class NewMCVisitor extends
 	private NewMCActionVisitor actionVisitor;
 	private NewMCDeclarationAndDefinitionVisitor declAndDefVisitor;
 	private NewMCEmptyVisitor emptyVisitor;
-	//private NewMCExpressionVisitor expressionVisitor;
+	private NewMCExpressionVisitor expressionVisitor;
 	private NewMCProcessVisitor processVisitor;
 	//private NewMCTypeAndValueVisitor typeAndValueVisitor;
 
@@ -64,6 +64,7 @@ public class NewMCVisitor extends
 		this.processVisitor = new NewMCProcessVisitor(this);
 		this.declAndDefVisitor = new NewMCDeclarationAndDefinitionVisitor(this);
 		this.emptyVisitor = new NewMCEmptyVisitor();
+		this.expressionVisitor = new NewMCExpressionVisitor(this);
 	}
 	
 	@Override
@@ -74,6 +75,11 @@ public class NewMCVisitor extends
 		return  node.apply(emptyVisitor, question);
 	}
 	
+	@Override
+	public MCNode defaultPVarsetExpression(PVarsetExpression node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		return node.apply(this.expressionVisitor, question);
+	}
 	
 	@Override
 	public MCNode defaultPDefinition(PDefinition node,
@@ -216,14 +222,14 @@ public class NewMCVisitor extends
 
 	public static void main(String[] args) throws Throwable {
 		String cml_folder_name = "src/test/resources";
-		String cml_folder = "D:\\COMPASS\\compassresearch-code\\core\\analysis\\modelchecker\\src\\test\\resources";
+		String cml_folder = "F:\\Copy\\ProjetoCompass\\compassresearch-code\\core\\analysis\\modelchecker\\src\\test\\resources";
 		File folder = new File(cml_folder);
 		File[] files = new File[0];
 		if(folder.isDirectory()){
 			files = folder.listFiles();
 		}
 		
-		String cml_file = "src/test/resources/action-div.cml";
+		String cml_file = "src/test/resources/action-hiding.cml";
 		System.out.println("Testing on " + cml_file);
 		PSource source1 = Utilities.makeSourceFromFile(cml_file);
 		NewMCVisitor visitor1 = new NewMCVisitor(source1);
@@ -233,7 +239,7 @@ public class NewMCVisitor extends
 			System.out.println(codes1[j]);
 		}
 		
-		for (int i = 0; i < files.length; i++) {
+		/*for (int i = 0; i < files.length; i++) {
 			String cml_example = cml_folder_name + "/" + files[i].getName();
 			System.out.println("Testing on " + cml_example);
 			PSource source = Utilities.makeSourceFromFile(cml_example);
@@ -243,7 +249,7 @@ public class NewMCVisitor extends
 			for (int j = 0; j < codes.length; j++) {
 				System.out.println(codes[j]);
 			}
-		}
+		}*/
 	}
 	
 	
