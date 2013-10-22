@@ -18,8 +18,7 @@ public class MCANameChannelExp implements MCSChannelExp {
 
 	@Override
 	public String toFormula(String option) {
-		// TODO Auto-generated method stub
-		return null;
+		return "["+this.identifier+"]";
 	}
 
 

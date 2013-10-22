@@ -1,18 +1,14 @@
 package eu.compassresearch.core.analysis.modelchecker.visitors;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.definitions.PDefinition;
-import org.overture.ast.expressions.ASetEnumSetExp;
-import org.overture.ast.expressions.AVariableExp;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.node.INode;
 
 import eu.compassresearch.ast.actions.ABlockStatementAction;
-import eu.compassresearch.ast.actions.ACallStatementAction;
 import eu.compassresearch.ast.actions.AChaosAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.ADeclareStatementAction;
@@ -30,23 +26,12 @@ import eu.compassresearch.ast.actions.AInternalChoiceReplicatedAction;
 import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionReplicatedAction;
-import eu.compassresearch.ast.actions.ASignalCommunicationParameter;
-import eu.compassresearch.ast.actions.ASingleGeneralAssignmentStatementAction;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.AStopAction;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.actions.PCommunicationParameter;
-import eu.compassresearch.ast.actions.SReplicatedActionBase;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
-import eu.compassresearch.ast.declarations.AExpressionSingleDeclaration;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
-import eu.compassresearch.ast.definitions.AActionDefinition;
-import eu.compassresearch.ast.definitions.AChannelNameDefinition;
-import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
-import eu.compassresearch.ast.expressions.AEnumVarsetExpression;
-import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
-import eu.compassresearch.ast.expressions.ANameChannelExp;
-import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCABlockStatementAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAChaosAction;
@@ -57,7 +42,9 @@ import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAExternalChoi
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAExternalChoiceReplicatedAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAGeneralisedParallelismParallelAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAGeneralisedParallelismReplicatedAction;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAGuardedAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAHidingAction;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAIfStatementAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAInterleavingParallelAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAInternalChoiceAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAInternalChoiceReplicatedAction;
@@ -68,12 +55,10 @@ import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCASkipAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAStopAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPCommunicationParameter;
-import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCSReplicatedActionBase;
 import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCPSingleDeclaration;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCPCMLDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPVarsetExpression;
-import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.SingleBind;
 
 public class NewMCActionVisitor extends
 		QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
@@ -443,6 +428,29 @@ public class NewMCActionVisitor extends
 		return result;
 	}
 	
+	@Override
+	public MCNode caseAGuardedAction(AGuardedAction node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		MCPCMLExp expression = (MCPCMLExp) node.getExpression().apply(rootVisitor, question);
+		MCPAction action = (MCPAction) node.getAction().apply(this, question);
+		MCAGuardedAction result = new MCAGuardedAction(expression, action);
+		
+		return result;
+	}
+	
+	@Override
+	public MCNode caseAIfStatementAction(AIfStatementAction node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+
+		MCPCMLExp expression = (MCPCMLExp) node.getIfExp().apply(rootVisitor, question);
+		MCPAction thenStmt = (MCPAction) node.getThenStm().apply(this, question);
+		MCPAction elseStmt = (MCPAction) node.getElseStm().apply(this, question);
+		MCAIfStatementAction result = new MCAIfStatementAction(expression,thenStmt,elseStmt);
+		
+		return result;
+
+		
+	}
 	/*
 	@Override
 	public StringBuilder caseACallStatementAction(ACallStatementAction node,
@@ -520,72 +528,6 @@ public class NewMCActionVisitor extends
 		return question.getScriptContent();
 	}
 
-	
-
-	
-	
-	
-	
-	@Override
-	public StringBuilder caseAGuardedAction(AGuardedAction node,
-			CMLModelcheckerContext question) throws AnalysisException {
-		// it writes the conditional choice constructor
-		question.getScriptContent().append("condChoice(");
-		// it writes the condition as an integer and puts the expression
-		//to be evaluated in the context
-		question.getScriptContent().append(CMLModelcheckerContext.GUARD_COUNTER + ",");
-		//question.info.put(Utilities.CONDITION_KEY, node.getExpression());
-		Condition newCondition = new Condition(node.getExpression(),CMLModelcheckerContext.GUARD_COUNTER++);
-		question.guards.add(newCondition);
-		//node.getExpression().apply(this, question);
-		//question.getScriptContent().append(Utilities.OCCUR_COUNT++ + ",");
-		//question.getScriptContent().append(CMLModelcheckerContext.GUARD_COUNTER++ + ",");
-		// it writes the behaviour in the if-true branch
-		node.getAction().apply(this, question);
-		question.getScriptContent().append(",Stop)"); // the else branch of a
-														// guarded action is
-														// stop
-
-		return question.getScriptContent();
-	}
-
-	
-	
-	@Override
-	public StringBuilder caseAIfStatementAction(AIfStatementAction node,
-			CMLModelcheckerContext question) throws AnalysisException {
-		
-		// it writes the conditional choice constructor
-				question.getScriptContent().append("condChoice(");
-				// it writes the condition as an integer and puts the expression
-				//to be evaluated in the context
-				question.getScriptContent().append(CMLModelcheckerContext.GUARD_COUNTER + ",");
-				//question.info.put(Utilities.CONDITION_KEY, node.getExpression());
-				Condition newCondition = new Condition(node.getIfExp(),CMLModelcheckerContext.GUARD_COUNTER++);
-				question.guards.add(newCondition);
-				//node.getExpression().apply(this, question);
-				//question.getScriptContent().append(Utilities.OCCUR_COUNT++ + ",");
-				//question.getScriptContent().append(CMLModelcheckerContext.GUARD_COUNTER++ + ",");
-				// it writes the behaviour in the if-true branch
-				node.getThenStm().apply(this, question);
-				question.getScriptContent().append(","); 
-				node.getElseStm().apply(this, question);
-				
-				return question.getScriptContent();
-	}
-
-	
-
-	
-
-	
-	
-	///PARALLEL ACTIONS
-	
-	
-	
-	
-	
 	/////REPLICATED ACTIONS
 	
 	@Override

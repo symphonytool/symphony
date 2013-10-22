@@ -14,8 +14,7 @@ public class MCAEnumVarsetExpression implements MCPVarsetExpression {
 
 	@Override
 	public String toFormula(String option) {
-		// TODO Auto-generated method stub
-		return null;
+		return "\""+channelNames.getFirst().toFormula(option)+"\"";
 	}
 
 	public LinkedList<MCANameChannelExp> getChannelNames() {
