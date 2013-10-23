@@ -37,8 +37,13 @@ import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCPosGuardDef
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCType;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAEnumVarsetExpression;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAEqualsBinaryExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAGreaterEqualNumericBinaryExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAGreaterNumericBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAIntLiteralExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCALessEqualNumericBinaryExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCALessNumericBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANameChannelExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANotEqualsBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASeqEnumSeqExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 
@@ -143,6 +148,65 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 		return result;
 	}
 	
+	@Override
+	public MCNode caseANotEqualBinaryExp(ANotEqualBinaryExp node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+
+		MCPCMLExp left = (MCPCMLExp) node.getLeft().apply(this, question);
+		MCPCMLExp right = (MCPCMLExp) node.getRight().apply(this, question);
+		MCANotEqualsBinaryExp result = new MCANotEqualsBinaryExp(left, right);
+		
+		return result;
+	}
+	
+	@Override
+	public MCNode caseAGreaterEqualNumericBinaryExp(
+			AGreaterEqualNumericBinaryExp node, NewCMLModelcheckerContext question)
+			throws AnalysisException {
+		
+		MCPCMLExp left = (MCPCMLExp) node.getLeft().apply(this, question);
+		MCPCMLExp right = (MCPCMLExp) node.getRight().apply(this, question);
+		MCAGreaterEqualNumericBinaryExp result = new MCAGreaterEqualNumericBinaryExp(left, right);
+		
+		return result;
+	}
+	
+	@Override
+	public MCNode caseALessNumericBinaryExp(ALessNumericBinaryExp node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		
+		MCPCMLExp left = (MCPCMLExp) node.getLeft().apply(this, question);
+		MCPCMLExp right = (MCPCMLExp) node.getRight().apply(this, question);
+		MCALessNumericBinaryExp result = new MCALessNumericBinaryExp(left, right);
+		
+		return result;
+	}
+	
+	@Override
+	public MCNode caseAGreaterNumericBinaryExp(
+			AGreaterNumericBinaryExp node, NewCMLModelcheckerContext question)
+			throws AnalysisException {
+		MCPCMLExp left = (MCPCMLExp) node.getLeft().apply(this, question);
+		MCPCMLExp right = (MCPCMLExp) node.getRight().apply(this, question);
+		MCAGreaterNumericBinaryExp result = new MCAGreaterNumericBinaryExp(left, right);
+		
+		return result;
+		
+	}
+
+	@Override
+	public MCNode caseALessEqualNumericBinaryExp(
+			ALessEqualNumericBinaryExp node, NewCMLModelcheckerContext question)
+			throws AnalysisException {
+	
+		MCPCMLExp left = (MCPCMLExp) node.getLeft().apply(this, question);
+		MCPCMLExp right = (MCPCMLExp) node.getRight().apply(this, question);
+		MCALessEqualNumericBinaryExp result = new MCALessEqualNumericBinaryExp(left, right);
+		
+		return result;
+		
+	}
+	
 	/*
 	@Override
 	public StringBuilder caseAFatEnumVarsetExpression(
@@ -162,194 +226,8 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 		
 		return question.getScriptContent();
 	}
+
 	
-	
-
-	@Override
-	public StringBuilder caseANotEqualBinaryExp(ANotEqualBinaryExp node,
-			CMLModelcheckerContext question) throws AnalysisException {
-
-		PExp left = node.getLeft();
-		PExp right = node.getRight();
-		String leftValue = "";
-		String rightValue = "";
-		if(left instanceof AIntLiteralExp){
-			leftValue = ((AIntLiteralExp) left).getValue().toString();
-			if(right instanceof AIntLiteralExp){
-				rightValue = ((AIntLiteralExp) right).getValue().toString();
-				if(ExpressionEvaluator.evaluate(node)){
-				   question.positiveGuardExps.put(node, leftValue + " != " + rightValue);
-				}else{
-					question.negativeGuardExps.put(node, leftValue + " = " + rightValue);
-				}
-			}else if(right instanceof AVariableExp){
-				rightValue = ((AVariableExp) right).toString();
-				question.positiveGuardExps.put(node, leftValue + " != " + rightValue);
-				question.negativeGuardExps.put(node, leftValue + " = " + rightValue);
-			}
-		} else if (left instanceof AVariableExp){
-			leftValue = ((AVariableExp) left).toString();
-			if(right instanceof AIntLiteralExp){
-				rightValue = ((AIntLiteralExp) right).getValue().toString();
-			}else if(right instanceof AVariableExp){
-				rightValue = ((AVariableExp) right).toString();
-			}
-			question.positiveGuardExps.put(node, leftValue + " != " + rightValue);
-			question.negativeGuardExps.put(node, leftValue + " = " + rightValue);
-		}
-
-		return question.getScriptContent();
-	}
-
-	@Override
-	public StringBuilder caseAGreaterNumericBinaryExp(
-			AGreaterNumericBinaryExp node, CMLModelcheckerContext question)
-			throws AnalysisException {
-
-		PExp left = node.getLeft();
-		PExp right = node.getRight();
-		String leftValue = "";
-		String rightValue = "";
-		if(left instanceof AIntLiteralExp){
-			leftValue = ((AIntLiteralExp) left).getValue().toString();
-			if(right instanceof AIntLiteralExp){
-				rightValue = ((AIntLiteralExp) right).getValue().toString();
-				if(ExpressionEvaluator.evaluate(node)){
-					question.positiveGuardExps.put(node, leftValue + " > " + rightValue);
-				}else{
-					question.negativeGuardExps.put(node, leftValue + " <= " + rightValue);
-				}
-			}else if(right instanceof AVariableExp){
-				rightValue = ((AVariableExp) right).toString();
-				question.positiveGuardExps.put(node, leftValue + " > " + rightValue);
-				question.negativeGuardExps.put(node, leftValue + " <= " + rightValue);
-			}
-		} else if (left instanceof AVariableExp){
-			leftValue = ((AVariableExp) left).toString();
-			if(right instanceof AIntLiteralExp){
-				rightValue = ((AIntLiteralExp) right).getValue().toString();
-			}else if(right instanceof AVariableExp){
-				rightValue = ((AVariableExp) right).toString();
-			}
-			question.positiveGuardExps.put(node, leftValue + " > " + rightValue);
-			question.negativeGuardExps.put(node, leftValue + " <= " + rightValue);
-		}
-		
-		
-		return question.getScriptContent();
-	}
-
-	@Override
-	public StringBuilder caseAGreaterEqualNumericBinaryExp(
-			AGreaterEqualNumericBinaryExp node, CMLModelcheckerContext question)
-			throws AnalysisException {
-		PExp left = node.getLeft();
-		PExp right = node.getRight();
-		String leftValue = "";
-		String rightValue = "";
-		if(left instanceof AIntLiteralExp){
-			leftValue = ((AIntLiteralExp) left).getValue().toString();
-			if(right instanceof AIntLiteralExp){
-				rightValue = ((AIntLiteralExp) right).getValue().toString();
-				if(ExpressionEvaluator.evaluate(node)){
-					question.positiveGuardExps.put(node, leftValue + " >= " + rightValue);
-				}else{
-					question.negativeGuardExps.put(node, leftValue + " < " + rightValue);
-				}
-			}else if(right instanceof AVariableExp){
-				rightValue = ((AVariableExp) right).toString();
-				question.positiveGuardExps.put(node, leftValue + " >= " + rightValue);
-				question.negativeGuardExps.put(node, leftValue + " < " + rightValue);
-			}
-		} else if (left instanceof AVariableExp){
-			leftValue = ((AVariableExp) left).toString();
-			if(right instanceof AIntLiteralExp){
-				rightValue = ((AIntLiteralExp) right).getValue().toString();
-			}else if(right instanceof AVariableExp){
-				rightValue = ((AVariableExp) right).toString();
-			}
-			question.positiveGuardExps.put(node, leftValue + " >= " + rightValue);
-			question.negativeGuardExps.put(node, leftValue + " < " + rightValue);
-		}
-
-		
-		return question.getScriptContent();
-	}
-
-	@Override
-	public StringBuilder caseALessEqualNumericBinaryExp(
-			ALessEqualNumericBinaryExp node, CMLModelcheckerContext question)
-			throws AnalysisException {
-		
-		PExp left = node.getLeft();
-		PExp right = node.getRight();
-		String leftValue = "";
-		String rightValue = "";
-		if(left instanceof AIntLiteralExp){
-			leftValue = ((AIntLiteralExp) left).getValue().toString();
-			if(right instanceof AIntLiteralExp){
-				rightValue = ((AIntLiteralExp) right).getValue().toString();
-				if(ExpressionEvaluator.evaluate(node)){
-					question.positiveGuardExps.put(node, leftValue + " <= " + rightValue);
-				}else{
-					question.negativeGuardExps.put(node, leftValue + " > " + rightValue);
-				}
-			}else if(right instanceof AVariableExp){
-				rightValue = ((AVariableExp) right).toString();
-				question.positiveGuardExps.put(node, leftValue + " <= " + rightValue);
-				question.negativeGuardExps.put(node, leftValue + " > " + rightValue);
-			}
-		} else if (left instanceof AVariableExp){
-			leftValue = ((AVariableExp) left).toString();
-			if(right instanceof AIntLiteralExp){
-				rightValue = ((AIntLiteralExp) right).getValue().toString();
-			}else if(right instanceof AVariableExp){
-				rightValue = ((AVariableExp) right).toString();
-			}
-			question.positiveGuardExps.put(node, leftValue + " <= " + rightValue);
-			question.negativeGuardExps.put(node, leftValue + " > " + rightValue);
-		}
-
-		
-		return question.getScriptContent();
-	}
-
-	@Override
-	public StringBuilder caseALessNumericBinaryExp(ALessNumericBinaryExp node,
-			CMLModelcheckerContext question) throws AnalysisException {
-		
-		PExp left = node.getLeft();
-		PExp right = node.getRight();
-		String leftValue = "";
-		String rightValue = "";
-		if(left instanceof AIntLiteralExp){
-			leftValue = ((AIntLiteralExp) left).getValue().toString();
-			if(right instanceof AIntLiteralExp){
-				rightValue = ((AIntLiteralExp) right).getValue().toString();
-				if(ExpressionEvaluator.evaluate(node)){
-					question.positiveGuardExps.put(node, leftValue + " < " + rightValue);
-				}else{
-					question.negativeGuardExps.put(node, leftValue + " >= " + rightValue);
-				}
-			}else if(right instanceof AVariableExp){
-				rightValue = ((AVariableExp) right).toString();
-				question.positiveGuardExps.put(node, leftValue + " < " + rightValue);
-				question.negativeGuardExps.put(node, leftValue + " >= " + rightValue);
-			}
-		} else if (left instanceof AVariableExp){
-			leftValue = ((AVariableExp) left).toString();
-			if(right instanceof AIntLiteralExp){
-				rightValue = ((AIntLiteralExp) right).getValue().toString();
-			}else if(right instanceof AVariableExp){
-				rightValue = ((AVariableExp) right).toString();
-			}
-			question.positiveGuardExps.put(node, leftValue + " < " + rightValue);
-			question.negativeGuardExps.put(node, leftValue + " >= " + rightValue);
-		}
-
-		
-		return question.getScriptContent();
-	}
 
 	@Override
 	public StringBuilder caseABooleanConstExp(ABooleanConstExp node,
@@ -404,8 +282,6 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 
 		return question.getScriptContent();
 	}
-	
-	
 
 	@Override
 	public StringBuilder caseATimesNumericBinaryExp(

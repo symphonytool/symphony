@@ -15,6 +15,7 @@ public class MCNegGuardDef extends MCGuardDef{
 	
 	@Override
 	public String toFormula(String option) {
+
 		StringBuilder result = new StringBuilder();
 		result.append("  guardNDef(l,"+ this.counterId +","+ max.toFormula()+")");
 		result.append(" :- State(l," + max.toFormula() + "," + max.getProcName()+ "," + parentAction.toFormula(MCNode.GENERIC) + "))");

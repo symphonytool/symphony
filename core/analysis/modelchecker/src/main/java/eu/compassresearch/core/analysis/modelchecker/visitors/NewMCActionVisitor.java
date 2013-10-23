@@ -26,6 +26,7 @@ import eu.compassresearch.ast.actions.AInternalChoiceReplicatedAction;
 import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionReplicatedAction;
+import eu.compassresearch.ast.actions.ASingleGeneralAssignmentStatementAction;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.AStopAction;
 import eu.compassresearch.ast.actions.PAction;
@@ -51,10 +52,12 @@ import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAInternalChoi
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAReferenceAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCASequentialCompositionAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCASequentialCompositionReplicatedAction;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCASingleGeneralAssignmentStatementAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCASkipAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAStopAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPCommunicationParameter;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCAssignDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.GuardDefGenerator;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCCondition;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCGuardDef;
@@ -435,9 +438,6 @@ public class NewMCActionVisitor extends
 	public MCNode caseAGuardedAction(AGuardedAction node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
 		
-		
-		
-		
 		MCPCMLExp expression = (MCPCMLExp) node.getExpression().apply(rootVisitor, question);
 		MCPAction action = (MCPAction) node.getAction().apply(this, question);
 		MCAGuardedAction result = new MCAGuardedAction(expression, action);
@@ -448,8 +448,7 @@ public class NewMCActionVisitor extends
 			question.guardDefs.put(expression, mcGuardDef);
 		}
 		
-		
-		
+				
 		return result;
 	}
 	
@@ -465,6 +464,23 @@ public class NewMCActionVisitor extends
 		return result;
 
 		
+	}
+	
+	@Override
+	public MCNode caseASingleGeneralAssignmentStatementAction(
+			ASingleGeneralAssignmentStatementAction node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		
+		MCPCMLExp stateDesignator = (MCPCMLExp) node.getStateDesignator().apply(rootVisitor, question);
+		MCPCMLExp expression = (MCPCMLExp) node.getExpression().apply(rootVisitor, question);
+		
+		MCASingleGeneralAssignmentStatementAction result = 
+				new MCASingleGeneralAssignmentStatementAction(stateDesignator,expression);
+
+		MCAssignDef assignDef = new MCAssignDef(result.getCounterId(), expression, stateDesignator, result);
+		question.assignDefs.add(assignDef);
+		
+		return result;
 	}
 	/*
 	@Override
@@ -545,24 +561,7 @@ public class NewMCActionVisitor extends
 
 	/////REPLICATED ACTIONS
 	
-	@Override
-	public StringBuilder caseASingleGeneralAssignmentStatementAction(
-			ASingleGeneralAssignmentStatementAction node,
-			CMLModelcheckerContext question) throws AnalysisException {
-		
-		question.getScriptContent().append("assign("+CMLModelcheckerContext.ASSIGN_COUNTER +")");
-		//StringBuilder str = new StringBuilder();
-		//this line is generated for this assignment. Each assignment must have a line like this
-		//probably the maximal binding is not ready to be put here and you need to put the assignment information into the context 
-		//str.append("  assignDef(0, "+CMLModelcheckerContext.ASSIGN_COUNTER +", st, st_)  :- State(0,st,name,assign("+CMLModelcheckerContext.ASSIGN_COUNTER+")), st = OLD_BINDING, st_ = NEW_BINDING");
-		//str.append(".\n");
-		
-		question.putVarAttInBinding(Utilities.ASSIGNMENT_DEFINITION_KEY, ""+CMLModelcheckerContext.ASSIGN_COUNTER, node.getStateDesignator().toString(), node.getExpression().toString());
-		
-		CMLModelcheckerContext.ASSIGN_COUNTER++;
-		
-		return question.getScriptContent();
-	}
+	
 	*/
 	
 	@Override

@@ -1,23 +1,32 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.actions;
 
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCAssignDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
+import eu.compassresearch.core.analysis.modelchecker.visitors.CMLModelcheckerContext;
+import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
+import eu.compassresearch.core.analysis.modelchecker.visitors.Utilities;
 
 public class MCASingleGeneralAssignmentStatementAction implements MCPAction {
 
+	private int counterId;
 	private MCPCMLExp stateDesignator;
 	private MCPCMLExp expression;
 	
 	public MCASingleGeneralAssignmentStatementAction(MCPCMLExp stateDesignator,
 			MCPCMLExp expression) {
-		super();
+		
+		this.counterId = NewCMLModelcheckerContext.ASSIGN_COUNTER++;
 		this.stateDesignator = stateDesignator;
 		this.expression = expression;
 	}
 
 	@Override
 	public String toFormula(String option) {
-		// TODO Auto-generated method stub
-		return null;
+		StringBuilder result = new StringBuilder();
+		
+		result.append("assign("+ counterId +")");
+		
+		return result.toString();
 	}
 
 	public MCPCMLExp getStateDesignator() {
@@ -36,5 +45,14 @@ public class MCASingleGeneralAssignmentStatementAction implements MCPAction {
 		this.expression = expression;
 	}
 
+	public int getCounterId() {
+		return counterId;
+	}
+
+	public void setCounterId(int counterId) {
+		this.counterId = counterId;
+	}
+
+	
 	
 }

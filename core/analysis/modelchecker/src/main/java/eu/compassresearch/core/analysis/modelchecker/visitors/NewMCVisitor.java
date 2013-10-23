@@ -46,7 +46,7 @@ public class NewMCVisitor extends
 	private NewMCEmptyVisitor emptyVisitor;
 	private NewMCExpressionVisitor expressionVisitor;
 	private NewMCProcessVisitor processVisitor;
-	//private NewMCTypeAndValueVisitor typeAndValueVisitor;
+	private NewMCTypeAndValueVisitor typeAndValueVisitor;
 
 	public NewMCVisitor(List<PSource> sources) {
 		this.sources = sources;
@@ -69,6 +69,7 @@ public class NewMCVisitor extends
 		this.declAndDefVisitor = new NewMCDeclarationAndDefinitionVisitor(this);
 		this.emptyVisitor = new NewMCEmptyVisitor();
 		this.expressionVisitor = new NewMCExpressionVisitor(this);
+		
 	}
 	
 	@Override
@@ -138,17 +139,21 @@ public class NewMCVisitor extends
 		return node.apply(this.actionVisitor, question);
 	}
 	
-	/*
 	@Override
-	public StringBuilder defaultPVarsetExpression(PVarsetExpression node,
-			CMLModelcheckerContext question) throws AnalysisException {
+	public MCNode defaultPType(PType node,
+			NewCMLModelcheckerContext question) throws AnalysisException{
 		
-		return node.apply(this.expressionVisitor, question);
+		return node.apply(this.typeAndValueVisitor, question);
 	}
 	
-
+	@Override
+	public MCNode defaultPStateDesignator(
+			PStateDesignator node, NewCMLModelcheckerContext question) throws AnalysisException
+	{
+		return node.apply(emptyVisitor, question);
+	}
 	
-
+	/*
 	@Override
 	public StringBuilder defaultPStm(PStm node,
 			CMLModelcheckerContext question) throws AnalysisException
@@ -175,19 +180,7 @@ public class NewMCVisitor extends
 		return node.apply(this.expressionVisitor, question);
 	}
 	
-	@Override
-	public StringBuilder defaultPType(PType node,
-			CMLModelcheckerContext question) throws AnalysisException
-	{
-		return node.apply(this.typeAndValueVisitor, question);
-	}
 	
-	@Override
-	public StringBuilder defaultPStateDesignator(
-			PStateDesignator node, CMLModelcheckerContext question) throws AnalysisException
-	{
-		return node.apply(emptyVisitor, question);
-	}
 	
 	public String getAnalysisName() {
 		return ANALYSIS_NAME;

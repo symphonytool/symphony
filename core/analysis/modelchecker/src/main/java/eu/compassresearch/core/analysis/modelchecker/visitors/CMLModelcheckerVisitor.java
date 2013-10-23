@@ -2306,7 +2306,7 @@ public class CMLModelcheckerVisitor extends
 		//String cml_example = "src/test/resources/minimondex.cml";
 		//String cml_example = "src/test/resources/replicated-seqcomp.cml";
 		//String cml_example = "src/test/resources/Dphils.cml";
-		String cml_example = "src/test/resources/action-not-implemented.cml";
+		String cml_example = "src/test/resources/action-guard-stateVar.cml";
 		System.out.println("Testing on " + cml_example);
 		// List<PSource> sources = new LinkedList<PSource>();
 		PSource source = Utilities.makeSourceFromFile(cml_example);

@@ -3,8 +3,8 @@ package eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Type;
-import eu.compassresearch.core.analysis.modelchecker.visitors.Utilities;
 
 
 public class BBinding implements Binding {
@@ -200,12 +200,12 @@ public class BBinding implements Binding {
 	}
 	@Override
 	public String toFormula(String option) {
-		if(option.equals(Utilities.STATE)){
-			return toFormulaWithState();
-		} else if(option.equals(Utilities.UNDERSCORE)){
+		if(option.equals(MCNode.DEFAULT)){
+			return toFormula();
+		} else if(option.equals(MCNode.GENERIC)){
 			return toFormulaWithUnderscore();
 		}
-		return toFormula();
+		return toFormulaWithState();
 	}
 
 

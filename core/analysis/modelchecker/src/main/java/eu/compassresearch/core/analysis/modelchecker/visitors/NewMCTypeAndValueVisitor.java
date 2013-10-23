@@ -17,34 +17,31 @@ import eu.compassresearch.ast.types.PCMLType;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANatNumericBasicType;
 
-public class MCTypeAndValueVisitor extends
-		QuestionAnswerCMLAdaptor<CMLModelcheckerContext, StringBuilder> {
+public class NewMCTypeAndValueVisitor extends
+		QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 
-	final private QuestionAnswerAdaptor<CMLModelcheckerContext, StringBuilder> rootVisitor;
+	final private QuestionAnswerAdaptor<NewCMLModelcheckerContext, MCNode> rootVisitor;
 	
-	public MCTypeAndValueVisitor(QuestionAnswerAdaptor<CMLModelcheckerContext, StringBuilder> parentVisitor){
+	public NewMCTypeAndValueVisitor(QuestionAnswerAdaptor<NewCMLModelcheckerContext, MCNode> parentVisitor){
 		this.rootVisitor = parentVisitor;
 	}
 	
 	//FOR THE CASE OF TYPES WHOSE VISIT METHOD IS NOT IMPLEMENTED
 	@Override
-	public StringBuilder defaultPCMLType(PCMLType node,
-			CMLModelcheckerContext question) throws AnalysisException {
+	public MCNode defaultPCMLType(PCMLType node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
 
 		throw new ModelcheckerRuntimeException(ModelcheckerErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName()));
 	}
 	
 	///// TYPES
 	@Override
-	public StringBuilder caseANatNumericBasicType(ANatNumericBasicType node,
-			CMLModelcheckerContext question) throws AnalysisException {
-		
-		question.getScriptContent().append("Natural");
-		
-		return question.getScriptContent();
+	public MCNode caseANatNumericBasicType(ANatNumericBasicType node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		return new MCANatNumericBasicType();
 	}
-	
-	
+
+	/*
 	@Override
 	public StringBuilder caseAIntNumericBasicType(AIntNumericBasicType node,
 			CMLModelcheckerContext question) throws AnalysisException {
@@ -94,19 +91,18 @@ public class MCTypeAndValueVisitor extends
 		return question.getScriptContent();
 	}
 
-
-	
+	*/
 	@Override
-	public StringBuilder createNewReturnValue(INode node,
-			CMLModelcheckerContext question) throws AnalysisException
+	public MCNode createNewReturnValue(INode node,
+			NewCMLModelcheckerContext question) throws AnalysisException
 	{
 		// TODO Auto-generated method stub
 		return null;
 	}
 	
 	@Override
-	public StringBuilder createNewReturnValue(Object node,
-			CMLModelcheckerContext question) throws AnalysisException {
+	public MCNode createNewReturnValue(Object node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
 		// TODO Auto-generated method stub
 		return null;
 	}	

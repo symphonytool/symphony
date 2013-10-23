@@ -13,8 +13,21 @@ public class MCAGreaterNumericBinaryExp extends MCNumericBinaryExp {
 
 	@Override
 	public String toFormula(String option) {
-		// TODO Auto-generated method stub
-		return null;
+		StringBuilder result = new StringBuilder();
+
+		result.append(this.getLeft().toFormula(option) + " > "+ this.getRight().toFormula(option));
+
+		return result.toString();
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		boolean result = false;
+		if(obj instanceof MCAGreaterNumericBinaryExp){
+			result = this.getLeft().equals(((MCAGreaterNumericBinaryExp) obj).getLeft())
+					&& this.getRight().equals(((MCAGreaterNumericBinaryExp) obj).getRight());
+		}
+		return result;
 	}
 
 }

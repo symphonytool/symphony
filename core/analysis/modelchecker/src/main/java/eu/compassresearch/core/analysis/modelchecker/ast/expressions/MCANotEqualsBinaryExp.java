@@ -17,4 +17,13 @@ public class MCANotEqualsBinaryExp extends MCNumericBinaryExp {
 		return result.toString();
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		boolean result = false;
+		if(obj instanceof MCANotEqualsBinaryExp){
+			result = this.getLeft().equals(((MCANotEqualsBinaryExp) obj).getLeft())
+					&& this.getRight().equals(((MCANotEqualsBinaryExp) obj).getRight());
+		}
+		return result;
+	}
 }

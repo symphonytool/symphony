@@ -13,6 +13,7 @@ import org.overture.ast.intf.lex.ILexIdentifierToken;
 
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCAssignDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCCondition;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCGuardDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCLieInFact;
@@ -29,6 +30,9 @@ import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Type;
 
 public class NewCMLModelcheckerContext {
 	
+	public static int ASSIGN_COUNTER;
+	public static int GUARD_COUNTER;
+	
 	public String propertyToCheck = Utilities.DEADLOCK_PROPERTY;
 	public NewSetStack<MCPVarsetExpression> setStack;
 	public ArrayList<MCLieInFact> lieIn;
@@ -38,6 +42,7 @@ public class NewCMLModelcheckerContext {
 	public HashMap<MCPCMLExp, MCPosGuardDef> positiveGuardDefs;
 	public HashMap<MCPCMLExp, MCNegGuardDef> negativeGuardDefs;
 	public HashMap<MCPCMLExp, MCGuardDef> guardDefs;
+	public ArrayList<MCAssignDef> assignDefs;
 	
 	protected StringBuilder basicContent = new StringBuilder(); 
 	
@@ -49,9 +54,7 @@ public class NewCMLModelcheckerContext {
 		
 	private ArrayList<String> states;
 	
-	public static int ASSIGN_COUNTER;
 	
-	public static int GUARD_COUNTER;
 	
 	public static int IOCOMM_COUNTER;
 	
@@ -125,6 +128,7 @@ public class NewCMLModelcheckerContext {
 		typeDefinitions = new LinkedList<UserTypeDefinition>();
 		channelDefinitions = new LinkedList<ChannelTypeDefinition>();
 		guardDefs = new HashMap<MCPCMLExp, MCGuardDef>();
+		assignDefs = new ArrayList<MCAssignDef>(); 
 		ASSIGN_COUNTER = 0;
 		GUARD_COUNTER = 0;
 		IOCOMM_COUNTER = 0;
@@ -153,6 +157,7 @@ public class NewCMLModelcheckerContext {
 		GUARD_COUNTER = 0;
 		IOCOMM_COUNTER = 0;
 		CHANTYPE_COUNTER = 0;
+		assignDefs = new ArrayList<MCAssignDef>();
 	}
 	
 	public NewCMLModelcheckerContext copy(){
@@ -178,6 +183,7 @@ public class NewCMLModelcheckerContext {
 		result.GUARD_COUNTER = this.GUARD_COUNTER;
 		result.IOCOMM_COUNTER = this.IOCOMM_COUNTER;
 		CHANTYPE_COUNTER = 0;
+		assignDefs = new ArrayList<MCAssignDef>(this.assignDefs);
 		
 		return result;
 	}
@@ -303,6 +309,7 @@ public class NewCMLModelcheckerContext {
 		GUARD_COUNTER = 0;
 		IOCOMM_COUNTER = 0;
 		CHANTYPE_COUNTER = 0;
+		assignDefs = new ArrayList<MCAssignDef>();
 	}
 	public void copyVarDeclarationInfo(NewCMLModelcheckerContext otherContext){
 		if(otherContext.info.containsKey(Utilities.VAR_DECLARATIONS_KEY)){

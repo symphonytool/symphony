@@ -1,22 +1,7 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.expressions;
 
-import org.overture.ast.expressions.AIntLiteralExp;
-import org.overture.ast.expressions.AVariableExp;
-import org.overture.ast.expressions.PExp;
-
-import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCCondition;
-import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCPosGuardDef;
-import eu.compassresearch.core.analysis.modelchecker.visitors.ExpressionEvaluator;
-import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
-import eu.compassresearch.core.analysis.modelchecker.visitors.NewMCExpressionEvaluator;
 
 public class MCAEqualsBinaryExp extends MCNumericBinaryExp  {
-
-	
-	public MCAEqualsBinaryExp() {
-		super();
-		// TODO Auto-generated constructor stub
-	}
 
 	
 	public MCAEqualsBinaryExp(MCPCMLExp left, MCPCMLExp right) {

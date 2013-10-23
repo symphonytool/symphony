@@ -1,6 +1,10 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.auxiliary;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAEqualsBinaryExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAGreaterEqualNumericBinaryExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAGreaterNumericBinaryExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCALessEqualNumericBinaryExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCALessNumericBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANotEqualsBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 
@@ -11,6 +15,16 @@ public class ExpressionNegator {
 		
 		if(expression instanceof MCAEqualsBinaryExp){
 			result = new MCANotEqualsBinaryExp(((MCAEqualsBinaryExp) expression).getLeft(),((MCAEqualsBinaryExp) expression).getRight());
+		} else if(expression instanceof MCAGreaterEqualNumericBinaryExp){
+			result = new MCALessNumericBinaryExp(((MCAGreaterEqualNumericBinaryExp)expression).getLeft(), ((MCAGreaterEqualNumericBinaryExp)expression).getRight());
+		} else if(expression instanceof MCALessNumericBinaryExp){
+			result = new MCAGreaterEqualNumericBinaryExp(((MCALessNumericBinaryExp)expression).getLeft(), ((MCALessNumericBinaryExp)expression).getRight());
+		} else if(expression instanceof MCANotEqualsBinaryExp){
+			result = new MCAEqualsBinaryExp(((MCANotEqualsBinaryExp) expression).getLeft(),((MCANotEqualsBinaryExp) expression).getRight());
+		} else if(expression instanceof MCALessEqualNumericBinaryExp){
+			result = new MCAGreaterNumericBinaryExp(((MCALessEqualNumericBinaryExp)expression).getLeft(), ((MCALessEqualNumericBinaryExp)expression).getRight());
+		} else if(expression instanceof MCAGreaterNumericBinaryExp){
+			result = new MCALessEqualNumericBinaryExp(((MCAGreaterNumericBinaryExp)expression).getLeft(), ((MCAGreaterNumericBinaryExp)expression).getRight());
 		}
 		
 		return result;
