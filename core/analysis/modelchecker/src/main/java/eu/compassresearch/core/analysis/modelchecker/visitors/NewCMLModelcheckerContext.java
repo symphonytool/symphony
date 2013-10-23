@@ -14,6 +14,7 @@ import org.overture.ast.intf.lex.ILexIdentifierToken;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCCondition;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCGuardDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCLieInFact;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCNegGuardDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCPosGuardDef;
@@ -36,7 +37,7 @@ public class NewCMLModelcheckerContext {
 	public Binding maximalBinding = new NullBinding();
 	public HashMap<MCPCMLExp, MCPosGuardDef> positiveGuardDefs;
 	public HashMap<MCPCMLExp, MCNegGuardDef> negativeGuardDefs;
-	
+	public HashMap<MCPCMLExp, MCGuardDef> guardDefs;
 	
 	protected StringBuilder basicContent = new StringBuilder(); 
 	
@@ -94,6 +95,18 @@ public class NewCMLModelcheckerContext {
 		return instance;
 	}
 	
+	public MCCondition getConditionByExpression(MCPCMLExp expression){
+		MCCondition result = null;
+		for (MCCondition condition : this.conditions) {
+			if(condition.getExpression().equals(expression)){
+				result = condition;
+				break;
+			}
+		}
+		
+		return result;
+	}
+	
 	public NewCMLModelcheckerContext() {
 		info = new HashMap<Object,Object>();
 		scriptContent = new StringBuilder();
@@ -111,6 +124,7 @@ public class NewCMLModelcheckerContext {
 		valueDefinitions = new LinkedList<UserDefinedValue>();
 		typeDefinitions = new LinkedList<UserTypeDefinition>();
 		channelDefinitions = new LinkedList<ChannelTypeDefinition>();
+		guardDefs = new HashMap<MCPCMLExp, MCGuardDef>();
 		ASSIGN_COUNTER = 0;
 		GUARD_COUNTER = 0;
 		IOCOMM_COUNTER = 0;
@@ -134,6 +148,7 @@ public class NewCMLModelcheckerContext {
 		valueDefinitions = new LinkedList<UserDefinedValue>();
 		typeDefinitions = new LinkedList<UserTypeDefinition>();
 		channelDefinitions = new LinkedList<ChannelTypeDefinition>();
+		guardDefs = new HashMap<MCPCMLExp, MCGuardDef>();
 		ASSIGN_COUNTER = i;
 		GUARD_COUNTER = 0;
 		IOCOMM_COUNTER = 0;
@@ -158,6 +173,7 @@ public class NewCMLModelcheckerContext {
 		result.valueDefinitions = new LinkedList<UserDefinedValue>(this.valueDefinitions);
 		result.typeDefinitions = new LinkedList<UserTypeDefinition>(this.typeDefinitions);
 		result.channelDefinitions = new LinkedList<ChannelTypeDefinition>(this.channelDefinitions);
+		guardDefs = new HashMap<MCPCMLExp, MCGuardDef>(this.guardDefs);
 		result.ASSIGN_COUNTER = this.ASSIGN_COUNTER;
 		result.GUARD_COUNTER = this.GUARD_COUNTER;
 		result.IOCOMM_COUNTER = this.IOCOMM_COUNTER;
@@ -282,6 +298,7 @@ public class NewCMLModelcheckerContext {
 		valueDefinitions = new LinkedList<UserDefinedValue>();
 		typeDefinitions = new LinkedList<UserTypeDefinition>();
 		channelDefinitions = new LinkedList<ChannelTypeDefinition>();
+		guardDefs = new HashMap<MCPCMLExp, MCGuardDef>();
 		ASSIGN_COUNTER = 0;
 		GUARD_COUNTER = 0;
 		IOCOMM_COUNTER = 0;

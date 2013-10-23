@@ -21,7 +21,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAGreaterN
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAIntLiteralExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCALessEqualNumericBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCALessNumericBinaryExp;
-import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANotEqualBinaryExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANotEqualsBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANotUnaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAVariableExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
@@ -70,7 +70,7 @@ public class NewMCExpressionEvaluator {
 		return resp;
 	}
 	
-	public static boolean evaluate(MCANotEqualBinaryExp node){
+	public static boolean evaluate(MCANotEqualsBinaryExp node){
 		boolean resp = false;
 		
 		MCPCMLExp left = node.getLeft();

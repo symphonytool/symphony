@@ -9,6 +9,8 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.expressions.SBinaryExp;
+import org.overture.ast.expressions.SSeqExp;
+import org.overture.ast.expressions.SSetExp;
 import org.overture.ast.node.INode;
 import org.overture.ast.statements.PStateDesignator;
 import org.overture.ast.types.PType;
@@ -109,7 +111,19 @@ public class NewMCVisitor extends
 		
 		return node.apply(this.declAndDefVisitor, question);
 	}
-
+	
+	@Override
+	public MCNode defaultSSeqExp(SSeqExp node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		return node.apply(this.expressionVisitor, question);
+	}
+	
+	@Override
+	public MCNode defaultSSetExp(SSetExp node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		return node.apply(this.expressionVisitor, question);
+	}
+	
 	@Override
 	public MCNode defaultPProcess(PProcess node,
 			NewCMLModelcheckerContext question) throws AnalysisException{
@@ -244,7 +258,7 @@ public class NewMCVisitor extends
 			files = folder.listFiles();
 		}
 		
-		String cml_file = "src/test/resources/action-not-implemented.cml";
+		String cml_file = "src/test/resources/action-guard.cml";
 		System.out.println("Testing on " + cml_file);
 		PSource source1 = Utilities.makeSourceFromFile(cml_file);
 		NewMCVisitor visitor1 = new NewMCVisitor(source1);

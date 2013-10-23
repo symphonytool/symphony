@@ -4,10 +4,13 @@ import java.util.LinkedList;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
+import org.overture.ast.expressions.PExp;
+import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.node.INode;
 
 import eu.compassresearch.ast.actions.PParametrisation;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
+import eu.compassresearch.ast.declarations.AExpressionSingleDeclaration;
 import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionDefinition;
@@ -17,10 +20,12 @@ import eu.compassresearch.ast.definitions.PCMLDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPParametrisation;
+import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCAExpressionSingleDeclaration;
 import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCATypeSingleDeclaration;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAActionDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAActionsDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAProcessDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.process.MCPProcess;
 
 public class NewMCDeclarationAndDefinitionVisitor extends
@@ -98,6 +103,21 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 		return result;
 	}
 	
+	@Override
+	public MCNode caseAExpressionSingleDeclaration(
+			AExpressionSingleDeclaration node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		LinkedList<String> identifiers = new LinkedList<String>();
+		LinkedList<ILexIdentifierToken> ids = node.getIdentifiers();
+		PExp expr = node.getExpression();
+		MCPCMLExp expression;
+		for(ILexIdentifierToken i : ids){
+			identifiers.add(i.toString());
+		}
+		expression = (MCPCMLExp) expr.apply(rootVisitor, question);
+		return new MCAExpressionSingleDeclaration(identifiers, expression);
+	}
+
 	/*
 	@Override
 	public StringBuilder caseAChannelsDefinition(AChannelsDefinition node,

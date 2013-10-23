@@ -15,8 +15,18 @@ public class MCAIntLiteralExp implements MCNumericExp {
 
 	@Override
 	public String toFormula(String option) {
-		// TODO Auto-generated method stub
-		return null;
+		return this.value;
+	}
+
+	
+
+	@Override
+	public boolean equals(Object obj) {
+		boolean result = false;
+		if(obj instanceof MCAIntLiteralExp){
+			result = this.value.equals(((MCAIntLiteralExp) obj).getValue());
+		}
+		return result;
 	}
 
 

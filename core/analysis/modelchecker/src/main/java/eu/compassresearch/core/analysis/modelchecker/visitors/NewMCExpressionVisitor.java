@@ -16,11 +16,13 @@ import org.overture.ast.expressions.ANotEqualBinaryExp;
 import org.overture.ast.expressions.ANotUnaryExp;
 import org.overture.ast.expressions.AOrBooleanBinaryExp;
 import org.overture.ast.expressions.APlusNumericBinaryExp;
+import org.overture.ast.expressions.ASeqEnumSeqExp;
 import org.overture.ast.expressions.ASubtractNumericBinaryExp;
 import org.overture.ast.expressions.ATimesNumericBinaryExp;
 import org.overture.ast.expressions.AVariableExp;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.node.INode;
+import org.overture.ast.types.PType;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.expressions.ABracketedExp;
@@ -29,8 +31,15 @@ import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
 import eu.compassresearch.ast.expressions.ANameChannelExp;
 import eu.compassresearch.ast.expressions.PCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCCondition;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCNegGuardDef;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCPosGuardDef;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCType;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAEnumVarsetExpression;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAEqualsBinaryExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAIntLiteralExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANameChannelExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASeqEnumSeqExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 
 public class NewMCExpressionVisitor extends
@@ -50,6 +59,7 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 		
 		throw new ModelcheckerRuntimeException(ModelcheckerErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName()));
 	}
+	
 	/*
 	@Override
 	public StringBuilder caseAPlusNumericBinaryExp(APlusNumericBinaryExp node,
@@ -94,6 +104,23 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 	*/
 	
 	@Override
+	public MCNode caseASeqEnumSeqExp(ASeqEnumSeqExp node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		LinkedList<PExp> members = node.getMembers();
+		LinkedList<MCPCMLExp> memb = new LinkedList<MCPCMLExp>();
+		LinkedList<PType> typ = node.getTypes();
+		LinkedList<MCType> types = new LinkedList<MCType>();
+		for(PExp e: members){
+			memb.add((MCPCMLExp)e.apply(this,question));
+		}
+		for(PType t: typ){
+			types.add((MCType)t.apply(this, question));
+		}
+		return new MCASeqEnumSeqExp(memb, types);
+	}
+
+
+	@Override
 	public MCNode caseAEnumVarsetExpression(AEnumVarsetExpression node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
 		LinkedList<ANameChannelExp> nameExp = node.getChannelNames();
@@ -105,6 +132,16 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 	}
 	
 	
+	@Override
+	public MCNode caseAEqualsBinaryExp(AEqualsBinaryExp node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		
+		MCPCMLExp left = (MCPCMLExp) node.getLeft().apply(this, question);
+		MCPCMLExp right = (MCPCMLExp) node.getRight().apply(this, question);
+		MCAEqualsBinaryExp result = new MCAEqualsBinaryExp(left, right);
+		
+		return result;
+	}
 	
 	/*
 	@Override
@@ -126,42 +163,7 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 		return question.getScriptContent();
 	}
 	
-	@Override
-	public StringBuilder caseAEqualsBinaryExp(AEqualsBinaryExp node,
-			CMLModelcheckerContext question) throws AnalysisException {
-		
-		PExp left = node.getLeft();
-		PExp right = node.getRight();
-		String leftValue = "";
-		String rightValue = "";
-		if(left instanceof AIntLiteralExp){
-			leftValue = ((AIntLiteralExp) left).getValue().toString();
-			if(right instanceof AIntLiteralExp){
-				rightValue = ((AIntLiteralExp) right).getValue().toString();
-				if(ExpressionEvaluator.evaluate(node)){
-				   question.positiveGuardExps.put(node, leftValue + " = " + rightValue);
-				}else{
-					question.negativeGuardExps.put(node, leftValue + " != " + rightValue);
-				}
-			}else if(right instanceof AVariableExp){
-				rightValue = ((AVariableExp) right).toString();
-				question.positiveGuardExps.put(node, leftValue + " = " + rightValue);
-				question.negativeGuardExps.put(node, leftValue + " != " + rightValue);
-			}
-		} else if (left instanceof AVariableExp){
-			leftValue = ((AVariableExp) left).toString();
-			if(right instanceof AIntLiteralExp){
-				rightValue = ((AIntLiteralExp) right).getValue().toString();
-			}else if(right instanceof AVariableExp){
-				rightValue = ((AVariableExp) right).toString();
-			}
-			question.positiveGuardExps.put(node, leftValue + " = " + rightValue);
-			question.negativeGuardExps.put(node, leftValue + " != " + rightValue);
-		}
-		
-		
-		return question.getScriptContent();
-	}
+	
 
 	@Override
 	public StringBuilder caseANotEqualBinaryExp(ANotEqualBinaryExp node,
@@ -403,16 +405,7 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 		return question.getScriptContent();
 	}
 	
-	@Override
-	public StringBuilder caseAIntLiteralExp(AIntLiteralExp node,
-			CMLModelcheckerContext question) throws AnalysisException {
-
-		question.getScriptContent().append("Int(");
-		question.getScriptContent().append(node.getValue());
-		question.getScriptContent().append(")");
-
-		return question.getScriptContent();
-	}
+	
 
 	@Override
 	public StringBuilder caseATimesNumericBinaryExp(
@@ -427,16 +420,21 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 		return question.getScriptContent();
 	}
 
-	
+	*/
 
 	@Override
-	public StringBuilder caseABracketedExp(ABracketedExp node,
-			CMLModelcheckerContext question) throws AnalysisException {
+	public MCNode caseAIntLiteralExp(AIntLiteralExp node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+
+		return new MCAIntLiteralExp(node.getValue().toString()); 
+	}
+	
+	@Override
+	public MCNode caseABracketedExp(ABracketedExp node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
 		
 		return node.getExpression().apply(this,question);
 	}
-	*/
-
 
 	@Override
 	public MCNode caseANameChannelExp(ANameChannelExp node,

@@ -27,39 +27,23 @@ public class MCAEqualsBinaryExp extends MCNumericBinaryExp  {
 
 	@Override
 	public String toFormula(String option) {
-		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 		StringBuilder result = new StringBuilder();
-		MCPCMLExp left = this.getLeft();
-		MCPCMLExp right = this.getRight();
-		String leftValue = "";
-		String rightValue = "";
-		if(left instanceof MCAIntLiteralExp){
-			leftValue = ((MCAIntLiteralExp) left).getValue().toString();
-			if(right instanceof MCAIntLiteralExp){
-				rightValue = ((MCAIntLiteralExp) right).getValue().toString();
-				if(NewMCExpressionEvaluator.evaluate(this)){
-					result.append(getLeft().toFormula(option) + " = "+getRight().toFormula(option));
-				}else{
-					result.append(getLeft().toFormula(option) + " != "+getRight().toFormula(option));
-				}
-			}else if(right instanceof MCAVariableExp){
-				rightValue = ((MCAVariableExp) right).toString();
-				result.append(leftValue + " = " + rightValue);
-				result.append(leftValue + " != " + rightValue);
-			}
-		} else if (left instanceof MCAVariableExp){
-			leftValue = ((MCAVariableExp) left).toString();
-			if(right instanceof MCAIntLiteralExp){
-				rightValue = ((MCAIntLiteralExp) right).getValue().toString();
-			}else if(right instanceof MCAVariableExp){
-				rightValue = ((MCAVariableExp) right).toString();
-			}
-			result.append(leftValue + " = " + rightValue);
-			result.append(leftValue + " != " + rightValue);
-		}
-		
-		
+
+		result.append(this.getLeft().toFormula(option) + " = "+ this.getRight().toFormula(option));
+
 		return result.toString();
 	}
 
+
+	@Override
+	public boolean equals(Object obj) {
+		boolean result = false;
+		if(obj instanceof MCAEqualsBinaryExp){
+			result = this.getLeft().equals(((MCAEqualsBinaryExp) obj).getLeft())
+					&& this.getRight().equals(((MCAEqualsBinaryExp) obj).getRight());
+		}
+		return result;
+	}
+
+	
 }

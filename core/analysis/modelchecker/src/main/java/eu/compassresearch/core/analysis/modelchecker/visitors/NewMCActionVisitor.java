@@ -55,6 +55,9 @@ import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCASkipAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAStopAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPCommunicationParameter;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.GuardDefGenerator;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCCondition;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCGuardDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCPSingleDeclaration;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCPCMLDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
@@ -431,9 +434,21 @@ public class NewMCActionVisitor extends
 	@Override
 	public MCNode caseAGuardedAction(AGuardedAction node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
+		
+		
+		
+		
 		MCPCMLExp expression = (MCPCMLExp) node.getExpression().apply(rootVisitor, question);
 		MCPAction action = (MCPAction) node.getAction().apply(this, question);
 		MCAGuardedAction result = new MCAGuardedAction(expression, action);
+		
+		LinkedList<MCGuardDef> guarDefs = GuardDefGenerator.generateGuardDefs(expression, result.getCounterId(), result);
+		
+		for (MCGuardDef mcGuardDef : guarDefs) {
+			question.guardDefs.put(expression, mcGuardDef);
+		}
+		
+		
 		
 		return result;
 	}

@@ -1,13 +1,17 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.definitions;
 
+import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Map.Entry;
 
 import org.overture.ast.analysis.AnalysisException;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCCondition;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCGuardDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCNegGuardDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCPosGuardDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCATypeSingleDeclaration;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.process.MCPProcess;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.Binding;
 import eu.compassresearch.core.analysis.modelchecker.visitors.CMLModelcheckerContext;
@@ -195,17 +199,10 @@ public class MCAProcessDefinition implements MCPCMLDefinition {
 	private void generateGuardDefinitions(StringBuilder content, String option){
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 	
-		for (MCCondition condition : context.conditions) {
-			//generating positive guards
-			MCPosGuardDef positiveGuardDef = context.positiveGuardDefs.get(condition.getExpression());
-			MCNegGuardDef negativeGuardDef = context.negativeGuardDefs.get(condition.getExpression());
-
-			if(positiveGuardDef != null) {
-				content.append(positiveGuardDef.toFormula(option));
-			}
-			if(negativeGuardDef != null){
-				content.append(negativeGuardDef.toFormula(option));
-			}
+		for (Iterator<Entry<MCPCMLExp,MCGuardDef>> iterator = context.guardDefs.entrySet().iterator(); iterator.hasNext();) {
+			Entry<MCPCMLExp,MCGuardDef> item = (Entry<MCPCMLExp,MCGuardDef>) iterator.next();
+			MCGuardDef guardDef = item.getValue();
+			content.append(guardDef.toFormula(option));
 		}
 	}
 	public LinkedList<MCATypeSingleDeclaration> getLocalState() {
