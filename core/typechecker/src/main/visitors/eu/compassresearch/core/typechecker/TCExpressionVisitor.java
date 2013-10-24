@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
+import org.overture.ast.definitions.AClassClassDefinition;
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import org.overture.ast.definitions.AImplicitFunctionDefinition;
 import org.overture.ast.definitions.APerSyncDefinition;
@@ -51,7 +52,6 @@ import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.definitions.AChannelNameDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
-import eu.compassresearch.ast.definitions.ACmlClassDefinition;
 import eu.compassresearch.ast.expressions.ABracketedExp;
 import eu.compassresearch.ast.expressions.ACompVarsetExpression;
 import eu.compassresearch.ast.expressions.AEnumVarsetExpression;
@@ -1141,7 +1141,7 @@ class TCExpressionVisitor extends
 			if (typeFound == null)
 			{
 				CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
-				typeFound = cmlEnv.lookup(typename, ACmlClassDefinition.class);
+				typeFound = cmlEnv.lookup(typename, AClassClassDefinition.class);
 			}
 
 			if (typeFound == null)

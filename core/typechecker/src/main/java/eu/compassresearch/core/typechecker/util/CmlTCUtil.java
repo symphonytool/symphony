@@ -6,6 +6,8 @@ import java.io.PrintWriter;
 import java.util.List;
 
 import org.overture.ast.assistant.InvocationAssistantException;
+import org.overture.ast.definitions.AClassClassDefinition;
+import org.overture.ast.definitions.AExplicitOperationDefinition;
 import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.definitions.PDefinition;
@@ -19,8 +21,6 @@ import org.overture.typechecker.Environment;
 import org.overture.typechecker.assistant.definition.PDefinitionAssistantTC;
 import org.overture.typechecker.assistant.pattern.PPatternAssistantTC;
 
-import eu.compassresearch.ast.definitions.ACmlClassDefinition;
-import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
 import eu.compassresearch.ast.lex.LexIdentifierToken;
 import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.ast.types.AErrorType;
@@ -183,7 +183,7 @@ public class CmlTCUtil
 	 * @return
 	 */
 	public static CmlTypeCheckInfo createCmlClassEnvironment(
-			CmlTypeCheckInfo info, ACmlClassDefinition node)
+			CmlTypeCheckInfo info, AClassClassDefinition node)
 			throws InvocationAssistantException
 	{
 
@@ -204,11 +204,11 @@ public class CmlTCUtil
 					else
 					{
 
-						if (dd instanceof AExplicitCmlOperationDefinition
+						if (dd instanceof AExplicitOperationDefinition
 								&& dd.getName().getSimpleName().equals(node.getName().getSimpleName()))
 						{
 
-							((AExplicitCmlOperationDefinition) dd).setIsConstructor(true);
+							((AExplicitOperationDefinition) dd).setIsConstructor(true);
 						}
 
 						ILexNameToken name = dd.getName();

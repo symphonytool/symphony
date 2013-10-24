@@ -5,64 +5,49 @@ import java.io.InputStream;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.intf.IQuestion;
+import org.overture.ast.statements.AActionStm;
+import org.overture.ast.statements.AAltNonDeterministicStm;
+import org.overture.ast.statements.ADoNonDeterministicStm;
+import org.overture.ast.statements.AIfNonDeterministicStm;
+import org.overture.ast.statements.ANewStm;
+import org.overture.ast.statements.AUnresolvedStateDesignator;
 import org.overture.typechecker.Environment;
 import org.overture.typechecker.assistant.ITypeCheckerAssistantFactory;
 import org.overture.typechecker.utilities.ImplicitDefinitionFinder;
 
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismReplicatedAction;
-import eu.compassresearch.ast.actions.AAssignmentCallStatementAction;
-import eu.compassresearch.ast.actions.ABlockStatementAction;
-import eu.compassresearch.ast.actions.ACallStatementAction;
-import eu.compassresearch.ast.actions.ACaseAlternativeAction;
-import eu.compassresearch.ast.actions.ACasesStatementAction;
 import eu.compassresearch.ast.actions.AChannelRenamingAction;
 import eu.compassresearch.ast.actions.AChaosAction;
 import eu.compassresearch.ast.actions.ACommonInterleavingReplicatedAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.ADeclarationInstantiatedAction;
-import eu.compassresearch.ast.actions.ADeclareStatementAction;
 import eu.compassresearch.ast.actions.ADivAction;
-import eu.compassresearch.ast.actions.AElseIfStatementAction;
 import eu.compassresearch.ast.actions.AEndDeadlineAction;
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
 import eu.compassresearch.ast.actions.AExternalChoiceReplicatedAction;
-import eu.compassresearch.ast.actions.AForIndexStatementAction;
-import eu.compassresearch.ast.actions.AForSequenceStatementAction;
-import eu.compassresearch.ast.actions.AForSetStatementAction;
 import eu.compassresearch.ast.actions.AGeneralisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AGeneralisedParallelismReplicatedAction;
 import eu.compassresearch.ast.actions.AGuardedAction;
 import eu.compassresearch.ast.actions.AHidingAction;
-import eu.compassresearch.ast.actions.AIfStatementAction;
 import eu.compassresearch.ast.actions.AInterleavingParallelAction;
 import eu.compassresearch.ast.actions.AInterleavingReplicatedAction;
 import eu.compassresearch.ast.actions.AInternalChoiceAction;
 import eu.compassresearch.ast.actions.AInternalChoiceReplicatedAction;
 import eu.compassresearch.ast.actions.AInterruptAction;
-import eu.compassresearch.ast.actions.ALetStatementAction;
 import eu.compassresearch.ast.actions.AMuAction;
-import eu.compassresearch.ast.actions.AMultipleGeneralAssignmentStatementAction;
-import eu.compassresearch.ast.actions.ANewStatementAction;
-import eu.compassresearch.ast.actions.ANonDeterministicAltStatementAction;
-import eu.compassresearch.ast.actions.ANonDeterministicDoStatementAction;
-import eu.compassresearch.ast.actions.ANonDeterministicIfStatementAction;
-import eu.compassresearch.ast.actions.ANotYetSpecifiedStatementAction;
 import eu.compassresearch.ast.actions.AParametrisedAction;
 import eu.compassresearch.ast.actions.AParametrisedInstantiatedAction;
 import eu.compassresearch.ast.actions.AReadCommunicationParameter;
 import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.actions.AResParametrisation;
-import eu.compassresearch.ast.actions.AReturnStatementAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionReplicatedAction;
 import eu.compassresearch.ast.actions.ASignalCommunicationParameter;
-import eu.compassresearch.ast.actions.ASingleGeneralAssignmentStatementAction;
 import eu.compassresearch.ast.actions.ASkipAction;
-import eu.compassresearch.ast.actions.ASpecificationStatementAction;
 import eu.compassresearch.ast.actions.AStartDeadlineAction;
+import eu.compassresearch.ast.actions.AStmAction;
 import eu.compassresearch.ast.actions.AStopAction;
-import eu.compassresearch.ast.actions.ASubclassResponsibilityAction;
 import eu.compassresearch.ast.actions.ASynchronousParallelismParallelAction;
 import eu.compassresearch.ast.actions.ASynchronousParallelismReplicatedAction;
 import eu.compassresearch.ast.actions.ATimedInterruptAction;
@@ -71,7 +56,6 @@ import eu.compassresearch.ast.actions.AUntimedTimeoutAction;
 import eu.compassresearch.ast.actions.AValParametrisation;
 import eu.compassresearch.ast.actions.AVresParametrisation;
 import eu.compassresearch.ast.actions.AWaitAction;
-import eu.compassresearch.ast.actions.AWhileStatementAction;
 import eu.compassresearch.ast.actions.AWriteCommunicationParameter;
 import eu.compassresearch.ast.analysis.intf.ICMLQuestion;
 import eu.compassresearch.ast.declarations.AExpressionSingleDeclaration;
@@ -82,10 +66,7 @@ import eu.compassresearch.ast.definitions.AChannelNameDefinition;
 import eu.compassresearch.ast.definitions.AChannelsDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.definitions.AChansetsDefinition;
-import eu.compassresearch.ast.definitions.ACmlClassDefinition;
-import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AFunctionsDefinition;
-import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AInitialDefinition;
 import eu.compassresearch.ast.definitions.ALogicalAccess;
 import eu.compassresearch.ast.definitions.ANamesetDefinition;
@@ -340,32 +321,6 @@ public abstract class AbstractCmlImplicitDefinitionFinder extends
 	@Override
 	public void caseAInitialDefinition(AInitialDefinition node,
 			Environment question) throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void caseACmlClassDefinition(ACmlClassDefinition node,
-			Environment question) throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void caseAExplicitCmlOperationDefinition(
-			AExplicitCmlOperationDefinition node, Environment question)
-			throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void caseAImplicitCmlOperationDefinition(
-			AImplicitCmlOperationDefinition node, Environment question)
-			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
 
@@ -1059,15 +1014,6 @@ public abstract class AbstractCmlImplicitDefinitionFinder extends
 	}
 
 	@Override
-	public void caseASubclassResponsibilityAction(
-			ASubclassResponsibilityAction node, Environment question)
-			throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public void caseAReferenceAction(AReferenceAction node, Environment question)
 			throws AnalysisException
 	{
@@ -1253,24 +1199,7 @@ public abstract class AbstractCmlImplicitDefinitionFinder extends
 	}
 
 	@Override
-	public void caseALetStatementAction(ALetStatementAction node,
-			Environment question) throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void caseABlockStatementAction(ABlockStatementAction node,
-			Environment question) throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void caseANonDeterministicIfStatementAction(
-			ANonDeterministicIfStatementAction node, Environment question)
+	public void caseAActionStm(AActionStm node, Environment question)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
@@ -1278,8 +1207,7 @@ public abstract class AbstractCmlImplicitDefinitionFinder extends
 	}
 
 	@Override
-	public void caseANonDeterministicAltStatementAction(
-			ANonDeterministicAltStatementAction node, Environment question)
+	public void caseAStmAction(AStmAction node, Environment question)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
@@ -1287,7 +1215,7 @@ public abstract class AbstractCmlImplicitDefinitionFinder extends
 	}
 
 	@Override
-	public void caseAIfStatementAction(AIfStatementAction node,
+	public void caseAUnresolvedStateDesignator(AUnresolvedStateDesignator node,
 			Environment question) throws AnalysisException
 	{
 		// TODO Auto-generated method stub
@@ -1295,24 +1223,7 @@ public abstract class AbstractCmlImplicitDefinitionFinder extends
 	}
 
 	@Override
-	public void caseAElseIfStatementAction(AElseIfStatementAction node,
-			Environment question) throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void caseACasesStatementAction(ACasesStatementAction node,
-			Environment question) throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void caseASpecificationStatementAction(
-			ASpecificationStatementAction node, Environment question)
+	public void caseANewStm(ANewStm node, Environment question)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
@@ -1320,7 +1231,7 @@ public abstract class AbstractCmlImplicitDefinitionFinder extends
 	}
 
 	@Override
-	public void caseACallStatementAction(ACallStatementAction node,
+	public void caseAIfNonDeterministicStm(AIfNonDeterministicStm node,
 			Environment question) throws AnalysisException
 	{
 		// TODO Auto-generated method stub
@@ -1328,16 +1239,7 @@ public abstract class AbstractCmlImplicitDefinitionFinder extends
 	}
 
 	@Override
-	public void caseAAssignmentCallStatementAction(
-			AAssignmentCallStatementAction node, Environment question)
-			throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void caseAReturnStatementAction(AReturnStatementAction node,
+	public void caseAAltNonDeterministicStm(AAltNonDeterministicStm node,
 			Environment question) throws AnalysisException
 	{
 		// TODO Auto-generated method stub
@@ -1345,96 +1247,10 @@ public abstract class AbstractCmlImplicitDefinitionFinder extends
 	}
 
 	@Override
-	public void caseANotYetSpecifiedStatementAction(
-			ANotYetSpecifiedStatementAction node, Environment question)
-			throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void caseANewStatementAction(ANewStatementAction node,
+	public void caseADoNonDeterministicStm(ADoNonDeterministicStm node,
 			Environment question) throws AnalysisException
 	{
 		// TODO Auto-generated method stub
 
 	}
-
-	@Override
-	public void caseANonDeterministicDoStatementAction(
-			ANonDeterministicDoStatementAction node, Environment question)
-			throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void caseAForSetStatementAction(AForSetStatementAction node,
-			Environment question) throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void caseAForIndexStatementAction(AForIndexStatementAction node,
-			Environment question) throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void caseAForSequenceStatementAction(
-			AForSequenceStatementAction node, Environment question)
-			throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void caseAWhileStatementAction(AWhileStatementAction node,
-			Environment question) throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void caseADeclareStatementAction(ADeclareStatementAction node,
-			Environment question) throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void caseASingleGeneralAssignmentStatementAction(
-			ASingleGeneralAssignmentStatementAction node, Environment question)
-			throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void caseAMultipleGeneralAssignmentStatementAction(
-			AMultipleGeneralAssignmentStatementAction node, Environment question)
-			throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void caseACaseAlternativeAction(ACaseAlternativeAction node,
-			Environment question) throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-
-	}
-
 }

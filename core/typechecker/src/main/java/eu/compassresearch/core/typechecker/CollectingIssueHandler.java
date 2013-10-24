@@ -1,5 +1,6 @@
 package eu.compassresearch.core.typechecker;
 
+import java.io.PrintWriter;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -120,6 +121,26 @@ class CollectingIssueHandler implements ITypeIssueHandler
 		CMLTypeWarning typeError = new CMLTypeWarning(null, warning.message);
 		typeError.setLocation(warning.location);
 		this.warnings.add(typeError);
+	}
+	
+	
+	
+	
+	
+	public  void printErrors(PrintWriter out)
+	{
+		for (CMLTypeError e: errors)
+		{
+			out.println(e.toString());
+		}
+	}
+
+	public  void printWarnings(PrintWriter out)
+	{
+		for (CMLTypeWarning w: warnings)
+		{
+			out.println(w.toString());
+		}
 	}
 
 }

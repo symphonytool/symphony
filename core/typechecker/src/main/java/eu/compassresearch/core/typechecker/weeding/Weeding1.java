@@ -55,7 +55,6 @@ public class Weeding1 extends DepthFirstAnalysisCMLAdaptor
 		flattenProductParameterType(node.getType());
 	}
 
-
 	/*
 	 * VDMPP parser adds types one by one for the outer product type. E.g. f: int * int -> int has arg-types [int,int]
 	 * rather than (int * int).
@@ -83,6 +82,10 @@ public class Weeding1 extends DepthFirstAnalysisCMLAdaptor
 			}
 
 			fnType.setParameters(types);
+			for (PType t : types)
+			{
+				t.parent(fnType);
+			}
 		}
 
 	}

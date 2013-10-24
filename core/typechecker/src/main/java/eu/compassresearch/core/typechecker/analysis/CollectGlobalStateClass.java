@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.definitions.AClassClassDefinition;
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import org.overture.ast.definitions.AImplicitFunctionDefinition;
 import org.overture.ast.definitions.APublicAccess;
@@ -20,7 +21,6 @@ import eu.compassresearch.ast.definitions.AChannelNameDefinition;
 import eu.compassresearch.ast.definitions.AChannelsDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.definitions.AChansetsDefinition;
-import eu.compassresearch.ast.definitions.ACmlClassDefinition;
 import eu.compassresearch.ast.definitions.AFunctionsDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.definitions.ATypesDefinition;
@@ -37,7 +37,8 @@ public class CollectGlobalStateClass extends AnalysisCMLAdaptor
 	private final Collection<PDefinition> members;
 	private final Collection<PDefinition> channels;
 	private final CmlTypeCheckerAssistantFactory af = new CmlTypeCheckerAssistantFactory();
-//	private ITypeIssueHandler issueHandler;
+
+	// private ITypeIssueHandler issueHandler;
 
 	public static class GlobalDefinitions
 	{
@@ -101,21 +102,21 @@ public class CollectGlobalStateClass extends AnalysisCMLAdaptor
 	{
 		this.members = members;
 		this.channels = channels;
-//		this.issueHandler = issueHandler;
+		// this.issueHandler = issueHandler;
 	}
 
 	@Override
-	public void caseACmlClassDefinition(ACmlClassDefinition node)
+	public void caseAClassClassDefinition(AClassClassDefinition node)
 			throws AnalysisException
 	{
 		// this will generate all the pre and post defs for functions
-		SClassDefinitionAssistantTC.implicitDefinitions(node, new PublicClassEnvironment(af, null));// FIXME last
+//		SClassDefinitionAssistantTC.implicitDefinitions(node, new PublicClassEnvironment(af, null));// FIXME last
 																									// argument is wrong
 		/*
 		 * Overture sets the invariant field on a CmlClassDefinition. This field is not used in CML because it uses the
 		 * ExplicitCmlOperationDefinition instead of the ExplicitOperationDefinition in VDM. So we reset it to null
 		 */
-		node.setInvariant(null);
+//		node.setInvariant(null);
 		members.add(node);
 	}
 
@@ -150,6 +151,11 @@ public class CollectGlobalStateClass extends AnalysisCMLAdaptor
 			throws AnalysisException
 	{
 		List<PDefinition> defs = TCDeclAndDefVisitor.handleDefinitionsForOverture(node);
+		
+		for (PDefinition d : defs)
+		{
+			d.getAccess().setAccess(new APublicAccess());
+		}
 		members.addAll(defs);
 	}
 
@@ -162,33 +168,35 @@ public class CollectGlobalStateClass extends AnalysisCMLAdaptor
 
 		for (PDefinition fdef : defs)
 		{
-
-			PDefinition predef = null;
-			// PDefinition postdef = null;
-			if (fdef instanceof AExplicitFunctionDefinition)
-			{
-				// this will generate all the pre and post defs
-				AExplicitFunctionDefinitionAssistantTC.implicitDefinitions((AExplicitFunctionDefinition) fdef, null);
-				predef = ((AExplicitFunctionDefinition) fdef).getPredef();
-				// postdef = ((AExplicitFunctionDefinition) fdef).getPostdef();
-			}
-
-			if (fdef instanceof AImplicitFunctionDefinition)
-			{
-				// this will generate all the pre and post defs
-				// AImplicitFunctionDefinitionAssistantTC.implicitDefinitions((AImplicitFunctionDefinition) fdef, null);
-				fdef.apply(af.getImplicitDefinitionFinder(), null);
-
-				predef = ((AImplicitFunctionDefinition) fdef).getPredef();
-				// postdef = ((AImplicitFunctionDefinition) fdef).getPostdef();
-			}
-
-			if (predef != null)
-				members.addAll(TCDeclAndDefVisitor.handleDefinitionsForOverture(predef));
-			// if (postdef != null)
-			// members.addAll(TCDeclAndDefVisitor.handleDefinitionsForOverture(postdef));
-
+			fdef.getAccess().setAccess(new APublicAccess());
 		}
+//
+//			PDefinition predef = null;
+//			// PDefinition postdef = null;
+//			if (fdef instanceof AExplicitFunctionDefinition)
+//			{
+//				// this will generate all the pre and post defs
+//				AExplicitFunctionDefinitionAssistantTC.implicitDefinitions((AExplicitFunctionDefinition) fdef, null);
+//				predef = ((AExplicitFunctionDefinition) fdef).getPredef();
+//				// postdef = ((AExplicitFunctionDefinition) fdef).getPostdef();
+//			}
+//
+//			if (fdef instanceof AImplicitFunctionDefinition)
+//			{
+//				// this will generate all the pre and post defs
+//				// AImplicitFunctionDefinitionAssistantTC.implicitDefinitions((AImplicitFunctionDefinition) fdef, null);
+//				fdef.apply(af.getImplicitDefinitionFinder(), null);
+//
+//				predef = ((AImplicitFunctionDefinition) fdef).getPredef();
+//				// postdef = ((AImplicitFunctionDefinition) fdef).getPostdef();
+//			}
+//
+//			if (predef != null)
+//				members.addAll(TCDeclAndDefVisitor.handleDefinitionsForOverture(predef));
+//			// if (postdef != null)
+//			// members.addAll(TCDeclAndDefVisitor.handleDefinitionsForOverture(postdef));
+//
+//		}
 
 		members.addAll(defs);
 	}

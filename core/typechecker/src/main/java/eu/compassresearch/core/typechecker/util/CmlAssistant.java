@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.overture.ast.definitions.AAssignmentDefinition;
+import org.overture.ast.definitions.AClassClassDefinition;
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import org.overture.ast.definitions.AExternalDefinition;
 import org.overture.ast.definitions.AImplicitFunctionDefinition;
@@ -14,6 +15,7 @@ import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.definitions.SOperationDefinition;
 import org.overture.ast.factory.AstFactory;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.intf.lex.ILexNameToken;
@@ -32,11 +34,9 @@ import org.overture.typechecker.assistant.type.ARecordInvariantTypeAssistantTC;
 import org.overture.typechecker.util.HelpLexNameToken;
 
 import eu.compassresearch.ast.definitions.AActionsDefinition;
-import eu.compassresearch.ast.definitions.ACmlClassDefinition;
 import eu.compassresearch.ast.definitions.AFunctionsDefinition;
 import eu.compassresearch.ast.definitions.AOperationsDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
-import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
 import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.ast.process.PProcess;
@@ -386,7 +386,7 @@ public class CmlAssistant
 					&& LexNameTokenAssistent.isEqual(def.getName(), name))
 				return def;
 
-			ACmlClassDefinition cpar = ACmlClassDefinition.class.cast(def);
+			AClassClassDefinition cpar = AClassClassDefinition.class.cast(def);
 
 			PDefinition res = SClassDefinitionAssistantTC.findName(cpar, (LexNameToken) name, NameScope.NAMESANDANYSTATE);
 
@@ -399,10 +399,10 @@ public class CmlAssistant
 				// invariant: all elements before d is not the one we are
 				// looking for
 
-				if (d instanceof SCmlOperationDefinition)
+				if (d instanceof SOperationDefinition)
 				{
-					List<SCmlOperationDefinition> ops = new LinkedList<SCmlOperationDefinition>();
-					ops.add((SCmlOperationDefinition) d);
+					List<SOperationDefinition> ops = new LinkedList<SOperationDefinition>();
+					ops.add((SOperationDefinition) d);
 					d = new AOperationsDefinition(d.getLocation(), d.getNameScope(), true, d.getAccess(), d.getPass(), ops);
 				} else if (d instanceof AAssignmentDefinition)
 				{
@@ -424,7 +424,7 @@ public class CmlAssistant
 		@Override
 		public Class<?> getType()
 		{
-			return ACmlClassDefinition.class;
+			return AClassClassDefinition.class;
 		}
 	}
 

@@ -16,7 +16,6 @@ import org.overture.ast.types.PType;
 import org.overture.typechecker.TypeCheckInfo;
 
 import eu.compassresearch.ast.actions.PAction;
-import eu.compassresearch.ast.actions.PAlternativeAction;
 import eu.compassresearch.ast.actions.PCommunicationParameter;
 import eu.compassresearch.ast.actions.PParametrisation;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
@@ -95,12 +94,12 @@ class CmlRootVisitor extends
 
 	}
 
-	@Override
-	public PType defaultPAlternativeAction(PAlternativeAction node,
-			TypeCheckInfo question) throws AnalysisException
-	{
-		return addErrorForMissingType(node, node.apply(this.act, question));
-	}
+	// @Override
+	// public PType defaultPAlternativeAction(PAlternativeAction node,
+	// TypeCheckInfo question) throws AnalysisException
+	// {
+	// return addErrorForMissingType(node, node.apply(this.act, question));
+	// }
 
 	@Override
 	public PType defaultPMultipleBind(PMultipleBind node, TypeCheckInfo question)

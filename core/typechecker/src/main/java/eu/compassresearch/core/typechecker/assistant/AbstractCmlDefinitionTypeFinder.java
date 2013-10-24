@@ -4,64 +4,49 @@ import java.io.File;
 import java.io.InputStream;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.statements.AActionStm;
+import org.overture.ast.statements.AAltNonDeterministicStm;
+import org.overture.ast.statements.ADoNonDeterministicStm;
+import org.overture.ast.statements.AIfNonDeterministicStm;
+import org.overture.ast.statements.ANewStm;
+import org.overture.ast.statements.AUnresolvedStateDesignator;
 import org.overture.ast.types.PType;
 import org.overture.typechecker.assistant.ITypeCheckerAssistantFactory;
 import org.overture.typechecker.utilities.DefinitionTypeFinder;
 
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismReplicatedAction;
-import eu.compassresearch.ast.actions.AAssignmentCallStatementAction;
-import eu.compassresearch.ast.actions.ABlockStatementAction;
-import eu.compassresearch.ast.actions.ACallStatementAction;
-import eu.compassresearch.ast.actions.ACaseAlternativeAction;
-import eu.compassresearch.ast.actions.ACasesStatementAction;
 import eu.compassresearch.ast.actions.AChannelRenamingAction;
 import eu.compassresearch.ast.actions.AChaosAction;
 import eu.compassresearch.ast.actions.ACommonInterleavingReplicatedAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.ADeclarationInstantiatedAction;
-import eu.compassresearch.ast.actions.ADeclareStatementAction;
 import eu.compassresearch.ast.actions.ADivAction;
-import eu.compassresearch.ast.actions.AElseIfStatementAction;
 import eu.compassresearch.ast.actions.AEndDeadlineAction;
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
 import eu.compassresearch.ast.actions.AExternalChoiceReplicatedAction;
-import eu.compassresearch.ast.actions.AForIndexStatementAction;
-import eu.compassresearch.ast.actions.AForSequenceStatementAction;
-import eu.compassresearch.ast.actions.AForSetStatementAction;
 import eu.compassresearch.ast.actions.AGeneralisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AGeneralisedParallelismReplicatedAction;
 import eu.compassresearch.ast.actions.AGuardedAction;
 import eu.compassresearch.ast.actions.AHidingAction;
-import eu.compassresearch.ast.actions.AIfStatementAction;
 import eu.compassresearch.ast.actions.AInterleavingParallelAction;
 import eu.compassresearch.ast.actions.AInterleavingReplicatedAction;
 import eu.compassresearch.ast.actions.AInternalChoiceAction;
 import eu.compassresearch.ast.actions.AInternalChoiceReplicatedAction;
 import eu.compassresearch.ast.actions.AInterruptAction;
-import eu.compassresearch.ast.actions.ALetStatementAction;
 import eu.compassresearch.ast.actions.AMuAction;
-import eu.compassresearch.ast.actions.AMultipleGeneralAssignmentStatementAction;
-import eu.compassresearch.ast.actions.ANewStatementAction;
-import eu.compassresearch.ast.actions.ANonDeterministicAltStatementAction;
-import eu.compassresearch.ast.actions.ANonDeterministicDoStatementAction;
-import eu.compassresearch.ast.actions.ANonDeterministicIfStatementAction;
-import eu.compassresearch.ast.actions.ANotYetSpecifiedStatementAction;
 import eu.compassresearch.ast.actions.AParametrisedAction;
 import eu.compassresearch.ast.actions.AParametrisedInstantiatedAction;
 import eu.compassresearch.ast.actions.AReadCommunicationParameter;
 import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.actions.AResParametrisation;
-import eu.compassresearch.ast.actions.AReturnStatementAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionReplicatedAction;
 import eu.compassresearch.ast.actions.ASignalCommunicationParameter;
-import eu.compassresearch.ast.actions.ASingleGeneralAssignmentStatementAction;
 import eu.compassresearch.ast.actions.ASkipAction;
-import eu.compassresearch.ast.actions.ASpecificationStatementAction;
 import eu.compassresearch.ast.actions.AStartDeadlineAction;
+import eu.compassresearch.ast.actions.AStmAction;
 import eu.compassresearch.ast.actions.AStopAction;
-import eu.compassresearch.ast.actions.ASubclassResponsibilityAction;
 import eu.compassresearch.ast.actions.ASynchronousParallelismParallelAction;
 import eu.compassresearch.ast.actions.ASynchronousParallelismReplicatedAction;
 import eu.compassresearch.ast.actions.ATimedInterruptAction;
@@ -70,7 +55,6 @@ import eu.compassresearch.ast.actions.AUntimedTimeoutAction;
 import eu.compassresearch.ast.actions.AValParametrisation;
 import eu.compassresearch.ast.actions.AVresParametrisation;
 import eu.compassresearch.ast.actions.AWaitAction;
-import eu.compassresearch.ast.actions.AWhileStatementAction;
 import eu.compassresearch.ast.actions.AWriteCommunicationParameter;
 import eu.compassresearch.ast.analysis.intf.ICMLAnswer;
 import eu.compassresearch.ast.declarations.AExpressionSingleDeclaration;
@@ -81,10 +65,7 @@ import eu.compassresearch.ast.definitions.AChannelNameDefinition;
 import eu.compassresearch.ast.definitions.AChannelsDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.definitions.AChansetsDefinition;
-import eu.compassresearch.ast.definitions.ACmlClassDefinition;
-import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AFunctionsDefinition;
-import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AInitialDefinition;
 import eu.compassresearch.ast.definitions.ALogicalAccess;
 import eu.compassresearch.ast.definitions.ANamesetDefinition;
@@ -334,30 +315,6 @@ public abstract class AbstractCmlDefinitionTypeFinder extends
 	@Override
 	public PType caseAInitialDefinition(AInitialDefinition node)
 			throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public PType caseACmlClassDefinition(ACmlClassDefinition node)
-			throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public PType caseAExplicitCmlOperationDefinition(
-			AExplicitCmlOperationDefinition node) throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public PType caseAImplicitCmlOperationDefinition(
-			AImplicitCmlOperationDefinition node) throws AnalysisException
 	{
 		// TODO Auto-generated method stub
 		return null;
@@ -1021,14 +978,6 @@ public abstract class AbstractCmlDefinitionTypeFinder extends
 	}
 
 	@Override
-	public PType caseASubclassResponsibilityAction(
-			ASubclassResponsibilityAction node) throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public PType caseAReferenceAction(AReferenceAction node)
 			throws AnalysisException
 	{
@@ -1204,7 +1153,14 @@ public abstract class AbstractCmlDefinitionTypeFinder extends
 	}
 
 	@Override
-	public PType caseALetStatementAction(ALetStatementAction node)
+	public PType caseAStmAction(AStmAction node) throws AnalysisException
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public PType caseAUnresolvedStateDesignator(AUnresolvedStateDesignator node)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
@@ -1212,7 +1168,21 @@ public abstract class AbstractCmlDefinitionTypeFinder extends
 	}
 
 	@Override
-	public PType caseABlockStatementAction(ABlockStatementAction node)
+	public PType caseAActionStm(AActionStm node) throws AnalysisException
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public PType caseANewStm(ANewStm node) throws AnalysisException
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public PType caseAIfNonDeterministicStm(AIfNonDeterministicStm node)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
@@ -1220,23 +1190,7 @@ public abstract class AbstractCmlDefinitionTypeFinder extends
 	}
 
 	@Override
-	public PType caseANonDeterministicIfStatementAction(
-			ANonDeterministicIfStatementAction node) throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public PType caseANonDeterministicAltStatementAction(
-			ANonDeterministicAltStatementAction node) throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public PType caseAIfStatementAction(AIfStatementAction node)
+	public PType caseAAltNonDeterministicStm(AAltNonDeterministicStm node)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
@@ -1244,137 +1198,7 @@ public abstract class AbstractCmlDefinitionTypeFinder extends
 	}
 
 	@Override
-	public PType caseAElseIfStatementAction(AElseIfStatementAction node)
-			throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public PType caseACasesStatementAction(ACasesStatementAction node)
-			throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public PType caseASpecificationStatementAction(
-			ASpecificationStatementAction node) throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public PType caseACallStatementAction(ACallStatementAction node)
-			throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public PType caseAAssignmentCallStatementAction(
-			AAssignmentCallStatementAction node) throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public PType caseAReturnStatementAction(AReturnStatementAction node)
-			throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public PType caseANotYetSpecifiedStatementAction(
-			ANotYetSpecifiedStatementAction node) throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public PType caseANewStatementAction(ANewStatementAction node)
-			throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public PType caseANonDeterministicDoStatementAction(
-			ANonDeterministicDoStatementAction node) throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public PType caseAForSetStatementAction(AForSetStatementAction node)
-			throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public PType caseAForIndexStatementAction(AForIndexStatementAction node)
-			throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public PType caseAForSequenceStatementAction(
-			AForSequenceStatementAction node) throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public PType caseAWhileStatementAction(AWhileStatementAction node)
-			throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public PType caseADeclareStatementAction(ADeclareStatementAction node)
-			throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public PType caseASingleGeneralAssignmentStatementAction(
-			ASingleGeneralAssignmentStatementAction node)
-			throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public PType caseAMultipleGeneralAssignmentStatementAction(
-			AMultipleGeneralAssignmentStatementAction node)
-			throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public PType caseACaseAlternativeAction(ACaseAlternativeAction node)
+	public PType caseADoNonDeterministicStm(ADoNonDeterministicStm node)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub

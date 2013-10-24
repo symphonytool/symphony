@@ -1,5 +1,6 @@
 package eu.compassresearch.core.typechecker.api;
 
+import java.io.PrintWriter;
 import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
@@ -28,6 +29,14 @@ public interface ITypeIssueHandler extends IStatusListener
 	{
 		protected final INode reportedAt;
 		private ILexLocation location;
+		final protected String description;
+
+		public String getDescription()
+		{
+			return description;
+		}
+
+		public abstract String getMessage();
 
 		/**
 		 * Return the node that generated this error.
@@ -39,16 +48,18 @@ public interface ITypeIssueHandler extends IStatusListener
 			return reportedAt;
 		}
 
-		public CMLIssue(INode reportedAt)
+		public CMLIssue(INode reportedAt, String description)
 		{
 			this.reportedAt = reportedAt;
+			this.description = description;
 			setFromNode();
 		}
 
-		public CMLIssue(LexLocation location)
+		public CMLIssue(LexLocation location, String description)
 		{
 			reportedAt = null;
 			this.location = location;
+			this.description = description;
 		}
 
 		// temporary method goes away when astCreator is updated. ( INode should
@@ -77,6 +88,12 @@ public interface ITypeIssueHandler extends IStatusListener
 				}
 			}
 		}
+
+		@Override
+		public String toString()
+		{
+			return String.format("%s %s", getDescription(), getLocation());
+		}
 	}
 
 	/**
@@ -87,24 +104,28 @@ public interface ITypeIssueHandler extends IStatusListener
 	 */
 	public static class CMLTypeWarning extends CMLIssue
 	{
-		protected final String description;
-
-		public String getDescription()
-		{
-			return description;
-		}
 
 		public CMLTypeWarning(INode subtree, String description)
 		{
-			super(subtree);
-			this.description = description;
+			super(subtree, description);
 		}
 
 		@Override
 		public String toString()
 		{
-			ILexLocation location = super.getLocation();
-			return "TypeWarning: " + location + " : " + description;
+			StringBuilder sb = new StringBuilder();
+			sb.append("Warning ");
+			sb.append(super.toString());
+
+			
+
+			return sb.toString();
+		}
+
+		@Override
+		public String getMessage()
+		{
+			return description;
 		}
 
 	}
@@ -121,7 +142,7 @@ public interface ITypeIssueHandler extends IStatusListener
 	{
 
 		private StackTraceElement[] stackTrace;
-		private String description;
+
 		private VDMError error;
 
 		private void buildStack()
@@ -131,22 +152,38 @@ public interface ITypeIssueHandler extends IStatusListener
 
 		public CMLTypeError(INode subtree, String description)
 		{
-			super(subtree);
-			this.description = description;
+			super(subtree, description);
 			buildStack();
 		}
 
 		public CMLTypeError(INode subtree, VDMError error)
 		{
-			super(subtree);
+			super(subtree, null);
 			this.error = error;
 			buildStack();
 		}
 
+		// @Override
+		// public String toString()
+		// {
+		// return String.format("%s %s", getDescription(), getLocation());
+		// }
+
 		@Override
 		public String toString()
 		{
-			return String.format("%s %s", getDescription(), getLocation());
+			StringBuilder sb = new StringBuilder();
+
+			if (error != null)
+			{
+				sb.append(error.toString());
+			} else
+			{
+				sb.append("Error ");
+				sb.append(super.toString());
+			}
+
+			return sb.toString();
 		}
 
 		public String getStackTrace()
@@ -203,6 +240,12 @@ public interface ITypeIssueHandler extends IStatusListener
 			int descriptionHash = description == null ? 0
 					: description.hashCode();
 			return subtreeHash + descriptionHash;
+		}
+
+		@Override
+		public String getMessage()
+		{
+			return (error != null ? error.message : description);
 		}
 
 	}
@@ -268,4 +311,7 @@ public interface ITypeIssueHandler extends IStatusListener
 	 * @return
 	 */
 	public boolean hasIssues();
+	
+	public  void printErrors(PrintWriter out);
+	public  void printWarnings(PrintWriter out);
 }

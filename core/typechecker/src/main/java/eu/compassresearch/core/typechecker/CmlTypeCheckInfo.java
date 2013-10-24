@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.overture.ast.definitions.AExplicitOperationDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.definitions.SClassDefinition;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
@@ -22,7 +23,6 @@ import org.overture.typechecker.util.HelpLexNameToken;
 
 import eu.compassresearch.ast.definitions.AChannelNameDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
-import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
 import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.core.typechecker.api.ITypeCheckQuestion;
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
@@ -323,9 +323,9 @@ public class CmlTypeCheckInfo extends TypeCheckInfo implements
 			FlatEnvironment fenv = (FlatEnvironment) env;
 			PDefinition d = lookupCurrentScope(ident);
 
-			if (variable instanceof AExplicitCmlOperationDefinition)
+			if (variable instanceof AExplicitOperationDefinition)
 			{
-				isConstructor = ((AExplicitCmlOperationDefinition) variable).getIsConstructor();
+				isConstructor = ((AExplicitOperationDefinition) variable).getIsConstructor();
 			}
 
 			if (d != null && !isConstructor
