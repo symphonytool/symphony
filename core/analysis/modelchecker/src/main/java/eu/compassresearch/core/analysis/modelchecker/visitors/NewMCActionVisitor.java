@@ -460,7 +460,13 @@ public class NewMCActionVisitor extends
 		MCPAction thenStmt = (MCPAction) node.getThenStm().apply(this, question);
 		MCPAction elseStmt = (MCPAction) node.getElseStm().apply(this, question);
 		MCAIfStatementAction result = new MCAIfStatementAction(expression,thenStmt,elseStmt);
+
+		LinkedList<MCGuardDef> guarDefs = GuardDefGenerator.generateGuardDefs(expression, result.getCounterId(), result);
 		
+		for (MCGuardDef mcGuardDef : guarDefs) {
+			question.guardDefs.put(expression, mcGuardDef);
+		}
+
 		return result;
 
 		

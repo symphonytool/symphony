@@ -18,6 +18,7 @@ import org.overture.ast.expressions.ANotUnaryExp;
 import org.overture.ast.expressions.AOrBooleanBinaryExp;
 import org.overture.ast.expressions.APlusNumericBinaryExp;
 import org.overture.ast.expressions.ASeqEnumSeqExp;
+import org.overture.ast.expressions.ASetEnumSetExp;
 import org.overture.ast.expressions.ASubtractNumericBinaryExp;
 import org.overture.ast.expressions.ATimesNumericBinaryExp;
 import org.overture.ast.expressions.AVariableExp;
@@ -47,6 +48,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCALessNume
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANameChannelExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANotEqualsBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASeqEnumSeqExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASetEnumSetExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 
 public class NewMCExpressionVisitor extends
@@ -124,6 +126,17 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 			types.add((MCType)t.apply(this, question));
 		}
 		return new MCASeqEnumSeqExp(memb, types);
+	}
+	
+	@Override
+	public MCNode caseASetEnumSetExp(ASetEnumSetExp node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		LinkedList<PExp> memb = node.getMembers();
+		LinkedList<MCPCMLExp> members = new LinkedList<MCPCMLExp>();
+		for(PExp e: memb){
+			members.add((MCPCMLExp)e.apply(this,question));
+		}		
+		return new MCASetEnumSetExp(members);
 	}
 
 

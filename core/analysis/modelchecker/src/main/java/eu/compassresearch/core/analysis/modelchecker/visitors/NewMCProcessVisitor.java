@@ -22,10 +22,14 @@ import org.overture.ast.types.PType;
 
 import eu.compassresearch.ast.actions.AGeneralisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AGeneralisedParallelismReplicatedAction;
+import eu.compassresearch.ast.actions.AHidingAction;
+import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.actions.ASingleGeneralAssignmentStatementAction;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
+import eu.compassresearch.ast.definitions.AActionDefinition;
+import eu.compassresearch.ast.definitions.AActionsDefinition;
 import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
@@ -36,6 +40,7 @@ import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCPCMLDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPVarsetExpression;
 import eu.compassresearch.core.analysis.modelchecker.ast.process.MCAActionProcess;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.Binding;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Int;
@@ -55,7 +60,15 @@ public class NewMCProcessVisitor extends
 	public MCNode caseAActionProcess(AActionProcess node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
 		
-		
+		/*PAction mainAction = node.getAction();
+		if(mainAction instanceof AReferenceAction){
+			mainAction = findRealAction(node,(AReferenceAction) mainAction);
+		}
+		if(mainAction instanceof AHidingAction){
+			PVarsetExpression chanSet = ((AHidingAction) mainAction).getChansetExpression();
+			question.setStack.add((MCPVarsetExpression) chanSet.apply(rootVisitor, question));
+		}
+		*/
 		// it applies to each definition of this action process
 		LinkedList<MCPCMLDefinition> mcDefinitionParagraphs = new LinkedList<MCPCMLDefinition>(); 
 		for (PDefinition definition : node.getDefinitionParagraphs()) {
@@ -69,6 +82,27 @@ public class NewMCProcessVisitor extends
 		
 		
 	}
+	private PAction findRealAction(AActionProcess node,AReferenceAction action){
+		PAction result = null;
+		boolean found = false; 
+		for (PDefinition definition : node.getDefinitionParagraphs()) {
+			if(definition instanceof AActionsDefinition){
+				for (AActionDefinition actionDef : ((AActionsDefinition) definition).getActions()) {
+					if(actionDef.getName().toString().equals(action.getName().toString())){
+						result = actionDef.getAction();
+						found = true;
+						break;
+					}
+				}
+				if(found){
+					break;
+				}
+				
+			}
+		}
+		return result;
+	}
+	
 	@Override
 	public MCNode createNewReturnValue(INode node,
 			NewCMLModelcheckerContext question) throws AnalysisException

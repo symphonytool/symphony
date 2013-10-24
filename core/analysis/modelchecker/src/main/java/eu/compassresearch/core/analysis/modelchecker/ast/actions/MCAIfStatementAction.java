@@ -1,5 +1,6 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.actions;
 
+import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCCondition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.visitors.CMLModelcheckerContext;
@@ -33,18 +34,28 @@ public class MCAIfStatementAction implements MCPAction {
 		result.append("condChoice(");
 		
 		// it writes the condition as an integer and puts the expression
-		//to be evaluated in the context
 		result.append(this.counterId + ",");
-		
-		MCCondition newCondition = new MCCondition(this,this.ifExp,this.counterId);
-		if(!context.conditions.contains(newCondition)){
-			context.conditions.add(newCondition);
-		}
 
-		// it writes the behaviour in the if-true branch
-		result.append(this.thenStm.toFormula(option));
-		result.append(",");
-		result.append(this.elseStm.toFormula(option));
+		switch (option) {
+		case MCNode.DEFAULT:
+			// it writes the behaviour in the if-true branch
+			result.append(this.thenStm.toFormula(option));
+			result.append(",");
+			result.append(this.elseStm.toFormula(option));
+			
+			break;
+
+		case MCNode.GENERIC:
+			// it writes the behaviour in the if-true branch generically
+			result.append("_");
+			result.append(",");
+			result.append("_");
+			
+			break;
+		default:
+			break;
+		}
+		
 		result.append(")");
 		
 		return result.toString();

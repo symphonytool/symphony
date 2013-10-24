@@ -40,6 +40,7 @@ public class MCACommunicationAction implements MCPAction {
 	public String toFormula(String option) {
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 		StringBuilder result = new StringBuilder();
+		int i = 0;
 		if(this.communicationParameters.size() == 0){
 			result.append("Prefix(CommEv(\"" + this.identifier + "\",\"\", void),");
 			result.append(this.action.toFormula(option));
@@ -50,7 +51,7 @@ public class MCACommunicationAction implements MCPAction {
 			while(!chanSetStack.isEmpty()){
 				MCPVarsetExpression setExp = (MCPVarsetExpression)chanSetStack.pop();
 				LinkedList<MCANameChannelExp> chanNames = null;
-				if(setExp instanceof AEnumVarsetExpression){
+				if(setExp instanceof MCAEnumVarsetExpression){
 					chanNames = ((MCAEnumVarsetExpression) setExp).getChannelNames();
 				}
 				if(setExp instanceof MCAFatEnumVarsetExpression){

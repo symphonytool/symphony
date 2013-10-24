@@ -4,6 +4,7 @@ import java.util.LinkedList;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCAExpressionSingleDeclaration;
 import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCPSingleDeclaration;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASeqEnumSeqExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASetEnumSetExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
@@ -26,6 +27,8 @@ public class MCAExternalChoiceReplicatedAction extends MCSReplicatedActionBase {
 			MCPCMLExp pExp = ((MCAExpressionSingleDeclaration) sDecl).getExpression();
 			if (pExp instanceof MCASetEnumSetExp) {
 				indexes = ((MCASetEnumSetExp) pExp).getMembers();
+			} else if(pExp instanceof MCASeqEnumSeqExp){
+				indexes = ((MCASeqEnumSeqExp) pExp).getMembers();
 			}
 		}
 		
