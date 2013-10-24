@@ -1,0 +1,15 @@
+/*Check for FatEnumVarsetExpression*/
+
+channels
+
+ c:int*int
+
+process
+
+ A =
+
+begin
+
+ @ c.(1).(1) -> Skip [| {|c|} |] c.(1).(1) -> Skip
+
+end

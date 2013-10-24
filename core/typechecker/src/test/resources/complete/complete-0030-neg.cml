@@ -1,0 +1,17 @@
+class
+
+ T =
+
+begin
+
+
+
+state
+
+ a : int
+
+functions
+
+ f:int * int -> int f(x,y) == a + x + y
+
+end

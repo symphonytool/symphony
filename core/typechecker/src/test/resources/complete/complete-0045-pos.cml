@@ -1,0 +1,35 @@
+/*test case for bug http://sourceforge.net/p/compassresearch/tickets/12/*/
+
+channels
+
+ a : int
+
+class
+
+ A =
+
+begin
+
+
+
+state
+
+ hello : int := 4
+
+operations
+
+ A : () ==> A A() == Skip getHello : () ==> int getHello() == return hello
+
+end
+
+
+
+process
+
+ Test =
+
+begin
+
+ @ (dcl v : A, out : int @ v := new A(); out := v.getHello();a.(out) -> Skip)
+
+end

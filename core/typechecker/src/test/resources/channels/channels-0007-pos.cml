@@ -1,0 +1,19 @@
+/*This test checks that an explicit operation body of type nat1 can be declared to return int.*/
+
+channels
+
+ a, b
+
+process
+
+ A =
+
+begin
+
+
+
+functions
+
+ test : int +> int test(x) == 2 @ a -> Skip
+
+end

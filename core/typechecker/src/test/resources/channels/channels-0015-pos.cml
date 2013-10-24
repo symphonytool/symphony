@@ -1,0 +1,19 @@
+types
+
+ private Day = nat t = nat * nat
+
+channels
+
+ d,book: (Day * Day * nat)
+
+process
+
+ hotel2spec =
+
+begin
+
+
+
+actions
+
+ HOTEL = book?mk_(s,e,n) -> Skip @ Skip	end

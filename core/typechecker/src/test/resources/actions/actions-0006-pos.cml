@@ -1,0 +1,15 @@
+/*Lexical forward reference to action*/
+
+process
+
+ P =
+
+begin
+
+
+
+actions
+
+ A = B B = Skip @ A
+
+end

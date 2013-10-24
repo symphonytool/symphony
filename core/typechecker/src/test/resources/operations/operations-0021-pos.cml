@@ -1,0 +1,43 @@
+
+
+class
+
+ A =
+
+begin
+
+
+
+operations
+
+//simple
+ op1: () ==> bool 
+ op1() == Skip ; return true
+ 
+ 
+ //let with extra block statement in statement list and 3 warnings
+ op2: () ==> bool 
+ op2() == 
+ 	Skip;
+  	Skip; 
+ 	Skip; 
+  	let h=3+5 in (return false;Skip;Skip)
+  	
+  	
+ //ok with return in the end
+ op3: () ==> bool 
+ op3() == 
+ 	Skip;
+  	Skip; 
+ 	Skip; 
+  	let h=3+5 in (Skip;Skip); return true
+ 
+ 	
+ 	
+ 	
+ 	
+ 	
+ 	
+
+
+end

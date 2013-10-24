@@ -1,0 +1,1 @@
+class A = begin operations f: () == f() == (return (10)) end 

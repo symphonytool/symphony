@@ -1,0 +1,25 @@
+types
+
+ R :: a : int b : int
+
+process
+
+ P =
+
+begin
+
+
+
+state
+
+ a : int k : R
+
+actions
+
+ A = cases k : mk_R(a1,b1) -> a:=a1+b1
+
+end
+
+ @ A
+
+end

@@ -1,0 +1,13 @@
+class
+
+ test =
+
+begin
+
+
+
+functions
+
+ f: int -> int f(a) == a+10
+
+end

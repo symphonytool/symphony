@@ -1,0 +1,4 @@
+values
+
+ a:int = 1 
+ b : int = a

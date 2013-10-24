@@ -1,0 +1,25 @@
+functions
+
+ test: int * int -> bool test(a,b) == true
+
+channels
+
+ InOut: int * int * int
+
+process
+
+ A =
+
+begin
+
+
+
+state
+
+ b:int
+
+actions
+
+ A = InOut?a!b?c -> test(a,c) @ Skip
+
+end

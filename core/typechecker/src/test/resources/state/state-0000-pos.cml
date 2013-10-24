@@ -1,0 +1,13 @@
+class
+
+ test1 =
+
+begin
+
+
+
+state
+
+ a : int := 42
+
+end

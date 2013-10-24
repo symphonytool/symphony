@@ -1,0 +1,17 @@
+process
+
+ PatientRegister =
+
+begin
+
+
+
+state
+
+ reg : nat
+
+functions
+
+ moreroom: () -> nat moreroom() == reg @ Skip
+
+end

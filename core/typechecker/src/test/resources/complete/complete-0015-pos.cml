@@ -1,0 +1,9 @@
+process
+
+ A =
+
+begin
+
+ @ let b = 2 in [b = 2] & Skip
+
+end

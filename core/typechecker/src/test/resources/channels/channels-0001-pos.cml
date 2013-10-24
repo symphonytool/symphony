@@ -1,0 +1,14 @@
+channels
+
+ init:int
+test
+
+process
+
+ test =
+
+begin
+
+ @ init?x -> Skip
+
+end

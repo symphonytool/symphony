@@ -1,0 +1,27 @@
+process
+
+ M =
+
+begin
+
+ @ Skip
+
+end
+
+
+
+process
+
+ L =
+
+begin
+
+ @ Stop
+
+end
+
+
+
+process
+
+ K = || i in set {1,2,3} @ [{ }] (M [| {| inp.k | k in set {5,6,7} |} union {| out.k | k in set {5,6,7} |} |] L)

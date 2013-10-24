@@ -1,0 +1,13 @@
+class
+
+ test =
+
+begin
+
+
+
+functions
+
+ fn: int -> int fn(a) == a + 2
+
+end

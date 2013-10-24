@@ -1,0 +1,13 @@
+channels
+
+ a:int
+
+process
+
+ P = ||| i in set {1,2,3} @
+
+begin
+
+ @ a!i -> Skip
+
+end

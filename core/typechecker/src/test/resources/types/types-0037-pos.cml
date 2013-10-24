@@ -1,0 +1,3 @@
+types
+
+ T = token inv t == t <> mk_token("42")

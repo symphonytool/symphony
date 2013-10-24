@@ -1,0 +1,1 @@
+class test2 = begin values b : int = test1`a + 1 end 

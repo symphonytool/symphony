@@ -1,0 +1,17 @@
+process
+
+ K =
+
+begin
+
+
+
+state
+
+ a:int
+
+operations
+
+ o: int ==> int o(b) == if a = 0 then a:=b; return a @ a := o(10)
+
+end

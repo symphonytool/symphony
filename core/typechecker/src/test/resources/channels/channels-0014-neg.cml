@@ -1,0 +1,5 @@
+/*duplication of channel name*/
+
+channels
+
+ a : nat a : seq of char

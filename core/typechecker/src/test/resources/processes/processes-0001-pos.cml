@@ -1,0 +1,9 @@
+process
+
+ p1 = a:int @
+
+begin
+
+ @ Skip
+
+end
