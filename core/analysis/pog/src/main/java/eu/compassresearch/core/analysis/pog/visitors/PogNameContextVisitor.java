@@ -1,7 +1,6 @@
 package eu.compassresearch.core.analysis.pog.visitors;
 
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.analysis.intf.IAnswer;
 import org.overture.ast.definitions.AClassInvariantDefinition;
 import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.PDefinition;
@@ -10,7 +9,6 @@ import org.overture.ast.node.INode;
 import org.overture.pog.obligation.PONameContext;
 import org.overture.pog.pub.IPogAssistantFactory;
 import org.overture.pog.utility.POException;
-import org.overture.typechecker.assistant.definition.PDefinitionAssistantTC;
 
 import eu.compassresearch.ast.analysis.AnswerCMLAdaptor;
 import eu.compassresearch.ast.definitions.AActionDefinition;
@@ -27,12 +25,8 @@ public class PogNameContextVisitor extends AnswerCMLAdaptor<PONameContext>
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-
-	//FIXME Add/Incorporate Overture Assistants
 	
 	IPogAssistantFactory af;
-	
-	
 	
 	
 	public PogNameContextVisitor()
