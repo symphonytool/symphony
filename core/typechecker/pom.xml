@@ -58,7 +58,7 @@
 							</sources>
 						</configuration>
 					</execution>
-					<execution>
+					<!-- execution>
 						<id>add-test-sources</id>
 						<phase>generate-test-sources</phase>
 						<goals>
@@ -69,7 +69,7 @@
 								<source>src/test/snippettests</source>
 							</sources>
 						</configuration>
-					</execution>
+					</execution-->
 				</executions>
 			</plugin>
 
