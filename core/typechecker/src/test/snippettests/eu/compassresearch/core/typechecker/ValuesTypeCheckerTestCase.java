@@ -6,6 +6,8 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+import eu.compassresearch.core.typechecker.secondedition.TestConverter;
+
 @RunWith(value = Parameterized.class)
 public class ValuesTypeCheckerTestCase extends AbstractTypeCheckerTestCase
 {
@@ -30,7 +32,7 @@ public class ValuesTypeCheckerTestCase extends AbstractTypeCheckerTestCase
 		// 8//
 		add("class test = begin values public a:token = mk_token(\"what up?\")  end");
 		// 9// // Exponent literal
-		add("class test = begin values public a:real = 1.25E+10  end");
+		add("/*Exponent literal*/ class test = begin values public a:real = 1.25E+10  end");
 		// 10//
 		add("class test = begin values public a:real = 1.25E-10  end"); // token
 																		// literal
@@ -244,7 +246,7 @@ public class ValuesTypeCheckerTestCase extends AbstractTypeCheckerTestCase
 		// 114//
 		add("class test = begin values one:bool = isofclass( test , self) end", false);
 		// 115 TODO: So should we support unicode characters in identifiers?
-		add("class evil_letters_æøå = begin values even:int = fn_int_to_int( 10 ) end", false, false);
+		add("/* So should we support unicode characters in identifiers?*/ class evil_letters_æøå = begin values even:int = fn_int_to_int( 10 ) end", false, false);
 		// 116
 		add("values a:int = 1 \n b : int = a ");
 		// 117
@@ -268,4 +270,64 @@ public class ValuesTypeCheckerTestCase extends AbstractTypeCheckerTestCase
 		return testData.get(ValuesTypeCheckerTestCase.class);
 	}
 
+	
+	static int index = 0;
+	static final  String SUITE_NAME = "values";
+	
+	protected static void add(int stack, String src, boolean parseok,
+			boolean tcok, String[] err)
+	{
+		AbstractTypeCheckerTestCase.add(stack,src,parseok,tcok,err);
+		TestConverter.convert("src/test/resources/", SUITE_NAME, index++, src,parseok,tcok);
+	}
+
+	protected static void add(int stack, String src, boolean parseok,
+			boolean tcok, boolean expectNoWarnings, String[] err)
+	{
+		AbstractTypeCheckerTestCase.add(stack,src,parseok,tcok,expectNoWarnings,err);
+		TestConverter.convert("src/test/resources/", SUITE_NAME, index++, src,parseok,tcok);
+	}
+
+	protected static void add(String src, boolean parseok, boolean tcok,
+			boolean expectNoWarnings, String[] err, String name)
+	{
+		AbstractTypeCheckerTestCase.add(src,parseok,tcok,expectNoWarnings,err,name);
+		TestConverter.convert("src/test/resources/", SUITE_NAME, index++, src,parseok,tcok);
+	}
+
+	protected static void add(String src, boolean parseok, boolean tcok,
+			String[] err, String name)
+	{
+		AbstractTypeCheckerTestCase.add(src,parseok,tcok,err,name);
+		TestConverter.convert("src/test/resources/", SUITE_NAME, index++, src,parseok,tcok);
+	}
+
+	protected static void add(String src, boolean parseok, boolean tcok,
+			boolean expectNoParam)
+	{
+		AbstractTypeCheckerTestCase.add(src,parseok,tcok,expectNoParam);
+		TestConverter.convert("src/test/resources/", SUITE_NAME, index++, src,parseok,tcok);
+	}
+
+	protected static void add(String src, boolean parseok, boolean tcok)
+	{
+		AbstractTypeCheckerTestCase.add(src,parseok,tcok);
+		TestConverter.convert("src/test/resources/", SUITE_NAME, index++, src,parseok,tcok);
+	}
+
+	protected static void add(String src)
+	{
+		add(4, src, true, true, true, new String[0]);
+	}
+
+	protected static void add(String src, boolean tcok)
+	{
+		add(4, src, true, tcok, true, new String[0]);
+	}
+
+	protected static void add(String src, boolean tcok, String[] errmsg)
+	{
+		add(4, src, true, tcok, true, errmsg);
+	}
+	
 }

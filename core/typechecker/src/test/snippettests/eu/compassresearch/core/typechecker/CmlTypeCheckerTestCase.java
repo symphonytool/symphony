@@ -1,6 +1,6 @@
 package eu.compassresearch.core.typechecker;
 
-import static eu.compassresearch.core.typechecker.TestUtil.addTestProgram;
+//import static eu.compassresearch.core.typechecker.TestUtil.addTestProgram;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -9,6 +9,8 @@ import java.util.List;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+
+import eu.compassresearch.core.typechecker.secondedition.TestConverter;
 
 @RunWith(value = Parameterized.class)
 public class CmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase
@@ -114,48 +116,48 @@ public class CmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase
 		// 44
 		addTestProgram(testData, "process P = begin state a: nat * nat := mk_(0,0) t: (nat * nat) * (nat * nat) @ t.#1 := a end", true, true, true, new String[0]);
 		// 45 //test case for bug http://sourceforge.net/p/compassresearch/tickets/12/
-		addTestProgram(testData, "channels a : int class A = begin state hello : int := 4 operations  A : () ==> A  A() == Skip getHello : () ==> int getHello() == return hello end process Test =  begin @ (dcl v : A, out : int @ v := new A(); out := v.getHello();a.(out) -> Skip) end", true, true, true, new String[0]);
+		addTestProgram(testData, "/*test case for bug http://sourceforge.net/p/compassresearch/tickets/12/*/ channels a : int class A = begin state hello : int := 4 operations  A : () ==> A  A() == Skip getHello : () ==> int getHello() == return hello end process Test =  begin @ (dcl v : A, out : int @ v := new A(); out := v.getHello();a.(out) -> Skip) end", true, true, true, new String[0]);
 		// 46 //test case for bug http://sourceforge.net/p/compassresearch/tickets/23/
-		addTestProgram(testData, "types CP :: c : nat p : nat process test =  begin state myCP : [CP] operations op1: () ==> () op1() ==  (  dcl x : nat @ x := myCP.c  ) op2: (nat) ==> () op2(n) ==  (  myCP.c :=n ) @ Skip end", true, true, true, new String[0]);
+		addTestProgram(testData, "/*test case for bug http://sourceforge.net/p/compassresearch/tickets/23/*/ types CP :: c : nat p : nat process test =  begin state myCP : [CP] operations op1: () ==> () op1() ==  (  dcl x : nat @ x := myCP.c  ) op2: (nat) ==> () op2(n) ==  (  myCP.c :=n ) @ Skip end", true, true, true, new String[0]);
 		// 47 //Test case like above, with no optional value
-		addTestProgram(testData, "types CP :: c : nat p : nat process test =  begin state myCP : CP operations op1: () ==> () op1() ==  (  dcl x : nat @ x := myCP.c  ) op2: (nat) ==> () op2(n) ==  (  myCP.c :=n ) @ Skip end", true, true, true, new String[0]);
+		addTestProgram(testData, "/*Test case like above, with no optional value*/ types CP :: c : nat p : nat process test =  begin state myCP : CP operations op1: () ==> () op1() ==  (  dcl x : nat @ x := myCP.c  ) op2: (nat) ==> () op2(n) ==  (  myCP.c :=n ) @ Skip end", true, true, true, new String[0]);
 
 		// 48 // Test case for bug https://sourceforge.net/p/compassresearch/tickets/27/
-		addTestProgram(testData, "functions Good : () -> nat Good () ==  let aux = 1 in aux process Test = begin state x : int functions	Bad : () -> nat	Bad () ==  let aux = 1 in aux @ Skip end", true, true, true, new String[0]);
+		addTestProgram(testData, "/*Test case for bug https://sourceforge.net/p/compassresearch/tickets/27/*/ functions Good : () -> nat Good () ==  let aux = 1 in aux process Test = begin state x : int functions	Bad : () -> nat	Bad () ==  let aux = 1 in aux @ Skip end", true, true, true, new String[0]);
 		// 49 // Test case for bug https://sourceforge.net/p/compassresearch/tickets/27/
-		addTestProgram(testData, "functions Good : () -> nat Good () ==  let aux = 1 in aux process Test = begin functions	Bad : () -> nat	Bad () ==  let aux = 1 in aux @ Skip end", true, true, true, new String[0]);
+		addTestProgram(testData, "/*Test case for bug https://sourceforge.net/p/compassresearch/tickets/27/*/ functions Good : () -> nat Good () ==  let aux = 1 in aux process Test = begin functions	Bad : () -> nat	Bad () ==  let aux = 1 in aux @ Skip end", true, true, true, new String[0]);
 		// 50 // Test case for bug https://sourceforge.net/p/compassresearch/tickets/27/
-		addTestProgram(testData, "process Test = begin functions Bad : () -> nat	Bad () ==  let aux = 1 in aux  Bad2 : () -> nat	Bad2 () ==  aux @ Skip end", true, false, true, new String[0]);
+		addTestProgram(testData, "/*Test case for bug https://sourceforge.net/p/compassresearch/tickets/27/*/ process Test = begin functions Bad : () -> nat	Bad () ==  let aux = 1 in aux  Bad2 : () -> nat	Bad2 () ==  aux @ Skip end", true, false, true, new String[0]);
 		// 51 // Test case for bug https://sourceforge.net/p/compassresearch/tickets/26/
-		addTestProgram(testData, "process Test = begin functions AFunc: nat -> nat AFunc(l) == 1 BFunc: nat * nat -> nat BFunc(l,u) == AFunc(l) @ Skip end", true, true, false, new String[0]);
+		addTestProgram(testData, "/*Test case for bug https://sourceforge.net/p/compassresearch/tickets/26/*/ process Test = begin functions AFunc: nat -> nat AFunc(l) == 1 BFunc: nat * nat -> nat BFunc(l,u) == AFunc(l) @ Skip end", true, true, false, new String[0]);
 		// 52 // Test case for bug https://sourceforge.net/p/compassresearch/tickets/26/
-		addTestProgram(testData, "process Test2 = begin functions AFunc: nat -> nat AFunc(avar) == 1 BFunc : () -> nat BFunc() == AFunc(2) @ Skip end", true, true, false, new String[0]);
+		addTestProgram(testData, "/*Test case for bug https://sourceforge.net/p/compassresearch/tickets/26/*/ process Test2 = begin functions AFunc: nat -> nat AFunc(avar) == 1 BFunc : () -> nat BFunc() == AFunc(2) @ Skip end", true, true, false, new String[0]);
 		// 53 // Test case for bug https://sourceforge.net/p/compassresearch/tickets/26/
-		addTestProgram(testData, "process Test = begin functions BFunc : () -> nat BFunc() == AFunc(2) @ Skip end process Test2 = begin functions AFunc: nat -> nat AFunc(avar) == 1 BFunc : () -> nat BFunc() == AFunc(2) @ Skip end", true, false, false, new String[0]);
+		addTestProgram(testData, "/*Test case for bug https://sourceforge.net/p/compassresearch/tickets/26/*/ process Test = begin functions BFunc : () -> nat BFunc() == AFunc(2) @ Skip end process Test2 = begin functions AFunc: nat -> nat AFunc(avar) == 1 BFunc : () -> nat BFunc() == AFunc(2) @ Skip end", true, false, false, new String[0]);
 		// 54 // Test case for bug http://sourceforge.net/p/compassresearch/tickets/48/
-		addTestProgram(testData, "process Waiter = begin @ Wait \"ao\" ; Skip end", true, false, true, new String[0]);
+		addTestProgram(testData, "/*Test case for bug http://sourceforge.net/p/compassresearch/tickets/48/*/ process Waiter = begin @ Wait \"ao\" ; Skip end", true, false, true, new String[0]);
 		// 55 //Negative test AEnumVarsetExpression
-		addTestProgram(testData, "channels c:int*int process A = begin @ c.(1).(1) -> Skip [| {c.(2).(4).(5)} |] c.(1).(1) -> Skip  end", true, false, true, new String[0]);
+		addTestProgram(testData, "/*Negative test AEnumVarsetExpression*/ channels c:int*int process A = begin @ c.(1).(1) -> Skip [| {c.(2).(4).(5)} |] c.(1).(1) -> Skip  end", true, false, true, new String[0]);
 		// 56 //Check for AEnumVarsetExpression
-		addTestProgram(testData, "channels c:int*int process A = begin @ c.(1).(1) -> Skip [| {c.(1).(1)} |] c.(1).(1) -> Skip  end", true, true, true, new String[0]);
+		addTestProgram(testData, "/*Check for AEnumVarsetExpression*/ channels c:int*int process A = begin @ c.(1).(1) -> Skip [| {c.(1).(1)} |] c.(1).(1) -> Skip  end", true, true, true, new String[0]);
 		// 57 //Check for FatEnumVarsetExpression
-		addTestProgram(testData, "channels c:int*int process A = begin @ c.(1).(1) -> Skip [| {|c|} |] c.(1).(1) -> Skip  end", true, true, true, new String[0]);
+		addTestProgram(testData, "/*Check for FatEnumVarsetExpression*/ channels c:int*int process A = begin @ c.(1).(1) -> Skip [| {|c|} |] c.(1).(1) -> Skip  end", true, true, true, new String[0]);
 		// 58 //Check for FatEnumVarsetExpression
-		addTestProgram(testData, "channels c1:int*int process A = begin state a:int @ [| {|c1|} |] i in set {1,2,3} @ [{ a }] c1!i -> Skip end", true, true, false, new String[0]);
+		addTestProgram(testData, "/*Check for FatEnumVarsetExpression*/ channels c1:int*int process A = begin state a:int @ [| {|c1|} |] i in set {1,2,3} @ [{ a }] c1!i -> Skip end", true, true, false, new String[0]);
 		// 59 //Check for AEnumVarsetExpression. Wrong type in channel compared to product type. Negative test
-		addTestProgram(testData, "channels c:int*char process A = begin @ c.(1).(1) -> Skip [| {c.(1).(1)} |] c.(1).(1) -> Skip  end", true, false, true, new String[0]);
+		addTestProgram(testData, "/*Check for AEnumVarsetExpression. Wrong type in channel compared to product type. Negative test*/ channels c:int*char process A = begin @ c.(1).(1) -> Skip [| {c.(1).(1)} |] c.(1).(1) -> Skip  end", true, false, true, new String[0]);
 		// 60 //Check TC in caseANameChannelExp within CompVarsetExpressions. Fixed lookup and type comparison
-		addTestProgram(testData, "channels pay, transfer: nat process Card = val i: nat @ begin state value: nat @ Skip end process Cards = || i: nat @  [ {| pay.i,transfer.i |} union { transfer.j.i.n| j:nat,n:nat}] Card(i)", true, true, false, new String[0]);
+		addTestProgram(testData, "/*Check TC in caseANameChannelExp within CompVarsetExpressions. Fixed lookup and type comparison*/ channels pay, transfer: nat process Card = val i: nat @ begin state value: nat @ Skip end process Cards = || i: nat @  [ {| pay.i,transfer.i |} union { transfer.j.i.n| j:nat,n:nat}] Card(i)", true, true, false, new String[0]);
 		// 61 //Check TC in caseANameChannelExp within CompVarsetExpressions. Fixed lookup and type comparison
-		addTestProgram(testData, "channels pay, transfer: nat * nat * nat process Card = val i: nat @ begin state value: nat @ Skip end process Cards = || i: nat @  [ {| pay.i,transfer.i |} union { transfer.j.i.n| j:nat,n:nat}] Card(i)", true, true, false, new String[0]);
+		addTestProgram(testData, "/*Check TC in caseANameChannelExp within CompVarsetExpressions. Fixed lookup and type comparison*/ channels pay, transfer: nat * nat * nat process Card = val i: nat @ begin state value: nat @ Skip end process Cards = || i: nat @  [ {| pay.i,transfer.i |} union { transfer.j.i.n| j:nat,n:nat}] Card(i)", true, true, false, new String[0]);
 		// 62 //Bug reported by AKM. The actionType in a Guarded action can be void type.
-		addTestProgram(testData, "channels a b process test = begin state v : int := 2 @   (dcl x : int := 2 @ (([v = 2] & x := v + x ; a -> Skip) [] ([v = 1] & x := 3 + x ; b -> Skip ) ) ; [x = 4] & b -> Skip ) end", true, true, true, new String[0]);
+		addTestProgram(testData, "/*Bug reported by AKM. The actionType in a Guarded action can be void type.*/ channels a b process test = begin state v : int := 2 @   (dcl x : int := 2 @ (([v = 2] & x := v + x ; a -> Skip) [] ([v = 1] & x := 3 + x ; b -> Skip ) ) ; [x = 4] & b -> Skip ) end", true, true, true, new String[0]);
 		// 63 //
 		addTestProgram(testData, "channels	a : int	process A =	val x : nat @ begin	@ a.x -> Skip end process B  = |~| i in set {1,2,3} @ A(i)", true, true, true, new String[0]);
 		// 64 //
 		addTestProgram(testData, "channels	a : int	process A =	val x : nat @ begin	@ a.x -> Skip end process B = ; i in seq {1,2,3} @ A(i)", true, true, true, new String[0]);
 		// 65 http://sourceforge.net/p/compassresearch/tickets/92/
-		addTestProgram(testData, "types String2 = seq of char Process2 :: id: String2 functions findPos(q: seq of Process2,id: String2) pos : nat pre  exists p in set (elems q) @ p.id = id post true", true, true, false, new String[0]);
+		addTestProgram(testData, "/*http://sourceforge.net/p/compassresearch/tickets/92/*/ types String2 = seq of char Process2 :: id: String2 functions findPos(q: seq of Process2,id: String2) pos : nat pre  exists p in set (elems q) @ p.id = id post true", true, true, false, new String[0]);
 		// 66
 		addTestProgram(testData, "types String2 = seq of char Process2 :: id: String2 functions findPos(q: seq of Process2,id: String2) pos : nat pre  forall p in set (elems q) @ p.id = id post true", true, true, false, new String[0]);
 		// 67
@@ -171,6 +173,18 @@ public class CmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase
 			boolean typesOk, boolean expectNowarnings, String[] errorMessages)
 	{
 		super(cmlSource, parsesOk, typesOk, expectNowarnings, errorMessages);
+	}
+	
+	
+	
+	static int index = 0;
+	static final  String SUITE_NAME = "complete";
+	
+	public static <T> void addTestProgram(List<Object[]> col, String src,
+			Object... objs)
+	{
+		TestUtil.addTestProgram(col,src,objs);
+		TestConverter.convert("src/test/resources/", SUITE_NAME, index++, src,(boolean)objs[0],(boolean)objs[1]);
 	}
 
 }

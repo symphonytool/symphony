@@ -6,6 +6,8 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+import eu.compassresearch.core.typechecker.secondedition.TestConverter;
+
 @RunWith(value = Parameterized.class)
 public class TypesCmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase
 {
@@ -36,7 +38,7 @@ public class TypesCmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase
 		// 11//
 		add("types A = compose rec of a:real b:rat c:int end");
 		// 12// Negative test, infinite type
-		add("types A = compose rec of c:A end", true, false, true);
+		add("/*Negative test, infinite type*/ types A = compose rec of c:A end", true, false, true);
 		// 13//
 		add("types A = token | real | rat | int | nat | nat1 | char | bool | (token) | <SomeQuote>");
 		// 14//
@@ -64,13 +66,13 @@ public class TypesCmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase
 		// 25//
 		add("types F = int +> int");
 		// 26// TODO RWL: TC Cannot handle classes in type defs at top level
-		add("class C = begin state a : int end types A = C");
+		add("/*TODO RWL: TC Cannot handle classes in type defs at top level*/ class C = begin state a : int end types A = C");
 		// 27//
 		add("types A = int B = A | real");
 		// 28//
 		add("types A = int class test = begin state k:A end");
 		// 29// -- complex example taken from Emergency Response Case Study
-		add("types Id :: type : (<ERU> | <CC>) identifier : token ERUId = Id Location = token Criticality = nat inv c == c < 4 String = seq of char RescueDetails :: target : Location criticality : Criticality Message ::sender: Id	destn : Id message : String Log :: 	eru : ERUId	oldRescue : RescueDetails newRescue : RescueDetails values	functions  compareCriticalityFunction: RescueDetails * RescueDetails -> bool compareCriticalityFunction(r, r2) == r.criticality > r2.criticality rescueDetailsToString(r : RescueDetails) s: String post s <> [] stringToRescueDetails (s: String) r : RescueDetails pre s <> [] post true ", true, true, false);
+		add("/*complex example taken from Emergency Response Case Study*/ types Id :: type : (<ERU> | <CC>) identifier : token ERUId = Id Location = token Criticality = nat inv c == c < 4 String = seq of char RescueDetails :: target : Location criticality : Criticality Message ::sender: Id	destn : Id message : String Log :: 	eru : ERUId	oldRescue : RescueDetails newRescue : RescueDetails values	functions  compareCriticalityFunction: RescueDetails * RescueDetails -> bool compareCriticalityFunction(r, r2) == r.criticality > r2.criticality rescueDetailsToString(r : RescueDetails) s: String post s <> [] stringToRescueDetails (s: String) r : RescueDetails pre s <> [] post true ", true, true, false);
 		// /--------------------------------------------------\
 		// | Types with invariants |
 		// \--------------------------------------------------/
@@ -115,21 +117,21 @@ public class TypesCmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase
 		// 49//
 		add("types A = map int to int B = A inv b == card dom(b) > 0", true, true, false);
 		// 50// Failing because of LexNameToken conflict
-		add("types R :: r : int inv r == r.r>0", true, true, false);
+		add("/*Failing because of LexNameToken conflict*/ types R :: r : int inv r == r.r>0", true, true, false);
 		// 51// set type w. invariant
-		add("types C = set of int inv c == c = {1,2,3}", true, true, false);
+		add("/*set type w. invariant*/ types C = set of int inv c == c = {1,2,3}", true, true, false);
 		// 52 //Negative test: Check for duplicated type defs
-		add("types A = nat A = bool B = bool B = rat", true, false);
+		add("/*Negative test: Check for duplicated type defs*/ types A = nat A = bool B = bool B = rat", true, false);
 		// 53 //Multiple type defs
-		add("types A = nat B = bool C = bool");
+		add("/*Multiple type defs*/ types A = nat B = bool C = bool");
 		// 54 Ticket: #89 TypeChecker too aggressive with tuple selection
-		add("types A = (int*int) | int inv a == a.#1 >0", true, true, false);
+		add("/*Ticket: #89 TypeChecker too aggressive with tuple selection*/ types A = (int*int) | int inv a == a.#1 >0", true, true, false);
 		// 55 public visibility automatically assigned to B in global types
-		add("types public A = nat B = map nat to nat process C = begin functions public F : A * B -> bool F(a, b) == true @ Skip end ", true, true, false);
+		add("/*public visibility automatically assigned to B in global types*/ types public A = nat B = map nat to nat process C = begin functions public F : A * B -> bool F(a, b) == true @ Skip end ", true, true, false);
 
-		// 55 Negative test: use of public keyword in global types
-		// add("types public A = nat public B = map nat to nat process C = begin functions public F : A * B -> bool F(a, b) == true @ Skip end ",
-		// true, true, false);
+		// 56 Negative test: use of public keyword in global types
+		 add("/*Negative test: use of public keyword in global types*/ types public A = nat public B = map nat to nat process C = begin functions public F : A * B -> bool F(a, b) == true @ Skip end ",
+		 true, true, false);
 	}
 
 	@Parameters
@@ -143,5 +145,66 @@ public class TypesCmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase
 	{
 		super(cmlSource, parsesOk, typesOk, expectNowarnings, errorMessages);
 	}
+	
+	
+	static int index = 0;
+	static final  String SUITE_NAME = "types";
+	
+	protected static void add(int stack, String src, boolean parseok,
+			boolean tcok, String[] err)
+	{
+		AbstractTypeCheckerTestCase.add(stack,src,parseok,tcok,err);
+		TestConverter.convert("src/test/resources/", SUITE_NAME, index++, src,parseok,tcok);
+	}
+
+	protected static void add(int stack, String src, boolean parseok,
+			boolean tcok, boolean expectNoWarnings, String[] err)
+	{
+		AbstractTypeCheckerTestCase.add(stack,src,parseok,tcok,expectNoWarnings,err);
+		TestConverter.convert("src/test/resources/", SUITE_NAME, index++, src,parseok,tcok);
+	}
+
+	protected static void add(String src, boolean parseok, boolean tcok,
+			boolean expectNoWarnings, String[] err, String name)
+	{
+		AbstractTypeCheckerTestCase.add(src,parseok,tcok,expectNoWarnings,err,name);
+		TestConverter.convert("src/test/resources/", SUITE_NAME, index++, src,parseok,tcok);
+	}
+
+	protected static void add(String src, boolean parseok, boolean tcok,
+			String[] err, String name)
+	{
+		AbstractTypeCheckerTestCase.add(src,parseok,tcok,err,name);
+		TestConverter.convert("src/test/resources/", SUITE_NAME, index++, src,parseok,tcok);
+	}
+
+	protected static void add(String src, boolean parseok, boolean tcok,
+			boolean expectNoParam)
+	{
+		AbstractTypeCheckerTestCase.add(src,parseok,tcok,expectNoParam);
+		TestConverter.convert("src/test/resources/", SUITE_NAME, index++, src,parseok,tcok);
+	}
+
+	protected static void add(String src, boolean parseok, boolean tcok)
+	{
+		AbstractTypeCheckerTestCase.add(src,parseok,tcok);
+		TestConverter.convert("src/test/resources/", SUITE_NAME, index++, src,parseok,tcok);
+	}
+
+	protected static void add(String src)
+	{
+		add(4, src, true, true, true, new String[0]);
+	}
+
+	protected static void add(String src, boolean tcok)
+	{
+		add(4, src, true, tcok, true, new String[0]);
+	}
+
+	protected static void add(String src, boolean tcok, String[] errmsg)
+	{
+		add(4, src, true, tcok, true, errmsg);
+	}
+	
 
 }

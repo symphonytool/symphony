@@ -7,6 +7,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
+import eu.compassresearch.core.typechecker.secondedition.TestConverter;
 
 @RunWith(value = Parameterized.class)
 public class ProcessCmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase
@@ -73,9 +74,9 @@ public class ProcessCmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase
 		// 25//
 		add("process M = begin @ Skip end process L = begin @ Stop end process K = || i in set {1,2,3} @ [{ }] (M [| {| inp.k | k in set {5,6,7} |} union {| out.k | k in set {5,6,7} |} |] L)", true, true, false);
 		// 26// old-record in operation
-		add("process p = begin types A :: a : int state aa:A operations o:int==>int o(i) == return (aa.a + i) post aa~.a = i @ o(2) end", true, true, false);
+		add("/*old-record in operation*/ process p = begin types A :: a : int state aa:A operations o:int==>int o(i) == return (aa.a + i) post aa~.a = i @ o(2) end", true, true, false);
 		// 27 //check for variable name in action being the same as state variable
-		add("process Q = begin state q : nat := 10 actions INIT = (dcl q : nat @ q := 10) @ INIT() end");
+		add("/*check for variable name in action being the same as state variable*/ process Q = begin state q : nat := 10 actions INIT = (dcl q : nat @ q := 10) @ INIT() end");
 		// 28
 		add("process = begin @ Skip end", false, false);
 		// 29
@@ -95,4 +96,65 @@ public class ProcessCmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase
 		return testData.get(ProcessCmlTypeCheckerTestCase.class);
 	}
 
+	
+	
+	static int index = 0;
+	static final  String SUITE_NAME = "processes";
+	
+	protected static void add(int stack, String src, boolean parseok,
+			boolean tcok, String[] err)
+	{
+		AbstractTypeCheckerTestCase.add(stack,src,parseok,tcok,err);
+		TestConverter.convert("src/test/resources/", SUITE_NAME, index++, src,parseok,tcok);
+	}
+
+	protected static void add(int stack, String src, boolean parseok,
+			boolean tcok, boolean expectNoWarnings, String[] err)
+	{
+		AbstractTypeCheckerTestCase.add(stack,src,parseok,tcok,expectNoWarnings,err);
+		TestConverter.convert("src/test/resources/", SUITE_NAME, index++, src,parseok,tcok);
+	}
+
+	protected static void add(String src, boolean parseok, boolean tcok,
+			boolean expectNoWarnings, String[] err, String name)
+	{
+		AbstractTypeCheckerTestCase.add(src,parseok,tcok,expectNoWarnings,err,name);
+		TestConverter.convert("src/test/resources/", SUITE_NAME, index++, src,parseok,tcok);
+	}
+
+	protected static void add(String src, boolean parseok, boolean tcok,
+			String[] err, String name)
+	{
+		AbstractTypeCheckerTestCase.add(src,parseok,tcok,err,name);
+		TestConverter.convert("src/test/resources/", SUITE_NAME, index++, src,parseok,tcok);
+	}
+
+	protected static void add(String src, boolean parseok, boolean tcok,
+			boolean expectNoParam)
+	{
+		AbstractTypeCheckerTestCase.add(src,parseok,tcok,expectNoParam);
+		TestConverter.convert("src/test/resources/", SUITE_NAME, index++, src,parseok,tcok);
+	}
+
+	protected static void add(String src, boolean parseok, boolean tcok)
+	{
+		AbstractTypeCheckerTestCase.add(src,parseok,tcok);
+		TestConverter.convert("src/test/resources/", SUITE_NAME, index++, src,parseok,tcok);
+	}
+
+	protected static void add(String src)
+	{
+		add(4, src, true, true, true, new String[0]);
+	}
+
+	protected static void add(String src, boolean tcok)
+	{
+		add(4, src, true, tcok, true, new String[0]);
+	}
+
+	protected static void add(String src, boolean tcok, String[] errmsg)
+	{
+		add(4, src, true, tcok, true, errmsg);
+	}
+	
 }
