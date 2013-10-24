@@ -44,7 +44,7 @@ definition {-> package='eu.compassresearch.ast.definitions'}
     |   {nameset}
                 [identifier]:LexIdentifierToken
                 [namesetExpression]:VarsetExpression
-    |   #cmlOperation
+//    |   #cmlOperation
     |   {process}
                 [localState]: singleDeclaration.type*
                 [process]: process
@@ -62,7 +62,7 @@ definition {-> package='eu.compassresearch.ast.definitions'}
    | {types}
         [types]: definition.type*
    | {operations}
-        [operations]:definition.#cmlOperation*
+        [operations]:definition.#Operation*
    | {functions}
         (functionDefinitions):definition*
    | {values}
@@ -76,43 +76,43 @@ definition {-> package='eu.compassresearch.ast.definitions'}
         (stateDefs):definition*
    ;
    
-#class {-> package='eu.compassresearch.ast.definitions'}
-	= {cml}
-        (cmlInvariant):definition.#cmlOperation.explicit
-	;
+//#class {-> package='eu.compassresearch.ast.definitions'}
+//	= {cml}
+//        (cmlInvariant):definition.#cmlOperation.explicit
+//	;
 /*
  * Operations
  *
  */
-#cmlOperation {-> package='eu.compassresearch.ast.definitions'}
-    = {explicit}
-	[parameterPatterns]:pattern*
-	[body]:action
-	[isConstructor]:java_Boolean
-	[precondition]:exp
-	[postcondition]:exp
-	(type):type
-	(predef):definition.#Function.explicit
-	(postdef):definition.#Function.explicit
-	(paramDefinitions):definition*
-	(state):definition.state
-	(actualResult):type
-
-    | {implicit}
-    [parameterPatterns]:pair.patternListType*
-	[result]:pair.patternType
-	[externals]:clause.external*
-	[precondition]:exp
-	[postcondition]:exp
-	[isConstructor]:java_Boolean
-	[errors]:case.error*
-	(type):type
-	(predef):definition.#Function.explicit
-	(postdef):definition.#Function.explicit
-	(state):definition.state
-	(actualResult):type
-	(stateDefinition):definition
-    ;
+//#cmlOperation {-> package='eu.compassresearch.ast.definitions'}
+//    = {explicit}
+//	[parameterPatterns]:pattern*
+//	[body]:action
+//	[isConstructor]:java_Boolean
+//	[precondition]:exp
+//	[postcondition]:exp
+//	(type):type
+//	(predef):definition.#Function.explicit
+//	(postdef):definition.#Function.explicit
+//	(paramDefinitions):definition*
+//	(state):definition.state
+//	(actualResult):type
+//
+//    | {implicit}
+//    [parameterPatterns]:pair.patternListType*
+//	[result]:pair.patternType
+//	[externals]:clause.external*
+//	[precondition]:exp
+//	[postcondition]:exp
+//	[isConstructor]:java_Boolean
+//	[errors]:case.error*
+//	(type):type
+//	(predef):definition.#Function.explicit
+//	(postdef):definition.#Function.explicit
+//	(state):definition.state
+//	(actualResult):type
+//	(stateDefinition):definition
+//    ;
 
 /*
     Expressions
@@ -204,6 +204,10 @@ pair {-> package='eu.compassresearch.ast.patterns'}
 process {-> package='eu.compassresearch.ast.process'
 		| [location]:location}
         = {action}
+        /*[basedefinition]:definition.#class
+                [actionDefs]: definition.action*
+                [main]:action
+        */
                 [definitionParagraphs]:definition*
                 [action]:action
         | {sequentialComposition}
@@ -289,7 +293,7 @@ process {-> package='eu.compassresearch.ast.process'
 action {-> package='eu.compassresearch.ast.actions'
 		| [location]:location
 		| (type):type}
-        = {skip}
+        = {skip} //what is the semantic meaning of CML skip vs VDM skip?
         | {stop}
         | {chaos}
         | {div}
@@ -346,8 +350,9 @@ action {-> package='eu.compassresearch.ast.actions'
                 [action]:action
         | #Instantiated
         | #Replicated
-        | #Statement
-        | {subclassResponsibility}
+        //| #Statement
+        | {stm} [statement]:stm
+       // | {subclassResponsibility}
         | {reference}
                 [name]:LexNameToken
                 [args]:exp*
@@ -409,77 +414,115 @@ parametrisation {-> package='eu.compassresearch.ast.actions'
         | {vres}
         ;
 
+/*
+
 #Statement {-> package='eu.compassresearch.ast.actions'}
-        = {let} [action]:action [localDefinitions]:definition*
-        | {block} [declareStatement]:action.#Statement.declare [action]:action
-        | {nonDeterministicIf}
-                [alternatives]:action.#Statement.nonDeterministicAlt*
-        | {nonDeterministicAlt}
+        = {let} [action]:action [localDefinitions]:definition* //this is just defletdef
+        | 
+        {block} [declareStatement]:action.#Statement.declare [action]:action //same but only with one in the lsit
+        | {nonDeterministicIf} //move to sub in stm
+                [alternatives]:action.#Statement.nonDeterministicAlt*	
+        | {nonDeterministicAlt}//move to sub in stm
                 [guard]:exp
                 [action]:action
-        | {if}
+        | {if}  //same
                 [ifExp]:exp
                 [thenStm]:action
                 [elseIf]:action.#Statement.elseIf*
                 [elseStm]:action
-        | {elseIf}
+        | {elseIf} //same
                 [elseIf]:exp
                 [thenStm]:action
-        | {cases}
+        | {cases} //same
                 [exp]:exp
                 [cases]:alternativeAction.case*
                 [others]:action
         | #GeneralAssignment
-        | {specification}
+        | {specification} //copy ex errors
                 [externals]:clause.external*
                 [precondition]:exp
                 [postcondition]:exp
-        | {call}
+        | {call} //copy - bad version name.module is used to indicate that a callobject should have been there using '.'
                 [name]:LexNameToken
                 [args]:exp*
-        | {assignmentCall}
+        | {assignmentCall} //maybe callObject could be used here. I dont think this node is needed - I will remove it
                 [designator]:exp
                 [call]:action.#Statement.call
-        | {return}
+        | {return} //copy
                 [exp]:exp
-    | {notYetSpecified}
+    | {notYetSpecified} //copy
                 [opname]:LexNameToken
                 [args]:exp*
-    | {new}
+    | {new} //new - we keep this but move it to a proper statement
         [destination]:exp
         [className]:LexNameToken
         [args]:exp*
         (classdef):definition.#class
         (ctorDefinition):definition
-    | {nonDeterministicDo}
+    | {nonDeterministicDo}//move to sub in stm
         [alternatives]:action.#Statement.nonDeterministicAlt*
-    | {forSet}
+    | {forSet} //=forAll
         [pattern]:pattern
         [set]:exp
         [action]:action
-    | {forIndex}
+    | {forIndex} //copy
         [var]:LexNameToken
         [from]:exp
         [to]:exp
         [by]:exp
         [action]:action
-    | {forSequence}
+    | {forSequence} // forPatternBind
         [patternBind]:patternBind.def
         [exp]:exp
         [action]:action
         (seqType):type.#seq
-    | {while}
+    | {while} //copy
         [condition]:exp
         [action]:action
-        | {declare}  [assignmentDefs]:definition*
+     | 
+     {declare}  [assignmentDefs]:definition*
         ;
-
-#GeneralAssignment {-> package='eu.compassresearch.ast.actions'}
-    = {single} [stateDesignator]:exp [expression]:exp
-    | {multiple} [assignments]:action.#Statement.#GeneralAssignment.single*
+     
+*/
+/*#GeneralAssignment {-> package='eu.compassresearch.ast.actions'}
+    = {single} [stateDesignator]:exp [expression]:exp //assignment but need a unresolved statedesignator
+    | {multiple} [assignments]:action.#Statement.#GeneralAssignment.single* //atomic
         ;
+ 
+ */
+        
+stateDesignator {-> package='org.overture.ast.statements'}
+	=	{unresolved} [path]:exp//well we wanted this:exp.unresolvedPath
+	;
 
-alternativeAction {-> package='eu.compassresearch.ast.actions'}
+/*alternativeAction {-> package='eu.compassresearch.ast.actions'}
     = {case} [location]:location [pattern]:pattern* [result]:action (defs):definition*
     ;
+  */  
+    
+/*
+* Real statements
+*/
+stm {-> package='org.overture.ast.statements'
+	|	[location]:location 
+	|	(type):type}
+    =   {action} [action]:action
+    |	{new} //new - we keep this but move it to a proper statement
+        [destination]:exp
+        [className]:LexNameToken
+        [args]:exp*
+        (classdef):definition.#class
+        (ctorDefinition):definition
+    |	#NonDeterministic
+   	;
+
+#NonDeterministic {-> package='org.overture.ast.statements'}
+	=	{if}
+			[alternatives]:stm.#NonDeterministic.alt*
+	|	{alt}
+			[guard]:exp
+			[action]:stm
+	|	{do}
+			[alternatives]:stm.#NonDeterministic.alt*
+	;
 

@@ -32,8 +32,8 @@ import eu.compassresearch.ast.util.ToStringUtil;
 %action->#Parallel->interleaving = [leftAction] "|||" [rightAction]
 %action->#Parallel->generalisedParallelism = [leftAction] "[|" [chansetExpression] "|]" [rightAction]
 %action->#Statement->block = "Block {" [action] "}"
-%action->#Statement->new = [destination]" := new " [className] "("+ $Utils.listToString($[args]$)$ + ")"
-%action->#Statement->return = "return "[exp]
+//%action->#Statement->new = [destination]" := new " [className] "("+ $Utils.listToString($[args]$)$ + ")"
+//%action->#Statement->return = "return "[exp]
 %action->#Statement->#GeneralAssignment->single = [stateDesignator] " := " [expression]
 
 %action->parametrised = "params: " [parametrisations] " action: " [action]
@@ -42,11 +42,11 @@ import eu.compassresearch.ast.util.ToStringUtil;
 %parametrisation->vres = "vres" [declaration]
 %action->communication = [identifier] " -> " [action]
 %action->guarded = [expression] " & " [action]
-%action->#Statement->call = [name] "(" + $org.overture.ast.util.Utils.listToString($  [args]  $)$ + ")"
+//%action->#Statement->call = [name] "(" + $org.overture.ast.util.Utils.listToString($  [args]  $)$ + ")"
 %declaration->#Single->type = [identifiers] ":" [type]
 %declaration->#Single->expression = [identifiers] " := " [expression]
 
-%exp->variable = [name]
+//%exp->variable = [name]
 
 // Processes
 %process->action = "state: " [definitionParagraphs] " @ "
@@ -65,10 +65,10 @@ import eu.compassresearch.ast.util.ToStringUtil;
 
 //  Definitions
 %definition->process = "Process " [name]$.getName()$
-%definition->class = "Class " [name]$.getName()$
+//%definition->class = "Class " [name]$.getName()$
 %definition->state = "State Paragraph"
-%definition->#cmlOperation->implicit = [name] + " " + [type]
-%definition->#cmlOperation->explicit = [name] + " " + [type]
+//%definition->#cmlOperation->implicit = [name] + " " + [type]
+//%definition->#cmlOperation->explicit = [name] + " " + [type]
 //  Statements
 
 
