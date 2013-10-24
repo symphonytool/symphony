@@ -8,6 +8,7 @@ import org.overture.ast.analysis.AnalysisException;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCCondition;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCGuardDef;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCLieInFact;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCNegGuardDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCPosGuardDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCATypeSingleDeclaration;
@@ -160,7 +161,7 @@ public class MCAProcessDefinition implements MCPCMLDefinition {
 				}
 		 */
 
-		//generateLieInFacts(question);
+		generateLieInFacts(result,option);
 
 		//pppp
 		//generate fetch facts
@@ -205,6 +206,17 @@ public class MCAProcessDefinition implements MCPCMLDefinition {
 			content.append(guardDef.toFormula(option));
 		}
 	}
+	
+	private void generateLieInFacts(StringBuilder content, String option){
+		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+		if(context.lieIn.size() != 0){
+			//content.append("\n");
+			for (MCLieInFact lieIn : context.lieIn) {
+				content.append(lieIn.toFormula(option) + "\n");
+			}
+		}
+	}
+	
 	public LinkedList<MCATypeSingleDeclaration> getLocalState() {
 		return localState;
 	}

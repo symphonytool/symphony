@@ -1,5 +1,7 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.expressions;
 
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.LinkedList;
 
 public class MCAEnumVarsetExpression implements MCPVarsetExpression {
@@ -14,9 +16,30 @@ public class MCAEnumVarsetExpression implements MCPVarsetExpression {
 
 	@Override
 	public String toFormula(String option) {
-		return "\""+channelNames.getFirst().toFormula(option)+"\"";
+		StringBuilder result = new StringBuilder();
+		result.append("\"");
+		result.append(channsetToString(option));
+		result.append("\"");
+		
+		return result.toString();
 	}
 
+	private String channsetToString(String option){
+		StringBuilder result = new StringBuilder();
+		result.append("{");
+		Iterator<MCANameChannelExp> it = this.channelNames.iterator();
+		while (it.hasNext()) {
+			MCANameChannelExp item = (MCANameChannelExp) it.next();
+			result.append(item.toFormula(option));
+			if(it.hasNext()){
+				result.append(",");
+			}
+		}
+		result.append("}");
+		
+		return result.toString();
+	}
+	
 	public LinkedList<MCANameChannelExp> getChannelNames() {
 		return channelNames;
 	}

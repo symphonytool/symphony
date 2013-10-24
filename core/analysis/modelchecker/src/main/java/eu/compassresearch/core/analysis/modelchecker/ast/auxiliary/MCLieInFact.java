@@ -22,9 +22,7 @@ public class MCLieInFact implements MCNode {
 		lieIn.append("lieIn(");
 		lieIn.append(commEvent.toFormula(option));
 		lieIn.append(",");
-		lieIn.append("\"");
-		lieIn.append(setExp.toString());
-		lieIn.append("\"");
+		lieIn.append(setExp.toFormula(option));
 		lieIn.append(")");
 		
 		return lieIn.toString();

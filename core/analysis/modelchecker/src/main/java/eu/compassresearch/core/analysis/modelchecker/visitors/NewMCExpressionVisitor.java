@@ -1,5 +1,6 @@
 package eu.compassresearch.core.analysis.modelchecker.visitors;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 
 import org.overture.ast.analysis.AnalysisException;
@@ -37,6 +38,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCPosGuardDef
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCType;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAEnumVarsetExpression;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAEqualsBinaryExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAFatEnumVarsetExpression;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAGreaterEqualNumericBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAGreaterNumericBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAIntLiteralExp;
@@ -207,16 +209,24 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 		
 	}
 	
-	/*
 	@Override
-	public StringBuilder caseAFatEnumVarsetExpression(
-			AFatEnumVarsetExpression node, CMLModelcheckerContext question)
+	public MCNode caseAFatEnumVarsetExpression(
+			AFatEnumVarsetExpression node, NewCMLModelcheckerContext question)
 			throws AnalysisException {
 
-		question.getScriptContent().append("\"" + node.toString() + "\"");
 		
-		return question.getScriptContent();
+		LinkedList<MCANameChannelExp> channelNames = new LinkedList<MCANameChannelExp>();
+		for (ANameChannelExp chanNameExp : node.getChannelNames()) {
+			channelNames.add((MCANameChannelExp) chanNameExp.apply(rootVisitor, question));
+		}
+		
+		MCAFatEnumVarsetExpression result = new MCAFatEnumVarsetExpression(channelNames);
+		
+		return result;
 	}
+	
+	/*
+	
 
 	@Override
 	public StringBuilder caseAVariableExp(AVariableExp node,

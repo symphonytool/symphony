@@ -1,28 +1,58 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.auxiliary;
 
+import java.util.Iterator;
+import java.util.LinkedList;
+
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPCommunicationParameter;
 
 public class MCCommEv implements MCNode {
 
 	private String name;
-	private String expression;
+	private LinkedList<MCPCommunicationParameter> parameters;
 	private MCType value;
 	
 	
-	public MCCommEv(String name, String expression, MCType value) {
+	public MCCommEv(String name, LinkedList<MCPCommunicationParameter> parameters, MCType value) {
 		super();
 		this.name = name;
-		this.expression = expression;
+		this.parameters = parameters;
 		this.value = value;
 	}
 
 
 	@Override
 	public String toFormula(String option) {
-		// TODO Auto-generated method stub
-		return null;
+		StringBuilder result = new StringBuilder();
+		
+		result.append("CommEv(");
+		result.append("\"");
+		result.append(this.name);
+		result.append("\"");
+		result.append(",");
+		result.append("\"");
+		result.append(this.parametersToString(option));
+		result.append("\"");
+		result.append(",");
+		result.append(this.value.toFormula(option));
+		result.append(")");
+		
+		return result.toString();
 	}
 
+	private String parametersToString(String option){
+		StringBuilder result = new StringBuilder();
+		Iterator<MCPCommunicationParameter> it = this.parameters.iterator();
+		while (it.hasNext()) {
+			MCPCommunicationParameter item = (MCPCommunicationParameter) it.next();
+			result.append(item.toFormula(option));
+			if(it.hasNext()){
+				result.append(".");
+			}
+		}
+		
+		return result.toString();
+	}
 
 	public String getName() {
 		return name;
@@ -34,16 +64,6 @@ public class MCCommEv implements MCNode {
 	}
 
 
-	public String getExpression() {
-		return expression;
-	}
-
-
-	public void setExpression(String expression) {
-		this.expression = expression;
-	}
-
-
 	public MCType getValue() {
 		return value;
 	}
@@ -51,6 +71,16 @@ public class MCCommEv implements MCNode {
 
 	public void setValue(MCType value) {
 		this.value = value;
+	}
+
+
+	public LinkedList<MCPCommunicationParameter> getParameters() {
+		return parameters;
+	}
+
+
+	public void setParameters(LinkedList<MCPCommunicationParameter> parameters) {
+		this.parameters = parameters;
 	}
 
 	

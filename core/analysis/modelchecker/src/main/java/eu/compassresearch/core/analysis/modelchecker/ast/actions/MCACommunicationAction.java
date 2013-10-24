@@ -41,7 +41,7 @@ public class MCACommunicationAction implements MCPAction {
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 		StringBuilder result = new StringBuilder();
 		if(this.communicationParameters.size() == 0){
-			result.append("Prefix(CommEv(\"" + this.identifier + "\",\"void\", void),");
+			result.append("Prefix(CommEv(\"" + this.identifier + "\",\"\", void),");
 			result.append(this.action.toFormula(option));
 			result.append(")");
 			
@@ -67,7 +67,8 @@ public class MCACommunicationAction implements MCPAction {
 					if(!generateLieIn && chanSetStack.size()==0){
 						break;
 					}else{
-						MCCommEv commEv = new MCCommEv(this.identifier, "void", new MCVoidType());
+						
+						MCCommEv commEv = new MCCommEv(this.identifier,this.communicationParameters, new MCVoidType());
 						MCLieInFact lieIn = new MCLieInFact(commEv,setExp); 
 						if(!context.lieIn.contains(lieIn)){
 							context.lieIn.add(lieIn);

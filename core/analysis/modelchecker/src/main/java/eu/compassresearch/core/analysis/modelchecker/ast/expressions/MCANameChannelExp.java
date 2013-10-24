@@ -18,7 +18,7 @@ public class MCANameChannelExp implements MCSChannelExp {
 
 	@Override
 	public String toFormula(String option) {
-		return "["+this.identifier+"]";
+		return this.identifier;
 	}
 
 

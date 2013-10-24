@@ -18,6 +18,7 @@ public class MCAGeneralisedParallelismParallelAction extends
 	public String toFormula(String option) {
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 		StringBuffer result = new StringBuffer();
+		
 		//it puts the event set in the context so the internal process can access and generate lieIn
 		context.setStack.add(this.chansetExpression);
 	
@@ -30,6 +31,7 @@ public class MCAGeneralisedParallelismParallelAction extends
 		result.append(this.rightAction.toFormula(option));
 		result.append(")");
 
+		//it removes the synchronisation set form the context
 		context.setStack.pop();
 		
 		return result.toString();
