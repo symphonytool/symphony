@@ -8,6 +8,7 @@ import java.util.List;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
+import org.overture.ast.lex.LexIdentifierToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.types.ANatNumericBasicType;
 import org.overture.ast.types.PType;
@@ -23,7 +24,6 @@ import eu.compassresearch.ast.definitions.AOperationsDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.expressions.SRenameChannelExp;
-import eu.compassresearch.ast.lex.LexIdentifierToken;
 import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.ast.process.AAlphabetisedParallelismProcess;
 import eu.compassresearch.ast.process.AAlphabetisedParallelismReplicatedProcess;
@@ -744,52 +744,52 @@ public class TCProcessVisitor extends
 		CmlTypeCheckInfo actionScope = cmlEnv.newScope();
 
 		// resolve functions/operation names prior to TC
-		for (PDefinition def : node.getDefinitionParagraphs())
-		{
-			if (def.getName() != null)
-			{
-				if (def instanceof AFunctionsDefinition)
-				{
-					AFunctionsDefinition funcDef = (AFunctionsDefinition) def;
-					for (PDefinition d : funcDef.getFunctionDefinitions())
-					{
-						actionScope.addVariable(d.getName(), d);
-					}
-				} else if (def instanceof AOperationsDefinition)
-				{
-					AOperationsDefinition opDef = (AOperationsDefinition) def;
-					for (PDefinition d : opDef.getOperations())
-					{
-						actionScope.addVariable(d.getName(), d);
-					}
-				} else
-				{
-					actionScope.addVariable(def.getName(), def);
-				}
-			}
-		}
+//		for (PDefinition def : node.getDefinitionParagraphs())
+//		{
+//			if (def.getName() != null)
+//			{
+//				if (def instanceof AFunctionsDefinition)
+//				{
+//					AFunctionsDefinition funcDef = (AFunctionsDefinition) def;
+//					for (PDefinition d : funcDef.getFunctionDefinitions())
+//					{
+//						actionScope.addVariable(d.getName(), d);
+//					}
+//				} else if (def instanceof AOperationsDefinition)
+//				{
+//					AOperationsDefinition opDef = (AOperationsDefinition) def;
+//					for (PDefinition d : opDef.getOperations())
+//					{
+//						actionScope.addVariable(d.getName(), d);
+//					}
+//				} else
+//				{
+//					actionScope.addVariable(def.getName(), def);
+//				}
+//			}
+//		}
 
 		// Type check all the paragraph definitions
 		List<PDefinition> fixedDefinitions = new LinkedList<PDefinition>();
-		for (PDefinition def : node.getDefinitionParagraphs())
-		{
-			CmlTypeCheckInfo scope = actionScope;
-
-			if (def.apply(question.assistantFactory.getFunctionChecker()))
-			{
-				scope = cmlEnv;
-			}
-			PType type = def.apply(this.parentChecker, scope);
-			if (!successfulType(type))
-				return issueHandler.addTypeError(def, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(def.getName()
-						+ ""));
-			fixedDefinitions.addAll(TCDeclAndDefVisitor.handleDefinitionsForOverture(def));
-			// for (PDefinition d : type.getDefinitions()) {
-			// actionScope.addVariable(d.getName(), d);
-			// }
-		}
-		node.getDefinitionParagraphs().clear();
-		node.getDefinitionParagraphs().addAll(fixedDefinitions);
+//		for (PDefinition def : node.getDefinitionParagraphs())
+//		{
+//			CmlTypeCheckInfo scope = actionScope;
+//
+//			if (def.apply(question.assistantFactory.getFunctionChecker()))
+//			{
+//				scope = cmlEnv;
+//			}
+//			PType type = def.apply(this.parentChecker, scope);
+//			if (!successfulType(type))
+//				return issueHandler.addTypeError(def, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(def.getName()
+//						+ ""));
+//			fixedDefinitions.addAll(TCDeclAndDefVisitor.handleDefinitionsForOverture(def));
+//			// for (PDefinition d : type.getDefinitions()) {
+//			// actionScope.addVariable(d.getName(), d);
+//			// }
+//		}
+//		node.getDefinitionParagraphs().clear();
+//		node.getDefinitionParagraphs().addAll(fixedDefinitions);
 
 		question.contextSet(eu.compassresearch.core.typechecker.CmlTypeCheckInfo.class, (eu.compassresearch.core.typechecker.CmlTypeCheckInfo) question);
 		PType actionType = node.getAction().apply(this.parentChecker, actionScope);

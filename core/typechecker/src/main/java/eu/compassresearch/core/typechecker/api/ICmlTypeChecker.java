@@ -1,5 +1,6 @@
 package eu.compassresearch.core.typechecker.api;
 
+import org.overture.ast.messages.InternalException;
 import org.overture.ast.types.PType;
 
 import eu.compassresearch.ast.program.PSource;
@@ -10,6 +11,22 @@ import eu.compassresearch.ast.types.AErrorType;
  */
 public interface ICmlTypeChecker
 {
+	public class AbortTypecheck extends InternalException
+	{
+
+		public AbortTypecheck(int number, String message)
+		{
+			super(number, message);
+		}
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 789485822073572522L;
+
+	}
+	
+	
 
 	/**
 	 * This is once and for all how we determine if a Cml Source is well typed.

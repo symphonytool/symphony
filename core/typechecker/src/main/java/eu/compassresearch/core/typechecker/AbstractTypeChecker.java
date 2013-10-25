@@ -25,4 +25,10 @@ abstract class AbstractTypeChecker implements ICmlTypeChecker
 	 * Clear out all warnings and errors and resets the type checker.
 	 */
 	abstract void clear();
+	
+	
+	public static void abort(int number, String reason)
+	{
+		throw new AbortTypecheck(number, reason);
+	}
 }

@@ -19,8 +19,7 @@ public class CmlPDefinitionAssistantTC extends PDefinitionAssistantTC
 	public PType getType(PDefinition def)
 	{
 		// FIXME: handle CML type lookup
-		if (def instanceof AProcessDefinition
-				)
+		if (def instanceof AProcessDefinition)
 		{
 			return null;
 		}

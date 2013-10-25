@@ -17,19 +17,21 @@ import org.overture.ast.definitions.SFunctionDefinition;
 import org.overture.ast.factory.AstFactory;
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.lex.Dialect;
+import org.overture.ast.lex.LexIdentifierToken;
 import org.overture.ast.lex.LexNameList;
+import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.types.PType;
 import org.overture.config.Release;
 import org.overture.config.Settings;
+import org.overture.typechecker.ClassTypeChecker;
 import org.overture.typechecker.Environment;
 import org.overture.typechecker.PublicClassEnvironment;
 import org.overture.typechecker.TypeCheckInfo;
 import org.overture.typechecker.TypeChecker;
 
 import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
-import eu.compassresearch.ast.lex.LexIdentifierToken;
-import eu.compassresearch.ast.lex.LexNameToken;
+import eu.compassresearch.ast.definitions.AActionClassDefinition;
 import eu.compassresearch.ast.messages.InternalException;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.typechecker.analysis.CollectGlobalStateClass;
@@ -37,6 +39,7 @@ import eu.compassresearch.core.typechecker.analysis.CollectGlobalStateClass.Glob
 import eu.compassresearch.core.typechecker.api.ITypeComparator;
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 import eu.compassresearch.core.typechecker.version2.CmlVdmTypeCheckVisitor;
+import eu.compassresearch.core.typechecker.weeding.OperationBodyValidater;
 import eu.compassresearch.core.typechecker.weeding.SetLocationVisitor;
 import eu.compassresearch.core.typechecker.weeding.Weeding1;
 import eu.compassresearch.core.typechecker.weeding.Weeding2;
@@ -173,11 +176,18 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker
 			// return false;
 			// }
 
-		} catch (AnalysisException ae)
+		} catch (AnalysisException e)
 		{
 			// An expected anomaly was found
-			ae.printStackTrace();
-			throw new InternalException(0, ae.getMessage());
+			e.printStackTrace();
+			throw new InternalException(0, e.getMessage());
+		} catch (AbortTypecheck e)
+		{
+			if (e.number != -1)
+			{
+				throw e;
+			}
+
 		} catch (Exception e)
 		{
 			e.printStackTrace();
@@ -200,12 +210,16 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker
 		classes.add(0, globalClass);
 
 		WeedingUnresolvedPathReplacement.apply(sourceForest, classes);
-		// FIXME: check that operation bodies only contain the allowed subset
+		// check that operation bodies only contain the allowed subset
+		if (!OperationBodyValidater.apply(sourceForest, issueHandler))
+		{
+			abort(-1, "Stopped due to type errors in operatuib bodies");
+		}
 
 		// DotUtil.dot(classes);
 
 		Settings.dialect = Dialect.VDM_PP;
-		TypeChecker typeChecker = new org.overture.typechecker.ClassTypeChecker(classes)
+		TypeChecker typeChecker = new ClassTypeChecker(classes,new CmlTypeCheckerAssistantFactory())
 		{
 			@Override
 			protected QuestionAnswerAdaptor<TypeCheckInfo, PType> getTypeCheckVisitor()
@@ -220,6 +234,7 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker
 				Environment allClasses = new PublicClassEnvironment(assistantFactory, classes, globalEnv, null);
 				return allClasses;
 			}
+
 		};
 		typeChecker.typeCheck();
 		// PrintWriter out = new PrintWriter(System.out);
@@ -268,6 +283,14 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker
 					@Override
 					public void caseAClassClassDefinition(
 							AClassClassDefinition node)
+							throws AnalysisException
+					{
+						classes.add(node);
+					}
+
+					@Override
+					public void caseAActionClassDefinition(
+							AActionClassDefinition node)
 							throws AnalysisException
 					{
 						classes.add(node);

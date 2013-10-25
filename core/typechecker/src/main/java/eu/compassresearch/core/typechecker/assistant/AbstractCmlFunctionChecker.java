@@ -58,6 +58,7 @@ import eu.compassresearch.ast.actions.AWriteCommunicationParameter;
 import eu.compassresearch.ast.analysis.intf.ICMLAnswer;
 import eu.compassresearch.ast.declarations.AExpressionSingleDeclaration;
 import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
+import eu.compassresearch.ast.definitions.AActionClassDefinition;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AActionsDefinition;
 import eu.compassresearch.ast.definitions.AChannelNameDefinition;
@@ -1205,6 +1206,13 @@ public abstract class AbstractCmlFunctionChecker extends FunctionChecker
 	{
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public Boolean caseAActionClassDefinition(AActionClassDefinition node)
+			throws AnalysisException
+	{
+		return false;
 	}
 
 }
