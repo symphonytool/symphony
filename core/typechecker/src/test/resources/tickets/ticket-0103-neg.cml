@@ -1,6 +1,6 @@
 /*Ticket: https://sourceforge.net/p/compassresearch/tickets/103/*/
 
-class
+process
 
  A =
 
@@ -16,6 +16,6 @@ operations
  	pre op1()
  	
  	
-
+@	Skip
 
 end

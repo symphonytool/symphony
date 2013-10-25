@@ -6,12 +6,21 @@ begin
 
 
 
+functions
+
+ 	
+public fn: int -> int 
+fn(a) == 1
+
 operations
 
- Test : ()==> Test Test()==Skip public fn: int ==> int fn(a) == is not yet specified
-
-operations
-
- t : () ==> int t()==( dcl out : Test @ out := new Test(); return out.fn(4))
+ t : () ==> int 
+ t()==
+ ( 
+ 	dcl out : Test @ 
+ 		out := new Test(); 
+ 	
+ 	return out.fn(4)
+ )
 
 end

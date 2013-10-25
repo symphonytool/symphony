@@ -8,6 +8,10 @@ begin
 
 operations
 
- o:int ==> int o(a) == (return ("ras"))
+ op:int ==> int 
+ op(a) == 
+ (
+ 	return ("ras")
+ )
 
 end
