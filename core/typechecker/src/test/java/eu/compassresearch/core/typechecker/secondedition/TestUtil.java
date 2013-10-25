@@ -64,7 +64,7 @@ public class TestUtil
 
 	static List<String> parse(AFileSource... files)
 	{
-		boolean ok = true;
+//		boolean ok = true;
 		List<String> errors = new Vector<String>();
 		for (AFileSource fileSource : files)
 		{
@@ -80,11 +80,11 @@ public class TestUtil
 				parser.sourceFileName = lexer.sourceFileName;
 				fileSource.setParagraphs(parser.source());
 
-				ok &= true;
+//				ok &= true;
 			} catch (Exception e)
 			{
-//				e.printStackTrace();
-				ok &= false;
+				// e.printStackTrace();
+//				ok &= false;
 			}
 
 			for (CmlParserError string : lexer.getErrors())
