@@ -73,4 +73,9 @@ public class NullBinding implements Binding {
 	public String toFormula(String option) {
 		return toFormula();
 	}
+
+	@Override
+	public String toFormulaGeneric() {
+		return "nBind";
+	}
 }

@@ -15,6 +15,7 @@ import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.ast.types.PCMLType;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAIntNumericBasicType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANatNumericBasicType;
 
 public class NewMCTypeAndValueVisitor extends
@@ -39,6 +40,12 @@ public class NewMCTypeAndValueVisitor extends
 	public MCNode caseANatNumericBasicType(ANatNumericBasicType node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
 		return new MCANatNumericBasicType();
+	}
+	
+	@Override
+	public MCNode caseAIntNumericBasicType(AIntNumericBasicType node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		return new MCAIntNumericBasicType();
 	}
 
 	/*

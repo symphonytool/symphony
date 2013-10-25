@@ -49,6 +49,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANameChan
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANotEqualsBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASeqEnumSeqExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASetEnumSetExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAVariableExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 
 public class NewMCExpressionVisitor extends
@@ -236,6 +237,13 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 		MCAFatEnumVarsetExpression result = new MCAFatEnumVarsetExpression(channelNames);
 		
 		return result;
+	}
+	
+
+	@Override
+	public MCNode caseAVariableExp(AVariableExp node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		return new MCAVariableExp(node.getName().toString());
 	}
 	
 	/*

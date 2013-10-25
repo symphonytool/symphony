@@ -4,6 +4,8 @@ import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.Binding;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Int;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Str;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 
 public class MCAssignDef implements MCNode {
@@ -30,19 +32,24 @@ public class MCAssignDef implements MCNode {
 	public String toFormula(String option) {
 		StringBuilder result = new StringBuilder();
 		
-		result.append("assignDef(0, "+ counterId + ", st, st_)  :- State(0,st,name,assign("+ counterId +")),");
+		max = NewCMLModelcheckerContext.getInstance().maximalBinding;
+		
+		result.append("  assignDef(0, "+ counterId + ", st, st_)  :- State(0,st,name,assign("+ counterId +")), ");
 		result.append("st = "); 
 		result.append(max.toFormula(MCNode.NAMED)); //with variable names
-		result.append("st_ = ");
+		result.append(", st_ = ");
 		Binding maxCopy = max.copy();
-		String newValueVarName = stateDesignator.toFormula(option) + "_";
-		//maxCopy.updateBinding(variableName,newValueVarName); //this needs to be adjusted
-		result.append(maxCopy.toFormula(MCNode.NAMED)); //with variable names but values changed by the assignment
+		String varName = stateDesignator.toFormula(MCNode.NAMED);
+		String newValueVarName = varName + "_";
+		Str newVarValue = new Str(newValueVarName);
+		maxCopy.updateBinding(varName,newVarValue); 
+		result.append(maxCopy.toFormula(MCNode.DEFAULT)); 
 		
 		//THE EXPRESSION OF THE ASSIGNMENT
-		result.append(",");
+		result.append(", ");
 		result.append(newValueVarName + " = " + expression.toFormula(option)); //expression assignment
 		
+		result.append(".");
 		
 		return result.toString();
 	}

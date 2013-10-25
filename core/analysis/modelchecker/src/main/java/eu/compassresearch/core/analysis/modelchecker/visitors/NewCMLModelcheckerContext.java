@@ -189,11 +189,13 @@ public class NewCMLModelcheckerContext {
 	}
 	
 	public Binding getMaxBinding(){
-		Binding maximalBinding = new NullBinding();
+		return this.maximalBinding;
+		/*Binding maximalBinding = new NullBinding();
 		for (SingleBind currVar : stateVariables) {
 			maximalBinding = maximalBinding.addBinding("np", currVar.getVariableName(), currVar.getVariableValue());
 		}
 		return maximalBinding;
+		*/
 	}
 	
 	public Binding getMaxBindingWithStates(){

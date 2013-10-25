@@ -14,8 +14,9 @@ public class MCADeclareStatementAction implements MCPAction {
 
 	@Override
 	public String toFormula(String option) {
-		// TODO Auto-generated method stub
-		return null;
+		StringBuilder result = new StringBuilder();
+		result.append(assignmentDefs.getFirst().toFormula(option));
+		return result.toString();
 	}
 
 	public LinkedList<MCPCMLDefinition> getAssignmentDefs() {

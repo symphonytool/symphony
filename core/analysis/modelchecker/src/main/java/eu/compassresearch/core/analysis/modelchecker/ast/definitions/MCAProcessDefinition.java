@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 
 import org.overture.ast.analysis.AnalysisException;
 
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCAssignDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCCondition;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCGuardDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCLieInFact;
@@ -15,6 +16,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCATypeSin
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.process.MCPProcess;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.Binding;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.NullBinding;
 import eu.compassresearch.core.analysis.modelchecker.visitors.CMLModelcheckerContext;
 import eu.compassresearch.core.analysis.modelchecker.visitors.Condition;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
@@ -57,7 +59,11 @@ public class MCAProcessDefinition implements MCPCMLDefinition {
 		result.append(this.process.toFormula(option));
 		result.append(").\n");
 		
+		generateInitialState(result,option);
+		
 		generateGuardDefinitions(result,option);
+		
+		generateAssignDefinitions(result, option);
 		
 		/*
 		if(question.info.containsKey(Utilities.ASSIGNMENT_DEFINITION_KEY)){
@@ -190,6 +196,8 @@ public class MCAProcessDefinition implements MCPCMLDefinition {
 	}
 
 
+	
+	
 	private void generateAuxiliaryActions(StringBuilder content, String option){
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 		for (MCAActionDefinition localAction : context.localActions) {
@@ -197,6 +205,13 @@ public class MCAProcessDefinition implements MCPCMLDefinition {
 		}
 	}
 
+	private void generateInitialState(StringBuilder content, String option){
+		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+		content.append("  State(0,");
+		content.append(context.maximalBinding.toFormula(option));
+		content.append(",np,pBody)  :- GivenProc(np), ProcDef(np,nopar,pBody).\n");
+	}
+	
 	private void generateGuardDefinitions(StringBuilder content, String option){
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 	
@@ -204,6 +219,15 @@ public class MCAProcessDefinition implements MCPCMLDefinition {
 			Entry<MCPCMLExp,MCGuardDef> item = (Entry<MCPCMLExp,MCGuardDef>) iterator.next();
 			MCGuardDef guardDef = item.getValue();
 			content.append(guardDef.toFormula(option));
+		}
+	}
+	
+	private void generateAssignDefinitions(StringBuilder content, String option){
+		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+		if(context.assignDefs.size() != 0){
+			for (MCAssignDef assingnDef : context.assignDefs) {
+				content.append(assingnDef.toFormula(option) + "\n");
+			}
 		}
 	}
 	

@@ -1,6 +1,7 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.expressions;
 
-import org.overture.ast.expressions.AVariableExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
+
 
 public class MCAVariableExp implements MCNumericExp {
 
@@ -17,8 +18,11 @@ public class MCAVariableExp implements MCNumericExp {
 
 	@Override
 	public String toFormula(String option) {
-		// TODO Auto-generated method stub
-		return null;
+		StringBuilder result = new StringBuilder();
+		if(option.equals(MCNode.NAMED)){
+			result.append(this.getName());
+		} else result.append("Int("+this.getName()+")");
+		return result.toString();
 	}
 
 

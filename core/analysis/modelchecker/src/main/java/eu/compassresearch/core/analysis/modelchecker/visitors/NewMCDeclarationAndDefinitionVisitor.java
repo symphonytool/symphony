@@ -4,9 +4,12 @@ import java.util.LinkedList;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
+import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.node.INode;
+import org.overture.ast.types.AIntNumericBasicType;
+import org.overture.ast.types.PType;
 
 import eu.compassresearch.ast.actions.PParametrisation;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
@@ -24,9 +27,16 @@ import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCAExpress
 import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCATypeSingleDeclaration;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAActionDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAActionsDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAAssignmentDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAProcessDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.process.MCPProcess;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAIntNumericBasicType;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.SingleBind;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Int;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Type;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.UndefinedValue;
 
 public class NewMCDeclarationAndDefinitionVisitor extends
 		QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
@@ -118,6 +128,29 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 		return new MCAExpressionSingleDeclaration(identifiers, expression);
 	}
 
+	
+	@Override
+	public MCNode caseAAssignmentDefinition(AAssignmentDefinition node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		
+		PType type = (PType) node.getType();
+		PExp expr = (PExp) node.getExpression();
+		MCPCMLType expType = null;
+		if(type instanceof AIntNumericBasicType){
+			expType = new MCAIntNumericBasicType();
+		}		
+		
+		MCPCMLExp expression = (MCPCMLExp) expr;
+		String varName = node.getName().toString();
+		Type varValue = new UndefinedValue();
+		//Int varValue = new Int(0);
+		//varValue.setS(varName);
+		SingleBind newBind = new SingleBind(varName,varValue);
+		question.maximalBinding = question.maximalBinding.addBinding("nP", varName, varValue);
+		
+		return new MCAAssignmentDefinition(varName, expression, expType);
+	}
+	
 	/*
 	@Override
 	public StringBuilder caseAChannelsDefinition(AChannelsDefinition node,

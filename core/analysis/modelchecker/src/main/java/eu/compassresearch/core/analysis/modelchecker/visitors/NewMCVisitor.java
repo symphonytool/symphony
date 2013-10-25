@@ -14,6 +14,7 @@ import org.overture.ast.expressions.SSetExp;
 import org.overture.ast.node.INode;
 import org.overture.ast.statements.PStateDesignator;
 import org.overture.ast.types.PType;
+import org.overture.ast.types.SNumericBasicType;
 
 import eu.compassresearch.ast.actions.AValParametrisation;
 import eu.compassresearch.ast.actions.PAction;
@@ -80,6 +81,11 @@ public class NewMCVisitor extends
 		return  node.apply(emptyVisitor, question);
 	}
 	
+	@Override
+	public MCNode defaultPExp(PExp node, NewCMLModelcheckerContext question)
+			throws AnalysisException {
+		return node.apply(this.expressionVisitor, question);
+	}
 	
 	@Override
 	public MCNode defaultSBinaryExp(SBinaryExp node,
@@ -151,6 +157,12 @@ public class NewMCVisitor extends
 			PStateDesignator node, NewCMLModelcheckerContext question) throws AnalysisException
 	{
 		return node.apply(emptyVisitor, question);
+	}
+	
+	@Override
+	public MCNode defaultSNumericBasicType(SNumericBasicType node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		return node.apply(this.typeAndValueVisitor, question);
 	}
 	
 	/*
@@ -242,6 +254,8 @@ public class NewMCVisitor extends
 		this.basicContent = basicContent;
 	}
 
+	
+	
 	public static void main(String[] args) throws Throwable {
 		String cml_folder_name = "src/test/resources";
 		String cml_folder = "F:\\Copy\\ProjetoCompass\\compassresearch-code\\core\\analysis\\modelchecker\\src\\test\\resources";
@@ -251,7 +265,7 @@ public class NewMCVisitor extends
 			files = folder.listFiles();
 		}
 		
-		String cml_file = "src/test/resources/action-vardecl.cml";
+		String cml_file = "src/test/resources/action-vardecl4.cml";
 		System.out.println("Testing on " + cml_file);
 		PSource source1 = Utilities.makeSourceFromFile(cml_file);
 		NewMCVisitor visitor1 = new NewMCVisitor(source1);

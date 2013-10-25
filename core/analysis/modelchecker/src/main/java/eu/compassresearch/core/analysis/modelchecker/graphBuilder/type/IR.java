@@ -31,6 +31,10 @@ public class IR implements Type{
 		return "IR("+String.valueOf(value)+")";
 	}
 	
+	public String toFormulaGeneric() {
+		return "IR("+String.valueOf(value)+"_)";
+	}
+	
 	public String toFormulaWithUnderscore(){
 		return "IR(_)";
 	}

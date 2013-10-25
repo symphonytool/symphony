@@ -1,7 +1,5 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.definitions;
 
-import org.overture.ast.definitions.AAssignmentDefinition;
-
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 
@@ -23,9 +21,11 @@ public class MCAAssignmentDefinition implements MCPCMLDefinition {
 
 	@Override
 	public String toFormula(String option) {
-	
-		// TODO Auto-generated method stub
-		return null;
+		StringBuilder result = new StringBuilder();
+		result.append("var(\""+getName()+"\",\"");
+		result.append(getExpType().toFormula(option));
+		result.append("\",");
+		return result.toString();
 	}
 
 

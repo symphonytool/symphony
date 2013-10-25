@@ -102,6 +102,43 @@ public class BBinding implements Binding {
 		return result.toString();
 	}
 	
+	public String toFormulaGeneric(){
+		StringBuilder result = new StringBuilder();
+		LinkedList<SingleBind> bindList = new LinkedList<SingleBind>(); 
+		getSingleBindings(bindList, this);
+		for (Iterator<SingleBind> iterator = bindList.iterator(); iterator.hasNext();) {
+			result.append("BBinding(" + this.procName + ",");
+			SingleBind singleBind = (SingleBind) iterator.next();
+			result.append(singleBind.toFormulaGeneric());
+			if(iterator.hasNext()){
+				result.append(",");
+			}
+		}
+		result.append(",nBind");
+		for (int i = 0; i < bindList.size(); i++) {
+			result.append(")");
+		}
+		return result.toString();
+	}
+	
+	public String toFormulaNamed(){
+		StringBuilder result = new StringBuilder();
+		LinkedList<SingleBind> bindList = new LinkedList<SingleBind>(); 
+		getSingleBindings(bindList, this);
+		for (Iterator<SingleBind> iterator = bindList.iterator(); iterator.hasNext();) {
+			result.append("BBinding(" + this.procName + ",");
+			SingleBind singleBind = (SingleBind) iterator.next();
+			result.append(singleBind.toFormula(MCNode.NAMED));
+			if(iterator.hasNext()){
+				result.append(",");
+			}
+		}
+		result.append(",nBind");
+		for (int i = 0; i < bindList.size(); i++) {
+			result.append(")");
+		}
+		return result.toString();
+	}
 	public String toFormulaWithState() {
 		StringBuilder result = new StringBuilder();
 		LinkedList<SingleBind> bindList = new LinkedList<SingleBind>(); 
@@ -203,7 +240,9 @@ public class BBinding implements Binding {
 		if(option.equals(MCNode.DEFAULT)){
 			return toFormula();
 		} else if(option.equals(MCNode.GENERIC)){
-			return toFormulaWithUnderscore();
+			return toFormulaGeneric();
+		} else if(option.equals(MCNode.NAMED)){
+			return toFormulaNamed();
 		}
 		return toFormulaWithState();
 	}
