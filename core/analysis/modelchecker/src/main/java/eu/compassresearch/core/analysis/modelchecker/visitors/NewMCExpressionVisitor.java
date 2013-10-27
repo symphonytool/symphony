@@ -47,6 +47,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCALessEqua
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCALessNumericBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANameChannelExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANotEqualsBinaryExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAPlusNumericBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASeqEnumSeqExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASetEnumSetExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAVariableExp;
@@ -70,28 +71,20 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 		throw new ModelcheckerRuntimeException(ModelcheckerErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName()));
 	}
 	
-	/*
+	
 	@Override
-	public StringBuilder caseAPlusNumericBinaryExp(APlusNumericBinaryExp node,
-			CMLModelcheckerContext question) throws AnalysisException {
+	public MCNode caseAPlusNumericBinaryExp(APlusNumericBinaryExp node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
 		
-		CMLModelcheckerContext localCtxt = new CMLModelcheckerContext(); 
-		//String result = node.getLeft().apply(this, localCtxt).toString();
-		String result = node.getLeft().apply(this, localCtxt).toString();
-		result = eu.compassresearch.core.analysis.modelchecker.graphBuilder.util.Utilities.extractConstructor(result);
-		question.getScriptContent().append(result);
-		question.getScriptContent().append(" + ");
-		localCtxt.reset();
-		//result = node.getRight().apply(this, localCtxt).toString();
-		result = node.getRight().apply(this, localCtxt).toString();
-		result = eu.compassresearch.core.analysis.modelchecker.graphBuilder.util.Utilities.extractConstructor(result);
-		question.getScriptContent().append(result);
+		MCPCMLExp left = (MCPCMLExp) node.getLeft().apply(this, question);
+		MCPCMLExp right = (MCPCMLExp) node.getRight().apply(this, question);
+		MCAPlusNumericBinaryExp result = new MCAPlusNumericBinaryExp(left,right);
 		
-		return question.getScriptContent();
+		return result;
 	}
 		
 
-
+	/*
 	@Override
 	public StringBuilder caseASubtractNumericBinaryExp(
 			ASubtractNumericBinaryExp node, CMLModelcheckerContext question)

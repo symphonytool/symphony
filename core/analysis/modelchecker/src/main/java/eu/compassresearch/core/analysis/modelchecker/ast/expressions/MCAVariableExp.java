@@ -19,9 +19,9 @@ public class MCAVariableExp implements MCNumericExp {
 	@Override
 	public String toFormula(String option) {
 		StringBuilder result = new StringBuilder();
-		if(option.equals(MCNode.NAMED)){
-			result.append(this.getName());
-		} else result.append("Int("+this.getName()+")");
+		
+		result.append(this.getName());
+		
 		return result.toString();
 	}
 

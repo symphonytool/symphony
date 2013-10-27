@@ -70,7 +70,7 @@ public class NewMCVisitor extends
 		this.declAndDefVisitor = new NewMCDeclarationAndDefinitionVisitor(this);
 		this.emptyVisitor = new NewMCEmptyVisitor();
 		this.expressionVisitor = new NewMCExpressionVisitor(this);
-		
+		this.typeAndValueVisitor = new NewMCTypeAndValueVisitor(this);
 	}
 	
 	@Override
@@ -162,6 +162,7 @@ public class NewMCVisitor extends
 	@Override
 	public MCNode defaultSNumericBasicType(SNumericBasicType node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
+		
 		return node.apply(this.typeAndValueVisitor, question);
 	}
 	
@@ -265,7 +266,7 @@ public class NewMCVisitor extends
 			files = folder.listFiles();
 		}
 		
-		String cml_file = "src/test/resources/action-vardecl4.cml";
+		String cml_file = "src/test/resources/action-assignment-stateVar.cml";
 		System.out.println("Testing on " + cml_file);
 		PSource source1 = Utilities.makeSourceFromFile(cml_file);
 		NewMCVisitor visitor1 = new NewMCVisitor(source1);

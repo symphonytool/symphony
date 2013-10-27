@@ -45,6 +45,7 @@ public class NewMCTypeAndValueVisitor extends
 	@Override
 	public MCNode caseAIntNumericBasicType(AIntNumericBasicType node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
+		
 		return new MCAIntNumericBasicType();
 	}
 

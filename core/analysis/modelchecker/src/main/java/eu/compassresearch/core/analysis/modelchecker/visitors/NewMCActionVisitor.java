@@ -9,6 +9,7 @@ import org.overture.ast.expressions.PExp;
 import org.overture.ast.node.INode;
 
 import eu.compassresearch.ast.actions.ABlockStatementAction;
+import eu.compassresearch.ast.actions.ACallStatementAction;
 import eu.compassresearch.ast.actions.AChaosAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.ADeclareStatementAction;
@@ -35,6 +36,7 @@ import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCABlockStatementAction;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCACallStatementAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAChaosAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCACommunicationAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCADeclareStatementAction;
@@ -488,87 +490,27 @@ public class NewMCActionVisitor extends
 		
 		return result;
 	}
-	/*
+	
 	@Override
-	public StringBuilder caseACallStatementAction(ACallStatementAction node,
-			CMLModelcheckerContext question) throws AnalysisException {
+	public MCNode caseACallStatementAction(ACallStatementAction node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		
+		String name = node.getName().toString();
 		LinkedList<PExp> args = node.getArgs();
-		
-		StringBuilder callStr = new StringBuilder();
-		ArrayList<AActionDefinition> localActions = question.localActions;
-		boolean callResolved = false;
-		if(localActions != null){ //if there are auxiliary actions
-			for (AActionDefinition localAction : localActions) {
-				if(localAction.getName().toString().equals(node.getName().toString())){
-					callResolved = true;
-					callStr.append("proc(\"" + localAction.getName().toString() + "\",");
-					if(args.size()==0){
-						callStr.append("nopar");
-					}
-					if(args.size()==1){
-						CMLModelcheckerContext newCtxt = new CMLModelcheckerContext();
-						newCtxt.getScriptContent().append("SPar(");
-						//args.getFirst().apply(this, newCtxt);
-						args.getFirst().apply(rootVisitor, newCtxt);
-						newCtxt.getScriptContent().append(")");
-						callStr.append(newCtxt.getScriptContent().toString());
-					}
-					callStr.append(")");
-				}
-			}
+		LinkedList<MCPCMLExp> mcArgs = new LinkedList<MCPCMLExp>();
+		for (PExp pExp : args) {
+			mcArgs.add((MCPCMLExp) pExp.apply(rootVisitor, question));
 		}
-		if (!callResolved) {
-			for (SCmlOperationDefinition pDefinition : question.operations) {
-				if(pDefinition.getName().toString().equals(node.getName().toString())){
-					callStr.append("operation(\"" + pDefinition.getName().toString() + "\",");
-					if(args.size()==0){
-						callStr.append("nopar");
-					}
-					if(args.size()==1){
-						CMLModelcheckerContext newCtxt = new CMLModelcheckerContext(); 
-						//String argStr = args.getFirst().apply(this, newCtxt).toString();
-						String argStr = args.getFirst().apply(rootVisitor, newCtxt).toString();
-						callStr.append(argStr);
-					}
-					callStr.append(")");
-				}
-			}
-		}
+		MCACallStatementAction result = new MCACallStatementAction(name,mcArgs);
 		
-		question.getScriptContent().append(callStr);
+		return result;
 		
-		// Adding auxiliary definitions
-				// LinkedList<PDefinition> localDefinitions = (LinkedList<PDefinition>)
-				// question.info.get(node);
-				//LinkedList<PDefinition> localDefinitions = (LinkedList<PDefinition>) question.info
-				//		.get(Utilities.LOCAL_DEFINITIONS_KEY);
-
-				//CMLModelcheckerContext auxCtxt = new CMLModelcheckerContext();
-				//auxCtxt.copyChannelInfo(question);
-				//if (localActions != null) {
-				//	for (PDefinition pDefinition : localActions) {
-				//		pDefinition.apply(this, auxCtxt);
-				//	}
-				//}
-				//question.copyIOCommDefInfo(auxCtxt);
-				//int auxIndex = question.getScriptContent().indexOf(
-				//		"#AUXILIARY_PROCESSES#");
-				//if (auxIndex != -1) {
-				//	question.getScriptContent().replace(auxIndex,
-				//			auxIndex + "#AUXILIARY_PROCESSES#".length(),
-				//			auxCtxt.getScriptContent().toString());
-				//}
-				//if(question.info.containsKey(Utilities.IOCOMM_DEFINITIONS_KEY)){
-				//	question.getScriptContent().append(question.info.get(Utilities.IOCOMM_DEFINITIONS_KEY));
-				//}
-				
-		return question.getScriptContent();
 	}
 
 	/////REPLICATED ACTIONS
 	
 	
-	*/
+	
 	
 	@Override
 	public MCNode createNewReturnValue(INode node,

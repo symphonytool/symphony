@@ -34,7 +34,7 @@ public class MCAActionDefinition implements MCPCMLDefinition {
 		LinkedList<MCPParametrisation> parameters = getDeclarations();
 		
 		if(parameters.size()==0){
-			result.append("nopar");
+			result.append("void");
 			result.append(",");
 			
 			// it converts the internal action (body)
@@ -87,6 +87,16 @@ public class MCAActionDefinition implements MCPCMLDefinition {
 
 	public void setAction(MCPAction action) {
 		this.action = action;
+	}
+
+
+	public String getName() {
+		return name;
+	}
+
+
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	

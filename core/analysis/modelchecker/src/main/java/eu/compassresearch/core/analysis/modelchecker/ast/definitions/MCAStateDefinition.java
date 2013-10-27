@@ -7,7 +7,8 @@ import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAFieldField;
 
 public class MCAStateDefinition implements MCPCMLDefinition {
 
-	private String name;
+	//private String name;
+	private LinkedList<MCPCMLDefinition> stateDefs;
 	private LinkedList<MCAFieldField> fields;
 	private MCAExplicitFunctionDefinition initDef;
 	private MCPCMLExp initExpression;
@@ -15,11 +16,10 @@ public class MCAStateDefinition implements MCPCMLDefinition {
 	private MCPCMLExp invExpression;
 
 	
-	public MCAStateDefinition(String name, LinkedList<MCAFieldField> fields,
+	public MCAStateDefinition(LinkedList<MCPCMLDefinition> stateDefs, LinkedList<MCAFieldField> fields,
 			MCAExplicitFunctionDefinition initDef, MCPCMLExp initExpression,
 			MCAExplicitFunctionDefinition invDef, MCPCMLExp invExpression) {
-		super();
-		this.name = name;
+		this.stateDefs = stateDefs;
 		this.fields = fields;
 		this.initDef = initDef;
 		this.initExpression = initExpression;
@@ -35,14 +35,6 @@ public class MCAStateDefinition implements MCPCMLDefinition {
 	}
 
 
-	public String getName() {
-		return name;
-	}
-
-
-	public void setName(String name) {
-		this.name = name;
-	}
 
 
 	public LinkedList<MCAFieldField> getFields() {
@@ -94,5 +86,16 @@ public class MCAStateDefinition implements MCPCMLDefinition {
 		this.invExpression = invExpression;
 	}
 
+
+	public LinkedList<MCPCMLDefinition> getStateDefs() {
+		return stateDefs;
+	}
+
+
+	public void setStateDefs(LinkedList<MCPCMLDefinition> stateDefs) {
+		this.stateDefs = stateDefs;
+	}
+
+	
 	
 }

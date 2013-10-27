@@ -7,5 +7,7 @@ public interface IExpressionEvaluator {
 	public abstract boolean canEvaluate(MCPCMLExp expression);
 
 	public abstract boolean evaluate(MCPCMLExp expression);
+	
+	public abstract String obtainValue(MCPCMLExp expression);
 
 }

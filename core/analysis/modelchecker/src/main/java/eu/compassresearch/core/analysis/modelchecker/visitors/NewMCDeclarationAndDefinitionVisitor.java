@@ -5,6 +5,8 @@ import java.util.LinkedList;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.definitions.AAssignmentDefinition;
+import org.overture.ast.definitions.AStateDefinition;
+import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.node.INode;
@@ -18,25 +20,42 @@ import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AActionsDefinition;
+import eu.compassresearch.ast.definitions.AChannelNameDefinition;
+import eu.compassresearch.ast.definitions.AChannelsDefinition;
+import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
+import eu.compassresearch.ast.definitions.AOperationsDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.definitions.PCMLDefinition;
+import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPParametrisation;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCChannel;
 import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCAExpressionSingleDeclaration;
 import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCATypeSingleDeclaration;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAActionDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAActionsDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAAssignmentDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAChannelNameDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAChannelsDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAExplicitCmlOperationDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAExplicitFunctionDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAOperationsDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAProcessDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAStateDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCPCMLDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCSCmlOperationDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.process.MCPProcess;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAFieldField;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAIntNumericBasicType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.SingleBind;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Int;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Str;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Type;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.UndefinedValue;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ExpressionEvaluator;
 
 public class NewMCDeclarationAndDefinitionVisitor extends
 		QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
@@ -133,57 +152,128 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 	public MCNode caseAAssignmentDefinition(AAssignmentDefinition node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
 		
-		PType type = (PType) node.getType();
-		PExp expr = (PExp) node.getExpression();
+		MCPCMLType type = (MCPCMLType) node.getType().apply(rootVisitor, question);;
+		MCPCMLExp expr = null;
+		if(node.getExpression() != null) {
+			expr = (MCPCMLExp) node.getExpression().apply(rootVisitor, question);
+		}
 		MCPCMLType expType = null;
-		if(type instanceof AIntNumericBasicType){
+		if(type instanceof MCAIntNumericBasicType){
 			expType = new MCAIntNumericBasicType();
 		}		
 		
-		MCPCMLExp expression = (MCPCMLExp) expr;
 		String varName = node.getName().toString();
 		Type varValue = new UndefinedValue();
-		//Int varValue = new Int(0);
-		//varValue.setS(varName);
-		SingleBind newBind = new SingleBind(varName,varValue);
+		if(expr != null){
+			//this has to be improved to instantiate values of the suitable type of the expression.
+			ExpressionEvaluator evaluator = new ExpressionEvaluator();
+			String varValueString = evaluator.obtainValue(expr);
+			varValue = new Str(varValueString);
+		}
 		question.maximalBinding = question.maximalBinding.addBinding("nP", varName, varValue);
 		
-		return new MCAAssignmentDefinition(varName, expression, expType);
+		return new MCAAssignmentDefinition(varName, expr, expType);
 	}
-	
-	/*
+
 	@Override
-	public StringBuilder caseAChannelsDefinition(AChannelsDefinition node,
-			CMLModelcheckerContext question) throws AnalysisException {
-		//question.getScriptContent().append("Channel(0,\"");
-		//node.getChannelNameDeclarations().getFirst().apply(this, question);
-		//question.getScriptContent().append(")");
-		for (AChannelNameDefinition chanDef : node.getChannelNameDeclarations()) {
-			ChannelTypeDefinition newChanTypeDef = new ChannelTypeDefinition(chanDef);
-			question.channelDefinitions.add(newChanTypeDef);
+	public MCNode caseAStateDefinition(AStateDefinition node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+
+		LinkedList<MCPCMLDefinition> stateDefs = new LinkedList<MCPCMLDefinition>(); 
+		
+		for (PDefinition pDefinition : node.getStateDefs()) {
+			stateDefs.add((MCPCMLDefinition) pDefinition.apply(this, question));
 		}
+		MCAStateDefinition result = new MCAStateDefinition(stateDefs, null, null, null, null, null);
 		
-		//question.info.put(Utilities.CHANNEL_DEFINITIONS_KEY, node.getChannelNameDeclarations());		
-		
-		return question.getScriptContent();
+		return result;
 	}
-	
+
 	@Override
-	public StringBuilder caseAChannelNameDefinition(
-			AChannelNameDefinition node, CMLModelcheckerContext question)
+	public MCNode caseAChannelsDefinition(AChannelsDefinition node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+
+		LinkedList<MCAChannelNameDefinition> chanNameDecls = new LinkedList<MCAChannelNameDefinition>(); 
+		for (AChannelNameDefinition chanDef : node.getChannelNameDeclarations()) {
+			chanNameDecls.add((MCAChannelNameDefinition) chanDef.apply(this, question));
+		}
+		MCAChannelsDefinition result = new MCAChannelsDefinition(chanNameDecls);
+		
+		return result;
+	}
+	@Override
+	public MCNode caseAChannelNameDefinition(
+			AChannelNameDefinition node, NewCMLModelcheckerContext question)
 			throws AnalysisException {
 		
-		if( ((AChannelType)node.getSingleType().getType()).getType() != null){
-			question.getScriptContent().append("Channel(0,\"");
-			String type = node.getSingleType().getType().toString();
-			type = type.substring(0,1).toUpperCase().concat(type.substring(1));
-			question.getScriptContent().append(node.getSingleType().getIdentifiers().getFirst().getName()+"\",");
-			question.getScriptContent().append(type);
-			//if there is a fixed initial value it has to be used here
-			question.getScriptContent().append("(_))");
+		MCATypeSingleDeclaration singleType = (MCATypeSingleDeclaration) node.getSingleType().apply(rootVisitor, question);
+		MCAChannelNameDefinition result = new MCAChannelNameDefinition(singleType);
+		
+		for (MCChannel channDef : result.getChannelDefs()) {
+			question.channelDefs.add(channDef);
 		}
-		return question.getScriptContent();
+
+		return result;
+		
 	}
+
+	@Override
+	public MCNode caseATypeSingleDeclaration(
+			ATypeSingleDeclaration node, NewCMLModelcheckerContext question)
+			throws AnalysisException {
+		
+		MCPCMLType type = null;
+		LinkedList<String> identifiers = new LinkedList<String>();
+		for (ILexIdentifierToken identifier : node.getIdentifiers()) {
+			identifiers.add(identifier.toString());
+		}
+		if(node.getType() != null){
+			type = (MCPCMLType) node.getType().apply(rootVisitor, question);
+		}
+		MCATypeSingleDeclaration result = new MCATypeSingleDeclaration(identifiers, type);
+
+		return result;
+	}
+
+	@Override
+	public MCNode caseAOperationsDefinition(AOperationsDefinition node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		
+		LinkedList<SCmlOperationDefinition> operations = node.getOperations();
+		LinkedList<MCSCmlOperationDefinition> mcOperations = new LinkedList<MCSCmlOperationDefinition>();
+		for (SCmlOperationDefinition currentOperationDefinition : operations) {
+			mcOperations.add((MCAExplicitCmlOperationDefinition) currentOperationDefinition.apply(this, question));
+		}
+		MCAOperationsDefinition result = new MCAOperationsDefinition(mcOperations);
+		
+		return result;
+	}
+
+	@Override
+	public MCNode caseAExplicitCmlOperationDefinition(
+			AExplicitCmlOperationDefinition node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		
+		String name = node.getName().toString();
+		MCPAction body = (MCPAction) node.getBody().apply(rootVisitor, question);
+		LinkedList<MCPCMLDefinition> mcParamDefinitions = new LinkedList<MCPCMLDefinition>();
+		for (PDefinition pDef : node.getParamDefinitions()) {
+			mcParamDefinitions.add((MCPCMLDefinition) pDef.apply(this, question));
+		}
+		
+		MCAExplicitCmlOperationDefinition result = 
+				new MCAExplicitCmlOperationDefinition(name,body,null,null,null,null,mcParamDefinitions,null,null,null);
+		
+		question.operations.add(result);
+		
+		return result;
+		
+	}
+	
+	
+	/*
+	
+	
 
 	@Override
 	public StringBuilder caseAValuesDefinition(AValuesDefinition node,
@@ -250,95 +340,9 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 		return question.getScriptContent();
 	}
 	
-	@Override
-	public StringBuilder caseAOperationsDefinition(AOperationsDefinition node,
-			CMLModelcheckerContext question) throws AnalysisException {
-		LinkedList<SCmlOperationDefinition> operations = node.getOperations();
-		for (SCmlOperationDefinition currentOperationDefinition : operations) {
-			currentOperationDefinition.apply(this, question);
-		}
-		return question.getScriptContent();
-	}
-
-	@Override
-	public StringBuilder caseAExplicitCmlOperationDefinition(
-			AExplicitCmlOperationDefinition node,
-			CMLModelcheckerContext question) throws AnalysisException {
-		
-		//it builds the operation definition in formula and put it into the context
-		question.operations.add(node); 
-		
-		return question.getScriptContent();
-	}
-	@Override
-	public StringBuilder caseAAssignmentDefinition(AAssignmentDefinition node,
-			CMLModelcheckerContext question) throws AnalysisException {
-		
-		question.getScriptContent().append("var(\""+node.getName().toString()+"\",\"");
-		
-		//node.getType().apply(this, question);
-		node.getType().apply(rootVisitor, question);
-		question.getScriptContent().append("\",");
-		//question.updateVariables(node.getName().toString());
-		//question.info.put(Utilities.VAR_DECLARATIONS_KEY, "add");
-		//puts the local variable in the bindings
-		String varName = node.getName().toString();
-		//Type varValue = new UndefinedValue();
-		Int varValue = new Int(0);
-		varValue.setS(varName);
-		SingleBind newBind = new SingleBind(varName,varValue);
-		question.stateVariables.add(newBind);
-
-		//ppppp
-		question.info.put(Utilities.DEL_BBINDING, "del");
-		return question.getScriptContent();
-	}
-
-	@Override
-	public StringBuilder caseAStateDefinition(AStateDefinition node,
-			CMLModelcheckerContext question) throws AnalysisException {
-		CMLModelcheckerContext aux = new CMLModelcheckerContext();
-		
-		while(!node.getStateDefs().isEmpty()){
-			PDefinition currDef = node.getStateDefs().pollFirst();
-			if (currDef instanceof AAssignmentDefinition){
-				String varName = currDef.getName().toString();
-				Type value = Utilities.createValue(((AAssignmentDefinition) currDef).getExpression());
-				SingleBind newBind = new SingleBind(varName,value);
-				question.stateVariables.add(newBind);
-			}
-			//SingleBind newBind = new SingleBind(node);
-		}
-		
-		//a.getExpression().apply(this, aux);
-		//aux.getScriptContent().replace(aux.getScriptContent().indexOf("(")+1, aux.getScriptContent().indexOf(")"), node.getStateDefs().getFirst().getName().toString());
-		
-		//StringBuilder s = new StringBuilder(" fetch(\"");
-		//s.append(node.getStateDefs().getFirst().getName().toString());
-		//s.append("\",_,");
-		//s.append(aux.getScriptContent().toString());
-		//s.append(")");
-		
-		//question.putStates(Utilities.STATES_KEY, s);
-		
-		//question.updateStates(node.getStateDefs().getFirst().getName().toString());
-		//pppp
-		question.info.put(Utilities.DEL_BBINDING, "del");
-		
-		return question.getScriptContent();
-	}
 	
 	
 	//// DECLARATIONS
-	@Override
-	public StringBuilder caseATypeSingleDeclaration(
-			ATypeSingleDeclaration node, CMLModelcheckerContext question)
-			throws AnalysisException {
-		question.getScriptContent().append("Int(");
-		question.getScriptContent().append(node.getIdentifiers().getFirst().getName());
-		question.getScriptContent().append(")");
-		return question.getScriptContent();
-	}
 	
 	//AUXILIARY METHODS
 	private void generateUserTypeDefinitions(CMLModelcheckerContext context) throws AnalysisException{

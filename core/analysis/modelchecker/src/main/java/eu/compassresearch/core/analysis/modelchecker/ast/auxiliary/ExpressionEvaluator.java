@@ -1,5 +1,7 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.auxiliary;
 
+import org.overture.ast.types.AIntNumericBasicType;
+
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAEqualsBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAGreaterEqualNumericBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAGreaterNumericBinaryExp;
@@ -20,6 +22,19 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		}
 		return instance;
 	}
+	
+	public String obtainValue(MCPCMLExp expression){
+		String result = "";
+		if(expression instanceof MCAIntLiteralExp){
+			result = this.obtainValue((MCAIntLiteralExp)expression);
+		}
+		
+		return result;
+	}
+	
+	private String obtainValue(MCAIntLiteralExp expression){
+		return expression.getValue();
+	} 
 	
 	public boolean canEvaluate(MCAEqualsBinaryExp expression){
 		boolean result = false;

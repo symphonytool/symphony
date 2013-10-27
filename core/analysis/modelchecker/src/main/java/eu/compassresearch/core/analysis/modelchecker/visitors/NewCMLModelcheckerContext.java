@@ -14,12 +14,16 @@ import org.overture.ast.intf.lex.ILexIdentifierToken;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCAssignDef;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCChannel;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCCondition;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCGuardDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCLieInFact;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCNegGuardDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCPosGuardDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAActionDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAChannelNameDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAExplicitCmlOperationDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCSCmlOperationDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPVarsetExpression;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.Binding;
@@ -43,6 +47,9 @@ public class NewCMLModelcheckerContext {
 	public HashMap<MCPCMLExp, MCNegGuardDef> negativeGuardDefs;
 	public HashMap<MCPCMLExp, MCGuardDef> guardDefs;
 	public ArrayList<MCAssignDef> assignDefs;
+	public LinkedList<MCChannel> channelDefs;
+	public ArrayList<MCSCmlOperationDefinition> operations;
+	
 	
 	protected StringBuilder basicContent = new StringBuilder(); 
 	
@@ -61,28 +68,17 @@ public class NewCMLModelcheckerContext {
 	public static int CHANTYPE_COUNTER;
 	
 	protected StringBuilder scriptContent;
-
+	protected LinkedList<ChannelTypeDefinition> channelDefinitions;
 	 
-	
-	
-	
-	protected ArrayList<SCmlOperationDefinition> operations;
-	
-	
-	
 	
 	
 	
 	
 	protected ArrayList<String> channelDependencies;
-	
 	protected ArrayList<String> ioCommDefs;
-	
 	protected LinkedList<UserDefinedValue> valueDefinitions;
-	
 	protected LinkedList<UserTypeDefinition> typeDefinitions;
 	
-	protected LinkedList<ChannelTypeDefinition> channelDefinitions;
 	
 	protected int numberOfFetchFacts = 1;
 	protected int numberOfUpdFacts = 1;
@@ -117,7 +113,7 @@ public class NewCMLModelcheckerContext {
 		states = new ArrayList<String>();
 		setStack = new NewSetStack<MCPVarsetExpression>();
 		lieIn = new ArrayList<MCLieInFact>();
-		operations = new ArrayList<SCmlOperationDefinition>(); 
+		operations = new ArrayList<MCSCmlOperationDefinition>(); 
 		localActions = new ArrayList<MCAActionDefinition>();
 		conditions = new ArrayList<MCCondition>();
 		channelDependencies = new ArrayList<String>();
@@ -128,7 +124,8 @@ public class NewCMLModelcheckerContext {
 		typeDefinitions = new LinkedList<UserTypeDefinition>();
 		channelDefinitions = new LinkedList<ChannelTypeDefinition>();
 		guardDefs = new HashMap<MCPCMLExp, MCGuardDef>();
-		assignDefs = new ArrayList<MCAssignDef>(); 
+		assignDefs = new ArrayList<MCAssignDef>();
+		channelDefs = new LinkedList<MCChannel>();
 		ASSIGN_COUNTER = 0;
 		GUARD_COUNTER = 0;
 		IOCOMM_COUNTER = 0;
@@ -142,7 +139,7 @@ public class NewCMLModelcheckerContext {
 		states = new ArrayList<String>();
 		setStack = new NewSetStack<MCPVarsetExpression>();
 		lieIn = new ArrayList<MCLieInFact>();
-		operations = new ArrayList<SCmlOperationDefinition>();
+		operations = new ArrayList<MCSCmlOperationDefinition>();
 		localActions = new ArrayList<MCAActionDefinition>();
 		conditions = new ArrayList<MCCondition>();
 		channelDependencies = new ArrayList<String>();
@@ -153,6 +150,7 @@ public class NewCMLModelcheckerContext {
 		typeDefinitions = new LinkedList<UserTypeDefinition>();
 		channelDefinitions = new LinkedList<ChannelTypeDefinition>();
 		guardDefs = new HashMap<MCPCMLExp, MCGuardDef>();
+		channelDefs = new LinkedList<MCChannel>();
 		ASSIGN_COUNTER = i;
 		GUARD_COUNTER = 0;
 		IOCOMM_COUNTER = 0;
@@ -168,7 +166,7 @@ public class NewCMLModelcheckerContext {
 		result.states = new ArrayList<String>(this.states);
 		result.setStack = this.setStack.copy();
 		result.lieIn = new ArrayList<MCLieInFact>(this.lieIn);
-		result.operations = new ArrayList<SCmlOperationDefinition>(this.operations);
+		result.operations = new ArrayList<MCSCmlOperationDefinition>(this.operations);
 		result.localActions = new ArrayList<MCAActionDefinition>(this.localActions);
 		result.conditions = new ArrayList<MCCondition>(this.conditions);
 		result.channelDependencies = new ArrayList<String>(this.channelDependencies);
@@ -179,6 +177,7 @@ public class NewCMLModelcheckerContext {
 		result.typeDefinitions = new LinkedList<UserTypeDefinition>(this.typeDefinitions);
 		result.channelDefinitions = new LinkedList<ChannelTypeDefinition>(this.channelDefinitions);
 		guardDefs = new HashMap<MCPCMLExp, MCGuardDef>(this.guardDefs);
+		channelDefs = new LinkedList<MCChannel>(this.channelDefs);
 		result.ASSIGN_COUNTER = this.ASSIGN_COUNTER;
 		result.GUARD_COUNTER = this.GUARD_COUNTER;
 		result.IOCOMM_COUNTER = this.IOCOMM_COUNTER;
@@ -296,7 +295,7 @@ public class NewCMLModelcheckerContext {
 		states = new ArrayList<String>();
 		setStack = new NewSetStack<MCPVarsetExpression>();
 		lieIn = new ArrayList<MCLieInFact>();
-		operations = new ArrayList<SCmlOperationDefinition>(); 
+		operations = new ArrayList<MCSCmlOperationDefinition>(); 
 		localActions = new ArrayList<MCAActionDefinition>();
 		conditions = new ArrayList<MCCondition>();
 		channelDependencies = new ArrayList<String>();
@@ -307,6 +306,7 @@ public class NewCMLModelcheckerContext {
 		typeDefinitions = new LinkedList<UserTypeDefinition>();
 		channelDefinitions = new LinkedList<ChannelTypeDefinition>();
 		guardDefs = new HashMap<MCPCMLExp, MCGuardDef>();
+		channelDefs = new LinkedList<MCChannel>();
 		ASSIGN_COUNTER = 0;
 		GUARD_COUNTER = 0;
 		IOCOMM_COUNTER = 0;
