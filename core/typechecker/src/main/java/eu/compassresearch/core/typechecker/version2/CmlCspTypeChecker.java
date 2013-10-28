@@ -8,6 +8,8 @@ import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.definitions.ALocalDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.definitions.SClassDefinition;
+import org.overture.ast.definitions.SFunctionDefinition;
+import org.overture.ast.definitions.SOperationDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.factory.AstFactory;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
@@ -21,7 +23,11 @@ import org.overture.ast.types.ASeq1SeqType;
 import org.overture.ast.types.ASetType;
 import org.overture.ast.types.PType;
 import org.overture.typechecker.Environment;
+import org.overture.typechecker.PrivateClassEnvironment;
+import org.overture.typechecker.TypeCheckException;
 import org.overture.typechecker.TypeCheckInfo;
+import org.overture.typechecker.TypeChecker;
+import org.overture.typechecker.TypeCheckerErrors;
 
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
@@ -108,7 +114,13 @@ public class CmlCspTypeChecker extends
 	{
 		for (PDefinition d : node.getParagraphs())
 		{
-			d.apply(this, question);
+			try
+			{
+				d.apply(this, question);
+			} catch (TypeCheckException te)
+			{
+				TypeChecker.report(3428, te.getMessage(), te.location);
+			}
 		}
 		return AstFactory.newAVoidType(null);
 	}
@@ -120,12 +132,39 @@ public class CmlCspTypeChecker extends
 		// all ready done with this
 		return node.getType();
 	}
+	
+	@Override
+	public PType defaultSFunctionDefinition(SFunctionDefinition node,
+			TypeCheckInfo question) throws AnalysisException
+	{
+		return node.getType();
+	}
+	
+	@Override
+	public PType defaultSOperationDefinition(SOperationDefinition node,
+			TypeCheckInfo question) throws AnalysisException
+	{
+		return node.getType();
+	}
+	
+	
+	
 
 	@Override
 	public PType caseAChannelDefinition(AChannelDefinition node,
 			TypeCheckInfo question) throws AnalysisException
 	{
-		return question.assistantFactory.createPTypeAssistant().typeResolve(node.getType(), null, vdmChecker, question);
+		try
+		{
+			return question.assistantFactory.createPTypeAssistant().typeResolve(node.getType(), null, vdmChecker, question);
+		} catch (TypeCheckException te)
+		{
+			TypeChecker.report(3427, te.getMessage(), te.location);
+		} 
+		
+		return node.getType();
+		
+		
 	}
 
 	@Override
