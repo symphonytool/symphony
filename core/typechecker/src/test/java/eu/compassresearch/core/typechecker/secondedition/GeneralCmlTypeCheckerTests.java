@@ -19,7 +19,7 @@ public class GeneralCmlTypeCheckerTests extends
 	@Parameters(name = "{index} : {1}")
 	public static Collection<Object[]> getData()
 	{
-		return collectResourcesTestData("general");
+		return combine(collectResourcesTestData("general"),collectResourcesTestData("general",TestType.POSITIVE));
 	}
 
 }

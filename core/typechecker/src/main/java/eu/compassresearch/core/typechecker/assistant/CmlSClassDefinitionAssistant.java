@@ -41,6 +41,14 @@ public class CmlSClassDefinitionAssistant extends SClassDefinitionAssistantTC
 			throws AnalysisException
 	{
 
+		Environment env = updateActionEnvironment(c, base);
+
+		super.typeCheckPass(c, p, env, tc);
+	}
+
+	public static Environment updateActionEnvironment(SClassDefinition c,
+			Environment base)
+	{
 		Environment env = base;
 		if (c instanceof AActionClassDefinition)
 		{
@@ -65,7 +73,6 @@ public class CmlSClassDefinitionAssistant extends SClassDefinitionAssistantTC
 				env = new FlatCheckedEnvironment(af, definitions, base, NameScope.NAMES);
 			}
 		}
-
-		super.typeCheckPass(c, p, env, tc);
+		return env;
 	}
 }

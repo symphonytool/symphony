@@ -1,5 +1,7 @@
 package eu.compassresearch.core.typechecker.version2;
 
+import java.util.LinkedList;
+
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.expressions.AApplyExp;
 import org.overture.ast.expressions.AFieldExp;
@@ -7,23 +9,33 @@ import org.overture.ast.expressions.ANewExp;
 import org.overture.ast.expressions.AVariableExp;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.factory.AstFactory;
+import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.node.INode;
 import org.overture.ast.statements.AActionStm;
+import org.overture.ast.statements.AAltNonDeterministicStm;
 import org.overture.ast.statements.AAssignmentStm;
+import org.overture.ast.statements.ADoNonDeterministicStm;
 import org.overture.ast.statements.AFieldStateDesignator;
 import org.overture.ast.statements.AIdentifierStateDesignator;
+import org.overture.ast.statements.AIfNonDeterministicStm;
 import org.overture.ast.statements.AMapSeqStateDesignator;
 import org.overture.ast.statements.ANewStm;
 import org.overture.ast.statements.AUnresolvedStateDesignator;
 import org.overture.ast.statements.PStateDesignator;
+import org.overture.ast.statements.PStm;
+import org.overture.ast.types.ABooleanBasicType;
 import org.overture.ast.types.PType;
+import org.overture.ast.util.PTypeSet;
 import org.overture.typechecker.TypeCheckInfo;
+import org.overture.typechecker.TypeCheckerErrors;
+import org.overture.typechecker.TypeComparator;
 import org.overture.typechecker.visitor.TypeCheckVisitor;
 
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.expressions.ABracketedExp;
 import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
+import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 
 public class CmlVdmTypeCheckVisitor extends
 		QuestionAnswerCMLAdaptor<TypeCheckInfo, PType>
@@ -166,4 +178,64 @@ public class CmlVdmTypeCheckVisitor extends
 		return type;
 	}
 
+	@Override
+	public PType caseAIfNonDeterministicStm(AIfNonDeterministicStm node,
+			TypeCheckInfo question) throws AnalysisException
+	{
+		PType type = typeCheckAlternatives(node.getAlternatives(), question, node.getLocation());
+
+		node.setType(type);
+		return node.getType();
+	}
+
+	private PType typeCheckAlternatives(
+			LinkedList<AAltNonDeterministicStm> alternatives,
+			TypeCheckInfo question, ILexLocation location) throws AnalysisException
+	{
+		PTypeSet rtypes = new PTypeSet();
+		for (AAltNonDeterministicStm alt : alternatives)
+		{
+			rtypes.add(alt.apply(THIS, question));
+		}
+
+		return rtypes.getType(location);
+	}
+
+	public void typeCheckAlternatives(AIfNonDeterministicStm node,
+			TypeCheckInfo question, PTypeSet rtypes) throws AnalysisException
+	{
+
+	}
+
+	@Override
+	public PType caseAAltNonDeterministicStm(AAltNonDeterministicStm node,
+			TypeCheckInfo question) throws AnalysisException
+	{
+
+		PExp guard = node.getGuard();
+		PType guardType = guard.apply(THIS, question);
+
+		if (!(TypeComparator.isSubType(guardType, new ABooleanBasicType())))
+		{
+			TypeCheckerErrors.report(0, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage("Boolean", "a guard of type "
+					+ guardType), guard.getLocation(), guard);
+			return node.getType();
+		}
+
+		PStm action = node.getAction();
+		PType actionType = action.apply(THIS, question);
+
+		node.setType(actionType);
+		return node.getType();
+	}
+
+	@Override
+	public PType caseADoNonDeterministicStm(ADoNonDeterministicStm node,
+			TypeCheckInfo question) throws AnalysisException
+	{
+		PType type = typeCheckAlternatives(node.getAlternatives(), question, node.getLocation());
+
+		node.setType(type);
+		return node.getType();
+	}
 }

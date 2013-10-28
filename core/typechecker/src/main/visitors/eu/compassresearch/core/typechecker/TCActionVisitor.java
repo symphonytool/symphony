@@ -328,28 +328,28 @@ class TCActionVisitor extends
 		return node.getType();
 	}
 
-	@Override
-	public PType caseAExternalClause(AExternalClause node,
-			TypeCheckInfo question) throws AnalysisException
-	{
-
-		LinkedList<ILexNameToken> ids = node.getIdentifiers();
-		for (ILexNameToken id : ids)
-		{
-			PDefinition def = CmlTCUtil.findDefByAllMeans(question, id);
-			if (def == null)
-			{
-				node.setType(issueHandler.addTypeError(node, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(""
-						+ id)));
-				return node.getType();
-			}
-
-			issueHandler.addTypeWarning(def, TypeWarningMessages.INCOMPLETE_TYPE_CHECKING.customizeMessage(def
-					+ ""));
-		}
-
-		return new AActionType();
-	}
+//	@Override
+//	public PType caseAExternalClause(AExternalClause node,
+//			TypeCheckInfo question) throws AnalysisException
+//	{
+//
+//		LinkedList<ILexNameToken> ids = node.getIdentifiers();
+//		for (ILexNameToken id : ids)
+//		{
+//			PDefinition def = CmlTCUtil.findDefByAllMeans(question, id);
+//			if (def == null)
+//			{
+//				node.setType(issueHandler.addTypeError(node, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(""
+//						+ id)));
+//				return node.getType();
+//			}
+//
+//			issueHandler.addTypeWarning(def, TypeWarningMessages.INCOMPLETE_TYPE_CHECKING.customizeMessage(def
+//					+ ""));
+//		}
+//
+//		return new AActionType();
+//	}
 
 	// @Override
 	// public PType caseASpecificationStatementAction(
@@ -628,131 +628,112 @@ class TCActionVisitor extends
 		return node.getType();
 	}
 
-	@Override
-	public PType caseAIfNonDeterministicStm(AIfNonDeterministicStm node,
-			TypeCheckInfo question) throws AnalysisException
-	{
 
-		LinkedList<AAltNonDeterministicStm> alternatives = node.getAlternatives();
-		for (AAltNonDeterministicStm alt : alternatives)
-		{
-			PType altType = alt.apply(parentChecker, question);
-			if (!successfulType(altType))
-			{
-				node.setType(issueHandler.addTypeError(alt, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(alt
-						+ "")));
-				return node.getType();
-			}
-		}
 
-		node.setType(new AActionType());
-		return node.getType();
-	}
-
-	@Override
-	public PType caseANewStm(ANewStm node, TypeCheckInfo question)
-			throws AnalysisException
-	{
-
-		List<PType> argtypes = new LinkedList<PType>();
-
-		CmlTypeCheckInfo cmlEnv = getTypeCheckInfo(question);
-
-		// lookup variable
-		PStateDesignator destVar = node.getDestination();
-
-		if (!(destVar instanceof AVariableExp))
-		{
-			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.EXPECTED_LVALUE.customizeMessage(""
-					+ destVar)));
-			return node.getType();
-		}
-
-		AVariableExp destVarExp = (AVariableExp) destVar;
-		PType destVarExpType = destVarExp.apply(parentChecker, question);
-		if (!successfulType(destVarExpType))
-		{
-			node.setType(issueHandler.addTypeError(destVarExp, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(destVarExp
-					+ "")));
-			return node.getType();
-		}
-
-		PType classType = cmlEnv.lookupType(node.getClassName());
-		if (classType == null)
-		{
-			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(node.getClassName()
-					+ "")));
-			return node.getType();
-		}
-
-		// make sure they match
-		if (!typeComparator.isSubType(classType, destVarExpType))
-		{
-			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.EXPECTED_SUBTYPE_RELATION.customizeMessage(classType.toString(), destVarExpType.toString())));
-			return node.getType();
-		}
-
-		// // typecheck arguments
-		for (PExp arg : node.getArgs())
-		{
-			PType pt = arg.apply(parentChecker, cmlEnv);
-			if (!successfulType(pt))
-			{
-				node.setType(issueHandler.addTypeError(arg, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(""
-						+ arg)));
-				return node.getType();
-			}
-			argtypes.add(pt);
-		}
-
-		// find the constructor
-		CmlTypeCheckInfo ctorEnv = cmlEnv.newScope();
-		for (PDefinition clzDef : classType.getDefinitions())
-		{
-			if (clzDef instanceof AOperationsDefinition)
-			{
-				AOperationsDefinition odefs = (AOperationsDefinition) clzDef;
-				for (SOperationDefinition cmlOdef : odefs.getOperations())
-				{
-					if (cmlOdef instanceof AExplicitOperationDefinition)
-					{
-						AExplicitOperationDefinition ctorcand = (AExplicitOperationDefinition) cmlOdef;
-						if (ctorcand.getIsConstructor())
-						{
-							ctorEnv.addVariable(ctorcand.getName(), ctorcand);
-						}
-					}
-				}
-			} else if (clzDef instanceof AExplicitOperationDefinition)
-			{
-				AExplicitOperationDefinition ctorcand = (AExplicitOperationDefinition) clzDef;
-				if (ctorcand.getIsConstructor())
-				{
-					ctorEnv.addVariable(ctorcand.getName(), ctorcand);
-				}
-			}
-		}
-
-		// FIXME what is this for a call statement action
-		throw new RuntimeException("Not implemented TC of new");
-		// ACallStatementAction callStm = new ACallStatementAction(node.getClassName().getLocation(),
-		// node.getClassName().clone(), node.getArgs());
-		// PType applyCtorExpType = callStm.apply(parentChecker, ctorEnv);
-		// if (!successfulType(applyCtorExpType))
-		// {
-		// node.setType(issueHandler.addTypeError(node, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(node
-		// + "")));
-		// return node.getType();
-		// }
-		//
-		// // set the class definition
-		// node.setClassdef((AClassClassDefinition) cmlEnv.lookup(node.getClassName(), AClassClassDefinition.class));
-		//
-		// // All done!
-		// node.setType(new AActionType());
-		// return node.getType();
-
-	}
+//	@Override
+//	public PType caseANewStm(ANewStm node, TypeCheckInfo question)
+//			throws AnalysisException
+//	{
+//
+//		List<PType> argtypes = new LinkedList<PType>();
+//
+//		CmlTypeCheckInfo cmlEnv = getTypeCheckInfo(question);
+//
+//		// lookup variable
+//		PStateDesignator destVar = node.getDestination();
+//
+//		if (!(destVar instanceof AVariableExp))
+//		{
+//			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.EXPECTED_LVALUE.customizeMessage(""
+//					+ destVar)));
+//			return node.getType();
+//		}
+//
+//		AVariableExp destVarExp = (AVariableExp) destVar;
+//		PType destVarExpType = destVarExp.apply(parentChecker, question);
+//		if (!successfulType(destVarExpType))
+//		{
+//			node.setType(issueHandler.addTypeError(destVarExp, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(destVarExp
+//					+ "")));
+//			return node.getType();
+//		}
+//
+//		PType classType = cmlEnv.lookupType(node.getClassName());
+//		if (classType == null)
+//		{
+//			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(node.getClassName()
+//					+ "")));
+//			return node.getType();
+//		}
+//
+//		// make sure they match
+//		if (!typeComparator.isSubType(classType, destVarExpType))
+//		{
+//			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.EXPECTED_SUBTYPE_RELATION.customizeMessage(classType.toString(), destVarExpType.toString())));
+//			return node.getType();
+//		}
+//
+//		// // typecheck arguments
+//		for (PExp arg : node.getArgs())
+//		{
+//			PType pt = arg.apply(parentChecker, cmlEnv);
+//			if (!successfulType(pt))
+//			{
+//				node.setType(issueHandler.addTypeError(arg, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(""
+//						+ arg)));
+//				return node.getType();
+//			}
+//			argtypes.add(pt);
+//		}
+//
+//		// find the constructor
+//		CmlTypeCheckInfo ctorEnv = cmlEnv.newScope();
+//		for (PDefinition clzDef : classType.getDefinitions())
+//		{
+//			if (clzDef instanceof AOperationsDefinition)
+//			{
+//				AOperationsDefinition odefs = (AOperationsDefinition) clzDef;
+//				for (SOperationDefinition cmlOdef : odefs.getOperations())
+//				{
+//					if (cmlOdef instanceof AExplicitOperationDefinition)
+//					{
+//						AExplicitOperationDefinition ctorcand = (AExplicitOperationDefinition) cmlOdef;
+//						if (ctorcand.getIsConstructor())
+//						{
+//							ctorEnv.addVariable(ctorcand.getName(), ctorcand);
+//						}
+//					}
+//				}
+//			} else if (clzDef instanceof AExplicitOperationDefinition)
+//			{
+//				AExplicitOperationDefinition ctorcand = (AExplicitOperationDefinition) clzDef;
+//				if (ctorcand.getIsConstructor())
+//				{
+//					ctorEnv.addVariable(ctorcand.getName(), ctorcand);
+//				}
+//			}
+//		}
+//
+//		// FIXME what is this for a call statement action
+//		throw new RuntimeException("Not implemented TC of new");
+//		// ACallStatementAction callStm = new ACallStatementAction(node.getClassName().getLocation(),
+//		// node.getClassName().clone(), node.getArgs());
+//		// PType applyCtorExpType = callStm.apply(parentChecker, ctorEnv);
+//		// if (!successfulType(applyCtorExpType))
+//		// {
+//		// node.setType(issueHandler.addTypeError(node, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(node
+//		// + "")));
+//		// return node.getType();
+//		// }
+//		//
+//		// // set the class definition
+//		// node.setClassdef((AClassClassDefinition) cmlEnv.lookup(node.getClassName(), AClassClassDefinition.class));
+//		//
+//		// // All done!
+//		// node.setType(new AActionType());
+//		// return node.getType();
+//
+//	}
 
 	// @Override
 	// public PType caseAMultipleGeneralAssignmentStatementAction(
@@ -2858,62 +2839,9 @@ class TCActionVisitor extends
 		return new AActionType(node.getLocation(), true);
 	}
 
-	@Override
-	public PType caseADoNonDeterministicStm(ADoNonDeterministicStm node,
-			TypeCheckInfo question) throws AnalysisException
-	{
 
-		LinkedList<AAltNonDeterministicStm> alternatives = node.getAlternatives();
-		for (AAltNonDeterministicStm act : alternatives)
-		{
-			PType actType = act.apply(parentChecker, question);
-			if (!successfulType(actType))
-			{
-				node.setType(issueHandler.addTypeError(act, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(act
-						+ "")));
-				return node.getType();
-			}
-		}
 
-		node.setType(new AActionType());
-		return node.getType();
-	}
 
-	@Override
-	public PType caseAAltNonDeterministicStm(AAltNonDeterministicStm node,
-			TypeCheckInfo question) throws AnalysisException
-	{
-
-		PExp guard = node.getGuard();
-		PType guardType = guard.apply(parentChecker, question);
-		if (!successfulType(guardType))
-		{
-			node.setType(issueHandler.addTypeError(guard, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(guard
-					+ "")));
-			return node.getType();
-		}
-
-		if (!(typeComparator.isSubType(guardType, new ABooleanBasicType())))
-		{
-			TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage("Boolean", guardType
-					+ "");
-			node.setType(issueHandler.addTypeError(guard, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage("Boolean", "a guard of type "
-					+ guardType)));
-			return node.getType();
-		}
-
-		PStm action = node.getAction();
-		PType actionType = action.apply(parentChecker, question);
-		if (!successfulType(actionType))
-		{
-			node.setType(issueHandler.addTypeError(action, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
-					+ action)));
-			return node.getType();
-		}
-
-		node.setType(new AActionType());
-		return node.getType();
-	}
 
 	@Override
 	public PType caseAParametrisedAction(AParametrisedAction node,

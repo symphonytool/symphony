@@ -38,7 +38,6 @@ import eu.compassresearch.ast.definitions.AActionsDefinition;
 import eu.compassresearch.ast.definitions.AFunctionsDefinition;
 import eu.compassresearch.ast.definitions.AOperationsDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
-import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.ast.process.PProcess;
 
 /**
@@ -187,16 +186,16 @@ public class CmlAssistant
 			AProcessDefinition pdef = AProcessDefinition.class.cast(def);
 
 			PProcess process = pdef.getProcess();
-//			if (process instanceof AActionProcess)
-//			{
-//				AActionProcess aProcess = (AActionProcess) process;
-//				for (PDefinition p : aProcess.getDefinitionParagraphs())
-//				{
-//					PDefinition res = CmlAssistant.this.findMemberName(p, name, more);
-//					if (res != null)
-//						return res;
-//				}
-//			}
+			// if (process instanceof AActionProcess)
+			// {
+			// AActionProcess aProcess = (AActionProcess) process;
+			// for (PDefinition p : aProcess.getDefinitionParagraphs())
+			// {
+			// PDefinition res = CmlAssistant.this.findMemberName(p, name, more);
+			// if (res != null)
+			// return res;
+			// }
+			// }
 
 			return null;
 		}

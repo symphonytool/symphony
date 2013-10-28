@@ -8,7 +8,9 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AClassClassDefinition;
 import org.overture.ast.definitions.APublicAccess;
 import org.overture.ast.definitions.ATypeDefinition;
+import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.definitions.SFunctionDefinition;
 import org.overture.typechecker.utilities.ImplicitDefinitionFinder;
 
 import eu.compassresearch.ast.analysis.AnalysisCMLAdaptor;
@@ -140,6 +142,14 @@ public class CollectGlobalStateClass extends AnalysisCMLAdaptor
 
 		members.addAll(defs);
 	}
+	
+	@Override
+	public void caseATypeDefinition(ATypeDefinition node)
+			throws AnalysisException
+	{
+		node.getAccess().setAccess(new APublicAccess());
+		super.caseATypeDefinition(node);
+	}
 
 	@Override
 	public void caseAValuesDefinition(AValuesDefinition node)
@@ -153,7 +163,23 @@ public class CollectGlobalStateClass extends AnalysisCMLAdaptor
 		}
 		members.addAll(defs);
 	}
+	
+	@Override
+	public void caseAValueDefinition(AValueDefinition node)
+			throws AnalysisException
+	{
+		node.getAccess().setAccess(new APublicAccess());
+		super.caseAValueDefinition(node);
+	}
 
+	@Override
+	public void defaultSFunctionDefinition(SFunctionDefinition node)
+			throws AnalysisException
+	{
+		node.getAccess().setAccess(new APublicAccess());
+		super.defaultSFunctionDefinition(node);
+	}
+	
 	@Override
 	public void caseAFunctionsDefinition(AFunctionsDefinition node)
 			throws AnalysisException
@@ -216,6 +242,12 @@ public class CollectGlobalStateClass extends AnalysisCMLAdaptor
 	{
 		for (PDefinition d : node.getChansets())
 			d.apply(this);
+	}
+	
+	@Override
+	public void defaultPDefinition(PDefinition node) throws AnalysisException
+	{
+		members.add(node);
 	}
 
 }
