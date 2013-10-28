@@ -16,6 +16,7 @@ import org.overture.ast.lex.LexIdentifierToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.types.ANatNumericBasicType;
 import org.overture.ast.types.PType;
+import org.overture.typechecker.Environment;
 import org.overture.typechecker.TypeCheckInfo;
 import org.overture.typechecker.TypeComparator;
 
@@ -57,6 +58,7 @@ import eu.compassresearch.core.typechecker.CmlTypeCheckInfo;
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 import eu.compassresearch.core.typechecker.api.TypeWarningMessages;
+import eu.compassresearch.core.typechecker.assistant.CmlSClassDefinitionAssistant;
 import eu.compassresearch.core.typechecker.util.CmlTCUtil;
 
 public class CmlProcessTypeChecker extends
@@ -79,6 +81,27 @@ public class CmlProcessTypeChecker extends
 		super(root);
 		this.tc = tc2;
 		this.issueHandler = issueHandler;
+	}
+	
+	/**
+	 * The special process that actually is a definition of actions
+	 */
+	@Override
+	public PType caseAActionProcess(AActionProcess node, TypeCheckInfo question)
+			throws AnalysisException
+	{
+
+		Environment base = new PrivateActionClassEnvironment(question.assistantFactory, node.getActionDefinition(), question.env);
+		Environment env = CmlSClassDefinitionAssistant.updateActionEnvironment(node.getActionDefinition(), base);
+
+		// FIXME we properly need to assemble all action definitions in the process and add then to the env
+
+		TypeCheckInfo q = new TypeCheckInfo(question.assistantFactory, env, question.scope);
+
+		node.getActionDefinition().apply(this, q);
+		node.getAction().apply(actionChecker, q);
+
+		return super.caseAActionProcess(node, question);
 	}
 
 	@Override
@@ -580,73 +603,6 @@ public class CmlProcessTypeChecker extends
 		return new AProcessType();
 	}
 
-	@Override
-	public PType caseAActionProcess(AActionProcess node,
-			org.overture.typechecker.TypeCheckInfo question)
-			throws AnalysisException
-	{
-
-		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
-		if (cmlEnv == null)
-			return issueHandler.addTypeError(node, TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(node
-					+ ""));
-
-		CmlTypeCheckInfo actionScope = cmlEnv.newScope();
-
-		// resolve functions/operation names prior to TC
-		// for (PDefinition def : node.getDefinitionParagraphs())
-		// {
-		// if (def.getName() != null)
-		// {
-		// if (def instanceof AFunctionsDefinition)
-		// {
-		// AFunctionsDefinition funcDef = (AFunctionsDefinition) def;
-		// for (PDefinition d : funcDef.getFunctionDefinitions())
-		// {
-		// actionScope.addVariable(d.getName(), d);
-		// }
-		// } else if (def instanceof AOperationsDefinition)
-		// {
-		// AOperationsDefinition opDef = (AOperationsDefinition) def;
-		// for (PDefinition d : opDef.getOperations())
-		// {
-		// actionScope.addVariable(d.getName(), d);
-		// }
-		// } else
-		// {
-		// actionScope.addVariable(def.getName(), def);
-		// }
-		// }
-		// }
-
-		// Type check all the paragraph definitions
-		List<PDefinition> fixedDefinitions = new LinkedList<PDefinition>();
-		// for (PDefinition def : node.getDefinitionParagraphs())
-		// {
-		// CmlTypeCheckInfo scope = actionScope;
-		//
-		// if (def.apply(question.assistantFactory.getFunctionChecker()))
-		// {
-		// scope = cmlEnv;
-		// }
-		// PType type = def.apply(this.THIS, scope);
-		// if (!successfulType(type))
-		// return issueHandler.addTypeError(def,
-		// TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(def.getName()
-		// + ""));
-		// fixedDefinitions.addAll(TCDeclAndDefVisitor.handleDefinitionsForOverture(def));
-		// // for (PDefinition d : type.getDefinitions()) {
-		// // actionScope.addVariable(d.getName(), d);
-		// // }
-		// }
-		// node.getDefinitionParagraphs().clear();
-		// node.getDefinitionParagraphs().addAll(fixedDefinitions);
-
-		question.contextSet(eu.compassresearch.core.typechecker.CmlTypeCheckInfo.class, (eu.compassresearch.core.typechecker.CmlTypeCheckInfo) question);
-		PType actionType = node.getAction().apply(this.THIS, actionScope);
-		question.contextRem(eu.compassresearch.core.typechecker.CmlTypeCheckInfo.class);
-
-		return new AProcessType();
 	}
 
 	@SuppressWarnings("deprecation")

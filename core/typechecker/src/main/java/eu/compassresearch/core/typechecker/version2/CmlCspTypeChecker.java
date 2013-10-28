@@ -22,6 +22,7 @@ import org.overture.ast.types.PType;
 import org.overture.typechecker.Environment;
 import org.overture.typechecker.TypeCheckInfo;
 
+import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.AExpressionSingleDeclaration;
 import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
@@ -31,6 +32,7 @@ import eu.compassresearch.ast.definitions.AChannelDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.process.AActionProcess;
+import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
@@ -46,6 +48,11 @@ public class CmlCspTypeChecker extends
 	private static final long serialVersionUID = 1L;
 
 	/**
+	 * Handlder for error reporting
+	 */
+	private final ITypeIssueHandler issueHandler;
+
+	/**
 	 * Type checker for the PAction type tree
 	 */
 	private final QuestionAnswerAdaptor<TypeCheckInfo, PType> actionChecker;
@@ -55,7 +62,15 @@ public class CmlCspTypeChecker extends
 	 */
 	private final QuestionAnswerAdaptor<TypeCheckInfo, PType> channelChecker;
 
-	private final ITypeIssueHandler issueHandler;
+	/**
+	 * The checker for processes
+	 */
+	private final CmlProcessTypeChecker processChecker;
+
+	/**
+	 * The checker for vdm
+	 */
+	private final QuestionAnswerAdaptor<TypeCheckInfo, PType> vdmChecker;
 
 	public CmlCspTypeChecker(QuestionAnswerAdaptor<TypeCheckInfo, PType> tc2,
 			ITypeIssueHandler issuehandler)
@@ -63,6 +78,8 @@ public class CmlCspTypeChecker extends
 		this.issueHandler = issuehandler;
 		this.actionChecker = new CmlActionTypeChecker(tc2, this, issuehandler);
 		this.channelChecker = new CmlChannelTypeChecker(tc2, this, issuehandler);
+		this.processChecker = new CmlProcessTypeChecker(tc2, this, issuehandler);
+		this.vdmChecker = tc2;
 	}
 
 	@Override
@@ -101,22 +118,27 @@ public class CmlCspTypeChecker extends
 	}
 
 	@Override
-	public PType caseAActionProcess(AActionProcess node, TypeCheckInfo question)
+	public PType defaultPAction(PAction node, TypeCheckInfo question)
 			throws AnalysisException
 	{
-
-		Environment base = new PrivateActionClassEnvironment(question.assistantFactory, node.getActionDefinition(), question.env);
-		Environment env = CmlSClassDefinitionAssistant.updateActionEnvironment(node.getActionDefinition(), base);
-
-		// FIXME we properly need to assemble all action definitions in the process and add then to the env
-
-		TypeCheckInfo q = new TypeCheckInfo(question.assistantFactory, env, question.scope);
-
-		node.getActionDefinition().apply(this, q);
-		node.getAction().apply(actionChecker, q);
-
-		return super.caseAActionProcess(node, question);
+		return node.apply(actionChecker, question);
 	}
+	
+	@Override
+	public PType defaultPProcess(PProcess node, TypeCheckInfo question)
+			throws AnalysisException
+	{
+		return node.apply(processChecker,question);
+	}
+	
+	@Override
+	public PType defaultPExp(PExp node, TypeCheckInfo question)
+			throws AnalysisException
+	{
+		return node.apply(vdmChecker,question);
+	}
+
+
 
 	@Override
 	public PType caseAActionClassDefinition(AActionClassDefinition node,
