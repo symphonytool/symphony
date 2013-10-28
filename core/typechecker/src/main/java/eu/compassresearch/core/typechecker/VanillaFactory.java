@@ -8,11 +8,11 @@ import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.types.PType;
 
 import eu.compassresearch.ast.program.PSource;
-import eu.compassresearch.core.typechecker.api.CmlRootVisitor;
-import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
-import eu.compassresearch.core.typechecker.api.TypeCheckQuestion;
-import eu.compassresearch.core.typechecker.api.TypeComparator;
-import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
+import eu.compassresearch.core.typechecker.api.ICmlRootVisitor;
+import eu.compassresearch.core.typechecker.api.ICmlTypeChecker;
+import eu.compassresearch.core.typechecker.api.ITypeCheckQuestion;
+import eu.compassresearch.core.typechecker.api.ITypeComparator;
+import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 
 /**
  * Class to create instances of the Vanilla type checker package. To create a CmlTypeChecker instance use the (@code
@@ -40,8 +40,8 @@ public final class VanillaFactory
 	 *            - Optional parameter can be null in which case the type checker will collect any type errors to be
 	 *            retrieved later. Otherwise an instance that handles errors when reported by the type checker.
 	 */
-	public static CmlTypeChecker newTypeChecker(Collection<PSource> cmlSources,
-			TypeIssueHandler issueHandler)
+	public static ICmlTypeChecker newTypeChecker(
+			Collection<PSource> cmlSources, ITypeIssueHandler issueHandler)
 	{
 		VanillaCmlTypeChecker result = new VanillaCmlTypeChecker(cmlSources, SimpleTypeComparator.newInstance(), issueHandler);
 		return result;
@@ -58,8 +58,8 @@ public final class VanillaFactory
 	 *            - A Error handler. The VanillaCmlTypeChecker is also a TypeIssueHandler.
 	 */
 	public static IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> newCmlDefinitionAndDeclarationVisitor(
-			CmlRootVisitor parentChecker, TypeComparator compareTypes,
-			TypeIssueHandler issueHandler)
+			ICmlRootVisitor parentChecker, ITypeComparator compareTypes,
+			ITypeIssueHandler issueHandler)
 	{
 		TCDeclAndDefVisitor v = new TCDeclAndDefVisitor(parentChecker, compareTypes, issueHandler);
 		return v;
@@ -74,8 +74,8 @@ public final class VanillaFactory
 	 *            - A Error handler. The VanillaCmlTypeChecker is also a TypeIssueHandler.
 	 */
 	public static IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> newCmStatementVisitor(
-			CmlRootVisitor parentChecker, TypeIssueHandler issueHandler,
-			TypeComparator typeComparator)
+			ICmlRootVisitor parentChecker, ITypeIssueHandler issueHandler,
+			ITypeComparator typeComparator)
 	{
 		TCActionVisitor v = new TCActionVisitor(parentChecker, issueHandler, typeComparator);
 		return v;
@@ -90,7 +90,7 @@ public final class VanillaFactory
 	 *            - A Error handler. The VanillaCmlTypeChecker is also a TypeIssueHandler.
 	 */
 	public static IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> newCmlTypeVisitor(
-			CmlRootVisitor parentChecker, TypeIssueHandler issueHandler)
+			ICmlRootVisitor parentChecker, ITypeIssueHandler issueHandler)
 	{
 		TCTypeVisitor exprVisitor = new TCTypeVisitor(parentChecker, issueHandler);
 		return exprVisitor;
@@ -105,8 +105,8 @@ public final class VanillaFactory
 	 *            - A Error handler. The VanillaCmlTypeChecker is also a TypeIssueHandler.
 	 */
 	public static IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> newCmlExpressionVisitor(
-			CmlRootVisitor parentChecker, TypeIssueHandler issueHandler,
-			TypeComparator typeComparator)
+			ICmlRootVisitor parentChecker, ITypeIssueHandler issueHandler,
+			ITypeComparator typeComparator)
 	{
 		TCExpressionVisitor exprVisitor = new TCExpressionVisitor(parentChecker, issueHandler, typeComparator);
 		return exprVisitor;
@@ -119,8 +119,8 @@ public final class VanillaFactory
 	 *            - A place to add errors.
 	 * @return
 	 */
-	public static TypeCheckQuestion newTopLevelTypeCheckQuestion(
-			TypeIssueHandler issueHandler)
+	public static ITypeCheckQuestion newTopLevelTypeCheckQuestion(
+			ITypeIssueHandler issueHandler)
 	{
 		return CmlTypeCheckInfo.getNewTopLevelInstance(new CmlTypeCheckerAssistantFactory(), issueHandler, new LinkedList<PDefinition>(), new LinkedList<PDefinition>());
 	}
@@ -132,7 +132,7 @@ public final class VanillaFactory
 	 * 
 	 * @return
 	 */
-	public static TypeIssueHandler newCollectingIssueHandle()
+	public static ITypeIssueHandler newCollectingIssueHandle()
 	{
 		return new CollectingIssueHandler();
 	}

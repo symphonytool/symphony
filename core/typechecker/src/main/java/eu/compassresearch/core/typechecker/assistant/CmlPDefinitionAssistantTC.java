@@ -5,8 +5,6 @@ import org.overture.ast.types.PType;
 import org.overture.typechecker.assistant.ITypeCheckerAssistantFactory;
 import org.overture.typechecker.assistant.definition.PDefinitionAssistantTC;
 
-import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
-import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 
 public class CmlPDefinitionAssistantTC extends PDefinitionAssistantTC
@@ -22,8 +20,7 @@ public class CmlPDefinitionAssistantTC extends PDefinitionAssistantTC
 	{
 		// FIXME: handle CML type lookup
 		if (def instanceof AProcessDefinition
-				|| def instanceof AExplicitCmlOperationDefinition
-				|| def instanceof AImplicitCmlOperationDefinition)
+				)
 		{
 			return null;
 		}

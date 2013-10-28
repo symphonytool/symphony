@@ -1,0 +1,5 @@
+/*Ticket: #89 TypeChecker too aggressive with tuple selection*/
+
+types
+
+ A = (int*int) | int inv a == a.#1 >0

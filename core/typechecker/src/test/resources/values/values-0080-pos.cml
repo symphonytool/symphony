@@ -1,0 +1,13 @@
+class
+
+ test =
+
+begin
+
+
+
+values
+
+ a:seq of int = [1,2,3] ++ { 1|->4}
+
+end

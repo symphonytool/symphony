@@ -1,0 +1,21 @@
+values
+
+ m = { 1 |-> 2 }
+
+process
+
+ K =
+
+begin
+
+
+
+state
+
+ l:int
+
+operations
+
+ f:map int to int ==> int f(m) == return m(42) @ l := f(m)
+
+end

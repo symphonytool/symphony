@@ -1,0 +1,1 @@
+class B = begin values a : A = nil operations g: int == g(i) == return i + a.f() end 

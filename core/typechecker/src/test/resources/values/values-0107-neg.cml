@@ -1,0 +1,13 @@
+class
+
+ test =
+
+begin
+
+
+
+values
+
+ a:int = fn_int_to_int( 10 )
+
+end

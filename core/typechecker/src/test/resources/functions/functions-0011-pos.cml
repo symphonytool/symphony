@@ -1,0 +1,3 @@
+functions
+
+ ExeBorrow2: (int * rat * real) -> int ExeBorrow2(t) == t.#1 f: int * int -> int f(x,y) == x + y

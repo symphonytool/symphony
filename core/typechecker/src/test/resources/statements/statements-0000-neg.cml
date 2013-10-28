@@ -1,0 +1,11 @@
+/*Test test checks that the declared section of an dcl is checked.*/
+
+process
+
+ P =
+
+begin
+
+ @ (dcl z:int := "wrong type" @ Skip)
+
+end

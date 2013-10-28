@@ -1,0 +1,27 @@
+/*internal choice A is a
+
+process
+
+ not an action*/
+
+process
+
+ A =
+
+begin
+
+ @ Skip
+
+end
+
+
+
+process
+
+ p1 =
+
+begin
+
+ @ A |~| Skip
+
+end

@@ -1,6 +1,6 @@
 package eu.compassresearch.core.typechecker;
 
-import static eu.compassresearch.core.typechecker.CmlTCUtil.successfulType;
+import static eu.compassresearch.core.typechecker.util.CmlTCUtil.successfulType;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -34,21 +34,22 @@ import org.overture.typechecker.TypeCheckInfo;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.analysis.intf.ICMLQuestionAnswer;
 import eu.compassresearch.ast.types.ABindType;
+import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
-import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 import eu.compassresearch.core.typechecker.api.TypeWarningMessages;
+import eu.compassresearch.core.typechecker.util.CmlTCUtil;
 
 @SuppressWarnings({ "serial", "unused" })
 class TCBindVisitor extends QuestionAnswerCMLAdaptor<TypeCheckInfo, PType>
 		implements ICMLQuestionAnswer<TypeCheckInfo, PType>
 {
 
-	private final eu.compassresearch.core.typechecker.api.CmlRootVisitor parent;
-	private final TypeIssueHandler issueHandler;
+	private final eu.compassresearch.core.typechecker.api.ICmlRootVisitor parent;
+	private final ITypeIssueHandler issueHandler;
 
 	public TCBindVisitor(
-			eu.compassresearch.core.typechecker.api.CmlRootVisitor vanillaCmlTypeChecker,
-			TypeIssueHandler issueHandler)
+			eu.compassresearch.core.typechecker.api.ICmlRootVisitor vanillaCmlTypeChecker,
+			ITypeIssueHandler issueHandler)
 	{
 
 		this.parent = vanillaCmlTypeChecker;

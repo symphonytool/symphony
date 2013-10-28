@@ -1,0 +1,13 @@
+class
+
+ test =
+
+begin
+
+
+
+values
+
+ public a:seq of char = "\\ \r \n \t \f \e \a \x61 \ucc61 \cd \" "
+
+end

@@ -1,0 +1,9 @@
+process
+
+ A =
+
+begin
+
+ @ A [[ init <- start ]]
+
+end

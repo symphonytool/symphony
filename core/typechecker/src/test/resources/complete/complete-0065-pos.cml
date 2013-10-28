@@ -1,0 +1,9 @@
+/*http://sourceforge.net/p/compassresearch/tickets/92/*/
+
+types
+
+ String2 = seq of char Process2 :: id: String2
+
+functions
+
+ findPos(q: seq of Process2,id: String2) pos : nat pre exists p in set (elems q) @ p.id = id post true

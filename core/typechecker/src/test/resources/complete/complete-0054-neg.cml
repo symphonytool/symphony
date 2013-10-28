@@ -1,0 +1,11 @@
+/*Test case for bug http://sourceforge.net/p/compassresearch/tickets/48/*/
+
+process
+
+ Waiter =
+
+begin
+
+ @ Wait "ao" ; Skip
+
+end

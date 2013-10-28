@@ -1,0 +1,27 @@
+/*This test was reported by AKM and checks that
+
+functions
+
+ can be invoked from Guards*/
+
+channels
+
+ a
+
+process
+
+ A =
+
+begin
+
+
+
+state
+
+ x : nat := 3
+
+functions
+
+ isHigherThanTwo : (int) +> bool isHigherThanTwo(y) == y > 2 @ [isHigherThanTwo(x)] & a -> Skip
+
+end

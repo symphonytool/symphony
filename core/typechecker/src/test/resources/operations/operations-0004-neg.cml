@@ -1,0 +1,13 @@
+class
+
+ test =
+
+begin
+
+
+
+operations
+
+ o:int ==> int o(a) == (return (let a : int = 2 in "42"))
+
+end

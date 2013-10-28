@@ -1,0 +1,29 @@
+class
+
+ C =
+
+begin
+
+
+
+operations
+
+ C:()==>C C() == Skip
+
+end
+
+
+
+process
+
+ P =
+
+begin
+
+
+
+state
+
+ c:C @ c := new C()
+
+end

@@ -1,12 +1,13 @@
 package eu.compassresearch.core.typechecker;
 
-import static eu.compassresearch.core.typechecker.CmlTCUtil.successfulType;
+import static eu.compassresearch.core.typechecker.util.CmlTCUtil.successfulType;
 
 import java.util.LinkedList;
 import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
+import org.overture.ast.definitions.AClassClassDefinition;
 import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.definitions.SClassDefinition;
@@ -46,19 +47,19 @@ import org.overture.typechecker.assistant.definition.SClassDefinitionAssistantTC
 import org.overture.typechecker.utilities.TypeResolver;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
-import eu.compassresearch.ast.definitions.ACmlClassDefinition;
 import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.ast.types.AErrorType;
+import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
-import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
+import eu.compassresearch.core.typechecker.util.CmlTCUtil;
 
 @SuppressWarnings({ "serial" })
 class TCTypeVisitor extends
 		QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType>
 {
 
-	private final eu.compassresearch.core.typechecker.api.CmlRootVisitor parentChecker;
-	private final TypeIssueHandler issueHandler;
+	private final eu.compassresearch.core.typechecker.api.ICmlRootVisitor parentChecker;
+	private final ITypeIssueHandler issueHandler;
 
 	@Override
 	public PType caseAErrorType(AErrorType node, TypeCheckInfo question)
@@ -297,7 +298,7 @@ class TCTypeVisitor extends
 		if (tDef == null)
 			tDef = CmlTCUtil.findNearestFunctionOrOperationInEnvironment(node.getName(), question.env);
 
-		if (tDef instanceof ACmlClassDefinition)
+		if (tDef instanceof AClassClassDefinition)
 		{
 			return tDef.getType();
 		}
@@ -323,8 +324,8 @@ class TCTypeVisitor extends
 	}
 
 	public TCTypeVisitor(
-			eu.compassresearch.core.typechecker.api.CmlRootVisitor parentTypeChecker,
-			TypeIssueHandler issueHandler)
+			eu.compassresearch.core.typechecker.api.ICmlRootVisitor parentTypeChecker,
+			ITypeIssueHandler issueHandler)
 	{
 		this.parentChecker = parentTypeChecker;
 		this.issueHandler = issueHandler;

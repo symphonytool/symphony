@@ -1,5 +1,6 @@
 package eu.compassresearch.core.typechecker;
 
+import java.io.PrintWriter;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -9,14 +10,14 @@ import org.overture.parser.messages.VDMError;
 import org.overture.parser.messages.VDMWarning;
 
 import eu.compassresearch.ast.types.AErrorType;
-import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
+import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 
 /**
  * Very simple LinkedList based TypeIssueHandler that simply collects errors and warnings for future retrieval.
  * 
  * @author rwl
  */
-class CollectingIssueHandler implements TypeIssueHandler
+class CollectingIssueHandler implements ITypeIssueHandler
 {
 
 	/**
@@ -120,6 +121,26 @@ class CollectingIssueHandler implements TypeIssueHandler
 		CMLTypeWarning typeError = new CMLTypeWarning(null, warning.message);
 		typeError.setLocation(warning.location);
 		this.warnings.add(typeError);
+	}
+	
+	
+	
+	
+	
+	public  void printErrors(PrintWriter out)
+	{
+		for (CMLTypeError e: errors)
+		{
+			out.println(e.toString());
+		}
+	}
+
+	public  void printWarnings(PrintWriter out)
+	{
+		for (CMLTypeWarning w: warnings)
+		{
+			out.println(w.toString());
+		}
 	}
 
 }

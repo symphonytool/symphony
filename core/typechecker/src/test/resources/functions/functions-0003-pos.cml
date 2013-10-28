@@ -1,0 +1,33 @@
+class
+
+ Thing =
+
+begin
+
+
+
+values
+
+ public Douglas : int = 42
+
+end
+
+
+
+class
+
+ test =
+
+begin
+
+
+
+values
+
+ a: int = 0
+
+functions
+
+ g: int -> int g(i) == a + Thing`Douglas
+
+end

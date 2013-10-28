@@ -1,0 +1,17 @@
+channels
+
+ c1: int
+
+process
+
+ P =
+
+begin
+
+
+
+actions
+
+ A = val r : int @ c1!r -> Skip @ Skip
+
+end

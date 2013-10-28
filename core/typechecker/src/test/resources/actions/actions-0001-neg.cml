@@ -1,0 +1,27 @@
+/*Referencing a
+
+process
+
+ inside an action should fail*/
+
+process
+
+ A =
+
+begin
+
+ @ Skip
+
+end
+
+
+
+process
+
+ P1 =
+
+begin
+
+ @ A ; Skip
+
+end

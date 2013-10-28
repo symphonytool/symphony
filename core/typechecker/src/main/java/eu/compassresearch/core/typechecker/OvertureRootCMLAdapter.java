@@ -21,9 +21,9 @@ import eu.compassresearch.ast.expressions.ABracketedExp;
 import eu.compassresearch.ast.expressions.AEnumVarsetExpression;
 import eu.compassresearch.ast.expressions.AEnumerationRenameChannelExp;
 import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
-import eu.compassresearch.core.typechecker.api.CmlRootVisitor;
+import eu.compassresearch.core.typechecker.api.ICmlRootVisitor;
+import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
-import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 
 /**
  * The OvertureRootCMLAdapter functions as a root visitor for Overture Visitor. This visitor delegates all typecal
@@ -41,8 +41,18 @@ public class OvertureRootCMLAdapter extends
 	private final TypeCheckerDefinitionVisitor overtureDefinitionVisitor;
 	private final TypeCheckerPatternVisitor overturePatternVisitor;
 
-	private final CmlRootVisitor parent;
-	private final TypeIssueHandler issueHandler;
+	private final ICmlRootVisitor parent;
+	private final ITypeIssueHandler issueHandler;
+
+	public OvertureRootCMLAdapter(ICmlRootVisitor cmlTC,
+			ITypeIssueHandler issueHandler)
+	{
+		overtureDefinitionVisitor = new TypeCheckerDefinitionVisitor(this);
+		overtureExpressionVisitor = new TypeCheckerExpVisitor(this);
+		overturePatternVisitor = new TypeCheckerPatternVisitor(this);
+		parent = cmlTC;
+		this.issueHandler = issueHandler;
+	}
 
 	@Override
 	public PType caseAEnumerationRenameChannelExp(
@@ -68,16 +78,6 @@ public class OvertureRootCMLAdapter extends
 			CmlTypeCheckInfo info = (CmlTypeCheckInfo) question;
 			question.contextRem(info.getClass());
 		}
-	}
-
-	public OvertureRootCMLAdapter(CmlRootVisitor cmlTC,
-			TypeIssueHandler issueHandler)
-	{
-		overtureDefinitionVisitor = new TypeCheckerDefinitionVisitor(this);
-		overtureExpressionVisitor = new TypeCheckerExpVisitor(this);
-		overturePatternVisitor = new TypeCheckerPatternVisitor(this);
-		parent = cmlTC;
-		this.issueHandler = issueHandler;
 	}
 
 	@Override
