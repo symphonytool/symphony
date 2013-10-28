@@ -45,6 +45,7 @@ import eu.compassresearch.core.typechecker.api.ITypeComparator;
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 import eu.compassresearch.core.typechecker.version2.CmlClassTypeChecker;
 import eu.compassresearch.core.typechecker.version2.CmlCspTypeChecker;
+import eu.compassresearch.core.typechecker.version2.CmlFlatCheckedEnvironment;
 import eu.compassresearch.core.typechecker.weeding.OperationBodyValidater;
 import eu.compassresearch.core.typechecker.weeding.SetLocationVisitor;
 import eu.compassresearch.core.typechecker.weeding.Weeding1;
@@ -334,7 +335,7 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker
 			}
 		}
 
-		Environment env = new FlatCheckedEnvironment(vdmResult.af, globalCmlDefinition, vdmResult.globalEnv, NameScope.NAMES);
+		Environment env = new CmlFlatCheckedEnvironment(vdmResult.af, globalCmlDefinition, vdmResult.globalEnv, NameScope.NAMES);
 		
 		
 		

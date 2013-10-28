@@ -12,6 +12,8 @@ begin
 
 actions
 
- Pay = i, j: Index, n: Money @ Skip @ Pay(1,1,1)
+ Pay = i, j: Index, n: Money @ Skip 
+ 
+ @ Pay(1,1,1)
 
 end

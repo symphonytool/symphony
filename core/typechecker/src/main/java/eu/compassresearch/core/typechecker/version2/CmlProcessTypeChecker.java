@@ -125,7 +125,7 @@ public class CmlProcessTypeChecker extends
 
 		// FIXME we properly need to assemble all action definitions in the process and add then to the env
 
-		TypeCheckInfo q = new TypeCheckInfo(question.assistantFactory, env, question.scope);
+		TypeCheckInfo q = new TypeCheckInfo(question.assistantFactory, env, NameScope.NAMESANDSTATE);
 
 		node.getActionDefinition().apply(this, q);
 		node.getAction().apply(THIS, q);

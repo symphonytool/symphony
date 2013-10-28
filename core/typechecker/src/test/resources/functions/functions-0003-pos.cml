@@ -4,8 +4,6 @@ class
 
 begin
 
-
-
 values
 
  public Douglas : int = 42
@@ -13,13 +11,11 @@ values
 end
 
 
-
 class
 
  test =
 
 begin
-
 
 
 values

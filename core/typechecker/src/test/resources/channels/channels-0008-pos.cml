@@ -22,6 +22,11 @@ state
 
 functions
 
- isHigherThanTwo : (int) +> bool isHigherThanTwo(y) == y > 2 @ [isHigherThanTwo(x)] & a -> Skip
+ isHigherThanTwo : (int) +> bool 
+ isHigherThanTwo(y) == y > 2
+ 
+  @ 
+  
+  [isHigherThanTwo(x)] & a -> Skip
 
 end
