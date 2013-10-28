@@ -90,7 +90,7 @@ import eu.compassresearch.ast.declarations.AExpressionSingleDeclaration;
 import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionDefinition;
-import eu.compassresearch.ast.definitions.AChannelNameDefinition;
+import eu.compassresearch.ast.definitions.AChannelDefinition;
 import eu.compassresearch.ast.definitions.AOperationsDefinition;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.expressions.SRenameChannelExp;
@@ -487,12 +487,12 @@ class TCActionVisitor extends
 
 		for (PDefinition chanDef : csexpType.getDefinitions())
 		{
-			if (!(chanDef instanceof AChannelNameDefinition))
+			if (!(chanDef instanceof AChannelDefinition))
 			{
-				node.setType(issueHandler.addTypeError(node, TypeErrorMessages.TYPE_CHECK_INTERNAL_FAILURE.customizeMessage("Expected a Channel and got something of type AChannelType, however it is not AChannelNameDefinition.")));
+				node.setType(issueHandler.addTypeError(node, TypeErrorMessages.TYPE_CHECK_INTERNAL_FAILURE.customizeMessage("Expected a Channel and got something of type AChannelType, however it is not AChannelDefinition.")));
 				return node.getType();
 			}
-			AChannelNameDefinition chanNameDef = (AChannelNameDefinition) chanDef;
+			AChannelDefinition chanNameDef = (AChannelDefinition) chanDef;
 			for (ILexIdentifierToken id : chanNameDef.getSingleType().getIdentifiers())
 			{
 				actionEnv.addChannel(id, chanDef);
@@ -2209,7 +2209,7 @@ class TCActionVisitor extends
 		}
 
 		PDefinition channel = cmlEnv.lookupChannel(node.getIdentifier());
-		AChannelNameDefinition channelNameDefinition = null;
+		AChannelDefinition channelNameDefinition = null;
 
 		// There should be a channel defined with this name
 		if (null == channel)
@@ -2218,14 +2218,14 @@ class TCActionVisitor extends
 			return node.getType();
 		}
 
-		if (!(channel instanceof AChannelNameDefinition))
+		if (!(channel instanceof AChannelDefinition))
 		{
 			node.setType(issueHandler.addTypeError(channel, TypeErrorMessages.EXPECTED_A_CHANNEL.customizeMessage(channel
 					+ "")));
 			return node.getType();
 		}
 
-		channelNameDefinition = (AChannelNameDefinition) channel;
+		channelNameDefinition = (AChannelDefinition) channel;
 
 		CmlTypeCheckInfo commEnv = cmlEnv.newScope();
 		int paramIndex = 0;

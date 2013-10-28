@@ -61,7 +61,7 @@ import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionClassDefinition;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AActionsDefinition;
-import eu.compassresearch.ast.definitions.AChannelNameDefinition;
+import eu.compassresearch.ast.definitions.AChannelDefinition;
 import eu.compassresearch.ast.definitions.AChannelsDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.definitions.AChansetsDefinition;
@@ -241,7 +241,7 @@ public abstract class AbstractCmlFunctionChecker extends FunctionChecker
 	}
 
 	@Override
-	public Boolean caseAChannelNameDefinition(AChannelNameDefinition node)
+	public Boolean caseAChannelDefinition(AChannelDefinition node)
 			throws AnalysisException
 	{
 

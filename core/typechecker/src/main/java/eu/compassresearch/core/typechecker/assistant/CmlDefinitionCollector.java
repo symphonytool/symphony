@@ -8,7 +8,7 @@ import org.overture.ast.definitions.PDefinition;
 import org.overture.typechecker.assistant.ITypeCheckerAssistantFactory;
 
 import eu.compassresearch.ast.definitions.AActionDefinition;
-import eu.compassresearch.ast.definitions.AChannelNameDefinition;
+import eu.compassresearch.ast.definitions.AChannelDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 
 public class CmlDefinitionCollector extends AbstractCmlDefinitionCollector
@@ -32,8 +32,8 @@ public class CmlDefinitionCollector extends AbstractCmlDefinitionCollector
 	}
 
 	@Override
-	public List<PDefinition> caseAChannelNameDefinition(
-			AChannelNameDefinition node) throws AnalysisException
+	public List<PDefinition> caseAChannelDefinition(
+			AChannelDefinition node) throws AnalysisException
 	{
 		return addSelf(node);
 	}

@@ -76,7 +76,7 @@ import eu.compassresearch.ast.declarations.AExpressionSingleDeclaration;
 import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AActionsDefinition;
-import eu.compassresearch.ast.definitions.AChannelNameDefinition;
+import eu.compassresearch.ast.definitions.AChannelDefinition;
 import eu.compassresearch.ast.definitions.AChannelsDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.definitions.AChansetsDefinition;
@@ -260,7 +260,7 @@ public class TCDeclAndDefVisitor extends
 	}
 
 	@Override
-	public PType caseAChannelNameDefinition(AChannelNameDefinition node,
+	public PType caseAChannelDefinition(AChannelDefinition node,
 			TypeCheckInfo question) throws AnalysisException
 	{
 
@@ -1665,8 +1665,8 @@ public class TCDeclAndDefVisitor extends
 
 		CmlTypeCheckInfo newQ = (CmlTypeCheckInfo) question;
 
-		LinkedList<AChannelNameDefinition> cns = node.getChannelNameDeclarations();
-		for (AChannelNameDefinition decl : cns)
+		LinkedList<AChannelDefinition> cns = node.getChannelDeclarations();
+		for (AChannelDefinition decl : cns)
 		{
 			PType typeBack = decl.apply(parentChecker, question);
 			// question);

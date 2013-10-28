@@ -465,7 +465,7 @@ source returns[List<PDefinition> defs]
 programParagraph returns[List<? extends PDefinition> defs]
     : classDefinition   { $defs = Arrays.asList(new PDefinition[]{$classDefinition.def}); }
     | processDefinition { $defs = Arrays.asList(new PDefinition[]{$processDefinition.def}); }
-    | channelDefs       { $defs = $channelDefs.defs.getChannelNameDeclarations(); }
+    | channelDefs       { $defs = $channelDefs.defs.getChannelDeclarations(); }
     | chansetDefs       { $defs = $chansetDefs.defs.getChansets(); }
     | typeDefs          { $defs = $typeDefs.defs.getTypes(); }
     | valueDefs         { $defs = $valueDefs.defs.getValueDefinitions(); }
@@ -1676,17 +1676,17 @@ channelDefs returns[AChannelsDefinition defs]
             $defs.setNameScope(NameScope.GLOBAL);
             $defs.setUsed(false);
             $defs.setAccess(getDefaultAccessSpecifier(true, false, extractLexLocation($channelDefs.start)));
-            $defs.setChannelNameDeclarations($channelDefOptList.defs);
+            $defs.setChannelDeclarations($channelDefOptList.defs);
         }
     ;
 
-channelDefOptList returns[List<AChannelNameDefinition> defs]
-@init { $defs = new ArrayList<AChannelNameDefinition>(); }
+channelDefOptList returns[List<AChannelDefinition> defs]
+@init { $defs = new ArrayList<AChannelDefinition>(); }
     : ( channelDef { $defs.addAll($channelDef.def); } )*
     ;
 
-channelDef returns[List<AChannelNameDefinition> def]
-@init { $def = new ArrayList<AChannelNameDefinition>(); }
+channelDef returns[List<AChannelDefinition> def]
+@init { $def = new ArrayList<AChannelDefinition>(); }
     : identifierList (':' type)?
         {
             for (ILexIdentifierToken id : $identifierList.ids) {
@@ -1701,7 +1701,7 @@ channelDef returns[List<AChannelNameDefinition> def]
                 }    
                 ATypeSingleDeclaration typeDecl = new ATypeSingleDeclaration(loc, NameScope.GLOBAL, idList, chanType);
                 
-                AChannelNameDefinition chanDecl = new AChannelNameDefinition();
+                AChannelDefinition chanDecl = new AChannelDefinition();
                 chanDecl.setName(new LexNameToken("", id)); // this is ok, as each identifier in the identifierList gets its own ACNDef
                 chanDecl.setNameScope(NameScope.GLOBAL);
                 chanDecl.setUsed(false);            

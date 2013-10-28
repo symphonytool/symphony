@@ -33,7 +33,8 @@ import org.overture.typechecker.assistant.ITypeCheckerAssistantFactory;
 import eu.compassresearch.ast.actions.AStmAction;
 import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
 import eu.compassresearch.ast.definitions.AActionClassDefinition;
-import eu.compassresearch.ast.definitions.AChannelNameDefinition;
+import eu.compassresearch.ast.definitions.AChannelDefinition;
+import eu.compassresearch.ast.definitions.AChannelDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.messages.InternalException;
 import eu.compassresearch.ast.program.PSource;
@@ -342,13 +343,14 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker
 		{
 			for (PDefinition def : source.getParagraphs())
 			{
-				if (def instanceof AChannelNameDefinition
+				if (def instanceof AChannelDefinition
 						|| def instanceof AChansetDefinition)
 				{
 					globalCmlDefinition.add(def);
 					if (def instanceof AChansetDefinition
 							&& def.getName() == null)
 					{
+						//FIXME parser!
 						def.setName(new eu.compassresearch.ast.lex.LexNameToken("", ((AChansetDefinition) def).getIdentifier()));
 					}
 				}

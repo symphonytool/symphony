@@ -51,7 +51,7 @@ import org.overture.typechecker.assistant.type.PTypeAssistantTC;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
-import eu.compassresearch.ast.definitions.AChannelNameDefinition;
+import eu.compassresearch.ast.definitions.AChannelDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.expressions.ABracketedExp;
 import eu.compassresearch.ast.expressions.ACompVarsetExpression;
@@ -164,14 +164,14 @@ class TCExpressionVisitor extends
 
 		ILexIdentifierToken channelId = node.getIdentifier();
 		PDefinition chanDef = cmlEnv.lookupChannel(channelId);
-		if (!(chanDef instanceof AChannelNameDefinition))
+		if (!(chanDef instanceof AChannelDefinition))
 		{
 			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.EXPECTED_A_CHANNEL.customizeMessage(channelId
 					+ "")));
 			return node.getType();
 		}
 
-		ATypeSingleDeclaration chanTypeDecl = ((AChannelNameDefinition) chanDef).getSingleType();
+		ATypeSingleDeclaration chanTypeDecl = ((AChannelDefinition) chanDef).getSingleType();
 		AChannelType chan = (AChannelType) chanTypeDecl.getType();
 		PType chanConcreteType = chan.getType();
 
@@ -240,7 +240,7 @@ class TCExpressionVisitor extends
 		}
 
 		if (!(idDef instanceof AChansetDefinition
-				|| idDef instanceof AChannelNameDefinition || idDef instanceof AStateDefinition))
+				|| idDef instanceof AChannelDefinition || idDef instanceof AStateDefinition))
 		{
 			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.EXPECTED_CHANNEL_OR_STATE.customizeMessage(idDef
 					+ "")));
@@ -697,9 +697,9 @@ class TCExpressionVisitor extends
 
 				def = cmlEnv.lookupChannel(id);
 
-				if (def != null && def instanceof AChannelNameDefinition)
+				if (def != null && def instanceof AChannelDefinition)
 				{
-					ATypeSingleDeclaration chanTypeDecl = ((AChannelNameDefinition) def).getSingleType();
+					ATypeSingleDeclaration chanTypeDecl = ((AChannelDefinition) def).getSingleType();
 					AChannelType chanType = (AChannelType) chanTypeDecl.getType();
 					PType chanValueType = chanType.getType();
 

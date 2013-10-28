@@ -14,7 +14,7 @@ import org.overture.ast.definitions.SFunctionDefinition;
 import org.overture.typechecker.utilities.ImplicitDefinitionFinder;
 
 import eu.compassresearch.ast.analysis.AnalysisCMLAdaptor;
-import eu.compassresearch.ast.definitions.AChannelNameDefinition;
+import eu.compassresearch.ast.definitions.AChannelDefinition;
 import eu.compassresearch.ast.definitions.AChannelsDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.definitions.AChansetsDefinition;
@@ -68,7 +68,7 @@ public class CollectGlobalStateClass extends AnalysisCMLAdaptor
 	}
 
 	@Override
-	public void caseAChannelNameDefinition(AChannelNameDefinition node)
+	public void caseAChannelDefinition(AChannelDefinition node)
 			throws AnalysisException
 	{
 		channels.add(node);
@@ -79,8 +79,8 @@ public class CollectGlobalStateClass extends AnalysisCMLAdaptor
 			throws AnalysisException
 	{
 
-		LinkedList<AChannelNameDefinition> channels = node.getChannelNameDeclarations();
-		for (AChannelNameDefinition channel : channels)
+		LinkedList<AChannelDefinition> channels = node.getChannelDeclarations();
+		for (AChannelDefinition channel : channels)
 			channel.apply(this);
 	}
 
