@@ -51,7 +51,7 @@ import eu.compassresearch.ast.util.ToStringUtil;
 // Processes
 %process->action = "begin\n" [actionDefinition] " @ " [action] "\nend"
 
-%definition->#class->action = "class " [name]$.getFullName()+ ($[supernames]$.isEmpty() ? "" : " is subclass of " +$ [supernames]$) + "\n" + ToStringUtil.getDefinitionListString($[definitions]$)+ "\n" +ToStringUtil.getDefinitionListString($[actionDesinitions]$)$+           "end "  [name]$.getFullName()$ + "\n"
+%definition->#class->action = "class " [name]$.getFullName()+ ($[supernames]$.isEmpty() ? "" : " is subclass of " +$ [supernames]$) + "\n" + ToStringUtil.getDefinitionListString($[definitions]$)$+           "end "  [name]$.getFullName()$ + "\n"
 
 
 %type->error = "Type Error"

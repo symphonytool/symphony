@@ -83,7 +83,7 @@ definition {-> package='eu.compassresearch.ast.definitions'}
 
 #class {-> package='eu.compassresearch.ast.definitions'}
 	= {action}
-        [actionDesinitions]: definition.action*
+       // [actionDesinitions]: definition.action*
 	;
 /*
  * Operations
@@ -526,4 +526,4 @@ stm {-> package='org.overture.ast.statements'
 	|	{do}
 			[alternatives]:stm.#NonDeterministic.alt*
 	;
-
+ 

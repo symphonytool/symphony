@@ -60,6 +60,7 @@ import java.math.BigInteger;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.LinkedList;
@@ -458,17 +459,18 @@ catch (RecognitionException re) {
 
 source returns[List<PDefinition> defs]
 @init { $defs = new ArrayList<PDefinition>(); }
-    : ( programParagraph { $defs.add($programParagraph.defs); } )* EOF
+    : ( programParagraph { $defs.addAll($programParagraph.defs); } )* EOF
     ;
 
-programParagraph returns[PDefinition defs]
-    : classDefinition   { $defs = $classDefinition.def; }
-    | processDefinition { $defs = $processDefinition.def; }
-    | channelDefs       { $defs = $channelDefs.defs; }
-    | chansetDefs       { $defs = $chansetDefs.defs; }
-    | typeDefs          { $defs = $typeDefs.defs; }
-    | valueDefs         { $defs = $valueDefs.defs; }
-    | functionDefs      { $defs = $functionDefs.defs; }
+programParagraph returns[List<? extends PDefinition> defs]
+    : classDefinition   { $defs = Arrays.asList(new PDefinition[]{$classDefinition.def}); }
+    | processDefinition { $defs = Arrays.asList(new PDefinition[]{$processDefinition.def}); }
+    | channelDefs       { $defs = $channelDefs.defs.getChannelNameDeclarations(); }
+    | chansetDefs       { $defs = $chansetDefs.defs.getChansets(); }
+    | typeDefs          { $defs = $typeDefs.defs.getTypes(); }
+    | valueDefs         { $defs = $valueDefs.defs.getValueDefinitions(); }
+    | functionDefs      { $defs = $functionDefs.defs.getFunctionDefinitions(); }
+	
     ;
 
 classDefinition returns[AClassClassDefinition def]
@@ -745,7 +747,7 @@ processbase returns[PProcess proc]
         {
 			List<PDefinition> members = $actionParagraphOptList.defs;
 					
-			SClassDefinition cDef = CmlAstFactory.newAActionClassDefinition(extractLexLocation($beginT,$atT), members, null);
+			SClassDefinition cDef = CmlAstFactory.newAActionClassDefinition(extractLexLocation($beginT,$atT), members);
 			configureClass(cDef);	
 	
 			$proc = new AActionProcess(extractLexLocation($beginT,$endT), cDef, $action.action);
