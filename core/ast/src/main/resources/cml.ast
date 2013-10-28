@@ -150,7 +150,7 @@ VarsetExpression {-> package='eu.compassresearch.ast.expressions'
         | {comp} [channelNameExp]:exp.#Channel.name [bindings]:multipleBind* [predicate]:exp
         | {fatEnum} [channelNames]:exp.#Channel.name*
         | {fatComp} [channelNameExp]:exp.#Channel.name [bindings]:multipleBind* [predicate]:exp
-	| #VOp
+		| #VOp
 	;
 
 #VOp {-> package='eu.compassresearch.ast.expressions'

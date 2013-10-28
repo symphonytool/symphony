@@ -68,7 +68,7 @@ import eu.compassresearch.ast.util.ToStringUtil;
 //  Definitions
 %definition->process = "Process " [name]$.getName()+$ " " [localState] "\n" [process] 
 %definition->action = "actions " [name]$.getName()+$ " " [declarations] + "\n\t"+ [action]
-%definition->channel = "channel " [name]$.getName()+$ " " [type]
+%definition->channel = "channel " [name]$.getName()+$ " : " [type]
 
 
 //%definition->class = "Class " [name]$.getName()$
