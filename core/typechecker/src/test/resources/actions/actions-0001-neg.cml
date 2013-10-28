@@ -1,8 +1,4 @@
-/*Referencing a
-
-process
-
- inside an action should fail*/
+/*Referencing a process inside an action should fail*/
 
 process
 

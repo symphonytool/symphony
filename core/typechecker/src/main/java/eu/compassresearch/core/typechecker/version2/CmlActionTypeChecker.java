@@ -651,16 +651,9 @@ public class CmlActionTypeChecker extends
 		PAction replicatedAction = node.getReplicatedAction();
 		LinkedList<PSingleDeclaration> decls = node.getReplicationDeclaration();
 
-		// get CML environment
-		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
-		if (cmlEnv == null)
-		{
-			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(node
-					+ "")));
-			return node.getType();
-		}
-
-		CmlTypeCheckInfo repActionEnv = cmlEnv.newScope();
+		List<PDefinition> localDefinitions = new Vector<PDefinition>();
+		Environment repActionEnv = new FlatCheckedEnvironment(question.assistantFactory, localDefinitions, question.env, NameScope.NAMES);
+		
 		for (PSingleDeclaration decl : decls)
 		{
 			PType declType = decl.apply(THIS, question);
@@ -671,14 +664,14 @@ public class CmlActionTypeChecker extends
 						+ "", declType + ""));
 			}
 
-			issueHandler.addTypeWarning(decl, "This declaration should expand the environment: "
-					+ decl);
+			//issueHandler.addTypeWarning(decl, "This declaration should expand the environment: "
+			//		+ decl);
 
 			for (PDefinition def : declType.getDefinitions())
-				repActionEnv.addVariable(def.getName(), def);
+				localDefinitions.add(def);
 		}
 
-		PType replicatedActionType = replicatedAction.apply(THIS, repActionEnv);
+		PType replicatedActionType = replicatedAction.apply(THIS, new TypeCheckInfo(question.assistantFactory, repActionEnv, NameScope.NAMES));
 
 		return new AActionType(node.getLocation(), true);
 	}
@@ -866,14 +859,17 @@ public class CmlActionTypeChecker extends
 			throws AnalysisException
 	{
 
-		// CmlTypeCheckInfo newQ = getTypeCheckInfo(question);
-		Environment env = question.env;
+		PDefinition actionDef = findDefinition(node.getName().getIdentifier(), question.env);
 
-		// FIXME
-		PDefinition actionDef = env.findMatches(node.getName()).iterator().next();// newQ.lookup(node.getName(),
-																					// PDefinition.class);
+		if (actionDef == null)
+		{
+			issueHandler.addTypeError(node, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(node.getName()
+					+ ""));
+			node.setType(new AErrorType());
+			return node.getType();
+		}
 
-		PType type = actionDef.getType();// newQ.lookupType(node.getName());
+		PType type = actionDef.getType(); 
 		if (type != null)
 		{
 			if (!(type instanceof AActionType))
@@ -888,15 +884,6 @@ public class CmlActionTypeChecker extends
 
 		if (type == null)
 		{
-
-			if (actionDef == null)
-			{
-				issueHandler.addTypeError(node, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(node.getName()
-						+ ""));
-				node.setType(new AErrorType());
-				return node.getType();
-			}
-
 			if (!(actionDef instanceof AActionDefinition))
 			{
 				issueHandler.addTypeError(node, TypeErrorMessages.EXPECTED_AN_ACTION_OR_OPERATION.customizeMessage(node.getName()
@@ -959,7 +946,7 @@ public class CmlActionTypeChecker extends
 			// // the types in the declared type for the channel
 			// //
 			// //
-			PType typeDecl = channelNameDefinition.getType();
+			PType chanType = channelNameDefinition.getType();
 
 			if (commParam instanceof AReadCommunicationParameter)
 			{
@@ -978,7 +965,7 @@ public class CmlActionTypeChecker extends
 				if (commPattern instanceof AIdentifierPattern)
 				{
 					AIdentifierPattern id = (AIdentifierPattern) commPattern;
-					PType type =  typeDecl;
+					PType type =  chanType;
 					PType theType = null;
 					if (type instanceof AProductType)
 					{
@@ -1020,7 +1007,7 @@ public class CmlActionTypeChecker extends
 
 				if (commPattern instanceof ATuplePattern)
 				{
-					PType type = typeDecl;
+					PType type = chanType;
 					if (!(type instanceof AChannelType))
 					{
 						node.setType(issueHandler.addTypeError(commPattern, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage("Channel type", ""
@@ -1028,15 +1015,14 @@ public class CmlActionTypeChecker extends
 						return node.getType();
 					}
 
-					AChannelType chanType = (AChannelType) type;
-					if (!(chanType.getType() instanceof AProductType))
+					if (!(chanType instanceof AProductType))
 					{
-						node.setType(issueHandler.addTypeError(commPattern, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(typeDecl
-								+ "", chanType.getType() + "")));
+						node.setType(issueHandler.addTypeError(commPattern, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(commPattern
+								+ "", chanType + "")));
 						return node.getType();
 					}
 
-					AProductType r = (AProductType) chanType.getType();
+					AProductType r = (AProductType) chanType;
 
 					if (commPatternType.getDefinitions().size() != r.getTypes().size())
 					{
@@ -1051,7 +1037,6 @@ public class CmlActionTypeChecker extends
 						PDefinition def = defs.get(i);
 						PType componentType = r.getTypes().get(i);
 						def.setType(componentType);
-						// commEnv.addVariable(def.getName(), def);
 						localDefinitions.add(def);
 					}
 				}
@@ -1079,27 +1064,10 @@ public class CmlActionTypeChecker extends
 				writeExpType = writeExp.apply(tc, info);
 
 				PType thisType = null;
-				PType type = typeDecl;
 
-				// Type check channel type definitions, if not checked.
-				if (type.getDefinitions().isEmpty())
+				if (chanType instanceof AProductType)
 				{
-					type.apply(THIS, info);
-				}
-
-				if (!(type instanceof AChannelType))
-				{
-					node.setType(issueHandler.addTypeError(node, TypeErrorMessages.EXPECTED_A_CHANNEL.customizeMessage(node
-							+ "")));
-					return node.getType();
-				}
-
-				AChannelType cType = (AChannelType) type;
-
-				if (cType.getType() instanceof AProductType)
-				{
-
-					AProductType pType = (AProductType) cType.getType();
+					AProductType pType = (AProductType) chanType;
 					if (paramIndex > pType.getTypes().size())
 					{
 						node.setType(issueHandler.addTypeError(node, TypeErrorMessages.WRONG_NUMBER_OF_ARGUMENTS.customizeMessage(pType.getTypes().size()
@@ -1109,7 +1077,7 @@ public class CmlActionTypeChecker extends
 					thisType = pType.getTypes().get(paramIndex);
 					paramIndex++;
 				} else
-					thisType = cType.getType();
+					thisType = chanType;
 
 				if (thisType == null)
 				{
