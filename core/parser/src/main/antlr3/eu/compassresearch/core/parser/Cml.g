@@ -1706,7 +1706,13 @@ channelDef returns[List<AChannelDefinition> def]
                 chanDecl.setNameScope(NameScope.GLOBAL);
                 chanDecl.setUsed(false);            
               //  chanDecl.setSingleType(typeDecl);
-                chanDecl.setType($type.type.clone());
+				if ($type.type != null) 
+				{
+					chanDecl.setType($type.type.clone());
+				}else
+				{
+					chanDecl.setType(AstFactory.newAUnknownType(loc));
+				}
                 $def.add(chanDecl);
             }
         }
