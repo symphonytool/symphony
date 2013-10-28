@@ -40,8 +40,7 @@ public class TypeCheckerUtil
 			return defs.iterator().next();
 		}
 	}
-	
-	
+
 	/**
 	 * Creates the action type. This method is based on the simple block used in VDM operations
 	 * 
@@ -52,12 +51,40 @@ public class TypeCheckerUtil
 	public static PType setType(PAction node, PType... types)
 	{
 
-		node.setType(generateUnionType(node.getLocation(),types));
+		node.setType(generateUnionType(node.getLocation(), types));
+		return node.getType();
+
+	}
+
+	/**
+	 * Creates the action type. This method is based on the simple block used in VDM operations
+	 * 
+	 * @param node
+	 * @param types
+	 * @return
+	 */
+	public static PType setTypeVoid(PAction node)
+	{
+
+		node.setType(AstFactory.newAVoidType(node.getLocation()));
 		return node.getType();
 
 	}
 	
-	
+	/**
+	 * Creates the action type. This method is based on the simple block used in VDM operations
+	 * 
+	 * @param node
+	 * @param types
+	 * @return
+	 */
+	public static PType setType(PAction node, List<PType> types)
+	{
+		node.setType(generateUnionType(node.getLocation(), types.toArray(new PType[] {})));
+		return node.getType();
+
+	}
+
 	/**
 	 * Creates the definition type. This method is based on the simple block used in VDM operations
 	 * 
@@ -67,11 +94,10 @@ public class TypeCheckerUtil
 	 */
 	public static PType setType(PDefinition node, List<PType> types)
 	{
-
-		node.setType(generateUnionType(node.getLocation(),types.toArray(new PType[]{})));
+		node.setType(generateUnionType(node.getLocation(), types.toArray(new PType[] {})));
 		return node.getType();
 	}
-	
+
 	/**
 	 * Creates the PVarsetExpression type. This method is based on the simple block used in VDM operations
 	 * 
@@ -82,12 +108,10 @@ public class TypeCheckerUtil
 	public static PType setType(PVarsetExpression node, List<PType> types)
 	{
 
-		node.setType(generateUnionType(node.getLocation(),types.toArray(new PType[]{})));
+		node.setType(generateUnionType(node.getLocation(), types.toArray(new PType[] {})));
 		return node.getType();
 	}
-	
-	
-	
+
 	/**
 	 * Creates the definition type. This method is based on the simple block used in VDM operations
 	 * 
@@ -98,12 +122,11 @@ public class TypeCheckerUtil
 	public static PType setType(PDefinition node, PType... types)
 	{
 
-		node.setType(generateUnionType(node.getLocation(),types));
+		node.setType(generateUnionType(node.getLocation(), types));
 		return node.getType();
 
 	}
-	
-	
+
 	/**
 	 * Creates a untion type of the given types
 	 * 
@@ -111,7 +134,20 @@ public class TypeCheckerUtil
 	 * @param types
 	 * @return
 	 */
-	public static PType generateUnionType(ILexLocation location, PType... types){
+	public static PType generateUnionType(ILexLocation location, List<PType> types)
+	{
+		return generateUnionType(location, types.toArray(new PType[] {}));
+	}
+
+	/**
+	 * Creates a untion type of the given types
+	 * 
+	 * @param node
+	 * @param types
+	 * @return
+	 */
+	public static PType generateUnionType(ILexLocation location, PType... types)
+	{
 		PTypeSet rtypes = new PTypeSet();
 		PType last = null;
 

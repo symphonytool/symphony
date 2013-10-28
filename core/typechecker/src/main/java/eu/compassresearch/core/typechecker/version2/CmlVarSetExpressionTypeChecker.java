@@ -146,7 +146,7 @@ public class CmlVarSetExpressionTypeChecker extends
 						int i = 0;
 						for (PExp pExp : chanExpressions)
 						{
-							PType expType = pExp.apply(this, question);
+							PType expType = pExp.apply(THIS, question);
 							PType pt = prodTypes.get(i++);
 
 							if (!TypeComparator.isSubType(expType, pt))

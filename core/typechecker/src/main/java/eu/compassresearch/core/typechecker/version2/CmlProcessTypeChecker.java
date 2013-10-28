@@ -64,6 +64,7 @@ import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 import eu.compassresearch.core.typechecker.api.TypeWarningMessages;
 import eu.compassresearch.core.typechecker.assistant.CmlSClassDefinitionAssistant;
+import eu.compassresearch.core.typechecker.assistant.TypeCheckerUtil;
 import eu.compassresearch.core.typechecker.util.CmlTCUtil;
 
 public class CmlProcessTypeChecker extends
@@ -188,20 +189,21 @@ public class CmlProcessTypeChecker extends
 		PProcess proc = node.getReplicatedProcess();
 		LinkedList<PSingleDeclaration> repdecl = node.getReplicationDeclaration();
 
-		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
 
-		CmlTypeCheckInfo repProcEnv = cmlEnv.newScope();
+List<PDefinition> defs = new Vector<PDefinition>();
 		for (PSingleDeclaration decl : repdecl)
 		{
 			PType declType = decl.apply(THIS, question);
 
 			for (PDefinition def : declType.getDefinitions())
-				repProcEnv.addVariable(def.getName(), def);
+			{
+			defs.add( def);
+			}
 		}
 
-		PType procType = proc.apply(THIS, repProcEnv);
+		PType procType = proc.apply(THIS, question.newScope(defs));
 
-		return new AProcessType();
+		return procType;
 	}
 
 	@Override
@@ -552,22 +554,24 @@ public class CmlProcessTypeChecker extends
 
 		LinkedList<PSingleDeclaration> declarations = node.getReplicationDeclaration();
 
-		CmlTypeCheckInfo processScope = cmlEnv.newScope();
+		List<PDefinition> defs = new Vector<PDefinition>();
 
 		for (PSingleDeclaration singleDecl : declarations)
 		{
 			PType singleDeclType = singleDecl.apply(THIS, question);
 
 			for (PDefinition def : singleDeclType.getDefinitions())
-				processScope.addVariable(def.getName(), def);
+			{
+				defs.add(def);
+			}
 
 		}
 
 		PProcess replicatedProcess = node.getReplicatedProcess();
 
-		PType replicatedProcessType = replicatedProcess.apply(THIS, processScope);
+		PType replicatedProcessType = replicatedProcess.apply(THIS, question.newScope(defs));
 
-		return new AProcessType(node.getLocation(), true);
+		return replicatedProcessType;
 	}
 
 	@Override

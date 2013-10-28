@@ -4,6 +4,7 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.lex.LexNameList;
 import org.overture.typechecker.assistant.ITypeCheckerAssistantFactory;
 
+import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AChannelDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
@@ -41,6 +42,14 @@ public class CmlVariableNameCollector extends AbstractCmlVariableNameCollector
 	
 	@Override
 	public LexNameList caseAProcessDefinition(AProcessDefinition node)
+			throws AnalysisException
+	{
+		return new LexNameList(node.getName());
+	}
+	
+	
+	@Override
+	public LexNameList caseAActionDefinition(AActionDefinition node)
 			throws AnalysisException
 	{
 		return new LexNameList(node.getName());

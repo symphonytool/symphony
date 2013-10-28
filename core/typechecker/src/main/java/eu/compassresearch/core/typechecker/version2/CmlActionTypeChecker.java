@@ -2,17 +2,18 @@ package eu.compassresearch.core.typechecker.version2;
 
 //import static eu.compassresearch.core.typechecker.util.CmlTCUtil.successfulType;
 
+import static eu.compassresearch.core.typechecker.assistant.TypeCheckerUtil.findDefinition;
+import static eu.compassresearch.core.typechecker.assistant.TypeCheckerUtil.setType;
+import static eu.compassresearch.core.typechecker.assistant.TypeCheckerUtil.setTypeVoid;
+
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 import java.util.Vector;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.analysis.intf.IQuestionAnswer;
 import org.overture.ast.definitions.ALocalDefinition;
-import org.overture.ast.definitions.APrivateAccess;
-import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.factory.AstFactory;
@@ -24,27 +25,21 @@ import org.overture.ast.patterns.ATuplePattern;
 import org.overture.ast.patterns.PPattern;
 import org.overture.ast.statements.PStm;
 import org.overture.ast.typechecker.NameScope;
-import org.overture.ast.typechecker.Pass;
-import org.overture.ast.types.AAccessSpecifierAccessSpecifier;
 import org.overture.ast.types.ABooleanBasicType;
 import org.overture.ast.types.AIntNumericBasicType;
 import org.overture.ast.types.ANatNumericBasicType;
 import org.overture.ast.types.AProductType;
 import org.overture.ast.types.ASetType;
-import org.overture.ast.types.AUnionType;
 import org.overture.ast.types.AUnknownType;
 import org.overture.ast.types.AVoidType;
 import org.overture.ast.types.PType;
-import org.overture.ast.util.PTypeSet;
 import org.overture.typechecker.Environment;
 import org.overture.typechecker.FlatCheckedEnvironment;
 import org.overture.typechecker.TypeCheckInfo;
-import org.overture.typechecker.TypeCheckerErrors;
 import org.overture.typechecker.TypeComparator;
 import org.overture.typechecker.assistant.pattern.PPatternAssistantTC;
-import org.overture.typechecker.assistant.statement.ABlockSimpleBlockStmAssistantTC;
-import org.overture.typechecker.assistant.type.PTypeAssistantTC;
 
+import eu.compassresearch.ast.CmlAstFactory;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AChannelRenamingAction;
 import eu.compassresearch.ast.actions.AChaosAction;
@@ -94,19 +89,16 @@ import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AChannelDefinition;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
-import eu.compassresearch.ast.expressions.SRenameChannelExp;
+import eu.compassresearch.ast.messages.InternalException;
 import eu.compassresearch.ast.types.AActionType;
 import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.ast.types.AChansetType;
 import eu.compassresearch.ast.types.AErrorType;
-import eu.compassresearch.ast.types.ANamesetsType;
-import eu.compassresearch.ast.types.AProcessType;
 import eu.compassresearch.ast.types.AStatementType;
-import eu.compassresearch.core.typechecker.CmlTypeCheckInfo;
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 import eu.compassresearch.core.typechecker.api.TypeWarningMessages;
-import eu.compassresearch.core.typechecker.util.CmlTCUtil;
+import eu.compassresearch.core.typechecker.assistant.TypeCheckerUtil;
 
 public class CmlActionTypeChecker extends
 		QuestionAnswerCMLAdaptor<TypeCheckInfo, PType>
@@ -129,77 +121,6 @@ public class CmlActionTypeChecker extends
 	}
 
 	/**
-	 * Find a channel, action or chanset in the environment
-	 * 
-	 * @param env
-	 * @param identifier
-	 * @return
-	 */
-	private static PDefinition findDefinition(ILexIdentifierToken identifier,
-			Environment env)
-	{
-		Set<PDefinition> defs = env.findMatches(new eu.compassresearch.ast.lex.LexNameToken("", identifier));
-
-		if (defs.isEmpty())
-		{
-			return null;
-		} else
-		{
-			return defs.iterator().next();
-		}
-	}
-
-	/**
-	 * Creates the action type. This method is based on the simple block used in VDM operations
-	 * 
-	 * @param node
-	 * @param types
-	 * @return
-	 */
-	private static PType setType(PAction node, PType... types)
-	{
-		PTypeSet rtypes = new PTypeSet();
-		PType last = null;
-
-		for (PType stmt : types)
-		{
-			PType stype = stmt;
-
-			last = stype;
-
-			if (stype instanceof AUnionType)
-			{
-				AUnionType ust = (AUnionType) stype;
-
-				for (PType t : ust.getTypes())
-				{
-					ABlockSimpleBlockStmAssistantTC.addOne(rtypes, t);
-
-				}
-			} else
-			{
-				ABlockSimpleBlockStmAssistantTC.addOne(rtypes, stype);
-
-			}
-		}
-
-		// If the last statement reached has a void component, add this to the
-		// overall
-		// return type, as the block may return nothing.
-
-		if (last != null
-				&& (PTypeAssistantTC.isType(last, AVoidType.class) || PTypeAssistantTC.isUnknown(last)))
-		{
-			rtypes.add(AstFactory.newAVoidType(node.getLocation()));
-		}
-
-		node.setType(rtypes.isEmpty() ? AstFactory.newAVoidType(node.getLocation())
-				: rtypes.getType(node.getLocation()));
-		return node.getType();
-
-	}
-
-	/**
 	 * Case to handle statements embedded in actions
 	 */
 	public PType caseAStmAction(AStmAction node, TypeCheckInfo question)
@@ -218,7 +139,7 @@ public class CmlActionTypeChecker extends
 
 		PType rightType = node.getRight().apply(THIS, question);
 
-		return setType(node,leftType,rightType);
+		return setType(node, leftType, rightType);
 	}
 
 	@Override
@@ -243,8 +164,7 @@ public class CmlActionTypeChecker extends
 			return node.getType();
 		}
 
-		node.setType(new AActionType());
-		return node.getType();
+		return TypeCheckerUtil.setType(node, leftType, rightType);
 	}
 
 	@Override
@@ -253,27 +173,25 @@ public class CmlActionTypeChecker extends
 			throws AnalysisException
 	{
 
-		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
-
-		CmlTypeCheckInfo actionEnv = cmlEnv.newScope();
-
 		PAction repAction = node.getReplicatedAction();
 		LinkedList<PSingleDeclaration> repDecl = node.getReplicationDeclaration();
+
+		List<PDefinition> defs = new Vector<PDefinition>();
+
 		for (PSingleDeclaration d : repDecl)
 		{
 			PType type = d.apply(THIS, question);
 
 			for (PDefinition newDef : type.getDefinitions())
 			{
-				actionEnv.addVariable(newDef.getName(), newDef);
+				defs.add(newDef);
 			}
 
 		}
 
-		PType actionType = repAction.apply(THIS, actionEnv);
+		PType actionType = repAction.apply(THIS, question.newScope(defs));
 
-		node.setType(new AActionType());
-		return node.getType();
+		return TypeCheckerUtil.setType(node, actionType);
 
 	}
 
@@ -283,34 +201,22 @@ public class CmlActionTypeChecker extends
 			throws AnalysisException
 	{
 
-		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
-		if (cmlEnv == null)
-		{
-			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(""
-					+ node)));
-			return node.getType();
-		}
-
 		// that it can't access the class/process state is needed
-		CmlTypeCheckInfo actionEnv = cmlEnv.emptyScope();
 
 		// CmlTypeCheckInfo actionEnv = cmlEnv.newScope();
-		actionEnv.scope = NameScope.NAMESANDANYSTATE;
+		// actionEnv.scope = NameScope.NAMESANDANYSTATE;
 		// TODO RWL: What is the semantics of this?
 		PVarsetExpression csexp = node.getChansetExpression();
 		PType csexpType = csexp.apply(THIS, question);
 
-		if (csexpType instanceof AUnknownType)
-		{
-			csexpType = new AChansetType(node.getLocation(), true);
-		}
-
-		if (!(csexpType instanceof AChansetType))
+		if (csexpType == null || !(csexpType instanceof AUnknownType))
 		{
 			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.EXPECTED_A_CHANNELSET.customizeMessage(""
 					+ csexpType)));
 			return node.getType();
 		}
+
+		List<PDefinition> defs = new Vector<PDefinition>();
 
 		for (PDefinition chanDef : csexpType.getDefinitions())
 		{
@@ -320,22 +226,17 @@ public class CmlActionTypeChecker extends
 				return node.getType();
 			}
 			AChannelDefinition chanNameDef = (AChannelDefinition) chanDef;
-			//FIXME
-//			for (ILexIdentifierToken id : chanNameDef.getSingleType().getIdentifiers())
-//			{
-//				actionEnv.addChannel(id, chanDef);
-//			}
+			defs.add(chanNameDef);
+			// for (ILexIdentifierToken id : chanNameDef.getSingleType().getIdentifiers())
+			// {
+			// actionEnv.addChannel(id, chanDef);
+			// }
 		}
 
 		PVarsetExpression sexp = node.getNamesetExpression();
 		PType sexpType = sexp.apply(THIS, question);
 
-		if (sexpType instanceof AUnknownType)
-		{
-			sexpType = new ANamesetsType(node.getLocation(), true);
-		}
-
-		if (!(sexpType instanceof ANamesetsType))
+		if (sexpType == null || !(sexpType instanceof AUnknownType))
 		{
 			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.EXPECTED_A_NAMESET.customizeMessage(""
 					+ sexpType)));
@@ -344,7 +245,7 @@ public class CmlActionTypeChecker extends
 
 		for (PDefinition stateDef : sexpType.getDefinitions())
 		{
-			actionEnv.addVariable(stateDef.getName(), stateDef);
+			defs.add(stateDef);
 		}
 
 		PAction repAction = node.getReplicatedAction();
@@ -372,7 +273,7 @@ public class CmlActionTypeChecker extends
 					LexNameToken name = new LexNameToken("", id);
 
 					ALocalDefinition def = AstFactory.newALocalDefinition(id.getLocation(), name, NameScope.LOCAL, expType);
-					actionEnv.addVariable(name, def);
+					defs.add(def);
 				}
 			}
 
@@ -384,18 +285,18 @@ public class CmlActionTypeChecker extends
 				{
 					LexNameToken name = new LexNameToken("", id);
 					ALocalDefinition def = AstFactory.newALocalDefinition(id.getLocation(), name, singleDecl.getNameScope(), singleDecl.getType());
-					actionEnv.addVariable(name, def);
+					defs.add(def);
 				}
 			}
 		}
 
-		PType repActionType = repAction.apply(THIS, actionEnv);
+		FlatCheckedEnvironment env = new FlatCheckedEnvironment(question.assistantFactory, defs, null, NameScope.NAMESANDANYSTATE);
+		PType repActionType = repAction.apply(THIS, new TypeCheckInfo(question.assistantFactory, env));
 
 		issueHandler.addTypeWarning(node, TypeWarningMessages.INCOMPLETE_TYPE_CHECKING.customizeMessage(""
 				+ node));
 
-		node.setType(new AActionType());
-		return node.getType();
+		return TypeCheckerUtil.setType(node, repActionType);
 	}
 
 	@Override
@@ -407,23 +308,20 @@ public class CmlActionTypeChecker extends
 		PAction action = node.getReplicatedAction();
 		LinkedList<PSingleDeclaration> decl = node.getReplicationDeclaration();
 
-		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
-
-		CmlTypeCheckInfo actionEnv = cmlEnv.newScope();
+		List<PDefinition> defs = new Vector<PDefinition>();
 
 		for (PSingleDeclaration d : decl)
 		{
 			PType declType = d.apply(THIS, question);
 			for (PDefinition def : declType.getDefinitions())
 			{
-				actionEnv.addVariable(def.getName(), def);
+				defs.add(def);
 			}
 		}
 
-		PType actionType = action.apply(THIS, actionEnv);
+		PType actionType = action.apply(THIS, question.newScope(defs));
 
-		node.setType(new AActionType());
-		return node.getType();
+		return TypeCheckerUtil.setType(node, actionType);
 	}
 
 	@Override
@@ -440,8 +338,7 @@ public class CmlActionTypeChecker extends
 		PType rightActionType = rightAction.apply(THIS, question);
 
 		// All done!
-		node.setType(new AActionType());
-		return node.getType();
+		return TypeCheckerUtil.setType(node, leftActionType, rightActionType);
 	}
 
 	@Override
@@ -463,18 +360,17 @@ public class CmlActionTypeChecker extends
 		// type-check the namesets
 		if (leftNamesetExp != null)
 		{
-			PType leftNameSetType = leftNamesetExp.apply(THIS, question);
+			leftNamesetExp.apply(THIS, question);
 
 		}
 
 		if (rightnamesetExp != null)
 		{
-			PType rightNameSetType = rightnamesetExp.apply(THIS, question);
+			rightnamesetExp.apply(THIS, question);
 		}
 
 		// All done!
-		node.setType(new AActionType(node.getLocation(), true));
-		return node.getType();
+		return TypeCheckerUtil.setType(node, leftActionType, rightActionType);
 	}
 
 	@Override
@@ -498,8 +394,7 @@ public class CmlActionTypeChecker extends
 		}
 
 		// All done!
-		node.setType(new AActionType());
-		return node.getType();
+		return TypeCheckerUtil.setType(node, actionType);
 	}
 
 	@Override
@@ -521,21 +416,20 @@ public class CmlActionTypeChecker extends
 		PType rightActionType = rightAction.apply(THIS, question);
 
 		// type-check the chanset
-		PType chanSetType = chansetExp.apply(THIS, question);
+		chansetExp.apply(THIS, question);
 
 		// type-check the namesets
 		if (leftNamesetExp != null)
 		{
-			PType leftNameSetType = leftNamesetExp.apply(THIS, question);
+			leftNamesetExp.apply(THIS, question);
 		}
 
 		if (rightnamesetExp != null)
 		{
-			PType rightNameSetType = rightnamesetExp.apply(THIS, question);
+			rightnamesetExp.apply(THIS, question);
 		}
 		// All done!
-		node.setType(new AActionType());
-		return node.getType();
+		return TypeCheckerUtil.setType(node, leftActionType, rightActionType);
 	}
 
 	@Override
@@ -544,11 +438,13 @@ public class CmlActionTypeChecker extends
 			throws AnalysisException
 	{
 
-		PAction action = node.getAction();
+		// PAction action = node.getAction();
+		//
+		// SRenameChannelExp renameExp = node.getRenameExpression();
 
-		SRenameChannelExp renameExp = node.getRenameExpression();
-
-		return new AActionType(node.getLocation(), true);
+		//FIXME throw new InternalException(0, "caseAChannelRenamingAction not implemented");
+		return setTypeVoid(node);
+		// return new AActionType(node.getLocation(), true);
 	}
 
 	@Override
@@ -567,8 +463,7 @@ public class CmlActionTypeChecker extends
 			return node.getType();
 		}
 
-		node.setType(new AActionType(node.getLocation(), true));
-		return node.getType();
+		return TypeCheckerUtil.setType(node, AstFactory.newAVoidType(node.getLocation()));
 	}
 
 	@Override
@@ -582,29 +477,37 @@ public class CmlActionTypeChecker extends
 		LinkedList<PAction> acts = node.getActions();
 
 		// get the enclosing definition if any
-		PDefinition enclosingDef = question.env.getEnclosingDefinition();
+		// PDefinition enclosingDef = question.env.getEnclosingDefinition();
 
 		// get the CML context we are in
-		CmlTypeCheckInfo info = getTypeCheckInfo(question);
+		// CmlTypeCheckInfo info = getTypeCheckInfo(question);
 
 		//
-		CmlTypeCheckInfo newQuestion = (CmlTypeCheckInfo) info.newScope(info, enclosingDef);
+		// CmlTypeCheckInfo newQuestion = (CmlTypeCheckInfo) info.newScope(info, enclosingDef);
+
+		List<PDefinition> local = new Vector<PDefinition>();
 
 		// add IDs to the environment
 		for (ILexIdentifierToken id : ids)
 		{
-			newQuestion.addType(id, new ATypeDefinition(node.getLocation(), NameScope.LOCAL, false, null, new AAccessSpecifierAccessSpecifier(new APrivateAccess(), null, null), new AActionType(node.getLocation(), true), Pass.DEFS, null, null, null, null, false, new LexNameToken("", id)));
+			// newQuestion.addType(id, new ATypeDefinition(node.getLocation(), NameScope.LOCAL, false, null, new
+			// AAccessSpecifierAccessSpecifier(new APrivateAccess(), null, null), new AActionType(node.getLocation(),
+			// true), Pass.DEFS, null, null, null, null, false, new LexNameToken("", id)));
+			local.add(CmlAstFactory.newAActionDefinition(id, null));
 		}
 
+		TypeCheckInfo info = new TypeCheckInfo(question.assistantFactory, new FlatCheckedEnvironment(question.assistantFactory, local, question.env, NameScope.LOCAL),question.scope);
 		// check the actions
+		List<PType> types = new Vector<PType>();
 		for (PAction act : acts)
 		{
-			PType actType = act.apply(THIS, newQuestion);
-
+			PType actType = act.apply(THIS, info);
+			types.add(actType);
 		}
 
-		node.setType(new AActionType());
-		return node.getType();
+		// node.setType(new AActionType());
+		// return node.getType();
+		return TypeCheckerUtil.setType(node, types);
 	}
 
 	@Override
@@ -612,8 +515,7 @@ public class CmlActionTypeChecker extends
 			org.overture.typechecker.TypeCheckInfo question)
 			throws AnalysisException
 	{
-		node.setType(new AActionType(node.getLocation(), true));
-		return node.getType();
+		return TypeCheckerUtil.setTypeVoid(node);
 	}
 
 	@Override
@@ -636,7 +538,7 @@ public class CmlActionTypeChecker extends
 			return issueHandler.addTypeError(timeExp, TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT.customizeMessage(timeExp
 					+ "", timeExpType + ""));
 
-		return new AActionType(node.getLocation(), true);
+		return setType(node, leftType, rightType);
 	}
 
 	@Override
@@ -651,7 +553,7 @@ public class CmlActionTypeChecker extends
 
 		List<PDefinition> localDefinitions = new Vector<PDefinition>();
 		Environment repActionEnv = new FlatCheckedEnvironment(question.assistantFactory, localDefinitions, question.env, NameScope.NAMES);
-		
+
 		for (PSingleDeclaration decl : decls)
 		{
 			PType declType = decl.apply(THIS, question);
@@ -662,8 +564,8 @@ public class CmlActionTypeChecker extends
 						+ "", declType + ""));
 			}
 
-			//issueHandler.addTypeWarning(decl, "This declaration should expand the environment: "
-			//		+ decl);
+			// issueHandler.addTypeWarning(decl, "This declaration should expand the environment: "
+			// + decl);
 
 			for (PDefinition def : declType.getDefinitions())
 				localDefinitions.add(def);
@@ -671,7 +573,7 @@ public class CmlActionTypeChecker extends
 
 		PType replicatedActionType = replicatedAction.apply(THIS, new TypeCheckInfo(question.assistantFactory, repActionEnv, NameScope.NAMES));
 
-		return new AActionType(node.getLocation(), true);
+		return setType(node, replicatedActionType);
 	}
 
 	@Override
@@ -691,17 +593,17 @@ public class CmlActionTypeChecker extends
 
 		PType leftActionType = leftAction.apply(THIS, question);
 
-		PType leftChanSetType = leftChanSet.apply(THIS, question);
+		leftChanSet.apply(THIS, question);
 
-		PType leftNameSetType = leftNameSet.apply(THIS, question);
+		leftNameSet.apply(THIS, question);
 
 		PType rightActionType = rightAction.apply(THIS, question);
 
-		PType rightChanSetType = rightChanSet.apply(THIS, question);
+		rightChanSet.apply(THIS, question);
 
-		PType rightNameSetType = rightNameSet.apply(THIS, question);
+		rightNameSet.apply(THIS, question);
 
-		return new AProcessType(node.getLocation(), true);
+		return setType(node, leftActionType, rightActionType);
 	}
 
 	@Override
@@ -731,8 +633,7 @@ public class CmlActionTypeChecker extends
 			return node.getType();
 		}
 
-		node.setType(new AActionType(node.getLocation(), true));
-		return node.getType();
+		return setType(node, actionType);
 
 	}
 
@@ -741,8 +642,7 @@ public class CmlActionTypeChecker extends
 			throws AnalysisException
 	{
 
-		node.setType(new AActionType(node.getLocation(), true));
-		return node.getType();
+		return setTypeVoid(node);
 	}
 
 	@Override
@@ -751,27 +651,27 @@ public class CmlActionTypeChecker extends
 			throws AnalysisException
 	{
 
-		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
-
 		PVarsetExpression namesetExp = node.getNamesetExpression();
 		PAction repAction = node.getReplicatedAction();
 		LinkedList<PSingleDeclaration> decls = node.getReplicationDeclaration();
 
 		PType namesetExpType = namesetExp.apply(THIS, question);
 
-		CmlTypeCheckInfo repActionEnv = cmlEnv.newScope();
+		List<PDefinition> defs = new Vector<PDefinition>();
+
 		for (PSingleDeclaration decl : decls)
 		{
 			PType declType = decl.apply(THIS, question);
 
 			for (PDefinition def : declType.getDefinitions())
-				repActionEnv.addVariable(def.getName(), def);
+			{
+				defs.add(def);
+			}
 		}
 
-		PType repActionType = repAction.apply(THIS, question);
+		PType repActionType = repAction.apply(THIS, question.newScope(defs));
 
-		node.setType(new AActionType());
-		return node.getType();
+		return setType(node, repActionType);
 	}
 
 	@Override
@@ -779,27 +679,28 @@ public class CmlActionTypeChecker extends
 			AInterleavingReplicatedAction node, TypeCheckInfo question)
 			throws AnalysisException
 	{
-		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
 
 		PVarsetExpression namesetExp = node.getNamesetExpression();
 		PAction repAction = node.getReplicatedAction();
 		LinkedList<PSingleDeclaration> decls = node.getReplicationDeclaration();
 
-		PType namesetExpType = namesetExp.apply(THIS, question);
+		namesetExp.apply(THIS, question);
 
-		CmlTypeCheckInfo repActionEnv = cmlEnv.newScope();
+		List<PDefinition> defs = new Vector<PDefinition>();
+
 		for (PSingleDeclaration decl : decls)
 		{
 			PType declType = decl.apply(THIS, question);
 
 			for (PDefinition def : declType.getDefinitions())
-				repActionEnv.addVariable(def.getName(), def);
+			{
+				defs.add(def);
+			}
 		}
 
-		PType repActionType = repAction.apply(THIS, repActionEnv);
+		PType repActionType = repAction.apply(THIS, question.newScope(defs));
 
-		node.setType(new AActionType());
-		return node.getType();
+		return setType(node, repActionType);
 	}
 
 	@Override
@@ -807,27 +708,29 @@ public class CmlActionTypeChecker extends
 			ASynchronousParallelismReplicatedAction node, TypeCheckInfo question)
 			throws AnalysisException
 	{
-		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
 
 		PVarsetExpression namesetExp = node.getNamesetExpression();
 		PAction repAction = node.getReplicatedAction();
 		LinkedList<PSingleDeclaration> decls = node.getReplicationDeclaration();
 
-		PType namesetExpType = namesetExp.apply(THIS, question);
+		namesetExp.apply(THIS, question);
 
-		CmlTypeCheckInfo repActionEnv = cmlEnv.newScope();
+		List<PDefinition> defs = new Vector<PDefinition>();
+
 		for (PSingleDeclaration decl : decls)
 		{
 			PType declType = decl.apply(THIS, question);
 
 			for (PDefinition def : declType.getDefinitions())
-				repActionEnv.addVariable(def.getName(), def);
+			{
+				// repActionEnv.addVariable(def.getName(), def);
+				defs.add(def);
+			}
 		}
 
-		PType repActionType = repAction.apply(THIS, repActionEnv);
+		PType repActionType = repAction.apply(THIS, question.newScope(defs));
 
-		node.setType(new AActionType());
-		return node.getType();
+		return setType(node, repActionType);
 	}
 
 	@Override
@@ -840,15 +743,10 @@ public class CmlActionTypeChecker extends
 		PAction right = node.getRight();
 
 		PType leftType = left.apply(THIS, question);
-		// if (!successfulType(leftType))
-		// return new AErrorType();
 
 		PType rightType = right.apply(THIS, question);
-		// if (!successfulType(rightType))
-		// return new AErrorType();
 
-		node.setType(new AActionType());
-		return node.getType();
+		return setType(node, leftType, rightType);
 	}
 
 	@Override
@@ -867,7 +765,7 @@ public class CmlActionTypeChecker extends
 			return node.getType();
 		}
 
-		PType type = actionDef.getType(); 
+		PType type = actionDef.getType();
 		if (type != null)
 		{
 			if (!(type instanceof AActionType))
@@ -894,12 +792,6 @@ public class CmlActionTypeChecker extends
 		node.setActionDefinition(((AActionDefinition) actionDef));
 		node.setType(new AActionType());
 		return node.getType();
-	}
-
-	private CmlTypeCheckInfo getTypeCheckInfo(TypeCheckInfo question)
-	{
-		// CmlTypeCheckInfo info = new CmlActionTypeChecker(tc2, root)
-		return null;
 	}
 
 	@Override
@@ -957,13 +849,13 @@ public class CmlActionTypeChecker extends
 				PType commPatternType = PPatternAssistantTC.getPossibleType(commPattern);// commPattern.apply(tc,
 																							// question);
 
-//				if (typeDecl == null)
-//					typeDecl.setType(new AChannelType(commParam.getLocation(), true));
+				// if (typeDecl == null)
+				// typeDecl.setType(new AChannelType(commParam.getLocation(), true));
 
 				if (commPattern instanceof AIdentifierPattern)
 				{
 					AIdentifierPattern id = (AIdentifierPattern) commPattern;
-					PType type =  chanType;
+					PType type = chanType;
 					PType theType = null;
 					if (type instanceof AProductType)
 					{
@@ -1097,8 +989,7 @@ public class CmlActionTypeChecker extends
 
 		PType commType = node.getAction().apply(this, info);
 
-		node.setType(commType);
-		return node.getType();
+		return setType(node, commType);
 	}
 
 	@Override
@@ -1111,8 +1002,7 @@ public class CmlActionTypeChecker extends
 		PType leftType = node.getLeft().apply(THIS, question);
 		PType rightType = node.getRight().apply(THIS, question);
 
-		node.setType(new AVoidType());
-		return node.getType();
+		return setType(node, leftType, rightType);
 	}
 
 	@Override
@@ -1120,8 +1010,7 @@ public class CmlActionTypeChecker extends
 			org.overture.typechecker.TypeCheckInfo question)
 			throws AnalysisException
 	{
-		node.setType(new AActionType(node.getLocation(), true));
-		return node.getType();
+		return setTypeVoid(node);
 	}
 
 	@Override
@@ -1141,8 +1030,7 @@ public class CmlActionTypeChecker extends
 		// if (!successfulType(rightType))
 		// return new AErrorType();
 
-		node.setType(new AActionType(node.getLocation(), true));
-		return node.getType();
+		return setType(node, leftType, rightType);
 	}
 
 	@Override
@@ -1168,9 +1056,7 @@ public class CmlActionTypeChecker extends
 			return errorType;
 		}
 
-		node.setType(new AActionType(node.getLocation(), true));
-
-		return node.getType();
+		return setType(node, actionType);
 	}
 
 	@Override
@@ -1185,7 +1071,7 @@ public class CmlActionTypeChecker extends
 		// return new AErrorType(node.getLocation(), true);
 		// }
 
-		return new AActionType();
+		return declType;
 	}
 
 	@Override
@@ -1197,15 +1083,7 @@ public class CmlActionTypeChecker extends
 		AParametrisedAction action = node.getAction();
 		LinkedList<PExp> args = node.getArgs();
 
-		CmlTypeCheckInfo cmlEnv = getTypeCheckInfo(question);
-		if (cmlEnv == null)
-		{
-			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(node
-					+ "")));
-			return node.getType();
-		}
-
-		CmlTypeCheckInfo newCmlEnv = cmlEnv.newScope();
+		List<PDefinition> defs = new Vector<PDefinition>();
 
 		LinkedList<PParametrisation> parameterNames = node.getAction().getParametrisations();
 		int i = 0;
@@ -1224,14 +1102,13 @@ public class CmlActionTypeChecker extends
 			{
 				LexNameToken idName = new LexNameToken("", id);
 				ALocalDefinition localDef = AstFactory.newALocalDefinition(id.getLocation(), idName, NameScope.LOCAL, declType);
-				newCmlEnv.addVariable(id, localDef);
+				defs.add(localDef);
 			}
 		}
-		int a;
-		PType actionType = action.apply(THIS, newCmlEnv);
 
-		node.setType(new AActionType(node.getLocation(), true));
-		return node.getType();
+		PType actionType = action.apply(THIS, question.newScope(defs));
+
+		return setType(node, actionType);
 	}
 
 	@Override
@@ -1243,7 +1120,7 @@ public class CmlActionTypeChecker extends
 		PAction event = node.getLeft();
 		PExp timeExp = node.getExpression();
 
-		PType eventType = event.apply(THIS, question);
+		PType type = event.apply(THIS, question);
 		// if (!successfulType(eventType))
 		// return new AErrorType(node.getLocation(), true);
 
@@ -1258,8 +1135,7 @@ public class CmlActionTypeChecker extends
 			node.setType(new AErrorType(timeExp.getLocation(), true));
 			return node.getType();
 		}
-		node.setType(new AActionType(node.getLocation(), true));
-		return node.getType();
+		return setType(node, type);
 	}
 
 	@Override
@@ -1288,9 +1164,7 @@ public class CmlActionTypeChecker extends
 
 		}
 
-		node.setType(new AActionType());
-
-		return node.getType();
+		return setType(node, eventType);
 	}
 
 	@Override
@@ -1298,7 +1172,7 @@ public class CmlActionTypeChecker extends
 			org.overture.typechecker.TypeCheckInfo question)
 			throws AnalysisException
 	{
-		return new AActionType(node.getLocation(), true);
+		return setTypeVoid(node);
 	}
 
 	@Override
@@ -1318,7 +1192,7 @@ public class CmlActionTypeChecker extends
 
 		if (leftNameSet != null)
 		{
-			PType leftNameSetType = leftNameSet.apply(THIS, question);
+			leftNameSet.apply(THIS, question);
 
 		}
 
@@ -1326,10 +1200,10 @@ public class CmlActionTypeChecker extends
 
 		if (rightNameSet != null)
 		{
-			PType rightNameSetType = rightNameSet.apply(THIS, question);
+			rightNameSet.apply(THIS, question);
 
 		}
-		return new AActionType(node.getLocation(), true);
+		return setType(node, leftActionType, rightActionType);
 	}
 
 	@Override
@@ -1348,8 +1222,7 @@ public class CmlActionTypeChecker extends
 
 		PType actionType = action.apply(THIS, question);
 
-		node.setType(new AActionType());
-		return node.getType();
+		return setType(node, actionType);
 	}
 
 	public PType createNewReturnValue(INode node, TypeCheckInfo question)

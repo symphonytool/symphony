@@ -53,25 +53,33 @@ public class CmlSClassDefinitionAssistant extends SClassDefinitionAssistantTC
 		if (c instanceof AActionClassDefinition)
 		{
 			AProcessDefinition process = c.getAncestor(AProcessDefinition.class);
+			env = updateProcessEnvironment(process, base);
+		}
+		return env;
+	}
 
-			List<PDefinition> definitions = new Vector<PDefinition>();
+	public static Environment updateProcessEnvironment(AProcessDefinition process,
+			Environment base )
+	{
+		
+Environment env=base;
+		List<PDefinition> definitions = new Vector<PDefinition>();
 
-			if (process != null && !process.getLocalState().isEmpty())
+		if (process != null && !process.getLocalState().isEmpty())
+		{
+			for (ATypeSingleDeclaration tDecl : process.getLocalState())
 			{
-				for (ATypeSingleDeclaration tDecl : process.getLocalState())
+				for (ILexIdentifierToken id : tDecl.getIdentifiers())
 				{
-					for (ILexIdentifierToken id : tDecl.getIdentifiers())
-					{
-						ILexNameToken name = new LexNameToken("", id);
-						PExp exp = AstFactory.newAUndefinedExp(name.getLocation());
-						AAssignmentDefinition def = AstFactory.newAAssignmentDefinition(name, tDecl.getType(), exp);
-						AInstanceVariableDefinition ivd = AstFactory.newAInstanceVariableDefinition(def.getName(), def.getType(), def.getExpression());
-						def.getType().parent(ivd);
-						definitions.add(ivd);
-					}
+					ILexNameToken name = new LexNameToken("", id);
+					PExp exp = AstFactory.newAUndefinedExp(name.getLocation());
+					AAssignmentDefinition def = AstFactory.newAAssignmentDefinition(name, tDecl.getType(), exp);
+					AInstanceVariableDefinition ivd = AstFactory.newAInstanceVariableDefinition(def.getName(), def.getType(), def.getExpression());
+					def.getType().parent(ivd);
+					definitions.add(ivd);
 				}
-				env = new FlatCheckedEnvironment(af, definitions, base, NameScope.NAMES);
 			}
+			env = new FlatCheckedEnvironment(af, definitions, base, NameScope.NAMES);
 		}
 		return env;
 	}

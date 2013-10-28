@@ -20,6 +20,7 @@ import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.types.ASeq1SeqType;
 import org.overture.ast.types.ASetType;
 import org.overture.ast.types.PType;
+import org.overture.typechecker.Environment;
 import org.overture.typechecker.TypeCheckInfo;
 
 import eu.compassresearch.ast.actions.PAction;
@@ -32,10 +33,12 @@ import eu.compassresearch.ast.definitions.AChannelDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
+import eu.compassresearch.ast.expressions.SChannelExp;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
+import eu.compassresearch.core.typechecker.assistant.CmlSClassDefinitionAssistant;
 
 public class CmlCspTypeChecker extends
 		QuestionAnswerCMLAdaptor<TypeCheckInfo, PType>
@@ -71,6 +74,11 @@ public class CmlCspTypeChecker extends
 	 */
 	private final QuestionAnswerAdaptor<TypeCheckInfo, PType> varSetExpChecker;
 
+	/**
+	 * Type checker for channel expressions
+	 */
+	private final CmlChannelExpressionTypeChecker channelExpChecker;
+
 	public CmlCspTypeChecker(ITypeIssueHandler issuehandler)
 	{
 		this.vdmChecker = new CmlVdmTypeCheckVisitor()
@@ -90,6 +98,7 @@ public class CmlCspTypeChecker extends
 		this.actionChecker = new CmlActionTypeChecker(vdmChecker, this, issuehandler);
 		this.processChecker = new CmlProcessTypeChecker(vdmChecker, this, issuehandler);
 		this.varSetExpChecker = new CmlVarSetExpressionTypeChecker(vdmChecker, this, issuehandler);
+		this.channelExpChecker = new CmlChannelExpressionTypeChecker(this, issuehandler);
 
 	}
 
@@ -138,7 +147,8 @@ public class CmlCspTypeChecker extends
 			TypeCheckInfo question) throws AnalysisException
 	{
 
-		node.getProcess().apply(this, question);
+		Environment env = CmlSClassDefinitionAssistant.updateProcessEnvironment(node, question.env);
+		node.getProcess().apply(THIS, new TypeCheckInfo(question.assistantFactory, env, question.scope));
 
 		return AstFactory.newAVoidType(node.getLocation());
 	}
@@ -176,6 +186,13 @@ public class CmlCspTypeChecker extends
 			throws AnalysisException
 	{
 		return node.apply(vdmChecker, question);
+	}
+
+	@Override
+	public PType defaultSChannelExp(SChannelExp node, TypeCheckInfo question)
+			throws AnalysisException
+	{
+		return node.apply(channelExpChecker, question);
 	}
 
 	/**
