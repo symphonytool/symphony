@@ -22,7 +22,7 @@ import org.overture.typechecker.TypeCheckInfo;
 import org.overture.typechecker.assistant.ITypeCheckerAssistantFactory;
 import org.overture.typechecker.util.HelpLexNameToken;
 
-import eu.compassresearch.ast.definitions.AChannelNameDefinition;
+import eu.compassresearch.ast.definitions.AChannelDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.core.typechecker.api.ITypeCheckQuestion;
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
@@ -249,9 +249,9 @@ public class CmlTypeCheckInfo extends TypeCheckInfo implements
 		{
 			for (PDefinition def : chn.getDefinitions())
 			{
-				if (def instanceof AChannelNameDefinition)
+				if (def instanceof AChannelDefinition)
 				{
-					AChannelNameDefinition chanDef = (AChannelNameDefinition) def;
+					AChannelDefinition chanDef = (AChannelDefinition) def;
 
 					for (ILexIdentifierToken id : chanDef.getSingleType().getIdentifiers())
 					{
@@ -346,7 +346,7 @@ public class CmlTypeCheckInfo extends TypeCheckInfo implements
 		return env.getDefinitions();
 	}
 
-	public boolean hasChannelDuplicates(AChannelNameDefinition newChannel)
+	public boolean hasChannelDuplicates(AChannelDefinition newChannel)
 	{
 
 		boolean hasDuplicates = false;
@@ -360,9 +360,9 @@ public class CmlTypeCheckInfo extends TypeCheckInfo implements
 			for (PDefinition def : channels.getDefinitions())
 			{
 
-				if (def instanceof AChannelNameDefinition)
+				if (def instanceof AChannelDefinition)
 				{
-					AChannelNameDefinition existingChanDef = (AChannelNameDefinition) def;
+					AChannelDefinition existingChanDef = (AChannelDefinition) def;
 					// compare identifiers
 					for (ILexIdentifierToken id : existingChanDef.getSingleType().getIdentifiers())
 					{

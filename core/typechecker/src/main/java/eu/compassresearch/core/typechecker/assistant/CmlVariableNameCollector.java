@@ -4,7 +4,7 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.lex.LexNameList;
 import org.overture.typechecker.assistant.ITypeCheckerAssistantFactory;
 
-import eu.compassresearch.ast.definitions.AChannelNameDefinition;
+import eu.compassresearch.ast.definitions.AChannelDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.lex.LexNameToken;
 
@@ -23,7 +23,7 @@ public class CmlVariableNameCollector extends AbstractCmlVariableNameCollector
 	
 	
 	@Override
-	public LexNameList caseAChannelNameDefinition(AChannelNameDefinition node)
+	public LexNameList caseAChannelDefinition(AChannelDefinition node)
 			throws AnalysisException
 	{
 		return new LexNameList(node.getName());

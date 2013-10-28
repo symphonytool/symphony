@@ -48,11 +48,11 @@ definition {-> package='eu.compassresearch.ast.definitions'}
     |   {process}
                 [localState]: singleDeclaration.type*
                 [process]: process
-    | {channelName}
+    | {channel}//renamed removed Name
         [singleType]: singleDeclaration.type
     | #class
    | {channels}
-        [channelNameDeclarations]: definition.channelName*
+        [channelDeclarations]: definition.channel*
    | {chansets}
         [chansets] : definition.chanset*
    | {namesets}

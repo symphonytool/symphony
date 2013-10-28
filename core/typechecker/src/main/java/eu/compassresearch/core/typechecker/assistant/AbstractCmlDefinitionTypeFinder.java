@@ -61,7 +61,7 @@ import eu.compassresearch.ast.declarations.AExpressionSingleDeclaration;
 import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AActionsDefinition;
-import eu.compassresearch.ast.definitions.AChannelNameDefinition;
+import eu.compassresearch.ast.definitions.AChannelDefinition;
 import eu.compassresearch.ast.definitions.AChannelsDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.definitions.AChansetsDefinition;
@@ -241,7 +241,7 @@ public abstract class AbstractCmlDefinitionTypeFinder extends
 	}
 
 	@Override
-	public PType caseAChannelNameDefinition(AChannelNameDefinition node)
+	public PType caseAChannelDefinition(AChannelDefinition node)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub

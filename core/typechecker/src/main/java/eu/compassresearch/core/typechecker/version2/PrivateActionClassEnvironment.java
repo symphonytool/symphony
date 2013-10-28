@@ -7,7 +7,7 @@ import org.overture.typechecker.Environment;
 import org.overture.typechecker.PrivateClassEnvironment;
 import org.overture.typechecker.assistant.ITypeCheckerAssistantFactory;
 
-import eu.compassresearch.ast.definitions.AChannelNameDefinition;
+import eu.compassresearch.ast.definitions.AChannelDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 
 public class PrivateActionClassEnvironment extends PrivateClassEnvironment
@@ -26,7 +26,7 @@ public class PrivateActionClassEnvironment extends PrivateClassEnvironment
 		{
 
 			PDefinition def = outer.find(name);
-			if (def instanceof AChannelNameDefinition
+			if (def instanceof AChannelDefinition
 					|| def instanceof AChansetDefinition)
 			{
 				return def;

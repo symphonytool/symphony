@@ -11,7 +11,7 @@ import org.overture.typechecker.assistant.definition.PDefinitionAssistantTC;
 import org.overture.typechecker.assistant.definition.PDefinitionListAssistantTC;
 
 import eu.compassresearch.ast.definitions.AActionDefinition;
-import eu.compassresearch.ast.definitions.AChannelNameDefinition;
+import eu.compassresearch.ast.definitions.AChannelDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 
 public class CmlPDefinitionListAssistant extends PDefinitionListAssistantTC
@@ -31,7 +31,7 @@ public class CmlPDefinitionListAssistant extends PDefinitionListAssistantTC
 
 		for (PDefinition d : singleDefinitions(definitions))
 		{
-			if ((PDefinitionAssistantTC.isFunctionOrOperation(d)|| d instanceof AChannelNameDefinition || d instanceof AChansetDefinition || d instanceof AActionDefinition)
+			if ((PDefinitionAssistantTC.isFunctionOrOperation(d)|| d instanceof AChannelDefinition || d instanceof AChansetDefinition || d instanceof AActionDefinition)
 					&& d.getName().matches(name))
 			{
 				set.add(d);
