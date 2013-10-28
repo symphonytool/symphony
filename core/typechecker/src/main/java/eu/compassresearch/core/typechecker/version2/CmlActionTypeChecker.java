@@ -663,8 +663,8 @@ public class CmlActionTypeChecker extends
 						+ "", declType + ""));
 			}
 
-			issueHandler.addTypeWarning(decl, "This declaration should expand the environment: "
-					+ decl);
+			//issueHandler.addTypeWarning(decl, "This declaration should expand the environment: "
+			//		+ decl);
 
 			for (PDefinition def : declType.getDefinitions())
 				localDefinitions.add(def);
@@ -858,14 +858,17 @@ public class CmlActionTypeChecker extends
 			throws AnalysisException
 	{
 
-		// CmlTypeCheckInfo newQ = getTypeCheckInfo(question);
-		Environment env = question.env;
+		PDefinition actionDef = findDefinition(node.getName().getIdentifier(), question.env);
 
-		// FIXME
-		PDefinition actionDef = env.findMatches(node.getName()).iterator().next();// newQ.lookup(node.getName(),
-																					// PDefinition.class);
+		if (actionDef == null)
+		{
+			issueHandler.addTypeError(node, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(node.getName()
+					+ ""));
+			node.setType(new AErrorType());
+			return node.getType();
+		}
 
-		PType type = actionDef.getType();// newQ.lookupType(node.getName());
+		PType type = actionDef.getType(); 
 		if (type != null)
 		{
 			if (!(type instanceof AActionType))
@@ -880,15 +883,6 @@ public class CmlActionTypeChecker extends
 
 		if (type == null)
 		{
-
-			if (actionDef == null)
-			{
-				issueHandler.addTypeError(node, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(node.getName()
-						+ ""));
-				node.setType(new AErrorType());
-				return node.getType();
-			}
-
 			if (!(actionDef instanceof AActionDefinition))
 			{
 				issueHandler.addTypeError(node, TypeErrorMessages.EXPECTED_AN_ACTION_OR_OPERATION.customizeMessage(node.getName()
