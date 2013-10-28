@@ -99,7 +99,7 @@ public class CmlProcessTypeChecker extends
 		TypeCheckInfo q = new TypeCheckInfo(question.assistantFactory, env, question.scope);
 
 		node.getActionDefinition().apply(this, q);
-		node.getAction().apply(actionChecker, q);
+		node.getAction().apply(THIS, q);
 
 		return super.caseAActionProcess(node, question);
 	}
@@ -603,7 +603,6 @@ public class CmlProcessTypeChecker extends
 		return new AProcessType();
 	}
 
-	}
 
 	@SuppressWarnings("deprecation")
 	@Override
