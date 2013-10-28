@@ -2,4 +2,6 @@
 
 channels
 
- a : nat a : seq of char
+ a : nat 
+ 
+ a : seq of char

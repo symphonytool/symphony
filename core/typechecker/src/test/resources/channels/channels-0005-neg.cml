@@ -12,6 +12,8 @@ begin
 
 actions
 
- A = startStartRescue -> acceptStartRescue -> endStartRescue -> B B = $T(target(C)) @ Skip
+ A = startStartRescue -> acceptStartRescue -> endStartRescue -> B 
+ 
+ B = $T(target(C)) @ Skip
 
 end
