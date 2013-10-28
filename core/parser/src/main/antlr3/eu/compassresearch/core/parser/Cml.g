@@ -1693,20 +1693,20 @@ channelDef returns[List<AChannelDefinition> def]
                 List<ILexIdentifierToken> idList = new ArrayList<ILexIdentifierToken>();
                 idList.add(id);
                 ILexLocation loc = id.getLocation();
-                AChannelType chanType = new AChannelType(loc, true);
-                if ($type.type != null) {
-                    loc = extractLexLocation(loc, extractLexLocation($type.stop));
-                    chanType.setLocation(extractLexLocation($type.start,$type.stop));
-                    chanType.setType($type.type.clone());
-                }    
-                ATypeSingleDeclaration typeDecl = new ATypeSingleDeclaration(loc, NameScope.GLOBAL, idList, chanType);
+                //AChannelType chanType = new AChannelType(loc, true);
+                //if ($type.type != null) {
+                //    loc = extractLexLocation(loc, extractLexLocation($type.stop));
+                //    chanType.setLocation(extractLexLocation($type.start,$type.stop));
+                //    chanType.setType($type.type.clone());
+                //}    
+                //ATypeSingleDeclaration typeDecl = new ATypeSingleDeclaration(loc, NameScope.GLOBAL, idList, $type.type.clone());
                 
                 AChannelDefinition chanDecl = new AChannelDefinition();
                 chanDecl.setName(new LexNameToken("", id)); // this is ok, as each identifier in the identifierList gets its own ACNDef
                 chanDecl.setNameScope(NameScope.GLOBAL);
                 chanDecl.setUsed(false);            
-                chanDecl.setSingleType(typeDecl);
-                chanDecl.setType(new AChannelType(loc, true));
+              //  chanDecl.setSingleType(typeDecl);
+                chanDecl.setType($type.type.clone());
                 $def.add(chanDecl);
             }
         }

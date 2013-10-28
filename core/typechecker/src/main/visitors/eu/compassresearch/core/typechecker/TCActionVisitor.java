@@ -493,10 +493,10 @@ class TCActionVisitor extends
 				return node.getType();
 			}
 			AChannelDefinition chanNameDef = (AChannelDefinition) chanDef;
-			for (ILexIdentifierToken id : chanNameDef.getSingleType().getIdentifiers())
-			{
-				actionEnv.addChannel(id, chanDef);
-			}
+//			for (ILexIdentifierToken id : chanNameDef.getSingleType().getIdentifiers())
+//			{
+//				actionEnv.addChannel(id, chanDef);
+//			}
 		}
 
 		PVarsetExpression sexp = node.getNamesetExpression();
@@ -2240,7 +2240,7 @@ class TCActionVisitor extends
 			// // the types in the declared type for the channel
 			// //
 			// //
-			ATypeSingleDeclaration typeDecl = channelNameDefinition.getSingleType();
+			ATypeSingleDeclaration typeDecl = null;//channelNameDefinition.getSingleType();
 
 			if (commParam instanceof AReadCommunicationParameter)
 			{

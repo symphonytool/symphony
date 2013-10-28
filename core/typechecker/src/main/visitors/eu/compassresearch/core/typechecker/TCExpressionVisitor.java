@@ -171,7 +171,7 @@ class TCExpressionVisitor extends
 			return node.getType();
 		}
 
-		ATypeSingleDeclaration chanTypeDecl = ((AChannelDefinition) chanDef).getSingleType();
+		ATypeSingleDeclaration chanTypeDecl = null;//((AChannelDefinition) chanDef).getSingleType();
 		AChannelType chan = (AChannelType) chanTypeDecl.getType();
 		PType chanConcreteType = chan.getType();
 
@@ -699,7 +699,7 @@ class TCExpressionVisitor extends
 
 				if (def != null && def instanceof AChannelDefinition)
 				{
-					ATypeSingleDeclaration chanTypeDecl = ((AChannelDefinition) def).getSingleType();
+					ATypeSingleDeclaration chanTypeDecl = null;//((AChannelDefinition) def).getSingleType();
 					AChannelType chanType = (AChannelType) chanTypeDecl.getType();
 					PType chanValueType = chanType.getType();
 

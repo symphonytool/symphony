@@ -49,7 +49,7 @@ definition {-> package='eu.compassresearch.ast.definitions'}
                 [localState]: singleDeclaration.type*
                 [process]: process
     | {channel}//renamed removed Name
-        [singleType]: singleDeclaration.type
+      //  [singleType]: singleDeclaration.type
     | #class
    | {channels}
         [channelDeclarations]: definition.channel*

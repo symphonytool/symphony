@@ -253,13 +253,13 @@ public class CmlTypeCheckInfo extends TypeCheckInfo implements
 				{
 					AChannelDefinition chanDef = (AChannelDefinition) def;
 
-					for (ILexIdentifierToken id : chanDef.getSingleType().getIdentifiers())
-					{
-						LexNameToken idName = new LexNameToken("", id);
-						LexNameToken identName = new LexNameToken("", ident);
-						if (HelpLexNameToken.isEqual(idName, identName))
-							return def;
-					}
+//					for (ILexIdentifierToken id : chanDef.getSingleType().getIdentifiers())
+//					{
+//						LexNameToken idName = new LexNameToken("", id);
+//						LexNameToken identName = new LexNameToken("", ident);
+//						if (HelpLexNameToken.isEqual(idName, identName))
+//							return def;
+//					}
 				}
 
 				if (def instanceof AChansetDefinition)
@@ -351,40 +351,40 @@ public class CmlTypeCheckInfo extends TypeCheckInfo implements
 
 		boolean hasDuplicates = false;
 		// run through all identifiers of new channel
-		for (ILexIdentifierToken newChannelIdent : newChannel.getSingleType().getIdentifiers())
-		{
-			int count = 0;
-			LexNameToken newChannelIdentName = new LexNameToken("", newChannelIdent);
-
-			// run through each existing channels
-			for (PDefinition def : channels.getDefinitions())
-			{
-
-				if (def instanceof AChannelDefinition)
-				{
-					AChannelDefinition existingChanDef = (AChannelDefinition) def;
-					// compare identifiers
-					for (ILexIdentifierToken id : existingChanDef.getSingleType().getIdentifiers())
-					{
-						LexNameToken existingChannelName = new LexNameToken("", id);
-
-						if (HelpLexNameToken.isEqual(existingChannelName, newChannelIdentName))
-						{
-							++count;
-							if (count > 1)
-							{
-								newChannel.setType(issueHandler.addTypeError(newChannel.getType(), TypeErrorMessages.DUPLICATE_DEFINITION.customizeMessage(newChannelIdentName
-										+ " "
-										+ newChannelIdentName.getLocation(), existingChannelName
-										+ "  "
-										+ existingChannelName.getLocation())));
-								hasDuplicates = true;
-							}
-						}
-					}
-				}
-			}
-		}
+//		for (ILexIdentifierToken newChannelIdent : newChannel.getSingleType().getIdentifiers())
+//		{
+//			int count = 0;
+//			LexNameToken newChannelIdentName = new LexNameToken("", newChannelIdent);
+//
+//			// run through each existing channels
+//			for (PDefinition def : channels.getDefinitions())
+//			{
+//
+//				if (def instanceof AChannelDefinition)
+//				{
+//					AChannelDefinition existingChanDef = (AChannelDefinition) def;
+//					// compare identifiers
+////					for (ILexIdentifierToken id : existingChanDef.getSingleType().getIdentifiers())
+////					{
+////						LexNameToken existingChannelName = new LexNameToken("", id);
+////
+////						if (HelpLexNameToken.isEqual(existingChannelName, newChannelIdentName))
+////						{
+////							++count;
+////							if (count > 1)
+////							{
+////								newChannel.setType(issueHandler.addTypeError(newChannel.getType(), TypeErrorMessages.DUPLICATE_DEFINITION.customizeMessage(newChannelIdentName
+////										+ " "
+////										+ newChannelIdentName.getLocation(), existingChannelName
+////										+ "  "
+////										+ existingChannelName.getLocation())));
+////								hasDuplicates = true;
+////							}
+////						}
+////					}
+//				}
+//			}
+//		}
 		return hasDuplicates;
 	}
 
