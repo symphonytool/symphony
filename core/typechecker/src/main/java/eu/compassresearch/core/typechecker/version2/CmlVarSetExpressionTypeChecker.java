@@ -280,7 +280,7 @@ List<PType> types = new Vector<PType>();
 				return node.getType();
 			}
 
-			if (idDef.getType() instanceof AChannelType)
+			if (idDef instanceof AChannelDefinition)
 				seenChannel = true;
 
 			if (idDef instanceof AStateDefinition)

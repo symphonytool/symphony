@@ -74,6 +74,11 @@ public class CmlCspTypeChecker extends
 	 */
 	private final QuestionAnswerAdaptor<TypeCheckInfo, PType> vdmChecker;
 
+	/**
+	 * Type checker for var set expressions
+	 */
+	private final QuestionAnswerAdaptor<TypeCheckInfo, PType> varSetExpChecker;
+
 	public CmlCspTypeChecker(QuestionAnswerAdaptor<TypeCheckInfo, PType> tc2,
 			ITypeIssueHandler issuehandler)
 	{
@@ -81,6 +86,7 @@ public class CmlCspTypeChecker extends
 		this.actionChecker = new CmlActionTypeChecker(tc2, this, issuehandler);
 		this.channelChecker = new CmlChannelTypeChecker(tc2, this, issuehandler);
 		this.processChecker = new CmlProcessTypeChecker(tc2, this, issuehandler);
+		this.varSetExpChecker = new CmlVarSetExpressionTypeChecker(tc2, this, issuehandler);
 		this.vdmChecker = tc2;
 	}
 
@@ -99,7 +105,7 @@ public class CmlCspTypeChecker extends
 	public PType caseAChannelDefinition(AChannelDefinition node,
 			TypeCheckInfo question) throws AnalysisException
 	{
-		return question.assistantFactory.createPTypeAssistant().typeResolve(node.getType(),null,vdmChecker,question);
+		return question.assistantFactory.createPTypeAssistant().typeResolve(node.getType(), null, vdmChecker, question);
 	}
 
 	@Override
@@ -132,22 +138,27 @@ public class CmlCspTypeChecker extends
 	{
 		return node.apply(actionChecker, question);
 	}
-	
+
 	@Override
 	public PType defaultPProcess(PProcess node, TypeCheckInfo question)
 			throws AnalysisException
 	{
-		return node.apply(processChecker,question);
+		return node.apply(processChecker, question);
 	}
-	
+
 	@Override
 	public PType defaultPExp(PExp node, TypeCheckInfo question)
 			throws AnalysisException
 	{
-		return node.apply(vdmChecker,question);
+		return node.apply(vdmChecker, question);
 	}
 
-
+	@Override
+	public PType defaultPVarsetExpression(PVarsetExpression node,
+			TypeCheckInfo question) throws AnalysisException
+	{
+		return node.apply(varSetExpChecker, question);
+	}
 
 	@Override
 	public PType caseAActionClassDefinition(AActionClassDefinition node,
@@ -187,7 +198,8 @@ public class CmlCspTypeChecker extends
 
 		if (type != null)
 		{
-			PType typetype = question.assistantFactory.createPTypeAssistant().typeResolve(type,null,vdmChecker,question);//type.apply(THIS, question);
+			PType typetype = question.assistantFactory.createPTypeAssistant().typeResolve(type, null, vdmChecker, question);// type.apply(THIS,
+																															// question);
 
 			LinkedList<ILexIdentifierToken> ids = node.getIdentifiers();
 			List<PDefinition> defs = new LinkedList<PDefinition>();
