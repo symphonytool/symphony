@@ -6,6 +6,7 @@ package eu.compassresearch.core.typechecker.version2;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Vector;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
@@ -14,9 +15,11 @@ import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.lex.LexIdentifierToken;
 import org.overture.ast.node.INode;
+import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.types.ANatNumericBasicType;
 import org.overture.ast.types.PType;
 import org.overture.typechecker.Environment;
+import org.overture.typechecker.FlatCheckedEnvironment;
 import org.overture.typechecker.TypeCheckInfo;
 import org.overture.typechecker.TypeComparator;
 
@@ -288,32 +291,30 @@ public class CmlProcessTypeChecker extends
 			TypeCheckInfo question) throws AnalysisException
 	{
 
-		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
-		if (cmlEnv == null)
-			return issueHandler.addTypeError(node, TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(""
-					+ node));
+		List<PDefinition> localDefinitions = new Vector<PDefinition>();
+		Environment local = new FlatCheckedEnvironment(question.assistantFactory, localDefinitions, question.env, NameScope.NAMES);
+		TypeCheckInfo info = new TypeCheckInfo(question.assistantFactory, local, NameScope.NAMES);
+
 
 		PVarsetExpression csExp = node.getChansetExpression();
 		PProcess repProcess = node.getReplicatedProcess();
 		LinkedList<PSingleDeclaration> repDec = node.getReplicationDeclaration();
 
-		CmlTypeCheckInfo local = cmlEnv.newScope();
 
 		for (PSingleDeclaration d : repDec)
 		{
 			PType dType = d.apply(THIS, question);
 			for (PDefinition def : dType.getDefinitions())
 			{
-				local.addVariable(def.getName(), def);
+				localDefinitions.add(def);
 			}
 		}
 
-		PType csExpType = csExp.apply(THIS, local);
+		PType csExpType = csExp.apply(THIS, info);
 
 		// TODO: Maybe the declarations above needs to go into the environment ?
-		issueHandler.addTypeWarning(repProcess, TypeWarningMessages.INCOMPLETE_TYPE_CHECKING.customizeMessage(""
-				+ repProcess));
-		PType repProcessType = repProcess.apply(THIS, local);
+		
+		PType repProcessType = repProcess.apply(THIS, info);
 
 		return new AProcessType();
 	}
