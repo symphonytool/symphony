@@ -1,7 +1,5 @@
 package eu.compassresearch.core.typechecker.version2;
 
-import static eu.compassresearch.core.typechecker.util.CmlTCUtil.successfulType;
-
 import java.util.LinkedList;
 import java.util.List;
 
@@ -19,7 +17,6 @@ import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.types.ASeq1SeqType;
 import org.overture.ast.types.ASetType;
 import org.overture.ast.types.PType;
-import org.overture.typechecker.Environment;
 import org.overture.typechecker.TypeCheckInfo;
 
 import eu.compassresearch.ast.actions.PAction;
@@ -32,13 +29,10 @@ import eu.compassresearch.ast.definitions.AChannelDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
-import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.ast.program.PSource;
-import eu.compassresearch.ast.types.AChansetType;
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
-import eu.compassresearch.core.typechecker.assistant.CmlSClassDefinitionAssistant;
 
 public class CmlCspTypeChecker extends
 		QuestionAnswerCMLAdaptor<TypeCheckInfo, PType>
@@ -60,11 +54,6 @@ public class CmlCspTypeChecker extends
 	private final QuestionAnswerAdaptor<TypeCheckInfo, PType> actionChecker;
 
 	/**
-	 * Type checker for channels and channel sets
-	 */
-	private final QuestionAnswerAdaptor<TypeCheckInfo, PType> channelChecker;
-
-	/**
 	 * The checker for processes
 	 */
 	private final CmlProcessTypeChecker processChecker;
@@ -84,7 +73,6 @@ public class CmlCspTypeChecker extends
 	{
 		this.issueHandler = issuehandler;
 		this.actionChecker = new CmlActionTypeChecker(tc2, this, issuehandler);
-		this.channelChecker = new CmlChannelTypeChecker(tc2, this, issuehandler);
 		this.processChecker = new CmlProcessTypeChecker(tc2, this, issuehandler);
 		this.varSetExpChecker = new CmlVarSetExpressionTypeChecker(tc2, this, issuehandler);
 		this.vdmChecker = tc2;

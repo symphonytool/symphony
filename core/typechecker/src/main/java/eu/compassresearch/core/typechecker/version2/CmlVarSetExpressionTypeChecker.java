@@ -15,14 +15,10 @@ import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.analysis.intf.IQuestionAnswer;
 import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.PDefinition;
-import org.overture.ast.definitions.SOperationDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.factory.AstFactory;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
-import org.overture.ast.lex.LexNameToken;
-import org.overture.ast.modules.SValueImport;
 import org.overture.ast.node.INode;
-import org.overture.ast.patterns.PMultipleBind;
 import org.overture.ast.types.ABooleanBasicType;
 import org.overture.ast.types.AProductType;
 import org.overture.ast.types.ASetType;
@@ -35,7 +31,6 @@ import org.overture.typechecker.TypeComparator;
 import org.overture.typechecker.assistant.type.PTypeAssistantTC;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
-import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.definitions.AChannelDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.expressions.ACompVarsetExpression;
@@ -49,15 +44,9 @@ import eu.compassresearch.ast.expressions.ASubVOpVarsetExpression;
 import eu.compassresearch.ast.expressions.AUnionVOpVarsetExpression;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.expressions.SVOpVarsetExpression;
-import eu.compassresearch.ast.types.AChannelType;
-import eu.compassresearch.ast.types.AChansetType;
-import eu.compassresearch.ast.types.ANamesetsType;
-import eu.compassresearch.ast.types.AVarsetExpressionType;
-import eu.compassresearch.core.typechecker.CmlTypeCheckInfo;
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 import eu.compassresearch.core.typechecker.assistant.TypeCheckerUtil;
-import eu.compassresearch.core.typechecker.util.CmlTCUtil;
 
 public class CmlVarSetExpressionTypeChecker extends
 		QuestionAnswerCMLAdaptor<TypeCheckInfo, PType>
@@ -87,9 +76,8 @@ public class CmlVarSetExpressionTypeChecker extends
 			throws AnalysisException
 	{
 
-
 		ILexIdentifierToken id = node.getIdentifier();
-		PDefinition idDef = TypeCheckerUtil.findDefinition(id,question.env);
+		PDefinition idDef = TypeCheckerUtil.findDefinition(id, question.env);
 
 		if (idDef == null)
 		{
@@ -116,9 +104,8 @@ public class CmlVarSetExpressionTypeChecker extends
 	{
 
 		List<PType> types = new Vector<PType>();
-		
-		PType result = AstFactory.newAUnknownType(node.getLocation());
 
+		PType result = AstFactory.newAUnknownType(node.getLocation());
 
 		LinkedList<ANameChannelExp> chanNames = node.getChannelNames();
 		LinkedList<PDefinition> defs = new LinkedList<PDefinition>();
@@ -127,18 +114,18 @@ public class CmlVarSetExpressionTypeChecker extends
 		for (ANameChannelExp chanName : chanNames)
 		{
 			ILexIdentifierToken id = chanName.getIdentifier();
-//			LexNameToken nameid = new LexNameToken("", id);
-			PDefinition def =null;//= TypeCheckerUtil.findDefinition(id,question.env);
-//			if (def == null)
+			// LexNameToken nameid = new LexNameToken("", id);
+			PDefinition def = null;// = TypeCheckerUtil.findDefinition(id,question.env);
+			// if (def == null)
 			{
 
-				def = TypeCheckerUtil.findDefinition(id,question.env);
+				def = TypeCheckerUtil.findDefinition(id, question.env);
 
 				if (def != null && def instanceof AChannelDefinition)
 				{
-//					ATypeSingleDeclaration chanTypeDecl = null;// ((AChannelDefinition) def).getSingleType();
-//					AChannelType chanType = (AChannelType) chanTypeDecl.getType();
-					PType chanValueType = def.getType();//chanType.getType();
+					// ATypeSingleDeclaration chanTypeDecl = null;// ((AChannelDefinition) def).getSingleType();
+					// AChannelType chanType = (AChannelType) chanTypeDecl.getType();
+					PType chanValueType = def.getType();// chanType.getType();
 					types.add(chanValueType);
 
 					if (chanValueType instanceof AProductType)
@@ -172,10 +159,10 @@ public class CmlVarSetExpressionTypeChecker extends
 				}
 				seenChannel = true;
 			}
-//			else
-//			{
-//				seenState = true;
-//			}
+			// else
+			// {
+			// seenState = true;
+			// }
 			if (def == null)
 			{
 				node.setType(issueHandler.addTypeError(id, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(id
@@ -192,17 +179,17 @@ public class CmlVarSetExpressionTypeChecker extends
 			return node.getType();
 		}
 
-//		if (seenChannel)
-//		{
-//			result = new AChansetType(node.getLocation(), true);
-//		}
-//
-//		if (seenState)
-//		{
-//			result = new ANamesetsType(node.getLocation(), true);
-//		}
+		// if (seenChannel)
+		// {
+		// result = new AChansetType(node.getLocation(), true);
+		// }
+		//
+		// if (seenState)
+		// {
+		// result = new ANamesetsType(node.getLocation(), true);
+		// }
 		result.setDefinitions(new LinkedList<PDefinition>(defs));
-		
+
 		return TypeCheckerUtil.setType(node, types);
 	}
 
@@ -212,30 +199,29 @@ public class CmlVarSetExpressionTypeChecker extends
 	{
 		// bnd { a.x.y.z | x : Type, z : Type : z : Type } ]
 
+		// ANameChannelExp chanNameExp = node.getChannelNameExp();
+		// PExp predicate = node.getPredicate();
+		// LinkedList<PMultipleBind> bindings = node.getBindings();
+		//
+		// CmlTypeCheckInfo compScope = cmlEnv.newScope();
+		//
+		// for (PMultipleBind mbnd : bindings)
+		// {
+		// PType mbndType = mbnd.apply(THIS, compScope);
+		// }
+		//
+		// if (predicate != null)
+		// {
+		// PType predicateType = predicate.apply(THIS, compScope);
+		// }
+		//
+		// PType chanType = chanNameExp.apply(THIS, compScope);
+		//
+		// node.setType(new AVarsetExpressionType(node.getLocation(), true));
+		// return node.getType();
 
-//		ANameChannelExp chanNameExp = node.getChannelNameExp();
-//		PExp predicate = node.getPredicate();
-//		LinkedList<PMultipleBind> bindings = node.getBindings();
-//
-//		CmlTypeCheckInfo compScope = cmlEnv.newScope();
-//
-//		for (PMultipleBind mbnd : bindings)
-//		{
-//			PType mbndType = mbnd.apply(THIS, compScope);
-//		}
-//
-//		if (predicate != null)
-//		{
-//			PType predicateType = predicate.apply(THIS, compScope);
-//		}
-//
-//		PType chanType = chanNameExp.apply(THIS, compScope);
-//
-//		node.setType(new AVarsetExpressionType(node.getLocation(), true));
-//		return node.getType();
-		
-		//FIXME copied from TypeCheckExpVisitor.caseASetCompSetExp this node is properly standard VDM 
-		
+		// FIXME copied from TypeCheckExpVisitor.caseASetCompSetExp this node is properly standard VDM
+
 		PDefinition def = AstFactory.newAMultiBindListDefinition(node.getLocation(), node.getBindings());
 		def.apply(THIS, question);
 
@@ -256,7 +242,7 @@ public class CmlVarSetExpressionTypeChecker extends
 		local.unusedCheck();
 		ASetType setType = AstFactory.newASetType(node.getLocation(), etype);
 		node.setType(setType);
-//		node.setSetType(setType);
+		// node.setSetType(setType);
 		return setType;
 	}
 
@@ -264,7 +250,7 @@ public class CmlVarSetExpressionTypeChecker extends
 	public PType caseAFatEnumVarsetExpression(AFatEnumVarsetExpression node,
 			TypeCheckInfo question) throws AnalysisException
 	{
-List<PType> types = new Vector<PType>();
+		List<PType> types = new Vector<PType>();
 
 		LinkedList<ANameChannelExp> chanNames = node.getChannelNames();
 		LinkedList<PDefinition> defs = new LinkedList<PDefinition>();
@@ -272,7 +258,7 @@ List<PType> types = new Vector<PType>();
 		boolean seenChannel = false;
 		for (ANameChannelExp chanName : chanNames)
 		{
-			PDefinition idDef = TypeCheckerUtil.findDefinition(chanName.getIdentifier(),question.env);
+			PDefinition idDef = TypeCheckerUtil.findDefinition(chanName.getIdentifier(), question.env);
 			if (idDef == null)
 			{
 				node.setType(issueHandler.addTypeError(node, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(""
@@ -303,18 +289,18 @@ List<PType> types = new Vector<PType>();
 			types.add(idDef.getType());
 		}
 
-//		PType result = type;
-//		if (seenState)
-//			result = new ANamesetsType(node.getLocation(), true);
-//		if (seenChannel)
-//			result = new AChansetType(node.getLocation(), true);
-//		if (result == null)
-//			result = issueHandler.addTypeError(node, TypeErrorMessages.EXPECTED_CHANNEL_OR_STATE.customizeMessage(""
-//					+ node));
+		// PType result = type;
+		// if (seenState)
+		// result = new ANamesetsType(node.getLocation(), true);
+		// if (seenChannel)
+		// result = new AChansetType(node.getLocation(), true);
+		// if (result == null)
+		// result = issueHandler.addTypeError(node, TypeErrorMessages.EXPECTED_CHANNEL_OR_STATE.customizeMessage(""
+		// + node));
 
-//		result.setDefinitions(new LinkedList<PDefinition>());
-//		result.getDefinitions().addAll(defs);
-//		node.setType(result);
+		// result.setDefinitions(new LinkedList<PDefinition>());
+		// result.getDefinitions().addAll(defs);
+		// node.setType(result);
 		return TypeCheckerUtil.setType(node, types);
 
 	}
@@ -326,36 +312,30 @@ List<PType> types = new Vector<PType>();
 		// bnd predicate
 		// { a.x | x : int }
 
-//		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
-//		if (cmlEnv == null)
-//		{
-//			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(""
-//					+ node)));
-//			return node.getType();
-//		}
+		// CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
+		// if (cmlEnv == null)
+		// {
+		// node.setType(issueHandler.addTypeError(node, TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(""
+		// + node)));
+		// return node.getType();
+		// }
 
-//		PExp predicate = node.getPredicate();
-//		LinkedList<PMultipleBind> bindings = node.getBindings();
-//
-//		for (PMultipleBind mbnd : bindings)
-//		{
-//			PType mbndType = mbnd.apply(THIS, question);
-//		}
+		// PExp predicate = node.getPredicate();
+		// LinkedList<PMultipleBind> bindings = node.getBindings();
+		//
+		// for (PMultipleBind mbnd : bindings)
+		// {
+		// PType mbndType = mbnd.apply(THIS, question);
+		// }
 
-//		if (predicate != null)
-//		{
-//			CmlTypeCheckInfo compScope = cmlEnv.newScope();
-//			PType predicateType = predicate.apply(THIS, compScope);
-//		}
-//		node.setType(new AVarsetExpressionType(node.getLocation(), true));
-//		return node.getType();
-		
-		
-		
-		
-		
-		
-		
+		// if (predicate != null)
+		// {
+		// CmlTypeCheckInfo compScope = cmlEnv.newScope();
+		// PType predicateType = predicate.apply(THIS, compScope);
+		// }
+		// node.setType(new AVarsetExpressionType(node.getLocation(), true));
+		// return node.getType();
+
 		PDefinition def = AstFactory.newAMultiBindListDefinition(node.getLocation(), node.getBindings());
 		def.apply(THIS, question);
 
@@ -389,8 +369,6 @@ List<PType> types = new Vector<PType>();
 		return typeCheckOpVarset(node, question);
 	}
 
-	
-
 	@Override
 	public PType caseAInterVOpVarsetExpression(AInterVOpVarsetExpression node,
 			TypeCheckInfo question) throws AnalysisException
@@ -404,8 +382,7 @@ List<PType> types = new Vector<PType>();
 	{
 		return typeCheckOpVarset(node, question);
 	}
-	
-	
+
 	public PType typeCheckOpVarset(SVOpVarsetExpression node,
 			TypeCheckInfo question) throws AnalysisException
 	{
@@ -416,7 +393,7 @@ List<PType> types = new Vector<PType>();
 
 		PType rightType = right.apply(THIS, question);
 
-		node.setType( TypeCheckerUtil.generateUnionType(node.getLocation(), leftType,rightType));
+		node.setType(TypeCheckerUtil.generateUnionType(node.getLocation(), leftType, rightType));
 		return node.getType();
 	}
 
