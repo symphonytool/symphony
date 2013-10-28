@@ -28,11 +28,8 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 			throws AnalysisException {
 		NodeNameList nodeDeps = new NodeNameList();
 		
-		PType valTp = node.getType();
-		nodeDeps.addAll(valTp.apply(thmDepVisitor, bvars));
-
-		PExp valExp = node.getExpression();
-		nodeDeps.addAll(valExp.apply(thmDepVisitor, bvars));
+		nodeDeps.addAll(node.getType().apply(thmDepVisitor, bvars));
+		nodeDeps.addAll(node.getExpression().apply(thmDepVisitor, bvars));
 
 		return nodeDeps;
 	}

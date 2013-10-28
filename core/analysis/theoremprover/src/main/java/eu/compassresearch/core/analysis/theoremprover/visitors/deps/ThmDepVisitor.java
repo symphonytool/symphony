@@ -7,9 +7,11 @@ import org.overture.ast.expressions.PExp;
 import org.overture.ast.node.INode;
 import org.overture.ast.types.PType;
 
+import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.definitions.AChannelNameDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
+import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.analysis.theoremprover.thms.NodeNameList;
 
 @SuppressWarnings("serial")
@@ -20,9 +22,11 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList> {
 	private ThmTypeDepVisitor typeDepVisitor;
 	private ThmExpDepVisitor expDepVisitor;
 	private ThmValueDepVisitor valDepVisitor;
-//	private ThmDeclAndDefVisitor declAndDefVisitor;
 	private ThmChannelDepVisitor chanDepVisitor;
 	private ThmStateDepVisitor stateDepVisitor;
+	private ThmProcessDepVisitor processDepVisitor;
+	private ThmActionDepVisitor actionDepVisitor;
+	
 
 	/**
 	 * Construct a ThmVisitor with no source indicated
@@ -36,9 +40,10 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList> {
 		typeDepVisitor = new ThmTypeDepVisitor(this);
 		expDepVisitor = new ThmExpDepVisitor(this);
 		chanDepVisitor = new ThmChannelDepVisitor(this);
-//		declAndDefVisitor = new ThmDeclAndDefVisitor(this);
 		valDepVisitor = new ThmValueDepVisitor(this);
 		stateDepVisitor = new ThmStateDepVisitor(this);
+		processDepVisitor = new ThmProcessDepVisitor(this);
+		actionDepVisitor = new ThmActionDepVisitor(this);
 	}
 
 	public  NodeNameList caseAValueDefinition(AValueDefinition node, NodeNameList bvars)
@@ -71,6 +76,16 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList> {
 	public NodeNameList defaultPType(PType node, NodeNameList bvars)
 			throws AnalysisException {		
 		return node.apply(this.typeDepVisitor, bvars);
+	}	
+	
+	public NodeNameList defaultPProcess(PProcess node, NodeNameList bvars)
+			throws AnalysisException {		
+		return node.apply(this.processDepVisitor, bvars);
+	}	
+	
+	public NodeNameList defaultPAction(PAction node, NodeNameList bvars)
+			throws AnalysisException {		
+		return node.apply(this.actionDepVisitor, bvars);
 	}	
 	
 

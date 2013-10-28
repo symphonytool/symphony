@@ -118,12 +118,11 @@ import eu.compassresearch.ast.expressions.ANameChannelExp;
 import eu.compassresearch.ast.expressions.ASubVOpVarsetExpression;
 import eu.compassresearch.ast.expressions.AUnionVOpVarsetExpression;
 import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
-import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.expressions.SRenameChannelExp;
 import eu.compassresearch.core.analysis.theoremprover.thms.NodeNameList;
 import eu.compassresearch.core.analysis.theoremprover.utils.ThmExprUtil;
-import eu.compassresearch.core.analysis.theoremprover.utils.ThmTypeUtil;
 
+@SuppressWarnings("serial")
 public class ThmExpDepVisitor extends
 QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 	
@@ -134,44 +133,50 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 	}
 
 		
-	public NodeNameList caseABooleanConstExp(ABooleanConstExp node, NodeNameList bvars){
+	public NodeNameList caseABooleanConstExp(ABooleanConstExp ex, NodeNameList bvars){
 		NodeNameList nodeDeps = new NodeNameList();
 		return nodeDeps;
 	}
 	
-	public NodeNameList caseANilExp(ANilExp node, NodeNameList bvars){
+	
+	public NodeNameList caseANilExp(ANilExp ex, NodeNameList bvars){
 		NodeNameList nodeDeps = new NodeNameList();
 		return nodeDeps;
 	}
 	
-	public NodeNameList caseAIfExp(AIfExp node, NodeNameList bvars){
+	
+	public NodeNameList caseAIfExp(AIfExp ex, NodeNameList bvars) throws AnalysisException{
 		NodeNameList nodeDeps = new NodeNameList();
 
-		nodeDeps.addAll(ifExp.getTest().apply(thmDepVisitor, bvars)));
-		nodeDeps.addAll(ifExp.getThen().apply(thmDepVisitor, bvars)));	
-		nodeDeps.addAll(ifExp.getElse().apply(thmDepVisitor, bvars)));	
+		nodeDeps.addAll(ex.getTest().apply(thmDepVisitor, bvars));
+		nodeDeps.addAll(ex.getThen().apply(thmDepVisitor, bvars));	
+		nodeDeps.addAll(ex.getElse().apply(thmDepVisitor, bvars));	
 		
 		return nodeDeps;
 	}
 	
 	
-	public NodeNameList caseACharLiteralExp(ACharLiteralExp node, NodeNameList bvars){
+	public NodeNameList caseACharLiteralExp(ACharLiteralExp ex, NodeNameList bvars){
 		NodeNameList nodeDeps = new NodeNameList();
 		
 		return nodeDeps;
 	}
 	
-	else if(ex instanceof ACharLiteralExp){
+	
+	public NodeNameList caseAElseIfExp(AElseIfExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+		
+		nodeDeps.addAll(ex.getElseIf().apply(thmDepVisitor, bvars));	
+		nodeDeps.addAll(ex.getThen().apply(thmDepVisitor, bvars));
+		
+		return nodeDeps;
 	}
-	else if(ex instanceof AElseIfExp){
-		AElseIfExp ifExp = (AElseIfExp) ex;
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, ifExp.getElseIf()));
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, ifExp.getThen()));	
-	}
-	else if(ex instanceof AExistsExp){
+	
+	
+	public NodeNameList caseAExistsExp(AExistsExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
 			
-		AExistsExp exists = (AExistsExp) ex;
-		LinkedList<PMultipleBind> binds = exists.getBindList();
+		LinkedList<PMultipleBind> binds = ex.getBindList();
 		NodeNameList boundvars = new NodeNameList();
 		boundvars.addAll(bvars);
 		
@@ -185,7 +190,7 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 					
 					boundvars.add(p.getName());
 				}
-				nodeDeps.addAll(ThmTypeUtil.getIsabelleTypeDeps(tmb.getType()));
+				nodeDeps.addAll(tmb.getType().apply(thmDepVisitor, bvars));
 			}
 			else if (b instanceof ASetMultipleBind)
 			{
@@ -195,36 +200,46 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 					
 					boundvars.add(p.getName());
 				}
-				nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, smb.getSet()));
+				nodeDeps.addAll(smb.getSet().apply(thmDepVisitor, bvars));
 			}
 		}
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(boundvars, exists.getPredicate()));
-		
+		nodeDeps.addAll(ex.getPredicate().apply(thmDepVisitor, bvars));
+
+		return nodeDeps;
 	}
-	else if(ex instanceof AExists1Exp){
-		AExists1Exp exists = (AExists1Exp) ex;
+
+	
+	
+	public NodeNameList caseAExists1Exp(AExists1Exp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+		
 
 		NodeNameList boundvars = new NodeNameList();
 		boundvars.addAll(bvars);
-		PBind b = exists.getBind();
+		PBind b = ex.getBind();
 		
 		if (b instanceof ATypeBind)
 		{
 			ATypeBind tmb = (ATypeBind) b;
 			boundvars.add(((AIdentifierPattern) tmb.getPattern()).getName());
-			nodeDeps.addAll(ThmTypeUtil.getIsabelleTypeDeps(tmb.getType()));
+			nodeDeps.addAll(tmb.getType().apply(thmDepVisitor, bvars));
 		}
 		else if (b instanceof ASetBind)
 		{
 			ASetBind smb = (ASetBind) b;
 			boundvars.add(((AIdentifierPattern) smb.getPattern()).getName());
-			nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, smb.getSet()));
+			nodeDeps.addAll(smb.getSet().apply(thmDepVisitor, bvars));
 		}
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(boundvars, exists.getPredicate()));
-	} 
-	else if(ex instanceof AForAllExp){
-		AForAllExp forall = (AForAllExp) ex;
-		LinkedList<PMultipleBind> binds = forall.getBindList();
+		nodeDeps.addAll(ex.getPredicate().apply(thmDepVisitor, bvars));
+
+		return nodeDeps;
+	}
+	
+
+	public NodeNameList caseAForAllExp(AForAllExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+		
+		LinkedList<PMultipleBind> binds = ex.getBindList();
 		NodeNameList boundvars = new NodeNameList();
 		boundvars.addAll(bvars);
 		
@@ -238,7 +253,7 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 					
 					boundvars.add(p.getName());
 				}
-				nodeDeps.addAll(ThmTypeUtil.getIsabelleTypeDeps(tmb.getType()));
+				nodeDeps.addAll(tmb.getType().apply(thmDepVisitor, bvars));
 			}
 			else if (b instanceof ASetMultipleBind)
 			{
@@ -248,43 +263,73 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 					
 					boundvars.add(p.getName());
 				}
-				nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, smb.getSet()));
+				nodeDeps.addAll(smb.getSet().apply(thmDepVisitor, bvars));
 			}
 		}
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(boundvars, forall.getPredicate()));
+		nodeDeps.addAll(ex.getPredicate().apply(thmDepVisitor, bvars));
+
+		return nodeDeps;
 	}
-	else if(ex instanceof AIntLiteralExp){
+	
+
+	public NodeNameList caseAIntLiteralExp(AIntLiteralExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+		
+		return nodeDeps;
 	}
-	else if(ex instanceof AApplyExp){
-		AApplyExp app = (AApplyExp) ex;
-		for (PExp a : app.getArgs())
+
+	public NodeNameList caseAApplyExp(AApplyExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+		for (PExp a : ex.getArgs())
 		{
-			nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, a));
+			nodeDeps.addAll(a.apply(thmDepVisitor, bvars));
 		}
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, app.getRoot()));
-	}		
-	else if(ex instanceof ACasesExp){
+		nodeDeps.addAll(ex.getRoot().apply(thmDepVisitor, bvars));
+
+		return nodeDeps;
+	}
+	
+
+	public NodeNameList caseACasesExp(ACasesExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
 //		ACasesExp c = (ACasesExp) ex;
 //		PExp exp = c.getExpression();
 //		LinkedList<ACaseAlternative> cases = c.getCases();
 //		PExp others = c.getOthers();
 		//TODO: Handle cases
+
+		return nodeDeps;
 	}
-	else if(ex instanceof AFieldExp){
-		AFieldExp fe = (AFieldExp) ex;
+	
+
+	public NodeNameList caseAFieldExp(AFieldExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
 		//Don't actually depend on the field name - just the object!
 		//if(fe.getMemberName() != null)
 		//{	
 		//	nodeDeps.add(fe.getMemberName());
 		//}
 		//nodeDeps.add(new LexNameToken("", fe.getField().getName(), fe.getLocation()));
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, fe.getObject()));
-	}
-	else if(ex instanceof AFieldNumberExp){}
-	else if(ex instanceof AIotaExp){
-		AIotaExp i = (AIotaExp) ex;
+		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, ex.getObject()));
 
-		PBind b = i.getBind();
+		return nodeDeps;
+	}
+	
+
+	public NodeNameList caseAFieldNumberExp(AFieldNumberExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+		return nodeDeps;
+	}
+	
+
+	public NodeNameList caseAIotaExp(AIotaExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+		PBind b = ex.getBind();
 		NodeNameList boundvars = new NodeNameList();
 		boundvars.addAll(bvars);
 		
@@ -292,21 +337,25 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 		{
 			ATypeBind tmb = (ATypeBind) b;
 			boundvars.add(((AIdentifierPattern) tmb.getPattern()).getName());
-			nodeDeps.addAll(ThmTypeUtil.getIsabelleTypeDeps(tmb.getType()));
+			nodeDeps.addAll(tmb.getType().apply(thmDepVisitor, bvars));
 		}
 		else if (b instanceof ASetBind)
 		{
 			ASetBind smb = (ASetBind) b;
 			boundvars.add(((AIdentifierPattern) smb.getPattern()).getName());
-			nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, smb.getSet()));
+			nodeDeps.addAll(smb.getSet().apply(thmDepVisitor, bvars));
 		}
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(boundvars, i.getPredicate()));
+		nodeDeps.addAll(ex.getPredicate().apply(thmDepVisitor, bvars));
 		
+
+		return nodeDeps;
 	}
-	else if(ex instanceof ALambdaExp){
-		ALambdaExp l = (ALambdaExp) ex;
 	
-		LinkedList<ATypeBind> b = l.getBindList();
+
+	public NodeNameList caseALambdaExp(ALambdaExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+	
+		LinkedList<ATypeBind> b = ex.getBindList();
 		NodeNameList boundvars = new NodeNameList();
 		boundvars.addAll(bvars);
 		
@@ -314,78 +363,138 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 			ATypeBind p = itr.next();
 				
 			boundvars.add(((AIdentifierPattern) p.getPattern()).getName());
-			nodeDeps.addAll(ThmTypeUtil.getIsabelleTypeDeps(p.getType()));
+			nodeDeps.addAll(p.getType().apply(thmDepVisitor, bvars));
 
 		}
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(boundvars, l.getExpression()));
+		nodeDeps.addAll(ex.getExpression().apply(thmDepVisitor, bvars));
 		
+
+		return nodeDeps;
 	}
-	else if(ex instanceof ALetDefExp){
-		ALetDefExp l = (ALetDefExp) ex;
+	
+
+	public NodeNameList caseALetDefExp(ALetDefExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
 		NodeNameList boundvars = new NodeNameList();
 		boundvars.addAll(bvars);
 		
-		LinkedList<PDefinition> ldefs = l.getLocalDefs();
+		LinkedList<PDefinition> ldefs = ex.getLocalDefs();
 		for (PDefinition d : ldefs)
 		{
 			boundvars.add(((AIdentifierPattern) d).getName());
-			nodeDeps.addAll(ThmTypeUtil.getIsabelleTypeDeps(d.getType()));
+			nodeDeps.addAll(d.getType().apply(thmDepVisitor, bvars));
 		}
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(boundvars, l.getExpression()));
+		nodeDeps.addAll(ex.getExpression().apply(thmDepVisitor, bvars));
 		
-	}
-	else if(ex instanceof AMapletExp){
-		AMapletExp m = (AMapletExp) ex;
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, m.getLeft()));
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, m.getRight()));		
-		
-	}
-	else if(ex instanceof AMkBasicExp){
-		AMkBasicExp mk = (AMkBasicExp) ex;
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, mk.getArg()));	
-	}
-	else if(ex instanceof AMkTypeExp){
-		AMkTypeExp mk = (AMkTypeExp) ex;
-		mk.getRecordType();
-		mk.getArgs();
-		for (PExp e : mk.getArgs())
-		{
-			nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, e));	
-		}
-		nodeDeps.addAll(ThmTypeUtil.getIsabelleTypeDeps(mk.getRecordType()));
+
+		return nodeDeps;
 	}
 	
-	else if(ex instanceof ANotYetSpecifiedExp){}
-	else if(ex instanceof APostOpExp){
+
+	public NodeNameList caseAMapletExp(AMapletExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+		nodeDeps.addAll(ex.getLeft().apply(thmDepVisitor, bvars));
+		nodeDeps.addAll(ex.getRight().apply(thmDepVisitor, bvars));
+		
+		return nodeDeps;
+	}
+	
+
+	public NodeNameList caseAMkBasicExp(AMkBasicExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+		nodeDeps.addAll(ex.getArg().apply(thmDepVisitor, bvars));
+
+		return nodeDeps;
+	}
+	
+
+	public NodeNameList caseAMkTypeExp(AMkTypeExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+		for (PExp e : ex.getArgs())
+		{
+			nodeDeps.addAll(e.apply(thmDepVisitor, bvars));
+		}
+		nodeDeps.addAll(ex.getRecordType().apply(thmDepVisitor, bvars));
+
+		return nodeDeps;
+	}
+
+	public NodeNameList caseANotYetSpecifiedExp(ANotYetSpecifiedExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+		return nodeDeps;
+	}
+
+	public NodeNameList caseAPostOpExp(APostOpExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
 //		APostOpExp i = (APostOpExp) ex;
 		//TODO: Handle postop exp
+
+		return nodeDeps;
 	}
-	else if(ex instanceof APreExp){
+
+	public NodeNameList caseAPreExp(APreExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
 //		APreExp i = (APreExp) ex;
 		//TODO: Handle pre exp
+
+		return nodeDeps;
 	}
-	else if(ex instanceof AQuoteLiteralExp){}
-	else if(ex instanceof ARealLiteralExp){}
-	else if(ex instanceof AStringLiteralExp){}
-	else if(ex instanceof ASubseqExp){
-		ASubseqExp sub = (ASubseqExp) ex;
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, sub.getSeq()));
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, sub.getFrom()));
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, sub.getTo()));
+	
+	public NodeNameList caseAQuoteLiteralExp(AQuoteLiteralExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+		return nodeDeps;
 	}
-	else if(ex instanceof ATupleExp){
-		ATupleExp tup = (ATupleExp) ex;
+
+	public NodeNameList caseARealLiteralExp(ARealLiteralExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+		return nodeDeps;
+	}
+
+	public NodeNameList caseAStringLiteralExp(AStringLiteralExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+		return nodeDeps;
+	}
+
+	public NodeNameList caseASubseqExp(ASubseqExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+		nodeDeps.addAll(ex.getSeq().apply(thmDepVisitor, bvars));
+		nodeDeps.addAll(ex.getFrom().apply(thmDepVisitor, bvars));
+		nodeDeps.addAll(ex.getTo().apply(thmDepVisitor, bvars));
+
+		return nodeDeps;
+	}
+
+	public NodeNameList caseATupleExp(ATupleExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
 		
-		for (PExp p: tup.getArgs()) {
-			nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, p));
+		for (PExp p: ex.getArgs()) {
+			nodeDeps.addAll(p.apply(thmDepVisitor, bvars));
 		}
+
+		return nodeDeps;
 	}
-	else if(ex instanceof AUndefinedExp){}
-	else if(ex instanceof AVariableExp){
-		AVariableExp v = (AVariableExp) ex;
+
+	public NodeNameList caseAUndefinedExp(AUndefinedExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+		return nodeDeps;
+	}
+
+	public NodeNameList caseAVariableExp(AVariableExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
 		
 		boolean boundV = false;
-		ILexNameToken varName = v.getName();
+		ILexNameToken varName = ex.getName();
 
 		if(!(varName.getName().equals("RESULT"))){
 			for(ILexNameToken var : bvars){
@@ -400,12 +509,15 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 			}
 		}
 		
+		return nodeDeps;
 	}
-	else if(ex instanceof AUnresolvedPathExp){
-		AUnresolvedPathExp e = (AUnresolvedPathExp) ex;
+	
+
+	public NodeNameList caseAUnresolvedPathExp(AUnresolvedPathExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
 
 		//Get the first part of the path (this is assuming it is a record.field expression...
-		LinkedList<ILexIdentifierToken> ids = e.getIdentifiers();
+		LinkedList<ILexIdentifierToken> ids = ex.getIdentifiers();
 		ILexIdentifierToken fId = ids.getFirst();
 				
 		//check that the record part isn't a bound variable
@@ -422,207 +534,353 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 		{
 			nodeDeps.add(lnt);
 		}
-	}
-	else if (ex instanceof ABracketedExp){
-		ABracketedExp e = (ABracketedExp) ex;
 
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, e.getExpression()));
+		return nodeDeps;
 	}
-	return nodeDeps;
-}
-
-private static NodeNameList getBinaryExpDeps(
-		NodeNameList bvars, PExp ex) {
-	NodeNameList nodeDeps = new NodeNameList();
 	
-	if(ex instanceof ACompBinaryExp){
-		ACompBinaryExp comp = (ACompBinaryExp) ex;
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, comp.getLeft()));
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, comp.getRight()));		
-	}
-	else if(ex instanceof ADomainResByBinaryExp){
-		ADomainResByBinaryExp dres = (ADomainResByBinaryExp) ex;
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, dres.getLeft()));
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, dres.getRight()));		
-	}
-	else if(ex instanceof ADomainResToBinaryExp){
-		ADomainResToBinaryExp dres = (ADomainResToBinaryExp) ex;
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, dres.getLeft()));
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, dres.getRight()));		
-	}
-	else if(ex instanceof AEqualsBinaryExp){
-		AEqualsBinaryExp eq = (AEqualsBinaryExp) ex;
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, eq.getLeft()));
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, eq.getRight()));		
-	}
-	else if(ex instanceof AInSetBinaryExp){
-		AInSetBinaryExp ins = (AInSetBinaryExp) ex;
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, ins.getLeft()));
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, ins.getRight()));		
-	}
-	else if(ex instanceof AMapUnionBinaryExp){
-		AMapUnionBinaryExp mun = (AMapUnionBinaryExp) ex;
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, mun.getLeft()));
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, mun.getRight()));		
-	}
-	else if(ex instanceof ANotEqualBinaryExp){
-		ANotEqualBinaryExp neq = (ANotEqualBinaryExp) ex;
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, neq.getLeft()));
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, neq.getRight()));		
-	}
-	else if(ex instanceof ANotInSetBinaryExp){
-		ANotInSetBinaryExp nins = (ANotInSetBinaryExp) ex;
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, nins.getLeft()));
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, nins.getRight()));		
-	}
-	else if(ex instanceof APlusPlusBinaryExp){
-		APlusPlusBinaryExp plpl = (APlusPlusBinaryExp) ex;
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, plpl.getLeft()));
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, plpl.getRight()));		
-	}
-	else if(ex instanceof AProperSubsetBinaryExp){
-		AProperSubsetBinaryExp psub = (AProperSubsetBinaryExp) ex;
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, psub.getLeft()));
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, psub.getRight()));		
-	}
-	else if(ex instanceof ARangeResByBinaryExp){
-		ARangeResByBinaryExp rres = (ARangeResByBinaryExp) ex;
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, rres.getLeft()));
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, rres.getRight()));		
-	}
-	else if(ex instanceof ARangeResToBinaryExp){
-		ARangeResToBinaryExp rres = (ARangeResToBinaryExp) ex;
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, rres.getLeft()));
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, rres.getRight()));		
-	}
-	else if(ex instanceof ASeqConcatBinaryExp){
-		ASeqConcatBinaryExp scon = (ASeqConcatBinaryExp) ex;
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, scon.getLeft()));
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, scon.getRight()));		
-	}
-	else if(ex instanceof ASetDifferenceBinaryExp){
-		ASetDifferenceBinaryExp sdiff = (ASetDifferenceBinaryExp) ex;
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, sdiff.getLeft()));
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, sdiff.getRight()));		
-	}
-	else if(ex instanceof ASetIntersectBinaryExp){
-		ASetIntersectBinaryExp inter = (ASetIntersectBinaryExp) ex;
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, inter.getLeft()));
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, inter.getRight()));		
-	}
-	else if(ex instanceof ASetUnionBinaryExp){
-		ASetUnionBinaryExp union = (ASetUnionBinaryExp) ex;
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, union.getLeft()));
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, union.getRight()));		
-	}
-	else if(ex instanceof AStarStarBinaryExp){
-		AStarStarBinaryExp star = (AStarStarBinaryExp) ex;
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, star.getLeft()));
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, star.getRight()));		
-	}
-	else if(ex instanceof ASubsetBinaryExp){
-		ASubsetBinaryExp subs = (ASubsetBinaryExp) ex;
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, subs.getLeft()));
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, subs.getRight()));		
-	}
-	return nodeDeps;
-}
 
-private static NodeNameList getUnaryExpDeps(
-		NodeNameList bvars, PExp ex) {
-	NodeNameList nodeDeps = new NodeNameList();
+	public NodeNameList caseABracketedExp(ABracketedExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
 
-	if(ex instanceof AAbsoluteUnaryExp){
-		AAbsoluteUnaryExp abs = (AAbsoluteUnaryExp) ex;
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, abs.getExp()));
-	}
-	else if(ex instanceof ACardinalityUnaryExp){
-		ACardinalityUnaryExp card = (ACardinalityUnaryExp) ex;
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, card.getExp()));
-	}
-	else if(ex instanceof ADistConcatUnaryExp){
-		ADistConcatUnaryExp conc = (ADistConcatUnaryExp) ex;
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, conc.getExp()));
-	}
-	else if(ex instanceof ADistIntersectUnaryExp){
-		ADistIntersectUnaryExp dinter = (ADistIntersectUnaryExp) ex;
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, dinter.getExp()));
-	}
-	else if(ex instanceof ADistMergeUnaryExp){
-		ADistMergeUnaryExp dmerge = (ADistMergeUnaryExp) ex;
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, dmerge.getExp()));
-	}
-	else if(ex instanceof ADistUnionUnaryExp){
-		ADistUnionUnaryExp dunion = (ADistUnionUnaryExp) ex;
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, dunion.getExp()));
-	}
-	else if(ex instanceof AElementsUnaryExp){
-		AElementsUnaryExp e = (AElementsUnaryExp) ex;
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, e.getExp()));
-	}
-	else if(ex instanceof AFloorUnaryExp){
-		AFloorUnaryExp fl = (AFloorUnaryExp) ex;
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, fl.getExp()));
-	}
-	else if(ex instanceof AHeadUnaryExp){
-		AHeadUnaryExp hd = (AHeadUnaryExp) ex;
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, hd.getExp()));
-	}
-	else if(ex instanceof AIndicesUnaryExp){
-		AIndicesUnaryExp inds = (AIndicesUnaryExp) ex;
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, inds.getExp()));
-	}
-	else if(ex instanceof ALenUnaryExp){
-		ALenUnaryExp len = (ALenUnaryExp) ex;
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, len.getExp()));
-	}
-	else if(ex instanceof AMapDomainUnaryExp){
-		AMapDomainUnaryExp dom = (AMapDomainUnaryExp) ex;
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, dom.getExp()));
-	}
-	else if(ex instanceof AMapInverseUnaryExp){
-		AMapInverseUnaryExp inverse = (AMapInverseUnaryExp) ex;
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, inverse.getExp()));
-	}
-	else if(ex instanceof AMapRangeUnaryExp){
-		AMapRangeUnaryExp rng = (AMapRangeUnaryExp) ex;
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, rng.getExp()));
-	}
-	else if(ex instanceof ANotUnaryExp){
-		ANotUnaryExp not = (ANotUnaryExp) ex;
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, not.getExp()));
-	}
-	else if(ex instanceof APowerSetUnaryExp){
-		APowerSetUnaryExp pwr = (APowerSetUnaryExp) ex;
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, pwr.getExp()));
-	}
-	else if(ex instanceof AReverseUnaryExp){
-		AReverseUnaryExp rev = (AReverseUnaryExp) ex;
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, rev.getExp()));
-	}
-	else if(ex instanceof ATailUnaryExp){
-		ATailUnaryExp tl = (ATailUnaryExp) ex;
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, tl.getExp()));
-	}
-	else if(ex instanceof AUnaryMinusUnaryExp){
-		AUnaryMinusUnaryExp minus = (AUnaryMinusUnaryExp) ex;
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, minus.getExp()));
-	}
-	else if(ex instanceof AUnaryPlusUnaryExp){
-		AUnaryPlusUnaryExp plus = (AUnaryPlusUnaryExp) ex;
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, plus.getExp()));
-	}
-	return nodeDeps;
-}
+		nodeDeps.addAll(ex.getExpression().apply(thmDepVisitor, bvars));
 
-private static NodeNameList getSetExpDeps(
-		NodeNameList bvars, PExp ex) {
-	NodeNameList nodeDeps = new NodeNameList();
+		return nodeDeps;
+	}
+
+
+
+	public NodeNameList caseACompBinaryExp(ACompBinaryExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+		nodeDeps.addAll(ex.getLeft().apply(thmDepVisitor, bvars));	
+		nodeDeps.addAll(ex.getRight().apply(thmDepVisitor, bvars));	
+
+		return nodeDeps;
+	}
+
+	public NodeNameList caseADomainResByBinaryExp(ADomainResByBinaryExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();	
+
+		nodeDeps.addAll(ex.getLeft().apply(thmDepVisitor, bvars));	
+		nodeDeps.addAll(ex.getRight().apply(thmDepVisitor, bvars));		
+
+		return nodeDeps;
+	}
+
+	public NodeNameList caseADomainResToBinaryExp(ADomainResToBinaryExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+		nodeDeps.addAll(ex.getLeft().apply(thmDepVisitor, bvars));	
+		nodeDeps.addAll(ex.getRight().apply(thmDepVisitor, bvars));		
+
+		return nodeDeps;
+	}
+
+	public NodeNameList caseAEqualsBinaryExp(AEqualsBinaryExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+		nodeDeps.addAll(ex.getLeft().apply(thmDepVisitor, bvars));	
+		nodeDeps.addAll(ex.getRight().apply(thmDepVisitor, bvars));		
+
+		return nodeDeps;
+	}
+
+	public NodeNameList caseAInSetBinaryExp(AInSetBinaryExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();	
+
+		nodeDeps.addAll(ex.getLeft().apply(thmDepVisitor, bvars));	
+		nodeDeps.addAll(ex.getRight().apply(thmDepVisitor, bvars));	
+
+		return nodeDeps;
+	}
+
+	public NodeNameList caseAMapUnionBinaryExp(AMapUnionBinaryExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+		nodeDeps.addAll(ex.getLeft().apply(thmDepVisitor, bvars));	
+		nodeDeps.addAll(ex.getRight().apply(thmDepVisitor, bvars));		
+
+		return nodeDeps;
+	}
+
+	public NodeNameList caseANotEqualBinaryExp(ANotEqualBinaryExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+		nodeDeps.addAll(ex.getLeft().apply(thmDepVisitor, bvars));	
+		nodeDeps.addAll(ex.getRight().apply(thmDepVisitor, bvars));			
+
+		return nodeDeps;
+	}
+
+	public NodeNameList caseANotInSetBinaryExp(ANotInSetBinaryExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+		nodeDeps.addAll(ex.getLeft().apply(thmDepVisitor, bvars));	
+		nodeDeps.addAll(ex.getRight().apply(thmDepVisitor, bvars));		
+
+		return nodeDeps;
+	}
+
+	public NodeNameList caseAPlusPlusBinaryExp(APlusPlusBinaryExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+		nodeDeps.addAll(ex.getLeft().apply(thmDepVisitor, bvars));	
+		nodeDeps.addAll(ex.getRight().apply(thmDepVisitor, bvars));		
 	
-	if(ex instanceof ASetCompSetExp){
-		ASetCompSetExp comp = (ASetCompSetExp) ex;
+		return nodeDeps;
+	}
 
-		LinkedList<PMultipleBind> binds = comp.getBindings();
+	public NodeNameList caseAProperSubsetBinaryExp(AProperSubsetBinaryExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+		nodeDeps.addAll(ex.getLeft().apply(thmDepVisitor, bvars));	
+		nodeDeps.addAll(ex.getRight().apply(thmDepVisitor, bvars));		
+
+		return nodeDeps;
+	}
+
+	public NodeNameList caseARangeResByBinaryExp(ARangeResByBinaryExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+		nodeDeps.addAll(ex.getLeft().apply(thmDepVisitor, bvars));	
+		nodeDeps.addAll(ex.getRight().apply(thmDepVisitor, bvars));		
+
+		return nodeDeps;
+	}
+
+	public NodeNameList caseARangeResToBinaryExp(ARangeResToBinaryExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+		nodeDeps.addAll(ex.getLeft().apply(thmDepVisitor, bvars));	
+		nodeDeps.addAll(ex.getRight().apply(thmDepVisitor, bvars));		
+
+		return nodeDeps;
+	}
+	
+	public NodeNameList caseASeqConcatBinaryExp(ASeqConcatBinaryExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+		nodeDeps.addAll(ex.getLeft().apply(thmDepVisitor, bvars));	
+		nodeDeps.addAll(ex.getRight().apply(thmDepVisitor, bvars));			
+
+		return nodeDeps;
+	}
+
+	public NodeNameList caseASetDifferenceBinaryExp(ASetDifferenceBinaryExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+		nodeDeps.addAll(ex.getLeft().apply(thmDepVisitor, bvars));	
+		nodeDeps.addAll(ex.getRight().apply(thmDepVisitor, bvars));	
+
+		return nodeDeps;
+	}
+
+	public NodeNameList caseASetIntersectBinaryExp(ASetIntersectBinaryExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+		nodeDeps.addAll(ex.getLeft().apply(thmDepVisitor, bvars));	
+		nodeDeps.addAll(ex.getRight().apply(thmDepVisitor, bvars));	
+
+		return nodeDeps;
+	}
+
+	public NodeNameList caseASetUnionBinaryExp(ASetUnionBinaryExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+		nodeDeps.addAll(ex.getLeft().apply(thmDepVisitor, bvars));	
+		nodeDeps.addAll(ex.getRight().apply(thmDepVisitor, bvars));	
+
+		return nodeDeps;
+	}
+
+	public NodeNameList caseAStarStarBinaryExp(AStarStarBinaryExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+		
+		nodeDeps.addAll(ex.getLeft().apply(thmDepVisitor, bvars));	
+		nodeDeps.addAll(ex.getRight().apply(thmDepVisitor, bvars));	
+
+		return nodeDeps;
+	}
+
+	public NodeNameList caseASubsetBinaryExp(ASubsetBinaryExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+		nodeDeps.addAll(ex.getLeft().apply(thmDepVisitor, bvars));	
+		nodeDeps.addAll(ex.getRight().apply(thmDepVisitor, bvars));	
+
+		return nodeDeps;
+	}
+
+
+
+	public NodeNameList caseAAbsoluteUnaryExp(AAbsoluteUnaryExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+		nodeDeps.addAll(ex.getExp().apply(thmDepVisitor, bvars));	
+
+		return nodeDeps;
+	}
+
+	public NodeNameList caseACardinalityUnaryExp(ACardinalityUnaryExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();	
+		
+		nodeDeps.addAll(ex.getExp().apply(thmDepVisitor, bvars));	
+
+		return nodeDeps;
+	}
+
+	public NodeNameList caseADistConcatUnaryExp(ADistConcatUnaryExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+		nodeDeps.addAll(ex.getExp().apply(thmDepVisitor, bvars));	
+
+		return nodeDeps;
+	}
+
+	public NodeNameList caseADistIntersectUnaryExp(ADistIntersectUnaryExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();	
+		
+		nodeDeps.addAll(ex.getExp().apply(thmDepVisitor, bvars));	
+
+		return nodeDeps;
+	}
+
+	public NodeNameList caseADistMergeUnaryExp(ADistMergeUnaryExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+		
+		nodeDeps.addAll(ex.getExp().apply(thmDepVisitor, bvars));	
+
+		return nodeDeps;
+	}
+
+	public NodeNameList caseADistUnionUnaryExp(ADistUnionUnaryExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+		nodeDeps.addAll(ex.getExp().apply(thmDepVisitor, bvars));	
+
+		return nodeDeps;
+	}
+
+	public NodeNameList caseAElementsUnaryExp(AElementsUnaryExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+		nodeDeps.addAll(ex.getExp().apply(thmDepVisitor, bvars));	
+
+		return nodeDeps;
+	}
+
+	public NodeNameList caseAFloorUnaryExp(AFloorUnaryExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();	
+
+		nodeDeps.addAll(ex.getExp().apply(thmDepVisitor, bvars));	
+
+		return nodeDeps;
+	}
+
+	public NodeNameList caseAHeadUnaryExp(AHeadUnaryExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+		nodeDeps.addAll(ex.getExp().apply(thmDepVisitor, bvars));	
+
+		return nodeDeps;
+	}
+
+	public NodeNameList caseAIndicesUnaryExp(AIndicesUnaryExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+		nodeDeps.addAll(ex.getExp().apply(thmDepVisitor, bvars));	
+
+		return nodeDeps;
+	}
+
+	public NodeNameList caseALenUnaryExp(ALenUnaryExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+		nodeDeps.addAll(ex.getExp().apply(thmDepVisitor, bvars));	
+	
+
+		return nodeDeps;
+	}
+
+	public NodeNameList caseAMapDomainUnaryExp(AMapDomainUnaryExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+		nodeDeps.addAll(ex.getExp().apply(thmDepVisitor, bvars));	
+
+		return nodeDeps;
+	}
+	
+
+	public NodeNameList caseAMapInverseUnaryExp(AMapInverseUnaryExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+		nodeDeps.addAll(ex.getExp().apply(thmDepVisitor, bvars));	
+
+		return nodeDeps;
+	}
+
+	public NodeNameList caseAMapRangeUnaryExp(AMapRangeUnaryExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+		nodeDeps.addAll(ex.getExp().apply(thmDepVisitor, bvars));	
+
+		return nodeDeps;
+	}
+
+	public NodeNameList caseANotUnaryExp(ANotUnaryExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+		nodeDeps.addAll(ex.getExp().apply(thmDepVisitor, bvars));	
+
+		return nodeDeps;
+	}
+
+	public NodeNameList caseAPowerSetUnaryExp(APowerSetUnaryExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+		nodeDeps.addAll(ex.getExp().apply(thmDepVisitor, bvars));	
+
+		return nodeDeps;
+	}
+
+	public NodeNameList caseAReverseUnaryExp(AReverseUnaryExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+		
+		nodeDeps.addAll(ex.getExp().apply(thmDepVisitor, bvars));	
+
+		return nodeDeps;
+	}
+
+	public NodeNameList caseATailUnaryExp(ATailUnaryExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+		nodeDeps.addAll(ex.getExp().apply(thmDepVisitor, bvars));	
+
+		return nodeDeps;
+	}
+	
+
+	public NodeNameList caseAUnaryMinusUnaryExp(AUnaryMinusUnaryExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+		nodeDeps.addAll(ex.getExp().apply(thmDepVisitor, bvars));	
+
+		return nodeDeps;
+	}
+
+	public NodeNameList caseAUnaryPlusUnaryExp(AUnaryPlusUnaryExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+		nodeDeps.addAll(ex.getExp().apply(thmDepVisitor, bvars));	
+
+		return nodeDeps;
+	}
+
+	public NodeNameList caseASetCompSetExp(ASetCompSetExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+
+		LinkedList<PMultipleBind> binds = ex.getBindings();
 		NodeNameList boundvars = new NodeNameList();
 		boundvars.addAll(bvars);
 		
@@ -636,7 +894,7 @@ private static NodeNameList getSetExpDeps(
 					
 					boundvars.add(p.getName());
 				}
-				nodeDeps.addAll(ThmTypeUtil.getIsabelleTypeDeps(tmb.getType()));
+				nodeDeps.addAll(tmb.getType().apply(thmDepVisitor, bvars));	
 			}
 			else if (b instanceof ASetMultipleBind)
 			{
@@ -646,60 +904,63 @@ private static NodeNameList getSetExpDeps(
 					
 					boundvars.add(p.getName());
 				}
-				nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, smb.getSet()));
+				nodeDeps.addAll(smb.getSet().apply(thmDepVisitor, bvars));	
 			}
 		}
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(boundvars, comp.getPredicate()));
-	}
-	else if(ex instanceof ASetEnumSetExp){
-		ASetEnumSetExp en = (ASetEnumSetExp) ex;
+		nodeDeps.addAll(ex.getPredicate().apply(thmDepVisitor, bvars));	
 
-		for (PExp m : en.getMembers()){
-			nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, m));
+		return nodeDeps;
+	}
+
+	public NodeNameList caseASetEnumSetExp(ASetEnumSetExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+
+		for (PExp m : ex.getMembers()){
+			nodeDeps.addAll(m.apply(thmDepVisitor, bvars));	
 		}
+
+		return nodeDeps;
 	}
-	else if(ex instanceof ASetRangeSetExp){
-		ASetRangeSetExp en = (ASetRangeSetExp) ex;
 
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, en.getFirst()));
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, en.getLast()));
+	public NodeNameList caseASetRangeSetExp(ASetRangeSetExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+		nodeDeps.addAll(ex.getFirst().apply(thmDepVisitor, bvars));	
+		nodeDeps.addAll(ex.getLast().apply(thmDepVisitor, bvars));	
+
+		return nodeDeps;
 	}
-	
-	return nodeDeps;
-}
 
-private static NodeNameList getSeqExpDeps(
-		NodeNameList bvars, PExp ex) {
-	NodeNameList nodeDeps = new NodeNameList();
 
-	if(ex instanceof ASeqCompSeqExp){
-		ASeqCompSeqExp comp = (ASeqCompSeqExp) ex;
-		ASetBind binds = comp.getSetBind();
+	public NodeNameList caseASeqCompSeqExp(ASeqCompSeqExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+		ASetBind binds = ex.getSetBind();
 		NodeNameList boundvars = new NodeNameList();
 		boundvars.addAll(bvars);			
 		boundvars.add(((AIdentifierPattern) binds.getPattern()).getName());
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, binds.getSet()));
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(boundvars, comp.getPredicate()));
+		nodeDeps.addAll(binds.getSet().apply(thmDepVisitor, bvars));	
+		nodeDeps.addAll(ex.getPredicate().apply(thmDepVisitor, bvars));	
+
+		return nodeDeps;
 	}
-	else if(ex instanceof ASeqEnumSeqExp){
-		ASeqEnumSeqExp en = (ASeqEnumSeqExp) ex;
+	
+	public NodeNameList caseASeqEnumSeqExp(ASeqEnumSeqExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
 		
-		for (PExp m : en.getMembers()){
-			nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, m));
+		for (PExp m : ex.getMembers()){
+			nodeDeps.addAll(m.apply(thmDepVisitor, bvars));	
 		}
+
+		return nodeDeps;
 	}
 
-	return nodeDeps;
-}
 
-private static NodeNameList getMapExpDeps(
-		NodeNameList bvars, PExp ex) {
-	
-	NodeNameList nodeDeps = new NodeNameList();
-	
-	if(ex instanceof AMapCompMapExp){
-		AMapCompMapExp comp = (AMapCompMapExp) ex;
-		LinkedList<PMultipleBind> binds = comp.getBindings();
+	public NodeNameList caseAMapCompMapExp(AMapCompMapExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+		LinkedList<PMultipleBind> binds = ex.getBindings();
 		NodeNameList boundvars = new NodeNameList();
 		boundvars.addAll(bvars);
 		
@@ -713,7 +974,7 @@ private static NodeNameList getMapExpDeps(
 					
 					boundvars.add(p.getName());
 				}
-				nodeDeps.addAll(ThmTypeUtil.getIsabelleTypeDeps(tmb.getType()));
+				nodeDeps.addAll(tmb.getType().apply(thmDepVisitor, bvars));	
 			}
 			else if (b instanceof ASetMultipleBind)
 			{
@@ -723,260 +984,228 @@ private static NodeNameList getMapExpDeps(
 					
 					boundvars.add(p.getName());
 				}
-				nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, smb.getSet()));
+				nodeDeps.addAll(smb.getSet().apply(thmDepVisitor, bvars));	
 			}
 		}
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(boundvars, comp.getPredicate()));
+		nodeDeps.addAll(ex.getPredicate().apply(thmDepVisitor, bvars));	
+
+		return nodeDeps;
 	}
-	else if(ex instanceof AMapEnumMapExp){
-		AMapEnumMapExp en = (AMapEnumMapExp) ex;
-		for (PExp m : en.getMembers()){
-			nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, m));
+
+	public NodeNameList caseAMapEnumMapExp(AMapEnumMapExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+		for (PExp m : ex.getMembers()){
+			nodeDeps.addAll(m.apply(thmDepVisitor, bvars));
 		}
-	}
-	return nodeDeps;
-}
 
-private static NodeNameList getNumericBinaryDeps(
-		NodeNameList bvars, PExp ex) {
-	NodeNameList nodeDeps = new NodeNameList();
+		return nodeDeps;
+	}
+
+	public NodeNameList caseADivideNumericBinaryExp(ADivideNumericBinaryExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();	
+
+		nodeDeps.addAll(ex.getLeft().apply(thmDepVisitor, bvars));	
+		nodeDeps.addAll(ex.getRight().apply(thmDepVisitor, bvars));	
+		
+		return nodeDeps;
+	}
+
+	public NodeNameList caseADivNumericBinaryExp(ADivNumericBinaryExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();	
+
+		nodeDeps.addAll(ex.getLeft().apply(thmDepVisitor, bvars));	
+		nodeDeps.addAll(ex.getRight().apply(thmDepVisitor, bvars));	
 	
-	if(ex instanceof ADivideNumericBinaryExp){
-		ADivideNumericBinaryExp e = (ADivideNumericBinaryExp) ex;
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, e.getLeft()));
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, e.getRight()));		
-	}
-	else if(ex instanceof ADivNumericBinaryExp){
-		ADivNumericBinaryExp e = (ADivNumericBinaryExp) ex;
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, e.getLeft()));
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, e.getRight()));		
-	}
-	else if(ex instanceof AGreaterEqualNumericBinaryExp){
-		AGreaterEqualNumericBinaryExp e = (AGreaterEqualNumericBinaryExp) ex;
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, e.getLeft()));
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, e.getRight()));		
-	}
-	else if(ex instanceof AGreaterNumericBinaryExp){
-		AGreaterNumericBinaryExp e = (AGreaterNumericBinaryExp) ex;
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, e.getLeft()));
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, e.getRight()));		
-	}
-	else if(ex instanceof ALessEqualNumericBinaryExp){
-		ALessEqualNumericBinaryExp e = (ALessEqualNumericBinaryExp) ex;
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, e.getLeft()));
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, e.getRight()));		
-	}
-	else if(ex instanceof ALessNumericBinaryExp){
-		ALessNumericBinaryExp e = (ALessNumericBinaryExp) ex;
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, e.getLeft()));
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, e.getRight()));		
-	}
-	else if(ex instanceof AModNumericBinaryExp){
-		AModNumericBinaryExp e = (AModNumericBinaryExp) ex;
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, e.getLeft()));
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, e.getRight()));		
-	}
-	else if(ex instanceof APlusNumericBinaryExp){
-		APlusNumericBinaryExp pl = (APlusNumericBinaryExp) ex;
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, pl.getLeft()));
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, pl.getRight()));		
-	}
-	else if(ex instanceof ASubtractNumericBinaryExp){
-		ASubtractNumericBinaryExp sub = (ASubtractNumericBinaryExp) ex;
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, sub.getLeft()));
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, sub.getRight()));		
-	}
-	else if(ex instanceof ATimesNumericBinaryExp){
-		ATimesNumericBinaryExp times = (ATimesNumericBinaryExp) ex;
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, times.getLeft()));
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, times.getRight()));		
+		return nodeDeps;
 	}
 
-	return nodeDeps;
-}
+	public NodeNameList caseAGreaterEqualNumericBinaryExp(AGreaterEqualNumericBinaryExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();	
+
+		nodeDeps.addAll(ex.getLeft().apply(thmDepVisitor, bvars));	
+		nodeDeps.addAll(ex.getRight().apply(thmDepVisitor, bvars));	
+	
+		return nodeDeps;
+	}
+
+	public NodeNameList caseAGreaterNumericBinaryExp(AGreaterNumericBinaryExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();	
+
+		nodeDeps.addAll(ex.getLeft().apply(thmDepVisitor, bvars));	
+		nodeDeps.addAll(ex.getRight().apply(thmDepVisitor, bvars));	
+		
+		return nodeDeps;
+	}
+
+	public NodeNameList caseALessEqualNumericBinaryExp(ALessEqualNumericBinaryExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+		nodeDeps.addAll(ex.getLeft().apply(thmDepVisitor, bvars));	
+		nodeDeps.addAll(ex.getRight().apply(thmDepVisitor, bvars));	
+
+		return nodeDeps;
+	}
+
+	public NodeNameList caseALessNumericBinaryExp(ALessNumericBinaryExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+		nodeDeps.addAll(ex.getLeft().apply(thmDepVisitor, bvars));	
+		nodeDeps.addAll(ex.getRight().apply(thmDepVisitor, bvars));	
+		
+		return nodeDeps;
+	}
+
+	public NodeNameList caseAModNumericBinaryExp(AModNumericBinaryExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+		nodeDeps.addAll(ex.getLeft().apply(thmDepVisitor, bvars));	
+		nodeDeps.addAll(ex.getRight().apply(thmDepVisitor, bvars));	
+	
+		return nodeDeps;
+	}
+	
+	public NodeNameList caseAPlusNumericBinaryExp(APlusNumericBinaryExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+		nodeDeps.addAll(ex.getLeft().apply(thmDepVisitor, bvars));	
+		nodeDeps.addAll(ex.getRight().apply(thmDepVisitor, bvars));	
+	
+		return nodeDeps;
+	}
+	
+	public NodeNameList caseASubtractNumericBinaryExp(ASubtractNumericBinaryExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+		nodeDeps.addAll(ex.getLeft().apply(thmDepVisitor, bvars));	
+		nodeDeps.addAll(ex.getRight().apply(thmDepVisitor, bvars));	
+	
+		return nodeDeps;
+	}
+
+	public NodeNameList caseATimesNumericBinaryExp(ATimesNumericBinaryExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+		nodeDeps.addAll(ex.getLeft().apply(thmDepVisitor, bvars));	
+		nodeDeps.addAll(ex.getRight().apply(thmDepVisitor, bvars));	
+		
+		return nodeDeps;
+	}
 
 
 
-private static NodeNameList  getBooleanBinaryDeps(NodeNameList bvars,
-		PExp ex) {
-	NodeNameList nodeDeps = new NodeNameList();
-	if(ex instanceof AAndBooleanBinaryExp){
-		AAndBooleanBinaryExp e = (AAndBooleanBinaryExp) ex;
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, e.getLeft()));
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, e.getRight()));		
+	public NodeNameList caseAAndBooleanBinaryExp(AAndBooleanBinaryExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+		nodeDeps.addAll(ex.getLeft().apply(thmDepVisitor, bvars));	
+		nodeDeps.addAll(ex.getRight().apply(thmDepVisitor, bvars));	
+
+		return nodeDeps;
 	}
-	else if(ex instanceof AEquivalentBooleanBinaryExp){
-		AEquivalentBooleanBinaryExp e = (AEquivalentBooleanBinaryExp) ex;
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, e.getLeft()));
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, e.getRight()));	
+
+	public NodeNameList caseAEquivalentBooleanBinaryExp(AEquivalentBooleanBinaryExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();	
+
+		nodeDeps.addAll(ex.getLeft().apply(thmDepVisitor, bvars));	
+		nodeDeps.addAll(ex.getRight().apply(thmDepVisitor, bvars));	
+
+		return nodeDeps;
 	}
-	else if(ex instanceof AImpliesBooleanBinaryExp){
-		AImpliesBooleanBinaryExp e = (AImpliesBooleanBinaryExp) ex;
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, e.getLeft()));
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, e.getRight()));		
+
+	public NodeNameList caseAImpliesBooleanBinaryExp(AImpliesBooleanBinaryExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+		nodeDeps.addAll(ex.getLeft().apply(thmDepVisitor, bvars));	
+		nodeDeps.addAll(ex.getRight().apply(thmDepVisitor, bvars));	
+
+		return nodeDeps;
 	}
-	else if(ex instanceof AOrBooleanBinaryExp){
-		AOrBooleanBinaryExp e = (AOrBooleanBinaryExp) ex;
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, e.getLeft()));
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, e.getRight()));		
+
+	public NodeNameList caseAOrBooleanBinaryExp(AOrBooleanBinaryExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();	
+
+		nodeDeps.addAll(ex.getLeft().apply(thmDepVisitor, bvars));	
+		nodeDeps.addAll(ex.getRight().apply(thmDepVisitor, bvars));	
+	
+		return nodeDeps;
 	}
-	return nodeDeps;
-}
 
 
 //Method to return VARSET expression. This is new to COMPASS AST
-public static NodeNameList getIsabelleVarsetExprDeps(PVarsetExpression vExpr) {
-	NodeNameList nodeDeps = new NodeNameList();
 
-	if (vExpr instanceof AFatEnumVarsetExpression)
-	{
-		AFatEnumVarsetExpression e = (AFatEnumVarsetExpression) vExpr;
+	public NodeNameList caseAFatEnumVarsetExpression(AFatEnumVarsetExpression ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
 		
-		for (Iterator<ANameChannelExp> itr = e.getChannelNames().listIterator(); itr.hasNext(); ) {
-			ANameChannelExp chan = itr.next();
-			ILexIdentifierToken i = chan.getIdentifier();
-			nodeDeps.add(new LexNameToken("", i.toString(), i.getLocation()));
-			
-			
-		}
-	}
-	else if (vExpr instanceof AFatCompVarsetExpression)
-	{
-		//AFatCompVarsetExpression e = (AFatCompVarsetExpression) vExpr;
-
-		// TODO COMPLETE
-	}
-	else if (vExpr instanceof AIdentifierVarsetExpression)
-	{
-		//AIdentifierVarsetExpression e = (AIdentifierVarsetExpression) vExpr;
-
-		// TODO COMPLETE
-	}
-	else if (vExpr instanceof AEnumVarsetExpression)
-	{
-		AEnumVarsetExpression e = (AEnumVarsetExpression) vExpr;
-		
-		for (Iterator<ANameChannelExp> itr = e.getChannelNames().listIterator(); itr.hasNext(); ) {
+		for (Iterator<ANameChannelExp> itr = ex.getChannelNames().listIterator(); itr.hasNext(); ) {
 			ANameChannelExp chan = itr.next();
 			ILexIdentifierToken i = chan.getIdentifier();
 			nodeDeps.add(new LexNameToken("", i.toString(), i.getLocation()));
 		}
-	}
-	else if (vExpr instanceof AInterVOpVarsetExpression)
-	{
-		AInterVOpVarsetExpression e = (AInterVOpVarsetExpression) vExpr;
 
-		nodeDeps.addAll(ThmExprUtil.getIsabelleVarsetExprDeps(e.getLeft()));
-		nodeDeps.addAll(ThmExprUtil.getIsabelleVarsetExprDeps(e.getRight()));
+		return nodeDeps;
 	}
-	else if (vExpr instanceof ASubVOpVarsetExpression)
-	{
-		ASubVOpVarsetExpression e = (ASubVOpVarsetExpression) vExpr;
+	
+	public NodeNameList caseAFatCompVarsetExpression(AFatCompVarsetExpression ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
 
-		nodeDeps.addAll(ThmExprUtil.getIsabelleVarsetExprDeps(e.getLeft()));
-		nodeDeps.addAll(ThmExprUtil.getIsabelleVarsetExprDeps(e.getRight()));
-	}
-	else if (vExpr instanceof AUnionVOpVarsetExpression)
-	{
-		AUnionVOpVarsetExpression e = (AUnionVOpVarsetExpression) vExpr;
+		// TODO COMPLETE
 
-		nodeDeps.addAll(ThmExprUtil.getIsabelleVarsetExprDeps(e.getLeft()));
-		nodeDeps.addAll(ThmExprUtil.getIsabelleVarsetExprDeps(e.getRight()));
+		return nodeDeps;
 	}
 
-	return nodeDeps;
-}
+	public NodeNameList caseAIdentifierVarsetExpression(AIdentifierVarsetExpression ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
 
-//Method to return VARSET expression. This is new to COMPASS AST
-	public static String getIsabelleVarsetExpr(PVarsetExpression vExpr) {
-		if (vExpr instanceof AFatEnumVarsetExpression)
-		{
-			AFatEnumVarsetExpression e = (AFatEnumVarsetExpression) vExpr;
-			StringBuilder sb = new StringBuilder();
+		// TODO COMPLETE
 
+		return nodeDeps;
+	}
 
-			for (Iterator<ANameChannelExp> itr = e.getChannelNames().listIterator(); itr.hasNext(); ) {
-				ANameChannelExp chan = itr.next();
-				
-				//ILexIdentifierToken
-				sb.append(chan.getIdentifier().getName().toString());
-				sb.append(ThmExprUtil.isaDown );
-				//If there are remaining channels, add a ","
-				if(itr.hasNext()){	
-					sb.append(", ");
-				}
-			}
-			return "{" + sb.toString() +"}";
+	public NodeNameList caseAEnumVarsetExpression(AEnumVarsetExpression ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+		for (Iterator<ANameChannelExp> itr = ex.getChannelNames().listIterator(); itr.hasNext(); ) {
+			ANameChannelExp chan = itr.next();
+			ILexIdentifierToken i = chan.getIdentifier();
+			nodeDeps.add(new LexNameToken("", i.toString(), i.getLocation()));
 		}
-		else if (vExpr instanceof AFatCompVarsetExpression)
-		{
-			//AFatCompVarsetExpression e = (AFatCompVarsetExpression) vExpr;
 
-			// TODO COMPLETE
-			return "varset comp not handled";
-		}
-		else if (vExpr instanceof AIdentifierVarsetExpression)
-		{
-			//AIdentifierVarsetExpression e = (AIdentifierVarsetExpression) vExpr;
+		return nodeDeps;
+	}
 
-			// TODO COMPLETE
-			return "varset id not handled";
-		}
-		else if (vExpr instanceof AEnumVarsetExpression)
-		{
-			AEnumVarsetExpression e = (AEnumVarsetExpression) vExpr;
-			StringBuilder sb = new StringBuilder();
-
-			for (Iterator<ANameChannelExp> itr = e.getChannelNames().listIterator(); itr.hasNext(); ) {
-				ANameChannelExp chan = itr.next();
-				sb.append(chan.getIdentifier().getName().toString());
-				sb.append(ThmExprUtil.isaDown );
-				//If there are remaining channels, add a ","
-				if(itr.hasNext()){	
-					sb.append(", ");
-				}
-			}
-			return "{" + sb.toString() +"}";
-		}
-		else if (vExpr instanceof AInterVOpVarsetExpression)
-		{
-			AInterVOpVarsetExpression e = (AInterVOpVarsetExpression) vExpr;
-			
-			String left = ThmExprUtil.getIsabelleVarsetExpr(e.getLeft());
-			String right = ThmExprUtil.getIsabelleVarsetExpr(e.getRight());
-
-			return left + " inter " + right;
-		}
-		else if (vExpr instanceof ASubVOpVarsetExpression)
-		{
-			ASubVOpVarsetExpression e = (ASubVOpVarsetExpression) vExpr;
-
-			String left = ThmExprUtil.getIsabelleVarsetExpr(e.getLeft());
-			String right = ThmExprUtil.getIsabelleVarsetExpr(e.getRight());
-
-			return left + " setminus " + right;
-		}
-		else if (vExpr instanceof AUnionVOpVarsetExpression)
-		{
-			AUnionVOpVarsetExpression e = (AUnionVOpVarsetExpression) vExpr;
-
-			String left = ThmExprUtil.getIsabelleVarsetExpr(e.getLeft());
-			String right = ThmExprUtil.getIsabelleVarsetExpr(e.getRight());
-
-			return left + " union " + right;
-		}
-		return ThmExprUtil.notHandled;
+	public NodeNameList caseAInterVOpVarsetExpression(AInterVOpVarsetExpression ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
 		
+		nodeDeps.addAll(ex.getLeft().apply(thmDepVisitor, bvars));	
+		nodeDeps.addAll(ex.getRight().apply(thmDepVisitor, bvars));	
+
+		return nodeDeps;
 	}
 
-public static NodeNameList getIsabelleRenamingExprDeps(SRenameChannelExp rnExp) {
-	return new NodeNameList();
-}
+	public NodeNameList caseASubVOpVarsetExpression(ASubVOpVarsetExpression ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+		nodeDeps.addAll(ex.getLeft().apply(thmDepVisitor, bvars));	
+		nodeDeps.addAll(ex.getRight().apply(thmDepVisitor, bvars));	
+		
+		return nodeDeps;
+	}
 	
-	
-	
-	
-	
+	public NodeNameList caseAUnionVOpVarsetExpression(AUnionVOpVarsetExpression ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+		
+		nodeDeps.addAll(ex.getLeft().apply(thmDepVisitor, bvars));	
+		nodeDeps.addAll(ex.getRight().apply(thmDepVisitor, bvars));	
+
+		return nodeDeps;
+	}
+
+
+	public NodeNameList caseSRenameChannelExp(SRenameChannelExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+		return nodeDeps;
+	}
 	
 	
 	@Override

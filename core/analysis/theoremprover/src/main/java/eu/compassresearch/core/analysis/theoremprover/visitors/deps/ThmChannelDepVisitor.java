@@ -3,12 +3,10 @@ package eu.compassresearch.core.analysis.theoremprover.visitors.deps;
 import java.util.LinkedList;
 
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.analysis.AnswerAdaptor;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.node.INode;
 import org.overture.ast.types.PType;
 
-import eu.compassresearch.ast.analysis.AnswerCMLAdaptor;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.definitions.AChannelNameDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
