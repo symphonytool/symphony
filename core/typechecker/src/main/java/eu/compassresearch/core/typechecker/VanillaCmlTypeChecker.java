@@ -36,6 +36,7 @@ import eu.compassresearch.ast.definitions.AActionClassDefinition;
 import eu.compassresearch.ast.definitions.AChannelDefinition;
 import eu.compassresearch.ast.definitions.AChannelDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
+import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.messages.InternalException;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.typechecker.analysis.CollectGlobalStateClass;
@@ -344,7 +345,7 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker
 			for (PDefinition def : source.getParagraphs())
 			{
 				if (def instanceof AChannelDefinition
-						|| def instanceof AChansetDefinition)
+						|| def instanceof AChansetDefinition || def instanceof AProcessDefinition)
 				{
 					globalCmlDefinition.add(def);
 					if (def instanceof AChansetDefinition

@@ -9,6 +9,7 @@ import org.overture.typechecker.assistant.ITypeCheckerAssistantFactory;
 
 import eu.compassresearch.ast.definitions.AChannelDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
+import eu.compassresearch.ast.definitions.AProcessDefinition;
 
 public class PrivateActionClassEnvironment extends PrivateClassEnvironment
 {
@@ -27,7 +28,7 @@ public class PrivateActionClassEnvironment extends PrivateClassEnvironment
 
 			PDefinition def = outer.find(name);
 			if (def instanceof AChannelDefinition
-					|| def instanceof AChansetDefinition)
+					|| def instanceof AChansetDefinition || def instanceof AProcessDefinition)
 			{
 				return def;
 			}
