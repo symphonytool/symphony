@@ -650,16 +650,9 @@ public class CmlActionTypeChecker extends
 		PAction replicatedAction = node.getReplicatedAction();
 		LinkedList<PSingleDeclaration> decls = node.getReplicationDeclaration();
 
-		// get CML environment
-		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
-		if (cmlEnv == null)
-		{
-			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(node
-					+ "")));
-			return node.getType();
-		}
-
-		CmlTypeCheckInfo repActionEnv = cmlEnv.newScope();
+		List<PDefinition> localDefinitions = new Vector<PDefinition>();
+		Environment repActionEnv = new FlatCheckedEnvironment(question.assistantFactory, localDefinitions, question.env, NameScope.NAMES);
+		
 		for (PSingleDeclaration decl : decls)
 		{
 			PType declType = decl.apply(THIS, question);
@@ -674,10 +667,10 @@ public class CmlActionTypeChecker extends
 					+ decl);
 
 			for (PDefinition def : declType.getDefinitions())
-				repActionEnv.addVariable(def.getName(), def);
+				localDefinitions.add(def);
 		}
 
-		PType replicatedActionType = replicatedAction.apply(THIS, repActionEnv);
+		PType replicatedActionType = replicatedAction.apply(THIS, new TypeCheckInfo(question.assistantFactory, repActionEnv, NameScope.NAMES));
 
 		return new AActionType(node.getLocation(), true);
 	}
