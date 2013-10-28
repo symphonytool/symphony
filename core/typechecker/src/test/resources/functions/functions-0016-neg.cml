@@ -12,6 +12,10 @@ state
 
 functions
 
- moreroom: () -> nat moreroom() == reg @ Skip
+ moreroom: () -> nat 
+ moreroom() == reg 
+ 
+ 
+ @ Skip
 
 end

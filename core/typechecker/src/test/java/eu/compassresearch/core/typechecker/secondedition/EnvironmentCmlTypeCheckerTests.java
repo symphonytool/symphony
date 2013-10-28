@@ -19,7 +19,7 @@ public class EnvironmentCmlTypeCheckerTests extends
 	@Parameters(name = "{1}")
 	public static Collection<Object[]> getData()
 	{
-		return collectResourcesTestData("environment", TestType.POSITIVE);
+		return combine( collectResourcesTestData("environment", TestType.POSITIVE),collectResourcesTestData("environment", TestType.NEGATIVE));
 	}
 
 	// @Before

@@ -60,6 +60,7 @@ import java.math.BigInteger;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.LinkedList;
@@ -74,12 +75,15 @@ import org.overture.ast.expressions.*;
 import org.overture.ast.intf.lex.*;
 import org.overture.ast.lex.LexBooleanToken;
 import org.overture.ast.lex.LexCharacterToken;
+import org.overture.ast.lex.LexIdentifierToken;
 import org.overture.ast.lex.LexIntegerToken;
 import org.overture.ast.lex.LexKeywordToken;
 import org.overture.ast.lex.LexLocation;
+import eu.compassresearch.ast.lex.LexNameToken;
 import org.overture.ast.lex.LexQuoteToken;
 import org.overture.ast.lex.LexRealToken;
 import org.overture.ast.lex.LexStringToken;
+import org.overture.ast.lex.LexToken;
 import org.overture.ast.lex.VDMToken;
 import org.overture.ast.node.*;
 import org.overture.ast.node.tokens.TAsync;
@@ -91,13 +95,11 @@ import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.typechecker.Pass;
 import org.overture.ast.typechecker.ClassDefinitionSettings;
 
+import eu.compassresearch.ast.*;
 import eu.compassresearch.ast.actions.*;
 import eu.compassresearch.ast.declarations.*;
 import eu.compassresearch.ast.definitions.*;
 import eu.compassresearch.ast.expressions.*;
-import eu.compassresearch.ast.lex.LexIdentifierToken;
-import eu.compassresearch.ast.lex.LexNameToken;
-import eu.compassresearch.ast.lex.LexToken;
 import eu.compassresearch.ast.patterns.*;
 import eu.compassresearch.ast.process.*;
 import eu.compassresearch.ast.program.*;
@@ -143,6 +145,45 @@ private PAction stm2action(PStm stm)
 private PStm action2stm(PAction action)
 {
 	return new AActionStm(null,null,action);
+}
+
+
+private void configureClass(SClassDefinition c)
+{
+	/* FIXME --- Will need to check AInitialDefinition defs
+	* that their id matches the class id here.
+	*/			
+	if(c.getDefinitions()!=null)
+	{
+		for (PDefinition p : c.getDefinitions())
+		{
+			p.parent(c);
+			if(p instanceof AOperationsDefinition)//handle the operations paragraph
+			{
+				for(SOperationDefinition op : ((AOperationsDefinition)p).getOperations())
+				{
+					op.setClassDefinition(c);
+				}
+			}
+			else if(p instanceof AClassInvariantDefinition)
+			{
+				p.setName(c.getName().getInvName(p.getLocation()));
+			}
+			else if(p instanceof AInitialDefinition)
+			{
+				p.setName(new LexNameToken("", c.getName().getName() + "_initial",p.getLocation()));
+				((AInitialDefinition)p).getOperationDefinition().setClassDefinition(c);
+			}
+			else
+			{
+				p.setClassDefinition(c);
+			}
+					
+		}
+	}
+		
+	// Classes are all effectively public types
+	PDefinitionAssistant.setClassDefinition(c.getDefinitions(),c);
 }
 
 private List<CmlParserError> errors = new java.util.LinkedList<CmlParserError>();
@@ -418,79 +459,33 @@ catch (RecognitionException re) {
 
 source returns[List<PDefinition> defs]
 @init { $defs = new ArrayList<PDefinition>(); }
-    : ( programParagraph { $defs.add($programParagraph.defs); } )* EOF
+    : ( programParagraph { $defs.addAll($programParagraph.defs); } )* EOF
     ;
 
-programParagraph returns[PDefinition defs]
-    : classDefinition   { $defs = $classDefinition.def; }
-    | processDefinition { $defs = $processDefinition.def; }
-    | channelDefs       { $defs = $channelDefs.defs; }
-    | chansetDefs       { $defs = $chansetDefs.defs; }
-    | typeDefs          { $defs = $typeDefs.defs; }
-    | valueDefs         { $defs = $valueDefs.defs; }
-    | functionDefs      { $defs = $functionDefs.defs; }
+programParagraph returns[List<? extends PDefinition> defs]
+    : classDefinition   { $defs = Arrays.asList(new PDefinition[]{$classDefinition.def}); }
+    | processDefinition { $defs = Arrays.asList(new PDefinition[]{$processDefinition.def}); }
+    | channelDefs       { $defs = $channelDefs.defs.getChannelNameDeclarations(); }
+    | chansetDefs       { $defs = $chansetDefs.defs.getChansets(); }
+    | typeDefs          { $defs = $typeDefs.defs.getTypes(); }
+    | valueDefs         { $defs = $valueDefs.defs.getValueDefinitions(); }
+    | functionDefs      { $defs = $functionDefs.defs.getFunctionDefinitions(); }
+	
     ;
 
 classDefinition returns[AClassClassDefinition def]
 @after { $def.setLocation(extractLexLocation($start, $stop)); }
     : 'class' id=IDENTIFIER ('extends' parent=IDENTIFIER)? '=' 'begin' classDefinitionBlockOptList 'end'
         {
-            /* FIXME --- Will need to check AInitialDefinition defs
-             * that their id matches the class id here.
-             */
-            $def = new AClassClassDefinition(); // FIXME
-            $def.setName(new LexNameToken("", $id.getText(), extractLexLocation($id)));
-            
-            //default values -- Added by AKM
-            $def.setAccess(getDefaultAccessSpecifier(false, false, extractLexLocation($start)));
-            $def.setUsed(true);
-            $def.setTypeChecked(false);
-        	$def.setGettingInvDefs(false);
-			$def.setHasContructors(false);
-			$def.setGettingInheritable(false);
-			$def.setSupernames(new ArrayList<ILexNameToken>());
-			$def.setSuperDefs(new ArrayList<SClassDefinition>());
-			$def.setSupertypes(new ArrayList<PType>());
-			$def.setSuperInheritedDefinitions(new ArrayList<PDefinition>());
-			$def.setLocalInheritedDefinitions(new ArrayList<PDefinition>());
-			$def.setAllInheritedDefinitions(new ArrayList<PDefinition>());
-			$def.setIsAbstract(false);
-            $def.setSettingHierarchy(ClassDefinitionSettings.UNSET);
-            
-            /* FIXME --- need to set the parent's name once we've
-             * settled on how that works
-             */
-            // $def.setParent(new LexNameToken("", $parent.getText(), extractLexLocation($parent)));
-            $def.setDefinitions($classDefinitionBlockOptList.defs);
-            
-            if($classDefinitionBlockOptList.defs!=null)
-			{
-				for (PDefinition p : $classDefinitionBlockOptList.defs)
-				{
-					p.parent($def);
-					if(p instanceof AOperationsDefinition)//handle the operations paragraph
-						for(SOperationDefinition op : ((AOperationsDefinition)p).getOperations())
-							op.setClassDefinition($def);
-					else if(p instanceof AClassInvariantDefinition)
-					{
-						p.setName($def.getName().getInvName(p.getLocation()));
-					}
-					else if(p instanceof AInitialDefinition)
-					{
-						p.setName(new LexNameToken("", $def.getName().getName() + "_initial",p.getLocation()));
-						((AInitialDefinition)p).getOperationDefinition().setClassDefinition($def);
-					}
-					else
-						p.setClassDefinition($def);
-					
-				}
-			}
-		
-			// Classes are all effectively public types
-			PDefinitionAssistant.setClassDefinition($def.getDefinitions(),$def);
+			AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(false, false, extractLexLocation($start));
+			LexNameToken className = new LexNameToken("", $id.getText(), extractLexLocation($id));
+			List<PDefinition> members = $classDefinitionBlockOptList.defs;
+			List<ILexNameToken> superclasses = new ArrayList<ILexNameToken>();
 			
-			//others
-			//$def.setSettingHierarchy(ClassDefinitionSettings.UNSET);
+			AClassClassDefinition cDef = AstFactory.newAClassClassDefinition(className, superclasses, members);
+			configureClass(cDef);	
+	
+			$def = cDef;
         }
     ;
 
@@ -748,9 +743,14 @@ process8 returns[PProcess proc]
 
 processbase returns[PProcess proc]
 @after { $proc.setLocation(extractLexLocation($start, $stop)); }
-    : 'begin' actionParagraphOptList '@' action 'end'
+    : beginT='begin' actionParagraphOptList atT='@' action endT='end'
         {
-            $proc = new AActionProcess(null, $actionParagraphOptList.defs, $action.action);
+			List<PDefinition> members = $actionParagraphOptList.defs;
+					
+			SClassDefinition cDef = CmlAstFactory.newAActionClassDefinition(extractLexLocation($beginT,$atT), members);
+			configureClass(cDef);	
+	
+			$proc = new AActionProcess(extractLexLocation($beginT,$endT), cDef, $action.action);
         }
     | '(' parametrisationList '@' process ')' '(' expressionList? ')'
         {
@@ -884,17 +884,17 @@ renamePair returns[ARenamePair pair]
 
 actionParagraphOptList returns[List<PDefinition> defs]
 @init { $defs = new ArrayList<PDefinition>(); }
-    : ( actionParagraph { $defs.add($actionParagraph.defs); } )*
+    : ( actionParagraph { $defs.addAll($actionParagraph.defs); } )*
     ;
 
-actionParagraph returns[PDefinition defs]
-    : typeDefs          { $defs = $typeDefs.defs; }
-    | valueDefs         { $defs = $valueDefs.defs; }
-    | stateDefs         { $defs = $stateDefs.defs; }
-    | functionDefs      { $defs = $functionDefs.defs; }
-    | operationDefs     { $defs = $operationDefs.defs; }
-    | actionDefs        { $defs = $actionDefs.defs; }
-    | namesetDefs       { $defs = $namesetDefs.defs; }
+actionParagraph returns[List<? extends PDefinition> defs]
+    : typeDefs          { $defs = $typeDefs.defs.getTypes(); }
+    | valueDefs         { $defs = $valueDefs.defs.getValueDefinitions(); }
+    | stateDefs         { $defs = $stateDefs.defs.getStateDefs(); }
+    | functionDefs      { $defs = $functionDefs.defs.getFunctionDefinitions(); }
+    | operationDefs     { $defs = $operationDefs.defs.getOperations(); }
+    | actionDefs        { $defs = $actionDefs.defs.getActions(); }
+    | namesetDefs       { $defs = $namesetDefs.defs.getNamesets(); }
     ;
 
 actionDefs returns[AActionsDefinition defs]
@@ -1370,7 +1370,9 @@ leadingIdAction returns[PAction action]
                         // object instantiation
                         {
                             // sort out the assignableExpression equivalent
-                            $action = stm2action(new ANewStm(extractLexLocation($newT,$rbT), assignable, $name.name, $expressionList.exps));
+                            AUnresolvedStateDesignator designator = new AUnresolvedStateDesignator(assignable.getLocation(),assignable);
+                            LexIdentifierToken className = new LexIdentifierToken(($name.name).getName(),false,($name.name).getLocation());
+                            $action = stm2action(new ANewStm(extractLexLocation($newT,$rbT), designator, className, $expressionList.exps));
                         }
                     | expression
                         // assignment or operation call (but that's sorted out in the TC)
@@ -2049,7 +2051,20 @@ assignmentDefinition returns[AAssignmentDefinition def]
 @after { $def.setLocation(extractLexLocation($start, $stop)); }
     : IDENTIFIER ':' type ( ( det=':=' | nondet='in' ) expression )?
         {
-            $def = new AAssignmentDefinition();//null, name, NameScope.GLOBAL, false, null, null, type, null, null, null);
+			LexNameToken name = new LexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER));
+			
+			PExp exp = null;
+			
+			if ($det != null || $nondet != null)
+			{
+                exp = $expression.exp;
+			}else
+			{
+				exp = AstFactory.newAUndefinedExp(name.getLocation());
+			}
+            		
+			$def = AstFactory.newAAssignmentDefinition(name, $type.type, exp);
+            /*$def = new AAssignmentDefinition();//null, name, NameScope.GLOBAL, false, null, null, type, null, null, null);
             $def.setName(new LexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER)));
             $def.setNameScope(NameScope.STATE);
             $def.setType($type.type);
@@ -2066,6 +2081,8 @@ assignmentDefinition returns[AAssignmentDefinition def]
            {
            	$def.setExpression(AstFactory.newAUndefinedExp($def.getName().getLocation()));
            }
+		   */
+		   
         }
     ;
 

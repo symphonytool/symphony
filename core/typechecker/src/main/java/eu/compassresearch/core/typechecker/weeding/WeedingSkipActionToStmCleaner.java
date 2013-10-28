@@ -42,6 +42,7 @@ public class WeedingSkipActionToStmCleaner extends DepthFirstAnalysisCMLAdaptor
 	{
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void caseASkipAction(ASkipAction node) throws AnalysisException
 	{

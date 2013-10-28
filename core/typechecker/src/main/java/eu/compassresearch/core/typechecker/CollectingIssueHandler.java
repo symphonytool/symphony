@@ -122,22 +122,18 @@ class CollectingIssueHandler implements ITypeIssueHandler
 		typeError.setLocation(warning.location);
 		this.warnings.add(typeError);
 	}
-	
-	
-	
-	
-	
-	public  void printErrors(PrintWriter out)
+
+	public void printErrors(PrintWriter out)
 	{
-		for (CMLTypeError e: errors)
+		for (CMLTypeError e : errors)
 		{
 			out.println(e.toString());
 		}
 	}
 
-	public  void printWarnings(PrintWriter out)
+	public void printWarnings(PrintWriter out)
 	{
-		for (CMLTypeWarning w: warnings)
+		for (CMLTypeWarning w : warnings)
 		{
 			out.println(w.toString());
 		}

@@ -2,7 +2,6 @@ package eu.compassresearch.core.typechecker.assistant;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.node.INode;
-import org.overture.ast.statements.AActionStm;
 import org.overture.typechecker.assistant.ITypeCheckerAssistantFactory;
 
 import eu.compassresearch.ast.definitions.AFunctionsDefinition;
@@ -33,5 +32,4 @@ public class CmlFunctionChecker extends AbstractCmlFunctionChecker
 		return false;
 	}
 
-	
 }

@@ -4,16 +4,15 @@ import java.io.File;
 import java.io.InputStream;
 
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.analysis.intf.IQuestion;
+import org.overture.ast.lex.LexNameList;
 import org.overture.ast.statements.AActionStm;
 import org.overture.ast.statements.AAltNonDeterministicStm;
 import org.overture.ast.statements.ADoNonDeterministicStm;
 import org.overture.ast.statements.AIfNonDeterministicStm;
 import org.overture.ast.statements.ANewStm;
 import org.overture.ast.statements.AUnresolvedStateDesignator;
-import org.overture.typechecker.Environment;
 import org.overture.typechecker.assistant.ITypeCheckerAssistantFactory;
-import org.overture.typechecker.utilities.ImplicitDefinitionFinder;
+import org.overture.typechecker.utilities.VariableNameCollector;
 
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismReplicatedAction;
@@ -57,7 +56,7 @@ import eu.compassresearch.ast.actions.AValParametrisation;
 import eu.compassresearch.ast.actions.AVresParametrisation;
 import eu.compassresearch.ast.actions.AWaitAction;
 import eu.compassresearch.ast.actions.AWriteCommunicationParameter;
-import eu.compassresearch.ast.analysis.intf.ICMLQuestion;
+import eu.compassresearch.ast.analysis.intf.ICMLAnswer;
 import eu.compassresearch.ast.declarations.AExpressionSingleDeclaration;
 import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionClassDefinition;
@@ -143,1123 +142,1093 @@ import eu.compassresearch.ast.types.ATypeParagraphType;
 import eu.compassresearch.ast.types.AValueParagraphType;
 import eu.compassresearch.ast.types.AVarsetExpressionType;
 
-public abstract class AbstractCmlImplicitDefinitionFinder extends
-		ImplicitDefinitionFinder implements IQuestion<Environment>,
-		ICMLQuestion<Environment>
+public abstract class AbstractCmlVariableNameCollector extends
+		VariableNameCollector implements ICMLAnswer<LexNameList>
 {
-
-	public AbstractCmlImplicitDefinitionFinder(ITypeCheckerAssistantFactory af)
-	{
-		super(af);
-	}
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 4947466785754178741L;
+	private static final long serialVersionUID = 1L;
 
-	@Override
-	public void caseFile(File node, Environment question)
-			throws AnalysisException
+	public AbstractCmlVariableNameCollector(ITypeCheckerAssistantFactory af)
 	{
-		// TODO Auto-generated method stub
-
+		super(af);
 	}
 
 	@Override
-	public void caseInputStream(InputStream node, Environment question)
-			throws AnalysisException
+	public LexNameList caseFile(File node) throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAFileSource(AFileSource node, Environment question)
+	public LexNameList caseInputStream(InputStream node)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseATcpStreamSource(ATcpStreamSource node, Environment question)
+	public LexNameList caseAFileSource(AFileSource node)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAInputStreamSource(AInputStreamSource node,
-			Environment question) throws AnalysisException
+	public LexNameList caseATcpStreamSource(ATcpStreamSource node)
+			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseATypeSingleDeclaration(ATypeSingleDeclaration node,
-			Environment question) throws AnalysisException
+	public LexNameList caseAInputStreamSource(AInputStreamSource node)
+			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAExpressionSingleDeclaration(
-			AExpressionSingleDeclaration node, Environment question)
+	public LexNameList caseATypeSingleDeclaration(ATypeSingleDeclaration node)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAActionDefinition(AActionDefinition node,
-			Environment question) throws AnalysisException
+	public LexNameList caseAExpressionSingleDeclaration(
+			AExpressionSingleDeclaration node) throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAChansetDefinition(AChansetDefinition node,
-			Environment question) throws AnalysisException
+	public LexNameList caseAActionDefinition(AActionDefinition node)
+			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseANamesetDefinition(ANamesetDefinition node,
-			Environment question) throws AnalysisException
+	public LexNameList caseAChansetDefinition(AChansetDefinition node)
+			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAProcessDefinition(AProcessDefinition node,
-			Environment question) throws AnalysisException
+	public LexNameList caseANamesetDefinition(ANamesetDefinition node)
+			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAChannelNameDefinition(AChannelNameDefinition node,
-			Environment question) throws AnalysisException
+	public LexNameList caseAProcessDefinition(AProcessDefinition node)
+			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAChannelsDefinition(AChannelsDefinition node,
-			Environment question) throws AnalysisException
+	public LexNameList caseAChannelNameDefinition(AChannelNameDefinition node)
+			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAChansetsDefinition(AChansetsDefinition node,
-			Environment question) throws AnalysisException
+	public LexNameList caseAChannelsDefinition(AChannelsDefinition node)
+			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseANamesetsDefinition(ANamesetsDefinition node,
-			Environment question) throws AnalysisException
+	public LexNameList caseAChansetsDefinition(AChansetsDefinition node)
+			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAActionsDefinition(AActionsDefinition node,
-			Environment question) throws AnalysisException
+	public LexNameList caseANamesetsDefinition(ANamesetsDefinition node)
+			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseATypesDefinition(ATypesDefinition node, Environment question)
+	public LexNameList caseAActionsDefinition(AActionsDefinition node)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAOperationsDefinition(AOperationsDefinition node,
-			Environment question) throws AnalysisException
+	public LexNameList caseATypesDefinition(ATypesDefinition node)
+			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAFunctionsDefinition(AFunctionsDefinition node,
-			Environment question) throws AnalysisException
+	public LexNameList caseAOperationsDefinition(AOperationsDefinition node)
+			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAValuesDefinition(AValuesDefinition node,
-			Environment question) throws AnalysisException
+	public LexNameList caseAFunctionsDefinition(AFunctionsDefinition node)
+			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAInitialDefinition(AInitialDefinition node,
-			Environment question) throws AnalysisException
+	public LexNameList caseAValuesDefinition(AValuesDefinition node)
+			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseABracketedExp(ABracketedExp node, Environment question)
+	public LexNameList caseAInitialDefinition(AInitialDefinition node)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseATupleSelectExp(ATupleSelectExp node, Environment question)
+	public LexNameList caseAActionClassDefinition(AActionClassDefinition node)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAUnresolvedPathExp(AUnresolvedPathExp node,
-			Environment question) throws AnalysisException
+	public LexNameList caseABracketedExp(ABracketedExp node)
+			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseANameChannelExp(ANameChannelExp node, Environment question)
+	public LexNameList caseATupleSelectExp(ATupleSelectExp node)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAComprehensionRenameChannelExp(
-			AComprehensionRenameChannelExp node, Environment question)
+	public LexNameList caseAUnresolvedPathExp(AUnresolvedPathExp node)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAEnumerationRenameChannelExp(
-			AEnumerationRenameChannelExp node, Environment question)
+	public LexNameList caseANameChannelExp(ANameChannelExp node)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAIdentifierVarsetExpression(
-			AIdentifierVarsetExpression node, Environment question)
-			throws AnalysisException
+	public LexNameList caseAComprehensionRenameChannelExp(
+			AComprehensionRenameChannelExp node) throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAEnumVarsetExpression(AEnumVarsetExpression node,
-			Environment question) throws AnalysisException
+	public LexNameList caseAEnumerationRenameChannelExp(
+			AEnumerationRenameChannelExp node) throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseACompVarsetExpression(ACompVarsetExpression node,
-			Environment question) throws AnalysisException
+	public LexNameList caseAIdentifierVarsetExpression(
+			AIdentifierVarsetExpression node) throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAFatEnumVarsetExpression(AFatEnumVarsetExpression node,
-			Environment question) throws AnalysisException
+	public LexNameList caseAEnumVarsetExpression(AEnumVarsetExpression node)
+			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAFatCompVarsetExpression(AFatCompVarsetExpression node,
-			Environment question) throws AnalysisException
+	public LexNameList caseACompVarsetExpression(ACompVarsetExpression node)
+			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAUnionVOpVarsetExpression(AUnionVOpVarsetExpression node,
-			Environment question) throws AnalysisException
+	public LexNameList caseAFatEnumVarsetExpression(
+			AFatEnumVarsetExpression node) throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAInterVOpVarsetExpression(AInterVOpVarsetExpression node,
-			Environment question) throws AnalysisException
+	public LexNameList caseAFatCompVarsetExpression(
+			AFatCompVarsetExpression node) throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseASubVOpVarsetExpression(ASubVOpVarsetExpression node,
-			Environment question) throws AnalysisException
+	public LexNameList caseAUnionVOpVarsetExpression(
+			AUnionVOpVarsetExpression node) throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAStatementType(AStatementType node, Environment question)
-			throws AnalysisException
+	public LexNameList caseAInterVOpVarsetExpression(
+			AInterVOpVarsetExpression node) throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAProcessType(AProcessType node, Environment question)
+	public LexNameList caseASubVOpVarsetExpression(ASubVOpVarsetExpression node)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAErrorType(AErrorType node, Environment question)
+	public LexNameList caseAStatementType(AStatementType node)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseABindType(ABindType node, Environment question)
+	public LexNameList caseAProcessType(AProcessType node)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAProcessParagraphType(AProcessParagraphType node,
-			Environment question) throws AnalysisException
+	public LexNameList caseAErrorType(AErrorType node) throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAChansetParagraphType(AChansetParagraphType node,
-			Environment question) throws AnalysisException
+	public LexNameList caseABindType(ABindType node) throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAChannelsParagraphType(AChannelsParagraphType node,
-			Environment question) throws AnalysisException
+	public LexNameList caseAProcessParagraphType(AProcessParagraphType node)
+			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAActionParagraphType(AActionParagraphType node,
-			Environment question) throws AnalysisException
+	public LexNameList caseAChansetParagraphType(AChansetParagraphType node)
+			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAValueParagraphType(AValueParagraphType node,
-			Environment question) throws AnalysisException
+	public LexNameList caseAChannelsParagraphType(AChannelsParagraphType node)
+			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAFunctionParagraphType(AFunctionParagraphType node,
-			Environment question) throws AnalysisException
+	public LexNameList caseAActionParagraphType(AActionParagraphType node)
+			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseATypeParagraphType(ATypeParagraphType node,
-			Environment question) throws AnalysisException
+	public LexNameList caseAValueParagraphType(AValueParagraphType node)
+			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAOperationParagraphType(AOperationParagraphType node,
-			Environment question) throws AnalysisException
+	public LexNameList caseAFunctionParagraphType(AFunctionParagraphType node)
+			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAStateParagraphType(AStateParagraphType node,
-			Environment question) throws AnalysisException
+	public LexNameList caseATypeParagraphType(ATypeParagraphType node)
+			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseASourceType(ASourceType node, Environment question)
+	public LexNameList caseAOperationParagraphType(AOperationParagraphType node)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAChannelType(AChannelType node, Environment question)
+	public LexNameList caseAStateParagraphType(AStateParagraphType node)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAChansetType(AChansetType node, Environment question)
+	public LexNameList caseASourceType(ASourceType node)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseANamesetType(ANamesetType node, Environment question)
+	public LexNameList caseAChannelType(AChannelType node)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseANamesetsType(ANamesetsType node, Environment question)
+	public LexNameList caseAChansetType(AChansetType node)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAInitialParagraphType(AInitialParagraphType node,
-			Environment question) throws AnalysisException
+	public LexNameList caseANamesetType(ANamesetType node)
+			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAActionType(AActionType node, Environment question)
+	public LexNameList caseANamesetsType(ANamesetsType node)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAVarsetExpressionType(AVarsetExpressionType node,
-			Environment question) throws AnalysisException
+	public LexNameList caseAInitialParagraphType(AInitialParagraphType node)
+			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAParagraphType(AParagraphType node, Environment question)
+	public LexNameList caseAActionType(AActionType node)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseALogicalAccess(ALogicalAccess node, Environment question)
+	public LexNameList caseAVarsetExpressionType(AVarsetExpressionType node)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseARenamePair(ARenamePair node, Environment question)
+	public LexNameList caseAParagraphType(AParagraphType node)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAActionProcess(AActionProcess node, Environment question)
+	public LexNameList caseALogicalAccess(ALogicalAccess node)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseASequentialCompositionProcess(
-			ASequentialCompositionProcess node, Environment question)
+	public LexNameList caseARenamePair(ARenamePair node)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAExternalChoiceProcess(AExternalChoiceProcess node,
-			Environment question) throws AnalysisException
+	public LexNameList caseAActionProcess(AActionProcess node)
+			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAInternalChoiceProcess(AInternalChoiceProcess node,
-			Environment question) throws AnalysisException
+	public LexNameList caseASequentialCompositionProcess(
+			ASequentialCompositionProcess node) throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAGeneralisedParallelismProcess(
-			AGeneralisedParallelismProcess node, Environment question)
+	public LexNameList caseAExternalChoiceProcess(AExternalChoiceProcess node)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAAlphabetisedParallelismProcess(
-			AAlphabetisedParallelismProcess node, Environment question)
+	public LexNameList caseAInternalChoiceProcess(AInternalChoiceProcess node)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseASynchronousParallelismProcess(
-			ASynchronousParallelismProcess node, Environment question)
-			throws AnalysisException
+	public LexNameList caseAGeneralisedParallelismProcess(
+			AGeneralisedParallelismProcess node) throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAInterleavingProcess(AInterleavingProcess node,
-			Environment question) throws AnalysisException
+	public LexNameList caseAAlphabetisedParallelismProcess(
+			AAlphabetisedParallelismProcess node) throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAInterruptProcess(AInterruptProcess node,
-			Environment question) throws AnalysisException
+	public LexNameList caseASynchronousParallelismProcess(
+			ASynchronousParallelismProcess node) throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseATimedInterruptProcess(ATimedInterruptProcess node,
-			Environment question) throws AnalysisException
+	public LexNameList caseAInterleavingProcess(AInterleavingProcess node)
+			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAUntimedTimeoutProcess(AUntimedTimeoutProcess node,
-			Environment question) throws AnalysisException
+	public LexNameList caseAInterruptProcess(AInterruptProcess node)
+			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseATimeoutProcess(ATimeoutProcess node, Environment question)
+	public LexNameList caseATimedInterruptProcess(ATimedInterruptProcess node)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAHidingProcess(AHidingProcess node, Environment question)
+	public LexNameList caseAUntimedTimeoutProcess(AUntimedTimeoutProcess node)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseASkipProcess(ASkipProcess node, Environment question)
+	public LexNameList caseATimeoutProcess(ATimeoutProcess node)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAStartDeadlineProcess(AStartDeadlineProcess node,
-			Environment question) throws AnalysisException
+	public LexNameList caseAHidingProcess(AHidingProcess node)
+			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAEndDeadlineProcess(AEndDeadlineProcess node,
-			Environment question) throws AnalysisException
+	public LexNameList caseASkipProcess(ASkipProcess node)
+			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAInstantiationProcess(AInstantiationProcess node,
-			Environment question) throws AnalysisException
+	public LexNameList caseAStartDeadlineProcess(AStartDeadlineProcess node)
+			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAReferenceProcess(AReferenceProcess node,
-			Environment question) throws AnalysisException
+	public LexNameList caseAEndDeadlineProcess(AEndDeadlineProcess node)
+			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAChannelRenamingProcess(AChannelRenamingProcess node,
-			Environment question) throws AnalysisException
+	public LexNameList caseAInstantiationProcess(AInstantiationProcess node)
+			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseASequentialCompositionReplicatedProcess(
-			ASequentialCompositionReplicatedProcess node, Environment question)
+	public LexNameList caseAReferenceProcess(AReferenceProcess node)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAExternalChoiceReplicatedProcess(
-			AExternalChoiceReplicatedProcess node, Environment question)
+	public LexNameList caseAChannelRenamingProcess(AChannelRenamingProcess node)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAInternalChoiceReplicatedProcess(
-			AInternalChoiceReplicatedProcess node, Environment question)
+	public LexNameList caseASequentialCompositionReplicatedProcess(
+			ASequentialCompositionReplicatedProcess node)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAGeneralisedParallelismReplicatedProcess(
-			AGeneralisedParallelismReplicatedProcess node, Environment question)
-			throws AnalysisException
+	public LexNameList caseAExternalChoiceReplicatedProcess(
+			AExternalChoiceReplicatedProcess node) throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAAlphabetisedParallelismReplicatedProcess(
-			AAlphabetisedParallelismReplicatedProcess node, Environment question)
-			throws AnalysisException
+	public LexNameList caseAInternalChoiceReplicatedProcess(
+			AInternalChoiceReplicatedProcess node) throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseASynchronousParallelismReplicatedProcess(
-			ASynchronousParallelismReplicatedProcess node, Environment question)
+	public LexNameList caseAGeneralisedParallelismReplicatedProcess(
+			AGeneralisedParallelismReplicatedProcess node)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAInterleavingReplicatedProcess(
-			AInterleavingReplicatedProcess node, Environment question)
+	public LexNameList caseAAlphabetisedParallelismReplicatedProcess(
+			AAlphabetisedParallelismReplicatedProcess node)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseASkipAction(ASkipAction node, Environment question)
+	public LexNameList caseASynchronousParallelismReplicatedProcess(
+			ASynchronousParallelismReplicatedProcess node)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAStopAction(AStopAction node, Environment question)
-			throws AnalysisException
+	public LexNameList caseAInterleavingReplicatedProcess(
+			AInterleavingReplicatedProcess node) throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAChaosAction(AChaosAction node, Environment question)
+	public LexNameList caseASkipAction(ASkipAction node)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseADivAction(ADivAction node, Environment question)
+	public LexNameList caseAStopAction(AStopAction node)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAWaitAction(AWaitAction node, Environment question)
+	public LexNameList caseAChaosAction(AChaosAction node)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseACommunicationAction(ACommunicationAction node,
-			Environment question) throws AnalysisException
+	public LexNameList caseADivAction(ADivAction node) throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAGuardedAction(AGuardedAction node, Environment question)
+	public LexNameList caseAWaitAction(AWaitAction node)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseASequentialCompositionAction(
-			ASequentialCompositionAction node, Environment question)
+	public LexNameList caseACommunicationAction(ACommunicationAction node)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAExternalChoiceAction(AExternalChoiceAction node,
-			Environment question) throws AnalysisException
+	public LexNameList caseAGuardedAction(AGuardedAction node)
+			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAInternalChoiceAction(AInternalChoiceAction node,
-			Environment question) throws AnalysisException
+	public LexNameList caseASequentialCompositionAction(
+			ASequentialCompositionAction node) throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAInterruptAction(AInterruptAction node, Environment question)
+	public LexNameList caseAExternalChoiceAction(AExternalChoiceAction node)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseATimedInterruptAction(ATimedInterruptAction node,
-			Environment question) throws AnalysisException
+	public LexNameList caseAInternalChoiceAction(AInternalChoiceAction node)
+			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAUntimedTimeoutAction(AUntimedTimeoutAction node,
-			Environment question) throws AnalysisException
+	public LexNameList caseAInterruptAction(AInterruptAction node)
+			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseATimeoutAction(ATimeoutAction node, Environment question)
+	public LexNameList caseATimedInterruptAction(ATimedInterruptAction node)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAHidingAction(AHidingAction node, Environment question)
+	public LexNameList caseAUntimedTimeoutAction(AUntimedTimeoutAction node)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAStartDeadlineAction(AStartDeadlineAction node,
-			Environment question) throws AnalysisException
+	public LexNameList caseATimeoutAction(ATimeoutAction node)
+			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAEndDeadlineAction(AEndDeadlineAction node,
-			Environment question) throws AnalysisException
+	public LexNameList caseAHidingAction(AHidingAction node)
+			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAChannelRenamingAction(AChannelRenamingAction node,
-			Environment question) throws AnalysisException
+	public LexNameList caseAStartDeadlineAction(AStartDeadlineAction node)
+			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAMuAction(AMuAction node, Environment question)
+	public LexNameList caseAEndDeadlineAction(AEndDeadlineAction node)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAParametrisedAction(AParametrisedAction node,
-			Environment question) throws AnalysisException
+	public LexNameList caseAChannelRenamingAction(AChannelRenamingAction node)
+			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAReferenceAction(AReferenceAction node, Environment question)
-			throws AnalysisException
+	public LexNameList caseAMuAction(AMuAction node) throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAInterleavingParallelAction(
-			AInterleavingParallelAction node, Environment question)
+	public LexNameList caseAParametrisedAction(AParametrisedAction node)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAGeneralisedParallelismParallelAction(
-			AGeneralisedParallelismParallelAction node, Environment question)
-			throws AnalysisException
+	public LexNameList caseAStmAction(AStmAction node) throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAAlphabetisedParallelismParallelAction(
-			AAlphabetisedParallelismParallelAction node, Environment question)
+	public LexNameList caseAReferenceAction(AReferenceAction node)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseASynchronousParallelismParallelAction(
-			ASynchronousParallelismParallelAction node, Environment question)
-			throws AnalysisException
+	public LexNameList caseAInterleavingParallelAction(
+			AInterleavingParallelAction node) throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseASequentialCompositionReplicatedAction(
-			ASequentialCompositionReplicatedAction node, Environment question)
+	public LexNameList caseAGeneralisedParallelismParallelAction(
+			AGeneralisedParallelismParallelAction node)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAExternalChoiceReplicatedAction(
-			AExternalChoiceReplicatedAction node, Environment question)
+	public LexNameList caseAAlphabetisedParallelismParallelAction(
+			AAlphabetisedParallelismParallelAction node)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAInternalChoiceReplicatedAction(
-			AInternalChoiceReplicatedAction node, Environment question)
+	public LexNameList caseASynchronousParallelismParallelAction(
+			ASynchronousParallelismParallelAction node)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseACommonInterleavingReplicatedAction(
-			ACommonInterleavingReplicatedAction node, Environment question)
+	public LexNameList caseASequentialCompositionReplicatedAction(
+			ASequentialCompositionReplicatedAction node)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAInterleavingReplicatedAction(
-			AInterleavingReplicatedAction node, Environment question)
-			throws AnalysisException
+	public LexNameList caseAExternalChoiceReplicatedAction(
+			AExternalChoiceReplicatedAction node) throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAGeneralisedParallelismReplicatedAction(
-			AGeneralisedParallelismReplicatedAction node, Environment question)
-			throws AnalysisException
+	public LexNameList caseAInternalChoiceReplicatedAction(
+			AInternalChoiceReplicatedAction node) throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAAlphabetisedParallelismReplicatedAction(
-			AAlphabetisedParallelismReplicatedAction node, Environment question)
-			throws AnalysisException
+	public LexNameList caseACommonInterleavingReplicatedAction(
+			ACommonInterleavingReplicatedAction node) throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseASynchronousParallelismReplicatedAction(
-			ASynchronousParallelismReplicatedAction node, Environment question)
-			throws AnalysisException
+	public LexNameList caseAInterleavingReplicatedAction(
+			AInterleavingReplicatedAction node) throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseADeclarationInstantiatedAction(
-			ADeclarationInstantiatedAction node, Environment question)
+	public LexNameList caseAGeneralisedParallelismReplicatedAction(
+			AGeneralisedParallelismReplicatedAction node)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAParametrisedInstantiatedAction(
-			AParametrisedInstantiatedAction node, Environment question)
+	public LexNameList caseAAlphabetisedParallelismReplicatedAction(
+			AAlphabetisedParallelismReplicatedAction node)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAReadCommunicationParameter(
-			AReadCommunicationParameter node, Environment question)
+	public LexNameList caseASynchronousParallelismReplicatedAction(
+			ASynchronousParallelismReplicatedAction node)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAWriteCommunicationParameter(
-			AWriteCommunicationParameter node, Environment question)
-			throws AnalysisException
+	public LexNameList caseADeclarationInstantiatedAction(
+			ADeclarationInstantiatedAction node) throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseASignalCommunicationParameter(
-			ASignalCommunicationParameter node, Environment question)
-			throws AnalysisException
+	public LexNameList caseAParametrisedInstantiatedAction(
+			AParametrisedInstantiatedAction node) throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAValParametrisation(AValParametrisation node,
-			Environment question) throws AnalysisException
+	public LexNameList caseAReadCommunicationParameter(
+			AReadCommunicationParameter node) throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAResParametrisation(AResParametrisation node,
-			Environment question) throws AnalysisException
+	public LexNameList caseAWriteCommunicationParameter(
+			AWriteCommunicationParameter node) throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAVresParametrisation(AVresParametrisation node,
-			Environment question) throws AnalysisException
+	public LexNameList caseASignalCommunicationParameter(
+			ASignalCommunicationParameter node) throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAActionStm(AActionStm node, Environment question)
+	public LexNameList caseAValParametrisation(AValParametrisation node)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAStmAction(AStmAction node, Environment question)
+	public LexNameList caseAResParametrisation(AResParametrisation node)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAUnresolvedStateDesignator(AUnresolvedStateDesignator node,
-			Environment question) throws AnalysisException
+	public LexNameList caseAVresParametrisation(AVresParametrisation node)
+			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseANewStm(ANewStm node, Environment question)
-			throws AnalysisException
+	public LexNameList caseAUnresolvedStateDesignator(
+			AUnresolvedStateDesignator node) throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAIfNonDeterministicStm(AIfNonDeterministicStm node,
-			Environment question) throws AnalysisException
+	public LexNameList caseAActionStm(AActionStm node) throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAAltNonDeterministicStm(AAltNonDeterministicStm node,
-			Environment question) throws AnalysisException
+	public LexNameList caseANewStm(ANewStm node) throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseADoNonDeterministicStm(ADoNonDeterministicStm node,
-			Environment question) throws AnalysisException
+	public LexNameList caseAIfNonDeterministicStm(AIfNonDeterministicStm node)
+			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void caseAActionClassDefinition(AActionClassDefinition node,
-			Environment question) throws AnalysisException
+	public LexNameList caseAAltNonDeterministicStm(AAltNonDeterministicStm node)
+			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
+		return null;
+	}
 
+	@Override
+	public LexNameList caseADoNonDeterministicStm(ADoNonDeterministicStm node)
+			throws AnalysisException
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
+
 }

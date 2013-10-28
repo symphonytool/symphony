@@ -17,26 +17,33 @@ import org.overture.ast.definitions.SFunctionDefinition;
 import org.overture.ast.factory.AstFactory;
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.lex.Dialect;
+import org.overture.ast.lex.LexIdentifierToken;
 import org.overture.ast.lex.LexNameList;
+import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.types.PType;
 import org.overture.config.Release;
 import org.overture.config.Settings;
 import org.overture.typechecker.Environment;
-import org.overture.typechecker.PublicClassEnvironment;
+import org.overture.typechecker.FlatCheckedEnvironment;
 import org.overture.typechecker.TypeCheckInfo;
 import org.overture.typechecker.TypeChecker;
+import org.overture.typechecker.assistant.ITypeCheckerAssistantFactory;
 
+import eu.compassresearch.ast.actions.AStmAction;
 import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
-import eu.compassresearch.ast.lex.LexIdentifierToken;
-import eu.compassresearch.ast.lex.LexNameToken;
+import eu.compassresearch.ast.definitions.AActionClassDefinition;
+import eu.compassresearch.ast.definitions.AChannelNameDefinition;
+import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.messages.InternalException;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.typechecker.analysis.CollectGlobalStateClass;
 import eu.compassresearch.core.typechecker.analysis.CollectGlobalStateClass.GlobalDefinitions;
 import eu.compassresearch.core.typechecker.api.ITypeComparator;
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
-import eu.compassresearch.core.typechecker.version2.CmlVdmTypeCheckVisitor;
+import eu.compassresearch.core.typechecker.version2.CmlClassTypeChecker;
+import eu.compassresearch.core.typechecker.version2.CmlCspTypeChecker;
+import eu.compassresearch.core.typechecker.weeding.OperationBodyValidater;
 import eu.compassresearch.core.typechecker.weeding.SetLocationVisitor;
 import eu.compassresearch.core.typechecker.weeding.Weeding1;
 import eu.compassresearch.core.typechecker.weeding.Weeding2;
@@ -48,6 +55,25 @@ import eu.compassresearch.core.typechecker.weeding.WeedingUnresolvedPathReplacem
 
 class VanillaCmlTypeChecker extends AbstractTypeChecker
 {
+
+	private static class VdmTypeCheckResult
+	{
+		public final Environment globalEnv;
+		public final List<SClassDefinition> classes;
+		public final ITypeCheckerAssistantFactory af;
+		public final QuestionAnswerAdaptor<TypeCheckInfo, PType> tc;
+
+		public VdmTypeCheckResult(Environment globalEnv,
+				List<SClassDefinition> classes,
+				ITypeCheckerAssistantFactory af,
+				QuestionAnswerAdaptor<TypeCheckInfo, PType> tc)
+		{
+			this.globalEnv = globalEnv;
+			this.classes = classes;
+			this.af = af;
+			this.tc = tc;
+		}
+	}
 
 	// ---------------------------------------------
 	// -- Type Checker State
@@ -82,6 +108,7 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker
 
 		Settings.release = Release.VDM_10;
 		Settings.dialect = Dialect.VDM_PP;
+		TypeChecker.clearErrors();
 
 		TypeChecker.addStatusListner(this.issueHandler);
 	}
@@ -147,6 +174,8 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker
 			WeedingSkipActionToStmCleaner.apply(sourceForest);
 			WeedingStmCleaner.apply(sourceForest);
 
+			// DotUtil.dot(sourceForest.iterator().next());
+
 			// TODO we may have to unfold state in processes to instance variables here
 
 			// Moved to parser Weeding4FixOperationTypes.apply(sourceForest);
@@ -163,21 +192,22 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker
 			// PDefinitionListAssistantTC.typeResolve(this.globalDefinitions, (QuestionAnswerAdaptor<TypeCheckInfo,
 			// PType>) rootVisitor, cmlTopEnv);
 
-			overtureClassTc(sourceForest);
+			VdmTypeCheckResult result = overtureClassTc(sourceForest);
+			cmlCspTc(sourceForest, result);
 
-			// Type check
-			// for (PSource src : sourceForest)
-			// {
-			// PType srcType = src.apply(rootVisitor, cmlTopEnv);
-			// if (!CmlTCUtil.successfulType(srcType))
-			// return false;
-			// }
 
-		} catch (AnalysisException ae)
+		} catch (AnalysisException e)
 		{
 			// An expected anomaly was found
-			ae.printStackTrace();
-			throw new InternalException(0, ae.getMessage());
+			e.printStackTrace();
+			throw new InternalException(0, e.getMessage());
+		} catch (AbortTypecheck e)
+		{
+			if (e.number != -1)
+			{
+				throw e;
+			}
+
 		} catch (Exception e)
 		{
 			e.printStackTrace();
@@ -187,7 +217,7 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker
 		return !issueHandler.hasErrors();
 	}
 
-	private void overtureClassTc(Collection<PSource> sourceForest)
+	private VdmTypeCheckResult overtureClassTc(Collection<PSource> sourceForest)
 	{
 		final List<SClassDefinition> classes = exstractClasses(sourceForest);
 
@@ -199,35 +229,21 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker
 		// insert global class first, it must be checked first do to the environment linking
 		classes.add(0, globalClass);
 
+		// resolve AUnresolvedPathExp. Each resolved path will be replaced with a AVariableExp
 		WeedingUnresolvedPathReplacement.apply(sourceForest, classes);
-		// FIXME: check that operation bodies only contain the allowed subset
+
+		// check that operation bodies only contain the allowed subset
+		if (!OperationBodyValidater.apply(sourceForest, issueHandler))
+		{
+			abort(-1, "Stopped due to type errors in operatuib bodies");
+		}
 
 		// DotUtil.dot(classes);
 
-		Settings.dialect = Dialect.VDM_PP;
-		TypeChecker typeChecker = new org.overture.typechecker.ClassTypeChecker(classes)
-		{
-			@Override
-			protected QuestionAnswerAdaptor<TypeCheckInfo, PType> getTypeCheckVisitor()
-			{
-				return new CmlVdmTypeCheckVisitor();
-			}
-
-			@Override
-			protected Environment getAllClassesEnvronment()
-			{
-				Environment globalEnv = new FlatCheckedGlobalEnvironment(assistantFactory, globalDefs, NameScope.NAMESANDSTATE, null);
-				Environment allClasses = new PublicClassEnvironment(assistantFactory, classes, globalEnv, null);
-				return allClasses;
-			}
-		};
+		CmlClassTypeChecker typeChecker = new CmlClassTypeChecker(classes, globalDefs);// new
+																						// ClassTypeChecker(classes,new
 		typeChecker.typeCheck();
-		// PrintWriter out = new PrintWriter(System.out);
-		// TypeChecker.printErrors(out);
-		// TypeChecker.printWarnings(out);
-		// out.flush();
-		TypeChecker.clearErrors();
-
+		return new VdmTypeCheckResult(typeChecker.getAllClassesEnvronment(), classes, typeChecker.getAssistantFactory(), typeChecker.getTypeCheckVisitor());
 	}
 
 	public static List<PDefinition> filterCSP(List<PDefinition> definitions)
@@ -272,6 +288,14 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker
 					{
 						classes.add(node);
 					}
+
+					@Override
+					public void caseAActionClassDefinition(
+							AActionClassDefinition node)
+							throws AnalysisException
+					{
+						classes.add(node);
+					}
 				});
 			} catch (AnalysisException e)
 			{
@@ -282,26 +306,112 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker
 		return classes;
 	}
 
-	/**
-	 * Get warnings that occurred while type checking. The type check method will return true even though this returns
-	 * an non-empty list.
-	 * 
-	 * @return list of CMLTypeWarnings
-	 */
-
-	public boolean hasErrors()
+	private static class TemporaryStmChecker extends
+			DepthFirstAnalysisCMLAdaptor
 	{
-		return issueHandler.hasErrors();
+
+		/**
+			 * 
+			 */
+		private static final long serialVersionUID = 1L;
+		private QuestionAnswerAdaptor<TypeCheckInfo, PType> tc;
+		private TypeCheckInfo question;
+
+		public TemporaryStmChecker(
+				QuestionAnswerAdaptor<TypeCheckInfo, PType> tc,
+				TypeCheckInfo question)
+		{
+			this.tc = tc;
+			this.question = question;
+		}
+
+		@Override
+		public void caseAStmAction(AStmAction node) throws AnalysisException
+		{
+			node.getStatement().apply(tc, question);
+		}
 	}
 
-	public boolean hasWarnings()
+	private void cmlCspTc(Collection<PSource> sourceForest,
+			VdmTypeCheckResult vdmResult)
 	{
-		return issueHandler.hasWarnings();
-	}
 
-	public boolean hasIssues()
-	{
-		return issueHandler.hasIssues();
+		List<PDefinition> globalCmlDefinition = new Vector<PDefinition>();
+
+		for (PSource source : sourceForest)
+		{
+			for (PDefinition def : source.getParagraphs())
+			{
+				if (def instanceof AChannelNameDefinition
+						|| def instanceof AChansetDefinition)
+				{
+					globalCmlDefinition.add(def);
+					if (def instanceof AChansetDefinition
+							&& def.getName() == null)
+					{
+						def.setName(new eu.compassresearch.ast.lex.LexNameToken("", ((AChansetDefinition) def).getIdentifier()));
+					}
+				}
+			}
+		}
+
+		Environment env = new FlatCheckedEnvironment(vdmResult.af, globalCmlDefinition, vdmResult.globalEnv, NameScope.NAMES);
+
+		for (PSource source : sourceForest)
+		{
+			try
+			{
+				source.apply(new CmlCspTypeChecker(vdmResult.tc, issueHandler), new TypeCheckInfo(vdmResult.af, env, NameScope.NAMES));
+			} catch (AnalysisException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+		// //try out
+		// for (SClassDefinition c : vdmResult.classes)
+		// {
+		// if(c instanceof AActionClassDefinition)
+		// {
+		// Environment base = new PrivateClassEnvironment(vdmResult.af, c, vdmResult.globalEnv);
+		// Environment env = CmlSClassDefinitionAssistant.updateActionEnvironment(c, base);
+		// AActionClassDefinition actionClass = (AActionClassDefinition) c;
+		//
+		// for (PDefinition def : actionClass.getDefinitions())
+		// {
+		// if(def instanceof AActionDefinition)
+		// {
+		// AActionDefinition action = (AActionDefinition) def;
+		// try
+		// {
+		// action.getAction().apply(new TemporaryStmChecker(vdmResult.tc,new TypeCheckInfo(vdmResult.af, env,
+		// NameScope.NAMES)));
+		// } catch (AnalysisException e)
+		// {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
+		// }
+		// }
+		//
+		// if(c.parent() instanceof AActionProcess)
+		// {
+		// AActionProcess process = (AActionProcess) c.parent();
+		//
+		// try
+		// {
+		// process.getAction().apply(new TemporaryStmChecker(vdmResult.tc,new TypeCheckInfo(vdmResult.af, env,
+		// NameScope.NAMES)));
+		// } catch (AnalysisException e)
+		// {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
+		// }
+		// }
+		// }
+
 	}
 
 }

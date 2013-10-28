@@ -117,8 +117,6 @@ public interface ITypeIssueHandler extends IStatusListener
 			sb.append("Warning ");
 			sb.append(super.toString());
 
-			
-
 			return sb.toString();
 		}
 
@@ -311,7 +309,8 @@ public interface ITypeIssueHandler extends IStatusListener
 	 * @return
 	 */
 	public boolean hasIssues();
-	
-	public  void printErrors(PrintWriter out);
-	public  void printWarnings(PrintWriter out);
+
+	public void printErrors(PrintWriter out);
+
+	public void printWarnings(PrintWriter out);
 }

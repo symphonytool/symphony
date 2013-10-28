@@ -19,7 +19,7 @@ public class OperationsCmlTypeCheckerTests extends
 	@Parameters(name = "{1}")
 	public static Collection<Object[]> getData()
 	{
-		return collectResourcesTestData("operations", TestType.POSITIVE);
+		return combine(collectResourcesTestData("operations", TestType.POSITIVE),collectResourcesTestData("operations", TestType.NEGATIVE));
 	}
 
 	// @Before

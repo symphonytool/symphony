@@ -1,11 +1,15 @@
-package eu.compassresearch.core.typechecker;
+package eu.compassresearch.core.typechecker.version2;
 
-import static eu.compassresearch.core.typechecker.util.CmlTCUtil.successfulType;
+//import static eu.compassresearch.core.typechecker.util.CmlTCUtil.successfulType;
+
+//import static eu.compassresearch.core.typechecker.util.CmlTCUtil.successfulType;
 
 import java.util.LinkedList;
 import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.analysis.QuestionAnswerAdaptor;
+import org.overture.ast.analysis.intf.IQuestionAnswer;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.lex.LexIdentifierToken;
@@ -13,9 +17,9 @@ import org.overture.ast.node.INode;
 import org.overture.ast.types.ANatNumericBasicType;
 import org.overture.ast.types.PType;
 import org.overture.typechecker.TypeCheckInfo;
+import org.overture.typechecker.TypeComparator;
 
 import eu.compassresearch.ast.actions.ATimedInterruptAction;
-import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.actions.PParametrisation;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
@@ -48,18 +52,34 @@ import eu.compassresearch.ast.process.ATimedInterruptProcess;
 import eu.compassresearch.ast.process.ATimeoutProcess;
 import eu.compassresearch.ast.process.AUntimedTimeoutProcess;
 import eu.compassresearch.ast.process.PProcess;
-import eu.compassresearch.ast.types.AActionType;
 import eu.compassresearch.ast.types.AProcessType;
-import eu.compassresearch.core.typechecker.api.ITypeComparator;
+import eu.compassresearch.core.typechecker.CmlTypeCheckInfo;
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 import eu.compassresearch.core.typechecker.api.TypeWarningMessages;
 import eu.compassresearch.core.typechecker.util.CmlTCUtil;
 
-@SuppressWarnings("serial")
-public class TCProcessVisitor extends
-		QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType>
+public class CmlProcessTypeChecker extends
+		QuestionAnswerCMLAdaptor<TypeCheckInfo, PType>
 {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private QuestionAnswerAdaptor<TypeCheckInfo, PType> tc;
+	private final ITypeIssueHandler issueHandler;// = VanillaFactory.newCollectingIssueHandle();
+
+	@SuppressWarnings("deprecation")
+	public CmlProcessTypeChecker(
+			QuestionAnswerAdaptor<TypeCheckInfo, PType> tc2,
+			IQuestionAnswer<TypeCheckInfo, PType> root,
+			ITypeIssueHandler issueHandler)
+	{
+		super(root);
+		this.tc = tc2;
+		this.issueHandler = issueHandler;
+	}
 
 	@Override
 	public PType caseAInternalChoiceProcess(AInternalChoiceProcess node,
@@ -69,29 +89,11 @@ public class TCProcessVisitor extends
 		PProcess left = node.getLeft();
 		PProcess right = node.getRight();
 
-		PType leftType = left.apply(parentChecker, question);
-		if (!successfulType(leftType))
+		PType leftType = left.apply(THIS, question);
 
-			return issueHandler.addTypeError(left, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
-					+ left));
-
-		PType rightType = right.apply(parentChecker, question);
-		if (!successfulType(rightType))
-			return issueHandler.addTypeError(right, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
-					+ right));
+		PType rightType = right.apply(THIS, question);
 
 		return new AProcessType(node.getLocation(), true);
-	}
-
-	private final eu.compassresearch.core.typechecker.api.ICmlRootVisitor parentChecker;
-	private final ITypeIssueHandler issueHandler;
-	private final ITypeComparator typeComparator;
-
-	@Override
-	public PType defaultPAction(PAction node, TypeCheckInfo question)
-			throws AnalysisException
-	{
-		return new AActionType();
 	}
 
 	@Override
@@ -102,15 +104,9 @@ public class TCProcessVisitor extends
 		PProcess left = node.getLeft();
 		PProcess right = node.getRight();
 
-		PType leftType = left.apply(parentChecker, question);
-		if (!successfulType(leftType))
-			return issueHandler.addTypeError(left, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(left
-					+ ""));
+		PType leftType = left.apply(THIS, question);
 
-		PType rightType = right.apply(parentChecker, question);
-		if (!successfulType(rightType))
-			return issueHandler.addTypeError(right, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(right
-					+ ""));
+		PType rightType = right.apply(THIS, question);
 
 		return new AProcessType();
 	}
@@ -124,20 +120,11 @@ public class TCProcessVisitor extends
 		PProcess right = node.getRight();
 		PProcess left = node.getLeft();
 
-		PType timedExpType = timedExp.apply(parentChecker, question);
-		if (!successfulType(timedExpType))
-			return issueHandler.addTypeError(timedExp, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
-					+ timedExp));
+		PType timedExpType = timedExp.apply(THIS, question);
 
-		PType leftType = left.apply(parentChecker, question);
-		if (!successfulType(leftType))
-			return issueHandler.addTypeError(left, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
-					+ left));
+		PType leftType = left.apply(THIS, question);
 
-		PType rightType = right.apply(parentChecker, question);
-		if (!successfulType(rightType))
-			return issueHandler.addTypeError(right, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
-					+ right));
+		PType rightType = right.apply(THIS, question);
 
 		return new AProcessType();
 	}
@@ -155,19 +142,13 @@ public class TCProcessVisitor extends
 		CmlTypeCheckInfo repProcEnv = cmlEnv.newScope();
 		for (PSingleDeclaration decl : repdecl)
 		{
-			PType declType = decl.apply(parentChecker, question);
-			if (!successfulType(declType))
-				return issueHandler.addTypeError(declType, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(declType
-						+ ""));
+			PType declType = decl.apply(THIS, question);
 
 			for (PDefinition def : declType.getDefinitions())
 				repProcEnv.addVariable(def.getName(), def);
 		}
 
-		PType procType = proc.apply(parentChecker, repProcEnv);
-		if (!successfulType(procType))
-			return issueHandler.addTypeError(proc, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
-					+ proc));
+		PType procType = proc.apply(THIS, repProcEnv);
 
 		return new AProcessType();
 	}
@@ -189,19 +170,13 @@ public class TCProcessVisitor extends
 		CmlTypeCheckInfo repProcEnv = cmlEnv.newScope();
 		for (PSingleDeclaration decl : repdecl)
 		{
-			PType declType = decl.apply(parentChecker, question);
-			if (!successfulType(declType))
-				return issueHandler.addTypeError(declType, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(declType
-						+ ""));
+			PType declType = decl.apply(THIS, question);
 
 			for (PDefinition def : declType.getDefinitions())
 				repProcEnv.addVariable(def.getName(), def);
 		}
 
-		PType procType = proc.apply(parentChecker, repProcEnv);
-		if (!successfulType(procType))
-			return issueHandler.addTypeError(proc, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
-					+ proc));
+		PType procType = proc.apply(THIS, repProcEnv);
 
 		return new AProcessType();
 	}
@@ -223,19 +198,13 @@ public class TCProcessVisitor extends
 		CmlTypeCheckInfo repProcEnv = cmlEnv.newScope();
 		for (PSingleDeclaration decl : repdecl)
 		{
-			PType declType = decl.apply(parentChecker, question);
-			if (!successfulType(declType))
-				return issueHandler.addTypeError(declType, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(declType
-						+ ""));
+			PType declType = decl.apply(THIS, question);
 
 			for (PDefinition def : declType.getDefinitions())
 				repProcEnv.addVariable(def.getName(), def);
 		}
 
-		PType procType = proc.apply(parentChecker, repProcEnv);
-		if (!successfulType(procType))
-			return issueHandler.addTypeError(proc, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
-					+ proc));
+		PType procType = proc.apply(THIS, repProcEnv);
 
 		return new AProcessType();
 	}
@@ -254,27 +223,18 @@ public class TCProcessVisitor extends
 		PProcess repProc = node.getReplicatedProcess();
 		LinkedList<PSingleDeclaration> repDecl = node.getReplicationDeclaration();
 
-		PType csExpType = csExp.apply(parentChecker, question);
-		if (!successfulType(csExpType))
-			return issueHandler.addTypeError(csExp, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(csExp
-					+ ""));
+		PType csExpType = csExp.apply(THIS, question);
 
 		CmlTypeCheckInfo repProcEnv = cmlEnv.newScope();
 		for (PSingleDeclaration decl : repDecl)
 		{
-			PType declType = decl.apply(parentChecker, question);
-			if (!successfulType(declType))
-				return issueHandler.addTypeError(decl, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
-						+ decl));
+			PType declType = decl.apply(THIS, question);
 
 			for (PDefinition def : declType.getDefinitions())
 				repProcEnv.addVariable(def.getName(), def);
 		}
 
-		PType repProcType = repProc.apply(parentChecker, repProcEnv);
-		if (!successfulType(repProcType))
-			return issueHandler.addTypeError(repProc, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(repProc
-					+ ""));
+		PType repProcType = repProc.apply(THIS, repProcEnv);
 
 		return new AProcessType();
 	}
@@ -290,17 +250,11 @@ public class TCProcessVisitor extends
 
 		for (PSingleDeclaration decl : repDecl)
 		{
-			PType declType = decl.apply(parentChecker, question);
-			if (!successfulType(declType))
-				return issueHandler.addTypeError(decl, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
-						+ decl));
+			PType declType = decl.apply(THIS, question);
 
 		}
 
-		PType repProcType = repProc.apply(parentChecker, question);
-		if (!successfulType(repProcType))
-			return issueHandler.addTypeError(repProc, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(repProc
-					+ ""));
+		PType repProcType = repProc.apply(THIS, question);
 
 		return new AProcessType();
 	}
@@ -324,28 +278,19 @@ public class TCProcessVisitor extends
 
 		for (PSingleDeclaration d : repDec)
 		{
-			PType dType = d.apply(parentChecker, question);
-			if (!successfulType(dType))
-				return issueHandler.addTypeError(d, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
-						+ d));
+			PType dType = d.apply(THIS, question);
 			for (PDefinition def : dType.getDefinitions())
 			{
 				local.addVariable(def.getName(), def);
 			}
 		}
 
-		PType csExpType = csExp.apply(parentChecker, local);
-		if (!successfulType(csExpType))
-			return issueHandler.addTypeError(csExp, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
-					+ csExp));
+		PType csExpType = csExp.apply(THIS, local);
 
 		// TODO: Maybe the declarations above needs to go into the environment ?
 		issueHandler.addTypeWarning(repProcess, TypeWarningMessages.INCOMPLETE_TYPE_CHECKING.customizeMessage(""
 				+ repProcess));
-		PType repProcessType = repProcess.apply(parentChecker, local);
-		if (!successfulType(repProcessType))
-			return issueHandler.addTypeError(repProcess, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(repProcess
-					+ ""));
+		PType repProcessType = repProcess.apply(THIS, local);
 
 		return new AProcessType();
 	}
@@ -358,15 +303,9 @@ public class TCProcessVisitor extends
 		PProcess left = node.getLeft();
 		PProcess right = node.getRight();
 
-		PType leftType = left.apply(parentChecker, question);
-		if (!successfulType(leftType))
-			return issueHandler.addTypeError(left, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(left
-					+ ""));
+		PType leftType = left.apply(THIS, question);
 
-		PType rightType = right.apply(parentChecker, question);
-		if (!successfulType(rightType))
-			return issueHandler.addTypeError(right, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
-					+ right));
+		PType rightType = right.apply(THIS, question);
 
 		return new AProcessType();
 	}
@@ -379,15 +318,9 @@ public class TCProcessVisitor extends
 		PProcess left = node.getLeft();
 		PProcess right = node.getRight();
 
-		PType leftType = left.apply(parentChecker, question);
-		if (!successfulType(leftType))
-			return issueHandler.addTypeError(left, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(left
-					+ ""));
+		PType leftType = left.apply(THIS, question);
 
-		PType rightType = right.apply(parentChecker, question);
-		if (!successfulType(rightType))
-			return issueHandler.addTypeError(right, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
-					+ right));
+		PType rightType = right.apply(THIS, question);
 
 		return new AProcessType();
 	}
@@ -401,7 +334,7 @@ public class TCProcessVisitor extends
 		LinkedList<PParametrisation> decl = node.getParametrisations();
 		PProcess proc = node.getProcess();
 
-		CmlTypeCheckInfo cmlEnv = TCActionVisitor.getTypeCheckInfo(question);
+		CmlTypeCheckInfo cmlEnv = null;//FIXME TCActionVisitor.getTypeCheckInfo(question);
 		if (cmlEnv == null)
 			return issueHandler.addTypeError(node, TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(""
 					+ node));
@@ -410,24 +343,14 @@ public class TCProcessVisitor extends
 
 		for (PExp arg : args)
 		{
-			PType argType = arg.apply(parentChecker, question);
-			if (!successfulType(argType))
-			{
-				return issueHandler.addTypeError(arg, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
-						+ arg));
-			}
+			PType argType = arg.apply(THIS, question);
 		}
 
 		List<PDefinition> definitions = new LinkedList<PDefinition>();
 		List<LexIdentifierToken> ids = new LinkedList<LexIdentifierToken>();
 		for (PParametrisation d : decl)
 		{
-			PType dType = d.apply(parentChecker, question);
-			if (!successfulType(dType))
-			{
-				return issueHandler.addTypeError(dType, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
-						+ d));
-			}
+			PType dType = d.apply(THIS, question);
 
 			definitions.addAll(dType.getDefinitions());
 		}
@@ -442,7 +365,7 @@ public class TCProcessVisitor extends
 		{
 			PExp ithExp = args.get(i);
 			PDefinition ithDef = definitions.get(i);
-			if (!typeComparator.compatible(ithExp.getType(), ithDef.getType()))
+			if (!TypeComparator.compatible(ithExp.getType(), ithDef.getType()))
 			{
 				return issueHandler.addTypeError(node, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(""
 						+ ithDef.getType(), "" + ithExp.getType()));
@@ -450,10 +373,7 @@ public class TCProcessVisitor extends
 			procEnv.addVariable(ithDef.getName(), ithDef);
 		}
 
-		PType procType = proc.apply(parentChecker, procEnv);
-		if (!successfulType(procType))
-			return issueHandler.addTypeError(proc, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
-					+ proc));
+		PType procType = proc.apply(THIS, procEnv);
 
 		return new AProcessType();
 	}
@@ -464,18 +384,10 @@ public class TCProcessVisitor extends
 	{
 
 		PProcess left = node.getLeft();
-		PType leftType = left.apply(parentChecker, question);
-		if (!successfulType(leftType))
-			return issueHandler.addTypeError(left, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(left
-					+ ""));
+		PType leftType = left.apply(THIS, question);
 
 		PVarsetExpression csexp = node.getChansetExpression();
-		PType csexpType = csexp.apply(parentChecker, question);
-		if (!successfulType(csexpType))
-		{
-			return issueHandler.addTypeError(csexp, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
-					+ csexp));
-		}
+		PType csexpType = csexp.apply(THIS, question);
 
 		return new AProcessType(node.getLocation(), true);
 	}
@@ -490,24 +402,11 @@ public class TCProcessVisitor extends
 		PProcess right = node.getRight();
 		PVarsetExpression csExp = node.getChansetExpression();
 
-		PType leftType = left.apply(parentChecker, question);
-		if (!successfulType(leftType))
-		{
-			return issueHandler.addTypeError(left, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(left
-					+ ""));
-		}
+		PType leftType = left.apply(THIS, question);
 
-		PType rightType = right.apply(parentChecker, question);
-		if (!successfulType(rightType))
-			return issueHandler.addTypeError(right, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(right
-					+ ""));
+		PType rightType = right.apply(THIS, question);
 
-		PType csExpType = csExp.apply(parentChecker, question);
-		if (!successfulType(csExpType))
-		{
-			return issueHandler.addTypeError(csExp, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(csExp
-					+ ""));
-		}
+		PType csExpType = csExp.apply(THIS, question);
 
 		return new AProcessType();
 	}
@@ -520,15 +419,9 @@ public class TCProcessVisitor extends
 		PProcess left = node.getLeft();
 		PProcess right = node.getRight();
 
-		PType leftType = left.apply(parentChecker, question);
-		if (!successfulType(leftType))
-			return issueHandler.addTypeError(left, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(left
-					+ ""));
+		PType leftType = left.apply(THIS, question);
 
-		PType rightType = right.apply(parentChecker, question);
-		if (!successfulType(rightType))
-			return issueHandler.addTypeError(right, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(right
-					+ ""));
+		PType rightType = right.apply(THIS, question);
 
 		return new AProcessType();
 	}
@@ -541,15 +434,9 @@ public class TCProcessVisitor extends
 		PProcess process = node.getProcess();
 		SRenameChannelExp renameExp = node.getRenameExpression();
 
-		PType processType = process.apply(parentChecker, question);
-		if (!successfulType(processType))
-			return issueHandler.addTypeError(process, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(process
-					+ ""));
+		PType processType = process.apply(THIS, question);
 
-		PType renameExpType = renameExp.apply(parentChecker, question);
-		if (!successfulType(renameExpType))
-			return issueHandler.addTypeError(renameExpType, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
-					+ renameExp));
+		PType renameExpType = renameExp.apply(THIS, question);
 
 		return new AProcessType();
 	}
@@ -562,28 +449,16 @@ public class TCProcessVisitor extends
 	{
 
 		PProcess left = node.getLeft();
-		PType leftType = left.apply(parentChecker, question);
-		if (!successfulType(leftType))
-			return issueHandler.addTypeError(left, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
-					+ left));
+		PType leftType = left.apply(THIS, question);
 
 		PProcess right = node.getRight();
-		PType rightType = right.apply(parentChecker, question);
-		if (!successfulType(rightType))
-			return issueHandler.addTypeError(right, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
-					+ right));
+		PType rightType = right.apply(THIS, question);
 
 		PVarsetExpression leftChanSet = node.getLeftChansetExpression();
-		PType leftChanSetType = leftChanSet.apply(parentChecker, question);
-		if (!successfulType(leftChanSetType))
-			return issueHandler.addTypeError(leftChanSet, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
-					+ leftChanSet));
+		PType leftChanSetType = leftChanSet.apply(THIS, question);
 
 		PVarsetExpression rightChanSet = node.getRightChansetExpression();
-		PType rightChanSetType = rightChanSet.apply(parentChecker, question);
-		if (!successfulType(rightChanSetType))
-			return issueHandler.addTypeError(rightChanSet, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
-					+ rightChanSet));
+		PType rightChanSetType = rightChanSet.apply(THIS, question);
 
 		return new AProcessType(node.getLocation(), true);
 	}
@@ -599,17 +474,11 @@ public class TCProcessVisitor extends
 
 		PExp timeExp = node.getExpression();
 
-		PType leftType = left.apply(parentChecker, question);
-		if (!successfulType(leftType))
-			return issueHandler.addTypeError(left, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(left
-					+ ""));
+		PType leftType = left.apply(THIS, question);
 
-		PType timeExpType = timeExp.apply(parentChecker, question);
-		if (!successfulType(timeExpType))
-			return issueHandler.addTypeError(timeExp, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(timeExp
-					+ ""));
+		PType timeExpType = timeExp.apply(THIS, question);
 
-		if (!typeComparator.isSubType(timeExpType, new ANatNumericBasicType()))
+		if (!TypeComparator.isSubType(timeExpType, new ANatNumericBasicType()))
 			return issueHandler.addTypeError(timeExp, TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT.customizeMessage(node
 					+ "", timeExpType + ""));
 
@@ -638,10 +507,8 @@ public class TCProcessVisitor extends
 
 		for (PSingleDeclaration singleDecl : declarations)
 		{
-			PType singleDeclType = singleDecl.apply(parentChecker, question);
-			if (!successfulType(singleDeclType))
-				return issueHandler.addTypeError(singleDecl, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(singleDecl
-						+ ""));
+			PType singleDeclType = singleDecl.apply(THIS, question);
+
 			for (PDefinition def : singleDeclType.getDefinitions())
 				processScope.addVariable(def.getName(), def);
 
@@ -649,21 +516,9 @@ public class TCProcessVisitor extends
 
 		PProcess replicatedProcess = node.getReplicatedProcess();
 
-		PType replicatedProcessType = replicatedProcess.apply(parentChecker, processScope);
-		if (!successfulType(replicatedProcessType))
-			return issueHandler.addTypeError(replicatedProcess, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(replicatedProcess
-					+ ""));
+		PType replicatedProcessType = replicatedProcess.apply(THIS, processScope);
 
 		return new AProcessType(node.getLocation(), true);
-	}
-
-	public TCProcessVisitor(
-			eu.compassresearch.core.typechecker.api.ICmlRootVisitor parentChecker,
-			ITypeIssueHandler issueHandler, ITypeComparator typeComparator)
-	{
-		this.parentChecker = parentChecker;
-		this.issueHandler = issueHandler;
-		this.typeComparator = typeComparator;
 	}
 
 	@Override
@@ -706,10 +561,7 @@ public class TCProcessVisitor extends
 		LinkedList<PExp> args = node.getArgs();
 		for (PExp arg : args)
 		{
-			PType type = arg.apply(this.parentChecker, question);
-			if (!successfulType(type))
-				return issueHandler.addTypeError(arg, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(arg
-						+ ""));
+			PType type = arg.apply(this.THIS, question);
 		}
 
 		PDefinition processDef = newQ.lookup(node.getProcessName(), PDefinition.class);
@@ -777,7 +629,7 @@ public class TCProcessVisitor extends
 		// {
 		// scope = cmlEnv;
 		// }
-		// PType type = def.apply(this.parentChecker, scope);
+		// PType type = def.apply(this.THIS, scope);
 		// if (!successfulType(type))
 		// return issueHandler.addTypeError(def,
 		// TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(def.getName()
@@ -791,11 +643,9 @@ public class TCProcessVisitor extends
 		// node.getDefinitionParagraphs().addAll(fixedDefinitions);
 
 		question.contextSet(eu.compassresearch.core.typechecker.CmlTypeCheckInfo.class, (eu.compassresearch.core.typechecker.CmlTypeCheckInfo) question);
-		PType actionType = node.getAction().apply(this.parentChecker, actionScope);
+		PType actionType = node.getAction().apply(this.THIS, actionScope);
 		question.contextRem(eu.compassresearch.core.typechecker.CmlTypeCheckInfo.class);
-		if (!successfulType(actionType))
-			return issueHandler.addTypeError(node.getAction(), TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(node.getAction()
-					+ ""));
+
 		return new AProcessType();
 	}
 
@@ -805,22 +655,13 @@ public class TCProcessVisitor extends
 			TypeCheckInfo question) throws AnalysisException
 	{
 		PProcess left = node.getLeft();
-		PType leftType = left.apply(parentChecker, question);
-		if (!successfulType(leftType))
-			return issueHandler.addTypeError(left, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(left
-					+ ""));
+		PType leftType = left.apply(THIS, question);
 
 		PProcess right = node.getRight();
-		PType rightType = right.apply(parentChecker, question);
-		if (!successfulType(rightType))
-			return issueHandler.addTypeError(right, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(right
-					+ ""));
+		PType rightType = right.apply(THIS, question);
 
-		PType expType = node.getTimeExpression().apply(parentChecker, question);
-		if (!successfulType(expType))
-			return issueHandler.addTypeError(node.getTimeExpression(), TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(node.getTimeExpression()
-					+ ""));
-		if (!typeComparator.isSubType(expType, new ANatNumericBasicType()))
+		PType expType = node.getTimeExpression().apply(THIS, question);
+		if (!TypeComparator.isSubType(expType, new ANatNumericBasicType()))
 			return issueHandler.addTypeError(node.getTimeExpression(), TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT.customizeMessage(node.getTimeExpression()
 					+ ""));
 
@@ -848,5 +689,4 @@ public class TCProcessVisitor extends
 		// TODO Auto-generated method stub
 		return null;
 	}
-
 }

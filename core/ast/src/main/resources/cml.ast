@@ -80,6 +80,11 @@ definition {-> package='eu.compassresearch.ast.definitions'}
 //	= {cml}
 //        (cmlInvariant):definition.#cmlOperation.explicit
 //	;
+
+#class {-> package='eu.compassresearch.ast.definitions'}
+	= {action}
+       // [actionDesinitions]: definition.action*
+	;
 /*
  * Operations
  *
@@ -203,12 +208,8 @@ pair {-> package='eu.compassresearch.ast.patterns'}
 */
 process {-> package='eu.compassresearch.ast.process'
 		| [location]:location}
-        = {action}
-        /*[basedefinition]:definition.#class
-                [actionDefs]: definition.action*
-                [main]:action
-        */
-                [definitionParagraphs]:definition*
+        = {action}	    //     [definitionParagraphs]:definition*
+           		[actionDefinition]:definition.#class.action
                 [action]:action
         | {sequentialComposition}
                 [left]:process
@@ -507,12 +508,12 @@ stm {-> package='org.overture.ast.statements'
 	|	[location]:location 
 	|	(type):type}
     =   {action} [action]:action
-    |	{new} //new - we keep this but move it to a proper statement
-        [destination]:exp
-        [className]:LexNameToken
+    |	{new} 
+        [destination]:stateDesignator
+        [className]:LexIdentifierToken
         [args]:exp*
-        (classdef):definition.#class
-        (ctorDefinition):definition
+        //(classdef):definition.#class
+        //(ctorDefinition):definition
     |	#NonDeterministic
    	;
 
@@ -525,4 +526,4 @@ stm {-> package='org.overture.ast.statements'
 	|	{do}
 			[alternatives]:stm.#NonDeterministic.alt*
 	;
-
+ 

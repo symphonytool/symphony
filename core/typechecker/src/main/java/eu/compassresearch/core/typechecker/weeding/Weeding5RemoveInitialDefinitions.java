@@ -44,9 +44,9 @@ public class Weeding5RemoveInitialDefinitions extends
 		if (node.parent() instanceof SClassDefinition)
 		{
 			node.parent().replaceChild(node, node.getOperationDefinition());
-//			SClassDefinition c = (SClassDefinition) node.parent();
-//			c.getDefinitions().remove(node);
-//			c.getDefinitions().add(node.getOperationDefinition());
+			// SClassDefinition c = (SClassDefinition) node.parent();
+			// c.getDefinitions().remove(node);
+			// c.getDefinitions().add(node.getOperationDefinition());
 		}
 	}
 

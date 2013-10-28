@@ -25,4 +25,34 @@ abstract class AbstractTypeChecker implements ICmlTypeChecker
 	 * Clear out all warnings and errors and resets the type checker.
 	 */
 	abstract void clear();
+	
+	
+	public static void abort(int number, String reason)
+	{
+		throw new AbortTypecheck(number, reason);
+	}
+	
+	
+	
+	/**
+	 * Get warnings that occurred while type checking. The type check method will return true even though this returns
+	 * an non-empty list.
+	 * 
+	 * @return list of CMLTypeWarnings
+	 */
+
+	public boolean hasErrors()
+	{
+		return issueHandler.hasErrors();
+	}
+
+	public boolean hasWarnings()
+	{
+		return issueHandler.hasWarnings();
+	}
+
+	public boolean hasIssues()
+	{
+		return issueHandler.hasIssues();
+	}
 }

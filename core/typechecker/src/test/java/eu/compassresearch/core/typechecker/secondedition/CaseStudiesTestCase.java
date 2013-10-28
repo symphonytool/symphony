@@ -10,7 +10,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-
 @RunWith(value = Parameterized.class)
 public class CaseStudiesTestCase extends
 		AbstractResultBasedCmlTypeCheckerTestCase
@@ -51,10 +50,10 @@ public class CaseStudiesTestCase extends
 		{
 			results.addAll(collectTestDataMultipleFiles(caseStudyDir + spec, TestType.POSITIVE, TestType.ANY.endswith));
 		}
-		
+
 		for (Object[] test : results)
 		{
-			test[2]= test[2].toString().substring(caseStudyDir.length()+1);
+			test[2] = test[2].toString().substring(caseStudyDir.length() + 1);
 		}
 
 		return results;

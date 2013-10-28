@@ -1,8 +1,10 @@
 package eu.compassresearch.core.typechecker.weeding;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
@@ -13,7 +15,7 @@ import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.lex.LexLocation;
-import org.overture.ast.statements.PStm;
+import org.overture.ast.node.Node;
 import org.overture.ast.types.ABracketType;
 
 import eu.compassresearch.ast.actions.PAction;
@@ -73,14 +75,14 @@ public class WeedingUnresolvedPathReplacement extends
 
 		}
 
-		if (/*node.parent() instanceof PStm ||*/ node.parent() instanceof PAction)
+		if (/* node.parent() instanceof PStm || */node.parent() instanceof PAction)
 		{
 			// state designatores
 			return;
 		} else
 		{
 			PExp exp = null;
-			Iterator<ILexIdentifierToken> itr = node.getIdentifiers().iterator();
+			Iterator<ILexIdentifierToken> itr = new ArrayList<ILexIdentifierToken>(node.getIdentifiers()).iterator();
 
 			ILexIdentifierToken id = itr.next();
 
@@ -103,8 +105,7 @@ public class WeedingUnresolvedPathReplacement extends
 			ILexLocation location = id.getLocation();
 			LexLocation loc = new LexLocation(location.getFile(), id.getName(), location.getStartLine(), location.getStartPos(), location.getEndLine(), location.getEndPos(), location.getStartOffset(), location.getEndOffset());
 
-			ILexNameToken name = new LexNameToken(module, id.getName(), loc,false,isExplicit);
-			
+			ILexNameToken name = new LexNameToken(module, id.getName(), loc, false, isExplicit);
 
 			exp = AstFactory.newAVariableExp(name);
 
@@ -113,7 +114,7 @@ public class WeedingUnresolvedPathReplacement extends
 				exp = AstFactory.newAFieldExp(exp, itr.next());
 			}
 			node.parent().replaceChild(node, exp);
-//			exp.parent(node.parent());
+			// exp.parent(node.parent());
 			exp.apply(this);
 		}
 	}
@@ -129,43 +130,41 @@ public class WeedingUnresolvedPathReplacement extends
 		}
 		return false;
 	}
-	
+
 	@Override
 	public void caseILexNameToken(ILexNameToken node) throws AnalysisException
 	{
-		if((node.getModule()!=null && !node.getModule().isEmpty()) ||node.parent() instanceof SClassDefinition /*|| node.parent() instanceof PExp*/)
+		if ((node.getModule() != null && !node.getModule().isEmpty())
+				|| node.parent() instanceof SClassDefinition /* || node.parent() instanceof PExp */)
 		{
-			if((node.getModule()==null || node.getModule().trim().isEmpty()) && !(node.parent() instanceof SClassDefinition))
+			if ((node.getModule() == null || node.getModule().trim().isEmpty())
+					&& !(node.parent() instanceof SClassDefinition))
 			{
-//				System.err.println("No module set for: " +node);
+				// System.err.println("No module set for: " +node);
 			}
 			return;
 		}
-		
+
 		SClassDefinition cDef = node.getAncestor(SClassDefinition.class);
-		if(cDef!=null)
+		if (cDef != null)
 		{
 			try
 			{
-				Field nameField = node.getClass().getDeclaredField("module");
-				if(nameField!=null && !cDef.getName().getName().equals("$global"))
+				Field nameField = getDeclaredField(node.getClass(), "module");
+				if (nameField != null
+						&& !cDef.getName().getName().equals("$global"))
 				{
 					nameField.setAccessible(true);
-//					nameField.set(node, cDef.getName().getName());
+					// nameField.set(node, cDef.getName().getName());
 					nameField.set(node, "");
 				}
-				
-				
-				Field explicitField = node.getClass().getDeclaredField("explicit");
-				if(explicitField!=null)
+
+				Field explicitField = getDeclaredField(node.getClass(), "explicit");
+				if (explicitField != null)
 				{
 					explicitField.setAccessible(true);
 					explicitField.set(node, false);
 				}
-			} catch (NoSuchFieldException e)
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			} catch (SecurityException e)
 			{
 				// TODO Auto-generated catch block
@@ -180,9 +179,23 @@ public class WeedingUnresolvedPathReplacement extends
 				e.printStackTrace();
 			}
 		}
-		if(node.getModule()==null || node.getModule().trim().isEmpty())
+		if (node.getModule() == null || node.getModule().trim().isEmpty())
 		{
-//		System.err.println("-No module set for: " +node);
+			// System.err.println("-No module set for: " +node);
 		}
+	}
+
+	private static Field getDeclaredField(
+			@SuppressWarnings("rawtypes") Class c, String name)
+	{
+		List<Field> fields = Node.getAllFields(new LinkedList<Field>(), c);
+		for (Field field : fields)
+		{
+			if (field.getName().equals(name))
+			{
+				return field;
+			}
+		}
+		return null;
 	}
 }

@@ -20,7 +20,23 @@ public class RunCmlExamplesTestCase extends
 	@Parameters(name = "{1}")
 	public static Collection<Object[]> getData()
 	{
-		return collectTestData("../../docs/cml-examples/", TestType.ANY, TestType.ANY.endswith);
+		return filter(collectTestData("../../docs/cml-examples/", TestType.ANY, TestType.ANY.endswith));
+	}
+
+	private static Collection<Object[]> filter(
+			Collection<Object[]> collectTestData)
+	{
+		Object[] r  = null;
+		for (Object[] o : collectTestData)
+		{
+			if(o[0].toString().contains("fail.cml"))
+			{
+				 r = o;
+			}
+		}
+		
+		collectTestData.remove(r);
+		return collectTestData;
 	}
 
 	// @Before
