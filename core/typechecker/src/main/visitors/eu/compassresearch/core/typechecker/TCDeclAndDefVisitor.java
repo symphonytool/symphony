@@ -266,7 +266,7 @@ public class TCDeclAndDefVisitor extends
 			TypeCheckInfo question) throws AnalysisException
 	{
 
-		ATypeSingleDeclaration decl = node.getSingleType();
+		ATypeSingleDeclaration decl = null;//node.getSingleType();
 
 		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
 		if (cmlEnv == null)

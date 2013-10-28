@@ -31,9 +31,11 @@ import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AChannelDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
+import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.ast.program.PSource;
+import eu.compassresearch.ast.types.AChansetType;
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 import eu.compassresearch.core.typechecker.assistant.CmlSClassDefinitionAssistant;
@@ -97,14 +99,21 @@ public class CmlCspTypeChecker extends
 	public PType caseAChannelDefinition(AChannelDefinition node,
 			TypeCheckInfo question) throws AnalysisException
 	{
-		return node.apply(channelChecker, question);
+		return question.assistantFactory.createPTypeAssistant().typeResolve(node.getType(),null,vdmChecker,question);
 	}
 
 	@Override
 	public PType caseAChansetDefinition(AChansetDefinition node,
 			TypeCheckInfo question) throws AnalysisException
 	{
-		return node.apply(channelChecker, question);
+		PVarsetExpression chansetExp = node.getChansetExpression();
+
+		PType type = chansetExp.apply(THIS, question);
+		// CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
+		// cmlEnv.addChannel(node.getIdentifier(), node);
+
+		node.setType(type);
+		return node.getType();
 	}
 
 	@Override
@@ -178,13 +187,7 @@ public class CmlCspTypeChecker extends
 
 		if (type != null)
 		{
-			PType typetype = type.apply(THIS, question);
-			if (!successfulType(typetype))
-			{
-				node.setType(issueHandler.addTypeError(type, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
-						+ type)));
-				return node.getType();
-			}
+			PType typetype = question.assistantFactory.createPTypeAssistant().typeResolve(type,null,vdmChecker,question);//type.apply(THIS, question);
 
 			LinkedList<ILexIdentifierToken> ids = node.getIdentifiers();
 			List<PDefinition> defs = new LinkedList<PDefinition>();
@@ -192,7 +195,7 @@ public class CmlCspTypeChecker extends
 			{
 
 				LexNameToken idName = new LexNameToken("", id);
-				ALocalDefinition localDef = AstFactory.newALocalDefinition(node.getLocation(), idName, NameScope.LOCAL, node.getType());
+				ALocalDefinition localDef = AstFactory.newALocalDefinition(node.getLocation(), idName, NameScope.LOCAL, typetype);
 				defs.add(localDef);
 			}
 			type.setDefinitions(defs);
@@ -210,9 +213,6 @@ public class CmlCspTypeChecker extends
 		PExp expression = node.getExpression();
 
 		PType expressionType = expression.apply(THIS, question);
-		if (!successfulType(expressionType))
-			return issueHandler.addTypeError(expressionType, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(expression
-					+ ""));
 
 		List<PDefinition> defs = new LinkedList<PDefinition>();
 		LinkedList<ILexIdentifierToken> identifiers = node.getIdentifiers();

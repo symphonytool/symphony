@@ -6,6 +6,7 @@ package eu.compassresearch.core.typechecker.version2;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.Vector;
 
 import org.overture.ast.analysis.AnalysisException;
@@ -13,6 +14,7 @@ import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.analysis.intf.IQuestionAnswer;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
+import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.lex.LexIdentifierToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.typechecker.NameScope;
@@ -85,6 +87,29 @@ public class CmlProcessTypeChecker extends
 		this.tc = tc2;
 		this.issueHandler = issueHandler;
 	}
+	
+	
+	/**
+	 * Find a channel, action or chanset in the environment
+	 * 
+	 * @param env
+	 * @param identifier
+	 * @return
+	 */
+	private static PDefinition findDefinition(ILexIdentifierToken identifier,
+			Environment env)
+	{
+		Set<PDefinition> defs = env.findMatches(new eu.compassresearch.ast.lex.LexNameToken("", identifier));
+
+		if (defs.isEmpty())
+		{
+			return null;
+		} else
+		{
+			return defs.iterator().next();
+		}
+	}
+	
 	
 	/**
 	 * The special process that actually is a definition of actions
@@ -580,7 +605,6 @@ public class CmlProcessTypeChecker extends
 			org.overture.typechecker.TypeCheckInfo question)
 			throws AnalysisException
 	{
-		eu.compassresearch.core.typechecker.CmlTypeCheckInfo newQ = (eu.compassresearch.core.typechecker.CmlTypeCheckInfo) question;
 
 		LinkedList<PExp> args = node.getArgs();
 		for (PExp arg : args)
@@ -588,7 +612,7 @@ public class CmlProcessTypeChecker extends
 			PType type = arg.apply(this.THIS, question);
 		}
 
-		PDefinition processDef = newQ.lookup(node.getProcessName(), PDefinition.class);
+		PDefinition processDef = findDefinition(node.getProcessName(), question.env);
 
 		if (processDef == null)
 		{

@@ -52,18 +52,20 @@ public class CmlChannelTypeChecker extends
 			TypeCheckInfo question) throws AnalysisException
 	{
 
-		ATypeSingleDeclaration decl = node.getSingleType();
 
-		PType declType = decl.apply(THIS, question);
-
-		List<PDefinition> typeDefs = new LinkedList<PDefinition>();
-		for (PDefinition def : declType.getDefinitions())
-		{
-			typeDefs.add(def);
-			def.setType(decl.getType());
-		}
-
-		node.getType().getDefinitions().addAll(typeDefs);
+//		PType declType = decl.apply(THIS, question);
+//
+//		List<PDefinition> typeDefs = new LinkedList<PDefinition>();
+//		for (PDefinition def : declType.getDefinitions())
+//		{
+//			typeDefs.add(def);
+//			def.setType(decl.getType());
+//		}
+//
+//		node.getType().getDefinitions().addAll(typeDefs);
+		
+//		question.assistantFactory.createPTypeAssistant().typeResolve(node.getType(),null,THIS,question);
+		
 		return node.getType();
 	}
 
