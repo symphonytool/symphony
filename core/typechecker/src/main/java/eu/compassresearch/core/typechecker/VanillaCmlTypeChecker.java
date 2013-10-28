@@ -308,31 +308,7 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker
 		return classes;
 	}
 
-	private static class TemporaryStmChecker extends
-			DepthFirstAnalysisCMLAdaptor
-	{
 
-		/**
-			 * 
-			 */
-		private static final long serialVersionUID = 1L;
-		private QuestionAnswerAdaptor<TypeCheckInfo, PType> tc;
-		private TypeCheckInfo question;
-
-		public TemporaryStmChecker(
-				QuestionAnswerAdaptor<TypeCheckInfo, PType> tc,
-				TypeCheckInfo question)
-		{
-			this.tc = tc;
-			this.question = question;
-		}
-
-		@Override
-		public void caseAStmAction(AStmAction node) throws AnalysisException
-		{
-			node.getStatement().apply(tc, question);
-		}
-	}
 
 	private void cmlCspTc(Collection<PSource> sourceForest,
 			VdmTypeCheckResult vdmResult)
@@ -359,12 +335,15 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker
 		}
 
 		Environment env = new FlatCheckedEnvironment(vdmResult.af, globalCmlDefinition, vdmResult.globalEnv, NameScope.NAMES);
-
+		
+		
+		
+		
 		for (PSource source : sourceForest)
 		{
 			try
 			{
-				source.apply(new CmlCspTypeChecker(vdmResult.tc, issueHandler), new TypeCheckInfo(vdmResult.af, env, NameScope.NAMES));
+				source.apply(new CmlCspTypeChecker( issueHandler), new TypeCheckInfo(vdmResult.af, env, NameScope.NAMES));
 			} catch (AnalysisException e)
 			{
 				// TODO Auto-generated catch block

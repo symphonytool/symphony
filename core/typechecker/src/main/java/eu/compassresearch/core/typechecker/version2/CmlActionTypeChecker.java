@@ -116,7 +116,6 @@ public class CmlActionTypeChecker extends
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private QuestionAnswerAdaptor<TypeCheckInfo, PType> tc;
 	private final ITypeIssueHandler issueHandler;// = VanillaFactory.newCollectingIssueHandle();
 
 	@SuppressWarnings("deprecation")
@@ -126,7 +125,6 @@ public class CmlActionTypeChecker extends
 			ITypeIssueHandler issueHandler)
 	{
 		super(root);
-		this.tc = tc2;
 		this.issueHandler = issueHandler;
 	}
 
@@ -208,7 +206,7 @@ public class CmlActionTypeChecker extends
 			throws AnalysisException
 	{
 		PStm stm = node.getStatement();
-		node.setType(stm.apply(tc, question));
+		node.setType(stm.apply(THIS, question));
 		return node.getType();
 	}
 
@@ -714,7 +712,7 @@ public class CmlActionTypeChecker extends
 		PExp exp = node.getExpression();
 		PAction action = node.getAction();
 
-		PType expType = exp.apply(tc, question);
+		PType expType = exp.apply(THIS, question);
 
 		if (!TypeComparator.isSubType(expType, AstFactory.newABooleanBasicType(node.getLocation())))
 		{
@@ -954,7 +952,7 @@ public class CmlActionTypeChecker extends
 				AReadCommunicationParameter readParam = (AReadCommunicationParameter) commParam;
 				commPattern = readParam.getPattern();
 
-				PPatternAssistantTC.typeResolve(commPattern, tc, question);
+				PPatternAssistantTC.typeResolve(commPattern, THIS, question);
 
 				PType commPatternType = PPatternAssistantTC.getPossibleType(commPattern);// commPattern.apply(tc,
 																							// question);
@@ -995,7 +993,7 @@ public class CmlActionTypeChecker extends
 					{
 						PExp constraintExp = commParam.getExpression();
 
-						PType constraintType = constraintExp.apply(this.tc, new TypeCheckInfo(question.assistantFactory, local, NameScope.NAMES));
+						PType constraintType = constraintExp.apply(THIS, new TypeCheckInfo(question.assistantFactory, local, NameScope.NAMES));
 
 						if (!(constraintType instanceof ABooleanBasicType))
 						{
@@ -1061,7 +1059,7 @@ public class CmlActionTypeChecker extends
 					writeExp = signalParam.getExpression();
 				}
 
-				writeExpType = writeExp.apply(tc, info);
+				writeExpType = writeExp.apply(THIS, info);
 
 				PType thisType = null;
 

@@ -7,12 +7,15 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.definitions.ALocalDefinition;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.definitions.SClassDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.factory.AstFactory;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
+import org.overture.ast.statements.AActionStm;
+import org.overture.ast.statements.PStm;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.types.ASeq1SeqType;
 import org.overture.ast.types.ASetType;
@@ -68,14 +71,26 @@ public class CmlCspTypeChecker extends
 	 */
 	private final QuestionAnswerAdaptor<TypeCheckInfo, PType> varSetExpChecker;
 
-	public CmlCspTypeChecker(QuestionAnswerAdaptor<TypeCheckInfo, PType> tc2,
-			ITypeIssueHandler issuehandler)
+	public CmlCspTypeChecker(ITypeIssueHandler issuehandler)
 	{
+		this.vdmChecker = new CmlVdmTypeCheckVisitor()
+		{
+
+			@Override
+			public PType caseAActionStm(AActionStm node, TypeCheckInfo question)
+					throws AnalysisException
+			{
+				PType type = node.getAction().apply(CmlCspTypeChecker.this, question);
+				node.setType(type);
+				return node.getType();
+			}
+		};
+
 		this.issueHandler = issuehandler;
-		this.actionChecker = new CmlActionTypeChecker(tc2, this, issuehandler);
-		this.processChecker = new CmlProcessTypeChecker(tc2, this, issuehandler);
-		this.varSetExpChecker = new CmlVarSetExpressionTypeChecker(tc2, this, issuehandler);
-		this.vdmChecker = tc2;
+		this.actionChecker = new CmlActionTypeChecker(vdmChecker, this, issuehandler);
+		this.processChecker = new CmlProcessTypeChecker(vdmChecker, this, issuehandler);
+		this.varSetExpChecker = new CmlVarSetExpressionTypeChecker(vdmChecker, this, issuehandler);
+
 	}
 
 	@Override
@@ -87,6 +102,14 @@ public class CmlCspTypeChecker extends
 			d.apply(this, question);
 		}
 		return AstFactory.newAVoidType(null);
+	}
+
+	@Override
+	public PType defaultSClassDefinition(SClassDefinition node,
+			TypeCheckInfo question) throws AnalysisException
+	{
+		// all ready done with this
+		return node.getType();
 	}
 
 	@Override
@@ -146,6 +169,23 @@ public class CmlCspTypeChecker extends
 			TypeCheckInfo question) throws AnalysisException
 	{
 		return node.apply(varSetExpChecker, question);
+	}
+
+	@Override
+	public PType defaultPStm(PStm node, TypeCheckInfo question)
+			throws AnalysisException
+	{
+		return node.apply(vdmChecker, question);
+	}
+
+	/**
+	 * If nothing is specified then assume that it is a VDM construct
+	 */
+	@Override
+	public PType defaultINode(INode node, TypeCheckInfo question)
+			throws AnalysisException
+	{
+		return node.apply(vdmChecker, question);
 	}
 
 	@Override
