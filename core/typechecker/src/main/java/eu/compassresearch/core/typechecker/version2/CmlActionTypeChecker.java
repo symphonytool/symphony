@@ -31,14 +31,19 @@ import org.overture.ast.types.AIntNumericBasicType;
 import org.overture.ast.types.ANatNumericBasicType;
 import org.overture.ast.types.AProductType;
 import org.overture.ast.types.ASetType;
+import org.overture.ast.types.AUnionType;
 import org.overture.ast.types.AUnknownType;
 import org.overture.ast.types.AVoidType;
 import org.overture.ast.types.PType;
+import org.overture.ast.util.PTypeSet;
 import org.overture.typechecker.Environment;
 import org.overture.typechecker.FlatCheckedEnvironment;
 import org.overture.typechecker.TypeCheckInfo;
+import org.overture.typechecker.TypeCheckerErrors;
 import org.overture.typechecker.TypeComparator;
 import org.overture.typechecker.assistant.pattern.PPatternAssistantTC;
+import org.overture.typechecker.assistant.statement.ABlockSimpleBlockStmAssistantTC;
+import org.overture.typechecker.assistant.type.PTypeAssistantTC;
 
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AChannelRenamingAction;
@@ -126,6 +131,77 @@ public class CmlActionTypeChecker extends
 	}
 
 	/**
+	 * Find a channel, action or chanset in the environment
+	 * 
+	 * @param env
+	 * @param identifier
+	 * @return
+	 */
+	private static PDefinition findDefinition(ILexIdentifierToken identifier,
+			Environment env)
+	{
+		Set<PDefinition> defs = env.findMatches(new eu.compassresearch.ast.lex.LexNameToken("", identifier));
+
+		if (defs.isEmpty())
+		{
+			return null;
+		} else
+		{
+			return defs.iterator().next();
+		}
+	}
+
+	/**
+	 * Creates the action type. This method is based on the simple block used in VDM operations
+	 * 
+	 * @param node
+	 * @param types
+	 * @return
+	 */
+	private static PType setType(PAction node, PType... types)
+	{
+		PTypeSet rtypes = new PTypeSet();
+		PType last = null;
+
+		for (PType stmt : types)
+		{
+			PType stype = stmt;
+
+			last = stype;
+
+			if (stype instanceof AUnionType)
+			{
+				AUnionType ust = (AUnionType) stype;
+
+				for (PType t : ust.getTypes())
+				{
+					ABlockSimpleBlockStmAssistantTC.addOne(rtypes, t);
+
+				}
+			} else
+			{
+				ABlockSimpleBlockStmAssistantTC.addOne(rtypes, stype);
+
+			}
+		}
+
+		// If the last statement reached has a void component, add this to the
+		// overall
+		// return type, as the block may return nothing.
+
+		if (last != null
+				&& (PTypeAssistantTC.isType(last, AVoidType.class) || PTypeAssistantTC.isUnknown(last)))
+		{
+			rtypes.add(AstFactory.newAVoidType(node.getLocation()));
+		}
+
+		node.setType(rtypes.isEmpty() ? AstFactory.newAVoidType(node.getLocation())
+				: rtypes.getType(node.getLocation()));
+		return node.getType();
+
+	}
+
+	/**
 	 * Case to handle statements embedded in actions
 	 */
 	public PType caseAStmAction(AStmAction node, TypeCheckInfo question)
@@ -140,16 +216,11 @@ public class CmlActionTypeChecker extends
 	public PType caseAUntimedTimeoutAction(AUntimedTimeoutAction node,
 			TypeCheckInfo question) throws AnalysisException
 	{
+		PType leftType = node.getLeft().apply(THIS, question);
 
-		PAction left = node.getLeft();
-		PAction right = node.getRight();
+		PType rightType = node.getRight().apply(THIS, question);
 
-		PType leftType = left.apply(THIS, question);
-
-		PType rightType = right.apply(THIS, question);
-
-		node.setType(new AActionType());
-		return node.getType();
+		return setType(node,leftType,rightType);
 	}
 
 	@Override
@@ -851,9 +922,7 @@ public class CmlActionTypeChecker extends
 			throws AnalysisException
 	{
 
-		Set<PDefinition> deff = question.env.findMatches(new eu.compassresearch.ast.lex.LexNameToken("", node.getIdentifier()));
-
-		PDefinition channel = deff.iterator().next();// FIXME
+		PDefinition channel = findDefinition(node.getIdentifier(), question.env);
 		AChannelNameDefinition channelNameDefinition = null;
 
 		// There should be a channel defined with this name
