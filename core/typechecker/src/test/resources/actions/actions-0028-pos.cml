@@ -1,0 +1,8 @@
+/* Interrupt action is ok with defined actions */
+
+process A =
+begin
+
+@ Skip /_\ Skip
+
+end

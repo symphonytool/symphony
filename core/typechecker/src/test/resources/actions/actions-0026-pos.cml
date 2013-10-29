@@ -1,0 +1,8 @@
+/* Internal choice is ok with defined actions */
+
+process A =
+begin
+
+@ Skip |~| Skip
+
+end

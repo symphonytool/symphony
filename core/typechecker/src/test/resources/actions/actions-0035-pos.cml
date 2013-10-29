@@ -1,0 +1,12 @@
+/* Abstraction is ok enumerated chanset */
+
+channels
+a
+
+process A =
+begin
+
+@ Skip \\ {a} 
+
+end
+

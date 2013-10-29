@@ -1,0 +1,11 @@
+/* Communication is fine if channel exists*/
+
+channels
+a
+
+process A =
+begin
+
+@ a -> Skip
+
+end

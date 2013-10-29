@@ -1,0 +1,8 @@
+/* Sequential composition is not ok undefined action*/
+
+process A =
+begin
+
+@ Skip ; action
+
+end

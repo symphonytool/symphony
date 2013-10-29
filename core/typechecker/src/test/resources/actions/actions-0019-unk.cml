@@ -1,0 +1,13 @@
+/* Unsure about communication and channel having different member numbers*/
+
+channels
+a : int * int
+
+process A =
+begin
+
+@ a -> Skip
+
+end
+
+

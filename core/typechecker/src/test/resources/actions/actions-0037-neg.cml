@@ -1,0 +1,10 @@
+/* Abstraction is not ok with non existing chanset */
+
+
+process A =
+begin
+
+@ Skip \\ x 
+
+end
+
