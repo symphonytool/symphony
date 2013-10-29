@@ -46,31 +46,31 @@ public class Weeding3UnfoldSingleDeclIdentifiers extends
 	{
 		LinkedList<PParametrisation> decelrations = new LinkedList<PParametrisation>();
 
-		for (PParametrisation decl : node.getDeclarations())
-		{
-
-			ATypeSingleDeclaration tDecl = decl.getDeclaration();
-
-			if (tDecl.getIdentifiers().size() > 1)
-			{
-				// unfold
-				@SuppressWarnings("unchecked")
-				LinkedList<ILexIdentifierToken> identifiers = (LinkedList<ILexIdentifierToken>) tDecl.getIdentifiers().clone();
-				for (ILexIdentifierToken id : identifiers)
-				{
-					PParametrisation idDecl = decl.clone();
-					LinkedList<ILexIdentifierToken> tmp = new LinkedList<ILexIdentifierToken>();
-					tmp.add(id);
-					idDecl.getDeclaration().setIdentifiers(tmp);
-					decelrations.add(idDecl);
-
-				}
-				continue;
-			}
-
-			decelrations.add(decl);
-
-		}
+//		for (PParametrisation decl : node.getDeclarations())
+//		{
+//
+//			ATypeSingleDeclaration tDecl = decl.getDeclaration();
+//
+//			if (tDecl.getIdentifiers().size() > 1)
+//			{
+//				// unfold
+//				@SuppressWarnings("unchecked")
+//				LinkedList<ILexIdentifierToken> identifiers = (LinkedList<ILexIdentifierToken>) tDecl.getIdentifiers().clone();
+//				for (ILexIdentifierToken id : identifiers)
+//				{
+//					PParametrisation idDecl = decl.clone();
+//					LinkedList<ILexIdentifierToken> tmp = new LinkedList<ILexIdentifierToken>();
+//					tmp.add(id);
+//					idDecl.getDeclaration().setIdentifiers(tmp);
+//					decelrations.add(idDecl);
+//
+//				}
+//				continue;
+//			}
+//
+//			decelrations.add(decl);
+//
+//		}
 		node.setDeclarations(decelrations);
 	}
 

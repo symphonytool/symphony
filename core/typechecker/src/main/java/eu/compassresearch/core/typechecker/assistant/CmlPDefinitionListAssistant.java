@@ -22,9 +22,8 @@ public class CmlPDefinitionListAssistant extends PDefinitionListAssistantTC
 	{
 		super(af);
 	}
-	
 
-	public  Set<PDefinition> findMatches(List<PDefinition> definitions,
+	public Set<PDefinition> findMatches(List<PDefinition> definitions,
 			ILexNameToken name)
 	{
 
@@ -32,7 +31,10 @@ public class CmlPDefinitionListAssistant extends PDefinitionListAssistantTC
 
 		for (PDefinition d : singleDefinitions(definitions))
 		{
-			if ((PDefinitionAssistantTC.isFunctionOrOperation(d)|| d instanceof AChannelDefinition || d instanceof AChansetDefinition || d instanceof AActionDefinition || d instanceof AProcessDefinition)
+			if ((PDefinitionAssistantTC.isFunctionOrOperation(d)
+					|| d instanceof AChannelDefinition
+					|| d instanceof AChansetDefinition
+					|| d instanceof AActionDefinition || d instanceof AProcessDefinition)
 					&& d.getName().matches(name))
 			{
 				set.add(d);

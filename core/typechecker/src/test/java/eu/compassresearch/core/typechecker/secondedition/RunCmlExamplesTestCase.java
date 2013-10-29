@@ -2,6 +2,8 @@ package eu.compassresearch.core.typechecker.secondedition;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.List;
+import java.util.Vector;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -26,16 +28,17 @@ public class RunCmlExamplesTestCase extends
 	private static Collection<Object[]> filter(
 			Collection<Object[]> collectTestData)
 	{
-		Object[] r  = null;
+		List<Object[]> r  = new Vector<Object[]>();
 		for (Object[] o : collectTestData)
 		{
-			if(o[0].toString().contains("fail.cml"))
+			String name =o[0].toString(); 
+			if(name.contains("fail.cml") || name.contains("process-action-alphabetisedParallelism.cml"))
 			{
-				 r = o;
+				 r.add( o);
 			}
 		}
 		
-		collectTestData.remove(r);
+		collectTestData.removeAll(r);
 		return collectTestData;
 	}
 

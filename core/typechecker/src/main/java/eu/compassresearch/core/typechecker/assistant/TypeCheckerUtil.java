@@ -17,6 +17,7 @@ import org.overture.typechecker.assistant.type.PTypeAssistantTC;
 
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
+import eu.compassresearch.ast.process.PProcess;
 
 public class TypeCheckerUtil
 {
@@ -70,7 +71,19 @@ public class TypeCheckerUtil
 		return node.getType();
 
 	}
-	
+
+	/**
+	 * Creates the action type. This method is based on the simple block used in VDM operations
+	 * 
+	 * @param node
+	 * @param types
+	 * @return
+	 */
+	public static PType getVoidType(PProcess node)
+	{
+		return AstFactory.newAVoidType(node.getLocation());
+	}
+
 	/**
 	 * Creates the action type. This method is based on the simple block used in VDM operations
 	 * 
@@ -134,7 +147,8 @@ public class TypeCheckerUtil
 	 * @param types
 	 * @return
 	 */
-	public static PType generateUnionType(ILexLocation location, List<PType> types)
+	public static PType generateUnionType(ILexLocation location,
+			List<PType> types)
 	{
 		return generateUnionType(location, types.toArray(new PType[] {}));
 	}

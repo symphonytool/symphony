@@ -266,7 +266,7 @@ public class TCDeclAndDefVisitor extends
 			TypeCheckInfo question) throws AnalysisException
 	{
 
-		ATypeSingleDeclaration decl = null;//node.getSingleType();
+		ATypeSingleDeclaration decl = null;// node.getSingleType();
 
 		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
 		if (cmlEnv == null)
@@ -714,7 +714,7 @@ public class TCDeclAndDefVisitor extends
 					+ ""));
 
 		List<PDefinition> defs = new LinkedList<PDefinition>();
-		LinkedList<ILexIdentifierToken> identifiers = node.getIdentifiers();
+		LinkedList<ILexIdentifierToken> identifiers = null;// node.getIdentifiers();
 
 		if (expressionType instanceof ASetType)
 		{
@@ -731,7 +731,8 @@ public class TCDeclAndDefVisitor extends
 				defs.add(localDef);
 			}
 
-		} else if (expressionType instanceof ASeqSeqType || expressionType instanceof ASeq1SeqType)
+		} else if (expressionType instanceof ASeqSeqType
+				|| expressionType instanceof ASeq1SeqType)
 		{
 			for (ILexIdentifierToken id : identifiers)
 			{
@@ -745,7 +746,7 @@ public class TCDeclAndDefVisitor extends
 				ALocalDefinition localDef = AstFactory.newALocalDefinition(id.getLocation(), name, node.getNameScope(), expressionSeqType.getSeqof());
 				defs.add(localDef);
 			}
-	} else
+		} else
 		{
 			return issueHandler.addTypeError(expression, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(""
 					+ new ASetType(), "" + expressionType));
@@ -1591,7 +1592,7 @@ public class TCDeclAndDefVisitor extends
 		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
 		CmlTypeCheckInfo newScope = cmlEnv.newScope();
 		newScope.env.setEnclosingDefinition(node);
-		LinkedList<ATypeSingleDeclaration> state = node.getLocalState();
+		LinkedList<ATypeSingleDeclaration> state = null;// node.getLocalState();
 		for (ATypeSingleDeclaration decl : state)
 		{
 			PType declType = decl.apply(parentChecker, question);
@@ -1644,7 +1645,7 @@ public class TCDeclAndDefVisitor extends
 				return node.getType();
 			}
 
-			LinkedList<ILexIdentifierToken> ids = node.getIdentifiers();
+			LinkedList<ILexIdentifierToken> ids = null;// node.getIdentifiers();
 			List<PDefinition> defs = new LinkedList<PDefinition>();
 			for (ILexIdentifierToken id : ids)
 			{

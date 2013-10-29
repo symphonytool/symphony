@@ -23,13 +23,12 @@ import org.overture.ast.types.ASeq1SeqType;
 import org.overture.ast.types.ASetType;
 import org.overture.ast.types.PType;
 import org.overture.typechecker.Environment;
-import org.overture.typechecker.PrivateClassEnvironment;
 import org.overture.typechecker.TypeCheckException;
 import org.overture.typechecker.TypeCheckInfo;
 import org.overture.typechecker.TypeChecker;
-import org.overture.typechecker.TypeCheckerErrors;
 
 import eu.compassresearch.ast.actions.PAction;
+import eu.compassresearch.ast.actions.PParametrisation;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.AExpressionSingleDeclaration;
 import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
@@ -132,23 +131,20 @@ public class CmlCspTypeChecker extends
 		// all ready done with this
 		return node.getType();
 	}
-	
+
 	@Override
 	public PType defaultSFunctionDefinition(SFunctionDefinition node,
 			TypeCheckInfo question) throws AnalysisException
 	{
 		return node.getType();
 	}
-	
+
 	@Override
 	public PType defaultSOperationDefinition(SOperationDefinition node,
 			TypeCheckInfo question) throws AnalysisException
 	{
 		return node.getType();
 	}
-	
-	
-	
 
 	@Override
 	public PType caseAChannelDefinition(AChannelDefinition node,
@@ -160,11 +156,10 @@ public class CmlCspTypeChecker extends
 		} catch (TypeCheckException te)
 		{
 			TypeChecker.report(3427, te.getMessage(), te.location);
-		} 
-		
+		}
+
 		return node.getType();
-		
-		
+
 	}
 
 	@Override
@@ -195,6 +190,13 @@ public class CmlCspTypeChecker extends
 	@Override
 	public PType defaultPAction(PAction node, TypeCheckInfo question)
 			throws AnalysisException
+	{
+		return node.apply(actionChecker, question);
+	}
+
+	@Override
+	public PType defaultPParametrisation(PParametrisation node,
+			TypeCheckInfo question) throws AnalysisException
 	{
 		return node.apply(actionChecker, question);
 	}
@@ -285,15 +287,11 @@ public class CmlCspTypeChecker extends
 			PType typetype = question.assistantFactory.createPTypeAssistant().typeResolve(type, null, vdmChecker, question);// type.apply(THIS,
 																															// question);
 
-			LinkedList<ILexIdentifierToken> ids = node.getIdentifiers();
 			List<PDefinition> defs = new LinkedList<PDefinition>();
-			for (ILexIdentifierToken id : ids)
-			{
 
-				LexNameToken idName = new LexNameToken("", id);
-				ALocalDefinition localDef = AstFactory.newALocalDefinition(node.getLocation(), idName, NameScope.LOCAL, typetype);
-				defs.add(localDef);
-			}
+			LexNameToken idName = new LexNameToken("", node.getIdentifier());
+			ALocalDefinition localDef = AstFactory.newALocalDefinition(node.getLocation(), idName, NameScope.LOCAL, typetype);
+			defs.add(localDef);
 			type.setDefinitions(defs);
 		}
 		return node.getType();
@@ -311,37 +309,31 @@ public class CmlCspTypeChecker extends
 		PType expressionType = expression.apply(THIS, question);
 
 		List<PDefinition> defs = new LinkedList<PDefinition>();
-		LinkedList<ILexIdentifierToken> identifiers = node.getIdentifiers();
-
+		ILexIdentifierToken id = node.getIdentifier();
 		if (expressionType instanceof ASetType)
 		{
-			for (ILexIdentifierToken id : identifiers)
-			{
-				ILexNameToken name = null;
-				if (id instanceof LexNameToken)
-					name = (LexNameToken) id;
-				else
-					name = new LexNameToken("", id.getName(), id.getLocation());
 
-				ASetType expressionSetType = (ASetType) expressionType;
-				ALocalDefinition localDef = AstFactory.newALocalDefinition(id.getLocation(), name, node.getNameScope(), expressionSetType.getSetof());
-				defs.add(localDef);
-			}
+			ILexNameToken name = null;
+			if (id instanceof LexNameToken)
+				name = (LexNameToken) id;
+			else
+				name = new LexNameToken("", id.getName(), id.getLocation());
+
+			ASetType expressionSetType = (ASetType) expressionType;
+			ALocalDefinition localDef = AstFactory.newALocalDefinition(id.getLocation(), name, node.getNameScope(), expressionSetType.getSetof());
+			defs.add(localDef);
 
 		} else if (expressionType instanceof ASeq1SeqType)
 		{
-			for (ILexIdentifierToken id : identifiers)
-			{
-				ILexNameToken name = null;
-				if (id instanceof LexNameToken)
-					name = (LexNameToken) id;
-				else
-					name = new LexNameToken("", id.getName(), id.getLocation());
+			ILexNameToken name = null;
+			if (id instanceof LexNameToken)
+				name = (LexNameToken) id;
+			else
+				name = new LexNameToken("", id.getName(), id.getLocation());
 
-				ASeq1SeqType expressionSeqType = (ASeq1SeqType) expressionType;
-				ALocalDefinition localDef = AstFactory.newALocalDefinition(id.getLocation(), name, node.getNameScope(), expressionSeqType.getSeqof());
-				defs.add(localDef);
-			}
+			ASeq1SeqType expressionSeqType = (ASeq1SeqType) expressionType;
+			ALocalDefinition localDef = AstFactory.newALocalDefinition(id.getLocation(), name, node.getNameScope(), expressionSeqType.getSeqof());
+			defs.add(localDef);
 		} else
 		{
 

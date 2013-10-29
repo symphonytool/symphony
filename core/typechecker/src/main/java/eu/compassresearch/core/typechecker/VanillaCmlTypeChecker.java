@@ -172,7 +172,7 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker
 			// W: Stage 5 remove any initial definitions
 			Weeding5RemoveInitialDefinitions.apply(sourceForest);
 			// W: Stage 2 unfold identifiers in action definitions, parameter decl single type identifiers
-			Weeding3UnfoldSingleDeclIdentifiers.apply(sourceForest);
+//			Weeding3UnfoldSingleDeclIdentifiers.apply(sourceForest);
 
 			WeedingSkipActionToStmCleaner.apply(sourceForest);
 			WeedingStmCleaner.apply(sourceForest);

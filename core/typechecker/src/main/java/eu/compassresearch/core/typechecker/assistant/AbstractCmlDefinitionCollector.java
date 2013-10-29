@@ -21,7 +21,6 @@ import eu.compassresearch.ast.actions.AChannelRenamingAction;
 import eu.compassresearch.ast.actions.AChaosAction;
 import eu.compassresearch.ast.actions.ACommonInterleavingReplicatedAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
-import eu.compassresearch.ast.actions.ADeclarationInstantiatedAction;
 import eu.compassresearch.ast.actions.ADivAction;
 import eu.compassresearch.ast.actions.AEndDeadlineAction;
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
@@ -236,8 +235,8 @@ public abstract class AbstractCmlDefinitionCollector extends
 	}
 
 	@Override
-	public List<PDefinition> caseAChannelDefinition(
-			AChannelDefinition node) throws AnalysisException
+	public List<PDefinition> caseAChannelDefinition(AChannelDefinition node)
+			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
 		return null;
@@ -1113,14 +1112,6 @@ public abstract class AbstractCmlDefinitionCollector extends
 	public List<PDefinition> caseASynchronousParallelismReplicatedAction(
 			ASynchronousParallelismReplicatedAction node)
 			throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public List<PDefinition> caseADeclarationInstantiatedAction(
-			ADeclarationInstantiatedAction node) throws AnalysisException
 	{
 		// TODO Auto-generated method stub
 		return null;

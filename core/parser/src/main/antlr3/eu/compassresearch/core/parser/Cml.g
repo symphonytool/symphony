@@ -500,13 +500,7 @@ processDefinition returns[AProcessDefinition def]
             $def.setName(processName);
             List<PParametrisation> paramList = $parametrisationList.params;
             if (paramList != null) {
-                List<ATypeSingleDeclaration> localState = new LinkedList<ATypeSingleDeclaration>();
-                for(PParametrisation p : paramList)
-                {
-                    ATypeSingleDeclaration decl = p.getDeclaration();
-                    localState.add(decl);
-                }
-                $def.setLocalState(localState);
+                $def.setLocalState(paramList);
             }
 
         }
@@ -778,54 +772,92 @@ processbase returns[PProcess proc]
 
 parametrisationList returns[List<PParametrisation> params]
 @init { $params = new ArrayList<PParametrisation>(); }
-    : item=parametrisation { $params.add($item.param); } ( ',' item=parametrisation { $params.add($item.param); } )*
+    : item=parametrisation { $params.addAll($item.params); } ( ',' item=parametrisation { $params.addAll($item.params); } )*
     ;
 
-parametrisation returns[PParametrisation param]
-@after { $param.setLocation(extractLexLocation($start, $stop)); }
+parametrisation returns[List<PParametrisation> params]
+@init { $params = new ArrayList<PParametrisation>(); }
+//@after { $param.setLocation(extractLexLocation($start, $stop)); }
     : PMODE? identifierList ':' type
         {
-            if ($PMODE==null || $PMODE.getText().equals("val")) {
-                $param = new AValParametrisation();
-            } else if ($PMODE.getText().equals("res")) {
-                $param = new AResParametrisation();
-            } else if ($PMODE.getText().equals("vres")) {
-                $param = new AVresParametrisation();
-            } else {
-                // FIXME --- log a never-happens
-            }
+			ILexLocation ploc = extractLexLocation($PMODE, $type.stop);
+            
             ILexLocation loc = extractLexLocation($identifierList.start, $identifierList.stop);
-            $param.setDeclaration(new ATypeSingleDeclaration(loc, NameScope.GLOBAL, $identifierList.ids, $type.type));
+			
+			//List<ALocalDefinition> locals = new Vector<ALocalDefinition>();
+			
+			for (ILexIdentifierToken id : $identifierList.ids)
+			{
+				LexNameToken idName = new LexNameToken("", id);
+				ALocalDefinition def = AstFactory.newALocalDefinition(loc, idName, NameScope.LOCAL, $type.type);
+				//locals.add(def);
+				PParametrisation param = null;
+				
+				if ($PMODE==null || $PMODE.getText().equals("val")) 
+				{
+					param = new AValParametrisation();
+				} else if ($PMODE.getText().equals("res")) 
+				{
+					param = new AResParametrisation();
+				} else if ($PMODE.getText().equals("vres")) 
+				{
+					param = new AVresParametrisation();
+				} else 
+				{
+                // FIXME --- log a never-happens
+				}
+				param.setDeclaration(def);
+				param.setLocation(ploc);
+				params.add(param);
+			}
+			
+			
+            //$param.setDeclaration(locals);//new ATypeSingleDeclaration(loc, NameScope.GLOBAL, $identifierList.ids, $type.type));
         }
     ;
 
 replicationDeclarationList returns[List<PSingleDeclaration> rdecls]
 @init { $rdecls = new ArrayList<PSingleDeclaration>(); }
-    : item=replicationDeclaration { $rdecls.add($item.rdecl); } ( ',' item=replicationDeclaration { $rdecls.add($item.rdecl); } )*
+    : item=replicationDeclaration { $rdecls.addAll($item.rdecls); } ( ',' item=replicationDeclaration { $rdecls.addAll($item.rdecls); } )*
     ;
 
-replicationDeclaration returns[PSingleDeclaration rdecl]
+replicationDeclaration returns[List<PSingleDeclaration> rdecls]
+@init { $rdecls = new ArrayList<PSingleDeclaration>(); }
     : identifierList ( ':' type | 'in' 'set' expression )
         {
+			ILexLocation loc = extractLexLocation($identifierList.stop);
+			$rdecls.addAll(CmlAstFactory.generateSingleTypeDeclerations(loc,$identifierList.ids,$type.type,$expression.exp));
+			/*ILexLocation loc = extractLexLocation($identifierList.stop);
             if ($type.type != null)
-                $rdecl = new ATypeSingleDeclaration(extractLexLocation($identifierList.stop), NameScope.GLOBAL, $identifierList.ids, $type.type);
+			{
+				for(ILexIdentifierToken id: $identifierList.ids)
+				{
+					$rdecls.add(new ATypeSingleDeclaration(loc, NameScope.GLOBAL, id, $type.type));
+				}
+			}
             else
-                $rdecl = new AExpressionSingleDeclaration(extractLexLocation($identifierList.stop), NameScope.GLOBAL, $identifierList.ids, $expression.exp);
+			{
+                $rdecls.add(new AExpressionSingleDeclaration(loc, NameScope.GLOBAL, $identifierList.ids, $expression.exp));
+			}*/
         }
     ;
 
 seqReplicationDeclarationList returns[List<PSingleDeclaration> rdecls]
 @init { $rdecls = new ArrayList<PSingleDeclaration>(); }
-    : item=seqReplicationDeclaration { $rdecls.add($item.rdecl); } ( ',' item=seqReplicationDeclaration { $rdecls.add($item.rdecl); } )*
+    : item=seqReplicationDeclaration { $rdecls.addAll($item.rdecls); } ( ',' item=seqReplicationDeclaration { $rdecls.addAll($item.rdecls); } )*
     ;
 
-seqReplicationDeclaration returns[PSingleDeclaration rdecl]
+seqReplicationDeclaration returns[List<PSingleDeclaration> rdecls]
+@init { $rdecls = new ArrayList<PSingleDeclaration>(); }
     : identifierList ( ':' type | 'in' 'seq' expression )
         {
-            if ($type.type != null)
-                $rdecl = new ATypeSingleDeclaration(extractLexLocation($identifierList.stop), NameScope.GLOBAL, $identifierList.ids, $type.type);
+			ILexLocation loc = extractLexLocation($identifierList.stop);
+			$rdecls.addAll(CmlAstFactory.generateSingleTypeDeclerations(loc,$identifierList.ids,$type.type,$expression.exp));
+          /*  if ($type.type != null)
+                $rdecls = new ATypeSingleDeclaration(extractLexLocation($identifierList.stop), NameScope.GLOBAL, $identifierList.ids, $type.type);
             else
-                $rdecl = new AExpressionSingleDeclaration(extractLexLocation($identifierList.stop), NameScope.GLOBAL, $identifierList.ids, $expression.exp);
+                $rdecls = new AExpressionSingleDeclaration(extractLexLocation($identifierList.stop), NameScope.GLOBAL, $identifierList.ids, $expression.exp);
+				*/
         }
     ;
 
@@ -1345,7 +1377,11 @@ leadingIdAction returns[PAction action]
                             
                             //FIXME this is the hacked version of call with dots in the module. We should properly use CallObject and place an unresolved state designator with the path instead
                             $action = stm2action(AstFactory.newACallStm(name, apply.getArgs())); 
-                        }
+                        }else
+						{
+							//	This is from having something like 'x.a' as a statement on its own --- this cannot be a AReferenceAction as actions cannot be referenced with dots, and it cannot be a operation call as it is missing () at the end (the selectorOptList was empty) --- so this is a Parse Error -jwc/29Oct2013
+							//FIXME throw new RecognitionException(input);
+						}
                     }
                 | ':='
                     // At this point we know that we have an assignableExpression to the left, so assemble that here

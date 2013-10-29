@@ -6,29 +6,18 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.definitions.AExplicitOperationDefinition;
 import org.overture.ast.definitions.ALocalDefinition;
 import org.overture.ast.definitions.APrivateAccess;
 import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.PDefinition;
-import org.overture.ast.definitions.SOperationDefinition;
-import org.overture.ast.expressions.AVariableExp;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.factory.AstFactory;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
-import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.ATuplePattern;
 import org.overture.ast.patterns.PPattern;
-import org.overture.ast.statements.AAltNonDeterministicStm;
-import org.overture.ast.statements.ADoNonDeterministicStm;
-import org.overture.ast.statements.AExternalClause;
-import org.overture.ast.statements.AIfNonDeterministicStm;
-import org.overture.ast.statements.ANewStm;
-import org.overture.ast.statements.PStateDesignator;
-import org.overture.ast.statements.PStm;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.typechecker.Pass;
 import org.overture.ast.types.AAccessSpecifierAccessSpecifier;
@@ -47,7 +36,6 @@ import eu.compassresearch.ast.actions.AChannelRenamingAction;
 import eu.compassresearch.ast.actions.AChaosAction;
 import eu.compassresearch.ast.actions.ACommonInterleavingReplicatedAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
-import eu.compassresearch.ast.actions.ADeclarationInstantiatedAction;
 import eu.compassresearch.ast.actions.ADivAction;
 import eu.compassresearch.ast.actions.AEndDeadlineAction;
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
@@ -91,7 +79,6 @@ import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AChannelDefinition;
-import eu.compassresearch.ast.definitions.AOperationsDefinition;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.expressions.SRenameChannelExp;
 import eu.compassresearch.ast.types.AActionType;
@@ -156,18 +143,19 @@ class TCActionVisitor extends
 			TypeCheckInfo question) throws AnalysisException
 	{
 
-		ATypeSingleDeclaration decl = node.getDeclaration();
-		List<PDefinition> defs = new LinkedList<PDefinition>();
-
-		for (ILexIdentifierToken id : decl.getIdentifiers())
-		{
-			ILexNameToken name = new LexNameToken("", id);
-			ALocalDefinition localDef = AstFactory.newALocalDefinition(node.getLocation(), name, NameScope.LOCAL, decl.getType());
-			defs.add(localDef);
-		}
+		// ATypeSingleDeclaration decl = node.getDeclaration();
+		// List<PDefinition> defs = new LinkedList<PDefinition>();
+		//
+		// for (ILexIdentifierToken id : decl.getIdentifiers())
+		// {
+		// ILexNameToken name = new LexNameToken("", id);
+		// ALocalDefinition localDef = AstFactory.newALocalDefinition(node.getLocation(), name, NameScope.LOCAL,
+		// decl.getType());
+		// defs.add(localDef);
+		// }
 
 		PType res = new AActionType(node.getLocation(), true);
-		res.setDefinitions(defs);
+		// res.setDefinitions(defs);
 		return res;
 	}
 
@@ -176,17 +164,18 @@ class TCActionVisitor extends
 			TypeCheckInfo question) throws AnalysisException
 	{
 
-		ATypeSingleDeclaration decl = node.getDeclaration();
-		List<PDefinition> defs = new LinkedList<PDefinition>();
-
-		for (ILexIdentifierToken id : decl.getIdentifiers())
-		{
-			ILexNameToken name = new LexNameToken("", id);
-			ALocalDefinition localDef = AstFactory.newALocalDefinition(node.getLocation(), name, NameScope.LOCAL, decl.getType());
-			defs.add(localDef);
-		}
+		// ATypeSingleDeclaration decl = node.getDeclaration();
+		// List<PDefinition> defs = new LinkedList<PDefinition>();
+		//
+		// for (ILexIdentifierToken id : decl.getIdentifiers())
+		// {
+		// ILexNameToken name = new LexNameToken("", id);
+		// ALocalDefinition localDef = AstFactory.newALocalDefinition(node.getLocation(), name, NameScope.LOCAL,
+		// decl.getType());
+		// defs.add(localDef);
+		// }
 		PType res = new AActionType(node.getLocation(), true);
-		res.setDefinitions(defs);
+		// res.setDefinitions(defs);
 		return res;
 	}
 
@@ -328,28 +317,28 @@ class TCActionVisitor extends
 		return node.getType();
 	}
 
-//	@Override
-//	public PType caseAExternalClause(AExternalClause node,
-//			TypeCheckInfo question) throws AnalysisException
-//	{
-//
-//		LinkedList<ILexNameToken> ids = node.getIdentifiers();
-//		for (ILexNameToken id : ids)
-//		{
-//			PDefinition def = CmlTCUtil.findDefByAllMeans(question, id);
-//			if (def == null)
-//			{
-//				node.setType(issueHandler.addTypeError(node, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(""
-//						+ id)));
-//				return node.getType();
-//			}
-//
-//			issueHandler.addTypeWarning(def, TypeWarningMessages.INCOMPLETE_TYPE_CHECKING.customizeMessage(def
-//					+ ""));
-//		}
-//
-//		return new AActionType();
-//	}
+	// @Override
+	// public PType caseAExternalClause(AExternalClause node,
+	// TypeCheckInfo question) throws AnalysisException
+	// {
+	//
+	// LinkedList<ILexNameToken> ids = node.getIdentifiers();
+	// for (ILexNameToken id : ids)
+	// {
+	// PDefinition def = CmlTCUtil.findDefByAllMeans(question, id);
+	// if (def == null)
+	// {
+	// node.setType(issueHandler.addTypeError(node, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(""
+	// + id)));
+	// return node.getType();
+	// }
+	//
+	// issueHandler.addTypeWarning(def, TypeWarningMessages.INCOMPLETE_TYPE_CHECKING.customizeMessage(def
+	// + ""));
+	// }
+	//
+	// return new AActionType();
+	// }
 
 	// @Override
 	// public PType caseASpecificationStatementAction(
@@ -493,10 +482,10 @@ class TCActionVisitor extends
 				return node.getType();
 			}
 			AChannelDefinition chanNameDef = (AChannelDefinition) chanDef;
-//			for (ILexIdentifierToken id : chanNameDef.getSingleType().getIdentifiers())
-//			{
-//				actionEnv.addChannel(id, chanDef);
-//			}
+			// for (ILexIdentifierToken id : chanNameDef.getSingleType().getIdentifiers())
+			// {
+			// actionEnv.addChannel(id, chanDef);
+			// }
 		}
 
 		PVarsetExpression sexp = node.getNamesetExpression();
@@ -550,7 +539,7 @@ class TCActionVisitor extends
 					expType = st.getSetof();
 				}
 
-				LinkedList<ILexIdentifierToken> ids = singleDecl.getIdentifiers();
+				LinkedList<ILexIdentifierToken> ids = null;// singleDecl.getIdentifiers();
 				for (ILexIdentifierToken id : ids)
 				{
 					LexNameToken name = new LexNameToken("", id);
@@ -563,7 +552,7 @@ class TCActionVisitor extends
 			if (decl instanceof ATypeSingleDeclaration)
 			{
 				ATypeSingleDeclaration singleDecl = (ATypeSingleDeclaration) decl;
-				LinkedList<ILexIdentifierToken> ids = singleDecl.getIdentifiers();
+				LinkedList<ILexIdentifierToken> ids = null;// singleDecl.getIdentifiers();
 				for (ILexIdentifierToken id : ids)
 				{
 					LexNameToken name = new LexNameToken("", id);
@@ -628,112 +617,113 @@ class TCActionVisitor extends
 		return node.getType();
 	}
 
-
-
-//	@Override
-//	public PType caseANewStm(ANewStm node, TypeCheckInfo question)
-//			throws AnalysisException
-//	{
-//
-//		List<PType> argtypes = new LinkedList<PType>();
-//
-//		CmlTypeCheckInfo cmlEnv = getTypeCheckInfo(question);
-//
-//		// lookup variable
-//		PStateDesignator destVar = node.getDestination();
-//
-//		if (!(destVar instanceof AVariableExp))
-//		{
-//			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.EXPECTED_LVALUE.customizeMessage(""
-//					+ destVar)));
-//			return node.getType();
-//		}
-//
-//		AVariableExp destVarExp = (AVariableExp) destVar;
-//		PType destVarExpType = destVarExp.apply(parentChecker, question);
-//		if (!successfulType(destVarExpType))
-//		{
-//			node.setType(issueHandler.addTypeError(destVarExp, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(destVarExp
-//					+ "")));
-//			return node.getType();
-//		}
-//
-//		PType classType = cmlEnv.lookupType(node.getClassName());
-//		if (classType == null)
-//		{
-//			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(node.getClassName()
-//					+ "")));
-//			return node.getType();
-//		}
-//
-//		// make sure they match
-//		if (!typeComparator.isSubType(classType, destVarExpType))
-//		{
-//			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.EXPECTED_SUBTYPE_RELATION.customizeMessage(classType.toString(), destVarExpType.toString())));
-//			return node.getType();
-//		}
-//
-//		// // typecheck arguments
-//		for (PExp arg : node.getArgs())
-//		{
-//			PType pt = arg.apply(parentChecker, cmlEnv);
-//			if (!successfulType(pt))
-//			{
-//				node.setType(issueHandler.addTypeError(arg, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(""
-//						+ arg)));
-//				return node.getType();
-//			}
-//			argtypes.add(pt);
-//		}
-//
-//		// find the constructor
-//		CmlTypeCheckInfo ctorEnv = cmlEnv.newScope();
-//		for (PDefinition clzDef : classType.getDefinitions())
-//		{
-//			if (clzDef instanceof AOperationsDefinition)
-//			{
-//				AOperationsDefinition odefs = (AOperationsDefinition) clzDef;
-//				for (SOperationDefinition cmlOdef : odefs.getOperations())
-//				{
-//					if (cmlOdef instanceof AExplicitOperationDefinition)
-//					{
-//						AExplicitOperationDefinition ctorcand = (AExplicitOperationDefinition) cmlOdef;
-//						if (ctorcand.getIsConstructor())
-//						{
-//							ctorEnv.addVariable(ctorcand.getName(), ctorcand);
-//						}
-//					}
-//				}
-//			} else if (clzDef instanceof AExplicitOperationDefinition)
-//			{
-//				AExplicitOperationDefinition ctorcand = (AExplicitOperationDefinition) clzDef;
-//				if (ctorcand.getIsConstructor())
-//				{
-//					ctorEnv.addVariable(ctorcand.getName(), ctorcand);
-//				}
-//			}
-//		}
-//
-//		// FIXME what is this for a call statement action
-//		throw new RuntimeException("Not implemented TC of new");
-//		// ACallStatementAction callStm = new ACallStatementAction(node.getClassName().getLocation(),
-//		// node.getClassName().clone(), node.getArgs());
-//		// PType applyCtorExpType = callStm.apply(parentChecker, ctorEnv);
-//		// if (!successfulType(applyCtorExpType))
-//		// {
-//		// node.setType(issueHandler.addTypeError(node, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(node
-//		// + "")));
-//		// return node.getType();
-//		// }
-//		//
-//		// // set the class definition
-//		// node.setClassdef((AClassClassDefinition) cmlEnv.lookup(node.getClassName(), AClassClassDefinition.class));
-//		//
-//		// // All done!
-//		// node.setType(new AActionType());
-//		// return node.getType();
-//
-//	}
+	// @Override
+	// public PType caseANewStm(ANewStm node, TypeCheckInfo question)
+	// throws AnalysisException
+	// {
+	//
+	// List<PType> argtypes = new LinkedList<PType>();
+	//
+	// CmlTypeCheckInfo cmlEnv = getTypeCheckInfo(question);
+	//
+	// // lookup variable
+	// PStateDesignator destVar = node.getDestination();
+	//
+	// if (!(destVar instanceof AVariableExp))
+	// {
+	// node.setType(issueHandler.addTypeError(node, TypeErrorMessages.EXPECTED_LVALUE.customizeMessage(""
+	// + destVar)));
+	// return node.getType();
+	// }
+	//
+	// AVariableExp destVarExp = (AVariableExp) destVar;
+	// PType destVarExpType = destVarExp.apply(parentChecker, question);
+	// if (!successfulType(destVarExpType))
+	// {
+	// node.setType(issueHandler.addTypeError(destVarExp,
+	// TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(destVarExp
+	// + "")));
+	// return node.getType();
+	// }
+	//
+	// PType classType = cmlEnv.lookupType(node.getClassName());
+	// if (classType == null)
+	// {
+	// node.setType(issueHandler.addTypeError(node,
+	// TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(node.getClassName()
+	// + "")));
+	// return node.getType();
+	// }
+	//
+	// // make sure they match
+	// if (!typeComparator.isSubType(classType, destVarExpType))
+	// {
+	// node.setType(issueHandler.addTypeError(node,
+	// TypeErrorMessages.EXPECTED_SUBTYPE_RELATION.customizeMessage(classType.toString(), destVarExpType.toString())));
+	// return node.getType();
+	// }
+	//
+	// // // typecheck arguments
+	// for (PExp arg : node.getArgs())
+	// {
+	// PType pt = arg.apply(parentChecker, cmlEnv);
+	// if (!successfulType(pt))
+	// {
+	// node.setType(issueHandler.addTypeError(arg, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(""
+	// + arg)));
+	// return node.getType();
+	// }
+	// argtypes.add(pt);
+	// }
+	//
+	// // find the constructor
+	// CmlTypeCheckInfo ctorEnv = cmlEnv.newScope();
+	// for (PDefinition clzDef : classType.getDefinitions())
+	// {
+	// if (clzDef instanceof AOperationsDefinition)
+	// {
+	// AOperationsDefinition odefs = (AOperationsDefinition) clzDef;
+	// for (SOperationDefinition cmlOdef : odefs.getOperations())
+	// {
+	// if (cmlOdef instanceof AExplicitOperationDefinition)
+	// {
+	// AExplicitOperationDefinition ctorcand = (AExplicitOperationDefinition) cmlOdef;
+	// if (ctorcand.getIsConstructor())
+	// {
+	// ctorEnv.addVariable(ctorcand.getName(), ctorcand);
+	// }
+	// }
+	// }
+	// } else if (clzDef instanceof AExplicitOperationDefinition)
+	// {
+	// AExplicitOperationDefinition ctorcand = (AExplicitOperationDefinition) clzDef;
+	// if (ctorcand.getIsConstructor())
+	// {
+	// ctorEnv.addVariable(ctorcand.getName(), ctorcand);
+	// }
+	// }
+	// }
+	//
+	// // FIXME what is this for a call statement action
+	// throw new RuntimeException("Not implemented TC of new");
+	// // ACallStatementAction callStm = new ACallStatementAction(node.getClassName().getLocation(),
+	// // node.getClassName().clone(), node.getArgs());
+	// // PType applyCtorExpType = callStm.apply(parentChecker, ctorEnv);
+	// // if (!successfulType(applyCtorExpType))
+	// // {
+	// // node.setType(issueHandler.addTypeError(node, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(node
+	// // + "")));
+	// // return node.getType();
+	// // }
+	// //
+	// // // set the class definition
+	// // node.setClassdef((AClassClassDefinition) cmlEnv.lookup(node.getClassName(), AClassClassDefinition.class));
+	// //
+	// // // All done!
+	// // node.setType(new AActionType());
+	// // return node.getType();
+	//
+	// }
 
 	// @Override
 	// public PType caseAMultipleGeneralAssignmentStatementAction(
@@ -902,39 +892,39 @@ class TCActionVisitor extends
 		return node.getType();
 	}
 
-	@Override
-	public PType caseADeclarationInstantiatedAction(
-			ADeclarationInstantiatedAction node, TypeCheckInfo question)
-			throws AnalysisException
-	{
-
-		// Extract sub-stuff
-		PAction action = node.getAction();
-		LinkedList<ATypeSingleDeclaration> declarations = node.getDeclaration();
-
-		// type check sub-action
-		PType actionType = action.apply(parentChecker, question);
-		if (!successfulType(actionType))
-		{
-			node.setType(issueHandler.addTypeError(action, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
-					+ action)));
-			return node.getType();
-		}
-
-		for (ATypeSingleDeclaration declr : declarations)
-		{
-			PType declType = declr.apply(parentChecker, question);
-			if (!successfulType(declType))
-				return issueHandler.addTypeError(declr, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(declr
-						+ ""));
-			issueHandler.addTypeWarning(declr, "This declaration should expand the environment: "
-					+ declr);
-		}
-
-		// All done!
-		node.setType(new AActionType());
-		return node.getType();
-	}
+	// @Override
+	// public PType caseADeclarationInstantiatedAction(
+	// ADeclarationInstantiatedAction node, TypeCheckInfo question)
+	// throws AnalysisException
+	// {
+	//
+	// // Extract sub-stuff
+	// PAction action = node.getAction();
+	// LinkedList<ATypeSingleDeclaration> declarations = node.getDeclaration();
+	//
+	// // type check sub-action
+	// PType actionType = action.apply(parentChecker, question);
+	// if (!successfulType(actionType))
+	// {
+	// node.setType(issueHandler.addTypeError(action, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""
+	// + action)));
+	// return node.getType();
+	// }
+	//
+	// for (ATypeSingleDeclaration declr : declarations)
+	// {
+	// PType declType = declr.apply(parentChecker, question);
+	// if (!successfulType(declType))
+	// return issueHandler.addTypeError(declr, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(declr
+	// + ""));
+	// issueHandler.addTypeWarning(declr, "This declaration should expand the environment: "
+	// + declr);
+	// }
+	//
+	// // All done!
+	// node.setType(new AActionType());
+	// return node.getType();
+	// }
 
 	@Override
 	public PType caseAGeneralisedParallelismParallelAction(
@@ -2240,7 +2230,7 @@ class TCActionVisitor extends
 			// // the types in the declared type for the channel
 			// //
 			// //
-			ATypeSingleDeclaration typeDecl = null;//channelNameDefinition.getSingleType();
+			ATypeSingleDeclaration typeDecl = null;// channelNameDefinition.getSingleType();
 
 			if (commParam instanceof AReadCommunicationParameter)
 			{
@@ -2518,7 +2508,7 @@ class TCActionVisitor extends
 			TypeCheckInfo question) throws AnalysisException
 	{
 
-		ATypeSingleDeclaration decl = node.getDeclaration();
+		ATypeSingleDeclaration decl = null;// node.getDeclaration();
 		PType declType = decl.apply(parentChecker, question);
 		if (!successfulType(declType))
 		{
@@ -2562,7 +2552,7 @@ class TCActionVisitor extends
 			if (i > parameterNames.size())
 				continue;
 			PParametrisation pa = parameterNames.get(i++);
-			ATypeSingleDeclaration decl = pa.getDeclaration();
+			ATypeSingleDeclaration decl = null;// pa.getDeclaration();
 			PType declType = decl.apply(parentChecker, question);
 			if (!successfulType(declType))
 			{
@@ -2571,7 +2561,7 @@ class TCActionVisitor extends
 				return node.getType();
 			}
 
-			LinkedList<ILexIdentifierToken> ids = decl.getIdentifiers();
+			LinkedList<ILexIdentifierToken> ids = null;// decl.getIdentifiers();
 			for (ILexIdentifierToken id : ids)
 			{
 				LexNameToken idName = new LexNameToken("", id);
@@ -2838,10 +2828,6 @@ class TCActionVisitor extends
 		}
 		return new AActionType(node.getLocation(), true);
 	}
-
-
-
-
 
 	@Override
 	public PType caseAParametrisedAction(AParametrisedAction node,

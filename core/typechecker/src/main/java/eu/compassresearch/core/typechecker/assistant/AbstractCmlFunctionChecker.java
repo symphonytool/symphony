@@ -19,7 +19,6 @@ import eu.compassresearch.ast.actions.AChannelRenamingAction;
 import eu.compassresearch.ast.actions.AChaosAction;
 import eu.compassresearch.ast.actions.ACommonInterleavingReplicatedAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
-import eu.compassresearch.ast.actions.ADeclarationInstantiatedAction;
 import eu.compassresearch.ast.actions.ADivAction;
 import eu.compassresearch.ast.actions.AEndDeadlineAction;
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
@@ -1086,14 +1085,6 @@ public abstract class AbstractCmlFunctionChecker extends FunctionChecker
 	public Boolean caseASynchronousParallelismReplicatedAction(
 			ASynchronousParallelismReplicatedAction node)
 			throws AnalysisException
-	{
-
-		return false;
-	}
-
-	@Override
-	public Boolean caseADeclarationInstantiatedAction(
-			ADeclarationInstantiatedAction node) throws AnalysisException
 	{
 
 		return false;

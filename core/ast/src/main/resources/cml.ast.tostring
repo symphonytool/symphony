@@ -31,6 +31,12 @@ import eu.compassresearch.ast.util.ToStringUtil;
 %action->reference = [name]
 %action->#Parallel->interleaving = [leftAction] "|||" [rightAction]
 %action->#Parallel->generalisedParallelism = [leftAction] "[|" [chansetExpression] "|]" [rightAction]
+
+%action->#Parallel->#Parallelism->alphabetised= [leftAction] " [" [leftNamesetExpression] " | " [leftChansetExpression] " || " [rightChansetExpression] " | " [rightNamesetExpression] "] "[rightAction]
+             
+                
+
+
 //%action->#Statement->block = "Block {" [action] "}"
 //%action->#Statement->new = [destination]" := new " [className] "("+ $Utils.listToString($[args]$)$ + ")"
 //%action->#Statement->return = "return "[exp]
@@ -43,8 +49,8 @@ import eu.compassresearch.ast.util.ToStringUtil;
 %action->communication = [identifier] " -> " [action]
 %action->guarded = [expression] " & " [action]
 //%action->#Statement->call = [name] "(" + $org.overture.ast.util.Utils.listToString($  [args]  $)$ + ")"
-%declaration->#Single->type = [identifiers] ":" [type]
-%declaration->#Single->expression = [identifiers] " := " [expression]
+%declaration->#Single->type = [identifier] ":" [type]
+%declaration->#Single->expression = [identifier] " := " [expression]
 
 //%exp->variable = [name]
 

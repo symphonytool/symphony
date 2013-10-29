@@ -7,11 +7,11 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.AInstanceVariableDefinition;
+import org.overture.ast.definitions.ALocalDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.definitions.SClassDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.factory.AstFactory;
-import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.typechecker.Pass;
@@ -22,7 +22,7 @@ import org.overture.typechecker.TypeCheckInfo;
 import org.overture.typechecker.assistant.ITypeCheckerAssistantFactory;
 import org.overture.typechecker.assistant.definition.SClassDefinitionAssistantTC;
 
-import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
+import eu.compassresearch.ast.actions.PParametrisation;
 import eu.compassresearch.ast.definitions.AActionClassDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.lex.LexNameToken;
@@ -58,26 +58,24 @@ public class CmlSClassDefinitionAssistant extends SClassDefinitionAssistantTC
 		return env;
 	}
 
-	public static Environment updateProcessEnvironment(AProcessDefinition process,
-			Environment base )
+	public static Environment updateProcessEnvironment(
+			AProcessDefinition process, Environment base)
 	{
-		
-Environment env=base;
+
+		Environment env = base;
 		List<PDefinition> definitions = new Vector<PDefinition>();
 
 		if (process != null && !process.getLocalState().isEmpty())
 		{
-			for (ATypeSingleDeclaration tDecl : process.getLocalState())
+			for (PParametrisation tDecl : process.getLocalState())
 			{
-				for (ILexIdentifierToken id : tDecl.getIdentifiers())
-				{
-					ILexNameToken name = new LexNameToken("", id);
-					PExp exp = AstFactory.newAUndefinedExp(name.getLocation());
-					AAssignmentDefinition def = AstFactory.newAAssignmentDefinition(name, tDecl.getType(), exp);
-					AInstanceVariableDefinition ivd = AstFactory.newAInstanceVariableDefinition(def.getName(), def.getType(), def.getExpression());
-					def.getType().parent(ivd);
-					definitions.add(ivd);
-				}
+				ALocalDefinition localDecl = tDecl.getDeclaration();
+				ILexNameToken name = new LexNameToken("", localDecl.getName().clone());
+				PExp exp = AstFactory.newAUndefinedExp(name.getLocation());
+				AAssignmentDefinition def = AstFactory.newAAssignmentDefinition(name, localDecl.getType(), exp);
+				AInstanceVariableDefinition ivd = AstFactory.newAInstanceVariableDefinition(def.getName(), def.getType(), def.getExpression());
+				def.getType().parent(ivd);
+				definitions.add(ivd);
 			}
 			env = new FlatCheckedEnvironment(af, definitions, base, NameScope.NAMES);
 		}

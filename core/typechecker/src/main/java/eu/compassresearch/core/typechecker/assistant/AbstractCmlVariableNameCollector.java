@@ -20,7 +20,6 @@ import eu.compassresearch.ast.actions.AChannelRenamingAction;
 import eu.compassresearch.ast.actions.AChaosAction;
 import eu.compassresearch.ast.actions.ACommonInterleavingReplicatedAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
-import eu.compassresearch.ast.actions.ADeclarationInstantiatedAction;
 import eu.compassresearch.ast.actions.ADivAction;
 import eu.compassresearch.ast.actions.AEndDeadlineAction;
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
@@ -1116,14 +1115,6 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseASynchronousParallelismReplicatedAction(
 			ASynchronousParallelismReplicatedAction node)
 			throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public LexNameList caseADeclarationInstantiatedAction(
-			ADeclarationInstantiatedAction node) throws AnalysisException
 	{
 		// TODO Auto-generated method stub
 		return null;

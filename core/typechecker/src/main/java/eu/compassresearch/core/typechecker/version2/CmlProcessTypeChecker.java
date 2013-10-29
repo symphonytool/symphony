@@ -3,6 +3,8 @@ package eu.compassresearch.core.typechecker.version2;
 //import static eu.compassresearch.core.typechecker.util.CmlTCUtil.successfulType;
 
 //import static eu.compassresearch.core.typechecker.util.CmlTCUtil.successfulType;
+//import static eu.compassresearch.core.typechecker.assistant.TypeCheckerUtil.getVoidType;
+import static eu.compassresearch.core.typechecker.assistant.TypeCheckerUtil.getVoidType;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -15,6 +17,7 @@ import org.overture.ast.analysis.intf.IQuestionAnswer;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
+import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.lex.LexIdentifierToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.typechecker.NameScope;
@@ -58,11 +61,9 @@ import eu.compassresearch.ast.process.ATimedInterruptProcess;
 import eu.compassresearch.ast.process.ATimeoutProcess;
 import eu.compassresearch.ast.process.AUntimedTimeoutProcess;
 import eu.compassresearch.ast.process.PProcess;
-import eu.compassresearch.ast.types.AProcessType;
 import eu.compassresearch.core.typechecker.CmlTypeCheckInfo;
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
-import eu.compassresearch.core.typechecker.api.TypeWarningMessages;
 import eu.compassresearch.core.typechecker.assistant.CmlSClassDefinitionAssistant;
 import eu.compassresearch.core.typechecker.assistant.TypeCheckerUtil;
 import eu.compassresearch.core.typechecker.util.CmlTCUtil;
@@ -75,7 +76,6 @@ public class CmlProcessTypeChecker extends
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private QuestionAnswerAdaptor<TypeCheckInfo, PType> tc;
 	private final ITypeIssueHandler issueHandler;// = VanillaFactory.newCollectingIssueHandle();
 
 	@SuppressWarnings("deprecation")
@@ -85,11 +85,9 @@ public class CmlProcessTypeChecker extends
 			ITypeIssueHandler issueHandler)
 	{
 		super(root);
-		this.tc = tc2;
 		this.issueHandler = issueHandler;
 	}
-	
-	
+
 	/**
 	 * Find a channel, action or chanset in the environment
 	 * 
@@ -110,8 +108,7 @@ public class CmlProcessTypeChecker extends
 			return defs.iterator().next();
 		}
 	}
-	
-	
+
 	/**
 	 * The special process that actually is a definition of actions
 	 */
@@ -133,19 +130,25 @@ public class CmlProcessTypeChecker extends
 		return super.caseAActionProcess(node, question);
 	}
 
+	private PType typeCheck(ILexLocation location, TypeCheckInfo question,
+			INode... iNodes) throws AnalysisException
+	{
+		List<PType> types = new Vector<PType>();
+		for (INode iNode : iNodes)
+		{
+			types.add(iNode.apply(THIS, question));
+		}
+
+		return TypeCheckerUtil.generateUnionType(location, types);
+	}
+
 	@Override
 	public PType caseAInternalChoiceProcess(AInternalChoiceProcess node,
 			TypeCheckInfo question) throws AnalysisException
 	{
+		typeCheck(node.getLocation(), question, node.getLeft(), node.getRight());
 
-		PProcess left = node.getLeft();
-		PProcess right = node.getRight();
-
-		PType leftType = left.apply(THIS, question);
-
-		PType rightType = right.apply(THIS, question);
-
-		return new AProcessType(node.getLocation(), true);
+		return getVoidType(node);
 	}
 
 	@Override
@@ -153,14 +156,9 @@ public class CmlProcessTypeChecker extends
 			TypeCheckInfo question) throws AnalysisException
 	{
 
-		PProcess left = node.getLeft();
-		PProcess right = node.getRight();
+		typeCheck(node.getLocation(), question, node.getLeft(), node.getRight());
 
-		PType leftType = left.apply(THIS, question);
-
-		PType rightType = right.apply(THIS, question);
-
-		return new AProcessType();
+		return getVoidType(node);
 	}
 
 	@Override
@@ -168,17 +166,11 @@ public class CmlProcessTypeChecker extends
 			TypeCheckInfo question) throws AnalysisException
 	{
 
-		PExp timedExp = node.getTimeoutExpression();
-		PProcess right = node.getRight();
-		PProcess left = node.getLeft();
+		node.getTimeoutExpression().apply(THIS, question);
 
-		PType timedExpType = timedExp.apply(THIS, question);
+		typeCheck(node.getLocation(), question, node.getLeft(), node.getRight());
 
-		PType leftType = left.apply(THIS, question);
-
-		PType rightType = right.apply(THIS, question);
-
-		return new AProcessType();
+		return getVoidType(node);
 	}
 
 	@Override
@@ -189,15 +181,14 @@ public class CmlProcessTypeChecker extends
 		PProcess proc = node.getReplicatedProcess();
 		LinkedList<PSingleDeclaration> repdecl = node.getReplicationDeclaration();
 
-
-List<PDefinition> defs = new Vector<PDefinition>();
+		List<PDefinition> defs = new Vector<PDefinition>();
 		for (PSingleDeclaration decl : repdecl)
 		{
 			PType declType = decl.apply(THIS, question);
 
 			for (PDefinition def : declType.getDefinitions())
 			{
-			defs.add( def);
+				defs.add(def);
 			}
 		}
 
@@ -212,26 +203,25 @@ List<PDefinition> defs = new Vector<PDefinition>();
 			throws AnalysisException
 	{
 
-		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
-		if (cmlEnv == null)
-			return issueHandler.addTypeError(node, TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(""
-					+ node));
 
 		PProcess proc = node.getReplicatedProcess();
 		LinkedList<PSingleDeclaration> repdecl = node.getReplicationDeclaration();
 
-		CmlTypeCheckInfo repProcEnv = cmlEnv.newScope();
+		List<PDefinition> locals = new Vector<PDefinition>();
+		
 		for (PSingleDeclaration decl : repdecl)
 		{
 			PType declType = decl.apply(THIS, question);
 
 			for (PDefinition def : declType.getDefinitions())
-				repProcEnv.addVariable(def.getName(), def);
+			{
+				locals.add( def);
+			}
 		}
 
-		PType procType = proc.apply(THIS, repProcEnv);
+		 proc.apply(THIS, question.newScope(locals));
 
-		return new AProcessType();
+		return getVoidType(node);
 	}
 
 	@Override
@@ -240,6 +230,8 @@ List<PDefinition> defs = new Vector<PDefinition>();
 			throws AnalysisException
 	{
 
+		//FIXME
+		
 		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
 		if (cmlEnv == null)
 			return issueHandler.addTypeError(node, TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(""
@@ -257,9 +249,9 @@ List<PDefinition> defs = new Vector<PDefinition>();
 				repProcEnv.addVariable(def.getName(), def);
 		}
 
-		PType procType = proc.apply(THIS, repProcEnv);
+		 proc.apply(THIS, repProcEnv);
 
-		return new AProcessType();
+		return getVoidType(node);
 	}
 
 	@Override
@@ -289,7 +281,7 @@ List<PDefinition> defs = new Vector<PDefinition>();
 
 		PType repProcType = repProc.apply(THIS, repProcEnv);
 
-		return new AProcessType();
+		return getVoidType(node);
 	}
 
 	@Override
@@ -309,7 +301,7 @@ List<PDefinition> defs = new Vector<PDefinition>();
 
 		PType repProcType = repProc.apply(THIS, question);
 
-		return new AProcessType();
+		return getVoidType(node);
 	}
 
 	@Override
@@ -322,11 +314,9 @@ List<PDefinition> defs = new Vector<PDefinition>();
 		Environment local = new FlatCheckedEnvironment(question.assistantFactory, localDefinitions, question.env, NameScope.NAMES);
 		TypeCheckInfo info = new TypeCheckInfo(question.assistantFactory, local, NameScope.NAMES);
 
-
 		PVarsetExpression csExp = node.getChansetExpression();
 		PProcess repProcess = node.getReplicatedProcess();
 		LinkedList<PSingleDeclaration> repDec = node.getReplicationDeclaration();
-
 
 		for (PSingleDeclaration d : repDec)
 		{
@@ -340,10 +330,10 @@ List<PDefinition> defs = new Vector<PDefinition>();
 		PType csExpType = csExp.apply(THIS, info);
 
 		// TODO: Maybe the declarations above needs to go into the environment ?
-		
+
 		PType repProcessType = repProcess.apply(THIS, info);
 
-		return new AProcessType();
+		return getVoidType(node);
 	}
 
 	@Override
@@ -358,7 +348,7 @@ List<PDefinition> defs = new Vector<PDefinition>();
 
 		PType rightType = right.apply(THIS, question);
 
-		return new AProcessType();
+		return getVoidType(node);
 	}
 
 	@Override
@@ -373,7 +363,7 @@ List<PDefinition> defs = new Vector<PDefinition>();
 
 		PType rightType = right.apply(THIS, question);
 
-		return new AProcessType();
+		return getVoidType(node);
 	}
 
 	@Override
@@ -385,7 +375,7 @@ List<PDefinition> defs = new Vector<PDefinition>();
 		LinkedList<PParametrisation> decl = node.getParametrisations();
 		PProcess proc = node.getProcess();
 
-		CmlTypeCheckInfo cmlEnv = null;//FIXME TCActionVisitor.getTypeCheckInfo(question);
+		CmlTypeCheckInfo cmlEnv = null;// FIXME TCActionVisitor.getTypeCheckInfo(question);
 		if (cmlEnv == null)
 			return issueHandler.addTypeError(node, TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(""
 					+ node));
@@ -426,7 +416,7 @@ List<PDefinition> defs = new Vector<PDefinition>();
 
 		PType procType = proc.apply(THIS, procEnv);
 
-		return new AProcessType();
+		return getVoidType(node);
 	}
 
 	@Override
@@ -440,7 +430,7 @@ List<PDefinition> defs = new Vector<PDefinition>();
 		PVarsetExpression csexp = node.getChansetExpression();
 		PType csexpType = csexp.apply(THIS, question);
 
-		return new AProcessType(node.getLocation(), true);
+		return getVoidType(node);
 	}
 
 	@Override
@@ -459,7 +449,7 @@ List<PDefinition> defs = new Vector<PDefinition>();
 
 		PType csExpType = csExp.apply(THIS, question);
 
-		return new AProcessType();
+		return getVoidType(node);
 	}
 
 	@Override
@@ -474,7 +464,7 @@ List<PDefinition> defs = new Vector<PDefinition>();
 
 		PType rightType = right.apply(THIS, question);
 
-		return new AProcessType();
+		return getVoidType(node);
 	}
 
 	@Override
@@ -489,7 +479,7 @@ List<PDefinition> defs = new Vector<PDefinition>();
 
 		PType renameExpType = renameExp.apply(THIS, question);
 
-		return new AProcessType();
+		return getVoidType(node);
 	}
 
 	@SuppressWarnings("deprecation")
@@ -511,7 +501,7 @@ List<PDefinition> defs = new Vector<PDefinition>();
 		PVarsetExpression rightChanSet = node.getRightChansetExpression();
 		PType rightChanSetType = rightChanSet.apply(THIS, question);
 
-		return new AProcessType(node.getLocation(), true);
+		return getVoidType(node);
 	}
 
 	@SuppressWarnings("deprecation")
@@ -533,7 +523,7 @@ List<PDefinition> defs = new Vector<PDefinition>();
 			return issueHandler.addTypeError(timeExp, TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT.customizeMessage(node
 					+ "", timeExpType + ""));
 
-		return new AProcessType(node.getLocation(), true);
+		return getVoidType(node);
 	}
 
 	@Override
@@ -541,7 +531,7 @@ List<PDefinition> defs = new Vector<PDefinition>();
 			TypeCheckInfo question) throws AnalysisException
 	{
 		// TODO RWL Make this complete
-		return new AProcessType(node.getLocation(), true);
+		return getVoidType(node);
 	}
 
 	@Override
@@ -586,7 +576,7 @@ List<PDefinition> defs = new Vector<PDefinition>();
 
 		// TODO: missing marker on processes
 
-		return new AProcessType();
+		return getVoidType(node);
 	}
 
 	@Override
@@ -601,7 +591,7 @@ List<PDefinition> defs = new Vector<PDefinition>();
 
 		// TODO: missing marker on processes
 
-		return new AProcessType();
+		return getVoidType(node);
 	}
 
 	@Override
@@ -629,9 +619,8 @@ List<PDefinition> defs = new Vector<PDefinition>();
 					+ ""));
 		node.setProcessDefinition((AProcessDefinition) processDef);
 
-		return new AProcessType();
+		return getVoidType(node);
 	}
-
 
 	@SuppressWarnings("deprecation")
 	@Override
@@ -649,7 +638,7 @@ List<PDefinition> defs = new Vector<PDefinition>();
 			return issueHandler.addTypeError(node.getTimeExpression(), TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT.customizeMessage(node.getTimeExpression()
 					+ ""));
 
-		return new AProcessType(node.getLocation(), true);
+		return getVoidType(node);
 	}
 
 	@Override
