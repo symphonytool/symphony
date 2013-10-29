@@ -5,6 +5,8 @@ import java.util.List;
 import org.overture.ast.assistant.type.PTypeAssistant;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.intf.lex.ILexLocation;
+import org.overture.ast.lex.LexIdentifierToken;
+import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.types.PType;
 
 //package eu.compassresearch.ast.lex;
@@ -30,7 +32,7 @@ import org.overture.ast.types.PType;
 //import org.overture.ast.types.PType;
 //import org.overture.ast.util.Utils;
 //
-public class LexNameToken extends org.overture.ast.lex.LexNameToken// implements ILexNameToken,
+public class CmlLexNameToken extends LexNameToken// implements ILexNameToken,
 // Serializable
 {
 
@@ -51,18 +53,18 @@ public class LexNameToken extends org.overture.ast.lex.LexNameToken// implements
 	//
 	// private int hashcode = 0;
 	//
-	public LexNameToken(String module, String name, ILexLocation location,
+	public CmlLexNameToken(String module, String name, ILexLocation location,
 			boolean old, boolean explicit)
 	{
 		super(module, name, location, old, explicit);
 	}
 
-	public LexNameToken(String module, String name, ILexLocation location)
+	public CmlLexNameToken(String module, String name, ILexLocation location)
 	{
 		super(module, name, location);
 	}
 
-	public LexNameToken(String module, ILexIdentifierToken id)
+	public CmlLexNameToken(String module, ILexIdentifierToken id)
 	{
 		super(module, id);
 	}
@@ -97,29 +99,29 @@ public class LexNameToken extends org.overture.ast.lex.LexNameToken// implements
 		return hashcode;
 	}
 	//
-	// public LexNameToken getPerName(ILexLocation loc)
+	// public CmlLexNameToken getPerName(ILexLocation loc)
 	// {
-	// return new LexNameToken(module, "per_" + name, loc);
+	// return new CmlLexNameToken(module, "per_" + name, loc);
 	// }
 	//
-	// public LexNameToken getPreName(ILexLocation l)
+	// public CmlLexNameToken getPreName(ILexLocation l)
 	// {
-	// return new LexNameToken(module, "pre_" + name, l);
+	// return new CmlLexNameToken(module, "pre_" + name, l);
 	// }
 	//
-	// public LexNameToken getPostName(ILexLocation l)
+	// public CmlLexNameToken getPostName(ILexLocation l)
 	// {
-	// return new LexNameToken(module, "post_" + name, l);
+	// return new CmlLexNameToken(module, "post_" + name, l);
 	// }
 	//
-	// public LexNameToken getInvName(ILexLocation l)
+	// public CmlLexNameToken getInvName(ILexLocation l)
 	// {
-	// return new LexNameToken(module, "inv_" + name, l);
+	// return new CmlLexNameToken(module, "inv_" + name, l);
 	// }
 	//
-	// public LexNameToken getInitName(ILexLocation l)
+	// public CmlLexNameToken getInitName(ILexLocation l)
 	// {
-	// return new LexNameToken(module, "init_" + name, l);
+	// return new CmlLexNameToken(module, "init_" + name, l);
 	// }
 	//
 	// public LexIdentifierToken getIdentifier()
@@ -127,14 +129,14 @@ public class LexNameToken extends org.overture.ast.lex.LexNameToken// implements
 	// return new LexIdentifierToken(name, old, location);
 	// }
 	//
-	// public LexNameToken getExplicit(boolean ex)
+	// public CmlLexNameToken getExplicit(boolean ex)
 	// {
-	// return new LexNameToken(module, name, location, old, ex);
+	// return new CmlLexNameToken(module, name, location, old, ex);
 	// }
 	//
-	// public LexNameToken getOldName()
+	// public CmlLexNameToken getOldName()
 	// {
-	// return new LexNameToken(module, new LexIdentifierToken(name, true, location));
+	// return new CmlLexNameToken(module, new LexIdentifierToken(name, true, location));
 	// }
 	//
 	// public String getFullName()
@@ -149,9 +151,9 @@ public class LexNameToken extends org.overture.ast.lex.LexNameToken// implements
 	// return name;
 	// }
 	//
-	// public LexNameToken getNewName()
+	// public CmlLexNameToken getNewName()
 	// {
-	// return new LexNameToken(module, new LexIdentifierToken(name, false, location));
+	// return new CmlLexNameToken(module, new LexIdentifierToken(name, false, location));
 	// }
 	//
 	// public String getSimpleName()
@@ -159,63 +161,63 @@ public class LexNameToken extends org.overture.ast.lex.LexNameToken// implements
 	// return name;
 	// }
 	//
-	// public LexNameToken getPreName(LexLocation l)
+	// public CmlLexNameToken getPreName(LexLocation l)
 	// {
-	// return new LexNameToken(module, "pre_" + name, l);
+	// return new CmlLexNameToken(module, "pre_" + name, l);
 	// }
 	//
-	// public LexNameToken getPostName(LexLocation l)
+	// public CmlLexNameToken getPostName(LexLocation l)
 	// {
-	// return new LexNameToken(module, "post_" + name, l);
+	// return new CmlLexNameToken(module, "post_" + name, l);
 	// }
 	//
-	// public LexNameToken getInvName(LexLocation l)
+	// public CmlLexNameToken getInvName(LexLocation l)
 	// {
-	// return new LexNameToken(module, "inv_" + name, l);
+	// return new CmlLexNameToken(module, "inv_" + name, l);
 	// }
 	//
-	// public LexNameToken getInitName(LexLocation l)
+	// public CmlLexNameToken getInitName(LexLocation l)
 	// {
-	// return new LexNameToken(module, "init_" + name, l);
+	// return new CmlLexNameToken(module, "init_" + name, l);
 	// }
 	//
-	// public LexNameToken getModifiedName(String classname)
+	// public CmlLexNameToken getModifiedName(String classname)
 	// {
-	// LexNameToken mod = new LexNameToken(classname, name, location);
+	// CmlLexNameToken mod = new CmlLexNameToken(classname, name, location);
 	// mod.setTypeQualifier(typeQualifier);
 	// return mod;
 	// }
 	//
-	// public LexNameToken getSelfName()
+	// public CmlLexNameToken getSelfName()
 	// {
 	// if (module.equals("CLASS"))
 	// {
-	// return new LexNameToken(name, "self", location);
+	// return new CmlLexNameToken(name, "self", location);
 	// } else
 	// {
-	// return new LexNameToken(module, "self", location);
+	// return new CmlLexNameToken(module, "self", location);
 	// }
 	// }
 	//
-	// public LexNameToken getThreadName()
+	// public CmlLexNameToken getThreadName()
 	// {
 	// if (module.equals("CLASS"))
 	// {
-	// return new LexNameToken(name, "thread", location);
+	// return new CmlLexNameToken(name, "thread", location);
 	// } else
 	// {
-	// return new LexNameToken(module, "thread", location);
+	// return new CmlLexNameToken(module, "thread", location);
 	// }
 	// }
 	//
-	// public LexNameToken getPerName(LexLocation loc)
+	// public CmlLexNameToken getPerName(LexLocation loc)
 	// {
-	// return new LexNameToken(module, "per_" + name, loc);
+	// return new CmlLexNameToken(module, "per_" + name, loc);
 	// }
 	//
-	// public LexNameToken getClassName()
+	// public CmlLexNameToken getClassName()
 	// {
-	// return new LexNameToken("CLASS", name, location);
+	// return new CmlLexNameToken("CLASS", name, location);
 	// }
 	//
 	// public void setTypeQualifier(List<PType> types)
@@ -238,12 +240,12 @@ public class LexNameToken extends org.overture.ast.lex.LexNameToken// implements
 	// @Override
 	// public boolean equals(Object other)
 	// {
-	// if (!(other instanceof LexNameToken))
+	// if (!(other instanceof CmlLexNameToken))
 	// {
 	// return false;
 	// }
 	//
-	// LexNameToken lother = (LexNameToken) other;
+	// CmlLexNameToken lother = (CmlLexNameToken) other;
 	//
 	// if (typeQualifier != null && lother.getTypeQualifier() != null)
 	// {
@@ -277,7 +279,7 @@ public class LexNameToken extends org.overture.ast.lex.LexNameToken// implements
 	// }
 	//
 	// // FIXME What is this method here for
-	// // public boolean matches(LexNameToken other)
+	// // public boolean matches(CmlLexNameToken other)
 	// // {
 	// // return module.equals(other.module) && name.equals(other.name)
 	// // && old == other.old;
@@ -306,14 +308,14 @@ public class LexNameToken extends org.overture.ast.lex.LexNameToken// implements
 	// + Utils.listToString(typeQualifier) + ")");
 	// }
 	//
-	// public LexNameToken copy()
+	// public CmlLexNameToken copy()
 	// {
-	// LexNameToken c = new LexNameToken(module, name, location, old, explicit);
+	// CmlLexNameToken c = new CmlLexNameToken(module, name, location, old, explicit);
 	// c.setTypeQualifier(typeQualifier);
 	// return c;
 	// }
 	//
-	// public int compareTo(LexNameToken o)
+	// public int compareTo(CmlLexNameToken o)
 	// {
 	// return toString().compareTo(o.toString());
 	// }
@@ -324,7 +326,7 @@ public class LexNameToken extends org.overture.ast.lex.LexNameToken// implements
 	// }
 	//
 	// @Override
-	// public LexNameToken clone()
+	// public CmlLexNameToken clone()
 	// {
 	// return copy();
 	// }
@@ -419,4 +421,91 @@ public class LexNameToken extends org.overture.ast.lex.LexNameToken// implements
 	// && old == other.getOld();
 	// }
 	//
+	
+	public CmlLexNameToken getExplicit(boolean ex)
+	{
+		return new CmlLexNameToken(module, name, location, old, ex);
+	}
+
+	public CmlLexNameToken getOldName()
+	{
+		return new CmlLexNameToken(module, new LexIdentifierToken(name, true, location));
+	}
+	
+	public CmlLexNameToken getNewName()
+	{
+		return new CmlLexNameToken(module, new LexIdentifierToken(name, false, location));
+	}
+	
+	public CmlLexNameToken getPreName(ILexLocation l)
+	{
+		return new CmlLexNameToken(module, "pre_" + name, l);
+	}
+
+	public CmlLexNameToken getPostName(ILexLocation l)
+	{
+		return new CmlLexNameToken(module, "post_" + name, l);
+	}
+
+	public CmlLexNameToken getInvName(ILexLocation l)
+	{
+		return new CmlLexNameToken(module, "inv_" + name, l);
+	}
+
+	public CmlLexNameToken getInitName(ILexLocation l)
+	{
+		return new CmlLexNameToken(module, "init_" + name, l);
+	}
+
+	public CmlLexNameToken getModifiedName(String classname)
+	{
+		CmlLexNameToken mod = new CmlLexNameToken(classname, name, location);
+		mod.setTypeQualifier(typeQualifier);
+		return mod;
+	}
+
+	public CmlLexNameToken getSelfName()
+	{
+		if (module.equals("CLASS"))
+		{
+			return new CmlLexNameToken(name, "self", location);
+		} else
+		{
+			return new CmlLexNameToken(module, "self", location);
+		}
+	}
+
+	public CmlLexNameToken getThreadName()
+	{
+		if (module.equals("CLASS"))
+		{
+			return new CmlLexNameToken(name, "thread", location);
+		} else
+		{
+			return new CmlLexNameToken(module, "thread", location);
+		}
+	}
+
+	public CmlLexNameToken getThreadName(ILexLocation loc)
+	{
+		return new CmlLexNameToken(loc.getModule(), "thread", loc);
+	}
+
+	public CmlLexNameToken getPerName(ILexLocation loc)
+	{
+		return new CmlLexNameToken(module, "per_" + name, loc);
+	}
+
+	public CmlLexNameToken getClassName()
+	{
+		return new CmlLexNameToken("CLASS", name, location);
+	}
+	
+	public CmlLexNameToken copy()
+	{
+		CmlLexNameToken c = new CmlLexNameToken(module, name, location, old, explicit);
+		c.setTypeQualifier(typeQualifier);
+		return c;
+	}
+
 }

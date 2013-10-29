@@ -30,7 +30,7 @@ import eu.compassresearch.ast.expressions.AIdentifierVarsetExpression;
 import eu.compassresearch.ast.expressions.ANameChannelExp;
 import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
 import eu.compassresearch.ast.expressions.PCMLExp;
-import eu.compassresearch.ast.lex.LexNameToken;
+import eu.compassresearch.ast.lex.CmlLexNameToken;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
@@ -152,7 +152,7 @@ public class CmlExpressionVisitor extends
 			Set<ILexNameToken> names = new HashSet<ILexNameToken>();
 			for (ANameChannelExp chanNameExp : node.getChannelNames())
 			{
-				names.add(new LexNameToken("", chanNameExp.getIdentifier().clone()));
+				names.add(new CmlLexNameToken("", chanNameExp.getIdentifier().clone()));
 			}
 
 			return new NamesetValue(names);
@@ -196,7 +196,7 @@ public class CmlExpressionVisitor extends
 
 		Iterator<ILexIdentifierToken> iter = node.getIdentifiers().iterator();
 
-		Value val = question.check(new LexNameToken("", iter.next()));
+		Value val = question.check(new CmlLexNameToken("", iter.next()));
 
 		if (val.deref() instanceof RecordValue)
 		{
@@ -207,7 +207,7 @@ public class CmlExpressionVisitor extends
 		} else if (val.deref() instanceof ObjectValue)
 		{
 			ObjectValue objectVal = val.objectValue(question);
-			return objectVal.get(new LexNameToken("", (ILexIdentifierToken) iter.next().clone()), false);
+			return objectVal.get(new CmlLexNameToken("", (ILexIdentifierToken) iter.next().clone()), false);
 		}
 
 		if (val.isUndefined())

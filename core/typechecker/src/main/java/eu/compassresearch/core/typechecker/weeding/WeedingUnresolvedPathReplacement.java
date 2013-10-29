@@ -21,7 +21,7 @@ import org.overture.ast.types.ABracketType;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
 import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
-import eu.compassresearch.ast.lex.LexNameToken;
+import eu.compassresearch.ast.lex.CmlLexNameToken;
 import eu.compassresearch.ast.program.PSource;
 
 /**
@@ -105,7 +105,7 @@ public class WeedingUnresolvedPathReplacement extends
 			ILexLocation location = id.getLocation();
 			LexLocation loc = new LexLocation(location.getFile(), id.getName(), location.getStartLine(), location.getStartPos(), location.getEndLine(), location.getEndPos(), location.getStartOffset(), location.getEndOffset());
 
-			ILexNameToken name = new LexNameToken(module, id.getName(), loc, false, isExplicit);
+			ILexNameToken name = new CmlLexNameToken(module, id.getName(), loc, false, isExplicit);
 
 			exp = AstFactory.newAVariableExp(name);
 

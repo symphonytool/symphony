@@ -17,15 +17,14 @@ import org.overture.typechecker.assistant.definition.PDefinitionListAssistantTC;
 import eu.compassresearch.ast.definitions.AChannelDefinition;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 
-
 public class CmlFlatCheckedEnvironment extends FlatCheckedEnvironment
 {
-	private List<AChannelDefinition> channelDef ;
-	
+	private List<AChannelDefinition> channelDef;
+
 	public CmlFlatCheckedEnvironment(ITypeCheckerAssistantFactory af,
 			PDefinition one, Environment env, NameScope scope)
 	{
-		super(af, one, env, scope); 
+		super(af, one, env, scope);
 	}
 
 	public CmlFlatCheckedEnvironment(ITypeCheckerAssistantFactory af,
@@ -40,43 +39,42 @@ public class CmlFlatCheckedEnvironment extends FlatCheckedEnvironment
 	{
 		super(af, definitions, env, scope);
 	}
-	
+
 	@Override
 	protected void dupHideCheck(List<PDefinition> list, NameScope scope)
-	{	
+	{
 		ArrayList<PDefinition> channelDefs = new ArrayList<PDefinition>();
-		
+
 		for (PDefinition def : list)
 		{
-			if(def instanceof AChannelDefinition){
+			if (def instanceof AChannelDefinition)
+			{
 				channelDefs.add(def);
 			}
 		}
-		
+
 		LexNameList chanNames = PDefinitionListAssistantTC.getVariableNames(channelDefs);
 		LexNameList names = PDefinitionListAssistantTC.getVariableNames(list);
 		names.removeAll(chanNames);
-		
+
 		findDuplicates(scope, chanNames);
 		findDuplicates(scope, names);
 	}
 
 	private void findDuplicates(NameScope scope, LexNameList allnames)
 	{
-		for (ILexNameToken n1: allnames)
+		for (ILexNameToken n1 : allnames)
 		{
 			LexNameList done = new LexNameList();
 
-			for (ILexNameToken n2: allnames)
+			for (ILexNameToken n2 : allnames)
 			{
 				if (n1 != n2 && n1.equals(n2) && !done.contains(n1))
 				{
 					TypeChecker.report(3426, TypeErrorMessages.DUPLICATE_DEFINITION.customizeMessage(n1
-							+ " "
-							+  n1.getLocation(), n2
-							+ "  "
+							+ " " + n1.getLocation(), n2 + "  "
 							+ n2.getLocation()), n1.getLocation());
-					
+
 					done.add(n1);
 				}
 			}
@@ -89,25 +87,26 @@ public class CmlFlatCheckedEnvironment extends FlatCheckedEnvironment
 
 				PDefinition def = outer.findName(n1, NameScope.NAMESANDSTATE);
 
-				// TODO: RWL: This is not sound, however the behaviour below is not sound 
+				// TODO: RWL: This is not sound, however the behaviour below is not sound
 				// in case def.getNameScope is null.
-				if (def != null && def.getNameScope() == null) def.setNameScope(NameScope.GLOBAL);
-				
-				if (def != null && def.getLocation() != n1.getLocation() &&
-					def.getNameScope().matches(scope))
+				if (def != null && def.getNameScope() == null)
+					def.setNameScope(NameScope.GLOBAL);
+
+				if (def != null && def.getLocation() != n1.getLocation()
+						&& def.getNameScope().matches(scope))
 				{
 					// Reduce clutter for names in the same module/class
 					String message = null;
 
 					if (def.getLocation().getFile().equals(n1.getLocation().getFile()))
 					{
-						message = def.getName() + " " + def.getLocation().toShortString() +
-							" hidden by " +	n1.getFullName();
-					}
-					else
+						message = def.getName() + " "
+								+ def.getLocation().toShortString()
+								+ " hidden by " + n1.getFullName();
+					} else
 					{
-						message = def.getName() + " " + def.getLocation() +
-							" hidden by " + n1.getFullName();
+						message = def.getName() + " " + def.getLocation()
+								+ " hidden by " + n1.getFullName();
 					}
 
 					TypeChecker.warning(5008, message, n1.getLocation());

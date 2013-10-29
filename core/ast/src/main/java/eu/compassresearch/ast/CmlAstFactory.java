@@ -21,7 +21,7 @@ import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionClassDefinition;
 import eu.compassresearch.ast.definitions.AActionDefinition;
-import eu.compassresearch.ast.lex.LexNameToken;
+import eu.compassresearch.ast.lex.CmlLexNameToken;
 
 public class CmlAstFactory extends AstFactory
 {
@@ -30,7 +30,7 @@ public class CmlAstFactory extends AstFactory
 	public static AActionClassDefinition newAActionClassDefinition(
 			ILexLocation loc, List<PDefinition> members)
 	{
-		ILexNameToken className = new LexNameToken("", "$actionClass"
+		ILexNameToken className = new CmlLexNameToken("", "$actionClass"
 				+ actionClassIndex++, loc);
 		List<? extends ILexNameToken> superclasses = new ArrayList<ILexNameToken>();
 
@@ -45,7 +45,7 @@ public class CmlAstFactory extends AstFactory
 			ILexIdentifierToken identifier, PAction action)
 	{
 		AActionDefinition adef = new AActionDefinition();
-		adef.setName(new LexNameToken("", identifier));
+		adef.setName(new CmlLexNameToken("", identifier));
 		adef.setAction(action);
 		// adef.setDeclarations(parametrisationList);
 		return adef;
@@ -66,7 +66,7 @@ public class CmlAstFactory extends AstFactory
 
 			} else
 			{
-				rdecls.add(new AExpressionSingleDeclaration(loc, NameScope.GLOBAL, id, exp));
+				rdecls.add(new AExpressionSingleDeclaration(loc, NameScope.GLOBAL, id, exp.clone()));
 			}
 		}
 		return rdecls;

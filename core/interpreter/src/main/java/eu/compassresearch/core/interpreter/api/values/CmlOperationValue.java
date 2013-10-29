@@ -23,7 +23,7 @@ import org.overture.interpreter.values.ValueList;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
-import eu.compassresearch.ast.lex.LexNameToken;
+import eu.compassresearch.ast.lex.CmlLexNameToken;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 
 public class CmlOperationValue extends OperationValue
@@ -33,7 +33,7 @@ public class CmlOperationValue extends OperationValue
 	// This is used to retrieve the result of a operation
 	public static ILexNameToken ReturnValueName()
 	{
-		return new LexNameToken("|CALL|", "RETURN", new LexLocation());
+		return new CmlLexNameToken("|CALL|", "RETURN", new LexLocation());
 	}
 
 	private static final long serialVersionUID = 1L;

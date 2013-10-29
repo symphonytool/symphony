@@ -11,7 +11,6 @@ import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.definitions.SClassDefinition;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.intf.lex.ILexNameToken;
-import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.types.PType;
@@ -24,6 +23,7 @@ import org.overture.typechecker.util.HelpLexNameToken;
 
 import eu.compassresearch.ast.definitions.AChannelDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
+import eu.compassresearch.ast.lex.CmlLexNameToken;
 import eu.compassresearch.core.typechecker.api.ITypeCheckQuestion;
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
@@ -171,7 +171,7 @@ public class CmlTypeCheckInfo extends TypeCheckInfo implements
 	{
 		ILexNameToken name = null;
 		if (!(ident instanceof ILexNameToken))
-			name = new LexNameToken("", ident);
+			name = new CmlLexNameToken("", ident);
 		else
 			name = (ILexNameToken) ident;
 		PType res = null;
@@ -251,12 +251,12 @@ public class CmlTypeCheckInfo extends TypeCheckInfo implements
 			{
 				if (def instanceof AChannelDefinition)
 				{
-					AChannelDefinition chanDef = (AChannelDefinition) def;
+//					AChannelDefinition chanDef = (AChannelDefinition) def;
 
 //					for (ILexIdentifierToken id : chanDef.getSingleType().getIdentifiers())
 //					{
-//						LexNameToken idName = new LexNameToken("", id);
-//						LexNameToken identName = new LexNameToken("", ident);
+//						CmlLexNameToken idName = new CmlLexNameToken("", id);
+//						CmlLexNameToken identName = new CmlLexNameToken("", ident);
 //						if (HelpLexNameToken.isEqual(idName, identName))
 //							return def;
 //					}
@@ -264,9 +264,9 @@ public class CmlTypeCheckInfo extends TypeCheckInfo implements
 
 				if (def instanceof AChansetDefinition)
 				{
-					LexNameToken identName = new LexNameToken("", ident);
+					CmlLexNameToken identName = new CmlLexNameToken("", ident);
 					AChansetDefinition chanset = (AChansetDefinition) def;
-					LexNameToken chanName = new LexNameToken("", chanset.getIdentifier());
+					CmlLexNameToken chanName = new CmlLexNameToken("", chanset.getIdentifier());
 					if (HelpLexNameToken.isEqual(identName, chanName))
 						return def;
 
@@ -354,7 +354,7 @@ public class CmlTypeCheckInfo extends TypeCheckInfo implements
 //		for (ILexIdentifierToken newChannelIdent : newChannel.getSingleType().getIdentifiers())
 //		{
 //			int count = 0;
-//			LexNameToken newChannelIdentName = new LexNameToken("", newChannelIdent);
+//			CmlLexNameToken newChannelIdentName = new CmlLexNameToken("", newChannelIdent);
 //
 //			// run through each existing channels
 //			for (PDefinition def : channels.getDefinitions())
@@ -366,7 +366,7 @@ public class CmlTypeCheckInfo extends TypeCheckInfo implements
 //					// compare identifiers
 ////					for (ILexIdentifierToken id : existingChanDef.getSingleType().getIdentifiers())
 ////					{
-////						LexNameToken existingChannelName = new LexNameToken("", id);
+////						CmlLexNameToken existingChannelName = new CmlLexNameToken("", id);
 ////
 ////						if (HelpLexNameToken.isEqual(existingChannelName, newChannelIdentName))
 ////						{

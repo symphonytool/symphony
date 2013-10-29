@@ -127,7 +127,7 @@ public class CmlSatisfiabilityObligation extends CmlProofObligation
 				StringBuilder sb = new StringBuilder();
 				sb.append("new");
 				sb.append(def.getName().getName());
-				ILexNameToken name = new eu.compassresearch.ast.lex.LexNameToken("", sb.toString(), null);
+				ILexNameToken name = new eu.compassresearch.ast.lex.CmlLexNameToken("", sb.toString(), null);
 				postArglist.add(getVarExp(name));
 				exists_binds.add(getMultipleTypeBind(def.getType().clone(), def.getName().clone()));
 			}

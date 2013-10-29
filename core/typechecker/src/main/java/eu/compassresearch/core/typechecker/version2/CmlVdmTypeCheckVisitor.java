@@ -56,6 +56,9 @@ public class CmlVdmTypeCheckVisitor extends
 		{
 			return node.apply(CmlVdmTypeCheckVisitor.this, question);
 		};
+		
+		
+		
 	};
 
 	@Override
@@ -190,7 +193,8 @@ public class CmlVdmTypeCheckVisitor extends
 
 	private PType typeCheckAlternatives(
 			LinkedList<AAltNonDeterministicStm> alternatives,
-			TypeCheckInfo question, ILexLocation location) throws AnalysisException
+			TypeCheckInfo question, ILexLocation location)
+			throws AnalysisException
 	{
 		PTypeSet rtypes = new PTypeSet();
 		for (AAltNonDeterministicStm alt : alternatives)

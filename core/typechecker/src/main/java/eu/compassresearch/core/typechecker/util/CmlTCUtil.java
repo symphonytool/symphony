@@ -15,7 +15,6 @@ import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.lex.LexIdentifierToken;
 import org.overture.ast.lex.LexLocation;
-import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.patterns.PPattern;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.types.PType;
@@ -23,6 +22,7 @@ import org.overture.typechecker.Environment;
 import org.overture.typechecker.assistant.definition.PDefinitionAssistantTC;
 import org.overture.typechecker.assistant.pattern.PPatternAssistantTC;
 
+import eu.compassresearch.ast.lex.CmlLexNameToken;
 import eu.compassresearch.ast.types.AErrorType;
 import eu.compassresearch.core.typechecker.CmlTypeCheckInfo;
 import eu.compassresearch.core.typechecker.TCDeclAndDefVisitor;
@@ -57,15 +57,15 @@ public class CmlTCUtil
 	}
 
 	/**
-	 * Type Checking relies on every PDefinition has a non-null name. This method allows us to generate a LexNameToken
+	 * Type Checking relies on every PDefinition has a non-null name. This method allows us to generate a CmlLexNameToken
 	 * with an empty string and only a location quickly for setting the name of definitions that lack a name.
 	 * 
 	 * @param loc
 	 * @return
 	 */
-	public static LexNameToken newEmptyStringLexName(LexLocation loc)
+	public static CmlLexNameToken newEmptyStringLexName(LexLocation loc)
 	{
-		return new LexNameToken("", new LexIdentifierToken("", false, loc));
+		return new CmlLexNameToken("", new LexIdentifierToken("", false, loc));
 	}
 
 	/**
@@ -132,11 +132,11 @@ public class CmlTCUtil
 			ILexIdentifierToken id)
 	{
 		PDefinition res = null;
-		LexNameToken sought = null;
-		if (id instanceof LexNameToken)
-			sought = (LexNameToken) id;
+		CmlLexNameToken sought = null;
+		if (id instanceof CmlLexNameToken)
+			sought = (CmlLexNameToken) id;
 		else
-			sought = new LexNameToken("", id);
+			sought = new CmlLexNameToken("", id);
 
 		// search locally names
 		res = question.env.findName(sought, NameScope.NAMESANDANYSTATE);

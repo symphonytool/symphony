@@ -17,7 +17,7 @@ import org.overture.interpreter.scheduler.InitThread;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.definitions.AProcessDefinition;
-import eu.compassresearch.ast.lex.LexNameToken;
+import eu.compassresearch.ast.lex.CmlLexNameToken;
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
@@ -172,7 +172,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	{
 		if (defaultName != null && !defaultName.equals(""))
 		{
-			LexNameToken name = new LexNameToken("", getDefaultName(), null);
+			CmlLexNameToken name = new CmlLexNameToken("", getDefaultName(), null);
 			ProcessObjectValue pov = (ProcessObjectValue) globalContext.check(name);
 
 			if (pov == null)

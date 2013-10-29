@@ -56,7 +56,7 @@ import eu.compassresearch.ast.actions.SStatementAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
-import eu.compassresearch.ast.lex.LexNameToken;
+import eu.compassresearch.ast.lex.CmlLexNameToken;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
@@ -436,7 +436,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 				{
 					ILexIdentifierToken id = node.getIdentifiers().get(i);
 
-					ILexNameToken name = new LexNameToken("", id);
+					ILexNameToken name = new CmlLexNameToken("", id);
 
 					PAction action = node.getActions().get(i);
 
@@ -460,10 +460,10 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 		PAction left = node.getLeftAction();
 		PAction right = node.getRightAction();
 		Pair<Context, Context> childContexts = visitorAccess.getChildContexts(question);
-		CmlBehaviour leftInstance = new ConcreteCmlBehaviour(left, childContexts.first.deepCopy(), new LexNameToken(owner.name().getModule(), owner.name().getIdentifier().getName()
+		CmlBehaviour leftInstance = new ConcreteCmlBehaviour(left, childContexts.first.deepCopy(), new CmlLexNameToken(owner.name().getModule(), owner.name().getIdentifier().getName()
 				+ "|||", left.getLocation()), owner);
 
-		CmlBehaviour rightInstance = new ConcreteCmlBehaviour(right, childContexts.second.deepCopy(), new LexNameToken(owner.name().getModule(), "|||"
+		CmlBehaviour rightInstance = new ConcreteCmlBehaviour(right, childContexts.second.deepCopy(), new CmlLexNameToken(owner.name().getModule(), "|||"
 				+ owner.name().getIdentifier().getName(), right.getLocation()), owner);
 
 		// add the children to the process graph
@@ -589,7 +589,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 					value = value.getUpdatable(null);
 				}
 
-				evaluatedArgs.put(new LexNameToken("", (ILexIdentifierToken) id.clone()), value);
+				evaluatedArgs.put(new CmlLexNameToken("", (ILexIdentifierToken) id.clone()), value);
 
 				// update the index
 				paramIndex++;

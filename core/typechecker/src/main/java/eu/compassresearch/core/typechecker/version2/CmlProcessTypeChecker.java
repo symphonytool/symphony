@@ -64,9 +64,8 @@ import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.typechecker.CmlTypeCheckInfo;
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
-import eu.compassresearch.core.typechecker.assistant.CmlSClassDefinitionAssistant;
+import eu.compassresearch.core.typechecker.assistant.PParametrisationAssistant;
 import eu.compassresearch.core.typechecker.assistant.TypeCheckerUtil;
-import eu.compassresearch.core.typechecker.util.CmlTCUtil;
 
 public class CmlProcessTypeChecker extends
 		QuestionAnswerCMLAdaptor<TypeCheckInfo, PType>
@@ -98,7 +97,7 @@ public class CmlProcessTypeChecker extends
 	private static PDefinition findDefinition(ILexIdentifierToken identifier,
 			Environment env)
 	{
-		Set<PDefinition> defs = env.findMatches(new eu.compassresearch.ast.lex.LexNameToken("", identifier));
+		Set<PDefinition> defs = env.findMatches(new eu.compassresearch.ast.lex.CmlLexNameToken("", identifier));
 
 		if (defs.isEmpty())
 		{
@@ -118,13 +117,13 @@ public class CmlProcessTypeChecker extends
 	{
 
 		Environment base = new PrivateActionClassEnvironment(question.assistantFactory, node.getActionDefinition(), question.env);
-		Environment env = CmlSClassDefinitionAssistant.updateActionEnvironment(node.getActionDefinition(), base);
+		Environment env = PParametrisationAssistant.updateEnvironment(base, node.getActionDefinition());
 
 		// FIXME we properly need to assemble all action definitions in the process and add then to the env
 
 		TypeCheckInfo q = new TypeCheckInfo(question.assistantFactory, env, NameScope.NAMESANDSTATE);
 
-		node.getActionDefinition().apply(this, q);
+		node.getActionDefinition().apply(THIS, q);
 		node.getAction().apply(THIS, q);
 
 		return super.caseAActionProcess(node, question);
@@ -203,23 +202,22 @@ public class CmlProcessTypeChecker extends
 			throws AnalysisException
 	{
 
-
 		PProcess proc = node.getReplicatedProcess();
 		LinkedList<PSingleDeclaration> repdecl = node.getReplicationDeclaration();
 
 		List<PDefinition> locals = new Vector<PDefinition>();
-		
+
 		for (PSingleDeclaration decl : repdecl)
 		{
 			PType declType = decl.apply(THIS, question);
 
 			for (PDefinition def : declType.getDefinitions())
 			{
-				locals.add( def);
+				locals.add(def);
 			}
 		}
 
-		 proc.apply(THIS, question.newScope(locals));
+		proc.apply(THIS, question.newScope(locals));
 
 		return getVoidType(node);
 	}
@@ -230,26 +228,24 @@ public class CmlProcessTypeChecker extends
 			throws AnalysisException
 	{
 
-		//FIXME
-		
-		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
-		if (cmlEnv == null)
-			return issueHandler.addTypeError(node, TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(""
-					+ node));
+		// FIXME
 
 		PProcess proc = node.getReplicatedProcess();
 		LinkedList<PSingleDeclaration> repdecl = node.getReplicationDeclaration();
 
-		CmlTypeCheckInfo repProcEnv = cmlEnv.newScope();
+		List<PDefinition> locals = new Vector<PDefinition>();
+
 		for (PSingleDeclaration decl : repdecl)
 		{
 			PType declType = decl.apply(THIS, question);
 
 			for (PDefinition def : declType.getDefinitions())
-				repProcEnv.addVariable(def.getName(), def);
+			{
+				locals.add(def);
+			}
 		}
 
-		 proc.apply(THIS, repProcEnv);
+		proc.apply(THIS, question.newScope(locals));
 
 		return getVoidType(node);
 	}
@@ -260,26 +256,25 @@ public class CmlProcessTypeChecker extends
 			TypeCheckInfo question) throws AnalysisException
 	{
 
-		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
-		if (cmlEnv == null)
-			return issueHandler.addTypeError(node, TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(""
-					+ node));
 		PVarsetExpression csExp = node.getChansetExpression();
 		PProcess repProc = node.getReplicatedProcess();
 		LinkedList<PSingleDeclaration> repDecl = node.getReplicationDeclaration();
 
-		PType csExpType = csExp.apply(THIS, question);
+		 csExp.apply(THIS, question);
 
-		CmlTypeCheckInfo repProcEnv = cmlEnv.newScope();
+		List<PDefinition> locals = new Vector<PDefinition>();
+
 		for (PSingleDeclaration decl : repDecl)
 		{
 			PType declType = decl.apply(THIS, question);
 
 			for (PDefinition def : declType.getDefinitions())
-				repProcEnv.addVariable(def.getName(), def);
+			{
+				locals.add(def);
+			}
 		}
 
-		PType repProcType = repProc.apply(THIS, repProcEnv);
+		 repProc.apply(THIS, question.newScope(locals));
 
 		return getVoidType(node);
 	}
@@ -540,8 +535,6 @@ public class CmlProcessTypeChecker extends
 			throws AnalysisException
 	{
 
-		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
-
 		LinkedList<PSingleDeclaration> declarations = node.getReplicationDeclaration();
 
 		List<PDefinition> defs = new Vector<PDefinition>();
@@ -571,8 +564,8 @@ public class CmlProcessTypeChecker extends
 			throws AnalysisException
 	{
 
-		node.getLeft().apply(this, question);
-		node.getRight().apply(this, question);
+		node.getLeft().apply(THIS, question);
+		node.getRight().apply(THIS, question);
 
 		// TODO: missing marker on processes
 
@@ -586,8 +579,8 @@ public class CmlProcessTypeChecker extends
 			throws AnalysisException
 	{
 
-		node.getLeft().apply(this, question);
-		node.getRight().apply(this, question);
+		node.getLeft().apply(THIS, question);
+		node.getRight().apply(THIS, question);
 
 		// TODO: missing marker on processes
 

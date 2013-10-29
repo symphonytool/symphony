@@ -1,5 +1,7 @@
 package eu.compassresearch.core.typechecker.version2;
 
+import static eu.compassresearch.core.typechecker.assistant.TypeCheckerUtil.findDefinition;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -10,13 +12,14 @@ import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.definitions.SClassDefinition;
 import org.overture.ast.definitions.SFunctionDefinition;
 import org.overture.ast.definitions.SOperationDefinition;
+import org.overture.ast.expressions.AApplyExp;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.factory.AstFactory;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.intf.lex.ILexNameToken;
-import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.statements.AActionStm;
+import org.overture.ast.statements.ACallStm;
 import org.overture.ast.statements.PStm;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.types.ASeq1SeqType;
@@ -39,11 +42,12 @@ import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.expressions.SChannelExp;
+import eu.compassresearch.ast.lex.CmlLexNameToken;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
-import eu.compassresearch.core.typechecker.assistant.CmlSClassDefinitionAssistant;
+import eu.compassresearch.core.typechecker.assistant.PParametrisationAssistant;
 
 public class CmlCspTypeChecker extends
 		QuestionAnswerCMLAdaptor<TypeCheckInfo, PType>
@@ -89,6 +93,11 @@ public class CmlCspTypeChecker extends
 		this.vdmChecker = new CmlVdmTypeCheckVisitor()
 		{
 
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			public PType caseAActionStm(AActionStm node, TypeCheckInfo question)
 					throws AnalysisException
@@ -97,12 +106,14 @@ public class CmlCspTypeChecker extends
 				node.setType(type);
 				return node.getType();
 			}
+			
+			
 		};
 
 		this.issueHandler = issuehandler;
 		this.actionChecker = new CmlActionTypeChecker(vdmChecker, this, issuehandler);
 		this.processChecker = new CmlProcessTypeChecker(vdmChecker, this, issuehandler);
-		this.varSetExpChecker = new CmlVarSetExpressionTypeChecker(vdmChecker, this, issuehandler);
+		this.varSetExpChecker = new CmlVarSetExpressionTypeChecker( this, issuehandler);
 		this.channelExpChecker = new CmlChannelExpressionTypeChecker(this, issuehandler);
 
 	}
@@ -181,7 +192,7 @@ public class CmlCspTypeChecker extends
 			TypeCheckInfo question) throws AnalysisException
 	{
 
-		Environment env = CmlSClassDefinitionAssistant.updateProcessEnvironment(node, question.env);
+		Environment env = PParametrisationAssistant.updateEnvironment(question.env, node);
 		node.getProcess().apply(THIS, new TypeCheckInfo(question.assistantFactory, env, question.scope));
 
 		return AstFactory.newAVoidType(node.getLocation());
@@ -191,7 +202,7 @@ public class CmlCspTypeChecker extends
 	public PType defaultPAction(PAction node, TypeCheckInfo question)
 			throws AnalysisException
 	{
-		return node.apply(actionChecker, question);
+		return node.apply(actionChecker, question.newScope(NameScope.NAMESANDSTATE));
 	}
 
 	@Override
@@ -199,6 +210,21 @@ public class CmlCspTypeChecker extends
 			TypeCheckInfo question) throws AnalysisException
 	{
 		return node.apply(actionChecker, question);
+	}
+	
+	@Override
+	public PType caseACallStm(ACallStm node, TypeCheckInfo question)
+			throws AnalysisException
+	{
+		PDefinition def = findDefinition(node.getName(), question.env);
+		if (def instanceof AActionDefinition)
+		{
+			return node.apply(actionChecker,question);
+		} else
+		{
+			return node.apply(vdmChecker,question);
+		}
+		
 	}
 
 	@Override
@@ -255,13 +281,13 @@ public class CmlCspTypeChecker extends
 		{
 			if (def instanceof AActionDefinition)
 			{
-				def.apply(this, question);
+				def.apply(THIS, question);
 			}
 
 			// TODO namesets?
 		}
 
-		return super.caseAActionClassDefinition(node, question);
+		return AstFactory.newAClassType(node.getLocation(), node);
 	}
 
 	@Override
@@ -269,9 +295,10 @@ public class CmlCspTypeChecker extends
 			TypeCheckInfo question) throws AnalysisException
 	{
 
-		node.getAction().apply(actionChecker, question);
+		Environment env = PParametrisationAssistant.updateEnvironment(question.env, node.getDeclarations());
+		return node.getAction().apply(actionChecker, question.newInfo(env));
 
-		return super.caseAActionDefinition(node, question);
+		// return super.caseAActionDefinition(node, question);
 	}
 
 	// the strange single type
@@ -289,7 +316,7 @@ public class CmlCspTypeChecker extends
 
 			List<PDefinition> defs = new LinkedList<PDefinition>();
 
-			LexNameToken idName = new LexNameToken("", node.getIdentifier());
+			CmlLexNameToken idName = new CmlLexNameToken("", node.getIdentifier());
 			ALocalDefinition localDef = AstFactory.newALocalDefinition(node.getLocation(), idName, NameScope.LOCAL, typetype);
 			defs.add(localDef);
 			type.setDefinitions(defs);
@@ -314,10 +341,10 @@ public class CmlCspTypeChecker extends
 		{
 
 			ILexNameToken name = null;
-			if (id instanceof LexNameToken)
-				name = (LexNameToken) id;
+			if (id instanceof CmlLexNameToken)
+				name = (CmlLexNameToken) id;
 			else
-				name = new LexNameToken("", id.getName(), id.getLocation());
+				name = new CmlLexNameToken("", id.getName(), id.getLocation());
 
 			ASetType expressionSetType = (ASetType) expressionType;
 			ALocalDefinition localDef = AstFactory.newALocalDefinition(id.getLocation(), name, node.getNameScope(), expressionSetType.getSetof());
@@ -326,10 +353,10 @@ public class CmlCspTypeChecker extends
 		} else if (expressionType instanceof ASeq1SeqType)
 		{
 			ILexNameToken name = null;
-			if (id instanceof LexNameToken)
-				name = (LexNameToken) id;
+			if (id instanceof CmlLexNameToken)
+				name = (CmlLexNameToken) id;
 			else
-				name = new LexNameToken("", id.getName(), id.getLocation());
+				name = new CmlLexNameToken("", id.getName(), id.getLocation());
 
 			ASeq1SeqType expressionSeqType = (ASeq1SeqType) expressionType;
 			ALocalDefinition localDef = AstFactory.newALocalDefinition(id.getLocation(), name, node.getNameScope(), expressionSeqType.getSeqof());

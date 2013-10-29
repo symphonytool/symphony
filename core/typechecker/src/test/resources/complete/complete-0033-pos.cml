@@ -8,7 +8,8 @@ begin
 
 operations
 
- public doit: int ==> () doit(a) == Skip
+ public doit: int ==> () 
+ doit(a) == Skip
 
 end
 
@@ -24,6 +25,10 @@ begin
 
 state
 
- s : C @ s.doit(1)
+ s : C 
+ 
+ @ 
+ 
+ s.doit(1)
 
 end

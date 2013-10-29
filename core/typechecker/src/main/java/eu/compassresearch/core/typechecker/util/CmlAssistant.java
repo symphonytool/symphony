@@ -19,7 +19,6 @@ import org.overture.ast.definitions.SOperationDefinition;
 import org.overture.ast.factory.AstFactory;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.intf.lex.ILexNameToken;
-import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.types.AClassType;
 import org.overture.ast.types.AFieldField;
@@ -38,6 +37,7 @@ import eu.compassresearch.ast.definitions.AActionsDefinition;
 import eu.compassresearch.ast.definitions.AFunctionsDefinition;
 import eu.compassresearch.ast.definitions.AOperationsDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
+import eu.compassresearch.ast.lex.CmlLexNameToken;
 import eu.compassresearch.ast.process.PProcess;
 
 /**
@@ -387,7 +387,7 @@ public class CmlAssistant
 
 			AClassClassDefinition cpar = AClassClassDefinition.class.cast(def);
 
-			PDefinition res = SClassDefinitionAssistantTC.findName(cpar, (LexNameToken) name, NameScope.NAMESANDANYSTATE);
+			PDefinition res = SClassDefinitionAssistantTC.findName(cpar, (CmlLexNameToken) name, NameScope.NAMESANDANYSTATE);
 
 			if (res != null)
 				return res;

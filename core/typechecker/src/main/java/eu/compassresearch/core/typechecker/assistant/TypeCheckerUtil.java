@@ -31,7 +31,7 @@ public class TypeCheckerUtil
 	public static PDefinition findDefinition(ILexIdentifierToken identifier,
 			Environment env)
 	{
-		Set<PDefinition> defs = env.findMatches(new eu.compassresearch.ast.lex.LexNameToken("", identifier));
+		Set<PDefinition> defs = env.findMatches(new eu.compassresearch.ast.lex.CmlLexNameToken("", identifier));
 
 		if (defs.isEmpty())
 		{
