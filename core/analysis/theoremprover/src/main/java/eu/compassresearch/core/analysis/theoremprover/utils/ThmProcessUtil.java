@@ -135,41 +135,42 @@ public class ThmProcessUtil {
 	public static String isaMainAction = "MainAction";
 	public static String isaMu = "\\<mu>";
 
-	private static String skip = "SKIP";
-	private static String stop = "STOP";
-	private static String chaos = "CHAOS";
-	private static String div = "DIV";
-	private static String wait = "WAIT ";
-	private static String comm = " -> ";
-	private static String guardLeftBrack = "[";
-	private static String guardRightBrack = "]";
-	private static String guardSep = " & ";
-	private static String seqComp = " ; ";
-	private static String extChoice = " \\<box> ";
-	private static String intChoice = " |-| ";
-	private static String interrupt = " /\\ ";
-	private static String timeIntLeft = "/(";
-	private static String timeIntRight = ")\\";
-	private static String timeout = "[>";
-	private static String timeoutLeft = "[(";
-	private static String timeoutRight = ")>";
-	private static String hiding = " \\\\ ";
-	private static String startsby = " startby ";
-	private static String endsby = " endby ";
-	private static String interleave = " ||| ";
-	private static String syncParallel = " || ";
+	public static String skip = "SKIP";
+	public static String stop = "STOP";
+	public static String chaos = "CHAOS";
+	public static String div = "DIV";
+	public static String wait = "WAIT ";
+	public static String comm = " -> ";
+	public static String guardLeftBrack = "[";
+	public static String guardRightBrack = "]";
+	public static String guardSep = " & ";
+	public static String seqComp = " ; ";
+	public static String extChoice = " \\<box> ";
+	public static String intChoice = " |-| ";
+	public static String interrupt = " /\\ ";
+	public static String timeIntLeft = "/(";
+	public static String timeIntRight = ")\\";
+	public static String timeout = "[>";
+	public static String timeoutLeft = "[(";
+	public static String timeoutRight = ")>";
+	public static String hiding = " \\\\ ";
+	public static String startsby = " startby ";
+	public static String endsby = " endby ";
+	public static String interleave = " ||| ";
+	public static String syncParallel = " || ";
 	
-	private static String ifLeft = "\\<triangleleft>";
-	private static String ifRight = "\\<triangleright>";
-	private static String assign = " := ";
-	private static String isaWhile = "while ";
-	private static String isaDo = " do ";
-	private static String isaOd = " od ";
-	private static String repActNotHandled = "(*replicated action not handled*)";
-	private static String stmtNotHandled = "(*statement not handled*)";
-	private static String procNotHandled = "(*process not handled*)";
+	public static String ifLeft = "\\<triangleleft>";
+	public static String ifRight = "\\<triangleright>";
+	public static String assign = " := ";
+	public static String isaWhile = "while ";
+	public static String isaDo = " do ";
+	public static String isaOd = " od ";
+	public static String repActNotHandled = "(*replicated action not handled*)";
+	public static String stmtNotHandled = "(*statement not handled*)";
+	public static String procNotHandled = "(*process not handled*)";
 	
 	/***
+	 * SHOULD BE ABLE TO DELETE - NOW IN VISITOR
 	 * Method to get the string of a process (not an Action Process)
 	 * @param procProc
 	 * @return
@@ -301,6 +302,7 @@ public class ThmProcessUtil {
 
 	}
 	/***
+	 * SHOULD BE ABLE TO DELETE - NOW IN VISITOR
 	 * Method to get the string of a process (not an Action Process)
 	 * @param procProc
 	 * @return
@@ -926,6 +928,7 @@ public class ThmProcessUtil {
 	}
 
 	/***
+	 * SHOULD BE ABLE TO DELETE - NOW IN VISITOR
 	 * Method to get Isabelle string for a CML action 
 	 * @param act - the CML action to process
 	 * @param svars - the state variables of the CML process
@@ -1123,6 +1126,7 @@ public class ThmProcessUtil {
 
 	
 	/***
+	 * SHOULD BE ABLE TO DELETE - NOW IN VISITOR
 	 * Return a String for replicated actions
 	 * AT PRESENT THEY ARE NOT HANDLED...
 	 * @param act - the action
@@ -1184,6 +1188,9 @@ public class ThmProcessUtil {
 		return repActNotHandled;
 	}
 
+	/*
+	 * SHOULD BE ABLE TO DELETE - NOW IN VISITOR
+	 */
 	private static String getIsabelleParallelActionStr(PAction act,
 			NodeNameList svars, NodeNameList bvars) {
 
@@ -1220,6 +1227,7 @@ public class ThmProcessUtil {
 	}
 
 	/****
+	 * SHOULD BE ABLE TO DELETE - NOW IN VISITOR
 	 * Method to get the String for a CML statement 
 	 * 
 	 * NOTE: There are various unsupported statements, for these we return an Isabelle comment
@@ -1444,11 +1452,8 @@ public class ThmProcessUtil {
 	
 	
 	
-	
-	
-	
-	
 	/***
+	 * SHOULD BE ABLE TO DELETE - NOW IN VISITOR
 	 * Method to get the dependencies for a CML action 
 	 * @param act - the CML action to process
 	 * @param bvars - bound variables (basically the communication parameters)
@@ -1632,7 +1637,9 @@ public class ThmProcessUtil {
 	}
 
 	
-	
+	/*
+	 * SHOULD BE ABLE TO DELETE - NOW IN VISITOR
+	 */
 	private static NodeNameList getIsabelleReplicatedActionDeps(PAction act, NodeNameList bvars) {
 
 		NodeNameList nodeDeps = new NodeNameList();
@@ -1724,6 +1731,7 @@ public class ThmProcessUtil {
 	}
 
 	/****
+	 * SHOULD BE ABLE TO DELETE - NOW IN VISITOR
 	 * Method to get the String for a CML statement 
 	 * 
 	 * NOTE: There are various unsupported statements, for these we return an Isabelle comment

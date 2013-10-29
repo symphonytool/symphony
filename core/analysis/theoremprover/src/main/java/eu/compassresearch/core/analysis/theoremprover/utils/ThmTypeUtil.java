@@ -57,36 +57,36 @@ public class ThmTypeUtil {
 	public static String isaInv = "inv";
 	public static String isaFuncLambaVal = "d";
 		
-	static String isaNat = "@nat";
-	static String isaBool = "@bool";
-	static String isaChar = "@char";
-	static String isaInt = "@int";
- 	static String isaRat = "@rat";
- 	static String isaReal = "@real";
- 	static String isaToken = "@token";
- 	static String isaErrBT = "@unknownBasicType";
-	static String isaNat1 = "@nat1";
+	public static String isaNat = "@nat";
+	public static String isaBool = "@bool";
+	public static String isaChar = "@char";
+	public static String isaInt = "@int";
+	public static String isaRat = "@rat";
+	public static String isaReal = "@real";
+	public static String isaToken = "@token";
+	public static String isaErrBT = "@unknownBasicType";
+	public static String isaNat1 = "@nat1";
 
- 	static String isaInMap= "@inmap of";
- 	static String isaMap= "@map of";
- 	static String isaMapTo= "to ";
- 	static String isaErrMT= "@unknownMapType";
+	public static String isaInMap= "@inmap of";
+ 	public static String isaMap= "@map";
+ 	public static String isaMapTo= "to ";
+ 	public static String isaErrMT= "@unknownMapType";
  	
- 	static String isaSeq1= "@seq1 of";
- 	static String isaSeq= "@seq of";
- 	static String isaErrST= "@unknownSeqType";
+ 	public static String isaSeq1= "@seq1 of";
+ 	public static String isaSeq= "@seq of";
+ 	public static String isaErrST= "@unknownSeqType";
 
-	static String isaSet = "@set of";
-	static String isaOtpOpen = "[";
-	static String isaOtpClose = "]";
-	static String isaProd = "\\<times>";
-	static String isaQuoteLeft = "<\'\'";
-	static String isaQuoteRight = "\'\'>";
-	static String isaUnion = "|";
- 	static String isaErrTBT= "@unknownBaseType";
+ 	public static String isaSet = "@set of";
+ 	public static String isaOtpOpen = "[";
+ 	public static String isaOtpClose = "]";
+ 	public static String isaProd = "\\<times>";
+ 	public static String isaQuoteLeft = "<\'\'";
+ 	public static String isaQuoteRight = "\'\'>";
+ 	public static String isaUnion = "|";
+	public static String isaErrTBT= "@unknownBaseType";
  	
- 	static String notHandled = "(*type not yet handled*)";
- 	static String isaUndefined = "undefined";
+	public static String notHandled = "(*type not yet handled*)";
+	public static String isaUndefined = "undefined";
 	public static String isaFuncBar = "|";
 	public static String isaFuncLambda = "lambda";
 	public static String isaFuncLambdaPost = "iota";

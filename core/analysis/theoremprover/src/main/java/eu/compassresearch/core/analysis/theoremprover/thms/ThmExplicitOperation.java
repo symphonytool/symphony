@@ -108,7 +108,7 @@ public class ThmExplicitOperation extends ThmDecl{
 		//if there is a result value
 		if (prepost.equals("post") && resType != null)
 		{
-			sb.append(", ^RESULT^");
+			sb.append(", ^" + ThmTypeUtil.isaFuncLambdaPostVal + "^");
 		}
 		sb.append(")");
 		
