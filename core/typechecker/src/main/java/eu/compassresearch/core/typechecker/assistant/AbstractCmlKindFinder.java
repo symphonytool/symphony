@@ -16,6 +16,7 @@ import org.overture.typechecker.utilities.KindFinder;
 
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismReplicatedAction;
+import eu.compassresearch.ast.actions.ACallAction;
 import eu.compassresearch.ast.actions.AChannelRenamingAction;
 import eu.compassresearch.ast.actions.AChaosAction;
 import eu.compassresearch.ast.actions.ACommonInterleavingReplicatedAction;
@@ -141,7 +142,8 @@ import eu.compassresearch.ast.types.ATypeParagraphType;
 import eu.compassresearch.ast.types.AValueParagraphType;
 import eu.compassresearch.ast.types.AVarsetExpressionType;
 
-public class AbstractCmlKindFinder extends KindFinder implements ICMLAnswer<String>
+public class AbstractCmlKindFinder extends KindFinder implements
+		ICMLAnswer<String>
 {
 
 	/**
@@ -1210,6 +1212,13 @@ public class AbstractCmlKindFinder extends KindFinder implements ICMLAnswer<Stri
 	@Override
 	public String caseADoNonDeterministicStm(ADoNonDeterministicStm node)
 			throws AnalysisException
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String caseACallAction(ACallAction node) throws AnalysisException
 	{
 		// TODO Auto-generated method stub
 		return null;

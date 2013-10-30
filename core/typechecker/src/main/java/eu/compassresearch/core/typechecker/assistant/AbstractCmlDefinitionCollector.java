@@ -18,6 +18,7 @@ import org.overture.typechecker.utilities.DefinitionCollector;
 
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismReplicatedAction;
+import eu.compassresearch.ast.actions.ACallAction;
 import eu.compassresearch.ast.actions.AChannelRenamingAction;
 import eu.compassresearch.ast.actions.AChaosAction;
 import eu.compassresearch.ast.actions.ACommonInterleavingReplicatedAction;
@@ -61,6 +62,7 @@ import eu.compassresearch.ast.analysis.intf.ICMLAnswer;
 import eu.compassresearch.ast.declarations.AExpressionSingleDeclaration;
 import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionClassDefinition;
+import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AActionsDefinition;
 import eu.compassresearch.ast.definitions.AChannelDefinition;
 import eu.compassresearch.ast.definitions.AChannelsDefinition;
@@ -142,8 +144,8 @@ import eu.compassresearch.ast.types.ATypeParagraphType;
 import eu.compassresearch.ast.types.AValueParagraphType;
 import eu.compassresearch.ast.types.AVarsetExpressionType;
 
-public abstract class AbstractCmlDefinitionCollector extends
-		DefinitionCollector implements ICMLAnswer<List<PDefinition>>
+public class AbstractCmlDefinitionCollector extends DefinitionCollector
+		implements ICMLAnswer<List<PDefinition>>
 {
 
 	/**
@@ -1224,6 +1226,22 @@ public abstract class AbstractCmlDefinitionCollector extends
 	@Override
 	public List<PDefinition> caseAUnresolvedObjectDesignator(
 			AUnresolvedObjectDesignator node) throws AnalysisException
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<PDefinition> caseAActionDefinition(AActionDefinition node)
+			throws AnalysisException
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<PDefinition> caseACallAction(ACallAction node)
+			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
 		return null;

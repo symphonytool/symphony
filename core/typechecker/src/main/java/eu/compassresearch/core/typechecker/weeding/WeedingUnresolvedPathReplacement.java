@@ -22,13 +22,11 @@ import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.node.INode;
 import org.overture.ast.node.Node;
-import org.overture.ast.statements.ACallStm;
 import org.overture.ast.types.ABracketType;
 
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
 import eu.compassresearch.ast.definitions.AActionClassDefinition;
-import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
 import eu.compassresearch.ast.lex.CmlLexNameToken;
@@ -140,10 +138,9 @@ public class WeedingUnresolvedPathReplacement extends
 	@Override
 	public void caseILexNameToken(ILexNameToken node) throws AnalysisException
 	{
-//		System.out.println(node.getName() + " from 		"
-//				+ node.parent().toString().replace('\n', ' '));
+		// System.out.println(node.getName() + " from 		"
+		// + node.parent().toString().replace('\n', ' '));
 
-		
 		if (node.parent() instanceof SClassDefinition
 				|| node.parent() instanceof AProcessDefinition)
 		{

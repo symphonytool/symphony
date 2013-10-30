@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Vector;
 
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.assistant.type.PTypeAssistant;
 import org.overture.ast.definitions.AClassClassDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.definitions.SClassDefinition;
@@ -42,6 +41,7 @@ import eu.compassresearch.core.typechecker.weeding.Weeding1;
 import eu.compassresearch.core.typechecker.weeding.Weeding2;
 import eu.compassresearch.core.typechecker.weeding.Weeding5RemoveInitialDefinitions;
 import eu.compassresearch.core.typechecker.weeding.WeedingAccessCorrector;
+import eu.compassresearch.core.typechecker.weeding.WeedingCallToCallActionReplacer;
 import eu.compassresearch.core.typechecker.weeding.WeedingSkipActionToStmCleaner;
 import eu.compassresearch.core.typechecker.weeding.WeedingStmCleaner;
 import eu.compassresearch.core.typechecker.weeding.WeedingUnresolvedPathReplacement;
@@ -158,6 +158,7 @@ public class VanillaCmlTypeChecker extends AbstractTypeChecker
 			// W: Stage 2 unfold identifiers in action definitions, parameter decl single type identifiers
 			// Weeding3UnfoldSingleDeclIdentifiers.apply(sourceForest);
 
+			WeedingCallToCallActionReplacer.apply(sourceForest);
 			WeedingSkipActionToStmCleaner.apply(sourceForest);
 			WeedingStmCleaner.apply(sourceForest);
 			WeedingAccessCorrector.apply(sourceForest);
@@ -257,24 +258,22 @@ public class VanillaCmlTypeChecker extends AbstractTypeChecker
 				}
 			}
 		}
-		
+
 		Environment env = new CmlFlatCheckedEnvironment(vdmResult.af, globalCmlDefinition, vdmResult.globalEnv, NameScope.NAMES);
-		
+
 		for (PDefinition def : globalCmlDefinition)
 		{
-			if(def instanceof AChannelDefinition)
+			if (def instanceof AChannelDefinition)
 			{
 				try
 				{
-					 vdmResult.af.createPTypeAssistant().typeResolve(def.getType(), null, new CmlVdmTypeCheckVisitor(), new TypeCheckInfo(vdmResult.af, env, NameScope.NAMES));
+					vdmResult.af.createPTypeAssistant().typeResolve(def.getType(), null, new CmlVdmTypeCheckVisitor(), new TypeCheckInfo(vdmResult.af, env, NameScope.NAMES));
 				} catch (TypeCheckException te)
 				{
 					TypeChecker.report(3427, te.getMessage(), te.location);
 				}
 			}
 		}
-
-		
 
 		for (PSource source : sourceForest)
 		{

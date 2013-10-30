@@ -23,82 +23,81 @@ public class CmlKindFinder extends AbstractCmlKindFinder
 	{
 		super(af);
 	}
-	
-//	  =   {action}
-//|   {chanset}
-//|   {nameset}
-//|   {process}
-//| {channel}//renamed removed Name
-//| {channels}
-//| {chansets}
-//| {namesets}
-//| {actions}
-//| {types}
-//| {operations}
-//| {functions}
-//| {values}
-//| {initial}
-//| {state}
 
-	
+	// = {action}
+	// | {chanset}
+	// | {nameset}
+	// | {process}
+	// | {channel}//renamed removed Name
+	// | {channels}
+	// | {chansets}
+	// | {namesets}
+	// | {actions}
+	// | {types}
+	// | {operations}
+	// | {functions}
+	// | {values}
+	// | {initial}
+	// | {state}
+
 	@Override
 	public String caseAActionDefinition(AActionDefinition node)
 			throws AnalysisException
 	{
-	return "action";
+		return "action";
 	}
-	
+
 	@Override
 	public String caseAChansetDefinition(AChansetDefinition node)
 			throws AnalysisException
 	{
-	return "channel-set";
+		return "channel-set";
 	}
-	
+
 	@Override
 	public String caseANamesetDefinition(ANamesetDefinition node)
 			throws AnalysisException
 	{
-	return "name-set";
+		return "name-set";
 	}
-	
+
 	@Override
 	public String caseAProcessDefinition(AProcessDefinition node)
 			throws AnalysisException
 	{
-	return "process";
+		return "process";
 	}
-	
+
 	@Override
 	public String caseAChannelDefinition(AChannelDefinition node)
 			throws AnalysisException
 	{
-	return "channel";
+		return "channel";
 	}
-	
+
 	@Override
 	public String caseAInitialDefinition(AInitialDefinition node)
 			throws AnalysisException
 	{
-	return "initial";
+		return "initial";
 	}
-	
+
 	@Override
 	public String caseAStateDefinition(AStateDefinition node)
 			throws AnalysisException
 	{
-	return "state";
+		return "state";
 	}
-	
-	//containers
-	
-//	| {channels}
-	//| {chansets}
-	//| {namesets}
-	//| {actions}
-	//| {types}
-	//| {operations}
-	//| {functions}
-	//| {values}
-	
+
+	// containers
+
+	// | {channels}
+	// | {chansets}
+	// | {namesets}
+	// | {actions}
+	// | {types}
+	// | {operations}
+	// | {functions}
+	// | {values}
+
 }

@@ -18,6 +18,7 @@ import org.overture.typechecker.utilities.ImplicitDefinitionFinder;
 
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismReplicatedAction;
+import eu.compassresearch.ast.actions.ACallAction;
 import eu.compassresearch.ast.actions.AChannelRenamingAction;
 import eu.compassresearch.ast.actions.AChaosAction;
 import eu.compassresearch.ast.actions.ACommonInterleavingReplicatedAction;
@@ -143,7 +144,7 @@ import eu.compassresearch.ast.types.ATypeParagraphType;
 import eu.compassresearch.ast.types.AValueParagraphType;
 import eu.compassresearch.ast.types.AVarsetExpressionType;
 
-public abstract class AbstractCmlImplicitDefinitionFinder extends
+public class AbstractCmlImplicitDefinitionFinder extends
 		ImplicitDefinitionFinder implements IQuestion<Environment>,
 		ICMLQuestion<Environment>
 {
@@ -1257,6 +1258,14 @@ public abstract class AbstractCmlImplicitDefinitionFinder extends
 	@Override
 	public void caseAUnresolvedObjectDesignator(
 			AUnresolvedObjectDesignator node, Environment question)
+			throws AnalysisException
+	{
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void caseACallAction(ACallAction node, Environment question)
 			throws AnalysisException
 	{
 		// TODO Auto-generated method stub

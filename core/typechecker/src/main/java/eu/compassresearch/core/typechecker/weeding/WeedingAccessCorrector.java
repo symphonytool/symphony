@@ -62,14 +62,14 @@ public class WeedingAccessCorrector extends DepthFirstAnalysisCMLAdaptor
 		}
 		node.getAccess().setAccess(new APublicAccess());
 	}
-	
+
 	@Override
 	public void caseAImplicitFunctionDefinition(AImplicitFunctionDefinition node)
 			throws AnalysisException
 	{
 		defaultSFunctionDefinition(node);
 	}
-	
+
 	@Override
 	public void caseAExplicitFunctionDefinition(AExplicitFunctionDefinition node)
 			throws AnalysisException

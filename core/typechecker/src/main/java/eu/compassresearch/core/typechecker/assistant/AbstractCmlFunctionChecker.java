@@ -16,6 +16,7 @@ import org.overture.typechecker.utilities.FunctionChecker;
 
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismReplicatedAction;
+import eu.compassresearch.ast.actions.ACallAction;
 import eu.compassresearch.ast.actions.AChannelRenamingAction;
 import eu.compassresearch.ast.actions.AChaosAction;
 import eu.compassresearch.ast.actions.ACommonInterleavingReplicatedAction;
@@ -141,8 +142,8 @@ import eu.compassresearch.ast.types.ATypeParagraphType;
 import eu.compassresearch.ast.types.AValueParagraphType;
 import eu.compassresearch.ast.types.AVarsetExpressionType;
 
-public abstract class AbstractCmlFunctionChecker extends FunctionChecker
-		implements ICMLAnswer<Boolean>
+public class AbstractCmlFunctionChecker extends FunctionChecker implements
+		ICMLAnswer<Boolean>
 {
 
 	public AbstractCmlFunctionChecker(ITypeCheckerAssistantFactory af)
@@ -1212,6 +1213,13 @@ public abstract class AbstractCmlFunctionChecker extends FunctionChecker
 			AUnresolvedObjectDesignator node) throws AnalysisException
 	{
 		return false;
+	}
+
+	@Override
+	public Boolean caseACallAction(ACallAction node) throws AnalysisException
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

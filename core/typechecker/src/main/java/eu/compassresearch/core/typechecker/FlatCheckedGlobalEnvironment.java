@@ -86,18 +86,18 @@ public class FlatCheckedGlobalEnvironment extends FlatCheckedEnvironment
 
 		try
 		{
-			for (Field field : Node.getAllFields(new LinkedList<Field>(),globalName.getClass()))
+			for (Field field : Node.getAllFields(new LinkedList<Field>(), globalName.getClass()))
 			{
-				if(field.getName().equals("module"))
+				if (field.getName().equals("module"))
 				{
 					field.setAccessible(true);
-					field.set(globalName,  "$global" );
+					field.set(globalName, "$global");
 					break;
 				}
 			}
-			
-		} catch (SecurityException
-				| IllegalArgumentException | IllegalAccessException e)
+
+		} catch (SecurityException | IllegalArgumentException
+				| IllegalAccessException e)
 		{
 
 		}

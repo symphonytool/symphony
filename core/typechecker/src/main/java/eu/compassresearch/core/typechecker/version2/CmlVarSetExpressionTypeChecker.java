@@ -12,7 +12,6 @@ import java.util.Vector;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.intf.IQuestionAnswer;
-import org.overture.ast.assistant.definition.PDefinitionAssistant;
 import org.overture.ast.definitions.AInstanceVariableDefinition;
 import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.PDefinition;
@@ -288,7 +287,7 @@ public class CmlVarSetExpressionTypeChecker extends
 				if (!(idDef instanceof AChannelDefinition))
 				{
 					// error not a channel
-					issueHandler.addTypeError(chanName, TypeErrorMessages.DEFINITION_X_BUT_FOUND_Y.customizeMessage("channel", defKind,idDef.getName().getName()));
+					issueHandler.addTypeError(chanName, TypeErrorMessages.DEFINITION_X_BUT_FOUND_Y.customizeMessage("channel", defKind, idDef.getName().getName()));
 					return false;
 				}
 				break;
@@ -298,7 +297,7 @@ public class CmlVarSetExpressionTypeChecker extends
 				if (!(idDef instanceof AInstanceVariableDefinition))
 				{
 					// error not a state
-					issueHandler.addTypeError(chanName, TypeErrorMessages.DEFINITION_X_BUT_FOUND_Y.customizeMessage("state", defKind,idDef.getName().getName()));
+					issueHandler.addTypeError(chanName, TypeErrorMessages.DEFINITION_X_BUT_FOUND_Y.customizeMessage("state", defKind, idDef.getName().getName()));
 					return false;
 				}
 				break;

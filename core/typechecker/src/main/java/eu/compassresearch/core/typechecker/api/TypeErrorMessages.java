@@ -91,7 +91,7 @@ public enum TypeErrorMessages
 
 	EXPECTED_LVALUE(3419, "The value \"%s\" is not an assignable expression."),
 
-	EXPECTED_AN_ACTION(3420, "Expecting an action but found \"%s\"."),
+	EXPECTED_AN_ACTION(3420, "Expecting an action but found %s."),
 
 	ILLEGAL_ACCESS(3421, "Cannot access %s in this context."),
 

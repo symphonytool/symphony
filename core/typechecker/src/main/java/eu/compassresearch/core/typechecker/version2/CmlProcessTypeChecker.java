@@ -75,7 +75,7 @@ public class CmlProcessTypeChecker extends
 	 */
 	private static final long serialVersionUID = 1L;
 	private final ITypeIssueHandler issueHandler;// = VanillaFactory.newCollectingIssueHandle();
-	
+
 	/**
 	 * Type checker for var set expressions used for channel sets
 	 */
@@ -89,7 +89,9 @@ public class CmlProcessTypeChecker extends
 	public CmlProcessTypeChecker(
 			QuestionAnswerAdaptor<TypeCheckInfo, PType> tc2,
 			IQuestionAnswer<TypeCheckInfo, PType> root,
-			ITypeIssueHandler issueHandler, QuestionAnswerAdaptor<TypeCheckInfo, PType> channelSetChecker, QuestionAnswerAdaptor<TypeCheckInfo, PType> nameSetChecker)
+			ITypeIssueHandler issueHandler,
+			QuestionAnswerAdaptor<TypeCheckInfo, PType> channelSetChecker,
+			QuestionAnswerAdaptor<TypeCheckInfo, PType> nameSetChecker)
 	{
 		super(root);
 		this.issueHandler = issueHandler;
@@ -391,10 +393,10 @@ public class CmlProcessTypeChecker extends
 		{
 			PType dType = d.apply(THIS, question);
 
-			//only add if it could be resolved
-			if(dType!=null)
+			// only add if it could be resolved
+			if (dType != null)
 			{
-			definitions.addAll(dType.getDefinitions());
+				definitions.addAll(dType.getDefinitions());
 			}
 		}
 

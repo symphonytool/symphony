@@ -9,6 +9,7 @@ import org.overture.ast.statements.AAltNonDeterministicStm;
 import org.overture.ast.statements.ADoNonDeterministicStm;
 import org.overture.ast.statements.AIfNonDeterministicStm;
 import org.overture.ast.statements.ANewStm;
+import org.overture.ast.statements.AUnresolvedObjectDesignator;
 import org.overture.ast.statements.AUnresolvedStateDesignator;
 import org.overture.ast.types.PType;
 import org.overture.typechecker.assistant.ITypeCheckerAssistantFactory;
@@ -16,6 +17,7 @@ import org.overture.typechecker.utilities.DefinitionTypeFinder;
 
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismReplicatedAction;
+import eu.compassresearch.ast.actions.ACallAction;
 import eu.compassresearch.ast.actions.AChannelRenamingAction;
 import eu.compassresearch.ast.actions.AChaosAction;
 import eu.compassresearch.ast.actions.ACommonInterleavingReplicatedAction;
@@ -58,6 +60,7 @@ import eu.compassresearch.ast.actions.AWriteCommunicationParameter;
 import eu.compassresearch.ast.analysis.intf.ICMLAnswer;
 import eu.compassresearch.ast.declarations.AExpressionSingleDeclaration;
 import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
+import eu.compassresearch.ast.definitions.AActionClassDefinition;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AActionsDefinition;
 import eu.compassresearch.ast.definitions.AChannelDefinition;
@@ -140,8 +143,8 @@ import eu.compassresearch.ast.types.ATypeParagraphType;
 import eu.compassresearch.ast.types.AValueParagraphType;
 import eu.compassresearch.ast.types.AVarsetExpressionType;
 
-public abstract class AbstractCmlDefinitionTypeFinder extends
-		DefinitionTypeFinder implements ICMLAnswer<PType>
+public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
+		implements ICMLAnswer<PType>
 {
 
 	public AbstractCmlDefinitionTypeFinder(ITypeCheckerAssistantFactory af)
@@ -1191,6 +1194,29 @@ public abstract class AbstractCmlDefinitionTypeFinder extends
 	@Override
 	public PType caseADoNonDeterministicStm(ADoNonDeterministicStm node)
 			throws AnalysisException
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public PType caseAActionClassDefinition(AActionClassDefinition node)
+			throws AnalysisException
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public PType caseACallAction(ACallAction node) throws AnalysisException
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public PType caseAUnresolvedObjectDesignator(
+			AUnresolvedObjectDesignator node) throws AnalysisException
 	{
 		// TODO Auto-generated method stub
 		return null;

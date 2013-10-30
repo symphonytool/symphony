@@ -17,55 +17,55 @@ public class CaseStudiesTestCase extends
 	private static String caseStudyDir = System.getProperty("CASESTUDIES");
 	static String[] specifications = {
 
-	//parse errors "/BitRegister",
+			// parse errors "/BitRegister",
 
-	"/Dwarf",
+			"/Dwarf",
 
-	"/EmergencyResponse/Expert-Led/model",
+			"/EmergencyResponse/Expert-Led/model",
 
-	"/EmergencyResponse/Rules-Led/model",
+			"/EmergencyResponse/Rules-Led/model",
 
-	"/GridManager/FarmB",
+			"/GridManager/FarmB",
 
-	"/LeaderElection/Election-BigProcess",
+			"/LeaderElection/Election-BigProcess",
 
-	"/LeaderElection/Election-NonLeaders",
+			"/LeaderElection/Election-NonLeaders",
 
-	"/LeaderElection/Election-Original",
+			"/LeaderElection/Election-Original",
 
-	"/LeaderElection/LeaderElection-Ncl",
+			"/LeaderElection/LeaderElection-Ncl",
 
-	"/LeaderElection",
+			"/LeaderElection",
 
-	"/Library",
+			"/Library",
 
-	"/Parwsum",
+			"/Parwsum",
 
-	"/RingBuffer",
+			"/RingBuffer",
 
-	"/Simpler BitRegister",
+			"/Simpler BitRegister",
 
-	"/SoSMpc/ideal",
+			"/SoSMpc/ideal",
 
-	"/SoSMpc/protocol",
+			"/SoSMpc/protocol",
 
-	"/SoSMpc/singlesystem",
+			"/SoSMpc/singlesystem",
 
-	"/TelephoneExchange/ClassesVersion",
+			"/TelephoneExchange/ClassesVersion",
 
-	"/TelephoneExchange/Original",
+			"/TelephoneExchange/Original",
 
-	"/TrafficManager/CityAndCars/City",
+			"/TrafficManager/CityAndCars/City",
 
-	"/TrafficManager/CityAndCars/City-Working",
+			"/TrafficManager/CityAndCars/City-Working",
 
-	"/TrafficManager/Junctions",
+			"/TrafficManager/Junctions",
 
-	"/TravelAgent/Hotel1",
+			"/TravelAgent/Hotel1",
 
-	"/TravelAgent/Hotel2",
+			"/TravelAgent/Hotel2",
 
-	"/MiniMondex" };
+			"/MiniMondex" };
 
 	public CaseStudiesTestCase(File file, List<File> files, String name,
 			TestType type)

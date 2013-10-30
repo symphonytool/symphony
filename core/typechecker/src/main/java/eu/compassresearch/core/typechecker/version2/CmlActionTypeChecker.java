@@ -13,10 +13,8 @@ import java.util.Vector;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.analysis.intf.IQuestionAnswer;
-import org.overture.ast.assistant.definition.PDefinitionAssistant;
 import org.overture.ast.definitions.ALocalDefinition;
 import org.overture.ast.definitions.PDefinition;
-import org.overture.ast.definitions.PDefinitionBase;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.factory.AstFactory;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
@@ -25,7 +23,6 @@ import org.overture.ast.node.INode;
 import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.ATuplePattern;
 import org.overture.ast.patterns.PPattern;
-import org.overture.ast.statements.ACallStm;
 import org.overture.ast.statements.PStm;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.types.ABooleanBasicType;
@@ -33,7 +30,6 @@ import org.overture.ast.types.AIntNumericBasicType;
 import org.overture.ast.types.ANatNumericBasicType;
 import org.overture.ast.types.AProductType;
 import org.overture.ast.types.ASetType;
-import org.overture.ast.types.AVoidType;
 import org.overture.ast.types.PType;
 import org.overture.typechecker.Environment;
 import org.overture.typechecker.FlatCheckedEnvironment;
@@ -46,6 +42,7 @@ import org.overture.typechecker.assistant.pattern.PPatternAssistantTC;
 
 import eu.compassresearch.ast.CmlAstFactory;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
+import eu.compassresearch.ast.actions.ACallAction;
 import eu.compassresearch.ast.actions.AChannelRenamingAction;
 import eu.compassresearch.ast.actions.AChaosAction;
 import eu.compassresearch.ast.actions.ACommonInterleavingReplicatedAction;
@@ -95,7 +92,6 @@ import eu.compassresearch.ast.definitions.AChannelDefinition;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.lex.CmlLexNameToken;
 import eu.compassresearch.ast.types.AErrorType;
-import eu.compassresearch.ast.types.AStatementType;
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 import eu.compassresearch.core.typechecker.api.TypeWarningMessages;
@@ -145,13 +141,21 @@ public class CmlActionTypeChecker extends
 		return node.getType();
 	}
 
+	// @Override
+	// public PType caseACallStm(ACallStm node, TypeCheckInfo question)
+	// throws AnalysisException
+	// {
+	// // FIXME not implemented
+	// return AstFactory.newAVoidType(node.getLocation());
+	//
+	// }
+
 	@Override
-	public PType caseACallStm(ACallStm node, TypeCheckInfo question)
+	public PType caseACallAction(ACallAction node, TypeCheckInfo question)
 			throws AnalysisException
 	{
 		// FIXME not implemented
 		return AstFactory.newAVoidType(node.getLocation());
-
 	}
 
 	@Override
@@ -764,19 +768,20 @@ public class CmlActionTypeChecker extends
 
 		if (!(def instanceof AActionDefinition))
 		{
-			issueHandler.addTypeError(node, TypeErrorMessages.EXPECTED_AN_ACTION.customizeMessage(""
-					+ node.getName()));
+			issueHandler.addTypeError(node, TypeErrorMessages.EXPECTED_AN_ACTION.customizeMessage(" a "
+					+ question.assistantFactory.createPDefinitionAssistant().kind(def)
+					+ " deinition:" + node.getName()));
 
 		} else
 		{
 
 			AActionDefinition actionDef = (AActionDefinition) def;
-//			if (actionDef.getAction().getType() == null
-//					|| !actionDef.getAction().getType().getResolved())
-//			{
-//				actionDef.apply(THIS, question);
-//			}
-//			type = actionDef.getAction().getType();
+			// if (actionDef.getAction().getType() == null
+			// || !actionDef.getAction().getType().getResolved())
+			// {
+			// actionDef.apply(THIS, question);
+			// }
+			// type = actionDef.getAction().getType();
 			node.setActionDefinition(actionDef);
 		}
 
@@ -817,7 +822,7 @@ public class CmlActionTypeChecker extends
 
 		if (!(channel instanceof AChannelDefinition))
 		{
-			node.setType(issueHandler.addTypeError(channel, TypeErrorMessages.DEFINITION_X_BUT_FOUND_Y.customizeMessage("channel",PDefinitionAssistantTC.kind(channel),channel.getName().getName()
+			node.setType(issueHandler.addTypeError(channel, TypeErrorMessages.DEFINITION_X_BUT_FOUND_Y.customizeMessage("channel", PDefinitionAssistantTC.kind(channel), channel.getName().getName()
 					+ "")));
 			return node.getType();
 		}
