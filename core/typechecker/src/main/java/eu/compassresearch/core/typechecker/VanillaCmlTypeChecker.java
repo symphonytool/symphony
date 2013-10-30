@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Vector;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.assistant.type.PTypeAssistant;
 import org.overture.ast.definitions.AClassClassDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.definitions.SClassDefinition;
@@ -18,6 +19,7 @@ import org.overture.ast.typechecker.NameScope;
 import org.overture.config.Release;
 import org.overture.config.Settings;
 import org.overture.typechecker.Environment;
+import org.overture.typechecker.TypeCheckException;
 import org.overture.typechecker.TypeCheckInfo;
 import org.overture.typechecker.TypeChecker;
 import org.overture.typechecker.assistant.ITypeCheckerAssistantFactory;
@@ -33,6 +35,7 @@ import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 import eu.compassresearch.core.typechecker.version2.CmlClassTypeChecker;
 import eu.compassresearch.core.typechecker.version2.CmlCspTypeChecker;
 import eu.compassresearch.core.typechecker.version2.CmlFlatCheckedEnvironment;
+import eu.compassresearch.core.typechecker.version2.CmlVdmTypeCheckVisitor;
 import eu.compassresearch.core.typechecker.weeding.OperationBodyValidater;
 import eu.compassresearch.core.typechecker.weeding.SetLocationVisitor;
 import eu.compassresearch.core.typechecker.weeding.Weeding1;
@@ -254,8 +257,24 @@ public class VanillaCmlTypeChecker extends AbstractTypeChecker
 				}
 			}
 		}
-
+		
 		Environment env = new CmlFlatCheckedEnvironment(vdmResult.af, globalCmlDefinition, vdmResult.globalEnv, NameScope.NAMES);
+		
+		for (PDefinition def : globalCmlDefinition)
+		{
+			if(def instanceof AChannelDefinition)
+			{
+				try
+				{
+					 vdmResult.af.createPTypeAssistant().typeResolve(def.getType(), null, new CmlVdmTypeCheckVisitor(), new TypeCheckInfo(vdmResult.af, env, NameScope.NAMES));
+				} catch (TypeCheckException te)
+				{
+					TypeChecker.report(3427, te.getMessage(), te.location);
+				}
+			}
+		}
+
+		
 
 		for (PSource source : sourceForest)
 		{

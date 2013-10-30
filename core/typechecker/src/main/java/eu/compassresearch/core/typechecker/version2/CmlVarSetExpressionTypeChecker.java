@@ -12,12 +12,15 @@ import java.util.Vector;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.intf.IQuestionAnswer;
+import org.overture.ast.assistant.definition.PDefinitionAssistant;
+import org.overture.ast.definitions.AInstanceVariableDefinition;
 import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.factory.AstFactory;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.node.INode;
+import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.types.ABooleanBasicType;
 import org.overture.ast.types.AProductType;
 import org.overture.ast.types.ASetType;
@@ -43,6 +46,7 @@ import eu.compassresearch.ast.expressions.ASubVOpVarsetExpression;
 import eu.compassresearch.ast.expressions.AUnionVOpVarsetExpression;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.expressions.SVOpVarsetExpression;
+import eu.compassresearch.ast.lex.CmlLexNameToken;
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 import eu.compassresearch.core.typechecker.assistant.TypeCheckerUtil;
@@ -55,15 +59,43 @@ public class CmlVarSetExpressionTypeChecker extends
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+
+	public enum VarSetCheckType
+	{
+		CHANNELSET, NAMESET
+	};
+
 	private final ITypeIssueHandler issueHandler;// = VanillaFactory.newCollectingIssueHandle();
+	private final VarSetCheckType type;
 
 	@SuppressWarnings("deprecation")
 	public CmlVarSetExpressionTypeChecker(
 			IQuestionAnswer<TypeCheckInfo, PType> root,
-			ITypeIssueHandler issueHandler)
+			ITypeIssueHandler issueHandler, VarSetCheckType type)
 	{
 		super(root);
 		this.issueHandler = issueHandler;
+		this.type = type;
+	}
+
+	private PDefinition findDefinition(Environment env,
+			ILexIdentifierToken identifier)
+	{
+		PDefinition def = null;
+		switch (type)
+		{
+			case CHANNELSET:
+				def = TypeCheckerUtil.findDefinition(identifier, env);
+				break;
+			case NAMESET:
+				def = env.findName(new CmlLexNameToken("", identifier), NameScope.NAMESANDANYSTATE);
+				break;
+			default:
+				break;
+
+		}
+		return def;
+
 	}
 
 	@Override
@@ -73,7 +105,7 @@ public class CmlVarSetExpressionTypeChecker extends
 	{
 
 		ILexIdentifierToken id = node.getIdentifier();
-		PDefinition idDef = TypeCheckerUtil.findDefinition(id, question.env);
+		PDefinition idDef = findDefinition(question.env, id);
 
 		if (idDef == null)
 		{
@@ -105,85 +137,59 @@ public class CmlVarSetExpressionTypeChecker extends
 
 		LinkedList<ANameChannelExp> chanNames = node.getChannelNames();
 		LinkedList<PDefinition> defs = new LinkedList<PDefinition>();
-		boolean seenChannel = false;
-		boolean seenState = false;
 		for (ANameChannelExp chanName : chanNames)
 		{
 			ILexIdentifierToken id = chanName.getIdentifier();
-			// LexNameToken nameid = new LexNameToken("", id);
-			PDefinition def = null;// = TypeCheckerUtil.findDefinition(id,question.env);
-			// if (def == null)
+			PDefinition def = findDefinition(question.env, id);
+
+			if (def == null)
 			{
+				issueHandler.addTypeError(id, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(id
+						+ ""));
+				continue;
+			}
 
-				def = TypeCheckerUtil.findDefinition(id, question.env);
+			if (validateChannelNameDefinition(question, chanName, def)
+					&& def instanceof AChannelDefinition)
+			{
+				PType chanValueType = def.getType();
+				types.add(chanValueType);
 
-				if (def != null && def instanceof AChannelDefinition)
+				if (chanValueType instanceof AProductType)
 				{
-					// ATypeSingleDeclaration chanTypeDecl = null;// ((AChannelDefinition) def).getSingleType();
-					// AChannelType chanType = (AChannelType) chanTypeDecl.getType();
-					PType chanValueType = def.getType();// chanType.getType();
-					types.add(chanValueType);
+					AProductType prodType = (AProductType) chanValueType;
+					LinkedList<PType> prodTypes = prodType.getTypes();
+					LinkedList<PExp> chanExpressions = chanName.getExpressions();
 
-					if (chanValueType instanceof AProductType)
+					// product and channel call same size?
+					if (chanExpressions.size() != prodType.getTypes().size())
 					{
-						AProductType prodType = (AProductType) chanValueType;
-						LinkedList<PType> prodTypes = prodType.getTypes();
-						LinkedList<PExp> chanExpressions = chanName.getExpressions();
+						node.setType(issueHandler.addTypeError(id, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(chanValueType
+								+ "", chanName + "")));
+						return node.getType();
+					}
 
-						// product and channel call same size?
-						if (chanExpressions.size() != prodType.getTypes().size())
+					// product and channel expressions same type?
+					int i = 0;
+					for (PExp pExp : chanExpressions)
+					{
+						PType expType = pExp.apply(THIS, question);
+						PType pt = prodTypes.get(i++);
+
+						if (!TypeComparator.isSubType(expType, pt))
 						{
-							node.setType(issueHandler.addTypeError(id, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(chanValueType
-									+ "", chanName + "")));
-							return node.getType();
-						}
-
-						// product and channel expressions same type?
-						int i = 0;
-						for (PExp pExp : chanExpressions)
-						{
-							PType expType = pExp.apply(THIS, question);
-							PType pt = prodTypes.get(i++);
-
-							if (!TypeComparator.isSubType(expType, pt))
-							{
-								node.setType(issueHandler.addTypeError(id, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(pt
-										+ "", expType + "")));
-							}
+							node.setType(issueHandler.addTypeError(id, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(pt
+									+ "", expType + "")));
 						}
 					}
 				}
-				seenChannel = true;
-			}
-			// else
-			// {
-			// seenState = true;
-			// }
-			if (def == null)
+			} else
 			{
-				node.setType(issueHandler.addTypeError(id, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(id
-						+ "")));
-				return node.getType();
+
 			}
 			defs.add(def);
 		}
 
-		if (seenChannel && seenState)
-		{
-			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.MIXING_STATE_AND_CHANNEL_IN_SET.customizeMessage(""
-					+ node)));
-			return node.getType();
-		}
-
-		// if (seenChannel)
-		// {
-		// result = new AChansetType(node.getLocation(), true);
-		// }
-		//
-		// if (seenState)
-		// {
-		// result = new ANamesetsType(node.getLocation(), true);
-		// }
 		result.setDefinitions(new LinkedList<PDefinition>(defs));
 
 		return TypeCheckerUtil.setType(node, types);
@@ -250,11 +256,9 @@ public class CmlVarSetExpressionTypeChecker extends
 
 		LinkedList<ANameChannelExp> chanNames = node.getChannelNames();
 		LinkedList<PDefinition> defs = new LinkedList<PDefinition>();
-		boolean seenState = false;
-		boolean seenChannel = false;
 		for (ANameChannelExp chanName : chanNames)
 		{
-			PDefinition idDef = TypeCheckerUtil.findDefinition(chanName.getIdentifier(), question.env);
+			PDefinition idDef = findDefinition(question.env, chanName.getIdentifier());
 			if (idDef == null)
 			{
 				node.setType(issueHandler.addTypeError(node, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(""
@@ -262,43 +266,48 @@ public class CmlVarSetExpressionTypeChecker extends
 				return node.getType();
 			}
 
-			if (idDef instanceof AChannelDefinition)
-				seenChannel = true;
+			validateChannelNameDefinition(question, chanName, idDef);
 
-			if (idDef instanceof AStateDefinition)
-				seenState = true;
-
-			if ((seenState && seenChannel))
-			{
-				node.setType(issueHandler.addTypeError(node, TypeErrorMessages.MIXING_STATE_AND_CHANNEL_IN_SET.customizeMessage(chanNames
-						+ "")));
-				return node.getType();
-			}
-
-			if (!seenState && !seenChannel)
-			{
-				node.setType(issueHandler.addTypeError(node, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage("state or channel", idDef.getType()
-						+ "")));
-				return node.getType();
-			}
 			defs.add(idDef);
 			types.add(idDef.getType());
 		}
 
-		// PType result = type;
-		// if (seenState)
-		// result = new ANamesetsType(node.getLocation(), true);
-		// if (seenChannel)
-		// result = new AChansetType(node.getLocation(), true);
-		// if (result == null)
-		// result = issueHandler.addTypeError(node, TypeErrorMessages.EXPECTED_CHANNEL_OR_STATE.customizeMessage(""
-		// + node));
-
-		// result.setDefinitions(new LinkedList<PDefinition>());
-		// result.getDefinitions().addAll(defs);
-		// node.setType(result);
 		return TypeCheckerUtil.setType(node, types);
 
+	}
+
+	public boolean validateChannelNameDefinition(TypeCheckInfo question,
+			ANameChannelExp chanName, PDefinition idDef)
+	{
+		String defKind = question.assistantFactory.createPDefinitionAssistant().kind(idDef);
+
+		switch (type)
+		{
+			case CHANNELSET:
+			{
+				if (!(idDef instanceof AChannelDefinition))
+				{
+					// error not a channel
+					issueHandler.addTypeError(chanName, TypeErrorMessages.DEFINITION_X_BUT_FOUND_Y.customizeMessage("channel", defKind,idDef.getName().getName()));
+					return false;
+				}
+				break;
+			}
+			case NAMESET:
+			{
+				if (!(idDef instanceof AInstanceVariableDefinition))
+				{
+					// error not a state
+					issueHandler.addTypeError(chanName, TypeErrorMessages.DEFINITION_X_BUT_FOUND_Y.customizeMessage("state", defKind,idDef.getName().getName()));
+					return false;
+				}
+				break;
+
+			}
+
+		}
+
+		return true;
 	}
 
 	@Override
@@ -385,9 +394,9 @@ public class CmlVarSetExpressionTypeChecker extends
 		PVarsetExpression left = node.getLeft();
 		PVarsetExpression right = node.getRight();
 
-		PType leftType = left.apply(THIS, question);
+		PType leftType = left.apply(this, question);
 
-		PType rightType = right.apply(THIS, question);
+		PType rightType = right.apply(this, question);
 
 		node.setType(TypeCheckerUtil.generateUnionType(node.getLocation(), leftType, rightType));
 		return node.getType();

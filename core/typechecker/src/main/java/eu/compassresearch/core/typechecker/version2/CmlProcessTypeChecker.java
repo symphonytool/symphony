@@ -75,15 +75,26 @@ public class CmlProcessTypeChecker extends
 	 */
 	private static final long serialVersionUID = 1L;
 	private final ITypeIssueHandler issueHandler;// = VanillaFactory.newCollectingIssueHandle();
+	
+	/**
+	 * Type checker for var set expressions used for channel sets
+	 */
+	private final QuestionAnswerAdaptor<TypeCheckInfo, PType> channelSetChecker;
+	/**
+	 * Type checker for var set expressions used for name sets
+	 */
+	private final QuestionAnswerAdaptor<TypeCheckInfo, PType> nameSetChecker;
 
 	@SuppressWarnings("deprecation")
 	public CmlProcessTypeChecker(
 			QuestionAnswerAdaptor<TypeCheckInfo, PType> tc2,
 			IQuestionAnswer<TypeCheckInfo, PType> root,
-			ITypeIssueHandler issueHandler)
+			ITypeIssueHandler issueHandler, QuestionAnswerAdaptor<TypeCheckInfo, PType> channelSetChecker, QuestionAnswerAdaptor<TypeCheckInfo, PType> nameSetChecker)
 	{
 		super(root);
 		this.issueHandler = issueHandler;
+		this.channelSetChecker = channelSetChecker;
+		this.nameSetChecker = nameSetChecker;
 	}
 
 	/**
@@ -259,7 +270,7 @@ public class CmlProcessTypeChecker extends
 		PProcess repProc = node.getReplicatedProcess();
 		LinkedList<PSingleDeclaration> repDecl = node.getReplicationDeclaration();
 
-		csExp.apply(THIS, question);
+		csExp.apply(channelSetChecker, question);
 
 		List<PDefinition> locals = new Vector<PDefinition>();
 
@@ -321,7 +332,7 @@ public class CmlProcessTypeChecker extends
 			}
 		}
 
-		PType csExpType = csExp.apply(THIS, info);
+		PType csExpType = csExp.apply(channelSetChecker, info);
 
 		// TODO: Maybe the declarations above needs to go into the environment ?
 
@@ -380,7 +391,11 @@ public class CmlProcessTypeChecker extends
 		{
 			PType dType = d.apply(THIS, question);
 
+			//only add if it could be resolved
+			if(dType!=null)
+			{
 			definitions.addAll(dType.getDefinitions());
+			}
 		}
 
 		if (args.size() != definitions.size())
@@ -417,7 +432,7 @@ public class CmlProcessTypeChecker extends
 		PType leftType = left.apply(THIS, question);
 
 		PVarsetExpression csexp = node.getChansetExpression();
-		PType csexpType = csexp.apply(THIS, question);
+		PType csexpType = csexp.apply(channelSetChecker, question);
 
 		return getVoidType(node);
 	}
@@ -436,7 +451,7 @@ public class CmlProcessTypeChecker extends
 
 		PType rightType = right.apply(THIS, question);
 
-		PType csExpType = csExp.apply(THIS, question);
+		PType csExpType = csExp.apply(channelSetChecker, question);
 
 		return getVoidType(node);
 	}
@@ -485,10 +500,10 @@ public class CmlProcessTypeChecker extends
 		PType rightType = right.apply(THIS, question);
 
 		PVarsetExpression leftChanSet = node.getLeftChansetExpression();
-		PType leftChanSetType = leftChanSet.apply(THIS, question);
+		PType leftChanSetType = leftChanSet.apply(channelSetChecker, question);
 
 		PVarsetExpression rightChanSet = node.getRightChansetExpression();
-		PType rightChanSetType = rightChanSet.apply(THIS, question);
+		PType rightChanSetType = rightChanSet.apply(channelSetChecker, question);
 
 		return getVoidType(node);
 	}

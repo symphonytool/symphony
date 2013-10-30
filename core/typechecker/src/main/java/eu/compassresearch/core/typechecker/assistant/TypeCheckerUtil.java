@@ -17,6 +17,7 @@ import org.overture.typechecker.assistant.type.PTypeAssistantTC;
 
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
+import eu.compassresearch.ast.lex.CmlLexNameToken;
 import eu.compassresearch.ast.process.PProcess;
 
 public class TypeCheckerUtil
@@ -31,7 +32,7 @@ public class TypeCheckerUtil
 	public static PDefinition findDefinition(ILexIdentifierToken identifier,
 			Environment env)
 	{
-		Set<PDefinition> defs = env.findMatches(new eu.compassresearch.ast.lex.CmlLexNameToken("", identifier));
+		Set<PDefinition> defs = env.findMatches(new CmlLexNameToken("", identifier));
 
 		if (defs.isEmpty())
 		{

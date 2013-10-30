@@ -140,18 +140,10 @@ public class WeedingUnresolvedPathReplacement extends
 	@Override
 	public void caseILexNameToken(ILexNameToken node) throws AnalysisException
 	{
-		System.out.println(node.getName() + " from 		"
-				+ node.parent().toString().replace('\n', ' '));
-		// if ((node.getModule() != null && !node.getModule().isEmpty())
-		// || node.parent() instanceof SClassDefinition /* || node.parent() instanceof PExp */)
-		// {
-		// if ((node.getModule() == null || node.getModule().trim().isEmpty())
-		// && !(node.parent() instanceof SClassDefinition))
-		// {
-		// // System.err.println("No module set for: " +node);
-		// }
-		// return;
-		// }
+//		System.out.println(node.getName() + " from 		"
+//				+ node.parent().toString().replace('\n', ' '));
+
+		
 		if (node.parent() instanceof SClassDefinition
 				|| node.parent() instanceof AProcessDefinition)
 		{

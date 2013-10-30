@@ -15,6 +15,7 @@ import org.overture.typechecker.assistant.definition.SClassDefinitionAssistantTC
 import eu.compassresearch.core.typechecker.assistant.CmlDefinitionCollector;
 import eu.compassresearch.core.typechecker.assistant.CmlFunctionChecker;
 import eu.compassresearch.core.typechecker.assistant.CmlImplicitDefinitionFinder;
+import eu.compassresearch.core.typechecker.assistant.CmlKindFinder;
 import eu.compassresearch.core.typechecker.assistant.CmlPDefinitionListAssistant;
 import eu.compassresearch.core.typechecker.assistant.CmlSClassDefinitionAssistant;
 import eu.compassresearch.core.typechecker.assistant.CmlVariableNameCollector;
@@ -44,6 +45,12 @@ public class CmlTypeCheckerAssistantFactory extends TypeCheckerAssistantFactory
 	public PDefinitionListAssistantTC createPDefinitionListAssistant()
 	{
 		return new CmlPDefinitionListAssistant(this);
+	}
+
+	@Override
+	public IAnswer<String> getKindFinder()
+	{
+		return new CmlKindFinder(this);
 	}
 
 	// @Override

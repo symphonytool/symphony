@@ -42,11 +42,13 @@ import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.expressions.SChannelExp;
 import eu.compassresearch.ast.lex.CmlLexNameToken;
+import eu.compassresearch.ast.messages.InternalException;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 import eu.compassresearch.core.typechecker.assistant.PParametrisationAssistant;
+import eu.compassresearch.core.typechecker.version2.CmlVarSetExpressionTypeChecker.VarSetCheckType;
 
 public class CmlCspTypeChecker extends
 		QuestionAnswerCMLAdaptor<TypeCheckInfo, PType>
@@ -78,9 +80,13 @@ public class CmlCspTypeChecker extends
 	private final QuestionAnswerAdaptor<TypeCheckInfo, PType> vdmChecker;
 
 	/**
-	 * Type checker for var set expressions
+	 * Type checker for var set expressions used for channel sets
 	 */
-	private final QuestionAnswerAdaptor<TypeCheckInfo, PType> varSetExpChecker;
+	private final QuestionAnswerAdaptor<TypeCheckInfo, PType> channelSetChecker;
+	/**
+	 * Type checker for var set expressions used for name sets
+	 */
+	private final QuestionAnswerAdaptor<TypeCheckInfo, PType> nameSetChecker;
 
 	/**
 	 * Type checker for channel expressions
@@ -105,13 +111,18 @@ public class CmlCspTypeChecker extends
 				node.setType(type);
 				return node.getType();
 			}
+			
 
 		};
 
 		this.issueHandler = issuehandler;
-		this.actionChecker = new CmlActionTypeChecker(vdmChecker, this, issuehandler);
-		this.processChecker = new CmlProcessTypeChecker(vdmChecker, this, issuehandler);
-		this.varSetExpChecker = new CmlVarSetExpressionTypeChecker(this, issuehandler);
+		
+		this.channelSetChecker = new CmlVarSetExpressionTypeChecker(this, issuehandler,VarSetCheckType.CHANNELSET);
+		this.nameSetChecker = new CmlVarSetExpressionTypeChecker(this, issuehandler,VarSetCheckType.NAMESET);
+		
+		this.actionChecker = new CmlActionTypeChecker(vdmChecker, this, issuehandler,channelSetChecker,nameSetChecker);
+		this.processChecker = new CmlProcessTypeChecker(vdmChecker, this, issuehandler,channelSetChecker,nameSetChecker);
+		
 		this.channelExpChecker = new CmlChannelExpressionTypeChecker(this, issuehandler);
 
 	}
@@ -177,7 +188,7 @@ public class CmlCspTypeChecker extends
 	{
 		PVarsetExpression chansetExp = node.getChansetExpression();
 
-		PType type = chansetExp.apply(THIS, question);
+		PType type = chansetExp.apply(channelSetChecker, question);
 		// CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
 		// cmlEnv.addChannel(node.getIdentifier(), node);
 
@@ -224,6 +235,16 @@ public class CmlCspTypeChecker extends
 		}
 
 	}
+	
+	private boolean isActionCall(ACallStm node, TypeCheckInfo question)
+	{
+		PDefinition def = findDefinition(node.getName(), question.env);
+		if (def instanceof AActionDefinition)
+		{
+			return true;
+		}
+		return false;
+	}
 
 	@Override
 	public PType defaultPProcess(PProcess node, TypeCheckInfo question)
@@ -243,7 +264,8 @@ public class CmlCspTypeChecker extends
 	public PType defaultPVarsetExpression(PVarsetExpression node,
 			TypeCheckInfo question) throws AnalysisException
 	{
-		return node.apply(varSetExpChecker, question);
+//		return node.apply(channelSetChecker, question);
+		throw new InternalException(0, "Var set Expressions must explicitly state which visitor to use: channel-set or name-set");
 	}
 
 	@Override
