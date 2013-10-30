@@ -16,6 +16,9 @@ state
 
 actions
 
- INIT = a!(b+2) -> Skip @ INIT
+ INIT = a!(b+2) -> Skip 
+ 
+ 
+ @ INIT
 
 end

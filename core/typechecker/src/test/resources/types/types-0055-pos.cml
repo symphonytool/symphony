@@ -2,7 +2,8 @@
 
 types
 
- public A = nat B = map nat to nat
+ public A = nat 
+ B = map nat to nat
 
 process
 
@@ -14,6 +15,9 @@ begin
 
 functions
 
- public F : A * B -> bool F(a, b) == true @ Skip
+ public F : A * B -> bool 
+ F(a, b) == true 
+ 
+ @ Skip
 
 end

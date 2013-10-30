@@ -24,6 +24,8 @@ values
 
 functions
 
- g: int -> int g(i) == a + Thing`Douglas
+ g: int -> int 
+ g(i) == 
+ 	a + Thing`Douglas
 
 end

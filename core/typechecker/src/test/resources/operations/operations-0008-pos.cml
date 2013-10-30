@@ -4,6 +4,8 @@ class
 
 begin
 
+state
+s: int
 
 
 operations
@@ -12,6 +14,6 @@ operations
  op(a) == 
  	return a 
  pre a > 0 
- post a~ = a
+ post s~ = a
 
 end
