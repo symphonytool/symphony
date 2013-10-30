@@ -780,7 +780,7 @@ parametrisation returns[List<PParametrisation> params]
 //@after { $param.setLocation(extractLexLocation($start, $stop)); }
     : PMODE? identifierList ':' type
         {
-			ILexLocation ploc = extractLexLocation($PMODE, $type.stop);
+			ILexLocation ploc = ($PMODE!=null?extractLexLocation($PMODE, $type.stop):extractLexLocation($identifierList.start, $type.stop));
             
             ILexLocation loc = extractLexLocation($identifierList.start, $identifierList.stop);
 			
@@ -1458,7 +1458,7 @@ prefixStatement returns[PAction action]
         ( ('else')=> 'else' el=action9)?
         // need the ()=> to match elseif and else clauses greedily
         {
-            $action = stm2action(new AIfStm(null, $test.exp, action2stm($th.action), $elseIfStmtOptList.elseifs, action2stm($el.action)));
+            $action = stm2action(new AIfStm(null, $test.exp, action2stm($th.action), $elseIfStmtOptList.elseifs, ($el.action!=null?action2stm($el.action):null)));
         }
     | ifT='if' nonDetStmtAltList endT='end'
         {
