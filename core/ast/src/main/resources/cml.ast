@@ -353,6 +353,7 @@ action {-> package='eu.compassresearch.ast.actions'
         | #Replicated
         //| #Statement
         | {stm} [statement]:stm
+        |   {call} [name]:LexNameToken [args]:exp*
        // | {subclassResponsibility}
         | {reference}
                 [name]:LexNameToken
@@ -522,6 +523,7 @@ stm {-> package='org.overture.ast.statements'
         //(classdef):definition.#class
         //(ctorDefinition):definition
     |	#NonDeterministic
+
    	;
 
 #NonDeterministic {-> package='org.overture.ast.statements'}
