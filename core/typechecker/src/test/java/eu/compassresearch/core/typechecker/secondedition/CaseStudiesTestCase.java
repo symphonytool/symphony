@@ -17,19 +17,55 @@ public class CaseStudiesTestCase extends
 	private static String caseStudyDir = System.getProperty("CASESTUDIES");
 	static String[] specifications = {
 
-	"/BitRegister", "/Dwarf", "/EmergencyResponse/Expert-Led/model",
-			"/EmergencyResponse/Rules-Led/model", "/GridManager/FarmB",
-			"/LeaderElection/Election-BigProcess",
-			"/LeaderElection/Election-NonLeaders",
-			"/LeaderElection/Election-Original",
-			"/LeaderElection/LeaderElection-Ncl", "/LeaderElection",
-			"/Library", "/Parwsum", "/RingBuffer", "/Simpler BitRegister",
-			"/SoSMpc/ideal", "/SoSMpc/protocol", "/SoSMpc/singlesystem",
-			"/TelephoneExchange/ClassesVersion", "/TelephoneExchange/Original",
-			"/TrafficManager/CityAndCars/City",
-			"/TrafficManager/CityAndCars/City-Working",
-			"/TrafficManager/Junctions", "/TravelAgent/Hotel1",
-			"/TravelAgent/Hotel2", "/MiniMondex" };
+	//parse errors "/BitRegister",
+
+	"/Dwarf",
+
+	"/EmergencyResponse/Expert-Led/model",
+
+	"/EmergencyResponse/Rules-Led/model",
+
+	"/GridManager/FarmB",
+
+	"/LeaderElection/Election-BigProcess",
+
+	"/LeaderElection/Election-NonLeaders",
+
+	"/LeaderElection/Election-Original",
+
+	"/LeaderElection/LeaderElection-Ncl",
+
+	"/LeaderElection",
+
+	"/Library",
+
+	"/Parwsum",
+
+	"/RingBuffer",
+
+	"/Simpler BitRegister",
+
+	"/SoSMpc/ideal",
+
+	"/SoSMpc/protocol",
+
+	"/SoSMpc/singlesystem",
+
+	"/TelephoneExchange/ClassesVersion",
+
+	"/TelephoneExchange/Original",
+
+	"/TrafficManager/CityAndCars/City",
+
+	"/TrafficManager/CityAndCars/City-Working",
+
+	"/TrafficManager/Junctions",
+
+	"/TravelAgent/Hotel1",
+
+	"/TravelAgent/Hotel2",
+
+	"/MiniMondex" };
 
 	public CaseStudiesTestCase(File file, List<File> files, String name,
 			TestType type)
