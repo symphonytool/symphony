@@ -17,13 +17,13 @@ import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
  * 
  * @author rwl
  */
-class CollectingIssueHandler implements ITypeIssueHandler
+public class CollectingIssueHandler implements ITypeIssueHandler
 {
 
 	/**
 	 * Creating a collecting issue handler assumes you are going to do a fresh type checking round.
 	 */
-	CollectingIssueHandler()
+	public CollectingIssueHandler()
 	{
 		errors = new LinkedList<CMLTypeError>();
 		warnings = new LinkedList<CMLTypeWarning>();

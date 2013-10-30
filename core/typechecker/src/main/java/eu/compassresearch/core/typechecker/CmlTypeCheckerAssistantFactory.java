@@ -33,14 +33,13 @@ public class CmlTypeCheckerAssistantFactory extends TypeCheckerAssistantFactory
 	{
 		return new CmlImplicitDefinitionFinder(this);
 	}
-	
-	
+
 	@Override
 	public SClassDefinitionAssistantTC createSClassDefinitionAssistant()
 	{
 		return new CmlSClassDefinitionAssistant(this);
 	}
-	
+
 	@Override
 	public PDefinitionListAssistantTC createPDefinitionListAssistant()
 	{
@@ -58,15 +57,13 @@ public class CmlTypeCheckerAssistantFactory extends TypeCheckerAssistantFactory
 	{
 		return new CmlFunctionChecker(this);
 	}
-	
-	
+
 	@Override
 	public IAnswer<List<PDefinition>> getDefinitionCollector()
 	{
 		return new CmlDefinitionCollector(this);
 	}
-	
-	
+
 	@Override
 	public IAnswer<LexNameList> getVariableNameCollector()
 	{

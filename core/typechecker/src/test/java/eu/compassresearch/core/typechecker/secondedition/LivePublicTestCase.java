@@ -14,10 +14,12 @@ import org.junit.runners.Parameterized.Parameters;
 public class LivePublicTestCase extends
 		AbstractResultBasedCmlTypeCheckerTestCase
 {
-	private static String caseStudyDir = System.getProperty("CASESTUDIES")+"/../PublicLiveCMLCaseStudies/";
+	private static String caseStudyDir = System.getProperty("CASESTUDIES")
+			+ "/../PublicLiveCMLCaseStudies/";
 	static String[] specifications = {
 
-	"/BitRegister", "/Dwarf","/AVDeviceDiscovery","/ChoiceSupportInDebugger","/RingBuffer" };
+	"/BitRegister", "/Dwarf", "/AVDeviceDiscovery", "/ChoiceSupportInDebugger",
+			"/RingBuffer" };
 
 	public LivePublicTestCase(File file, List<File> files, String name,
 			TestType type)

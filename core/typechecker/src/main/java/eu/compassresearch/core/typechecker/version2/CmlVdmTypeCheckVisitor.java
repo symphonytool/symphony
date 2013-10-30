@@ -15,12 +15,16 @@ import org.overture.ast.statements.AActionStm;
 import org.overture.ast.statements.AAltNonDeterministicStm;
 import org.overture.ast.statements.AAssignmentStm;
 import org.overture.ast.statements.ADoNonDeterministicStm;
+import org.overture.ast.statements.AFieldObjectDesignator;
 import org.overture.ast.statements.AFieldStateDesignator;
+import org.overture.ast.statements.AIdentifierObjectDesignator;
 import org.overture.ast.statements.AIdentifierStateDesignator;
 import org.overture.ast.statements.AIfNonDeterministicStm;
 import org.overture.ast.statements.AMapSeqStateDesignator;
 import org.overture.ast.statements.ANewStm;
+import org.overture.ast.statements.AUnresolvedObjectDesignator;
 import org.overture.ast.statements.AUnresolvedStateDesignator;
+import org.overture.ast.statements.PObjectDesignator;
 import org.overture.ast.statements.PStateDesignator;
 import org.overture.ast.statements.PStm;
 import org.overture.ast.types.ABooleanBasicType;
@@ -56,9 +60,13 @@ public class CmlVdmTypeCheckVisitor extends
 		{
 			return node.apply(CmlVdmTypeCheckVisitor.this, question);
 		};
-		
-		
-		
+
+		public PType defaultPType(PType node, TypeCheckInfo question)
+				throws AnalysisException
+		{
+			return null;
+		};
+
 	};
 
 	@Override
@@ -100,6 +108,19 @@ public class CmlVdmTypeCheckVisitor extends
 	}
 
 	@Override
+	public PType caseAUnresolvedObjectDesignator(
+			AUnresolvedObjectDesignator node, TypeCheckInfo question)
+			throws AnalysisException
+	{
+		PExp exp = node.getPath();
+
+		PObjectDesignator designator = createObjectDesignator(exp);
+
+		node.parent().replaceChild(node, designator);
+		return designator.apply(this, question);
+	}
+
+	@Override
 	public PType caseAUnresolvedStateDesignator(
 			AUnresolvedStateDesignator node, TypeCheckInfo question)
 			throws AnalysisException
@@ -111,6 +132,26 @@ public class CmlVdmTypeCheckVisitor extends
 		node.parent().replaceChild(node, designator);
 		return designator.apply(this, question);
 
+	}
+
+	private PObjectDesignator createObjectDesignator(PExp exp)
+	{
+		if (exp instanceof AVariableExp)
+		{
+			AVariableExp varExp = (AVariableExp) exp;
+			AIdentifierObjectDesignator designator = AstFactory.newAIdentifierObjectDesignator(varExp.getName());
+			return designator;
+		} else if (exp instanceof AFieldExp)
+		{
+			AFieldExp field = (AFieldExp) exp;
+
+			PObjectDesignator object = createObjectDesignator(field.getObject());
+			AFieldObjectDesignator designator = AstFactory.newAFieldObjectDesignator(object, field.getField());
+			return designator;
+		}
+
+		throw new RuntimeException("hit case for unresolved object designator: "
+				+ exp);
 	}
 
 	private PStateDesignator createStateDesignator(PExp exp)

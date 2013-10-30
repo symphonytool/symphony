@@ -23,23 +23,29 @@ import eu.compassresearch.ast.lex.CmlLexNameToken;
 
 public class PParametrisationAssistant
 {
-	
+
 	/**
 	 * Creates a new scoped environment with the parameterizations added
-	 * @param base the base environment
-	 * @param pDecls the parameterizations
+	 * 
+	 * @param base
+	 *            the base environment
+	 * @param pDecls
+	 *            the parameterizations
 	 * @return the new environment
 	 */
 	public static Environment updateEnvironment(Environment base,
 			Collection<PParametrisation> pDecls)
 	{
-		return updateEnvironment(base, pDecls.toArray(new PParametrisation[]{}));
+		return updateEnvironment(base, pDecls.toArray(new PParametrisation[] {}));
 	}
 
 	/**
 	 * Creates a new scoped environment with the parameterizations added
-	 * @param base the base environment
-	 * @param pDecls the parameterizations
+	 * 
+	 * @param base
+	 *            the base environment
+	 * @param pDecls
+	 *            the parameterizations
 	 * @return the new environment
 	 */
 	public static Environment updateEnvironment(Environment base,
@@ -59,33 +65,39 @@ public class PParametrisationAssistant
 		}
 		return new FlatCheckedEnvironment(base.af, definitions, base, NameScope.NAMES);
 	}
-	
-	
+
 	/**
-	 * Creates a new scoped environment with the parameterizations added from the process that is an ancester to the class
-	 * @param base the base env
-	 * @param c the class
+	 * Creates a new scoped environment with the parameterizations added from the process that is an ancester to the
+	 * class
+	 * 
+	 * @param base
+	 *            the base env
+	 * @param c
+	 *            the class
 	 * @return the newly scoped env with the parameterizations added
 	 */
-	public static Environment updateEnvironment(Environment base,SClassDefinition c
-			)
+	public static Environment updateEnvironment(Environment base,
+			SClassDefinition c)
 	{
 		Environment env = base;
 		if (c instanceof AActionClassDefinition)
 		{
 			AProcessDefinition process = c.getAncestor(AProcessDefinition.class);
-			env = updateEnvironment( base,process);
+			env = updateEnvironment(base, process);
 		}
 		return env;
 	}
 
 	/**
-	 * Creates a new scoped environment with the parameterizations added from the process 
-	 * @param base the base env
-	 * @param c the process
+	 * Creates a new scoped environment with the parameterizations added from the process
+	 * 
+	 * @param base
+	 *            the base env
+	 * @param c
+	 *            the process
 	 * @return the newly scoped env with the parameterizations added
 	 */
-	public static Environment updateEnvironment( Environment base,
+	public static Environment updateEnvironment(Environment base,
 			AProcessDefinition process)
 	{
 

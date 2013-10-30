@@ -11,6 +11,7 @@ import org.overture.ast.statements.AAltNonDeterministicStm;
 import org.overture.ast.statements.ADoNonDeterministicStm;
 import org.overture.ast.statements.AIfNonDeterministicStm;
 import org.overture.ast.statements.ANewStm;
+import org.overture.ast.statements.AUnresolvedObjectDesignator;
 import org.overture.ast.statements.AUnresolvedStateDesignator;
 import org.overture.typechecker.assistant.ITypeCheckerAssistantFactory;
 import org.overture.typechecker.utilities.DefinitionCollector;
@@ -1215,6 +1216,14 @@ public abstract class AbstractCmlDefinitionCollector extends
 	@Override
 	public List<PDefinition> caseADoNonDeterministicStm(
 			ADoNonDeterministicStm node) throws AnalysisException
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<PDefinition> caseAUnresolvedObjectDesignator(
+			AUnresolvedObjectDesignator node) throws AnalysisException
 	{
 		// TODO Auto-generated method stub
 		return null;

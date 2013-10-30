@@ -1,14 +1,12 @@
 package eu.compassresearch.core.typechecker.weeding;
 
-import java.util.Collection;
-
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.SOperationDefinition;
 
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
 import eu.compassresearch.ast.process.PProcess;
-import eu.compassresearch.ast.program.PSource;
+import eu.compassresearch.core.typechecker.DefinitionList;
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 
 /**
@@ -17,21 +15,21 @@ import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 @SuppressWarnings("serial")
 public class OperationBodyValidater extends DepthFirstAnalysisCMLAdaptor
 {
-	public static boolean apply(Collection<PSource> lp,
+	public static boolean apply(DefinitionList lp,
 			ITypeIssueHandler issueHandler)
 	{
 
 		OperationBodyValidater lv = new OperationBodyValidater(issueHandler);
-		for (PSource s : lp)
+		// for (PSource s : lp)
+		// {
+		// if (s != null)
+		try
 		{
-			if (s != null)
-				try
-				{
-					s.apply(lv);
-				} catch (AnalysisException e)
-				{
-				}
+			lp.apply(lv);
+		} catch (AnalysisException e)
+		{
 		}
+		// }
 		return lv.ok;
 	}
 

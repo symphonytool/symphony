@@ -25,8 +25,6 @@ public interface ICmlTypeChecker
 		private static final long serialVersionUID = 789485822073572522L;
 
 	}
-	
-	
 
 	/**
 	 * This is once and for all how we determine if a Cml Source is well typed.

@@ -54,8 +54,8 @@ public class WeedingStmCleaner extends DepthFirstAnalysisCMLAdaptor
 		if (node.parent() instanceof AActionStm)
 		{
 			node.parent().parent().replaceChild(node.parent(), node.getStatement());
-			node.parent().parent(null);
-			node.setStatement(null);
+//			node.parent().parent(null);
+//			node.setStatement(null);
 		}
 	}
 
@@ -113,7 +113,7 @@ public class WeedingStmCleaner extends DepthFirstAnalysisCMLAdaptor
 			block.setStatements(statements);
 
 			node.parent().parent().replaceChild(node.parent(), block);
-			node.parent(null);
+//			node.parent(null);
 
 			block.parent().apply(this);
 

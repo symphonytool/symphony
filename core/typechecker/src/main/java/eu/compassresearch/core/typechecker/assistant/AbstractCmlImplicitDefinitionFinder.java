@@ -10,6 +10,7 @@ import org.overture.ast.statements.AAltNonDeterministicStm;
 import org.overture.ast.statements.ADoNonDeterministicStm;
 import org.overture.ast.statements.AIfNonDeterministicStm;
 import org.overture.ast.statements.ANewStm;
+import org.overture.ast.statements.AUnresolvedObjectDesignator;
 import org.overture.ast.statements.AUnresolvedStateDesignator;
 import org.overture.typechecker.Environment;
 import org.overture.typechecker.assistant.ITypeCheckerAssistantFactory;
@@ -1248,6 +1249,15 @@ public abstract class AbstractCmlImplicitDefinitionFinder extends
 	@Override
 	public void caseAActionClassDefinition(AActionClassDefinition node,
 			Environment question) throws AnalysisException
+	{
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void caseAUnresolvedObjectDesignator(
+			AUnresolvedObjectDesignator node, Environment question)
+			throws AnalysisException
 	{
 		// TODO Auto-generated method stub
 

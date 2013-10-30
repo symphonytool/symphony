@@ -1,12 +1,14 @@
 package eu.compassresearch.core.typechecker;
 
 import java.lang.reflect.Field;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.intf.lex.ILexNameToken;
+import org.overture.ast.node.Node;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.typechecker.EnvironmentSearchStrategy;
 import org.overture.typechecker.FlatCheckedEnvironment;
@@ -82,16 +84,19 @@ public class FlatCheckedGlobalEnvironment extends FlatCheckedEnvironment
 	{
 		ILexNameToken globalName = name.clone();
 
-		Field nameField;
 		try
 		{
-			nameField = globalName.getClass().getDeclaredField("module");
-			if (nameField != null)
+			for (Field field : Node.getAllFields(new LinkedList<Field>(),globalName.getClass()))
 			{
-				nameField.setAccessible(true);
-				nameField.set(globalName, ""/* "$global" */);
+				if(field.getName().equals("module"))
+				{
+					field.setAccessible(true);
+					field.set(globalName,  "$global" );
+					break;
+				}
 			}
-		} catch (NoSuchFieldException | SecurityException
+			
+		} catch (SecurityException
 				| IllegalArgumentException | IllegalAccessException e)
 		{
 
@@ -100,4 +105,9 @@ public class FlatCheckedGlobalEnvironment extends FlatCheckedEnvironment
 		return globalName;
 	}
 
+	@Override
+	public boolean isVDMPP()
+	{
+		return true;
+	}
 }

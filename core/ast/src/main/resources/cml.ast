@@ -497,6 +497,11 @@ parametrisation {-> package='eu.compassresearch.ast.actions'
 stateDesignator {-> package='org.overture.ast.statements'}
 	=	{unresolved} [path]:exp//well we wanted this:exp.unresolvedPath
 	;
+	
+	
+objectDesignator {-> package='org.overture.ast.statements'}
+    =  {unresolved} [path]:exp//well we wanted this:exp.unresolvedPath
+    ;
 
 /*alternativeAction {-> package='eu.compassresearch.ast.actions'}
     = {case} [location]:location [pattern]:pattern* [result]:action (defs):definition*

@@ -1354,15 +1354,20 @@ leadingIdAction returns[PAction action]
                                 throw new RecognitionException(input);
                             }
 
+							
+							List<LexIdentifierToken> idList = new ArrayList<LexIdentifierToken>();
+                                
                             // need to merge the first identifier and
                             // any dotted identifiers into a name
                             String module = "";
                             CommonToken dotId = $id;
                             if ($ids != null && $ids.size() > 0) {
                                 StringBuilder sb = new StringBuilder($id.getText());
+								idList.add(new LexIdentifierToken($id.getText(),false,extractLexLocation($id)));
                                 ListIterator<Object> iter = $ids.listIterator();
                                 while (iter.hasNext()) {
                                     dotId = (CommonToken)iter.next();
+									idList.add(new LexIdentifierToken(dotId.getText(),false,extractLexLocation(dotId)));
                                     if (iter.hasNext()) {
                                         sb.append(".");
                                         sb.append(dotId.getText());
@@ -1370,13 +1375,32 @@ leadingIdAction returns[PAction action]
                                 }
                                 module = sb.toString();
                             }
+							
+							if(!idList.isEmpty())
+							{
+								//we dont want the op name in here
+								idList = idList.subList(0,idList.size()-1);
+							}
                             CmlLexNameToken name = new CmlLexNameToken(module, dotId.getText(), extractLexLocation($id,dotId));
 
                             // grab the AApplyExp directly
                             AApplyExp apply = (AApplyExp)selectors.get(0);
                             
                             //FIXME this is the hacked version of call with dots in the module. We should properly use CallObject and place an unresolved state designator with the path instead
-                            $action = stm2action(AstFactory.newACallStm(name, apply.getArgs())); 
+                            //$action = stm2action(AstFactory.newACallStm(name, apply.getArgs())); 
+							
+							if($ids== null || $ids.size()==0)
+							{
+								$action = stm2action(AstFactory.newACallStm(name, apply.getArgs())); 
+							}else
+							{
+								//we have an unresolved path
+								PExp path = new AUnresolvedPathExp(extractLexLocation($id,dotId),idList);
+								//the object designator the therefore also unresolved
+								PObjectDesignator designator = new AUnresolvedObjectDesignator(extractLexLocation($id,dotId),path);
+								
+								$action = stm2action(AstFactory.newACallObjectStm(designator,name.getIdentifier(),apply.getArgs()));
+							}
                         }else
 						{
 							//	This is from having something like 'x.a' as a statement on its own --- this cannot be a AReferenceAction as actions cannot be referenced with dots, and it cannot be a operation call as it is missing () at the end (the selectorOptList was empty) --- so this is a Parse Error -jwc/29Oct2013
@@ -2072,6 +2096,7 @@ instanceVariableDefinition returns[PDefinition def]
             
             
             AInstanceVariableDefinition ivd = AstFactory.newAInstanceVariableDefinition($def.getName(), $def.getType(),((AAssignmentDefinition) $def).getExpression());
+			$def.getName().parent(ivd);//the type of ivd is graph but we trough away the assignment
 			$def.getType().parent(ivd);//the type of ivd is graph but we trough away the assignment
 			ivd.setAccess($def.getAccess());
 			
@@ -2759,7 +2784,7 @@ typebase returns[PType type]
             $type = new ANamedInvariantType(loc, false, null, false, false, null, tname,
                                             new AUnresolvedType(loc, false, new ArrayList<PDefinition>(), tname));
         }
-    | 'set' 'of' sub=typebase                   { $type = new ASetType(null, false, null, $sub.type, false, false); }
+    | 'set' 'of' sub=typebase                   { $type = AstFactory.newASetType(null,  $sub.type); }
     | 'seq' 'of' sub=typebase                   { $type = new ASeqSeqType(null, false, null, $sub.type, false); }
     | 'seq1' 'of' sub=typebase                  { $type = new ASeq1SeqType(null, false, null, $sub.type, false); }
     | 'map' from=type 'to' to=typebase      { $type = new AMapMapType(null, false, null, $from.type, $to.type, false); }

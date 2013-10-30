@@ -61,7 +61,6 @@ import eu.compassresearch.ast.process.ATimedInterruptProcess;
 import eu.compassresearch.ast.process.ATimeoutProcess;
 import eu.compassresearch.ast.process.AUntimedTimeoutProcess;
 import eu.compassresearch.ast.process.PProcess;
-import eu.compassresearch.core.typechecker.CmlTypeCheckInfo;
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 import eu.compassresearch.core.typechecker.assistant.PParametrisationAssistant;
@@ -260,7 +259,7 @@ public class CmlProcessTypeChecker extends
 		PProcess repProc = node.getReplicatedProcess();
 		LinkedList<PSingleDeclaration> repDecl = node.getReplicationDeclaration();
 
-		 csExp.apply(THIS, question);
+		csExp.apply(THIS, question);
 
 		List<PDefinition> locals = new Vector<PDefinition>();
 
@@ -274,7 +273,7 @@ public class CmlProcessTypeChecker extends
 			}
 		}
 
-		 repProc.apply(THIS, question.newScope(locals));
+		repProc.apply(THIS, question.newScope(locals));
 
 		return getVoidType(node);
 	}
@@ -370,13 +369,6 @@ public class CmlProcessTypeChecker extends
 		LinkedList<PParametrisation> decl = node.getParametrisations();
 		PProcess proc = node.getProcess();
 
-		CmlTypeCheckInfo cmlEnv = null;// FIXME TCActionVisitor.getTypeCheckInfo(question);
-		if (cmlEnv == null)
-			return issueHandler.addTypeError(node, TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(""
-					+ node));
-
-		CmlTypeCheckInfo procEnv = cmlEnv.newScope();
-
 		for (PExp arg : args)
 		{
 			PType argType = arg.apply(THIS, question);
@@ -397,6 +389,8 @@ public class CmlProcessTypeChecker extends
 					+ definitions.size(), "" + args.size()));
 		}
 
+		List<PDefinition> locals = new Vector<PDefinition>();
+
 		for (int i = 0; i < args.size(); i++)
 		{
 			PExp ithExp = args.get(i);
@@ -406,10 +400,10 @@ public class CmlProcessTypeChecker extends
 				return issueHandler.addTypeError(node, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(""
 						+ ithDef.getType(), "" + ithExp.getType()));
 			}
-			procEnv.addVariable(ithDef.getName(), ithDef);
+			locals.add(ithDef);
 		}
 
-		PType procType = proc.apply(THIS, procEnv);
+		PType procType = proc.apply(THIS, question.newScope(locals));
 
 		return getVoidType(node);
 	}

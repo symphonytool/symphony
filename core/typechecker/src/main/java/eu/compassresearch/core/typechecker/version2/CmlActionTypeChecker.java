@@ -131,14 +131,13 @@ public class CmlActionTypeChecker extends
 		return node.getType();
 	}
 
-
 	@Override
 	public PType caseACallStm(ACallStm node, TypeCheckInfo question)
 			throws AnalysisException
 	{
-		//FIXME not implemented
+		// FIXME not implemented
 		return AstFactory.newAVoidType(node.getLocation());
-		
+
 	}
 
 	@Override

@@ -28,16 +28,17 @@ public class RunCmlExamplesTestCase extends
 	private static Collection<Object[]> filter(
 			Collection<Object[]> collectTestData)
 	{
-		List<Object[]> r  = new Vector<Object[]>();
+		List<Object[]> r = new Vector<Object[]>();
 		for (Object[] o : collectTestData)
 		{
-			String name =o[0].toString(); 
-			if(name.contains("fail.cml") || name.contains("process-action-alphabetisedParallelism.cml"))
+			String name = o[0].toString();
+			if (name.contains("fail.cml")
+					|| name.contains("process-action-alphabetisedParallelism.cml"))
 			{
-				 r.add( o);
+				r.add(o);
 			}
 		}
-		
+
 		collectTestData.removeAll(r);
 		return collectTestData;
 	}

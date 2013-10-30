@@ -12,7 +12,6 @@ import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.definitions.SClassDefinition;
 import org.overture.ast.definitions.SFunctionDefinition;
 import org.overture.ast.definitions.SOperationDefinition;
-import org.overture.ast.expressions.AApplyExp;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.factory.AstFactory;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
@@ -106,14 +105,13 @@ public class CmlCspTypeChecker extends
 				node.setType(type);
 				return node.getType();
 			}
-			
-			
+
 		};
 
 		this.issueHandler = issuehandler;
 		this.actionChecker = new CmlActionTypeChecker(vdmChecker, this, issuehandler);
 		this.processChecker = new CmlProcessTypeChecker(vdmChecker, this, issuehandler);
-		this.varSetExpChecker = new CmlVarSetExpressionTypeChecker( this, issuehandler);
+		this.varSetExpChecker = new CmlVarSetExpressionTypeChecker(this, issuehandler);
 		this.channelExpChecker = new CmlChannelExpressionTypeChecker(this, issuehandler);
 
 	}
@@ -211,7 +209,7 @@ public class CmlCspTypeChecker extends
 	{
 		return node.apply(actionChecker, question);
 	}
-	
+
 	@Override
 	public PType caseACallStm(ACallStm node, TypeCheckInfo question)
 			throws AnalysisException
@@ -219,12 +217,12 @@ public class CmlCspTypeChecker extends
 		PDefinition def = findDefinition(node.getName(), question.env);
 		if (def instanceof AActionDefinition)
 		{
-			return node.apply(actionChecker,question);
+			return node.apply(actionChecker, question);
 		} else
 		{
-			return node.apply(vdmChecker,question);
+			return node.apply(vdmChecker, question);
 		}
-		
+
 	}
 
 	@Override
@@ -365,7 +363,7 @@ public class CmlCspTypeChecker extends
 		{
 
 			return issueHandler.addTypeError(expression, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(""
-					+ new ASetType(), "" + expressionType));
+					+ AstFactory.newASetType(null,AstFactory.newAUndefinedType(null)), "" + expressionType));
 		}
 
 		expressionType.setDefinitions(defs);

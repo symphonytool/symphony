@@ -9,6 +9,7 @@ import org.overture.ast.statements.AAltNonDeterministicStm;
 import org.overture.ast.statements.ADoNonDeterministicStm;
 import org.overture.ast.statements.AIfNonDeterministicStm;
 import org.overture.ast.statements.ANewStm;
+import org.overture.ast.statements.AUnresolvedObjectDesignator;
 import org.overture.ast.statements.AUnresolvedStateDesignator;
 import org.overture.typechecker.assistant.ITypeCheckerAssistantFactory;
 import org.overture.typechecker.utilities.FunctionChecker;
@@ -1202,6 +1203,13 @@ public abstract class AbstractCmlFunctionChecker extends FunctionChecker
 	@Override
 	public Boolean caseAActionClassDefinition(AActionClassDefinition node)
 			throws AnalysisException
+	{
+		return false;
+	}
+
+	@Override
+	public Boolean caseAUnresolvedObjectDesignator(
+			AUnresolvedObjectDesignator node) throws AnalysisException
 	{
 		return false;
 	}

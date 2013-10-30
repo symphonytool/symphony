@@ -2,27 +2,38 @@ package eu.compassresearch.core.typechecker.weeding;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.SClassDefinition;
+import org.overture.ast.expressions.AApplyExp;
+import org.overture.ast.expressions.AFieldExp;
+import org.overture.ast.expressions.AFuncInstatiationExp;
+import org.overture.ast.expressions.AIsExp;
+import org.overture.ast.expressions.AMkBasicExp;
+import org.overture.ast.expressions.AMuExp;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.factory.AstFactory;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.lex.LexLocation;
+import org.overture.ast.node.INode;
 import org.overture.ast.node.Node;
+import org.overture.ast.statements.ACallStm;
 import org.overture.ast.types.ABracketType;
 
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
+import eu.compassresearch.ast.definitions.AActionClassDefinition;
+import eu.compassresearch.ast.definitions.AActionDefinition;
+import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
 import eu.compassresearch.ast.lex.CmlLexNameToken;
-import eu.compassresearch.ast.program.PSource;
+import eu.compassresearch.ast.process.AActionProcess;
+import eu.compassresearch.core.typechecker.DefinitionList;
 
 /**
  * @author kel & cb
@@ -32,20 +43,15 @@ public class WeedingUnresolvedPathReplacement extends
 		DepthFirstAnalysisCMLAdaptor
 {
 
-	public static void apply(Collection<PSource> lp,
-			List<SClassDefinition> globalClasses)
+	public static void apply(DefinitionList lp)
 	{
 
-		WeedingUnresolvedPathReplacement lv = new WeedingUnresolvedPathReplacement(globalClasses);
-		for (PSource s : lp)
+		WeedingUnresolvedPathReplacement lv = new WeedingUnresolvedPathReplacement(lp.getAllClasses());
+		try
 		{
-			if (s != null)
-				try
-				{
-					s.apply(lv);
-				} catch (AnalysisException e)
-				{
-				}
+			lp.apply(lv);
+		} catch (AnalysisException e)
+		{
 		}
 	}
 
@@ -134,36 +140,93 @@ public class WeedingUnresolvedPathReplacement extends
 	@Override
 	public void caseILexNameToken(ILexNameToken node) throws AnalysisException
 	{
-		if ((node.getModule() != null && !node.getModule().isEmpty())
-				|| node.parent() instanceof SClassDefinition /* || node.parent() instanceof PExp */)
+		System.out.println(node.getName() + " from 		"
+				+ node.parent().toString().replace('\n', ' '));
+		// if ((node.getModule() != null && !node.getModule().isEmpty())
+		// || node.parent() instanceof SClassDefinition /* || node.parent() instanceof PExp */)
+		// {
+		// if ((node.getModule() == null || node.getModule().trim().isEmpty())
+		// && !(node.parent() instanceof SClassDefinition))
+		// {
+		// // System.err.println("No module set for: " +node);
+		// }
+		// return;
+		// }
+		if (node.parent() instanceof SClassDefinition
+				|| node.parent() instanceof AProcessDefinition)
 		{
-			if ((node.getModule() == null || node.getModule().trim().isEmpty())
-					&& !(node.parent() instanceof SClassDefinition))
-			{
-				// System.err.println("No module set for: " +node);
-			}
+			return;
+		}
+
+		if (node.parent().parent() instanceof AActionClassDefinition)
+		{
+			// these classes have generated names so we cannot refer explicitly to them. If the module was set is would
+			// work for the actions in the action block but not for the action references in the @action in the process
+			// definition.
+			// This handles the action definitions
 			return;
 		}
 
 		SClassDefinition cDef = node.getAncestor(SClassDefinition.class);
+
+		if (cDef == null)
+		{
+			AActionProcess p = node.getAncestor(AActionProcess.class);
+			if (p != null)
+			{
+				cDef = p.getActionDefinition();
+			}
+		}
+
 		if (cDef != null)
 		{
 			try
 			{
 				Field nameField = getDeclaredField(node.getClass(), "module");
-				if (nameField != null
-						&& !cDef.getName().getName().equals("$global"))
+				if (nameField != null)
 				{
 					nameField.setAccessible(true);
-					// nameField.set(node, cDef.getName().getName());
-					nameField.set(node, "");
+
+					if (node.getModule() != null && !node.getModule().isEmpty())
+					{
+						// This name is already set and is explicit so leave it in place. This is the case where Class A
+						// has a B`v refering to Class B explicitly
+						return;
+					} else if (cDef instanceof AActionClassDefinition)
+					{
+						// we cannot refer to this generated class so it makes no sence to set the module. If we do then
+						// references to these (vdm definitions, like values) cannot be referenced in the @action of the
+						// defining process
+						return;
+					} else
+					{
+						nameField.set(node, cDef.getName().getName());
+					}
 				}
 
 				Field explicitField = getDeclaredField(node.getClass(), "explicit");
 				if (explicitField != null)
 				{
 					explicitField.setAccessible(true);
-					explicitField.set(node, false);
+
+					@SuppressWarnings("rawtypes")
+					Class[] search = new Class[] { AFieldExp.class,
+							AFuncInstatiationExp.class, AApplyExp.class,
+							AMuExp.class, AMkBasicExp.class, AIsExp.class };
+
+					INode parent = node.parent().parent();
+					boolean isExplicit = true;
+					for (@SuppressWarnings("rawtypes")
+					Class c : search)
+					{
+						if (c.isInstance(parent) || !(parent instanceof PExp))
+						{
+							isExplicit = false;
+							break;
+						}
+					}
+
+					explicitField.set(node, isExplicit);
 				}
 			} catch (SecurityException e)
 			{
@@ -178,10 +241,6 @@ public class WeedingUnresolvedPathReplacement extends
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		}
-		if (node.getModule() == null || node.getModule().trim().isEmpty())
-		{
-			// System.err.println("-No module set for: " +node);
 		}
 	}
 
