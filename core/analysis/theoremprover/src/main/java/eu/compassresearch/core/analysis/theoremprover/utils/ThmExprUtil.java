@@ -82,11 +82,11 @@ public class ThmExprUtil {
 	public static String unaryMinus = "- ";
 	public static String unaryPlus = "+ ";
  
-	static String notHandled = "(*expr not yet handled*)";
- 	static String isaUndefined = "undefined";
-	private static String isaDown = "\\<down>";
+	public static String notHandled = "(*expr not yet handled*)";
+	public static String isaUndefined = "undefined";
+	public static String isaDown = "\\<down>";
 	
-	private static boolean isPost = false;
+	public static boolean isPost = false;
 	
 	public static void setPostExpr(boolean post)
 	{
