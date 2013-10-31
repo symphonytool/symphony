@@ -526,8 +526,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			{
 				TimedTransition leftTimeTransition = leftAlpha.getTockEvent();  
 				resultAlpha = leftAlpha.subtract(leftTimeTransition);
-				long ct = owner.getCurrentTime();
-				long limit = val - (ct - startTimeVal);
+				long limit = val - (owner.getCurrentTime() - startTimeVal);
 				resultAlpha = resultAlpha.union(leftTimeTransition.synchronizeWith(new TimedTransition(owner, limit)));
 			}
 			else
