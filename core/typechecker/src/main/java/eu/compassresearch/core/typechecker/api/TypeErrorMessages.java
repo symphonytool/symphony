@@ -102,7 +102,7 @@ public enum TypeErrorMessages
 			"Too few parameter patterns. Type params %s. Patterns %s"),
 
 	DEFINITION_X_BUT_FOUND_Y(4324,
-			"Expected %s definition but found %s. Identifier: %s");
+			"Expected %s definition but found %s definition. Identifier: %s");
 
 	private int number;
 	private String template;
