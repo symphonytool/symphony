@@ -20,7 +20,7 @@ import eu.compassresearch.ide.ui.utility.CmlProjectUtil;
 public class MCCollectorHandler extends AbstractHandler
 {
 
-	final String UNSUPPORTED_ELEMENTS_MSG = "This model contains unsupported CML elements. Check the warnings for more information.";
+	public static final String UNSUPPORTED_ELEMENTS_MSG = "This model contains unsupported CML elements. Check the warnings for more information.";
 
 
 	@Override

@@ -40,6 +40,7 @@ import eu.compassresearch.core.common.RegistryFactory;
 import eu.compassresearch.ide.core.resources.ICmlModel;
 import eu.compassresearch.ide.core.resources.ICmlProject;
 import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
+import eu.compassresearch.ide.core.unsupported.UnsupportedElementInfo;
 import eu.compassresearch.ide.ui.utility.CmlProjectUtil;
 
 
@@ -83,6 +84,17 @@ public class MCHandler extends AbstractHandler {
 					popErrorMessage(new RuntimeException("Errors in model."));
 					return null;
 				}
+				
+				// Check compatibility 
+				List<UnsupportedElementInfo> uns = new MCUnsupportedCollector().getUnsupporteds(cmlProj.getModel().getAst());
+
+				if (!uns.isEmpty())
+				{
+					cmlProj.addUnsupportedMarkers(uns);
+					MessageDialog.openError(null, "COMPASS", MCCollectorHandler.UNSUPPORTED_ELEMENTS_MSG);
+					return null;
+				}
+				
 				
 				//Grab the model from the project
 				final ICmlModel model = cmlProj.getModel();
