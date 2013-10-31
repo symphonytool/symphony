@@ -333,7 +333,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 		if (!owner.hasChildren())
 		{
 
-			return newInspection(createTauTransitionWithTime(node, "Begin"), new AbstractCalculationStep(owner, visitorAccess)
+			return newInspection(createTauTransitionWithoutTime(node, "Begin"), new AbstractCalculationStep(owner, visitorAccess)
 			{
 
 				@Override

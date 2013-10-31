@@ -10,7 +10,6 @@ import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.expressions.PCMLExp;
 import eu.compassresearch.ast.process.AActionProcess;
-import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.ast.types.PCMLType;
 
 public class MCVisitorFactory {

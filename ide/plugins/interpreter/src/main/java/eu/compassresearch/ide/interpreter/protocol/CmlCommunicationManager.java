@@ -323,7 +323,11 @@ public class CmlCommunicationManager extends Thread
 
 	public void updateBreakpoint(URI file, int linenumber, boolean enabled)
 	{
-
+		if(enabled)
+			addBreakpoint(file, linenumber, enabled);
+		else
+			removeBreakpoint(file, linenumber);
+		
 	}
 
 	public IDbgpStackLevel[] getStackLevels(CmlThread thread)

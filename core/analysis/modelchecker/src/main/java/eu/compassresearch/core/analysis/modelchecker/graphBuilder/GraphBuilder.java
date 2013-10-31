@@ -7,15 +7,12 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayDeque;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.NullBinding;
-import eu.compassresearch.core.analysis.modelchecker.graphBuilder.event.BasicEvent;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.event.Event;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.event.Tau;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Divergence;
-import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Par;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Process;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Skip;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Stop;

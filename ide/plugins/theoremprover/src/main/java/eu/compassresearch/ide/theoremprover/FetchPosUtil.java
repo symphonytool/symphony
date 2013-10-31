@@ -22,7 +22,7 @@ import eu.compassresearch.ide.core.resources.ICmlModel;
 import eu.compassresearch.ide.core.resources.ICmlProject;
 import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
 import eu.compassresearch.ide.pog.POConstants;
-import eu.compassresearch.ide.pog.PogPluginDoStuff;
+import eu.compassresearch.ide.pog.PogPluginRunner;
 import eu.compassresearch.ide.ui.utility.CmlProjectUtil;
 import eu.compassresearch.core.analysis.theoremprover.IsabelleTheory;
 
@@ -67,7 +67,7 @@ public class FetchPosUtil
 //					public void statusChanges(IProofObligation po) {
 //						CmlProofObligationList poList = project.getModel().getAttribute(POConstants.PO_REGISTRY_ID, CmlProofObligationList.class);
 //						
-//						PogPluginDoStuff.redrawPos(project, poList);
+//						PogPluginRunner.redrawPos(project, poList);
 //						
 //					}
 //				});

@@ -1,9 +1,7 @@
 package eu.compassresearch.core.analysis.modelchecker.visitors;
 
 
-import java.io.File;
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -29,9 +27,6 @@ import eu.compassresearch.ast.definitions.AActionsDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.expressions.AEnumVarsetExpression;
 import eu.compassresearch.ast.process.AActionProcess;
-import eu.compassresearch.ast.process.ASkipProcess;
-import eu.compassresearch.ast.process.PProcess;
-import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.PSource;
 
 

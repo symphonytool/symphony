@@ -3,7 +3,6 @@ package eu.compassresearch.core.analysis.modelchecker.visitors;
 import java.util.Arrays;
 import java.util.LinkedList;
 
-import org.overture.ast.definitions.AUntypedDefinition;
 import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.definitions.PDefinition;
 

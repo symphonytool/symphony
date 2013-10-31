@@ -6,7 +6,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AAssignmentDefinition;
@@ -32,9 +31,7 @@ import org.overture.ast.expressions.ATimesNumericBinaryExp;
 import org.overture.ast.expressions.AVariableExp;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.intf.lex.ILexLocation;
-import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.INode;
-import org.overture.ast.node.NodeList;
 import org.overture.ast.types.AIntNumericBasicType;
 import org.overture.ast.types.ANamedInvariantType;
 import org.overture.ast.types.ANatNumericBasicType;
