@@ -1,4 +1,4 @@
-package eu.compassresearch.core.typechecker.weeding;
+package eu.compassresearch.core.typechecker.analysis;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.SOperationDefinition;

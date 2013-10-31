@@ -61,6 +61,7 @@ import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 import eu.compassresearch.core.typechecker.assistant.PParametrisationAssistant;
 import eu.compassresearch.core.typechecker.assistant.TypeCheckerUtil;
+import eu.compassresearch.core.typechecker.environment.PrivateActionClassEnvironment;
 
 public class CmlProcessTypeChecker extends
 		QuestionAnswerCMLAdaptor<TypeCheckInfo, PType>

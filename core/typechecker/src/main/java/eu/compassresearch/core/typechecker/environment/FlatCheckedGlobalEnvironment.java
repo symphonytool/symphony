@@ -1,4 +1,4 @@
-package eu.compassresearch.core.typechecker;
+package eu.compassresearch.core.typechecker.environment;
 
 import java.lang.reflect.Field;
 import java.util.LinkedList;

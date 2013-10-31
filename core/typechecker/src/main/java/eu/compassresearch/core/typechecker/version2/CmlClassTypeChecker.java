@@ -14,7 +14,7 @@ import org.overture.typechecker.TypeCheckInfo;
 import org.overture.typechecker.assistant.ITypeCheckerAssistantFactory;
 
 import eu.compassresearch.core.typechecker.CmlTypeCheckerAssistantFactory;
-import eu.compassresearch.core.typechecker.FlatCheckedGlobalEnvironment;
+import eu.compassresearch.core.typechecker.environment.FlatCheckedGlobalEnvironment;
 
 public class CmlClassTypeChecker extends ClassTypeChecker
 {

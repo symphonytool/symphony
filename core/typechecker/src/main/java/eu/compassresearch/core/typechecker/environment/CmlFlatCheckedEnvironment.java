@@ -1,4 +1,4 @@
-package eu.compassresearch.core.typechecker.version2;
+package eu.compassresearch.core.typechecker.environment;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,4 +1,4 @@
-package eu.compassresearch.core.typechecker.version2;
+package eu.compassresearch.core.typechecker.environment;
 
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.definitions.SClassDefinition;

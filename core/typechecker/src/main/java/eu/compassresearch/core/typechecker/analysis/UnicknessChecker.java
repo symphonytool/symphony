@@ -1,4 +1,4 @@
-package eu.compassresearch.core.typechecker.weeding;
+package eu.compassresearch.core.typechecker.analysis;
 
 import java.util.List;
 import java.util.Vector;
@@ -19,8 +19,8 @@ import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
 import eu.compassresearch.ast.definitions.AActionClassDefinition;
 import eu.compassresearch.core.typechecker.CmlTypeCheckerAssistantFactory;
 import eu.compassresearch.core.typechecker.DefinitionList;
-import eu.compassresearch.core.typechecker.FlatCheckedGlobalEnvironment;
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
+import eu.compassresearch.core.typechecker.environment.FlatCheckedGlobalEnvironment;
 
 /**
  * @author kel & cb
@@ -34,7 +34,7 @@ public class UnicknessChecker extends DepthFirstAnalysisCMLAdaptor
 			ITypeIssueHandler issueHandler)
 	{
 
-		UnicknessChecker lv = new UnicknessChecker( lp);
+		UnicknessChecker lv = new UnicknessChecker(lp);
 		try
 		{
 			lp.apply(lv);
@@ -44,9 +44,9 @@ public class UnicknessChecker extends DepthFirstAnalysisCMLAdaptor
 		return lv.ok;
 	}
 
-//	private ITypeIssueHandler issueHandler;
+	// private ITypeIssueHandler issueHandler;
 	boolean ok = true;
-//	private DefinitionList definitions;
+	// private DefinitionList definitions;
 	private Environment env;
 
 	static class FlatStrictCheckEnvironment extends FlatCheckedEnvironment

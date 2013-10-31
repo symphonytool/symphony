@@ -1,6 +1,5 @@
 package eu.compassresearch.core.typechecker.version2;
 
-
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
