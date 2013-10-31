@@ -8,7 +8,7 @@ public class MCAIntNumericBasicType implements MCPCMLType {
 	
 	@Override
 	public String toFormula(String option) {
-		return "Natural";
+		return "Integer";
 	}
 
 }

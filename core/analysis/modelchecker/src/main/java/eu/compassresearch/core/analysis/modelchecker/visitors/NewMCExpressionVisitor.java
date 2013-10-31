@@ -36,7 +36,6 @@ import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCCondition;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCNegGuardDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCPosGuardDef;
-import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCType;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAEnumVarsetExpression;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAEqualsBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAFatEnumVarsetExpression;
@@ -50,8 +49,10 @@ import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANotEqual
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAPlusNumericBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASeqEnumSeqExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASetEnumSetExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCATimesNumericBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAVariableExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 
 public class NewMCExpressionVisitor extends
 QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
@@ -112,12 +113,12 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 		LinkedList<PExp> members = node.getMembers();
 		LinkedList<MCPCMLExp> memb = new LinkedList<MCPCMLExp>();
 		LinkedList<PType> typ = node.getTypes();
-		LinkedList<MCType> types = new LinkedList<MCType>();
+		LinkedList<MCPCMLType> types = new LinkedList<MCPCMLType>();
 		for(PExp e: members){
 			memb.add((MCPCMLExp)e.apply(this,question));
 		}
 		for(PType t: typ){
-			types.add((MCType)t.apply(this, question));
+			types.add((MCPCMLType)t.apply(this, question));
 		}
 		return new MCASeqEnumSeqExp(memb, types);
 	}
@@ -307,18 +308,6 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 		return question.getScriptContent();
 	}
 
-	@Override
-	public StringBuilder caseATimesNumericBinaryExp(
-			ATimesNumericBinaryExp node, CMLModelcheckerContext question)
-			throws AnalysisException {
-		int first = question.getScriptContent().indexOf("#");
-		String aux = node.getLeft().toString()+"("+node.getLeft().toString().toLowerCase()+"), "+node.getRight().toString()+"("+node.getRight().toString().toLowerCase()+")";
-		String aux2 = node.getLeft().toString().toLowerCase()+" "+node.getOp().toString()+" "+node.getRight().toString().toLowerCase();
-		question.getScriptContent().replace(first, first+1, aux);
-		int second = question.getScriptContent().indexOf("@");
-		question.getScriptContent().replace(second, second+1, aux2);
-		return question.getScriptContent();
-	}
 
 	*/
 
@@ -328,7 +317,19 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 
 		return new MCAIntLiteralExp(node.getValue().toString()); 
 	}
-	
+
+	@Override
+	public MCNode caseATimesNumericBinaryExp(
+			ATimesNumericBinaryExp node, NewCMLModelcheckerContext question)
+			throws AnalysisException {
+		
+		MCPCMLExp left = (MCPCMLExp) node.getLeft().apply(this, question);
+		MCPCMLExp right = (MCPCMLExp) node.getRight().apply(this, question);
+		MCATimesNumericBinaryExp result = new MCATimesNumericBinaryExp(left, right);
+			
+		return result;
+	}
+
 	@Override
 	public MCNode caseABracketedExp(ABracketedExp node,
 			NewCMLModelcheckerContext question) throws AnalysisException {

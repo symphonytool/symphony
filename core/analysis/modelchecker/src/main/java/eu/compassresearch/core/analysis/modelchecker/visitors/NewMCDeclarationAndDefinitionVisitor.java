@@ -6,6 +6,9 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.AStateDefinition;
+import org.overture.ast.definitions.ATypeDefinition;
+import org.overture.ast.definitions.AUntypedDefinition;
+import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
@@ -25,6 +28,8 @@ import eu.compassresearch.ast.definitions.AChannelsDefinition;
 import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AOperationsDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
+import eu.compassresearch.ast.definitions.ATypesDefinition;
+import eu.compassresearch.ast.definitions.AValuesDefinition;
 import eu.compassresearch.ast.definitions.PCMLDefinition;
 import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
@@ -43,6 +48,11 @@ import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAExplicit
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAOperationsDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAProcessDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAStateDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCATypeDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCATypesDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAUntypedDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAValueDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAValuesDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCPCMLDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCSCmlOperationDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
@@ -270,77 +280,78 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 		
 	}
 	
+	@Override
+	public MCNode caseAValuesDefinition(AValuesDefinition node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+
+		LinkedList<MCPCMLDefinition> mcValueDefs = new LinkedList<MCPCMLDefinition>();
+		for (PDefinition pDef : node.getValueDefinitions()) {
+			mcValueDefs.add((MCPCMLDefinition) pDef.apply(this, question));
+		}
+		  
+		MCAValuesDefinition result = new MCAValuesDefinition(mcValueDefs);
+		
+		return result;
+	}
+	
+	@Override
+	public MCNode caseAValueDefinition(AValueDefinition node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		
+		String name = node.getPattern().toString();
+		LinkedList<MCPCMLDefinition> definitions = new LinkedList<MCPCMLDefinition>();
+		for (PDefinition pDef : node.getDefs()) {
+			definitions.add((MCPCMLDefinition) pDef.apply(this, question));
+		}
+		MCPCMLType type = (MCPCMLType) node.getType().apply(rootVisitor, question);
+		MCPCMLExp expression = (MCPCMLExp) node.getExpression().apply(rootVisitor, question);
+		MCAValueDefinition result = new MCAValueDefinition(name, definitions, expression,type);
+
+		question.valueDefinitions.add(result);
+		
+		return result;
+	}
+	
+	
+	
+	@Override
+	public MCNode caseAUntypedDefinition(AUntypedDefinition node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		
+		MCAUntypedDefinition result = new MCAUntypedDefinition(node.getName().toString());
+		
+		return result;
+	}
+	
+	@Override
+	public MCNode caseATypesDefinition(ATypesDefinition node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+
+		LinkedList<MCATypeDefinition> mcTypes = new LinkedList<MCATypeDefinition>();
+		for (ATypeDefinition aTypeDef : node.getTypes()) {
+			mcTypes.add((MCATypeDefinition) aTypeDef.apply(this, question));
+		}
+		MCATypesDefinition result = new MCATypesDefinition(mcTypes);
+		
+		return result;
+	}
+
+	@Override
+	public MCNode caseATypeDefinition(ATypeDefinition node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		
+		
+		String name = node.getName().toString();
+		MCPCMLExp invExpression = (MCPCMLExp) node.getInvExpression().apply(rootVisitor, question);
+		MCATypeDefinition result = new MCATypeDefinition(name, invExpression);
+		
+		question.typeDefinitions.add(result);
+		
+	
+		return result;
+	}
 	
 	/*
-	
-	
-
-	@Override
-	public StringBuilder caseAValuesDefinition(AValuesDefinition node,
-			CMLModelcheckerContext question) throws AnalysisException {
-		//question.info.put(Utilities.VALUE_DEFINITIONS_KEY, node.getValueDefinitions());
-		
-		
-		for (PDefinition valueDef : node.getValueDefinitions()) {
-			//valueDef.apply(this, question);
-			valueDef.apply(this, question);
-		}
-		
-		return question.getScriptContent();
-	}
-	
-	@Override
-	public StringBuilder caseAValueDefinition(AValueDefinition node,
-			CMLModelcheckerContext question) throws AnalysisException {
-		
-		question.valueDefinitions.add(new UserDefinedValue(node));
-		//lets put the information in the context to be processed as bellow in the partial 
-		//model construction.
-		 
-		//if(node.getExpression() instanceof AIntLiteralExp){
-		 
-		//	question.getScriptContent().append("  primitive ");
-		//} else{
-		//	question.getScriptContent().append("  ");
-		//}
-		//question.getScriptContent().append(node.getPattern().toString()+" ::= (");		
-		//node.getType().apply(this, question);
-		//question.getScriptContent().append(").\n");
-		//if(node.getExpression() instanceof ATimesNumericBinaryExp){
-		//	question.getScriptContent().append("  "+node.getPattern().toString()+"("+node.getPattern().toString().toLowerCase()+") :- #, "+node.getPattern().toString().toLowerCase()+" = @");
-		//	node.getExpression().apply(this, question);
-		//	question.getScriptContent().append(".\n");
-		//}
-		
-		return question.getScriptContent();
-	}
-	
-	
-	@Override
-	public StringBuilder caseATypesDefinition(ATypesDefinition node,
-			CMLModelcheckerContext question) throws AnalysisException {
-		
-		for (ATypeDefinition typeDef : node.getTypes()) {
-			//typeDef.apply(this, question);
-			typeDef.apply(this, question);
-		}
-		//question.info.put(Utilities.TYPE_USER_DEFINITION, node.getTypes());
-		
-		return question.getScriptContent();
-	}
-
-	@Override
-	public StringBuilder caseATypeDefinition(ATypeDefinition node,
-			CMLModelcheckerContext question) throws AnalysisException {
-		
-		question.typeDefinitions.add(new UserTypeDefinition(node));
-		//node.getInvType().apply(this, question);
-		//question.getScriptContent().append(".\n");
-		
-		return question.getScriptContent();
-	}
-	
-	
 	
 	//// DECLARATIONS
 	

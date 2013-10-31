@@ -16,6 +16,7 @@ import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.ast.types.PCMLType;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAIntNumericBasicType;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANamedInvariantType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANatNumericBasicType;
 
 public class NewMCTypeAndValueVisitor extends
@@ -49,28 +50,17 @@ public class NewMCTypeAndValueVisitor extends
 		return new MCAIntNumericBasicType();
 	}
 
-	/*
+	
 	@Override
-	public StringBuilder caseAIntNumericBasicType(AIntNumericBasicType node,
-			CMLModelcheckerContext question) throws AnalysisException {
+	public MCNode caseANamedInvariantType(ANamedInvariantType node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
 		
-		//question.getScriptContent().append("int");
-		question.getScriptContent().append("Natural");
+		MCANamedInvariantType result = new MCANamedInvariantType(node.getName().toString());
 		
-		return question.getScriptContent();
+		return result;
 	}
 
-	@Override
-	public StringBuilder caseANamedInvariantType(ANamedInvariantType node,
-			CMLModelcheckerContext question) throws AnalysisException {
-		
-		//question.getScriptContent().append("primitive ");
-		question.getScriptContent().append(node.getName());
-		//question.getScriptContent().append("  ::= (");
-		//node.getType().apply(this, question);
-		//question.getScriptContent().append(")");
-		return question.getScriptContent();
-	}
+	/*
 	
 	@Override
 	public StringBuilder caseAChannelType(AChannelType node,

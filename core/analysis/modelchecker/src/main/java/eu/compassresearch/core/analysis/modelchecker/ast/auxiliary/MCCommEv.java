@@ -5,15 +5,16 @@ import java.util.LinkedList;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPCommunicationParameter;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 
 public class MCCommEv implements MCNode {
 
 	private String name;
 	private LinkedList<MCPCommunicationParameter> parameters;
-	private MCType value;
+	private MCPCMLType value;
 	
 	
-	public MCCommEv(String name, LinkedList<MCPCommunicationParameter> parameters, MCType value) {
+	public MCCommEv(String name, LinkedList<MCPCommunicationParameter> parameters, MCPCMLType value) {
 		super();
 		this.name = name;
 		this.parameters = parameters;
@@ -64,16 +65,6 @@ public class MCCommEv implements MCNode {
 	}
 
 
-	public MCType getValue() {
-		return value;
-	}
-
-
-	public void setValue(MCType value) {
-		this.value = value;
-	}
-
-
 	public LinkedList<MCPCommunicationParameter> getParameters() {
 		return parameters;
 	}
@@ -83,5 +74,16 @@ public class MCCommEv implements MCNode {
 		this.parameters = parameters;
 	}
 
+
+	public MCPCMLType getValue() {
+		return value;
+	}
+
+
+	public void setValue(MCPCMLType value) {
+		this.value = value;
+	}
+
+	
 	
 }

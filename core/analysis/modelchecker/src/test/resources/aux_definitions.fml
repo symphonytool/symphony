@@ -1,0 +1,34 @@
+    //Types
+	UNDEF               ::= {undef}.
+    primitive Int       ::= (v:Integer).
+    primitive Nat       ::= (v:Natural).
+    primitive Str       ::= (v:String).
+    primitive IR        ::= (v:Real).
+    primitive Seq       ::= (v:SeqType).
+    EmptySeq                ::= { empty }.
+    primitive NonEmptySeq   ::= ( first: Types, rest: SeqType ).
+    SeqType                 ::= EmptySeq + NonEmptySeq.
+    DerivableSeq        ::= (SeqType).     
+	
+	// User defined types
+	//USER_DEF_TYPES
+	
+	// Channel Types
+    //CHAN_TYPES
+		
+	Types               ::= UNDEF + Int + Nat + Str + IR + Seq /*INCLUDE USER_DEF_TYPES*/ /*UNION_CHAN_TYPES*/.
+
+	// Bindings 
+    NullBind            ::= { nBind }. 
+	primitive SingleBind ::= (name: String, val: Types).               
+	primitive BBinding    ::= (procName: String, b: SingleBind, rest: Binding). //THIS MUST CHANGE TO BBINDING
+	Binding       ::= NullBind + BBinding.
+
+	// Operations over bindings. 
+	primitive fetch ::= (vName: String, bind: Binding, val:Types).
+	upd   ::= (bOld: Binding, b: SingleBind, bNew: Binding).
+	primitive del   ::= (bOld: Binding, vName: String, bNew: Binding).
+    
+	//Guard evaluation to handle boolean expression evaluation
+	guardDef      ::= (level: Natural, occur: Natural, st: Binding).
+    guardNDef     ::= (level: Natural, occur: Natural, st: Binding).

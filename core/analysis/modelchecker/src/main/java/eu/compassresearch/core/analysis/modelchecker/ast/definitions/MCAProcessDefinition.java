@@ -19,6 +19,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCGuardDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCLieInFact;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCNegGuardDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCPosGuardDef;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCValueDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCATypeSingleDeclaration;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.process.MCPProcess;
@@ -56,6 +57,9 @@ public class MCAProcessDefinition implements MCPCMLDefinition {
 		
 		result.append("domain StartProcDomain includes CML_PropertiesSpec {\n");
 		
+		//generate value definitions
+		generateValueDefinitions(result,option);
+		
 		//generate auxiliary definitions (actions, operationDefs, iocommdefs, guardDefs, etc.) 
 		generateAuxiliaryActions(result,option);
 		
@@ -74,6 +78,8 @@ public class MCAProcessDefinition implements MCPCMLDefinition {
 		generateAssignDefinitions(result, option);
 		
 		generateOperationDefinitions(result,option);
+		
+		
 		
 		/*
 		if(question.info.containsKey(Utilities.ASSIGNMENT_DEFINITION_KEY)){
@@ -126,7 +132,8 @@ public class MCAProcessDefinition implements MCPCMLDefinition {
 		result.append("}\n\n");
 		result.append("partial model StartProcModel of StartProcDomain{\n");
 
-		//generateValueDefinitions(question);
+		//generate values defined previously
+		//generateDefinedValues(result,option);
 
 
 
@@ -243,19 +250,33 @@ public class MCAProcessDefinition implements MCPCMLDefinition {
 	
 	private void generateOperationDefinitions(StringBuilder content, String option){
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
-		if(context.operations.size() != 0){
-			for (MCSCmlOperationDefinition opDef : context.operations) {
-				if(opDef instanceof MCAExplicitCmlOperationDefinition){
-					MCAExplicitCmlOperationDefinition op = (MCAExplicitCmlOperationDefinition) opDef;
-					content.append(op.toFormula(option));
-				}
+		for (MCSCmlOperationDefinition opDef : context.operations) {
+			if(opDef instanceof MCAExplicitCmlOperationDefinition){
+				MCAExplicitCmlOperationDefinition op = (MCAExplicitCmlOperationDefinition) opDef;
+				content.append(op.toFormula(option));
 			}
+		}
+	}
+	
+	private void generateValueDefinitions(StringBuilder content, String option){
+		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+		for (MCAValueDefinition valueDef : context.valueDefinitions) {
+			content.append(valueDef.toFormula(option));
+			content.append("\n");
+		}
+	}
+	private void generateDefinedValues(StringBuilder content, String option){
+		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+		for (MCAValueDefinition valueDef : context.valueDefinitions) {
+			
+			MCValueDef valueDefFact = new MCValueDef(valueDef.getName(), valueDef.getType(), valueDef.getExpression());
+			content.append(valueDefFact.toFormula(option));
+			content.append("\n");
 		}
 	}
 	private void generateLieInFacts(StringBuilder content, String option){
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 		if(context.lieIn.size() != 0){
-			//content.append("\n");
 			for (MCLieInFact lieIn : context.lieIn) {
 				content.append(lieIn.toFormula(option) + "\n");
 			}

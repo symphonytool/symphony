@@ -5,8 +5,10 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.junit.experimental.categories.Categories.IncludeCategory;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.expressions.AInSetBinaryExp;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.expressions.SBinaryExp;
 import org.overture.ast.expressions.SSeqExp;
@@ -27,6 +29,7 @@ import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.analysis.modelchecker.api.FormulaIntegrationUtilities;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.Domain;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAProcessDefinition;
 
 /**
@@ -42,6 +45,11 @@ public class NewMCVisitor extends
 	private String propertyToCheck = Utilities.DEADLOCK_PROPERTY;
 	private StringBuilder basicContent;
 	
+	private Domain auxiliaryDomain;
+	private Domain syntaxDomain;
+	private Domain semanticsDomain;
+	private Domain propertiesDomain;
+	
 	private NewMCActionVisitor actionVisitor;
 	private NewMCDeclarationAndDefinitionVisitor declAndDefVisitor;
 	private NewMCEmptyVisitor emptyVisitor;
@@ -49,21 +57,21 @@ public class NewMCVisitor extends
 	private NewMCProcessVisitor processVisitor;
 	private NewMCTypeAndValueVisitor typeAndValueVisitor;
 
-	public NewMCVisitor(List<PSource> sources) {
+	public NewMCVisitor(List<PSource> sources) throws IOException {
 		this.sources = sources;
 		this.initialise();
 	}
-	public NewMCVisitor() {
+	public NewMCVisitor() throws IOException {
 		this.sources = new LinkedList<PSource>();
 		this.initialise();
 	}
-	public NewMCVisitor(PSource singleSource) {
+	public NewMCVisitor(PSource singleSource) throws IOException {
 		this.sources = new LinkedList<PSource>();
 		this.sources.add(singleSource);
 		this.initialise();
 	}
 
-	private void initialise(){
+	private void initialise() throws IOException{
 		basicContent = new StringBuilder();
 		this.actionVisitor = new NewMCActionVisitor(this);
 		this.processVisitor = new NewMCProcessVisitor(this);
@@ -71,6 +79,25 @@ public class NewMCVisitor extends
 		this.emptyVisitor = new NewMCEmptyVisitor();
 		this.expressionVisitor = new NewMCExpressionVisitor(this);
 		this.typeAndValueVisitor = new NewMCTypeAndValueVisitor(this);
+		loadDomains();
+	}
+	
+	private void loadDomains() throws IOException{
+		
+		Domain parentDomain = null;
+		
+		StringBuilder auxDefContent = FormulaIntegrationUtilities.readScriptFromFile(FormulaIntegrationUtilities.AUXILIARY_DEFINITIONS_SCRIPT);
+		this.auxiliaryDomain = new Domain("AuxiliaryDefinitions", parentDomain, auxDefContent.toString());
+		
+		StringBuilder cmlSyntaxContent = FormulaIntegrationUtilities.readScriptFromFile(FormulaIntegrationUtilities.SYNTAX_DOMAIN_SCRIPT);
+		this.syntaxDomain = new Domain("CMLSyntax", auxiliaryDomain, cmlSyntaxContent.toString());
+		
+		StringBuilder cmlSemanticsContent = FormulaIntegrationUtilities.readScriptFromFile(FormulaIntegrationUtilities.SEMANTICS_DOMAIN_SCRIPT);
+		this.semanticsDomain = new Domain("CMLSemantics", syntaxDomain, cmlSemanticsContent.toString());
+		
+		StringBuilder cmlPropertiesContent = FormulaIntegrationUtilities.readScriptFromFile(FormulaIntegrationUtilities.PROPERTIES_DOMAIN_SCRIPT);
+		this.propertiesDomain = new Domain("CMLProperties", semanticsDomain, cmlSemanticsContent.toString());
+		
 	}
 	
 	@Override
@@ -206,15 +233,19 @@ public class NewMCVisitor extends
 		if (sources.size() > 0) {
 			codes = new String[sources.size()];
 		}
+		this.basicContent = FormulaIntegrationUtilities.readScriptFromFile(FormulaIntegrationUtilities.BASIC_FORMULA_SCRIPT);
+		
 		for (PSource source : sources) {
 			NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 			context.setPropertyToCheck(propertyToCheck);
 			String dependentCode = "";
-			this.basicContent = FormulaIntegrationUtilities.readScriptFromFile(FormulaIntegrationUtilities.BASIC_FORMULA_SCRIPT);
+			
 			for (PDefinition paragraph : source.getParagraphs()) {
 				if (paragraph instanceof AProcessDefinition){
 					MCAProcessDefinition mcNode =  (MCAProcessDefinition) paragraph.apply(this, context);
 					dependentCode = mcNode.toFormula(MCNode.DEFAULT);
+				}else{
+					paragraph.apply(this, context);
 				}
 			}
 			codes[sources.indexOf(source)] = basicContent + "\n" + dependentCode;
@@ -266,7 +297,7 @@ public class NewMCVisitor extends
 			files = folder.listFiles();
 		}
 		
-		String cml_file = "src/test/resources/action-assignment-stateVar.cml";
+		String cml_file = "src/test/resources/minimondex-incomplete.cml";
 		System.out.println("Testing on " + cml_file);
 		PSource source1 = Utilities.makeSourceFromFile(cml_file);
 		NewMCVisitor visitor1 = new NewMCVisitor(source1);
@@ -274,6 +305,7 @@ public class NewMCVisitor extends
 		String[] codes1 = visitor1.generateFormulaCodeForAll(Utilities.DEADLOCK_PROPERTY);
 		for (int j = 0; j < codes1.length; j++) {
 			System.out.println(codes1[j]);
+			
 		}
 		
 		/*for (int i = 0; i < files.length; i++) {

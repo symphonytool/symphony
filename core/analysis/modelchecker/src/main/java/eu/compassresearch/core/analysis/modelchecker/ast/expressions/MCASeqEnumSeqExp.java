@@ -2,14 +2,14 @@ package eu.compassresearch.core.analysis.modelchecker.ast.expressions;
 
 import java.util.LinkedList;
 
-import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCType;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 
 public class MCASeqEnumSeqExp implements MCPCMLExp{
 
 	private LinkedList<MCPCMLExp> members;
-	private LinkedList<MCType> types;
+	private LinkedList<MCPCMLType> types;
 	
-	public MCASeqEnumSeqExp(LinkedList<MCPCMLExp> memb, LinkedList<MCType> types) {
+	public MCASeqEnumSeqExp(LinkedList<MCPCMLExp> memb, LinkedList<MCPCMLType> types) {
 		this.members = memb;
 		this.types = types;
 	}
@@ -17,14 +17,6 @@ public class MCASeqEnumSeqExp implements MCPCMLExp{
 	@Override
 	public String toFormula(String option) {
 		return null;
-	}
-
-	public LinkedList<MCType> getTypes() {
-		return types;
-	}
-
-	public void setTypes(LinkedList<MCType> types) {
-		this.types = types;
 	}
 
 	public LinkedList<MCPCMLExp> getMembers() {
@@ -35,4 +27,13 @@ public class MCASeqEnumSeqExp implements MCPCMLExp{
 		this.members = members;
 	}
 
+	public LinkedList<MCPCMLType> getTypes() {
+		return types;
+	}
+
+	public void setTypes(LinkedList<MCPCMLType> types) {
+		this.types = types;
+	}
+
+	
 }

@@ -20,9 +20,14 @@ import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCGuardDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCLieInFact;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCNegGuardDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCPosGuardDef;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCValueDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAActionDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAChannelNameDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAExplicitCmlOperationDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCATypeDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAUntypedDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAValueDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCPCMLDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCSCmlOperationDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPVarsetExpression;
@@ -49,6 +54,8 @@ public class NewCMLModelcheckerContext {
 	public ArrayList<MCAssignDef> assignDefs;
 	public LinkedList<MCChannel> channelDefs;
 	public ArrayList<MCSCmlOperationDefinition> operations;
+	public LinkedList<MCAValueDefinition> valueDefinitions;
+	protected LinkedList<MCATypeDefinition> typeDefinitions;
 	
 	
 	protected StringBuilder basicContent = new StringBuilder(); 
@@ -76,8 +83,8 @@ public class NewCMLModelcheckerContext {
 	
 	protected ArrayList<String> channelDependencies;
 	protected ArrayList<String> ioCommDefs;
-	protected LinkedList<UserDefinedValue> valueDefinitions;
-	protected LinkedList<UserTypeDefinition> typeDefinitions;
+	
+	
 	
 	
 	protected int numberOfFetchFacts = 1;
@@ -120,8 +127,8 @@ public class NewCMLModelcheckerContext {
 		ioCommDefs = new ArrayList<String>();
 		positiveGuardDefs = new HashMap<MCPCMLExp, MCPosGuardDef>();
 		negativeGuardDefs = new HashMap<MCPCMLExp, MCNegGuardDef>();
-		valueDefinitions = new LinkedList<UserDefinedValue>();
-		typeDefinitions = new LinkedList<UserTypeDefinition>();
+		valueDefinitions = new LinkedList<MCAValueDefinition>();
+		typeDefinitions = new LinkedList<MCATypeDefinition>();
 		channelDefinitions = new LinkedList<ChannelTypeDefinition>();
 		guardDefs = new HashMap<MCPCMLExp, MCGuardDef>();
 		assignDefs = new ArrayList<MCAssignDef>();
@@ -146,8 +153,8 @@ public class NewCMLModelcheckerContext {
 		ioCommDefs = new ArrayList<String>();
 		positiveGuardDefs = new HashMap<MCPCMLExp, MCPosGuardDef>();
 		negativeGuardDefs = new HashMap<MCPCMLExp, MCNegGuardDef>();
-		valueDefinitions = new LinkedList<UserDefinedValue>();
-		typeDefinitions = new LinkedList<UserTypeDefinition>();
+		valueDefinitions = new LinkedList<MCAValueDefinition>();
+		typeDefinitions = new LinkedList<MCATypeDefinition>();
 		channelDefinitions = new LinkedList<ChannelTypeDefinition>();
 		guardDefs = new HashMap<MCPCMLExp, MCGuardDef>();
 		channelDefs = new LinkedList<MCChannel>();
@@ -173,8 +180,8 @@ public class NewCMLModelcheckerContext {
 		result.ioCommDefs = new ArrayList<String>(this.ioCommDefs);
 		positiveGuardDefs = new HashMap<MCPCMLExp, MCPosGuardDef>(this.positiveGuardDefs);
 		negativeGuardDefs = new HashMap<MCPCMLExp, MCNegGuardDef>(this.negativeGuardDefs);
-		result.valueDefinitions = new LinkedList<UserDefinedValue>(this.valueDefinitions);
-		result.typeDefinitions = new LinkedList<UserTypeDefinition>(this.typeDefinitions);
+		result.valueDefinitions = new LinkedList<MCAValueDefinition>(this.valueDefinitions);
+		result.typeDefinitions = new LinkedList<MCATypeDefinition>(this.typeDefinitions);
 		result.channelDefinitions = new LinkedList<ChannelTypeDefinition>(this.channelDefinitions);
 		guardDefs = new HashMap<MCPCMLExp, MCGuardDef>(this.guardDefs);
 		channelDefs = new LinkedList<MCChannel>(this.channelDefs);
@@ -187,6 +194,32 @@ public class NewCMLModelcheckerContext {
 		return result;
 	}
 	
+	public MCAValueDefinition getValueDefinition(String valueName){
+		MCAValueDefinition result = null;
+		
+		boolean found = false;
+		
+		for (MCAValueDefinition valueDef : valueDefinitions) {
+			if(valueDef.getName().equals(valueName)){
+				result = valueDef;
+				break;
+			}
+			//for (MCPCMLDefinition pcmlDef : valueDef.getDefinitions()) {
+			//	if(pcmlDef instanceof MCAUntypedDefinition){
+			//		if(((MCAUntypedDefinition) pcmlDef).getName().equals(valueName)){
+			//			found = true;
+			//			break;
+			//		}
+			//	}
+			//}
+			//if(found){
+			//	result = valueDef;
+			//	break;
+			//}
+		}
+		
+		return result;
+	}
 	public Binding getMaxBinding(){
 		return this.maximalBinding;
 		/*Binding maximalBinding = new NullBinding();
@@ -302,8 +335,8 @@ public class NewCMLModelcheckerContext {
 		ioCommDefs = new ArrayList<String>();
 		positiveGuardDefs = new HashMap<MCPCMLExp, MCPosGuardDef>();
 		negativeGuardDefs = new HashMap<MCPCMLExp, MCNegGuardDef>();
-		valueDefinitions = new LinkedList<UserDefinedValue>();
-		typeDefinitions = new LinkedList<UserTypeDefinition>();
+		valueDefinitions = new LinkedList<MCAValueDefinition>();
+		typeDefinitions = new LinkedList<MCATypeDefinition>();
 		channelDefinitions = new LinkedList<ChannelTypeDefinition>();
 		guardDefs = new HashMap<MCPCMLExp, MCGuardDef>();
 		channelDefs = new LinkedList<MCChannel>();

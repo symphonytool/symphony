@@ -7,15 +7,15 @@ import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 public class MCATypeDefinition implements MCPCMLDefinition {
 	
 	private String name;
-	private AExplicitFunctionDefinition invDef;
+	//private MCAExplicitFunctionDefinition invDef;
 	private MCPCMLExp invExpression;
 
 	
-	public MCATypeDefinition(String name, AExplicitFunctionDefinition invDef,
+	public MCATypeDefinition(String name, //MCAExplicitFunctionDefinition invDef,
 			MCPCMLExp invExpression) {
 		super();
 		this.name = name;
-		this.invDef = invDef;
+		//this.invDef = invDef;
 		this.invExpression = invExpression;
 	}
 
@@ -37,16 +37,7 @@ public class MCATypeDefinition implements MCPCMLDefinition {
 	}
 
 
-	public AExplicitFunctionDefinition getInvDef() {
-		return invDef;
-	}
-
-
-	public void setInvDef(AExplicitFunctionDefinition invDef) {
-		this.invDef = invDef;
-	}
-
-
+	
 	public MCPCMLExp getInvExpression() {
 		return invExpression;
 	}
@@ -55,6 +46,7 @@ public class MCATypeDefinition implements MCPCMLDefinition {
 	public void setInvExpression(MCPCMLExp invExpression) {
 		this.invExpression = invExpression;
 	}
+
 
 	
 }

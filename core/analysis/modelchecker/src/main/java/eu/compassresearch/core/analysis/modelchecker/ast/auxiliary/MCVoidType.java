@@ -1,14 +1,18 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.auxiliary;
 
-public class MCVoidType extends MCType {
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 
+public class MCVoidType implements MCPCMLType {
+
+	private String name;
+	
 	public MCVoidType() {
-		super("void");
+		this.name = "void";
 	}
 
 	@Override
 	public String toFormula(String option) {
-		return this.getName();
+		return this.name;
 	}
 
 	

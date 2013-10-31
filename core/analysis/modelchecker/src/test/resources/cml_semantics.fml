@@ -1,0 +1,171 @@
+	State ::= (level: Natural, b: Binding, procName: String, p: CMLProcess). 
+	
+    trans ::= (source: State, ev: SigmaTau, target: State).
+
+    // a -> P 
+    State(l,st,pN,P),
+    trans(State(l, st,pN,Prefix(BasicEv(a),P)),BasicEv(a),State(l, st,pN,P)) :- State(l,st,pN,Prefix(BasicEv(a),P)).
+    
+	// a?x -> P
+    State(l, st_,pN,P),
+    trans(ini, CommEv(l,chExp,chType), State(l, st_,pN,P))
+            :- ini is State(l, st,pN,Prefix(IOComm(occ,chExp,chType), P)), /*Channel(l,chName,chType),*/ IOCommDef(l, occ,chType,st,st_).
+    
+	// P |~| Q
+    State(l, st,pN, P),
+    trans(State(l, st,pN,iChoice(P,Q)),tau,State(l, st, pN,P)) :- State(l, st,pN,iChoice(P,Q)).
+    State(l, st, pN,Q),
+    trans(State(l, st,pN,iChoice(P,Q)),tau,State(l, st, pN,Q)) :- State(l, st,pN,iChoice(P,Q)).
+    
+    
+    // P [] Q
+    State(l, st,pN,P),
+    State(l, st,pN,Q),
+    State(l, nBind, pN,extraChoice(l, st,P,st,Q)),
+    trans(iS, tau, State(l, nBind, pN,extraChoice(l,st,P,st,Q))) :- iS is State(l, st,pN,eChoice(P,Q)).
+    
+	//if one of the operands terminates (external choice:skip)
+	State(l, st1,pN,Skip),
+    trans(iS,tau,State(l, st1,pN,Skip)) :- iS is State(l, st,pN,extraChoice(l,st1,Skip,st2,_)).
+    State(l, st2,pN,Skip),
+    trans(iS,tau,State(l, st2,pN,Skip)) :- iS is State(l, st,pN,extraChoice(l,st1,_,st2,Skip)).
+
+    //if one of the operands has internal progress (external choice:silent)
+    State(l, st3,pName_,P_), //State(l, st2, pName,Q),
+    State(l, st,pN,extraChoice(l,st3,P_,st2,Q)),
+    trans(iS,tau,State(l, st,pN,extraChoice(l,st3,P_,st2,Q))) :- iS is State(l, st,pN,extraChoice(l,st1,P,st2,Q)),trans(State(l,st1,pName,P),tau,State(l,st3,pName_,P_)).
+	
+    State(l, st3, qName_,Q_), //State(l, st1, pN,P), 
+    State(l, st,pN,extraChoice(l,st1,P,st3,Q_)),
+    trans(iS,tau,State(l, st,pN,extraChoice(l,st1,P,st3,Q_))) :- iS is State(l, st,pN,extraChoice(l,st1,P,st2,Q)),trans(State(l,st2,qName,Q),tau,State(l, st3,qName_,Q_)).
+
+    //using a visible event (external choice: end)
+    State(l, st3,pName,P_),
+    trans(iS,ev,State(l, st3,pN,P_)) :- iS is State(l, st,pN,extraChoice(l,st1,P,st2,Q)), trans(State(l, st1,pName,P),ev,State(l, st3,pName,P_)), ev != tau.
+    State(l, st3,qName,Q_),
+    trans(iS,ev,State(l, st3,pN,Q_)) :- iS is State(l, st,pN,extraChoice(l,st1,P,st2,Q)), trans(State(l, st2,qName,Q),ev,State(l, st3,qName,Q_)), ev != tau.
+
+	// if cond then P else Q
+    State(l,st,pN,p),
+    trans(iS,tau,State(l, st,pN,p)) :- iS is State(l,st,pN,condChoice(cond,p,q)),guardDef(l,cond,st).
+    State(l,st,pN,q),
+    trans(iS, tau, State(l,st,pN,q)) :- iS is State(l,st,pN,condChoice(cond, p, q)), guardNDef(l,cond, st).
+
+	// P \ X 
+    State(l,st,pN,p) :- State(l,st,pN,hide(p,X)). 
+	
+    // P \ X --tau--> P' \ X. 
+    State(l,st_,pN,hide(P_, X)),
+    trans(iS, tau, State(l,st_,pName,hide(P_, X))) :- iS is State(l,st,pN,hide(P,X)), trans(State(l,st,pName,P), ev, State(l,st_,pName,P_)), ev!= tau, lieIn(ev, X).    
+    State(l,st_,pN,hide(P_, X)),
+    trans(iS, tau, State(l,st_, pName,hide(P_, X))) :- iS is State(l,st,pN,hide(P,X)), trans(State(l,st,pName,P), tau, State(l,st_,pName,P_)).
+    // P \ X --ev--> P' \ X
+    State(l,st_,pN,hide(P_, X)),
+    trans(State(l,st,pN,hide(P,X)), ev, State(l,st_,pN,hide(P_, X))) :- State(l,st,pN,hide(P,X)), trans(State(l,st,pN,P), ev, State(l,st_,pN,P_)), fail lieIn(ev, X).    
+    //Skip \ X --tick--> Skip
+    State(l,st,pN,Skip),
+    trans(State(l,st,pN,hide(Skip,X)), tau, State(l,st,pN,Skip)) :- State(l,st,pN,hide(Skip,X)).
+
+	// P ; Q 
+    State(l,st, pN,P) :- State(l,st,pN,seqC(P, Q)), P != Skip.
+    State(l,st,pN,Q),
+    trans(iS,tau,State(l,st,pN,Q)) :- iS is State(l,st,pN,seqC(Skip,Q)).
+    trans(iS,tau,State(l,st,pN,Chaos)) :- iS is State(l,st,pN,seqC(Chaos,Q)).
+	
+//	State(st_, Q),// This rule has a serious problem that maybe is related to other rules as well :-(
+//    trans(iS, tau, State(st_, Q)) :- preSchemaOk(schN, st), iS is State(st, seqC(schema(schN), Q)),
+//                                     schemaDef(schN, st, st_).
+//    State(st, Chaos),// This rule has a serious problem that maybe is related to other rules as well :-(
+//    trans(iS, tau, State(st, Chaos)) :- iS is State(st, seqC(schema(schN), Q)),
+//                                       preSchemaNOk(schN, st).
+
+    State(l,st_,pN,seqC(P_,Q)),// This rule has a serious problem that maybe is related to other rules as well :-(
+    trans(iS,ev,State(l,st_,pN,seqC(P_,Q))) :- iS is State(l,st,pN,seqC(P,Q)),trans(State(l,st,pN,P),ev,State(l,st_,nnP,P_)).
+
+	// P [|X|] Q - parallel begin
+    State(l,st,n,P),
+	State(l,st,n,Q),
+	State(l,st,n,par(st,P,X,st,Q)),  
+    trans(iS,tau,State(l,st,n,par(st,P,X,st,Q))) :- iS is State(l,st,n,genPar(P,X,Q)).
+    
+    State(l,stP,n,P), State(l,stQ,n,Q) :- State(l,st,n,par(stP,P,X,stQ,Q)).
+	
+	//BACKING ON DEMAND STATE GENERATION!!!! :-(
+    State(l,st,name,body) :- trans(S,ev,State(l,st,name,body)).
+	
+    //parallel independent
+    //P || Q --ev--> P' || Q
+    State(l,st,n,par(stP_,P_,X,stQ,Q)),
+    trans(iS, ev, State(l,st,n,par(stP_,P_,X,stQ,Q))) :- iS is State(l,st,n,par(stP,P,X,stQ,Q)), 
+													    trans(State(l,stP,nP,P),ev,State(l,stP_,nP,P_)),fail lieIn(ev, X).
+    //P || Q --ev--> P || Q'
+    State(l,st,n,par(stP,P,X,stQ_,Q_)),
+    trans(iS, ev, State(l,st,n,par(stP,P,X,stQ_,Q_))) :- iS is State(l,st,n,par(stP,P,X,stQ,Q)),  
+													    trans(State(l,stQ,nQ,Q), ev, State(l,stQ_,nQ,Q_)), fail lieIn(ev, X).
+    
+    //parallel synchronised
+    // P || Q --ev--> P' || Q'
+    State(l,st,n,par(stP_,P_,X,stQ_,Q_)),
+    trans(iS, ev, State(l,st,n,par(stP_,P_,X,stQ_,Q_))) :- iS is State(l,st,n,par(stP,P,X,stQ,Q)), trans(State(l,stP,nP,P),ev,State(l,stP_,nP,P_)),
+													      trans(State(l,stQ,nQ,Q),ev,State(l,stQ_,nQ,Q_)), ev!=tau, lieIn(ev, X).
+    //parallel end
+    State(l,st,n,Skip),
+    trans(iS, tau, State(l,st,n,Skip)) :- iS is State(l,st,n,par(stP,Skip,X,stQ,Skip)).
+	//TO BE COMPLETED
+	
+	// Call reusing state
+    trans(n,tau,State(l,st,nP,PBody)) :- n is State(l,st,nP,proc(P,pPar)), ProcDef(P,pP,PBody).
+
+	//The body of a process is a call to another process
+    //State(l,st,name2,PBody), 
+    //trans(n,tau,State(l,st,name2,PBody)) :- n is State(l,st,name1,proc(name2,pP)), ProcDef(name2,_,PBody).
+	
+    // Call without reusing state
+    //State(l_,st,P,PBody),
+    //trans(n,tau,State(l_,st,P,PBody)) :- n is State(l,st,P,proc(P,pP)),State(l,st1,P,PBody),
+    //                                    ProcDef(P,pP,PBody), st != st1,
+    //                                       l_ = l + 1, Bound(B), l_ <= B. // These two rules mean "the unfolding        // The conv construct depends on the     
+    // Calling another process with differing state
+    //State(l,st,Pn,PBody),
+    //trans(n,tau,State(l,st,Pn,PBody)) :- n is State(l,st,P,proc(Pn, pP)), ProcDef(Pn,pP,PBody), P != Pn.
+
+	// operations
+    trans(n,tau,State(l,st_,pN,Skip)) :- n is State(l,st,pN,operation(schN,pSch)), operationDef(schN,pSch,st,st_), preOpOk(schN,pSch,st).
+    trans(n,tau,State(l,st,pN,Chaos)) :- n is State(l,st,pN,operation(schN,pSch)), preOpNOk(schN,pSch,st).
+
+    //assign and assigndef produce uptates in the bindings
+    //upd(BBinding(SingleBind("x",valX),nBind),SingleBind("x",val),BBinding(SingleBind("x",val),nBind)) :- 
+    //    assign(number),assignDef(level,number,val).
+
+    //upd(st,SingleBind("x",val),st_) :- assign(number),assignDef(level,number,st,st_).
+
+    // Assignment
+    trans(n,tau,State(l,st_, pN,Skip)) :- n is State(l,st,pN,assign(occ)),assignDef(_,occ,st,st_). 
+	
+	// Var
+    trans(iS, tau, State(l,st,pName,let(nx, pBody))) :- iS is State(l,st, pName, var(nx, xT, pBody)).
+    //trans(iS, tau, State(st,pBody)) :- iS is State(st, var(nx, xT, pBody)). //, upd(st, SingleBind(nx, Int(0)), st_). FIX IT!!!
+
+    // Let
+	State(l, st, pName, P) :- State(l,st,pName,let(x, P)).
+    
+	// The next rule has a problem (infinite) if an st_ is used instead of st
+	trans(iS, ev, State(l,st_, pName,let(x,P_))) :- iS is State(l,st,pName, let(x,P)), trans(State(l,st,pName, P), ev, State(l,st_,pName, P_)). //update the binding
+	trans(iS, tau, State(l,st_,pName,Skip)) :- iS is State(l,st,pName,let(x,Skip)), del(_,vName,st_). 
+	
+	//trans(iS, eps, State(Binding(void, void, val), Skip)) :- val >= 9, val <= 11, iS is State(Binding(_, _, val), let(x, Skip)).//, delB(st, x, st_). FIX
+	//trans(iS, eps, State(Binding(void, void, val), Skip)) :- val < 9, iS is State(Binding(_, _, val), let(_, Skip)).//, delB(st, x, st_). FIX
+    //trans(iS,tau,State(st,Skip)) :- iS is State(st,par(stP,Skip,X,stQ,Skip)).//, delB(st, x, st_). FIX
+    //    trans(iS, eps, State(Binding(void, void, void), Skip)) :- val > 11, iS is State(Binding(_, _, val), let(x, Skip)).//, delB(st, x, st_). FIX
+    //    trans(iS, eps, State(Binding(void, void, void), Skip)) :- iS is State(Binding(_, _, val), let(x, Skip)).//, delB(st, x, st_). FIX IT!!!
+    //    trans(iS, eps, State(Binding(void, n, val), Skip)) :- iS is State(Binding(j, n, val), let(x, Skip)).//, delB(st, x, st_). FIX IT!!!
+
+    // Problem here: I had to change Int(0) for Byte(0). This is being dependent on the problem domain :-(
+    //    SingleBind(nx, Byte(0)), 
+    //    RecursiveBind(/*P,*/ SingleBind(nx, Byte(0)),st) :- State(st,var(nx,xT,pBody)).//, ProcDef(P,_,_).
+    //    trans(iS,tau,State(Binding(Byte(0),Byte(0)),let(nx,pBody))) :- iS is State(st,var(nx,xT,pBody)).//,upd(st,SingleBind(nx,Byte(0)),st_).
+
+
+	// The following primitive is used to mark the starting point
+    primitive GivenProc ::= (name: String).
+

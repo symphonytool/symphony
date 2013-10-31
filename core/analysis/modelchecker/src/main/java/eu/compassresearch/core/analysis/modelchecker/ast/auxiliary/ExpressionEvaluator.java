@@ -2,6 +2,8 @@ package eu.compassresearch.core.analysis.modelchecker.ast.auxiliary;
 
 import org.overture.ast.types.AIntNumericBasicType;
 
+import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAValueDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAEqualsBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAGreaterEqualNumericBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAGreaterNumericBinaryExp;
@@ -9,7 +11,9 @@ import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAIntLiter
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCALessEqualNumericBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCALessNumericBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANotEqualsBinaryExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAVariableExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
+import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 
 public class ExpressionEvaluator implements IExpressionEvaluator {
 
@@ -24,9 +28,12 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 	}
 	
 	public String obtainValue(MCPCMLExp expression){
-		String result = "";
+		String result = null;
+		
 		if(expression instanceof MCAIntLiteralExp){
 			result = this.obtainValue((MCAIntLiteralExp)expression);
+		} else if(expression instanceof MCAVariableExp){
+			result = this.obtainValue((MCAVariableExp)expression);
 		}
 		
 		return result;
@@ -34,6 +41,17 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 	
 	private String obtainValue(MCAIntLiteralExp expression){
 		return expression.getValue();
+	} 
+
+	private String obtainValue(MCAVariableExp expression){
+		String result = null;
+		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+		MCAValueDefinition valueDef = context.getValueDefinition(((MCAVariableExp) expression).getName());
+		if(valueDef != null){
+			result = valueDef.getExpression().toFormula(MCNode.GENERIC);
+		}
+
+		return result;
 	} 
 	
 	public boolean canEvaluate(MCAEqualsBinaryExp expression){
@@ -177,10 +195,28 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 			resp = this.canEvaluate((MCALessEqualNumericBinaryExp)expression);
 		} else if(expression instanceof MCAGreaterNumericBinaryExp){
 			resp = this.canEvaluate((MCAGreaterNumericBinaryExp)expression);
+		} else if(expression instanceof MCAIntLiteralExp){
+			resp = this.canEvaluate((MCAIntLiteralExp)expression);
+		} else if(expression instanceof MCAVariableExp){
+			resp = this.canEvaluate((MCAVariableExp)expression);
 		}
 		return resp;
 	}
 
+	public boolean canEvaluate(MCAIntLiteralExp expression){
+		return true;
+	}
+
+	public boolean canEvaluate(MCAVariableExp expression){
+		boolean result = false;
+		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+		MCAValueDefinition valueDef = context.getValueDefinition(((MCAVariableExp) expression).getName());
+		if(valueDef != null){
+			result = true;
+		}
+		return result;
+	}
+	
 	@Override
 	public boolean evaluate(MCPCMLExp expression) {
 		boolean resp = false;
@@ -196,7 +232,7 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 			resp = this.evaluate((MCALessEqualNumericBinaryExp)expression);
 		} else if(expression instanceof MCAGreaterNumericBinaryExp){
 			resp = this.evaluate((MCAGreaterNumericBinaryExp)expression);
-		}
+		} 
 		return resp;
 	}
 

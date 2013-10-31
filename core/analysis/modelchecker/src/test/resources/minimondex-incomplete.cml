@@ -1,0 +1,18 @@
+values
+ N: nat = 10
+ V: nat = 10
+ M: nat = N*V
+
+types
+  Index = nat 
+    inv i == i in set {1,...,N}
+
+  Money = nat
+    inv m == m in set {0,...,M}
+    
+process Card = 
+begin
+    
+@ Skip
+
+end
