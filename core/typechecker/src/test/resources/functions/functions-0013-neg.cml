@@ -1,0 +1,17 @@
+class
+
+ test =
+
+begin
+
+
+
+functions
+
+ fn: int -> int fn(a) == a + 2 pre op1()
+
+operations
+
+ op1: () ==> bool op1()==return true
+
+end

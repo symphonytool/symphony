@@ -1,0 +1,13 @@
+process
+
+ K =
+
+begin
+
+
+
+operations
+
+ A:int*int ==> bool A(a,b) == return (a=b) @ A(2)
+
+end

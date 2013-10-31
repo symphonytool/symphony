@@ -1,0 +1,5 @@
+/*set type w. invariant*/
+
+types
+
+ C = set of int inv c == c = {1,2,3}

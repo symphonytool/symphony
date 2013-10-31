@@ -17,8 +17,8 @@ import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.typechecker.VanillaFactory;
-import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
-import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
+import eu.compassresearch.core.typechecker.api.ICmlTypeChecker;
+import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 
 public class DebugMain
 {
@@ -91,8 +91,8 @@ public class DebugMain
 			}
 
 			// create the typechecker and typecheck the source forest
-			TypeIssueHandler ih = VanillaFactory.newCollectingIssueHandle();
-			CmlTypeChecker tc = VanillaFactory.newTypeChecker(sourceForest, ih);
+			ITypeIssueHandler ih = VanillaFactory.newCollectingIssueHandle();
+			ICmlTypeChecker tc = VanillaFactory.newTypeChecker(sourceForest, ih);
 			Console.debug.println("Debug Thread: Typechecking...");
 			if (tc.typeCheck())
 			{

@@ -1,0 +1,24 @@
+/*Fix me the parser cannot handle the b.a in the pre condition ?*/
+
+class
+
+ t =
+
+begin
+
+
+
+types
+
+ A :: 
+ 	a : int
+
+operations
+
+ o:A==>int 
+ o(b) == 
+ 	return b.a 
+ pre b.a > 0 
+ post b.a = b~.a and 'b.a' = b~.a
+
+end

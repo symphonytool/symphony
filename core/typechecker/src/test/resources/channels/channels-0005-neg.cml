@@ -1,0 +1,19 @@
+channels
+
+ startStartRescue acceptStartRescue endStartRescue
+
+process
+
+ P =
+
+begin
+
+
+
+actions
+
+ A = startStartRescue -> acceptStartRescue -> endStartRescue -> B 
+ 
+ B = $T(target(C)) @ Skip
+
+end

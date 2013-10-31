@@ -1,0 +1,13 @@
+class
+
+ test =
+
+begin
+
+
+
+values
+
+ even:int*int = mk_(12,12)
+
+end

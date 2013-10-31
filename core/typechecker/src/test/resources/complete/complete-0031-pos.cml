@@ -1,0 +1,17 @@
+types
+
+ Quantity = int Price = int
+
+class
+
+ C =
+
+begin
+
+
+
+state
+
+ sellerBids : seq of Quantity buyerBids : seq of Quantity prices : seq of Price inv len(sellerBids) = len(buyerBids) and len(sellerBids) = len(prices)
+
+end

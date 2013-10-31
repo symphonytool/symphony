@@ -1,0 +1,64 @@
+types
+
+  G = nat
+
+values 
+  Global_Value : G = 20
+  
+functions       
+  Global_Function: G-> G
+  Global_Function(g_f_parameter) == g_f_parameter
+  
+  
+functions       
+  Global_Function2: G-> G
+  Global_Function2(g_f_parameter) == '4'
+
+process P = 
+begin
+  state 
+    Process_State : G                  
+
+  types
+  Process_Type = nat
+
+  values 
+  Process_Value_G : G = 30
+  Process_Value_Process_Type : Process_Type = 40
+
+  operations
+  
+    Process_Operation: G ==> G
+    Process_Operation(p_o_parameter) == return p_o_parameter
+    
+  functions       
+    Process_Function: G-> G
+    Process_Function(p_f_parameter) == p_f_parameter
+  @
+    Skip
+
+end
+
+
+class Global_Class = 
+begin
+
+types
+--G=int
+  Global_Class_G = int
+
+values 
+  Global_Class_V : G = 40
+
+state
+  Global_Class_Instance_Var : G 
+
+--operations
+
+--  Global_Class_Operation: G ==> G
+--  Global_Class_Operation(g_c_o_parameter) == return g_c_o_parameter
+    
+functions       
+  Global_Class_Function: G-> G
+  Global_Class_Function(g_c_f_parameter) == g_c_f_parameter+true+Global_Function(g_c_f_parameter)
+end

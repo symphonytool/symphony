@@ -1,0 +1,3 @@
+types
+
+ T = int * rat * real inv t == t.#1 > 0 and t.#2 < 22/7 and 3.1415

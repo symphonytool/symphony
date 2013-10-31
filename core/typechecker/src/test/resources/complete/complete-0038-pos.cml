@@ -1,0 +1,21 @@
+channels
+
+ c: nat
+
+values
+
+ a : nat = 10 - 11 b:nat = 20 - 10
+
+process
+
+ A =
+
+begin
+
+
+
+actions
+
+ B = c!(a-b)->Skip @ Skip
+
+end

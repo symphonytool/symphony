@@ -1,0 +1,21 @@
+channels
+
+ a: int
+
+types
+
+ book = token
+
+values
+
+ mbook = { mk_token("Book") |-> 1}
+
+process
+
+ P =
+
+begin
+
+ @ a!(mbook(book))->Skip
+
+end

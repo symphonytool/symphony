@@ -1,0 +1,25 @@
+/*Check TC in caseANameChannelExp within CompVarsetExpressions. Fixed lookup and type comparison*/
+
+channels
+
+ pay, transfer: nat
+
+process
+
+ Card = val i: nat @
+
+begin
+
+
+
+state
+
+ value: nat @ Skip
+
+end
+
+
+
+process
+
+ Cards = || i: nat @ [ {| pay.i,transfer.i |} union { transfer.j.i.n| j:nat,n:nat}] Card(i)

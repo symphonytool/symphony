@@ -1,0 +1,17 @@
+class
+
+ test =
+
+begin
+
+
+
+operations
+
+ op:int ==> int 
+ op(a) == 
+ (
+ 	return ("ras")
+ )
+
+end

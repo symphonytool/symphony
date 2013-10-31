@@ -1,0 +1,17 @@
+types
+
+ A = int
+
+class
+
+ test =
+
+begin
+
+
+
+state
+
+ k:A
+
+end

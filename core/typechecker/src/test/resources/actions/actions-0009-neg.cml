@@ -1,0 +1,11 @@
+/*Negative test: Sequential Composition Replicated Action with set*/
+
+process
+
+ P =
+
+begin
+
+ @ ; i in seq {2,3} @ A(i)
+
+end

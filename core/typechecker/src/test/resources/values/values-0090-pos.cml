@@ -1,0 +1,13 @@
+class
+
+ test =
+
+begin
+
+
+
+values
+
+ a:bool= exists i in set {1,2,3} @ i+1 > 10
+
+end

@@ -1,0 +1,13 @@
+process
+
+ O =
+
+begin
+
+
+
+state
+
+ o : int @ for all i in set {1,2,3} do o := o + i
+
+end

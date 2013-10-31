@@ -9,10 +9,11 @@ import org.overture.ast.definitions.AImplicitFunctionDefinition;
 import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.definitions.SClassDefinition;
+import org.overture.ast.definitions.SOperationDefinition;
 
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.definitions.AActionDefinition;
-import eu.compassresearch.ast.definitions.AChannelNameDefinition;
+import eu.compassresearch.ast.definitions.AChannelDefinition;
 import eu.compassresearch.ast.definitions.AChannelsDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.definitions.AChansetsDefinition;
@@ -20,7 +21,6 @@ import eu.compassresearch.ast.definitions.AFunctionsDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.definitions.ATypesDefinition;
 import eu.compassresearch.ast.definitions.AValuesDefinition;
-import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
 import eu.compassresearch.ast.process.PProcess;
 
 public enum OutlineEntryType
@@ -42,8 +42,7 @@ public enum OutlineEntryType
 			"/icons/obj16/channel_obj.gif"), CHANNEL_ENTRY(
 			"/icons/obj16/channel_obj.gif"), CHANSET_TOP(
 			"/icons/obj16/chanset_top_obj.gif"), CHANSET_ENTRY(
-			"/icons/obj16/channel_obj.gif"), ERROR(
-			"/icons/obj16/error_obj.gif"), ACTION(
+			"/icons/obj16/channel_obj.gif"), ERROR("/icons/obj16/error_obj.gif"), ACTION(
 			"/icons/obj16/action_go_obj.gif"), ;
 
 	private final Image img;
@@ -82,11 +81,11 @@ public enum OutlineEntryType
 	{
 
 		// TODO change to (class,map) format?
-//		if (obj instanceof Wrapper)
-//		{
-//			Wrapper<?> w = (Wrapper<?>) obj;
-//			obj = w.value;
-//		}
+		// if (obj instanceof Wrapper)
+		// {
+		// Wrapper<?> w = (Wrapper<?>) obj;
+		// obj = w.value;
+		// }
 
 		// Fetch Top-level definitions
 		if (obj instanceof AValuesDefinition)
@@ -101,7 +100,7 @@ public enum OutlineEntryType
 			return CHANNEL_TOP.getImage();
 		if (obj instanceof AChansetsDefinition)
 			return CHANSET_TOP.getImage();
-		if (obj instanceof AChannelNameDefinition)
+		if (obj instanceof AChannelDefinition)
 			return CHANNEL_ENTRY.getImage();
 		if (obj instanceof AChansetDefinition)
 			return CHANSET_ENTRY.getImage();
@@ -126,7 +125,7 @@ public enum OutlineEntryType
 			return ACTION.getImage();
 		if (obj instanceof AActionDefinition)
 			return ACTION.getImage();
-		if (obj instanceof SCmlOperationDefinition)
+		if (obj instanceof SOperationDefinition)
 			return OPERATION.getImage();
 		// if (obj instanceof AExternalChoiceProcess)
 		// return EXTERNAL_CHOICE_PROCESS.getImage();

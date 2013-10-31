@@ -1,0 +1,38 @@
+class implicitFuncTest =
+
+begin
+
+types
+
+ Message :: 
+ 	sender: Id 
+ 	destn : Id 
+ 	message : String	
+ 	
+ Log :: 
+ 	eru : ERUId	
+ 	oldRescue : RescueDetails 
+ 	newRescue : RescueDetails 
+ 	
+ Id :: 
+ 	type : (<ERU> | <CC>) 
+ 	identifier : token 
+ 	
+ ERUId = Id 
+ 
+ RescueDetails :: 
+ 	criticality : int 
+ 	String = seq of char
+
+functions
+
+ compareCriticalityFunction: RescueDetails * RescueDetails -> bool 
+ compareCriticalityFunction(r, r2) == 
+ 	r.criticality > r2.criticality 
+ 	
+ 
+ rescueDetailsToString(r : RescueDetails) s: String 
+ post s <> [] stringToRescueDetails (s: String) r : RescueDetails 
+ pre s <> [] post true
+
+end
