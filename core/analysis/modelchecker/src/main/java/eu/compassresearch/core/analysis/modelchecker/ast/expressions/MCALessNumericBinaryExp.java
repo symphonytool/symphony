@@ -7,9 +7,6 @@ public class MCALessNumericBinaryExp extends MCNumericBinaryExp {
 		// TODO Auto-generated constructor stub
 	}
 
-	public MCALessNumericBinaryExp() {
-		// TODO Auto-generated constructor stub
-	}
 
 	@Override
 	public String toFormula(String option) {

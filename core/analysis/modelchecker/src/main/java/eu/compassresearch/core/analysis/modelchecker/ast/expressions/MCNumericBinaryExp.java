@@ -9,9 +9,7 @@ public abstract class MCNumericBinaryExp implements MCPCMLExp {
 		this.left = left;
 		this.right = right;
 	}
-	public MCNumericBinaryExp() {
 
-	}
 	public MCPCMLExp getLeft() {
 		return left;
 	}

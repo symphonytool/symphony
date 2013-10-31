@@ -22,8 +22,12 @@ public class MCATypeDefinition implements MCPCMLDefinition {
 
 	@Override
 	public String toFormula(String option) {
-		// TODO Auto-generated method stub
-		return null;
+		StringBuilder result = new StringBuilder();
+		result.append(this.name + " ::= ");
+		result.append(this.invExpression.toFormula(option));
+		result.append(".");
+		
+		return result.toString();
 	}
 
 

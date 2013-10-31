@@ -7,10 +7,6 @@ public class MCAGreaterEqualNumericBinaryExp extends MCNumericBinaryExp {
 		// TODO Auto-generated constructor stub
 	}
 
-	public MCAGreaterEqualNumericBinaryExp() {
-		// TODO Auto-generated constructor stub
-	}
-
 	@Override
 	public String toFormula(String option) {
 		StringBuilder result = new StringBuilder();

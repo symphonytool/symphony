@@ -34,7 +34,7 @@ public class Activator extends AbstractUIPlugin implements IStartup{
     
 	
 	public void earlyStartup() {
-    	checkAuxiliarySoftware();
+    	//checkAuxiliarySoftware();
 	}
 	
 	
@@ -57,7 +57,7 @@ public class Activator extends AbstractUIPlugin implements IStartup{
 		//checkAuxiliarySoftware();
 	}
 	
-	private void checkAuxiliarySoftware(){
+	public void checkAuxiliarySoftware(){
 		if(!FormulaIntegrator.checkFormulaInstallation()){
     		FORMULA_OK = false;
     		logWarningMessage(formulaNotInstalledMsg);

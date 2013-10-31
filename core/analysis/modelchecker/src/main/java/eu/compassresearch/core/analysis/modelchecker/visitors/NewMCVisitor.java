@@ -5,10 +5,8 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.junit.experimental.categories.Categories.IncludeCategory;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
-import org.overture.ast.expressions.AInSetBinaryExp;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.expressions.SBinaryExp;
 import org.overture.ast.expressions.SSeqExp;
@@ -18,7 +16,6 @@ import org.overture.ast.statements.PStateDesignator;
 import org.overture.ast.types.PType;
 import org.overture.ast.types.SNumericBasicType;
 
-import eu.compassresearch.ast.actions.AValParametrisation;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
@@ -31,6 +28,7 @@ import eu.compassresearch.core.analysis.modelchecker.api.FormulaIntegrationUtili
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.Domain;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAProcessDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCATypeDefinition;
 
 /**
  * The main MC visitor. It obtains other visitors from a factory.
@@ -96,7 +94,7 @@ public class NewMCVisitor extends
 		this.semanticsDomain = new Domain("CMLSemantics", syntaxDomain, cmlSemanticsContent.toString());
 		
 		StringBuilder cmlPropertiesContent = FormulaIntegrationUtilities.readScriptFromFile(FormulaIntegrationUtilities.PROPERTIES_DOMAIN_SCRIPT);
-		this.propertiesDomain = new Domain("CMLProperties", semanticsDomain, cmlSemanticsContent.toString());
+		this.propertiesDomain = new Domain("CMLProperties", semanticsDomain, cmlPropertiesContent.toString());
 		
 	}
 	
@@ -228,31 +226,63 @@ public class NewMCVisitor extends
 
 	*/
 	public String[] generateFormulaCodeForAll(String propertyToCheck) throws IOException,AnalysisException {
-
+		 
 		String[] codes = new String[0];
 		if (sources.size() > 0) {
 			codes = new String[sources.size()];
 		}
 		this.basicContent = FormulaIntegrationUtilities.readScriptFromFile(FormulaIntegrationUtilities.BASIC_FORMULA_SCRIPT);
+		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+		context.setPropertyToCheck(propertyToCheck);
 		
 		for (PSource source : sources) {
-			NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
-			context.setPropertyToCheck(propertyToCheck);
 			String dependentCode = "";
-			
 			for (PDefinition paragraph : source.getParagraphs()) {
-				if (paragraph instanceof AProcessDefinition){
-					MCAProcessDefinition mcNode =  (MCAProcessDefinition) paragraph.apply(this, context);
-					dependentCode = mcNode.toFormula(MCNode.DEFAULT);
-				}else{
-					paragraph.apply(this, context);
-				}
+				paragraph.apply(this, context);
 			}
+			
 			codes[sources.indexOf(source)] = basicContent + "\n" + dependentCode;
 		}
+		
+		handleUserTypeDefinitions();
+		
+		MCAProcessDefinition mainProcessDef = getMainProcess();
+		String content = mainProcessDef.toFormula(MCNode.DEFAULT);
+		
+		codes[0] = content;
+		
 		return codes;
 	}
 	
+	private void handleUserTypeDefinitions(){
+		StringBuilder userTypeDefs = new StringBuilder();
+		StringBuilder userTypeNames = new StringBuilder();
+		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+		
+		if(context.typeDefinitions.size() > 0){
+			for (MCATypeDefinition typeDef : context.typeDefinitions) {
+				userTypeDefs.append(typeDef.toFormula(MCNode.DEFAULT));
+				userTypeDefs.append("\n");
+				userTypeNames.append(" + " + typeDef.getName());
+			}
+			this.auxiliaryDomain.replace("//USER_DEF_TYPES", userTypeDefs.toString());
+			this.auxiliaryDomain.replace("/*INCLUDE USER_DEF_TYPES*/", userTypeNames.toString());
+		}
+		
+		
+		
+		
+	}
+	
+	private  MCAProcessDefinition getMainProcess(){
+		MCAProcessDefinition result = null;
+		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+		
+		//for the moment we assume that only process is defined in a cml file 
+		result = context.processDefinitions.getFirst();
+		
+		return result;
+	}
 	public String generateFormulaScript(String basicContent, List<PDefinition> definitions, String propertyToCheck) throws IOException, AnalysisException{
 		
 		NewCMLModelcheckerContext content = new NewCMLModelcheckerContext();

@@ -1,5 +1,7 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.auxiliary;
 
+import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
+
 
 public class Domain {
 	private String name;
@@ -32,6 +34,22 @@ public class Domain {
 		result.append("}\n");
 		
 		return result.toString();
+	}
+	
+	public void replace(String key, String value){
+		int index = this.content.indexOf(key);
+		if(index != -1){
+			StringBuilder tmpContent = new StringBuilder();
+			tmpContent.append(this.content);
+			tmpContent.replace(index,index + key.length(),value);
+			this.content = tmpContent.toString();
+		}
+	}
+
+	
+	@Override
+	public String toString() {
+		return this.toFormula(MCNode.DEFAULT);
 	}
 
 	public String getName() {

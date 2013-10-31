@@ -24,6 +24,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCValueDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAActionDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAChannelNameDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAExplicitCmlOperationDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAProcessDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCATypeDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAUntypedDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAValueDefinition;
@@ -55,7 +56,8 @@ public class NewCMLModelcheckerContext {
 	public LinkedList<MCChannel> channelDefs;
 	public ArrayList<MCSCmlOperationDefinition> operations;
 	public LinkedList<MCAValueDefinition> valueDefinitions;
-	protected LinkedList<MCATypeDefinition> typeDefinitions;
+	public LinkedList<MCATypeDefinition> typeDefinitions;
+	public LinkedList<MCAProcessDefinition> processDefinitions;
 	
 	
 	protected StringBuilder basicContent = new StringBuilder(); 
@@ -133,6 +135,7 @@ public class NewCMLModelcheckerContext {
 		guardDefs = new HashMap<MCPCMLExp, MCGuardDef>();
 		assignDefs = new ArrayList<MCAssignDef>();
 		channelDefs = new LinkedList<MCChannel>();
+		processDefinitions = new LinkedList<MCAProcessDefinition>();
 		ASSIGN_COUNTER = 0;
 		GUARD_COUNTER = 0;
 		IOCOMM_COUNTER = 0;
@@ -158,6 +161,7 @@ public class NewCMLModelcheckerContext {
 		channelDefinitions = new LinkedList<ChannelTypeDefinition>();
 		guardDefs = new HashMap<MCPCMLExp, MCGuardDef>();
 		channelDefs = new LinkedList<MCChannel>();
+		processDefinitions = new LinkedList<MCAProcessDefinition>();
 		ASSIGN_COUNTER = i;
 		GUARD_COUNTER = 0;
 		IOCOMM_COUNTER = 0;
@@ -185,6 +189,7 @@ public class NewCMLModelcheckerContext {
 		result.channelDefinitions = new LinkedList<ChannelTypeDefinition>(this.channelDefinitions);
 		guardDefs = new HashMap<MCPCMLExp, MCGuardDef>(this.guardDefs);
 		channelDefs = new LinkedList<MCChannel>(this.channelDefs);
+		processDefinitions = new LinkedList<MCAProcessDefinition>(this.processDefinitions);
 		result.ASSIGN_COUNTER = this.ASSIGN_COUNTER;
 		result.GUARD_COUNTER = this.GUARD_COUNTER;
 		result.IOCOMM_COUNTER = this.IOCOMM_COUNTER;
@@ -340,6 +345,7 @@ public class NewCMLModelcheckerContext {
 		channelDefinitions = new LinkedList<ChannelTypeDefinition>();
 		guardDefs = new HashMap<MCPCMLExp, MCGuardDef>();
 		channelDefs = new LinkedList<MCChannel>();
+		processDefinitions = new LinkedList<MCAProcessDefinition>();
 		ASSIGN_COUNTER = 0;
 		GUARD_COUNTER = 0;
 		IOCOMM_COUNTER = 0;

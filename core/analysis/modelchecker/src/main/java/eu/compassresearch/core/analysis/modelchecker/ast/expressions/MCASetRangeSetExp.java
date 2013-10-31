@@ -34,6 +34,7 @@ public class MCASetRangeSetExp implements MCPCMLExp {
 				if(currValue < lastValueInt){
 					result.append(",");
 				}
+				currValue++;
 			}
 			result.append("}");
 		}else{

@@ -1,25 +1,21 @@
 package eu.compassresearch.core.analysis.modelchecker.visitors;
 
-import java.util.Iterator;
 import java.util.LinkedList;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
-import org.overture.ast.expressions.AAndBooleanBinaryExp;
-import org.overture.ast.expressions.ABooleanConstExp;
 import org.overture.ast.expressions.AEqualsBinaryExp;
 import org.overture.ast.expressions.AGreaterEqualNumericBinaryExp;
 import org.overture.ast.expressions.AGreaterNumericBinaryExp;
+import org.overture.ast.expressions.AInSetBinaryExp;
 import org.overture.ast.expressions.AIntLiteralExp;
 import org.overture.ast.expressions.ALessEqualNumericBinaryExp;
 import org.overture.ast.expressions.ALessNumericBinaryExp;
 import org.overture.ast.expressions.ANotEqualBinaryExp;
-import org.overture.ast.expressions.ANotUnaryExp;
-import org.overture.ast.expressions.AOrBooleanBinaryExp;
 import org.overture.ast.expressions.APlusNumericBinaryExp;
 import org.overture.ast.expressions.ASeqEnumSeqExp;
 import org.overture.ast.expressions.ASetEnumSetExp;
-import org.overture.ast.expressions.ASubtractNumericBinaryExp;
+import org.overture.ast.expressions.ASetRangeSetExp;
 import org.overture.ast.expressions.ATimesNumericBinaryExp;
 import org.overture.ast.expressions.AVariableExp;
 import org.overture.ast.expressions.PExp;
@@ -33,14 +29,12 @@ import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
 import eu.compassresearch.ast.expressions.ANameChannelExp;
 import eu.compassresearch.ast.expressions.PCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
-import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCCondition;
-import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCNegGuardDef;
-import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCPosGuardDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAEnumVarsetExpression;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAEqualsBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAFatEnumVarsetExpression;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAGreaterEqualNumericBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAGreaterNumericBinaryExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAInSetBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAIntLiteralExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCALessEqualNumericBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCALessNumericBinaryExp;
@@ -49,6 +43,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANotEqual
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAPlusNumericBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASeqEnumSeqExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASetEnumSetExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASetRangeSetExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCATimesNumericBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAVariableExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
@@ -347,6 +342,33 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 			mcExp.add((MCPCMLExp)e);
 		}
 		return new MCANameChannelExp(name, mcExp);
+	}
+
+	
+
+	@Override
+	public MCNode caseAInSetBinaryExp(AInSetBinaryExp node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		
+		MCPCMLExp left = (MCPCMLExp) node.getLeft().apply(this, question);
+		MCPCMLExp right = (MCPCMLExp) node.getRight().apply(this, question);
+		MCAInSetBinaryExp result = new MCAInSetBinaryExp(left,right);
+		
+		return result;
+	}
+
+	
+
+	@Override
+	public MCNode caseASetRangeSetExp(ASetRangeSetExp node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+
+		MCPCMLExp first = (MCPCMLExp) node.getFirst().apply(this, question);
+		MCPCMLExp last = (MCPCMLExp) node.getLast().apply(this, question);
+		
+		MCASetRangeSetExp result = new MCASetRangeSetExp(first, last);
+		
+		return result;
 	}
 
 
