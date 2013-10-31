@@ -160,21 +160,21 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	@Override
 	public PType caseFile(File node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
 	@Override
 	public PType caseInputStream(InputStream node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
 	@Override
 	public PType caseAFileSource(AFileSource node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -182,7 +182,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseATcpStreamSource(ATcpStreamSource node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -190,7 +190,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAInputStreamSource(AInputStreamSource node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -198,7 +198,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseATypeSingleDeclaration(ATypeSingleDeclaration node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -206,7 +206,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAExpressionSingleDeclaration(
 			AExpressionSingleDeclaration node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -214,7 +214,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAActionDefinition(AActionDefinition node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -222,7 +222,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAChansetDefinition(AChansetDefinition node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -230,7 +230,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseANamesetDefinition(ANamesetDefinition node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -238,7 +238,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAProcessDefinition(AProcessDefinition node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -246,7 +246,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAChannelDefinition(AChannelDefinition node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -254,7 +254,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAChannelsDefinition(AChannelsDefinition node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -262,7 +262,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAChansetsDefinition(AChansetsDefinition node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -270,7 +270,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseANamesetsDefinition(ANamesetsDefinition node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -278,7 +278,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAActionsDefinition(AActionsDefinition node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -286,7 +286,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseATypesDefinition(ATypesDefinition node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -294,7 +294,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAOperationsDefinition(AOperationsDefinition node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -302,7 +302,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAFunctionsDefinition(AFunctionsDefinition node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -310,7 +310,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAValuesDefinition(AValuesDefinition node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -318,14 +318,14 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAInitialDefinition(AInitialDefinition node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
 	@Override
 	public PType caseABracketedExp(ABracketedExp node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -333,7 +333,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseATupleSelectExp(ATupleSelectExp node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -341,7 +341,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAUnresolvedPathExp(AUnresolvedPathExp node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -349,7 +349,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseANameChannelExp(ANameChannelExp node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -357,7 +357,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAComprehensionRenameChannelExp(
 			AComprehensionRenameChannelExp node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -365,7 +365,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAEnumerationRenameChannelExp(
 			AEnumerationRenameChannelExp node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -373,7 +373,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAIdentifierVarsetExpression(
 			AIdentifierVarsetExpression node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -381,7 +381,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAEnumVarsetExpression(AEnumVarsetExpression node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -389,7 +389,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseACompVarsetExpression(ACompVarsetExpression node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -397,7 +397,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAFatEnumVarsetExpression(AFatEnumVarsetExpression node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -405,7 +405,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAFatCompVarsetExpression(AFatCompVarsetExpression node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -413,7 +413,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAUnionVOpVarsetExpression(AUnionVOpVarsetExpression node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -421,7 +421,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAInterVOpVarsetExpression(AInterVOpVarsetExpression node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -429,7 +429,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseASubVOpVarsetExpression(ASubVOpVarsetExpression node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -437,28 +437,28 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAStatementType(AStatementType node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
 	@Override
 	public PType caseAProcessType(AProcessType node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
 	@Override
 	public PType caseAErrorType(AErrorType node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
 	@Override
 	public PType caseABindType(ABindType node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -466,7 +466,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAProcessParagraphType(AProcessParagraphType node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -474,7 +474,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAChansetParagraphType(AChansetParagraphType node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -482,7 +482,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAChannelsParagraphType(AChannelsParagraphType node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -490,7 +490,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAActionParagraphType(AActionParagraphType node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -498,7 +498,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAValueParagraphType(AValueParagraphType node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -506,7 +506,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAFunctionParagraphType(AFunctionParagraphType node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -514,7 +514,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseATypeParagraphType(ATypeParagraphType node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -522,7 +522,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAOperationParagraphType(AOperationParagraphType node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -530,42 +530,42 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAStateParagraphType(AStateParagraphType node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
 	@Override
 	public PType caseASourceType(ASourceType node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
 	@Override
 	public PType caseAChannelType(AChannelType node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
 	@Override
 	public PType caseAChansetType(AChansetType node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
 	@Override
 	public PType caseANamesetType(ANamesetType node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
 	@Override
 	public PType caseANamesetsType(ANamesetsType node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -573,14 +573,14 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAInitialParagraphType(AInitialParagraphType node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
 	@Override
 	public PType caseAActionType(AActionType node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -588,7 +588,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAVarsetExpressionType(AVarsetExpressionType node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -596,7 +596,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAParagraphType(AParagraphType node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -604,14 +604,14 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseALogicalAccess(ALogicalAccess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
 	@Override
 	public PType caseARenamePair(ARenamePair node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -619,7 +619,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAActionProcess(AActionProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -627,7 +627,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseASequentialCompositionProcess(
 			ASequentialCompositionProcess node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -635,7 +635,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAExternalChoiceProcess(AExternalChoiceProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -643,7 +643,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAInternalChoiceProcess(AInternalChoiceProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -651,7 +651,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAGeneralisedParallelismProcess(
 			AGeneralisedParallelismProcess node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -659,7 +659,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAAlphabetisedParallelismProcess(
 			AAlphabetisedParallelismProcess node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -667,7 +667,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseASynchronousParallelismProcess(
 			ASynchronousParallelismProcess node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -675,7 +675,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAInterleavingProcess(AInterleavingProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -683,7 +683,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAInterruptProcess(AInterruptProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -691,7 +691,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseATimedInterruptProcess(ATimedInterruptProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -699,7 +699,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAUntimedTimeoutProcess(AUntimedTimeoutProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -707,7 +707,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseATimeoutProcess(ATimeoutProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -715,14 +715,14 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAHidingProcess(AHidingProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
 	@Override
 	public PType caseASkipProcess(ASkipProcess node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -730,7 +730,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAStartDeadlineProcess(AStartDeadlineProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -738,7 +738,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAEndDeadlineProcess(AEndDeadlineProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -746,7 +746,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAInstantiationProcess(AInstantiationProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -754,7 +754,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAReferenceProcess(AReferenceProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -762,7 +762,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAChannelRenamingProcess(AChannelRenamingProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -771,7 +771,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 			ASequentialCompositionReplicatedProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -779,7 +779,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAExternalChoiceReplicatedProcess(
 			AExternalChoiceReplicatedProcess node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -787,7 +787,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAInternalChoiceReplicatedProcess(
 			AInternalChoiceReplicatedProcess node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -796,7 +796,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 			AGeneralisedParallelismReplicatedProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -805,7 +805,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 			AAlphabetisedParallelismReplicatedProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -814,7 +814,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 			ASynchronousParallelismReplicatedProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -822,42 +822,42 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAInterleavingReplicatedProcess(
 			AInterleavingReplicatedProcess node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
 	@Override
 	public PType caseASkipAction(ASkipAction node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
 	@Override
 	public PType caseAStopAction(AStopAction node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
 	@Override
 	public PType caseAChaosAction(AChaosAction node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
 	@Override
 	public PType caseADivAction(ADivAction node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
 	@Override
 	public PType caseAWaitAction(AWaitAction node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -865,7 +865,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseACommunicationAction(ACommunicationAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -873,7 +873,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAGuardedAction(AGuardedAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -881,7 +881,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseASequentialCompositionAction(
 			ASequentialCompositionAction node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -889,7 +889,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAExternalChoiceAction(AExternalChoiceAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -897,7 +897,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAInternalChoiceAction(AInternalChoiceAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -905,7 +905,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAInterruptAction(AInterruptAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -913,7 +913,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseATimedInterruptAction(ATimedInterruptAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -921,7 +921,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAUntimedTimeoutAction(AUntimedTimeoutAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -929,14 +929,14 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseATimeoutAction(ATimeoutAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
 	@Override
 	public PType caseAHidingAction(AHidingAction node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -944,7 +944,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAStartDeadlineAction(AStartDeadlineAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -952,7 +952,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAEndDeadlineAction(AEndDeadlineAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -960,14 +960,14 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAChannelRenamingAction(AChannelRenamingAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
 	@Override
 	public PType caseAMuAction(AMuAction node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -975,7 +975,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAParametrisedAction(AParametrisedAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -983,7 +983,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAReferenceAction(AReferenceAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -991,7 +991,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAInterleavingParallelAction(
 			AInterleavingParallelAction node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1000,7 +1000,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 			AGeneralisedParallelismParallelAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1009,7 +1009,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 			AAlphabetisedParallelismParallelAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1018,7 +1018,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 			ASynchronousParallelismParallelAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1027,7 +1027,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 			ASequentialCompositionReplicatedAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1035,7 +1035,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAExternalChoiceReplicatedAction(
 			AExternalChoiceReplicatedAction node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1043,7 +1043,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAInternalChoiceReplicatedAction(
 			AInternalChoiceReplicatedAction node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1051,7 +1051,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseACommonInterleavingReplicatedAction(
 			ACommonInterleavingReplicatedAction node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1059,7 +1059,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAInterleavingReplicatedAction(
 			AInterleavingReplicatedAction node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1068,7 +1068,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 			AGeneralisedParallelismReplicatedAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1077,7 +1077,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 			AAlphabetisedParallelismReplicatedAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1086,7 +1086,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 			ASynchronousParallelismReplicatedAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1094,7 +1094,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAParametrisedInstantiatedAction(
 			AParametrisedInstantiatedAction node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1102,7 +1102,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAReadCommunicationParameter(
 			AReadCommunicationParameter node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1110,7 +1110,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAWriteCommunicationParameter(
 			AWriteCommunicationParameter node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1118,7 +1118,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseASignalCommunicationParameter(
 			ASignalCommunicationParameter node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1126,7 +1126,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAValParametrisation(AValParametrisation node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1134,7 +1134,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAResParametrisation(AResParametrisation node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1142,14 +1142,14 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAVresParametrisation(AVresParametrisation node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
 	@Override
 	public PType caseAStmAction(AStmAction node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1157,21 +1157,21 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAUnresolvedStateDesignator(AUnresolvedStateDesignator node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
 	@Override
 	public PType caseAActionStm(AActionStm node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
 	@Override
 	public PType caseANewStm(ANewStm node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1179,7 +1179,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAIfNonDeterministicStm(AIfNonDeterministicStm node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1187,7 +1187,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAAltNonDeterministicStm(AAltNonDeterministicStm node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1195,7 +1195,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseADoNonDeterministicStm(ADoNonDeterministicStm node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1203,14 +1203,14 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAActionClassDefinition(AActionClassDefinition node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
 	@Override
 	public PType caseACallAction(ACallAction node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1218,7 +1218,7 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	public PType caseAUnresolvedObjectDesignator(
 			AUnresolvedObjectDesignator node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 

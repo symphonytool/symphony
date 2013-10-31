@@ -387,7 +387,7 @@ public class CmlCspTypeChecker extends
 		} else
 		{
 
-			 issueHandler.addTypeError(expression, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(""
+			issueHandler.addTypeError(expression, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(""
 					+ AstFactory.newASetType(null, AstFactory.newAUndefinedType(null)), ""
 					+ expressionType));
 		}

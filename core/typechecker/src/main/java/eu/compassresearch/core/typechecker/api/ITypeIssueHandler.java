@@ -11,8 +11,6 @@ import org.overture.ast.node.INode;
 import org.overture.parser.messages.VDMError;
 import org.overture.typechecker.TypeChecker.IStatusListener;
 
-import eu.compassresearch.ast.types.AErrorType;
-
 /**
  * All error reporting from the type checker is handled by a TypeIssueHandler. Consider to generalize this for all
  * analysis.
@@ -276,8 +274,7 @@ public interface ITypeIssueHandler extends IStatusListener
 	 */
 	public void addTypeError(INode offendingSubtree, String message);
 
-	public void addTypeError(INode parent, ILexLocation pos,
-			String message);
+	public void addTypeError(INode parent, ILexLocation pos, String message);
 
 	/**
 	 * Return a type warning.

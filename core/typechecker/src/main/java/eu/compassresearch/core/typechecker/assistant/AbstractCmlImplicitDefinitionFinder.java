@@ -163,7 +163,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseFile(File node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -171,7 +170,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseInputStream(InputStream node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -179,7 +177,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAFileSource(AFileSource node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -187,7 +184,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseATcpStreamSource(ATcpStreamSource node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -195,7 +191,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAInputStreamSource(AInputStreamSource node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -203,7 +198,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseATypeSingleDeclaration(ATypeSingleDeclaration node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -212,7 +206,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 			AExpressionSingleDeclaration node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -220,7 +213,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAActionDefinition(AActionDefinition node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -228,7 +220,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAChansetDefinition(AChansetDefinition node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -236,7 +227,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseANamesetDefinition(ANamesetDefinition node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -244,7 +234,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAProcessDefinition(AProcessDefinition node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -252,7 +241,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAChannelDefinition(AChannelDefinition node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -260,7 +248,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAChannelsDefinition(AChannelsDefinition node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -268,7 +255,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAChansetsDefinition(AChansetsDefinition node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -276,7 +262,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseANamesetsDefinition(ANamesetsDefinition node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -284,7 +269,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAActionsDefinition(AActionsDefinition node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -292,7 +276,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseATypesDefinition(ATypesDefinition node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -300,7 +283,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAOperationsDefinition(AOperationsDefinition node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -308,7 +290,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAFunctionsDefinition(AFunctionsDefinition node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -316,7 +297,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAValuesDefinition(AValuesDefinition node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -324,7 +304,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAInitialDefinition(AInitialDefinition node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -332,7 +311,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseABracketedExp(ABracketedExp node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -340,7 +318,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseATupleSelectExp(ATupleSelectExp node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -348,7 +325,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAUnresolvedPathExp(AUnresolvedPathExp node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -356,7 +332,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseANameChannelExp(ANameChannelExp node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -365,7 +340,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 			AComprehensionRenameChannelExp node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -374,7 +348,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 			AEnumerationRenameChannelExp node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -383,7 +356,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 			AIdentifierVarsetExpression node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -391,7 +363,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAEnumVarsetExpression(AEnumVarsetExpression node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -399,7 +370,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseACompVarsetExpression(ACompVarsetExpression node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -407,7 +377,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAFatEnumVarsetExpression(AFatEnumVarsetExpression node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -415,7 +384,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAFatCompVarsetExpression(AFatCompVarsetExpression node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -423,7 +391,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAUnionVOpVarsetExpression(AUnionVOpVarsetExpression node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -431,7 +398,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAInterVOpVarsetExpression(AInterVOpVarsetExpression node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -439,7 +405,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseASubVOpVarsetExpression(ASubVOpVarsetExpression node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -447,7 +412,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAStatementType(AStatementType node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -455,7 +419,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAProcessType(AProcessType node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -463,7 +426,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAErrorType(AErrorType node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -471,7 +433,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseABindType(ABindType node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -479,7 +440,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAProcessParagraphType(AProcessParagraphType node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -487,7 +447,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAChansetParagraphType(AChansetParagraphType node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -495,7 +454,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAChannelsParagraphType(AChannelsParagraphType node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -503,7 +461,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAActionParagraphType(AActionParagraphType node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -511,7 +468,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAValueParagraphType(AValueParagraphType node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -519,7 +475,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAFunctionParagraphType(AFunctionParagraphType node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -527,7 +482,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseATypeParagraphType(ATypeParagraphType node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -535,7 +489,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAOperationParagraphType(AOperationParagraphType node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -543,7 +496,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAStateParagraphType(AStateParagraphType node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -551,7 +503,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseASourceType(ASourceType node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -559,7 +510,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAChannelType(AChannelType node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -567,7 +517,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAChansetType(AChansetType node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -575,7 +524,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseANamesetType(ANamesetType node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -583,7 +531,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseANamesetsType(ANamesetsType node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -591,7 +538,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAInitialParagraphType(AInitialParagraphType node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -599,7 +545,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAActionType(AActionType node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -607,7 +552,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAVarsetExpressionType(AVarsetExpressionType node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -615,7 +559,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAParagraphType(AParagraphType node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -623,7 +566,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseALogicalAccess(ALogicalAccess node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -631,7 +573,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseARenamePair(ARenamePair node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -639,7 +580,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAActionProcess(AActionProcess node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -648,7 +588,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 			ASequentialCompositionProcess node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -656,7 +595,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAExternalChoiceProcess(AExternalChoiceProcess node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -664,7 +602,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAInternalChoiceProcess(AInternalChoiceProcess node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -673,7 +610,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 			AGeneralisedParallelismProcess node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -682,7 +618,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 			AAlphabetisedParallelismProcess node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -691,7 +626,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 			ASynchronousParallelismProcess node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -699,7 +633,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAInterleavingProcess(AInterleavingProcess node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -707,7 +640,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAInterruptProcess(AInterruptProcess node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -715,7 +647,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseATimedInterruptProcess(ATimedInterruptProcess node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -723,7 +654,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAUntimedTimeoutProcess(AUntimedTimeoutProcess node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -731,7 +661,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseATimeoutProcess(ATimeoutProcess node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -739,7 +668,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAHidingProcess(AHidingProcess node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -747,7 +675,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseASkipProcess(ASkipProcess node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -755,7 +682,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAStartDeadlineProcess(AStartDeadlineProcess node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -763,7 +689,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAEndDeadlineProcess(AEndDeadlineProcess node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -771,7 +696,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAInstantiationProcess(AInstantiationProcess node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -779,7 +703,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAReferenceProcess(AReferenceProcess node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -787,7 +710,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAChannelRenamingProcess(AChannelRenamingProcess node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -796,7 +718,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 			ASequentialCompositionReplicatedProcess node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -805,7 +726,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 			AExternalChoiceReplicatedProcess node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -814,7 +734,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 			AInternalChoiceReplicatedProcess node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -823,7 +742,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 			AGeneralisedParallelismReplicatedProcess node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -832,7 +750,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 			AAlphabetisedParallelismReplicatedProcess node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -841,7 +758,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 			ASynchronousParallelismReplicatedProcess node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -850,7 +766,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 			AInterleavingReplicatedProcess node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -858,7 +773,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseASkipAction(ASkipAction node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -866,7 +780,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAStopAction(AStopAction node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -874,7 +787,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAChaosAction(AChaosAction node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -882,7 +794,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseADivAction(ADivAction node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -890,7 +801,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAWaitAction(AWaitAction node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -898,7 +808,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseACommunicationAction(ACommunicationAction node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -906,7 +815,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAGuardedAction(AGuardedAction node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -915,7 +823,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 			ASequentialCompositionAction node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -923,7 +830,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAExternalChoiceAction(AExternalChoiceAction node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -931,7 +837,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAInternalChoiceAction(AInternalChoiceAction node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -939,7 +844,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAInterruptAction(AInterruptAction node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -947,7 +851,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseATimedInterruptAction(ATimedInterruptAction node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -955,7 +858,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAUntimedTimeoutAction(AUntimedTimeoutAction node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -963,7 +865,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseATimeoutAction(ATimeoutAction node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -971,7 +872,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAHidingAction(AHidingAction node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -979,7 +879,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAStartDeadlineAction(AStartDeadlineAction node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -987,7 +886,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAEndDeadlineAction(AEndDeadlineAction node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -995,7 +893,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAChannelRenamingAction(AChannelRenamingAction node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -1003,7 +900,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAMuAction(AMuAction node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -1011,7 +907,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAParametrisedAction(AParametrisedAction node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -1019,7 +914,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAReferenceAction(AReferenceAction node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -1028,7 +922,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 			AInterleavingParallelAction node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -1037,7 +930,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 			AGeneralisedParallelismParallelAction node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -1046,7 +938,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 			AAlphabetisedParallelismParallelAction node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -1055,7 +946,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 			ASynchronousParallelismParallelAction node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -1064,7 +954,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 			ASequentialCompositionReplicatedAction node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -1073,7 +962,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 			AExternalChoiceReplicatedAction node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -1082,7 +970,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 			AInternalChoiceReplicatedAction node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -1091,7 +978,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 			ACommonInterleavingReplicatedAction node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -1100,7 +986,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 			AInterleavingReplicatedAction node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -1109,7 +994,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 			AGeneralisedParallelismReplicatedAction node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -1118,7 +1002,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 			AAlphabetisedParallelismReplicatedAction node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -1127,7 +1010,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 			ASynchronousParallelismReplicatedAction node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -1136,7 +1018,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 			AParametrisedInstantiatedAction node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -1145,7 +1026,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 			AReadCommunicationParameter node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -1154,7 +1034,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 			AWriteCommunicationParameter node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -1163,7 +1042,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 			ASignalCommunicationParameter node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -1171,7 +1049,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAValParametrisation(AValParametrisation node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -1179,7 +1056,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAResParametrisation(AResParametrisation node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -1187,7 +1063,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAVresParametrisation(AVresParametrisation node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -1195,7 +1070,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAActionStm(AActionStm node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -1203,7 +1077,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAStmAction(AStmAction node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -1211,7 +1084,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAUnresolvedStateDesignator(AUnresolvedStateDesignator node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -1219,7 +1091,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseANewStm(ANewStm node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -1227,7 +1098,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAIfNonDeterministicStm(AIfNonDeterministicStm node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -1235,7 +1105,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAAltNonDeterministicStm(AAltNonDeterministicStm node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -1243,7 +1112,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseADoNonDeterministicStm(ADoNonDeterministicStm node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -1251,7 +1119,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseAActionClassDefinition(AActionClassDefinition node,
 			Environment question) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -1260,7 +1127,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 			AUnresolvedObjectDesignator node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -1268,7 +1134,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	public void caseACallAction(ACallAction node, Environment question)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
 
 	}
 }

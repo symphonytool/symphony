@@ -34,7 +34,7 @@ public class UnicknessChecker extends DepthFirstAnalysisCMLAdaptor
 			ITypeIssueHandler issueHandler)
 	{
 
-		UnicknessChecker lv = new UnicknessChecker(issueHandler, lp);
+		UnicknessChecker lv = new UnicknessChecker( lp);
 		try
 		{
 			lp.apply(lv);
@@ -44,9 +44,9 @@ public class UnicknessChecker extends DepthFirstAnalysisCMLAdaptor
 		return lv.ok;
 	}
 
-	private ITypeIssueHandler issueHandler;
+//	private ITypeIssueHandler issueHandler;
 	boolean ok = true;
-	private DefinitionList definitions;
+//	private DefinitionList definitions;
 	private Environment env;
 
 	static class FlatStrictCheckEnvironment extends FlatCheckedEnvironment
@@ -110,10 +110,8 @@ public class UnicknessChecker extends DepthFirstAnalysisCMLAdaptor
 
 	}
 
-	private UnicknessChecker(ITypeIssueHandler issueHandler, DefinitionList lp)
+	private UnicknessChecker(List<PDefinition> lp)
 	{
-		this.issueHandler = issueHandler;
-		this.definitions = lp;
 		this.env = new FlatCheckedGlobalEnvironment(AF, lp, NameScope.NAMESANDSTATE, null);
 	}
 

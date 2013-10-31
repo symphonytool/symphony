@@ -161,7 +161,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	@Override
 	public List<PDefinition> caseFile(File node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -169,7 +169,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseInputStream(InputStream node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -177,7 +177,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAFileSource(AFileSource node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -185,7 +185,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseATcpStreamSource(ATcpStreamSource node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -193,7 +193,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAInputStreamSource(AInputStreamSource node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -201,7 +201,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseATypeSingleDeclaration(
 			ATypeSingleDeclaration node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -209,7 +209,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAExpressionSingleDeclaration(
 			AExpressionSingleDeclaration node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -217,7 +217,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAChansetDefinition(AChansetDefinition node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -225,7 +225,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseANamesetDefinition(ANamesetDefinition node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -233,7 +233,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAProcessDefinition(AProcessDefinition node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -241,7 +241,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAChannelDefinition(AChannelDefinition node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -249,7 +249,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAChannelsDefinition(AChannelsDefinition node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -257,7 +257,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAChansetsDefinition(AChansetsDefinition node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -265,7 +265,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseANamesetsDefinition(ANamesetsDefinition node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -273,7 +273,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAActionsDefinition(AActionsDefinition node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -281,7 +281,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseATypesDefinition(ATypesDefinition node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -289,7 +289,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAOperationsDefinition(
 			AOperationsDefinition node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -297,7 +297,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAFunctionsDefinition(AFunctionsDefinition node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -305,7 +305,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAValuesDefinition(AValuesDefinition node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -313,7 +313,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAInitialDefinition(AInitialDefinition node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -321,7 +321,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAActionClassDefinition(
 			AActionClassDefinition node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -329,7 +329,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseABracketedExp(ABracketedExp node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -337,7 +337,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseATupleSelectExp(ATupleSelectExp node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -345,7 +345,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAUnresolvedPathExp(AUnresolvedPathExp node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -353,7 +353,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseANameChannelExp(ANameChannelExp node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -361,7 +361,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAComprehensionRenameChannelExp(
 			AComprehensionRenameChannelExp node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -369,7 +369,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAEnumerationRenameChannelExp(
 			AEnumerationRenameChannelExp node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -377,7 +377,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAIdentifierVarsetExpression(
 			AIdentifierVarsetExpression node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -385,7 +385,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAEnumVarsetExpression(
 			AEnumVarsetExpression node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -393,7 +393,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseACompVarsetExpression(
 			ACompVarsetExpression node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -401,7 +401,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAFatEnumVarsetExpression(
 			AFatEnumVarsetExpression node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -409,7 +409,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAFatCompVarsetExpression(
 			AFatCompVarsetExpression node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -417,7 +417,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAUnionVOpVarsetExpression(
 			AUnionVOpVarsetExpression node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -425,7 +425,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAInterVOpVarsetExpression(
 			AInterVOpVarsetExpression node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -433,7 +433,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseASubVOpVarsetExpression(
 			ASubVOpVarsetExpression node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -441,7 +441,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAStatementType(AStatementType node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -449,7 +449,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAProcessType(AProcessType node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -457,7 +457,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAErrorType(AErrorType node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -465,7 +465,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseABindType(ABindType node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -473,7 +473,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAProcessParagraphType(
 			AProcessParagraphType node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -481,7 +481,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAChansetParagraphType(
 			AChansetParagraphType node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -489,7 +489,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAChannelsParagraphType(
 			AChannelsParagraphType node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -497,7 +497,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAActionParagraphType(AActionParagraphType node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -505,7 +505,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAValueParagraphType(AValueParagraphType node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -513,7 +513,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAFunctionParagraphType(
 			AFunctionParagraphType node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -521,7 +521,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseATypeParagraphType(ATypeParagraphType node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -529,7 +529,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAOperationParagraphType(
 			AOperationParagraphType node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -537,7 +537,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAStateParagraphType(AStateParagraphType node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -545,7 +545,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseASourceType(ASourceType node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -553,7 +553,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAChannelType(AChannelType node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -561,7 +561,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAChansetType(AChansetType node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -569,7 +569,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseANamesetType(ANamesetType node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -577,7 +577,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseANamesetsType(ANamesetsType node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -585,7 +585,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAInitialParagraphType(
 			AInitialParagraphType node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -593,7 +593,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAActionType(AActionType node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -601,7 +601,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAVarsetExpressionType(
 			AVarsetExpressionType node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -609,7 +609,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAParagraphType(AParagraphType node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -617,7 +617,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseALogicalAccess(ALogicalAccess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -625,7 +625,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseARenamePair(ARenamePair node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -633,7 +633,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAActionProcess(AActionProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -641,7 +641,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseASequentialCompositionProcess(
 			ASequentialCompositionProcess node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -649,7 +649,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAExternalChoiceProcess(
 			AExternalChoiceProcess node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -657,7 +657,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAInternalChoiceProcess(
 			AInternalChoiceProcess node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -665,7 +665,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAGeneralisedParallelismProcess(
 			AGeneralisedParallelismProcess node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -673,7 +673,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAAlphabetisedParallelismProcess(
 			AAlphabetisedParallelismProcess node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -681,7 +681,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseASynchronousParallelismProcess(
 			ASynchronousParallelismProcess node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -689,7 +689,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAInterleavingProcess(AInterleavingProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -697,7 +697,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAInterruptProcess(AInterruptProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -705,7 +705,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseATimedInterruptProcess(
 			ATimedInterruptProcess node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -713,7 +713,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAUntimedTimeoutProcess(
 			AUntimedTimeoutProcess node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -721,7 +721,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseATimeoutProcess(ATimeoutProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -729,7 +729,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAHidingProcess(AHidingProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -737,7 +737,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseASkipProcess(ASkipProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -745,7 +745,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAStartDeadlineProcess(
 			AStartDeadlineProcess node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -753,7 +753,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAEndDeadlineProcess(AEndDeadlineProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -761,7 +761,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAInstantiationProcess(
 			AInstantiationProcess node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -769,7 +769,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAReferenceProcess(AReferenceProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -777,7 +777,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAChannelRenamingProcess(
 			AChannelRenamingProcess node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -786,7 +786,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 			ASequentialCompositionReplicatedProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -794,7 +794,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAExternalChoiceReplicatedProcess(
 			AExternalChoiceReplicatedProcess node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -802,7 +802,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAInternalChoiceReplicatedProcess(
 			AInternalChoiceReplicatedProcess node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -811,7 +811,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 			AGeneralisedParallelismReplicatedProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -820,7 +820,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 			AAlphabetisedParallelismReplicatedProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -829,7 +829,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 			ASynchronousParallelismReplicatedProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -837,7 +837,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAInterleavingReplicatedProcess(
 			AInterleavingReplicatedProcess node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -845,7 +845,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseASkipAction(ASkipAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -853,7 +853,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAStopAction(AStopAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -861,7 +861,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAChaosAction(AChaosAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -869,7 +869,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseADivAction(ADivAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -877,7 +877,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAWaitAction(AWaitAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -885,7 +885,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseACommunicationAction(ACommunicationAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -893,7 +893,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAGuardedAction(AGuardedAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -901,7 +901,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseASequentialCompositionAction(
 			ASequentialCompositionAction node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -909,7 +909,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAExternalChoiceAction(
 			AExternalChoiceAction node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -917,7 +917,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAInternalChoiceAction(
 			AInternalChoiceAction node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -925,7 +925,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAInterruptAction(AInterruptAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -933,7 +933,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseATimedInterruptAction(
 			ATimedInterruptAction node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -941,7 +941,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAUntimedTimeoutAction(
 			AUntimedTimeoutAction node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -949,7 +949,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseATimeoutAction(ATimeoutAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -957,7 +957,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAHidingAction(AHidingAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -965,7 +965,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAStartDeadlineAction(AStartDeadlineAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -973,7 +973,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAEndDeadlineAction(AEndDeadlineAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -981,7 +981,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAChannelRenamingAction(
 			AChannelRenamingAction node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -989,7 +989,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAMuAction(AMuAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -997,7 +997,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAParametrisedAction(AParametrisedAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1005,7 +1005,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAStmAction(AStmAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1013,7 +1013,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAReferenceAction(AReferenceAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1021,7 +1021,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAInterleavingParallelAction(
 			AInterleavingParallelAction node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1030,7 +1030,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 			AGeneralisedParallelismParallelAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1039,7 +1039,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 			AAlphabetisedParallelismParallelAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1048,7 +1048,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 			ASynchronousParallelismParallelAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1057,7 +1057,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 			ASequentialCompositionReplicatedAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1065,7 +1065,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAExternalChoiceReplicatedAction(
 			AExternalChoiceReplicatedAction node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1073,7 +1073,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAInternalChoiceReplicatedAction(
 			AInternalChoiceReplicatedAction node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1081,7 +1081,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseACommonInterleavingReplicatedAction(
 			ACommonInterleavingReplicatedAction node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1089,7 +1089,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAInterleavingReplicatedAction(
 			AInterleavingReplicatedAction node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1098,7 +1098,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 			AGeneralisedParallelismReplicatedAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1107,7 +1107,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 			AAlphabetisedParallelismReplicatedAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1116,7 +1116,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 			ASynchronousParallelismReplicatedAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1124,7 +1124,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAParametrisedInstantiatedAction(
 			AParametrisedInstantiatedAction node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1132,7 +1132,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAReadCommunicationParameter(
 			AReadCommunicationParameter node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1140,7 +1140,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAWriteCommunicationParameter(
 			AWriteCommunicationParameter node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1148,7 +1148,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseASignalCommunicationParameter(
 			ASignalCommunicationParameter node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1156,7 +1156,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAValParametrisation(AValParametrisation node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1164,7 +1164,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAResParametrisation(AResParametrisation node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1172,7 +1172,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAVresParametrisation(AVresParametrisation node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1180,7 +1180,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAUnresolvedStateDesignator(
 			AUnresolvedStateDesignator node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1188,14 +1188,14 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAActionStm(AActionStm node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
 	@Override
 	public List<PDefinition> caseANewStm(ANewStm node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1203,7 +1203,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAIfNonDeterministicStm(
 			AIfNonDeterministicStm node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1211,7 +1211,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAAltNonDeterministicStm(
 			AAltNonDeterministicStm node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1219,7 +1219,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseADoNonDeterministicStm(
 			ADoNonDeterministicStm node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1227,7 +1227,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAUnresolvedObjectDesignator(
 			AUnresolvedObjectDesignator node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1235,7 +1235,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseAActionDefinition(AActionDefinition node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1243,7 +1243,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	public List<PDefinition> caseACallAction(ACallAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 

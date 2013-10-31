@@ -169,15 +169,15 @@ public class TypeCheckerUtil
 		for (PType stmt : types)
 		{
 			PType stype = stmt;
-			
-			if(stype ==null)
+
+			if (stype == null)
 			{
+				// Failed to type check this sub element so add unknown such that TC can proceed
 				stype = AstFactory.newAUnknownType(null);
 			}
 
 			last = stype;
 
-			
 			if (stype instanceof AUnionType)
 			{
 				AUnionType ust = (AUnionType) stype;

@@ -535,7 +535,7 @@ public class CmlActionTypeChecker extends
 		{
 			issueHandler.addTypeError(timeExp, TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT.customizeMessage(timeExp
 					+ "", timeExpType + ""));
-			
+
 		}
 
 		return setType(node, leftType, rightType);
@@ -560,9 +560,9 @@ public class CmlActionTypeChecker extends
 
 			if (declType instanceof ASetType)
 			{
-				 issueHandler.addTypeError(declType, TypeErrorMessages.SEQ_TYPE_EXPECTED.customizeMessage(decl
+				issueHandler.addTypeError(declType, TypeErrorMessages.SEQ_TYPE_EXPECTED.customizeMessage(decl
 						+ "", declType + ""));
-				 return null;
+				return null;
 			}
 
 			// issueHandler.addTypeWarning(decl, "This declaration should expand the environment: "

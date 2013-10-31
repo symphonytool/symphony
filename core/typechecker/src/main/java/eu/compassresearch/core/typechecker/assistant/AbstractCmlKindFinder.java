@@ -159,21 +159,21 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	@Override
 	public String caseFile(File node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
 	@Override
 	public String caseInputStream(InputStream node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
 	@Override
 	public String caseAFileSource(AFileSource node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -181,7 +181,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseATcpStreamSource(ATcpStreamSource node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -189,7 +189,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAInputStreamSource(AInputStreamSource node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -197,7 +197,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseATypeSingleDeclaration(ATypeSingleDeclaration node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -205,7 +205,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAExpressionSingleDeclaration(
 			AExpressionSingleDeclaration node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -213,7 +213,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAActionDefinition(AActionDefinition node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -221,7 +221,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAChansetDefinition(AChansetDefinition node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -229,7 +229,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseANamesetDefinition(ANamesetDefinition node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -237,7 +237,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAProcessDefinition(AProcessDefinition node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -245,7 +245,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAChannelDefinition(AChannelDefinition node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -253,7 +253,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAChannelsDefinition(AChannelsDefinition node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -261,7 +261,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAChansetsDefinition(AChansetsDefinition node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -269,7 +269,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseANamesetsDefinition(ANamesetsDefinition node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -277,7 +277,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAActionsDefinition(AActionsDefinition node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -285,7 +285,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseATypesDefinition(ATypesDefinition node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -293,7 +293,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAOperationsDefinition(AOperationsDefinition node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -301,7 +301,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAFunctionsDefinition(AFunctionsDefinition node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -309,7 +309,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAValuesDefinition(AValuesDefinition node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -317,7 +317,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAInitialDefinition(AInitialDefinition node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -325,7 +325,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAActionClassDefinition(AActionClassDefinition node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -333,7 +333,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseABracketedExp(ABracketedExp node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -341,7 +341,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseATupleSelectExp(ATupleSelectExp node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -349,7 +349,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAUnresolvedPathExp(AUnresolvedPathExp node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -357,7 +357,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseANameChannelExp(ANameChannelExp node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -365,7 +365,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAComprehensionRenameChannelExp(
 			AComprehensionRenameChannelExp node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -373,7 +373,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAEnumerationRenameChannelExp(
 			AEnumerationRenameChannelExp node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -381,7 +381,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAIdentifierVarsetExpression(
 			AIdentifierVarsetExpression node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -389,7 +389,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAEnumVarsetExpression(AEnumVarsetExpression node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -397,7 +397,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseACompVarsetExpression(ACompVarsetExpression node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -405,7 +405,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAFatEnumVarsetExpression(AFatEnumVarsetExpression node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -413,7 +413,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAFatCompVarsetExpression(AFatCompVarsetExpression node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -421,7 +421,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAUnionVOpVarsetExpression(AUnionVOpVarsetExpression node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -429,7 +429,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAInterVOpVarsetExpression(AInterVOpVarsetExpression node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -437,7 +437,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseASubVOpVarsetExpression(ASubVOpVarsetExpression node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -445,28 +445,28 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAStatementType(AStatementType node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
 	@Override
 	public String caseAProcessType(AProcessType node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
 	@Override
 	public String caseAErrorType(AErrorType node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
 	@Override
 	public String caseABindType(ABindType node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -474,7 +474,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAProcessParagraphType(AProcessParagraphType node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -482,7 +482,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAChansetParagraphType(AChansetParagraphType node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -490,7 +490,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAChannelsParagraphType(AChannelsParagraphType node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -498,7 +498,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAActionParagraphType(AActionParagraphType node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -506,7 +506,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAValueParagraphType(AValueParagraphType node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -514,7 +514,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAFunctionParagraphType(AFunctionParagraphType node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -522,7 +522,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseATypeParagraphType(ATypeParagraphType node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -530,7 +530,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAOperationParagraphType(AOperationParagraphType node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -538,35 +538,35 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAStateParagraphType(AStateParagraphType node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
 	@Override
 	public String caseASourceType(ASourceType node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
 	@Override
 	public String caseAChannelType(AChannelType node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
 	@Override
 	public String caseAChansetType(AChansetType node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
 	@Override
 	public String caseANamesetType(ANamesetType node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -574,7 +574,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseANamesetsType(ANamesetsType node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -582,14 +582,14 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAInitialParagraphType(AInitialParagraphType node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
 	@Override
 	public String caseAActionType(AActionType node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -597,7 +597,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAVarsetExpressionType(AVarsetExpressionType node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -605,7 +605,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAParagraphType(AParagraphType node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -613,14 +613,14 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseALogicalAccess(ALogicalAccess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
 	@Override
 	public String caseARenamePair(ARenamePair node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -628,7 +628,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAActionProcess(AActionProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -636,7 +636,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseASequentialCompositionProcess(
 			ASequentialCompositionProcess node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -644,7 +644,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAExternalChoiceProcess(AExternalChoiceProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -652,7 +652,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAInternalChoiceProcess(AInternalChoiceProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -660,7 +660,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAGeneralisedParallelismProcess(
 			AGeneralisedParallelismProcess node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -668,7 +668,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAAlphabetisedParallelismProcess(
 			AAlphabetisedParallelismProcess node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -676,7 +676,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseASynchronousParallelismProcess(
 			ASynchronousParallelismProcess node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -684,7 +684,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAInterleavingProcess(AInterleavingProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -692,7 +692,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAInterruptProcess(AInterruptProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -700,7 +700,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseATimedInterruptProcess(ATimedInterruptProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -708,7 +708,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAUntimedTimeoutProcess(AUntimedTimeoutProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -716,7 +716,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseATimeoutProcess(ATimeoutProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -724,14 +724,14 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAHidingProcess(AHidingProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
 	@Override
 	public String caseASkipProcess(ASkipProcess node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -739,7 +739,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAStartDeadlineProcess(AStartDeadlineProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -747,7 +747,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAEndDeadlineProcess(AEndDeadlineProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -755,7 +755,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAInstantiationProcess(AInstantiationProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -763,7 +763,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAReferenceProcess(AReferenceProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -771,7 +771,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAChannelRenamingProcess(AChannelRenamingProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -780,7 +780,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 			ASequentialCompositionReplicatedProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -788,7 +788,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAExternalChoiceReplicatedProcess(
 			AExternalChoiceReplicatedProcess node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -796,7 +796,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAInternalChoiceReplicatedProcess(
 			AInternalChoiceReplicatedProcess node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -805,7 +805,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 			AGeneralisedParallelismReplicatedProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -814,7 +814,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 			AAlphabetisedParallelismReplicatedProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -823,7 +823,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 			ASynchronousParallelismReplicatedProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -831,42 +831,42 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAInterleavingReplicatedProcess(
 			AInterleavingReplicatedProcess node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
 	@Override
 	public String caseASkipAction(ASkipAction node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
 	@Override
 	public String caseAStopAction(AStopAction node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
 	@Override
 	public String caseAChaosAction(AChaosAction node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
 	@Override
 	public String caseADivAction(ADivAction node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
 	@Override
 	public String caseAWaitAction(AWaitAction node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -874,7 +874,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseACommunicationAction(ACommunicationAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -882,7 +882,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAGuardedAction(AGuardedAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -890,7 +890,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseASequentialCompositionAction(
 			ASequentialCompositionAction node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -898,7 +898,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAExternalChoiceAction(AExternalChoiceAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -906,7 +906,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAInternalChoiceAction(AInternalChoiceAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -914,7 +914,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAInterruptAction(AInterruptAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -922,7 +922,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseATimedInterruptAction(ATimedInterruptAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -930,7 +930,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAUntimedTimeoutAction(AUntimedTimeoutAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -938,7 +938,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseATimeoutAction(ATimeoutAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -946,7 +946,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAHidingAction(AHidingAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -954,7 +954,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAStartDeadlineAction(AStartDeadlineAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -962,7 +962,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAEndDeadlineAction(AEndDeadlineAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -970,14 +970,14 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAChannelRenamingAction(AChannelRenamingAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
 	@Override
 	public String caseAMuAction(AMuAction node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -985,14 +985,14 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAParametrisedAction(AParametrisedAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
 	@Override
 	public String caseAStmAction(AStmAction node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1000,7 +1000,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAReferenceAction(AReferenceAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1008,7 +1008,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAInterleavingParallelAction(
 			AInterleavingParallelAction node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1017,7 +1017,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 			AGeneralisedParallelismParallelAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1026,7 +1026,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 			AAlphabetisedParallelismParallelAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1035,7 +1035,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 			ASynchronousParallelismParallelAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1044,7 +1044,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 			ASequentialCompositionReplicatedAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1052,7 +1052,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAExternalChoiceReplicatedAction(
 			AExternalChoiceReplicatedAction node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1060,7 +1060,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAInternalChoiceReplicatedAction(
 			AInternalChoiceReplicatedAction node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1068,7 +1068,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseACommonInterleavingReplicatedAction(
 			ACommonInterleavingReplicatedAction node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1076,7 +1076,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAInterleavingReplicatedAction(
 			AInterleavingReplicatedAction node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1085,7 +1085,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 			AGeneralisedParallelismReplicatedAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1094,7 +1094,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 			AAlphabetisedParallelismReplicatedAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1103,7 +1103,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 			ASynchronousParallelismReplicatedAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1111,7 +1111,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAParametrisedInstantiatedAction(
 			AParametrisedInstantiatedAction node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1119,7 +1119,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAReadCommunicationParameter(
 			AReadCommunicationParameter node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1127,7 +1127,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAWriteCommunicationParameter(
 			AWriteCommunicationParameter node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1135,7 +1135,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseASignalCommunicationParameter(
 			ASignalCommunicationParameter node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1143,7 +1143,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAValParametrisation(AValParametrisation node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1151,7 +1151,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAResParametrisation(AResParametrisation node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1159,7 +1159,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAVresParametrisation(AVresParametrisation node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1167,7 +1167,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAUnresolvedStateDesignator(AUnresolvedStateDesignator node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1175,21 +1175,21 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAUnresolvedObjectDesignator(
 			AUnresolvedObjectDesignator node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
 	@Override
 	public String caseAActionStm(AActionStm node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
 	@Override
 	public String caseANewStm(ANewStm node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1197,7 +1197,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAIfNonDeterministicStm(AIfNonDeterministicStm node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1205,7 +1205,7 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseAAltNonDeterministicStm(AAltNonDeterministicStm node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1213,14 +1213,14 @@ public class AbstractCmlKindFinder extends KindFinder implements
 	public String caseADoNonDeterministicStm(ADoNonDeterministicStm node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
 	@Override
 	public String caseACallAction(ACallAction node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 

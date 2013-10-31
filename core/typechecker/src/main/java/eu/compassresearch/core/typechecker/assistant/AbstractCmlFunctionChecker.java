@@ -1151,14 +1151,14 @@ public class AbstractCmlFunctionChecker extends FunctionChecker implements
 	@Override
 	public Boolean caseAActionStm(AActionStm node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
 	@Override
 	public Boolean caseAStmAction(AStmAction node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1166,14 +1166,14 @@ public class AbstractCmlFunctionChecker extends FunctionChecker implements
 	public Boolean caseAUnresolvedStateDesignator(
 			AUnresolvedStateDesignator node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
 	@Override
 	public Boolean caseANewStm(ANewStm node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1181,7 +1181,7 @@ public class AbstractCmlFunctionChecker extends FunctionChecker implements
 	public Boolean caseAIfNonDeterministicStm(AIfNonDeterministicStm node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1189,7 +1189,7 @@ public class AbstractCmlFunctionChecker extends FunctionChecker implements
 	public Boolean caseAAltNonDeterministicStm(AAltNonDeterministicStm node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1197,7 +1197,7 @@ public class AbstractCmlFunctionChecker extends FunctionChecker implements
 	public Boolean caseADoNonDeterministicStm(ADoNonDeterministicStm node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1218,7 +1218,7 @@ public class AbstractCmlFunctionChecker extends FunctionChecker implements
 	@Override
 	public Boolean caseACallAction(ACallAction node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 

@@ -1,9 +1,5 @@
 package eu.compassresearch.core.typechecker.version2;
 
-//import static eu.compassresearch.core.typechecker.util.CmlTCUtil.successfulType;
-
-//import static eu.compassresearch.core.typechecker.util.CmlTCUtil.successfulType;
-//import static eu.compassresearch.core.typechecker.assistant.TypeCheckerUtil.getVoidType;
 import static eu.compassresearch.core.typechecker.assistant.TypeCheckerUtil.getVoidType;
 
 import java.util.LinkedList;
@@ -491,7 +487,6 @@ public class CmlProcessTypeChecker extends
 		return getVoidType(node);
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public PType caseAAlphabetisedParallelismProcess(
 			AAlphabetisedParallelismProcess node, TypeCheckInfo question)
@@ -513,7 +508,6 @@ public class CmlProcessTypeChecker extends
 		return getVoidType(node);
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public PType caseAStartDeadlineProcess(AStartDeadlineProcess node,
 			org.overture.typechecker.TypeCheckInfo question)
@@ -628,16 +622,15 @@ public class CmlProcessTypeChecker extends
 			{
 				issueHandler.addTypeError(processDef, TypeErrorMessages.EXPECTED_PROCESS_DEFINITION.customizeMessage(node.getProcessName()
 						+ ""));
-			}else
+			} else
 			{
-			node.setProcessDefinition((AProcessDefinition) processDef);
+				node.setProcessDefinition((AProcessDefinition) processDef);
 			}
 		}
 
 		return getVoidType(node);
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public PType caseATimedInterruptProcess(ATimedInterruptProcess node,
 			TypeCheckInfo question) throws AnalysisException

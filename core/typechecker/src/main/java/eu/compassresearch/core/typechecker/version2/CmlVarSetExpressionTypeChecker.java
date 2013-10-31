@@ -1,10 +1,5 @@
 package eu.compassresearch.core.typechecker.version2;
 
-//import static eu.compassresearch.core.typechecker.util.CmlTCUtil.successfulType;
-
-//import static eu.compassresearch.core.typechecker.util.CmlTCUtil.successfulType;
-
-//import static eu.compassresearch.core.typechecker.util.CmlTCUtil.successfulType;
 
 import java.util.LinkedList;
 import java.util.List;

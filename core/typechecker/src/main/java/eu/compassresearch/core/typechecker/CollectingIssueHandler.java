@@ -9,7 +9,6 @@ import org.overture.ast.node.INode;
 import org.overture.parser.messages.VDMError;
 import org.overture.parser.messages.VDMWarning;
 
-import eu.compassresearch.ast.types.AErrorType;
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 
 /**
@@ -32,7 +31,6 @@ public class CollectingIssueHandler implements ITypeIssueHandler
 	private final List<CMLTypeError> errors;
 	private final List<CMLTypeWarning> warnings;
 
-
 	@Override
 	public List<CMLTypeError> getTypeErrors() throws IllegalStateException
 	{
@@ -45,7 +43,6 @@ public class CollectingIssueHandler implements ITypeIssueHandler
 		return warnings;
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public void addTypeError(INode offendingSubtree, String message)
 	{
@@ -53,7 +50,6 @@ public class CollectingIssueHandler implements ITypeIssueHandler
 		this.errors.add(error);
 		// addIssueToRegistryForNode(offendingSubtree, registry, error);
 	}
-
 
 	@Override
 	public void addTypeWarning(INode hazardousSubtree, String message)
@@ -80,10 +76,8 @@ public class CollectingIssueHandler implements ITypeIssueHandler
 		return hasErrors() || hasWarnings();
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
-	public void addTypeError(INode parent, ILexLocation location,
-			String message)
+	public void addTypeError(INode parent, ILexLocation location, String message)
 	{
 		CMLTypeError typeError = new CMLTypeError(parent, message);
 		typeError.setLocation(location);
