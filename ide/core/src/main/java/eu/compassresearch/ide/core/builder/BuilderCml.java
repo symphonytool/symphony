@@ -22,10 +22,10 @@ import org.overture.parser.messages.VDMWarning;
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.typechecker.VanillaFactory;
-import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
-import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
-import eu.compassresearch.core.typechecker.api.TypeIssueHandler.CMLTypeError;
-import eu.compassresearch.core.typechecker.api.TypeIssueHandler.CMLTypeWarning;
+import eu.compassresearch.core.typechecker.api.ICmlTypeChecker;
+import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
+import eu.compassresearch.core.typechecker.api.ITypeIssueHandler.CMLTypeError;
+import eu.compassresearch.core.typechecker.api.ITypeIssueHandler.CMLTypeWarning;
 import eu.compassresearch.ide.core.resources.ICmlModel;
 
 public class BuilderCml extends AbstractVdmBuilder
@@ -55,8 +55,8 @@ public class BuilderCml extends AbstractVdmBuilder
 		ICmlModel model = (ICmlModel) rooList.getAdapter(ICmlModel.class);
 
 		// Registry reg = RegistryFactory.getInstance(getProject().getName()).getRegistry();
-		TypeIssueHandler issueHandler = VanillaFactory.newCollectingIssueHandle();
-		CmlTypeChecker typeChecker = VanillaFactory.newTypeChecker(model.getAstSource(), issueHandler);
+		ITypeIssueHandler issueHandler = VanillaFactory.newCollectingIssueHandle();
+		ICmlTypeChecker typeChecker = VanillaFactory.newTypeChecker(model.getAstSource(), issueHandler);
 		try
 		{
 			typeChecker.typeCheck();
