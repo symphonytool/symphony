@@ -25,10 +25,10 @@ singleDeclaration {-> package='eu.compassresearch.ast.declarations'
 		| [location]:location 
 		| [nameScope]:nameScope}
         = {type}
-        [identifier]:LexIdentifierToken
+        [identifier]:LexIdentifierToken //*
         (type):type
         | {expression}
-        [identifier]:LexIdentifierToken
+        [identifier]:LexIdentifierToken //*
         [expression]:exp
     ;
 /*
