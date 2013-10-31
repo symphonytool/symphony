@@ -53,7 +53,7 @@ public class NewCMLModelcheckerContext {
 	public HashMap<MCPCMLExp, MCNegGuardDef> negativeGuardDefs;
 	public HashMap<MCPCMLExp, MCGuardDef> guardDefs;
 	public ArrayList<MCAssignDef> assignDefs;
-	public LinkedList<MCChannel> channelDefs;
+	public LinkedList<MCAChannelNameDefinition> channelDefs;
 	public ArrayList<MCSCmlOperationDefinition> operations;
 	public LinkedList<MCAValueDefinition> valueDefinitions;
 	public LinkedList<MCATypeDefinition> typeDefinitions;
@@ -134,7 +134,7 @@ public class NewCMLModelcheckerContext {
 		channelDefinitions = new LinkedList<ChannelTypeDefinition>();
 		guardDefs = new HashMap<MCPCMLExp, MCGuardDef>();
 		assignDefs = new ArrayList<MCAssignDef>();
-		channelDefs = new LinkedList<MCChannel>();
+		channelDefs = new LinkedList<MCAChannelNameDefinition>();
 		processDefinitions = new LinkedList<MCAProcessDefinition>();
 		ASSIGN_COUNTER = 0;
 		GUARD_COUNTER = 0;
@@ -160,7 +160,7 @@ public class NewCMLModelcheckerContext {
 		typeDefinitions = new LinkedList<MCATypeDefinition>();
 		channelDefinitions = new LinkedList<ChannelTypeDefinition>();
 		guardDefs = new HashMap<MCPCMLExp, MCGuardDef>();
-		channelDefs = new LinkedList<MCChannel>();
+		channelDefs = new LinkedList<MCAChannelNameDefinition>();
 		processDefinitions = new LinkedList<MCAProcessDefinition>();
 		ASSIGN_COUNTER = i;
 		GUARD_COUNTER = 0;
@@ -188,7 +188,7 @@ public class NewCMLModelcheckerContext {
 		result.typeDefinitions = new LinkedList<MCATypeDefinition>(this.typeDefinitions);
 		result.channelDefinitions = new LinkedList<ChannelTypeDefinition>(this.channelDefinitions);
 		guardDefs = new HashMap<MCPCMLExp, MCGuardDef>(this.guardDefs);
-		channelDefs = new LinkedList<MCChannel>(this.channelDefs);
+		channelDefs = new LinkedList<MCAChannelNameDefinition>(this.channelDefs);
 		processDefinitions = new LinkedList<MCAProcessDefinition>(this.processDefinitions);
 		result.ASSIGN_COUNTER = this.ASSIGN_COUNTER;
 		result.GUARD_COUNTER = this.GUARD_COUNTER;
@@ -344,7 +344,7 @@ public class NewCMLModelcheckerContext {
 		typeDefinitions = new LinkedList<MCATypeDefinition>();
 		channelDefinitions = new LinkedList<ChannelTypeDefinition>();
 		guardDefs = new HashMap<MCPCMLExp, MCGuardDef>();
-		channelDefs = new LinkedList<MCChannel>();
+		channelDefs = new LinkedList<MCAChannelNameDefinition>();
 		processDefinitions = new LinkedList<MCAProcessDefinition>();
 		ASSIGN_COUNTER = 0;
 		GUARD_COUNTER = 0;

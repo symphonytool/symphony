@@ -217,13 +217,12 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 			AChannelNameDefinition node, NewCMLModelcheckerContext question)
 			throws AnalysisException {
 		
+		String name = node.getName().toString();
 		MCATypeSingleDeclaration singleType = (MCATypeSingleDeclaration) node.getSingleType().apply(rootVisitor, question);
-		MCAChannelNameDefinition result = new MCAChannelNameDefinition(singleType);
+		MCAChannelNameDefinition result = new MCAChannelNameDefinition(name,singleType);
 		
-		for (MCChannel channDef : result.getChannelDefs()) {
-			question.channelDefs.add(channDef);
-		}
-
+		question.channelDefs.add(result);
+		
 		return result;
 		
 	}
@@ -357,38 +356,6 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 	//// DECLARATIONS
 	
 	//AUXILIARY METHODS
-	private void generateUserTypeDefinitions(CMLModelcheckerContext context) throws AnalysisException{
-		if(context.typeDefinitions.size() > 0){
-			//LinkedList<ATypeDefinition> t = (LinkedList<ATypeDefinition>) question.info.get(Utilities.TYPE_USER_DEFINITION);
-			LinkedList<UserTypeDefinition> types = context.typeDefinitions;
-			String s = "//USER_DEF_TYPES";
-			String s2 = "//INCLUDE USER_DEF_TYPES ";
-			int aux = context.basicContent.indexOf(s);
-			CMLModelcheckerContext auxCtxt = new CMLModelcheckerContext();
-			StringBuilder str2 = new StringBuilder();
-			while(!types.isEmpty()){
-				UserTypeDefinition type = types.pollFirst();
-				ATypeDefinition typeDef = type.typeDefinition;
-				//typeDef.apply(this, auxCtxt);
-				auxCtxt.getScriptContent().append("primitive ");
-				auxCtxt.getScriptContent().append(typeDef.getName().toString());
-				auxCtxt.getScriptContent().append(" ::= (");
-				//auxCtxt.getScriptContent().append(typeDef.getType().toString());
-				//ppppppppppppp
-				auxCtxt.getScriptContent().append("Natural");
-				auxCtxt.getScriptContent().append(").\n");
-				
-				str2.append(" + " + typeDef.getInvType().toString());
-			}
-			str2.append(" ");
-			//str2.append(".\n");
-			context.basicContent.replace(aux, aux+s.length(), "");
-			context.basicContent.replace(aux, aux+1, auxCtxt.getScriptContent().toString());
-			int aux2 = context.basicContent.indexOf(s2);
-			context.basicContent.replace(aux2, aux2+s2.length(), "");
-			context.basicContent.replace(aux2, aux2+1, str2.toString());
-		}
-	}
 
 	private void generateChannelTypes(CMLModelcheckerContext context) throws AnalysisException{
 		LinkedList<ChannelTypeDefinition> channels = context.channelDefinitions;
@@ -482,124 +449,6 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 		} 
 	}
 	/*
-	private void generateOperationsDefinitions(CMLModelcheckerContext context) throws AnalysisException{
-		Binding maximalBinding = context.getMaxBindingWithStates();
-		for (SCmlOperationDefinition operation : context.operations) {
-			AExplicitCmlOperationDefinition op = (AExplicitCmlOperationDefinition) operation;
-			StringBuilder opStr = new StringBuilder();
-			opStr.append("operationDef(");
-			opStr.append("\"" + op.getName().toString() + "\"");
-			opStr.append(",");
-			if(op.getParamDefinitions().size()==0){
-				opStr.append("nopar");
-			}else if(op.getParamDefinitions().size()==1){
-				PDefinition pDef = op.getParamDefinitions().getFirst();
-				CMLModelcheckerContext newCtxt = new CMLModelcheckerContext();
-				StringBuilder result = pDef.apply(rootVisitor,newCtxt);
-				opStr.append(result.toString());
-			}
-			opStr.append(",");
-			//write the original maximal bind
-			//opStr.append(maximalBinding.toFormula());
-			opStr.append("st");
-			opStr.append(",");
-			//writes the maximal bind modified. it is good to make a copy and modify it
-			Binding maximalCopy = maximalBinding.copy();
-			//modificar o value da variavel 
-			PAction body = op.getBody();
-			ASingleGeneralAssignmentStatementAction actionBody = null;
-			if(body instanceof ASingleGeneralAssignmentStatementAction){
-				actionBody = (ASingleGeneralAssignmentStatementAction) body;
-			}
-
-			if(actionBody != null){
-				PExp stateDesignator = actionBody.getStateDesignator();
-				if(stateDesignator instanceof AVariableExp){
-					AVariableExp nextStateDesignator = (AVariableExp) stateDesignator.clone();
-					String module = ((AVariableExp) stateDesignator).getName().getModule();
-					String nextName = ((AVariableExp) stateDesignator).getName().getName() + "_";
-					ILexLocation location = stateDesignator.getLocation();
-					LexNameToken nextNameToken = new LexNameToken(module,nextName,location);
-					CMLModelcheckerContext localCtxt = new CMLModelcheckerContext();
-					StringBuilder nextValue = stateDesignator.apply(rootVisitor,localCtxt);
-					nextValue.replace(nextValue.indexOf("(")+1, nextValue.indexOf(")"), nextName);
-					//we assume that only Int() are used here
-					Int newValue = new Int(0);
-					newValue.setS(nextName);
-					maximalCopy.updateBinding(((AVariableExp) stateDesignator).getName().toString(), newValue);
-				}
-			}
-			//depois verificar se rpecisa gerar o complemento RHS para essa operacao.
-			//opStr.append(maximalCopy.toFormulaWithState());
-			opStr.append("st_");
-			opStr.append(")");
-
-			opStr.append(" :- ");
-
-			//put the state information
-			StringBuilder stateFact = new StringBuilder();
-			stateFact.append("State(l,st,_,operation(\"" + op.getName().toString() + "\",");
-			if(op.getParamDefinitions().size()==0){
-				stateFact.append("nopar");
-			}else if(op.getParamDefinitions().size()==1){
-				PDefinition pDef = op.getParamDefinitions().getFirst();
-				CMLModelcheckerContext newCtxt = new CMLModelcheckerContext();
-				StringBuilder result = pDef.apply(rootVisitor,newCtxt);
-				stateFact.append(result.toString());
-			}
-			stateFact.append("))");
-			opStr.append(stateFact);
-			opStr.append(",");
-			//put the st = maximal bind information
-			opStr.append("st = " + maximalBinding.toFormulaWithState());
-			opStr.append(",");
-			//put the next bind information
-			opStr.append("st_ = " + maximalCopy.toFormulaWithState());
-			opStr.append(",");
-
-			//put the expression
-			CMLModelcheckerContext newCtxt = new CMLModelcheckerContext();
-
-			if(actionBody != null){
-				newCtxt.getScriptContent().append(((AVariableExp) actionBody.getStateDesignator()).getName().getName() + "_" + " = ");
-				String expression = actionBody.getExpression().apply(rootVisitor, newCtxt).toString();
-				opStr.append(expression);
-
-			}
-			opStr.append(".\n");
-
-			//generate the preconditionOK e preconditioNOk
-			//"preOpOk("Init", nopar, BBinding(SingleBind("a",Int(a)),nBind)) :- State(BBinding(SingleBind("a",Int(a)),nBind),_)."
-			//PExp exp = actionBody.getExpression();
-			if(op.getPrecondition() != null){
-				//convert precondition
-			}else{
-				//we assume that all preconditions are true for the moment
-				StringBuilder preOpOkFact = new StringBuilder();
-				preOpOkFact.append("preOpOk(\"" + op.getName().toString() + "\",");
-				if(op.getParamDefinitions().size()==0){
-					preOpOkFact.append("nopar");
-				}else if(op.getParamDefinitions().size()==1){
-					PDefinition pDef = op.getParamDefinitions().getFirst();
-					CMLModelcheckerContext localCtxt = new CMLModelcheckerContext();
-					StringBuilder result = pDef.apply(rootVisitor,localCtxt);
-					preOpOkFact.append(result.toString());
-				}
-				preOpOkFact.append(",");
-				preOpOkFact.append(maximalBinding.toFormulaWithState());
-				preOpOkFact.append(")");
-				preOpOkFact.append(" :- ");
-				preOpOkFact.append("State(l," + maximalBinding.toFormulaWithState() + ",np,_).");
-				preOpOkFact.append("\n");
-				opStr.append(preOpOkFact.toString());
-			}
-			//we assume that post conditions are not present
-
-			//puts the oepration definition and the precondition
-			context.getScriptContent().append(opStr);
-		}
-	} 
-	
 	private void generateIOCommDefs(CMLModelcheckerContext context){
 		//if(question.info.containsKey(Utilities.IOCOMM_DEFINITIONS_KEY)){
 		if(context.ioCommDefs.size() > 0){
@@ -627,76 +476,6 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 
 		}
 
-	}
-	
-	private void generateGuardDefinitions(CMLModelcheckerContext context) throws AnalysisException{
-		//for all guard conditions found in the specification
-		for (Condition condition : context.guards) {
-			CMLModelcheckerContext auxCtxt = new CMLModelcheckerContext();
-			condition.expression.apply(rootVisitor,context);
-
-			Binding maxBinding = context.getMaxBinding();
-
-			//generating positive guards
-			String positiveGuardExp = context.positiveGuardExps.get(condition.expression);
-			StringBuilder positiveGuardBuilder = new StringBuilder();
-			//context.getScriptContent().append(condResult.toString());
-			if(positiveGuardExp != null){
-				positiveGuardBuilder.append("  guardDef(l," + condition.counter + "," + maxBinding.toFormulaWithState() + ")");
-				positiveGuardBuilder.append(" :- State(l," + maxBinding.toFormulaWithState() + "," +maxBinding.getProcName()+ ",condChoice(" + condition.counter + ",_,_))");				positiveGuardBuilder.append(",");
-				positiveGuardBuilder.append(positiveGuardExp);
-				positiveGuardBuilder.append(".\n");
-			}
-
-
-			//generating negative guards
-			String negativeGuardExp = context.negativeGuardExps.get(condition.expression);
-			StringBuilder negativeGuardBuilder = new StringBuilder();
-			//context.getScriptContent().append(condResult.toString());
-			if(negativeGuardExp != null){
-				negativeGuardBuilder.append("  guardNDef(l," + condition.counter + "," + maxBinding.toFormulaWithState() + ")");
-				negativeGuardBuilder.append(" :- State(l," + maxBinding.toFormulaWithState() + "," +maxBinding.getProcName()+ ",condChoice(" + condition.counter + ",_,_))");
-				negativeGuardBuilder.append(",");
-				negativeGuardBuilder.append(negativeGuardExp);
-				negativeGuardBuilder.append(".\n");
-			}
-
-			context.getScriptContent().append(positiveGuardBuilder.toString());
-			context.getScriptContent().append(negativeGuardBuilder.toString());
-			
-
-		}
-	}
-
-	
-	private void generateValueDefinitions(CMLModelcheckerContext context) throws AnalysisException{
-		LinkedList<UserDefinedValue> userValues = context.valueDefinitions;
-		for (UserDefinedValue userDefinedValue : userValues) {
-			AValueDefinition def = userDefinedValue.getValueDef();
-			if(def.getExpression() instanceof AIntLiteralExp){
-				context.getScriptContent().append("primitive ");
-			} 
-			context.getScriptContent().append(def.getPattern().toString()+" ::= (");		
-			def.getType().apply(rootVisitor, context);
-			context.getScriptContent().append(").\n");
-			if(def.getExpression() instanceof ATimesNumericBinaryExp){
-				context.getScriptContent().append(def.getPattern().toString());
-				//context.getScriptContent().append("(" + def.getPattern().toString().toLowerCase() + ") :- #, " + def.getPattern().toString().toLowerCase()+" = @");
-				context.getScriptContent().append("(" + def.getPattern().toString().toLowerCase() + ") :- #, " + def.getPattern().toString().toLowerCase()+" = @");
-				def.getExpression().apply(rootVisitor, context);
-				context.getScriptContent().append(".\n");
-			}
-		}
-		
-	}
-	
-	private void generateLieInFacts(CMLModelcheckerContext context){
-		if(context.lieIn.size() != 0){
-			context.getScriptContent().append("\n");
-			for (String lieIn : context.lieIn) {
-				context.getScriptContent().append(lieIn + "\n");
-			}
-		}
 	}
 	
 	private void generateBindingFacts(CMLModelcheckerContext context){

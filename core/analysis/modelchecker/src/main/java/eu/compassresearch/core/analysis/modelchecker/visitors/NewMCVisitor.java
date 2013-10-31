@@ -133,6 +133,7 @@ public class NewMCVisitor extends
 	@Override
 	public MCNode defaultPDefinition(PDefinition node,
 			NewCMLModelcheckerContext question) throws AnalysisException{
+		
 		return node.apply(this.declAndDefVisitor, question);
 	}
 

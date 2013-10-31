@@ -18,14 +18,18 @@ public class MCChannel implements MCNode {
 
 	@Override
 	public String toFormula(String option) {
+		
 		StringBuilder result = new StringBuilder();
+		
+		//the default option for generating channels is generic (with underscore)
 		result.append("Channel(0,\"");
 		result.append(this.name);
 		result.append("\"");
 		result.append(",");
 		if(this.type != null){
-			result.append(this.type.toFormula(option));
+			result.append("_");
 		}
+		result.append(")");
 		
 		return result.toString();
 	}

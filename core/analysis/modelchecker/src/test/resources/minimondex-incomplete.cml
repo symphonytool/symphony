@@ -10,6 +10,14 @@ types
   Money = nat
     inv m == m in set {0,...,M}
     
+
+channels
+  aa
+  test,bb : int
+  pay, transfer: Index * Index * Money
+  accept , reject: Index
+
+    
 process Card = 
 begin
     

@@ -14,6 +14,7 @@ import eu.compassresearch.ast.actions.ASingleGeneralAssignmentStatementAction;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCAssignDef;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCChannel;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCCondition;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCGuardDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCLieInFact;
@@ -132,29 +133,7 @@ public class MCAProcessDefinition implements MCPCMLDefinition {
 		result.append("}\n\n");
 		result.append("partial model StartProcModel of StartProcDomain{\n");
 
-		//generate values defined previously
-		//generateDefinedValues(result,option);
-
-
-
 		//if(question.info.containsKey(Utilities.STATES_KEY)){
-		/*
-				if(question.stateVariables.size() > 0){
-					//pppppppp
-					ArrayList<StringBuilder> states = (ArrayList<StringBuilder>) question.info.get(Utilities.STATES_KEY);
-					StringBuilder s;
-					for (int i = 0; i < states.size(); i++) {
-						s = states.get(i);
-						String currentState = question.getStates().get(i);
-						StringBuilder aux = new StringBuilder(question.getMaxBindingWithStates().toFormulaWithState());
-						aux.replace(aux.indexOf("Int("), aux.indexOf(")")+1, currentState);
-						s.replace(s.indexOf("_"), s.indexOf("_")+1, aux.toString());
-						s.replace(s.indexOf("Int("), s.length(), currentState+")");
-						s.append("\n");
-						question.getScriptContent().append(" "+s);
-					}
-				}
-		 */
 		/* generate del biind facts
 				if(question.info.containsKey(Utilities.DEL_BBINDING)){
 					if(question.getVariables().size() != 0){
@@ -186,6 +165,8 @@ public class MCAProcessDefinition implements MCPCMLDefinition {
 
 		generateLieInFacts(result,option);
 
+		generateChannels(result,option);
+		
 		//pppp
 		//generate fetch facts
 		//generate del facts
@@ -265,6 +246,7 @@ public class MCAProcessDefinition implements MCPCMLDefinition {
 			content.append("\n");
 		}
 	}
+	/*
 	private void generateDefinedValues(StringBuilder content, String option){
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 		for (MCAValueDefinition valueDef : context.valueDefinitions) {
@@ -274,6 +256,7 @@ public class MCAProcessDefinition implements MCPCMLDefinition {
 			content.append("\n");
 		}
 	}
+	*/
 	private void generateLieInFacts(StringBuilder content, String option){
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 		if(context.lieIn.size() != 0){
@@ -283,6 +266,16 @@ public class MCAProcessDefinition implements MCPCMLDefinition {
 		}
 	}
 	
+	private void generateChannels(StringBuilder content, String option){
+		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+		if(context.channelDefs.size() != 0){
+			for (MCAChannelNameDefinition chanDef : context.channelDefs) {
+				if(chanDef.isTyped()){
+					content.append(chanDef.toFormula(option) + "\n");
+				}
+			}
+		}
+	}
 	public LinkedList<MCATypeSingleDeclaration> getLocalState() {
 		return localState;
 	}

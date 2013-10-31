@@ -15,9 +15,11 @@ import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.ast.types.PCMLType;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAChannelType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAIntNumericBasicType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANamedInvariantType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANatNumericBasicType;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 
 public class NewMCTypeAndValueVisitor extends
 		QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
@@ -60,17 +62,24 @@ public class NewMCTypeAndValueVisitor extends
 		return result;
 	}
 
+	@Override
+	public MCNode caseAChannelType(AChannelType node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		
+		MCPCMLType chanType = null;
+		
+		if(node.getType() != null){
+			chanType = (MCPCMLType) node.getType().apply(rootVisitor, question);
+		}
+		
+		MCAChannelType result = new MCAChannelType(chanType);
+		
+		return result;
+	}
+	
 	/*
 	
-	@Override
-	public StringBuilder caseAChannelType(AChannelType node,
-			CMLModelcheckerContext question) throws AnalysisException {
-		if(node.getType() != null){
-			node.getType().apply(this, question);
-		}
-			
-		return question.getScriptContent();
-	}
+	
 	
 	@Override
 	public StringBuilder caseAProductType(AProductType node,
