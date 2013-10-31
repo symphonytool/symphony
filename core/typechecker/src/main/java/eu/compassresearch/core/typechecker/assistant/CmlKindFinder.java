@@ -51,14 +51,14 @@ public class CmlKindFinder extends AbstractCmlKindFinder
 	public String caseAChansetDefinition(AChansetDefinition node)
 			throws AnalysisException
 	{
-		return "channel-set";
+		return "chanset";
 	}
 
 	@Override
 	public String caseANamesetDefinition(ANamesetDefinition node)
 			throws AnalysisException
 	{
-		return "name-set";
+		return "nameset";
 	}
 
 	@Override
