@@ -1,11 +1,11 @@
-/* Communication is fine if channel exists*/
+/* Communication is fine if channel exists and tuple sizes match*/
 
 channels
-a
+a : int * int
 
 process A =
 begin
 
-@ a -> Skip
+@ a.1.2 -> Skip
 
 end
