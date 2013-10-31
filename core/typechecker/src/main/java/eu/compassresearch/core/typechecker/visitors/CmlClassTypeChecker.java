@@ -37,8 +37,8 @@ public class CmlClassTypeChecker extends ClassTypeChecker
 	@Override
 	public Environment getAllClassesEnvronment()
 	{
-		Environment globalEnv = new FlatCheckedGlobalEnvironment(assistantFactory, globalDefs, NameScope.NAMESANDSTATE, null);
-		Environment allClasses = new PublicClassEnvironment(assistantFactory, classes, globalEnv, null);
+		Environment globalEnv = new FlatCheckedGlobalEnvironment(assistantFactory, globalDefs, NameScope.NAMESANDSTATE);
+		Environment allClasses = new PublicClassEnvironment(assistantFactory, classes, globalEnv);
 		return allClasses;
 	}
 

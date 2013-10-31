@@ -32,7 +32,7 @@ import eu.compassresearch.ast.messages.InternalException;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.typechecker.analysis.CollectGlobalStateClass;
 import eu.compassresearch.core.typechecker.analysis.OperationBodyValidater;
-import eu.compassresearch.core.typechecker.analysis.UnicknessChecker;
+import eu.compassresearch.core.typechecker.analysis.UniquenessChecker;
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 import eu.compassresearch.core.typechecker.visitors.CmlClassTypeChecker;
 import eu.compassresearch.core.typechecker.visitors.CmlCspTypeChecker;
@@ -172,7 +172,7 @@ public class VanillaCmlTypeChecker extends AbstractTypeChecker
 
 			// Collect all Top-level entities
 			DefinitionList globalDefs = CollectGlobalStateClass.getGlobalRoot(sourceForest, issueHandler);
-			UnicknessChecker.apply(globalDefs, issueHandler);
+			UniquenessChecker.apply(globalDefs, issueHandler);
 			// this.globalDefinitions = new LinkedList<PDefinition>(globalDefs.definitions);
 
 			// Create top-level CML-environment

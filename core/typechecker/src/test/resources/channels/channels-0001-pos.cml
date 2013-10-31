@@ -3,10 +3,7 @@ channels
  init:int
 test
 
-process
-
- test =
-
+process P =
 begin
 
  @ init?x -> Skip
