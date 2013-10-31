@@ -18,6 +18,7 @@ import org.overture.ast.typechecker.NameScope;
 import org.overture.config.Release;
 import org.overture.config.Settings;
 import org.overture.typechecker.Environment;
+import org.overture.typechecker.FlatCheckedEnvironment;
 import org.overture.typechecker.TypeCheckException;
 import org.overture.typechecker.TypeCheckInfo;
 import org.overture.typechecker.TypeChecker;
@@ -33,7 +34,6 @@ import eu.compassresearch.core.typechecker.analysis.CollectGlobalStateClass;
 import eu.compassresearch.core.typechecker.analysis.OperationBodyValidater;
 import eu.compassresearch.core.typechecker.analysis.UnicknessChecker;
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
-import eu.compassresearch.core.typechecker.environment.CmlFlatCheckedEnvironment;
 import eu.compassresearch.core.typechecker.visitors.CmlClassTypeChecker;
 import eu.compassresearch.core.typechecker.visitors.CmlCspTypeChecker;
 import eu.compassresearch.core.typechecker.visitors.CmlVdmTypeCheckVisitor;
@@ -251,17 +251,11 @@ public class VanillaCmlTypeChecker extends AbstractTypeChecker
 						|| def instanceof AProcessDefinition)
 				{
 					globalCmlDefinition.add(def);
-					// if (def instanceof AChansetDefinition
-					// && def.getName() == null)
-					// {
-					// // FIXME parser!
-					// def.setName(new CmlLexNameToken("", ((AChansetDefinition) def).getIdentifier()));
-					// }
 				}
 			}
 		}
 
-		Environment env = new CmlFlatCheckedEnvironment(vdmResult.af, globalCmlDefinition, vdmResult.globalEnv, NameScope.NAMES);
+		Environment env = new FlatCheckedEnvironment(vdmResult.af, globalCmlDefinition, vdmResult.globalEnv, NameScope.NAMES);
 
 		for (PDefinition def : globalCmlDefinition)
 		{

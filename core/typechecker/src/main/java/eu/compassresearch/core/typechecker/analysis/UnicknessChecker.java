@@ -44,9 +44,7 @@ public class UnicknessChecker extends DepthFirstAnalysisCMLAdaptor
 		return lv.ok;
 	}
 
-	// private ITypeIssueHandler issueHandler;
 	boolean ok = true;
-	// private DefinitionList definitions;
 	private Environment env;
 
 	static class FlatStrictCheckEnvironment extends FlatCheckedEnvironment
@@ -58,7 +56,7 @@ public class UnicknessChecker extends DepthFirstAnalysisCMLAdaptor
 			super(af, definitions, env, scope);
 		}
 
-		protected void dubWarning(ILexNameToken n1)
+		protected void dubError(ILexNameToken n1)
 		{
 			TypeChecker.report(5007, "Duplicate definition: " + n1.getName(), n1.getLocation());
 		}
@@ -88,7 +86,7 @@ public class UnicknessChecker extends DepthFirstAnalysisCMLAdaptor
 				{
 					if (n1 != n2 && n1.equals(n2) && !done.contains(n1))
 					{
-						dubWarning(n1);
+						dubError(n1);
 						done.add(n1);
 					}
 				}
@@ -101,7 +99,7 @@ public class UnicknessChecker extends DepthFirstAnalysisCMLAdaptor
 
 					if (!outer.findMatches(n1).isEmpty())
 					{
-						dubWarning(n1);
+						dubError(n1);
 					}
 
 				}
@@ -122,14 +120,5 @@ public class UnicknessChecker extends DepthFirstAnalysisCMLAdaptor
 		new FlatStrictCheckEnvironment(AF, node.getDefinitions(), this.env, NameScope.NAMESANDSTATE);
 	}
 
-	// @Override
-	// public void caseAActionDefinition(AActionDefinition node)
-	// throws AnalysisException
-	// {
-	// if (!this.env.findMatches(node.getName()).isEmpty())
-	// {
-	// TypeChecker.report(5007, "Duplicate definition: " + node.getName(), node.getLocation());
-	// }
-	// }
 
 }
