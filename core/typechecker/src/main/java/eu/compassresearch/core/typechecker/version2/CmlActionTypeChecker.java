@@ -186,9 +186,8 @@ public class CmlActionTypeChecker extends
 
 		if (!TypeComparator.isSubType(timedExpType, new AIntNumericBasicType()))
 		{
-			node.setType(issueHandler.addTypeError(timedExp, TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT.customizeMessage(timedExp
-					+ "", timedExpType + "")));
-			return node.getType();
+			issueHandler.addTypeError(timedExp, TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT.customizeMessage(timedExp
+					+ "", timedExpType + ""));
 		}
 
 		return TypeCheckerUtil.setType(node, leftType, rightType);
@@ -238,9 +237,9 @@ public class CmlActionTypeChecker extends
 
 		if (csexpType == null)
 		{
-			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.EXPECTED_A_CHANNELSET.customizeMessage(""
-					+ csexpType)));
-			return node.getType();
+			issueHandler.addTypeError(node, TypeErrorMessages.EXPECTED_A_CHANNELSET.customizeMessage(""
+					+ csexpType));
+			return null;
 		}
 
 		List<PDefinition> defs = new Vector<PDefinition>();
@@ -249,8 +248,8 @@ public class CmlActionTypeChecker extends
 		{
 			if (!(chanDef instanceof AChannelDefinition))
 			{
-				node.setType(issueHandler.addTypeError(node, TypeErrorMessages.TYPE_CHECK_INTERNAL_FAILURE.customizeMessage("Expected a Channel and got something of type AChannelType, however it is not AChannelDefinition.")));
-				return node.getType();
+				issueHandler.addTypeError(node, TypeErrorMessages.TYPE_CHECK_INTERNAL_FAILURE.customizeMessage("Expected a Channel and got something of type AChannelType, however it is not AChannelDefinition."));
+				return null;
 			}
 			AChannelDefinition chanNameDef = (AChannelDefinition) chanDef;
 			defs.add(chanNameDef);
@@ -265,9 +264,9 @@ public class CmlActionTypeChecker extends
 
 		if (sexpType == null)
 		{
-			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.EXPECTED_A_NAMESET.customizeMessage(""
-					+ sexpType)));
-			return node.getType();
+			issueHandler.addTypeError(node, TypeErrorMessages.EXPECTED_A_NAMESET.customizeMessage(""
+					+ sexpType));
+			return null;
 		}
 
 		for (PDefinition stateDef : sexpType.getDefinitions())
@@ -456,9 +455,9 @@ public class CmlActionTypeChecker extends
 
 		if (!TypeComparator.isSubType(timedExpType, new AIntNumericBasicType()))
 		{
-			node.setType(issueHandler.addTypeError(timedExpType, TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT.customizeMessage(timedExp
-					+ "", timedExp + " (" + timedExpType + ")")));
-			return node.getType();
+			issueHandler.addTypeError(timedExpType, TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT.customizeMessage(timedExp
+					+ "", timedExp + " (" + timedExpType + ")"));
+			return null;
 		}
 
 		return TypeCheckerUtil.setType(node, AstFactory.newAVoidType(node.getLocation()));
@@ -533,8 +532,11 @@ public class CmlActionTypeChecker extends
 		PType timeExpType = timeExp.apply(THIS, question);
 
 		if (!TypeComparator.isSubType(timeExpType, new ANatNumericBasicType()))
-			return issueHandler.addTypeError(timeExp, TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT.customizeMessage(timeExp
+		{
+			issueHandler.addTypeError(timeExp, TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT.customizeMessage(timeExp
 					+ "", timeExpType + ""));
+			
+		}
 
 		return setType(node, leftType, rightType);
 	}
@@ -558,8 +560,9 @@ public class CmlActionTypeChecker extends
 
 			if (declType instanceof ASetType)
 			{
-				return issueHandler.addTypeError(declType, TypeErrorMessages.SEQ_TYPE_EXPECTED.customizeMessage(decl
+				 issueHandler.addTypeError(declType, TypeErrorMessages.SEQ_TYPE_EXPECTED.customizeMessage(decl
 						+ "", declType + ""));
+				 return null;
 			}
 
 			// issueHandler.addTypeWarning(decl, "This declaration should expand the environment: "
@@ -618,18 +621,18 @@ public class CmlActionTypeChecker extends
 
 		if (!TypeComparator.isSubType(expType, AstFactory.newABooleanBasicType(node.getLocation())))
 		{
-			node.setType(issueHandler.addTypeError(exp, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage("bool", ""
-					+ expType)));
-			return node.getType();
+			issueHandler.addTypeError(exp, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage("bool", ""
+					+ expType));
+			return null;
 		}
 
 		PType actionType = action.apply(THIS, question);
 
 		if (!(action instanceof PAction || action instanceof PStm))
 		{
-			node.setType(issueHandler.addTypeError(action, TypeErrorMessages.EXPECTED_AN_ACTION_OR_OPERATION.customizeMessage(""
-					+ action)));
-			return node.getType();
+			issueHandler.addTypeError(action, TypeErrorMessages.EXPECTED_AN_ACTION_OR_OPERATION.customizeMessage(""
+					+ action));
+			return null;
 		}
 
 		return setType(node, actionType);
@@ -816,15 +819,15 @@ public class CmlActionTypeChecker extends
 		// There should be a channel defined with this name
 		if (null == channel)
 		{
-			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.NAMED_TYPE_UNDEFINED.customizeMessage(node.getIdentifier().getName())));
-			return node.getType();
+			issueHandler.addTypeError(node, TypeErrorMessages.NAMED_TYPE_UNDEFINED.customizeMessage(node.getIdentifier().getName()));
+			return null;
 		}
 
 		if (!(channel instanceof AChannelDefinition))
 		{
-			node.setType(issueHandler.addTypeError(channel, TypeErrorMessages.DEFINITION_X_BUT_FOUND_Y.customizeMessage("channel", PDefinitionAssistantTC.kind(channel), channel.getName().getName()
-					+ "")));
-			return node.getType();
+			issueHandler.addTypeError(channel, TypeErrorMessages.DEFINITION_X_BUT_FOUND_Y.customizeMessage("channel", PDefinitionAssistantTC.kind(channel), channel.getName().getName()
+					+ ""));
+			return null;
 		}
 
 		channelNameDefinition = (AChannelDefinition) channel;
@@ -872,9 +875,9 @@ public class CmlActionTypeChecker extends
 						AProductType pType = (AProductType) type;
 						if (paramIndex >= pType.getTypes().size())
 						{
-							node.setType(issueHandler.addTypeError(commPattern, TypeErrorMessages.PATTERN_MISMATCH.customizeMessage(pType
-									+ "", commParams + "")));
-							return node.getType();
+							issueHandler.addTypeError(commPattern, TypeErrorMessages.PATTERN_MISMATCH.customizeMessage(pType
+									+ "", commParams + ""));
+							return null;
 						}
 						theType = pType.getTypes().get(paramIndex);
 						paramIndex++;
@@ -899,8 +902,8 @@ public class CmlActionTypeChecker extends
 
 						if (!(constraintType instanceof ABooleanBasicType))
 						{
-							constraintExp.setType(issueHandler.addTypeError(commPattern, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage("Boolean", ""
-									+ constraintType)));
+							issueHandler.addTypeError(commPattern, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage("Boolean", ""
+									+ constraintType));
 						}
 					}
 				}
@@ -912,18 +915,18 @@ public class CmlActionTypeChecker extends
 
 					if (!(chanType instanceof AProductType))
 					{
-						node.setType(issueHandler.addTypeError(commPattern, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(commPattern
-								+ "", chanType + "")));
-						return node.getType();
+						issueHandler.addTypeError(commPattern, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(commPattern
+								+ "", chanType + ""));
+						return null;
 					}
 
 					AProductType r = (AProductType) chanType;
 
 					if (tuplePattern.getPlist().size() != r.getTypes().size())
 					{
-						node.setType(issueHandler.addTypeError(commPattern, TypeErrorMessages.PATTERN_MISMATCH.customizeMessage(r
-								+ "", commPattern + "")));
-						return node.getType();
+						issueHandler.addTypeError(commPattern, TypeErrorMessages.PATTERN_MISMATCH.customizeMessage(r
+								+ "", commPattern + ""));
+						return null;
 					}
 
 					for (int i = 0; i < r.getTypes().size(); i++)
@@ -974,9 +977,9 @@ public class CmlActionTypeChecker extends
 					AProductType pType = (AProductType) chanType;
 					if (paramIndex > pType.getTypes().size())
 					{
-						node.setType(issueHandler.addTypeError(node, TypeErrorMessages.WRONG_NUMBER_OF_ARGUMENTS.customizeMessage(pType.getTypes().size()
-								+ "", "" + paramIndex)));
-						return node.getType();
+						issueHandler.addTypeError(node, TypeErrorMessages.WRONG_NUMBER_OF_ARGUMENTS.customizeMessage(pType.getTypes().size()
+								+ "", "" + paramIndex));
+						return null;
 					}
 					thisType = pType.getTypes().get(paramIndex);
 					paramIndex++;
@@ -985,17 +988,17 @@ public class CmlActionTypeChecker extends
 
 				if (thisType == null)
 				{
-					node.setType(issueHandler.addTypeError(node, TypeErrorMessages.PATTERN_MISMATCH.customizeMessage("untyped channel", writeExp
-							+ "")));
-					return node.getType();
+					issueHandler.addTypeError(node, TypeErrorMessages.PATTERN_MISMATCH.customizeMessage("untyped channel", writeExp
+							+ ""));
+					return null;
 
 				}
 
 				if (!TypeComparator.compatible(thisType, writeExpType))
 				{
-					node.setType(issueHandler.addTypeError(commParam, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(""
-							+ thisType, "" + writeExpType)));
-					return node.getType();
+					issueHandler.addTypeError(commParam, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(""
+							+ thisType, "" + writeExpType));
+					return null;
 				}
 
 			}

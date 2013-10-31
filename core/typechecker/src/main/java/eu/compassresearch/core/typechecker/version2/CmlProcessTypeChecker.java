@@ -402,25 +402,28 @@ public class CmlProcessTypeChecker extends
 
 		if (args.size() != definitions.size())
 		{
-			return issueHandler.addTypeError(node, TypeErrorMessages.WRONG_NUMBER_OF_ARGUMENTS.customizeMessage(""
+			issueHandler.addTypeError(node, TypeErrorMessages.WRONG_NUMBER_OF_ARGUMENTS.customizeMessage(""
 					+ definitions.size(), "" + args.size()));
-		}
-
-		List<PDefinition> locals = new Vector<PDefinition>();
-
-		for (int i = 0; i < args.size(); i++)
+		} else
 		{
-			PExp ithExp = args.get(i);
-			PDefinition ithDef = definitions.get(i);
-			if (!TypeComparator.compatible(ithExp.getType(), ithDef.getType()))
-			{
-				return issueHandler.addTypeError(node, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(""
-						+ ithDef.getType(), "" + ithExp.getType()));
-			}
-			locals.add(ithDef);
-		}
 
-		PType procType = proc.apply(THIS, question.newScope(locals));
+			List<PDefinition> locals = new Vector<PDefinition>();
+
+			for (int i = 0; i < args.size(); i++)
+			{
+				PExp ithExp = args.get(i);
+				PDefinition ithDef = definitions.get(i);
+				if (!TypeComparator.compatible(ithExp.getType(), ithDef.getType()))
+				{
+					issueHandler.addTypeError(node, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(""
+							+ ithDef.getType(), "" + ithExp.getType()));
+					break;
+				}
+				locals.add(ithDef);
+			}
+
+			PType procType = proc.apply(THIS, question.newScope(locals));
+		}
 
 		return getVoidType(node);
 	}
@@ -526,8 +529,10 @@ public class CmlProcessTypeChecker extends
 		PType timeExpType = timeExp.apply(THIS, question);
 
 		if (!TypeComparator.isSubType(timeExpType, new ANatNumericBasicType()))
-			return issueHandler.addTypeError(timeExp, TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT.customizeMessage(node
+		{
+			issueHandler.addTypeError(timeExp, TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT.customizeMessage(node
 					+ "", timeExpType + ""));
+		}
 
 		return getVoidType(node);
 	}
@@ -614,14 +619,20 @@ public class CmlProcessTypeChecker extends
 
 		if (processDef == null)
 		{
-			return issueHandler.addTypeError(node, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(node.getProcessName()
+			issueHandler.addTypeError(node, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(node.getProcessName()
 					+ ""));
-		}
+		} else
+		{
 
-		if (!(processDef instanceof AProcessDefinition))
-			return issueHandler.addTypeError(processDef, TypeErrorMessages.EXPECTED_PROCESS_DEFINITION.customizeMessage(node.getProcessName()
-					+ ""));
-		node.setProcessDefinition((AProcessDefinition) processDef);
+			if (!(processDef instanceof AProcessDefinition))
+			{
+				issueHandler.addTypeError(processDef, TypeErrorMessages.EXPECTED_PROCESS_DEFINITION.customizeMessage(node.getProcessName()
+						+ ""));
+			}else
+			{
+			node.setProcessDefinition((AProcessDefinition) processDef);
+			}
+		}
 
 		return getVoidType(node);
 	}
@@ -639,8 +650,10 @@ public class CmlProcessTypeChecker extends
 
 		PType expType = node.getTimeExpression().apply(THIS, question);
 		if (!TypeComparator.isSubType(expType, new ANatNumericBasicType()))
-			return issueHandler.addTypeError(node.getTimeExpression(), TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT.customizeMessage(node.getTimeExpression()
+		{
+			issueHandler.addTypeError(node.getTimeExpression(), TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT.customizeMessage(node.getTimeExpression()
 					+ ""));
+		}
 
 		return getVoidType(node);
 	}

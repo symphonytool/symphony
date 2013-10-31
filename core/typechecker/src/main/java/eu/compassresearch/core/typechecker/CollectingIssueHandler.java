@@ -27,14 +27,11 @@ public class CollectingIssueHandler implements ITypeIssueHandler
 	{
 		errors = new LinkedList<CMLTypeError>();
 		warnings = new LinkedList<CMLTypeWarning>();
-		// registry = reg;
-		// registry.prune(CMLIssueList.class);
 	}
 
 	private final List<CMLTypeError> errors;
 	private final List<CMLTypeWarning> warnings;
 
-	// private final Registry registry;
 
 	@Override
 	public List<CMLTypeError> getTypeErrors() throws IllegalStateException
@@ -50,32 +47,19 @@ public class CollectingIssueHandler implements ITypeIssueHandler
 
 	@SuppressWarnings("deprecation")
 	@Override
-	public AErrorType addTypeError(INode offendingSubtree, String message)
+	public void addTypeError(INode offendingSubtree, String message)
 	{
 		CMLTypeError error = new CMLTypeError(offendingSubtree, message);
 		this.errors.add(error);
 		// addIssueToRegistryForNode(offendingSubtree, registry, error);
-		return new AErrorType(error.getLocation(), true);
 	}
 
-	// private static void addIssueToRegistryForNode(INode node, Registry reg,
-	// CMLIssue error)
-	// {
-	// CMLIssueList errors = reg.lookup(node, CMLIssueList.class);
-	// if (errors == null)
-	// {
-	// errors = new CMLIssueList();
-	// reg.store(node, errors);
-	// }
-	// errors.add(error);
-	// }
 
 	@Override
 	public void addTypeWarning(INode hazardousSubtree, String message)
 	{
 		CMLTypeWarning warning = new CMLTypeWarning(hazardousSubtree, message);
 		this.warnings.add(warning);
-		// addIssueToRegistryForNode(hazardousSubtree, registry, warning);
 	}
 
 	@Override
@@ -98,14 +82,12 @@ public class CollectingIssueHandler implements ITypeIssueHandler
 
 	@SuppressWarnings("deprecation")
 	@Override
-	public AErrorType addTypeError(INode parent, ILexLocation location,
+	public void addTypeError(INode parent, ILexLocation location,
 			String message)
 	{
 		CMLTypeError typeError = new CMLTypeError(parent, message);
 		typeError.setLocation(location);
 		this.errors.add(typeError);
-		// addIssueToRegistryForNode(parent, registry, typeError);
-		return new AErrorType(location, true);
 	}
 
 	@Override

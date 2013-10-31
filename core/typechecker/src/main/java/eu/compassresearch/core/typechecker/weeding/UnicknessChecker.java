@@ -6,22 +6,17 @@ import java.util.Vector;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AClassInvariantDefinition;
 import org.overture.ast.definitions.PDefinition;
-import org.overture.ast.definitions.SOperationDefinition;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.lex.LexNameList;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.typechecker.Environment;
-import org.overture.typechecker.EnvironmentSearchStrategy;
 import org.overture.typechecker.FlatCheckedEnvironment;
 import org.overture.typechecker.TypeChecker;
 import org.overture.typechecker.assistant.ITypeCheckerAssistantFactory;
 import org.overture.typechecker.assistant.definition.PDefinitionListAssistantTC;
 
-import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
 import eu.compassresearch.ast.definitions.AActionClassDefinition;
-import eu.compassresearch.ast.definitions.AActionDefinition;
-import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.typechecker.CmlTypeCheckerAssistantFactory;
 import eu.compassresearch.core.typechecker.DefinitionList;
 import eu.compassresearch.core.typechecker.FlatCheckedGlobalEnvironment;
@@ -54,10 +49,8 @@ public class UnicknessChecker extends DepthFirstAnalysisCMLAdaptor
 	private DefinitionList definitions;
 	private Environment env;
 
-	static class FlatStrictCheckEnvironment extends
-			FlatCheckedEnvironment
+	static class FlatStrictCheckEnvironment extends FlatCheckedEnvironment
 	{
-
 
 		public FlatStrictCheckEnvironment(ITypeCheckerAssistantFactory af,
 				List<PDefinition> definitions, Environment env, NameScope scope)
@@ -69,30 +62,29 @@ public class UnicknessChecker extends DepthFirstAnalysisCMLAdaptor
 		{
 			TypeChecker.report(5007, "Duplicate definition: " + n1.getName(), n1.getLocation());
 		}
-		
+
 		private List<PDefinition> filterClassInvs(List<PDefinition> list)
 		{
 			List<PDefinition> filtrered = new Vector<PDefinition>(list);
 			for (PDefinition d : list)
 			{
-				if(d instanceof AClassInvariantDefinition)
+				if (d instanceof AClassInvariantDefinition)
 				{
 					filtrered.remove(d);
 				}
 			}
 			return filtrered;
 		}
-		
-		
-		protected void dupHideCheck( List<PDefinition> list, NameScope scope)
+
+		protected void dupHideCheck(List<PDefinition> list, NameScope scope)
 		{
 			LexNameList allnames = PDefinitionListAssistantTC.getVariableNames(filterClassInvs(list));
 
-			for (ILexNameToken n1: allnames)
+			for (ILexNameToken n1 : allnames)
 			{
 				LexNameList done = new LexNameList();
 
-				for (ILexNameToken n2: allnames)
+				for (ILexNameToken n2 : allnames)
 				{
 					if (n1 != n2 && n1.equals(n2) && !done.contains(n1))
 					{
@@ -107,10 +99,10 @@ public class UnicknessChecker extends DepthFirstAnalysisCMLAdaptor
 					// the scope matches what we can see. If we pass scope to findName
 					// it throws errors if the name does not match the scope.
 
-					 if(!outer.findMatches(n1).isEmpty())
-					 {
-						 dubWarning(n1);
-					 }
+					if (!outer.findMatches(n1).isEmpty())
+					{
+						dubWarning(n1);
+					}
 
 				}
 			}
@@ -129,17 +121,17 @@ public class UnicknessChecker extends DepthFirstAnalysisCMLAdaptor
 	public void caseAActionClassDefinition(AActionClassDefinition node)
 			throws AnalysisException
 	{
-		new FlatStrictCheckEnvironment(AF, node.getDefinitions(), this.env,NameScope.NAMESANDSTATE);
+		new FlatStrictCheckEnvironment(AF, node.getDefinitions(), this.env, NameScope.NAMESANDSTATE);
 	}
 
-//	@Override
-//	public void caseAActionDefinition(AActionDefinition node)
-//			throws AnalysisException
-//	{
-//		if (!this.env.findMatches(node.getName()).isEmpty())
-//		{
-//			TypeChecker.report(5007, "Duplicate definition: " + node.getName(), node.getLocation());
-//		}
-//	}
+	// @Override
+	// public void caseAActionDefinition(AActionDefinition node)
+	// throws AnalysisException
+	// {
+	// if (!this.env.findMatches(node.getName()).isEmpty())
+	// {
+	// TypeChecker.report(5007, "Duplicate definition: " + node.getName(), node.getLocation());
+	// }
+	// }
 
 }

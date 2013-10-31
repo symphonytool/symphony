@@ -61,9 +61,9 @@ public class CmlChannelExpressionTypeChecker extends
 		PDefinition chanDef = TypeCheckerUtil.findDefinition(channelId, question.env);
 		if (!(chanDef instanceof AChannelDefinition))
 		{
-			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.EXPECTED_A_CHANNEL.customizeMessage(channelId
-					+ "")));
-			return node.getType();
+			issueHandler.addTypeError(node, TypeErrorMessages.EXPECTED_A_CHANNEL.customizeMessage(channelId
+					+ ""));
+			return null;
 		}
 
 		PType chanConcreteType = ((AChannelDefinition) chanDef).getType();
@@ -94,9 +94,9 @@ public class CmlChannelExpressionTypeChecker extends
 
 			if (!TypeComparator.isSubType(singleChanConcType, expressionType))
 			{
-				node.setType(issueHandler.addTypeError(expression, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(""
-						+ singleChanConcType, "" + expressionType)));
-				return node.getType();
+				issueHandler.addTypeError(expression, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(""
+						+ singleChanConcType, "" + expressionType));
+				return null;
 			}
 		}
 
@@ -127,9 +127,9 @@ public class CmlChannelExpressionTypeChecker extends
 			PDefinition fromChanDef = TypeCheckerUtil.findDefinition(from.getIdentifier(), question.env);
 			if (fromChanDef == null)
 			{
-				node.setType(issueHandler.addTypeError(from, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(""
-						+ from)));
-				return node.getType();
+				issueHandler.addTypeError(from, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(""
+						+ from));
+				return null;
 			}
 
 			to.setType(fromChanDef.getType());

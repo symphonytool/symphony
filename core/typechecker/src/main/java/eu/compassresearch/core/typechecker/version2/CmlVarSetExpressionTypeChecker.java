@@ -109,17 +109,17 @@ public class CmlVarSetExpressionTypeChecker extends
 
 		if (idDef == null)
 		{
-			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(node
-					+ "")));
-			return node.getType();
+			issueHandler.addTypeError(node, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(node
+					+ ""));
+			return null;
 		}
 
 		if (!(idDef instanceof AChansetDefinition
 				|| idDef instanceof AChannelDefinition || idDef instanceof AStateDefinition))
 		{
-			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.EXPECTED_CHANNEL_OR_STATE.customizeMessage(idDef
-					+ "")));
-			return node.getType();
+			issueHandler.addTypeError(node, TypeErrorMessages.EXPECTED_CHANNEL_OR_STATE.customizeMessage(idDef
+					+ ""));
+			return null;
 		}
 
 		node.setType(idDef.getType());
@@ -164,9 +164,9 @@ public class CmlVarSetExpressionTypeChecker extends
 					// product and channel call same size?
 					if (chanExpressions.size() != prodType.getTypes().size())
 					{
-						node.setType(issueHandler.addTypeError(id, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(chanValueType
-								+ "", chanName + "")));
-						return node.getType();
+						issueHandler.addTypeError(id, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(chanValueType
+								+ "", chanName + ""));
+						return null;
 					}
 
 					// product and channel expressions same type?
@@ -178,8 +178,8 @@ public class CmlVarSetExpressionTypeChecker extends
 
 						if (!TypeComparator.isSubType(expType, pt))
 						{
-							node.setType(issueHandler.addTypeError(id, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(pt
-									+ "", expType + "")));
+							issueHandler.addTypeError(id, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(pt
+									+ "", expType + ""));
 						}
 					}
 				}
@@ -261,9 +261,9 @@ public class CmlVarSetExpressionTypeChecker extends
 			PDefinition idDef = findDefinition(question.env, chanName.getIdentifier());
 			if (idDef == null)
 			{
-				node.setType(issueHandler.addTypeError(node, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(""
-						+ chanName.getIdentifier())));
-				return node.getType();
+				issueHandler.addTypeError(node, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(""
+						+ chanName.getIdentifier()));
+				return null;
 			}
 
 			validateChannelNameDefinition(question, chanName, idDef);

@@ -169,9 +169,15 @@ public class TypeCheckerUtil
 		for (PType stmt : types)
 		{
 			PType stype = stmt;
+			
+			if(stype ==null)
+			{
+				stype = AstFactory.newAUnknownType(null);
+			}
 
 			last = stype;
 
+			
 			if (stype instanceof AUnionType)
 			{
 				AUnionType ust = (AUnionType) stype;

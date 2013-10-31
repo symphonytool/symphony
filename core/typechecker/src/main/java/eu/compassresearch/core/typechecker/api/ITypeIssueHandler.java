@@ -274,9 +274,9 @@ public interface ITypeIssueHandler extends IStatusListener
 	 * @param message
 	 *            - A message detailing the nature of the the error and preferably hinting how to fix it.
 	 */
-	public AErrorType addTypeError(INode offendingSubtree, String message);
+	public void addTypeError(INode offendingSubtree, String message);
 
-	public AErrorType addTypeError(INode parent, ILexLocation pos,
+	public void addTypeError(INode parent, ILexLocation pos,
 			String message);
 
 	/**
