@@ -4,13 +4,18 @@ import java.io.File;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.content.IContentType;
+import org.overture.ide.builders.vdmj.IBuilderVdmjConstants;
 import org.overture.ide.core.resources.ModelBuildPath;
+import org.overture.ide.core.utility.FileUtility;
+
+import eu.compassresearch.ide.core.unsupported.UnsupportedElementInfo;
 
 public interface ICmlProject extends IAdaptable
 {
@@ -44,5 +49,8 @@ public interface ICmlProject extends IAdaptable
 	public ICmlModel getModel();
 
 	public ModelBuildPath getModelBuildPath();
+	
+	public void addUnsupportedMarkers(List<UnsupportedElementInfo> ueis);
+	
 	
 }
