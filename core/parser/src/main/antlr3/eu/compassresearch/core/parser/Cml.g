@@ -1764,7 +1764,8 @@ channelDef returns[List<AChannelDefinition> def]
                 AChannelDefinition chanDecl = new AChannelDefinition();
                 chanDecl.setName(new CmlLexNameToken("", id)); // this is ok, as each identifier in the identifierList gets its own ACNDef
                 chanDecl.setNameScope(NameScope.GLOBAL);
-                chanDecl.setUsed(false);            
+                chanDecl.setUsed(false);  
+				chanDecl.setLocation(id.getLocation());  
               //  chanDecl.setSingleType(typeDecl);
 				if ($type.type != null) 
 				{
@@ -1803,6 +1804,8 @@ chansetDef returns [AChansetDefinition def]
             $def = new AChansetDefinition();
             $def.setIdentifier(new LexIdentifierToken($IDENTIFIER.getText(), false, extractLexLocation($IDENTIFIER)));
             $def.setChansetExpression($varsetExpr.vexp);
+			$def.setName(new CmlLexNameToken("", $def.getIdentifier()));
+			$def.setLocation(extractLexLocation($IDENTIFIER));
         }
     ;
 
