@@ -167,28 +167,29 @@ VarsetExpression {-> package='eu.compassresearch.ast.expressions'
 */
 
 type {-> package='eu.compassresearch.ast.types'}
-    =   {statement} // marker that a statement is typed ok
-    |   {process} // marker that a process is typed ok
-    |   {error} // marker that type of a subtree has failed
-    |   {bind}// market for a bind type subtree
-    |   {processParagraph} // marker stipulating process paragraph is typed ok
-    |   {chansetParagraph} // marker stipulating a chanset paragraph is typed ok
-    |   {channelsParagraph} // marker stipulating a chanset paragraph is typed ok
-    |   {actionParagraph} // marker stipulating that a Action Paragraph is typed ok
-    |   {valueParagraph} // marker stipulating that a Values paragraph is typed ok
-    |   {functionParagraph} // marker stipulating that a Function Paragraph is typed ok
-    |   {typeParagraph} // marker stipulating that a Types Paragraph is typed ok
-    |   {operationParagraph} // marker stipulating that a Function Paragraph is typed ok
-    |   {stateParagraph} // marker stipulating that a state Paragraph is typed ok
-    |   {source} // marker stipulating a source was typed ok
-    |   {channel} (type):type // marker stipulating that a channel Paragraph is typed ok
-    |   {chanset} // marker stipulating that a chanset is typed ok
-    |   {nameset} // marker stipulating that a nameset is typed ok
-    |   {namesets} // marker stipulating that s nameset paragraph is typed ok
-    |   {initialParagraph} // marker
-    |   {action} // marker
-    |   {varsetExpression} // marker
-    |   {paragraph} // markar that a paragraph tree is typed ok
+    = //  {statement} // marker that a statement is typed ok
+    //|  
+     {process} [name]:LexNameToken (classdef):definition.process// marker that a process is typed ok
+   // |   {error} // marker that type of a subtree has failed
+ //   |   {bind}// market for a bind type subtree
+ //   |   {processParagraph} // marker stipulating process paragraph is typed ok
+ //   |   {chansetParagraph} // marker stipulating a chanset paragraph is typed ok
+ //   |   {channelsParagraph} // marker stipulating a chanset paragraph is typed ok
+ //   |   {actionParagraph} // marker stipulating that a Action Paragraph is typed ok
+ //   |   {valueParagraph} // marker stipulating that a Values paragraph is typed ok
+ //   |   {functionParagraph} // marker stipulating that a Function Paragraph is typed ok
+ //   |   {typeParagraph} // marker stipulating that a Types Paragraph is typed ok
+ //   |   {operationParagraph} // marker stipulating that a Function Paragraph is typed ok
+ //   |   {stateParagraph} // marker stipulating that a state Paragraph is typed ok
+ //   |   {source} // marker stipulating a source was typed ok
+ //   |   {channel} (type):type // marker stipulating that a channel Paragraph is typed ok
+//    |   {chanset} // marker stipulating that a chanset is typed ok
+//    |   {nameset} // marker stipulating that a nameset is typed ok
+ //   |   {namesets} // marker stipulating that s nameset paragraph is typed ok
+  //  |   {initialParagraph} // marker
+  //  |   {action} // marker
+ //   |   {varsetExpression} // marker
+  //  |   {paragraph} // markar that a paragraph tree is typed ok
     ;
 
 access  {-> package='eu.compassresearch.ast.definitions'}

@@ -89,7 +89,6 @@ import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AChannelDefinition;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.lex.CmlLexNameToken;
-import eu.compassresearch.ast.types.AErrorType;
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 import eu.compassresearch.core.typechecker.api.TypeWarningMessages;
@@ -761,7 +760,7 @@ public class CmlActionTypeChecker extends
 		{
 			issueHandler.addTypeError(node, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(node.getName()
 					+ ""));
-			node.setType(new AErrorType());
+			node.setType(AstFactory.newAUnknownType(node.getLocation()));
 			return node.getType();
 		}
 
@@ -777,12 +776,6 @@ public class CmlActionTypeChecker extends
 		{
 
 			AActionDefinition actionDef = (AActionDefinition) def;
-			// if (actionDef.getAction().getType() == null
-			// || !actionDef.getAction().getType().getResolved())
-			// {
-			// actionDef.apply(THIS, question);
-			// }
-			// type = actionDef.getAction().getType();
 			node.setActionDefinition(actionDef);
 		}
 
@@ -790,15 +783,6 @@ public class CmlActionTypeChecker extends
 
 		{
 			type = AstFactory.newAVoidType(node.getLocation());
-			// if (!(actionDef instanceof AActionDefinition))
-			// {
-			// issueHandler.addTypeError(node,
-			// TypeErrorMessages.EXPECTED_AN_ACTION_OR_OPERATION.customizeMessage(node.getName()
-			// + ""));
-			// node.setType(new AErrorType());
-			// return node.getType();
-			//
-			// }
 		}
 
 		node.setType(type);
