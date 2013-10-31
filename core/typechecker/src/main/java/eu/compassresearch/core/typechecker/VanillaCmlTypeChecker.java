@@ -251,12 +251,12 @@ public class VanillaCmlTypeChecker extends AbstractTypeChecker
 						|| def instanceof AProcessDefinition)
 				{
 					globalCmlDefinition.add(def);
-					if (def instanceof AChansetDefinition
-							&& def.getName() == null)
-					{
-						// FIXME parser!
-						def.setName(new CmlLexNameToken("", ((AChansetDefinition) def).getIdentifier()));
-					}
+//					if (def instanceof AChansetDefinition
+//							&& def.getName() == null)
+//					{
+//						// FIXME parser!
+//						def.setName(new CmlLexNameToken("", ((AChansetDefinition) def).getIdentifier()));
+//					}
 				}
 			}
 		}
