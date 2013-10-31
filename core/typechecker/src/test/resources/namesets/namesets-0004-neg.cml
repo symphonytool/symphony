@@ -1,0 +1,14 @@
+process A = 
+begin
+  state
+    i : int := 1
+    j : int := 2
+  namesets
+    left = {i}
+    right = {i}
+@ 
+  -- left and right must not overlap, so this is an error
+  -- AGeneralisedParallel?
+  Skip [|left|{}|right|] Skip
+  
+end
