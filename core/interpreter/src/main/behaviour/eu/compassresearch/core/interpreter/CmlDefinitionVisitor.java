@@ -40,7 +40,7 @@ import eu.compassresearch.ast.definitions.AOperationsDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.definitions.ATypesDefinition;
 import eu.compassresearch.ast.definitions.AValuesDefinition;
-import eu.compassresearch.ast.lex.LexNameToken;
+import eu.compassresearch.ast.lex.CmlLexNameToken;
 import eu.compassresearch.core.interpreter.api.values.ActionValue;
 import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
 import eu.compassresearch.core.interpreter.api.values.LatticeTopValue;
@@ -395,7 +395,7 @@ class CmlDefinitionVisitor extends
 
 		Value value = node.getExpression().apply(cmlExpressionVisitor, question);
 		for (ILexIdentifierToken id : node.getIdentifiers())
-			vpl.add(new NameValuePair(new LexNameToken("", id.clone()), value));
+			vpl.add(new NameValuePair(new CmlLexNameToken("", id.clone()), value));
 
 		return vpl;
 	}
@@ -410,7 +410,7 @@ class CmlDefinitionVisitor extends
 
 		Value value = new LatticeTopValue(node.getType());
 		for (ILexIdentifierToken id : node.getIdentifiers())
-			vpl.add(new NameValuePair(new LexNameToken("", id.clone()), value));
+			vpl.add(new NameValuePair(new CmlLexNameToken("", id.clone()), value));
 
 		return vpl;
 	}

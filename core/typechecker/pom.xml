@@ -47,7 +47,7 @@
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>build-helper-maven-plugin</artifactId>
 				<executions>
-					<execution>
+					<!-- execution>
 						<phase>generate-sources</phase>
 						<goals>
 							<goal>add-source</goal>
@@ -57,7 +57,7 @@
 								<source>src/main/visitors</source>
 							</sources>
 						</configuration>
-					</execution>
+					</execution-->
 					<!-- execution>
 						<id>add-test-sources</id>
 						<phase>generate-test-sources</phase>

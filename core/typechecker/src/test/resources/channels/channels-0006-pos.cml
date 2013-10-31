@@ -12,6 +12,8 @@ begin
 
 actions
 
- INIT = (a -> b -> Skip) \\ {|b|} @ INIT
+ INIT = (a -> b -> Skip) \\ {|b|} 
+ 
+ @ INIT
 
 end

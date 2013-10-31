@@ -54,8 +54,9 @@ public abstract class AbstractResultBasedCmlTypeCheckerTestCase extends
 	// {
 	// return collectResourcesTestData("general");
 	// }
-	
-	public static Collection<Object[]> combine(Collection<Object[]> a, Collection<Object[]> b)
+
+	public static Collection<Object[]> combine(Collection<Object[]> a,
+			Collection<Object[]> b)
 	{
 		Collection<Object[]> tests = new LinkedList<Object[]>();
 		tests.addAll(a);
@@ -115,7 +116,7 @@ public abstract class AbstractResultBasedCmlTypeCheckerTestCase extends
 			for (File f : theFiles)
 			{
 				files.add(new Object[] { f,
-						f.getPath().substring(path.length() ), type });
+						f.getPath().substring(path.length()), type });
 			}
 		}
 
@@ -160,17 +161,15 @@ public abstract class AbstractResultBasedCmlTypeCheckerTestCase extends
 			res = TestUtil.runTypeChecker(paths.toArray(new String[paths.size()]));
 		}
 
-		
 		Assume.assumeFalse("Explicitly selected to skip", type == TestType.SKIP);
-		
+
 		if (!res.parsedOk)
 		{
-//			System.err.println("Parse errors in specification");
-//			System.err.println(res.parseErrors);
-			Assert.fail("Contained parser errors\n\n"+res.parseErrors);
+			// System.err.println("Parse errors in specification");
+			// System.err.println(res.parseErrors);
+			Assert.fail("Contained parser errors\n\n" + res.parseErrors);
 			return;
 		}
-		
 
 		Result<Boolean> result = new Result<Boolean>(res.tcOk, convert(res.issueHandler.getTypeWarnings()), convert(res.issueHandler.getTypeErrors()));
 
@@ -183,7 +182,7 @@ public abstract class AbstractResultBasedCmlTypeCheckerTestCase extends
 			Assert.assertTrue("Unexpected type errors in model.\n\n"
 					+ outStream.toString(), !res.issueHandler.hasErrors());
 
-		}else if(type == TestType.NEGATIVE && !res.issueHandler.hasErrors())
+		} else if (type == TestType.NEGATIVE && !res.issueHandler.hasErrors())
 		{
 			Assert.assertTrue("Unexpected success of type checking", res.issueHandler.hasErrors());
 		}

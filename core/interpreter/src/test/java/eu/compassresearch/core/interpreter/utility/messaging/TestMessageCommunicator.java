@@ -26,7 +26,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.lex.LexIdentifierToken;
-import eu.compassresearch.ast.lex.LexNameToken;
+import eu.compassresearch.ast.lex.CmlLexNameToken;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorState;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
@@ -153,7 +153,7 @@ public class TestMessageCommunicator
 			@Override
 			public ILexNameToken name()
 			{
-				return new LexNameToken("", new LexIdentifierToken("A", false, new LexLocation()));
+				return new CmlLexNameToken("", new LexIdentifierToken("A", false, new LexLocation()));
 			}
 
 			@Override

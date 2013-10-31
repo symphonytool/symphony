@@ -79,7 +79,6 @@ import org.overture.ast.lex.LexIdentifierToken;
 import org.overture.ast.lex.LexIntegerToken;
 import org.overture.ast.lex.LexKeywordToken;
 import org.overture.ast.lex.LexLocation;
-import eu.compassresearch.ast.lex.LexNameToken;
 import org.overture.ast.lex.LexQuoteToken;
 import org.overture.ast.lex.LexRealToken;
 import org.overture.ast.lex.LexStringToken;
@@ -100,6 +99,7 @@ import eu.compassresearch.ast.actions.*;
 import eu.compassresearch.ast.declarations.*;
 import eu.compassresearch.ast.definitions.*;
 import eu.compassresearch.ast.expressions.*;
+import eu.compassresearch.ast.lex.CmlLexNameToken;
 import eu.compassresearch.ast.patterns.*;
 import eu.compassresearch.ast.process.*;
 import eu.compassresearch.ast.program.*;
@@ -171,7 +171,7 @@ private void configureClass(SClassDefinition c)
 			}
 			else if(p instanceof AInitialDefinition)
 			{
-				p.setName(new LexNameToken("", c.getName().getName() + "_initial",p.getLocation()));
+				p.setName(new CmlLexNameToken("", c.getName().getName() + "_initial",p.getLocation()));
 				((AInitialDefinition)p).getOperationDefinition().setClassDefinition(c);
 			}
 			else
@@ -353,7 +353,6 @@ private PExp selectorListAssignableBuilder(PExp base, List<PExp> selectors) {
     for (PExp sel : selectors) { // Iterate through the selectors, building a left->right tree
         ILexLocation loc = extractLexLocation(base.getLocation(), sel.getLocation());
         if (sel instanceof AFieldNumberExp) { // FIXME --- probably shouldn't allow this
-            //System.out.println("Syntax error: AFieldNumberExp in a simpleSelector for calls");
             ((AFieldNumberExp)sel).setTuple(tree);
             sel.setLocation(loc);
             tree = sel;
@@ -394,6 +393,18 @@ private PExp selectorListAssignableBuilder(PExp base, List<PExp> selectors) {
     return tree;
 }
 
+private Collection<? extends PType> getTypeList(APatternListTypePair node) {
+    List<PType> list = new Vector<PType>();
+    
+    for (int i = 0; i < node.getPatterns().size(); i++) {
+        PType type = (PType) node.getType();
+        list.add(type);
+    }
+    
+    return list;
+}
+
+
 /* A main method to trigger the parser directly on stdin
  */
 public static void main(String[] args) throws Exception {
@@ -426,20 +437,6 @@ public static void main(String[] args) throws Exception {
         throw e;
     }
 }
-
-
-	private Collection<? extends PType> getTypeList(APatternListTypePair node)
-	{
-		List<PType> list = new Vector<PType>();
-
-		for (int i = 0; i < node.getPatterns().size(); i++)
-		{
-			PType type = (PType) node.getType();
-			list.add(type);
-		}
-
-		return list;
-	}
 
 } // end @parser::members
 
@@ -478,7 +475,7 @@ classDefinition returns[AClassClassDefinition def]
     : 'class' id=IDENTIFIER ('extends' parent=IDENTIFIER)? '=' 'begin' classDefinitionBlockOptList 'end'
         {
 			AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(false, false, extractLexLocation($start));
-			LexNameToken className = new LexNameToken("", $id.getText(), extractLexLocation($id));
+			CmlLexNameToken className = new CmlLexNameToken("", $id.getText(), extractLexLocation($id));
 			List<PDefinition> members = $classDefinitionBlockOptList.defs;
 			List<ILexNameToken> superclasses = new ArrayList<ILexNameToken>();
 			
@@ -496,17 +493,11 @@ processDefinition returns[AProcessDefinition def]
             $def = new AProcessDefinition(); // FIXME
             $def.setProcess( $process.proc );
             ILexLocation identifierLocation = extractLexLocation($IDENTIFIER);
-            LexNameToken processName = new LexNameToken("", new LexIdentifierToken($IDENTIFIER.getText(), false, identifierLocation));
+            CmlLexNameToken processName = new CmlLexNameToken("", new LexIdentifierToken($IDENTIFIER.getText(), false, identifierLocation));
             $def.setName(processName);
             List<PParametrisation> paramList = $parametrisationList.params;
             if (paramList != null) {
-                List<ATypeSingleDeclaration> localState = new LinkedList<ATypeSingleDeclaration>();
-                for(PParametrisation p : paramList)
-                {
-                    ATypeSingleDeclaration decl = p.getDeclaration();
-                    localState.add(decl);
-                }
-                $def.setLocalState(localState);
+                $def.setLocalState(paramList);
             }
 
         }
@@ -761,7 +752,7 @@ processbase returns[PProcess proc]
         | renamingExpr
         )?
         {
-            $proc = new AReferenceProcess(null, new LexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER)), $expressionList.exps);
+            $proc = new AReferenceProcess(null, new CmlLexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER)), $expressionList.exps);
             if ($renamingExpr.rexp != null) {
                 $proc.setLocation(extractLexLocation($IDENTIFIER));
                 $proc = new AChannelRenamingProcess(null, $proc, $renamingExpr.rexp);
@@ -778,54 +769,91 @@ processbase returns[PProcess proc]
 
 parametrisationList returns[List<PParametrisation> params]
 @init { $params = new ArrayList<PParametrisation>(); }
-    : item=parametrisation { $params.add($item.param); } ( ',' item=parametrisation { $params.add($item.param); } )*
+    : item=parametrisation { $params.addAll($item.params); } ( ',' item=parametrisation { $params.addAll($item.params); } )*
     ;
 
-parametrisation returns[PParametrisation param]
-@after { $param.setLocation(extractLexLocation($start, $stop)); }
+parametrisation returns[List<PParametrisation> params]
+@init { $params = new ArrayList<PParametrisation>(); }
     : PMODE? identifierList ':' type
         {
-            if ($PMODE==null || $PMODE.getText().equals("val")) {
-                $param = new AValParametrisation();
-            } else if ($PMODE.getText().equals("res")) {
-                $param = new AResParametrisation();
-            } else if ($PMODE.getText().equals("vres")) {
-                $param = new AVresParametrisation();
-            } else {
-                // FIXME --- log a never-happens
-            }
+			ILexLocation ploc = ($PMODE!=null?extractLexLocation($PMODE, $type.stop):extractLexLocation($identifierList.start, $type.stop));
+            
             ILexLocation loc = extractLexLocation($identifierList.start, $identifierList.stop);
-            $param.setDeclaration(new ATypeSingleDeclaration(loc, NameScope.GLOBAL, $identifierList.ids, $type.type));
+			
+			//List<ALocalDefinition> locals = new Vector<ALocalDefinition>();
+			
+			for (ILexIdentifierToken id : $identifierList.ids)
+			{
+				CmlLexNameToken idName = new CmlLexNameToken("", id);
+				ALocalDefinition def = AstFactory.newALocalDefinition(loc, idName, NameScope.LOCAL, $type.type);
+				//locals.add(def);
+				PParametrisation param = null;
+				
+				if ($PMODE==null || $PMODE.getText().equals("val")) 
+				{
+					param = new AValParametrisation();
+				} else if ($PMODE.getText().equals("res")) 
+				{
+					param = new AResParametrisation();
+				} else if ($PMODE.getText().equals("vres")) 
+				{
+					param = new AVresParametrisation();
+				} else 
+				{
+                // FIXME --- log a never-happens
+				}
+				param.setDeclaration(def);
+				param.setLocation(ploc);
+				params.add(param);
+			}
+			
+			
+            //$param.setDeclaration(locals);//new ATypeSingleDeclaration(loc, NameScope.GLOBAL, $identifierList.ids, $type.type));
         }
     ;
 
 replicationDeclarationList returns[List<PSingleDeclaration> rdecls]
 @init { $rdecls = new ArrayList<PSingleDeclaration>(); }
-    : item=replicationDeclaration { $rdecls.add($item.rdecl); } ( ',' item=replicationDeclaration { $rdecls.add($item.rdecl); } )*
+    : item=replicationDeclaration { $rdecls.addAll($item.rdecls); } ( ',' item=replicationDeclaration { $rdecls.addAll($item.rdecls); } )*
     ;
 
-replicationDeclaration returns[PSingleDeclaration rdecl]
+replicationDeclaration returns[List<PSingleDeclaration> rdecls]
+@init { $rdecls = new ArrayList<PSingleDeclaration>(); }
     : identifierList ( ':' type | 'in' 'set' expression )
         {
+			ILexLocation loc = extractLexLocation($identifierList.stop);
+			$rdecls.addAll(CmlAstFactory.generateSingleTypeDeclerations(loc,$identifierList.ids,$type.type,$expression.exp));
+			/*ILexLocation loc = extractLexLocation($identifierList.stop);
             if ($type.type != null)
-                $rdecl = new ATypeSingleDeclaration(extractLexLocation($identifierList.stop), NameScope.GLOBAL, $identifierList.ids, $type.type);
+			{
+				for(ILexIdentifierToken id: $identifierList.ids)
+				{
+					$rdecls.add(new ATypeSingleDeclaration(loc, NameScope.GLOBAL, id, $type.type));
+				}
+			}
             else
-                $rdecl = new AExpressionSingleDeclaration(extractLexLocation($identifierList.stop), NameScope.GLOBAL, $identifierList.ids, $expression.exp);
+			{
+                $rdecls.add(new AExpressionSingleDeclaration(loc, NameScope.GLOBAL, $identifierList.ids, $expression.exp));
+			}*/
         }
     ;
 
 seqReplicationDeclarationList returns[List<PSingleDeclaration> rdecls]
 @init { $rdecls = new ArrayList<PSingleDeclaration>(); }
-    : item=seqReplicationDeclaration { $rdecls.add($item.rdecl); } ( ',' item=seqReplicationDeclaration { $rdecls.add($item.rdecl); } )*
+    : item=seqReplicationDeclaration { $rdecls.addAll($item.rdecls); } ( ',' item=seqReplicationDeclaration { $rdecls.addAll($item.rdecls); } )*
     ;
 
-seqReplicationDeclaration returns[PSingleDeclaration rdecl]
+seqReplicationDeclaration returns[List<PSingleDeclaration> rdecls]
+@init { $rdecls = new ArrayList<PSingleDeclaration>(); }
     : identifierList ( ':' type | 'in' 'seq' expression )
         {
-            if ($type.type != null)
-                $rdecl = new ATypeSingleDeclaration(extractLexLocation($identifierList.stop), NameScope.GLOBAL, $identifierList.ids, $type.type);
+			ILexLocation loc = extractLexLocation($identifierList.stop);
+			$rdecls.addAll(CmlAstFactory.generateSingleTypeDeclerations(loc,$identifierList.ids,$type.type,$expression.exp));
+          /*  if ($type.type != null)
+                $rdecls = new ATypeSingleDeclaration(extractLexLocation($identifierList.stop), NameScope.GLOBAL, $identifierList.ids, $type.type);
             else
-                $rdecl = new AExpressionSingleDeclaration(extractLexLocation($identifierList.stop), NameScope.GLOBAL, $identifierList.ids, $expression.exp);
+                $rdecls = new AExpressionSingleDeclaration(extractLexLocation($identifierList.stop), NameScope.GLOBAL, $identifierList.ids, $expression.exp);
+				*/
         }
     ;
 
@@ -866,7 +894,7 @@ renamePair returns[ARenamePair pair]
             List<PExp> fexprs = new ArrayList<PExp>();
             if ($fexp.exp != null)
                 fexprs.add($fexp.exp);
-            ANameChannelExp fromExp = new ANameChannelExp(floc, new LexNameToken("", $fid.getText(), floc), fexprs);
+            ANameChannelExp fromExp = new ANameChannelExp(floc, new CmlLexNameToken("", $fid.getText(), floc), fexprs);
             if ($fexp.exp != null)
                 fromExp.setLocation(extractLexLocation($fid,$fexp.stop));
 
@@ -874,7 +902,7 @@ renamePair returns[ARenamePair pair]
             List<PExp> texprs = new ArrayList<PExp>();
             if ($texp.exp != null)
                 texprs.add($texp.exp);
-            ANameChannelExp toExp = new ANameChannelExp(tloc, new LexNameToken("", $tid.getText(), tloc), texprs);
+            ANameChannelExp toExp = new ANameChannelExp(tloc, new CmlLexNameToken("", $tid.getText(), tloc), texprs);
             if ($texp.exp != null)
                 toExp.setLocation(extractLexLocation($tid,$texp.stop));
 
@@ -884,7 +912,13 @@ renamePair returns[ARenamePair pair]
 
 actionParagraphOptList returns[List<PDefinition> defs]
 @init { $defs = new ArrayList<PDefinition>(); }
-    : ( actionParagraph { $defs.addAll($actionParagraph.defs); } )*
+    : ( actionParagraph 
+            {
+                if ($actionParagraph.defs != null) {
+                    $defs.addAll($actionParagraph.defs); 
+                }
+            }
+        )*
     ;
 
 actionParagraph returns[List<? extends PDefinition> defs]
@@ -898,12 +932,17 @@ actionParagraph returns[List<? extends PDefinition> defs]
     ;
 
 actionDefs returns[AActionsDefinition defs]
-@after { $defs.setLocation(extractLexLocation($start, $stop)); }
+@after {
+    if ($defs != null)
+        $defs.setLocation(extractLexLocation($start, $stop));
+}
     : 'actions' actionDefOptList
         {
-            $defs = new AActionsDefinition();
-            $defs.setName(new LexNameToken("", "Actions", extractLexLocation($start)));
-            $defs.setActions($actionDefOptList.defs);
+            if ($actionDefOptList.defs.size()>0) {
+                $defs = new AActionsDefinition();
+                $defs.setName(new CmlLexNameToken("", "Actions", extractLexLocation($start)));
+                $defs.setActions($actionDefOptList.defs);
+            }
         }
     ;
 
@@ -917,7 +956,7 @@ actionDef returns[AActionDefinition def]
     : IDENTIFIER '=' (parametrisationList '@')? action
         {
             AActionDefinition adef = new AActionDefinition();
-            adef.setName(new LexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER)));
+            adef.setName(new CmlLexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER)));
             adef.setAction($action.action);
             adef.setDeclarations($parametrisationList.params);
             $def = adef;
@@ -1240,7 +1279,6 @@ specOrGuardedAction returns[PAction action]
             {
                 $action = stm2action(AstFactory.newASpecificationStm(null,
 				$frameSpecList.frameSpecs, $pre.exp, $post.exp,null));
-				
             }
         | guard=expression ']' '&' guarded=action9
             {
@@ -1262,7 +1300,7 @@ leadingIdAction returns[PAction action]
     : id=IDENTIFIER
         // bare action call
         {
-            LexNameToken name = new LexNameToken("", $id.getText(), extractLexLocation($start));
+            CmlLexNameToken name = new CmlLexNameToken("", $id.getText(), extractLexLocation($start));
             $action = new AReferenceAction(null, name, new ArrayList<PExp>());
         }
         ( renamingExpr
@@ -1294,7 +1332,7 @@ leadingIdAction returns[PAction action]
                         while (rIter.hasPrevious()) {
                             CommonToken dotId = (CommonToken)rIter.previous();
                             ILexLocation dotLoc = extractLexLocation(dotId);
-                            LexNameToken dotName = new LexNameToken("", dotId.getText(), dotLoc);
+                            CmlLexNameToken dotName = new CmlLexNameToken("", dotId.getText(), dotLoc);
                             comms.add(0, new ASignalCommunicationParameter(dotLoc, new AVariableExp(dotLoc, dotName, dotName.getName())));
                         }
                     }
@@ -1322,15 +1360,19 @@ leadingIdAction returns[PAction action]
                                 throw new RecognitionException(input);
                             }
 
+							List<LexIdentifierToken> idList = new ArrayList<LexIdentifierToken>();
+                                
                             // need to merge the first identifier and
                             // any dotted identifiers into a name
                             String module = "";
                             CommonToken dotId = $id;
                             if ($ids != null && $ids.size() > 0) {
                                 StringBuilder sb = new StringBuilder($id.getText());
+								idList.add(new LexIdentifierToken($id.getText(),false,extractLexLocation($id)));
                                 ListIterator<Object> iter = $ids.listIterator();
                                 while (iter.hasNext()) {
                                     dotId = (CommonToken)iter.next();
+									idList.add(new LexIdentifierToken(dotId.getText(),false,extractLexLocation(dotId)));
                                     if (iter.hasNext()) {
                                         sb.append(".");
                                         sb.append(dotId.getText());
@@ -1338,19 +1380,42 @@ leadingIdAction returns[PAction action]
                                 }
                                 module = sb.toString();
                             }
-                            LexNameToken name = new LexNameToken(module, dotId.getText(), extractLexLocation($id,dotId));
+							
+							if(!idList.isEmpty())
+							{
+								//we dont want the op name in here
+								idList = idList.subList(0,idList.size()-1);
+							}
+                            CmlLexNameToken name = new CmlLexNameToken(module, dotId.getText(), extractLexLocation($id,dotId));
 
                             // grab the AApplyExp directly
                             AApplyExp apply = (AApplyExp)selectors.get(0);
                             
                             //FIXME this is the hacked version of call with dots in the module. We should properly use CallObject and place an unresolved state designator with the path instead
-                            $action = stm2action(AstFactory.newACallStm(name, apply.getArgs())); 
-                        }
+                            //$action = stm2action(AstFactory.newACallStm(name, apply.getArgs())); 
+							
+							if($ids== null || $ids.size()==0)
+							{
+								$action = stm2action(AstFactory.newACallStm(name, apply.getArgs())); 
+							}else
+							{
+								//we have an unresolved path
+								PExp path = new AUnresolvedPathExp(extractLexLocation($id,dotId),idList);
+								//the object designator the therefore also unresolved
+								PObjectDesignator designator = new AUnresolvedObjectDesignator(extractLexLocation($id,dotId),path);
+								
+								$action = stm2action(AstFactory.newACallObjectStm(designator,name.getIdentifier(),apply.getArgs()));
+							}
+                        }else
+						{
+							//	This is from having something like 'x.a' as a statement on its own --- this cannot be a AReferenceAction as actions cannot be referenced with dots, and it cannot be a operation call as it is missing () at the end (the selectorOptList was empty) --- so this is a Parse Error -jwc/29Oct2013
+							//FIXME throw new RecognitionException(input);
+						}
                     }
                 | ':='
                     // At this point we know that we have an assignableExpression to the left, so assemble that here
                     {
-                        AVariableExp firstIdExp = new AVariableExp(extractLexLocation($id), new LexNameToken("", $id.getText(), extractLexLocation($id)), $id.getText());
+                        AVariableExp firstIdExp = new AVariableExp(extractLexLocation($id), new CmlLexNameToken("", $id.getText(), extractLexLocation($id)), $id.getText());
                         List<PExp> selectors = $selectorOptList.selectors;
 
                         if ($ids != null && $ids.size() > 0) {
@@ -1388,25 +1453,24 @@ leadingIdAction returns[PAction action]
 
 prefixStatement returns[PAction action]
 @after { $action.setLocation(extractLexLocation($start, $stop)); }
-    : letT='let' localDefinitionList 'in' body=action9
+    : 'let' localDefinitionList 'in' body=action9
         {
-            $action = stm2action(AstFactory.newALetStm(extractLexLocation($letT,$body.stop), $localDefinitionList.defs, action2stm($body.action)));
-             
+            $action = stm2action(AstFactory.newALetStm(extractLexLocation($start,$body.stop), $localDefinitionList.defs, action2stm($body.action)));
         }
     | ('if' expression 'then')=> 'if' test=expression 'then' th=action9
         ( ('elseif')=> elseIfStmtOptList )
         ( ('else')=> 'else' el=action9)?
         // need the ()=> to match elseif and else clauses greedily
         {
-            $action = stm2action(new AIfStm(null, $test.exp, action2stm($th.action), $elseIfStmtOptList.elseifs, action2stm($el.action)));
+            $action = stm2action(new AIfStm(null, $test.exp, action2stm($th.action), $elseIfStmtOptList.elseifs, ($el.action!=null?action2stm($el.action):null)));
         }
-    | ifT='if' nonDetStmtAltList endT='end'
+    | 'if' nonDetStmtAltList endT='end'
         {
-            $action = stm2action(new AIfNonDeterministicStm(extractLexLocation($ifT,$endT), $nonDetStmtAltList.alts));
+            $action = stm2action(new AIfNonDeterministicStm(extractLexLocation($start,$endT), $nonDetStmtAltList.alts));
         }
-    | doT='do' nonDetStmtAltList endT='end'
+    | 'do' nonDetStmtAltList endT='end'
         {
-            $action = stm2action(new ADoNonDeterministicStm(extractLexLocation($doT,$endT), $nonDetStmtAltList.alts));
+            $action = stm2action(new ADoNonDeterministicStm(extractLexLocation($start,$endT), $nonDetStmtAltList.alts));
         }
     | 'cases' expression ':' caseStmtAltList (',' 'others' '->' action)? 'end'
         {
@@ -1416,9 +1480,9 @@ prefixStatement returns[PAction action]
         {
             $action = $forStatement.action;
         }
-    | whileT='while' expression 'do' body=action9
+    | 'while' expression 'do' body=action9
         {
-            $action = stm2action(AstFactory.newAWhileStm(extractLexLocation($whileT,$body.stop), $expression.exp, action2stm($body.action)));
+            $action = stm2action(AstFactory.newAWhileStm(extractLexLocation($start,$body.stop), $expression.exp, action2stm($body.action)));
         }
     ;
 
@@ -1433,16 +1497,16 @@ elseIfStmt returns[AElseIfStm elseif]
 forStatement returns[PAction action]
 options { k=3; } // k=3 is sufficient to disambiguate these (longest: for ID =)
 @after { $action.setLocation(extractLexLocation($start, $stop)); }
-    : forT='for' IDENTIFIER '=' start=expression 'to' end=expression ( 'by' step=expression )? 'do' body=action9
+    : 'for' IDENTIFIER '=' start=expression 'to' end=expression ( 'by' step=expression )? 'do' body=action9
         {
-            LexNameToken name = new LexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER));
-            $action = stm2action(AstFactory.newAForIndexStm(extractLexLocation($forT,$body.stop), name, $start.exp, $end.exp, $step.exp, action2stm($body.action)));
+            CmlLexNameToken name = new CmlLexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER));
+            $action = stm2action(AstFactory.newAForIndexStm(extractLexLocation($start,$body.stop), name, $start.exp, $end.exp, $step.exp, action2stm($body.action)));
         }
-    | forT='for' 'all' bindablePattern 'in' 'set' expression 'do' body=action9
+    | 'for' 'all' bindablePattern 'in' 'set' expression 'do' body=action9
         {
-            $action = stm2action(AstFactory.newAForAllStm(extractLexLocation($forT,$body.stop), $bindablePattern.pattern, $expression.exp, action2stm($body.action)));
+            $action = stm2action(AstFactory.newAForAllStm(extractLexLocation($start,$body.stop), $bindablePattern.pattern, $expression.exp, action2stm($body.action)));
         }
-    | forT='for' bindablePattern (':' type)? 'in' expression 'do' body=action9
+    | 'for' bindablePattern (':' type)? 'in' expression 'do' body=action9
         {
             ADefPatternBind patternBind = new ADefPatternBind();
             ILexLocation pbloc = $bindablePattern.pattern.getLocation();
@@ -1453,7 +1517,7 @@ options { k=3; } // k=3 is sufficient to disambiguate these (longest: for ID =)
                 patternBind.setPattern($bindablePattern.pattern);
             }
             patternBind.setLocation(pbloc); //depends on the if
-            $action = stm2action(AstFactory.newAForPatternBindStm(extractLexLocation($forT,$body.stop), patternBind,false ,$expression.exp, action2stm($body.action)));
+            $action = stm2action(AstFactory.newAForPatternBindStm(extractLexLocation($start,$body.stop), patternBind,false ,$expression.exp, action2stm($body.action)));
         }
     ;
 
@@ -1464,40 +1528,40 @@ actionbase returns[PAction action]
     | 'Chaos'           { $action = new AChaosAction(); }
     | 'Div'             { $action = new ADivAction(); }
     | 'Wait' expression { $action = new AWaitAction(null, $expression.exp); }
-    | ('return' expression)=>retT='return' expression
+    | ('return' expression)=>'return' expression
         {
-            $action = stm2action(AstFactory.newAReturnStm(extractLexLocation($retT,$expression.stop),$expression.exp));
+            $action = stm2action(AstFactory.newAReturnStm(extractLexLocation($start,$expression.stop),$expression.exp));
         }
     | 'return'
         {
-            $action = stm2action(AstFactory.newAReturnStm(extractLexLocation($retT)));
+            $action = stm2action(AstFactory.newAReturnStm(extractLexLocation($start)));
         }
-    | atomicT='atomic' '(' assignmentStatementList rbT=')'
+    | 'atomic' '(' assignmentStatementList rbT=')'
         {
-            $action = stm2action(AstFactory.newAAtomicStm(extractLexLocation($atomicT,$rbT), $assignmentStatementList.statements));
+            $action = stm2action(AstFactory.newAAtomicStm(extractLexLocation($start,$rbT), $assignmentStatementList.statements));
         }
-    | ( '(' 'dcl')=> lpT='(' 'dcl' assignmentDefinitionList '@' action rpT=')'
+    | ( '(' 'dcl')=> '(' 'dcl' assignmentDefinitionList '@' action rpT=')'
         {
             ILexLocation dloc = extractLexLocation($assignmentDefinitionList.start, $assignmentDefinitionList.stop);
             //ADeclareStatementAction dcls = new ADeclareStatementAction(dloc, $assignmentDefinitionList.defs);
             
-            ABlockSimpleBlockStm block = AstFactory.newABlockSimpleBlockStm(extractLexLocation($lpT,$rpT), $assignmentDefinitionList.defs);
+            ABlockSimpleBlockStm block = AstFactory.newABlockSimpleBlockStm(extractLexLocation($start,$rpT), $assignmentDefinitionList.defs);
             block.getStatements().add(action2stm($action.action));
             $action = stm2action(block);
             //$action = new ABlockStatementAction(null, dcls, $action.action);
         }
-    | ('(' parametrisationList '@')=> pl='(' parametrisationList '@' action pr=')' ( '(' expressionList ')' )?
+    | ('(' parametrisationList '@')=> '(' parametrisationList '@' action pr=')' ( '(' expressionList ')' )?
         {
             $action = new AParametrisedAction(null, $parametrisationList.params, $action.action);
             if ($expressionList.exps!=null) {
-                $action.setLocation(extractLexLocation($pl, $pr));
+                $action.setLocation(extractLexLocation($start, $pr));
                 $action = new AParametrisedInstantiatedAction(null, (AParametrisedAction)$action, $expressionList.exps);
             }
         }
-    | lpT='(' action rpT=')' renamingExpr?
+    | '(' action rpT=')' renamingExpr?
         {
             // FIXME --- maybe add renaming expr here?
-             ABlockSimpleBlockStm block = AstFactory.newABlockSimpleBlockStm(extractLexLocation($lpT,$rpT), new ArrayList<AAssignmentDefinition>());
+             ABlockSimpleBlockStm block = AstFactory.newABlockSimpleBlockStm(extractLexLocation($start,$rpT), new ArrayList<AAssignmentDefinition>());
             block.getStatements().add(action2stm($action.action));
             $action = stm2action( block);
         }
@@ -1533,7 +1597,7 @@ communication returns[PCommunicationParameter comm]
         ( id=IDENTIFIER                 
             {
                 ILexLocation loc = extractLexLocation($id);
-                LexNameToken name = new LexNameToken("", $id.getText(), loc);
+                CmlLexNameToken name = new CmlLexNameToken("", $id.getText(), loc);
                 $comm.setExpression(new AVariableExp(loc, name, $id.getText()));
             }
         | '(' expression ')'            { $comm.setExpression($expression.exp); }
@@ -1557,11 +1621,8 @@ assignmentStatement returns[AAssignmentStm statement]
 @after { $statement.setLocation(extractLexLocation($start, $stop)); }
     : assignableExpression ':=' expression
         {
-        
-         AUnresolvedStateDesignator designator = new AUnresolvedStateDesignator($assignableExpression.exp.getLocation(),$assignableExpression.exp);
-                            $statement =AstFactory.newAAssignmentStm(extractLexLocation($expression.start,$expression.stop), designator, $expression.exp);
-        
-        
+            AUnresolvedStateDesignator designator = new AUnresolvedStateDesignator($assignableExpression.exp.getLocation(),$assignableExpression.exp);
+            $statement=AstFactory.newAAssignmentStm(extractLexLocation($expression.start,$expression.stop), designator, $expression.exp);
         }
     ;
 
@@ -1570,9 +1631,9 @@ assignableExpression returns[PExp exp]
         {
             ILexLocation loc = extractLexLocation($t);
             if ($IDENTIFIER != null)
-                $exp = new AVariableExp(loc, new LexNameToken("", $t.getText(), loc), $t.getText());
+                $exp = new AVariableExp(loc, new CmlLexNameToken("", $t.getText(), loc), $t.getText());
             else
-                $exp = new ASelfExp(loc, new LexNameToken("", $t.getText(), loc));
+                $exp = new ASelfExp(loc, new CmlLexNameToken("", $t.getText(), loc));
 
             $exp = selectorListAssignableBuilder($exp,$selectorOptList.selectors);
         }
@@ -1605,24 +1666,16 @@ caseStmtAltList returns[List<ACaseAlternativeStm> alts]
 caseStmtAlt returns[List<ACaseAlternativeStm> alts]
 @init { $alts = new ArrayList<ACaseAlternativeStm>(); }
 @after { 
-
-	for(ACaseAlternativeStm alt : $alts)
-	{
+	for(ACaseAlternativeStm alt : $alts) {
 		alt.setLocation(extractLexLocation($start, $stop));
 	} 
-	
-	}
+}
     : patternList '->' action
-{
-           
-            
-            
-            for (PPattern p : $patternList.patterns)
-			{
+        {
+            for (PPattern p : $patternList.patterns) {
 				p.getLocation().executable(true);
 				$alts.add(AstFactory.newACaseAlternativeStm(p.clone(), action2stm(($action.action).clone())));
 			}
-            
         }
     ;
 
@@ -1672,7 +1725,7 @@ channelDefs returns[AChannelsDefinition defs]
     : 'channels' channelDefOptList
         {
             $defs = new AChannelsDefinition();//location, NameScope.GLOBAL, false, access, null/* Pass */, chanNameDecls);
-            $defs.setName(new LexNameToken("", "Channels", extractLexLocation($start)));
+            $defs.setName(new CmlLexNameToken("", "Channels", extractLexLocation($start)));
             $defs.setNameScope(NameScope.GLOBAL);
             $defs.setUsed(false);
             $defs.setAccess(getDefaultAccessSpecifier(true, false, extractLexLocation($channelDefs.start)));
@@ -1693,24 +1746,15 @@ channelDef returns[List<AChannelDefinition> def]
                 List<ILexIdentifierToken> idList = new ArrayList<ILexIdentifierToken>();
                 idList.add(id);
                 ILexLocation loc = id.getLocation();
-                //AChannelType chanType = new AChannelType(loc, true);
-                //if ($type.type != null) {
-                //    loc = extractLexLocation(loc, extractLexLocation($type.stop));
-                //    chanType.setLocation(extractLexLocation($type.start,$type.stop));
-                //    chanType.setType($type.type.clone());
-                //}    
-                //ATypeSingleDeclaration typeDecl = new ATypeSingleDeclaration(loc, NameScope.GLOBAL, idList, $type.type.clone());
                 
                 AChannelDefinition chanDecl = new AChannelDefinition();
-                chanDecl.setName(new LexNameToken("", id)); // this is ok, as each identifier in the identifierList gets its own ACNDef
+                chanDecl.setName(new CmlLexNameToken("", id)); // this is ok, as each identifier in the identifierList gets its own ACNDef
                 chanDecl.setNameScope(NameScope.GLOBAL);
-                chanDecl.setUsed(false);            
-              //  chanDecl.setSingleType(typeDecl);
-				if ($type.type != null) 
-				{
+                chanDecl.setUsed(false);  
+				chanDecl.setLocation(id.getLocation());  
+				if ($type.type != null) {
 					chanDecl.setType($type.type.clone());
-				}else
-				{
+				} else {
 					chanDecl.setType(AstFactory.newAUnknownType(loc));
 				}
                 $def.add(chanDecl);
@@ -1723,7 +1767,7 @@ chansetDefs returns[AChansetsDefinition defs]
     : 'chansets' chansetDefOptList
         {
             $defs = new AChansetsDefinition();
-            $defs.setName(new LexNameToken("", "Chansets", extractLexLocation($start)));
+            $defs.setName(new CmlLexNameToken("", "Chansets", extractLexLocation($start)));
             $defs.setNameScope(NameScope.GLOBAL);
             $defs.setUsed(false);
             $defs.setAccess(getDefaultAccessSpecifier(true, false, extractLexLocation($chansetDefs.start)));
@@ -1743,6 +1787,8 @@ chansetDef returns [AChansetDefinition def]
             $def = new AChansetDefinition();
             $def.setIdentifier(new LexIdentifierToken($IDENTIFIER.getText(), false, extractLexLocation($IDENTIFIER)));
             $def.setChansetExpression($varsetExpr.vexp);
+			$def.setName(new CmlLexNameToken("", $def.getIdentifier()));
+			$def.setLocation(extractLexLocation($IDENTIFIER));
         }
     ;
 
@@ -1765,7 +1811,7 @@ varsetExprTailOptList returns[List<SVOpVarsetExpression> vexps]
             {
                 AUnionVOpVarsetExpression vexp = new AUnionVOpVarsetExpression();
                 vexp.setLocation(extractLexLocation(extractLexLocation($varsetExprTailOptList.start), extractLexLocation($varsetExpr0.stop)));
-                vexp.setOp(new LexNameToken("", $op.getText(), extractLexLocation($op)));
+                vexp.setOp(new CmlLexNameToken("", $op.getText(), extractLexLocation($op)));
                 vexp.setRight($varsetExpr0.vexp);
                 $vexps.add(vexp);
             }
@@ -1791,7 +1837,7 @@ varsetExpr0TailOptList returns[List<SVOpVarsetExpression> vexps]
             {
                 AInterVOpVarsetExpression vexp = new AInterVOpVarsetExpression();
                 vexp.setLocation(extractLexLocation(extractLexLocation($varsetExpr0TailOptList.start), extractLexLocation($varsetExpr1.stop)));
-                vexp.setOp(new LexNameToken("", $op.getText(), extractLexLocation($op)));
+                vexp.setOp(new CmlLexNameToken("", $op.getText(), extractLexLocation($op)));
                 vexp.setRight($varsetExpr1.vexp);
                 $vexps.add(vexp);
             }
@@ -1817,7 +1863,7 @@ varsetExpr1TailOptList returns[List<SVOpVarsetExpression> vexps]
             {
                 ASubVOpVarsetExpression vexp = new ASubVOpVarsetExpression();
                 vexp.setLocation(extractLexLocation(extractLexLocation($varsetExpr1TailOptList.start), extractLexLocation($varsetExprbase.stop)));
-                vexp.setOp(new LexNameToken("", $op.getText(), extractLexLocation($op)));
+                vexp.setOp(new CmlLexNameToken("", $op.getText(), extractLexLocation($op)));
                 vexp.setRight($varsetExprbase.vexp);
                 $vexps.add(vexp);
             }
@@ -1879,7 +1925,7 @@ varsetNameList returns[List<ANameChannelExp> names]
 varsetName returns[ANameChannelExp name]
 @init {
     ILexLocation loc;
-    LexNameToken lex;
+    CmlLexNameToken lex;
     List<PExp> exprs = new ArrayList<PExp>();
 }
 @after { $name.setLocation(extractLexLocation($start,$stop)); }
@@ -1888,7 +1934,7 @@ varsetName returns[ANameChannelExp name]
             ( id=IDENTIFIER
                 {
                     loc = extractLexLocation($id);
-                    ILexNameToken lexname = new LexNameToken("", $id.getText(), loc, false, false);
+                    ILexNameToken lexname = new CmlLexNameToken("", $id.getText(), loc, false, false);
                     exprs.add(new AVariableExp(loc, lexname, lexname.getName()));
                 }
             | '(' expression ')'    { exprs.add($expression.exp); }
@@ -1909,7 +1955,7 @@ namesetDefs returns[ANamesetsDefinition defs]
     : 'namesets' namesetDefOptList
         {
             $defs = new ANamesetsDefinition();
-            $defs.setName(new LexNameToken("", "Namesets", extractLexLocation($start)));
+            $defs.setName(new CmlLexNameToken("", "Namesets", extractLexLocation($start)));
             $defs.setNameScope(NameScope.GLOBAL);
             $defs.setUsed(false);
             $defs.setAccess(getDefaultAccessSpecifier(true, false, extractLexLocation($namesetDefs.start)));
@@ -1938,16 +1984,24 @@ classDefinitionBlockOptList returns[List<PDefinition> defs]
     ;
 
 classDefinitionBlock returns[List<? extends PDefinition> defs]
+@init { $defs = null; }
     : typeDefs                  { $defs = $typeDefs.defs.getTypes(); }
     | valueDefs                 { $defs = $valueDefs.defs.getValueDefinitions(); }
-    | stateDefs                 { $defs = $stateDefs.defs.getStateDefs(); }
+    | stateDefs
+        {
+            if ($stateDefs.defs != null)
+                $defs = $stateDefs.defs.getStateDefs();
+            else
+                $defs = new ArrayList<AStateDefinition>();
+        }
     | functionDefs              { $defs = $functionDefs.defs.getFunctionDefinitions(); }
-    | operationDefs             { 
-    								//List<PDefinition> opsDef = new LinkedList<PDefinition>();
-    								//opsDef.add($operationDefs.defs);
-    								//$defs = opsDef;
-    							  $defs = $operationDefs.defs.getOperations(); 
-    							}
+    | operationDefs             
+        { 
+            if ($operationDefs.defs != null)
+                $defs = $operationDefs.defs.getOperations(); 
+            else
+                $defs = new ArrayList<SOperationDefinition>();
+        }
     | 'initial' operationDef
         {
             AInitialDefinition def = new AInitialDefinition();
@@ -1966,7 +2020,7 @@ valueDefs returns[AValuesDefinition defs]
             AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true, false, extractLexLocation($valueDefs.start));
             access.setStatic(new TStatic());
             $defs = new AValuesDefinition(null, NameScope.NAMES, false, access, null, $qualValueDefinitionList.defs);
-            $defs.setName(new LexNameToken("", "Values", extractLexLocation($start)));
+            $defs.setName(new CmlLexNameToken("", "Values", extractLexLocation($start)));
         }
     ;
 
@@ -2006,19 +2060,24 @@ valueDefinition returns[AValueDefinition def]
         {
             $def = AstFactory.newAValueDefinition($bindablePattern.pattern, NameScope.LOCAL, $type.type, $expression.exp);
             // This almost works, but causes a TC crash for some reason; related to bug #91 -jwc/3Oct2013
-            //$def.setName(new LexNameToken("", $bindablePattern.pattern.toString(), $bindablePattern.pattern.getLocation()));
+            //$def.setName(new CmlLexNameToken("", $bindablePattern.pattern.toString(), $bindablePattern.pattern.getLocation()));
         }
     ;
 
 stateDefs returns[AStateDefinition defs]
-@after { $defs.setLocation(extractLexLocation($start, $stop)); }
+@after {
+    if ($defs != null) {
+        $defs.setLocation(extractLexLocation($start, $stop));
+    } 
+}
     : 'state' instanceVariableDefinitionList?
         {
-            $defs = new AStateDefinition();
-            // This almost works, but causes a TC crash for some reason; related to bug #91 -jwc/3Oct2013
-            //$defs.setName(new LexNameToken("", "State", extractLexLocation($start)));
-            if ($instanceVariableDefinitionList.defs != null)
+            if ($instanceVariableDefinitionList.defs != null && $instanceVariableDefinitionList.defs.size()>0) {
+                $defs = new AStateDefinition();
+                // This almost works, but causes a TC crash for some reason; related to bug #91 -jwc/3Oct2013
+                //$defs.setName(new CmlLexNameToken("", "State", extractLexLocation($start)));
                 $defs.setStateDefs($instanceVariableDefinitionList.defs);
+            }
         }
     ;
 
@@ -2033,14 +2092,11 @@ instanceVariableDefinition returns[PDefinition def]
         {
             $def = $assignmentDefinition.def;
             $def.setAccess(extractQualifier($QUALIFIER));
-            
-            
-            AInstanceVariableDefinition ivd = AstFactory.newAInstanceVariableDefinition($def.getName(), $def.getType(),((AAssignmentDefinition) $def).getExpression());
-			$def.getType().parent(ivd);//the type of ivd is graph but we trough away the assignment
+            AInstanceVariableDefinition ivd = AstFactory.newAInstanceVariableDefinition($def.getName(), $def.getType(), ((AAssignmentDefinition) $def).getExpression());
+			$def.getName().parent(ivd);//the type of ivd is graph but we through away the assignment
+			$def.getType().parent(ivd);//the type of ivd is graph but we through away the assignment
 			ivd.setAccess($def.getAccess());
-			
 			$def = ivd;
-            
         }
     | invariantDefinition
         {
@@ -2057,7 +2113,7 @@ assignmentDefinition returns[AAssignmentDefinition def]
 @after { $def.setLocation(extractLexLocation($start, $stop)); }
     : IDENTIFIER ':' type ( ( det=':=' | nondet='in' ) expression )?
         {
-			LexNameToken name = new LexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER));
+			CmlLexNameToken name = new CmlLexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER));
 			
 			PExp exp = null;
 			
@@ -2071,7 +2127,7 @@ assignmentDefinition returns[AAssignmentDefinition def]
             		
 			$def = AstFactory.newAAssignmentDefinition(name, $type.type, exp);
             /*$def = new AAssignmentDefinition();//null, name, NameScope.GLOBAL, false, null, null, type, null, null, null);
-            $def.setName(new LexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER)));
+            $def.setName(new CmlLexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER)));
             $def.setNameScope(NameScope.STATE);
             $def.setType($type.type);
             $def.setPass(Pass.VALUES);
@@ -2107,14 +2163,14 @@ invariantDefinition returns[AClassInvariantDefinition def]
 functionDefs returns[AFunctionsDefinition defs]
 @after {
     $defs.setLocation(extractLexLocation($start, $stop));
-    LexNameToken name = new LexNameToken("", new LexIdentifierToken("", false, $defs.getLocation()));
+    CmlLexNameToken name = new CmlLexNameToken("", new LexIdentifierToken("", false, $defs.getLocation()));
     $defs.setName(name );
 }
     : 'functions' qualFunctionDefinitionOptList
         {
             AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true, false, extractLexLocation($functionDefs.start));
             $defs = new AFunctionsDefinition(null, NameScope.GLOBAL, false, access, null);
-            $defs.setName(new LexNameToken("", "Functions", extractLexLocation($start)));
+            $defs.setName(new CmlLexNameToken("", "Functions", extractLexLocation($start)));
             $defs.setFunctionDefinitions($qualFunctionDefinitionOptList.defs);
         }
     ;
@@ -2149,11 +2205,11 @@ functionDefinition returns[PDefinition def]
         f.setUsed(false);
         if (f.getPredef() != null) { 
             f.getPredef().setName(
-                                  new LexNameToken("", new LexIdentifierToken("pre_"+f.getName().getName(), false, f.getLocation())));
+                                  new CmlLexNameToken("", new LexIdentifierToken("pre_"+f.getName().getName(), false, f.getLocation())));
             // f.parent($def);
         }
         if (f.getPostdef() != null) { 
-            f.getPostdef().setName(new LexNameToken("", new LexIdentifierToken("post_"+f.getName().getName(), false, f.getLocation())));
+            f.getPostdef().setName(new CmlLexNameToken("", new LexIdentifierToken("post_"+f.getName().getName(), false, f.getLocation())));
             //f.parent($def);
         }
     }
@@ -2161,8 +2217,8 @@ functionDefinition returns[PDefinition def]
     if ($def instanceof AImplicitFunctionDefinition) {
         AImplicitFunctionDefinition f = (AImplicitFunctionDefinition)$def;
         f.setUsed(false);
-        if (f.getPredef() != null) f.getPredef().setName(new LexNameToken("", new LexIdentifierToken("pre_"+f.getName().getName(), false, f.getLocation())));
-        if (f.getPostdef() != null) f.getPostdef().setName(new LexNameToken("", new LexIdentifierToken("post_"+f.getName().getName(), false, f.getLocation())));
+        if (f.getPredef() != null) f.getPredef().setName(new CmlLexNameToken("", new LexIdentifierToken("pre_"+f.getName().getName(), false, f.getLocation())));
+        if (f.getPostdef() != null) f.getPostdef().setName(new CmlLexNameToken("", new LexIdentifierToken("post_"+f.getName().getName(), false, f.getLocation())));
     }
 }
     : IDENTIFIER (expl=explicitFunctionDefinitionTail | impl=implicitFunctionDefinitionTail)
@@ -2178,7 +2234,7 @@ functionDefinition returns[PDefinition def]
             } else {
                 $def = $impl.tail;
             }
-            $def.setName(new LexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER)));
+            $def.setName(new CmlLexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER)));
         }
     ;
 
@@ -2188,7 +2244,7 @@ explicitFunctionDefinitionTail returns[AExplicitFunctionDefinition tail]
             ILexLocation location = extractLexLocation($IDENTIFIER);
             $tail = new AExplicitFunctionDefinition();
 
-            $tail.setName(new LexNameToken("", $IDENTIFIER.getText(), location));
+            $tail.setName(new CmlLexNameToken("", $IDENTIFIER.getText(), location));
             $tail.setParamPatternList($parameterGroupList.pgroups);
             $tail.setBody($functionBody.exp);
             $tail.setIsUndefined(false);
@@ -2196,71 +2252,6 @@ explicitFunctionDefinitionTail returns[AExplicitFunctionDefinition tail]
             $tail.setPrecondition($pre.exp);
             $tail.setPostcondition($post.exp);
             $tail.setType($type.type);
-            /*
-            if ($pre.exp != null)
-                $tail.setPrecondition($pre.exp);
-            else
-                $tail.setPrecondition(AstFactory.newABooleanConstExp(new LexBooleanToken(true, extractLexLocation($functionBody.stop))));
-            if ($post.exp != null)
-                $tail.setPostcondition($post.exp);
-            else
-                $tail.setPostcondition(AstFactory.newABooleanConstExp(new LexBooleanToken(true, extractLexLocation($functionBody.stop))));
-
-            LexNameToken preDefName = new LexNameToken("", new LexIdentifierToken("pre_"+$tail.getName().getName(), false, location));
-            AFunctionType preDefType = AstFactory.newAFunctionType(location, true /* partial , ((AFunctionType)$type.type).getParameters(), AstFactory.newABooleanBasicType(location));
-        
-            
-            List<List<PPattern>> predefParamPatterns = new LinkedList<List<PPattern>>();
-            for(List<PPattern> list : $parameterGroupList.pgroups)
-            {
-                List<PPattern> l = new LinkedList<PPattern>();
-                for(PPattern p : list)
-                {
-                    l.add(p.clone());
-                }
-                predefParamPatterns.add(l);
-            }
-			
-            AExplicitFunctionDefinition predef = AstFactory.newAExplicitFunctionDefinition(
-                                                    preDefName, // name pre_fn
-                                                    NameScope.LOCAL, // LOCAL ofcause
-                                                    null,  // typeParams
-                                                    preDefType,  // the type of the precondition
-                                                    predefParamPatterns /* params ,
-                                                    $tail.getPrecondition() /* body ,
-                                                    null /* precond ,
-                                                    null /* postcond ,
-                                                    false /* type invariant ,
-                                                    null /* measure );
-			predef.parent(null);
-            $tail.setPredef(predef);
-
-            List<List<PPattern>> postdefParamPatterns = new LinkedList<List<PPattern>>();
-            for(List<PPattern> list : $parameterGroupList.pgroups)
-            {
-                List<PPattern> l = new LinkedList<PPattern>();
-                for(PPattern p : list)
-                    l.add(p.clone());
-                postdefParamPatterns.add(l);
-            }
-
-
-            LexNameToken postDefName = new LexNameToken("", new LexIdentifierToken("post_"+$tail.getName().getName(), false, location));
-            AFunctionType postDefType = AstFactory.newAFunctionType(location, true /* partial , ((AFunctionType)$type.type).getParameters(), AstFactory.newABooleanBasicType(location));
-            AExplicitFunctionDefinition postdef = AstFactory.newAExplicitFunctionDefinition(
-                                                    postDefName, // name pre_fn
-                                                    NameScope.LOCAL, // LOCAL ofcause
-                                                    null,  // typeParams
-                                                    postDefType,  // the type of the precondition
-                                                    postdefParamPatterns /* params ,
-                                                    $tail.getPostcondition() /* body ,
-                                                    null /* precond ,
-                                                    null /* postcond ,
-                                                    false /* type invariant ,
-                                                    null /* measure );
-			postdef.parent(null);
-            $tail.setPostdef(postdef);
-            */
             $tail.setIsCurried(false);
             $tail.setMeasure($name.name);
             $tail.setAccess(getPrivateAccessSpecifier(false, false, extractLexLocation($IDENTIFIER)));
@@ -2336,7 +2327,7 @@ implicitFunctionDefinitionTail returns[AImplicitFunctionDefinition tail]
             // set predef only if $pre.exp is present
             //AFunctionType prepostType = (AFunctionType)$tail.getType().clone();
             /*if ($pre.exp != null) {
-                ILexNameToken prename = new LexNameToken("", new LexIdentifierToken("pre_"+$tail.getName(), false, $pre.exp.getLocation()));
+                ILexNameToken prename = new CmlLexNameToken("", new LexIdentifierToken("pre_"+$tail.getName(), false, $pre.exp.getLocation()));
                 NameScope prescope = NameScope.LOCAL;
                 List<ILexNameToken> pretypeParams = new LinkedList<ILexNameToken>();
                 prepostType.setResult(new ABooleanBasicType($pre.exp.getLocation(), true));
@@ -2358,7 +2349,7 @@ implicitFunctionDefinitionTail returns[AImplicitFunctionDefinition tail]
             }
             */
             // set postdef
-            //ILexNameToken name = new LexNameToken("", new LexIdentifierToken("post_"+$tail.getName(), false, $post.exp.getLocation()));
+            //ILexNameToken name = new CmlLexNameToken("", new LexIdentifierToken("post_"+$tail.getName(), false, $post.exp.getLocation()));
             //NameScope scope = NameScope.LOCAL;
             //List<ILexNameToken> typeParams = null;
             //PType type = $tail.getType();
@@ -2414,7 +2405,7 @@ resultType returns[APatternTypePair rtype]
     : IDENTIFIER ':' type
         {
             ILexLocation loc = extractLexLocation($IDENTIFIER);
-            LexNameToken name = new LexNameToken("", $IDENTIFIER.getText(), loc, false, true); // ?? why is the last boolean true?
+            CmlLexNameToken name = new CmlLexNameToken("", $IDENTIFIER.getText(), loc, false, true); // ?? why is the last boolean true?
             $rtype = new APatternTypePair(false, new AIdentifierPattern(loc, null, true, name, false), $type.type);
         }
     ;
@@ -2427,18 +2418,22 @@ functionBody returns[PExp exp]
     ;
 
 operationDefs returns[AOperationsDefinition defs]
-@after { $defs.setLocation(extractLexLocation($start, $stop));
-         $defs.setName(new LexNameToken("", new LexIdentifierToken("", false, $defs.getLocation())));
-
-        }
+@after {
+    if ($defs != null) {
+        $defs.setLocation(extractLexLocation($start, $stop));
+        $defs.setName(new CmlLexNameToken("", new LexIdentifierToken("", false, $defs.getLocation())));
+    }
+}
     : 'operations' qualOperationDefOptList
         {
-            $defs = new AOperationsDefinition(); // FIXME
-            $defs.setName(new LexNameToken("", "Operations", extractLexLocation($start)));
-            $defs.setOperations($qualOperationDefOptList.defs);
-            $defs.setNameScope(NameScope.LOCAL);
-            $defs.setUsed(false);
-            $defs.setAccess(getDefaultAccessSpecifier(true, false, extractLexLocation($operationDefs.start)));
+            if ($qualOperationDefOptList.defs.size()>0) {
+                $defs = new AOperationsDefinition(); // FIXME
+                $defs.setName(new CmlLexNameToken("", "Operations", extractLexLocation($start)));
+                $defs.setOperations($qualOperationDefOptList.defs);
+                $defs.setNameScope(NameScope.LOCAL);
+                $defs.setUsed(false);
+                $defs.setAccess(getDefaultAccessSpecifier(true, false, extractLexLocation($operationDefs.start)));
+            }
         }
     ;
 
@@ -2464,109 +2459,58 @@ operationDef returns[SOperationDefinition def]
                 // FIXME --- check that the IDENTIFIERs match and
                 // throw a MismatchedTokenException (if that's the
                 // right exception)
-               // AExplicitOperationDefinition opdef = new AExplicitOperationDefinition();
-               // opdef.setName(new LexNameToken("", $id.getText(), extractLexLocation($id)));
-               // opdef.setType($opType.type);
-               // opdef.setParameterPatterns($parameterGroup.pgroup);
                 
                 AActionStm bodyWrapper = new AActionStm();
 				bodyWrapper.setAction($operationBody.body);
-				//opdef.setBody(wrapper);
-                                
-               // opdef.setPrecondition($pre.exp);
-               // opdef.setPostcondition($post.exp);
-               // opdef.setNameScope(NameScope.GLOBAL);
                
-                 AExplicitOperationDefinition opdef = AstFactory.newAExplicitOperationDefinition(new LexNameToken("", $id.getText(), extractLexLocation($id)), (AOperationType)$opType.type,
-				$parameterGroup.pgroup, $pre.exp, $post.exp, bodyWrapper);
+                AExplicitOperationDefinition opdef =
+                    AstFactory.newAExplicitOperationDefinition(
+                        new CmlLexNameToken("", $id.getText(), extractLexLocation($id)),
+                        (AOperationType)$opType.type, $parameterGroup.pgroup, $pre.exp, $post.exp, bodyWrapper);
                
                 opdef.setAccess(getDefaultAccessSpecifier(true, false, extractLexLocation($id)));
                 opdef.setIsConstructor(false);
-                
-                
-              
-                
-                
+
                 $def = opdef;
             }
         | '(' parameterTypeList? ')' resultTypeList? ('frame' frameSpecList )? ('pre' pre=expression)? ('post' post=expression)
             {
-            
-            
-             ILexLocation location = extractLexLocation($id);
-            ILexNameToken name=new LexNameToken("", $id.getText(), location);
-            List<APatternListTypePair> parameterPatterns= ($parameterTypeList.ptypes==null? new ArrayList<APatternListTypePair>():$parameterTypeList.ptypes);
-            /*
-            
-            */
-              //  AImplicitOperationDefinition opdef = new AImplicitOperationDefinition();
-              //  opdef.setName(new LexNameToken("", $id.getText(), extractLexLocation($id)));
-              //  opdef.setParameterPatterns($parameterTypeList.ptypes);
-               // opdef.setResult($resultTypeList.rtypes);
-               List<APatternTypePair> result = $resultTypeList.rtypes;
-              //  opdef.setExternals($frameSpecList.frameSpecs);
-              //  opdef.setPrecondition($pre.exp);
-              //  opdef.setPostcondition($post.exp);
-             //   opdef.setNameScope(NameScope.GLOBAL);
-            //    opdef.setAccess(getDefaultAccessSpecifier(true, false, extractLexLocation($id)));
-                
-                //
-                
-                // Fix: location, type
-		//opdef.setLocation(opdef.getName().getLocation().clone());
+                ILexLocation location = extractLexLocation($id);
+                ILexNameToken name=new CmlLexNameToken("", $id.getText(), location);                        
+                List<APatternListTypePair> parameterPatterns= ($parameterTypeList.ptypes==null? new ArrayList<APatternListTypePair>():$parameterTypeList.ptypes);
+                List<APatternTypePair> result = $resultTypeList.rtypes;
+        
+                List<PPattern> resultNames = new Vector<PPattern>();
+		        List<PType> resultTypes = new Vector<PType>();
 
-		List<PPattern> resultNames = new Vector<PPattern>();
-		List<PType> resultTypes = new Vector<PType>();
-
-		APatternTypePair resultPattern = null;
-
-		if(result!=null)
-		{
-			for (APatternTypePair plt : result)
-			{
-				resultNames.add(plt.getPattern().clone());
-				resultTypes.add(plt.getType().clone());
-			}
+		        APatternTypePair resultPattern = null;
+        
+                if (result!=null) {
+			        for (APatternTypePair plt : result) {
+				        resultNames.add(plt.getPattern().clone());
+				        resultTypes.add(plt.getType().clone());
+                    }
 		
-			if (resultNames.size() > 1)
-			{
-				resultPattern = AstFactory.newAPatternTypePair(AstFactory.newATuplePattern(resultNames.get(0).getLocation(), resultNames), AstFactory.newAProductType(resultNames.get(0).getLocation(), resultTypes));
-			} else if (!resultNames.isEmpty())
-			{
-				resultPattern = AstFactory.newAPatternTypePair(resultNames.get(0), resultTypes.get(0));
-			}
-		
-			//opdef.setResult(resultPattern);
-		}
+                    if (resultNames.size() > 1) {
+                        resultPattern = AstFactory.newAPatternTypePair(AstFactory.newATuplePattern(resultNames.get(0).getLocation(), resultNames), AstFactory.newAProductType(resultNames.get(0).getLocation(), resultTypes));
+                    } else if (!resultNames.isEmpty()) {
+                        resultPattern = AstFactory.newAPatternTypePair(resultNames.get(0), resultTypes.get(0));
+                    }
+                }
 
-		List<PType> ptypes = new Vector<PType>();
+                List<PType> ptypes = new Vector<PType>();
 
-		for (APatternListTypePair ptp : parameterPatterns)
-		{
-			ptypes.addAll(getTypeList(ptp));
-		}
+                for (APatternListTypePair ptp : parameterPatterns) {
+			        ptypes.addAll(getTypeList(ptp));
+		        }
 
-		AOperationType operationType = AstFactory.newAOperationType(location, ptypes, (result == null
-				 ? AstFactory.newAVoidType(location)
-				: resultPattern.getType()));
-		//opdef.setType(operationType);
-                
-                //
-            
-            
-           
-            						
-						//APatternTypePair resultPattern;
-						PStm body=null;
-						ASpecificationStm spec=AstFactory.newASpecificationStm(location,
-				$frameSpecList.frameSpecs, $pre.exp, $post.exp, null);
-            AImplicitOperationDefinition opdef = AstFactory.newAImplicitOperationDefinition(name, parameterPatterns, resultPattern, body, spec);
-            opdef.setType(operationType);
-             opdef.setAccess(getDefaultAccessSpecifier(true, false, extractLexLocation($id)));
-            
-            
-            
-                
+		        AOperationType operationType = AstFactory.newAOperationType(location, ptypes, (result == null ? AstFactory.newAVoidType(location) : resultPattern.getType()));
+
+                PStm body=null;
+                ASpecificationStm spec=AstFactory.newASpecificationStm(location, $frameSpecList.frameSpecs, $pre.exp, $post.exp, null);
+                AImplicitOperationDefinition opdef = AstFactory.newAImplicitOperationDefinition(name, parameterPatterns, resultPattern, body, spec);
+                opdef.setType(operationType);
+                opdef.setAccess(getDefaultAccessSpecifier(true, false, extractLexLocation($id)));
                 $def = opdef;
             }
         )
@@ -2582,26 +2526,21 @@ opType returns[PType type]
             List<PType> typeList = new ArrayList<PType>();
 			if (domType instanceof AProductType) {
 				AProductType apt = (AProductType)domType;
-				for(PType t : apt.getTypes()) typeList.add(t);
-			}else {
-				if (!(domType instanceof AVoidType))  
+				for (PType t : apt.getTypes()) {
+                    typeList.add(t);
+                }
+            } else {
+                if (!(domType instanceof AVoidType))  
                    typeList.add(domType);
              }
-             AOperationType opType = AstFactory.newAOperationType(loc, typeList, rngType);//new AOperationType(loc, false, null, typeList, rngType);
+            AOperationType opType = AstFactory.newAOperationType(loc, typeList, rngType);
             
             //the parameter types are graph so reset parent - because of product rewrite
-            for(PType t : opType.getParameters())
-            {
+            for (PType t : opType.getParameters()) {
             	t.parent(opType);
             }
             
             $type = opType;
-            
-            /*
-            AOperationType operationType = AstFactory.newAOperationType(opdef.getLocation(), ptypes, (opdef.getResult() == null
-				 ? AstFactory.newAVoidType(opdef.getName().getLocation())
-				: resultPattern.getType()));
-            */
         }
     ;
 
@@ -2626,8 +2565,7 @@ typeDefs returns[ATypesDefinition defs]
             $defs = new ATypesDefinition(loc, NameScope.LOCAL, false,
                                          getDefaultAccessSpecifier(true, false, loc),
                                          Pass.TYPES, typeDefList);
-           
-            $defs.setName(new LexNameToken("", "Types", loc));
+            $defs.setName(new CmlLexNameToken("", "Types", loc));
         }
     ;
 
@@ -2635,7 +2573,7 @@ typeDef returns[ATypeDefinition def]
 @after { $def.setLocation(extractLexLocation($start, $stop)); }
     : QUALIFIER? IDENTIFIER '=' type invariant?
         {
-            LexNameToken name = new LexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER));
+            CmlLexNameToken name = new CmlLexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER));
             ANamedInvariantType invType = AstFactory.newANamedInvariantType(name, $type.type);
             $def = AstFactory.newATypeDefinition(name,invType,$invariant.pattern,$invariant.exp);
             $def.setAccess(extractQualifier($QUALIFIER));
@@ -2643,7 +2581,7 @@ typeDef returns[ATypeDefinition def]
         }
     | QUALIFIER? IDENTIFIER '::' fieldOptList invariant?
         {
-            LexNameToken name = new LexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER));
+            CmlLexNameToken name = new CmlLexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER));
             ARecordInvariantType invType = AstFactory.newARecordInvariantType(name, $fieldOptList.fieldList);
             $def = AstFactory.newATypeDefinition(name,invType,$invariant.pattern,$invariant.exp);
             $def.setAccess(extractQualifier($QUALIFIER));
@@ -2718,19 +2656,19 @@ typebase returns[PType type]
         }
     | name
         {
-            LexNameToken tname = $name.name;
+            CmlLexNameToken tname = $name.name;
             ILexLocation loc = tname.getLocation();
             $type = new ANamedInvariantType(loc, false, null, false, false, null, tname,
                                             new AUnresolvedType(loc, false, new ArrayList<PDefinition>(), tname));
         }
-    | 'set' 'of' sub=typebase                   { $type = new ASetType(null, false, null, $sub.type, false, false); }
+    | 'set' 'of' sub=typebase                   { $type = AstFactory.newASetType(null,  $sub.type); }
     | 'seq' 'of' sub=typebase                   { $type = new ASeqSeqType(null, false, null, $sub.type, false); }
     | 'seq1' 'of' sub=typebase                  { $type = new ASeq1SeqType(null, false, null, $sub.type, false); }
     | 'map' from=type 'to' to=typebase      { $type = new AMapMapType(null, false, null, $from.type, $to.type, false); }
     | 'inmap' from=type 'to' to=typebase    { $type = new AInMapMapType(null, false, null, $from.type, $to.type, false); }
     | 'compose' IDENTIFIER 'of' fieldOptList 'end'
         {
-            LexNameToken name = new LexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER));
+            CmlLexNameToken name = new CmlLexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER));
             $type = new ARecordInvariantType(null, false, null, false, false, null, name, $fieldOptList.fieldList, false);
         }
     ;
@@ -2756,13 +2694,13 @@ field returns[AFieldField field]
     : type
         {
             ILexLocation loc = $type.type.getLocation();
-            LexNameToken name = new LexNameToken("", new LexIdentifierToken("",false,loc));
+            CmlLexNameToken name = new CmlLexNameToken("", new LexIdentifierToken("",false,loc));
             $field = new AFieldField(null, name, null, $type.type, false);
         }
     | IDENTIFIER ( ':' | eqAbs=':-' ) type
         {
             String idStr = $IDENTIFIER.getText();
-            LexNameToken name = new LexNameToken("", idStr, extractLexLocation($IDENTIFIER));
+            CmlLexNameToken name = new CmlLexNameToken("", idStr, extractLexLocation($IDENTIFIER));
             $field = new AFieldField(access, name, idStr, $type.type, (eqAbs!=null));
         }
     ;
@@ -2791,7 +2729,7 @@ patternIdentifier returns[PPattern pattern]
     : IDENTIFIER
         {
             ILexLocation loc = extractLexLocation($IDENTIFIER);
-            LexNameToken name = new LexNameToken("", $IDENTIFIER.getText(), loc, false, true); // ?? why is the last bool true?
+            CmlLexNameToken name = new CmlLexNameToken("", $IDENTIFIER.getText(), loc, false, true); // ?? why is the last bool true?
             $pattern = new AIdentifierPattern(loc, null, true, name, false);
         }
     | minus='-'
@@ -3329,17 +3267,20 @@ exprbase returns[PExp exp]
     | SELF
         {
             ILexLocation loc = extractLexLocation($SELF);
-            LexNameToken name = new LexNameToken("", $SELF.getText(), loc);
+            CmlLexNameToken name = new CmlLexNameToken("", $SELF.getText(), loc);
             $exp = new ASelfExp(loc, name);
         }
     | IDENTIFIER old='~'?
         {
-            boolean isOld = (old != null);
+            boolean isOld = ($old != null);
+            String origName = $IDENTIFIER.getText();
             ILexLocation loc = extractLexLocation($IDENTIFIER);
-            if (isOld)
+            if (isOld) {
                 loc = extractLexLocation(loc, extractLexLocation($old));
-            LexNameToken name = new LexNameToken("", $IDENTIFIER.getText(), loc, isOld, false);
-            $exp = new AVariableExp(loc, name, name.getName());
+                origName = origName + "~";
+            }
+            CmlLexNameToken name = new CmlLexNameToken("", $IDENTIFIER.getText(), loc, isOld, false);
+            $exp = new AVariableExp(loc, name, origName);
         }
     | symbolicLiteralExpr
         {
@@ -3388,7 +3329,7 @@ exprbase returns[PExp exp]
     | 'cases' cexp=expression ':' caseExprAltList ( ',' 'others' '->' oexp=expression )? 'end'
         {
             for (ACaseAlternative alt : $caseExprAltList.alts) {
-                alt.setCexp($cexp.exp);
+                alt.setCexp($cexp.exp.clone());
             }
             $exp = new ACasesExp(null, $cexp.exp, $caseExprAltList.alts, $oexp.exp);
         }
@@ -3602,12 +3543,12 @@ identifierList returns[List<LexIdentifierToken> ids]
         ( ',' item=IDENTIFIER { $ids.add(new LexIdentifierToken($item.getText(), false, extractLexLocation($item))); } )*
     ;
 
-nameList returns[List<LexNameToken> names]
-@init { $names = new ArrayList<LexNameToken>(); }
+nameList returns[List<CmlLexNameToken> names]
+@init { $names = new ArrayList<CmlLexNameToken>(); }
     : item=name { $names.add($item.name); } ( ',' item=name { $names.add($item.name); } )*
     ;
 
-name returns[LexNameToken name]
+name returns[CmlLexNameToken name]
     : (ids+=IDENTIFIER ('.'|'`'))* identifier=IDENTIFIER
         {
             // FIXME: not setting the filename field
@@ -3630,7 +3571,7 @@ name returns[LexNameToken name]
                 }
                 module.deleteCharAt(module.length() - 1);
             }
-            $name = new LexNameToken(module.toString(), $identifier.getText(), loc);
+            $name = new CmlLexNameToken(module.toString(), $identifier.getText(), loc);
         }
     ;
 

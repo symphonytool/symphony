@@ -51,7 +51,7 @@ public class BBinding implements Binding {
 		//result.append(head.toString());
 		LinkedList<SingleBind> bindList = new LinkedList<SingleBind>(); 
 		getSingleBindings(bindList, this);
-		for (Iterator iterator = bindList.iterator(); iterator.hasNext();) {
+		for (Iterator<SingleBind> iterator = bindList.iterator(); iterator.hasNext();) {
 			SingleBind singleBind = (SingleBind) iterator.next();
 			result.append(singleBind.toString());
 			if(iterator.hasNext()){
@@ -67,7 +67,7 @@ public class BBinding implements Binding {
 		StringBuilder result = new StringBuilder();
 		LinkedList<SingleBind> bindList = new LinkedList<SingleBind>(); 
 		getSingleBindings(bindList, this);
-		for (Iterator iterator = bindList.iterator(); iterator.hasNext();) {
+		for (Iterator<SingleBind> iterator = bindList.iterator(); iterator.hasNext();) {
 			result.append("BBinding("+this.procName+",");
 			SingleBind singleBind = (SingleBind) iterator.next();
 			result.append(singleBind.toFormula());
@@ -86,7 +86,7 @@ public class BBinding implements Binding {
 		StringBuilder result = new StringBuilder();
 		LinkedList<SingleBind> bindList = new LinkedList<SingleBind>(); 
 		getSingleBindings(bindList, this);
-		for (Iterator iterator = bindList.iterator(); iterator.hasNext();) {
+		for (Iterator<SingleBind> iterator = bindList.iterator(); iterator.hasNext();) {
 			result.append("BBinding(" + this.procName + ",");
 			SingleBind singleBind = (SingleBind) iterator.next();
 			result.append(singleBind.toFormulaWithUnderscore());
@@ -105,7 +105,7 @@ public class BBinding implements Binding {
 		StringBuilder result = new StringBuilder();
 		LinkedList<SingleBind> bindList = new LinkedList<SingleBind>(); 
 		getSingleBindings(bindList, this);
-		for (Iterator iterator = bindList.iterator(); iterator.hasNext();) {
+		for (Iterator<SingleBind> iterator = bindList.iterator(); iterator.hasNext();) {
 			result.append("BBinding("+this.procName+",");
 			SingleBind singleBind = (SingleBind) iterator.next();
 			result.append(singleBind.toFormulaWithState());
@@ -164,7 +164,7 @@ public class BBinding implements Binding {
 		
 		LinkedList<SingleBind> bindList = new LinkedList<SingleBind>(); 
 		getSingleBindings(bindList, this);
-		for (Iterator iterator = bindList.iterator(); iterator.hasNext();) {
+		for (Iterator<SingleBind> iterator = bindList.iterator(); iterator.hasNext();) {
 			SingleBind singleBind = (SingleBind) iterator.next();
 			result.append("fetch(\"" + singleBind.variableName + "\"," + this.toFormulaWithState() + ","+ singleBind.variableValue.toFormulaWithState() + ")\n");
 		}

@@ -33,8 +33,8 @@ public class CmlDefinitionCollector extends AbstractCmlDefinitionCollector
 	}
 
 	@Override
-	public List<PDefinition> caseAChannelDefinition(
-			AChannelDefinition node) throws AnalysisException
+	public List<PDefinition> caseAChannelDefinition(AChannelDefinition node)
+			throws AnalysisException
 	{
 		return addSelf(node);
 	}
@@ -52,7 +52,7 @@ public class CmlDefinitionCollector extends AbstractCmlDefinitionCollector
 	{
 		return addSelf(node);
 	}
-	
+
 	@Override
 	public List<PDefinition> caseAProcessDefinition(AProcessDefinition node)
 			throws AnalysisException

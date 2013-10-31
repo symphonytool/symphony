@@ -17,7 +17,7 @@ import org.overture.interpreter.scheduler.InitThread;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.definitions.AProcessDefinition;
-import eu.compassresearch.ast.lex.LexNameToken;
+import eu.compassresearch.ast.lex.CmlLexNameToken;
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
@@ -152,10 +152,12 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		{
 			setNewState(CmlInterpreterState.FAILED);
 			throw e;
-		} catch (Exception ex)
+		}
+		catch(InterruptedException ex){ex.printStackTrace();}
+		catch (Exception ex)
 		{
 			setNewState(CmlInterpreterState.FAILED);
-			throw new AnalysisException(ex);
+			throw ex;
 		}
 
 		// Finally we return the top process value
@@ -172,7 +174,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	{
 		if (defaultName != null && !defaultName.equals(""))
 		{
-			LexNameToken name = new LexNameToken("", getDefaultName(), null);
+			CmlLexNameToken name = new CmlLexNameToken("", getDefaultName(), null);
 			ProcessObjectValue pov = (ProcessObjectValue) globalContext.check(name);
 
 			if (pov == null)
@@ -492,10 +494,10 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	public static void main(String[] args) throws IOException,
 			CmlInterpreterException
 	{
-		File cml_example = new File(
+		//File cml_example = new File(
 		// "/home/akm/phd/runtime-COMPASS/simpleDLNA/SimpleDLNA.cml");
-		"src/test/resources/process/parallel-composition/alphabetised-parallelism2.cml");
-		// File cml_example = new File("/home/akm/phd/COMPASS-repo/Common/CaseStudies/Library/Library.cml");
+		//"src/test/resources/examples/IncubatorMonitor.cml");
+		File cml_example = new File("/home/akm/phd/COMPASS-repo/Common/PublicLiveCMLCaseStudies/RingBuffer/RingBuffer.cml");
 		runOnFile(cml_example);
 
 		// List<File> files = new LinkedList<File>();

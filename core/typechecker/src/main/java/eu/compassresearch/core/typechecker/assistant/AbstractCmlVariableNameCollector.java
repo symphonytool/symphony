@@ -10,17 +10,18 @@ import org.overture.ast.statements.AAltNonDeterministicStm;
 import org.overture.ast.statements.ADoNonDeterministicStm;
 import org.overture.ast.statements.AIfNonDeterministicStm;
 import org.overture.ast.statements.ANewStm;
+import org.overture.ast.statements.AUnresolvedObjectDesignator;
 import org.overture.ast.statements.AUnresolvedStateDesignator;
 import org.overture.typechecker.assistant.ITypeCheckerAssistantFactory;
 import org.overture.typechecker.utilities.VariableNameCollector;
 
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismReplicatedAction;
+import eu.compassresearch.ast.actions.ACallAction;
 import eu.compassresearch.ast.actions.AChannelRenamingAction;
 import eu.compassresearch.ast.actions.AChaosAction;
 import eu.compassresearch.ast.actions.ACommonInterleavingReplicatedAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
-import eu.compassresearch.ast.actions.ADeclarationInstantiatedAction;
 import eu.compassresearch.ast.actions.ADivAction;
 import eu.compassresearch.ast.actions.AEndDeadlineAction;
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
@@ -119,31 +120,10 @@ import eu.compassresearch.ast.process.AUntimedTimeoutProcess;
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.ATcpStreamSource;
-import eu.compassresearch.ast.types.AActionParagraphType;
-import eu.compassresearch.ast.types.AActionType;
-import eu.compassresearch.ast.types.ABindType;
-import eu.compassresearch.ast.types.AChannelType;
-import eu.compassresearch.ast.types.AChannelsParagraphType;
-import eu.compassresearch.ast.types.AChansetParagraphType;
-import eu.compassresearch.ast.types.AChansetType;
-import eu.compassresearch.ast.types.AErrorType;
-import eu.compassresearch.ast.types.AFunctionParagraphType;
-import eu.compassresearch.ast.types.AInitialParagraphType;
-import eu.compassresearch.ast.types.ANamesetType;
-import eu.compassresearch.ast.types.ANamesetsType;
-import eu.compassresearch.ast.types.AOperationParagraphType;
-import eu.compassresearch.ast.types.AParagraphType;
-import eu.compassresearch.ast.types.AProcessParagraphType;
 import eu.compassresearch.ast.types.AProcessType;
-import eu.compassresearch.ast.types.ASourceType;
-import eu.compassresearch.ast.types.AStateParagraphType;
-import eu.compassresearch.ast.types.AStatementType;
-import eu.compassresearch.ast.types.ATypeParagraphType;
-import eu.compassresearch.ast.types.AValueParagraphType;
-import eu.compassresearch.ast.types.AVarsetExpressionType;
 
-public abstract class AbstractCmlVariableNameCollector extends
-		VariableNameCollector implements ICMLAnswer<LexNameList>
+public class AbstractCmlVariableNameCollector extends VariableNameCollector
+		implements ICMLAnswer<LexNameList>
 {
 
 	/**
@@ -159,7 +139,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	@Override
 	public LexNameList caseFile(File node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -167,7 +147,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseInputStream(InputStream node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -175,7 +155,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAFileSource(AFileSource node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -183,7 +163,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseATcpStreamSource(ATcpStreamSource node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -191,7 +171,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAInputStreamSource(AInputStreamSource node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -199,7 +179,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseATypeSingleDeclaration(ATypeSingleDeclaration node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -207,7 +187,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAExpressionSingleDeclaration(
 			AExpressionSingleDeclaration node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -215,7 +195,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAActionDefinition(AActionDefinition node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -223,7 +203,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAChansetDefinition(AChansetDefinition node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -231,7 +211,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseANamesetDefinition(ANamesetDefinition node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -239,7 +219,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAProcessDefinition(AProcessDefinition node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -247,7 +227,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAChannelDefinition(AChannelDefinition node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -255,7 +235,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAChannelsDefinition(AChannelsDefinition node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -263,7 +243,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAChansetsDefinition(AChansetsDefinition node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -271,7 +251,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseANamesetsDefinition(ANamesetsDefinition node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -279,7 +259,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAActionsDefinition(AActionsDefinition node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -287,7 +267,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseATypesDefinition(ATypesDefinition node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -295,7 +275,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAOperationsDefinition(AOperationsDefinition node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -303,7 +283,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAFunctionsDefinition(AFunctionsDefinition node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -311,7 +291,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAValuesDefinition(AValuesDefinition node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -319,7 +299,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAInitialDefinition(AInitialDefinition node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -327,7 +307,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAActionClassDefinition(AActionClassDefinition node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -335,7 +315,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseABracketedExp(ABracketedExp node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -343,7 +323,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseATupleSelectExp(ATupleSelectExp node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -351,7 +331,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAUnresolvedPathExp(AUnresolvedPathExp node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -359,7 +339,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseANameChannelExp(ANameChannelExp node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -367,7 +347,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAComprehensionRenameChannelExp(
 			AComprehensionRenameChannelExp node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -375,7 +355,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAEnumerationRenameChannelExp(
 			AEnumerationRenameChannelExp node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -383,7 +363,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAIdentifierVarsetExpression(
 			AIdentifierVarsetExpression node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -391,7 +371,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAEnumVarsetExpression(AEnumVarsetExpression node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -399,7 +379,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseACompVarsetExpression(ACompVarsetExpression node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -407,7 +387,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAFatEnumVarsetExpression(
 			AFatEnumVarsetExpression node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -415,7 +395,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAFatCompVarsetExpression(
 			AFatCompVarsetExpression node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -423,7 +403,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAUnionVOpVarsetExpression(
 			AUnionVOpVarsetExpression node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -431,7 +411,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAInterVOpVarsetExpression(
 			AInterVOpVarsetExpression node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -439,15 +419,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseASubVOpVarsetExpression(ASubVOpVarsetExpression node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
-		return null;
-	}
 
-	@Override
-	public LexNameList caseAStatementType(AStatementType node)
-			throws AnalysisException
-	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -455,165 +427,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAProcessType(AProcessType node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
-		return null;
-	}
 
-	@Override
-	public LexNameList caseAErrorType(AErrorType node) throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public LexNameList caseABindType(ABindType node) throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public LexNameList caseAProcessParagraphType(AProcessParagraphType node)
-			throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public LexNameList caseAChansetParagraphType(AChansetParagraphType node)
-			throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public LexNameList caseAChannelsParagraphType(AChannelsParagraphType node)
-			throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public LexNameList caseAActionParagraphType(AActionParagraphType node)
-			throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public LexNameList caseAValueParagraphType(AValueParagraphType node)
-			throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public LexNameList caseAFunctionParagraphType(AFunctionParagraphType node)
-			throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public LexNameList caseATypeParagraphType(ATypeParagraphType node)
-			throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public LexNameList caseAOperationParagraphType(AOperationParagraphType node)
-			throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public LexNameList caseAStateParagraphType(AStateParagraphType node)
-			throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public LexNameList caseASourceType(ASourceType node)
-			throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public LexNameList caseAChannelType(AChannelType node)
-			throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public LexNameList caseAChansetType(AChansetType node)
-			throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public LexNameList caseANamesetType(ANamesetType node)
-			throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public LexNameList caseANamesetsType(ANamesetsType node)
-			throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public LexNameList caseAInitialParagraphType(AInitialParagraphType node)
-			throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public LexNameList caseAActionType(AActionType node)
-			throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public LexNameList caseAVarsetExpressionType(AVarsetExpressionType node)
-			throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public LexNameList caseAParagraphType(AParagraphType node)
-			throws AnalysisException
-	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -621,7 +435,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseALogicalAccess(ALogicalAccess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -629,7 +443,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseARenamePair(ARenamePair node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -637,7 +451,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAActionProcess(AActionProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -645,7 +459,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseASequentialCompositionProcess(
 			ASequentialCompositionProcess node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -653,7 +467,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAExternalChoiceProcess(AExternalChoiceProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -661,7 +475,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAInternalChoiceProcess(AInternalChoiceProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -669,7 +483,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAGeneralisedParallelismProcess(
 			AGeneralisedParallelismProcess node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -677,7 +491,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAAlphabetisedParallelismProcess(
 			AAlphabetisedParallelismProcess node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -685,7 +499,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseASynchronousParallelismProcess(
 			ASynchronousParallelismProcess node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -693,7 +507,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAInterleavingProcess(AInterleavingProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -701,7 +515,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAInterruptProcess(AInterruptProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -709,7 +523,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseATimedInterruptProcess(ATimedInterruptProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -717,7 +531,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAUntimedTimeoutProcess(AUntimedTimeoutProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -725,7 +539,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseATimeoutProcess(ATimeoutProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -733,7 +547,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAHidingProcess(AHidingProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -741,7 +555,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseASkipProcess(ASkipProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -749,7 +563,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAStartDeadlineProcess(AStartDeadlineProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -757,7 +571,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAEndDeadlineProcess(AEndDeadlineProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -765,7 +579,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAInstantiationProcess(AInstantiationProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -773,7 +587,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAReferenceProcess(AReferenceProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -781,7 +595,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAChannelRenamingProcess(AChannelRenamingProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -790,7 +604,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 			ASequentialCompositionReplicatedProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -798,7 +612,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAExternalChoiceReplicatedProcess(
 			AExternalChoiceReplicatedProcess node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -806,7 +620,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAInternalChoiceReplicatedProcess(
 			AInternalChoiceReplicatedProcess node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -815,7 +629,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 			AGeneralisedParallelismReplicatedProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -824,7 +638,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 			AAlphabetisedParallelismReplicatedProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -833,7 +647,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 			ASynchronousParallelismReplicatedProcess node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -841,7 +655,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAInterleavingReplicatedProcess(
 			AInterleavingReplicatedProcess node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -849,7 +663,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseASkipAction(ASkipAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -857,7 +671,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAStopAction(AStopAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -865,14 +679,14 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAChaosAction(AChaosAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
 	@Override
 	public LexNameList caseADivAction(ADivAction node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -880,7 +694,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAWaitAction(AWaitAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -888,7 +702,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseACommunicationAction(ACommunicationAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -896,7 +710,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAGuardedAction(AGuardedAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -904,7 +718,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseASequentialCompositionAction(
 			ASequentialCompositionAction node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -912,7 +726,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAExternalChoiceAction(AExternalChoiceAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -920,7 +734,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAInternalChoiceAction(AInternalChoiceAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -928,7 +742,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAInterruptAction(AInterruptAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -936,7 +750,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseATimedInterruptAction(ATimedInterruptAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -944,7 +758,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAUntimedTimeoutAction(AUntimedTimeoutAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -952,7 +766,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseATimeoutAction(ATimeoutAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -960,7 +774,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAHidingAction(AHidingAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -968,7 +782,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAStartDeadlineAction(AStartDeadlineAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -976,7 +790,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAEndDeadlineAction(AEndDeadlineAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -984,14 +798,14 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAChannelRenamingAction(AChannelRenamingAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
 	@Override
 	public LexNameList caseAMuAction(AMuAction node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -999,14 +813,14 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAParametrisedAction(AParametrisedAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
 	@Override
 	public LexNameList caseAStmAction(AStmAction node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1014,7 +828,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAReferenceAction(AReferenceAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1022,7 +836,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAInterleavingParallelAction(
 			AInterleavingParallelAction node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1031,7 +845,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 			AGeneralisedParallelismParallelAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1040,7 +854,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 			AAlphabetisedParallelismParallelAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1049,7 +863,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 			ASynchronousParallelismParallelAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1058,7 +872,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 			ASequentialCompositionReplicatedAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1066,7 +880,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAExternalChoiceReplicatedAction(
 			AExternalChoiceReplicatedAction node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1074,7 +888,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAInternalChoiceReplicatedAction(
 			AInternalChoiceReplicatedAction node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1082,7 +896,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseACommonInterleavingReplicatedAction(
 			ACommonInterleavingReplicatedAction node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1090,7 +904,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAInterleavingReplicatedAction(
 			AInterleavingReplicatedAction node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1099,7 +913,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 			AGeneralisedParallelismReplicatedAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1108,7 +922,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 			AAlphabetisedParallelismReplicatedAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1117,15 +931,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 			ASynchronousParallelismReplicatedAction node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
-		return null;
-	}
 
-	@Override
-	public LexNameList caseADeclarationInstantiatedAction(
-			ADeclarationInstantiatedAction node) throws AnalysisException
-	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -1133,7 +939,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAParametrisedInstantiatedAction(
 			AParametrisedInstantiatedAction node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1141,7 +947,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAReadCommunicationParameter(
 			AReadCommunicationParameter node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1149,7 +955,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAWriteCommunicationParameter(
 			AWriteCommunicationParameter node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1157,7 +963,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseASignalCommunicationParameter(
 			ASignalCommunicationParameter node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1165,7 +971,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAValParametrisation(AValParametrisation node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1173,7 +979,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAResParametrisation(AResParametrisation node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1181,7 +987,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAVresParametrisation(AVresParametrisation node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1189,21 +995,21 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAUnresolvedStateDesignator(
 			AUnresolvedStateDesignator node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
 	@Override
 	public LexNameList caseAActionStm(AActionStm node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
 	@Override
 	public LexNameList caseANewStm(ANewStm node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1211,7 +1017,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAIfNonDeterministicStm(AIfNonDeterministicStm node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1219,7 +1025,7 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseAAltNonDeterministicStm(AAltNonDeterministicStm node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1227,7 +1033,23 @@ public abstract class AbstractCmlVariableNameCollector extends
 	public LexNameList caseADoNonDeterministicStm(ADoNonDeterministicStm node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
+		return null;
+	}
+
+	@Override
+	public LexNameList caseAUnresolvedObjectDesignator(
+			AUnresolvedObjectDesignator node) throws AnalysisException
+	{
+
+		return null;
+	}
+
+	@Override
+	public LexNameList caseACallAction(ACallAction node)
+			throws AnalysisException
+	{
+
 		return null;
 	}
 

@@ -8,6 +8,8 @@ import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
+import org.overture.ast.types.ANatNumericBasicType;
+import org.overture.ast.types.SNumericBasicType;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.values.IntegerValue;
@@ -36,7 +38,10 @@ import eu.compassresearch.ast.actions.ATimeoutAction;
 import eu.compassresearch.ast.actions.AUntimedTimeoutAction;
 import eu.compassresearch.ast.actions.AWaitAction;
 import eu.compassresearch.ast.actions.SReplicatedAction;
+import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
+import eu.compassresearch.ast.process.AAlphabetisedParallelismProcess;
+import eu.compassresearch.ast.process.AAlphabetisedParallelismReplicatedProcess;
 import eu.compassresearch.ast.process.AGeneralisedParallelismProcess;
 import eu.compassresearch.ast.process.AGeneralisedParallelismReplicatedProcess;
 import eu.compassresearch.ast.process.AHidingProcess;
@@ -51,7 +56,11 @@ import eu.compassresearch.ast.process.ASynchronousParallelismReplicatedProcess;
 import eu.compassresearch.ast.process.ATimeoutProcess;
 import eu.compassresearch.ast.process.AUntimedTimeoutProcess;
 import eu.compassresearch.ast.process.SReplicatedProcess;
+import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
+import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
+import eu.compassresearch.core.interpreter.api.values.LatticeTopElement;
+import eu.compassresearch.core.interpreter.api.values.LatticeTopValue;
 import eu.compassresearch.core.interpreter.utility.LocationExtractor;
 import eu.compassresearch.core.interpreter.utility.Pair;
 import eu.compassresearch.core.interpreter.utility.SetMath;
@@ -465,6 +474,40 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 
 		}, question);
 	}
+	
+	@Override
+	public Pair<INode, Context> caseAAlphabetisedParallelismReplicatedProcess(
+			final AAlphabetisedParallelismReplicatedProcess node, final Context question)
+			throws AnalysisException
+	{
+		return caseReplicatedProcess(node, new ReplicationFactory()
+		{
+
+			@Override
+			public INode createNextReplication()
+			{
+				
+				return new AAlphabetisedParallelismProcess(
+						node.getLocation(), 
+						node.getReplicatedProcess().clone(),
+						node.getChansetExpression().clone(), 
+						node.getChansetExpression().clone(),
+						node);
+			}
+
+			@Override
+			public INode createLastReplication()
+			{
+				return new AAlphabetisedParallelismProcess(
+						node.getLocation(), 
+						node.getReplicatedProcess().clone(),
+						node.getChansetExpression().clone(), 
+						node.getChansetExpression().clone(),
+						node);
+			}
+
+		}, question);
+	}
 
 	@Override
 	public Pair<INode, Context> caseAInternalChoiceReplicatedProcess(
@@ -535,6 +578,24 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 
 		return setValue;
 	}
+	
+	//FIXME this check is not sufficient
+	private class UnboundedChecker extends DepthFirstAnalysisCMLAdaptor 
+	{
+		private boolean isUnbounded = false;
+		
+		public boolean isUnbounded()
+		{
+			return isUnbounded;
+		}
+		
+		@Override
+		public void defaultInSNumericBasicType(SNumericBasicType node)
+				throws AnalysisException
+		{
+			isUnbounded = true;
+		}
+	}
 
 	protected Pair<SetValue, Context> getCurrentReplicationValue(
 			ILexLocation location,
@@ -549,7 +610,24 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 
 		// Convert all the single decls into a NameValuePairList
 		for (PSingleDeclaration singleDecl : replicationDeclaration)
-			replicationNvpl.addAll(singleDecl.apply(this.cmlDefEvaluator, question));
+		{
+			for(NameValuePair nvp : singleDecl.apply(this.cmlDefEvaluator, question))
+			{
+				
+				//We do not allow unbounded replication 
+				//FIXME this check is not sufficient, this needs to be more general
+				if(nvp.value instanceof LatticeTopValue)
+				{
+					UnboundedChecker uc = new UnboundedChecker();
+					((LatticeTopValue)nvp.value).getType().apply(uc);
+					if(uc.isUnbounded())
+						throw new CmlInterpreterException(singleDecl,InterpretationErrorMessages.UNBOUNDED_REPLICATION.customizeMessage());
+				}
+				
+				
+				replicationNvpl.add(nvp);
+			}
+		}
 
 		SetValue setValue = null;
 		Context nextContext = question;

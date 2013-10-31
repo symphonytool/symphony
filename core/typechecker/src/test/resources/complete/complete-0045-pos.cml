@@ -18,7 +18,14 @@ state
 
 operations
 
- A : () ==> A A() == Skip getHello : () ==> int getHello() == return hello
+ public A : () ==> A 
+ A() == 
+ 	Skip 
+ 	
+ 	
+ public getHello : () ==> int 
+ getHello() == 
+ 	return hello
 
 end
 
@@ -30,6 +37,9 @@ process
 
 begin
 
- @ (dcl v : A, out : int @ v := new A(); out := v.getHello();a.(out) -> Skip)
+ @ (dcl v : A, out : int 
+ 		@ 	v := new A(); 
+ 			out := v.getHello();
+ 			a.(out) -> Skip)
 
 end

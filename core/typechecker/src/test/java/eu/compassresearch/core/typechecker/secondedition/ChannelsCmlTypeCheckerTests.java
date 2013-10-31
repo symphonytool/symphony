@@ -19,7 +19,7 @@ public class ChannelsCmlTypeCheckerTests extends
 	@Parameters(name = "{1}")
 	public static Collection<Object[]> getData()
 	{
-		return combine(collectResourcesTestData("channels", TestType.POSITIVE),collectResourcesTestData("channels", TestType.NEGATIVE));
+		return combine(collectResourcesTestData("channels", TestType.POSITIVE), collectResourcesTestData("channels", TestType.NEGATIVE));
 	}
 
 	// @Before

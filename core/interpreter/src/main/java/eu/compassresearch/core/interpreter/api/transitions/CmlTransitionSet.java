@@ -312,6 +312,11 @@ public class CmlTransitionSet extends Value
 
 		return tock;
 	}
+	
+	public boolean hasTockEvent()
+	{
+		return getTockEvent() != null;
+	}
 
 	/**
 	 * Subtract other from this

@@ -357,7 +357,7 @@ public class TPPluginDoStuff {
 //					public void statusChanges(IProofObligation po) {
 //						CmlProofObligationList poList = project.getModel().getAttribute(POConstants.PO_REGISTRY_ID, CmlProofObligationList.class);
 //						
-//						PogPluginDoStuff.redrawPos(project, poList);
+//						PogPluginRunner.redrawPos(project, poList);
 //						
 //					}
 //				});

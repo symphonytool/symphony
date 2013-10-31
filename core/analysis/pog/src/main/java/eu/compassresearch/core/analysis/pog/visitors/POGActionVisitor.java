@@ -165,6 +165,9 @@ public class POGActionVisitor extends
 		{
 			CmlProofObligationList pol = new CmlProofObligationList();
 
+			//FIXME This is needed for trigerring state invariant POs
+			// (maybe check if parent is an op and go then?)
+			
 			// Get subparts
 			PExp id = node.getStateDesignator();
 			PExp expr = node.getExpression();

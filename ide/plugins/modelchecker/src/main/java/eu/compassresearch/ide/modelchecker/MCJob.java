@@ -6,19 +6,14 @@ import java.io.FileReader;
 import java.io.IOException;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.overture.ast.node.INode;
 
-import eu.compassresearch.ast.program.PSource;
-import eu.compassresearch.core.analysis.modelchecker.api.FormulaIntegrationException;
 import eu.compassresearch.core.analysis.modelchecker.api.FormulaIntegrator;
 import eu.compassresearch.core.analysis.modelchecker.api.FormulaResult;
 import eu.compassresearch.core.analysis.modelchecker.api.IFormulaIntegrator;
-import eu.compassresearch.core.analysis.modelchecker.visitors.CMLModelcheckerVisitor;
 
 public class MCJob extends Job{
 

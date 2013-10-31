@@ -25,10 +25,10 @@ singleDeclaration {-> package='eu.compassresearch.ast.declarations'
 		| [location]:location 
 		| [nameScope]:nameScope}
         = {type}
-        [identifiers]:LexIdentifierToken*
+        [identifier]:LexIdentifierToken //*
         (type):type
         | {expression}
-        [identifiers]:LexIdentifierToken*
+        [identifier]:LexIdentifierToken //*
         [expression]:exp
     ;
 /*
@@ -46,7 +46,7 @@ definition {-> package='eu.compassresearch.ast.definitions'}
                 [namesetExpression]:VarsetExpression
 //    |   #cmlOperation
     |   {process}
-                [localState]: singleDeclaration.type*
+                [localState]: parametrisation*//singleDeclaration.type*
                 [process]: process
     | {channel}//renamed removed Name
       //  [singleType]: singleDeclaration.type
@@ -167,28 +167,29 @@ VarsetExpression {-> package='eu.compassresearch.ast.expressions'
 */
 
 type {-> package='eu.compassresearch.ast.types'}
-    =   {statement} // marker that a statement is typed ok
-    |   {process} // marker that a process is typed ok
-    |   {error} // marker that type of a subtree has failed
-    |   {bind}// market for a bind type subtree
-    |   {processParagraph} // marker stipulating process paragraph is typed ok
-    |   {chansetParagraph} // marker stipulating a chanset paragraph is typed ok
-    |   {channelsParagraph} // marker stipulating a chanset paragraph is typed ok
-    |   {actionParagraph} // marker stipulating that a Action Paragraph is typed ok
-    |   {valueParagraph} // marker stipulating that a Values paragraph is typed ok
-    |   {functionParagraph} // marker stipulating that a Function Paragraph is typed ok
-    |   {typeParagraph} // marker stipulating that a Types Paragraph is typed ok
-    |   {operationParagraph} // marker stipulating that a Function Paragraph is typed ok
-    |   {stateParagraph} // marker stipulating that a state Paragraph is typed ok
-    |   {source} // marker stipulating a source was typed ok
-    |   {channel} (type):type // marker stipulating that a channel Paragraph is typed ok
-    |   {chanset} // marker stipulating that a chanset is typed ok
-    |   {nameset} // marker stipulating that a nameset is typed ok
-    |   {namesets} // marker stipulating that s nameset paragraph is typed ok
-    |   {initialParagraph} // marker
-    |   {action} // marker
-    |   {varsetExpression} // marker
-    |   {paragraph} // markar that a paragraph tree is typed ok
+    = //  {statement} // marker that a statement is typed ok
+    //|  
+     {process} [name]:LexNameToken (classdef):definition.process// marker that a process is typed ok
+   // |   {error} // marker that type of a subtree has failed
+ //   |   {bind}// market for a bind type subtree
+ //   |   {processParagraph} // marker stipulating process paragraph is typed ok
+ //   |   {chansetParagraph} // marker stipulating a chanset paragraph is typed ok
+ //   |   {channelsParagraph} // marker stipulating a chanset paragraph is typed ok
+ //   |   {actionParagraph} // marker stipulating that a Action Paragraph is typed ok
+ //   |   {valueParagraph} // marker stipulating that a Values paragraph is typed ok
+ //   |   {functionParagraph} // marker stipulating that a Function Paragraph is typed ok
+ //   |   {typeParagraph} // marker stipulating that a Types Paragraph is typed ok
+ //   |   {operationParagraph} // marker stipulating that a Function Paragraph is typed ok
+ //   |   {stateParagraph} // marker stipulating that a state Paragraph is typed ok
+ //   |   {source} // marker stipulating a source was typed ok
+ //   |   {channel} (type):type // marker stipulating that a channel Paragraph is typed ok
+//    |   {chanset} // marker stipulating that a chanset is typed ok
+//    |   {nameset} // marker stipulating that a nameset is typed ok
+ //   |   {namesets} // marker stipulating that s nameset paragraph is typed ok
+  //  |   {initialParagraph} // marker
+  //  |   {action} // marker
+ //   |   {varsetExpression} // marker
+  //  |   {paragraph} // markar that a paragraph tree is typed ok
     ;
 
 access  {-> package='eu.compassresearch.ast.definitions'}
@@ -353,6 +354,7 @@ action {-> package='eu.compassresearch.ast.actions'
         | #Replicated
         //| #Statement
         | {stm} [statement]:stm
+        |   {call} [name]:LexNameToken [args]:exp*
        // | {subclassResponsibility}
         | {reference}
                 [name]:LexNameToken
@@ -395,8 +397,9 @@ action {-> package='eu.compassresearch.ast.actions'
         ;
 
 #Instantiated {-> package='eu.compassresearch.ast.actions'}
-        = {declaration} [declaration]:singleDeclaration.type* [action]:action [args]:exp*
-        | {parametrised} [action]:action.parametrised  [args]:exp*
+        = //dead node ->{declaration} [declaration]:definition.local*/*singleDeclaration.type**/ [action]:action [args]:exp*
+        //| 
+        {parametrised} [action]:action.parametrised  [args]:exp*
         ;
 
 communicationParameter {-> package='eu.compassresearch.ast.actions'
@@ -409,7 +412,8 @@ communicationParameter {-> package='eu.compassresearch.ast.actions'
 
 parametrisation {-> package='eu.compassresearch.ast.actions'
 		| [location]:location 
-		| [declaration]:singleDeclaration.type}
+		| [declaration]:definition.local//singleDeclaration.type
+		}
         = {val}
         | {res}
         | {vres}
@@ -495,6 +499,11 @@ parametrisation {-> package='eu.compassresearch.ast.actions'
 stateDesignator {-> package='org.overture.ast.statements'}
 	=	{unresolved} [path]:exp//well we wanted this:exp.unresolvedPath
 	;
+	
+	
+objectDesignator {-> package='org.overture.ast.statements'}
+    =  {unresolved} [path]:exp//well we wanted this:exp.unresolvedPath
+    ;
 
 /*alternativeAction {-> package='eu.compassresearch.ast.actions'}
     = {case} [location]:location [pattern]:pattern* [result]:action (defs):definition*
@@ -515,6 +524,7 @@ stm {-> package='org.overture.ast.statements'
         //(classdef):definition.#class
         //(ctorDefinition):definition
     |	#NonDeterministic
+
    	;
 
 #NonDeterministic {-> package='org.overture.ast.statements'}

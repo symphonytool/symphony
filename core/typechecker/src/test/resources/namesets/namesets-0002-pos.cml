@@ -1,0 +1,12 @@
+process A = 
+begin
+  state
+    i : int := 1
+    j : int := 2
+  namesets
+    left = {i}
+    right = {j}
+@ 
+  i := 2 [|left|{}|right|] j := i + 2
+  
+end

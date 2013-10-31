@@ -20,6 +20,6 @@ state
 
 actions
 
- A = InOut?a!b?c -> test(a,c) @ Skip
+ B = InOut?a!b?c -> test(a,c) @ Skip
 
 end

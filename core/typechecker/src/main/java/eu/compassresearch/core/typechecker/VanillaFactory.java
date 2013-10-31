@@ -1,17 +1,9 @@
 package eu.compassresearch.core.typechecker;
 
 import java.util.Collection;
-import java.util.LinkedList;
-
-import org.overture.ast.analysis.intf.IQuestionAnswer;
-import org.overture.ast.definitions.PDefinition;
-import org.overture.ast.types.PType;
 
 import eu.compassresearch.ast.program.PSource;
-import eu.compassresearch.core.typechecker.api.ICmlRootVisitor;
 import eu.compassresearch.core.typechecker.api.ICmlTypeChecker;
-import eu.compassresearch.core.typechecker.api.ITypeCheckQuestion;
-import eu.compassresearch.core.typechecker.api.ITypeComparator;
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 
 /**
@@ -30,7 +22,7 @@ import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
  */
 public final class VanillaFactory
 {
-
+	//
 	/**
 	 * create an instance of the Vanilla type checker.
 	 * 
@@ -43,88 +35,91 @@ public final class VanillaFactory
 	public static ICmlTypeChecker newTypeChecker(
 			Collection<PSource> cmlSources, ITypeIssueHandler issueHandler)
 	{
-		VanillaCmlTypeChecker result = new VanillaCmlTypeChecker(cmlSources, SimpleTypeComparator.newInstance(), issueHandler);
+		VanillaCmlTypeChecker result = new VanillaCmlTypeChecker(cmlSources, issueHandler);
 		return result;
 	}
 
-	/**
-	 * Create a Declaration and Definition visitor
-	 * 
-	 * @param parentChecker
-	 *            - A Root CML Type Checker to resolve other kinds of constructs;
-	 * @param compareTypes
-	 *            - A strategy for comparing CML types and determining the sub type relation.
-	 * @param issueHandler
-	 *            - A Error handler. The VanillaCmlTypeChecker is also a TypeIssueHandler.
-	 */
-	public static IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> newCmlDefinitionAndDeclarationVisitor(
-			ICmlRootVisitor parentChecker, ITypeComparator compareTypes,
-			ITypeIssueHandler issueHandler)
-	{
-		TCDeclAndDefVisitor v = new TCDeclAndDefVisitor(parentChecker, compareTypes, issueHandler);
-		return v;
-	}
-
-	/**
-	 * Create a statement visitor
-	 * 
-	 * @param parentChecker
-	 *            - A Root CML Type Checker to resolve other kinds of constructs;
-	 * @param issueHandler
-	 *            - A Error handler. The VanillaCmlTypeChecker is also a TypeIssueHandler.
-	 */
-	public static IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> newCmStatementVisitor(
-			ICmlRootVisitor parentChecker, ITypeIssueHandler issueHandler,
-			ITypeComparator typeComparator)
-	{
-		TCActionVisitor v = new TCActionVisitor(parentChecker, issueHandler, typeComparator);
-		return v;
-	}
-
-	/**
-	 * Create an expression visitor
-	 * 
-	 * @param parentChecker
-	 *            - A Root CML Type Checker to resolve other kinds of constructs;
-	 * @param issueHandler
-	 *            - A Error handler. The VanillaCmlTypeChecker is also a TypeIssueHandler.
-	 */
-	public static IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> newCmlTypeVisitor(
-			ICmlRootVisitor parentChecker, ITypeIssueHandler issueHandler)
-	{
-		TCTypeVisitor exprVisitor = new TCTypeVisitor(parentChecker, issueHandler);
-		return exprVisitor;
-	}
-
-	/**
-	 * Create an expression visitor
-	 * 
-	 * @param parentChecker
-	 *            - A Root CML Type Checker to resolve other kinds of constructs;
-	 * @param issueHandler
-	 *            - A Error handler. The VanillaCmlTypeChecker is also a TypeIssueHandler.
-	 */
-	public static IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> newCmlExpressionVisitor(
-			ICmlRootVisitor parentChecker, ITypeIssueHandler issueHandler,
-			ITypeComparator typeComparator)
-	{
-		TCExpressionVisitor exprVisitor = new TCExpressionVisitor(parentChecker, issueHandler, typeComparator);
-		return exprVisitor;
-	}
-
-	/**
-	 * Get a fresh type checking question.
-	 * 
-	 * @param issueHandler
-	 *            - A place to add errors.
-	 * @return
-	 */
-	public static ITypeCheckQuestion newTopLevelTypeCheckQuestion(
-			ITypeIssueHandler issueHandler)
-	{
-		return CmlTypeCheckInfo.getNewTopLevelInstance(new CmlTypeCheckerAssistantFactory(), issueHandler, new LinkedList<PDefinition>(), new LinkedList<PDefinition>());
-	}
-
+	//
+	// /**
+	// * Create a Declaration and Definition visitor
+	// *
+	// * @param parentChecker
+	// * - A Root CML Type Checker to resolve other kinds of constructs;
+	// * @param compareTypes
+	// * - A strategy for comparing CML types and determining the sub type relation.
+	// * @param issueHandler
+	// * - A Error handler. The VanillaCmlTypeChecker is also a TypeIssueHandler.
+	// */
+	// public static IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType>
+	// newCmlDefinitionAndDeclarationVisitor(
+	// ICmlRootVisitor parentChecker, ITypeComparator compareTypes,
+	// ITypeIssueHandler issueHandler)
+	// {
+	// TCDeclAndDefVisitor v = new TCDeclAndDefVisitor(parentChecker, compareTypes, issueHandler);
+	// return v;
+	// }
+	//
+	// /**
+	// * Create a statement visitor
+	// *
+	// * @param parentChecker
+	// * - A Root CML Type Checker to resolve other kinds of constructs;
+	// * @param issueHandler
+	// * - A Error handler. The VanillaCmlTypeChecker is also a TypeIssueHandler.
+	// */
+	// public static IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> newCmStatementVisitor(
+	// ICmlRootVisitor parentChecker, ITypeIssueHandler issueHandler,
+	// ITypeComparator typeComparator)
+	// {
+	// TCActionVisitor v = new TCActionVisitor(parentChecker, issueHandler, typeComparator);
+	// return v;
+	// }
+	//
+	// /**
+	// * Create an expression visitor
+	// *
+	// * @param parentChecker
+	// * - A Root CML Type Checker to resolve other kinds of constructs;
+	// * @param issueHandler
+	// * - A Error handler. The VanillaCmlTypeChecker is also a TypeIssueHandler.
+	// */
+	// public static IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> newCmlTypeVisitor(
+	// ICmlRootVisitor parentChecker, ITypeIssueHandler issueHandler)
+	// {
+	// TCTypeVisitor exprVisitor = new TCTypeVisitor(parentChecker, issueHandler);
+	// return exprVisitor;
+	// }
+	//
+	// /**
+	// * Create an expression visitor
+	// *
+	// * @param parentChecker
+	// * - A Root CML Type Checker to resolve other kinds of constructs;
+	// * @param issueHandler
+	// * - A Error handler. The VanillaCmlTypeChecker is also a TypeIssueHandler.
+	// */
+	// public static IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> newCmlExpressionVisitor(
+	// ICmlRootVisitor parentChecker, ITypeIssueHandler issueHandler,
+	// ITypeComparator typeComparator)
+	// {
+	// TCExpressionVisitor exprVisitor = new TCExpressionVisitor(parentChecker, issueHandler, typeComparator);
+	// return exprVisitor;
+	// }
+	//
+	// /**
+	// * Get a fresh type checking question.
+	// *
+	// * @param issueHandler
+	// * - A place to add errors.
+	// * @return
+	// */
+	// public static ITypeCheckQuestion newTopLevelTypeCheckQuestion(
+	// ITypeIssueHandler issueHandler)
+	// {
+	// return CmlTypeCheckInfo.getNewTopLevelInstance(new CmlTypeCheckerAssistantFactory(), issueHandler, new
+	// LinkedList<PDefinition>(), new LinkedList<PDefinition>());
+	// }
+	//
 	/**
 	 * Returns an instance of the default issue handler in the TC package. Static access to the default common-Regsitry
 	 * instance is used. NOTE! IssueHandlers and Registry are entangled behind the screens, this is unnecessary and
@@ -136,5 +131,5 @@ public final class VanillaFactory
 	{
 		return new CollectingIssueHandler();
 	}
-
+	//
 }

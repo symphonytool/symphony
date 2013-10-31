@@ -8,7 +8,7 @@ import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AChannelDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
-import eu.compassresearch.ast.lex.LexNameToken;
+import eu.compassresearch.ast.lex.CmlLexNameToken;
 
 public class CmlVariableNameCollector extends AbstractCmlVariableNameCollector
 {
@@ -22,32 +22,28 @@ public class CmlVariableNameCollector extends AbstractCmlVariableNameCollector
 	{
 		super(af);
 	}
-	
-	
+
 	@Override
 	public LexNameList caseAChannelDefinition(AChannelDefinition node)
 			throws AnalysisException
 	{
 		return new LexNameList(node.getName());
 	}
-	
-	
+
 	@Override
 	public LexNameList caseAChansetDefinition(AChansetDefinition node)
 			throws AnalysisException
 	{
-		return new LexNameList(new LexNameToken("", node.getIdentifier()));
+		return new LexNameList(new CmlLexNameToken("", node.getIdentifier()));
 	}
-	
-	
+
 	@Override
 	public LexNameList caseAProcessDefinition(AProcessDefinition node)
 			throws AnalysisException
 	{
 		return new LexNameList(node.getName());
 	}
-	
-	
+
 	@Override
 	public LexNameList caseAActionDefinition(AActionDefinition node)
 			throws AnalysisException

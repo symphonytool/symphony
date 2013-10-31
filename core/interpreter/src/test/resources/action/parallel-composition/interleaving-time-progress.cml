@@ -1,0 +1,1 @@
+process Test = begin @ (Wait 1 ; Skip) ||| Skip end

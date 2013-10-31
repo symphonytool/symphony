@@ -9,17 +9,18 @@ import org.overture.ast.statements.AAltNonDeterministicStm;
 import org.overture.ast.statements.ADoNonDeterministicStm;
 import org.overture.ast.statements.AIfNonDeterministicStm;
 import org.overture.ast.statements.ANewStm;
+import org.overture.ast.statements.AUnresolvedObjectDesignator;
 import org.overture.ast.statements.AUnresolvedStateDesignator;
 import org.overture.typechecker.assistant.ITypeCheckerAssistantFactory;
 import org.overture.typechecker.utilities.FunctionChecker;
 
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismReplicatedAction;
+import eu.compassresearch.ast.actions.ACallAction;
 import eu.compassresearch.ast.actions.AChannelRenamingAction;
 import eu.compassresearch.ast.actions.AChaosAction;
 import eu.compassresearch.ast.actions.ACommonInterleavingReplicatedAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
-import eu.compassresearch.ast.actions.ADeclarationInstantiatedAction;
 import eu.compassresearch.ast.actions.ADivAction;
 import eu.compassresearch.ast.actions.AEndDeadlineAction;
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
@@ -118,31 +119,10 @@ import eu.compassresearch.ast.process.AUntimedTimeoutProcess;
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.ATcpStreamSource;
-import eu.compassresearch.ast.types.AActionParagraphType;
-import eu.compassresearch.ast.types.AActionType;
-import eu.compassresearch.ast.types.ABindType;
-import eu.compassresearch.ast.types.AChannelType;
-import eu.compassresearch.ast.types.AChannelsParagraphType;
-import eu.compassresearch.ast.types.AChansetParagraphType;
-import eu.compassresearch.ast.types.AChansetType;
-import eu.compassresearch.ast.types.AErrorType;
-import eu.compassresearch.ast.types.AFunctionParagraphType;
-import eu.compassresearch.ast.types.AInitialParagraphType;
-import eu.compassresearch.ast.types.ANamesetType;
-import eu.compassresearch.ast.types.ANamesetsType;
-import eu.compassresearch.ast.types.AOperationParagraphType;
-import eu.compassresearch.ast.types.AParagraphType;
-import eu.compassresearch.ast.types.AProcessParagraphType;
 import eu.compassresearch.ast.types.AProcessType;
-import eu.compassresearch.ast.types.ASourceType;
-import eu.compassresearch.ast.types.AStateParagraphType;
-import eu.compassresearch.ast.types.AStatementType;
-import eu.compassresearch.ast.types.ATypeParagraphType;
-import eu.compassresearch.ast.types.AValueParagraphType;
-import eu.compassresearch.ast.types.AVarsetExpressionType;
 
-public abstract class AbstractCmlFunctionChecker extends FunctionChecker
-		implements ICMLAnswer<Boolean>
+public class AbstractCmlFunctionChecker extends FunctionChecker implements
+		ICMLAnswer<Boolean>
 {
 
 	public AbstractCmlFunctionChecker(ITypeCheckerAssistantFactory af)
@@ -433,168 +413,7 @@ public abstract class AbstractCmlFunctionChecker extends FunctionChecker
 	}
 
 	@Override
-	public Boolean caseAStatementType(AStatementType node)
-			throws AnalysisException
-	{
-
-		return false;
-	}
-
-	@Override
 	public Boolean caseAProcessType(AProcessType node) throws AnalysisException
-	{
-
-		return false;
-	}
-
-	@Override
-	public Boolean caseAErrorType(AErrorType node) throws AnalysisException
-	{
-
-		return false;
-	}
-
-	@Override
-	public Boolean caseABindType(ABindType node) throws AnalysisException
-	{
-
-		return false;
-	}
-
-	@Override
-	public Boolean caseAProcessParagraphType(AProcessParagraphType node)
-			throws AnalysisException
-	{
-
-		return false;
-	}
-
-	@Override
-	public Boolean caseAChansetParagraphType(AChansetParagraphType node)
-			throws AnalysisException
-	{
-
-		return false;
-	}
-
-	@Override
-	public Boolean caseAChannelsParagraphType(AChannelsParagraphType node)
-			throws AnalysisException
-	{
-
-		return false;
-	}
-
-	@Override
-	public Boolean caseAActionParagraphType(AActionParagraphType node)
-			throws AnalysisException
-	{
-
-		return false;
-	}
-
-	@Override
-	public Boolean caseAValueParagraphType(AValueParagraphType node)
-			throws AnalysisException
-	{
-
-		return false;
-	}
-
-	@Override
-	public Boolean caseAFunctionParagraphType(AFunctionParagraphType node)
-			throws AnalysisException
-	{
-
-		return false;
-	}
-
-	@Override
-	public Boolean caseATypeParagraphType(ATypeParagraphType node)
-			throws AnalysisException
-	{
-
-		return false;
-	}
-
-	@Override
-	public Boolean caseAOperationParagraphType(AOperationParagraphType node)
-			throws AnalysisException
-	{
-
-		return false;
-	}
-
-	@Override
-	public Boolean caseAStateParagraphType(AStateParagraphType node)
-			throws AnalysisException
-	{
-
-		return false;
-	}
-
-	@Override
-	public Boolean caseASourceType(ASourceType node) throws AnalysisException
-	{
-
-		return false;
-	}
-
-	@Override
-	public Boolean caseAChannelType(AChannelType node) throws AnalysisException
-	{
-
-		return false;
-	}
-
-	@Override
-	public Boolean caseAChansetType(AChansetType node) throws AnalysisException
-	{
-
-		return false;
-	}
-
-	@Override
-	public Boolean caseANamesetType(ANamesetType node) throws AnalysisException
-	{
-
-		return false;
-	}
-
-	@Override
-	public Boolean caseANamesetsType(ANamesetsType node)
-			throws AnalysisException
-	{
-
-		return false;
-	}
-
-	@Override
-	public Boolean caseAInitialParagraphType(AInitialParagraphType node)
-			throws AnalysisException
-	{
-
-		return false;
-	}
-
-	@Override
-	public Boolean caseAActionType(AActionType node) throws AnalysisException
-	{
-
-		return false;
-	}
-
-	@Override
-	public Boolean caseAVarsetExpressionType(AVarsetExpressionType node)
-			throws AnalysisException
-	{
-
-		return false;
-	}
-
-	@Override
-	public Boolean caseAParagraphType(AParagraphType node)
-			throws AnalysisException
 	{
 
 		return false;
@@ -1092,14 +911,6 @@ public abstract class AbstractCmlFunctionChecker extends FunctionChecker
 	}
 
 	@Override
-	public Boolean caseADeclarationInstantiatedAction(
-			ADeclarationInstantiatedAction node) throws AnalysisException
-	{
-
-		return false;
-	}
-
-	@Override
 	public Boolean caseAParametrisedInstantiatedAction(
 			AParametrisedInstantiatedAction node) throws AnalysisException
 	{
@@ -1158,14 +969,14 @@ public abstract class AbstractCmlFunctionChecker extends FunctionChecker
 	@Override
 	public Boolean caseAActionStm(AActionStm node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
 	@Override
 	public Boolean caseAStmAction(AStmAction node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1173,14 +984,14 @@ public abstract class AbstractCmlFunctionChecker extends FunctionChecker
 	public Boolean caseAUnresolvedStateDesignator(
 			AUnresolvedStateDesignator node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
 	@Override
 	public Boolean caseANewStm(ANewStm node) throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1188,7 +999,7 @@ public abstract class AbstractCmlFunctionChecker extends FunctionChecker
 	public Boolean caseAIfNonDeterministicStm(AIfNonDeterministicStm node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1196,7 +1007,7 @@ public abstract class AbstractCmlFunctionChecker extends FunctionChecker
 	public Boolean caseAAltNonDeterministicStm(AAltNonDeterministicStm node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1204,7 +1015,7 @@ public abstract class AbstractCmlFunctionChecker extends FunctionChecker
 	public Boolean caseADoNonDeterministicStm(ADoNonDeterministicStm node)
 			throws AnalysisException
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -1213,6 +1024,20 @@ public abstract class AbstractCmlFunctionChecker extends FunctionChecker
 			throws AnalysisException
 	{
 		return false;
+	}
+
+	@Override
+	public Boolean caseAUnresolvedObjectDesignator(
+			AUnresolvedObjectDesignator node) throws AnalysisException
+	{
+		return false;
+	}
+
+	@Override
+	public Boolean caseACallAction(ACallAction node) throws AnalysisException
+	{
+
+		return null;
 	}
 
 }

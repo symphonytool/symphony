@@ -71,11 +71,5 @@ public class OperationBodyActionChecker extends AnswerCMLAdaptor<Boolean>
 	{
 		return true;// FIXME we should properly check the inner statement stuff for action wrappers
 	}
-	// @Override
-	// public Boolean defaultSStatementAction(SStatementAction node)
-	// throws AnalysisException
-	// {
-	// return true;
-	// }
 
 }

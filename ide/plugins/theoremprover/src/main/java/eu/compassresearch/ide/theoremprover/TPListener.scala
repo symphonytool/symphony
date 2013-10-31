@@ -14,7 +14,7 @@ import isabelle.Document
 import isabelle.Session
 import isabelle.eclipse.core.util.LoggingActor
 import isabelle.eclipse.core.util.SessionEvents
-import eu.compassresearch.ide.pog.PogPluginDoStuff
+import eu.compassresearch.ide.pog.PogPluginRunner
 
 object TPListener {
 
@@ -34,7 +34,7 @@ object TPListener {
 //      for (po <- JavaConversions.asScalaIterable(poList)) {
 //        pol.add(po)
 //      }
-//       PogPluginDoStuff.redrawPos(proj, pol)
+//       PogPluginRunner.redrawPos(proj, pol)
 //    }
   }
 

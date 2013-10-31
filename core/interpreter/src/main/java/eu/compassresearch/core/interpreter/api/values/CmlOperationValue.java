@@ -23,7 +23,7 @@ import org.overture.interpreter.values.ValueList;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
-import eu.compassresearch.ast.lex.LexNameToken;
+import eu.compassresearch.ast.lex.CmlLexNameToken;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 
 public class CmlOperationValue extends OperationValue
@@ -33,7 +33,7 @@ public class CmlOperationValue extends OperationValue
 	// This is used to retrieve the result of a operation
 	public static ILexNameToken ReturnValueName()
 	{
-		return new LexNameToken("|CALL|", "RETURN", new LexLocation());
+		return new CmlLexNameToken("|CALL|", "RETURN", new LexLocation());
 	}
 
 	private static final long serialVersionUID = 1L;
@@ -141,34 +141,30 @@ public class CmlOperationValue extends OperationValue
 
 	@SuppressWarnings("unchecked")
 	private static AImplicitOperationDefinition convertToVDMDefinition(
-			AImplicitCmlOperationDefinition d)
+			AImplicitCmlOperationDefinition def)
 	{
 		AImplicitOperationDefinition o = new AImplicitOperationDefinition();
-		o.setLocation(d.getLocation());
-
-		o.setName(d.getName().clone());
-		o.setNameScope(d.getNameScope());
-		o.setUsed(d.getUsed());
-		o.setClassDefinition(d.getClassDefinition() != null ? d.getClassDefinition().clone()
-				: null);
-		o.setAccess(d.getAccess().clone());
-		o.setPass(d.getPass());
-		o.setParameterPatterns((List<? extends APatternListTypePair>) d.getParameterPatterns().clone());
-		o.setResult(d.getResult());
+		o.setLocation(def.getLocation());
+		o.setName(def.getName().clone());
+		o.setNameScope(def.getNameScope());
+		o.setUsed(def.getUsed());
+		o.setClassDefinition(def.getClassDefinition() != null ? def.getClassDefinition().clone() : null);
+		o.setAccess(def.getAccess().clone());
+		o.setPass(def.getPass());
+		o.setParameterPatterns((List<? extends APatternListTypePair>) def.getParameterPatterns().clone());
+		o.setResult(def.getResult());
 		o.setBody(null); // body
-		o.setExternals(d.getExternals());
-		o.setPrecondition(d.getPrecondition() != null ? d.getPrecondition().clone()
-				: null);
-		o.setPostcondition(d.getPostcondition() != null ? d.getPostcondition().clone()
-				: null);
-		o.setErrors(d.getErrors());
-		o.setType(d.getType());
-		o.setPredef(d.getPredef());
-		o.setPostdef(d.getPostdef());
-		o.setState(d.getState());
-		o.setActualResult(d.getActualResult());
-		o.setStateDefinition(d.getStateDefinition());
-		o.setIsConstructor(d.getIsConstructor());
+		o.setExternals(def.getExternals());
+		o.setPrecondition(def.getPrecondition() != null ? def.getPrecondition().clone() : null);
+		o.setPostcondition(def.getPostcondition() != null ? def.getPostcondition().clone() : null);
+		o.setErrors(def.getErrors());
+		o.setType(def.getType());
+		o.setPredef(def.getPredef());
+		o.setPostdef(def.getPostdef());
+		o.setState(def.getState());
+		o.setActualResult(def.getActualResult());
+		o.setStateDefinition(def.getStateDefinition());
+		o.setIsConstructor(def.getIsConstructor());
 		return o;
 	}
 
@@ -232,8 +228,7 @@ public class CmlOperationValue extends OperationValue
 			return new CmlOperationValue(expldef, state);
 		} else
 		{
-			return null;
-			// return new CmlOperationValue(impldef, state);
+			return new CmlOperationValue(impldef, state);
 		}
 	}
 

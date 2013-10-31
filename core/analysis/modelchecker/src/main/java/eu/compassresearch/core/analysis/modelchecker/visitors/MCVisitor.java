@@ -1,19 +1,26 @@
 package eu.compassresearch.core.analysis.modelchecker.visitors;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.expressions.PExp;
+import org.overture.ast.modules.AModuleModules;
 import org.overture.ast.node.INode;
+import org.overture.ast.statements.PStateDesignator;
+import org.overture.ast.statements.PStm;
+import org.overture.ast.types.PType;
 
+import eu.compassresearch.ast.actions.AValParametrisation;
+import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
+import eu.compassresearch.ast.declarations.PSingleDeclaration;
+import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.analysis.modelchecker.api.FormulaIntegrationUtilities;
-import eu.compassresearch.core.analysis.modelchecker.api.FormulaIntegrator;
-import eu.compassresearch.core.analysis.modelchecker.api.FormulaResult;
-import eu.compassresearch.core.analysis.modelchecker.api.IFormulaIntegrator;
 
 /**
  * The main MC visitor. It obtains other visitors from a factory.
@@ -27,30 +34,119 @@ public class MCVisitor extends
 	private final static String ANALYSIS_NAME = "Model Checker Visitor";
 	private String propertyToCheck = Utilities.DEADLOCK_PROPERTY;
 	private StringBuilder basicContent;
+	
+	private MCActionVisitor actionVisitor;
+	private MCDeclarationAndDefinitionVisitor declAndDefVisitor;
+	private MCEmptyVisitor emptyVisitor;
+	private MCExpressionVisitor expressionVisitor;
+	private MCProcessVisitor processVisitor;
+	private MCTypeAndValueVisitor typeAndValueVisitor;
 
 	public MCVisitor(List<PSource> sources) {
 		this.sources = sources;
+		this.initialise();
 	}
 	public MCVisitor() {
 		this.sources = new LinkedList<PSource>();
-		basicContent = new StringBuilder();
+		this.initialise();
 	}
 	public MCVisitor(PSource singleSource) {
 		this.sources = new LinkedList<PSource>();
 		this.sources.add(singleSource);
+		this.initialise();
 	}
 
+	private void initialise(){
+		basicContent = new StringBuilder();
+		this.actionVisitor = new MCActionVisitor(this);
+		this.declAndDefVisitor = new MCDeclarationAndDefinitionVisitor(this);
+		this.emptyVisitor = new MCEmptyVisitor();
+		this.expressionVisitor = new MCExpressionVisitor(this);
+		this.processVisitor = new MCProcessVisitor(this);
+		this.typeAndValueVisitor = new MCTypeAndValueVisitor(this);
+	}
 	
 	@Override
 	public StringBuilder defaultINode(INode node,
 			CMLModelcheckerContext question) throws AnalysisException {
 		
 		
-		QuestionAnswerCMLAdaptor<CMLModelcheckerContext, StringBuilder> suitableVisitor = 
-				MCVisitorFactory.getInstance().getVisitor(node);
-		
-		return  node.apply(suitableVisitor, question);
+		return  node.apply(emptyVisitor, question);
 	}
+	
+	@Override
+	public StringBuilder defaultPDefinition(PDefinition node,
+			CMLModelcheckerContext question) throws AnalysisException
+	{
+		return node.apply(this.declAndDefVisitor, question);
+	}
+
+	@Override
+	public StringBuilder defaultPSingleDeclaration(
+			PSingleDeclaration node, CMLModelcheckerContext question)
+			throws AnalysisException
+	{
+		return node.apply(this.declAndDefVisitor, question);
+	}
+
+	@Override
+	public StringBuilder defaultPProcess(PProcess node,
+			CMLModelcheckerContext question) throws AnalysisException
+	{
+		return node.apply(this.processVisitor, question);
+	}
+
+	@Override
+	public StringBuilder defaultPAction(PAction node,
+			CMLModelcheckerContext question) throws AnalysisException
+	{
+		return node.apply(this.actionVisitor, question);
+	}
+
+	/*@Override
+	public StringBuilder defaultPStm(PStm node,
+			CMLModelcheckerContext question) throws AnalysisException
+	{
+		return node.apply(this.statementVisitor, question);
+	}
+	*/
+	
+	@Override
+	public StringBuilder caseAValParametrisation(AValParametrisation node,
+			CMLModelcheckerContext question) throws AnalysisException {
+		question.getScriptContent().append("Int(");
+		question.getScriptContent().append(node.getDeclaration().getIdentifiers().getFirst().toString());
+		question.getScriptContent().append(")");
+		return question.getScriptContent();
+	}
+
+
+
+	@Override
+	public StringBuilder defaultPExp(PExp node,
+			CMLModelcheckerContext question) throws AnalysisException
+	{
+		return node.apply(this.expressionVisitor, question);
+	}
+	
+	@Override
+	public StringBuilder defaultPType(PType node,
+			CMLModelcheckerContext question) throws AnalysisException
+	{
+		return node.apply(this.typeAndValueVisitor, question);
+	}
+	
+	@Override
+	public StringBuilder defaultPStateDesignator(
+			PStateDesignator node, CMLModelcheckerContext question) throws AnalysisException
+	{
+		return node.apply(emptyVisitor, question);
+	}
+	
+	public String getAnalysisName() {
+		return ANALYSIS_NAME;
+	}
+
 	
 	public String[] generateFormulaCodeForAll(String propertyToCheck) throws IOException,AnalysisException {
 
@@ -115,9 +211,11 @@ public class MCVisitor extends
 		//String cml_example = "src/test/resources/action-guard-stateVar.cml";
 		//String cml_example = "src/test/resources/action-guard.cml";
 		//String cml_example = "src/test/resources/minimondex.cml";
+		//String cml_example = "src/test/resources/action-stop.cml";
+		String cml_example = "src/test/resources/action-chaos.cml";
 		//String cml_example = "src/test/resources/replicated-seqcomp.cml";
 		//String cml_example = "src/test/resources/Dphils.cml";
-		String cml_example = "src/test/resources/action-not-implemented.cml";
+		//String cml_example = "src/test/resources/action-not-implemented.cml";
 		System.out.println("Testing on " + cml_example);
 		// List<PSource> sources = new LinkedList<PSource>();
 		PSource source = Utilities.makeSourceFromFile(cml_example);
@@ -131,27 +229,18 @@ public class MCVisitor extends
 		for (int i = 0; i < codes.length; i++) {
 			System.out.println(codes[i]);
 		}
-		System.out.println("Analysing generated FORMULA specification");
-		//IFormulaIntegrator mc = FormulaIntegrator.getInstance();
-		//FormulaResult mcResult = mc.analyse(codes[0]);
-
-		//System.out.println("File " + cml_example + " is "
-		//		+ (mcResult.isSatisfiable() ? "SAT" : "UNSAT") + "\n");
-		//double loadTime = mcResult.getElapsedTimeLoad();
-		//double solveTime = mcResult.getElapsedTimeSolve();
-		//System.out.println("Analysis time (load + solve) = " + "(" + loadTime
-		//		+ " + " + solveTime + ") = " + (loadTime + solveTime)
-		//		+ " seconds\n");
-		//System.out.println("Base of Facts: \n");
-		//System.out.println(mcResult.getFacts());
-		//mc.finalize();
+		
 	}
+	
+	
 	@Override
 	public StringBuilder createNewReturnValue(INode node,
-			CMLModelcheckerContext question) throws AnalysisException {
+			CMLModelcheckerContext question) throws AnalysisException
+	{
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
 	@Override
 	public StringBuilder createNewReturnValue(Object node,
 			CMLModelcheckerContext question) throws AnalysisException {

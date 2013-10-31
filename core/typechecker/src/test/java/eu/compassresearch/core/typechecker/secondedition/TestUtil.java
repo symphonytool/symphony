@@ -14,7 +14,8 @@ import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.parser.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.parser.CmlParserError;
-import eu.compassresearch.core.typechecker.VanillaFactory;
+import eu.compassresearch.core.typechecker.CollectingIssueHandler;
+import eu.compassresearch.core.typechecker.VanillaCmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.ICmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 
@@ -51,9 +52,9 @@ public class TestUtil
 
 		if (res.parsedOk)
 		{
-			ITypeIssueHandler issueHandler = VanillaFactory.newCollectingIssueHandle();
+			ITypeIssueHandler issueHandler = new CollectingIssueHandler();
 			res.issueHandler = issueHandler;
-			ICmlTypeChecker checker = VanillaFactory.newTypeChecker(sources, issueHandler);
+			ICmlTypeChecker checker = new VanillaCmlTypeChecker(sources, issueHandler);
 
 			res.tcOk = checker.typeCheck();
 		}
@@ -64,7 +65,7 @@ public class TestUtil
 
 	static List<String> parse(AFileSource... files)
 	{
-//		boolean ok = true;
+		// boolean ok = true;
 		List<String> errors = new Vector<String>();
 		for (AFileSource fileSource : files)
 		{
@@ -80,11 +81,11 @@ public class TestUtil
 				parser.sourceFileName = lexer.sourceFileName;
 				fileSource.setParagraphs(parser.source());
 
-//				ok &= true;
+				// ok &= true;
 			} catch (Exception e)
 			{
 				// e.printStackTrace();
-//				ok &= false;
+				// ok &= false;
 			}
 
 			for (CmlParserError string : lexer.getErrors())
