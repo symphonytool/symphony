@@ -43,18 +43,9 @@ public class BuilderCml extends AbstractVdmBuilder
 		List<VDMError> errors = new ArrayList<VDMError>();
 		List<VDMWarning> warnings = new ArrayList<VDMWarning>();
 
-		// Collection<PSource> cmlSources = new Vector<PSource>();
-		// for (INode s : rooList.getRootElementList())
-		// {
-		// if (s instanceof PSource)
-		// {
-		// cmlSources.add((PSource) s);
-		// }
-		// }
 
 		ICmlModel model = (ICmlModel) rooList.getAdapter(ICmlModel.class);
 
-		// Registry reg = RegistryFactory.getInstance(getProject().getName()).getRegistry();
 		ITypeIssueHandler issueHandler = VanillaFactory.newCollectingIssueHandle();
 		ICmlTypeChecker typeChecker = VanillaFactory.newTypeChecker(model.getAstSource(), issueHandler);
 		try
