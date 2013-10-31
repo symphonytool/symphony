@@ -29,6 +29,9 @@ import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler.CMLTypeError;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler.CMLTypeWarning;
 import eu.compassresearch.ide.core.resources.ICmlModel;
+import eu.compassresearch.ide.core.unsupported.UnsupportedCollector;
+import eu.compassresearch.ide.core.unsupported.UnsupportedElementInfo;
+import eu.compassresearch.ide.core.unsupported.UnsupportingFeatures;
 
 public class BuilderCml extends AbstractVdmBuilder
 {
@@ -44,7 +47,7 @@ public class BuilderCml extends AbstractVdmBuilder
 	{
 		List<VDMError> errors = new ArrayList<VDMError>();
 		List<VDMWarning> warnings = new ArrayList<VDMWarning>();
-
+		List<UnsupportedElementInfo> uns = new ArrayList<UnsupportedElementInfo>();
 //		Collection<PSource> cmlSources = new Vector<PSource>();
 //		for (INode s : rooList.getRootElementList())
 //		{
@@ -68,7 +71,14 @@ public class BuilderCml extends AbstractVdmBuilder
 			{
 				addErrorMarker(error);
 			}
-
+			
+	
+			uns = new UnsupportedCollector(UnsupportingFeatures.POG).getUnsupporteds(model.getAst());
+			
+//			if (!uns.isEmpty()){
+//				model.setUnsupports(UnsupportingFeatures.POG);
+//			}
+			
 			// set warning markers
 			for (CMLTypeWarning warning : issueHandler.getTypeWarnings())
 			{
@@ -89,10 +99,10 @@ public class BuilderCml extends AbstractVdmBuilder
 			new Status(IStatus.ERROR, IBuilderVdmjConstants.PLUGIN_ID, 0, "not typechecked, internal error", e);
 		}
 
-		return setMarkers(errors, warnings);
+		return setMarkers(errors, warnings, uns);
 	}
 
-	private IStatus setMarkers(List<VDMError> errors, List<VDMWarning> warnings)
+	private IStatus setMarkers(List<VDMError> errors, List<VDMWarning> warnings, List<UnsupportedElementInfo> uns)
 	{
 		boolean typeCheckFailed = !errors.isEmpty();
 
@@ -103,6 +113,11 @@ public class BuilderCml extends AbstractVdmBuilder
 				addWarningMarker(warning);
 			}
 		}
+		
+		for (UnsupportedElementInfo uei : uns){
+			addUnsupportedMarker(uei);
+		}
+		
 		IStatus typeChecked = null;
 
 		if (typeCheckFailed)
@@ -137,6 +152,10 @@ public class BuilderCml extends AbstractVdmBuilder
 	private void addWarningMarker(VDMWarning error)
 	{
 		addWarningMarker(error.location.getFile(), error.toProblemString(), error.location, IBuilderVdmjConstants.PLUGIN_ID);
+	}
+	
+	private void addUnsupportedMarker(UnsupportedElementInfo uei){
+		addWarningMarker(uei.getLocation().getFile(),uei.getMessage(),uei.getLocation(),IBuilderVdmjConstants.PLUGIN_ID);
 	}
 
 	/**
