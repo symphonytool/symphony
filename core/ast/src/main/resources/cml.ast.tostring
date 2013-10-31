@@ -60,7 +60,7 @@ import eu.compassresearch.ast.util.ToStringUtil;
 %definition->#class->action = "class " [name]$.getFullName()+ ($[supernames]$.isEmpty() ? "" : " is subclass of " +$ [supernames]$) + "\n" + ToStringUtil.getDefinitionListString($[definitions]$)$+           "end "  [name]$.getFullName()$ + "\n"
 
 
-%type->error = "Type Error"
+//%type->error = "Type Error"
 
 // varSetExpressions
 %VarsetExpression->fatEnum = "{|" [channelNames] "|}"
