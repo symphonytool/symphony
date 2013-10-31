@@ -37,6 +37,7 @@ import eu.compassresearch.core.typechecker.version2.CmlFlatCheckedEnvironment;
 import eu.compassresearch.core.typechecker.version2.CmlVdmTypeCheckVisitor;
 import eu.compassresearch.core.typechecker.weeding.OperationBodyValidater;
 import eu.compassresearch.core.typechecker.weeding.SetLocationVisitor;
+import eu.compassresearch.core.typechecker.weeding.UnicknessChecker;
 import eu.compassresearch.core.typechecker.weeding.Weeding1;
 import eu.compassresearch.core.typechecker.weeding.Weeding2;
 import eu.compassresearch.core.typechecker.weeding.Weeding5RemoveInitialDefinitions;
@@ -171,6 +172,7 @@ public class VanillaCmlTypeChecker extends AbstractTypeChecker
 
 			// Collect all Top-level entities
 			DefinitionList globalDefs = CollectGlobalStateClass.getGlobalRoot(sourceForest, issueHandler);
+			UnicknessChecker.apply(globalDefs, issueHandler);
 			// this.globalDefinitions = new LinkedList<PDefinition>(globalDefs.definitions);
 
 			// Create top-level CML-environment
