@@ -495,7 +495,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		// behaves as the right process
 		else if (owner.getCurrentTime() - startTimeVal >= val)
 		{
-			return newInspection(createTauTransitionWithTime(leftNode, "Timeout: time exceeded"), new AbstractCalculationStep(owner, visitorAccess)
+			return newInspection(createTauTransitionWithoutTime(rightNode, "Timeout: time exceeded"), new AbstractCalculationStep(owner, visitorAccess)
 			{
 
 				@Override
@@ -516,10 +516,25 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		// makes an observable transition then the whole process behaves as the left process
 		else
 		{
+			//
 			final CmlBehaviour leftBehavior = owner.getLeftChild();
-			return newInspection(leftBehavior.inspect(), new AbstractCalculationStep(owner, visitorAccess)
+			
+			CmlTransitionSet resultAlpha =  null;
+			CmlTransitionSet leftAlpha = leftBehavior.inspect();
+			//If time can pass in the left, we need to put the remaining time of the timeout
+			if(leftAlpha.hasTockEvent())
 			{
-
+				TimedTransition leftTimeTransition = leftAlpha.getTockEvent();  
+				resultAlpha = leftAlpha.subtract(leftTimeTransition);
+				long ct = owner.getCurrentTime();
+				long limit = val - (ct - startTimeVal);
+				resultAlpha = resultAlpha.union(leftTimeTransition.synchronizeWith(new TimedTransition(owner, limit)));
+			}
+			else
+				resultAlpha = leftAlpha;
+			
+			return newInspection(resultAlpha, new AbstractCalculationStep(owner, visitorAccess)
+			{
 				@Override
 				public Pair<INode, Context> execute(
 						CmlTransition selectedTransition)

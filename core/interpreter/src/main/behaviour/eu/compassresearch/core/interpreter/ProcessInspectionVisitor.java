@@ -306,7 +306,8 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 			return newInspection(createTauTransitionWithTime(new ASkipAction(node.getLocation()), "End"), caseParallelEnd(question));
 		else
 		{
-			ChannelNameSetValue leftChanset  = (ChannelNameSetValue )node.getLeftChansetExpression().apply(cmlExpressionVisitor,question);
+			//evaluate the left in the context of the left child
+			ChannelNameSetValue leftChanset  = (ChannelNameSetValue )node.getLeftChansetExpression().apply(cmlExpressionVisitor,owner.getLeftChild().getNextState().second);
 			ChannelNameSetValue rightChanset  = (ChannelNameSetValue )node.getRightChansetExpression().apply(cmlExpressionVisitor,question);
 
 			ChannelNameSetValue intersectionChanset = new ChannelNameSetValue(leftChanset);

@@ -8,7 +8,6 @@ import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
-import org.overture.ast.types.ANatNumericBasicType;
 import org.overture.ast.types.SNumericBasicType;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ValueException;
@@ -19,6 +18,7 @@ import org.overture.interpreter.values.SetValue;
 import org.overture.interpreter.values.TupleValue;
 import org.overture.interpreter.values.Value;
 import org.overture.interpreter.values.ValueList;
+import org.overture.interpreter.values.ValueSet;
 
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
 import eu.compassresearch.ast.actions.AExternalChoiceReplicatedAction;
@@ -59,7 +59,8 @@ import eu.compassresearch.ast.process.SReplicatedProcess;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
-import eu.compassresearch.core.interpreter.api.values.LatticeTopElement;
+import eu.compassresearch.core.interpreter.api.values.CmlQuantifier;
+import eu.compassresearch.core.interpreter.api.values.CmlQuantifierList;
 import eu.compassresearch.core.interpreter.api.values.LatticeTopValue;
 import eu.compassresearch.core.interpreter.utility.LocationExtractor;
 import eu.compassresearch.core.interpreter.utility.Pair;
@@ -203,6 +204,119 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 		INode createLastReplication();
 	}
 
+	private CmlQuantifierList createQuantifierList(List<PSingleDeclaration> replicationDeclaration, 
+			Context question) throws AnalysisException {
+
+		NameValuePairList replicationDecls = new NameValuePairList();
+		List<CmlQuantifier> quantifierList = new LinkedList<CmlQuantifier>();
+
+		// Convert all the single decls into a NameValuePairList
+		for (PSingleDeclaration singleDecl : replicationDeclaration)
+		{
+			for (NameValuePair nvp : singleDecl.apply(this.cmlDefEvaluator, question))
+			{
+				// We do not allow unbounded replication
+				// FIXME this check is not sufficient, this needs to be more general
+				if (nvp.value instanceof LatticeTopValue)
+				{
+					UnboundedChecker uc = new UnboundedChecker();
+					((LatticeTopValue) nvp.value).getType().apply(uc);
+					if (uc.isUnbounded())
+						throw new CmlInterpreterException(singleDecl, InterpretationErrorMessages.UNBOUNDED_REPLICATION.customizeMessage());
+				}
+
+				replicationDecls.add(nvp);
+			}
+			
+		}
+		
+		//List<List<Value>> values = new LinkedList<List<Value>>();
+		if (replicationDecls.size() == 1)
+		{
+			List<Value> values = new LinkedList<Value>();
+			NameValuePair nvp = replicationDecls.get(0);
+			for (Value val : nvp.value.setValue(question))
+				values.add(val);
+			quantifierList.add(new CmlQuantifier(nvp.name, values));
+
+		} else
+		{
+			// If more than one decl then we need to calculate the cross product of them
+			// First we append all the sets into a list
+			//List<SetValue> sets = new LinkedList<SetValue>();
+			for (NameValuePair nvp : replicationDecls)
+			{
+				List<Value> values = new LinkedList<Value>();
+				for (Value val : nvp.value.setValue(question))
+					values.add(val);
+				quantifierList.add(new CmlQuantifier(nvp.name,values));
+				//sets.add(new SetValue(nvp.value.setValue(question)));
+			}
+
+			//for(Value val : SetMath.getCrossProduct(sets).values)
+			//	;
+		}
+
+		//		// The name of the value holding the state of the remaining values of the replication
+		//		LexNameToken replicationContextValueName = new LexNameToken("|REPLICATION|", location.toShortString(), location);
+		//		Value value = question.check(replicationContextValueName);
+		//
+		//		SetValue setValue = null;
+		//		Context nextContext = question;
+		//
+		//		// if null then this is the first action of the replication
+		//		// then we need to evaluate the
+		//		if (value == null)
+		//		{
+		//			setValue = convertReplDeclToSetValue(replicationNvpl, question);
+		//
+		//			if (setValue.values.size() == 1)
+		//				throw new AnalysisException("A replication set must at least have a cardinality of two");
+		//
+		//			// Make a set of tuples
+		//			nextContext = CmlContextFactory.newContext(location, "replication contexts", question);
+		//			nextContext.putNew(new NameValuePair(replicationContextValueName, setValue));
+		//		} else
+		//			setValue = new SetValue(value.setValue(question));
+		//
+		//		return new Pair<SetValue, Context>(setValue, nextContext);
+		return new CmlQuantifierList(quantifierList);
+	}
+	
+//	protected Pair<INode, Context> caseReplicatedActionNew(SReplicatedAction node,
+//			ReplicationFactory factory, Context question)
+//			throws AnalysisException
+//	{
+//		
+//		CmlQuantifierList ql = createQuantifierList(node.getReplicationDeclaration(), question);
+//
+//		//SetValue setValue = pair.first;
+//		//Context nextContext = pair.second;
+//
+//		INode nextNode = null;
+//
+//		// If we have two replication values then we need to have one interleaving action, since
+//		// each value represents one process replication
+//		if (setValue.values.size() == 2)
+//		{
+//			nextNode = factory.createLastReplication();
+//
+//			setChildContexts(new Pair<Context, Context>(convertReplicationToContext(setValue.values.get(0), replicationDecls, node.getLocation(), question), convertReplicationToContext(setValue.values.get(1), replicationDecls, node.getLocation(), question)));
+//		}
+//		// If we have more than two replication values then we make an interleaving between the
+//		// first value and the rest of the replicated values
+//		else
+//		{
+//			nextNode = factory.createNextReplication();
+//
+//			setChildContexts(new Pair<Context, Context>(convertReplicationToContext(setValue.values.get(0), replicationDecls, node.getLocation(), question), nextContext));
+//
+//			setValue.values.remove(0);
+//		}
+//
+//		return new Pair<INode, Context>(nextNode, question);
+//	}
+	
 	protected Pair<INode, Context> caseReplicatedAction(SReplicatedAction node,
 			ReplicationFactory factory, Context question)
 			throws AnalysisException
@@ -380,12 +494,10 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 		Context nextContext = pair.second;
 
 		INode nextNode = null;
-
-		if (setValue.values.size() == 1)
-			throw new AnalysisException("A replicated action must have at least two enumeration values");
+		
 		// If we have two replication values then we need to have one interleaving action, since
 		// each value represents one process replication
-		else if (setValue.values.size() == 2)
+		if (setValue.values.size() == 2)
 		{
 			nextNode = factory.createLastReplication();
 
@@ -397,6 +509,8 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 		{
 			nextNode = factory.createNextReplication();
 
+			//Context second = convertReplicationToContext(setValue.values.get(1), replicationDecls, node.getLocation(), question);
+			
 			setChildContexts(new Pair<Context, Context>(convertReplicationToContext(setValue.values.get(0), replicationDecls, node.getLocation(), question), nextContext));
 
 			setValue.values.remove(0);
@@ -404,6 +518,65 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 
 		return new Pair<INode, Context>(nextNode, question);
 	}
+	
+//	protected Pair<INode, Context> caseReplicatedProcessNew(
+//			SReplicatedProcess node, ReplicationFactory factory,
+//			Context question) throws AnalysisException
+//	{
+//		NameValuePairList replicationDecls = new NameValuePairList();
+//		
+//		// The name of the value holding the state of the remaining values of the replication
+//		LexNameToken replCtxValueName = new LexNameToken("|REPLICATION|", node.getLocation().toShortString(), node.getLocation());
+//		//try to locate the rep context
+//		Context replContext = question.locate(replCtxValueName);
+//		
+//		//if this is null then this is the first time its executed and
+//		//we need to create it
+//		if(replContext == null)
+//		{
+//			setValue = convertReplDeclToSetValue(replicationDecls , question);
+//			
+//			if (setValue.values.size() < 2)
+//				throw new AnalysisException("A replication set must at least have a cardinality of two");
+//			
+//			// Make a set of tuples
+//			nextContext = CmlContextFactory.newContext(location, "replication contexts", question);
+//			nextContext.putNew(new NameValuePair(replicationContextValueName, setValue));
+//		}
+//		
+//		
+//		SetValue setValue = replContext.lookup(replCtxValueName).setValue(question);
+//		
+//		Pair<SetValue, Context> pair = getCurrentReplicationValue(node.getLocation(), node.getReplicationDeclaration(), replicationDecls, question);
+//
+//		SetValue setValue = pair.first;
+//		Context nextContext = pair.second;
+//
+//		INode nextNode = null;
+//		
+//		// If we have two replication values then we need to have one interleaving action, since
+//		// each value represents one process replication
+//		if (setValue.values.size() == 2)
+//		{
+//			nextNode = factory.createLastReplication();
+//
+//			setChildContexts(new Pair<Context, Context>(convertReplicationToContext(setValue.values.get(0), replicationDecls, node.getLocation(), question), convertReplicationToContext(setValue.values.get(1), replicationDecls, node.getLocation(), question)));
+//		}
+//		// If we have more than two replication values then we make an interleaving between the
+//		// first value and the rest of the replicated values
+//		else
+//		{
+//			nextNode = factory.createNextReplication();
+//
+//			//Context second = convertReplicationToContext(setValue.values.get(1), replicationDecls, node.getLocation(), question);
+//			
+//			setChildContexts(new Pair<Context, Context>(convertReplicationToContext(setValue.values.get(0), replicationDecls, node.getLocation(), question), nextContext));
+//
+//			setValue.values.remove(0);
+//		}
+//
+//		return new Pair<INode, Context>(nextNode, question);
+//	}
 
 	@Override
 	public Pair<INode, Context> caseAGeneralisedParallelismReplicatedProcess(
@@ -474,11 +647,11 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 
 		}, question);
 	}
-	
+
 	@Override
 	public Pair<INode, Context> caseAAlphabetisedParallelismReplicatedProcess(
-			final AAlphabetisedParallelismReplicatedProcess node, final Context question)
-			throws AnalysisException
+			final AAlphabetisedParallelismReplicatedProcess node,
+			final Context question) throws AnalysisException
 	{
 		return caseReplicatedProcess(node, new ReplicationFactory()
 		{
@@ -486,24 +659,14 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 			@Override
 			public INode createNextReplication()
 			{
-				
-				return new AAlphabetisedParallelismProcess(
-						node.getLocation(), 
-						node.getReplicatedProcess().clone(),
-						node.getChansetExpression().clone(), 
-						node.getChansetExpression().clone(),
-						node);
+
+				return new AAlphabetisedParallelismProcess(node.getLocation(), node.getReplicatedProcess().clone(), node.getChansetExpression().clone(), node.getChansetExpression().clone(), node.clone());
 			}
 
 			@Override
 			public INode createLastReplication()
 			{
-				return new AAlphabetisedParallelismProcess(
-						node.getLocation(), 
-						node.getReplicatedProcess().clone(),
-						node.getChansetExpression().clone(), 
-						node.getChansetExpression().clone(),
-						node);
+				return new AAlphabetisedParallelismProcess(node.getLocation(), node.getReplicatedProcess().clone(), node.getChansetExpression().clone(), node.getChansetExpression().clone(), node.getReplicatedProcess().clone());
 			}
 
 		}, question);
@@ -578,17 +741,17 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 
 		return setValue;
 	}
-	
-	//FIXME this check is not sufficient
-	private class UnboundedChecker extends DepthFirstAnalysisCMLAdaptor 
+
+	// FIXME this check is not sufficient
+	private class UnboundedChecker extends DepthFirstAnalysisCMLAdaptor
 	{
 		private boolean isUnbounded = false;
-		
+
 		public boolean isUnbounded()
 		{
 			return isUnbounded;
 		}
-		
+
 		@Override
 		public void defaultInSNumericBasicType(SNumericBasicType node)
 				throws AnalysisException
@@ -603,28 +766,77 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 			NameValuePairList replicationNvpl, Context question)
 			throws AnalysisException
 	{
+		// Convert all the single decls into a NameValuePairList
+		for (PSingleDeclaration singleDecl : replicationDeclaration)
+		{
+			for (NameValuePair nvp : singleDecl.apply(this.cmlDefEvaluator, question))
+			{
+
+				// We do not allow unbounded replication
+				// FIXME this check is not sufficient, this needs to be more general
+				if (nvp.value instanceof LatticeTopValue)
+				{
+					UnboundedChecker uc = new UnboundedChecker();
+					((LatticeTopValue) nvp.value).getType().apply(uc);
+					if (uc.isUnbounded())
+						throw new CmlInterpreterException(singleDecl, InterpretationErrorMessages.UNBOUNDED_REPLICATION.customizeMessage());
+				}
+
+				replicationNvpl.add(nvp);
+			}
+		}
+		
 		// The name of the value holding the state of the remaining values of the replication
 		LexNameToken replicationContextValueName = new LexNameToken("|REPLICATION|", location.toShortString(), location);
-
 		Value value = question.check(replicationContextValueName);
+
+		SetValue setValue = null;
+		Context nextContext = question;
+
+		// if null then this is the first action of the replication
+		// then we need to evaluate the
+		if (value == null)
+		{
+			setValue = convertReplDeclToSetValue(replicationNvpl, question);
+			
+			if (setValue.values.size() == 1)
+				throw new AnalysisException("A replication set must at least have a cardinality of two");
+			
+			// Make a set of tuples
+			nextContext = CmlContextFactory.newContext(location, "replication contexts", question);
+			nextContext.putNew(new NameValuePair(replicationContextValueName, setValue));
+		} else
+			setValue = new SetValue(value.setValue(question));
+
+		return new Pair<SetValue, Context>(setValue, nextContext);
+	}
+	
+	protected SetValue getCurrentReplicationValueNew(
+			ILexLocation location,
+			List<PSingleDeclaration> replicationDeclaration,
+			NameValuePairList replicationNvpl, Value value, Context question)
+			throws AnalysisException
+	{
+		// The name of the value holding the state of the remaining values of the replication
+		//LexNameToken replicationContextValueName = new LexNameToken("|REPLICATION|", location.toShortString(), location);
+
+		//Value value = question.check(replicationContextValueName);
 
 		// Convert all the single decls into a NameValuePairList
 		for (PSingleDeclaration singleDecl : replicationDeclaration)
 		{
-			for(NameValuePair nvp : singleDecl.apply(this.cmlDefEvaluator, question))
+			for (NameValuePair nvp : singleDecl.apply(this.cmlDefEvaluator, question))
 			{
-				
-				//We do not allow unbounded replication 
-				//FIXME this check is not sufficient, this needs to be more general
-				if(nvp.value instanceof LatticeTopValue)
+				// We do not allow unbounded replication
+				// FIXME this check is not sufficient, this needs to be more general
+				if (nvp.value instanceof LatticeTopValue)
 				{
 					UnboundedChecker uc = new UnboundedChecker();
-					((LatticeTopValue)nvp.value).getType().apply(uc);
-					if(uc.isUnbounded())
-						throw new CmlInterpreterException(singleDecl,InterpretationErrorMessages.UNBOUNDED_REPLICATION.customizeMessage());
+					((LatticeTopValue) nvp.value).getType().apply(uc);
+					if (uc.isUnbounded())
+						throw new CmlInterpreterException(singleDecl, InterpretationErrorMessages.UNBOUNDED_REPLICATION.customizeMessage());
 				}
-				
-				
+
 				replicationNvpl.add(nvp);
 			}
 		}
@@ -637,13 +849,17 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 		if (value == null)
 		{
 			setValue = convertReplDeclToSetValue(replicationNvpl, question);
+			
+			if (setValue.values.size() == 1)
+				throw new AnalysisException("A replication set must at least have a cardinality of two");
+			
 			// Make a set of tuples
-			nextContext = CmlContextFactory.newContext(location, "replication contexts", question);
-			nextContext.putNew(new NameValuePair(replicationContextValueName, setValue));
+			//nextContext = CmlContextFactory.newContext(location, "replication contexts", question);
+			//nextContext.putNew(new NameValuePair(replicationContextValueName, setValue));
 		} else
 			setValue = new SetValue(value.setValue(question));
 
-		return new Pair<SetValue, Context>(setValue, nextContext);
+		return setValue;
 	}
 
 	/*

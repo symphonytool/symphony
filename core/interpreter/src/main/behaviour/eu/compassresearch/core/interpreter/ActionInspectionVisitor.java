@@ -695,8 +695,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 			});
 		else
 			// If the number of tocks has not exceeded val then behave as Stop
-			return newInspection(new CmlTransitionSet(new TimedTransition(owner, nTocks
-					- val)), null);
+			return newInspection(new CmlTransitionSet(new TimedTransition(owner, val - nTocks)), null);
 	}
 
 	/**
