@@ -12,6 +12,7 @@ import java.util.Vector;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.intf.IQuestionAnswer;
+import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.AInstanceVariableDefinition;
 import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.PDefinition;
@@ -294,7 +295,7 @@ public class CmlVarSetExpressionTypeChecker extends
 			}
 			case NAMESET:
 			{
-				if (!(idDef instanceof AInstanceVariableDefinition))
+				if (!(idDef instanceof AInstanceVariableDefinition || idDef instanceof AAssignmentDefinition))
 				{
 					// error not a state
 					issueHandler.addTypeError(chanName, TypeErrorMessages.DEFINITION_X_BUT_FOUND_Y.customizeMessage("state", defKind, idDef.getName().getName()));
