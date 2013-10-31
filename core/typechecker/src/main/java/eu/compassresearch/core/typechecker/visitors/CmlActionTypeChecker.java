@@ -1,6 +1,4 @@
-package eu.compassresearch.core.typechecker.version2;
-
-//import static eu.compassresearch.core.typechecker.util.CmlTCUtil.successfulType;
+package eu.compassresearch.core.typechecker.visitors;
 
 import static eu.compassresearch.core.typechecker.assistant.TypeCheckerUtil.findDefinition;
 import static eu.compassresearch.core.typechecker.assistant.TypeCheckerUtil.setType;

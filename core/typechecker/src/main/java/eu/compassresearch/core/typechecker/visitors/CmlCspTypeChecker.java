@@ -1,4 +1,4 @@
-package eu.compassresearch.core.typechecker.version2;
+package eu.compassresearch.core.typechecker.visitors;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -45,7 +45,7 @@ import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 import eu.compassresearch.core.typechecker.assistant.PParametrisationAssistant;
-import eu.compassresearch.core.typechecker.version2.CmlVarSetExpressionTypeChecker.VarSetCheckType;
+import eu.compassresearch.core.typechecker.visitors.CmlVarSetExpressionTypeChecker.VarSetCheckType;
 
 public class CmlCspTypeChecker extends
 		QuestionAnswerCMLAdaptor<TypeCheckInfo, PType>
