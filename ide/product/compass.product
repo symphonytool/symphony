@@ -17,7 +17,7 @@
       <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
    </launcherArgs>
 
-   <windowImages i16="icons/icon16.png" i32="icons/icon32.png" i64="icons/icon64.png"/>
+   <windowImages i16="icons/decorations/symphony16.png" i32="icons/decorations/symphony32.png" i64="icons/decorations/symphony64.png"/>
 
    <splash
       location="eu.compassresearch.ide.platform"
@@ -25,11 +25,11 @@
       startupMessageRect="75,200,300,15"
       startupForegroundColor="7F7F7F" />
     <launcher name="COMPASS">
-      <linux icon="/icons/linux/compass.xpm"/>
-      <macosx icon="/icons/osx/compass.icns"/>
+      <linux icon="/icons/linux/symphony.xpm"/>
+      <macosx icon="/icons/osx/symphony.icns"/>
       <solaris/>
       <win useIco="true">
-         <ico path="/icons/win/compass.ico"/>
+         <ico path="/icons/win/symphony.ico"/>
          <bmp/>
       </win>
    </launcher>
