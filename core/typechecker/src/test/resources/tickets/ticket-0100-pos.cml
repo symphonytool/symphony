@@ -1,0 +1,49 @@
+-- http://sourceforge.net/p/compassresearch/tickets/100/ 
+--
+--
+--
+
+types
+  
+  Block :: track  : int
+           sector : int
+           
+channels
+  init
+  addBlock, removeBlock, isDamaged : nat * nat
+  damaged : bool
+  getBadSectors : nat
+  badSectors : set of nat
+
+process DiskScanner =
+begin
+  state
+    damagedBlocks : set of Block := {}
+  operations
+    Init : () ==> ()
+    Init() == 
+      damagedBlocks := {}
+    AddBlock : nat * nat ==> ()
+    AddBlock(track,sector) ==
+      damagedBlocks := damagedBlocks union { mk_Block(track,sector) }
+    RemoveBlock : nat * nat ==> ()
+    RemoveBlock(track,sector) ==
+      damagedBlocks := damagedBlocks \ { mk_Block(track,sector) }
+    IsDamaged : nat * nat ==> bool
+    IsDamaged(track,sector) ==
+      return mk_Block(track,sector) in set damagedBlocks
+    GetBadSectors : nat ==> set of nat
+    GetBadSectors(track) ==
+      return { b.sector | b in set damagedBlocks @ b.track = track }
+  actions
+    Cycle =
+      ( addBlock?t?s -> AddBlock(t,s)
+        []
+        removeBlock?t?s -> RemoveBlock(t,s)
+        []
+        isDamaged?t?s -> damaged!(IsDamaged(t,s)) -> Skip 
+        []
+        getBadSectors?t -> badSectors!(GetBadSectors(t)) -> Skip ) ; Cycle
+@
+    init -> Cycle  
+end  

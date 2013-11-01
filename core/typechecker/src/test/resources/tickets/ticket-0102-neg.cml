@@ -1,7 +1,7 @@
 -- http://sourceforge.net/p/compassresearch/tickets/102/ 
 --
---TC now issue warnings when names are unused 
---
+-- TC now issue warnings when names are unused 
+-- The original model access state from functions and therefore fails the type check. 
 
 types
   Aircraft = token
