@@ -17,6 +17,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.overture.ast.intf.lex.ILexLocation;
+import org.overture.test.framework.Properties;
 import org.overture.test.framework.TestResourcesResultTestCase4;
 import org.overture.test.framework.results.IMessage;
 import org.overture.test.framework.results.Message;
@@ -31,6 +32,8 @@ import eu.compassresearch.core.typechecker.api.ITypeIssueHandler.CMLIssue;
 public abstract class AbstractResultBasedCmlTypeCheckerTestCase extends
 		TestResourcesResultTestCase4<Boolean>// extends RunCmlExamplesTestCase
 {
+	protected static final String SRC_TEST_RESOURCES = "src/test/resources/";
+	private static final String TESTS_TC_PROPERTY_PREFIX = "tests.tc.override.";
 	private final TestType type;
 	List<File> inputFiles = null;
 
@@ -66,18 +69,19 @@ public abstract class AbstractResultBasedCmlTypeCheckerTestCase extends
 
 	public static Collection<Object[]> collectResourcesTestData(String path)
 	{
-		return collectResourcesTestData("src/test/resources/" + path, TestType.ANY);
+		return collectResourcesTestData(SRC_TEST_RESOURCES + path, TestType.ANY);
 	}
 
 	public static Collection<Object[]> collectResourcesTestData(String path,
 			String endswith)
 	{
-		return collectTestData("src/test/resources/" + path, TestType.ANY, endswith);
+		return collectTestData(SRC_TEST_RESOURCES + path, TestType.ANY, endswith);
 	}
 
 	public enum TestType
 	{
-		SKIP("*.cml"), ANY(".cml"), POSITIVE("-pos.cml"), NEGATIVE("-neg.cml");
+		SKIP("*.cml"), ANY(".cml"), POSITIVE("-pos.cml"), NEGATIVE("-neg.cml"), COMPARE_RECORDRD(
+				".cml");
 		public final String endswith;
 
 		TestType(String endswith)
@@ -89,7 +93,19 @@ public abstract class AbstractResultBasedCmlTypeCheckerTestCase extends
 	public static Collection<Object[]> collectResourcesTestData(String path,
 			TestType type)
 	{
-		return collectTestData("src/test/resources/" + path, type, type.endswith);
+		return collectTestData(SRC_TEST_RESOURCES + path, type, type.endswith);
+	}
+
+	public static Collection<Object[]> collectResourcesTestData(String path,
+			TestType type, TestType compareType)
+	{
+		return collectTestData(SRC_TEST_RESOURCES + path, compareType, type.endswith);
+	}
+
+	public static Collection<Object[]> collectTestData(String path,
+			TestType type, TestType compareType)
+	{
+		return collectTestData(path, compareType, type.endswith);
 	}
 
 	public static Collection<Object[]> collectTestData(String path,
@@ -124,6 +140,12 @@ public abstract class AbstractResultBasedCmlTypeCheckerTestCase extends
 	}
 
 	public static Collection<Object[]> collectTestDataMultipleFiles(
+			String path, TestType type, TestType compareType)
+	{
+		return collectTestDataMultipleFiles(path, compareType, type.endswith);
+	}
+
+	public static Collection<Object[]> collectTestDataMultipleFiles(
 			String path, TestType type, final String endswith)
 	{
 		Collection<Object[]> data = collectTestData(path, type, endswith);
@@ -145,6 +167,7 @@ public abstract class AbstractResultBasedCmlTypeCheckerTestCase extends
 	@Test
 	public void test() throws IOException
 	{
+		configureResultGeneration();
 		// Properties.recordTestResults = false;
 		TestUtil.TypeCheckerResult res = null;
 
@@ -187,8 +210,26 @@ public abstract class AbstractResultBasedCmlTypeCheckerTestCase extends
 			Assert.assertTrue("Unexpected success of type checking", res.issueHandler.hasErrors());
 		}
 
-		compareResults(result, file.getAbsolutePath());
+		if (type == TestType.COMPARE_RECORDRD)
+		{
+			compareResults(result, file.getAbsolutePath());
+		}
+	}
 
+	private void configureResultGeneration()
+	{
+		if (System.getProperty(TESTS_TC_PROPERTY_PREFIX + "all") != null
+				|| (getPropertyId() != null && System.getProperty(TESTS_TC_PROPERTY_PREFIX
+						+ getPropertyId()) != null))
+		{
+			Properties.recordTestResults = true;
+		}
+
+	}
+
+	protected String getPropertyId()
+	{
+		return null;
 	}
 
 	public static List<IMessage> convert(List<? extends CMLIssue> list)
@@ -232,5 +273,12 @@ public abstract class AbstractResultBasedCmlTypeCheckerTestCase extends
 	protected File getResultFile(String filename)
 	{
 		return new File(filename + ".result");
+	}
+
+	protected String getResultPath(String filename, String relativePath,
+			String folder)
+	{
+		return SRC_TEST_RESOURCES + folder + "/"
+				+ filename.substring(relativePath.length() + 1);
 	}
 }

@@ -14,8 +14,9 @@ import org.junit.runners.Parameterized.Parameters;
 public class LivePublicTestCase extends
 		AbstractResultBasedCmlTypeCheckerTestCase
 {
-	private static String caseStudyDir = (System.getProperty("CASESTUDIES")!=null?System.getProperty("CASESTUDIES")
-			+ "/../PublicLiveCMLCaseStudies/":null);
+	private static String caseStudyDir = (System.getProperty("CASESTUDIES") != null ? System.getProperty("CASESTUDIES")
+			+ "/../PublicLiveCMLCaseStudies/"
+			: null);
 	static String[] specifications = {
 
 	"/BitRegister", "/Dwarf", "/AVDeviceDiscovery", "/ChoiceSupportInDebugger",
@@ -38,7 +39,7 @@ public class LivePublicTestCase extends
 
 		for (String spec : specifications)
 		{
-			results.addAll(collectTestDataMultipleFiles(caseStudyDir + spec, TestType.POSITIVE, TestType.ANY.endswith));
+			results.addAll(collectTestDataMultipleFiles(caseStudyDir + spec, TestType.ANY, TestType.COMPARE_RECORDRD));
 		}
 
 		for (Object[] test : results)
@@ -50,22 +51,24 @@ public class LivePublicTestCase extends
 
 	}
 
-	// @Before
-	// public void setup()
-	// {
-	// Properties.recordTestResults = true;
-	// }
-
 	@Override
 	protected File createResultFile(String filename)
 	{
-		return new File(filename + "/result.result");
+		return new File(getResultPath(filename, caseStudyDir, "LivePublic")
+				+ "/result.result");
 	}
 
 	@Override
 	protected File getResultFile(String filename)
 	{
-		return new File(filename + "/result.result");
+		return new File(getResultPath(filename, caseStudyDir, "LivePublic")
+				+ "/result.result");
+	}
+
+	@Override
+	protected String getPropertyId()
+	{
+		return "livepublic";
 	}
 
 }

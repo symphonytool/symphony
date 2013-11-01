@@ -14,6 +14,8 @@ public class RunCmlExamplesTestCase extends
 		AbstractResultBasedCmlTypeCheckerTestCase
 {
 
+	private static final String path = "../../docs/cml-examples/";
+
 	public RunCmlExamplesTestCase(File file, String name, TestType type)
 	{
 		super(file, name, type);
@@ -22,7 +24,7 @@ public class RunCmlExamplesTestCase extends
 	@Parameters(name = "{1}")
 	public static Collection<Object[]> getData()
 	{
-		return filter(collectTestData("../../docs/cml-examples/", TestType.ANY, TestType.ANY.endswith));
+		return filter(collectTestData(path, TestType.ANY, TestType.ANY));
 	}
 
 	private static Collection<Object[]> filter(
@@ -43,10 +45,26 @@ public class RunCmlExamplesTestCase extends
 		return collectTestData;
 	}
 
-	// @Before
-	// public void setup()
-	// {
-	// Properties.recordTestResults = true;
-	// }
+	@Override
+	protected String getPropertyId()
+	{
+		return "run";
+	}
+
+	@Override
+	protected File createResultFile(String filename)
+	{
+		return new File(filename.replace(path.replace('/', File.separatorChar), SRC_TEST_RESOURCES
+				+ "GitExamples/").replace(".cml", "")
+				+ ".result");
+	}
+
+	@Override
+	protected File getResultFile(String filename)
+	{
+		return new File(filename.replace(path.replace('/', File.separatorChar), SRC_TEST_RESOURCES
+				+ "GitExamples/").replace(".cml", "")
+				+ ".result");
+	}
 
 }

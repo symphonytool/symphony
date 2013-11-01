@@ -21,13 +21,13 @@ public class StatementsCmlTypeCheckerTests extends
 	{
 		// return combine(collectResourcesTestData("statements",
 		// TestType.POSITIVE),collectResourcesTestData("statements", TestType.NEGATIVE));
-		return collectResourcesTestData("statements", TestType.POSITIVE);
+		return collectResourcesTestData("statements", TestType.POSITIVE, TestType.COMPARE_RECORDRD);
 	}
 
-	// @Before
-	// public void setup()
-	// {
-	// Properties.recordTestResults = true;
-	// }
+	@Override
+	protected String getPropertyId()
+	{
+		return "statements";
+	}
 
 }

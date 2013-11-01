@@ -17,23 +17,21 @@ public class CaseStudiesTestCase extends
 	private static String caseStudyDir = System.getProperty("CASESTUDIES");
 	static String[] specifications = {
 
-			// parse errors "/BitRegister",
+	"/Dwarf",
 
-			"/Dwarf",
+	"/EmergencyResponse/Expert-Led/model",
 
-			"/EmergencyResponse/Expert-Led/model",
+	"/EmergencyResponse/Rules-Led/model",
 
-			"/EmergencyResponse/Rules-Led/model",
+	"/GridManager/FarmB",
 
-			"/GridManager/FarmB",
+	"/LeaderElection/Election-BigProcess",
 
-			"/LeaderElection/Election-BigProcess",
+	"/LeaderElection/Election-NonLeaders",
 
-			"/LeaderElection/Election-NonLeaders",
+	"/LeaderElection/Election-Original",
 
-			"/LeaderElection/Election-Original",
-
-			"/LeaderElection/LeaderElection-Ncl",
+			// "/LeaderElection/LeaderElection-Ncl",
 
 			"/LeaderElection",
 
@@ -45,9 +43,9 @@ public class CaseStudiesTestCase extends
 
 			"/Simpler BitRegister",
 
-			"/SoSMpc/ideal",
+			// "/SoSMpc/ideal",
 
-			"/SoSMpc/protocol",
+			// "/SoSMpc/protocol",
 
 			"/SoSMpc/singlesystem",
 
@@ -57,11 +55,11 @@ public class CaseStudiesTestCase extends
 
 			"/TrafficManager/CityAndCars/City",
 
-			"/TrafficManager/CityAndCars/City-Working",
+			// "/TrafficManager/CityAndCars/City-Working",
 
 			"/TrafficManager/Junctions",
 
-			"/TravelAgent/Hotel1",
+			// "/TravelAgent/Hotel1",
 
 			"/TravelAgent/Hotel2",
 
@@ -84,7 +82,7 @@ public class CaseStudiesTestCase extends
 
 		for (String spec : specifications)
 		{
-			results.addAll(collectTestDataMultipleFiles(caseStudyDir + spec, TestType.POSITIVE, TestType.ANY.endswith));
+			results.addAll(collectTestDataMultipleFiles(caseStudyDir + spec, TestType.ANY, TestType.COMPARE_RECORDRD));
 		}
 
 		for (Object[] test : results)
@@ -96,22 +94,24 @@ public class CaseStudiesTestCase extends
 
 	}
 
-	// @Before
-	// public void setup()
-	// {
-	// Properties.recordTestResults = true;
-	// }
-
 	@Override
 	protected File createResultFile(String filename)
 	{
-		return new File(filename + "/result.result");
+		return new File(getResultPath(filename, caseStudyDir, "CaseStudies")
+				+ "/result.result");
 	}
 
 	@Override
 	protected File getResultFile(String filename)
 	{
-		return new File(filename + "/result.result");
+		return new File(getResultPath(filename, caseStudyDir, "CaseStudies")
+				+ "/result.result");
+	}
+
+	@Override
+	protected String getPropertyId()
+	{
+		return "casestudies";
 	}
 
 }

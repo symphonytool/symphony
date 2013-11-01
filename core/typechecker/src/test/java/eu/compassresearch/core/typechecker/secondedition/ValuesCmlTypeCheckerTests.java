@@ -19,13 +19,13 @@ public class ValuesCmlTypeCheckerTests extends
 	@Parameters(name = "{1}")
 	public static Collection<Object[]> getData()
 	{
-		return combine(collectResourcesTestData("values", TestType.POSITIVE), collectResourcesTestData("values", TestType.NEGATIVE));
+		return combine(collectResourcesTestData("values", TestType.POSITIVE, TestType.COMPARE_RECORDRD), collectResourcesTestData("values", TestType.NEGATIVE, TestType.COMPARE_RECORDRD));
 	}
 
-	// @Before
-	// public void setup()
-	// {
-	// Properties.recordTestResults = true;
-	// }
+	@Override
+	protected String getPropertyId()
+	{
+		return "values";
+	}
 
 }

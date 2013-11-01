@@ -19,13 +19,13 @@ public class ChannelsCmlTypeCheckerTests extends
 	@Parameters(name = "{1}")
 	public static Collection<Object[]> getData()
 	{
-		return combine(collectResourcesTestData("channels", TestType.POSITIVE), collectResourcesTestData("channels", TestType.NEGATIVE));
+		return combine(collectResourcesTestData("channels", TestType.POSITIVE, TestType.COMPARE_RECORDRD), collectResourcesTestData("channels", TestType.NEGATIVE, TestType.COMPARE_RECORDRD));
 	}
 
-	// @Before
-	// public void setup()
-	// {
-	// Properties.recordTestResults = true;
-	// }
+	@Override
+	protected String getPropertyId()
+	{
+		return "channels";
+	}
 
 }

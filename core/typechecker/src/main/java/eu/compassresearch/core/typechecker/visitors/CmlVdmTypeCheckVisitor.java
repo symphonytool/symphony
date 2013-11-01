@@ -95,7 +95,7 @@ public class CmlVdmTypeCheckVisitor extends
 
 					// if(!(node.parent() instanceof PExp))
 					// we also report an error when it is called from a AWriteCommunicationParameter is that intentional
-					System.out.println(node.parent().getClass().getSimpleName());
+//					System.out.println(node.parent().getClass().getSimpleName());
 					TypeCheckerErrors.report(3425, "Operation '"
 							+ node.getRoot()
 							+ "' cannot be called in an expression", node.getLocation(), node);

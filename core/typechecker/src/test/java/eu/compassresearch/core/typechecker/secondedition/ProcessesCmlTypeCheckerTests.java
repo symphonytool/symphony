@@ -19,13 +19,13 @@ public class ProcessesCmlTypeCheckerTests extends
 	@Parameters(name = "{1}")
 	public static Collection<Object[]> getData()
 	{
-		return combine(collectResourcesTestData("processes", TestType.POSITIVE), collectResourcesTestData("processes", TestType.NEGATIVE));
+		return combine(collectResourcesTestData("processes", TestType.POSITIVE, TestType.COMPARE_RECORDRD), collectResourcesTestData("processes", TestType.NEGATIVE, TestType.COMPARE_RECORDRD));
 	}
 
-	// @Before
-	// public void setup()
-	// {
-	// Properties.recordTestResults = true;
-	// }
+	@Override
+	protected String getPropertyId()
+	{
+		return "processes";
+	}
 
 }

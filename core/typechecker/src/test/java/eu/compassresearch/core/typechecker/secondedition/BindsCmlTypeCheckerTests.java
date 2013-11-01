@@ -19,13 +19,13 @@ public class BindsCmlTypeCheckerTests extends
 	@Parameters(name = "{1}")
 	public static Collection<Object[]> getData()
 	{
-		return combine(collectResourcesTestData("binds", TestType.POSITIVE), collectResourcesTestData("binds", TestType.NEGATIVE));
+		return combine(collectResourcesTestData("binds", TestType.POSITIVE, TestType.COMPARE_RECORDRD), collectResourcesTestData("binds", TestType.NEGATIVE, TestType.COMPARE_RECORDRD));
 	}
 
-	// @Before
-	// public void setup()
-	// {
-	// Properties.recordTestResults = true;
-	// }
+	@Override
+	protected String getPropertyId()
+	{
+		return "binds";
+	}
 
 }
