@@ -924,7 +924,7 @@ actionParagraphOptList returns[List<PDefinition> defs]
 actionParagraph returns[List<? extends PDefinition> defs]
     : typeDefs          { $defs = $typeDefs.defs.getTypes(); }
     | valueDefs         { $defs = $valueDefs.defs.getValueDefinitions(); }
-    | stateDefs         { $defs = $stateDefs.defs.getStateDefs(); }
+    | stateDefs         { $defs = ($stateDefs.defs!=null?$stateDefs.defs.getStateDefs():null); }
     | functionDefs      { $defs = $functionDefs.defs.getFunctionDefinitions(); }
     | operationDefs     { $defs = $operationDefs.defs.getOperations(); }
     | actionDefs        { $defs = $actionDefs.defs.getActions(); }
@@ -2242,24 +2242,53 @@ explicitFunctionDefinitionTail returns[AExplicitFunctionDefinition tail]
     : ':' type IDENTIFIER parameterGroupList '==' functionBody ('pre' pre=expression )? ('post' post=expression)? ('measure' name)?
         {
             ILexLocation location = extractLexLocation($IDENTIFIER);
-            $tail = new AExplicitFunctionDefinition();
+            
+			/*
+			ILexNameToken name, 
+			NameScope scope,
+			List<ILexNameToken> typeParams, 
+			AFunctionType type,
+			List<List<PPattern>> parameters, 
+			PExp body, 
+			PExp precondition,
+			PExp postcondition, 
+			boolean typeInvariant, 
+			ILexNameToken measure
+			*/
+			ILexNameToken name = new CmlLexNameToken("", $IDENTIFIER.getText(), location);
+			
+			$tail = AstFactory.newAExplicitFunctionDefinition(
+				name,
+				NameScope.GLOBAL,
+				null,//typeParams
+				(AFunctionType)$type.type,
+				$parameterGroupList.pgroups,//parameters
+				$functionBody.exp,
+				$pre.exp,
+				$post.exp,
+				false,//typeInvariant
+				$name.name
+			);
+			
+			
+			//$tail = new AExplicitFunctionDefinition();
 
-            $tail.setName(new CmlLexNameToken("", $IDENTIFIER.getText(), location));
-            $tail.setParamPatternList($parameterGroupList.pgroups);
-            $tail.setBody($functionBody.exp);
-            $tail.setIsUndefined(false);
-            $tail.setRecursive(false);
-            $tail.setPrecondition($pre.exp);
-            $tail.setPostcondition($post.exp);
-            $tail.setType($type.type);
-            $tail.setIsCurried(false);
-            $tail.setMeasure($name.name);
-            $tail.setAccess(getPrivateAccessSpecifier(false, false, extractLexLocation($IDENTIFIER)));
+            //$tail.setName(new CmlLexNameToken("", $IDENTIFIER.getText(), location));
+            //$tail.setParamPatternList($parameterGroupList.pgroups);
+            //$tail.setBody($functionBody.exp);
+            //$tail.setIsUndefined(false);
+            //$tail.setRecursive(false);
+            //$tail.setPrecondition($pre.exp);
+            //$tail.setPostcondition($post.exp);
+            //$tail.setType($type.type);
+            //$tail.setIsCurried(false);
+            //$tail.setMeasure($name.name);
+            //$tail.setAccess(getPrivateAccessSpecifier(false, false, extractLexLocation($IDENTIFIER)));
             
             // Force all functions to be static for VDM-10
 			$tail.getAccess().setStatic(new TStatic());
             
-            $tail.setPass(Pass.DEFS); // what's this for? RWL: The Overture type checker runs in three PASSes (TYPES, VALUES, DEFS)
+            //$tail.setPass(Pass.DEFS); // what's this for? RWL: The Overture type checker runs in three PASSes (TYPES, VALUES, DEFS)
             // in order to make defined types and values available for function definitions PASS for functinos must be DEFS. :)
         }
     ;
@@ -2281,96 +2310,33 @@ parameterGroup returns[List<PPattern> pgroup]
 implicitFunctionDefinitionTail returns[AImplicitFunctionDefinition tail]
     : '(' parameterTypeList? ')' resultTypeList ('pre' pre=expression )? 'post' post=expression
         {
-            $tail = new AImplicitFunctionDefinition();
-            $tail.setNameScope(NameScope.LOCAL);
-            $tail.setIsUndefined(false);
-            $tail.setUsed(Boolean.FALSE);
-            $tail.setAccess(getDefaultAccessSpecifier(false,false,null));
-            
-            // Force all functions to be static for VDM-10
-			$tail.getAccess().setStatic(new TStatic());
-            
-            $tail.setRecursive(false);
-
-            List<APatternListTypePair> paramPatterns = $parameterTypeList.ptypes;
+		
+			ILexLocation typeloc = extractLexLocation($implicitFunctionDefinitionTail.start, $resultTypeList.stop);
+		
+			
+			ILexNameToken name = new CmlLexNameToken("-place-holder","-place-holder",typeloc);// remember to reset name and location later when it is parsed
+			
+			List<APatternListTypePair> paramPatterns = $parameterTypeList.ptypes;
             if (paramPatterns == null)
+			{
                 paramPatterns = new ArrayList<APatternListTypePair>();
-            $tail.setParamPatterns(paramPatterns);
-
-            List<APatternTypePair> resultList = $resultTypeList.rtypes;
-            APatternTypePair resultTypePair = null;
-            if (resultList.size() == 1) {
-                resultTypePair = resultList.get(0);
-            } else {
-                // VDMJ needs a product type of all of the result types
-                ATuplePattern tuple = new ATuplePattern();
-                List<PPattern> plist = new ArrayList<PPattern>();
-                for (APatternTypePair pair : resultList)
-                    plist.add(pair.getPattern());
-                tuple.setPlist(plist);
-                resultTypePair = new APatternTypePair(false, tuple);
-            }
-            $tail.setResult(resultTypePair);
-
-            // pre may be null, but that is ok
-            $tail.setPrecondition($pre.exp);
-            $tail.setPostcondition($post.exp);
-
-            // figure out the overall function type
+			}
+			
+			
+			// figure out the overall function type
             List<PType> paramTypes = new ArrayList<PType>();
             for (APatternListTypePair pp : paramPatterns)
+			{
                 for(PPattern ptrn : pp.getPatterns())
+				{
                     paramTypes.add(pp.getType());
-            ILexLocation typeloc = extractLexLocation($implicitFunctionDefinitionTail.start, $resultTypeList.stop);
-            $tail.setType(AstFactory.newAFunctionType(typeloc, true, paramTypes, resultTypePair.getType()));
-
-            // set predef only if $pre.exp is present
-            //AFunctionType prepostType = (AFunctionType)$tail.getType().clone();
-            /*if ($pre.exp != null) {
-                ILexNameToken prename = new CmlLexNameToken("", new LexIdentifierToken("pre_"+$tail.getName(), false, $pre.exp.getLocation()));
-                NameScope prescope = NameScope.LOCAL;
-                List<ILexNameToken> pretypeParams = new LinkedList<ILexNameToken>();
-                prepostType.setResult(new ABooleanBasicType($pre.exp.getLocation(), true));
-            
-                PExp preprecondition = null;
-                PExp prepostcondition = null;
-                List<List<PPattern>> preparameterGroupList = new LinkedList<List<PPattern>>();
-                List<PPattern> currentp = new LinkedList<PPattern>();
-                for(APatternListTypePair pt : paramPatterns) {
-                    for(PPattern p : pt.getPatterns()) {
-                        currentp.add(p.clone());
-                    }
-                }
-                preparameterGroupList.add(currentp);
-                AExplicitFunctionDefinition predef =
-                    AstFactory.newAExplicitFunctionDefinition(prename, prescope, pretypeParams, prepostType, preparameterGroupList, $pre.exp, preprecondition, prepostcondition, false, null);
-                predef.parent(null);
-                $tail.setPredef(predef);
-            }
-            */
-            // set postdef
-            //ILexNameToken name = new CmlLexNameToken("", new LexIdentifierToken("post_"+$tail.getName(), false, $post.exp.getLocation()));
-            //NameScope scope = NameScope.LOCAL;
-            //List<ILexNameToken> typeParams = null;
-            //PType type = $tail.getType();
-            //PExp body = $tail.getPostcondition();
-            //PExp precondition = null;
-            //PExp postcondition = null;
-            //List<List<PPattern>> postParameterGroupList = new LinkedList<List<PPattern>>();
-            //for(APatternListTypePair pt : paramPatterns) {
-            //    List<PPattern> current = new LinkedList<PPattern>();
-            //    for(PPattern p : pt.getPatterns())
-            //        current.add(p.clone());
-            //    postParameterGroupList.add(current);
-            //}
-            //prepostType = prepostType.clone();
-            //prepostType.setResult(new ABooleanBasicType($post.exp.getLocation(), true));
-            //AExplicitFunctionDefinition postdef =
-            //    AstFactory.newAExplicitFunctionDefinition(name, scope, typeParams, prepostType.clone(), postParameterGroupList, body, precondition, postcondition, false, null);
-            //postdef.parent(null);
-            //$tail.setPostdef(postdef);
-            
-            //implicit function interpretation
+				}
+			}
+			
+			
+			PExp body = null;
+			
+			//implicit function interpretation
 			if($post.exp != null && $post.exp instanceof AInSetBinaryExp 
 			    && ((AInSetBinaryExp)$post.exp).getLeft() instanceof AVariableExp)
 			{
@@ -2379,8 +2345,82 @@ implicitFunctionDefinitionTail returns[AImplicitFunctionDefinition tail]
 			   AVariableExp varExp = (AVariableExp)exp.getLeft();
 			   patterns.add(AstFactory.newAIdentifierPattern(varExp.getName().clone()));
 			   ASetMultipleBind bind = AstFactory.newASetMultipleBind(patterns, exp.getRight().clone());
-			   $tail.setBody(AstFactory.newALetBeStExp(exp.getLocation(), bind, null, exp.getLeft().clone()));
+			   body = AstFactory.newALetBeStExp(exp.getLocation(), bind, null, exp.getLeft().clone());
 			}
+			
+			
+			 List<APatternTypePair> resultList = $resultTypeList.rtypes;
+            APatternTypePair resultTypePair = null;
+            if (resultList.size() == 1) 
+			{
+                resultTypePair = resultList.get(0);
+            } else {
+                // VDMJ needs a product type of all of the result types
+                ATuplePattern tuple = new ATuplePattern();
+                List<PPattern> plist = new ArrayList<PPattern>();
+                for (APatternTypePair pair : resultList)
+				{
+                    plist.add(pair.getPattern());
+				}
+                tuple.setPlist(plist);
+                resultTypePair = new APatternTypePair(false, tuple);
+            }
+            			
+			/*
+			ILexNameToken name, 
+			NameScope scope,
+			List<ILexNameToken> typeParams,
+			List<APatternListTypePair> parameterPatterns,
+			APatternTypePair resultPattern, 
+			PExp body, 
+			PExp precondition,
+			PExp postcondition, 
+			ILexNameToken measure
+			*/
+            
+			$tail = AstFactory.newAImplicitFunctionDefinition(
+				name, //temp name
+				NameScope.GLOBAL,
+				null,//paramTypes,
+				paramPatterns,
+				resultTypePair,
+				body,
+				$pre.exp,
+				$post.exp,
+				null // no measure
+			);
+			
+			
+			
+			/*$tail = new AImplicitFunctionDefinition();
+            $tail.setNameScope(NameScope.LOCAL);
+            $tail.setIsUndefined(false);
+            $tail.setUsed(Boolean.FALSE);
+            $tail.setAccess(getDefaultAccessSpecifier(false,false,null));
+            */
+            // Force all functions to be static for VDM-10
+			$tail.getAccess().setStatic(new TStatic());
+            
+            //$tail.setRecursive(false);
+
+            
+            /*$tail.setParamPatterns(paramPatterns);
+
+
+            // pre may be null, but that is ok
+            $tail.setPrecondition($pre.exp);
+            $tail.setPostcondition($post.exp);
+
+            
+            
+            
+
+  */
+           
+           
+			
+            //$tail.setType(AstFactory.newAFunctionType(typeloc, true, paramTypes, resultTypePair.getType()));
+            
         }
     ;
 
