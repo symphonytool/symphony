@@ -3,7 +3,6 @@ package eu.compassresearch.core.typechecker.analysis;
 import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.definitions.PAccess;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.definitions.SClassDefinition;
 import org.overture.ast.expressions.PExp;
@@ -55,19 +54,17 @@ public class UniquenessChecker extends DepthFirstAnalysisCMLAdaptor
 	{
 		new FlatStrictCheckEnvironment(AF, node.getDefinitions(), this.env, NameScope.NAMESANDSTATE);
 	}
-	
+
 	@Override
 	public void defaultPExp(PExp node) throws AnalysisException
 	{
 	}
-	
 
 	@Override
 	public void defaultPStm(PStm node) throws AnalysisException
 	{
 	}
-	
-	
+
 	@Override
 	public void defaultSClassDefinition(SClassDefinition node)
 			throws AnalysisException
