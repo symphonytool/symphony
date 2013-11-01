@@ -1,5 +1,7 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.auxiliary;
 
+import java.util.LinkedList;
+
 import org.overture.ast.types.AIntNumericBasicType;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
@@ -13,18 +15,74 @@ import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCALessNume
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANotEqualsBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAVariableExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAIntNumericBasicType;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANamedInvariantType;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAProductType;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLNumericType;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCVoidType;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 
 public class ExpressionEvaluator implements IExpressionEvaluator {
 
 	private static ExpressionEvaluator instance;
 	
-	
 	public static ExpressionEvaluator getInstance(){
 		if(instance == null){
 			instance = new ExpressionEvaluator();
 		}
 		return instance;
+	}
+	
+	
+	private MCPCMLType getTypeFor(MCPCMLExp exp){
+		MCPCMLType result = null;
+		if(exp instanceof MCAIntLiteralExp){
+			result = this.getTypeFor((MCAIntLiteralExp)exp);
+		} else if(exp instanceof MCAVariableExp){
+			result = this.getTypeFor((MCAVariableExp)exp);
+		}
+		
+		return result;
+	}
+	
+	public MCPCMLType instantiateMCType(LinkedList<MCPCMLExp> exps){
+		MCPCMLType result = null;
+		
+		if(exps.size() == 0){
+			result = new MCVoidType();
+		} else if (exps.size() == 1){
+			result = this.getTypeFor(exps.getFirst());
+		} else if (exps.size() > 1){
+			LinkedList<MCPCMLType> types = new LinkedList<MCPCMLType>();
+			for (MCPCMLExp exp : exps) {
+				types.add(instantiateMCType(exp));
+			}
+			result = new MCAProductType(types);
+		}
+		
+		return result;
+	}
+	public MCPCMLType instantiateMCType(MCPCMLExp exp){
+		
+		LinkedList<MCPCMLExp> exps = new LinkedList<MCPCMLExp>();
+		exps.add(exp);
+		
+		return this.instantiateMCType(exps);
+	}
+	private MCPCMLType getTypeFor(MCAIntLiteralExp exp){
+		MCPCMLType result = null;
+		
+		result = new MCAIntNumericBasicType(exp.getValue());
+		
+		return result;
+	}
+	private MCPCMLType getTypeFor(MCAVariableExp exp){
+		MCPCMLType result = null;
+		
+		result = new MCANamedInvariantType(exp.getName());
+		
+		return result;
 	}
 	
 	public String obtainValue(MCPCMLExp expression){

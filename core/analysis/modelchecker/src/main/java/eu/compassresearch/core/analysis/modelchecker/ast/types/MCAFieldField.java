@@ -26,4 +26,11 @@ public class MCAFieldField implements MCPCMLType {
 		this.tagName = tagName;
 	}
 
+
+	@Override
+	public MCPCMLType copy() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

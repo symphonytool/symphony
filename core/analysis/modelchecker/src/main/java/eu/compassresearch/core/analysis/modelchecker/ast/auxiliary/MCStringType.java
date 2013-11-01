@@ -1,32 +1,35 @@
-package eu.compassresearch.core.analysis.modelchecker.ast.types;
+package eu.compassresearch.core.analysis.modelchecker.ast.auxiliary;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 
-public class MCANatNumericBasicType extends MCPCMLNumericType {
+public class MCStringType implements MCPCMLType {
 
+	private String value;
 	
-	public MCANatNumericBasicType(String value) {
-		super(value);
-		// TODO Auto-generated constructor stub
+	public MCStringType(String value) {
+		this.value = value;
 	}
+
 
 	@Override
 	public String toFormula(String option) {
 		StringBuilder result = new StringBuilder();
 		switch (option) {
 		case MCNode.DEFAULT:
-			result.append("Natural");
+			result.append("\"" + this.value + "\"");
 			break;
-		
+
 		case MCNode.NAMED:
-			result.append(this.getValue());
+			result.append(this.value);
 			break;
-			
+
 		default:
 			break;
 		}
 		return result.toString();
 	}
+
 
 	@Override
 	public MCPCMLType copy() {
@@ -34,4 +37,5 @@ public class MCANatNumericBasicType extends MCPCMLNumericType {
 		return null;
 	}
 
+	
 }

@@ -15,10 +15,12 @@ import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.ast.types.PCMLType;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAChannelType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAIntNumericBasicType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANamedInvariantType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANatNumericBasicType;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAProductType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 
 public class NewMCTypeAndValueVisitor extends
@@ -42,14 +44,15 @@ public class NewMCTypeAndValueVisitor extends
 	@Override
 	public MCNode caseANatNumericBasicType(ANatNumericBasicType node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
-		return new MCANatNumericBasicType();
+	
+		return new MCANatNumericBasicType(node.toString());
 	}
 	
 	@Override
 	public MCNode caseAIntNumericBasicType(AIntNumericBasicType node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
 		
-		return new MCAIntNumericBasicType();
+		return new MCAIntNumericBasicType(node.toString());
 	}
 
 	
@@ -76,29 +79,21 @@ public class NewMCTypeAndValueVisitor extends
 		
 		return result;
 	}
-	
-	/*
-	
-	
-	
+
 	@Override
-	public StringBuilder caseAProductType(AProductType node,
-			CMLModelcheckerContext question) throws AnalysisException {
+	public MCNode caseAProductType(AProductType node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
 		
-		LinkedList<PType> types = new LinkedList<PType>(node.getTypes());
-		do{
-			PType auxType = types.pollFirst();
-			question.getScriptContent().append(auxType.toString());
-			if(!types.isEmpty()){
-				question.getScriptContent().append(",");
-			}
-		}while(!types.isEmpty());
+		LinkedList<MCPCMLType> mcTypes = new LinkedList<MCPCMLType>();
+		for (PType pType : node.getTypes()) {
+			mcTypes.add((MCPCMLType) pType.apply(this,question));
+		}
+		MCAProductType result = new MCAProductType(mcTypes);
 		
-		
-		return question.getScriptContent();
+		return result;
 	}
 
-	*/
+
 	@Override
 	public MCNode createNewReturnValue(INode node,
 			NewCMLModelcheckerContext question) throws AnalysisException

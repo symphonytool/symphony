@@ -16,6 +16,7 @@ import org.overture.ast.expressions.APlusNumericBinaryExp;
 import org.overture.ast.expressions.ASeqEnumSeqExp;
 import org.overture.ast.expressions.ASetEnumSetExp;
 import org.overture.ast.expressions.ASetRangeSetExp;
+import org.overture.ast.expressions.ASubtractNumericBinaryExp;
 import org.overture.ast.expressions.ATimesNumericBinaryExp;
 import org.overture.ast.expressions.AVariableExp;
 import org.overture.ast.expressions.PExp;
@@ -44,6 +45,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAPlusNume
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASeqEnumSeqExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASetEnumSetExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASetRangeSetExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASubtractNumericBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCATimesNumericBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAVariableExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
@@ -80,27 +82,18 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 	}
 		
 
-	/*
 	@Override
-	public StringBuilder caseASubtractNumericBinaryExp(
-			ASubtractNumericBinaryExp node, CMLModelcheckerContext question)
+	public MCNode caseASubtractNumericBinaryExp(
+			ASubtractNumericBinaryExp node, NewCMLModelcheckerContext question)
 			throws AnalysisException {
 		
-		CMLModelcheckerContext localCtxt = new CMLModelcheckerContext(); 
-		//String result = node.getLeft().apply(this, localCtxt).toString();
-		String result = node.getLeft().apply(this, localCtxt).toString();
-		result = eu.compassresearch.core.analysis.modelchecker.graphBuilder.util.Utilities.extractConstructor(result);
-		question.getScriptContent().append(result);
-		question.getScriptContent().append(" - ");
-		localCtxt.reset();
-		//result = node.getRight().apply(this, localCtxt).toString();
-		result = node.getRight().apply(this, localCtxt).toString();
-		result = eu.compassresearch.core.analysis.modelchecker.graphBuilder.util.Utilities.extractConstructor(result);
-		question.getScriptContent().append(result);
+		MCPCMLExp left = (MCPCMLExp) node.getLeft().apply(this, question);
+		MCPCMLExp right = (MCPCMLExp) node.getRight().apply(this, question);
+		MCASubtractNumericBinaryExp result = new MCASubtractNumericBinaryExp(left,right);
 		
-		return question.getScriptContent();
+		return result;
+		
 	}
-	*/
 	
 	@Override
 	public MCNode caseASeqEnumSeqExp(ASeqEnumSeqExp node,

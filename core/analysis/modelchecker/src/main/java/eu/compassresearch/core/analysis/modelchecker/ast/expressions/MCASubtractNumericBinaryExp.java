@@ -9,8 +9,12 @@ public class MCASubtractNumericBinaryExp extends MCNumericBinaryExp {
 
 	@Override
 	public String toFormula(String option) {
-		// TODO Auto-generated method stub
-		return null;
+		StringBuilder result = new StringBuilder();
+		result.append(this.getLeft().toFormula(option));
+		result.append(" - ");
+		result.append(this.getRight().toFormula(option));
+		
+		return result.toString();	
 	}
 
 }

@@ -13,6 +13,7 @@ import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.node.INode;
+import org.overture.ast.patterns.PPattern;
 import org.overture.ast.types.AIntNumericBasicType;
 import org.overture.ast.types.PType;
 
@@ -56,15 +57,13 @@ import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAValuesDe
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCPCMLDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCSCmlOperationDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCPCMLPattern;
 import eu.compassresearch.core.analysis.modelchecker.ast.process.MCPProcess;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAFieldField;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAIntNumericBasicType;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLNumericType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
-import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.SingleBind;
-import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Int;
-import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Str;
-import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Type;
-import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.UndefinedValue;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCVoidType;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ExpressionEvaluator;
 
 public class NewMCDeclarationAndDefinitionVisitor extends
@@ -168,22 +167,18 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 		if(node.getExpression() != null) {
 			expr = (MCPCMLExp) node.getExpression().apply(rootVisitor, question);
 		}
-		MCPCMLType expType = null;
-		if(type instanceof MCAIntNumericBasicType){
-			expType = new MCAIntNumericBasicType();
-		}		
-		
+				
 		String varName = node.getName().toString();
-		Type varValue = new UndefinedValue();
+		MCPCMLType varValue = new MCVoidType();
 		if(expr != null){
 			//this has to be improved to instantiate values of the suitable type of the expression.
 			ExpressionEvaluator evaluator = new ExpressionEvaluator();
-			String varValueString = evaluator.obtainValue(expr);
-			varValue = new Str(varValueString);
+			varValue = evaluator.instantiateMCType(expr);
+			//from type we have to get the correct type instantiation
 		}
 		question.maximalBinding = question.maximalBinding.addBinding("nP", varName, varValue);
 		
-		return new MCAAssignmentDefinition(varName, expr, expType);
+		return new MCAAssignmentDefinition(varName, expr, type);
 	}
 
 	@Override
@@ -266,13 +261,14 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 		
 		String name = node.getName().toString();
 		MCPAction body = (MCPAction) node.getBody().apply(rootVisitor, question);
-		LinkedList<MCPCMLDefinition> mcParamDefinitions = new LinkedList<MCPCMLDefinition>();
-		for (PDefinition pDef : node.getParamDefinitions()) {
-			mcParamDefinitions.add((MCPCMLDefinition) pDef.apply(this, question));
+		
+		LinkedList<MCPCMLPattern> mcParamPatterns = new LinkedList<MCPCMLPattern>();
+		for (PPattern pPattern : node.getParameterPatterns()) {
+			mcParamPatterns.add((MCPCMLPattern) pPattern.apply(rootVisitor, question));
 		}
 		
 		MCAExplicitCmlOperationDefinition result = 
-				new MCAExplicitCmlOperationDefinition(name,body,null,null,null,null,mcParamDefinitions,null,null,null);
+				new MCAExplicitCmlOperationDefinition(name,body,null,null,null,null,mcParamPatterns,null,null,null);
 		
 		question.operations.add(result);
 		
@@ -351,103 +347,7 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 		return result;
 	}
 	
-	/*
 	
-	//// DECLARATIONS
-	
-	//AUXILIARY METHODS
-
-	private void generateChannelTypes(CMLModelcheckerContext context) throws AnalysisException{
-		LinkedList<ChannelTypeDefinition> channels = context.channelDefinitions;
-		LinkedList<String> createdChanTypes = new LinkedList<String>();
-		CMLModelcheckerContext auxctxt = new CMLModelcheckerContext();
-		for (ChannelTypeDefinition aChanTypeDef : channels) {
-			ATypeSingleDeclaration typeSingleDecl = aChanTypeDef.chanDef.getSingleType();
-			PType type = typeSingleDecl.getType();
-			
-			if(type instanceof AChannelType){
-				StringBuilder chanTypeBuilder = new StringBuilder();
-				PType realtype = ((AChannelType) type).getType();
-				
-				//if it is AChannelType (with internal type null) = non typed channel
-				if (realtype instanceof AChannelType){
-					if(((AChannelType) realtype).getType() == null){
-						//no channel type to create
-					}
-				}
-				//if it is AProductType
-				if(realtype instanceof AProductType){
-					auxctxt.getScriptContent().append("primitive ");
-					auxctxt.getScriptContent().append("ChanType" + auxctxt.CHANTYPE_COUNTER);
-					createdChanTypes.add("ChanType" + auxctxt.CHANTYPE_COUNTER);
-					auxctxt.getScriptContent().append(" ::= (");
-					realtype.apply(rootVisitor, auxctxt);
-					auxctxt.getScriptContent().append(").\n");
-				}
-				//if it is ANamedInvariantType
-				if (realtype instanceof ANamedInvariantType){
-					auxctxt.getScriptContent().append("primitive ");
-					auxctxt.getScriptContent().append("ChanType" + auxctxt.CHANTYPE_COUNTER);
-					createdChanTypes.add("ChanType" + auxctxt.CHANTYPE_COUNTER);
-					auxctxt.getScriptContent().append(" ::= (");
-					realtype.apply(rootVisitor, auxctxt);
-					auxctxt.getScriptContent().append(").\n");
-				}
-				//if it is AIntNumericBasicType
-				if (realtype instanceof AIntNumericBasicType){
-					//channel of int type are already manipulated 
-					
-					//auxctxt.getScriptContent().append("primitive ");
-					//auxctxt.getScriptContent().append("ChanType" + auxctxt.CHANTYPE_COUNTER);
-					//createdChanTypes.add("ChanType" + auxctxt.CHANTYPE_COUNTER);
-					//auxctxt.getScriptContent().append(" ::= (");
-					//realtype.apply(this, auxctxt);
-					//auxctxt.getScriptContent().append(").\n");
-					
-				}
-				
-				context.CHANTYPE_COUNTER++;
-			}
-		}
-		
-		if(createdChanTypes.size() == 0){
-			//nothing to do
-		}else if (createdChanTypes.size() == 1){ //do not use type union
-			//chan
-			String s = "//CHAN_TYPES";
-			String s2 = "//UNION_CHAN_TYPES";
-			int aux = context.basicContent.indexOf(s);
-			context.basicContent.replace(aux, aux+s.length(), "");
-			context.basicContent.replace(aux, aux+1, auxctxt.getScriptContent().toString());
-			
-			int aux2 = context.basicContent.indexOf(s2);
-			context.basicContent.replace(aux2, aux2+s2.length(), "");
-			context.basicContent.replace(aux2, aux2+1, " + " + createdChanTypes.getFirst());
-		}
-		if(createdChanTypes.size() > 1){ //we have to use type union 
-				
-			String s = "//CHAN_TYPES";
-			String s2 = "UNION_CHAN_TYPES";
-			int aux = context.basicContent.indexOf(s);
-			StringBuilder str2 = new StringBuilder();
-			str2.append("ChannTypes ::= ");
-			while(!createdChanTypes.isEmpty()){
-				String currChanType = createdChanTypes.pollFirst();
-				str2.append(currChanType);
-				if(!createdChanTypes.isEmpty()){
-					str2.append(" + ");
-				}
-			}
-			str2.append(".\n");
-			auxctxt.getScriptContent().append(str2);
-			context.basicContent.replace(aux, aux+s.length(), "");
-			context.basicContent.replace(aux, aux+1, auxctxt.getScriptContent().toString() + "\n");
-	
-			int aux2 = context.basicContent.indexOf(s2);
-			context.basicContent.replace(aux2, aux2+s2.length(), "");
-			context.basicContent.replace(aux2, aux2 + 1, "+ ChannTypes.");
-		} 
-	}
 	/*
 	private void generateIOCommDefs(CMLModelcheckerContext context){
 		//if(question.info.containsKey(Utilities.IOCOMM_DEFINITIONS_KEY)){
@@ -489,12 +389,6 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 		//generate del facts
 	}
 	
-	private void generateChannelDefinitions(CMLModelcheckerContext context) throws AnalysisException{
-		for (ChannelTypeDefinition channelDef : context.channelDefinitions) {
-			channelDef.chanDef.apply(rootVisitor, context);
-			context.getScriptContent().append("\n");
-		}
-	}
 	*/
 	@Override
 	public MCNode createNewReturnValue(INode node,

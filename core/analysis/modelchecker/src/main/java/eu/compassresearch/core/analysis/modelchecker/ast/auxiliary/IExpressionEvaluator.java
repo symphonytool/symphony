@@ -1,6 +1,9 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.auxiliary;
 
+import java.util.LinkedList;
+
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 
 public interface IExpressionEvaluator {
 
@@ -10,4 +13,5 @@ public interface IExpressionEvaluator {
 	
 	public abstract String obtainValue(MCPCMLExp expression);
 
+	public abstract MCPCMLType instantiateMCType(LinkedList<MCPCMLExp> exps);
 }

@@ -1787,7 +1787,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	public void caseAIdentifierPattern(AIdentifierPattern node)
 			throws AnalysisException
 	{
-				// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAIdentifierPattern(node);

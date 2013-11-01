@@ -8,11 +8,11 @@ import eu.compassresearch.ast.expressions.ANameChannelExp;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCCommEv;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCLieInFact;
-import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCVoidType;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAEnumVarsetExpression;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAFatEnumVarsetExpression;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANameChannelExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPVarsetExpression;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCVoidType;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewSetStack;
 import eu.compassresearch.core.analysis.modelchecker.visitors.SetStack;
@@ -68,7 +68,6 @@ public class MCACommunicationAction implements MCPAction {
 					if(!generateLieIn && chanSetStack.size()==0){
 						break;
 					}else{
-						
 						MCCommEv commEv = new MCCommEv(this.identifier,this.communicationParameters, new MCVoidType());
 						MCLieInFact lieIn = new MCLieInFact(commEv,setExp); 
 						if(!context.lieIn.contains(lieIn)){

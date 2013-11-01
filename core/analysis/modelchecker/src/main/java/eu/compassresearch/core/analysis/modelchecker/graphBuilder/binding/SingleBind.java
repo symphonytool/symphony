@@ -1,6 +1,5 @@
 package eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding;
 
-import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Type;
 
 public class SingleBind {
@@ -43,24 +42,6 @@ public class SingleBind {
 	
 	public String toFormula() {
 		return "SingleBind(\"" + variableName + "\"," + variableValue.toFormula() + ")";
-	}
-	
-	public String toFormula(String option) {
-		String result = toFormula();
-		switch (option) {
-		case MCNode.DEFAULT:
-			result = "SingleBind(\"" + variableName + "\"," + variableValue.toFormula() + ")";
-			break;
-
-		case MCNode.NAMED:
-			result = "SingleBind(\"" + variableName + "\"," + variableName + ")";
-			break;
-			
-		default:
-			break;
-		}
-		
-		return result;
 	}
 	
 	public String toFormulaWithState(){

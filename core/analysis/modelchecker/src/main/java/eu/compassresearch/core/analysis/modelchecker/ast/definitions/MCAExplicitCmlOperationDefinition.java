@@ -2,32 +2,20 @@ package eu.compassresearch.core.analysis.modelchecker.ast.definitions;
 
 import java.util.LinkedList;
 
-
-
-
-
-
-
-
-
-import org.overture.ast.definitions.PDefinition;
-import org.overture.ast.expressions.AVariableExp;
-import org.overture.ast.expressions.PExp;
-import org.overture.ast.intf.lex.ILexLocation;
-
 import eu.compassresearch.ast.actions.ASingleGeneralAssignmentStatementAction;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCASingleGeneralAssignmentStatementAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPAction;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.Binding;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCPreOpTrue;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCStringType;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAVariableExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCPCMLPattern;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANamedInvariantType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
-import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.Binding;
-import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Int;
-import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Str;
 import eu.compassresearch.core.analysis.modelchecker.visitors.CMLModelcheckerContext;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 
@@ -40,7 +28,7 @@ public class MCAExplicitCmlOperationDefinition implements
 	private MCPCMLExp postcondition;
 	private MCAExplicitFunctionDefinition predef;
 	private MCAExplicitFunctionDefinition postdef;
-	private LinkedList<MCPCMLDefinition> paramDefinitions = new LinkedList<MCPCMLDefinition>();
+	private LinkedList<MCPCMLPattern> paramPatterns = new LinkedList<MCPCMLPattern>();
 	private MCAStateDefinition state;
 	private MCPCMLType actualResult;
 	
@@ -50,7 +38,7 @@ public class MCAExplicitCmlOperationDefinition implements
 			MCPCMLExp precondition, MCPCMLExp postcondition,
 			MCAExplicitFunctionDefinition predef,
 			MCAExplicitFunctionDefinition postdef,
-			LinkedList<MCPCMLDefinition> paramDefinitions,
+			LinkedList<MCPCMLPattern> paramPatterns,
 			MCAStateDefinition state, MCPCMLType actualResult, MCPAction parentAction) {
 		super();
 		this.name = name;
@@ -59,7 +47,7 @@ public class MCAExplicitCmlOperationDefinition implements
 		this.postcondition = postcondition;
 		this.predef = predef;
 		this.postdef = postdef;
-		this.paramDefinitions = paramDefinitions;
+		this.paramPatterns = paramPatterns;
 		this.state = state;
 		this.actualResult = actualResult;
 		this.parentAction = parentAction;
@@ -74,12 +62,13 @@ public class MCAExplicitCmlOperationDefinition implements
 		result.append("operationDef(");
 		result.append("\"" + this.name + "\"");
 		result.append(",");
-		if(this.paramDefinitions.size()==0){
+		if(this.paramPatterns.size()==0){
 			result.append("void");
-		}else if(this.paramDefinitions.size()==1){
-			result.append(this.paramDefinitions.getFirst().toFormula(option));
-		} else if (this.paramDefinitions.size() > 1){
+		}else if(this.paramPatterns.size()==1){
+			result.append(this.paramPatterns.getFirst().toFormula(option));
+		} else if (this.paramPatterns.size() > 1){
 			//TODO
+			//this can be similar to a list of expressions transformed in ProdType 
 		}
 		result.append(",");
 		result.append("st");
@@ -87,11 +76,16 @@ public class MCAExplicitCmlOperationDefinition implements
 		result.append("st_");
 		result.append(") :- ");
 		result.append("State(l,st,_,");
-		result.append(this.parentAction.toFormula(option));
+		if(this.parentAction != null){
+			result.append(this.parentAction.toFormula(option));
+		}else{
+			result.append("action invoking the assignment");
+		}
 		result.append(")");
 		result.append(",");
 		result.append("st = ");
 		result.append(context.maximalBinding.toFormula(MCNode.NAMED));
+		result.append(",");
 		result.append("st_ = ");
 		Binding maximalCopy = context.maximalBinding.copy();
 		MCPAction body = this.body;
@@ -107,7 +101,7 @@ public class MCAExplicitCmlOperationDefinition implements
 			if(stateDesignator instanceof MCAVariableExp){
 				String varName = stateDesignator.toFormula(MCNode.NAMED);
 				newValueVarName = varName + "_";
-				Str newVarValue = new Str(newValueVarName);
+				MCPCMLType newVarValue = new MCANamedInvariantType(newValueVarName);
 				maximalCopy.updateBinding(varName,newVarValue); 
 				result.append(maximalCopy.toFormula(MCNode.DEFAULT)); 
 			}
@@ -125,7 +119,7 @@ public class MCAExplicitCmlOperationDefinition implements
 			//convert precondition
 		}else{
 			//we assume that all preconditions are true for the moment
-			MCPreOpTrue preOp = new MCPreOpTrue(name, paramDefinitions);
+			MCPreOpTrue preOp = new MCPreOpTrue(name, paramPatterns);
 			result.append(preOp.toFormula(option));
 		}
 		result.append("\n");
@@ -183,13 +177,14 @@ public class MCAExplicitCmlOperationDefinition implements
 	}
 
 
-	public LinkedList<MCPCMLDefinition> getParamDefinitions() {
-		return paramDefinitions;
+	
+	public LinkedList<MCPCMLPattern> getParamPatterns() {
+		return paramPatterns;
 	}
 
 
-	public void setParamDefinitions(LinkedList<MCPCMLDefinition> paramDefinitions) {
-		this.paramDefinitions = paramDefinitions;
+	public void setParamPatterns(LinkedList<MCPCMLPattern> paramPatterns) {
+		this.paramPatterns = paramPatterns;
 	}
 
 

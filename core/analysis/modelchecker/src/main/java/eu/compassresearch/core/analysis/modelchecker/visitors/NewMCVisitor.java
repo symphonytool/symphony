@@ -12,6 +12,7 @@ import org.overture.ast.expressions.SBinaryExp;
 import org.overture.ast.expressions.SSeqExp;
 import org.overture.ast.expressions.SSetExp;
 import org.overture.ast.node.INode;
+import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.statements.PStateDesignator;
 import org.overture.ast.types.PType;
 import org.overture.ast.types.SNumericBasicType;
@@ -29,6 +30,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.Domain;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAProcessDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCATypeDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCAIdentifierPattern;
 
 /**
  * The main MC visitor. It obtains other visitors from a factory.
@@ -41,7 +43,6 @@ public class NewMCVisitor extends
 	private List<PSource> sources;
 	private final static String ANALYSIS_NAME = "Model Checker Visitor";
 	private String propertyToCheck = Utilities.DEADLOCK_PROPERTY;
-	private StringBuilder basicContent;
 	
 	private Domain auxiliaryDomain;
 	private Domain syntaxDomain;
@@ -70,7 +71,6 @@ public class NewMCVisitor extends
 	}
 
 	private void initialise() throws IOException{
-		basicContent = new StringBuilder();
 		this.actionVisitor = new NewMCActionVisitor(this);
 		this.processVisitor = new NewMCProcessVisitor(this);
 		this.declAndDefVisitor = new NewMCDeclarationAndDefinitionVisitor(this);
@@ -192,6 +192,17 @@ public class NewMCVisitor extends
 		return node.apply(this.typeAndValueVisitor, question);
 	}
 	
+	
+	
+	@Override
+	public MCNode caseAIdentifierPattern(AIdentifierPattern node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		
+		MCAIdentifierPattern result = new MCAIdentifierPattern(node.getName().toString());
+		
+		return result;
+	}
+	
 	/*
 	@Override
 	public StringBuilder defaultPStm(PStm node,
@@ -232,7 +243,6 @@ public class NewMCVisitor extends
 		if (sources.size() > 0) {
 			codes = new String[sources.size()];
 		}
-		this.basicContent = FormulaIntegrationUtilities.readScriptFromFile(FormulaIntegrationUtilities.BASIC_FORMULA_SCRIPT);
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 		context.setPropertyToCheck(propertyToCheck);
 		
@@ -242,7 +252,7 @@ public class NewMCVisitor extends
 				paragraph.apply(this, context);
 			}
 			
-			codes[sources.indexOf(source)] = basicContent + "\n" + dependentCode;
+			//codes[sources.indexOf(source)] = basicContent + "\n" + dependentCode;
 		}
 		
 		handleUserTypeDefinitions();
@@ -290,12 +300,13 @@ public class NewMCVisitor extends
 		//adds the basic content (semantics embedding) to the generated script
 		
 		setPropertyToCheck(propertyToCheck);
-		getBasicContent().append(basicContent);
-		content.getScriptContent().append(basicContent);
+		//getBasicContent().append(basicContent);
+		//content.getScriptContent().append(basicContent);
 		for (PDefinition paragraph : definitions) {
 			paragraph.apply(this, content);
 		}
-		return content.getScriptContent().toString();
+		//return content.getScriptContent().toString();
+		return "empty Script";
 	}
 	
 	public List<PSource> getSources() {
@@ -310,13 +321,6 @@ public class NewMCVisitor extends
 	public void setPropertyToCheck(String propertyToCheck) {
 		this.propertyToCheck = propertyToCheck;
 	}
-	public StringBuilder getBasicContent() {
-		return basicContent;
-	}
-	public void setBasicContent(StringBuilder basicContent) {
-		this.basicContent = basicContent;
-	}
-
 	
 	
 	public static void main(String[] args) throws Throwable {

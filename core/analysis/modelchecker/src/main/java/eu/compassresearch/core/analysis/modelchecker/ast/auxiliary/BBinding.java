@@ -1,10 +1,11 @@
-package eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding;
+package eu.compassresearch.core.analysis.modelchecker.ast.auxiliary;
 
 import java.util.Iterator;
 import java.util.LinkedList;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
-import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Type;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLNumericType;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 
 
 public class BBinding implements Binding {
@@ -17,29 +18,6 @@ public class BBinding implements Binding {
 		this.procName = procName;
 		this.head = head;
 		this.tail = tail;
-	}
-	public SingleBind getHead() {
-		return head;
-	}
-
-	public void setHead(SingleBind head) {
-		this.head = head;
-	}
-
-	public Binding getTail() {
-		return tail;
-	}
-
-	public void setTail(Binding tail) {
-		this.tail = tail;
-	}
-
-	public String getProcName() {
-		return procName;
-	}
-
-	public void setProcName(String procName) {
-		this.procName = procName;
 	}
 
 	@Override
@@ -60,15 +38,16 @@ public class BBinding implements Binding {
 		
 		return result.toString();
 	}
-	
-	public String toFormula() {
+
+	@Override
+	public String toFormula(String option) {
 		StringBuilder result = new StringBuilder();
 		LinkedList<SingleBind> bindList = new LinkedList<SingleBind>(); 
 		getSingleBindings(bindList, this);
 		for (Iterator<SingleBind> iterator = bindList.iterator(); iterator.hasNext();) {
 			result.append("BBinding("+this.procName+",");
 			SingleBind singleBind = (SingleBind) iterator.next();
-			result.append(singleBind.toFormula());
+			result.append(singleBind.toFormula(option));
 			if(iterator.hasNext()){
 				result.append(",");
 			}
@@ -79,68 +58,12 @@ public class BBinding implements Binding {
 		}
 		return result.toString();
 	}
-	
-	public String toFormulaWithUnderscore(){
-		StringBuilder result = new StringBuilder();
-		LinkedList<SingleBind> bindList = new LinkedList<SingleBind>(); 
-		getSingleBindings(bindList, this);
-		for (Iterator<SingleBind> iterator = bindList.iterator(); iterator.hasNext();) {
-			result.append("BBinding(" + this.procName + ",");
-			SingleBind singleBind = (SingleBind) iterator.next();
-			result.append(singleBind.toFormulaWithUnderscore());
-			if(iterator.hasNext()){
-				result.append(",");
-			}
-		}
-		result.append(",nBind");
-		for (int i = 0; i < bindList.size(); i++) {
-			result.append(")");
-		}
-		return result.toString();
-	}
-	
-	public String toFormulaGeneric(){
-		StringBuilder result = new StringBuilder();
-		LinkedList<SingleBind> bindList = new LinkedList<SingleBind>(); 
-		getSingleBindings(bindList, this);
-		for (Iterator<SingleBind> iterator = bindList.iterator(); iterator.hasNext();) {
-			result.append("BBinding(" + this.procName + ",");
-			SingleBind singleBind = (SingleBind) iterator.next();
-			result.append(singleBind.toFormulaGeneric());
-			if(iterator.hasNext()){
-				result.append(",");
-			}
-		}
-		result.append(",nBind");
-		for (int i = 0; i < bindList.size(); i++) {
-			result.append(")");
-		}
-		return result.toString();
-	}
-	
-	public String toFormulaWithState() {
-		StringBuilder result = new StringBuilder();
-		LinkedList<SingleBind> bindList = new LinkedList<SingleBind>(); 
-		getSingleBindings(bindList, this);
-		for (Iterator<SingleBind> iterator = bindList.iterator(); iterator.hasNext();) {
-			result.append("BBinding("+this.procName+",");
-			SingleBind singleBind = (SingleBind) iterator.next();
-			result.append(singleBind.toFormulaWithState());
-			if(iterator.hasNext()){
-				result.append(",");
-			}
-		}
-		result.append(","+new NullBinding().toFormulaWithState());
-		for (int i = 0; i < bindList.size(); i++) {
-			result.append(")");
-		}
-		return result.toString();
-	}
+
 	@Override
 	public BBinding copy(){
 		return new BBinding(this.procName,this.head.copy(),this.tail.copy());
 	}
-	public Binding addBinding(String procName, String varName, Type varValue){
+	public Binding addBinding(String procName, String varName, MCPCMLType varValue){
 		Binding result = this;
 		
 		if(head.getVariableName().equals(varName)){
@@ -150,7 +73,7 @@ public class BBinding implements Binding {
 		}
 		return result;
 	}
-	public void updateBinding(String varName, Type varValue){
+	public void updateBinding(String varName, MCPCMLType varValue){
 		if(head.getVariableName().equals(varName)){
 			head.setVariableValue(varValue);
 		} else{
@@ -183,7 +106,7 @@ public class BBinding implements Binding {
 		getSingleBindings(bindList, this);
 		for (Iterator<SingleBind> iterator = bindList.iterator(); iterator.hasNext();) {
 			SingleBind singleBind = (SingleBind) iterator.next();
-			result.append("fetch(\"" + singleBind.variableName + "\"," + this.toFormulaWithState() + ","+ singleBind.variableValue.toFormulaWithState() + ")\n");
+			result.append("fetch(\"" + singleBind.variableName + "\"," + this.toFormula(MCNode.NAMED) + ","+ singleBind.variableValue.toFormula(MCNode.NAMED) + ")\n");
 		}
 		
 		return result;
@@ -193,12 +116,14 @@ public class BBinding implements Binding {
 		StringBuilder result = new StringBuilder();
 		
 		//TODO
+		
 		return result;
 	}
 	public StringBuilder generateAllDelFacts(int number){
 		StringBuilder result = new StringBuilder();
 		
 		//TODO
+		
 		return result;
 	}
 
@@ -212,15 +137,31 @@ public class BBinding implements Binding {
 		}
 		return result;
 	}
-	@Override
-	public String toFormula(String option) {
-		if(option.equals(MCNode.DEFAULT)){
-			return toFormula();
-		} else if(option.equals(MCNode.GENERIC)){
-			return toFormulaGeneric();
-		}
-		return toFormulaWithState();
+
+	public String getProcName() {
+		return procName;
 	}
 
+	public void setProcName(String procName) {
+		this.procName = procName;
+	}
+
+	public SingleBind getHead() {
+		return head;
+	}
+
+	public void setHead(SingleBind head) {
+		this.head = head;
+	}
+
+	public Binding getTail() {
+		return tail;
+	}
+
+	public void setTail(Binding tail) {
+		this.tail = tail;
+	}
+
+	
 
 }

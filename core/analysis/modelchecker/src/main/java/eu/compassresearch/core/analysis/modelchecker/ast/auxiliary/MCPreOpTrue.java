@@ -9,19 +9,20 @@ import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAExplicitFunctionDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCPCMLDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCPCMLPattern;
 import eu.compassresearch.core.analysis.modelchecker.visitors.CMLModelcheckerContext;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 
 public class MCPreOpTrue implements MCNode {
 
 	private String name;
-	private LinkedList<MCPCMLDefinition> paramDefinitions = new LinkedList<MCPCMLDefinition>();
+	private LinkedList<MCPCMLPattern> paramPatterns = new LinkedList<MCPCMLPattern>();
 	
 	
-	public MCPreOpTrue(String name, LinkedList<MCPCMLDefinition> paramDefinitions) {
+	public MCPreOpTrue(String name, LinkedList<MCPCMLPattern> paramPatterns) {
 		super();
 		this.name = name;
-		this.paramDefinitions = paramDefinitions;
+		this.paramPatterns = paramPatterns;
 	}
 
 
@@ -30,11 +31,11 @@ public class MCPreOpTrue implements MCNode {
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 		StringBuilder result = new StringBuilder();
 		result.append("preOpOk(\"" + this.name + "\",");
-		if(this.paramDefinitions.size()==0){
+		if(this.paramPatterns.size()==0){
 			result.append("void");
-		}else if(this.paramDefinitions.size()==1){
-			result.append(this.paramDefinitions.getFirst().toFormula(option));
-		}else if(this.paramDefinitions.size() > 1){
+		}else if(this.paramPatterns.size()==1){
+			result.append(this.paramPatterns.getFirst().toFormula(option));
+		}else if(this.paramPatterns.size() > 1){
 			//TODO
 		}
 		result.append(",");
@@ -57,14 +58,15 @@ public class MCPreOpTrue implements MCNode {
 	}
 
 
-	public LinkedList<MCPCMLDefinition> getParamDefinitions() {
-		return paramDefinitions;
+	public LinkedList<MCPCMLPattern> getParamPatterns() {
+		return paramPatterns;
 	}
 
 
-	public void setParamDefinitions(LinkedList<MCPCMLDefinition> paramDefinitions) {
-		this.paramDefinitions = paramDefinitions;
+	public void setParamPatterns(LinkedList<MCPCMLPattern> paramPatterns) {
+		this.paramPatterns = paramPatterns;
 	}
 
-	
+
+		
 }

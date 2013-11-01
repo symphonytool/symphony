@@ -20,7 +20,19 @@ channels
     
 process Card = 
 begin
-    
+ state 
+ 	value: nat := 0
+ 
+ operations
+    Init: () ==> ()
+    Init() == value := V
+
+    Credit: nat ==> ()
+    Credit(n) == value := value + n
+
+    Debit: nat ==> ()
+    Debit(n) == value := value - n
+       
 @ Skip
 
 end

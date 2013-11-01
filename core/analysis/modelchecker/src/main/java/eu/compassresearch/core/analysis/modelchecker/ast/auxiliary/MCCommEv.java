@@ -15,7 +15,6 @@ public class MCCommEv implements MCNode {
 	
 	
 	public MCCommEv(String name, LinkedList<MCPCommunicationParameter> parameters, MCPCMLType value) {
-		super();
 		this.name = name;
 		this.parameters = parameters;
 		this.value = value;
