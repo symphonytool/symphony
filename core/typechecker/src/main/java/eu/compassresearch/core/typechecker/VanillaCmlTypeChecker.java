@@ -37,7 +37,6 @@ import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 import eu.compassresearch.core.typechecker.visitors.CmlClassTypeChecker;
 import eu.compassresearch.core.typechecker.visitors.CmlCspTypeChecker;
 import eu.compassresearch.core.typechecker.visitors.CmlVdmTypeCheckVisitor;
-import eu.compassresearch.core.typechecker.weeding.SetLocationVisitor;
 import eu.compassresearch.core.typechecker.weeding.Weeding1;
 import eu.compassresearch.core.typechecker.weeding.Weeding2;
 import eu.compassresearch.core.typechecker.weeding.Weeding5RemoveInitialDefinitions;
@@ -64,18 +63,11 @@ public class VanillaCmlTypeChecker extends AbstractTypeChecker
 		}
 	}
 
-	// ---------------------------------------------
-	// -- Type Checker State
-	// ---------------------------------------------m
-	// private List<PDefinition> globalDefinitions;
-
-	// private ICmlRootVisitor rootVisitor;
 
 	/**
 	 * Simple assigning constructor with a bit of logic in initialize.
 	 * 
 	 * @param cmlSource
-	 * @param typeComparator
 	 * @param issueHandler
 	 */
 	public VanillaCmlTypeChecker(Collection<PSource> cmlSource,
@@ -89,10 +81,13 @@ public class VanillaCmlTypeChecker extends AbstractTypeChecker
 	private void initialize(ITypeIssueHandler issueHandler)
 	{
 		if (issueHandler != null)
+		{
 			this.issueHandler = issueHandler;
+		}
 		else
+		{
 			this.issueHandler = new CollectingIssueHandler();
-		// rootVisitor = new CmlRootVisitor(issueHandler, comparator);
+		}
 
 		Settings.release = Release.VDM_10;
 		Settings.dialect = Dialect.VDM_PP;
@@ -101,9 +96,6 @@ public class VanillaCmlTypeChecker extends AbstractTypeChecker
 		TypeChecker.addStatusListner(this.issueHandler);
 	}
 
-	// ---------------------------------------------
-	// -- Public API to CML Type Checker
-	// ---------------------------------------------
 	/**
 	 * This method is invoked by the command line tool when pretty printing the analysis name.
 	 * 
@@ -124,31 +116,8 @@ public class VanillaCmlTypeChecker extends AbstractTypeChecker
 	@Override
 	public boolean typeCheck()
 	{
-		// Top type checking
-
-		// [1] Collect all static entities in order:
-		// - Channels
-		// - Channel Sets
-		// - Types (including classes)
-		// - Values
-		// - Implicit Global Functions
-		// - Explicit Global Functions
-		// This constitudes the global environment
-
-		// [2] Type Check Global Entities in order
-		// - Types
-		// - Values
-		// - Implicit Global Functions
-		// - Explicit Global Functions
-		// - Classes
-		// - Processes
-		// In the global environment
-
 		try
 		{
-			// Update LexLocation "file" entity on all nodes
-			SetLocationVisitor.updateLocations(sourceForest);
-
 			// Transform the AST before analysis
 			// W: Stage 1 remove intermediate product types in functions
 			Weeding1.apply(sourceForest);
@@ -156,8 +125,6 @@ public class VanillaCmlTypeChecker extends AbstractTypeChecker
 			Weeding2.apply(sourceForest);
 			// W: Stage 5 remove any initial definitions
 			Weeding5RemoveInitialDefinitions.apply(sourceForest);
-			// W: Stage 2 unfold identifiers in action definitions, parameter decl single type identifiers
-			// Weeding3UnfoldSingleDeclIdentifiers.apply(sourceForest);
 
 			WeedingCallToCallActionReplacer.apply(sourceForest);
 			WeedingSkipActionToStmCleaner.apply(sourceForest);
@@ -166,22 +133,9 @@ public class VanillaCmlTypeChecker extends AbstractTypeChecker
 
 			// DotUtil.dot(sourceForest.iterator().next());
 
-			// TODO we may have to unfold state in processes to instance variables here
-
-			// Moved to parser Weeding4FixOperationTypes.apply(sourceForest);
-
 			// Collect all Top-level entities
 			DefinitionList globalDefs = CollectGlobalStateClass.getGlobalRoot(sourceForest, issueHandler);
 			UniquenessChecker.apply(globalDefs, issueHandler);
-			// this.globalDefinitions = new LinkedList<PDefinition>(globalDefs.definitions);
-
-			// Create top-level CML-environment
-			// TypeCheckInfo cmlTopEnv = CmlTypeCheckInfo.getNewTopLevelInstance(new CmlTypeCheckerAssistantFactory(),
-			// issueHandler, globalDefinitions, new LinkedList<PDefinition>(globalDefs.channels));
-
-			// Resolve everything before hand (Overture does this)
-			// PDefinitionListAssistantTC.typeResolve(this.globalDefinitions, (QuestionAnswerAdaptor<TypeCheckInfo,
-			// PType>) rootVisitor, cmlTopEnv);
 
 			VdmTypeCheckResult result = overtureClassTc(globalDefs);
 			cmlCspTc(sourceForest, result);
