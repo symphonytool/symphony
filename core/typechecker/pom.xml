@@ -92,6 +92,10 @@
 					<redirectTestOutputToFile>true</redirectTestOutputToFile>
 					<testFailureIgnore>false</testFailureIgnore>
 					<enableAssertions>false</enableAssertions>
+					 <includes>
+            <exclude>**/*TestCase.java</exclude>
+            <exclude>**/*Tests.java</exclude>
+          </includes>
 				</configuration>
 			</plugin>
 
