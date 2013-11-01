@@ -2285,6 +2285,7 @@ implicitFunctionDefinitionTail returns[AImplicitFunctionDefinition tail]
             $tail.setNameScope(NameScope.LOCAL);
             $tail.setIsUndefined(false);
             $tail.setUsed(Boolean.FALSE);
+            $tail.setPass(Pass.DEFS);
             $tail.setAccess(getDefaultAccessSpecifier(false,false,null));
             
             // Force all functions to be static for VDM-10
