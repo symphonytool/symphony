@@ -214,6 +214,7 @@ public abstract class AbstractResultBasedCmlTypeCheckerTestCase extends
 		{
 			compareResults(result, file.getAbsolutePath());
 		}
+		Properties.recordTestResults = false;
 	}
 
 	private void configureResultGeneration()
