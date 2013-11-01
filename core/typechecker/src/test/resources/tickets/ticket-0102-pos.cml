@@ -1,0 +1,75 @@
+-- http://sourceforge.net/p/compassresearch/tickets/102/ 
+--
+--TC now issue warnings when names are unused 
+--
+
+types
+  Aircraft = token
+
+channels
+  init, success, failure
+  givePermission, recordLanding, recordTakeOff : Aircraft
+  getLanded, getPermission : set of Aircraft
+  numberWaiting : int
+
+process Airport =
+begin
+  state
+    permission : set of Aircraft
+    landed     : set of Aircraft
+    inv landed subset permission
+  functions
+    permitted(a : Aircraft) result : bool
+      post a in set permission
+    down(a : Aircraft) result : bool
+      post a in set landed
+  operations
+    Init : () ==> ()
+    Init() ==
+      permission := {} ; landed := {}
+    GivePermission : Aircraft ==> ()
+    GivePermission(a) ==
+      permission := permission union {a}
+      pre not permitted(a)
+    RecordLanding : Aircraft ==> ()
+    RecordLanding(a) ==
+      landed := landed union {a}
+      pre permitted(a) and not down(a)
+    RecordTakeOff : Aircraft ==> ()
+    RecordTakeOff(a) ==
+      permission := permission \ {a} ; landed := landed \ {a}
+      pre down(a)
+    GetLanded: () ==> set of Aircraft
+    GetLanded() ==
+      return landed
+    GetPermission: () ==> set of Aircraft
+    GetPermission() ==
+      return permission
+    NumberWaiting : () ==> int
+    NumberWaiting() ==
+      return card (permission \ landed)
+  actions
+    Cycle =
+      ( givePermission?a -> 
+          ( [not permitted(a)] & success -> GivePermission(a)
+            []
+            [permitted(a)] & failure -> Skip )
+        []
+        recordLanding?a ->
+          ( [permitted(a) and not down(a)] & success -> RecordLanding(a)
+            []
+            [permitted(a) => down(a)] & failure -> Skip )
+        []
+        recordTakeOff?a ->
+          ( [down(a)] & success -> RecordTakeOff(a)
+            []
+            [not down(a)] & failure -> Skip )
+        []
+        getLanded!(GetLanded()) -> Skip
+        []
+        getPermission!(GetPermission()) -> Skip
+        []
+        numberWaiting!(NumberWaiting()) -> Skip ) ; Cycle
+  @
+    init -> Cycle
+end
