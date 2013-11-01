@@ -52,7 +52,7 @@ public class BuilderCml extends AbstractVdmBuilder
 		{
 			typeChecker.typeCheck();
 
-			List<CMLTypeError> errorsThatMatter = filterErrros(issueHandler.getTypeErrors());
+			List<CMLTypeError> errorsThatMatter = (issueHandler.getTypeErrors());
 			for (final CMLTypeError error : errorsThatMatter)
 			{
 				addErrorMarker(error);
@@ -65,17 +65,17 @@ public class BuilderCml extends AbstractVdmBuilder
 			}
 		} catch (Exception e)
 		{
-			try
-			{
-				IMarker projectMarker = ((IProject) getProject().getAdapter(IProject.class)).createMarker(IMarker.PROBLEM);
-				projectMarker.setAttribute(IMarker.MESSAGE, "Type checking on this project failed.");
-				projectMarker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
-			} catch (CoreException e1)
-			{
-				e1.printStackTrace();
-			}
+//			try
+//			{
+//				IMarker projectMarker = ((IProject) getProject().getAdapter(IProject.class)).createMarker(IMarker.PROBLEM);
+//				projectMarker.setAttribute(IMarker.MESSAGE, "Type checking on this project failed.");
+//				projectMarker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
+//			} catch (CoreException e1)
+//			{
+//				e1.printStackTrace();
+//			}
 			e.printStackTrace();
-			new Status(IStatus.ERROR, IBuilderVdmjConstants.PLUGIN_ID, 0, "not typechecked, internal error", e);
+			return new Status(IStatus.ERROR, IBuilderVdmjConstants.PLUGIN_ID, 0, "not typechecked, internal error", e);
 		}
 
 		return setMarkers(errors, warnings);
@@ -116,11 +116,10 @@ public class BuilderCml extends AbstractVdmBuilder
 	private void addErrorMarker(CMLTypeError error)
 	{
 		// TODO RWL: This needs to be fixed to loose hanging trees with errors
-		AFileSource source = (AFileSource) error.getOffendingNode().getAncestor(PSource.class);
-		if (source != null)
+//		AFileSource source = (AFileSource) error.getOffendingNode().getAncestor(PSource.class);
+//		if (source != null)
 		{
-			addErrorMarker((source.getFile() == null ? error.getLocation().getFile()
-					: source.getFile()), error.getDescription(), error.getLocation(), IBuilderVdmjConstants.PLUGIN_ID);
+			addErrorMarker(error.getLocation().getFile(), error.getDescription(), error.getLocation(), IBuilderVdmjConstants.PLUGIN_ID);
 		}
 	}
 
