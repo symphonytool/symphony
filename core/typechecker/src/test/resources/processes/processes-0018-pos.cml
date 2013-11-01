@@ -1,0 +1,18 @@
+process
+
+ A =
+
+begin
+
+
+
+actions
+
+ B = 
+ 	val n:int 
+ 	@ Skip 
+ 		
+ 		
+ @ (||| i in set {1,2,3} @ [ { } ] B(i))
+
+end

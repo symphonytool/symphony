@@ -31,10 +31,16 @@ import eu.compassresearch.ast.util.ToStringUtil;
 %action->reference = [name]
 %action->#Parallel->interleaving = [leftAction] "|||" [rightAction]
 %action->#Parallel->generalisedParallelism = [leftAction] "[|" [chansetExpression] "|]" [rightAction]
-%action->#Statement->block = "Block {" [action] "}"
-%action->#Statement->new = [destination]" := new " [className] "("+ $Utils.listToString($[args]$)$ + ")"
-%action->#Statement->return = "return "[exp]
-%action->#Statement->#GeneralAssignment->single = [stateDesignator] " := " [expression]
+
+%action->#Parallel->#Parallelism->alphabetised= [leftAction] " [" [leftNamesetExpression] " | " [leftChansetExpression] " || " [rightChansetExpression] " | " [rightNamesetExpression] "] "[rightAction]
+             
+                
+
+
+//%action->#Statement->block = "Block {" [action] "}"
+//%action->#Statement->new = [destination]" := new " [className] "("+ $Utils.listToString($[args]$)$ + ")"
+//%action->#Statement->return = "return "[exp]
+//%action->#Statement->#GeneralAssignment->single = [stateDesignator] " := " [expression]
 
 %action->parametrised = "params: " [parametrisations] " action: " [action]
 %parametrisation->val = "val" [declaration]
@@ -42,14 +48,16 @@ import eu.compassresearch.ast.util.ToStringUtil;
 %parametrisation->vres = "vres" [declaration]
 %action->communication = [identifier] " -> " [action]
 %action->guarded = [expression] " & " [action]
-%action->#Statement->call = [name] "(" + $org.overture.ast.util.Utils.listToString($  [args]  $)$ + ")"
-%declaration->#Single->type = [identifiers] ":" [type]
-%declaration->#Single->expression = [identifiers] " := " [expression]
+//%action->#Statement->call = [name] "(" + $org.overture.ast.util.Utils.listToString($  [args]  $)$ + ")"
+%declaration->#Single->type = [identifier] ":" [type]
+%declaration->#Single->expression = [identifier] " := " [expression]
 
-%exp->variable = [name]
+//%exp->variable = [name]
 
 // Processes
-%process->action = "state: " [definitionParagraphs] " @ "
+%process->action = "begin\n" [actionDefinition] " @ " [action] "\nend"
+
+%definition->#class->action = "class " [name]$.getFullName()+ ($[supernames]$.isEmpty() ? "" : " is subclass of " +$ [supernames]$) + "\n" + ToStringUtil.getDefinitionListString($[definitions]$)$+           "end "  [name]$.getFullName()$ + "\n"
 
 
 %type->error = "Type Error"
@@ -64,11 +72,15 @@ import eu.compassresearch.ast.util.ToStringUtil;
 //  Patterns
 
 //  Definitions
-%definition->process = "Process " [name]$.getName()$
-%definition->class = "Class " [name]$.getName()$
+%definition->process = "Process " [name]$.getName()+$ " " [localState] "\n" [process] 
+%definition->action = "actions " [name]$.getName()+$ " " [declarations] + "\n\t"+ [action]
+%definition->channel = "channel " [name]$.getName()+$ " : " [type]
+
+
+//%definition->class = "Class " [name]$.getName()$
 %definition->state = "State Paragraph"
-%definition->#cmlOperation->implicit = [name] + " " + [type]
-%definition->#cmlOperation->explicit = [name] + " " + [type]
+//%definition->#cmlOperation->implicit = [name] + " " + [type]
+//%definition->#cmlOperation->explicit = [name] + " " + [type]
 //  Statements
 
 

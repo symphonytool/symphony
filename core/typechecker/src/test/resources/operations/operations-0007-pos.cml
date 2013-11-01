@@ -1,0 +1,24 @@
+/*This test checks the positive case for invoking a Cml Operation*/
+
+process
+
+ K =
+
+begin
+
+
+
+state
+
+ f : int := 0
+
+operations
+
+ op1: int ==> int 
+ op1(a) == 
+ 	return (a+1) 
+ 	
+ 	
+ @ f := op1(10)
+
+end

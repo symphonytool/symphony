@@ -1,0 +1,13 @@
+class
+
+ test =
+
+begin
+
+
+
+values
+
+ a:bool = {1,2,3} psubset {2,3,4,5}
+
+end

@@ -1,0 +1,19 @@
+/*test warning if
+
+channels
+
+ is used without being declared*/
+
+channels
+
+ a: int
+
+process
+
+ A =
+
+begin
+
+ @ b? x : ({2,3}) -> Skip
+
+end

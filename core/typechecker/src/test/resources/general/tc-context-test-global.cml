@@ -1,0 +1,64 @@
+types
+
+  G = nat
+
+values 
+  GV : G = 20
+  
+functions       
+  GF: G-> G
+  GF(a) == a
+  
+  
+--functions      
+--  GF2: G-> G
+--  GF2(a) == '4'
+
+process P = 
+begin
+  state 
+    Process_State : G                  
+
+  types
+  Process_Type = nat
+
+  values 
+  Process_Value_G : G = 30
+  Process_Value_Process_Type : Process_Type = 40
+
+  operations
+  
+    Process_op: G ==> G
+    Process_op(p_o_parameter) == return p_o_parameter
+    
+  functions       
+    Process_fun: G-> G
+    Process_fun(p_f_parameter) == p_f_parameter
+  @
+    Skip
+
+end
+
+
+class GC = 
+begin
+
+types
+--G=int
+  GC_G = int
+
+--values 
+--  GC_V : G = 40
+
+--state
+--  GC_Instance_Var : G 
+
+--operations
+
+--  GC_op: G ==> G
+--  GC_op(a) == return a
+    
+--functions       
+--  GC_fun: G-> G
+--  GC_fun(a) == a+true+GF(g_c_f_parameter)
+end

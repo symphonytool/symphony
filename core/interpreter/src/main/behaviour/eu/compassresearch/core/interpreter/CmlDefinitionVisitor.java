@@ -6,12 +6,13 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.AClassInvariantDefinition;
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
+import org.overture.ast.definitions.AExplicitOperationDefinition;
 import org.overture.ast.definitions.AImplicitFunctionDefinition;
+import org.overture.ast.definitions.AImplicitOperationDefinition;
 import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.definitions.PDefinition;
-import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.INode;
@@ -28,19 +29,16 @@ import eu.compassresearch.ast.declarations.AExpressionSingleDeclaration;
 import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AActionsDefinition;
-import eu.compassresearch.ast.definitions.AChannelNameDefinition;
+import eu.compassresearch.ast.definitions.AChannelDefinition;
 import eu.compassresearch.ast.definitions.AChannelsDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.definitions.AChansetsDefinition;
-import eu.compassresearch.ast.definitions.ACmlClassDefinition;
-import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AFunctionsDefinition;
-import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AOperationsDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.definitions.ATypesDefinition;
 import eu.compassresearch.ast.definitions.AValuesDefinition;
-import eu.compassresearch.ast.lex.LexNameToken;
+import eu.compassresearch.ast.lex.CmlLexNameToken;
 import eu.compassresearch.core.interpreter.api.values.ActionValue;
 import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
 import eu.compassresearch.core.interpreter.api.values.LatticeTopValue;
@@ -161,13 +159,13 @@ class CmlDefinitionVisitor extends
 		return vpl;
 	}
 
-	@Override
-	public NameValuePairList caseACmlClassDefinition(ACmlClassDefinition node,
-			Context question) throws AnalysisException
-	{
-
-		return new NameValuePairList();
-	}
+//	@Override
+//	public NameValuePairList caseACmlClassDefinition(ACmlClassDefinition node,
+//			Context question) throws AnalysisException
+//	{
+//
+//		return new NameValuePairList();
+//	}
 
 	@Override
 	public NameValuePairList caseAChansetsDefinition(AChansetsDefinition node,
@@ -268,8 +266,8 @@ class CmlDefinitionVisitor extends
 	}
 
 	@Override
-	public NameValuePairList caseAExplicitCmlOperationDefinition(
-			AExplicitCmlOperationDefinition node, Context question)
+	public NameValuePairList caseAExplicitOperationDefinition(
+			AExplicitOperationDefinition node, Context question)
 			throws AnalysisException
 	{
 
@@ -281,8 +279,8 @@ class CmlDefinitionVisitor extends
 	}
 
 	@Override
-	public NameValuePairList caseAImplicitCmlOperationDefinition(
-			AImplicitCmlOperationDefinition node, Context question)
+	public NameValuePairList caseAImplicitOperationDefinition(
+			AImplicitOperationDefinition node, Context question)
 			throws AnalysisException
 	{
 
@@ -317,18 +315,15 @@ class CmlDefinitionVisitor extends
 	{
 		NameValuePairList vpl = new NameValuePairList();
 
-		for (AChannelNameDefinition cnd : node.getChannelNameDeclarations())
+		for (AChannelDefinition cnd : node.getChannelDeclarations())
 		{
-			for (ILexIdentifierToken channelName : cnd.getSingleType().getIdentifiers())
-			{
-
-				ILexNameToken name = NamespaceUtility.createChannelName(channelName);
-				vpl.add(new NameValuePair(name, new CMLChannelValue(cnd.getSingleType().getType(), name)));
-			}
+			ILexNameToken name = NamespaceUtility.createChannelName(cnd.getName());
+			vpl.add(new NameValuePair(name, new CMLChannelValue(cnd.getType(), name)));
 		}
 
 		return vpl;
 	}
+	
 
 	/*
 	 * Types
@@ -390,12 +385,9 @@ class CmlDefinitionVisitor extends
 			AExpressionSingleDeclaration node, Context question)
 			throws AnalysisException
 	{
-
 		NameValuePairList vpl = new NameValuePairList();
-
 		Value value = node.getExpression().apply(cmlExpressionVisitor, question);
-		for (ILexIdentifierToken id : node.getIdentifiers())
-			vpl.add(new NameValuePair(new LexNameToken("", id.clone()), value));
+		vpl.add(new NameValuePair(new CmlLexNameToken("", node.getIdentifier().clone()), value));
 
 		return vpl;
 	}
@@ -405,12 +397,9 @@ class CmlDefinitionVisitor extends
 			ATypeSingleDeclaration node, Context question)
 			throws AnalysisException
 	{
-
 		NameValuePairList vpl = new NameValuePairList();
-
 		Value value = new LatticeTopValue(node.getType());
-		for (ILexIdentifierToken id : node.getIdentifiers())
-			vpl.add(new NameValuePair(new LexNameToken("", id.clone()), value));
+		vpl.add(new NameValuePair(new CmlLexNameToken("", node.getIdentifier().clone()), value));
 
 		return vpl;
 	}

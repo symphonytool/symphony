@@ -1,0 +1,34 @@
+class
+
+ C =
+
+begin
+
+
+
+operations
+
+ public doit: int ==> () 
+ doit(a) == Skip
+
+end
+
+
+
+process
+
+ P =
+
+begin
+
+
+
+state
+
+ s : C 
+ 
+ @ 
+ 
+ s.doit(1)
+
+end

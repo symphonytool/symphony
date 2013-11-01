@@ -1,0 +1,13 @@
+class
+
+ C =
+
+begin
+
+
+
+operations
+
+ C:()==>C C() == Skip
+
+end

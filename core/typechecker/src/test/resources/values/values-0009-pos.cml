@@ -1,0 +1,15 @@
+/*Exponent literal*/
+
+class
+
+ test =
+
+begin
+
+
+
+values
+
+ public a:real = 1.25E+10
+
+end

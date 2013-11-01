@@ -1,0 +1,17 @@
+functions
+
+ f: int * int -> int f(x,y) == x+y pre x > 0
+
+process
+
+ P =
+
+begin
+
+
+
+actions
+
+ A = [ pre_f(0,0) ] & Skip @ A
+
+end

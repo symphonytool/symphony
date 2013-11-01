@@ -1,0 +1,5 @@
+/*Negative test: Check for duplicated type defs*/
+
+types
+
+ A = nat A = bool B = bool B = rat

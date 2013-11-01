@@ -1,0 +1,3 @@
+types
+
+ A = inmap int to int

@@ -1,0 +1,17 @@
+class
+
+ K =
+
+begin
+
+
+
+state
+
+ a: int
+
+functions
+
+ f: int -> int f(x) == let y : int = 10 in x + y + a
+
+end

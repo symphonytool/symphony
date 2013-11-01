@@ -1,0 +1,15 @@
+/*Action reference positive*/
+
+process
+
+ P =
+
+begin
+
+
+
+actions
+
+ INIT = Skip @ INIT
+
+end

@@ -1,0 +1,7 @@
+/*Negative test, infinite type*/
+
+types
+
+ A = compose rec of c:A
+
+end

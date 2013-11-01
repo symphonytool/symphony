@@ -1,0 +1,17 @@
+class
+
+ Stuff =
+
+begin
+
+
+
+functions
+
+
+
+operations
+
+ o : () ==> int o() == (return (let a:int = 2 in "abcd"))
+
+end

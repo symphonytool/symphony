@@ -5,14 +5,13 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
+import org.overture.ast.statements.AForPatternBindStm;
 import org.overture.ast.types.SNumericBasicType;
 import org.overture.interpreter.runtime.Context;
-import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.values.IntegerValue;
 import org.overture.interpreter.values.NameValuePair;
 import org.overture.interpreter.values.NameValuePairList;
@@ -23,7 +22,6 @@ import org.overture.interpreter.values.ValueList;
 
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
 import eu.compassresearch.ast.actions.AExternalChoiceReplicatedAction;
-import eu.compassresearch.ast.actions.AForSequenceStatementAction;
 import eu.compassresearch.ast.actions.AGeneralisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AGeneralisedParallelismReplicatedAction;
 import eu.compassresearch.ast.actions.AHidingAction;
@@ -38,7 +36,6 @@ import eu.compassresearch.ast.actions.ASynchronousParallelismReplicatedAction;
 import eu.compassresearch.ast.actions.ATimeoutAction;
 import eu.compassresearch.ast.actions.AUntimedTimeoutAction;
 import eu.compassresearch.ast.actions.AWaitAction;
-import eu.compassresearch.ast.actions.SReplicatedAction;
 import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.process.AAlphabetisedParallelismProcess;
@@ -56,7 +53,6 @@ import eu.compassresearch.ast.process.ASynchronousParallelismProcess;
 import eu.compassresearch.ast.process.ASynchronousParallelismReplicatedProcess;
 import eu.compassresearch.ast.process.ATimeoutProcess;
 import eu.compassresearch.ast.process.AUntimedTimeoutProcess;
-import eu.compassresearch.ast.process.SReplicatedProcess;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
@@ -647,8 +643,8 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 	}
 
 	@Override
-	public Pair<INode, Context> caseAForSequenceStatementAction(
-			AForSequenceStatementAction node, Context question)
+	public Pair<INode, Context> caseAForPatternBindStm(
+			AForPatternBindStm node, Context question)
 			throws AnalysisException
 	{
 

@@ -1,0 +1,5 @@
+/*negative test, strange post*/
+
+functions
+
+ max (els :set of ID) maxel:ID post max = forall el in set els @ maxel >= el

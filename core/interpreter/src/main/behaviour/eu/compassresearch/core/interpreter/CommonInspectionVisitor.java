@@ -25,7 +25,7 @@ import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
 import eu.compassresearch.ast.expressions.ANameChannelExp;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
-import eu.compassresearch.ast.lex.LexNameToken;
+import eu.compassresearch.ast.lex.CmlLexNameToken;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
@@ -143,12 +143,12 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 					
 					setLeftChild(new ConcreteCmlBehaviour(leftNode, 
 							CmlBehaviourUtility.deepCopyProcessContext(childContexts.first), 
-							new LexNameToken(module, nameStr	+ "[]", LocationExtractor.extractLocation(leftNode)), 
+							new CmlLexNameToken(module, nameStr	+ "[]", LocationExtractor.extractLocation(leftNode)), 
 							this.owner));
 
 					setRightChild(new ConcreteCmlBehaviour(rightNode, 
 							CmlBehaviourUtility.deepCopyProcessContext(childContexts.second), 
-							new LexNameToken(module, "[]" + nameStr, LocationExtractor.extractLocation(rightNode)), 
+							new CmlLexNameToken(module, "[]" + nameStr, LocationExtractor.extractLocation(rightNode)), 
 							this.owner));
 
 					return new Pair<INode, Context>(node, question);

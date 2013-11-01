@@ -1,0 +1,20 @@
+class
+
+ Test =
+
+begin
+
+
+
+types
+
+R ::
+	right: int
+	left : int
+	
+functions
+
+fun : int*R -> R
+fun(a,r) == mk_R(a,r.right)
+
+end

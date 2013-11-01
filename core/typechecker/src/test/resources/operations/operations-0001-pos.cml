@@ -1,0 +1,17 @@
+class
+
+ c =
+
+begin
+
+
+
+state
+
+ a:int := 10
+
+operations
+
+ o:int ==> int o(n) == (return (a + n))
+
+end

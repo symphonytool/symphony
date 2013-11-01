@@ -3,6 +3,8 @@ package eu.compassresearch.ide.ui.navigator;
 import org.eclipse.jface.viewers.StyledString;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AAssignmentDefinition;
+import org.overture.ast.definitions.AExplicitOperationDefinition;
+import org.overture.ast.definitions.AImplicitOperationDefinition;
 import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.node.INode;
@@ -13,18 +15,15 @@ import org.overture.ide.ui.internal.viewsupport.VdmElementLabels;
 
 import eu.compassresearch.ast.analysis.AnswerCMLAdaptor;
 import eu.compassresearch.ast.definitions.AActionDefinition;
-import eu.compassresearch.ast.definitions.AChannelNameDefinition;
+import eu.compassresearch.ast.definitions.AChannelDefinition;
 import eu.compassresearch.ast.definitions.AChannelsDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.definitions.AChansetsDefinition;
-import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AFunctionsDefinition;
-import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.definitions.ATypesDefinition;
 import eu.compassresearch.ast.definitions.AValuesDefinition;
 import eu.compassresearch.ast.process.AActionProcess;
-import eu.compassresearch.ast.types.AChannelType;
 
 public class CmlElementLabels extends VdmElementLabels
 {
@@ -62,8 +61,8 @@ public class CmlElementLabels extends VdmElementLabels
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		public StyledString caseAExplicitCmlOperationDefinition(
-				AExplicitCmlOperationDefinition node) throws AnalysisException
+		public StyledString caseAExplicitOperationDefinition(
+				AExplicitOperationDefinition node) throws AnalysisException
 		{
 			StyledString result = new StyledString();
 
@@ -103,8 +102,8 @@ public class CmlElementLabels extends VdmElementLabels
 		}
 
 		@Override
-		public StyledString caseAImplicitCmlOperationDefinition(
-				AImplicitCmlOperationDefinition node) throws AnalysisException
+		public StyledString caseAImplicitOperationDefinition(
+				AImplicitOperationDefinition node) throws AnalysisException
 		{
 			StyledString result = new StyledString();
 
@@ -175,16 +174,14 @@ public class CmlElementLabels extends VdmElementLabels
 		}
 
 		@Override
-		public StyledString caseAChannelNameDefinition(
-				AChannelNameDefinition node) throws AnalysisException
+		public StyledString caseAChannelDefinition(AChannelDefinition node)
+				throws AnalysisException
 		{
 			StyledString result = new StyledString();
-			result.append(node.getSingleType().getIdentifiers().toString());
-			if (node.getSingleType().getType() instanceof AChannelType
-					&& ((AChannelType) node.getSingleType().getType()).getType() != null)
+			result.append(node.getName().getName());
+			if (node.getType() != null)
 			{
-				result.append(" : "
-						+ getSimpleTypeString(node.getSingleType().getType()), StyledString.DECORATIONS_STYLER);
+				result.append(" : " + getSimpleTypeString(node.getType()), StyledString.DECORATIONS_STYLER);
 			}
 
 			return result;
@@ -210,19 +207,23 @@ public class CmlElementLabels extends VdmElementLabels
 				throws AnalysisException
 		{
 			StyledString result = new StyledString();
-			try{//FIXME this try catch have to be removed and the state object should not be made by the parser if it doesn't contain anything but null pointers
-			result.append(node.getName().getSimpleName());
-			if (node.getType().getLocation().getModule().toLowerCase().equals("default"))
+			try
+			{// FIXME this try catch have to be removed and the state object should not be made by the parser if it
+				// doesn't contain anything but null pointers
+				result.append(node.getName().getSimpleName());
+				if (node.getType().getLocation().getModule().toLowerCase().equals("default"))
+				{
+					result.append(" : " + getSimpleTypeString(node.getType()), StyledString.DECORATIONS_STYLER);
+				} else
+				{
+					result.append(" : "
+							+ node.getType().getLocation().getModule() + "`"
+							+ getSimpleTypeString(node.getType()), StyledString.DECORATIONS_STYLER);
+				}
+			} catch (Exception e)
 			{
-				result.append(" : " + getSimpleTypeString(node.getType()), StyledString.DECORATIONS_STYLER);
-			} else
-			{
-				result.append(" : " + node.getType().getLocation().getModule()
-						+ "`" + getSimpleTypeString(node.getType()), StyledString.DECORATIONS_STYLER);
-			}
-			}catch(Exception e)
-			{
-				result.append("Parser did not populate class: "+node.getClass().getName());
+				result.append("Parser did not populate class: "
+						+ node.getClass().getName());
 			}
 			return result;
 		}

@@ -1,0 +1,3 @@
+types
+
+ N = nat inv n == n <= 255

@@ -1,0 +1,27 @@
+/*This test was reported by AKM and checks that
+
+operations
+
+ cannot be invoked from dcl's*/
+
+channels
+
+ a : int
+
+process
+
+ A =
+
+begin
+
+
+
+state
+
+ v : int := 2
+
+operations
+
+ Test : int ==> int Test(x) == return x + v @ (dcl z : int := test(2) @ a!(z) -> Skip )
+
+end

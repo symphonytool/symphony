@@ -25,7 +25,7 @@ import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
-import eu.compassresearch.ast.lex.LexNameToken;
+import eu.compassresearch.ast.lex.CmlLexNameToken;
 import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.ast.process.AAlphabetisedParallelismProcess;
 import eu.compassresearch.ast.process.AExternalChoiceProcess;
@@ -109,7 +109,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 				{
 					processDef = new AProcessDefinition();
 					processDef.setLocation(node.getLocation());
-					processDef.setName(new LexNameToken("", "Unnamed Process", node.getLocation()));
+					processDef.setName(new CmlLexNameToken("", "Unnamed Process", node.getLocation()));
 
 					AProcessDefinition pdef = node.getAncestor(AProcessDefinition.class);
 					// We need to check whether the unnamed process is inside parameterised process, if it is then we
@@ -120,7 +120,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 						for (ATypeSingleDeclaration decl : pdef.getLocalState())
 							for (ILexIdentifierToken id : decl.getIdentifiers())
 							{
-								ILexNameToken paramName = new LexNameToken(pdef.getName().getSimpleName(), id.clone());
+								ILexNameToken paramName = new CmlLexNameToken(pdef.getName().getSimpleName(), id.clone());
 								Value val = question.lookup(paramName);
 								valueMap.putNew(new NameValuePair(paramName.getModifiedName(processDef.getName().getSimpleName()), val));
 							}
@@ -205,11 +205,11 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 						CmlTransition selectedTransition)
 						throws AnalysisException
 				{
-					CmlBehaviour leftInstance = new ConcreteCmlBehaviour(node.getLeft(), question, new LexNameToken(name().getModule(), name().getIdentifier().getName()
+					CmlBehaviour leftInstance = new ConcreteCmlBehaviour(node.getLeft(), question, new CmlLexNameToken(name().getModule(), name().getIdentifier().getName()
 							+ "[]", node.getLeft().getLocation()), this.owner);
 					setLeftChild(leftInstance);
 
-					CmlBehaviour rightInstance = new ConcreteCmlBehaviour(node.getRight(), question, new LexNameToken(name().getModule(), "[]"
+					CmlBehaviour rightInstance = new ConcreteCmlBehaviour(node.getRight(), question, new CmlLexNameToken(name().getModule(), "[]"
 							+ name().getIdentifier().getName(), node.getRight().getLocation()), this.owner);
 					setRightChild(rightInstance);
 					// Now let this process wait for the children to get into a waitForEvent state
@@ -463,9 +463,9 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 		ILexNameToken name = owner.name();
 		Pair<Context, Context> childContexts = visitorAccess.getChildContexts(question);
 		// TODO: create a local copy of the question state for each of the actions
-		CmlBehaviour leftInstance = new ConcreteCmlBehaviour(left, childContexts.first, new LexNameToken(name.getModule(), name.getIdentifier().getName()
+		CmlBehaviour leftInstance = new ConcreteCmlBehaviour(left, childContexts.first, new CmlLexNameToken(name.getModule(), name.getIdentifier().getName()
 				+ operatorsign, left.getLocation()), owner);
-		CmlBehaviour rightInstance = new ConcreteCmlBehaviour(right, childContexts.second, new LexNameToken(name.getModule(), operatorsign
+		CmlBehaviour rightInstance = new ConcreteCmlBehaviour(right, childContexts.second, new CmlLexNameToken(name.getModule(), operatorsign
 				+ name.getIdentifier().getName(), right.getLocation()), owner);
 
 		// add the children to the process graph
@@ -542,7 +542,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 						// There are always a val param so they must allways be constant
 						Value value = arg.apply(cmlExpressionVisitor, question).getConstant();
 
-						LexNameToken argName = new LexNameToken(node.getProcessDefinition().getName().getSimpleName(), (ILexIdentifierToken) id.clone());
+						CmlLexNameToken argName = new CmlLexNameToken(node.getProcessDefinition().getName().getSimpleName(), (ILexIdentifierToken) id.clone());
 						// LexNameToken argName = new LexNameToken("",(ILexIdentifierToken)id.clone());
 
 						evaluatedArgs.put(argName, value);

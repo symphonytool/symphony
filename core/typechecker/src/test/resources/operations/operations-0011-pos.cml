@@ -1,0 +1,17 @@
+class
+
+ test =
+
+begin
+
+
+
+operations
+
+ op1: int ==> int op1(a) == return (a+1)
+
+values
+
+ k : int = op1(10)
+
+end
