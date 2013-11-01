@@ -58,7 +58,6 @@ public class ThmRecType extends ThmDecl {
 		for (AFieldField field: fields)
 		{
 			String fldNm = field.getTag();
-			//String fldTp = ThmTypeUtil.getIsabelleType(field.getType());
 		
 			sb.append(ThmTypeUtil.isaAbbr + "\"" + fldNm + " " + ThmTypeUtil.isaEquiv + " SelectRec " + fldNm + "_fld\"\n");  
 				

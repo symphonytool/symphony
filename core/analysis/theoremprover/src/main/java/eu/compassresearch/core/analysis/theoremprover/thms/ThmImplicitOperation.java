@@ -157,7 +157,11 @@ public class ThmImplicitOperation extends ThmDecl{
 		//if there is a result value (it is a postcondition)
 		if  (res != null && (!res.isEmpty()) && res.getFirst() != null)
 		{	
-			sb.append(", ^" +  ThmTypeUtil.isaFuncLambdaPostVal + "^");
+			if (!params.isEmpty())
+			{
+				sb.append(", ");
+			}
+			sb.append("^" + ThmTypeUtil.isaFuncLambdaPostVal + "^");
 		}
 		
 		sb.append(")");

@@ -154,7 +154,7 @@ public class ThmExpFunc extends ThmDecl {
 				sb.append(((AIdentifierPattern) pat).getName().toString());
 				sb.append("^");
 				//If there are remaining parameters, add a ","
-				if(itr.hasNext()){	
+				if(itr.hasNext() || prepost.equals("post")){	
 					sb.append(", ");
 				}
 			}
@@ -162,7 +162,7 @@ public class ThmExpFunc extends ThmDecl {
 		//if there is a result value
 		if (prepost.equals("post"))
 		{
-			sb.append(", ^" + ThmTypeUtil.isaFuncLambdaPostVal + "^");
+			sb.append("^" + ThmTypeUtil.isaFuncLambdaPostVal + "^");
 		}
 		sb.append(")");
 

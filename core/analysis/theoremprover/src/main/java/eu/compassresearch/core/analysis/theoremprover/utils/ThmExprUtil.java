@@ -92,8 +92,7 @@ public class ThmExprUtil {
 	{
 		isPost = post;
 	}
-	
- 
+
 
 	public static String getIsabelleExprStr(NodeNameList svars, NodeNameList bvars, PExp ex)
 	{

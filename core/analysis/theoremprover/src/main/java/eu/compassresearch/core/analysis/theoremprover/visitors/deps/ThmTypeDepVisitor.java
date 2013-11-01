@@ -7,21 +7,30 @@ import org.overture.ast.node.INode;
 import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.ARecordPattern;
 import org.overture.ast.patterns.PPattern;
+import org.overture.ast.types.ABooleanBasicType;
 import org.overture.ast.types.ABracketType;
+import org.overture.ast.types.ACharBasicType;
 import org.overture.ast.types.AClassType;
 import org.overture.ast.types.AFieldField;
 import org.overture.ast.types.AFunctionType;
 import org.overture.ast.types.AInMapMapType;
+import org.overture.ast.types.AIntNumericBasicType;
 import org.overture.ast.types.AMapMapType;
+import org.overture.ast.types.ANamedInvariantType;
+import org.overture.ast.types.ANatNumericBasicType;
+import org.overture.ast.types.ANatOneNumericBasicType;
 import org.overture.ast.types.AOperationType;
 import org.overture.ast.types.AOptionalType;
 import org.overture.ast.types.AParameterType;
 import org.overture.ast.types.AProductType;
 import org.overture.ast.types.AQuoteType;
+import org.overture.ast.types.ARationalNumericBasicType;
+import org.overture.ast.types.ARealNumericBasicType;
 import org.overture.ast.types.ARecordInvariantType;
 import org.overture.ast.types.ASeq1SeqType;
 import org.overture.ast.types.ASeqSeqType;
 import org.overture.ast.types.ASetType;
+import org.overture.ast.types.ATokenBasicType;
 import org.overture.ast.types.AUndefinedType;
 import org.overture.ast.types.AUnionType;
 import org.overture.ast.types.AUnknownType;
@@ -32,6 +41,8 @@ import org.overture.ast.types.PType;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.core.analysis.theoremprover.thms.NodeNameList;
+import eu.compassresearch.core.analysis.theoremprover.utils.ThmTypeUtil;
+import eu.compassresearch.core.analysis.theoremprover.visitors.string.ThmVarsContext;
 
 @SuppressWarnings("serial")
 public class ThmTypeDepVisitor extends
@@ -54,6 +65,48 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 		return nodeDeps;
 
 	}
+
+	public NodeNameList caseANamedInvariantType(ANamedInvariantType tp, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+		nodeDeps.add(tp.getName());
+
+		return nodeDeps;
+	}
+	
+	public NodeNameList caseANatNumericBasicType(ANatNumericBasicType tp,  NodeNameList bvars) throws AnalysisException{
+		return new NodeNameList();
+	}
+	
+	public NodeNameList caseABooleanBasicType(ABooleanBasicType tp, NodeNameList bvars) throws AnalysisException{
+		return new NodeNameList();
+	}
+	
+	public NodeNameList caseACharBasicType(ACharBasicType tp, NodeNameList bvars) throws AnalysisException{
+		return new NodeNameList();
+	}
+	
+	public NodeNameList caseATokenBasicType(ATokenBasicType tp, NodeNameList bvars) throws AnalysisException{
+		return new NodeNameList();
+	}
+	
+	public NodeNameList caseANatOneNumericBasicType(ANatOneNumericBasicType tp, NodeNameList bvars) throws AnalysisException{
+		return new NodeNameList();
+	}
+	
+	public NodeNameList caseARationalNumericBasicType(ARationalNumericBasicType tp, NodeNameList bvars) throws AnalysisException{
+		return new NodeNameList();
+	}
+	
+	public NodeNameList caseARealNumericBasicType(ARealNumericBasicType tp, NodeNameList bvars) throws AnalysisException{
+		return new NodeNameList();
+	}
+	
+	public NodeNameList caseAIntNumericBasicType(AIntNumericBasicType tp, NodeNameList bvars) throws AnalysisException{
+		return new NodeNameList();
+	}
+
+	
 	
 
 	public NodeNameList caseAInMapMapType(AInMapMapType tp, NodeNameList bvars) throws AnalysisException{

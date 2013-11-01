@@ -31,6 +31,8 @@ import eu.compassresearch.core.analysis.theoremprover.utils.ThmExprUtil;
 import eu.compassresearch.core.analysis.theoremprover.utils.ThmProcessUtil;
 import eu.compassresearch.core.analysis.theoremprover.utils.ThySortException;
 import eu.compassresearch.core.analysis.theoremprover.utils.UnhandledSyntaxException;
+import eu.compassresearch.core.analysis.theoremprover.visitors.deps.ThmDepVisitor;
+import eu.compassresearch.core.analysis.theoremprover.visitors.string.ThmStringVisitor;
 
 @SuppressWarnings("serial")
 public class TPVisitor extends
@@ -44,13 +46,17 @@ public class TPVisitor extends
 	private ThmValueVisitor valVisitor;
 	private ThmDeclAndDefVisitor declAndDefVisitor;
 	private ThmChannelVisitor chanVisitor;
+	
+	private ThmDepVisitor depVisitor = new ThmDepVisitor();
+	private ThmStringVisitor stringVisitor = new ThmStringVisitor();
+	
 
 	private void initialize()
 	{
-		typeVisitor = new ThmTypeVisitor(this);
-		chanVisitor = new ThmChannelVisitor(this);
-		declAndDefVisitor = new ThmDeclAndDefVisitor(this);
-		valVisitor = new ThmValueVisitor(this);
+		typeVisitor = new ThmTypeVisitor(this, depVisitor, stringVisitor);
+		chanVisitor = new ThmChannelVisitor(this, depVisitor, stringVisitor);
+		declAndDefVisitor = new ThmDeclAndDefVisitor(this, depVisitor, stringVisitor);
+		valVisitor = new ThmValueVisitor(this, depVisitor, stringVisitor);
 	}
 	@Override
 	public ThmNodeList caseAValueDefinition(AValueDefinition node)

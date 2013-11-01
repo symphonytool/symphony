@@ -16,13 +16,22 @@ import eu.compassresearch.core.analysis.theoremprover.thms.NodeNameList;
 import eu.compassresearch.core.analysis.theoremprover.utils.ThmExprUtil;
 import eu.compassresearch.core.analysis.theoremprover.utils.ThmTypeUtil;
 import eu.compassresearch.core.analysis.theoremprover.utils.ThmValueUtil;
+import eu.compassresearch.core.analysis.theoremprover.visitors.deps.ThmDepVisitor;
+import eu.compassresearch.core.analysis.theoremprover.visitors.string.ThmStringVisitor;
+import eu.compassresearch.core.analysis.theoremprover.visitors.string.ThmVarsContext;
 
+@SuppressWarnings("serial")
 public class ThmValueVisitor extends AnswerCMLAdaptor<ThmNodeList> {
-
-    public ThmValueVisitor(
-    		AnswerCMLAdaptor<ThmNodeList> parentVisitor) {
-    }
-
+	
+	private ThmDepVisitor depVisitor;
+	private ThmStringVisitor stringVisitor;
+	
+	
+	public ThmValueVisitor(AnswerCMLAdaptor<ThmNodeList> parent, ThmDepVisitor depVis, ThmStringVisitor stringVis)
+	{
+		depVisitor = depVis;
+		stringVisitor = stringVis;
+	}
 
 	@Override
 	public ThmNodeList caseAValuesDefinition(AValuesDefinition node)
@@ -45,13 +54,11 @@ public class ThmValueVisitor extends AnswerCMLAdaptor<ThmNodeList> {
 		ILexNameToken valName =  ((AIdentifierPattern) node.getPattern()).getName();
 		String nameStr = valName.toString();
 		
-		String typeStr = ThmTypeUtil.getIsabelleType(node.getType());
+		String typeStr = node.getType().apply(stringVisitor, new ThmVarsContext()); //ThmTypeUtil.getIsabelleType(node.getType());
 
-		NodeNameList svars = new NodeNameList();
-		NodeNameList evars = new NodeNameList();
-		String exprStr = ThmExprUtil.getIsabelleExprStr(svars, evars, node.getExpression());
+		String exprStr = node.getExpression().apply(stringVisitor, new ThmVarsContext()); //ThmExprUtil.getIsabelleExprStr(svars, evars, node.getExpression());
 
-		NodeNameList nodeDeps = ThmValueUtil.getIsabelleValueDeps(node);
+		NodeNameList nodeDeps = node.apply(depVisitor, new NodeNameList());//ThmValueUtil.getIsabelleValueDeps(node);
 		
 		ThmNode tn = new ThmNode(valName, nodeDeps, new ThmValue(nameStr, typeStr, exprStr));
 		tnl.add(tn);

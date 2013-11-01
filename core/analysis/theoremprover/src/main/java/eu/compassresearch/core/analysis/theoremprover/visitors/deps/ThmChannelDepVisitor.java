@@ -12,6 +12,9 @@ import eu.compassresearch.ast.definitions.AChannelNameDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.analysis.theoremprover.thms.NodeNameList;
+import eu.compassresearch.core.analysis.theoremprover.thms.ThmChannel;
+import eu.compassresearch.core.analysis.theoremprover.thms.ThmNode;
+import eu.compassresearch.core.analysis.theoremprover.visitors.string.ThmVarsContext;
 
 @SuppressWarnings("serial")
 public class ThmChannelDepVisitor extends
@@ -46,11 +49,16 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 		NodeNameList nodeDeps = new NodeNameList();
 		
 		LinkedList<PDefinition> chandefs = node.getSingleType().getType().getDefinitions();
-		PDefinition chan = chandefs.getFirst();
-		PType chanTp = (((AChannelType) chan.getType()).getType());
 		
-		nodeDeps.addAll(chanTp.apply(thmDepVisitor, bvars));
-		
+		for(PDefinition chan : chandefs)
+		{
+			//Generate Channel syntax
+			PType chanType = ((AChannelType) chan.getType()).getType();
+			if (chanType != null)
+			{
+				nodeDeps.addAll(chanType.apply(thmDepVisitor, bvars));
+			}
+		}
 		return nodeDeps;
 	}
 			

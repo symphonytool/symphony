@@ -101,14 +101,14 @@ public class ThmExplicitOperation extends ThmDecl{
 			sb.append(((AIdentifierPattern) pat).getName().toString());
 			sb.append("^");
 			//If there are remaining parameters, add a ","
-			if(itr.hasNext()){	
+			if(itr.hasNext() || (prepost.equals("post") && resType != null)){	
 				sb.append(", ");
 			}
 		}
 		//if there is a result value
 		if (prepost.equals("post") && resType != null)
 		{
-			sb.append(", ^" + ThmTypeUtil.isaFuncLambdaPostVal + "^");
+			sb.append("^" + ThmTypeUtil.isaFuncLambdaPostVal + "^");
 		}
 		sb.append(")");
 		

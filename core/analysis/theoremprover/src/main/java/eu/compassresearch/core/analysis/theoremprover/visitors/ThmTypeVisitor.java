@@ -16,14 +16,21 @@ import eu.compassresearch.core.analysis.theoremprover.thms.ThmRecType;
 import eu.compassresearch.core.analysis.theoremprover.thms.ThmType;
 import eu.compassresearch.core.analysis.theoremprover.thms.NodeNameList;
 import eu.compassresearch.core.analysis.theoremprover.utils.ThmTypeUtil;
+import eu.compassresearch.core.analysis.theoremprover.visitors.deps.ThmDepVisitor;
+import eu.compassresearch.core.analysis.theoremprover.visitors.string.ThmStringVisitor;
+import eu.compassresearch.core.analysis.theoremprover.visitors.string.ThmVarsContext;
 
 @SuppressWarnings("serial")
 public class ThmTypeVisitor extends AnswerCMLAdaptor<ThmNodeList> {
-
-    public ThmTypeVisitor(
-    		AnswerCMLAdaptor<ThmNodeList> parentVisitor) {
-    }
-
+	
+	private ThmDepVisitor depVisitor;
+	private ThmStringVisitor stringVisitor;
+	
+	public ThmTypeVisitor(AnswerCMLAdaptor<ThmNodeList> parent, ThmDepVisitor depVis, ThmStringVisitor stringVis)
+	{
+		depVisitor = depVis;
+		stringVisitor = stringVis;
+	}
 
 	@Override
 	public ThmNodeList caseATypesDefinition(ATypesDefinition node)
@@ -54,10 +61,10 @@ public class ThmTypeVisitor extends AnswerCMLAdaptor<ThmNodeList> {
 		{
 			ANamedInvariantType nametype = (ANamedInvariantType) type;
 			PType tp = nametype.getType();
-			//Send to Utils for Type String
-			typeStr = ThmTypeUtil.getIsabelleType(tp);
-			//Send to Utils for Deplist
-			nodeDeps.addAll(ThmTypeUtil.getIsabelleTypeDeps(tp));
+			//Send to visitor for Type String
+			typeStr = tp.apply(stringVisitor, new ThmVarsContext());//ThmTypeUtil.getIsabelleType(tp);
+			//Send to visitor for Deplist
+			nodeDeps.addAll(tp.apply(depVisitor, new NodeNameList()));//ThmTypeUtil.getIsabelleTypeDeps(tp));
 			//Handle invariant.
 			nodeDeps.addAll(ThmTypeUtil.getIsabelleTypeInvDeps(node));
 			inv = ThmTypeUtil.getIsabelleTypeInv(node);
@@ -69,8 +76,8 @@ public class ThmTypeVisitor extends AnswerCMLAdaptor<ThmNodeList> {
 		{
 			ARecordInvariantType rtype = (ARecordInvariantType) type;
 			
-			//Send to Utils for Deplist
-			nodeDeps.addAll(ThmTypeUtil.getIsabelleTypeDeps(rtype));
+			//Send to visitor for Deplist
+			nodeDeps.addAll(rtype.apply(depVisitor, new NodeNameList()));
 
 			//Handle invariant.
 			nodeDeps.addAll(ThmTypeUtil.getIsabelleTypeInvDeps(node));
