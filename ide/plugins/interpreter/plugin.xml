@@ -12,7 +12,7 @@
 	<extension point="org.eclipse.ui.views">
 	<category
         	id="eu.compassresearch.ide.ui.category"
-        	name="COMPASS"/>
+        	name="Symphony"/>
 	
 	
 		<view 
@@ -52,7 +52,7 @@
 	<extension point="org.eclipse.debug.ui.launchConfigurationTabGroups">
 		<launchConfigurationTabGroup
 			class="eu.compassresearch.ide.interpreter.launching.CmlLaunchConfigurationTabGroup"
-			description="COMPASS Launch Tab" 
+			description="Symphony Launch Tab" 
 			id="eu.compassresearch.ide.interpreter.launchConfigurationTabGroup"
 			type="eu.compassresearch.ide.interpreter.launchConfigurationType">
 			<launchMode 

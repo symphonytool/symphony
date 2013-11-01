@@ -1,73 +1,72 @@
-
-
 h1, h2, h3, h4, h5, h6
 {
-	font-family: Helvetica, Arial, sans-serif;
-	
+    font-family: Gotham, Helvetica, Arial, sans-serif;
+    
 }
 
 h1 {
-  font-size: 170%;
+    font-size: 170%;
 }
 
 h2 {
-  font-size: 160%;
-  line-height: 130%;
+    font-size: 160%;
+    line-height: 130%;
 }
 
 h3 {
-  font-size: 140%;
+    font-size: 140%;
 }
 
 h4 {
-  font-size: 130%;
+    font-size: 130%;
 }
 
 h5 {
-  font-size: 120%;
+    font-size: 120%;
 }
 
 h6 {
-  font-size: 110%;
+    font-size: 110%;
 }
 
 body
 {
-	font: 12px/170% Verdana;
-  color: #494949;
-	}
+    font: 12px/170% Verdana;
+    color: #494949;
+}
 
 .logo
 {
-	position: absolute;
-	left: 20px;
-	top: 18px;
-	z-index: 2;
+    position: absolute;
+    left: 20px;
+    top: 18px;
+    z-index: 2;
 }
 
 .top
 {
-	position: absolute;
-	left: 0px;
-	top: 0px;
-	height: 110px;
-	width: 150%;
-	background-color: #FFFFFF;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    height: 110px;
+    width: 150%;
+    background-color: #FFFFFF;
 }
 
 .titletext
 {
-	color: #FFFFFF;
-	position: absolute;
-	color: #000000;
-	left: 20px;
-	top: 90px;
-	
+    color: #FFFFFF;
+    position: absolute;
+    color: #000000;
+    left: 20px;
+    top: 90px;
+    
 }
 
 .content
 {
-	position: absolute;
-	left: 20px;
-	top: 120px;
+    clear:both;
+    position: absolute;
+    left: 20px;
+    top: 120px;
 }

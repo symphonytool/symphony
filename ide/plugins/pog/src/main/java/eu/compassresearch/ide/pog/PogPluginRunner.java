@@ -93,7 +93,7 @@ public class PogPluginRunner
 
 	private void popErrorMessage(String message)
 	{
-		MessageDialog.openError(window.getShell(), "COMPASS POG", "Could not generate Proof Obligations.\n\n"
+		MessageDialog.openError(window.getShell(), "Symphony POG", "Could not generate Proof Obligations.\n\n"
 				+ message);
 	}
 

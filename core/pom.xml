@@ -13,7 +13,7 @@
 
   <groupId>eu.compassresearch.core</groupId>
   <artifactId>core</artifactId>
-  <name>COMPASS Core Top-Level</name>
+  <name>Symphony Core Top-Level</name>
 
   <modules>
     <module>ast</module>

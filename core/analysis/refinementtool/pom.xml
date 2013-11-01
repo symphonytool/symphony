@@ -10,7 +10,7 @@
   </parent>
 
   <artifactId>refinementtool</artifactId>
-  <name>COMPASS Core Analysis CML Refinement Tool</name>
+  <name>Symphony Core Analysis CML Refinement Tool</name>
 
   <dependencies>
 

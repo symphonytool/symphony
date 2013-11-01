@@ -95,8 +95,8 @@
 
 
 		<category
-        id="compass_eu.compassresearch.ide.ui.category"
-        name="COMPASS">
+                    id="compass_eu.compassresearch.ide.ui.category"
+                    name="Symphony">
 		</category>
 		<primaryWizard id="eu.compassresearch.ide.CmlProjectWizard" />
 	</extension>
@@ -107,7 +107,7 @@
 			point="org.eclipse.ui.views">
 		<category
 			id="eu.compassresearch.ide.ui.category"
-			name="COMPASS"/>
+			name="Symphony"/>
 		<view
 			category="eu.compassresearch.ide.ui.category"
 			allowMultiple="false"
@@ -205,14 +205,14 @@
        point="org.eclipse.ui.importWizards">
     <category
           id="eu.compassresearch.ide.ui.category-compass"
-          name="COMPASS">
+          name="Symphony">
     </category>
     <wizard
           category="eu.compassresearch.ide.ui.category-compass"
           class="eu.compassresearch.ide.ui.wizard.ImportExamplesWizard"
           icon="icons/cview16/cml_file_icon.png"
           id="eu.compassresearch.ide.ui.wizardImportExamples"
-          name="COMPASS Examples">
+          name="Symphony Examples">
     </wizard>
  </extension>
  <extension
@@ -224,7 +224,7 @@
     <command
           defaultHandler="eu.compassresearch.ide.ui.handlers.ReportBugHandler"
           id="eu.compassresearch.ide.ui.commandReportBug"
-          name="Report COMPASS Bug">
+          name="Report Symphony Bug">
     </command>
  </extension>
  <extension
@@ -267,7 +267,7 @@
           locationURI="menu:help?after=intro">
        <command
              commandId="eu.compassresearch.ide.ui.commandReportBug"
-             label="Report COMPASS bug"
+             label="Report Symphony bug"
              style="push">
        </command>
     </menuContribution>
@@ -277,7 +277,7 @@
     <extension point="org.eclipse.ui.views">
     <view 
         id="eu.compassresearch.ide.ui.Sanitizer"
-        name="COMPASS UI Debug Sanitizer"
+        name="Symphony UI Debug Sanitizer"
         category="compass_eu.compassresearch.ide.ui.category"
         icon="icons/cview16/cml_file_icon.png"
         class="eu.compassresearch.ide.ui.Sanitizer" />

@@ -145,7 +145,7 @@ public class FetchPosUtil
 
 	private void popErrorMessage(String message)
 	{
-		MessageDialog.openInformation(shell, "COMPASS", "Could not generate THY.\n\n"
+		MessageDialog.openInformation(shell, "Symphony", "Could not generate THY.\n\n"
 				+ message);
 	}
 

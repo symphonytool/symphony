@@ -12,7 +12,7 @@
   </parent>
 
   <artifactId>commandlinetool</artifactId>
-  <name>COMPASS Core CML Command Line Tool</name>
+  <name>Symphony Core CML Command Line Tool</name>
 
   <dependencies>
     
