@@ -1,0 +1,6 @@
+
+
+functions
+
+ max (a: int) result : int 
+ post true

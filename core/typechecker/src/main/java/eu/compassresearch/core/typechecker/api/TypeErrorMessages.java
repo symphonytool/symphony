@@ -103,6 +103,8 @@ public enum TypeErrorMessages
 
 	DEFINITION_X_BUT_FOUND_Y(4324,
 			"Expected %s definition but found %s definition. Identifier: %s");
+	
+	//4325 Operation '" %s "' cannot be called in an expression
 
 	private int number;
 	private String template;

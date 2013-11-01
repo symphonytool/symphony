@@ -3,6 +3,8 @@ package eu.compassresearch.core.typechecker.visitors;
 import java.util.LinkedList;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.definitions.AAssignmentDefinition;
+import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.expressions.AApplyExp;
 import org.overture.ast.expressions.AFieldExp;
 import org.overture.ast.expressions.ANewExp;
@@ -33,6 +35,7 @@ import org.overture.ast.util.PTypeSet;
 import org.overture.typechecker.TypeCheckInfo;
 import org.overture.typechecker.TypeCheckerErrors;
 import org.overture.typechecker.TypeComparator;
+import org.overture.typechecker.assistant.type.PTypeAssistantTC;
 import org.overture.typechecker.visitor.TypeCheckVisitor;
 
 import eu.compassresearch.ast.actions.ASkipAction;
@@ -48,6 +51,13 @@ public class CmlVdmTypeCheckVisitor extends
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	/**
+	 * Inner class representing the VDM type checker.
+	 * <p>
+	 * If any VDM behavior has to be overridden then this has to happen here. Unless the changed behavior only is called
+	 * from a non VDM construct.
+	 * </p>
+	 */
 	TypeCheckVisitor vdmVisitor = new TypeCheckVisitor()
 	{
 		/**
@@ -65,6 +75,34 @@ public class CmlVdmTypeCheckVisitor extends
 				throws AnalysisException
 		{
 			return null;
+		};
+
+		/**
+		 * The AApplyExp is used to hold operation calls which is ok when used in an assignment or return statement and
+		 * assignment/value-definition.
+		 */
+		public PType caseAApplyExp(AApplyExp node, TypeCheckInfo question)
+				throws AnalysisException
+		{
+			PType type = super.caseAApplyExp(node, question);
+
+			if (PTypeAssistantTC.isOperation(node.getRoot().getType()))
+			{
+				// FIXME is the correct? not sure if value def should be excluded hereS
+				if (!(node.parent() instanceof PStm
+						|| node.parent() instanceof AAssignmentDefinition || node.parent() instanceof AValueDefinition))
+				{
+
+					// if(!(node.parent() instanceof PExp))
+					// we also report an error when it is called from a AWriteCommunicationParameter is that intentional
+					System.out.println(node.parent().getClass().getSimpleName());
+					TypeCheckerErrors.report(3425, "Operation '"
+							+ node.getRoot()
+							+ "' cannot be called in an expression", node.getLocation(), node);
+				}
+			}
+
+			return type;
 		};
 
 	};

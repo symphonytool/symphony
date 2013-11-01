@@ -68,7 +68,10 @@ public class WeedingCallToCallActionReplacer extends
 		if (def == null)
 		{
 			AActionProcess pDef = node.getAncestor(AActionProcess.class);
-			def = pDef.getActionDefinition();
+			if(pDef!=null)
+			{
+				def = pDef.getActionDefinition();
+			}
 		}
 
 		if (def != null && def instanceof SClassDefinition)
