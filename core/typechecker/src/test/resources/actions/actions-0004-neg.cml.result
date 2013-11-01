@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<testResult type="eu.compassresearch.core.typechecker.secondedition.ActionsCmlTypeCheckerTests">
-<message column="3" line="9" message="3410 The Symbol &quot;UnknownAction&quot; is undefined." messageType="error" number="0" resource="actions-0004-neg.cml.result"/>
+<testResult type="eu.compassresearch.core.typechecker.ActionsCmlTypeCheckerTests">
+<message column="3" line="9" message="3410 The Symbol &quot;UnknownAction&quot; is undefined." messageType="error" number="0" resource="actions-0004-neg.cml"/>
 <result/>
 </testResult>

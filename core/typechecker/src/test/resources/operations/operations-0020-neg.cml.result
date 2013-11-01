@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<testResult type="eu.compassresearch.core.typechecker.secondedition.OperationsCmlTypeCheckerTests">
-<message column="6" line="16" message="Operation 'op1' cannot be called from a function" messageType="error" number="0" resource="operations-0020-neg.cml.result"/>
-<message column="6" line="16" message="Operation 'op1' cannot be called in an expression" messageType="error" number="0" resource="operations-0020-neg.cml.result"/>
+<testResult type="eu.compassresearch.core.typechecker.OperationsCmlTypeCheckerTests">
+<message column="6" line="16" message="Operation 'op1' cannot be called from a function" messageType="error" number="0" resource="operations-0020-neg.cml"/>
+<message column="6" line="16" message="Operation 'op1' cannot be called in an expression" messageType="error" number="0" resource="operations-0020-neg.cml"/>
 <result/>
 </testResult>

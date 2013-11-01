@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<testResult type="eu.compassresearch.core.typechecker.secondedition.CaseStudiesTestCase">
-<message column="13" line="25" message="Definition 'c' not used" messageType="warning" number="0" resource="result.result"/>
-<message column="13" line="27" message="Definition 'c' not used" messageType="warning" number="0" resource="result.result"/>
-<message column="15" line="29" message="Definition 'k' not used" messageType="warning" number="0" resource="result.result"/>
-<message column="4" line="21" message="Instance variable 'leader' is not initialized" messageType="warning" number="0" resource="result.result"/>
-<message column="4" line="22" message="Instance variable 'conf' is not initialized" messageType="warning" number="0" resource="result.result"/>
+<testResult type="eu.compassresearch.core.typechecker.CaseStudiesTestCase">
+<message column="13" line="25" message="Definition 'c' not used" messageType="warning" number="0" resource="SimpleElection.cml"/>
+<message column="13" line="27" message="Definition 'c' not used" messageType="warning" number="0" resource="SimpleElection.cml"/>
+<message column="15" line="29" message="Definition 'k' not used" messageType="warning" number="0" resource="SimpleElection.cml"/>
+<message column="4" line="21" message="Instance variable 'leader' is not initialized" messageType="warning" number="0" resource="SimpleElection.cml"/>
+<message column="4" line="22" message="Instance variable 'conf' is not initialized" messageType="warning" number="0" resource="SimpleElection.cml"/>
 <result/>
 </testResult>

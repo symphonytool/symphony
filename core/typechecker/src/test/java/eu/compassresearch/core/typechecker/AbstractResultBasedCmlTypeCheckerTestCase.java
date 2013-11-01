@@ -1,4 +1,4 @@
-package eu.compassresearch.core.typechecker.secondedition;
+package eu.compassresearch.core.typechecker;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;

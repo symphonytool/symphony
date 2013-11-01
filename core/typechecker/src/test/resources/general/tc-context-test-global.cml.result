@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<testResult type="eu.compassresearch.core.typechecker.secondedition.GeneralCmlTypeCheckerTests">
-<message column="4" line="20" message="Instance variable 'Process_State' is not initialized" messageType="warning" number="0" resource="tc-context-test-global.cml.result"/>
+<testResult type="eu.compassresearch.core.typechecker.GeneralCmlTypeCheckerTests">
+<message column="4" line="20" message="Instance variable 'Process_State' is not initialized" messageType="warning" number="0" resource="tc-context-test-global.cml"/>
 <result/>
 </testResult>

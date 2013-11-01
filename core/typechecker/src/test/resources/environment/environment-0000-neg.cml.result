@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<testResult type="eu.compassresearch.core.typechecker.secondedition.EnvironmentCmlTypeCheckerTests">
-<message column="1" line="11" message="Instance variable 'a' is not initialized" messageType="warning" number="0" resource="environment-0000-neg.cml.result"/>
-<message column="51" line="15" message="State variable 'K`a' cannot be accessed from this context" messageType="error" number="0" resource="environment-0000-neg.cml.result"/>
-<message column="51" line="15" message="Cannot access K`a from a static context" messageType="error" number="0" resource="environment-0000-neg.cml.result"/>
+<testResult type="eu.compassresearch.core.typechecker.EnvironmentCmlTypeCheckerTests">
+<message column="1" line="11" message="Instance variable 'a' is not initialized" messageType="warning" number="0" resource="environment-0000-neg.cml"/>
+<message column="51" line="15" message="State variable 'K`a' cannot be accessed from this context" messageType="error" number="0" resource="environment-0000-neg.cml"/>
+<message column="51" line="15" message="Cannot access K`a from a static context" messageType="error" number="0" resource="environment-0000-neg.cml"/>
 <result/>
 </testResult>

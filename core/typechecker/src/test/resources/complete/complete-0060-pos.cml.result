@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<testResult type="eu.compassresearch.core.typechecker.secondedition.CompleteCmlTypeCheckerTests">
-<message column="1" line="17" message="Instance variable 'value' is not initialized" messageType="warning" number="0" resource="complete-0060-pos.cml.result"/>
+<testResult type="eu.compassresearch.core.typechecker.CompleteCmlTypeCheckerTests">
+<message column="1" line="17" message="Instance variable 'value' is not initialized" messageType="warning" number="0" resource="complete-0060-pos.cml"/>
 <result/>
 </testResult>

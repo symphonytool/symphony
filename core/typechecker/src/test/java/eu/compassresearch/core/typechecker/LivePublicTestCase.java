@@ -1,4 +1,4 @@
-package eu.compassresearch.core.typechecker.secondedition;
+package eu.compassresearch.core.typechecker;
 
 import java.io.File;
 import java.util.Collection;
@@ -11,61 +11,18 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 @RunWith(value = Parameterized.class)
-public class CaseStudiesTestCase extends
+public class LivePublicTestCase extends
 		AbstractResultBasedCmlTypeCheckerTestCase
 {
-	private static String caseStudyDir = System.getProperty("CASESTUDIES");
+	private static String caseStudyDir = (System.getProperty("CASESTUDIES") != null ? System.getProperty("CASESTUDIES")
+			+ "/../PublicLiveCMLCaseStudies/"
+			: null);
 	static String[] specifications = {
 
-	"/Dwarf",
+	"/BitRegister", "/Dwarf", "/AVDeviceDiscovery", "/ChoiceSupportInDebugger",
+			"/RingBuffer" };
 
-	"/EmergencyResponse/Expert-Led/model",
-
-	"/EmergencyResponse/Rules-Led/model",
-
-	"/GridManager/FarmB",
-
-	"/LeaderElection/Election-BigProcess",
-
-	"/LeaderElection/Election-NonLeaders",
-
-	"/LeaderElection/Election-Original",
-
-			// "/LeaderElection/LeaderElection-Ncl",
-
-			"/LeaderElection",
-
-			"/Library",
-
-			"/Parwsum",
-
-			"/RingBuffer",
-
-			"/Simpler BitRegister",
-
-			// "/SoSMpc/ideal",
-
-			// "/SoSMpc/protocol",
-
-			"/SoSMpc/singlesystem",
-
-			"/TelephoneExchange/ClassesVersion",
-
-			"/TelephoneExchange/Original",
-
-			"/TrafficManager/CityAndCars/City",
-
-			// "/TrafficManager/CityAndCars/City-Working",
-
-			"/TrafficManager/Junctions",
-
-			// "/TravelAgent/Hotel1",
-
-			"/TravelAgent/Hotel2",
-
-			"/MiniMondex" };
-
-	public CaseStudiesTestCase(File file, List<File> files, String name,
+	public LivePublicTestCase(File file, List<File> files, String name,
 			TestType type)
 	{
 		super(file, files, name, type);
@@ -97,21 +54,21 @@ public class CaseStudiesTestCase extends
 	@Override
 	protected File createResultFile(String filename)
 	{
-		return new File(getResultPath(filename, caseStudyDir, "CaseStudies")
+		return new File(getResultPath(filename, caseStudyDir, "LivePublic")
 				+ "/result.result");
 	}
 
 	@Override
 	protected File getResultFile(String filename)
 	{
-		return new File(getResultPath(filename, caseStudyDir, "CaseStudies")
+		return new File(getResultPath(filename, caseStudyDir, "LivePublic")
 				+ "/result.result");
 	}
 
 	@Override
 	protected String getPropertyId()
 	{
-		return "casestudies";
+		return "livepublic";
 	}
 
 }

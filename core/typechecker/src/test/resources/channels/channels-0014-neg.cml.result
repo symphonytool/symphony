@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<testResult type="eu.compassresearch.core.typechecker.secondedition.ChannelsCmlTypeCheckerTests">
-<message column="1" line="5" message="Duplicate definition: a" messageType="warning" number="0" resource="channels-0014-neg.cml.result"/>
-<message column="1" line="7" message="Duplicate definition: a" messageType="warning" number="0" resource="channels-0014-neg.cml.result"/>
-<message column="1" line="5" message="Duplicate definition: a" messageType="error" number="0" resource="channels-0014-neg.cml.result"/>
-<message column="1" line="7" message="Duplicate definition: a" messageType="error" number="0" resource="channels-0014-neg.cml.result"/>
+<testResult type="eu.compassresearch.core.typechecker.ChannelsCmlTypeCheckerTests">
+<message column="1" line="5" message="Duplicate definition: a" messageType="warning" number="0" resource="channels-0014-neg.cml"/>
+<message column="1" line="7" message="Duplicate definition: a" messageType="warning" number="0" resource="channels-0014-neg.cml"/>
+<message column="1" line="5" message="Duplicate definition: a" messageType="error" number="0" resource="channels-0014-neg.cml"/>
+<message column="1" line="7" message="Duplicate definition: a" messageType="error" number="0" resource="channels-0014-neg.cml"/>
 <result/>
 </testResult>

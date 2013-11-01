@@ -1,44 +1,44 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<testResult type="eu.compassresearch.core.typechecker.secondedition.CaseStudiesTestCase">
-<message column="1" line="23" message="Recursive function has no measure" messageType="warning" number="0" resource="result.result"/>
-<message column="9" line="72" message="status at 72:2 hidden by status" messageType="warning" number="0" resource="result.result"/>
-<message column="9" line="73" message="number at 73:2 hidden by number" messageType="warning" number="0" resource="result.result"/>
-<message column="9" line="74" message="subs at 74:2 hidden by subs" messageType="warning" number="0" resource="result.result"/>
-<message column="9" line="68" message="lSUBS at 68:2 hidden by lSUBS" messageType="warning" number="0" resource="result.result"/>
-<message column="22" line="86" message="Definition 'a' not used" messageType="warning" number="0" resource="result.result"/>
-<message column="9" line="74" message="subs at 74:2 hidden by subs" messageType="warning" number="0" resource="result.result"/>
-<message column="9" line="74" message="subs at 74:2 hidden by subs" messageType="warning" number="0" resource="result.result"/>
-<message column="9" line="72" message="status at 72:2 hidden by status" messageType="warning" number="0" resource="result.result"/>
-<message column="9" line="73" message="number at 73:2 hidden by number" messageType="warning" number="0" resource="result.result"/>
-<message column="9" line="74" message="subs at 74:2 hidden by subs" messageType="warning" number="0" resource="result.result"/>
-<message column="9" line="72" message="status at 72:2 hidden by status" messageType="warning" number="0" resource="result.result"/>
-<message column="9" line="73" message="number at 73:2 hidden by number" messageType="warning" number="0" resource="result.result"/>
-<message column="9" line="74" message="subs at 74:2 hidden by subs" messageType="warning" number="0" resource="result.result"/>
-<message column="9" line="72" message="status at 72:2 hidden by status" messageType="warning" number="0" resource="result.result"/>
-<message column="9" line="74" message="subs at 74:2 hidden by subs" messageType="warning" number="0" resource="result.result"/>
-<message column="9" line="73" message="number at 73:2 hidden by number" messageType="warning" number="0" resource="result.result"/>
-<message column="9" line="72" message="status at 72:2 hidden by status" messageType="warning" number="0" resource="result.result"/>
-<message column="9" line="74" message="subs at 74:2 hidden by subs" messageType="warning" number="0" resource="result.result"/>
-<message column="9" line="73" message="number at 73:2 hidden by number" messageType="warning" number="0" resource="result.result"/>
-<message column="9" line="72" message="status at 72:2 hidden by status" messageType="warning" number="0" resource="result.result"/>
-<message column="9" line="74" message="subs at 74:2 hidden by subs" messageType="warning" number="0" resource="result.result"/>
-<message column="9" line="73" message="number at 73:2 hidden by number" messageType="warning" number="0" resource="result.result"/>
-<message column="9" line="72" message="status at 72:2 hidden by status" messageType="warning" number="0" resource="result.result"/>
-<message column="9" line="74" message="subs at 74:2 hidden by subs" messageType="warning" number="0" resource="result.result"/>
-<message column="9" line="73" message="number at 73:2 hidden by number" messageType="warning" number="0" resource="result.result"/>
-<message column="9" line="72" message="status at 72:2 hidden by status" messageType="warning" number="0" resource="result.result"/>
-<message column="9" line="74" message="subs at 74:2 hidden by subs" messageType="warning" number="0" resource="result.result"/>
-<message column="9" line="73" message="number at 73:2 hidden by number" messageType="warning" number="0" resource="result.result"/>
-<message column="9" line="251" message="away at 251:2 hidden by away" messageType="warning" number="0" resource="result.result"/>
-<message column="2" line="252" message="origin at 252:2 hidden by origin" messageType="warning" number="0" resource="result.result"/>
-<message column="2" line="68" message="Instance variable 'lSUBS' is not initialized" messageType="warning" number="0" resource="result.result"/>
-<message column="2" line="72" message="Instance variable 'status' is not initialized" messageType="warning" number="0" resource="result.result"/>
-<message column="2" line="73" message="Instance variable 'number' is not initialized" messageType="warning" number="0" resource="result.result"/>
-<message column="2" line="74" message="Instance variable 'subs' is not initialized" messageType="warning" number="0" resource="result.result"/>
-<message column="7" line="191" message="Instance variable 'ex' is not initialized" messageType="warning" number="0" resource="result.result"/>
-<message column="2" line="250" message="Instance variable 'i' is not initialized" messageType="warning" number="0" resource="result.result"/>
-<message column="2" line="251" message="Instance variable 'away' is not initialized" messageType="warning" number="0" resource="result.result"/>
-<message column="2" line="252" message="Instance variable 'origin' is not initialized" messageType="warning" number="0" resource="result.result"/>
-<message column="7" line="282" message="Instance variable 'n' is not initialized" messageType="warning" number="0" resource="result.result"/>
+<testResult type="eu.compassresearch.core.typechecker.CaseStudiesTestCase">
+<message column="1" line="23" message="Recursive function has no measure" messageType="warning" number="0" resource="TelephoneExchangeSoS.cml"/>
+<message column="9" line="72" message="status at 72:2 hidden by status" messageType="warning" number="0" resource="TelephoneExchangeSoS.cml"/>
+<message column="9" line="73" message="number at 73:2 hidden by number" messageType="warning" number="0" resource="TelephoneExchangeSoS.cml"/>
+<message column="9" line="74" message="subs at 74:2 hidden by subs" messageType="warning" number="0" resource="TelephoneExchangeSoS.cml"/>
+<message column="9" line="68" message="lSUBS at 68:2 hidden by lSUBS" messageType="warning" number="0" resource="TelephoneExchangeSoS.cml"/>
+<message column="22" line="86" message="Definition 'a' not used" messageType="warning" number="0" resource="TelephoneExchangeSoS.cml"/>
+<message column="9" line="74" message="subs at 74:2 hidden by subs" messageType="warning" number="0" resource="TelephoneExchangeSoS.cml"/>
+<message column="9" line="74" message="subs at 74:2 hidden by subs" messageType="warning" number="0" resource="TelephoneExchangeSoS.cml"/>
+<message column="9" line="72" message="status at 72:2 hidden by status" messageType="warning" number="0" resource="TelephoneExchangeSoS.cml"/>
+<message column="9" line="73" message="number at 73:2 hidden by number" messageType="warning" number="0" resource="TelephoneExchangeSoS.cml"/>
+<message column="9" line="74" message="subs at 74:2 hidden by subs" messageType="warning" number="0" resource="TelephoneExchangeSoS.cml"/>
+<message column="9" line="72" message="status at 72:2 hidden by status" messageType="warning" number="0" resource="TelephoneExchangeSoS.cml"/>
+<message column="9" line="73" message="number at 73:2 hidden by number" messageType="warning" number="0" resource="TelephoneExchangeSoS.cml"/>
+<message column="9" line="74" message="subs at 74:2 hidden by subs" messageType="warning" number="0" resource="TelephoneExchangeSoS.cml"/>
+<message column="9" line="72" message="status at 72:2 hidden by status" messageType="warning" number="0" resource="TelephoneExchangeSoS.cml"/>
+<message column="9" line="74" message="subs at 74:2 hidden by subs" messageType="warning" number="0" resource="TelephoneExchangeSoS.cml"/>
+<message column="9" line="73" message="number at 73:2 hidden by number" messageType="warning" number="0" resource="TelephoneExchangeSoS.cml"/>
+<message column="9" line="72" message="status at 72:2 hidden by status" messageType="warning" number="0" resource="TelephoneExchangeSoS.cml"/>
+<message column="9" line="74" message="subs at 74:2 hidden by subs" messageType="warning" number="0" resource="TelephoneExchangeSoS.cml"/>
+<message column="9" line="73" message="number at 73:2 hidden by number" messageType="warning" number="0" resource="TelephoneExchangeSoS.cml"/>
+<message column="9" line="72" message="status at 72:2 hidden by status" messageType="warning" number="0" resource="TelephoneExchangeSoS.cml"/>
+<message column="9" line="74" message="subs at 74:2 hidden by subs" messageType="warning" number="0" resource="TelephoneExchangeSoS.cml"/>
+<message column="9" line="73" message="number at 73:2 hidden by number" messageType="warning" number="0" resource="TelephoneExchangeSoS.cml"/>
+<message column="9" line="72" message="status at 72:2 hidden by status" messageType="warning" number="0" resource="TelephoneExchangeSoS.cml"/>
+<message column="9" line="74" message="subs at 74:2 hidden by subs" messageType="warning" number="0" resource="TelephoneExchangeSoS.cml"/>
+<message column="9" line="73" message="number at 73:2 hidden by number" messageType="warning" number="0" resource="TelephoneExchangeSoS.cml"/>
+<message column="9" line="72" message="status at 72:2 hidden by status" messageType="warning" number="0" resource="TelephoneExchangeSoS.cml"/>
+<message column="9" line="74" message="subs at 74:2 hidden by subs" messageType="warning" number="0" resource="TelephoneExchangeSoS.cml"/>
+<message column="9" line="73" message="number at 73:2 hidden by number" messageType="warning" number="0" resource="TelephoneExchangeSoS.cml"/>
+<message column="9" line="251" message="away at 251:2 hidden by away" messageType="warning" number="0" resource="TelephoneExchangeSoS.cml"/>
+<message column="2" line="252" message="origin at 252:2 hidden by origin" messageType="warning" number="0" resource="TelephoneExchangeSoS.cml"/>
+<message column="2" line="68" message="Instance variable 'lSUBS' is not initialized" messageType="warning" number="0" resource="TelephoneExchangeSoS.cml"/>
+<message column="2" line="72" message="Instance variable 'status' is not initialized" messageType="warning" number="0" resource="TelephoneExchangeSoS.cml"/>
+<message column="2" line="73" message="Instance variable 'number' is not initialized" messageType="warning" number="0" resource="TelephoneExchangeSoS.cml"/>
+<message column="2" line="74" message="Instance variable 'subs' is not initialized" messageType="warning" number="0" resource="TelephoneExchangeSoS.cml"/>
+<message column="7" line="191" message="Instance variable 'ex' is not initialized" messageType="warning" number="0" resource="TelephoneExchangeSoS.cml"/>
+<message column="2" line="250" message="Instance variable 'i' is not initialized" messageType="warning" number="0" resource="TelephoneExchangeSoS.cml"/>
+<message column="2" line="251" message="Instance variable 'away' is not initialized" messageType="warning" number="0" resource="TelephoneExchangeSoS.cml"/>
+<message column="2" line="252" message="Instance variable 'origin' is not initialized" messageType="warning" number="0" resource="TelephoneExchangeSoS.cml"/>
+<message column="7" line="282" message="Instance variable 'n' is not initialized" messageType="warning" number="0" resource="TelephoneExchangeSoS.cml"/>
 <result/>
 </testResult>

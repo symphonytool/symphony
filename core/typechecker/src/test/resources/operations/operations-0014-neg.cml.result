@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<testResult type="eu.compassresearch.core.typechecker.secondedition.OperationsCmlTypeCheckerTests">
-<message column="25" line="11" message="Actions not allowed in operations" messageType="error" number="0" resource="operations-0014-neg.cml.result"/>
-<message column="31" line="11" message="Actions not allowed in operations" messageType="error" number="0" resource="operations-0014-neg.cml.result"/>
+<testResult type="eu.compassresearch.core.typechecker.OperationsCmlTypeCheckerTests">
+<message column="25" line="11" message="Actions not allowed in operations" messageType="error" number="0" resource="operations-0014-neg.cml"/>
+<message column="31" line="11" message="Actions not allowed in operations" messageType="error" number="0" resource="operations-0014-neg.cml"/>
 <result/>
 </testResult>

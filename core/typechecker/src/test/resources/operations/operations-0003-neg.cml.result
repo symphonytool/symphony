@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<testResult type="eu.compassresearch.core.typechecker.secondedition.OperationsCmlTypeCheckerTests">
-<message column="4" line="12" message="Definition 'a' not used" messageType="warning" number="0" resource="operations-0003-neg.cml.result"/>
-<message column="1" line="11" message="Operation returns unexpected type" messageType="error" number="0" resource="operations-0003-neg.cml.result"/>
+<testResult type="eu.compassresearch.core.typechecker.OperationsCmlTypeCheckerTests">
+<message column="4" line="12" message="Definition 'a' not used" messageType="warning" number="0" resource="operations-0003-neg.cml"/>
+<message column="1" line="11" message="Operation returns unexpected type" messageType="error" number="0" resource="operations-0003-neg.cml"/>
 <result/>
 </testResult>

@@ -1,4 +1,4 @@
-package eu.compassresearch.core.typechecker.secondedition;
+package eu.compassresearch.core.typechecker;
 
 import java.io.File;
 import java.util.Collection;
@@ -8,10 +8,10 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 @RunWith(value = Parameterized.class)
-public class ActionsCmlTypeCheckerTests extends
+public class TypesCmlTypeCheckerTests extends
 		AbstractResultBasedCmlTypeCheckerTestCase
 {
-	public ActionsCmlTypeCheckerTests(File file, String name, TestType type)
+	public TypesCmlTypeCheckerTests(File file, String name, TestType type)
 	{
 		super(file, name, type);
 	}
@@ -19,13 +19,13 @@ public class ActionsCmlTypeCheckerTests extends
 	@Parameters(name = "{1}")
 	public static Collection<Object[]> getData()
 	{
-		return combine(collectResourcesTestData("actions", TestType.POSITIVE, TestType.COMPARE_RECORDRD), collectResourcesTestData("actions", TestType.NEGATIVE, TestType.COMPARE_RECORDRD));
+		return combine(collectResourcesTestData("types", TestType.POSITIVE, TestType.COMPARE_RECORDRD), collectResourcesTestData("types", TestType.NEGATIVE, TestType.COMPARE_RECORDRD));
 	}
 
 	@Override
 	protected String getPropertyId()
 	{
-		return "actions";
+		return "types";
 	}
 
 }
