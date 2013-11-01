@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <testResult type="eu.compassresearch.core.typechecker.secondedition.GeneralCmlTypeCheckerTests">
 <message column="4" line="13" message="Definition 'a' not used" messageType="warning" number="0" resource="cml-0003-pos.cml.result"/>
-<message column="11" line="21" message="Operation '(c.op1)' cannot be called in an expression" messageType="error" number="0" resource="cml-0003-pos.cml.result"/>
+<message column="7" line="18" message="Definition 'c' not used" messageType="warning" number="0" resource="cml-0003-pos.cml.result"/>
 <result/>
 </testResult>
