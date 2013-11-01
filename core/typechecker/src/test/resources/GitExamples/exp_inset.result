@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.secondedition.RunCmlExamplesTestCase">
+<message column="21" line="6" message="Type int cannot be applied" messageType="error" number="0" resource="exp_inset.result"/>
+<message column="12" line="6" message="Argument of 'in set' is not a set" messageType="error" number="0" resource="exp_inset.result"/>
+<result/>
+</testResult>

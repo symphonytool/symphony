@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.secondedition.TypesCmlTypeCheckerTests">
+<message column="485" line="5" message="Definition 'r' not used" messageType="warning" number="0" resource="types-0029-pos.cml.result"/>
+<message column="561" line="5" message="Definition 'r' not used" messageType="warning" number="0" resource="types-0029-pos.cml.result"/>
+<result/>
+</testResult>

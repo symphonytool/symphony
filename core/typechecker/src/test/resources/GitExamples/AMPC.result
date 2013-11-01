@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.secondedition.RunCmlExamplesTestCase">
+<message column="2" line="29" message="Instance variable 'myID' is not initialized" messageType="warning" number="0" resource="AMPC.result"/>
+<message column="2" line="30" message="Instance variable 'known_values' is not initialized" messageType="warning" number="0" resource="AMPC.result"/>
+<message column="2" line="59" message="Instance variable 'modulus' is not initialized" messageType="warning" number="0" resource="AMPC.result"/>
+<message column="2" line="61" message="Instance variable 'store' is not initialized" messageType="warning" number="0" resource="AMPC.result"/>
+<message column="2" line="63" message="Instance variable 'last_id' is not initialized" messageType="warning" number="0" resource="AMPC.result"/>
+<message column="2" line="65" message="Instance variable 'art_state' is not initialized" messageType="warning" number="0" resource="AMPC.result"/>
+<message column="3" line="154" message="Expression does not match declared type" messageType="error" number="0" resource="AMPC.result"/>
+<message column="3" line="156" message="Expression does not match declared type" messageType="error" number="0" resource="AMPC.result"/>
+<message column="39" line="34" message="3406 Expected an entity of type InputChannelType but (&lt;Blank&gt; * ParID) was found." messageType="error" number="0" resource="AMPC.result"/>
+<message column="17" line="36" message="Field '#2' applied to non-tuple type" messageType="error" number="0" resource="AMPC.result"/>
+<message column="44" line="36" message="Field '#1' applied to non-tuple type" messageType="error" number="0" resource="AMPC.result"/>
+<message column="38" line="36" message="3406 Expected an entity of type VarID but (? * ParID) was found." messageType="error" number="0" resource="AMPC.result"/>
+<message column="17" line="38" message="Field '#4' applied to non-tuple type" messageType="error" number="0" resource="AMPC.result"/>
+<message column="44" line="38" message="Field '#1' applied to non-tuple type" messageType="error" number="0" resource="AMPC.result"/>
+<message column="51" line="38" message="Field '#2' applied to non-tuple type" messageType="error" number="0" resource="AMPC.result"/>
+<message column="58" line="38" message="Field '#3' applied to non-tuple type" messageType="error" number="0" resource="AMPC.result"/>
+<message column="37" line="38" message="3406 Expected an entity of type VarID but (? * ? * ? * ParID) was found." messageType="error" number="0" resource="AMPC.result"/>
+<message column="17" line="40" message="Field '#4' applied to non-tuple type" messageType="error" number="0" resource="AMPC.result"/>
+<message column="44" line="40" message="Field '#1' applied to non-tuple type" messageType="error" number="0" resource="AMPC.result"/>
+<message column="51" line="40" message="Field '#2' applied to non-tuple type" messageType="error" number="0" resource="AMPC.result"/>
+<message column="58" line="40" message="Field '#3' applied to non-tuple type" messageType="error" number="0" resource="AMPC.result"/>
+<message column="37" line="40" message="3406 Expected an entity of type VarID but (? * ? * ? * ParID) was found." messageType="error" number="0" resource="AMPC.result"/>
+<message column="17" line="42" message="Field '#3' applied to non-tuple type" messageType="error" number="0" resource="AMPC.result"/>
+<message column="43" line="42" message="Field '#1' applied to non-tuple type" messageType="error" number="0" resource="AMPC.result"/>
+<message column="50" line="42" message="Field '#2' applied to non-tuple type" messageType="error" number="0" resource="AMPC.result"/>
+<message column="57" line="42" message="Field '#3' applied to non-tuple type" messageType="error" number="0" resource="AMPC.result"/>
+<message column="37" line="42" message="3406 Expected an entity of type VarID but (? * ? * ? * ParID) was found." messageType="error" number="0" resource="AMPC.result"/>
+<message column="3" line="44" message="3113 Unknown type name out" messageType="error" number="0" resource="AMPC.result"/>
+<message column="24" line="46" message="3406 Expected an entity of type InputChannelType but (ParID * ParID) was found." messageType="error" number="0" resource="AMPC.result"/>
+<message column="30" line="68" message="Incompatible types in assignment" messageType="error" number="0" resource="AMPC.result"/>
+<message column="21" line="73" message="Left and right of '=' are incompatible types" messageType="error" number="0" resource="AMPC.result"/>
+<message column="9" line="75" message="Name 'secret' is not in scope" messageType="error" number="0" resource="AMPC.result"/>
+<message column="15" line="75" message="Field number does not match tuple size" messageType="error" number="0" resource="AMPC.result"/>
+<message column="31" line="76" message="Name 'secret' is not in scope" messageType="error" number="0" resource="AMPC.result"/>
+<message column="37" line="76" message="Field number does not match tuple size" messageType="error" number="0" resource="AMPC.result"/>
+<message column="45" line="76" message="Name 'secret' is not in scope" messageType="error" number="0" resource="AMPC.result"/>
+<message column="51" line="76" message="Field number does not match tuple size" messageType="error" number="0" resource="AMPC.result"/>
+<message column="13" line="77" message="Name 'secret' is not in scope" messageType="error" number="0" resource="AMPC.result"/>
+<message column="19" line="77" message="Field number does not match tuple size" messageType="error" number="0" resource="AMPC.result"/>
+<message column="15" line="81" message="Field '#2' applied to non-tuple type" messageType="error" number="0" resource="AMPC.result"/>
+<message column="44" line="81" message="Field '#1' applied to non-tuple type" messageType="error" number="0" resource="AMPC.result"/>
+<message column="9" line="83" message="Name 'a' is not in scope" messageType="error" number="0" resource="AMPC.result"/>
+<message column="10" line="83" message="Field number does not match tuple size" messageType="error" number="0" resource="AMPC.result"/>
+<message column="38" line="83" message="Name 'a' is not in scope" messageType="error" number="0" resource="AMPC.result"/>
+<message column="39" line="83" message="Field number does not match tuple size" messageType="error" number="0" resource="AMPC.result"/>
+<message column="27" line="87" message="Incompatible types in assignment" messageType="error" number="0" resource="AMPC.result"/>
+<message column="27" line="91" message="Incompatible types in assignment" messageType="error" number="0" resource="AMPC.result"/>
+<message column="26" line="95" message="Field '#1' applied to non-tuple type" messageType="error" number="0" resource="AMPC.result"/>
+<message column="41" line="95" message="Field '#2' applied to non-tuple type" messageType="error" number="0" resource="AMPC.result"/>
+<message column="38" line="98" message="Field '#3' applied to non-tuple type" messageType="error" number="0" resource="AMPC.result"/>
+<message column="47" line="98" message="Field '#2' applied to non-tuple type" messageType="error" number="0" resource="AMPC.result"/>
+<message column="38" line="102" message="Field '#3' applied to non-tuple type" messageType="error" number="0" resource="AMPC.result"/>
+<message column="47" line="102" message="Field '#1' applied to non-tuple type" messageType="error" number="0" resource="AMPC.result"/>
+<message column="21" line="109" message="Left and right of '=' are incompatible types" messageType="error" number="0" resource="AMPC.result"/>
+<message column="22" line="112" message="Left and right of '=' are incompatible types" messageType="error" number="0" resource="AMPC.result"/>
+<message column="16" line="115" message="Field '#2' applied to non-tuple type" messageType="error" number="0" resource="AMPC.result"/>
+<message column="42" line="115" message="Field '#1' applied to non-tuple type" messageType="error" number="0" resource="AMPC.result"/>
+<message column="16" line="118" message="Field '#2' applied to non-tuple type" messageType="error" number="0" resource="AMPC.result"/>
+<message column="32" line="118" message="Name 'list_id' is not in scope" messageType="error" number="0" resource="AMPC.result"/>
+<message column="42" line="118" message="Field '#1' applied to non-tuple type" messageType="error" number="0" resource="AMPC.result"/>
+<message column="15" line="122" message="Field '#1' applied to non-tuple type" messageType="error" number="0" resource="AMPC.result"/>
+<message column="9" line="123" message="Field '#2' applied to non-tuple type" messageType="error" number="0" resource="AMPC.result"/>
+<message column="9" line="124" message="Field '#3' applied to non-tuple type" messageType="error" number="0" resource="AMPC.result"/>
+<message column="9" line="125" message="Field '#4' applied to non-tuple type" messageType="error" number="0" resource="AMPC.result"/>
+<message column="36" line="126" message="Field '#3' applied to non-tuple type" messageType="error" number="0" resource="AMPC.result"/>
+<message column="71" line="126" message="Field '#2' applied to non-tuple type" messageType="error" number="0" resource="AMPC.result"/>
+<message column="53" line="126" message="Field '#1' applied to non-tuple type" messageType="error" number="0" resource="AMPC.result"/>
+<message column="46" line="126" message="Field 'Add' applied to non-aggregate type" messageType="error" number="0" resource="AMPC.result"/>
+<message column="46" line="126" message="Operation '(store((a.1)).Add)' cannot be called in an expression" messageType="error" number="0" resource="AMPC.result"/>
+<message column="15" line="130" message="Field '#1' applied to non-tuple type" messageType="error" number="0" resource="AMPC.result"/>
+<message column="9" line="131" message="Field '#2' applied to non-tuple type" messageType="error" number="0" resource="AMPC.result"/>
+<message column="9" line="132" message="Field '#3' applied to non-tuple type" messageType="error" number="0" resource="AMPC.result"/>
+<message column="9" line="133" message="Field '#4' applied to non-tuple type" messageType="error" number="0" resource="AMPC.result"/>
+<message column="32" line="134" message="Field '#3' applied to non-tuple type" messageType="error" number="0" resource="AMPC.result"/>
+<message column="69" line="134" message="Field '#2' applied to non-tuple type" messageType="error" number="0" resource="AMPC.result"/>
+<message column="51" line="134" message="Field '#1' applied to non-tuple type" messageType="error" number="0" resource="AMPC.result"/>
+<message column="42" line="134" message="Field 'Mul' applied to non-aggregate type" messageType="error" number="0" resource="AMPC.result"/>
+<message column="42" line="134" message="Operation '(store((a.1)).Mul)' cannot be called in an expression" messageType="error" number="0" resource="AMPC.result"/>
+<message column="10" line="136" message="3410 The Symbol &quot;STOP&quot; is undefined." messageType="error" number="0" resource="AMPC.result"/>
+<message column="33" line="146" message="3420 Expecting an action but found  a process deinition:P1." messageType="error" number="0" resource="AMPC.result"/>
+<message column="70" line="146" message="3420 Expecting an action but found  a process deinition:P2." messageType="error" number="0" resource="AMPC.result"/>
+<message column="104" line="146" message="3420 Expecting an action but found  a process deinition:AMPC." messageType="error" number="0" resource="AMPC.result"/>
+<message column="10" line="158" message="3406 Expected an entity of type ParID but nat1 was found." messageType="error" number="0" resource="AMPC.result"/>
+<message column="25" line="158" message="3406 Expected an entity of type ParID but nat1 was found." messageType="error" number="0" resource="AMPC.result"/>
+<message column="24" line="160" message="Argument to 'hd' is not a sequence" messageType="error" number="0" resource="AMPC.result"/>
+<message column="14" line="160" message="3406 Expected an entity of type ParID but (nat1 * nat1 * ?) was found." messageType="error" number="0" resource="AMPC.result"/>
+<message column="27" line="161" message="Argument to 'tl' is not a sequence" messageType="error" number="0" resource="AMPC.result"/>
+<message column="14" line="161" message="3406 Expected an entity of type ParID but (nat1 * nat1 * ?) was found." messageType="error" number="0" resource="AMPC.result"/>
+<message column="30" line="162" message="Argument to 'tl' is not a sequence" messageType="error" number="0" resource="AMPC.result"/>
+<message column="14" line="162" message="3406 Expected an entity of type ParID but (nat1 * nat1 * ?) was found." messageType="error" number="0" resource="AMPC.result"/>
+<message column="14" line="163" message="3406 Expected an entity of type ParID but (nat1 * nat1 * int) was found." messageType="error" number="0" resource="AMPC.result"/>
+<message column="14" line="164" message="3406 Expected an entity of type ParID but (nat1 * nat1 * int) was found." messageType="error" number="0" resource="AMPC.result"/>
+<message column="14" line="165" message="3406 Expected an entity of type ParID but (nat1 * nat1 * int) was found." messageType="error" number="0" resource="AMPC.result"/>
+<message column="7" line="166" message="3406 Expected an entity of type VarID but (nat1 * nat1 * nat1) was found." messageType="error" number="0" resource="AMPC.result"/>
+<message column="7" line="167" message="3406 Expected an entity of type VarID but (nat1 * nat1 * nat1) was found." messageType="error" number="0" resource="AMPC.result"/>
+<message column="7" line="168" message="3406 Expected an entity of type VarID but (nat1 * nat1 * nat1) was found." messageType="error" number="0" resource="AMPC.result"/>
+<message column="7" line="169" message="3406 Expected an entity of type VarID but (nat1 * nat1 * nat1) was found." messageType="error" number="0" resource="AMPC.result"/>
+<message column="7" line="170" message="3406 Expected an entity of type VarID but (nat1 * nat1 * nat1) was found." messageType="error" number="0" resource="AMPC.result"/>
+<message column="4" line="173" message="3113 Unknown type name out" messageType="error" number="0" resource="AMPC.result"/>
+<result/>
+</testResult>

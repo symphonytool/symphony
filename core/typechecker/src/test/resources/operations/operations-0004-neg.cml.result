@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.secondedition.OperationsCmlTypeCheckerTests">
+<message column="36" line="11" message="a at 11:17 hidden by a" messageType="warning" number="0" resource="operations-0004-neg.cml.result"/>
+<message column="36" line="11" message="Definition 'a' not used" messageType="warning" number="0" resource="operations-0004-neg.cml.result"/>
+<message column="1" line="11" message="Operation returns unexpected type" messageType="error" number="0" resource="operations-0004-neg.cml.result"/>
+<result/>
+</testResult>

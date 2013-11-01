@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.secondedition.RunCmlExamplesTestCase">
+<message column="8" line="1" message="Duplicate definition: RegisterProc" messageType="warning" number="0" resource="process-action-synchronousParallelism.result"/>
+<message column="8" line="2" message="Duplicate definition: RegisterProc" messageType="warning" number="0" resource="process-action-synchronousParallelism.result"/>
+<message column="8" line="1" message="Duplicate definition: RegisterProc" messageType="error" number="0" resource="process-action-synchronousParallelism.result"/>
+<message column="8" line="2" message="Duplicate definition: RegisterProc" messageType="error" number="0" resource="process-action-synchronousParallelism.result"/>
+<message column="31" line="1" message="3410 The Symbol &quot;A&quot; is undefined." messageType="error" number="0" resource="process-action-synchronousParallelism.result"/>
+<message column="36" line="1" message="3410 The Symbol &quot;B&quot; is undefined." messageType="error" number="0" resource="process-action-synchronousParallelism.result"/>
+<message column="31" line="2" message="3410 The Symbol &quot;A&quot; is undefined." messageType="error" number="0" resource="process-action-synchronousParallelism.result"/>
+<message column="37" line="2" message="3410 The Symbol &quot;a&quot; is undefined." messageType="error" number="0" resource="process-action-synchronousParallelism.result"/>
+<message column="39" line="2" message="3410 The Symbol &quot;b&quot; is undefined." messageType="error" number="0" resource="process-action-synchronousParallelism.result"/>
+<message column="53" line="2" message="3410 The Symbol &quot;B&quot; is undefined." messageType="error" number="0" resource="process-action-synchronousParallelism.result"/>
+<message column="37" line="2" message="3410 The Symbol &quot;a&quot; is undefined." messageType="error" number="0" resource="process-action-synchronousParallelism.result"/>
+<message column="39" line="2" message="3410 The Symbol &quot;b&quot; is undefined." messageType="error" number="0" resource="process-action-synchronousParallelism.result"/>
+<result/>
+</testResult>

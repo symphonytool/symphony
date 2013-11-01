@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.secondedition.ValuesCmlTypeCheckerTests">
+<message column="1" line="11" message="Expression does not match declared type" messageType="error" number="0" resource="values-0104-neg.cml.result"/>
+<result/>
+</testResult>

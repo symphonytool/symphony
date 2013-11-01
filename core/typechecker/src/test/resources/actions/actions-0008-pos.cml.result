@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.secondedition.ActionsCmlTypeCheckerTests">
+<message column="3" line="14" message="Definition 'a' not used" messageType="warning" number="0" resource="actions-0008-pos.cml.result"/>
+<result/>
+</testResult>

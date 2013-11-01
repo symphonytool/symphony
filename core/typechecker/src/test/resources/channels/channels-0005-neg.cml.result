@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.secondedition.ChannelsCmlTypeCheckerTests">
+<message column="15" line="17" message="Name 'C' is not in scope" messageType="error" number="0" resource="channels-0005-neg.cml.result"/>
+<message column="8" line="17" message="Name 'target(?)' is not in scope" messageType="error" number="0" resource="channels-0005-neg.cml.result"/>
+<message column="5" line="17" message="Operation $T(?) is not in scope" messageType="error" number="0" resource="channels-0005-neg.cml.result"/>
+<result/>
+</testResult>

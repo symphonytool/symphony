@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.secondedition.ChannelsCmlTypeCheckerTests">
+<message column="1" line="21" message="Instance variable 'istate' is not initialized" messageType="warning" number="0" resource="channels-0009-pos.cml.result"/>
+<message column="14" line="21" message="Instance variable 'jstate' is not initialized" messageType="warning" number="0" resource="channels-0009-pos.cml.result"/>
+<result/>
+</testResult>

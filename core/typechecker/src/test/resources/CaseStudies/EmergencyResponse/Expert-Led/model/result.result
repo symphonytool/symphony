@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.secondedition.CaseStudiesTestCase">
+<message column="24" line="30" message="Definition 'r' not used" messageType="warning" number="0" resource="result.result"/>
+<message column="36" line="33" message="Definition 'r' not used" messageType="warning" number="0" resource="result.result"/>
+<message column="2" line="15" message="ccId at 15:2 hidden by ccId" messageType="warning" number="0" resource="result.result"/>
+<message column="2" line="8" message="erus at 8:2 hidden by erus" messageType="warning" number="0" resource="result.result"/>
+<message column="2" line="11" message="eruRescues at 11:2 hidden by eruRescues" messageType="warning" number="0" resource="result.result"/>
+<message column="2" line="8" message="erus at 8:2 hidden by erus" messageType="warning" number="0" resource="result.result"/>
+<message column="2" line="11" message="eruRescues at 11:2 hidden by eruRescues" messageType="warning" number="0" resource="result.result"/>
+<message column="52" line="34" message="eru at 5:2 hidden by eru" messageType="warning" number="0" resource="result.result"/>
+<message column="2" line="11" message="eruRescues at 11:2 hidden by eruRescues" messageType="warning" number="0" resource="result.result"/>
+<message column="2" line="8" message="erus at 8:2 hidden by erus" messageType="warning" number="0" resource="result.result"/>
+<message column="2" line="11" message="eruRescues at 11:2 hidden by eruRescues" messageType="warning" number="0" resource="result.result"/>
+<message column="39" line="44" message="eru at 5:2 hidden by eru" messageType="warning" number="0" resource="result.result"/>
+<message column="2" line="11" message="eruRescues at 11:2 hidden by eruRescues" messageType="warning" number="0" resource="result.result"/>
+<message column="16" line="48" message="eru at 5:2 hidden by eru" messageType="warning" number="0" resource="result.result"/>
+<message column="2" line="11" message="eruRescues at 11:2 hidden by eruRescues" messageType="warning" number="0" resource="result.result"/>
+<message column="16" line="53" message="eru at 5:2 hidden by eru" messageType="warning" number="0" resource="result.result"/>
+<message column="2" line="11" message="eruRescues at 11:2 hidden by eruRescues" messageType="warning" number="0" resource="result.result"/>
+<message column="2" line="8" message="erus at 8:2 hidden by erus" messageType="warning" number="0" resource="result.result"/>
+<message column="15" line="59" message="eru at 5:2 hidden by eru" messageType="warning" number="0" resource="result.result"/>
+<message column="2" line="11" message="eruRescues at 11:2 hidden by eruRescues" messageType="warning" number="0" resource="result.result"/>
+<message column="2" line="8" message="erus at 8:2 hidden by erus" messageType="warning" number="0" resource="result.result"/>
+<message column="2" line="18" message="diversionLog at 18:2 hidden by diversionLog" messageType="warning" number="0" resource="result.result"/>
+<message column="7" line="11" message="id at 1:18 hidden by id" messageType="warning" number="0" resource="result.result"/>
+<message column="2" line="6" message="eruId at 6:2 hidden by eruId" messageType="warning" number="0" resource="result.result"/>
+<message column="2" line="7" message="currRescue at 7:2 hidden by currRescue" messageType="warning" number="0" resource="result.result"/>
+<message column="2" line="7" message="currRescue at 7:2 hidden by currRescue" messageType="warning" number="0" resource="result.result"/>
+<message column="42" line="16" message="Definition 'r' not used" messageType="warning" number="0" resource="result.result"/>
+<message column="2" line="6" message="history at 6:2 hidden by history" messageType="warning" number="0" resource="result.result"/>
+<message column="2" line="6" message="history at 6:2 hidden by history" messageType="warning" number="0" resource="result.result"/>
+<message column="2" line="5" message="Instance variable 'eru' is not initialized" messageType="warning" number="0" resource="result.result"/>
+<message column="2" line="8" message="Instance variable 'erus' is not initialized" messageType="warning" number="0" resource="result.result"/>
+<message column="2" line="11" message="Instance variable 'eruRescues' is not initialized" messageType="warning" number="0" resource="result.result"/>
+<message column="2" line="15" message="Instance variable 'ccId' is not initialized" messageType="warning" number="0" resource="result.result"/>
+<message column="2" line="18" message="Instance variable 'diversionLog' is not initialized" messageType="warning" number="0" resource="result.result"/>
+<message column="2" line="6" message="Instance variable 'eruId' is not initialized" messageType="warning" number="0" resource="result.result"/>
+<message column="2" line="7" message="Instance variable 'currRescue' is not initialized" messageType="warning" number="0" resource="result.result"/>
+<message column="2" line="6" message="Instance variable 'history' is not initialized" messageType="warning" number="0" resource="result.result"/>
+<result/>
+</testResult>

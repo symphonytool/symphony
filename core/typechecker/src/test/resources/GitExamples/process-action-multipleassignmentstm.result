@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.secondedition.RunCmlExamplesTestCase">
+<message column="30" line="1" message="Symbol 'a' is not an updatable variable" messageType="error" number="0" resource="process-action-multipleassignmentstm.result"/>
+<message column="37" line="1" message="Symbol 'b' is not an updatable variable" messageType="error" number="0" resource="process-action-multipleassignmentstm.result"/>
+<message column="42" line="1" message="Symbol 'c' is not an updatable variable" messageType="error" number="0" resource="process-action-multipleassignmentstm.result"/>
+<result/>
+</testResult>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.secondedition.CompleteCmlTypeCheckerTests">
+<message column="1" line="15" message="Instance variable 'sellerBids' is not initialized" messageType="warning" number="0" resource="complete-0031-pos.cml.result"/>
+<message column="30" line="15" message="Instance variable 'buyerBids' is not initialized" messageType="warning" number="0" resource="complete-0031-pos.cml.result"/>
+<message column="58" line="15" message="Instance variable 'prices' is not initialized" messageType="warning" number="0" resource="complete-0031-pos.cml.result"/>
+<result/>
+</testResult>

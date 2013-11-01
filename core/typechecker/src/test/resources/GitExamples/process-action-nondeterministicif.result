@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.secondedition.RunCmlExamplesTestCase">
+<message column="12" line="5" message="Name 'x' is not in scope" messageType="error" number="0" resource="process-action-nondeterministicif.result"/>
+<message column="17" line="5" message="3410 The Symbol &quot;REG&quot; is undefined." messageType="error" number="0" resource="process-action-nondeterministicif.result"/>
+<result/>
+</testResult>
