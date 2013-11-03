@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: COMPASS IDE Model Checker Plugin
+Bundle-Name: Symphony IDE Model Checker Plugin
 Bundle-SymbolicName: eu.compassresearch.ide.modelchecker;singleton:=true
 Bundle-Version: 0.2.1.qualifier
 Bundle-Activator: eu.compassresearch.ide.modelchecker.Activator

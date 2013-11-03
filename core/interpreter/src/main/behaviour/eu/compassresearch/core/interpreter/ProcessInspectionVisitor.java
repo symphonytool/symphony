@@ -73,9 +73,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 	public Inspection defaultPProcess(PProcess node, Context question)
 			throws AnalysisException
 	{
-
 		throw new CmlInterpreterException(InterpretationErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName()));
-
 	}
 	
 	@Override
@@ -308,8 +306,9 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 			return newInspection(createTauTransitionWithTime(new ASkipAction(node.getLocation()), "End"), caseParallelEnd(question));
 		else
 		{
-			ChannelNameSetValue leftChanset  = (ChannelNameSetValue )node.getLeftChansetExpression().apply(cmlExpressionVisitor,question);
-			ChannelNameSetValue rightChanset  = (ChannelNameSetValue )node.getRightChansetExpression().apply(cmlExpressionVisitor,question);
+			//evaluate the left in the context of the left child
+			ChannelNameSetValue leftChanset  = (ChannelNameSetValue )node.getLeftChansetExpression().apply(cmlExpressionVisitor,owner.getLeftChild().getNextState().second);
+			ChannelNameSetValue rightChanset  = (ChannelNameSetValue )node.getRightChansetExpression().apply(cmlExpressionVisitor,owner.getRightChild().getNextState().second);
 
 			ChannelNameSetValue intersectionChanset = new ChannelNameSetValue(leftChanset);
 			intersectionChanset.retainAll(rightChanset);

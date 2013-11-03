@@ -56,6 +56,7 @@ public class RttMbtPreferencesProjectPage extends FieldEditorPreferencePage impl
 		}
 		addField(tprocgenctx);
 
+                // the string "COMPASS" should probably change to "Symphony" -jwc/01Nov2013
         String[][] modes = {{"COMPASS", "RTT_MBT_VSI_MODE"},
                             {"Verified", "RTT_MBT_VSI_MODE"},
                             {"POVEtech:TA", "RTT_MBT_DAG_MODE"},

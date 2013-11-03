@@ -1,0 +1,12 @@
+types
+  NID = nat
+  
+values
+  NodeIDs = {1,2,3}  
+
+channels 
+a : int
+ 
+process A = val i : NID @ begin @ a.(i) ->  a.(i+1) -> Skip end
+
+process Test = || i in set NodeIDs @ [ {| a.(j) | j in set {1,...,i+1} |} ]A(i) 

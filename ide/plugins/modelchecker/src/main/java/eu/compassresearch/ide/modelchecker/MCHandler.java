@@ -168,7 +168,7 @@ public class MCHandler extends AbstractHandler {
 						}else{
 							MessageDialog.openInformation(
 									window.getShell(),
-									"COMPASS",
+									"Symphony",
 									"Only CML files can be analysed!");
 						}
 					}

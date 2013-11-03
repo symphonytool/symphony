@@ -120,7 +120,7 @@ public class Activator extends AbstractUIPlugin implements IStartup{
 	}
 
 	private void popErrorMessage(Throwable e) {
-		MessageDialog.openInformation(null, "COMPASS",
+		MessageDialog.openInformation(null, "Symphony",
 				formulaNotInstalledMsg);
 	}
     

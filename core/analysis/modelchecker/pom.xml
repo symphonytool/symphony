@@ -10,7 +10,7 @@
   </parent>
   
   <artifactId>modelchecker</artifactId>
-  <name>COMPASS Core Analysis Model Checker</name>
+  <name>Symphony Core Analysis Model Checker</name>
   
   <dependencies>
     <dependency>

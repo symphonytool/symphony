@@ -1,0 +1,9 @@
+channels 
+a : int * int
+
+process A = 
+begin 
+	@ (a.(1).(2) -> a.(2).(2) -> Skip) [| {| a.i.j | i in set {1,2}, j in set {1,2} |} |] (a.(1).(2) -> a.(2).(2) -> Skip) 
+end
+
+process Test = A

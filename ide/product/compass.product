@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="The COMPASS CML Tool Platform" uid="eu.compassresearch.ide.product" id="eu.compassresearch.ide.platform.product" application="org.eclipse.ui.ide.workbench" version="0.2.1.qualifier" useFeatures="true" includeLaunchers="true">
+<product name="The Symphony IDE" uid="eu.compassresearch.ide.product" id="eu.compassresearch.ide.platform.product" application="org.eclipse.ui.ide.workbench" version="0.2.1.qualifier" useFeatures="true" includeLaunchers="true">
 
    <aboutInfo>
       <image path="icons/aboutboximg.png"/>
       <text>
-         Learn more about COMPASS Research at http://www.compass-research.eu
+         Learn more about the COMPASS project at http://www.compass-research.eu
       </text>
    </aboutInfo>
 
@@ -17,19 +17,19 @@
       <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
    </launcherArgs>
 
-   <windowImages i16="icons/icon16.png" i32="icons/icon32.png" i64="icons/icon64.png"/>
+   <windowImages i16="icons/decorations/symphony16.png" i32="icons/decorations/symphony32.png" i64="icons/decorations/symphony64.png"/>
 
    <splash
       location="eu.compassresearch.ide.platform"
       startupProgressRect="0,0,300,20"
       startupMessageRect="75,200,300,15"
       startupForegroundColor="7F7F7F" />
-    <launcher name="COMPASS">
-      <linux icon="/icons/linux/compass.xpm"/>
-      <macosx icon="/icons/osx/compass.icns"/>
+    <launcher name="Symphony IDE">
+      <linux icon="/icons/linux/symphony.xpm"/>
+      <macosx icon="/icons/osx/symphony.icns"/>
       <solaris/>
       <win useIco="true">
-         <ico path="/icons/win/compass.ico"/>
+         <ico path="/icons/win/symphony.ico"/>
          <bmp/>
       </win>
    </launcher>
@@ -41,7 +41,7 @@
    <license>
         <url>http://www.compass-research.eu</url>
         <text>
-   COMPASS CML Tool Platform
+The Symphony IDE
 
 This is an open source tool for the COMPASS Modelling Language (CML). 
 
@@ -87,7 +87,7 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
       <plugin id="org.eclipse.equinox.p2.reconciler.dropins" autoStart="true" startLevel="4" />
       <plugin id="org.eclipse.equinox.simpleconfigurator" autoStart="true" startLevel="1" />
       <plugin id="org.eclipse.update.configurator" autoStart="true" startLevel="4" />
-      <property name="REMOVE.FOR.PRODUCTION.osgi.instance.area.default" value="@user.home/Documents/COMPASS/workspace" />
+      <property name="REMOVE.FOR.PRODUCTION.osgi.instance.area.default" value="@user.home/Documents/SymphonyIDE/workspace" />
       <property name="org.eclipse.update.reconcile" value="false" />
       <!-- <plugin id="eu.compassresearch.ide.tpplugin" autoStart="true" startLevel="4" /> -->
       <!-- <plugin id="eu.compassresearch.ide.ui" autoStart="true" startLevel="3" /> -->

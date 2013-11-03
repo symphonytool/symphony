@@ -43,7 +43,7 @@ public class DischargePosHandler extends AbstractHandler
 //		
 ////		String message = "Proof Obligations sent to Theorem Prover (Coming soon!)";
 ////		
-////		MessageDialog.openInformation(HandlerUtil.getActiveWorkbenchWindow(event).getShell(),"COMPASS", message);
+////		MessageDialog.openInformation(HandlerUtil.getActiveWorkbenchWindow(event).getShell(),"Symphony", message);
 //		return null;
 //		
 //		
