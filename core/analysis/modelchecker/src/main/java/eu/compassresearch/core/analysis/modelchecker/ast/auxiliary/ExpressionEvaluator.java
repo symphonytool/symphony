@@ -5,6 +5,11 @@ import java.util.LinkedList;
 import org.overture.ast.types.AIntNumericBasicType;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAReadCommunicationParameter;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCASignalCommunicationParameter;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAWriteCommunicationParameter;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPCommunicationParameter;
+import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCATypeSingleDeclaration;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAValueDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAEqualsBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAGreaterEqualNumericBinaryExp;
@@ -15,6 +20,8 @@ import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCALessNume
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANotEqualsBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAVariableExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCAIdentifierPattern;
+import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCPCMLPattern;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAIntNumericBasicType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANamedInvariantType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAProductType;
@@ -46,6 +53,36 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		return result;
 	}
 	
+	private MCPCMLType getTypeFor(MCPCMLPattern pattern){
+		MCPCMLType result = null;
+		if(pattern instanceof MCAIdentifierPattern){
+			result = this.getTypeFor((MCAIdentifierPattern)pattern);
+		} 
+		
+		return result;
+	}
+	
+	private MCPCMLType getTypeFor(MCPCommunicationParameter param){
+		MCPCMLType result = null;
+		if(param instanceof MCASignalCommunicationParameter){
+			result = this.getTypeFor((MCASignalCommunicationParameter)param);
+		} else if(param instanceof MCAReadCommunicationParameter){
+			result = this.getTypeFor((MCAReadCommunicationParameter)param);
+		} else if(param instanceof MCAWriteCommunicationParameter){
+			result = this.getTypeFor((MCAWriteCommunicationParameter)param);
+		}
+		
+		return result;
+	}
+	
+	private MCPCMLType getTypeFor(MCATypeSingleDeclaration decl){
+		MCPCMLType result = null;
+		
+		result = new MCANamedInvariantType(decl.getIdentifiers().getFirst());
+		
+		return result;
+	}
+	
 	public MCPCMLType instantiateMCType(LinkedList<MCPCMLExp> exps){
 		MCPCMLType result = null;
 		
@@ -63,12 +100,89 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		
 		return result;
 	}
+	
+	
+	
+	public MCPCMLType instantiateMCTypeFromPatterns(LinkedList<MCPCMLPattern> patterns){
+		MCPCMLType result = null;
+		
+		if(patterns.size() == 0){
+			result = new MCVoidType();
+		} else if (patterns.size() == 1){
+			result = this.getTypeFor(patterns.getFirst());
+		} else if (patterns.size() > 1){
+			LinkedList<MCPCMLType> types = new LinkedList<MCPCMLType>();
+			for (MCPCMLPattern pattern : patterns) {
+				types.add(instantiateMCType(pattern));
+			}
+			result = new MCAProductType(types);
+		}
+		
+		return result;
+	}
+	
+	public MCPCMLType instantiateMCTypeFromParams(LinkedList<MCPCommunicationParameter> params){
+		MCPCMLType result = null;
+		
+		if(params.size() == 0){
+			result = new MCVoidType();
+		} else if (params.size() == 1){
+			result = this.getTypeFor(params.getFirst());
+		} else if (params.size() > 1){
+			LinkedList<MCPCMLType> types = new LinkedList<MCPCMLType>();
+			for (MCPCommunicationParameter param : params) {
+				types.add(instantiateMCType(param));
+			}
+			result = new MCAProductType(types);
+		}
+		
+		return result;
+	}
+	
+	public MCPCMLType instantiateMCTypeFromDecls(LinkedList<MCATypeSingleDeclaration> decls){
+		MCPCMLType result = null;
+		
+		if(decls.size() == 0){
+			result = new MCVoidType();
+		} else if (decls.size() == 1){
+			result = this.getTypeFor(decls.getFirst());
+		} else if (decls.size() > 1){
+			LinkedList<MCPCMLType> types = new LinkedList<MCPCMLType>();
+			for (MCATypeSingleDeclaration decl : decls) {
+				types.add(instantiateMCType((MCATypeSingleDeclaration)decl));
+			}
+			result = new MCAProductType(types);
+		}
+		
+		return result;
+	}
 	public MCPCMLType instantiateMCType(MCPCMLExp exp){
 		
 		LinkedList<MCPCMLExp> exps = new LinkedList<MCPCMLExp>();
 		exps.add(exp);
 		
 		return this.instantiateMCType(exps);
+	}
+	public MCPCMLType instantiateMCType(MCPCommunicationParameter param){
+		
+		LinkedList<MCPCommunicationParameter> params = new LinkedList<MCPCommunicationParameter>();
+		params.add(param);
+		
+		return this.instantiateMCTypeFromParams(params);
+	}
+	public MCPCMLType instantiateMCType(MCATypeSingleDeclaration decl){
+		
+		LinkedList<MCATypeSingleDeclaration> decls = new LinkedList<MCATypeSingleDeclaration>();
+		decls.add(decl);
+		
+		return this.instantiateMCTypeFromDecls(decls);
+	}
+	public MCPCMLType instantiateMCType(MCPCMLPattern pattern){
+		
+		LinkedList<MCPCMLPattern> patterns = new LinkedList<MCPCMLPattern>();
+		patterns.add(pattern);
+		
+		return this.instantiateMCTypeFromPatterns(patterns);
 	}
 	private MCPCMLType getTypeFor(MCAIntLiteralExp exp){
 		MCPCMLType result = null;
@@ -85,6 +199,34 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		return result;
 	}
 	
+	private MCPCMLType getTypeFor(MCAIdentifierPattern exp){
+		MCPCMLType result = new MCANamedInvariantType(exp.getName());;
+		
+		result = new MCANamedInvariantType(exp.getName());
+		
+		return result;
+	}
+	private MCPCMLType getTypeFor(MCASignalCommunicationParameter param){
+		MCPCMLType result = null;
+		
+		result = getTypeFor(param.getExpression());
+		
+		return result;
+	}
+	private MCPCMLType getTypeFor(MCAReadCommunicationParameter param){
+		MCPCMLType result = null;
+		
+		result = getTypeFor((MCAIdentifierPattern)param.getPattern());
+		
+		return result;
+	}
+	private MCPCMLType getTypeFor(MCAWriteCommunicationParameter param){
+		MCPCMLType result = null;
+		
+		result = getTypeFor(param.getExpression());
+		
+		return result;
+	}
 	public String obtainValue(MCPCMLExp expression){
 		String result = null;
 		

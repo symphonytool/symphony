@@ -14,8 +14,7 @@ import org.overture.ast.expressions.PExp;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.patterns.PPattern;
-import org.overture.ast.types.AIntNumericBasicType;
-import org.overture.ast.types.PType;
+
 
 import eu.compassresearch.ast.actions.PParametrisation;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
@@ -268,7 +267,7 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 		}
 		
 		MCAExplicitCmlOperationDefinition result = 
-				new MCAExplicitCmlOperationDefinition(name,body,null,null,null,null,mcParamPatterns,null,null,null);
+				new MCAExplicitCmlOperationDefinition(name,body,null,null,null,null,mcParamPatterns,null,null);
 		
 		question.operations.add(result);
 		

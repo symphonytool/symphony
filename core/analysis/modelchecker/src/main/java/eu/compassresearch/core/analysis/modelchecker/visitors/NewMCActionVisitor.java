@@ -63,6 +63,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCAssignDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.GuardDefGenerator;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCCondition;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCGuardDef;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCIOCommDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCPSingleDeclaration;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCPCMLDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
@@ -330,94 +331,13 @@ public class NewMCActionVisitor extends
 		MCPAction action = (MCPAction) node.getAction().apply(this, question);
 		MCACommunicationAction result = new MCACommunicationAction(identifier, mcParameters, action);
 		
+		//fr the moment iocomm do not depend on channel. This means that formula wont instantiate communicated values
+		MCIOCommDef ioCommDef = new MCIOCommDef(result.getCounterId(), result, null);
+
+		question.ioCommDefs.add(ioCommDef);
+		
 		return result;
 		
-		/*else { //there are parameters
-		
-			
-			question.getScriptContent().append(
-					//"Prefix(IOComm(" + question.IOCOMM_COUNTER + ",\"" + node.getIdentifier()+"."+parameters.getFirst().toString() + "\",");
-					"Prefix(IOComm(" + question.IOCOMM_COUNTER + ",\"" + node.getIdentifier()+"."+ parameters.toString() + "\",");
-			String varName = parameters.getFirst().toString();
-			if(parameters.size() == 1){
-				//we assume that only integers are communicated on channels
-				question.getScriptContent().append("Int(" + varName + ")");
-			}
-			question.getScriptContent().append("),");
-			
-				
-			//it applies recursivelly in the internal structure
-			node.getAction().apply(this, question);
-
-				//question.getScriptContent().append("))");
-				question.getScriptContent().append(")");
-			
-			//if this communication depends on a state variable. then we must add a code for fetching it in the bindings
-			SingleBind bind = question.getBindByVariable(varName);
-			if(bind != null){
-				question.getScriptContent().append(" :- ");
-				question.getScriptContent().append("fetch(" + "\"" + varName + "\"," + Utilities.MAX_BIND + "," + "Int(" + varName + ")");
-			}else{
-				//if this communication depends on a communicated variable (channel)
-				PCommunicationParameter param = parameters.getFirst();
-				if(param instanceof ASignalCommunicationParameter){
-					PExp exp = param.getExpression();
-					if(exp instanceof AVariableExp){
-						CMLModelcheckerContext copyCtxt = question.copy();
-						copyCtxt.scriptContent = new StringBuilder();
-						
-						//LinkedList<ChannelTypeDefinition> channelDefs = question.channelDefinitions;
-						ChannelTypeDefinition channDef = copyCtxt.getChannelDefinition(node.getIdentifier().toString());
-						//question.getScriptContent().append(" :- ");
-						//copyCtxt.scriptContent.append(" :- ");
-						//aux.getFirst().apply(this, question);
-						if(channDef != null){
-							AChannelNameDefinition c = channDef.getChanDef();
-							c.apply(this.rootVisitor, copyCtxt);
-							//int i = question.getScriptContent().lastIndexOf("_");
-							int i = copyCtxt.getScriptContent().lastIndexOf("_");
-							//question.getScriptContent().replace(i, i+1, parameters.getFirst().toString());
-							if( i != -1){
-								copyCtxt.getScriptContent().replace(i, i+1, param.toString());
-							}
-							//question.getScriptContent().append(".\n");
-						
-							//puts the information in the main context to be recovered at the end
-							question.channelDependencies.add(copyCtxt.getScriptContent().toString());
-						}
-					}
-					
-				}
-			}
-				
-				
-				CMLModelcheckerContext aux = new CMLModelcheckerContext();
-				aux.getScriptContent().append("  IOCommDef(0," + question.IOCOMM_COUNTER + ",");
-				aux.getScriptContent().append("Int(" + parameters.getFirst().toString() + "),");
-				//if(question.info.containsKey(Utilities.STATES_KEY)){
-				if(question.stateVariables.size() > 0){
-					aux.getScriptContent().append(question.getMaxBindingWithStates().toFormulaWithState()+","+question.getMaxBindingWithStates().toFormulaWithState());
-					aux.getScriptContent().append(") :- State(0,_,np,");					
-					
-				} else {
-					aux.getScriptContent().append(Utilities.MAX_BIND + "," + Utilities.MAX_BIND + ") :- State(0,_,_,");
-					
-					//aux.getScriptContent().append("Prefix(IOComm(0,\"" + node.getIdentifier()+"."+parameters.getFirst().toString() + "\",");
-					aux.getScriptContent().append("Prefix(IOComm("+ question.IOCOMM_COUNTER +",\"" + node.getIdentifier()+"."+parameters.toString() + "\",");
-					aux.getScriptContent().append("Int(" + parameters.getFirst().toString() + ")");
-					aux.getScriptContent().append("),");
-					node.getAction().apply(this, aux);
-					aux.getScriptContent().append(")).\n");
-				}
-				question.IOCOMM_COUNTER++;
-				//aux.getScriptContent().append("  State(0,nBind,np,pBody)  :- GivenProc(np), ProcDef(np,_,pBody).\n");
-				
-				//question.info.put(Utilities.IOCOMM_DEFINITIONS_KEY, aux.getScriptContent().toString());
-				question.ioCommDefs.add(aux.getScriptContent().toString());
-		}
-		
-		return question.getScriptContent();
-		*/
 	}
 	
 	@Override

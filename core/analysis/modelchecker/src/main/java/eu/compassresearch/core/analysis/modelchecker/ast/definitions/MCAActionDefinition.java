@@ -3,9 +3,12 @@ package eu.compassresearch.core.analysis.modelchecker.ast.definitions;
 import java.util.LinkedList;
 
 import eu.compassresearch.ast.actions.PAction;
+import eu.compassresearch.ast.actions.PParametrisation;
+import eu.compassresearch.ast.actions.PParametrisationBase;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPParametrisation;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ExpressionEvaluator;
 
 public class MCAActionDefinition implements MCPCMLDefinition {
 
@@ -16,7 +19,7 @@ public class MCAActionDefinition implements MCPCMLDefinition {
 	
 	public MCAActionDefinition(String name, LinkedList<MCPParametrisation> declarations,
 			MCPAction action) {
-		super();
+		
 		this.name = name;
 		this.declarations = declarations;
 		this.action = action;
@@ -30,7 +33,8 @@ public class MCAActionDefinition implements MCPCMLDefinition {
 		result.append("  ProcDef(");
 		result.append("\"" + this.name + "\",");
 		// parameters
-		
+		ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance(); 
+		//evaluator.instantiateMCType(this.declarations);
 		LinkedList<MCPParametrisation> parameters = getDeclarations();
 		
 		if(parameters.size()==0){

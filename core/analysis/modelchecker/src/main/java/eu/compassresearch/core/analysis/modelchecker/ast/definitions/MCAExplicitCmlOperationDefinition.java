@@ -9,6 +9,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCASingleGeneralAssignmentStatementAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.Binding;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCOperationCall;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCPreOpTrue;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCStringType;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAVariableExp;
@@ -31,7 +32,6 @@ public class MCAExplicitCmlOperationDefinition implements
 	private LinkedList<MCPCMLPattern> paramPatterns = new LinkedList<MCPCMLPattern>();
 	private MCAStateDefinition state;
 	private MCPCMLType actualResult;
-	
 	private MCPAction parentAction;
 	
 	public MCAExplicitCmlOperationDefinition(String name, MCPAction body,
@@ -39,7 +39,7 @@ public class MCAExplicitCmlOperationDefinition implements
 			MCAExplicitFunctionDefinition predef,
 			MCAExplicitFunctionDefinition postdef,
 			LinkedList<MCPCMLPattern> paramPatterns,
-			MCAStateDefinition state, MCPCMLType actualResult, MCPAction parentAction) {
+			MCAStateDefinition state, MCPCMLType actualResult) {
 		super();
 		this.name = name;
 		this.body = body;
@@ -50,7 +50,7 @@ public class MCAExplicitCmlOperationDefinition implements
 		this.paramPatterns = paramPatterns;
 		this.state = state;
 		this.actualResult = actualResult;
-		this.parentAction = parentAction;
+		this.parentAction = new MCOperationCall(this.name, null, paramPatterns);
 	}
 
 
@@ -59,9 +59,10 @@ public class MCAExplicitCmlOperationDefinition implements
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 		StringBuilder result = new StringBuilder();
 		
-		result.append("operationDef(");
+		result.append("  operationDef(");
 		result.append("\"" + this.name + "\"");
 		result.append(",");
+		
 		if(this.paramPatterns.size()==0){
 			result.append("void");
 		}else if(this.paramPatterns.size()==1){
@@ -76,11 +77,11 @@ public class MCAExplicitCmlOperationDefinition implements
 		result.append("st_");
 		result.append(") :- ");
 		result.append("State(l,st,_,");
-		if(this.parentAction != null){
-			result.append(this.parentAction.toFormula(option));
-		}else{
-			result.append("action invoking the assignment");
-		}
+		//the parent action of an operation must be an operation call in the specification
+		//its translation must be generic so many calls can reuse the body of an operation
+		//changing only its parameters
+		//create a operation call and use generic translation
+		result.append(this.parentAction.toFormula(option));
 		result.append(")");
 		result.append(",");
 		result.append("st = ");
@@ -102,7 +103,8 @@ public class MCAExplicitCmlOperationDefinition implements
 				String varName = stateDesignator.toFormula(MCNode.NAMED);
 				newValueVarName = varName + "_";
 				MCPCMLType newVarValue = new MCANamedInvariantType(newValueVarName);
-				maximalCopy.updateBinding(varName,newVarValue); 
+				maximalCopy.updateBinding(varName,newVarValue);
+				int i = 0;
 				result.append(maximalCopy.toFormula(MCNode.DEFAULT)); 
 			}
 		}
@@ -218,15 +220,5 @@ public class MCAExplicitCmlOperationDefinition implements
 	}
 
 
-	public MCPAction getParentAction() {
-		return parentAction;
-	}
-
-
-	public void setParentAction(MCPAction parentAction) {
-		this.parentAction = parentAction;
-	}
-	
-	
 
 }

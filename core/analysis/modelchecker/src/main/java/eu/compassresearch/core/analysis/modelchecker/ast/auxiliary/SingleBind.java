@@ -48,7 +48,7 @@ public class SingleBind {
 			break;
 			
 		case MCNode.GENERIC:
-			result = "SingleBind(\"" + variableName + "\"," + variableValue.toFormula(option) + ")";
+			result = "SingleBind(\"" + variableName + "\"," + variableName + "_" + ")";
 			break;
 
 		default:

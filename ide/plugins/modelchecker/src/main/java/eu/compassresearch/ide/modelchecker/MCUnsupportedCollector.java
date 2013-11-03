@@ -3103,7 +3103,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	public void caseAReadCommunicationParameter(AReadCommunicationParameter node)
 			throws AnalysisException
 	{
-				// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAReadCommunicationParameter(node);
@@ -3504,7 +3504,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	public void caseASignalCommunicationParameter(
 			ASignalCommunicationParameter node) throws AnalysisException
 	{
-				// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseASignalCommunicationParameter(node);
@@ -4321,7 +4321,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	public void caseAWriteCommunicationParameter(
 			AWriteCommunicationParameter node) throws AnalysisException
 	{
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAWriteCommunicationParameter(node);

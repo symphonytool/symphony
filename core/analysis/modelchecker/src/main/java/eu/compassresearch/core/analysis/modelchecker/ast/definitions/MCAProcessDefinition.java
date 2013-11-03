@@ -12,11 +12,15 @@ import org.overture.ast.intf.lex.ILexLocation;
 
 import eu.compassresearch.ast.actions.ASingleGeneralAssignmentStatementAction;
 import eu.compassresearch.ast.actions.PAction;
+import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.lex.LexNameToken;
+import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ExpressionEvaluator;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCAssignDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCChannel;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCCondition;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCGuardDef;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCIOCommDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCLieInFact;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCNegGuardDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCPosGuardDef;
@@ -24,6 +28,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCValueDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCATypeSingleDeclaration;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.process.MCPProcess;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.Binding;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.NullBinding;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Int;
@@ -41,7 +46,7 @@ public class MCAProcessDefinition implements MCPCMLDefinition {
 	
 	public MCAProcessDefinition(String name,
 			LinkedList<MCATypeSingleDeclaration> localState, MCPProcess process) {
-		super();
+		
 		this.name = name;
 		this.localState = localState;
 		this.process = process;
@@ -67,8 +72,12 @@ public class MCAProcessDefinition implements MCPCMLDefinition {
 		result.append("  ProcDef(\"");
 		result.append(this.name);
 		result.append("\",");
-		//parameters
-		result.append("void,");
+		//parameters (local state)
+		ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
+		
+		MCPCMLType decls =  evaluator.instantiateMCTypeFromDecls(this.localState);
+		result.append(decls.toFormula(MCNode.NAMED));
+		result.append(",");
 		result.append(this.process.toFormula(option));
 		result.append(").\n");
 		
@@ -80,6 +89,7 @@ public class MCAProcessDefinition implements MCPCMLDefinition {
 		
 		generateOperationDefinitions(result,option);
 		
+		generateIOCommDefs(result,option);
 		
 		
 		/*
@@ -122,7 +132,7 @@ public class MCAProcessDefinition implements MCPCMLDefinition {
 		}
 
 
-		generateIOCommDefs(question);
+		
 
 		generateGuardDefinitions(question);
 
@@ -234,11 +244,18 @@ public class MCAProcessDefinition implements MCPCMLDefinition {
 		for (MCSCmlOperationDefinition opDef : context.operations) {
 			if(opDef instanceof MCAExplicitCmlOperationDefinition){
 				MCAExplicitCmlOperationDefinition op = (MCAExplicitCmlOperationDefinition) opDef;
-				content.append(op.toFormula(option));
+				content.append(op.toFormula(MCNode.NAMED));
 			}
 		}
 	}
 	
+	private void generateIOCommDefs(StringBuilder content, String option){
+		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+		for (MCIOCommDef ioCommDef : context.ioCommDefs) {
+			content.append(ioCommDef.toFormula(option));
+			content.append("\n");
+		}
+	}
 	private void generateValueDefinitions(StringBuilder content, String option){
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 		for (MCAValueDefinition valueDef : context.valueDefinitions) {
@@ -246,17 +263,7 @@ public class MCAProcessDefinition implements MCPCMLDefinition {
 			content.append("\n");
 		}
 	}
-	/*
-	private void generateDefinedValues(StringBuilder content, String option){
-		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
-		for (MCAValueDefinition valueDef : context.valueDefinitions) {
-			
-			MCValueDef valueDefFact = new MCValueDef(valueDef.getName(), valueDef.getType(), valueDef.getExpression());
-			content.append(valueDefFact.toFormula(option));
-			content.append("\n");
-		}
-	}
-	*/
+	
 	private void generateLieInFacts(StringBuilder content, String option){
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 		if(context.lieIn.size() != 0){

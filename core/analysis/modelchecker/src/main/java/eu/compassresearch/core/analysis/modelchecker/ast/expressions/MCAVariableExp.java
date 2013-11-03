@@ -25,22 +25,22 @@ public class MCAVariableExp implements MCNumericExp {
 		//if this variable is defined as a value in the context we must return its value in default toFormula
 		MCAValueDefinition valueDef =  context.getValueDefinition(this.name);
 			
-		switch (option) {
-		case MCNode.DEFAULT:
+		//switch (option) {
+		//case MCNode.DEFAULT:
 			if(valueDef != null){
 				result.append(valueDef.getExpression().toFormula(option));
 			} else {
 				result.append(this.getName());
 			}
-			break;
+		//	break;
 
-		case MCNode.NAMED:
-			result.append(this.getName());
-			break;
+		//case MCNode.NAMED:
+		//	result.append(this.getName());
+		//	break;
 
-		default:
-			break;
-		}
+		//default:
+		//	break;
+		//}
 		
 		
 		return result.toString();

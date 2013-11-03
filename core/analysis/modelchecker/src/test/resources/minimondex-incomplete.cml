@@ -18,7 +18,7 @@ channels
   accept , reject: Index
 
     
-process Card = 
+process Card = val i: Index @
 begin
  state 
  	value: nat := 0
@@ -32,7 +32,16 @@ begin
 
     Debit: nat ==> ()
     Debit(n) == value := value - n
-       
-@ Skip
+  
+  actions
+    Transfer = pay.i?j?n ->
+    ( [n > value] & reject!i -> Skip
+      []
+      [n <= value] & transfer.i.j!n -> accept!i -> Debit(n) )
+      
+    Receive = transfer?j.i?n -> Credit(n)
+    
+    Cycle = ( Transfer [] Receive ); Cycle  
+@ Init(); Cycle
 
 end

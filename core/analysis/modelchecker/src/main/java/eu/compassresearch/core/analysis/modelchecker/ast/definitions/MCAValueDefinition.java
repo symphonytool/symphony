@@ -41,11 +41,13 @@ public class MCAValueDefinition implements MCPCMLDefinition {
 		//	result.append("  ");
 		//}
 		result.append("  " + this.name);
-		result.append(" ::= {");
+		result.append(" ::= ");
+		result.append("{");
 		//ExpressionEvaluator expEvaluator = ExpressionEvaluator.getInstance();
 		//expEvaluator.obtainValue(expression)
 		result.append(this.expression.toFormula(option));
-		result.append("}.");
+		result.append("}");
+		result.append(".");
 		
 		return result.toString();
 	}

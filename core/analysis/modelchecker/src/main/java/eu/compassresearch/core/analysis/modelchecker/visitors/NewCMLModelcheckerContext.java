@@ -8,6 +8,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.Binding;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCAssignDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCCondition;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCGuardDef;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCIOCommDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCLieInFact;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCNegGuardDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCPosGuardDef;
@@ -25,6 +26,7 @@ public class NewCMLModelcheckerContext {
 	
 	public static int ASSIGN_COUNTER;
 	public static int GUARD_COUNTER;
+	public static int IOCOMM_COUNTER;
 	
 	public String propertyToCheck = Utilities.DEADLOCK_PROPERTY;
 	public NewSetStack<MCPVarsetExpression> setStack;
@@ -41,14 +43,15 @@ public class NewCMLModelcheckerContext {
 	public LinkedList<MCAValueDefinition> valueDefinitions;
 	public LinkedList<MCATypeDefinition> typeDefinitions;
 	public LinkedList<MCAProcessDefinition> processDefinitions;
+	public ArrayList<MCIOCommDef> ioCommDefs;
 	
 	
 	
-	public static int IOCOMM_COUNTER;
+	
 	
 	public static int CHANTYPE_COUNTER;
 	protected ArrayList<String> channelDependencies;
-	protected ArrayList<String> ioCommDefs;
+	
 	protected int numberOfFetchFacts = 1;
 	protected int numberOfUpdFacts = 1;
 	protected int numberOfDelFacts = 1;
@@ -82,7 +85,7 @@ public class NewCMLModelcheckerContext {
 		localActions = new ArrayList<MCAActionDefinition>();
 		conditions = new ArrayList<MCCondition>();
 		channelDependencies = new ArrayList<String>();
-		ioCommDefs = new ArrayList<String>();
+		ioCommDefs = new ArrayList<MCIOCommDef>();
 		positiveGuardDefs = new HashMap<MCPCMLExp, MCPosGuardDef>();
 		negativeGuardDefs = new HashMap<MCPCMLExp, MCNegGuardDef>();
 		valueDefinitions = new LinkedList<MCAValueDefinition>();

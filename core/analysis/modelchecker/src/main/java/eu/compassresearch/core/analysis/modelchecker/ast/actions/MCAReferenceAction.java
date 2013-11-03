@@ -2,6 +2,7 @@ package eu.compassresearch.core.analysis.modelchecker.ast.actions;
 
 import java.util.LinkedList;
 
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCActionCall;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 
 public class MCAReferenceAction implements MCPAction {
@@ -21,8 +22,9 @@ public class MCAReferenceAction implements MCPAction {
 	public String toFormula(String option) {
 		StringBuilder result = new StringBuilder();
 		
-		// the parameters also need to be written
-		result.append("proc(\"" + this.name + "\", nopar)");
+		MCActionCall call = new MCActionCall(name, args);
+		
+		result.append(call.toFormula(option));
 
 		return result.toString();
 

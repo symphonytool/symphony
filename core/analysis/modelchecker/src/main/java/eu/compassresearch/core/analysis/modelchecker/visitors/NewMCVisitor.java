@@ -13,11 +13,14 @@ import org.overture.ast.expressions.SSeqExp;
 import org.overture.ast.expressions.SSetExp;
 import org.overture.ast.node.INode;
 import org.overture.ast.patterns.AIdentifierPattern;
+import org.overture.ast.patterns.PPattern;
 import org.overture.ast.statements.PStateDesignator;
 import org.overture.ast.types.PType;
 import org.overture.ast.types.SNumericBasicType;
 
 import eu.compassresearch.ast.actions.PAction;
+import eu.compassresearch.ast.actions.PCommunicationParameter;
+import eu.compassresearch.ast.actions.PParametrisation;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
@@ -55,7 +58,8 @@ public class NewMCVisitor extends
 	private NewMCExpressionVisitor expressionVisitor;
 	private NewMCProcessVisitor processVisitor;
 	private NewMCTypeAndValueVisitor typeAndValueVisitor;
-
+	private NewMCParameterAndPatternVisitor paramAndPatternVisitor;
+	
 	public NewMCVisitor(List<PSource> sources) throws IOException {
 		this.sources = sources;
 		this.initialise();
@@ -77,6 +81,7 @@ public class NewMCVisitor extends
 		this.emptyVisitor = new NewMCEmptyVisitor();
 		this.expressionVisitor = new NewMCExpressionVisitor(this);
 		this.typeAndValueVisitor = new NewMCTypeAndValueVisitor(this);
+		this.paramAndPatternVisitor = new NewMCParameterAndPatternVisitor(this);
 		loadDomains();
 	}
 	
@@ -194,15 +199,24 @@ public class NewMCVisitor extends
 	
 	
 	
+	
+	
 	@Override
-	public MCNode caseAIdentifierPattern(AIdentifierPattern node,
+	public MCNode defaultPCommunicationParameter(PCommunicationParameter node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
 		
-		MCAIdentifierPattern result = new MCAIdentifierPattern(node.getName().toString());
-		
-		return result;
+		return node.apply(this.paramAndPatternVisitor, question);
 	}
-	
+	@Override
+	public MCNode defaultPParametrisation(PParametrisation node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		return node.apply(this.paramAndPatternVisitor, question);
+	}
+	@Override
+	public MCNode defaultPPattern(PPattern node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		return node.apply(this.paramAndPatternVisitor, question);
+	}
 	/*
 	@Override
 	public StringBuilder defaultPStm(PStm node,

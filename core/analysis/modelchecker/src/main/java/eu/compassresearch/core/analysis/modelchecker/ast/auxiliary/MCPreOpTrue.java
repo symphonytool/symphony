@@ -10,6 +10,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAExplicit
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCPCMLDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCPCMLPattern;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 import eu.compassresearch.core.analysis.modelchecker.visitors.CMLModelcheckerContext;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 
@@ -30,14 +31,10 @@ public class MCPreOpTrue implements MCNode {
 	public String toFormula(String option) {
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 		StringBuilder result = new StringBuilder();
-		result.append("preOpOk(\"" + this.name + "\",");
-		if(this.paramPatterns.size()==0){
-			result.append("void");
-		}else if(this.paramPatterns.size()==1){
-			result.append(this.paramPatterns.getFirst().toFormula(option));
-		}else if(this.paramPatterns.size() > 1){
-			//TODO
-		}
+		result.append("  preOpOk(\"" + this.name + "\",");
+		ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
+		MCPCMLType paramType = evaluator.instantiateMCTypeFromPatterns(this.paramPatterns);
+		result.append(paramType.toFormula(option));
 		result.append(",");
 		result.append(context.maximalBinding.toFormula(MCNode.NAMED));
 		result.append(")");
