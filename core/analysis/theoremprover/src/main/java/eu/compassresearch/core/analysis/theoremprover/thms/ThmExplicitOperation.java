@@ -111,7 +111,7 @@ public class ThmExplicitOperation extends ThmDecl{
 		}
 		sb.append(")");
 		
-		return fixParamRefs(sb.toString(), paras);
+		return sb.toString();//NOT SURE IF NEED TO DO THIS... fixParamRefs(sb.toString(), paras);
 	}
 	
 	/**
@@ -150,7 +150,7 @@ public class ThmExplicitOperation extends ThmDecl{
 		res.append(post + "\n\n");
 		
 		res.append(ThmProcessUtil.isaOp + " \"" + name + " " + params + " = `" + 
-				ThmProcessUtil.opExpLeft+  "pre_"+ name + preParamList + ThmProcessUtil.opExpRight +" " +  
+				ThmProcessUtil.opExpLeft +  "pre_"+ name + preParamList + ThmProcessUtil.opExpRight + " " +  
 				ThmProcessUtil.opTurn + " ");
 		if (resType	!= null)
 		{
@@ -158,7 +158,7 @@ public class ThmExplicitOperation extends ThmDecl{
 		}
 		else
 		{
-			res.append("post_" + name + postParamList);
+			res.append(ThmProcessUtil.opExpLeft +"post_" + name + postParamList + ThmProcessUtil.opExpRight +" ");
 		}
 				
 		res.append(" \\<and> (" + body + ")`\"\n" + tacHook(name));

@@ -656,7 +656,7 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 		//Add result type to dependency list
 		nodeDeps.addAll(opType.getResult().apply(depVisitor, vars.getBVars()));//(ThmTypeUtil.getIsabelleTypeDeps(opType.getResult()));
 		
-		String body = node.getBody().apply(stringVisitor, new ThmVarsContext());//ThmProcessUtil.getIsabelleActionString(exOp.getBody(), svars, bvars);
+		String body = node.getBody().apply(stringVisitor, vars);//ThmProcessUtil.getIsabelleActionString(exOp.getBody(), svars, bvars);
 		String pre = null;
 		String post = null;
 		if (node.getPrecondition() != null)

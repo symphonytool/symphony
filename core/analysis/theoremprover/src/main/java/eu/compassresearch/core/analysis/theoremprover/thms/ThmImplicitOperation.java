@@ -165,7 +165,7 @@ public class ThmImplicitOperation extends ThmDecl{
 		}
 		
 		sb.append(")");
-		return fixParamRefs(sb.toString(), parPair);
+		return sb.toString();//fixParamRefs(sb.toString(), parPair);
 	}
 	
 	/**
@@ -216,7 +216,7 @@ public class ThmImplicitOperation extends ThmDecl{
 		}
 		else
 		{
-			res.append("post_" + name + postParamList);
+			res.append(ThmProcessUtil.opExpLeft +"post_" + name + postParamList + ThmProcessUtil.opExpRight +" ");
 		}
 		
 		res.append(ThmProcessUtil.opExpRight + "`\"\n" + tacHook(name));
