@@ -13,6 +13,7 @@ import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.patterns.PMultipleBind;
 import org.overture.ast.patterns.PPattern;
+import org.overture.ast.statements.AIdentifierStateDesignator;
 import org.overture.ast.util.definitions.ClassList;
 import org.overture.interpreter.assistant.pattern.PMultipleBindAssistantInterpreter;
 import org.overture.interpreter.eval.DelegateExpressionEvaluator;
@@ -194,6 +195,16 @@ public class CmlExpressionVisitor extends
 			return new NamesetValue(coms);
 
 		}
+	}
+	
+	@Override
+	public Value caseAIdentifierStateDesignator(
+			AIdentifierStateDesignator node, Context question)
+			throws AnalysisException
+	{
+		// We lookup the name in a context comprising only state...
+		// return ctxt.getUpdateable().lookup(name.getExplicit(true));
+		return question.lookup(node.getName());
 	}
 
 	@Override

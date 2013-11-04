@@ -670,7 +670,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 			throws AnalysisException, ValueException
 	{
 		Value expValue = node.getExp().apply(cmlExpressionVisitor, question);
-		Value oldVal = node.getStateDefinition().apply(cmlExpressionVisitor, question);
+		Value oldVal = node.getTarget().apply(cmlExpressionVisitor, question);
 		oldVal.set(node.getLocation(), expValue, question);
 
 		PExp invExp = null;
