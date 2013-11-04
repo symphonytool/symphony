@@ -1,8 +1,5 @@
 package eu.compassresearch.core.analysis.theoremprover.utils;
 
-//import org.overture.ast.definitions.AValueDefinition;
-//import eu.compassresearch.core.analysis.theoremprover.thms.NodeNameList;
-
 public class ThmValueUtil {
 	public static String valDelimLeft = "+|";
 	public static String valDelimRight = "|+";

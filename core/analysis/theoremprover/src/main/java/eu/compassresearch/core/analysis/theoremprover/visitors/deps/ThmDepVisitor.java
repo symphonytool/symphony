@@ -11,8 +11,11 @@ import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.definitions.AChannelNameDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
+import eu.compassresearch.ast.expressions.PCMLExp;
+import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.analysis.theoremprover.thms.NodeNameList;
+import eu.compassresearch.core.analysis.theoremprover.visitors.string.ThmVarsContext;
 
 @SuppressWarnings("serial")
 public class ThmDepVisitor extends
@@ -46,6 +49,10 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList> {
 		actionDepVisitor = new ThmActionDepVisitor(this);
 	}
 
+	public NodeNameList defaultINode(INode node, NodeNameList bvars)
+			throws AnalysisException {		
+		return new NodeNameList();
+	}	
 	public  NodeNameList caseAValueDefinition(AValueDefinition node, NodeNameList bvars)
 			throws AnalysisException {
 		return node.apply(this.valDepVisitor, bvars);
@@ -86,6 +93,17 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList> {
 	public NodeNameList defaultPAction(PAction node, NodeNameList bvars)
 			throws AnalysisException {		
 		return node.apply(this.actionDepVisitor, bvars);
+	}	
+	
+	public NodeNameList defaultPVarsetExpression(PVarsetExpression node, NodeNameList bvars)
+			throws AnalysisException {		
+		return node.apply(this.expDepVisitor, bvars);
+	}	
+	
+	
+	public NodeNameList defaultPCMLExp(PCMLExp node, NodeNameList bvars)
+			throws AnalysisException {		
+		return node.apply(this.expDepVisitor, bvars);
 	}	
 	
 

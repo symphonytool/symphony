@@ -41,8 +41,6 @@ import org.overture.ast.types.PType;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.core.analysis.theoremprover.thms.NodeNameList;
-import eu.compassresearch.core.analysis.theoremprover.utils.ThmTypeUtil;
-import eu.compassresearch.core.analysis.theoremprover.visitors.string.ThmVarsContext;
 
 @SuppressWarnings("serial")
 public class ThmTypeDepVisitor extends

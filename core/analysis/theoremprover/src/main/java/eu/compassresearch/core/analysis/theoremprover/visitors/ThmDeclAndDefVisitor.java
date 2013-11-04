@@ -5,7 +5,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.analysis.AnswerAdaptor;
 import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import org.overture.ast.definitions.AImplicitFunctionDefinition;
@@ -24,7 +23,7 @@ import org.overture.ast.types.AVoidType;
 import org.overture.ast.types.PType;
 
 import eu.compassresearch.ast.actions.PAction;
-import eu.compassresearch.ast.analysis.AnswerCMLAdaptor;
+import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AActionsDefinition;
@@ -43,6 +42,7 @@ import eu.compassresearch.ast.definitions.AValuesDefinition;
 import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
 import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.ast.process.PProcess;
+import eu.compassresearch.core.analysis.theoremprover.thms.NodeNameList;
 import eu.compassresearch.core.analysis.theoremprover.thms.ThmAction;
 import eu.compassresearch.core.analysis.theoremprover.thms.ThmExpFunc;
 import eu.compassresearch.core.analysis.theoremprover.thms.ThmExplicitOperation;
@@ -52,24 +52,22 @@ import eu.compassresearch.core.analysis.theoremprover.thms.ThmNode;
 import eu.compassresearch.core.analysis.theoremprover.thms.ThmNodeList;
 import eu.compassresearch.core.analysis.theoremprover.thms.ThmProcAction;
 import eu.compassresearch.core.analysis.theoremprover.thms.ThmProcStand;
-import eu.compassresearch.core.analysis.theoremprover.thms.NodeNameList;
 import eu.compassresearch.core.analysis.theoremprover.thms.ThmState;
 import eu.compassresearch.core.analysis.theoremprover.utils.ThmExprUtil;
 import eu.compassresearch.core.analysis.theoremprover.utils.ThmProcessUtil;
-import eu.compassresearch.core.analysis.theoremprover.utils.ThmTypeUtil;
 import eu.compassresearch.core.analysis.theoremprover.utils.ThySortException;
 import eu.compassresearch.core.analysis.theoremprover.visitors.deps.ThmDepVisitor;
 import eu.compassresearch.core.analysis.theoremprover.visitors.string.ThmStringVisitor;
 import eu.compassresearch.core.analysis.theoremprover.visitors.string.ThmVarsContext;
 
 @SuppressWarnings("serial")
-public class ThmDeclAndDefVisitor extends AnswerCMLAdaptor<ThmNodeList>
+public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContext, ThmNodeList>
 {
-	final private AnswerAdaptor<ThmNodeList> parentVisitor;
+	final private QuestionAnswerCMLAdaptor<ThmVarsContext, ThmNodeList> parentVisitor;
 	private ThmDepVisitor depVisitor;
 	private ThmStringVisitor stringVisitor;
 	
-	public ThmDeclAndDefVisitor(AnswerCMLAdaptor<ThmNodeList> parent, ThmDepVisitor depVis, ThmStringVisitor stringVis)
+	public ThmDeclAndDefVisitor(QuestionAnswerCMLAdaptor<ThmVarsContext, ThmNodeList> parent, ThmDepVisitor depVis, ThmStringVisitor stringVis)
 	{
 		depVisitor = depVis;
 		stringVisitor = stringVis;
@@ -80,13 +78,13 @@ public class ThmDeclAndDefVisitor extends AnswerCMLAdaptor<ThmNodeList>
 	 * Visitor method for collection of type definitions
 	 */
 	@Override
-	public ThmNodeList caseATypesDefinition(ATypesDefinition node) throws AnalysisException
+	public ThmNodeList caseATypesDefinition(ATypesDefinition node, ThmVarsContext vars) throws AnalysisException
 	{
 		ThmNodeList tnl = new ThmNodeList();
 
 		for (PDefinition def : node.getTypes())
 		{
-			tnl.addAll(def.apply(parentVisitor));
+			tnl.addAll(def.apply(parentVisitor, vars));
 		}
 
 		return tnl;
@@ -96,13 +94,13 @@ public class ThmDeclAndDefVisitor extends AnswerCMLAdaptor<ThmNodeList>
 	 * Visitor method for collection of value definitions
 	 */
 	@Override
-	public ThmNodeList caseAValuesDefinition(AValuesDefinition node) throws AnalysisException
+	public ThmNodeList caseAValuesDefinition(AValuesDefinition node, ThmVarsContext vars) throws AnalysisException
 	{
 		ThmNodeList tnl = new ThmNodeList();
 
 		for (PDefinition def : node.getValueDefinitions())
 		{
-			tnl.addAll(def.apply(parentVisitor));
+			tnl.addAll(def.apply(parentVisitor, vars));
 		}
 
 		return tnl;
@@ -112,13 +110,13 @@ public class ThmDeclAndDefVisitor extends AnswerCMLAdaptor<ThmNodeList>
 	 * Visitor method for collection of function definitions
 	 */
 	@Override
-	public ThmNodeList caseAFunctionsDefinition(AFunctionsDefinition node) throws AnalysisException
+	public ThmNodeList caseAFunctionsDefinition(AFunctionsDefinition node, ThmVarsContext vars) throws AnalysisException
 	{
 		ThmNodeList tnl = new ThmNodeList();
 
 		for (PDefinition def : node.getFunctionDefinitions())
 		{
-			tnl.addAll(def.apply(parentVisitor));
+			tnl.addAll(def.apply(parentVisitor, vars));
 		}
 
 		return tnl;
@@ -128,7 +126,7 @@ public class ThmDeclAndDefVisitor extends AnswerCMLAdaptor<ThmNodeList>
 	 * Visitor method for an explicitly defined function
 	 */
 	@Override
-	public ThmNodeList caseAExplicitFunctionDefinition(AExplicitFunctionDefinition node) throws AnalysisException
+	public ThmNodeList caseAExplicitFunctionDefinition(AExplicitFunctionDefinition node, ThmVarsContext vars) throws AnalysisException
 	{
 		ThmNodeList tnl = new ThmNodeList();
 		NodeNameList nodeDeps = new NodeNameList();
@@ -183,7 +181,7 @@ public class ThmDeclAndDefVisitor extends AnswerCMLAdaptor<ThmNodeList>
 	/**
 	 * Visitor method for an implicitly defined function
 	 */
-	public ThmNodeList caseAImplicitFunctionDefinition(AImplicitFunctionDefinition node)
+	public ThmNodeList caseAImplicitFunctionDefinition(AImplicitFunctionDefinition node, ThmVarsContext vars)
 			throws AnalysisException
 	{
 		ThmNodeList tnl = new ThmNodeList();
@@ -241,14 +239,14 @@ public class ThmDeclAndDefVisitor extends AnswerCMLAdaptor<ThmNodeList>
 	 * Visitor method for a collection of channel definitions
 	 */
 	@Override
-	public ThmNodeList caseAChannelsDefinition(AChannelsDefinition node)
+	public ThmNodeList caseAChannelsDefinition(AChannelsDefinition node, ThmVarsContext vars)
 			throws AnalysisException
 	{
 		ThmNodeList tnl = new ThmNodeList();
 
 		for (AChannelNameDefinition c : node.getChannelNameDeclarations())
 		{
-			tnl.addAll(c.apply(parentVisitor));
+			tnl.addAll(c.apply(parentVisitor, vars));
 		}
 
 		return tnl;
@@ -259,14 +257,13 @@ public class ThmDeclAndDefVisitor extends AnswerCMLAdaptor<ThmNodeList>
 	 * Visitor method for a collection of chanset definitions
 	 */
 	@Override
-	public ThmNodeList caseAChansetsDefinition(AChansetsDefinition node)
-			throws AnalysisException
+	public ThmNodeList caseAChansetsDefinition(AChansetsDefinition node, ThmVarsContext vars) throws AnalysisException
 	{
 		ThmNodeList tnl = new ThmNodeList();
 
 		for (AChansetDefinition c : node.getChansets())
 		{
-			tnl.addAll(c.apply(parentVisitor));
+			tnl.addAll(c.apply(parentVisitor, vars));
 		}
 
 		return tnl;
@@ -276,7 +273,7 @@ public class ThmDeclAndDefVisitor extends AnswerCMLAdaptor<ThmNodeList>
 	 * Visitor method for a class
 	 */
 	@Override
-	public ThmNodeList caseACmlClassDefinition(ACmlClassDefinition node) throws AnalysisException
+	public ThmNodeList caseACmlClassDefinition(ACmlClassDefinition node, ThmVarsContext vars) throws AnalysisException
 	{
 		//TODO: NOT YET HANDLED
 		ThmNodeList tnl = new ThmNodeList();
@@ -288,7 +285,7 @@ public class ThmDeclAndDefVisitor extends AnswerCMLAdaptor<ThmNodeList>
 	 * Visitor method for a CML process
 	 */
 	@Override
-	public ThmNodeList caseAProcessDefinition(AProcessDefinition node) throws AnalysisException
+	public ThmNodeList caseAProcessDefinition(AProcessDefinition node, ThmVarsContext vars) throws AnalysisException
 	{
 		ThmNodeList tnl = new ThmNodeList();
 		ThmNode tn = null;		
@@ -431,8 +428,8 @@ public class ThmDeclAndDefVisitor extends AnswerCMLAdaptor<ThmNodeList>
 						//and get the dependencies
 						if (st.getExpression() != null)
 						{
-							initExprs.add(sName.toString() + ThmProcessUtil.assign + ThmExprUtil.getIsabelleExprStr(svars, new NodeNameList(), st.getExpression()));
-							initExprNodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(new NodeNameList(),  st.getExpression()));
+							initExprs.add(sName.toString() + ThmProcessUtil.assign + st.getExpression().apply(stringVisitor,new ThmVarsContext(svars, new NodeNameList()))); //ThmExprUtil.getIsabelleExprStr(svars, new NodeNameList(), st.getExpression()));
+							initExprNodeDeps.addAll(st.getExpression().apply(depVisitor, new NodeNameList()));//(ThmExprUtil.getIsabelleExprDeps(new NodeNameList(),  st.getExpression()));
 							//Add all dependencies to the processes dependencies
 							nodeDeps.addAll(initExprNodeDeps);
 							//As we only care about the internal dependencies in initExprNodeDeps, remove
@@ -445,8 +442,8 @@ public class ThmDeclAndDefVisitor extends AnswerCMLAdaptor<ThmNodeList>
 							initExprs.add(sName.toString() + " := undefined");
 						}
 						//obtain the type of the state variable, and the type dependencies
-						String type = ThmTypeUtil.getIsabelleType(st.getType());
-						nodeDeps.addAll(ThmTypeUtil.getIsabelleTypeDeps(st.getType()));
+						String type = st.getType().apply(stringVisitor, new ThmVarsContext());//ThmTypeUtil.getIsabelleType(st.getType());
+						nodeDeps.addAll(st.getType().apply(depVisitor, new NodeNameList()));//(ThmTypeUtil.getIsabelleTypeDeps(st.getType()));
 			
 						ThmNode stn = new ThmNode(sName, sNodeDeps, new ThmState(sName.getName(), type));
 						actTnl.add(stn);
@@ -483,7 +480,7 @@ public class ThmDeclAndDefVisitor extends AnswerCMLAdaptor<ThmNodeList>
 			ThmNodeList funcNodes = new ThmNodeList();
 			//Handle the functions.
 			for(AExplicitFunctionDefinition f : expfunctions){
-				funcNodes.addAll(f.apply(parentVisitor));//(ThmProcessUtil.getAExplicitFunctionDefinition(f));
+				funcNodes.addAll(f.apply(parentVisitor, new ThmVarsContext(svars, new NodeNameList())));//(ThmProcessUtil.getAExplicitFunctionDefinition(f));
 			}
 				
 			//ThmNodeList funcNodes = getIsabelleExpFunctions(expfunctions);
@@ -500,7 +497,7 @@ public class ThmDeclAndDefVisitor extends AnswerCMLAdaptor<ThmNodeList>
 			ThmNodeList funcNodes = new ThmNodeList();
 			//Handle the functions.
 			for(AImplicitFunctionDefinition f : impfunctions){
-				funcNodes.addAll(f.apply(parentVisitor));//(ThmProcessUtil.getAExplicitFunctionDefinition(f));
+				funcNodes.addAll(f.apply(parentVisitor, new ThmVarsContext(svars, new NodeNameList())));//(ThmProcessUtil.getAExplicitFunctionDefinition(f));
 			}
 			//Handle the functions.
 //			ThmNodeList funcNodes = getIsabelleImpFunctions(impfunctions);
@@ -518,7 +515,7 @@ public class ThmDeclAndDefVisitor extends AnswerCMLAdaptor<ThmNodeList>
 			ThmNodeList opNodes = new ThmNodeList();
 			for(SCmlOperationDefinition op : operations)
 			{
-				opNodes.add(getIsabelleOperation(op, svars));
+				opNodes.addAll(op.apply(this, new ThmVarsContext(svars, new NodeNameList())));//	getIsabelleOperation(op, svars));
 			}						
 			//ThmProcessUtil.getIsabelleOperations(operations, svars);
 			//Add all operation dependencies to the list of process dependencies
@@ -537,7 +534,7 @@ public class ThmDeclAndDefVisitor extends AnswerCMLAdaptor<ThmNodeList>
 			//for each Action Definition node
 			for(AActionDefinition a : actions)
 			{
-				actNodes.add(getIsabelleAction(a, svars, new NodeNameList()));
+				actNodes.addAll(a.apply(this, new ThmVarsContext(svars, new NodeNameList())));//	.add(getIsabelleAction(a, svars, new NodeNameList()));
 			}
 			//TODO:NEED TO CHECK EACH ACT FOR RECURSION (See notepad :))
 			//ThmNodeList actNodes = (ThmProcessUtil.getIsabelleActions(actions, svars, new NodeNameList()));
@@ -583,103 +580,108 @@ public class ThmDeclAndDefVisitor extends AnswerCMLAdaptor<ThmNodeList>
 	 * @return a ThmNode for the operation
 	 * @throws AnalysisException 
 	 */
-	private ThmNode getIsabelleOperation(SCmlOperationDefinition op, NodeNameList svars) throws AnalysisException {
+	@Override
+	public ThmNodeList caseAImplicitCmlOperationDefinition(AImplicitCmlOperationDefinition node, ThmVarsContext vars) throws AnalysisException
+	{
+		ThmNodeList tnl = new ThmNodeList();
 		ThmNode tn = null;
-		if (op instanceof AImplicitCmlOperationDefinition)
+		NodeNameList nodeDeps = new NodeNameList();
+
+		String pre = null;
+		String post = null;
+		LinkedList<APatternListTypePair> params = node.getParameterPatterns();			
+		//Deal with the parameters
+		//Find bound values to exclude from dependency list and add node dependencies
+		for(APatternListTypePair p : params)
 		{
-			AImplicitCmlOperationDefinition imOp = (AImplicitCmlOperationDefinition) op;
-			NodeNameList nodeDeps = new NodeNameList();
-
-			String pre = null;
-			String post = null;
-			LinkedList<APatternListTypePair> params = imOp.getParameterPatterns();			
-			//Deal with the parameters
-			//Find bound values to exclude from dependancy list and add node dependancies
-			NodeNameList bvars = new NodeNameList();
-			for(APatternListTypePair p : params)
+			for(PPattern pat : p.getPatterns())
 			{
-				for(PPattern pat : p.getPatterns())
-				{
-					bvars.add(((AIdentifierPattern) pat).getName());
-				}
-				nodeDeps.addAll(ThmTypeUtil.getIsabelleTypeDeps(p.getType()));
-			}	
-			//Add return type(s) to dependancy list and list of bound values
-			LinkedList<APatternTypePair> res = imOp.getResult();
-			String resType = null;
-			if (res != null && !(res.isEmpty()) && res.getFirst()!= null)
-			{
-				resType = ThmTypeUtil.getIsabelleType(res.getFirst().getType());
+				vars.addBVar(((AIdentifierPattern) pat).getName());
 			}
-			for(APatternTypePair p : res)
-			{
-				bvars.add(((AIdentifierPattern) p.getPattern()).getName());
-				nodeDeps.addAll(ThmTypeUtil.getIsabelleTypeDeps(p.getType()));
-			}		
-			
-			if (imOp.getPrecondition() != null)
-			{
-				pre = ThmExprUtil.getIsabelleExprStr(svars, bvars, imOp.getPrecondition());
-				nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, imOp.getPrecondition()));
-			}
-			if (imOp.getPostcondition() != null)
-			{
-				//Set the expression utility postcondition flag to true - so to generate primed variables
-				ThmExprUtil.setPostExpr(true);
-				post = ThmExprUtil.getIsabelleExprStr(svars, bvars, imOp.getPostcondition());
-				ThmExprUtil.setPostExpr(false);
-				nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, imOp.getPostcondition()));
-
-			}
-			tn = new ThmNode(imOp.getName(), nodeDeps, new ThmImplicitOperation(imOp.getName().toString(), params, pre, post, res, resType));
-		}
-		else if (op instanceof AExplicitCmlOperationDefinition)
+			nodeDeps.addAll(p.getType().apply(depVisitor, vars.getBVars()));//(ThmTypeUtil.getIsabelleTypeDeps(p.getType()));
+		}	
+		//Add return type(s) to dependancy list and list of bound values
+		LinkedList<APatternTypePair> res = node.getResult();
+		String resType = null;
+		if (res != null && !(res.isEmpty()) && res.getFirst()!= null)
 		{
-			AExplicitCmlOperationDefinition exOp = (AExplicitCmlOperationDefinition) op;
-			NodeNameList nodeDeps = new NodeNameList();
-			LinkedList<PPattern> params = exOp.getParameterPatterns();
-			//Need parameters for local bound vars
-			NodeNameList bvars = new NodeNameList();
-			for(PPattern p : params)
-			{
-				bvars.add(((AIdentifierPattern) p).getName());
-			}
-			//Deal with the parameters
-			//add the parameter types as dependancies
-			AOperationType opType = (AOperationType) exOp.getType();
-			for(PType pType : opType.getParameters())
-			{
-				nodeDeps.addAll(ThmTypeUtil.getIsabelleTypeDeps(pType));
-			}
-			//Add result type to dependancy list
-			nodeDeps.addAll(ThmTypeUtil.getIsabelleTypeDeps(opType.getResult()));
-			
-			String body = exOp.getBody().apply(stringVisitor, new ThmVarsContext());//ThmProcessUtil.getIsabelleActionString(exOp.getBody(), svars, bvars);
-			String pre = null;
-			String post = null;
-			if (exOp.getPrecondition() != null)
-			{
-				pre = ThmExprUtil.getIsabelleExprStr(svars, bvars, exOp.getPrecondition());
-				nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, exOp.getPrecondition()));
-			}
-			if (exOp.getPostcondition() != null)
-			{
-				//Set the expression utility postcondition flag to true - so to generate primed variables
-				ThmExprUtil.setPostExpr(true);
-				post = ThmExprUtil.getIsabelleExprStr(svars, bvars, exOp.getPostcondition());
-				ThmExprUtil.setPostExpr(false);
-				nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, exOp.getPostcondition()));
-
-			}
-			String resType = null;
-			if(! (exOp.getActualResult() instanceof AVoidType))
-			{
-				resType = ThmTypeUtil.getIsabelleType(exOp.getActualResult());
-			}
-			
-			tn = new ThmNode(exOp.getName(), nodeDeps, new ThmExplicitOperation(exOp.getName().toString(), params, pre, post, body.toString(), resType));
+			resType = res.getFirst().getType().apply(stringVisitor, vars);//ThmTypeUtil.getIsabelleType(res.getFirst().getType());
 		}
-		return tn;
+		for(APatternTypePair p : res)
+		{
+			vars.addBVar(((AIdentifierPattern) p.getPattern()).getName());
+			nodeDeps.addAll(p.getType().apply(depVisitor, vars.getBVars()));//ThmTypeUtil.getIsabelleTypeDeps(p.getType()));
+		}		
+		
+		if (node.getPrecondition() != null)
+		{
+			pre = node.getPrecondition().apply(stringVisitor, vars);// ThmExprUtil.getIsabelleExprStr(svars, bvars, node.getPrecondition());
+			nodeDeps.addAll(node.getPrecondition().apply(depVisitor, vars.getBVars()));//(ThmExprUtil.getIsabelleExprDeps(bvars, node.getPrecondition()));
+		}
+		if (node.getPostcondition() != null)
+		{
+			//Set the expression utility postcondition flag to true - so to generate primed variables
+			ThmExprUtil.setPostExpr(true);
+			post = node.getPostcondition().apply(stringVisitor, vars); //ThmExprUtil.getIsabelleExprStr(svars, bvars, node.getPostcondition());
+			ThmExprUtil.setPostExpr(false);
+			nodeDeps.addAll(node.getPostcondition().apply(depVisitor, vars.getBVars()));//(ThmExprUtil.getIsabelleExprDeps(bvars, node.getPostcondition()));
+
+		}
+		tn = new ThmNode(node.getName(), nodeDeps, new ThmImplicitOperation(node.getName().toString(), params, pre, post, res, resType));
+		
+		tnl.add(tn);
+		return tnl;
+	}
+		
+	@Override
+	public ThmNodeList caseAExplicitCmlOperationDefinition(AExplicitCmlOperationDefinition node, ThmVarsContext vars) throws AnalysisException
+	{
+		ThmNodeList tnl = new ThmNodeList();
+		ThmNode tn = null;
+		NodeNameList nodeDeps = new NodeNameList();
+		
+		LinkedList<PPattern> params = node.getParameterPatterns();
+		//Need parameters for local bound vars
+		for(PPattern p : params)
+		{
+			vars.addBVar(((AIdentifierPattern) p).getName());
+		}
+		//Deal with the parameters
+		//add the parameter types as dependencies
+		AOperationType opType = (AOperationType) node.getType();
+		for(PType pType : opType.getParameters())
+		{
+			nodeDeps.addAll(pType.apply(depVisitor, vars.getBVars()));//(ThmTypeUtil.getIsabelleTypeDeps(pType));
+		}
+		//Add result type to dependency list
+		nodeDeps.addAll(opType.getResult().apply(depVisitor, vars.getBVars()));//(ThmTypeUtil.getIsabelleTypeDeps(opType.getResult()));
+		
+		String body = node.getBody().apply(stringVisitor, new ThmVarsContext());//ThmProcessUtil.getIsabelleActionString(exOp.getBody(), svars, bvars);
+		String pre = null;
+		String post = null;
+		if (node.getPrecondition() != null)
+		{
+			pre = node.getPrecondition().apply(stringVisitor, vars);// ThmExprUtil.getIsabelleExprStr(svars, bvars, node.getPrecondition());
+			nodeDeps.addAll(node.getPrecondition().apply(depVisitor, vars.getBVars()));//(ThmExprUtil.getIsabelleExprDeps(bvars, node.getPrecondition()));
+		}
+		if (node.getPostcondition() != null)
+		{
+			//Set the expression utility postcondition flag to true - so to generate primed variables
+			ThmExprUtil.setPostExpr(true);
+			post = node.getPostcondition().apply(stringVisitor, vars); //ThmExprUtil.getIsabelleExprStr(svars, bvars, node.getPostcondition());
+			ThmExprUtil.setPostExpr(false);
+			nodeDeps.addAll(node.getPostcondition().apply(depVisitor, vars.getBVars()));//(ThmExprUtil.getIsabelleExprDeps(bvars, node.getPostcondition()));
+		}
+		String resType = null;
+		if(! (node.getActualResult() instanceof AVoidType))
+		{
+			resType = node.getActualResult().apply(stringVisitor, vars);//ThmTypeUtil.getIsabelleType(node.getActualResult());
+		}
+		
+		tn = new ThmNode(node.getName(), nodeDeps, new ThmExplicitOperation(node.getName().toString(), params, pre, post, body.toString(), resType));
+		
+		tnl.add(tn);
+		return tnl;
 	}
 	
 	/***
@@ -694,18 +696,17 @@ public class ThmDeclAndDefVisitor extends AnswerCMLAdaptor<ThmNodeList>
 	 * @return the theorem node produced
 	 * @throws AnalysisException 
 	 */
-	private  ThmNode getIsabelleAction(
-			AActionDefinition act, 
-			NodeNameList svars, 
-			NodeNameList bvars) throws AnalysisException
+	public ThmNodeList caseAActionDefinition(AActionDefinition act, ThmVarsContext vars) throws AnalysisException
 	{
+		ThmNodeList tnl = new ThmNodeList();
+		
 		ThmNode tn = null;
 		//get the action name
 		ILexNameToken actName = act.getName();
 		//obtain the action dependencies
-		NodeNameList nodeDeps = act.getAction().apply(depVisitor, bvars);//ThmProcessUtil.getIsabelleActionDeps(act.getAction(), bvars);
+		NodeNameList nodeDeps = act.getAction().apply(depVisitor, vars.getBVars());//ThmProcessUtil.getIsabelleActionDeps(act.getAction(), bvars);
 		//get the Isabelle string for the action node's action.
-		String actString = act.getAction().apply(stringVisitor, new ThmVarsContext(svars, bvars)); //ThmProcessUtil.getIsabelleActionString(act.getAction(), svars, bvars);
+		String actString = act.getAction().apply(stringVisitor, vars); //ThmProcessUtil.getIsabelleActionString(act.getAction(), svars, bvars);
 		//check for self dependencies - if present, require a MU
 		for(ILexNameToken n : nodeDeps)
 		{
@@ -718,7 +719,8 @@ public class ThmDeclAndDefVisitor extends AnswerCMLAdaptor<ThmNodeList>
 		//create the theorem node.
 		tn = new ThmNode(actName, nodeDeps, new ThmAction(actName.toString(), actString));
 
-		return tn;
+		tnl.add(tn);
+		return tnl;
 	}
 	
 	
@@ -728,11 +730,11 @@ public class ThmDeclAndDefVisitor extends AnswerCMLAdaptor<ThmNodeList>
 	
 	
 	@Override
-	public ThmNodeList defaultPSingleDeclaration(PSingleDeclaration node)
+	public ThmNodeList defaultPSingleDeclaration(PSingleDeclaration node, ThmVarsContext vars)
 			throws AnalysisException
 	{
 		ThmNodeList tnl = new ThmNodeList();
-		tnl.addAll(node.apply(parentVisitor));
+		tnl.addAll(node.apply(parentVisitor, vars));
 		return tnl;
 	}
 //
@@ -746,26 +748,24 @@ public class ThmDeclAndDefVisitor extends AnswerCMLAdaptor<ThmNodeList>
 
 	// Call the main visitor when it's not a definition/declaration
 	@Override
-	public ThmNodeList defaultINode(INode node)
+	public ThmNodeList defaultINode(INode node, ThmVarsContext vars)
 			throws AnalysisException
 	{
 		ThmNodeList tnl = new ThmNodeList();
-		tnl.addAll(node.apply(parentVisitor));
+		tnl.addAll(node.apply(parentVisitor, vars));
 		return tnl;
 	}
 
 	@Override
-	public ThmNodeList createNewReturnValue(INode node)
-			throws AnalysisException
-	{
+	public ThmNodeList createNewReturnValue(INode arg0, ThmVarsContext arg1)
+			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public ThmNodeList createNewReturnValue(Object node)
-			throws AnalysisException
-	{
+	public ThmNodeList createNewReturnValue(Object arg0, ThmVarsContext arg1)
+			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return null;
 	}

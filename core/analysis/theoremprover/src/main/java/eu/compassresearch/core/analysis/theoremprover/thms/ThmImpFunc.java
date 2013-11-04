@@ -74,7 +74,7 @@ public class ThmImpFunc extends ThmDecl {
 		{
 			exp = "true";
 		}
-		LinkedList<List<PPattern>> fixedparams = new LinkedList();
+		LinkedList<List<PPattern>> fixedparams = new LinkedList<List<PPattern>>();
 		
 		for(APatternListTypePair p : params)
 		{

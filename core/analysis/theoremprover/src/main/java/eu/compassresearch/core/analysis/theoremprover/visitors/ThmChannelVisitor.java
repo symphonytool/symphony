@@ -9,31 +9,28 @@ import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.types.PType;
 
-import eu.compassresearch.ast.analysis.AnswerCMLAdaptor;
+import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.definitions.AChannelNameDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.types.AChannelType;
+import eu.compassresearch.core.analysis.theoremprover.thms.NodeNameList;
 import eu.compassresearch.core.analysis.theoremprover.thms.ThmChannel;
 import eu.compassresearch.core.analysis.theoremprover.thms.ThmChanset;
 import eu.compassresearch.core.analysis.theoremprover.thms.ThmNode;
 import eu.compassresearch.core.analysis.theoremprover.thms.ThmNodeList;
-import eu.compassresearch.core.analysis.theoremprover.thms.NodeNameList;
-import eu.compassresearch.core.analysis.theoremprover.utils.ThmExprUtil;
-import eu.compassresearch.core.analysis.theoremprover.utils.ThmTypeUtil;
-import eu.compassresearch.core.analysis.theoremprover.utils.ThmChanUtil;
 import eu.compassresearch.core.analysis.theoremprover.visitors.deps.ThmDepVisitor;
 import eu.compassresearch.core.analysis.theoremprover.visitors.string.ThmStringVisitor;
 import eu.compassresearch.core.analysis.theoremprover.visitors.string.ThmVarsContext;
 
 @SuppressWarnings("serial")
-public class ThmChannelVisitor extends AnswerCMLAdaptor<ThmNodeList>
+public class ThmChannelVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContext, ThmNodeList>
 {
 	private ThmDepVisitor depVisitor;
 	private ThmStringVisitor stringVisitor;
 	
 	
-	public ThmChannelVisitor(AnswerCMLAdaptor<ThmNodeList> parent, ThmDepVisitor depVis, ThmStringVisitor stringVis)
+	public ThmChannelVisitor(QuestionAnswerCMLAdaptor<ThmVarsContext, ThmNodeList> parent, ThmDepVisitor depVis, ThmStringVisitor stringVis)
 	{
 		depVisitor = depVis;
 		stringVisitor = stringVis;
@@ -43,7 +40,7 @@ public class ThmChannelVisitor extends AnswerCMLAdaptor<ThmNodeList>
 	 * CML channel definition 
 	 */
 	@Override
-	public ThmNodeList caseAChannelNameDefinition(AChannelNameDefinition node)
+	public ThmNodeList caseAChannelNameDefinition(AChannelNameDefinition node, ThmVarsContext vars)
 			throws AnalysisException
 	{
 		ThmNodeList tnl = new ThmNodeList();
@@ -74,7 +71,7 @@ public class ThmChannelVisitor extends AnswerCMLAdaptor<ThmNodeList>
 	 * CML chanset definition
 	 */
 	@Override
-	public ThmNodeList caseAChansetDefinition(AChansetDefinition node) throws AnalysisException
+	public ThmNodeList caseAChansetDefinition(AChansetDefinition node, ThmVarsContext vars) throws AnalysisException
 	{
 		ThmNodeList tnl = new ThmNodeList();
 		//TODO: FIX THIS ONCE RESOLVED
@@ -96,17 +93,15 @@ public class ThmChannelVisitor extends AnswerCMLAdaptor<ThmNodeList>
 	}
 
 	@Override
-	public ThmNodeList createNewReturnValue(INode node)
-			throws AnalysisException
-	{
+	public ThmNodeList createNewReturnValue(INode arg0, ThmVarsContext arg1)
+			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public ThmNodeList createNewReturnValue(Object node)
-			throws AnalysisException
-	{
+	public ThmNodeList createNewReturnValue(Object arg0, ThmVarsContext arg1)
+			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -86,7 +86,7 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		return ThmProcessUtil.skip;
 	}
 		
-	public String caseASequentialCompositionProcess(AStopAction a, ThmVarsContext vars) throws AnalysisException{
+	public String caseAStopAction(AStopAction a, ThmVarsContext vars) throws AnalysisException{
 		return ThmProcessUtil.stop;
 	}
 		
@@ -328,7 +328,7 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		
 	}
 	
-	public String caseABlockStatementActionion(ABlockStatementAction a, ThmVarsContext vars) throws AnalysisException{
+	public String caseABlockStatementAction(ABlockStatementAction a, ThmVarsContext vars) throws AnalysisException{
 	
 		LinkedList<String> varsStr = new LinkedList<String>();
 		StringBuilder assignStr = new StringBuilder();

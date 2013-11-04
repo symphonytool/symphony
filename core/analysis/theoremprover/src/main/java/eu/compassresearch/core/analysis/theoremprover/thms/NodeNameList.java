@@ -6,6 +6,7 @@ import java.util.Vector;
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.intf.lex.ILexNameToken;
 
+@SuppressWarnings("serial")
 public class NodeNameList extends Vector<ILexNameToken>{
 	
 	/***

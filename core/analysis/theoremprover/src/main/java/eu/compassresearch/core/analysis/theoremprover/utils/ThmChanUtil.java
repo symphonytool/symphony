@@ -1,13 +1,5 @@
 package eu.compassresearch.core.analysis.theoremprover.utils;
 
-import java.util.LinkedList;
-
-import org.overture.ast.definitions.PDefinition;
-
-import eu.compassresearch.ast.definitions.AChannelNameDefinition;
-import eu.compassresearch.ast.definitions.AChansetDefinition;
-import eu.compassresearch.ast.types.AChannelType;
-import eu.compassresearch.core.analysis.theoremprover.thms.NodeNameList;
 
 public class ThmChanUtil {
 

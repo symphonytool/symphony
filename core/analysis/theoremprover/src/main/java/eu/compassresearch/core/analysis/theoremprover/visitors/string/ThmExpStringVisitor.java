@@ -108,13 +108,20 @@ import org.overture.ast.patterns.PPattern;
 import org.overture.ast.types.ANamedInvariantType;
 import org.overture.ast.types.ARecordInvariantType;
 
-import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.expressions.ABracketedExp;
+import eu.compassresearch.ast.expressions.AEnumVarsetExpression;
+import eu.compassresearch.ast.expressions.AFatCompVarsetExpression;
+import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
+import eu.compassresearch.ast.expressions.AIdentifierVarsetExpression;
+import eu.compassresearch.ast.expressions.AInterVOpVarsetExpression;
+import eu.compassresearch.ast.expressions.ANameChannelExp;
+import eu.compassresearch.ast.expressions.ASubVOpVarsetExpression;
+import eu.compassresearch.ast.expressions.AUnionVOpVarsetExpression;
 import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
-import eu.compassresearch.core.analysis.theoremprover.thms.NodeNameList;
+import eu.compassresearch.ast.expressions.PCMLExp;
+import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.core.analysis.theoremprover.utils.ThmExprUtil;
-import eu.compassresearch.core.analysis.theoremprover.utils.ThmProcessUtil;
 
 @SuppressWarnings("serial")
 public class ThmExpStringVisitor extends
@@ -1013,6 +1020,85 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 	public String caseAOrBooleanBinaryExp(AOrBooleanBinaryExp ex, ThmVarsContext vars) throws AnalysisException{
 		return "(" + ex.getLeft().apply(thmStringVisitor, vars) + " or " +ex.getRight().apply(thmStringVisitor, vars)+ ")";
 	}
+	
+	public String caseAFatEnumVarsetExpression(AFatEnumVarsetExpression ex, ThmVarsContext vars) throws AnalysisException{
+		StringBuilder sb = new StringBuilder();
+
+		for (Iterator<ANameChannelExp> itr = ex.getChannelNames().listIterator(); itr.hasNext(); ) {
+			ANameChannelExp chan = itr.next();
+					
+			//ILexIdentifierToken
+			sb.append(chan.getIdentifier().getName().toString());
+			sb.append(ThmExprUtil.isaDown );
+			//If there are remaining channels, add a ","
+			if(itr.hasNext()){	
+				sb.append(", ");
+			}
+		}
+		return "{" + sb.toString() +"}";
+	}
+
+		
+	public String caseAFatCompVarsetExpression(AFatCompVarsetExpression ex, ThmVarsContext vars) throws AnalysisException{
+		// TODO COMPLETE
+		return "(*varset comp not handled*)";
+	}
+
+		
+	public String caseAIdentifierVarsetExpression(AIdentifierVarsetExpression ex, ThmVarsContext vars) throws AnalysisException{
+		// TODO COMPLETE
+		return "(*varset id not handled*)";
+	}
+
+		
+	public String caseAEnumVarsetExpression(AEnumVarsetExpression ex, ThmVarsContext vars) throws AnalysisException{
+		StringBuilder sb = new StringBuilder();
+
+		for (Iterator<ANameChannelExp> itr = ex.getChannelNames().listIterator(); itr.hasNext(); ) {
+			ANameChannelExp chan = itr.next();
+			sb.append(chan.getIdentifier().getName().toString());
+			sb.append(ThmExprUtil.isaDown );
+			//If there are remaining channels, add a ","
+			if(itr.hasNext()){	
+				sb.append(", ");
+			}
+		}
+		return "{" + sb.toString() +"}";
+	}
+
+		
+	public String caseAInterVOpVarsetExpression(AInterVOpVarsetExpression ex, ThmVarsContext vars) throws AnalysisException{
+		String left = ex.getLeft().apply(thmStringVisitor, vars);
+		String right = ex.getRight().apply(thmStringVisitor, vars);
+
+		return left + " inter " + right;
+	}
+
+		
+	public String caseASubVOpVarsetExpression(ASubVOpVarsetExpression ex, ThmVarsContext vars) throws AnalysisException{
+		String left = ex.getLeft().apply(thmStringVisitor, vars);
+		String right = ex.getRight().apply(thmStringVisitor, vars);
+		return left + " setminus " + right;
+	}
+
+		
+	public String caseAUnionVOpVarsetExpression(AUnionVOpVarsetExpression ex, ThmVarsContext vars) throws AnalysisException{
+		String left = ex.getLeft().apply(thmStringVisitor, vars);
+		String right = ex.getRight().apply(thmStringVisitor, vars);
+
+		return left + " union " + right;	
+	}
+		
+	public String defaultPVarsetExpression(PVarsetExpression node, ThmVarsContext bvars)
+			throws AnalysisException {		
+		return "(*Expression not handled*)";
+	}	
+	
+	
+	public String defaultPCMLExp(PCMLExp node, ThmVarsContext bvars)
+			throws AnalysisException {		
+		return "(*Expression not handled*)";
+	}	
 	
 	@Override
 	public String createNewReturnValue(INode arg0, ThmVarsContext arg1)

@@ -15,7 +15,7 @@ import org.overture.pog.obligation.ProofObligation;
 import org.overture.pog.obligation.ProofObligationList;
 import org.overture.pog.pub.IProofObligation;
 
-import eu.compassresearch.ast.analysis.AnswerCMLAdaptor;
+import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.definitions.AChannelNameDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
@@ -27,16 +27,16 @@ import eu.compassresearch.core.analysis.theoremprover.thms.ThmNode;
 import eu.compassresearch.core.analysis.theoremprover.thms.ThmNodeList;
 import eu.compassresearch.core.analysis.theoremprover.thms.ThmTheorem;
 import eu.compassresearch.core.analysis.theoremprover.thms.ThmTheoremList;
-import eu.compassresearch.core.analysis.theoremprover.utils.ThmExprUtil;
 import eu.compassresearch.core.analysis.theoremprover.utils.ThmProcessUtil;
 import eu.compassresearch.core.analysis.theoremprover.utils.ThySortException;
 import eu.compassresearch.core.analysis.theoremprover.utils.UnhandledSyntaxException;
 import eu.compassresearch.core.analysis.theoremprover.visitors.deps.ThmDepVisitor;
 import eu.compassresearch.core.analysis.theoremprover.visitors.string.ThmStringVisitor;
+import eu.compassresearch.core.analysis.theoremprover.visitors.string.ThmVarsContext;
 
 @SuppressWarnings("serial")
 public class TPVisitor extends
-	AnswerCMLAdaptor<ThmNodeList> {
+	QuestionAnswerCMLAdaptor<ThmVarsContext,ThmNodeList> {
 
 	private final static String ANALYSIS_NAME = "Theorem Prover";
 
@@ -59,41 +59,41 @@ public class TPVisitor extends
 		valVisitor = new ThmValueVisitor(this, depVisitor, stringVisitor);
 	}
 	@Override
-	public ThmNodeList caseAValueDefinition(AValueDefinition node)
+	public ThmNodeList caseAValueDefinition(AValueDefinition node, ThmVarsContext vars)
 			throws AnalysisException {		
-		return node.apply(this.valVisitor);
+		return node.apply(this.valVisitor, vars);
 	}
 	
 	@Override
-	public ThmNodeList caseATypeDefinition(ATypeDefinition node)
+	public ThmNodeList caseATypeDefinition(ATypeDefinition node, ThmVarsContext vars)
 			throws AnalysisException {		
-		return node.apply(this.typeVisitor);
+		return node.apply(this.typeVisitor, vars);
 	}
 
 	@Override
-	public ThmNodeList caseAChannelNameDefinition(AChannelNameDefinition node)
+	public ThmNodeList caseAChannelNameDefinition(AChannelNameDefinition node, ThmVarsContext vars)
 			throws AnalysisException {		
-		return node.apply(this.chanVisitor);
+		return node.apply(this.chanVisitor, vars);
 	}
 
 	@Override
-	public ThmNodeList caseAChansetDefinition(AChansetDefinition node)
+	public ThmNodeList caseAChansetDefinition(AChansetDefinition node, ThmVarsContext vars)
 			throws AnalysisException {		
-		return node.apply(this.chanVisitor);
+		return node.apply(this.chanVisitor, vars);
 	}	
 
 	@Override
-	public ThmNodeList defaultPDefinition(PDefinition node) 
+	public ThmNodeList defaultPDefinition(PDefinition node, ThmVarsContext vars) 
 			throws AnalysisException
 	{
-		return node.apply(this.declAndDefVisitor);
+		return node.apply(this.declAndDefVisitor, vars);
 	}
 
 	@Override
-	public ThmNodeList defaultPSingleDeclaration(PSingleDeclaration node)
+	public ThmNodeList defaultPSingleDeclaration(PSingleDeclaration node, ThmVarsContext vars)
 			throws AnalysisException
 	{
-		return node.apply(this.declAndDefVisitor);
+		return node.apply(this.declAndDefVisitor, vars);
 	}
 	
 	/**
@@ -157,7 +157,7 @@ public class TPVisitor extends
 		
 		for (INode node : ast) {
 			try {
-				nodes.addAll(node.apply(new TPVisitor()));
+				nodes.addAll(node.apply(new TPVisitor(), new ThmVarsContext()));
 			}catch (Exception e) {
 					nodeErrors = nodeErrors + "(*Thy gen error:*)\n" + 
 								"(*Could not generate Isabelle syntax for CML node - please submit bug report with CML file*)\n\n";
@@ -308,7 +308,7 @@ public class TPVisitor extends
 				AVdmPoTree poValTree = po.getValueTree();
 				PExp poExp = poValTree.getPredicate();
 				NodeNameList bvars = new NodeNameList();
-				String theoryBody = ThmExprUtil.getIsabelleExprStr(svars, bvars, poExp);//"true";
+				String theoryBody = poExp.apply(new ThmStringVisitor(), new ThmVarsContext(svars, bvars));//ThmExprUtil.getIsabelleExprStr(svars, bvars, poExp);//"true";
 				poThys.add(new ThmTheorem("po" + po.getUniqueName(), theoryBody, "by (cml_auto_tac)"));
 			}
 			pogString = poThys.toString();
@@ -339,17 +339,16 @@ public class TPVisitor extends
 		
 		return sb.toString();
 	}
+	
 	@Override
-	public ThmNodeList createNewReturnValue(INode node)
-			throws AnalysisException
-	{
+	public ThmNodeList createNewReturnValue(INode arg0, ThmVarsContext arg1)
+			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 	@Override
-	public ThmNodeList createNewReturnValue(Object node)
-			throws AnalysisException
-	{
+	public ThmNodeList createNewReturnValue(Object arg0, ThmVarsContext arg1)
+			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return null;
 	}	

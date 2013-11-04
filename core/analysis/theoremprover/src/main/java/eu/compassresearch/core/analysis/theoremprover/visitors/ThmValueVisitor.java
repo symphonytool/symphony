@@ -7,47 +7,44 @@ import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.patterns.AIdentifierPattern;
 
-import eu.compassresearch.ast.analysis.AnswerCMLAdaptor;
+import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.definitions.AValuesDefinition;
+import eu.compassresearch.core.analysis.theoremprover.thms.NodeNameList;
 import eu.compassresearch.core.analysis.theoremprover.thms.ThmNode;
 import eu.compassresearch.core.analysis.theoremprover.thms.ThmNodeList;
 import eu.compassresearch.core.analysis.theoremprover.thms.ThmValue;
-import eu.compassresearch.core.analysis.theoremprover.thms.NodeNameList;
-import eu.compassresearch.core.analysis.theoremprover.utils.ThmExprUtil;
-import eu.compassresearch.core.analysis.theoremprover.utils.ThmTypeUtil;
-import eu.compassresearch.core.analysis.theoremprover.utils.ThmValueUtil;
 import eu.compassresearch.core.analysis.theoremprover.visitors.deps.ThmDepVisitor;
 import eu.compassresearch.core.analysis.theoremprover.visitors.string.ThmStringVisitor;
 import eu.compassresearch.core.analysis.theoremprover.visitors.string.ThmVarsContext;
 
 @SuppressWarnings("serial")
-public class ThmValueVisitor extends AnswerCMLAdaptor<ThmNodeList> {
+public class ThmValueVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContext, ThmNodeList> {
 	
 	private ThmDepVisitor depVisitor;
 	private ThmStringVisitor stringVisitor;
 	
 	
-	public ThmValueVisitor(AnswerCMLAdaptor<ThmNodeList> parent, ThmDepVisitor depVis, ThmStringVisitor stringVis)
+	public ThmValueVisitor(QuestionAnswerCMLAdaptor<ThmVarsContext, ThmNodeList> parent, ThmDepVisitor depVis, ThmStringVisitor stringVis)
 	{
 		depVisitor = depVis;
 		stringVisitor = stringVis;
 	}
 
 	@Override
-	public ThmNodeList caseAValuesDefinition(AValuesDefinition node)
+	public ThmNodeList caseAValuesDefinition(AValuesDefinition node, ThmVarsContext vars)
 			throws AnalysisException {
 		ThmNodeList tnl = new ThmNodeList();
 		
 		for(PDefinition t : node.getValueDefinitions())
 		{
-			tnl.addAll(t.apply(this));
+			tnl.addAll(t.apply(this, vars));
 		}
 		return tnl;
 	}
 	
 
 	@Override
-	public ThmNodeList caseAValueDefinition(AValueDefinition node)
+	public ThmNodeList caseAValueDefinition(AValueDefinition node, ThmVarsContext vars)
 			throws AnalysisException {
 		ThmNodeList tnl = new ThmNodeList();
 		
@@ -68,18 +65,15 @@ public class ThmValueVisitor extends AnswerCMLAdaptor<ThmNodeList> {
 
 
 	@Override
-	public ThmNodeList createNewReturnValue(INode node)
-			throws AnalysisException
-	{
+	public ThmNodeList createNewReturnValue(INode arg0, ThmVarsContext arg1)
+			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-
 	@Override
-	public ThmNodeList createNewReturnValue(Object node)
-			throws AnalysisException
-	{
+	public ThmNodeList createNewReturnValue(Object arg0, ThmVarsContext arg1)
+			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return null;
 	}

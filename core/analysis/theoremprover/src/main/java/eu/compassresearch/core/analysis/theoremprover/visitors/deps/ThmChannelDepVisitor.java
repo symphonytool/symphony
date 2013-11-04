@@ -12,9 +12,7 @@ import eu.compassresearch.ast.definitions.AChannelNameDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.analysis.theoremprover.thms.NodeNameList;
-import eu.compassresearch.core.analysis.theoremprover.thms.ThmChannel;
-import eu.compassresearch.core.analysis.theoremprover.thms.ThmNode;
-import eu.compassresearch.core.analysis.theoremprover.visitors.string.ThmVarsContext;
+
 
 @SuppressWarnings("serial")
 public class ThmChannelDepVisitor extends

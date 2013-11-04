@@ -118,9 +118,11 @@ import eu.compassresearch.ast.expressions.ANameChannelExp;
 import eu.compassresearch.ast.expressions.ASubVOpVarsetExpression;
 import eu.compassresearch.ast.expressions.AUnionVOpVarsetExpression;
 import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
+import eu.compassresearch.ast.expressions.PCMLExp;
+import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.expressions.SRenameChannelExp;
 import eu.compassresearch.core.analysis.theoremprover.thms.NodeNameList;
-import eu.compassresearch.core.analysis.theoremprover.utils.ThmExprUtil;
+import eu.compassresearch.core.analysis.theoremprover.visitors.string.ThmVarsContext;
 
 @SuppressWarnings("serial")
 public class ThmExpDepVisitor extends
@@ -307,7 +309,7 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 		//	nodeDeps.add(fe.getMemberName());
 		//}
 		//nodeDeps.add(new LexNameToken("", fe.getField().getName(), fe.getLocation()));
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, ex.getObject()));
+		nodeDeps.addAll(ex.getObject().apply(thmDepVisitor, bvars));
 
 		return nodeDeps;
 	}
@@ -1191,7 +1193,22 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 
 		return nodeDeps;
 	}
+
 	
+	public NodeNameList defaultPVarsetExpression(PVarsetExpression node, NodeNameList bvars)
+			throws AnalysisException {		
+		NodeNameList nodeDeps = new NodeNameList();
+
+		return nodeDeps;
+	}	
+	
+	
+	public NodeNameList defaultPCMLExp(PCMLExp node, NodeNameList bvars)
+			throws AnalysisException {		
+		NodeNameList nodeDeps = new NodeNameList();
+
+		return nodeDeps;
+	}	
 	
 	@Override
 	public NodeNameList createNewReturnValue(INode arg0, NodeNameList arg1)
