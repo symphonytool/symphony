@@ -12,20 +12,21 @@ import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.patterns.PPattern;
+import org.overture.ast.statements.AActionStm;
+import org.overture.ast.statements.ACallStm;
+import org.overture.ast.statements.PStm;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.typechecker.Pass;
 import org.overture.interpreter.assistant.pattern.PPatternAssistantInterpreter;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ContextException;
 import org.overture.interpreter.runtime.ValueException;
-import org.overture.interpreter.values.BooleanValue;
 import org.overture.interpreter.values.NameValuePair;
 import org.overture.interpreter.values.NameValuePairList;
 import org.overture.interpreter.values.NameValuePairMap;
 import org.overture.interpreter.values.UpdatableValue;
 import org.overture.interpreter.values.Value;
 
-import eu.compassresearch.ast.actions.ACallStatementAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.ADivAction;
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
@@ -52,7 +53,6 @@ import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.actions.PCommunicationParameter;
 import eu.compassresearch.ast.actions.PParametrisation;
 import eu.compassresearch.ast.actions.SParallelAction;
-import eu.compassresearch.ast.actions.SStatementAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
@@ -100,10 +100,9 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 	 */
 
 	@Override
-	public Inspection defaultSStatementAction(SStatementAction node,
+	public Inspection defaultPStm(PStm node,
 			Context question) throws AnalysisException
 	{
-
 		return node.apply(statementInspectionVisitor, question);
 	}
 
@@ -114,13 +113,20 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 
 		throw new CmlInterpreterException(node, InterpretationErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName()));
 	}
+	
+	@Override
+	public Inspection caseAActionStm(AActionStm node, Context question)
+			throws AnalysisException
+	{
+		return node.apply(statementInspectionVisitor, question);
+	}
 
 	/**
 	 * This deals both with calls but also parametrised action reference, since the typechecker does not replace this
 	 * node yet FIXME This might be changed! if the typechecker replaces the call node with a action reference node
 	 */
 	@Override
-	public Inspection caseACallStatementAction(final ACallStatementAction node,
+	public Inspection caseACallStm(final ACallStm node,
 			final Context question) throws AnalysisException
 	{
 
@@ -318,16 +324,16 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 		/*
 		 * This is a little hack to come around that the cmlExpressionVisitor does not now if it has to proc
 		 */
-		Context varsetContext = CmlContextFactory.newContext(node.getLocation(), "varset expression context", question);
-		varsetContext.putNew(new NameValuePair(NamespaceUtility.getVarExpContextName(), new BooleanValue(true)));
+//		Context varsetContext = CmlContextFactory.newContext(node.getLocation(), "varset expression context", question);
+//		varsetContext.putNew(new NameValuePair(NamespaceUtility.getVarExpContextName(), new BooleanValue(true)));
 
 		NamesetValue leftNamesetValue = null;
 		NamesetValue rightNamesetValue = null;
 
 		if (node.getLeftNamesetExpression() != null)
-			leftNamesetValue = (NamesetValue) node.getLeftNamesetExpression().apply(cmlExpressionVisitor, varsetContext);
+			leftNamesetValue = (NamesetValue) node.getLeftNamesetExpression().apply(cmlExpressionVisitor, question);
 		if (node.getRightNamesetExpression() != null)
-			rightNamesetValue = (NamesetValue) node.getRightNamesetExpression().apply(cmlExpressionVisitor, varsetContext);
+			rightNamesetValue = (NamesetValue) node.getRightNamesetExpression().apply(cmlExpressionVisitor, question);
 
 		// if true this means that this is the first time here, so the Parallel Begin rule is invoked.
 		if (!owner.hasChildren())
@@ -571,30 +577,28 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 		int paramIndex = 0;
 		for (PParametrisation parameterization : actionValue.getActionDefinition().getDeclarations())
 		{
-			for (ILexIdentifierToken id : parameterization.getDeclaration().getIdentifiers())
+			ILexNameToken id = parameterization.getDeclaration().getName();
+
+			// get and evaluate the i'th expression
+			PExp arg = args.get(paramIndex);
+			Value value = arg.apply(cmlExpressionVisitor, question);
+
+			// check whether the type is correct
+			// if(arg.getType().equals(o))
+			// error(node,"Arguments does not match the action parameterization");
+
+			// Decide whether the argument is updateable or not
+			if (parameterization instanceof AValParametrisation)
+				value = value.getConstant();
+			else
 			{
-				// get and evaluate the i'th expression
-				PExp arg = args.get(paramIndex);
-				Value value = arg.apply(cmlExpressionVisitor, question);
-
-				// check whether the type is correct
-				// if(arg.getType().equals(o))
-				// error(node,"Arguments does not match the action parameterization");
-
-				// Decide whether the argument is updateable or not
-				if (parameterization instanceof AValParametrisation)
-					value = value.getConstant();
-				else
-				{
-					value = value.getUpdatable(null);
-				}
-
-				evaluatedArgs.put(new CmlLexNameToken("", (ILexIdentifierToken) id.clone()), value);
-
-				// update the index
-				paramIndex++;
+				value = value.getUpdatable(null);
 			}
 
+			evaluatedArgs.put(new CmlLexNameToken("", (ILexIdentifierToken) id.clone()), value);
+
+			// update the index
+			paramIndex++;
 		}
 
 		Context refActionContext = CmlContextFactory.newContext(location, "Parametrised reference action context", question);
@@ -695,8 +699,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 			});
 		else
 			// If the number of tocks has not exceeded val then behave as Stop
-			return newInspection(new CmlTransitionSet(new TimedTransition(owner, nTocks
-					- val)), null);
+			return newInspection(new CmlTransitionSet(new TimedTransition(owner, val - nTocks)), null);
 	}
 
 	/**

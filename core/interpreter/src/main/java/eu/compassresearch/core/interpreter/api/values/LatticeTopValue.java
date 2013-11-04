@@ -10,7 +10,7 @@ import org.overture.interpreter.values.Value;
  * 
  * @author akm
  */
-public class LatticeTopValue extends Value implements ImpreciseValue
+public class LatticeTopValue extends Value implements LooseValue
 {
 
 	/**

@@ -1,11 +1,12 @@
 package eu.compassresearch.core.interpreter;
 
-import java.util.Map.Entry;
 import java.util.HashSet;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AClassInvariantDefinition;
+import org.overture.ast.definitions.ALocalDefinition;
 import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
@@ -21,8 +22,8 @@ import org.overture.interpreter.values.NameValuePairMap;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.actions.ASkipAction;
+import eu.compassresearch.ast.actions.PParametrisation;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
-import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
 import eu.compassresearch.ast.lex.CmlLexNameToken;
@@ -73,9 +74,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 	public Inspection defaultPProcess(PProcess node, Context question)
 			throws AnalysisException
 	{
-
 		throw new CmlInterpreterException(InterpretationErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName()));
-
 	}
 	
 	@Override
@@ -119,13 +118,17 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 					// to add the parameters to this process since it cannot look outside the scope of itself
 					if (pdef != null && pdef.getLocalState().size() > 0)
 					{
-						for (ATypeSingleDeclaration decl : pdef.getLocalState())
-							for (ILexIdentifierToken id : decl.getIdentifiers())
-							{
-								ILexNameToken paramName = new CmlLexNameToken(pdef.getName().getSimpleName(), id.clone());
+						for (PParametrisation param : pdef.getLocalState())
+						{
+							ALocalDefinition decl = param.getDeclaration();
+							//for (ILexIdentifierToken id : param.g decl.getIdentifiers())
+							//{
+								//ILexNameToken paramName = new CmlLexNameToken(pdef.getName().getSimpleName(), id.clone());
+								ILexNameToken paramName	= decl.getName();
 								Value val = question.lookup(paramName);
 								valueMap.putNew(new NameValuePair(paramName.getModifiedName(processDef.getName().getSimpleName()), val));
-							}
+							//}
+						}
 					}
 				}
 
@@ -136,7 +139,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 
 				// Evaluate and add paragraph definitions and add the result to the state
 				PExp processInv = null;
-				for (PDefinition def : node.getDefinitionParagraphs())
+				for (PDefinition def : node.getActionDefinition().getDefinitions())
 				{
 					// Take out the invariant expression if any
 					if (def instanceof AStateDefinition)
@@ -308,8 +311,9 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 			return newInspection(createTauTransitionWithTime(new ASkipAction(node.getLocation()), "End"), caseParallelEnd(question));
 		else
 		{
-			ChannelNameSetValue leftChanset  = (ChannelNameSetValue )node.getLeftChansetExpression().apply(cmlExpressionVisitor,question);
-			ChannelNameSetValue rightChanset  = (ChannelNameSetValue )node.getRightChansetExpression().apply(cmlExpressionVisitor,question);
+			//evaluate the left in the context of the left child
+			ChannelNameSetValue leftChanset  = (ChannelNameSetValue )node.getLeftChansetExpression().apply(cmlExpressionVisitor,owner.getLeftChild().getNextState().second);
+			ChannelNameSetValue rightChanset  = (ChannelNameSetValue )node.getRightChansetExpression().apply(cmlExpressionVisitor,owner.getRightChild().getNextState().second);
 
 			ChannelNameSetValue intersectionChanset = new ChannelNameSetValue(leftChanset);
 			intersectionChanset.retainAll(rightChanset);
@@ -534,22 +538,23 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 				NameValuePairMap evaluatedArgs = new NameValuePairMap();
 
 				int paramIndex = 0;
-				for (ATypeSingleDeclaration decl : node.getProcessDefinition().getLocalState())
+				for (PParametrisation param : node.getProcessDefinition().getLocalState())
 				{
-					for (ILexIdentifierToken id : decl.getIdentifiers())
-					{
+					 //param.getDeclaration().getName()
+					//for (ILexIdentifierToken id : decl.getIdentifiers())
+					//{
 						// get and evaluate the i'th expression
 						PExp arg = node.getArgs().get(paramIndex);
 						// There are always a val param so they must allways be constant
 						Value value = arg.apply(cmlExpressionVisitor, question).getConstant();
 
-						CmlLexNameToken argName = new CmlLexNameToken(node.getProcessDefinition().getName().getSimpleName(), (ILexIdentifierToken) id.clone());
+						CmlLexNameToken argName = new CmlLexNameToken(node.getProcessDefinition().getName().getSimpleName(), (ILexIdentifierToken) param.getDeclaration().getName().clone());
 						// LexNameToken argName = new LexNameToken("",(ILexIdentifierToken)id.clone());
 
 						evaluatedArgs.put(argName, value);
 						// update the index
 						paramIndex++;
-					}
+					//}
 				}
 
 				Context nextContext = null;
