@@ -1,16 +1,11 @@
 package eu.compassresearch.ide.core.builder;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
-import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.overture.ast.lex.Dialect;
-import org.overture.ast.node.INode;
 import org.overture.ast.util.definitions.ClassList;
 import org.overture.config.Settings;
 import org.overture.ide.builders.vdmj.IBuilderVdmjConstants;
@@ -18,9 +13,8 @@ import org.overture.ide.core.IVdmModel;
 import org.overture.ide.core.builder.AbstractVdmBuilder;
 import org.overture.parser.messages.VDMError;
 import org.overture.parser.messages.VDMWarning;
+import org.overture.typechecker.TypeCheckException;
 
-import eu.compassresearch.ast.program.AFileSource;
-import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.ICmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
@@ -43,11 +37,10 @@ public class BuilderCml extends AbstractVdmBuilder
 		List<VDMError> errors = new ArrayList<VDMError>();
 		List<VDMWarning> warnings = new ArrayList<VDMWarning>();
 
-
 		ICmlModel model = (ICmlModel) rooList.getAdapter(ICmlModel.class);
 
 		ITypeIssueHandler issueHandler = VanillaFactory.newCollectingIssueHandle();
-		ICmlTypeChecker typeChecker = VanillaFactory.newTypeChecker(model.getAstSource(), issueHandler);
+		ICmlTypeChecker typeChecker = VanillaFactory.newTypeChecker(model.getDefinitions(), issueHandler);
 		try
 		{
 			typeChecker.typeCheck();
@@ -63,17 +56,11 @@ public class BuilderCml extends AbstractVdmBuilder
 			{
 				warnings.add(new VDMWarning(0, warning.getDescription(), warning.getLocation()));
 			}
+		} catch (TypeCheckException e)
+		{
+			issueHandler.addTypeError(e.node, e.location, e.getMessage());
 		} catch (Exception e)
 		{
-//			try
-//			{
-//				IMarker projectMarker = ((IProject) getProject().getAdapter(IProject.class)).createMarker(IMarker.PROBLEM);
-//				projectMarker.setAttribute(IMarker.MESSAGE, "Type checking on this project failed.");
-//				projectMarker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
-//			} catch (CoreException e1)
-//			{
-//				e1.printStackTrace();
-//			}
 			e.printStackTrace();
 			return new Status(IStatus.ERROR, IBuilderVdmjConstants.PLUGIN_ID, 0, "not typechecked, internal error", e);
 		}
@@ -107,73 +94,14 @@ public class BuilderCml extends AbstractVdmBuilder
 		return typeChecked;
 	}
 
-	// private void addErrorMarker(VDMError error)
-	// {
-	// addErrorMarker(error.location.getFile(), error.toProblemString(), error.location,
-	// IBuilderVdmjConstants.PLUGIN_ID);
-	// }
-
 	private void addErrorMarker(CMLTypeError error)
 	{
-		// TODO RWL: This needs to be fixed to loose hanging trees with errors
-//		AFileSource source = (AFileSource) error.getOffendingNode().getAncestor(PSource.class);
-//		if (source != null)
-		{
-			addErrorMarker(error.getLocation().getFile(), error.getDescription(), error.getLocation(), IBuilderVdmjConstants.PLUGIN_ID);
-		}
+		addErrorMarker(error.getLocation().getFile(), error.getDescription(), error.getLocation(), IBuilderVdmjConstants.PLUGIN_ID);
 	}
 
 	private void addWarningMarker(VDMWarning error)
 	{
 		addWarningMarker(error.location.getFile(), error.toProblemString(), error.location, IBuilderVdmjConstants.PLUGIN_ID);
-	}
-
-	/**
-	 * @see org.overture.vdmj.VDMJ#typeCheck()
-	 */
-
-	/*
-	 * For each error remove the parent errors so we only see the leafs.
-	 */
-	private static List<CMLTypeError> filterErrros(List<CMLTypeError> errs)
-	{
-		// errors is the result
-		List<CMLTypeError> errors = new LinkedList<CMLTypeError>();
-
-		// errors that has a child node with an error
-		List<INode> redundant = new LinkedList<INode>();
-
-		// For each error add nodes to redundant that are parent of
-		// the node with the error.
-		for (CMLTypeError e : errs)
-		{
-			INode errorNode = e.getOffendingNode();
-			errors.add(e);
-
-			List<INode> cycleDetection = new LinkedList<INode>();
-			cycleDetection.add(errorNode);
-			while (errorNode.parent() != null)
-			{
-				errorNode = errorNode.parent();
-				if (cycleDetection.contains(errorNode))
-					break;
-				redundant.add(errorNode);
-			}
-		}
-
-		// We have the redundant parent nodes, collect the coresponding errors
-		List<CMLTypeError> redundantErrors = new LinkedList<CMLTypeError>();
-		for (CMLTypeError e : errors)
-		{
-			if (redundant.contains(e.getOffendingNode()))
-				redundantErrors.add(e);
-		}
-
-		// finally remove the errors
-		errors.removeAll(redundantErrors);
-
-		return errors;
-
 	}
 
 }

@@ -14,7 +14,7 @@ import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 abstract class AbstractTypeChecker implements ICmlTypeChecker
 {
 	protected ITypeIssueHandler issueHandler;
-	protected Collection<PSource> sourceForest;
+	protected DefinitionList sourceForest;
 
 	AbstractTypeChecker()
 	{

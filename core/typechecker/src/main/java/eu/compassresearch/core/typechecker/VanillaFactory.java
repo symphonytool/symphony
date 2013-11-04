@@ -1,6 +1,9 @@
 package eu.compassresearch.core.typechecker;
 
 import java.util.Collection;
+import java.util.List;
+
+import org.overture.ast.definitions.PDefinition;
 
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.typechecker.api.ICmlTypeChecker;
@@ -33,7 +36,7 @@ public final class VanillaFactory
 	 *            retrieved later. Otherwise an instance that handles errors when reported by the type checker.
 	 */
 	public static ICmlTypeChecker newTypeChecker(
-			Collection<PSource> cmlSources, ITypeIssueHandler issueHandler)
+			List<? extends PDefinition> cmlSources, ITypeIssueHandler issueHandler)
 	{
 		VanillaCmlTypeChecker result = new VanillaCmlTypeChecker(cmlSources, issueHandler);
 		return result;

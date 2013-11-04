@@ -1,12 +1,12 @@
 package eu.compassresearch.core.typechecker.weeding;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Vector;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AAssignmentDefinition;
+import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.definitions.SOperationDefinition;
 import org.overture.ast.factory.AstFactory;
 import org.overture.ast.node.INode;
@@ -18,7 +18,7 @@ import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.AStmAction;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
-import eu.compassresearch.ast.program.PSource;
+import eu.compassresearch.core.typechecker.DefinitionList;
 
 /**
  * @author kel & cb
@@ -27,11 +27,11 @@ import eu.compassresearch.ast.program.PSource;
 public class WeedingStmCleaner extends DepthFirstAnalysisCMLAdaptor
 {
 
-	public static void apply(Collection<PSource> lp)
+	public static void apply(DefinitionList sourceForest)
 	{
 
 		WeedingStmCleaner lv = new WeedingStmCleaner();
-		for (PSource s : lp)
+		for (PDefinition s : sourceForest)
 		{
 			if (s != null)
 				try

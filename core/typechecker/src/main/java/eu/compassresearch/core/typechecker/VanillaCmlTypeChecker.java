@@ -70,10 +70,10 @@ public class VanillaCmlTypeChecker extends AbstractTypeChecker
 	 * @param cmlSource
 	 * @param issueHandler
 	 */
-	public VanillaCmlTypeChecker(Collection<PSource> cmlSource,
+	public VanillaCmlTypeChecker(List<? extends PDefinition> cmlSource,
 			ITypeIssueHandler issueHandler)
 	{
-		this.sourceForest = new LinkedList<PSource>();
+		this.sourceForest = new DefinitionList();
 		sourceForest.addAll(cmlSource);
 		initialize(issueHandler);
 	}
@@ -154,6 +154,10 @@ public class VanillaCmlTypeChecker extends AbstractTypeChecker
 
 		} catch (Exception e)
 		{
+			if(e instanceof TypeCheckException)
+			{
+				throw e;// new InternalException(0,e.getMessage()+" "+ ((TypeCheckException)e).location);
+			}
 			e.printStackTrace();
 			throw new InternalException(0, e.getMessage());
 		}
@@ -190,15 +194,14 @@ public class VanillaCmlTypeChecker extends AbstractTypeChecker
 		return new VdmTypeCheckResult(typeChecker.getAllClassesEnvronment(), typeChecker.getAssistantFactory());
 	}
 
-	private void cmlCspTc(Collection<PSource> sourceForest,
+	private void cmlCspTc(DefinitionList sourceForest,
 			VdmTypeCheckResult vdmResult)
 	{
 
 		List<PDefinition> globalCmlDefinition = new Vector<PDefinition>();
 
-		for (PSource source : sourceForest)
+		for (PDefinition def : sourceForest)
 		{
-			for (PDefinition def : source.getParagraphs())
 			{
 				if (def instanceof AChannelDefinition
 						|| def instanceof AChansetDefinition
@@ -225,7 +228,7 @@ public class VanillaCmlTypeChecker extends AbstractTypeChecker
 			}
 		}
 
-		for (PSource source : sourceForest)
+		for (PDefinition source : sourceForest)
 		{
 			try
 			{

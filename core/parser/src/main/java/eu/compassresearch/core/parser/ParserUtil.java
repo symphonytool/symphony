@@ -83,6 +83,11 @@ public class ParserUtil
 	{
 		return new ANTLRInputStream(new FileInputStream(file));
 	}
+	
+	public static ParserResult parse(List<File> files) throws FileNotFoundException, IOException
+	{
+		return parse(files.toArray(new File[]{}));
+	}
 
 	public static ParserResult parse(File... files) throws FileNotFoundException, IOException
 	{

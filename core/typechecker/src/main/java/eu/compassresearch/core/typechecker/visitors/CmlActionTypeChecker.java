@@ -823,14 +823,14 @@ public class CmlActionTypeChecker extends
 		int paramIndex = 0;
 		LinkedList<PCommunicationParameter> commParams = node.getCommunicationParameters();
 		PType chanType = channelDef.getType();
-		
-		if(channelDef.getType() instanceof AVoidType && !commParams.isEmpty())
+
+		if (channelDef.getType() instanceof AVoidType && !commParams.isEmpty())
 		{
-			issueHandler.addTypeError(channelDef, TypeErrorMessages.	COMMUNICATION_NOT_ALLOWED_OVER_UNTYPED_CHANNEL.customizeMessage(channel.getName().getName()));
-			//change check type to the widest type possible to avoid follow errors
+			issueHandler.addTypeError(channelDef, TypeErrorMessages.COMMUNICATION_NOT_ALLOWED_OVER_UNTYPED_CHANNEL.customizeMessage(channel.getName().getName()));
+			// change check type to the widest type possible to avoid follow errors
 			chanType = AstFactory.newAUnknownType(channelDef.getType().getLocation());
 		}
-		
+
 		for (PCommunicationParameter commParam : commParams)
 		{
 
@@ -841,7 +841,6 @@ public class CmlActionTypeChecker extends
 			// // the types in the declared type for the channel
 			// //
 			// //
-			
 
 			if (commParam instanceof AReadCommunicationParameter)
 			{
