@@ -1,6 +1,10 @@
-
+class test 
+= 
+begin
 
 functions
 
- max (a: int) result : int 
- post true
+permitted() result : bool
+post true
+
+end
