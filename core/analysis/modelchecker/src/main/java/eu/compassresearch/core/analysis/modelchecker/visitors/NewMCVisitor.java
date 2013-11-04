@@ -31,6 +31,7 @@ import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.analysis.modelchecker.api.FormulaIntegrationUtilities;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.Domain;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.PartialModel;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAProcessDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCATypeDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCAIdentifierPattern;
@@ -51,6 +52,8 @@ public class NewMCVisitor extends
 	private Domain syntaxDomain;
 	private Domain semanticsDomain;
 	private Domain propertiesDomain;
+	private Domain problemDomain;
+	private PartialModel problemModel;
 	
 	private NewMCActionVisitor actionVisitor;
 	private NewMCDeclarationAndDefinitionVisitor declAndDefVisitor;
@@ -82,7 +85,7 @@ public class NewMCVisitor extends
 		this.expressionVisitor = new NewMCExpressionVisitor(this);
 		this.typeAndValueVisitor = new NewMCTypeAndValueVisitor(this);
 		this.paramAndPatternVisitor = new NewMCParameterAndPatternVisitor(this);
-		loadDomains();
+		//loadDomains();
 	}
 	
 	private void loadDomains() throws IOException{
@@ -100,6 +103,10 @@ public class NewMCVisitor extends
 		
 		StringBuilder cmlPropertiesContent = FormulaIntegrationUtilities.readScriptFromFile(FormulaIntegrationUtilities.PROPERTIES_DOMAIN_SCRIPT);
 		this.propertiesDomain = new Domain("CMLProperties", semanticsDomain, cmlPropertiesContent.toString());
+		
+		//initially the problem domain and partial model have no content
+		this.problemDomain = new Domain("DependentModel", semanticsDomain,"");
+		this.problemModel = new PartialModel(problemDomain);
 		
 	}
 	
@@ -308,16 +315,64 @@ public class NewMCVisitor extends
 		
 		return result;
 	}
+	
+	private MCAProcessDefinition findMainProcessDefinition(String mainProcessName){
+		MCAProcessDefinition result = null;
+		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+		for (MCAProcessDefinition pDefinition : context.processDefinitions) {
+				if(pDefinition.getName().equals(mainProcessName)){
+					result = pDefinition;
+					break;
+				}
+			
+		}
+		return result;
+	}
+	
+	private String mountFormulaScript(List<PDefinition> definitions, String mainProcessName) throws IOException, AnalysisException{
+		
+		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+		
+		StringBuilder result = new StringBuilder();
+		
+		//loads all domains to build the entire script
+		this.loadDomains();
+		
+		//it visits all paragraphs
+		for (PDefinition paragraph : definitions) {
+			paragraph.apply(this, context);
+		}
+		
+		context.mainProcess = findMainProcessDefinition(mainProcessName);
+		
+		//it adds user type definitions to the auxiliary domain
+		handleUserTypeDefinitions();
+		
+		//it writes the auxiliary domain
+		result.append(this.auxiliaryDomain.toFormula(MCNode.DEFAULT));
+		
+		//it writes the syntax domain
+		result.append(this.syntaxDomain.toFormula(MCNode.DEFAULT));
+		
+		//it writes the semantic domain
+		result.append(this.semanticsDomain.toFormula(MCNode.DEFAULT));
+		
+		//it writes the property
+		result.append(this.semanticsDomain.toFormula(MCNode.DEFAULT));
+		
+		//it builds the problem domain for the problem to be analysed 
+		
+		//it builds the partial model for the problem to be analysed
+		
+		return result.toString();
+	}
 	public String generateFormulaScript(String basicContent, List<PDefinition> definitions, String propertyToCheck) throws IOException, AnalysisException{
 		
-		NewCMLModelcheckerContext content = new NewCMLModelcheckerContext();
-		//adds the basic content (semantics embedding) to the generated script
+		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+		context.propertyToCheck = propertyToCheck;
 		
-		setPropertyToCheck(propertyToCheck);
-		//getBasicContent().append(basicContent);
-		//content.getScriptContent().append(basicContent);
 		for (PDefinition paragraph : definitions) {
-			paragraph.apply(this, content);
+			paragraph.apply(this, context);
 		}
 		//return content.getScriptContent().toString();
 		return "empty Script";

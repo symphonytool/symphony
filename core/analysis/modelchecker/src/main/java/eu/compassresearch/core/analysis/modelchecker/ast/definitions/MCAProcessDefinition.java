@@ -52,7 +52,14 @@ public class MCAProcessDefinition implements MCPCMLDefinition {
 		this.process = process;
 	}
 
+	public String getName() {
+		return name;
+	}
 
+
+	public void setName(String name) {
+		this.name = name;
+	}
 
 	@Override
 	public String toFormula(String option) {
@@ -141,9 +148,6 @@ public class MCAProcessDefinition implements MCPCMLDefinition {
 		return result.toString();
 	}
 
-
-	
-	
 	private void generateAuxiliaryActions(StringBuilder content, String option){
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 		for (MCAActionDefinition localAction : context.localActions) {

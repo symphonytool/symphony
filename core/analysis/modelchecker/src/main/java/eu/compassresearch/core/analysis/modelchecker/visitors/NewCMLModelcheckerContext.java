@@ -33,6 +33,7 @@ public class NewCMLModelcheckerContext {
 	public static int GUARD_COUNTER;
 	public static int IOCOMM_COUNTER;
 	
+	public MCAProcessDefinition mainProcess;
 	public String propertyToCheck = Utilities.DEADLOCK_PROPERTY;
 	public NewSetStack<MCPVarsetExpression> setStack;
 	public ArrayList<MCLieInFact> lieIn;
@@ -51,6 +52,7 @@ public class NewCMLModelcheckerContext {
 	public ArrayList<MCIOCommDef> ioCommDefs;
 	public Stack<INode> actionOrProcessDefStack;
 	public ArrayList<ActionChannelDependency> channelDependencies;
+	
 	
 	
 	
