@@ -207,83 +207,83 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 	}
 
 	public String caseAAbsoluteUnaryExp(AAbsoluteUnaryExp ex, ThmVarsContext vars) throws AnalysisException{
-		return ThmExprUtil.absolute + "(" + ex.getExp().apply(thmStringVisitor, vars)+ ")";
+		return "("+ ThmExprUtil.absolute + "(" + ex.getExp().apply(thmStringVisitor, vars)+ "))";
 	}
 
 	public String caseACardinalityUnaryExp(ACardinalityUnaryExp ex, ThmVarsContext vars) throws AnalysisException{
-		return ThmExprUtil.cardinality + "(" + ex.getExp().apply(thmStringVisitor, vars)+ ")";
+		return "("+ ThmExprUtil.cardinality + "(" + ex.getExp().apply(thmStringVisitor, vars)+ "))";
 	}
 
 	public String caseADistConcatUnaryExp(ADistConcatUnaryExp ex, ThmVarsContext vars) throws AnalysisException{
-		return ThmExprUtil.distConcat + "(" + ex.getExp().apply(thmStringVisitor, vars)+ ")";
+		return "("+ ThmExprUtil.distConcat + "(" + ex.getExp().apply(thmStringVisitor, vars)+ "))";
 	}
 
 	public String caseADistIntersectUnaryExp(ADistIntersectUnaryExp ex, ThmVarsContext vars) throws AnalysisException{
-		return ThmExprUtil.distIntersect + "(" +ex.getExp().apply(thmStringVisitor, vars)+ ")";
+		return "("+ ThmExprUtil.distIntersect + "(" +ex.getExp().apply(thmStringVisitor, vars)+ "))";
 	}
 
 	public String caseADistMergeUnaryExp(ADistMergeUnaryExp ex, ThmVarsContext vars) throws AnalysisException{
-		return ThmExprUtil.distMerge + "(" + ex.getExp().apply(thmStringVisitor, vars)+ ")";
+		return "("+ ThmExprUtil.distMerge + "(" + ex.getExp().apply(thmStringVisitor, vars)+ "))";
 	}
 
 	public String caseADistUnionUnaryExp(ADistUnionUnaryExp ex, ThmVarsContext vars) throws AnalysisException{
-		return ThmExprUtil.distUnion + "(" + ex.getExp().apply(thmStringVisitor, vars)+ ")";
+		return "("+ ThmExprUtil.distUnion + "(" + ex.getExp().apply(thmStringVisitor, vars)+ "))";
 	}
 
 	public String caseAElementsUnaryExp(AElementsUnaryExp ex, ThmVarsContext vars) throws AnalysisException{
-		return ThmExprUtil.elements + "(" + ex.getExp().apply(thmStringVisitor, vars)+ ")";
+		return "("+ ThmExprUtil.elements + "(" + ex.getExp().apply(thmStringVisitor, vars)+ "))";
 	}
 
 	public String caseAFloorUnaryExp(AFloorUnaryExp ex, ThmVarsContext vars) throws AnalysisException{
-		return ThmExprUtil.floor + "(" + ex.getExp().apply(thmStringVisitor, vars)+ ")";
+		return "("+ ThmExprUtil.floor + "(" + ex.getExp().apply(thmStringVisitor, vars)+ "))";
 	}
 
 	public String caseAHeadUnaryExp(AHeadUnaryExp ex, ThmVarsContext vars) throws AnalysisException{
-		return ThmExprUtil.head + "(" + ex.getExp().apply(thmStringVisitor, vars)+ ")";
+		return "("+ ThmExprUtil.head + "(" + ex.getExp().apply(thmStringVisitor, vars)+ "))";
 	}
 
 	public String caseAIndicesUnaryExp(AIndicesUnaryExp ex, ThmVarsContext vars) throws AnalysisException{
-		return ThmExprUtil.indices + "(" + ex.getExp().apply(thmStringVisitor, vars)+ ")";
+		return "("+ ThmExprUtil.indices + "(" + ex.getExp().apply(thmStringVisitor, vars)+ "))";
 	}
 
 	public String caseALenUnaryExp(ALenUnaryExp ex, ThmVarsContext vars) throws AnalysisException{
-		return ThmExprUtil.len + "(" + ex.getExp().apply(thmStringVisitor, vars)+ ")";
+		return "("+ ThmExprUtil.len + "(" + ex.getExp().apply(thmStringVisitor, vars)+ "))";
 	}
 
 	public String caseAMapDomainUnaryExp(AMapDomainUnaryExp ex, ThmVarsContext vars) throws AnalysisException{
-		return ThmExprUtil.mapDomain + "(" + ex.getExp().apply(thmStringVisitor, vars)+ ")";
+		return "("+ ThmExprUtil.mapDomain + "(" + ex.getExp().apply(thmStringVisitor, vars)+ "))";
 	}
 
 	public String caseAMapInverseUnaryExp(AMapInverseUnaryExp ex, ThmVarsContext vars) throws AnalysisException{
-		return ThmExprUtil.mapInverse + "(" + ex.getExp().apply(thmStringVisitor, vars)+ ")";
+		return "("+ ThmExprUtil.mapInverse + "(" + ex.getExp().apply(thmStringVisitor, vars)+ "))";
 	}
 
 	public String caseAMapRangeUnaryExp(AMapRangeUnaryExp ex, ThmVarsContext vars) throws AnalysisException{
-		return ThmExprUtil.mapRange + "(" + ex.getExp().apply(thmStringVisitor, vars)+ ")";
+		return "("+ ThmExprUtil.mapRange + "(" + ex.getExp().apply(thmStringVisitor, vars)+ "))";
 	}
 
 	public String caseANotUnaryExp(ANotUnaryExp ex, ThmVarsContext vars) throws AnalysisException{
-		return ThmExprUtil.not + "(" + ex.getExp().apply(thmStringVisitor, vars)+ ")";
+		return "("+ ThmExprUtil.not + "(" + ex.getExp().apply(thmStringVisitor, vars)+ "))";
 	}
 
 	public String caseAPowerSetUnaryExp(APowerSetUnaryExp ex, ThmVarsContext vars) throws AnalysisException{
-		return ThmExprUtil.powerSet + "(" + ex.getExp().apply(thmStringVisitor, vars)+ ")";
+		return "("+ ThmExprUtil.powerSet + "(" + ex.getExp().apply(thmStringVisitor, vars)+ "))";
 	}
 
 	public String caseAReverseUnaryExp(AReverseUnaryExp ex, ThmVarsContext vars) throws AnalysisException{
-		return ThmExprUtil.reverse + "(" + ex.getExp().apply(thmStringVisitor, vars)+ ")";
+		return "("+ ThmExprUtil.reverse + "(" + ex.getExp().apply(thmStringVisitor, vars)+ "))";
 	}
 
 	public String caseATailUnaryExp(ATailUnaryExp ex, ThmVarsContext vars) throws AnalysisException{
-		return ThmExprUtil.tail + "(" + ex.getExp().apply(thmStringVisitor, vars)+ ")";
+		return "("+ ThmExprUtil.tail + "(" + ex.getExp().apply(thmStringVisitor, vars)+ "))";
 	}
 
 	public String caseAUnaryMinusUnaryExp(AUnaryMinusUnaryExp ex, ThmVarsContext vars) throws AnalysisException{
-		return ThmExprUtil.unaryMinus + "(" + ex.getExp().apply(thmStringVisitor, vars)+ ")";
+		return "("+ ThmExprUtil.unaryMinus + "(" + ex.getExp().apply(thmStringVisitor, vars)+ "))";
 	}
 
 	public String caseAUnaryPlusUnaryExp(AUnaryPlusUnaryExp ex, ThmVarsContext vars) throws AnalysisException{
-		return ThmExprUtil.unaryPlus + "(" + ex.getExp().apply(thmStringVisitor, vars)+ ")";
+		return "("+ ThmExprUtil.unaryPlus + "(" + ex.getExp().apply(thmStringVisitor, vars)+ "))";
 	}
 
 	public String caseABooleanConstExp(ABooleanConstExp ex, ThmVarsContext vars) throws AnalysisException{

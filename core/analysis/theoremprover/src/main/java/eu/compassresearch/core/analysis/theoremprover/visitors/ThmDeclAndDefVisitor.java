@@ -571,9 +571,6 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 	
 	
 	/***
-	 * NEEDS MAKING INTO A VISITOR AND ALSO REMOVING LINKS TO UTILS
-	 * 
-	 * 
 	 * Return the ThmNode for an operations of a process 
 	 * @param operations - the operation to check
 	 * @param svars - the state variables
@@ -685,9 +682,6 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 	}
 	
 	/***
-	 * NEEDS MAKING INTO A VISITOR 
-	 * 
-	 * 
 	 * Operation to provide a theorem node for a CML action.
 	 * 
 	 * @param act - the action definition

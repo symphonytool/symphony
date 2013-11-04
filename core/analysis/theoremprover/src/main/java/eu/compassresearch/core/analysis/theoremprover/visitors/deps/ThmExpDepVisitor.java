@@ -122,7 +122,6 @@ import eu.compassresearch.ast.expressions.PCMLExp;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.expressions.SRenameChannelExp;
 import eu.compassresearch.core.analysis.theoremprover.thms.NodeNameList;
-import eu.compassresearch.core.analysis.theoremprover.visitors.string.ThmVarsContext;
 
 @SuppressWarnings("serial")
 public class ThmExpDepVisitor extends
@@ -422,8 +421,6 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 
 	public NodeNameList caseAPostOpExp(APostOpExp ex, NodeNameList bvars) throws AnalysisException{
 		NodeNameList nodeDeps = new NodeNameList();
-
-//		APostOpExp i = (APostOpExp) ex;
 		//TODO: Handle postop exp
 
 		return nodeDeps;
@@ -431,8 +428,6 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 
 	public NodeNameList caseAPreExp(APreExp ex, NodeNameList bvars) throws AnalysisException{
 		NodeNameList nodeDeps = new NodeNameList();
-
-//		APreExp i = (APreExp) ex;
 		//TODO: Handle pre exp
 
 		return nodeDeps;

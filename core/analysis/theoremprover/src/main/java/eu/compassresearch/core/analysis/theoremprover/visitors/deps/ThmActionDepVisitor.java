@@ -449,7 +449,10 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 			{
 				AAssignmentDefinition aDef = (AAssignmentDefinition) pdef;
 				bvars.add(aDef.getName());
-				nodeDeps.addAll(aDef.getExpression().apply(thmDepVisitor, bvars));
+				if (aDef.getExpression()!=null)
+				{
+					nodeDeps.addAll(aDef.getExpression().apply(thmDepVisitor, bvars));
+				}
 			}
 		}
 

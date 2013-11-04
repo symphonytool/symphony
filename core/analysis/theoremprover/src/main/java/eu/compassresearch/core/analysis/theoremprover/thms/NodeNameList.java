@@ -3,7 +3,6 @@ package eu.compassresearch.core.analysis.theoremprover.thms;
 import java.util.Iterator;
 import java.util.Vector;
 
-import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.intf.lex.ILexNameToken;
 
 @SuppressWarnings("serial")
