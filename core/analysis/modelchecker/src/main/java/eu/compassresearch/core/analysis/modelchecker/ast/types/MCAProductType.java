@@ -41,4 +41,13 @@ public class MCAProductType implements MCPCMLType {
 		return null;
 	}
 
+	public LinkedList<MCPCMLType> getTypes() {
+		return types;
+	}
+
+	public void setTypes(LinkedList<MCPCMLType> types) {
+		this.types = types;
+	}
+
+	
 }

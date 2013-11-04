@@ -1,5 +1,6 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.definitions;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 
 import eu.compassresearch.ast.actions.PAction;
@@ -8,7 +9,10 @@ import eu.compassresearch.ast.actions.PParametrisationBase;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPParametrisation;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ActionChannelDependency;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ExpressionEvaluator;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
+import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 
 public class MCAActionDefinition implements MCPCMLDefinition {
 
@@ -28,47 +32,34 @@ public class MCAActionDefinition implements MCPCMLDefinition {
 
 	@Override
 	public String toFormula(String option) {
+		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+		
 		StringBuilder result = new StringBuilder();
 		
 		result.append("  ProcDef(");
 		result.append("\"" + this.name + "\",");
+		
 		// parameters
 		ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance(); 
-		//evaluator.instantiateMCType(this.declarations);
-		LinkedList<MCPParametrisation> parameters = getDeclarations();
-		
-		if(parameters.size()==0){
-			result.append("void");
-			result.append(",");
-			
-			// it converts the internal action (body)
-			result.append(this.getAction().toFormula(option));
-			result.append(")");
-			//if(!question.info.containsKey(Utilities.STATES_KEY)){
-			//	result.append(").\n");
-			//}
-		} else if(parameters.size()==1){
-			result.append("SPar(");
-			result.append(getDeclarations().getFirst().toFormula(option));
-			result.append("),");
-			result.append(this.getAction().toFormula(option));
-			result.append(")");
-		}
+		MCPCMLType paramType  = evaluator.instantiateMCTypeFromParams(this.declarations);
+
+		result.append(paramType.toFormula(option));
+		result.append(",");
+		result.append(this.getAction().toFormula(option));
+		result.append(")");
 		
 		//if the action has dependencies we get them from the context
-		/*if(question.channelDependencies.size() > 0){
+		LinkedList<ActionChannelDependency> dependencies = context.getActionChannelDependendies(this.name);
+		if(dependencies.size() > 0){
 			result.append(" :- ");
-			Iterator<String> it = question.channelDependencies.iterator(); 
-			do{
-				String channelDep = it.next();
-				result.append(channelDep);
-				if(it.hasNext()){
-					result.append(", ");
+			for (Iterator<ActionChannelDependency> iterator = dependencies.iterator(); iterator.hasNext();) {
+				ActionChannelDependency actionChannelDependency = (ActionChannelDependency) iterator.next();
+				result.append(actionChannelDependency.toFormula(option));
+				if(iterator.hasNext()){
+					result.append(",");
 				}
-			}while(it.hasNext());
-			
-		}*/
-		
+			}
+		}
 		result.append(".\n");
 		return result.toString();
 	}

@@ -4,20 +4,25 @@ import java.util.LinkedList;
 
 import org.overture.ast.types.AIntNumericBasicType;
 
+import eu.compassresearch.ast.actions.AValParametrisation;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAReadCommunicationParameter;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCASignalCommunicationParameter;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAValParametrisation;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAWriteCommunicationParameter;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPCommunicationParameter;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPParametrisation;
 import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCATypeSingleDeclaration;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAValueDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAEqualsBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAGreaterEqualNumericBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAGreaterNumericBinaryExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAInSetBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAIntLiteralExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCALessEqualNumericBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCALessNumericBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANotEqualsBinaryExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASetRangeSetExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAVariableExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCAIdentifierPattern;
@@ -83,6 +88,16 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		return result;
 	}
 	
+	private MCPCMLType getTypeFor(MCPParametrisation param){
+		MCPCMLType result = null;
+		
+		if(param instanceof AValParametrisation){
+			result = this.getTypeFor((MCAValParametrisation)param);
+		}
+		
+		return result;
+	}
+	
 	public MCPCMLType instantiateMCType(LinkedList<MCPCMLExp> exps){
 		MCPCMLType result = null;
 		
@@ -121,7 +136,25 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		return result;
 	}
 	
-	public MCPCMLType instantiateMCTypeFromParams(LinkedList<MCPCommunicationParameter> params){
+	public MCPCMLType instantiateMCTypeFromParams(LinkedList<MCPParametrisation> params){
+		MCPCMLType result = null;
+		
+		if(params.size() == 0){
+			result = new MCVoidType();
+		} else if (params.size() == 1){
+			result = this.getTypeFor(params.getFirst());
+		} else if (params.size() > 1){
+			LinkedList<MCPCMLType> types = new LinkedList<MCPCMLType>();
+			for (MCPParametrisation param : params) {
+				types.add(instantiateMCType(param));
+			}
+			result = new MCAProductType(types);
+		}
+		
+		return result;
+	}
+	
+	public MCPCMLType instantiateMCTypeFromCommParams(LinkedList<MCPCommunicationParameter> params){
 		MCPCMLType result = null;
 		
 		if(params.size() == 0){
@@ -168,7 +201,7 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		LinkedList<MCPCommunicationParameter> params = new LinkedList<MCPCommunicationParameter>();
 		params.add(param);
 		
-		return this.instantiateMCTypeFromParams(params);
+		return this.instantiateMCTypeFromCommParams(params);
 	}
 	public MCPCMLType instantiateMCType(MCATypeSingleDeclaration decl){
 		
@@ -184,6 +217,14 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		
 		return this.instantiateMCTypeFromPatterns(patterns);
 	}
+	public MCPCMLType instantiateMCType(MCPParametrisation params){
+		
+		LinkedList<MCPParametrisation> patterns = new LinkedList<MCPParametrisation>();
+		patterns.add(params);
+		
+		return this.instantiateMCTypeFromParams(patterns);
+	}
+
 	private MCPCMLType getTypeFor(MCAIntLiteralExp exp){
 		MCPCMLType result = null;
 		
@@ -210,6 +251,13 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		MCPCMLType result = null;
 		
 		result = getTypeFor(param.getExpression());
+		
+		return result;
+	}
+	private MCPCMLType getTypeFor(MCAValParametrisation param){
+		MCPCMLType result = null;
+		
+		result = getTypeFor(param.getDeclaration());
 		
 		return result;
 	}
@@ -436,4 +484,46 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		return resp;
 	}
 
+	
+	//some methods for evaluating expressions and obtaining a set of all possible values
+	//this is useful to find out the explicit values of types defined by some conditions
+	public LinkedList<String> getValueSet(MCPCMLExp expression){
+		LinkedList<String> result = new LinkedList<String>();
+		
+		if(expression instanceof MCASetRangeSetExp){
+			result = this.getValueSet((MCASetRangeSetExp)expression);
+		} else if(expression instanceof MCAInSetBinaryExp){
+			result = this.getValueSet((MCAInSetBinaryExp)expression);
+		}
+			
+		return result;
+	}
+	
+	public LinkedList<String> getValueSet(MCASetRangeSetExp expression){
+		LinkedList<String> result = new LinkedList<String>();
+		//it gets the first and the last (real) values
+		String firstValue = this.obtainValue(expression.getFirst());
+		String lastValue = this.obtainValue(expression.getLast());
+		if(firstValue != null && lastValue != null){
+			Integer firstValueInt = Integer.valueOf(firstValue);
+			Integer lastValueInt = Integer.valueOf(lastValue);
+			
+			int currValue = firstValueInt;
+			while(currValue <= lastValueInt){
+				result.add(String.valueOf(currValue));
+				currValue++;
+			}
+		}
+		return result;
+	}
+	
+	public LinkedList<String> getValueSet(MCAInSetBinaryExp expression){
+		LinkedList<String> result = new LinkedList<String>();
+		
+		if(expression.getRight() instanceof MCASetRangeSetExp){
+			result = this.getValueSet((MCASetRangeSetExp)expression.getRight()); 
+		}
+		
+		return result; 
+	}
 }

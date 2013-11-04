@@ -15,6 +15,7 @@ import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ActionChannelDependency;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ExpressionEvaluator;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCAssignDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCChannel;
@@ -41,7 +42,6 @@ public class MCAProcessDefinition implements MCPCMLDefinition {
 	private String name;
 	private LinkedList<MCATypeSingleDeclaration> localState = new LinkedList<MCATypeSingleDeclaration>();
 	private MCPProcess process;
-
 	
 	
 	public MCAProcessDefinition(String name,
@@ -79,7 +79,20 @@ public class MCAProcessDefinition implements MCPCMLDefinition {
 		result.append(decls.toFormula(MCNode.NAMED));
 		result.append(",");
 		result.append(this.process.toFormula(option));
-		result.append(").\n");
+		result.append(")");
+		
+		//if the action has dependencies we get them from the context
+		LinkedList<ActionChannelDependency> dependencies = context.getActionChannelDependendies(this.name);
+		if(dependencies.size() > 0){
+			result.append(" :- ");
+			for (Iterator<ActionChannelDependency> iterator = dependencies.iterator(); iterator.hasNext();) {
+				ActionChannelDependency actionChannelDependency = (ActionChannelDependency) iterator.next();
+				result.append(actionChannelDependency.toFormula(option));
+				if(iterator.hasNext()){
+					result.append(",");
+				}
+			}
+		}
 		
 		generateInitialState(result,option);
 		
@@ -92,86 +105,11 @@ public class MCAProcessDefinition implements MCPCMLDefinition {
 		generateIOCommDefs(result,option);
 		
 		
-		/*
-		if(question.info.containsKey(Utilities.ASSIGNMENT_DEFINITION_KEY)){
-			Map<String, Map<String, String>> assigns = (Map<String, Map<String, String>>) question.info.get(Utilities.ASSIGNMENT_DEFINITION_KEY);
-
-			for(Iterator<String> it = assigns.keySet().iterator(); it.hasNext();){
-				String key = it.next();
-				Map<String, String> aux = assigns.get(key);
-				for(Iterator<String> iterator = aux.keySet().iterator(); iterator.hasNext();){
-					String key2 = iterator.next();
-					String values = aux.get(key2);
-					Integer val = new Integer(values);
-					Binding max;
-					question.getScriptContent().append("  assignDef(0, "+ key +", st, st_)  :- State(0,st,name,assign("+key+")), st = ");
-					//if(question.info.containsKey(Utilities.STATES_KEY)){
-					if(question.stateVariables.size() > 0){
-						//max = question.getMaxBindingWithStates();
-						max = question.getMaxBinding();
-						max.setProcName("name");
-						//question.getScriptContent().append(max.toFormulaWithState());
-						question.getScriptContent().append(max.toFormulaWithState());
-						question.getScriptContent().append(", st_ = ");
-						max.updateBinding(key2, new Int(key2+"_"));
-						question.getScriptContent().append(max.toFormulaWithState());
-						question.getScriptContent().append(", "+key2+"_ = "+ val.toString());
-					} else{
-						max = question.getMaxBinding();
-						max.setProcName("name");
-						//question.getScriptContent().append(max.toFormula());
-						question.getScriptContent().append(max.toFormulaWithUnderscore());
-						question.getScriptContent().append(", st_ = ");
-						max.updateBinding(key2, new Int(val.intValue()));
-						//question.getScriptContent().append(max.toFormula());
-						question.getScriptContent().append(max.toFormula());
-					}
-					question.getScriptContent().append(".\n");
-				}
-			}
-		}
-
-
-		
-
-		generateGuardDefinitions(question);
-
-		*/
 		//GENERATION OF THE PARTIAL MODEL
 		
 		result.append("  conforms := CML_PropertiesSpec." + context.propertyToCheck + ".\n");
 		result.append("}\n\n");
 		result.append("partial model StartProcModel of StartProcDomain{\n");
-
-		//if(question.info.containsKey(Utilities.STATES_KEY)){
-		/* generate del biind facts
-				if(question.info.containsKey(Utilities.DEL_BBINDING)){
-					if(question.getVariables().size() != 0){
-						Set<SingleBind> varToDel = question.getVariables();
-						for(Iterator<SingleBind> var = varToDel.iterator(); var.hasNext();){
-							String s = var.next().getVariableName();
-							Binding b = question.getMaxBinding();
-							StringBuilder del = new StringBuilder("  del(");
-							del.append(question.getMaxBinding().toFormulaWithUnderscore());
-							del.append(",\""+s+"\",");
-							b = b.deleteBinding(s);
-							del.append(b.toFormulaWithUnderscore()+")\n");
-							question.getScriptContent().append(del);
-						}
-					} else{
-						ArrayList<String> varToDel = question.getStates();
-						for(String s: varToDel){
-							Binding b = question.getMaxBinding();
-							StringBuilder del = new StringBuilder("  del(");
-							del.append(question.getMaxBindingWithStates().toFormulaWithUnderscore());
-							del.append(",\""+s+"\",");
-							b = b.deleteBinding(s);
-							del.append(b.toFormulaWithUnderscore()+")\n");
-							question.getScriptContent().append(del);
-						}
-					}
-				}
-		 */
 
 		generateLieInFacts(result,option);
 

@@ -27,8 +27,6 @@ public class MCACommunicationAction implements MCPAction {
 	private LinkedList<MCPCommunicationParameter> communicationParameters = new LinkedList<MCPCommunicationParameter>();
 	private MCPAction action;
 	
-	
-	
 	public MCACommunicationAction(String identifier,
 			LinkedList<MCPCommunicationParameter> communicationParameters,
 			MCPAction action) {
@@ -44,12 +42,13 @@ public class MCACommunicationAction implements MCPAction {
 	public String toFormula(String option) {
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 		StringBuilder result = new StringBuilder();
-		int i = 0;
 		result.append("Prefix(IOComm(" + this.counterId + ",");
 		result.append("\"" + buildIOCommExp(option) + "\",");
 		result.append(buildIOCommActualParams(option));
-		result.append(")");
-		
+		result.append(")"); //closes IOComm
+		result.append(","); 
+		result.append(this.action.toFormula(option));
+		result.append(")"); //closes Prefix
 		//if there is some set of event in the context we must generate lieIn events.
 		NewSetStack<MCPVarsetExpression> chanSetStack = context.setStack.copy();
 		while(!chanSetStack.isEmpty()){
@@ -100,7 +99,7 @@ public class MCACommunicationAction implements MCPAction {
 	
 		StringBuilder result = new StringBuilder();
 		ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
-		MCPCMLType type = evaluator.instantiateMCTypeFromParams(this.communicationParameters);
+		MCPCMLType type = evaluator.instantiateMCTypeFromCommParams(this.communicationParameters);
 
 		result.append(type.toFormula(option));
 		

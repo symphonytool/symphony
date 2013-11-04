@@ -16,6 +16,7 @@ import org.overture.ast.node.INode;
 import org.overture.ast.patterns.PPattern;
 
 
+
 import eu.compassresearch.ast.actions.PParametrisation;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.AExpressionSingleDeclaration;
@@ -32,6 +33,7 @@ import eu.compassresearch.ast.definitions.ATypesDefinition;
 import eu.compassresearch.ast.definitions.AValuesDefinition;
 import eu.compassresearch.ast.definitions.PCMLDefinition;
 import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
+import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPParametrisation;
@@ -94,6 +96,10 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 	public MCNode caseAProcessDefinition(AProcessDefinition node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
 
+		//it first puts the action definition into a stack so we can detect dependencies between 
+		//it and some channel that communicates values
+		question.actionOrProcessDefStack.push(node);
+				
 		LinkedList<MCATypeSingleDeclaration> localState = new LinkedList<MCATypeSingleDeclaration>();
 		for (ATypeSingleDeclaration aTypeSingleDeclaration : node.getLocalState()) {
 			localState.add((MCATypeSingleDeclaration) aTypeSingleDeclaration.apply(this, question));
@@ -102,7 +108,10 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 		String name = node.getName().toString();
 		MCAProcessDefinition result = new MCAProcessDefinition(name,localState, process);
 		question.processDefinitions.add(result);
-		
+
+		//it removes the visited action definition
+		question.actionOrProcessDefStack.pop();
+				
 		return result;
 		
 	}
@@ -129,6 +138,10 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 	public MCNode caseAActionDefinition(AActionDefinition node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
 		
+		//it first puts the action definition into a stack so we can detect dependencies between 
+		//it and some channel that communicates values
+		question.actionOrProcessDefStack.push(node);
+		
 		LinkedList<PParametrisation> parameters = node.getDeclarations();
 		LinkedList<MCPParametrisation> mcParameters = new LinkedList<MCPParametrisation>();
 		for (PParametrisation pParametrisation : parameters) {
@@ -137,6 +150,9 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 		MCPAction action = (MCPAction) node.getAction().apply(rootVisitor, question);
 		String name = node.getName().toString();
 		MCAActionDefinition result = new MCAActionDefinition(name, mcParameters, action);
+		
+		//it removes the visited action definition
+		question.actionOrProcessDefStack.pop();
 		
 		return result;
 	}

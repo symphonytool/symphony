@@ -38,7 +38,7 @@ public class MCIOCommDef implements MCNode {
 		ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
 		
 		result.append("  IOCommDef(0," + this.counterId + ",");
-		result.append(evaluator.instantiateMCTypeFromParams(parentAction.getCommunicationParameters()).toFormula(option));
+		result.append(evaluator.instantiateMCTypeFromCommParams(parentAction.getCommunicationParameters()).toFormula(option));
 		result.append(",");
 		result.append(max.toFormula(MCNode.NAMED)); //with variable names
 		result.append(",");

@@ -1,5 +1,7 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.types;
 
+import java.util.LinkedList;
+
 public class MCANamedInvariantType implements MCPCMLType {
 
 	private String name;
@@ -20,6 +22,7 @@ public class MCANamedInvariantType implements MCPCMLType {
 	public void setName(String name) {
 		this.name = name;
 	}
+	
 
 	@Override
 	public MCPCMLType copy() {

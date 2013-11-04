@@ -1,5 +1,8 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.expressions;
 
+import java.util.Iterator;
+import java.util.LinkedList;
+
 import org.overture.ast.expressions.ASetRangeSetExp;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ExpressionEvaluator;
@@ -21,25 +24,20 @@ public class MCASetRangeSetExp implements MCPCMLExp {
 	public String toFormula(String option) {
 		ExpressionEvaluator expEvaluator = ExpressionEvaluator.getInstance();
 		StringBuilder result = new StringBuilder();
-		//it gets the first and the last (real) values
-		String firstValue = expEvaluator.obtainValue(this.getFirst());
-		String lastValue = expEvaluator.obtainValue(this.getLast());
-		if(firstValue != null && lastValue != null){
-			Integer firstValueInt = Integer.valueOf(firstValue);
-			Integer lastValueInt = Integer.valueOf(lastValue);
-			result.append("{");
-			int currValue = firstValueInt;
-			while(currValue <= lastValueInt){
-				result.append(currValue);
-				if(currValue < lastValueInt){
-					result.append(",");
-				}
-				currValue++;
+		//it gets the array of values defined by this set range 
+		LinkedList<String> values = expEvaluator.getValueSet(this);
+		
+		result.append("{");
+		Iterator<String> it = values.iterator(); 
+		while (it.hasNext()) {
+			String item = (String) it.next();
+			result.append(item);
+			if(it.hasNext()){
+				result.append(",");
 			}
-			result.append("}");
-		}else{
-			result.append("ASetRangeSetExp");
 		}
+		result.append("}");
+
 		return result.toString();
 	}
 

@@ -34,6 +34,8 @@ import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.actions.PCommunicationParameter;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
+import eu.compassresearch.ast.definitions.AActionDefinition;
+import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCABlockStatementAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCACallStatementAction;
@@ -59,6 +61,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCASkipAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAStopAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPCommunicationParameter;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ActionChannelDependency;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCAssignDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.GuardDefGenerator;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCCondition;
@@ -321,13 +324,25 @@ public class NewMCActionVisitor extends
 	public MCNode caseACommunicationAction(ACommunicationAction node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
 		
-		//if the communication action does not involves parameters
 		LinkedList<PCommunicationParameter> parameters = node.getCommunicationParameters();
-		LinkedList<MCPCommunicationParameter> mcParameters = new LinkedList<MCPCommunicationParameter>();
+				LinkedList<MCPCommunicationParameter> mcParameters = new LinkedList<MCPCommunicationParameter>();
 		for (PCommunicationParameter pCommunicationParameter : parameters) {
 			mcParameters.add((MCPCommunicationParameter) pCommunicationParameter.apply(rootVisitor, question));
 		}
-		String identifier = node.getIdentifier().getName().toString(); 
+		String identifier = node.getIdentifier().getName().toString();
+		if(parameters.size() > 0){ //the action definition to which this communication action belongs depends on a specific channel.
+			if(!question.actionOrProcessDefStack.isEmpty()){ //there is an action definition in a wider context of this communication action
+				INode parentAction = question.actionOrProcessDefStack.peek();
+				if(parentAction instanceof AActionDefinition){
+					ActionChannelDependency actionChanDep = new ActionChannelDependency(((AActionDefinition) parentAction).getName().toString(), identifier, mcParameters);
+					question.channelDependencies.add(actionChanDep);
+				} else if (parentAction instanceof AProcessDefinition){
+					ActionChannelDependency actionChanDep = new ActionChannelDependency(((AProcessDefinition) parentAction).getName().toString(), identifier, mcParameters);
+					question.channelDependencies.add(actionChanDep);
+				}
+			}
+		}
+
 		MCPAction action = (MCPAction) node.getAction().apply(this, question);
 		MCACommunicationAction result = new MCACommunicationAction(identifier, mcParameters, action);
 		

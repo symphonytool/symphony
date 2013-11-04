@@ -1,6 +1,6 @@
 values
- N: nat = 10
- V: nat = 10
+ N: nat = 2
+ V: nat = 2
  M: nat = N*V
 
 types
@@ -12,8 +12,6 @@ types
     
 
 channels
-  aa
-  test,bb : int
   pay, transfer: Index * Index * Money
   accept , reject: Index
 
@@ -42,6 +40,6 @@ begin
     Receive = transfer?j.i?n -> Credit(n)
     
     Cycle = ( Transfer [] Receive ); Cycle  
-@ Init(); Cycle
+@ Cycle
 
 end
