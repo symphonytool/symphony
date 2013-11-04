@@ -11,7 +11,7 @@ import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 public interface CmlDebugger extends Remote
 {
 
-	public void connect() throws UnknownHostException, IOException;
+	public void connect(String host,int port) throws UnknownHostException, IOException;
 
 	public void initialize(CmlInterpreter cmlInterpreter)
 			throws AnalysisException;
