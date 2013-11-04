@@ -1,0 +1,23 @@
+/*public visibility automatically assigned to B in global types*/
+
+types
+
+ public A = nat 
+ B = map nat to nat
+
+process
+
+ C =
+
+begin
+
+
+
+functions
+
+ public F : A * B -> bool 
+ F(a, b) == true 
+ 
+ @ Skip
+
+end

@@ -1,5 +1,6 @@
 package eu.compassresearch.core.typechecker.weeding;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Collection;
 
@@ -95,9 +96,61 @@ public class SetLocationVisitor extends DepthFirstAnalysisCMLAdaptor
 		}
 	}
 
+	private void setTheLocation2(Object node)
+	{
+		try
+		{
+			// FIXME: set the location for final fields as well e.g. LexToken
+			Class<?> clz = node.getClass();
+			Field f = node.getClass().getDeclaredField("location");
+			if (f == null)
+				return;
+
+			f.setAccessible(true);
+			LexLocation oldLocation = (LexLocation) f.get(node);
+
+			if (oldLocation != null)
+			{
+				String filePath = "";
+				if (root != null)
+				{
+					if (root instanceof AFileSource)
+						filePath = ((AFileSource) root).getFile() + "";
+
+					if (root instanceof AInputStreamSource)
+						filePath = ((AInputStreamSource) root).getOrigin();
+
+					if (root instanceof ATcpStreamSource)
+						filePath = ((ATcpStreamSource) root).getIp() + "";
+
+				}
+				LexLocation newLocation = new LexLocation(filePath, oldLocation.module, oldLocation.startLine, oldLocation.startPos, oldLocation.endLine, oldLocation.endPos, oldLocation.startOffset, oldLocation.endOffset);
+
+				Field setLocation = clz.getDeclaredField("location");
+				if (setLocation == null)
+					return;
+
+				setLocation.setAccessible(true);
+				setLocation.set(node, newLocation);
+			}
+
+		} catch (NoSuchFieldException eee)
+		{
+			// shut up
+		} catch (NoSuchMethodError ee)
+		{
+			// shut up
+		} catch (Exception e)
+		{
+			e.printStackTrace();
+			// well was not supposed to happen :S
+		}
+	}
+
 	@Override
 	public void defaultOutINode(INode node) throws AnalysisException
 	{
 		setTheLocation(node);
+		setTheLocation2(node);
 	}
 }

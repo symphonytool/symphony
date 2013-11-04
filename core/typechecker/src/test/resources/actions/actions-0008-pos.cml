@@ -1,0 +1,18 @@
+/*Sequential Composition Replicated Action with seq*/
+
+process
+
+ P =
+
+begin
+
+
+
+operations
+
+ A : nat ==> () 
+ A(a)== Skip 
+ 
+ @ ;i in seq [2,3] @ A(i)
+
+end

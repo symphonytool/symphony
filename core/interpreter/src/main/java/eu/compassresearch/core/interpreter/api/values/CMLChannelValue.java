@@ -1,5 +1,6 @@
 package eu.compassresearch.core.interpreter.api.values;
 
+import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -29,8 +30,13 @@ public class CMLChannelValue extends Value implements CmlChannel // CmlIOChannel
 	private List<PType> valueTypes;
 
 	private class ChannelEventMediator implements
-			EventFireMediator<ChannelObserver, ChannelEvent>
+			EventFireMediator<ChannelObserver, ChannelEvent>, Serializable
 	{
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -6748280966083470111L;
+
 		@Override
 		public void fireEvent(ChannelObserver observer, Object source,
 				ChannelEvent event)

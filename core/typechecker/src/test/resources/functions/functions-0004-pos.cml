@@ -1,0 +1,11 @@
+class
+
+ test =
+
+begin
+
+
+
+values
+
+ a : int = 0	functions f:int -> int f(k) == k+a	end

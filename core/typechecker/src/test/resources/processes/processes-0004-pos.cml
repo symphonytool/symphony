@@ -1,0 +1,21 @@
+process
+
+ A =
+
+begin
+
+ @ Skip
+
+end
+
+
+
+process
+
+ p1 = A ||
+
+begin
+
+ @ Skip
+
+end

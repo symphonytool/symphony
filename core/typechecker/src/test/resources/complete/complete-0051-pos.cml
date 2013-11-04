@@ -1,0 +1,15 @@
+/*Test case for bug https://sourceforge.net/p/compassresearch/tickets/26/*/
+
+process
+
+ Test =
+
+begin
+
+
+
+functions
+
+ AFunc: nat -> nat AFunc(l) == 1 BFunc: nat * nat -> nat BFunc(l,u) == AFunc(l) @ Skip
+
+end

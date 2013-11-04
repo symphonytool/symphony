@@ -17,9 +17,11 @@ import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.APatternListTypePair;
 import org.overture.ast.patterns.APatternTypePair;
+import org.overture.ast.patterns.ATuplePattern;
 import org.overture.ast.patterns.PPattern;
 import org.overture.ast.types.AFunctionType;
 import org.overture.ast.types.AOperationType;
+import org.overture.ast.types.AProductType;
 import org.overture.ast.types.AVoidType;
 import org.overture.ast.types.PType;
 
@@ -795,17 +797,24 @@ public class ThmProcessUtil {
 				nodeDeps.addAll(ThmTypeUtil.getIsabelleTypeDeps(p.getType()));
 			}	
 			//Add return type(s) to dependancy list and list of bound values
-			LinkedList<APatternTypePair> res = imOp.getResult();
+			APatternTypePair res = imOp.getResult();
 			String resType = null;
-			if (res != null && !(res.isEmpty()) && res.getFirst()!= null)
+			if (res != null )
 			{
-				resType = ThmTypeUtil.getIsabelleType(res.getFirst().getType());
+				resType = ThmTypeUtil.getIsabelleType(res.getType());
 			}
-			for(APatternTypePair p : res)
+			
+			//FIXME please check this conversion from a list
+			if(res.getPattern() instanceof ATuplePattern)
 			{
-				bvars.add(((AIdentifierPattern) p.getPattern()).getName());
-				nodeDeps.addAll(ThmTypeUtil.getIsabelleTypeDeps(p.getType()));
-			}		
+				LinkedList<PPattern> plist = ((ATuplePattern)res.getPattern()).getPlist();
+				LinkedList<PType> pTypelist = ((AProductType)res.getType()).getTypes();
+				for(int i = 0; i < plist.size();i++)
+				{
+					bvars.add(((AIdentifierPattern) plist.get(i)).getName());
+					nodeDeps.addAll(ThmTypeUtil.getIsabelleTypeDeps(pTypelist.get(i)));
+				}
+			}
 			
 			if (imOp.getPrecondition() != null)
 			{

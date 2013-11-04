@@ -1,0 +1,3 @@
+types
+
+ N = nat1 inv n == n <= 1

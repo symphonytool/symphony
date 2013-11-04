@@ -1,0 +1,13 @@
+process
+
+ P =
+
+begin
+
+
+
+actions
+
+ A = val j :bool @ Skip @ ([] i in set {1,2,3} @ A(i > 2))
+
+end

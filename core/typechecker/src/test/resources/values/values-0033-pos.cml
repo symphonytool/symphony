@@ -1,0 +1,13 @@
+class
+
+ test =
+
+begin
+
+
+
+values
+
+ b : int = 1 a : seq of char = if b = 2 then "one" elseif (b = 3) then "two" elseif b = 4 then "three" else "above three"
+
+end

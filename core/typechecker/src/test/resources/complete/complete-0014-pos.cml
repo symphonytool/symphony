@@ -1,0 +1,13 @@
+process
+
+ T =
+
+begin
+
+
+
+operations
+
+ O: () ==> () O() == Skip @ O()
+
+end

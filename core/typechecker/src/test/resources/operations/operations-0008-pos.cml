@@ -1,0 +1,19 @@
+class
+
+ test =
+
+begin
+
+state
+s: int
+
+
+operations
+
+ op: int ==> int 
+ op(a) == 
+ 	return a 
+ pre a > 0 
+ post s~ = a
+
+end
