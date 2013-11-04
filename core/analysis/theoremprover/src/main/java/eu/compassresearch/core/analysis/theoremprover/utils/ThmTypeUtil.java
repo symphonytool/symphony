@@ -45,6 +45,7 @@ public class ThmTypeUtil {
 	public static String isaFuncLambda = "lambda";
 	public static String isaFuncLambdaPost = "iota";
 	public static String isaFuncLambdaPostVal = "r";
+	public static String isaOpLambdaPost = "exists";
 	
 	
 	
