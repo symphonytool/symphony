@@ -10,6 +10,7 @@ import org.overture.typechecker.assistant.ITypeCheckerAssistantFactory;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AChannelDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
+import eu.compassresearch.ast.definitions.ANamesetDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 
 public class CmlDefinitionCollector extends AbstractCmlDefinitionCollector
@@ -55,6 +56,13 @@ public class CmlDefinitionCollector extends AbstractCmlDefinitionCollector
 
 	@Override
 	public List<PDefinition> caseAProcessDefinition(AProcessDefinition node)
+			throws AnalysisException
+	{
+		return addSelf(node);
+	}
+	
+	@Override
+	public List<PDefinition> caseANamesetDefinition(ANamesetDefinition node)
 			throws AnalysisException
 	{
 		return addSelf(node);
