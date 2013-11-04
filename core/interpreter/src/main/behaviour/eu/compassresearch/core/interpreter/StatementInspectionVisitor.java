@@ -18,7 +18,6 @@ import org.overture.ast.statements.AAltNonDeterministicStm;
 import org.overture.ast.statements.AAssignmentStm;
 import org.overture.ast.statements.AAtomicStm;
 import org.overture.ast.statements.ABlockSimpleBlockStm;
-import org.overture.ast.statements.ACallObjectStm;
 import org.overture.ast.statements.ACallStm;
 import org.overture.ast.statements.ADoNonDeterministicStm;
 import org.overture.ast.statements.AElseIfStm;
@@ -76,8 +75,8 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 	}
 
 	@Override
-	public Inspection defaultPStm(PStm node,
-			Context question) throws AnalysisException
+	public Inspection defaultPStm(PStm node, Context question)
+			throws AnalysisException
 	{
 		throw new CmlInterpreterException(node, InterpretationErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName()));
 	}
@@ -85,9 +84,8 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 	/**
 	 * This methods splits the assignment call statement into the call and the assignment statements and.
 	 */
-	public Inspection caseAssignmentCall(
-			final AAssignmentStm node, final Context question)
-			throws AnalysisException
+	public Inspection caseAssignmentCall(final AAssignmentStm node,
+			final Context question) throws AnalysisException
 	{
 
 		return newInspection(createTauTransitionWithTime(node, null), new AbstractCalculationStep(owner, visitorAccess)
@@ -96,7 +94,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 			public Pair<INode, Context> execute(CmlTransition selectedTransition)
 					throws AnalysisException
 			{
-				AApplyExp apply = (AApplyExp)node.getExp();
+				AApplyExp apply = (AApplyExp) node.getExp();
 				// put return value in a new context
 				Context resultContext = CmlContextFactory.newContext(node.getLocation(), "Call Result Context", question);
 				// put return value in upper context if the parent is a AAssignmentCallStatementAction
@@ -111,11 +109,11 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 				AAssignmentStm assignmentNode = new AAssignmentStm(node.getLocation(), node.getTarget().clone(), varExp);
 
 				PExp root = apply.getRoot();
-				ACallStm call = new ACallStm(apply.getLocation(),null,apply.getArgs());
-				
+				ACallStm call = new ACallStm(apply.getLocation(), null, apply.getArgs());
+
 				// We now compose the call statement and assignment statement into sequential composition
 				@SuppressWarnings("deprecation")
-				INode seqComp = new ASequentialCompositionAction(node.getLocation(),ActionVisitorHelper.wrapStatement(call), ActionVisitorHelper.wrapStatement(assignmentNode.clone()));
+				INode seqComp = new ASequentialCompositionAction(node.getLocation(), ActionVisitorHelper.wrapStatement(call), ActionVisitorHelper.wrapStatement(assignmentNode.clone()));
 				return new Pair<INode, Context>(seqComp, resultContext);
 			}
 		});
@@ -123,8 +121,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 	}
 
 	@Override
-	public Inspection caseALetStm(
-			final ALetStm node, final Context question)
+	public Inspection caseALetStm(final ALetStm node, final Context question)
 			throws AnalysisException
 	{
 
@@ -135,7 +132,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 			public Pair<INode, Context> execute(CmlTransition selectedTransition)
 					throws AnalysisException
 			{
-				//We only create a new context if any vars are declared
+				// We only create a new context if any vars are declared
 				Context blockContext = question;
 
 				// add the assignment definitions to the block context
@@ -154,20 +151,20 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 			}
 		});
 	}
-	
+
 	@Override
 	public Inspection caseABlockSimpleBlockStm(ABlockSimpleBlockStm node,
 			Context question) throws AnalysisException
 	{
-		return node.getStatements().get(0).apply(this.parentVisitor,question);
+		return node.getStatements().get(0).apply(this.parentVisitor, question);
 	}
 
 	/*
 	 * 
 	 */
 	@Override
-	public Inspection caseACallStm(final ACallStm node,
-			final Context question) throws AnalysisException
+	public Inspection caseACallStm(final ACallStm node, final Context question)
+			throws AnalysisException
 	{
 
 		if (!owner.hasChildren())
@@ -366,8 +363,8 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 	}
 
 	@Override
-	public Inspection caseAIfStm(final AIfStm node,
-			final Context question) throws AnalysisException
+	public Inspection caseAIfStm(final AIfStm node, final Context question)
+			throws AnalysisException
 	{
 
 		if (node.getIfExp().apply(cmlExpressionVisitor, question).boolValue(question))
@@ -433,37 +430,36 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 		});
 	}
 
-//	@Override
-//	public Inspection caseALetStatementAction(final ALetStatementAction node,
-//			final Context question) throws AnalysisException
-//	{
-//
-//		return newInspection(createTauTransitionWithTime(node.getAction()), new AbstractCalculationStep(owner, visitorAccess)
-//		{
-//
-//			@Override
-//			public Pair<INode, Context> execute(CmlTransition selectedTransition)
-//					throws AnalysisException
-//			{
-//
-//				// Create a new context for the let statement
-//				Context letContext = CmlContextFactory.newContext(node.getLocation(), "let action context", question);
-//
-//				for (PDefinition localDef : node.getLocalDefinitions())
-//					letContext.putList(localDef.apply(cmlDefEvaluator, letContext));
-//
-//				return new Pair<INode, Context>(node.getAction(), letContext);
-//			}
-//		});
-//	}
+	// @Override
+	// public Inspection caseALetStatementAction(final ALetStatementAction node,
+	// final Context question) throws AnalysisException
+	// {
+	//
+	// return newInspection(createTauTransitionWithTime(node.getAction()), new AbstractCalculationStep(owner,
+	// visitorAccess)
+	// {
+	//
+	// @Override
+	// public Pair<INode, Context> execute(CmlTransition selectedTransition)
+	// throws AnalysisException
+	// {
+	//
+	// // Create a new context for the let statement
+	// Context letContext = CmlContextFactory.newContext(node.getLocation(), "let action context", question);
+	//
+	// for (PDefinition localDef : node.getLocalDefinitions())
+	// letContext.putList(localDef.apply(cmlDefEvaluator, letContext));
+	//
+	// return new Pair<INode, Context>(node.getAction(), letContext);
+	// }
+	// });
+	// }
 
 	@Override
-	public Inspection caseANewStm(final ANewStm node,
-			final Context question) throws AnalysisException
+	public Inspection caseANewStm(final ANewStm node, final Context question)
+			throws AnalysisException
 	{
-		ILexNameToken name = new CmlLexNameToken(node.getClassName().getName(),
-											 node.getClassName().getName(),
-												node.getLocation());
+		ILexNameToken name = new CmlLexNameToken(node.getClassName().getName(), node.getClassName().getName(), node.getLocation());
 		@SuppressWarnings("deprecation")
 		final ACallStm callStm = new ACallStm(name.getLocation(), name, node.getArgs());
 
@@ -489,9 +485,8 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 	 * Non deterministic if randomly chooses between options whose guard are evaluated to true
 	 */
 	@Override
-	public Inspection caseAIfNonDeterministicStm(
-			AIfNonDeterministicStm node, final Context question)
-			throws AnalysisException
+	public Inspection caseAIfNonDeterministicStm(AIfNonDeterministicStm node,
+			final Context question) throws AnalysisException
 	{
 
 		List<AAltNonDeterministicStm> availableAlts = ActionVisitorHelper.findAllTrueAlternatives(node.getAlternatives(), question, cmlExpressionVisitor);
@@ -539,8 +534,8 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 	 */
 	@Override
 	public Inspection caseADoNonDeterministicStm(
-			final ADoNonDeterministicStm node,
-			final Context question) throws AnalysisException
+			final ADoNonDeterministicStm node, final Context question)
+			throws AnalysisException
 	{
 
 		List<AAltNonDeterministicStm> availableAlts = ActionVisitorHelper.findAllTrueAlternatives(node.getAlternatives(), question, cmlExpressionVisitor);
@@ -552,9 +547,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 			// if we got here we already now that the must at least be one available action
 			// so this should pose no risk of exception
 			@SuppressWarnings("deprecation")
-			final INode nextNode = new ASequentialCompositionAction(node.getLocation(), 
-					ActionVisitorHelper.wrapStatement(availableAlts.get(rnd.nextInt(availableAlts.size())).getAction().clone()), 
-					ActionVisitorHelper.wrapStatement(node.clone()));
+			final INode nextNode = new ASequentialCompositionAction(node.getLocation(), ActionVisitorHelper.wrapStatement(availableAlts.get(rnd.nextInt(availableAlts.size())).getAction().clone()), ActionVisitorHelper.wrapStatement(node.clone()));
 			return newInspection(createTauTransitionWithTime(nextNode), new AbstractCalculationStep(owner, visitorAccess)
 			{
 
@@ -588,9 +581,8 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 	}
 
 	@Override
-	public Inspection caseAReturnStm(
-			final AReturnStm node, final Context question)
-			throws AnalysisException
+	public Inspection caseAReturnStm(final AReturnStm node,
+			final Context question) throws AnalysisException
 	{
 
 		return newInspection(createTauTransitionWithoutTime(new ASkipAction()), new AbstractCalculationStep(owner, visitorAccess)
@@ -618,8 +610,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 	 * Assignment - section 7.5.1 D23.2
 	 */
 	@Override
-	public Inspection caseAAssignmentStm(
-			final AAssignmentStm node,
+	public Inspection caseAAssignmentStm(final AAssignmentStm node,
 			final Context question) throws AnalysisException
 	{
 		@SuppressWarnings("deprecation")
@@ -633,15 +624,14 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 			public Pair<INode, Context> execute(CmlTransition selectedTransition)
 					throws AnalysisException
 			{
-				return evalSingleAssignmentStatement(node, question, skipNode,true);
+				return evalSingleAssignmentStatement(node, question, skipNode, true);
 			}
 		});
 	}
-	
+
 	@Override
-	public Inspection caseAAtomicStm(
-			final AAtomicStm node,final Context question)
-			throws AnalysisException
+	public Inspection caseAAtomicStm(final AAtomicStm node,
+			final Context question) throws AnalysisException
 	{
 		@SuppressWarnings("deprecation")
 		final INode skipNode = new ASkipAction(node.getLocation(), new AVoidType());
@@ -657,17 +647,17 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 				Pair<INode, Context> result = null;
 				for (Iterator<AAssignmentStm> itr = node.getAssignments().iterator(); itr.hasNext();)
 				{
-					result = evalSingleAssignmentStatement(itr.next(), question, skipNode,!itr.hasNext());
+					result = evalSingleAssignmentStatement(itr.next(), question, skipNode, !itr.hasNext());
 				}
 				return result;
 			}
 		});
 	}
-	
+
 	private Pair<INode, Context> evalSingleAssignmentStatement(
-			final AAssignmentStm node,
-			final Context question, final INode skipNode,boolean checkInv)
-			throws AnalysisException, ValueException
+			final AAssignmentStm node, final Context question,
+			final INode skipNode, boolean checkInv) throws AnalysisException,
+			ValueException
 	{
 		Value expValue = node.getExp().apply(cmlExpressionVisitor, question);
 		Value oldVal = node.getTarget().apply(cmlExpressionVisitor, question);
@@ -677,7 +667,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 		if (question.getSelf() instanceof ProcessObjectValue)
 			invExp = ((ProcessObjectValue) question.getSelf()).getInvariantExpression();
 
-		if (invExp != null &&checkInv)
+		if (invExp != null && checkInv)
 		{
 
 			Context invContext = CmlContextFactory.newContext(invExp.getLocation(), "Process "
@@ -693,9 +683,8 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 	}
 
 	@Override
-	public Inspection caseAForPatternBindStm(
-			final AForPatternBindStm node, final Context question)
-			throws AnalysisException
+	public Inspection caseAForPatternBindStm(final AForPatternBindStm node,
+			final Context question) throws AnalysisException
 	{
 
 		final ValueList v = question.lookup(NamespaceUtility.getSeqForName()).seqValue(question);
@@ -762,8 +751,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 	 * //TODO no semantics defined, resolve this!
 	 */
 	@Override
-	public Inspection caseAWhileStm(
-			final AWhileStm node, final Context question)
+	public Inspection caseAWhileStm(final AWhileStm node, final Context question)
 			throws AnalysisException
 	{
 
@@ -779,9 +767,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 						CmlTransition selectedTransition)
 						throws AnalysisException
 				{
-					return new Pair<INode, Context>(new ASequentialCompositionAction(node.getStatement().getLocation(), 
-							ActionVisitorHelper.wrapStatement(node.getStatement().clone()), 
-							ActionVisitorHelper.wrapStatement(node.clone())), question);
+					return new Pair<INode, Context>(new ASequentialCompositionAction(node.getStatement().getLocation(), ActionVisitorHelper.wrapStatement(node.getStatement().clone()), ActionVisitorHelper.wrapStatement(node.clone())), question);
 				}
 			});
 		} else

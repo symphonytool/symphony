@@ -34,7 +34,7 @@ class ActionVisitorHelper
 
 		return availableAlts;
 	}
-	
+
 	public static AStmAction wrapStatement(PStm stm)
 	{
 		return new AStmAction(stm.getLocation(), stm);

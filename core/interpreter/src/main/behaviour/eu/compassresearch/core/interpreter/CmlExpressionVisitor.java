@@ -196,7 +196,7 @@ public class CmlExpressionVisitor extends
 
 		}
 	}
-	
+
 	@Override
 	public Value caseAIdentifierStateDesignator(
 			AIdentifierStateDesignator node, Context question)
@@ -278,7 +278,7 @@ public class CmlExpressionVisitor extends
 		{
 			set = new NamesetValue(new HashSet<ILexNameToken>());
 		}
-		
+
 		try
 		{
 			QuantifierList quantifiers = new QuantifierList();
@@ -325,7 +325,7 @@ public class CmlExpressionVisitor extends
 					if (set instanceof ChannelNameSetValue)
 					{
 						((ChannelNameSetValue) set).add(createChannelNameValue(node.getChannelNameExp(), evalContext));
-					} else if(set instanceof NamesetValue)
+					} else if (set instanceof NamesetValue)
 					{
 						((NamesetValue) set).add(NamespaceUtility.createSimpleName(node.getChannelNameExp().getIdentifier()));
 					}

@@ -96,7 +96,7 @@ abstract class AbstractCmlInterpreter implements CmlInterpreter
 			return true;
 		}
 	}
-	
+
 	@Override
 	public boolean removeBreakpoint(Breakpoint bp)
 	{

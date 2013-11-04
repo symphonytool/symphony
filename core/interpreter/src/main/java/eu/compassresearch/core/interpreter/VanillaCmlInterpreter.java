@@ -2,8 +2,6 @@ package eu.compassresearch.core.interpreter;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -19,8 +17,6 @@ import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.lex.CmlLexNameToken;
-import eu.compassresearch.ast.program.AFileSource;
-import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
 import eu.compassresearch.core.interpreter.api.ConsoleSelectionStrategy;
@@ -76,16 +72,16 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		this.sourceForest = definitions;
 	}
 
-//	/**
-//	 * Construct a CmlTypeInterpreter with the intension of checking a single source.
-//	 * 
-//	 * @param singleSource
-//	 */
-//	public VanillaCmlInterpreter(PSource singleSource)
-//	{
-//		this.sourceForest = new LinkedList<PDefinition>();
-//		this.sourceForest.add(singleSource);
-//	}
+	// /**
+	// * Construct a CmlTypeInterpreter with the intension of checking a single source.
+	// *
+	// * @param singleSource
+	// */
+	// public VanillaCmlInterpreter(PSource singleSource)
+	// {
+	// this.sourceForest = new LinkedList<PDefinition>();
+	// this.sourceForest.add(singleSource);
+	// }
 
 	/**
 	 * Initializes the interpreter by making a global context and setting the last defined process as the top process
@@ -155,9 +151,10 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		{
 			setNewState(CmlInterpreterState.FAILED);
 			throw e;
-		}
-		catch(InterruptedException ex){ex.printStackTrace();}
-		catch (Exception ex)
+		} catch (InterruptedException ex)
+		{
+			ex.printStackTrace();
+		} catch (Exception ex)
 		{
 			setNewState(CmlInterpreterState.FAILED);
 			throw ex;
@@ -277,20 +274,19 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 
 		}
 
-		if (topProcess.deadlocked()){
+		if (topProcess.deadlocked())
+		{
 			setNewState(CmlInterpreterState.DEADLOCKED);
-			if(suspendBeforeTermination())
+			if (suspendBeforeTermination())
 				synchronized (suspendObject)
 				{
 					this.suspendObject.wait();
 				}
-		}
-		else if (!topProcess.finished())
+		} else if (!topProcess.finished())
 			setNewState(CmlInterpreterState.TERMINATED_BY_USER);
 		else
 			setNewState(CmlInterpreterState.FINISHED);
-		
-		
+
 	}
 
 	@Override
@@ -369,7 +365,8 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		// Print result and report errors if any
 		if (!cmlTC.typeCheck())
 		{
-			System.out.println("Failed to type check: " + res.definitions.toString());
+			System.out.println("Failed to type check: "
+					+ res.definitions.toString());
 			System.out.println(issueHandler.getTypeErrors());
 			return;
 		}
@@ -477,8 +474,9 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		File cml_example = new File(
 		// "/home/akm/phd/runtime-COMPASS/simpleDLNA/SimpleDLNA.cml");
 		"src/test/resources/process/parallel-composition/process-interleaving-state.cml");
-		//File cml_example = new File("/home/akm/phd/COMPASS-repo/Common/PublicLiveCMLCaseStudies/RingBuffer/RingBuffer.cml");
-		//File cml_example = new File("/home/akm/Downloads/minimondex.cml");
+		// File cml_example = new
+		// File("/home/akm/phd/COMPASS-repo/Common/PublicLiveCMLCaseStudies/RingBuffer/RingBuffer.cml");
+		// File cml_example = new File("/home/akm/Downloads/minimondex.cml");
 		runOnFile(cml_example);
 
 		// List<File> files = new LinkedList<File>();

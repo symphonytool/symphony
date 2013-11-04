@@ -26,7 +26,8 @@ public class InterpreterStateChangedEvent extends Event<CmlInterpreter>
 		this.content = null;
 	}
 
-	public InterpreterStateChangedEvent(CmlInterpreter interpreter, Object content)
+	public InterpreterStateChangedEvent(CmlInterpreter interpreter,
+			Object content)
 	{
 		super(interpreter);
 		this.status = interpreter.getState();

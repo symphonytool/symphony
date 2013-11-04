@@ -61,8 +61,8 @@ public class CMLChannelValue extends Value implements CmlChannel // CmlIOChannel
 		this.channelType = channelType;
 		if (channelType instanceof AProductType)
 			valueTypes.addAll(((AProductType) channelType).getTypes());
-		//FIXME THis is changed!!
-		else if(!(channelType instanceof AUnknownType))
+		// FIXME THis is changed!!
+		else if (!(channelType instanceof AUnknownType))
 			valueTypes.add(channelType);
 
 		this.name = name;

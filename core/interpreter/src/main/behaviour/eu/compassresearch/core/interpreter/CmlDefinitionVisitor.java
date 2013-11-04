@@ -31,7 +31,6 @@ import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AActionsDefinition;
 import eu.compassresearch.ast.definitions.AChannelDefinition;
-import eu.compassresearch.ast.definitions.AChannelsDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.definitions.AChansetsDefinition;
 import eu.compassresearch.ast.definitions.AFunctionsDefinition;
@@ -130,14 +129,14 @@ class CmlDefinitionVisitor extends
 
 		return definitionListHelper(node.getStateDefs(), node.getLocation(), question);
 	}
-	
+
 	@Override
 	public NameValuePairList caseAInstanceVariableDefinition(
 			AInstanceVariableDefinition node, Context question)
 			throws AnalysisException
 	{
 		NameValuePairList vpl = new NameValuePairList();
-		vpl.add(new NameValuePair(node.getName(), node.getExpression().apply(this.cmlExpressionVisitor,question)));
+		vpl.add(new NameValuePair(node.getName(), node.getExpression().apply(this.cmlExpressionVisitor, question)));
 		return vpl;
 	}
 
@@ -168,13 +167,13 @@ class CmlDefinitionVisitor extends
 		return vpl;
 	}
 
-//	@Override
-//	public NameValuePairList caseACmlClassDefinition(ACmlClassDefinition node,
-//			Context question) throws AnalysisException
-//	{
-//
-//		return new NameValuePairList();
-//	}
+	// @Override
+	// public NameValuePairList caseACmlClassDefinition(ACmlClassDefinition node,
+	// Context question) throws AnalysisException
+	// {
+	//
+	// return new NameValuePairList();
+	// }
 
 	@Override
 	public NameValuePairList caseAChansetsDefinition(AChansetsDefinition node,
@@ -318,21 +317,21 @@ class CmlDefinitionVisitor extends
 		return vpl;
 	}
 
-//	@Override
-//	public NameValuePairList caseAChannelsDefinition(AChannelsDefinition node,
-//			Context question) throws AnalysisException
-//	{
-//		NameValuePairList vpl = new NameValuePairList();
-//
-//		for (AChannelDefinition cnd : node.getChannelDeclarations())
-//		{
-//			ILexNameToken name = NamespaceUtility.createChannelName(cnd.getName());
-//			vpl.add(new NameValuePair(name, new CMLChannelValue(cnd.getType(), name)));
-//		}
-//
-//		return vpl;
-//	}
-	
+	// @Override
+	// public NameValuePairList caseAChannelsDefinition(AChannelsDefinition node,
+	// Context question) throws AnalysisException
+	// {
+	// NameValuePairList vpl = new NameValuePairList();
+	//
+	// for (AChannelDefinition cnd : node.getChannelDeclarations())
+	// {
+	// ILexNameToken name = NamespaceUtility.createChannelName(cnd.getName());
+	// vpl.add(new NameValuePair(name, new CMLChannelValue(cnd.getType(), name)));
+	// }
+	//
+	// return vpl;
+	// }
+
 	@Override
 	public NameValuePairList caseAChannelDefinition(AChannelDefinition node,
 			Context question) throws AnalysisException
