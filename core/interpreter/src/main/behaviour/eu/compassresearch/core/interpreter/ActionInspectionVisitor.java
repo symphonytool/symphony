@@ -318,16 +318,16 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 		/*
 		 * This is a little hack to come around that the cmlExpressionVisitor does not now if it has to proc
 		 */
-		Context varsetContext = CmlContextFactory.newContext(node.getLocation(), "varset expression context", question);
-		varsetContext.putNew(new NameValuePair(NamespaceUtility.getVarExpContextName(), new BooleanValue(true)));
+//		Context varsetContext = CmlContextFactory.newContext(node.getLocation(), "varset expression context", question);
+//		varsetContext.putNew(new NameValuePair(NamespaceUtility.getVarExpContextName(), new BooleanValue(true)));
 
 		NamesetValue leftNamesetValue = null;
 		NamesetValue rightNamesetValue = null;
 
 		if (node.getLeftNamesetExpression() != null)
-			leftNamesetValue = (NamesetValue) node.getLeftNamesetExpression().apply(cmlExpressionVisitor, varsetContext);
+			leftNamesetValue = (NamesetValue) node.getLeftNamesetExpression().apply(cmlExpressionVisitor, question);
 		if (node.getRightNamesetExpression() != null)
-			rightNamesetValue = (NamesetValue) node.getRightNamesetExpression().apply(cmlExpressionVisitor, varsetContext);
+			rightNamesetValue = (NamesetValue) node.getRightNamesetExpression().apply(cmlExpressionVisitor, question);
 
 		// if true this means that this is the first time here, so the Parallel Begin rule is invoked.
 		if (!owner.hasChildren())
@@ -695,8 +695,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 			});
 		else
 			// If the number of tocks has not exceeded val then behave as Stop
-			return newInspection(new CmlTransitionSet(new TimedTransition(owner, nTocks
-					- val)), null);
+			return newInspection(new CmlTransitionSet(new TimedTransition(owner, val - nTocks)), null);
 	}
 
 	/**

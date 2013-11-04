@@ -28,7 +28,7 @@
   </properties>
 
   <artifactId>theoremprover</artifactId>
-  <name>COMPASS Core Analysis Theorem Prover</name>
+  <name>Symphony Core Analysis Theorem Prover</name>
   <dependencies>
 
     <dependency>

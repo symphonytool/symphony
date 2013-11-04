@@ -10,7 +10,7 @@
 	</parent>
 
 	<artifactId>interpreter</artifactId>
-	<name>COMPASS Core CML Interpreter</name>
+	<name>Symphony Core CML Interpreter</name>
 	<dependencies>
 		<dependency>
 			<groupId>eu.compassresearch.core</groupId>

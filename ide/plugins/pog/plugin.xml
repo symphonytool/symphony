@@ -51,7 +51,7 @@
          point="org.eclipse.ui.views">
 		<category
 			id="eu.compassresearch.ide.ui.category"
-			name="COMPASS"/>
+			name="Symphony"/>
 		<view
             category="eu.compassresearch.ide.ui.category"
             class="eu.compassresearch.ide.pog.view.PoDetailView"

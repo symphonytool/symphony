@@ -459,7 +459,7 @@ public class ProofObligationGenerator extends
 			cmlPOG.generatePOs(source.getParagraphs());
 		} catch (AnalysisException e)
 		{
-			System.out.println("The COMPASS Proof Obligation Generator failed on this cml-source. Please submit it for investigation to richard.payne@ncl.ac.uk.\n");
+			System.out.println("The Symphony Proof Obligation Generator failed on this cml-source. Please submit it for investigation to richard.payne@ncl.ac.uk.\n");
 			e.printStackTrace();
 		}
 

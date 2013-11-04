@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: COMPASS Isabelle Plugin
+Bundle-Name: Symphony Isabelle Plugin
 Bundle-SymbolicName: eu.compassresearch.ide.theoremprover;singleton:=true
 Bundle-Version: 0.2.1.qualifier
 Bundle-Activator: eu.compassresearch.ide.theoremprover.Activator

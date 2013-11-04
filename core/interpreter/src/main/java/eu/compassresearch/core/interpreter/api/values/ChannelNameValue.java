@@ -224,6 +224,17 @@ public class ChannelNameValue extends Value
 		return true;
 	}
 
+	public void updateValues(List<Value> values)
+	{
+		for(int i = 0 ; i < values.size();i++)
+		{
+			if(this.values.size() < i)
+				updateValue(i, values.get(i));
+			else
+				this.values.add(values.get(i));
+		}
+	}
+	
 	public void updateValue(int index, Value value)
 	{
 		if(value== null)

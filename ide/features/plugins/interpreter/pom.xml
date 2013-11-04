@@ -13,6 +13,6 @@
 
   <groupId>eu.compassresearch.ide.features.plugins</groupId>
   <artifactId>eu.compassresearch.ide.features.plugins.interpreter</artifactId>
-  <name>COMPASS Tool Plugin Eclipse Interpeter feature</name>
+  <name>Symphony IDE Eclipse Interpeter feature</name>
   
 </project>
