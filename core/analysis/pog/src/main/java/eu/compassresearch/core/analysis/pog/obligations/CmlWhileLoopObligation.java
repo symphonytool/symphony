@@ -23,9 +23,9 @@
 
 package eu.compassresearch.core.analysis.pog.obligations;
 
+import org.overture.ast.statements.AWhileStm;
 import org.overture.pog.pub.IPOContextStack;
 
-import eu.compassresearch.ast.actions.AWhileStatementAction;
 
 public class CmlWhileLoopObligation extends CmlProofObligation {
 
@@ -34,7 +34,7 @@ public class CmlWhileLoopObligation extends CmlProofObligation {
 	 */
 	private static final long serialVersionUID = 1L;
 
-		public CmlWhileLoopObligation(AWhileStatementAction stmt, IPOContextStack ctxt)
+		public CmlWhileLoopObligation(AWhileStm stmt, IPOContextStack ctxt)
 		{
 			super(stmt, CmlPOType.WHILE_LOOP, ctxt, stmt.getLocation());
 			
