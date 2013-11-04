@@ -1755,7 +1755,7 @@ channelDef returns[List<AChannelDefinition> def]
 				if ($type.type != null) {
 					chanDecl.setType($type.type.clone());
 				} else {
-					chanDecl.setType(AstFactory.newAUnknownType(loc));
+					chanDecl.setType(AstFactory.newAVoidType(loc));
 				}
                 $def.add(chanDecl);
             }
@@ -1974,6 +1974,7 @@ namesetDef returns [ANamesetDefinition def]
         {
             $def = new ANamesetDefinition();
             $def.setIdentifier(new LexIdentifierToken($IDENTIFIER.getText(), false, extractLexLocation($IDENTIFIER)));
+			$def.setName(new CmlLexNameToken("",new LexIdentifierToken($IDENTIFIER.getText(), false, extractLexLocation($IDENTIFIER))));
             $def.setNamesetExpression($varsetExpr.vexp);
         }
     ;
