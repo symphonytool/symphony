@@ -1,0 +1,24 @@
+
+
+class
+
+ A =
+
+begin
+
+state
+v : int
+
+operations
+public op:()==>int
+op()== 
+(
+	dcl a: int := op()+1  @
+		 Skip
+)
+
+	
+
+end
+
+
