@@ -17,6 +17,7 @@ import org.overture.ast.patterns.PPattern;
 import org.overture.ast.statements.AAltNonDeterministicStm;
 import org.overture.ast.statements.AAssignmentStm;
 import org.overture.ast.statements.AAtomicStm;
+import org.overture.ast.statements.ABlockSimpleBlockStm;
 import org.overture.ast.statements.ACallObjectStm;
 import org.overture.ast.statements.ACallStm;
 import org.overture.ast.statements.ADoNonDeterministicStm;
@@ -152,6 +153,13 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 				return new Pair<INode, Context>(node.getStatement(), blockContext);
 			}
 		});
+	}
+	
+	@Override
+	public Inspection caseABlockSimpleBlockStm(ABlockSimpleBlockStm node,
+			Context question) throws AnalysisException
+	{
+		return node.getStatements().get(0).apply(this.parentVisitor,question);
 	}
 
 	/*

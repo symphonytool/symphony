@@ -42,6 +42,7 @@ import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASignalCommunicationParameter;
 import eu.compassresearch.ast.actions.ASkipAction;
+import eu.compassresearch.ast.actions.AStmAction;
 import eu.compassresearch.ast.actions.AStopAction;
 import eu.compassresearch.ast.actions.ASynchronousParallelismParallelAction;
 import eu.compassresearch.ast.actions.ATimeoutAction;
@@ -118,7 +119,14 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 	public Inspection caseAActionStm(AActionStm node, Context question)
 			throws AnalysisException
 	{
-		return node.apply(statementInspectionVisitor, question);
+		return node.getAction().apply(this.parentVisitor, question);
+	}
+	
+	@Override
+	public Inspection caseAStmAction(AStmAction node, Context question)
+			throws AnalysisException
+	{
+		return node.getStatement().apply(statementInspectionVisitor, question);
 	}
 
 	/**
