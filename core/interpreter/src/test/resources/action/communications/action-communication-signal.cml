@@ -2,9 +2,9 @@ channels a : int
 process A = 
 begin 
 	state
-	a : int := 2
+	v : int := 2
 
 	actions
-	INIT = a.(a+2) -> Skip 
+	INIT = a.(v+2) -> Skip 
 	@ INIT
 end

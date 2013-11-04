@@ -126,7 +126,8 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 	 * @throws UnknownHostException
 	 * @throws IOException
 	 */
-	public void connect(String host, int port) throws UnknownHostException, IOException
+	public void connect(String host, int port) throws UnknownHostException,
+			IOException
 	{
 		if (!isConnected())
 		{
@@ -531,14 +532,12 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 			CmlInterpreterStateDTO status = CmlInterpreterStateDTO.createCmlInterpreterStateDTO(runningInterpreter);
 			status.addError(new InterpreterErrorDTO(e.getMessage()));
 			stopped(status);
-		} 
-		catch (ContextException e)
+		} catch (ContextException e)
 		{
 			CmlInterpreterStateDTO status = CmlInterpreterStateDTO.createCmlInterpreterStateDTO(runningInterpreter);
 			status.addError(new InterpreterErrorDTO(e.getMessage(), e.location));
 			stopped(status);
-		}
-		finally
+		} finally
 		{
 			runningInterpreter.onStateChanged().unregisterObserver(this);
 		}

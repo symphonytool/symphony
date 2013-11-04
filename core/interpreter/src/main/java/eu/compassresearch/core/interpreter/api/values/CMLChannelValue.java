@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.types.AProductType;
+import org.overture.ast.types.AUnknownType;
 import org.overture.ast.types.PType;
 import org.overture.interpreter.values.Value;
 
@@ -60,7 +61,8 @@ public class CMLChannelValue extends Value implements CmlChannel // CmlIOChannel
 		this.channelType = channelType;
 		if (channelType instanceof AProductType)
 			valueTypes.addAll(((AProductType) channelType).getTypes());
-		else if (channelType != null)
+		// FIXME THis is changed!!
+		else if (!(channelType instanceof AUnknownType))
 			valueTypes.add(channelType);
 
 		this.name = name;

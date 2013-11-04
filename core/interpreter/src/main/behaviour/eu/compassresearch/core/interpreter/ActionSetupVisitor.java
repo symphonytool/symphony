@@ -411,34 +411,34 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 		{
 			firstRun = true;
 			// Make a set of tuples
-			//nextContext = CmlContextFactory.newContext(LocationExtractor.extractLocation(node), "replication contexts", question);
+			// nextContext = CmlContextFactory.newContext(LocationExtractor.extractLocation(node),
+			// "replication contexts", question);
 			ql = createQuantifierList(decls, question);
-			//nextContext.putNew(new NameValuePair(replicationContextValueName, ql));
+			// nextContext.putNew(new NameValuePair(replicationContextValueName, ql));
 		}
 
 		INode nextNode;
 		Iterator<NameValuePairList> itQuantifiers = ql.iterator();
 		// If we have two replication values then we need to have one interleaving action, since
 		// each value represents one process replication
-		
-		if(ql.size() == 1)
+
+		if (ql.size() == 1)
 		{
 			nextNode = factory.createLastReplication();
-			
+
 			Context leftChildContext = question.outer;
 			Context rightChildContext = createReplicationChildContext(itQuantifiers, node, question.outer.outer);
 			setChildContexts(new Pair<Context, Context>(leftChildContext, rightChildContext));
-			
-		}
-		else if (firstRun && ql.size() == 2)
+
+		} else if (firstRun && ql.size() == 2)
 		{
 			nextNode = factory.createLastReplication();
-			
+
 			Context leftChildContext = createReplicationChildContext(itQuantifiers, node, question);
 			Context rightChildContext = createReplicationChildContext(itQuantifiers, node, question);
-			//the replication context, if it exist is lowest. But if this is the first run
-			//then the replication context does not exist
-			
+			// the replication context, if it exist is lowest. But if this is the first run
+			// then the replication context does not exist
+
 			setChildContexts(new Pair<Context, Context>(leftChildContext, rightChildContext));
 		}
 		// If we have more than two replication values then we make an interleaving between the
@@ -448,27 +448,26 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 			nextNode = factory.createNextReplication();
 			Context leftChildContext;
 			Context rightChildContext;
-			
-			//the replication context must always be the lowest
-			if(firstRun)
+
+			// the replication context must always be the lowest
+			if (firstRun)
 			{
-				//if this is the first run then me must create the right child context and
-				//attach it to the replication context
+				// if this is the first run then me must create the right child context and
+				// attach it to the replication context
 				leftChildContext = createReplicationChildContext(itQuantifiers, node, question);
 				rightChildContext = createReplicationChildContext(itQuantifiers, node, question);
-			}
-			else
+			} else
 			{
 				leftChildContext = question.outer;
-				//if this is not the first run the the replication context already exist
-				//so we can pull out the parent and attach the right child context to this and
-				//then attach the replication
+				// if this is not the first run the the replication context already exist
+				// so we can pull out the parent and attach the right child context to this and
+				// then attach the replication
 				rightChildContext = createReplicationChildContext(itQuantifiers, node, question.outer.outer);
 			}
-			
+
 			rightChildContext = CmlContextFactory.newContext(LocationExtractor.extractLocation(node), "replication contexts", rightChildContext);
 			rightChildContext.putNew(new NameValuePair(replicationContextValueName, ql));
-			
+
 			setChildContexts(new Pair<Context, Context>(leftChildContext, rightChildContext));
 		}
 
@@ -643,9 +642,8 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 	}
 
 	@Override
-	public Pair<INode, Context> caseAForPatternBindStm(
-			AForPatternBindStm node, Context question)
-			throws AnalysisException
+	public Pair<INode, Context> caseAForPatternBindStm(AForPatternBindStm node,
+			Context question) throws AnalysisException
 	{
 
 		Context context = CmlContextFactory.newContext(node.getLocation(), "Sequence for loop context", question);

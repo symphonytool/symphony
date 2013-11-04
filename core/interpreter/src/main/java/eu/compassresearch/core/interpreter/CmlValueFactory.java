@@ -25,11 +25,11 @@ import eu.compassresearch.core.interpreter.api.values.CmlOperationValue;
 class CmlValueFactory
 {
 
-	public static ObjectValue createClassValue(ANewStm node,
-			Context question) throws AnalysisException
+	public static ObjectValue createClassValue(ANewStm node, Context question)
+			throws AnalysisException
 	{
-		//ACmlClassDefinition classDefinition = (ACmlClassDefinition) node.getClassdef();
-		//return createClassValue(classDefinition, question);
+		// ACmlClassDefinition classDefinition = (ACmlClassDefinition) node.getClassdef();
+		// return createClassValue(classDefinition, question);
 		return null;
 	}
 

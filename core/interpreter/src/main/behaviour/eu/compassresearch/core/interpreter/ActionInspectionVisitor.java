@@ -42,6 +42,7 @@ import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASignalCommunicationParameter;
 import eu.compassresearch.ast.actions.ASkipAction;
+import eu.compassresearch.ast.actions.AStmAction;
 import eu.compassresearch.ast.actions.AStopAction;
 import eu.compassresearch.ast.actions.ASynchronousParallelismParallelAction;
 import eu.compassresearch.ast.actions.ATimeoutAction;
@@ -100,8 +101,8 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 	 */
 
 	@Override
-	public Inspection defaultPStm(PStm node,
-			Context question) throws AnalysisException
+	public Inspection defaultPStm(PStm node, Context question)
+			throws AnalysisException
 	{
 		return node.apply(statementInspectionVisitor, question);
 	}
@@ -113,12 +114,19 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 
 		throw new CmlInterpreterException(node, InterpretationErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName()));
 	}
-	
+
 	@Override
 	public Inspection caseAActionStm(AActionStm node, Context question)
 			throws AnalysisException
 	{
-		return node.apply(statementInspectionVisitor, question);
+		return node.getAction().apply(this.parentVisitor, question);
+	}
+
+	@Override
+	public Inspection caseAStmAction(AStmAction node, Context question)
+			throws AnalysisException
+	{
+		return node.getStatement().apply(statementInspectionVisitor, question);
 	}
 
 	/**
@@ -126,8 +134,8 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 	 * node yet FIXME This might be changed! if the typechecker replaces the call node with a action reference node
 	 */
 	@Override
-	public Inspection caseACallStm(final ACallStm node,
-			final Context question) throws AnalysisException
+	public Inspection caseACallStm(final ACallStm node, final Context question)
+			throws AnalysisException
 	{
 
 		if (!owner.hasChildren())
@@ -240,7 +248,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 				ChannelNameValue channelNameValue = ((LabelledTransition) selectedTransition).getChannelName();
 
 				Context nextContext = question;
-				
+
 				if (node.getCommunicationParameters() != null)
 				{
 					for (int i = 0; i < node.getCommunicationParameters().size(); i++)
@@ -251,14 +259,14 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 						{
 							PPattern pattern = ((AReadCommunicationParameter) param).getPattern();
 							Value value = channelNameValue.getValues().get(i);
-							
+
 							/*
-							 *	Create s new context for the input params. We only want to create one 
-							 *	new context no matter the number of params so we check for equality. 
+							 * Create s new context for the input params. We only want to create one new context no
+							 * matter the number of params so we check for equality.
 							 */
-							if(nextContext == question)
+							if (nextContext == question)
 								nextContext = CmlContextFactory.newContext(node.getAction().getLocation(), "input communication context", question);
-							
+
 							nextContext.putList(PPatternAssistantInterpreter.getNamedValues(pattern, value, nextContext));
 						}
 					}
@@ -324,8 +332,9 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 		/*
 		 * This is a little hack to come around that the cmlExpressionVisitor does not now if it has to proc
 		 */
-//		Context varsetContext = CmlContextFactory.newContext(node.getLocation(), "varset expression context", question);
-//		varsetContext.putNew(new NameValuePair(NamespaceUtility.getVarExpContextName(), new BooleanValue(true)));
+		// Context varsetContext = CmlContextFactory.newContext(node.getLocation(), "varset expression context",
+		// question);
+		// varsetContext.putNew(new NameValuePair(NamespaceUtility.getVarExpContextName(), new BooleanValue(true)));
 
 		NamesetValue leftNamesetValue = null;
 		NamesetValue rightNamesetValue = null;
@@ -699,7 +708,8 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 			});
 		else
 			// If the number of tocks has not exceeded val then behave as Stop
-			return newInspection(new CmlTransitionSet(new TimedTransition(owner, val - nTocks)), null);
+			return newInspection(new CmlTransitionSet(new TimedTransition(owner, val
+					- nTocks)), null);
 	}
 
 	/**

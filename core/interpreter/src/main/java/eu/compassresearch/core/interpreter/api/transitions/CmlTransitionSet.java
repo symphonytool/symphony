@@ -108,7 +108,7 @@ public class CmlTransitionSet extends Value
 	{
 		return new LinkedHashSet<AbstractSilentTransition>(silentEvents);
 	}
-	
+
 	public CmlTransitionSet getSilentTransitions()
 	{
 		return new CmlTransitionSet(new LinkedHashSet<CmlTransition>(silentEvents));
@@ -312,7 +312,7 @@ public class CmlTransitionSet extends Value
 
 		return tock;
 	}
-	
+
 	public boolean hasTockEvent()
 	{
 		return getTockEvent() != null;
