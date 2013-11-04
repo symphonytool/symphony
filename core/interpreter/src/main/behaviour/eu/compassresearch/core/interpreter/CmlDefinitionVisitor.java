@@ -9,6 +9,7 @@ import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import org.overture.ast.definitions.AExplicitOperationDefinition;
 import org.overture.ast.definitions.AImplicitFunctionDefinition;
 import org.overture.ast.definitions.AImplicitOperationDefinition;
+import org.overture.ast.definitions.AInstanceVariableDefinition;
 import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.AValueDefinition;
@@ -129,6 +130,16 @@ class CmlDefinitionVisitor extends
 
 		return definitionListHelper(node.getStateDefs(), node.getLocation(), question);
 	}
+	
+	@Override
+	public NameValuePairList caseAInstanceVariableDefinition(
+			AInstanceVariableDefinition node, Context question)
+			throws AnalysisException
+	{
+		NameValuePairList vpl = new NameValuePairList();
+		vpl.add(new NameValuePair(node.getName(), node.getExpression().apply(this.cmlExpressionVisitor,question)));
+		return vpl;
+	}
 
 	@Override
 	public NameValuePairList caseAClassInvariantDefinition(
@@ -153,9 +164,7 @@ class CmlDefinitionVisitor extends
 	{
 
 		NameValuePairList vpl = new NameValuePairList();
-
 		vpl.add(new NameValuePair(node.getName(), new ActionValue(node)));
-
 		return vpl;
 	}
 
@@ -309,21 +318,30 @@ class CmlDefinitionVisitor extends
 		return vpl;
 	}
 
+//	@Override
+//	public NameValuePairList caseAChannelsDefinition(AChannelsDefinition node,
+//			Context question) throws AnalysisException
+//	{
+//		NameValuePairList vpl = new NameValuePairList();
+//
+//		for (AChannelDefinition cnd : node.getChannelDeclarations())
+//		{
+//			ILexNameToken name = NamespaceUtility.createChannelName(cnd.getName());
+//			vpl.add(new NameValuePair(name, new CMLChannelValue(cnd.getType(), name)));
+//		}
+//
+//		return vpl;
+//	}
+	
 	@Override
-	public NameValuePairList caseAChannelsDefinition(AChannelsDefinition node,
+	public NameValuePairList caseAChannelDefinition(AChannelDefinition node,
 			Context question) throws AnalysisException
 	{
 		NameValuePairList vpl = new NameValuePairList();
-
-		for (AChannelDefinition cnd : node.getChannelDeclarations())
-		{
-			ILexNameToken name = NamespaceUtility.createChannelName(cnd.getName());
-			vpl.add(new NameValuePair(name, new CMLChannelValue(cnd.getType(), name)));
-		}
-
+		ILexNameToken name = NamespaceUtility.createChannelName(node.getName());
+		vpl.add(new NameValuePair(name, new CMLChannelValue(node.getType(), name)));
 		return vpl;
 	}
-	
 
 	/*
 	 * Types
