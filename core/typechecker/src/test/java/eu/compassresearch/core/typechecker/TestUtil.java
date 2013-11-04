@@ -14,6 +14,8 @@ import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.parser.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.parser.CmlParserError;
+import eu.compassresearch.core.parser.ParserUtil;
+import eu.compassresearch.core.parser.ParserUtil.ParserResult;
 import eu.compassresearch.core.typechecker.CollectingIssueHandler;
 import eu.compassresearch.core.typechecker.VanillaCmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.ICmlTypeChecker;
@@ -44,7 +46,14 @@ public class TestUtil
 			fileSource.setFile(new File(file));
 			fileSource.setName(file);
 
-			res.parseErrors.addAll(parse(fileSource));
+			ParserResult parserResult = ParserUtil.parse(new File(file));
+			
+			for (CmlParserError err : parserResult.errors)
+			{
+				res.parseErrors.add(err.toString());
+			}
+			fileSource.setParagraphs(parserResult.definitions);
+			
 			res.parsedOk = res.parseErrors.isEmpty();
 
 			sources.add(fileSource);
@@ -63,42 +72,42 @@ public class TestUtil
 		return res;
 	}
 
-	static List<String> parse(AFileSource... files)
-	{
-		// boolean ok = true;
-		List<String> errors = new Vector<String>();
-		for (AFileSource fileSource : files)
-		{
-			CmlLexer lexer = null;
-			CmlParser parser = null;
-			try
-			{
-				ANTLRInputStream in = new ANTLRInputStream(new FileInputStream(fileSource.getFile()));
-				lexer = new CmlLexer(in);
-				lexer.sourceFileName = fileSource.getFile().getName();
-				CommonTokenStream tokens = new CommonTokenStream(lexer);
-				parser = new CmlParser(tokens);
-				parser.sourceFileName = lexer.sourceFileName;
-				fileSource.setParagraphs(parser.source());
-
-				// ok &= true;
-			} catch (Exception e)
-			{
-				// e.printStackTrace();
-				// ok &= false;
-			}
-
-			for (CmlParserError string : lexer.getErrors())
-			{
-				errors.add(string.toString());
-			}
-			for (CmlParserError string : parser.getErrors())
-			{
-				errors.add(string.toString());
-			}
-		}
-
-		return errors;
-
-	}
+//	static List<String> parse(AFileSource... files)
+//	{
+//		// boolean ok = true;
+//		List<String> errors = new Vector<String>();
+//		for (AFileSource fileSource : files)
+//		{
+//			CmlLexer lexer = null;
+//			CmlParser parser = null;
+//			try
+//			{
+//				ANTLRInputStream in = new ANTLRInputStream(new FileInputStream(fileSource.getFile()));
+//				lexer = new CmlLexer(in);
+//				lexer.sourceFileName = fileSource.getFile().getName();
+//				CommonTokenStream tokens = new CommonTokenStream(lexer);
+//				parser = new CmlParser(tokens);
+//				parser.sourceFileName = lexer.sourceFileName;
+//				fileSource.setParagraphs(parser.source());
+//
+//				// ok &= true;
+//			} catch (Exception e)
+//			{
+//				// e.printStackTrace();
+//				// ok &= false;
+//			}
+//
+//			for (CmlParserError string : lexer.getErrors())
+//			{
+//				errors.add(string.toString());
+//			}
+//			for (CmlParserError string : parser.getErrors())
+//			{
+//				errors.add(string.toString());
+//			}
+//		}
+//
+//		return errors;
+//
+//	}
 }
