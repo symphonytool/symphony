@@ -1,8 +1,5 @@
 package eu.compassresearch.core.typechecker;
 
-import java.util.Collection;
-
-import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.typechecker.api.ICmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 

@@ -8,8 +8,6 @@ import java.util.Vector;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.typechecker.TypeCheckException;
 
-import eu.compassresearch.ast.program.AFileSource;
-import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.parser.CmlParserError;
 import eu.compassresearch.core.parser.ParserUtil;
 import eu.compassresearch.core.parser.ParserUtil.ParserResult;
@@ -32,13 +30,12 @@ public class TestUtil
 	{
 		TypeCheckerResult res = new TypeCheckerResult();
 
-		
-		List<File> files  = new Vector<File>();
+		List<File> files = new Vector<File>();
 		for (String f : fileNames)
 		{
 			files.add(new File(f));
 		}
-		
+
 		ParserResult parserRes = ParserUtil.parse(files);
 
 		res.parsedOk = parserRes.errors.isEmpty();
@@ -61,7 +58,8 @@ public class TestUtil
 				issueHandler.addTypeError(e.node, e.location, e.getMessage());
 			}
 		}
-		res.sources = parserRes.definitions;;
+		res.sources = parserRes.definitions;
+		;
 
 		return res;
 	}

@@ -1,7 +1,5 @@
 package eu.compassresearch.core.typechecker;
 
-import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
 
@@ -29,7 +27,6 @@ import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.lex.CmlLexNameToken;
 import eu.compassresearch.ast.messages.InternalException;
-import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.typechecker.analysis.CollectGlobalStateClass;
 import eu.compassresearch.core.typechecker.analysis.OperationBodyValidater;
 import eu.compassresearch.core.typechecker.analysis.UniquenessChecker;
@@ -63,7 +60,6 @@ public class VanillaCmlTypeChecker extends AbstractTypeChecker
 		}
 	}
 
-
 	/**
 	 * Simple assigning constructor with a bit of logic in initialize.
 	 * 
@@ -83,8 +79,7 @@ public class VanillaCmlTypeChecker extends AbstractTypeChecker
 		if (issueHandler != null)
 		{
 			this.issueHandler = issueHandler;
-		}
-		else
+		} else
 		{
 			this.issueHandler = new CollectingIssueHandler();
 		}
@@ -154,7 +149,7 @@ public class VanillaCmlTypeChecker extends AbstractTypeChecker
 
 		} catch (Exception e)
 		{
-			if(e instanceof TypeCheckException)
+			if (e instanceof TypeCheckException)
 			{
 				throw e;// new InternalException(0,e.getMessage()+" "+ ((TypeCheckException)e).location);
 			}
