@@ -5,9 +5,11 @@ import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.statements.AAltNonDeterministicStm;
+import org.overture.ast.statements.PStm;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.Value;
 
+import eu.compassresearch.ast.actions.AStmAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 
 class ActionVisitorHelper
@@ -31,5 +33,10 @@ class ActionVisitorHelper
 		}
 
 		return availableAlts;
+	}
+	
+	public static AStmAction wrapStatement(PStm stm)
+	{
+		return new AStmAction(stm.getLocation(), stm);
 	}
 }

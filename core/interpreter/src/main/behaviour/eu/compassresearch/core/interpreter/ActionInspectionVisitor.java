@@ -12,6 +12,7 @@ import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.patterns.PPattern;
+import org.overture.ast.statements.AActionStm;
 import org.overture.ast.statements.ACallStm;
 import org.overture.ast.statements.PStm;
 import org.overture.ast.typechecker.NameScope;
@@ -102,7 +103,6 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 	public Inspection defaultPStm(PStm node,
 			Context question) throws AnalysisException
 	{
-
 		return node.apply(statementInspectionVisitor, question);
 	}
 
@@ -112,6 +112,13 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 	{
 
 		throw new CmlInterpreterException(node, InterpretationErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName()));
+	}
+	
+	@Override
+	public Inspection caseAActionStm(AActionStm node, Context question)
+			throws AnalysisException
+	{
+		return node.apply(statementInspectionVisitor, question);
 	}
 
 	/**
