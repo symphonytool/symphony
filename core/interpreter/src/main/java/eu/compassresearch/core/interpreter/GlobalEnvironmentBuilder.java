@@ -26,13 +26,13 @@ public class GlobalEnvironmentBuilder extends AnalysisCMLAdaptor
 
 	private CmlDefinitionVisitor cmlDefEval = new CmlDefinitionVisitor();
 
-	public GlobalEnvironmentBuilder(List<PSource> sources)
+	public GlobalEnvironmentBuilder(List<PDefinition> sourceForest)
 			throws AnalysisException
 	{
-		BuildGlobalEnvironment(sources);
+		BuildGlobalEnvironment(sourceForest);
 	}
 
-	private void BuildGlobalEnvironment(List<PSource> sources)
+	private void BuildGlobalEnvironment(List<PDefinition> sourceForest)
 			throws AnalysisException
 	{
 		// Make a state
@@ -43,13 +43,10 @@ public class GlobalEnvironmentBuilder extends AnalysisCMLAdaptor
 		 * Go through all the top level paragraphs in all the source files And add them to the global state FIXME:
 		 * access modifier are not considered, should they?
 		 */
-		for (PSource source : sources)
-		{
-			for (PDefinition def : source.getParagraphs())
+			for (PDefinition def : sourceForest)
 			{
 				globalState.putAllNew(def.apply(cmlDefEval, globalState));
 			}
-		}
 
 		// Search though all the found processes and add them to the process list
 		for (Value val : globalState.values())

@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
@@ -29,6 +30,15 @@ public class ParserUtil
 		{
 			this.errors = errors;
 			this.definitions = definitions;
+		}
+
+		public void printErrors(PrintStream printer)
+		{
+			for (CmlParserError err : errors)
+			{
+				printer.println(err.toString());
+			}
+			
 		}
 	}
 
@@ -83,6 +93,8 @@ public class ParserUtil
 	{
 		return new ANTLRInputStream(new FileInputStream(file));
 	}
+	
+	
 	
 	public static ParserResult parse(List<File> files) throws FileNotFoundException, IOException
 	{

@@ -32,6 +32,8 @@ import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.RandomSelectionStrategy;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
+import eu.compassresearch.core.parser.ParserUtil;
+import eu.compassresearch.core.parser.ParserUtil.ParserResult;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.ICmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
@@ -99,9 +101,9 @@ public class InterpretAllCmlFilesTest
 	{
 
 		File f = new File(filePath);
-		AFileSource ast = new AFileSource();
-		ast.setName(f.getName());
-		ast.setFile(f);
+//		AFileSource ast = new AFileSource();
+//		ast.setName(f.getName());
+//		ast.setFile(f);
 
 		String resultPath = filePath.split("[.]")[0] + ".result";
 
@@ -110,12 +112,15 @@ public class InterpretAllCmlFilesTest
 		
 		// if(testResult == null)
 		// Assert.fail("The testResult is not formatted correctly");
+		
+		ParserResult res = ParserUtil.parse(f);
 
-		assertTrue(CmlParserUtil.parseSource(ast));
+		//assertTrue(CmlParserUtil.parseSource(ast));
+		assertTrue(res.errors.isEmpty());
 
 		// Type check
 		ITypeIssueHandler tcIssue = VanillaFactory.newCollectingIssueHandle();
-		ICmlTypeChecker cmlTC = VanillaFactory.newTypeChecker(Arrays.asList(new PSource[] { ast }), tcIssue);
+		ICmlTypeChecker cmlTC = VanillaFactory.newTypeChecker(res.definitions, tcIssue);
 
 		boolean isTypechecked = cmlTC.typeCheck();
 
@@ -124,7 +129,7 @@ public class InterpretAllCmlFilesTest
 
 		assertTrue(isTypechecked);
 
-		CmlInterpreter interpreter = VanillaInterpreterFactory.newInterpreter(ast);
+		CmlInterpreter interpreter = VanillaInterpreterFactory.newInterpreter(res.definitions);
 
 		Exception exception = null;
 		try
