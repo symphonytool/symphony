@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedList;
+import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -24,21 +25,24 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.pog.obligation.ProofObligationList;
-import org.overture.pog.pub.IProofObligation;
 
+import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligationList;
+import eu.compassresearch.core.analysis.theoremprover.utils.UnhandledSyntaxException;
+import eu.compassresearch.core.analysis.theoremprover.visitors.TPVisitor;
 import eu.compassresearch.ide.core.resources.ICmlModel;
 import eu.compassresearch.ide.core.resources.ICmlProject;
 import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
+import eu.compassresearch.ide.core.unsupported.UnsupportedElementInfo;
 import eu.compassresearch.ide.pog.POConstants;
+import eu.compassresearch.ide.theoremprover.commands.TPCollectorHandler;
 import eu.compassresearch.ide.ui.utility.CmlProjectUtil;
-import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligationList;
-import eu.compassresearch.core.analysis.theoremprover.thms.NodeNameList;
-import eu.compassresearch.core.analysis.theoremprover.utils.UnhandledSyntaxException;
-import eu.compassresearch.core.analysis.theoremprover.visitors.TPVisitor;
 
 public class TPPluginDoStuff {
 	private IWorkbenchWindow window;
 	private IWorkbenchSite site;
+	
+	public static final String UNSUPPORTED_ELEMENTS_MSG = "This model contains unsupported CML elements. Check the warnings for more information.";
+
 	
 	/**
 	 * We will cache window object in order to be able to provide parent shell
@@ -61,6 +65,11 @@ public class TPPluginDoStuff {
 				return;
 			}
 			
+			// Test for unsupportted
+			if (checkUnsupporteds(proj)){
+				return;
+			}
+			
 			//Get the cml project
 			ICmlProject cmlProj = (ICmlProject) proj.getAdapter(ICmlProject.class);
 			
@@ -72,6 +81,9 @@ public class TPPluginDoStuff {
 			//Grab the model from the project
 			final ICmlModel model = cmlProj.getModel();
 				
+			
+			
+			
 			//Translate CML specification files to Isabelle
 			//Create project folder (needs to be timestamped)
 			DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
@@ -140,6 +152,31 @@ public class TPPluginDoStuff {
 		} catch (Exception e) {
 			e.printStackTrace();
 			popErrorMessage(e.getMessage());
+		}
+	}
+	
+	public boolean checkUnsupporteds(IProject proj) throws AnalysisException {
+
+		ICmlProject cmlProj = (ICmlProject) proj.getAdapter(ICmlProject.class);
+
+		if (!CmlProjectUtil.typeCheck(window.getShell(), cmlProj))
+		{
+			MessageDialog.openError(null, "COMPASS", "Errors in model.");
+			return true;
+		}
+
+		List<UnsupportedElementInfo> uns = new TPUnsupportedCollector().getUnsupporteds(cmlProj.getModel().getAst());
+
+		if (uns.isEmpty())
+		{
+			MessageDialog.openInformation(null, "COMPASS", "No unsupported elements detected.");
+			return false;
+		}
+		else
+		{
+			cmlProj.addUnsupportedMarkers(uns);
+			MessageDialog.openError(null, "COMPASS", UNSUPPORTED_ELEMENTS_MSG);
+			return true;
 		}
 	}
 	
