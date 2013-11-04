@@ -36,5 +36,6 @@
 <message column="2" line="273" message="Instance variable 'i' is not initialized" messageType="warning" number="0" resource="TelephoneExchange.cml"/>
 <message column="2" line="274" message="Instance variable 'away' is not initialized" messageType="warning" number="0" resource="TelephoneExchange.cml"/>
 <message column="2" line="275" message="Instance variable 'origin' is not initialized" messageType="warning" number="0" resource="TelephoneExchange.cml"/>
+<message column="1" line="249" message="3425 Communication not allowed over untyped channel: connectbusy." messageType="error" number="0" resource="TelephoneExchange.cml"/>
 <result/>
 </testResult>
