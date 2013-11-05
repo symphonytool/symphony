@@ -4,7 +4,6 @@ import java.util.LinkedList;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAGuardedAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAIfStatementAction;
-import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAEqualsBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 
 public class GuardDefGenerator {

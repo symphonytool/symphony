@@ -1,7 +1,5 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.actions;
 
-import eu.compassresearch.ast.actions.AReadCommunicationParameter;
-import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCPCMLPattern;
 

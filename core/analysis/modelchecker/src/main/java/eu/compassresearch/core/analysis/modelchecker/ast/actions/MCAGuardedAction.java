@@ -1,10 +1,7 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.actions;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
-import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCCondition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
-import eu.compassresearch.core.analysis.modelchecker.visitors.CMLModelcheckerContext;
-import eu.compassresearch.core.analysis.modelchecker.visitors.Condition;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 
 public class MCAGuardedAction implements MCPAction {

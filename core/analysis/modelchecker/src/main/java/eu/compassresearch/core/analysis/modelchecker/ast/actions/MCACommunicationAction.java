@@ -2,11 +2,6 @@ package eu.compassresearch.core.analysis.modelchecker.ast.actions;
 
 import java.util.LinkedList;
 
-import eu.compassresearch.ast.actions.PCommunicationParameter;
-import eu.compassresearch.ast.expressions.AEnumVarsetExpression;
-import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
-import eu.compassresearch.ast.expressions.ANameChannelExp;
-import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ExpressionEvaluator;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCCommEv;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCLieInFact;
@@ -18,7 +13,6 @@ import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCVoidType;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewSetStack;
-import eu.compassresearch.core.analysis.modelchecker.visitors.SetStack;
 
 public class MCACommunicationAction implements MCPAction {
 

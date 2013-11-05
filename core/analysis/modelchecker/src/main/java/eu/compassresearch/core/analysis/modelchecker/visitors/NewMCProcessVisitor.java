@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.definitions.SClassDefinition;
 import org.overture.ast.node.INode;
 
 import eu.compassresearch.ast.actions.AReferenceAction;
@@ -16,6 +17,7 @@ import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCPCMLDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAActionClassDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.process.MCAActionProcess;
 
 public class NewMCProcessVisitor extends
@@ -43,13 +45,9 @@ public class NewMCProcessVisitor extends
 		}
 		*/
 		// it applies to each definition of this action process
-		LinkedList<MCPCMLDefinition> mcDefinitionParagraphs = new LinkedList<MCPCMLDefinition>(); 
-		for (PDefinition definition : node.getDefinitionParagraphs()) {
-			mcDefinitionParagraphs.add((MCPCMLDefinition) definition.apply(rootVisitor, question));
-		}
-			
+		MCAActionClassDefinition classDefinition = (MCAActionClassDefinition) node.getActionDefinition().apply(rootVisitor, question); 
 		MCPAction mcAction = (MCPAction) node.getAction().apply(rootVisitor, question);
-		MCAActionProcess result = new MCAActionProcess(mcDefinitionParagraphs,mcAction);
+		MCAActionProcess result = new MCAActionProcess(classDefinition,mcAction);
 		
 		return result;
 		
@@ -58,7 +56,7 @@ public class NewMCProcessVisitor extends
 	private PAction findRealAction(AActionProcess node,AReferenceAction action){
 		PAction result = null;
 		boolean found = false; 
-		for (PDefinition definition : node.getDefinitionParagraphs()) {
+		for (PDefinition definition : node.getActionDefinition().getDefinitions()) {
 			if(definition instanceof AActionsDefinition){
 				for (AActionDefinition actionDef : ((AActionsDefinition) definition).getActions()) {
 					if(actionDef.getName().toString().equals(action.getName().toString())){

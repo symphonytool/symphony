@@ -8,11 +8,8 @@ import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.node.INode;
 
-import eu.compassresearch.ast.actions.ABlockStatementAction;
-import eu.compassresearch.ast.actions.ACallStatementAction;
 import eu.compassresearch.ast.actions.AChaosAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
-import eu.compassresearch.ast.actions.ADeclareStatementAction;
 import eu.compassresearch.ast.actions.ADivAction;
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
 import eu.compassresearch.ast.actions.AExternalChoiceReplicatedAction;
@@ -20,14 +17,12 @@ import eu.compassresearch.ast.actions.AGeneralisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AGeneralisedParallelismReplicatedAction;
 import eu.compassresearch.ast.actions.AGuardedAction;
 import eu.compassresearch.ast.actions.AHidingAction;
-import eu.compassresearch.ast.actions.AIfStatementAction;
 import eu.compassresearch.ast.actions.AInterleavingParallelAction;
 import eu.compassresearch.ast.actions.AInternalChoiceAction;
 import eu.compassresearch.ast.actions.AInternalChoiceReplicatedAction;
 import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionReplicatedAction;
-import eu.compassresearch.ast.actions.ASingleGeneralAssignmentStatementAction;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.AStopAction;
 import eu.compassresearch.ast.actions.PAction;
@@ -158,6 +153,7 @@ public class NewMCActionVisitor extends
 		
 	}
 	
+	/*
 	@Override
 	public MCNode caseABlockStatementAction(ABlockStatementAction node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
@@ -172,6 +168,7 @@ public class NewMCActionVisitor extends
 		return result;
 	}
 	
+	*/
 	@Override
 	public MCNode caseASequentialCompositionAction(
 			ASequentialCompositionAction node, NewCMLModelcheckerContext question)
@@ -184,6 +181,7 @@ public class NewMCActionVisitor extends
 		return result;
 	}
 	
+	/*
 	@Override
 	public MCNode caseADeclareStatementAction(
 			ADeclareStatementAction node, NewCMLModelcheckerContext question)
@@ -200,7 +198,7 @@ public class NewMCActionVisitor extends
 		MCADeclareStatementAction result = new MCADeclareStatementAction(mcAssignDefs);
 		return result;
 	}
-	
+	*/
 	@Override
 	public MCNode caseAInterleavingParallelAction(
 			AInterleavingParallelAction node, NewCMLModelcheckerContext question)
@@ -389,6 +387,7 @@ public class NewMCActionVisitor extends
 		return result;
 	}
 	
+	/*
 	@Override
 	public MCNode caseAIfStatementAction(AIfStatementAction node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
@@ -408,7 +407,9 @@ public class NewMCActionVisitor extends
 
 		
 	}
+	*/
 	
+	/*
 	@Override
 	public MCNode caseASingleGeneralAssignmentStatementAction(
 			ASingleGeneralAssignmentStatementAction node,
@@ -425,7 +426,9 @@ public class NewMCActionVisitor extends
 		
 		return result;
 	}
+	*/
 	
+	/*
 	@Override
 	public MCNode caseACallStatementAction(ACallStatementAction node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
@@ -441,6 +444,7 @@ public class NewMCActionVisitor extends
 		return result;
 		
 	}
+	*/
 
 	/////REPLICATED ACTIONS
 	

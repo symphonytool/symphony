@@ -12,7 +12,6 @@ import org.overture.ast.types.AProductType;
 import org.overture.ast.types.PType;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
-import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.ast.types.PCMLType;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
@@ -65,6 +64,7 @@ public class NewMCTypeAndValueVisitor extends
 		return result;
 	}
 
+	/*
 	@Override
 	public MCNode caseAChannelType(AChannelType node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
@@ -79,6 +79,7 @@ public class NewMCTypeAndValueVisitor extends
 		
 		return result;
 	}
+	*/
 
 	@Override
 	public MCNode caseAProductType(AProductType node,

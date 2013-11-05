@@ -1,10 +1,7 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.actions;
 
-import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCAssignDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
-import eu.compassresearch.core.analysis.modelchecker.visitors.CMLModelcheckerContext;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
-import eu.compassresearch.core.analysis.modelchecker.visitors.Utilities;
 
 public class MCASingleGeneralAssignmentStatementAction implements MCPAction {
 

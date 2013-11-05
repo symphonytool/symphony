@@ -1,18 +1,16 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.declarations;
 
-import java.util.LinkedList;
-
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 
 public class MCAExpressionSingleDeclaration implements MCPSingleDeclaration {
 
-	private LinkedList<String> identifiers;
+	private String identifier;
 	private MCPCMLExp expression;
 
-	public MCAExpressionSingleDeclaration(LinkedList<String> identifiers,
+	public MCAExpressionSingleDeclaration(String identifier,
 			MCPCMLExp expression) {
 		super();
-		this.identifiers = identifiers;
+		this.identifier = identifier;
 		this.expression = expression;
 	}
 
@@ -23,14 +21,15 @@ public class MCAExpressionSingleDeclaration implements MCPSingleDeclaration {
 		return null;
 	}
 
+	
 
-	public LinkedList<String> getIdentifiers() {
-		return identifiers;
+	public String getIdentifier() {
+		return identifier;
 	}
 
 
-	public void setIdentifiers(LinkedList<String> identifiers) {
-		this.identifiers = identifiers;
+	public void setIdentifier(String identifier) {
+		this.identifier = identifier;
 	}
 
 
