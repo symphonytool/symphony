@@ -1,0 +1,8 @@
+/* Explicit recursion is ok with defined actions */
+
+process A =
+begin
+
+@ mu X @( Skip ; X)
+
+end

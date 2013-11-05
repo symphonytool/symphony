@@ -1,0 +1,8 @@
+/* External choice is not ok with undefined actions */
+
+process A =
+begin
+
+@ Skip [] action 
+
+end
