@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.secondedition.RunCmlExamplesTestCase">
+<message column="8" line="1" message="Duplicate definition: RegisterProc" messageType="warning" number="0" resource="process-action-interleaving.result"/>
+<message column="8" line="2" message="Duplicate definition: RegisterProc" messageType="warning" number="0" resource="process-action-interleaving.result"/>
+<message column="8" line="1" message="Duplicate definition: RegisterProc" messageType="error" number="0" resource="process-action-interleaving.result"/>
+<message column="8" line="2" message="Duplicate definition: RegisterProc" messageType="error" number="0" resource="process-action-interleaving.result"/>
+<message column="31" line="1" message="3410 The Symbol &quot;A&quot; is undefined." messageType="error" number="0" resource="process-action-interleaving.result"/>
+<message column="37" line="1" message="3410 The Symbol &quot;B&quot; is undefined." messageType="error" number="0" resource="process-action-interleaving.result"/>
+<message column="31" line="2" message="3410 The Symbol &quot;A&quot; is undefined." messageType="error" number="0" resource="process-action-interleaving.result"/>
+<message column="55" line="2" message="3410 The Symbol &quot;B&quot; is undefined." messageType="error" number="0" resource="process-action-interleaving.result"/>
+<message column="38" line="2" message="3410 The Symbol &quot;a&quot; is undefined." messageType="error" number="0" resource="process-action-interleaving.result"/>
+<message column="40" line="2" message="3410 The Symbol &quot;b&quot; is undefined." messageType="error" number="0" resource="process-action-interleaving.result"/>
+<message column="46" line="2" message="3410 The Symbol &quot;a&quot; is undefined." messageType="error" number="0" resource="process-action-interleaving.result"/>
+<message column="48" line="2" message="3410 The Symbol &quot;b&quot; is undefined." messageType="error" number="0" resource="process-action-interleaving.result"/>
+<result/>
+</testResult>

@@ -1,0 +1,5 @@
+types
+
+ A = compose rec of real rat int nat nat1 char bool (token) token <SomeQuote>
+
+end

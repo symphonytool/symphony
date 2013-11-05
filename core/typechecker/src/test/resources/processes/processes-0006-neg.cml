@@ -1,0 +1,21 @@
+process
+
+ A =
+
+begin
+
+ @ Skip
+
+end
+
+
+
+process
+
+ p1 =
+
+begin
+
+ @ (A \\ {| channel1 |})
+
+end

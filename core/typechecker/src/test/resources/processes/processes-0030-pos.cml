@@ -1,0 +1,5 @@
+
+
+
+process P2 = P;P
+process P = begin @ Skip end

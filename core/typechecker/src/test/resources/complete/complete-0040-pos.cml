@@ -1,0 +1,7 @@
+types
+
+ Day = nat AvailDB = map Day to nat
+
+functions
+
+ CkAvail (d:Day,av:AvailDB) n:nat post n = av(d)

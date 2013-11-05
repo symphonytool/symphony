@@ -1,14 +1,15 @@
 package eu.compassresearch.core.interpreter.api.values;
 
+import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.types.AProductType;
+import org.overture.ast.types.AUnknownType;
 import org.overture.ast.types.PType;
 import org.overture.interpreter.values.Value;
 
-import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.interpreter.api.CmlChannel;
 import eu.compassresearch.core.interpreter.api.events.ChannelActivity;
 import eu.compassresearch.core.interpreter.api.events.ChannelEvent;
@@ -25,12 +26,17 @@ public class CMLChannelValue extends Value implements CmlChannel // CmlIOChannel
 	 */
 	private static final long serialVersionUID = 6350630462785844551L;
 	private ILexNameToken name;
-	private AChannelType channelType;
+	private PType channelType;
 	private List<PType> valueTypes;
 
 	private class ChannelEventMediator implements
-			EventFireMediator<ChannelObserver, ChannelEvent>
+			EventFireMediator<ChannelObserver, ChannelEvent>, Serializable
 	{
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -6748280966083470111L;
+
 		@Override
 		public void fireEvent(ChannelObserver observer, Object source,
 				ChannelEvent event)
@@ -51,13 +57,13 @@ public class CMLChannelValue extends Value implements CmlChannel // CmlIOChannel
 
 	public CMLChannelValue(PType channelType, ILexNameToken name)
 	{
-		this.channelType = (AChannelType) channelType;
 		valueTypes = new LinkedList<PType>();
-
-		if (this.channelType.getType() instanceof AProductType)
-			valueTypes.addAll(((AProductType) this.channelType.getType()).getTypes());
-		else if (this.channelType.getType() != null)
-			valueTypes.add(this.channelType.getType());
+		this.channelType = channelType;
+		if (channelType instanceof AProductType)
+			valueTypes.addAll(((AProductType) channelType).getTypes());
+		// FIXME THis is changed!!
+		else if (!(channelType instanceof AUnknownType))
+			valueTypes.add(channelType);
 
 		this.name = name;
 	}

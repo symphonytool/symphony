@@ -1,0 +1,5 @@
+types
+
+ A = compose rec of a:real b:rat c:int
+
+end

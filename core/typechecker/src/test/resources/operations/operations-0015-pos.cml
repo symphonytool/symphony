@@ -1,0 +1,13 @@
+class
+
+ A =
+
+begin
+
+
+
+operations
+
+ op1: () ==> () op1() == Skip ; Skip
+
+end

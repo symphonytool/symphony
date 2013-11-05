@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.secondedition.RunCmlExamplesTestCase">
+<message column="8" line="1" message="Duplicate definition: test" messageType="warning" number="0" resource="process-replication-generalisedParallelism.result"/>
+<message column="8" line="2" message="Duplicate definition: test" messageType="warning" number="0" resource="process-replication-generalisedParallelism.result"/>
+<message column="8" line="3" message="Duplicate definition: test" messageType="warning" number="0" resource="process-replication-generalisedParallelism.result"/>
+<message column="17" line="1" message="3410 The Symbol &quot;a&quot; is undefined." messageType="error" number="0" resource="process-replication-generalisedParallelism.result"/>
+<message column="43" line="1" message="3410 The Symbol &quot;A&quot; is undefined." messageType="error" number="0" resource="process-replication-generalisedParallelism.result"/>
+<message column="17" line="2" message="3410 The Symbol &quot;a&quot; is undefined." messageType="error" number="0" resource="process-replication-generalisedParallelism.result"/>
+<message column="38" line="2" message="Name 'i' is not in scope" messageType="error" number="0" resource="process-replication-generalisedParallelism.result"/>
+<message column="36" line="2" message="3410 The Symbol &quot;A&quot; is undefined." messageType="error" number="0" resource="process-replication-generalisedParallelism.result"/>
+<message column="17" line="3" message="3410 The Symbol &quot;a&quot; is undefined." messageType="error" number="0" resource="process-replication-generalisedParallelism.result"/>
+<message column="51" line="3" message="3410 The Symbol &quot;A&quot; is undefined." messageType="error" number="0" resource="process-replication-generalisedParallelism.result"/>
+<result/>
+</testResult>

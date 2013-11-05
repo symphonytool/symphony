@@ -1,0 +1,13 @@
+class
+
+ test =
+
+begin
+
+
+
+values
+
+ a:map int to int = inverse { 1|->2, 2|->1}
+
+end

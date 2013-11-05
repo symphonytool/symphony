@@ -1,0 +1,17 @@
+process
+
+ L =
+
+begin
+
+
+
+state
+
+ k : int
+
+operations
+
+ K:int*int ==> int K(a,b) == for all i in set {1,2,3} do k := k + o @ Skip
+
+end

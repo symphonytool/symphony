@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.ValuesCmlTypeCheckerTests">
+<message column="30" line="11" message="test`self not in scope" messageType="error" number="0" resource="values-0114-neg.cml"/>
+<result/>
+</testResult>

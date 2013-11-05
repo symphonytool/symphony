@@ -1,0 +1,24 @@
+channels
+
+ a : int
+
+process
+
+ A =
+
+begin
+
+
+
+state
+
+ b : int := 2
+
+actions
+
+ INIT = a!(b+2) -> Skip 
+ 
+ 
+ @ INIT
+
+end

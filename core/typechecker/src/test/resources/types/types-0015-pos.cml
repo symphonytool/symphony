@@ -1,0 +1,3 @@
+types
+
+ A = [compose rec of k:int end]

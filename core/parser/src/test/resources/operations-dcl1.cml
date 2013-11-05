@@ -1,0 +1,16 @@
+class
+
+ A =
+
+begin
+
+state
+v : int
+
+operations
+public op:()==>()
+op()== dcl t: SUBS @ t := 1
+
+
+
+end

@@ -1,0 +1,23 @@
+/*Test that the dot '.' prefix on
+
+channels
+
+ works*/
+
+channels
+
+ a: int * int
+
+process
+
+ A =
+
+begin
+
+
+
+state
+
+ istate : int jstate : int @ a?i?j -> a.i.j -> (istate := i ; jstate := j)
+
+end

@@ -78,11 +78,11 @@ public interface CmlInterpreter
 	// Debugging control methods
 
 	public boolean addBreakpoint(Breakpoint bp);
-	
+
 	public boolean removeBreakpoint(Breakpoint bp);
 
 	public Breakpoint getActiveBreakpoint();
-	
+
 	public void setSuspendBeforeTermination(boolean suspend);
 
 	public boolean suspendBeforeTermination();

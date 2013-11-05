@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.secondedition.RunCmlExamplesTestCase">
+<message column="6" line="9" message="a at 5:1 hidden by a" messageType="warning" number="0" resource="not.result"/>
+<message column="6" line="9" message="Definition 'a' not used" messageType="warning" number="0" resource="not.result"/>
+<message column="12" line="5" message="Not expression is not a boolean" messageType="error" number="0" resource="not.result"/>
+<message column="12" line="5" message="Left hand of &gt; is not numeric" messageType="error" number="0" resource="not.result"/>
+<result/>
+</testResult>

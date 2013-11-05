@@ -1,0 +1,13 @@
+class
+
+ test =
+
+begin
+
+
+
+operations
+
+ o1:int ==> int o1(a) == let b : int = a+1 in return (c)
+
+end

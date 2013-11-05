@@ -1,0 +1,13 @@
+class
+
+ A =
+
+begin
+
+
+
+operations
+
+ op1: () ==> bool op1() == return true pre op1()
+
+end

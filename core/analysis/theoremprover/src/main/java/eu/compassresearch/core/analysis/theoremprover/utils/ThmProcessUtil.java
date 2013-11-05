@@ -7,10 +7,11 @@ import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import org.overture.ast.definitions.AImplicitFunctionDefinition;
 import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.definitions.SOperationDefinition;
 import org.overture.ast.lex.LexNameToken;
 
+import eu.compassresearch.ast.definitions.AActionClassDefinition;
 import eu.compassresearch.ast.definitions.AActionDefinition;
-import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
 import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.core.analysis.theoremprover.thms.NodeNameList;
 
@@ -70,7 +71,9 @@ public class ThmProcessUtil {
 	public static NodeNameList getProcessStatementNames(AActionProcess act)
 	{
 		LinkedList<AStateDefinition> statements = new LinkedList<AStateDefinition>();
-		for (PDefinition pdef : act.getDefinitionParagraphs())
+		AActionClassDefinition actdef = (AActionClassDefinition) act.getActionDefinition();
+		
+		for (PDefinition pdef : actdef.getDefinitions())
 		{
 			if (pdef instanceof AStateDefinition)
 			{
@@ -152,11 +155,11 @@ public class ThmProcessUtil {
 	 * @return a list of names (as ILexNameTokens)
 	 */
 	public static NodeNameList getOperationNames(
-			LinkedList<SCmlOperationDefinition> operations) {
+			LinkedList<SOperationDefinition> operations) {
 		
 		NodeNameList opNames = new NodeNameList();
 		//for each operation
-		for(SCmlOperationDefinition op : operations){
+		for(SOperationDefinition op : operations){
 			//get the name and add it to the list
 			opNames.add(op.getName());
 			//Construct a name for the operation precondition

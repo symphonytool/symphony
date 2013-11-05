@@ -1,18 +1,18 @@
 package eu.compassresearch.core.typechecker.weeding;
 
-import java.util.Collection;
 import java.util.LinkedList;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import org.overture.ast.definitions.AImplicitFunctionDefinition;
+import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.types.AFunctionType;
 import org.overture.ast.types.AProductType;
 import org.overture.ast.types.AVoidType;
 import org.overture.ast.types.PType;
 
 import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
-import eu.compassresearch.ast.program.PSource;
+import eu.compassresearch.core.typechecker.DefinitionList;
 
 /**
  * @author kel & cb
@@ -21,11 +21,11 @@ import eu.compassresearch.ast.program.PSource;
 public class Weeding1 extends DepthFirstAnalysisCMLAdaptor
 {
 
-	public static void apply(Collection<PSource> lp)
+	public static void apply(DefinitionList sourceForest)
 	{
 
 		Weeding1 lv = new Weeding1();
-		for (PSource s : lp)
+		for (PDefinition s : sourceForest)
 		{
 			if (s != null)
 				try
@@ -55,14 +55,6 @@ public class Weeding1 extends DepthFirstAnalysisCMLAdaptor
 		flattenProductParameterType(node.getType());
 	}
 
-	private void flattenProductParameterType(PType type)
-	{
-		if (type instanceof AFunctionType)
-		{
-			flattenProductParameterType((AFunctionType) type);
-		}
-	}
-
 	/*
 	 * VDMPP parser adds types one by one for the outer product type. E.g. f: int * int -> int has arg-types [int,int]
 	 * rather than (int * int).
@@ -90,6 +82,10 @@ public class Weeding1 extends DepthFirstAnalysisCMLAdaptor
 			}
 
 			fnType.setParameters(types);
+			for (PType t : types)
+			{
+				t.parent(fnType);
+			}
 		}
 
 	}

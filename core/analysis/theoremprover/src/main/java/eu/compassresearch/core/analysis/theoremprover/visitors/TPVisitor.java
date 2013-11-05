@@ -17,7 +17,7 @@ import org.overture.pog.pub.IProofObligation;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
-import eu.compassresearch.ast.definitions.AChannelNameDefinition;
+import eu.compassresearch.ast.definitions.AChannelDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.process.AActionProcess;
@@ -71,7 +71,7 @@ public class TPVisitor extends
 	}
 
 	@Override
-	public ThmNodeList caseAChannelNameDefinition(AChannelNameDefinition node, ThmVarsContext vars)
+	public ThmNodeList caseAChannelDefinition(AChannelDefinition node, ThmVarsContext vars)
 			throws AnalysisException {		
 		return node.apply(this.chanVisitor, vars);
 	}

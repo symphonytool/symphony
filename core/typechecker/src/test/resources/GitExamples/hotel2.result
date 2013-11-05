@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.secondedition.RunCmlExamplesTestCase">
+<message column="1" line="78" message="zotels at 78:1 hidden by zotels" messageType="warning" number="0" resource="hotel2.result"/>
+<message column="1" line="79" message="bookings at 79:1 hidden by bookings" messageType="warning" number="0" resource="hotel2.result"/>
+<message column="1" line="78" message="zotels at 78:1 hidden by zotels" messageType="warning" number="0" resource="hotel2.result"/>
+<message column="1" line="79" message="bookings at 79:1 hidden by bookings" messageType="warning" number="0" resource="hotel2.result"/>
+<message column="1" line="78" message="zotels at 78:1 hidden by zotels" messageType="warning" number="0" resource="hotel2.result"/>
+<message column="1" line="78" message="Instance variable 'zotels' is not initialized" messageType="warning" number="0" resource="hotel2.result"/>
+<message column="1" line="79" message="Instance variable 'bookings' is not initialized" messageType="warning" number="0" resource="hotel2.result"/>
+<message column="5" line="101" message="Name 'checkAvailability(Stay)' is not in scope" messageType="error" number="0" resource="hotel2.result"/>
+<message column="5" line="101" message="Operation 'checkAvailability' cannot be called in an expression" messageType="error" number="0" resource="hotel2.result"/>
+<message column="35" line="118" message="Name 'checkAvailability(Stay)' is not in scope" messageType="error" number="0" resource="hotel2.result"/>
+<message column="35" line="118" message="Operation 'checkAvailability' cannot be called in an expression" messageType="error" number="0" resource="hotel2.result"/>
+<message column="16" line="147" message="Name 'preCheckAvailability(Stay)' is not in scope" messageType="error" number="0" resource="hotel2.result"/>
+<message column="16" line="147" message="Operation 'preCheckAvailability' cannot be called in an expression" messageType="error" number="0" resource="hotel2.result"/>
+<message column="62" line="147" message="Name 'checkAvailability(Stay)' is not in scope" messageType="error" number="0" resource="hotel2.result"/>
+<message column="32" line="149" message="Name 's' is not in scope" messageType="error" number="0" resource="hotel2.result"/>
+<message column="11" line="149" message="Name 'preCheckAvailability(?)' is not in scope" messageType="error" number="0" resource="hotel2.result"/>
+<message column="11" line="149" message="Operation 'preCheckAvailability' cannot be called in an expression" messageType="error" number="0" resource="hotel2.result"/>
+<message column="15" line="151" message="Name 'preMakeBooking(Stay)' is not in scope" messageType="error" number="0" resource="hotel2.result"/>
+<message column="15" line="151" message="Operation 'preMakeBooking' cannot be called in an expression" messageType="error" number="0" resource="hotel2.result"/>
+<message column="25" line="153" message="Name 's' is not in scope" messageType="error" number="0" resource="hotel2.result"/>
+<message column="10" line="153" message="Name 'preMakeBooking(?)' is not in scope" messageType="error" number="0" resource="hotel2.result"/>
+<message column="10" line="153" message="Operation 'preMakeBooking' cannot be called in an expression" messageType="error" number="0" resource="hotel2.result"/>
+<message column="24" line="155" message="Name 'preGetQuoteAvail(Stay)' is not in scope" messageType="error" number="0" resource="hotel2.result"/>
+<message column="24" line="155" message="Operation 'preGetQuoteAvail' cannot be called in an expression" messageType="error" number="0" resource="hotel2.result"/>
+<message column="29" line="157" message="Name 's' is not in scope" messageType="error" number="0" resource="hotel2.result"/>
+<message column="12" line="157" message="Name 'preGetQuoteAvail(?)' is not in scope" messageType="error" number="0" resource="hotel2.result"/>
+<message column="12" line="157" message="Operation 'preGetQuoteAvail' cannot be called in an expression" messageType="error" number="0" resource="hotel2.result"/>
+<result/>
+</testResult>

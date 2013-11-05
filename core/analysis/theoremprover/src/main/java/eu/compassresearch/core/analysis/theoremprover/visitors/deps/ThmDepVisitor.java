@@ -9,7 +9,7 @@ import org.overture.ast.types.PType;
 
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
-import eu.compassresearch.ast.definitions.AChannelNameDefinition;
+import eu.compassresearch.ast.definitions.AChannelDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.expressions.PCMLExp;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
@@ -58,7 +58,7 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList> {
 	}
 	
 	@Override
-	public NodeNameList caseAChannelNameDefinition(AChannelNameDefinition node, NodeNameList bvars)
+	public NodeNameList caseAChannelDefinition(AChannelDefinition node, NodeNameList bvars)
 			throws AnalysisException {		
 		return node.apply(this.chanDepVisitor, bvars);
 	}

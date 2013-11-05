@@ -1,0 +1,15 @@
+/*This test was reported by AKM and checks that do statements only contain boolean types*/
+
+process
+
+ A =
+
+begin
+
+ @ do true -> Skip | false -> Skip
+
+end
+
+
+
+end

@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
+import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.node.INode;
 import org.overture.ide.core.IVdmModel;
 import org.overture.ide.core.resources.IVdmSourceUnit;
@@ -233,5 +234,19 @@ class CmlModel implements ICmlModel
 			}
 		};
 		job.schedule();
+	}
+
+	@Override
+	public List<PDefinition> getDefinitions()
+	{
+		List<PDefinition> defs = new Vector<PDefinition>();
+		for (INode n : getAst())
+		{
+			if(n instanceof PDefinition)
+			{
+				defs.add((PDefinition) n);
+			}
+		}
+		return defs;
 	}
 }

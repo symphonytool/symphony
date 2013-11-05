@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.secondedition.RunCmlExamplesTestCase">
+<message column="12" line="5" message="Unable to resolve type name 'Byte'" messageType="error" number="0" resource="process-operations.result"/>
+<message column="18" line="6" message="Unable to resolve type name 'Byte'" messageType="error" number="0" resource="process-operations.result"/>
+<message column="5" line="24" message="3113 Unknown type name init" messageType="error" number="0" resource="process-operations.result"/>
+<result/>
+</testResult>

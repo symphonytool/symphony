@@ -1,0 +1,13 @@
+process
+
+ A =
+
+begin
+
+
+
+actions
+
+ B = Skip @ Skip
+
+end

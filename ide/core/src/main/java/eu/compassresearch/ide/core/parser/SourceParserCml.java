@@ -1,6 +1,9 @@
 package eu.compassresearch.ide.core.parser;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
@@ -21,7 +24,6 @@ import org.overture.parser.messages.VDMWarning;
 import eu.compassresearch.core.parser.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.parser.CmlParserError;
-import eu.compassresearch.core.typechecker.CmlTCUtil;
 
 public class SourceParserCml extends AbstractParserParticipant
 {
@@ -57,19 +59,19 @@ public class SourceParserCml extends AbstractParserParticipant
 			parser = new CmlParser(tokens);
 			parser.sourceFileName = lexer.sourceFileName;
 
-				List<PDefinition> paragraphs = parser.source();
-				List<PDefinition> notNullParagraphs = new LinkedList<PDefinition>();
-				for (PDefinition par : paragraphs)
+			List<PDefinition> paragraphs = parser.source();
+			List<PDefinition> notNullParagraphs = new LinkedList<PDefinition>();
+			for (PDefinition par : paragraphs)
+			{
+				if (par != null)
 				{
-					if (par != null)
-					{
-						notNullParagraphs.add(par);
-					} else
-					{
-						errors.add(getErrorMessage(file, "Parser gave back a null paragraph.", 1));
-					}
+					notNullParagraphs.add(par);
+				} else
+				{
+					errors.add(getErrorMessage(file, "Parser gave back a null paragraph.", 1));
 				}
-				parselist.addAll(notNullParagraphs);
+			}
+			parselist.addAll(notNullParagraphs);
 
 		} catch (Exception e1)
 		{
@@ -78,7 +80,7 @@ public class SourceParserCml extends AbstractParserParticipant
 				String msg = "";
 				if (e1 instanceof RuntimeException)
 				{
-					msg = CmlTCUtil.getErrorMessages((RuntimeException) e1);
+					msg = getErrorMessages((RuntimeException) e1);
 				} else
 				{
 					msg = e1.getMessage();
@@ -109,6 +111,18 @@ public class SourceParserCml extends AbstractParserParticipant
 		result.setWarnings(warnings);
 
 		return result;
+	}
+	
+	public static String getErrorMessages(Exception e) {
+		ByteArrayOutputStream b = new ByteArrayOutputStream();
+		PrintWriter pw = new PrintWriter(b);
+		e.printStackTrace(pw);
+		pw.flush();
+		try {
+			b.flush();
+		} catch (IOException e1) {
+		}
+		return new String(b.toByteArray());
 	}
 
 	private VDMError getErrorMessage(IVdmSourceUnit unit, String msg, int line)

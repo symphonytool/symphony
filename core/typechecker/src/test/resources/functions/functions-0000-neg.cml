@@ -1,0 +1,13 @@
+class
+
+ K =
+
+begin
+
+
+
+functions
+
+ fn: int -> int fn(a) == "Wrong type" + a
+
+end

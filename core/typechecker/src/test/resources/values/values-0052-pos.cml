@@ -1,0 +1,13 @@
+class
+
+ test =
+
+begin
+
+
+
+values
+
+ a:map int to map int to int = merge { {0 |-> { 1 |-> 42}}, {1 |-> { 2 |-> 42 }}}
+
+end

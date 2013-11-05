@@ -1,0 +1,3 @@
+types
+
+ Q1 = <A> Q = <A> inv q == is_Q1(q)

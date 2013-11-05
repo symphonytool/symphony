@@ -1,0 +1,25 @@
+types
+
+ Value = int ID = nat
+
+process
+
+ P =
+
+begin
+
+
+
+operations
+
+ CheckMac: Value * Value * ID ==> bool 
+ CheckMac(a,b,c) == 
+ 	return (a*b=c) 
+ 	
+ Me: () ==> bool 
+ Me() == (dcl a : Value := 2 @ 
+ 			return CheckMac(a,2,4)) 
+ 			
+ @ Skip
+
+end

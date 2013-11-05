@@ -1,0 +1,13 @@
+process
+
+ L =
+
+begin
+
+
+
+state
+
+ l : int @ || i in set {1,2,3} @ [{ }] l:=i
+
+end

@@ -1,0 +1,15 @@
+/*Check for AEnumVarsetExpression. Wrong type in channel compared to product type. Negative test*/
+
+channels
+
+ c:int*char
+
+process
+
+ A =
+
+begin
+
+ @ c.(1).(1) -> Skip [| {c.(1).(1)} |] c.(1).(1) -> Skip
+
+end
