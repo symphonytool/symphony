@@ -29,7 +29,6 @@ import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler.CMLTypeError;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler.CMLTypeWarning;
 import eu.compassresearch.ide.core.resources.ICmlModel;
-import eu.compassresearch.ide.core.unsupported.UnsupportedElementInfo;
 
 public class BuilderCml extends AbstractVdmBuilder
 {
@@ -45,7 +44,6 @@ public class BuilderCml extends AbstractVdmBuilder
 	{
 		List<VDMError> errors = new ArrayList<VDMError>();
 		List<VDMWarning> warnings = new ArrayList<VDMWarning>();
-		List<UnsupportedElementInfo> uns = new ArrayList<UnsupportedElementInfo>();
 		// Collection<PSource> cmlSources = new Vector<PSource>();
 		// for (INode s : rooList.getRootElementList())
 		// {
@@ -90,11 +88,11 @@ public class BuilderCml extends AbstractVdmBuilder
 			new Status(IStatus.ERROR, IBuilderVdmjConstants.PLUGIN_ID, 0, "not typechecked, internal error", e);
 		}
 
-		return setMarkers(errors, warnings, uns);
+		return setMarkers(errors, warnings);
 	}
 
 	private IStatus setMarkers(List<VDMError> errors,
-			List<VDMWarning> warnings, List<UnsupportedElementInfo> uns)
+			List<VDMWarning> warnings)
 	{
 		boolean typeCheckFailed = !errors.isEmpty();
 
