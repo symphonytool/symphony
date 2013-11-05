@@ -57,7 +57,7 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 		try
 		{
 
-			int port = 9002;//CmlDebugDefaultValues.PORT;
+			int port = CmlDebugDefaultValues.PORT;
 			ICmlProject project = (ICmlProject) getProject(configuration).getAdapter(ICmlProject.class);
 			// set launch encoding to UTF-8. Mainly used to set console encoding.
 			launch.setAttribute(DebugPlugin.ATTR_CONSOLE_ENCODING, "UTF-8");
@@ -71,7 +71,14 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 			configurationMap.put(CmlInterpreterArguments.HOST.key, "localhost");
 			configurationMap.put(CmlInterpreterArguments.PORT.key, port);
 
-			// configurationMap.put(CmlInterpreterArguments.REMOTE_NAME.toString(), "org.overture.cml.TestRemote");
+			if (configuration.hasAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_REMOTE_INTERPRETER_CLASS))
+			{
+				String remoteClass = configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_REMOTE_INTERPRETER_CLASS, "");
+				if (!remoteClass.trim().isEmpty())
+				{
+					configurationMap.put(CmlInterpreterArguments.REMOTE_NAME.toString(), remoteClass);
+				}
+			}
 
 			if (mode.equals(ILaunchManager.DEBUG_MODE))
 			{
@@ -206,25 +213,6 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 	public static boolean isWindowsPlatform()
 	{
 		return System.getProperty("os.name").toLowerCase().contains("win");
-	}
-
-	private String getCpSeperator()
-	{
-		if (isWindowsPlatform())
-			return ";";
-		else
-			return ":";
-	}
-
-	protected static String toPlatformPath(String path)
-	{
-		if (isWindowsPlatform())
-		{
-			return "\"" + path + "\"";
-		} else
-		{
-			return path.replace(" ", "\\ ");
-		}
 	}
 
 }
