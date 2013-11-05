@@ -273,7 +273,7 @@ public class TPPluginDoStuff {
 			pol.addAll(model.getAttribute(POConstants.PO_REGISTRY_ID,
 					CmlProofObligationList.class));
 
-			if (pol == null) {
+			if (pol.isEmpty()) {
 				popErrorMessage("There are no Proof Oligations to discharge.");
 				return;
 			}

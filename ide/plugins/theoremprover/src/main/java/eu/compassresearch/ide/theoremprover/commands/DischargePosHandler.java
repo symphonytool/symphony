@@ -3,15 +3,11 @@ package eu.compassresearch.ide.theoremprover.commands;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.handlers.HandlerUtil;
 
-import eu.compassresearch.ide.core.resources.ICmlProject;
-import eu.compassresearch.ide.theoremprover.CmlTPPlugin;
 import eu.compassresearch.ide.theoremprover.FetchPosUtil;
 import eu.compassresearch.ide.theoremprover.TPPluginDoStuff;
-import eu.compassresearch.ide.theoremprover.TPPluginUtils;
 
 
 public class DischargePosHandler extends AbstractHandler
