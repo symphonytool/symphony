@@ -1,0 +1,64 @@
+    //Types
+    VOID                    ::= {void}.
+    primitive Seq           ::= (v:SeqType).
+    EmptySeq                ::= { empty }.
+    primitive NonEmptySeq   ::= ( first: Type, rest: SeqType ).
+    SeqType                 ::= EmptySeq + NonEmptySeq.
+    DerivableSeq            ::= (SeqType).     
+	
+    primitive Set           ::= (SetType).   
+    EmptySet                ::= {emptySet}.     
+    primitive NonEmptySet   ::= (head:Type,tail:SetType).     
+    SetType                 ::= EmptySet + NonEmptySet.
+    DerivableSet            ::= (SetType). 
+
+	//A representation for product type
+	primitive ProdType ::= (first: Type, second: Type).
+	 
+	// User defined types
+	//USER_DEF_TYPES
+	
+	Type ::= VOID + Integer + Natural + String + Real + SeqType + SetType + ProdType /*INCLUDE USER_DEF_TYPES*/.
+
+	// Bindings 
+    NullBind            ::= {nBind}. 
+	primitive SingleBind ::= (name: String, val:Type).               
+	primitive BBinding    ::= (b: SingleBind, rest: Binding). 
+	Binding       ::= NullBind + BBinding.
+
+	// Operations over bindings. 
+	primitive fetch ::= (vName: String, bind: Binding, val:Type).
+	upd   ::= (bOld: Binding, b: SingleBind, bNew: Binding).
+	primitive del   ::= (bOld: Binding, vName: String, bNew: Binding).
+    
+    merge   ::= (st1: Binding, lVars: SetType, st2: Binding, rVars: SetType, stF: Binding).
+    merge(bindL,setL,bindR,setR,bindRes) :-	filter(bindL, setL, bindRes1), 
+									        filter(bindR, setR, bindRes2),
+									        unionB(bindRes1, bindRes2, bindRes).
+									
+    filter  ::= (b: Binding, vars: SetType, st2: Binding).
+    filter(bind,set,bindR)	:-	bind is BBinding(SingleBind(vN,vVal),_),
+							    set is NonEmptySet(vN,emptySet),
+							    bindR = BBinding(SingleBind(vN,vVal),nBind).
+									
+    filter(bind, set, nBind) :-	bind is BBinding(SingleBind(vN, vVal), restB),
+							    set is NonEmptySet(vN_, emptySet), vN != vN_.
+									
+    filter(bind, set, bindR) :-	set = NonEmptySet(vN, restS),
+							    filter(bind, NonEmptySet(vN, emptySet), bind1),
+							    filter(bind, restS, bind2),
+							    unionB(bind1, bind2, bindR).
+
+    unionB  ::= (bindX:Binding, bindY: Binding, bindZ:Binding).
+    unionB(nBind,nBind,nBind).
+    unionB(nBind,Sy,Sy) :- Sy is BBinding(_,_) ; Sy = nBind.
+    unionB(Sx,nBind,Sx) :- Sx is BBinding(_,_) ; Sx = nBind.
+    unionB(BBinding(SingleBind(varX,valX),S),BBinding(SingleBind(varY,valY),nBind),BBinding(SingleBind(varX,valX),S_)) :-  
+      	    BBinding(SingleBind(varX,valX),S_), varX != varY,
+      	    unionB(S,BBinding(SingleBind(varY,valY),nBind),S_).
+    unionB(BBinding(SingleBind(varX,valX),S),BBinding(SingleBind(varY,valX),nBind),BBinding(SingleBind(varX,valX),S_)) :-  
+      	BBinding(SingleBind(varX,valX),S_), varX = varY, S_=S.
+
+	//Guard evaluation to handle boolean expression evaluation
+	guardDef      ::= (id: Natural, st: Binding).
+    guardNDef     ::= (id: Natural, st: Binding).

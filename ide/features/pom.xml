@@ -13,7 +13,7 @@
 
   <groupId>eu.compassresearch.ide</groupId>
   <artifactId>features</artifactId>
-  <name>COMPASS Tool Platform Eclipse features</name>
+  <name>Symphony IDE Eclipse features</name>
   
   <modules>
     <module>core</module>

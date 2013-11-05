@@ -15,6 +15,11 @@ public class FormulaIntegrationUtilities {
 	//public static final String WORKING_DIRECTORY = FileSystemView.getFileSystemView().getHomeDirectory().getAbsolutePath();
 	public static final String BASIC_FORMULA_SCRIPT = "/basic_formula_script.fml";
 	
+	public static final String AUXILIARY_DEFINITIONS_SCRIPT = "/aux_definitions.fml";
+	public static final String SYNTAX_DOMAIN_SCRIPT = "/cml_syntax.fml";
+	public static final String SEMANTICS_DOMAIN_SCRIPT = "/cml_semantics.fml";
+	public static final String PROPERTIES_DOMAIN_SCRIPT = "/cml_properties.fml";
+	
 	public static void buildSpecification(String specificContent){
 		//it obtains the basic content of the semantics
 		

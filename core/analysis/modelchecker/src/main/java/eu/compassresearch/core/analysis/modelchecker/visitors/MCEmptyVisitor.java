@@ -4,6 +4,7 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.node.INode;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
+import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 
 public class MCEmptyVisitor extends QuestionAnswerCMLAdaptor<CMLModelcheckerContext, StringBuilder> {
 

@@ -1,0 +1,138 @@
+	State ::= (b: Binding, p: CMLProcess). 
+	trans ::= (source: State, ev: SigmaTau, target: State).
+
+    // a -> P 
+    //State(st,P),
+    //trans(State(st,Prefix(BasicEv(a),P)),BasicEv(a),State(st,P)) :- State(st,Prefix(BasicEv(a),P)).
+    
+	// a?x -> P
+    State(st_,P),
+    trans(ini, CommEv(chName,chExp,chType), State(st_,P))
+            :- ini is State(st,Prefix(IOComm(id,chName,chExp,chType),P)), IOCommDef(id,chType,st,st_).
+    
+	// a?x -> P
+    //State(l, st_,pN,P),
+    //trans(ini, CommEv(l,chExp,chType), State(l, st_,pN,P))
+    //       :- ini is State(l, st,pN,Prefix(IOComm(occ,chExp,chType), P)), /*Channel(l,chName,chType),*/ IOCommDef(l, occ,chType,st,st_).
+    
+    // P |~| Q
+    State(st,P),
+    trans(State(st,iChoice(P,Q)),tau,State(st, P)) :- State(st,iChoice(P,Q)).
+    State(st, Q),
+    trans(State(st,iChoice(P,Q)),tau,State(st, Q)) :- State(st,iChoice(P,Q)).
+    
+    
+    // P [] Q
+    State(st,P),
+    State(st,Q),
+    State(st, extraChoice(st,P,st,Q)),
+    trans(iS, tau, State(st, extraChoice(st,P,st,Q))) :- iS is State(st,eChoice(P,Q)).
+    
+    //if one of the operands terminates (external choice:skip)
+	State(st1,Skip),
+    trans(iS,tau,State(st1,Skip)) :- iS is State(st,extraChoice(st1,Skip,st2,_)).
+    State(st2,Skip),
+    trans(iS,tau,State(st2,Skip)) :- iS is State(st,extraChoice(st1,_,st2,Skip)).
+
+    //if one of the operands has internal progress (external choice:silent)
+    State(stP_,P_), 
+    State(st,extraChoice(stP_,P_,stQ,Q)),
+    trans(iS,tau,State(st,extraChoice(stP_,P_,stQ,Q))) :- iS is State(st,extraChoice(stP,P,stQ,Q)),trans(State(stP,P),tau,State(stP_,P_)).
+	
+    State(stQ_, Q_), 
+    State(st,extraChoice(stP,P,stQ_,Q_)),
+    trans(iS,tau,State(st,extraChoice(stP,P,stQ_,Q_))) :- iS is State(st,extraChoice(stP,P,stQ,Q)),trans(State(stQ,Q),tau,State(stQ_,Q_)).
+
+    //using a visible event (external choice: end)
+    State(st3,P_),
+    trans(iS,ev,State(st3,P_)) :- iS is State(st,extraChoice(st1,P,st2,Q)), trans(State(st1,P),ev,State(st3,P_)), ev != tau.
+    State(st3,Q_),
+    trans(iS,ev,State(st3,Q_)) :- iS is State(st,extraChoice(st1,P,st2,Q)), trans(State(st2,Q),ev,State(st3,Q_)), ev != tau.
+
+	// if cond then P else Q
+    State(st,p),
+    trans(iS,tau,State(st,p)) :- iS is State(st,condChoice(id,p,q)),guardDef(id,st).
+    State(st,q),
+    trans(iS, tau, State(st,q)) :- iS is State(st,condChoice(id, p, q)), guardNDef(id, st).
+
+	// P \ X 
+    State(st,P) :- State(st,hide(P,X)). 
+	
+    // P \ X --tau--> P' \ X. 
+    State(st_,hide(P_, X)),
+    trans(iS, tau, State(st_,hide(P_, X))) :- iS is State(st,hide(P,X)), trans(State(st,P), ev, State(st_,P_)), ev!= tau, lieIn(ev, X).    
+    State(st_,hide(P_, X)),
+    trans(iS, tau, State(st_, hide(P_, X))) :- iS is State(st,hide(P,X)), trans(State(st,P), tau, State(st_,P_)).
+
+	// P \ X --ev--> P' \ X
+    State(st_,hide(P_, X)),
+    trans(State(st,hide(P,X)), ev, State(st_,hide(P_, X))) :- State(st,hide(P,X)), trans(State(st,P), ev, State(st_,P_)), fail lieIn(ev, X).    
+    
+    //Skip \ X --tick--> Skip
+    State(st,Skip),
+    trans(State(st,hide(Skip,X)), tau, State(st,Skip)) :- State(st,hide(Skip,X)).
+
+	// P ; Q 
+    State(st,P) :- State(st,seqC(P, Q)), P != Skip.
+    State(st,Q),
+    trans(iS,tau,State(st,Q)) :- iS is State(st,seqC(Skip,Q)).
+    trans(iS,tau,State(st,Chaos)) :- iS is State(st,seqC(Chaos,Q)).
+
+    State(st_,seqC(P_,Q)),
+    trans(iS,ev,State(st_,seqC(P_,Q))) :- iS is State(st,seqC(P,Q)),trans(State(st,P),ev,State(st_,P_)).
+
+	// P [|X|] Q - parallel begin
+	State(st,P),
+	State(st,Q),
+	State(st,par(st,P,X,st,Q)),  
+    trans(iS,tau,State(st,par(st,P,X,st,Q))) :- iS is State(st,genPar(P,X,Q)).
+
+	State(stP,P), State(stQ,Q) :- State(st,par(stP,P,X,stQ,Q)).
+		
+    //ON DEMAND STATE GENERATION
+    State(st,body) :- trans(S,ev,State(st,body)).
+    
+
+    //parallel independent
+    //P || Q --ev--> P' || Q
+    State(st,par(stP_,P_,X,stQ,Q)),
+    trans(iS, ev, State(st,par(stP_,P_,X,stQ,Q))) :- iS is State(st,par(stP,P,X,stQ,Q)),  
+													    trans(State(stP,P),ev,State(stP_,P_)),fail lieIn(ev, X).
+
+    //P || Q --ev--> P || Q'
+    State(st,par(stP,P,X,stQ_,Q_)),
+    trans(iS, ev, State(st,par(stP,P,X,stQ_,Q_))) :- iS is State(st,par(stP,P,X,stQ,Q)),  
+													    trans(State(stQ,Q), ev, State(stQ_,Q_)), fail lieIn(ev, X).
+    
+    //parallel synchronised
+    // P || Q --ev--> P' || Q'
+    State(st,par(stP_,P_,X,stQ_,Q_)),
+    trans(iS, ev, State(st,par(stP_,P_,X,stQ_,Q_))) :- iS is State(st,par(stP,P,X,stQ,Q)), trans(State(stP,P),ev,State(stP_,P_)),
+													      trans(State(stQ,Q),ev,State(stQ_,Q_)), ev!=tau, lieIn(ev, X).
+    //parallel end
+    State(st,Skip),
+    trans(iS, tau, State(st,Skip)) :- iS is State(st,par(stP,Skip,X,stQ,Skip)).
+    
+    // Call reusing state
+    trans(n,tau,State(st,PBody)) :- n is State(st,proc(P,pPar)), ProcDef(P,pP,PBody).
+
+    // operations
+    trans(n,tau,State(st_,Skip)) :- n is State(st,operation(schN,opPar)), preOpOk(schN,opPar,st), operationDef(schN,opPar,st,st_).
+    trans(n,tau,State(st,Chaos)) :- n is State(st,operation(schN,opPar)), preOpNOk(schN,opPar,st).
+
+    // Assignment
+    trans(n,tau,State(st_, Skip)) :- n is State(st,assign(id)),assignDef(id,st,st_). 
+
+	// Var
+    trans(iS, tau, State(st,let(nx, pBody))) :- iS is State(st, var(nx, xT, pBody)).
+    //trans(iS, tau, State(st,pBody)) :- iS is State(st, var(nx, xT, pBody)). //, upd(st, SingleBind(nx, Int(0)), st_). FIX IT!!!
+
+    // Let
+	State(st, P) :- State(st,let(x, P)).
+    
+    // The next rule has a problem (infinite) if an st_ is used instead of st
+	trans(iS, ev, State(st_, let(x,P_))) :- iS is State(st,let(x,P)), trans(State(st,P), ev, State(st_,P_)). //update the binding
+	trans(iS, tau, State(st_,Skip)) :- iS is State(st,let(x,Skip)), del(_,vName,st_).
+
+    // The following primitive is used to mark the starting point
+    primitive GivenProc ::= (name: String).

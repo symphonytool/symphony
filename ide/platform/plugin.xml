@@ -6,11 +6,7 @@
       point="org.eclipse.core.runtime.products">
     <product
         application="org.eclipse.ui.ide.workbench"
-        name="CML Compass Project">
-      <property
-          name="appName"
-          value="CML Compass Project">
-      </property>
+        name="Symphony IDE">
       <property
           name="aboutText"
           value="%aboutText">
@@ -21,7 +17,7 @@
       </property> 
       <property
           name="startupProgressRect"
-          value="20,235,415,10">
+          value="20,235,460,10">
       </property>
       <property
 	  name="startupMessageRect"
@@ -29,7 +25,7 @@
       </property>
       <property
 	  name="appName"
-	  value="COMPASS Tools">
+	  value="Symphony IDE">
       </property>
       <property
 	  name="preferenceCustomization"
@@ -42,7 +38,7 @@
       </property>
       <property
 	  name="windowImages"
-	  value="icons/compassToolIcon.png">
+	  value="icons/symphony_icon.png">
       </property>
     </product>
   </extension>
@@ -91,14 +87,14 @@
       point="org.eclipse.core.runtime.products">
     <product
         application="org.eclipse.ui.ide.workbench"
-        name="The COMPASS CML Tool Platform">
+        name="The Symphony IDE">
       <property
           name="startupForegroundColor"
           value="7F7F7F">
       </property>
       <property
           name="startupProgressRect"
-          value="0,0,300,20">
+          value="20,235,460,15">
       </property>
       <property
           name="startupMessageRect"
@@ -106,7 +102,7 @@
       </property>
       <property
           name="appName"
-          value="The COMPASS CML Tool Platform">
+          value="The Symphony IDE">
       </property>
       <property
           name="preferenceCustomization"
@@ -118,11 +114,11 @@
       </property>
       <property
           name="aboutText"
-          value="Learn more about COMPASS Research at http://www.compass-research.eu">
+          value="Learn more about the COMPASS Project at http://www.compass-research.eu">
       </property>
       <property
           name="windowImages"
-          value="icons/icon16.png,icons/icon32.png,icons/icon64.png">
+          value="icons/symphony16.png,icons/symphony32.png,icons/symphony64.png">
       </property>
     </product>
   </extension>

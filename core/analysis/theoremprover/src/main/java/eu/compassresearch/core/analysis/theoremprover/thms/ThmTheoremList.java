@@ -4,6 +4,7 @@ import eu.compassresearch.core.common.AnalysisArtifact;
 
 import java.util.Vector;
 
+@SuppressWarnings("serial")
 public class ThmTheoremList extends Vector<ThmTheorem> implements AnalysisArtifact {
 	@Override
     // Outputs each member of the list

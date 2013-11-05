@@ -31,6 +31,8 @@ import java.util.Set;
 import java.util.Vector;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.definitions.AExplicitOperationDefinition;
+import org.overture.ast.definitions.AImplicitOperationDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.AEqualsBinaryExp;
 import org.overture.ast.expressions.AExistsExp;
@@ -50,9 +52,6 @@ import org.overture.ast.types.PType;
 import org.overture.pog.pub.IPOContextStack;
 import org.overture.typechecker.assistant.pattern.PPatternAssistantTC;
 
-import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
-import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
-
 public class CmlParameterPatternObligation extends CmlProofObligation
 {
 	/**
@@ -61,7 +60,7 @@ public class CmlParameterPatternObligation extends CmlProofObligation
 	private static final long serialVersionUID = 1L;
 	
 	public CmlParameterPatternObligation(
-		AExplicitCmlOperationDefinition def, IPOContextStack ctxt) throws AnalysisException
+		AExplicitOperationDefinition def, IPOContextStack ctxt) throws AnalysisException
 	{
 		super(def, CmlPOType.OPERATION_PATTERNS, ctxt, def.getLocation());
 		valuetree.setPredicate(ctxt.getPredWithContext(generate(def.getPredef(), getParamPatternList(def), ((AOperationType) def.getType()).getParameters(), ((AOperationType) def.getType()).getResult())));
@@ -69,14 +68,14 @@ public class CmlParameterPatternObligation extends CmlProofObligation
 	}
 
 	public CmlParameterPatternObligation(
-		AImplicitCmlOperationDefinition def, IPOContextStack ctxt) throws AnalysisException
+		AImplicitOperationDefinition def, IPOContextStack ctxt) throws AnalysisException
 	{
 		super(def, CmlPOType.OPERATION_PATTERNS, ctxt, def.getLocation());
 		valuetree.setPredicate(ctxt.getPredWithContext(generate(def.getPredef(), getListParamPatternList(def), ((AOperationType) def.getType()).getParameters(), ((AOperationType) def.getType()).getResult())));
 
 	}
 	
-	public static List<List<PPattern>> getParamPatternList(AExplicitCmlOperationDefinition func) {
+	public static List<List<PPattern>> getParamPatternList(AExplicitOperationDefinition func) {
 		List<List<PPattern>> parameters = new ArrayList<List<PPattern>>();
 		List<PPattern> plist = new ArrayList<PPattern>();
 
@@ -89,7 +88,7 @@ public class CmlParameterPatternObligation extends CmlProofObligation
 		return parameters;
 	}
 	
-	public static List<List<PPattern>> getListParamPatternList(AImplicitCmlOperationDefinition func) {
+	public static List<List<PPattern>> getListParamPatternList(AImplicitOperationDefinition func) {
 		List<List<PPattern>> parameters = new ArrayList<List<PPattern>>();
 		List<PPattern> plist = new ArrayList<PPattern>();
 

@@ -3,6 +3,7 @@ package eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Type;
 
 
@@ -16,9 +17,6 @@ public class BBinding implements Binding {
 		this.procName = procName;
 		this.head = head;
 		this.tail = tail;
-	}
-	public BBinding() {
-		// TODO Auto-generated constructor stub
 	}
 	public SingleBind getHead() {
 		return head;
@@ -90,6 +88,25 @@ public class BBinding implements Binding {
 			result.append("BBinding(" + this.procName + ",");
 			SingleBind singleBind = (SingleBind) iterator.next();
 			result.append(singleBind.toFormulaWithUnderscore());
+			if(iterator.hasNext()){
+				result.append(",");
+			}
+		}
+		result.append(",nBind");
+		for (int i = 0; i < bindList.size(); i++) {
+			result.append(")");
+		}
+		return result.toString();
+	}
+	
+	public String toFormulaGeneric(){
+		StringBuilder result = new StringBuilder();
+		LinkedList<SingleBind> bindList = new LinkedList<SingleBind>(); 
+		getSingleBindings(bindList, this);
+		for (Iterator<SingleBind> iterator = bindList.iterator(); iterator.hasNext();) {
+			result.append("BBinding(" + this.procName + ",");
+			SingleBind singleBind = (SingleBind) iterator.next();
+			result.append(singleBind.toFormulaGeneric());
 			if(iterator.hasNext()){
 				result.append(",");
 			}
@@ -176,14 +193,12 @@ public class BBinding implements Binding {
 		StringBuilder result = new StringBuilder();
 		
 		//TODO
-		
 		return result;
 	}
 	public StringBuilder generateAllDelFacts(int number){
 		StringBuilder result = new StringBuilder();
 		
 		//TODO
-		
 		return result;
 	}
 
@@ -196,6 +211,15 @@ public class BBinding implements Binding {
 					&& this.getTail().equals(other.getTail());
 		}
 		return result;
+	}
+	@Override
+	public String toFormula(String option) {
+		if(option.equals(MCNode.DEFAULT)){
+			return toFormula();
+		} else if(option.equals(MCNode.GENERIC)){
+			return toFormulaGeneric();
+		}
+		return toFormulaWithState();
 	}
 
 

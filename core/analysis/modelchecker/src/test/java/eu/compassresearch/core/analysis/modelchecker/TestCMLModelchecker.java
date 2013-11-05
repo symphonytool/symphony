@@ -15,7 +15,6 @@ import eu.compassresearch.core.analysis.modelchecker.api.FormulaIntegrator;
 import eu.compassresearch.core.analysis.modelchecker.api.FormulaIntegrationException;
 import eu.compassresearch.core.analysis.modelchecker.api.FormulaResult;
 import eu.compassresearch.core.analysis.modelchecker.api.IFormulaIntegrator;
-import eu.compassresearch.core.analysis.modelchecker.visitors.CMLModelCheckerAdaptor;
 import eu.compassresearch.core.analysis.modelchecker.visitors.CMLModelcheckerVisitor;
 import eu.compassresearch.core.analysis.modelchecker.visitors.Utilities;
 
