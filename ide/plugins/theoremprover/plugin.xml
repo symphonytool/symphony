@@ -9,6 +9,15 @@
 
   -->
   
+  <!-- SET OF EXTENSIONS FOR LAUCH CONFIG -->
+     <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="eu.compassresearch.ide.theoremprover.isabellelaunch.WorkbenchPreferencePage1"
+            id="eu.compassresearch.ide.theoremprover.isabellelaunch.page1"
+            name="Isabelle">
+      </page>
+   </extension>
   
 
  <extension
@@ -19,16 +28,39 @@
          name="DischargePOs">
    </command>
    <command
+          defaultHandler="eu.compassresearch.ide.theoremprover.commands.LaunchIsabelleHandler"
+          id="eu.compassresearch.ide.theoremprover.isabellelaunchcommand"
+          name="LaunchIsabelle">
+     </command>
+   <command
           defaultHandler="eu.compassresearch.ide.theoremprover.commands.TPCollectorHandler"
           id="eu.compassresearch.ide.theoremprover.tpCollectorCommand"
           name="Test Theorem Prover Compatibility">
    </command>
+   <command
+        defaultHandler="eu.compassresearch.ide.theoremprover.commands.GenerateThyHandler"
+        id="eu.compassresearch.ide.theoremprover.generatethy"
+        name="GenerateThy">
+	</command>
 </extension>
 
   
   
 <extension
       point="org.eclipse.ui.menus">
+   <menuContribution
+         allPopups="false"
+         locationURI="menu:org.eclipse.ui.main.menu">
+         <menu
+           id ="eu.compassresearch.ide.isabellelaunch"
+           label ="Isabelle Setup">
+      		<command
+           		commandId="eu.compassresearch.ide.theoremprover.isabellelaunchcommand"
+            	label="Setup Isabelle Configuration"
+           		style="push">
+      		</command>
+      	</menu>
+   </menuContribution>
    <menuContribution
          allPopups="false"
          locationURI="toolbar:eu.compassresearch.ide.pog.POsTable">
@@ -40,20 +72,6 @@
             tooltip="Send POs to Theorem Prover">
       </command>
    </menuContribution>
-</extension>
-  
-
-	<extension
-            point="org.eclipse.ui.commands">
-		<command
-        defaultHandler="eu.compassresearch.ide.theoremprover.commands.GenerateThyHandler"
-        id="eu.compassresearch.ide.theoremprover.generatethy"
-        name="GenerateThy">
-		</command>
-	</extension>
-  
-  <extension
-      point="org.eclipse.ui.menus">
 		<menuContribution
          allPopups="false"
          locationURI="popup:eu.compassresearch.ide.ui.CmlNavigator">
@@ -68,8 +86,8 @@
 	                  label="Check TP compatibility"
 	                  tooltip="Test compatibility of model with theorem prover.">
             	</command>
-            	                 <separator
-                        name="eu.compassresearch.ide.theoremprover.separator"
+            	 <separator
+                       name="eu.compassresearch.ide.theoremprover.separator"
                         visible="true">
                   </separator>
 				<command
