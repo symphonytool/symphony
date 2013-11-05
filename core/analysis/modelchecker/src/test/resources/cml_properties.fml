@@ -1,6 +1,6 @@
     // Deadlock property
-    Deadlock := GivenProc(name),ProcDef(name,params,body),reachable(State(_,st,_,L)),trans(_,_,State(_,st,_,L)),fail trans(State(_,st,_,L),_,_),L != Skip.
-    Deadlock := GivenProc(name),ProcDef(name,params,body),fail trans(State(_,s,name,body),_,_), body != Skip.
+    Deadlock := GivenProc(name),ProcDef(name,params,body),reachable(State(st,L)),fail trans(State(st,L),_,_),L != Skip, L != body.
+    Deadlock := GivenProc(name),ProcDef(name,params,body),fail trans(State(s,body),_,_), body != Skip.
 
     //Livelock property
     // Capturing tau-loops
@@ -16,8 +16,8 @@
     
 	reachable    ::= (fS:State).
 	//The initial binding is captured at initialisation
-    reachable(State(0,b,P,PBody)) :- State(0,b,P,PBody), GivenProc(P),ProcDef(P,pPar,PBody).
-	reachable(Q)  :- GivenProc(P),ProcDef(P,pPar,PBody), trans(State(_,_,P,PBody),_,Q).
+    reachable(State(b,PBody)) :- State(b,PBody), GivenProc(P),ProcDef(P,pPar,PBody).
+	reachable(Q)  :- GivenProc(P),ProcDef(P,pPar,PBody), trans(State(_,PBody),_,Q).
 	reachable(Q)  :- reachable(R), trans(R,_,Q).
 	
 	//s^<a> \in traces(P) <=> reachable(PBody,L), accepts(L,a,_)
@@ -26,4 +26,4 @@
 						accepts(S1,ev), ev!= tau, fail accepts(S2,ev),
 						reachable(S1),reachable(S2).
 	
-    Chaos := GivenProc(name),ProcDef(name,params,body), trans(_,_,State(_,_,name,Chaos)).
+    Chaos := GivenProc(name),ProcDef(name,params,body), trans(_,_,State(_,Chaos)).

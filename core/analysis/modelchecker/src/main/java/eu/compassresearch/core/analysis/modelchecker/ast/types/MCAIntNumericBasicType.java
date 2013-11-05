@@ -15,7 +15,7 @@ public class MCAIntNumericBasicType extends MCPCMLNumericType {
 		StringBuilder result = new StringBuilder();
 		switch (option) {
 		case MCNode.DEFAULT:
-			result.append("Integer");
+			result.append(this.getValue());
 			break;
 		
 		case MCNode.NAMED:

@@ -31,6 +31,7 @@ import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.analysis.modelchecker.api.FormulaIntegrationUtilities;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.Domain;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.FormulaSpecification;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.PartialModel;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAProcessDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCATypeDefinition;
@@ -48,12 +49,7 @@ public class NewMCVisitor extends
 	private final static String ANALYSIS_NAME = "Model Checker Visitor";
 	private String propertyToCheck = Utilities.DEADLOCK_PROPERTY;
 	
-	private Domain auxiliaryDomain;
-	private Domain syntaxDomain;
-	private Domain semanticsDomain;
-	private Domain propertiesDomain;
-	private Domain problemDomain;
-	private PartialModel problemModel;
+	private FormulaSpecification formulaSpecification;
 	
 	private NewMCActionVisitor actionVisitor;
 	private NewMCDeclarationAndDefinitionVisitor declAndDefVisitor;
@@ -85,29 +81,7 @@ public class NewMCVisitor extends
 		this.expressionVisitor = new NewMCExpressionVisitor(this);
 		this.typeAndValueVisitor = new NewMCTypeAndValueVisitor(this);
 		this.paramAndPatternVisitor = new NewMCParameterAndPatternVisitor(this);
-		//loadDomains();
-	}
-	
-	private void loadDomains() throws IOException{
-		
-		Domain parentDomain = null;
-		
-		StringBuilder auxDefContent = FormulaIntegrationUtilities.readScriptFromFile(FormulaIntegrationUtilities.AUXILIARY_DEFINITIONS_SCRIPT);
-		this.auxiliaryDomain = new Domain("AuxiliaryDefinitions", parentDomain, auxDefContent.toString());
-		
-		StringBuilder cmlSyntaxContent = FormulaIntegrationUtilities.readScriptFromFile(FormulaIntegrationUtilities.SYNTAX_DOMAIN_SCRIPT);
-		this.syntaxDomain = new Domain("CMLSyntax", auxiliaryDomain, cmlSyntaxContent.toString());
-		
-		StringBuilder cmlSemanticsContent = FormulaIntegrationUtilities.readScriptFromFile(FormulaIntegrationUtilities.SEMANTICS_DOMAIN_SCRIPT);
-		this.semanticsDomain = new Domain("CMLSemantics", syntaxDomain, cmlSemanticsContent.toString());
-		
-		StringBuilder cmlPropertiesContent = FormulaIntegrationUtilities.readScriptFromFile(FormulaIntegrationUtilities.PROPERTIES_DOMAIN_SCRIPT);
-		this.propertiesDomain = new Domain("CMLProperties", semanticsDomain, cmlPropertiesContent.toString());
-		
-		//initially the problem domain and partial model have no content
-		this.problemDomain = new Domain("DependentModel", semanticsDomain,"");
-		this.problemModel = new PartialModel(problemDomain);
-		
+		this.formulaSpecification = new FormulaSpecification();
 	}
 	
 	@Override
@@ -276,7 +250,7 @@ public class NewMCVisitor extends
 			//codes[sources.indexOf(source)] = basicContent + "\n" + dependentCode;
 		}
 		
-		handleUserTypeDefinitions();
+		//handleUserTypeDefinitions();
 		
 		MCAProcessDefinition mainProcessDef = getMainProcess();
 		String content = mainProcessDef.toFormula(MCNode.DEFAULT);
@@ -284,26 +258,6 @@ public class NewMCVisitor extends
 		codes[0] = content;
 		
 		return codes;
-	}
-	
-	private void handleUserTypeDefinitions(){
-		StringBuilder userTypeDefs = new StringBuilder();
-		StringBuilder userTypeNames = new StringBuilder();
-		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
-		
-		if(context.typeDefinitions.size() > 0){
-			for (MCATypeDefinition typeDef : context.typeDefinitions) {
-				userTypeDefs.append(typeDef.toFormula(MCNode.DEFAULT));
-				userTypeDefs.append("\n");
-				userTypeNames.append(" + " + typeDef.getName());
-			}
-			this.auxiliaryDomain.replace("//USER_DEF_TYPES", userTypeDefs.toString());
-			this.auxiliaryDomain.replace("/*INCLUDE USER_DEF_TYPES*/", userTypeNames.toString());
-		}
-		
-		
-		
-		
 	}
 	
 	private  MCAProcessDefinition getMainProcess(){
@@ -329,53 +283,21 @@ public class NewMCVisitor extends
 		return result;
 	}
 	
-	private String mountFormulaScript(List<PDefinition> definitions, String mainProcessName) throws IOException, AnalysisException{
-		
-		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
-		
-		StringBuilder result = new StringBuilder();
-		
-		//loads all domains to build the entire script
-		this.loadDomains();
-		
-		//it visits all paragraphs
-		for (PDefinition paragraph : definitions) {
-			paragraph.apply(this, context);
-		}
-		
-		context.mainProcess = findMainProcessDefinition(mainProcessName);
-		
-		//it adds user type definitions to the auxiliary domain
-		handleUserTypeDefinitions();
-		
-		//it writes the auxiliary domain
-		result.append(this.auxiliaryDomain.toFormula(MCNode.DEFAULT));
-		
-		//it writes the syntax domain
-		result.append(this.syntaxDomain.toFormula(MCNode.DEFAULT));
-		
-		//it writes the semantic domain
-		result.append(this.semanticsDomain.toFormula(MCNode.DEFAULT));
-		
-		//it writes the property
-		result.append(this.semanticsDomain.toFormula(MCNode.DEFAULT));
-		
-		//it builds the problem domain for the problem to be analysed 
-		
-		//it builds the partial model for the problem to be analysed
-		
-		return result.toString();
-	}
-	public String generateFormulaScript(String basicContent, List<PDefinition> definitions, String propertyToCheck) throws IOException, AnalysisException{
+	
+	public String generateFormulaScript(List<PDefinition> definitions, String propertyToCheck) throws IOException, AnalysisException{
 		
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 		context.propertyToCheck = propertyToCheck;
-		
+
 		for (PDefinition paragraph : definitions) {
 			paragraph.apply(this, context);
 		}
-		//return content.getScriptContent().toString();
-		return "empty Script";
+		
+		context.mainProcess = this.getMainProcess();
+		
+		String script = this.formulaSpecification.buildFormulaScript();
+		
+		return script;
 	}
 	
 	public List<PSource> getSources() {
@@ -405,12 +327,13 @@ public class NewMCVisitor extends
 		System.out.println("Testing on " + cml_file);
 		PSource source1 = Utilities.makeSourceFromFile(cml_file);
 		NewMCVisitor visitor1 = new NewMCVisitor(source1);
-		visitor1.setPropertyToCheck(Utilities.DEADLOCK_PROPERTY);
-		String[] codes1 = visitor1.generateFormulaCodeForAll(Utilities.DEADLOCK_PROPERTY);
-		for (int j = 0; j < codes1.length; j++) {
-			System.out.println(codes1[j]);
+		String formulaCode = visitor1.generateFormulaScript(source1.getParagraphs(),Utilities.DEADLOCK_PROPERTY);
+		//String[] codes1 = visitor1.generateFormulaCodeForAll(Utilities.DEADLOCK_PROPERTY);
+		//for (int j = 0; j < codes1.length; j++) {
+		//	System.out.println(codes1[j]);
 			
-		}
+		//}
+		System.out.println(formulaCode);
 		
 		/*for (int i = 0; i < files.length; i++) {
 			String cml_example = cml_folder_name + "/" + files[i].getName();

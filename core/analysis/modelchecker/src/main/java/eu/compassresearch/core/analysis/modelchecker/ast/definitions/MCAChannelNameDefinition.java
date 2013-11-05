@@ -32,7 +32,7 @@ public class MCAChannelNameDefinition implements MCPCMLDefinition {
 		
 		switch (option) {
 		case MCNode.GENERIC:
-			result.append("Channel(0,\"");
+			result.append("  Channel(\"");
 			result.append(this.name);
 			result.append("\"");
 			result.append(",");
@@ -41,7 +41,7 @@ public class MCAChannelNameDefinition implements MCPCMLDefinition {
 			break;
 
 		case MCNode.NAMED:
-			result.append("Channel(0,\"");
+			result.append("  Channel(\"");
 			result.append(this.name);
 			result.append("\"");
 			result.append(",");
@@ -52,7 +52,7 @@ public class MCAChannelNameDefinition implements MCPCMLDefinition {
 		case MCNode.DEFAULT:
 			LinkedList<TypeValue> typeValues = getTypeValues();
 			if(typeValues.size() == 0){ //it is (probably an infinite type and must be instantiated by formula)
-				result.append("Channel(0,\"");
+				result.append("  Channel(\"");
 				result.append(this.name);
 				result.append("\"");
 				result.append(",");
@@ -60,7 +60,7 @@ public class MCAChannelNameDefinition implements MCPCMLDefinition {
 				result.append(")");
 			} else{
 				for (TypeValue typeValue : typeValues) {
-					result.append("Channel(0,\"");
+					result.append("  Channel(\"");
 					result.append(this.name);
 					result.append("\"");
 					result.append(",");

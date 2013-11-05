@@ -45,7 +45,7 @@ public class BBinding implements Binding {
 		LinkedList<SingleBind> bindList = new LinkedList<SingleBind>(); 
 		getSingleBindings(bindList, this);
 		for (Iterator<SingleBind> iterator = bindList.iterator(); iterator.hasNext();) {
-			result.append("BBinding("+this.procName+",");
+			result.append("BBinding(");
 			SingleBind singleBind = (SingleBind) iterator.next();
 			result.append(singleBind.toFormula(option));
 			if(iterator.hasNext()){

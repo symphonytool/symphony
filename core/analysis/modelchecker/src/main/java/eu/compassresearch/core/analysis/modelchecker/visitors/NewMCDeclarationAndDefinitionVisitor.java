@@ -107,6 +107,7 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 		MCPProcess process = (MCPProcess) node.getProcess().apply(rootVisitor, question); 
 		String name = node.getName().toString();
 		MCAProcessDefinition result = new MCAProcessDefinition(name,localState, process);
+		
 		question.processDefinitions.add(result);
 
 		//it removes the visited action definition

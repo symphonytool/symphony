@@ -10,6 +10,7 @@ import org.overture.ast.node.INode;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ActionChannelDependency;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.Binding;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.Domain;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCAssignDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCCondition;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCGuardDef;
@@ -34,6 +35,7 @@ public class NewCMLModelcheckerContext {
 	public static int IOCOMM_COUNTER;
 	
 	public MCAProcessDefinition mainProcess;
+	public Domain semanticsDomain;
 	public String propertyToCheck = Utilities.DEADLOCK_PROPERTY;
 	public NewSetStack<MCPVarsetExpression> setStack;
 	public ArrayList<MCLieInFact> lieIn;

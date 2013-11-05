@@ -43,7 +43,10 @@ public class MCACommunicationAction implements MCPAction {
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 		StringBuilder result = new StringBuilder();
 		result.append("Prefix(IOComm(" + this.counterId + ",");
-		result.append("\"" + buildIOCommExp(option) + "\",");
+		result.append("\"" + this.identifier + "\"");
+		result.append(",");
+		result.append("\"" + buildIOCommExp(option) + "\"");
+		result.append(",");
 		result.append(buildIOCommActualParams(option));
 		result.append(")"); //closes IOComm
 		result.append(","); 
@@ -86,7 +89,7 @@ public class MCACommunicationAction implements MCPAction {
 
 	private String buildIOCommExp(String option){
 		StringBuilder result = new StringBuilder();
-		result.append(this.identifier);
+		
 		
 		for (MCPCommunicationParameter param : this.communicationParameters) {
 			result.append(param.toFormula(option));

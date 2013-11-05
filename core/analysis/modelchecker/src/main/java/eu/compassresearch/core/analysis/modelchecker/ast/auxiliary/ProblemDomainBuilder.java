@@ -1,14 +1,9 @@
-package eu.compassresearch.core.analysis.modelchecker.visitors;
+package eu.compassresearch.core.analysis.modelchecker.ast.auxiliary;
 
 import java.util.Iterator;
 import java.util.Map.Entry;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
-import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.Domain;
-import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCAssignDef;
-import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCGuardDef;
-import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCIOCommDef;
-import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCLieInFact;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAActionDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAChannelNameDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAExplicitCmlOperationDefinition;
@@ -16,12 +11,13 @@ import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAProcessD
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAValueDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCSCmlOperationDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
+import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 
 public class ProblemDomainBuilder {
 	
-	public void buildProblemDomain(Domain problemDomain){
+	public String buildProblemDomain(){
+		
 		StringBuilder content = new StringBuilder();
-		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 		String option = MCNode.DEFAULT;
 		
 		//generate value definitions
@@ -47,6 +43,11 @@ public class ProblemDomainBuilder {
 		
 		//generate iocom defs
 		generateIOCommDefs(content,option);
+		
+		//generate conforms clause
+		generateConforms(content,option);
+		
+		return content.toString();
 	}
 	
 	private void generateAuxiliaryActions(StringBuilder content, String option){
@@ -64,9 +65,9 @@ public class ProblemDomainBuilder {
 	}
 	private void generateInitialState(StringBuilder content, String option){
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
-		content.append("  State(0,");
+		content.append("  State(");
 		content.append(context.maximalBinding.toFormula(option));
-		content.append(",np,pBody)  :- GivenProc(np), ProcDef(np,nopar,pBody).\n");
+		content.append(",pBody)  :- GivenProc(np), ProcDef(np,nopar,pBody).\n");
 	}
 	
 	private void generateGuardDefinitions(StringBuilder content, String option){
@@ -113,5 +114,9 @@ public class ProblemDomainBuilder {
 		}
 	}
 	
+	private void generateConforms(StringBuilder content, String option){
+		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+		content.append("  conforms := " + context.semanticsDomain.getName() + "." + context.propertyToCheck + ".\n");
+	}
 	
 }
