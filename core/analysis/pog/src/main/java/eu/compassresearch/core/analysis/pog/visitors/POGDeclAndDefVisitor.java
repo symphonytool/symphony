@@ -489,11 +489,10 @@ public class POGDeclAndDefVisitor extends
 			{
 				if (node.getClassDefinition() != null)
 				{
-					stateDef = node.getClassDefinition();
-				} else
+					stateDef = node.getClassDefinition().clone();
+					} else
 				{
 					stateDef = node.getStateDefinition();
-				
 				}
 				question.push(new CmlOperationDefinitionContext(node, false, stateDef));
 				pol.add(new CmlSatisfiabilityObligation(node, stateDef, question));
