@@ -195,7 +195,7 @@ public class TPPluginDoStuff {
 					.getBytes()), true, new NullProgressMonitor());
 
 		} catch (CoreException e) {
-			Activator.log(e);
+			CmlTPPlugin.log(e);
 		}
 	}
 
@@ -219,7 +219,7 @@ public class TPPluginDoStuff {
 				outputFile.setResourceAttributes(attributes);
 
 			} catch (CoreException e) {
-				Activator.log(e);
+				CmlTPPlugin.log(e);
 			}
 		}
 
@@ -339,7 +339,7 @@ public class TPPluginDoStuff {
 		} catch (Exception e) {
 			e.printStackTrace();
 			popErrorMessage(e.getMessage());
-			Activator.log(e);
+			CmlTPPlugin.log(e);
 		}
 	}
 
@@ -365,7 +365,7 @@ public class TPPluginDoStuff {
 			pogThyFile.create(new ByteArrayInputStream(thmString.toString()
 					.getBytes()), true, new NullProgressMonitor());
 		} catch (CoreException e) {
-			Activator.log(e);
+			CmlTPPlugin.log(e);
 		}
 
 		return pogThyFile;

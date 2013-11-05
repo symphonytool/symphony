@@ -1,6 +1,7 @@
 package eu.compassresearch.ide.theoremprover.commands;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -19,7 +20,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.handlers.HandlerUtil;
 
-import eu.compassresearch.ide.theoremprover.isabellelaunch.Activator;
+import eu.compassresearch.ide.theoremprover.CmlTPPlugin;
 import eu.compassresearch.ide.theoremprover.isabellelaunch.IIsabelleConstants;
 
 public class LaunchIsabelleHandler extends AbstractHandler implements IHandler
@@ -28,15 +29,33 @@ public class LaunchIsabelleHandler extends AbstractHandler implements IHandler
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException
 	{
-		ILaunchConfigurationType configType = getConfigurationType(IIsabelleConstants.LAUNCH_ID_MAC);//SWITCH ON THE OS 
+		ILaunchConfigurationType configType;
+		if(isWindowsPlatform())
+		{
+			configType = getConfigurationType(IIsabelleConstants.LAUNCH_ID_WIN); 
+		}if(isMacPlatform())
+		{
+			configType = getConfigurationType(IIsabelleConstants.LAUNCH_ID_MAC);
+		}else
+		{
+			configType = getConfigurationType(IIsabelleConstants.LAUNCH_ID_LINUX);
+		}
+		
 		ILaunchConfigurationWorkingCopy wc;
 		try
 		{
 			wc = configType.newInstance(null, getLaunchManager().generateLaunchConfigurationName("Isabelle"));
-			wc.setAttribute(IIsabelleConstants.ATTR_LOCATION, Activator.getDefault().getPreferenceStore().getString(IIsabelleConstants.ATTR_LOCATION));
+			wc.setAttribute(IIsabelleConstants.ATTR_LOCATION, CmlTPPlugin.getDefault().getPreferenceStore().getString(IIsabelleConstants.ATTR_LOCATION));
+			wc.setAttribute(IIsabelleConstants.ATTR_SESSION, IIsabelleConstants.ATTR_SESSION_NAME);
+			wc.setAttribute(IIsabelleConstants.ATTR_BUILD_RUN, true);
+			wc.setAttribute(IIsabelleConstants.ATTR_BUILD_TO_SYSTEM, false);
 
+			LinkedList<String> sessionDir = new LinkedList<String>();
+			sessionDir.add(CmlTPPlugin.getDefault().getPreferenceStore().getString(IIsabelleConstants.ATTR_SESSION_DIRS));
+			wc.setAttribute(IIsabelleConstants.ATTR_SESSION_DIRS, sessionDir);
+			
 			HashMap<String, String> env = new HashMap<String, String>();
-			if (Activator.getDefault().getPreferenceStore().getBoolean(IIsabelleConstants.Z3_NON_COMMERCIAL))
+			if (CmlTPPlugin.getDefault().getPreferenceStore().getBoolean(IIsabelleConstants.Z3_NON_COMMERCIAL))
 			{
 				if (isWindowsPlatform())
 				{

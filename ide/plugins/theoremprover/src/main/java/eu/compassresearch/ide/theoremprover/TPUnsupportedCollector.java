@@ -90,7 +90,7 @@ import org.overture.ast.statements.ACaseAlternativeStm;
 import org.overture.ast.statements.ACasesStm;
 import org.overture.ast.statements.AClassInvariantStm;
 import org.overture.ast.statements.ACyclesStm;
-import org.overture.ast.statements.ADefLetDefStm;
+//import org.overture.ast.statements.ADefLetDefStm;
 import org.overture.ast.statements.ADurationStm;
 import org.overture.ast.statements.AElseIfStm;
 import org.overture.ast.statements.AErrorCase;
@@ -962,13 +962,13 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 		super.caseADefExp(node);
 	}
 
-	@Override
-	public void caseADefLetDefStm(ADefLetDefStm node) throws AnalysisException {
-		// unsupported=false;
-		// TODO Uncomment the above line to signal support for this node
-		// Do not remove the super call below.
-		super.caseADefLetDefStm(node);
-	}
+//	@Override
+//	public void caseADefLetDefStm(ADefLetDefStm node) throws AnalysisException {
+//		// unsupported=false;
+//		// TODO Uncomment the above line to signal support for this node
+//		// Do not remove the super call below.
+//		super.caseADefLetDefStm(node);
+//	}
 
 	@Override
 	public void caseADefPatternBind(ADefPatternBind node)

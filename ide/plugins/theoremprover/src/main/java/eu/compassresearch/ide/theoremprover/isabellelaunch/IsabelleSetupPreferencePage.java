@@ -7,27 +7,38 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
-public class WorkbenchPreferencePage1 extends FieldEditorPreferencePage
+import eu.compassresearch.ide.theoremprover.CmlTPPlugin;
+
+public class IsabelleSetupPreferencePage extends FieldEditorPreferencePage
 		implements IWorkbenchPreferencePage
 {
 
+	public IsabelleSetupPreferencePage()
+	{
+		super();
+	    setDescription("Setup values for using the Symphony theorem proving support");
+	    setTitle("Theorem Prover Setup");
+	}
+	
 	@Override
 	public void init(IWorkbench workbench)
 	{
-
+	    setDescription("Setup values for using the Symphony theorem proving support");
+	    setTitle("Theorem Prover Setup");
 	}
 
 	@Override
 	protected void createFieldEditors()
 	{
 		addField(new DirectoryFieldEditor(IIsabelleConstants.ATTR_LOCATION, "Isabelle location", getFieldEditorParent()));
-		addField(new BooleanFieldEditor(IIsabelleConstants.Z3_NON_COMMERCIAL, "Non Commercial", getFieldEditorParent()));
+		addField(new DirectoryFieldEditor(IIsabelleConstants.ATTR_SESSION_DIRS, "CML Theory location", getFieldEditorParent()));
+		addField(new BooleanFieldEditor(IIsabelleConstants.Z3_NON_COMMERCIAL, "Check box if for non commercial use", getFieldEditorParent()));
 	}
 
 	@Override
 	protected IPreferenceStore doGetPreferenceStore()
 	{
-		return Activator.getDefault().getPreferenceStore();
+		return CmlTPPlugin.getDefault().getPreferenceStore();
 	}
 
 	@Override
@@ -35,8 +46,9 @@ public class WorkbenchPreferencePage1 extends FieldEditorPreferencePage
 	{
 		IPreferenceStore store = getPreferenceStore();
 		store.setDefault(IIsabelleConstants.ATTR_LOCATION, "");
+		store.setDefault(IIsabelleConstants.ATTR_SESSION_DIRS, "");
 		store.setDefault(IIsabelleConstants.Z3_NON_COMMERCIAL, false);
-		super.performDefaults();
+		super.performDefaults();		
 	}
 
 }

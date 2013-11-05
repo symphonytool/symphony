@@ -13,9 +13,9 @@
      <extension
          point="org.eclipse.ui.preferencePages">
       <page
-            class="eu.compassresearch.ide.theoremprover.isabellelaunch.WorkbenchPreferencePage1"
-            id="eu.compassresearch.ide.theoremprover.isabellelaunch.page1"
-            name="Isabelle">
+            class="eu.compassresearch.ide.theoremprover.isabellelaunch.IsabelleSetupPreferencePage"
+            id="eu.compassresearch.ide.theoremprover.isabellelaunch.setuppage"
+            name="Theorem Prover Setup">
       </page>
    </extension>
   
@@ -42,6 +42,11 @@
         id="eu.compassresearch.ide.theoremprover.generatethy"
         name="GenerateThy">
 	</command>
+   <command
+        defaultHandler="eu.compassresearch.ide.theoremprover.commands.ConfigHandler"
+        id="eu.compassresearch.ide.theoremprover.config"
+        name="ConfigHandler">
+	</command>
 </extension>
 
   
@@ -53,10 +58,15 @@
          locationURI="menu:org.eclipse.ui.main.menu">
          <menu
            id ="eu.compassresearch.ide.isabellelaunch"
-           label ="Isabelle Setup">
+           label ="Theorem Prover">
+           <command
+           		commandId="eu.compassresearch.ide.theoremprover.config"
+            	label="Setup Theorem Prover Configuration"
+           		style="push">
+      		</command>
       		<command
            		commandId="eu.compassresearch.ide.theoremprover.isabellelaunchcommand"
-            	label="Setup Isabelle Configuration"
+            	label="Launch Theorem Prover"
            		style="push">
       		</command>
       	</menu>

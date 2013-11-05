@@ -7,11 +7,11 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
 
-public class Activator extends AbstractUIPlugin
+public class CmlTPPlugin extends AbstractUIPlugin
   {
     
 	public static final boolean DEBUG = true;
-	private static Activator plugin;
+	private static CmlTPPlugin plugin;
 
 	public static synchronized ILog getLogger()
 	{
@@ -44,7 +44,7 @@ public class Activator extends AbstractUIPlugin
 	 * 
 	 * @return the shared instance
 	 */
-	public static Activator getDefault()
+	public static CmlTPPlugin getDefault()
 	{
 		return plugin;
 	}
@@ -57,7 +57,7 @@ public class Activator extends AbstractUIPlugin
 
 	public static void log(Exception exception)
 	{
-		getDefault().getLog().log(new Status(IStatus.ERROR, TPConstants.PLUGIN_ID, Activator.class.getSimpleName(), exception));
+		getDefault().getLog().log(new Status(IStatus.ERROR, TPConstants.PLUGIN_ID, CmlTPPlugin.class.getSimpleName(), exception));
 	}
 
 	public static void log(String message, Exception exception)
