@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -29,7 +28,7 @@ import org.overture.ide.core.resources.IVdmSourceUnit;
 import org.overture.ide.debug.utils.VdmProjectClassPathCollector;
 
 import eu.compassresearch.core.interpreter.debug.CmlDebugDefaultValues;
-import eu.compassresearch.core.interpreter.debug.CmlInterpreterLaunchConfigurationConstants;
+import eu.compassresearch.core.interpreter.debug.CmlInterpreterArguments;
 import eu.compassresearch.ide.core.resources.ICmlProject;
 import eu.compassresearch.ide.interpreter.CmlDebugPlugin;
 import eu.compassresearch.ide.interpreter.CmlUtil;
@@ -38,8 +37,6 @@ import eu.compassresearch.ide.interpreter.model.CmlDebugTarget;
 
 public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 {
-
-	
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
@@ -59,19 +56,22 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 		}
 		try
 		{
+
+			int port = 9002;//CmlDebugDefaultValues.PORT;
 			ICmlProject project = (ICmlProject) getProject(configuration).getAdapter(ICmlProject.class);
 			// set launch encoding to UTF-8. Mainly used to set console encoding.
 			launch.setAttribute(DebugPlugin.ATTR_CONSOLE_ENCODING, "UTF-8");
 
 			// Write out the launch configuration to the interpreter runner
 			Map configurationMap = new HashMap();
-			configurationMap.put(CmlInterpreterLaunchConfigurationConstants.PROCESS_NAME.toString(), configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_PROCESS_NAME, ""));
-			configurationMap.put(CmlInterpreterLaunchConfigurationConstants.CML_SOURCES_PATH.toString(), getSources(configuration));
-			configurationMap.put(CmlInterpreterLaunchConfigurationConstants.CML_EXEC_MODE.toString(), configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_IS_ANIMATION, true));
-			
-			//FIXME
-			configurationMap.put(CmlInterpreterLaunchConfigurationConstants.HOST.toString(), configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_IS_ANIMATION, true));
-			configurationMap.put(CmlInterpreterLaunchConfigurationConstants.POST.toString(), configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_IS_ANIMATION, true));
+			configurationMap.put(CmlInterpreterArguments.PROCESS_NAME.key, configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_PROCESS_NAME, ""));
+			configurationMap.put(CmlInterpreterArguments.CML_SOURCES_PATH.key, getSources(configuration));
+			configurationMap.put(CmlInterpreterArguments.CML_EXEC_MODE.key, configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_IS_ANIMATION, true));
+
+			configurationMap.put(CmlInterpreterArguments.HOST.key, "localhost");
+			configurationMap.put(CmlInterpreterArguments.PORT.key, port);
+
+			// configurationMap.put(CmlInterpreterArguments.REMOTE_NAME.toString(), "org.overture.cml.TestRemote");
 
 			if (mode.equals(ILaunchManager.DEBUG_MODE))
 			{
@@ -89,7 +89,7 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 			}
 
 			// Execute in a new JVM process
-			CmlDebugTarget target = new CmlDebugTarget(launch, launchExternalProcess(launch, configuration, JSONObject.toJSONString(configurationMap), "CML Debugger"), project, CmlDebugDefaultValues.PORT);
+			CmlDebugTarget target = new CmlDebugTarget(launch, launchExternalProcess(launch, configuration, JSONObject.toJSONString(configurationMap), "CML Debugger"), project, port);
 			launch.addDebugTarget(target);
 
 		} catch (CoreException e)
@@ -163,8 +163,8 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 		List<String> commandArray = new LinkedList<String>();
 
 		commandArray.add("java");
-//		commandArray.addAll(getClassPath());
-		commandArray.addAll(VdmProjectClassPathCollector.getClassPath(getProject(configuration), CmlUtil.collectRequiredBundleIds(ICmlDebugConstants.ID_CML_PLUGIN_NAME), new String[]{}));
+		// commandArray.addAll(getClassPath());
+		commandArray.addAll(VdmProjectClassPathCollector.getClassPath(getProject(configuration), CmlUtil.collectRequiredBundleIds(ICmlDebugConstants.ID_CML_PLUGIN_NAME), new String[] {}));
 		commandArray.add(ICmlDebugConstants.DEBUG_ENGINE_CLASS);
 		commandArray.add(config);
 
@@ -202,7 +202,6 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 		return executeString.toString().trim();
 
 	}
-
 
 	public static boolean isWindowsPlatform()
 	{

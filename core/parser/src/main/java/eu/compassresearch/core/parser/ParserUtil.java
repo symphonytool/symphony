@@ -53,7 +53,7 @@ public class ParserUtil
 		try
 		{
 			lexer = new CmlLexer(input);
-			lexer.sourceFileName = file.getName();
+			lexer.sourceFileName = file.getPath();
 			CommonTokenStream tokens = new CommonTokenStream(lexer);
 			parser = new CmlParser(tokens);
 			parser.sourceFileName = lexer.sourceFileName;

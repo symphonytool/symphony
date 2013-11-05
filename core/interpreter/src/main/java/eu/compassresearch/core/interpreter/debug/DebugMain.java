@@ -11,10 +11,14 @@ import org.overture.ast.analysis.AnalysisException;
 
 import eu.compassresearch.core.interpreter.Console;
 import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
+import eu.compassresearch.core.interpreter.api.AnnimationStrategy;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
+import eu.compassresearch.core.interpreter.api.RandomSelectionStrategy;
+import eu.compassresearch.core.interpreter.api.SelectionStrategy;
 import eu.compassresearch.core.interpreter.remote.IRemoteControl;
 import eu.compassresearch.core.interpreter.remote.IRemoteInterpreter;
+import eu.compassresearch.core.interpreter.remote.RemoteInterpreter;
 import eu.compassresearch.core.parser.ParserUtil;
 import eu.compassresearch.core.parser.ParserUtil.ParserResult;
 import eu.compassresearch.core.typechecker.VanillaFactory;
@@ -82,7 +86,8 @@ public class DebugMain
 
 			if (config.containsKey(CmlInterpreterArguments.PORT.key))
 			{
-				port = (int) config.get(CmlInterpreterArguments.PORT.key);
+				port = Integer.parseInt(""
+						+ config.get(CmlInterpreterArguments.PORT.key));
 			}
 
 			if (config.containsKey(CmlInterpreterArguments.HOST.key))
@@ -92,7 +97,7 @@ public class DebugMain
 
 			// -----------------------------------------------------------------------------------------------
 			// start running
-
+			// remoteName="eu.compassresearch.core.interpreter.remote.RemoteTester";
 			if (remoteName != null)
 			{
 				try
@@ -145,10 +150,25 @@ public class DebugMain
 				if (remote == null)
 				{
 					Console.debug.println("Debug Thread: Starting the interpreter...");
-					debugger.start(interpreterExecutionMode);
+
+					SelectionStrategy strategy = null;
+
+					switch (interpreterExecutionMode)
+					{
+						case ANIMATE:
+							strategy = new AnnimationStrategy();
+							break;
+						case SIMULATE:
+						default:
+							strategy = new RandomSelectionStrategy();
+							break;
+
+					}
+
+					debugger.start(strategy);
 				} else
 				{
-					IRemoteInterpreter interpreter = null;
+					IRemoteInterpreter interpreter = new RemoteInterpreter(debugger);
 					remote.run(interpreter);
 				}
 			} else
