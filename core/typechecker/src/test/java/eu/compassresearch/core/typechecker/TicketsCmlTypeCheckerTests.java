@@ -1,4 +1,4 @@
-package eu.compassresearch.core.typechecker.secondedition;
+package eu.compassresearch.core.typechecker;
 
 import java.io.File;
 import java.util.Collection;
@@ -6,6 +6,8 @@ import java.util.Collection;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+
+import eu.compassresearch.core.typechecker.AbstractResultBasedCmlTypeCheckerTestCase;
 
 @RunWith(value = Parameterized.class)
 public class TicketsCmlTypeCheckerTests extends
@@ -22,10 +24,9 @@ public class TicketsCmlTypeCheckerTests extends
 		return combine(collectResourcesTestData("tickets", TestType.POSITIVE), collectResourcesTestData("tickets", TestType.NEGATIVE));
 	}
 
-	// @Before
-	// public void setup()
-	// {
-	// Properties.recordTestResults = true;
-	// }
-
+	@Override
+	protected String getPropertyId()
+	{
+		return "tickets";
+	}
 }
