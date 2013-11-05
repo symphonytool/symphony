@@ -127,9 +127,10 @@ public class CmlSatisfiabilityObligation extends CmlProofObligation
 				StringBuilder sb = new StringBuilder();
 				sb.append("new");
 				sb.append(def.getName().getName());
-				ILexNameToken name = new eu.compassresearch.ast.lex.LexNameToken("", sb.toString(), null);
-				postArglist.add(getVarExp(name));
-				exists_binds.add(getMultipleTypeBind(def.getType().clone(), def.getName().clone()));
+				ILexNameToken newname = new eu.compassresearch.ast.lex.LexNameToken("", sb.toString(), null);
+				postArglist.add(getVarExp(newname));
+	//			AAssignmentDefinition newdef = def.clone()
+				exists_binds.add(getMultipleTypeBind(def.getType().clone(), newname.clone()));
 			}
 		} else
 		{
@@ -187,7 +188,7 @@ public class CmlSatisfiabilityObligation extends CmlProofObligation
 				AIdentifierPattern ip = (AIdentifierPattern) res.getFirst().getPattern();
 				postArglist.add(patternToExp(res.getFirst().getPattern()));
 
-				List<PMultipleBind> exists_binds = new LinkedList<PMultipleBind>();
+				List<PMultipleBind> exists_binds = new LinkedList<PMultipleBind>();		
 				stateInPost(procState, exists_binds, postArglist, stateDefinition);
 				
 				exists_binds.add(getMultipleTypeBind(res.getFirst().getType(), ip.getName()));
@@ -208,7 +209,8 @@ public class CmlSatisfiabilityObligation extends CmlProofObligation
 		{
 
 			AExistsExp exists_exp = new AExistsExp();
-			List<PExp> postArglist = new Vector<PExp>(arglist);
+		
+			List<PExp> postArglist = cloneListPExp(arglist);
 
 			List<PMultipleBind> exists_binds = new LinkedList<PMultipleBind>();
 			stateInPost(procState, exists_binds, postArglist, stateDefinition);
