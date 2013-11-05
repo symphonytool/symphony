@@ -308,7 +308,7 @@ import eu.compassresearch.ide.core.unsupported.UnsupportedElementInfo;
 import eu.compassresearch.ide.core.unsupported.UnsupportingFeatures;
 
 /**
- * Unsupported element collector for the Model checker feature of CML. This
+ * Unsupported element collector for the Theorem Prover feature of CML. This
  * class traverses an AST and returns a list of {@link UnsupportedElementInfo}
  * for nodes which are not supported. The superclass,
  * {@link UnsupportedCollector}, considers everything unsupported by default so
