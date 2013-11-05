@@ -2,24 +2,14 @@ package eu.compassresearch.ide.core.unsupported;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Stack;
 
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.definitions.PAccess;
 import org.overture.ast.definitions.PDefinition;
-import org.overture.ast.definitions.traces.ATraceDefinitionTerm;
-import org.overture.ast.definitions.traces.PTraceCoreDefinition;
-import org.overture.ast.definitions.traces.PTraceDefinition;
 import org.overture.ast.expressions.ACaseAlternative;
 import org.overture.ast.expressions.ARecordModifier;
 import org.overture.ast.expressions.PAlternative;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.expressions.PModifier;
-import org.overture.ast.modules.PExport;
-import org.overture.ast.modules.PExports;
-import org.overture.ast.modules.PImport;
-import org.overture.ast.modules.PImports;
-import org.overture.ast.modules.PModules;
 import org.overture.ast.node.INode;
 import org.overture.ast.patterns.ADefPatternBind;
 import org.overture.ast.patterns.AMapletPatternMaplet;
@@ -36,8 +26,6 @@ import org.overture.ast.statements.ATixeStmtAlternative;
 import org.overture.ast.statements.PAlternativeStm;
 import org.overture.ast.statements.PCase;
 import org.overture.ast.statements.PClause;
-import org.overture.ast.statements.PObjectDesignator;
-import org.overture.ast.statements.PStateDesignator;
 import org.overture.ast.statements.PStm;
 import org.overture.ast.statements.PStmtAlternative;
 import org.overture.ast.types.AAccessSpecifierAccessSpecifier;
@@ -45,24 +33,13 @@ import org.overture.ast.types.AFieldField;
 import org.overture.ast.types.PAccessSpecifier;
 import org.overture.ast.types.PField;
 import org.overture.ast.types.PType;
-import org.overture.typechecker.utilities.UnusedChecker;
 
 import eu.compassresearch.ast.actions.ACaseAlternativeAction;
-import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.actions.PAlternativeAction;
-import eu.compassresearch.ast.actions.PCommunicationParameter;
-import eu.compassresearch.ast.actions.PParametrisation;
 import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
-import eu.compassresearch.ast.definitions.PCMLAccess;
-import eu.compassresearch.ast.definitions.PCMLDefinition;
-import eu.compassresearch.ast.expressions.PCMLExp;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
-import eu.compassresearch.ast.patterns.PCMLPair;
 import eu.compassresearch.ast.process.PProcess;
-import eu.compassresearch.ast.program.PSource;
-import eu.compassresearch.ast.types.AProcessParagraphType;
-import eu.compassresearch.ast.types.PCMLType;
 
 /**
  * This class traverses an entire model and collects information on elements
@@ -79,12 +56,10 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 	List<UnsupportedElementInfo> unsupporteds = new LinkedList<UnsupportedElementInfo>();
 	UnsupportingFeatures feature;
 	protected boolean unsupported;
-	protected Stack<Boolean> stackUnsupports;
 
 	public UnsupportedCollector(UnsupportingFeatures feature) {
 		super();
 		this.unsupported = true;
-		this.stackUnsupports = new Stack<Boolean>();
 		this.feature = feature;
 	}
 
@@ -116,15 +91,14 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 
 	/**
 	 * Special dedicated case since the more general {@link PModifier} does not
-	 * have location info. Override as needed. But keep super call.
+	 * have location info. We get it from the tag.
 	 */
 	@Override
 	public void outARecordModifier(ARecordModifier node)
 			throws AnalysisException {
 
-		if (stackUnsupports.pop()) {
+		if (unsupported) {
 			UnsupportedElementInfo uei = new UnsupportedElementInfo();
-			uei.setElementname("Any element");
 			uei.setLocation(node.getTag().getLocation());
 			uei.setMessage(node.getClass().getSimpleName().toString()
 					+ " nodes are not supported by the " + feature.toString());
@@ -137,14 +111,13 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 
 	/**
 	 * Special dedicated case since the more general {@link PAlternative} does
-	 * not have location info. Override as needed. But keep super call.
+	 * not have location info.
 	 */
 	@Override
 	public void caseACaseAlternative(ACaseAlternative node)
 			throws AnalysisException {
 		if (unsupported) {
 			UnsupportedElementInfo uei = new UnsupportedElementInfo();
-			uei.setElementname("Any element");
 			uei.setLocation(node.getLocation());
 			uei.setMessage(node.getClass().getSimpleName().toString()
 					+ " nodes are not supported by the " + feature.toString());
@@ -156,9 +129,8 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 
 	/**
 	 * Special dedicated case since the more general {@link PAccessSpecifier}
-	 * does not have location info. Override as needed.But keep super call. Very
-	 * problematic because it also has no location information. We just get it
-	 * from ancestor.
+	 * does not have location info. Very problematic because it also has no
+	 * location information. We get the location from its ancestor.
 	 */
 
 	@Override
@@ -166,7 +138,6 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 			AAccessSpecifierAccessSpecifier node) throws AnalysisException {
 		if (unsupported) {
 			UnsupportedElementInfo uei = new UnsupportedElementInfo();
-			uei.setElementname("Any element");
 			uei.setLocation(node.getAncestor(PDefinition.class).getLocation());
 			uei.setMessage(node.getClass().getSimpleName().toString()
 					+ " nodes are not supported by the " + feature.toString());
@@ -174,18 +145,17 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 		} else {
 			unsupported = true;
 		}
-		super.defaultOutPAccessSpecifier(node);
+		super.defaultInPAccessSpecifier(node);
 	}
 
 	/**
 	 * Special dedicated case since the more general {@link PField} does not
-	 * have location info. Override as needed. But keep super call.
+	 * have location info.
 	 */
 	@Override
 	public void caseAFieldField(AFieldField node) throws AnalysisException {
 		if (unsupported) {
 			UnsupportedElementInfo uei = new UnsupportedElementInfo();
-			uei.setElementname("Any element");
 			uei.setLocation(node.getTagname().getLocation());
 			uei.setMessage(node.getClass().getSimpleName().toString()
 					+ " nodes are not supported by the " + feature.toString());
@@ -198,15 +168,13 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 	/**
 	 * Special dedicated case since the more general {@link PMaplet} does not
 	 * have location info. {@link AMapletPatternMaplet} also has no location so
-	 * we grab it from its parent {@link PPattern}. Override as needed. But keep
-	 * super call.
+	 * we grab it from its parent {@link PPattern}.
 	 */
 	@Override
 	public void caseAMapletPatternMaplet(AMapletPatternMaplet node)
 			throws AnalysisException {
 		if (unsupported) {
 			UnsupportedElementInfo uei = new UnsupportedElementInfo();
-			uei.setElementname("Any element");
 			uei.setLocation(node.getFrom().getLocation());
 			uei.setMessage(node.getClass().getSimpleName().toString()
 					+ " nodes are not supported by the " + feature.toString());
@@ -214,19 +182,17 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 		} else {
 			unsupported = true;
 		}
-		super.defaultOutPMaplet(node);
+		super.defaultInPMaplet(node);
 	}
 
 	/**
-	 * Special case since the more general {@link PPair} does not have
-	 * location info. Override as needed. But keep super call. We use a
-	 * {@link LocatorPPair} visitor to extract the locations.
+	 * Special case since the more general {@link PPair} does not have location
+	 * info. We use a {@link LocatorPPair} visitor to extract the locations.
 	 */
 	@Override
-	public void defaultOutPPair(PPair node) throws AnalysisException {
-		if (stackUnsupports.pop()) {
+	public void defaultInPPair(PPair node) throws AnalysisException {
+		if (unsupported) {
 			UnsupportedElementInfo uei = new UnsupportedElementInfo();
-			uei.setElementname("Any element");
 			uei.setLocation(node.apply(new LocatorPPair()));
 			uei.setMessage(node.getClass().getSimpleName().toString()
 					+ " nodes are not supported by the " + feature.toString());
@@ -234,25 +200,18 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 		} else {
 			unsupported = true;
 		}
-		super.defaultOutPPair(node);
+		super.defaultInPPair(node);
 	}
-	
-	@Override
-	public void defaultInPPair(PPair node) throws AnalysisException {
-		stackUnsupports.push(unsupported);
-	}
-
 
 	/**
 	 * Special dedicated case since the more general {@link PPatternBind} does
-	 * not have location info. Override as needed. But keep super call.
+	 * not have location info.
 	 */
 	@Override
 	public void caseADefPatternBind(ADefPatternBind node)
 			throws AnalysisException {
 		if (unsupported) {
 			UnsupportedElementInfo uei = new UnsupportedElementInfo();
-			uei.setElementname("Any element");
 			uei.setLocation(node.getLocation());
 			uei.setMessage(node.getClass().getSimpleName().toString()
 					+ " nodes are not supported by the " + feature.toString());
@@ -260,7 +219,7 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 		} else {
 			unsupported = true;
 		}
-		super.defaultOutPPatternBind(node);
+		super.defaultInPPatternBind(node);
 	}
 
 	/**
@@ -272,7 +231,6 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 			throws AnalysisException {
 		if (unsupported) {
 			UnsupportedElementInfo uei = new UnsupportedElementInfo();
-			uei.setElementname("Any element");
 			uei.setLocation(node.getLocation());
 			uei.setMessage(node.getClass().getSimpleName().toString()
 					+ " nodes are not supported by the " + feature.toString());
@@ -280,7 +238,7 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 		} else {
 			unsupported = true;
 		}
-		super.defaultOutPAlternativeStm(node);
+		super.defaultInPAlternativeStm(node);
 	}
 
 	/**
@@ -292,7 +250,6 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 			throws AnalysisException {
 		if (unsupported) {
 			UnsupportedElementInfo uei = new UnsupportedElementInfo();
-			uei.setElementname("Any element");
 			uei.setLocation(node.getStatement().getLocation());
 			uei.setMessage(node.getClass().getSimpleName().toString()
 					+ " nodes are not supported by the " + feature.toString());
@@ -300,7 +257,7 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 		} else {
 			unsupported = true;
 		}
-		super.defaultOutPStmtAlternative(node);
+		super.defaultInPStmtAlternative(node);
 	}
 
 	/**
@@ -311,7 +268,6 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 	public void caseAErrorCase(AErrorCase node) throws AnalysisException {
 		if (unsupported) {
 			UnsupportedElementInfo uei = new UnsupportedElementInfo();
-			uei.setElementname("Any element");
 			uei.setLocation(node.getName().getLocation());
 			uei.setMessage(node.getClass().getSimpleName().toString()
 					+ " nodes are not supported by the " + feature.toString());
@@ -319,7 +275,7 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 		} else {
 			unsupported = true;
 		}
-		super.defaultOutPCase(node);
+		super.defaultInPCase(node);
 	}
 
 	/**
@@ -331,7 +287,6 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 			throws AnalysisException {
 		if (unsupported) {
 			UnsupportedElementInfo uei = new UnsupportedElementInfo();
-			uei.setElementname("Any element");
 			uei.setLocation(node.getMode().getLocation());
 			uei.setMessage(node.getClass().getSimpleName().toString()
 					+ " nodes are not supported by the " + feature.toString());
@@ -339,7 +294,7 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 		} else {
 			unsupported = true;
 		}
-		super.defaultOutPClause(node);
+		super.defaultInPClause(node);
 	}
 
 	/**
@@ -351,7 +306,6 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 			throws AnalysisException {
 		if (unsupported) {
 			UnsupportedElementInfo uei = new UnsupportedElementInfo();
-			uei.setElementname("Any element");
 			uei.setLocation(node.getLocation());
 			uei.setMessage(node.getClass().getSimpleName().toString()
 					+ " nodes are not supported by the " + feature.toString());
@@ -362,43 +316,13 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 		super.caseACaseAlternativeAction(node);
 	}
 
-	// CASES WE'RE SKIPPING
-
-//	/**
-//	 * Special case. We dangerously ignore it for now.
-//	 */
-//	@Override
-//	public void defaultOutPCMLAccess(PCMLAccess node) throws AnalysisException {
-//		// FIXME look at locations for PCMLAccess again
-//		super.defaultOutPCMLAccess(node);
-//	}
-
-
-//	/**
-//	 * Special case. Dangerous but just skip it.
-//	 */
-//	@Override
-//	public void defaultOutPAccess(PAccess node) throws AnalysisException {
-//		super.defaultOutPAccess(node);
-//	}
-
-
-
-	
-
 	// DEFAULT CASES
 
 	@Override
 	public void defaultInPExp(PExp node) throws AnalysisException {
-		stackUnsupports.push(unsupported);
-	}
-	
-	@Override
-	public void defaultOutPExp(PExp node) throws AnalysisException {
 
-		if (stackUnsupports.pop()) {
+		if (unsupported) {
 			UnsupportedElementInfo uei = new UnsupportedElementInfo();
-			uei.setElementname("Any element");
 			uei.setLocation(node.getLocation());
 			uei.setMessage(node.getClass().getSimpleName().toString()
 					+ " nodes are not supported by the " + feature.toString());
@@ -411,14 +335,8 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 
 	@Override
 	public void defaultInPType(PType node) throws AnalysisException {
-		stackUnsupports.push(unsupported);
-	}
-	
-	@Override
-	public void defaultOutPType(PType node) throws AnalysisException {
-		if (stackUnsupports.pop()) {
+		if (unsupported) {
 			UnsupportedElementInfo uei = new UnsupportedElementInfo();
-			uei.setElementname("Any element");
 			if (node.getLocation() != null)
 				uei.setLocation(node.getLocation());
 			uei.setMessage(node.getClass().getSimpleName().toString()
@@ -429,17 +347,10 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 		}
 	}
 
-
-	
 	@Override
 	public void defaultInPPattern(PPattern node) throws AnalysisException {
-		stackUnsupports.push(unsupported);
-	}
-	@Override
-	public void defaultOutPPattern(PPattern node) throws AnalysisException {
-		if (stackUnsupports.pop()) {
+		if (unsupported) {
 			UnsupportedElementInfo uei = new UnsupportedElementInfo();
-			uei.setElementname("Any element");
 			uei.setLocation(node.getLocation());
 			uei.setMessage(node.getClass().getSimpleName().toString()
 					+ " nodes are not supported by the " + feature.toString());
@@ -447,19 +358,13 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 		} else {
 			unsupported = true;
 		}
-		super.defaultOutPPattern(node);
+		super.defaultInPPattern(node);
 	}
 
 	@Override
 	public void defaultInPBind(PBind node) throws AnalysisException {
-		stackUnsupports.push(unsupported);
-	}
-	
-	@Override
-	public void defaultOutPBind(PBind node) throws AnalysisException {
-		if (stackUnsupports.pop()) {
+		if (unsupported) {
 			UnsupportedElementInfo uei = new UnsupportedElementInfo();
-			uei.setElementname("Any element");
 			uei.setLocation(node.getLocation());
 			uei.setMessage(node.getClass().getSimpleName().toString()
 					+ " nodes are not supported by the " + feature.toString());
@@ -467,21 +372,14 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 		} else {
 			unsupported = true;
 		}
-		super.defaultOutPBind(node);
+		super.defaultInPBind(node);
 	}
 
 	@Override
 	public void defaultInPMultipleBind(PMultipleBind node)
 			throws AnalysisException {
-		stackUnsupports.push(unsupported);
-	}
-	
-	@Override
-	public void defaultOutPMultipleBind(PMultipleBind node)
-			throws AnalysisException {
-		if (stackUnsupports.pop()) {
+		if (unsupported) {
 			UnsupportedElementInfo uei = new UnsupportedElementInfo();
-			uei.setElementname("Any element");
 			uei.setLocation(node.getLocation());
 			uei.setMessage(node.getClass().getSimpleName().toString()
 					+ " nodes are not supported by the " + feature.toString());
@@ -489,22 +387,13 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 		} else {
 			unsupported = true;
 		}
-		super.defaultOutPMultipleBind(node);
+		super.defaultInPMultipleBind(node);
 	}
 
-	
 	@Override
-	public void defaultInPDefinition(PDefinition node)
-			throws AnalysisException {
-		stackUnsupports.push(unsupported);
-	}
-	
-	@Override
-	public void defaultOutPDefinition(PDefinition node)
-			throws AnalysisException {
-		if (stackUnsupports.pop()) {
+	public void defaultInPDefinition(PDefinition node) throws AnalysisException {
+		if (unsupported) {
 			UnsupportedElementInfo uei = new UnsupportedElementInfo();
-			uei.setElementname("Any element");
 			uei.setLocation(node.getLocation());
 			uei.setMessage(node.getClass().getSimpleName().toString()
 					+ " nodes are not supported by the " + feature.toString());
@@ -512,27 +401,13 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 		} else {
 			unsupported = true;
 		}
-		super.defaultOutPDefinition(node);
+		super.defaultInPDefinition(node);
 	}
-
-
-
-
-
-
-
-
 
 	@Override
 	public void defaultInPStm(PStm node) throws AnalysisException {
-		stackUnsupports.push(unsupported);
-	}
-	
-	@Override
-	public void defaultOutPStm(PStm node) throws AnalysisException {
-		if (stackUnsupports.pop()) {
+		if (unsupported) {
 			UnsupportedElementInfo uei = new UnsupportedElementInfo();
-			uei.setElementname("Any element");
 			uei.setLocation(node.getLocation());
 			uei.setMessage(node.getClass().getSimpleName().toString()
 					+ " nodes are not supported by the " + feature.toString());
@@ -540,53 +415,14 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 		} else {
 			unsupported = true;
 		}
-		super.defaultOutPStm(node);
+		super.defaultInPStm(node);
 	}
-
-//	@Override
-//	public void defaultOutPStateDesignator(PStateDesignator node)
-//			throws AnalysisException {
-//		if (stackUnsupports.pop()) {
-//			UnsupportedElementInfo uei = new UnsupportedElementInfo();
-//			uei.setElementname("Any element");
-//			uei.setLocation(node.getLocation());
-//			uei.setMessage(node.getClass().getSimpleName().toString()
-//					+ " nodes are not supported by the " + feature.toString());
-//			unsupporteds.add(uei);
-//		} else {
-//			unsupported = true;
-//		}
-//		super.defaultOutPStateDesignator(node);
-//	}
-
-//	@Override
-//	public void defaultOutPObjectDesignator(PObjectDesignator node)
-//			throws AnalysisException {
-//		if (stackUnsupports.pop()) {
-//			UnsupportedElementInfo uei = new UnsupportedElementInfo();
-//			uei.setElementname("Any element");
-//			uei.setLocation(node.getLocation());
-//			uei.setMessage(node.getClass().getSimpleName().toString()
-//					+ " nodes are not supported by the " + feature.toString());
-//			unsupporteds.add(uei);
-//		} else {
-//			unsupported = true;
-//		}
-//		super.defaultOutPObjectDesignator(node);
-//	}
 
 	@Override
 	public void defaultInPSingleDeclaration(PSingleDeclaration node)
 			throws AnalysisException {
-		stackUnsupports.push(unsupported);
-	}
-	
-	@Override
-	public void defaultOutPSingleDeclaration(PSingleDeclaration node)
-			throws AnalysisException {
-		if (stackUnsupports.pop()) {
+		if (unsupported) {
 			UnsupportedElementInfo uei = new UnsupportedElementInfo();
-			uei.setElementname("Any element");
 			uei.setLocation(node.getLocation());
 			uei.setMessage(node.getClass().getSimpleName().toString()
 					+ " nodes are not supported by the " + feature.toString());
@@ -594,22 +430,14 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 		} else {
 			unsupported = true;
 		}
-		super.defaultOutPSingleDeclaration(node);
+		super.defaultInPSingleDeclaration(node);
 	}
 
 	@Override
 	public void defaultInPVarsetExpression(PVarsetExpression node)
 			throws AnalysisException {
-		stackUnsupports.push(unsupported);
-	}
-	
-	
-	@Override
-	public void defaultOutPVarsetExpression(PVarsetExpression node)
-			throws AnalysisException {
-		if (stackUnsupports.pop()) {
+		if (unsupported) {
 			UnsupportedElementInfo uei = new UnsupportedElementInfo();
-			uei.setElementname("Any element");
 			uei.setLocation(node.getLocation());
 			uei.setMessage(node.getClass().getSimpleName().toString()
 					+ " nodes are not supported by the " + feature.toString());
@@ -617,19 +445,13 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 		} else {
 			unsupported = true;
 		}
-		super.defaultOutPVarsetExpression(node);
+		super.defaultInPVarsetExpression(node);
 	}
 
 	@Override
 	public void defaultInPProcess(PProcess node) throws AnalysisException {
-		stackUnsupports.push(unsupported);
-	}
-	
-	@Override
-	public void defaultOutPProcess(PProcess node) throws AnalysisException {
-		if (stackUnsupports.pop()) {
+		if (unsupported) {
 			UnsupportedElementInfo uei = new UnsupportedElementInfo();
-			uei.setElementname("Any element");
 			uei.setLocation(node.getLocation());
 			uei.setMessage(node.getClass().getSimpleName().toString()
 					+ " nodes are not supported by the " + feature.toString());
@@ -637,98 +459,7 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 		} else {
 			unsupported = true;
 		}
-		super.defaultOutPProcess(node);
+		super.defaultInPProcess(node);
 	}
-
-	@Override
-	public void defaultInPAction(PAction node) throws AnalysisException {
-		stackUnsupports.push(unsupported);
-	}
-	
-	@Override
-	public void defaultOutPAction(PAction node) throws AnalysisException {
-		if (stackUnsupports.pop()) {
-			UnsupportedElementInfo uei = new UnsupportedElementInfo();
-			uei.setElementname("Any element");
-			uei.setLocation(node.getLocation());
-			uei.setMessage(node.getClass().getSimpleName().toString()
-					+ " nodes are not supported by the " + feature.toString());
-			unsupporteds.add(uei);
-		} else {
-			unsupported = true;
-		}
-		super.defaultOutPAction(node);
-	}
-
-
-
-
-	@Override
-	public void defaultInPCMLType(PCMLType node) throws AnalysisException {
-		stackUnsupports.push(unsupported);
-	}
-
-	@Override
-	public void defaultOutPCMLType(PCMLType node) throws AnalysisException {
-		if (stackUnsupports.pop()) {
-			UnsupportedElementInfo uei = new UnsupportedElementInfo();
-			uei.setElementname("Any element");
-			if (node.getLocation() != null)
-				uei.setLocation(node.getLocation());
-			uei.setMessage(node.getClass().getSimpleName().toString()
-					+ " nodes are not supported by the " + feature.toString());
-			unsupporteds.add(uei);
-		} else {
-			unsupported = true;
-		}
-		super.defaultOutPCMLType(node);
-	}
-
-	@Override
-	public void defaultInPCMLDefinition(PCMLDefinition node)
-			throws AnalysisException {
-		stackUnsupports.push(unsupported);
-	}
-
-	@Override
-	public void defaultOutPCMLDefinition(PCMLDefinition node)
-			throws AnalysisException {
-		if (stackUnsupports.pop()) {
-			UnsupportedElementInfo uei = new UnsupportedElementInfo();
-			uei.setElementname("Any element");
-			uei.setLocation(node.getLocation());
-			uei.setMessage(node.getClass().getSimpleName().toString()
-					+ " nodes are not supported by the " + feature.toString());
-			unsupporteds.add(uei);
-		} else {
-			unsupported = true;
-		}
-		super.defaultOutPCMLDefinition(node);
-	}
-
-	@Override
-	public void defaultInPCMLExp(PCMLExp node) throws AnalysisException {
-		stackUnsupports.push(unsupported);
-	}
-
-	@Override
-	public void defaultOutPCMLExp(PCMLExp node) throws AnalysisException {
-		if (stackUnsupports.pop()) {
-			UnsupportedElementInfo uei = new UnsupportedElementInfo();
-			uei.setElementname("Any element");
-			uei.setLocation(node.getLocation());
-			uei.setMessage(node.getClass().getSimpleName().toString()
-					+ " nodes are not supported by the " + feature.toString());
-			unsupporteds.add(uei);
-		} else {
-			unsupported = true;
-		}
-		super.defaultOutPCMLExp(node);
-	}
-
-	// @Override
-	// public void defaultInINode(INode node) throws AnalysisException {
-	// unsupportStack.push(unsupported);
-	// }
 
 }

@@ -4,7 +4,8 @@ public enum UnsupportingFeatures
 {
 	POG("Proof Obligation Generator"),
 	TP("Theorem Prover"),
-	MC("Model Checker");
+	MC("Model Checker"),
+	ITP("Interpreter");
 	
 	private String featurename;
 

@@ -18,8 +18,6 @@ public class UnsupportedElementInfo
 	/** The unsupported element's location. */
 	private ILexLocation location;
 	
-	/** The unsupported element's name. */
-	private String elementname;
 	
 	
 	
@@ -36,7 +34,6 @@ public class UnsupportedElementInfo
 		super();
 		this.message = message;
 		this.location = location;
-		this.elementname = elementname;
 	}
 	
 	
@@ -90,25 +87,8 @@ public class UnsupportedElementInfo
 		this.location = location;
 	}
 	
-	/**
-	 * Gets the element name.
-	 *
-	 * @return the element name
-	 */
-	public String getElementname()
-	{
-		return elementname;
-	}
-	
-	/**
-	 * Sets the element name.
-	 *
-	 * @param elementname the new element name
-	 */
-	public void setElementname(String elementname)
-	{
-		this.elementname = elementname;
-	}
+
+
 	
 	
 	
