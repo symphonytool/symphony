@@ -22,7 +22,7 @@ public class TPCollectorHandler extends AbstractHandler{
 			TPPluginDoStuff doer = new TPPluginDoStuff(HandlerUtil.getActiveWorkbenchWindow(event), page.getActivePart().getSite());
 			IProject proj = TPPluginUtils.getCurrentlySelectedProject();
 			try {
-				doer.checkUnsupporteds(proj);
+				doer.explicitCheckUnsupported(proj);
 			} catch (Exception e)
 			{
 				MessageDialog.openError(null, "COMPASS", "Internal error");

@@ -34,16 +34,14 @@ import eu.compassresearch.ide.core.resources.ICmlProject;
 import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
 import eu.compassresearch.ide.core.unsupported.UnsupportedElementInfo;
 import eu.compassresearch.ide.pog.POConstants;
-import eu.compassresearch.ide.theoremprover.commands.TPCollectorHandler;
 import eu.compassresearch.ide.ui.utility.CmlProjectUtil;
 
 public class TPPluginDoStuff {
 	private IWorkbenchWindow window;
 	private IWorkbenchSite site;
-	
+
 	public static final String UNSUPPORTED_ELEMENTS_MSG = "This model contains unsupported CML elements. Check the warnings for more information.";
 
-	
 	/**
 	 * We will cache window object in order to be able to provide parent shell
 	 * for the message dialog.
@@ -54,190 +52,190 @@ public class TPPluginDoStuff {
 		this.window = window;
 		this.site = window.getActivePage().getActivePart().getSite();
 	}
-	
-	public void runTP()
-	{
-		try 
-		{
+
+	public void runTP() {
+		try {
 			IProject proj = TPPluginUtils.getCurrentlySelectedProject();
 			if (proj == null) {
 				popErrorMessage("Can not produce theory file for theorem Proving.\n\n No CML project is selected.");
 				return;
 			}
-			
+
 			// Test for unsupportted
-			if (checkUnsupporteds(proj)){
+			if (checkUnsupporteds(proj)) {
 				return;
 			}
-			
-			//Get the cml project
-			ICmlProject cmlProj = (ICmlProject) proj.getAdapter(ICmlProject.class);
-			
-			//Check there are no type errors.
+
+			// Get the cml project
+			ICmlProject cmlProj = (ICmlProject) proj
+					.getAdapter(ICmlProject.class);
+
+			// Check there are no type errors.
 			if (!CmlProjectUtil.typeCheck(this.window.getShell(), cmlProj)) {
 				popErrorMessage("Can not produce theory file for theorem Proving.\n\n There are type errors in model.");
 				return;
 			}
-			//Grab the model from the project
+			// Grab the model from the project
 			final ICmlModel model = cmlProj.getModel();
-				
-			
-			
-			
-			//Translate CML specification files to Isabelle
-			//Create project folder (needs to be timestamped)
+
+			// Translate CML specification files to Isabelle
+			// Create project folder (needs to be timestamped)
 			DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
 			// Get the date today using Calendar object.
-			Date today = Calendar.getInstance().getTime();        
-			// Using DateFormat format method we can create a string 
+			Date today = Calendar.getInstance().getTime();
+			// Using DateFormat format method we can create a string
 			// representation of a date with the defined format.
 			String date = df.format(today);
 
-			IFolder isaFolder = cmlProj.getModelBuildPath().getOutput().getFolder(new Path("Isabelle/" + date));
+			IFolder isaFolder = cmlProj.getModelBuildPath().getOutput()
+					.getFolder(new Path("Isabelle/" + date));
 			IFolder modelBk = isaFolder.getFolder("model");
-			if(!isaFolder.exists())
-			{
-				//if generated folder doesn't exist
-				if (!isaFolder.getParent().getParent().exists())
-				{
-					//create 'generated' folder
-					((IFolder) isaFolder.getParent().getParent()).create(true, true, new NullProgressMonitor());
-					//create 'Isabelle' folder
-					((IFolder) isaFolder.getParent()).create(true, true, new NullProgressMonitor());
+			if (!isaFolder.exists()) {
+				// if generated folder doesn't exist
+				if (!isaFolder.getParent().getParent().exists()) {
+					// create 'generated' folder
+					((IFolder) isaFolder.getParent().getParent()).create(true,
+							true, new NullProgressMonitor());
+					// create 'Isabelle' folder
+					((IFolder) isaFolder.getParent()).create(true, true,
+							new NullProgressMonitor());
 
 				}
-				//if 'generated' folder does exist and Isabelle folder doesn't exist
-				else if (!isaFolder.getParent().exists())
-				{
-					
-					((IFolder) isaFolder.getParent()).create(true, true, new NullProgressMonitor());
-						
+				// if 'generated' folder does exist and Isabelle folder doesn't
+				// exist
+				else if (!isaFolder.getParent().exists()) {
+
+					((IFolder) isaFolder.getParent()).create(true, true,
+							new NullProgressMonitor());
+
 				}
-				//Create timestamped folder
+				// Create timestamped folder
 				isaFolder.create(true, true, new NullProgressMonitor());
-				isaFolder.refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());
+				isaFolder.refreshLocal(IResource.DEPTH_ZERO,
+						new NullProgressMonitor());
 
-				//Create model backup folder
+				// Create model backup folder
 				modelBk.create(true, true, new NullProgressMonitor());
-				modelBk.refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());
+				modelBk.refreshLocal(IResource.DEPTH_ZERO,
+						new NullProgressMonitor());
 			}
-			
-			//Save the original model to the Isabelle folder for reference
+
+			// Save the original model to the Isabelle folder for reference
 			cmlProj.getModel().backup(modelBk);
-			
+
 			LinkedList<IFile> thyFiles = new LinkedList<IFile>();
-			
-			for (ICmlSourceUnit sourceUnit : model.getSourceUnits())
-			{
-				//create a generated thy file for the model
+
+			for (ICmlSourceUnit sourceUnit : model.getSourceUnits()) {
+				// create a generated thy file for the model
 				String name = sourceUnit.getFile().getName();
-				String fileName = name.substring(0,name.length()-(sourceUnit.getFile().getFileExtension().length()+1));
-				String thyFileName = fileName+".thy";
+				String fileName = name.substring(0,
+						name.length()
+								- (sourceUnit.getFile().getFileExtension()
+										.length() + 1));
+				String thyFileName = fileName + ".thy";
 				IFile thyFile = isaFolder.getFile(thyFileName);
 				translateCmltoThy(model, thyFile, thyFileName);
 				thyFiles.add(thyFile);
-				
-				//Create empty thy file which imports generated file
+
+				// Create empty thy file which imports generated file
 				String userThyFileName = fileName + "_User.thy";
 				IFile userThyFile = isaFolder.getFile(userThyFileName);
 				createEmptyThy(userThyFile, thyFileName);
 				thyFiles.add(userThyFile);
 			}
-			
-			//Switch to the Isabelle perspective and open thy files
+
+			// Switch to the Isabelle perspective and open thy files
 			showIsabelle(cmlProj, model, thyFiles);
-			
-			//TODO: start Isabelle
+
+			// TODO: start Isabelle
 
 		} catch (Exception e) {
 			e.printStackTrace();
 			popErrorMessage(e.getMessage());
 		}
 	}
-	
+
 	public boolean checkUnsupporteds(IProject proj) throws AnalysisException {
 
 		ICmlProject cmlProj = (ICmlProject) proj.getAdapter(ICmlProject.class);
 
-		if (!CmlProjectUtil.typeCheck(window.getShell(), cmlProj))
-		{
+		if (!CmlProjectUtil.typeCheck(window.getShell(), cmlProj)) {
 			MessageDialog.openError(null, "COMPASS", "Errors in model.");
 			return true;
 		}
 
-		List<UnsupportedElementInfo> uns = new TPUnsupportedCollector().getUnsupporteds(cmlProj.getModel().getAst());
+		List<UnsupportedElementInfo> uns = new TPUnsupportedCollector()
+				.getUnsupporteds(cmlProj.getModel().getAst());
 
-		if (uns.isEmpty())
-		{
-			MessageDialog.openInformation(null, "COMPASS", "No unsupported elements detected.");
+		if (uns.isEmpty()) {
+
 			return false;
-		}
-		else
-		{
+		} else {
 			cmlProj.addUnsupportedMarkers(uns);
 			MessageDialog.openError(null, "COMPASS", UNSUPPORTED_ELEMENTS_MSG);
 			return true;
 		}
 	}
-	
-	private void createEmptyThy(IFile file, String modelThyName) 
-	{
-		String thmString = TPVisitor.generateEmptyThyStr(modelThyName);
-		
-		try{
-			file.delete(true, null);
-			file.create(new ByteArrayInputStream(thmString.toString().getBytes()), true, new NullProgressMonitor());
 
-		}catch(CoreException e)
-		{
+	public void explicitCheckUnsupported(IProject proj)
+			throws AnalysisException {
+		if (!checkUnsupporteds(proj)) {
+			MessageDialog.openInformation(null, "COMPASS",
+					"No unsupported elements detected.");
+		}
+
+	}
+
+	private void createEmptyThy(IFile file, String modelThyName) {
+		String thmString = TPVisitor.generateEmptyThyStr(modelThyName);
+
+		try {
+			file.delete(true, null);
+			file.create(new ByteArrayInputStream(thmString.toString()
+					.getBytes()), true, new NullProgressMonitor());
+
+		} catch (CoreException e) {
 			Activator.log(e);
 		}
 	}
 
-	private IFile translateCmltoThy(ICmlModel model, IFile outputFile, String thyFileName) 
-			throws IOException, AnalysisException
-	{
+	private IFile translateCmltoThy(ICmlModel model, IFile outputFile,
+			String thyFileName) throws IOException, AnalysisException {
 		String thmString = "";
-		try
-		{
+		try {
 			thmString = TPVisitor.generateThyStr(model.getAst(), thyFileName);
-		}
-		catch (UnhandledSyntaxException use)
-		{
+		} catch (UnhandledSyntaxException use) {
 			thmString = use.getString();
 			popErrorMessage(use.getErrorString());
-		}
-		finally
-		{			
-			try
-			{
+		} finally {
+			try {
 				outputFile.delete(true, null);
-				outputFile.create(new ByteArrayInputStream(thmString.toString().getBytes()), true, new NullProgressMonitor());
-				
-				//set .thy file to be read only
+				outputFile.create(new ByteArrayInputStream(thmString.toString()
+						.getBytes()), true, new NullProgressMonitor());
+
+				// set .thy file to be read only
 				ResourceAttributes attributes = new ResourceAttributes();
 				attributes.setReadOnly(true);
-				outputFile.setResourceAttributes(attributes); 
-	
-			}catch(CoreException e)
-			{
+				outputFile.setResourceAttributes(attributes);
+
+			} catch (CoreException e) {
 				Activator.log(e);
 			}
 		}
-		
+
 		return outputFile;
 	}
-	
-	//Switch to the Isabelle perspective automatically
-	private void showIsabelle(final ICmlProject project, ICmlModel model, final LinkedList<IFile> files) {
+
+	// Switch to the Isabelle perspective automatically
+	private void showIsabelle(final ICmlProject project, ICmlModel model,
+			final LinkedList<IFile> files) {
 		site.getPage().getWorkbenchWindow().getShell().getDisplay()
 				.asyncExec(new Runnable() {
 
 					public void run() {
 						TPPluginUtils tpu = new TPPluginUtils(site);
 						tpu.openTPPerspective();
-						for(IFile file : files)
-						{
+						for (IFile file : files) {
 							tpu.openThyFile(file);
 						}
 					}
@@ -247,234 +245,243 @@ public class TPPluginDoStuff {
 	}
 
 	/*****
-	 * PLACEHOLDER FOR NOW - SHOULD TIE IN WITH COMMAND, FUNCTIONALITY NEEDS INTERTWINING 
-	 * WITH TP STUFF BETTER, TOO.
+	 * PLACEHOLDER FOR NOW - SHOULD TIE IN WITH COMMAND, FUNCTIONALITY NEEDS
+	 * INTERTWINING WITH TP STUFF BETTER, TOO.
 	 */
-	public void fetchPOs()
-	{
-		try
-		{
+	public void fetchPOs() {
+		try {
 			IProject proj = TPPluginUtils.getCurrentlySelectedProject();
 			if (proj == null) {
 				popErrorMessage("No CML project is selected.");
 				return;
 			}
-			
-			//Get the cml project
-			ICmlProject cmlProj = (ICmlProject) proj.getAdapter(ICmlProject.class);
-			
-			//Check there are no type errors.
+
+			// Get the cml project
+			ICmlProject cmlProj = (ICmlProject) proj
+					.getAdapter(ICmlProject.class);
+
+			// Check there are no type errors.
 			if (!CmlProjectUtil.typeCheck(this.window.getShell(), cmlProj)) {
 				popErrorMessage("Can not produce theory file for theorem Proving. \n There are type errors in model.");
 				return;
 			}
-			//Grab the model from the project
+			// Grab the model from the project
 			final ICmlModel model = cmlProj.getModel();
-			
+
 			final ProofObligationList pol = new ProofObligationList();
 
-			pol.addAll(model.getAttribute(POConstants.PO_REGISTRY_ID, CmlProofObligationList.class));
-				
-			if (pol == null)
-			{
+			pol.addAll(model.getAttribute(POConstants.PO_REGISTRY_ID,
+					CmlProofObligationList.class));
+
+			if (pol == null) {
 				popErrorMessage("There are no Proof Oligations to discharge.");
 				return;
 			}
-			
-			
-			//Create project folder (needs to be timestamped)
+
+			// Create project folder (needs to be timestamped)
 			DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
 			// Get the date today using Calendar object.
-			Date today = Calendar.getInstance().getTime();        
-			// Using DateFormat format method we can create a string 
+			Date today = Calendar.getInstance().getTime();
+			// Using DateFormat format method we can create a string
 			// representation of a date with the defined format.
 			String date = df.format(today);
 
-			IFolder isaFolder = cmlProj.getModelBuildPath().getOutput().getFolder(new Path("POG/" + date));
+			IFolder isaFolder = cmlProj.getModelBuildPath().getOutput()
+					.getFolder(new Path("POG/" + date));
 			IFolder modelBk = isaFolder.getFolder("model");
-			if(!isaFolder.exists())
-			{
-				//if generated folder doesn't exist
-				if (!isaFolder.getParent().getParent().exists())
-				{
-					//create 'generated' folder
-					((IFolder) isaFolder.getParent().getParent()).create(true, true, new NullProgressMonitor());
-					//create 'Isabelle' folder
-					((IFolder) isaFolder.getParent()).create(true, true, new NullProgressMonitor());
+			if (!isaFolder.exists()) {
+				// if generated folder doesn't exist
+				if (!isaFolder.getParent().getParent().exists()) {
+					// create 'generated' folder
+					((IFolder) isaFolder.getParent().getParent()).create(true,
+							true, new NullProgressMonitor());
+					// create 'Isabelle' folder
+					((IFolder) isaFolder.getParent()).create(true, true,
+							new NullProgressMonitor());
 
 				}
-				//if 'generated' folder does exist and POG folder doesn't exist
-				else if (!isaFolder.getParent().exists())
-				{
-					
-					((IFolder) isaFolder.getParent()).create(true, true, new NullProgressMonitor());
-						
+				// if 'generated' folder does exist and POG folder doesn't exist
+				else if (!isaFolder.getParent().exists()) {
+
+					((IFolder) isaFolder.getParent()).create(true, true,
+							new NullProgressMonitor());
+
 				}
-				//Create timestamped folder
+				// Create timestamped folder
 				isaFolder.create(true, true, new NullProgressMonitor());
-				isaFolder.refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());
+				isaFolder.refreshLocal(IResource.DEPTH_ZERO,
+						new NullProgressMonitor());
 
-				//Create model backup folder
+				// Create model backup folder
 				modelBk.create(true, true, new NullProgressMonitor());
-				modelBk.refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());
+				modelBk.refreshLocal(IResource.DEPTH_ZERO,
+						new NullProgressMonitor());
 			}
-			//Save the original model to the Isabelle folder for reference
+			// Save the original model to the Isabelle folder for reference
 			cmlProj.getModel().backup(modelBk);
-			
-			
-			for (ICmlSourceUnit sourceUnit : model.getSourceUnits())
-			{
-				//create a generated thy file for the model
+
+			for (ICmlSourceUnit sourceUnit : model.getSourceUnits()) {
+				// create a generated thy file for the model
 				String name = sourceUnit.getFile().getName();
-				String fileName = name.substring(0,name.length()-(sourceUnit.getFile().getFileExtension().length()+1));
-				String thyFileName = fileName+".thy";
+				String fileName = name.substring(0,
+						name.length()
+								- (sourceUnit.getFile().getFileExtension()
+										.length() + 1));
+				String thyFileName = fileName + ".thy";
 				IFile thyFile = isaFolder.getFile(thyFileName);
 				translateCmltoThy(model, thyFile, thyFileName);
-				
-				//Create empty thy file which imports generated file
+
+				// Create empty thy file which imports generated file
 				IFile pogThyFile = isaFolder.getFile(fileName + "_PO.thy");
 				createPogThy(model, pogThyFile, thyFileName, pol);
 			}
-	
-		} catch (Exception e)
-		{
+
+		} catch (Exception e) {
 			e.printStackTrace();
 			popErrorMessage(e.getMessage());
 			Activator.log(e);
 		}
 	}
-		
+
 	/****
 	 * Method to create a new THY file for a model's proof obligations.
+	 * 
 	 * @param model
 	 * @param pogThyFile
 	 * @param thyFileName
 	 * @param pol
 	 * @return
 	 */
-	private IFile createPogThy(ICmlModel model, IFile pogThyFile, String thyFileName, ProofObligationList pol) {
-		
-		//Get the thy string for a given model and it's proof obligations
-		String thmString = TPVisitor.generatePogThyStr(model.getAst(), pol, thyFileName);
-		
-		//create the file
-		try
-		{
+	private IFile createPogThy(ICmlModel model, IFile pogThyFile,
+			String thyFileName, ProofObligationList pol) {
+
+		// Get the thy string for a given model and it's proof obligations
+		String thmString = TPVisitor.generatePogThyStr(model.getAst(), pol,
+				thyFileName);
+
+		// create the file
+		try {
 			pogThyFile.delete(true, null);
-			pogThyFile.create(new ByteArrayInputStream(thmString.toString().getBytes()), true, new NullProgressMonitor());
-		}catch(CoreException e)
-		{
+			pogThyFile.create(new ByteArrayInputStream(thmString.toString()
+					.getBytes()), true, new NullProgressMonitor());
+		} catch (CoreException e) {
 			Activator.log(e);
 		}
-		
-		return pogThyFile;		
+
+		return pogThyFile;
 	}
-		
-		
-		
-		
-//REMOVING SCALA STUFF FOR NOW - GET PROOF OF CONCEPT THY GEN SORTED FIRST.		
-//			Isabelle isabelle = IsabelleCore.isabelle();
-//			Session session = null;
-//
-//			if (isabelle.session().isDefined())
-//			{
-//				session = isabelle.session().get();
-//			} else
-//			{
-//				popErrorMessage("Isabelle is not started. See http://www.cl.cam.ac.uk/research/hvg/Isabelle/");
-//				return;
-//			}
-//
-//			if (tpListener == null)
-//			{
-//				tpListener = new TPListener(isabelle.session().get(), new IPoStatusChanged() {
-//					
-//					@Override
-//					public void statusChanges(IProofObligation po) {
-//						CmlProofObligationList poList = project.getModel().getAttribute(POConstants.PO_REGISTRY_ID, CmlProofObligationList.class);
-//						
-//						PogPluginRunner.redrawPos(project, poList);
-//						
-//					}
-//				});
-//				tpListener.init();
-//			}
-//
-//
-//			if (project == null)
-//			{
-//				popErrorMessage("No project selected.");
-//				return;
-//			}
-//
-//			if (CmlProjectUtil.typeCheck(shell, project))
-//			{
-//				ICmlModel model = project.getModel();
-//				
-//				CmlProofObligationList poList = model.getAttribute(POConstants.PO_REGISTRY_ID, CmlProofObligationList.class);
-//				
-//				if (poList == null)
-//				{
-//					popErrorMessage("There are no Proof Oligations to discharge.");
-//					return;
-//				}
-//				
-//				//Translate CML specification files to Isabelle
-//				IFolder output = project.getModelBuildPath().getOutput().getFolder(new Path("Isabelle"));
-//				if(!output.exists())
-//				{
-//					if (!output.getParent().exists())
-//					{
-//						((IFolder) output.getParent()).create(true, true, new NullProgressMonitor());
-//							
-//					}
-//					output.create(true, true, new NullProgressMonitor());
-//					output.refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());
-//				}
-//				
-//				for (ICmlSourceUnit sourceUnit : model.getSourceUnits())
-//				{
-//					String name = sourceUnit.getFile().getName();
-//					String thyFileName = name.substring(0,name.length()-sourceUnit.getFile().getFileExtension().length())+".ity";
-//					translateCmltoThy(sourceUnit,output.getFile(thyFileName));
-//				}
-//
-//				IsabelleTheory ithy = model.getAttribute(TPConstants.PLUGIN_ID, IsabelleTheory.class);
-//
-//					if (ithy == null )
-//					{
-//						IProject p = ((IProject) project.getAdapter(IProject.class));
-//						String thyName = p.getName()+"_POs";
-//						ithy = new IsabelleTheory(session, thyName,output.getLocation().toString());
-//						ithy.init();
-//						TPPluginUtils2.addThyToListener(ithy, tpListener, model);
-//
-//						model.setAttribute(TPConstants.PLUGIN_ID, ithy);
-//					    Object bob = model.getAttribute(TPConstants.PLUGIN_ID, IsabelleTheory.class);
-//					    System.out.println(bob.toString());
-//					}
-//
-//					for (IProofObligation po : poList)
-//					{
-//						ithy.addThm(ithy.new IsabelleTheorem("po" + po.getUniqueName(), "True", "auto"));
-//					}
-//			}
-//
-//		} catch (Exception e)
-//		{
-//			e.printStackTrace();
-//			popErrorMessage(e.getMessage());
-//			Activator.log(e);
-//		}
-	
-	
-	
+
+	// REMOVING SCALA STUFF FOR NOW - GET PROOF OF CONCEPT THY GEN SORTED FIRST.
+	// Isabelle isabelle = IsabelleCore.isabelle();
+	// Session session = null;
+	//
+	// if (isabelle.session().isDefined())
+	// {
+	// session = isabelle.session().get();
+	// } else
+	// {
+	// popErrorMessage("Isabelle is not started. See http://www.cl.cam.ac.uk/research/hvg/Isabelle/");
+	// return;
+	// }
+	//
+	// if (tpListener == null)
+	// {
+	// tpListener = new TPListener(isabelle.session().get(), new
+	// IPoStatusChanged() {
+	//
+	// @Override
+	// public void statusChanges(IProofObligation po) {
+	// CmlProofObligationList poList =
+	// project.getModel().getAttribute(POConstants.PO_REGISTRY_ID,
+	// CmlProofObligationList.class);
+	//
+	// PogPluginRunner.redrawPos(project, poList);
+	//
+	// }
+	// });
+	// tpListener.init();
+	// }
+	//
+	//
+	// if (project == null)
+	// {
+	// popErrorMessage("No project selected.");
+	// return;
+	// }
+	//
+	// if (CmlProjectUtil.typeCheck(shell, project))
+	// {
+	// ICmlModel model = project.getModel();
+	//
+	// CmlProofObligationList poList =
+	// model.getAttribute(POConstants.PO_REGISTRY_ID,
+	// CmlProofObligationList.class);
+	//
+	// if (poList == null)
+	// {
+	// popErrorMessage("There are no Proof Oligations to discharge.");
+	// return;
+	// }
+	//
+	// //Translate CML specification files to Isabelle
+	// IFolder output = project.getModelBuildPath().getOutput().getFolder(new
+	// Path("Isabelle"));
+	// if(!output.exists())
+	// {
+	// if (!output.getParent().exists())
+	// {
+	// ((IFolder) output.getParent()).create(true, true, new
+	// NullProgressMonitor());
+	//
+	// }
+	// output.create(true, true, new NullProgressMonitor());
+	// output.refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());
+	// }
+	//
+	// for (ICmlSourceUnit sourceUnit : model.getSourceUnits())
+	// {
+	// String name = sourceUnit.getFile().getName();
+	// String thyFileName =
+	// name.substring(0,name.length()-sourceUnit.getFile().getFileExtension().length())+".ity";
+	// translateCmltoThy(sourceUnit,output.getFile(thyFileName));
+	// }
+	//
+	// IsabelleTheory ithy = model.getAttribute(TPConstants.PLUGIN_ID,
+	// IsabelleTheory.class);
+	//
+	// if (ithy == null )
+	// {
+	// IProject p = ((IProject) project.getAdapter(IProject.class));
+	// String thyName = p.getName()+"_POs";
+	// ithy = new IsabelleTheory(session,
+	// thyName,output.getLocation().toString());
+	// ithy.init();
+	// TPPluginUtils2.addThyToListener(ithy, tpListener, model);
+	//
+	// model.setAttribute(TPConstants.PLUGIN_ID, ithy);
+	// Object bob = model.getAttribute(TPConstants.PLUGIN_ID,
+	// IsabelleTheory.class);
+	// System.out.println(bob.toString());
+	// }
+	//
+	// for (IProofObligation po : poList)
+	// {
+	// ithy.addThm(ithy.new IsabelleTheorem("po" + po.getUniqueName(), "True",
+	// "auto"));
+	// }
+	// }
+	//
+	// } catch (Exception e)
+	// {
+	// e.printStackTrace();
+	// popErrorMessage(e.getMessage());
+	// Activator.log(e);
+	// }
 
 	private void popErrorMessage(String message) {
 		MessageDialog.openInformation(window.getShell(), "Symphony", message);
 	}
-	
+
 	/**
 	 * Selection in the workbench has been changed. We can change the state of
 	 * the 'real' action here if we want, but this can only happen after the
@@ -486,4 +493,3 @@ public class TPPluginDoStuff {
 	}
 
 }
-
