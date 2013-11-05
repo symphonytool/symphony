@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.ValuesCmlTypeCheckerTests">
+<message column="20" line="11" message="a at 11:1 hidden by a" messageType="warning" number="0" resource="values-0099-pos.cml"/>
+<result/>
+</testResult>

@@ -1,0 +1,10 @@
+channels a : int
+
+process A = 
+begin 
+	state
+		v : int := 0
+		
+	@  v := v+1 
+end
+

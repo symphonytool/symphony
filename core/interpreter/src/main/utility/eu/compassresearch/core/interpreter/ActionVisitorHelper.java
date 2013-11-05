@@ -4,23 +4,25 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.statements.AAltNonDeterministicStm;
+import org.overture.ast.statements.PStm;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.Value;
 
-import eu.compassresearch.ast.actions.ANonDeterministicAltStatementAction;
+import eu.compassresearch.ast.actions.AStmAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 
 class ActionVisitorHelper
 {
 
-	public static List<ANonDeterministicAltStatementAction> findAllTrueAlternatives(
-			List<ANonDeterministicAltStatementAction> alts, Context question,
+	public static List<AAltNonDeterministicStm> findAllTrueAlternatives(
+			List<AAltNonDeterministicStm> alts, Context question,
 			QuestionAnswerCMLAdaptor<Context, Value> cmlExpressionVisitor)
 			throws AnalysisException
 	{
-		List<ANonDeterministicAltStatementAction> availableAlts = new LinkedList<ANonDeterministicAltStatementAction>();
+		List<AAltNonDeterministicStm> availableAlts = new LinkedList<AAltNonDeterministicStm>();
 
-		for (ANonDeterministicAltStatementAction alt : alts)
+		for (AAltNonDeterministicStm alt : alts)
 		{
 			Value val = alt.getGuard().apply(cmlExpressionVisitor, question);
 			// if(val.isUndefined())
@@ -31,5 +33,10 @@ class ActionVisitorHelper
 		}
 
 		return availableAlts;
+	}
+
+	public static AStmAction wrapStatement(PStm stm)
+	{
+		return new AStmAction(stm.getLocation(), stm);
 	}
 }

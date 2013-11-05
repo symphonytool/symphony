@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <testResult type="eu.compassresearch.core.typechecker.GeneralCmlTypeCheckerTests">
-<message column="19" line="15" message="Definition 'g_f_parameter' not used" messageType="warning" number="0" resource="tc-context-test-model-actions.cml.result"/>
-<message column="2" line="14" message="Function returns unexpected type" messageType="error" number="0" resource="tc-context-test-model-actions.cml.result"/>
-<message column="60" line="63" message="Left hand of + is not numeric" messageType="error" number="0" resource="tc-context-test-model-actions.cml.result"/>
+<message column="19" line="15" message="Definition 'g_f_parameter' not used" messageType="warning" number="0" resource="tc-context-test-model-actions.cml"/>
+<message column="4" line="20" message="Instance variable 'Process_State' is not initialized" messageType="warning" number="0" resource="tc-context-test-model-actions.cml"/>
+<message column="2" line="54" message="Instance variable 'Global_Class_Instance_Var' is not initialized" messageType="warning" number="0" resource="tc-context-test-model-actions.cml"/>
+<message column="2" line="14" message="Function returns unexpected type" messageType="error" number="0" resource="tc-context-test-model-actions.cml"/>
+<message column="60" line="63" message="Left hand of + is not numeric" messageType="error" number="0" resource="tc-context-test-model-actions.cml"/>
 <result/>
 </testResult>

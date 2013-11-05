@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.CaseStudiesTestCase">
+<message column="10" line="21" message="Definition 'i' not used" messageType="warning" number="0" resource="SingleDoubleAuction.cml"/>
+<message column="10" line="22" message="Definition 'i' not used" messageType="warning" number="0" resource="SingleDoubleAuction.cml"/>
+<message column="2" line="47" message="Instance variable 'auction' is not initialized" messageType="warning" number="0" resource="SingleDoubleAuction.cml"/>
+<result/>
+</testResult>

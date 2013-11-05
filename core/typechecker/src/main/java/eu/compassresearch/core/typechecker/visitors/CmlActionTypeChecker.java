@@ -28,6 +28,7 @@ import org.overture.ast.types.AIntNumericBasicType;
 import org.overture.ast.types.ANatNumericBasicType;
 import org.overture.ast.types.AProductType;
 import org.overture.ast.types.ASetType;
+import org.overture.ast.types.AVoidType;
 import org.overture.ast.types.PType;
 import org.overture.typechecker.Environment;
 import org.overture.typechecker.FlatCheckedEnvironment;
@@ -796,7 +797,7 @@ public class CmlActionTypeChecker extends
 	{
 
 		PDefinition channel = findDefinition(node.getIdentifier(), question.env);
-		AChannelDefinition channelNameDefinition = null;
+		AChannelDefinition channelDef = null;
 
 		// There should be a channel defined with this name
 		if (null == channel)
@@ -812,7 +813,7 @@ public class CmlActionTypeChecker extends
 			return null;
 		}
 
-		channelNameDefinition = (AChannelDefinition) channel;
+		channelDef = (AChannelDefinition) channel;
 
 		// CmlTypeCheckInfo commEnv = cmlEnv.newScope();
 		List<PDefinition> localDefinitions = new Vector<PDefinition>();
@@ -821,6 +822,15 @@ public class CmlActionTypeChecker extends
 
 		int paramIndex = 0;
 		LinkedList<PCommunicationParameter> commParams = node.getCommunicationParameters();
+		PType chanType = channelDef.getType();
+
+		if (channelDef.getType() instanceof AVoidType && !commParams.isEmpty())
+		{
+			issueHandler.addTypeError(channelDef, TypeErrorMessages.COMMUNICATION_NOT_ALLOWED_OVER_UNTYPED_CHANNEL.customizeMessage(channel.getName().getName()));
+			// change check type to the widest type possible to avoid follow errors
+			chanType = AstFactory.newAUnknownType(channelDef.getType().getLocation());
+		}
+
 		for (PCommunicationParameter commParam : commParams)
 		{
 
@@ -831,7 +841,6 @@ public class CmlActionTypeChecker extends
 			// // the types in the declared type for the channel
 			// //
 			// //
-			PType chanType = channelNameDefinition.getType();
 
 			if (commParam instanceof AReadCommunicationParameter)
 			{

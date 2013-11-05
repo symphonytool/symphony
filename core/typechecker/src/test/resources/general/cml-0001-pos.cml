@@ -3,7 +3,8 @@ types
 
 channels
 	
-	a,b
+	a:int
+	b
 	t : bool
 	h : H
 	

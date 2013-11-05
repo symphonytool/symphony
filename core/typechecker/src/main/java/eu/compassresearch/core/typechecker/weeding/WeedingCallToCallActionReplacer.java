@@ -1,6 +1,5 @@
 package eu.compassresearch.core.typechecker.weeding;
 
-import java.util.Collection;
 import java.util.Set;
 
 import org.overture.ast.analysis.AnalysisException;
@@ -16,8 +15,8 @@ import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
 import eu.compassresearch.ast.definitions.AActionClassDefinition;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.process.AActionProcess;
-import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.typechecker.CmlTypeCheckerAssistantFactory;
+import eu.compassresearch.core.typechecker.DefinitionList;
 
 /**
  * @author kel & cb
@@ -39,11 +38,11 @@ public class WeedingCallToCallActionReplacer extends
 	// }
 	// }
 
-	public static void apply(Collection<PSource> lp)
+	public static void apply(DefinitionList sourceForest)
 	{
 
 		WeedingCallToCallActionReplacer lv = new WeedingCallToCallActionReplacer();
-		for (PSource s : lp)
+		for (PDefinition s : sourceForest)
 		{
 			if (s != null)
 			{
@@ -68,7 +67,10 @@ public class WeedingCallToCallActionReplacer extends
 		if (def == null)
 		{
 			AActionProcess pDef = node.getAncestor(AActionProcess.class);
-			def = pDef.getActionDefinition();
+			if (pDef != null)
+			{
+				def = pDef.getActionDefinition();
+			}
 		}
 
 		if (def != null && def instanceof SClassDefinition)

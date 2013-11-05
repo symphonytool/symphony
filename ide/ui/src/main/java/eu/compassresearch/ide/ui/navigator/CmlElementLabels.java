@@ -20,6 +20,8 @@ import eu.compassresearch.ast.definitions.AChannelsDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.definitions.AChansetsDefinition;
 import eu.compassresearch.ast.definitions.AFunctionsDefinition;
+import eu.compassresearch.ast.definitions.ANamesetDefinition;
+import eu.compassresearch.ast.definitions.ANamesetsDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.definitions.ATypesDefinition;
 import eu.compassresearch.ast.definitions.AValuesDefinition;
@@ -238,6 +240,16 @@ public class CmlElementLabels extends VdmElementLabels
 			result.append(" : " + getSimpleTypeString(node.getType()), StyledString.DECORATIONS_STYLER);
 			return result;
 		}
+		
+		@Override
+		public StyledString caseANamesetDefinition(ANamesetDefinition node)
+				throws AnalysisException
+		{
+			StyledString result = new StyledString();
+			result.append(node.getIdentifier().getName());
+			result.append(" : " + node.getNamesetExpression());//getSimpleTypeString(node.getType()), StyledString.DECORATIONS_STYLER);
+			return result;
+		}
 
 		@Override
 		public StyledString caseAChansetDefinition(AChansetDefinition node)
@@ -283,6 +295,13 @@ public class CmlElementLabels extends VdmElementLabels
 				throws AnalysisException
 		{
 			return new StyledString("Channel Sets");
+		}
+		
+		@Override
+		public StyledString caseANamesetsDefinition(ANamesetsDefinition node)
+				throws AnalysisException
+		{
+			return new StyledString("Name Sets");
 		}
 
 		@Override

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.ProcessesCmlTypeCheckerTests">
+<message column="36" line="11" message="Operation o(nat) is not in scope" messageType="error" number="0" resource="processes-0021-neg.cml"/>
+<message column="58" line="11" message="Operation A(nat1, (nat * nat1)) is not in scope" messageType="error" number="0" resource="processes-0021-neg.cml"/>
+<result/>
+</testResult>

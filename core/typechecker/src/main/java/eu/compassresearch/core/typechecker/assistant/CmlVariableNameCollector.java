@@ -7,6 +7,7 @@ import org.overture.typechecker.assistant.ITypeCheckerAssistantFactory;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AChannelDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
+import eu.compassresearch.ast.definitions.ANamesetDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.lex.CmlLexNameToken;
 
@@ -49,6 +50,13 @@ public class CmlVariableNameCollector extends AbstractCmlVariableNameCollector
 			throws AnalysisException
 	{
 		return new LexNameList(node.getName());
+	}
+	
+	@Override
+	public LexNameList caseANamesetDefinition(ANamesetDefinition node)
+			throws AnalysisException
+	{
+		return new LexNameList(new CmlLexNameToken("", node.getIdentifier()));
 	}
 
 }

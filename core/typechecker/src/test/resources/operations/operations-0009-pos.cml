@@ -12,6 +12,10 @@ types
 
 operations
 
- o:A==>int o(b) == return b.a pre b.a > 0 post b.a = b~.a
+ o:A==>int 
+ o(b) == 
+ 	return b.a 
+ pre b.a > 0 
+ post b.a = b~.a
 
 end

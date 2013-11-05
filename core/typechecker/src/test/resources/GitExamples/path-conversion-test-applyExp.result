@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.secondedition.RunCmlExamplesTestCase">
+<message column="24" line="4" message="a at 7:6 hidden by a" messageType="warning" number="0" resource="path-conversion-test-applyExp.result"/>
+<message column="24" line="4" message="Definition 'a' not used" messageType="warning" number="0" resource="path-conversion-test-applyExp.result"/>
+<result/>
+</testResult>

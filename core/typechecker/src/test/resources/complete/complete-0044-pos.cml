@@ -8,6 +8,10 @@ begin
 
 state
 
- a: nat * nat := mk_(0,0) t: (nat * nat) * (nat * nat) @ t.#1 := a
+ a: nat * nat := mk_(0,0) 
+ t: (nat * nat) * (nat * nat) 
+ 
+ 
+ @ Skip// t.#1 := a
 
 end

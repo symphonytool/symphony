@@ -5,14 +5,11 @@ import java.util.List;
 import org.overture.ast.definitions.AExplicitOperationDefinition;
 import org.overture.ast.definitions.AImplicitOperationDefinition;
 import org.overture.ast.definitions.AStateDefinition;
-import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.lex.LexLocation;
-import org.overture.ast.patterns.APatternListTypePair;
 import org.overture.ast.patterns.PPattern;
-import org.overture.ast.statements.ASkipStm;
 import org.overture.ast.types.AOperationType;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ValueException;
@@ -21,8 +18,6 @@ import org.overture.interpreter.values.Value;
 import org.overture.interpreter.values.ValueList;
 
 import eu.compassresearch.ast.actions.PAction;
-import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
-import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
 import eu.compassresearch.ast.lex.CmlLexNameToken;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 
@@ -37,135 +32,36 @@ public class CmlOperationValue extends OperationValue
 	}
 
 	private static final long serialVersionUID = 1L;
-	public final AExplicitCmlOperationDefinition expldef;
-	public final AImplicitCmlOperationDefinition impldef;
+	public final AExplicitOperationDefinition expldef;
+	public final AImplicitOperationDefinition impldef;
 	private final PExp precondition;
 	private final PExp postcondition;
 	public final AStateDefinition state;
 	private PAction body;
 	private CmlBehaviour currentlyExecutingThread = null;
 
-	public CmlOperationValue(AExplicitCmlOperationDefinition def,
+	public CmlOperationValue(AExplicitOperationDefinition def,
 			AStateDefinition state)
 	{
-		super(convertToVDMDefinition(def), null, null, null);
+		super(def, null, null, null);
 		this.expldef = def;
 		this.impldef = null;
-		this.setBody(def.getBody());
+		// this.setBody(def.getBody());
 		this.precondition = def.getPrecondition();
 		this.postcondition = def.getPostcondition();
 		this.state = state;
 	}
 
-	public CmlOperationValue(AImplicitCmlOperationDefinition def,
+	public CmlOperationValue(AImplicitOperationDefinition def,
 			AStateDefinition state)
 	{
-		super(convertToVDMDefinition(def), null, null, null);
+		super(def, null, null, null);
 		this.expldef = null;
 		this.impldef = def;
 		this.setBody(null);
 		this.precondition = def.getPrecondition();
 		this.postcondition = def.getPostcondition();
 		this.state = state;
-	}
-
-	@SuppressWarnings("unchecked")
-	private static AExplicitOperationDefinition convertToVDMDefinition(
-			AExplicitCmlOperationDefinition d)
-	{
-		AExplicitOperationDefinition o = new AExplicitOperationDefinition();
-		o.setLocation(d.getLocation());
-		o.setName(d.getName().clone());
-		o.setNameScope(d.getNameScope());
-		o.setUsed(d.getUsed());
-		o.setClassDefinition(d.getClassDefinition() != null ? d.getClassDefinition().clone()
-				: null);
-		o.setAccess(d.getAccess().clone());
-		o.setType(d.getType().clone());
-		o.setPass(d.getPass());
-		o.setBody(new ASkipStm());
-		o.setPrecondition(d.getPrecondition() != null ? d.getPrecondition().clone()
-				: null);
-		o.setPostcondition(d.getPostcondition() != null ? d.getPostcondition().clone()
-				: null);
-		o.setPredef(d.getPredef());
-		o.setPostdef(d.getPostdef());
-		o.setState(d.getState());
-		o.setActualResult(d.getActualResult());
-		o.setIsConstructor(d.getIsConstructor());
-		o.setParameterPatterns((List<? extends PPattern>) d.getParameterPatterns().clone());
-		o.setParamDefinitions((List<? extends PDefinition>) d.getParamDefinitions().clone());
-
-		return o;
-		// AExplicitOperationDefinition node = new AExplicitOperationDefinition(
-		// cloneNode(_location, oldToNewMap),
-		// _name,
-		// _nameScope,
-		// _used,
-		// _classDefinition,
-		// cloneNode(_access, oldToNewMap),
-		// _type,
-		// _pass,
-		// cloneNode(_body, oldToNewMap),
-		// cloneNode(_precondition, oldToNewMap),
-		// cloneNode(_postcondition, oldToNewMap),
-		// _predef,
-		// _postdef,
-		// _state,
-		// _actualResult,
-		// _isConstructor,
-		// cloneList(_parameterPatterns, oldToNewMap),
-		// _paramDefinitions
-		// );
-
-		// return new AExplicitOperationDefinition(
-		// def.getLocation(),
-		// def.getName().clone(),
-		// def.getNameScope(),
-		// def.getUsed(),
-		// def.getClassDefinition() != null ? def.getClassDefinition().clone() : null,
-		// def.getAccess().clone(),
-		// def.getPass(),
-		// (List<? extends PPattern>) def.getParameterPatterns().clone(),
-		// new ASkipStm(),
-		// def.getPrecondition() != null ? def.getPrecondition().clone(): null,
-		// def.getPostcondition() != null ? def.getPostcondition().clone() : null,
-		// def.getType().clone(),
-		// null,
-		// null,
-		// (List<? extends PDefinition>) def.getParamDefinitions().clone(),
-		// null,
-		// def.getActualResult(),
-		// def.getIsConstructor());
-	}
-
-	@SuppressWarnings("unchecked")
-	private static AImplicitOperationDefinition convertToVDMDefinition(
-			AImplicitCmlOperationDefinition def)
-	{
-		AImplicitOperationDefinition o = new AImplicitOperationDefinition();
-		o.setLocation(def.getLocation());
-		o.setName(def.getName().clone());
-		o.setNameScope(def.getNameScope());
-		o.setUsed(def.getUsed());
-		o.setClassDefinition(def.getClassDefinition() != null ? def.getClassDefinition().clone() : null);
-		o.setAccess(def.getAccess().clone());
-		o.setPass(def.getPass());
-		o.setParameterPatterns((List<? extends APatternListTypePair>) def.getParameterPatterns().clone());
-		o.setResult(def.getResult());
-		o.setBody(null); // body
-		o.setExternals(def.getExternals());
-		o.setPrecondition(def.getPrecondition() != null ? def.getPrecondition().clone() : null);
-		o.setPostcondition(def.getPostcondition() != null ? def.getPostcondition().clone() : null);
-		o.setErrors(def.getErrors());
-		o.setType(def.getType());
-		o.setPredef(def.getPredef());
-		o.setPostdef(def.getPostdef());
-		o.setState(def.getState());
-		o.setActualResult(def.getActualResult());
-		o.setStateDefinition(def.getStateDefinition());
-		o.setIsConstructor(def.getIsConstructor());
-		return o;
 	}
 
 	// public CmlOperationValue(AImplicitCmlOperationDefinition def,

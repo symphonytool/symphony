@@ -1,0 +1,27 @@
+
+
+class
+
+ A =
+
+begin
+
+state
+v : int
+
+operations
+public op:()==>int
+op()== 
+(
+	dcl a: A  @
+		 a.op();
+		op();
+		v := op();
+		v := a.op()
+)
+
+	
+
+end
+
+

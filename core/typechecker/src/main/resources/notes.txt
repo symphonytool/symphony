@@ -36,6 +36,10 @@ Added actions to the action tree PAction
 	AStm wrapper to hold a statement in a statement in an action context
 	ACallAction holds an action call
 	
+	
+Added ACallObjectStm for a.b() when used as a statement. Otherwise an AApply expression is used.
+
+
 New Statement mapping
 	ABlock-						ALetStm
 	AIf-						AIfStm
@@ -43,7 +47,7 @@ New Statement mapping
 	ACases-						ACasesStm
 	ASpecification-				ASpecificationStm
 	ACall-						ACallStm
-	AAssignmentCall-			ACallObjectStm
+	AAssignmentCall-			AAssignmentStm with AVariable and AApply
 	AReturn-					AReturnStm
 	ANotYetSpecified-			ANotYetSpecifiedStm
 	ANew-						ANewStm

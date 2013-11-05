@@ -2,9 +2,12 @@ package eu.compassresearch.core.interpreter;
 
 import static org.junit.Assert.assertTrue;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -15,6 +18,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -25,13 +29,13 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.overture.ast.analysis.AnalysisException;
 
-import eu.compassresearch.ast.program.AFileSource;
-import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.RandomSelectionStrategy;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
+import eu.compassresearch.core.parser.ParserUtil;
+import eu.compassresearch.core.parser.ParserUtil.ParserResult;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.ICmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
@@ -42,7 +46,7 @@ public class InterpretAllCmlFilesTest
 
 	private String filePath;
 
-	public InterpretAllCmlFilesTest(String filePath,String name)
+	public InterpretAllCmlFilesTest(String filePath, String name)
 	{
 		CmlRuntime.logger().setLevel(Level.OFF);
 		this.filePath = filePath;
@@ -99,32 +103,51 @@ public class InterpretAllCmlFilesTest
 	{
 
 		File f = new File(filePath);
-		AFileSource ast = new AFileSource();
-		ast.setName(f.getName());
-		ast.setFile(f);
+		// AFileSource ast = new AFileSource();
+		// ast.setName(f.getName());
+		// ast.setFile(f);
 
 		String resultPath = filePath.split("[.]")[0] + ".result";
 
 		// ExpectedTestResult testResult =(new File(resultPath).exists()?
 		// ExpectedTestResult.parseTestResultFile(resultPath):null);
-		
+
 		// if(testResult == null)
 		// Assert.fail("The testResult is not formatted correctly");
 
-		assertTrue(CmlParserUtil.parseSource(ast));
+		ParserResult res = ParserUtil.parse(f);
+
+		// assertTrue(CmlParserUtil.parseSource(ast));
+		if (!res.errors.isEmpty())
+		{
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			PrintStream ps = new PrintStream(baos);
+			res.printErrors(ps);
+			Assume.assumeTrue(false);
+			assertTrue("Parser Errors: \n\n" + baos, res.errors.isEmpty());
+			return;
+		}
 
 		// Type check
 		ITypeIssueHandler tcIssue = VanillaFactory.newCollectingIssueHandle();
-		ICmlTypeChecker cmlTC = VanillaFactory.newTypeChecker(Arrays.asList(new PSource[] { ast }), tcIssue);
+		ICmlTypeChecker cmlTC = VanillaFactory.newTypeChecker(res.definitions, tcIssue);
 
 		boolean isTypechecked = cmlTC.typeCheck();
 
 		if (!isTypechecked)
 			System.err.println(tcIssue.getTypeErrors());
 
-		assertTrue(isTypechecked);
+		if (!isTypechecked)
+		{
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			PrintWriter pw = new PrintWriter(baos);
+			tcIssue.printErrors(pw);
+			Assume.assumeTrue(false);
+			assertTrue("Type Check failed\n\n" + baos, isTypechecked);
+			return;
+		}
 
-		CmlInterpreter interpreter = VanillaInterpreterFactory.newInterpreter(ast);
+		CmlInterpreter interpreter = VanillaInterpreterFactory.newInterpreter(res.definitions);
 
 		Exception exception = null;
 		try
@@ -193,7 +216,7 @@ public class InterpretAllCmlFilesTest
 		return result.toString();
 	}
 
-	@Parameters(name="{index} : {1}")
+	@Parameters(name = "{index} : {1}")
 	public static Collection<Object[]> getCmlfilePaths()
 	{
 
@@ -207,14 +230,14 @@ public class InterpretAllCmlFilesTest
 		// paths.addAll(findAllCmlFiles("src/test/resources/examples/"));
 		// paths.addAll(findAllCmlFiles("src/test/resources/classes/"));
 		// paths.addAll(findAllCmlFiles("src/test/resources/action/replicated/"));
-		
-		List<Object[]>  tests = new Vector<Object[]>();
-		
+
+		List<Object[]> tests = new Vector<Object[]>();
+
 		for (Object[] p : paths)
 		{
 			String path = p[0].toString();
-			String name = path.substring(initialPath.length()+1);
-			tests.add(new Object[]{path,name});
+			String name = path.substring(initialPath.length() + 1);
+			tests.add(new Object[] { path, name });
 		}
 
 		return tests;
@@ -280,7 +303,8 @@ public class InterpretAllCmlFilesTest
 			for (int i = 0; i < children.length; i++)
 			{
 				// Get filename of file or directory
-				paths.add(new Object[] { folder.getPath() + File.separatorChar + children[i] });
+				paths.add(new Object[] { folder.getPath() + File.separatorChar
+						+ children[i] });
 			}
 		}
 		return paths;

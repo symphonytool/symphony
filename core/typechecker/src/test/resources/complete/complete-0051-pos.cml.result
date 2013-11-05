@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.CompleteCmlTypeCheckerTests">
+<message column="25" line="13" message="Definition 'l' not used" messageType="warning" number="0" resource="complete-0051-pos.cml"/>
+<message column="65" line="13" message="Definition 'u' not used" messageType="warning" number="0" resource="complete-0051-pos.cml"/>
+<result/>
+</testResult>

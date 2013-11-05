@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.secondedition.RunCmlExamplesTestCase">
+<message column="6" line="55" message="Instance variable 'rpair' is not initialized" messageType="warning" number="0" resource="simpson.result"/>
+<message column="6" line="56" message="Instance variable 'rindex' is not initialized" messageType="warning" number="0" resource="simpson.result"/>
+<message column="6" line="99" message="Instance variable 'slot' is not initialized" messageType="warning" number="0" resource="simpson.result"/>
+<message column="6" line="100" message="Instance variable 'index' is not initialized" messageType="warning" number="0" resource="simpson.result"/>
+<message column="6" line="101" message="Instance variable 'latest' is not initialized" messageType="warning" number="0" resource="simpson.result"/>
+<message column="6" line="102" message="Instance variable 'reading' is not initialized" messageType="warning" number="0" resource="simpson.result"/>
+<message column="6" line="121" message="Instance variable 'wpair' is not initialized" messageType="warning" number="0" resource="simpson.result"/>
+<message column="6" line="122" message="Instance variable 'windex' is not initialized" messageType="warning" number="0" resource="simpson.result"/>
+<message column="26" line="58" message="Unable to resolve type name 'void'" messageType="error" number="0" resource="simpson.result"/>
+<message column="5" line="58" message="Operation returns unexpected type" messageType="error" number="0" resource="simpson.result"/>
+<message column="6" line="68" message="Operation returns unexpected type" messageType="error" number="0" resource="simpson.result"/>
+<message column="16" line="76" message="Name 'Shared' is not in scope" messageType="error" number="0" resource="simpson.result"/>
+<message column="16" line="76" message="Operation '(Shared.slot)' cannot be called in an expression" messageType="error" number="0" resource="simpson.result"/>
+<message column="27" line="74" message="Unknown type: (unresolved Context`Data)" messageType="error" number="0" resource="simpson.result"/>
+<message column="22" line="132" message="Name 'Shared' is not in scope" messageType="error" number="0" resource="simpson.result"/>
+<message column="22" line="132" message="Operation '(Shared.index)' cannot be called in an expression" messageType="error" number="0" resource="simpson.result"/>
+<message column="7" line="25" message="3113 Unknown type name out" messageType="error" number="0" resource="simpson.result"/>
+<message column="12" line="31" message="3420 Expecting an action but found  a process deinition:Reader." messageType="error" number="0" resource="simpson.result"/>
+<message column="12" line="33" message="3420 Expecting an action but found  a process deinition:Writer." messageType="error" number="0" resource="simpson.result"/>
+<message column="10" line="36" message="3420 Expecting an action but found  a process deinition:SharedState." messageType="error" number="0" resource="simpson.result"/>
+<message column="11" line="38" message="3410 The Symbol &quot;inout&quot; is undefined." messageType="error" number="0" resource="simpson.result"/>
+<message column="8" line="80" message="3113 Unknown type name getLatest" messageType="error" number="0" resource="simpson.result"/>
+<message column="42" line="81" message="3113 Unknown type name setReading" messageType="error" number="0" resource="simpson.result"/>
+<message column="8" line="83" message="3113 Unknown type name getSlot" messageType="error" number="0" resource="simpson.result"/>
+<message column="21" line="89" message="3410 The Symbol &quot;getSlot&quot; is undefined." messageType="error" number="0" resource="simpson.result"/>
+<message column="4" line="158" message="3410 The Symbol &quot;WP&quot; is undefined." messageType="error" number="0" resource="simpson.result"/>
+<result/>
+</testResult>
