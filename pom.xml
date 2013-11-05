@@ -179,7 +179,7 @@
 					<version>2.14.1</version>
 					<configuration>
 						<!-- required for java7 to avoid verifier errors-->
-						<argLine>-XX:-UseSplitVerifier -Djava.awt.headless=true</argLine>
+						<argLine>-Xmx1024m -XX:-UseSplitVerifier -Djava.awt.headless=true</argLine>
 					</configuration>
 				</plugin>
 
