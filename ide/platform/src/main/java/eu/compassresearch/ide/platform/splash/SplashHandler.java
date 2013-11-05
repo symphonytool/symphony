@@ -31,43 +31,38 @@ import eu.compassresearch.ide.platform.Activator;
 public class SplashHandler extends BasicSplashHandler
 {
 
-	@Override
-	public void init(Shell splash)
-	{
-		super.init(splash);
+    @Override
+    public void init(Shell splash)
+    {
+        super.init(splash);
 
-		int foregroundColorInteger;
+        int foregroundColorInteger;
 
-		foregroundColorInteger = 0xD2D7FF; // off white
-		setForeground(new RGB((foregroundColorInteger & 0xFF0000) >> 16,
+        foregroundColorInteger = 0xFFFFFF;
+        setForeground(new RGB((foregroundColorInteger & 0xFF0000) >> 16,
+                              (foregroundColorInteger & 0xFF00) >> 8,
+                              foregroundColorInteger & 0xFF));
 
-		(foregroundColorInteger & 0xFF00) >> 8,
+        final Point buildIdPoint = new Point(76, 200);
 
-		foregroundColorInteger & 0xFF));
+        final String productVersion = "Version " + Platform.getResourceString(Activator.getDefault().getBundle(), "%productVersion");
+        final String productBuild = Platform.getResourceString(Activator.getDefault().getBundle(), "%productBuild");
 
-		final Point buildIdPoint = new Point(350, 200);
+        getContent().addPaintListener(new PaintListener()
+            {
+                public void paintControl(PaintEvent e)
+                {
+                    e.gc.setForeground(getForeground());
+                    e.gc.drawText(productVersion, buildIdPoint.x, buildIdPoint.y, true);
+                    e.gc.drawText(productBuild, buildIdPoint.x, buildIdPoint.y+16, true);
+                }
+            });
+    }
 
-//		final String bundleVersion = "v" + Activator.getDefault().getBundle().getHeaders().get("Bundle-Version");
-		final String productVersion = "Version " + Platform.getResourceString(Activator.getDefault().getBundle(), "%productVersion");
-		final String productBuild = Platform.getResourceString(Activator.getDefault().getBundle(), "%productBuild");
-
-		getContent().addPaintListener(new PaintListener()
-		{
-			public void paintControl(PaintEvent e)
-			{
-				e.gc.setForeground(getForeground());
-				e.gc.drawText(productVersion, buildIdPoint.x, buildIdPoint.y, true);
-				e.gc.drawText(productBuild, buildIdPoint.x, buildIdPoint.y+16, true);
-			}
-
-		});
-	}
-
-	@Override
-	public void dispose()
-	{
-
-		super.dispose();
-	}
+    @Override
+    public void dispose()
+    {
+        super.dispose();
+    }
 
 }

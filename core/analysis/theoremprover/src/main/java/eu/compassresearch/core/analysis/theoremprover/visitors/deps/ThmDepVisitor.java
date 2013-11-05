@@ -9,8 +9,10 @@ import org.overture.ast.types.PType;
 
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
-import eu.compassresearch.ast.definitions.AChannelNameDefinition;
+import eu.compassresearch.ast.definitions.AChannelDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
+import eu.compassresearch.ast.expressions.PCMLExp;
+import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.analysis.theoremprover.thms.NodeNameList;
 
@@ -46,13 +48,17 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList> {
 		actionDepVisitor = new ThmActionDepVisitor(this);
 	}
 
+	public NodeNameList defaultINode(INode node, NodeNameList bvars)
+			throws AnalysisException {		
+		return new NodeNameList();
+	}	
 	public  NodeNameList caseAValueDefinition(AValueDefinition node, NodeNameList bvars)
 			throws AnalysisException {
 		return node.apply(this.valDepVisitor, bvars);
 	}
 	
 	@Override
-	public NodeNameList caseAChannelNameDefinition(AChannelNameDefinition node, NodeNameList bvars)
+	public NodeNameList caseAChannelDefinition(AChannelDefinition node, NodeNameList bvars)
 			throws AnalysisException {		
 		return node.apply(this.chanDepVisitor, bvars);
 	}
@@ -86,6 +92,17 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList> {
 	public NodeNameList defaultPAction(PAction node, NodeNameList bvars)
 			throws AnalysisException {		
 		return node.apply(this.actionDepVisitor, bvars);
+	}	
+	
+	public NodeNameList defaultPVarsetExpression(PVarsetExpression node, NodeNameList bvars)
+			throws AnalysisException {		
+		return node.apply(this.expDepVisitor, bvars);
+	}	
+	
+	
+	public NodeNameList defaultPCMLExp(PCMLExp node, NodeNameList bvars)
+			throws AnalysisException {		
+		return node.apply(this.expDepVisitor, bvars);
 	}	
 	
 

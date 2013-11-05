@@ -20,11 +20,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.WorkbenchException;
 import org.eclipse.ui.ide.IDE;
-import org.overture.ast.node.INode;
-
-import eu.compassresearch.ide.pog.POConstants;
 import eu.compassresearch.ide.ui.CmlUIPlugin;
-import eu.compassresearch.ide.ui.editor.core.CmlEditor;
 
 public class TPPluginUtils {
 	

@@ -1,0 +1,6 @@
+process A =
+begin
+namesets 
+x = {ss}
+@Skip
+end

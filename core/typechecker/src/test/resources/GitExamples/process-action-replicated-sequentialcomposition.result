@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.secondedition.RunCmlExamplesTestCase">
+<message column="8" line="1" message="Duplicate definition: test" messageType="warning" number="0" resource="process-action-replicated-sequentialcomposition.result"/>
+<message column="8" line="2" message="Duplicate definition: test" messageType="warning" number="0" resource="process-action-replicated-sequentialcomposition.result"/>
+<message column="8" line="3" message="Duplicate definition: test" messageType="warning" number="0" resource="process-action-replicated-sequentialcomposition.result"/>
+<message column="8" line="1" message="Duplicate definition: test" messageType="error" number="0" resource="process-action-replicated-sequentialcomposition.result"/>
+<message column="8" line="2" message="Duplicate definition: test" messageType="error" number="0" resource="process-action-replicated-sequentialcomposition.result"/>
+<message column="8" line="3" message="Duplicate definition: test" messageType="error" number="0" resource="process-action-replicated-sequentialcomposition.result"/>
+<message column="41" line="1" message="Operation A(nat1) is not in scope" messageType="error" number="0" resource="process-action-replicated-sequentialcomposition.result"/>
+<message column="34" line="2" message="Operation A(nat) is not in scope" messageType="error" number="0" resource="process-action-replicated-sequentialcomposition.result"/>
+<message column="49" line="3" message="Operation A(nat1) is not in scope" messageType="error" number="0" resource="process-action-replicated-sequentialcomposition.result"/>
+<result/>
+</testResult>

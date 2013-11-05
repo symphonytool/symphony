@@ -95,7 +95,7 @@ public class ThmImplicitOperation extends ThmDecl{
 	private String fixPostFuncExpr(String ex, LinkedList<APatternListTypePair> pattern){
 
 		//if there is a result value (it is a postcondition)
-		if  (result != null )
+		if  (result != null)
 		{
 			int count = 0;
 			//first, need to determine how many parameters are supplied in the function.
@@ -155,44 +155,46 @@ public class ThmImplicitOperation extends ThmDecl{
 			}
 		}
 		//if there is a result value (it is a postcondition)
-		if  (res != null )
-		{
-			//Add the result too
-			PPattern p = res.getPattern();
-	
-			sb.append(", ^" + ((AIdentifierPattern) p).getName().toString() + "^");
+		if  (res != null)
+		{	
+			if (!params.isEmpty())
+			{
+				sb.append(", ");
+			}
+			sb.append("^" + ThmTypeUtil.isaFuncLambdaPostVal + "^");
 		}
 		
 		sb.append(")");
-		return fixParamRefs(sb.toString(), parPair);
+		return sb.toString();//fixParamRefs(sb.toString(), parPair);
 	}
 	
-	/**
-	 * Method to change the value names in an expression when they are parameter names
-	 * This is so that the lambda expression of a function operates as expected. 
-	 * Parameters are determined by numeric order.
-	 * @param ex - expression to fix
-	 * @param pattern - the parameters
-	 * @return the new, fixed string
-	 */
-	private String fixParamRefs(String ex, LinkedList<APatternListTypePair> pattern){
-		int count = 1;
-		for(APatternListTypePair p : pattern )
-		{
-			LinkedList<PPattern> pats = p.getPatterns();
-			//for each parameter, find it in the expression and replace with the lambda value
-			for(PPattern param : pats )
-			{
-				String pName = "^" + ((AIdentifierPattern) param).getName().toString() + "^";
-				String lambdaName = "^" +ThmTypeUtil.isaFuncLambaVal+"^.#" + count;
-			
-				ex = ex.replace(pName, lambdaName);
-				count++;
-			}
-		}
 	
-		return ex;
-	}
+//	/**
+//	 * Method to change the value names in an expression when they are parameter names
+//	 * This is so that the lambda expression of a function operates as expected. 
+//	 * Parameters are determined by numeric order.
+//	 * @param ex - expression to fix
+//	 * @param pattern - the parameters
+//	 * @return the new, fixed string
+//	 */
+//	private String fixParamRefs(String ex, LinkedList<APatternListTypePair> pattern){
+//		int count = 1;
+//		for(APatternListTypePair p : pattern )
+//		{
+//			LinkedList<PPattern> pats = p.getPatterns();
+//			//for each parameter, find it in the expression and replace with the lambda value
+//			for(PPattern param : pats )
+//			{
+//				String pName = "^" + ((AIdentifierPattern) param).getName().toString() + "^";
+//				String lambdaName = "^" +ThmTypeUtil.isaFuncLambaVal+"^.#" + count;
+//			
+//				ex = ex.replace(pName, lambdaName);
+//				count++;
+//			}
+//		}
+//	
+//		return ex;
+//	}
 	/**
 	 * To string method, first returns pre and post conditions, and then the
 	 * operation definition. 
@@ -211,11 +213,11 @@ public class ThmImplicitOperation extends ThmDecl{
 				
 		if (resType	!= null)
 		{
-			res.append(ThmProcessUtil.opExpLeft + "(" + ThmTypeUtil.isaFuncLambdaPost + " " + ThmTypeUtil.isaFuncLambdaPostVal+ " : " + resType + " @ (post_" + name + postParamList +"))");
+			res.append(ThmProcessUtil.opExpLeft + "(" + ThmTypeUtil.isaOpLambdaPost + " " + ThmTypeUtil.isaFuncLambdaPostVal+ " : " + resType + " @ (post_" + name + postParamList +"))");
 		}
 		else
 		{
-			res.append("post_" + name + postParamList);
+			res.append(ThmProcessUtil.opExpLeft +"post_" + name + postParamList + ThmProcessUtil.opExpRight +" ");
 		}
 		
 		res.append(ThmProcessUtil.opExpRight + "`\"\n" + tacHook(name));

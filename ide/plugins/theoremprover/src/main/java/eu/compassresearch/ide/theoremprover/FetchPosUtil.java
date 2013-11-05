@@ -1,30 +1,13 @@
 package eu.compassresearch.ide.theoremprover;
 
-import isabelle.Session;
-import isabelle.eclipse.core.IsabelleCore;
-import isabelle.eclipse.core.app.Isabelle;
-
 import java.io.IOException;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.pog.pub.IProofObligation;
-
-import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligationList;
-import eu.compassresearch.ide.core.resources.ICmlModel;
 import eu.compassresearch.ide.core.resources.ICmlProject;
 import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
-import eu.compassresearch.ide.pog.POConstants;
-import eu.compassresearch.ide.pog.PogPluginRunner;
-import eu.compassresearch.ide.ui.utility.CmlProjectUtil;
-import eu.compassresearch.core.analysis.theoremprover.IsabelleTheory;
 
 public class FetchPosUtil
 {
@@ -145,7 +128,7 @@ public class FetchPosUtil
 
 	private void popErrorMessage(String message)
 	{
-		MessageDialog.openInformation(shell, "COMPASS", "Could not generate THY.\n\n"
+		MessageDialog.openInformation(shell, "Symphony", "Could not generate THY.\n\n"
 				+ message);
 	}
 

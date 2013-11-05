@@ -27,12 +27,12 @@ public class CollectGlobalStateClass extends AnalysisCMLAdaptor
 
 	private final Collection<PDefinition> globalDefinitions = new Vector<PDefinition>();
 
-	public static DefinitionList getGlobalRoot(Collection<PSource> sources,
+	public static DefinitionList getGlobalRoot(DefinitionList sourceForest,
 			ITypeIssueHandler issueHandler) throws AnalysisException
 	{
 
 		CollectGlobalStateClass me = new CollectGlobalStateClass();
-		for (PSource source : sources)
+		for (PDefinition source : sourceForest)
 		{
 			source.apply(me);
 		}

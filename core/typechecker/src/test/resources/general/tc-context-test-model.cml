@@ -3,66 +3,66 @@ types
   G = nat
 
 values 
-  Global_Value : G = 20
+  GValue : G = 20
   
 functions       
-  Global_Function: G-> G
-  Global_Function(g_f_parameter) == g_f_parameter
+  GFun: G-> G
+  GFun(g_f_p) == g_f_p
   
   
 functions       
-  Global_Function2: G-> G
-  Global_Function2(g_f_parameter) == '4'
+  GFun2: G-> G
+  GFun2(g_f_p) == '4'
 
 process P = val a :int @
 
 begin
   state 
- 	Process_State : G                  
+ 	PState : G                  
 
   types
-	Process_Type = nat
+	PType = nat
 
   values 
-	Process_Value_G : G = 30
-	Process_Value_Process_Type : Process_Type = 40
+	PValue_G : G = 30
+	PValue_PType : PType = 40
 
   operations
   
-	Process_Operation: G ==> G
-    Process_Operation(p_o_parameter) == return p_o_parameter
+	POp: G ==> G
+    POp(p_o_p) == return p_o_p
     
   functions       
-    Process_Function: G-> G
-    Process_Function(p_f_parameter) == p_f_parameter+a
+    PFun: G-> G
+    PFun(p_f_p) == p_f_p+a
     
   actions
   a1 = Skip
   @
     Skip ; a1
-end ||| 
+end  
 
 process P1 = 
 
 begin
   state 
- 	Process_State : G                  
+ 	PState : G                  
 
   types
-	Process_Type = nat
+	PType = nat
 
   values 
-	Process_Value_G : G = 30
-	Process_Value_Process_Type : Process_Type = 40
+	PValue_G : G = 30
+	PValue_PType : PType = 40
 
   operations
   
-	Process_Operation: G ==> G
-    Process_Operation(p_o_parameter) == return p_o_parameter
+	POp: G ==> G
+    POp(p_o_p) == return p_o_p
     
   functions       
-    Process_Function: G-> G
-    Process_Function(p_f_parameter) == p_f_parameter
+    PFun: G-> G
+    PFun(p_f_p) == p_f_p
     
   actions
   a1 = Skip
@@ -74,25 +74,25 @@ end
 process P2 = P;P1
 
 
-class Global_Class = 
+class GClass = 
 begin
 
 types
 --G=int
-  Global_Class_G = int
+  GCG = int
 
 values 
-  Global_Class_V : G = 40
+  GCV : G = 40
 
 state
-  Global_Class_Instance_Var : G 
+  GCInstance_Var : G 
 
 --operations
 
---  Global_Class_Operation: G ==> G
---  Global_Class_Operation(g_c_o_parameter) == return g_c_o_parameter
+--  GCOp: G ==> G
+--  GCOp(g_c_o_p) == return g_c_o_p
     
 functions       
-  Global_Class_Function: G-> G
-  Global_Class_Function(g_c_f_parameter) == g_c_f_parameter+true+Global_Function(g_c_f_parameter)
+  GCFun: G-> G
+  GCFun(g_c_f_p) == g_c_f_p+true+GFun(g_c_f_p)
 end

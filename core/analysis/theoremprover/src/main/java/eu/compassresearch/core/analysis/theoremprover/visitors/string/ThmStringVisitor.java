@@ -7,6 +7,8 @@ import org.overture.ast.types.PType;
 
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
+import eu.compassresearch.ast.expressions.PCMLExp;
+import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.process.PProcess;
 
 @SuppressWarnings("serial")
@@ -33,25 +35,43 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		actionStringVisitor = new ThmActionStringVisitor(this);
 	}
 
-	public String defaultPType(PType node, ThmVarsContext bvars)
+
+	public String defaultINode(INode node, ThmVarsContext vc)
 			throws AnalysisException {		
-		return node.apply(this.typeStringVisitor, bvars);
+		return "(*Syntax not handled*)";
+	}	
+	
+	public String defaultPType(PType node, ThmVarsContext vc)
+			throws AnalysisException {		
+		return node.apply(this.typeStringVisitor, vc);
 	}	
 
-	public String defaultPExp(PExp node, ThmVarsContext bvars)
+	public String defaultPExp(PExp node, ThmVarsContext vc)
 			throws AnalysisException {		
-		return node.apply(this.expStringVisitor, bvars);
+		return node.apply(this.expStringVisitor, vc);
 	}	
 	
-	public String defaultPProcess(PProcess node, ThmVarsContext bvars)
+	public String defaultPProcess(PProcess node, ThmVarsContext vc)
 			throws AnalysisException {		
-		return node.apply(this.processStringVisitor, bvars);
+		return node.apply(this.processStringVisitor, vc);
 	}	
 	
-	public String defaultPAction(PAction node, ThmVarsContext bvars)
+	public String defaultPAction(PAction node, ThmVarsContext vc)
 			throws AnalysisException {		
-		return node.apply(this.actionStringVisitor, bvars);
+		return node.apply(this.actionStringVisitor, vc);
 	}	
+	
+	public String defaultPVarsetExpression(PVarsetExpression node, ThmVarsContext vc)
+			throws AnalysisException {		
+		return node.apply(this.expStringVisitor, vc);
+	}	
+	
+	
+	public String defaultPCMLExp(PCMLExp node, ThmVarsContext vc)
+			throws AnalysisException {		
+		return node.apply(this.expStringVisitor, vc);
+	}	
+	
 
 	@Override
 	public String createNewReturnValue(INode arg0, ThmVarsContext arg1)

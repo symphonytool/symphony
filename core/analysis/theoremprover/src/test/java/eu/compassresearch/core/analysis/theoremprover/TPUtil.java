@@ -18,33 +18,32 @@ import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.parser.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.typechecker.VanillaFactory;
-import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
-import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
+import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 
 public class TPUtil {
-
-	public static PSource makeSourceFromFile(String filePath)
-    	    throws IOException, AnalysisException {
-    	File f = new File(filePath);
-    	AFileSource ast = new AFileSource();
-    	ast.setName(f.getName());
-    	ast.setFile(f);
-
-    	// Call factory method to build parser and lexer
-    	
-    	assertTrue("Test failed on parser", parseWithANTLR(ast));
-
-    	// Type check
-    	TypeIssueHandler errors = VanillaFactory.newCollectingIssueHandle();
-    	CmlTypeChecker cmlTC = VanillaFactory.newTypeChecker(
-    		Arrays.asList(new PSource[] { ast }), errors);
-    	boolean tcResult = cmlTC.typeCheck();
-
-    	assertTrue("Test failed on typechcker", tcResult);
-    	return ast;
-        }
-
-
+//
+//	public static PSource makeSourceFromFile(String filePath)
+//    	    throws IOException, AnalysisException {
+//    	File f = new File(filePath);
+//    	AFileSource ast = new AFileSource();
+//    	ast.setName(f.getName());
+//    	ast.setFile(f);
+//
+//    	// Call factory method to build parser and lexer
+//    	
+//    	assertTrue("Test failed on parser", parseWithANTLR(ast));
+//
+//    	// Type check
+//    	ITypeIssueHandler errors = VanillaFactory.newCollectingIssueHandle();
+//    	CmlTypeChecker cmlTC = VanillaFactory.newTypeChecker(
+//    		Arrays.asList(new PSource[] { ast }), errors);
+//    	boolean tcResult = cmlTC.typeCheck();
+//
+//    	assertTrue("Test failed on typechcker", tcResult);
+//    	return ast;
+//        }
+//
+//
 
 	private static boolean parseWithANTLR(PSource sourceIn) throws IOException
 	{

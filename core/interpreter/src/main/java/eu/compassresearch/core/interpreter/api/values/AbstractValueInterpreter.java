@@ -85,6 +85,6 @@ public class AbstractValueInterpreter
 
 	public static boolean isAnyValue(Value value)
 	{
-		return value instanceof ImpreciseValue;
+		return value instanceof LooseValue;
 	}
 }

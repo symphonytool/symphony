@@ -114,8 +114,8 @@ public class ConsoleSelectionStrategy implements SelectionStrategy
 				Value val;
 				try
 				{
-					//FIXME this should be changed to the be handles by the COMPASS parser since the syntax i changed
-					//in some of the syntax
+					// FIXME this should be changed to the be handles by the COMPASS parser since the syntax i changed
+					// in some of the syntax
 					LexTokenReader ltr = new LexTokenReader(new BufferedReader(new InputStreamReader(System.in)).readLine(), Dialect.VDM_PP);
 					ExpressionReader reader = new ExpressionReader(ltr);
 					reader.setCurrentModule("IO");

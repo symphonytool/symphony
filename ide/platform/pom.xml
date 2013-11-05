@@ -12,7 +12,7 @@
 
   
   <artifactId>eu.compassresearch.ide.platform</artifactId>
-  <name>COMPASS IDE CML Platform</name>
+  <name>Symphony IDE Platform</name>
 
   <build>
     <resources>

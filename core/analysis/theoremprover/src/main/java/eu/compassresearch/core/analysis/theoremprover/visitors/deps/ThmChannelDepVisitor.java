@@ -1,17 +1,14 @@
 package eu.compassresearch.core.analysis.theoremprover.visitors.deps;
 
-import java.util.LinkedList;
-
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.node.INode;
 import org.overture.ast.types.PType;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
-import eu.compassresearch.ast.definitions.AChannelNameDefinition;
+import eu.compassresearch.ast.definitions.AChannelDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
-import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.analysis.theoremprover.thms.NodeNameList;
+
 
 @SuppressWarnings("serial")
 public class ThmChannelDepVisitor extends
@@ -41,15 +38,16 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 	 * @return the list of dependencies
 	 * @throws AnalysisException 
 	 */
-	public NodeNameList caseAChannelNameDefinition(
-			AChannelNameDefinition node, NodeNameList bvars) throws AnalysisException {
+	public NodeNameList caseAChannelDefinition(
+			AChannelDefinition node, NodeNameList bvars) throws AnalysisException {
 		NodeNameList nodeDeps = new NodeNameList();
 		
-		LinkedList<PDefinition> chandefs = node.getSingleType().getType().getDefinitions();
-		PDefinition chan = chandefs.getFirst();
-		PType chanTp = (((AChannelType) chan.getType()).getType());
-		
-		nodeDeps.addAll(chanTp.apply(thmDepVisitor, bvars));
+		//Generate Channel syntax
+		PType chanType = node.getType();
+		if (chanType != null)
+		{
+			nodeDeps.addAll(chanType.apply(thmDepVisitor, bvars));
+		}
 		
 		return nodeDeps;
 	}

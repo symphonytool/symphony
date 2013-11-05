@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.GeneralCmlTypeCheckerTests">
+<message column="8" line="15" message="Definition 'g_f_p' not used" messageType="warning" number="0" resource="tc-context-test-model.cml"/>
+<message column="2" line="21" message="Instance variable 'PState' is not initialized" messageType="warning" number="0" resource="tc-context-test-model.cml"/>
+<message column="2" line="49" message="Instance variable 'PState' is not initialized" messageType="warning" number="0" resource="tc-context-test-model.cml"/>
+<message column="2" line="88" message="Instance variable 'GCInstance_Var' is not initialized" messageType="warning" number="0" resource="tc-context-test-model.cml"/>
+<message column="2" line="14" message="Function returns unexpected type" messageType="error" number="0" resource="tc-context-test-model.cml"/>
+<message column="25" line="37" message="State variable 'a' cannot be accessed from this context" messageType="error" number="0" resource="tc-context-test-model.cml"/>
+<message column="28" line="97" message="Left hand of + is not numeric" messageType="error" number="0" resource="tc-context-test-model.cml"/>
+<result/>
+</testResult>

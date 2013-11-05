@@ -8,7 +8,7 @@
          point="org.eclipse.ui.perspectives">
 		<perspective
             class="eu.compassresearch.ide.ui.perspective.CmlPerspectiveFactory"
-            icon="icons/cview16/compass_nav.png"
+            icon="icons/cview16/symphony_nav.png"
             id="eu.compassresearch.ide.ui.perspective"
             name="%CmlPerspectiveName">
 			<description>
@@ -41,7 +41,7 @@
             class="eu.compassresearch.ide.ui.editor.core.CmlEditor"
             contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
             default="true"
-            icon="icons/cview16/cml_file_tsk.png"
+            icon="icons/cview16/cml_file_icon.png"
             id="eu.compassresearch.ide.ui.editor"
             name="CML Editor">
 			<contentTypeBinding
@@ -56,7 +56,7 @@
 		<wizard
             category="compass_eu.compassresearch.ide.ui.category"
             class="eu.compassresearch.ide.ui.wizard.NewCmlFileWizard"
-            icon="icons/cview16/cml_file_tsk.png"
+            icon="icons/cview16/cml_file_icon.png"
             id="eu.compassresearch.ide.ui.newcmlfilewizard"
             name="CML File">
 		</wizard>
@@ -66,7 +66,7 @@
             category="compass_eu.compassresearch.ide.ui.category"
             class="eu.compassresearch.ide.ui.wizard.NewCmlProjectWizard"
             finalPerspective="eu.compassresearch.ide.ui.perspective"
-            icon="icons/cview16/cml_file_tsk.png"
+            icon="icons/cview16/cml_file_icon.png"
             id="eu.compassresearch.ide.CmlProjectWizard"
             name="%newProjectWizardName"
             preferredPerspectives="eu.compassresearch.ide.ui.perspective"
@@ -78,7 +78,7 @@
 		<wizard
             category="compass_eu.compassresearch.ide.ui.category"
             class="eu.compassresearch.ide.ui.wizard.NewCmlClassWizard"
-            icon="icons/cview16/cml_file_tsk.png"
+            icon="icons/cview16/cml_file_icon.png"
             id="eu.compassresearch.ide.ui.newcmlclasswizard"
 
             name="CML Class">
@@ -88,15 +88,15 @@
 		<wizard
             category="compass_eu.compassresearch.ide.ui.category"
             class="eu.compassresearch.ide.ui.wizard.NewCmlProcessWizard"
-            icon="icons/cview16/cml_file_tsk.png"
+            icon="icons/cview16/cml_file_icon.png"
             id="eu.compassresearch.ide.ui.newcmlprocesswizard"
             name="CML Process">
 		</wizard>
 
 
 		<category
-        id="compass_eu.compassresearch.ide.ui.category"
-        name="COMPASS">
+                    id="compass_eu.compassresearch.ide.ui.category"
+                    name="Symphony">
 		</category>
 		<primaryWizard id="eu.compassresearch.ide.CmlProjectWizard" />
 	</extension>
@@ -107,12 +107,12 @@
 			point="org.eclipse.ui.views">
 		<category
 			id="eu.compassresearch.ide.ui.category"
-			name="COMPASS"/>
+			name="Symphony"/>
 		<view
 			category="eu.compassresearch.ide.ui.category"
 			allowMultiple="false"
 			class="eu.compassresearch.ide.ui.navigator.CmlNavigator"
-			icon="icons/cview16/compass_nav.png"
+			icon="icons/cview16/symphony_nav.png"
 			id="eu.compassresearch.ide.ui.CmlNavigator"
 			name="%CmlExplorerName"/>
 	</extension>
@@ -155,7 +155,7 @@
             contentProvider="eu.compassresearch.ide.ui.navigator.CmlContentProvider"
             labelProvider="eu.compassresearch.ide.ui.navigator.CmlLabelProvider" 
             activeByDefault="true"
-            icon="icons/cview16/compass_nav.png"
+            icon="icons/cview16/symphony_nav.png"
             priority="highest" >
 
 			<triggerPoints>
@@ -205,14 +205,14 @@
        point="org.eclipse.ui.importWizards">
     <category
           id="eu.compassresearch.ide.ui.category-compass"
-          name="COMPASS">
+          name="Symphony">
     </category>
     <wizard
           category="eu.compassresearch.ide.ui.category-compass"
           class="eu.compassresearch.ide.ui.wizard.ImportExamplesWizard"
-          icon="icons/cview16/cml_file_tsk.png"
+          icon="icons/cview16/cml_file_icon.png"
           id="eu.compassresearch.ide.ui.wizardImportExamples"
-          name="COMPASS Examples">
+          name="Symphony Examples">
     </wizard>
  </extension>
  <extension
@@ -224,7 +224,7 @@
     <command
           defaultHandler="eu.compassresearch.ide.ui.handlers.ReportBugHandler"
           id="eu.compassresearch.ide.ui.commandReportBug"
-          name="Report COMPASS Bug">
+          name="Report Symphony Bug">
     </command>
  </extension>
  <extension
@@ -267,7 +267,7 @@
           locationURI="menu:help?after=intro">
        <command
              commandId="eu.compassresearch.ide.ui.commandReportBug"
-             label="Report COMPASS bug"
+             label="Report Symphony bug"
              style="push">
        </command>
     </menuContribution>
@@ -277,9 +277,9 @@
     <extension point="org.eclipse.ui.views">
     <view 
         id="eu.compassresearch.ide.ui.Sanitizer"
-        name="COMPASS UI Debug Sanitizer"
+        name="Symphony UI Debug Sanitizer"
         category="compass_eu.compassresearch.ide.ui.category"
-        icon="icons/cview16/cml_file_tsk.png"
+        icon="icons/cview16/cml_file_icon.png"
         class="eu.compassresearch.ide.ui.Sanitizer" />
   </extension>
    -->

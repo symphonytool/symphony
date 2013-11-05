@@ -11,7 +11,6 @@ import org.overture.interpreter.runtime.ObjectContext;
 import org.overture.interpreter.runtime.RootContext;
 import org.overture.interpreter.runtime.StateContext;
 import org.overture.interpreter.runtime.ValueException;
-import org.overture.interpreter.values.ObjectValue;
 import org.overture.interpreter.values.UpdatableValue;
 import org.overture.interpreter.values.Value;
 
@@ -43,25 +42,25 @@ class CmlBehaviourUtility
 	}
 
 	/*
-	 * This method makes a copy of the contexts up until the ObjectContext which represents the current
-	 * executing process. So we should never go beyond an Objectcontext
+	 * This method makes a copy of the contexts up until the ObjectContext which represents the current executing
+	 * process. So we should never go beyond an Objectcontext
 	 */
 	public static Context deepCopyProcessContext(Context from)
 	{
 		Context result = null;
-		//We should never copy more than the ObjectContext so If from is a
-		//ObjectContext then we stop and point to the old outer
-		if(from instanceof ObjectContext)
-			//TODO is shallow copy good enough here??? this must be investigated
+		// We should never copy more than the ObjectContext so If from is a
+		// ObjectContext then we stop and point to the old outer
+		if (from instanceof ObjectContext)
+			// TODO is shallow copy good enough here??? this must be investigated
 			result = CmlContextFactory.newObjectContext(from.location, from.title, from.outer, from.getSelf().shallowCopy());
-		//If not a ObjectContext and then we continue to copy
-		//NB this should never from.outer should never be null
-		else 
-			result = new Context(from.assistantFactory,from.location, from.title, deepCopyProcessContext(from.outer));
-		
+		// If not a ObjectContext and then we continue to copy
+		// NB this should never from.outer should never be null
+		else
+			result = new Context(from.assistantFactory, from.location, from.title, deepCopyProcessContext(from.outer));
+
 		result.threadState = from.threadState;
-		
-		for (ILexNameToken var: from.keySet())
+
+		for (ILexNameToken var : from.keySet())
 		{
 			Value v = from.get(var);
 			result.put(var, v.deepCopy());
@@ -69,7 +68,7 @@ class CmlBehaviourUtility
 
 		return result;
 	}
-	
+
 	public static Context mergeAndReplaceState(Context dst, Context src)
 			throws ValueException
 	{

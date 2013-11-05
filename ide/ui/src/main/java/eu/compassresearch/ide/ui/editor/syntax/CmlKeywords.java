@@ -33,7 +33,7 @@ public class CmlKeywords implements IVdmKeywords
 			"from", "functions", "hd", "if", "in", "inds", "inmap", "instance",
 			"int", "inter", "inv", "inverse", "iota", /* "is", */"isofbaseclass",
 			"isofclass", "lambda", "len", "let", "map", "measure", "merge",
-			"mod", "mu", "munion", "mutex", "nat", "nat1", "new", "nil", "not",
+			"mod", "mu", "munion", "mutex", "namesets","nat", "nat1", "new", "nil", "not",
 			"of", "operations", "or", "others", "per", "periodic", "post",
 			"power", "pre", "private", "protected", "psubset", "public", "rat",
 			"rd", "real", "rem", /* "responsibility", */"return", "reverse",

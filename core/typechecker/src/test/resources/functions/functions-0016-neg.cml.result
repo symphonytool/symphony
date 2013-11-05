@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.FunctionsCmlTypeCheckerTests">
+<message column="1" line="11" message="Instance variable 'reg' is not initialized" messageType="warning" number="0" resource="functions-0016-neg.cml"/>
+<message column="15" line="16" message="State variable 'reg' cannot be accessed from this context" messageType="error" number="0" resource="functions-0016-neg.cml"/>
+<message column="15" line="16" message="Cannot access reg from a static context" messageType="error" number="0" resource="functions-0016-neg.cml"/>
+<result/>
+</testResult>

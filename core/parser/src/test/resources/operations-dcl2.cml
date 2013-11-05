@@ -1,0 +1,16 @@
+class
+
+ A =
+
+begin
+
+state
+v : int
+
+operations
+public op:()==>()
+op()== dcl t: SUBS := new A() @ t := 1 /* t := new A() is ok here but both are assignment defs*/
+
+
+
+end

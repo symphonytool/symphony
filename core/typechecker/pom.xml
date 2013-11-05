@@ -9,7 +9,7 @@
 	</parent>
 
 	<artifactId>typechecker</artifactId>
-	<name>COMPASS Core CML TypeChecker</name>
+	<name>Symphony Core CML TypeChecker</name>
 
 	<dependencies>
 		
@@ -92,6 +92,10 @@
 					<redirectTestOutputToFile>true</redirectTestOutputToFile>
 					<testFailureIgnore>false</testFailureIgnore>
 					<enableAssertions>false</enableAssertions>
+					 <includes>
+            <exclude>**/*TestCase.java</exclude>
+            <exclude>**/*Tests.java</exclude>
+          </includes>
 				</configuration>
 			</plugin>
 

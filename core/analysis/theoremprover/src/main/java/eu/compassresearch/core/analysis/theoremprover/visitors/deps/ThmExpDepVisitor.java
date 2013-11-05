@@ -118,9 +118,10 @@ import eu.compassresearch.ast.expressions.ANameChannelExp;
 import eu.compassresearch.ast.expressions.ASubVOpVarsetExpression;
 import eu.compassresearch.ast.expressions.AUnionVOpVarsetExpression;
 import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
+import eu.compassresearch.ast.expressions.PCMLExp;
+import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.expressions.SRenameChannelExp;
 import eu.compassresearch.core.analysis.theoremprover.thms.NodeNameList;
-import eu.compassresearch.core.analysis.theoremprover.utils.ThmExprUtil;
 
 @SuppressWarnings("serial")
 public class ThmExpDepVisitor extends
@@ -177,8 +178,7 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 		NodeNameList nodeDeps = new NodeNameList();
 			
 		LinkedList<PMultipleBind> binds = ex.getBindList();
-		NodeNameList boundvars = new NodeNameList();
-		boundvars.addAll(bvars);
+
 		
 		for(PMultipleBind b: binds)
 		{
@@ -188,7 +188,7 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 				for (Iterator<PPattern> itr = tmb.getPlist().listIterator(); itr.hasNext(); ) {
 					AIdentifierPattern p = (AIdentifierPattern) itr.next();
 					
-					boundvars.add(p.getName());
+					bvars.add(p.getName());
 				}
 				nodeDeps.addAll(tmb.getType().apply(thmDepVisitor, bvars));
 			}
@@ -198,7 +198,7 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 				for (Iterator<PPattern> itr = smb.getPlist().listIterator(); itr.hasNext(); ) {
 					AIdentifierPattern p = (AIdentifierPattern) itr.next();
 					
-					boundvars.add(p.getName());
+					bvars.add(p.getName());
 				}
 				nodeDeps.addAll(smb.getSet().apply(thmDepVisitor, bvars));
 			}
@@ -212,22 +212,19 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 	
 	public NodeNameList caseAExists1Exp(AExists1Exp ex, NodeNameList bvars) throws AnalysisException{
 		NodeNameList nodeDeps = new NodeNameList();
-		
 
-		NodeNameList boundvars = new NodeNameList();
-		boundvars.addAll(bvars);
 		PBind b = ex.getBind();
 		
 		if (b instanceof ATypeBind)
 		{
 			ATypeBind tmb = (ATypeBind) b;
-			boundvars.add(((AIdentifierPattern) tmb.getPattern()).getName());
+			bvars.add(((AIdentifierPattern) tmb.getPattern()).getName());
 			nodeDeps.addAll(tmb.getType().apply(thmDepVisitor, bvars));
 		}
 		else if (b instanceof ASetBind)
 		{
 			ASetBind smb = (ASetBind) b;
-			boundvars.add(((AIdentifierPattern) smb.getPattern()).getName());
+			bvars.add(((AIdentifierPattern) smb.getPattern()).getName());
 			nodeDeps.addAll(smb.getSet().apply(thmDepVisitor, bvars));
 		}
 		nodeDeps.addAll(ex.getPredicate().apply(thmDepVisitor, bvars));
@@ -240,9 +237,7 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 		NodeNameList nodeDeps = new NodeNameList();
 		
 		LinkedList<PMultipleBind> binds = ex.getBindList();
-		NodeNameList boundvars = new NodeNameList();
-		boundvars.addAll(bvars);
-		
+
 		for(PMultipleBind b: binds)
 		{
 			if (b instanceof ATypeMultipleBind)
@@ -251,7 +246,7 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 				for (Iterator<PPattern> itr = tmb.getPlist().listIterator(); itr.hasNext(); ) {
 					AIdentifierPattern p = (AIdentifierPattern) itr.next();
 					
-					boundvars.add(p.getName());
+					bvars.add(p.getName());
 				}
 				nodeDeps.addAll(tmb.getType().apply(thmDepVisitor, bvars));
 			}
@@ -261,7 +256,7 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 				for (Iterator<PPattern> itr = smb.getPlist().listIterator(); itr.hasNext(); ) {
 					AIdentifierPattern p = (AIdentifierPattern) itr.next();
 					
-					boundvars.add(p.getName());
+					bvars.add(p.getName());
 				}
 				nodeDeps.addAll(smb.getSet().apply(thmDepVisitor, bvars));
 			}
@@ -313,7 +308,7 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 		//	nodeDeps.add(fe.getMemberName());
 		//}
 		//nodeDeps.add(new LexNameToken("", fe.getField().getName(), fe.getLocation()));
-		nodeDeps.addAll(ThmExprUtil.getIsabelleExprDeps(bvars, ex.getObject()));
+		nodeDeps.addAll(ex.getObject().apply(thmDepVisitor, bvars));
 
 		return nodeDeps;
 	}
@@ -330,19 +325,18 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 		NodeNameList nodeDeps = new NodeNameList();
 
 		PBind b = ex.getBind();
-		NodeNameList boundvars = new NodeNameList();
-		boundvars.addAll(bvars);
+
 		
 		if (b instanceof ATypeBind)
 		{
 			ATypeBind tmb = (ATypeBind) b;
-			boundvars.add(((AIdentifierPattern) tmb.getPattern()).getName());
+			bvars.add(((AIdentifierPattern) tmb.getPattern()).getName());
 			nodeDeps.addAll(tmb.getType().apply(thmDepVisitor, bvars));
 		}
 		else if (b instanceof ASetBind)
 		{
 			ASetBind smb = (ASetBind) b;
-			boundvars.add(((AIdentifierPattern) smb.getPattern()).getName());
+			bvars.add(((AIdentifierPattern) smb.getPattern()).getName());
 			nodeDeps.addAll(smb.getSet().apply(thmDepVisitor, bvars));
 		}
 		nodeDeps.addAll(ex.getPredicate().apply(thmDepVisitor, bvars));
@@ -356,13 +350,12 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 		NodeNameList nodeDeps = new NodeNameList();
 	
 		LinkedList<ATypeBind> b = ex.getBindList();
-		NodeNameList boundvars = new NodeNameList();
-		boundvars.addAll(bvars);
+
 		
 		for (Iterator<ATypeBind> itr = b.listIterator(); itr.hasNext(); ) {
 			ATypeBind p = itr.next();
 				
-			boundvars.add(((AIdentifierPattern) p.getPattern()).getName());
+			bvars.add(((AIdentifierPattern) p.getPattern()).getName());
 			nodeDeps.addAll(p.getType().apply(thmDepVisitor, bvars));
 
 		}
@@ -375,14 +368,11 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 
 	public NodeNameList caseALetDefExp(ALetDefExp ex, NodeNameList bvars) throws AnalysisException{
 		NodeNameList nodeDeps = new NodeNameList();
-
-		NodeNameList boundvars = new NodeNameList();
-		boundvars.addAll(bvars);
 		
 		LinkedList<PDefinition> ldefs = ex.getLocalDefs();
 		for (PDefinition d : ldefs)
 		{
-			boundvars.add(((AIdentifierPattern) d).getName());
+			bvars.add(((AIdentifierPattern) d).getName());
 			nodeDeps.addAll(d.getType().apply(thmDepVisitor, bvars));
 		}
 		nodeDeps.addAll(ex.getExpression().apply(thmDepVisitor, bvars));
@@ -431,8 +421,6 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 
 	public NodeNameList caseAPostOpExp(APostOpExp ex, NodeNameList bvars) throws AnalysisException{
 		NodeNameList nodeDeps = new NodeNameList();
-
-//		APostOpExp i = (APostOpExp) ex;
 		//TODO: Handle postop exp
 
 		return nodeDeps;
@@ -440,8 +428,6 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 
 	public NodeNameList caseAPreExp(APreExp ex, NodeNameList bvars) throws AnalysisException{
 		NodeNameList nodeDeps = new NodeNameList();
-
-//		APreExp i = (APreExp) ex;
 		//TODO: Handle pre exp
 
 		return nodeDeps;
@@ -881,8 +867,6 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 
 
 		LinkedList<PMultipleBind> binds = ex.getBindings();
-		NodeNameList boundvars = new NodeNameList();
-		boundvars.addAll(bvars);
 		
 		for(PMultipleBind b: binds)
 		{
@@ -892,7 +876,7 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 				for (Iterator<PPattern> itr = tmb.getPlist().listIterator(); itr.hasNext(); ) {
 					AIdentifierPattern p = (AIdentifierPattern) itr.next();
 					
-					boundvars.add(p.getName());
+					bvars.add(p.getName());
 				}
 				nodeDeps.addAll(tmb.getType().apply(thmDepVisitor, bvars));	
 			}
@@ -902,7 +886,7 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 				for (Iterator<PPattern> itr = smb.getPlist().listIterator(); itr.hasNext(); ) {
 					AIdentifierPattern p = (AIdentifierPattern) itr.next();
 					
-					boundvars.add(p.getName());
+					bvars.add(p.getName());
 				}
 				nodeDeps.addAll(smb.getSet().apply(thmDepVisitor, bvars));	
 			}
@@ -937,9 +921,9 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 		NodeNameList nodeDeps = new NodeNameList();
 
 		ASetBind binds = ex.getSetBind();
-		NodeNameList boundvars = new NodeNameList();
-		boundvars.addAll(bvars);			
-		boundvars.add(((AIdentifierPattern) binds.getPattern()).getName());
+		
+		bvars.add(((AIdentifierPattern) binds.getPattern()).getName());
+		
 		nodeDeps.addAll(binds.getSet().apply(thmDepVisitor, bvars));	
 		nodeDeps.addAll(ex.getPredicate().apply(thmDepVisitor, bvars));	
 
@@ -961,8 +945,6 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 		NodeNameList nodeDeps = new NodeNameList();
 
 		LinkedList<PMultipleBind> binds = ex.getBindings();
-		NodeNameList boundvars = new NodeNameList();
-		boundvars.addAll(bvars);
 		
 		for(PMultipleBind b: binds)
 		{
@@ -972,7 +954,7 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 				for (Iterator<PPattern> itr = tmb.getPlist().listIterator(); itr.hasNext(); ) {
 					AIdentifierPattern p = (AIdentifierPattern) itr.next();
 					
-					boundvars.add(p.getName());
+					bvars.add(p.getName());
 				}
 				nodeDeps.addAll(tmb.getType().apply(thmDepVisitor, bvars));	
 			}
@@ -982,7 +964,7 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 				for (Iterator<PPattern> itr = smb.getPlist().listIterator(); itr.hasNext(); ) {
 					AIdentifierPattern p = (AIdentifierPattern) itr.next();
 					
-					boundvars.add(p.getName());
+					bvars.add(p.getName());
 				}
 				nodeDeps.addAll(smb.getSet().apply(thmDepVisitor, bvars));	
 			}
@@ -1206,7 +1188,22 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 
 		return nodeDeps;
 	}
+
 	
+	public NodeNameList defaultPVarsetExpression(PVarsetExpression node, NodeNameList bvars)
+			throws AnalysisException {		
+		NodeNameList nodeDeps = new NodeNameList();
+
+		return nodeDeps;
+	}	
+	
+	
+	public NodeNameList defaultPCMLExp(PCMLExp node, NodeNameList bvars)
+			throws AnalysisException {		
+		NodeNameList nodeDeps = new NodeNameList();
+
+		return nodeDeps;
+	}	
 	
 	@Override
 	public NodeNameList createNewReturnValue(INode arg0, NodeNameList arg1)

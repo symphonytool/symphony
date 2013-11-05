@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: COMPASS IDE RT Tester Plugin
+Bundle-Name: Symphony IDE RT Tester Plugin
 Bundle-SymbolicName: eu.compassresearch.ide.rttmbt;singleton:=true
 Bundle-Version: 0.2.1.qualifier
 Bundle-Activator: eu.compassresearch.ide.rttmbt.Activator
