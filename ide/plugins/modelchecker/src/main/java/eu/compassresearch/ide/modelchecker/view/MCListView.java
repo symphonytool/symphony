@@ -106,7 +106,7 @@ public class MCListView extends ViewPart {
 							IFile svgFile = ((IFolder)mcFolder).getFile(fileName+".svg");
 							data.getFormulaResult().setSvgFile(svgFile);
 							IWorkbenchBrowserSupport support = PlatformUI.getWorkbench().getBrowserSupport();
-							IWebBrowser browser = support.createBrowser(IWorkbenchBrowserSupport.AS_EDITOR, Activator.PLUGIN_ID, "COMPASS", "Model checker counterexample");
+							IWebBrowser browser = support.createBrowser(IWorkbenchBrowserSupport.AS_EDITOR, Activator.PLUGIN_ID, "Symphony", "Model checker counterexample");
 							IFile counterExample = data.getFormulaResult().getSvgFile();
 							URL url = counterExample.getLocationURI().toURL();
 							browser.openURL(url); 
@@ -204,7 +204,7 @@ public class MCListView extends ViewPart {
 	
 	
 	private void popErrorMessage(String message) {
-		MessageDialog.openInformation(null, "COMPASS", message);
+		MessageDialog.openInformation(null, "Symphony", message);
 	}
 	
 	@Override

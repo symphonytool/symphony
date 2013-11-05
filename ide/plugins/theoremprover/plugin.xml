@@ -18,6 +18,11 @@
          id="eu.compassresearch.ide.theoremprover.dischargepos"
          name="DischargePOs">
    </command>
+   <command
+          defaultHandler="eu.compassresearch.ide.theoremprover.commands.TPCollectorHandler"
+          id="eu.compassresearch.ide.theoremprover.tpCollectorCommand"
+          name="Test Theorem Prover Compatibility">
+   </command>
 </extension>
 
   
@@ -56,6 +61,17 @@
               id="eu.compassresearch.ide.theoremprover"
               icon="icons/thy_action.png"
               label="CML-THY">
+               <command
+	                  commandId="eu.compassresearch.ide.theoremprover.tpCollectorCommand"
+	                  id="eu.compassresearch.ide.tehoremprover.tpCollectorCommand"
+	                  style="push"
+	                  label="Check TP compatibility"
+	                  tooltip="Test compatibility of model with theorem prover.">
+            	</command>
+            	                 <separator
+                        name="eu.compassresearch.ide.theoremprover.separator"
+                        visible="true">
+                  </separator>
 				<command
               	  commandId="eu.compassresearch.ide.theoremprover.generatethy"
               	  label="Generate Theorem Prover THY"

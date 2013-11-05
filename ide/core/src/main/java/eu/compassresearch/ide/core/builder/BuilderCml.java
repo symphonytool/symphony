@@ -29,6 +29,7 @@ import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler.CMLTypeError;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler.CMLTypeWarning;
 import eu.compassresearch.ide.core.resources.ICmlModel;
+import eu.compassresearch.ide.core.unsupported.UnsupportedElementInfo;
 
 public class BuilderCml extends AbstractVdmBuilder
 {
@@ -44,16 +45,16 @@ public class BuilderCml extends AbstractVdmBuilder
 	{
 		List<VDMError> errors = new ArrayList<VDMError>();
 		List<VDMWarning> warnings = new ArrayList<VDMWarning>();
+		List<UnsupportedElementInfo> uns = new ArrayList<UnsupportedElementInfo>();
+		// Collection<PSource> cmlSources = new Vector<PSource>();
+		// for (INode s : rooList.getRootElementList())
+		// {
+		// if (s instanceof PSource)
+		// {
+		// cmlSources.add((PSource) s);
+		// }
+		// }
 
-//		Collection<PSource> cmlSources = new Vector<PSource>();
-//		for (INode s : rooList.getRootElementList())
-//		{
-//			if (s instanceof PSource)
-//			{
-//				cmlSources.add((PSource) s);
-//			}
-//		}
-		
 		ICmlModel model = (ICmlModel) rooList.getAdapter(ICmlModel.class);
 
 		Registry reg = RegistryFactory.getInstance(getProject().getName()).getRegistry();
@@ -89,10 +90,11 @@ public class BuilderCml extends AbstractVdmBuilder
 			new Status(IStatus.ERROR, IBuilderVdmjConstants.PLUGIN_ID, 0, "not typechecked, internal error", e);
 		}
 
-		return setMarkers(errors, warnings);
+		return setMarkers(errors, warnings, uns);
 	}
 
-	private IStatus setMarkers(List<VDMError> errors, List<VDMWarning> warnings)
+	private IStatus setMarkers(List<VDMError> errors,
+			List<VDMWarning> warnings, List<UnsupportedElementInfo> uns)
 	{
 		boolean typeCheckFailed = !errors.isEmpty();
 
@@ -103,6 +105,7 @@ public class BuilderCml extends AbstractVdmBuilder
 				addWarningMarker(warning);
 			}
 		}
+
 		IStatus typeChecked = null;
 
 		if (typeCheckFailed)
@@ -130,7 +133,8 @@ public class BuilderCml extends AbstractVdmBuilder
 		AFileSource source = (AFileSource) error.getOffendingNode().getAncestor(PSource.class);
 		if (source != null)
 		{
-			addErrorMarker((source.getFile()==null?error.getLocation().getFile():source.getFile()), error.getDescription(), error.getLocation(), IBuilderVdmjConstants.PLUGIN_ID);
+			addErrorMarker((source.getFile() == null ? error.getLocation().getFile()
+					: source.getFile()), error.getDescription(), error.getLocation(), IBuilderVdmjConstants.PLUGIN_ID);
 		}
 	}
 
@@ -138,6 +142,8 @@ public class BuilderCml extends AbstractVdmBuilder
 	{
 		addWarningMarker(error.location.getFile(), error.toProblemString(), error.location, IBuilderVdmjConstants.PLUGIN_ID);
 	}
+
+
 
 	/**
 	 * @see org.overture.vdmj.VDMJ#typeCheck()

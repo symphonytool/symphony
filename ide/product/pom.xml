@@ -12,7 +12,7 @@
   <packaging>eclipse-repository</packaging>
 
   <artifactId>eu.compassresearch.ide.product</artifactId>
-  <name>COMPASS CML Tool Platform Standalone Product</name>
+  <name>Symphony IDE Standalone Product</name>
 
   <build>
     <resources>
@@ -57,8 +57,8 @@
           <products>
             <product>
               <id>eu.compassresearch.ide.product</id>
-              <archiveFileName>COMPASS-${project.version}</archiveFileName>
-              <rootFolder>COMPASS</rootFolder>
+              <archiveFileName>SymphonyIDE-${project.version}</archiveFileName>
+              <rootFolder>SymphonyIDE</rootFolder>
             </product>
           </products>
         </configuration>

@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: COMPASS IDE CML Core
+Bundle-Name: Symphony IDE CML Core
 Bundle-SymbolicName: eu.compassresearch.ide.core;singleton:=true
 Bundle-Version: 0.2.1.qualifier
 Bundle-Activator: eu.compassresearch.ide.core.CmlCorePlugin
@@ -27,6 +27,7 @@ Export-Package: eu.compassresearch.ast.actions,
  eu.compassresearch.ide.core,
  eu.compassresearch.ide.core.builder,
  eu.compassresearch.ide.core.resources,
+ eu.compassresearch.ide.core.unsupported,
  org.antlr.runtime
 Require-Bundle: org.eclipse.core.runtime;visibility:=reexport,
  org.eclipse.core.resources;visibility:=reexport,

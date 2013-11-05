@@ -7,7 +7,7 @@ import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.core.interpreter.CmlExpressionVisitor;
 
-public class UnresolvedExpressionValue extends Value implements ImpreciseValue
+public class UnresolvedExpressionValue extends Value implements LooseValue
 {
 	/**
 	 * 
