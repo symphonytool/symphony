@@ -156,15 +156,16 @@ public class ThmImplicitOperation extends ThmDecl{
 		}
 		//if there is a result value (it is a postcondition)
 		if  (res != null && (!res.isEmpty()) && res.getFirst() != null)
-		{
-			//Add the result too
-			PPattern p = res.getFirst().getPattern();
-	
-			sb.append(", ^" + ((AIdentifierPattern) p).getName().toString() + "^");
+		{	
+			if (!params.isEmpty())
+			{
+				sb.append(", ");
+			}
+			sb.append("^" + ThmTypeUtil.isaFuncLambdaPostVal + "^");
 		}
 		
 		sb.append(")");
-		return fixParamRefs(sb.toString(), parPair);
+		return sb.toString();//fixParamRefs(sb.toString(), parPair);
 	}
 	
 	/**
@@ -211,11 +212,11 @@ public class ThmImplicitOperation extends ThmDecl{
 				
 		if (resType	!= null)
 		{
-			res.append(ThmProcessUtil.opExpLeft + "(" + ThmTypeUtil.isaFuncLambdaPost + " " + ThmTypeUtil.isaFuncLambdaPostVal+ " : " + resType + " @ (post_" + name + postParamList +"))");
+			res.append(ThmProcessUtil.opExpLeft + "(" + ThmTypeUtil.isaOpLambdaPost + " " + ThmTypeUtil.isaFuncLambdaPostVal+ " : " + resType + " @ (post_" + name + postParamList +"))");
 		}
 		else
 		{
-			res.append("post_" + name + postParamList);
+			res.append(ThmProcessUtil.opExpLeft +"post_" + name + postParamList + ThmProcessUtil.opExpRight +" ");
 		}
 		
 		res.append(ThmProcessUtil.opExpRight + "`\"\n" + tacHook(name));

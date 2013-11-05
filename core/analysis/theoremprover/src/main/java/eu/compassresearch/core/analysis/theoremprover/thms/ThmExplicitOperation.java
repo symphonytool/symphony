@@ -7,7 +7,6 @@ import java.util.List;
 import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.PPattern;
 
-import eu.compassresearch.core.analysis.theoremprover.utils.ThmExprUtil;
 import eu.compassresearch.core.analysis.theoremprover.utils.ThmProcessUtil;
 import eu.compassresearch.core.analysis.theoremprover.utils.ThmTypeUtil;
 
@@ -101,18 +100,18 @@ public class ThmExplicitOperation extends ThmDecl{
 			sb.append(((AIdentifierPattern) pat).getName().toString());
 			sb.append("^");
 			//If there are remaining parameters, add a ","
-			if(itr.hasNext()){	
+			if(itr.hasNext() || (prepost.equals("post") && resType != null)){	
 				sb.append(", ");
 			}
 		}
 		//if there is a result value
 		if (prepost.equals("post") && resType != null)
 		{
-			sb.append(", ^RESULT^");
+			sb.append("^" + ThmTypeUtil.isaFuncLambdaPostVal + "^");
 		}
 		sb.append(")");
 		
-		return fixParamRefs(sb.toString(), paras);
+		return sb.toString();//NOT SURE IF NEED TO DO THIS... fixParamRefs(sb.toString(), paras);
 	}
 	
 	/**
@@ -151,15 +150,15 @@ public class ThmExplicitOperation extends ThmDecl{
 		res.append(post + "\n\n");
 		
 		res.append(ThmProcessUtil.isaOp + " \"" + name + " " + params + " = `" + 
-				ThmProcessUtil.opExpLeft+  "pre_"+ name + preParamList + ThmProcessUtil.opExpRight +" " +  
+				ThmProcessUtil.opExpLeft +  "pre_"+ name + preParamList + ThmProcessUtil.opExpRight + " " +  
 				ThmProcessUtil.opTurn + " ");
 		if (resType	!= null)
 		{
-			res.append(ThmProcessUtil.opExpLeft + "(" + ThmTypeUtil.isaFuncLambdaPost + " " + ThmTypeUtil.isaFuncLambdaPostVal+ " : " + resType + " @ (post_" + name + postParamList +"))");
+			res.append(ThmProcessUtil.opExpLeft + "(" + ThmTypeUtil.isaOpLambdaPost + " " + ThmTypeUtil.isaFuncLambdaPostVal+ " : " + resType + " @ (post_" + name + postParamList +"))");
 		}
 		else
 		{
-			res.append("post_" + name + postParamList);
+			res.append(ThmProcessUtil.opExpLeft +"post_" + name + postParamList + ThmProcessUtil.opExpRight +" ");
 		}
 				
 		res.append(" \\<and> (" + body + ")`\"\n" + tacHook(name));
