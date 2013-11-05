@@ -3,7 +3,6 @@ package eu.compassresearch.core.interpreter.remote;
 import java.util.Set;
 
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
-import eu.compassresearch.core.interpreter.api.transitions.LabelledTransition;
 import eu.compassresearch.core.interpreter.api.transitions.TimedTransition;
 
 public class RemoteTester implements IRemoteControl
@@ -30,10 +29,9 @@ public class RemoteTester implements IRemoteControl
 
 				System.out.println("Selected: " + event);
 
-				if (event instanceof LabelledTransition
-						&& !((LabelledTransition) event).getChannelName().getValues().isEmpty())
+				if (interpreter.hasArguments(event))
 				{
-					interpreter.select((LabelledTransition) event, "4");
+					interpreter.select(event, "4");
 				} else
 				{
 					interpreter.select(event);
