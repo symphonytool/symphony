@@ -13,7 +13,6 @@ package eu.compassresearch.core;
  */
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.lang.reflect.Method;
 import java.util.Collections;
@@ -22,18 +21,14 @@ import java.util.List;
 import java.util.logging.Level;
 
 import org.antlr.runtime.ANTLRInputStream;
-import org.antlr.runtime.CommonTokenStream;
-import org.antlr.runtime.RecognitionException;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.intf.IAnalysis;
+import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.node.INode;
 import org.overture.pog.pub.IPOContextStack;
 
 import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
 import eu.compassresearch.ast.preview.DotGraphVisitor;
-import eu.compassresearch.ast.program.AFileSource;
-import eu.compassresearch.ast.program.AInputStreamSource;
-import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.analysis.pog.obligations.CmlPOContextStack;
 import eu.compassresearch.core.analysis.pog.visitors.ProofObligationGenerator;
 import eu.compassresearch.core.interpreter.CmlRuntime;
@@ -41,11 +36,12 @@ import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.ConsoleSelectionStrategy;
-import eu.compassresearch.core.parser.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
+import eu.compassresearch.core.parser.ParserUtil;
+import eu.compassresearch.core.parser.ParserUtil.ParserResult;
 import eu.compassresearch.core.typechecker.VanillaFactory;
-import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
-import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
+import eu.compassresearch.core.typechecker.api.ICmlTypeChecker;
+import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 
 //import eu.compassresearch.examples.DivWarnAnalysis;
 
@@ -60,7 +56,7 @@ public class CheckCml
 		try
 		{
 			Input inp;
-			List<PSource> sourceForest = new LinkedList<PSource>();
+			List<PDefinition> sourceForest = new LinkedList<PDefinition>();
 
 			// Say hello
 			System.out.println(HELLO + " - " + CmlParser.CML_LANG_VERSION);
@@ -72,45 +68,30 @@ public class CheckCml
 			// Two modes of operation, Interactive or Batch mode on files.
 			if (inp.isSwitchOn(Switch.INTER))
 			{
-				AInputStreamSource currentTree = new AInputStreamSource();
-				currentTree.setOrigin("standard input");
-				currentTree.setStream(System.in);
-
-				ANTLRInputStream in = new ANTLRInputStream(currentTree.getStream());
-
-				CmlLexer lexer = new CmlLexer(in);
-				CommonTokenStream tokens = new CommonTokenStream(lexer);
-				CmlParser parser = new CmlParser(tokens);
-
-				try
+				ANTLRInputStream in = new ANTLRInputStream(System.in);
+				ParserResult res = ParserUtil.parse(new File("console"), in);
+				if (res.errors.isEmpty())
 				{
-					currentTree.setParagraphs(parser.source());
-				} catch (RecognitionException e)
+					sourceForest.addAll(res.definitions);
+				} else
 				{
-					e.printStackTrace();
+					res.printErrors(System.err);
 				}
-
-				sourceForest.add(currentTree);
 
 			} else
+			{
 				// build the forest
-				for (File source : inp.sourceFiles)
+				System.out.println("Parsing files: " + inp.sourceFiles);
+
+				ParserResult res = ParserUtil.parse(inp.sourceFiles);
+				if (res.errors.isEmpty())
 				{
-					System.out.println("Parsing file: " + source);
-					AFileSource currentTree = new AFileSource();
-					currentTree.setName(source.getName());
-					ANTLRInputStream in = new ANTLRInputStream(new FileInputStream(source));
-					CmlLexer lexer = new CmlLexer(in);
-					CmlParser parser = new CmlParser(new CommonTokenStream(lexer));
-					try
-					{
-						currentTree.setParagraphs(parser.source());
-					} catch (RecognitionException e)
-					{
-						e.printStackTrace();
-					}
-					sourceForest.add(currentTree);
+					sourceForest.addAll(res.definitions);
+				} else
+				{
+					res.printErrors(System.err);
 				}
+			}
 
 			// Run the analysis phase
 			runAllAnalysis(inp, sourceForest);
@@ -340,12 +321,12 @@ public class CheckCml
 	 */
 
 	private static boolean runAnalysis(Input input,
-			AnalysisRunAdaptor analysis, List<PSource> sources)
+			AnalysisRunAdaptor analysis, List<PDefinition> sources)
 	{
 		boolean continueOnException = input.isSwitchOn(Switch.COE);
 		boolean silentOnException = input.isSwitchOn(Switch.SOE);
 
-		for (PSource source : sources)
+		for (PDefinition source : sources)
 		{
 			try
 			{
@@ -373,17 +354,17 @@ public class CheckCml
 	private static abstract class AnalysisRunAdaptor
 	{
 
-		private Object analysis;
+//		private Object analysis;
 
 		public AnalysisRunAdaptor(Object o)
 		{
-			this.analysis = o;
+//			this.analysis = o;
 		}
 
-		public String getAnalysisName()
-		{
-			return CheckCml.getAnalysisName(analysis);
-		}
+//		public String getAnalysisName()
+//		{
+//			return CheckCml.getAnalysisName(analysis);
+//		}
 
 		public abstract void apply(INode node) throws AnalysisException;
 	};
@@ -437,7 +418,7 @@ public class CheckCml
 	 * 
 	 * Have fun :)
 	 */
-	private static void runAllAnalysis(Input input, List<PSource> sources)
+	private static void runAllAnalysis(Input input, List<PDefinition> sources)
 
 	{
 		// Check The Parse Only Switch
@@ -450,8 +431,8 @@ public class CheckCml
 
 		if (!input.isSwitchOn(Switch.NOTC)) // check no type checking switch
 		{
-			final TypeIssueHandler issueHandler = VanillaFactory.newCollectingIssueHandle();
-			final CmlTypeChecker typeChecker = VanillaFactory.newTypeChecker(sources, issueHandler);
+			final ITypeIssueHandler issueHandler = VanillaFactory.newCollectingIssueHandle();
+			final ICmlTypeChecker typeChecker = VanillaFactory.newTypeChecker(sources, issueHandler);
 
 			AnalysisRunAdaptor r = new AnalysisRunAdaptor(typeChecker)
 			{
@@ -460,7 +441,7 @@ public class CheckCml
 
 					if (!(typeChecker.typeCheck()))
 					{
-						for (TypeIssueHandler.CMLTypeError e : issueHandler.getTypeErrors())
+						for (ITypeIssueHandler.CMLTypeError e : issueHandler.getTypeErrors())
 							System.out.println("\t" + e);
 					} else
 					{

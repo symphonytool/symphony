@@ -1,0 +1,19 @@
+/*dont allow
+
+operations
+
+ in pre and post*/
+
+class
+
+ A =
+
+begin
+
+
+
+operations
+
+ op1: () ==> () op1() == Skip pre op1()
+
+end

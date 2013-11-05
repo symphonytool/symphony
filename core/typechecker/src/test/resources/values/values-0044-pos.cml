@@ -1,0 +1,13 @@
+class
+
+ test =
+
+begin
+
+
+
+values
+
+ a:bool = hd(tl([true,false]))
+
+end

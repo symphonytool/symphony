@@ -5,8 +5,6 @@ import org.overture.ast.types.PType;
 import org.overture.typechecker.assistant.ITypeCheckerAssistantFactory;
 import org.overture.typechecker.assistant.definition.PDefinitionAssistantTC;
 
-import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
-import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 
 public class CmlPDefinitionAssistantTC extends PDefinitionAssistantTC
@@ -20,19 +18,12 @@ public class CmlPDefinitionAssistantTC extends PDefinitionAssistantTC
 	@Override
 	public PType getType(PDefinition def)
 	{
-		// FIXME: handle CML type lookup
-		if (def instanceof AProcessDefinition
-				|| def instanceof AExplicitCmlOperationDefinition
-				|| def instanceof AImplicitCmlOperationDefinition)
+		if (def instanceof AProcessDefinition)
 		{
-			return null;
+			return null;// skip
 		}
-		PType t = super.getType(def);
-		if (t == null)
-		{
-			// System.out.println("----------------------------------CML should be handled!!!");
-		}
-		return t;
+
+		return super.getType(def);
 	}
 
 }

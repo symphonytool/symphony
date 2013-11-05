@@ -1,0 +1,23 @@
+class
+
+ processafterclass =
+
+begin
+
+
+
+types
+
+ aunion = nat
+
+functions
+
+ g:int -> aunion g(a) == if (a = 0) then <None> else a
+
+end
+
+
+
+process
+
+ A = A ; B

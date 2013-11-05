@@ -1,0 +1,23 @@
+/*check for variable name in action being the same as
+
+state
+
+ variable*/
+
+process
+
+ Q =
+
+begin
+
+
+
+state
+
+ q : nat := 10
+
+actions
+
+ INIT = (dcl q : nat @ q := 10) @ INIT()
+
+end

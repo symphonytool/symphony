@@ -1,0 +1,19 @@
+channels
+
+ a, b
+
+process
+
+ A =
+
+begin
+
+
+
+actions
+
+ INIT = (a -> b -> Skip) \\ {|b|} 
+ 
+ @ INIT
+
+end

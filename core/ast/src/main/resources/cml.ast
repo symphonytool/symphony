@@ -25,10 +25,10 @@ singleDeclaration {-> package='eu.compassresearch.ast.declarations'
 		| [location]:location 
 		| [nameScope]:nameScope}
         = {type}
-        [identifiers]:LexIdentifierToken*
+        [identifier]:LexIdentifierToken //*
         (type):type
         | {expression}
-        [identifiers]:LexIdentifierToken*
+        [identifier]:LexIdentifierToken //*
         [expression]:exp
     ;
 /*
@@ -44,15 +44,15 @@ definition {-> package='eu.compassresearch.ast.definitions'}
     |   {nameset}
                 [identifier]:LexIdentifierToken
                 [namesetExpression]:VarsetExpression
-    |   #cmlOperation
+//    |   #cmlOperation
     |   {process}
-                [localState]: singleDeclaration.type*
+                [localState]: parametrisation*//singleDeclaration.type*
                 [process]: process
-    | {channelName}
-        [singleType]: singleDeclaration.type
+    | {channel}//renamed removed Name
+      //  [singleType]: singleDeclaration.type
     | #class
    | {channels}
-        [channelNameDeclarations]: definition.channelName*
+        [channelDeclarations]: definition.channel*
    | {chansets}
         [chansets] : definition.chanset*
    | {namesets}
@@ -62,7 +62,7 @@ definition {-> package='eu.compassresearch.ast.definitions'}
    | {types}
         [types]: definition.type*
    | {operations}
-        [operations]:definition.#cmlOperation*
+        [operations]:definition.#Operation*
    | {functions}
         (functionDefinitions):definition*
    | {values}
@@ -71,48 +71,53 @@ definition {-> package='eu.compassresearch.ast.definitions'}
         [operationDefinition]: definition
    | {state}
         [fields]:field.field*
-        [invPattern]:pattern [invExpression]:exp (invdef):definition.explicitFunction
-        [initPattern]:pattern [initExpression]:exp (initdef):definition.explicitFunction
+        [invPattern]:pattern [invExpression]:exp (invdef):definition.#Function.explicit
+        [initPattern]:pattern [initExpression]:exp (initdef):definition.#Function.explicit
         (stateDefs):definition*
    ;
    
+//#class {-> package='eu.compassresearch.ast.definitions'}
+//	= {cml}
+//        (cmlInvariant):definition.#cmlOperation.explicit
+//	;
+
 #class {-> package='eu.compassresearch.ast.definitions'}
-	= {cml}
-        (cmlInvariant):definition.#cmlOperation.explicit
+	= {action}
+       // [actionDesinitions]: definition.action*
 	;
 /*
  * Operations
  *
  */
-#cmlOperation {-> package='eu.compassresearch.ast.definitions'}
-    = {explicit}
-	[parameterPatterns]:pattern*
-	[body]:action
-	[isConstructor]:java_Boolean
-	[precondition]:exp
-	[postcondition]:exp
-	(type):type
-	(predef):definition.explicitFunction
-	(postdef):definition.explicitFunction
-	(paramDefinitions):definition*
-	(state):definition.state
-	(actualResult):type
-
-    | {implicit}
-    [parameterPatterns]:pair.patternListType*
-	[result]:pair.patternType*
-	[externals]:clause.external*
-	[precondition]:exp
-	[postcondition]:exp
-	[isConstructor]:java_Boolean
-	[errors]:case.error*
-	(type):type
-	(predef):definition.explicitFunction
-	(postdef):definition.explicitFunction
-	(state):definition.state
-	(actualResult):type
-	(stateDefinition):definition
-    ;
+//#cmlOperation {-> package='eu.compassresearch.ast.definitions'}
+//    = {explicit}
+//	[parameterPatterns]:pattern*
+//	[body]:action
+//	[isConstructor]:java_Boolean
+//	[precondition]:exp
+//	[postcondition]:exp
+//	(type):type
+//	(predef):definition.#Function.explicit
+//	(postdef):definition.#Function.explicit
+//	(paramDefinitions):definition*
+//	(state):definition.state
+//	(actualResult):type
+//
+//    | {implicit}
+//    [parameterPatterns]:pair.patternListType*
+//	[result]:pair.patternType
+//	[externals]:clause.external*
+//	[precondition]:exp
+//	[postcondition]:exp
+//	[isConstructor]:java_Boolean
+//	[errors]:case.error*
+//	(type):type
+//	(predef):definition.#Function.explicit
+//	(postdef):definition.#Function.explicit
+//	(state):definition.state
+//	(actualResult):type
+//	(stateDefinition):definition
+//    ;
 
 /*
     Expressions
@@ -145,7 +150,7 @@ VarsetExpression {-> package='eu.compassresearch.ast.expressions'
         | {comp} [channelNameExp]:exp.#Channel.name [bindings]:multipleBind* [predicate]:exp
         | {fatEnum} [channelNames]:exp.#Channel.name*
         | {fatComp} [channelNameExp]:exp.#Channel.name [bindings]:multipleBind* [predicate]:exp
-	| #VOp
+		| #VOp
 	;
 
 #VOp {-> package='eu.compassresearch.ast.expressions'
@@ -162,28 +167,29 @@ VarsetExpression {-> package='eu.compassresearch.ast.expressions'
 */
 
 type {-> package='eu.compassresearch.ast.types'}
-    =   {statement} // marker that a statement is typed ok
-    |   {process} // marker that a process is typed ok
-    |   {error} // marker that type of a subtree has failed
-    |   {bind}// market for a bind type subtree
-    |   {processParagraph} // marker stipulating process paragraph is typed ok
-    |   {chansetParagraph} // marker stipulating a chanset paragraph is typed ok
-    |   {channelsParagraph} // marker stipulating a chanset paragraph is typed ok
-    |   {actionParagraph} // marker stipulating that a Action Paragraph is typed ok
-    |   {valueParagraph} // marker stipulating that a Values paragraph is typed ok
-    |   {functionParagraph} // marker stipulating that a Function Paragraph is typed ok
-    |   {typeParagraph} // marker stipulating that a Types Paragraph is typed ok
-    |   {operationParagraph} // marker stipulating that a Function Paragraph is typed ok
-    |   {stateParagraph} // marker stipulating that a state Paragraph is typed ok
-    |   {source} // marker stipulating a source was typed ok
-    |   {channel} (type):type // marker stipulating that a channel Paragraph is typed ok
-    |   {chanset} // marker stipulating that a chanset is typed ok
-    |   {nameset} // marker stipulating that a nameset is typed ok
-    |   {namesets} // marker stipulating that s nameset paragraph is typed ok
-    |   {initialParagraph} // marker
-    |   {action} // marker
-    |   {varsetExpression} // marker
-    |   {paragraph} // markar that a paragraph tree is typed ok
+    = //  {statement} // marker that a statement is typed ok
+    //|  
+     {process} [name]:LexNameToken (classdef):definition.process// marker that a process is typed ok
+   // |   {error} // marker that type of a subtree has failed
+ //   |   {bind}// market for a bind type subtree
+ //   |   {processParagraph} // marker stipulating process paragraph is typed ok
+ //   |   {chansetParagraph} // marker stipulating a chanset paragraph is typed ok
+ //   |   {channelsParagraph} // marker stipulating a chanset paragraph is typed ok
+ //   |   {actionParagraph} // marker stipulating that a Action Paragraph is typed ok
+ //   |   {valueParagraph} // marker stipulating that a Values paragraph is typed ok
+ //   |   {functionParagraph} // marker stipulating that a Function Paragraph is typed ok
+ //   |   {typeParagraph} // marker stipulating that a Types Paragraph is typed ok
+ //   |   {operationParagraph} // marker stipulating that a Function Paragraph is typed ok
+ //   |   {stateParagraph} // marker stipulating that a state Paragraph is typed ok
+ //   |   {source} // marker stipulating a source was typed ok
+ //   |   {channel} (type):type // marker stipulating that a channel Paragraph is typed ok
+//    |   {chanset} // marker stipulating that a chanset is typed ok
+//    |   {nameset} // marker stipulating that a nameset is typed ok
+ //   |   {namesets} // marker stipulating that s nameset paragraph is typed ok
+  //  |   {initialParagraph} // marker
+  //  |   {action} // marker
+ //   |   {varsetExpression} // marker
+  //  |   {paragraph} // markar that a paragraph tree is typed ok
     ;
 
 access  {-> package='eu.compassresearch.ast.definitions'}
@@ -203,8 +209,8 @@ pair {-> package='eu.compassresearch.ast.patterns'}
 */
 process {-> package='eu.compassresearch.ast.process'
 		| [location]:location}
-        = {action}
-                [definitionParagraphs]:definition*
+        = {action}	    //     [definitionParagraphs]:definition*
+           		[actionDefinition]:definition.#class.action
                 [action]:action
         | {sequentialComposition}
                 [left]:process
@@ -289,7 +295,7 @@ process {-> package='eu.compassresearch.ast.process'
 action {-> package='eu.compassresearch.ast.actions'
 		| [location]:location
 		| (type):type}
-        = {skip}
+        = {skip} //what is the semantic meaning of CML skip vs VDM skip?
         | {stop}
         | {chaos}
         | {div}
@@ -346,8 +352,10 @@ action {-> package='eu.compassresearch.ast.actions'
                 [action]:action
         | #Instantiated
         | #Replicated
-        | #Statement
-        | {subclassResponsibility}
+        //| #Statement
+        | {stm} [statement]:stm
+        |   {call} [name]:LexNameToken [args]:exp*
+       // | {subclassResponsibility}
         | {reference}
                 [name]:LexNameToken
                 [args]:exp*
@@ -389,8 +397,9 @@ action {-> package='eu.compassresearch.ast.actions'
         ;
 
 #Instantiated {-> package='eu.compassresearch.ast.actions'}
-        = {declaration} [declaration]:singleDeclaration.type* [action]:action [args]:exp*
-        | {parametrised} [action]:action.parametrised  [args]:exp*
+        = //dead node ->{declaration} [declaration]:definition.local*/*singleDeclaration.type**/ [action]:action [args]:exp*
+        //| 
+        {parametrised} [action]:action.parametrised  [args]:exp*
         ;
 
 communicationParameter {-> package='eu.compassresearch.ast.actions'
@@ -403,83 +412,128 @@ communicationParameter {-> package='eu.compassresearch.ast.actions'
 
 parametrisation {-> package='eu.compassresearch.ast.actions'
 		| [location]:location 
-		| [declaration]:singleDeclaration.type}
+		| [declaration]:definition.local//singleDeclaration.type
+		}
         = {val}
         | {res}
         | {vres}
         ;
 
+/*
+
 #Statement {-> package='eu.compassresearch.ast.actions'}
-        = {let} [action]:action [localDefinitions]:definition*
-        | {block} [declareStatement]:action.#Statement.declare [action]:action
-        | {nonDeterministicIf}
-                [alternatives]:action.#Statement.nonDeterministicAlt*
-        | {nonDeterministicAlt}
+        = {let} [action]:action [localDefinitions]:definition* //this is just defletdef
+        | 
+        {block} [declareStatement]:action.#Statement.declare [action]:action //same but only with one in the lsit
+        | {nonDeterministicIf} //move to sub in stm
+                [alternatives]:action.#Statement.nonDeterministicAlt*	
+        | {nonDeterministicAlt}//move to sub in stm
                 [guard]:exp
                 [action]:action
-        | {if}
+        | {if}  //same
                 [ifExp]:exp
                 [thenStm]:action
                 [elseIf]:action.#Statement.elseIf*
                 [elseStm]:action
-        | {elseIf}
+        | {elseIf} //same
                 [elseIf]:exp
                 [thenStm]:action
-        | {cases}
+        | {cases} //same
                 [exp]:exp
                 [cases]:alternativeAction.case*
                 [others]:action
         | #GeneralAssignment
-        | {specification}
+        | {specification} //copy ex errors
                 [externals]:clause.external*
                 [precondition]:exp
                 [postcondition]:exp
-        | {call}
+        | {call} //copy - bad version name.module is used to indicate that a callobject should have been there using '.'
                 [name]:LexNameToken
                 [args]:exp*
-        | {assignmentCall}
+        | {assignmentCall} //maybe callObject could be used here. I dont think this node is needed - I will remove it
                 [designator]:exp
                 [call]:action.#Statement.call
-        | {return}
+        | {return} //copy
                 [exp]:exp
-    | {notYetSpecified}
+    | {notYetSpecified} //copy
                 [opname]:LexNameToken
                 [args]:exp*
-    | {new}
+    | {new} //new - we keep this but move it to a proper statement
         [destination]:exp
         [className]:LexNameToken
         [args]:exp*
         (classdef):definition.#class
         (ctorDefinition):definition
-    | {nonDeterministicDo}
+    | {nonDeterministicDo}//move to sub in stm
         [alternatives]:action.#Statement.nonDeterministicAlt*
-    | {forSet}
+    | {forSet} //=forAll
         [pattern]:pattern
         [set]:exp
         [action]:action
-    | {forIndex}
+    | {forIndex} //copy
         [var]:LexNameToken
         [from]:exp
         [to]:exp
         [by]:exp
         [action]:action
-    | {forSequence}
+    | {forSequence} // forPatternBind
         [patternBind]:patternBind.def
         [exp]:exp
         [action]:action
         (seqType):type.#seq
-    | {while}
+    | {while} //copy
         [condition]:exp
         [action]:action
-        | {declare}  [assignmentDefs]:definition*
+     | 
+     {declare}  [assignmentDefs]:definition*
         ;
-
-#GeneralAssignment {-> package='eu.compassresearch.ast.actions'}
-    = {single} [stateDesignator]:exp [expression]:exp
-    | {multiple} [assignments]:action.#Statement.#GeneralAssignment.single*
+     
+*/
+/*#GeneralAssignment {-> package='eu.compassresearch.ast.actions'}
+    = {single} [stateDesignator]:exp [expression]:exp //assignment but need a unresolved statedesignator
+    | {multiple} [assignments]:action.#Statement.#GeneralAssignment.single* //atomic
         ;
-
-alternativeAction {-> package='eu.compassresearch.ast.actions'}
-    = {case} [location]:location [pattern]:pattern* [result]:action (defs):definition*
+ 
+ */
+        
+stateDesignator {-> package='org.overture.ast.statements'}
+	=	{unresolved} [path]:exp//well we wanted this:exp.unresolvedPath
+	;
+	
+	
+objectDesignator {-> package='org.overture.ast.statements'}
+    =  {unresolved} [path]:exp//well we wanted this:exp.unresolvedPath
     ;
 
+/*alternativeAction {-> package='eu.compassresearch.ast.actions'}
+    = {case} [location]:location [pattern]:pattern* [result]:action (defs):definition*
+    ;
+  */  
+    
+/*
+* Real statements
+*/
+stm {-> package='org.overture.ast.statements'
+	|	[location]:location 
+	|	(type):type}
+    =   {action} [action]:action
+    |	{new} 
+        [destination]:stateDesignator
+        [className]:LexIdentifierToken
+        [args]:exp*
+        //(classdef):definition.#class
+        //(ctorDefinition):definition
+    |	#NonDeterministic
+
+   	;
+
+#NonDeterministic {-> package='org.overture.ast.statements'}
+	=	{if}
+			[alternatives]:stm.#NonDeterministic.alt*
+	|	{alt}
+			[guard]:exp
+			[action]:stm
+	|	{do}
+			[alternatives]:stm.#NonDeterministic.alt*
+	;
+ 

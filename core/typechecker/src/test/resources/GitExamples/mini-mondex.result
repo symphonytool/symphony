@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.secondedition.RunCmlExamplesTestCase">
+<message column="10" line="19" message="Instance variable 'value' is not initialized" messageType="warning" number="0" resource="mini-mondex.result"/>
+<message column="6" line="61" message="Instance variable 'valueseq' is not initialized" messageType="warning" number="0" resource="mini-mondex.result"/>
+<message column="28" line="66" message="Name 'initseq(nat)' is not in scope" messageType="error" number="0" resource="mini-mondex.result"/>
+<message column="26" line="73" message="Name 'subtseq(seq of (nat), Index, Money)' is not in scope" messageType="error" number="0" resource="mini-mondex.result"/>
+<message column="26" line="74" message="Name 'addseq(seq of (nat), Index, Money)' is not in scope" messageType="error" number="0" resource="mini-mondex.result"/>
+<result/>
+</testResult>

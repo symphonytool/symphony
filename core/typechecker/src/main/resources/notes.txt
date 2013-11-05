@@ -1,0 +1,79 @@
+
+Changed A(Type/Expression)SingleDefinition.identifiers -> [identifier]:LexIdentifierToken
+
+Renamed AChannelNameDefinition -> AChannelDefinition
+
+Renamed AChannelsDefinition.channelNameDeclarations: AChannelNameDefinition -> Renamed AChannelsDefinition.channelDeclarations: AChannelDefinition
+
+Changed AOperations.operations: SCmlOperationDefinition* -> AOperations.operations: SOperationDefinition*
+
+Changed AStateDefinition.(invdef/initdef): AExplicitFunctionDefinition -> Changed AStateDefinition.(invdef/initdef): SFunctionDefinition
+
+Added: AActionClassDefinition used for the inner part of an ActionDefinition
+
+Removed SCmlOperations complete tree. Replaced by SOperations note that the AImplicitOperation.result is not a list in the replaced version.
+
+Removed all types but AProcessType
+
+Changed AActionProcess.definitionParagraphs to AActionProcess.actionDefinition : AActionClassDefinition
+
+Removed ADeclarationInstanciatedAction Dead node
+
+Changed type of PParametrisation.declaration changed to ALocalDefinition
+
+Removed SStatementAction complete subtree deleted
+
+Added AUnresolvedStateDesignator which will be rewritten by TC to the apropiate PStateDesignator
+
+Added AUnresolvedObjectDesignator which will be rewritten by TC to the apropiate PObjectDesignator
+
+Added statements to the statement tree PStm
+	AActionStm wrapper to hold an action in a statement context
+	ANewStm
+	SNonDeterministic is moved here from PAction
+	
+Added actions to the action tree PAction
+	AStm wrapper to hold a statement in a statement in an action context
+	ACallAction holds an action call
+	
+	
+Added ACallObjectStm for a.b() when used as a statement. Otherwise an AApply expression is used.
+
+
+New Statement mapping
+	ABlock-						ALetStm
+	AIf-						AIfStm
+	AElseIf-					AElseIfStm
+	ACases-						ACasesStm
+	ASpecification-				ASpecificationStm
+	ACall-						ACallStm
+	AAssignmentCall-			AAssignmentStm with AVariable and AApply
+	AReturn-					AReturnStm
+	ANotYetSpecified-			ANotYetSpecifiedStm
+	ANew-						ANewStm
+	ANonDeterministicDo-		ADoNonDeterministicStm
+	ANonDeterministicIf-		AIfNonDeterministicStm
+	ANonDeterministicAlt-		AAltNonDeterministicStm
+	AForSet-					AForAllStm
+	AForIndex-					AForIndexStm
+	AForSequence-				AForPatternBindStm
+	AWile-						AWhileStm
+	ASingleGeneralAssignment-	AAssignmentStm
+	AMultipleGeneralAssignment-	AAtomicStm
+
+-------------------------------------------------------------------------------------------------
+Rewrites:
+	Rewrites ACallStm to ACallAction if the call name is an action
+	Rewrites ASkipAction to ASkipStm if the skip is in a statement context
+	Rewrites attempt to remove all ABracketType when possible
+	Rewrites AInitialDefinition to just become the inner operation
+	Rewrites Access on ATypeDefinition and SFunctionDefinition to Public and for the latter also static
+	Rewrites AActionStm and AStmAction such that they dont do double wrapping
+	Rewrites ASequentialCompositionAction to a ABlockSimpleBlockStm when is it used inside operations
+	Rewrites ILexNameToken to contain the module they refer to or are decleared within
+	Rewrites AUnresolvedPathExp to the correct AVariableExp
+	Rewrites AUnresolvedStateDesignator to a valid PStateDesignator
+	Rewrites AUnresolvedObjectDesignator to a valid PObjectDesignator
+	Rewrites ANewStm to a ANewExp wrapped in an AAssignmantStm
+	
+

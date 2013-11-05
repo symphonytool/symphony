@@ -11,7 +11,6 @@ import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.analysis.AnalysisCMLAdaptor;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
-import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.api.values.ProcessObjectValue;
 
 public class GlobalEnvironmentBuilder extends AnalysisCMLAdaptor
@@ -26,13 +25,13 @@ public class GlobalEnvironmentBuilder extends AnalysisCMLAdaptor
 
 	private CmlDefinitionVisitor cmlDefEval = new CmlDefinitionVisitor();
 
-	public GlobalEnvironmentBuilder(List<PSource> sources)
+	public GlobalEnvironmentBuilder(List<PDefinition> sourceForest)
 			throws AnalysisException
 	{
-		BuildGlobalEnvironment(sources);
+		BuildGlobalEnvironment(sourceForest);
 	}
 
-	private void BuildGlobalEnvironment(List<PSource> sources)
+	private void BuildGlobalEnvironment(List<PDefinition> sourceForest)
 			throws AnalysisException
 	{
 		// Make a state
@@ -43,12 +42,9 @@ public class GlobalEnvironmentBuilder extends AnalysisCMLAdaptor
 		 * Go through all the top level paragraphs in all the source files And add them to the global state FIXME:
 		 * access modifier are not considered, should they?
 		 */
-		for (PSource source : sources)
+		for (PDefinition def : sourceForest)
 		{
-			for (PDefinition def : source.getParagraphs())
-			{
-				globalState.putAllNew(def.apply(cmlDefEval, globalState));
-			}
+			globalState.putAllNew(def.apply(cmlDefEval, globalState));
 		}
 
 		// Search though all the found processes and add them to the process list

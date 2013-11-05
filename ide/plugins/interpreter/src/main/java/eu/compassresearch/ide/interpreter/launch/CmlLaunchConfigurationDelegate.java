@@ -39,6 +39,8 @@ import eu.compassresearch.ide.interpreter.model.CmlDebugTarget;
 public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 {
 
+	
+
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public void launch(ILaunchConfiguration configuration, String mode,
@@ -66,6 +68,10 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 			configurationMap.put(CmlInterpreterLaunchConfigurationConstants.PROCESS_NAME.toString(), configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_PROCESS_NAME, ""));
 			configurationMap.put(CmlInterpreterLaunchConfigurationConstants.CML_SOURCES_PATH.toString(), getSources(configuration));
 			configurationMap.put(CmlInterpreterLaunchConfigurationConstants.CML_EXEC_MODE.toString(), configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_IS_ANIMATION, true));
+			
+			//FIXME
+			configurationMap.put(CmlInterpreterLaunchConfigurationConstants.HOST.toString(), configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_IS_ANIMATION, true));
+			configurationMap.put(CmlInterpreterLaunchConfigurationConstants.POST.toString(), configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_IS_ANIMATION, true));
 
 			if (mode.equals(ILaunchManager.DEBUG_MODE))
 			{
@@ -159,7 +165,7 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 		commandArray.add("java");
 //		commandArray.addAll(getClassPath());
 		commandArray.addAll(VdmProjectClassPathCollector.getClassPath(getProject(configuration), CmlUtil.collectRequiredBundleIds(ICmlDebugConstants.ID_CML_PLUGIN_NAME), new String[]{}));
-		commandArray.add("eu.compassresearch.core.interpreter.debug.DebugMain");
+		commandArray.add(ICmlDebugConstants.DEBUG_ENGINE_CLASS);
 		commandArray.add(config);
 
 		// Execute in a new JVM process

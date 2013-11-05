@@ -1,0 +1,13 @@
+channels
+
+ init
+
+process
+
+ test =
+
+begin
+
+ @ init -> Skip
+
+end

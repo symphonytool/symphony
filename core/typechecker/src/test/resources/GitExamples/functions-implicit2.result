@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.secondedition.RunCmlExamplesTestCase">
+<message column="19" line="2" message="Unable to resolve type name 'Day'" messageType="error" number="0" resource="functions-implicit2.result"/>
+<message column="19" line="2" message="Unable to resolve type name 'Day'" messageType="error" number="0" resource="functions-implicit2.result"/>
+<result/>
+</testResult>

@@ -1,0 +1,9 @@
+channels	a : int	process A =	val x : nat @ begin	@ a.x -> Skip
+
+end
+
+
+
+process
+
+ B = ; i in seq {1,2,3} @ A(i)

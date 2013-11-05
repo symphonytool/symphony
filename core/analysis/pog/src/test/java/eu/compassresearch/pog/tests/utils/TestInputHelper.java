@@ -20,8 +20,8 @@ import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.parser.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.typechecker.VanillaFactory;
-import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
-import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
+import eu.compassresearch.core.typechecker.api.ICmlTypeChecker;
+import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 
 /**
  * Helper Class for the POG test framework. Helps generate test inputs.
@@ -55,8 +55,8 @@ public class TestInputHelper
 		assertTrue("Test failed while parsing " + name, parse(ast));
 
 		// Type check
-		TypeIssueHandler errors = VanillaFactory.newCollectingIssueHandle();
-		CmlTypeChecker cmlTC = VanillaFactory.newTypeChecker(
+		ITypeIssueHandler errors = VanillaFactory.newCollectingIssueHandle();
+		ICmlTypeChecker cmlTC = VanillaFactory.newTypeChecker(
 				Arrays.asList(new PSource[] { ast }), errors);
 		boolean tcResult = cmlTC.typeCheck();
 		assertTrue("Test failed while typechecking " +name, tcResult);

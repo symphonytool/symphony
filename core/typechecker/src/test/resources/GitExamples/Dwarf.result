@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.secondedition.RunCmlExamplesTestCase">
+<message column="2" line="53" message="sg at 53:2 hidden by sg" messageType="warning" number="0" resource="Dwarf.result"/>
+<message column="2" line="53" message="sg at 53:2 hidden by sg" messageType="warning" number="0" resource="Dwarf.result"/>
+<message column="2" line="53" message="sg at 53:2 hidden by sg" messageType="warning" number="0" resource="Dwarf.result"/>
+<message column="2" line="53" message="sg at 53:2 hidden by sg" messageType="warning" number="0" resource="Dwarf.result"/>
+<message column="2" line="53" message="Instance variable 'sg' is not initialized" messageType="warning" number="0" resource="Dwarf.result"/>
+<message column="27" line="37" message="'in set' expression is always false" messageType="error" number="0" resource="Dwarf.result"/>
+<message column="24" line="40" message="'in set' expression is always false" messageType="error" number="0" resource="Dwarf.result"/>
+<message column="26" line="43" message="'in set' expression is always false" messageType="error" number="0" resource="Dwarf.result"/>
+<message column="63" line="43" message="'in set' expression is always false" messageType="error" number="0" resource="Dwarf.result"/>
+<result/>
+</testResult>

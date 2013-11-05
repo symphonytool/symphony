@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.CaseStudiesTestCase">
+<message column="10" line="74" message="n at 11:1 hidden by n" messageType="warning" number="0" resource="TelephoneExchange.cml"/>
+<message column="2" line="70" message="status at 70:2 hidden by status" messageType="warning" number="0" resource="TelephoneExchange.cml"/>
+<message column="2" line="71" message="number at 71:2 hidden by number" messageType="warning" number="0" resource="TelephoneExchange.cml"/>
+<message column="2" line="72" message="subs at 72:2 hidden by subs" messageType="warning" number="0" resource="TelephoneExchange.cml"/>
+<message column="2" line="72" message="subs at 72:2 hidden by subs" messageType="warning" number="0" resource="TelephoneExchange.cml"/>
+<message column="2" line="72" message="subs at 72:2 hidden by subs" messageType="warning" number="0" resource="TelephoneExchange.cml"/>
+<message column="2" line="70" message="status at 70:2 hidden by status" messageType="warning" number="0" resource="TelephoneExchange.cml"/>
+<message column="2" line="71" message="number at 71:2 hidden by number" messageType="warning" number="0" resource="TelephoneExchange.cml"/>
+<message column="2" line="72" message="subs at 72:2 hidden by subs" messageType="warning" number="0" resource="TelephoneExchange.cml"/>
+<message column="2" line="70" message="status at 70:2 hidden by status" messageType="warning" number="0" resource="TelephoneExchange.cml"/>
+<message column="2" line="71" message="number at 71:2 hidden by number" messageType="warning" number="0" resource="TelephoneExchange.cml"/>
+<message column="2" line="72" message="subs at 72:2 hidden by subs" messageType="warning" number="0" resource="TelephoneExchange.cml"/>
+<message column="2" line="70" message="status at 70:2 hidden by status" messageType="warning" number="0" resource="TelephoneExchange.cml"/>
+<message column="2" line="72" message="subs at 72:2 hidden by subs" messageType="warning" number="0" resource="TelephoneExchange.cml"/>
+<message column="2" line="71" message="number at 71:2 hidden by number" messageType="warning" number="0" resource="TelephoneExchange.cml"/>
+<message column="2" line="70" message="status at 70:2 hidden by status" messageType="warning" number="0" resource="TelephoneExchange.cml"/>
+<message column="2" line="72" message="subs at 72:2 hidden by subs" messageType="warning" number="0" resource="TelephoneExchange.cml"/>
+<message column="2" line="71" message="number at 71:2 hidden by number" messageType="warning" number="0" resource="TelephoneExchange.cml"/>
+<message column="2" line="70" message="status at 70:2 hidden by status" messageType="warning" number="0" resource="TelephoneExchange.cml"/>
+<message column="2" line="72" message="subs at 72:2 hidden by subs" messageType="warning" number="0" resource="TelephoneExchange.cml"/>
+<message column="2" line="71" message="number at 71:2 hidden by number" messageType="warning" number="0" resource="TelephoneExchange.cml"/>
+<message column="2" line="70" message="status at 70:2 hidden by status" messageType="warning" number="0" resource="TelephoneExchange.cml"/>
+<message column="2" line="72" message="subs at 72:2 hidden by subs" messageType="warning" number="0" resource="TelephoneExchange.cml"/>
+<message column="2" line="71" message="number at 71:2 hidden by number" messageType="warning" number="0" resource="TelephoneExchange.cml"/>
+<message column="2" line="70" message="status at 70:2 hidden by status" messageType="warning" number="0" resource="TelephoneExchange.cml"/>
+<message column="2" line="72" message="subs at 72:2 hidden by subs" messageType="warning" number="0" resource="TelephoneExchange.cml"/>
+<message column="2" line="71" message="number at 71:2 hidden by number" messageType="warning" number="0" resource="TelephoneExchange.cml"/>
+<message column="2" line="266" message="Recursive function has no measure" messageType="warning" number="0" resource="TelephoneExchange.cml"/>
+<message column="2" line="274" message="away at 274:2 hidden by away" messageType="warning" number="0" resource="TelephoneExchange.cml"/>
+<message column="2" line="275" message="origin at 275:2 hidden by origin" messageType="warning" number="0" resource="TelephoneExchange.cml"/>
+<message column="2" line="70" message="Instance variable 'status' is not initialized" messageType="warning" number="0" resource="TelephoneExchange.cml"/>
+<message column="2" line="71" message="Instance variable 'number' is not initialized" messageType="warning" number="0" resource="TelephoneExchange.cml"/>
+<message column="2" line="72" message="Instance variable 'subs' is not initialized" messageType="warning" number="0" resource="TelephoneExchange.cml"/>
+<message column="2" line="273" message="Instance variable 'i' is not initialized" messageType="warning" number="0" resource="TelephoneExchange.cml"/>
+<message column="2" line="274" message="Instance variable 'away' is not initialized" messageType="warning" number="0" resource="TelephoneExchange.cml"/>
+<message column="2" line="275" message="Instance variable 'origin' is not initialized" messageType="warning" number="0" resource="TelephoneExchange.cml"/>
+<message column="1" line="249" message="3425 Communication not allowed over untyped channel: connectbusy." messageType="error" number="0" resource="TelephoneExchange.cml"/>
+<result/>
+</testResult>

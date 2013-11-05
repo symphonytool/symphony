@@ -1,0 +1,27 @@
+process
+
+ A =
+
+begin
+
+ @ Skip
+
+end
+
+
+
+process
+
+ B =
+
+begin
+
+ @ Skip
+
+end
+
+
+
+process
+
+ p1 = A [| channel1 |] B

@@ -1,0 +1,17 @@
+values
+
+ a : int = 42
+
+process
+
+ A =
+
+begin
+
+
+
+values
+
+ b : int = 43 @Skip
+
+end

@@ -1,0 +1,3 @@
+values
+
+ a : nat = 1 b : nat = 2 c : rat = a / b

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.LinkedList;
@@ -125,11 +126,13 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 	 * @throws UnknownHostException
 	 * @throws IOException
 	 */
-	public void connect() throws UnknownHostException, IOException
+	public void connect(String host, int port) throws UnknownHostException,
+			IOException
 	{
 		if (!isConnected())
 		{
-			requestSocket = new Socket("localhost", CmlDebugDefaultValues.PORT);
+			InetAddress server = InetAddress.getByName(host);
+			requestSocket = new Socket(server, port);
 			requestOS = requestSocket.getOutputStream();
 			requestIS = requestSocket.getInputStream();
 			requestReader = new BufferedReader(new InputStreamReader(requestIS));
@@ -529,14 +532,12 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 			CmlInterpreterStateDTO status = CmlInterpreterStateDTO.createCmlInterpreterStateDTO(runningInterpreter);
 			status.addError(new InterpreterErrorDTO(e.getMessage()));
 			stopped(status);
-		} 
-		catch (ContextException e)
+		} catch (ContextException e)
 		{
 			CmlInterpreterStateDTO status = CmlInterpreterStateDTO.createCmlInterpreterStateDTO(runningInterpreter);
 			status.addError(new InterpreterErrorDTO(e.getMessage(), e.location));
 			stopped(status);
-		}
-		finally
+		} finally
 		{
 			runningInterpreter.onStateChanged().unregisterObserver(this);
 		}

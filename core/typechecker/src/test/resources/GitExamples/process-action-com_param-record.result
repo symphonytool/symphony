@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.secondedition.RunCmlExamplesTestCase">
+<message column="3" line="5" message="3113 Unknown type name init" messageType="error" number="0" resource="process-action-com_param-record.result"/>
+<result/>
+</testResult>

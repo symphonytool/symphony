@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.secondedition.RunCmlExamplesTestCase">
+<message column="0" line="2" message="Duplicate definition: anders" messageType="error" number="0" resource="isundername.result"/>
+<message column="0" line="3" message="Duplicate definition: anders" messageType="error" number="0" resource="isundername.result"/>
+<message column="0" line="2" message="Duplicate definition: anders" messageType="error" number="0" resource="isundername.result"/>
+<message column="0" line="3" message="Duplicate definition: anders" messageType="error" number="0" resource="isundername.result"/>
+<message column="0" line="2" message="Duplicate definitions for anders" messageType="error" number="0" resource="isundername.result"/>
+<message column="23" line="2" message="Name 'a' is not in scope" messageType="error" number="0" resource="isundername.result"/>
+<message column="16" line="2" message="Unknown type name 'Hej'" messageType="error" number="0" resource="isundername.result"/>
+<message column="29" line="3" message="Name 'b' is not in scope" messageType="error" number="0" resource="isundername.result"/>
+<message column="16" line="3" message="Unknown type name 'hello'" messageType="error" number="0" resource="isundername.result"/>
+<message column="0" line="2" message="Duplicate definition: anders" messageType="error" number="0" resource="isundername.result"/>
+<message column="0" line="3" message="Duplicate definition: anders" messageType="error" number="0" resource="isundername.result"/>
+<message column="23" line="2" message="Name 'a' is not in scope" messageType="error" number="0" resource="isundername.result"/>
+<message column="16" line="2" message="Unknown type name 'Hej'" messageType="error" number="0" resource="isundername.result"/>
+<message column="29" line="3" message="Name 'b' is not in scope" messageType="error" number="0" resource="isundername.result"/>
+<message column="16" line="3" message="Unknown type name 'hello'" messageType="error" number="0" resource="isundername.result"/>
+<message column="29" line="4" message="Name 'b' is not in scope" messageType="error" number="0" resource="isundername.result"/>
+<message column="16" line="4" message="Unknown type name 'hello'" messageType="error" number="0" resource="isundername.result"/>
+<result/>
+</testResult>

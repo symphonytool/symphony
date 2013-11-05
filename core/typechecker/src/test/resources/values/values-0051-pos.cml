@@ -1,0 +1,13 @@
+class
+
+ test =
+
+begin
+
+
+
+values
+
+ a:set of int = rng { 1 |-> 42, 2 |-> 42 }
+
+end

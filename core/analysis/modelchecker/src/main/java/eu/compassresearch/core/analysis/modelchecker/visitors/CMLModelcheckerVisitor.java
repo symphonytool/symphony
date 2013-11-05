@@ -83,7 +83,7 @@ import eu.compassresearch.ast.expressions.AEnumVarsetExpression;
 import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
 import eu.compassresearch.ast.expressions.ANameChannelExp;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
-import eu.compassresearch.ast.lex.LexNameToken;
+import eu.compassresearch.ast.lex.CmlLexNameToken;
 import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.ast.types.AChannelType;
@@ -574,7 +574,7 @@ public class CMLModelcheckerVisitor extends
 					String module = ((AVariableExp) stateDesignator).getName().getModule();
 					String nextName = ((AVariableExp) stateDesignator).getName().getName() + "_";
 					ILexLocation location = stateDesignator.getLocation();
-					LexNameToken nextNameToken = new LexNameToken(module,nextName,location);
+					CmlLexNameToken nextNameToken = new CmlLexNameToken(module,nextName,location);
 					CMLModelcheckerContext localCtxt = new CMLModelcheckerContext();
 					StringBuilder nextValue = stateDesignator.apply(this,localCtxt);
 					nextValue.replace(nextValue.indexOf("(")+1, nextValue.indexOf(")"), nextName);

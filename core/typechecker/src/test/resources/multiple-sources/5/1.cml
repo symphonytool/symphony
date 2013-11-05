@@ -1,0 +1,1 @@
+class A = begin operations O: () == O() == (return (42)) end 

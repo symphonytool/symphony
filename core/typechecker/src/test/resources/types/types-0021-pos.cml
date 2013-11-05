@@ -1,0 +1,3 @@
+types
+
+ B = int A = B

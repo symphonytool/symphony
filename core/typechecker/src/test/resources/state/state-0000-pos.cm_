@@ -1,0 +1,26 @@
+class
+
+ test1 =
+
+begin
+
+
+
+state
+
+ public a : int := 42
+
+end
+
+
+class b = begin
+
+operations
+
+op : () ==> ()
+op()== return
+ let 
+x : [test1] = nil in 
+x.a
+
+end

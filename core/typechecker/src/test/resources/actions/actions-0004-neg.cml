@@ -1,0 +1,11 @@
+/*Action reference negative*/
+
+process
+
+ p1 =
+
+begin
+
+ @ UnknownAction
+
+end
