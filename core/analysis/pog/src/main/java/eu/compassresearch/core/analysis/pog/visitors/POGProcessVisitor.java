@@ -13,6 +13,7 @@ import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligationList;
+import eu.compassresearch.core.analysis.pog.utility.MakerNameContexts;
 
 @SuppressWarnings("serial")
 public class POGProcessVisitor extends
@@ -48,10 +49,10 @@ public class POGProcessVisitor extends
 		
 		for (PDefinition def : pdef)
 		{
-			PONameContext name = def.apply(new PogNameContextVisitor());
+			PONameContext name = def.apply(new MakerNameContexts());
 			if (name != null)
 			{
-				question.push(def.apply(new PogNameContextVisitor()));
+				question.push(def.apply(new MakerNameContexts()));
 				pol.addAll(def.apply(parentPOG, question));
 				question.pop();
 			} else

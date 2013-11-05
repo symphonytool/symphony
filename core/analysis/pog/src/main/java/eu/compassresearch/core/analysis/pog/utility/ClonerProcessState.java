@@ -12,7 +12,7 @@ import org.overture.ast.node.INode;
 import eu.compassresearch.ast.analysis.AnswerCMLAdaptor;
 import eu.compassresearch.ast.process.AActionProcess;
 
-public class ProcessStateCloner extends AnswerCMLAdaptor<List<AAssignmentDefinition>>
+public class ClonerProcessState extends AnswerCMLAdaptor<List<AAssignmentDefinition>>
 {
 
 	/**
