@@ -2,6 +2,7 @@ package eu.compassresearch.ide.core.unsupported;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Stack;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PAccess;
@@ -77,10 +78,12 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 	List<UnsupportedElementInfo> unsupporteds = new LinkedList<UnsupportedElementInfo>();
 	UnsupportingFeatures feature;
 	protected boolean unsupported;
-
+	protected Stack<Boolean> unsupportStack;
+	
 	public UnsupportedCollector(UnsupportingFeatures feature) {
 		super();
 		this.unsupported = true;
+		this.unsupportStack = new Stack<Boolean>();
 		this.feature = feature;
 	}
 
@@ -115,10 +118,10 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 	 * have location info. Override as needed. But keep super call.
 	 */
 	@Override
-	public void caseARecordModifier(ARecordModifier node)
+	public void outARecordModifier(ARecordModifier node)
 			throws AnalysisException {
 
-		if (unsupported) {
+		if (unsupportStack.pop()) {
 			UnsupportedElementInfo uei = new UnsupportedElementInfo();
 			uei.setElementname("Any element");
 			uei.setLocation(node.getTag().getLocation());
@@ -137,9 +140,9 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 	 * not have location info. Override as needed. But keep super call.
 	 */
 	@Override
-	public void caseACaseAlternative(ACaseAlternative node)
+	public void outACaseAlternative(ACaseAlternative node)
 			throws AnalysisException {
-		if (unsupported) {
+		if (unsupportStack.pop()) {
 			UnsupportedElementInfo uei = new UnsupportedElementInfo();
 			uei.setElementname("Any element");
 			uei.setLocation(node.getLocation());
@@ -160,9 +163,9 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 	 */
 
 	@Override
-	public void caseAAccessSpecifierAccessSpecifier(
+	public void outAAccessSpecifierAccessSpecifier(
 			AAccessSpecifierAccessSpecifier node) throws AnalysisException {
-		if (unsupported) {
+		if (unsupportStack.pop()) {
 			UnsupportedElementInfo uei = new UnsupportedElementInfo();
 			uei.setElementname("Any element");
 			uei.setLocation(node.getAncestor(PDefinition.class).getLocation());
@@ -181,8 +184,8 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 	 * have location info. Override as needed. But keep super call.
 	 */
 	@Override
-	public void caseAFieldField(AFieldField node) throws AnalysisException {
-		if (unsupported) {
+	public void outAFieldField(AFieldField node) throws AnalysisException {
+		if (unsupportStack.pop()) {
 			UnsupportedElementInfo uei = new UnsupportedElementInfo();
 			uei.setElementname("Any element");
 			uei.setLocation(node.getTagname().getLocation());
@@ -195,13 +198,7 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 		}
 	}
 
-	/**
-	 * Special dedicated case. We just skip right on past.
-	 */
-	@Override
-	public void defaultOutPAccess(PAccess node) throws AnalysisException {
-		super.defaultOutPAccess(node);
-	}
+	
 
 	/**
 	 * Special dedicated case since the more general {@link PMaplet} does not
@@ -210,9 +207,9 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 	 * super call.
 	 */
 	@Override
-	public void caseAMapletPatternMaplet(AMapletPatternMaplet node)
+	public void outAMapletPatternMaplet(AMapletPatternMaplet node)
 			throws AnalysisException {
-		if (unsupported) {
+		if (unsupportStack.pop()) {
 			UnsupportedElementInfo uei = new UnsupportedElementInfo();
 			uei.setElementname("Any element");
 			uei.setLocation(node.getFrom().getLocation());
@@ -233,7 +230,7 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 	 */
 	@Override
 	public void defaultOutPPair(PPair node) throws AnalysisException {
-		if (unsupported) {
+		if (unsupportStack.pop()) {
 			UnsupportedElementInfo uei = new UnsupportedElementInfo();
 			uei.setElementname("Any element");
 			uei.setLocation(node.apply(new LocatorPPair()));
@@ -249,7 +246,7 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 	
 	@Override
 	public void defaultOutPCMLPair(PCMLPair node) throws AnalysisException {
-		if (unsupported) {
+		if (unsupportStack.pop()) {
 			UnsupportedElementInfo uei = new UnsupportedElementInfo();
 			uei.setElementname("Any element");
 			uei.setLocation(node.apply(new LocatorPPair()));
@@ -268,9 +265,9 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 	 * not have location info. Override as needed. But keep super call.
 	 */
 	@Override
-	public void caseADefPatternBind(ADefPatternBind node)
+	public void outADefPatternBind(ADefPatternBind node)
 			throws AnalysisException {
-		if (unsupported) {
+		if (unsupportStack.pop()) {
 			UnsupportedElementInfo uei = new UnsupportedElementInfo();
 			uei.setElementname("Any element");
 			uei.setLocation(node.getLocation());
@@ -284,15 +281,117 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 		super.defaultOutPPatternBind(node);
 	}
 
+
+	
+
 	/**
-	 * Special case. We dangerously ignore it for now.
+	 * Special dedicated case since the more general {@link PAlternativeStm} does not have
+	 * location info.
 	 */
 	@Override
-	public void caseATraceDefinitionTerm(ATraceDefinitionTerm node)
+	public void outACaseAlternativeStm(ACaseAlternativeStm node)
 			throws AnalysisException {
-		// FIXME look at locations for ATraceDefinitionTerm again
-		super.defaultOutPTerm(node);
+		if (unsupportStack.pop()) {
+			UnsupportedElementInfo uei = new UnsupportedElementInfo();
+			uei.setElementname("Any element");
+			uei.setLocation(node.getLocation());
+			uei.setMessage(node.getClass().getSimpleName().toString()
+					+ " nodes are not supported by the "
+					+ feature.toString());
+			unsupporteds.add(uei);
+		} else {
+			unsupported = true;
+		}
+		super.defaultOutPAlternativeStm(node);
 	}
+	
+	/**
+	 * Special dedicated case since the more general {@link PStmtAlternative} does not have
+	 * location info. We use the {@link PStm} for the location.
+	 */
+	@Override
+	public void outATixeStmtAlternative(ATixeStmtAlternative node)
+			throws AnalysisException {
+		if (unsupportStack.pop()) {
+			UnsupportedElementInfo uei = new UnsupportedElementInfo();
+			uei.setElementname("Any element");
+			uei.setLocation(node.getStatement().getLocation());
+			uei.setMessage(node.getClass().getSimpleName().toString()
+					+ " nodes are not supported by the "
+					+ feature.toString());
+			unsupporteds.add(uei);
+		} else {
+			unsupported = true;
+		}
+		super.defaultOutPStmtAlternative(node);
+	}
+	
+	/**
+	 * Special dedicated case since the more general {@link PCase} does not have
+	 * location info.
+	 */
+	@Override
+	public void outAErrorCase(AErrorCase node) throws AnalysisException {
+		if (unsupportStack.pop()) {
+			UnsupportedElementInfo uei = new UnsupportedElementInfo();
+			uei.setElementname("Any element");
+			uei.setLocation(node.getName().getLocation());
+			uei.setMessage(node.getClass().getSimpleName().toString()
+					+ " nodes are not supported by the "
+					+ feature.toString());
+			unsupporteds.add(uei);
+		} else {
+			unsupported = true;
+		}
+		super.defaultOutPCase(node);
+	}
+	
+	/**
+	 * Special dedicated case since the more general {@link PClause} does not have
+	 * location info.
+	 */
+	@Override
+	public void outAExternalClause(AExternalClause node) throws AnalysisException {
+		if (unsupportStack.pop()) {
+			UnsupportedElementInfo uei = new UnsupportedElementInfo();
+			uei.setElementname("Any element");
+			uei.setLocation(node.getMode().getLocation());
+			uei.setMessage(node.getClass().getSimpleName().toString()
+					+ " nodes are not supported by the "
+					+ feature.toString());
+			unsupporteds.add(uei);
+		} else {
+			unsupported = true;
+		}
+		super.defaultOutPClause(node);
+	}
+	
+	/**
+	 * Special dedicated case since the more general {@link PAlternativeAction} does not have
+	 * location info.
+	 */
+	@Override
+	public void outACaseAlternativeAction(ACaseAlternativeAction node)
+			throws AnalysisException {
+		if (unsupportStack.pop()) {
+			UnsupportedElementInfo uei = new UnsupportedElementInfo();
+			uei.setElementname("Any element");
+			uei.setLocation(node.getLocation());
+			uei.setMessage(node.getClass().getSimpleName().toString()
+					+ " nodes are not supported by the "
+					+ feature.toString());
+			unsupporteds.add(uei);
+		} else {
+			unsupported = true;
+		}
+		super.defaultOutPAlternativeAction(node);
+	}
+
+	
+	
+// CASES WE'RE SKIPPING
+
+	
 	/**
 	 * Special case. We dangerously ignore it for now.
 	 */
@@ -319,6 +418,14 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 	}
 	
 	/**
+	 * Special dedicated case. We just skip right on past.
+	 */
+	@Override
+	public void defaultOutPAccess(PAccess node) throws AnalysisException {
+		super.defaultOutPAccess(node);
+	}
+	
+	/**
 	 * Special case. Exports are not in CML. No need to check.
 	 */
 	@Override
@@ -334,119 +441,25 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 		super.defaultOutPSource(node);
 	}
 	
-
 	/**
-	 * Special dedicated case since the more general {@link PAlternativeStm} does not have
-	 * location info.
+	 * Special case. We dangerously ignore it for now.
 	 */
 	@Override
-	public void caseACaseAlternativeStm(ACaseAlternativeStm node)
+	public void outATraceDefinitionTerm(ATraceDefinitionTerm node)
 			throws AnalysisException {
-		if (unsupported) {
-			UnsupportedElementInfo uei = new UnsupportedElementInfo();
-			uei.setElementname("Any element");
-			uei.setLocation(node.getLocation());
-			uei.setMessage(node.getClass().getSimpleName().toString()
-					+ " nodes are not supported by the "
-					+ feature.toString());
-			unsupporteds.add(uei);
-		} else {
-			unsupported = true;
-		}
-		super.defaultOutPAlternativeStm(node);
+		// FIXME look at locations for ATraceDefinitionTerm again
+		super.defaultOutPTerm(node);
 	}
-	
-	/**
-	 * Special dedicated case since the more general {@link PStmtAlternative} does not have
-	 * location info. We use the {@link PStm} for the location.
-	 */
-	@Override
-	public void caseATixeStmtAlternative(ATixeStmtAlternative node)
-			throws AnalysisException {
-		if (unsupported) {
-			UnsupportedElementInfo uei = new UnsupportedElementInfo();
-			uei.setElementname("Any element");
-			uei.setLocation(node.getStatement().getLocation());
-			uei.setMessage(node.getClass().getSimpleName().toString()
-					+ " nodes are not supported by the "
-					+ feature.toString());
-			unsupporteds.add(uei);
-		} else {
-			unsupported = true;
-		}
-		super.defaultOutPStmtAlternative(node);
-	}
-	
-	/**
-	 * Special dedicated case since the more general {@link PCase} does not have
-	 * location info.
-	 */
-	@Override
-	public void caseAErrorCase(AErrorCase node) throws AnalysisException {
-		if (unsupported) {
-			UnsupportedElementInfo uei = new UnsupportedElementInfo();
-			uei.setElementname("Any element");
-			uei.setLocation(node.getName().getLocation());
-			uei.setMessage(node.getClass().getSimpleName().toString()
-					+ " nodes are not supported by the "
-					+ feature.toString());
-			unsupporteds.add(uei);
-		} else {
-			unsupported = true;
-		}
-		super.defaultOutPCase(node);
-	}
-	
-	/**
-	 * Special dedicated case since the more general {@link PClause} does not have
-	 * location info.
-	 */
-	@Override
-	public void caseAExternalClause(AExternalClause node) throws AnalysisException {
-		if (unsupported) {
-			UnsupportedElementInfo uei = new UnsupportedElementInfo();
-			uei.setElementname("Any element");
-			uei.setLocation(node.getMode().getLocation());
-			uei.setMessage(node.getClass().getSimpleName().toString()
-					+ " nodes are not supported by the "
-					+ feature.toString());
-			unsupporteds.add(uei);
-		} else {
-			unsupported = true;
-		}
-		super.defaultOutPClause(node);
-	}
-	
-	/**
-	 * Special dedicated case since the more general {@link PAlternativeAction} does not have
-	 * location info.
-	 */
-	@Override
-	public void caseACaseAlternativeAction(ACaseAlternativeAction node)
-			throws AnalysisException {
-		if (unsupported) {
-			UnsupportedElementInfo uei = new UnsupportedElementInfo();
-			uei.setElementname("Any element");
-			uei.setLocation(node.getLocation());
-			uei.setMessage(node.getClass().getSimpleName().toString()
-					+ " nodes are not supported by the "
-					+ feature.toString());
-			unsupporteds.add(uei);
-		} else {
-			unsupported = true;
-		}
-		super.defaultOutPAlternativeAction(node);
-	}
-
 
 	
 	
 	// DEFAULT CASES
 
+	
 	@Override
 	public void defaultOutPExp(PExp node) throws AnalysisException {
 
-		if (unsupported) {
+		if (unsupportStack.pop()) {
 			UnsupportedElementInfo uei = new UnsupportedElementInfo();
 			uei.setElementname("Any element");
 			uei.setLocation(node.getLocation());
@@ -462,7 +475,7 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 
 	@Override
 	public void defaultOutPType(PType node) throws AnalysisException {
-		if (unsupported) {
+		if (unsupportStack.pop()) {
 			UnsupportedElementInfo uei = new UnsupportedElementInfo();
 			uei.setElementname("Any element");
 			if (node.getLocation()!=null)
@@ -478,7 +491,7 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 	
 	@Override
 	public void caseAProcessParagraphType(AProcessParagraphType node) throws AnalysisException {
-		if (unsupported) {
+		if (unsupportStack.pop()) {
 			UnsupportedElementInfo uei = new UnsupportedElementInfo();
 			uei.setElementname("Any element");
 			if (node.getLocation()!=null){
@@ -499,7 +512,7 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 	
 	@Override
 	public void defaultOutPPattern(PPattern node) throws AnalysisException {
-		if (unsupported) {
+		if (unsupportStack.pop()) {
 			UnsupportedElementInfo uei = new UnsupportedElementInfo();
 			uei.setElementname("Any element");
 			uei.setLocation(node.getLocation());
@@ -515,7 +528,7 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 
 	@Override
 	public void defaultOutPBind(PBind node) throws AnalysisException {
-		if (unsupported) {
+		if (unsupportStack.pop()) {
 			UnsupportedElementInfo uei = new UnsupportedElementInfo();
 			uei.setElementname("Any element");
 			uei.setLocation(node.getLocation());
@@ -532,7 +545,7 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 	@Override
 	public void defaultOutPMultipleBind(PMultipleBind node)
 			throws AnalysisException {
-		if (unsupported) {
+		if (unsupportStack.pop()) {
 			UnsupportedElementInfo uei = new UnsupportedElementInfo();
 			uei.setElementname("Any element");
 			uei.setLocation(node.getLocation());
@@ -549,7 +562,7 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 	@Override
 	public void defaultOutPDefinition(PDefinition node)
 			throws AnalysisException {
-		if (unsupported) {
+		if (unsupportStack.pop()) {
 			UnsupportedElementInfo uei = new UnsupportedElementInfo();
 			uei.setElementname("Any element");
 			uei.setLocation(node.getLocation());
@@ -566,7 +579,7 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 	@Override
 	public void defaultOutPTraceDefinition(PTraceDefinition node)
 			throws AnalysisException {
-		if (unsupported) {
+		if (unsupportStack.pop()) {
 			UnsupportedElementInfo uei = new UnsupportedElementInfo();
 			uei.setElementname("Any element");
 			uei.setLocation(node.getLocation());
@@ -583,7 +596,7 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 	@Override
 	public void defaultOutPTraceCoreDefinition(PTraceCoreDefinition node)
 			throws AnalysisException {
-		if (unsupported) {
+		if (unsupportStack.pop()) {
 			UnsupportedElementInfo uei = new UnsupportedElementInfo();
 			uei.setElementname("Any element");
 			uei.setLocation(node.getLocation());
@@ -601,7 +614,7 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 
 	@Override
 	public void defaultOutPImport(PImport node) throws AnalysisException {
-		if (unsupported) {
+		if (unsupportStack.pop()) {
 			UnsupportedElementInfo uei = new UnsupportedElementInfo();
 			uei.setElementname("Any element");
 			uei.setLocation(node.getLocation());
@@ -619,7 +632,7 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 
 	@Override
 	public void defaultOutPExport(PExport node) throws AnalysisException {
-		if (unsupported) {
+		if (unsupportStack.pop()) {
 			UnsupportedElementInfo uei = new UnsupportedElementInfo();
 			uei.setElementname("Any element");
 			uei.setLocation(node.getLocation());
@@ -635,7 +648,7 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 
 	@Override
 	public void defaultOutPStm(PStm node) throws AnalysisException {
-		if (unsupported) {
+		if (unsupportStack.pop()) {
 			UnsupportedElementInfo uei = new UnsupportedElementInfo();
 			uei.setElementname("Any element");
 			uei.setLocation(node.getLocation());
@@ -652,7 +665,7 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 	@Override
 	public void defaultOutPStateDesignator(PStateDesignator node)
 			throws AnalysisException {
-		if (unsupported) {
+		if (unsupportStack.pop()) {
 			UnsupportedElementInfo uei = new UnsupportedElementInfo();
 			uei.setElementname("Any element");
 			uei.setLocation(node.getLocation());
@@ -669,7 +682,7 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 	@Override
 	public void defaultOutPObjectDesignator(PObjectDesignator node)
 			throws AnalysisException {
-		if (unsupported) {
+		if (unsupportStack.pop()) {
 			UnsupportedElementInfo uei = new UnsupportedElementInfo();
 			uei.setElementname("Any element");
 			uei.setLocation(node.getLocation());
@@ -695,7 +708,7 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 	@Override
 	public void defaultOutPSingleDeclaration(PSingleDeclaration node)
 			throws AnalysisException {
-		if (unsupported) {
+		if (unsupportStack.pop()) {
 			UnsupportedElementInfo uei = new UnsupportedElementInfo();
 			uei.setElementname("Any element");
 			uei.setLocation(node.getLocation());
@@ -712,7 +725,7 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 	@Override
 	public void defaultOutPVarsetExpression(PVarsetExpression node)
 			throws AnalysisException {
-		if (unsupported) {
+		if (unsupportStack.pop()) {
 			UnsupportedElementInfo uei = new UnsupportedElementInfo();
 			uei.setElementname("Any element");
 			uei.setLocation(node.getLocation());
@@ -726,9 +739,14 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 		super.defaultOutPVarsetExpression(node);
 	}
 
+	
+
+
+
+
 	@Override
 	public void defaultOutPProcess(PProcess node) throws AnalysisException {
-		if (unsupported) {
+		if (unsupportStack.pop()) {
 			UnsupportedElementInfo uei = new UnsupportedElementInfo();
 			uei.setElementname("Any element");
 			uei.setLocation(node.getLocation());
@@ -744,7 +762,7 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 
 	@Override
 	public void defaultOutPAction(PAction node) throws AnalysisException {
-		if (unsupported) {
+		if (unsupportStack.pop()) {
 			UnsupportedElementInfo uei = new UnsupportedElementInfo();
 			uei.setElementname("Any element");
 			uei.setLocation(node.getLocation());
@@ -761,7 +779,7 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 	@Override
 	public void defaultOutPCommunicationParameter(PCommunicationParameter node)
 			throws AnalysisException {
-		if (unsupported) {
+		if (unsupportStack.pop()) {
 			UnsupportedElementInfo uei = new UnsupportedElementInfo();
 			uei.setElementname("Any element");
 			uei.setLocation(node.getLocation());
@@ -778,7 +796,7 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 	@Override
 	public void defaultOutPParametrisation(PParametrisation node)
 			throws AnalysisException {
-		if (unsupported) {
+		if (unsupportStack.pop()) {
 			UnsupportedElementInfo uei = new UnsupportedElementInfo();
 			uei.setElementname("Any element");
 			uei.setLocation(node.getLocation());
@@ -795,7 +813,7 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 
 	@Override
 	public void defaultOutPCMLType(PCMLType node) throws AnalysisException {
-		if (unsupported) {
+		if (unsupportStack.pop()) {
 			UnsupportedElementInfo uei = new UnsupportedElementInfo();
 			uei.setElementname("Any element");
 			if (node.getLocation()!=null)
@@ -817,7 +835,7 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 	@Override
 	public void defaultOutPCMLDefinition(PCMLDefinition node)
 			throws AnalysisException {
-		if (unsupported) {
+		if (unsupportStack.pop()) {
 			UnsupportedElementInfo uei = new UnsupportedElementInfo();
 			uei.setElementname("Any element");
 			uei.setLocation(node.getLocation());
@@ -833,7 +851,7 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 
 	@Override
 	public void defaultOutPCMLExp(PCMLExp node) throws AnalysisException {
-		if (unsupported) {
+		if (unsupportStack.pop()) {
 			UnsupportedElementInfo uei = new UnsupportedElementInfo();
 			uei.setElementname("Any element");
 			uei.setLocation(node.getLocation());
@@ -848,12 +866,11 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 	}
 
 	@Override
-	public void defaultInPDefinition(PDefinition node) throws AnalysisException {
-		try {
-			super.defaultInPDefinition(node);
-		} catch (AnalysisException e) {
+	public void defaultInINode(INode node) throws AnalysisException {
+		unsupportStack.push(unsupported);
 
-		}
 	}
+	
+
 
 }
