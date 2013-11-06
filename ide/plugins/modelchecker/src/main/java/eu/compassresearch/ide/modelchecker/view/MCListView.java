@@ -1,5 +1,7 @@
 package eu.compassresearch.ide.modelchecker.view;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.net.MalformedURLException;
@@ -43,12 +45,13 @@ public class MCListView extends ViewPart {
 	//private IVdmProject project;
 	private TableViewer viewer;
 	final Display display = Display.getCurrent();
-	private MCUIResult data;
+	private List<MCUIResult> data;
 
 	/**
 	 * The constructor.
 	 */
 	public MCListView(){
+		this.data = new ArrayList<MCUIResult>();
 	}
 	
 	public void createPartControl(Composite parent){
@@ -69,19 +72,19 @@ public class MCListView extends ViewPart {
 			@Override
 			public void doubleClick(DoubleClickEvent event) {
 				
-				if (data.getFormulaResult().getResult().isSatisfiable()){
+				if (data.get(viewer.getTable().getSelectionIndex()).getFormulaResult().getResult().isSatisfiable()){
 					if(Activator.DOT_OK){
 						try {
 							//generate the dot file and compile it to svg, and show in the browser
 								//we build the counterexample
 							GraphBuilder gb = new GraphBuilder();
-							FormulaResult formulaOutput = data.getFormulaResult().getResult();
-							String propertyToCheck = data.getProperty();
+							FormulaResult formulaOutput = data.get(viewer.getTable().getSelectionIndex()).getFormulaResult().getResult();
+							String propertyToCheck = data.get(viewer.getTable().getSelectionIndex()).getProperty();
 							String dotContent = gb.generateDot(new StringBuilder(formulaOutput.getFacts()), propertyToCheck);
 							
 							//save the graphviz code to a file
-							IContainer mcFolder = data.getFormulaResult().getMcFolder();
-							ICmlSourceUnit selectedUnit = data.getFormulaResult().getSelectedUnit();
+							IContainer mcFolder = data.get(viewer.getTable().getSelectionIndex()).getFormulaResult().getMcFolder();
+							ICmlSourceUnit selectedUnit = data.get(viewer.getTable().getSelectionIndex()).getFormulaResult().getSelectedUnit();
 							//IFile dotFile = writeDotContentToFile(mcFolder,selectedUnit,dotContent);
 							String name = selectedUnit.getFile().getName();
 							String dotFileName = name.substring(0,name.length()-selectedUnit.getFile().getFileExtension().length())+"gv";
@@ -104,10 +107,10 @@ public class MCListView extends ViewPart {
 							String fileName = file.getName();
 							gv.runDot(file);
 							IFile svgFile = ((IFolder)mcFolder).getFile(fileName+".svg");
-							data.getFormulaResult().setSvgFile(svgFile);
+							data.get(viewer.getTable().getSelectionIndex()).getFormulaResult().setSvgFile(svgFile);
 							IWorkbenchBrowserSupport support = PlatformUI.getWorkbench().getBrowserSupport();
 							IWebBrowser browser = support.createBrowser(IWorkbenchBrowserSupport.AS_EDITOR, Activator.PLUGIN_ID, "Symphony", "Model checker counterexample");
-							IFile counterExample = data.getFormulaResult().getSvgFile();
+							IFile counterExample = data.get(viewer.getTable().getSelectionIndex()).getFormulaResult().getSvgFile();
 							URL url = counterExample.getLocationURI().toURL();
 							browser.openURL(url); 
 						} catch (PartInitException e) {
@@ -159,7 +162,15 @@ public class MCListView extends ViewPart {
 
 	
 	public void setData(final MCUIResult data) {
-		this.data = data;
+		if(!this.data.contains(data)){
+			this.data.add(data);
+		} else{
+			for(int i = 0; i < this.data.size(); i++){
+				if(this.data.get(i).equals(data)){
+					this.data.set(i, data);
+				}
+			}
+		}
 		//it has to be a model check element
 		display.asyncExec(new Runnable() {
 			public void run(){
@@ -170,10 +181,12 @@ public class MCListView extends ViewPart {
 				table.getColumn(2).setWidth(40);
 				TableItem ti = new TableItem(table, SWT.NONE);
 				if(data != null){
-					ti.setText(0, data.getFile().getName());
-					//ti.setText(new String[] {data.getFile().getName(), getProperty(data), getSat(data)});
-					ti.setText(1, getProperty(data));
-					ti.setImage(2, getImage(data));
+					for(MCUIResult r : MCListView.this.data){
+						ti.setText(0, r.getFile().getName());
+						//ti.setText(new String[] {data.getFile().getName(), getProperty(data), getSat(data)});
+						ti.setText(1, getProperty(r));
+						ti.setImage(2, getImage(r));
+					}
 				}
 			}
 			private Image getImage(MCUIResult data){

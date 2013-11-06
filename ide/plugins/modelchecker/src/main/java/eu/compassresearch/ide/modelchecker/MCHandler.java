@@ -132,10 +132,15 @@ public class MCHandler extends AbstractHandler {
 							IFile outputFile = translateCmlToFormula(model, (IFile)cmlFile, mcFolder, propertyToCheck);
 						
 							FormulaResult formulaOutput = new FormulaResult();
-							MCJob job = new MCJob("Model checker progress", outputFile);
-							formulaOutput = job.getFormulaResult();
-							job.schedule();
+							//MCJob job = new MCJob("Model checker progress", outputFile);
+							//formulaOutput = job.getFormulaResult();
+							//job.schedule();
 	
+							MCProgressView p = new MCProgressView(outputFile, propertyToCheck, mcFolder, selectedUnit, cmlFile, event);
+							p.execute();
+							
+							formulaOutput = p.getFormulaResult();
+							
 							FormulaResultWrapper frw = new FormulaResultWrapper(formulaOutput, null, propertyToCheck, mcFolder, selectedUnit);
 							
 							//if the model is satisfiable then we save the formula output and 
@@ -162,8 +167,8 @@ public class MCHandler extends AbstractHandler {
 							//writeToConsole(cmlFile.getName(), formulaOutput);
 						
 							
-							MCPluginDoStuff mcp = new MCPluginDoStuff(window.getActivePage().getActivePart().getSite(), cmlFile, frw);
-							mcp.run();
+							//MCPluginDoStuff mcp = new MCPluginDoStuff(window.getActivePage().getActivePart().getSite(), cmlFile, frw);
+							//mcp.run();
 							registry.store(selectedUnit.getParseNode(), frw);
 						}else{
 							MessageDialog.openInformation(
@@ -217,6 +222,7 @@ public class MCHandler extends AbstractHandler {
 		
 		List<PDefinition> definitions = selectedCmlSourceUnit.getParseListDefinitions();
 		String basicContent = Utilities.readScriptFromFile(Utilities.BASIC_FORMULA_SCRIPT).toString();
+		//NewMCVisitor visitorAux =  new NewMCVisitor();
 		String specificationContent = this.adaptor.generateFormulaScript(definitions,propertyToCheck);
 		try{
 			if(!outputFile.exists()){
@@ -256,11 +262,11 @@ public class MCHandler extends AbstractHandler {
 	}
 	
 	private void popErrorMessage(Throwable e) {
-		MessageDialog.openInformation(null, "COMPASS",
+		MessageDialog.openInformation(null, "Symphony",
 				"Could not analyse the specification.\n\n" + e.getMessage());
 	}
 	private void popErrorMessage(String message) {
-		MessageDialog.openInformation(null, "COMPASS",message);
+		MessageDialog.openInformation(null, "Symphony",message);
 	}
 	@Override
 	public void dispose() {

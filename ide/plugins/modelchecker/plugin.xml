@@ -116,7 +116,7 @@
       <view
                id="eu.compassresearch.ide.modelchecker.view.progressview"
                name="Model Checker Progress View"
-               class="org.eclipse.ui.ExtensionFactory:progressView">
+               class="eu.compassresearch.ide.modelchecker.MCProgressView:progressView">
          </view>
    </extension>
    <extension

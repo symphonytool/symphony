@@ -41,7 +41,7 @@ public class MCCollectorHandler extends AbstractHandler
 
 			if (!CmlProjectUtil.typeCheck(window.getShell(), cmlProj))
 			{
-				MessageDialog.openError(null, "COMPASS", "Errors in model.");
+				MessageDialog.openError(null, "Symphony", "Errors in model.");
 				return null;
 			}
 
@@ -49,17 +49,17 @@ public class MCCollectorHandler extends AbstractHandler
 
 			if (uns.isEmpty())
 			{
-				MessageDialog.openInformation(null, "COMPASS", "No unsupported elements detected.");
+				MessageDialog.openInformation(null, "Symphony", "No unsupported elements detected.");
 			}
 			else
 			{
 				cmlProj.addUnsupportedMarkers(uns);
-				MessageDialog.openError(null, "COMPASS", UNSUPPORTED_ELEMENTS_MSG);
+				MessageDialog.openError(null, "Symphony", UNSUPPORTED_ELEMENTS_MSG);
 			}
 			
 		} catch (Exception e)
 		{
-			MessageDialog.openError(null, "COMPASS", "Internal error");
+			MessageDialog.openError(null, "Symphony", "Internal error");
 		}
 		return null;
 	}
