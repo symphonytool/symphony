@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPParametrisation;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ActionChannelDependency;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ExpressionEvaluator;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.TypeManipulator;
@@ -16,12 +17,12 @@ import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelchecker
 public class MCAProcessDefinition implements MCPCMLDefinition {
 
 	private String name;
-	private LinkedList<MCATypeSingleDeclaration> localState = new LinkedList<MCATypeSingleDeclaration>();
+	private LinkedList<MCPParametrisation> localState = new LinkedList<MCPParametrisation>();
 	private MCPProcess process;
 	
 	
 	public MCAProcessDefinition(String name,
-			LinkedList<MCATypeSingleDeclaration> localState, MCPProcess process) {
+			LinkedList<MCPParametrisation> localState, MCPProcess process) {
 		
 		this.name = name;
 		this.localState = localState;
@@ -45,9 +46,12 @@ public class MCAProcessDefinition implements MCPCMLDefinition {
 		//probably we have to generate more than one procdef because of the arguments
 		//the argument has a type. for all values of such a type we generate a procdef
 		if(this.localState.size() > 0){
+			ExpressionEvaluator expEvaluator = ExpressionEvaluator.getInstance();
 			TypeManipulator typeHandler = TypeManipulator.getInstance();
+			
 			//for the moment we assume that processes have only one parameter
-			LinkedList<TypeValue> values = typeHandler.getValues(this.getLocalState().getFirst().getType());
+			MCPCMLType paramType = expEvaluator.instantiateMCType(this.getLocalState().getFirst());
+			LinkedList<TypeValue> values = typeHandler.getValues(paramType);
 			for (TypeValue typeValue : values) {
 				result.append("  ProcDef(\"");
 				result.append(this.name);
@@ -65,7 +69,7 @@ public class MCAProcessDefinition implements MCPCMLDefinition {
 			result.append("\",");
 			//parameters (local state)
 			ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
-			MCPCMLType decls =  evaluator.instantiateMCTypeFromDecls(this.localState);
+			MCPCMLType decls =  evaluator.instantiateMCTypeFromParams(this.localState);
 			result.append(decls.toFormula(MCNode.NAMED));
 			result.append(",");
 			result.append(this.process.toFormula(option));
@@ -91,17 +95,17 @@ public class MCAProcessDefinition implements MCPCMLDefinition {
 	}
 
 	
-	public LinkedList<MCATypeSingleDeclaration> getLocalState() {
+
+	
+
+
+	public LinkedList<MCPParametrisation> getLocalState() {
 		return localState;
 	}
 
-
-
-	public void setLocalState(LinkedList<MCATypeSingleDeclaration> localState) {
+	public void setLocalState(LinkedList<MCPParametrisation> localState) {
 		this.localState = localState;
 	}
-
-
 
 	public MCPProcess getProcess() {
 		return process;

@@ -6,6 +6,8 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.AExplicitOperationDefinition;
+import org.overture.ast.definitions.AInstanceVariableDefinition;
+import org.overture.ast.definitions.ALocalDefinition;
 import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.AUntypedDefinition;
@@ -18,15 +20,12 @@ import org.overture.ast.node.INode;
 import org.overture.ast.patterns.PPattern;
 
 
-
-
-
-
 import eu.compassresearch.ast.actions.PParametrisation;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.AExpressionSingleDeclaration;
 import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
+import eu.compassresearch.ast.definitions.AActionClassDefinition;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AActionsDefinition;
 import eu.compassresearch.ast.definitions.AChannelDefinition;
@@ -43,13 +42,16 @@ import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPParametrisat
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCChannel;
 import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCAExpressionSingleDeclaration;
 import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCATypeSingleDeclaration;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAActionClassDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAActionDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAActionsDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAAssignmentDefinition;
-import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAChannelNameDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAChannelDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAChannelsDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAExplicitCmlOperationDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAExplicitFunctionDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAInstanceVariableDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCALocalDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAOperationsDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAProcessDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAStateDefinition;
@@ -63,6 +65,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCSCmlOpera
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCPCMLPattern;
 import eu.compassresearch.core.analysis.modelchecker.ast.process.MCPProcess;
+import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCAActionStm;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAFieldField;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAIntNumericBasicType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLNumericType;
@@ -103,9 +106,10 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 		//it and some channel that communicates values
 		question.actionOrProcessDefStack.push(node);
 				
-		LinkedList<MCATypeSingleDeclaration> localState = new LinkedList<MCATypeSingleDeclaration>();
+		LinkedList<MCPParametrisation> localState = new LinkedList<MCPParametrisation>();
+		
 		for (PParametrisation aTypeSingleDeclaration : node.getLocalState()) {
-			localState.add((MCATypeSingleDeclaration) aTypeSingleDeclaration.apply(this, question));
+			localState.add((MCPParametrisation) aTypeSingleDeclaration.apply(rootVisitor, question));
 		}
 		MCPProcess process = (MCPProcess) node.getProcess().apply(rootVisitor, question); 
 		String name = node.getName().toString();
@@ -120,7 +124,7 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 		
 	}
 
-	
+	/*
 	@Override
 	public MCNode caseAActionsDefinition(AActionsDefinition node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
@@ -136,7 +140,7 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 		MCAActionsDefinition result = new MCAActionsDefinition(mcActions);
 		return result;
 	}
-	
+	*/
 	
 	@Override
 	public MCNode caseAActionDefinition(AActionDefinition node,
@@ -154,6 +158,8 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 		MCPAction action = (MCPAction) node.getAction().apply(rootVisitor, question);
 		String name = node.getName().toString();
 		MCAActionDefinition result = new MCAActionDefinition(name, mcParameters, action);
+		
+		question.localActions.add(result);
 		
 		//it removes the visited action definition
 		question.actionOrProcessDefStack.pop();
@@ -214,9 +220,9 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 	public MCNode caseAChannelsDefinition(AChannelsDefinition node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
 
-		LinkedList<MCAChannelNameDefinition> chanNameDecls = new LinkedList<MCAChannelNameDefinition>(); 
+		LinkedList<MCAChannelDefinition> chanNameDecls = new LinkedList<MCAChannelDefinition>(); 
 		for (AChannelDefinition chanDef : node.getChannelDeclarations()) {
-			chanNameDecls.add((MCAChannelNameDefinition) chanDef.apply(this, question));
+			chanNameDecls.add((MCAChannelDefinition) chanDef.apply(this, question));
 		}
 		MCAChannelsDefinition result = new MCAChannelsDefinition(chanNameDecls);
 		
@@ -228,8 +234,8 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 			throws AnalysisException {
 		
 		String name = node.getName().toString();
-		MCATypeSingleDeclaration singleType = (MCATypeSingleDeclaration) node.getType().apply(rootVisitor, question);
-		MCAChannelNameDefinition result = new MCAChannelNameDefinition(name,singleType);
+		MCPCMLType singleType = (MCPCMLType) node.getType().apply(rootVisitor, question);
+		MCAChannelDefinition result = new MCAChannelDefinition(name,singleType);
 		
 		question.channelDefs.add(result);
 		
@@ -238,16 +244,16 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 	}
 
 	@Override
-	public MCNode caseATypeSingleDeclaration(
-			ATypeSingleDeclaration node, NewCMLModelcheckerContext question)
+	public MCNode caseALocalDefinition(
+			ALocalDefinition node, NewCMLModelcheckerContext question)
 			throws AnalysisException {
 		
 		MCPCMLType type = null;
-		String identifier = node.getIdentifier().toString();
+		String name = node.getName().toString();
 		if(node.getType() != null){
 			type = (MCPCMLType) node.getType().apply(rootVisitor, question);
 		}
-		MCATypeSingleDeclaration result = new MCATypeSingleDeclaration(identifier, type);
+		MCALocalDefinition result = new MCALocalDefinition(name, type);
 
 		return result;
 	}
@@ -272,7 +278,7 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 			NewCMLModelcheckerContext question) throws AnalysisException {
 		
 		String name = node.getName().toString();
-		MCPAction body = (MCPAction) node.getBody().apply(rootVisitor, question);
+		MCAActionStm body = (MCAActionStm) node.getBody().apply(rootVisitor, question);
 		
 		LinkedList<MCPCMLPattern> mcParamPatterns = new LinkedList<MCPCMLPattern>();
 		for (PPattern pPattern : node.getParameterPatterns()) {
@@ -359,49 +365,45 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 		return result;
 	}
 	
-	
-	/*
-	private void generateIOCommDefs(CMLModelcheckerContext context){
-		//if(question.info.containsKey(Utilities.IOCOMM_DEFINITIONS_KEY)){
-		if(context.ioCommDefs.size() > 0){
-			Binding maximalBinding = context.getMaxBinding();
-			//if(context.info.containsKey(Utilities.STATES_KEY)){
-			//if(context.stateVariables.size() > 0){
-			//	StringBuilder s = new StringBuilder(context.getScriptContent().toString());
-			//	s.replace(0, s.indexOf("nopar,"), "");
-			//	String ss = s.substring("nopar,".length(), s.indexOf(" :"));
-
-			//	StringBuilder io = new StringBuilder(context.info.get(Utilities.IOCOMM_DEFINITIONS_KEY).toString());
-			//	io.append(ss+".\n");
-			//context.getScriptContent().replace(indexIoCommDef, indexIoCommDef + "#IOCOMM_DEFS#".length(), io.toString());
-			//context.getScriptContent().append(io.toString());
-			//} else{
-			StringBuilder ioCommDefs = new StringBuilder();
-			for (String ioCommDef : context.ioCommDefs) {
-				ioCommDef = ioCommDef.replaceAll(Utilities.MAX_BIND, maximalBinding.toFormula());
-				ioCommDefs.append(ioCommDef + "\n");
-			}
-			//question.getScriptContent().replace(indexIoCommDef, indexIoCommDef + "#IOCOMM_DEFS#".length(), question.info.get(Utilities.IOCOMM_DEFINITIONS_KEY).toString());
-			//context.getScriptContent().replace(indexIoCommDef, indexIoCommDef + "#IOCOMM_DEFS#".length(), ioCommDefs.toString());
-			context.getScriptContent().append(ioCommDefs.toString());
-			//}
-
+	@Override
+	public MCNode caseAActionClassDefinition(AActionClassDefinition node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		
+		//String name = node.getName().toString();
+		LinkedList<MCPCMLDefinition> definitions = new LinkedList<MCPCMLDefinition>();
+		for (PDefinition pDefinition : node.getDefinitions()) {
+			definitions.add((MCPCMLDefinition) pDefinition.apply(this, question));
 		}
+		MCAActionClassDefinition result = new MCAActionClassDefinition(definitions);
+		
+		return result;
+	}
+	
+	
 
+	@Override
+	public MCNode caseAInstanceVariableDefinition(
+			AInstanceVariableDefinition node, NewCMLModelcheckerContext question)
+			throws AnalysisException {
+		
+		String name = node.getName().toString();
+		MCPCMLType type = (MCPCMLType) node.getType().apply(rootVisitor, question);
+		MCPCMLExp expression = (MCPCMLExp) node.getExpression().apply(rootVisitor, question);
+		MCAInstanceVariableDefinition result = new MCAInstanceVariableDefinition(name, type, expression);
+
+		MCPCMLType varValue = new MCVoidType();
+		if(expression != null){
+			//this has to be improved to instantiate values of the suitable type of the expression.
+			ExpressionEvaluator evaluator = new ExpressionEvaluator();
+			varValue = evaluator.instantiateMCType(expression);
+			//from type we have to get the correct type instantiation
+		}
+		question.maximalBinding = question.maximalBinding.addBinding("nP", name, varValue);
+		
+		return result;
 	}
+
 	
-	private void generateBindingFacts(CMLModelcheckerContext context){
-		//generate fetch facts
-		Binding maxBinding = context.getMaxBinding();
-		context.getScriptContent().append(maxBinding.generateAllFetchFacts(context.numberOfFetchFacts));
-		
-		//generate upd facts
-		
-		
-		//generate del facts
-	}
-	
-	*/
 	@Override
 	public MCNode createNewReturnValue(INode node,
 			NewCMLModelcheckerContext question) throws AnalysisException

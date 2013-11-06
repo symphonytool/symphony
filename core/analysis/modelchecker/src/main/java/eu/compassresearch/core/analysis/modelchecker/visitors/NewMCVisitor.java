@@ -14,7 +14,11 @@ import org.overture.ast.expressions.SSetExp;
 import org.overture.ast.node.INode;
 import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.PPattern;
+import org.overture.ast.statements.AActionStm;
+import org.overture.ast.statements.AUnresolvedStateDesignator;
+import org.overture.ast.statements.PCMLStateDesignator;
 import org.overture.ast.statements.PStateDesignator;
+import org.overture.ast.statements.PStm;
 import org.overture.ast.types.PType;
 import org.overture.ast.types.SNumericBasicType;
 
@@ -36,6 +40,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.PartialModel;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAProcessDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCATypeDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCAIdentifierPattern;
+import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCAActionStm;
 
 /**
  * The main MC visitor. It obtains other visitors from a factory.
@@ -58,6 +63,7 @@ public class NewMCVisitor extends
 	private NewMCProcessVisitor processVisitor;
 	private NewMCTypeAndValueVisitor typeAndValueVisitor;
 	private NewMCParameterAndPatternVisitor paramAndPatternVisitor;
+	private NewMCStmVisitor stmVisitor;
 	
 	public NewMCVisitor(List<PSource> sources) throws IOException {
 		this.sources = sources;
@@ -82,6 +88,7 @@ public class NewMCVisitor extends
 		this.typeAndValueVisitor = new NewMCTypeAndValueVisitor(this);
 		this.paramAndPatternVisitor = new NewMCParameterAndPatternVisitor(this);
 		this.formulaSpecification = new FormulaSpecification();
+		this.stmVisitor = new NewMCStmVisitor(this);
 	}
 	
 	@Override
@@ -179,9 +186,6 @@ public class NewMCVisitor extends
 	}
 	
 	
-	
-	
-	
 	@Override
 	public MCNode defaultPCommunicationParameter(PCommunicationParameter node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
@@ -198,26 +202,25 @@ public class NewMCVisitor extends
 			NewCMLModelcheckerContext question) throws AnalysisException {
 		return node.apply(this.paramAndPatternVisitor, question);
 	}
-	/*
-	@Override
-	public StringBuilder defaultPStm(PStm node,
-			CMLModelcheckerContext question) throws AnalysisException
+	
+	 @Override
+	public MCNode defaultPStm(PStm node,
+		NewCMLModelcheckerContext question) throws AnalysisException
 	{
-		return node.apply(this.statementVisitor, question);
+		return node.apply(this.stmVisitor, question);
 	}
-	
+	 
+	 
 	
 	@Override
-	public MCNode caseAValParametrisation(AValParametrisation node,
-			CMLModelcheckerContext question) throws AnalysisException {
-		question.getScriptContent().append("Int(");
-		question.getScriptContent().append(node.getDeclaration().getIdentifiers().getFirst().toString());
-		question.getScriptContent().append(")");
-		return question.getScriptContent();
+	public MCNode defaultPCMLStateDesignator(PCMLStateDesignator node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		
+		return node.apply(stmVisitor, question);
 	}
-
-
-
+	/*
+	 *
+	
 	@Override
 	public StringBuilder defaultPExp(PExp node,
 			CMLModelcheckerContext question) throws AnalysisException
@@ -286,6 +289,7 @@ public class NewMCVisitor extends
 	
 	public String generateFormulaScript(List<PDefinition> definitions, String propertyToCheck) throws IOException, AnalysisException{
 		
+		NewCMLModelcheckerContext.resetInstance();
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 		context.propertyToCheck = propertyToCheck;
 
@@ -323,7 +327,8 @@ public class NewMCVisitor extends
 			files = folder.listFiles();
 		}
 		
-		String cml_file = "src/test/resources/minimondex-incomplete.cml";
+		//String cml_file = "src/test/resources/minimondex-incomplete.cml";
+		String cml_file = "src/test/resources/action-stop.cml";
 		System.out.println("Testing on " + cml_file);
 		PSource source1 = Utilities.makeSourceFromFile(cml_file);
 		NewMCVisitor visitor1 = new NewMCVisitor(source1);

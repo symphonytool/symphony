@@ -1,7 +1,7 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.auxiliary;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
-import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAChannelNameDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAChannelDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAProcessDefinition;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 
@@ -34,7 +34,7 @@ public class PartialModelBuilder {
 	private void generateChannels(StringBuilder content, String option){
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 		if(context.channelDefs.size() != 0){
-			for (MCAChannelNameDefinition chanDef : context.channelDefs) {
+			for (MCAChannelDefinition chanDef : context.channelDefs) {
 				if(chanDef.isTyped()){
 					content.append(chanDef.toFormula(option) + "\n");
 				}

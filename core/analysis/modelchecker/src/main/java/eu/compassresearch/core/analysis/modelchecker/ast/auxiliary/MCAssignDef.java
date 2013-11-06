@@ -3,6 +3,7 @@ package eu.compassresearch.core.analysis.modelchecker.ast.auxiliary;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCPCMLStm;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANamedInvariantType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
@@ -13,17 +14,17 @@ public class MCAssignDef implements MCNode {
 	protected int counterId;
 	protected MCPCMLExp expression;
 	private MCPCMLExp stateDesignator;
-	protected MCPAction parentAction;
+	protected MCPCMLStm parentStm;
 	
 	
 	public MCAssignDef(int counterId, MCPCMLExp expression, MCPCMLExp stateDesignator,
-			MCPAction parentAction) {
+			MCPCMLStm parentStm) {
 		super();
 		this.max = NewCMLModelcheckerContext.getInstance().maximalBinding;
 		this.counterId = counterId;
 		this.expression = expression;
 		this.stateDesignator = stateDesignator;
-		this.parentAction = parentAction;
+		this.parentStm = parentStm;
 	}
 
 
@@ -33,7 +34,7 @@ public class MCAssignDef implements MCNode {
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 		max = context.maximalBinding;
 
-		result.append("  assignDef(0, "+ counterId + ", st, st_)  :- State(0,st,name,assign("+ counterId +")), ");
+		result.append("  assignDef("+ counterId + ", st, st_)  :- State(st,assign("+ counterId +")), ");
 		result.append("st = "); 
 		result.append(max.toFormula(MCNode.NAMED)); //with variable names
 		result.append(", st_ = ");
@@ -84,14 +85,13 @@ public class MCAssignDef implements MCNode {
 		this.expression = expression;
 	}
 
-
-	public MCPAction getParentAction() {
-		return parentAction;
+	public MCPCMLStm getParentStm() {
+		return parentStm;
 	}
 
 
-	public void setParentAction(MCPAction parentAction) {
-		this.parentAction = parentAction;
+	public void setParentStm(MCPCMLStm parentStm) {
+		this.parentStm = parentStm;
 	}
 
 
