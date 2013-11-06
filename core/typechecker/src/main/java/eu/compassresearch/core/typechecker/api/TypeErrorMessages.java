@@ -104,7 +104,11 @@ public enum TypeErrorMessages
 	DEFINITION_X_BUT_FOUND_Y(4324,
 			"Expected %s definition but found %s definition. Identifier: %s"),
 	
-	COMMUNICATION_NOT_ALLOWED_OVER_UNTYPED_CHANNEL(3425, "Communication not allowed over untyped channel: %s.");
+	COMMUNICATION_NOT_ALLOWED_OVER_UNTYPED_CHANNEL(3425, "Communication not allowed over untyped channel: %s."),
+	
+	IDENTIFIER_IS_MISSING_ACTION_DEFINITION(3427,"Identifier \"%s\" is missing action definition"),
+	
+	UNREACHABLE_DEFINITION(3428,"Unreacable definition");
 	
 	//4325 Operation '" %s "' cannot be called in an expression
 

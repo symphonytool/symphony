@@ -90,7 +90,7 @@ public class CmlChannelExpressionTypeChecker extends
 
 			PType expressionType = expression.apply(THIS, question);
 
-			if (!TypeComparator.isSubType(singleChanConcType, expressionType))
+			if (!TypeComparator.compatible(singleChanConcType, expressionType))
 			{
 				issueHandler.addTypeError(expression, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(""
 						+ singleChanConcType, "" + expressionType));

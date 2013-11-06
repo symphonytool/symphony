@@ -35,6 +35,7 @@ import org.overture.typechecker.FlatCheckedEnvironment;
 import org.overture.typechecker.TypeCheckException;
 import org.overture.typechecker.TypeCheckInfo;
 import org.overture.typechecker.TypeChecker;
+import org.overture.typechecker.TypeCheckerErrors;
 import org.overture.typechecker.TypeComparator;
 import org.overture.typechecker.assistant.definition.PDefinitionAssistantTC;
 import org.overture.typechecker.assistant.pattern.PPatternAssistantTC;
@@ -471,23 +472,28 @@ public class CmlActionTypeChecker extends
 		LinkedList<ILexIdentifierToken> ids = node.getIdentifiers();
 		LinkedList<PAction> acts = node.getActions();
 
-		// get the enclosing definition if any
-		// PDefinition enclosingDef = question.env.getEnclosingDefinition();
+		// too many identifiers
+		if (ids.size() > acts.size())
+		{
+			for (int i = acts.size() ; i < ids.size(); i++)
+			{
+				issueHandler.addTypeError(ids.get(i), TypeErrorMessages.IDENTIFIER_IS_MISSING_ACTION_DEFINITION.customizeMessage(ids.get(i).getName()));
+			}
+		}else if(ids.size() < acts.size())
+		{
+			for (int i = ids.size() ; i < acts.size(); i++)
+			{
+				issueHandler.addTypeWarning(acts.get(i), TypeErrorMessages.UNREACHABLE_DEFINITION.customizeMessage());
+			}
+		}
+		
 
-		// get the CML context we are in
-		// CmlTypeCheckInfo info = getTypeCheckInfo(question);
-
-		//
-		// CmlTypeCheckInfo newQuestion = (CmlTypeCheckInfo) info.newScope(info, enclosingDef);
 
 		List<PDefinition> local = new Vector<PDefinition>();
 
 		// add IDs to the environment
 		for (ILexIdentifierToken id : ids)
 		{
-			// newQuestion.addType(id, new ATypeDefinition(node.getLocation(), NameScope.LOCAL, false, null, new
-			// AAccessSpecifierAccessSpecifier(new APrivateAccess(), null, null), new AActionType(node.getLocation(),
-			// true), Pass.DEFS, null, null, null, null, false, new LexNameToken("", id)));
 			local.add(CmlAstFactory.newAActionDefinition(id, null));
 		}
 
@@ -500,8 +506,6 @@ public class CmlActionTypeChecker extends
 			types.add(actType);
 		}
 
-		// node.setType(new AActionType());
-		// return node.getType();
 		return TypeCheckerUtil.setType(node, types);
 	}
 
@@ -823,6 +827,22 @@ public class CmlActionTypeChecker extends
 		int paramIndex = 0;
 		LinkedList<PCommunicationParameter> commParams = node.getCommunicationParameters();
 		PType chanType = channelDef.getType();
+
+		// TODO channel type stuff goes here
+		// int requiredArguments = 0;
+		// if (chanType instanceof AProductType)
+		// {
+		// requiredArguments = ((AProductType) chanType).getTypes().size();
+		// } else if (!(chanType instanceof AVoidType))
+		// {
+		// requiredArguments = 1;
+		// }
+		//
+		// if(requiredArguments!=commParams.size())
+		// {
+		// TypeCheckerErrors.report(3216, "Expecting " + requiredArguments
+		// + " arguments", node.getLocation(), node);
+		// }
 
 		if (channelDef.getType() instanceof AVoidType && !commParams.isEmpty())
 		{

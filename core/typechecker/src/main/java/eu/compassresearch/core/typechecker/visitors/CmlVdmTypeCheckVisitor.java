@@ -43,6 +43,7 @@ import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.expressions.ABracketedExp;
 import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
+import eu.compassresearch.core.typechecker.environment.VdmRestrictedEnvironment;
 
 public class CmlVdmTypeCheckVisitor extends
 		QuestionAnswerCMLAdaptor<TypeCheckInfo, PType>
@@ -103,6 +104,16 @@ public class CmlVdmTypeCheckVisitor extends
 			}
 
 			return type;
+		};
+
+		/**
+		 * This method create a new env that hides all CSP/CML stuff and then calls the super implementation
+		 */
+		public PType defaultPExp(PExp node, TypeCheckInfo question)
+				throws AnalysisException
+		{
+			TypeCheckInfo info = question.newInfo(new VdmRestrictedEnvironment(question.assistantFactory, question.env));
+			return super.defaultPExp(node, info);
 		};
 
 	};
