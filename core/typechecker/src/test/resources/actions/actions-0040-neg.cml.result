@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <testResult type="eu.compassresearch.core.typechecker.ActionsCmlTypeCheckerTests">
-<message column="16" line="5" message="3413 The time unit expression type is not a nat. Expression &quot;false&quot; Actual type: &quot;bool&quot;" messageType="error" number="0" resource="actions-0040-neg.cml"/>
+<message column="16" line="5" message="3413 The time unit expression type is not a nat. Expression &quot;false&quot; Actual type: &quot;bool&quot;" messageType="error" number="3413" resource="actions-0040-neg.cml"/>
 <result/>
 </testResult>

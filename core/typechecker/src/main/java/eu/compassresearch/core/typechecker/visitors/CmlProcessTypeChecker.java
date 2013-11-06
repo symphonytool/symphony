@@ -83,8 +83,7 @@ public class CmlProcessTypeChecker extends
 	private final QuestionAnswerAdaptor<TypeCheckInfo, PType> nameSetChecker;
 
 	@SuppressWarnings("deprecation")
-	public CmlProcessTypeChecker(
-			IQuestionAnswer<TypeCheckInfo, PType> root,
+	public CmlProcessTypeChecker(IQuestionAnswer<TypeCheckInfo, PType> root,
 			ITypeIssueHandler issueHandler,
 			QuestionAnswerAdaptor<TypeCheckInfo, PType> channelSetChecker,
 			QuestionAnswerAdaptor<TypeCheckInfo, PType> nameSetChecker)
@@ -398,8 +397,8 @@ public class CmlProcessTypeChecker extends
 
 		if (args.size() != definitions.size())
 		{
-			issueHandler.addTypeError(node, TypeErrorMessages.WRONG_NUMBER_OF_ARGUMENTS.customizeMessage(""
-					+ definitions.size(), "" + args.size()));
+			issueHandler.addTypeError(node, TypeErrorMessages.WRONG_NUMBER_OF_ARGUMENTS, ""
+					+ definitions.size(), "" + args.size());
 		} else
 		{
 
@@ -411,8 +410,8 @@ public class CmlProcessTypeChecker extends
 				PDefinition ithDef = definitions.get(i);
 				if (!TypeComparator.compatible(ithExp.getType(), ithDef.getType()))
 				{
-					issueHandler.addTypeError(node, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(""
-							+ ithDef.getType(), "" + ithExp.getType()));
+					issueHandler.addTypeError(node, TypeErrorMessages.INCOMPATIBLE_TYPE, ""
+							+ ithDef.getType(), "" + ithExp.getType());
 					break;
 				}
 				locals.add(ithDef);
@@ -524,8 +523,8 @@ public class CmlProcessTypeChecker extends
 
 		if (!TypeComparator.isSubType(timeExpType, new ANatNumericBasicType()))
 		{
-			issueHandler.addTypeError(timeExp, TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT.customizeMessage(node
-					+ "", timeExpType + ""));
+			issueHandler.addTypeError(timeExp, TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT, node
+					+ "", timeExpType + "");
 		}
 
 		return getVoidType(node);
@@ -613,15 +612,15 @@ public class CmlProcessTypeChecker extends
 
 		if (processDef == null)
 		{
-			issueHandler.addTypeError(node, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(node.getProcessName()
-					+ ""));
+			issueHandler.addTypeError(node, TypeErrorMessages.UNDEFINED_SYMBOL, node.getProcessName()
+					+ "");
 		} else
 		{
 
 			if (!(processDef instanceof AProcessDefinition))
 			{
-				issueHandler.addTypeError(processDef, TypeErrorMessages.EXPECTED_PROCESS_DEFINITION.customizeMessage(node.getProcessName()
-						+ ""));
+				issueHandler.addTypeError(processDef, TypeErrorMessages.EXPECTED_PROCESS_DEFINITION, node.getProcessName()
+						+ "");
 			} else
 			{
 				node.setProcessDefinition((AProcessDefinition) processDef);
@@ -644,8 +643,8 @@ public class CmlProcessTypeChecker extends
 		PType expType = node.getTimeExpression().apply(THIS, question);
 		if (!TypeComparator.isSubType(expType, new ANatNumericBasicType()))
 		{
-			issueHandler.addTypeError(node.getTimeExpression(), TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT.customizeMessage(node.getTimeExpression()
-					+ ""));
+			issueHandler.addTypeError(node.getTimeExpression(), TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT, node.getTimeExpression()
+					+ "");
 		}
 
 		return getVoidType(node);

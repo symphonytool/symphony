@@ -103,16 +103,16 @@ public class CmlVarSetExpressionTypeChecker extends
 
 		if (idDef == null)
 		{
-			issueHandler.addTypeError(node, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(node
-					+ ""));
+			issueHandler.addTypeError(node, TypeErrorMessages.UNDEFINED_SYMBOL,node
+					+ "");
 			return null;
 		}
 
 		if (!(idDef instanceof AChansetDefinition
 				|| idDef instanceof AChannelDefinition || idDef instanceof AStateDefinition))
 		{
-			issueHandler.addTypeError(node, TypeErrorMessages.EXPECTED_CHANNEL_OR_STATE.customizeMessage(idDef
-					+ ""));
+			issueHandler.addTypeError(node, TypeErrorMessages.EXPECTED_CHANNEL_OR_STATE,idDef
+					+ "");
 			return null;
 		}
 
@@ -138,8 +138,8 @@ public class CmlVarSetExpressionTypeChecker extends
 
 			if (def == null)
 			{
-				issueHandler.addTypeError(id, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(id
-						+ ""));
+				issueHandler.addTypeError(id, TypeErrorMessages.UNDEFINED_SYMBOL,id
+						+ "");
 				continue;
 			}
 
@@ -158,8 +158,8 @@ public class CmlVarSetExpressionTypeChecker extends
 					// product and channel call same size?
 					if (chanExpressions.size() != prodType.getTypes().size())
 					{
-						issueHandler.addTypeError(id, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(chanValueType
-								+ "", chanName + ""));
+						issueHandler.addTypeError(id, TypeErrorMessages.INCOMPATIBLE_TYPE,chanValueType
+								+ "", chanName + "");
 						return null;
 					}
 
@@ -172,8 +172,8 @@ public class CmlVarSetExpressionTypeChecker extends
 
 						if (!TypeComparator.isSubType(expType, pt))
 						{
-							issueHandler.addTypeError(id, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(pt
-									+ "", expType + ""));
+							issueHandler.addTypeError(id, TypeErrorMessages.INCOMPATIBLE_TYPE,pt
+									+ "", expType + "");
 						}
 					}
 				}
@@ -255,8 +255,8 @@ public class CmlVarSetExpressionTypeChecker extends
 			PDefinition idDef = findDefinition(question.env, chanName.getIdentifier());
 			if (idDef == null)
 			{
-				issueHandler.addTypeError(node, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(""
-						+ chanName.getIdentifier()));
+				issueHandler.addTypeError(node, TypeErrorMessages.UNDEFINED_SYMBOL,""
+						+ chanName.getIdentifier());
 				return null;
 			}
 
@@ -283,7 +283,7 @@ public class CmlVarSetExpressionTypeChecker extends
 				if (!(idDef instanceof AChannelDefinition))
 				{
 					// error not a channel
-					issueHandler.addTypeError(chanName, TypeErrorMessages.DEFINITION_X_BUT_FOUND_Y.customizeMessage("channel", defKind, idDef.getName().getName()));
+					issueHandler.addTypeError(chanName, TypeErrorMessages.DEFINITION_X_BUT_FOUND_Y,"channel", defKind, idDef.getName().getName());
 					return false;
 				}
 				break;
@@ -293,7 +293,7 @@ public class CmlVarSetExpressionTypeChecker extends
 				if (!(idDef instanceof AInstanceVariableDefinition || idDef instanceof AAssignmentDefinition))
 				{
 					// error not a state
-					issueHandler.addTypeError(chanName, TypeErrorMessages.DEFINITION_X_BUT_FOUND_Y.customizeMessage("state", defKind, idDef.getName().getName()));
+					issueHandler.addTypeError(chanName, TypeErrorMessages.DEFINITION_X_BUT_FOUND_Y,"state", defKind, idDef.getName().getName());
 					return false;
 				}
 				break;
@@ -315,7 +315,7 @@ public class CmlVarSetExpressionTypeChecker extends
 		// CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
 		// if (cmlEnv == null)
 		// {
-		// node.setType(issueHandler.addTypeError(node, TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(""
+		// node.setType(issueHandler.addTypeError(node, TypeErrorMessages.ILLEGAL_CONTEXT,""
 		// + node)));
 		// return node.getType();
 		// }

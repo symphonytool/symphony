@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <testResult type="eu.compassresearch.core.typechecker.ActionsCmlTypeCheckerTests">
-<message column="11" line="10" message="Name 'a' is not in scope" messageType="error" number="0" resource="actions-0050-guard-neg.cml"/>
-<message column="5" line="12" message="Name 'a' is not in scope" messageType="error" number="0" resource="actions-0050-guard-neg.cml"/>
+<message column="11" line="10" message="Name 'a' is not in scope." messageType="error" number="3182" resource="actions-0050-guard-neg.cml"/>
+<message column="5" line="12" message="Name 'a' is not in scope." messageType="error" number="3182" resource="actions-0050-guard-neg.cml"/>
 <result/>
 </testResult>

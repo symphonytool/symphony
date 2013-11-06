@@ -10,6 +10,8 @@ import org.overture.parser.messages.VDMError;
 import org.overture.parser.messages.VDMWarning;
 
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
+import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
+import eu.compassresearch.core.typechecker.api.TypeWarningMessages;
 
 /**
  * Very simple LinkedList based TypeIssueHandler that simply collects errors and warnings for future retrieval.
@@ -44,18 +46,17 @@ public class CollectingIssueHandler implements ITypeIssueHandler
 	}
 
 	@Override
-	public void addTypeError(INode offendingSubtree, String message)
+	public void addTypeError(INode offendingSubtree, TypeErrorMessages message, String... arguments)
 	{
-		CMLTypeError error = new CMLTypeError(offendingSubtree, message);
+		CMLTypeError error = new CMLTypeError(offendingSubtree, message.number,message.customizeMessage(arguments));
 		this.errors.add(error);
 		// addIssueToRegistryForNode(offendingSubtree, registry, error);
 	}
 
 	@Override
-	public void addTypeWarning(INode hazardousSubtree, String message)
+	public void addTypeWarning(INode hazardousSubtree, TypeWarningMessages message)
 	{
-		CMLTypeWarning warning = new CMLTypeWarning(hazardousSubtree, message);
-		this.warnings.add(warning);
+		addTypeWarning(hazardousSubtree, message, "");
 	}
 
 	@Override
@@ -79,7 +80,7 @@ public class CollectingIssueHandler implements ITypeIssueHandler
 	@Override
 	public void addTypeError(INode parent, ILexLocation location, String message)
 	{
-		CMLTypeError typeError = new CMLTypeError(parent, message);
+		CMLTypeError typeError = new CMLTypeError(parent,0,location, message);
 		typeError.setLocation(location);
 		this.errors.add(typeError);
 	}
@@ -94,7 +95,7 @@ public class CollectingIssueHandler implements ITypeIssueHandler
 	@Override
 	public void warning(VDMWarning warning)
 	{
-		CMLTypeWarning typeError = new CMLTypeWarning(null, warning.message);
+		CMLTypeWarning typeError = new CMLTypeWarning(null,warning.number, warning.toProblemString());
 		typeError.setLocation(warning.location);
 		this.warnings.add(typeError);
 	}
@@ -113,6 +114,14 @@ public class CollectingIssueHandler implements ITypeIssueHandler
 		{
 			out.println(w.toString());
 		}
+	}
+
+	@Override
+	public void addTypeWarning(INode hazardousSubtree,
+			TypeWarningMessages message, String... arguments)
+	{
+		CMLTypeWarning warning = new CMLTypeWarning(hazardousSubtree,0, message.customizeMessage(arguments));
+		this.warnings.add(warning);
 	}
 
 }

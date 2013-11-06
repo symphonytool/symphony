@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <testResult type="eu.compassresearch.core.typechecker.CompleteCmlTypeCheckerTests">
-<message column="41" line="9" message="Definition 'pos' not used" messageType="warning" number="0" resource="complete-0065-pos.cml"/>
+<message column="41" line="9" message="Definition 'pos' not used." messageType="warning" number="5000" resource="complete-0065-pos.cml"/>
 <result/>
 </testResult>

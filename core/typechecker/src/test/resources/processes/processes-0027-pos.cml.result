@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <testResult type="eu.compassresearch.core.typechecker.ProcessesCmlTypeCheckerTests">
-<message column="13" line="21" message="q at 17:1 hidden by q" messageType="warning" number="0" resource="processes-0027-pos.cml"/>
+<message column="13" line="21" message="q at 17:1 hidden by q." messageType="warning" number="5008" resource="processes-0027-pos.cml"/>
 <result/>
 </testResult>

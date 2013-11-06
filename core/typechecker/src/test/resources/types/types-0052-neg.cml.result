@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <testResult type="eu.compassresearch.core.typechecker.TypesCmlTypeCheckerTests">
-<message column="1" line="5" message="Duplicate definition: A" messageType="error" number="0" resource="types-0052-neg.cml"/>
-<message column="9" line="5" message="Duplicate definition: A" messageType="error" number="0" resource="types-0052-neg.cml"/>
-<message column="18" line="5" message="Duplicate definition: B" messageType="error" number="0" resource="types-0052-neg.cml"/>
-<message column="27" line="5" message="Duplicate definition: B" messageType="error" number="0" resource="types-0052-neg.cml"/>
-<message column="1" line="5" message="Duplicate definition: A" messageType="error" number="0" resource="types-0052-neg.cml"/>
-<message column="9" line="5" message="Duplicate definition: A" messageType="error" number="0" resource="types-0052-neg.cml"/>
-<message column="18" line="5" message="Duplicate definition: B" messageType="error" number="0" resource="types-0052-neg.cml"/>
-<message column="27" line="5" message="Duplicate definition: B" messageType="error" number="0" resource="types-0052-neg.cml"/>
-<message column="1" line="5" message="Duplicate definitions for A" messageType="error" number="0" resource="types-0052-neg.cml"/>
-<message column="18" line="5" message="Duplicate definitions for B" messageType="error" number="0" resource="types-0052-neg.cml"/>
-<message column="1" line="5" message="Duplicate definition: A" messageType="error" number="0" resource="types-0052-neg.cml"/>
-<message column="9" line="5" message="Duplicate definition: A" messageType="error" number="0" resource="types-0052-neg.cml"/>
-<message column="18" line="5" message="Duplicate definition: B" messageType="error" number="0" resource="types-0052-neg.cml"/>
-<message column="27" line="5" message="Duplicate definition: B" messageType="error" number="0" resource="types-0052-neg.cml"/>
+<message column="1" line="5" message="Duplicate definition: A." messageType="error" number="5007" resource="types-0052-neg.cml"/>
+<message column="9" line="5" message="Duplicate definition: A." messageType="error" number="5007" resource="types-0052-neg.cml"/>
+<message column="18" line="5" message="Duplicate definition: B." messageType="error" number="5007" resource="types-0052-neg.cml"/>
+<message column="27" line="5" message="Duplicate definition: B." messageType="error" number="5007" resource="types-0052-neg.cml"/>
+<message column="1" line="5" message="Duplicate definition: A." messageType="error" number="5007" resource="types-0052-neg.cml"/>
+<message column="9" line="5" message="Duplicate definition: A." messageType="error" number="5007" resource="types-0052-neg.cml"/>
+<message column="18" line="5" message="Duplicate definition: B." messageType="error" number="5007" resource="types-0052-neg.cml"/>
+<message column="27" line="5" message="Duplicate definition: B." messageType="error" number="5007" resource="types-0052-neg.cml"/>
+<message column="1" line="5" message="Duplicate definitions for A. A: in 'C:\compass\compass_sf\core\typechecker\src\test\resources\types\types-0052-neg.cml' at line 5:1 A: in 'C:\compass\compass_sf\core\typechecker\src\test\resources\types\types-0052-neg.cml' at line 5:9" messageType="error" number="3017" resource="types-0052-neg.cml"/>
+<message column="18" line="5" message="Duplicate definitions for B. B: in 'C:\compass\compass_sf\core\typechecker\src\test\resources\types\types-0052-neg.cml' at line 5:18 B: in 'C:\compass\compass_sf\core\typechecker\src\test\resources\types\types-0052-neg.cml' at line 5:27" messageType="error" number="3017" resource="types-0052-neg.cml"/>
+<message column="1" line="5" message="Duplicate definition: A." messageType="error" number="5007" resource="types-0052-neg.cml"/>
+<message column="9" line="5" message="Duplicate definition: A." messageType="error" number="5007" resource="types-0052-neg.cml"/>
+<message column="18" line="5" message="Duplicate definition: B." messageType="error" number="5007" resource="types-0052-neg.cml"/>
+<message column="27" line="5" message="Duplicate definition: B." messageType="error" number="5007" resource="types-0052-neg.cml"/>
 <result/>
 </testResult>

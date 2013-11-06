@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <testResult type="eu.compassresearch.core.typechecker.ProcessesCmlTypeCheckerTests">
-<message column="1" line="11" message="Instance variable 'a' is not initialized" messageType="warning" number="0" resource="processes-0017-neg.cml"/>
-<message column="8" line="24" message="Name 'o(char)' is not in scope" messageType="error" number="0" resource="processes-0017-neg.cml"/>
+<message column="1" line="11" message="Instance variable 'a' is not initialized." messageType="warning" number="5001" resource="processes-0017-neg.cml"/>
+<message column="8" line="24" message="Name 'o(char)' is not in scope. Possible: o(int)" messageType="error" number="3182" resource="processes-0017-neg.cml"/>
 <result/>
 </testResult>

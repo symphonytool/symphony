@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <testResult type="eu.compassresearch.core.typechecker.OperationsCmlTypeCheckerTests">
-<message column="29" line="11" message="Definition 'b' not used" messageType="warning" number="0" resource="operations-0006-neg.cml"/>
-<message column="54" line="11" message="Name 'test`c' is not in scope" messageType="error" number="0" resource="operations-0006-neg.cml"/>
+<message column="29" line="11" message="Definition 'b' not used." messageType="warning" number="5000" resource="operations-0006-neg.cml"/>
+<message column="54" line="11" message="Name 'test`c' is not in scope." messageType="error" number="3182" resource="operations-0006-neg.cml"/>
 <result/>
 </testResult>

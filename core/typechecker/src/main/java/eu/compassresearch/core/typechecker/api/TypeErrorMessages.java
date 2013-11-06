@@ -129,11 +129,16 @@ public enum TypeErrorMessages
 			"Communication \"%s\" declared with too few arguments. Actual %s, Expected %s"),
 
 	COMMUNICATION_TOO_MANY_ARGUMENTS(3434,
-			"Communication \"%s\" declared with too many arguments. Actual %s, Expected %s")
+			"Communication \"%s\" declared with too many arguments. Actual %s, Expected %s"),
+
+	ACTIONS_NOT_ALLOWED_IN_OPERATION(3435, "Actions not allowed in operations"),
+
+	PROCESSES_NOT_ALLOWED_IN_OPERATION(3436,
+			"Processes not allowed in operations")
 
 	;
 
-	private int number;
+	public final int number;
 	private String template;
 
 	private TypeErrorMessages(int number, String templateString)
