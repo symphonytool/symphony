@@ -35,7 +35,7 @@ public class NewCMLModelcheckerContext {
 	public static int IOCOMM_COUNTER;
 	
 	public MCAProcessDefinition mainProcess;
-	public Domain semanticsDomain;
+	public Domain propertiesDomain;
 	public String propertyToCheck = Utilities.DEADLOCK_PROPERTY;
 	public NewSetStack<MCPVarsetExpression> setStack;
 	public ArrayList<MCLieInFact> lieIn;

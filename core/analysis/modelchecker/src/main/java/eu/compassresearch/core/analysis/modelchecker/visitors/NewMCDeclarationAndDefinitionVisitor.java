@@ -20,6 +20,9 @@ import org.overture.ast.node.INode;
 import org.overture.ast.patterns.PPattern;
 
 
+import org.overture.ast.types.AOperationType;
+import org.overture.ast.types.PType;
+
 import eu.compassresearch.ast.actions.PParametrisation;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.AExpressionSingleDeclaration;
@@ -40,6 +43,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPParametrisation;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCChannel;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.TypeManipulator;
 import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCAExpressionSingleDeclaration;
 import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCATypeSingleDeclaration;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAActionClassDefinition;
@@ -281,8 +285,20 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 		MCAActionStm body = (MCAActionStm) node.getBody().apply(rootVisitor, question);
 		
 		LinkedList<MCPCMLPattern> mcParamPatterns = new LinkedList<MCPCMLPattern>();
+		int patternPosition = 0;
 		for (PPattern pPattern : node.getParameterPatterns()) {
-			mcParamPatterns.add((MCPCMLPattern) pPattern.apply(rootVisitor, question));
+			MCPCMLPattern pattern = (MCPCMLPattern) pPattern.apply(rootVisitor, question);
+			PType opType = node.getType();
+			MCPCMLType varValue = new MCVoidType();
+			TypeManipulator typeHandler = TypeManipulator.getInstance();
+			if(opType instanceof AOperationType){
+				//typeHandler.
+				//MCPCMLType patternType = (MCPCMLType) ((AOperationType) opType).getParameters().get(patternPosition).apply(rootVisitor, question);
+				//question.maximalBinding = question.maximalBinding.addBinding("nP",pattern.toFormula(MCNode.NAMED), varValue);
+			}
+				
+			mcParamPatterns.add(pattern);
+			patternPosition++;
 		}
 		
 		MCAExplicitCmlOperationDefinition result = 
