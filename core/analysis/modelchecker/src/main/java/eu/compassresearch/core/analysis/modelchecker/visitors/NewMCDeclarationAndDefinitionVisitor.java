@@ -44,6 +44,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPParametrisation;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCChannel;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.TypeManipulator;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.TypeValue;
 import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCAExpressionSingleDeclaration;
 import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCATypeSingleDeclaration;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAActionClassDefinition;
@@ -67,6 +68,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAValuesDe
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCPCMLDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCSCmlOperationDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCVoidValue;
 import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCPCMLPattern;
 import eu.compassresearch.core.analysis.modelchecker.ast.process.MCPProcess;
 import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCAActionStm;
@@ -194,11 +196,12 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 		}
 				
 		String varName = node.getName().toString();
-		MCPCMLType varValue = new MCVoidType();
+		MCPCMLExp varValue = new MCVoidValue();
 		if(expr != null){
 			//this has to be improved to instantiate values of the suitable type of the expression.
 			ExpressionEvaluator evaluator = new ExpressionEvaluator();
-			varValue = evaluator.instantiateMCType(expr);
+			//varValue = evaluator.instantiateMCType(expr);
+			////PPPPPPPPPP
 			//from type we have to get the correct type instantiation
 		}
 		question.maximalBinding = question.maximalBinding.addBinding("nP", varName, varValue);
@@ -289,12 +292,13 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 		for (PPattern pPattern : node.getParameterPatterns()) {
 			MCPCMLPattern pattern = (MCPCMLPattern) pPattern.apply(rootVisitor, question);
 			PType opType = node.getType();
-			MCPCMLType varValue = new MCVoidType();
-			TypeManipulator typeHandler = TypeManipulator.getInstance();
+			MCPCMLExp varValue = null;
+			ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
 			if(opType instanceof AOperationType){
-				//typeHandler.
 				MCPCMLType patternType = (MCPCMLType) ((AOperationType) opType).getParameters().get(patternPosition).apply(rootVisitor, question);
-				//question.maximalBinding = question.maximalBinding.addBinding("nP",pattern.toFormula(MCNode.NAMED), varValue);
+				//TypeValue patternValue = typeHandler.getValues(patternType).getFirst();
+				//evaluator.ge
+				//question.maximalBinding = question.maximalBinding.addBinding("nP",pattern.toFormula(MCNode.NAMED), new MCAVa);
 			}
 				
 			mcParamPatterns.add(pattern);
@@ -414,7 +418,8 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 			varValue = evaluator.instantiateMCType(expression);
 			//from type we have to get the correct type instantiation
 		}
-		question.maximalBinding = question.maximalBinding.addBinding("nP", name, varValue);
+		////question.maximalBinding = question.maximalBinding.addBinding("nP", name, varValue);
+		//PPPPPPPPPPPPPPPPP
 		
 		return result;
 	}

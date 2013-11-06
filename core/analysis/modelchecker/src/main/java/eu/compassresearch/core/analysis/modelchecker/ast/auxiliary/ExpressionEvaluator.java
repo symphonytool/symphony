@@ -28,6 +28,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCAIdentifierPa
 import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCPCMLPattern;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAIntNumericBasicType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANamedInvariantType;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANatNumericBasicType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAProductType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCVoidType;
@@ -321,6 +322,29 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		
 		return result;
 	}
+	
+	public MCPCMLExp getDefaultValue(MCPCMLType type){
+		MCPCMLExp result = null;
+		
+		return result;
+	}
+	
+	private MCAIntLiteralExp getDefaultValue(MCANatNumericBasicType type){
+		MCAIntLiteralExp result = null;
+		
+		result = new MCAIntLiteralExp("0");
+		
+		return result;
+	}
+	
+	private MCAIntLiteralExp getDefaultValue(MCAIntNumericBasicType type){
+		MCAIntLiteralExp result = null;
+		
+		result = new MCAIntLiteralExp("0");
+		
+		return result;
+	}
+	
 	
 	private String obtainValue(MCAIntLiteralExp expression){
 		return expression.getValue();

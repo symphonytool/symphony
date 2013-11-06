@@ -2,6 +2,7 @@ package eu.compassresearch.core.analysis.modelchecker.ast.auxiliary;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPAction;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAVariableExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCPCMLStm;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANamedInvariantType;
@@ -41,7 +42,7 @@ public class MCAssignDef implements MCNode {
 		Binding maxCopy = max.copy();
 		String varName = stateDesignator.toFormula(MCNode.NAMED);
 		String newValueVarName = varName + "_";
-		MCPCMLType newVarValue = new MCANamedInvariantType(newValueVarName);
+		MCPCMLExp newVarValue = new MCAVariableExp(newValueVarName);
 		maxCopy.updateBinding(varName,newVarValue); 
 		result.append(maxCopy.toFormula(MCNode.DEFAULT)); 
 		

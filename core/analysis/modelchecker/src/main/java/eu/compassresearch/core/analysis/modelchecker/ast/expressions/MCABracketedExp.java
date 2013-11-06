@@ -25,6 +25,13 @@ public class MCABracketedExp implements MCPCMLExp {
 	public void setExp(MCPCMLExp exp) {
 		this.exp = exp;
 	}
+
+
+	@Override
+	public MCPCMLExp copy() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
 	
 

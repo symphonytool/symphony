@@ -5,6 +5,8 @@ import java.util.LinkedList;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCACommunicationAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAChannelDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAVariableExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANamedInvariantType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
@@ -42,7 +44,7 @@ public class MCIOCommDef implements MCNode {
 		//we must update all communication variables in the binding with new valueNames so that the new values will come form the involved communication variables
 		String varName = ""; 
 		String newValueVarName = varName + "_";
-		MCPCMLType newVarValue = new MCANamedInvariantType(newValueVarName);
+		MCPCMLExp newVarValue = new MCAVariableExp(newValueVarName);
 		maxCopy.updateBinding(varName,newVarValue); //we must perform an update of all values in the bindings.
 		result.append(maxCopy.toFormula(MCNode.GENERIC)); 
 		result.append(")");

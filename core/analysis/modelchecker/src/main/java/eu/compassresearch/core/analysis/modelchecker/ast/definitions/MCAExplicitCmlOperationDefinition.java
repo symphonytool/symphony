@@ -112,7 +112,7 @@ public class MCAExplicitCmlOperationDefinition implements
 				if(path instanceof MCAVariableExp){
 					String varName = path.toFormula(MCNode.NAMED);
 					newValueVarName = varName + "_";
-					MCPCMLType newVarValue = new MCANamedInvariantType(newValueVarName);
+					MCPCMLExp newVarValue = new MCAVariableExp(newValueVarName);
 					maximalCopy.updateBinding(varName,newVarValue);
 					result.append(maximalCopy.toFormula(MCNode.DEFAULT)); 
 				}

@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 
 
@@ -62,7 +63,7 @@ public class BBinding implements Binding {
 	public BBinding copy(){
 		return new BBinding(this.procName,this.head.copy(),this.tail.copy());
 	}
-	public Binding addBinding(String procName, String varName, MCPCMLType varValue){
+	public Binding addBinding(String procName, String varName, MCPCMLExp varValue){
 		Binding result = this;
 		
 		if(head.getVariableName().equals(varName)){
@@ -72,7 +73,7 @@ public class BBinding implements Binding {
 		}
 		return result;
 	}
-	public void updateBinding(String varName, MCPCMLType varValue){
+	public void updateBinding(String varName, MCPCMLExp varValue){
 		if(head.getVariableName().equals(varName)){
 			head.setVariableValue(varValue);
 		} else{

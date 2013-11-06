@@ -49,10 +49,11 @@ public class LaunchIsabelleHandler extends AbstractHandler implements IHandler
 			wc.setAttribute(IIsabelleConstants.ATTR_SESSION, IIsabelleConstants.ATTR_SESSION_NAME);
 			wc.setAttribute(IIsabelleConstants.ATTR_BUILD_RUN, true);
 			wc.setAttribute(IIsabelleConstants.ATTR_BUILD_TO_SYSTEM, false);
-
-			LinkedList<String> sessionDir = new LinkedList<String>();
-			sessionDir.add(CmlTPPlugin.getDefault().getPreferenceStore().getString(IIsabelleConstants.ATTR_SESSION_DIRS));
-			wc.setAttribute(IIsabelleConstants.ATTR_SESSION_DIRS, sessionDir);
+			if(! LaunchIsabelleHandler.isWindowsPlatform()){
+				LinkedList<String> sessionDir = new LinkedList<String>();
+				sessionDir.add(CmlTPPlugin.getDefault().getPreferenceStore().getString(IIsabelleConstants.ATTR_SESSION_DIRS));
+				wc.setAttribute(IIsabelleConstants.ATTR_SESSION_DIRS, sessionDir);
+			}
 			
 			HashMap<String, String> env = new HashMap<String, String>();
 			if (CmlTPPlugin.getDefault().getPreferenceStore().getBoolean(IIsabelleConstants.Z3_NON_COMMERCIAL))
