@@ -5,7 +5,7 @@ import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.definitions.SOperationDefinition;
 import org.overture.ast.factory.AstFactory;
 import org.overture.ast.node.INode;
-import org.overture.ast.statements.AActionStm;
+import eu.compassresearch.ast.statements.AActionStm;
 import org.overture.ast.statements.ACaseAlternativeStm;
 import org.overture.ast.statements.PStm;
 

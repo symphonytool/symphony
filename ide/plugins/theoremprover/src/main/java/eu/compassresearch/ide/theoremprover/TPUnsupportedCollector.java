@@ -79,8 +79,8 @@ import org.overture.ast.patterns.ATuplePattern;
 import org.overture.ast.patterns.ATypeBind;
 import org.overture.ast.patterns.ATypeMultipleBind;
 import org.overture.ast.patterns.AUnionPattern;
-import org.overture.ast.statements.AActionStm;
-import org.overture.ast.statements.AAltNonDeterministicStm;
+import eu.compassresearch.ast.statements.AActionStm;
+import eu.compassresearch.ast.statements.AAltNonDeterministicStm;
 import org.overture.ast.statements.AAlwaysStm;
 import org.overture.ast.statements.AApplyObjectDesignator;
 import org.overture.ast.statements.AAssignmentStm;
@@ -92,8 +92,7 @@ import org.overture.ast.statements.ACaseAlternativeStm;
 import org.overture.ast.statements.ACasesStm;
 import org.overture.ast.statements.AClassInvariantStm;
 import org.overture.ast.statements.ACyclesStm;
-import org.overture.ast.statements.ADoNonDeterministicStm;
-//import org.overture.ast.statements.ADefLetDefStm;
+import eu.compassresearch.ast.statements.ADoNonDeterministicStm;
 import org.overture.ast.statements.ADurationStm;
 import org.overture.ast.statements.AElseIfStm;
 import org.overture.ast.statements.AErrorCase;
@@ -107,13 +106,13 @@ import org.overture.ast.statements.AForIndexStm;
 import org.overture.ast.statements.AForPatternBindStm;
 import org.overture.ast.statements.AIdentifierObjectDesignator;
 import org.overture.ast.statements.AIdentifierStateDesignator;
-import org.overture.ast.statements.AIfNonDeterministicStm;
+import eu.compassresearch.ast.statements.AIfNonDeterministicStm;
 import org.overture.ast.statements.AIfStm;
 import org.overture.ast.statements.ALetBeStStm;
 import org.overture.ast.statements.ALetStm;
 import org.overture.ast.statements.AMapSeqStateDesignator;
 import org.overture.ast.statements.ANewObjectDesignator;
-import org.overture.ast.statements.ANewStm;
+import eu.compassresearch.ast.statements.ANewStm;
 import org.overture.ast.statements.ANonDeterministicSimpleBlockStm;
 import org.overture.ast.statements.ANotYetSpecifiedStm;
 import org.overture.ast.statements.APeriodicStm;
@@ -3423,5 +3422,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 		// Do not remove the super call below.
 		super.caseAWriteCommunicationParameter(node);
 	}
+	
+	
 
 }
