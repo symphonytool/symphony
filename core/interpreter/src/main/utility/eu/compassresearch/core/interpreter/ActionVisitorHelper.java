@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.statements.AAltNonDeterministicStm;
+import eu.compassresearch.ast.statements.AAltNonDeterministicStm;
 import org.overture.ast.statements.PStm;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.Value;
