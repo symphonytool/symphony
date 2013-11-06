@@ -3,6 +3,7 @@ package eu.compassresearch.core.analysis.theoremprover.visitors.string;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.node.INode;
+import org.overture.ast.statements.PStm;
 import org.overture.ast.types.PType;
 
 import eu.compassresearch.ast.actions.PAction;
@@ -19,6 +20,7 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 	private ThmExpStringVisitor expStringVisitor;
 	private ThmProcessStringVisitor processStringVisitor;
 	private ThmActionStringVisitor actionStringVisitor;
+	private ThmStmStringVisitor stmStringVisitor;
 	
 	/**
 	 * Construct a ThmStringVisitor
@@ -33,6 +35,7 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		expStringVisitor = new ThmExpStringVisitor(this);
 		processStringVisitor = new ThmProcessStringVisitor(this);
 		actionStringVisitor = new ThmActionStringVisitor(this);
+		stmStringVisitor = new ThmStmStringVisitor(this);
 	}
 
 
@@ -64,6 +67,12 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 	public String defaultPVarsetExpression(PVarsetExpression node, ThmVarsContext vc)
 			throws AnalysisException {		
 		return node.apply(this.expStringVisitor, vc);
+	}	
+
+	
+	public String defaultPStm(PStm node, ThmVarsContext vc)
+			throws AnalysisException {		
+		return node.apply(this.stmStringVisitor, vc);
 	}	
 	
 	

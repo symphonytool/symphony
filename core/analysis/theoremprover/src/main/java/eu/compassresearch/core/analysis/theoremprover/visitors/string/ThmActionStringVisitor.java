@@ -12,6 +12,7 @@ import org.overture.ast.node.INode;
 import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.PPattern;
 import org.overture.ast.statements.AAssignmentStm;
+import org.overture.ast.statements.ABlockSimpleBlockStm;
 import org.overture.ast.statements.ACallStm;
 import org.overture.ast.statements.AElseIfStm;
 import org.overture.ast.statements.AIfStm;
@@ -45,6 +46,7 @@ import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionReplicatedAction;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.AStartDeadlineAction;
+import eu.compassresearch.ast.actions.AStmAction;
 import eu.compassresearch.ast.actions.AStopAction;
 import eu.compassresearch.ast.actions.ASynchronousParallelismParallelAction;
 import eu.compassresearch.ast.actions.ASynchronousParallelismReplicatedAction;
@@ -224,54 +226,54 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		return "(*unknown action not handled*)";	
 	}
 
-	public String caseASequentialCompositionReplicatedAction(ASequentialCompositionReplicatedAction a, ThmVarsContext vars) throws AnalysisException{
-//			a.getReplicatedAction();
-//			a.getReplicationDeclaration();
-		//TODO: NOT YET HANDLED
-		return ThmProcessUtil.repActNotHandled;
-	}
-	
-	public String caseAExternalChoiceReplicatedAction(AExternalChoiceReplicatedAction a, ThmVarsContext vars) throws AnalysisException{
-		//TODO: NOT YET HANDLED
-		return ThmProcessUtil.repActNotHandled;
-	}
-	
-	public String caseAInternalChoiceReplicatedAction(AInternalChoiceReplicatedAction a, ThmVarsContext vars) throws AnalysisException{
-		//TODO: NOT YET HANDLED
-		return ThmProcessUtil.repActNotHandled;
-	}
-	
-	public String caseACommonInterleavingReplicatedAction(ACommonInterleavingReplicatedAction a, ThmVarsContext vars) throws AnalysisException{
-//          [namesetExpression]:VarsetExpression
-		//TODO: NOT YET HANDLED
-		return ThmProcessUtil.repActNotHandled;
-	}
-	
-	public String caseAInterleavingReplicatedAction(AInterleavingReplicatedAction a, ThmVarsContext vars) throws AnalysisException{
-//          [namesetExpression]:VarsetExpression
-		//TODO: NOT YET HANDLED
-		return ThmProcessUtil.repActNotHandled;
-	}
-	
-	public String caseAGeneralisedParallelismReplicatedAction(AGeneralisedParallelismReplicatedAction a, ThmVarsContext vars) throws AnalysisException{
-//          [chansetExpression]:VarsetExpression
-//          [namesetExpression]:VarsetExpression
-		//TODO: NOT YET HANDLED
-		return ThmProcessUtil.repActNotHandled;
-	}
-	
-	public String caseAAlphabetisedParallelismReplicatedAction(AAlphabetisedParallelismReplicatedAction a, ThmVarsContext vars) throws AnalysisException{
-//          [namesetExpression]:VarsetExpression
-//          [chansetExpression]:VarsetExpression
-		//TODO: NOT YET HANDLED
-		return ThmProcessUtil.repActNotHandled;
-	}
-	
-	public String caseASynchronousParallelismReplicatedAction(ASynchronousParallelismReplicatedAction a, ThmVarsContext vars) throws AnalysisException{
-	//          [namesetExpression]:VarsetExpression
-		//TODO: NOT YET HANDLED
-		return ThmProcessUtil.repActNotHandled;
-	}
+//	public String caseASequentialCompositionReplicatedAction(ASequentialCompositionReplicatedAction a, ThmVarsContext vars) throws AnalysisException{
+////			a.getReplicatedAction();
+////			a.getReplicationDeclaration();
+//		//TODO: NOT YET HANDLED
+//		return ThmProcessUtil.repActNotHandled;
+//	}
+//	
+//	public String caseAExternalChoiceReplicatedAction(AExternalChoiceReplicatedAction a, ThmVarsContext vars) throws AnalysisException{
+//		//TODO: NOT YET HANDLED
+//		return ThmProcessUtil.repActNotHandled;
+//	}
+//	
+//	public String caseAInternalChoiceReplicatedAction(AInternalChoiceReplicatedAction a, ThmVarsContext vars) throws AnalysisException{
+//		//TODO: NOT YET HANDLED
+//		return ThmProcessUtil.repActNotHandled;
+//	}
+//	
+//	public String caseACommonInterleavingReplicatedAction(ACommonInterleavingReplicatedAction a, ThmVarsContext vars) throws AnalysisException{
+////          [namesetExpression]:VarsetExpression
+//		//TODO: NOT YET HANDLED
+//		return ThmProcessUtil.repActNotHandled;
+//	}
+//	
+//	public String caseAInterleavingReplicatedAction(AInterleavingReplicatedAction a, ThmVarsContext vars) throws AnalysisException{
+////          [namesetExpression]:VarsetExpression
+//		//TODO: NOT YET HANDLED
+//		return ThmProcessUtil.repActNotHandled;
+//	}
+//	
+//	public String caseAGeneralisedParallelismReplicatedAction(AGeneralisedParallelismReplicatedAction a, ThmVarsContext vars) throws AnalysisException{
+////          [chansetExpression]:VarsetExpression
+////          [namesetExpression]:VarsetExpression
+//		//TODO: NOT YET HANDLED
+//		return ThmProcessUtil.repActNotHandled;
+//	}
+//	
+//	public String caseAAlphabetisedParallelismReplicatedAction(AAlphabetisedParallelismReplicatedAction a, ThmVarsContext vars) throws AnalysisException{
+////          [namesetExpression]:VarsetExpression
+////          [chansetExpression]:VarsetExpression
+//		//TODO: NOT YET HANDLED
+//		return ThmProcessUtil.repActNotHandled;
+//	}
+//	
+//	public String caseASynchronousParallelismReplicatedAction(ASynchronousParallelismReplicatedAction a, ThmVarsContext vars) throws AnalysisException{
+//	//          [namesetExpression]:VarsetExpression
+//		//TODO: NOT YET HANDLED
+//		return ThmProcessUtil.repActNotHandled;
+//	}
 	
 	public String caseAInterleavingParallelAction(AInterleavingParallelAction a, ThmVarsContext vars) throws AnalysisException{
 		return a.getLeftAction().apply(thmStringVisitor, vars) + ThmProcessUtil.interleave  + a.getRightAction().apply(thmStringVisitor, vars);
@@ -299,212 +301,11 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		return left + "[" + leftChExp + "||" + rightChExp +"]" + right;
 	}
 	
-	public String caseACallStm(ACallStm a, ThmVarsContext vars) throws AnalysisException{
-		StringBuilder args = new StringBuilder();
-		
-		for (Iterator<PExp> itr = a.getArgs().listIterator(); itr.hasNext(); ) {
-			PExp e = itr.next();
-			
-			args.append(e.apply(thmStringVisitor, vars));
-			//If there are remaining expressions, add a ","
-			if(itr.hasNext()){	
-				args.append(", ");
-			}
-		}
-		return a.getName().toString() + "(" + args.toString() + ")";		
-		
+	
+	public String caseAStmAction(AStmAction a, ThmVarsContext vars) throws AnalysisException{
+		return a.getStatement().apply(thmStringVisitor, vars);
 	}
-	
-	public String caseALetStm(ALetStm a, ThmVarsContext vars) throws AnalysisException{
-
-		LinkedList<String> varsStr = new LinkedList<String>();
-		StringBuilder assignStr = new StringBuilder();
-
-		String blockStr = a.getStatement().apply(thmStringVisitor, vars);
-		LinkedList<PDefinition> defs = a.getLocalDefs();
-		if(! defs.isEmpty()) 
-		{
-			
-			for (PDefinition pdef : a.getLocalDefs())
-			{
-				AAssignmentDefinition aDef = (AAssignmentDefinition) pdef;
-				varsStr.add(aDef.getName().toString());
-				if(aDef.getExpression() != null)
-				{
-					assignStr.append(aDef.getName().toString() + ":=" + aDef.getExpression().apply(thmStringVisitor, vars) + "; ");
-				}
-			}
-
-			blockStr = assignStr.toString() + blockStr;
-			for(String as : varsStr)
-			{
-				blockStr = "var " + as + "; " + blockStr + "; end " + as; 
-			}
-		}
 		
-		return "(" + blockStr + ")"; 
-	}
-	
-	public String caseAIfStm(AIfStm a, ThmVarsContext vars) throws AnalysisException{
-		String ifStr = a.getIfExp().apply(thmStringVisitor, vars);
-		String thenStr = a.getThenStm().apply(thmStringVisitor, vars);	
-		String elseStr = "Skip";
-		if(a.getElseStm() != null)
-		{
-			elseStr = a.getElseStm().apply(thmStringVisitor, vars);	
-		}
-		String elseIfStr = "";
-		String closingIf = "";
-		LinkedList<AElseIfStm> elseIf = a.getElseIf();
-		for(AElseIfStm e : elseIf)
-		{
-			elseIfStr = elseIfStr + "("+ e.apply(thmStringVisitor, vars);	
-			closingIf = ")";
-		}
-		
-		return thenStr + ThmProcessUtil.ifLeft + ifStr + ThmProcessUtil.ifRight + elseIfStr + elseStr + closingIf;
-	}
-	
-	public String caseAElseIfStm(AElseIfStm a, ThmVarsContext vars) throws AnalysisException{
-		String elseIfStr = a.getElseIf().apply(thmStringVisitor, vars);
-		String thenStr = a.getThenStm().apply(thmStringVisitor, vars);		
-
-		return thenStr + ThmProcessUtil.ifLeft + elseIfStr+ ThmProcessUtil.ifRight;
-	}
-	
-	public String caseAAssignmentStm(AAssignmentStm a, ThmVarsContext vars) throws AnalysisException{
-		PStateDesignator designator = a.getTarget();
-		String aExp = designator.toString();
-	//	String aExp = a.getStateDesignator().apply(thmStringVisitor, vars);
-		String exp = a.getExp().apply(thmStringVisitor, vars);
-		
-		//Isabelle doesn't want state variables to have a $ on the lhs of an assignment.
-		//TODO: This may be too harsh
-		aExp = aExp.replace("$", "");
-		
-		return aExp + ThmProcessUtil.assign + exp;
-	}
-	
-	
-	//DON'T THINK IS HANDLED IN ISABELLE YET
-//	public String caseACallObjectStm(ACallObjectStm a, ThmVarsContext vars) throws AnalysisException{
-//		
-//		
-//		String aExp = a.getDesignator().apply(thmStringVisitor, vars);
-//		// String callExp = a.geta.getCall().apply(thmStringVisitor, vars);
-////           
-//		//Isabelle doesn't want state variables to have a $ on the lhs of an assignment.
-//		//TODO: This may be too harsh
-//		aExp = aExp.replace("$", "");
-//		return aExp + ThmProcessUtil.assign// + callExp;
-//	}
-	
-	public String caseAWhileStm(AWhileStm a, ThmVarsContext vars) throws AnalysisException{
-		String cond = a.getExp().apply(thmStringVisitor, vars);
-		String actStr = a.getStatement().apply(thmStringVisitor, vars);
-//	        | {declare}  [assignmentDefs]:definition*
-		
-		return ThmProcessUtil.isaWhile  + ThmProcessUtil.opExpLeft + cond + ThmProcessUtil.isaDo  + ThmProcessUtil.opExpRight + actStr + ThmProcessUtil.isaOd;
-	}
-	
-//	public String caseANonDeterministicDoStatementAction(ANonDeterministicDoStatementAction a, ThmVarsContext vars) throws AnalysisException{
-////	        [alternatives]:action.#Statement.nonDeterministicAlt*
-//		//TODO: NOT HANDLED
-//		return ThmProcessUtil.stmtNotHandled;
-//	}
-//	
-//	public String caseANonDeterministicIfStatementAction(ANonDeterministicIfStatementAction a, ThmVarsContext vars) throws AnalysisException{
-////           [alternatives]:action.#Statement.nonDeterministicAlt*
-//		//TODO: NOT HANDLED
-//		return ThmProcessUtil.stmtNotHandled;
-//	}
-//	
-//	public String caseANotYetSpecifiedStatementAction(ANotYetSpecifiedStatementAction a, ThmVarsContext vars) throws AnalysisException{
-////           [opname]:LexNameToken
-////           [args]:exp*
-//		//TODO: NOT HANDLED
-//		return ThmProcessUtil.stmtNotHandled;
-//	}
-//	
-//	public String caseALetStatementAction(ALetStatementAction a, ThmVarsContext vars) throws AnalysisException{
-//		//[action]:action [localDefinitions]:definition*
-//		//TODO: NOT YET HANDLED
-//		return ThmProcessUtil.stmtNotHandled;
-//	}
-//	
-//	public String caseANonDeterministicAltStatementAction(ANonDeterministicAltStatementAction a, ThmVarsContext vars) throws AnalysisException{
-////           [guard]:exp
-////           [action]:action
-//		//TODO: NOT YET HANDLED
-//		return ThmProcessUtil.stmtNotHandled;
-//	}
-//	
-//	public String caseACasesStatementAction(ACasesStatementAction a, ThmVarsContext vars) throws AnalysisException{
-////           [exp]:exp
-////           [cases]:alternativeAction.case*
-////           [others]:action
-//		//TODO: NOT YET HANDLED
-//		return ThmProcessUtil.stmtNotHandled;
-//	}
-//	
-//	public String caseAMultipleGeneralAssignmentStatementAction(AMultipleGeneralAssignmentStatementAction a, ThmVarsContext vars) throws AnalysisException{
-//		//TODO: NOT YET HANDLED
-//		return ThmProcessUtil.stmtNotHandled;
-//	}
-//	
-//	public String caseASpecificationStatementAction(ASpecificationStatementAction a, ThmVarsContext vars) throws AnalysisException{
-////           [externals]:clause.external*
-////           [precondition]:exp
-////           [postcondition]:exp
-//		//MAY GEN LEMMA TO PROVE STATING FRAME NOT VIOLATED
-//		//TODO: NOT YET HANDLED
-//		return ThmProcessUtil.stmtNotHandled;
-//	}
-//	
-//	public String caseAReturnStatementAction(AReturnStatementAction a, ThmVarsContext vars) throws AnalysisException{
-////           [exp]:exp
-//			//TODO: NOT YET HANDLED
-//		return ThmProcessUtil.stmtNotHandled;
-//	}
-//	
-//	public String caseANewStatementAction(ANewStatementAction a, ThmVarsContext vars) throws AnalysisException{
-////	        [destination]:exp
-////	        [className]:LexNameToken
-////	        [args]:exp*
-////	        (classdef):definition.#class
-////	        (ctorDefinition):definition
-//		//TODO: NOT YET HANDLED
-//		return ThmProcessUtil.stmtNotHandled;
-//	}
-//	
-//	public String caseAForSetStatementAction(AForSetStatementAction a, ThmVarsContext vars) throws AnalysisException{
-////	        [pattern]:pattern
-////	        [set]:exp
-////	        [action]:action
-//		//TODO: NOT YET HANDLED
-//		return ThmProcessUtil.stmtNotHandled;
-//	}
-//	
-//	public String caseAForIndexStatementAction(AForIndexStatementAction a, ThmVarsContext vars) throws AnalysisException{
-////	        [var]:LexNameToken
-////	        [from]:exp
-////	        [to]:exp
-////	        [by]:exp
-////	        [action]:action
-//		//TODO: NOT YET HANDLED
-//		return ThmProcessUtil.stmtNotHandled;
-//	}
-//	
-//	public String caseAForSequenceStatementAction(AForSequenceStatementAction a, ThmVarsContext vars) throws AnalysisException{
-////	        [patternBind]:patternBind.def
-////	        [exp]:exp
-////	        [action]:action
-////	        (seqType):type.#seq
-//		//TODO: NOT YET HANDLED
-//		return ThmProcessUtil.stmtNotHandled;
-//	}
-//		
-	
 	@Override
 	public String createNewReturnValue(INode arg0, ThmVarsContext arg1)
 			throws AnalysisException {

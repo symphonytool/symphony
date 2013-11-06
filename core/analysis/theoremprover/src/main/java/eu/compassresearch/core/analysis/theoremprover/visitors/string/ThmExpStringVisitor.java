@@ -633,29 +633,29 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		ILexNameToken varName = ex.getName();
 		
 		for(ILexNameToken var : vars.getSVars()){
-			if (varName.toString().equals(var.getName()))
+			if (varName.getName().equals(var.getName()))
 			{
 				if (isPost)
 				{
 					if (varName.isOld())
-						return  "$" + varName.getName().toString();
+						return  "($" + varName.getName() + ")";
 					else
-						return "$" + varName.getName().toString() + ThmExprUtil.isaAcute;
+						return "($" + varName.getName() + ThmExprUtil.isaAcute + ")";
 				}
 				else
 				{
-					return  "$" + varName.getName().toString();
+					return  "($" + varName.getName() + ")";
 				}
 			}
 		}
 		for(ILexNameToken var : vars.getBVars()){
-			if (varName.toString().equals(var.getName()))
+			if (varName.getName().equals(var.getName()))
 			{
-				return  "^" + varName.toString() + "^";
+				return  "^" + varName.getName() + "^";
 			}
 		}
 		//assume is value?
-		return "^" + varName.toString() + "^";
+		return "^" + varName.getName() + "^";
 	}
 
 	public String caseAUnresolvedPathExp(AUnresolvedPathExp ex, ThmVarsContext vars) throws AnalysisException{

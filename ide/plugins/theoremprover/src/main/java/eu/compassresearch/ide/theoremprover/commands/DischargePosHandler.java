@@ -56,17 +56,18 @@ public class DischargePosHandler extends AbstractHandler
 					.getActiveWorkbenchWindow().getActivePage()
 					.showView(POConstants.PO_OVERVIEW_TABLE);
 			ICmlProject proj = view.getProject();
-			MessageDialog.openInformation(HandlerUtil.getActiveWorkbenchWindow(event).getShell(), "PROJ Is", proj.getName());
-			//MessageDialog.open(kind, parent, title, message, style)
+			TPPluginDoStuff doer = new TPPluginDoStuff(HandlerUtil.getActiveWorkbenchWindow(event), page.getActivePart().getSite());
+			doer.fetchPOs(proj);
 			
 		} catch (PartInitException e) {
-		
+			MessageDialog.openInformation(HandlerUtil.getActiveWorkbenchWindow(event).getShell(), "Symphony", 
+					"Internal communication error");
+			
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
-		TPPluginDoStuff doer = new TPPluginDoStuff(HandlerUtil.getActiveWorkbenchWindow(event), page.getActivePart().getSite());
-		doer.fetchPOs();
+
 		
 		return null;
 	}
