@@ -116,8 +116,8 @@ public class CmlCspTypeChecker extends
 		this.channelSetChecker = new CmlVarSetExpressionTypeChecker(this, issuehandler, VarSetCheckType.CHANNELSET);
 		this.nameSetChecker = new CmlVarSetExpressionTypeChecker(this, issuehandler, VarSetCheckType.NAMESET);
 
-		this.actionChecker = new CmlActionTypeChecker(vdmChecker, this, issuehandler, channelSetChecker, nameSetChecker);
-		this.processChecker = new CmlProcessTypeChecker(vdmChecker, this, issuehandler, channelSetChecker, nameSetChecker);
+		this.actionChecker = new CmlActionTypeChecker( this, issuehandler, channelSetChecker, nameSetChecker);
+		this.processChecker = new CmlProcessTypeChecker( this, issuehandler, channelSetChecker, nameSetChecker);
 
 		this.channelExpChecker = new CmlChannelExpressionTypeChecker(this, issuehandler);
 
@@ -321,7 +321,6 @@ public class CmlCspTypeChecker extends
 		Environment env = PParametrisationAssistant.updateEnvironment(question.env, node.getDeclarations());
 		return node.getAction().apply(actionChecker, question.newInfo(env));
 
-		// return super.caseAActionDefinition(node, question);
 	}
 
 	// the strange single type

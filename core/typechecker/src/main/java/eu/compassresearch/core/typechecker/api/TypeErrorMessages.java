@@ -103,14 +103,35 @@ public enum TypeErrorMessages
 
 	DEFINITION_X_BUT_FOUND_Y(4324,
 			"Expected %s definition but found %s definition. Identifier: %s"),
-	
-	COMMUNICATION_NOT_ALLOWED_OVER_UNTYPED_CHANNEL(3425, "Communication not allowed over untyped channel: %s."),
-	
-	IDENTIFIER_IS_MISSING_ACTION_DEFINITION(3427,"Identifier \"%s\" is missing action definition"),
-	
-	UNREACHABLE_DEFINITION(3428,"Unreacable definition");
-	
-	//4325 Operation '" %s "' cannot be called in an expression
+
+	// 4325 Operation '" %s "' cannot be called in an expression
+	COMMUNICATION_NOT_ALLOWED_OVER_UNTYPED_CHANNEL(3425,
+			"Communication not allowed over untyped channel: %s."),
+
+	IDENTIFIER_IS_MISSING_ACTION_DEFINITION(3427,
+			"Identifier \"%s\" is missing action definition"),
+
+	UNREACHABLE_DEFINITION(3428, "Unreacable definition"),
+
+	CONSTRAINT_MUST_BE_A_BOOLEAN_EXPRESSION(3429,
+			"Constraint must be a boolean expression: %s"),
+
+	COMMUNICATION_PARAMETER_TYPE_NOT_COMPATIBLE(
+			3430,
+			"Non-compatible type %s detected for communication parameter index %s expected %s"),
+
+	CHANNEL_NOT_DECLARED(3431, "Channel %s is not declared"),
+
+	COMMUNICATION_PARAMETER_MISSING(3432,
+			"Communication parameter missing at index %s for type %s"),
+
+	COMMUNICATION_TOO_FEW_ARGUMENTS(3433,
+			"Communication \"%s\" declared with too few arguments. Actual %s, Expected %s"),
+
+	COMMUNICATION_TOO_MANY_ARGUMENTS(3434,
+			"Communication \"%s\" declared with too many arguments. Actual %s, Expected %s")
+
+	;
 
 	private int number;
 	private String template;

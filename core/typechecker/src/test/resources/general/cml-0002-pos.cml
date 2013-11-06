@@ -3,6 +3,7 @@ channels
 	
 	a,d: int*int
 	b : int
+	c : (int*int)
 
 	
 	
@@ -15,7 +16,7 @@ v:int
 		actions
 		A1=	a?x.1	->	v := x ; Skip
 		
-		A2 = a?mk_(x,y) -> v := x+y ; Skip
+		A2 = c?mk_(x,y) -> v := x+y ; Skip
 		
 		
 		
@@ -23,5 +24,5 @@ v:int
 		@  //should not tc with no nameset
 			a?x?y -> v := x+y
 			[|{|a|}|]
-			a.1.2 -> Skip
+			a!1!2 -> Skip
 	end

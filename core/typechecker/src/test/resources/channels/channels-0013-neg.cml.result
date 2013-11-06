@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <testResult type="eu.compassresearch.core.typechecker.ChannelsCmlTypeCheckerTests">
-<message column="3" line="17" message="3113 Unknown type name b" messageType="error" number="0" resource="channels-0013-neg.cml"/>
+<message column="3" line="17" message="3431 Channel b is not declared" messageType="error" number="0" resource="channels-0013-neg.cml"/>
+<message column="3" line="17" message="3434 Communication &quot;b&quot; declared with too many arguments. Actual 1, Expected 0" messageType="error" number="0" resource="channels-0013-neg.cml"/>
+<message column="3" line="17" message="3425 Communication not allowed over untyped channel: b." messageType="error" number="0" resource="channels-0013-neg.cml"/>
+<message column="11" line="17" message="3429 Constraint must be a boolean expression: {2, 3}" messageType="error" number="0" resource="channels-0013-neg.cml"/>
 <result/>
 </testResult>
