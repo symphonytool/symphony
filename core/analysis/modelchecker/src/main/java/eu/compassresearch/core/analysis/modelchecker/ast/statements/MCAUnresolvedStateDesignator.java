@@ -1,6 +1,5 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.statements;
 
-import org.overture.ast.statements.AUnresolvedStateDesignator;
 import org.overture.ast.statements.PStateDesignator;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
