@@ -3,9 +3,15 @@ package eu.compassresearch.ide.theoremprover.commands;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.HandlerUtil;
 
+import eu.compassresearch.ide.core.resources.ICmlProject;
+import eu.compassresearch.ide.pog.POConstants;
+import eu.compassresearch.ide.pog.view.PoListView;
 import eu.compassresearch.ide.theoremprover.FetchPosUtil;
 import eu.compassresearch.ide.theoremprover.TPPluginDoStuff;
 
@@ -45,6 +51,20 @@ public class DischargePosHandler extends AbstractHandler
 //		
 
 		IWorkbenchPage page = HandlerUtil.getActiveWorkbenchWindow(event).getActivePage();
+		try {
+			PoListView view = (PoListView) PlatformUI.getWorkbench()
+					.getActiveWorkbenchWindow().getActivePage()
+					.showView(POConstants.PO_OVERVIEW_TABLE);
+			ICmlProject proj = view.getProject();
+			MessageDialog.openInformation(HandlerUtil.getActiveWorkbenchWindow(event).getShell(), "PROJ Is", proj.getName());
+			//MessageDialog.open(kind, parent, title, message, style)
+			
+		} catch (PartInitException e) {
+		
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		TPPluginDoStuff doer = new TPPluginDoStuff(HandlerUtil.getActiveWorkbenchWindow(event), page.getActivePart().getSite());
 		doer.fetchPOs();
 		
