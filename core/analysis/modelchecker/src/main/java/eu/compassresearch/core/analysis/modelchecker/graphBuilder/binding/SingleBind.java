@@ -48,6 +48,10 @@ public class SingleBind {
 		return "SingleBind(\"" + variableName + "\"," + variableValue.toFormulaWithState() + ")";
 	}
 	
+	public String toFormulaGeneric(){
+		return "SingleBind(\"" + variableName + "\"," + variableValue.toFormulaGeneric() + ")";
+	}
+	
 	public String toFormulaWithUnderscore(){
 		return "SingleBind(\"" + variableName + "\",_)";
 	}

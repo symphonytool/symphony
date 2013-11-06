@@ -1,0 +1,8 @@
+/* Wait action with int is fine */
+
+process A =
+begin
+
+@ Wait 10
+
+end

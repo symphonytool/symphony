@@ -7,14 +7,19 @@ import java.util.List;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.definitions.AAssignmentDefinition;
+import org.overture.ast.definitions.AClassClassDefinition;
 import org.overture.ast.definitions.AClassInvariantDefinition;
+import org.overture.ast.definitions.AExplicitOperationDefinition;
+import org.overture.ast.definitions.AImplicitOperationDefinition;
 import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.definitions.SOperationDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.lex.LexNameList;
 import org.overture.ast.node.INode;
 import org.overture.ast.patterns.APatternListTypePair;
 import org.overture.ast.patterns.PPattern;
+import org.overture.ast.statements.ANotYetSpecifiedStm;
 import org.overture.ast.types.AOperationType;
 import org.overture.ast.types.PType;
 import org.overture.pog.obligation.PONameContext;
@@ -25,24 +30,19 @@ import org.overture.pog.utility.POException;
 import org.overture.pog.visitors.PogParamDefinitionVisitor;
 import org.overture.typechecker.TypeComparator;
 
-import eu.compassresearch.ast.actions.ANotYetSpecifiedStatementAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AActionsDefinition;
-import eu.compassresearch.ast.definitions.AChannelNameDefinition;
+import eu.compassresearch.ast.definitions.AChannelDefinition;
 import eu.compassresearch.ast.definitions.AChannelsDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.definitions.AChansetsDefinition;
-import eu.compassresearch.ast.definitions.ACmlClassDefinition;
-import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AFunctionsDefinition;
-import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AOperationsDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.definitions.ATypesDefinition;
 import eu.compassresearch.ast.definitions.AValuesDefinition;
-import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
 import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
 import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.ast.process.PProcess;
@@ -53,7 +53,8 @@ import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligationList;
 import eu.compassresearch.core.analysis.pog.obligations.CmlSatisfiabilityObligation;
 import eu.compassresearch.core.analysis.pog.obligations.CmlStateInvariantObligation;
 import eu.compassresearch.core.analysis.pog.obligations.CmlSubTypeObligation;
-import eu.compassresearch.core.analysis.pog.utility.ProcessStateCloner;
+import eu.compassresearch.core.analysis.pog.utility.ClonerProcessState;
+import eu.compassresearch.core.analysis.pog.utility.MakerNameContexts;
 
 @SuppressWarnings("serial")
 public class POGDeclAndDefVisitor extends
@@ -63,14 +64,14 @@ public class POGDeclAndDefVisitor extends
 	// Errors and other things are recorded on this guy
 	final private QuestionAnswerAdaptor<IPOContextStack, CmlProofObligationList> parentPOG;
 	final private PogParamDefinitionVisitor<IPOContextStack, CmlProofObligationList> overtureVisitor;
-	final private PogNameContextVisitor nameVisitor;
+	final private MakerNameContexts nameVisitor;
 
 	public POGDeclAndDefVisitor(
 			QuestionAnswerAdaptor<IPOContextStack, CmlProofObligationList> parent)
 	{
 		this.parentPOG = parent;
 		this.overtureVisitor = new PogParamDefinitionVisitor<IPOContextStack, CmlProofObligationList>(this, this);
-		this.nameVisitor = new PogNameContextVisitor();
+		this.nameVisitor = new MakerNameContexts();
 
 	}
 
@@ -87,8 +88,8 @@ public class POGDeclAndDefVisitor extends
 
 		CmlProofObligationList pol = new CmlProofObligationList();
 
-		LinkedList<AChannelNameDefinition> cns = node.getChannelNameDeclarations();
-		for (AChannelNameDefinition c : cns)
+		LinkedList<AChannelDefinition> cns = node.getChannelDeclarations();
+		for (AChannelDefinition c : cns)
 		{
 			pol.addAll(c.apply(this, question));
 		}
@@ -100,8 +101,8 @@ public class POGDeclAndDefVisitor extends
 	 * CML channel definition CURRENTLY JUST PRINT TO SCREEN
 	 */
 	@Override
-	public CmlProofObligationList caseAChannelNameDefinition(
-			AChannelNameDefinition node, IPOContextStack question)
+	public CmlProofObligationList caseAChannelDefinition(
+			AChannelDefinition node, IPOContextStack question)
 			throws AnalysisException
 	{
 
@@ -148,12 +149,14 @@ public class POGDeclAndDefVisitor extends
 		return pol;
 	}
 
+	
+	
 	/**
 	 * CML ELEMENT - Classes
 	 */
 	@Override
-	public CmlProofObligationList caseACmlClassDefinition(
-			ACmlClassDefinition node, IPOContextStack question)
+	public CmlProofObligationList caseAClassClassDefinition(
+			AClassClassDefinition node, IPOContextStack question)
 			throws AnalysisException
 	{
 
@@ -161,10 +164,10 @@ public class POGDeclAndDefVisitor extends
 
 		for (PDefinition def : node.getDefinitions())
 		{
-			PONameContext name = def.apply(new PogNameContextVisitor());
+			PONameContext name = def.apply(new MakerNameContexts());
 			if (name != null)
 			{
-				question.push(def.apply(new PogNameContextVisitor()));
+				question.push(def.apply(new MakerNameContexts()));
 				pol.addAll(def.apply(parentPOG, question));
 				question.pop();
 			} else
@@ -205,11 +208,11 @@ public class POGDeclAndDefVisitor extends
 		
 		
 		PProcess process = node.getProcess();
-		PONameContext name = process.apply(new PogNameContextVisitor());
+		PONameContext name = process.apply(new MakerNameContexts());
 		
 		if (name != null)
 		{
-			question.push(process.apply(new PogNameContextVisitor()));
+			question.push(process.apply(new MakerNameContexts()));
 			pol.addAll(process.apply(parentPOG, question));
 			question.pop();
 		} else
@@ -419,7 +422,7 @@ public class POGDeclAndDefVisitor extends
 
 		CmlProofObligationList pol = new CmlProofObligationList();
 
-		for (SCmlOperationDefinition def : node.getOperations())
+		for (SOperationDefinition def : node.getOperations())
 		{
 			PONameContext name = def.apply(nameVisitor);
 			if (name != null)
@@ -439,8 +442,8 @@ public class POGDeclAndDefVisitor extends
 	 * Implicit operations - CML does not reuse Overture operations
 	 */
 	@Override
-	public CmlProofObligationList caseAImplicitCmlOperationDefinition(
-			AImplicitCmlOperationDefinition node, IPOContextStack question)
+	public CmlProofObligationList caseAImplicitOperationDefinition(
+			AImplicitOperationDefinition node, IPOContextStack question)
 			throws AnalysisException
 	{
 		CmlProofObligationList pol = new CmlProofObligationList();
@@ -477,7 +480,7 @@ public class POGDeclAndDefVisitor extends
 			AActionProcess stater = node.getAncestor(AActionProcess.class);
 			if (stater != null)
 			{
-				List<AAssignmentDefinition> stateDefs = stater.apply(new ProcessStateCloner());
+				List<AAssignmentDefinition> stateDefs = stater.apply(new ClonerProcessState());
 				stateDefs.size();
 				question.push(new CmlOperationDefinitionContext(node, false, stateDefs));
 				pol.add(new CmlSatisfiabilityObligation(node, stateDefs, question));
@@ -486,11 +489,10 @@ public class POGDeclAndDefVisitor extends
 			{
 				if (node.getClassDefinition() != null)
 				{
-					stateDef = node.getClassDefinition();
-				} else
+					stateDef = node.getClassDefinition().clone();
+					} else
 				{
 					stateDef = node.getStateDefinition();
-				
 				}
 				question.push(new CmlOperationDefinitionContext(node, false, stateDef));
 				pol.add(new CmlSatisfiabilityObligation(node, stateDef, question));
@@ -503,12 +505,12 @@ public class POGDeclAndDefVisitor extends
 
 	//
 	@Override
-	public CmlProofObligationList caseAExplicitCmlOperationDefinition(
-			AExplicitCmlOperationDefinition node, IPOContextStack question)
+	public CmlProofObligationList caseAExplicitOperationDefinition(
+			AExplicitOperationDefinition node, IPOContextStack question)
 			throws AnalysisException
 	{
 
-		if (node.getBody() instanceof ANotYetSpecifiedStatementAction)
+		if (node.getBody() instanceof ANotYetSpecifiedStm)
 		{
 			return new CmlProofObligationList();
 		}

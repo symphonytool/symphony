@@ -1,0 +1,13 @@
+/* Communication is not ok when event and channel tuple sizes don't match. */
+
+channels
+a : int * int
+
+process A =
+begin
+
+@ a.1 -> Skip
+
+end
+
+

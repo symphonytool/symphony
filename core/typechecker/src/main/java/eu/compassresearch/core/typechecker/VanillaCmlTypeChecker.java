@@ -113,6 +113,9 @@ public class VanillaCmlTypeChecker extends AbstractTypeChecker
 	{
 		try
 		{
+			// Force setup of the legacy static access assistants in Overture
+			CmlTypeCheckerAssistantFactory.init(new CmlTypeCheckerAssistantFactory());
+
 			// Transform the AST before analysis
 			// W: Stage 1 remove intermediate product types in functions
 			Weeding1.apply(sourceForest);

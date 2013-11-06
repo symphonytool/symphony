@@ -29,6 +29,7 @@ import java.util.Vector;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AAssignmentDefinition;
+import org.overture.ast.definitions.AImplicitOperationDefinition;
 import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.AApplyExp;
@@ -45,8 +46,6 @@ import org.overture.ast.patterns.APatternTypePair;
 import org.overture.ast.patterns.PMultipleBind;
 import org.overture.ast.patterns.PPattern;
 import org.overture.pog.pub.IPOContextStack;
-
-import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
 
 public class CmlSatisfiabilityObligation extends CmlProofObligation
 {
@@ -65,7 +64,7 @@ public class CmlSatisfiabilityObligation extends CmlProofObligation
 	private static final ILexNameToken NEW_STATE_ARG = new LexNameToken(null, "newstate", null);
 	private static final ILexNameToken NEW_SELF_ARG = new LexNameToken(null, "newself", null);
 
-	public CmlSatisfiabilityObligation(AImplicitCmlOperationDefinition op,
+	public CmlSatisfiabilityObligation(AImplicitOperationDefinition op,
 			List<AAssignmentDefinition> procState, IPOContextStack ctxt)
 			throws AnalysisException
 	{
@@ -75,7 +74,7 @@ public class CmlSatisfiabilityObligation extends CmlProofObligation
 		valuetree.setPredicate(ctxt.getPredWithContext(predExp));
 	}
 
-	public CmlSatisfiabilityObligation(AImplicitCmlOperationDefinition op,
+	public CmlSatisfiabilityObligation(AImplicitOperationDefinition op,
 			PDefinition stateDefinition, IPOContextStack ctxt)
 			throws AnalysisException
 	{
@@ -127,9 +126,10 @@ public class CmlSatisfiabilityObligation extends CmlProofObligation
 				StringBuilder sb = new StringBuilder();
 				sb.append("new");
 				sb.append(def.getName().getName());
-				ILexNameToken name = new eu.compassresearch.ast.lex.CmlLexNameToken("", sb.toString(), null);
-				postArglist.add(getVarExp(name));
-				exists_binds.add(getMultipleTypeBind(def.getType().clone(), def.getName().clone()));
+				ILexNameToken newname = new eu.compassresearch.ast.lex.CmlLexNameToken("", sb.toString(), null);
+				postArglist.add(getVarExp(newname));
+	//			AAssignmentDefinition newdef = def.clone()
+				exists_binds.add(getMultipleTypeBind(def.getType().clone(), newname.clone()));
 			}
 		} else
 		{
@@ -146,7 +146,7 @@ public class CmlSatisfiabilityObligation extends CmlProofObligation
 		}
 	}
 
-	PExp buildPredicate(AImplicitCmlOperationDefinition op,
+	PExp buildPredicate(AImplicitOperationDefinition op,
 			PDefinition stateDefinition, List<AAssignmentDefinition> procState)
 			throws AnalysisException
 	{

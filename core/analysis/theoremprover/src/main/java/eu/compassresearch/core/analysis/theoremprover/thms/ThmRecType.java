@@ -3,9 +3,12 @@ package eu.compassresearch.core.analysis.theoremprover.thms;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.types.AFieldField;
 
 import eu.compassresearch.core.analysis.theoremprover.utils.ThmTypeUtil;
+import eu.compassresearch.core.analysis.theoremprover.visitors.string.ThmStringVisitor;
+import eu.compassresearch.core.analysis.theoremprover.visitors.string.ThmVarsContext;
 
 public class ThmRecType extends ThmDecl {
 
@@ -47,7 +50,13 @@ public class ThmRecType extends ThmDecl {
 		for (AFieldField field: fields)
 		{
 			String fldNm = field.getTag();
-			String fldTp = ThmTypeUtil.getIsabelleType(field.getType());
+			String fldTp = "";
+			try {
+				fldTp = field.getType().apply(new ThmStringVisitor(), new ThmVarsContext());
+			} catch (AnalysisException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}//ThmTypeUtil.getIsabelleType(field.getType());
 	
 			sb.append(ThmTypeUtil.isaAbbr + "\"" + fldNm +"_fld " + ThmTypeUtil.isaEquiv + " MkField TYPE(" + name + "_Tag) #" + count+ ThmTypeUtil.typeDelim + fldTp + ThmTypeUtil.typeDelim + "\"\n");  
 		
@@ -58,7 +67,6 @@ public class ThmRecType extends ThmDecl {
 		for (AFieldField field: fields)
 		{
 			String fldNm = field.getTag();
-			//String fldTp = ThmTypeUtil.getIsabelleType(field.getType());
 		
 			sb.append(ThmTypeUtil.isaAbbr + "\"" + fldNm + " " + ThmTypeUtil.isaEquiv + " SelectRec " + fldNm + "_fld\"\n");  
 				

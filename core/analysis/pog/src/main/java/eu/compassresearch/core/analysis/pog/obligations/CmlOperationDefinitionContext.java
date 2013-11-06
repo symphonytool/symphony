@@ -38,7 +38,7 @@ import org.overture.ast.patterns.PPattern;
 import org.overture.ast.types.AOperationType;
 import org.overture.pog.obligation.POOperationDefinitionContext;
 
-import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
+
 
 public class CmlOperationDefinitionContext extends POOperationDefinitionContext
 {
@@ -46,15 +46,13 @@ public class CmlOperationDefinitionContext extends POOperationDefinitionContext
 	List<AAssignmentDefinition> psdefs;
 
 	public CmlOperationDefinitionContext(
-			AImplicitCmlOperationDefinition definition, boolean precond,
+			AImplicitOperationDefinition definition, boolean precond,
 			PDefinition stateDefinition)
 	{
 		super(definition.getName(), (AOperationType) definition.getType(), getParamPatternList(definition), precond, definition.getPrecondition(), stateDefinition, (AImplicitOperationDefinition) null);
 	}
 
-	// FIXME State Definition Handling for processes is broken
-
-	public CmlOperationDefinitionContext(AImplicitCmlOperationDefinition node,
+	public CmlOperationDefinitionContext(AImplicitOperationDefinition node,
 			boolean precond, List<AAssignmentDefinition> stateDefs)
 	{
 		super(node.getName(), (AOperationType) node.getType(), getParamPatternList(node), precond, node.getPrecondition(), null, (AImplicitOperationDefinition) null);
@@ -70,7 +68,7 @@ public class CmlOperationDefinitionContext extends POOperationDefinitionContext
 	}
 
 	public static List<PPattern> getParamPatternList(
-			AImplicitCmlOperationDefinition definition)
+			AImplicitOperationDefinition definition)
 	{
 		List<PPattern> plist = new ArrayList<PPattern>();
 

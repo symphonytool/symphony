@@ -1,0 +1,9 @@
+/* Timeout action is not ok with non numeric expression */
+
+process A =
+begin
+
+@ Skip [_ "one" _> Skip
+
+end
+

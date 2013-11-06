@@ -12,7 +12,7 @@
   <packaging>eclipse-plugin</packaging>
 
   <artifactId>eu.compassresearch.ide.interpreter</artifactId>
-  <name>COMPASS IDE Interpreter Plugin</name>
+  <name>Symphony IDE Interpreter Plugin</name>
 
   <build>
     <plugins>

@@ -21,6 +21,7 @@ import org.overture.ast.expressions.PExp;
 import org.overture.ast.node.INode;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
+import eu.compassresearch.ast.expressions.ABracketedExp;
 import eu.compassresearch.ast.expressions.AEnumVarsetExpression;
 import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
 import eu.compassresearch.ast.expressions.PCMLExp;
@@ -411,6 +412,15 @@ public class MCExpressionVisitor extends
 		int second = question.getScriptContent().indexOf("@");
 		question.getScriptContent().replace(second, second+1, aux2);
 		return question.getScriptContent();
+	}
+
+	
+
+	@Override
+	public StringBuilder caseABracketedExp(ABracketedExp node,
+			CMLModelcheckerContext question) throws AnalysisException {
+		
+		return node.getExpression().apply(this,question);
 	}
 
 

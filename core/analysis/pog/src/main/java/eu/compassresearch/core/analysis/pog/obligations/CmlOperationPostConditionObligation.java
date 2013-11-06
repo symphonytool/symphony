@@ -25,29 +25,27 @@ package eu.compassresearch.core.analysis.pog.obligations;
 
 import java.util.List;
 
+import org.overture.ast.definitions.AExplicitOperationDefinition;
+import org.overture.ast.definitions.AImplicitOperationDefinition;
 import org.overture.ast.expressions.AAndBooleanBinaryExp;
 import org.overture.ast.expressions.AOrBooleanBinaryExp;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.statements.AErrorCase;
-
 import org.overture.pog.pub.IPOContextStack;
-
-import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
-import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
 
 public class CmlOperationPostConditionObligation extends CmlProofObligation{
 	
 
 	private static final long serialVersionUID = 1L;
 
-	public CmlOperationPostConditionObligation(AExplicitCmlOperationDefinition op,
+	public CmlOperationPostConditionObligation(AExplicitOperationDefinition op,
 				IPOContextStack ctxt)
 	{
 		super(op, CmlPOType.OP_POST_CONDITION, ctxt, op.getLocation());
 		valuetree.setPredicate(ctxt.getPredWithContext(buildExp(op.getPrecondition(), op.getPostcondition(), null)));
 	}
 
-	public CmlOperationPostConditionObligation(AImplicitCmlOperationDefinition op,
+	public CmlOperationPostConditionObligation(AImplicitOperationDefinition op,
 				IPOContextStack ctxt)
 	{
 		super(op, CmlPOType.OP_POST_CONDITION, ctxt, op.getLocation());

@@ -48,7 +48,7 @@ import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 public class CheckCml
 {
 
-	private static final String HELLO = "COMPASS command line CML Checker";
+	private static final String HELLO = "Symphony command line CML Checker";
 
 	// Point of Entry
 	public static void main(String[] args)

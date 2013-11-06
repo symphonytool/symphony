@@ -1,5 +1,6 @@
 package eu.compassresearch.core.analysis.pog.obligations;
 
+import org.overture.ast.definitions.AExplicitOperationDefinition;
 import org.overture.ast.expressions.AVariableExp;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.factory.AstFactory;
@@ -8,8 +9,6 @@ import org.overture.ast.types.AOperationType;
 import org.overture.ast.types.PType;
 import org.overture.pog.obligation.SubTypeObligation;
 import org.overture.pog.pub.IPOContextStack;
-
-import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
 
 public class CmlSubTypeObligation extends SubTypeObligation
 {
@@ -33,7 +32,7 @@ public class CmlSubTypeObligation extends SubTypeObligation
 	 * @return
 	 */
 	public static CmlSubTypeObligation newInstance(
-			AExplicitCmlOperationDefinition def, PType actualResult,
+			AExplicitOperationDefinition def, PType actualResult,
 			IPOContextStack ctxt)
 	{
 		AVariableExp result = AstFactory.newAVariableExp(new LexNameToken(def.getName().getModule(), "RESULT", def.getLocation()));
@@ -48,7 +47,7 @@ public class CmlSubTypeObligation extends SubTypeObligation
 	}
 
 
-	private CmlSubTypeObligation(AExplicitCmlOperationDefinition def,
+	private CmlSubTypeObligation(AExplicitOperationDefinition def,
 			PExp resultexp, PType actualResult, IPOContextStack ctxt)
 	{
 		super(def, def.getLocation(), resultexp, ((AOperationType) def.getType()).getResult().clone(), actualResult.clone(), ctxt);

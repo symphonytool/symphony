@@ -1,0 +1,8 @@
+/* Guarded action is ok with boolean expression */
+
+process A =
+begin
+
+@ [false] & Skip
+
+end
