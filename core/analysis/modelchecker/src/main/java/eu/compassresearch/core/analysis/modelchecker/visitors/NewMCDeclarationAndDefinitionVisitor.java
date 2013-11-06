@@ -293,7 +293,7 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 			TypeManipulator typeHandler = TypeManipulator.getInstance();
 			if(opType instanceof AOperationType){
 				//typeHandler.
-				//MCPCMLType patternType = (MCPCMLType) ((AOperationType) opType).getParameters().get(patternPosition).apply(rootVisitor, question);
+				MCPCMLType patternType = (MCPCMLType) ((AOperationType) opType).getParameters().get(patternPosition).apply(rootVisitor, question);
 				//question.maximalBinding = question.maximalBinding.addBinding("nP",pattern.toFormula(MCNode.NAMED), varValue);
 			}
 				

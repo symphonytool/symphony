@@ -4,7 +4,9 @@ import java.util.LinkedList;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPParametrisation;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCATypeDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAIntNumericBasicType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANamedInvariantType;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANatNumericBasicType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAProductType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
@@ -31,6 +33,10 @@ public class TypeManipulator {
 			result = this.getValues((MCANamedInvariantType)type);
 		} else if(type instanceof MCAProductType){
 			result = this.getValues((MCAProductType)type);
+		} else if(type instanceof MCANatNumericBasicType){
+			result = this.getValues((MCANatNumericBasicType)type);
+		} else if(type instanceof MCAIntNumericBasicType){
+			result = this.getValues((MCAIntNumericBasicType)type);
 		}
 		return result;
 	}
@@ -50,6 +56,21 @@ public class TypeManipulator {
 		return result;
 	}
 	
+	public LinkedList<TypeValue> getValues(MCANatNumericBasicType type){
+		LinkedList<TypeValue> result = new LinkedList<TypeValue>();
+
+		result.add(new SingleTypeValue("0"));
+
+		return result;
+	}
+	
+	public LinkedList<TypeValue> getValues(MCAIntNumericBasicType type){
+		LinkedList<TypeValue> result = new LinkedList<TypeValue>();
+
+		result.add(new SingleTypeValue("0"));
+
+		return result;
+	}
 	public LinkedList<TypeValue> getValues(MCAProductType type){
 		LinkedList<TypeValue> result = new LinkedList<TypeValue>();
 
