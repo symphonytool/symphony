@@ -118,7 +118,7 @@ public class ProblemDomainBuilder {
 	
 	private void generateConforms(StringBuilder content, String option){
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
-		content.append("  conforms := " + context.semanticsDomain.getName() + "." + context.propertyToCheck + ".\n");
+		content.append("  conforms := " + context.propertiesDomain.getName() + "." + context.propertyToCheck + ".\n");
 	}
 	
 }

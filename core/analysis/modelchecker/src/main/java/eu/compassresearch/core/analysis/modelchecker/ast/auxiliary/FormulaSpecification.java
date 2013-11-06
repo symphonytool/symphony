@@ -37,7 +37,7 @@ public class FormulaSpecification {
 		this.problemModel = new PartialModel(problemDomain);
 		
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
-		context.semanticsDomain = this.semanticsDomain;
+		context.propertiesDomain = this.problemDomain;
 		
 	}
 	
