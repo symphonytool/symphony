@@ -127,9 +127,10 @@ public class CmlSatisfiabilityObligation extends CmlProofObligation
 				StringBuilder sb = new StringBuilder();
 				sb.append("new");
 				sb.append(def.getName().getName());
-				ILexNameToken name = new eu.compassresearch.ast.lex.CmlLexNameToken("", sb.toString(), null);
-				postArglist.add(getVarExp(name));
-				exists_binds.add(getMultipleTypeBind(def.getType().clone(), def.getName().clone()));
+				ILexNameToken newname = new eu.compassresearch.ast.lex.LexNameToken("", sb.toString(), null);
+				postArglist.add(getVarExp(newname));
+	//			AAssignmentDefinition newdef = def.clone()
+				exists_binds.add(getMultipleTypeBind(def.getType().clone(), newname.clone()));
 			}
 		} else
 		{
@@ -172,25 +173,25 @@ public class CmlSatisfiabilityObligation extends CmlProofObligation
 		PExp mainExp;
 
 		// Operation Has a Result. Add it in the post condition.
-		if (op.getResult() != null)
+		if (op.getResult() != null && !op.getResult().isEmpty())
 		{
 
 			AExistsExp existsExp = new AExistsExp();
 			List<PExp> postArglist = new Vector<PExp>(arglist);
 
-			//FIXME please check this conversion of op.getResult() it is no longer a list but a tuple
-			APatternTypePair res = op.getResult();
+			LinkedList<APatternTypePair> res = op.getResult();
 
 			// *****Making assumption result should be single identifier pattern*****
-			if ( res.getPattern() instanceof AIdentifierPattern)
+			if (res.size() == 1
+					& res.getFirst().getPattern() instanceof AIdentifierPattern)
 			{
-				AIdentifierPattern ip = (AIdentifierPattern) res.getPattern();
-				postArglist.add(patternToExp(res.getPattern()));
+				AIdentifierPattern ip = (AIdentifierPattern) res.getFirst().getPattern();
+				postArglist.add(patternToExp(res.getFirst().getPattern()));
 
-				List<PMultipleBind> exists_binds = new LinkedList<PMultipleBind>();
+				List<PMultipleBind> exists_binds = new LinkedList<PMultipleBind>();		
 				stateInPost(procState, exists_binds, postArglist, stateDefinition);
 				
-				exists_binds.add(getMultipleTypeBind(res.getType(), ip.getName()));
+				exists_binds.add(getMultipleTypeBind(res.getFirst().getType(), ip.getName()));
 
 				existsExp.setBindList(exists_binds);
 			} else
@@ -208,7 +209,8 @@ public class CmlSatisfiabilityObligation extends CmlProofObligation
 		{
 
 			AExistsExp exists_exp = new AExistsExp();
-			List<PExp> postArglist = new Vector<PExp>(arglist);
+		
+			List<PExp> postArglist = cloneListPExp(arglist);
 
 			List<PMultipleBind> exists_binds = new LinkedList<PMultipleBind>();
 			stateInPost(procState, exists_binds, postArglist, stateDefinition);

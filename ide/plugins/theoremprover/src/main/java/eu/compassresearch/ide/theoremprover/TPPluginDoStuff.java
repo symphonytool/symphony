@@ -155,10 +155,10 @@ public class TPPluginDoStuff {
 		}
 	}
 
-	public boolean checkUnsupporteds(IProject proj) throws AnalysisException {
+	private boolean checkUnsupporteds(IProject proj) throws AnalysisException {
 
 		ICmlProject cmlProj = (ICmlProject) proj.getAdapter(ICmlProject.class);
-
+		
 		if (!CmlProjectUtil.typeCheck(window.getShell(), cmlProj)) {
 			MessageDialog.openError(null, "COMPASS", "Errors in model.");
 			return true;

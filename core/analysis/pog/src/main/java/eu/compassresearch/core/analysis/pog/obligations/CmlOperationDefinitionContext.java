@@ -52,8 +52,6 @@ public class CmlOperationDefinitionContext extends POOperationDefinitionContext
 		super(definition.getName(), (AOperationType) definition.getType(), getParamPatternList(definition), precond, definition.getPrecondition(), stateDefinition, (AImplicitOperationDefinition) null);
 	}
 
-	// FIXME State Definition Handling for processes is broken
-
 	public CmlOperationDefinitionContext(AImplicitCmlOperationDefinition node,
 			boolean precond, List<AAssignmentDefinition> stateDefs)
 	{
