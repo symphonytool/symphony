@@ -1,10 +1,8 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.actions;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedList;
 
-import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCActionCall;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCGenericCall;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCOperationCall;

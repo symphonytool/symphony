@@ -2,8 +2,6 @@ package eu.compassresearch.core.analysis.modelchecker.ast.auxiliary;
 
 import java.util.LinkedList;
 
-import org.overture.ast.types.AIntNumericBasicType;
-
 import eu.compassresearch.ast.actions.AValParametrisation;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAReadCommunicationParameter;
@@ -30,7 +28,6 @@ import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCPCMLPattern;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAIntNumericBasicType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANamedInvariantType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAProductType;
-import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLNumericType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCVoidType;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
@@ -83,7 +80,7 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 	private MCPCMLType getTypeFor(MCATypeSingleDeclaration decl){
 		MCPCMLType result = null;
 		
-		result = new MCANamedInvariantType(decl.getIdentifiers().getFirst());
+		result = new MCANamedInvariantType(decl.getIdentifier());
 		
 		return result;
 	}

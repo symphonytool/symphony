@@ -1,6 +1,5 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.actions;
 
-import eu.compassresearch.ast.actions.ASignalCommunicationParameter;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 
 public class MCASignalCommunicationParameter implements

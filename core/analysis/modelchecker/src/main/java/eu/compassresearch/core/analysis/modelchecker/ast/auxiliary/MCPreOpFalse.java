@@ -2,14 +2,8 @@ package eu.compassresearch.core.analysis.modelchecker.ast.auxiliary;
 
 import java.util.LinkedList;
 
-import org.overture.ast.definitions.PDefinition;
-
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
-import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPAction;
-import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAExplicitFunctionDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCPCMLDefinition;
-import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
-import eu.compassresearch.core.analysis.modelchecker.visitors.CMLModelcheckerContext;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 
 public class MCPreOpFalse implements MCNode {
