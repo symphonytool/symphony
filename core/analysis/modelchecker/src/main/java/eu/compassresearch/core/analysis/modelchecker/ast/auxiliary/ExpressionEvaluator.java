@@ -11,6 +11,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAWriteCommuni
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPCommunicationParameter;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPParametrisation;
 import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCATypeSingleDeclaration;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCALocalDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAValueDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAEqualsBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAGreaterEqualNumericBinaryExp;
@@ -76,7 +77,7 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		
 		return result;
 	}
-	
+	/*
 	private MCPCMLType getTypeFor(MCATypeSingleDeclaration decl){
 		MCPCMLType result = null;
 		
@@ -84,11 +85,18 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		
 		return result;
 	}
-	
+	*/
+	private MCPCMLType getTypeFor(MCALocalDefinition def){
+		MCPCMLType result = null;
+		
+		result = def.getType();
+		
+		return result;
+	}
 	private MCPCMLType getTypeFor(MCPParametrisation param){
 		MCPCMLType result = null;
 		
-		if(param instanceof AValParametrisation){
+		if(param instanceof MCAValParametrisation){
 			result = this.getTypeFor((MCAValParametrisation)param);
 		}
 		
@@ -169,6 +177,7 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		return result;
 	}
 	
+	/*
 	public MCPCMLType instantiateMCTypeFromDecls(LinkedList<MCATypeSingleDeclaration> decls){
 		MCPCMLType result = null;
 		
@@ -186,12 +195,39 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		
 		return result;
 	}
+	*/
+	
+	public MCPCMLType instantiateMCTypeFromDefs(LinkedList<MCALocalDefinition> defs){
+		MCPCMLType result = null;
+		
+		if(defs.size() == 0){
+			result = new MCVoidType();
+		} else if (defs.size() == 1){
+			result = this.getTypeFor(defs.getFirst());
+		} else if (defs.size() > 1){
+			LinkedList<MCPCMLType> types = new LinkedList<MCPCMLType>();
+			for (MCALocalDefinition decl : defs) {
+				types.add(instantiateMCType((MCALocalDefinition)decl));
+			}
+			result = new MCAProductType(types);
+		}
+		
+		return result;
+	}
+	
 	public MCPCMLType instantiateMCType(MCPCMLExp exp){
 		
 		LinkedList<MCPCMLExp> exps = new LinkedList<MCPCMLExp>();
 		exps.add(exp);
 		
 		return this.instantiateMCType(exps);
+	}
+	public MCPCMLType instantiateMCType(MCALocalDefinition def){
+		
+		LinkedList<MCALocalDefinition> defs = new LinkedList<MCALocalDefinition>();
+		defs.add(def);
+		
+		return this.instantiateMCTypeFromDefs(defs);
 	}
 	public MCPCMLType instantiateMCType(MCPCommunicationParameter param){
 		
@@ -200,6 +236,7 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		
 		return this.instantiateMCTypeFromCommParams(params);
 	}
+	/*
 	public MCPCMLType instantiateMCType(MCATypeSingleDeclaration decl){
 		
 		LinkedList<MCATypeSingleDeclaration> decls = new LinkedList<MCATypeSingleDeclaration>();
@@ -207,6 +244,7 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		
 		return this.instantiateMCTypeFromDecls(decls);
 	}
+	*/
 	public MCPCMLType instantiateMCType(MCPCMLPattern pattern){
 		
 		LinkedList<MCPCMLPattern> patterns = new LinkedList<MCPCMLPattern>();

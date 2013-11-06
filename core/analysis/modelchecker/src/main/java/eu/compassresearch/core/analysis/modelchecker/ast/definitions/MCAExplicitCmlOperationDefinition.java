@@ -2,9 +2,12 @@ package eu.compassresearch.core.analysis.modelchecker.ast.definitions;
 
 import java.util.LinkedList;
 
+import org.overture.ast.statements.AAssignmentStm;
+
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCASingleGeneralAssignmentStatementAction;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAStmAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.Binding;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCOperationCall;
@@ -13,6 +16,11 @@ import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCStringType;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAVariableExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCPCMLPattern;
+import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCAActionStm;
+import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCAAssignmentStm;
+import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCAUnresolvedStateDesignator;
+import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCPCMLStm;
+import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCPStateDesignator;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANamedInvariantType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
@@ -21,7 +29,7 @@ public class MCAExplicitCmlOperationDefinition implements
 		MCSCmlOperationDefinition {
 
 	private String name;
-	private MCPAction body;
+	private MCAActionStm body;
 	private MCPCMLExp precondition;
 	private MCPCMLExp postcondition;
 	private MCAExplicitFunctionDefinition predef;
@@ -31,7 +39,7 @@ public class MCAExplicitCmlOperationDefinition implements
 	private MCPCMLType actualResult;
 	private MCPAction parentAction;
 	
-	public MCAExplicitCmlOperationDefinition(String name, MCPAction body,
+	public MCAExplicitCmlOperationDefinition(String name, MCAActionStm body,
 			MCPCMLExp precondition, MCPCMLExp postcondition,
 			MCAExplicitFunctionDefinition predef,
 			MCAExplicitFunctionDefinition postdef,
@@ -73,7 +81,7 @@ public class MCAExplicitCmlOperationDefinition implements
 		result.append(",");
 		result.append("st_");
 		result.append(") :- ");
-		result.append("State(l,st,_,");
+		result.append("State(st,");
 		//the parent action of an operation must be an operation call in the specification
 		//its translation must be generic so many calls can reuse the body of an operation
 		//changing only its parameters
@@ -86,30 +94,35 @@ public class MCAExplicitCmlOperationDefinition implements
 		result.append(",");
 		result.append("st_ = ");
 		Binding maximalCopy = context.maximalBinding.copy();
-		MCPAction body = this.body;
-		MCASingleGeneralAssignmentStatementAction actionBody = null;
-		if(body instanceof MCASingleGeneralAssignmentStatementAction){
-			actionBody = (MCASingleGeneralAssignmentStatementAction) body;
+		MCPAction body = this.body.getAction();
+		MCAAssignmentStm assignmentBody = null;
+		if(body instanceof MCAStmAction){
+			MCPCMLStm stm = ((MCAStmAction) body).getStatement();
+			if(stm instanceof MCAAssignmentStm){
+				assignmentBody = (MCAAssignmentStm) stm;
+			}
 		}
 		
 		String newValueVarName = "";
 		
-		if(actionBody != null){
-			MCPCMLExp stateDesignator = actionBody.getStateDesignator();
-			if(stateDesignator instanceof MCAVariableExp){
-				String varName = stateDesignator.toFormula(MCNode.NAMED);
-				newValueVarName = varName + "_";
-				MCPCMLType newVarValue = new MCANamedInvariantType(newValueVarName);
-				maximalCopy.updateBinding(varName,newVarValue);
-				int i = 0;
-				result.append(maximalCopy.toFormula(MCNode.DEFAULT)); 
+		if(assignmentBody != null){
+			MCPStateDesignator stateDesignator = assignmentBody.getTarget();
+			if(stateDesignator instanceof MCAUnresolvedStateDesignator){
+				MCPCMLExp path = ((MCAUnresolvedStateDesignator) stateDesignator).getPath();
+				if(path instanceof MCAVariableExp){
+					String varName = path.toFormula(MCNode.NAMED);
+					newValueVarName = varName + "_";
+					MCPCMLType newVarValue = new MCANamedInvariantType(newValueVarName);
+					maximalCopy.updateBinding(varName,newVarValue);
+					result.append(maximalCopy.toFormula(MCNode.DEFAULT)); 
+				}
 			}
 		}
 		
 		//THE EXPRESSION OF THE ASSIGNMENT
-		if(actionBody.getExpression() != null){
+		if(assignmentBody.getExpression() != null){
 			result.append(", ");
-			result.append(newValueVarName + " = " + actionBody.getExpression().toFormula(option)); //expression assignment
+			result.append(newValueVarName + " = " + assignmentBody.getExpression().toFormula(option)); //expression assignment
 		}
 		result.append(".");
 		result.append("\n");
@@ -123,16 +136,6 @@ public class MCAExplicitCmlOperationDefinition implements
 		}
 		result.append("\n");
 		return result.toString();
-	}
-
-
-	public MCPAction getBody() {
-		return body;
-	}
-
-
-	public void setBody(MCPAction body) {
-		this.body = body;
 	}
 
 
@@ -217,5 +220,25 @@ public class MCAExplicitCmlOperationDefinition implements
 	}
 
 
+	public MCAActionStm getBody() {
+		return body;
+	}
+
+
+	public void setBody(MCAActionStm body) {
+		this.body = body;
+	}
+
+
+	public MCPAction getParentAction() {
+		return parentAction;
+	}
+
+
+	public void setParentAction(MCPAction parentAction) {
+		this.parentAction = parentAction;
+	}
+
+	
 
 }

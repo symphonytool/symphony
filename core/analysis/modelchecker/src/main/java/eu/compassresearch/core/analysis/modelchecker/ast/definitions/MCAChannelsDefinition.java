@@ -4,10 +4,10 @@ import java.util.LinkedList;
 
 public class MCAChannelsDefinition implements MCPCMLDefinition {
 
-	private LinkedList<MCAChannelNameDefinition> channelNameDeclarations = new LinkedList<MCAChannelNameDefinition>();
+	private LinkedList<MCAChannelDefinition> channelNameDeclarations = new LinkedList<MCAChannelDefinition>();
 
 	public MCAChannelsDefinition(
-			LinkedList<MCAChannelNameDefinition> channelNameDeclarations) {
+			LinkedList<MCAChannelDefinition> channelNameDeclarations) {
 		super();
 		this.channelNameDeclarations = channelNameDeclarations;
 	}
@@ -18,12 +18,12 @@ public class MCAChannelsDefinition implements MCPCMLDefinition {
 		return null;
 	}
 
-	public LinkedList<MCAChannelNameDefinition> getChannelNameDeclarations() {
+	public LinkedList<MCAChannelDefinition> getChannelNameDeclarations() {
 		return channelNameDeclarations;
 	}
 
 	public void setChannelNameDeclarations(
-			LinkedList<MCAChannelNameDefinition> channelNameDeclarations) {
+			LinkedList<MCAChannelDefinition> channelNameDeclarations) {
 		this.channelNameDeclarations = channelNameDeclarations;
 	}
 	

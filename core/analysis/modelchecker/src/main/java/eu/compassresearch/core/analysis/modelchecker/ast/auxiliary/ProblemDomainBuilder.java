@@ -19,6 +19,7 @@ public class ProblemDomainBuilder {
 		StringBuilder content = new StringBuilder();
 		String option = MCNode.DEFAULT;
 		
+		
 		//generate value definitions
 		generateValueDefinitions(content,option);
 				
@@ -34,8 +35,10 @@ public class ProblemDomainBuilder {
 		//generates guard definitions
 		generateGuardDefinitions(content,option);
 		
+		
 		//generates assignment definitions
 		generateAssignDefinitions(content, option);
+		
 		
 		//generates operation definitions
 		generateOperationDefinitions(content,option);

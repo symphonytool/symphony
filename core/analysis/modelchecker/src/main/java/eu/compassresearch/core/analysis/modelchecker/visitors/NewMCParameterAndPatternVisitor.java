@@ -9,6 +9,7 @@ import org.overture.ast.patterns.PPattern;
 
 import eu.compassresearch.ast.actions.AReadCommunicationParameter;
 import eu.compassresearch.ast.actions.ASignalCommunicationParameter;
+import eu.compassresearch.ast.actions.AValParametrisation;
 import eu.compassresearch.ast.actions.AWriteCommunicationParameter;
 import eu.compassresearch.ast.actions.PCommunicationParameter;
 import eu.compassresearch.ast.actions.PParametrisation;
@@ -16,7 +17,9 @@ import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAReadCommunicationParameter;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCASignalCommunicationParameter;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAValParametrisation;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAWriteCommunicationParameter;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCALocalDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCAIdentifierPattern;
 import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCPCMLPattern;
@@ -117,6 +120,15 @@ public class NewMCParameterAndPatternVisitor extends QuestionAnswerCMLAdaptor<Ne
 		return result;
 	}
 
+	@Override
+	public MCNode caseAValParametrisation(AValParametrisation node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		
+		MCALocalDefinition declaration = (MCALocalDefinition) node.getDeclaration().apply(rootVisitor, question);
+		MCAValParametrisation result = new MCAValParametrisation(declaration);
+		
+		return result;
+	}
 
 	@Override
 	public MCNode createNewReturnValue(INode node,

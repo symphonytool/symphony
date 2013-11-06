@@ -4,7 +4,7 @@ import java.util.LinkedList;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCACommunicationAction;
-import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAChannelNameDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAChannelDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANamedInvariantType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
@@ -14,11 +14,11 @@ public class MCIOCommDef implements MCNode {
 	protected Binding max;
 	protected int counterId;
 	protected MCACommunicationAction parentAction;
-	protected LinkedList<MCAChannelNameDefinition> channels;
+	protected LinkedList<MCAChannelDefinition> channels;
 	
 	
 	public MCIOCommDef(int counterId, MCACommunicationAction parentAction,
-			LinkedList<MCAChannelNameDefinition> channels) {
+			LinkedList<MCAChannelDefinition> channels) {
 		super();
 		this.max = NewCMLModelcheckerContext.getInstance().maximalBinding;
 		this.counterId = counterId;
@@ -33,7 +33,7 @@ public class MCIOCommDef implements MCNode {
 		StringBuilder result = new StringBuilder();
 		ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
 		
-		result.append("  IOCommDef(0," + this.counterId + ",");
+		result.append("  IOCommDef(" + this.counterId + ",");
 		result.append(evaluator.instantiateMCTypeFromCommParams(parentAction.getCommunicationParameters()).toFormula(option));
 		result.append(",");
 		result.append(max.toFormula(MCNode.NAMED)); //with variable names
@@ -48,17 +48,16 @@ public class MCIOCommDef implements MCNode {
 		result.append(")");
 		
 		result.append(" :- ");
-		result.append("State(0,");
+		result.append("State(");
 		result.append(max.toFormula(MCNode.NAMED));
 		result.append(",");
-		result.append("np,");
 		result.append(this.parentAction.toFormula(option));
+		result.append(")");
 
-		//maybe it is necessary to add channel facts here (if the communication values are instantiated by formula)
-		//if there is dependence with some channel
+		//we still have to generate the modified binding containing values (parameters) communicated
+		//result.append(",");
+		//result.append("State()");
 		
-		//else
-		result.append(").");
 		return result.toString();
 	}
 
@@ -90,12 +89,12 @@ public class MCIOCommDef implements MCNode {
 	}
 
 
-	public LinkedList<MCAChannelNameDefinition> getChannels() {
+	public LinkedList<MCAChannelDefinition> getChannels() {
 		return channels;
 	}
 
 
-	public void setChannels(LinkedList<MCAChannelNameDefinition> channels) {
+	public void setChannels(LinkedList<MCAChannelDefinition> channels) {
 		this.channels = channels;
 	}
 
