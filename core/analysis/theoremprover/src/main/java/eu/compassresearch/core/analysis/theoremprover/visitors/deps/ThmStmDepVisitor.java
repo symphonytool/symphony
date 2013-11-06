@@ -1,13 +1,13 @@
 package eu.compassresearch.core.analysis.theoremprover.visitors.deps;
 
 import java.util.LinkedList;
+import eu.compassresearch.ast.statements.AActionStm;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.node.INode;
-import org.overture.ast.statements.AActionStm;
 import org.overture.ast.statements.AAssignmentStm;
 import org.overture.ast.statements.ABlockSimpleBlockStm;
 import org.overture.ast.statements.ACallStm;
@@ -18,7 +18,9 @@ import org.overture.ast.statements.AWhileStm;
 import org.overture.ast.statements.PStateDesignator;
 import org.overture.ast.statements.PStm;
 
+import eu.compassresearch.ast.statements.AActionStm;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
+import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.core.analysis.theoremprover.thms.NodeNameList;
 
 @SuppressWarnings("serial")
