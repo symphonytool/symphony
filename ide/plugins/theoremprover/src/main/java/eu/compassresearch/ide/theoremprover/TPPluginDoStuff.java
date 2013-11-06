@@ -324,6 +324,8 @@ public class TPPluginDoStuff {
 				IFile pogThyFile = pogFolder.getFile(fileName + "_PO.thy");
 				createPogThy(model, pogThyFile, thyFileName, pol);
 			}
+			
+			MessageDialog.openConfirm(null, "Symphony", "POs Generation and export complete");
 
 		} catch (Exception e) {
 			e.printStackTrace();
