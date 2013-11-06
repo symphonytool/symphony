@@ -1,19 +1,15 @@
 package eu.compassresearch.core.analysis.theoremprover.visitors;
 
-import java.util.LinkedList;
-
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.types.PType;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
-import eu.compassresearch.ast.definitions.AChannelNameDefinition;
+import eu.compassresearch.ast.definitions.AChannelDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
-import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.analysis.theoremprover.thms.NodeNameList;
 import eu.compassresearch.core.analysis.theoremprover.thms.ThmChannel;
 import eu.compassresearch.core.analysis.theoremprover.thms.ThmChanset;
@@ -40,29 +36,22 @@ public class ThmChannelVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContext, 
 	 * CML channel definition 
 	 */
 	@Override
-	public ThmNodeList caseAChannelNameDefinition(AChannelNameDefinition node, ThmVarsContext vars)
+	public ThmNodeList caseAChannelDefinition(AChannelDefinition node, ThmVarsContext vars)
 			throws AnalysisException
 	{
 		ThmNodeList tnl = new ThmNodeList();
 		ILexNameToken name = null;
 		String type = "";
-
-		LinkedList<PDefinition> chandefs = node.getSingleType().getType().getDefinitions();
 		
-		for(PDefinition chan : chandefs)
+		name = node.getName();
+		PType chanType = node.getType();
+		if (chanType != null)
 		{
-			//Generate Channel syntax
-			name = chan.getName();
-			PType chanType = ((AChannelType) chan.getType()).getType();
-			if (chanType != null)
-			{
-				type = chanType.apply(stringVisitor, new ThmVarsContext()); //ThmTypeUtil.getIsabelleType(((AChannelType) chan.getType()).getType());
-			}
-			NodeNameList nodeDeps = node.apply(depVisitor, new NodeNameList());//ThmChanUtil.getIsabelleChanDeps(node);
-
-			ThmNode tn = new ThmNode(name, nodeDeps, new ThmChannel(name.toString(), type));
-			tnl.add(tn);
+			type = chanType.apply(stringVisitor, new ThmVarsContext()); //ThmTypeUtil.getIsabelleType(((AChannelType) chan.getType()).getType());
 		}
+		NodeNameList nodeDeps = node.apply(depVisitor, new NodeNameList());//ThmChanUtil.getIsabelleChanDeps(node);
+		ThmNode tn = new ThmNode(name, nodeDeps, new ThmChannel(name.toString(), type));
+		tnl.add(tn);
 		
 		return tnl;
 	}

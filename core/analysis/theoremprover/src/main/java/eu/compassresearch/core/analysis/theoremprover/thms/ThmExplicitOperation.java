@@ -114,31 +114,31 @@ public class ThmExplicitOperation extends ThmDecl{
 		return sb.toString();//NOT SURE IF NEED TO DO THIS... fixParamRefs(sb.toString(), paras);
 	}
 	
-	/**
-	 * Method to change the value names in an expression when they are parameter names
-	 * This is so that the lambda expression of a function operates as expected. 
-	 * Parameters are determined by numeric order.
-	 * @param ex - expression to fix
-	 * @param pattern - the parameters
-	 * @return the new, fixed string
-	 */
-	private String fixParamRefs(String ex, LinkedList<PPattern> pattern){
-		int count = 1;
-		
-		for(PPattern p : pattern )
-		{
-			String pName = "^" + ((AIdentifierPattern) p).getName().toString() + "^";
-			String lambdaName = "^" +ThmTypeUtil.isaFuncLambaVal+"^.#" + count;
-		
-			ex = ex.replace(pName, lambdaName);
-			count++;
-		}
-		
-		//Replace the keyword "RESULT" with the Lambda post value
-		ex = ex.replace("^RESULT^", "^" + ThmTypeUtil.isaFuncLambdaPostVal + "^");
-		
-		return ex;
-	}
+//	/**
+//	 * Method to change the value names in an expression when they are parameter names
+//	 * This is so that the lambda expression of a function operates as expected. 
+//	 * Parameters are determined by numeric order.
+//	 * @param ex - expression to fix
+//	 * @param pattern - the parameters
+//	 * @return the new, fixed string
+//	 */
+//	private String fixParamRefs(String ex, LinkedList<PPattern> pattern){
+//		int count = 1;
+//		
+//		for(PPattern p : pattern )
+//		{
+//			String pName = "^" + ((AIdentifierPattern) p).getName().toString() + "^";
+//			String lambdaName = "^" +ThmTypeUtil.isaFuncLambaVal+"^.#" + count;
+//		
+//			ex = ex.replace(pName, lambdaName);
+//			count++;
+//		}
+//		
+//		//Replace the keyword "RESULT" with the Lambda post value
+//		ex = ex.replace("^RESULT^", "^" + ThmTypeUtil.isaFuncLambdaPostVal + "^");
+//		
+//		return ex;
+//	}
 	
 		
 	@Override

@@ -11,51 +11,39 @@ import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.PPattern;
+import org.overture.ast.statements.AAssignmentStm;
+import org.overture.ast.statements.ACallStm;
+import org.overture.ast.statements.AElseIfStm;
+import org.overture.ast.statements.AIfStm;
+import org.overture.ast.statements.ALetStm;
+import org.overture.ast.statements.AWhileStm;
+import org.overture.ast.statements.PStateDesignator;
 
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismReplicatedAction;
-import eu.compassresearch.ast.actions.AAssignmentCallStatementAction;
-import eu.compassresearch.ast.actions.ABlockStatementAction;
-import eu.compassresearch.ast.actions.ACallStatementAction;
-import eu.compassresearch.ast.actions.ACasesStatementAction;
 import eu.compassresearch.ast.actions.AChannelRenamingAction;
 import eu.compassresearch.ast.actions.AChaosAction;
 import eu.compassresearch.ast.actions.ACommonInterleavingReplicatedAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.ADivAction;
-import eu.compassresearch.ast.actions.AElseIfStatementAction;
 import eu.compassresearch.ast.actions.AEndDeadlineAction;
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
 import eu.compassresearch.ast.actions.AExternalChoiceReplicatedAction;
-import eu.compassresearch.ast.actions.AForIndexStatementAction;
-import eu.compassresearch.ast.actions.AForSequenceStatementAction;
-import eu.compassresearch.ast.actions.AForSetStatementAction;
 import eu.compassresearch.ast.actions.AGeneralisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AGeneralisedParallelismReplicatedAction;
 import eu.compassresearch.ast.actions.AGuardedAction;
 import eu.compassresearch.ast.actions.AHidingAction;
-import eu.compassresearch.ast.actions.AIfStatementAction;
 import eu.compassresearch.ast.actions.AInterleavingParallelAction;
 import eu.compassresearch.ast.actions.AInterleavingReplicatedAction;
 import eu.compassresearch.ast.actions.AInternalChoiceAction;
 import eu.compassresearch.ast.actions.AInternalChoiceReplicatedAction;
 import eu.compassresearch.ast.actions.AInterruptAction;
-import eu.compassresearch.ast.actions.ALetStatementAction;
 import eu.compassresearch.ast.actions.AMuAction;
-import eu.compassresearch.ast.actions.AMultipleGeneralAssignmentStatementAction;
-import eu.compassresearch.ast.actions.ANewStatementAction;
-import eu.compassresearch.ast.actions.ANonDeterministicAltStatementAction;
-import eu.compassresearch.ast.actions.ANonDeterministicDoStatementAction;
-import eu.compassresearch.ast.actions.ANonDeterministicIfStatementAction;
-import eu.compassresearch.ast.actions.ANotYetSpecifiedStatementAction;
 import eu.compassresearch.ast.actions.AReadCommunicationParameter;
 import eu.compassresearch.ast.actions.AReferenceAction;
-import eu.compassresearch.ast.actions.AReturnStatementAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionReplicatedAction;
-import eu.compassresearch.ast.actions.ASingleGeneralAssignmentStatementAction;
 import eu.compassresearch.ast.actions.ASkipAction;
-import eu.compassresearch.ast.actions.ASpecificationStatementAction;
 import eu.compassresearch.ast.actions.AStartDeadlineAction;
 import eu.compassresearch.ast.actions.AStopAction;
 import eu.compassresearch.ast.actions.ASynchronousParallelismParallelAction;
@@ -64,7 +52,6 @@ import eu.compassresearch.ast.actions.ATimedInterruptAction;
 import eu.compassresearch.ast.actions.ATimeoutAction;
 import eu.compassresearch.ast.actions.AUntimedTimeoutAction;
 import eu.compassresearch.ast.actions.AWaitAction;
-import eu.compassresearch.ast.actions.AWhileStatementAction;
 import eu.compassresearch.ast.actions.AWriteCommunicationParameter;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.actions.PCommunicationParameter;
@@ -312,7 +299,7 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		return left + "[" + leftChExp + "||" + rightChExp +"]" + right;
 	}
 	
-	public String caseACallStatementAction(ACallStatementAction a, ThmVarsContext vars) throws AnalysisException{
+	public String caseACallStm(ACallStm a, ThmVarsContext vars) throws AnalysisException{
 		StringBuilder args = new StringBuilder();
 		
 		for (Iterator<PExp> itr = a.getArgs().listIterator(); itr.hasNext(); ) {
@@ -328,18 +315,17 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		
 	}
 	
-	public String caseABlockStatementAction(ABlockStatementAction a, ThmVarsContext vars) throws AnalysisException{
-	
+	public String caseALetStm(ALetStm a, ThmVarsContext vars) throws AnalysisException{
+
 		LinkedList<String> varsStr = new LinkedList<String>();
 		StringBuilder assignStr = new StringBuilder();
-		LinkedList<PDefinition> assigns = new LinkedList<PDefinition>();
 
-		String blockStr = a.getAction().apply(thmStringVisitor, vars);
-		if(a.getDeclareStatement() != null) 
+		String blockStr = a.getStatement().apply(thmStringVisitor, vars);
+		LinkedList<PDefinition> defs = a.getLocalDefs();
+		if(! defs.isEmpty()) 
 		{
-			assigns = a.getDeclareStatement().getAssignmentDefs();
 			
-			for (PDefinition pdef : assigns)
+			for (PDefinition pdef : a.getLocalDefs())
 			{
 				AAssignmentDefinition aDef = (AAssignmentDefinition) pdef;
 				varsStr.add(aDef.getName().toString());
@@ -359,7 +345,7 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		return "(" + blockStr + ")"; 
 	}
 	
-	public String caseAIfStatementAction(AIfStatementAction a, ThmVarsContext vars) throws AnalysisException{
+	public String caseAIfStm(AIfStm a, ThmVarsContext vars) throws AnalysisException{
 		String ifStr = a.getIfExp().apply(thmStringVisitor, vars);
 		String thenStr = a.getThenStm().apply(thmStringVisitor, vars);	
 		String elseStr = "Skip";
@@ -369,8 +355,8 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		}
 		String elseIfStr = "";
 		String closingIf = "";
-		LinkedList<AElseIfStatementAction> elseIf = a.getElseIf();
-		for(AElseIfStatementAction e : elseIf)
+		LinkedList<AElseIfStm> elseIf = a.getElseIf();
+		for(AElseIfStm e : elseIf)
 		{
 			elseIfStr = elseIfStr + "("+ e.apply(thmStringVisitor, vars);	
 			closingIf = ")";
@@ -379,17 +365,18 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		return thenStr + ThmProcessUtil.ifLeft + ifStr + ThmProcessUtil.ifRight + elseIfStr + elseStr + closingIf;
 	}
 	
-	public String caseAElseIfStatementAction(AElseIfStatementAction a, ThmVarsContext vars) throws AnalysisException{
+	public String caseAElseIfStm(AElseIfStm a, ThmVarsContext vars) throws AnalysisException{
 		String elseIfStr = a.getElseIf().apply(thmStringVisitor, vars);
 		String thenStr = a.getThenStm().apply(thmStringVisitor, vars);		
 
 		return thenStr + ThmProcessUtil.ifLeft + elseIfStr+ ThmProcessUtil.ifRight;
 	}
 	
-	public String caseASingleGeneralAssignmentStatementAction(ASingleGeneralAssignmentStatementAction a, ThmVarsContext vars) throws AnalysisException{
-	
-		String aExp = a.getStateDesignator().apply(thmStringVisitor, vars);
-		String exp = a.getExpression().apply(thmStringVisitor, vars);
+	public String caseAAssignmentStm(AAssignmentStm a, ThmVarsContext vars) throws AnalysisException{
+		PStateDesignator designator = a.getTarget();
+		String aExp = designator.toString();
+	//	String aExp = a.getStateDesignator().apply(thmStringVisitor, vars);
+		String exp = a.getExp().apply(thmStringVisitor, vars);
 		
 		//Isabelle doesn't want state variables to have a $ on the lhs of an assignment.
 		//TODO: This may be too harsh
@@ -398,121 +385,125 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		return aExp + ThmProcessUtil.assign + exp;
 	}
 	
-	public String caseAAssignmentCallStatementAction(AAssignmentCallStatementAction a, ThmVarsContext vars) throws AnalysisException{
-		 String aExp = a.getDesignator().apply(thmStringVisitor, vars);
-		 String callExp = a.getCall().apply(thmStringVisitor, vars);
-//           
-		//Isabelle doesn't want state variables to have a $ on the lhs of an assignment.
-		//TODO: This may be too harsh
-		aExp = aExp.replace("$", "");
-		return aExp + ThmProcessUtil.assign + callExp;
-	}
 	
-	public String caseAWhileStatementAction(AWhileStatementAction a, ThmVarsContext vars) throws AnalysisException{
-		String cond = a.getCondition().apply(thmStringVisitor, vars);
-		String actStr = a.getAction().apply(thmStringVisitor, vars);
+	//DON'T THINK IS HANDLED IN ISABELLE YET
+//	public String caseACallObjectStm(ACallObjectStm a, ThmVarsContext vars) throws AnalysisException{
+//		
+//		
+//		String aExp = a.getDesignator().apply(thmStringVisitor, vars);
+//		// String callExp = a.geta.getCall().apply(thmStringVisitor, vars);
+////           
+//		//Isabelle doesn't want state variables to have a $ on the lhs of an assignment.
+//		//TODO: This may be too harsh
+//		aExp = aExp.replace("$", "");
+//		return aExp + ThmProcessUtil.assign// + callExp;
+//	}
+	
+	public String caseAWhileStm(AWhileStm a, ThmVarsContext vars) throws AnalysisException{
+		String cond = a.getExp().apply(thmStringVisitor, vars);
+		String actStr = a.getStatement().apply(thmStringVisitor, vars);
 //	        | {declare}  [assignmentDefs]:definition*
 		
 		return ThmProcessUtil.isaWhile  + ThmProcessUtil.opExpLeft + cond + ThmProcessUtil.isaDo  + ThmProcessUtil.opExpRight + actStr + ThmProcessUtil.isaOd;
 	}
 	
-	public String caseANonDeterministicDoStatementAction(ANonDeterministicDoStatementAction a, ThmVarsContext vars) throws AnalysisException{
-//	        [alternatives]:action.#Statement.nonDeterministicAlt*
-		//TODO: NOT HANDLED
-		return ThmProcessUtil.stmtNotHandled;
-	}
-	
-	public String caseANonDeterministicIfStatementAction(ANonDeterministicIfStatementAction a, ThmVarsContext vars) throws AnalysisException{
-//           [alternatives]:action.#Statement.nonDeterministicAlt*
-		//TODO: NOT HANDLED
-		return ThmProcessUtil.stmtNotHandled;
-	}
-	
-	public String caseANotYetSpecifiedStatementAction(ANotYetSpecifiedStatementAction a, ThmVarsContext vars) throws AnalysisException{
-//           [opname]:LexNameToken
-//           [args]:exp*
-		//TODO: NOT HANDLED
-		return ThmProcessUtil.stmtNotHandled;
-	}
-	
-	public String caseALetStatementAction(ALetStatementAction a, ThmVarsContext vars) throws AnalysisException{
-		//[action]:action [localDefinitions]:definition*
-		//TODO: NOT YET HANDLED
-		return ThmProcessUtil.stmtNotHandled;
-	}
-	
-	public String caseANonDeterministicAltStatementAction(ANonDeterministicAltStatementAction a, ThmVarsContext vars) throws AnalysisException{
-//           [guard]:exp
-//           [action]:action
-		//TODO: NOT YET HANDLED
-		return ThmProcessUtil.stmtNotHandled;
-	}
-	
-	public String caseACasesStatementAction(ACasesStatementAction a, ThmVarsContext vars) throws AnalysisException{
-//           [exp]:exp
-//           [cases]:alternativeAction.case*
-//           [others]:action
-		//TODO: NOT YET HANDLED
-		return ThmProcessUtil.stmtNotHandled;
-	}
-	
-	public String caseAMultipleGeneralAssignmentStatementAction(AMultipleGeneralAssignmentStatementAction a, ThmVarsContext vars) throws AnalysisException{
-		//TODO: NOT YET HANDLED
-		return ThmProcessUtil.stmtNotHandled;
-	}
-	
-	public String caseASpecificationStatementAction(ASpecificationStatementAction a, ThmVarsContext vars) throws AnalysisException{
-//           [externals]:clause.external*
-//           [precondition]:exp
-//           [postcondition]:exp
-		//MAY GEN LEMMA TO PROVE STATING FRAME NOT VIOLATED
-		//TODO: NOT YET HANDLED
-		return ThmProcessUtil.stmtNotHandled;
-	}
-	
-	public String caseAReturnStatementAction(AReturnStatementAction a, ThmVarsContext vars) throws AnalysisException{
-//           [exp]:exp
-			//TODO: NOT YET HANDLED
-		return ThmProcessUtil.stmtNotHandled;
-	}
-	
-	public String caseANewStatementAction(ANewStatementAction a, ThmVarsContext vars) throws AnalysisException{
-//	        [destination]:exp
-//	        [className]:LexNameToken
-//	        [args]:exp*
-//	        (classdef):definition.#class
-//	        (ctorDefinition):definition
-		//TODO: NOT YET HANDLED
-		return ThmProcessUtil.stmtNotHandled;
-	}
-	
-	public String caseAForSetStatementAction(AForSetStatementAction a, ThmVarsContext vars) throws AnalysisException{
-//	        [pattern]:pattern
-//	        [set]:exp
-//	        [action]:action
-		//TODO: NOT YET HANDLED
-		return ThmProcessUtil.stmtNotHandled;
-	}
-	
-	public String caseAForIndexStatementAction(AForIndexStatementAction a, ThmVarsContext vars) throws AnalysisException{
-//	        [var]:LexNameToken
-//	        [from]:exp
-//	        [to]:exp
-//	        [by]:exp
-//	        [action]:action
-		//TODO: NOT YET HANDLED
-		return ThmProcessUtil.stmtNotHandled;
-	}
-	
-	public String caseAForSequenceStatementAction(AForSequenceStatementAction a, ThmVarsContext vars) throws AnalysisException{
-//	        [patternBind]:patternBind.def
-//	        [exp]:exp
-//	        [action]:action
-//	        (seqType):type.#seq
-		//TODO: NOT YET HANDLED
-		return ThmProcessUtil.stmtNotHandled;
-	}
-		
+//	public String caseANonDeterministicDoStatementAction(ANonDeterministicDoStatementAction a, ThmVarsContext vars) throws AnalysisException{
+////	        [alternatives]:action.#Statement.nonDeterministicAlt*
+//		//TODO: NOT HANDLED
+//		return ThmProcessUtil.stmtNotHandled;
+//	}
+//	
+//	public String caseANonDeterministicIfStatementAction(ANonDeterministicIfStatementAction a, ThmVarsContext vars) throws AnalysisException{
+////           [alternatives]:action.#Statement.nonDeterministicAlt*
+//		//TODO: NOT HANDLED
+//		return ThmProcessUtil.stmtNotHandled;
+//	}
+//	
+//	public String caseANotYetSpecifiedStatementAction(ANotYetSpecifiedStatementAction a, ThmVarsContext vars) throws AnalysisException{
+////           [opname]:LexNameToken
+////           [args]:exp*
+//		//TODO: NOT HANDLED
+//		return ThmProcessUtil.stmtNotHandled;
+//	}
+//	
+//	public String caseALetStatementAction(ALetStatementAction a, ThmVarsContext vars) throws AnalysisException{
+//		//[action]:action [localDefinitions]:definition*
+//		//TODO: NOT YET HANDLED
+//		return ThmProcessUtil.stmtNotHandled;
+//	}
+//	
+//	public String caseANonDeterministicAltStatementAction(ANonDeterministicAltStatementAction a, ThmVarsContext vars) throws AnalysisException{
+////           [guard]:exp
+////           [action]:action
+//		//TODO: NOT YET HANDLED
+//		return ThmProcessUtil.stmtNotHandled;
+//	}
+//	
+//	public String caseACasesStatementAction(ACasesStatementAction a, ThmVarsContext vars) throws AnalysisException{
+////           [exp]:exp
+////           [cases]:alternativeAction.case*
+////           [others]:action
+//		//TODO: NOT YET HANDLED
+//		return ThmProcessUtil.stmtNotHandled;
+//	}
+//	
+//	public String caseAMultipleGeneralAssignmentStatementAction(AMultipleGeneralAssignmentStatementAction a, ThmVarsContext vars) throws AnalysisException{
+//		//TODO: NOT YET HANDLED
+//		return ThmProcessUtil.stmtNotHandled;
+//	}
+//	
+//	public String caseASpecificationStatementAction(ASpecificationStatementAction a, ThmVarsContext vars) throws AnalysisException{
+////           [externals]:clause.external*
+////           [precondition]:exp
+////           [postcondition]:exp
+//		//MAY GEN LEMMA TO PROVE STATING FRAME NOT VIOLATED
+//		//TODO: NOT YET HANDLED
+//		return ThmProcessUtil.stmtNotHandled;
+//	}
+//	
+//	public String caseAReturnStatementAction(AReturnStatementAction a, ThmVarsContext vars) throws AnalysisException{
+////           [exp]:exp
+//			//TODO: NOT YET HANDLED
+//		return ThmProcessUtil.stmtNotHandled;
+//	}
+//	
+//	public String caseANewStatementAction(ANewStatementAction a, ThmVarsContext vars) throws AnalysisException{
+////	        [destination]:exp
+////	        [className]:LexNameToken
+////	        [args]:exp*
+////	        (classdef):definition.#class
+////	        (ctorDefinition):definition
+//		//TODO: NOT YET HANDLED
+//		return ThmProcessUtil.stmtNotHandled;
+//	}
+//	
+//	public String caseAForSetStatementAction(AForSetStatementAction a, ThmVarsContext vars) throws AnalysisException{
+////	        [pattern]:pattern
+////	        [set]:exp
+////	        [action]:action
+//		//TODO: NOT YET HANDLED
+//		return ThmProcessUtil.stmtNotHandled;
+//	}
+//	
+//	public String caseAForIndexStatementAction(AForIndexStatementAction a, ThmVarsContext vars) throws AnalysisException{
+////	        [var]:LexNameToken
+////	        [from]:exp
+////	        [to]:exp
+////	        [by]:exp
+////	        [action]:action
+//		//TODO: NOT YET HANDLED
+//		return ThmProcessUtil.stmtNotHandled;
+//	}
+//	
+//	public String caseAForSequenceStatementAction(AForSequenceStatementAction a, ThmVarsContext vars) throws AnalysisException{
+////	        [patternBind]:patternBind.def
+////	        [exp]:exp
+////	        [action]:action
+////	        (seqType):type.#seq
+//		//TODO: NOT YET HANDLED
+//		return ThmProcessUtil.stmtNotHandled;
+//	}
+//		
 	
 	@Override
 	public String createNewReturnValue(INode arg0, ThmVarsContext arg1)

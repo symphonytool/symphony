@@ -211,11 +211,11 @@ public class ThmImplicitOperation extends ThmDecl{
 				
 		if (resType	!= null)
 		{
-			res.append(ThmProcessUtil.opExpLeft + "(" + ThmTypeUtil.isaFuncLambdaPost + " " + ThmTypeUtil.isaFuncLambdaPostVal+ " : " + resType + " @ (post_" + name + postParamList +"))");
+			res.append(ThmProcessUtil.opExpLeft + "(" + ThmTypeUtil.isaOpLambdaPost + " " + ThmTypeUtil.isaFuncLambdaPostVal+ " : " + resType + " @ (post_" + name + postParamList +"))");
 		}
 		else
 		{
-			res.append("post_" + name + postParamList);
+			res.append(ThmProcessUtil.opExpLeft +"post_" + name + postParamList + ThmProcessUtil.opExpRight +" ");
 		}
 		
 		res.append(ThmProcessUtil.opExpRight + "`\"\n" + tacHook(name));

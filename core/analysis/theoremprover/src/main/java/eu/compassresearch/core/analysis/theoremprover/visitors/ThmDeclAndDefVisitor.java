@@ -7,9 +7,12 @@ import java.util.List;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
+import org.overture.ast.definitions.AExplicitOperationDefinition;
 import org.overture.ast.definitions.AImplicitFunctionDefinition;
+import org.overture.ast.definitions.AImplicitOperationDefinition;
 import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.definitions.SOperationDefinition;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
@@ -25,21 +28,18 @@ import org.overture.ast.types.PType;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
+import eu.compassresearch.ast.definitions.AActionClassDefinition;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AActionsDefinition;
-import eu.compassresearch.ast.definitions.AChannelNameDefinition;
+import eu.compassresearch.ast.definitions.AChannelDefinition;
 import eu.compassresearch.ast.definitions.AChannelsDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.definitions.AChansetsDefinition;
-import eu.compassresearch.ast.definitions.ACmlClassDefinition;
-import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AFunctionsDefinition;
-import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AOperationsDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.definitions.ATypesDefinition;
 import eu.compassresearch.ast.definitions.AValuesDefinition;
-import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
 import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.analysis.theoremprover.thms.NodeNameList;
@@ -244,7 +244,7 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 	{
 		ThmNodeList tnl = new ThmNodeList();
 
-		for (AChannelNameDefinition c : node.getChannelNameDeclarations())
+		for (AChannelDefinition c : node.getChannelDeclarations())
 		{
 			tnl.addAll(c.apply(parentVisitor, vars));
 		}
@@ -269,16 +269,16 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 		return tnl;
 	}
 
-	/**
-	 * Visitor method for a class
-	 */
-	@Override
-	public ThmNodeList caseACmlClassDefinition(ACmlClassDefinition node, ThmVarsContext vars) throws AnalysisException
-	{
-		//TODO: NOT YET HANDLED
-		ThmNodeList tnl = new ThmNodeList();
-		return tnl;
-	}
+//	/**
+//	 * Visitor method for a class
+//	 */
+//	@Override
+//	public ThmNodeList caseACmlClassDefinition(ACmlClassDefinition node, ThmVarsContext vars) throws AnalysisException
+//	{
+//		//TODO: NOT YET HANDLED
+//		ThmNodeList tnl = new ThmNodeList();
+//		return tnl;
+//	}
 
 
 	/**
@@ -352,12 +352,14 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 		//Collect all the statement/operation/action paragraphs and deal with them 
 		//all together.
 		LinkedList<AStateDefinition> statements = new LinkedList<AStateDefinition>();
-		LinkedList<SCmlOperationDefinition> operations = new LinkedList<SCmlOperationDefinition>();
+		LinkedList<SOperationDefinition> operations = new LinkedList<SOperationDefinition>();
 		LinkedList<AImplicitFunctionDefinition> impfunctions = new LinkedList<AImplicitFunctionDefinition>();
 		LinkedList<AExplicitFunctionDefinition> expfunctions = new LinkedList<AExplicitFunctionDefinition>();
 		LinkedList<AActionDefinition> actions = new LinkedList<AActionDefinition>();
 		LinkedList<PDefinition> others = new LinkedList<PDefinition>();
-		for (PDefinition pdef : act.getDefinitionParagraphs())
+		AActionClassDefinition actdef = (AActionClassDefinition) act.getActionDefinition();
+		
+		for (PDefinition pdef : actdef.getDefinitions())
 		{
 			if (pdef instanceof AStateDefinition)
 			{
@@ -513,7 +515,7 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 		{
 			//Handle the operations
 			ThmNodeList opNodes = new ThmNodeList();
-			for(SCmlOperationDefinition op : operations)
+			for(SOperationDefinition op : operations)
 			{
 				opNodes.addAll(op.apply(this, new ThmVarsContext(svars, new NodeNameList())));//	getIsabelleOperation(op, svars));
 			}						
@@ -578,7 +580,7 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 	 * @throws AnalysisException 
 	 */
 	@Override
-	public ThmNodeList caseAImplicitCmlOperationDefinition(AImplicitCmlOperationDefinition node, ThmVarsContext vars) throws AnalysisException
+	public ThmNodeList caseAImplicitOperationDefinition(AImplicitOperationDefinition node, ThmVarsContext vars) throws AnalysisException
 	{
 		ThmNodeList tnl = new ThmNodeList();
 		ThmNode tn = null;
@@ -598,17 +600,14 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 			nodeDeps.addAll(p.getType().apply(depVisitor, vars.getBVars()));//(ThmTypeUtil.getIsabelleTypeDeps(p.getType()));
 		}	
 		//Add return type(s) to dependancy list and list of bound values
-		LinkedList<APatternTypePair> res = node.getResult();
+		APatternTypePair res = node.getResult();
 		String resType = null;
-		if (res != null && !(res.isEmpty()) && res.getFirst()!= null)
+		if (res != null)// && !(res.isEmpty()) && res.getFirst()!= null)
 		{
-			resType = res.getFirst().getType().apply(stringVisitor, vars);//ThmTypeUtil.getIsabelleType(res.getFirst().getType());
-		}
-		for(APatternTypePair p : res)
-		{
-			vars.addBVar(((AIdentifierPattern) p.getPattern()).getName());
-			nodeDeps.addAll(p.getType().apply(depVisitor, vars.getBVars()));//ThmTypeUtil.getIsabelleTypeDeps(p.getType()));
-		}		
+			resType = res.getType().apply(stringVisitor, vars);//ThmTypeUtil.getIsabelleType(res.getFirst().getType());
+			vars.addBVar(((AIdentifierPattern) res.getPattern()).getName());
+			nodeDeps.addAll(res.getType().apply(depVisitor, vars.getBVars()));//ThmTypeUtil.getIsabelleTypeDeps(p.getType()));
+		}	
 		
 		if (node.getPrecondition() != null)
 		{
@@ -631,7 +630,7 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 	}
 		
 	@Override
-	public ThmNodeList caseAExplicitCmlOperationDefinition(AExplicitCmlOperationDefinition node, ThmVarsContext vars) throws AnalysisException
+	public ThmNodeList caseAExplicitOperationDefinition(AExplicitOperationDefinition node, ThmVarsContext vars) throws AnalysisException
 	{
 		ThmNodeList tnl = new ThmNodeList();
 		ThmNode tn = null;

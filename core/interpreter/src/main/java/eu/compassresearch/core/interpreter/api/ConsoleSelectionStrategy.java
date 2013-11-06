@@ -20,12 +20,15 @@ import org.overture.parser.lex.LexTokenReader;
 import org.overture.parser.syntax.ExpressionReader;
 import org.overture.typechecker.TypeComparator;
 
+import eu.compassresearch.core.interpreter.Console;
 import eu.compassresearch.core.interpreter.api.transitions.AbstractSilentTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.transitions.LabelledTransition;
 import eu.compassresearch.core.interpreter.api.values.AbstractValueInterpreter;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
+import eu.compassresearch.core.interpreter.debug.CmlDebugger;
+import eu.compassresearch.core.interpreter.utility.ValueParser;
 
 public class ConsoleSelectionStrategy implements SelectionStrategy
 {
@@ -92,66 +95,13 @@ public class ConsoleSelectionStrategy implements SelectionStrategy
 		if (chosenEvent instanceof LabelledTransition
 				&& !((LabelledTransition) chosenEvent).getChannelName().isPrecise())
 		{
-			readChannelNameValues((LabelledTransition) chosenEvent);
+			Console.readChannelNameValues((LabelledTransition) chosenEvent);
 		}
 
 		return chosenEvent;
 	}
 
-	// FIXME this should be moved to the console class not the selection class. This is two different things
-	public static void readChannelNameValues(LabelledTransition chosenEvent)
-	{
-		LabelledTransition chosenChannelEvent = (LabelledTransition) chosenEvent;
-		ChannelNameValue channnelName = chosenChannelEvent.getChannelName();
-
-		for (int i = 0; i < channnelName.getValues().size(); i++)
-		{
-			Value currentValue = channnelName.getValues().get(i);
-
-			if (!AbstractValueInterpreter.isValueMostPrecise(currentValue))
-			{
-				System.out.println("Enter value : ");
-				Value val;
-				try
-				{
-					// FIXME this should be changed to the be handles by the COMPASS parser since the syntax i changed
-					// in some of the syntax
-					LexTokenReader ltr = new LexTokenReader(new BufferedReader(new InputStreamReader(System.in)).readLine(), Dialect.VDM_PP);
-					ExpressionReader reader = new ExpressionReader(ltr);
-					reader.setCurrentModule("IO");
-					PExp exp = reader.readExpression();
-
-					Interpreter ip = Interpreter.getInstance();
-					PType expectedType = channnelName.getChannel().getValueTypes().get(i);
-					PType expType = ip.typeCheck(exp, ip.getGlobalEnvironment());
-					if (!TypeComparator.compatible(expectedType, expType))
-					{
-						throw new InterpreterRuntimeException("Wrong expression type read from console. Expected: "
-								+ expectedType + " Actual: " + expType);
-					}
-
-					Context ctxt = chosenEvent.getEventSources().iterator().next().getNextState().second;
-					val = exp.apply(VdmRuntime.getExpressionEvaluator(), ctxt);
-					// type compare
-					channnelName.updateValue(i, val);
-					return;
-				} catch (AnalysisException e)
-				{
-					throw new InterpreterRuntimeException("Analysis error in read user value", e);
-				} catch (IOException e)
-				{
-					throw new InterpreterRuntimeException("IO error in read user value", e);
-				} catch (Exception e)
-				{
-					if (e instanceof InterpreterRuntimeException)
-					{
-						throw (InterpreterRuntimeException) e;
-					}
-					throw new InterpreterRuntimeException("Unknown internal error in read user value", e);
-				}
-			}
-		}
-	}
+	
 
 	public boolean isHideSilentTransitions()
 	{
@@ -186,6 +136,13 @@ public class ConsoleSelectionStrategy implements SelectionStrategy
 			System.out.println("The environment picked: " + t);
 			return t;
 		}
+	}
+
+	@Override
+	public void initialize(CmlInterpreter interpreter, CmlDebugger debugger)
+	{
+		// TODO Auto-generated method stub
+		
 	}
 
 }

@@ -195,7 +195,7 @@ public class TPPluginDoStuff {
 					.getBytes()), true, new NullProgressMonitor());
 
 		} catch (CoreException e) {
-			Activator.log(e);
+			CmlTPPlugin.log(e);
 		}
 	}
 
@@ -219,7 +219,7 @@ public class TPPluginDoStuff {
 				outputFile.setResourceAttributes(attributes);
 
 			} catch (CoreException e) {
-				Activator.log(e);
+				CmlTPPlugin.log(e);
 			}
 		}
 
@@ -273,7 +273,7 @@ public class TPPluginDoStuff {
 			pol.addAll(model.getAttribute(POConstants.PO_REGISTRY_ID,
 					CmlProofObligationList.class));
 
-			if (pol == null) {
+			if (pol.isEmpty()) {
 				popErrorMessage("There are no Proof Oligations to discharge.");
 				return;
 			}
@@ -339,7 +339,7 @@ public class TPPluginDoStuff {
 		} catch (Exception e) {
 			e.printStackTrace();
 			popErrorMessage(e.getMessage());
-			Activator.log(e);
+			CmlTPPlugin.log(e);
 		}
 	}
 
@@ -365,7 +365,7 @@ public class TPPluginDoStuff {
 			pogThyFile.create(new ByteArrayInputStream(thmString.toString()
 					.getBytes()), true, new NullProgressMonitor());
 		} catch (CoreException e) {
-			Activator.log(e);
+			CmlTPPlugin.log(e);
 		}
 
 		return pogThyFile;

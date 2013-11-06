@@ -22,7 +22,7 @@ public class Str implements Type {
 	}
 	
 	public String toFormula() {
-		return "Str(\""+ value + "\")";
+		return value;
 	}
 
 	@Override
@@ -31,6 +31,12 @@ public class Str implements Type {
 	}
 
 	public String toFormulaWithUnderscore(){
-		return "Str(_)";
+		return "_";
+	}
+
+
+	@Override
+	public String toFormulaGeneric() {
+		return "_";
 	}
 }

@@ -4,14 +4,12 @@ import java.util.Vector;
 
 import org.overture.ast.intf.lex.ILexNameToken;
 
-import eu.compassresearch.core.common.AnalysisArtifact;
-
 
 /*****************
  * Stores collection of Theory objects
  *****************/
 @SuppressWarnings("serial")
-public class ThmNodeList extends Vector<ThmNode> implements AnalysisArtifact {
+public class ThmNodeList extends Vector<ThmNode>{
 
 
 	@Override
