@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.ActionsCmlTypeCheckerTests">
+<message column="2" line="8" message="Instance variable 'x' is not initialized" messageType="warning" number="0" resource="actions-0051-parameterized-pos.cml"/>
+<result/>
+</testResult>

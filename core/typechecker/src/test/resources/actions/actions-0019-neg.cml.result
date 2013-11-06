@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.ActionsCmlTypeCheckerTests">
+<message column="2" line="9" message="3433 Communication &quot;a&quot; declared with too few arguments. Actual 1, Expected 2" messageType="error" number="0" resource="actions-0019-neg.cml"/>
+<result/>
+</testResult>
