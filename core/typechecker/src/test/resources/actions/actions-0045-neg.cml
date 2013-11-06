@@ -3,6 +3,13 @@
 process A =
 begin
 
-@ mu X @( Y ; X )
+actions
+    Y = Skip
+    X = Skip ; X
+G val fefe=Skip
+
+@ mu X @( Skip ; X;G(5))
+
+@ mu X @ (val f @   : )
 
 end
