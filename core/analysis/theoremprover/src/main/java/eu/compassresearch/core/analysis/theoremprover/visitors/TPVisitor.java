@@ -14,6 +14,7 @@ import org.overture.pof.AVdmPoTree;
 import org.overture.pog.obligation.ProofObligation;
 import org.overture.pog.obligation.ProofObligationList;
 import org.overture.pog.pub.IProofObligation;
+import org.overture.pog.pub.IProofObligationList;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
@@ -269,7 +270,7 @@ public class TPVisitor extends
 	 * @param thyFileName
 	 * @return
 	 */
-	public static String generatePogThyStr(List<INode> ast, ProofObligationList poList, String thyFileName) 
+	public static String generatePogThyStr(List<INode> ast, IProofObligationList poList, String thyFileName) 
 	{
 		String pogErrors = "";
 		String pogString = "";

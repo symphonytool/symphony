@@ -5,6 +5,7 @@ import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.node.INode;
+import org.overture.ast.statements.PStm;
 import org.overture.ast.types.PType;
 
 import eu.compassresearch.ast.actions.PAction;
@@ -15,6 +16,7 @@ import eu.compassresearch.ast.expressions.PCMLExp;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.analysis.theoremprover.thms.NodeNameList;
+import eu.compassresearch.core.analysis.theoremprover.visitors.string.ThmVarsContext;
 
 @SuppressWarnings("serial")
 public class ThmDepVisitor extends
@@ -28,6 +30,7 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList> {
 	private ThmStateDepVisitor stateDepVisitor;
 	private ThmProcessDepVisitor processDepVisitor;
 	private ThmActionDepVisitor actionDepVisitor;
+	private ThmStmDepVisitor stmDepVisitor;
 	
 
 	/**
@@ -46,6 +49,7 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList> {
 		stateDepVisitor = new ThmStateDepVisitor(this);
 		processDepVisitor = new ThmProcessDepVisitor(this);
 		actionDepVisitor = new ThmActionDepVisitor(this);
+		stmDepVisitor = new ThmStmDepVisitor(this);
 	}
 
 	public NodeNameList defaultINode(INode node, NodeNameList bvars)
@@ -93,6 +97,12 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList> {
 			throws AnalysisException {		
 		return node.apply(this.actionDepVisitor, bvars);
 	}	
+
+	public NodeNameList defaultPStm(PStm node, NodeNameList bvars)
+			throws AnalysisException {		
+		return node.apply(this.stmDepVisitor, bvars);
+	}	
+	
 	
 	public NodeNameList defaultPVarsetExpression(PVarsetExpression node, NodeNameList bvars)
 			throws AnalysisException {		

@@ -25,8 +25,10 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.pog.obligation.ProofObligationList;
+import org.overture.pog.pub.IProofObligationList;
 
 import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligationList;
+import eu.compassresearch.core.analysis.pog.utility.PogPubUtil;
 import eu.compassresearch.core.analysis.theoremprover.utils.UnhandledSyntaxException;
 import eu.compassresearch.core.analysis.theoremprover.visitors.TPVisitor;
 import eu.compassresearch.ide.core.resources.ICmlModel;
@@ -61,10 +63,10 @@ public class TPPluginDoStuff {
 				return;
 			}
 
-			// Test for unsupportted
-			if (checkUnsupporteds(proj)) {
-				return;
-			}
+		//	// Test for unsupportted
+		//	if (checkUnsupporteds(proj)) {
+		//		return;
+		//		}
 
 			// Get the cml project
 			ICmlProject cmlProj = (ICmlProject) proj
@@ -248,18 +250,8 @@ public class TPPluginDoStuff {
 	 * PLACEHOLDER FOR NOW - SHOULD TIE IN WITH COMMAND, FUNCTIONALITY NEEDS
 	 * INTERTWINING WITH TP STUFF BETTER, TOO.
 	 */
-	public void fetchPOs() {
+	public void fetchPOs(ICmlProject cmlProj) {
 		try {
-			IProject proj = TPPluginUtils.getCurrentlySelectedProject();
-			if (proj == null) {
-				popErrorMessage("No CML project is selected.");
-				return;
-			}
-
-			// Get the cml project
-			ICmlProject cmlProj = (ICmlProject) proj
-					.getAdapter(ICmlProject.class);
-
 			// Check there are no type errors.
 			if (!CmlProjectUtil.typeCheck(this.window.getShell(), cmlProj)) {
 				popErrorMessage("Can not produce theory file for theorem Proving. \n There are type errors in model.");
@@ -268,10 +260,7 @@ public class TPPluginDoStuff {
 			// Grab the model from the project
 			final ICmlModel model = cmlProj.getModel();
 
-			final ProofObligationList pol = new ProofObligationList();
-
-			pol.addAll(model.getAttribute(POConstants.PO_REGISTRY_ID,
-					CmlProofObligationList.class));
+			IProofObligationList pol = PogPubUtil.generateProofObligations(model.getAst());
 
 			if (pol.isEmpty()) {
 				popErrorMessage("There are no Proof Oligations to discharge.");
@@ -286,30 +275,30 @@ public class TPPluginDoStuff {
 			// representation of a date with the defined format.
 			String date = df.format(today);
 
-			IFolder isaFolder = cmlProj.getModelBuildPath().getOutput()
+			IFolder pogFolder = cmlProj.getModelBuildPath().getOutput()
 					.getFolder(new Path("POG/" + date));
-			IFolder modelBk = isaFolder.getFolder("model");
-			if (!isaFolder.exists()) {
+			IFolder modelBk = pogFolder.getFolder("model");
+			if (!pogFolder.exists()) {
 				// if generated folder doesn't exist
-				if (!isaFolder.getParent().getParent().exists()) {
+				if (!pogFolder.getParent().getParent().exists()) {
 					// create 'generated' folder
-					((IFolder) isaFolder.getParent().getParent()).create(true,
+					((IFolder) pogFolder.getParent().getParent()).create(true,
 							true, new NullProgressMonitor());
-					// create 'Isabelle' folder
-					((IFolder) isaFolder.getParent()).create(true, true,
+					// create 'POG' folder
+					((IFolder) pogFolder.getParent()).create(true, true,
 							new NullProgressMonitor());
 
 				}
 				// if 'generated' folder does exist and POG folder doesn't exist
-				else if (!isaFolder.getParent().exists()) {
+				else if (!pogFolder.getParent().exists()) {
 
-					((IFolder) isaFolder.getParent()).create(true, true,
+					((IFolder) pogFolder.getParent()).create(true, true,
 							new NullProgressMonitor());
 
 				}
 				// Create timestamped folder
-				isaFolder.create(true, true, new NullProgressMonitor());
-				isaFolder.refreshLocal(IResource.DEPTH_ZERO,
+				pogFolder.create(true, true, new NullProgressMonitor());
+				pogFolder.refreshLocal(IResource.DEPTH_ZERO,
 						new NullProgressMonitor());
 
 				// Create model backup folder
@@ -328,11 +317,11 @@ public class TPPluginDoStuff {
 								- (sourceUnit.getFile().getFileExtension()
 										.length() + 1));
 				String thyFileName = fileName + ".thy";
-				IFile thyFile = isaFolder.getFile(thyFileName);
+				IFile thyFile = pogFolder.getFile(thyFileName);
 				translateCmltoThy(model, thyFile, thyFileName);
 
 				// Create empty thy file which imports generated file
-				IFile pogThyFile = isaFolder.getFile(fileName + "_PO.thy");
+				IFile pogThyFile = pogFolder.getFile(fileName + "_PO.thy");
 				createPogThy(model, pogThyFile, thyFileName, pol);
 			}
 
@@ -353,7 +342,7 @@ public class TPPluginDoStuff {
 	 * @return
 	 */
 	private IFile createPogThy(ICmlModel model, IFile pogThyFile,
-			String thyFileName, ProofObligationList pol) {
+			String thyFileName, IProofObligationList pol) {
 
 		// Get the thy string for a given model and it's proof obligations
 		String thmString = TPVisitor.generatePogThyStr(model.getAst(), pol,

@@ -484,7 +484,7 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 
 		if(!(varName.getName().equals("RESULT"))){
 			for(ILexNameToken var : bvars){
-				if (!boundV && varName.toString().equals(var.getName()))
+				if (!boundV && varName.getName().equals(var.getName()))
 				{
 					boundV = true;
 				}

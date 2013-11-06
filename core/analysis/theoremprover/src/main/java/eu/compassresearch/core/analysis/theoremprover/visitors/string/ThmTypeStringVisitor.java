@@ -176,7 +176,7 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 	}
 	
 	public String caseAVoidType(AVoidType tp, ThmVarsContext vars) throws AnalysisException{	
-		return ThmTypeUtil.notHandled;
+		return "()";
 	}
 	
 	public String caseAClassType(AClassType tp, ThmVarsContext vars) throws AnalysisException{	

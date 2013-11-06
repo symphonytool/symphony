@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import org.overture.ast.definitions.AImplicitFunctionDefinition;
+import org.overture.ast.definitions.AInstanceVariableDefinition;
 import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.definitions.SOperationDefinition;
@@ -70,14 +71,14 @@ public class ThmProcessUtil {
 	
 	public static NodeNameList getProcessStatementNames(AActionProcess act)
 	{
-		LinkedList<AStateDefinition> statements = new LinkedList<AStateDefinition>();
+		LinkedList<AInstanceVariableDefinition> statements = new LinkedList<AInstanceVariableDefinition>();
 		AActionClassDefinition actdef = (AActionClassDefinition) act.getActionDefinition();
 		
 		for (PDefinition pdef : actdef.getDefinitions())
 		{
-			if (pdef instanceof AStateDefinition)
+			if (pdef instanceof AInstanceVariableDefinition)
 			{
-				AStateDefinition sdef = (AStateDefinition) pdef;
+				AInstanceVariableDefinition sdef = (AInstanceVariableDefinition) pdef;
 				statements.add(sdef);
 			}
 		}
@@ -125,26 +126,16 @@ public class ThmProcessUtil {
 	 * @param statements - the collection of state variables
 	 * @return a list of names (as ILexNameTokens)
 	 */
-	public static NodeNameList getStateNames(LinkedList<AStateDefinition> statements)
+	public static NodeNameList getStateNames(LinkedList<AInstanceVariableDefinition> procVars)
 	{
 		//first we need to get all the state identifier names so expressions use correct
 		//reference
 		NodeNameList statenames = new NodeNameList();
 		//for each state definition
-		for (AStateDefinition pdef : statements)
+		for (AInstanceVariableDefinition pdef : procVars)
 		{
-			//for each state definition
-			for (PDefinition sdef : pdef.getStateDefs())
-			{
-				//if the state definition is an assignment definition
-				if (sdef instanceof AAssignmentDefinition)
-				{
-					AAssignmentDefinition st = (AAssignmentDefinition) sdef;
-	
-					//get the name and add it to the list
-					statenames.add(st.getName());
-				}
-			}
+			//get the name and add it to the list
+			statenames.add(pdef.getName());
 		}
 		return statenames;
 	}
