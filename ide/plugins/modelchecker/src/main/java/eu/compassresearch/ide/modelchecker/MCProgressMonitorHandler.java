@@ -106,8 +106,7 @@ public class MCProgressMonitorHandler extends AbstractHandler{
 		return null;
 	}
 
-	public synchronized FormulaResult getFormulaResult() throws InterruptedException{
-		join();
+	public FormulaResult getFormulaResult() throws InterruptedException{
 		return thread.getFormulaResult();
 	}
 

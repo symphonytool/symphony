@@ -53,8 +53,8 @@ public class MCHandler extends AbstractHandler {
 	private IFormulaIntegrator mc;
 	
 	public MCHandler() {
-		RegistryFactory factory = eu.compassresearch.core.common.RegistryFactory.getInstance(MCConstants.MC_REGISTRY_ID);
-		this.registry = factory.getRegistry();
+		//RegistryFactory factory = eu.compassresearch.core.common.RegistryFactory.getInstance(MCConstants.MC_REGISTRY_ID);
+		//this.registry = factory.getRegistry();
 	}
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
@@ -139,37 +139,18 @@ public class MCHandler extends AbstractHandler {
 							MCProgressView p = new MCProgressView(outputFile, propertyToCheck, mcFolder, selectedUnit, cmlFile, event);
 							p.execute();
 							
-							formulaOutput = p.getFormulaResult();
+							//formulaOutput = p.getFormulaResult();
 							
-							FormulaResultWrapper frw = new FormulaResultWrapper(formulaOutput, null, propertyToCheck, mcFolder, selectedUnit);
+							//FormulaResultWrapper frw = new FormulaResultWrapper(formulaOutput, null, propertyToCheck, mcFolder, selectedUnit);
 							
 							//if the model is satisfiable then we save the formula output and 
 							//to build the graph of the counterexample on demand.
-							if(formulaOutput.isSatisfiable()){
-								/*
-								if(Activator.DOT_OK){
-									//we build the counterexample
-									GraphBuilder gb = new GraphBuilder();
-									String dotContent = gb.generateDot(new StringBuilder(formulaOutput.getFacts()), propertyToCheck);
-									//save the graphviz code to a file
-									IFile dotFile = writeDotContentToFile(mcFolder,selectedUnit,dotContent);
-									//compile the generated graphviz
-									GraphViz gv = new GraphViz();
-									File file = dotFile.getRawLocation().toFile();
-									String fileName = file.getName();
-									gv.runDot(file);
-									IFile svgFile = mcFolder.getFile(fileName+".svg");
-									frw.setSvgFile(svgFile);
-								}
-								*/
-							}
-							
 							//writeToConsole(cmlFile.getName(), formulaOutput);
 						
 							
 							//MCPluginDoStuff mcp = new MCPluginDoStuff(window.getActivePage().getActivePart().getSite(), cmlFile, frw);
 							//mcp.run();
-							registry.store(selectedUnit.getParseNode(), frw);
+							//registry.store(selectedUnit.getParseNode(), frw);
 						}else{
 							MessageDialog.openInformation(
 									window.getShell(),
@@ -222,7 +203,7 @@ public class MCHandler extends AbstractHandler {
 		
 		List<PDefinition> definitions = selectedCmlSourceUnit.getParseListDefinitions();
 		String basicContent = Utilities.readScriptFromFile(Utilities.BASIC_FORMULA_SCRIPT).toString();
-		//NewMCVisitor visitorAux =  new NewMCVisitor();
+		this.adaptor =  new NewMCVisitor();
 		String specificationContent = this.adaptor.generateFormulaScript(definitions,propertyToCheck);
 		try{
 			if(!outputFile.exists()){

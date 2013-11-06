@@ -161,13 +161,13 @@ public class MCListView extends ViewPart {
 	}
 
 	
-	public void setData(final MCUIResult data) {
-		if(!this.data.contains(data)){
-			this.data.add(data);
+	public void setData(final MCUIResult d) {
+		if(!this.data.contains(d)){
+			this.data.add(d);
 		} else{
 			for(int i = 0; i < this.data.size(); i++){
-				if(this.data.get(i).equals(data)){
-					this.data.set(i, data);
+				if(this.data.get(i).equals(d)){
+					this.data.set(i, d);
 				}
 			}
 		}
@@ -179,9 +179,10 @@ public class MCListView extends ViewPart {
 				table.getColumn(0).setWidth(120);
 				table.getColumn(1).setWidth(100);
 				table.getColumn(2).setWidth(40);
-				TableItem ti = new TableItem(table, SWT.NONE);
+				
 				if(data != null){
-					for(MCUIResult r : MCListView.this.data){
+					for(MCUIResult r : data){
+						TableItem ti = new TableItem(table, SWT.NONE);
 						ti.setText(0, r.getFile().getName());
 						//ti.setText(new String[] {data.getFile().getName(), getProperty(data), getSat(data)});
 						ti.setText(1, getProperty(r));
@@ -202,6 +203,7 @@ public class MCListView extends ViewPart {
 				return image; 
 			}
 		});
+		this.display.update();
 	}
 	
 	private String getProperty(MCUIResult data){

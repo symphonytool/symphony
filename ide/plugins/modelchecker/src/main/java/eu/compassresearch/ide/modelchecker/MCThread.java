@@ -4,10 +4,13 @@ import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.internal.progress.FinishedJobs;
 
 import eu.compassresearch.core.analysis.modelchecker.api.FormulaIntegrationException;
 import eu.compassresearch.core.analysis.modelchecker.api.FormulaIntegrator;
 import eu.compassresearch.core.analysis.modelchecker.api.FormulaResult;
+import eu.compassresearch.core.common.Registry;
+import eu.compassresearch.core.common.RegistryFactory;
 import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
 
 enum MCStatus { CREATED, RUNNING, ERROR, FINISHED}
@@ -25,6 +28,7 @@ public class MCThread extends Thread{
 	private ICmlSourceUnit selectedUnit;
 	private IResource cmlFile;
 	private IWorkbenchWindow window;
+	private Registry registry;
 	
 	public MCThread(IFile f, String property, IContainer mcFolder, ICmlSourceUnit selectedUnit, IResource cmlFile, IWorkbenchWindow win) {
 		this.status = MCStatus.CREATED;
@@ -34,6 +38,8 @@ public class MCThread extends Thread{
 		this.selectedUnit = selectedUnit;
 		this.cmlFile = cmlFile;
 		this.window = win;
+		RegistryFactory factory = eu.compassresearch.core.common.RegistryFactory.getInstance(MCConstants.MC_REGISTRY_ID);
+		this.registry = factory.getRegistry();
 	}
 	
 	
@@ -47,6 +53,7 @@ public class MCThread extends Thread{
 			this.fmw = new FormulaResultWrapper(result, null, propertyToCheck, mcFolder, selectedUnit);
 			MCPluginDoStuff mcp = new MCPluginDoStuff(getWindow().getActivePage().getActivePart().getSite(), cmlFile, this.fmw);
 			mcp.run();
+			registry.store(selectedUnit.getParseNode(), fmw);
 		} catch (FormulaIntegrationException e) {
 			exception = e;
 			this.status = MCStatus.ERROR;
@@ -54,7 +61,7 @@ public class MCThread extends Thread{
 		this.status = MCStatus.FINISHED;
 	}
 
-	public MCStatus getStatus(){
+	public synchronized MCStatus getStatus(){
 		return this.status;
 	}
 	
