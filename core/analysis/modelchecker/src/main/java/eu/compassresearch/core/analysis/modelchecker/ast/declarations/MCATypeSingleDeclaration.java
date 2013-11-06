@@ -1,19 +1,16 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.declarations;
 
-import java.util.LinkedList;
-
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 
 public class MCATypeSingleDeclaration implements MCPSingleDeclaration {
 
-	private LinkedList<String> identifiers = new LinkedList<String>();
+	private String identifier;
 	private MCPCMLType type;
 	
 	
-	public MCATypeSingleDeclaration(LinkedList<String> identifiers,
+	public MCATypeSingleDeclaration(String identifier,
 			MCPCMLType type) {
-		super();
-		this.identifiers = identifiers;
+		this.identifier = identifier;
 		this.type = type;
 	}
 
@@ -25,13 +22,15 @@ public class MCATypeSingleDeclaration implements MCPSingleDeclaration {
 	}
 
 
-	public LinkedList<String> getIdentifiers() {
-		return identifiers;
+	
+
+	public String getIdentifier() {
+		return identifier;
 	}
 
 
-	public void setIdentifiers(LinkedList<String> identifiers) {
-		this.identifiers = identifiers;
+	public void setIdentifier(String identifier) {
+		this.identifier = identifier;
 	}
 
 

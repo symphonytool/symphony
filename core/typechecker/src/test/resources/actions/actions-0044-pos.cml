@@ -1,0 +1,8 @@
+/* Explicit recursion is ok without explicit call */
+
+process A =
+begin
+
+@ mu X @( Skip )
+
+end

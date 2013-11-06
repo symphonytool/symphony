@@ -34,8 +34,7 @@ import org.overture.ast.types.PAccessSpecifier;
 import org.overture.ast.types.PField;
 import org.overture.ast.types.PType;
 
-import eu.compassresearch.ast.actions.ACaseAlternativeAction;
-import eu.compassresearch.ast.actions.PAlternativeAction;
+import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
@@ -297,24 +296,6 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 		super.defaultInPClause(node);
 	}
 
-	/**
-	 * Special dedicated case since the more general {@link PAlternativeAction}
-	 * does not have location info.
-	 */
-	@Override
-	public void caseACaseAlternativeAction(ACaseAlternativeAction node)
-			throws AnalysisException {
-		if (unsupported) {
-			UnsupportedElementInfo uei = new UnsupportedElementInfo();
-			uei.setLocation(node.getLocation());
-			uei.setMessage(node.getClass().getSimpleName().toString()
-					+ " nodes are not supported by the " + feature.toString());
-			unsupporteds.add(uei);
-		} else {
-			unsupported = true;
-		}
-		super.caseACaseAlternativeAction(node);
-	}
 
 	// DEFAULT CASES
 
@@ -388,6 +369,22 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 			unsupported = true;
 		}
 		super.defaultInPMultipleBind(node);
+	}
+
+	
+	
+	@Override
+	public void defaultInPAction(PAction node) throws AnalysisException {
+		if (unsupported) {
+			UnsupportedElementInfo uei = new UnsupportedElementInfo();
+			uei.setLocation(node.getLocation());
+			uei.setMessage(node.getClass().getSimpleName().toString()
+					+ " nodes are not supported by the " + feature.toString());
+			unsupporteds.add(uei);
+		} else {
+			unsupported = true;
+		}
+		super.defaultInPAction(node);
 	}
 
 	@Override

@@ -2,23 +2,12 @@ package eu.compassresearch.core.analysis.modelchecker.ast.actions;
 
 import java.util.LinkedList;
 
-import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.expressions.ASetEnumSetExp;
-import org.overture.ast.expressions.PExp;
-
-import eu.compassresearch.ast.actions.AGeneralisedParallelismReplicatedAction;
-import eu.compassresearch.ast.actions.PAction;
-import eu.compassresearch.ast.actions.SReplicatedActionBase;
-import eu.compassresearch.ast.declarations.AExpressionSingleDeclaration;
-import eu.compassresearch.ast.declarations.PSingleDeclaration;
-import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCAExpressionSingleDeclaration;
 import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCPSingleDeclaration;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASeqEnumSeqExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASetEnumSetExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
-import eu.compassresearch.core.analysis.modelchecker.visitors.Utilities;
 
 public class MCASequentialCompositionReplicatedAction extends
 		MCSReplicatedActionBase {

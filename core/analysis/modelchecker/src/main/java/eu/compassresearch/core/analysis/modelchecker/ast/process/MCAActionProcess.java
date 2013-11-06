@@ -8,14 +8,13 @@ import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCPCMLDefin
 
 public class MCAActionProcess implements MCPProcess {
 
-	private LinkedList<MCPCMLDefinition> definitionParagraphs = new LinkedList<MCPCMLDefinition>();
+	private MCPCMLDefinition definition;
 	private MCPAction action;
 	
 	
-	public MCAActionProcess(LinkedList<MCPCMLDefinition> definitionParagraphs,
+	public MCAActionProcess(MCPCMLDefinition definition,
 			MCPAction action) {
-		super();
-		this.definitionParagraphs = definitionParagraphs;
+		this.definition = definition;
 		this.action = action;
 	}
 
@@ -40,15 +39,14 @@ public class MCAActionProcess implements MCPProcess {
 		return this.action.toFormula(option);
 	}
 
-
-	public LinkedList<MCPCMLDefinition> getDefinitionParagraphs() {
-		return definitionParagraphs;
+	
+	public MCPCMLDefinition getDefinition() {
+		return definition;
 	}
 
 
-	public void setDefinitionParagraphs(
-			LinkedList<MCPCMLDefinition> definitionParagraphs) {
-		this.definitionParagraphs = definitionParagraphs;
+	public void setDefinition(MCPCMLDefinition definition) {
+		this.definition = definition;
 	}
 
 
