@@ -5,14 +5,11 @@ import java.util.List;
 import org.overture.ast.definitions.AExplicitOperationDefinition;
 import org.overture.ast.definitions.AImplicitOperationDefinition;
 import org.overture.ast.definitions.AStateDefinition;
-import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.lex.LexLocation;
-import org.overture.ast.patterns.APatternListTypePair;
 import org.overture.ast.patterns.PPattern;
-import org.overture.ast.statements.ASkipStm;
 import org.overture.ast.types.AOperationType;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ValueException;
@@ -21,9 +18,7 @@ import org.overture.interpreter.values.Value;
 import org.overture.interpreter.values.ValueList;
 
 import eu.compassresearch.ast.actions.PAction;
-import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
-import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
-import eu.compassresearch.ast.lex.LexNameToken;
+import eu.compassresearch.ast.lex.CmlLexNameToken;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 
 public class CmlOperationValue extends OperationValue
@@ -33,62 +28,40 @@ public class CmlOperationValue extends OperationValue
 	// This is used to retrieve the result of a operation
 	public static ILexNameToken ReturnValueName()
 	{
-		return new LexNameToken("|CALL|", "RETURN", new LexLocation());
+		return new CmlLexNameToken("|CALL|", "RETURN", new LexLocation());
 	}
 
 	private static final long serialVersionUID = 1L;
-	public final AExplicitCmlOperationDefinition expldef;
-	public final AImplicitCmlOperationDefinition impldef;
+	public final AExplicitOperationDefinition expldef;
+	public final AImplicitOperationDefinition impldef;
 	private final PExp precondition;
 	private final PExp postcondition;
 	public final AStateDefinition state;
 	private PAction body;
 	private CmlBehaviour currentlyExecutingThread = null;
 
-	public CmlOperationValue(AExplicitCmlOperationDefinition def,
+	public CmlOperationValue(AExplicitOperationDefinition def,
 			AStateDefinition state)
 	{
-		super(convertToVDMDefinition(def), null, null, null);
+		super(def, null, null, null);
 		this.expldef = def;
 		this.impldef = null;
-		this.setBody(def.getBody());
+		// this.setBody(def.getBody());
 		this.precondition = def.getPrecondition();
 		this.postcondition = def.getPostcondition();
 		this.state = state;
 	}
 
-	public CmlOperationValue(AImplicitCmlOperationDefinition def,
+	public CmlOperationValue(AImplicitOperationDefinition def,
 			AStateDefinition state)
 	{
-		super(convertToVDMDefinition(def), null, null, null);
+		super(def, null, null, null);
 		this.expldef = null;
 		this.impldef = def;
 		this.setBody(null);
 		this.precondition = def.getPrecondition();
 		this.postcondition = def.getPostcondition();
 		this.state = state;
-	}
-
-	private static AExplicitOperationDefinition convertToVDMDefinition(
-			AExplicitCmlOperationDefinition def)
-	{
-		return new AExplicitOperationDefinition(def.getLocation(), def.getName().clone(), def.getNameScope(), def.getUsed(), def.getClassDefinition() != null ? def.getClassDefinition().clone()
-				: null, def.getAccess().clone(), def.getPass(), (List<? extends PPattern>) def.getParameterPatterns().clone(), new ASkipStm(), def.getPrecondition() != null ? def.getPrecondition().clone()
-				: null, def.getPostcondition() != null ? def.getPostcondition().clone()
-				: null, def.getType().clone(), null, null, (List<? extends PDefinition>) def.getParamDefinitions().clone(), null, def.getActualResult(), def.getIsConstructor());
-	}
-
-	private static AImplicitOperationDefinition convertToVDMDefinition(
-			AImplicitCmlOperationDefinition def)
-	{
-		return new AImplicitOperationDefinition(def.getLocation(), def.getName().clone(), def.getNameScope(), def.getUsed(), 
-				def.getClassDefinition() != null ? def.getClassDefinition().clone()	: null, def.getAccess().clone(), 
-						def.getPass(), (List<? extends APatternListTypePair>) def.getParameterPatterns().clone(), 
-						def.getResult().size() > 0 ? def.getResult().get(0)	: null, 
-								null, // body
-								def.getExternals(), def.getPrecondition() != null ? def.getPrecondition().clone() : null, 
-										def.getPostcondition() != null ? def.getPostcondition().clone() : null, 
-												def.getErrors(), def.getType().clone(), def.getPredef(), def.getPostdef(), def.getState(), def.getActualResult(), def.getStateDefinition(), def.getIsConstructor());
 	}
 
 	// public CmlOperationValue(AImplicitCmlOperationDefinition def,

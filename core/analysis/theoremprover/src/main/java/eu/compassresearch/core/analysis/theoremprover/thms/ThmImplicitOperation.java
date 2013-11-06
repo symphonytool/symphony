@@ -20,11 +20,11 @@ public class ThmImplicitOperation extends ThmDecl{
 	private String params;
 	private String preParamList;
 	private String postParamList;
-	private LinkedList<APatternTypePair> result;
+	private APatternTypePair result;
 	private String resType;
 
 	
-	public ThmImplicitOperation(String name, LinkedList<APatternListTypePair> params, String pre, String post, LinkedList<APatternTypePair> res, String resType) {
+	public ThmImplicitOperation(String name, LinkedList<APatternListTypePair> params, String pre, String post, APatternTypePair res, String resType) {
 		this.name = name;
 		this.params = getParams(params);
 		this.result = res;
@@ -95,7 +95,7 @@ public class ThmImplicitOperation extends ThmDecl{
 	private String fixPostFuncExpr(String ex, LinkedList<APatternListTypePair> pattern){
 
 		//if there is a result value (it is a postcondition)
-		if  (result != null && (!result.isEmpty()) && result.getFirst() != null)
+		if  (result != null )
 		{
 			int count = 0;
 			//first, need to determine how many parameters are supplied in the function.
@@ -110,7 +110,7 @@ public class ThmImplicitOperation extends ThmDecl{
 			}
 			
 			//Add the result too
-			PPattern p = result.getFirst().getPattern();
+			PPattern p = result.getPattern();
 			//the result is therefore the next parameter
 			int resCount = count+1;
 			
@@ -130,7 +130,7 @@ public class ThmImplicitOperation extends ThmDecl{
 	 * @param parPair - the operation parameters
 	 * @return a Sting with the parameter list
 	 */
-	public String getPrePostParamList(LinkedList<APatternListTypePair> parPair, LinkedList<APatternTypePair> res){
+	public String getPrePostParamList(LinkedList<APatternListTypePair> parPair, APatternTypePair res){
 		StringBuilder sb = new StringBuilder();
 		sb.append("(");
 		
@@ -155,17 +155,16 @@ public class ThmImplicitOperation extends ThmDecl{
 			}
 		}
 		//if there is a result value (it is a postcondition)
-		if  (res != null && (!res.isEmpty()) && res.getFirst() != null)
-		{	
-			if (!params.isEmpty())
-			{
-				sb.append(", ");
-			}
-			sb.append("^" + ThmTypeUtil.isaFuncLambdaPostVal + "^");
+		if  (res != null )
+		{
+			//Add the result too
+			PPattern p = res.getPattern();
+	
+			sb.append(", ^" + ((AIdentifierPattern) p).getName().toString() + "^");
 		}
 		
 		sb.append(")");
-		return sb.toString();//fixParamRefs(sb.toString(), parPair);
+		return fixParamRefs(sb.toString(), parPair);
 	}
 	
 	/**
@@ -212,11 +211,11 @@ public class ThmImplicitOperation extends ThmDecl{
 				
 		if (resType	!= null)
 		{
-			res.append(ThmProcessUtil.opExpLeft + "(" + ThmTypeUtil.isaOpLambdaPost + " " + ThmTypeUtil.isaFuncLambdaPostVal+ " : " + resType + " @ (post_" + name + postParamList +"))");
+			res.append(ThmProcessUtil.opExpLeft + "(" + ThmTypeUtil.isaFuncLambdaPost + " " + ThmTypeUtil.isaFuncLambdaPostVal+ " : " + resType + " @ (post_" + name + postParamList +"))");
 		}
 		else
 		{
-			res.append(ThmProcessUtil.opExpLeft +"post_" + name + postParamList + ThmProcessUtil.opExpRight +" ");
+			res.append("post_" + name + postParamList);
 		}
 		
 		res.append(ThmProcessUtil.opExpRight + "`\"\n" + tacHook(name));

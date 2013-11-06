@@ -1,0 +1,13 @@
+class
+
+ test =
+
+begin
+
+
+
+values
+
+ a : int = let b:int = 42 rem 2 in b * 10
+
+end

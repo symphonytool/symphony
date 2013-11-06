@@ -1,0 +1,21 @@
+types
+
+ ERUId = nat RescueDetails ::a:int b:int
+
+process
+
+ P =
+
+begin
+
+
+
+state
+
+ erus : set of ERUId eruRescues : map ERUId to RescueDetails
+
+operations
+
+ findIdleERUs() idleERUs: set of ERUId frame rd erus: set of ERUId rd eruRescues: map ERUId to RescueDetails post idleERUs = erus \ dom eruRescues @ findIdleERUs()
+
+end

@@ -1,0 +1,17 @@
+process
+
+ P =
+
+begin
+
+
+
+state
+
+ a: nat * nat := mk_(0,0) 
+ t: (nat * nat) * (nat * nat) 
+ 
+ 
+ @ Skip// t.#1 := a
+
+end

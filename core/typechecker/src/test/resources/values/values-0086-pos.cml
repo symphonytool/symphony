@@ -1,0 +1,13 @@
+class
+
+ test =
+
+begin
+
+
+
+values
+
+ a:map int to int = {1|->2} comp {5|->6}
+
+end

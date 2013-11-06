@@ -1,0 +1,15 @@
+/*Test case for bug https://sourceforge.net/p/compassresearch/tickets/27/*/
+
+process
+
+ Test =
+
+begin
+
+
+
+functions
+
+ Bad : () -> nat	Bad () == let aux = 1 in aux Bad2 : () -> nat	Bad2 () == aux @ Skip
+
+end

@@ -1,0 +1,19 @@
+class
+
+ C =
+
+begin
+
+
+
+values
+
+ k : int = 42
+
+end
+
+
+
+functions
+
+ f: int -> C f(v) == C.k + v

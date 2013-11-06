@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.CaseStudiesTestCase">
+<message column="12" line="14" message="Definition 'mID' not used" messageType="warning" number="0" resource="Gateway.cml"/>
+<message column="17" line="14" message="Definition 'value' not used" messageType="warning" number="0" resource="Gateway.cml"/>
+<message column="12" line="17" message="Definition 'mID' not used" messageType="warning" number="0" resource="Gateway.cml"/>
+<message column="17" line="17" message="Definition 'value' not used" messageType="warning" number="0" resource="Gateway.cml"/>
+<message column="19" line="20" message="Definition 'mID' not used" messageType="warning" number="0" resource="Gateway.cml"/>
+<message column="8" line="31" message="Definition 'mID' not used" messageType="warning" number="0" resource="Gateway.cml"/>
+<message column="9" line="34" message="Definition 'mID' not used" messageType="warning" number="0" resource="Gateway.cml"/>
+<message column="21" line="36" message="Definition 'r' not used" messageType="warning" number="0" resource="Gateway.cml"/>
+<message column="26" line="40" message="Definition 'r' not used" messageType="warning" number="0" resource="Gateway.cml"/>
+<message column="1" line="7" message="Instance variable 'myMeterID' is not initialized" messageType="warning" number="0" resource="Agent.cml"/>
+<message column="1" line="8" message="Instance variable 'myMeterCharge' is not initialized" messageType="warning" number="0" resource="Agent.cml"/>
+<message column="1" line="9" message="Instance variable 'myMaxValue' is not initialized" messageType="warning" number="0" resource="Agent.cml"/>
+<message column="1" line="10" message="Instance variable 'myMinValue' is not initialized" messageType="warning" number="0" resource="Agent.cml"/>
+<message column="1" line="11" message="Instance variable 'myThreshValue' is not initialized" messageType="warning" number="0" resource="Agent.cml"/>
+<message column="1" line="8" message="Instance variable 'minValue' is not initialized" messageType="warning" number="0" resource="Contract.cml"/>
+<message column="1" line="9" message="Instance variable 'maxValue' is not initialized" messageType="warning" number="0" resource="Contract.cml"/>
+<message column="1" line="10" message="Instance variable 'currCharge' is not initialized" messageType="warning" number="0" resource="Contract.cml"/>
+<message column="1" line="11" message="Instance variable 'ThreshValue' is not initialized" messageType="warning" number="0" resource="Contract.cml"/>
+<message column="9" line="57" message="Definition 'ranVal' not used" messageType="warning" number="0" resource="Gateway.cml"/>
+<result/>
+</testResult>

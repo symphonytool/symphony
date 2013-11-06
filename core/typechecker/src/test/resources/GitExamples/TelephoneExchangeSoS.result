@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.secondedition.RunCmlExamplesTestCase">
+<message column="1" line="21" message="Recursive function has no measure" messageType="warning" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="9" line="65" message="status at 65:2 hidden by status" messageType="warning" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="9" line="66" message="number at 66:2 hidden by number" messageType="warning" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="9" line="67" message="subs at 67:2 hidden by subs" messageType="warning" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="9" line="62" message="lSUBS at 62:2 hidden by lSUBS" messageType="warning" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="23" line="99" message="Definition 'a' not used" messageType="warning" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="9" line="67" message="subs at 67:2 hidden by subs" messageType="warning" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="9" line="67" message="subs at 67:2 hidden by subs" messageType="warning" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="9" line="65" message="status at 65:2 hidden by status" messageType="warning" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="9" line="66" message="number at 66:2 hidden by number" messageType="warning" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="9" line="67" message="subs at 67:2 hidden by subs" messageType="warning" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="9" line="65" message="status at 65:2 hidden by status" messageType="warning" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="9" line="66" message="number at 66:2 hidden by number" messageType="warning" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="9" line="67" message="subs at 67:2 hidden by subs" messageType="warning" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="9" line="65" message="status at 65:2 hidden by status" messageType="warning" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="9" line="67" message="subs at 67:2 hidden by subs" messageType="warning" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="9" line="66" message="number at 66:2 hidden by number" messageType="warning" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="9" line="65" message="status at 65:2 hidden by status" messageType="warning" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="9" line="67" message="subs at 67:2 hidden by subs" messageType="warning" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="9" line="66" message="number at 66:2 hidden by number" messageType="warning" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="9" line="65" message="status at 65:2 hidden by status" messageType="warning" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="9" line="67" message="subs at 67:2 hidden by subs" messageType="warning" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="9" line="66" message="number at 66:2 hidden by number" messageType="warning" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="9" line="65" message="status at 65:2 hidden by status" messageType="warning" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="9" line="67" message="subs at 67:2 hidden by subs" messageType="warning" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="9" line="66" message="number at 66:2 hidden by number" messageType="warning" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="9" line="65" message="status at 65:2 hidden by status" messageType="warning" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="9" line="67" message="subs at 67:2 hidden by subs" messageType="warning" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="9" line="66" message="number at 66:2 hidden by number" messageType="warning" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="2" line="265" message="Recursive function has no measure" messageType="warning" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="2" line="273" message="away at 273:2 hidden by away" messageType="warning" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="2" line="274" message="origin at 274:2 hidden by origin" messageType="warning" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="2" line="62" message="Instance variable 'lSUBS' is not initialized" messageType="warning" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="2" line="65" message="Instance variable 'status' is not initialized" messageType="warning" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="2" line="66" message="Instance variable 'number' is not initialized" messageType="warning" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="2" line="67" message="Instance variable 'subs' is not initialized" messageType="warning" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="7" line="204" message="Instance variable 'ex' is not initialized" messageType="warning" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="2" line="272" message="Instance variable 'i' is not initialized" messageType="warning" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="2" line="273" message="Instance variable 'away' is not initialized" messageType="warning" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="2" line="274" message="Instance variable 'origin' is not initialized" messageType="warning" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="8" line="5" message="Duplicate definition: SUBS" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="8" line="6" message="Duplicate definition: STATUS" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="8" line="7" message="Duplicate definition: MSG" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="1" line="10" message="Duplicate definition: Connected" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="1" line="11" message="Duplicate definition: n" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="1" line="12" message="Duplicate definition: LOC" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="1" line="15" message="Duplicate definition: next" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="1" line="21" message="Duplicate definition: home" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="1" line="27" message="Duplicate definition: callers" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="1" line="30" message="Duplicate definition: connected" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="1" line="33" message="Duplicate definition: free" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="1" line="36" message="Duplicate definition: connectable" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="1" line="39" message="Duplicate definition: suspendable" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="1" line="42" message="Duplicate definition: ringing" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="1" line="45" message="Duplicate definition: suspended" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="2" line="77" message="Duplicate definition: callers" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="2" line="80" message="Duplicate definition: connected" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="2" line="83" message="Duplicate definition: free" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="2" line="86" message="Duplicate definition: connectable" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="2" line="89" message="Duplicate definition: suspendable" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="2" line="92" message="Duplicate definition: ringing" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="2" line="95" message="Duplicate definition: suspended" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="9" line="249" message="Duplicate definition: SUBS" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="9" line="250" message="Duplicate definition: STATUS" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="9" line="251" message="Duplicate definition: MSG" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="9" line="254" message="Duplicate definition: Connected" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="2" line="255" message="Duplicate definition: n" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="2" line="256" message="Duplicate definition: LOC" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="2" line="259" message="Duplicate definition: next" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="2" line="265" message="Duplicate definition: home" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="10" line="11" message="Name 'undefined' is not in scope" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="2" line="254" message="Expression does not match declared type" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="11" line="255" message="Name 'undefined' is not in scope" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="25" line="78" message="Right of ':&gt;' is not a set" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="10" line="11" message="Name 'undefined' is not in scope" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="23" line="208" message="Name 'subs' is not in scope" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="43" line="208" message="Name 'subs' is not in scope" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="23" line="209" message="Name 'status' is not in scope" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="30" line="209" message="Name 'number' is not in scope" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="37" line="209" message="Name 'subs' is not in scope" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="58" line="209" message="Operation Call(SUBS, SUBS) is not in scope" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="24" line="213" message="Name 'subs' is not in scope" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="22" line="214" message="Name 'status' is not in scope" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="26" line="215" message="Name 'number(SUBS)' is not in scope" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="37" line="215" message="Operation Clear(SUBS, SUBS) is not in scope" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="26" line="219" message="Name 'subs' is not in scope" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="30" line="220" message="Name 'status' is not in scope" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="37" line="220" message="Name 'number' is not in scope" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="26" line="221" message="Name 'number(SUBS)' is not in scope" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="37" line="221" message="Operation Suspend(SUBS, SUBS) is not in scope" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="43" line="224" message="Name 'status' is not in scope" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="50" line="224" message="Name 'number' is not in scope" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="69" line="224" message="Name 'status' is not in scope" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="76" line="224" message="Name 'number' is not in scope" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="83" line="224" message="Name 'subs' is not in scope" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="23" line="225" message="Name 'number(SUBS)' is not in scope" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="34" line="225" message="Operation ConnectFree(SUBS, SUBS) is not in scope" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="4" line="229" message="3113 Unknown type name connectbusy" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="25" line="232" message="Name 'subs' is not in scope" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="26" line="233" message="Name 'status' is not in scope" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="33" line="233" message="Name 'number' is not in scope" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="24" line="234" message="Name 'number(SUBS)' is not in scope" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="35" line="234" message="Operation Answer(SUBS, SUBS) is not in scope" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="28" line="237" message="Name 'subs' is not in scope" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="28" line="238" message="Name 'status' is not in scope" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="35" line="238" message="Name 'number' is not in scope" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="24" line="239" message="Name 'number(SUBS)' is not in scope" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="35" line="239" message="Operation Unsuspend(SUBS, SUBS) is not in scope" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<message column="12" line="242" message="Operation InitExchange() is not in scope" messageType="error" number="0" resource="TelephoneExchangeSoS.result"/>
+<result/>
+</testResult>

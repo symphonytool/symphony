@@ -1,0 +1,17 @@
+types
+
+ I = int
+
+process
+
+ T =
+
+begin
+
+
+
+operations
+
+ o:I*I ==> int o(a,b) == return a+b @ o(10,10)
+
+end

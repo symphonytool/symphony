@@ -1,0 +1,13 @@
+process
+
+ T =
+
+begin
+
+
+
+operations
+
+ o:int*int ==> int o(a,b) == return a+b @ o(10,10)
+
+end

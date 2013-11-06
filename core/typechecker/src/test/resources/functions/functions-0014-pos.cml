@@ -1,0 +1,17 @@
+class
+
+ Test =
+
+begin
+
+
+
+functions
+
+ fn: int -> int fn(a) == is not yet specified
+
+operations
+
+ t : () ==> int t()== return Test`fn(4)
+
+end

@@ -1,0 +1,17 @@
+types
+
+ mac :: a:int b:int
+
+process
+
+ P =
+
+begin
+
+
+
+functions
+
+ f: mac * int -> int f(x,y) == x.a+y @ f(mk_mac(1,2),2)
+
+end

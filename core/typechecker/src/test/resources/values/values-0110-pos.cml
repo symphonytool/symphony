@@ -1,0 +1,13 @@
+class
+
+ test =
+
+begin
+
+
+
+values
+
+ add42:int -> int = lambda x:int @ x + 42
+
+end

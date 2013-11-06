@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.secondedition.RunCmlExamplesTestCase">
+<message column="4" line="5" message="3113 Unknown type name book" messageType="error" number="0" resource="process-actions2.result"/>
+<message column="64" line="5" message="3113 Unknown type name booked" messageType="error" number="0" resource="process-actions2.result"/>
+<result/>
+</testResult>

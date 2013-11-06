@@ -4,9 +4,13 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.definitions.AExplicitOperationDefinition;
+import org.overture.ast.definitions.AImplicitOperationDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.definitions.SClassDefinition;
+import org.overture.ast.definitions.SOperationDefinition;
 import org.overture.ast.intf.lex.ILexNameToken;
+import org.overture.ast.statements.ANewStm;
 import org.overture.ast.types.AClassType;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.CPUValue;
@@ -15,26 +19,22 @@ import org.overture.interpreter.values.NameValuePair;
 import org.overture.interpreter.values.NameValuePairMap;
 import org.overture.interpreter.values.ObjectValue;
 
-import eu.compassresearch.ast.actions.ANewStatementAction;
-import eu.compassresearch.ast.definitions.ACmlClassDefinition;
-import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
-import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
-import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
 import eu.compassresearch.core.interpreter.api.values.ActionValue;
 import eu.compassresearch.core.interpreter.api.values.CmlOperationValue;
 
 class CmlValueFactory
 {
 
-	public static ObjectValue createClassValue(ANewStatementAction node,
-			Context question) throws AnalysisException
+	public static ObjectValue createClassValue(ANewStm node, Context question)
+			throws AnalysisException
 	{
-		ACmlClassDefinition classDefinition = (ACmlClassDefinition) node.getClassdef();
-		return createClassValue(classDefinition, question);
+		// ACmlClassDefinition classDefinition = (ACmlClassDefinition) node.getClassdef();
+		// return createClassValue(classDefinition, question);
+		return null;
 	}
 
 	private static ObjectValue createClassValue(
-			ACmlClassDefinition classDefinition, Context question)
+			SClassDefinition classDefinition, Context question)
 			throws AnalysisException
 	{
 		AClassType classType = (AClassType) classDefinition.getType();
@@ -60,22 +60,19 @@ class CmlValueFactory
 		List<ObjectValue> supers = new LinkedList<ObjectValue>();
 
 		for (SClassDefinition cd : classDefinition.getSuperDefs())
-		{
-			ACmlClassDefinition superClass = (ACmlClassDefinition) cd;
-			supers.add(createClassValue(superClass, question));
-		}
+			supers.add(createClassValue(cd, question));
 
 		return new ObjectValue(classType, members, supers, CPUValue.vCPU, question.getSelf());
 	}
 
 	public static CmlOperationValue createOperationValue(
-			SCmlOperationDefinition node, Context question)
+			SOperationDefinition node, Context question)
 	{
 		CmlOperationValue ret = null;
 
-		if (node instanceof AExplicitCmlOperationDefinition)
+		if (node instanceof AExplicitOperationDefinition)
 		{
-			AExplicitCmlOperationDefinition def = (AExplicitCmlOperationDefinition) node;
+			AExplicitOperationDefinition def = (AExplicitOperationDefinition) node;
 
 			// FunctionValue prefunc =
 			// (((AExplicitCmlOperationDefinition) node).getPredef() == null) ? null : new
@@ -87,9 +84,9 @@ class CmlValueFactory
 
 			ret = new CmlOperationValue(def, null);
 
-		} else if (node instanceof AImplicitCmlOperationDefinition)
+		} else if (node instanceof AImplicitOperationDefinition)
 		{
-			AImplicitCmlOperationDefinition def = (AImplicitCmlOperationDefinition) node;
+			AImplicitOperationDefinition def = (AImplicitOperationDefinition) node;
 			ret = new CmlOperationValue(def, null);
 		}
 

@@ -16,6 +16,12 @@
 
 		<dependency>
 			<groupId>eu.compassresearch.core</groupId>
+			<artifactId>common</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>eu.compassresearch.core</groupId>
 			<artifactId>ast</artifactId>
 			<version>${project.version}</version>
 		</dependency>

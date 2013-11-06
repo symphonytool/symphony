@@ -1,0 +1,13 @@
+process
+
+ K =
+
+begin
+
+
+
+operations
+
+ INIT: () ==> () INIT() == Skip @ INIT()
+
+end

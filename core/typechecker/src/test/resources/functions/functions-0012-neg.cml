@@ -1,0 +1,5 @@
+/*negative test. Pattern and parameter mismatch*/
+
+functions
+
+ free: int * int +> int free(status,number,subs) == is not yet specified

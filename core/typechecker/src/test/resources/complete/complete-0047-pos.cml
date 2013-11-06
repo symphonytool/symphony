@@ -1,0 +1,23 @@
+/*Test case like above, with no optional value*/
+
+types
+
+ CP :: c : nat p : nat
+
+process
+
+ test =
+
+begin
+
+
+
+state
+
+ myCP : CP
+
+operations
+
+ op1: () ==> () op1() == ( dcl x : nat @ x := myCP.c ) op2: (nat) ==> () op2(n) == ( myCP.c :=n ) @ Skip
+
+end

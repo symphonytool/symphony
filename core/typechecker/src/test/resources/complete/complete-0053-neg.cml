@@ -1,0 +1,31 @@
+/*Test case for bug https://sourceforge.net/p/compassresearch/tickets/26/*/
+
+process
+
+ Test =
+
+begin
+
+
+
+functions
+
+ BFunc : () -> nat BFunc() == AFunc(2) @ Skip
+
+end
+
+
+
+process
+
+ Test2 =
+
+begin
+
+
+
+functions
+
+ AFunc: nat -> nat AFunc(avar) == 1 BFunc : () -> nat BFunc() == AFunc(2) @ Skip
+
+end

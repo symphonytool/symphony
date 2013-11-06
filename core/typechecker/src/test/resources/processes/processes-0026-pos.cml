@@ -1,0 +1,23 @@
+/*old-record in operation*/
+
+process
+
+ p =
+
+begin
+
+
+
+types
+
+ A :: a : int
+
+state
+
+ aa:A
+
+operations
+
+ o:int==>int o(i) == return (aa.a + i) post aa~.a = i @ o(2)
+
+end

@@ -24,7 +24,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
-import eu.compassresearch.ast.lex.LexNameToken;
+import eu.compassresearch.ast.lex.CmlLexNameToken;
 import eu.compassresearch.core.interpreter.debug.Breakpoint;
 import eu.compassresearch.core.interpreter.debug.CmlProcessDTO;
 
@@ -82,7 +82,7 @@ public class MessageCommunicator
 				@Override
 				public void setupModule(SetupContext context)
 				{
-					context.setMixInAnnotations(LexNameToken.class, MixIn.class);
+					context.setMixInAnnotations(CmlLexNameToken.class, MixIn.class);
 					context.setMixInAnnotations(org.overture.ast.lex.LexNameToken.class, MixIn.class);
 					context.setMixInAnnotations(Node.class, NodeMixIn.class);
 					context.setMixInAnnotations(Breakpoint.class, BreakpointMixIn.class);

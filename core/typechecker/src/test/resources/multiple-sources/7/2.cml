@@ -1,0 +1,1 @@
+class B = begin state a : A operations g: () == g() == (return (a.f())) end 

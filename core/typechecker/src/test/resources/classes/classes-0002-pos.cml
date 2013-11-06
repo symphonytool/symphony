@@ -1,0 +1,13 @@
+class
+
+ test1 =
+
+begin
+
+
+
+values
+
+ a : int = 42
+
+end

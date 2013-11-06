@@ -1,11 +1,12 @@
 package eu.compassresearch.core.interpreter;
 
-import java.util.Map.Entry;
 import java.util.HashSet;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AClassInvariantDefinition;
+import org.overture.ast.definitions.ALocalDefinition;
 import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
@@ -21,11 +22,11 @@ import org.overture.interpreter.values.NameValuePairMap;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.actions.ASkipAction;
+import eu.compassresearch.ast.actions.PParametrisation;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
-import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
-import eu.compassresearch.ast.lex.LexNameToken;
+import eu.compassresearch.ast.lex.CmlLexNameToken;
 import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.ast.process.AAlphabetisedParallelismProcess;
 import eu.compassresearch.ast.process.AExternalChoiceProcess;
@@ -75,7 +76,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 	{
 		throw new CmlInterpreterException(InterpretationErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName()));
 	}
-	
+
 	@Override
 	public Inspection caseAActionProcess(final AActionProcess node,
 			final Context question) throws AnalysisException
@@ -109,7 +110,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 				{
 					processDef = new AProcessDefinition();
 					processDef.setLocation(node.getLocation());
-					processDef.setName(new LexNameToken("", "Unnamed Process", node.getLocation()));
+					processDef.setName(new CmlLexNameToken("", "Unnamed Process", node.getLocation()));
 
 					AProcessDefinition pdef = node.getAncestor(AProcessDefinition.class);
 					// We need to check whether the unnamed process is inside parameterised process, if it is then we
@@ -117,13 +118,18 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 					// to add the parameters to this process since it cannot look outside the scope of itself
 					if (pdef != null && pdef.getLocalState().size() > 0)
 					{
-						for (ATypeSingleDeclaration decl : pdef.getLocalState())
-							for (ILexIdentifierToken id : decl.getIdentifiers())
-							{
-								ILexNameToken paramName = new LexNameToken(pdef.getName().getSimpleName(), id.clone());
-								Value val = question.lookup(paramName);
-								valueMap.putNew(new NameValuePair(paramName.getModifiedName(processDef.getName().getSimpleName()), val));
-							}
+						for (PParametrisation param : pdef.getLocalState())
+						{
+							ALocalDefinition decl = param.getDeclaration();
+							// for (ILexIdentifierToken id : param.g decl.getIdentifiers())
+							// {
+							// ILexNameToken paramName = new CmlLexNameToken(pdef.getName().getSimpleName(),
+							// id.clone());
+							ILexNameToken paramName = decl.getName();
+							Value val = question.lookup(paramName);
+							valueMap.putNew(new NameValuePair(paramName.getModifiedName(processDef.getName().getSimpleName()), val));
+							// }
+						}
 					}
 				}
 
@@ -134,7 +140,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 
 				// Evaluate and add paragraph definitions and add the result to the state
 				PExp processInv = null;
-				for (PDefinition def : node.getDefinitionParagraphs())
+				for (PDefinition def : node.getActionDefinition().getDefinitions())
 				{
 					// Take out the invariant expression if any
 					if (def instanceof AStateDefinition)
@@ -205,11 +211,11 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 						CmlTransition selectedTransition)
 						throws AnalysisException
 				{
-					CmlBehaviour leftInstance = new ConcreteCmlBehaviour(node.getLeft(), question, new LexNameToken(name().getModule(), name().getIdentifier().getName()
+					CmlBehaviour leftInstance = new ConcreteCmlBehaviour(node.getLeft(), question, new CmlLexNameToken(name().getModule(), name().getIdentifier().getName()
 							+ "[]", node.getLeft().getLocation()), this.owner);
 					setLeftChild(leftInstance);
 
-					CmlBehaviour rightInstance = new ConcreteCmlBehaviour(node.getRight(), question, new LexNameToken(name().getModule(), "[]"
+					CmlBehaviour rightInstance = new ConcreteCmlBehaviour(node.getRight(), question, new CmlLexNameToken(name().getModule(), "[]"
 							+ name().getIdentifier().getName(), node.getRight().getLocation()), this.owner);
 					setRightChild(rightInstance);
 					// Now let this process wait for the children to get into a waitForEvent state
@@ -270,32 +276,33 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 		}
 	}
 
-	
 	/**
 	 * Parallel process In general all the parallel processes have three transition rules that can be invoked Parallel
 	 * Begin: At this step the interleaving action are not yet created. So this will be a silent (tau) transition where
-	 * they will be created and started. So the alphabet returned here is {tau} Parallel 
-	 * Sync/Non-sync: Parallel End: At
+	 * they will be created and started. So the alphabet returned here is {tau} Parallel Sync/Non-sync: Parallel End: At
 	 * this step both child actions are in the FINISHED state and they will be removed from the running process network
 	 * and this will make a silent transition into Skip. So the alphabet returned here is {tau}
 	 */
-	
+
 	@Override
 	public Inspection caseAAlphabetisedParallelismProcess(
 			final AAlphabetisedParallelismProcess node, final Context question)
 			throws AnalysisException
 	{
-//		throw new CmlInterpreterException(InterpretationErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName())); 
+		// throw new
+		// CmlInterpreterException(InterpretationErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName()));
 		// if true this means that this is the first time here, so the Parallel Begin rule is invoked.
 		if (!owner.hasChildren())
 		{
 			return newInspection(createTauTransitionWithoutTime(node, "Begin"), new AbstractCalculationStep(owner, visitorAccess)
 			{
 				@Override
-				public Pair<INode, Context> execute(CmlTransition selectedTransition) throws AnalysisException
+				public Pair<INode, Context> execute(
+						CmlTransition selectedTransition)
+						throws AnalysisException
 				{
 
-					caseParallelBegin(node, node.getLeft(), node.getRight(),"[cs||cs]", question);
+					caseParallelBegin(node, node.getLeft(), node.getRight(), "[cs||cs]", question);
 					// We push the current state, since this process will control the child processes created by it
 					return new Pair<INode, Context>(node, question);
 				}
@@ -306,21 +313,20 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 			return newInspection(createTauTransitionWithTime(new ASkipAction(node.getLocation()), "End"), caseParallelEnd(question));
 		else
 		{
-			//evaluate the left in the context of the left child
-			ChannelNameSetValue leftChanset  = (ChannelNameSetValue )node.getLeftChansetExpression().apply(cmlExpressionVisitor,owner.getLeftChild().getNextState().second);
-			ChannelNameSetValue rightChanset  = (ChannelNameSetValue )node.getRightChansetExpression().apply(cmlExpressionVisitor,owner.getRightChild().getNextState().second);
+			// evaluate the left in the context of the left child
+			ChannelNameSetValue leftChanset = (ChannelNameSetValue) node.getLeftChansetExpression().apply(cmlExpressionVisitor, owner.getLeftChild().getNextState().second);
+			ChannelNameSetValue rightChanset = (ChannelNameSetValue) node.getRightChansetExpression().apply(cmlExpressionVisitor, owner.getRightChild().getNextState().second);
 
 			ChannelNameSetValue intersectionChanset = new ChannelNameSetValue(leftChanset);
 			intersectionChanset.retainAll(rightChanset);
-			
+
 			final CmlTransitionSet leftChildAlpha = owner.getLeftChild().inspect();
 			final CmlTransitionSet rightChildAlpha = owner.getRightChild().inspect();
 
-			CmlTransitionSet leftAllowedNonSyncTransitions = leftChildAlpha.retainByChannelNameSet(leftChanset).
-								removeByChannelNameSet(intersectionChanset).union(leftChildAlpha.getSilentTransitions());
-			CmlTransitionSet rightAllowedNonSyncTransitions = rightChildAlpha.retainByChannelNameSet(rightChanset).
-								removeByChannelNameSet(intersectionChanset).union(rightChildAlpha.getSilentTransitions());;
-			
+			CmlTransitionSet leftAllowedNonSyncTransitions = leftChildAlpha.retainByChannelNameSet(leftChanset).removeByChannelNameSet(intersectionChanset).union(leftChildAlpha.getSilentTransitions());
+			CmlTransitionSet rightAllowedNonSyncTransitions = rightChildAlpha.retainByChannelNameSet(rightChanset).removeByChannelNameSet(intersectionChanset).union(rightChildAlpha.getSilentTransitions());
+			;
+
 			// combine all the common channel events that are in the channel set
 			CmlTransitionSet leftSync = leftChildAlpha.retainByChannelNameSet(intersectionChanset);
 			CmlTransitionSet rightSync = rightChildAlpha.retainByChannelNameSet(intersectionChanset);
@@ -343,14 +349,14 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 					}
 				}
 			}
-			
+
 			/*
-			 * Finally we create the returned alphabet by joining all the Synchronized events together with all the event of
-			 * the children that are not in the channel set.
+			 * Finally we create the returned alphabet by joining all the Synchronized events together with all the
+			 * event of the children that are not in the channel set.
 			 */
 			CmlTransitionSet resultAlpha = new CmlTransitionSet(syncEvents).union(leftAllowedNonSyncTransitions);
 			resultAlpha = resultAlpha.union(rightAllowedNonSyncTransitions);
-			
+
 			return newInspection(resultAlpha, new AbstractCalculationStep(owner, visitorAccess)
 			{
 
@@ -395,7 +401,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 			@Override
 			public void caseParallelBegin() throws AnalysisException
 			{
-				ProcessInspectionVisitor.this.caseParallelBegin(node, node.getLeft(), node.getRight(),"[|cs|]", question);
+				ProcessInspectionVisitor.this.caseParallelBegin(node, node.getLeft(), node.getRight(), "[|cs|]", question);
 			}
 		}, node.getChansetExpression(), question);
 	}
@@ -422,7 +428,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 						throws AnalysisException
 				{
 
-					caseParallelBegin(node, node.getLeft(), node.getRight(),"|||", question);
+					caseParallelBegin(node, node.getLeft(), node.getRight(), "|||", question);
 					// We push the current state, since this process will control the child processes created by it
 					return new Pair<INode, Context>(node, question);
 				}
@@ -453,9 +459,10 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 		}
 	}
 
-	//FIXME the operator string is only a tmp solution
+	// FIXME the operator string is only a tmp solution
 	private void caseParallelBegin(PProcess node, PProcess left,
-			PProcess right, String operatorsign, Context question) throws AnalysisException
+			PProcess right, String operatorsign, Context question)
+			throws AnalysisException
 	{
 		if (left == null || right == null)
 			throw new InterpreterRuntimeException(InterpretationErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName()));
@@ -463,9 +470,9 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 		ILexNameToken name = owner.name();
 		Pair<Context, Context> childContexts = visitorAccess.getChildContexts(question);
 		// TODO: create a local copy of the question state for each of the actions
-		CmlBehaviour leftInstance = new ConcreteCmlBehaviour(left, childContexts.first, new LexNameToken(name.getModule(), name.getIdentifier().getName()
+		CmlBehaviour leftInstance = new ConcreteCmlBehaviour(left, childContexts.first, new CmlLexNameToken(name.getModule(), name.getIdentifier().getName()
 				+ operatorsign, left.getLocation()), owner);
-		CmlBehaviour rightInstance = new ConcreteCmlBehaviour(right, childContexts.second, new LexNameToken(name.getModule(), operatorsign
+		CmlBehaviour rightInstance = new ConcreteCmlBehaviour(right, childContexts.second, new CmlLexNameToken(name.getModule(), operatorsign
 				+ name.getIdentifier().getName(), right.getLocation()), owner);
 
 		// add the children to the process graph
@@ -533,22 +540,23 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 				NameValuePairMap evaluatedArgs = new NameValuePairMap();
 
 				int paramIndex = 0;
-				for (ATypeSingleDeclaration decl : node.getProcessDefinition().getLocalState())
+				for (PParametrisation param : node.getProcessDefinition().getLocalState())
 				{
-					for (ILexIdentifierToken id : decl.getIdentifiers())
-					{
-						// get and evaluate the i'th expression
-						PExp arg = node.getArgs().get(paramIndex);
-						// There are always a val param so they must allways be constant
-						Value value = arg.apply(cmlExpressionVisitor, question).getConstant();
+					// param.getDeclaration().getName()
+					// for (ILexIdentifierToken id : decl.getIdentifiers())
+					// {
+					// get and evaluate the i'th expression
+					PExp arg = node.getArgs().get(paramIndex);
+					// There are always a val param so they must allways be constant
+					Value value = arg.apply(cmlExpressionVisitor, question).getConstant();
 
-						LexNameToken argName = new LexNameToken(node.getProcessDefinition().getName().getSimpleName(), (ILexIdentifierToken) id.clone());
-						// LexNameToken argName = new LexNameToken("",(ILexIdentifierToken)id.clone());
+					CmlLexNameToken argName = new CmlLexNameToken(node.getProcessDefinition().getName().getSimpleName(), (ILexIdentifierToken) param.getDeclaration().getName().clone());
+					// LexNameToken argName = new LexNameToken("",(ILexIdentifierToken)id.clone());
 
-						evaluatedArgs.put(argName, value);
-						// update the index
-						paramIndex++;
-					}
+					evaluatedArgs.put(argName, value);
+					// update the index
+					paramIndex++;
+					// }
 				}
 
 				Context nextContext = null;

@@ -1,0 +1,13 @@
+class
+
+ test =
+
+begin
+
+
+
+values
+
+ a:bool = 10 not in set {1,2,3,4}
+
+end

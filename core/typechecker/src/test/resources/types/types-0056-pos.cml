@@ -1,0 +1,19 @@
+/*Negative test: use of public keyword in global types*/
+
+types
+
+ public A = nat public B = map nat to nat
+
+process
+
+ C =
+
+begin
+
+
+
+functions
+
+ public F : A * B -> bool F(a, b) == true @ Skip
+
+end

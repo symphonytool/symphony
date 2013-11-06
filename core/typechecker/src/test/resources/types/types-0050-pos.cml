@@ -1,0 +1,5 @@
+/*Failing because of LexNameToken conflict*/
+
+types
+
+ R :: r : int inv r == r.r>0
