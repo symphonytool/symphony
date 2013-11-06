@@ -29,4 +29,9 @@ public class UndefinedValue implements Type {
 	public String toFormulaWithUnderscore(){
 		return toString();
 	}
+
+	@Override
+	public String toFormulaGeneric() {
+		return this.toFormula();
+	}
 }

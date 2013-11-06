@@ -31,6 +31,11 @@ public class Nat implements Type {
 	public String toFormulaWithState() {
 		return "Nat("+String.valueOf(value)+")";
 	}
+	
+	public String toFormulaGeneric() {
+		return "Nat("+String.valueOf(value)+"_)";
+	}
+	
 	public String toFormulaWithUnderscore(){
 		return "Str(_)";
 	}

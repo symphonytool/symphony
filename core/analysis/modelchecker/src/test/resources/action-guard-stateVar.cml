@@ -6,5 +6,5 @@ begin
 	state 
 	x : int := 2
 		
-	@ [x = 4] & a -> b -> Skip 
+	@ (x := 5;Skip) 
 end

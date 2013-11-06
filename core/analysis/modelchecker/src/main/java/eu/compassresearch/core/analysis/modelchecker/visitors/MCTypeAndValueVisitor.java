@@ -14,6 +14,8 @@ import org.overture.ast.types.PType;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.ast.types.PCMLType;
+import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANatNumericBasicType;
 
 public class MCTypeAndValueVisitor extends
 		QuestionAnswerCMLAdaptor<CMLModelcheckerContext, StringBuilder> {
@@ -36,9 +38,12 @@ public class MCTypeAndValueVisitor extends
 	@Override
 	public StringBuilder caseANatNumericBasicType(ANatNumericBasicType node,
 			CMLModelcheckerContext question) throws AnalysisException {
+		
 		question.getScriptContent().append("Natural");
+		
 		return question.getScriptContent();
 	}
+	
 	
 	@Override
 	public StringBuilder caseAIntNumericBasicType(AIntNumericBasicType node,
@@ -88,6 +93,7 @@ public class MCTypeAndValueVisitor extends
 		
 		return question.getScriptContent();
 	}
+
 
 	
 	@Override

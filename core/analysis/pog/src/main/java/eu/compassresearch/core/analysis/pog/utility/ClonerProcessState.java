@@ -12,7 +12,7 @@ import org.overture.ast.node.INode;
 import eu.compassresearch.ast.analysis.AnswerCMLAdaptor;
 import eu.compassresearch.ast.process.AActionProcess;
 
-public class ProcessStateCloner extends AnswerCMLAdaptor<List<AAssignmentDefinition>>
+public class ClonerProcessState extends AnswerCMLAdaptor<List<AAssignmentDefinition>>
 {
 
 	/**
@@ -42,7 +42,7 @@ public class ProcessStateCloner extends AnswerCMLAdaptor<List<AAssignmentDefinit
 	{
 		List<AAssignmentDefinition> r = new LinkedList<AAssignmentDefinition>();
 		// Unpack it and look for the state def
-		for (PDefinition def : node.getDefinitionParagraphs())
+		for (PDefinition def : node.getActionDefinition().getDefinitions())
 		{
 			if (def instanceof AStateDefinition)
 			{

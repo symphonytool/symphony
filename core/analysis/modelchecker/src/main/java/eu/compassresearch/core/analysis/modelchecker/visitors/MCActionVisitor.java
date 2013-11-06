@@ -23,6 +23,7 @@ import eu.compassresearch.ast.actions.AGeneralisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AGeneralisedParallelismReplicatedAction;
 import eu.compassresearch.ast.actions.AGuardedAction;
 import eu.compassresearch.ast.actions.AHidingAction;
+import eu.compassresearch.ast.actions.AIfStatementAction;
 import eu.compassresearch.ast.actions.AInterleavingParallelAction;
 import eu.compassresearch.ast.actions.AInternalChoiceAction;
 import eu.compassresearch.ast.actions.AInternalChoiceReplicatedAction;
@@ -40,6 +41,7 @@ import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.AExpressionSingleDeclaration;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionDefinition;
+import eu.compassresearch.ast.definitions.AChannelNameDefinition;
 import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
 import eu.compassresearch.ast.expressions.AEnumVarsetExpression;
 import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
@@ -216,16 +218,19 @@ public class MCActionVisitor extends
 						copyCtxt.scriptContent = new StringBuilder();
 						
 						//LinkedList<ChannelTypeDefinition> channelDefs = question.channelDefinitions;
-						ChannelTypeDefinition channDef = question.getChannelDefinition(node.getIdentifier().toString());
+						ChannelTypeDefinition channDef = copyCtxt.getChannelDefinition(node.getIdentifier().toString());
 						//question.getScriptContent().append(" :- ");
 						//copyCtxt.scriptContent.append(" :- ");
 						//aux.getFirst().apply(this, question);
 						if(channDef != null){
-							//channDef.getChanDef().apply(this, copyCtxt);
+							AChannelNameDefinition c = channDef.getChanDef();
+							c.apply(this.rootVisitor, copyCtxt);
 							//int i = question.getScriptContent().lastIndexOf("_");
 							int i = copyCtxt.getScriptContent().lastIndexOf("_");
 							//question.getScriptContent().replace(i, i+1, parameters.getFirst().toString());
-							copyCtxt.getScriptContent().replace(i, i+1, param.toString());
+							if( i != -1){
+								copyCtxt.getScriptContent().replace(i, i+1, param.toString());
+							}
 							//question.getScriptContent().append(".\n");
 						
 							//puts the information in the main context to be recovered at the end
@@ -449,6 +454,31 @@ public class MCActionVisitor extends
 														// stop
 
 		return question.getScriptContent();
+	}
+
+	
+	
+	@Override
+	public StringBuilder caseAIfStatementAction(AIfStatementAction node,
+			CMLModelcheckerContext question) throws AnalysisException {
+		
+		// it writes the conditional choice constructor
+				question.getScriptContent().append("condChoice(");
+				// it writes the condition as an integer and puts the expression
+				//to be evaluated in the context
+				question.getScriptContent().append(CMLModelcheckerContext.GUARD_COUNTER + ",");
+				//question.info.put(Utilities.CONDITION_KEY, node.getExpression());
+				Condition newCondition = new Condition(node.getIfExp(),CMLModelcheckerContext.GUARD_COUNTER++);
+				question.guards.add(newCondition);
+				//node.getExpression().apply(this, question);
+				//question.getScriptContent().append(Utilities.OCCUR_COUNT++ + ",");
+				//question.getScriptContent().append(CMLModelcheckerContext.GUARD_COUNTER++ + ",");
+				// it writes the behaviour in the if-true branch
+				node.getThenStm().apply(this, question);
+				question.getScriptContent().append(","); 
+				node.getElseStm().apply(this, question);
+				
+				return question.getScriptContent();
 	}
 
 	@Override

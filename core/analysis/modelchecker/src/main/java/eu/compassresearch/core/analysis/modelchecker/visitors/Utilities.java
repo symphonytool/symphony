@@ -57,6 +57,10 @@ public class Utilities {
 	public static String MAX_BIND = "MAX_BIND";
 	public static String CHANTYPE_STRING = "ChanType";
 	
+	public static String STATE = "state";
+	public static String UNDERSCORE = "underscore";
+	public static String DEFAULT = "default";
+	
 	private static boolean parseWithANTLR(PSource sourceIn) throws IOException
 	{
 		ANTLRInputStream in = null;
