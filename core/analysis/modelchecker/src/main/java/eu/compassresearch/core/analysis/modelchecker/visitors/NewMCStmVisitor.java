@@ -4,6 +4,7 @@ import java.util.LinkedList;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
+import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.node.INode;
 import org.overture.ast.statements.AAssignmentStm;
@@ -28,6 +29,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.GuardDefGener
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCAssignDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCGuardDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.NewMCGuardDef;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAAssignmentDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCAActionStm;
 import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCAAssignmentStm;
@@ -66,7 +68,7 @@ public class NewMCStmVisitor extends
 	@Override
 	public MCNode caseAActionStm(AActionStm node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
-		
+		int i = 0;
 		MCPAction action = (MCPAction) node.getAction().apply(rootVisitor, question);
 		MCAActionStm result = new MCAActionStm(action);
 		
@@ -108,13 +110,18 @@ public class NewMCStmVisitor extends
 	public MCNode caseABlockSimpleBlockStm(ABlockSimpleBlockStm node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
 	
+		LinkedList<MCAAssignmentDefinition> assignDefs= new LinkedList<MCAAssignmentDefinition>();
+		
+		for (AAssignmentDefinition aAssignmentDefinition : node.getAssignmentDefs()) {
+			assignDefs.add((MCAAssignmentDefinition) aAssignmentDefinition.apply(rootVisitor, question));
+		}
+		
 		LinkedList<MCPCMLStm> statements = new LinkedList<MCPCMLStm>();
-			
 		for (PStm pStm : node.getStatements()) {
 			statements.add((MCPCMLStm) pStm.apply(this, question));
 		}
 		
-		MCABlockSimpleBlockStm result = new MCABlockSimpleBlockStm(statements);
+		MCABlockSimpleBlockStm result = new MCABlockSimpleBlockStm(assignDefs, statements);
 		
 		return result;
 	}

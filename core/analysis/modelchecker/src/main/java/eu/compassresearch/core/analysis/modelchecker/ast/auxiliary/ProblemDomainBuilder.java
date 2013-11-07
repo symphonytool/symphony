@@ -80,6 +80,11 @@ public class ProblemDomainBuilder {
 			NewMCGuardDef guardDef = item.getValue();
 			content.append(guardDef.toFormula(option));
 		}
+		for (Iterator<Entry<MCPCMLExp,MCGuardDef>> iterator = context.actionGuardDefs.entrySet().iterator(); iterator.hasNext();) {
+			Entry<MCPCMLExp,MCGuardDef> item = (Entry<MCPCMLExp,MCGuardDef>) iterator.next();
+			MCGuardDef guardDef = item.getValue();
+			content.append(guardDef.toFormula(option));
+		}
 	}
 	
 	private void generateAssignDefinitions(StringBuilder content, String option){
