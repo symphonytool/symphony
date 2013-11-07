@@ -326,6 +326,10 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 	public MCPCMLExp getDefaultValue(MCPCMLType type){
 		MCPCMLExp result = null;
 		
+		if(type instanceof MCAIntNumericBasicType){
+			result = new MCAIntLiteralExp("0");
+		}
+		
 		return result;
 	}
 	

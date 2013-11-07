@@ -411,15 +411,15 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 		MCPCMLExp expression = (MCPCMLExp) node.getExpression().apply(rootVisitor, question);
 		MCAInstanceVariableDefinition result = new MCAInstanceVariableDefinition(name, type, expression);
 
-		MCPCMLType varValue = new MCVoidType();
+		MCPCMLExp varValue = new MCVoidValue();
 		if(expression != null){
 			//this has to be improved to instantiate values of the suitable type of the expression.
 			ExpressionEvaluator evaluator = new ExpressionEvaluator();
-			varValue = evaluator.instantiateMCType(expression);
+			varValue = evaluator.getDefaultValue(type);
 			//from type we have to get the correct type instantiation
+			question.maximalBinding = question.maximalBinding.addBinding("nP", name, varValue);
 		}
-		////question.maximalBinding = question.maximalBinding.addBinding("nP", name, varValue);
-		//PPPPPPPPPPPPPPPPP
+		
 		
 		return result;
 	}
