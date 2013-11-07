@@ -79,8 +79,6 @@ import org.overture.ast.patterns.ATuplePattern;
 import org.overture.ast.patterns.ATypeBind;
 import org.overture.ast.patterns.ATypeMultipleBind;
 import org.overture.ast.patterns.AUnionPattern;
-import eu.compassresearch.ast.statements.AActionStm;
-import eu.compassresearch.ast.statements.AAltNonDeterministicStm;
 import org.overture.ast.statements.AAlwaysStm;
 import org.overture.ast.statements.AApplyObjectDesignator;
 import org.overture.ast.statements.AAssignmentStm;
@@ -92,7 +90,6 @@ import org.overture.ast.statements.ACaseAlternativeStm;
 import org.overture.ast.statements.ACasesStm;
 import org.overture.ast.statements.AClassInvariantStm;
 import org.overture.ast.statements.ACyclesStm;
-import eu.compassresearch.ast.statements.ADoNonDeterministicStm;
 import org.overture.ast.statements.ADurationStm;
 import org.overture.ast.statements.AElseIfStm;
 import org.overture.ast.statements.AErrorCase;
@@ -106,13 +103,11 @@ import org.overture.ast.statements.AForIndexStm;
 import org.overture.ast.statements.AForPatternBindStm;
 import org.overture.ast.statements.AIdentifierObjectDesignator;
 import org.overture.ast.statements.AIdentifierStateDesignator;
-import eu.compassresearch.ast.statements.AIfNonDeterministicStm;
 import org.overture.ast.statements.AIfStm;
 import org.overture.ast.statements.ALetBeStStm;
 import org.overture.ast.statements.ALetStm;
 import org.overture.ast.statements.AMapSeqStateDesignator;
 import org.overture.ast.statements.ANewObjectDesignator;
-import eu.compassresearch.ast.statements.ANewStm;
 import org.overture.ast.statements.ANonDeterministicSimpleBlockStm;
 import org.overture.ast.statements.ANotYetSpecifiedStm;
 import org.overture.ast.statements.APeriodicStm;
@@ -262,6 +257,11 @@ import eu.compassresearch.ast.process.AUntimedTimeoutProcess;
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.ATcpStreamSource;
+import eu.compassresearch.ast.statements.AActionStm;
+import eu.compassresearch.ast.statements.AAltNonDeterministicStm;
+import eu.compassresearch.ast.statements.ADoNonDeterministicStm;
+import eu.compassresearch.ast.statements.AIfNonDeterministicStm;
+import eu.compassresearch.ast.statements.ANewStm;
 import eu.compassresearch.ast.types.AProcessType;
 import eu.compassresearch.ide.core.unsupported.UnsupportedCollector;
 import eu.compassresearch.ide.core.unsupported.UnsupportedElementInfo;
@@ -279,20 +279,20 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 
 	private static final long serialVersionUID = 1L;
 
-	
-	 // Default constructor. Instantiates the collector and identifies it as a Model Checker unsupport collector.
-	 
-	public MCUnsupportedCollector()
-	{
+	/**
+	 * Default constructor. Instantiates the collector and identifies it as a
+	 * Model Checker unsupport collector.
+	 */
+	public MCUnsupportedCollector() {
 		super(UnsupportingFeatures.MC);
 
 	}
 
-	
-	 // Add support for elements here. Simply override any cases and set unsupported to false. LEAVE THE SUPER CALL IN as
-	 // that is responsible for traversing the tree
-	 
-
+	/*
+	 * Add support for elements here. Simply override any cases and set
+	 * unsupported to false. LEAVE THE SUPER CALL IN as that is responsible for
+	 * traversing the tree
+	 */
 
 	@Override
 	public void caseAAbsoluteUnaryExp(AAbsoluteUnaryExp node)
@@ -306,7 +306,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseAAccessSpecifierAccessSpecifier(
 			AAccessSpecifierAccessSpecifier node) throws AnalysisException {
-		// unsupported=false;
+		 unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAAccessSpecifierAccessSpecifier(node);
@@ -315,7 +315,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseAActionDefinition(AActionDefinition node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAActionDefinition(node);
 	}
@@ -323,7 +323,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseAActionProcess(AActionProcess node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAActionProcess(node);
 	}
@@ -403,14 +403,14 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseAAndBooleanBinaryExp(AAndBooleanBinaryExp node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAAndBooleanBinaryExp(node);
 	}
 
 	@Override
 	public void caseAApplyExp(AApplyExp node) throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAApplyExp(node);
 	}
@@ -471,7 +471,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseABooleanBasicType(ABooleanBasicType node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseABooleanBasicType(node);
 	}
@@ -496,7 +496,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 
 	@Override
 	public void caseABracketedExp(ABracketedExp node) throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseABracketedExp(node);
 	}
@@ -513,7 +513,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 
 	@Override
 	public void caseABracketType(ABracketType node) throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseABracketType(node);
 	}
@@ -547,7 +547,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseACardinalityUnaryExp(ACardinalityUnaryExp node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseACardinalityUnaryExp(node);
 	}
@@ -589,7 +589,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseAChannelDefinition(AChannelDefinition node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAChannelDefinition(node);
 	}
@@ -615,7 +615,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseAChannelsDefinition(AChannelsDefinition node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAChannelsDefinition(node);
 	}
@@ -623,7 +623,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseAChansetDefinition(AChansetDefinition node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAChansetDefinition(node);
 	}
@@ -631,14 +631,14 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseAChansetsDefinition(AChansetsDefinition node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAChansetsDefinition(node);
 	}
 
 	@Override
 	public void caseAChaosAction(AChaosAction node) throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAChaosAction(node);
 	}
@@ -655,7 +655,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseACharBasicType(ACharBasicType node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseACharBasicType(node);
 	}
@@ -663,7 +663,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseACharLiteralExp(ACharLiteralExp node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseACharLiteralExp(node);
 	}
@@ -680,7 +680,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseAActionClassDefinition(AActionClassDefinition arg0)
 			throws AnalysisException {
-		// unsupported=false;
+		 unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAActionClassDefinition(arg0);
@@ -764,7 +764,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 
 	@Override
 	public void caseAClassType(AClassType node) throws AnalysisException {
-		// unsupported=false;
+	 unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAClassType(node);
@@ -791,7 +791,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseACommunicationAction(ACommunicationAction node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseACommunicationAction(node);
 	}
@@ -932,7 +932,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseADivideNumericBinaryExp(ADivideNumericBinaryExp node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseADivideNumericBinaryExp(node);
 	}
@@ -940,7 +940,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseADivNumericBinaryExp(ADivNumericBinaryExp node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseADivNumericBinaryExp(node);
 	}
@@ -1035,7 +1035,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseAEqualsBinaryExp(AEqualsBinaryExp node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAEqualsBinaryExp(node);
 	}
@@ -1101,7 +1101,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseAExplicitFunctionDefinition(AExplicitFunctionDefinition node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAExplicitFunctionDefinition(node);
 	}
@@ -1136,7 +1136,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseAExternalChoiceAction(AExternalChoiceAction node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAExternalChoiceAction(node);
 	}
@@ -1144,7 +1144,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseAExternalChoiceProcess(AExternalChoiceProcess node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAExternalChoiceProcess(node);
 	}
@@ -1326,7 +1326,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseAFunctionsDefinition(AFunctionsDefinition node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAFunctionsDefinition(node);
 	}
@@ -1390,7 +1390,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseAGreaterEqualNumericBinaryExp(
 			AGreaterEqualNumericBinaryExp node) throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAGreaterEqualNumericBinaryExp(node);
 	}
@@ -1398,7 +1398,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseAGreaterNumericBinaryExp(AGreaterNumericBinaryExp node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAGreaterNumericBinaryExp(node);
 	}
@@ -1406,7 +1406,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseAGuardedAction(AGuardedAction node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAGuardedAction(node);
 	}
@@ -1508,7 +1508,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseAImplicitFunctionDefinition(AImplicitFunctionDefinition node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAImplicitFunctionDefinition(node);
 	}
@@ -1525,7 +1525,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseAImpliesBooleanBinaryExp(AImpliesBooleanBinaryExp node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAImpliesBooleanBinaryExp(node);
 	}
@@ -1568,7 +1568,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 
 	@Override
 	public void caseAInMapMapType(AInMapMapType node) throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAInMapMapType(node);
 	}
@@ -1585,7 +1585,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseAInSetBinaryExp(AInSetBinaryExp node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAInSetBinaryExp(node);
 	}
@@ -1629,7 +1629,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseAInterleavingParallelAction(AInterleavingParallelAction node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAInterleavingParallelAction(node);
 	}
@@ -1637,7 +1637,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseAInterleavingProcess(AInterleavingProcess node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAInterleavingProcess(node);
 	}
@@ -1663,7 +1663,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseAInternalChoiceAction(AInternalChoiceAction node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAInternalChoiceAction(node);
 	}
@@ -1671,7 +1671,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseAInternalChoiceProcess(AInternalChoiceProcess node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAInternalChoiceProcess(node);
 	}
@@ -1724,7 +1724,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseAIntLiteralExp(AIntLiteralExp node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAIntLiteralExp(node);
 	}
@@ -1732,7 +1732,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseAIntNumericBasicType(AIntNumericBasicType node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAIntNumericBasicType(node);
 	}
@@ -1789,7 +1789,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseALessEqualNumericBinaryExp(ALessEqualNumericBinaryExp node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseALessEqualNumericBinaryExp(node);
 	}
@@ -1797,7 +1797,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseALessNumericBinaryExp(ALessNumericBinaryExp node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseALessNumericBinaryExp(node);
 	}
@@ -1917,7 +1917,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 
 	@Override
 	public void caseAMapMapType(AMapMapType node) throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAMapMapType(node);
 	}
@@ -1976,7 +1976,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 
 	@Override
 	public void caseAMkTypeExp(AMkTypeExp node) throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAMkTypeExp(node);
 	}
@@ -2019,7 +2019,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 
 	@Override
 	public void caseAMuAction(AMuAction node) throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAMuAction(node);
 	}
@@ -2053,7 +2053,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseANameChannelExp(ANameChannelExp node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseANameChannelExp(node);
 	}
@@ -2061,7 +2061,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseANamedInvariantType(ANamedInvariantType node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseANamedInvariantType(node);
 	}
@@ -2104,7 +2104,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseANatNumericBasicType(ANatNumericBasicType node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseANatNumericBasicType(node);
 	}
@@ -2112,7 +2112,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseANatOneNumericBasicType(ANatOneNumericBasicType node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseANatOneNumericBasicType(node);
 	}
@@ -2162,7 +2162,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseANotEqualBinaryExp(ANotEqualBinaryExp node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseANotEqualBinaryExp(node);
 	}
@@ -2170,7 +2170,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseANotInSetBinaryExp(ANotInSetBinaryExp node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseANotInSetBinaryExp(node);
 	}
@@ -2248,7 +2248,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseAOrBooleanBinaryExp(AOrBooleanBinaryExp node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAOrBooleanBinaryExp(node);
 	}
@@ -2318,7 +2318,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseAPlusNumericBinaryExp(APlusNumericBinaryExp node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAPlusNumericBinaryExp(node);
 	}
@@ -2377,7 +2377,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseAProcessDefinition(AProcessDefinition node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAProcessDefinition(node);
 	}
@@ -2427,7 +2427,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseAQuoteLiteralExp(AQuoteLiteralExp node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAQuoteLiteralExp(node);
 	}
@@ -2478,7 +2478,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseAReadCommunicationParameter(AReadCommunicationParameter node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAReadCommunicationParameter(node);
 	}
@@ -2486,7 +2486,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseARealLiteralExp(ARealLiteralExp node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseARealLiteralExp(node);
 	}
@@ -2494,7 +2494,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseARealNumericBasicType(ARealNumericBasicType node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseARealNumericBasicType(node);
 	}
@@ -2510,7 +2510,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseARecordInvariantType(ARecordInvariantType node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseARecordInvariantType(node);
 	}
@@ -2536,7 +2536,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseAReferenceAction(AReferenceAction node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAReferenceAction(node);
 	}
@@ -2690,7 +2690,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 
 	@Override
 	public void caseASeqSeqType(ASeqSeqType node) throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseASeqSeqType(node);
 	}
@@ -2698,7 +2698,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseASequentialCompositionAction(
 			ASequentialCompositionAction node) throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseASequentialCompositionAction(node);
 	}
@@ -2706,7 +2706,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseASequentialCompositionProcess(
 			ASequentialCompositionProcess node) throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseASequentialCompositionProcess(node);
 	}
@@ -2751,7 +2751,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseASetDifferenceBinaryExp(ASetDifferenceBinaryExp node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseASetDifferenceBinaryExp(node);
 	}
@@ -2759,7 +2759,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseASetEnumSetExp(ASetEnumSetExp node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseASetEnumSetExp(node);
 	}
@@ -2767,7 +2767,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseASetIntersectBinaryExp(ASetIntersectBinaryExp node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseASetIntersectBinaryExp(node);
 	}
@@ -2800,7 +2800,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 
 	@Override
 	public void caseASetType(ASetType node) throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseASetType(node);
 	}
@@ -2808,7 +2808,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseASetUnionBinaryExp(ASetUnionBinaryExp node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseASetUnionBinaryExp(node);
 	}
@@ -2816,21 +2816,21 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseASignalCommunicationParameter(
 			ASignalCommunicationParameter node) throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseASignalCommunicationParameter(node);
 	}
 
 	@Override
 	public void caseASkipAction(ASkipAction node) throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseASkipAction(node);
 	}
 
 	@Override
 	public void caseASkipProcess(ASkipProcess node) throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseASkipProcess(node);
 	}
@@ -2906,7 +2906,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 
 	@Override
 	public void caseAStopAction(AStopAction node) throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAStopAction(node);
 	}
@@ -2914,7 +2914,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseAStringLiteralExp(AStringLiteralExp node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAStringLiteralExp(node);
 	}
@@ -2957,7 +2957,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseASubsetBinaryExp(ASubsetBinaryExp node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseASubsetBinaryExp(node);
 	}
@@ -2965,7 +2965,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseASubtractNumericBinaryExp(ASubtractNumericBinaryExp node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseASubtractNumericBinaryExp(node);
 	}
@@ -3108,7 +3108,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseATimesNumericBinaryExp(ATimesNumericBinaryExp node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseATimesNumericBinaryExp(node);
 	}
@@ -3133,7 +3133,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseATokenBasicType(ATokenBasicType node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseATokenBasicType(node);
 	}
@@ -3191,7 +3191,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseATypeDefinition(ATypeDefinition node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseATypeDefinition(node);
 	}
@@ -3224,7 +3224,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseATypesDefinition(ATypesDefinition node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseATypesDefinition(node);
 	}
@@ -3267,7 +3267,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseAUndefinedType(AUndefinedType node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAUndefinedType(node);
 	}
@@ -3308,7 +3308,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseAUnresolvedPathExp(AUnresolvedPathExp node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAUnresolvedPathExp(node);
 	}
@@ -3361,7 +3361,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseAValueDefinition(AValueDefinition node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAValueDefinition(node);
 	}
@@ -3377,7 +3377,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseAValuesDefinition(AValuesDefinition node)
 			throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAValuesDefinition(node);
 	}
@@ -3393,7 +3393,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 
 	@Override
 	public void caseAVariableExp(AVariableExp node) throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAVariableExp(node);
 	}
@@ -3409,7 +3409,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 
 	@Override
 	public void caseAVoidType(AVoidType node) throws AnalysisException {
-		// unsupported=false;
+		 unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAVoidType(node);
@@ -3443,12 +3443,10 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseAWriteCommunicationParameter(
 			AWriteCommunicationParameter node) throws AnalysisException {
-		// unsupported = false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAWriteCommunicationParameter(node);
 	}
-	
-	
 
-
+	
 }

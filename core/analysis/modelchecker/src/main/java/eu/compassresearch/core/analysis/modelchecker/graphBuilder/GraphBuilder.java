@@ -189,7 +189,7 @@ public class GraphBuilder {
 			}
 		}
 		if(initialState == null){
-			initialState = new State(1,new NullBinding(),mainProcessName,mainProcessBody);
+			initialState = new State(new NullBinding(),mainProcessBody);
 		}
 		return initialState;
 	}
@@ -230,14 +230,14 @@ public class GraphBuilder {
 		
 		State realFinalState = null; //this will be the real deadlock state found in the graph
 		
-		State basicDeadlock = new State(0, new NullBinding(),"Deadlock", new Stop());
+		State basicDeadlock = new State(new NullBinding(),new Stop());
 		//if(initialState.getProcess() instanceof Stop){
 		if(initialState.getProcess().isDeadlock()){
 			basicDeadlock = initialState;
 			realFinalState = basicDeadlock;
 		}
 	
-		State basicTermination = new State(0, new NullBinding(),"Skip", new Skip());
+		State basicTermination = new State(new NullBinding(),new Skip());
 		if(initialState.getProcess() instanceof Skip){
 			basicTermination = initialState;
 			realFinalState = basicTermination;

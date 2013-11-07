@@ -39,6 +39,13 @@ public class MCBooleanBinaryExp implements MCPCMLExp{
 		this.right = right;
 	}
 
+
+	@Override
+	public MCPCMLExp copy() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 	
 
 }

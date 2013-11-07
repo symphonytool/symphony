@@ -35,5 +35,11 @@ public class MCASeqEnumSeqExp implements MCPCMLExp{
 		this.types = types;
 	}
 
+	@Override
+	public MCPCMLExp copy() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 	
 }

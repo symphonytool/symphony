@@ -18,9 +18,10 @@ import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCIOCommDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCLieInFact;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCNegGuardDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCPosGuardDef;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.NewMCGuardDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.NullBinding;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAActionDefinition;
-import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAChannelNameDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAChannelDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAProcessDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCATypeDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAValueDefinition;
@@ -35,7 +36,7 @@ public class NewCMLModelcheckerContext {
 	public static int IOCOMM_COUNTER;
 	
 	public MCAProcessDefinition mainProcess;
-	public Domain semanticsDomain;
+	public Domain propertiesDomain;
 	public String propertyToCheck = Utilities.DEADLOCK_PROPERTY;
 	public NewSetStack<MCPVarsetExpression> setStack;
 	public ArrayList<MCLieInFact> lieIn;
@@ -44,9 +45,9 @@ public class NewCMLModelcheckerContext {
 	public Binding maximalBinding = new NullBinding();
 	public HashMap<MCPCMLExp, MCPosGuardDef> positiveGuardDefs;
 	public HashMap<MCPCMLExp, MCNegGuardDef> negativeGuardDefs;
-	public HashMap<MCPCMLExp, MCGuardDef> guardDefs;
+	public HashMap<MCPCMLExp, NewMCGuardDef> guardDefs;
 	public ArrayList<MCAssignDef> assignDefs;
-	public LinkedList<MCAChannelNameDefinition> channelDefs;
+	public LinkedList<MCAChannelDefinition> channelDefs;
 	public ArrayList<MCSCmlOperationDefinition> operations;
 	public LinkedList<MCAValueDefinition> valueDefinitions;
 	public LinkedList<MCATypeDefinition> typeDefinitions;
@@ -73,6 +74,10 @@ public class NewCMLModelcheckerContext {
 		return instance;
 	}
 	
+	public synchronized static void resetInstance(){
+		instance = new NewCMLModelcheckerContext();
+	}
+	
 	public MCCondition getConditionByExpression(MCPCMLExp expression){
 		MCCondition result = null;
 		for (MCCondition condition : this.conditions) {
@@ -95,9 +100,9 @@ public class NewCMLModelcheckerContext {
 		return result;
 	}
 	
-	public MCAChannelNameDefinition getChannelDefinition(String channelName){
-		MCAChannelNameDefinition result = null;
-		for (MCAChannelNameDefinition chanDef : this.channelDefs) {
+	public MCAChannelDefinition getChannelDefinition(String channelName){
+		MCAChannelDefinition result = null;
+		for (MCAChannelDefinition chanDef : this.channelDefs) {
 			if(chanDef.getName().equals(channelName)){
 				result = chanDef;
 				break;
@@ -118,9 +123,9 @@ public class NewCMLModelcheckerContext {
 		negativeGuardDefs = new HashMap<MCPCMLExp, MCNegGuardDef>();
 		valueDefinitions = new LinkedList<MCAValueDefinition>();
 		typeDefinitions = new LinkedList<MCATypeDefinition>();
-		guardDefs = new HashMap<MCPCMLExp, MCGuardDef>();
+		guardDefs = new HashMap<MCPCMLExp, NewMCGuardDef>();
 		assignDefs = new ArrayList<MCAssignDef>();
-		channelDefs = new LinkedList<MCAChannelNameDefinition>();
+		channelDefs = new LinkedList<MCAChannelDefinition>();
 		processDefinitions = new LinkedList<MCAProcessDefinition>();
 		actionOrProcessDefStack = new Stack<INode>(); 
 		ASSIGN_COUNTER = 0;

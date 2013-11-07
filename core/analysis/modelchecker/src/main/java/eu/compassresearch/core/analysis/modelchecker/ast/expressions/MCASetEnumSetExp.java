@@ -29,5 +29,12 @@ public class MCASetEnumSetExp implements MCPCMLExp {
 		this.members = members;
 	}
 
+
+	@Override
+	public MCPCMLExp copy() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 	
 }

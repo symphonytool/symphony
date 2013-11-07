@@ -1,4 +1,4 @@
-package eu.compassresearch.core.analysis.modelchecker;
+package eu.compassresearch.core.analysis.modelchecker.test;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,12 +15,14 @@ import eu.compassresearch.core.analysis.modelchecker.api.FormulaIntegrator;
 import eu.compassresearch.core.analysis.modelchecker.api.FormulaIntegrationException;
 import eu.compassresearch.core.analysis.modelchecker.api.FormulaResult;
 import eu.compassresearch.core.analysis.modelchecker.api.IFormulaIntegrator;
+import eu.compassresearch.core.analysis.modelchecker.visitors.NameContent;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewMCVisitor;
 import eu.compassresearch.core.analysis.modelchecker.visitors.Utilities;
 
 public class TestCMLModelchecker {
 
-	List<PSource> sources;
+	private List<PSource> sources;
+	private String[]  formulaCodes = new String[0];
 	
 	@Before
 	public void setUp() throws Exception {
@@ -47,16 +49,16 @@ public class TestCMLModelchecker {
 	private List<FormulaResult> analyseAllSources(IFormulaIntegrator formulaIntegrator) throws IOException, AnalysisException, FormulaIntegrationException{
 		
 		List<FormulaResult> results = new LinkedList<FormulaResult>();
-		
-		File f = new File(Utilities.CML_EXAMPLES_DIRECTORY);
+		File f = new File(Utilities.FORMULA_TMP_DIRECTORY);
 		if(f.isDirectory()){
 			File[] formulaFiles = f.listFiles();
 			FormulaResult currentResult = null;
 			for (int i = 0; i < formulaFiles.length; i++) {
-				String currentFileName = formulaFiles[i].getPath();
+				String currentFileName = formulaFiles[i].getAbsolutePath();
 				if(currentFileName.endsWith(".4ml")){
 					try {
-						currentResult = formulaIntegrator.analyse(currentFileName);
+						System.out.println("Analysing file: " + currentFileName);
+						currentResult = formulaIntegrator.analyseFile(currentFileName);
 						results.add(currentResult);
 					} catch (FormulaIntegrationException e) {
 						try {
@@ -84,12 +86,10 @@ public class TestCMLModelchecker {
 
 	@Test
 	public void testAllExamples() {
-		
-		
-		
 		try {
 			NewMCVisitor visitor = new NewMCVisitor(sources);
-			visitor.generateFormulaCodeForAll(Utilities.DEADLOCK_PROPERTY);
+			LinkedList<NameContent> formulaScripts = visitor.generateFormulaCodeForAll(Utilities.DEADLOCK_PROPERTY);
+			saveAllFormulaScripts(formulaScripts);
 			IFormulaIntegrator invoker = FormulaIntegrator.getInstance();
 			this.analyseAllSources(invoker);
 		} catch (IOException e) {
@@ -98,7 +98,30 @@ public class TestCMLModelchecker {
 			e.printStackTrace();
 		} catch (FormulaIntegrationException e) {
 			e.printStackTrace();
-		} 
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
+	public void saveAllFormulaScripts(LinkedList<NameContent> formulaScripts) throws IOException{
+		//it first cleans up the temporary directory
+		File folder = new File(Utilities.FORMULA_TMP_DIRECTORY);
+		if(!folder.exists()){
+			folder.mkdir();
+			System.out.println("Created folder: " + folder.getAbsolutePath());
+		}else{
+			File[] files = folder.listFiles();
+			for (int i = 0; i < files.length; i++) {
+				files[i].delete();
+			}
+		}
+		for (NameContent nameContent : formulaScripts) {
+			String formulaFileName = Utilities.generateFormulaFileName(nameContent.getFileName());
+			String path = Utilities.FORMULA_TMP_DIRECTORY + File.separator + formulaFileName;
+			//System.out.println("Saving file: " + path);
+			Utilities.writeScriptToFile(path,  nameContent.getContent());
+		}
+	}
+	
+	
 }
