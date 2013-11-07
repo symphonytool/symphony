@@ -120,6 +120,7 @@ import eu.compassresearch.ast.process.AUntimedTimeoutProcess;
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.ATcpStreamSource;
+import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.ast.types.AProcessType;
 
 public class AbstractCmlVariableNameCollector extends VariableNameCollector
@@ -1050,6 +1051,13 @@ public class AbstractCmlVariableNameCollector extends VariableNameCollector
 			throws AnalysisException
 	{
 
+		return null;
+	}
+
+	@Override
+	public LexNameList caseAChannelType(AChannelType node)
+			throws AnalysisException
+	{
 		return null;
 	}
 

@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.definitions.AClassClassDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.ACaseAlternative;
 import org.overture.ast.expressions.ARecordModifier;
@@ -39,6 +40,7 @@ import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.process.PProcess;
+import eu.compassresearch.core.typechecker.api.ICmlTypeChecker;
 
 /**
  * This class traverses an entire model and collects information on elements
@@ -83,6 +85,12 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 		for (INode node : ast) {
 			node.apply(this);
 		}
+		return unsupporteds;
+	}
+	
+	public List<UnsupportedElementInfo> getUnsupporteds(INode ast)
+			throws AnalysisException {
+		ast.apply(this);
 		return unsupporteds;
 	}
 
@@ -385,6 +393,19 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 			unsupported = true;
 		}
 		super.defaultInPAction(node);
+	}
+
+
+	
+	@Override
+	public void inAClassClassDefinition(AClassClassDefinition node)
+			throws AnalysisException {
+		if (node.getName().getName().equals(ICmlTypeChecker.GLOBAL_CLASS_NAME)){
+		// global. do nothing with it
+		}
+		else{
+			defaultInPDefinition(node);
+		}		
 	}
 
 	@Override

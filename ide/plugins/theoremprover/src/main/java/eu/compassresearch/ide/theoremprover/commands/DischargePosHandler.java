@@ -3,72 +3,51 @@ package eu.compassresearch.ide.theoremprover.commands;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 import eu.compassresearch.ide.core.resources.ICmlProject;
-import eu.compassresearch.ide.pog.POConstants;
+import eu.compassresearch.ide.pog.PogPluginUtils;
 import eu.compassresearch.ide.pog.view.PoListView;
-import eu.compassresearch.ide.theoremprover.FetchPosUtil;
+import eu.compassresearch.ide.theoremprover.TPConstants;
 import eu.compassresearch.ide.theoremprover.TPPluginDoStuff;
+import eu.compassresearch.ide.theoremprover.TPPluginUtils;
 
+public class DischargePosHandler extends AbstractHandler {
 
-public class DischargePosHandler extends AbstractHandler
-{
-
-	FetchPosUtil util = null;
-	
 	@Override
-	public Object execute(ExecutionEvent event) throws ExecutionException
-	{
-//		// we should probably send the project to te TP handler
-//		// we already from the POs (or at least we should have it)
-//		
-//		if (util == null) {
-//			
-//			IProject proj = TPPluginUtils.getCurrentlySelectedProject();
-//			if (proj == null) {
-//				Activator.log("no project selected",null);
-//				return null;
-//			}
-//
-//			ICmlProject cmlProject = (ICmlProject) proj
-//					.getAdapter(ICmlProject.class);
-//			util = new FetchPosUtil(HandlerUtil.getActiveShell(event),cmlProject);
-//		}
-//		
-////		util.fetchPOs(PogPluginUtility.getPoggedProject());
-//		util.fetchPOs();
-//		
-////		String message = "Proof Obligations sent to Theorem Prover (Coming soon!)";
-////		
-////		MessageDialog.openInformation(HandlerUtil.getActiveWorkbenchWindow(event).getShell(),"Symphony", message);
-//		return null;
-//		
-//		
+	public Object execute(ExecutionEvent event) throws ExecutionException {
+		ICmlProject proj = null;
 
-		IWorkbenchPage page = HandlerUtil.getActiveWorkbenchWindow(event).getActivePage();
-		try {
-			PoListView view = (PoListView) PlatformUI.getWorkbench()
-					.getActiveWorkbenchWindow().getActivePage()
-					.showView(POConstants.PO_OVERVIEW_TABLE);
-			ICmlProject proj = view.getProject();
-			TPPluginDoStuff doer = new TPPluginDoStuff(HandlerUtil.getActiveWorkbenchWindow(event), page.getActivePart().getSite());
-			doer.fetchPOs(proj);
-			
-		} catch (PartInitException e) {
-			MessageDialog.openInformation(HandlerUtil.getActiveWorkbenchWindow(event).getShell(), "Symphony", 
-					"Internal communication error");
-			
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		String needs = event.getParameter(TPConstants.NEEDS_PROJECT_PARAM_ID);
+		if (needs.equals("yes")) {
+			IProject proj_ = TPPluginUtils.getCurrentlySelectedProject();
+			proj = (ICmlProject) proj_.getAdapter(ICmlProject.class);
+
+		} else {
+
+			try {
+				PoListView view = PogPluginUtils.getMainView();
+				proj = view.getProject();
+			} catch (PartInitException e) {
+				MessageDialog.openInformation(HandlerUtil
+						.getActiveWorkbenchWindow(event).getShell(),
+						"Symphony Internal Error",
+						"Could not load the POG View.");
+				e.printStackTrace();
+			}
 		}
-		
 
-		
+		IWorkbenchPage page = HandlerUtil.getActiveWorkbenchWindow(event)
+				.getActivePage();
+		TPPluginDoStuff doer = new TPPluginDoStuff(
+				HandlerUtil.getActiveWorkbenchWindow(event), page
+						.getActivePart().getSite());
+		doer.dischargePos(proj);
+
 		return null;
 	}
 }

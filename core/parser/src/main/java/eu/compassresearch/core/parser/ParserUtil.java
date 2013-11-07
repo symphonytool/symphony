@@ -74,6 +74,8 @@ public class ParserUtil
 				}
 				errors.add(new CmlParserError(msg, null, file.getName(), lexer.getLine(), 0, 0, 0));
 			}
+		}finally{
+			input = null;
 		}
 
 		errors.addAll(lexer.getErrors());

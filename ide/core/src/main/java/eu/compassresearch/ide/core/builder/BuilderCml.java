@@ -54,7 +54,7 @@ public class BuilderCml extends AbstractVdmBuilder
 			// set warning markers
 			for (CMLTypeWarning warning : issueHandler.getTypeWarnings())
 			{
-				warnings.add(new VDMWarning(0, warning.getDescription(), warning.getLocation()));
+				warnings.add(new VDMWarning(0, warning.getMessage(), warning.getLocation()));
 			}
 		} catch (TypeCheckException e)
 		{
@@ -96,7 +96,7 @@ public class BuilderCml extends AbstractVdmBuilder
 
 	private void addErrorMarker(CMLTypeError error)
 	{
-		addErrorMarker(error.getLocation().getFile(), error.getDescription(), error.getLocation(), IBuilderVdmjConstants.PLUGIN_ID);
+		addErrorMarker(error.getLocation().getFile(), error.getMessage(), error.getLocation(), IBuilderVdmjConstants.PLUGIN_ID);
 	}
 
 	private void addWarningMarker(VDMWarning error)

@@ -1,8 +1,0 @@
-/* Explicit mutual recursion is ok with defined action */
-
-process A =
-begin
-
-@ mu X, Y @( Skip)
-
-end

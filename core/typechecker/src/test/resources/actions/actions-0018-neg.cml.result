@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.ActionsCmlTypeCheckerTests">
+<message column="3" line="9" message="Non-compatible type seq1 of (char) detected for communication parameter index 0 expected int" messageType="error" number="3430" resource="actions-0018-neg.cml"/>
+<result/>
+</testResult>

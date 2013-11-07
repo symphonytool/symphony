@@ -66,12 +66,12 @@ public class LaunchIsabelleHandler extends AbstractHandler implements IHandler
 			HashMap<String, String> env = new HashMap<String, String>();
 			if (CmlTPPlugin.getDefault().getPreferenceStore().getBoolean(IIsabelleConstants.Z3_NON_COMMERCIAL))
 			{
-				if (isWindowsPlatform())
-				{
-					env.put(IIsabelleConstants.Z3_NON_COMMERCIAL, "yes");
-				} else
+				if (isMacPlatform())
 				{
 					env.put(IIsabelleConstants.Z3_NON_COMMERCIAL, "true");
+				} else
+				{
+					env.put(IIsabelleConstants.Z3_NON_COMMERCIAL, "yes");
 				}
 				wc.setAttribute(ILaunchManager.ATTR_ENVIRONMENT_VARIABLES, env);
 			}

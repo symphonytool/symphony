@@ -121,6 +121,7 @@ import eu.compassresearch.ast.process.AUntimedTimeoutProcess;
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.ATcpStreamSource;
+import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.ast.types.AProcessType;
 
 public class AbstractCmlImplicitDefinitionFinder extends
@@ -967,5 +968,12 @@ public class AbstractCmlImplicitDefinitionFinder extends
 			throws AnalysisException
 	{
 
+	}
+
+	@Override
+	public void caseAChannelType(AChannelType node, Environment question)
+			throws AnalysisException
+	{
+		
 	}
 }

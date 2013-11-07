@@ -12,6 +12,15 @@ state
 
 operations
 
- o: int ==> int o(b) == if a = 0 then a:=b+1 elseif a > 1 then a:=b-a else a := 0 ; return a @ a := o('l')
+ o: int ==> int 
+ o(b) == 
+ 	if a = 0 
+ 	then a:=b+1 
+ 	elseif a > 1 
+ 		then a:=b-a 
+ 		else a := 0 ; 
+ 		return a 
+ 		
+ @ a := o('l')
 
 end

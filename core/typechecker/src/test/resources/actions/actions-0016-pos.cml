@@ -6,6 +6,6 @@ a : int * int
 process A =
 begin
 
-@ a.1.2 -> Skip
+@ a!1!2 -> Skip ; a?x?y -> Skip 
 
 end

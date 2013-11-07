@@ -120,6 +120,7 @@ import eu.compassresearch.ast.process.AUntimedTimeoutProcess;
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.ATcpStreamSource;
+import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.ast.types.AProcessType;
 
 public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
@@ -1038,6 +1039,12 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 			AUnresolvedObjectDesignator node) throws AnalysisException
 	{
 
+		return null;
+	}
+
+	@Override
+	public PType caseAChannelType(AChannelType node) throws AnalysisException
+	{
 		return null;
 	}
 

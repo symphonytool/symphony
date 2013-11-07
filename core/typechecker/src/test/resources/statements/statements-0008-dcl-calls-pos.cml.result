@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <testResult type="eu.compassresearch.core.typechecker.StatementsCmlTypeCheckerTests">
-<message column="5" line="16" message="Definition 'a' not used" messageType="warning" number="0" resource="statements-0008-dcl-calls-pos.cml"/>
-<message column="0" line="10" message="Instance variable 'v' is not initialized" messageType="warning" number="0" resource="statements-0008-dcl-calls-pos.cml"/>
-<message column="15" line="16" message="Operation 'op' cannot be called in an expression" messageType="error" number="0" resource="statements-0008-dcl-calls-pos.cml"/>
-<message column="0" line="13" message="Operation returns unexpected type" messageType="error" number="0" resource="statements-0008-dcl-calls-pos.cml"/>
+<message column="5" line="16" message="Definition 'a' not used." messageType="warning" number="5000" resource="statements-0008-dcl-calls-pos.cml"/>
+<message column="0" line="10" message="Instance variable 'v' is not initialized." messageType="warning" number="5001" resource="statements-0008-dcl-calls-pos.cml"/>
+<message column="15" line="16" message="Operation 'op' cannot be called in an expression." messageType="error" number="3425" resource="statements-0008-dcl-calls-pos.cml"/>
+<message column="0" line="13" message="Operation returns unexpected type. Actual: () Expected: int" messageType="error" number="3027" resource="statements-0008-dcl-calls-pos.cml"/>
 <result/>
 </testResult>

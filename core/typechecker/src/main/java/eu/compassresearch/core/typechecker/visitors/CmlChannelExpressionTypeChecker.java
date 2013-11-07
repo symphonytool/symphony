@@ -13,6 +13,7 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.intf.IQuestionAnswer;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
+import org.overture.ast.factory.AstFactory;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.types.AProductType;
@@ -27,6 +28,7 @@ import eu.compassresearch.ast.expressions.AEnumerationRenameChannelExp;
 import eu.compassresearch.ast.expressions.ANameChannelExp;
 import eu.compassresearch.ast.messages.InternalException;
 import eu.compassresearch.ast.patterns.ARenamePair;
+import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 import eu.compassresearch.core.typechecker.assistant.TypeCheckerUtil;
@@ -59,41 +61,32 @@ public class CmlChannelExpressionTypeChecker extends
 		PDefinition chanDef = TypeCheckerUtil.findDefinition(channelId, question.env);
 		if (!(chanDef instanceof AChannelDefinition))
 		{
-			issueHandler.addTypeError(node, TypeErrorMessages.EXPECTED_A_CHANNEL.customizeMessage(channelId
-					+ ""));
+			issueHandler.addTypeError(node, TypeErrorMessages.EXPECTED_A_CHANNEL,channelId
+					+ "");
 			return null;
 		}
 
-		PType chanConcreteType = ((AChannelDefinition) chanDef).getType();
+		AChannelType chanConcreteType = ((AChannelDefinition) chanDef).getType();
 
-		LinkedList<PType> chanConcType = new LinkedList<PType>();
 
-		if (chanConcreteType instanceof AProductType)
-		{
-
-			LinkedList<PType> prodTypes = ((AProductType) chanConcreteType).getTypes();
-			chanConcType.addAll(prodTypes);
-
-		} else
-		{
-			chanConcType.add(chanConcreteType);
-		}
-
-		Iterator<PType> iterator = chanConcType.iterator();
+		Iterator<PType> iterator = chanConcreteType.getParameters().iterator();
 		PType singleChanConcType = null;
 		for (PExp expression : node.getExpressions())
 		{
 			if (iterator.hasNext())
 			{
 				singleChanConcType = iterator.next();
+			}else
+			{
+				singleChanConcType = AstFactory.newAUnknownType(chanConcreteType.getLocation());
 			}
 
 			PType expressionType = expression.apply(THIS, question);
 
-			if (!TypeComparator.isSubType(singleChanConcType, expressionType))
+			if (!TypeComparator.compatible(singleChanConcType, expressionType))
 			{
-				issueHandler.addTypeError(expression, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(""
-						+ singleChanConcType, "" + expressionType));
+				issueHandler.addTypeError(expression, TypeErrorMessages.INCOMPATIBLE_TYPE,""
+						+ singleChanConcType, "" + expressionType);
 				return null;
 			}
 		}
@@ -125,8 +118,8 @@ public class CmlChannelExpressionTypeChecker extends
 			PDefinition fromChanDef = TypeCheckerUtil.findDefinition(from.getIdentifier(), question.env);
 			if (fromChanDef == null)
 			{
-				issueHandler.addTypeError(from, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(""
-						+ from));
+				issueHandler.addTypeError(from, TypeErrorMessages.UNDEFINED_SYMBOL,""
+						+ from);
 				return null;
 			}
 
