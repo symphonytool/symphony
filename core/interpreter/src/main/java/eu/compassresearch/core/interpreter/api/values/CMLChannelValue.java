@@ -27,8 +27,7 @@ public class CMLChannelValue extends Value implements CmlChannel // CmlIOChannel
 	 */
 	private static final long serialVersionUID = 6350630462785844551L;
 	private ILexNameToken name;
-	private PType channelType;
-	private List<PType> valueTypes;
+	private AChannelType channelType;
 
 	private class ChannelEventMediator implements
 			EventFireMediator<ChannelObserver, ChannelEvent>, Serializable
@@ -56,15 +55,14 @@ public class CMLChannelValue extends Value implements CmlChannel // CmlIOChannel
 
 	private EventSourceHandler<ChannelObserver, ChannelEvent> selectObservers = new EventSourceHandler<ChannelObserver, ChannelEvent>(this, new ChannelEventMediator());
 
-	public CMLChannelValue(PType channelType, ILexNameToken name)
+	public CMLChannelValue(AChannelType channelType, ILexNameToken name)
 	{
-		valueTypes = new LinkedList<PType>();
 		this.channelType = channelType;
-		if (channelType instanceof AProductType)
-			valueTypes.addAll(((AProductType) channelType).getTypes());
-		// FIXME THis is changed!!
-		else if (!(channelType instanceof AChannelType))
-			valueTypes.add(channelType);
+//		if (channelType instanceof AProductType)
+//			valueTypes.addAll(((AProductType) channelType).getTypes());
+//		// FIXME THis is changed!!
+//		else if (!(channelType instanceof AChannelType))
+//			valueTypes.add(channelType);
 
 		this.name = name;
 	}
@@ -84,7 +82,7 @@ public class CMLChannelValue extends Value implements CmlChannel // CmlIOChannel
 	@Override
 	public List<PType> getValueTypes()
 	{
-		return valueTypes;
+		return this.channelType.getParameters();
 	}
 
 	@Override

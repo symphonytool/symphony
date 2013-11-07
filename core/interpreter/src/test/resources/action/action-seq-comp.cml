@@ -1,5 +1,5 @@
 channels a b
-process A = 
+process Test = 
 begin 
 	actions
 	 A = a -> Skip
