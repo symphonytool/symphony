@@ -1,7 +1,7 @@
 channels 
 a, b, c
 
-process A = 
+process MAIN = 
 begin 
   actions
 	A = a -> Skip

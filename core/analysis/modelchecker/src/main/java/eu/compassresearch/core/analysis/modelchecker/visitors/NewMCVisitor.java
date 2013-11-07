@@ -15,6 +15,7 @@ import org.overture.ast.node.INode;
 import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.PPattern;
 import org.overture.ast.statements.PStateDesignator;
+import org.overture.ast.statements.PStm;
 import org.overture.ast.types.PType;
 import org.overture.ast.types.SNumericBasicType;
 
@@ -27,15 +28,12 @@ import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.expressions.PCMLExp;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.process.PProcess;
+import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.PSource;
-import eu.compassresearch.core.analysis.modelchecker.api.FormulaIntegrationUtilities;
+import eu.compassresearch.ast.statements.PCMLStateDesignator;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
-import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.Domain;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.FormulaSpecification;
-import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.PartialModel;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAProcessDefinition;
-import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCATypeDefinition;
-import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCAIdentifierPattern;
 
 /**
  * The main MC visitor. It obtains other visitors from a factory.
@@ -58,6 +56,7 @@ public class NewMCVisitor extends
 	private NewMCProcessVisitor processVisitor;
 	private NewMCTypeAndValueVisitor typeAndValueVisitor;
 	private NewMCParameterAndPatternVisitor paramAndPatternVisitor;
+	private NewMCStmVisitor stmVisitor;
 	
 	public NewMCVisitor(List<PSource> sources) throws IOException {
 		this.sources = sources;
@@ -82,6 +81,7 @@ public class NewMCVisitor extends
 		this.typeAndValueVisitor = new NewMCTypeAndValueVisitor(this);
 		this.paramAndPatternVisitor = new NewMCParameterAndPatternVisitor(this);
 		this.formulaSpecification = new FormulaSpecification();
+		this.stmVisitor = new NewMCStmVisitor(this);
 	}
 	
 	@Override
@@ -179,9 +179,6 @@ public class NewMCVisitor extends
 	}
 	
 	
-	
-	
-	
 	@Override
 	public MCNode defaultPCommunicationParameter(PCommunicationParameter node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
@@ -198,26 +195,25 @@ public class NewMCVisitor extends
 			NewCMLModelcheckerContext question) throws AnalysisException {
 		return node.apply(this.paramAndPatternVisitor, question);
 	}
-	/*
-	@Override
-	public StringBuilder defaultPStm(PStm node,
-			CMLModelcheckerContext question) throws AnalysisException
+	
+	 @Override
+	public MCNode defaultPStm(PStm node,
+		NewCMLModelcheckerContext question) throws AnalysisException
 	{
-		return node.apply(this.statementVisitor, question);
+		return node.apply(this.stmVisitor, question);
 	}
-	
+	 
+	 
 	
 	@Override
-	public MCNode caseAValParametrisation(AValParametrisation node,
-			CMLModelcheckerContext question) throws AnalysisException {
-		question.getScriptContent().append("Int(");
-		question.getScriptContent().append(node.getDeclaration().getIdentifiers().getFirst().toString());
-		question.getScriptContent().append(")");
-		return question.getScriptContent();
+	public MCNode defaultPCMLStateDesignator(PCMLStateDesignator node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		
+		return node.apply(stmVisitor, question);
 	}
-
-
-
+	/*
+	 *
+	
 	@Override
 	public StringBuilder defaultPExp(PExp node,
 			CMLModelcheckerContext question) throws AnalysisException
@@ -232,30 +228,17 @@ public class NewMCVisitor extends
 	}
 
 	*/
-	public String[] generateFormulaCodeForAll(String propertyToCheck) throws IOException,AnalysisException {
+	public LinkedList<NameContent> generateFormulaCodeForAll(String propertyToCheck) throws IOException,AnalysisException {
 		 
-		String[] codes = new String[0];
-		if (sources.size() > 0) {
-			codes = new String[sources.size()];
-		}
-		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
-		context.setPropertyToCheck(propertyToCheck);
-		
+		LinkedList<NameContent> codes = new LinkedList<NameContent>();
 		for (PSource source : sources) {
-			String dependentCode = "";
-			for (PDefinition paragraph : source.getParagraphs()) {
-				paragraph.apply(this, context);
+			if(source instanceof AFileSource){
+				//System.out.println("Analysing file: " + ((AFileSource) source).getName());
+				String currentScriptContent = this.generateFormulaScript(source.getParagraphs(), propertyToCheck);
+				NameContent element = new NameContent(((AFileSource) source).getName(), currentScriptContent);
+				codes.add(element);
 			}
-			
-			//codes[sources.indexOf(source)] = basicContent + "\n" + dependentCode;
 		}
-		
-		//handleUserTypeDefinitions();
-		
-		MCAProcessDefinition mainProcessDef = getMainProcess();
-		String content = mainProcessDef.toFormula(MCNode.DEFAULT);
-		
-		codes[0] = content;
 		
 		return codes;
 	}
@@ -286,6 +269,7 @@ public class NewMCVisitor extends
 	
 	public String generateFormulaScript(List<PDefinition> definitions, String propertyToCheck) throws IOException, AnalysisException{
 		
+		NewCMLModelcheckerContext.resetInstance();
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 		context.propertyToCheck = propertyToCheck;
 

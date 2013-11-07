@@ -21,7 +21,7 @@ public class MCPluginDoStuff {
 		this.site = s;
 	}
 	
-	public void run()
+	public synchronized void run()
 	{
 		final MCUIResult data = new MCUIResult(file, formulaResult);
 		site.getPage().getWorkbenchWindow().getShell().getDisplay().asyncExec(new Runnable()

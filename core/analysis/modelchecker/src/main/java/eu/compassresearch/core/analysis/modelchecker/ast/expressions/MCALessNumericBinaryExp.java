@@ -26,4 +26,11 @@ public class MCALessNumericBinaryExp extends MCNumericBinaryExp {
 		}
 		return result;
 	}
+
+
+	@Override
+	public MCPCMLExp copy() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

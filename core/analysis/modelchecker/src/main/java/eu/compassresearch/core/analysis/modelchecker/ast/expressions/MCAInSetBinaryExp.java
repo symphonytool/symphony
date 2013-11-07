@@ -12,4 +12,10 @@ public class MCAInSetBinaryExp extends MCNumericBinaryExp {
 		return this.getRight().toFormula(option);
 	}
 
+	@Override
+	public MCPCMLExp copy() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

@@ -23,12 +23,13 @@ import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Int;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Type;
-import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.UndefinedValue;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Void;
 import eu.compassresearch.core.parser.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
 
 public class Utilities {
 	public static final String CML_EXAMPLES_DIRECTORY = "src/test/resources";
+	public static final String FORMULA_TMP_DIRECTORY = "temp";
 	//public static final String BASIC_FORMULA_SCRIPT = "src/test/resources/basic_formula_script.fml";
 	public static final String BASIC_FORMULA_SCRIPT = "/basic_formula_script.fml";
 	//public static final String BASIC_FORMULA_SCRIPT = "/basic_formula_script-new.fml";
@@ -89,7 +90,7 @@ public class Utilities {
 		Type result = null;
 		
 		if(expression == null){
-			result = new UndefinedValue();
+			result = new Void();
 		}
 		if(expression instanceof AIntLiteralExp){
 			result = new Int(Integer.valueOf(((AIntLiteralExp) expression).getValue().toString()));
@@ -151,7 +152,8 @@ public class Utilities {
 		 return text;
 	 }
 	 
-	 public static void writeScriptToFile(String filePath, StringBuilder content) throws IOException {
+	 public static void writeScriptToFile(String filePath, String content) throws IOException {
+		 
 		 FileWriter fw = new FileWriter(filePath);
 		 BufferedWriter bw = new BufferedWriter(fw);
 		 bw.write(content.toString());
