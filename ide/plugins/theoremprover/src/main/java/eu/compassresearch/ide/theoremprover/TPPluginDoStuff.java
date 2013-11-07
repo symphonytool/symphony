@@ -15,9 +15,13 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourceAttributes;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IWorkbenchSite;
@@ -267,23 +271,24 @@ public class TPPluginDoStuff {
 			}
 
 			// Check is PO elements are supported
-			IProofObligationList pol2 = new ProofObligationList();
-			boolean fullysupported = true;
+			IProofObligationList goodPol = new ProofObligationList();
+			IProofObligationList badPol = new ProofObligationList();
 			for (IProofObligation po : pol) {
 				TPUnsupportedCollector tpu = new TPUnsupportedCollector();
 				// check if the po is supported
 				List<UnsupportedElementInfo> unsupports = tpu
 						.getUnsupporteds(po.getValueTree().getPredicate());
 				if (unsupports.isEmpty()) {
-					pol2.add(po);
-				}
-				else{
-					fullysupported=false;
+					goodPol.add(po);
+				} else {
+					badPol.add(po);
 				}
 			}
-			
-			if (pol2.isEmpty()){
-				MessageDialog.openError(null, "Symphony", "None of the Proof Obligations are currently supported by the theorem prover");
+
+			if (goodPol.isEmpty()) {
+				popBadPol(
+						"PO generation and export failed.", "None of the Proof Obligations are currently supported by the theorem prover",
+						badPol);
 				return;
 			}
 
@@ -342,23 +347,37 @@ public class TPPluginDoStuff {
 
 				// Create empty thy file which imports generated file
 				IFile pogThyFile = pogFolder.getFile(fileName + "_PO.thy");
-				createPogThy(model, pogThyFile, thyFileName, pol2);
+				createPogThy(model, pogThyFile, thyFileName, goodPol);
 			}
-			if (fullysupported) {
+			if (badPol.isEmpty()) {
 				MessageDialog.openInformation(null, "Symphony",
 						"PO generation and export complete.");
 			} else {
-				MessageDialog
-						.openWarning(
-								null,
-								"Symphony",
-								"PO generation and export complete.\n Not all POs are currently supported by the theorem prover. The supported subset has been exported. ");
+				popBadPol(
+						"PO generation and export incomplete.", "Some POs are currently not supported by the theorem prover.",
+						badPol);
+
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			popErrorMessage(e.getMessage());
 			CmlTPPlugin.log(e);
 		}
+	}
+
+private 	void popBadPol(String msg, String reason, IProofObligationList badPol) {
+		MultiStatus bads = new MultiStatus(TPConstants.PLUGIN_ID, 1, reason,null);
+		for (IProofObligation po : badPol) {
+			bads.add(sFromPo(po));
+		}
+
+		ErrorDialog.openError(null, "Symphony", msg, bads);
+	}
+
+
+	private Status sFromPo(IProofObligation po) {
+		Status r = new Status(IStatus.ERROR, TPConstants.PLUGIN_ID, po.getKind().toString());
+		return r;
 	}
 
 	/****
