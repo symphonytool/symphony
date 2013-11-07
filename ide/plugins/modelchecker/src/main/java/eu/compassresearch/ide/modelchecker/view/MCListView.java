@@ -87,7 +87,7 @@ public class MCListView extends ViewPart {
 							ICmlSourceUnit selectedUnit = data.get(viewer.getTable().getSelectionIndex()).getFormulaResult().getSelectedUnit();
 							//IFile dotFile = writeDotContentToFile(mcFolder,selectedUnit,dotContent);
 							String name = selectedUnit.getFile().getName();
-							String dotFileName = name.substring(0,name.length()-selectedUnit.getFile().getFileExtension().length())+"gv";
+							String dotFileName = name.substring(0,name.length()-selectedUnit.getFile().getFileExtension().length()-1)+ "-" + propertyToCheck + ".gv";
 							IFile dotFile = ((IFolder)mcFolder).getFile(dotFileName);
 							
 							try{

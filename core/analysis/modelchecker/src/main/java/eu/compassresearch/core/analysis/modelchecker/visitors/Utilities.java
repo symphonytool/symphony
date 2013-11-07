@@ -23,7 +23,7 @@ import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Int;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Type;
-import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.UndefinedValue;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Void;
 import eu.compassresearch.core.parser.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
 
@@ -89,7 +89,7 @@ public class Utilities {
 		Type result = null;
 		
 		if(expression == null){
-			result = new UndefinedValue();
+			result = new Void();
 		}
 		if(expression instanceof AIntLiteralExp){
 			result = new Int(Integer.valueOf(((AIntLiteralExp) expression).getValue().toString()));
