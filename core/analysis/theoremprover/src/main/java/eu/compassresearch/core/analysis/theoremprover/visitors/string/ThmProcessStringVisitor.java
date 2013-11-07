@@ -70,46 +70,46 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		return left + "[|" + chExp +"|]" + right;
 	}
 	
-	public String caseAAlphabetisedParallelismProcess(AAlphabetisedParallelismProcess p, ThmVarsContext vars) throws AnalysisException{
-
-		String left = p.getLeft().apply(thmStringVisitor, vars);
-		String right = p.getRight().apply(thmStringVisitor, vars);
-		String leftChExp = p.getLeftChansetExpression().apply(thmStringVisitor, vars);
-		String rightChExp = p.getRightChansetExpression().apply(thmStringVisitor, vars);
-		
-		return left + "[" + leftChExp + "||" + rightChExp +"]" + right;
-	}
+//	public String caseAAlphabetisedParallelismProcess(AAlphabetisedParallelismProcess p, ThmVarsContext vars) throws AnalysisException{
+//
+//		String left = p.getLeft().apply(thmStringVisitor, vars);
+//		String right = p.getRight().apply(thmStringVisitor, vars);
+//		String leftChExp = p.getLeftChansetExpression().apply(thmStringVisitor, vars);
+//		String rightChExp = p.getRightChansetExpression().apply(thmStringVisitor, vars);
+//		
+//		return left + "[" + leftChExp + "||" + rightChExp +"]" + right;
+//	}
 	
-	public String caseAInterruptProcess(AInterruptProcess p, ThmVarsContext vars) throws AnalysisException{
-
-		return p.getLeft().apply(thmStringVisitor, vars) + ThmProcessUtil.interrupt + p.getRight().apply(thmStringVisitor, vars);
-	}
-	
-	public String caseATimedInterruptProcess(ATimedInterruptProcess p, ThmVarsContext vars) throws AnalysisException{
-		
-		String left = p.getLeft().apply(thmStringVisitor, vars);
-		String expr = p.getTimeExpression().apply(thmStringVisitor, vars);
-		String right = p.getRight().apply(thmStringVisitor, vars);
-
-		return left + ThmProcessUtil.timeIntLeft + expr + ThmProcessUtil.timeIntRight + right;
-	}
-	
-	public String caseAUntimedTimeoutProcess(AUntimedTimeoutProcess p, ThmVarsContext vars) throws AnalysisException{
-		
-		String left =  p.getLeft().apply(thmStringVisitor, vars);
-		String right = p.getRight().apply(thmStringVisitor, vars);
-
-		return left + ThmProcessUtil.timeout + right;
-	}
-	
-	public String caseATimeoutProcess(ATimeoutProcess p, ThmVarsContext vars) throws AnalysisException{
-
-		String left = p.getLeft().apply(thmStringVisitor, vars);
-		String expr = p.getTimeoutExpression().apply(thmStringVisitor, vars);
-		String right = p.getRight().apply(thmStringVisitor, vars);
-
-		return left + ThmProcessUtil.timeoutLeft +  expr + ThmProcessUtil.timeoutRight + right;
-	}
+//	public String caseAInterruptProcess(AInterruptProcess p, ThmVarsContext vars) throws AnalysisException{
+//
+//		return p.getLeft().apply(thmStringVisitor, vars) + ThmProcessUtil.interrupt + p.getRight().apply(thmStringVisitor, vars);
+//	}
+//	
+//	public String caseATimedInterruptProcess(ATimedInterruptProcess p, ThmVarsContext vars) throws AnalysisException{
+//		
+//		String left = p.getLeft().apply(thmStringVisitor, vars);
+//		String expr = p.getTimeExpression().apply(thmStringVisitor, vars);
+//		String right = p.getRight().apply(thmStringVisitor, vars);
+//
+//		return left + ThmProcessUtil.timeIntLeft + expr + ThmProcessUtil.timeIntRight + right;
+//	}
+//	
+//	public String caseAUntimedTimeoutProcess(AUntimedTimeoutProcess p, ThmVarsContext vars) throws AnalysisException{
+//		
+//		String left =  p.getLeft().apply(thmStringVisitor, vars);
+//		String right = p.getRight().apply(thmStringVisitor, vars);
+//
+//		return left + ThmProcessUtil.timeout + right;
+//	}
+//	
+//	public String caseATimeoutProcess(ATimeoutProcess p, ThmVarsContext vars) throws AnalysisException{
+//
+//		String left = p.getLeft().apply(thmStringVisitor, vars);
+//		String expr = p.getTimeoutExpression().apply(thmStringVisitor, vars);
+//		String right = p.getRight().apply(thmStringVisitor, vars);
+//
+//		return left + ThmProcessUtil.timeoutLeft +  expr + ThmProcessUtil.timeoutRight + right;
+//	}
 	
 	public String caseAHidingProcess(AHidingProcess p, ThmVarsContext vars) throws AnalysisException{
 
@@ -118,19 +118,19 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		return actStr + ThmProcessUtil.hiding + chanStr;
 	}
 	
-	public String caseAStartDeadlineProcess(AStartDeadlineProcess p, ThmVarsContext vars) throws AnalysisException{
-
-		String left = p.getLeft().apply(thmStringVisitor, vars);
-		String expr = p.getExpression().apply(thmStringVisitor, vars);		
-		return left + ThmProcessUtil.startsby + expr;
-	}
-	
-	public String caseAEndDeadlineProcess(AEndDeadlineProcess p, ThmVarsContext vars) throws AnalysisException{
-
-		String left = p.getLeft().apply(thmStringVisitor, vars);
-		String expr = p.getExpression().apply(thmStringVisitor, vars);	
-		return left + ThmProcessUtil.endsby + expr;	
-	}
+//	public String caseAStartDeadlineProcess(AStartDeadlineProcess p, ThmVarsContext vars) throws AnalysisException{
+//
+//		String left = p.getLeft().apply(thmStringVisitor, vars);
+//		String expr = p.getExpression().apply(thmStringVisitor, vars);		
+//		return left + ThmProcessUtil.startsby + expr;
+//	}
+//	
+//	public String caseAEndDeadlineProcess(AEndDeadlineProcess p, ThmVarsContext vars) throws AnalysisException{
+//
+//		String left = p.getLeft().apply(thmStringVisitor, vars);
+//		String expr = p.getExpression().apply(thmStringVisitor, vars);	
+//		return left + ThmProcessUtil.endsby + expr;	
+//	}
 	
 	public String caseAReferenceProcess(AReferenceProcess p, ThmVarsContext vars) throws AnalysisException{
 

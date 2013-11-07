@@ -87,9 +87,9 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		return ThmProcessUtil.div;
 	}
 		
-	public String caseAWaitAction(AWaitAction a, ThmVarsContext vars) throws AnalysisException{
-		return ThmProcessUtil.wait + a.getExpression().apply(thmStringVisitor, vars);
-	}
+//	public String caseAWaitAction(AWaitAction a, ThmVarsContext vars) throws AnalysisException{
+//		return ThmProcessUtil.wait + a.getExpression().apply(thmStringVisitor, vars);
+//	}
 		
 	public String caseACommunicationAction(ACommunicationAction a, ThmVarsContext vars) throws AnalysisException{
 		
@@ -144,40 +144,40 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		return a.getLeft().apply(thmStringVisitor, vars) + ThmProcessUtil.intChoice + a.getRight().apply(thmStringVisitor, vars);
 	}
 		
-	public String caseAInterruptAction(AInterruptAction a, ThmVarsContext vars) throws AnalysisException{
-		return a.getLeft().apply(thmStringVisitor, vars) + ThmProcessUtil.interrupt + a.getRight().apply(thmStringVisitor, vars);
-	}
-		
-	public String caseATimedInterruptAction(ATimedInterruptAction a, ThmVarsContext vars) throws AnalysisException{
-		return a.getLeft().apply(thmStringVisitor, vars) + ThmProcessUtil.timeIntLeft +  a.getTimeExpression().apply(thmStringVisitor, vars) + ThmProcessUtil.timeIntRight + a.getRight().apply(thmStringVisitor, vars);
-	}
-		
-	public String caseAUntimedTimeoutAction(AUntimedTimeoutAction a, ThmVarsContext vars) throws AnalysisException{
-		return a.getLeft().apply(thmStringVisitor, vars) + ThmProcessUtil.timeout + a.getRight().apply(thmStringVisitor, vars);
-	}
-	
-	public String caseATimeoutAction(ATimeoutAction a, ThmVarsContext vars) throws AnalysisException{
-		return a.getLeft().apply(thmStringVisitor, vars) + ThmProcessUtil.timeoutLeft +  a.getTimeoutExpression().apply(thmStringVisitor, vars) + ThmProcessUtil.timeoutRight + a.getRight().apply(thmStringVisitor, vars);
-	}
-	
+//	public String caseAInterruptAction(AInterruptAction a, ThmVarsContext vars) throws AnalysisException{
+//		return a.getLeft().apply(thmStringVisitor, vars) + ThmProcessUtil.interrupt + a.getRight().apply(thmStringVisitor, vars);
+//	}
+//		
+//	public String caseATimedInterruptAction(ATimedInterruptAction a, ThmVarsContext vars) throws AnalysisException{
+//		return a.getLeft().apply(thmStringVisitor, vars) + ThmProcessUtil.timeIntLeft +  a.getTimeExpression().apply(thmStringVisitor, vars) + ThmProcessUtil.timeIntRight + a.getRight().apply(thmStringVisitor, vars);
+//	}
+//		
+//	public String caseAUntimedTimeoutAction(AUntimedTimeoutAction a, ThmVarsContext vars) throws AnalysisException{
+//		return a.getLeft().apply(thmStringVisitor, vars) + ThmProcessUtil.timeout + a.getRight().apply(thmStringVisitor, vars);
+//	}
+//	
+//	public String caseATimeoutAction(ATimeoutAction a, ThmVarsContext vars) throws AnalysisException{
+//		return a.getLeft().apply(thmStringVisitor, vars) + ThmProcessUtil.timeoutLeft +  a.getTimeoutExpression().apply(thmStringVisitor, vars) + ThmProcessUtil.timeoutRight + a.getRight().apply(thmStringVisitor, vars);
+//	}
+//	
 	public String caseAHidingAction(AHidingAction a, ThmVarsContext vars) throws AnalysisException{
 		String actStr = a.getLeft().apply(thmStringVisitor, vars);
 		String chanStr = a.getChansetExpression().apply(thmStringVisitor, vars);
 		return actStr + ThmProcessUtil.hiding + chanStr;
 	}
 	
-	public String caseAStartDeadlineAction(AStartDeadlineAction a, ThmVarsContext vars) throws AnalysisException{
-		return a.getLeft().apply(thmStringVisitor, vars) + ThmProcessUtil.startsby + a.getExpression().apply(thmStringVisitor, vars);
-	}
-	
-	public String caseAEndDeadlineAction(AEndDeadlineAction a, ThmVarsContext vars) throws AnalysisException{
-		return a.getLeft().apply(thmStringVisitor, vars) + ThmProcessUtil.endsby + a.getExpression().apply(thmStringVisitor, vars);	
-	}
-	
-	public String caseAChannelRenamingAction(AChannelRenamingAction a, ThmVarsContext vars) throws AnalysisException{
-		return a.getAction().apply(thmStringVisitor, vars) + a.getRenameExpression().apply(thmStringVisitor, vars);
-	}
-	
+//	public String caseAStartDeadlineAction(AStartDeadlineAction a, ThmVarsContext vars) throws AnalysisException{
+//		return a.getLeft().apply(thmStringVisitor, vars) + ThmProcessUtil.startsby + a.getExpression().apply(thmStringVisitor, vars);
+//	}
+//	
+//	public String caseAEndDeadlineAction(AEndDeadlineAction a, ThmVarsContext vars) throws AnalysisException{
+//		return a.getLeft().apply(thmStringVisitor, vars) + ThmProcessUtil.endsby + a.getExpression().apply(thmStringVisitor, vars);	
+//	}
+//	
+//	public String caseAChannelRenamingAction(AChannelRenamingAction a, ThmVarsContext vars) throws AnalysisException{
+//		return a.getAction().apply(thmStringVisitor, vars) + a.getRenameExpression().apply(thmStringVisitor, vars);
+//	}
+
 	public String caseAMuAction(AMuAction a, ThmVarsContext vars) throws AnalysisException{
 
 		StringBuilder idStr = new StringBuilder();
@@ -222,9 +222,9 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 	}
 	
 	
-	public String caseAAction(PAction a, ThmVarsContext vars) throws AnalysisException{
-		return "(*unknown action not handled*)";	
-	}
+//	public String caseAAction(PAction a, ThmVarsContext vars) throws AnalysisException{
+//		return "(*unknown action not handled*)";	
+//	}
 
 //	public String caseASequentialCompositionReplicatedAction(ASequentialCompositionReplicatedAction a, ThmVarsContext vars) throws AnalysisException{
 ////			a.getReplicatedAction();
@@ -291,15 +291,15 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		return left + "[|" + chExp +"|]" + right;
 	}
 	
-	public String caseAAlphabetisedParallelismParallelAction(AAlphabetisedParallelismParallelAction a, ThmVarsContext vars) throws AnalysisException{
-	
-		String left = a.getLeftAction().apply(thmStringVisitor, vars);
-		String right = a.getRightAction().apply(thmStringVisitor, vars);
-		String leftChExp = a.getLeftChansetExpression().apply(thmStringVisitor, vars);
-		String rightChExp = a.getRightChansetExpression().apply(thmStringVisitor, vars);
-		
-		return left + "[" + leftChExp + "||" + rightChExp +"]" + right;
-	}
+//	public String caseAAlphabetisedParallelismParallelAction(AAlphabetisedParallelismParallelAction a, ThmVarsContext vars) throws AnalysisException{
+//	
+//		String left = a.getLeftAction().apply(thmStringVisitor, vars);
+//		String right = a.getRightAction().apply(thmStringVisitor, vars);
+//		String leftChExp = a.getLeftChansetExpression().apply(thmStringVisitor, vars);
+//		String rightChExp = a.getRightChansetExpression().apply(thmStringVisitor, vars);
+//		
+//		return left + "[" + leftChExp + "||" + rightChExp +"]" + right;
+//	}
 	
 	
 	public String caseAStmAction(AStmAction a, ThmVarsContext vars) throws AnalysisException{

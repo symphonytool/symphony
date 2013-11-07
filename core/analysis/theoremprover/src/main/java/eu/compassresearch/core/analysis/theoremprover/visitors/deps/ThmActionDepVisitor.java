@@ -95,14 +95,14 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 		return nodeDeps;
 	}
 	
-	public NodeNameList caseAWaitAction(AWaitAction a, NodeNameList bvars)
-			throws AnalysisException {
-		NodeNameList nodeDeps = new NodeNameList();
-
-		nodeDeps.addAll(a.getExpression().apply(thmDepVisitor, bvars));
-
-		return nodeDeps;
-	}
+//	public NodeNameList caseAWaitAction(AWaitAction a, NodeNameList bvars)
+//			throws AnalysisException {
+//		NodeNameList nodeDeps = new NodeNameList();
+//
+//		nodeDeps.addAll(a.getExpression().apply(thmDepVisitor, bvars));
+//
+//		return nodeDeps;
+//	}
 	
 	public NodeNameList caseACommunicationAction(ACommunicationAction a, NodeNameList bvars)
 			throws AnalysisException {
@@ -179,47 +179,47 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 		return nodeDeps;
 	}
 	
-	public NodeNameList caseAInterruptAction(AInterruptAction a, NodeNameList bvars)
-			throws AnalysisException {
-		NodeNameList nodeDeps = new NodeNameList();
-
-		nodeDeps.addAll(a.getLeft().apply(thmDepVisitor, bvars));
-		nodeDeps.addAll(a.getRight().apply(thmDepVisitor, bvars));
-
-		return nodeDeps;
-	}
-	
-	public NodeNameList caseATimedInterruptAction(ATimedInterruptAction a, NodeNameList bvars)
-			throws AnalysisException {
-		NodeNameList nodeDeps = new NodeNameList();
-
-		nodeDeps.addAll(a.getLeft().apply(thmDepVisitor, bvars));
-		nodeDeps.addAll(a.getRight().apply(thmDepVisitor, bvars));
-		nodeDeps.addAll(a.getTimeExpression().apply(thmDepVisitor, bvars));
-
-		return nodeDeps;
-	}
-		
-	public NodeNameList caseAUntimedTimeoutAction(AUntimedTimeoutAction a, NodeNameList bvars)
-				throws AnalysisException {
-		NodeNameList nodeDeps = new NodeNameList();
-		
-		nodeDeps.addAll(a.getLeft().apply(thmDepVisitor, bvars));
-		nodeDeps.addAll(a.getRight().apply(thmDepVisitor, bvars));
-
-		return nodeDeps;
-	}
-	
-	public NodeNameList caseATimeoutAction(ATimeoutAction a, NodeNameList bvars)
-			throws AnalysisException {
-		NodeNameList nodeDeps = new NodeNameList();
-
-		nodeDeps.addAll(a.getLeft().apply(thmDepVisitor, bvars));
-		nodeDeps.addAll(a.getRight().apply(thmDepVisitor, bvars));
-		nodeDeps.addAll(a.getTimeoutExpression().apply(thmDepVisitor, bvars));
-
-		return nodeDeps;
-	}
+//	public NodeNameList caseAInterruptAction(AInterruptAction a, NodeNameList bvars)
+//			throws AnalysisException {
+//		NodeNameList nodeDeps = new NodeNameList();
+//
+//		nodeDeps.addAll(a.getLeft().apply(thmDepVisitor, bvars));
+//		nodeDeps.addAll(a.getRight().apply(thmDepVisitor, bvars));
+//
+//		return nodeDeps;
+//	}
+//	
+//	public NodeNameList caseATimedInterruptAction(ATimedInterruptAction a, NodeNameList bvars)
+//			throws AnalysisException {
+//		NodeNameList nodeDeps = new NodeNameList();
+//
+//		nodeDeps.addAll(a.getLeft().apply(thmDepVisitor, bvars));
+//		nodeDeps.addAll(a.getRight().apply(thmDepVisitor, bvars));
+//		nodeDeps.addAll(a.getTimeExpression().apply(thmDepVisitor, bvars));
+//
+//		return nodeDeps;
+//	}
+//		
+//	public NodeNameList caseAUntimedTimeoutAction(AUntimedTimeoutAction a, NodeNameList bvars)
+//				throws AnalysisException {
+//		NodeNameList nodeDeps = new NodeNameList();
+//		
+//		nodeDeps.addAll(a.getLeft().apply(thmDepVisitor, bvars));
+//		nodeDeps.addAll(a.getRight().apply(thmDepVisitor, bvars));
+//
+//		return nodeDeps;
+//	}
+//	
+//	public NodeNameList caseATimeoutAction(ATimeoutAction a, NodeNameList bvars)
+//			throws AnalysisException {
+//		NodeNameList nodeDeps = new NodeNameList();
+//
+//		nodeDeps.addAll(a.getLeft().apply(thmDepVisitor, bvars));
+//		nodeDeps.addAll(a.getRight().apply(thmDepVisitor, bvars));
+//		nodeDeps.addAll(a.getTimeoutExpression().apply(thmDepVisitor, bvars));
+//
+//		return nodeDeps;
+//	}
 	
 	public NodeNameList caseAHidingAction(AHidingAction a, NodeNameList bvars)
 			throws AnalysisException {
@@ -231,35 +231,35 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 		return nodeDeps;
 	}
 	
-	public NodeNameList caseAStartDeadlineAction(AStartDeadlineAction a, NodeNameList bvars)
-			throws AnalysisException {
-		NodeNameList nodeDeps = new NodeNameList();
-
-		nodeDeps.addAll(a.getLeft().apply(thmDepVisitor, bvars));
-		nodeDeps.addAll(a.getExpression().apply(thmDepVisitor, bvars));
-
-		return nodeDeps;
-	}
-	
-	public NodeNameList caseAEndDeadlineAction(AEndDeadlineAction a, NodeNameList bvars)
-			throws AnalysisException {
-		NodeNameList nodeDeps = new NodeNameList();
-
-		nodeDeps.addAll(a.getLeft().apply(thmDepVisitor, bvars));
-		nodeDeps.addAll(a.getExpression().apply(thmDepVisitor, bvars));
-
-		return nodeDeps;
-	}
-	
-	public NodeNameList caseAChannelRenamingAction(AChannelRenamingAction a, NodeNameList bvars)
-			throws AnalysisException {
-		NodeNameList nodeDeps = new NodeNameList();
-		
-		nodeDeps.addAll(a.getAction().apply(thmDepVisitor, bvars));
-		nodeDeps.addAll(a.getRenameExpression().apply(thmDepVisitor, bvars));
-
-		return nodeDeps;
-	}
+//	public NodeNameList caseAStartDeadlineAction(AStartDeadlineAction a, NodeNameList bvars)
+//			throws AnalysisException {
+//		NodeNameList nodeDeps = new NodeNameList();
+//
+//		nodeDeps.addAll(a.getLeft().apply(thmDepVisitor, bvars));
+//		nodeDeps.addAll(a.getExpression().apply(thmDepVisitor, bvars));
+//
+//		return nodeDeps;
+//	}
+//	
+//	public NodeNameList caseAEndDeadlineAction(AEndDeadlineAction a, NodeNameList bvars)
+//			throws AnalysisException {
+//		NodeNameList nodeDeps = new NodeNameList();
+//
+//		nodeDeps.addAll(a.getLeft().apply(thmDepVisitor, bvars));
+//		nodeDeps.addAll(a.getExpression().apply(thmDepVisitor, bvars));
+//
+//		return nodeDeps;
+//	}
+//	
+//	public NodeNameList caseAChannelRenamingAction(AChannelRenamingAction a, NodeNameList bvars)
+//			throws AnalysisException {
+//		NodeNameList nodeDeps = new NodeNameList();
+//		
+//		nodeDeps.addAll(a.getAction().apply(thmDepVisitor, bvars));
+//		nodeDeps.addAll(a.getRenameExpression().apply(thmDepVisitor, bvars));
+//
+//		return nodeDeps;
+//	}
 	
 	public NodeNameList caseAMuAction(AMuAction a, NodeNameList bvars)
 			throws AnalysisException {
@@ -296,81 +296,81 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 		return nodeDeps;
 	}
 	
-	public NodeNameList caseASequentialCompositionReplicatedAction(ASequentialCompositionReplicatedAction a, NodeNameList bvars)
-			throws AnalysisException {
-		NodeNameList nodeDeps = new NodeNameList();
-
-//		a.getReplicatedAction();
-//		a.getReplicationDeclaration();
-		//TODO: NOT YET HANDLED
-
-		return nodeDeps;
-	}
-	
-	public NodeNameList caseAExternalChoiceReplicatedAction(AExternalChoiceReplicatedAction a, NodeNameList bvars)
-			throws AnalysisException {
-		NodeNameList nodeDeps = new NodeNameList();
-		//TODO: NOT YET HANDLED
-
-		return nodeDeps;
-	}
-	
-	public NodeNameList caseAInternalChoiceReplicatedAction(AInternalChoiceReplicatedAction a, NodeNameList bvars)
-			throws AnalysisException {
-		NodeNameList nodeDeps = new NodeNameList();
-		//TODO: NOT YET HANDLED
-
-		return nodeDeps;
-	}
-	
-	public NodeNameList caseACommonInterleavingReplicatedAction(ACommonInterleavingReplicatedAction a, NodeNameList bvars)
-			throws AnalysisException {
-		NodeNameList nodeDeps = new NodeNameList();
-		
-//      [namesetExpression]:VarsetExpression
-		//TODO: NOT YET HANDLED
-
-		return nodeDeps;
-	}
-	
-	public NodeNameList caseAInterleavingReplicatedAction(AInterleavingReplicatedAction a, NodeNameList bvars)
-			throws AnalysisException {
-		NodeNameList nodeDeps = new NodeNameList();
-//      [namesetExpression]:VarsetExpression
-		//TODO: NOT YET HANDLED
-
-		return nodeDeps;
-	}
-	
-	public NodeNameList caseAGeneralisedParallelismReplicatedAction(AGeneralisedParallelismReplicatedAction a, NodeNameList bvars)
-			throws AnalysisException {
-		NodeNameList nodeDeps = new NodeNameList();
-		
-//      [chansetExpression]:VarsetExpression
-//      [namesetExpression]:VarsetExpression
-		//TODO: NOT YET HANDLED
-
-		return nodeDeps;
-	}
-	
-	public NodeNameList caseAAlphabetisedParallelismReplicatedAction(AAlphabetisedParallelismReplicatedAction a, NodeNameList bvars)
-			throws AnalysisException {
-		NodeNameList nodeDeps = new NodeNameList();
-//      [namesetExpression]:VarsetExpression
-//      [chansetExpression]:VarsetExpression
-		//TODO: NOT YET HANDLED
-
-		return nodeDeps;
-	}
-	
-	public NodeNameList caseASynchronousParallelismReplicatedAction(ASynchronousParallelismReplicatedAction a, NodeNameList bvars)
-			throws AnalysisException {
-		NodeNameList nodeDeps = new NodeNameList();
-//      [namesetExpression]:VarsetExpression
-		//TODO: NOT YET HANDLED
-
-		return nodeDeps;
-	}
+//	public NodeNameList caseASequentialCompositionReplicatedAction(ASequentialCompositionReplicatedAction a, NodeNameList bvars)
+//			throws AnalysisException {
+//		NodeNameList nodeDeps = new NodeNameList();
+//
+////		a.getReplicatedAction();
+////		a.getReplicationDeclaration();
+//		//TODO: NOT YET HANDLED
+//
+//		return nodeDeps;
+//	}
+//	
+//	public NodeNameList caseAExternalChoiceReplicatedAction(AExternalChoiceReplicatedAction a, NodeNameList bvars)
+//			throws AnalysisException {
+//		NodeNameList nodeDeps = new NodeNameList();
+//		//TODO: NOT YET HANDLED
+//
+//		return nodeDeps;
+//	}
+//	
+//	public NodeNameList caseAInternalChoiceReplicatedAction(AInternalChoiceReplicatedAction a, NodeNameList bvars)
+//			throws AnalysisException {
+//		NodeNameList nodeDeps = new NodeNameList();
+//		//TODO: NOT YET HANDLED
+//
+//		return nodeDeps;
+//	}
+//	
+//	public NodeNameList caseACommonInterleavingReplicatedAction(ACommonInterleavingReplicatedAction a, NodeNameList bvars)
+//			throws AnalysisException {
+//		NodeNameList nodeDeps = new NodeNameList();
+//		
+////      [namesetExpression]:VarsetExpression
+//		//TODO: NOT YET HANDLED
+//
+//		return nodeDeps;
+//	}
+//	
+//	public NodeNameList caseAInterleavingReplicatedAction(AInterleavingReplicatedAction a, NodeNameList bvars)
+//			throws AnalysisException {
+//		NodeNameList nodeDeps = new NodeNameList();
+////      [namesetExpression]:VarsetExpression
+//		//TODO: NOT YET HANDLED
+//
+//		return nodeDeps;
+//	}
+//	
+//	public NodeNameList caseAGeneralisedParallelismReplicatedAction(AGeneralisedParallelismReplicatedAction a, NodeNameList bvars)
+//			throws AnalysisException {
+//		NodeNameList nodeDeps = new NodeNameList();
+//		
+////      [chansetExpression]:VarsetExpression
+////      [namesetExpression]:VarsetExpression
+//		//TODO: NOT YET HANDLED
+//
+//		return nodeDeps;
+//	}
+//	
+//	public NodeNameList caseAAlphabetisedParallelismReplicatedAction(AAlphabetisedParallelismReplicatedAction a, NodeNameList bvars)
+//			throws AnalysisException {
+//		NodeNameList nodeDeps = new NodeNameList();
+////      [namesetExpression]:VarsetExpression
+////      [chansetExpression]:VarsetExpression
+//		//TODO: NOT YET HANDLED
+//
+//		return nodeDeps;
+//	}
+//	
+//	public NodeNameList caseASynchronousParallelismReplicatedAction(ASynchronousParallelismReplicatedAction a, NodeNameList bvars)
+//			throws AnalysisException {
+//		NodeNameList nodeDeps = new NodeNameList();
+////      [namesetExpression]:VarsetExpression
+//		//TODO: NOT YET HANDLED
+//
+//		return nodeDeps;
+//	}
 	
 	public NodeNameList caseAInterleavingParallelAction(AInterleavingParallelAction a, NodeNameList bvars)
 			throws AnalysisException {
@@ -403,17 +403,17 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 		return nodeDeps;
 	}
 	
-	public NodeNameList caseAAlphabetisedParallelismParallelAction(AAlphabetisedParallelismParallelAction a, NodeNameList bvars)
-			throws AnalysisException {
-		NodeNameList nodeDeps = new NodeNameList();
-
-		nodeDeps.addAll(a.getLeftAction().apply(thmDepVisitor, bvars));
-		nodeDeps.addAll(a.getRightAction().apply(thmDepVisitor, bvars));
-		nodeDeps.addAll(a.getLeftChansetExpression().apply(thmDepVisitor, bvars));
-		nodeDeps.addAll(a.getRightChansetExpression().apply(thmDepVisitor, bvars));
-
-		return nodeDeps;
-	}
+//	public NodeNameList caseAAlphabetisedParallelismParallelAction(AAlphabetisedParallelismParallelAction a, NodeNameList bvars)
+//			throws AnalysisException {
+//		NodeNameList nodeDeps = new NodeNameList();
+//
+//		nodeDeps.addAll(a.getLeftAction().apply(thmDepVisitor, bvars));
+//		nodeDeps.addAll(a.getRightAction().apply(thmDepVisitor, bvars));
+//		nodeDeps.addAll(a.getLeftChansetExpression().apply(thmDepVisitor, bvars));
+//		nodeDeps.addAll(a.getRightChansetExpression().apply(thmDepVisitor, bvars));
+//
+//		return nodeDeps;
+//	}
 
 	public NodeNameList caseAStmAction(AStmAction a, NodeNameList bvars) throws AnalysisException{ 
 		NodeNameList nodeDeps = new NodeNameList();
