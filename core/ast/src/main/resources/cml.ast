@@ -497,12 +497,12 @@ parametrisation {-> package='eu.compassresearch.ast.actions'
  
  */
         
-stateDesignator {-> package='org.overture.ast.statements'}
+stateDesignator {-> package='eu.compassresearch.ast.statements'}
 	=	{unresolved} [path]:exp//well we wanted this:exp.unresolvedPath
 	;
 	
 	
-objectDesignator {-> package='org.overture.ast.statements'}
+objectDesignator {-> package='eu.compassresearch.ast.statements'}
     =  {unresolved} [path]:exp//well we wanted this:exp.unresolvedPath
     ;
 
@@ -514,7 +514,7 @@ objectDesignator {-> package='org.overture.ast.statements'}
 /*
 * Real statements
 */
-stm {-> package='org.overture.ast.statements'
+stm {-> package='eu.compassresearch.ast.statements'
 	|	[location]:location 
 	|	(type):type}
     =   {action} [action]:action
@@ -528,7 +528,7 @@ stm {-> package='org.overture.ast.statements'
 
    	;
 
-#NonDeterministic {-> package='org.overture.ast.statements'}
+#NonDeterministic {-> package='eu.compassresearch.ast.statements'}
 	=	{if}
 			[alternatives]:stm.#NonDeterministic.alt*
 	|	{alt}

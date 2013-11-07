@@ -11,7 +11,6 @@ import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCPCMLDefin
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCPCMLPattern;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
-import eu.compassresearch.core.analysis.modelchecker.visitors.CMLModelcheckerContext;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 
 public class MCPreOpTrue implements MCNode {

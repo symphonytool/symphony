@@ -4,7 +4,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
-import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLNumericType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 
 

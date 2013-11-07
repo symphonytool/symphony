@@ -8,6 +8,7 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
 import eu.compassresearch.ide.theoremprover.CmlTPPlugin;
+import eu.compassresearch.ide.theoremprover.commands.LaunchIsabelleHandler;
 
 public class IsabelleSetupPreferencePage extends FieldEditorPreferencePage
 		implements IWorkbenchPreferencePage
@@ -31,7 +32,9 @@ public class IsabelleSetupPreferencePage extends FieldEditorPreferencePage
 	protected void createFieldEditors()
 	{
 		addField(new DirectoryFieldEditor(IIsabelleConstants.ATTR_LOCATION, "Isabelle location", getFieldEditorParent()));
-		addField(new DirectoryFieldEditor(IIsabelleConstants.ATTR_SESSION_DIRS, "CML Theory location", getFieldEditorParent()));
+		if(! LaunchIsabelleHandler.isWindowsPlatform()){
+			addField(new DirectoryFieldEditor(IIsabelleConstants.ATTR_SESSION_DIRS, "CML Theory location", getFieldEditorParent()));
+		}
 		addField(new BooleanFieldEditor(IIsabelleConstants.Z3_NON_COMMERCIAL, "Check box if for non commercial use", getFieldEditorParent()));
 	}
 
@@ -46,7 +49,9 @@ public class IsabelleSetupPreferencePage extends FieldEditorPreferencePage
 	{
 		IPreferenceStore store = getPreferenceStore();
 		store.setDefault(IIsabelleConstants.ATTR_LOCATION, "");
-		store.setDefault(IIsabelleConstants.ATTR_SESSION_DIRS, "");
+		if(! LaunchIsabelleHandler.isWindowsPlatform()){
+			store.setDefault(IIsabelleConstants.ATTR_SESSION_DIRS, "");
+		}
 		store.setDefault(IIsabelleConstants.Z3_NON_COMMERCIAL, false);
 		super.performDefaults();		
 	}

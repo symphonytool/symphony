@@ -1,11 +1,10 @@
 package eu.compassresearch.core.analysis.theoremprover.thms;
 
-import eu.compassresearch.core.common.AnalysisArtifact;
 
 import java.util.Vector;
 
 @SuppressWarnings("serial")
-public class ThmTheoremList extends Vector<ThmTheorem> implements AnalysisArtifact {
+public class ThmTheoremList extends Vector<ThmTheorem> {
 	@Override
     // Outputs each member of the list
     public String toString() 

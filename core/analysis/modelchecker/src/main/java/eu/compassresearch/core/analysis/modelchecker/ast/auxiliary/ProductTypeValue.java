@@ -1,9 +1,5 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.auxiliary;
 
-import java.util.LinkedList;
-
-import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAProductType;
-import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 
 public class ProductTypeValue extends TypeValue {
 	private TypeValue firstValue;

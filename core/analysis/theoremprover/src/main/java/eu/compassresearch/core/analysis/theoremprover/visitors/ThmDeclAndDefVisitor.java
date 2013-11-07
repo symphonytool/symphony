@@ -5,12 +5,11 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import org.overture.ast.definitions.AExplicitOperationDefinition;
 import org.overture.ast.definitions.AImplicitFunctionDefinition;
 import org.overture.ast.definitions.AImplicitOperationDefinition;
-import org.overture.ast.definitions.AStateDefinition;
+import org.overture.ast.definitions.AInstanceVariableDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.definitions.SOperationDefinition;
 import org.overture.ast.intf.lex.ILexNameToken;
@@ -30,13 +29,11 @@ import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionClassDefinition;
 import eu.compassresearch.ast.definitions.AActionDefinition;
-import eu.compassresearch.ast.definitions.AActionsDefinition;
 import eu.compassresearch.ast.definitions.AChannelDefinition;
 import eu.compassresearch.ast.definitions.AChannelsDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.definitions.AChansetsDefinition;
 import eu.compassresearch.ast.definitions.AFunctionsDefinition;
-import eu.compassresearch.ast.definitions.AOperationsDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.definitions.ATypesDefinition;
 import eu.compassresearch.ast.definitions.AValuesDefinition;
@@ -308,14 +305,14 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 			//check for self dependencies - if present, require a MU
 			for(ILexNameToken n : nodeDeps)
 			{
-				if(n.toString().equals(processName.toString()))
+				if(n.getName().equals(processName.getName()))
 				{
-					procString = ThmProcessUtil.isaMu + " " + processName.toString() + ". " + procString;
+					procString = ThmProcessUtil.isaMu + " " + processName.getName() + ". " + procString;
 					break;
 				}
 			}
 			//create and return the theorem node.			
-			tn =  new ThmNode(processName, nodeDeps, new ThmProcStand(processName.toString(), procString));
+			tn =  new ThmNode(processName, nodeDeps, new ThmProcStand(processName.getName(), procString));
 		}
 		
 		//add the process node to the node list
@@ -351,7 +348,7 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 
 		//Collect all the statement/operation/action paragraphs and deal with them 
 		//all together.
-		LinkedList<AStateDefinition> statements = new LinkedList<AStateDefinition>();
+		LinkedList<AInstanceVariableDefinition> procVars = new LinkedList<AInstanceVariableDefinition>();
 		LinkedList<SOperationDefinition> operations = new LinkedList<SOperationDefinition>();
 		LinkedList<AImplicitFunctionDefinition> impfunctions = new LinkedList<AImplicitFunctionDefinition>();
 		LinkedList<AExplicitFunctionDefinition> expfunctions = new LinkedList<AExplicitFunctionDefinition>();
@@ -361,15 +358,20 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 		
 		for (PDefinition pdef : actdef.getDefinitions())
 		{
-			if (pdef instanceof AStateDefinition)
+			if (pdef instanceof AInstanceVariableDefinition)
 			{
-				AStateDefinition sdef = (AStateDefinition) pdef;
-				statements.add(sdef);
+				AInstanceVariableDefinition sdef = (AInstanceVariableDefinition) pdef;
+				procVars.add(sdef);
 			}
-			else if (pdef instanceof AOperationsDefinition)
+			else if (pdef instanceof AExplicitOperationDefinition)
 			{
-				AOperationsDefinition ops = (AOperationsDefinition) pdef;
-				operations.addAll(ops.getOperations());
+				AExplicitOperationDefinition op = (AExplicitOperationDefinition) pdef;
+				operations.add(op);
+			}
+			else if (pdef instanceof AImplicitOperationDefinition)
+			{
+				AImplicitOperationDefinition op = (AImplicitOperationDefinition) pdef;
+				operations.add(op);
 			}
 			else if (pdef instanceof AImplicitFunctionDefinition)
 			{
@@ -381,10 +383,10 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 				AExplicitFunctionDefinition exp = (AExplicitFunctionDefinition) pdef;
 				expfunctions.add(exp);
 			}
-			else if (pdef instanceof AActionsDefinition)
+			else if (pdef instanceof AActionDefinition)
 			{
-				AActionsDefinition acts = (AActionsDefinition) pdef;
-				actions.addAll(acts.getActions());
+				AActionDefinition actdefn = (AActionDefinition) pdef;
+				actions.add(actdefn);
 			}
 			else
 			{
@@ -393,7 +395,7 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 		}
 		
 		//first we need to get all the state identifier names so expressions use correct reference
-		NodeNameList svars = ThmProcessUtil.getStateNames(statements);
+		NodeNameList svars = ThmProcessUtil.getStateNames(procVars);
 		//also get operation and action names
 		NodeNameList opNames = ThmProcessUtil.getOperationNames(operations);
 		NodeNameList efNames = ThmProcessUtil.getExpFunctionNames(expfunctions);
@@ -415,23 +417,23 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 			//Also generate the invariant functions...
 			LinkedList<String> initExprs = new LinkedList<String>();
 			NodeNameList initExprNodeDeps = new NodeNameList();
-			for (AStateDefinition pdef : statements)
+			for (AInstanceVariableDefinition pdef : procVars)
 			{
-				for (PDefinition sdef : pdef.getStateDefs())
-				{
-					if (sdef instanceof AAssignmentDefinition)
-					{
-						AAssignmentDefinition st = (AAssignmentDefinition) sdef;
+//				for (PDefinition sdef : pdef.getStateDefs())
+//				{
+//					if (sdef instanceof AAssignmentDefinition)
+//					{
+//						AAssignmentDefinition st = (AAssignmentDefinition) sdef;
 	
 						//Get the state variable name
-						ILexNameToken sName = st.getName();
+						ILexNameToken sName = pdef.getName();
 						NodeNameList sNodeDeps = new NodeNameList();
 						//if the variable is initialised straight away, add it to the initExprs string
 						//and get the dependencies
-						if (st.getExpression() != null)
+						if (pdef.getExpression() != null)
 						{
-							initExprs.add(sName.toString() + ThmProcessUtil.assign + st.getExpression().apply(stringVisitor,new ThmVarsContext(svars, new NodeNameList()))); //ThmExprUtil.getIsabelleExprStr(svars, new NodeNameList(), st.getExpression()));
-							initExprNodeDeps.addAll(st.getExpression().apply(depVisitor, new NodeNameList()));//(ThmExprUtil.getIsabelleExprDeps(new NodeNameList(),  st.getExpression()));
+							initExprs.add(sName.getName() + ThmProcessUtil.assign + pdef.getExpression().apply(stringVisitor,new ThmVarsContext(svars, new NodeNameList()))); //ThmExprUtil.getIsabelleExprStr(svars, new NodeNameList(), st.getExpression()));
+							initExprNodeDeps.addAll(pdef.getExpression().apply(depVisitor, new NodeNameList()));//(ThmExprUtil.getIsabelleExprDeps(new NodeNameList(),  st.getExpression()));
 							//Add all dependencies to the processes dependencies
 							nodeDeps.addAll(initExprNodeDeps);
 							//As we only care about the internal dependencies in initExprNodeDeps, remove
@@ -441,16 +443,16 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 						//if the variable is not initialised straight away, leave it as undefined.
 						else
 						{
-							initExprs.add(sName.toString() + " := undefined");
+							initExprs.add(sName.getName() + " := undefined");
 						}
 						//obtain the type of the state variable, and the type dependencies
-						String type = st.getType().apply(stringVisitor, new ThmVarsContext());//ThmTypeUtil.getIsabelleType(st.getType());
-						nodeDeps.addAll(st.getType().apply(depVisitor, new NodeNameList()));//(ThmTypeUtil.getIsabelleTypeDeps(st.getType()));
+						String type = pdef.getType().apply(stringVisitor, new ThmVarsContext());//ThmTypeUtil.getIsabelleType(st.getType());
+						nodeDeps.addAll(pdef.getType().apply(depVisitor, new NodeNameList()));//(ThmTypeUtil.getIsabelleTypeDeps(st.getType()));
 			
 						ThmNode stn = new ThmNode(sName, sNodeDeps, new ThmState(sName.getName(), type));
 						actTnl.add(stn);
-					}
-				}
+//					}
+//				}
 				//TODO: Define state invariants
 			}
 	
@@ -568,7 +570,7 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 		String mainStr = ThmProcessUtil.isaProc + " \"" + ThmProcessUtil.isaMainAction + mainActStateStr + mainAction.apply(stringVisitor, new ThmVarsContext(svars, new NodeNameList())) +  "`\"";
 		
 		//Finally construct the node to represent the process
-		return new ThmNode(procName, nodeDeps, new ThmProcAction(procName.toString(), actString, mainStr));
+		return new ThmNode(procName, nodeDeps, new ThmProcAction(procName.getName(), actString, mainStr));
 	}
 	
 	
@@ -623,7 +625,7 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 			nodeDeps.addAll(node.getPostcondition().apply(depVisitor, vars.getBVars()));//(ThmExprUtil.getIsabelleExprDeps(bvars, node.getPostcondition()));
 
 		}
-		tn = new ThmNode(node.getName(), nodeDeps, new ThmImplicitOperation(node.getName().toString(), params, pre, post, res, resType));
+		tn = new ThmNode(node.getName(), nodeDeps, new ThmImplicitOperation(node.getName().getName(), params, pre, post, res, resType));
 		
 		tnl.add(tn);
 		return tnl;
@@ -674,7 +676,7 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 			resType = node.getActualResult().apply(stringVisitor, vars);//ThmTypeUtil.getIsabelleType(node.getActualResult());
 		}
 		
-		tn = new ThmNode(node.getName(), nodeDeps, new ThmExplicitOperation(node.getName().toString(), params, pre, post, body.toString(), resType));
+		tn = new ThmNode(node.getName(), nodeDeps, new ThmExplicitOperation(node.getName().getName(), params, pre, post, body.toString(), resType));
 		
 		tnl.add(tn);
 		return tnl;
@@ -703,14 +705,14 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 		//check for self dependencies - if present, require a MU
 		for(ILexNameToken n : nodeDeps)
 		{
-			if(n.toString().equals(actName.toString()))
+			if(n.getName().equals(actName.getName()))
 			{
-				actString = ThmProcessUtil.isaMu + " " + actName.toString() + ". " + actString;
+				actString = ThmProcessUtil.isaMu + " " + actName.getName() + ". " + actString;
 				break;
 			}
 		}
 		//create the theorem node.
-		tn = new ThmNode(actName, nodeDeps, new ThmAction(actName.toString(), actString));
+		tn = new ThmNode(actName, nodeDeps, new ThmAction(actName.getName(), actString));
 
 		tnl.add(tn);
 		return tnl;

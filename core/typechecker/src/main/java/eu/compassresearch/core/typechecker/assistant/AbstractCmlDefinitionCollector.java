@@ -6,13 +6,13 @@ import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
-import org.overture.ast.statements.AActionStm;
-import org.overture.ast.statements.AAltNonDeterministicStm;
-import org.overture.ast.statements.ADoNonDeterministicStm;
-import org.overture.ast.statements.AIfNonDeterministicStm;
-import org.overture.ast.statements.ANewStm;
-import org.overture.ast.statements.AUnresolvedObjectDesignator;
-import org.overture.ast.statements.AUnresolvedStateDesignator;
+import eu.compassresearch.ast.statements.AActionStm;
+import eu.compassresearch.ast.statements.AAltNonDeterministicStm;
+import eu.compassresearch.ast.statements.ADoNonDeterministicStm;
+import eu.compassresearch.ast.statements.AIfNonDeterministicStm;
+import eu.compassresearch.ast.statements.ANewStm;
+import eu.compassresearch.ast.statements.AUnresolvedObjectDesignator;
+import eu.compassresearch.ast.statements.AUnresolvedStateDesignator;
 import org.overture.typechecker.assistant.ITypeCheckerAssistantFactory;
 import org.overture.typechecker.utilities.DefinitionCollector;
 

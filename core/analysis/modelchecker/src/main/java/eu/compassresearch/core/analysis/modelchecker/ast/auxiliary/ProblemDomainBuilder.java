@@ -5,7 +5,6 @@ import java.util.Map.Entry;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAActionDefinition;
-import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAChannelNameDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAExplicitCmlOperationDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAProcessDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAValueDefinition;

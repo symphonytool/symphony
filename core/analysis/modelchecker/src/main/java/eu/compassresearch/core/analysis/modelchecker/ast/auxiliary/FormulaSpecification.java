@@ -1,10 +1,8 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.auxiliary;
 
 import java.io.IOException;
-import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.definitions.PDefinition;
 
 import eu.compassresearch.core.analysis.modelchecker.api.FormulaIntegrationUtilities;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;

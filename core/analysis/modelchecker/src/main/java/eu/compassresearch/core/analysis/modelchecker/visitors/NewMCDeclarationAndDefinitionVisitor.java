@@ -5,15 +5,20 @@ import java.util.LinkedList;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.definitions.AAssignmentDefinition;
+import org.overture.ast.definitions.AExplicitOperationDefinition;
 import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.AUntypedDefinition;
 import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.definitions.SOperationDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.patterns.PPattern;
+
+
+
 
 
 
@@ -24,15 +29,13 @@ import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AActionsDefinition;
-import eu.compassresearch.ast.definitions.AChannelNameDefinition;
+import eu.compassresearch.ast.definitions.AChannelDefinition;
 import eu.compassresearch.ast.definitions.AChannelsDefinition;
-import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AOperationsDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.definitions.ATypesDefinition;
 import eu.compassresearch.ast.definitions.AValuesDefinition;
 import eu.compassresearch.ast.definitions.PCMLDefinition;
-import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPAction;
@@ -101,7 +104,7 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 		question.actionOrProcessDefStack.push(node);
 				
 		LinkedList<MCATypeSingleDeclaration> localState = new LinkedList<MCATypeSingleDeclaration>();
-		for (ATypeSingleDeclaration aTypeSingleDeclaration : node.getLocalState()) {
+		for (PParametrisation aTypeSingleDeclaration : node.getLocalState()) {
 			localState.add((MCATypeSingleDeclaration) aTypeSingleDeclaration.apply(this, question));
 		}
 		MCPProcess process = (MCPProcess) node.getProcess().apply(rootVisitor, question); 
@@ -162,15 +165,11 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 	public MCNode caseAExpressionSingleDeclaration(
 			AExpressionSingleDeclaration node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
-		LinkedList<String> identifiers = new LinkedList<String>();
-		LinkedList<ILexIdentifierToken> ids = node.getIdentifiers();
+		
+		String identifier = node.getIdentifier().toString();
 		PExp expr = node.getExpression();
-		MCPCMLExp expression;
-		for(ILexIdentifierToken i : ids){
-			identifiers.add(i.toString());
-		}
-		expression = (MCPCMLExp) expr.apply(rootVisitor, question);
-		return new MCAExpressionSingleDeclaration(identifiers, expression);
+		MCPCMLExp expression = (MCPCMLExp) expr.apply(rootVisitor, question);
+		return new MCAExpressionSingleDeclaration(identifier, expression);
 	}
 
 	
@@ -216,7 +215,7 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 			NewCMLModelcheckerContext question) throws AnalysisException {
 
 		LinkedList<MCAChannelNameDefinition> chanNameDecls = new LinkedList<MCAChannelNameDefinition>(); 
-		for (AChannelNameDefinition chanDef : node.getChannelNameDeclarations()) {
+		for (AChannelDefinition chanDef : node.getChannelDeclarations()) {
 			chanNameDecls.add((MCAChannelNameDefinition) chanDef.apply(this, question));
 		}
 		MCAChannelsDefinition result = new MCAChannelsDefinition(chanNameDecls);
@@ -224,12 +223,12 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 		return result;
 	}
 	@Override
-	public MCNode caseAChannelNameDefinition(
-			AChannelNameDefinition node, NewCMLModelcheckerContext question)
+	public MCNode caseAChannelDefinition(
+			AChannelDefinition node, NewCMLModelcheckerContext question)
 			throws AnalysisException {
 		
 		String name = node.getName().toString();
-		MCATypeSingleDeclaration singleType = (MCATypeSingleDeclaration) node.getSingleType().apply(rootVisitor, question);
+		MCATypeSingleDeclaration singleType = (MCATypeSingleDeclaration) node.getType().apply(rootVisitor, question);
 		MCAChannelNameDefinition result = new MCAChannelNameDefinition(name,singleType);
 		
 		question.channelDefs.add(result);
@@ -244,14 +243,11 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 			throws AnalysisException {
 		
 		MCPCMLType type = null;
-		LinkedList<String> identifiers = new LinkedList<String>();
-		for (ILexIdentifierToken identifier : node.getIdentifiers()) {
-			identifiers.add(identifier.toString());
-		}
+		String identifier = node.getIdentifier().toString();
 		if(node.getType() != null){
 			type = (MCPCMLType) node.getType().apply(rootVisitor, question);
 		}
-		MCATypeSingleDeclaration result = new MCATypeSingleDeclaration(identifiers, type);
+		MCATypeSingleDeclaration result = new MCATypeSingleDeclaration(identifier, type);
 
 		return result;
 	}
@@ -260,9 +256,9 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 	public MCNode caseAOperationsDefinition(AOperationsDefinition node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
 		
-		LinkedList<SCmlOperationDefinition> operations = node.getOperations();
+		LinkedList<SOperationDefinition> operations = node.getOperations();
 		LinkedList<MCSCmlOperationDefinition> mcOperations = new LinkedList<MCSCmlOperationDefinition>();
-		for (SCmlOperationDefinition currentOperationDefinition : operations) {
+		for (SOperationDefinition currentOperationDefinition : operations) {
 			mcOperations.add((MCAExplicitCmlOperationDefinition) currentOperationDefinition.apply(this, question));
 		}
 		MCAOperationsDefinition result = new MCAOperationsDefinition(mcOperations);
@@ -271,8 +267,8 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 	}
 
 	@Override
-	public MCNode caseAExplicitCmlOperationDefinition(
-			AExplicitCmlOperationDefinition node,
+	public MCNode caseAExplicitOperationDefinition(
+			AExplicitOperationDefinition node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
 		
 		String name = node.getName().toString();

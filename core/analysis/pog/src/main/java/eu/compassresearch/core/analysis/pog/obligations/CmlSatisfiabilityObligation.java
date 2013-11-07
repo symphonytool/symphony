@@ -187,7 +187,7 @@ public class CmlSatisfiabilityObligation extends CmlProofObligation
 				AIdentifierPattern ip = (AIdentifierPattern) res.getPattern();
 				postArglist.add(patternToExp(res.getPattern()));
 
-				List<PMultipleBind> exists_binds = new LinkedList<PMultipleBind>();
+				List<PMultipleBind> exists_binds = new LinkedList<PMultipleBind>();		
 				stateInPost(procState, exists_binds, postArglist, stateDefinition);
 				
 				exists_binds.add(getMultipleTypeBind(res.getType(), ip.getName()));
@@ -208,7 +208,8 @@ public class CmlSatisfiabilityObligation extends CmlProofObligation
 		{
 
 			AExistsExp exists_exp = new AExistsExp();
-			List<PExp> postArglist = new Vector<PExp>(arglist);
+		
+			List<PExp> postArglist = cloneListPExp(arglist);
 
 			List<PMultipleBind> exists_binds = new LinkedList<PMultipleBind>();
 			stateInPost(procState, exists_binds, postArglist, stateDefinition);

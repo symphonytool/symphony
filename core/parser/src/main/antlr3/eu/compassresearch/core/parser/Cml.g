@@ -99,6 +99,7 @@ import eu.compassresearch.ast.actions.*;
 import eu.compassresearch.ast.declarations.*;
 import eu.compassresearch.ast.definitions.*;
 import eu.compassresearch.ast.expressions.*;
+import eu.compassresearch.ast.statements.*;
 import eu.compassresearch.ast.lex.CmlLexNameToken;
 import eu.compassresearch.ast.patterns.*;
 import eu.compassresearch.ast.process.*;

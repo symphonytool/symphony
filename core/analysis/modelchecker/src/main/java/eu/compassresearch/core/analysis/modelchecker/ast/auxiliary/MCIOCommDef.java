@@ -4,14 +4,10 @@ import java.util.LinkedList;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCACommunicationAction;
-import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAChannelNameDefinition;
-import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANamedInvariantType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
-import eu.compassresearch.core.analysis.modelchecker.visitors.CMLModelcheckerContext;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
-import eu.compassresearch.core.analysis.modelchecker.visitors.Utilities;
 
 public class MCIOCommDef implements MCNode {
 

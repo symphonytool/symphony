@@ -15,7 +15,7 @@ import eu.compassresearch.core.analysis.modelchecker.api.FormulaIntegrator;
 import eu.compassresearch.core.analysis.modelchecker.api.FormulaIntegrationException;
 import eu.compassresearch.core.analysis.modelchecker.api.FormulaResult;
 import eu.compassresearch.core.analysis.modelchecker.api.IFormulaIntegrator;
-import eu.compassresearch.core.analysis.modelchecker.visitors.CMLModelcheckerVisitor;
+import eu.compassresearch.core.analysis.modelchecker.visitors.NewMCVisitor;
 import eu.compassresearch.core.analysis.modelchecker.visitors.Utilities;
 
 public class TestCMLModelchecker {
@@ -88,8 +88,8 @@ public class TestCMLModelchecker {
 		
 		
 		try {
-			CMLModelcheckerVisitor visitor = new CMLModelcheckerVisitor(sources);
-			visitor.generateFormulaCodeForAll();
+			NewMCVisitor visitor = new NewMCVisitor(sources);
+			visitor.generateFormulaCodeForAll(Utilities.DEADLOCK_PROPERTY);
 			IFormulaIntegrator invoker = FormulaIntegrator.getInstance();
 			this.analyseAllSources(invoker);
 		} catch (IOException e) {

@@ -2,9 +2,7 @@ package eu.compassresearch.core.analysis.modelchecker.ast.definitions;
 
 import java.util.LinkedList;
 
-import eu.compassresearch.ast.actions.ASingleGeneralAssignmentStatementAction;
 import eu.compassresearch.ast.actions.PAction;
-import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCASingleGeneralAssignmentStatementAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPAction;
@@ -17,7 +15,6 @@ import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCPCMLPattern;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANamedInvariantType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
-import eu.compassresearch.core.analysis.modelchecker.visitors.CMLModelcheckerContext;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 
 public class MCAExplicitCmlOperationDefinition implements

@@ -2,7 +2,6 @@ package eu.compassresearch.core.analysis.modelchecker.ast.auxiliary;
 
 import java.util.LinkedList;
 
-import eu.compassresearch.ast.actions.PCommunicationParameter;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPCommunicationParameter;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAChannelNameDefinition;
