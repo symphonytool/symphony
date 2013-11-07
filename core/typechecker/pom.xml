@@ -9,7 +9,7 @@
 	</parent>
 
 	<artifactId>typechecker</artifactId>
-	<name>COMPASS Core CML TypeChecker</name>
+	<name>Symphony Core CML TypeChecker</name>
 
 	<dependencies>
 		

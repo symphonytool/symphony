@@ -12,7 +12,7 @@
   <packaging>eclipse-plugin</packaging>
 
   <artifactId>eu.compassresearch.ide.modelchecker</artifactId>
-  <name>COMPASS IDE Model Checker Plugin</name>
+  <name>Symphony IDE Model Checker Plugin</name>
 
   <build>
     <plugins>

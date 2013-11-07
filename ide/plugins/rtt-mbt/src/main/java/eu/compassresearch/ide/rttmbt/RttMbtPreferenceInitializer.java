@@ -22,5 +22,6 @@ public class RttMbtPreferenceInitializer extends AbstractPreferenceInitializer {
 		store.setDefault("RttMbtRttTprocPrefix", "RTT_TestProcedures");
 		store.setDefault("RttMbtTProcGenCtx", "TestProcedures");
 		store.setDefault("ClientMode", "COMPASS");
+                // the string "COMPASS" should probably change to "Symphony" -jwc/01Nov2013
 	}
 }

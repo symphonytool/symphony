@@ -435,7 +435,7 @@ public class TPPluginDoStuff {
 	
 
 	private void popErrorMessage(String message) {
-		MessageDialog.openInformation(window.getShell(), "COMPASS", message);
+		MessageDialog.openInformation(window.getShell(), "Symphony", message);
 	}
 	
 	/**
