@@ -159,7 +159,7 @@ public enum TypeErrorMessages
 					+ arity + " arguments but " + strs.length + " were given.");
 
 		// Format String
-		return number + " " + String.format(template, (Object[]) strs);
+		return String.format(template, (Object[]) strs);
 	}
 
 	@Override
