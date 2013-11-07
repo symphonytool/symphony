@@ -10,6 +10,7 @@ import org.overture.ast.types.AUnknownType;
 import org.overture.ast.types.PType;
 import org.overture.interpreter.values.Value;
 
+import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.interpreter.api.CmlChannel;
 import eu.compassresearch.core.interpreter.api.events.ChannelActivity;
 import eu.compassresearch.core.interpreter.api.events.ChannelEvent;
@@ -62,7 +63,7 @@ public class CMLChannelValue extends Value implements CmlChannel // CmlIOChannel
 		if (channelType instanceof AProductType)
 			valueTypes.addAll(((AProductType) channelType).getTypes());
 		// FIXME THis is changed!!
-		else if (!(channelType instanceof AUnknownType))
+		else if (!(channelType instanceof AChannelType))
 			valueTypes.add(channelType);
 
 		this.name = name;
