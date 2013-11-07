@@ -79,8 +79,6 @@ import org.overture.ast.patterns.ATuplePattern;
 import org.overture.ast.patterns.ATypeBind;
 import org.overture.ast.patterns.ATypeMultipleBind;
 import org.overture.ast.patterns.AUnionPattern;
-import eu.compassresearch.ast.statements.AActionStm;
-import eu.compassresearch.ast.statements.AAltNonDeterministicStm;
 import org.overture.ast.statements.AAlwaysStm;
 import org.overture.ast.statements.AApplyObjectDesignator;
 import org.overture.ast.statements.AAssignmentStm;
@@ -92,7 +90,6 @@ import org.overture.ast.statements.ACaseAlternativeStm;
 import org.overture.ast.statements.ACasesStm;
 import org.overture.ast.statements.AClassInvariantStm;
 import org.overture.ast.statements.ACyclesStm;
-import eu.compassresearch.ast.statements.ADoNonDeterministicStm;
 import org.overture.ast.statements.ADurationStm;
 import org.overture.ast.statements.AElseIfStm;
 import org.overture.ast.statements.AErrorCase;
@@ -106,13 +103,11 @@ import org.overture.ast.statements.AForIndexStm;
 import org.overture.ast.statements.AForPatternBindStm;
 import org.overture.ast.statements.AIdentifierObjectDesignator;
 import org.overture.ast.statements.AIdentifierStateDesignator;
-import eu.compassresearch.ast.statements.AIfNonDeterministicStm;
 import org.overture.ast.statements.AIfStm;
 import org.overture.ast.statements.ALetBeStStm;
 import org.overture.ast.statements.ALetStm;
 import org.overture.ast.statements.AMapSeqStateDesignator;
 import org.overture.ast.statements.ANewObjectDesignator;
-import eu.compassresearch.ast.statements.ANewStm;
 import org.overture.ast.statements.ANonDeterministicSimpleBlockStm;
 import org.overture.ast.statements.ANotYetSpecifiedStm;
 import org.overture.ast.statements.APeriodicStm;
@@ -262,6 +257,11 @@ import eu.compassresearch.ast.process.AUntimedTimeoutProcess;
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.ATcpStreamSource;
+import eu.compassresearch.ast.statements.AActionStm;
+import eu.compassresearch.ast.statements.AAltNonDeterministicStm;
+import eu.compassresearch.ast.statements.ADoNonDeterministicStm;
+import eu.compassresearch.ast.statements.AIfNonDeterministicStm;
+import eu.compassresearch.ast.statements.ANewStm;
 import eu.compassresearch.ast.types.AProcessType;
 import eu.compassresearch.ide.core.unsupported.UnsupportedCollector;
 import eu.compassresearch.ide.core.unsupported.UnsupportedElementInfo;
@@ -289,6 +289,8 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 
 	}
 
+
+
 	/*
 	 * Add support for elements here. Simply override any cases and set
 	 * unsupported to false. LEAVE THE SUPER CALL IN as that is responsible for
@@ -307,7 +309,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 	@Override
 	public void caseAAccessSpecifierAccessSpecifier(
 			AAccessSpecifierAccessSpecifier node) throws AnalysisException {
-		unsupported=false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAAccessSpecifierAccessSpecifier(node);
 	}
@@ -445,7 +447,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 	@Override
 	public void caseAAssignmentStm(AAssignmentStm node)
 			throws AnalysisException {
-		unsupported=false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAAssignmentStm(node);
 	}
@@ -461,7 +463,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 	@Override
 	public void caseABlockSimpleBlockStm(ABlockSimpleBlockStm node)
 			throws AnalysisException {
-		unsupported=false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseABlockSimpleBlockStm(node);
 	}
@@ -536,7 +538,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 
 	@Override
 	public void caseACallStm(ACallStm node) throws AnalysisException {
-		unsupported=false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseACallStm(node);
 	}
@@ -677,14 +679,14 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 	@Override
 	public void caseAActionClassDefinition(AActionClassDefinition arg0)
 			throws AnalysisException {
-		unsupported=false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAActionClassDefinition(arg0);
 	}
 
 	@Override
 	public void caseAActionStm(AActionStm node) throws AnalysisException {
-		unsupported=false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAActionStm(node);
 	}
@@ -742,7 +744,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 
 	@Override
 	public void caseAStmAction(AStmAction node) throws AnalysisException {
-		unsupported=false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAStmAction(node);
 	}
@@ -758,7 +760,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 
 	@Override
 	public void caseAClassType(AClassType node) throws AnalysisException {
-		unsupported=false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAClassType(node);
 	}
@@ -1019,7 +1021,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 	@Override
 	public void caseAEnumVarsetExpression(AEnumVarsetExpression node)
 			throws AnalysisException {
-		unsupported=false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAEnumVarsetExpression(node);
 	}
@@ -1101,7 +1103,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 	@Override
 	public void caseAExplicitOperationDefinition(
 			AExplicitOperationDefinition node) throws AnalysisException {
-		unsupported=false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAExplicitOperationDefinition(node);
 	}
@@ -1196,14 +1198,14 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 
 	@Override
 	public void caseAFieldExp(AFieldExp node) throws AnalysisException {
-		unsupported=false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAFieldExp(node);
 	}
 
 	@Override
 	public void caseAFieldField(AFieldField node) throws AnalysisException {
-		unsupported=false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAFieldField(node);
 	}
@@ -1322,7 +1324,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 
 	@Override
 	public void caseAFunctionType(AFunctionType node) throws AnalysisException {
-		unsupported=false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAFunctionType(node);
 	}
@@ -1340,7 +1342,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 	public void caseAGeneralisedParallelismParallelAction(
 			AGeneralisedParallelismParallelAction node)
 			throws AnalysisException {
-		unsupported=false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAGeneralisedParallelismParallelAction(node);
 	}
@@ -1443,7 +1445,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 	@Override
 	public void caseAIdentifierPattern(AIdentifierPattern node)
 			throws AnalysisException {
-		unsupported=false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAIdentifierPattern(node);
 	}
@@ -1502,7 +1504,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 	@Override
 	public void caseAImplicitOperationDefinition(
 			AImplicitOperationDefinition node) throws AnalysisException {
-		unsupported=false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAImplicitOperationDefinition(node);
 	}
@@ -1587,7 +1589,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 	@Override
 	public void caseAInstanceVariableDefinition(AInstanceVariableDefinition node)
 			throws AnalysisException {
-		unsupported=false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAInstanceVariableDefinition(node);
 	}
@@ -1831,7 +1833,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 	@Override
 	public void caseALocalDefinition(ALocalDefinition node)
 			throws AnalysisException {
-		unsupported=false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseALocalDefinition(node);
 	}
@@ -2205,7 +2207,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 	@Override
 	public void caseAOperationType(AOperationType node)
 			throws AnalysisException {
-		unsupported=false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAOperationType(node);
 	}
@@ -2316,7 +2318,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 
 	@Override
 	public void caseAPostOpExp(APostOpExp node) throws AnalysisException {
-		unsupported=false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAPostOpExp(node);
 	}
@@ -2340,7 +2342,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 
 	@Override
 	public void caseAPreOpExp(APreOpExp node) throws AnalysisException {
-		unsupported=false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAPreOpExp(node);
 	}
@@ -2422,7 +2424,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 
 	@Override
 	public void caseAQuoteType(AQuoteType node) throws AnalysisException {
-		unsupported=false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAQuoteType(node);
 	}
@@ -3237,7 +3239,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 
 	@Override
 	public void caseAUndefinedExp(AUndefinedExp node) throws AnalysisException {
-		unsupported=false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAUndefinedExp(node);
 	}
@@ -3260,7 +3262,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 
 	@Override
 	public void caseAUnionType(AUnionType node) throws AnalysisException {
-		unsupported=false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAUnionType(node);
 	}
@@ -3276,7 +3278,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 
 	@Override
 	public void caseAUnknownType(AUnknownType node) throws AnalysisException {
-		unsupported=false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAUnknownType(node);
 	}
@@ -3385,7 +3387,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 
 	@Override
 	public void caseAVoidType(AVoidType node) throws AnalysisException {
-		unsupported=false;
+		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAVoidType(node);
 	}
@@ -3422,7 +3424,5 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 		// Do not remove the super call below.
 		super.caseAWriteCommunicationParameter(node);
 	}
-	
-	
 
 }

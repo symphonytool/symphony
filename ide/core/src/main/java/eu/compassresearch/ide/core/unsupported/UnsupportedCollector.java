@@ -85,6 +85,12 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 		}
 		return unsupporteds;
 	}
+	
+	public List<UnsupportedElementInfo> getUnsupporteds(INode ast)
+			throws AnalysisException {
+		ast.apply(this);
+		return unsupporteds;
+	}
 
 	// SPECIAL CASES where the super nodes lack info we need.
 
