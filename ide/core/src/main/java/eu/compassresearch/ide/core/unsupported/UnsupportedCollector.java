@@ -40,6 +40,7 @@ import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.process.PProcess;
+import eu.compassresearch.core.typechecker.api.ICmlTypeChecker;
 
 /**
  * This class traverses an entire model and collects information on elements
@@ -399,7 +400,7 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 	@Override
 	public void inAClassClassDefinition(AClassClassDefinition node)
 			throws AnalysisException {
-		if (node.getName().getName().equals("$global")){
+		if (node.getName().getName().equals(ICmlTypeChecker.GLOBAL_CLASS_NAME)){
 		// global. do nothing with it
 		}
 		else{
