@@ -18,6 +18,6 @@ state
  
  @ 
  	[| {|c1|} |] i in set {1,2,3} 
- 		@ [{ a }] c1!i -> Skip
+ 		@ [{ a }] c1!i!0 -> Skip
 
 end

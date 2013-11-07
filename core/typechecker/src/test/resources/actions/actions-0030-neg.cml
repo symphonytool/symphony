@@ -1,9 +1,0 @@
-/* Timed interrupt is not ok with non numeric */
-
-process A =
-begin
-
-@ Skip /_ 1 _\ Skip
-
-end
-

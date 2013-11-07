@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <testResult type="eu.compassresearch.core.typechecker.CaseStudiesTestCase">
-<message column="11" line="47" message="n at 32:15 hidden by n" messageType="warning" number="0" resource="City.cml"/>
-<message column="9" line="69" message="e at 32:26 hidden by e" messageType="warning" number="0" resource="City.cml"/>
-<message column="6" line="69" message="n at 32:15 hidden by n" messageType="warning" number="0" resource="City.cml"/>
-<message column="1" line="40" message="Instance variable 'nodes' is not initialized" messageType="warning" number="0" resource="City.cml"/>
-<message column="1" line="41" message="Instance variable 'edges' is not initialized" messageType="warning" number="0" resource="City.cml"/>
-<message column="1" line="90" message="Instance variable 'route' is not initialized" messageType="warning" number="0" resource="City.cml"/>
-<message column="1" line="91" message="Instance variable 'loc' is not initialized" messageType="warning" number="0" resource="City.cml"/>
+<message column="11" line="47" message="n at 32:15 hidden by n." messageType="warning" number="5008" resource="City.cml"/>
+<message column="9" line="69" message="e at 32:26 hidden by e." messageType="warning" number="5008" resource="City.cml"/>
+<message column="6" line="69" message="n at 32:15 hidden by n." messageType="warning" number="5008" resource="City.cml"/>
+<message column="1" line="40" message="Instance variable 'nodes' is not initialized." messageType="warning" number="5001" resource="City.cml"/>
+<message column="1" line="41" message="Instance variable 'edges' is not initialized." messageType="warning" number="5001" resource="City.cml"/>
+<message column="1" line="90" message="Instance variable 'route' is not initialized." messageType="warning" number="5001" resource="City.cml"/>
+<message column="1" line="91" message="Instance variable 'loc' is not initialized." messageType="warning" number="5001" resource="City.cml"/>
 <result/>
 </testResult>

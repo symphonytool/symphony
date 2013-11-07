@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <testResult type="eu.compassresearch.core.typechecker.FunctionsCmlTypeCheckerTests">
-<message column="10" line="13" message="Definition 'r' not used" messageType="warning" number="0" resource="functions-0010-pos.cml"/>
-<message column="3" line="13" message="Definition 'a' not used" messageType="warning" number="0" resource="functions-0010-pos.cml"/>
+<message column="10" line="13" message="Definition 'r' not used." messageType="warning" number="5000" resource="functions-0010-pos.cml"/>
+<message column="3" line="13" message="Definition 'a' not used." messageType="warning" number="5000" resource="functions-0010-pos.cml"/>
 <result/>
 </testResult>

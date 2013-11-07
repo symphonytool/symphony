@@ -11,6 +11,8 @@ import org.overture.ast.node.Node;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.typechecker.assistant.ITypeCheckerAssistantFactory;
 
+import eu.compassresearch.core.typechecker.api.ICmlTypeChecker;
+
 public class FlatCheckedGlobalEnvironment extends FlatStrictCheckEnvironment
 {
 
@@ -74,7 +76,7 @@ public class FlatCheckedGlobalEnvironment extends FlatStrictCheckEnvironment
 				if (field.getName().equals("module"))
 				{
 					field.setAccessible(true);
-					field.set(globalName, "$global");
+					field.set(globalName, ICmlTypeChecker.GLOBAL_CLASS_NAME);
 					break;
 				}
 			}

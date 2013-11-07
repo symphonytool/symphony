@@ -240,7 +240,7 @@ public abstract class AbstractResultBasedCmlTypeCheckerTestCase extends
 		for (CMLIssue msg : list)
 		{
 			ILexLocation location = msg.getLocation();
-			testMessages.add(new Message(location.getFile().getName(), /* msg.number */0, location.getStartLine(), location.getStartPos(), msg.getMessage()));
+			testMessages.add(new Message(location.getFile().getName(), msg.getNumber(), location.getStartLine(), location.getStartPos(), msg.getMessage()));
 		}
 
 		return testMessages;

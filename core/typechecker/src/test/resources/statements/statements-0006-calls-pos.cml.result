@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <testResult type="eu.compassresearch.core.typechecker.StatementsCmlTypeCheckerTests">
-<message column="2" line="18" message="Statement will not be reached" messageType="warning" number="0" resource="statements-0006-calls-pos.cml"/>
-<message column="7" line="19" message="Statement will not be reached" messageType="warning" number="0" resource="statements-0006-calls-pos.cml"/>
-<message column="7" line="20" message="Statement will not be reached" messageType="warning" number="0" resource="statements-0006-calls-pos.cml"/>
-<message column="0" line="10" message="Instance variable 'v' is not initialized" messageType="warning" number="0" resource="statements-0006-calls-pos.cml"/>
+<message column="2" line="18" message="Statement will not be reached." messageType="warning" number="5006" resource="statements-0006-calls-pos.cml"/>
+<message column="7" line="19" message="Statement will not be reached." messageType="warning" number="5006" resource="statements-0006-calls-pos.cml"/>
+<message column="7" line="20" message="Statement will not be reached." messageType="warning" number="5006" resource="statements-0006-calls-pos.cml"/>
+<message column="0" line="10" message="Instance variable 'v' is not initialized." messageType="warning" number="5001" resource="statements-0006-calls-pos.cml"/>
 <result/>
 </testResult>

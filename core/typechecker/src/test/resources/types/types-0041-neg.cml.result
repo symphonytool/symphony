@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <testResult type="eu.compassresearch.core.typechecker.TypesCmlTypeCheckerTests">
-<message column="44" line="3" message="Right hand of and is not bool" messageType="error" number="0" resource="types-0041-neg.cml"/>
-<message column="44" line="3" message="Right hand of and is not bool" messageType="error" number="0" resource="types-0041-neg.cml"/>
+<message column="44" line="3" message="Right hand of and is not bool." messageType="error" number="3066" resource="types-0041-neg.cml"/>
+<message column="44" line="3" message="Right hand of and is not bool." messageType="error" number="3066" resource="types-0041-neg.cml"/>
 <result/>
 </testResult>

@@ -27,14 +27,18 @@ public interface ITypeIssueHandler extends IStatusListener
 	{
 		protected final INode reportedAt;
 		private ILexLocation location;
-		final protected String description;
+		final protected String message;
+		final protected int number;
 
-		public String getDescription()
+		public int getNumber()
 		{
-			return description;
+			return number;
 		}
 
-		public abstract String getMessage();
+		public String getMessage()
+		{
+			return message;
+		}
 
 		/**
 		 * Return the node that generated this error.
@@ -46,22 +50,31 @@ public interface ITypeIssueHandler extends IStatusListener
 			return reportedAt;
 		}
 
-		public CMLIssue(INode reportedAt, String description)
+		public CMLIssue(INode reportedAt, int number, String description)
 		{
 			this.reportedAt = reportedAt;
-			this.description = description;
+			this.number = number;
+			this.message = description;
 			setFromNode();
 		}
 
-		public CMLIssue(LexLocation location, String description)
+		public CMLIssue(INode reportedAt, ILexLocation location, int number,
+				String description)
 		{
-			reportedAt = null;
+			this.reportedAt = reportedAt;
+			this.number = number;
+			this.message = description;
 			this.location = location;
-			this.description = description;
 		}
 
-		// temporary method goes away when astCreator is updated. ( INode should
-		// have getLocation method )
+		public CMLIssue(ILexLocation location, int number, String description)
+		{
+			reportedAt = null;
+			this.number = number;
+			this.location = location;
+			this.message = description;
+		}
+
 		public ILexLocation getLocation()
 		{
 			return location;
@@ -90,7 +103,7 @@ public interface ITypeIssueHandler extends IStatusListener
 		@Override
 		public String toString()
 		{
-			return String.format("%s %s", getDescription(), getLocation());
+			return String.format("%04d: %s %s", number, getMessage(), location);
 		}
 	}
 
@@ -103,9 +116,9 @@ public interface ITypeIssueHandler extends IStatusListener
 	public static class CMLTypeWarning extends CMLIssue
 	{
 
-		public CMLTypeWarning(INode subtree, String description)
+		public CMLTypeWarning(INode subtree, int number, String description)
 		{
-			super(subtree, description);
+			super(subtree, number, description);
 		}
 
 		@Override
@@ -121,7 +134,7 @@ public interface ITypeIssueHandler extends IStatusListener
 		@Override
 		public String getMessage()
 		{
-			return description;
+			return message;
 		}
 
 	}
@@ -146,38 +159,32 @@ public interface ITypeIssueHandler extends IStatusListener
 			this.stackTrace = Thread.currentThread().getStackTrace();
 		}
 
-		public CMLTypeError(INode subtree, String description)
+		public CMLTypeError(INode subtree, int number, String description)
 		{
-			super(subtree, description);
+			super(subtree, number, description);
+			buildStack();
+		}
+		
+		public CMLTypeError(INode subtree, int number,ILexLocation location, String description)
+		{
+			super(subtree,location, number, description);
 			buildStack();
 		}
 
 		public CMLTypeError(INode subtree, VDMError error)
 		{
-			super(subtree, null);
+			super(subtree, error.location, error.number, null);
 			this.error = error;
 			buildStack();
 		}
-
-		// @Override
-		// public String toString()
-		// {
-		// return String.format("%s %s", getDescription(), getLocation());
-		// }
 
 		@Override
 		public String toString()
 		{
 			StringBuilder sb = new StringBuilder();
 
-			if (error != null)
-			{
-				sb.append(error.toString());
-			} else
-			{
-				sb.append("Error ");
-				sb.append(super.toString());
-			}
+			sb.append("Error ");
+			sb.append(super.toString());
 
 			return sb.toString();
 		}
@@ -197,15 +204,16 @@ public interface ITypeIssueHandler extends IStatusListener
 			return sb.toString();
 		}
 
-		public String getDescription()
+		public String getMessage()
 		{
-			return (error != null ? error.toString() : description);
-		}
+			if (error == null)
+			{
+				return message;
+			} else
+			{
+				return error.toProblemString();
+			}
 
-		@Override
-		public ILexLocation getLocation()
-		{
-			return (error != null ? error.location : super.getLocation());
 		}
 
 		@Override
@@ -218,8 +226,8 @@ public interface ITypeIssueHandler extends IStatusListener
 				boolean sameSubTree = (errorEqualTo.reportedAt == null && reportedAt == null)
 						|| (errorEqualTo.reportedAt != null
 								&& reportedAt != null && reportedAt == errorEqualTo.reportedAt);
-				boolean sameDescription = (description == null && errorEqualTo.description == null)
-						|| (description != null && description.equals(errorEqualTo.description))
+				boolean sameDescription = (message == null && errorEqualTo.message == null)
+						|| (message != null && message.equals(errorEqualTo.message))
 						|| (error == null && errorEqualTo.error == null)
 						|| (error != null && error.equals(errorEqualTo.error));
 
@@ -227,21 +235,6 @@ public interface ITypeIssueHandler extends IStatusListener
 			}
 
 			return false;
-		}
-
-		@Override
-		public int hashCode()
-		{
-			int subtreeHash = reportedAt == null ? 0 : reportedAt.hashCode();
-			int descriptionHash = description == null ? 0
-					: description.hashCode();
-			return subtreeHash + descriptionHash;
-		}
-
-		@Override
-		public String getMessage()
-		{
-			return (error != null ? error.message : description);
 		}
 
 	}
@@ -272,9 +265,9 @@ public interface ITypeIssueHandler extends IStatusListener
 	 * @param message
 	 *            - A message detailing the nature of the the error and preferably hinting how to fix it.
 	 */
-	public void addTypeError(INode offendingSubtree, String message);
+	public void addTypeError(INode offendingSubtree,ILexLocation location, String message);
 
-	public void addTypeError(INode parent, ILexLocation pos, String message);
+	public void addTypeError(INode parent, TypeErrorMessages message, String... arguments);
 
 	/**
 	 * Return a type warning.
@@ -284,7 +277,16 @@ public interface ITypeIssueHandler extends IStatusListener
 	 * @param message
 	 *            - A message detailing the kind of check made to trigger this warning.
 	 */
-	public void addTypeWarning(INode hazardousSubtree, String message);
+	public void addTypeWarning(INode hazardousSubtree, TypeWarningMessages message, String... arguments);
+	/**
+	 * Return a type warning.
+	 * 
+	 * @param hazardousSubtree
+	 *            - The subtree found to be inhibiting an ill shape.
+	 * @param message
+	 *            - A message detailing the kind of check made to trigger this warning.
+	 */
+	public void addTypeWarning(INode hazardousSubtree, TypeWarningMessages message);
 
 	/**
 	 * Returns true if one or more errors has been added.
