@@ -7,6 +7,8 @@ import org.overture.ast.messages.InternalException;
  */
 public interface ICmlTypeChecker
 {
+	public final static String GLOBAL_CLASS_NAME ="$global";
+	
 	public class AbortTypecheck extends InternalException
 	{
 
