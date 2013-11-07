@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.definitions.AClassClassDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.ACaseAlternative;
 import org.overture.ast.expressions.ARecordModifier;
@@ -391,6 +392,19 @@ public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor 
 			unsupported = true;
 		}
 		super.defaultInPAction(node);
+	}
+
+
+	
+	@Override
+	public void inAClassClassDefinition(AClassClassDefinition node)
+			throws AnalysisException {
+		if (node.getName().getName().equals("$global")){
+		// global. do nothing with it
+		}
+		else{
+			defaultInPDefinition(node);
+		}		
 	}
 
 	@Override
