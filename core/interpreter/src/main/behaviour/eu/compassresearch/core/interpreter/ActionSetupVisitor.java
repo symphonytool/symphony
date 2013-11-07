@@ -9,6 +9,7 @@ import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
+import org.overture.ast.statements.AActionStm;
 import org.overture.ast.statements.AForPatternBindStm;
 import org.overture.ast.types.SNumericBasicType;
 import org.overture.interpreter.runtime.Context;
@@ -73,6 +74,13 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 	public ActionSetupVisitor(CmlBehaviour owner, VisitorAccess visitorAccess)
 	{
 		super(owner, visitorAccess);
+	}
+	
+	@Override
+	public Pair<INode, Context> caseAActionStm(AActionStm node, Context question)
+			throws AnalysisException
+	{
+		return node.getAction().apply(this,question);
 	}
 
 	/*

@@ -157,9 +157,20 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 	
 	@Override
 	public Inspection caseABlockSimpleBlockStm(ABlockSimpleBlockStm node,
-			Context question) throws AnalysisException
+			final Context question) throws AnalysisException
 	{
-		return node.getStatements().get(0).apply(this.parentVisitor,question);
+		final PStm nextStm = node.getStatements().get(0);
+		
+		return newInspection(createTauTransitionWithoutTime(nextStm), new AbstractCalculationStep(owner, visitorAccess)
+		{
+			@Override
+			public Pair<INode, Context> execute(
+					CmlTransition selectedTransition)
+					throws AnalysisException
+			{
+				return new Pair<INode, Context>(nextStm, question);
+			}
+		});
 	}
 
 	/*
