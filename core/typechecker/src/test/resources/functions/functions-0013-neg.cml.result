@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.FunctionsCmlTypeCheckerTests">
+<message column="35" line="11" message="Cannot access op1() from a static context." messageType="error" number="3181" resource="functions-0013-neg.cml"/>
+<message column="35" line="11" message="Operation 'op1' cannot be called in an expression." messageType="error" number="3425" resource="functions-0013-neg.cml"/>
+<result/>
+</testResult>

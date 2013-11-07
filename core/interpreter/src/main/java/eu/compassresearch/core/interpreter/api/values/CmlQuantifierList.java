@@ -12,17 +12,19 @@ import org.overture.interpreter.values.SetValue;
 import org.overture.interpreter.values.Value;
 import org.overture.interpreter.values.ValueList;
 
-public class CmlQuantifierList extends Value implements Iterable<NameValuePairList>
+public class CmlQuantifierList extends Value implements
+		Iterable<NameValuePairList>
 {
 	List<ILexNameToken> quantifierNames;
 	SetValue valueTuples;
-	
-	public CmlQuantifierList(List<ILexNameToken> quantifierNames, SetValue valueTuples)
+
+	public CmlQuantifierList(List<ILexNameToken> quantifierNames,
+			SetValue valueTuples)
 	{
 		this.quantifierNames = quantifierNames;
-		this.valueTuples =  valueTuples;
+		this.valueTuples = valueTuples;
 	}
-	
+
 	@Override
 	public String toString()
 	{
@@ -32,8 +34,8 @@ public class CmlQuantifierList extends Value implements Iterable<NameValuePairLi
 	@Override
 	public boolean equals(Object other)
 	{
-		//FIXME include the values
-		if(other instanceof CmlQuantifierList)
+		// FIXME include the values
+		if (other instanceof CmlQuantifierList)
 			return this.quantifierNames.equals(((CmlQuantifierList) other).quantifierNames);
 		else
 			return false;
@@ -56,7 +58,7 @@ public class CmlQuantifierList extends Value implements Iterable<NameValuePairLi
 	{
 		return new CmlQuantifierList(new LinkedList<ILexNameToken>(quantifierNames), valueTuples);
 	}
-	
+
 	public int size()
 	{
 		return this.valueTuples.values.size();
@@ -67,11 +69,12 @@ public class CmlQuantifierList extends Value implements Iterable<NameValuePairLi
 	{
 		return new CmlQuantifierListIterator();
 	}
-	
-	private class CmlQuantifierListIterator implements Iterator<NameValuePairList>
+
+	private class CmlQuantifierListIterator implements
+			Iterator<NameValuePairList>
 	{
 		private int valueIndex = 0;
-		
+
 		@Override
 		public boolean hasNext()
 		{
@@ -82,19 +85,19 @@ public class CmlQuantifierList extends Value implements Iterable<NameValuePairLi
 		public NameValuePairList next()
 		{
 			NameValuePairList next = null;
-			//get the next tuple
+			// get the next tuple
 			try
 			{
 				ValueList tv = valueTuples.values.get(valueIndex++).tupleValue(null);
 				next = new NameValuePairList();
-				for(int tupleIndex = 0; tupleIndex < tv.size() ; tupleIndex++)
+				for (int tupleIndex = 0; tupleIndex < tv.size(); tupleIndex++)
 					next.add(new NameValuePair(quantifierNames.get(tupleIndex), tv.get(tupleIndex)));
-				
+
 			} catch (ValueException e)
 			{
 				e.printStackTrace();
 			}
-			
+
 			return next;
 		}
 

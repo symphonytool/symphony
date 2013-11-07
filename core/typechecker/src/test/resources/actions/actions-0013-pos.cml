@@ -1,0 +1,8 @@
+/* Div action is fine */
+
+process A =
+begin
+
+@ Div
+
+end

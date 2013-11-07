@@ -3,6 +3,8 @@ package eu.compassresearch.core.typechecker.visitors;
 import java.util.LinkedList;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.definitions.AAssignmentDefinition;
+import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.expressions.AApplyExp;
 import org.overture.ast.expressions.AFieldExp;
 import org.overture.ast.expressions.ANewExp;
@@ -11,19 +13,19 @@ import org.overture.ast.expressions.PExp;
 import org.overture.ast.factory.AstFactory;
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.node.INode;
-import org.overture.ast.statements.AActionStm;
-import org.overture.ast.statements.AAltNonDeterministicStm;
+import eu.compassresearch.ast.statements.AActionStm;
+import eu.compassresearch.ast.statements.AAltNonDeterministicStm;
 import org.overture.ast.statements.AAssignmentStm;
-import org.overture.ast.statements.ADoNonDeterministicStm;
+import eu.compassresearch.ast.statements.ADoNonDeterministicStm;
 import org.overture.ast.statements.AFieldObjectDesignator;
 import org.overture.ast.statements.AFieldStateDesignator;
 import org.overture.ast.statements.AIdentifierObjectDesignator;
 import org.overture.ast.statements.AIdentifierStateDesignator;
-import org.overture.ast.statements.AIfNonDeterministicStm;
+import eu.compassresearch.ast.statements.AIfNonDeterministicStm;
 import org.overture.ast.statements.AMapSeqStateDesignator;
-import org.overture.ast.statements.ANewStm;
-import org.overture.ast.statements.AUnresolvedObjectDesignator;
-import org.overture.ast.statements.AUnresolvedStateDesignator;
+import eu.compassresearch.ast.statements.ANewStm;
+import eu.compassresearch.ast.statements.AUnresolvedObjectDesignator;
+import eu.compassresearch.ast.statements.AUnresolvedStateDesignator;
 import org.overture.ast.statements.PObjectDesignator;
 import org.overture.ast.statements.PStateDesignator;
 import org.overture.ast.statements.PStm;
@@ -33,6 +35,7 @@ import org.overture.ast.util.PTypeSet;
 import org.overture.typechecker.TypeCheckInfo;
 import org.overture.typechecker.TypeCheckerErrors;
 import org.overture.typechecker.TypeComparator;
+import org.overture.typechecker.assistant.type.PTypeAssistantTC;
 import org.overture.typechecker.visitor.TypeCheckVisitor;
 
 import eu.compassresearch.ast.actions.ASkipAction;
@@ -40,6 +43,7 @@ import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.expressions.ABracketedExp;
 import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
+import eu.compassresearch.core.typechecker.environment.VdmRestrictedEnvironment;
 
 public class CmlVdmTypeCheckVisitor extends
 		QuestionAnswerCMLAdaptor<TypeCheckInfo, PType>
@@ -48,6 +52,13 @@ public class CmlVdmTypeCheckVisitor extends
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	/**
+	 * Inner class representing the VDM type checker.
+	 * <p>
+	 * If any VDM behavior has to be overridden then this has to happen here. Unless the changed behavior only is called
+	 * from a non VDM construct.
+	 * </p>
+	 */
 	TypeCheckVisitor vdmVisitor = new TypeCheckVisitor()
 	{
 		/**
@@ -65,6 +76,44 @@ public class CmlVdmTypeCheckVisitor extends
 				throws AnalysisException
 		{
 			return null;
+		};
+
+		/**
+		 * The AApplyExp is used to hold operation calls which is ok when used in an assignment or return statement and
+		 * assignment/value-definition.
+		 */
+		public PType caseAApplyExp(AApplyExp node, TypeCheckInfo question)
+				throws AnalysisException
+		{
+			PType type = super.caseAApplyExp(node, question);
+
+			if (PTypeAssistantTC.isOperation(node.getRoot().getType()))
+			{
+				// FIXME is the correct? not sure if value def should be excluded hereS
+				if (!(node.parent() instanceof PStm
+						|| node.parent() instanceof AAssignmentDefinition || node.parent() instanceof AValueDefinition))
+				{
+
+					// if(!(node.parent() instanceof PExp))
+					// we also report an error when it is called from a AWriteCommunicationParameter is that intentional
+					// System.out.println(node.parent().getClass().getSimpleName());
+					TypeCheckerErrors.report(3425, "Operation '"
+							+ node.getRoot()
+							+ "' cannot be called in an expression", node.getLocation(), node);
+				}
+			}
+
+			return type;
+		};
+
+		/**
+		 * This method create a new env that hides all CSP/CML stuff and then calls the super implementation
+		 */
+		public PType defaultPExp(PExp node, TypeCheckInfo question)
+				throws AnalysisException
+		{
+			TypeCheckInfo info = question.newInfo(new VdmRestrictedEnvironment(question.assistantFactory, question.env));
+			return super.defaultPExp(node, info);
 		};
 
 	};

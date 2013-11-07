@@ -1,13 +1,12 @@
 package eu.compassresearch.core.typechecker.weeding;
 
-import java.util.Collection;
-
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.definitions.SClassDefinition;
 
 import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
 import eu.compassresearch.ast.definitions.AInitialDefinition;
-import eu.compassresearch.ast.program.PSource;
+import eu.compassresearch.core.typechecker.DefinitionList;
 
 /**
  * @author kel & cb
@@ -17,11 +16,11 @@ public class Weeding5RemoveInitialDefinitions extends
 		DepthFirstAnalysisCMLAdaptor
 {
 
-	public static void apply(Collection<PSource> lp)
+	public static void apply(DefinitionList sourceForest)
 	{
 
 		Weeding5RemoveInitialDefinitions lv = new Weeding5RemoveInitialDefinitions();
-		for (PSource s : lp)
+		for (PDefinition s : sourceForest)
 		{
 			if (s != null)
 				try
@@ -44,9 +43,6 @@ public class Weeding5RemoveInitialDefinitions extends
 		if (node.parent() instanceof SClassDefinition)
 		{
 			node.parent().replaceChild(node, node.getOperationDefinition());
-			// SClassDefinition c = (SClassDefinition) node.parent();
-			// c.getDefinitions().remove(node);
-			// c.getDefinitions().add(node.getOperationDefinition());
 		}
 	}
 

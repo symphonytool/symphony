@@ -18,8 +18,6 @@ import org.overture.ast.factory.AstFactory;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.INode;
-import org.overture.ast.patterns.AIdentifierPattern;
-import org.overture.ast.patterns.ATuplePattern;
 import org.overture.ast.patterns.PPattern;
 import org.overture.ast.statements.PStm;
 import org.overture.ast.typechecker.NameScope;
@@ -89,6 +87,7 @@ import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AChannelDefinition;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.lex.CmlLexNameToken;
+import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 import eu.compassresearch.core.typechecker.api.TypeWarningMessages;
@@ -102,7 +101,7 @@ public class CmlActionTypeChecker extends
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private final ITypeIssueHandler issueHandler;// = VanillaFactory.newCollectingIssueHandle();
+	private final ITypeIssueHandler issueHandler;
 
 	/**
 	 * Type checker for var set expressions used for channel sets
@@ -114,9 +113,7 @@ public class CmlActionTypeChecker extends
 	private final QuestionAnswerAdaptor<TypeCheckInfo, PType> nameSetChecker;
 
 	@SuppressWarnings("deprecation")
-	public CmlActionTypeChecker(
-			QuestionAnswerAdaptor<TypeCheckInfo, PType> tc2,
-			IQuestionAnswer<TypeCheckInfo, PType> root,
+	public CmlActionTypeChecker(IQuestionAnswer<TypeCheckInfo, PType> root,
 			ITypeIssueHandler issueHandler,
 			QuestionAnswerAdaptor<TypeCheckInfo, PType> channelSetChecker,
 			QuestionAnswerAdaptor<TypeCheckInfo, PType> nameSetChecker)
@@ -137,15 +134,6 @@ public class CmlActionTypeChecker extends
 		node.setType(stm.apply(THIS, question));
 		return node.getType();
 	}
-
-	// @Override
-	// public PType caseACallStm(ACallStm node, TypeCheckInfo question)
-	// throws AnalysisException
-	// {
-	// // FIXME not implemented
-	// return AstFactory.newAVoidType(node.getLocation());
-	//
-	// }
 
 	@Override
 	public PType caseACallAction(ACallAction node, TypeCheckInfo question)
@@ -183,8 +171,8 @@ public class CmlActionTypeChecker extends
 
 		if (!TypeComparator.isSubType(timedExpType, new AIntNumericBasicType()))
 		{
-			issueHandler.addTypeError(timedExp, TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT.customizeMessage(timedExp
-					+ "", timedExpType + ""));
+			issueHandler.addTypeError(timedExp, TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT, timedExp
+					+ "", timedExpType + "");
 		}
 
 		return TypeCheckerUtil.setType(node, leftType, rightType);
@@ -224,18 +212,14 @@ public class CmlActionTypeChecker extends
 			throws AnalysisException
 	{
 
-		// that it can't access the class/process state is needed
-
-		// CmlTypeCheckInfo actionEnv = cmlEnv.newScope();
-		// actionEnv.scope = NameScope.NAMESANDANYSTATE;
 		// TODO RWL: What is the semantics of this?
 		PVarsetExpression csexp = node.getChansetExpression();
 		PType csexpType = csexp.apply(channelSetChecker, question);
 
 		if (csexpType == null)
 		{
-			issueHandler.addTypeError(node, TypeErrorMessages.EXPECTED_A_CHANNELSET.customizeMessage(""
-					+ csexpType));
+			issueHandler.addTypeError(node, TypeErrorMessages.EXPECTED_A_CHANNELSET, ""
+					+ csexpType);
 			return null;
 		}
 
@@ -245,15 +229,11 @@ public class CmlActionTypeChecker extends
 		{
 			if (!(chanDef instanceof AChannelDefinition))
 			{
-				issueHandler.addTypeError(node, TypeErrorMessages.TYPE_CHECK_INTERNAL_FAILURE.customizeMessage("Expected a Channel and got something of type AChannelType, however it is not AChannelDefinition."));
+				issueHandler.addTypeError(node, TypeErrorMessages.TYPE_CHECK_INTERNAL_FAILURE, "Expected a Channel and got something of type AChannelType, however it is not AChannelDefinition.");
 				return null;
 			}
 			AChannelDefinition chanNameDef = (AChannelDefinition) chanDef;
 			defs.add(chanNameDef);
-			// for (ILexIdentifierToken id : chanNameDef.getSingleType().getIdentifiers())
-			// {
-			// actionEnv.addChannel(id, chanDef);
-			// }
 		}
 
 		PVarsetExpression sexp = node.getNamesetExpression();
@@ -261,8 +241,8 @@ public class CmlActionTypeChecker extends
 
 		if (sexpType == null)
 		{
-			issueHandler.addTypeError(node, TypeErrorMessages.EXPECTED_A_NAMESET.customizeMessage(""
-					+ sexpType));
+			issueHandler.addTypeError(node, TypeErrorMessages.EXPECTED_A_NAMESET, ""
+					+ sexpType);
 			return null;
 		}
 
@@ -305,14 +285,12 @@ public class CmlActionTypeChecker extends
 			}
 		}
 
-		// FlatCheckedEnvironment env = new FlatCheckedEnvironment(question.assistantFactory, defs, null,
-		// NameScope.NAMESANDANYSTATE);
 		PType repActionType = repAction.apply(THIS, question.newScope(defs, NameScope.NAMESANDANYSTATE));// new
 																											// TypeCheckInfo(question.assistantFactory,
 																											// env));
 
-		issueHandler.addTypeWarning(node, TypeWarningMessages.INCOMPLETE_TYPE_CHECKING.customizeMessage(""
-				+ node));
+		issueHandler.addTypeWarning(node, TypeWarningMessages.INCOMPLETE_TYPE_CHECKING, ""
+				+ node);
 
 		return TypeCheckerUtil.setType(node, repActionType);
 	}
@@ -452,8 +430,8 @@ public class CmlActionTypeChecker extends
 
 		if (!TypeComparator.isSubType(timedExpType, new AIntNumericBasicType()))
 		{
-			issueHandler.addTypeError(timedExpType, TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT.customizeMessage(timedExp
-					+ "", timedExp + " (" + timedExpType + ")"));
+			issueHandler.addTypeError(timedExpType, TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT, timedExp
+					+ "", timedExp + " (" + timedExpType + ")");
 			return null;
 		}
 
@@ -470,23 +448,26 @@ public class CmlActionTypeChecker extends
 		LinkedList<ILexIdentifierToken> ids = node.getIdentifiers();
 		LinkedList<PAction> acts = node.getActions();
 
-		// get the enclosing definition if any
-		// PDefinition enclosingDef = question.env.getEnclosingDefinition();
-
-		// get the CML context we are in
-		// CmlTypeCheckInfo info = getTypeCheckInfo(question);
-
-		//
-		// CmlTypeCheckInfo newQuestion = (CmlTypeCheckInfo) info.newScope(info, enclosingDef);
+		// too many identifiers
+		if (ids.size() > acts.size())
+		{
+			for (int i = acts.size(); i < ids.size(); i++)
+			{
+				issueHandler.addTypeError(ids.get(i), TypeErrorMessages.IDENTIFIER_IS_MISSING_ACTION_DEFINITION, ids.get(i).getName());
+			}
+		} else if (ids.size() < acts.size())
+		{
+			for (int i = ids.size(); i < acts.size(); i++)
+			{
+				issueHandler.addTypeWarning(acts.get(i), TypeWarningMessages.UNREACHABLE_DEFINITION);
+			}
+		}
 
 		List<PDefinition> local = new Vector<PDefinition>();
 
 		// add IDs to the environment
 		for (ILexIdentifierToken id : ids)
 		{
-			// newQuestion.addType(id, new ATypeDefinition(node.getLocation(), NameScope.LOCAL, false, null, new
-			// AAccessSpecifierAccessSpecifier(new APrivateAccess(), null, null), new AActionType(node.getLocation(),
-			// true), Pass.DEFS, null, null, null, null, false, new LexNameToken("", id)));
 			local.add(CmlAstFactory.newAActionDefinition(id, null));
 		}
 
@@ -499,8 +480,6 @@ public class CmlActionTypeChecker extends
 			types.add(actType);
 		}
 
-		// node.setType(new AActionType());
-		// return node.getType();
 		return TypeCheckerUtil.setType(node, types);
 	}
 
@@ -530,8 +509,8 @@ public class CmlActionTypeChecker extends
 
 		if (!TypeComparator.isSubType(timeExpType, new ANatNumericBasicType()))
 		{
-			issueHandler.addTypeError(timeExp, TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT.customizeMessage(timeExp
-					+ "", timeExpType + ""));
+			issueHandler.addTypeError(timeExp, TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT, timeExp
+					+ "", timeExpType + "");
 
 		}
 
@@ -557,13 +536,10 @@ public class CmlActionTypeChecker extends
 
 			if (declType instanceof ASetType)
 			{
-				issueHandler.addTypeError(declType, TypeErrorMessages.SEQ_TYPE_EXPECTED.customizeMessage(decl
-						+ "", declType + ""));
+				issueHandler.addTypeError(declType, TypeErrorMessages.SEQ_TYPE_EXPECTED, decl
+						+ "", declType + "");
 				return null;
 			}
-
-			// issueHandler.addTypeWarning(decl, "This declaration should expand the environment: "
-			// + decl);
 
 			for (PDefinition def : declType.getDefinitions())
 			{
@@ -618,8 +594,8 @@ public class CmlActionTypeChecker extends
 
 		if (!TypeComparator.isSubType(expType, AstFactory.newABooleanBasicType(node.getLocation())))
 		{
-			issueHandler.addTypeError(exp, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage("bool", ""
-					+ expType));
+			issueHandler.addTypeError(exp, TypeErrorMessages.INCOMPATIBLE_TYPE, "bool", ""
+					+ expType);
 			return null;
 		}
 
@@ -627,8 +603,8 @@ public class CmlActionTypeChecker extends
 
 		if (!(action instanceof PAction || action instanceof PStm))
 		{
-			issueHandler.addTypeError(action, TypeErrorMessages.EXPECTED_AN_ACTION_OR_OPERATION.customizeMessage(""
-					+ action));
+			issueHandler.addTypeError(action, TypeErrorMessages.EXPECTED_AN_ACTION_OR_OPERATION, ""
+					+ action);
 			return null;
 		}
 
@@ -722,7 +698,6 @@ public class CmlActionTypeChecker extends
 
 			for (PDefinition def : declType.getDefinitions())
 			{
-				// repActionEnv.addVariable(def.getName(), def);
 				defs.add(def);
 			}
 		}
@@ -748,6 +723,7 @@ public class CmlActionTypeChecker extends
 		return setType(node, leftType, rightType);
 	}
 
+	@SuppressWarnings("static-access")
 	@Override
 	public PType caseAReferenceAction(AReferenceAction node,
 			org.overture.typechecker.TypeCheckInfo question)
@@ -758,8 +734,8 @@ public class CmlActionTypeChecker extends
 
 		if (def == null)
 		{
-			issueHandler.addTypeError(node, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(node.getName()
-					+ ""));
+			issueHandler.addTypeError(node, TypeErrorMessages.UNDEFINED_SYMBOL, node.getName()
+					+ "");
 			node.setType(AstFactory.newAUnknownType(node.getLocation()));
 			return node.getType();
 		}
@@ -768,9 +744,9 @@ public class CmlActionTypeChecker extends
 
 		if (!(def instanceof AActionDefinition))
 		{
-			issueHandler.addTypeError(node, TypeErrorMessages.EXPECTED_AN_ACTION.customizeMessage(" a "
+			issueHandler.addTypeError(node, TypeErrorMessages.EXPECTED_AN_ACTION, " a "
 					+ question.assistantFactory.createPDefinitionAssistant().kind(def)
-					+ " deinition:" + node.getName()));
+					+ " deinition:" + node.getName());
 
 		} else
 		{
@@ -789,200 +765,144 @@ public class CmlActionTypeChecker extends
 		return node.getType();
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public PType caseACommunicationAction(ACommunicationAction node,
 			org.overture.typechecker.TypeCheckInfo question)
 			throws AnalysisException
 	{
+		AChannelType chanType = null;
 
 		PDefinition channel = findDefinition(node.getIdentifier(), question.env);
-		AChannelDefinition channelNameDefinition = null;
 
 		// There should be a channel defined with this name
 		if (null == channel)
 		{
-			issueHandler.addTypeError(node, TypeErrorMessages.NAMED_TYPE_UNDEFINED.customizeMessage(node.getIdentifier().getName()));
-			return null;
-		}
-
-		if (!(channel instanceof AChannelDefinition))
+			issueHandler.addTypeError(node, TypeErrorMessages.CHANNEL_NOT_DECLARED, node.getIdentifier().getName());
+		} else if (!(channel instanceof AChannelDefinition))
 		{
-			issueHandler.addTypeError(channel, TypeErrorMessages.DEFINITION_X_BUT_FOUND_Y.customizeMessage("channel", PDefinitionAssistantTC.kind(channel), channel.getName().getName()
-					+ ""));
-			return null;
+			issueHandler.addTypeError(channel, TypeErrorMessages.DEFINITION_X_BUT_FOUND_Y, "channel", PDefinitionAssistantTC.kind(channel), channel.getName().getName()
+					+ "");
+		} else
+		{
+			chanType = ((AChannelDefinition) channel).getType();
 		}
 
-		channelNameDefinition = (AChannelDefinition) channel;
+		if (chanType == null)
+		{
+			chanType = new AChannelType(node.getLocation(), true, new Vector<PType>());
+		}
 
-		// CmlTypeCheckInfo commEnv = cmlEnv.newScope();
 		List<PDefinition> localDefinitions = new Vector<PDefinition>();
 		Environment local = new FlatCheckedEnvironment(question.assistantFactory, localDefinitions, question.env, NameScope.NAMES);
 		TypeCheckInfo info = new TypeCheckInfo(question.assistantFactory, local, NameScope.NAMESANDSTATE);
 
-		int paramIndex = 0;
 		LinkedList<PCommunicationParameter> commParams = node.getCommunicationParameters();
-		for (PCommunicationParameter commParam : commParams)
-		{
 
-			PPattern commPattern = null;
-			// If a read communication is encountered
-			// //
-			// // Add all identifiers in pattern to environment with
-			// // the types in the declared type for the channel
-			// //
-			// //
-			PType chanType = channelNameDefinition.getType();
+		if (chanType.getParameters().size() > commParams.size())
+		{
+			issueHandler.addTypeError(node.getIdentifier(), TypeErrorMessages.COMMUNICATION_TOO_FEW_ARGUMENTS, node.getIdentifier().getName(), ""
+					+ commParams.size(), "" + chanType.getParameters().size());
+		} else if (chanType.getParameters().size() < commParams.size())
+		{
+			issueHandler.addTypeError(node.getIdentifier(), TypeErrorMessages.COMMUNICATION_TOO_MANY_ARGUMENTS, node.getIdentifier().getName(), ""
+					+ commParams.size(), "" + chanType.getParameters().size());
+		}
+
+		if (chanType.getParameters().isEmpty() && !commParams.isEmpty())
+		{
+			issueHandler.addTypeError(node.getIdentifier(), TypeErrorMessages.COMMUNICATION_NOT_ALLOWED_OVER_UNTYPED_CHANNEL, node.getIdentifier().getName());
+		}
+
+		PType expectedType = null;
+		PType actualType = null;
+		for (int i = 0; i < commParams.size(); i++)
+		{
+			if (chanType.getParameters().size() > i)
+			{
+				expectedType = chanType.getParameters().get(i);
+			} else
+			{
+				expectedType = AstFactory.newAUnknownType(chanType.getLocation());
+			}
+			actualType = null;
+			List<ILexNameToken> names = new Vector<ILexNameToken>();
+
+			PCommunicationParameter commParam = commParams.get(i);
 
 			if (commParam instanceof AReadCommunicationParameter)
 			{
-
 				AReadCommunicationParameter readParam = (AReadCommunicationParameter) commParam;
-				commPattern = readParam.getPattern();
+				PPattern p = readParam.getPattern();
 
-				PPatternAssistantTC.typeResolve(commPattern, THIS, question);
+				PPatternAssistantTC.typeResolve(p, THIS, question);
 
-				PType commPatternType = PPatternAssistantTC.getPossibleType(commPattern);// commPattern.apply(tc,
-																							// question);
+				actualType = PPatternAssistantTC.getPossibleType(p);
 
-				// if (typeDecl == null)
-				// typeDecl.setType(new AChannelType(commParam.getLocation(), true));
+				names.addAll(PPatternAssistantTC.getVariableNames(p));
 
-				if (commPattern instanceof AIdentifierPattern)
+			} else if (commParam instanceof AWriteCommunicationParameter
+					|| commParam instanceof ASignalCommunicationParameter)
+			{
+				if (commParam.getExpression() != null)
 				{
-					AIdentifierPattern id = (AIdentifierPattern) commPattern;
-					PType type = chanType;
-					PType theType = null;
-					if (type instanceof AProductType)
-					{
-						AProductType pType = (AProductType) type;
-						if (paramIndex >= pType.getTypes().size())
-						{
-							issueHandler.addTypeError(commPattern, TypeErrorMessages.PATTERN_MISMATCH.customizeMessage(pType
-									+ "", commParams + ""));
-							return null;
-						}
-						theType = pType.getTypes().get(paramIndex);
-						paramIndex++;
-					} else
-					{
-						theType = type;
-					}
-
-					ALocalDefinition readVariable = AstFactory.newALocalDefinition(commPattern.getLocation(), id.getName(), NameScope.LOCAL, theType);
-					readVariable.parent(commParam);
-					readVariable.setLocation(commPattern.getLocation().clone());
-					// commEnv.addVariable(readVariable.getName(), readVariable);
-					localDefinitions.add(readVariable);
-
-					// Typecheck the constraint expression if it exists
-					// TODO AKM: I think RWL has to check that this is correct
-					if (commParam.getExpression() != null)
-					{
-						PExp constraintExp = commParam.getExpression();
-
-						PType constraintType = constraintExp.apply(THIS, new TypeCheckInfo(question.assistantFactory, local, NameScope.NAMESANDSTATE));
-
-						if (!(constraintType instanceof ABooleanBasicType))
-						{
-							issueHandler.addTypeError(commPattern, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage("Boolean", ""
-									+ constraintType));
-						}
-					}
-				}
-
-				if (commPattern instanceof ATuplePattern)
+					actualType = commParam.getExpression().apply(THIS, info);
+				} else
 				{
-
-					ATuplePattern tuplePattern = (ATuplePattern) commPattern;
-
-					if (!(chanType instanceof AProductType))
-					{
-						issueHandler.addTypeError(commPattern, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(commPattern
-								+ "", chanType + ""));
-						return null;
-					}
-
-					AProductType r = (AProductType) chanType;
-
-					if (tuplePattern.getPlist().size() != r.getTypes().size())
-					{
-						issueHandler.addTypeError(commPattern, TypeErrorMessages.PATTERN_MISMATCH.customizeMessage(r
-								+ "", commPattern + ""));
-						return null;
-					}
-
-					for (int i = 0; i < r.getTypes().size(); i++)
-					{
-						PType t = r.getTypes().get(i);
-						PPattern p = tuplePattern.getPlist().get(i);
-						ILexNameToken name = PPatternAssistantTC.getVariableNames(p).iterator().next();
-
-						localDefinitions.add(AstFactory.newALocalDefinition(p.getLocation(), name, NameScope.LOCAL, t));
-					}
-
-					// List<PDefinition> defs = commPatternType.getDefinitions();
-					// for (int i = 0; i < r.getTypes().size(); i++)
-					// {
-					// PDefinition def = defs.get(i);
-					// PType componentType = r.getTypes().get(i);
-					// def.setType(componentType);
-					// localDefinitions.add(def);
-					// }
+					issueHandler.addTypeError(commParam, TypeErrorMessages.COMMUNICATION_PARAMETER_MISSING, ""
+							+ i, "" + expectedType);
+					actualType = AstFactory.newAUnknownType(node.getLocation());
 				}
+			}
+
+			// Type check parameter
+			if (!TypeComparator.compatible(expectedType, actualType))
+			{
+				issueHandler.addTypeError(commParam, TypeErrorMessages.COMMUNICATION_PARAMETER_TYPE_NOT_COMPATIBLE, ""
+						+ actualType, "" + i, "" + expectedType);
 
 			}
 
-			if (commParam instanceof AWriteCommunicationParameter
-					|| commParam instanceof ASignalCommunicationParameter)
+			// Set the type to the expected one. If it was a write/signal parm this doesn't matter otherwise this gives
+			// a better check downstream
+			actualType = expectedType;
+
+			// finally add the parameter to the available definitions for the -> action and constraint if the commparm
+			// was a read
+			if (!names.isEmpty())
 			{
-				PExp writeExp = null;
-				PType writeExpType = null;
-
-				if (commParam instanceof AWriteCommunicationParameter)
+				List<PType> localTypes = new Vector<PType>();
+				if (actualType instanceof AProductType)
 				{
-					AWriteCommunicationParameter writeParam = (AWriteCommunicationParameter) commParam;
-					writeExp = writeParam.getExpression();
-				}
-
-				if (commParam instanceof ASignalCommunicationParameter)
-				{
-					ASignalCommunicationParameter signalParam = (ASignalCommunicationParameter) commParam;
-					writeExp = signalParam.getExpression();
-				}
-
-				writeExpType = writeExp.apply(THIS, info);
-
-				PType thisType = null;
-
-				if (chanType instanceof AProductType)
-				{
-					AProductType pType = (AProductType) chanType;
-					if (paramIndex > pType.getTypes().size())
-					{
-						issueHandler.addTypeError(node, TypeErrorMessages.WRONG_NUMBER_OF_ARGUMENTS.customizeMessage(pType.getTypes().size()
-								+ "", "" + paramIndex));
-						return null;
-					}
-					thisType = pType.getTypes().get(paramIndex);
-					paramIndex++;
+					localTypes.addAll(((AProductType) actualType).getTypes());
 				} else
-					thisType = chanType;
-
-				if (thisType == null)
 				{
-					issueHandler.addTypeError(node, TypeErrorMessages.PATTERN_MISMATCH.customizeMessage("untyped channel", writeExp
-							+ ""));
-					return null;
-
+					localTypes.add(actualType);
 				}
 
-				if (!TypeComparator.compatible(thisType, writeExpType))
+				for (int j = 0; j < names.size(); j++)
 				{
-					issueHandler.addTypeError(commParam, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(""
-							+ thisType, "" + writeExpType));
-					return null;
+					PType t = null;
+					if (localTypes.size() > j)
+					{
+						t = localTypes.get(j);
+					} else
+					{
+						t = AstFactory.newAUnknownType(actualType.getLocation());
+					}
+					localDefinitions.add(AstFactory.newALocalDefinition(names.get(j).getLocation(), names.get(j), NameScope.LOCAL, t));
 				}
 
+				PExp constraintExp = commParam.getExpression();
+				if (constraintExp != null)
+				{
+					PType constraintType = constraintExp.apply(THIS, new TypeCheckInfo(question.assistantFactory, local, NameScope.NAMESANDSTATE));
+
+					if (!(constraintType instanceof ABooleanBasicType))
+					{
+						issueHandler.addTypeError(constraintExp, TypeErrorMessages.CONSTRAINT_MUST_BE_A_BOOLEAN_EXPRESSION, constraintExp.toString());
+					}
+				}
 			}
 		}
 
@@ -1022,12 +942,8 @@ public class CmlActionTypeChecker extends
 		PAction right = node.getRight();
 
 		PType leftType = left.apply(THIS, question);
-		// if (!successfulType(leftType))
-		// return new AErrorType();
 
 		PType rightType = right.apply(THIS, question);
-		// if (!successfulType(rightType))
-		// return new AErrorType();
 
 		return setType(node, leftType, rightType);
 	}
@@ -1042,19 +958,8 @@ public class CmlActionTypeChecker extends
 		PVarsetExpression chanSet = node.getChansetExpression();
 
 		PType actionType = action.apply(THIS, question);
-		// if (!successfulType(actionType))
-		// return new AErrorType();
 
 		chanSet.apply(channelSetChecker, question);
-		// if (!successfulType(chanSetType))
-		// return new AErrorType();
-
-		// if (!(chanSetType instanceof AChansetType))
-		// {
-		// PType errorType = issueHandler.addTypeError(chanSet,
-		// TypeErrorMessages.EXPECTED_A_CHANNELSET.customizeMessage(chanSet.toString()));
-		// return errorType;
-		// }
 
 		return setType(node, actionType);
 	}
@@ -1082,24 +987,6 @@ public class CmlActionTypeChecker extends
 	{
 		return defaultPParametrisation(node, question);
 	}
-
-	// @Override
-	// public PType caseAVresParametrisation(AVresParametrisation node,
-	// TypeCheckInfo question) throws AnalysisException
-	// {
-	//
-	// ALocalDefinition decl = node.getDeclaration();
-	//
-	// try
-	// {
-	// return question.assistantFactory.createPTypeAssistant().typeResolve(decl.getType(), null, THIS, question);
-	// } catch (TypeCheckException te)
-	// {
-	// TypeChecker.report(3427, te.getMessage(), te.location);
-	// }
-	//
-	// return null;
-	// }
 
 	@Override
 	public PType caseAParametrisedInstantiatedAction(
@@ -1143,17 +1030,13 @@ public class CmlActionTypeChecker extends
 		PExp timeExp = node.getExpression();
 
 		PType type = event.apply(THIS, question);
-		// if (!successfulType(eventType))
-		// return new AErrorType(node.getLocation(), true);
 
 		PType expType = timeExp.apply(THIS, question);
-		// if (!successfulType(expType))
-		// return new AErrorType(node.getLocation(), true);
 
 		if (!(TypeComparator.isSubType(expType, new ANatNumericBasicType())))
 		{
-			issueHandler.addTypeError(timeExp, TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT.customizeMessage(timeExp
-					+ "", expType + ""));
+			issueHandler.addTypeError(timeExp, TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT, timeExp
+					+ "", expType + "");
 		}
 		return setType(node, type);
 	}
@@ -1168,17 +1051,13 @@ public class CmlActionTypeChecker extends
 		PExp timeExp = node.getExpression();
 
 		PType eventType = event.apply(THIS, question);
-		// if (!successfulType(eventType))
-		// return new AErrorType(node.getLocation(), true);
 
 		PType timeExpType = timeExp.apply(THIS, question);
-		// if (!successfulType(timeExpType))
-		// return new AErrorType(node.getLocation(), true);
 
 		if (!(TypeComparator.isSubType(timeExpType, new ANatNumericBasicType())))
 		{
-			issueHandler.addTypeError(timeExp, TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT.customizeMessage(timeExp
-					+ "", timeExpType + ""));
+			issueHandler.addTypeError(timeExp, TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT, timeExp
+					+ "", timeExpType + "");
 		}
 
 		return setType(node, eventType);
@@ -1227,7 +1106,7 @@ public class CmlActionTypeChecker extends
 	public PType caseAParametrisedAction(AParametrisedAction node,
 			TypeCheckInfo question) throws AnalysisException
 	{
-
+		// FIXME what does this node represent: AParametrisedAction
 		PAction action = node.getAction();
 
 		// Params are already added to the environment above as we have the

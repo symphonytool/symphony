@@ -2,12 +2,11 @@ package eu.compassresearch.core.interpreter;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.lex.LexLocation;
 import org.overture.interpreter.runtime.Context;
@@ -18,8 +17,6 @@ import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.lex.CmlLexNameToken;
-import eu.compassresearch.ast.program.AFileSource;
-import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
 import eu.compassresearch.core.interpreter.api.ConsoleSelectionStrategy;
@@ -35,6 +32,8 @@ import eu.compassresearch.core.interpreter.api.transitions.ObservableTransition;
 import eu.compassresearch.core.interpreter.api.values.ProcessObjectValue;
 import eu.compassresearch.core.interpreter.debug.Breakpoint;
 import eu.compassresearch.core.interpreter.utility.LocationExtractor;
+import eu.compassresearch.core.parser.ParserUtil;
+import eu.compassresearch.core.parser.ParserUtil.ParserResult;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.ICmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
@@ -50,7 +49,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	 * 
 	 */
 	private static final long serialVersionUID = 6664128061930795395L;
-	protected List<PSource> sourceForest;
+	protected List<PDefinition> sourceForest;
 	protected Context globalContext;
 	protected String defaultName = null;
 	protected AProcessDefinition topProcess;
@@ -65,24 +64,24 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	/**
 	 * Construct a CmlInterpreter with a list of PSources. These source may refer to each other.
 	 * 
-	 * @param cmlSources
+	 * @param definitions
 	 *            - Source containing CML Paragraphs for type checking.
 	 */
-	public VanillaCmlInterpreter(List<PSource> cmlSources)
+	public VanillaCmlInterpreter(List<PDefinition> definitions)
 	{
-		this.sourceForest = cmlSources;
+		this.sourceForest = definitions;
 	}
 
-	/**
-	 * Construct a CmlTypeInterpreter with the intension of checking a single source.
-	 * 
-	 * @param singleSource
-	 */
-	public VanillaCmlInterpreter(PSource singleSource)
-	{
-		this.sourceForest = new LinkedList<PSource>();
-		this.sourceForest.add(singleSource);
-	}
+	// /**
+	// * Construct a CmlTypeInterpreter with the intension of checking a single source.
+	// *
+	// * @param singleSource
+	// */
+	// public VanillaCmlInterpreter(PSource singleSource)
+	// {
+	// this.sourceForest = new LinkedList<PDefinition>();
+	// this.sourceForest.add(singleSource);
+	// }
 
 	/**
 	 * Initializes the interpreter by making a global context and setting the last defined process as the top process
@@ -152,9 +151,10 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		{
 			setNewState(CmlInterpreterState.FAILED);
 			throw e;
-		}
-		catch(InterruptedException ex){ex.printStackTrace();}
-		catch (Exception ex)
+		} catch (InterruptedException ex)
+		{
+			ex.printStackTrace();
+		} catch (Exception ex)
 		{
 			setNewState(CmlInterpreterState.FAILED);
 			throw ex;
@@ -274,20 +274,19 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 
 		}
 
-		if (topProcess.deadlocked()){
+		if (topProcess.deadlocked())
+		{
 			setNewState(CmlInterpreterState.DEADLOCKED);
-			if(suspendBeforeTermination())
+			if (suspendBeforeTermination())
 				synchronized (suspendObject)
 				{
 					this.suspendObject.wait();
 				}
-		}
-		else if (!topProcess.finished())
+		} else if (!topProcess.finished())
 			setNewState(CmlInterpreterState.TERMINATED_BY_USER);
 		else
 			setNewState(CmlInterpreterState.FINISHED);
-		
-		
+
 	}
 
 	@Override
@@ -356,37 +355,24 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	private static void runOnFiles(List<File> files) throws IOException,
 			CmlInterpreterException
 	{
-		List<PSource> sources = new LinkedList<PSource>();
-		for (File f : files)
-		{
-			AFileSource source = new AFileSource();
-			source.setName(f.getName());
-			source.setFile(f);
-			sources.add(source);
-
-			// Run the parser and lexer and report errors if any
-			if (!CmlParserUtil.parseSource(source))
-			{
-				System.out.println("Failed to parse: " + source.toString());
-				return;
-			}
-		}
+		ParserResult res = ParserUtil.parse(files);
 
 		ITypeIssueHandler issueHandler = VanillaFactory.newCollectingIssueHandle();
 
 		// Type check
-		ICmlTypeChecker cmlTC = VanillaFactory.newTypeChecker(sources, issueHandler);
+		ICmlTypeChecker cmlTC = VanillaFactory.newTypeChecker(res.definitions, issueHandler);
 
 		// Print result and report errors if any
 		if (!cmlTC.typeCheck())
 		{
-			System.out.println("Failed to type check: " + sources.toString());
+			System.out.println("Failed to type check: "
+					+ res.definitions.toString());
 			System.out.println(issueHandler.getTypeErrors());
 			return;
 		}
 
 		// interpret
-		VanillaCmlInterpreter cmlInterp = new VanillaCmlInterpreter(sources);
+		VanillaCmlInterpreter cmlInterp = new VanillaCmlInterpreter(res.definitions);
 		cmlInterp.onStateChanged().registerObserver(new CmlInterpreterStateObserver()
 		{
 
@@ -410,7 +396,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			cmlInterp.execute(ss);
 		} catch (Exception ex)
 		{
-			System.out.println("Failed to interpret: " + sources.toString());
+			System.out.println("Failed to interpret: " + files.toString());
 			System.out.println("With Error : ");
 			ex.printStackTrace();
 			return;
@@ -425,32 +411,23 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	private static void runOnFile(File f) throws IOException,
 			CmlInterpreterException
 	{
-		AFileSource source = new AFileSource();
-		source.setName(f.getName());
-		source.setFile(f);
-
-		// Run the parser and lexer and report errors if any
-		if (!CmlParserUtil.parseSource(source))
-		{
-			System.out.println("Failed to parse: " + source.toString());
-			return;
-		}
+		ParserResult res = ParserUtil.parse(f);
 
 		ITypeIssueHandler issueHandler = VanillaFactory.newCollectingIssueHandle();
 
 		// Type check
-		ICmlTypeChecker cmlTC = VanillaFactory.newTypeChecker(Arrays.asList(new PSource[] { source }), issueHandler);
+		ICmlTypeChecker cmlTC = VanillaFactory.newTypeChecker(res.definitions, issueHandler);
 
 		// Print result and report errors if any
 		if (!cmlTC.typeCheck())
 		{
-			System.out.println("Failed to type check: " + source.toString());
+			System.out.println("Failed to type check: " + f.toString());
 			System.out.println(issueHandler.getTypeErrors());
 			return;
 		}
 
 		// interpret
-		VanillaCmlInterpreter cmlInterp = new VanillaCmlInterpreter(source);
+		VanillaCmlInterpreter cmlInterp = new VanillaCmlInterpreter(res.definitions);
 		cmlInterp.onStateChanged().registerObserver(new CmlInterpreterStateObserver()
 		{
 
@@ -480,7 +457,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			e.printStackTrace();
 		} catch (Exception ex)
 		{
-			System.out.println("Failed to interpret: " + source.toString());
+			System.out.println("Failed to interpret: " + f.toString());
 			System.out.println("With Error : " + ex.getMessage());
 			System.out.println("With stack trace : ");
 			ex.printStackTrace();
@@ -496,7 +473,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	{
 		File cml_example = new File(
 		// "/home/akm/phd/runtime-COMPASS/simpleDLNA/SimpleDLNA.cml");
-		"src/test/resources/action/action-guard.cml");
+		"src/test/resources/process/parallel-composition/process-interleaving-state.cml");
 		//File cml_example = new File("/home/akm/phd/COMPASS-repo/Common/PublicLiveCMLCaseStudies/RingBuffer/RingBuffer.cml");
 		//File cml_example = new File("/home/akm/Downloads/minimondex.cml");
 		runOnFile(cml_example);

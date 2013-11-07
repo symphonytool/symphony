@@ -1,0 +1,8 @@
+/* Interrupt action is not ok with undefined actions */
+
+process A =
+begin
+
+@ Skip /_\ action
+
+end

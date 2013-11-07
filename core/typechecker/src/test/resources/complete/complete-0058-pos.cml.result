@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.CompleteCmlTypeCheckerTests">
+<message column="1" line="17" message="Instance variable 'a' is not initialized." messageType="warning" number="5001" resource="complete-0058-pos.cml"/>
+<message column="2" line="20" message="Potentially incomplete type checking at &quot;{|[c1]|}[a]&quot;." messageType="warning" number="0" resource="complete-0058-pos.cml"/>
+<result/>
+</testResult>

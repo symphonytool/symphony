@@ -1,19 +1,18 @@
 package eu.compassresearch.core.typechecker.weeding;
 
-import java.util.Collection;
-
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.definitions.SOperationDefinition;
 import org.overture.ast.factory.AstFactory;
 import org.overture.ast.node.INode;
-import org.overture.ast.statements.AActionStm;
+import eu.compassresearch.ast.statements.AActionStm;
 import org.overture.ast.statements.ACaseAlternativeStm;
 import org.overture.ast.statements.PStm;
 
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.AStmAction;
 import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
-import eu.compassresearch.ast.program.PSource;
+import eu.compassresearch.core.typechecker.DefinitionList;
 
 /**
  * @author kel & cb
@@ -22,11 +21,11 @@ import eu.compassresearch.ast.program.PSource;
 public class WeedingSkipActionToStmCleaner extends DepthFirstAnalysisCMLAdaptor
 {
 
-	public static void apply(Collection<PSource> lp)
+	public static void apply(DefinitionList sourceForest)
 	{
 
 		WeedingSkipActionToStmCleaner lv = new WeedingSkipActionToStmCleaner();
-		for (PSource s : lp)
+		for (PDefinition s : sourceForest)
 		{
 			if (s != null)
 				try

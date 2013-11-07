@@ -4,6 +4,9 @@ import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.definitions.SClassDefinition;
+import org.overture.ast.expressions.PExp;
+import org.overture.ast.statements.PStm;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.typechecker.Environment;
 
@@ -50,6 +53,22 @@ public class UniquenessChecker extends DepthFirstAnalysisCMLAdaptor
 			throws AnalysisException
 	{
 		new FlatStrictCheckEnvironment(AF, node.getDefinitions(), this.env, NameScope.NAMESANDSTATE);
+	}
+
+	@Override
+	public void defaultPExp(PExp node) throws AnalysisException
+	{
+	}
+
+	@Override
+	public void defaultPStm(PStm node) throws AnalysisException
+	{
+	}
+
+	@Override
+	public void defaultSClassDefinition(SClassDefinition node)
+			throws AnalysisException
+	{
 	}
 
 }

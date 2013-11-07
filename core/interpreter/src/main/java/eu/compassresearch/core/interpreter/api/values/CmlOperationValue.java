@@ -5,14 +5,11 @@ import java.util.List;
 import org.overture.ast.definitions.AExplicitOperationDefinition;
 import org.overture.ast.definitions.AImplicitOperationDefinition;
 import org.overture.ast.definitions.AStateDefinition;
-import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.lex.LexLocation;
-import org.overture.ast.patterns.APatternListTypePair;
 import org.overture.ast.patterns.PPattern;
-import org.overture.ast.statements.ASkipStm;
 import org.overture.ast.types.AOperationType;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ValueException;
@@ -49,7 +46,7 @@ public class CmlOperationValue extends OperationValue
 		super(def, null, null, null);
 		this.expldef = def;
 		this.impldef = null;
-//		this.setBody(def.getBody());
+		// this.setBody(def.getBody());
 		this.precondition = def.getPrecondition();
 		this.postcondition = def.getPostcondition();
 		this.state = state;
@@ -67,7 +64,6 @@ public class CmlOperationValue extends OperationValue
 		this.state = state;
 	}
 
-	
 	// public CmlOperationValue(AImplicitCmlOperationDefinition def,
 	// AStateDefinition state)
 	// {

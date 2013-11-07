@@ -3,8 +3,10 @@ a, b, c
 
 process A = 
 begin 
+  actions
 	A = a -> Skip
 	B = b -> Skip
 	C = c -> Stop
+	
 	@ A [] B [] C 
 end

@@ -4,14 +4,12 @@ import java.util.Vector;
 
 import org.overture.ast.intf.lex.ILexNameToken;
 
-import eu.compassresearch.core.common.AnalysisArtifact;
-
 
 /*****************
  * Stores collection of Theory objects
  *****************/
 @SuppressWarnings("serial")
-public class ThmNodeList extends Vector<ThmNode> implements AnalysisArtifact {
+public class ThmNodeList extends Vector<ThmNode>{
 
 
 	@Override
@@ -49,7 +47,7 @@ public class ThmNodeList extends Vector<ThmNode> implements AnalysisArtifact {
     		
     		//for each of the nodes already in this list
     		for (ThmNode tp : this){
-        		String temptpId = tp.getId().getName();
+        		String temptpId = tp.getId().getName(); //CHANGED DUE TO NEW LEXNAME STUFF
         		
         		//if (the dependency tempdepId is the same as the node name temptpId
     			if (tempdepId.equals(temptpId)){

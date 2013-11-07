@@ -3,15 +3,17 @@ package eu.compassresearch.ide.theoremprover.commands;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.core.resources.IProject;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 import eu.compassresearch.ide.core.resources.ICmlProject;
-import eu.compassresearch.ide.theoremprover.Activator;
+import eu.compassresearch.ide.pog.POConstants;
+import eu.compassresearch.ide.pog.view.PoListView;
 import eu.compassresearch.ide.theoremprover.FetchPosUtil;
 import eu.compassresearch.ide.theoremprover.TPPluginDoStuff;
-import eu.compassresearch.ide.theoremprover.TPPluginUtils;
 
 
 public class DischargePosHandler extends AbstractHandler
@@ -49,8 +51,23 @@ public class DischargePosHandler extends AbstractHandler
 //		
 
 		IWorkbenchPage page = HandlerUtil.getActiveWorkbenchWindow(event).getActivePage();
-		TPPluginDoStuff doer = new TPPluginDoStuff(HandlerUtil.getActiveWorkbenchWindow(event), page.getActivePart().getSite());
-		doer.fetchPOs();
+		try {
+			PoListView view = (PoListView) PlatformUI.getWorkbench()
+					.getActiveWorkbenchWindow().getActivePage()
+					.showView(POConstants.PO_OVERVIEW_TABLE);
+			ICmlProject proj = view.getProject();
+			TPPluginDoStuff doer = new TPPluginDoStuff(HandlerUtil.getActiveWorkbenchWindow(event), page.getActivePart().getSite());
+			doer.fetchPOs(proj);
+			
+		} catch (PartInitException e) {
+			MessageDialog.openInformation(HandlerUtil.getActiveWorkbenchWindow(event).getShell(), "Symphony", 
+					"Internal communication error");
+			
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+
 		
 		return null;
 	}

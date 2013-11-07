@@ -15,7 +15,7 @@ import org.overture.ast.factory.AstFactory;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.INode;
-import org.overture.ast.statements.AActionStm;
+import eu.compassresearch.ast.statements.AActionStm;
 import org.overture.ast.statements.PStm;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.types.ASeq1SeqType;
@@ -116,8 +116,8 @@ public class CmlCspTypeChecker extends
 		this.channelSetChecker = new CmlVarSetExpressionTypeChecker(this, issuehandler, VarSetCheckType.CHANNELSET);
 		this.nameSetChecker = new CmlVarSetExpressionTypeChecker(this, issuehandler, VarSetCheckType.NAMESET);
 
-		this.actionChecker = new CmlActionTypeChecker(vdmChecker, this, issuehandler, channelSetChecker, nameSetChecker);
-		this.processChecker = new CmlProcessTypeChecker(vdmChecker, this, issuehandler, channelSetChecker, nameSetChecker);
+		this.actionChecker = new CmlActionTypeChecker( this, issuehandler, channelSetChecker, nameSetChecker);
+		this.processChecker = new CmlProcessTypeChecker( this, issuehandler, channelSetChecker, nameSetChecker);
 
 		this.channelExpChecker = new CmlChannelExpressionTypeChecker(this, issuehandler);
 
@@ -321,7 +321,6 @@ public class CmlCspTypeChecker extends
 		Environment env = PParametrisationAssistant.updateEnvironment(question.env, node.getDeclarations());
 		return node.getAction().apply(actionChecker, question.newInfo(env));
 
-		// return super.caseAActionDefinition(node, question);
 	}
 
 	// the strange single type
@@ -387,9 +386,9 @@ public class CmlCspTypeChecker extends
 		} else
 		{
 
-			issueHandler.addTypeError(expression, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(""
+			issueHandler.addTypeError(expression, TypeErrorMessages.INCOMPATIBLE_TYPE,""
 					+ AstFactory.newASetType(null, AstFactory.newAUndefinedType(null)), ""
-					+ expressionType));
+					+ expressionType);
 		}
 
 		expressionType.setDefinitions(defs);

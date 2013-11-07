@@ -1,0 +1,15 @@
+/* Legal channels and chanset declarations */
+
+channels
+a,b,c
+x : int * int
+
+chansets
+d = {a}
+e = d \ {b}
+f = d union {b}
+g = d inter {b}
+h = d
+i = {| x |}
+j = {| x.y | y in set {1,2,3} @ y>0 |}
+

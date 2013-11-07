@@ -1,0 +1,8 @@
+/* Sequential composition is ok with defined actions */
+
+process A =
+begin
+
+@ Skip ; Skip
+
+end

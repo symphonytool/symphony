@@ -75,7 +75,7 @@ public class GlobalProcessSelectorDialog
 		if (VdmTypeCheckerUi.typeCheck(shell, project))
 		{
 			ICmlProject cp = (ICmlProject) project.getAdapter(ICmlProject.class);
-			dialog.setInput(CmlUtil.getGlobalProcessesFromSource(cp.getModel().getAstSource()));
+			dialog.setInput(CmlUtil.getGlobalProcessesFromSource(cp.getModel().getDefinitions()));
 
 			if (dialog.open() == Window.OK)
 			{

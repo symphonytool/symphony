@@ -74,7 +74,7 @@ public class ThmImpFunc extends ThmDecl {
 		{
 			exp = "true";
 		}
-		LinkedList<List<PPattern>> fixedparams = new LinkedList();
+		LinkedList<List<PPattern>> fixedparams = new LinkedList<List<PPattern>>();
 		
 		for(APatternListTypePair p : params)
 		{
@@ -185,10 +185,11 @@ public class ThmImpFunc extends ThmDecl {
 		//if there is a result value
 		if (prepost.equals("post") && res != null)
 		{
-			//Add the result too
-			PPattern p = res.getPattern();
-		
-			sb.append(", ^" + ((AIdentifierPattern) p).getName().toString() + "^");
+			if (!params.isEmpty())
+			{
+				sb.append(", ");
+			}
+			sb.append("^" + ThmTypeUtil.isaFuncLambdaPostVal + "^");
 		}
 		sb.append(")");
 		

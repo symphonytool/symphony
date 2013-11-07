@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.ProcessesCmlTypeCheckerTests">
+<message column="4" line="19" message="3420 Expecting an action but found  a process deinition:A." messageType="error" number="3420" resource="processes-0006-neg.cml"/>
+<message column="9" line="19" message="3410 The Symbol &quot;channel1&quot; is undefined." messageType="error" number="3410" resource="processes-0006-neg.cml"/>
+<result/>
+</testResult>

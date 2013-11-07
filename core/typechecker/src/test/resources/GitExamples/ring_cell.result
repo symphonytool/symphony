@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.secondedition.RunCmlExamplesTestCase">
+<message column="32" line="7" message="Definition 'CellId' not used" messageType="warning" number="0" resource="ring_cell.result"/>
+<message column="14" line="22" message="v at 22:14 hidden by v" messageType="warning" number="0" resource="ring_cell.result"/>
+<message column="17" line="50" message="Definition 'c' not used" messageType="warning" number="0" resource="ring_cell.result"/>
+<message column="5" line="44" message="cache at 44:5 hidden by cache" messageType="warning" number="0" resource="ring_cell.result"/>
+<message column="5" line="45" message="size at 45:5 hidden by size" messageType="warning" number="0" resource="ring_cell.result"/>
+<message column="5" line="46" message="top at 46:5 hidden by top" messageType="warning" number="0" resource="ring_cell.result"/>
+<message column="14" line="22" message="Instance variable 'v' is not initialized" messageType="warning" number="0" resource="ring_cell.result"/>
+<message column="5" line="44" message="Instance variable 'cache' is not initialized" messageType="warning" number="0" resource="ring_cell.result"/>
+<message column="5" line="45" message="Instance variable 'size' is not initialized" messageType="warning" number="0" resource="ring_cell.result"/>
+<message column="5" line="46" message="Instance variable 'top' is not initialized" messageType="warning" number="0" resource="ring_cell.result"/>
+<message column="5" line="47" message="Instance variable 'bot' is not initialized" messageType="warning" number="0" resource="ring_cell.result"/>
+<message column="15" line="16" message="Duplicate definition: read" messageType="warning" number="0" resource="ring_cell.result"/>
+<message column="8" line="17" message="Duplicate definition: read" messageType="warning" number="0" resource="ring_cell.result"/>
+<message column="32" line="7" message="Definition 'CellId' not used" messageType="warning" number="0" resource="ring_cell.result"/>
+<message column="15" line="16" message="Duplicate definition: read" messageType="error" number="0" resource="ring_cell.result"/>
+<message column="8" line="17" message="Duplicate definition: read" messageType="error" number="0" resource="ring_cell.result"/>
+<message column="32" line="7" message="Function returns unexpected type" messageType="error" number="0" resource="ring_cell.result"/>
+<message column="27" line="51" message="Name 'v' is not in scope" messageType="error" number="0" resource="ring_cell.result"/>
+<message column="29" line="66" message="Unable to resolve type name 'CellID'" messageType="error" number="0" resource="ring_cell.result"/>
+<message column="32" line="7" message="Function returns unexpected type" messageType="error" number="0" resource="ring_cell.result"/>
+<message column="22" line="30" message="Name 'req' is not in scope" messageType="error" number="0" resource="ring_cell.result"/>
+<message column="22" line="32" message="Name 'act' is not in scope" messageType="error" number="0" resource="ring_cell.result"/>
+<message column="27" line="33" message="Name 'req' is not in scope" messageType="error" number="0" resource="ring_cell.result"/>
+<message column="31" line="34" message="Name 'ack' is not in scope" messageType="error" number="0" resource="ring_cell.result"/>
+<message column="39" line="73" message="Operation SetCache(Value) is not in scope" messageType="error" number="0" resource="ring_cell.result"/>
+<message column="52" line="73" message="Operation SetSize(nat1) is not in scope" messageType="error" number="0" resource="ring_cell.result"/>
+<message column="42" line="76" message="Name 'req' is not in scope" messageType="error" number="0" resource="ring_cell.result"/>
+<message column="61" line="76" message="Name 'ack' is not in scope" messageType="error" number="0" resource="ring_cell.result"/>
+<message column="32" line="77" message="Operation SetSize(nat1) is not in scope" messageType="error" number="0" resource="ring_cell.result"/>
+<message column="40" line="78" message="Left hand of mod is not numeric" messageType="error" number="0" resource="ring_cell.result"/>
+<message column="32" line="78" message="Operation SetTop(int) is not in scope" messageType="error" number="0" resource="ring_cell.result"/>
+<message column="41" line="85" message="Name 'req' is not in scope" messageType="error" number="0" resource="ring_cell.result"/>
+<message column="62" line="85" message="Name 'ack' is not in scope" messageType="error" number="0" resource="ring_cell.result"/>
+<message column="28" line="86" message="Operation SetSize(int) is not in scope" messageType="error" number="0" resource="ring_cell.result"/>
+<message column="36" line="87" message="Left hand of mod is not numeric" messageType="error" number="0" resource="ring_cell.result"/>
+<message column="28" line="87" message="Operation SetBot(int) is not in scope" messageType="error" number="0" resource="ring_cell.result"/>
+<message column="28" line="90" message="Operation SetSize(nat) is not in scope" messageType="error" number="0" resource="ring_cell.result"/>
+<message column="10" line="92" message="Operation Init(nat, nat, nat1, nat1) is not in scope" messageType="error" number="0" resource="ring_cell.result"/>
+<result/>
+</testResult>

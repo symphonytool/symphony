@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.secondedition.RunCmlExamplesTestCase">
+<message column="52" line="1" message="3410 The Symbol &quot;ns&quot; is undefined." messageType="error" number="0" resource="process-action-replicated-synchronous.result"/>
+<message column="56" line="1" message="Operation A(nat1) is not in scope" messageType="error" number="0" resource="process-action-replicated-synchronous.result"/>
+<result/>
+</testResult>

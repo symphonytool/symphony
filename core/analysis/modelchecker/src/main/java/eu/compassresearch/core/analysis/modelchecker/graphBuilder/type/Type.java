@@ -5,4 +5,5 @@ public interface Type {
 	public String toFormulaWithState();
 	public String toFormulaWithUnderscore();
 	public Type copy();
+	public String toFormulaGeneric();
 }

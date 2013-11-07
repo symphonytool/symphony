@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.FunctionsCmlTypeCheckerTests">
+<message column="18" line="5" message="Unable to resolve type name 'ID'." messageType="error" number="3427" resource="functions-0017-neg.cml"/>
+<message column="18" line="5" message="Unable to resolve type name 'ID'." messageType="error" number="3428" resource="functions-0017-neg.cml"/>
+<result/>
+</testResult>

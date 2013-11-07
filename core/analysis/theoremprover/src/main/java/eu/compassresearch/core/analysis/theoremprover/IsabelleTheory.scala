@@ -1,7 +1,6 @@
 package eu.compassresearch.core.analysis.theoremprover
 import isabelle.{Build, Document, Session, Text, Protocol, Thy_Load, Command}
 import isabelle.Document.Node
-import eu.compassresearch.core.common.AnalysisArtifact
 import java.io.File
 import java.io.FileWriter
 
@@ -24,7 +23,7 @@ object IsabelleTheory {
 
 class IsabelleTheory ( val session: Session
                      , val thyName: String
-                     , val thyDir: String) extends AnalysisArtifact {
+                     , val thyDir: String) {
 
   sealed abstract class IsabelleProof {
     var location: Option[Text.Offset]= None

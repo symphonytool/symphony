@@ -1,7 +1,6 @@
 package eu.compassresearch.core.interpreter;
 
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
@@ -11,13 +10,9 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.intf.lex.ILexNameToken;
-import org.overture.ast.lex.LexLocation;
 import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
-import org.overture.interpreter.runtime.ObjectContext;
-import org.overture.interpreter.runtime.RootContext;
 import org.overture.interpreter.runtime.ValueException;
-import org.overture.interpreter.values.ObjectValue;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.actions.ASkipAction;
@@ -59,8 +54,8 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 	}
 
 	/**
-	 * This synchronizes any tock event from the children if both are running an and joins all the rest of the 
-	 * events
+	 * This synchronizes any tock event from the children if both are running an and joins all the rest of the events
+	 * 
 	 * @return The joined transitions of the children syncing on tock if possible
 	 * @throws AnalysisException
 	 */
@@ -71,25 +66,26 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		CmlTransitionSet leftChildAlphabet = owner.getLeftChild().inspect();
 		CmlTransitionSet rightChildAlphabet = owner.getRightChild().inspect();
 
-		//if both are running and they both have tock event we sync them 
-		if(!owner.getLeftChild().finished() && !owner.getRightChild().finished() &&
-				leftChildAlphabet.hasTockEvent() && rightChildAlphabet.hasTockEvent())
+		// if both are running and they both have tock event we sync them
+		if (!owner.getLeftChild().finished()
+				&& !owner.getRightChild().finished()
+				&& leftChildAlphabet.hasTockEvent()
+				&& rightChildAlphabet.hasTockEvent())
 		{
-			//get the tocks
+			// get the tocks
 			TimedTransition leftTock = leftChildAlphabet.getTockEvent();
 			TimedTransition rightTock = rightChildAlphabet.getTockEvent();
-			
-			//sync them
+
+			// sync them
 			CmlTransitionSet returnAlpha = new CmlTransitionSet(leftTock.synchronizeWith(rightTock));
-			
-			//remove the old tocks and add the synced one to the result
-			return returnAlpha.union(leftChildAlphabet.subtract(leftTock).
-					union(rightChildAlphabet.subtract(rightTock)));
+
+			// remove the old tocks and add the synced one to the result
+			return returnAlpha.union(leftChildAlphabet.subtract(leftTock).union(rightChildAlphabet.subtract(rightTock)));
 		}
-		//else we just joins all the event from both
-		else 
+		// else we just joins all the event from both
+		else
 		{
-			return  leftChildAlphabet.union(rightChildAlphabet);
+			return leftChildAlphabet.union(rightChildAlphabet);
 		}
 	}
 
@@ -104,8 +100,8 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		// FIXME the children contexts also needs to be replaced!!!!!!
 		Context copyContext = theChoosenOne.getNextState().second;
 		Context newCurrentContext = CmlBehaviourUtility.mergeAndReplaceState(context, copyContext);
-		//Context newCurrentContext = copyContext;
-		
+		// Context newCurrentContext = copyContext;
+
 		if (theChoosenOne.getLeftChild() != null)
 			theChoosenOne.getLeftChild().replaceState(newCurrentContext);
 
@@ -137,19 +133,15 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 						throws AnalysisException
 				{
 					Pair<Context, Context> childContexts = visitorAccess.getChildContexts(question);
-					
+
 					String module = name().getModule();
 					String nameStr = name().getIdentifier().getName();
-					
-					setLeftChild(new ConcreteCmlBehaviour(leftNode, 
-							CmlBehaviourUtility.deepCopyProcessContext(childContexts.first), 
-							new CmlLexNameToken(module, nameStr	+ "[]", LocationExtractor.extractLocation(leftNode)), 
-							this.owner));
 
-					setRightChild(new ConcreteCmlBehaviour(rightNode, 
-							CmlBehaviourUtility.deepCopyProcessContext(childContexts.second), 
-							new CmlLexNameToken(module, "[]" + nameStr, LocationExtractor.extractLocation(rightNode)), 
-							this.owner));
+					setLeftChild(new ConcreteCmlBehaviour(leftNode, CmlBehaviourUtility.deepCopyProcessContext(childContexts.first), new CmlLexNameToken(module, nameStr
+							+ "[]", LocationExtractor.extractLocation(leftNode)), this.owner));
+
+					setRightChild(new ConcreteCmlBehaviour(rightNode, CmlBehaviourUtility.deepCopyProcessContext(childContexts.second), new CmlLexNameToken(module, "[]"
+							+ nameStr, LocationExtractor.extractLocation(rightNode)), this.owner));
 
 					return new Pair<INode, Context>(node, question);
 				}
@@ -518,20 +510,19 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		{
 			//
 			final CmlBehaviour leftBehavior = owner.getLeftChild();
-			
-			CmlTransitionSet resultAlpha =  null;
+
+			CmlTransitionSet resultAlpha = null;
 			CmlTransitionSet leftAlpha = leftBehavior.inspect();
-			//If time can pass in the left, we need to put the remaining time of the timeout
-			if(leftAlpha.hasTockEvent())
+			// If time can pass in the left, we need to put the remaining time of the timeout
+			if (leftAlpha.hasTockEvent())
 			{
-				TimedTransition leftTimeTransition = leftAlpha.getTockEvent();  
+				TimedTransition leftTimeTransition = leftAlpha.getTockEvent();
 				resultAlpha = leftAlpha.subtract(leftTimeTransition);
 				long limit = val - (owner.getCurrentTime() - startTimeVal);
 				resultAlpha = resultAlpha.union(leftTimeTransition.synchronizeWith(new TimedTransition(owner, limit)));
-			}
-			else
+			} else
 				resultAlpha = leftAlpha;
-			
+
 			return newInspection(resultAlpha, new AbstractCalculationStep(owner, visitorAccess)
 			{
 				@Override

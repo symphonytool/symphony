@@ -1,18 +1,17 @@
 package eu.compassresearch.core.typechecker.weeding;
 
-import java.util.Collection;
-
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import org.overture.ast.definitions.AImplicitFunctionDefinition;
 import org.overture.ast.definitions.APublicAccess;
 import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.AValueDefinition;
+import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.definitions.SFunctionDefinition;
 import org.overture.ast.node.tokens.TStatic;
 
 import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
-import eu.compassresearch.ast.program.PSource;
+import eu.compassresearch.core.typechecker.DefinitionList;
 
 /**
  * @author kel & cb
@@ -21,11 +20,11 @@ import eu.compassresearch.ast.program.PSource;
 public class WeedingAccessCorrector extends DepthFirstAnalysisCMLAdaptor
 {
 
-	public static void apply(Collection<PSource> lp)
+	public static void apply(DefinitionList sourceForest)
 	{
 
 		WeedingAccessCorrector lv = new WeedingAccessCorrector();
-		for (PSource s : lp)
+		for (PDefinition s : sourceForest)
 		{
 			if (s != null)
 			{

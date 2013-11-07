@@ -25,10 +25,10 @@ singleDeclaration {-> package='eu.compassresearch.ast.declarations'
 		| [location]:location 
 		| [nameScope]:nameScope}
         = {type}
-        [identifier]:LexIdentifierToken
+        [identifier]:LexIdentifierToken //*
         (type):type
         | {expression}
-        [identifier]:LexIdentifierToken
+        [identifier]:LexIdentifierToken //*
         [expression]:exp
     ;
 /*
@@ -50,6 +50,7 @@ definition {-> package='eu.compassresearch.ast.definitions'}
                 [process]: process
     | {channel}//renamed removed Name
       //  [singleType]: singleDeclaration.type
+      (type):type.channel
     | #class
    | {channels}
         [channelDeclarations]: definition.channel*
@@ -182,7 +183,7 @@ type {-> package='eu.compassresearch.ast.types'}
  //   |   {operationParagraph} // marker stipulating that a Function Paragraph is typed ok
  //   |   {stateParagraph} // marker stipulating that a state Paragraph is typed ok
  //   |   {source} // marker stipulating a source was typed ok
- //   |   {channel} (type):type // marker stipulating that a channel Paragraph is typed ok
+    |   {channel} [parameters]:type* // marker stipulating that a channel Paragraph is typed ok
 //    |   {chanset} // marker stipulating that a chanset is typed ok
 //    |   {nameset} // marker stipulating that a nameset is typed ok
  //   |   {namesets} // marker stipulating that s nameset paragraph is typed ok
@@ -496,12 +497,12 @@ parametrisation {-> package='eu.compassresearch.ast.actions'
  
  */
         
-stateDesignator {-> package='org.overture.ast.statements'}
+stateDesignator {-> package='eu.compassresearch.ast.statements'}
 	=	{unresolved} [path]:exp//well we wanted this:exp.unresolvedPath
 	;
 	
 	
-objectDesignator {-> package='org.overture.ast.statements'}
+objectDesignator {-> package='eu.compassresearch.ast.statements'}
     =  {unresolved} [path]:exp//well we wanted this:exp.unresolvedPath
     ;
 
@@ -513,7 +514,7 @@ objectDesignator {-> package='org.overture.ast.statements'}
 /*
 * Real statements
 */
-stm {-> package='org.overture.ast.statements'
+stm {-> package='eu.compassresearch.ast.statements'
 	|	[location]:location 
 	|	(type):type}
     =   {action} [action]:action
@@ -527,7 +528,7 @@ stm {-> package='org.overture.ast.statements'
 
    	;
 
-#NonDeterministic {-> package='org.overture.ast.statements'}
+#NonDeterministic {-> package='eu.compassresearch.ast.statements'}
 	=	{if}
 			[alternatives]:stm.#NonDeterministic.alt*
 	|	{alt}

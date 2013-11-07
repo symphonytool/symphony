@@ -18,10 +18,10 @@ import eu.compassresearch.ast.util.ToStringUtil;
 //             ($[precondition]$ == null ? "" : "\n\tpre " + $[precondition]$) +
 //             ($[postcondition]$ == null ? "" : "\n\tpost " + $[postcondition]$) +
 //             ($[errors]$.isEmpty() ? "" : "\n\terrs " + $[errors]$)$ + "]" 
-%action->communication = [identifier] "->" [action]
-%communicationParameter->write = [expression]
-%communicationParameter->signal = [expression]
-%communicationParameter->read  =  [expression] " " [pattern] 
+%action->communication = [identifier] +$Utils.listToString($[communicationParameters]$,"")$ +" -> " [action]
+%communicationParameter->write ="!" [expression]
+%communicationParameter->signal ="." [expression]
+%communicationParameter->read  = "?" [pattern]+ $($[expression]$!=null?"("+$[expression]$+")":"")$ 
 %action->skip = "Skip"
 %action->stop = "Stop"
 %action->chaos = "Chaos"
@@ -60,7 +60,7 @@ import eu.compassresearch.ast.util.ToStringUtil;
 %definition->#class->action = "class " [name]$.getFullName()+ ($[supernames]$.isEmpty() ? "" : " is subclass of " +$ [supernames]$) + "\n" + ToStringUtil.getDefinitionListString($[definitions]$)$+           "end "  [name]$.getFullName()$ + "\n"
 
 
-%type->error = "Type Error"
+//%type->error = "Type Error"
 
 // varSetExpressions
 %VarsetExpression->fatEnum = "{|" [channelNames] "|}"

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.secondedition.RunCmlExamplesTestCase">
+<message column="2" line="26" message="reg at 26:2 hidden by reg" messageType="warning" number="0" resource="jpcw-register.result"/>
+<message column="2" line="26" message="reg at 26:2 hidden by reg" messageType="warning" number="0" resource="jpcw-register.result"/>
+<message column="2" line="26" message="reg at 26:2 hidden by reg" messageType="warning" number="0" resource="jpcw-register.result"/>
+<message column="2" line="26" message="reg at 26:2 hidden by reg" messageType="warning" number="0" resource="jpcw-register.result"/>
+<message column="2" line="26" message="reg at 26:2 hidden by reg" messageType="warning" number="0" resource="jpcw-register.result"/>
+<message column="2" line="26" message="Instance variable 'reg' is not initialized" messageType="warning" number="0" resource="jpcw-register.result"/>
+<result/>
+</testResult>

@@ -1,0 +1,10 @@
+class test 
+= 
+begin
+
+functions
+
+permitted() result : bool
+post true
+
+end
