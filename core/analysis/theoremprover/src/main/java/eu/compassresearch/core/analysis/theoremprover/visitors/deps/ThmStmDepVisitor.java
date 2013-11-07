@@ -18,9 +18,7 @@ import org.overture.ast.statements.AWhileStm;
 import org.overture.ast.statements.PStateDesignator;
 import org.overture.ast.statements.PStm;
 
-import eu.compassresearch.ast.statements.AActionStm;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
-import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.core.analysis.theoremprover.thms.NodeNameList;
 
 @SuppressWarnings("serial")

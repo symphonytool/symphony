@@ -40,6 +40,7 @@ import org.overture.ast.expressions.AInSetBinaryExp;
 import org.overture.ast.expressions.AIndicesUnaryExp;
 import org.overture.ast.expressions.AIntLiteralExp;
 import org.overture.ast.expressions.AIotaExp;
+import org.overture.ast.expressions.AIsExp;
 import org.overture.ast.expressions.ALambdaExp;
 import org.overture.ast.expressions.ALenUnaryExp;
 import org.overture.ast.expressions.ALessEqualNumericBinaryExp;
@@ -710,6 +711,11 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		return "(" + ex.getExpression().apply(thmStringVisitor, vars) + ")";
 	}
 
+	public String caseAIsExp(AIsExp ex, ThmVarsContext vars) throws AnalysisException{
+		
+		return "(" + ex.getTest().apply(thmStringVisitor, vars) + " hasType " + ex.getBasicType().apply(thmStringVisitor, vars) + ")";
+	}
+	
 	public String defaultPExp(PExp node, ThmVarsContext bvars)
 			throws AnalysisException {		
 		return ThmExprUtil.notHandled;
