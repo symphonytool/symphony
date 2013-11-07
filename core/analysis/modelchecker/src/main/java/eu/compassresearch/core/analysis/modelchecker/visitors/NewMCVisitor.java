@@ -28,17 +28,12 @@ import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.expressions.PCMLExp;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.process.PProcess;
+import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.ast.statements.PCMLStateDesignator;
-import eu.compassresearch.core.analysis.modelchecker.api.FormulaIntegrationUtilities;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
-import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.Domain;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.FormulaSpecification;
-import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.PartialModel;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAProcessDefinition;
-import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCATypeDefinition;
-import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCAIdentifierPattern;
-import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCAActionStm;
 
 /**
  * The main MC visitor. It obtains other visitors from a factory.
@@ -233,30 +228,17 @@ public class NewMCVisitor extends
 	}
 
 	*/
-	public String[] generateFormulaCodeForAll(String propertyToCheck) throws IOException,AnalysisException {
+	public LinkedList<NameContent> generateFormulaCodeForAll(String propertyToCheck) throws IOException,AnalysisException {
 		 
-		String[] codes = new String[0];
-		if (sources.size() > 0) {
-			codes = new String[sources.size()];
-		}
-		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
-		context.setPropertyToCheck(propertyToCheck);
-		
+		LinkedList<NameContent> codes = new LinkedList<NameContent>();
 		for (PSource source : sources) {
-			String dependentCode = "";
-			for (PDefinition paragraph : source.getParagraphs()) {
-				paragraph.apply(this, context);
+			if(source instanceof AFileSource){
+				//System.out.println("Analysing file: " + ((AFileSource) source).getName());
+				String currentScriptContent = this.generateFormulaScript(source.getParagraphs(), propertyToCheck);
+				NameContent element = new NameContent(((AFileSource) source).getName(), currentScriptContent);
+				codes.add(element);
 			}
-			
-			//codes[sources.indexOf(source)] = basicContent + "\n" + dependentCode;
 		}
-		
-		//handleUserTypeDefinitions();
-		
-		MCAProcessDefinition mainProcessDef = getMainProcess();
-		String content = mainProcessDef.toFormula(MCNode.DEFAULT);
-		
-		codes[0] = content;
 		
 		return codes;
 	}

@@ -29,6 +29,7 @@ import eu.compassresearch.core.parser.CmlParser;
 
 public class Utilities {
 	public static final String CML_EXAMPLES_DIRECTORY = "src/test/resources";
+	public static final String FORMULA_TMP_DIRECTORY = "temp";
 	//public static final String BASIC_FORMULA_SCRIPT = "src/test/resources/basic_formula_script.fml";
 	public static final String BASIC_FORMULA_SCRIPT = "/basic_formula_script.fml";
 	//public static final String BASIC_FORMULA_SCRIPT = "/basic_formula_script-new.fml";
@@ -151,7 +152,8 @@ public class Utilities {
 		 return text;
 	 }
 	 
-	 public static void writeScriptToFile(String filePath, StringBuilder content) throws IOException {
+	 public static void writeScriptToFile(String filePath, String content) throws IOException {
+		 
 		 FileWriter fw = new FileWriter(filePath);
 		 BufferedWriter bw = new BufferedWriter(fw);
 		 bw.write(content.toString());

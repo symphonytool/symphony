@@ -18,6 +18,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCIOCommDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCLieInFact;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCNegGuardDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCPosGuardDef;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.NewMCGuardDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.NullBinding;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAActionDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAChannelDefinition;
@@ -44,7 +45,7 @@ public class NewCMLModelcheckerContext {
 	public Binding maximalBinding = new NullBinding();
 	public HashMap<MCPCMLExp, MCPosGuardDef> positiveGuardDefs;
 	public HashMap<MCPCMLExp, MCNegGuardDef> negativeGuardDefs;
-	public HashMap<MCPCMLExp, MCGuardDef> guardDefs;
+	public HashMap<MCPCMLExp, NewMCGuardDef> guardDefs;
 	public ArrayList<MCAssignDef> assignDefs;
 	public LinkedList<MCAChannelDefinition> channelDefs;
 	public ArrayList<MCSCmlOperationDefinition> operations;
@@ -122,7 +123,7 @@ public class NewCMLModelcheckerContext {
 		negativeGuardDefs = new HashMap<MCPCMLExp, MCNegGuardDef>();
 		valueDefinitions = new LinkedList<MCAValueDefinition>();
 		typeDefinitions = new LinkedList<MCATypeDefinition>();
-		guardDefs = new HashMap<MCPCMLExp, MCGuardDef>();
+		guardDefs = new HashMap<MCPCMLExp, NewMCGuardDef>();
 		assignDefs = new ArrayList<MCAssignDef>();
 		channelDefs = new LinkedList<MCAChannelDefinition>();
 		processDefinitions = new LinkedList<MCAProcessDefinition>();

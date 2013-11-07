@@ -9,6 +9,7 @@ import org.overture.ast.node.INode;
 import org.overture.ast.statements.AAssignmentStm;
 import org.overture.ast.statements.ABlockSimpleBlockStm;
 import org.overture.ast.statements.ACallStm;
+import org.overture.ast.statements.AIfStm;
 import org.overture.ast.statements.PStm;
 import org.overture.ast.types.AIntNumericBasicType;
 import org.overture.ast.types.ANamedInvariantType;
@@ -21,13 +22,18 @@ import eu.compassresearch.ast.statements.AActionStm;
 import eu.compassresearch.ast.statements.AUnresolvedStateDesignator;
 import eu.compassresearch.ast.types.PCMLType;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAGuardedAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPAction;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.GuardDefGenerator;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCAssignDef;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCGuardDef;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.NewMCGuardDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCAActionStm;
 import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCAAssignmentStm;
 import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCABlockSimpleBlockStm;
 import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCACallStm;
+import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCAIfStm;
 import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCAUnresolvedStateDesignator;
 import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCPCMLStm;
 import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCPStateDesignator;
@@ -125,6 +131,27 @@ public class NewMCStmVisitor extends
 		}
 		MCACallStm result = new MCACallStm(name, args);
 		
+		return result;
+	}
+
+	
+	@Override
+	public MCNode caseAIfStm(AIfStm node, NewCMLModelcheckerContext question)
+			throws AnalysisException {
+		
+		MCPCMLExp ifExp = (MCPCMLExp) node.getIfExp().apply(rootVisitor, question);
+		MCPCMLStm thenStm = (MCPCMLStm) node.getThenStm().apply(this, question);
+		MCPCMLStm elseStm = (MCPCMLStm) node.getElseStm().apply(this, question);
+		
+		MCAIfStm result = new MCAIfStm(ifExp, thenStm, elseStm);
+		
+		LinkedList<NewMCGuardDef> guarDefs = GuardDefGenerator.generateGuardDefs(ifExp, result.getCounterId(), result);
+		
+		for (NewMCGuardDef mcGuardDef : guarDefs) {
+			question.guardDefs.put(ifExp, mcGuardDef);
+		}
+		
+	
 		return result;
 	}
 

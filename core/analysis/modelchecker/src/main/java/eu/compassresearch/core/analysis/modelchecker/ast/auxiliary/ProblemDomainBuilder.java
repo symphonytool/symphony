@@ -75,9 +75,9 @@ public class ProblemDomainBuilder {
 	private void generateGuardDefinitions(StringBuilder content, String option){
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 	
-		for (Iterator<Entry<MCPCMLExp,MCGuardDef>> iterator = context.guardDefs.entrySet().iterator(); iterator.hasNext();) {
-			Entry<MCPCMLExp,MCGuardDef> item = (Entry<MCPCMLExp,MCGuardDef>) iterator.next();
-			MCGuardDef guardDef = item.getValue();
+		for (Iterator<Entry<MCPCMLExp,NewMCGuardDef>> iterator = context.guardDefs.entrySet().iterator(); iterator.hasNext();) {
+			Entry<MCPCMLExp,NewMCGuardDef> item = (Entry<MCPCMLExp,NewMCGuardDef>) iterator.next();
+			NewMCGuardDef guardDef = item.getValue();
 			content.append(guardDef.toFormula(option));
 		}
 	}

@@ -56,6 +56,7 @@ public class MCIOCommDef implements MCNode {
 		result.append(this.parentAction.toFormula(option));
 		result.append(")");
 
+		result.append(".");
 		//we still have to generate the modified binding containing values (parameters) communicated
 		//result.append(",");
 		//result.append("State()");
