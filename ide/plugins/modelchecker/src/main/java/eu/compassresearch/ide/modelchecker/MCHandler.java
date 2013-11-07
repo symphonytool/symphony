@@ -33,13 +33,14 @@ import org.overture.ast.definitions.PDefinition;
 
 import eu.compassresearch.core.analysis.modelchecker.api.FormulaResult;
 import eu.compassresearch.core.analysis.modelchecker.api.IFormulaIntegrator;
-import eu.compassresearch.core.analysis.modelchecker.visitors.CMLModelcheckerVisitor;
+import eu.compassresearch.core.analysis.modelchecker.visitors.NewMCVisitor;
 import eu.compassresearch.core.analysis.modelchecker.visitors.Utilities;
 import eu.compassresearch.core.common.Registry;
 import eu.compassresearch.core.common.RegistryFactory;
 import eu.compassresearch.ide.core.resources.ICmlModel;
 import eu.compassresearch.ide.core.resources.ICmlProject;
 import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
+import eu.compassresearch.ide.core.unsupported.UnsupportedElementInfo;
 import eu.compassresearch.ide.ui.utility.CmlProjectUtil;
 
 
@@ -48,7 +49,7 @@ public class MCHandler extends AbstractHandler {
 	private Registry registry;
 	private IWorkbenchWindow window;
 	private MessageConsoleStream console;
-	private CMLModelcheckerVisitor adaptor;
+	private NewMCVisitor adaptor;
 	private IFormulaIntegrator mc;
 	
 	public MCHandler() {
@@ -83,6 +84,17 @@ public class MCHandler extends AbstractHandler {
 					popErrorMessage(new RuntimeException("Errors in model."));
 					return null;
 				}
+				
+				// Check compatibility 
+				List<UnsupportedElementInfo> uns = new MCUnsupportedCollector().getUnsupporteds(cmlProj.getModel().getAst());
+
+				if (!uns.isEmpty())
+				{
+					cmlProj.addUnsupportedMarkers(uns);
+					MessageDialog.openError(null, "COMPASS", MCCollectorHandler.UNSUPPORTED_ELEMENTS_MSG);
+					return null;
+				}
+				
 				
 				//Grab the model from the project
 				final ICmlModel model = cmlProj.getModel();
@@ -156,7 +168,7 @@ public class MCHandler extends AbstractHandler {
 						}else{
 							MessageDialog.openInformation(
 									window.getShell(),
-									"COMPASS",
+									"Symphony",
 									"Only CML files can be analysed!");
 						}
 					}
@@ -205,7 +217,7 @@ public class MCHandler extends AbstractHandler {
 		
 		List<PDefinition> definitions = selectedCmlSourceUnit.getParseListDefinitions();
 		String basicContent = Utilities.readScriptFromFile(Utilities.BASIC_FORMULA_SCRIPT).toString();
-		String specificationContent = CMLModelcheckerVisitor.generateFormulaScript(basicContent, definitions,propertyToCheck);
+		String specificationContent = this.adaptor.generateFormulaScript(definitions,propertyToCheck);
 		try{
 			if(!outputFile.exists()){
 				outputFile.create(new ByteArrayInputStream(specificationContent.toString().getBytes()), true, new NullProgressMonitor());

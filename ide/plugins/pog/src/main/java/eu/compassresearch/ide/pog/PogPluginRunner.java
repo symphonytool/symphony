@@ -1,6 +1,5 @@
 package eu.compassresearch.ide.pog;
 
-import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
@@ -29,22 +28,18 @@ public class PogPluginRunner
 	private IWorkbenchWindow window;
 	private IWorkbenchSite site;
 	private boolean posInRegistry = false;
+	private ICmlProject cmlProj;
 
+	
+	
 	public void runPog()
 	{
 
 		clearPoViews();
 
-		IProject proj = PogPluginUtils.getCurrentlySelectedProject();
 
-		if (proj == null)
-		{
-			popErrorMessage("No project selected.");
-			return;
-		}
 
-		ICmlProject cmlProj = (ICmlProject) proj.getAdapter(ICmlProject.class);
-
+		
 		if (!CmlProjectUtil.typeCheck(this.window.getShell(), cmlProj))
 		{
 			popErrorMessage("Errors in model.");
@@ -93,7 +88,7 @@ public class PogPluginRunner
 
 	private void popErrorMessage(String message)
 	{
-		MessageDialog.openError(window.getShell(), "COMPASS POG", "Could not generate Proof Obligations.\n\n"
+		MessageDialog.openError(window.getShell(), "Symphony POG", "Could not generate Proof Obligations.\n\n"
 				+ message);
 	}
 
@@ -198,8 +193,9 @@ public class PogPluginRunner
 	 * 
 	 * @see IWorkbenchWindowActionDelegate#init
 	 */
-	public PogPluginRunner(IWorkbenchWindow window, IWorkbenchSite site)
+	public PogPluginRunner(IWorkbenchWindow window, IWorkbenchSite site, ICmlProject cmlproj)
 	{
+		this.cmlProj = cmlproj;
 		this.window = window;
 		this.site = window.getActivePage().getActivePart().getSite();
 	}

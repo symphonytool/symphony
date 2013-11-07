@@ -24,7 +24,6 @@ import org.overture.ide.core.resources.IVdmProject;
 import org.overture.ide.ui.utility.VdmTypeCheckerUi;
 
 import eu.compassresearch.ast.definitions.AProcessDefinition;
-import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
 import eu.compassresearch.ide.interpreter.CmlDebugPlugin;
 import eu.compassresearch.ide.interpreter.CmlUtil;
@@ -116,11 +115,8 @@ public class CmlApplicationLaunchShortcut implements ILaunchShortcut2
 			if (vdmProject != null && vdmProject.getModel().isParseCorrect()
 					&& source != null) // && vdmProject.getModel().isTypeCorrect())
 			{
-				PSource ast = source.getParseNode();
 
-				List<PSource> sourceList = new LinkedList<PSource>();
-				sourceList.add(ast);
-				List<AProcessDefinition> defsInFile = CmlUtil.getGlobalProcessesFromSource(sourceList);
+				List<AProcessDefinition> defsInFile = CmlUtil.getGlobalProcessesFromSource(source.getParseListDefinitions());
 
 				if (defsInFile.size() == 1)
 				{

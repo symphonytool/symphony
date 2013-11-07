@@ -1,0 +1,8 @@
+/* Skip action is fine */
+
+process A =
+begin
+
+@Skip
+
+end

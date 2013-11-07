@@ -5,19 +5,23 @@ import java.util.List;
 import java.util.Vector;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.content.IContentType;
+import org.overture.ide.builders.vdmj.IBuilderVdmjConstants;
 import org.overture.ide.core.resources.IVdmProject;
 import org.overture.ide.core.resources.IVdmSourceUnit;
 import org.overture.ide.core.resources.ModelBuildPath;
+import org.overture.ide.core.utility.FileUtility;
 
 import eu.compassresearch.ide.core.resources.ICmlModel;
 import eu.compassresearch.ide.core.resources.ICmlProject;
 import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
+import eu.compassresearch.ide.core.unsupported.UnsupportedElementInfo;
 
  class CmlProject implements ICmlProject
 {
@@ -138,6 +142,15 @@ import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
 	public Object getAdapter(@SuppressWarnings("rawtypes") Class adapter)
 	{
 		return Platform.getAdapterManager().getAdapter(this, adapter);
+	}
+	
+	public void addUnsupportedMarkers(List<UnsupportedElementInfo> ueis)
+	{
+		for (UnsupportedElementInfo uei : ueis)
+		{
+			if (uei.getLocation()!=null)
+				FileUtility.addMarker(this.findIFile(uei.getLocation().getFile()), uei.getMessage(), uei.getLocation(), IMarker.SEVERITY_WARNING, IBuilderVdmjConstants.PLUGIN_ID);
+		}
 	}
 
 }

@@ -1,0 +1,8 @@
+/* Chaos action is fine */
+
+process A =
+begin
+
+@ Chaos
+
+end

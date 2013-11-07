@@ -1,0 +1,9 @@
+/* Timed interrupt is not ok with non numeric */
+
+process A =
+begin
+
+@ Skip /_ false _\ Skip
+
+end
+

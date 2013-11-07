@@ -10,7 +10,7 @@ import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.definitions.SClassDefinition;
 import org.overture.ast.definitions.SOperationDefinition;
 import org.overture.ast.intf.lex.ILexNameToken;
-import org.overture.ast.statements.ANewStm;
+import eu.compassresearch.ast.statements.ANewStm;
 import org.overture.ast.types.AClassType;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.CPUValue;

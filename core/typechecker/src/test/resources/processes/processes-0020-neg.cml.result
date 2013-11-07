@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <testResult type="eu.compassresearch.core.typechecker.ProcessesCmlTypeCheckerTests">
-<message column="45" line="11" message="Operation A(nat1) is not in scope" messageType="error" number="0" resource="processes-0020-neg.cml"/>
+<message column="45" line="11" message="Operation A(nat1) is not in scope. Possible: A(int, int)" messageType="error" number="3213" resource="processes-0020-neg.cml"/>
 <result/>
 </testResult>

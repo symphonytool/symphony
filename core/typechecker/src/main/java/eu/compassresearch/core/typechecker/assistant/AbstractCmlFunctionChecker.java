@@ -4,13 +4,13 @@ import java.io.File;
 import java.io.InputStream;
 
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.statements.AActionStm;
-import org.overture.ast.statements.AAltNonDeterministicStm;
-import org.overture.ast.statements.ADoNonDeterministicStm;
-import org.overture.ast.statements.AIfNonDeterministicStm;
-import org.overture.ast.statements.ANewStm;
-import org.overture.ast.statements.AUnresolvedObjectDesignator;
-import org.overture.ast.statements.AUnresolvedStateDesignator;
+import eu.compassresearch.ast.statements.AActionStm;
+import eu.compassresearch.ast.statements.AAltNonDeterministicStm;
+import eu.compassresearch.ast.statements.ADoNonDeterministicStm;
+import eu.compassresearch.ast.statements.AIfNonDeterministicStm;
+import eu.compassresearch.ast.statements.ANewStm;
+import eu.compassresearch.ast.statements.AUnresolvedObjectDesignator;
+import eu.compassresearch.ast.statements.AUnresolvedStateDesignator;
 import org.overture.typechecker.assistant.ITypeCheckerAssistantFactory;
 import org.overture.typechecker.utilities.FunctionChecker;
 
@@ -119,6 +119,7 @@ import eu.compassresearch.ast.process.AUntimedTimeoutProcess;
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.ATcpStreamSource;
+import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.ast.types.AProcessType;
 
 public class AbstractCmlFunctionChecker extends FunctionChecker implements
@@ -1037,6 +1038,12 @@ public class AbstractCmlFunctionChecker extends FunctionChecker implements
 	public Boolean caseACallAction(ACallAction node) throws AnalysisException
 	{
 
+		return null;
+	}
+
+	@Override
+	public Boolean caseAChannelType(AChannelType node) throws AnalysisException
+	{
 		return null;
 	}
 

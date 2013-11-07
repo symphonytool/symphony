@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <testResult type="eu.compassresearch.core.typechecker.FunctionsCmlTypeCheckerTests">
-<message column="1" line="5" message="Too many parameter patterns" messageType="error" number="0" resource="functions-0012-neg.cml"/>
+<message column="1" line="5" message="Too many parameter patterns. Pattern(s): [status, number, subs] Type(s): [int, int]" messageType="error" number="3020" resource="functions-0012-neg.cml"/>
 <result/>
 </testResult>

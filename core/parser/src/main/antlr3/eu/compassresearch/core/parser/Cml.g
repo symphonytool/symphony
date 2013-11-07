@@ -99,6 +99,7 @@ import eu.compassresearch.ast.actions.*;
 import eu.compassresearch.ast.declarations.*;
 import eu.compassresearch.ast.definitions.*;
 import eu.compassresearch.ast.expressions.*;
+import eu.compassresearch.ast.statements.*;
 import eu.compassresearch.ast.lex.CmlLexNameToken;
 import eu.compassresearch.ast.patterns.*;
 import eu.compassresearch.ast.process.*;
@@ -1752,11 +1753,34 @@ channelDef returns[List<AChannelDefinition> def]
                 chanDecl.setNameScope(NameScope.GLOBAL);
                 chanDecl.setUsed(false);  
 				chanDecl.setLocation(id.getLocation());  
+
+				List<PType> types = new Vector<PType>();
+				ILexLocation typeLocation = loc;
+
 				if ($type.type != null) {
-					chanDecl.setType($type.type.clone());
+					PType type = $type.type;
+					typeLocation = type.getLocation();
+
+					if(type instanceof AProductType)
+					{
+						for(PType t : ((AProductType)type).getTypes())
+						{						
+							types.add(t.clone());
+						}
+					}else
+					{
+						types.add(type.clone());
+					}
+					
+					
 				} else {
-					chanDecl.setType(AstFactory.newAVoidType(loc));
+					//types.add(AstFactory.newAVoidType(loc));
 				}
+				
+				AChannelType t = new AChannelType(typeLocation, false, types);
+				chanDecl.setType(t);
+				
+				
                 $def.add(chanDecl);
             }
         }

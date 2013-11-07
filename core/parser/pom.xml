@@ -10,7 +10,7 @@
   </parent>
 
   <artifactId>parser</artifactId>
-  <name>COMPASS Core CML Parser</name>
+  <name>Symphony Core CML Parser</name>
 
   <dependencies>
     <dependency>

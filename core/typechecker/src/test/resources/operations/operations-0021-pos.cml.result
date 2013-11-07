@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <testResult type="eu.compassresearch.core.typechecker.OperationsCmlTypeCheckerTests">
-<message column="30" line="24" message="Statement will not be reached" messageType="warning" number="0" resource="operations-0021-pos.cml"/>
-<message column="35" line="24" message="Statement will not be reached" messageType="warning" number="0" resource="operations-0021-pos.cml"/>
-<message column="7" line="24" message="Definition 'h' not used" messageType="warning" number="0" resource="operations-0021-pos.cml"/>
-<message column="7" line="33" message="Definition 'h' not used" messageType="warning" number="0" resource="operations-0021-pos.cml"/>
+<message column="30" line="24" message="Statement will not be reached." messageType="warning" number="5006" resource="operations-0021-pos.cml"/>
+<message column="35" line="24" message="Statement will not be reached." messageType="warning" number="5006" resource="operations-0021-pos.cml"/>
+<message column="7" line="24" message="Definition 'h' not used." messageType="warning" number="5000" resource="operations-0021-pos.cml"/>
+<message column="7" line="33" message="Definition 'h' not used." messageType="warning" number="5000" resource="operations-0021-pos.cml"/>
 <result/>
 </testResult>

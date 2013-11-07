@@ -10,6 +10,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IWorkbenchSite;
@@ -22,6 +23,12 @@ public class PogPluginUtils
 
 	private IWorkbenchSite site;
 
+	public static void popErrorMessage(IWorkbenchWindow window, String message)
+	{
+		MessageDialog.openError(window.getShell(), "Symphony POG", "Could not generate Proof Obligations.\n\n"
+				+ message);
+	}
+	
 	public static ArrayList<IResource> getAllCFilesInProject(IProject project)
 	{
 		ArrayList<IResource> allCFiles = new ArrayList<IResource>();

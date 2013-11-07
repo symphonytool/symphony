@@ -1,0 +1,8 @@
+/* Wait action with non-numeric is not ok */
+
+process A =
+begin
+
+@ Wait "one second"
+
+end

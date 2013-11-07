@@ -12,7 +12,7 @@ import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.patterns.PPattern;
-import org.overture.ast.statements.AActionStm;
+import eu.compassresearch.ast.statements.AActionStm;
 import org.overture.ast.statements.ACallStm;
 import org.overture.ast.statements.PStm;
 import org.overture.ast.typechecker.NameScope;

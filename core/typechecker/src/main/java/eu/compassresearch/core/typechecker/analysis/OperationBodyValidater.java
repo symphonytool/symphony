@@ -8,6 +8,7 @@ import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.typechecker.DefinitionList;
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
+import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 
 /**
  * @author kel & cb
@@ -46,7 +47,7 @@ public class OperationBodyValidater extends DepthFirstAnalysisCMLAdaptor
 	{
 		if (node.getAncestor(SOperationDefinition.class) != null)
 		{
-			issueHandler.addTypeError(node, "Actions not allowed in operations");
+			issueHandler.addTypeError(node,TypeErrorMessages.ACTIONS_NOT_ALLOWED_IN_OPERATION);
 			ok = false;
 		}
 	}
@@ -56,7 +57,7 @@ public class OperationBodyValidater extends DepthFirstAnalysisCMLAdaptor
 	{
 		if (node.getAncestor(SOperationDefinition.class) != null)
 		{
-			issueHandler.addTypeError(node, "Processes not allowed in operations");
+			issueHandler.addTypeError(node,TypeErrorMessages.PROCESSES_NOT_ALLOWED_IN_OPERATION,"");
 			ok = false;
 		}
 	}

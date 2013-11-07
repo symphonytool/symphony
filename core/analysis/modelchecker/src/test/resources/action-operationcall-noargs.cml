@@ -9,6 +9,6 @@ begin
 	Test() == a := a + 3
 
 	actions
-	INIT = Test(); Skip
+	INIT = Test(); Test(); Skip
 	@ INIT
 end

@@ -34,6 +34,7 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.intf.lex.ILexLocation;
 
 import eu.compassresearch.ast.definitions.AProcessDefinition;
@@ -176,7 +177,7 @@ public final class CmlUtil
 	}
 
 	public static List<AProcessDefinition> getGlobalProcessesFromSource(
-			List<PSource> projectSources)
+			List<PDefinition> projectSources)
 	{
 		if (projectSources.isEmpty())
 			return new LinkedList<AProcessDefinition>();

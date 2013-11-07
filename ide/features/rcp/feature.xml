@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
     id="eu.compassresearch.ide.features.rcp"
-    label="COMPASS RCP"
+    label="Symphony IDE RCP"
     version="0.2.1.qualifier">
 
   <description>

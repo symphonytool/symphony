@@ -2,6 +2,7 @@ package eu.compassresearch.core.analysis.theoremprover.utils;
 
 import eu.compassresearch.core.analysis.theoremprover.thms.NodeNameList;
 
+@SuppressWarnings("serial")
 public class UnhandledSyntaxException extends Exception {
 
 	private String thyString;

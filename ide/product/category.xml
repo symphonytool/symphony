@@ -1,32 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <description>
-      COMPASS Tool Platform
-   </description>
-   <feature url="features/eu.compassresearch.ide.features.core_0.0.0.qualifier.jar" id="eu.compassresearch.ide.features.core" version="0.0.0">
-      <category name="COMPASS"/>
-   </feature>
-   <feature url="features/eu.compassresearch.ide.features.rcp_0.0.0.qualifier.jar" id="eu.compassresearch.ide.features.rcp" version="0.0.0">
-      <category name="COMPASS"/>
-   </feature>
-   <feature url="features/eu.compassresearch.ide.features.plugins.interpreter_0.0.0.qualifier.jar" id="eu.compassresearch.ide.features.plugins.interpreter" version="0.0.0">
-      <category name="COMPASS"/>
-   </feature>
-   <feature url="features/eu.compassresearch.ide.features.plugins.pog_0.0.0.qualifier.jar" id="eu.compassresearch.ide.features.plugins.pog" version="0.0.0">
-      <category name="COMPASS"/>
-   </feature>
-   <feature url="features/eu.compassresearch.ide.features.plugins.theoremprover_0.0.0.qualifier.jar" id="eu.compassresearch.ide.features.plugins.theoremprover" version="0.0.0">
-      <category name="COMPASS"/>
-   </feature>
-   <feature url="features/eu.compassresearch.ide.features.plugins.rttmbt_0.0.0.qualifier.jar" id="eu.compassresearch.ide.features.plugins.rttmbt" version="0.0.0">
-      <category name="COMPASS"/>
-   </feature>
-   <feature url="features/eu.compassresearch.ide.features.plugins.modelchecker_0.0.0.qualifier.jar" id="eu.compassresearch.ide.features.plugins.modelchecker" version="0.0.0">
-      <category name="COMPASS"/>
-   </feature>
-   <category-def name="COMPASS" label="COMPASS Tool Platform">
-      <description>
-         The COMPASS CML Tool Platform
-      </description>
-   </category-def>
+  <description>
+    The Symphony IDE
+  </description>
+  <feature url="features/eu.compassresearch.ide.features.core_0.0.0.qualifier.jar" id="eu.compassresearch.ide.features.core" version="0.0.0">
+    <category name="Symphony IDE"/>
+  </feature>
+  <feature url="features/eu.compassresearch.ide.features.rcp_0.0.0.qualifier.jar" id="eu.compassresearch.ide.features.rcp" version="0.0.0">
+    <category name="Symphony IDE"/>
+  </feature>
+  <feature url="features/eu.compassresearch.ide.features.plugins.interpreter_0.0.0.qualifier.jar" id="eu.compassresearch.ide.features.plugins.interpreter" version="0.0.0">
+    <category name="Symphony IDE"/>
+  </feature>
+  <feature url="features/eu.compassresearch.ide.features.plugins.pog_0.0.0.qualifier.jar" id="eu.compassresearch.ide.features.plugins.pog" version="0.0.0">
+    <category name="Symphony IDE"/>
+  </feature>
+  <feature url="features/eu.compassresearch.ide.features.plugins.theoremprover_0.0.0.qualifier.jar" id="eu.compassresearch.ide.features.plugins.theoremprover" version="0.0.0">
+    <category name="Symphony IDE"/>
+  </feature>
+  <feature url="features/eu.compassresearch.ide.features.plugins.rttmbt_0.0.0.qualifier.jar" id="eu.compassresearch.ide.features.plugins.rttmbt" version="0.0.0">
+    <category name="Symphony IDE"/>
+  </feature>
+  <feature url="features/eu.compassresearch.ide.features.plugins.modelchecker_0.0.0.qualifier.jar" id="eu.compassresearch.ide.features.plugins.modelchecker" version="0.0.0">
+    <category name="Symphony IDE"/>
+  </feature>
+  <category-def name="Symphony IDE" label="The Symphony IDE">
+    <description>
+      The Symphony IDE
+    </description>
+  </category-def>
 </site>

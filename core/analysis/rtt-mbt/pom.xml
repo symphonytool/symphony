@@ -10,7 +10,7 @@
   </parent>
 
   <artifactId>rtt-mbt</artifactId>
-  <name>COMPASS Core Analysis RTT-MBT Interface</name>
+  <name>Symphony Core Analysis RTT-MBT Interface</name>
   <!-- pulling RTT-MBT back into the main versioning system -jwc/22Aug2013 -->
   <!-- <version>0.1.3-SNAPSHOT</version> -->
 

@@ -49,6 +49,10 @@ public class Int implements Type {
 		return "Int("+s+")";
 	}
 	
+	public String toFormulaGeneric(){
+		return "Int("+s+"_)";
+	}
+	
 	@Override
 	public boolean equals(Object obj) {
 		if(!(obj instanceof Int)){

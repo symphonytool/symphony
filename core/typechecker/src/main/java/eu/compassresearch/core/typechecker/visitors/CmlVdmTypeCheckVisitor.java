@@ -13,19 +13,19 @@ import org.overture.ast.expressions.PExp;
 import org.overture.ast.factory.AstFactory;
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.node.INode;
-import org.overture.ast.statements.AActionStm;
-import org.overture.ast.statements.AAltNonDeterministicStm;
+import eu.compassresearch.ast.statements.AActionStm;
+import eu.compassresearch.ast.statements.AAltNonDeterministicStm;
 import org.overture.ast.statements.AAssignmentStm;
-import org.overture.ast.statements.ADoNonDeterministicStm;
+import eu.compassresearch.ast.statements.ADoNonDeterministicStm;
 import org.overture.ast.statements.AFieldObjectDesignator;
 import org.overture.ast.statements.AFieldStateDesignator;
 import org.overture.ast.statements.AIdentifierObjectDesignator;
 import org.overture.ast.statements.AIdentifierStateDesignator;
-import org.overture.ast.statements.AIfNonDeterministicStm;
+import eu.compassresearch.ast.statements.AIfNonDeterministicStm;
 import org.overture.ast.statements.AMapSeqStateDesignator;
-import org.overture.ast.statements.ANewStm;
-import org.overture.ast.statements.AUnresolvedObjectDesignator;
-import org.overture.ast.statements.AUnresolvedStateDesignator;
+import eu.compassresearch.ast.statements.ANewStm;
+import eu.compassresearch.ast.statements.AUnresolvedObjectDesignator;
+import eu.compassresearch.ast.statements.AUnresolvedStateDesignator;
 import org.overture.ast.statements.PObjectDesignator;
 import org.overture.ast.statements.PStateDesignator;
 import org.overture.ast.statements.PStm;
@@ -43,6 +43,7 @@ import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.expressions.ABracketedExp;
 import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
+import eu.compassresearch.core.typechecker.environment.VdmRestrictedEnvironment;
 
 public class CmlVdmTypeCheckVisitor extends
 		QuestionAnswerCMLAdaptor<TypeCheckInfo, PType>
@@ -103,6 +104,16 @@ public class CmlVdmTypeCheckVisitor extends
 			}
 
 			return type;
+		};
+
+		/**
+		 * This method create a new env that hides all CSP/CML stuff and then calls the super implementation
+		 */
+		public PType defaultPExp(PExp node, TypeCheckInfo question)
+				throws AnalysisException
+		{
+			TypeCheckInfo info = question.newInfo(new VdmRestrictedEnvironment(question.assistantFactory, question.env));
+			return super.defaultPExp(node, info);
 		};
 
 	};
