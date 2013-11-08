@@ -15,15 +15,15 @@ import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAProductType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 
-public class MCAChannelNameDefinition implements MCPCMLDefinition {
+public class MCAChannelDefinition implements MCPCMLDefinition {
 
 	private String name;
-	private MCATypeSingleDeclaration typeSingle;
+	private MCPCMLType type;
 	//private LinkedList<MCChannel> channelDefs;
 
-	public MCAChannelNameDefinition(String name, MCATypeSingleDeclaration typeSingle) {
+	public MCAChannelDefinition(String name, MCPCMLType type) {
 		this.name = name;
-		this.typeSingle = typeSingle;
+		this.type = type;
 	}
 
 	@Override
@@ -85,9 +85,9 @@ public class MCAChannelNameDefinition implements MCPCMLDefinition {
 	private LinkedList<TypeValue> getTypeValues(){
 		LinkedList<TypeValue> result = new LinkedList<TypeValue>();
 
-		MCPCMLType type = typeSingle.getType();
-		if(type instanceof MCAChannelType){
-			type = ((MCAChannelType) type).getType();
+		//MCPCMLType type = type.getType();
+		//if(type instanceof MCAChannelType){
+		//	type = ((MCAChannelType) type).getType();
 			
 			//MCAIntNumericBasicType, MCANatNumericBasicType are infinite, so we let formula to instantiate them
 			
@@ -96,37 +96,22 @@ public class MCAChannelNameDefinition implements MCPCMLDefinition {
 				TypeManipulator typeManipulator = TypeManipulator.getInstance();
 				result = typeManipulator.getValues(type);
 			}
-		}
+		//}
 		
 		return result;
 	}
 
 	public boolean isTyped(){
 		boolean result = false;
-		MCPCMLType realType = this.getSingleType().getType();
-		if(realType instanceof MCAChannelType){
-			realType = ((MCAChannelType) realType).getType();
-		}
-		result = realType != null;
+		//MCPCMLType realType = this.getSingleType().getType();
+		//if(realType instanceof MCAChannelType){
+		//	realType = ((MCAChannelType) realType).getType();
+		//}
+		result = type != null;
 				
 		return result;
 	}
 	
-	public MCATypeSingleDeclaration getSingleType() {
-		return typeSingle;
-	}
-
-	public void setSingleType(MCATypeSingleDeclaration singleType) {
-		this.typeSingle = singleType;
-	}
-
-	public MCATypeSingleDeclaration getTypeSingle() {
-		return typeSingle;
-	}
-
-	public void setTypeSingle(MCATypeSingleDeclaration typeSingle) {
-		this.typeSingle = typeSingle;
-	}
 
 	public String getName() {
 		return name;

@@ -25,6 +25,11 @@ public class ThmNode {
 		return string.contains("(*") || string.contains("*)");
 	}
 	
+	public void addDep(ILexNameToken dep){
+		depIds.add(dep);
+	}
+	
+	
 	public boolean isError(){
 		return nodeError;
 	}

@@ -1,20 +1,20 @@
 package eu.compassresearch.core.analysis.modelchecker.graphBuilder.type;
 
-public class UndefinedValue implements Type {
+public class Void implements Type {
 
 	@Override
 	public boolean equals(Object arg0) {
-		return arg0 instanceof UndefinedValue;
+		return arg0 instanceof Void;
 	}
 
 	@Override
-	public UndefinedValue copy(){
-		return new UndefinedValue();
+	public Void copy(){
+		return new Void();
 	}
 	
 	@Override
 	public String toString() {
-		return "undef";
+		return "void";
 	}
 	
 	public String toFormula() {

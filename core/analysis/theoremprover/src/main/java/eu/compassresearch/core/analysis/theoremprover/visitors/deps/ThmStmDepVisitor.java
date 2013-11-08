@@ -1,13 +1,13 @@
 package eu.compassresearch.core.analysis.theoremprover.visitors.deps;
 
 import java.util.LinkedList;
+import eu.compassresearch.ast.statements.AActionStm;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.node.INode;
-import eu.compassresearch.ast.statements.AActionStm;
 import org.overture.ast.statements.AAssignmentStm;
 import org.overture.ast.statements.ABlockSimpleBlockStm;
 import org.overture.ast.statements.ACallStm;

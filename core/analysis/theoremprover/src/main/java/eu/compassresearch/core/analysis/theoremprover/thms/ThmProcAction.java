@@ -8,10 +8,9 @@ public class ThmProcAction extends ThmDecl{
 	private String body;
 	private String mainAction;
     
-	public ThmProcAction(String name, String body, String mainAction) {
+	public ThmProcAction(String name, String body) {
 		this.name = name;
 		this.body = body;
-		this.mainAction = mainAction;
 	}
 
 	/**
@@ -20,6 +19,6 @@ public class ThmProcAction extends ThmDecl{
 	@Override
 	public String toString() {
 		return (ThmProcessUtil.isaActProc + " " + name + "\n" + ThmProcessUtil.isaProcBegin + "\n" + 
-				body + "\n" + mainAction + "\n" + ThmProcessUtil.isaProcEnd);
+				body +  "\n" + ThmProcessUtil.isaProcEnd);
 	}
 }

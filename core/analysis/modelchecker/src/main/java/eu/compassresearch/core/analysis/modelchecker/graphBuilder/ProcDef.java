@@ -2,26 +2,30 @@ package eu.compassresearch.core.analysis.modelchecker.graphBuilder;
 
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.param.Param;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Process;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Type;
 
 public class ProcDef {
 	private String name;
-	private Param parametro;
+	private Type parametro;
 	private Process process;
 
-	public ProcDef(String name, Param parametro, Process process) {
+	public ProcDef(String name, Type parametro, Process process) {
 		super();
 		this.setName(name);
 		this.setParametro(parametro);
 		this.setProcess(process);
 	}
 
-	public Param getParametro() {
+
+	public Type getParametro() {
 		return parametro;
 	}
 
-	public void setParametro(Param parametro) {
+
+	public void setParametro(Type parametro) {
 		this.parametro = parametro;
 	}
+
 
 	public String getName() {
 		return name;

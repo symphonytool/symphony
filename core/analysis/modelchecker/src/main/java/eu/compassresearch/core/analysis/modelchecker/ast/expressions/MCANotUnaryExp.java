@@ -28,5 +28,12 @@ public class MCANotUnaryExp implements MCBooleanExp {
 		this.exp = exp;
 	}
 
+
+	@Override
+	public MCPCMLExp copy() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 	
 }

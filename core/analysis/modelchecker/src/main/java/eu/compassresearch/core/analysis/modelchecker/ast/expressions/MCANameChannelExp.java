@@ -41,5 +41,12 @@ public class MCANameChannelExp implements MCSChannelExp {
 		this.expressions = expressions;
 	}
 
+
+	@Override
+	public MCPCMLExp copy() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 	
 }
