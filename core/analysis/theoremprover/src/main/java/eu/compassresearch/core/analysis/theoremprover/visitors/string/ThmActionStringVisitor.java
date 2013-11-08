@@ -4,56 +4,29 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.definitions.AAssignmentDefinition;
-import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.PPattern;
-import org.overture.ast.statements.AAssignmentStm;
-import org.overture.ast.statements.ABlockSimpleBlockStm;
-import org.overture.ast.statements.ACallStm;
-import org.overture.ast.statements.AElseIfStm;
-import org.overture.ast.statements.AIfStm;
-import org.overture.ast.statements.ALetStm;
-import org.overture.ast.statements.AWhileStm;
-import org.overture.ast.statements.PStateDesignator;
 
-import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
-import eu.compassresearch.ast.actions.AAlphabetisedParallelismReplicatedAction;
-import eu.compassresearch.ast.actions.AChannelRenamingAction;
 import eu.compassresearch.ast.actions.AChaosAction;
-import eu.compassresearch.ast.actions.ACommonInterleavingReplicatedAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.ADivAction;
-import eu.compassresearch.ast.actions.AEndDeadlineAction;
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
-import eu.compassresearch.ast.actions.AExternalChoiceReplicatedAction;
 import eu.compassresearch.ast.actions.AGeneralisedParallelismParallelAction;
-import eu.compassresearch.ast.actions.AGeneralisedParallelismReplicatedAction;
 import eu.compassresearch.ast.actions.AGuardedAction;
 import eu.compassresearch.ast.actions.AHidingAction;
 import eu.compassresearch.ast.actions.AInterleavingParallelAction;
-import eu.compassresearch.ast.actions.AInterleavingReplicatedAction;
 import eu.compassresearch.ast.actions.AInternalChoiceAction;
-import eu.compassresearch.ast.actions.AInternalChoiceReplicatedAction;
-import eu.compassresearch.ast.actions.AInterruptAction;
 import eu.compassresearch.ast.actions.AMuAction;
 import eu.compassresearch.ast.actions.AReadCommunicationParameter;
 import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
-import eu.compassresearch.ast.actions.ASequentialCompositionReplicatedAction;
 import eu.compassresearch.ast.actions.ASkipAction;
-import eu.compassresearch.ast.actions.AStartDeadlineAction;
 import eu.compassresearch.ast.actions.AStmAction;
 import eu.compassresearch.ast.actions.AStopAction;
 import eu.compassresearch.ast.actions.ASynchronousParallelismParallelAction;
-import eu.compassresearch.ast.actions.ASynchronousParallelismReplicatedAction;
-import eu.compassresearch.ast.actions.ATimedInterruptAction;
-import eu.compassresearch.ast.actions.ATimeoutAction;
-import eu.compassresearch.ast.actions.AUntimedTimeoutAction;
-import eu.compassresearch.ast.actions.AWaitAction;
 import eu.compassresearch.ast.actions.AWriteCommunicationParameter;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.actions.PCommunicationParameter;
@@ -87,9 +60,9 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		return ThmProcessUtil.div;
 	}
 		
-	public String caseAWaitAction(AWaitAction a, ThmVarsContext vars) throws AnalysisException{
-		return ThmProcessUtil.wait + a.getExpression().apply(thmStringVisitor, vars);
-	}
+//	public String caseAWaitAction(AWaitAction a, ThmVarsContext vars) throws AnalysisException{
+//		return ThmProcessUtil.wait + a.getExpression().apply(thmStringVisitor, vars);
+//	}
 		
 	public String caseACommunicationAction(ACommunicationAction a, ThmVarsContext vars) throws AnalysisException{
 		
@@ -144,40 +117,40 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		return a.getLeft().apply(thmStringVisitor, vars) + ThmProcessUtil.intChoice + a.getRight().apply(thmStringVisitor, vars);
 	}
 		
-	public String caseAInterruptAction(AInterruptAction a, ThmVarsContext vars) throws AnalysisException{
-		return a.getLeft().apply(thmStringVisitor, vars) + ThmProcessUtil.interrupt + a.getRight().apply(thmStringVisitor, vars);
-	}
-		
-	public String caseATimedInterruptAction(ATimedInterruptAction a, ThmVarsContext vars) throws AnalysisException{
-		return a.getLeft().apply(thmStringVisitor, vars) + ThmProcessUtil.timeIntLeft +  a.getTimeExpression().apply(thmStringVisitor, vars) + ThmProcessUtil.timeIntRight + a.getRight().apply(thmStringVisitor, vars);
-	}
-		
-	public String caseAUntimedTimeoutAction(AUntimedTimeoutAction a, ThmVarsContext vars) throws AnalysisException{
-		return a.getLeft().apply(thmStringVisitor, vars) + ThmProcessUtil.timeout + a.getRight().apply(thmStringVisitor, vars);
-	}
-	
-	public String caseATimeoutAction(ATimeoutAction a, ThmVarsContext vars) throws AnalysisException{
-		return a.getLeft().apply(thmStringVisitor, vars) + ThmProcessUtil.timeoutLeft +  a.getTimeoutExpression().apply(thmStringVisitor, vars) + ThmProcessUtil.timeoutRight + a.getRight().apply(thmStringVisitor, vars);
-	}
-	
+//	public String caseAInterruptAction(AInterruptAction a, ThmVarsContext vars) throws AnalysisException{
+//		return a.getLeft().apply(thmStringVisitor, vars) + ThmProcessUtil.interrupt + a.getRight().apply(thmStringVisitor, vars);
+//	}
+//		
+//	public String caseATimedInterruptAction(ATimedInterruptAction a, ThmVarsContext vars) throws AnalysisException{
+//		return a.getLeft().apply(thmStringVisitor, vars) + ThmProcessUtil.timeIntLeft +  a.getTimeExpression().apply(thmStringVisitor, vars) + ThmProcessUtil.timeIntRight + a.getRight().apply(thmStringVisitor, vars);
+//	}
+//		
+//	public String caseAUntimedTimeoutAction(AUntimedTimeoutAction a, ThmVarsContext vars) throws AnalysisException{
+//		return a.getLeft().apply(thmStringVisitor, vars) + ThmProcessUtil.timeout + a.getRight().apply(thmStringVisitor, vars);
+//	}
+//	
+//	public String caseATimeoutAction(ATimeoutAction a, ThmVarsContext vars) throws AnalysisException{
+//		return a.getLeft().apply(thmStringVisitor, vars) + ThmProcessUtil.timeoutLeft +  a.getTimeoutExpression().apply(thmStringVisitor, vars) + ThmProcessUtil.timeoutRight + a.getRight().apply(thmStringVisitor, vars);
+//	}
+//	
 	public String caseAHidingAction(AHidingAction a, ThmVarsContext vars) throws AnalysisException{
 		String actStr = a.getLeft().apply(thmStringVisitor, vars);
 		String chanStr = a.getChansetExpression().apply(thmStringVisitor, vars);
 		return actStr + ThmProcessUtil.hiding + chanStr;
 	}
 	
-	public String caseAStartDeadlineAction(AStartDeadlineAction a, ThmVarsContext vars) throws AnalysisException{
-		return a.getLeft().apply(thmStringVisitor, vars) + ThmProcessUtil.startsby + a.getExpression().apply(thmStringVisitor, vars);
-	}
-	
-	public String caseAEndDeadlineAction(AEndDeadlineAction a, ThmVarsContext vars) throws AnalysisException{
-		return a.getLeft().apply(thmStringVisitor, vars) + ThmProcessUtil.endsby + a.getExpression().apply(thmStringVisitor, vars);	
-	}
-	
-	public String caseAChannelRenamingAction(AChannelRenamingAction a, ThmVarsContext vars) throws AnalysisException{
-		return a.getAction().apply(thmStringVisitor, vars) + a.getRenameExpression().apply(thmStringVisitor, vars);
-	}
-	
+//	public String caseAStartDeadlineAction(AStartDeadlineAction a, ThmVarsContext vars) throws AnalysisException{
+//		return a.getLeft().apply(thmStringVisitor, vars) + ThmProcessUtil.startsby + a.getExpression().apply(thmStringVisitor, vars);
+//	}
+//	
+//	public String caseAEndDeadlineAction(AEndDeadlineAction a, ThmVarsContext vars) throws AnalysisException{
+//		return a.getLeft().apply(thmStringVisitor, vars) + ThmProcessUtil.endsby + a.getExpression().apply(thmStringVisitor, vars);	
+//	}
+//	
+//	public String caseAChannelRenamingAction(AChannelRenamingAction a, ThmVarsContext vars) throws AnalysisException{
+//		return a.getAction().apply(thmStringVisitor, vars) + a.getRenameExpression().apply(thmStringVisitor, vars);
+//	}
+
 	public String caseAMuAction(AMuAction a, ThmVarsContext vars) throws AnalysisException{
 
 		StringBuilder idStr = new StringBuilder();
@@ -222,9 +195,9 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 	}
 	
 	
-	public String caseAAction(PAction a, ThmVarsContext vars) throws AnalysisException{
-		return "(*unknown action not handled*)";	
-	}
+//	public String caseAAction(PAction a, ThmVarsContext vars) throws AnalysisException{
+//		return "(*unknown action not handled*)";	
+//	}
 
 //	public String caseASequentialCompositionReplicatedAction(ASequentialCompositionReplicatedAction a, ThmVarsContext vars) throws AnalysisException{
 ////			a.getReplicatedAction();
@@ -291,15 +264,15 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		return left + "[|" + chExp +"|]" + right;
 	}
 	
-	public String caseAAlphabetisedParallelismParallelAction(AAlphabetisedParallelismParallelAction a, ThmVarsContext vars) throws AnalysisException{
-	
-		String left = a.getLeftAction().apply(thmStringVisitor, vars);
-		String right = a.getRightAction().apply(thmStringVisitor, vars);
-		String leftChExp = a.getLeftChansetExpression().apply(thmStringVisitor, vars);
-		String rightChExp = a.getRightChansetExpression().apply(thmStringVisitor, vars);
-		
-		return left + "[" + leftChExp + "||" + rightChExp +"]" + right;
-	}
+//	public String caseAAlphabetisedParallelismParallelAction(AAlphabetisedParallelismParallelAction a, ThmVarsContext vars) throws AnalysisException{
+//	
+//		String left = a.getLeftAction().apply(thmStringVisitor, vars);
+//		String right = a.getRightAction().apply(thmStringVisitor, vars);
+//		String leftChExp = a.getLeftChansetExpression().apply(thmStringVisitor, vars);
+//		String rightChExp = a.getRightChansetExpression().apply(thmStringVisitor, vars);
+//		
+//		return left + "[" + leftChExp + "||" + rightChExp +"]" + right;
+//	}
 	
 	
 	public String caseAStmAction(AStmAction a, ThmVarsContext vars) throws AnalysisException{

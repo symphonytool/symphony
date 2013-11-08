@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <testResult type="eu.compassresearch.core.typechecker.ProcessesCmlTypeCheckerTests">
-<message column="3" line="19" message="3420 Expecting an action but found  a process deinition:A." messageType="error" number="3420" resource="processes-0007-neg.cml"/>
+<message column="3" line="19" message="Expecting an action but found  a process deinition:A." messageType="error" number="3420" resource="processes-0007-neg.cml"/>
 <result/>
 </testResult>

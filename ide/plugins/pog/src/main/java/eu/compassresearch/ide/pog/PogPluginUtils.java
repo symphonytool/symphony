@@ -1,100 +1,73 @@
 package eu.compassresearch.ide.pog;
 
-import java.util.ArrayList;
+import java.util.List;
 
-import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IWorkbenchSite;
 import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.WorkbenchException;
+import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.node.INode;
+import org.overture.pog.obligation.ProofObligationList;
+import org.overture.pog.pub.IProofObligationList;
 
-public class PogPluginUtils
-{
+import eu.compassresearch.core.analysis.pog.obligations.CmlPOContextStack;
+import eu.compassresearch.core.analysis.pog.visitors.ProofObligationGenerator;
+import eu.compassresearch.ide.pog.view.PoListView;
 
-	private IWorkbenchSite site;
+public abstract class PogPluginUtils {
 
-	public static void popErrorMessage(IWorkbenchWindow window, String message)
-	{
-		MessageDialog.openError(window.getShell(), "Symphony POG", "Could not generate Proof Obligations.\n\n"
-				+ message);
-	}
-	
-	public static ArrayList<IResource> getAllCFilesInProject(IProject project)
-	{
-		ArrayList<IResource> allCFiles = new ArrayList<IResource>();
-		IWorkspaceRoot myWorkspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
-
-		IPath path = project.getLocation();
-
-		recursiveFindCMLFiles(allCFiles, path, myWorkspaceRoot);
-		return allCFiles;
-	}
-
-	public PogPluginUtils(IWorkbenchSite site)
-	{
-		this.site = site;
+	public static IProofObligationList generateProofObligations(List<INode> ast)
+			throws AnalysisException {
+		IProofObligationList r = new ProofObligationList();
+		for (INode node : ast) {
+			r.addAll(node.apply(new ProofObligationGenerator(),
+					new CmlPOContextStack()));
+		}
+		r.renumber();
+		return r;
 	}
 
-	public void openPoviewPerspective()
-	{
-		try
-		{
-			PlatformUI.getWorkbench().showPerspective(POConstants.PO_PERSPECTIVE_ID, site.getWorkbenchWindow());
-		} catch (WorkbenchException e)
-		{
+	public static void popErrorMessage(IWorkbenchWindow window, String message) {
+		MessageDialog.openError(window.getShell(), "Symphony POG",
+				"Could not generate Proof Obligations.\n\n" + message);
+	}
+
+	public static void openPoviewPerspective(IWorkbenchSite site) {
+		try {
+			PlatformUI.getWorkbench().showPerspective(
+					POConstants.PO_PERSPECTIVE_ID, site.getWorkbenchWindow());
+		} catch (WorkbenchException e) {
 
 			e.printStackTrace();
 		}
 	}
 
-	private static void recursiveFindCMLFiles(ArrayList<IResource> allCMLFiles,
-			IPath path, IWorkspaceRoot myWorkspaceRoot)
-	{
-		IContainer container = myWorkspaceRoot.getContainerForLocation(path);
-
-		try
-		{
-			IResource[] iResources;
-			iResources = container.members();
-			for (IResource iR : iResources)
-			{
-				// for c files
-				if ("cml".equalsIgnoreCase(iR.getFileExtension()))
-					allCMLFiles.add(iR);
-				if (iR.getType() == IResource.FOLDER)
-				{
-					IPath tempPath = iR.getLocation();
-					recursiveFindCMLFiles(allCMLFiles, tempPath, myWorkspaceRoot);
-				}
-			}
-		} catch (CoreException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	public static PoListView getMainView() throws PartInitException {
+		PoListView view = (PoListView) PlatformUI.getWorkbench()
+				.getActiveWorkbenchWindow().getActivePage()
+				.showView(POConstants.PO_OVERVIEW_TABLE);
+		return view;
 	}
 
-	public static IProject getCurrentlySelectedProject()
-	{
+	public static IProject getCurrentlySelectedProject() {
 
-		IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+		IWorkbenchWindow window = PlatformUI.getWorkbench()
+				.getActiveWorkbenchWindow();
 
-		if (window != null)
-		{
-			IStructuredSelection selection = (IStructuredSelection) window.getSelectionService().getSelection("eu.compassresearch.ide.ui.CmlNavigator");
+		if (window != null) {
+			IStructuredSelection selection = (IStructuredSelection) window
+					.getSelectionService().getSelection(
+							"eu.compassresearch.ide.ui.CmlNavigator");
 			IResource res = extractSelection(selection);
-			if (res != null)
-			{
+			if (res != null) {
 				IProject project = res.getProject();
 				return project;
 			}
@@ -102,8 +75,7 @@ public class PogPluginUtils
 		return null;
 	}
 
-	static IResource extractSelection(ISelection sel)
-	{
+	private static IResource extractSelection(ISelection sel) {
 		if (!(sel instanceof IStructuredSelection))
 			return null;
 		IStructuredSelection ss = (IStructuredSelection) sel;

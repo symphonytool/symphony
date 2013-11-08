@@ -9,13 +9,11 @@ import org.eclipse.jface.preference.PreferenceDialog;
 import org.eclipse.jface.preference.PreferenceManager;
 import org.eclipse.jface.preference.PreferenceNode;
 
-import eu.compassresearch.ide.theoremprover.FetchPosUtil;
 import eu.compassresearch.ide.theoremprover.isabellelaunch.IsabelleSetupPreferencePage;
 
 public class ConfigHandler extends AbstractHandler
 {
 
-	FetchPosUtil util = null;
 	
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException
