@@ -30,15 +30,9 @@ abstract public class CmlProofObligation extends ProofObligation implements
 
 	}
 
-	public String toGUIString()
-	{
-		throw new UnsupportedOperationException("Not yet implemented.");
-	}
+	
+	
 
-	public String toIsabelleString()
-	{
-		throw new UnsupportedOperationException("Not yet implemented.");
-	}
 
 	@Override
 	public String toString()
