@@ -10,9 +10,11 @@ import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.AInstanceVariableDefinition;
 import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.expressions.AVariableExp;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.factory.AstFactory;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
+import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.types.ABooleanBasicType;
@@ -49,10 +51,6 @@ public class CmlVarSetExpressionTypeChecker extends
 		QuestionAnswerCMLAdaptor<TypeCheckInfo, PType>
 {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 
 	public enum VarSetCheckType
 	{
@@ -286,6 +284,31 @@ public class CmlVarSetExpressionTypeChecker extends
 					issueHandler.addTypeError(chanName, TypeErrorMessages.DEFINITION_X_BUT_FOUND_Y,"channel", defKind, idDef.getName().getName());
 					return false;
 				}
+				
+				AChannelDefinition def = (AChannelDefinition) idDef;
+				
+				if(def.getType().getParameters().size()< chanName.getExpressions().size())
+				{
+					issueHandler.addTypeError(chanName, TypeErrorMessages.TOO_MANY_CHANNEL_PARAMETERS,idDef.getName().getName());
+					return false;
+				}
+				
+				for (PExp exp : chanName.getExpressions())
+				{
+					if(exp instanceof AVariableExp)
+					{
+						AVariableExp var = (AVariableExp) exp;
+						PDefinition varDef = question.env.findName(var.getName(), question.scope);
+						if(varDef==null)
+						{
+							issueHandler.addTypeError(var, TypeErrorMessages.IDENTIFIER_X_NOT_IN_SCOPE,var.getName().getName());
+						}
+					}else
+					{
+						//parse error
+					}
+				}
+				
 				break;
 			}
 			case NAMESET:

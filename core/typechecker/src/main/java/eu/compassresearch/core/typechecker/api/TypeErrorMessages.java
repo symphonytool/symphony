@@ -134,7 +134,15 @@ public enum TypeErrorMessages
 	ACTIONS_NOT_ALLOWED_IN_OPERATION(3435, "Actions not allowed in operations"),
 
 	PROCESSES_NOT_ALLOWED_IN_OPERATION(3436,
-			"Processes not allowed in operations")
+			"Processes not allowed in operations"), 
+			
+			//3437 reserved: Action is not in scope
+			
+			//3438 reserved: Name is not an action
+			
+			TOO_MANY_CHANNEL_PARAMETERS(3439,"Too many channel parameters for %s"), 
+			
+			IDENTIFIER_X_NOT_IN_SCOPE(3440,"Identifier %s is not in scope");
 
 	;
 

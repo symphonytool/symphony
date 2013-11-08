@@ -4,6 +4,7 @@ import static eu.compassresearch.core.typechecker.assistant.TypeCheckerUtil.find
 import static eu.compassresearch.core.typechecker.assistant.TypeCheckerUtil.setType;
 import static eu.compassresearch.core.typechecker.assistant.TypeCheckerUtil.setTypeVoid;
 
+import java.sql.Types;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
@@ -22,8 +23,10 @@ import org.overture.ast.patterns.PPattern;
 import org.overture.ast.statements.PStm;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.types.ABooleanBasicType;
+import org.overture.ast.types.AFunctionType;
 import org.overture.ast.types.AIntNumericBasicType;
 import org.overture.ast.types.ANatNumericBasicType;
+import org.overture.ast.types.AOperationType;
 import org.overture.ast.types.AProductType;
 import org.overture.ast.types.ASetType;
 import org.overture.ast.types.PType;
@@ -32,9 +35,13 @@ import org.overture.typechecker.FlatCheckedEnvironment;
 import org.overture.typechecker.TypeCheckException;
 import org.overture.typechecker.TypeCheckInfo;
 import org.overture.typechecker.TypeChecker;
+import org.overture.typechecker.TypeCheckerErrors;
 import org.overture.typechecker.TypeComparator;
 import org.overture.typechecker.assistant.definition.PDefinitionAssistantTC;
 import org.overture.typechecker.assistant.pattern.PPatternAssistantTC;
+import org.overture.typechecker.assistant.statement.ACallObjectStatementAssistantTC;
+import org.overture.typechecker.assistant.statement.ACallStmAssistantTC;
+import org.overture.typechecker.assistant.type.PTypeAssistantTC;
 
 import eu.compassresearch.ast.CmlAstFactory;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
@@ -91,6 +98,8 @@ import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 import eu.compassresearch.core.typechecker.api.TypeWarningMessages;
+import eu.compassresearch.core.typechecker.assistant.ACallActionAssistant;
+import eu.compassresearch.core.typechecker.assistant.PParametrisationAssistant;
 import eu.compassresearch.core.typechecker.assistant.TypeCheckerUtil;
 
 public class CmlActionTypeChecker extends
@@ -136,7 +145,55 @@ public class CmlActionTypeChecker extends
 			throws AnalysisException
 	{
 		// FIXME not implemented
-		return AstFactory.newAVoidType(node.getLocation());
+
+		List<PType> atypes = ACallObjectStatementAssistantTC.getArgTypes(node.getArgs(), THIS, question);
+
+		if (question.env.isVDMPP())
+		{
+			node.getName().setTypeQualifier(atypes);
+		}
+
+		PDefinition opdef = findDefinition(node.getName(), question.env);
+
+		if (opdef == null)
+		{
+			TypeCheckerErrors.report(3437, "Action " + node.getName()
+					+ " is not in scope", node.getLocation(), node);
+			question.env.listAlternatives(node.getName());
+			node.setType(AstFactory.newAUnknownType(node.getLocation()));
+			return node.getType();
+		}
+
+		if (opdef instanceof AActionDefinition)
+		{
+			AActionDefinition actionDef = (AActionDefinition) opdef;
+
+			List<PType> paramTypes = new Vector<PType>();
+			for (PParametrisation localDef : actionDef.getDeclarations())
+			{
+				PType t = localDef.getDeclaration().getType();
+				question.assistantFactory.createPTypeAssistant().typeResolve(t, null, THIS, question);
+				paramTypes.add(t);
+			}
+
+			// Reset the name's qualifier with the actual operation type so
+			// that runtime search has a simple TypeComparator call.
+
+			if (question.env.isVDMPP())
+			{
+				node.getName().setTypeQualifier(paramTypes);
+			}
+			node.setType(AstFactory.newAVoidReturnType(node.getLocation()));
+			ACallActionAssistant.checkArgTypes(node, node.getType(), paramTypes, atypes);
+			
+			return node.getType();
+		} else
+		{
+			TypeCheckerErrors.report(3438, "Name is not an action", node.getLocation(), node);
+			node.setType(AstFactory.newAUnknownType(node.getLocation()));
+			return node.getType();
+		}
+
 	}
 
 	@Override
@@ -207,7 +264,7 @@ public class CmlActionTypeChecker extends
 			AGeneralisedParallelismReplicatedAction node, TypeCheckInfo question)
 			throws AnalysisException
 	{
-
+//FIXME check not complete
 		// TODO RWL: What is the semantics of this?
 		PVarsetExpression csexp = node.getChansetExpression();
 		PType csexpType = csexp.apply(channelSetChecker, question);
@@ -281,12 +338,8 @@ public class CmlActionTypeChecker extends
 			}
 		}
 
-		PType repActionType = repAction.apply(THIS, question.newScope(defs, NameScope.NAMESANDANYSTATE));// new
-																											// TypeCheckInfo(question.assistantFactory,
-																											// env));
+		PType repActionType = repAction.apply(THIS, question.newScope(defs, NameScope.NAMESANDANYSTATE));
 
-		issueHandler.addTypeWarning(node, TypeWarningMessages.INCOMPLETE_TYPE_CHECKING, ""
-				+ node);
 
 		return TypeCheckerUtil.setType(node, repActionType);
 	}
@@ -1102,17 +1155,14 @@ public class CmlActionTypeChecker extends
 	public PType caseAParametrisedAction(AParametrisedAction node,
 			TypeCheckInfo question) throws AnalysisException
 	{
-		// FIXME what does this node represent: AParametrisedAction
-		PAction action = node.getAction();
+		TypeCheckInfo info = question;
 
-		// Params are already added to the environment above as we have the
-		// defining expressions there !
-		// at least in the case of caseAParametrisedInstantiatedAction. See how
-		// it is done there if your are in trouble
-		// with this guy.
-		LinkedList<PParametrisation> params = node.getParametrisations();
+		if (!node.getParametrisations().isEmpty())
+		{
+			info = question.newInfo(PParametrisationAssistant.updateEnvironment(question.env, node.getParametrisations()));
+		}
 
-		PType actionType = action.apply(THIS, question);
+		PType actionType = node.getAction().apply(THIS, info);
 
 		return setType(node, actionType);
 	}

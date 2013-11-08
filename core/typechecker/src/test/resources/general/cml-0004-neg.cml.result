@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.GeneralCmlTypeCheckerTests">
+<message column="10" line="12" message="Identifier i is not in scope" messageType="error" number="3440" resource="cml-0004-neg.cml"/>
+<message column="12" line="12" message="Identifier j is not in scope" messageType="error" number="3440" resource="cml-0004-neg.cml"/>
+<result/>
+</testResult>
