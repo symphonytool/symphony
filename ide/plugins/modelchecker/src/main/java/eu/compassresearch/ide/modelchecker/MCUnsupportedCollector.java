@@ -263,6 +263,7 @@ import eu.compassresearch.ast.statements.ADoNonDeterministicStm;
 import eu.compassresearch.ast.statements.AIfNonDeterministicStm;
 import eu.compassresearch.ast.statements.ANewStm;
 import eu.compassresearch.ast.statements.AUnresolvedStateDesignator;
+import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.ast.types.AProcessType;
 import eu.compassresearch.ide.core.unsupported.UnsupportedCollector;
 import eu.compassresearch.ide.core.unsupported.UnsupportedElementInfo;
@@ -3439,6 +3440,14 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAWaitAction(node);
+	}
+
+	
+	@Override
+	public void caseAChannelType(AChannelType arg0) throws AnalysisException {
+		unsupported=false;
+		// TODO Auto-generated method stub
+		super.caseAChannelType(arg0);
 	}
 
 	@Override
