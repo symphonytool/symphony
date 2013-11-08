@@ -13,7 +13,7 @@
 	<name>Symphony Core CML Abstract Syntax Tree</name>
 
 	<properties>
-		<astcreator.version>1.5.0</astcreator.version>
+		<astcreator.version>1.5.1</astcreator.version>
 	</properties>
 
 	<dependencies>

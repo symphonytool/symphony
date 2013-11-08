@@ -53,6 +53,7 @@ import eu.compassresearch.ast.process.ASynchronousParallelismProcess;
 import eu.compassresearch.ast.process.ASynchronousParallelismReplicatedProcess;
 import eu.compassresearch.ast.process.ATimeoutProcess;
 import eu.compassresearch.ast.process.AUntimedTimeoutProcess;
+import eu.compassresearch.ast.statements.AActionStm;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
@@ -73,6 +74,13 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 	public ActionSetupVisitor(CmlBehaviour owner, VisitorAccess visitorAccess)
 	{
 		super(owner, visitorAccess);
+	}
+	
+	@Override
+	public Pair<INode, Context> caseAActionStm(AActionStm node, Context question)
+			throws AnalysisException
+	{
+		return node.getAction().apply(this,question);
 	}
 
 	/*

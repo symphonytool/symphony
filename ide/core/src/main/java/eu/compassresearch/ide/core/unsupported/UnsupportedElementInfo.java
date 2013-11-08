@@ -87,8 +87,10 @@ public class UnsupportedElementInfo
 		this.location = location;
 	}
 	
-
-
+	@Override
+	public String toString(){
+		return message;
+	}
 	
 	
 	

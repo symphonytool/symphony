@@ -40,6 +40,7 @@ import org.overture.ast.types.AVoidType;
 import org.overture.ast.types.PType;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
+import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.analysis.theoremprover.thms.NodeNameList;
 
 @SuppressWarnings("serial")
@@ -52,6 +53,17 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 		this.thmDepVisitor = thmDepVisitor;
 	}
 	
+	public NodeNameList caseAChannelType(AChannelType tp, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+		
+		for (PType p : tp.getParameters())
+		{
+			nodeDeps.addAll(p.apply(thmDepVisitor, bvars));	
+		}
+		return nodeDeps;
+	}
+		
+	
 	
 	public NodeNameList caseARecordInvariantType(ARecordInvariantType tp, NodeNameList bvars) throws AnalysisException{
 		NodeNameList nodeDeps = new NodeNameList();
@@ -61,7 +73,6 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 			nodeDeps.addAll(field.getType().apply(thmDepVisitor, bvars));				
 		}
 		return nodeDeps;
-
 	}
 
 	public NodeNameList caseANamedInvariantType(ANamedInvariantType tp, NodeNameList bvars) throws AnalysisException{

@@ -37,6 +37,7 @@ import org.overture.ast.types.AVoidType;
 import org.overture.ast.types.PType;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
+import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.analysis.theoremprover.utils.ThmTypeUtil;
 
 @SuppressWarnings("serial")
@@ -47,6 +48,23 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 	
 	public ThmTypeStringVisitor(ThmStringVisitor thmStringVisitor) {
 		this.thmStringVisitor = thmStringVisitor;
+	}
+	
+	public String caseAChannelType(AChannelType tp, ThmVarsContext vars) throws AnalysisException{
+		StringBuilder sb = new StringBuilder();
+		
+
+		//For each type in the product, add it to the string
+		for (Iterator<PType> itr = tp.getParameters().listIterator(); itr.hasNext(); ) {
+			PType t = itr.next();
+			sb.append(t.apply(thmStringVisitor, vars));
+			//If there are remaining types, add a isaProd *
+			if(itr.hasNext()){	
+				sb.append(ThmTypeUtil.isaProd);
+			}
+		}
+		
+		return sb.toString();
 	}
 	
 	public String caseANamedInvariantType(ANamedInvariantType tp, ThmVarsContext vars) throws AnalysisException{
