@@ -436,14 +436,15 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 		ThmNodeList tnl = new ThmNodeList();
 		ILexNameToken name = null;
 		String type = "";
+		NodeNameList nodeDeps =  new NodeNameList();
 		
 		name = node.getName();
 		PType chanType = node.getType();
 		if (chanType != null)
 		{
 			type = chanType.apply(stringVisitor, new ThmVarsContext()); //ThmTypeUtil.getIsabelleType(((AChannelType) chan.getType()).getType());
+			nodeDeps = chanType.apply(depVisitor, new NodeNameList());//ThmChanUtil.getIsabelleChanDeps(node);
 		}
-		NodeNameList nodeDeps = node.apply(depVisitor, new NodeNameList());//ThmChanUtil.getIsabelleChanDeps(node);
 		ThmNode tn = new ThmNode(name, nodeDeps, new ThmChannel(name.toString(), type));
 		tnl.add(tn);
 		
