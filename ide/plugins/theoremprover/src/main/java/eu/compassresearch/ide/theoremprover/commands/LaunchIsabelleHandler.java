@@ -16,6 +16,7 @@ import org.eclipse.debug.core.ILaunchConfigurationType;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.ui.DebugUITools;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.handlers.HandlerUtil;
@@ -29,6 +30,13 @@ public class LaunchIsabelleHandler extends AbstractHandler implements IHandler
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException
 	{
+		if (! CmlTPPlugin.getDefault().getPreferenceStore().getBoolean(IIsabelleConstants.Z3_NON_COMMERCIAL))
+		{
+			MessageDialog.openInformation(HandlerUtil.getActiveWorkbenchWindow(event).getShell(), "Symphony", 
+					"The Symphony Theorem Prover requires non-commercial use of the Z3 Theorem Prover. Please "
+					+ "select this option in the Theorem Prover Setup preferences.");
+			return null;
+		}
 		ILaunchConfigurationType configType;
 		if(isWindowsPlatform())
 		{

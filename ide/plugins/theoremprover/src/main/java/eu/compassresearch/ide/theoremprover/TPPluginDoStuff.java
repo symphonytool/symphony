@@ -15,9 +15,13 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourceAttributes;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IWorkbenchSite;
@@ -25,9 +29,9 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.pog.obligation.ProofObligationList;
+import org.overture.pog.pub.IProofObligation;
 import org.overture.pog.pub.IProofObligationList;
 
-import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligationList;
 import eu.compassresearch.core.analysis.pog.utility.PogPubUtil;
 import eu.compassresearch.core.analysis.theoremprover.utils.UnhandledSyntaxException;
 import eu.compassresearch.core.analysis.theoremprover.visitors.TPVisitor;
@@ -35,7 +39,6 @@ import eu.compassresearch.ide.core.resources.ICmlModel;
 import eu.compassresearch.ide.core.resources.ICmlProject;
 import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
 import eu.compassresearch.ide.core.unsupported.UnsupportedElementInfo;
-import eu.compassresearch.ide.pog.POConstants;
 import eu.compassresearch.ide.ui.utility.CmlProjectUtil;
 
 public class TPPluginDoStuff {
@@ -63,10 +66,10 @@ public class TPPluginDoStuff {
 				return;
 			}
 
-		//	// Test for unsupportted
-		//	if (checkUnsupporteds(proj)) {
-		//		return;
-		//		}
+			// // Test for unsupportted
+			// if (checkUnsupporteds(proj)) {
+			// return;
+			// }
 
 			// Get the cml project
 			ICmlProject cmlProj = (ICmlProject) proj
@@ -160,7 +163,7 @@ public class TPPluginDoStuff {
 	private boolean checkUnsupporteds(IProject proj) throws AnalysisException {
 
 		ICmlProject cmlProj = (ICmlProject) proj.getAdapter(ICmlProject.class);
-		
+
 		if (!CmlProjectUtil.typeCheck(window.getShell(), cmlProj)) {
 			MessageDialog.openError(null, "COMPASS", "Errors in model.");
 			return true;
@@ -250,7 +253,7 @@ public class TPPluginDoStuff {
 	 * PLACEHOLDER FOR NOW - SHOULD TIE IN WITH COMMAND, FUNCTIONALITY NEEDS
 	 * INTERTWINING WITH TP STUFF BETTER, TOO.
 	 */
-	public void fetchPOs(ICmlProject cmlProj) {
+	public void dischargePos(ICmlProject cmlProj) {
 		try {
 			// Check there are no type errors.
 			if (!CmlProjectUtil.typeCheck(this.window.getShell(), cmlProj)) {
@@ -260,10 +263,32 @@ public class TPPluginDoStuff {
 			// Grab the model from the project
 			final ICmlModel model = cmlProj.getModel();
 
-			IProofObligationList pol = PogPubUtil.generateProofObligations(model.getAst());
-
+			IProofObligationList pol = PogPubUtil
+					.generateProofObligations(model.getAst());
 			if (pol.isEmpty()) {
 				popErrorMessage("There are no Proof Oligations to discharge.");
+				return;
+			}
+
+			// Check is PO elements are supported
+			IProofObligationList goodPol = new ProofObligationList();
+			IProofObligationList badPol = new ProofObligationList();
+			for (IProofObligation po : pol) {
+				TPUnsupportedCollector tpu = new TPUnsupportedCollector();
+				// check if the po is supported
+				List<UnsupportedElementInfo> unsupports = tpu
+						.getUnsupporteds(po.getValueTree().getPredicate());
+				if (unsupports.isEmpty()) {
+					goodPol.add(po);
+				} else {
+					badPol.add(po);
+				}
+			}
+
+			if (goodPol.isEmpty()) {
+				popBadPol(
+						"PO generation and export failed.", "None of the Proof Obligations are currently supported by the theorem prover",
+						badPol);
 				return;
 			}
 
@@ -322,16 +347,37 @@ public class TPPluginDoStuff {
 
 				// Create empty thy file which imports generated file
 				IFile pogThyFile = pogFolder.getFile(fileName + "_PO.thy");
-				createPogThy(model, pogThyFile, thyFileName, pol);
+				createPogThy(model, pogThyFile, thyFileName, goodPol);
 			}
-			
-			MessageDialog.openConfirm(null, "Symphony", "POs Generation and export complete");
+			if (badPol.isEmpty()) {
+				MessageDialog.openInformation(null, "Symphony",
+						"PO generation and export complete.");
+			} else {
+				popBadPol(
+						"PO generation and export incomplete.", "Some POs are currently not supported by the theorem prover.",
+						badPol);
 
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			popErrorMessage(e.getMessage());
 			CmlTPPlugin.log(e);
 		}
+	}
+
+private 	void popBadPol(String msg, String reason, IProofObligationList badPol) {
+		MultiStatus bads = new MultiStatus(TPConstants.PLUGIN_ID, 1, reason,null);
+		for (IProofObligation po : badPol) {
+			bads.add(sFromPo(po));
+		}
+
+		ErrorDialog.openError(null, "Symphony", msg, bads);
+	}
+
+
+	private Status sFromPo(IProofObligation po) {
+		Status r = new Status(IStatus.ERROR, TPConstants.PLUGIN_ID, po.getKind().toString());
+		return r;
 	}
 
 	/****

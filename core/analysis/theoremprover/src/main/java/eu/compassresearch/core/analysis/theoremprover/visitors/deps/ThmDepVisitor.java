@@ -16,7 +16,6 @@ import eu.compassresearch.ast.expressions.PCMLExp;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.analysis.theoremprover.thms.NodeNameList;
-import eu.compassresearch.core.analysis.theoremprover.visitors.string.ThmVarsContext;
 
 @SuppressWarnings("serial")
 public class ThmDepVisitor extends

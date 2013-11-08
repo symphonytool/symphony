@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <testResult type="eu.compassresearch.core.typechecker.TypesCmlTypeCheckerTests">
-<message column="3" line="19" message="Definition 'a' not used." messageType="warning" number="5000" resource="types-0055-pos.cml"/>
 <message column="6" line="19" message="Definition 'b' not used." messageType="warning" number="5000" resource="types-0055-pos.cml"/>
+<message column="3" line="19" message="Definition 'a' not used." messageType="warning" number="5000" resource="types-0055-pos.cml"/>
 <result/>
 </testResult>

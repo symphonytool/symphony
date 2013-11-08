@@ -12,7 +12,6 @@ import org.overture.ast.expressions.PExp;
 import org.overture.ast.node.INode;
 import org.overture.pof.AVdmPoTree;
 import org.overture.pog.obligation.ProofObligation;
-import org.overture.pog.obligation.ProofObligationList;
 import org.overture.pog.pub.IProofObligation;
 import org.overture.pog.pub.IProofObligationList;
 
@@ -36,66 +35,60 @@ import eu.compassresearch.core.analysis.theoremprover.visitors.string.ThmStringV
 import eu.compassresearch.core.analysis.theoremprover.visitors.string.ThmVarsContext;
 
 @SuppressWarnings("serial")
-public class TPVisitor extends
-	QuestionAnswerCMLAdaptor<ThmVarsContext,ThmNodeList> {
+public class TPVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContext, ThmNodeList>
+{
 
 	private final static String ANALYSIS_NAME = "Theorem Prover";
 
 	private List<PSource> sources;
 
-	private ThmTypeVisitor typeVisitor;
-	private ThmValueVisitor valVisitor;
-	private ThmDeclAndDefVisitor declAndDefVisitor;
-	private ThmChannelVisitor chanVisitor;
+		private ThmDeclAndDefVisitor declAndDefVisitor;
+	 	
+		private ThmDepVisitor depVisitor = new ThmDepVisitor();
+		private ThmStringVisitor stringVisitor = new ThmStringVisitor();
 	
-	private ThmDepVisitor depVisitor = new ThmDepVisitor();
-	private ThmStringVisitor stringVisitor = new ThmStringVisitor();
+	 	private void initialize()
+	 	{
+			declAndDefVisitor = new ThmDeclAndDefVisitor(this, depVisitor, stringVisitor);
+		}
+	 	
+		@Override
+		public ThmNodeList caseAValueDefinition(AValueDefinition node, ThmVarsContext vars)
+				throws AnalysisException {		
+			return node.apply(this.declAndDefVisitor, vars);
+		}
+		
+		@Override
+		public ThmNodeList caseATypeDefinition(ATypeDefinition node, ThmVarsContext vars)
+			throws AnalysisException {		
+			return node.apply(this.declAndDefVisitor, vars);
+		}
 	
-
-	private void initialize()
-	{
-		typeVisitor = new ThmTypeVisitor(this, depVisitor, stringVisitor);
-		chanVisitor = new ThmChannelVisitor(this, depVisitor, stringVisitor);
-		declAndDefVisitor = new ThmDeclAndDefVisitor(this, depVisitor, stringVisitor);
-		valVisitor = new ThmValueVisitor(this, depVisitor, stringVisitor);
-	}
-	@Override
-	public ThmNodeList caseAValueDefinition(AValueDefinition node, ThmVarsContext vars)
-			throws AnalysisException {		
-		return node.apply(this.valVisitor, vars);
-	}
+		@Override
+		public ThmNodeList caseAChannelDefinition(AChannelDefinition node, ThmVarsContext vars)
+				throws AnalysisException {		
+			return node.apply(this.declAndDefVisitor, vars);
+		}
 	
-	@Override
-	public ThmNodeList caseATypeDefinition(ATypeDefinition node, ThmVarsContext vars)
+		@Override
+		public ThmNodeList caseAChansetDefinition(AChansetDefinition node, ThmVarsContext vars)
 			throws AnalysisException {		
-		return node.apply(this.typeVisitor, vars);
-	}
-
-	@Override
-	public ThmNodeList caseAChannelDefinition(AChannelDefinition node, ThmVarsContext vars)
-			throws AnalysisException {		
-		return node.apply(this.chanVisitor, vars);
-	}
-
-	@Override
-	public ThmNodeList caseAChansetDefinition(AChansetDefinition node, ThmVarsContext vars)
-			throws AnalysisException {		
-		return node.apply(this.chanVisitor, vars);
-	}	
-
-	@Override
-	public ThmNodeList defaultPDefinition(PDefinition node, ThmVarsContext vars) 
-			throws AnalysisException
-	{
-		return node.apply(this.declAndDefVisitor, vars);
-	}
-
-	@Override
-	public ThmNodeList defaultPSingleDeclaration(PSingleDeclaration node, ThmVarsContext vars)
-			throws AnalysisException
-	{
-		return node.apply(this.declAndDefVisitor, vars);
-	}
+			return node.apply(this.declAndDefVisitor, vars);
+		}	
+	
+		@Override
+		public ThmNodeList defaultPDefinition(PDefinition node, ThmVarsContext vars) 
+				throws AnalysisException
+		{
+			return node.apply(this.declAndDefVisitor, vars);
+		}
+	
+		@Override
+		public ThmNodeList defaultPSingleDeclaration(PSingleDeclaration node, ThmVarsContext vars)
+				throws AnalysisException
+		{
+			return node.apply(this.declAndDefVisitor, vars);
+		}
 	
 	/**
 	 * This method is invoked by the command line tool when pretty printing the
@@ -340,20 +333,22 @@ public class TPVisitor extends
 		
 		return sb.toString();
 	}
-	
+
 	@Override
 	public ThmNodeList createNewReturnValue(INode arg0, ThmVarsContext arg1)
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
 	@Override
 	public ThmNodeList createNewReturnValue(Object arg0, ThmVarsContext arg1)
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return null;
-	}	
+	}
 }
+	
 
 
 

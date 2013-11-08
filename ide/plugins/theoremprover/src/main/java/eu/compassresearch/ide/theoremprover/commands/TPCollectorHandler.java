@@ -27,7 +27,7 @@ public class TPCollectorHandler extends AbstractHandler {
 		} catch (Exception e) {
 			MessageDialog.openError(null, "COMPASS",
 					"Internal error while checking compatibility with the theorem prover: \n\n"
-							+ e.getMessage()
+							//+ e.getMessage()
 					);
 			e.printStackTrace();
 		}
