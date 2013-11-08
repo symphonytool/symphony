@@ -1,5 +1,5 @@
 channels 
-a, 
+a
 b : int
 
 process A = 

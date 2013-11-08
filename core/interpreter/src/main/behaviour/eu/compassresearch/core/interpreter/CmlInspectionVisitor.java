@@ -3,6 +3,7 @@ package eu.compassresearch.core.interpreter;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.node.INode;
+import org.overture.ast.statements.PStm;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ValueException;
 
@@ -40,6 +41,13 @@ public class CmlInspectionVisitor extends AbstractInspectionVisitor
 
 	@Override
 	public Inspection defaultPAction(PAction node, Context question)
+			throws AnalysisException
+	{
+		return node.apply(this.actionVisitor, question);
+	}
+	
+	@Override
+	public Inspection defaultPStm(PStm node, Context question)
 			throws AnalysisException
 	{
 		return node.apply(this.actionVisitor, question);
