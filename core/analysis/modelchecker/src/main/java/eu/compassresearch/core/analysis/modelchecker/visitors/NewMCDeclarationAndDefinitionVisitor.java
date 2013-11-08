@@ -210,6 +210,15 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 	}
 
 	@Override
+	public MCNode caseATypeSingleDeclaration(ATypeSingleDeclaration node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		String identifier = node.getIdentifier().getName();
+		MCPCMLType type = (MCPCMLType) node.getType().apply(rootVisitor, question);
+		MCATypeSingleDeclaration result = new MCATypeSingleDeclaration(identifier, type);
+		return result;
+	}
+
+	@Override
 	public MCNode caseAStateDefinition(AStateDefinition node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
 
