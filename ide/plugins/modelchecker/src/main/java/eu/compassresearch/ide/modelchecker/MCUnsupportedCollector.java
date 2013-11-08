@@ -615,6 +615,14 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	}
 
 	@Override
+	public void caseAChannelType(AChannelType arg0) throws AnalysisException {
+		// unsupported=false;
+		// TODO Uncomment the above line to signal support for this node
+		// Do not remove the super call below.
+		super.caseAChannelType(arg0);
+	}
+	
+	@Override
 	public void caseAChannelsDefinition(AChannelsDefinition node)
 			throws AnalysisException {
 		unsupported = false;

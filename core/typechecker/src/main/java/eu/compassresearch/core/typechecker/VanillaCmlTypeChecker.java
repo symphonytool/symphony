@@ -175,7 +175,7 @@ public class VanillaCmlTypeChecker extends AbstractTypeChecker
 		final List<PDefinition> globalVdmDefs = globals.getGlobalVdmDefinitions();// filterCSP(globalDefinitions);
 
 		ILexLocation location = null;
-		AClassClassDefinition globalClass = AstFactory.newAClassClassDefinition(new CmlLexNameToken("$global", new LexIdentifierToken("$global", false, location)), new LexNameList(), globalVdmDefs);
+		AClassClassDefinition globalClass = AstFactory.newAClassClassDefinition(new CmlLexNameToken(GLOBAL_CLASS_NAME, new LexIdentifierToken(GLOBAL_CLASS_NAME, false, location)), new LexNameList(), globalVdmDefs);
 
 		// insert global class first, it must be checked first do to the environment linking
 		classes.add(0, globalClass);

@@ -4,10 +4,10 @@ a : int
 class A =
 begin
 	state
-		hello : int := 4
+		public hello : int := 4
 		
 	operations 
-		A : () ==> A 
+		public A : () ==> A 
 		A() == Skip
 end
 

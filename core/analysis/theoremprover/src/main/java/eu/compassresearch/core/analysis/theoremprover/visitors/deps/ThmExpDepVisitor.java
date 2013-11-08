@@ -40,6 +40,7 @@ import org.overture.ast.expressions.AInSetBinaryExp;
 import org.overture.ast.expressions.AIndicesUnaryExp;
 import org.overture.ast.expressions.AIntLiteralExp;
 import org.overture.ast.expressions.AIotaExp;
+import org.overture.ast.expressions.AIsExp;
 import org.overture.ast.expressions.ALambdaExp;
 import org.overture.ast.expressions.ALenUnaryExp;
 import org.overture.ast.expressions.ALessEqualNumericBinaryExp;
@@ -133,6 +134,14 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 		this.thmDepVisitor = thmDepVisitor;
 	}
 
+
+	public NodeNameList caseAIsExp(AIsExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+		nodeDeps.addAll(ex.getTest().apply(thmDepVisitor, bvars));
+		nodeDeps.addAll(ex.getBasicType().apply(thmDepVisitor, bvars));	
+		return nodeDeps;
+	}
 		
 	public NodeNameList caseABooleanConstExp(ABooleanConstExp ex, NodeNameList bvars){
 		NodeNameList nodeDeps = new NodeNameList();

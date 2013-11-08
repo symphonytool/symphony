@@ -51,10 +51,6 @@ public class CmlCspTypeChecker extends
 		QuestionAnswerCMLAdaptor<TypeCheckInfo, PType>
 {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 
 	/**
 	 * Handlder for error reporting

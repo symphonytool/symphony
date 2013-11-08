@@ -26,6 +26,11 @@
          defaultHandler="eu.compassresearch.ide.theoremprover.commands.DischargePosHandler"
          id="eu.compassresearch.ide.theoremprover.dischargepos"
          name="DischargePOs">
+         <commandParameter
+               id="eu.compassresearch.ide.theoremprover.commands.needproj"
+               name="Need"
+               optional="false">
+         </commandParameter>
    </command>
    <command
           defaultHandler="eu.compassresearch.ide.theoremprover.commands.LaunchIsabelleHandler"
@@ -71,6 +76,7 @@
       		</command>
       	</menu>
    </menuContribution>
+   
    <menuContribution
          allPopups="false"
          locationURI="toolbar:eu.compassresearch.ide.pog.POsTable">
@@ -79,9 +85,20 @@
             icon="icons/tp.png"
             label="Discharge"
             style="push"
-            tooltip="Send POs to Theorem Prover">
+            tooltip="Regenerate POs and export to Theorem Prover">
+            <parameter
+                  name="eu.compassresearch.ide.theoremprover.commands.needproj"
+                  value="no">
+            </parameter>
       </command>
    </menuContribution>
+   
+   <menuContribution
+         allPopups="false"
+         locationURI="toolbar:eu.compassresearch.ide.pog.POsTable">
+
+   </menuContribution>
+   
 		<menuContribution
          allPopups="false"
          locationURI="popup:eu.compassresearch.ide.ui.CmlNavigator">
@@ -96,10 +113,25 @@
 	                  label="Check TP compatibility"
 	                  tooltip="Test compatibility of model with theorem prover.">
             	</command>
+            	
             	 <separator
                        name="eu.compassresearch.ide.theoremprover.separator"
                         visible="true">
                   </separator>
+                  
+              
+          	<command
+	            commandId="eu.compassresearch.ide.theoremprover.dischargepos"
+    	        icon="icons/tp.png"
+        	    label="Generate POs and Theories."
+            	style="push"
+            	tooltip="Generate Proof Obligations Theorem Prover files for selected Project.">
+           <parameter
+                  name="eu.compassresearch.ide.theoremprover.commands.needproj"
+                  value="yes">
+            </parameter>
+      		</command>
+                  
 				<command
               	  commandId="eu.compassresearch.ide.theoremprover.generatethy"
               	  label="Generate Theorem Prover THY"

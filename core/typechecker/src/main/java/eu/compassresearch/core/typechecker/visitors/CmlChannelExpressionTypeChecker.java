@@ -1,8 +1,5 @@
 package eu.compassresearch.core.typechecker.visitors;
 
-//import static eu.compassresearch.core.typechecker.util.CmlTCUtil.successfulType;
-
-//import static eu.compassresearch.core.typechecker.util.CmlTCUtil.successfulType;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -16,7 +13,6 @@ import org.overture.ast.expressions.PExp;
 import org.overture.ast.factory.AstFactory;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.node.INode;
-import org.overture.ast.types.AProductType;
 import org.overture.ast.types.PType;
 import org.overture.typechecker.TypeCheckInfo;
 import org.overture.typechecker.TypeComparator;
@@ -37,10 +33,6 @@ public class CmlChannelExpressionTypeChecker extends
 		QuestionAnswerCMLAdaptor<TypeCheckInfo, PType>
 {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 	private final ITypeIssueHandler issueHandler;// = VanillaFactory.newCollectingIssueHandle();
 
 	@SuppressWarnings("deprecation")
