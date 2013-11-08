@@ -7,6 +7,7 @@ import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.node.INode;
+import org.overture.ast.statements.AIfStm;
 
 import eu.compassresearch.ast.actions.AChaosAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
@@ -24,6 +25,7 @@ import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionReplicatedAction;
 import eu.compassresearch.ast.actions.ASkipAction;
+import eu.compassresearch.ast.actions.AStmAction;
 import eu.compassresearch.ast.actions.AStopAction;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.actions.PCommunicationParameter;
@@ -53,6 +55,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCASequentialCo
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCASequentialCompositionReplicatedAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCASingleGeneralAssignmentStatementAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCASkipAction;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAStmAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAStopAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPCommunicationParameter;
@@ -66,6 +69,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCPSingleD
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCPCMLDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPVarsetExpression;
+import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCPCMLStm;
 
 public class NewMCActionVisitor extends
 		QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
@@ -153,6 +157,17 @@ public class NewMCActionVisitor extends
 		
 	}
 	
+	
+	@Override
+	public MCNode caseAStmAction(AStmAction node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		
+		MCPCMLStm statement = (MCPCMLStm) node.getStatement().apply(rootVisitor, question);
+		MCAStmAction result = new MCAStmAction(statement);
+		
+		return result;
+	}
+
 	/*
 	@Override
 	public MCNode caseABlockStatementAction(ABlockStatementAction node,
@@ -380,12 +395,14 @@ public class NewMCActionVisitor extends
 		LinkedList<MCGuardDef> guarDefs = GuardDefGenerator.generateGuardDefs(expression, result.getCounterId(), result);
 		
 		for (MCGuardDef mcGuardDef : guarDefs) {
-			question.guardDefs.put(expression, mcGuardDef);
+			//question.guardDefs.put(expression, mcGuardDef);
 		}
 		
-				
+	
 		return result;
 	}
+	
+	
 	
 	/*
 	@Override
@@ -409,24 +426,6 @@ public class NewMCActionVisitor extends
 	}
 	*/
 	
-	/*
-	@Override
-	public MCNode caseASingleGeneralAssignmentStatementAction(
-			ASingleGeneralAssignmentStatementAction node,
-			NewCMLModelcheckerContext question) throws AnalysisException {
-		
-		MCPCMLExp stateDesignator = (MCPCMLExp) node.getStateDesignator().apply(rootVisitor, question);
-		MCPCMLExp expression = (MCPCMLExp) node.getExpression().apply(rootVisitor, question);
-		
-		MCASingleGeneralAssignmentStatementAction result = 
-				new MCASingleGeneralAssignmentStatementAction(stateDesignator,expression);
-
-		MCAssignDef assignDef = new MCAssignDef(result.getCounterId(), expression, stateDesignator, result);
-		question.assignDefs.add(assignDef);
-		
-		return result;
-	}
-	*/
 	
 	/*
 	@Override
@@ -447,9 +446,6 @@ public class NewMCActionVisitor extends
 	*/
 
 	/////REPLICATED ACTIONS
-	
-	
-	
 	
 	@Override
 	public MCNode createNewReturnValue(INode node,

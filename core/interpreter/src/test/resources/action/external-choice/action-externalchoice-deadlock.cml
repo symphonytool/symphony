@@ -3,10 +3,10 @@ process test =
 begin
 	
 	state 
-		a : int := 2
+		v : int := 2
 	
 	@ 
-	(a -> [a = 1] & b -> Skip) 
+	(a -> [v = 1] & b -> Skip) 
 		[] 
-	(c -> [a = 1] & d -> Skip)
+	(c -> [v = 1] & d -> Skip)
 end

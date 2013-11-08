@@ -26,4 +26,10 @@ public class MCAGreaterEqualNumericBinaryExp extends MCNumericBinaryExp {
 		return result;
 	}
 
+	@Override
+	public MCPCMLExp copy() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

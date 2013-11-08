@@ -49,10 +49,6 @@ public class CmlVdmTypeCheckVisitor extends
 		QuestionAnswerCMLAdaptor<TypeCheckInfo, PType>
 {
 	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	/**
 	 * Inner class representing the VDM type checker.
 	 * <p>
 	 * If any VDM behavior has to be overridden then this has to happen here. Unless the changed behavior only is called
@@ -61,10 +57,6 @@ public class CmlVdmTypeCheckVisitor extends
 	 */
 	TypeCheckVisitor vdmVisitor = new TypeCheckVisitor()
 	{
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
 
 		public PType defaultINode(INode node, TypeCheckInfo question)
 				throws AnalysisException

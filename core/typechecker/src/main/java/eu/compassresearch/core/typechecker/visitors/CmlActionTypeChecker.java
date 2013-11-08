@@ -97,10 +97,6 @@ public class CmlActionTypeChecker extends
 		QuestionAnswerCMLAdaptor<TypeCheckInfo, PType>
 {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 	private final ITypeIssueHandler issueHandler;
 
 	/**

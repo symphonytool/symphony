@@ -23,12 +23,12 @@ public class State {
 		this.shape = shape;
 	}
 
-	public State(int level, Binding binding, String str, Process process) {
+	public State(Binding binding, Process process) {
 		this.binding = binding;
-		this.name = str;
+		//this.name = str;
 		this.process = process;
 		this.number = -1;
-		this.level = level;
+		//this.level = level;
 		this.visited = false;
 	}
 	

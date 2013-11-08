@@ -1,13 +1,14 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.auxiliary;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 
 public class SingleBind {
 	protected String variableName;
-	protected MCPCMLType variableValue;
+	protected MCPCMLExp variableValue;
 	
-	public SingleBind(String variableName, MCPCMLType variableValue) {
+	public SingleBind(String variableName, MCPCMLExp variableValue) {
 		this.variableName = variableName;
 		this.variableValue = variableValue;
 	}
@@ -56,13 +57,12 @@ public class SingleBind {
 		
 		return result;
 	}
-	public MCPCMLType getVariableValue() {
+	public MCPCMLExp getVariableValue() {
 		return variableValue;
 	}
-	public void setVariableValue(MCPCMLType variableValue) {
+	public void setVariableValue(MCPCMLExp variableValue) {
 		this.variableValue = variableValue;
 	}
-
 	
 	
 }
