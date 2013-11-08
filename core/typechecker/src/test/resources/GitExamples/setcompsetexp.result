@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<testResult type="eu.compassresearch.core.typechecker.secondedition.RunCmlExamplesTestCase">
-<message column="41" line="6" message="Empty set used in bind" messageType="warning" number="0" resource="setcompsetexp.result"/>
-<message column="41" line="6" message="Name 'S' is not in scope" messageType="error" number="0" resource="setcompsetexp.result"/>
+<testResult type="eu.compassresearch.core.typechecker.RunCmlExamplesTestCase">
+<message column="41" line="6" message="Empty set used in bind." messageType="warning" number="3264" resource="setcompsetexp.cml"/>
+<message column="41" line="6" message="Name 'S' is not in scope." messageType="error" number="3182" resource="setcompsetexp.cml"/>
 <result/>
 </testResult>

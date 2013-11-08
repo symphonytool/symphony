@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<testResult type="eu.compassresearch.core.typechecker.secondedition.RunCmlExamplesTestCase">
-<message column="8" line="1" message="Duplicate definition: test" messageType="warning" number="0" resource="process-replication-interleaving.result"/>
-<message column="8" line="2" message="Duplicate definition: test" messageType="warning" number="0" resource="process-replication-interleaving.result"/>
-<message column="8" line="3" message="Duplicate definition: test" messageType="warning" number="0" resource="process-replication-interleaving.result"/>
-<message column="8" line="1" message="Duplicate definition: test" messageType="error" number="0" resource="process-replication-interleaving.result"/>
-<message column="8" line="2" message="Duplicate definition: test" messageType="error" number="0" resource="process-replication-interleaving.result"/>
-<message column="8" line="3" message="Duplicate definition: test" messageType="error" number="0" resource="process-replication-interleaving.result"/>
-<message column="35" line="1" message="3410 The Symbol &quot;A&quot; is undefined." messageType="error" number="0" resource="process-replication-interleaving.result"/>
-<message column="30" line="2" message="Name 'i' is not in scope" messageType="error" number="0" resource="process-replication-interleaving.result"/>
-<message column="28" line="2" message="3410 The Symbol &quot;A&quot; is undefined." messageType="error" number="0" resource="process-replication-interleaving.result"/>
-<message column="43" line="3" message="3410 The Symbol &quot;A&quot; is undefined." messageType="error" number="0" resource="process-replication-interleaving.result"/>
+<testResult type="eu.compassresearch.core.typechecker.RunCmlExamplesTestCase">
+<message column="8" line="1" message="Duplicate definition: test." messageType="warning" number="5007" resource="process-replication-interleaving.cml"/>
+<message column="8" line="2" message="Duplicate definition: test." messageType="warning" number="5007" resource="process-replication-interleaving.cml"/>
+<message column="8" line="3" message="Duplicate definition: test." messageType="warning" number="5007" resource="process-replication-interleaving.cml"/>
+<message column="8" line="1" message="Duplicate definition: test." messageType="error" number="5007" resource="process-replication-interleaving.cml"/>
+<message column="8" line="2" message="Duplicate definition: test." messageType="error" number="5007" resource="process-replication-interleaving.cml"/>
+<message column="8" line="3" message="Duplicate definition: test." messageType="error" number="5007" resource="process-replication-interleaving.cml"/>
+<message column="35" line="1" message="The Symbol &quot;A&quot; is undefined." messageType="error" number="3410" resource="process-replication-interleaving.cml"/>
+<message column="30" line="2" message="Name 'i' is not in scope." messageType="error" number="3182" resource="process-replication-interleaving.cml"/>
+<message column="28" line="2" message="The Symbol &quot;A&quot; is undefined." messageType="error" number="3410" resource="process-replication-interleaving.cml"/>
+<message column="43" line="3" message="The Symbol &quot;A&quot; is undefined." messageType="error" number="3410" resource="process-replication-interleaving.cml"/>
 <result/>
 </testResult>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<testResult type="eu.compassresearch.core.typechecker.secondedition.RunCmlExamplesTestCase">
-<message column="12" line="6" message="Unable to resolve type name 'rec'" messageType="error" number="0" resource="class-values-pattern.result"/>
-<message column="18" line="6" message="Unknown type 'rec' in constructor" messageType="error" number="0" resource="class-values-pattern.result"/>
-<message column="12" line="6" message="Cannot find symbol rec" messageType="error" number="0" resource="class-values-pattern.result"/>
+<testResult type="eu.compassresearch.core.typechecker.RunCmlExamplesTestCase">
+<message column="12" line="6" message="Unable to resolve type name 'rec'." messageType="error" number="3427" resource="class-values-pattern.cml"/>
+<message column="18" line="6" message="Unknown type 'rec' in constructor." messageType="error" number="3126" resource="class-values-pattern.cml"/>
+<message column="12" line="6" message="Cannot find symbol rec." messageType="error" number="2048" resource="class-values-pattern.cml"/>
 <result/>
 </testResult>

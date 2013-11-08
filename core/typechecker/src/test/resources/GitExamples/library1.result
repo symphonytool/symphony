@@ -1,55 +1,55 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<testResult type="eu.compassresearch.core.typechecker.secondedition.RunCmlExamplesTestCase">
-<message column="7" line="106" message="library at 106:7 hidden by library" messageType="warning" number="0" resource="library1.result"/>
-<message column="7" line="163" message="Definition 'bs' not used" messageType="warning" number="0" resource="library1.result"/>
-<message column="2" line="152" message="id at 152:2 hidden by id" messageType="warning" number="0" resource="library1.result"/>
-<message column="2" line="151" message="books at 151:2 hidden by books" messageType="warning" number="0" resource="library1.result"/>
-<message column="2" line="151" message="books at 151:2 hidden by books" messageType="warning" number="0" resource="library1.result"/>
-<message column="7" line="195" message="Definition 'bs' not used" messageType="warning" number="0" resource="library1.result"/>
-<message column="2" line="184" message="id at 184:2 hidden by id" messageType="warning" number="0" resource="library1.result"/>
-<message column="2" line="183" message="books at 183:2 hidden by books" messageType="warning" number="0" resource="library1.result"/>
-<message column="2" line="183" message="books at 183:2 hidden by books" messageType="warning" number="0" resource="library1.result"/>
-<message column="7" line="106" message="Instance variable 'library' is not initialized" messageType="warning" number="0" resource="library1.result"/>
-<message column="2" line="151" message="Instance variable 'books' is not initialized" messageType="warning" number="0" resource="library1.result"/>
-<message column="2" line="152" message="Instance variable 'id' is not initialized" messageType="warning" number="0" resource="library1.result"/>
-<message column="2" line="183" message="Instance variable 'books' is not initialized" messageType="warning" number="0" resource="library1.result"/>
-<message column="2" line="184" message="Instance variable 'id' is not initialized" messageType="warning" number="0" resource="library1.result"/>
-<message column="24" line="59" message="Unknown field books in record Borrow" messageType="error" number="0" resource="library1.result"/>
-<message column="21" line="60" message="Unknown field users in record Borrow" messageType="error" number="0" resource="library1.result"/>
-<message column="41" line="58" message="Name '$global`u' is not in scope" messageType="error" number="0" resource="library1.result"/>
-<message column="74" line="58" message="Unknown field borrowed in record Borrow" messageType="error" number="0" resource="library1.result"/>
-<message column="16" line="163" message="Name 'bd' is not in scope" messageType="error" number="0" resource="library1.result"/>
-<message column="12" line="168" message="State variable 'i' cannot be accessed from this context" messageType="error" number="0" resource="library1.result"/>
-<message column="16" line="195" message="Name 'bd' is not in scope" messageType="error" number="0" resource="library1.result"/>
-<message column="12" line="200" message="State variable 'i' cannot be accessed from this context" messageType="error" number="0" resource="library1.result"/>
-<message column="17" line="102" message="3410 The Symbol &quot;retBoo&quot; is undefined." messageType="error" number="0" resource="library1.result"/>
-<message column="13" line="129" message="Argument of 'in set' is not a set" messageType="error" number="0" resource="library1.result"/>
-<message column="12" line="131" message="Argument of 'in set' is not a set" messageType="error" number="0" resource="library1.result"/>
-<message column="11" line="132" message="Name 'ExeReturn(Renew, Library)' is not in scope" messageType="error" number="0" resource="library1.result"/>
-<message column="21" line="133" message="Name 'r' is not in scope" messageType="error" number="0" resource="library1.result"/>
-<message column="14" line="135" message="Argument of 'in set' is not a set" messageType="error" number="0" resource="library1.result"/>
-<message column="11" line="137" message="Argument of 'in set' is not a set" messageType="error" number="0" resource="library1.result"/>
-<message column="56" line="137" message="Name 'ExeFind(Find, Library)' is not in scope" messageType="error" number="0" resource="library1.result"/>
-<message column="84" line="139" message="3410 The Symbol &quot;SKIP&quot; is undefined." messageType="error" number="0" resource="library1.result"/>
-<message column="17" line="174" message="Operation Init(UserId) is not in scope" messageType="error" number="0" resource="library1.result"/>
-<message column="43" line="174" message="Name 'book1' is not in scope" messageType="error" number="0" resource="library1.result"/>
-<message column="57" line="174" message="3410 The Symbol &quot;SKIP&quot; is undefined." messageType="error" number="0" resource="library1.result"/>
-<message column="23" line="175" message="Name 'book1' is not in scope" messageType="error" number="0" resource="library1.result"/>
-<message column="20" line="176" message="Name 'book2' is not in scope" messageType="error" number="0" resource="library1.result"/>
-<message column="54" line="176" message="Name 'book2' is not in scope" messageType="error" number="0" resource="library1.result"/>
-<message column="21" line="177" message="Name 'book1' is not in scope" messageType="error" number="0" resource="library1.result"/>
-<message column="52" line="177" message="Name 'book1' is not in scope" messageType="error" number="0" resource="library1.result"/>
-<message column="39" line="177" message="Name 'diff(set of (BookId), set of (?))' is not in scope" messageType="error" number="0" resource="library1.result"/>
-<message column="20" line="178" message="Left and right of '=' are incompatible types" messageType="error" number="0" resource="library1.result"/>
-<message column="65" line="178" message="3410 The Symbol &quot;STOP&quot; is undefined." messageType="error" number="0" resource="library1.result"/>
-<message column="17" line="206" message="Operation Init(UserId) is not in scope" messageType="error" number="0" resource="library1.result"/>
-<message column="43" line="206" message="Name 'book1' is not in scope" messageType="error" number="0" resource="library1.result"/>
-<message column="77" line="206" message="Name 'book1' is not in scope" messageType="error" number="0" resource="library1.result"/>
-<message column="21" line="207" message="Name 'book2' is not in scope" messageType="error" number="0" resource="library1.result"/>
-<message column="51" line="207" message="Name 'book2' is not in scope" messageType="error" number="0" resource="library1.result"/>
-<message column="39" line="207" message="Name 'diff(set of (BookId), set of (?))' is not in scope" messageType="error" number="0" resource="library1.result"/>
-<message column="61" line="207" message="3410 The Symbol &quot;STOP&quot; is undefined." messageType="error" number="0" resource="library1.result"/>
-<message column="42" line="211" message="3410 The Symbol &quot;LibraryEvents&quot; is undefined." messageType="error" number="0" resource="library1.result"/>
-<message column="42" line="212" message="3410 The Symbol &quot;LibraryEvents&quot; is undefined." messageType="error" number="0" resource="library1.result"/>
+<testResult type="eu.compassresearch.core.typechecker.RunCmlExamplesTestCase">
+<message column="7" line="106" message="library at 106:7 hidden by library." messageType="warning" number="5008" resource="library1.cml"/>
+<message column="7" line="163" message="Definition 'bs' not used." messageType="warning" number="5000" resource="library1.cml"/>
+<message column="2" line="152" message="id at 152:2 hidden by id." messageType="warning" number="5008" resource="library1.cml"/>
+<message column="2" line="151" message="books at 151:2 hidden by books." messageType="warning" number="5008" resource="library1.cml"/>
+<message column="2" line="151" message="books at 151:2 hidden by books." messageType="warning" number="5008" resource="library1.cml"/>
+<message column="7" line="195" message="Definition 'bs' not used." messageType="warning" number="5000" resource="library1.cml"/>
+<message column="2" line="184" message="id at 184:2 hidden by id." messageType="warning" number="5008" resource="library1.cml"/>
+<message column="2" line="183" message="books at 183:2 hidden by books." messageType="warning" number="5008" resource="library1.cml"/>
+<message column="2" line="183" message="books at 183:2 hidden by books." messageType="warning" number="5008" resource="library1.cml"/>
+<message column="7" line="106" message="Instance variable 'library' is not initialized." messageType="warning" number="5001" resource="library1.cml"/>
+<message column="2" line="151" message="Instance variable 'books' is not initialized." messageType="warning" number="5001" resource="library1.cml"/>
+<message column="2" line="152" message="Instance variable 'id' is not initialized." messageType="warning" number="5001" resource="library1.cml"/>
+<message column="2" line="183" message="Instance variable 'books' is not initialized." messageType="warning" number="5001" resource="library1.cml"/>
+<message column="2" line="184" message="Instance variable 'id' is not initialized." messageType="warning" number="5001" resource="library1.cml"/>
+<message column="24" line="59" message="Unknown field books in record Borrow." messageType="error" number="3090" resource="library1.cml"/>
+<message column="21" line="60" message="Unknown field users in record Borrow." messageType="error" number="3090" resource="library1.cml"/>
+<message column="41" line="58" message="Name '$global`u' is not in scope." messageType="error" number="3182" resource="library1.cml"/>
+<message column="74" line="58" message="Unknown field borrowed in record Borrow." messageType="error" number="3090" resource="library1.cml"/>
+<message column="16" line="163" message="Name 'bd' is not in scope." messageType="error" number="3182" resource="library1.cml"/>
+<message column="12" line="168" message="State variable 'i' cannot be accessed from this context." messageType="error" number="3302" resource="library1.cml"/>
+<message column="16" line="195" message="Name 'bd' is not in scope." messageType="error" number="3182" resource="library1.cml"/>
+<message column="12" line="200" message="State variable 'i' cannot be accessed from this context." messageType="error" number="3302" resource="library1.cml"/>
+<message column="17" line="102" message="The Symbol &quot;retBoo&quot; is undefined." messageType="error" number="3410" resource="library1.cml"/>
+<message column="13" line="129" message="Argument of 'in set' is not a set. Actual: bool" messageType="error" number="3110" resource="library1.cml"/>
+<message column="12" line="131" message="Argument of 'in set' is not a set. Actual: bool" messageType="error" number="3110" resource="library1.cml"/>
+<message column="11" line="132" message="Name 'ExeReturn(Renew, Library)' is not in scope. Possible: ExeReturn(Return, Library)" messageType="error" number="3182" resource="library1.cml"/>
+<message column="21" line="133" message="Name 'r' is not in scope." messageType="error" number="3182" resource="library1.cml"/>
+<message column="14" line="135" message="Argument of 'in set' is not a set. Actual: bool" messageType="error" number="3110" resource="library1.cml"/>
+<message column="11" line="137" message="Argument of 'in set' is not a set. Actual: bool" messageType="error" number="3110" resource="library1.cml"/>
+<message column="56" line="137" message="Name 'ExeFind(Find, Library)' is not in scope. Possible: ExeFind(String, Library)" messageType="error" number="3182" resource="library1.cml"/>
+<message column="84" line="139" message="The Symbol &quot;SKIP&quot; is undefined." messageType="error" number="3410" resource="library1.cml"/>
+<message column="17" line="174" message="Operation Init(UserId) is not in scope. Possible: Init() Possible: Init(map (BookId) to (Book), map (UserId) to (User)) Possible: Init()" messageType="error" number="3213" resource="library1.cml"/>
+<message column="43" line="174" message="Name 'book1' is not in scope." messageType="error" number="3182" resource="library1.cml"/>
+<message column="57" line="174" message="The Symbol &quot;SKIP&quot; is undefined." messageType="error" number="3410" resource="library1.cml"/>
+<message column="23" line="175" message="Name 'book1' is not in scope." messageType="error" number="3182" resource="library1.cml"/>
+<message column="20" line="176" message="Name 'book2' is not in scope." messageType="error" number="3182" resource="library1.cml"/>
+<message column="54" line="176" message="Name 'book2' is not in scope." messageType="error" number="3182" resource="library1.cml"/>
+<message column="21" line="177" message="Name 'book1' is not in scope." messageType="error" number="3182" resource="library1.cml"/>
+<message column="52" line="177" message="Name 'book1' is not in scope." messageType="error" number="3182" resource="library1.cml"/>
+<message column="39" line="177" message="Name 'diff(set of (BookId), set of (?))' is not in scope. Possible: diff(set of (BookId), BookId) Possible: diff(set of (BookId), BookId)" messageType="error" number="3182" resource="library1.cml"/>
+<message column="20" line="178" message="Left and right of '=' are incompatible types. Left: nat Right: set of (BookId)" messageType="error" number="3087" resource="library1.cml"/>
+<message column="65" line="178" message="The Symbol &quot;STOP&quot; is undefined." messageType="error" number="3410" resource="library1.cml"/>
+<message column="17" line="206" message="Operation Init(UserId) is not in scope. Possible: Init() Possible: Init(map (BookId) to (Book), map (UserId) to (User)) Possible: Init()" messageType="error" number="3213" resource="library1.cml"/>
+<message column="43" line="206" message="Name 'book1' is not in scope." messageType="error" number="3182" resource="library1.cml"/>
+<message column="77" line="206" message="Name 'book1' is not in scope." messageType="error" number="3182" resource="library1.cml"/>
+<message column="21" line="207" message="Name 'book2' is not in scope." messageType="error" number="3182" resource="library1.cml"/>
+<message column="51" line="207" message="Name 'book2' is not in scope." messageType="error" number="3182" resource="library1.cml"/>
+<message column="39" line="207" message="Name 'diff(set of (BookId), set of (?))' is not in scope. Possible: diff(set of (BookId), BookId) Possible: diff(set of (BookId), BookId)" messageType="error" number="3182" resource="library1.cml"/>
+<message column="61" line="207" message="The Symbol &quot;STOP&quot; is undefined." messageType="error" number="3410" resource="library1.cml"/>
+<message column="42" line="211" message="The Symbol &quot;LibraryEvents&quot; is undefined." messageType="error" number="3410" resource="library1.cml"/>
+<message column="42" line="212" message="The Symbol &quot;LibraryEvents&quot; is undefined." messageType="error" number="3410" resource="library1.cml"/>
 <result/>
 </testResult>
