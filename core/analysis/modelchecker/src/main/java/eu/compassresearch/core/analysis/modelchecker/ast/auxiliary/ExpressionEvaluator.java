@@ -328,6 +328,8 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		
 		if(type instanceof MCAIntNumericBasicType){
 			result = new MCAIntLiteralExp("0");
+		} else if(type instanceof MCANatNumericBasicType){
+			result = new MCAIntLiteralExp("0");
 		}
 		
 		return result;
