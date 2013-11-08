@@ -25,7 +25,6 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList> {
 	private ThmTypeDepVisitor typeDepVisitor;
 	private ThmExpDepVisitor expDepVisitor;
 	private ThmValueDepVisitor valDepVisitor;
-	private ThmChannelDepVisitor chanDepVisitor;
 	private ThmStateDepVisitor stateDepVisitor;
 	private ThmProcessDepVisitor processDepVisitor;
 	private ThmActionDepVisitor actionDepVisitor;
@@ -43,7 +42,6 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList> {
 	{
 		typeDepVisitor = new ThmTypeDepVisitor(this);
 		expDepVisitor = new ThmExpDepVisitor(this);
-		chanDepVisitor = new ThmChannelDepVisitor(this);
 		valDepVisitor = new ThmValueDepVisitor(this);
 		stateDepVisitor = new ThmStateDepVisitor(this);
 		processDepVisitor = new ThmProcessDepVisitor(this);
@@ -59,18 +57,18 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList> {
 			throws AnalysisException {
 		return node.apply(this.valDepVisitor, bvars);
 	}
-	
-	@Override
-	public NodeNameList caseAChannelDefinition(AChannelDefinition node, NodeNameList bvars)
-			throws AnalysisException {		
-		return node.apply(this.chanDepVisitor, bvars);
-	}
-
-	@Override
-	public NodeNameList caseAChansetDefinition(AChansetDefinition node, NodeNameList bvars)
-			throws AnalysisException {		
-		return node.apply(this.chanDepVisitor, bvars);
-	}	
+//	
+//	@Override
+//	public NodeNameList caseAChannelDefinition(AChannelDefinition node, NodeNameList bvars)
+//			throws AnalysisException {		
+//		return node.apply(this.chanDepVisitor, bvars);
+//	}
+//
+//	@Override
+//	public NodeNameList caseAChansetDefinition(AChansetDefinition node, NodeNameList bvars)
+//			throws AnalysisException {		
+//		return node.apply(this.chanDepVisitor, bvars);
+//	}	
 	
 	public NodeNameList caseAAssignmentDefinition(AAssignmentDefinition node, NodeNameList bvars)
 			throws AnalysisException {		

@@ -126,7 +126,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 	public Inspection caseAStmAction(AStmAction node, Context question)
 			throws AnalysisException
 	{
-		return node.getStatement().apply(statementInspectionVisitor, question);
+		return node.getStatement().apply(this.parentVisitor, question);
 	}
 
 	/**

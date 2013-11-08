@@ -262,6 +262,7 @@ import eu.compassresearch.ast.statements.AAltNonDeterministicStm;
 import eu.compassresearch.ast.statements.ADoNonDeterministicStm;
 import eu.compassresearch.ast.statements.AIfNonDeterministicStm;
 import eu.compassresearch.ast.statements.ANewStm;
+import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.ast.types.AProcessType;
 import eu.compassresearch.ide.core.unsupported.UnsupportedCollector;
 import eu.compassresearch.ide.core.unsupported.UnsupportedElementInfo;
@@ -616,6 +617,14 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAChannelsDefinition(node);
+	}
+	
+	@Override
+	public void caseAChannelType(AChannelType node)
+			throws AnalysisException {
+		unsupported = false;
+		// Do not remove the super call below.
+		super.caseAChannelType(node);
 	}
 
 	@Override
@@ -1254,8 +1263,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 
 	@Override
 	public void caseAForAllExp(AForAllExp node) throws AnalysisException {
-		// unsupported=false;
-		// TODO Uncomment the above line to signal support for this node
+		unsupported=false;
 		// Do not remove the super call below.
 		super.caseAForAllExp(node);
 	}
@@ -1731,8 +1739,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 
 	@Override
 	public void caseAIsExp(AIsExp node) throws AnalysisException {
-		// unsupported=false;
-		// TODO Uncomment the above line to signal support for this node
+		unsupported=false;
 		// Do not remove the super call below.
 		super.caseAIsExp(node);
 	}
@@ -2712,8 +2719,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 
 	@Override
 	public void caseASetBind(ASetBind node) throws AnalysisException {
-		// unsupported=false;
-		// TODO Uncomment the above line to signal support for this node
+		 unsupported=false;
 		// Do not remove the super call below.
 		super.caseASetBind(node);
 	}
@@ -2754,8 +2760,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 	@Override
 	public void caseASetMultipleBind(ASetMultipleBind node)
 			throws AnalysisException {
-		// unsupported=false;
-		// TODO Uncomment the above line to signal support for this node
+		unsupported=false;
 		// Do not remove the super call below.
 		super.caseASetMultipleBind(node);
 	}
@@ -3161,8 +3166,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 
 	@Override
 	public void caseATypeBind(ATypeBind node) throws AnalysisException {
-		// unsupported=false;
-		// TODO Uncomment the above line to signal support for this node
+		unsupported=false;
 		// Do not remove the super call below.
 		super.caseATypeBind(node);
 	}
@@ -3194,8 +3198,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 	@Override
 	public void caseATypeMultipleBind(ATypeMultipleBind node)
 			throws AnalysisException {
-		// unsupported=false;
-		// TODO Uncomment the above line to signal support for this node
+		unsupported=false;
 		// Do not remove the super call below.
 		super.caseATypeMultipleBind(node);
 	}
