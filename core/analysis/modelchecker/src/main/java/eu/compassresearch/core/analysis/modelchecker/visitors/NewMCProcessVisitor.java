@@ -17,6 +17,7 @@ import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AActionsDefinition;
 import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.ast.process.AAlphabetisedParallelismReplicatedProcess;
+import eu.compassresearch.ast.process.AHidingProcess;
 import eu.compassresearch.ast.process.AReferenceProcess;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPAction;
@@ -28,6 +29,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPVarsetExpression;
 import eu.compassresearch.core.analysis.modelchecker.ast.process.MCAActionProcess;
 import eu.compassresearch.core.analysis.modelchecker.ast.process.MCAAlphabetisedParallelismReplicatedProcess;
+import eu.compassresearch.core.analysis.modelchecker.ast.process.MCAHidingProcess;
 import eu.compassresearch.core.analysis.modelchecker.ast.process.MCAReferenceProcess;
 import eu.compassresearch.core.analysis.modelchecker.ast.process.MCPProcess;
 
@@ -111,9 +113,25 @@ public class NewMCProcessVisitor extends
 		for (PExp pExp : arguments) {
 			args.add((MCPCMLExp) pExp.apply(rootVisitor, question));
 		}
-		MCAProcessDefinition procDef = (MCAProcessDefinition) node.getProcessDefinition().apply(rootVisitor, question);
+		MCAProcessDefinition procDef;
+		if (node.getProcessDefinition() != null) {
+			procDef = (MCAProcessDefinition) node.getProcessDefinition().apply(rootVisitor, question);
+		} else{
+			procDef = null;
+		}
+		
 		MCAReferenceProcess result = new MCAReferenceProcess(name, args, procDef);
 		return result;
+	}
+
+
+
+	@Override
+	public MCNode caseAHidingProcess(AHidingProcess node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		MCPProcess proc = (MCPProcess) node.getLeft().apply(rootVisitor, question);
+		MCPVarsetExpression chansetExp = (MCPVarsetExpression) node.getChansetExpression().apply(rootVisitor, question);
+		return new MCAHidingProcess(chansetExp, proc);
 	}
 
 
