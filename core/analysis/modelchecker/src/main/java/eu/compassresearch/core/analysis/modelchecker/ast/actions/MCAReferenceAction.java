@@ -39,7 +39,7 @@ public class MCAReferenceAction implements MCPAction {
 				if(localAction.getName().toString().equals(this.name.toString())){
 					callResolved = true;
 					call = new MCActionCall(name, args);
-					result.append(call.toFormula(option));
+					
 				}
 			}
 		}
@@ -49,7 +49,7 @@ public class MCAReferenceAction implements MCPAction {
 					//((MCAExplicitCmlOperationDefinition) pDefinition).setParentAction(this);
 					if(((MCAExplicitCmlOperationDefinition) pDefinition).getName().toString().equals(this.name)){
 						call = new MCOperationCall(name, args, null);
-						result.append(call.toFormula(option));
+						
 					}
 				}
 			}

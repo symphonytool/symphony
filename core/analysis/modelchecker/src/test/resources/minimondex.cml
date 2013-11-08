@@ -9,19 +9,16 @@ types
 
   Money = nat
     inv m == m in set {0,...,M}
-    
 
 channels
   pay, transfer: Index * Index * Money
   accept , reject: Index
 
-    
 process Card = val i: Index @
 begin
- state 
- 	value: nat := 0
- 
- operations
+  state value: nat
+  
+  operations
     Init: () ==> ()
     Init() == value := V
 
@@ -39,7 +36,17 @@ begin
       
     Receive = transfer?j.i?n -> Credit(n)
     
-    Cycle = ( Transfer [] Receive ); Cycle  
-@ Init();Cycle
+    Cycle = ( Transfer [] Receive ); Cycle
+    
+@ Init(); Cycle
 
 end
+
+process Cards =
+  || i: Index @ 
+  		[ {| pay.i,transfer.i,accept.i, reject.i |} union {| transfer.j.i.n |} ] Card(i)
+
+--the original description uses {| pay.i,transfer.i,accept.i, reject.i |} union {transfer.j.i.n | j <- Index, n <- Money}
+-- but the construct var <- expression is not accepted by the parser
+
+process Network = Cards \\ {|transfer|}
