@@ -142,6 +142,19 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		return result;
 	}
 	
+	public MCPCMLType instantiateMCTypeFromTypes(LinkedList<MCPCMLType> types){
+		MCPCMLType result = null;
+		
+		if(types.size() == 0){
+			result = new MCVoidType();
+		} else if (types.size() == 1){
+			result = types.getFirst();
+		} else if (types.size() > 1){
+			result = new MCAProductType(types);
+		}
+		
+		return result;
+	}
 	public MCPCMLType instantiateMCTypeFromParams(LinkedList<MCPParametrisation> params){
 		MCPCMLType result = null;
 		
@@ -260,7 +273,7 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		
 		return this.instantiateMCTypeFromParams(patterns);
 	}
-
+	
 	private MCPCMLType getTypeFor(MCAIntLiteralExp exp){
 		MCPCMLType result = null;
 		

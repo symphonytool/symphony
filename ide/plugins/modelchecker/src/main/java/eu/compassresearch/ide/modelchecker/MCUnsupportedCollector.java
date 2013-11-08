@@ -616,7 +616,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 
 	@Override
 	public void caseAChannelType(AChannelType arg0) throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAChannelType(arg0);
@@ -3451,13 +3451,6 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	}
 
 	
-	@Override
-	public void caseAChannelType(AChannelType arg0) throws AnalysisException {
-		unsupported=false;
-		// TODO Auto-generated method stub
-		super.caseAChannelType(arg0);
-	}
-
 	@Override
 	public void caseAWhileStm(AWhileStm node) throws AnalysisException {
 		// unsupported=false;
