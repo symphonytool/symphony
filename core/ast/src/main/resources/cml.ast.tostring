@@ -43,13 +43,13 @@ import eu.compassresearch.ast.util.ToStringUtil;
 //%action->#Statement->#GeneralAssignment->single = [stateDesignator] " := " [expression]
 
 %action->parametrised = "params: " [parametrisations] " action: " [action]
-%parametrisation->val = "val" [declaration]
-%parametrisation->res = "res" [declaration]
-%parametrisation->vres = "vres" [declaration]
+%parametrisation->val = "val " [declaration]
+%parametrisation->res = "res " [declaration]
+%parametrisation->vres = "vres " [declaration]
 %action->communication = [identifier] " -> " [action]
 %action->guarded = [expression] " & " [action]
 //%action->#Statement->call = [name] "(" + $org.overture.ast.util.Utils.listToString($  [args]  $)$ + ")"
-%declaration->#Single->type = [identifier] ":" [type]
+%declaration->#Single->type = [identifier] " : " [type]
 %declaration->#Single->expression = [identifier] " := " [expression]
 
 //%exp->variable = [name]
