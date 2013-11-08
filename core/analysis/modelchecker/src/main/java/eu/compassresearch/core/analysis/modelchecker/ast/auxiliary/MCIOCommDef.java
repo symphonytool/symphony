@@ -42,11 +42,15 @@ public class MCIOCommDef implements MCNode {
 		result.append(",");
 		Binding maxCopy = max.copy();
 		//we must update all communication variables in the binding with new valueNames so that the new values will come form the involved communication variables
-		String varName = ""; 
-		String newValueVarName = varName + "_";
-		MCPCMLExp newVarValue = new MCAVariableExp(newValueVarName);
-		maxCopy.updateBinding(varName,newVarValue); //we must perform an update of all values in the bindings.
-		result.append(maxCopy.toFormula(MCNode.GENERIC)); 
+		if(parentAction.getCommunicationParameters().size() > 0){
+			String varName = ""; 
+			String newValueVarName = varName + "_";
+			MCPCMLExp newVarValue = new MCAVariableExp(newValueVarName);
+			maxCopy.updateBinding(varName,newVarValue); //we must perform an update of all values in the bindings.
+			result.append(maxCopy.toFormula(MCNode.GENERIC)); 
+		} else{
+			result.append(max.toFormula(MCNode.NAMED)); //with variable names
+		}
 		result.append(")");
 		
 		result.append(" :- ");

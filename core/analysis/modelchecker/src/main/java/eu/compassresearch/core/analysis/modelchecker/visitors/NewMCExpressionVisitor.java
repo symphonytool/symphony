@@ -28,6 +28,7 @@ import eu.compassresearch.ast.expressions.ABracketedExp;
 import eu.compassresearch.ast.expressions.AEnumVarsetExpression;
 import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
 import eu.compassresearch.ast.expressions.ANameChannelExp;
+import eu.compassresearch.ast.expressions.AUnionVOpVarsetExpression;
 import eu.compassresearch.ast.expressions.PCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAEnumVarsetExpression;
@@ -47,8 +48,10 @@ import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASetEnumS
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASetRangeSetExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASubtractNumericBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCATimesNumericBinaryExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAUnionVOpVarsetExpression;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAVariableExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPVarsetExpression;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 
 public class NewMCExpressionVisitor extends
@@ -70,6 +73,16 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 	}
 	
 	
+	@Override
+	public MCNode caseAUnionVOpVarsetExpression(AUnionVOpVarsetExpression node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		MCPVarsetExpression left = (MCPVarsetExpression) node.getLeft().apply(rootVisitor, question);
+		MCPVarsetExpression right = (MCPVarsetExpression) node.getRight().apply(rootVisitor, question);
+		MCAUnionVOpVarsetExpression result = new MCAUnionVOpVarsetExpression(left, right);
+		return result;
+	}
+
+
 	@Override
 	public MCNode caseAPlusNumericBinaryExp(APlusNumericBinaryExp node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
@@ -332,7 +345,7 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 		LinkedList<PExp> exp = node.getExpressions();
 		LinkedList<MCPCMLExp> mcExp = new LinkedList<MCPCMLExp>();
 		for(PExp e: exp){
-			mcExp.add((MCPCMLExp)e);
+			mcExp.add((MCPCMLExp)e.apply(rootVisitor, question));
 		}
 		return new MCANameChannelExp(name, mcExp);
 	}
