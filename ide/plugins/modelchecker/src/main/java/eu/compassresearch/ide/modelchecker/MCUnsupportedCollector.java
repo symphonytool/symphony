@@ -2187,7 +2187,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 
 	@Override
 	public void caseANotUnaryExp(ANotUnaryExp node) throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseANotUnaryExp(node);

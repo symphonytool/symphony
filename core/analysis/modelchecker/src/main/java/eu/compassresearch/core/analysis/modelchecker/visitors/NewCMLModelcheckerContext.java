@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Stack;
 
+import org.overture.ast.definitions.SFunctionDefinition;
 import org.overture.ast.node.INode;
 
 import eu.compassresearch.ast.definitions.AActionDefinition;
@@ -26,6 +27,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAProcessD
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCATypeDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAValueDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCSCmlOperationDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCSFunctionDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPVarsetExpression;
 
@@ -50,6 +52,7 @@ public class NewCMLModelcheckerContext {
 	public ArrayList<MCAssignDef> assignDefs;
 	public LinkedList<MCAChannelDefinition> channelDefs;
 	public ArrayList<MCSCmlOperationDefinition> operations;
+	public ArrayList<MCSFunctionDefinition> functions;
 	public LinkedList<MCAValueDefinition> valueDefinitions;
 	public LinkedList<MCATypeDefinition> typeDefinitions;
 	public LinkedList<MCAProcessDefinition> processDefinitions;
@@ -130,6 +133,7 @@ public class NewCMLModelcheckerContext {
 		channelDefs = new LinkedList<MCAChannelDefinition>();
 		processDefinitions = new LinkedList<MCAProcessDefinition>();
 		actionOrProcessDefStack = new Stack<INode>(); 
+		functions = new ArrayList<MCSFunctionDefinition>();
 		ASSIGN_COUNTER = 0;
 		GUARD_COUNTER = 0;
 		IOCOMM_COUNTER = 0;

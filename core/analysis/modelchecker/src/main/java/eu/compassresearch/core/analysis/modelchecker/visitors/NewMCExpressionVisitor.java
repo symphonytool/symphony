@@ -4,6 +4,7 @@ import java.util.LinkedList;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
+import org.overture.ast.expressions.AApplyExp;
 import org.overture.ast.expressions.AEqualsBinaryExp;
 import org.overture.ast.expressions.AGreaterEqualNumericBinaryExp;
 import org.overture.ast.expressions.AGreaterNumericBinaryExp;
@@ -12,12 +13,14 @@ import org.overture.ast.expressions.AIntLiteralExp;
 import org.overture.ast.expressions.ALessEqualNumericBinaryExp;
 import org.overture.ast.expressions.ALessNumericBinaryExp;
 import org.overture.ast.expressions.ANotEqualBinaryExp;
+import org.overture.ast.expressions.ANotUnaryExp;
 import org.overture.ast.expressions.APlusNumericBinaryExp;
 import org.overture.ast.expressions.ASeqEnumSeqExp;
 import org.overture.ast.expressions.ASetEnumSetExp;
 import org.overture.ast.expressions.ASetRangeSetExp;
 import org.overture.ast.expressions.ASubtractNumericBinaryExp;
 import org.overture.ast.expressions.ATimesNumericBinaryExp;
+import org.overture.ast.expressions.AUndefinedExp;
 import org.overture.ast.expressions.AVariableExp;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.node.INode;
@@ -31,6 +34,7 @@ import eu.compassresearch.ast.expressions.ANameChannelExp;
 import eu.compassresearch.ast.expressions.AUnionVOpVarsetExpression;
 import eu.compassresearch.ast.expressions.PCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAApplyExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAEnumVarsetExpression;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAEqualsBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAFatEnumVarsetExpression;
@@ -42,16 +46,19 @@ import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCALessEqua
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCALessNumericBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANameChannelExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANotEqualsBinaryExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANotUnaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAPlusNumericBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASeqEnumSeqExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASetEnumSetExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASetRangeSetExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASubtractNumericBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCATimesNumericBinaryExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAUndefinedExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAUnionVOpVarsetExpression;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAVariableExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPVarsetExpression;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCVoidValue;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 
 public class NewMCExpressionVisitor extends
@@ -281,20 +288,7 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 		return question.getScriptContent();
 	}
 
-	@Override
-	public StringBuilder caseANotUnaryExp(ANotUnaryExp node,
-			CMLModelcheckerContext question) throws AnalysisException {
-		
 	
-		if(ExpressionEvaluator.evaluate(node)){
-			//nothing todo
-		}else{
-			question.getScriptContent().append("GUARDNDEF#");
-		}
-
-		return question.getScriptContent();
-	}
-
 	@Override
 	public StringBuilder caseAOrBooleanBinaryExp(AOrBooleanBinaryExp node,
 			CMLModelcheckerContext question) throws AnalysisException {
@@ -311,6 +305,33 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 
 
 	*/
+
+	@Override
+	public MCNode caseANotUnaryExp(ANotUnaryExp node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		
+	
+		MCPCMLExp exp = (MCPCMLExp) node.getExp().apply(this, question);
+		MCANotUnaryExp result = new MCANotUnaryExp(exp);
+
+		return result;
+	}
+
+	
+	@Override
+	public MCNode caseAApplyExp(AApplyExp node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		
+		MCPCMLExp root = (MCPCMLExp) node.getRoot().apply(this, question);
+		LinkedList<MCPCMLExp> args = new LinkedList<MCPCMLExp>();
+		for (PExp pExp : node.getArgs()) {
+			args.add((MCPCMLExp) pExp.apply(this, question));
+		}
+		MCAApplyExp result = new MCAApplyExp(args, root);
+		
+		return result;
+	}
+
 
 	@Override
 	public MCNode caseAIntLiteralExp(AIntLiteralExp node,
@@ -374,6 +395,16 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 		
 		MCASetRangeSetExp result = new MCASetRangeSetExp(first, last);
 		
+		return result;
+	}
+
+	
+
+	@Override
+	public MCNode caseAUndefinedExp(AUndefinedExp node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		
+		MCAUndefinedExp result = new MCAUndefinedExp();
 		return result;
 	}
 

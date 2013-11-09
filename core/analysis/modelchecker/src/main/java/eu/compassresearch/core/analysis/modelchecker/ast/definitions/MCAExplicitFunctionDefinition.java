@@ -2,31 +2,26 @@ package eu.compassresearch.core.analysis.modelchecker.ast.definitions;
 
 import java.util.LinkedList;
 
+import org.overture.ast.definitions.AExplicitFunctionDefinition;
+
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCPCMLPattern;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 
-public class MCAExplicitFunctionDefinition implements MCPCMLDefinition {
+public class MCAExplicitFunctionDefinition implements MCSFunctionDefinition {
 
 	private String name;
-	private MCPCMLType actualResult;
+	private MCPCMLType type;
 	private MCPCMLExp body;
-	private LinkedList<MCPCMLDefinition> paramDefinitionList;
-	private MCPCMLExp preCondition;
-	private MCPCMLExp postCondition;
+	private LinkedList<MCPCMLPattern> paramPatternList;
 
-	
-	public MCAExplicitFunctionDefinition(String name, MCPCMLType actualResult,
-			MCPCMLExp body, LinkedList<MCPCMLDefinition> paramDefinitionList,
-			MCPCMLExp preCondition, MCPCMLExp postCondition) {
-		super();
+	public MCAExplicitFunctionDefinition(String name, MCPCMLType type,
+			MCPCMLExp body, LinkedList<MCPCMLPattern> paramPatternList) {
 		this.name = name;
-		this.actualResult = actualResult;
+		this.type = type;
 		this.body = body;
-		this.paramDefinitionList = paramDefinitionList;
-		this.preCondition = preCondition;
-		this.postCondition = postCondition;
+		this.paramPatternList = paramPatternList;
 	}
-
 
 	@Override
 	public String toFormula(String option) {
@@ -35,9 +30,22 @@ public class MCAExplicitFunctionDefinition implements MCPCMLDefinition {
 	}
 
 
+	public MCPCMLExp applyFunction(LinkedList<MCPCMLExp> args){
+		MCPCMLExp result = null;
+		
+		//it gets a copy of the body expression and puts the actual args in it
+		result = this.body.copy();
+		
+		
+		return result;
+	}
+
+
 	public String getName() {
 		return name;
 	}
+
+
 
 
 	public void setName(String name) {
@@ -45,14 +53,20 @@ public class MCAExplicitFunctionDefinition implements MCPCMLDefinition {
 	}
 
 
-	public MCPCMLType getActualResult() {
-		return actualResult;
+
+
+	public MCPCMLType getType() {
+		return type;
 	}
 
 
-	public void setActualResult(MCPCMLType actualResult) {
-		this.actualResult = actualResult;
+
+
+	public void setType(MCPCMLType type) {
+		this.type = type;
 	}
+
+
 
 
 	public MCPCMLExp getBody() {
@@ -60,40 +74,27 @@ public class MCAExplicitFunctionDefinition implements MCPCMLDefinition {
 	}
 
 
+
+
 	public void setBody(MCPCMLExp body) {
 		this.body = body;
 	}
 
 
-	public LinkedList<MCPCMLDefinition> getParamDefinitionList() {
-		return paramDefinitionList;
+
+
+	public LinkedList<MCPCMLPattern> getParamPatternList() {
+		return paramPatternList;
 	}
 
 
-	public void setParamDefinitionList(
-			LinkedList<MCPCMLDefinition> paramDefinitionList) {
-		this.paramDefinitionList = paramDefinitionList;
+
+
+	public void setParamPatternList(LinkedList<MCPCMLPattern> paramPatternList) {
+		this.paramPatternList = paramPatternList;
 	}
 
-
-	public MCPCMLExp getPreCondition() {
-		return preCondition;
-	}
-
-
-	public void setPreCondition(MCPCMLExp preCondition) {
-		this.preCondition = preCondition;
-	}
-
-
-	public MCPCMLExp getPostCondition() {
-		return postCondition;
-	}
-
-
-	public void setPostCondition(MCPCMLExp postCondition) {
-		this.postCondition = postCondition;
-	}
 
 	
+		
 }

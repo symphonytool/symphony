@@ -2,6 +2,8 @@ package eu.compassresearch.core.analysis.modelchecker.ast.auxiliary;
 
 import java.util.LinkedList;
 
+import org.overture.ast.patterns.AIdentifierPattern;
+
 import eu.compassresearch.ast.actions.AValParametrisation;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAReadCommunicationParameter;
@@ -13,6 +15,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPParametrisat
 import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCATypeSingleDeclaration;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCALocalDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAValueDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAApplyExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAEqualsBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAGreaterEqualNumericBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAGreaterNumericBinaryExp;
@@ -21,6 +24,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAIntLiter
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCALessEqualNumericBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCALessNumericBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANotEqualsBinaryExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANotUnaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASetRangeSetExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAVariableExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
@@ -525,6 +529,10 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 			resp = this.canEvaluate((MCAIntLiteralExp)expression);
 		} else if(expression instanceof MCAVariableExp){
 			resp = this.canEvaluate((MCAVariableExp)expression);
+		} else if(expression instanceof MCANotUnaryExp){
+			resp = this.canEvaluate((MCANotUnaryExp)expression);
+		} else if(expression instanceof MCAApplyExp){
+			resp = this.canEvaluate((MCAApplyExp)expression);
 		}
 		return resp;
 	}
@@ -540,6 +548,24 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		if(valueDef != null){
 			result = true;
 		}
+		return result;
+	}
+	
+	public boolean canEvaluate(MCANotUnaryExp expression){
+		boolean result = false;
+		result = canEvaluate(expression.getExp());
+		return result;
+	}
+	
+	public boolean canEvaluate(MCAApplyExp expression){
+		boolean result = true;
+		for (MCPCMLExp exp : expression.getArgs()) {
+			if(!canEvaluate(exp)){
+				result = false;
+				break;
+			}
+		}
+		
 		return result;
 	}
 	
@@ -603,5 +629,19 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		}
 		
 		return result; 
+	}
+	
+	public LinkedList<PatternValue> buildPatternValueList(LinkedList<MCPCMLPattern> patterns, LinkedList<MCPCMLExp> exprs){
+		LinkedList<PatternValue> result = new LinkedList<PatternValue>();
+		int i = 0;
+		for (MCPCMLPattern pat : patterns) {
+			if(pat instanceof MCAIdentifierPattern){
+				MCPCMLExp value = exprs.get(i);
+				result.add(new PatternValue(pat,value));
+				i++;
+			}
+		}
+		
+		return result;
 	}
 }
