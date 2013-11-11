@@ -6,7 +6,6 @@ import static eu.compassresearch.core.typechecker.assistant.TypeCheckerUtil.setT
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 import java.util.Vector;
 
 import org.overture.ast.analysis.AnalysisException;
@@ -435,17 +434,17 @@ public class CmlActionTypeChecker extends
 				List<String> repeatedIds = new Vector<String>();
 				for (PDefinition lDef : leftName.getDefinitions())
 				{
-					if(rightName.getDefinitions().contains(lDef))
+					if (rightName.getDefinitions().contains(lDef))
 					{
 						disjoint = false;
-						//report disjoint required error
-//						System.out.println();
-						repeatedIds.add(lDef.getName()+"");
+						// report disjoint required error
+						// System.out.println();
+						repeatedIds.add(lDef.getName() + "");
 					}
 				}
-				
-				//report global disjoint error
-				if(!disjoint)
+
+				// report global disjoint error
+				if (!disjoint)
 				{
 					issueHandler.addTypeError(leftNamesetExp, TypeErrorMessages.PARALLEL_NAMESETS_MUST_BE_DISJOINT_REPEATED_STATE, ""
 							+ Utils.listToString(repeatedIds, ","));
