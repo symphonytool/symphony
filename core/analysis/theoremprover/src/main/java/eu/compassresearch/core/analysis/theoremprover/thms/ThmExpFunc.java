@@ -27,12 +27,19 @@ public class ThmExpFunc extends ThmDecl {
 		this.name = name;
 		this.pattern = pattern;
 		this.expr = fixParamRefs(expr,pattern);
-		this.preParamList = getPrePostParamList(pattern, "pre");
-		this.postParamList = getPrePostParamList(pattern, "post");
-		//generate function for postcondition
-		this.post = createPrePostFunc(name, post, pattern, "post");
-		//generate function for precondition
-		this.pre = createPrePostFunc(name, pre, pattern, "pre");
+		
+		if(pre != null)
+		{
+			//generate function for precondition
+			this.pre = createPrePostFunc(name, pre, pattern, "pre");
+			this.preParamList = getPrePostParamList(pattern, "pre");
+		}
+		if(post != null)
+		{
+			this.postParamList = getPrePostParamList(pattern, "post");
+			//generate function for postcondition
+			this.post = createPrePostFunc(name, post, pattern, "post");
+		}
 		this.resType = resType;
 	}
 	
@@ -89,10 +96,6 @@ public class ThmExpFunc extends ThmDecl {
 	 */
 	private String createPrePostFunc(String name, String exp, LinkedList<List<PPattern>> params, String prepost)
 	{	
-		if (exp == null)
-		{
-			exp = "true";
-		}
 		if (prepost.equals("post"))
 		{
 			exp = fixPostFuncExpr(exp, params);
@@ -176,9 +179,13 @@ public class ThmExpFunc extends ThmDecl {
 		
 		StringBuilder res = new StringBuilder();
 		
-		res.append(pre + "\n\n");
-
-		res.append(post + "\n\n");
+		if(pre!=null){
+			res.append(pre + "\n\n");
+		}
+		
+		if(post!=null){
+			res.append(post + "\n\n");
+		}
 		
 		res.append(ThmTypeUtil.isaFunc + " \"" + name + " = " + 
 			ThmTypeUtil.isaFuncBar + ThmTypeUtil.isaFuncLambda + " " +ThmTypeUtil.isaFuncLambaVal+" @ " +
@@ -194,8 +201,21 @@ public class ThmExpFunc extends ThmDecl {
 	private String createFuncExp() {
 		StringBuilder sb = new StringBuilder();
 		
-		sb.append("if (pre_"+ name + preParamList + ")\n");
-		sb.append("then (" + ThmTypeUtil.isaFuncLambdaPost + " " + ThmTypeUtil.isaFuncLambdaPostVal+ " : " + resType + " @ (post_" + name + postParamList + " and ^" + ThmTypeUtil.isaFuncLambdaPostVal +  "^ = " + expr +"))\n");
+		if(pre!=null){
+			sb.append("if (pre_"+ name + preParamList + ")\n");
+		}
+		else{
+			sb.append("if true\n");
+		}
+		
+		if(post!=null){
+			sb.append("then (" + ThmTypeUtil.isaFuncLambdaPost + " " + ThmTypeUtil.isaFuncLambdaPostVal+ " : " + resType + " @ (post_" + name + postParamList + " and ");
+		}
+		else{
+			sb.append("then (" + ThmTypeUtil.isaFuncLambdaPost + " " + ThmTypeUtil.isaFuncLambdaPostVal+ " : " + resType + " @ (true and ");
+		}
+		
+		sb.append("^" + ThmTypeUtil.isaFuncLambdaPostVal +  "^ = " + expr +"))\n");
 		sb.append("else undefined");
 		
 		return sb.toString();

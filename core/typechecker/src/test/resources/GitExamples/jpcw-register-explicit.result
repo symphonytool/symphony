@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<testResult type="eu.compassresearch.core.typechecker.secondedition.RunCmlExamplesTestCase">
-<message column="2" line="25" message="Instance variable 'reg' is not initialized" messageType="warning" number="0" resource="jpcw-register-explicit.result"/>
-<message column="3" line="7" message="Too many parameter patterns" messageType="error" number="0" resource="jpcw-register-explicit.result"/>
-<message column="3" line="10" message="Too many parameter patterns" messageType="error" number="0" resource="jpcw-register-explicit.result"/>
-<message column="19" line="56" message="Name 'oflow(Byte, Byte)' is not in scope" messageType="error" number="0" resource="jpcw-register-explicit.result"/>
-<message column="19" line="56" message="Operation 'oflow' cannot be called in an expression" messageType="error" number="0" resource="jpcw-register-explicit.result"/>
-<message column="9" line="58" message="Name 'oflow(Byte, Byte)' is not in scope" messageType="error" number="0" resource="jpcw-register-explicit.result"/>
-<message column="9" line="58" message="Operation 'oflow' cannot be called in an expression" messageType="error" number="0" resource="jpcw-register-explicit.result"/>
-<message column="19" line="60" message="Name 'uflow(Byte, Byte)' is not in scope" messageType="error" number="0" resource="jpcw-register-explicit.result"/>
-<message column="19" line="60" message="Operation 'uflow' cannot be called in an expression" messageType="error" number="0" resource="jpcw-register-explicit.result"/>
-<message column="9" line="62" message="Name 'uflow(Byte, Byte)' is not in scope" messageType="error" number="0" resource="jpcw-register-explicit.result"/>
-<message column="9" line="62" message="Operation 'uflow' cannot be called in an expression" messageType="error" number="0" resource="jpcw-register-explicit.result"/>
+<testResult type="eu.compassresearch.core.typechecker.RunCmlExamplesTestCase">
+<message column="2" line="25" message="Instance variable 'reg' is not initialized." messageType="warning" number="5001" resource="jpcw-register-explicit.cml"/>
+<message column="3" line="7" message="Too many parameter patterns. Pattern(s): [i, j] Type(s): [(Byte * Byte)]" messageType="error" number="3020" resource="jpcw-register-explicit.cml"/>
+<message column="3" line="10" message="Too many parameter patterns. Pattern(s): [i, j] Type(s): [(Byte * Byte)]" messageType="error" number="3020" resource="jpcw-register-explicit.cml"/>
+<message column="19" line="56" message="Name 'oflow(Byte, Byte)' is not in scope. Possible: oflow((Byte * Byte))" messageType="error" number="3182" resource="jpcw-register-explicit.cml"/>
+<message column="19" line="56" message="Operation 'oflow' cannot be called in an expression." messageType="error" number="3425" resource="jpcw-register-explicit.cml"/>
+<message column="9" line="58" message="Name 'oflow(Byte, Byte)' is not in scope. Possible: oflow((Byte * Byte))" messageType="error" number="3182" resource="jpcw-register-explicit.cml"/>
+<message column="9" line="58" message="Operation 'oflow' cannot be called in an expression." messageType="error" number="3425" resource="jpcw-register-explicit.cml"/>
+<message column="19" line="60" message="Name 'uflow(Byte, Byte)' is not in scope. Possible: uflow((Byte * Byte))" messageType="error" number="3182" resource="jpcw-register-explicit.cml"/>
+<message column="19" line="60" message="Operation 'uflow' cannot be called in an expression." messageType="error" number="3425" resource="jpcw-register-explicit.cml"/>
+<message column="9" line="62" message="Name 'uflow(Byte, Byte)' is not in scope. Possible: uflow((Byte * Byte))" messageType="error" number="3182" resource="jpcw-register-explicit.cml"/>
+<message column="9" line="62" message="Operation 'uflow' cannot be called in an expression." messageType="error" number="3425" resource="jpcw-register-explicit.cml"/>
 <result/>
 </testResult>

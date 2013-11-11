@@ -1,9 +1,5 @@
 package eu.compassresearch.core.typechecker.visitors;
 
-//import static eu.compassresearch.core.typechecker.util.CmlTCUtil.successfulType;
-
-//import static eu.compassresearch.core.typechecker.util.CmlTCUtil.successfulType;
-
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -16,7 +12,6 @@ import org.overture.ast.expressions.PExp;
 import org.overture.ast.factory.AstFactory;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.node.INode;
-import org.overture.ast.types.AProductType;
 import org.overture.ast.types.PType;
 import org.overture.typechecker.TypeCheckInfo;
 import org.overture.typechecker.TypeComparator;
@@ -37,10 +32,6 @@ public class CmlChannelExpressionTypeChecker extends
 		QuestionAnswerCMLAdaptor<TypeCheckInfo, PType>
 {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 	private final ITypeIssueHandler issueHandler;// = VanillaFactory.newCollectingIssueHandle();
 
 	@SuppressWarnings("deprecation")
@@ -61,13 +52,12 @@ public class CmlChannelExpressionTypeChecker extends
 		PDefinition chanDef = TypeCheckerUtil.findDefinition(channelId, question.env);
 		if (!(chanDef instanceof AChannelDefinition))
 		{
-			issueHandler.addTypeError(node, TypeErrorMessages.EXPECTED_A_CHANNEL,channelId
+			issueHandler.addTypeError(node, TypeErrorMessages.EXPECTED_A_CHANNEL, channelId
 					+ "");
-			return null;
+			return AstFactory.newAUnknownType(node.getLocation());
 		}
 
 		AChannelType chanConcreteType = ((AChannelDefinition) chanDef).getType();
-
 
 		Iterator<PType> iterator = chanConcreteType.getParameters().iterator();
 		PType singleChanConcType = null;
@@ -76,7 +66,7 @@ public class CmlChannelExpressionTypeChecker extends
 			if (iterator.hasNext())
 			{
 				singleChanConcType = iterator.next();
-			}else
+			} else
 			{
 				singleChanConcType = AstFactory.newAUnknownType(chanConcreteType.getLocation());
 			}
@@ -85,12 +75,12 @@ public class CmlChannelExpressionTypeChecker extends
 
 			if (!TypeComparator.compatible(singleChanConcType, expressionType))
 			{
-				issueHandler.addTypeError(expression, TypeErrorMessages.INCOMPATIBLE_TYPE,""
+				issueHandler.addTypeError(expression, TypeErrorMessages.INCOMPATIBLE_TYPE, ""
 						+ singleChanConcType, "" + expressionType);
-				return null;
+				return AstFactory.newAUnknownType(node.getLocation());
 			}
 		}
-
+		chanConcreteType.getDefinitions().add(chanDef);
 		node.setType(chanConcreteType);
 		return node.getType();
 	}
@@ -118,7 +108,7 @@ public class CmlChannelExpressionTypeChecker extends
 			PDefinition fromChanDef = TypeCheckerUtil.findDefinition(from.getIdentifier(), question.env);
 			if (fromChanDef == null)
 			{
-				issueHandler.addTypeError(from, TypeErrorMessages.UNDEFINED_SYMBOL,""
+				issueHandler.addTypeError(from, TypeErrorMessages.UNDEFINED_SYMBOL, ""
 						+ from);
 				return null;
 			}

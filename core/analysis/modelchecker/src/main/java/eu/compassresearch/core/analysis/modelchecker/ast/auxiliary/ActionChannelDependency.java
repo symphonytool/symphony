@@ -4,7 +4,7 @@ import java.util.LinkedList;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPCommunicationParameter;
-import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAChannelNameDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAChannelDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 
@@ -12,7 +12,7 @@ public class ActionChannelDependency {
 	
 	private String actionName;
 	private String channelName;
-	private MCAChannelNameDefinition channelDefinition;
+	private MCAChannelDefinition channelDefinition;
 	private LinkedList<MCPCommunicationParameter> parameters;
 	
 	public ActionChannelDependency(String actionName, String channelName, LinkedList<MCPCommunicationParameter> parameters) {
@@ -51,11 +51,11 @@ public class ActionChannelDependency {
 		this.channelName = channelName;
 	}
 
-	public MCAChannelNameDefinition getChannelDefinition() {
+	public MCAChannelDefinition getChannelDefinition() {
 		return channelDefinition;
 	}
 
-	public void setChannelDefinition(MCAChannelNameDefinition channelDefinition) {
+	public void setChannelDefinition(MCAChannelDefinition channelDefinition) {
 		this.channelDefinition = channelDefinition;
 	}
 

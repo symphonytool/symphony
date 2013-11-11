@@ -17,4 +17,10 @@ public class MCAPlusNumericBinaryExp extends MCNumericBinaryExp {
 		return result.toString();	
 	}
 
+	@Override
+	public MCPCMLExp copy() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

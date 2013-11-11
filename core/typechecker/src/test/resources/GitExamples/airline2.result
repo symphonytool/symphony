@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<testResult type="eu.compassresearch.core.typechecker.secondedition.RunCmlExamplesTestCase">
-<message column="4" line="42" message="Definition 'f' not used" messageType="warning" number="0" resource="airline2.result"/>
-<message column="3" line="82" message="flights at 82:3 hidden by flights" messageType="warning" number="0" resource="airline2.result"/>
-<message column="3" line="81" message="Instance variable 'connections' is not initialized" messageType="warning" number="0" resource="airline2.result"/>
-<message column="3" line="82" message="Instance variable 'flights' is not initialized" messageType="warning" number="0" resource="airline2.result"/>
-<message column="3" line="83" message="Instance variable 'authorisedAgents' is not initialized" messageType="warning" number="0" resource="airline2.result"/>
-<message column="3" line="84" message="Instance variable 'bookings' is not initialized" messageType="warning" number="0" resource="airline2.result"/>
-<message column="4" line="42" message="Definition 'f' not used" messageType="warning" number="0" resource="airline2.result"/>
-<message column="17" line="119" message="Unable to resolve type name 'agent'" messageType="error" number="0" resource="airline2.result"/>
-<message column="8" line="19" message="Not expression is not a boolean" messageType="error" number="0" resource="airline2.result"/>
-<message column="8" line="19" message="'in set' expression is always false" messageType="error" number="0" resource="airline2.result"/>
-<message column="19" line="100" message="Unknown field date in record Flight" messageType="error" number="0" resource="airline2.result"/>
-<message column="17" line="119" message="Unable to resolve type name 'agent'" messageType="error" number="0" resource="airline2.result"/>
-<message column="8" line="19" message="Not expression is not a boolean" messageType="error" number="0" resource="airline2.result"/>
-<message column="8" line="19" message="'in set' expression is always false" messageType="error" number="0" resource="airline2.result"/>
-<message column="77" line="150" message="Name 't' is not in scope" messageType="error" number="0" resource="airline2.result"/>
-<message column="58" line="150" message="Name 'FindFlight(Airport, Airport, ?, Date, nat)' is not in scope" messageType="error" number="0" resource="airline2.result"/>
-<message column="12" line="153" message="Too few arguments" messageType="error" number="0" resource="airline2.result"/>
-<message column="41" line="153" message="Unable to resolve type name 'ReservationId'" messageType="error" number="0" resource="airline2.result"/>
+<testResult type="eu.compassresearch.core.typechecker.RunCmlExamplesTestCase">
+<message column="4" line="42" message="Definition 'f' not used." messageType="warning" number="5000" resource="airline2.cml"/>
+<message column="3" line="82" message="flights at 82:3 hidden by flights." messageType="warning" number="5008" resource="airline2.cml"/>
+<message column="3" line="81" message="Instance variable 'connections' is not initialized." messageType="warning" number="5001" resource="airline2.cml"/>
+<message column="3" line="82" message="Instance variable 'flights' is not initialized." messageType="warning" number="5001" resource="airline2.cml"/>
+<message column="3" line="83" message="Instance variable 'authorisedAgents' is not initialized." messageType="warning" number="5001" resource="airline2.cml"/>
+<message column="3" line="84" message="Instance variable 'bookings' is not initialized." messageType="warning" number="5001" resource="airline2.cml"/>
+<message column="4" line="42" message="Definition 'f' not used." messageType="warning" number="5000" resource="airline2.cml"/>
+<message column="17" line="119" message="Unable to resolve type name 'agent'." messageType="error" number="3427" resource="airline2.cml"/>
+<message column="8" line="19" message="Not expression is not a boolean." messageType="error" number="3137" resource="airline2.cml"/>
+<message column="8" line="19" message="'in set' expression is always false. Element: bool Set: set of (Airport)" messageType="error" number="3319" resource="airline2.cml"/>
+<message column="19" line="100" message="Unknown field date in record Flight." messageType="error" number="3090" resource="airline2.cml"/>
+<message column="17" line="119" message="Unable to resolve type name 'agent'." messageType="error" number="3428" resource="airline2.cml"/>
+<message column="8" line="19" message="Not expression is not a boolean." messageType="error" number="3137" resource="airline2.cml"/>
+<message column="8" line="19" message="'in set' expression is always false. Element: bool Set: set of (Airport)" messageType="error" number="3319" resource="airline2.cml"/>
+<message column="77" line="150" message="Name 't' is not in scope." messageType="error" number="3182" resource="airline2.cml"/>
+<message column="58" line="150" message="Name 'FindFlight(nat, Airport, ?, Airport, Date)' is not in scope. Possible: FindFlight(Airport, Airport, Date, nat)" messageType="error" number="3182" resource="airline2.cml"/>
+<message column="12" line="153" message="Too few arguments. Args: [n, f] Params: [nat, FlightId, $actionClass172]" messageType="error" number="3060" resource="airline2.cml"/>
+<message column="41" line="153" message="Unable to resolve type name 'ReservationId'" messageType="error" number="0" resource="airline2.cml"/>
 <result/>
 </testResult>

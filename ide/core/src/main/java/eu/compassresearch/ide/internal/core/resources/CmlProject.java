@@ -148,8 +148,7 @@ import eu.compassresearch.ide.core.unsupported.UnsupportedElementInfo;
 	{
 		for (UnsupportedElementInfo uei : ueis)
 		{
-			if (uei.getLocation()!=null)
-				FileUtility.addMarker(this.findIFile(uei.getLocation().getFile()), uei.getMessage(), uei.getLocation(), IMarker.SEVERITY_WARNING, IBuilderVdmjConstants.PLUGIN_ID);
+			FileUtility.addMarker(this.findIFile(uei.getLocation().getFile()), uei.getMessage(), uei.getLocation(), IMarker.SEVERITY_WARNING, IBuilderVdmjConstants.PLUGIN_ID);
 		}
 	}
 

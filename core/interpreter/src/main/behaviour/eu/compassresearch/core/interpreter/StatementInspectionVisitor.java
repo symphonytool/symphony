@@ -155,7 +155,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 	}
 	
 	@Override
-	public Inspection caseABlockSimpleBlockStm(ABlockSimpleBlockStm node,
+	public Inspection caseABlockSimpleBlockStm(final ABlockSimpleBlockStm node,
 			final Context question) throws AnalysisException
 	{
 		final PStm nextStm = node.getStatements().get(0);
@@ -167,7 +167,20 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 					CmlTransition selectedTransition)
 					throws AnalysisException
 			{
-				return new Pair<INode, Context>(nextStm, question);
+				Context blockContext = question;
+				// add the assignment definitions to the block context
+				if (node.getAssignmentDefs() != null)
+				{
+					blockContext = CmlContextFactory.newContext(node.getLocation(), "block context", question);
+
+					for (PDefinition def : node.getAssignmentDefs())
+					{
+						NameValuePair nvp = def.apply(cmlDefEvaluator, question).get(0);
+						blockContext.put(nvp.name, nvp.value.getUpdatable(null));
+					}
+				}
+				
+				return new Pair<INode, Context>(nextStm, blockContext);
 			}
 		});
 	}

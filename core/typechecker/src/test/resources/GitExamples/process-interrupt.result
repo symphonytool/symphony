@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<testResult type="eu.compassresearch.core.typechecker.secondedition.RunCmlExamplesTestCase">
-<message column="23" line="1" message="3410 The Symbol &quot;A&quot; is undefined." messageType="error" number="0" resource="process-interrupt.result"/>
-<message column="29" line="1" message="3410 The Symbol &quot;B&quot; is undefined." messageType="error" number="0" resource="process-interrupt.result"/>
+<testResult type="eu.compassresearch.core.typechecker.RunCmlExamplesTestCase">
+<message column="23" line="1" message="The Symbol &quot;A&quot; is undefined." messageType="error" number="3410" resource="process-interrupt.cml"/>
+<message column="29" line="1" message="The Symbol &quot;B&quot; is undefined." messageType="error" number="3410" resource="process-interrupt.cml"/>
 <result/>
 </testResult>

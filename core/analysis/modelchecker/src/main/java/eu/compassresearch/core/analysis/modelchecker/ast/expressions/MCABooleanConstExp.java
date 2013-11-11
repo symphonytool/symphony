@@ -21,6 +21,12 @@ public class MCABooleanConstExp implements MCBooleanExp {
 	public void setValue(boolean value) {
 		this.value = value;
 	}
+
+	@Override
+	public MCPCMLExp copy() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
 	
 

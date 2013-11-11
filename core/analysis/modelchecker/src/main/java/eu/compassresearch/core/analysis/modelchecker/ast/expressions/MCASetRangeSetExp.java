@@ -61,5 +61,12 @@ public class MCASetRangeSetExp implements MCPCMLExp {
 		this.last = last;
 	}
 
+
+	@Override
+	public MCPCMLExp copy() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 	
 }

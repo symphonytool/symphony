@@ -19,6 +19,7 @@ public class ProblemDomainBuilder {
 		StringBuilder content = new StringBuilder();
 		String option = MCNode.DEFAULT;
 		
+		
 		//generate value definitions
 		generateValueDefinitions(content,option);
 				
@@ -34,8 +35,10 @@ public class ProblemDomainBuilder {
 		//generates guard definitions
 		generateGuardDefinitions(content,option);
 		
+		
 		//generates assignment definitions
 		generateAssignDefinitions(content, option);
+		
 		
 		//generates operation definitions
 		generateOperationDefinitions(content,option);
@@ -72,9 +75,9 @@ public class ProblemDomainBuilder {
 	private void generateGuardDefinitions(StringBuilder content, String option){
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 	
-		for (Iterator<Entry<MCPCMLExp,MCGuardDef>> iterator = context.guardDefs.entrySet().iterator(); iterator.hasNext();) {
-			Entry<MCPCMLExp,MCGuardDef> item = (Entry<MCPCMLExp,MCGuardDef>) iterator.next();
-			MCGuardDef guardDef = item.getValue();
+		for (Iterator<Entry<MCPCMLExp,NewMCGuardDef>> iterator = context.guardDefs.entrySet().iterator(); iterator.hasNext();) {
+			Entry<MCPCMLExp,NewMCGuardDef> item = (Entry<MCPCMLExp,NewMCGuardDef>) iterator.next();
+			NewMCGuardDef guardDef = item.getValue();
 			content.append(guardDef.toFormula(option));
 		}
 	}
@@ -115,7 +118,7 @@ public class ProblemDomainBuilder {
 	
 	private void generateConforms(StringBuilder content, String option){
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
-		content.append("  conforms := " + context.semanticsDomain.getName() + "." + context.propertyToCheck + ".\n");
+		content.append("  conforms := " + context.propertiesDomain.getName() + "." + context.propertyToCheck + ".\n");
 	}
 	
 }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<testResult type="eu.compassresearch.core.typechecker.secondedition.RunCmlExamplesTestCase">
-<message column="23" line="1" message="Operation a(nat1) is not in scope" messageType="error" number="0" resource="process-action-callstm.result"/>
+<testResult type="eu.compassresearch.core.typechecker.RunCmlExamplesTestCase">
+<message column="23" line="1" message="Operation a(nat1) is not in scope." messageType="error" number="3213" resource="process-action-callstm.cml"/>
 <result/>
 </testResult>

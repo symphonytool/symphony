@@ -39,5 +39,12 @@ public class MCAIntLiteralExp implements MCNumericExp {
 		this.value = value;
 	}
 
+
+	@Override
+	public MCPCMLExp copy() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 	
 }

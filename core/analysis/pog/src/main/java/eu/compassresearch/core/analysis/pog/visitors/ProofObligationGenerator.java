@@ -59,13 +59,16 @@ import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligationList;
+import eu.compassresearch.core.analysis.pog.utility.PogPubUtil;
 
 public class ProofObligationGenerator extends
 		QuestionAnswerCMLAdaptor<IPOContextStack, CmlProofObligationList>
 {
 	/**
-	 * Main generator class for the POG. Receives the sources to be checked, visits them and dispatches them to the
-	 * various subvisitors.
+	 * Main generator class for the POG. <b> Do not.</b> apply this class directly
+	 * to an ast as it will not order or number the POs correctly.
+	 * <br>
+	 * Use {@link PogPubUtil} methods instead.
 	 */
 	private static final long serialVersionUID = -4538022323752020155L;
 
@@ -103,7 +106,6 @@ public class ProofObligationGenerator extends
 	// Duplicated main overture handlers. Necessary for now since we don't want
 	// to
 	// switch visitor context at the root level
-
 	public ProofObligationGenerator() {
 		this.initialize();
 	}
