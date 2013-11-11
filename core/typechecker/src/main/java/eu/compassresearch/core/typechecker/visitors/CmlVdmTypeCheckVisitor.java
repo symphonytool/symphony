@@ -11,8 +11,12 @@ import org.overture.ast.expressions.ANewExp;
 import org.overture.ast.expressions.AVariableExp;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.factory.AstFactory;
+import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.intf.lex.ILexLocation;
+import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.INode;
+
+import eu.compassresearch.ast.lex.CmlLexNameToken;
 import eu.compassresearch.ast.statements.AActionStm;
 import eu.compassresearch.ast.statements.AAltNonDeterministicStm;
 import org.overture.ast.statements.AAssignmentStm;
@@ -190,6 +194,14 @@ public class CmlVdmTypeCheckVisitor extends
 			AFieldObjectDesignator designator = AstFactory.newAFieldObjectDesignator(object, field.getField());
 			return designator;
 		}
+//		else if(exp instanceof AUnresolvedPathExp &&((AUnresolvedPathExp)exp).getIdentifiers().size()==1)
+//		{
+//			ILexIdentifierToken id = ((AUnresolvedPathExp)exp).getIdentifiers().iterator().next();
+//			ILexNameToken name = new CmlLexNameToken("", id.getName(), exp.getLocation(), false, false);
+//			AIdentifierObjectDesignator designator = AstFactory.newAIdentifierObjectDesignator(name);
+//			return designator;
+//			
+//		}
 
 		throw new RuntimeException("hit case for unresolved object designator: "
 				+ exp);

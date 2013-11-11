@@ -13,7 +13,6 @@ import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 /**
  * @author kel & cb
  */
-@SuppressWarnings("serial")
 public class OperationBodyValidater extends DepthFirstAnalysisCMLAdaptor
 {
 	public static boolean apply(DefinitionList lp,
@@ -21,16 +20,12 @@ public class OperationBodyValidater extends DepthFirstAnalysisCMLAdaptor
 	{
 
 		OperationBodyValidater lv = new OperationBodyValidater(issueHandler);
-		// for (PSource s : lp)
-		// {
-		// if (s != null)
 		try
 		{
 			lp.apply(lv);
 		} catch (AnalysisException e)
 		{
 		}
-		// }
 		return lv.ok;
 	}
 

@@ -55,7 +55,7 @@ public class CmlChannelExpressionTypeChecker extends
 		{
 			issueHandler.addTypeError(node, TypeErrorMessages.EXPECTED_A_CHANNEL,channelId
 					+ "");
-			return null;
+			return AstFactory.newAUnknownType(node.getLocation());
 		}
 
 		AChannelType chanConcreteType = ((AChannelDefinition) chanDef).getType();
@@ -79,10 +79,10 @@ public class CmlChannelExpressionTypeChecker extends
 			{
 				issueHandler.addTypeError(expression, TypeErrorMessages.INCOMPATIBLE_TYPE,""
 						+ singleChanConcType, "" + expressionType);
-				return null;
+				return AstFactory.newAUnknownType(node.getLocation());
 			}
 		}
-
+chanConcreteType.getDefinitions().add(chanDef);
 		node.setType(chanConcreteType);
 		return node.getType();
 	}
