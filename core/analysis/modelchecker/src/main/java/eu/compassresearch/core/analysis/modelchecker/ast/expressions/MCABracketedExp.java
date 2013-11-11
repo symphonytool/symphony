@@ -1,5 +1,9 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.expressions;
 
+import java.util.LinkedList;
+
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.PatternValue;
+
 public class MCABracketedExp implements MCPCMLExp {
 
 	private MCPCMLExp exp;
@@ -31,6 +35,12 @@ public class MCABracketedExp implements MCPCMLExp {
 	public MCPCMLExp copy() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+
+	@Override
+	public void replacePatternWithValue(LinkedList<PatternValue> mapping) {
+		this.exp.replacePatternWithValue(mapping);
 	}
 	
 	

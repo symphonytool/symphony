@@ -361,8 +361,8 @@ public class Utilities {
 			break;
 		case ProcessCall:
 			str = arguments.pop();
-			param = (Param) createObject(arguments.pop());
-			result = new ProcessCall(str,param);
+			type = (Type) createObject(arguments.pop());
+			result = new ProcessCall(str,type);
 			break;
 		case SeqComposition:
 			auxProcess = (Process) createObject(arguments.pop());
@@ -380,7 +380,7 @@ public class Utilities {
 			result = new ExtChoice(auxProcess,process);
 			break;
 		case ExtraChoice:
-			number = buildInteger(arguments.pop());
+			//number = buildInteger(arguments.pop());
 			Binding leftBiding = (Binding) createObject(arguments.pop());
 			process = (Process) createObject(arguments.pop());
 			Binding rightBiding = (Binding) createObject(arguments.pop());

@@ -4,21 +4,24 @@ import java.util.LinkedList;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.PatternValue;
 
-public class MCVoidValue implements MCPCMLExp {
+public class MCAUndefinedExp implements MCPCMLExp {
 
 	@Override
 	public String toFormula(String option) {
-		return "void";
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override
 	public MCPCMLExp copy() {
-		return new MCVoidValue();
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override
 	public void replacePatternWithValue(LinkedList<PatternValue> mapping) {
-		
+		// TODO Auto-generated method stub
+
 	}
 
 }

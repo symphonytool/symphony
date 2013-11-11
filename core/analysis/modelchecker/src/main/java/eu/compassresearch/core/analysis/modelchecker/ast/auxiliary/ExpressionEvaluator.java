@@ -2,6 +2,8 @@ package eu.compassresearch.core.analysis.modelchecker.ast.auxiliary;
 
 import java.util.LinkedList;
 
+import org.overture.ast.patterns.AIdentifierPattern;
+
 import eu.compassresearch.ast.actions.AValParametrisation;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAReadCommunicationParameter;
@@ -13,6 +15,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPParametrisat
 import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCATypeSingleDeclaration;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCALocalDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAValueDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAApplyExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAEqualsBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAGreaterEqualNumericBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAGreaterNumericBinaryExp;
@@ -21,6 +24,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAIntLiter
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCALessEqualNumericBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCALessNumericBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANotEqualsBinaryExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANotUnaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASetRangeSetExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAVariableExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
@@ -90,7 +94,7 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 	private MCPCMLType getTypeFor(MCALocalDefinition def){
 		MCPCMLType result = null;
 		
-		result = def.getType();
+		result = new MCANamedInvariantType(def.getName());
 		
 		return result;
 	}
@@ -142,6 +146,19 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		return result;
 	}
 	
+	public MCPCMLType instantiateMCTypeFromTypes(LinkedList<MCPCMLType> types){
+		MCPCMLType result = null;
+		
+		if(types.size() == 0){
+			result = new MCVoidType();
+		} else if (types.size() == 1){
+			result = types.getFirst();
+		} else if (types.size() > 1){
+			result = new MCAProductType(types);
+		}
+		
+		return result;
+	}
 	public MCPCMLType instantiateMCTypeFromParams(LinkedList<MCPParametrisation> params){
 		MCPCMLType result = null;
 		
@@ -260,7 +277,7 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		
 		return this.instantiateMCTypeFromParams(patterns);
 	}
-
+	
 	private MCPCMLType getTypeFor(MCAIntLiteralExp exp){
 		MCPCMLType result = null;
 		
@@ -325,6 +342,12 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 	
 	public MCPCMLExp getDefaultValue(MCPCMLType type){
 		MCPCMLExp result = null;
+		
+		if(type instanceof MCAIntNumericBasicType){
+			result = new MCAIntLiteralExp("0");
+		} else if(type instanceof MCANatNumericBasicType){
+			result = new MCAIntLiteralExp("0");
+		}
 		
 		return result;
 	}
@@ -506,6 +529,10 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 			resp = this.canEvaluate((MCAIntLiteralExp)expression);
 		} else if(expression instanceof MCAVariableExp){
 			resp = this.canEvaluate((MCAVariableExp)expression);
+		} else if(expression instanceof MCANotUnaryExp){
+			resp = this.canEvaluate((MCANotUnaryExp)expression);
+		} else if(expression instanceof MCAApplyExp){
+			resp = this.canEvaluate((MCAApplyExp)expression);
 		}
 		return resp;
 	}
@@ -521,6 +548,24 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		if(valueDef != null){
 			result = true;
 		}
+		return result;
+	}
+	
+	public boolean canEvaluate(MCANotUnaryExp expression){
+		boolean result = false;
+		result = canEvaluate(expression.getExp());
+		return result;
+	}
+	
+	public boolean canEvaluate(MCAApplyExp expression){
+		boolean result = true;
+		for (MCPCMLExp exp : expression.getArgs()) {
+			if(!canEvaluate(exp)){
+				result = false;
+				break;
+			}
+		}
+		
 		return result;
 	}
 	
@@ -584,5 +629,19 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 		}
 		
 		return result; 
+	}
+	
+	public LinkedList<PatternValue> buildPatternValueList(LinkedList<MCPCMLPattern> patterns, LinkedList<MCPCMLExp> exprs){
+		LinkedList<PatternValue> result = new LinkedList<PatternValue>();
+		int i = 0;
+		for (MCPCMLPattern pat : patterns) {
+			if(pat instanceof MCAIdentifierPattern){
+				MCPCMLExp value = exprs.get(i);
+				result.add(new PatternValue(pat,value));
+				i++;
+			}
+		}
+		
+		return result;
 	}
 }

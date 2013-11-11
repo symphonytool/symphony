@@ -395,7 +395,7 @@ public class NewMCActionVisitor extends
 		LinkedList<MCGuardDef> guarDefs = GuardDefGenerator.generateGuardDefs(expression, result.getCounterId(), result);
 		
 		for (MCGuardDef mcGuardDef : guarDefs) {
-			//question.guardDefs.put(expression, mcGuardDef);
+			question.actionGuardDefs.put(expression, mcGuardDef);
 		}
 		
 	

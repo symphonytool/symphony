@@ -1,4 +1,4 @@
-package eu.compassresearch.core.analysis.modelchecker.ast.actions;
+package eu.compassresearch.core.analysis.modelchecker.ast.process;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -8,23 +8,23 @@ import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCGenericCall
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCOperationCall;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAActionDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAExplicitCmlOperationDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAProcessDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCSCmlOperationDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 
-public class MCAReferenceAction implements MCPAction {
+public class MCAReferenceProcess implements MCPProcess {
 
-	private String name;
-	private LinkedList<MCPCMLExp> args;
+	protected String name;
+	protected LinkedList<MCPCMLExp> args;
+	protected MCAProcessDefinition proc;
 	
-	
-	public MCAReferenceAction(String name, LinkedList<MCPCMLExp> args) {
-		super();
+	public MCAReferenceProcess(String name, LinkedList<MCPCMLExp> args, MCAProcessDefinition procDef) {
 		this.name = name;
 		this.args = args;
+		this.proc = procDef;
 	}
-
-
+	
 	@Override
 	public String toFormula(String option) {
 		StringBuilder result = new StringBuilder();
@@ -39,7 +39,7 @@ public class MCAReferenceAction implements MCPAction {
 				if(localAction.getName().toString().equals(this.name.toString())){
 					callResolved = true;
 					call = new MCActionCall(name, args);
-					
+					result.append(call.toFormula(option));
 				}
 			}
 		}
@@ -49,36 +49,36 @@ public class MCAReferenceAction implements MCPAction {
 					//((MCAExplicitCmlOperationDefinition) pDefinition).setParentAction(this);
 					if(((MCAExplicitCmlOperationDefinition) pDefinition).getName().toString().equals(this.name)){
 						call = new MCOperationCall(name, args, null);
-						
+						result.append(call.toFormula(option));
 					}
 				}
 			}
 		}
-		
-		result.append(call.toFormula(option));
 
 		return result.toString();
-
 	}
-
 
 	public String getName() {
 		return name;
 	}
 
-
 	public void setName(String name) {
 		this.name = name;
 	}
-
 
 	public LinkedList<MCPCMLExp> getArgs() {
 		return args;
 	}
 
-
 	public void setArgs(LinkedList<MCPCMLExp> args) {
 		this.args = args;
 	}
-	
+
+	public MCAProcessDefinition getProc() {
+		return proc;
+	}
+
+	public void setProc(MCAProcessDefinition proc) {
+		this.proc = proc;
+	}
 }

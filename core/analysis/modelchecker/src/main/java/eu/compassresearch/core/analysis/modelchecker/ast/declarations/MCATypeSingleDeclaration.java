@@ -17,8 +17,12 @@ public class MCATypeSingleDeclaration implements MCPSingleDeclaration {
 
 	@Override
 	public String toFormula(String option) {
-		// TODO Auto-generated method stub
-		return null;
+		StringBuilder result = new StringBuilder();
+		result.append("Int(");
+		result.append(this.getIdentifier());
+		result.append(")");
+
+		return result.toString();
 	}
 
 

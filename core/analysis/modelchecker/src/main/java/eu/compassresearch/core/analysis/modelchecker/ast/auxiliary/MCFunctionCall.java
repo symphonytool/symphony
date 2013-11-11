@@ -7,11 +7,11 @@ import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCPCMLPattern;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 
-public class MCOperationCall extends MCGenericCall{
+public class MCFunctionCall extends MCGenericCall{
 
 	private LinkedList<MCPCMLPattern> paramPatterns;
 	
-	public MCOperationCall(String name, LinkedList<MCPCMLExp> args, LinkedList<MCPCMLPattern> paramPatterns) {
+	public MCFunctionCall(String name, LinkedList<MCPCMLExp> args, LinkedList<MCPCMLPattern> paramPatterns) {
 		super(name,args);
 		this.paramPatterns = paramPatterns;
 	}
