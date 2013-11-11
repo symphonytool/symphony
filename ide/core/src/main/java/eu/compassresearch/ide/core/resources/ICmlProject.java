@@ -20,6 +20,7 @@ import eu.compassresearch.ide.core.unsupported.UnsupportedElementInfo;
  * Internal representation of a CML project. This interface establishes
  * a  mapping between the files on a project and the more abstract CML
  * concepts they represent.
+ * 
  * @author ldc, kel
  *
  */

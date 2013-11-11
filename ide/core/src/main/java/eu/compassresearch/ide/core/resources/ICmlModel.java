@@ -15,7 +15,6 @@ import org.overture.ide.core.resources.IVdmSourceUnit;
 
 import eu.compassresearch.ast.program.PSource;
 
-// TODO: Auto-generated Javadoc
 /**
  * An ICmlModel is the highest level abstraction for resources in the CML tool. There are few notions of files or other
  * system resources. Instead, an ICmlModel has methods related to the ATSs of a model and its type status, etc. <br>
