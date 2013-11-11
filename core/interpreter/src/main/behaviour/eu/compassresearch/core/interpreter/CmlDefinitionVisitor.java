@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AAssignmentDefinition;
+import org.overture.ast.definitions.AClassClassDefinition;
 import org.overture.ast.definitions.AClassInvariantDefinition;
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import org.overture.ast.definitions.AExplicitOperationDefinition;
@@ -167,13 +168,12 @@ class CmlDefinitionVisitor extends
 		return vpl;
 	}
 
-	// @Override
-	// public NameValuePairList caseACmlClassDefinition(ACmlClassDefinition node,
-	// Context question) throws AnalysisException
-	// {
-	//
-	// return new NameValuePairList();
-	// }
+	 @Override
+	 public NameValuePairList caseAClassClassDefinition(AClassClassDefinition node,
+	 Context question) throws AnalysisException
+	 {
+		 return new NameValuePairList();
+	 }
 
 	@Override
 	public NameValuePairList caseAChansetsDefinition(AChansetsDefinition node,

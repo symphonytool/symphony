@@ -12,7 +12,9 @@ import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.patterns.PPattern;
+
 import eu.compassresearch.ast.statements.AActionStm;
+
 import org.overture.ast.statements.ACallStm;
 import org.overture.ast.statements.PStm;
 import org.overture.ast.typechecker.NameScope;
@@ -27,6 +29,7 @@ import org.overture.interpreter.values.NameValuePairMap;
 import org.overture.interpreter.values.UpdatableValue;
 import org.overture.interpreter.values.Value;
 
+import eu.compassresearch.ast.actions.ACallAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.ADivAction;
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
@@ -129,45 +132,72 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 		return node.getStatement().apply(this.parentVisitor, question);
 	}
 
-	/**
-	 * This deals both with calls but also parametrised action reference, since the typechecker does not replace this
-	 * node yet FIXME This might be changed! if the typechecker replaces the call node with a action reference node
-	 */
 	@Override
-	public Inspection caseACallStm(final ACallStm node, final Context question)
+	public Inspection caseACallAction(final ACallAction node, final Context question)
 			throws AnalysisException
 	{
-
-		if (!owner.hasChildren())
+		final Value value = lookupName(node.getName(), question);
+		if (value instanceof ActionValue)
 		{
-			final Value value = lookupName(node.getName(), question);
-			if (value instanceof CmlOperationValue)
-				return node.apply(statementInspectionVisitor, question);
-			else if (value instanceof ActionValue)
-			{
-				// first find the action value in the context
-				final ActionValue actionVal = (ActionValue) value;
+			// first find the action value in the context
+			final ActionValue actionVal = (ActionValue) value;
 
-				return newInspection(createTauTransitionWithoutTime(actionVal.getActionDefinition().getAction(), null), new AbstractCalculationStep(owner, visitorAccess)
+			return newInspection(createTauTransitionWithoutTime(actionVal.getActionDefinition().getAction(), null), new AbstractCalculationStep(owner, visitorAccess)
+			{
+
+				@Override
+				public Pair<INode, Context> execute(
+						CmlTransition selectedTransition)
+						throws AnalysisException
 				{
 
-					@Override
-					public Pair<INode, Context> execute(
-							CmlTransition selectedTransition)
-							throws AnalysisException
-					{
+					return caseReferenceAction(node.getLocation(), node.getArgs(), actionVal, question);
+				}
+			});
 
-						return caseReferenceAction(node.getLocation(), node.getArgs(), actionVal, question);
-					}
-				});
-
-			} else
-				throw new CmlInterpreterException(node, InterpretationErrorMessages.FATAL_ERROR.customizeMessage());
 		} else
-		{
-			return node.apply(statementInspectionVisitor, question);
-		}
+			throw new CmlInterpreterException(node, InterpretationErrorMessages.FATAL_ERROR.customizeMessage());
 	}
+	
+//	/**
+//	 * This deals both with calls but also parametrised action reference, since the typechecker does not replace this
+//	 * node yet FIXME This might be changed! if the typechecker replaces the call node with a action reference node
+//	 */
+//	@Override
+//	public Inspection caseACallStm(final ACallStm node, final Context question)
+//			throws AnalysisException
+//	{
+//
+//		if (!owner.hasChildren())
+//		{
+//			final Value value = lookupName(node.getName(), question);
+//			if (value instanceof CmlOperationValue)
+//				return node.apply(statementInspectionVisitor, question);
+//			else if (value instanceof ActionValue)
+//			{
+//				// first find the action value in the context
+//				final ActionValue actionVal = (ActionValue) value;
+//
+//				return newInspection(createTauTransitionWithoutTime(actionVal.getActionDefinition().getAction(), null), new AbstractCalculationStep(owner, visitorAccess)
+//				{
+//
+//					@Override
+//					public Pair<INode, Context> execute(
+//							CmlTransition selectedTransition)
+//							throws AnalysisException
+//					{
+//
+//						return caseReferenceAction(node.getLocation(), node.getArgs(), actionVal, question);
+//					}
+//				});
+//
+//			} else
+//				throw new CmlInterpreterException(node, InterpretationErrorMessages.FATAL_ERROR.customizeMessage());
+//		} else
+//		{
+//			return node.apply(statementInspectionVisitor, question);
+//		}
+//	}
 
 	/**
 	 * Synchronization and Communication D23.2 7.5.2 This transition can either be Simple prefix : a -> A
