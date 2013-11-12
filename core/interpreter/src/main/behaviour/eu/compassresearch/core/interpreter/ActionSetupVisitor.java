@@ -31,8 +31,6 @@ import eu.compassresearch.ast.actions.AInternalChoiceAction;
 import eu.compassresearch.ast.actions.AInternalChoiceReplicatedAction;
 import eu.compassresearch.ast.actions.AInterruptAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
-import eu.compassresearch.ast.actions.ASynchronousParallelismParallelAction;
-import eu.compassresearch.ast.actions.ASynchronousParallelismReplicatedAction;
 import eu.compassresearch.ast.actions.ATimeoutAction;
 import eu.compassresearch.ast.actions.AUntimedTimeoutAction;
 import eu.compassresearch.ast.actions.AWaitAction;
@@ -49,8 +47,6 @@ import eu.compassresearch.ast.process.AInternalChoiceProcess;
 import eu.compassresearch.ast.process.AInternalChoiceReplicatedProcess;
 import eu.compassresearch.ast.process.AInterruptProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
-import eu.compassresearch.ast.process.ASynchronousParallelismProcess;
-import eu.compassresearch.ast.process.ASynchronousParallelismReplicatedProcess;
 import eu.compassresearch.ast.process.ATimeoutProcess;
 import eu.compassresearch.ast.process.AUntimedTimeoutProcess;
 import eu.compassresearch.ast.statements.AActionStm;
@@ -329,31 +325,6 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 	}
 
 	@Override
-	public Pair<INode, Context> caseASynchronousParallelismReplicatedAction(
-			final ASynchronousParallelismReplicatedAction node, Context question)
-			throws AnalysisException
-	{
-
-		return caseReplicated(node, node.getReplicationDeclaration(), new ReplicationFactory()
-		{
-
-			@Override
-			public INode createNextReplication()
-			{
-				// TODO The i'th namesetexpression should be evaluated in the i'th context
-				return new ASynchronousParallelismParallelAction(node.getLocation(), node.getReplicatedAction().clone(), node.getNamesetExpression(), node.getNamesetExpression(), node.clone());
-			}
-
-			@Override
-			public INode createLastReplication()
-			{
-				// TODO The i'th namesetexpression should be evaluated in the i'th context
-				return new ASynchronousParallelismParallelAction(node.getLocation(), node.getReplicatedAction().clone(), node.getNamesetExpression(), node.getNamesetExpression(), node.getReplicatedAction().clone());
-			}
-		}, question);
-	}
-
-	@Override
 	public Pair<INode, Context> caseAExternalChoiceReplicatedAction(
 			final AExternalChoiceReplicatedAction node, Context question)
 			throws AnalysisException
@@ -502,29 +473,6 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 			public INode createLastReplication()
 			{
 				return new AGeneralisedParallelismProcess(node.getLocation(), node.getReplicatedProcess().clone(), node.getChansetExpression().clone(), node.getReplicatedProcess().clone());
-			}
-		}, question);
-	}
-
-	@Override
-	public Pair<INode, Context> caseASynchronousParallelismReplicatedProcess(
-			final ASynchronousParallelismReplicatedProcess node,
-			Context question) throws AnalysisException
-	{
-
-		return caseReplicated(node, node.getReplicationDeclaration(), new ReplicationFactory()
-		{
-
-			@Override
-			public INode createNextReplication()
-			{
-				return new ASynchronousParallelismProcess(node.getLocation(), node.getReplicatedProcess().clone(), node.clone());
-			}
-
-			@Override
-			public INode createLastReplication()
-			{
-				return new ASynchronousParallelismProcess(node.getLocation(), node.getReplicatedProcess().clone(), node.getReplicatedProcess().clone());
 			}
 		}, question);
 	}

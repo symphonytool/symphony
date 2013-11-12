@@ -19,7 +19,7 @@ public class NamesetCmlTypeCheckerTests extends
 	@Parameters(name = "{1}")
 	public static Collection<Object[]> getData()
 	{
-		return combine(collectResourcesTestData("namesets", TestType.POSITIVE, TestType.ANY), collectResourcesTestData("namesets", TestType.NEGATIVE, TestType.ANY));
+		return combine(collectResourcesTestData("namesets", TestType.POSITIVE, TestType.POSITIVE), collectResourcesTestData("namesets", TestType.NEGATIVE, TestType.NEGATIVE));
 	}
 
 	@Override

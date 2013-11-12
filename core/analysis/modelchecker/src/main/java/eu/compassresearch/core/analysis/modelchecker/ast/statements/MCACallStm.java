@@ -4,11 +4,14 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCActionCall;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCFunctionCall;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCGenericCall;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCOperationCall;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAActionDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAExplicitCmlOperationDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAExplicitFunctionDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCSCmlOperationDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCSFunctionDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 
@@ -39,6 +42,7 @@ public class MCACallStm implements MCPCMLStm {
 					callResolved = true;
 					call = new MCActionCall(name, args);
 					result.append(call.toFormula(option));
+					break;
 				}
 			}
 		}
@@ -47,14 +51,28 @@ public class MCACallStm implements MCPCMLStm {
 				if(pDefinition instanceof MCAExplicitCmlOperationDefinition){
 					//((MCAExplicitCmlOperationDefinition) pDefinition).setParentAction(this);
 					if(((MCAExplicitCmlOperationDefinition) pDefinition).getName().toString().equals(this.name)){
+						callResolved = true;
 						call = new MCOperationCall(name, args, null);
 						result.append(call.toFormula(option));
+						break;
 					}
 				}
 			}
 		}
-		
-		return result.toString();	}
+		if (!callResolved) {
+			for (MCSFunctionDefinition pDefinition : context.functions) {
+				if(pDefinition instanceof MCAExplicitFunctionDefinition){
+					if(((MCAExplicitFunctionDefinition) pDefinition).getName().toString().equals(this.name)){
+						callResolved = true;
+						call = new MCFunctionCall(name, args, null);
+						result.append(call.toFormula(option));
+						break;
+					}
+				}
+			}
+		}
+		return result.toString();	
+	}
 
 
 	public String getName() {

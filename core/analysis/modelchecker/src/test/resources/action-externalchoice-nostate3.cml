@@ -1,5 +1,6 @@
 channels 
 a, b, c
+d:nat
 
 process MAIN = 
 begin 

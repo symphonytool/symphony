@@ -4,12 +4,15 @@ import java.util.LinkedList;
 
 import org.overture.ast.statements.ABlockSimpleBlockStm;
 
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAAssignmentDefinition;
+
 public class MCABlockSimpleBlockStm implements MCPCMLStm {
 
 	private LinkedList<MCPCMLStm> statements;
+	private LinkedList<MCAAssignmentDefinition> assignmentDefs; 
 	
-	
-	public MCABlockSimpleBlockStm(LinkedList<MCPCMLStm> statements) {
+	public MCABlockSimpleBlockStm(LinkedList<MCAAssignmentDefinition> assignmentDefs, LinkedList<MCPCMLStm> statements) {
+		this.assignmentDefs = assignmentDefs;
 		this.statements = statements;
 	}
 
@@ -30,5 +33,16 @@ public class MCABlockSimpleBlockStm implements MCPCMLStm {
 		this.statements = statements;
 	}
 
+
+	public LinkedList<MCAAssignmentDefinition> getAssignmentDefs() {
+		return assignmentDefs;
+	}
+
+
+	public void setAssignmentDefs(LinkedList<MCAAssignmentDefinition> assignmentDefs) {
+		this.assignmentDefs = assignmentDefs;
+	}
+
+	
 	
 }

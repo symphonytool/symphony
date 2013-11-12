@@ -12,6 +12,7 @@ import org.overture.pog.pub.IProofObligationList;
 import eu.compassresearch.core.analysis.pog.obligations.CmlPOContextStack;
 import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligation;
 import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligationList;
+import eu.compassresearch.core.analysis.pog.utility.PogPubUtil;
 import eu.compassresearch.core.analysis.pog.visitors.ProofObligationGenerator;
 import eu.compassresearch.pog.tests.utils.TestInputHelper;
 /**
@@ -41,8 +42,11 @@ public class AdHocTest {
 		for (IProofObligation po : poList) {
 			System.out.println("------------------------");	
 			String preamble = getPreamble(po);
-			String pretty = preamble + po.getValueTree().toString();
-			System.out.println(pretty);
+			//String pretty = preamble + po.getValueTree().toString();
+			StringBuilder pretty = new StringBuilder();
+			pretty.append("Full Name: " + po.getUniqueName());			
+			pretty.append("\nIsabelle Name: " + po.getIsaName());
+			System.out.println(pretty.toString());
 
 		}
 		System.out.println("--------DONE-----------");
@@ -68,12 +72,9 @@ public class AdHocTest {
 	private IProofObligationList buildPosFromFile(String file) throws IOException,
 			AnalysisException {
 
-		CmlProofObligationList poList = new CmlProofObligationList();
+		IProofObligationList poList = new CmlProofObligationList();
 		List<INode> ast = TestInputHelper.getAstFromName(file);
-		for (INode node : ast) {
-			poList.addAll(node.apply(new ProofObligationGenerator(),
-					new CmlPOContextStack()));
-		}
+		poList = PogPubUtil.generateProofObligations(ast);
 		return poList;
 	}
 

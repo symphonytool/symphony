@@ -21,7 +21,6 @@ import eu.compassresearch.core.typechecker.environment.FlatStrictCheckEnvironmen
 /**
  * @author kel & cb
  */
-@SuppressWarnings("serial")
 public class UniquenessChecker extends DepthFirstAnalysisCMLAdaptor
 {
 	private static final CmlTypeCheckerAssistantFactory AF = new CmlTypeCheckerAssistantFactory();

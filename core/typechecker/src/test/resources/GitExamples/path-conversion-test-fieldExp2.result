@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<testResult type="eu.compassresearch.core.typechecker.secondedition.RunCmlExamplesTestCase">
-<message column="21" line="8" message="Name 'Test`a' is not in scope" messageType="error" number="0" resource="path-conversion-test-fieldExp2.result"/>
-<message column="23" line="8" message="Name 'Test`b' is not in scope" messageType="error" number="0" resource="path-conversion-test-fieldExp2.result"/>
+<testResult type="eu.compassresearch.core.typechecker.RunCmlExamplesTestCase">
+<message column="21" line="8" message="Name 'Test`a' is not in scope." messageType="error" number="3182" resource="path-conversion-test-fieldExp2.cml"/>
+<message column="23" line="8" message="Name 'Test`b' is not in scope." messageType="error" number="3182" resource="path-conversion-test-fieldExp2.cml"/>
 <result/>
 </testResult>

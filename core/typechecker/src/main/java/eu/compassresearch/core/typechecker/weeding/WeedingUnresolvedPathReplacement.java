@@ -22,6 +22,8 @@ import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.node.INode;
 import org.overture.ast.node.Node;
+import org.overture.ast.statements.ACallObjectStm;
+import org.overture.ast.statements.ACallStm;
 import org.overture.ast.types.ABracketType;
 
 import eu.compassresearch.ast.actions.PAction;
@@ -36,7 +38,6 @@ import eu.compassresearch.core.typechecker.DefinitionList;
 /**
  * @author kel & cb
  */
-@SuppressWarnings("serial")
 public class WeedingUnresolvedPathReplacement extends
 		DepthFirstAnalysisCMLAdaptor
 {
@@ -101,6 +102,25 @@ public class WeedingUnresolvedPathReplacement extends
 					id = itr.next();
 				} else
 				{
+					if(node.parent().parent() instanceof ACallObjectStm)
+					{
+						//this should have been a CallStatement with the correct full name
+						ACallObjectStm co = (ACallObjectStm) node.parent().parent();
+						
+						ILexNameToken name = new CmlLexNameToken(module, co.getFieldname().getName(), id.getLocation(), false, true);
+						
+						ACallStm call = AstFactory.newACallStm(name, co.getArgs());
+						
+						for (PExp a : call.getArgs())
+						{
+							a.parent(call);
+						}
+						
+						co.parent().replaceChild(co, call);
+						call.apply(this);
+						return;
+						
+					}
 					assert false : "Missing identifier for static reference";
 					return;
 				}

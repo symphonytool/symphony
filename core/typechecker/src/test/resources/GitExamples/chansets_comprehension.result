@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<testResult type="eu.compassresearch.core.typechecker.secondedition.RunCmlExamplesTestCase">
-<message column="25" line="2" message="Definition 'a' not used" messageType="warning" number="0" resource="chansets_comprehension.result"/>
-<message column="10" line="2" message="3407 Expected entity &quot;test&quot; to be a channel. " messageType="error" number="0" resource="chansets_comprehension.result"/>
+<testResult type="eu.compassresearch.core.typechecker.RunCmlExamplesTestCase">
+<message column="25" line="2" message="Definition 'a' not used." messageType="warning" number="5000" resource="chansets_comprehension.cml"/>
+<message column="10" line="2" message="Expected entity &quot;test&quot; to be a channel. " messageType="error" number="3407" resource="chansets_comprehension.cml"/>
 <result/>
 </testResult>

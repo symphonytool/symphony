@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<testResult type="eu.compassresearch.core.typechecker.secondedition.RunCmlExamplesTestCase">
-<message column="3" line="4" message="Instance variable 'reg' is not initialized" messageType="warning" number="0" resource="process-state-invariant.result"/>
-<message column="9" line="4" message="Unable to resolve type name 'Byte'" messageType="error" number="0" resource="process-state-invariant.result"/>
-<message column="9" line="4" message="Unable to resolve type name 'Byte'" messageType="error" number="0" resource="process-state-invariant.result"/>
-<message column="9" line="4" message="Unable to resolve type name 'Byte'" messageType="error" number="0" resource="process-state-invariant.result"/>
+<testResult type="eu.compassresearch.core.typechecker.RunCmlExamplesTestCase">
+<message column="3" line="4" message="Instance variable 'reg' is not initialized." messageType="warning" number="5001" resource="process-state-invariant.cml"/>
+<message column="9" line="4" message="Unable to resolve type name 'Byte'." messageType="error" number="3427" resource="process-state-invariant.cml"/>
+<message column="9" line="4" message="Unable to resolve type name 'Byte'." messageType="error" number="3428" resource="process-state-invariant.cml"/>
+<message column="9" line="4" message="Unable to resolve type name 'Byte'." messageType="error" number="3428" resource="process-state-invariant.cml"/>
 <result/>
 </testResult>

@@ -165,7 +165,7 @@ actions
 --  PAY = payment?mk_(r,c) -> ((TakePayment(r,c) ; (confirmation!r -> PAY)) [_ t _> (failPayment -> PAY))
   PAY = payment?mk_(r,c) -> (TakePayment(r,c) ; confirmation!r -> PAY) [_ t _> failPayment -> PAY
    @
-		init -> BOOK || PAY
+		init -> BOOK [|C|] PAY
 
 end
 

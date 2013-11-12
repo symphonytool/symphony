@@ -15,10 +15,12 @@ public class MCActionCall extends MCGenericCall {
 	@Override
 	public String toFormula(String option) {
 		StringBuilder result = new StringBuilder();
-		result.append("proc(\"" + this.name + "\",");
-		ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
-		MCPCMLType argsType = evaluator.instantiateMCType(this.args); 
-		result.append(argsType.toFormula(option));
+		result.append("proc(\"" + this.name + "\"");
+		if(args != null){
+			ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
+			MCPCMLType argsType = evaluator.instantiateMCType(this.args); 
+			result.append(","+argsType.toFormula(option));
+		}
 		result.append(")");
 		
 		return result.toString();

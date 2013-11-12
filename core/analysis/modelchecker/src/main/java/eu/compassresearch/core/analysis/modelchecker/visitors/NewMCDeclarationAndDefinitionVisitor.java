@@ -1,10 +1,12 @@
 package eu.compassresearch.core.analysis.modelchecker.visitors;
 
 import java.util.LinkedList;
+import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.definitions.AAssignmentDefinition;
+import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import org.overture.ast.definitions.AExplicitOperationDefinition;
 import org.overture.ast.definitions.AInstanceVariableDefinition;
 import org.overture.ast.definitions.ALocalDefinition;
@@ -20,6 +22,7 @@ import org.overture.ast.node.INode;
 import org.overture.ast.patterns.PPattern;
 
 
+import org.overture.ast.types.AFunctionType;
 import org.overture.ast.types.AOperationType;
 import org.overture.ast.types.PType;
 
@@ -67,6 +70,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAValueDef
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAValuesDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCPCMLDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCSCmlOperationDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAUndefinedExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCVoidValue;
 import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCPCMLPattern;
@@ -210,6 +214,15 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 	}
 
 	@Override
+	public MCNode caseATypeSingleDeclaration(ATypeSingleDeclaration node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		String identifier = node.getIdentifier().getName();
+		MCPCMLType type = (MCPCMLType) node.getType().apply(rootVisitor, question);
+		MCATypeSingleDeclaration result = new MCATypeSingleDeclaration(identifier, type);
+		return result;
+	}
+
+	@Override
 	public MCNode caseAStateDefinition(AStateDefinition node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
 
@@ -314,6 +327,33 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 		
 	}
 	
+	
+	
+	@Override
+	public MCNode caseAExplicitFunctionDefinition(
+			AExplicitFunctionDefinition node, NewCMLModelcheckerContext question)
+			throws AnalysisException {
+		
+		String name = node.getName().toString();
+		MCPCMLExp body = (MCPCMLExp) node.getBody().apply(rootVisitor, question);
+		
+		LinkedList<MCPCMLPattern> mcParamPatterns = new LinkedList<MCPCMLPattern>();
+		for (List<PPattern> pPatternList : node.getParamPatternList()) {
+			for (PPattern pPattern : pPatternList) {
+				MCPCMLPattern pattern = (MCPCMLPattern) pPattern.apply(rootVisitor, question);
+				mcParamPatterns.add(pattern);
+			}
+		}
+		MCPCMLType type = (MCPCMLType) node.getType().apply(rootVisitor, question);
+		MCAExplicitFunctionDefinition result = 
+				new MCAExplicitFunctionDefinition(name,type, body,mcParamPatterns);
+		
+		question.functions.add(result);
+		
+		return result;
+		
+	}
+
 	@Override
 	public MCNode caseAValuesDefinition(AValuesDefinition node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
@@ -411,15 +451,19 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 		MCPCMLExp expression = (MCPCMLExp) node.getExpression().apply(rootVisitor, question);
 		MCAInstanceVariableDefinition result = new MCAInstanceVariableDefinition(name, type, expression);
 
-		MCPCMLType varValue = new MCVoidType();
+		MCPCMLExp varValue = null;
 		if(expression != null){
-			//this has to be improved to instantiate values of the suitable type of the expression.
-			ExpressionEvaluator evaluator = new ExpressionEvaluator();
-			varValue = evaluator.instantiateMCType(expression);
-			//from type we have to get the correct type instantiation
+			varValue = expression;
+			if(expression instanceof MCAUndefinedExp){
+				//this has to be improved to instantiate values of the suitable type of the expression.
+				ExpressionEvaluator evaluator = new ExpressionEvaluator();
+				varValue = evaluator.getDefaultValue(type);
+				//from type we have to get the correct type instantiation
+			}
+			
 		}
-		////question.maximalBinding = question.maximalBinding.addBinding("nP", name, varValue);
-		//PPPPPPPPPPPPPPPPP
+		
+		question.maximalBinding = question.maximalBinding.addBinding("nP", name, varValue);
 		
 		return result;
 	}

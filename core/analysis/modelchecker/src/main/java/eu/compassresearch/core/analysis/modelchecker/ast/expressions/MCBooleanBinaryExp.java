@@ -1,5 +1,9 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.expressions;
 
+import java.util.LinkedList;
+
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.PatternValue;
+
 public class MCBooleanBinaryExp implements MCPCMLExp{
 
 	private MCPCMLExp left;
@@ -44,6 +48,13 @@ public class MCBooleanBinaryExp implements MCPCMLExp{
 	public MCPCMLExp copy() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+
+	@Override
+	public void replacePatternWithValue(LinkedList<PatternValue> mapping) {
+		this.left.replacePatternWithValue(mapping);
+		this.right.replacePatternWithValue(mapping);
 	}
 
 	

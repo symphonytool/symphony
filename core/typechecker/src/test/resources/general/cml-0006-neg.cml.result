@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.GeneralCmlTypeCheckerTests">
+<message column="2" line="14" message="Operation IO`fecho(seq1 of (char)) is not in scope. Possible: fecho(seq of (char), seq of (char), [filedirective])" messageType="error" number="3213" resource="cml-0006-neg.cml"/>
+<result/>
+</testResult>

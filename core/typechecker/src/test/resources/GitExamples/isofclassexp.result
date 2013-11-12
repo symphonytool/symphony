@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<testResult type="eu.compassresearch.core.typechecker.secondedition.RunCmlExamplesTestCase">
-<message column="5" line="5" message="Undefined class type: A" messageType="error" number="0" resource="isofclassexp.result"/>
-<message column="18" line="5" message="Name 'Test`a' is not in scope" messageType="error" number="0" resource="isofclassexp.result"/>
+<testResult type="eu.compassresearch.core.typechecker.RunCmlExamplesTestCase">
+<message column="5" line="5" message="Undefined class type: A." messageType="error" number="3115" resource="isofclassexp.cml"/>
+<message column="18" line="5" message="Name 'Test`a' is not in scope." messageType="error" number="3182" resource="isofclassexp.cml"/>
 <result/>
 </testResult>

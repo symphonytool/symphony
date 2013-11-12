@@ -12,8 +12,11 @@ import org.overture.ast.types.AProductType;
 import org.overture.ast.types.PType;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
+import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.ast.types.PCMLType;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ExpressionEvaluator;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.TypeManipulator;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAChannelType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAIntNumericBasicType;
@@ -64,22 +67,24 @@ public class NewMCTypeAndValueVisitor extends
 		return result;
 	}
 
-	/*
+	
 	@Override
 	public MCNode caseAChannelType(AChannelType node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
 		
 		MCPCMLType chanType = null;
-		
-		if(node.getType() != null){
-			chanType = (MCPCMLType) node.getType().apply(rootVisitor, question);
+		LinkedList<MCPCMLType> types = new LinkedList<MCPCMLType>();
+		for (PType pType : node.getParameters()) {
+			types.add((MCPCMLType) pType.apply(this, question));
 		}
 		
+		ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
+		chanType = evaluator.instantiateMCTypeFromTypes(types);
 		MCAChannelType result = new MCAChannelType(chanType);
 		
-		return result;
+		return null;
 	}
-	*/
+	
 
 	@Override
 	public MCNode caseAProductType(AProductType node,

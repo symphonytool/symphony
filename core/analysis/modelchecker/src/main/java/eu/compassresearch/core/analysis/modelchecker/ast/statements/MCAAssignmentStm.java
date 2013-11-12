@@ -22,8 +22,11 @@ public class MCAAssignmentStm implements MCPCMLStm {
 
 	@Override
 	public String toFormula(String option) {
-		// TODO Auto-generated method stub
-		return null;
+		StringBuilder result = new StringBuilder();
+		
+		result.append("assign("+ counterId +")");
+		
+		return result.toString();
 	}
 
 

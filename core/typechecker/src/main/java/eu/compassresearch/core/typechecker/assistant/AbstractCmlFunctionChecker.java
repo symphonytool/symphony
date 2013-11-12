@@ -4,13 +4,6 @@ import java.io.File;
 import java.io.InputStream;
 
 import org.overture.ast.analysis.AnalysisException;
-import eu.compassresearch.ast.statements.AActionStm;
-import eu.compassresearch.ast.statements.AAltNonDeterministicStm;
-import eu.compassresearch.ast.statements.ADoNonDeterministicStm;
-import eu.compassresearch.ast.statements.AIfNonDeterministicStm;
-import eu.compassresearch.ast.statements.ANewStm;
-import eu.compassresearch.ast.statements.AUnresolvedObjectDesignator;
-import eu.compassresearch.ast.statements.AUnresolvedStateDesignator;
 import org.overture.typechecker.assistant.ITypeCheckerAssistantFactory;
 import org.overture.typechecker.utilities.FunctionChecker;
 
@@ -47,8 +40,6 @@ import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.AStartDeadlineAction;
 import eu.compassresearch.ast.actions.AStmAction;
 import eu.compassresearch.ast.actions.AStopAction;
-import eu.compassresearch.ast.actions.ASynchronousParallelismParallelAction;
-import eu.compassresearch.ast.actions.ASynchronousParallelismReplicatedAction;
 import eu.compassresearch.ast.actions.ATimedInterruptAction;
 import eu.compassresearch.ast.actions.ATimeoutAction;
 import eu.compassresearch.ast.actions.AUntimedTimeoutAction;
@@ -111,14 +102,19 @@ import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionReplicatedProcess;
 import eu.compassresearch.ast.process.ASkipProcess;
 import eu.compassresearch.ast.process.AStartDeadlineProcess;
-import eu.compassresearch.ast.process.ASynchronousParallelismProcess;
-import eu.compassresearch.ast.process.ASynchronousParallelismReplicatedProcess;
 import eu.compassresearch.ast.process.ATimedInterruptProcess;
 import eu.compassresearch.ast.process.ATimeoutProcess;
 import eu.compassresearch.ast.process.AUntimedTimeoutProcess;
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.ATcpStreamSource;
+import eu.compassresearch.ast.statements.AActionStm;
+import eu.compassresearch.ast.statements.AAltNonDeterministicStm;
+import eu.compassresearch.ast.statements.ADoNonDeterministicStm;
+import eu.compassresearch.ast.statements.AIfNonDeterministicStm;
+import eu.compassresearch.ast.statements.ANewStm;
+import eu.compassresearch.ast.statements.AUnresolvedObjectDesignator;
+import eu.compassresearch.ast.statements.AUnresolvedStateDesignator;
 import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.ast.types.AProcessType;
 
@@ -484,14 +480,6 @@ public class AbstractCmlFunctionChecker extends FunctionChecker implements
 	}
 
 	@Override
-	public Boolean caseASynchronousParallelismProcess(
-			ASynchronousParallelismProcess node) throws AnalysisException
-	{
-
-		return false;
-	}
-
-	@Override
 	public Boolean caseAInterleavingProcess(AInterleavingProcess node)
 			throws AnalysisException
 	{
@@ -623,15 +611,6 @@ public class AbstractCmlFunctionChecker extends FunctionChecker implements
 	@Override
 	public Boolean caseAAlphabetisedParallelismReplicatedProcess(
 			AAlphabetisedParallelismReplicatedProcess node)
-			throws AnalysisException
-	{
-
-		return false;
-	}
-
-	@Override
-	public Boolean caseASynchronousParallelismReplicatedProcess(
-			ASynchronousParallelismReplicatedProcess node)
 			throws AnalysisException
 	{
 
@@ -835,15 +814,6 @@ public class AbstractCmlFunctionChecker extends FunctionChecker implements
 	}
 
 	@Override
-	public Boolean caseASynchronousParallelismParallelAction(
-			ASynchronousParallelismParallelAction node)
-			throws AnalysisException
-	{
-
-		return false;
-	}
-
-	@Override
 	public Boolean caseASequentialCompositionReplicatedAction(
 			ASequentialCompositionReplicatedAction node)
 			throws AnalysisException
@@ -896,15 +866,6 @@ public class AbstractCmlFunctionChecker extends FunctionChecker implements
 	@Override
 	public Boolean caseAAlphabetisedParallelismReplicatedAction(
 			AAlphabetisedParallelismReplicatedAction node)
-			throws AnalysisException
-	{
-
-		return false;
-	}
-
-	@Override
-	public Boolean caseASynchronousParallelismReplicatedAction(
-			ASynchronousParallelismReplicatedAction node)
 			throws AnalysisException
 	{
 

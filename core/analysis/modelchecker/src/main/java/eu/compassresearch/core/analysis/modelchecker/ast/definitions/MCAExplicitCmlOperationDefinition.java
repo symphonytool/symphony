@@ -86,7 +86,19 @@ public class MCAExplicitCmlOperationDefinition implements
 		//its translation must be generic so many calls can reuse the body of an operation
 		//changing only its parameters
 		//create a operation call and use generic translation
-		result.append(this.parentAction.toFormula(option));
+		//result.append(this.parentAction.toFormula(option));
+		result.append("operation(\"");
+		result.append(this.name);
+		result.append("\",");
+		if(this.paramPatterns.size()==0){
+			result.append("void");
+		}else if(this.paramPatterns.size()==1){
+			result.append(this.paramPatterns.getFirst().toFormula(option));
+		} else if (this.paramPatterns.size() > 1){
+			//TODO
+			//this can be similar to a list of expressions transformed in ProdType 
+		}
+		result.append(")");
 		result.append(")");
 		result.append(",");
 		result.append("st = ");

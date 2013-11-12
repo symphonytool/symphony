@@ -1,20 +1,32 @@
 package eu.compassresearch.core.analysis.modelchecker.graphBuilder.process;
 
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.param.Param;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Type;
 
 public class ProcessCall implements Process {
 	
 
 	private String str;
-	private Param param;
+	private Type type;
 
 	
 	
-	public ProcessCall(String str, Param param) {
+	public ProcessCall(String str, Type type) {
 		this.str = str;
-		this.param = param;
+		this.type = type;
 		
 	}
+
+	
+	public Type getType() {
+		return type;
+	}
+
+
+	public void setType(Type type) {
+		this.type = type;
+	}
+
 
 	public String getStr() {
 		return str;
@@ -24,17 +36,12 @@ public class ProcessCall implements Process {
 		this.str = str;
 	}
 
-	public Param getParam() {
-		return param;
-	}
+	
 
-	public void setParam(Param param) {
-		this.param = param;
-	}
 
 	@Override
 	public String toString() {
-		return str + param.toString();
+		return str + type.toString();
 	}
 	
 	@Override
@@ -42,7 +49,7 @@ public class ProcessCall implements Process {
 		boolean result = false;
 		if(obj instanceof ProcessCall){
 			ProcessCall aux = (ProcessCall) obj;
-			result = this.getParam().equals(aux.getParam()) && this.getStr().equals(aux.getStr());
+			result = this.getType().equals(aux.getType()) && this.getStr().equals(aux.getStr());
 		}
 		return result;
 		
