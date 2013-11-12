@@ -217,6 +217,13 @@ public class CmlExpressionVisitor extends
 		return node.apply(stmEvaluator,question);
 	}
 	
+	@Override
+	public Value defaultPObjectDesignator(PObjectDesignator node,
+			Context question) throws AnalysisException
+	{
+		return node.apply(stmEvaluator,question);
+	}
+	
 //	@Override
 //	public Value caseAIdentifierStateDesignator(
 //			AIdentifierStateDesignator node, Context question)
