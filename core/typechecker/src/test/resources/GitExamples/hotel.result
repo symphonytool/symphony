@@ -1,27 +1,33 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<testResult type="eu.compassresearch.core.typechecker.secondedition.RunCmlExamplesTestCase">
-<message column="1" line="110" message="avail at 110:1 hidden by avail" messageType="warning" number="0" resource="hotel.result"/>
-<message column="1" line="114" message="fnRmAvailOnDate at 114:1 hidden by fnRmAvailOnDate" messageType="warning" number="0" resource="hotel.result"/>
-<message column="1" line="115" message="fnRmCapacity at 115:1 hidden by fnRmCapacity" messageType="warning" number="0" resource="hotel.result"/>
-<message column="1" line="110" message="avail at 110:1 hidden by avail" messageType="warning" number="0" resource="hotel.result"/>
-<message column="1" line="110" message="avail at 110:1 hidden by avail" messageType="warning" number="0" resource="hotel.result"/>
-<message column="1" line="114" message="fnRmAvailOnDate at 114:1 hidden by fnRmAvailOnDate" messageType="warning" number="0" resource="hotel.result"/>
-<message column="1" line="115" message="fnRmCapacity at 115:1 hidden by fnRmCapacity" messageType="warning" number="0" resource="hotel.result"/>
-<message column="1" line="114" message="fnRmAvailOnDate at 114:1 hidden by fnRmAvailOnDate" messageType="warning" number="0" resource="hotel.result"/>
-<message column="1" line="115" message="fnRmCapacity at 115:1 hidden by fnRmCapacity" messageType="warning" number="0" resource="hotel.result"/>
-<message column="1" line="114" message="fnRmAvailOnDate at 114:1 hidden by fnRmAvailOnDate" messageType="warning" number="0" resource="hotel.result"/>
-<message column="1" line="110" message="Instance variable 'avail' is not initialized" messageType="warning" number="0" resource="hotel.result"/>
-<message column="1" line="114" message="Instance variable 'fnRmAvailOnDate' is not initialized" messageType="warning" number="0" resource="hotel.result"/>
-<message column="1" line="115" message="Instance variable 'fnRmCapacity' is not initialized" messageType="warning" number="0" resource="hotel.result"/>
-<message column="9" line="186" message="Name 'checkFnRmAvail(Day, Capacity, AvailDB, fnRmCapacityDB)' is not in scope" messageType="error" number="0" resource="hotel.result"/>
-<message column="9" line="186" message="Operation 'checkFnRmAvail' cannot be called in an expression" messageType="error" number="0" resource="hotel.result"/>
-<message column="13" line="189" message="Name 'checkFnRmAvail(Day, Capacity, AvailDB, fnRmCapacityDB)' is not in scope" messageType="error" number="0" resource="hotel.result"/>
-<message column="13" line="189" message="Operation 'checkFnRmAvail' cannot be called in an expression" messageType="error" number="0" resource="hotel.result"/>
-<message column="10" line="192" message="Name 'checkthisFnRmAvail(Day, fnRoomId, fnAvailDB)' is not in scope" messageType="error" number="0" resource="hotel.result"/>
-<message column="10" line="192" message="Operation 'checkthisFnRmAvail' cannot be called in an expression" messageType="error" number="0" resource="hotel.result"/>
-<message column="13" line="193" message="Operation BOOKNAMEDFUNCTIONROOM(Day, fnRoomId) is not in scope" messageType="error" number="0" resource="hotel.result"/>
-<message column="14" line="195" message="Name 'checkthisFnRmAvail(Day, fnRoomId, fnAvailDB)' is not in scope" messageType="error" number="0" resource="hotel.result"/>
-<message column="14" line="195" message="Operation 'checkthisFnRmAvail' cannot be called in an expression" messageType="error" number="0" resource="hotel.result"/>
-<message column="4" line="197" message="3113 Unknown type name cancelfnroom" messageType="error" number="0" resource="hotel.result"/>
+<testResult type="eu.compassresearch.core.typechecker.RunCmlExamplesTestCase">
+<message column="1" line="110" message="avail at 110:1 hidden by avail." messageType="warning" number="5008" resource="hotel.cml"/>
+<message column="1" line="114" message="fnRmAvailOnDate at 114:1 hidden by fnRmAvailOnDate." messageType="warning" number="5008" resource="hotel.cml"/>
+<message column="1" line="115" message="fnRmCapacity at 115:1 hidden by fnRmCapacity." messageType="warning" number="5008" resource="hotel.cml"/>
+<message column="1" line="110" message="avail at 110:1 hidden by avail." messageType="warning" number="5008" resource="hotel.cml"/>
+<message column="1" line="110" message="avail at 110:1 hidden by avail." messageType="warning" number="5008" resource="hotel.cml"/>
+<message column="1" line="114" message="fnRmAvailOnDate at 114:1 hidden by fnRmAvailOnDate." messageType="warning" number="5008" resource="hotel.cml"/>
+<message column="1" line="115" message="fnRmCapacity at 115:1 hidden by fnRmCapacity." messageType="warning" number="5008" resource="hotel.cml"/>
+<message column="1" line="114" message="fnRmAvailOnDate at 114:1 hidden by fnRmAvailOnDate." messageType="warning" number="5008" resource="hotel.cml"/>
+<message column="1" line="115" message="fnRmCapacity at 115:1 hidden by fnRmCapacity." messageType="warning" number="5008" resource="hotel.cml"/>
+<message column="1" line="114" message="fnRmAvailOnDate at 114:1 hidden by fnRmAvailOnDate." messageType="warning" number="5008" resource="hotel.cml"/>
+<message column="1" line="110" message="Instance variable 'avail' is not initialized." messageType="warning" number="5001" resource="hotel.cml"/>
+<message column="1" line="114" message="Instance variable 'fnRmAvailOnDate' is not initialized." messageType="warning" number="5001" resource="hotel.cml"/>
+<message column="1" line="115" message="Instance variable 'fnRmCapacity' is not initialized." messageType="warning" number="5001" resource="hotel.cml"/>
+<message column="4" line="173" message="Communication &quot;book&quot; declared with too many arguments. Actual 1, Expected 0" messageType="error" number="3434" resource="hotel.cml"/>
+<message column="4" line="173" message="Communication not allowed over untyped channel: book." messageType="error" number="3425" resource="hotel.cml"/>
+<message column="9" line="186" message="Name 'checkFnRmAvail(Day, Capacity, AvailDB, fnRmCapacityDB)' is not in scope. Possible: checkFnRmAvail(Day, nat, fnAvailDB, fnRmCapacityDB)" messageType="error" number="3182" resource="hotel.cml"/>
+<message column="9" line="186" message="Operation 'checkFnRmAvail' cannot be called in an expression." messageType="error" number="3425" resource="hotel.cml"/>
+<message column="13" line="189" message="Name 'checkFnRmAvail(Day, Capacity, AvailDB, fnRmCapacityDB)' is not in scope. Possible: checkFnRmAvail(Day, nat, fnAvailDB, fnRmCapacityDB)" messageType="error" number="3182" resource="hotel.cml"/>
+<message column="13" line="189" message="Operation 'checkFnRmAvail' cannot be called in an expression." messageType="error" number="3425" resource="hotel.cml"/>
+<message column="4" line="191" message="Communication &quot;booknamedfunctionroom&quot; declared with too many arguments. Actual 1, Expected 0" messageType="error" number="3434" resource="hotel.cml"/>
+<message column="4" line="191" message="Communication not allowed over untyped channel: booknamedfunctionroom." messageType="error" number="3425" resource="hotel.cml"/>
+<message column="10" line="192" message="Name 'checkthisFnRmAvail(?, ?, fnAvailDB)' is not in scope." messageType="error" number="3182" resource="hotel.cml"/>
+<message column="10" line="192" message="Operation 'checkthisFnRmAvail' cannot be called in an expression." messageType="error" number="3425" resource="hotel.cml"/>
+<message column="13" line="193" message="Operation BOOKNAMEDFUNCTIONROOM(?, ?) is not in scope. Possible: BOOKNAMEDFUNCTIONROOM(Day, nat, fnRoomId)" messageType="error" number="3213" resource="hotel.cml"/>
+<message column="14" line="195" message="Name 'checkthisFnRmAvail(?, ?, fnAvailDB)' is not in scope." messageType="error" number="3182" resource="hotel.cml"/>
+<message column="14" line="195" message="Operation 'checkthisFnRmAvail' cannot be called in an expression." messageType="error" number="3425" resource="hotel.cml"/>
+<message column="4" line="197" message="Channel cancelfnroom is not declared" messageType="error" number="3431" resource="hotel.cml"/>
+<message column="4" line="197" message="Communication &quot;cancelfnroom&quot; declared with too many arguments. Actual 1, Expected 0" messageType="error" number="3434" resource="hotel.cml"/>
+<message column="4" line="197" message="Communication not allowed over untyped channel: cancelfnroom." messageType="error" number="3425" resource="hotel.cml"/>
 <result/>
 </testResult>

@@ -1,0 +1,14 @@
+
+channels
+  c : int * int * int
+
+process A = begin
+actions
+  B = val x : int @ c!x!2!3 -> Skip
+
+@
+  -- typechecker should complain that i and j are not in scope for the chanset
+  -- there *should* have been a comprehension tail in the definition
+  [| {| c.i.j |} |] i : int @ [{}] B(i)
+
+end

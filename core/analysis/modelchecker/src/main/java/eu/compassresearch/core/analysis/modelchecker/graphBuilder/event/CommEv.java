@@ -41,7 +41,7 @@ public class CommEv implements Event{
 
 	@Override
 	public String toString() {
-		return middle;
+		return begin;
 	}
 	
 	@Override

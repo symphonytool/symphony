@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import org.overture.ast.expressions.ASetRangeSetExp;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ExpressionEvaluator;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.PatternValue;
 
 public class MCASetRangeSetExp implements MCPCMLExp {
 
@@ -66,6 +67,13 @@ public class MCASetRangeSetExp implements MCPCMLExp {
 	public MCPCMLExp copy() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+
+	@Override
+	public void replacePatternWithValue(LinkedList<PatternValue> mapping) {
+		this.first.replacePatternWithValue(mapping);
+		this.last.replacePatternWithValue(mapping);
 	}
 
 	

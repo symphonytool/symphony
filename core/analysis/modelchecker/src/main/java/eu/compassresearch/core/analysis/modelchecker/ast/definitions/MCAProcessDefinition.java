@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAValParametrisation;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPParametrisation;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ActionChannelDependency;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ExpressionEvaluator;
@@ -50,7 +51,8 @@ public class MCAProcessDefinition implements MCPCMLDefinition {
 			TypeManipulator typeHandler = TypeManipulator.getInstance();
 			
 			//for the moment we assume that processes have only one parameter
-			MCPCMLType paramType = expEvaluator.instantiateMCType(this.getLocalState().getFirst());
+			MCPCMLType paramType = //expEvaluator.instantiateMCType(this.getLocalState().getFirst());
+			    ((MCAValParametrisation)this.getLocalState().getFirst()).getDeclaration().getType();
 			LinkedList<TypeValue> values = typeHandler.getValues(paramType);
 			for (TypeValue typeValue : values) {
 				result.append("  ProcDef(\"");
@@ -72,6 +74,7 @@ public class MCAProcessDefinition implements MCPCMLDefinition {
 			MCPCMLType decls =  evaluator.instantiateMCTypeFromParams(this.localState);
 			result.append(decls.toFormula(MCNode.NAMED));
 			result.append(",");
+			
 			result.append(this.process.toFormula(option));
 			result.append(")");
 			

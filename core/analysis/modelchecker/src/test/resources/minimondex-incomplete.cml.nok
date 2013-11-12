@@ -40,6 +40,6 @@ begin
     Receive = transfer?j.i?n -> Credit(n)
     
     Cycle = ( Transfer [] Receive ); Cycle  
-@ Cycle
+@ Init();Cycle
 
 end

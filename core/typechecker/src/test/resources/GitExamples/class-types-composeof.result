@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<testResult type="eu.compassresearch.core.typechecker.secondedition.RunCmlExamplesTestCase">
-<message column="19" line="5" message="Unable to resolve type name 'A1'" messageType="error" number="0" resource="class-types-composeof.result"/>
+<testResult type="eu.compassresearch.core.typechecker.RunCmlExamplesTestCase">
+<message column="19" line="5" message="Unable to resolve type name 'A1'." messageType="error" number="3427" resource="class-types-composeof.cml"/>
 <result/>
 </testResult>

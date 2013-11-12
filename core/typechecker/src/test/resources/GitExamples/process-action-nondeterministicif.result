@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<testResult type="eu.compassresearch.core.typechecker.secondedition.RunCmlExamplesTestCase">
-<message column="12" line="5" message="Name 'x' is not in scope" messageType="error" number="0" resource="process-action-nondeterministicif.result"/>
-<message column="17" line="5" message="3410 The Symbol &quot;REG&quot; is undefined." messageType="error" number="0" resource="process-action-nondeterministicif.result"/>
+<testResult type="eu.compassresearch.core.typechecker.RunCmlExamplesTestCase">
+<message column="12" line="5" message="Name 'x' is not in scope." messageType="error" number="3182" resource="process-action-nondeterministicif.cml"/>
+<message column="17" line="5" message="The Symbol &quot;REG&quot; is undefined." messageType="error" number="3410" resource="process-action-nondeterministicif.cml"/>
 <result/>
 </testResult>

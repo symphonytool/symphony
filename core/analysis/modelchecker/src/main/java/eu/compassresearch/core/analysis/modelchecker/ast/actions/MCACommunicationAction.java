@@ -83,7 +83,7 @@ public class MCACommunicationAction implements MCPAction {
 
 	private String buildIOCommExp(String option){
 		StringBuilder result = new StringBuilder();
-		
+		result.append("novar");
 		
 		for (MCPCommunicationParameter param : this.communicationParameters) {
 			result.append(param.toFormula(option));

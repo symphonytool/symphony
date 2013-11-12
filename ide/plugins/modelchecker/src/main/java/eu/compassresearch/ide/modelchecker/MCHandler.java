@@ -28,6 +28,7 @@ import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
+import org.eclipse.ui.handlers.HandlerUtil;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
 
@@ -68,7 +69,7 @@ public class MCHandler extends AbstractHandler {
 			popErrorMessage(Activator.formulaNotInstalledMsg);
 		}else{
 			try {
-				this.window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+				this.window = HandlerUtil.getActiveWorkbenchWindow(event);
 				IProject proj = MCPluginUtility.getCurrentlySelectedProject();
 				if (proj == null) {
 					popErrorMessage(new RuntimeException("No project is selected."));
@@ -79,19 +80,18 @@ public class MCHandler extends AbstractHandler {
 				ICmlProject cmlProj = (ICmlProject) proj.getAdapter(ICmlProject.class);
 				
 				//Check there are no type errors.
-				final Shell shell = this.window.getShell();
-				if (!CmlProjectUtil.typeCheck(shell, cmlProj)) {
+				if (!CmlProjectUtil.typeCheck(window.getShell(), cmlProj))
+				{
 					popErrorMessage(new RuntimeException("Errors in model."));
 					return null;
 				}
 				
 				// Check compatibility 
-				List<UnsupportedElementInfo> uns = new MCUnsupportedCollector().getUnsupporteds(cmlProj.getModel().getAst());
-
-				if (!uns.isEmpty())
-				{
+				
+				 List<UnsupportedElementInfo> uns = new MCUnsupportedCollector().getUnsupporteds(cmlProj.getModel().getAst());
+				if (!uns.isEmpty()){
 					cmlProj.addUnsupportedMarkers(uns);
-					MessageDialog.openError(null, "COMPASS", MCCollectorHandler.UNSUPPORTED_ELEMENTS_MSG);
+					MessageDialog.openError(null, "Symphony", MCCollectorHandler.UNSUPPORTED_ELEMENTS_MSG);
 					return null;
 				}
 				

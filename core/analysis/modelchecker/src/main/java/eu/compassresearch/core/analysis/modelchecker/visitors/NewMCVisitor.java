@@ -307,8 +307,8 @@ public class NewMCVisitor extends
 			files = folder.listFiles();
 		}
 		
-		String cml_file = "src/test/resources/minimondex-incomplete.cml";
-		System.out.println("Testing on " + cml_file);
+		String cml_file = "src/test/resources/simpler-register.cml";
+		//System.out.println("Testing on " + cml_file);
 		PSource source1 = Utilities.makeSourceFromFile(cml_file);
 		NewMCVisitor visitor1 = new NewMCVisitor(source1);
 		String formulaCode = visitor1.generateFormulaScript(source1.getParagraphs(),Utilities.DEADLOCK_PROPERTY);

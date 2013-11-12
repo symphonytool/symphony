@@ -1,5 +1,8 @@
 process A =
 begin
+
+state
+ss:int
 namesets 
 x = {ss}
 @Skip

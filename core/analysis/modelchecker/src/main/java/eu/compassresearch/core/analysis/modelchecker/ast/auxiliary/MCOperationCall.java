@@ -20,18 +20,17 @@ public class MCOperationCall extends MCGenericCall{
 	@Override
 	public String toFormula(String option) {
 		StringBuilder result = new StringBuilder();
-		
-		result.append("operation(\"" + this.name + "\",");
-		
-		ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
-		MCPCMLType argsType = null;
-		if(option.equals(MCNode.DEFAULT)){
-			argsType = evaluator.instantiateMCType(this.args);
-		} else{
-			argsType = evaluator.instantiateMCTypeFromPatterns(this.paramPatterns);
-		}
-		
-		result.append(argsType.toFormula(option));
+		result.append("operation(\"" + this.name + "\"");
+		if(args != null){
+			ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
+			MCPCMLType argsType = null;
+			if(option.equals(MCNode.DEFAULT)){
+				argsType = evaluator.instantiateMCType(this.args);
+			} else{
+				argsType = evaluator.instantiateMCTypeFromPatterns(this.paramPatterns);
+			}
+			
+			result.append(","+argsType.toFormula(option));
 		
 		/*
 		switch (option) {
@@ -67,7 +66,7 @@ public class MCOperationCall extends MCGenericCall{
 			break;
 		}
 		*/
-		
+		}
 		result.append(")");
 		
 		return result.toString();

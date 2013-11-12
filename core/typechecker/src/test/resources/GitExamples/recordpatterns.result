@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<testResult type="eu.compassresearch.core.typechecker.secondedition.RunCmlExamplesTestCase">
-<message column="2" line="7" message="Argument to 'dom' is not a map" messageType="error" number="0" resource="recordpatterns.result"/>
-<message column="2" line="7" message="Argument to 'dom' is not a map" messageType="error" number="0" resource="recordpatterns.result"/>
+<testResult type="eu.compassresearch.core.typechecker.RunCmlExamplesTestCase">
+<message column="2" line="7" message="Argument to 'dom' is not a map." messageType="error" number="3120" resource="recordpatterns.cml"/>
+<message column="2" line="7" message="Argument to 'dom' is not a map." messageType="error" number="3120" resource="recordpatterns.cml"/>
 <result/>
 </testResult>

@@ -30,7 +30,6 @@ public class MCALessNumericBinaryExp extends MCNumericBinaryExp {
 
 	@Override
 	public MCPCMLExp copy() {
-		// TODO Auto-generated method stub
-		return null;
+		return new MCALessNumericBinaryExp(this.getLeft(), this.getRight());
 	}
 }
