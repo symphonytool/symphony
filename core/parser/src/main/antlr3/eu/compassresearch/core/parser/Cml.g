@@ -1453,7 +1453,11 @@ leadingIdAction returns[PAction action]
     ;
 
 prefixStatement returns[PAction action]
-@after { $action.setLocation(extractLexLocation($start, $stop)); }
+@after { 
+	$action.setLocation(extractLexLocation($start, $stop));
+	if($action instanceof AStmAction)
+		((AStmAction)$action).getStatement().setLocation(extractLexLocation($start, $stop)); 
+	}
     : 'let' localDefinitionList 'in' body=action9
         {
             $action = stm2action(AstFactory.newALetStm(extractLexLocation($start,$body.stop), $localDefinitionList.defs, action2stm($body.action)));
