@@ -1,6 +1,9 @@
+  values
+   SIZE : nat = 8
+   
   functions
    oflow : int*int -> bool
-   oflow(i,j) == i+j > 255
+   oflow(i,j) == i+j > SIZE
 
    uflow : int*int -> bool
    uflow(i,j) == i-j < 0
@@ -18,7 +21,7 @@ process RegisterProc =
 
   operations  
    INIT : () ==> ()
-   INIT() == reg := 254
+   INIT() == reg := SIZE - 1
 
    ADD: int ==> ()
    ADD(i) == reg := reg + i
@@ -35,7 +38,7 @@ process RegisterProc =
   actions
    
    REG = 
-     (inc.1 -> [not oflow(reg,1)] & ADD(1);REG)
+     (inc.1 -> [not oflow(reg,1] & ADD(1);REG)
      []
      (dec.1 -> [not uflow(reg,1)] & SUB(1);REG)
    @

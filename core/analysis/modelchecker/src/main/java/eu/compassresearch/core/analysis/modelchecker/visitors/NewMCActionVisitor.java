@@ -65,6 +65,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.GuardDefGener
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCCondition;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCGuardDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCIOCommDef;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.NewMCGuardDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCPSingleDeclaration;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCPCMLDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
@@ -392,11 +393,12 @@ public class NewMCActionVisitor extends
 		MCPAction action = (MCPAction) node.getAction().apply(this, question);
 		MCAGuardedAction result = new MCAGuardedAction(expression, action);
 		
-		LinkedList<MCGuardDef> guarDefs = GuardDefGenerator.generateGuardDefs(expression, result.getCounterId(), result);
+		LinkedList<MCGuardDef> gDefs = GuardDefGenerator.generateGuardDefs(expression, result.getCounterId(), result);
+		question.guardDefs.put(expression, gDefs);
 		
-		for (MCGuardDef mcGuardDef : guarDefs) {
-			question.actionGuardDefs.put(expression, mcGuardDef);
-		}
+		//for (MCGuardDef mcGuardDef : guarDefs) {
+			//question.actionGuardDefs.put(expression, mcGuardDef);
+		//}
 		
 	
 		return result;

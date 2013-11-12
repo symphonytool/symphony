@@ -82,7 +82,7 @@ public class NewMCTypeAndValueVisitor extends
 		chanType = evaluator.instantiateMCTypeFromTypes(types);
 		MCAChannelType result = new MCAChannelType(chanType);
 		
-		return null;
+		return result;
 	}
 	
 

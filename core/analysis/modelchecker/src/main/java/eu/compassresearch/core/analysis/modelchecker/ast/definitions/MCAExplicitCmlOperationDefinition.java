@@ -10,6 +10,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCASingleGenera
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAStmAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.Binding;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ExpressionEvaluator;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCOperationCall;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCPreOpTrue;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCStringType;
@@ -68,14 +69,10 @@ public class MCAExplicitCmlOperationDefinition implements
 		result.append("\"" + this.name + "\"");
 		result.append(",");
 		
-		if(this.paramPatterns.size()==0){
-			result.append("void");
-		}else if(this.paramPatterns.size()==1){
-			result.append(this.paramPatterns.getFirst().toFormula(option));
-		} else if (this.paramPatterns.size() > 1){
-			//TODO
-			//this can be similar to a list of expressions transformed in ProdType 
-		}
+		ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
+		MCPCMLType argsType = null;
+		MCPCMLType paramType = evaluator.instantiateMCTypeFromPatterns(this.paramPatterns);
+		result.append(paramType.toFormula(MCNode.NAMED));
 		result.append(",");
 		result.append("st");
 		result.append(",");
@@ -87,18 +84,9 @@ public class MCAExplicitCmlOperationDefinition implements
 		//changing only its parameters
 		//create a operation call and use generic translation
 		//result.append(this.parentAction.toFormula(option));
-		result.append("operation(\"");
-		result.append(this.name);
-		result.append("\",");
-		if(this.paramPatterns.size()==0){
-			result.append("void");
-		}else if(this.paramPatterns.size()==1){
-			result.append(this.paramPatterns.getFirst().toFormula(option));
-		} else if (this.paramPatterns.size() > 1){
-			//TODO
-			//this can be similar to a list of expressions transformed in ProdType 
-		}
-		result.append(")");
+		MCOperationCall opCall = new MCOperationCall(this.name, null, paramPatterns);
+		result.append(opCall.toFormula(NAMED));
+		
 		result.append(")");
 		result.append(",");
 		result.append("st = ");
