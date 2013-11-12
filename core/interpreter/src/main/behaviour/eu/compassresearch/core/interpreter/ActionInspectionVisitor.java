@@ -12,10 +12,6 @@ import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.patterns.PPattern;
-
-import eu.compassresearch.ast.statements.AActionStm;
-
-import org.overture.ast.statements.ACallStm;
 import org.overture.ast.statements.PStm;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.typechecker.Pass;
@@ -47,7 +43,6 @@ import eu.compassresearch.ast.actions.ASignalCommunicationParameter;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.AStmAction;
 import eu.compassresearch.ast.actions.AStopAction;
-import eu.compassresearch.ast.actions.ASynchronousParallelismParallelAction;
 import eu.compassresearch.ast.actions.ATimeoutAction;
 import eu.compassresearch.ast.actions.AUntimedTimeoutAction;
 import eu.compassresearch.ast.actions.AValParametrisation;
@@ -59,8 +54,8 @@ import eu.compassresearch.ast.actions.PParametrisation;
 import eu.compassresearch.ast.actions.SParallelAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.definitions.AActionDefinition;
-import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
 import eu.compassresearch.ast.lex.CmlLexNameToken;
+import eu.compassresearch.ast.statements.AActionStm;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
@@ -75,7 +70,6 @@ import eu.compassresearch.core.interpreter.api.transitions.TimedTransition;
 import eu.compassresearch.core.interpreter.api.values.ActionValue;
 import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
-import eu.compassresearch.core.interpreter.api.values.CmlOperationValue;
 import eu.compassresearch.core.interpreter.api.values.ExpressionConstraint;
 import eu.compassresearch.core.interpreter.api.values.LatticeTopValue;
 import eu.compassresearch.core.interpreter.api.values.NamesetValue;
@@ -675,18 +669,6 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 	{
 		// return the alphabet only containing tock since Stop allows for time to pass
 		return newInspection(new CmlTransitionSet(new TimedTransition(owner)), null);
-	}
-
-	@Override
-	public Inspection caseASynchronousParallelismParallelAction(
-			ASynchronousParallelismParallelAction node, Context question)
-			throws AnalysisException
-	{
-
-		AFatEnumVarsetExpression varsetNode = getAllChannelsAsFatEnum(node.getLocation(), question);
-		AGeneralisedParallelismParallelAction nextNode = new AGeneralisedParallelismParallelAction(node.getLocation(), node.getLeftAction().clone(), node.getLeftNamesetExpression(), node.getLeftNamesetExpression(), node.getRightAction().clone(), varsetNode);
-
-		return caseAGeneralisedParallelismParallelAction(nextNode, question);
 	}
 
 	/**

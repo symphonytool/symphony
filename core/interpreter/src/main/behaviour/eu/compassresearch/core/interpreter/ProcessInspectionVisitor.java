@@ -25,7 +25,6 @@ import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.PParametrisation;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
-import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
 import eu.compassresearch.ast.lex.CmlLexNameToken;
 import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.ast.process.AAlphabetisedParallelismProcess;
@@ -37,7 +36,6 @@ import eu.compassresearch.ast.process.AInternalChoiceProcess;
 import eu.compassresearch.ast.process.AInterruptProcess;
 import eu.compassresearch.ast.process.AReferenceProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
-import eu.compassresearch.ast.process.ASynchronousParallelismProcess;
 import eu.compassresearch.ast.process.ATimeoutProcess;
 import eu.compassresearch.ast.process.AUntimedTimeoutProcess;
 import eu.compassresearch.ast.process.PProcess;
@@ -590,19 +588,6 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 	{
 
 		return caseASequentialComposition(node, node.getLeft(), node.getRight(), question);
-	}
-
-	@Override
-	public Inspection caseASynchronousParallelismProcess(
-			ASynchronousParallelismProcess node, Context question)
-			throws AnalysisException
-	{
-
-		AFatEnumVarsetExpression varsetNode = getAllChannelsAsFatEnum(node.getLocation(), question);
-
-		AGeneralisedParallelismProcess nextNode = new AGeneralisedParallelismProcess(node.getLocation(), node.getLeft().clone(), varsetNode, node.getRight().clone());
-
-		return caseAGeneralisedParallelismProcess(nextNode, question);
 	}
 
 	@Override

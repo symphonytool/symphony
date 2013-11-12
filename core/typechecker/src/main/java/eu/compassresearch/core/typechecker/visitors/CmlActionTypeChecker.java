@@ -72,8 +72,6 @@ import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.AStartDeadlineAction;
 import eu.compassresearch.ast.actions.AStmAction;
 import eu.compassresearch.ast.actions.AStopAction;
-import eu.compassresearch.ast.actions.ASynchronousParallelismParallelAction;
-import eu.compassresearch.ast.actions.ASynchronousParallelismReplicatedAction;
 import eu.compassresearch.ast.actions.ATimedInterruptAction;
 import eu.compassresearch.ast.actions.ATimeoutAction;
 import eu.compassresearch.ast.actions.AUntimedTimeoutAction;
@@ -724,35 +722,6 @@ public class CmlActionTypeChecker extends
 	}
 
 	@Override
-	public PType caseASynchronousParallelismReplicatedAction(
-			ASynchronousParallelismReplicatedAction node, TypeCheckInfo question)
-			throws AnalysisException
-	{
-
-		PVarsetExpression namesetExp = node.getNamesetExpression();
-		PAction repAction = node.getReplicatedAction();
-		LinkedList<PSingleDeclaration> decls = node.getReplicationDeclaration();
-
-		namesetExp.apply(nameSetChecker, question);
-
-		List<PDefinition> defs = new Vector<PDefinition>();
-
-		for (PSingleDeclaration decl : decls)
-		{
-			PType declType = decl.apply(THIS, question);
-
-			for (PDefinition def : declType.getDefinitions())
-			{
-				defs.add(def);
-			}
-		}
-
-		PType repActionType = repAction.apply(THIS, question.newScope(defs));
-
-		return setType(node, repActionType);
-	}
-
-	@Override
 	public PType caseAInternalChoiceAction(AInternalChoiceAction node,
 			org.overture.typechecker.TypeCheckInfo question)
 			throws AnalysisException
@@ -1115,37 +1084,6 @@ public class CmlActionTypeChecker extends
 			throws AnalysisException
 	{
 		return setTypeVoid(node);
-	}
-
-	@Override
-	public PType caseASynchronousParallelismParallelAction(
-			ASynchronousParallelismParallelAction node,
-			org.overture.typechecker.TypeCheckInfo question)
-			throws AnalysisException
-	{
-
-		PAction leftAction = node.getLeftAction();
-		PVarsetExpression leftNameSet = node.getLeftNamesetExpression();
-
-		PAction rightAction = node.getRightAction();
-		PVarsetExpression rightNameSet = node.getLeftNamesetExpression();
-
-		PType leftActionType = leftAction.apply(THIS, question);
-
-		if (leftNameSet != null)
-		{
-			leftNameSet.apply(nameSetChecker, question);
-
-		}
-
-		PType rightActionType = rightAction.apply(THIS, question);
-
-		if (rightNameSet != null)
-		{
-			rightNameSet.apply(nameSetChecker, question);
-
-		}
-		return setType(node, leftActionType, rightActionType);
 	}
 
 	@Override

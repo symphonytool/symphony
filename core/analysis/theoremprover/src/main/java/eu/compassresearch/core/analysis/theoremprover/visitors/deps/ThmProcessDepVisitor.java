@@ -22,7 +22,6 @@ import eu.compassresearch.ast.process.AInterruptProcess;
 import eu.compassresearch.ast.process.AReferenceProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.AStartDeadlineProcess;
-import eu.compassresearch.ast.process.ASynchronousParallelismProcess;
 import eu.compassresearch.ast.process.ATimedInterruptProcess;
 import eu.compassresearch.ast.process.ATimeoutProcess;
 import eu.compassresearch.ast.process.AUntimedTimeoutProcess;
@@ -143,16 +142,6 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 		nodeDeps.addAll(p.getLeft().apply(thmDepVisitor, bvars));
 		nodeDeps.addAll(p.getRight().apply(thmDepVisitor, bvars));
 			
-		return nodeDeps;
-	}
-
-	public NodeNameList caseASynchronousParallelismProcess(ASynchronousParallelismProcess p, NodeNameList bvars)
-			throws AnalysisException {
-		NodeNameList nodeDeps = new NodeNameList();
-
-		nodeDeps.addAll(p.getLeft().apply(thmDepVisitor, bvars));
-		nodeDeps.addAll(p.getRight().apply(thmDepVisitor, bvars));
-		
 		return nodeDeps;
 	}
 

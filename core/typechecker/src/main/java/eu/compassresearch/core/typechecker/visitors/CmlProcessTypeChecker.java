@@ -51,8 +51,6 @@ import eu.compassresearch.ast.process.AReferenceProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionReplicatedProcess;
 import eu.compassresearch.ast.process.AStartDeadlineProcess;
-import eu.compassresearch.ast.process.ASynchronousParallelismProcess;
-import eu.compassresearch.ast.process.ASynchronousParallelismReplicatedProcess;
 import eu.compassresearch.ast.process.ATimedInterruptProcess;
 import eu.compassresearch.ast.process.ATimeoutProcess;
 import eu.compassresearch.ast.process.AUntimedTimeoutProcess;
@@ -167,30 +165,6 @@ public class CmlProcessTypeChecker extends
 		typeCheck(node.getLocation(), question, node.getLeft(), node.getRight());
 
 		return getVoidType(node);
-	}
-
-	@Override
-	public PType caseASynchronousParallelismReplicatedProcess(
-			ASynchronousParallelismReplicatedProcess node,
-			TypeCheckInfo question) throws AnalysisException
-	{
-		PProcess proc = node.getReplicatedProcess();
-		LinkedList<PSingleDeclaration> repdecl = node.getReplicationDeclaration();
-
-		List<PDefinition> defs = new Vector<PDefinition>();
-		for (PSingleDeclaration decl : repdecl)
-		{
-			PType declType = decl.apply(THIS, question);
-
-			for (PDefinition def : declType.getDefinitions())
-			{
-				defs.add(def);
-			}
-		}
-
-		PType procType = proc.apply(THIS, question.newScope(defs));
-
-		return procType;
 	}
 
 	@Override
@@ -554,19 +528,6 @@ public class CmlProcessTypeChecker extends
 		PType replicatedProcessType = replicatedProcess.apply(THIS, question.newScope(defs));
 
 		return replicatedProcessType;
-	}
-
-	@Override
-	public PType caseASynchronousParallelismProcess(
-			ASynchronousParallelismProcess node,
-			org.overture.typechecker.TypeCheckInfo question)
-			throws AnalysisException
-	{
-
-		node.getLeft().apply(THIS, question);
-		node.getRight().apply(THIS, question);
-
-		return getVoidType(node);
 	}
 
 	@Override

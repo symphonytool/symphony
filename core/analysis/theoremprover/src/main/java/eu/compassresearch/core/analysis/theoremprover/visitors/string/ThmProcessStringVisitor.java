@@ -22,7 +22,6 @@ import eu.compassresearch.ast.process.AInterleavingProcess;
 import eu.compassresearch.ast.process.AInternalChoiceProcess;
 import eu.compassresearch.ast.process.AReferenceProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
-import eu.compassresearch.ast.process.ASynchronousParallelismProcess;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.analysis.theoremprover.thms.NodeNameList;
 import eu.compassresearch.core.analysis.theoremprover.thms.ThmExplicitOperation;
@@ -31,7 +30,6 @@ import eu.compassresearch.core.analysis.theoremprover.thms.ThmNodeList;
 import eu.compassresearch.core.analysis.theoremprover.utils.ThmProcessUtil;
 import eu.compassresearch.core.analysis.theoremprover.utils.ThySortException;
 import eu.compassresearch.core.analysis.theoremprover.visitors.TPVisitor;
-import eu.compassresearch.core.analysis.theoremprover.visitors.ThmDeclAndDefVisitor;
 import eu.compassresearch.core.analysis.theoremprover.visitors.deps.ThmDepVisitor;
 
 @SuppressWarnings("serial")
@@ -165,11 +163,6 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 	public String caseAInterleavingProcess(AInterleavingProcess p, ThmVarsContext vars) throws AnalysisException{
 
 		return p.getLeft().apply(thmStringVisitor, vars) + ThmProcessUtil.interleave  + p.getRight().apply(thmStringVisitor, vars);
-	}
-	
-	public String caseASynchronousParallelismProcess(ASynchronousParallelismProcess p, ThmVarsContext vars) throws AnalysisException{
-
-		return p.getLeft().apply(thmStringVisitor, vars) + ThmProcessUtil.syncParallel  + p.getRight().apply(thmStringVisitor, vars);
 	}
 	
 	public String caseAGeneralisedParallelismProcess(AGeneralisedParallelismProcess p, ThmVarsContext vars) throws AnalysisException{
