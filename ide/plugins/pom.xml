@@ -13,8 +13,8 @@
 
   <groupId>eu.compassresearch.ide</groupId>
   <artifactId>eu.compassresearch.ide.plugins</artifactId>
-  <name>Compass IDE Plugins Top-level</name>
-  <description>Super POM for all COMPASS IDE Plugin (Eclipse) artifacts.</description>
+  <name>Symphony IDE Plugins Top-level</name>
+  <description>Super POM for all Symphony IDE Plugin (Eclipse) artifacts.</description>
 
   <modules>
     <module>interpreter</module>

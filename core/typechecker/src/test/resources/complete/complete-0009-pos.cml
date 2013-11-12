@@ -1,0 +1,19 @@
+channels
+
+ c1:int*int
+
+process
+
+ A =
+
+begin
+
+
+
+state
+
+ a:int 
+ 
+ @ [| { } |] i in set {1,2,3} @ [{ }] Skip
+
+end

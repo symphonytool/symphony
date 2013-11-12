@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.GeneralCmlTypeCheckerTests">
+<message column="9" line="12" message="Name 'i' is not in scope." messageType="error" number="3182" resource="cml-0005-neg.cml"/>
+<result/>
+</testResult>

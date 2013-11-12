@@ -7,10 +7,10 @@ begin
 		hello : int := 4
 		
 	operations 
-		A : () ==> A 
+		public A : () ==> A 
 		A() == Skip
 		
-		getHello : () ==> int
+		public getHello : () ==> int
 		getHello() == hello := hello + 1;return hello
 end
 

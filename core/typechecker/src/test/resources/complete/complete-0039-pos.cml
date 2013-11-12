@@ -1,0 +1,13 @@
+process
+
+ P =
+
+begin
+
+
+
+actions
+
+ B = A1(1,2) A1 = val a:int, b: nat @ Skip @ A1(1,1)
+
+end

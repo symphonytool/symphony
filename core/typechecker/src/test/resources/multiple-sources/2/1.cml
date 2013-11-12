@@ -1,0 +1,1 @@
+class test1 = begin state public a : int := 1 end 

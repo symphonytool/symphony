@@ -52,8 +52,8 @@ public class CmlParserError
 	
 	public String getErrorHeader(RecognitionException e) {
 		if ( sourceName!=null )
-			return sourceName+" line "+e.line+":"+e.charPositionInLine;
+			return sourceName+" line "+line+":"+charPositionInLine;
 				
-		return "line "+e.line+":"+e.charPositionInLine;
+		return "line "+line+":"+charPositionInLine;
 	}
 }

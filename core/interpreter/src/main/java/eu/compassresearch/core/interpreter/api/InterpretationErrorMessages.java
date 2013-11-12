@@ -8,7 +8,8 @@ public enum InterpretationErrorMessages
 			"%s case is not yet implemented"), EVAL_OF_UNDEFINED_VALUE(
 			"You are trying to evaluate an undefined value : %s %s"), EVAL_OF_IMPLICIT_OP(
 			"The operation '%s' is implicit, this is not possible to interpret"), SYNC_OF_NONCOMPARABLE_EVENTS(
-			"Cannot synchronize '%s' with '%s', since they are not comparable");
+			"Cannot synchronize '%s' with '%s', since they are not comparable"), UNBOUNDED_REPLICATION(
+			"Unbounded replication is not allowed");
 
 	private String template;
 

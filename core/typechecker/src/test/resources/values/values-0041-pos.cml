@@ -1,0 +1,13 @@
+class
+
+ test =
+
+begin
+
+
+
+values
+
+ a:set of int = dunion {{-1,2,3},{1,2,3},{3,4,5}}
+
+end

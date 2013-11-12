@@ -1,0 +1,17 @@
+class
+
+ exlicitfunction =
+
+begin
+
+
+
+types
+
+ aunion = nat | <None>
+
+functions
+
+ g:int -> aunion g(a) == if (a = 0) then <None> else a
+
+end

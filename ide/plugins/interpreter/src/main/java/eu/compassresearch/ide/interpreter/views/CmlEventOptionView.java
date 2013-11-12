@@ -183,8 +183,12 @@ public class CmlEventOptionView extends ViewPart implements
 			}
 
 		});
+		
 		viewer.setInput(transitions);
-		viewer.setSelection(new StructuredSelection(transitions.get(0)));
+		if(!transitions.isEmpty())
+		{
+			viewer.setSelection(new StructuredSelection(transitions.get(0)));
+		}
 		viewer.refresh();
 	}
 }

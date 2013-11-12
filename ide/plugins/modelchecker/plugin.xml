@@ -24,6 +24,11 @@
                   name="property">
             </commandParameter>
       </command>
+            <command
+            defaultHandler="eu.compassresearch.ide.modelchecker.MCCollectorHandler"
+            id="eu.compassresearch.ide.modelchecker.mcCollectorCommand"
+            name="Test Model Checker Compatibilityt">
+      </command>
    </extension>
    
    
@@ -38,16 +43,27 @@
                   label="Model check"
                   icon="icons/mc.png">
                   <command
-	                  commandId="eu.compassresearch.ide.modelchecker.mcCommand"
-	                  id="eu.compassresearch.ide.modelchecker.deadlockCmd"
+	                  commandId="eu.compassresearch.ide.modelchecker.mcCollectorCommand"
+	                  id="eu.compassresearch.ide.modelchecker.mcCollectorCommand"
 	                  style="push"
-	                  label="Check deadlock"
-	                  tooltip="Invokes the CML model checker for checking deadlock">
-	                  <parameter
-	                        name="eu.compassresearch.ide.modelchecker.property"
-	                        value="DEADLOCK">
-	                  </parameter>
+	                  label="Check MC compatibility"
+	                  tooltip="Test compatibility of model with model checker.">
             	</command>
+                  <separator
+                        name="eu.compassresearch.ide.modelchecker.separator"
+                        visible="true">
+                  </separator>
+                <command
+                      commandId="eu.compassresearch.ide.modelchecker.mcCommand"
+                      id="eu.compassresearch.ide.modelchecker.deadlockCmd"
+                      style="push"
+                      label="Check deadlock"
+                      tooltip="Invokes the CML model checker for checking deadlock">
+                      <parameter
+                            name="eu.compassresearch.ide.modelchecker.property"
+                            value="DEADLOCK">
+                      </parameter>
+                </command>
             	<command
                   commandId="eu.compassresearch.ide.modelchecker.mcCommand"
                   id="eu.compassresearch.ide.modelchecker.livelockCmd"
@@ -88,7 +104,7 @@
          point="org.eclipse.ui.views">
       <category
 			id="eu.compassresearch.ide.ui.category"
-			name="COMPASS">
+			name="Symphony">
       </category>
       <view
             category="eu.compassresearch.ide.ui.category"
@@ -100,7 +116,7 @@
       <view
                id="eu.compassresearch.ide.modelchecker.view.progressview"
                name="Model Checker Progress View"
-               class="org.eclipse.ui.ExtensionFactory:progressView">
+               class="eu.compassresearch.ide.modelchecker.MCProgressView:progressView">
          </view>
    </extension>
    <extension

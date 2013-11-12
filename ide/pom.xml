@@ -13,8 +13,8 @@
 
   <groupId>eu.compassresearch.ide</groupId>
   <artifactId>ide</artifactId>
-  <name>Compass IDE Top-level</name>
-  <description>Super POM for all COMPASS IDE (Eclipse) artifacts.</description>
+  <name>Symphony IDE Top-level</name>
+  <description>Super POM for all Symphony IDE (Eclipse) artifacts.</description>
 
   <properties>
     <maven.test.skip>true</maven.test.skip>

@@ -1,0 +1,8 @@
+/* Explicit mutual recursion is not ok with use of both actions without definitions */
+
+process A =
+begin
+
+@ mu X, Y @ (X;Y)
+
+end

@@ -1,14 +1,19 @@
 package eu.compassresearch.core.interpreter.api.events;
 
+import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
 
 import eu.compassresearch.core.interpreter.CmlRuntime;
 
-public class EventSourceHandler<O, E> implements EventSource<O>
+public class EventSourceHandler<O, E> implements EventSource<O>, Serializable
 {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3317483296600247439L;
 	protected List<O> observers;
 	protected Object source;
 	protected EventFireMediator<O, E> eventMediator;

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.RunCmlExamplesTestCase">
+<message column="16" line="5" message="Unable to resolve type name 'SUBS'." messageType="error" number="3427" resource="class-functions.cml"/>
+<message column="16" line="5" message="Unable to resolve type name 'SUBS'." messageType="error" number="3428" resource="class-functions.cml"/>
+<result/>
+</testResult>

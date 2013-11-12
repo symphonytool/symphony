@@ -3,11 +3,11 @@ process test =
 begin
 	
 	state 
-		a : int := 2
+		v : int := 2
 	actions
-		A = ([a = 2] & a -> b -> Skip) 
+		A = ([v = 2] & a -> b -> Skip) 
 		 
-		B = ([a = 1] & c -> d -> Skip) 
+		B = ([v = 1] & c -> d -> Skip) 
 	
 	@ A [] B 
 end

@@ -1,0 +1,15 @@
+/*Test the lookup in for statements and pattern binds*/
+
+channels
+
+ a : int
+
+process
+
+ A =
+
+begin
+
+ @ for x in [1,2,3,4] do a.x -> Skip
+
+end

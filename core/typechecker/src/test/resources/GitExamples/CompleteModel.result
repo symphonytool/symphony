@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.RunCmlExamplesTestCase">
+<message column="24" line="31" message="Definition 'r' not used." messageType="warning" number="5000" resource="CompleteModel.cml"/>
+<message column="35" line="34" message="Definition 'r' not used." messageType="warning" number="5000" resource="CompleteModel.cml"/>
+<message column="2" line="62" message="ccId at 62:2 hidden by ccId." messageType="warning" number="5008" resource="CompleteModel.cml"/>
+<message column="2" line="55" message="erus at 55:2 hidden by erus." messageType="warning" number="5008" resource="CompleteModel.cml"/>
+<message column="2" line="58" message="eruRescues at 58:2 hidden by eruRescues." messageType="warning" number="5008" resource="CompleteModel.cml"/>
+<message column="2" line="55" message="erus at 55:2 hidden by erus." messageType="warning" number="5008" resource="CompleteModel.cml"/>
+<message column="2" line="58" message="eruRescues at 58:2 hidden by eruRescues." messageType="warning" number="5008" resource="CompleteModel.cml"/>
+<message column="2" line="58" message="eruRescues at 58:2 hidden by eruRescues." messageType="warning" number="5008" resource="CompleteModel.cml"/>
+<message column="2" line="55" message="erus at 55:2 hidden by erus." messageType="warning" number="5008" resource="CompleteModel.cml"/>
+<message column="2" line="58" message="eruRescues at 58:2 hidden by eruRescues." messageType="warning" number="5008" resource="CompleteModel.cml"/>
+<message column="2" line="58" message="eruRescues at 58:2 hidden by eruRescues." messageType="warning" number="5008" resource="CompleteModel.cml"/>
+<message column="2" line="58" message="eruRescues at 58:2 hidden by eruRescues." messageType="warning" number="5008" resource="CompleteModel.cml"/>
+<message column="2" line="58" message="eruRescues at 58:2 hidden by eruRescues." messageType="warning" number="5008" resource="CompleteModel.cml"/>
+<message column="2" line="55" message="erus at 55:2 hidden by erus." messageType="warning" number="5008" resource="CompleteModel.cml"/>
+<message column="2" line="58" message="eruRescues at 58:2 hidden by eruRescues." messageType="warning" number="5008" resource="CompleteModel.cml"/>
+<message column="2" line="65" message="diversionLog at 65:2 hidden by diversionLog." messageType="warning" number="5008" resource="CompleteModel.cml"/>
+<message column="2" line="149" message="history at 149:2 hidden by history." messageType="warning" number="5008" resource="CompleteModel.cml"/>
+<message column="2" line="149" message="history at 149:2 hidden by history." messageType="warning" number="5008" resource="CompleteModel.cml"/>
+<message column="7" line="181" message="id at 171:18 hidden by id." messageType="warning" number="5008" resource="CompleteModel.cml"/>
+<message column="2" line="176" message="eruId at 176:2 hidden by eruId." messageType="warning" number="5008" resource="CompleteModel.cml"/>
+<message column="2" line="177" message="currRescue at 177:2 hidden by currRescue." messageType="warning" number="5008" resource="CompleteModel.cml"/>
+<message column="2" line="177" message="currRescue at 177:2 hidden by currRescue." messageType="warning" number="5008" resource="CompleteModel.cml"/>
+<message column="2" line="55" message="Instance variable 'erus' is not initialized." messageType="warning" number="5001" resource="CompleteModel.cml"/>
+<message column="2" line="58" message="Instance variable 'eruRescues' is not initialized." messageType="warning" number="5001" resource="CompleteModel.cml"/>
+<message column="2" line="62" message="Instance variable 'ccId' is not initialized." messageType="warning" number="5001" resource="CompleteModel.cml"/>
+<message column="2" line="65" message="Instance variable 'diversionLog' is not initialized." messageType="warning" number="5001" resource="CompleteModel.cml"/>
+<message column="2" line="149" message="Instance variable 'history' is not initialized." messageType="warning" number="5001" resource="CompleteModel.cml"/>
+<message column="2" line="176" message="Instance variable 'eruId' is not initialized." messageType="warning" number="5001" resource="CompleteModel.cml"/>
+<message column="2" line="177" message="Instance variable 'currRescue' is not initialized." messageType="warning" number="5001" resource="CompleteModel.cml"/>
+<message column="17" line="109" message="State variable 'erus' cannot be accessed from this context." messageType="error" number="3302" resource="CompleteModel.cml"/>
+<result/>
+</testResult>

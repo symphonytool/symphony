@@ -1,0 +1,3 @@
+types
+
+ T=[int] inv t == t <> nil

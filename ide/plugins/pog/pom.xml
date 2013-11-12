@@ -11,7 +11,7 @@
   <packaging>eclipse-plugin</packaging>
 
   <artifactId>eu.compassresearch.ide.pog</artifactId>
-  <name>COMPASS IDE POG Plugin</name>
+  <name>Symphony IDE POG Plugin</name>
 
   <build>
     <plugins>

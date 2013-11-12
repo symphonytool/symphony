@@ -1,0 +1,22 @@
+
+
+class
+
+ A =
+
+begin
+
+types	
+	public Stay ::	hotId : HotelId	
+		
+	public HotelId = token
+	
+	BookingDetails :: 	
+		stay: Stay
+		 
+
+operations
+op:BookingDetails==> HotelId
+op(b) ==return b.stay.hotId
+
+end

@@ -1,11 +1,20 @@
 package eu.compassresearch.core.analysis.modelchecker.graphBuilder.util;
 
-import eu.compassresearch.core.analysis.modelchecker.graphBuilder.*;
+import java.util.Hashtable;
+import java.util.LinkedList;
+
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.GivenProc;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.ProcDef;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.State;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.BBinding;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.Binding;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.NullBinding;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.SingleBind;
-import eu.compassresearch.core.analysis.modelchecker.graphBuilder.event.*;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.event.BasicEvent;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.event.CommEv;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.event.Event;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.event.IOCom;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.event.Tau;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.expression.EqualBooleanExpression;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.expression.LessThanBooleanExpression;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.expression.NotEqualBooleanExpression;
@@ -25,12 +34,12 @@ import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.IPar;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.IParll;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.IntChoice;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Let;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Operation;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Par;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Parll;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Prefix;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Process;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.ProcessCall;
-import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Operation;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.SeqComposition;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Skip;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Stop;
@@ -44,11 +53,7 @@ import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.T1;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.T2;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.T3;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Type;
-import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.UndefinedValue;
-
-
-import java.util.Hashtable;
-import java.util.LinkedList;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Void;
 
 public class Utilities {
 	
@@ -128,7 +133,7 @@ public class Utilities {
 		constructors.put(Constructor.T1.id, Constructor.T1);
 		constructors.put(Constructor.T2.id, Constructor.T2);
 		constructors.put(Constructor.T3.id, Constructor.T3);
-		constructors.put(Constructor.Undefined.id, Constructor.Undefined);
+		constructors.put(Constructor.Void.id, Constructor.Void);
 		
 		//EXPRESSION
 		constructors.put(Constructor.EqualExpression.id, Constructor.EqualExpression);
@@ -151,7 +156,7 @@ public class Utilities {
 				"NEQ"), LessThanExpression("LT"), GreaterThanExpression("GT"), IntType(
 				"Int"), NatType("Nat"), StrType("Str"), IRType("IR"), GivenProc(
 				"GivenProc"), ProcDef("ProcDef"), CommEv("CommEv"),T1("T1"),T2("T2"),T3("T3"),
-				SingleBind("SingleBind"), Undefined("undef"), VarDecl("var"), Let("let"), 
+				SingleBind("SingleBind"), Void("void"), VarDecl("var"), Let("let"), 
 				GenPar("genPar");
 		
 		String id;
@@ -196,7 +201,7 @@ public class Utilities {
 			|| constructor.equals(Constructor.Tau)
 			|| constructor.equals(Constructor.NoPar)
 			|| constructor.equals(Constructor.NullBind)
-			|| constructor.equals(Constructor.Undefined)) {
+			|| constructor.equals(Constructor.Void)) {
 			
 			//result = content.substring(constructor.id.length() + 1, content.length()-1);
 			result = "";
@@ -286,6 +291,7 @@ public class Utilities {
 		Type typ;
 		String nmbr;
 		Param param;
+		Type type;
 		int number;
 		switch (constructor) {
 		case Stop:
@@ -309,8 +315,8 @@ public class Utilities {
 		case NullBind:
 			result = new NullBinding();
 			break;
-		case Undefined:
-			result = new UndefinedValue();
+		case Void:
+			result = new Void();
 			break;
 		case IntType:
 			result = new Int(buildInteger(arguments.pop()));
@@ -416,11 +422,11 @@ public class Utilities {
 			result = new Transition(source, auxEvent, target);
 			break;
 		case State:
-			number = Integer.parseInt(arguments.pop());
+			//number = Integer.parseInt(arguments.pop());
 			Binding binding = (Binding) createObject(arguments.pop());
-			String srt = arguments.pop();
+			//String srt = arguments.pop();
 			auxProcess = (Process) createObject(arguments.pop());
-			result = new State(number, binding, srt, auxProcess);
+			result = new State(binding, auxProcess);
 			break;
 		case Prefix:
 			auxEvent = (Event) createObject(arguments.pop());
@@ -448,8 +454,8 @@ public class Utilities {
 			break;
 		case Hide:
 			auxProcess = (Process) createObject(arguments.pop());
-			srt = arguments.pop();
-			result = new Hide(auxProcess, srt);
+			str = arguments.pop();
+			result = new Hide(auxProcess, str);
 			break;
 		case BasicEvent:
 			String name = arguments.pop();
@@ -474,9 +480,9 @@ public class Utilities {
 			break;
 		case ProcDef:
 			str = arguments.pop();
-			param = (Param) createObject(arguments.pop());
+			type = (Type) createObject(arguments.pop());
 			process = (Process) createObject(arguments.pop());
-			result = new ProcDef(str,param,process);
+			result = new ProcDef(str,type,process);
 			break;
 		case IPar:
 			process = (Process) createObject(arguments.pop());

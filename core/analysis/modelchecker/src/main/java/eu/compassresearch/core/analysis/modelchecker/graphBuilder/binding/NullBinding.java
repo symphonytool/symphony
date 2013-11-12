@@ -68,4 +68,14 @@ public class NullBinding implements Binding {
 	public StringBuilder generateAllDelFacts(int number){
 		return new StringBuilder();
 	}
+
+	@Override
+	public String toFormula(String option) {
+		return toFormula();
+	}
+
+	@Override
+	public String toFormulaGeneric() {
+		return "nBind";
+	}
 }

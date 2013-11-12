@@ -35,26 +35,25 @@ import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligationList;
 import eu.compassresearch.ide.pog.POConstants;
 import eu.compassresearch.ide.core.resources.ICmlProject;
 
-public class PoListView extends PoOverviewTableView
-{
+public class PoListView extends PoOverviewTableView {
 
-	public void clearPos()
-	{
+	public void clearPos() {
 		this.project = null;
 
-		display.asyncExec(new Runnable()
-		{
+		display.asyncExec(new Runnable() {
 
-			public void run()
-			{
+			public void run() {
 				viewer.setInput(new CmlProofObligationList());
 			}
 		});
 	}
 
+	public ICmlProject getProject() {
+		return (ICmlProject) project.getAdapter(ICmlProject.class);
+	}
+
 	@Override
-	public void createPartControl(Composite parent)
-	{
+	public void createPartControl(Composite parent) {
 		viewer = new TableViewer(parent, SWT.FULL_SELECTION | SWT.H_SCROLL
 				| SWT.V_SCROLL);
 		// test setup columns...
@@ -91,23 +90,21 @@ public class PoListView extends PoOverviewTableView
 		makeActions();
 		super.hookDoubleClickAction();
 
-		viewer.addSelectionChangedListener(new ISelectionChangedListener()
-		{
+		viewer.addSelectionChangedListener(new ISelectionChangedListener() {
 
-			public void selectionChanged(SelectionChangedEvent event)
-			{
+			public void selectionChanged(SelectionChangedEvent event) {
 
-				Object first = ((IStructuredSelection) event.getSelection()).getFirstElement();
-				if (first instanceof IProofObligation)
-				{
-					try
-					{
-						IViewPart v = getSite().getPage().showView(POConstants.PO_DETAIL_VIEW);
+				Object first = ((IStructuredSelection) event.getSelection())
+						.getFirstElement();
+				if (first instanceof IProofObligation) {
+					try {
+						IViewPart v = getSite().getPage().showView(
+								POConstants.PO_DETAIL_VIEW);
 
 						if (v instanceof PoDetailView)
-							((PoDetailView) v).setDataList(project, (IProofObligation) first);
-					} catch (PartInitException e)
-					{
+							((PoDetailView) v).setDataList(project,
+									(IProofObligation) first);
+					} catch (PartInitException e) {
 
 						e.printStackTrace();
 					}
@@ -117,28 +114,25 @@ public class PoListView extends PoOverviewTableView
 		});
 	}
 
-	public void setDataList(ICmlProject project, final IProofObligationList pol)
-	{
+	public void setDataList(ICmlProject project, final IProofObligationList pol) {
 
 		this.project = (IVdmProject) project.getAdapter(IVdmProject.class);
-		display.asyncExec(new Runnable()
-		{
+		display.asyncExec(new Runnable() {
 
-			public void run()
-			{
+			public void run() {
 				if (viewer.getLabelProvider() instanceof ViewLabelProvider)
-					((ViewLabelProvider) viewer.getLabelProvider()).resetCounter(); // this
-																					// is
-																					// needed
-																					// to
-																					// reset
-																					// the
+					((ViewLabelProvider) viewer.getLabelProvider())
+							.resetCounter(); // this
+												// is
+												// needed
+												// to
+												// reset
+												// the
 				// numbering
 
 				viewer.setInput(pol);
 
-				for (TableColumn col : viewer.getTable().getColumns())
-				{
+				for (TableColumn col : viewer.getTable().getColumns()) {
 					col.pack();
 				}
 			}
@@ -147,31 +141,29 @@ public class PoListView extends PoOverviewTableView
 
 	}
 
-	protected void makeActions()
-	{
-		doubleClickAction = new Action()
-		{
+	protected void makeActions() {
+		doubleClickAction = new Action() {
 			@Override
-			public void run()
-			{
+			public void run() {
 				ISelection selection = viewer.getSelection();
-				Object obj = ((IStructuredSelection) selection).getFirstElement();
-				if (obj instanceof IProofObligation)
-				{
+				Object obj = ((IStructuredSelection) selection)
+						.getFirstElement();
+				if (obj instanceof IProofObligation) {
 					gotoDefinition((IProofObligation) obj);
 					// showMessage(((ProofObligation) obj).toString());
 				}
 			}
 
-			private void gotoDefinition(IProofObligation po)
-			{
+			private void gotoDefinition(IProofObligation po) {
 				IFile file = project.findIFile(po.getLocation().getFile());
-				if (IVdmProject.externalFileContentType.isAssociatedWith(file.getName()))
-				{
-					EditorUtility.gotoLocation(IPoviewerConstants.ExternalEditorId, file, po.getLocation(), po.getName());
-				} else
-				{
-					EditorUtility.gotoLocation(file, po.getLocation(), po.getName());
+				if (IVdmProject.externalFileContentType.isAssociatedWith(file
+						.getName())) {
+					EditorUtility.gotoLocation(
+							IPoviewerConstants.ExternalEditorId, file,
+							po.getLocation(), po.getName());
+				} else {
+					EditorUtility.gotoLocation(file, po.getLocation(),
+							po.getName());
 				}
 
 			}
@@ -179,20 +171,15 @@ public class PoListView extends PoOverviewTableView
 
 	}
 
-	class ViewContentProvider implements IStructuredContentProvider
-	{
-		public void inputChanged(Viewer v, Object oldInput, Object newInput)
-		{
+	class ViewContentProvider implements IStructuredContentProvider {
+		public void inputChanged(Viewer v, Object oldInput, Object newInput) {
 		}
 
-		public void dispose()
-		{
+		public void dispose() {
 		}
 
-		public Object[] getElements(Object inputElement)
-		{
-			if (inputElement instanceof List)
-			{
+		public Object[] getElements(Object inputElement) {
+			if (inputElement instanceof List) {
 				@SuppressWarnings("rawtypes")
 				List list = (List) inputElement;
 				return list.toArray();
@@ -203,73 +190,67 @@ public class PoListView extends PoOverviewTableView
 	}
 
 	class ViewLabelProvider extends LabelProvider implements
-			ITableLabelProvider
-	{
+			ITableLabelProvider {
 
-		public void resetCounter()
-		{
+		public void resetCounter() {
 			count = 0;
 		}
 
 		private Integer count = 0;
 
-		public String getColumnText(Object element, int columnIndex)
-		{
+		public String getColumnText(Object element, int columnIndex) {
 			IProofObligation data = (IProofObligation) element;
 			String columnText;
-			switch (columnIndex)
-			{
-				case 0:
-					count++;
-					columnText = new Integer(data.getNumber()).toString();// count.toString();
-					break;
-				case 1:
-					if (!data.getLocation().getFile().toString().equals(""))
-						columnText = data.getLocation().getFile().getName()
-								+ " - " + data.getName();
-					else
-						columnText = data.getName();
-					break;
-				case 2:
-					columnText = handlePoKind(data);
-					break;
-				case 3:
-					columnText = "";// data.status.toString();
-					break;
-				default:
-					columnText = "not set";
+			switch (columnIndex) {
+			case 0:
+				count++;
+				columnText = new Integer(data.getNumber()).toString();// count.toString();
+				break;
+			case 1:
+				if (!data.getLocation().getFile().toString().equals(""))
+					columnText = data.getLocation().getFile().getName() + " - "
+							+ data.getName();
+				else
+					columnText = data.getName();
+				break;
+			case 2:
+				columnText = handlePoKind(data);
+				break;
+			case 3:
+				columnText = "";// data.status.toString();
+				break;
+			default:
+				columnText = "not set";
 			}
 			return columnText;
 
 		}
 
-		private String handlePoKind(IProofObligation data)
-		{
-			if (data instanceof CmlProofObligation)
-			{
+		private String handlePoKind(IProofObligation data) {
+			if (data instanceof CmlProofObligation) {
 				return ((CmlProofObligation) data).cmltype.toString();
 			}
 			return data.getKind().toString();
 		}
 
-		public Image getColumnImage(Object obj, int index)
-		{
-			if (index == 3)
-			{
+		public Image getColumnImage(Object obj, int index) {
+			if (index == 3) {
 				return getImage(obj);
 			}
 			return null;
 		}
 
 		@Override
-		public Image getImage(Object obj)
-		{
+		public Image getImage(Object obj) {
 			IProofObligation data = (IProofObligation) obj;
 
 			String imgPath = "icons/cview16/unproved.png";
 
 			if (data.getStatus() == POStatus.PROVED)
 				imgPath = "icons/cview16/proved.png";
+			
+			if (data.getStatus() == POStatus.DISPROVED)
+				imgPath = "icons/cview16/failed.png";
 
 			return Activator.getImageDescriptor(imgPath).createImage();
 		}

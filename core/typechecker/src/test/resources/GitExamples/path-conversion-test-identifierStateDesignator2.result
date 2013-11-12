@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.RunCmlExamplesTestCase">
+<message column="2" line="5" message="Instance variable 'reg' is not initialized." messageType="warning" number="5001" resource="path-conversion-test-identifierStateDesignator2.cml"/>
+<message column="8" line="5" message="Unable to resolve type name 'Byte'." messageType="error" number="3427" resource="path-conversion-test-identifierStateDesignator2.cml"/>
+<message column="8" line="5" message="Unable to resolve type name 'Byte'." messageType="error" number="3428" resource="path-conversion-test-identifierStateDesignator2.cml"/>
+<message column="12" line="8" message="Incompatible types in assignment. Target: reg Expression: 1" messageType="error" number="3239" resource="path-conversion-test-identifierStateDesignator2.cml"/>
+<result/>
+</testResult>

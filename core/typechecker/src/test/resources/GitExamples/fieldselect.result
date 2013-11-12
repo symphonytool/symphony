@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.RunCmlExamplesTestCase">
+<message column="16" line="5" message="Unable to resolve type name 'string'." messageType="error" number="3427" resource="fieldselect.cml"/>
+<message column="27" line="10" message="Constructor field 1 is of wrong type. Expected: string Actual: seq1 of (char)" messageType="error" number="3129" resource="fieldselect.cml"/>
+<message column="2" line="10" message="Expression does not match declared type. Declared: person Expression: person" messageType="error" number="3051" resource="fieldselect.cml"/>
+<message column="16" line="5" message="Unable to resolve type name 'string'." messageType="error" number="3428" resource="fieldselect.cml"/>
+<result/>
+</testResult>

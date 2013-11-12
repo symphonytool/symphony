@@ -1,0 +1,7 @@
+types
+
+ T = compose REC of a:int b:rat
+
+end
+
+ inv t == t.a < t.b

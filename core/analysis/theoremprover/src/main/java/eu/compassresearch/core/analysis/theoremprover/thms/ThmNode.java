@@ -9,29 +9,31 @@ public class ThmNode {
 	private ILexNameToken id;
 	private NodeNameList depIds;
 	private ThmArtifact art;
-	
-
-    public ThmNode() {
-    	depIds = new NodeNameList();
-    }
-	
-	
-    public ThmNode(ILexNameToken iLexNameToken) {
-    	this.id = iLexNameToken;
-    	depIds = new NodeNameList();
-    }
-    
-    public ThmNode(ILexNameToken iLexNameToken, NodeNameList ids) {
-    	this.id = iLexNameToken;
-    	this.depIds = ids;
-    }
+	//BASIC ERROR DETECTION - SHOULD BE REPLACED
+	private boolean nodeError;
     
     public ThmNode(ILexNameToken iLexNameToken, NodeNameList ids, ThmArtifact art) {
     	this.id = iLexNameToken;
     	this.depIds = ids;
     	this.art = art;
+    	//BASIC ERROR DETECTION
+    	this.nodeError = checkNodeStringErrors(art.toString());
     }
     
+    //BASIC ERROR DETECTION - ONLY CHECK FOR PRESENCE OF ISABELLE COMMENTS
+	private boolean checkNodeStringErrors(String string) {
+		return string.contains("(*") || string.contains("*)");
+	}
+	
+	public void addDep(ILexNameToken dep){
+		depIds.add(dep);
+	}
+	
+	
+	public boolean isError(){
+		return nodeError;
+	}
+
 	public ILexNameToken getId(){
 		return id;
 	}
@@ -47,28 +49,11 @@ public class ThmNode {
 	public ThmArtifact getArtifact(){
 		return art;
 	}
-	public void setId(ILexNameToken id) {
-    	this.id = id;
-	}	
-	
-	public void addDependant(ILexNameToken id) {
-	  depIds.add(id);
-	}
 
-	public void addDependants(NodeNameList ids) {
-	  depIds.addAll(ids);
-	}
-	
-	public void setArtifact(ThmArtifact art) {
-	  this.art = art;
-	}	
-	
-		
 	@Override
 	public String toString(){
 		return art.toString();
 	}
-
 
 	/**
 	 * Remove the dependencies from the node's dependency list
@@ -117,7 +102,6 @@ public class ThmNode {
 		
 		//assign the new set of dependencies to keep
 		this.depIds = nodeNames;
-		
 	}
 
 	/***

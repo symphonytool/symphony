@@ -1,0 +1,13 @@
+class
+
+ test =
+
+begin
+
+
+
+values
+
+ even:map int to bool = {1|->false, 2|->true, 3|->false, 4|->true}
+
+end

@@ -1,6 +1,7 @@
 package eu.compassresearch.ide.modelchecker.view;
 
 import org.eclipse.core.resources.IResource;
+
 import eu.compassresearch.ide.modelchecker.FormulaResultWrapper;
 
 public class MCUIResult {
@@ -34,5 +35,12 @@ public class MCUIResult {
 	public String getProperty(){
 		return formulaResult.getProperty();
 	}
+
+
+	@Override
+	public boolean equals(Object obj) {
+		return this.getFile().getName().equals(((MCUIResult) obj).getFile().getName()) && this.getProperty().equals(((MCUIResult)obj).getProperty());
+	}
+	
 	
 }

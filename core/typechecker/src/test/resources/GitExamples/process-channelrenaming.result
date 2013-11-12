@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.RunCmlExamplesTestCase">
+<message column="23" line="1" message="The Symbol &quot;A&quot; is undefined." messageType="error" number="3410" resource="process-channelrenaming.cml"/>
+<message column="28" line="1" message="The Symbol &quot;c&quot; is undefined." messageType="error" number="3410" resource="process-channelrenaming.cml"/>
+<result/>
+</testResult>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.RunCmlExamplesTestCase">
+<message column="26" line="3" message="Unable to resolve type name 'Byte'." messageType="error" number="3427" resource="channels.cml"/>
+<message column="26" line="3" message="Unable to resolve type name 'Byte'." messageType="error" number="3427" resource="channels.cml"/>
+<message column="26" line="3" message="Unable to resolve type name 'Byte'." messageType="error" number="3427" resource="channels.cml"/>
+<message column="26" line="3" message="Unable to resolve type name 'Byte'." messageType="error" number="3427" resource="channels.cml"/>
+<result/>
+</testResult>

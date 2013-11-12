@@ -10,8 +10,6 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.ui.IStartup;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.application.WorkbenchAdvisor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -36,7 +34,7 @@ public class Activator extends AbstractUIPlugin implements IStartup{
     
 	
 	public void earlyStartup() {
-    	checkAuxiliarySoftware();
+    	//checkAuxiliarySoftware();
 	}
 	
 	
@@ -59,7 +57,7 @@ public class Activator extends AbstractUIPlugin implements IStartup{
 		//checkAuxiliarySoftware();
 	}
 	
-	private void checkAuxiliarySoftware(){
+	public void checkAuxiliarySoftware(){
 		if(!FormulaIntegrator.checkFormulaInstallation()){
     		FORMULA_OK = false;
     		logWarningMessage(formulaNotInstalledMsg);
@@ -122,7 +120,7 @@ public class Activator extends AbstractUIPlugin implements IStartup{
 	}
 
 	private void popErrorMessage(Throwable e) {
-		MessageDialog.openInformation(null, "COMPASS",
+		MessageDialog.openInformation(null, "Symphony",
 				formulaNotInstalledMsg);
 	}
     

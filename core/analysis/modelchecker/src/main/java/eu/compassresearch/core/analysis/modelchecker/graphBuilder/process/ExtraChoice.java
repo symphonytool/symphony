@@ -48,7 +48,7 @@ public class ExtraChoice extends Choice {
 	
 	@Override
 	public boolean isDeadlock(){
-		return false;
+		return this.getFirstProcess().isDeadlock() && this.getSecondProcess().isDeadlock();
 	}
 
 }

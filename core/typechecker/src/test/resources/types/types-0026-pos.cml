@@ -1,0 +1,21 @@
+/*TODO RWL: TC Cannot handle classes in type defs at top level*/
+
+class
+
+ C =
+
+begin
+
+
+
+state
+
+ a : int
+
+end
+
+
+
+types
+
+ A = C

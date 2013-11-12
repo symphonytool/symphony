@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.RunCmlExamplesTestCase">
+<message column="2" line="53" message="sg at 53:2 hidden by sg." messageType="warning" number="5008" resource="Dwarf.cml"/>
+<message column="2" line="53" message="sg at 53:2 hidden by sg." messageType="warning" number="5008" resource="Dwarf.cml"/>
+<message column="2" line="53" message="sg at 53:2 hidden by sg." messageType="warning" number="5008" resource="Dwarf.cml"/>
+<message column="2" line="53" message="sg at 53:2 hidden by sg." messageType="warning" number="5008" resource="Dwarf.cml"/>
+<message column="2" line="53" message="Instance variable 'sg' is not initialized." messageType="warning" number="5001" resource="Dwarf.cml"/>
+<message column="27" line="37" message="'in set' expression is always false. Element: Signal Set: set of (LampId)" messageType="error" number="3319" resource="Dwarf.cml"/>
+<message column="24" line="40" message="'in set' expression is always false. Element: Signal Set: set of (LampId)" messageType="error" number="3319" resource="Dwarf.cml"/>
+<message column="26" line="43" message="'in set' expression is always false. Element: Signal Set: set of (LampId)" messageType="error" number="3319" resource="Dwarf.cml"/>
+<message column="63" line="43" message="'in set' expression is always false. Element: Signal Set: set of (LampId)" messageType="error" number="3319" resource="Dwarf.cml"/>
+<result/>
+</testResult>

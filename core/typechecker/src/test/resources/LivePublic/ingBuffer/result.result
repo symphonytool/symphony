@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.LivePublicTestCase">
+<message column="14" line="18" message="v at 18:14 hidden by v." messageType="warning" number="5008" resource="RingBuffer.cml"/>
+<message column="14" line="39" message="cache at 39:14 hidden by cache." messageType="warning" number="5008" resource="RingBuffer.cml"/>
+<message column="14" line="40" message="size at 40:14 hidden by size." messageType="warning" number="5008" resource="RingBuffer.cml"/>
+<message column="14" line="41" message="top at 41:14 hidden by top." messageType="warning" number="5008" resource="RingBuffer.cml"/>
+<message column="14" line="42" message="bot at 42:14 hidden by bot." messageType="warning" number="5008" resource="RingBuffer.cml"/>
+<message column="14" line="18" message="Instance variable 'v' is not initialized." messageType="warning" number="5001" resource="RingBuffer.cml"/>
+<message column="14" line="39" message="Instance variable 'cache' is not initialized." messageType="warning" number="5001" resource="RingBuffer.cml"/>
+<message column="14" line="40" message="Instance variable 'size' is not initialized." messageType="warning" number="5001" resource="RingBuffer.cml"/>
+<message column="14" line="41" message="Instance variable 'top' is not initialized." messageType="warning" number="5001" resource="RingBuffer.cml"/>
+<message column="14" line="42" message="Instance variable 'bot' is not initialized." messageType="warning" number="5001" resource="RingBuffer.cml"/>
+<result/>
+</testResult>

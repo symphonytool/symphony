@@ -24,32 +24,51 @@
 package eu.compassresearch.core.analysis.pog.obligations;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
+import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.AImplicitOperationDefinition;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.APatternListTypePair;
+import org.overture.ast.patterns.ATypeMultipleBind;
+import org.overture.ast.patterns.PMultipleBind;
 import org.overture.ast.patterns.PPattern;
 import org.overture.ast.types.AOperationType;
 import org.overture.pog.obligation.POOperationDefinitionContext;
 
-import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
+
 
 public class CmlOperationDefinitionContext extends POOperationDefinitionContext
 {
 
+	List<AAssignmentDefinition> psdefs;
+
 	public CmlOperationDefinitionContext(
-			AImplicitCmlOperationDefinition definition, boolean precond,
+			AImplicitOperationDefinition definition, boolean precond,
 			PDefinition stateDefinition)
 	{
-		super(definition.getName(), (AOperationType) definition.getType(), 
-				getParamPatternList(definition), precond, definition.getPrecondition(), stateDefinition,(AImplicitOperationDefinition) null);//FIXME
+		super(definition.getName(), (AOperationType) definition.getType(), getParamPatternList(definition), precond, definition.getPrecondition(), stateDefinition, (AImplicitOperationDefinition) null);
 	}
 
+	public CmlOperationDefinitionContext(AImplicitOperationDefinition node,
+			boolean precond, List<AAssignmentDefinition> stateDefs)
+	{
+		super(node.getName(), (AOperationType) node.getType(), getParamPatternList(node), precond, node.getPrecondition(), null, (AImplicitOperationDefinition) null);
 
+		psdefs = new LinkedList<AAssignmentDefinition>();
+
+		for (AAssignmentDefinition def : stateDefs)
+		{
+			psdefs.add(def.clone());
+		}
+
+		psdefs = stateDefs;
+	}
 
 	public static List<PPattern> getParamPatternList(
-			AImplicitCmlOperationDefinition definition)
+			AImplicitOperationDefinition definition)
 	{
 		List<PPattern> plist = new ArrayList<PPattern>();
 
@@ -61,5 +80,27 @@ public class CmlOperationDefinitionContext extends POOperationDefinitionContext
 		return plist;
 	}
 
+	@Override
+	protected void addStateBinds(LinkedList<PMultipleBind> r)
+	{
+		if (psdefs == null)
+		{
+			super.addStateBinds(r);
+		} else
+		{
+			for (AAssignmentDefinition pdef : psdefs)
+			{
+				ATypeMultipleBind tmBind2 = new ATypeMultipleBind();
+				tmBind2.setType(pdef.getType().clone());
+				AIdentifierPattern pattern = new AIdentifierPattern();
+				pattern.setName(pdef.getName().clone());
+
+				List<PPattern> plist = new LinkedList<PPattern>();
+				plist.add(pattern);
+				tmBind2.setPlist(plist);
+				r.add(tmBind2);
+			}
+		}
+	}
 
 }

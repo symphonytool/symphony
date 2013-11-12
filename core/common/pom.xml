@@ -10,7 +10,7 @@
   </parent>
 
   <artifactId>common</artifactId>
-  <name>COMPASS Core Common</name>
+  <name>Symphony Core Common</name>
 
   <dependencies>
 

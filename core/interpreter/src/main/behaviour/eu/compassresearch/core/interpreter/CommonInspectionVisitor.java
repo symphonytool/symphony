@@ -1,7 +1,6 @@
 package eu.compassresearch.core.interpreter;
 
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
@@ -11,7 +10,6 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.intf.lex.ILexNameToken;
-import org.overture.ast.lex.LexLocation;
 import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ValueException;
@@ -22,7 +20,7 @@ import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
 import eu.compassresearch.ast.expressions.ANameChannelExp;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
-import eu.compassresearch.ast.lex.LexNameToken;
+import eu.compassresearch.ast.lex.CmlLexNameToken;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
@@ -36,6 +34,7 @@ import eu.compassresearch.core.interpreter.api.transitions.ObservableTransition;
 import eu.compassresearch.core.interpreter.api.transitions.TimedTransition;
 import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
+import eu.compassresearch.core.interpreter.utility.LocationExtractor;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
 @SuppressWarnings("serial")
@@ -54,29 +53,39 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		super(ownerProcess, visitorAccess, parentVisitor);
 	}
 
+	/**
+	 * This synchronizes any tock event from the children if both are running an and joins all the rest of the events
+	 * 
+	 * @return The joined transitions of the children syncing on tock if possible
+	 * @throws AnalysisException
+	 */
 	protected CmlTransitionSet syncOnTockAndJoinChildren()
 			throws AnalysisException
 	{
-		// even though they are external choice/interleaving they should always sync on tock
-		CmlTransitionSet cs = new CmlTransitionSet(new TimedTransition());
-
 		// Get all the child alphabets
 		CmlTransitionSet leftChildAlphabet = owner.getLeftChild().inspect();
 		CmlTransitionSet rightChildAlphabet = owner.getRightChild().inspect();
 
-		// Find the intersection between the child alphabets and the channel set and join them.
-		// Then if both left and right have them the next step will combine them.
-		CmlTransitionSet syncAlpha = leftChildAlphabet.intersect(cs).union(rightChildAlphabet.intersect(cs));
+		// if both are running and they both have tock event we sync them
+		if (!owner.getLeftChild().finished()
+				&& !owner.getRightChild().finished()
+				&& leftChildAlphabet.hasTockEvent()
+				&& rightChildAlphabet.hasTockEvent())
+		{
+			// get the tocks
+			TimedTransition leftTock = leftChildAlphabet.getTockEvent();
+			TimedTransition rightTock = rightChildAlphabet.getTockEvent();
 
-		// combine all the tock events
-		if (syncAlpha.getObservableEvents().size() == 2)
+			// sync them
+			CmlTransitionSet returnAlpha = new CmlTransitionSet(leftTock.synchronizeWith(rightTock));
+
+			// remove the old tocks and add the synced one to the result
+			return returnAlpha.union(leftChildAlphabet.subtract(leftTock).union(rightChildAlphabet.subtract(rightTock)));
+		}
+		// else we just joins all the event from both
+		else
 		{
-			Iterator<ObservableTransition> it = syncAlpha.getObservableEvents().iterator();
-			// remove the tocks from each action and add them sync'ed tock instead
-			return leftChildAlphabet.union(rightChildAlphabet).subtract(syncAlpha).union(it.next().synchronizeWith(it.next()));
-		} else
-		{
-			return leftChildAlphabet.union(rightChildAlphabet).subtract(syncAlpha);
+			return leftChildAlphabet.union(rightChildAlphabet);
 		}
 	}
 
@@ -90,7 +99,8 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 	{
 		// FIXME the children contexts also needs to be replaced!!!!!!
 		Context copyContext = theChoosenOne.getNextState().second;
-		Context newCurrentContext = CmlBehaviourUtility.mergeState(context, copyContext);
+		Context newCurrentContext = CmlBehaviourUtility.mergeAndReplaceState(context, copyContext);
+		// Context newCurrentContext = copyContext;
 
 		if (theChoosenOne.getLeftChild() != null)
 			theChoosenOne.getLeftChild().replaceState(newCurrentContext);
@@ -114,7 +124,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		// external choice begin
 		if (!owner.hasChildren())
 		{
-			return newInspection(createTauTransitionWithTime(node, "Begin"), new AbstractCalculationStep(owner, visitorAccess)
+			return newInspection(createTauTransitionWithoutTime(node, "Begin"), new AbstractCalculationStep(owner, visitorAccess)
 			{
 
 				@Override
@@ -123,13 +133,15 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 						throws AnalysisException
 				{
 					Pair<Context, Context> childContexts = visitorAccess.getChildContexts(question);
-					CmlBehaviour leftInstance = new ConcreteCmlBehaviour(leftNode, childContexts.first.deepCopy(), new LexNameToken(name().getModule(), name().getIdentifier().getName()
-							+ "[]", new LexLocation()), this.owner);
-					setLeftChild(leftInstance);
 
-					CmlBehaviour rightInstance = new ConcreteCmlBehaviour(rightNode, childContexts.second.deepCopy(), new LexNameToken(name().getModule(), "[]"
-							+ name().getIdentifier().getName(), new LexLocation()), this.owner);
-					setRightChild(rightInstance);
+					String module = name().getModule();
+					String nameStr = name().getIdentifier().getName();
+
+					setLeftChild(new ConcreteCmlBehaviour(leftNode, CmlBehaviourUtility.deepCopyProcessContext(childContexts.first), new CmlLexNameToken(module, nameStr
+							+ "[]", LocationExtractor.extractLocation(leftNode)), this.owner));
+
+					setRightChild(new ConcreteCmlBehaviour(rightNode, CmlBehaviourUtility.deepCopyProcessContext(childContexts.second), new CmlLexNameToken(module, "[]"
+							+ nameStr, LocationExtractor.extractLocation(rightNode)), this.owner));
 
 					return new Pair<INode, Context>(node, question);
 				}
@@ -139,7 +151,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		// If this is true, the Skip rule is instantiated. This means that the entire choice evolves into Skip
 		// with the state from the skip. After this all the children processes are terminated
 		else if (CmlBehaviourUtility.finishedChildExists(owner))
-			return newInspection(createTauTransitionWithTime(node, "end"), new AbstractCalculationStep(owner, visitorAccess)
+			return newInspection(createTauTransitionWithoutTime(node, "end"), new AbstractCalculationStep(owner, visitorAccess)
 			{
 
 				@Override
@@ -475,7 +487,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		// behaves as the right process
 		else if (owner.getCurrentTime() - startTimeVal >= val)
 		{
-			return newInspection(createTauTransitionWithTime(leftNode, "Timeout: time exceeded"), new AbstractCalculationStep(owner, visitorAccess)
+			return newInspection(createTauTransitionWithoutTime(rightNode, "Timeout: time exceeded"), new AbstractCalculationStep(owner, visitorAccess)
 			{
 
 				@Override
@@ -496,10 +508,23 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		// makes an observable transition then the whole process behaves as the left process
 		else
 		{
+			//
 			final CmlBehaviour leftBehavior = owner.getLeftChild();
-			return newInspection(leftBehavior.inspect(), new AbstractCalculationStep(owner, visitorAccess)
-			{
 
+			CmlTransitionSet resultAlpha = null;
+			CmlTransitionSet leftAlpha = leftBehavior.inspect();
+			// If time can pass in the left, we need to put the remaining time of the timeout
+			if (leftAlpha.hasTockEvent())
+			{
+				TimedTransition leftTimeTransition = leftAlpha.getTockEvent();
+				resultAlpha = leftAlpha.subtract(leftTimeTransition);
+				long limit = val - (owner.getCurrentTime() - startTimeVal);
+				resultAlpha = resultAlpha.union(leftTimeTransition.synchronizeWith(new TimedTransition(owner, limit)));
+			} else
+				resultAlpha = leftAlpha;
+
+			return newInspection(resultAlpha, new AbstractCalculationStep(owner, visitorAccess)
+			{
 				@Override
 				public Pair<INode, Context> execute(
 						CmlTransition selectedTransition)

@@ -5,38 +5,30 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.intf.lex.ILexLocation;
-import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
+import org.overture.interpreter.runtime.ContextException;
 import org.overture.interpreter.runtime.ValueException;
-import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.core.interpreter.CmlRuntime;
 import eu.compassresearch.core.interpreter.Console;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
-import eu.compassresearch.core.interpreter.api.RandomSelectionStrategy;
 import eu.compassresearch.core.interpreter.api.SelectionStrategy;
-import eu.compassresearch.core.interpreter.api.ValueParser;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.events.CmlInterpreterStateObserver;
 import eu.compassresearch.core.interpreter.api.events.InterpreterStateChangedEvent;
-import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
-import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
-import eu.compassresearch.core.interpreter.api.transitions.LabelledTransition;
-import eu.compassresearch.core.interpreter.api.values.AbstractValueInterpreter;
-import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
 import eu.compassresearch.core.interpreter.debug.messaging.CmlRequest;
 import eu.compassresearch.core.interpreter.debug.messaging.MessageCommunicator;
 import eu.compassresearch.core.interpreter.debug.messaging.MessageContainer;
@@ -62,8 +54,7 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 	private BufferedReader requestReader;
 	private boolean connected = false;
 	private CmlInterpreter runningInterpreter;
-	private List<TransitionDTO> waitingChoices = new LinkedList<TransitionDTO>();
-	CmlTransitionSet availableChannelEvents;
+	public final List<TransitionDTO> waitingChoices = new LinkedList<TransitionDTO>();
 
 	/**
 	 * Response Queue
@@ -72,7 +63,7 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 	/**
 	 * Transition Choice Queue
 	 */
-	private SynchronousQueue<TransitionDTO> choiceQueue = new SynchronousQueue<TransitionDTO>();
+	public final SynchronousQueue<TransitionDTO> choiceQueue = new SynchronousQueue<TransitionDTO>();
 	/**
 	 * Dispatches incomming messages
 	 */
@@ -127,11 +118,13 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 	 * @throws UnknownHostException
 	 * @throws IOException
 	 */
-	public void connect() throws UnknownHostException, IOException
+	public void connect(String host, int port) throws UnknownHostException,
+			IOException
 	{
 		if (!isConnected())
 		{
-			requestSocket = new Socket("localhost", CmlDebugDefaultValues.PORT);
+			InetAddress server = InetAddress.getByName(host);
+			requestSocket = new Socket(server, port);
 			requestOS = requestSocket.getOutputStream();
 			requestIS = requestSocket.getInputStream();
 			requestReader = new BufferedReader(new InputStreamReader(requestIS));
@@ -144,138 +137,18 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 		return connected;
 	}
 
-	private void simulate(CmlInterpreter cmlInterpreter)
-			throws AnalysisException
-	{
-		cmlInterpreter.execute(new RandomSelectionStrategy());
-	}
-
-	private void animate(final CmlInterpreter cmlInterpreter)
-			throws AnalysisException
-	{
-		cmlInterpreter.setSuspendBeforeTermination(true);
-		cmlInterpreter.execute(new SelectionStrategy()
-		{
-
-			private RandomSelectionStrategy rndSelect = new RandomSelectionStrategy();
-
-			private boolean isSystemSelect(
-					CmlTransitionSet availableChannelEvents)
-			{
-				return availableChannelEvents.getSilentTransitions().size() > 0;
-			}
-
-			private CmlTransition systemSelect()
-			{
-				rndSelect.choices(new CmlTransitionSet((Set) availableChannelEvents.getSilentTransitions()));
-				return rndSelect.resolveChoice();
-			}
-
-			private CmlTransition userSelect() throws InterruptedException
-			{
-				// //Wait for a transition choice taken by the user
-				TransitionDTO choice = choiceQueue.take();
-
-				CmlTransition selectedEvent = null;
-				// For now we just search naively to find the event
-				for (CmlTransition transition : availableChannelEvents.getAllEvents())
-				{
-					if (System.identityHashCode(transition) == choice.getTransitionObjectId())
-						selectedEvent = transition;
-				}
-
-				if (selectedEvent instanceof LabelledTransition
-						&& !((LabelledTransition) selectedEvent).getChannelName().isPrecise())
-				{
-					LabelledTransition chosenChannelEvent = (LabelledTransition) selectedEvent;
-					ChannelNameValue channnelName = chosenChannelEvent.getChannelName();
-
-					for (int i = 0; i < channnelName.getValues().size(); i++)
-					{
-						Value currentValue = channnelName.getValues().get(i);
-
-						if (!AbstractValueInterpreter.isValueMostPrecise(currentValue))
-						{
-							System.out.println("Enter value : ");
-							Value val;
-							try
-							{
-								val = channnelName.getChannel().getValueTypes().get(i).apply(new ValueParser());
-								channnelName.updateValue(i, val);
-							} catch (AnalysisException e)
-							{
-								e.printStackTrace();
-								System.exit(-1);
-							}
-						}
-					}
-				}
-
-				return selectedEvent;
-			}
-
-			@Override
-			public void choices(CmlTransitionSet availableTransitions)
-			{
-				availableChannelEvents = availableTransitions;
-
-				// We only convert the CmlTransitions into DTO's if no silent transitions
-				// can occur, since we only send the transitions to Eclipse if so.
-				if (!isSystemSelect(availableChannelEvents))
-				{
-					waitingChoices = convertTransitionsToChoices(availableChannelEvents, waitingChoices);
-				}
-			}
-
-			@Override
-			public CmlTransition resolveChoice()
-			{
-
-				// At this point we don't want the internal transition to propagate
-				// to the user, so we randomly choose all the possible internal transitions
-				// before we let anything through to the user
-				if (isSystemSelect(availableChannelEvents))
-					return systemSelect();
-				else
-				{
-
-					try
-					{
-						return userSelect();
-					} catch (InterruptedException e)
-					{
-						e.printStackTrace();
-						return null;
-					} finally
-					{
-						waitingChoices.clear();
-					}
-				}
-
-			}
-		});
-	}
-
-	private List<TransitionDTO> convertTransitionsToChoices(
-			CmlTransitionSet availableTransitions, List<TransitionDTO> choices)
-	{
-		List<TransitionDTO> convertedTransitionObjs = new LinkedList<TransitionDTO>();
-
-		for (CmlTransition transition : availableChannelEvents.getAllEvents())
-		{
-			// First find all the locations of the transition sources
-			List<ILexLocation> locations = new LinkedList<ILexLocation>();
-			for (CmlBehaviour source : transition.getEventSources())
-			{
-				INode node = source.getNextState().first;
-				locations.add(LocationExtractor.extractLocation(node));
-			}
-
-			convertedTransitionObjs.add(new TransitionDTO(System.identityHashCode(transition), transition.toString(), locations));
-		}
-
-		return convertedTransitionObjs;
-	}
+	// private void simulate(CmlInterpreter cmlInterpreter)
+	// throws AnalysisException
+	// {
+	// cmlInterpreter.execute(new RandomSelectionStrategy());
+	// }
+	//
+	// private void animate(final CmlInterpreter cmlInterpreter)
+	// throws AnalysisException
+	// {
+	// // cmlInterpreter.setSuspendBeforeTermination(true);
+	// cmlInterpreter.execute(new AnnimationStrategy());
+	// }
 
 	/**
 	 * Message communication methods
@@ -372,10 +245,19 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 				stopping();
 				return false;
 			case SET_BREAKPOINT:
+			{
 				Breakpoint bp = message.getContent();
 				Console.debug.println("Break point added : " + bp);
 				runningInterpreter.addBreakpoint(bp);
 				return true;
+			}
+			case REMOVE_BREAKPOINT:
+			{
+				Breakpoint bp = message.getContent();
+				Console.debug.println("Break point removed : " + bp);
+				runningInterpreter.removeBreakpoint(bp);
+				return true;
+			}
 			case RESUME:
 				runningInterpreter.resume();
 				return true;
@@ -399,7 +281,6 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 			case GET_STACK_FRAMES:
 			{
 				int id = message.getContent();
-
 				CmlBehaviour foundBehavior = this.runningInterpreter.findBehaviorById(id);
 				Context context = foundBehavior.getNextState().second;
 				List<StackFrameDTO> stackframes = new LinkedList<StackFrameDTO>();
@@ -414,10 +295,14 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 					contextStack.add(nextContext);
 					nextContext = nextContext.outer;
 				}
-
+				int contextIndex = contextCount;
 				for (Context c : contextStack)
-					stackframes.add(new StackFrameDTO(c.location.getStartLine(), c.location.getFile().toURI(), contextCount--));
-
+				{
+					if (contextIndex == contextCount)
+						stackframes.add(new StackFrameDTO(LocationExtractor.extractLocation(foundBehavior.getNextState().first).getStartLine(), c.location.getFile().toURI(), contextIndex--));
+					else
+						stackframes.add(new StackFrameDTO(c.location.getStartLine(), c.location.getFile().toURI(), contextIndex--));
+				}
 				ResponseMessage responseMessage = new ResponseMessage(message.getRequestId(), CmlRequest.GET_STACK_FRAMES, stackframes);
 				sendResponse(responseMessage);
 				return true;
@@ -505,21 +390,15 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 	}
 
 	@Override
-	public void start(InterpreterExecutionMode mode)
+	public void start(SelectionStrategy strategy)
 	{
 
 		try
 		{
-			// currentMode = mode;
-			if (mode == InterpreterExecutionMode.ANIMATE)
-			{
-				requestSetup();
-				animate(runningInterpreter);
-			} else if (mode == InterpreterExecutionMode.SIMULATE)
-			{
-				requestSetup();
-				simulate(runningInterpreter);
-			}
+			requestSetup();
+
+			strategy.initialize(runningInterpreter, this);
+			runningInterpreter.execute(strategy);
 
 			stopped(CmlInterpreterStateDTO.createCmlInterpreterStateDTO(runningInterpreter));
 		} catch (CmlInterpreterException e)
@@ -539,6 +418,11 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 		{
 			CmlInterpreterStateDTO status = CmlInterpreterStateDTO.createCmlInterpreterStateDTO(runningInterpreter);
 			status.addError(new InterpreterErrorDTO(e.getMessage()));
+			stopped(status);
+		} catch (ContextException e)
+		{
+			CmlInterpreterStateDTO status = CmlInterpreterStateDTO.createCmlInterpreterStateDTO(runningInterpreter);
+			status.addError(new InterpreterErrorDTO(e.getMessage(), e.location));
 			stopped(status);
 		} finally
 		{

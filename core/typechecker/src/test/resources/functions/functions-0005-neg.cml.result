@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.FunctionsCmlTypeCheckerTests">
+<message column="36" line="15" message="Definition 'a' not used." messageType="warning" number="5000" resource="functions-0005-neg.cml"/>
+<message column="1" line="15" message="Operation returns unexpected type. Actual: seq1 of (char) Expected: int" messageType="error" number="3027" resource="functions-0005-neg.cml"/>
+<result/>
+</testResult>

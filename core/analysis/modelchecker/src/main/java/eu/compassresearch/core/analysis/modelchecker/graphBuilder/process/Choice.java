@@ -1,6 +1,5 @@
 package eu.compassresearch.core.analysis.modelchecker.graphBuilder.process;
 
-import eu.compassresearch.core.analysis.modelchecker.graphBuilder.param.DPar;
 
 
 public abstract class Choice implements Process {
@@ -29,7 +28,8 @@ public abstract class Choice implements Process {
 		boolean result = false;
 		if(obj instanceof Choice){
 			Choice other = (Choice) obj;
-			result = this.getFirstProcess().equals(other.getFirstProcess()) && this.getSecondProcess().equals(other.getSecondProcess());
+			result = this.getFirstProcess().equals(other.getFirstProcess()) 
+					 && this.getSecondProcess().equals(other.getSecondProcess());
 		}
 		return result;
 	}	

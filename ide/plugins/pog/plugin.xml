@@ -51,33 +51,33 @@
          point="org.eclipse.ui.views">
 		<category
 			id="eu.compassresearch.ide.ui.category"
-			name="COMPASS"/>
+			name="Symphony"/>
 		<view
             category="eu.compassresearch.ide.ui.category"
             class="eu.compassresearch.ide.pog.view.PoDetailView"
-            icon="icons/cview16/po_tsk.png"
+            icon="icons/cview16/pog_gen.png"
             id="eu.compassresearch.ide.pog.PoDetail"
             name="CML PO Details">
 		</view>
 		<view
             category="eu.compassresearch.ide.ui.category"
             class="eu.compassresearch.ide.pog.view.PoListView"
-            icon="icons/cview16/po_tsk.png"
+            icon="icons/cview16/pog_gen.png"
             id="eu.compassresearch.ide.pog.POsTable"
             name="CML PO List">
 		</view>
 
 
 	</extension>
-	<extension
+	<!--extension
       point="org.eclipse.ui.perspectives">
 		<perspective
          class="org.overture.ide.plugins.poviewer.ProofObligationPerspectiveFactory"
-         icon="icons/cview16/po_tsk.png"
+         icon="icons/cview16/pog_gen.png"
          id="org.overture.ide.plugins.poviewer.perspective"
          name="Proof Obligation">
 		</perspective>
-	</extension>
+	</extension-->
 
 
 
@@ -138,27 +138,9 @@
 		<handler
    class ="eu.compassresearch.ide.pog.commands.GeneratePosHandler"
          commandId="eu.compassresearch.ide.pog.generatepos">
-			<!--activeWhen> 
-            Implement command state logic based on selection
-      < with 
-      	variable="eu.compassresearch.ide.pog.active"> 
-        	<equals
-         		value="ENABLED">
-         	</equals>  
-      </with> 
-   </activeWhen --> 
 		</handler>
 	</extension>
-	<extension
-      point="org.eclipse.ui.services">
-		<sourceProvider
-         provider="eu.compassresearch.ide.pog.commands.CommandState">
-			<variable
-            name="eu.compassresearch.ide.pog.active"
-            priorityLevel="workbench">
-			</variable>
-		</sourceProvider>
-	</extension>
+
 
 
 

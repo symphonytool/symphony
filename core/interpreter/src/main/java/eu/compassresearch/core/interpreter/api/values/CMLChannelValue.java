@@ -1,10 +1,12 @@
 package eu.compassresearch.core.interpreter.api.values;
 
+import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.types.AProductType;
+import org.overture.ast.types.AUnknownType;
 import org.overture.ast.types.PType;
 import org.overture.interpreter.values.Value;
 
@@ -26,11 +28,15 @@ public class CMLChannelValue extends Value implements CmlChannel // CmlIOChannel
 	private static final long serialVersionUID = 6350630462785844551L;
 	private ILexNameToken name;
 	private AChannelType channelType;
-	private List<PType> valueTypes;
 
 	private class ChannelEventMediator implements
-			EventFireMediator<ChannelObserver, ChannelEvent>
+			EventFireMediator<ChannelObserver, ChannelEvent>, Serializable
 	{
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -6748280966083470111L;
+
 		@Override
 		public void fireEvent(ChannelObserver observer, Object source,
 				ChannelEvent event)
@@ -49,15 +55,14 @@ public class CMLChannelValue extends Value implements CmlChannel // CmlIOChannel
 
 	private EventSourceHandler<ChannelObserver, ChannelEvent> selectObservers = new EventSourceHandler<ChannelObserver, ChannelEvent>(this, new ChannelEventMediator());
 
-	public CMLChannelValue(PType channelType, ILexNameToken name)
+	public CMLChannelValue(AChannelType channelType, ILexNameToken name)
 	{
-		this.channelType = (AChannelType) channelType;
-		valueTypes = new LinkedList<PType>();
-
-		if (this.channelType.getType() instanceof AProductType)
-			valueTypes.addAll(((AProductType) this.channelType.getType()).getTypes());
-		else if (this.channelType.getType() != null)
-			valueTypes.add(this.channelType.getType());
+		this.channelType = channelType;
+//		if (channelType instanceof AProductType)
+//			valueTypes.addAll(((AProductType) channelType).getTypes());
+//		// FIXME THis is changed!!
+//		else if (!(channelType instanceof AChannelType))
+//			valueTypes.add(channelType);
 
 		this.name = name;
 	}
@@ -77,7 +82,7 @@ public class CMLChannelValue extends Value implements CmlChannel // CmlIOChannel
 	@Override
 	public List<PType> getValueTypes()
 	{
-		return valueTypes;
+		return this.channelType.getParameters();
 	}
 
 	@Override

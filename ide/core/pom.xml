@@ -13,7 +13,7 @@
 
  
   <artifactId>eu.compassresearch.ide.core</artifactId>
-  <name>COMPASS IDE CML Core</name>
+  <name>Symphony IDE CML Core</name>
 
   <build>
     <plugins>

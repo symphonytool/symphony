@@ -109,14 +109,14 @@ class RandomVDMValueGenerator extends AnswerCMLAdaptor<Value>
 	@Override
 	public Value createNewReturnValue(INode node)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		throw new InterpreterRuntimeException("Missing implementation in random vml value generator for: "
+				+ node.getClass().getName());
 	}
 
 	@Override
 	public Value createNewReturnValue(Object node)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		throw new InterpreterRuntimeException("Missing implementation in random vml value generator for: "
+				+ node.getClass().getName());
 	}
 }

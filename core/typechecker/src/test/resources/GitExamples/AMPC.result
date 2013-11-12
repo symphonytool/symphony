@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.RunCmlExamplesTestCase">
+<message column="2" line="29" message="Instance variable 'myID' is not initialized." messageType="warning" number="5001" resource="AMPC.cml"/>
+<message column="2" line="30" message="Instance variable 'known_values' is not initialized." messageType="warning" number="5001" resource="AMPC.cml"/>
+<message column="2" line="59" message="Instance variable 'modulus' is not initialized." messageType="warning" number="5001" resource="AMPC.cml"/>
+<message column="2" line="61" message="Instance variable 'store' is not initialized." messageType="warning" number="5001" resource="AMPC.cml"/>
+<message column="2" line="63" message="Instance variable 'last_id' is not initialized." messageType="warning" number="5001" resource="AMPC.cml"/>
+<message column="2" line="65" message="Instance variable 'art_state' is not initialized." messageType="warning" number="5001" resource="AMPC.cml"/>
+<message column="3" line="154" message="Expression does not match declared type. Declared: seq of (int) Expression: set of (nat1)" messageType="error" number="3051" resource="AMPC.cml"/>
+<message column="3" line="156" message="Expression does not match declared type. Declared: seq of (rat) Expression: set of (nat1)" messageType="error" number="3051" resource="AMPC.cml"/>
+<message column="39" line="34" message="Non-compatible type (&lt;Blank&gt; * ParID) detected for communication parameter index 0 expected InputChannelType" messageType="error" number="3430" resource="AMPC.cml"/>
+<message column="3" line="36" message="Communication &quot;rand&quot; declared with too few arguments. Actual 1, Expected 2" messageType="error" number="3433" resource="AMPC.cml"/>
+<message column="17" line="36" message="Field '#2' applied to non-tuple type." messageType="error" number="3094" resource="AMPC.cml"/>
+<message column="34" line="36" message="Communication &quot;rand&quot; declared with too few arguments. Actual 1, Expected 2" messageType="error" number="3433" resource="AMPC.cml"/>
+<message column="44" line="36" message="Field '#1' applied to non-tuple type." messageType="error" number="3094" resource="AMPC.cml"/>
+<message column="38" line="36" message="Non-compatible type (? * ParID) detected for communication parameter index 0 expected VarID" messageType="error" number="3430" resource="AMPC.cml"/>
+<message column="3" line="38" message="Communication &quot;add&quot; declared with too few arguments. Actual 1, Expected 4" messageType="error" number="3433" resource="AMPC.cml"/>
+<message column="17" line="38" message="Field '#4' applied to non-tuple type." messageType="error" number="3094" resource="AMPC.cml"/>
+<message column="34" line="38" message="Communication &quot;add&quot; declared with too few arguments. Actual 1, Expected 4" messageType="error" number="3433" resource="AMPC.cml"/>
+<message column="44" line="38" message="Field '#1' applied to non-tuple type." messageType="error" number="3094" resource="AMPC.cml"/>
+<message column="51" line="38" message="Field '#2' applied to non-tuple type." messageType="error" number="3094" resource="AMPC.cml"/>
+<message column="58" line="38" message="Field '#3' applied to non-tuple type." messageType="error" number="3094" resource="AMPC.cml"/>
+<message column="37" line="38" message="Non-compatible type (? * ? * ? * ParID) detected for communication parameter index 0 expected VarID" messageType="error" number="3430" resource="AMPC.cml"/>
+<message column="3" line="40" message="Communication &quot;mul&quot; declared with too few arguments. Actual 1, Expected 4" messageType="error" number="3433" resource="AMPC.cml"/>
+<message column="17" line="40" message="Field '#4' applied to non-tuple type." messageType="error" number="3094" resource="AMPC.cml"/>
+<message column="34" line="40" message="Communication &quot;mul&quot; declared with too few arguments. Actual 1, Expected 4" messageType="error" number="3433" resource="AMPC.cml"/>
+<message column="44" line="40" message="Field '#1' applied to non-tuple type." messageType="error" number="3094" resource="AMPC.cml"/>
+<message column="51" line="40" message="Field '#2' applied to non-tuple type." messageType="error" number="3094" resource="AMPC.cml"/>
+<message column="58" line="40" message="Field '#3' applied to non-tuple type." messageType="error" number="3094" resource="AMPC.cml"/>
+<message column="37" line="40" message="Non-compatible type (? * ? * ? * ParID) detected for communication parameter index 0 expected VarID" messageType="error" number="3430" resource="AMPC.cml"/>
+<message column="3" line="42" message="Communication &quot;min&quot; declared with too few arguments. Actual 1, Expected 4" messageType="error" number="3433" resource="AMPC.cml"/>
+<message column="17" line="42" message="Field '#3' applied to non-tuple type." messageType="error" number="3094" resource="AMPC.cml"/>
+<message column="34" line="42" message="Communication &quot;min&quot; declared with too few arguments. Actual 1, Expected 4" messageType="error" number="3433" resource="AMPC.cml"/>
+<message column="43" line="42" message="Field '#1' applied to non-tuple type." messageType="error" number="3094" resource="AMPC.cml"/>
+<message column="50" line="42" message="Field '#2' applied to non-tuple type." messageType="error" number="3094" resource="AMPC.cml"/>
+<message column="57" line="42" message="Field '#3' applied to non-tuple type." messageType="error" number="3094" resource="AMPC.cml"/>
+<message column="37" line="42" message="Non-compatible type (? * ? * ? * ParID) detected for communication parameter index 0 expected VarID" messageType="error" number="3430" resource="AMPC.cml"/>
+<message column="3" line="44" message="Channel out is not declared" messageType="error" number="3431" resource="AMPC.cml"/>
+<message column="3" line="44" message="Communication &quot;out&quot; declared with too many arguments. Actual 1, Expected 0" messageType="error" number="3434" resource="AMPC.cml"/>
+<message column="3" line="44" message="Communication not allowed over untyped channel: out." messageType="error" number="3425" resource="AMPC.cml"/>
+<message column="15" line="44" message="Name 'a' is not in scope." messageType="error" number="3182" resource="AMPC.cml"/>
+<message column="16" line="44" message="Field number does not match tuple size." messageType="error" number="3095" resource="AMPC.cml"/>
+<message column="31" line="44" message="Channel out is not declared" messageType="error" number="3431" resource="AMPC.cml"/>
+<message column="31" line="44" message="Communication &quot;out&quot; declared with too many arguments. Actual 1, Expected 0" messageType="error" number="3434" resource="AMPC.cml"/>
+<message column="31" line="44" message="Communication not allowed over untyped channel: out." messageType="error" number="3425" resource="AMPC.cml"/>
+<message column="3" line="46" message="Communication &quot;user_input&quot; declared with too few arguments. Actual 1, Expected 2" messageType="error" number="3433" resource="AMPC.cml"/>
+<message column="24" line="46" message="Non-compatible type (ParID * ParID) detected for communication parameter index 0 expected InputChannelType" messageType="error" number="3430" resource="AMPC.cml"/>
+<message column="30" line="68" message="Incompatible types in assignment. Target: modulus Expression: p" messageType="error" number="3239" resource="AMPC.cml"/>
+<message column="21" line="73" message="Left and right of '=' are incompatible types. Left: Secret Right: &lt;Black&gt;" messageType="error" number="3087" resource="AMPC.cml"/>
+<message column="9" line="75" message="Name 'secret' is not in scope." messageType="error" number="3182" resource="AMPC.cml"/>
+<message column="15" line="75" message="Field number does not match tuple size." messageType="error" number="3095" resource="AMPC.cml"/>
+<message column="31" line="76" message="Name 'secret' is not in scope." messageType="error" number="3182" resource="AMPC.cml"/>
+<message column="37" line="76" message="Field number does not match tuple size." messageType="error" number="3095" resource="AMPC.cml"/>
+<message column="45" line="76" message="Name 'secret' is not in scope." messageType="error" number="3182" resource="AMPC.cml"/>
+<message column="51" line="76" message="Field number does not match tuple size." messageType="error" number="3095" resource="AMPC.cml"/>
+<message column="13" line="77" message="Name 'secret' is not in scope." messageType="error" number="3182" resource="AMPC.cml"/>
+<message column="19" line="77" message="Field number does not match tuple size." messageType="error" number="3095" resource="AMPC.cml"/>
+<message column="3" line="81" message="Communication &quot;rand&quot; declared with too few arguments. Actual 1, Expected 2" messageType="error" number="3433" resource="AMPC.cml"/>
+<message column="15" line="81" message="Field '#2' applied to non-tuple type." messageType="error" number="3094" resource="AMPC.cml"/>
+<message column="44" line="81" message="Field '#1' applied to non-tuple type." messageType="error" number="3094" resource="AMPC.cml"/>
+<message column="9" line="83" message="Name 'a' is not in scope." messageType="error" number="3182" resource="AMPC.cml"/>
+<message column="10" line="83" message="Field number does not match tuple size." messageType="error" number="3095" resource="AMPC.cml"/>
+<message column="38" line="83" message="Name 'a' is not in scope." messageType="error" number="3182" resource="AMPC.cml"/>
+<message column="39" line="83" message="Field number does not match tuple size." messageType="error" number="3095" resource="AMPC.cml"/>
+<message column="3" line="87" message="Communication &quot;add&quot; declared with too few arguments. Actual 1, Expected 4" messageType="error" number="3433" resource="AMPC.cml"/>
+<message column="27" line="87" message="Incompatible types in assignment. Target: art_state Expression: a" messageType="error" number="3239" resource="AMPC.cml"/>
+<message column="3" line="91" message="Communication &quot;mul&quot; declared with too few arguments. Actual 1, Expected 4" messageType="error" number="3433" resource="AMPC.cml"/>
+<message column="27" line="91" message="Incompatible types in assignment. Target: art_state Expression: a" messageType="error" number="3239" resource="AMPC.cml"/>
+<message column="3" line="95" message="Communication &quot;min&quot; declared with too few arguments. Actual 1, Expected 4" messageType="error" number="3433" resource="AMPC.cml"/>
+<message column="26" line="95" message="Field '#1' applied to non-tuple type." messageType="error" number="3094" resource="AMPC.cml"/>
+<message column="41" line="95" message="Field '#2' applied to non-tuple type." messageType="error" number="3094" resource="AMPC.cml"/>
+<message column="38" line="98" message="Field '#3' applied to non-tuple type." messageType="error" number="3094" resource="AMPC.cml"/>
+<message column="47" line="98" message="Field '#2' applied to non-tuple type." messageType="error" number="3094" resource="AMPC.cml"/>
+<message column="38" line="102" message="Field '#3' applied to non-tuple type." messageType="error" number="3094" resource="AMPC.cml"/>
+<message column="47" line="102" message="Field '#1' applied to non-tuple type." messageType="error" number="3094" resource="AMPC.cml"/>
+<message column="21" line="109" message="Left and right of '=' are incompatible types. Left: Secret Right: &lt;Black&gt;" messageType="error" number="3087" resource="AMPC.cml"/>
+<message column="22" line="112" message="Left and right of '=' are incompatible types. Left: Secret Right: &lt;Black&gt;" messageType="error" number="3087" resource="AMPC.cml"/>
+<message column="4" line="115" message="Communication &quot;rand&quot; declared with too few arguments. Actual 1, Expected 2" messageType="error" number="3433" resource="AMPC.cml"/>
+<message column="16" line="115" message="Field '#2' applied to non-tuple type." messageType="error" number="3094" resource="AMPC.cml"/>
+<message column="42" line="115" message="Field '#1' applied to non-tuple type." messageType="error" number="3094" resource="AMPC.cml"/>
+<message column="4" line="118" message="Communication &quot;rand&quot; declared with too few arguments. Actual 1, Expected 2" messageType="error" number="3433" resource="AMPC.cml"/>
+<message column="16" line="118" message="Field '#2' applied to non-tuple type." messageType="error" number="3094" resource="AMPC.cml"/>
+<message column="32" line="118" message="Name 'list_id' is not in scope." messageType="error" number="3182" resource="AMPC.cml"/>
+<message column="42" line="118" message="Field '#1' applied to non-tuple type." messageType="error" number="3094" resource="AMPC.cml"/>
+<message column="4" line="122" message="Communication &quot;add&quot; declared with too few arguments. Actual 1, Expected 4" messageType="error" number="3433" resource="AMPC.cml"/>
+<message column="15" line="122" message="Field '#1' applied to non-tuple type." messageType="error" number="3094" resource="AMPC.cml"/>
+<message column="9" line="123" message="Field '#2' applied to non-tuple type." messageType="error" number="3094" resource="AMPC.cml"/>
+<message column="9" line="124" message="Field '#3' applied to non-tuple type." messageType="error" number="3094" resource="AMPC.cml"/>
+<message column="9" line="125" message="Field '#4' applied to non-tuple type." messageType="error" number="3094" resource="AMPC.cml"/>
+<message column="36" line="126" message="Field '#3' applied to non-tuple type." messageType="error" number="3094" resource="AMPC.cml"/>
+<message column="71" line="126" message="Field '#2' applied to non-tuple type." messageType="error" number="3094" resource="AMPC.cml"/>
+<message column="53" line="126" message="Field '#1' applied to non-tuple type." messageType="error" number="3094" resource="AMPC.cml"/>
+<message column="46" line="126" message="Field 'Add' applied to non-aggregate type." messageType="error" number="3093" resource="AMPC.cml"/>
+<message column="46" line="126" message="Operation '(store((a.1)).Add)' cannot be called in an expression." messageType="error" number="3425" resource="AMPC.cml"/>
+<message column="4" line="130" message="Communication &quot;mul&quot; declared with too few arguments. Actual 1, Expected 4" messageType="error" number="3433" resource="AMPC.cml"/>
+<message column="15" line="130" message="Field '#1' applied to non-tuple type." messageType="error" number="3094" resource="AMPC.cml"/>
+<message column="9" line="131" message="Field '#2' applied to non-tuple type." messageType="error" number="3094" resource="AMPC.cml"/>
+<message column="9" line="132" message="Field '#3' applied to non-tuple type." messageType="error" number="3094" resource="AMPC.cml"/>
+<message column="9" line="133" message="Field '#4' applied to non-tuple type." messageType="error" number="3094" resource="AMPC.cml"/>
+<message column="32" line="134" message="Field '#3' applied to non-tuple type." messageType="error" number="3094" resource="AMPC.cml"/>
+<message column="69" line="134" message="Field '#2' applied to non-tuple type." messageType="error" number="3094" resource="AMPC.cml"/>
+<message column="51" line="134" message="Field '#1' applied to non-tuple type." messageType="error" number="3094" resource="AMPC.cml"/>
+<message column="42" line="134" message="Field 'Mul' applied to non-aggregate type." messageType="error" number="3093" resource="AMPC.cml"/>
+<message column="42" line="134" message="Operation '(store((a.1)).Mul)' cannot be called in an expression." messageType="error" number="3425" resource="AMPC.cml"/>
+<message column="10" line="136" message="The Symbol &quot;STOP&quot; is undefined." messageType="error" number="3410" resource="AMPC.cml"/>
+<message column="33" line="146" message="Expecting an action but found  a process deinition:P1." messageType="error" number="3420" resource="AMPC.cml"/>
+<message column="70" line="146" message="Expecting an action but found  a process deinition:P2." messageType="error" number="3420" resource="AMPC.cml"/>
+<message column="104" line="146" message="Expecting an action but found  a process deinition:AMPC." messageType="error" number="3420" resource="AMPC.cml"/>
+<message column="10" line="158" message="Non-compatible type nat1 detected for communication parameter index 0 expected ParID" messageType="error" number="3430" resource="AMPC.cml"/>
+<message column="16" line="158" message="Expecting an action but found  a process deinition:P1." messageType="error" number="3420" resource="AMPC.cml"/>
+<message column="25" line="158" message="Non-compatible type nat1 detected for communication parameter index 0 expected ParID" messageType="error" number="3430" resource="AMPC.cml"/>
+<message column="31" line="158" message="Expecting an action but found  a process deinition:P2." messageType="error" number="3420" resource="AMPC.cml"/>
+<message column="4" line="160" message="Communication &quot;user_input&quot; declared with too few arguments. Actual 1, Expected 2" messageType="error" number="3433" resource="AMPC.cml"/>
+<message column="24" line="160" message="Argument to 'hd' is not a sequence." messageType="error" number="3104" resource="AMPC.cml"/>
+<message column="14" line="160" message="Non-compatible type (nat1 * nat1 * ?) detected for communication parameter index 0 expected ParID" messageType="error" number="3430" resource="AMPC.cml"/>
+<message column="38" line="160" message="Expecting an action but found  a process deinition:P1." messageType="error" number="3420" resource="AMPC.cml"/>
+<message column="4" line="161" message="Communication &quot;user_input&quot; declared with too few arguments. Actual 1, Expected 2" messageType="error" number="3433" resource="AMPC.cml"/>
+<message column="27" line="161" message="Argument to 'tl' is not a sequence." messageType="error" number="3179" resource="AMPC.cml"/>
+<message column="14" line="161" message="Non-compatible type (nat1 * nat1 * ?) detected for communication parameter index 0 expected ParID" messageType="error" number="3430" resource="AMPC.cml"/>
+<message column="42" line="161" message="Expecting an action but found  a process deinition:P1." messageType="error" number="3420" resource="AMPC.cml"/>
+<message column="4" line="162" message="Communication &quot;user_input&quot; declared with too few arguments. Actual 1, Expected 2" messageType="error" number="3433" resource="AMPC.cml"/>
+<message column="30" line="162" message="Argument to 'tl' is not a sequence." messageType="error" number="3179" resource="AMPC.cml"/>
+<message column="14" line="162" message="Non-compatible type (nat1 * nat1 * ?) detected for communication parameter index 0 expected ParID" messageType="error" number="3430" resource="AMPC.cml"/>
+<message column="48" line="162" message="Expecting an action but found  a process deinition:P1." messageType="error" number="3420" resource="AMPC.cml"/>
+<message column="4" line="163" message="Communication &quot;user_input&quot; declared with too few arguments. Actual 1, Expected 2" messageType="error" number="3433" resource="AMPC.cml"/>
+<message column="14" line="163" message="Non-compatible type (nat1 * nat1 * int) detected for communication parameter index 0 expected ParID" messageType="error" number="3430" resource="AMPC.cml"/>
+<message column="38" line="163" message="Expecting an action but found  a process deinition:P2." messageType="error" number="3420" resource="AMPC.cml"/>
+<message column="4" line="164" message="Communication &quot;user_input&quot; declared with too few arguments. Actual 1, Expected 2" messageType="error" number="3433" resource="AMPC.cml"/>
+<message column="14" line="164" message="Non-compatible type (nat1 * nat1 * int) detected for communication parameter index 0 expected ParID" messageType="error" number="3430" resource="AMPC.cml"/>
+<message column="42" line="164" message="Expecting an action but found  a process deinition:P2." messageType="error" number="3420" resource="AMPC.cml"/>
+<message column="4" line="165" message="Communication &quot;user_input&quot; declared with too few arguments. Actual 1, Expected 2" messageType="error" number="3433" resource="AMPC.cml"/>
+<message column="14" line="165" message="Non-compatible type (nat1 * nat1 * int) detected for communication parameter index 0 expected ParID" messageType="error" number="3430" resource="AMPC.cml"/>
+<message column="47" line="165" message="Expecting an action but found  a process deinition:P2." messageType="error" number="3420" resource="AMPC.cml"/>
+<message column="4" line="166" message="Communication &quot;add&quot; declared with too few arguments. Actual 1, Expected 4" messageType="error" number="3433" resource="AMPC.cml"/>
+<message column="7" line="166" message="Non-compatible type (nat1 * nat1 * nat1) detected for communication parameter index 0 expected VarID" messageType="error" number="3430" resource="AMPC.cml"/>
+<message column="24" line="166" message="Expecting an action but found  a process deinition:TwoPartyAMPC." messageType="error" number="3420" resource="AMPC.cml"/>
+<message column="4" line="167" message="Communication &quot;add&quot; declared with too few arguments. Actual 1, Expected 4" messageType="error" number="3433" resource="AMPC.cml"/>
+<message column="7" line="167" message="Non-compatible type (nat1 * nat1 * nat1) detected for communication parameter index 0 expected VarID" messageType="error" number="3430" resource="AMPC.cml"/>
+<message column="24" line="167" message="Expecting an action but found  a process deinition:TwoPartyAMPC." messageType="error" number="3420" resource="AMPC.cml"/>
+<message column="4" line="168" message="Communication &quot;add&quot; declared with too few arguments. Actual 1, Expected 4" messageType="error" number="3433" resource="AMPC.cml"/>
+<message column="7" line="168" message="Non-compatible type (nat1 * nat1 * nat1) detected for communication parameter index 0 expected VarID" messageType="error" number="3430" resource="AMPC.cml"/>
+<message column="24" line="168" message="Expecting an action but found  a process deinition:TwoPartyAMPC." messageType="error" number="3420" resource="AMPC.cml"/>
+<message column="4" line="169" message="Communication &quot;min&quot; declared with too few arguments. Actual 1, Expected 4" messageType="error" number="3433" resource="AMPC.cml"/>
+<message column="7" line="169" message="Non-compatible type (nat1 * nat1 * nat1) detected for communication parameter index 0 expected VarID" messageType="error" number="3430" resource="AMPC.cml"/>
+<message column="25" line="169" message="Expecting an action but found  a process deinition:TwoPartyAMPC." messageType="error" number="3420" resource="AMPC.cml"/>
+<message column="4" line="170" message="Communication &quot;min&quot; declared with too few arguments. Actual 1, Expected 4" messageType="error" number="3433" resource="AMPC.cml"/>
+<message column="7" line="170" message="Non-compatible type (nat1 * nat1 * nat1) detected for communication parameter index 0 expected VarID" messageType="error" number="3430" resource="AMPC.cml"/>
+<message column="26" line="170" message="Expecting an action but found  a process deinition:TwoPartyAMPC." messageType="error" number="3420" resource="AMPC.cml"/>
+<message column="4" line="173" message="Channel out is not declared" messageType="error" number="3431" resource="AMPC.cml"/>
+<message column="4" line="173" message="Communication &quot;out&quot; declared with too many arguments. Actual 1, Expected 0" messageType="error" number="3434" resource="AMPC.cml"/>
+<message column="4" line="173" message="Communication not allowed over untyped channel: out." messageType="error" number="3425" resource="AMPC.cml"/>
+<result/>
+</testResult>

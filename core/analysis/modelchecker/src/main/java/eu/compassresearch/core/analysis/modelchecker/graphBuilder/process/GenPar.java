@@ -47,9 +47,8 @@ public class GenPar implements ParallelProcess {
 		if (obj instanceof GenPar) {
 			GenPar other = (GenPar) obj;
 			result = this.getLeft().equals(other.getLeft())
-					&& this.getRight().equals(other.getRight())
-					&& this.getSyncSet().equals(other.getSyncSet());
-		}
+					&& this.getRight().equals(other.getRight());
+		} 
 		return result;
 	}
 	

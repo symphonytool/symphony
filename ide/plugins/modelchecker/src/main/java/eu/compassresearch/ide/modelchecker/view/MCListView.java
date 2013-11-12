@@ -1,10 +1,11 @@
 package eu.compassresearch.ide.modelchecker.view;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.List;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -16,12 +17,8 @@ import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
-import org.eclipse.jface.viewers.IStructuredContentProvider;
-import org.eclipse.jface.viewers.ITableLabelProvider;
-import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TableLayout;
 import org.eclipse.jface.viewers.TableViewer;
-import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
@@ -48,12 +45,13 @@ public class MCListView extends ViewPart {
 	//private IVdmProject project;
 	private TableViewer viewer;
 	final Display display = Display.getCurrent();
-	private MCUIResult data;
+	private List<MCUIResult> data;
 
 	/**
 	 * The constructor.
 	 */
 	public MCListView(){
+		this.data = new ArrayList<MCUIResult>();
 	}
 	
 	public void createPartControl(Composite parent){
@@ -74,22 +72,22 @@ public class MCListView extends ViewPart {
 			@Override
 			public void doubleClick(DoubleClickEvent event) {
 				
-				if (data.getFormulaResult().getResult().isSatisfiable()){
+				if (data.get(viewer.getTable().getSelectionIndex()).getFormulaResult().getResult().isSatisfiable()){
 					if(Activator.DOT_OK){
 						try {
 							//generate the dot file and compile it to svg, and show in the browser
 								//we build the counterexample
 							GraphBuilder gb = new GraphBuilder();
-							FormulaResult formulaOutput = data.getFormulaResult().getResult();
-							String propertyToCheck = data.getProperty();
+							FormulaResult formulaOutput = data.get(viewer.getTable().getSelectionIndex()).getFormulaResult().getResult();
+							String propertyToCheck = data.get(viewer.getTable().getSelectionIndex()).getProperty();
 							String dotContent = gb.generateDot(new StringBuilder(formulaOutput.getFacts()), propertyToCheck);
 							
 							//save the graphviz code to a file
-							IContainer mcFolder = data.getFormulaResult().getMcFolder();
-							ICmlSourceUnit selectedUnit = data.getFormulaResult().getSelectedUnit();
+							IContainer mcFolder = data.get(viewer.getTable().getSelectionIndex()).getFormulaResult().getMcFolder();
+							ICmlSourceUnit selectedUnit = data.get(viewer.getTable().getSelectionIndex()).getFormulaResult().getSelectedUnit();
 							//IFile dotFile = writeDotContentToFile(mcFolder,selectedUnit,dotContent);
 							String name = selectedUnit.getFile().getName();
-							String dotFileName = name.substring(0,name.length()-selectedUnit.getFile().getFileExtension().length())+"gv";
+							String dotFileName = name.substring(0,name.length()-selectedUnit.getFile().getFileExtension().length()-1)+ "-" + propertyToCheck + ".gv";
 							IFile dotFile = ((IFolder)mcFolder).getFile(dotFileName);
 							
 							try{
@@ -109,10 +107,10 @@ public class MCListView extends ViewPart {
 							String fileName = file.getName();
 							gv.runDot(file);
 							IFile svgFile = ((IFolder)mcFolder).getFile(fileName+".svg");
-							data.getFormulaResult().setSvgFile(svgFile);
+							data.get(viewer.getTable().getSelectionIndex()).getFormulaResult().setSvgFile(svgFile);
 							IWorkbenchBrowserSupport support = PlatformUI.getWorkbench().getBrowserSupport();
-							IWebBrowser browser = support.createBrowser(IWorkbenchBrowserSupport.AS_EDITOR, Activator.PLUGIN_ID, "COMPASS", "Model checker counterexample");
-							IFile counterExample = data.getFormulaResult().getSvgFile();
+							IWebBrowser browser = support.createBrowser(IWorkbenchBrowserSupport.AS_EDITOR, Activator.PLUGIN_ID, "Symphony", "Model checker counterexample");
+							IFile counterExample = data.get(viewer.getTable().getSelectionIndex()).getFormulaResult().getSvgFile();
 							URL url = counterExample.getLocationURI().toURL();
 							browser.openURL(url); 
 						} catch (PartInitException e) {
@@ -163,8 +161,16 @@ public class MCListView extends ViewPart {
 	}
 
 	
-	public void setData(final MCUIResult data) {
-		this.data = data;
+	public void setData(final MCUIResult d) {
+		if(!this.data.contains(d)){
+			this.data.add(d);
+		} else{
+			for(int i = 0; i < this.data.size(); i++){
+				if(this.data.get(i).equals(d)){
+					this.data.set(i, d);
+				}
+			}
+		}
 		//it has to be a model check element
 		display.asyncExec(new Runnable() {
 			public void run(){
@@ -173,12 +179,15 @@ public class MCListView extends ViewPart {
 				table.getColumn(0).setWidth(120);
 				table.getColumn(1).setWidth(100);
 				table.getColumn(2).setWidth(40);
-				TableItem ti = new TableItem(table, SWT.NONE);
+				
 				if(data != null){
-					ti.setText(0, data.getFile().getName());
-					//ti.setText(new String[] {data.getFile().getName(), getProperty(data), getSat(data)});
-					ti.setText(1, getProperty(data));
-					ti.setImage(2, getImage(data));
+					for(MCUIResult r : data){
+						TableItem ti = new TableItem(table, SWT.NONE);
+						ti.setText(0, r.getFile().getName());
+						//ti.setText(new String[] {data.getFile().getName(), getProperty(data), getSat(data)});
+						ti.setText(1, getProperty(r));
+						ti.setImage(2, getImage(r));
+					}
 				}
 			}
 			private Image getImage(MCUIResult data){
@@ -194,6 +203,7 @@ public class MCListView extends ViewPart {
 				return image; 
 			}
 		});
+		this.display.update();
 	}
 	
 	private String getProperty(MCUIResult data){
@@ -209,7 +219,7 @@ public class MCListView extends ViewPart {
 	
 	
 	private void popErrorMessage(String message) {
-		MessageDialog.openInformation(null, "COMPASS", message);
+		MessageDialog.openInformation(null, "Symphony", message);
 	}
 	
 	@Override

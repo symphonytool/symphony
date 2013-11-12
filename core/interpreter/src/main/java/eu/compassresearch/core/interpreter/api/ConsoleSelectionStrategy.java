@@ -1,19 +1,34 @@
 package eu.compassresearch.core.interpreter.api;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.expressions.PExp;
+import org.overture.ast.lex.Dialect;
+import org.overture.ast.types.PType;
+import org.overture.interpreter.runtime.Context;
+import org.overture.interpreter.runtime.Interpreter;
+import org.overture.interpreter.runtime.VdmRuntime;
 import org.overture.interpreter.values.Value;
+import org.overture.parser.lex.LexTokenReader;
+import org.overture.parser.syntax.ExpressionReader;
+import org.overture.typechecker.TypeComparator;
 
+import eu.compassresearch.core.interpreter.Console;
 import eu.compassresearch.core.interpreter.api.transitions.AbstractSilentTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.transitions.LabelledTransition;
 import eu.compassresearch.core.interpreter.api.values.AbstractValueInterpreter;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
+import eu.compassresearch.core.interpreter.debug.CmlDebugger;
+import eu.compassresearch.core.interpreter.utility.ValueParser;
 
 public class ConsoleSelectionStrategy implements SelectionStrategy
 {
@@ -36,7 +51,7 @@ public class ConsoleSelectionStrategy implements SelectionStrategy
 	private boolean isSystemSelect(CmlTransitionSet availableChannelEvents)
 	{
 
-		Set<AbstractSilentTransition> silentTransitions = availableChannelEvents.getSilentTransitions();
+		Set<AbstractSilentTransition> silentTransitions = availableChannelEvents.getSilentTransitionsAsSet();
 		// don't let the system run the divergent processes since it will never stop
 		int count = 0;
 
@@ -49,7 +64,7 @@ public class ConsoleSelectionStrategy implements SelectionStrategy
 
 	private CmlTransition systemSelect(CmlTransitionSet availableChannelEvents)
 	{
-		rndSelect.choices(new CmlTransitionSet((Set) availableChannelEvents.getSilentTransitions()));
+		rndSelect.choices(new CmlTransitionSet((Set) availableChannelEvents.getSilentTransitionsAsSet()));
 		return rndSelect.resolveChoice();
 	}
 
@@ -80,51 +95,13 @@ public class ConsoleSelectionStrategy implements SelectionStrategy
 		if (chosenEvent instanceof LabelledTransition
 				&& !((LabelledTransition) chosenEvent).getChannelName().isPrecise())
 		{
-			LabelledTransition chosenChannelEvent = (LabelledTransition) chosenEvent;
-			ChannelNameValue channnelName = chosenChannelEvent.getChannelName();
-
-			for (int i = 0; i < channnelName.getValues().size(); i++)
-			{
-				Value currentValue = channnelName.getValues().get(i);
-
-				if (!AbstractValueInterpreter.isValueMostPrecise(currentValue))
-				{
-					System.out.println("Enter value : ");
-					Value val;
-					try
-					{
-						val = channnelName.getChannel().getValueTypes().get(i).apply(new ValueParser());
-						channnelName.updateValue(i, val);
-					} catch (AnalysisException e)
-					{
-						e.printStackTrace();
-						System.exit(-1);
-					}
-				}
-			}
+			Console.readChannelNameValues((LabelledTransition) chosenEvent);
 		}
 
 		return chosenEvent;
 	}
 
-	// @Override
-	// public CmlTransition select(CmlTransitionSet availableChannelEvents) {
-	//
-	// //At this point we don't want the internal transition to propagate
-	// //to the user, so we randomly choose all the possible internal transitions
-	// //before we let anything through to the user
-	// if(isSystemSelect(availableChannelEvents) && isHideSilentTransitions())
-	// {
-	// CmlTransition t = systemSelect(availableChannelEvents);
-	// System.out.println("The system picked: " + t);
-	// return t;
-	// }
-	// else{
-	// CmlTransition t = userSelect(availableChannelEvents);
-	// System.out.println("The environment picked: " + t);
-	// return t;
-	// }
-	// }
+	
 
 	public boolean isHideSilentTransitions()
 	{
@@ -159,6 +136,13 @@ public class ConsoleSelectionStrategy implements SelectionStrategy
 			System.out.println("The environment picked: " + t);
 			return t;
 		}
+	}
+
+	@Override
+	public void initialize(CmlInterpreter interpreter, CmlDebugger debugger)
+	{
+		// TODO Auto-generated method stub
+		
 	}
 
 }

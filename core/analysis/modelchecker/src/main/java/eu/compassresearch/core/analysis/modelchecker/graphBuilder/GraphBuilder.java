@@ -7,11 +7,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayDeque;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.NullBinding;
-import eu.compassresearch.core.analysis.modelchecker.graphBuilder.event.BasicEvent;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.event.Event;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.event.Tau;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Divergence;
@@ -28,7 +26,7 @@ import eu.compassresearch.core.analysis.modelchecker.graphBuilder.util.Utilities
 
 public class GraphBuilder {
 	
-	private static int STATE_NUMBER = 1; 
+	private static int STATE_NUMBER = 1;
 	
 	Utilities util;
 	public GraphBuilder() {
@@ -95,7 +93,6 @@ public class GraphBuilder {
 		if(property.equals(Utilities.DEADLOCK)){
 			graph = this.shortestPathToDeadlock(objects);
 		}else if(property.equals(Utilities.LIVELOCK)){
-	//		getLivelockPaths(objects);
 			graph = this.shortestPathToLivelock(objects);
 			
 		}else if(property.equals(Utilities.NONDETERMINISM)){
@@ -103,7 +100,6 @@ public class GraphBuilder {
 			
 		}
 		writeDotToBuffer(result, graph);
-		
 		return result.toString();
 	}
 	public String generateDot(StringBuilder input, String property) throws IOException{
@@ -122,34 +118,7 @@ public class GraphBuilder {
 		
 		return result.toString();
 	}
-	/*
-	public String generateDot(String input) throws IOException{
-		STATE_NUMBER = 1; //resets the state number
-		StringBuilder result = new StringBuilder();
-		
-		LinkedList<Object> objects = this.loadLTSObjects(input);
-		GraphResult graph = this.shortestPathToLivelock(objects);
-		
-		writeDotToBuffer(result, graph);
-		return result.toString();
-		
-	}
-	*/
-
-	/*
-	public String generateDot(StringBuilder formulaOutput) throws IOException{
-		STATE_NUMBER = 1; //resets the state number
-		StringBuilder result = new StringBuilder();
-		LinkedList<Object> objects = this.loadLTSObjects(formulaOutput);
-		GraphResult graph = this.shortestPathToDeadlock(objects);
-		
-		writeDotToBuffer(result, graph);
-		
-		return result.toString();
-		
-	}
-	*/
-
+	
 	private void writeDotToBuffer(StringBuilder result, GraphResult graph) {
 		result.append( "digraph { \n ");
 		result.append( "rankdir=\"LR\";\n ");
@@ -220,7 +189,7 @@ public class GraphBuilder {
 			}
 		}
 		if(initialState == null){
-			initialState = new State(1,new NullBinding(),mainProcessName,mainProcessBody);
+			initialState = new State(new NullBinding(),mainProcessBody);
 		}
 		return initialState;
 	}
@@ -261,14 +230,14 @@ public class GraphBuilder {
 		
 		State realFinalState = null; //this will be the real deadlock state found in the graph
 		
-		State basicDeadlock = new State(0, new NullBinding(),"Deadlock", new Stop());
+		State basicDeadlock = new State(new NullBinding(),new Stop());
 		//if(initialState.getProcess() instanceof Stop){
 		if(initialState.getProcess().isDeadlock()){
 			basicDeadlock = initialState;
 			realFinalState = basicDeadlock;
 		}
 	
-		State basicTermination = new State(0, new NullBinding(),"Skip", new Skip());
+		State basicTermination = new State(new NullBinding(),new Skip());
 		if(initialState.getProcess() instanceof Skip){
 			basicTermination = initialState;
 			realFinalState = basicTermination;
@@ -282,13 +251,19 @@ public class GraphBuilder {
 		LinkedList<Transition> transitions = this.filterTransitions(objects);
 		
 		ArrayDeque<State> toVisit = new ArrayDeque<State>();
-		//LinkedList<State> visitedStates = new LinkedList<State>();
+		LinkedList<State> visitedStates = new LinkedList<State>();
 		LinkedList<Transition> visitedTransitions = new LinkedList<Transition>(); 
 		
 		toVisit.addLast(initialState);
+
 		while(toVisit.size() > 0){
+			//System.out.println("Size of to visit states: " + toVisit.size());
 			State current = toVisit.pollFirst();
 			current.setVisited(true);
+			if(!visitedStates.contains(current)){
+				visitedStates.addLast(current);
+			}
+			//System.out.println("Size of visited states: " + visitedStates.size());
 			//visitedStates.add(current);
 			LinkedList<Transition> transitionsFrom = this.getAllTransitionsFrom(transitions, current);
 			if(transitionsFrom.size() == 0){ //if there is outgoing transition
@@ -306,7 +281,9 @@ public class GraphBuilder {
 				for (Transition transition : transitionsFrom) {
 					State target = transition.getTargetState();
 					
-					if(!target.isVisited()){
+					boolean visitedContains = visitedStates.contains(target);
+					
+					if(!visitedContains){
 						toVisit.addLast(target);
 					}
 					if(!visitedTransitions.contains(transition)){
@@ -314,7 +291,6 @@ public class GraphBuilder {
 					}
 				}
 			}
-			
 		}
 		
 		//at the end of this loop visitedTransitions contains transitions used to  
@@ -352,6 +328,16 @@ public class GraphBuilder {
 		
 		return result;
 	}
+	public boolean containsStateByString(LinkedList<State> states, State state){
+		for (State s : states) {
+			if(s.toString().equals(state.toString())){
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	
 	private State getDeadlockState(LinkedList<State> targetStates, LinkedList<Transition> singlePath){
 		State result = null;
 		for (State state : targetStates) {
@@ -549,27 +535,6 @@ public class GraphBuilder {
 	}
 	
 	
-	
-	private boolean checkRefusals(	LinkedList<Transition> replicatedTransitions, 
-									LinkedList<Transition> originalTransitions){
-		boolean result = false;
-		LinkedList<State> targetStates = this.getTargetStates(replicatedTransitions);
-		while(targetStates.size() > 0){
-			State current = targetStates.removeFirst();
-			LinkedList<Transition> from = this.getAllTransitionsFrom(originalTransitions, current);
-			for (State otherState : targetStates) {
-				LinkedListTransition fromOtherState = new LinkedListTransition(this.getAllTransitionsFrom(originalTransitions, otherState));
-				for (Transition currFrom : from) {
-					if(!fromOtherState.containsByEvent(currFrom, 0)){
-						result = true;
-						return result;
-					}
-				}
-			}
-		}
-		return result;
-	}
-	
 	private int[] indexesOfReplicatedTransition(State state, LinkedList<Transition> transitions){
 		int[] indexesOf = new int[0];
 		
@@ -598,7 +563,7 @@ public class GraphBuilder {
 			for (Transition transition : transFrom) {
 				if (isCicle(visitedTrans, transition.getTargetState())) {// IS
 					auxList.addAll(visitedTrans);
-				//	auxList.add(transition); //  TRANSICAO QUE FECHA O CICLO
+				//	auxList.add(transition); //  transition that closes the cycle
 					if(!cicles.contains(auxList))
 					cicles.add(auxList);
 				} else {
@@ -628,7 +593,6 @@ public class GraphBuilder {
 	}
 	
 	private boolean isCicleOfTau(LinkedList<Transition> cicle){
-		LinkedList<Transition> auxList = new LinkedList<Transition>();
 		boolean result = true;
 		for (Transition transition : cicle) {
 			if (!transition.getEvent().equals(new Tau())) {
@@ -668,7 +632,6 @@ public class GraphBuilder {
 
 	public GraphResult shortestPathToLivelock(LinkedList<Object> objects){
 		GraphResult result = new GraphResult();
-		//this removes all procdefs and givenproc from the list 
 		State initialState = this.getInitialState(objects);
 		LinkedList<LinkedList<Transition>> cicles = new LinkedList<LinkedList<Transition>>();
 		LinkedList<Transition> transitions = this.filterTransitions(objects);		
@@ -687,7 +650,7 @@ public class GraphBuilder {
 		initialState = shortCicle.getFirst().getSourceState();
 		initialState.setShape("doublecircle");
 		State finalState = shortCicle.getLast().getTargetState();
-		finalState.setFillCollor("\"#64FFFF\"");
+		finalState.setFillCollor(Utilities.LIVELOCK_STATE_COLOUR);
 		
 		LinkedList<Transition> reversePath = new LinkedList<Transition>();
 		buildReversePathToLiveLock(reversePath, shortCicle, initialState,finalState);
@@ -821,7 +784,10 @@ public class GraphBuilder {
 		//String filePath = "/examples/operation.facts.txt";
 		//String filePath = "/examples/simple-state.facts.txt";
 		//String filePath = "/examples/dphils.facts.txt";
-		String filePath = "/examples/chaos.facts.txt";
+		//String filePath = "/examples/chaos.facts.txt";
+		String filePath = "/examples/dphils-d.facts.txt";
+		//String filePath = "/examples/phils-and-fork0.facts.txt";
+		
 		//String filePath = "/examples/NDet2.facts.txt";
 		//String filePath = "/examples/Livelock2.facts.txt";
 		//String filePath = "/examples/Livelock1.facts.txt";

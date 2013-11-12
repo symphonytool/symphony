@@ -1,0 +1,13 @@
+functions
+
+ f: int -> int f(a) == a+1 pre a > 0
+
+process
+
+ P =
+
+begin
+
+ @ f(2)
+
+end

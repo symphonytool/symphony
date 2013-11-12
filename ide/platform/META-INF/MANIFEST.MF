@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: COMPASS IDE CML Product
+Bundle-Name: Symphony IDE Product
 Bundle-SymbolicName: eu.compassresearch.ide.platform;singleton:=true
 Bundle-Version: 0.2.1.qualifier
 Bundle-Localization: plugin

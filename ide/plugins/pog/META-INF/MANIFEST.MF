@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: COMPASS IDE POG Plugin
+Bundle-Name: Symphony IDE POG Plugin
 Bundle-SymbolicName: eu.compassresearch.ide.pog;singleton:=true
 Bundle-Version: 0.2.1.qualifier
 Bundle-Activator: eu.compassresearch.ide.pog.Activator
@@ -16,6 +16,7 @@ Import-Package: eu.compassresearch.ast.actions,
  eu.compassresearch.core.typechecker.api,
  eu.compassresearch.ide.core.resources,
  eu.compassresearch.ide.ui.utility,
+ eu.compassresearch.ast.lex,
  org.eclipse.core.commands,
  org.eclipse.core.resources,
  org.eclipse.core.runtime,
@@ -58,7 +59,9 @@ Import-Package: eu.compassresearch.ast.actions,
  org.overture.typechecker.assistant.type,
  org.overture.typechecker.assistant.definition
 Export-Package: eu.compassresearch.core.analysis.pog.obligations,
- eu.compassresearch.ide.pog
+ eu.compassresearch.core.analysis.pog.utility, 
+ eu.compassresearch.ide.pog,
+ eu.compassresearch.ide.pog.view
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Eclipse-BuddyPolicy: registered
 Eclipse-BundleShape: dir

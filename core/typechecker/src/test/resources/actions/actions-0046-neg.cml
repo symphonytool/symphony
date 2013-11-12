@@ -1,0 +1,8 @@
+/* Explicit mutual recursion is not ok with defined action, Y's definition is missing */
+
+process A =
+begin
+
+@ mu X, Y @( Skip)
+
+end

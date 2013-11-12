@@ -9,7 +9,7 @@
 	</parent>
 
 	<artifactId>typechecker</artifactId>
-	<name>COMPASS Core CML TypeChecker</name>
+	<name>Symphony Core CML TypeChecker</name>
 
 	<dependencies>
 		
@@ -32,11 +32,11 @@
 			<version>${overture.version}</version>
 		</dependency>
 
-		<dependency>
+		<!-- dependency>
 			<groupId>eu.compassresearch.core</groupId>
 			<artifactId>common</artifactId>
 			<version>${project.version}</version>
-		</dependency>
+		</dependency-->
 
 	</dependencies>
 
@@ -47,7 +47,7 @@
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>build-helper-maven-plugin</artifactId>
 				<executions>
-					<execution>
+					<!-- execution>
 						<phase>generate-sources</phase>
 						<goals>
 							<goal>add-source</goal>
@@ -57,8 +57,8 @@
 								<source>src/main/visitors</source>
 							</sources>
 						</configuration>
-					</execution>
-					<execution>
+					</execution-->
+					<!-- execution>
 						<id>add-test-sources</id>
 						<phase>generate-test-sources</phase>
 						<goals>
@@ -69,7 +69,7 @@
 								<source>src/test/snippettests</source>
 							</sources>
 						</configuration>
-					</execution>
+					</execution-->
 				</executions>
 			</plugin>
 
@@ -92,6 +92,10 @@
 					<redirectTestOutputToFile>true</redirectTestOutputToFile>
 					<testFailureIgnore>false</testFailureIgnore>
 					<enableAssertions>false</enableAssertions>
+					 <includes>
+            <exclude>**/*TestCase.java</exclude>
+            <exclude>**/*Tests.java</exclude>
+          </includes>
 				</configuration>
 			</plugin>
 

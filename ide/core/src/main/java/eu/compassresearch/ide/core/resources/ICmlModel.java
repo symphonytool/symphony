@@ -8,6 +8,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.node.INode;
 import org.overture.ide.core.resources.IVdmSourceUnit;
 
@@ -23,6 +24,8 @@ public interface ICmlModel extends IAdaptable
 	public abstract List<PSource> getAstSource();
 
 	public abstract List<INode> getAst();
+	
+	public abstract List<PDefinition> getDefinitions();
 
 	public abstract Date getCheckedTime();
 

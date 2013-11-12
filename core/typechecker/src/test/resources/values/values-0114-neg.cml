@@ -1,0 +1,13 @@
+class
+
+ test =
+
+begin
+
+
+
+values
+
+ one:bool = isofclass( test , self)
+
+end

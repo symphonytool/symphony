@@ -135,10 +135,13 @@ operations
 
   actions
     DWARF =
-      (  (light?l -> TurnOn(l); DWARF) 
-      [] (extinguish?l -> TurnOff(l); DWARF)
-      [] (setPS?l -> SetNewProperState(l); DWARF)
-      [] (shine!(dw.currentstate) -> DWARF))
+      (light?l -> TurnOn(l); DWARF) 
+      [] 
+      (extinguish?l -> TurnOff(l); DWARF)
+      [] 
+      (setPS?l -> SetNewProperState(l); DWARF)
+      [] 
+      (shine!(dw.currentstate) -> DWARF)
       
     -- Working test
     TEST1 = setPS!warning -> extinguish!<L2> -> light!<L3> 

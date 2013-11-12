@@ -21,7 +21,7 @@ public class SeqComposition implements Process {
 	private Process secondProcess;
 	
 	
-	public SeqComposition(Process firstProcess ,Process secondProcess) {
+	public SeqComposition(Process firstProcess, Process secondProcess) {
 		this.firstProcess = firstProcess;
 		this.secondProcess = secondProcess;
 	}

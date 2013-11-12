@@ -10,9 +10,15 @@
 	</parent>
 
 	<artifactId>pog</artifactId>
-	<name>COMPASS Core Analysis Proof Obligation Generator</name>
+	<name>Symphony Core Analysis Proof Obligation Generator</name>
 
 	<dependencies>
+
+		<dependency>
+			<groupId>eu.compassresearch.core</groupId>
+			<artifactId>common</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 
 		<dependency>
 			<groupId>eu.compassresearch.core</groupId>
@@ -43,6 +49,19 @@
 			<artifactId>pog</artifactId>
 			<version>${overture.version}</version>
 		</dependency>
+
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.11</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.4</version>
+		</dependency>
+
 	</dependencies>
 
 
@@ -81,7 +100,7 @@
 			</plugin>
 		</plugins>
 	</build>
-	
+
 
 </project>
 

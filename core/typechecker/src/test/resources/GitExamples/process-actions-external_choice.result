@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.RunCmlExamplesTestCase">
+<message column="5" line="5" message="Channel load is not declared" messageType="error" number="3431" resource="process-actions-external_choice.cml"/>
+<message column="5" line="5" message="Communication &quot;load&quot; declared with too many arguments. Actual 1, Expected 0" messageType="error" number="3434" resource="process-actions-external_choice.cml"/>
+<message column="5" line="5" message="Communication not allowed over untyped channel: load." messageType="error" number="3425" resource="process-actions-external_choice.cml"/>
+<message column="15" line="5" message="Operation LOAD(?) is not in scope." messageType="error" number="3213" resource="process-actions-external_choice.cml"/>
+<message column="13" line="7" message="Unable to resolve type name 'Byte'" messageType="error" number="0" resource="process-actions-external_choice.cml"/>
+<result/>
+</testResult>
