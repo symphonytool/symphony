@@ -83,8 +83,8 @@ public enum TypeErrorMessages
 			3417,
 			"Mixing channel and state names not allowed. %s contains both channel and state names."),
 
-	EXPECTED_CHANNEL_OR_STATE(3418,
-			"The symbol \"%s\" is not a channel or state definition."),
+//	EXPECTED_CHANNEL_OR_STATE(3418,
+//			"The symbol \"%s\" is not a channel or state definition."),
 
 	// CONSTRUCTOR_HAS_WRONG_TYPE(
 	// "Operation %s has identical name to encloding class, but has wrong type: %s."),
@@ -142,9 +142,16 @@ public enum TypeErrorMessages
 			
 			TOO_MANY_CHANNEL_PARAMETERS(3439,"Too many channel parameters for %s"), 
 			
-			IDENTIFIER_X_NOT_IN_SCOPE(3440,"Identifier %s is not in scope");
+			IDENTIFIER_X_NOT_IN_SCOPE(3440,"Identifier %s is not in scope"), 
+			
+			EXPECTING_A_CHANNEL_OR_CHANSET_DEFINITION(3441,"Expecting a channel or chanset definition but found a %s definition"), 
+			
+			EXPECTED_STATE_OR_NAMESET_DEFINITION(3442,"Expecting a state or nameset definition but found a %s definition"),
+			
+			PARALLEL_NAMESETS_MUST_BE_DISJOINT_REPEATED_STATE(3443,"Namesets for parallel actions must be disjoint. Repeated identifiers: %s");
 
 	;
+	
 
 	public final int number;
 	private String template;

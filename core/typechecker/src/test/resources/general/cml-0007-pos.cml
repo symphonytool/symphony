@@ -1,0 +1,15 @@
+class IO = begin
+types
+public filedirective = <start>|<append> 
+functions
+
+public fecho: seq of char * seq of char * [filedirective] -> bool
+fecho (filename,text,fdir) ==
+  is not yet specified
+
+end
+
+process P = begin
+
+@ IO.fecho("jjj","a",<start>) 
+end

@@ -73,21 +73,15 @@ public class CmlProcessTypeChecker extends
 	 * Type checker for var set expressions used for channel sets
 	 */
 	private final QuestionAnswerAdaptor<TypeCheckInfo, PType> channelSetChecker;
-	/**
-	 * Type checker for var set expressions used for name sets
-	 */
-	private final QuestionAnswerAdaptor<TypeCheckInfo, PType> nameSetChecker;
 
 	@SuppressWarnings("deprecation")
 	public CmlProcessTypeChecker(IQuestionAnswer<TypeCheckInfo, PType> root,
 			ITypeIssueHandler issueHandler,
-			QuestionAnswerAdaptor<TypeCheckInfo, PType> channelSetChecker,
-			QuestionAnswerAdaptor<TypeCheckInfo, PType> nameSetChecker)
+			QuestionAnswerAdaptor<TypeCheckInfo, PType> channelSetChecker)
 	{
 		super(root);
 		this.issueHandler = issueHandler;
 		this.channelSetChecker = channelSetChecker;
-		this.nameSetChecker = nameSetChecker;
 	}
 
 	/**
@@ -572,8 +566,6 @@ public class CmlProcessTypeChecker extends
 		node.getLeft().apply(THIS, question);
 		node.getRight().apply(THIS, question);
 
-		// TODO: missing marker on processes
-
 		return getVoidType(node);
 	}
 
@@ -586,8 +578,6 @@ public class CmlProcessTypeChecker extends
 
 		node.getLeft().apply(THIS, question);
 		node.getRight().apply(THIS, question);
-
-		// TODO: missing marker on processes
 
 		return getVoidType(node);
 	}
@@ -657,14 +647,12 @@ public class CmlProcessTypeChecker extends
 	@Override
 	public PType createNewReturnValue(INode node, TypeCheckInfo question)
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public PType createNewReturnValue(Object node, TypeCheckInfo question)
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 }

@@ -15,7 +15,6 @@ import org.overture.ast.factory.AstFactory;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.INode;
-import eu.compassresearch.ast.statements.AActionStm;
 import org.overture.ast.statements.PStm;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.types.ASeq1SeqType;
@@ -35,6 +34,7 @@ import eu.compassresearch.ast.definitions.AActionClassDefinition;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AChannelDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
+import eu.compassresearch.ast.definitions.ANamesetDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.expressions.SChannelExp;
@@ -42,6 +42,7 @@ import eu.compassresearch.ast.lex.CmlLexNameToken;
 import eu.compassresearch.ast.messages.InternalException;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.ast.program.PSource;
+import eu.compassresearch.ast.statements.AActionStm;
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 import eu.compassresearch.core.typechecker.assistant.PParametrisationAssistant;
@@ -51,9 +52,8 @@ public class CmlCspTypeChecker extends
 		QuestionAnswerCMLAdaptor<TypeCheckInfo, PType>
 {
 
-
 	/**
-	 * Handlder for error reporting
+	 * Handler for error reporting
 	 */
 	private final ITypeIssueHandler issueHandler;
 
@@ -90,12 +90,6 @@ public class CmlCspTypeChecker extends
 	{
 		this.vdmChecker = new CmlVdmTypeCheckVisitor()
 		{
-
-			/**
-			 * 
-			 */
-			private static final long serialVersionUID = 1L;
-
 			@Override
 			public PType caseAActionStm(AActionStm node, TypeCheckInfo question)
 					throws AnalysisException
@@ -112,8 +106,8 @@ public class CmlCspTypeChecker extends
 		this.channelSetChecker = new CmlVarSetExpressionTypeChecker(this, issuehandler, VarSetCheckType.CHANNELSET);
 		this.nameSetChecker = new CmlVarSetExpressionTypeChecker(this, issuehandler, VarSetCheckType.NAMESET);
 
-		this.actionChecker = new CmlActionTypeChecker( this, issuehandler, channelSetChecker, nameSetChecker);
-		this.processChecker = new CmlProcessTypeChecker( this, issuehandler, channelSetChecker, nameSetChecker);
+		this.actionChecker = new CmlActionTypeChecker(this, issuehandler, channelSetChecker, nameSetChecker);
+		this.processChecker = new CmlProcessTypeChecker(this, issuehandler, channelSetChecker);
 
 		this.channelExpChecker = new CmlChannelExpressionTypeChecker(this, issuehandler);
 
@@ -188,8 +182,17 @@ public class CmlCspTypeChecker extends
 		PVarsetExpression chansetExp = node.getChansetExpression();
 
 		PType type = chansetExp.apply(channelSetChecker, question);
-		// CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
-		// cmlEnv.addChannel(node.getIdentifier(), node);
+
+		node.setType(type);
+		return node.getType();
+	}
+
+	@Override
+	public PType caseANamesetDefinition(ANamesetDefinition node,
+			TypeCheckInfo question) throws AnalysisException
+	{
+
+		PType type = node.getNamesetExpression().apply(nameSetChecker, question);
 
 		node.setType(type);
 		return node.getType();
@@ -220,31 +223,6 @@ public class CmlCspTypeChecker extends
 		return node.apply(actionChecker, question);
 	}
 
-	// @Override
-	// public PType caseACallStm(ACallStm node, TypeCheckInfo question)
-	// throws AnalysisException
-	// {
-	// PDefinition def = findDefinition(node.getName(), question.env);
-	// if (def instanceof AActionDefinition)
-	// {
-	// return node.apply(actionChecker, question);
-	// } else
-	// {
-	// return node.apply(vdmChecker, question);
-	// }
-	//
-	// }
-	//
-	// private boolean isActionCall(ACallStm node, TypeCheckInfo question)
-	// {
-	// PDefinition def = findDefinition(node.getName(), question.env);
-	// if (def instanceof AActionDefinition)
-	// {
-	// return true;
-	// }
-	// return false;
-	// }
-
 	@Override
 	public PType defaultPProcess(PProcess node, TypeCheckInfo question)
 			throws AnalysisException
@@ -263,7 +241,6 @@ public class CmlCspTypeChecker extends
 	public PType defaultPVarsetExpression(PVarsetExpression node,
 			TypeCheckInfo question) throws AnalysisException
 	{
-		// return node.apply(channelSetChecker, question);
 		throw new InternalException(0, "Var set Expressions must explicitly state which visitor to use: channel-set or name-set");
 	}
 
@@ -301,9 +278,10 @@ public class CmlCspTypeChecker extends
 			if (def instanceof AActionDefinition)
 			{
 				def.apply(THIS, question);
+			} else if (def instanceof ANamesetDefinition)
+			{
+				def.apply(THIS, question);
 			}
-
-			// TODO namesets?
 		}
 
 		return AstFactory.newAClassType(node.getLocation(), node);
@@ -382,7 +360,7 @@ public class CmlCspTypeChecker extends
 		} else
 		{
 
-			issueHandler.addTypeError(expression, TypeErrorMessages.INCOMPATIBLE_TYPE,""
+			issueHandler.addTypeError(expression, TypeErrorMessages.INCOMPATIBLE_TYPE, ""
 					+ AstFactory.newASetType(null, AstFactory.newAUndefinedType(null)), ""
 					+ expressionType);
 		}

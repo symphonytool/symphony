@@ -4,14 +4,19 @@ import eu.compassresearch.ast.util.Utils;
 import eu.compassresearch.ast.util.ToStringUtil;
 
 
-%source->file = [name] 
+%source->file = [name]  
 %source->inputStream = [origin]
 // %source->tcpStream = "" [ip] ":" [port] ""
 
 // Actions
 %action->#Replicated = "Replication of action: " [replicatedAction]
 
-%action->#Parallel->synchronousParallelism = [leftAction] "[ ns-left | ns-right ]" [rightAction]
+%action->#Parallel->synchronousParallelism = [leftAction]+ " [| " + [leftNamesetExpression]+" | " + [rightNamesetExpression]+ " |] " +  [rightAction]
+%action->#Parallel->interleaving = [leftAction]+ " [|| " + [leftNamesetExpression]+" | " + [rightNamesetExpression]+ " ||] " +  [rightAction]
+%action->#Parallel->generalisedParallelism = [leftAction]+ " [| " + [leftNamesetExpression]+" | " +[chansetExpression]+ " | "+ [rightNamesetExpression]+ " |] " +  [rightAction]
+%action->#Parallel->alphabetisedParallelism = [leftAction]+ " [ " + [leftNamesetExpression]+" | " +[leftChansetExpression]+ " || "+[rightChansetExpression]+" | "+ [rightNamesetExpression]+ " ] " +  [rightAction]
+
+%action->#Replicated->generalisedParallelism = [chansetExpression]+"" +[replicationDeclaration]+ " @ "+[namesetExpression]+"" +[replicatedAction] 
 
 // %action->specification = "[" +
 //             $($[externals]$.isEmpty() ? "" : "\n\text " + $[externals]$) +
@@ -63,10 +68,14 @@ import eu.compassresearch.ast.util.ToStringUtil;
 //%type->error = "Type Error"
 
 // varSetExpressions
-%VarsetExpression->fatEnum = "{|" [channelNames] "|}"
+%VarsetExpression->fatEnum = "{| " +$Utils.listToString($[channelNames]$)$+ " |}"
+%VarsetExpression->enum = "{ " +$Utils.listToString($[channelNames]$)$+ " }"
+%VarsetExpression->identifier = [identifier]
+%VarsetExpression->comp = "{ " [channelNameExp] " | " +$Utils.listToString($[bindings]$,",")+($[predicate]$ == null ? " }" : " & " + $[predicate]$ + " }")$
+%VarsetExpression->fatComp = "{| " [channelNameExp] " | " +$Utils.listToString($[bindings]$,",")+($[predicate]$ == null ? " |}" : " & " + $[predicate]$ + " |}")$
 
 //  Expressions
-%exp->#Channel->name = [identifier]+ $($[expressions]$!=null && !$[expressions]$.isEmpty()?_expressions.toString():"")$+""
+%exp->#Channel->name = [identifier]+ $($[expressions]$!=null && !$[expressions]$.isEmpty()?Utils.listToString("!",_expressions):"")$+""
 %exp->unresolvedPath = "("+  $org.overture.ast.util.Utils.listToString($[identifiers] $ , ".")$ +")"
 
 //  Patterns
@@ -75,6 +84,7 @@ import eu.compassresearch.ast.util.ToStringUtil;
 %definition->process = "Process " [name]$.getName()+$ " " [localState] "\n" [process] 
 %definition->action = "actions " [name]$.getName()+$ " " [declarations] + "\n\t"+ [action]
 %definition->channel = "channel " [name]$.getName()+$ " : " [type]
+%definition->nameset = "nameset " [identifier] + " = " + [namesetExpression]
 
 
 //%definition->class = "Class " [name]$.getName()$
@@ -90,3 +100,6 @@ import eu.compassresearch.ast.util.ToStringUtil;
 %access->logical ="logical"
 
 //designator
+
+//types
+%type->channel= ""+ $Utils.listToString($[parameters]$," * ")$
