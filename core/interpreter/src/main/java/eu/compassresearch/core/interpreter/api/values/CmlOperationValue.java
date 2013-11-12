@@ -14,6 +14,7 @@ import org.overture.ast.statements.PStm;
 import org.overture.ast.types.AOperationType;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ValueException;
+import org.overture.interpreter.values.FunctionValue;
 import org.overture.interpreter.values.OperationValue;
 import org.overture.interpreter.values.Value;
 import org.overture.interpreter.values.ValueList;
@@ -34,20 +35,20 @@ public class CmlOperationValue extends OperationValue
 	private static final long serialVersionUID = 1L;
 	public final AExplicitOperationDefinition expldef;
 	public final AImplicitOperationDefinition impldef;
-	private final PExp precondition;
-	private final PExp postcondition;
+	private final PExp preconditionExp;
+	private final PExp postconditionExp;
 	public final AStateDefinition state;
 	private CmlBehaviour currentlyExecutingThread = null;
 
-	public CmlOperationValue(AExplicitOperationDefinition def,
+	public CmlOperationValue(AExplicitOperationDefinition def,FunctionValue preFunc, FunctionValue postFunc,
 			AStateDefinition state)
 	{
-		super(def, null, null, null);
+		super(def, preFunc, postFunc, null);
 		this.expldef = def;
 		this.impldef = null;
 		// this.setBody(def.getBody());
-		this.precondition = def.getPrecondition();
-		this.postcondition = def.getPostcondition();
+		this.preconditionExp = def.getPrecondition();
+		this.postconditionExp = def.getPostcondition();
 		this.state = state;
 	}
 
@@ -57,8 +58,8 @@ public class CmlOperationValue extends OperationValue
 		super(def, null, null, null);
 		this.expldef = null;
 		this.impldef = def;
-		this.precondition = def.getPrecondition();
-		this.postcondition = def.getPostcondition();
+		this.preconditionExp = def.getPrecondition();
+		this.postconditionExp = def.getPostcondition();
 		this.state = state;
 	}
 
@@ -95,7 +96,7 @@ public class CmlOperationValue extends OperationValue
 	{
 		if (expldef != null)
 		{
-			return new CmlOperationValue(expldef, state);
+			return new CmlOperationValue(expldef,this.precondition,this.postcondition, state);
 		} else
 		{
 			return new CmlOperationValue(impldef, state);
@@ -120,12 +121,12 @@ public class CmlOperationValue extends OperationValue
 
 	public PExp getPrecondition()
 	{
-		return this.precondition;
+		return this.preconditionExp;
 	}
 
 	public PExp getPostcondition()
 	{
-		return this.postcondition;
+		return this.postconditionExp;
 	}
 
 //	@Override
