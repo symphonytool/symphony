@@ -67,10 +67,10 @@ public class InterpretAllCmlFilesTest
 		protected void failed(Throwable e, Description d)
 		{
 			// watchedLog+= d + "\n";
-
-			System.out.println("Test failed in : " + d.getMethodName() + " : "
+			
+			System.err.println("Test failed in : " + d.getMethodName() + " : "
 					+ filePath);
-			System.out.println(e);
+			System.err.println(e);
 		}
 
 		@Override

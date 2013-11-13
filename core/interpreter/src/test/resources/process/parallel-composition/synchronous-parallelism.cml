@@ -1,9 +1,0 @@
-channels 
-a, b, init
-
-process A = 
-begin 
-	@  init -> a -> b -> Skip
-end
-
-process C = A || A
