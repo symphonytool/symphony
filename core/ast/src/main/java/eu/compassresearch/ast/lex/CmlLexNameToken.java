@@ -459,7 +459,7 @@ public class CmlLexNameToken extends LexNameToken// implements ILexNameToken,
 
 	public CmlLexNameToken getModifiedName(String classname)
 	{
-		CmlLexNameToken mod = new CmlLexNameToken(classname, name, location);
+		CmlLexNameToken mod = new CmlLexNameToken(classname, name, location,old,explicit);
 		mod.setTypeQualifier(typeQualifier);
 		return mod;
 	}

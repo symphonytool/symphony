@@ -102,7 +102,9 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 					if (processDef.getLocalState().size() > 0)
 					{
 						for (Entry<ILexNameToken, Value> entry : question.entrySet())
-							valueMap.putNew(new NameValuePair(entry.getKey().getModifiedName(processDef.getName().getSimpleName()), entry.getValue()));
+							//valueMap.putNew(new NameValuePair(entry.getKey().getModifiedName(processDef.getName().getSimpleName()), entry.getValue()));
+							valueMap.putNew(new NameValuePair(entry.getKey().getModifiedName(node.getActionDefinition().getName().getSimpleName()), entry.getValue()));
+							
 					}
 				}
 				// Unnamed process
@@ -127,16 +129,16 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 							// id.clone());
 							ILexNameToken paramName = decl.getName();
 							Value val = question.lookup(paramName);
-							valueMap.putNew(new NameValuePair(paramName.getModifiedName(processDef.getName().getSimpleName()), val));
+							valueMap.putNew(new NameValuePair(paramName.getModifiedName(node.getActionDefinition().getName().getSimpleName()), val));
 							// }
 						}
 					}
 				}
 
 				if (question.title.equals(CmlContextFactory.PARAMETRISED_PROCESS_CONTEXT_NAME))
-					tmpContext = CmlContextFactory.newObjectContext(node.getLocation(), "Tmp Action Process Context", question.outer, new ProcessObjectValue(processDef, valueMap, null, null));
+					tmpContext = CmlContextFactory.newObjectContext(node.getLocation(), "Tmp Action Process Context", question.outer, new ProcessObjectValue(node.getActionDefinition(), valueMap, null, null));
 				else
-					tmpContext = CmlContextFactory.newObjectContext(node.getLocation(), "Tmp Action Process Context", question, new ProcessObjectValue(processDef, valueMap, null, null));
+					tmpContext = CmlContextFactory.newObjectContext(node.getLocation(), "Tmp Action Process Context", question, new ProcessObjectValue(node.getActionDefinition(), valueMap, null, null));
 
 				// Evaluate and add paragraph definitions and add the result to the state
 				PExp processInv = null;
@@ -155,7 +157,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 
 					for (NameValuePair nvp : nvps)
 					{
-						ILexNameToken name = nvp.name.getModifiedName(processDef.getName().getSimpleName());
+						ILexNameToken name = nvp.name.getModifiedName(node.getActionDefinition().getName().getSimpleName());
 
 						// This makes sure that operations and functions cannot be updated, while
 						// everything else can.
@@ -169,8 +171,8 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 					}
 				}
 
-				ProcessObjectValue self = new ProcessObjectValue(processDef, valueMap, question.getSelf(), processInv);
-
+				//ProcessObjectValue self = new ProcessObjectValue(processDef, valueMap, question.getSelf(), processInv);
+				ProcessObjectValue self = new ProcessObjectValue(node.getActionDefinition(), valueMap, question.getSelf(), processInv);
 				ObjectContext processObjectContext = null;
 
 				// If params si defined in the above context them we need to add them to the created processContext
