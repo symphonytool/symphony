@@ -70,13 +70,18 @@ state
 operations
   Init : () ==> ()
   Init() ==
-    dw := mk_DwarfType(stop, {}, {}, stop, stop, stop) 
+    dw := mk_DwarfType(dark, 
+				         	  {}, 
+				    	      stop, 
+				    	      dark, 
+				    	      dark, 
+				     		  stop) 
 
-    post dw.lastproperstate = stop and 
+    post dw.lastproperstate = dark and 
          dw.turnoff = {} and 
-         dw.turnon = {} and 
-         dw.laststate = stop and 
-         dw.currentstate = stop and 
+         dw.turnon = stop and 
+         dw.laststate = dark and 
+         dw.currentstate = dark and 
          dw.desiredproperstate = stop
 
   SetNewProperState: (ProperState) ==> ()
@@ -144,7 +149,7 @@ operations
       (shine!(dw.currentstate) -> DWARF)
       
     -- Working test
-    TEST1 = setPS!warning -> extinguish!<L2> -> light!<L3> 
+    TEST1 = light.<L1> -> light.<L2> -> setPS!warning -> extinguish!<L2> -> light!<L3> 
           -> setPS!drive -> extinguish!<L1> -> light!<L2> -> Stop
 
     -- Tries to turn on 3 lights simulaneously
