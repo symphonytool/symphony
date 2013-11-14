@@ -231,9 +231,6 @@ process {-> package='eu.compassresearch.ast.process'
                 [leftChansetExpression]:VarsetExpression
                 [rightChansetExpression]:VarsetExpression
                 [right]:process
-        | {synchronousParallelism}
-                [left]:process
-                [right]:process
         | {interleaving}
                 [left]:process
                 [right]:process
@@ -285,7 +282,6 @@ process {-> package='eu.compassresearch.ast.process'
                 [chansetExpression]:VarsetExpression
         | {alphabetisedParallelism}
                 [chansetExpression]:VarsetExpression
-        | {synchronousParallelism}
         | {interleaving}
         ;
 
@@ -374,7 +370,6 @@ action {-> package='eu.compassresearch.ast.actions'
         | {alphabetisedParallelism}
                 [leftChansetExpression]:VarsetExpression
                 [rightChansetExpression]:VarsetExpression
-        | {synchronousParallelism}
         ;
 
 #Replicated {-> package='eu.compassresearch.ast.actions'
@@ -393,8 +388,6 @@ action {-> package='eu.compassresearch.ast.actions'
         | {alphabetisedParallelism}
                 [namesetExpression]:VarsetExpression
                 [chansetExpression]:VarsetExpression
-        | {synchronousParallelism}
-                [namesetExpression]:VarsetExpression
         ;
 
 #Instantiated {-> package='eu.compassresearch.ast.actions'}

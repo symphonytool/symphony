@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<testResult type="eu.compassresearch.core.typechecker.secondedition.RunCmlExamplesTestCase">
-<message column="8" line="2" message="3410 The Symbol &quot;available&quot; is undefined." messageType="error" number="0" resource="chansetslist.result"/>
-<message column="8" line="4" message="3410 The Symbol &quot;fnrmavailable&quot; is undefined." messageType="error" number="0" resource="chansetslist.result"/>
+<testResult type="eu.compassresearch.core.typechecker.RunCmlExamplesTestCase">
+<message column="8" line="2" message="The Symbol &quot;available&quot; is undefined." messageType="error" number="3410" resource="chansetslist.cml"/>
+<message column="8" line="4" message="The Symbol &quot;fnrmavailable&quot; is undefined." messageType="error" number="3410" resource="chansetslist.cml"/>
 <result/>
 </testResult>

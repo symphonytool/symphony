@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<testResult type="eu.compassresearch.core.typechecker.secondedition.RunCmlExamplesTestCase">
-<message column="12" line="6" message="Symbol 'a' is not an updatable variable" messageType="error" number="0" resource="class-operationtypes.result"/>
-<message column="19" line="6" message="Symbol 'a' is not an updatable variable" messageType="error" number="0" resource="class-operationtypes.result"/>
-<message column="14" line="9" message="Symbol 'a' is not an updatable variable" messageType="error" number="0" resource="class-operationtypes.result"/>
+<testResult type="eu.compassresearch.core.typechecker.RunCmlExamplesTestCase">
+<message column="12" line="6" message="Symbol 'a' is not an updatable variable." messageType="error" number="3247" resource="class-operationtypes.cml"/>
+<message column="19" line="6" message="Symbol 'a' is not an updatable variable." messageType="error" number="3247" resource="class-operationtypes.cml"/>
+<message column="14" line="9" message="Symbol 'a' is not an updatable variable." messageType="error" number="3247" resource="class-operationtypes.cml"/>
 <result/>
 </testResult>

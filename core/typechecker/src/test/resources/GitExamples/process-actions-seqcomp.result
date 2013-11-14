@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<testResult type="eu.compassresearch.core.typechecker.secondedition.RunCmlExamplesTestCase">
-<message column="9" line="4" message="3113 Unknown type name init" messageType="error" number="0" resource="process-actions-seqcomp.result"/>
+<testResult type="eu.compassresearch.core.typechecker.RunCmlExamplesTestCase">
+<message column="9" line="4" message="Channel init is not declared" messageType="error" number="3431" resource="process-actions-seqcomp.cml"/>
+<message column="17" line="4" message="Operation INIT() is not in scope." messageType="error" number="3213" resource="process-actions-seqcomp.cml"/>
 <result/>
 </testResult>

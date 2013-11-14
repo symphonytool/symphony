@@ -15,10 +15,6 @@ import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 public class OperationBodyActionChecker extends AnswerCMLAdaptor<Boolean>
 {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 	private ITypeIssueHandler issueHandler;
 
 	public OperationBodyActionChecker(ITypeIssueHandler issueHandler)

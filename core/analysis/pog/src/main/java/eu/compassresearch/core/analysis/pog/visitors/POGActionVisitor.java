@@ -41,8 +41,6 @@ import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.AStartDeadlineAction;
 import eu.compassresearch.ast.actions.AStmAction;
 import eu.compassresearch.ast.actions.AStopAction;
-import eu.compassresearch.ast.actions.ASynchronousParallelismParallelAction;
-import eu.compassresearch.ast.actions.ASynchronousParallelismReplicatedAction;
 import eu.compassresearch.ast.actions.ATimedInterruptAction;
 import eu.compassresearch.ast.actions.ATimeoutAction;
 import eu.compassresearch.ast.actions.AUntimedTimeoutAction;
@@ -692,30 +690,6 @@ public class POGActionVisitor extends
 	}
 
 	@Override
-	public CmlProofObligationList caseASynchronousParallelismReplicatedAction(
-			ASynchronousParallelismReplicatedAction node,
-			IPOContextStack question) throws AnalysisException
-	{
-		try
-		{
-			CmlProofObligationList pol = new CmlProofObligationList();
-
-			// Get subparts
-			PVarsetExpression namesetExp = node.getNamesetExpression();
-			PAction repAction = node.getReplicatedAction();
-			LinkedList<PSingleDeclaration> decls = node.getReplicationDeclaration();
-
-			// TODO Any ASynchronousParallelismReplicatedAction POs?
-			return pol;
-		} catch (Exception e)
-		{
-			throw new POException(node, e.getMessage());
-		}
-	}
-
-	
-
-	@Override
 	public CmlProofObligationList caseAInternalChoiceAction(
 			AInternalChoiceAction node, IPOContextStack question)
 			throws AnalysisException
@@ -957,37 +931,6 @@ public class POGActionVisitor extends
 			CmlProofObligationList pol = new CmlProofObligationList();
 
 			// TODO: any AStopAction POs?
-			return pol;
-		} catch (Exception e)
-		{
-			throw new POException(node, e.getMessage());
-		}
-	}
-
-
-
-	@Override
-	public CmlProofObligationList caseASynchronousParallelismParallelAction(
-			ASynchronousParallelismParallelAction node, IPOContextStack question)
-			throws AnalysisException
-	{
-		try
-		{
-			CmlProofObligationList pol = new CmlProofObligationList();
-
-			// Get subparts
-			PAction leftAction = node.getLeftAction();
-			PVarsetExpression leftNameSet = node.getLeftNamesetExpression();
-			PAction rightAction = node.getRightAction();
-			PVarsetExpression rightNameSet = node.getLeftNamesetExpression();
-
-			pol.addAll(leftAction.apply(parentPOG, question));
-			pol.addAll(leftNameSet.apply(parentPOG, question));
-			pol.addAll(rightAction.apply(parentPOG, question));
-			pol.addAll(rightNameSet.apply(parentPOG, question));
-
-			// TODO: Any ASynchronousParallelismParallelAction POs?
-
 			return pol;
 		} catch (Exception e)
 		{

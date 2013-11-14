@@ -1,13 +1,13 @@
-channels a b c d e
+channels a b c 
 process test = 
 begin
 	state 
-		a : int := 2
+		v : int := 2
 	actions
 		INIT = 
-		(a -> a := a + 1; c -> Skip) 
+		(a -> v := v + 1; c -> Skip) 
 		[] 
-		(b -> a := a + 2;c -> Skip) 
+		(b -> v := v + 2;c -> Skip) 
 	
 	@ INIT
 end

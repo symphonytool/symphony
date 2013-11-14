@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<testResult type="eu.compassresearch.core.typechecker.secondedition.RunCmlExamplesTestCase">
-<message column="9" line="6" message="3410 The Symbol &quot;REG&quot; is undefined." messageType="error" number="0" resource="process-action-casesStm-others.result"/>
-<message column="9" line="7" message="3410 The Symbol &quot;REG1&quot; is undefined." messageType="error" number="0" resource="process-action-casesStm-others.result"/>
-<message column="14" line="8" message="3410 The Symbol &quot;REG2&quot; is undefined." messageType="error" number="0" resource="process-action-casesStm-others.result"/>
+<testResult type="eu.compassresearch.core.typechecker.RunCmlExamplesTestCase">
+<message column="9" line="6" message="The Symbol &quot;REG&quot; is undefined." messageType="error" number="3410" resource="process-action-casesStm-others.cml"/>
+<message column="9" line="7" message="The Symbol &quot;REG1&quot; is undefined." messageType="error" number="3410" resource="process-action-casesStm-others.cml"/>
+<message column="14" line="8" message="The Symbol &quot;REG2&quot; is undefined." messageType="error" number="3410" resource="process-action-casesStm-others.cml"/>
 <result/>
 </testResult>

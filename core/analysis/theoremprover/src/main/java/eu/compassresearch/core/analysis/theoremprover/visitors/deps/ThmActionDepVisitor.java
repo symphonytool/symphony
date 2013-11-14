@@ -25,7 +25,6 @@ import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.AStmAction;
 import eu.compassresearch.ast.actions.AStopAction;
-import eu.compassresearch.ast.actions.ASynchronousParallelismParallelAction;
 import eu.compassresearch.ast.actions.AWriteCommunicationParameter;
 import eu.compassresearch.ast.actions.PCommunicationParameter;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
@@ -347,16 +346,6 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 //	}
 	
 	public NodeNameList caseAInterleavingParallelAction(AInterleavingParallelAction a, NodeNameList bvars)
-			throws AnalysisException {
-		NodeNameList nodeDeps = new NodeNameList();
-
-		nodeDeps.addAll(a.getLeftAction().apply(thmDepVisitor, bvars));
-		nodeDeps.addAll(a.getRightAction().apply(thmDepVisitor, bvars));
-
-		return nodeDeps;
-	}
-	
-	public NodeNameList caseASynchronousParallelismParallelAction(ASynchronousParallelismParallelAction a, NodeNameList bvars)
 			throws AnalysisException {
 		NodeNameList nodeDeps = new NodeNameList();
 

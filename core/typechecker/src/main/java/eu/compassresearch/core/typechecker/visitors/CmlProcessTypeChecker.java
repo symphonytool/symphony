@@ -51,8 +51,6 @@ import eu.compassresearch.ast.process.AReferenceProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionReplicatedProcess;
 import eu.compassresearch.ast.process.AStartDeadlineProcess;
-import eu.compassresearch.ast.process.ASynchronousParallelismProcess;
-import eu.compassresearch.ast.process.ASynchronousParallelismReplicatedProcess;
 import eu.compassresearch.ast.process.ATimedInterruptProcess;
 import eu.compassresearch.ast.process.ATimeoutProcess;
 import eu.compassresearch.ast.process.AUntimedTimeoutProcess;
@@ -73,21 +71,15 @@ public class CmlProcessTypeChecker extends
 	 * Type checker for var set expressions used for channel sets
 	 */
 	private final QuestionAnswerAdaptor<TypeCheckInfo, PType> channelSetChecker;
-	/**
-	 * Type checker for var set expressions used for name sets
-	 */
-	private final QuestionAnswerAdaptor<TypeCheckInfo, PType> nameSetChecker;
 
 	@SuppressWarnings("deprecation")
 	public CmlProcessTypeChecker(IQuestionAnswer<TypeCheckInfo, PType> root,
 			ITypeIssueHandler issueHandler,
-			QuestionAnswerAdaptor<TypeCheckInfo, PType> channelSetChecker,
-			QuestionAnswerAdaptor<TypeCheckInfo, PType> nameSetChecker)
+			QuestionAnswerAdaptor<TypeCheckInfo, PType> channelSetChecker)
 	{
 		super(root);
 		this.issueHandler = issueHandler;
 		this.channelSetChecker = channelSetChecker;
-		this.nameSetChecker = nameSetChecker;
 	}
 
 	/**
@@ -173,30 +165,6 @@ public class CmlProcessTypeChecker extends
 		typeCheck(node.getLocation(), question, node.getLeft(), node.getRight());
 
 		return getVoidType(node);
-	}
-
-	@Override
-	public PType caseASynchronousParallelismReplicatedProcess(
-			ASynchronousParallelismReplicatedProcess node,
-			TypeCheckInfo question) throws AnalysisException
-	{
-		PProcess proc = node.getReplicatedProcess();
-		LinkedList<PSingleDeclaration> repdecl = node.getReplicationDeclaration();
-
-		List<PDefinition> defs = new Vector<PDefinition>();
-		for (PSingleDeclaration decl : repdecl)
-		{
-			PType declType = decl.apply(THIS, question);
-
-			for (PDefinition def : declType.getDefinitions())
-			{
-				defs.add(def);
-			}
-		}
-
-		PType procType = proc.apply(THIS, question.newScope(defs));
-
-		return procType;
 	}
 
 	@Override
@@ -563,21 +531,6 @@ public class CmlProcessTypeChecker extends
 	}
 
 	@Override
-	public PType caseASynchronousParallelismProcess(
-			ASynchronousParallelismProcess node,
-			org.overture.typechecker.TypeCheckInfo question)
-			throws AnalysisException
-	{
-
-		node.getLeft().apply(THIS, question);
-		node.getRight().apply(THIS, question);
-
-		// TODO: missing marker on processes
-
-		return getVoidType(node);
-	}
-
-	@Override
 	public PType caseASequentialCompositionProcess(
 			ASequentialCompositionProcess node,
 			org.overture.typechecker.TypeCheckInfo question)
@@ -586,8 +539,6 @@ public class CmlProcessTypeChecker extends
 
 		node.getLeft().apply(THIS, question);
 		node.getRight().apply(THIS, question);
-
-		// TODO: missing marker on processes
 
 		return getVoidType(node);
 	}
@@ -657,14 +608,12 @@ public class CmlProcessTypeChecker extends
 	@Override
 	public PType createNewReturnValue(INode node, TypeCheckInfo question)
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public PType createNewReturnValue(Object node, TypeCheckInfo question)
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 }

@@ -27,17 +27,21 @@ import org.overture.ast.types.ANatNumericBasicType;
 import org.overture.ast.types.AProductType;
 import org.overture.ast.types.ASetType;
 import org.overture.ast.types.PType;
+import org.overture.ast.util.Utils;
 import org.overture.typechecker.Environment;
 import org.overture.typechecker.FlatCheckedEnvironment;
 import org.overture.typechecker.TypeCheckException;
 import org.overture.typechecker.TypeCheckInfo;
 import org.overture.typechecker.TypeChecker;
+import org.overture.typechecker.TypeCheckerErrors;
 import org.overture.typechecker.TypeComparator;
 import org.overture.typechecker.assistant.definition.PDefinitionAssistantTC;
 import org.overture.typechecker.assistant.pattern.PPatternAssistantTC;
+import org.overture.typechecker.assistant.statement.ACallObjectStatementAssistantTC;
 
 import eu.compassresearch.ast.CmlAstFactory;
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
+import eu.compassresearch.ast.actions.AAlphabetisedParallelismReplicatedAction;
 import eu.compassresearch.ast.actions.ACallAction;
 import eu.compassresearch.ast.actions.AChannelRenamingAction;
 import eu.compassresearch.ast.actions.AChaosAction;
@@ -68,8 +72,6 @@ import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.AStartDeadlineAction;
 import eu.compassresearch.ast.actions.AStmAction;
 import eu.compassresearch.ast.actions.AStopAction;
-import eu.compassresearch.ast.actions.ASynchronousParallelismParallelAction;
-import eu.compassresearch.ast.actions.ASynchronousParallelismReplicatedAction;
 import eu.compassresearch.ast.actions.ATimedInterruptAction;
 import eu.compassresearch.ast.actions.ATimeoutAction;
 import eu.compassresearch.ast.actions.AUntimedTimeoutAction;
@@ -91,6 +93,8 @@ import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 import eu.compassresearch.core.typechecker.api.TypeWarningMessages;
+import eu.compassresearch.core.typechecker.assistant.ACallActionAssistant;
+import eu.compassresearch.core.typechecker.assistant.PParametrisationAssistant;
 import eu.compassresearch.core.typechecker.assistant.TypeCheckerUtil;
 
 public class CmlActionTypeChecker extends
@@ -135,8 +139,54 @@ public class CmlActionTypeChecker extends
 	public PType caseACallAction(ACallAction node, TypeCheckInfo question)
 			throws AnalysisException
 	{
-		// FIXME not implemented
-		return AstFactory.newAVoidType(node.getLocation());
+		List<PType> atypes = ACallObjectStatementAssistantTC.getArgTypes(node.getArgs(), THIS, question);
+
+		if (question.env.isVDMPP())
+		{
+			node.getName().setTypeQualifier(atypes);
+		}
+
+		PDefinition opdef = findDefinition(node.getName(), question.env);
+
+		if (opdef == null)
+		{
+			TypeCheckerErrors.report(3437, "Action " + node.getName()
+					+ " is not in scope", node.getLocation(), node);
+			question.env.listAlternatives(node.getName());
+			node.setType(AstFactory.newAUnknownType(node.getLocation()));
+			return node.getType();
+		}
+
+		if (opdef instanceof AActionDefinition)
+		{
+			AActionDefinition actionDef = (AActionDefinition) opdef;
+
+			List<PType> paramTypes = new Vector<PType>();
+			for (PParametrisation localDef : actionDef.getDeclarations())
+			{
+				PType t = localDef.getDeclaration().getType();
+				question.assistantFactory.createPTypeAssistant().typeResolve(t, null, THIS, question);
+				paramTypes.add(t);
+			}
+
+			// Reset the name's qualifier with the actual operation type so
+			// that runtime search has a simple TypeComparator call.
+
+			if (question.env.isVDMPP())
+			{
+				node.getName().setTypeQualifier(paramTypes);
+			}
+			node.setType(AstFactory.newAVoidReturnType(node.getLocation()));
+			ACallActionAssistant.checkArgTypes(node, node.getType(), paramTypes, atypes);
+
+			return node.getType();
+		} else
+		{
+			TypeCheckerErrors.report(3438, "Name is not an action", node.getLocation(), node);
+			node.setType(AstFactory.newAUnknownType(node.getLocation()));
+			return node.getType();
+		}
+
 	}
 
 	@Override
@@ -207,10 +257,7 @@ public class CmlActionTypeChecker extends
 			AGeneralisedParallelismReplicatedAction node, TypeCheckInfo question)
 			throws AnalysisException
 	{
-
-		// TODO RWL: What is the semantics of this?
-		PVarsetExpression csexp = node.getChansetExpression();
-		PType csexpType = csexp.apply(channelSetChecker, question);
+		PType csexpType = node.getChansetExpression().apply(channelSetChecker, question);
 
 		if (csexpType == null)
 		{
@@ -219,21 +266,7 @@ public class CmlActionTypeChecker extends
 			return null;
 		}
 
-		List<PDefinition> defs = new Vector<PDefinition>();
-
-		for (PDefinition chanDef : csexpType.getDefinitions())
-		{
-			if (!(chanDef instanceof AChannelDefinition))
-			{
-				issueHandler.addTypeError(node, TypeErrorMessages.TYPE_CHECK_INTERNAL_FAILURE, "Expected a Channel and got something of type AChannelType, however it is not AChannelDefinition.");
-				return null;
-			}
-			AChannelDefinition chanNameDef = (AChannelDefinition) chanDef;
-			defs.add(chanNameDef);
-		}
-
-		PVarsetExpression sexp = node.getNamesetExpression();
-		PType sexpType = sexp.apply(nameSetChecker, question);
+		PType sexpType = node.getNamesetExpression().apply(nameSetChecker, question);
 
 		if (sexpType == null)
 		{
@@ -242,16 +275,9 @@ public class CmlActionTypeChecker extends
 			return null;
 		}
 
-		for (PDefinition stateDef : sexpType.getDefinitions())
-		{
-			defs.add(stateDef);
-		}
+		List<PDefinition> defs = new Vector<PDefinition>();
 
-		PAction repAction = node.getReplicatedAction();
-
-		LinkedList<PSingleDeclaration> repDecls = node.getReplicationDeclaration();
-
-		for (PSingleDeclaration decl : repDecls)
+		for (PSingleDeclaration decl : node.getReplicationDeclaration())
 		{
 
 			if (decl instanceof AExpressionSingleDeclaration)
@@ -281,12 +307,8 @@ public class CmlActionTypeChecker extends
 			}
 		}
 
-		PType repActionType = repAction.apply(THIS, question.newScope(defs, NameScope.NAMESANDANYSTATE));// new
-																											// TypeCheckInfo(question.assistantFactory,
-																											// env));
-
-		issueHandler.addTypeWarning(node, TypeWarningMessages.INCOMPLETE_TYPE_CHECKING, ""
-				+ node);
+		// FIXME how should we handle write only checks
+		PType repActionType = node.getReplicatedAction().apply(THIS, question.newScope(defs, NameScope.NAMESANDANYSTATE));
 
 		return TypeCheckerUtil.setType(node, repActionType);
 	}
@@ -376,7 +398,7 @@ public class CmlActionTypeChecker extends
 		PAction leftAction = node.getLeftAction();
 		PVarsetExpression leftNamesetExp = node.getLeftNamesetExpression();
 		PAction rightAction = node.getRightAction();
-		PVarsetExpression rightnamesetExp = node.getLeftNamesetExpression();
+		PVarsetExpression rightnamesetExp = node.getRightNamesetExpression();
 
 		// type-check sub-actions
 		PType leftActionType = leftAction.apply(THIS, question);
@@ -386,16 +408,49 @@ public class CmlActionTypeChecker extends
 		// type-check the chanset
 		chansetExp.apply(channelSetChecker, question);
 
+		PType leftName = null;
+		PType rightName = null;
 		// type-check the namesets
 		if (leftNamesetExp != null)
 		{
-			leftNamesetExp.apply(nameSetChecker, question);
+			leftName = leftNamesetExp.apply(nameSetChecker, question);
 		}
 
 		if (rightnamesetExp != null)
 		{
-			rightnamesetExp.apply(nameSetChecker, question);
+			rightName = rightnamesetExp.apply(nameSetChecker, question);
 		}
+
+		// No overlap possible if they are null
+		if (leftName != null && rightName != null)
+		{
+			// no overlap possible if empty
+			if (!(leftName.getDefinitions().isEmpty() || rightName.getDefinitions().isEmpty()))
+			{
+				// check disjointness
+				boolean disjoint = true;
+				List<String> repeatedIds = new Vector<String>();
+				for (PDefinition lDef : leftName.getDefinitions())
+				{
+					if (rightName.getDefinitions().contains(lDef))
+					{
+						disjoint = false;
+						// report disjoint required error
+						// System.out.println();
+						repeatedIds.add(lDef.getName() + "");
+					}
+				}
+
+				// report global disjoint error
+				if (!disjoint)
+				{
+					issueHandler.addTypeError(leftNamesetExp, TypeErrorMessages.PARALLEL_NAMESETS_MUST_BE_DISJOINT_REPEATED_STATE, ""
+							+ Utils.listToString(repeatedIds, ","));
+				}
+			}
+
+		}
+
 		// All done!
 		return TypeCheckerUtil.setType(node, leftActionType, rightActionType);
 	}
@@ -597,13 +652,6 @@ public class CmlActionTypeChecker extends
 
 		PType actionType = action.apply(THIS, question);
 
-		if (!(action instanceof PAction || action instanceof PStm))
-		{
-			issueHandler.addTypeError(action, TypeErrorMessages.EXPECTED_AN_ACTION_OR_OPERATION, ""
-					+ action);
-			return null;
-		}
-
 		return setType(node, actionType);
 
 	}
@@ -612,7 +660,6 @@ public class CmlActionTypeChecker extends
 	public PType caseADivAction(ADivAction node, TypeCheckInfo question)
 			throws AnalysisException
 	{
-
 		return setTypeVoid(node);
 	}
 
@@ -648,35 +695,6 @@ public class CmlActionTypeChecker extends
 	@Override
 	public PType caseAInterleavingReplicatedAction(
 			AInterleavingReplicatedAction node, TypeCheckInfo question)
-			throws AnalysisException
-	{
-
-		PVarsetExpression namesetExp = node.getNamesetExpression();
-		PAction repAction = node.getReplicatedAction();
-		LinkedList<PSingleDeclaration> decls = node.getReplicationDeclaration();
-
-		namesetExp.apply(nameSetChecker, question);
-
-		List<PDefinition> defs = new Vector<PDefinition>();
-
-		for (PSingleDeclaration decl : decls)
-		{
-			PType declType = decl.apply(THIS, question);
-
-			for (PDefinition def : declType.getDefinitions())
-			{
-				defs.add(def);
-			}
-		}
-
-		PType repActionType = repAction.apply(THIS, question.newScope(defs));
-
-		return setType(node, repActionType);
-	}
-
-	@Override
-	public PType caseASynchronousParallelismReplicatedAction(
-			ASynchronousParallelismReplicatedAction node, TypeCheckInfo question)
 			throws AnalysisException
 	{
 
@@ -999,7 +1017,8 @@ public class CmlActionTypeChecker extends
 		int i = 0;
 		for (PExp exp : args)
 		{
-			PType expType = exp.apply(THIS, question);
+			// FIXME what is this exp for, it is not used in the check
+			/* PType expType = */exp.apply(THIS, question);
 
 			if (i > parameterNames.size())
 			{
@@ -1068,53 +1087,28 @@ public class CmlActionTypeChecker extends
 	}
 
 	@Override
-	public PType caseASynchronousParallelismParallelAction(
-			ASynchronousParallelismParallelAction node,
-			org.overture.typechecker.TypeCheckInfo question)
-			throws AnalysisException
-	{
-
-		PAction leftAction = node.getLeftAction();
-		PVarsetExpression leftNameSet = node.getLeftNamesetExpression();
-
-		PAction rightAction = node.getRightAction();
-		PVarsetExpression rightNameSet = node.getLeftNamesetExpression();
-
-		PType leftActionType = leftAction.apply(THIS, question);
-
-		if (leftNameSet != null)
-		{
-			leftNameSet.apply(nameSetChecker, question);
-
-		}
-
-		PType rightActionType = rightAction.apply(THIS, question);
-
-		if (rightNameSet != null)
-		{
-			rightNameSet.apply(nameSetChecker, question);
-
-		}
-		return setType(node, leftActionType, rightActionType);
-	}
-
-	@Override
 	public PType caseAParametrisedAction(AParametrisedAction node,
 			TypeCheckInfo question) throws AnalysisException
 	{
-		// FIXME what does this node represent: AParametrisedAction
-		PAction action = node.getAction();
+		TypeCheckInfo info = question;
 
-		// Params are already added to the environment above as we have the
-		// defining expressions there !
-		// at least in the case of caseAParametrisedInstantiatedAction. See how
-		// it is done there if your are in trouble
-		// with this guy.
-		LinkedList<PParametrisation> params = node.getParametrisations();
+		if (!node.getParametrisations().isEmpty())
+		{
+			info = question.newInfo(PParametrisationAssistant.updateEnvironment(question.env, node.getParametrisations()));
+		}
 
-		PType actionType = action.apply(THIS, question);
+		PType actionType = node.getAction().apply(THIS, info);
 
 		return setType(node, actionType);
+	}
+
+	@Override
+	public PType caseAAlphabetisedParallelismReplicatedAction(
+			AAlphabetisedParallelismReplicatedAction node,
+			TypeCheckInfo question) throws AnalysisException
+	{
+		// TODO Auto-generated method stub
+		return setTypeVoid(node);
 	}
 
 	public PType createNewReturnValue(INode node, TypeCheckInfo question)

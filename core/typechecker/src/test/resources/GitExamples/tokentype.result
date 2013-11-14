@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<testResult type="eu.compassresearch.core.typechecker.secondedition.RunCmlExamplesTestCase">
-<message column="12" line="4" message="Unable to resolve type name 'States'" messageType="error" number="0" resource="tokentype.result"/>
-<message column="1" line="4" message="Expression does not match declared type" messageType="error" number="0" resource="tokentype.result"/>
-<message column="12" line="4" message="Cannot find symbol States" messageType="error" number="0" resource="tokentype.result"/>
+<testResult type="eu.compassresearch.core.typechecker.RunCmlExamplesTestCase">
+<message column="12" line="4" message="Unable to resolve type name 'States'." messageType="error" number="3427" resource="tokentype.cml"/>
+<message column="1" line="4" message="Expression does not match declared type. Declared: States Expression: &lt;connecting&gt;" messageType="error" number="3051" resource="tokentype.cml"/>
+<message column="12" line="4" message="Cannot find symbol States." messageType="error" number="2048" resource="tokentype.cml"/>
 <result/>
 </testResult>
