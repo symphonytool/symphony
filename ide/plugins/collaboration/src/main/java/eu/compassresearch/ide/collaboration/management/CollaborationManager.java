@@ -1,6 +1,7 @@
 package eu.compassresearch.ide.collaboration.management;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.io.InvalidObjectException;
 import java.util.Date;
@@ -57,8 +58,9 @@ import eu.compassresearch.ide.collaboration.treeview.ui.CollaborationView;
 
 public class CollaborationManager extends AbstractShare
 {
-
-	private ID ownID;
+	private String project;
+	private int versionNrDummy = 1;
+	private IFolder projectFolder;
 
 	public CollaborationManager(IChannelContainerAdapter adapter)
 			throws ECFException
@@ -122,39 +124,43 @@ public class CollaborationManager extends AbstractShare
 								final IViewPart view = page.findView("eu.compassresearch.ide.collaboration.treeview.ui.CollaborationView");
 								final CollaborationView collabview = (CollaborationView) view;
 
-								IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject("Test");
-								IFolder folder = project.getFolder("Collaboration");
-								IFile file = folder.getFile(filename);
+								IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(getProject());
+								projectFolder = project.getFolder("Collaboration");
+								IFile file = projectFolder.getFile(filename);
 								// at this point, no resources have been created
 								if (!project.exists())
 									project.create(null);
 								if (!project.isOpen())
 									project.open(null);
-								if (!folder.exists())
-									folder.create(IResource.NONE, true, null);
-
+								if (!projectFolder.exists())
+									projectFolder.create(IResource.NONE, true, null);
+								
+								TreeRoot root = collabview.getRoot();
+								Contract contract = new Contract(filename, fileMsg.getSenderID(), fileMsg.getReceiverID());
+								Contracts contracts = (Contracts) root.getContracts().get(0);
+								
+								byte[] bytes = fileContents.getBytes();
+								InputStream source = new ByteArrayInputStream(bytes);
+								
 								if (!file.exists())
 								{
-									byte[] bytes = fileContents.getBytes();
-									InputStream source = new ByteArrayInputStream(bytes);
-									file.create(source, IResource.NONE, null);
-
-									TreeRoot root = collabview.getRoot();
-
-									Contracts contracts = (Contracts) root.getContracts().get(0);
-									Contract contract = new Contract(filename, fileMsg.getSenderID(), fileMsg.getReceiverID());
 									contract.addShare(new Share(senderName));
 									contract.addShare(new Share("You"));
 
-									contract.addVersion(new Version(contract.getName()
-											+ " Received: " + new Date()));
-
-									contracts.addContract(contract);
+								} else {
+									file = projectFolder.getFile(filename + versionNrDummy);
 								}
+								
+								file.create(source, IResource.NONE, null);
 
 								FileStatusMessage statusMsg = new FileStatusMessage(fileMsg.getReceiverID(), fileMsg.getSenderID(), filename, NegotiationStatus.RECEIVED, time);
 								sendMessage(statusMsg.getReceiverID(), statusMsg.serialize());
 
+								contract.addVersion(new Version(contract.getName() + versionNrDummy++
+										+ " Received: " + new Date()));
+								
+								contracts.addContract(contract);
+								
 								IEditorPart openEditor = IDE.openEditor(page, file, true);
 								IEditorInput editorInput = openEditor.getEditorInput();
 
@@ -183,7 +189,7 @@ public class CollaborationManager extends AbstractShare
 						{
 							NegotiationStatus status = statusMsg.getStatus();
 							if(status == NegotiationStatus.RECEIVED) {
-							MessageDialog.openInformation(null, "File received", statusMsg.getSenderID().getName() + " received " + statusMsg.getFilename());
+							//MessageDialog.openInformation(null, "File received", statusMsg.getSenderID().getName() + " received " + statusMsg.getFilename());
 							
 							final IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 							final IViewPart view = page.findView("eu.compassresearch.ide.collaboration.treeview.ui.CollaborationView");
@@ -217,6 +223,10 @@ public class CollaborationManager extends AbstractShare
 							}
 							
 						} catch (PartInitException e)
+						{
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (CoreException e)
 						{
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -254,9 +264,10 @@ public class CollaborationManager extends AbstractShare
 								User usr = new User(senderName);
 								collabGrp.addCollaborator(usr);
 								
+								project = collabRequestedDialog.getProject();
+								
 								page.showView("eu.compassresearch.ide.collaboration.treeview.ui.CollaborationView");
-	
-	
+
 							}
 							
 							CollaborationStatusMessage statusMsg = new CollaborationStatusMessage(collabRequest.getReceiverID(), collabRequest.getSenderID(), join);
@@ -290,7 +301,6 @@ public class CollaborationManager extends AbstractShare
 						String userName = collabRequest.getSenderID().getName();
 						User usr = collabGrp.getUser(userName);
 						
-	
 						final CollaborationNotificationPopUp popup = new CollaborationNotificationPopUp(workbenchWindow, collabview);
 
 						if(collabRequest.isJoining()){
@@ -311,7 +321,7 @@ public class CollaborationManager extends AbstractShare
 								}
 								return Status.OK_STATUS;
 							}
-						}.schedule(5000);
+						}.schedule(8000);
 					}
 				});
 			}
@@ -336,5 +346,25 @@ public class CollaborationManager extends AbstractShare
 			throws ECFException
 	{
 		this.sendMessage(toUser.getID(), data);
+	}
+
+	public String getProject()
+	{
+		return project;
+	}
+
+	public void setProject(String project)
+	{
+		this.project = project;
+	}
+	
+	public IFolder getProjectFolder()
+	{
+		return projectFolder;
+	}
+	
+	public void setProjectFolder(IFolder projectFolder)
+	{
+		this.projectFolder = projectFolder;
 	}
 }

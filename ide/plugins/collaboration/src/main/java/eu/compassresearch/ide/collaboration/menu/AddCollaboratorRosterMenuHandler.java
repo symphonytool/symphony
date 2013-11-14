@@ -83,6 +83,8 @@ public class AddCollaboratorRosterMenuHandler extends AbstractRosterMenuHandler
 				CollaborationGroup collabGrp = (CollaborationGroup) root.getCollaboratorGroups().get(0);
 				User usr = new User(receiver.getName(), "(Request sent, pending response.)");
 				collabGrp.addCollaborator(usr);
+				
+				collabMgm.setProject(collabReqDia.getProject());
 			}
 		}
 		return null;

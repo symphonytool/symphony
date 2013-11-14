@@ -16,9 +16,6 @@
 
 package eu.compassresearch.ide.collaboration.menu;
 
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.ecf.core.identity.ID;
-import org.eclipse.ecf.presence.ui.MessagesView;
 import org.eclipse.jface.dialogs.PopupDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Rectangle;

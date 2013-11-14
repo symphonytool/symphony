@@ -1,8 +1,15 @@
 package eu.compassresearch.ide.collaboration.menu;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.Platform;
@@ -26,6 +33,7 @@ import eu.compassresearch.ide.collaboration.CollaborationPluginUtils;
 import eu.compassresearch.ide.collaboration.management.CollaborationManager;
 import eu.compassresearch.ide.collaboration.messages.NewFileMessage;
 import eu.compassresearch.ide.collaboration.notifications.Notification;
+import eu.compassresearch.ide.collaboration.treeview.model.Share;
 
 public class CollabMenuRosterMenuHandler extends AbstractRosterMenuHandler
 {
@@ -90,6 +98,30 @@ public class CollabMenuRosterMenuHandler extends AbstractRosterMenuHandler
 			try
 			{
 				collabMgm.sendMessage(receiver.getID(), msg.serialize());
+	
+			
+			try
+			{
+			IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(collabMgm.getProject());
+			IFolder folder = project.getFolder("Collaboration");
+			if (!folder.exists())
+			{
+					folder.create(IResource.NONE, true, null);
+			}
+			collabMgm.setProjectFolder(folder);
+			
+			
+			byte[] bytes = fileContents.getBytes();
+			InputStream source = new ByteArrayInputStream(bytes);
+			
+			IFile file = folder.getFile(filename);
+			file.create(source, IResource.NONE, null);
+			
+			} catch (CoreException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			} catch (SerializationException e)
 			{
 				// TODO Auto-generated catch block
@@ -98,7 +130,8 @@ public class CollabMenuRosterMenuHandler extends AbstractRosterMenuHandler
 			{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}	
+			}
+			
 		}
 		return null;
 	}

@@ -211,7 +211,6 @@ public class CollaborationView extends ViewPart {
 		};
 		addToCollaborationGroup.setToolTipText("Add Collaborator to collaboration group");
 		addToCollaborationGroup.setEnabled(false);
-		//addToCollaborationGroup.
 	}
 	
 	protected void diffWithPrev() {

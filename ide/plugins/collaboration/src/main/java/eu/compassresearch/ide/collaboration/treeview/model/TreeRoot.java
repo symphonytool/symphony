@@ -7,7 +7,7 @@ import java.util.List;
 public class TreeRoot extends Model {
 	protected List contracts;
 	protected List collaboratorGroups;
-	
+
 	public TreeRoot() {
 		super();
 
@@ -75,5 +75,4 @@ public class TreeRoot extends Model {
 		
 		super.addListener(listener);
 	}
-
 }

@@ -2,6 +2,10 @@ package eu.compassresearch.ide.collaboration;
 
 import java.util.Hashtable;
 
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.ecf.core.IContainerManager;
 import org.eclipse.ecf.core.identity.ID;
 import org.eclipse.ecf.core.util.ECFException;
@@ -39,7 +43,7 @@ public class Activator extends AbstractUIPlugin
 	@Override
 	public void stop(BundleContext context) throws Exception
 	{
-		super.stop(context);
+		deleteCollaborationDirectories();
 		
 		if (containerManagerTracker != null) {
 			containerManagerTracker.close();
@@ -48,6 +52,22 @@ public class Activator extends AbstractUIPlugin
 		
 		plugin = null;
 		this.context = null;
+		
+		super.stop(context);
+	}
+	
+	public void deleteCollaborationDirectories(){
+
+		try
+		{
+			IFolder folder = collabMgm.getProjectFolder();
+			folder.delete(true, null);
+		} catch (CoreException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 	
 	public CollaborationManager addCollaborationManager(ID containerID, IChannelContainerAdapter channelAdapter) throws ECFException {
