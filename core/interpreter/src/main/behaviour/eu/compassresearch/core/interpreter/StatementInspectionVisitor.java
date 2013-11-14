@@ -137,7 +137,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 
 					for (PDefinition def : node.getLocalDefs())
 					{
-						NameValuePair nvp = def.apply(cmlDefEvaluator, question).get(0);
+						NameValuePair nvp = def.apply(cmlDefEvaluator, blockContext).get(0);
 						blockContext.put(nvp.name, nvp.value.getUpdatable(null));
 					}
 				}

@@ -31,6 +31,7 @@ import eu.compassresearch.ast.actions.AInternalChoiceAction;
 import eu.compassresearch.ast.actions.AInternalChoiceReplicatedAction;
 import eu.compassresearch.ast.actions.AInterruptAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
+import eu.compassresearch.ast.actions.AStmAction;
 import eu.compassresearch.ast.actions.ASynchronousParallelismParallelAction;
 import eu.compassresearch.ast.actions.ASynchronousParallelismReplicatedAction;
 import eu.compassresearch.ast.actions.ATimeoutAction;
@@ -81,6 +82,13 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 			throws AnalysisException
 	{
 		return node.getAction().apply(this,question);
+	}
+	
+	@Override
+	public Pair<INode, Context> caseAStmAction(AStmAction node, Context question)
+			throws AnalysisException
+	{
+		return node.getStatement().apply(this,question);
 	}
 
 	/*

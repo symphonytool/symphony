@@ -6,7 +6,7 @@ I = {| a,b |}
 process test = 
 begin
 	
-	@ (a?i -> c.(i) -> Skip
+	@ a?i -> c.(i) -> Skip
 		[] 
 		 b?i -> c.(i) -> Skip 
 end
