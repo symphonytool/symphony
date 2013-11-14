@@ -1,8 +1,15 @@
 package eu.compassresearch.ide.collaboration.treeview.ui;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.Date;
 import java.util.Iterator;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.ecf.core.util.ECFException;
 import org.eclipse.ecf.sync.SerializationException;
 import org.eclipse.jface.action.Action;
@@ -18,11 +25,18 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.ViewPart;
 
 import eu.compassresearch.ide.collaboration.Activator;
+import eu.compassresearch.ide.collaboration.CollaborationPluginUtils;
 import eu.compassresearch.ide.collaboration.management.CollaborationManager;
 import eu.compassresearch.ide.collaboration.menu.AddCollaboratorRosterMenuContributionItem;
 import eu.compassresearch.ide.collaboration.messages.FileStatusMessage;
@@ -88,7 +102,6 @@ public class CollaborationView extends ViewPart {
 		treeViewer.getControl().setLayoutData(layoutData);
 		
 		createActions();
-		createToolbar();
 		hookListeners();
 		addContextMenu();
 		
@@ -202,15 +215,6 @@ public class CollaborationView extends ViewPart {
 			}			
 		};
 		negotiateContractAction.setToolTipText("Renegotiate this file");
-		negotiateContractAction.setEnabled(false);
-		
-		addToCollaborationGroup = new Action("Add Collaborator") {
-			public void run() {
-				negotiateSelected();
-			}			
-		};
-		addToCollaborationGroup.setToolTipText("Add Collaborator to collaboration group");
-		addToCollaborationGroup.setEnabled(false);
 	}
 	
 	protected void diffWithPrev() {
@@ -275,22 +279,43 @@ public class CollaborationView extends ViewPart {
 			IStructuredSelection selection = (IStructuredSelection) treeViewer.getSelection();
 			Model selectedDomainObject = (Model) selection.getFirstElement();
 		
-			if(selectedDomainObject instanceof CollaborationGroup)
+			if(selectedDomainObject instanceof Contract)
 			{
-				CollaborationGroup group = (CollaborationGroup) selectedDomainObject;
-				group.addCollaborator(new User("Bla"));
+				Contract contract = (Contract) selectedDomainObject;
+				CollaborationManager collabMgM = Activator.getDefault().getCollaborationManager();
+				
+			
+				IFile oldFile = collabMgM.getProjectFolder().getFile(contract.getFilename());
+				final IFile file = collabMgM.nextFilename(contract.getFilename());
+			
+				try
+				{
+					file.create(oldFile.getContents(), IResource.NONE, null);
+				} catch (CoreException e1)
+				{
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				
+				Display.getDefault().asyncExec(new Runnable()
+				{
+					public void run()
+					{
+						IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+						try
+						{
+							IEditorPart openEditor = IDE.openEditor(page, file, true);
+						} catch (PartInitException e)
+						{
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				});
 			}
-		
 		}
 	}
-	
-	protected void createToolbar() {
-		IToolBarManager toolbarManager = getViewSite().getActionBars().getToolBarManager();
-	//toolbarManager.add(arg0);
-		//toolbarManager.add(approveContractAction);
-	}
-	
-	
+		
 	public TreeRoot getInitalInput() {
 		root = new TreeRoot();
 		

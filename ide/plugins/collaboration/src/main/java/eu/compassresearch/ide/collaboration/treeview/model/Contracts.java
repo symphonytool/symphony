@@ -1,19 +1,20 @@
 package eu.compassresearch.ide.collaboration.treeview.model;
 
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Contracts extends Model {
-	protected List contracts;
+	protected Map<String, Contract> contracts;
 
 	public Contracts() {
-		contracts = new ArrayList();
+		contracts = new HashMap<String, Contract>();
 		this.name = "Contracts";
 	}
 
 	public void addContract(Contract contract) {
-		contracts.add(contract);
+		contracts.put(contract.getName(), contract);
 		contract.addListener(listener);
 		contract.setParent(this);
 		fireAdd(contract);
@@ -25,8 +26,8 @@ public class Contracts extends Model {
 		fireRemove(contract);
 	}
 
-	public List getContracts() {
-		return contracts;
+	public List<Contract> getContracts() {
+		return new ArrayList<Contract>(contracts.values());
 	}
 
 	public int size() {
@@ -40,11 +41,16 @@ public class Contracts extends Model {
 	@Override
 	public void addListener(IDeltaListener listener) {
 
-		for (Iterator iterator = contracts.iterator(); iterator.hasNext();) {
-			Contract contract = (Contract) iterator.next();
-			contract.addListener(listener);
+		for (Contract c : contracts.values())
+		{
+			c.addListener(listener);
 		}
 
 		super.addListener(listener);
+	}
+
+	public Contract getContract(String name)
+	{
+		return contracts.get(name);
 	}
 }

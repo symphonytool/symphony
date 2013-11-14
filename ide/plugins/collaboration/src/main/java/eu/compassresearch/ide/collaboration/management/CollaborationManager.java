@@ -136,19 +136,23 @@ public class CollaborationManager extends AbstractShare
 									projectFolder.create(IResource.NONE, true, null);
 								
 								TreeRoot root = collabview.getRoot();
-								Contract contract = new Contract(filename, fileMsg.getSenderID(), fileMsg.getReceiverID());
+								
 								Contracts contracts = (Contracts) root.getContracts().get(0);
 								
 								byte[] bytes = fileContents.getBytes();
 								InputStream source = new ByteArrayInputStream(bytes);
 								
-								if (!file.exists())
+								String cleanFilename = filename.substring(0, filename.indexOf(".")); 
+								Contract contract = contracts.getContract(cleanFilename);
+								if (contract == null)
 								{
+									contract = new Contract(filename, fileMsg.getSenderID(), fileMsg.getReceiverID());
 									contract.addShare(new Share(senderName));
 									contract.addShare(new Share("You"));
+									contracts.addContract(contract);
 
 								} else {
-									file = projectFolder.getFile(filename + versionNrDummy);
+									file = nextFilename(filename);
 								}
 								
 								file.create(source, IResource.NONE, null);
@@ -156,10 +160,8 @@ public class CollaborationManager extends AbstractShare
 								FileStatusMessage statusMsg = new FileStatusMessage(fileMsg.getReceiverID(), fileMsg.getSenderID(), filename, NegotiationStatus.RECEIVED, time);
 								sendMessage(statusMsg.getReceiverID(), statusMsg.serialize());
 
-								contract.addVersion(new Version(contract.getName() + versionNrDummy++
+								contract.addVersion(new Version(contract.getFilename() + " Version: " + versionNrDummy
 										+ " Received: " + new Date()));
-								
-								contracts.addContract(contract);
 								
 								IEditorPart openEditor = IDE.openEditor(page, file, true);
 								IEditorInput editorInput = openEditor.getEditorInput();
@@ -180,7 +182,7 @@ public class CollaborationManager extends AbstractShare
 			} else if (msg instanceof FileStatusMessage)
 			{
 				final FileStatusMessage statusMsg = (FileStatusMessage) msg;
-
+				final String filename = statusMsg.getFilename();
 				Display.getDefault().asyncExec(new Runnable()
 				{
 					public void run()
@@ -199,15 +201,22 @@ public class CollaborationManager extends AbstractShare
 	
 							String senderName = statusMsg.getSenderID().getName();
 							Contracts contracts = (Contracts) root.getContracts().get(0);
-							Contract contract = new Contract(statusMsg.getFilename(), statusMsg.getSenderID(), statusMsg.getReceiverID());
-							contract.addShare(new Share(senderName));
-							contract.addShare(new Share("You"));
-	
-							contract.addVersion(new Version(contract.getName()
+							
+							String cleanFilename = filename.substring(0, filename.indexOf(".")); 
+							Contract contract = contracts.getContract(cleanFilename);
+							if (contract == null)
+							{
+								contract = new Contract(statusMsg.getFilename(), statusMsg.getSenderID(), statusMsg.getReceiverID());
+								contract.addShare(new Share(senderName));
+								contract.addShare(new Share("You"));
+								contracts.addContract(contract);
+							}
+							
+							contract.addVersion(new Version(contract.getFilename()
 									+ " Received by " + senderName + " on "
 									+ statusMsg.getTimestamp()));
 	
-							contracts.addContract(contract);
+							
 							
 							page.showView("eu.compassresearch.ide.collaboration.treeview.ui.CollaborationView");
 							
@@ -366,5 +375,10 @@ public class CollaborationManager extends AbstractShare
 	public void setProjectFolder(IFolder projectFolder)
 	{
 		this.projectFolder = projectFolder;
+	}
+
+	public IFile nextFilename(String filename)
+	{
+		return projectFolder.getFile(filename.substring(0, filename.indexOf('.')) + "." + ++versionNrDummy + ".cml");
 	}
 }

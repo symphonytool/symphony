@@ -100,32 +100,37 @@ public class CollabMenuRosterMenuHandler extends AbstractRosterMenuHandler
 				collabMgm.sendMessage(receiver.getID(), msg.serialize());
 	
 			
-			try
-			{
-			IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(collabMgm.getProject());
-			IFolder folder = project.getFolder("Collaboration");
-			if (!folder.exists())
-			{
-					folder.create(IResource.NONE, true, null);
-			}
-			collabMgm.setProjectFolder(folder);
-			
-			
-			byte[] bytes = fileContents.getBytes();
-			InputStream source = new ByteArrayInputStream(bytes);
-			
-			IFile file = folder.getFile(filename);
-			file.create(source, IResource.NONE, null);
-			
-			} catch (CoreException e)
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			} catch (SerializationException e)
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+//			try
+//			{
+//			IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(collabMgm.getProject());
+//			IFolder folder = project.getFolder("Collaboration");
+//			if (!folder.exists())
+//			{
+//					folder.create(IResource.NONE, true, null);
+//					collabMgm.setProjectFolder(folder);	
+//			}
+//	
+//			byte[] bytes = fileContents.getBytes();
+//			InputStream source = new ByteArrayInputStream(bytes);
+//			
+//			IFile file = folder.getFile(filename);
+//			
+//			if (!file.exists()){
+//				file.create(source, IResource.NONE, null);
+//			} else {
+//				file = collabMgm.nextFilename(filename);
+//				file.create(source, IResource.NONE, null);
+//			}
+//			
+//			} catch (CoreException e)
+//			{
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//			} catch (SerializationException e)
+//			{
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
 			} catch (ECFException e)
 			{
 				// TODO Auto-generated catch block
