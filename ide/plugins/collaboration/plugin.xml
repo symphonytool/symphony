@@ -14,15 +14,6 @@
 </extension>
 
 
-<!-- <extension point="org.eclipse.ui.menus">
-  <menuContribution locationURI="popup:org.eclipse.ui.navigator.ProjectExplorer#PopupMenu?after=additions">
-    <dynamic
-              class="eu.compassresearch.ide.collaboration.menu.CollaborationTest"
-              id="eu.compassresearch.ide.collaboration.menu.CollaborationTest">
-    </dynamic>
-  </menuContribution>
-</extension> -->
-
 <!-- ECF setup -->
 <extension
       point="org.eclipse.ecf.start">
@@ -44,39 +35,16 @@
    </view>
 </extension>
 
-
+<extension point = "org.eclipse.ui.viewActions">
+      <viewContribution 
+         id="eu.compassresearch.ide.collaboration.treeview.ui.CollaborationView.Connect" 
+         targetID="eu.compassresearch.ide.collaboration.treeview.ui.CollaborationView">        
+	   <action id="eu.compassresearch.ide.collaboration.treeview.ui.CollaborationView.connectAction" 
+              class="org.eclipse.ecf.internal.ui.actions.SelectProviderAction" enablesFor="*"
+              label="Connect to IM Provider" 
+	      	  menubarPath="additions"> 
+	   </action>
+      </viewContribution>
+</extension>
 </plugin>
 
-	<!--	<menuContribution
-         allPopups="false"
-         locationURI="popup:eu.compassresearch.ide.ui.CmlNavigator">
-			<menu
-              id="eu.compassresearch.ide.collaboration"
-              label="Collaboration">
-				<command
-            		commandId="eu.compassresearch.ide.pog.generatepos"
-            		label="Collab"
-            		style="push"
-            		tooltip="Collaborate">
-				</command>
-				<visibleWhen>
-					<iterate ifEmpty="false" >
-						<or>
-							<adapt type="org.eclipse.core.resources.IProject">
-								<test
-                       				property="org.eclipse.core.resources.projectNature"
-                       				value="eu.compassresearch.ide.core.cmlnature">
-								</test>
-							</adapt>
-							<test
-                                forcePluginActivation="true"
-                                property="org.overture.ide.core.resources.dialect"
-                                value="CML">
-							</test>
-						</or>
-					</iterate>
-				</visibleWhen>
-			</menu>
-		</menuContribution> !-->
-		
-		

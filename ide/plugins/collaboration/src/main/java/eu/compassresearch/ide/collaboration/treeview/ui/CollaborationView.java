@@ -25,7 +25,6 @@ import org.eclipse.ui.part.ViewPart;
 import eu.compassresearch.ide.collaboration.Activator;
 import eu.compassresearch.ide.collaboration.management.CollaborationManager;
 import eu.compassresearch.ide.collaboration.menu.AddCollaboratorRosterMenuContributionItem;
-import eu.compassresearch.ide.collaboration.menu.CollabRosterMenuContributionItem;
 import eu.compassresearch.ide.collaboration.messages.FileStatusMessage;
 import eu.compassresearch.ide.collaboration.messages.FileStatusMessage.NegotiationStatus;
 import eu.compassresearch.ide.collaboration.treeview.model.CollaborationGroup;
@@ -45,7 +44,12 @@ public class CollaborationView extends ViewPart {
 	protected Text text;
 	protected CollaborationLabelProvider labelProvider;
 	
-	protected Action diffWithPrevAction, approveContractAction, rejectContractAction, negotiateContractAction, addToCollaborationGroup;
+	protected Action diffWithPrevAction; 
+	protected Action approveContractAction; 
+	protected Action rejectContractAction;
+	protected Action negotiateContractAction;
+	protected Action addToCollaborationGroup;
+	protected Action connectAction;
 	
 	private TreeRoot root;
 	
@@ -84,7 +88,7 @@ public class CollaborationView extends ViewPart {
 		treeViewer.getControl().setLayoutData(layoutData);
 		
 		createActions();
-		//createToolbar();
+		createToolbar();
 		hookListeners();
 		addContextMenu();
 		
@@ -207,10 +211,7 @@ public class CollaborationView extends ViewPart {
 		};
 		addToCollaborationGroup.setToolTipText("Add Collaborator to collaboration group");
 		addToCollaborationGroup.setEnabled(false);
-		//addToCollaborationGroup.s
-		
-		
-
+		//addToCollaborationGroup.
 	}
 	
 	protected void diffWithPrev() {
@@ -286,8 +287,8 @@ public class CollaborationView extends ViewPart {
 	
 	protected void createToolbar() {
 		IToolBarManager toolbarManager = getViewSite().getActionBars().getToolBarManager();
-		toolbarManager.add(diffWithPrevAction);
-		toolbarManager.add(approveContractAction);
+	//toolbarManager.add(arg0);
+		//toolbarManager.add(approveContractAction);
 	}
 	
 	

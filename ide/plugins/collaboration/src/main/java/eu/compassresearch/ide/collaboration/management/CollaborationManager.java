@@ -12,6 +12,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.ecf.core.identity.ID;
@@ -20,26 +21,29 @@ import org.eclipse.ecf.core.util.ECFException;
 import org.eclipse.ecf.datashare.AbstractShare;
 import org.eclipse.ecf.datashare.IChannelContainerAdapter;
 import org.eclipse.ecf.sync.IModelChangeMessage;
-import org.eclipse.ecf.sync.SerializationException;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
+import org.eclipse.ui.progress.UIJob;
 
 import eu.compassresearch.ide.collaboration.Activator;
+import eu.compassresearch.ide.collaboration.menu.CollaborationNotificationPopUp;
 import eu.compassresearch.ide.collaboration.menu.CollaborationRequestedDialog;
 import eu.compassresearch.ide.collaboration.messages.CollaborationRequest;
 import eu.compassresearch.ide.collaboration.messages.CollaborationStatusMessage;
-import eu.compassresearch.ide.collaboration.messages.NewFileMessage;
 import eu.compassresearch.ide.collaboration.messages.FileStatusMessage;
 import eu.compassresearch.ide.collaboration.messages.FileStatusMessage.NegotiationStatus;
+import eu.compassresearch.ide.collaboration.messages.NewFileMessage;
 import eu.compassresearch.ide.collaboration.messages.TestMessage;
 import eu.compassresearch.ide.collaboration.notifications.Notification;
 import eu.compassresearch.ide.collaboration.treeview.model.CollaborationGroup;
@@ -274,8 +278,8 @@ public class CollaborationManager extends AbstractShare
 					public void run()
 					{
 						final CollaborationStatusMessage collabRequest = (CollaborationStatusMessage) msg;
-					
-						final IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+						final IWorkbenchWindow workbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+						final IWorkbenchPage page = workbenchWindow.getActivePage();
 						final IViewPart view = page.findView("eu.compassresearch.ide.collaboration.treeview.ui.CollaborationView");
 						final CollaborationView collabview = (CollaborationView) view;
 						
@@ -286,11 +290,28 @@ public class CollaborationManager extends AbstractShare
 						String userName = collabRequest.getSenderID().getName();
 						User usr = collabGrp.getUser(userName);
 						
+	
+						final CollaborationNotificationPopUp popup = new CollaborationNotificationPopUp(workbenchWindow, collabview);
+
 						if(collabRequest.isJoining()){
-							usr.setPostfix("");					
+							usr.setPostfix("");		
+							popup.setContent(usr.getName(), "Joined Collaboration");
 						} else{
 							usr.setPostfix("(Declined collaboration)");		
+							popup.setContent(usr.getName(), "Declined collaboration");
 						}
+						
+						popup.open();
+						
+						new UIJob("Close Popup Job") { //$NON-NLS-1$
+							public IStatus runInUIThread(IProgressMonitor monitor) {
+								Shell shell = popup.getShell();
+								if (shell != null && !shell.isDisposed()) {
+									popup.close();
+								}
+								return Status.OK_STATUS;
+							}
+						}.schedule(5000);
 					}
 				});
 			}
