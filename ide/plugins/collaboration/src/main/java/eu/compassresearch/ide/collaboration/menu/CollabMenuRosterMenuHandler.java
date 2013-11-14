@@ -86,7 +86,7 @@ public class CollabMenuRosterMenuHandler extends AbstractRosterMenuHandler
 			
 			IUser self = roster.getUser();	
 			IUser receiver = rosterEntry.getUser();
-			NewFileMessage msg = new NewFileMessage(self.getID(), receiver.getID(), filename, fileContents);
+			NewFileMessage msg = new NewFileMessage(self, receiver, filename, fileContents);
 			try
 			{
 				collabMgm.sendMessage(receiver.getID(), msg.serialize());

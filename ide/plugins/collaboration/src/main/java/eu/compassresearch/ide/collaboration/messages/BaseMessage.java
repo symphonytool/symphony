@@ -2,7 +2,7 @@ package eu.compassresearch.ide.collaboration.messages;
 
 import java.io.*;
 
-import org.eclipse.ecf.core.identity.ID;
+import org.eclipse.ecf.core.user.IUser;
 import org.eclipse.ecf.sync.IModelChangeMessage;
 import org.eclipse.ecf.sync.SerializationException;
 
@@ -13,10 +13,10 @@ public class BaseMessage implements IModelChangeMessage, Serializable {
 
 	private static final long serialVersionUID = -70529594981572196L;
 
-	private final ID senderID;
-	private final ID receiverID;
+	private final IUser senderID;
+	private final IUser receiverID;
 	
-	public BaseMessage(ID sender, ID receiver)
+	public BaseMessage(IUser sender, IUser receiver)
 	{
 		senderID = sender;
 		receiverID = receiver;
@@ -43,7 +43,7 @@ public class BaseMessage implements IModelChangeMessage, Serializable {
 		}
 	}
 
-	public ID getSenderID()
+	public IUser getSenderID()
 	{
 		return senderID;
 	}
@@ -52,7 +52,7 @@ public class BaseMessage implements IModelChangeMessage, Serializable {
 		return null;
 	}
 
-	public ID getReceiverID()
+	public IUser getReceiverID()
 	{
 		return receiverID;
 	}

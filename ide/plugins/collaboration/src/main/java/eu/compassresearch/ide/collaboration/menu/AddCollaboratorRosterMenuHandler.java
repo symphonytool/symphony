@@ -60,7 +60,7 @@ public class AddCollaboratorRosterMenuHandler extends AbstractRosterMenuHandler
 			collabReqDia.create();
 			if(collabReqDia.open() == Window.OK){
 				
-				CollaborationRequest msg = new CollaborationRequest(self.getID(), receiver.getID(),collabReqDia.getTitle(),collabReqDia.getDescription());
+				CollaborationRequest msg = new CollaborationRequest(self, receiver,collabReqDia.getTitle(),collabReqDia.getDescription());
 				try
 				{
 					collabMgm.sendMessage(receiver.getID(), msg.serialize());

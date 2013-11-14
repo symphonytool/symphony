@@ -3,6 +3,7 @@ package eu.compassresearch.ide.collaboration.messages;
 import java.util.Date;
 
 import org.eclipse.ecf.core.identity.ID;
+import org.eclipse.ecf.core.user.IUser;
 
 public class FileStatusMessage extends BaseMessage
 {
@@ -17,9 +18,9 @@ public class FileStatusMessage extends BaseMessage
 	    RECEIVED, ACCEPT, REJECT, RENEGOTIATE; 
 	}
 	
-	public FileStatusMessage(ID sendBy, ID sendTo, String filename, NegotiationStatus status, Date timestamp)
+	public FileStatusMessage(IUser sentBy, IUser sentTo, String filename, NegotiationStatus status, Date timestamp)
 	{
-		super(sendBy, sendTo);
+		super(sentBy, sentTo);
 		
 		this.filename = filename;
 		this.status = status;

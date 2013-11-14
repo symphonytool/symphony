@@ -1,6 +1,6 @@
 package eu.compassresearch.ide.collaboration.messages;
 
-import org.eclipse.ecf.core.identity.ID;
+import org.eclipse.ecf.core.user.IUser;
 
 public class NewFileMessage extends BaseMessage
 {
@@ -9,9 +9,9 @@ public class NewFileMessage extends BaseMessage
 	private final String filename;
 	private final String contents;
 	
-	public NewFileMessage(ID sendBy, ID sendTo, String filename, String contents)
+	public NewFileMessage(IUser sentBy, IUser sentTo, String filename, String contents)
 	{
-		super(sendBy, sendTo);
+		super(sentBy, sentTo);
 		this.filename = filename;
 		this.contents = contents;
 	}

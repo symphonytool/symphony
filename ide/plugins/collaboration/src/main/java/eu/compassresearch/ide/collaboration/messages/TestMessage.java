@@ -4,9 +4,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 
-import org.eclipse.ecf.core.identity.ID;
+import org.eclipse.ecf.core.user.IUser;
 import org.eclipse.ecf.sync.IModelChangeMessage;
 import org.eclipse.ecf.sync.SerializationException;
 
@@ -17,7 +16,7 @@ public class TestMessage extends BaseMessage
 	private static final long serialVersionUID = 4816943224781454232L;
 	private final String senderUsrname;
 	
-	public TestMessage(ID sender, ID receiver, String senderUsername)
+	public TestMessage(IUser sender, IUser receiver, String senderUsername)
 	{
 		super(sender,receiver);
 		senderUsrname = senderUsername;

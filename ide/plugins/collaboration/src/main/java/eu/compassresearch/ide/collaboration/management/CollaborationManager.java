@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.ecf.core.identity.ID;
+import org.eclipse.ecf.core.user.IUser;
 import org.eclipse.ecf.core.util.ECFException;
 import org.eclipse.ecf.datashare.AbstractShare;
 import org.eclipse.ecf.datashare.IChannelContainerAdapter;
@@ -233,30 +234,30 @@ public class CollaborationManager extends AbstractShare
 						try
 						{
 						
-						CollaborationRequestedDialog collabRequestedDialog = new CollaborationRequestedDialog(senderName, collabRequest.getTitle(), collabRequest.getMessage(), null);
-						collabRequestedDialog.create();
-						boolean join = collabRequestedDialog.open() == Window.OK; 
-						
-						if(join) {
+							CollaborationRequestedDialog collabRequestedDialog = new CollaborationRequestedDialog(senderName, collabRequest.getTitle(), collabRequest.getMessage(), null);
+							collabRequestedDialog.create();
+							boolean join = collabRequestedDialog.open() == Window.OK; 
 							
-							final IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-							final IViewPart view = page.findView("eu.compassresearch.ide.collaboration.treeview.ui.CollaborationView");
-							final CollaborationView collabview = (CollaborationView) view;
+							if(join) {
+								
+								final IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+								final IViewPart view = page.findView("eu.compassresearch.ide.collaboration.treeview.ui.CollaborationView");
+								final CollaborationView collabview = (CollaborationView) view;
+								
+								TreeRoot root = collabview.getRoot();
+								
+								CollaborationGroup collabGrp = (CollaborationGroup) root.getCollaboratorGroups().get(0);
+								User usr = new User(senderName);
+								collabGrp.addCollaborator(usr);
+								
+								page.showView("eu.compassresearch.ide.collaboration.treeview.ui.CollaborationView");
+	
+	
+							}
 							
-							TreeRoot root = collabview.getRoot();
-							
-							CollaborationGroup collabGrp = (CollaborationGroup) root.getCollaboratorGroups().get(0);
-							User usr = new User(senderName);
-							collabGrp.addCollaborator(usr);
-							
-							page.showView("eu.compassresearch.ide.collaboration.treeview.ui.CollaborationView");
-
-
-						}
-						
-						CollaborationStatusMessage statusMsg = new CollaborationStatusMessage(collabRequest.getReceiverID(), collabRequest.getSenderID(), join);
-
+							CollaborationStatusMessage statusMsg = new CollaborationStatusMessage(collabRequest.getReceiverID(), collabRequest.getSenderID(), join);
 							sendMessage(statusMsg.getReceiverID(), statusMsg.serialize());
+							
 						} catch (ECFException | PartInitException e)
 						{
 							// TODO Auto-generated catch block
@@ -308,5 +309,11 @@ public class CollaborationManager extends AbstractShare
 	public synchronized void dispose()
 	{
 		super.dispose();
+	}
+	
+	public synchronized void sendMessage(IUser toUser, byte[] data)
+			throws ECFException
+	{
+		this.sendMessage(toUser.getID(), data);
 	}
 }
