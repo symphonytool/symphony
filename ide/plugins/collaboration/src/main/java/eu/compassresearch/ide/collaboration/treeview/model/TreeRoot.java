@@ -9,18 +9,20 @@ public class TreeRoot extends Model {
 	protected List collaboratorGroups;
 	
 	public TreeRoot() {
+		super();
+
 		contracts = new ArrayList();
 		collaboratorGroups = new ArrayList();
 	}
 	
-	public TreeRoot(String name) {
+	public TreeRoot(String name ) {
 		this();
 		this.name = name;
 	}
 	
 	public void addContracts(Contracts contract) {
 		contracts.add(contract);
-		contract.parent = this;
+		contract.setParent(this);
 		fireAdd(contract);
 	}
 	
@@ -32,7 +34,7 @@ public class TreeRoot extends Model {
 	
 	public void addCollaboratorGroup(CollaborationGroup collabGroup) {
 		collaboratorGroups.add(collabGroup);
-		collabGroup.parent = this;
+		collabGroup.setParent(this);
 		fireAdd(collabGroup);
 	}
 	

@@ -15,7 +15,7 @@ public class Contracts extends Model {
 	public void addContract(Contract contract) {
 		contracts.add(contract);
 		contract.addListener(listener);
-		contract.parent = this;
+		contract.setParent(this);
 		fireAdd(contract);
 	}
 

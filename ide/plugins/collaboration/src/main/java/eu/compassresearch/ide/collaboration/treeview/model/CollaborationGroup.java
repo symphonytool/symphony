@@ -15,7 +15,8 @@ public class CollaborationGroup extends Model {
 
 	public void addCollaborator(User user) {
 		collaborators.put(user.getName(), user);
-		user.parent = this;
+		user.setParent(this);
+		user.listener = this.listener;
 		fireAdd(user);
 	}
 	

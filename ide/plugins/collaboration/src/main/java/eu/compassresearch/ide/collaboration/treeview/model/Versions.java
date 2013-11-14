@@ -8,13 +8,13 @@ public class Versions extends Model {
 	protected List versions;
 
 	public Versions() {
+		super("Versions");
 		versions = new ArrayList();
-		this.name = "Versions";
 	}
 	
 	public void addVersion(Version version) {
 		versions.add(0,version);
-		version.parent = this;
+		version.setParent(this); 
 		fireAdd(version);
 	}
 	

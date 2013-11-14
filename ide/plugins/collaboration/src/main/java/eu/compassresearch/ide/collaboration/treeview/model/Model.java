@@ -1,16 +1,18 @@
 package eu.compassresearch.ide.collaboration.treeview.model;
+
+
 public abstract class Model {
-	protected Model parent;
+	private Model parent;
 	protected String name;	
 	protected IDeltaListener listener = NullDeltaListener.getSoleInstance();
 	
 	public Model(String name) {
 		this.name = name;
-
 	}
 	
 	public Model() {
-	}	
+
+	}
 	
 	protected void fireAdd(Object added) {
 		listener.add(new DeltaEvent(added));
@@ -32,6 +34,11 @@ public abstract class Model {
 		return parent;
 	}
 	
+	protected void setParent(Model parent){
+		this.parent = parent;
+		listener = parent.listener;
+	}
+	
 	public String getName() {
 		return name;
 	}
@@ -44,6 +51,12 @@ public abstract class Model {
 		if(this.listener.equals(listener)) {
 			this.listener = NullDeltaListener.getSoleInstance();
 		}
+	}
+	
+	@Override
+	public String toString()
+	{
+		return name;
 	}
 	
 	public abstract void accept(IModelVisitor visitor, Object passAlongArgument);

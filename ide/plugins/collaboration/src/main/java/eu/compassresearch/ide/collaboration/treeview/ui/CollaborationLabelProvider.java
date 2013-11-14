@@ -70,19 +70,19 @@ public class CollaborationLabelProvider extends LabelProvider implements IColorP
 				return ((Contracts)element).getName();
 			}
 		} else if (element instanceof Contract) {
-			return ((Contract)element).getName();
+			return ((Contract)element).toString();
 		} else if (element instanceof Versions) {
-			return ((Versions)element).getName();
+			return ((Versions)element).toString();
 		} else if (element instanceof Shares) {
-			return ((Shares)element).getName();
+			return ((Shares)element).toString();
 		} else if (element instanceof Version) {
-			return ((Version)element).getName();
+			return ((Version)element).toString();
 		} else if (element instanceof Share) {
-			return ((Share)element).getName();
+			return ((Share)element).toString();
 		} else if (element instanceof CollaborationGroup) {
-			return ((CollaborationGroup)element).getName();
+			return ((CollaborationGroup)element).toString();
 		} else if (element instanceof User) {
-			return ((User)element).getName();
+			return ((User)element).toString();
 		} else {
 			throw unknownElement(element);
 		}

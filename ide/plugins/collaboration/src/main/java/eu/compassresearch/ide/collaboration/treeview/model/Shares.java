@@ -14,7 +14,7 @@ public class Shares extends Model {
 	
 	public void addShare(Share share) {
 		shares.add(share);
-		share.parent = this;
+		share.setParent(this);
 		fireAdd(share);
 	}
 	

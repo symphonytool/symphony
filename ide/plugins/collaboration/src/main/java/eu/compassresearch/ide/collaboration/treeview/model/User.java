@@ -21,7 +21,7 @@ public class User extends Model {
 	@Override
 	public String getName()
 	{
-		return this.toString();
+		return name;
 	}
 	
 	@Override
@@ -38,5 +38,6 @@ public class User extends Model {
 	public void setPostfix(String postfix)
 	{
 		this.postfix = postfix;
+		fireAdd(this);
 	}
 }

@@ -1,6 +1,6 @@
 package eu.compassresearch.ide.collaboration.treeview.model;
 
-import org.eclipse.ecf.core.identity.ID;
+import org.eclipse.ecf.core.user.IUser;
 
 import eu.compassresearch.ide.collaboration.messages.FileStatusMessage.NegotiationStatus;
 
@@ -9,8 +9,8 @@ public class Contract extends Model {
 	protected Shares shares;
 	
 	private String filename;
-	private ID sender;
-	private ID receiver;
+	private IUser sender;
+	private IUser receiver;
 	private NegotiationStatus status;
 
 	public Contract() {
@@ -18,7 +18,7 @@ public class Contract extends Model {
 		shares = new Shares();
 	}
 
-	public Contract(String fileName, ID sender, ID receiver) {
+	public Contract(String fileName, IUser sender, IUser receiver) {
 		this();
 		this.filename = fileName;
 		this.name = filename.substring(0, filename.indexOf("."));
@@ -29,13 +29,13 @@ public class Contract extends Model {
 	
 	public void addVersion(Version version) {
 		versions.addVersion(version);
-		version.parent = this;
+		version.setParent(this);
 		fireAdd(version);
 	}
 	
 	public void addShare(Share share) {
 		shares.addShare(share);
-		share.parent = this;
+		share.setParent(this); 
 		fireAdd(share);
 	}		
 	
@@ -80,12 +80,12 @@ public class Contract extends Model {
 		return filename;
 	}
 
-	public ID getSender()
+	public IUser getSender()
 	{
 		return sender;
 	}
 
-	public ID getReceiver()
+	public IUser getReceiver()
 	{
 		return receiver;
 	}
