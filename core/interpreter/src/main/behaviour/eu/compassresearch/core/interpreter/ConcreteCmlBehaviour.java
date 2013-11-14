@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.INode;
+import org.overture.ast.statements.ASkipStm;
 import org.overture.interpreter.runtime.ClassContext;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ObjectContext;
@@ -465,7 +466,7 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	@Override
 	public boolean finished()
 	{
-		return !hasChildren() && (next.first instanceof ASkipAction);
+		return !hasChildren() && ((next.first instanceof ASkipAction) ||(next.first instanceof ASkipStm));
 		// ||
 		// next.first instanceof ASingleGeneralAssignmentStatementAction);
 	}
