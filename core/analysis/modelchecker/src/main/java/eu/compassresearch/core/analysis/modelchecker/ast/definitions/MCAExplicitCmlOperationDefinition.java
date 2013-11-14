@@ -2,6 +2,7 @@ package eu.compassresearch.core.analysis.modelchecker.ast.definitions;
 
 import java.util.LinkedList;
 
+import org.overture.ast.definitions.AExplicitOperationDefinition;
 import org.overture.ast.statements.AAssignmentStm;
 
 import eu.compassresearch.ast.actions.PAction;
@@ -19,6 +20,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCPCMLPattern;
 import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCAActionStm;
 import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCAAssignmentStm;
+import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCAIdentifierStateDesignator;
 import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCAUnresolvedStateDesignator;
 import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCPCMLStm;
 import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCPStateDesignator;
@@ -30,7 +32,7 @@ public class MCAExplicitCmlOperationDefinition implements
 		MCSCmlOperationDefinition {
 
 	private String name;
-	private MCAActionStm body;
+	private MCPCMLStm body;
 	private MCPCMLExp precondition;
 	private MCPCMLExp postcondition;
 	private MCAExplicitFunctionDefinition predef;
@@ -40,13 +42,13 @@ public class MCAExplicitCmlOperationDefinition implements
 	private MCPCMLType actualResult;
 	private MCPAction parentAction;
 	
-	public MCAExplicitCmlOperationDefinition(String name, MCAActionStm body,
+	public MCAExplicitCmlOperationDefinition(String name, MCPCMLStm body,
 			MCPCMLExp precondition, MCPCMLExp postcondition,
 			MCAExplicitFunctionDefinition predef,
 			MCAExplicitFunctionDefinition postdef,
 			LinkedList<MCPCMLPattern> paramPatterns,
 			MCAStateDefinition state, MCPCMLType actualResult) {
-		super();
+		
 		this.name = name;
 		this.body = body;
 		this.precondition = precondition;
@@ -94,14 +96,22 @@ public class MCAExplicitCmlOperationDefinition implements
 		result.append(",");
 		result.append("st_ = ");
 		Binding maximalCopy = context.maximalBinding.copy();
-		MCPAction body = this.body.getAction();
+		MCPCMLStm body = this.body;
 		MCAAssignmentStm assignmentBody = null;
-		if(body instanceof MCAStmAction){
-			MCPCMLStm stm = ((MCAStmAction) body).getStatement();
-			if(stm instanceof MCAAssignmentStm){
-				assignmentBody = (MCAAssignmentStm) stm;
+		
+		if(body instanceof MCAAssignmentStm){
+			assignmentBody = (MCAAssignmentStm) body;
+		}else if(body instanceof MCAActionStm){
+			MCPAction innerAction = ((MCAActionStm) body).getAction();
+			if(innerAction instanceof MCAStmAction){
+				MCPCMLStm stm = ((MCAStmAction) innerAction).getStatement();
+				if(stm instanceof MCAAssignmentStm){
+					assignmentBody = (MCAAssignmentStm) stm;
+				}
 			}
 		}
+		
+		
 		
 		String newValueVarName = "";
 		
@@ -116,6 +126,12 @@ public class MCAExplicitCmlOperationDefinition implements
 					maximalCopy.updateBinding(varName,newVarValue);
 					result.append(maximalCopy.toFormula(MCNode.DEFAULT)); 
 				}
+			} else if (stateDesignator instanceof MCAIdentifierStateDesignator){
+				String varName = ((MCAIdentifierStateDesignator) stateDesignator).getName();
+				newValueVarName = varName + "_";
+				MCPCMLExp newVarValue = new MCAVariableExp(newValueVarName);
+				maximalCopy.updateBinding(varName,newVarValue);
+				result.append(maximalCopy.toFormula(MCNode.DEFAULT));
 			}
 		}
 		
@@ -220,12 +236,14 @@ public class MCAExplicitCmlOperationDefinition implements
 	}
 
 
-	public MCAActionStm getBody() {
+	
+
+	public MCPCMLStm getBody() {
 		return body;
 	}
 
 
-	public void setBody(MCAActionStm body) {
+	public void setBody(MCPCMLStm body) {
 		this.body = body;
 	}
 

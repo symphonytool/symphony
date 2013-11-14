@@ -33,7 +33,9 @@ public class MCANotUnaryExp implements MCBooleanExp {
 			for (MCSFunctionDefinition fDef : context.functions) {
 				if(fDef instanceof MCAExplicitFunctionDefinition){
 					if(((MCAApplyExp) this.exp).getRoot() instanceof MCAVariableExp){
-						if(((MCAExplicitFunctionDefinition) fDef).getName().equals(((MCAVariableExp) ((MCAApplyExp) this.exp).getRoot()).getName())){
+						String declaredFunctionName = extractFunctionName(((MCAExplicitFunctionDefinition) fDef).getName());
+						String callFunctionName = extractFunctionName(((MCAVariableExp) ((MCAApplyExp) this.exp).getRoot()).getName());
+						if(declaredFunctionName.equals(callFunctionName)){
 							functionDef = (MCAExplicitFunctionDefinition) fDef;
 							break;
 						}
@@ -51,6 +53,7 @@ public class MCANotUnaryExp implements MCBooleanExp {
 				MCPCMLExp bodyReady = functionDef.getBody().copy();
 				bodyReady = ExpressionNegator.negate(bodyReady);
 				bodyReady.replacePatternWithValue(argsMapping);
+				
 				result.append(bodyReady.toFormula(option));
 			}
 		} else{
@@ -60,6 +63,14 @@ public class MCANotUnaryExp implements MCBooleanExp {
 		return result.toString();
 	}
 
+	private String extractFunctionName(String functionCall){
+		String result = functionCall;
+		int index = functionCall.indexOf("(");
+		if(index != -1){
+			result = functionCall.substring(0, index);
+		}
+		return result;
+	}
 
 	@Override
 	public MCPCMLExp copy() {

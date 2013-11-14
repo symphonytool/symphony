@@ -128,7 +128,7 @@ public class NewMCActionVisitor extends
 	public MCNode caseAHidingAction(AHidingAction node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
 
-		MCPAction action = (MCPAction) node.getLeft().apply(this, question);
+		MCPAction action = (MCPAction) node.getLeft().apply(rootVisitor, question);
 		MCPVarsetExpression chanSetExp = (MCPVarsetExpression) node.getChansetExpression().apply(rootVisitor, question);
 		MCAHidingAction result = new MCAHidingAction(action, chanSetExp);
 		
@@ -139,8 +139,8 @@ public class NewMCActionVisitor extends
 	public MCNode caseAExternalChoiceAction(AExternalChoiceAction node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
 		
-		MCPAction left = (MCPAction) node.getLeft().apply(this, question);
-		MCPAction right = (MCPAction) node.getRight().apply(this, question);
+		MCPAction left = (MCPAction) node.getLeft().apply(rootVisitor, question);
+		MCPAction right = (MCPAction) node.getRight().apply(rootVisitor, question);
 		MCAExternalChoiceAction result = new MCAExternalChoiceAction(left, right);
 		
 		return result;
@@ -150,8 +150,8 @@ public class NewMCActionVisitor extends
 	public MCNode caseAInternalChoiceAction(AInternalChoiceAction node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
 		
-		MCPAction left = (MCPAction) node.getLeft().apply(this, question);
-		MCPAction right = (MCPAction) node.getRight().apply(this, question);
+		MCPAction left = (MCPAction) node.getLeft().apply(rootVisitor, question);
+		MCPAction right = (MCPAction) node.getRight().apply(rootVisitor, question);
 		MCAInternalChoiceAction result = new MCAInternalChoiceAction(left, right);
 		
 		return result;
@@ -190,8 +190,8 @@ public class NewMCActionVisitor extends
 			ASequentialCompositionAction node, NewCMLModelcheckerContext question)
 			throws AnalysisException {
 		
-		MCPAction left = (MCPAction) node.getLeft().apply(this, question);
-		MCPAction right = (MCPAction) node.getRight().apply(this, question);
+		MCPAction left = (MCPAction) node.getLeft().apply(rootVisitor, question);
+		MCPAction right = (MCPAction) node.getRight().apply(rootVisitor, question);
 		MCASequentialCompositionAction result = new MCASequentialCompositionAction(left, right);
 		
 		return result;
@@ -220,8 +220,8 @@ public class NewMCActionVisitor extends
 			AInterleavingParallelAction node, NewCMLModelcheckerContext question)
 			throws AnalysisException {
 		
-		MCPAction left = (MCPAction) node.getLeftAction().apply(this, question);
-		MCPAction right = (MCPAction) node.getRightAction().apply(this, question);
+		MCPAction left = (MCPAction) node.getLeftAction().apply(rootVisitor, question);
+		MCPAction right = (MCPAction) node.getRightAction().apply(rootVisitor, question);
 		MCAInterleavingParallelAction result = new MCAInterleavingParallelAction(left, right);
 		
 		return result;
@@ -233,9 +233,9 @@ public class NewMCActionVisitor extends
 			AGeneralisedParallelismParallelAction node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
 
-		MCPAction left = (MCPAction) node.getLeftAction().apply(this, question);
+		MCPAction left = (MCPAction) node.getLeftAction().apply(rootVisitor, question);
 		MCPVarsetExpression chanSetExpression = (MCPVarsetExpression) node.getChansetExpression().apply(rootVisitor, question);
-		MCPAction right = (MCPAction) node.getRightAction().apply(this, question);
+		MCPAction right = (MCPAction) node.getRightAction().apply(rootVisitor, question);
 		MCAGeneralisedParallelismParallelAction result = new MCAGeneralisedParallelismParallelAction(left, chanSetExpression, right);
 		
 		return result;
@@ -252,7 +252,7 @@ public class NewMCActionVisitor extends
 		for (PSingleDeclaration pSingleDecl : replicationDecls) {
 			replicationDeclarations.add((MCPSingleDeclaration) pSingleDecl.apply(rootVisitor, question));
 		}
-		MCPAction replicatedAction = (MCPAction) node.getReplicatedAction().apply(this, question);
+		MCPAction replicatedAction = (MCPAction) node.getReplicatedAction().apply(rootVisitor, question);
 		MCASequentialCompositionReplicatedAction result = 
 				new MCASequentialCompositionReplicatedAction(replicationDeclarations, replicatedAction);
 		
@@ -269,7 +269,7 @@ public class NewMCActionVisitor extends
 		for (PSingleDeclaration pSingleDecl : replicationDecls) {
 			replicationDeclarations.add((MCPSingleDeclaration) pSingleDecl.apply(rootVisitor, question));
 		}
-		MCPAction replicatedAction = (MCPAction) node.getReplicatedAction().apply(this, question);
+		MCPAction replicatedAction = (MCPAction) node.getReplicatedAction().apply(rootVisitor, question);
 		MCPVarsetExpression chansetExpression =  (MCPVarsetExpression) node.getChansetExpression().apply(rootVisitor, question);
 		MCAGeneralisedParallelismReplicatedAction result = 
 				new MCAGeneralisedParallelismReplicatedAction(replicationDeclarations, replicatedAction,chansetExpression);
@@ -308,7 +308,7 @@ public class NewMCActionVisitor extends
 		for (PSingleDeclaration pSingleDecl : replicationDecls) {
 			replicationDeclarations.add((MCPSingleDeclaration) pSingleDecl.apply(rootVisitor, question));
 		}
-		MCPAction replicatedAction = (MCPAction) node.getReplicatedAction().apply(this, question);
+		MCPAction replicatedAction = (MCPAction) node.getReplicatedAction().apply(rootVisitor, question);
 		MCAExternalChoiceReplicatedAction result = 
 				new MCAExternalChoiceReplicatedAction(replicationDeclarations, replicatedAction);
 		
@@ -326,7 +326,7 @@ public class NewMCActionVisitor extends
 		for (PSingleDeclaration pSingleDecl : replicationDecls) {
 			replicationDeclarations.add((MCPSingleDeclaration) pSingleDecl.apply(rootVisitor, question));
 		}
-		MCPAction replicatedAction = (MCPAction) node.getReplicatedAction().apply(this, question);
+		MCPAction replicatedAction = (MCPAction) node.getReplicatedAction().apply(rootVisitor, question);
 		MCAInternalChoiceReplicatedAction result = 
 				new MCAInternalChoiceReplicatedAction(replicationDeclarations, replicatedAction);
 		
@@ -357,7 +357,7 @@ public class NewMCActionVisitor extends
 			}
 		}
 
-		MCPAction action = (MCPAction) node.getAction().apply(this, question);
+		MCPAction action = (MCPAction) node.getAction().apply(rootVisitor, question);
 		MCACommunicationAction result = new MCACommunicationAction(identifier, mcParameters, action);
 		
 		//fr the moment iocomm do not depend on channel. This means that formula wont instantiate communicated values
@@ -373,7 +373,7 @@ public class NewMCActionVisitor extends
 	public MCNode caseAReferenceAction(AReferenceAction node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
 
-		String name = node.getName().toString();
+		String name = Utilities.extractFunctionName(node.getName().toString());
 		LinkedList<PExp> args = node.getArgs();
 		LinkedList<MCPCMLExp> mcArgs = new LinkedList<MCPCMLExp>();
 		for (PExp pExp : args) {
@@ -390,7 +390,8 @@ public class NewMCActionVisitor extends
 			NewCMLModelcheckerContext question) throws AnalysisException {
 		
 		MCPCMLExp expression = (MCPCMLExp) node.getExpression().apply(rootVisitor, question);
-		MCPAction action = (MCPAction) node.getAction().apply(this, question);
+		
+		MCPAction action = (MCPAction) node.getAction().apply(rootVisitor, question);
 		MCAGuardedAction result = new MCAGuardedAction(expression, action);
 		
 		LinkedList<MCGuardDef> gDefs = GuardDefGenerator.generateGuardDefs(expression, result.getCounterId(), result);

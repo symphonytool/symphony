@@ -1337,7 +1337,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 
 	@Override
 	public void caseAFunctionType(AFunctionType node) throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAFunctionType(node);
@@ -1469,7 +1469,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseAIdentifierStateDesignator(AIdentifierStateDesignator node)
 			throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAIdentifierStateDesignator(node);
@@ -2226,7 +2226,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseAOperationType(AOperationType node)
 			throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAOperationType(node);
@@ -3231,7 +3231,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 
 	@Override
 	public void caseAUndefinedExp(AUndefinedExp node) throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAUndefinedExp(node);

@@ -1,18 +1,16 @@
-package eu.compassresearch.core.analysis.modelchecker.ast.definitions;
+package eu.compassresearch.core.analysis.modelchecker.ast.statements;
 
-import org.overture.ast.definitions.ALocalDefinition;
-import org.overture.ast.definitions.PDefinitionBase;
+import org.overture.ast.statements.AIdentifierStateDesignator;
 
-import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCPSingleDeclaration;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 
-public class MCALocalDefinition implements MCPCMLDefinition {
+public class MCAIdentifierStateDesignator implements MCPStateDesignator {
 
 	private String name;
 	private MCPCMLType type;
 	
-	
-	public MCALocalDefinition(String name, MCPCMLType type) {
+	public MCAIdentifierStateDesignator(String name, MCPCMLType type) {
+		super();
 		this.name = name;
 		this.type = type;
 	}
@@ -22,10 +20,9 @@ public class MCALocalDefinition implements MCPCMLDefinition {
 	public String toFormula(String option) {
 		// TODO Auto-generated method stub
 		return null;
+	
 	}
 
-
-	
 
 	public String getName() {
 		return name;

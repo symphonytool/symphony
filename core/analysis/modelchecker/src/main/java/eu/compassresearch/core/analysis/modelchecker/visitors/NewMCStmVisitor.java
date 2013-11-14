@@ -11,7 +11,10 @@ import org.overture.ast.node.INode;
 import org.overture.ast.statements.AAssignmentStm;
 import org.overture.ast.statements.ABlockSimpleBlockStm;
 import org.overture.ast.statements.ACallStm;
+import org.overture.ast.statements.AIdentifierStateDesignator;
 import org.overture.ast.statements.AIfStm;
+import org.overture.ast.statements.PStateDesignator;
+import org.overture.ast.statements.PStateDesignatorBase;
 import org.overture.ast.statements.PStm;
 
 import eu.compassresearch.ast.actions.AStmAction;
@@ -24,14 +27,18 @@ import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.GuardDefGener
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCAssignDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.NewMCGuardDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAAssignmentDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAVariableExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCAActionStm;
 import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCAAssignmentStm;
 import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCABlockSimpleBlockStm;
 import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCACallStm;
+import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCAIdentifierStateDesignator;
 import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCAIfStm;
 import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCAUnresolvedStateDesignator;
 import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCPCMLStm;
+import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCPStateDesignator;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 
 public class NewMCStmVisitor extends
 		QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
@@ -47,7 +54,7 @@ public class NewMCStmVisitor extends
 	public MCNode defaultPStm(PStm node, NewCMLModelcheckerContext question)
 			throws AnalysisException {
 		
-		throw new ModelcheckerRuntimeException(ModelcheckerErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName()));
+		throw new ModelcheckerRuntimeException(ModelcheckerErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName() + " Node: " + node.toString()));
 	}
 	
 	
@@ -71,7 +78,7 @@ public class NewMCStmVisitor extends
 		if(node.getExp() != null) {
 			expression = (MCPCMLExp) node.getExp().apply(rootVisitor, question);
 		}
-		MCAUnresolvedStateDesignator target = (MCAUnresolvedStateDesignator) node.getTarget().apply(rootVisitor, question);
+		MCPStateDesignator target = (MCPStateDesignator) node.getTarget().apply(rootVisitor, question);
 		MCAAssignmentStm result = new MCAAssignmentStm(expression,target);
 		INode ancestor = node.parent();
 		if(ancestor instanceof AStmAction){
@@ -80,7 +87,13 @@ public class NewMCStmVisitor extends
 				ancestor = ancestor.parent();
 				if(!(ancestor instanceof AExplicitOperationDefinition)){
 					//assignments inside operation definitions should not originate assign defs.
-					MCAssignDef assignDef = new MCAssignDef(result.getCounterId(), expression,target.getPath(), result);
+					MCAssignDef assignDef = null;
+					if(target instanceof MCAUnresolvedStateDesignator){
+						assignDef = new MCAssignDef(result.getCounterId(), expression,((MCAUnresolvedStateDesignator) target).getPath(), result);
+					}else if (target instanceof MCAIdentifierStateDesignator){
+						MCAVariableExp name = new MCAVariableExp(((MCAIdentifierStateDesignator) target).getName());
+						assignDef = new MCAssignDef(result.getCounterId(), expression,name, result);
+					}
 					question.assignDefs.add(assignDef);
 				}
 			}
@@ -103,6 +116,18 @@ public class NewMCStmVisitor extends
 	}
 
 	
+	
+	@Override
+	public MCNode caseAIdentifierStateDesignator(
+			AIdentifierStateDesignator node, NewCMLModelcheckerContext question)
+			throws AnalysisException {
+
+		String name = node.getName().toString();
+		MCPCMLType type = (MCPCMLType) node.getType().apply(rootVisitor, question);
+		MCAIdentifierStateDesignator result = new MCAIdentifierStateDesignator(name, type);
+		return result;
+	}
+
 	@Override
 	public MCNode caseABlockSimpleBlockStm(ABlockSimpleBlockStm node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
@@ -115,7 +140,7 @@ public class NewMCStmVisitor extends
 		
 		LinkedList<MCPCMLStm> statements = new LinkedList<MCPCMLStm>();
 		for (PStm pStm : node.getStatements()) {
-			statements.add((MCPCMLStm) pStm.apply(this, question));
+			statements.add((MCPCMLStm) pStm.apply(rootVisitor, question));
 		}
 		
 		MCABlockSimpleBlockStm result = new MCABlockSimpleBlockStm(assignDefs, statements);
@@ -128,7 +153,7 @@ public class NewMCStmVisitor extends
 	public MCNode caseACallStm(ACallStm node, NewCMLModelcheckerContext question)
 			throws AnalysisException {
 
-		String name = node.getName().toString();
+		String name = Utilities.extractFunctionName(node.getName().toString());
 		LinkedList<MCPCMLExp> args = new LinkedList<MCPCMLExp>();
 		for (PExp pExp : node.getArgs()) {
 			args.add((MCPCMLExp) pExp.apply(rootVisitor, question));
@@ -144,8 +169,8 @@ public class NewMCStmVisitor extends
 			throws AnalysisException {
 		
 		MCPCMLExp ifExp = (MCPCMLExp) node.getIfExp().apply(rootVisitor, question);
-		MCPCMLStm thenStm = (MCPCMLStm) node.getThenStm().apply(this, question);
-		MCPCMLStm elseStm = (MCPCMLStm) node.getElseStm().apply(this, question);
+		MCPCMLStm thenStm = (MCPCMLStm) node.getThenStm().apply(rootVisitor, question);
+		MCPCMLStm elseStm = (MCPCMLStm) node.getElseStm().apply(rootVisitor, question);
 		
 		MCAIfStm result = new MCAIfStm(ifExp, thenStm, elseStm);
 		

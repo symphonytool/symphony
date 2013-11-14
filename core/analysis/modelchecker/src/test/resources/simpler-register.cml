@@ -1,15 +1,15 @@
-  values
-   SIZE : nat = 8
-   
-  functions
+ values
+    MAX : nat = 8
+    
+ functions
    oflow : int*int -> bool
-   oflow(i,j) == i+j > SIZE
+   oflow(i,j) == i+j > MAX
 
    uflow : int*int -> bool
    uflow(i,j) == i-j < 0
 
 
-  channels
+ channels
    init, overflow, underflow
    inc, dec : int
 
@@ -21,7 +21,7 @@ process RegisterProc =
 
   operations  
    INIT : () ==> ()
-   INIT() == reg := SIZE - 1
+   INIT() == reg := MAX - 1
 
    ADD: int ==> ()
    ADD(i) == reg := reg + i
@@ -38,7 +38,7 @@ process RegisterProc =
   actions
    
    REG = 
-     (inc.1 -> [not oflow(reg,1] & ADD(1);REG)
+     (inc.1 -> [not oflow(reg,1)] & ADD(1);REG)
      []
      (dec.1 -> [not uflow(reg,1)] & SUB(1);REG)
    @
