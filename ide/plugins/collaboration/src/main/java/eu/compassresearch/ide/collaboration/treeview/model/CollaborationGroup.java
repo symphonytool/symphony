@@ -1,31 +1,36 @@
 package eu.compassresearch.ide.collaboration.treeview.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class CollaborationGroup extends Model {
-	protected List collaborators;
+	protected Map<String,User> collaborators;
 	
 	public CollaborationGroup() {
-		collaborators = new ArrayList();
+		collaborators = new HashMap<String, User>();
 		this.name = "Collaborators";
-		collaborators.add(new User("(You)"));
 	}
 
 	public void addCollaborator(User user) {
-		collaborators.add(user);
+		collaborators.put(user.getName(), user);
 		user.parent = this;
 		fireAdd(user);
 	}
 	
-	protected void removeCollaborator(User user) {
+	public void removeCollaborator(User user) {
 		collaborators.remove(user);
 		user.addListener(NullDeltaListener.getSoleInstance());
 		fireRemove(user);
 	}
 	
-	public List getCollaborators() {
-		return collaborators;
+	public User getUser(String name) {	
+		return collaborators.get(name);
+	}	
+	
+	public List<User> getCollaborators() {
+		return new ArrayList<User>(collaborators.values());
 	}
 
 	public int size() {

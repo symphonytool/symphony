@@ -24,8 +24,10 @@ import org.eclipse.ui.part.ViewPart;
 
 import eu.compassresearch.ide.collaboration.Activator;
 import eu.compassresearch.ide.collaboration.management.CollaborationManager;
-import eu.compassresearch.ide.collaboration.messages.StatusMessage;
-import eu.compassresearch.ide.collaboration.messages.StatusMessage.NegotiationStatus;
+import eu.compassresearch.ide.collaboration.menu.AddCollaboratorRosterMenuContributionItem;
+import eu.compassresearch.ide.collaboration.menu.CollabRosterMenuContributionItem;
+import eu.compassresearch.ide.collaboration.messages.FileStatusMessage;
+import eu.compassresearch.ide.collaboration.messages.FileStatusMessage.NegotiationStatus;
 import eu.compassresearch.ide.collaboration.treeview.model.CollaborationGroup;
 import eu.compassresearch.ide.collaboration.treeview.model.Contract;
 import eu.compassresearch.ide.collaboration.treeview.model.Contracts;
@@ -43,7 +45,7 @@ public class CollaborationView extends ViewPart {
 	protected Text text;
 	protected CollaborationLabelProvider labelProvider;
 	
-	protected Action diffWithPrevAction, approveContractAction, rejectContractAction, negotiateContractAction;
+	protected Action diffWithPrevAction, approveContractAction, rejectContractAction, negotiateContractAction, addToCollaborationGroup;
 	
 	private TreeRoot root;
 	
@@ -110,8 +112,10 @@ public class CollaborationView extends ViewPart {
 					manager.add(negotiateContractAction);
 		        } else if ((selectedDomainObject instanceof Version)) {
 		        	manager.add(diffWithPrevAction);
+		        }	
+		        else if(selectedDomainObject instanceof CollaborationGroup) {
+		        	manager.add(new AddCollaboratorRosterMenuContributionItem());
 		        }
-				
 		      }
 		    }
 		  });	
@@ -195,7 +199,18 @@ public class CollaborationView extends ViewPart {
 		};
 		negotiateContractAction.setToolTipText("Renegotiate this file");
 		negotiateContractAction.setEnabled(false);
-		;
+		
+		addToCollaborationGroup = new Action("Add Collaborator") {
+			public void run() {
+				negotiateSelected();
+			}			
+		};
+		addToCollaborationGroup.setToolTipText("Add Collaborator to collaboration group");
+		addToCollaborationGroup.setEnabled(false);
+		//addToCollaborationGroup.s
+		
+		
+
 	}
 	
 	protected void diffWithPrev() {
@@ -229,7 +244,7 @@ public class CollaborationView extends ViewPart {
 			{
 				Contract contract = (Contract) selectedDomainObject;
 				CollaborationManager collabMgM = Activator.getDefault().getCollaborationManager();
-				StatusMessage statMsg = new StatusMessage(contract.getReceiver(), contract.getSender(), contract.getFilename(), NegotiationStatus.ACCEPT, new Date());
+				FileStatusMessage statMsg = new FileStatusMessage(contract.getReceiver(), contract.getSender(), contract.getFilename(), NegotiationStatus.ACCEPT, new Date());
 				collabMgM.sendMessage(contract.getSender(), statMsg.serialize());
 			}
 		}
@@ -246,7 +261,7 @@ public class CollaborationView extends ViewPart {
 			{
 				Contract contract = (Contract) selectedDomainObject;
 				CollaborationManager collabMgM = Activator.getDefault().getCollaborationManager();
-				StatusMessage statMsg = new StatusMessage(contract.getReceiver(), contract.getSender(), contract.getFilename(), NegotiationStatus.REJECT, new Date());
+				FileStatusMessage statMsg = new FileStatusMessage(contract.getReceiver(), contract.getSender(), contract.getFilename(), NegotiationStatus.REJECT, new Date());
 				collabMgM.sendMessage(contract.getSender(), statMsg.serialize());
 			}
 		
@@ -292,13 +307,12 @@ public class CollaborationView extends ViewPart {
 		root.addContracts(contracts);
 		
 		CollaborationGroup collabGrp = new CollaborationGroup();
-//		User u1 = new User("User 1");
-//		collabGrp.addCollaborator(u1);
+		User u1 = new User("(You)");
+		collabGrp.addCollaborator(u1);
 //		User u2 = new User("User 2");
 //		collabGrp.addCollaborator(u2);
 		
 		root.addCollaboratorGroup(collabGrp);
-		
 		
 		return root;
 	}

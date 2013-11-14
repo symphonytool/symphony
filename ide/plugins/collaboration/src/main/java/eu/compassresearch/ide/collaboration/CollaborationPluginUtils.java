@@ -26,7 +26,6 @@ import org.eclipse.ui.WorkbenchException;
 
 public class CollaborationPluginUtils
 {
-
 	private IWorkbenchSite site;
 
 	public static ArrayList<IResource> getAllCFilesInProject(IProject project)
@@ -84,6 +83,11 @@ public class CollaborationPluginUtils
 			}
 		}
 		return null;
+	}
+	
+	public static IProject[] getProjectsInWorkbench()
+	{
+		return ResourcesPlugin.getWorkspace().getRoot().getProjects();
 	}
 
 	static IResource extractSelection(ISelection sel)

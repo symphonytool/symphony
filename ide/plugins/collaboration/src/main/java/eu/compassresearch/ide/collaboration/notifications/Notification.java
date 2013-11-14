@@ -13,6 +13,7 @@ public class Notification extends NLS {
 	
 	public static String CollabMenuRosterMenuHandler_ERROR_NOT_CONNECTED;
 	public static String CollabRosterMenuContributionItem_MAIN_MENU;
+	public static String CollabRosterMenuContributionItem_ADD_COLLABORATOR_MENU;
 	public static String CollabRosterMenuContributionItem_NO_OTHER_COLLABORATORS;
 	public static String Collaboration_ERROR_HANDLE_MSG_EXCEPTION_CAUGHT;
 	public static String Collaboration_ERROR_DESERIALIZATION_FAILED;

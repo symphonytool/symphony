@@ -19,8 +19,10 @@ import org.eclipse.ecf.core.util.ECFException;
 import org.eclipse.ecf.datashare.AbstractShare;
 import org.eclipse.ecf.datashare.IChannelContainerAdapter;
 import org.eclipse.ecf.sync.IModelChangeMessage;
+import org.eclipse.ecf.sync.SerializationException;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
@@ -31,9 +33,12 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 
 import eu.compassresearch.ide.collaboration.Activator;
+import eu.compassresearch.ide.collaboration.menu.CollaborationRequestedDialog;
+import eu.compassresearch.ide.collaboration.messages.CollaborationRequest;
+import eu.compassresearch.ide.collaboration.messages.CollaborationStatusMessage;
 import eu.compassresearch.ide.collaboration.messages.NewFileMessage;
-import eu.compassresearch.ide.collaboration.messages.StatusMessage;
-import eu.compassresearch.ide.collaboration.messages.StatusMessage.NegotiationStatus;
+import eu.compassresearch.ide.collaboration.messages.FileStatusMessage;
+import eu.compassresearch.ide.collaboration.messages.FileStatusMessage.NegotiationStatus;
 import eu.compassresearch.ide.collaboration.messages.TestMessage;
 import eu.compassresearch.ide.collaboration.notifications.Notification;
 import eu.compassresearch.ide.collaboration.treeview.model.CollaborationGroup;
@@ -104,7 +109,7 @@ public class CollaborationManager extends AbstractShare
 									+ filename
 									+ " from: "
 									+ senderName
-									+ "\n Do you want to receive this file");
+									+ "\n Do you want to receive this file?");
 
 							if (recv)
 							{
@@ -130,9 +135,6 @@ public class CollaborationManager extends AbstractShare
 									file.create(source, IResource.NONE, null);
 
 									TreeRoot root = collabview.getRoot();
-									CollaborationGroup collabGrp = (CollaborationGroup) root.getCollaboratorGroups().get(0);
-									User usr = new User(senderName);
-									collabGrp.addCollaborator(usr);
 
 									Contracts contracts = (Contracts) root.getContracts().get(0);
 									Contract contract = new Contract(filename, fileMsg.getSenderID(), fileMsg.getReceiverID());
@@ -145,7 +147,7 @@ public class CollaborationManager extends AbstractShare
 									contracts.addContract(contract);
 								}
 
-								StatusMessage statusMsg = new StatusMessage(fileMsg.getReceiverID(), fileMsg.getSenderID(), filename, NegotiationStatus.RECEIVED, time);
+								FileStatusMessage statusMsg = new FileStatusMessage(fileMsg.getReceiverID(), fileMsg.getSenderID(), filename, NegotiationStatus.RECEIVED, time);
 								sendMessage(statusMsg.getReceiverID(), statusMsg.serialize());
 
 								IEditorPart openEditor = IDE.openEditor(page, file, true);
@@ -164,9 +166,9 @@ public class CollaborationManager extends AbstractShare
 					}
 				});
 
-			} else if (msg instanceof StatusMessage)
+			} else if (msg instanceof FileStatusMessage)
 			{
-				final StatusMessage statusMsg = (StatusMessage) msg;
+				final FileStatusMessage statusMsg = (FileStatusMessage) msg;
 
 				Display.getDefault().asyncExec(new Runnable()
 				{
@@ -196,10 +198,6 @@ public class CollaborationManager extends AbstractShare
 	
 							contracts.addContract(contract);
 							
-							CollaborationGroup collabGrp = (CollaborationGroup) root.getCollaboratorGroups().get(0);
-							User usr = new User(senderName);
-							collabGrp.addCollaborator(usr);
-							
 							page.showView("eu.compassresearch.ide.collaboration.treeview.ui.CollaborationView");
 							
 							} else if (status == NegotiationStatus.ACCEPT || status == NegotiationStatus.REJECT) {
@@ -222,9 +220,80 @@ public class CollaborationManager extends AbstractShare
 					}
 				});
 
-			} else if (msg instanceof NewFileMessage)
+			} else if (msg instanceof CollaborationRequest)
 			{
-			} else
+				final CollaborationRequest collabRequest = (CollaborationRequest) msg;
+				
+				final String senderName = collabRequest.getSenderID().getName();
+				
+				Display.getDefault().asyncExec(new Runnable()
+				{
+					public void run()
+					{
+						try
+						{
+						
+						CollaborationRequestedDialog collabRequestedDialog = new CollaborationRequestedDialog(senderName, collabRequest.getTitle(), collabRequest.getMessage(), null);
+						collabRequestedDialog.create();
+						boolean join = collabRequestedDialog.open() == Window.OK; 
+						
+						if(join) {
+							
+							final IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+							final IViewPart view = page.findView("eu.compassresearch.ide.collaboration.treeview.ui.CollaborationView");
+							final CollaborationView collabview = (CollaborationView) view;
+							
+							TreeRoot root = collabview.getRoot();
+							
+							CollaborationGroup collabGrp = (CollaborationGroup) root.getCollaboratorGroups().get(0);
+							User usr = new User(senderName);
+							collabGrp.addCollaborator(usr);
+							
+							page.showView("eu.compassresearch.ide.collaboration.treeview.ui.CollaborationView");
+
+
+						}
+						
+						CollaborationStatusMessage statusMsg = new CollaborationStatusMessage(collabRequest.getReceiverID(), collabRequest.getSenderID(), join);
+
+							sendMessage(statusMsg.getReceiverID(), statusMsg.serialize());
+						} catch (ECFException | PartInitException e)
+						{
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						
+					}	
+				});
+	
+			} else if(msg instanceof CollaborationStatusMessage)
+			{
+				Display.getDefault().asyncExec(new Runnable()
+				{
+					public void run()
+					{
+						final CollaborationStatusMessage collabRequest = (CollaborationStatusMessage) msg;
+					
+						final IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+						final IViewPart view = page.findView("eu.compassresearch.ide.collaboration.treeview.ui.CollaborationView");
+						final CollaborationView collabview = (CollaborationView) view;
+						
+						TreeRoot root = collabview.getRoot();
+						
+						CollaborationGroup collabGrp = (CollaborationGroup) root.getCollaboratorGroups().get(0);
+						
+						String userName = collabRequest.getSenderID().getName();
+						User usr = collabGrp.getUser(userName);
+						
+						if(collabRequest.isJoining()){
+							usr.setPostfix("");					
+						} else{
+							usr.setPostfix("(Declined collaboration)");		
+						}
+					}
+				});
+			}
+			else
 			{
 				throw new InvalidObjectException(Notification.Collaboration_ERROR_UNKNOWN_MESSAGE_TYPE
 						+ msg.getClass().getName());

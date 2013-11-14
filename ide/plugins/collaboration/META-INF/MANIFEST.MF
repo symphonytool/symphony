@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: COMPASS IDE Collaboration Plugin
+Bundle-Name: Symphony IDE Collaboration Plugin
 Bundle-SymbolicName: eu.compassresearch.ide.collaboration;singleton:=true
 Bundle-Version: 0.2.1.qualifier
 Bundle-Activator: eu.compassresearch.ide.collaboration.Activator
@@ -26,6 +26,7 @@ Import-Package: eu.compassresearch.ast.actions,
  org.eclipse.jface.dialogs,
  org.eclipse.jface.resource,
  org.eclipse.jface.viewers,
+ org.eclipse.jface.window,
  org.eclipse.osgi.util;version="1.1.0",
  org.eclipse.swt,
  org.eclipse.swt.events,

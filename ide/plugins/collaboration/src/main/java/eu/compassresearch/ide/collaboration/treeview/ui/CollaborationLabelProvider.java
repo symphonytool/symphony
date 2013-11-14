@@ -18,7 +18,7 @@ import org.eclipse.swt.widgets.Display;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 
-import eu.compassresearch.ide.collaboration.messages.StatusMessage.NegotiationStatus;
+import eu.compassresearch.ide.collaboration.messages.FileStatusMessage.NegotiationStatus;
 import eu.compassresearch.ide.collaboration.treeview.TreeViewerPlugin;
 import eu.compassresearch.ide.collaboration.treeview.model.CollaborationGroup;
 import eu.compassresearch.ide.collaboration.treeview.model.Contract;

@@ -13,27 +13,27 @@ import org.eclipse.jface.action.Separator;
 import eu.compassresearch.ide.collaboration.notifications.Notification;
 
 
-public class CollabRosterMenuContributionItem extends
+public class AddCollaboratorRosterMenuContributionItem extends
 		AbstractRosterMenuContributionItem
 {
 
-	public CollabRosterMenuContributionItem()
+	public AddCollaboratorRosterMenuContributionItem()
 	{
 		super();
-		setTopMenuName(Notification.CollabRosterMenuContributionItem_MAIN_MENU);
+		setTopMenuName(Notification.CollabRosterMenuContributionItem_ADD_COLLABORATOR_MENU);
 	}
 	
-	public CollabRosterMenuContributionItem(String id)
+	public AddCollaboratorRosterMenuContributionItem(String id)
 	{
 		super(id);
-		setTopMenuName(Notification.CollabRosterMenuContributionItem_MAIN_MENU);
+		setTopMenuName(Notification.CollabRosterMenuContributionItem_ADD_COLLABORATOR_MENU);
 	}
 	
 	@Override
 	protected AbstractRosterMenuHandler createRosterEntryHandler(
 			IRosterEntry rosterEntry)
 	{
-		return new CollabMenuRosterMenuHandler(rosterEntry);
+		return new AddCollaboratorRosterMenuHandler(rosterEntry);
 	}
 	
 	protected IContributionItem[] getContributionItems() {

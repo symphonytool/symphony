@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="4.2"?>
 <plugin>
-
+<!-- Collaboration menu in navigator -->
 <extension point="org.eclipse.ui.menus">
-	<menuContribution locationURI="popup:org.eclipse.ui.navigator.ProjectExplorer#PopupMenu?after=additions">
-	<dynamic 
-		class="eu.compassresearch.ide.collaboration.menu.CollabRosterMenuContributionItem" 
-		id="eu.compassresearch.ide.collaboration">
+	<menuContribution
+         allPopups="false"
+         locationURI="popup:eu.compassresearch.ide.ui.CmlNavigator">
+	 <dynamic 
+			class="eu.compassresearch.ide.collaboration.menu.CollabRosterMenuContributionItem" 
+			id="eu.compassresearch.ide.collaboration">
 	</dynamic>
-</menuContribution>
+	</menuContribution>		
 </extension>
 
 
@@ -21,13 +23,15 @@
   </menuContribution>
 </extension> -->
 
+<!-- ECF setup -->
 <extension
-         point="org.eclipse.ecf.start">
+      point="org.eclipse.ecf.start">
       <run
             class="eu.compassresearch.ide.collaboration.ECFInitiation">
       </run>
  </extension>
 
+<!-- Collaboration View -->
 <extension
       id="eu.compassresearch.ide.collaboration.treeview"
       name="Collaborative Modelling"

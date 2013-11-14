@@ -11,7 +11,7 @@
   <packaging>eclipse-plugin</packaging>
 
   <artifactId>eu.compassresearch.ide.collaboration</artifactId>
-  <name>COMPASS IDE Collaboration Plugin</name>
+  <name>Symphony IDE Collaboration Plugin</name>
 
   <build>
     <pluginManagement>

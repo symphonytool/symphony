@@ -2,7 +2,7 @@ package eu.compassresearch.ide.collaboration.treeview.model;
 
 import org.eclipse.ecf.core.identity.ID;
 
-import eu.compassresearch.ide.collaboration.messages.StatusMessage.NegotiationStatus;
+import eu.compassresearch.ide.collaboration.messages.FileStatusMessage.NegotiationStatus;
 
 public class Contract extends Model {
 	protected Versions versions;

@@ -13,6 +13,6 @@
 
   <groupId>eu.compassresearch.ide.features.plugins</groupId>
   <artifactId>eu.compassresearch.ide.features.plugins.collaboration</artifactId>
-  <name>COMPASS Tool Plugin Eclipse Collaboration feature</name>
+  <name>Symphony IDE Plugin Eclipse Collaboration feature</name>
   
 </project>
