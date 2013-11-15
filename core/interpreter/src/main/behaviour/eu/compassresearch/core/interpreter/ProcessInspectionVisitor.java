@@ -108,9 +108,9 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 				// Unnamed process
 				else
 				{
-					processDef = new AProcessDefinition();
-					processDef.setLocation(node.getLocation());
-					processDef.setName(new CmlLexNameToken("", "Unnamed Process", node.getLocation()));
+//					processDef = new AProcessDefinition();
+//					processDef.setLocation(node.getLocation());
+//					processDef.setName(new CmlLexNameToken("", "Unnamed Process", node.getLocation()));
 
 					AProcessDefinition pdef = node.getAncestor(AProcessDefinition.class);
 					// We need to check whether the unnamed process is inside parameterised process, if it is then we
@@ -143,11 +143,9 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 				for (PDefinition def : node.getActionDefinition().getDefinitions())
 				{
 					// Take out the invariant expression if any
-					if (def instanceof AStateDefinition)
+					if (def instanceof AClassInvariantDefinition)
 					{
-						for (PDefinition stateDef : ((AStateDefinition) def).getStateDefs())
-							if (stateDef instanceof AClassInvariantDefinition)
-								processInv = ((AClassInvariantDefinition) stateDef).getExpression();
+						processInv = ((AClassInvariantDefinition) def).getExpression();
 					}
 
 					NameValuePairList nvps = def.apply(cmlDefEvaluator, tmpContext);

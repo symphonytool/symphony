@@ -36,10 +36,10 @@ class NamespaceUtility
 		return new CmlLexNameToken("|FORSEQ|", "v", new LexLocation());
 	}
 
-	public static ILexNameToken getVarExpContextName()
-	{
-		return new CmlLexNameToken("|VARSET|", "namesetExpression", new LexLocation());
-	}
+//	public static ILexNameToken getVarExpContextName()
+//	{
+//		return new CmlLexNameToken("|VARSET|", "namesetExpression", new LexLocation());
+//	}
 
 	public static ILexNameToken getReplicationNodeName(INode node)
 	{
