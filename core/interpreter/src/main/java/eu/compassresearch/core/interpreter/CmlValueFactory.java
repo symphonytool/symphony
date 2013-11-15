@@ -10,7 +10,6 @@ import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.definitions.SClassDefinition;
 import org.overture.ast.definitions.SOperationDefinition;
 import org.overture.ast.intf.lex.ILexNameToken;
-import eu.compassresearch.ast.statements.ANewStm;
 import org.overture.ast.types.AClassType;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.CPUValue;
@@ -18,7 +17,9 @@ import org.overture.interpreter.values.FunctionValue;
 import org.overture.interpreter.values.NameValuePair;
 import org.overture.interpreter.values.NameValuePairMap;
 import org.overture.interpreter.values.ObjectValue;
+import org.overture.interpreter.values.OperationValue;
 
+import eu.compassresearch.ast.statements.ANewStm;
 import eu.compassresearch.core.interpreter.api.values.ActionValue;
 import eu.compassresearch.core.interpreter.api.values.CmlOperationValue;
 
@@ -65,7 +66,7 @@ class CmlValueFactory
 		return new ObjectValue(classType, members, supers, CPUValue.vCPU, question.getSelf());
 	}
 
-	public static CmlOperationValue createOperationValue(
+	public static OperationValue createOperationValue(
 			SOperationDefinition node, Context question)
 	{
 		CmlOperationValue ret = null;

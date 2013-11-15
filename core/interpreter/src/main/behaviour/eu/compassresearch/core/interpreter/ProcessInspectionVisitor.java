@@ -19,6 +19,7 @@ import org.overture.interpreter.values.FunctionValue;
 import org.overture.interpreter.values.NameValuePair;
 import org.overture.interpreter.values.NameValuePairList;
 import org.overture.interpreter.values.NameValuePairMap;
+import org.overture.interpreter.values.OperationValue;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.actions.ASkipAction;
@@ -52,7 +53,6 @@ import eu.compassresearch.core.interpreter.api.transitions.LabelledTransition;
 import eu.compassresearch.core.interpreter.api.transitions.ObservableTransition;
 import eu.compassresearch.core.interpreter.api.values.ActionValue;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
-import eu.compassresearch.core.interpreter.api.values.CmlOperationValue;
 import eu.compassresearch.core.interpreter.api.values.ProcessObjectValue;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
@@ -163,7 +163,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 						// everything else can.
 						// TODO This might be incomplete
 						if (nvp.value instanceof FunctionValue
-								|| nvp.value instanceof CmlOperationValue
+								|| nvp.value instanceof OperationValue
 								|| nvp.value instanceof ActionValue)
 							valueMap.put(new NameValuePair(name, nvp.value));
 						else

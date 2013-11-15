@@ -1,0 +1,22 @@
+channels a, b
+
+types
+
+hej :: count : int
+
+process test = 
+begin
+	state
+	v : hej := mk_hej(0)
+	
+	operations
+	Inc: (int) ==> ()
+  	Inc(l) == v := mk_hej(v.count + l)
+	
+	actions
+	Main = 	[v.count < 2] & a -> Inc(1);Main
+			[] 
+		 	[v.count >= 2] & Skip 
+	
+	@ Main 	 
+end
