@@ -5,6 +5,8 @@ import java.util.LinkedList;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.node.INode;
+import org.overture.ast.types.ABooleanBasicType;
+import org.overture.ast.types.AFunctionType;
 import org.overture.ast.types.AIntNumericBasicType;
 import org.overture.ast.types.ANamedInvariantType;
 import org.overture.ast.types.ANatNumericBasicType;
@@ -18,7 +20,9 @@ import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ExpressionEvaluator;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.TypeManipulator;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCABooleanBasicType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAChannelType;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAFunctionType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAIntNumericBasicType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANamedInvariantType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANatNumericBasicType;
@@ -75,14 +79,14 @@ public class NewMCTypeAndValueVisitor extends
 		MCPCMLType chanType = null;
 		LinkedList<MCPCMLType> types = new LinkedList<MCPCMLType>();
 		for (PType pType : node.getParameters()) {
-			types.add((MCPCMLType) pType.apply(this, question));
+			types.add((MCPCMLType) pType.apply(rootVisitor, question));
 		}
 		
 		ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
 		chanType = evaluator.instantiateMCTypeFromTypes(types);
 		MCAChannelType result = new MCAChannelType(chanType);
 		
-		return null;
+		return result;
 	}
 	
 
@@ -92,13 +96,39 @@ public class NewMCTypeAndValueVisitor extends
 		
 		LinkedList<MCPCMLType> mcTypes = new LinkedList<MCPCMLType>();
 		for (PType pType : node.getTypes()) {
-			mcTypes.add((MCPCMLType) pType.apply(this,question));
+			mcTypes.add((MCPCMLType) pType.apply(rootVisitor,question));
 		}
 		MCAProductType result = new MCAProductType(mcTypes);
 		
 		return result;
 	}
 
+	
+
+	@Override
+	public MCNode caseAFunctionType(AFunctionType node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+
+		LinkedList<MCPCMLType> parameters = new LinkedList<MCPCMLType>(); 
+		for (PType pType : node.getParameters()) {
+			parameters.add((MCPCMLType) pType.apply(rootVisitor,question));
+		}
+		MCPCMLType functionResult = (MCPCMLType) node.getResult().apply(rootVisitor, question);
+		
+		MCAFunctionType result = new MCAFunctionType(parameters, functionResult);
+		
+		return result;
+	}
+	
+	
+
+	@Override
+	public MCNode caseABooleanBasicType(ABooleanBasicType node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		
+		MCABooleanBasicType result = new MCABooleanBasicType();
+		return result;
+	}
 
 	@Override
 	public MCNode createNewReturnValue(INode node,

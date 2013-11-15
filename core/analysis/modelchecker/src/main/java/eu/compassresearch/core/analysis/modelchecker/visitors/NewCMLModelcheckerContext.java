@@ -23,6 +23,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.NewMCGuardDef
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.NullBinding;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAActionDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAChannelDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAExplicitCmlOperationDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAProcessDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCATypeDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAValueDefinition;
@@ -45,10 +46,8 @@ public class NewCMLModelcheckerContext {
 	public ArrayList<MCAActionDefinition> localActions;
 	public ArrayList<MCCondition> conditions;
 	public Binding maximalBinding = new NullBinding();
-	public HashMap<MCPCMLExp, MCPosGuardDef> positiveGuardDefs;
-	public HashMap<MCPCMLExp, MCNegGuardDef> negativeGuardDefs;
-	public HashMap<MCPCMLExp, NewMCGuardDef> guardDefs;
-	public HashMap<MCPCMLExp, MCGuardDef> actionGuardDefs;
+	public HashMap<MCPCMLExp, LinkedList<MCGuardDef>> guardDefs;
+	public HashMap<MCPCMLExp, LinkedList<NewMCGuardDef>> stmGuardDefs;
 	public ArrayList<MCAssignDef> assignDefs;
 	public LinkedList<MCAChannelDefinition> channelDefs;
 	public ArrayList<MCSCmlOperationDefinition> operations;
@@ -104,6 +103,16 @@ public class NewCMLModelcheckerContext {
 		return result;
 	}
 	
+	public LinkedList<ActionChannelDependency> getActionChannelDependendiesByChannelName(String channelName){
+		LinkedList<ActionChannelDependency> result = new LinkedList<ActionChannelDependency>();
+		for (ActionChannelDependency actionChannelDependency : this.channelDependencies) {
+			if(actionChannelDependency.getChannelName().equals(channelName)){
+				result.add(actionChannelDependency);
+			}
+		}
+		return result;
+	}
+	
 	public MCAChannelDefinition getChannelDefinition(String channelName){
 		MCAChannelDefinition result = null;
 		for (MCAChannelDefinition chanDef : this.channelDefs) {
@@ -115,6 +124,17 @@ public class NewCMLModelcheckerContext {
 		return result;
 	}
 	
+	public MCSCmlOperationDefinition getOperationDefinition(String name){
+		MCSCmlOperationDefinition result = null;
+		for (MCSCmlOperationDefinition opDef : this.operations) {
+			if(opDef instanceof MCAExplicitCmlOperationDefinition){
+				if(((MCAExplicitCmlOperationDefinition) opDef).getName().equals(name)){
+					result = opDef;
+				}
+			}
+		}
+		return result;
+	}
 	public NewCMLModelcheckerContext() {
 		setStack = new NewSetStack<MCPVarsetExpression>();
 		lieIn = new ArrayList<MCLieInFact>();
@@ -123,12 +143,10 @@ public class NewCMLModelcheckerContext {
 		conditions = new ArrayList<MCCondition>();
 		channelDependencies = new ArrayList<ActionChannelDependency>();
 		ioCommDefs = new ArrayList<MCIOCommDef>();
-		positiveGuardDefs = new HashMap<MCPCMLExp, MCPosGuardDef>();
-		negativeGuardDefs = new HashMap<MCPCMLExp, MCNegGuardDef>();
 		valueDefinitions = new LinkedList<MCAValueDefinition>();
 		typeDefinitions = new LinkedList<MCATypeDefinition>();
-		guardDefs = new HashMap<MCPCMLExp, NewMCGuardDef>();
-		actionGuardDefs = new HashMap<MCPCMLExp, MCGuardDef>();
+		guardDefs = new HashMap<MCPCMLExp, LinkedList<MCGuardDef>>();
+		stmGuardDefs = new HashMap<MCPCMLExp, LinkedList<NewMCGuardDef>>();
 		assignDefs = new ArrayList<MCAssignDef>();
 		channelDefs = new LinkedList<MCAChannelDefinition>();
 		processDefinitions = new LinkedList<MCAProcessDefinition>();

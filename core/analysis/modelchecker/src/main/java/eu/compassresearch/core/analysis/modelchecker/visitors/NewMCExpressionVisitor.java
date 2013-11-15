@@ -94,8 +94,8 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 	public MCNode caseAPlusNumericBinaryExp(APlusNumericBinaryExp node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
 		
-		MCPCMLExp left = (MCPCMLExp) node.getLeft().apply(this, question);
-		MCPCMLExp right = (MCPCMLExp) node.getRight().apply(this, question);
+		MCPCMLExp left = (MCPCMLExp) node.getLeft().apply(rootVisitor, question);
+		MCPCMLExp right = (MCPCMLExp) node.getRight().apply(rootVisitor, question);
 		MCAPlusNumericBinaryExp result = new MCAPlusNumericBinaryExp(left,right);
 		
 		return result;
@@ -107,8 +107,8 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 			ASubtractNumericBinaryExp node, NewCMLModelcheckerContext question)
 			throws AnalysisException {
 		
-		MCPCMLExp left = (MCPCMLExp) node.getLeft().apply(this, question);
-		MCPCMLExp right = (MCPCMLExp) node.getRight().apply(this, question);
+		MCPCMLExp left = (MCPCMLExp) node.getLeft().apply(rootVisitor, question);
+		MCPCMLExp right = (MCPCMLExp) node.getRight().apply(rootVisitor, question);
 		MCASubtractNumericBinaryExp result = new MCASubtractNumericBinaryExp(left,right);
 		
 		return result;
@@ -123,10 +123,10 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 		LinkedList<PType> typ = node.getTypes();
 		LinkedList<MCPCMLType> types = new LinkedList<MCPCMLType>();
 		for(PExp e: members){
-			memb.add((MCPCMLExp)e.apply(this,question));
+			memb.add((MCPCMLExp)e.apply(rootVisitor,question));
 		}
 		for(PType t: typ){
-			types.add((MCPCMLType)t.apply(this, question));
+			types.add((MCPCMLType)t.apply(rootVisitor, question));
 		}
 		return new MCASeqEnumSeqExp(memb, types);
 	}
@@ -137,7 +137,7 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 		LinkedList<PExp> memb = node.getMembers();
 		LinkedList<MCPCMLExp> members = new LinkedList<MCPCMLExp>();
 		for(PExp e: memb){
-			members.add((MCPCMLExp)e.apply(this,question));
+			members.add((MCPCMLExp)e.apply(rootVisitor,question));
 		}		
 		return new MCASetEnumSetExp(members);
 	}
@@ -149,7 +149,7 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 		LinkedList<ANameChannelExp> nameExp = node.getChannelNames();
 		LinkedList<MCANameChannelExp> mcNameExp = new LinkedList<MCANameChannelExp>();
 		for(ANameChannelExp n : nameExp){
-			mcNameExp.add((MCANameChannelExp)n.apply(this, question));
+			mcNameExp.add((MCANameChannelExp)n.apply(rootVisitor, question));
 		}
 		return new MCAEnumVarsetExpression(mcNameExp);
 	}
@@ -159,8 +159,8 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 	public MCNode caseAEqualsBinaryExp(AEqualsBinaryExp node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
 		
-		MCPCMLExp left = (MCPCMLExp) node.getLeft().apply(this, question);
-		MCPCMLExp right = (MCPCMLExp) node.getRight().apply(this, question);
+		MCPCMLExp left = (MCPCMLExp) node.getLeft().apply(rootVisitor, question);
+		MCPCMLExp right = (MCPCMLExp) node.getRight().apply(rootVisitor, question);
 		MCAEqualsBinaryExp result = new MCAEqualsBinaryExp(left, right);
 		
 		return result;
@@ -170,8 +170,8 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 	public MCNode caseANotEqualBinaryExp(ANotEqualBinaryExp node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
 
-		MCPCMLExp left = (MCPCMLExp) node.getLeft().apply(this, question);
-		MCPCMLExp right = (MCPCMLExp) node.getRight().apply(this, question);
+		MCPCMLExp left = (MCPCMLExp) node.getLeft().apply(rootVisitor, question);
+		MCPCMLExp right = (MCPCMLExp) node.getRight().apply(rootVisitor, question);
 		MCANotEqualsBinaryExp result = new MCANotEqualsBinaryExp(left, right);
 		
 		return result;
@@ -182,8 +182,8 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 			AGreaterEqualNumericBinaryExp node, NewCMLModelcheckerContext question)
 			throws AnalysisException {
 		
-		MCPCMLExp left = (MCPCMLExp) node.getLeft().apply(this, question);
-		MCPCMLExp right = (MCPCMLExp) node.getRight().apply(this, question);
+		MCPCMLExp left = (MCPCMLExp) node.getLeft().apply(rootVisitor, question);
+		MCPCMLExp right = (MCPCMLExp) node.getRight().apply(rootVisitor, question);
 		MCAGreaterEqualNumericBinaryExp result = new MCAGreaterEqualNumericBinaryExp(left, right);
 		
 		return result;
@@ -193,8 +193,8 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 	public MCNode caseALessNumericBinaryExp(ALessNumericBinaryExp node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
 		
-		MCPCMLExp left = (MCPCMLExp) node.getLeft().apply(this, question);
-		MCPCMLExp right = (MCPCMLExp) node.getRight().apply(this, question);
+		MCPCMLExp left = (MCPCMLExp) node.getLeft().apply(rootVisitor, question);
+		MCPCMLExp right = (MCPCMLExp) node.getRight().apply(rootVisitor, question);
 		MCALessNumericBinaryExp result = new MCALessNumericBinaryExp(left, right);
 		
 		return result;
@@ -204,8 +204,8 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 	public MCNode caseAGreaterNumericBinaryExp(
 			AGreaterNumericBinaryExp node, NewCMLModelcheckerContext question)
 			throws AnalysisException {
-		MCPCMLExp left = (MCPCMLExp) node.getLeft().apply(this, question);
-		MCPCMLExp right = (MCPCMLExp) node.getRight().apply(this, question);
+		MCPCMLExp left = (MCPCMLExp) node.getLeft().apply(rootVisitor, question);
+		MCPCMLExp right = (MCPCMLExp) node.getRight().apply(rootVisitor, question);
 		MCAGreaterNumericBinaryExp result = new MCAGreaterNumericBinaryExp(left, right);
 		
 		return result;
@@ -217,8 +217,8 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 			ALessEqualNumericBinaryExp node, NewCMLModelcheckerContext question)
 			throws AnalysisException {
 	
-		MCPCMLExp left = (MCPCMLExp) node.getLeft().apply(this, question);
-		MCPCMLExp right = (MCPCMLExp) node.getRight().apply(this, question);
+		MCPCMLExp left = (MCPCMLExp) node.getLeft().apply(rootVisitor, question);
+		MCPCMLExp right = (MCPCMLExp) node.getRight().apply(rootVisitor, question);
 		MCALessEqualNumericBinaryExp result = new MCALessEqualNumericBinaryExp(left, right);
 		
 		return result;
@@ -245,7 +245,9 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 	@Override
 	public MCNode caseAVariableExp(AVariableExp node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
-		return new MCAVariableExp(node.getName().toString());
+		
+		String name = Utilities.extractFunctionName(node.getOriginal());
+		return new MCAVariableExp(name);
 	}
 	
 	/*
@@ -311,7 +313,7 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 			NewCMLModelcheckerContext question) throws AnalysisException {
 		
 	
-		MCPCMLExp exp = (MCPCMLExp) node.getExp().apply(this, question);
+		MCPCMLExp exp = (MCPCMLExp) node.getExp().apply(rootVisitor, question);
 		MCANotUnaryExp result = new MCANotUnaryExp(exp);
 
 		return result;
@@ -322,10 +324,10 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 	public MCNode caseAApplyExp(AApplyExp node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
 		
-		MCPCMLExp root = (MCPCMLExp) node.getRoot().apply(this, question);
+		MCPCMLExp root = (MCPCMLExp) node.getRoot().apply(rootVisitor, question);
 		LinkedList<MCPCMLExp> args = new LinkedList<MCPCMLExp>();
 		for (PExp pExp : node.getArgs()) {
-			args.add((MCPCMLExp) pExp.apply(this, question));
+			args.add((MCPCMLExp) pExp.apply(rootVisitor, question));
 		}
 		MCAApplyExp result = new MCAApplyExp(args, root);
 		
@@ -345,8 +347,8 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 			ATimesNumericBinaryExp node, NewCMLModelcheckerContext question)
 			throws AnalysisException {
 		
-		MCPCMLExp left = (MCPCMLExp) node.getLeft().apply(this, question);
-		MCPCMLExp right = (MCPCMLExp) node.getRight().apply(this, question);
+		MCPCMLExp left = (MCPCMLExp) node.getLeft().apply(rootVisitor, question);
+		MCPCMLExp right = (MCPCMLExp) node.getRight().apply(rootVisitor, question);
 		MCATimesNumericBinaryExp result = new MCATimesNumericBinaryExp(left, right);
 			
 		return result;
@@ -356,7 +358,7 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 	public MCNode caseABracketedExp(ABracketedExp node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
 		
-		return node.getExpression().apply(this,question);
+		return node.getExpression().apply(rootVisitor,question);
 	}
 
 	@Override
@@ -377,8 +379,8 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 	public MCNode caseAInSetBinaryExp(AInSetBinaryExp node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
 		
-		MCPCMLExp left = (MCPCMLExp) node.getLeft().apply(this, question);
-		MCPCMLExp right = (MCPCMLExp) node.getRight().apply(this, question);
+		MCPCMLExp left = (MCPCMLExp) node.getLeft().apply(rootVisitor, question);
+		MCPCMLExp right = (MCPCMLExp) node.getRight().apply(rootVisitor, question);
 		MCAInSetBinaryExp result = new MCAInSetBinaryExp(left,right);
 		
 		return result;
@@ -390,8 +392,8 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 	public MCNode caseASetRangeSetExp(ASetRangeSetExp node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
 
-		MCPCMLExp first = (MCPCMLExp) node.getFirst().apply(this, question);
-		MCPCMLExp last = (MCPCMLExp) node.getLast().apply(this, question);
+		MCPCMLExp first = (MCPCMLExp) node.getFirst().apply(rootVisitor, question);
+		MCPCMLExp last = (MCPCMLExp) node.getLast().apply(rootVisitor, question);
 		
 		MCASetRangeSetExp result = new MCASetRangeSetExp(first, last);
 		

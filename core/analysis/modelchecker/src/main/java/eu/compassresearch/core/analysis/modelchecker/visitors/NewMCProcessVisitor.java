@@ -97,7 +97,7 @@ public class NewMCProcessVisitor extends
 		for (PSingleDeclaration s : replicationDecls) {
 			declarations.add((MCPSingleDeclaration)s.apply(rootVisitor, question));
 		}
-		MCPProcess replicatedProc = (MCPProcess) node.getReplicatedProcess().apply(this, question);
+		MCPProcess replicatedProc = (MCPProcess) node.getReplicatedProcess().apply(rootVisitor, question);
 		MCPVarsetExpression chansetExpression =  (MCPVarsetExpression) node.getChansetExpression().apply(rootVisitor, question);
 		
 		MCAAlphabetisedParallelismReplicatedProcess result = new MCAAlphabetisedParallelismReplicatedProcess(declarations, replicatedProc, chansetExpression);	
