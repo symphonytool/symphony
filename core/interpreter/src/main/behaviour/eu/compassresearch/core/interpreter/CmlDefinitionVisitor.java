@@ -3,6 +3,7 @@ package eu.compassresearch.core.interpreter;
 import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.assistant.definition.PDefinitionAssistant;
 import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.AClassClassDefinition;
 import org.overture.ast.definitions.AClassInvariantDefinition;
@@ -19,7 +20,7 @@ import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.patterns.AIdentifierPattern;
-import org.overture.interpreter.assistant.definition.AExplicitOperationDefinitionAssistantInterpreter;
+import org.overture.interpreter.assistant.definition.PDefinitionAssistantInterpreter;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.FunctionValue;
 import org.overture.interpreter.values.NameValuePair;
@@ -137,8 +138,9 @@ class CmlDefinitionVisitor extends
 			AInstanceVariableDefinition node, Context question)
 			throws AnalysisException
 	{
-		NameValuePairList vpl = new NameValuePairList();
-		vpl.add(new NameValuePair(node.getName(), node.getExpression().apply(this.cmlExpressionVisitor, question)));
+		NameValuePairList vpl = PDefinitionAssistantInterpreter.getNamedValues(node,question);
+//		NameValuePairList vpl = new NameValuePairList();
+//		vpl.add(new NameValuePair(node.getName(), node.getExpression().apply(this.cmlExpressionVisitor, question)));
 		return vpl;
 	}
 
@@ -274,6 +276,8 @@ class CmlDefinitionVisitor extends
 		return definitionListHelper(node.getOperations(), node.getLocation(), question);
 	}
 
+	
+	
 	@Override
 	public NameValuePairList caseAExplicitOperationDefinition(
 			AExplicitOperationDefinition node, Context question)
@@ -283,7 +287,7 @@ class CmlDefinitionVisitor extends
 //		NameValuePairList vpl = new NameValuePairList();
 //		vpl.add(new NameValuePair(node.getName().clone(), CmlValueFactory.createOperationValue(node, question)));
 
-		return AExplicitOperationDefinitionAssistantInterpreter.getNamedValues(node, question);
+		return PDefinitionAssistantInterpreter.getNamedValues(node, question);
 	}
 
 	@Override
@@ -292,10 +296,11 @@ class CmlDefinitionVisitor extends
 			throws AnalysisException
 	{
 
-		NameValuePairList vpl = new NameValuePairList();
-		vpl.add(new NameValuePair(node.getName(), CmlValueFactory.createOperationValue(node, question)));
-
-		return vpl;
+//		NameValuePairList vpl = new NameValuePairList();
+//		vpl.add(new NameValuePair(node.getName(), CmlValueFactory.createOperationValue(node, question)));
+//
+//		return vpl;
+		return PDefinitionAssistantInterpreter.getNamedValues(node, question);
 	}
 
 	@Override

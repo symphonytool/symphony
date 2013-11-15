@@ -36,10 +36,10 @@ class NamespaceUtility
 		return new CmlLexNameToken("|FORSEQ|", "v", new LexLocation());
 	}
 
-	public static ILexNameToken getVarExpContextName()
-	{
-		return new CmlLexNameToken("|VARSET|", "namesetExpression", new LexLocation());
-	}
+//	public static ILexNameToken getVarExpContextName()
+//	{
+//		return new CmlLexNameToken("|VARSET|", "namesetExpression", new LexLocation());
+//	}
 
 	public static ILexNameToken getReplicationNodeName(INode node)
 	{
@@ -47,4 +47,9 @@ class NamespaceUtility
 		ILexLocation loc = LocationExtractor.extractLocation(node);
 		return new CmlLexNameToken("|REPLICATION|", loc.toShortString(), loc);
 	}
+	
+//	public static ILexNameToken ReturnValueName()
+//	{
+//		return new CmlLexNameToken("|CALL|", "RETURN", new LexLocation());
+//	}
 }

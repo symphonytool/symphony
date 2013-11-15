@@ -479,7 +479,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	{
 		File cml_example = new File(
 		// "/home/akm/phd/runtime-COMPASS/simpleDLNA/SimpleDLNA.cml");
-		"src/test/resources/action/external-choice/action-externalchoice-state5.cml");
+		"src/test/resources/process/invariant.cml");
 		//File cml_example = new File("/home/akm/phd/COMPASS-repo/Common/PublicLiveCMLCaseStudies/RingBuffer/RingBuffer.cml");
 		//File cml_example = new File("/home/akm/Downloads/minimondex.cml");
 		runOnFile(cml_example);
