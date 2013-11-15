@@ -31,7 +31,9 @@ import eu.compassresearch.ast.actions.AInternalChoiceAction;
 import eu.compassresearch.ast.actions.AInternalChoiceReplicatedAction;
 import eu.compassresearch.ast.actions.AInterruptAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
+import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.AStmAction;
+import eu.compassresearch.ast.actions.AStopAction;
 import eu.compassresearch.ast.actions.ATimeoutAction;
 import eu.compassresearch.ast.actions.AUntimedTimeoutAction;
 import eu.compassresearch.ast.actions.AWaitAction;
@@ -337,8 +339,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 			final AExternalChoiceReplicatedAction node, Context question)
 			throws AnalysisException
 	{
-
-		return caseReplicated(node, node.getReplicationDeclaration(), new ReplicationFactory()
+		Pair<INode, Context> ret = caseReplicated(node, node.getReplicationDeclaration(), new ReplicationFactory()
 		{
 
 			@Override
@@ -353,6 +354,11 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 				return new AExternalChoiceAction(node.getLocation(), node.getReplicatedAction().clone(), node.getReplicatedAction().clone());
 			}
 		}, question);
+		
+		if(ret.first instanceof ASkipAction)
+			return new Pair<INode, Context>(new AStopAction(node.getLocation()),question);
+		else
+			return ret;
 	}
 
 	@Override
@@ -409,7 +415,11 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 		// If we have two replication values then we need to have one interleaving action, since
 		// each value represents one process replication
 
-		if (ql.size() == 1)
+		if(ql.size() == 0)
+		{
+			return new Pair<INode, Context>(new ASkipAction(), question);
+		}
+		else if (ql.size() == 1)
 		{
 			nextNode = factory.createLastReplication();
 
