@@ -212,6 +212,8 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 		INode createNextReplication();
 
 		INode createLastReplication();
+		
+		INode createSingle();
 	}
 
 	protected CmlQuantifierList createQuantifierList(
@@ -305,6 +307,12 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 				// TODO The i'th namesetexpression should be evaluated in the i'th context
 				return new AInterleavingParallelAction(node.getLocation(), node.getReplicatedAction().clone(), node.getNamesetExpression().clone(), node.getNamesetExpression().clone(), node.getReplicatedAction().clone());
 			}
+			
+			@Override
+			public INode createSingle()
+			{
+				return node.getReplicatedAction();
+			}
 
 		}, question);
 	}
@@ -331,6 +339,13 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 				// TODO The i'th namesetexpression should be evaluated in the i'th context
 				return new AGeneralisedParallelismParallelAction(node.getLocation(), node.getReplicatedAction().clone(), node.getNamesetExpression(), node.getNamesetExpression(), node.getReplicatedAction().clone(), node.getChansetExpression().clone());
 			}
+			
+			@Override
+			public INode createSingle()
+			{
+				return node.getReplicatedAction();
+			}
+			
 		}, question);
 	}
 
@@ -352,6 +367,12 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 			public INode createLastReplication()
 			{
 				return new AExternalChoiceAction(node.getLocation(), node.getReplicatedAction().clone(), node.getReplicatedAction().clone());
+			}
+			
+			@Override
+			public INode createSingle()
+			{
+				return node.getReplicatedAction();
 			}
 		}, question);
 		
@@ -381,6 +402,12 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 			{
 				return new AInternalChoiceAction(node.getLocation(), node.getReplicatedAction().clone(), node.getReplicatedAction().clone());
 			}
+			
+			@Override
+			public INode createSingle()
+			{
+				return node.getReplicatedAction();
+			}
 		}, question);
 	}
 
@@ -396,7 +423,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 		// The name of the value holding the state of the remaining values of the replication
 		ILexNameToken replicationContextValueName = NamespaceUtility.getReplicationNodeName(node);
 		CmlQuantifierList ql = (CmlQuantifierList) question.check(replicationContextValueName);
-
+		Context next = question;
 		// if null then this is the first action of the replication
 		// then we need to evaluate the
 		boolean firstRun = false;
@@ -417,9 +444,11 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 
 		if(ql.size() == 0)
 		{
-			return new Pair<INode, Context>(new ASkipAction(), question);
+			//return skip since this it what all the operators should return except
+			//for externalchoice which should be Stop, this is handled specifically in that case
+			return new Pair<INode, Context>(new ASkipAction(LocationExtractor.extractLocation(node)), question);
 		}
-		else if (ql.size() == 1)
+		else if (ql.size() == 1 && !firstRun)
 		{
 			nextNode = factory.createLastReplication();
 
@@ -427,7 +456,13 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 			Context rightChildContext = createReplicationChildContext(itQuantifiers, node, question.outer.outer);
 			setChildContexts(new Pair<Context, Context>(leftChildContext, rightChildContext));
 
-		} else if (firstRun && ql.size() == 2)
+		}
+		else if (ql.size() == 1 && firstRun)
+		{
+			next = createReplicationChildContext(itQuantifiers, node, question);
+			nextNode = factory.createSingle();
+		}
+		else if (firstRun && ql.size() == 2)
 		{
 			nextNode = factory.createLastReplication();
 
@@ -468,7 +503,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 			setChildContexts(new Pair<Context, Context>(leftChildContext, rightChildContext));
 		}
 
-		return new Pair<INode, Context>(nextNode, question);
+		return new Pair<INode, Context>(nextNode, next);
 
 	}
 
@@ -492,6 +527,12 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 			{
 				return new AGeneralisedParallelismProcess(node.getLocation(), node.getReplicatedProcess().clone(), node.getChansetExpression().clone(), node.getReplicatedProcess().clone());
 			}
+			
+			@Override
+			public INode createSingle()
+			{
+				return node.getReplicatedProcess();
+			}
 		}, question);
 	}
 
@@ -514,6 +555,12 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 			public INode createLastReplication()
 			{
 				return new AInterleavingProcess(node.getLocation(), node.getReplicatedProcess().clone(), node.getReplicatedProcess().clone());
+			}
+			
+			@Override
+			public INode createSingle()
+			{
+				return node.getReplicatedProcess();
 			}
 
 		}, question);
@@ -539,6 +586,12 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 			{
 				return new AAlphabetisedParallelismProcess(node.getLocation(), node.getReplicatedProcess().clone(), node.getChansetExpression().clone(), node.getChansetExpression().clone(), node.getReplicatedProcess().clone());
 			}
+			
+			@Override
+			public INode createSingle()
+			{
+				return node.getReplicatedProcess();
+			}
 
 		}, question);
 	}
@@ -561,6 +614,12 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 			public INode createLastReplication()
 			{
 				return new AInternalChoiceProcess(node.getLocation(), node.getReplicatedProcess().clone(), node.getReplicatedProcess().clone());
+			}
+			
+			@Override
+			public INode createSingle()
+			{
+				return node.getReplicatedProcess();
 			}
 
 		}, question);
