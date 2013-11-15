@@ -3,6 +3,7 @@ package eu.compassresearch.core.interpreter;
 import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.assistant.definition.PDefinitionAssistant;
 import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.AClassClassDefinition;
 import org.overture.ast.definitions.AClassInvariantDefinition;
@@ -137,8 +138,9 @@ class CmlDefinitionVisitor extends
 			AInstanceVariableDefinition node, Context question)
 			throws AnalysisException
 	{
-		NameValuePairList vpl = new NameValuePairList();
-		vpl.add(new NameValuePair(node.getName(), node.getExpression().apply(this.cmlExpressionVisitor, question)));
+		NameValuePairList vpl = PDefinitionAssistantInterpreter.getNamedValues(node,question);
+//		NameValuePairList vpl = new NameValuePairList();
+//		vpl.add(new NameValuePair(node.getName(), node.getExpression().apply(this.cmlExpressionVisitor, question)));
 		return vpl;
 	}
 
