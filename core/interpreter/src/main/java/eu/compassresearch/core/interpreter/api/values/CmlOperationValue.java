@@ -6,18 +6,14 @@ import org.overture.ast.definitions.AExplicitOperationDefinition;
 import org.overture.ast.definitions.AImplicitOperationDefinition;
 import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.expressions.PExp;
-import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.patterns.PPattern;
 import org.overture.ast.statements.PStm;
 import org.overture.ast.types.AOperationType;
-import org.overture.interpreter.runtime.Context;
-import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.values.FunctionValue;
 import org.overture.interpreter.values.OperationValue;
 import org.overture.interpreter.values.Value;
-import org.overture.interpreter.values.ValueList;
 
 import eu.compassresearch.ast.lex.CmlLexNameToken;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
