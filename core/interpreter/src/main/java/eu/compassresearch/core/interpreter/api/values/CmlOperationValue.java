@@ -43,7 +43,7 @@ public class CmlOperationValue extends OperationValue
 	public CmlOperationValue(AExplicitOperationDefinition def,FunctionValue preFunc, FunctionValue postFunc,
 			AStateDefinition state)
 	{
-		super(def, preFunc, postFunc, null);
+		super(def, preFunc, postFunc, def.getState());
 		this.expldef = def;
 		this.impldef = null;
 		// this.setBody(def.getBody());

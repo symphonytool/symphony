@@ -940,9 +940,17 @@ actionDef returns[AActionDefinition def]
     : IDENTIFIER '=' (parametrisationList '@')? action
         {
             AActionDefinition adef = new AActionDefinition();
-            adef.setName(new CmlLexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER)));
-            adef.setAction($action.action);
             adef.setDeclarations($parametrisationList.params);
+            adef.setName(new CmlLexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER)));
+            if(adef.getDeclarations() != null && adef.getDeclarations().size() > 0)
+            {
+	            List<PType> typeQualifiers = new LinkedList<PType>();
+	            for(PParametrisation p : adef.getDeclarations())
+	            	typeQualifiers.add(p.getDeclaration().getType());
+	            adef.getName().setTypeQualifier(typeQualifiers);
+            }
+            adef.setAction($action.action);
+            
             $def = adef;
         }
     ;

@@ -12,6 +12,11 @@ import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.patterns.PPattern;
+
+import eu.compassresearch.ast.statements.AActionStm;
+
+import org.overture.ast.statements.ACallStm;
+import org.overture.ast.statements.ASkipStm;
 import org.overture.ast.statements.PStm;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.typechecker.Pass;
@@ -660,6 +665,14 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 
 		// return the alphabet only containing tock since Skip allows for time to pass
 		// return newInspection(new CmlAlphabet(new CmlTock(owner)),null);
+		return newInspection(new CmlTransitionSet(), null);
+	}
+	
+	@Override
+	public Inspection caseASkipStm(ASkipStm node, Context question)
+			throws AnalysisException
+	{
+		// TODO Auto-generated method stub
 		return newInspection(new CmlTransitionSet(), null);
 	}
 
