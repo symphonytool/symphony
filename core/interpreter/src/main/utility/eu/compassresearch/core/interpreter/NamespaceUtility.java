@@ -47,4 +47,9 @@ class NamespaceUtility
 		ILexLocation loc = LocationExtractor.extractLocation(node);
 		return new CmlLexNameToken("|REPLICATION|", loc.toShortString(), loc);
 	}
+	
+//	public static ILexNameToken ReturnValueName()
+//	{
+//		return new CmlLexNameToken("|CALL|", "RETURN", new LexLocation());
+//	}
 }

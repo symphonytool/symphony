@@ -49,7 +49,6 @@ import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.Inspection;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
-import eu.compassresearch.core.interpreter.api.values.CmlOperationValue;
 import eu.compassresearch.core.interpreter.api.values.ProcessObjectValue;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
@@ -76,44 +75,44 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 		throw new CmlInterpreterException(node, InterpretationErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName()));
 	}
 
-	/**
-	 * This methods splits the assignment call statement into the call and the assignment statements and.
-	 */
-	public Inspection caseAssignmentCall(final AAssignmentStm node,
-			final Context question) throws AnalysisException
-	{
-
-		return newInspection(createTauTransitionWithTime(node, null), new AbstractCalculationStep(owner, visitorAccess)
-		{
-			@Override
-			public Pair<INode, Context> execute(CmlTransition selectedTransition)
-					throws AnalysisException
-			{
-				AApplyExp apply = (AApplyExp) node.getExp();
-				// put return value in a new context
-				Context resultContext = CmlContextFactory.newContext(node.getLocation(), "Call Result Context", question);
-				// put return value in upper context if the parent is a AAssignmentCallStatementAction
-				resultContext.putNew(new NameValuePair(CmlOperationValue.ReturnValueName(), new UndefinedValue()));
-
-				// To access the result we put it in a Value named "|CALL|.|CALLRETURN|" this can never be created
-				// in a cml model. This is a little ugly but it works and statys until something better comes up.
-				@SuppressWarnings("deprecation")
-				AVariableExp varExp = new AVariableExp(node.getType(), node.getLocation(), CmlOperationValue.ReturnValueName(), "", null);
-				// Next we create the assignment statement with the expressions that graps the result
-				@SuppressWarnings("deprecation")
-				AAssignmentStm assignmentNode = new AAssignmentStm(node.getLocation(), node.getTarget().clone(), varExp);
-
-				PExp root = apply.getRoot();
-				ACallStm call = new ACallStm(apply.getLocation(), null, apply.getArgs());
-
-				// We now compose the call statement and assignment statement into sequential composition
-				@SuppressWarnings("deprecation")
-				INode seqComp = new ASequentialCompositionAction(node.getLocation(), ActionVisitorHelper.wrapStatement(call), ActionVisitorHelper.wrapStatement(assignmentNode.clone()));
-				return new Pair<INode, Context>(seqComp, resultContext);
-			}
-		});
-
-	}
+//	/**
+//	 * This methods splits the assignment call statement into the call and the assignment statements and.
+//	 */
+//	public Inspection caseAssignmentCall(final AAssignmentStm node,
+//			final Context question) throws AnalysisException
+//	{
+//
+//		return newInspection(createTauTransitionWithTime(node, null), new AbstractCalculationStep(owner, visitorAccess)
+//		{
+//			@Override
+//			public Pair<INode, Context> execute(CmlTransition selectedTransition)
+//					throws AnalysisException
+//			{
+//				AApplyExp apply = (AApplyExp) node.getExp();
+//				// put return value in a new context
+//				Context resultContext = CmlContextFactory.newContext(node.getLocation(), "Call Result Context", question);
+//				// put return value in upper context if the parent is a AAssignmentCallStatementAction
+//				resultContext.putNew(new NameValuePair(NamespaceUtility.ReturnValueName(), new UndefinedValue()));
+//
+//				// To access the result we put it in a Value named "|CALL|.|CALLRETURN|" this can never be created
+//				// in a cml model. This is a little ugly but it works and statys until something better comes up.
+//				@SuppressWarnings("deprecation")
+//				AVariableExp varExp = new AVariableExp(node.getType(), node.getLocation(), NamespaceUtility.ReturnValueName(), "", null);
+//				// Next we create the assignment statement with the expressions that graps the result
+//				@SuppressWarnings("deprecation")
+//				AAssignmentStm assignmentNode = new AAssignmentStm(node.getLocation(), node.getTarget().clone(), varExp);
+//
+//				PExp root = apply.getRoot();
+//				ACallStm call = new ACallStm(apply.getLocation(), null, apply.getArgs());
+//
+//				// We now compose the call statement and assignment statement into sequential composition
+//				@SuppressWarnings("deprecation")
+//				INode seqComp = new ASequentialCompositionAction(node.getLocation(), ActionVisitorHelper.wrapStatement(call), ActionVisitorHelper.wrapStatement(assignmentNode.clone()));
+//				return new Pair<INode, Context>(seqComp, resultContext);
+//			}
+//		});
+//
+//	}
 
 	@Override
 	public Inspection caseALetStm(final ALetStm node, final Context question)
@@ -615,31 +614,31 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 
 	}
 
-	@Override
-	public Inspection caseAReturnStm(final AReturnStm node,
-			final Context question) throws AnalysisException
-	{
-
-		return newInspection(createTauTransitionWithoutTime(new ASkipAction()), new AbstractCalculationStep(owner, visitorAccess)
-		{
-
-			@Override
-			public Pair<INode, Context> execute(CmlTransition selectedTransition)
-					throws AnalysisException
-			{
-				Context nameContext = (Context) question.locate(CmlOperationValue.ReturnValueName());
-				if (nameContext != null)
-				{
-					if (node.getExpression() != null)
-						nameContext.put(CmlOperationValue.ReturnValueName(), node.getExpression().apply(cmlExpressionVisitor, question));
-					else
-						nameContext.put(CmlOperationValue.ReturnValueName(), new VoidValue());
-				}
-
-				return new Pair<INode, Context>(new ASkipAction(), question);
-			}
-		});
-	}
+//	@Override
+//	public Inspection caseAReturnStm(final AReturnStm node,
+//			final Context question) throws AnalysisException
+//	{
+//
+//		return newInspection(createTauTransitionWithoutTime(new ASkipAction()), new AbstractCalculationStep(owner, visitorAccess)
+//		{
+//
+//			@Override
+//			public Pair<INode, Context> execute(CmlTransition selectedTransition)
+//					throws AnalysisException
+//			{
+//				Context nameContext = (Context) question.locate(NamespaceUtility.ReturnValueName());
+//				if (nameContext != null)
+//				{
+//					if (node.getExpression() != null)
+//						nameContext.put(NamespaceUtility.ReturnValueName(), node.getExpression().apply(cmlExpressionVisitor, question));
+//					else
+//						nameContext.put(NamespaceUtility.ReturnValueName(), new VoidValue());
+//				}
+//
+//				return new Pair<INode, Context>(new ASkipAction(), question);
+//			}
+//		});
+//	}
 
 	/**
 	 * Assignment - section 7.5.1 D23.2
