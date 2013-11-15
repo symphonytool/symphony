@@ -252,8 +252,18 @@ public class NewMCVisitor extends
 		MCAProcessDefinition result = null;
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 		
-		//for the moment we assume that only process is defined in a cml file 
-		result = context.processDefinitions.getFirst();
+		String mainProcessName = "Cards";
+
+		if(context.processDefinitions.size() > 1){
+			for (MCAProcessDefinition proc : context.processDefinitions) {
+				if(proc.getName().startsWith(mainProcessName)){
+					result = proc;
+				}
+			}
+		}else{
+			result = context.processDefinitions.getFirst();
+		}
+		
 		
 		return result;
 	}
@@ -312,7 +322,7 @@ public class NewMCVisitor extends
 			files = folder.listFiles();
 		}
 		
-		String cml_file = "src/test/resources/simpler-register.cml";
+		String cml_file = "src/test/resources/minimondex-incomplete.cml.nok";
 		//System.out.println("Testing on " + cml_file);
 		PSource source1 = Utilities.makeSourceFromFile(cml_file);
 		// Type check
