@@ -117,7 +117,6 @@ public class MCHandler extends AbstractHandler {
 							IFolder mcFolder = cmlProj.getModelBuildPath().getOutput().getFolder(new Path("modelchecker"));
 							if(!mcFolder.exists()){
 								//if generated folder doesn't exist
-								IContainer mcParent = mcFolder.getParent();
 								if (!mcFolder.getParent().exists()){
 									((IFolder) mcFolder.getParent()).create(true, true, new NullProgressMonitor());
 								}
@@ -131,7 +130,7 @@ public class MCHandler extends AbstractHandler {
 							ICmlSourceUnit selectedUnit = getSelectedSourceUnit(model, (IFile)cmlFile);
 							IFile outputFile = translateCmlToFormula(model, (IFile)cmlFile, mcFolder, propertyToCheck);
 						
-							FormulaResult formulaOutput = new FormulaResult();
+							//FormulaResult formulaOutput = new FormulaResult();
 							//MCJob job = new MCJob("Model checker progress", outputFile);
 							//formulaOutput = job.getFormulaResult();
 							//job.schedule();
@@ -202,7 +201,7 @@ public class MCHandler extends AbstractHandler {
 		IFile outputFile = mcFolder.getFile(formulaFileName);
 		
 		List<PDefinition> definitions = selectedCmlSourceUnit.getParseListDefinitions();
-		String basicContent = Utilities.readScriptFromFile(Utilities.BASIC_FORMULA_SCRIPT).toString();
+		
 		this.adaptor =  new NewMCVisitor();
 		String specificationContent = this.adaptor.generateFormulaScript(definitions,propertyToCheck);
 		try{
