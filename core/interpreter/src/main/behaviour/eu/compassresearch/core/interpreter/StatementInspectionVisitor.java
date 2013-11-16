@@ -2,18 +2,14 @@ package eu.compassresearch.core.interpreter;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.AApplyExp;
 import org.overture.ast.expressions.AVariableExp;
 import org.overture.ast.expressions.PExp;
-import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.intf.lex.ILexNameToken;
-import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
-import org.overture.ast.patterns.PPattern;
 import org.overture.ast.statements.AAssignmentStm;
 import org.overture.ast.statements.AAtomicStm;
 import org.overture.ast.statements.ABlockSimpleBlockStm;
@@ -27,16 +23,14 @@ import org.overture.ast.statements.AReturnStm;
 import org.overture.ast.statements.AWhileStm;
 import org.overture.ast.statements.PStm;
 import org.overture.ast.types.AVoidType;
-import org.overture.ast.types.PType;
 import org.overture.interpreter.assistant.pattern.PPatternAssistantInterpreter;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.PatternMatchException;
 import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.values.NameValuePair;
-import org.overture.interpreter.values.NameValuePairMap;
 import org.overture.interpreter.values.ObjectValue;
+import org.overture.interpreter.values.OperationValue;
 import org.overture.interpreter.values.UndefinedValue;
-import org.overture.interpreter.values.UpdatableValue;
 import org.overture.interpreter.values.Value;
 import org.overture.interpreter.values.ValueList;
 import org.overture.interpreter.values.VoidValue;
@@ -55,7 +49,6 @@ import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.Inspection;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
-import eu.compassresearch.core.interpreter.api.values.CmlOperationValue;
 import eu.compassresearch.core.interpreter.api.values.ProcessObjectValue;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
@@ -82,44 +75,44 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 		throw new CmlInterpreterException(node, InterpretationErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName()));
 	}
 
-	/**
-	 * This methods splits the assignment call statement into the call and the assignment statements and.
-	 */
-	public Inspection caseAssignmentCall(final AAssignmentStm node,
-			final Context question) throws AnalysisException
-	{
-
-		return newInspection(createTauTransitionWithTime(node, null), new AbstractCalculationStep(owner, visitorAccess)
-		{
-			@Override
-			public Pair<INode, Context> execute(CmlTransition selectedTransition)
-					throws AnalysisException
-			{
-				AApplyExp apply = (AApplyExp) node.getExp();
-				// put return value in a new context
-				Context resultContext = CmlContextFactory.newContext(node.getLocation(), "Call Result Context", question);
-				// put return value in upper context if the parent is a AAssignmentCallStatementAction
-				resultContext.putNew(new NameValuePair(CmlOperationValue.ReturnValueName(), new UndefinedValue()));
-
-				// To access the result we put it in a Value named "|CALL|.|CALLRETURN|" this can never be created
-				// in a cml model. This is a little ugly but it works and statys until something better comes up.
-				@SuppressWarnings("deprecation")
-				AVariableExp varExp = new AVariableExp(node.getType(), node.getLocation(), CmlOperationValue.ReturnValueName(), "", null);
-				// Next we create the assignment statement with the expressions that graps the result
-				@SuppressWarnings("deprecation")
-				AAssignmentStm assignmentNode = new AAssignmentStm(node.getLocation(), node.getTarget().clone(), varExp);
-
-				PExp root = apply.getRoot();
-				ACallStm call = new ACallStm(apply.getLocation(), null, apply.getArgs());
-
-				// We now compose the call statement and assignment statement into sequential composition
-				@SuppressWarnings("deprecation")
-				INode seqComp = new ASequentialCompositionAction(node.getLocation(), ActionVisitorHelper.wrapStatement(call), ActionVisitorHelper.wrapStatement(assignmentNode.clone()));
-				return new Pair<INode, Context>(seqComp, resultContext);
-			}
-		});
-
-	}
+//	/**
+//	 * This methods splits the assignment call statement into the call and the assignment statements and.
+//	 */
+//	public Inspection caseAssignmentCall(final AAssignmentStm node,
+//			final Context question) throws AnalysisException
+//	{
+//
+//		return newInspection(createTauTransitionWithTime(node, null), new AbstractCalculationStep(owner, visitorAccess)
+//		{
+//			@Override
+//			public Pair<INode, Context> execute(CmlTransition selectedTransition)
+//					throws AnalysisException
+//			{
+//				AApplyExp apply = (AApplyExp) node.getExp();
+//				// put return value in a new context
+//				Context resultContext = CmlContextFactory.newContext(node.getLocation(), "Call Result Context", question);
+//				// put return value in upper context if the parent is a AAssignmentCallStatementAction
+//				resultContext.putNew(new NameValuePair(NamespaceUtility.ReturnValueName(), new UndefinedValue()));
+//
+//				// To access the result we put it in a Value named "|CALL|.|CALLRETURN|" this can never be created
+//				// in a cml model. This is a little ugly but it works and statys until something better comes up.
+//				@SuppressWarnings("deprecation")
+//				AVariableExp varExp = new AVariableExp(node.getType(), node.getLocation(), NamespaceUtility.ReturnValueName(), "", null);
+//				// Next we create the assignment statement with the expressions that graps the result
+//				@SuppressWarnings("deprecation")
+//				AAssignmentStm assignmentNode = new AAssignmentStm(node.getLocation(), node.getTarget().clone(), varExp);
+//
+//				PExp root = apply.getRoot();
+//				ACallStm call = new ACallStm(apply.getLocation(), null, apply.getArgs());
+//
+//				// We now compose the call statement and assignment statement into sequential composition
+//				@SuppressWarnings("deprecation")
+//				INode seqComp = new ASequentialCompositionAction(node.getLocation(), ActionVisitorHelper.wrapStatement(call), ActionVisitorHelper.wrapStatement(assignmentNode.clone()));
+//				return new Pair<INode, Context>(seqComp, resultContext);
+//			}
+//		});
+//
+//	}
 
 	@Override
 	public Inspection caseALetStm(final ALetStm node, final Context question)
@@ -143,7 +136,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 
 					for (PDefinition def : node.getLocalDefs())
 					{
-						NameValuePair nvp = def.apply(cmlDefEvaluator, question).get(0);
+						NameValuePair nvp = def.apply(cmlDefEvaluator, blockContext).get(0);
 						blockContext.put(nvp.name, nvp.value.getUpdatable(null));
 					}
 				}
@@ -219,9 +212,9 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 					throws AnalysisException
 			{
 				// first find the operation value in the context
-				CmlOperationValue opVal = (CmlOperationValue) lookupName(node.getName(), question);
+				OperationValue opVal = (OperationValue) question.lookup(node.getName()).deref();
 
-				if (opVal.getBody() == null)
+				if (opVal.body == null)
 					throw new CmlInterpreterException(node, InterpretationErrorMessages.EVAL_OF_IMPLICIT_OP.customizeMessage(node.getName().toString()));
 
 				// evaluate all the arguments
@@ -621,31 +614,31 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 
 	}
 
-	@Override
-	public Inspection caseAReturnStm(final AReturnStm node,
-			final Context question) throws AnalysisException
-	{
-
-		return newInspection(createTauTransitionWithoutTime(new ASkipAction()), new AbstractCalculationStep(owner, visitorAccess)
-		{
-
-			@Override
-			public Pair<INode, Context> execute(CmlTransition selectedTransition)
-					throws AnalysisException
-			{
-				Context nameContext = (Context) question.locate(CmlOperationValue.ReturnValueName());
-				if (nameContext != null)
-				{
-					if (node.getExpression() != null)
-						nameContext.put(CmlOperationValue.ReturnValueName(), node.getExpression().apply(cmlExpressionVisitor, question));
-					else
-						nameContext.put(CmlOperationValue.ReturnValueName(), new VoidValue());
-				}
-
-				return new Pair<INode, Context>(new ASkipAction(), question);
-			}
-		});
-	}
+//	@Override
+//	public Inspection caseAReturnStm(final AReturnStm node,
+//			final Context question) throws AnalysisException
+//	{
+//
+//		return newInspection(createTauTransitionWithoutTime(new ASkipAction()), new AbstractCalculationStep(owner, visitorAccess)
+//		{
+//
+//			@Override
+//			public Pair<INode, Context> execute(CmlTransition selectedTransition)
+//					throws AnalysisException
+//			{
+//				Context nameContext = (Context) question.locate(NamespaceUtility.ReturnValueName());
+//				if (nameContext != null)
+//				{
+//					if (node.getExpression() != null)
+//						nameContext.put(NamespaceUtility.ReturnValueName(), node.getExpression().apply(cmlExpressionVisitor, question));
+//					else
+//						nameContext.put(NamespaceUtility.ReturnValueName(), new VoidValue());
+//				}
+//
+//				return new Pair<INode, Context>(new ASkipAction(), question);
+//			}
+//		});
+//	}
 
 	/**
 	 * Assignment - section 7.5.1 D23.2

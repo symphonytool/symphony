@@ -1,3 +1,0 @@
-channels
-a
-process Network = || i in set {1,2,3} @ begin @ a -> Skip end

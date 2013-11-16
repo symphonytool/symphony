@@ -97,7 +97,6 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 	protected Pair<INode, Context> caseExternalChoiceEnd(
 			CmlBehaviour theChoosenOne, Context context) throws ValueException
 	{
-		// FIXME the children contexts also needs to be replaced!!!!!!
 		Context copyContext = theChoosenOne.getNextState().second;
 		Context newCurrentContext = CmlBehaviourUtility.mergeAndReplaceState(context, copyContext);
 		// Context newCurrentContext = copyContext;

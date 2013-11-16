@@ -15,11 +15,12 @@ import org.overture.ast.statements.ACallStm;
 import org.overture.ast.statements.AElseIfStm;
 import org.overture.ast.statements.AIfStm;
 import org.overture.ast.statements.ALetStm;
+import org.overture.ast.statements.ASkipStm;
 import org.overture.ast.statements.AWhileStm;
 import org.overture.ast.statements.PStateDesignator;
 import org.overture.ast.statements.PStm;
-import eu.compassresearch.ast.statements.AActionStm;
 
+import eu.compassresearch.ast.statements.AActionStm;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.core.analysis.theoremprover.utils.ThmProcessUtil;
 
@@ -39,6 +40,12 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		return a.getAction().apply(thmStringVisitor, vars);
 	}
 	
+	public String caseASkipStm(ASkipStm a, ThmVarsContext vars) throws AnalysisException{
+		
+		return "II";		
+	}
+	
+	
 	public String caseACallStm(ACallStm a, ThmVarsContext vars) throws AnalysisException{
 		StringBuilder args = new StringBuilder();
 		
@@ -54,7 +61,6 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		
 		ILexNameToken name = a.getName();
 		return name.getName()+ "(" + args.toString() + ")";		
-		
 	}
 	
 	public String caseABlockSimpleBlockStm(ABlockSimpleBlockStm a, ThmVarsContext vars) throws AnalysisException{

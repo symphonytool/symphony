@@ -41,7 +41,7 @@ public class LaunchIsabelleHandler extends AbstractHandler implements IHandler
 		if(isWindowsPlatform())
 		{
 			configType = getConfigurationType(IIsabelleConstants.LAUNCH_ID_WIN); 
-		}if(isMacPlatform())
+		}else if(isMacPlatform())
 		{
 			configType = getConfigurationType(IIsabelleConstants.LAUNCH_ID_MAC);
 		}else
@@ -57,10 +57,17 @@ public class LaunchIsabelleHandler extends AbstractHandler implements IHandler
 			wc.setAttribute(IIsabelleConstants.ATTR_SESSION, IIsabelleConstants.ATTR_SESSION_NAME);
 			wc.setAttribute(IIsabelleConstants.ATTR_BUILD_RUN, true);
 			wc.setAttribute(IIsabelleConstants.ATTR_BUILD_TO_SYSTEM, false);
+			
+			LinkedList<String> sessionDir = new LinkedList<String>();
 			if(! LaunchIsabelleHandler.isWindowsPlatform()){
-				LinkedList<String> sessionDir = new LinkedList<String>();
+				
 				sessionDir.add(CmlTPPlugin.getDefault().getPreferenceStore().getString(IIsabelleConstants.ATTR_SESSION_DIRS));
-				wc.setAttribute(IIsabelleConstants.ATTR_SESSION_DIRS, sessionDir);
+			}
+			wc.setAttribute(IIsabelleConstants.ATTR_SESSION_DIRS, sessionDir);
+
+			if(LaunchIsabelleHandler.isWindowsPlatform()){
+				String defaultCygwinLoc = CmlTPPlugin.getDefault().getPreferenceStore().getString(IIsabelleConstants.ATTR_LOCATION) + "\\contrib\\cygwin";
+				wc.setAttribute(IIsabelleConstants.ATTR_CYGWIN_LOCATION, defaultCygwinLoc);
 			}
 			
 			HashMap<String, String> env = new HashMap<String, String>();

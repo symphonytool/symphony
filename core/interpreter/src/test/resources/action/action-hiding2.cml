@@ -3,5 +3,5 @@ a b
 
 process A = 
 begin 
-	@ (a -> b -> Skip) \\ {b} \\ {a}
+	@ ((a -> b -> Skip) \\ {b}) \\ {a}
 end

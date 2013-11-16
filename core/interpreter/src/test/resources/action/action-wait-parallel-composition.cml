@@ -13,4 +13,4 @@ begin
 	@ Wait 3 ; a -> Skip
 end
 
-process C = A || B
+process C = A [| {a} |] B

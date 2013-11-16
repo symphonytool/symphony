@@ -66,10 +66,10 @@ public class TPPluginDoStuff {
 				return;
 			}
 
-			// // Test for unsupportted
-			// if (checkUnsupporteds(proj)) {
-			// return;
-			// }
+			// Test for unsupportted
+			if (checkUnsupporteds(proj)) {
+				return;
+			}
 
 			// Get the cml project
 			ICmlProject cmlProj = (ICmlProject) proj
