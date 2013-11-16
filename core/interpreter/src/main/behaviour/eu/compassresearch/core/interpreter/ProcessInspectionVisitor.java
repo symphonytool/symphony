@@ -19,6 +19,7 @@ import org.overture.interpreter.values.FunctionValue;
 import org.overture.interpreter.values.NameValuePair;
 import org.overture.interpreter.values.NameValuePairList;
 import org.overture.interpreter.values.NameValuePairMap;
+import org.overture.interpreter.values.OperationValue;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.actions.ASkipAction;
@@ -50,7 +51,6 @@ import eu.compassresearch.core.interpreter.api.transitions.LabelledTransition;
 import eu.compassresearch.core.interpreter.api.transitions.ObservableTransition;
 import eu.compassresearch.core.interpreter.api.values.ActionValue;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
-import eu.compassresearch.core.interpreter.api.values.CmlOperationValue;
 import eu.compassresearch.core.interpreter.api.values.ProcessObjectValue;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
@@ -89,10 +89,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 				AProcessDefinition processDef;
 
 				NameValuePairMap valueMap = new NameValuePairMap();
-				// Create a temporary context to evaluate the definitions in
-				// Context tmpContext =
-				// CmlContextFactory.newContext(node.getLocation(),"Action Process definitions evaluation context",question);
-				Context tmpContext = null;
+				
 				// We have a named process
 				if (node.parent() instanceof AProcessDefinition)
 				{
@@ -100,16 +97,14 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 					if (processDef.getLocalState().size() > 0)
 					{
 						for (Entry<ILexNameToken, Value> entry : question.entrySet())
-							valueMap.putNew(new NameValuePair(entry.getKey().getModifiedName(processDef.getName().getSimpleName()), entry.getValue()));
+							//valueMap.putNew(new NameValuePair(entry.getKey().getModifiedName(processDef.getName().getSimpleName()), entry.getValue()));
+							valueMap.putNew(new NameValuePair(entry.getKey().getModifiedName(node.getActionDefinition().getName().getSimpleName()), entry.getValue()));
+							
 					}
 				}
 				// Unnamed process
 				else
 				{
-					processDef = new AProcessDefinition();
-					processDef.setLocation(node.getLocation());
-					processDef.setName(new CmlLexNameToken("", "Unnamed Process", node.getLocation()));
-
 					AProcessDefinition pdef = node.getAncestor(AProcessDefinition.class);
 					// We need to check whether the unnamed process is inside parameterised process, if it is then we
 					// need
@@ -125,55 +120,45 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 							// id.clone());
 							ILexNameToken paramName = decl.getName();
 							Value val = question.lookup(paramName);
-							valueMap.putNew(new NameValuePair(paramName.getModifiedName(processDef.getName().getSimpleName()), val));
+							valueMap.putNew(new NameValuePair(paramName.getModifiedName(node.getActionDefinition().getName().getSimpleName()), val));
 							// }
 						}
 					}
 				}
-
+				
+				// Create a temporary context to evaluate the definitions in
+				Context tmpContext = null;
 				if (question.title.equals(CmlContextFactory.PARAMETRISED_PROCESS_CONTEXT_NAME))
-					tmpContext = CmlContextFactory.newObjectContext(node.getLocation(), "Tmp Action Process Context", question.outer, new ProcessObjectValue(processDef, valueMap, null, null));
+					tmpContext = CmlContextFactory.newObjectContext(node.getLocation(), "Tmp Action Process Context", question.outer, new ProcessObjectValue(node.getActionDefinition(), valueMap, null, null));
 				else
-					tmpContext = CmlContextFactory.newObjectContext(node.getLocation(), "Tmp Action Process Context", question, new ProcessObjectValue(processDef, valueMap, null, null));
+					tmpContext = CmlContextFactory.newObjectContext(node.getLocation(), "Tmp Action Process Context", question, new ProcessObjectValue(node.getActionDefinition(), valueMap, null, null));
 
 				// Evaluate and add paragraph definitions and add the result to the state
 				PExp processInv = null;
 				for (PDefinition def : node.getActionDefinition().getDefinitions())
 				{
 					// Take out the invariant expression if any
-					if (def instanceof AStateDefinition)
+					if (def instanceof AClassInvariantDefinition)
 					{
-						for (PDefinition stateDef : ((AStateDefinition) def).getStateDefs())
-							if (stateDef instanceof AClassInvariantDefinition)
-								processInv = ((AClassInvariantDefinition) stateDef).getExpression();
+						processInv = ((AClassInvariantDefinition) def).getExpression();
 					}
 
 					NameValuePairList nvps = def.apply(cmlDefEvaluator, tmpContext);
 					tmpContext.putList(nvps);
 
+					//set the correct module on the member names
 					for (NameValuePair nvp : nvps)
 					{
-						ILexNameToken name = nvp.name.getModifiedName(processDef.getName().getSimpleName());
-
-						// This makes sure that operations and functions cannot be updated, while
-						// everything else can.
-						// TODO This might be incomplete
-						if (nvp.value instanceof FunctionValue
-								|| nvp.value instanceof CmlOperationValue
-								|| nvp.value instanceof ActionValue)
-							valueMap.put(new NameValuePair(name, nvp.value));
-						else
-							valueMap.put(new NameValuePair(name, nvp.value.getUpdatable(null)));
+						ILexNameToken name = nvp.name.getModifiedName(node.getActionDefinition().getName().getSimpleName());
+						valueMap.put(new NameValuePair(name, nvp.value));
 					}
 				}
 
-				ProcessObjectValue self = new ProcessObjectValue(processDef, valueMap, question.getSelf(), processInv);
-
+				ProcessObjectValue self = new ProcessObjectValue(node.getActionDefinition(), valueMap, question.getSelf(), processInv);
 				ObjectContext processObjectContext = null;
 
 				// If params si defined in the above context them we need to add them to the created processContext
-				// since it
-				// cannot look above that, meaning they won't be visible if we dont
+				// since it cannot look above that, meaning they won't be visible if we don't
 				if (question.title.equals(CmlContextFactory.PARAMETRISED_PROCESS_CONTEXT_NAME))
 				{
 					processObjectContext = CmlContextFactory.newObjectContext(node.getLocation(), "Action Process Context", question.outer, self);

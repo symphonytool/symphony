@@ -31,7 +31,7 @@ functions
   NeverShowAll(d) == d.currentstate <> {<L1>,<L2>,<L3>}
   
   MaxOneLampChange: DwarfType -> bool 
-  MaxOneLampChange(d) == exists l : LampId @ d.currentstate \ d.laststate = {l} or d.laststate \ d.currentstate = {l}
+  MaxOneLampChange(d) == (d.currentstate <> d.laststate) => exists l : LampId @ d.currentstate \ d.laststate = {l} or d.laststate \ d.currentstate = {l}
   
  ForbidStopToDrive : DwarfType -> bool
   ForbidStopToDrive(d) == ((d.lastproperstate = stop) => d.desiredproperstate <> drive)
@@ -53,17 +53,17 @@ begin
 	
 	operations
 		Init : () ==> ()
-  		Init() ==   sg := mk_DwarfSignal(stop, 
+  		Init() ==   sg := mk_DwarfSignal(dark, 
 				         	  {}, 
-				    	      {}, 
 				    	      stop, 
-				    	      stop, 
+				    	      dark, 
+				    	      dark, 
 				     		  stop)
-		 post sg.lastproperstate = stop and 
+		 post sg.lastproperstate = dark and 
          sg.turnoff = {} and 
-         sg.turnon = {} and 
-         sg.laststate = stop and 
-         sg.currentstate = stop and 
+         sg.turnon = stop and 
+         sg.laststate = dark and 
+         sg.currentstate = dark and 
          sg.desiredproperstate = stop
 		 
 		

@@ -12,16 +12,16 @@ class CmlToVdmConverter
 	public static AClassType createClassType(
 			AProcessDefinition processDefinition)
 	{
-		if(processDefinition.getProcess() instanceof AActionProcess)
-		{
-			AActionProcess inner = (AActionProcess)processDefinition.getProcess();
-			//we replace the names of the generated inner class to the name of the process to enable the VDM interpreter to lookup correctly
-			inner.getActionDefinition().setName(processDefinition.getName());
-			((AClassType)inner.getActionDefinition().getClasstype()).setName(processDefinition.getName());
-			return (AClassType)inner.getActionDefinition().getClasstype();
-		}
-		else
-		{
+//		if(processDefinition.getProcess() instanceof AActionProcess)
+//		{
+//			AActionProcess inner = (AActionProcess)processDefinition.getProcess();
+//			//we replace the names of the generated inner class to the name of the process to enable the VDM interpreter to lookup correctly
+//			//inner.getActionDefinition().setName(processDefinition.getName());
+//			//((AClassType)inner.getActionDefinition().getClasstype()).setName(processDefinition.getName());
+//			return (AClassType)inner.getActionDefinition().getClasstype();
+//		}
+//		else
+//		{
 			AClassType classType = new AClassType();
 			classType.setResolved(true);
 			classType.setName(processDefinition.getName().clone());
@@ -30,7 +30,7 @@ class CmlToVdmConverter
 			adaptor.setClasstype(classType);
 			classType.setClassdef(adaptor);
 			return classType;
-		}
+//		}
 	}
 
 	public static ProcessDefinitionAdaptor createProcessDefinitionAdaptor(

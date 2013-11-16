@@ -3,6 +3,6 @@
   <exception/>
   <interpreterState>FINISHED</interpreterState>
   <trace>
-    <events>a</events>
+    <events>a,a</events>
   </trace>
 </testResult>

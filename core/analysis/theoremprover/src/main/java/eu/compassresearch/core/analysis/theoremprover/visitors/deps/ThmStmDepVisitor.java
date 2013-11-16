@@ -1,6 +1,7 @@
 package eu.compassresearch.core.analysis.theoremprover.visitors.deps;
 
 import java.util.LinkedList;
+
 import eu.compassresearch.ast.statements.AActionStm;
 
 import org.overture.ast.analysis.AnalysisException;
@@ -14,6 +15,7 @@ import org.overture.ast.statements.ACallStm;
 import org.overture.ast.statements.AElseIfStm;
 import org.overture.ast.statements.AIfStm;
 import org.overture.ast.statements.ALetStm;
+import org.overture.ast.statements.ASkipStm;
 import org.overture.ast.statements.AWhileStm;
 import org.overture.ast.statements.PStateDesignator;
 import org.overture.ast.statements.PStm;
@@ -39,7 +41,13 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 		
 		return nodeDeps;
 	}
-	
+
+	public NodeNameList caseASkipStm(ASkipStm a, NodeNameList bvars)
+			throws AnalysisException {
+		NodeNameList nodeDeps = new NodeNameList();
+		return nodeDeps;
+	}
+
 	public NodeNameList caseACallStm(ACallStm a, NodeNameList bvars)
 			throws AnalysisException {
 		NodeNameList nodeDeps = new NodeNameList();

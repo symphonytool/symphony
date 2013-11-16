@@ -413,6 +413,12 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	{
 		ParserResult res = ParserUtil.parse(f);
 
+		if(res.errors.size() > 0)
+		{
+			res.printErrors(System.err);
+			return;
+		}
+		
 		ITypeIssueHandler issueHandler = VanillaFactory.newCollectingIssueHandle();
 
 		// Type check
@@ -473,7 +479,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	{
 		File cml_example = new File(
 		// "/home/akm/phd/runtime-COMPASS/simpleDLNA/SimpleDLNA.cml");
-		"src/test/resources/action/statements/action-call-postcondition.cml");
+		"src/test/resources/process/invariant.cml");
 		//File cml_example = new File("/home/akm/phd/COMPASS-repo/Common/PublicLiveCMLCaseStudies/RingBuffer/RingBuffer.cml");
 		//File cml_example = new File("/home/akm/Downloads/minimondex.cml");
 		runOnFile(cml_example);

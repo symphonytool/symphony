@@ -32,7 +32,6 @@ import eu.compassresearch.core.analysis.theoremprover.utils.ThySortException;
 import eu.compassresearch.core.analysis.theoremprover.visitors.TPVisitor;
 import eu.compassresearch.core.analysis.theoremprover.visitors.deps.ThmDepVisitor;
 
-@SuppressWarnings("serial")
 public class ThmProcessStringVisitor extends
 QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 
