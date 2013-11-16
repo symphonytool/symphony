@@ -33,24 +33,29 @@ public class MCAExternalChoiceReplicatedAction extends MCSReplicatedActionBase {
 		}
 		
 		// building combination of processses based on simple constructs
-		StringBuilder replicatedAction = buildReplicatedAction(context,indexes.size(), option);
+		StringBuilder replicatedAction = buildReplicatedAction(context,indexes, option);
 
 		return replicatedAction.toString();
 	}
 	
 	private StringBuilder buildReplicatedAction(NewCMLModelcheckerContext context,
-			int times,String option) {
+			LinkedList<MCPCMLExp> indexes,String option) {
 
 		 
 		StringBuilder result = new StringBuilder();
-		
-		if(times == 1){
+		if(indexes.size() == 1){
 			result.append(this.getReplicatedAction().toFormula(option));
-		}else if (times > 1) {
+		}else if (indexes.size() > 1) {
+			MCPCMLExp firstArg = indexes.removeFirst();
 			result.append("eChoice(");
-			result.append(this.getReplicatedAction().toFormula(option));
+			MCPAction replicatedAction = this.getReplicatedAction();
+			if(replicatedAction instanceof MCAReferenceAction){
+				//((MCAReferenceAction) replicatedAction).setArgs(first);
+			}
+			result.append(replicatedAction.toFormula(option));
 			result.append(",");
-			StringBuilder rest = buildReplicatedAction(context,times-1,option);
+			
+			StringBuilder rest = buildReplicatedAction(context,indexes,option);
 			result.append(rest.toString());
 			result.append(")");
 		}

@@ -61,6 +61,19 @@ public class MCAExplicitCmlOperationDefinition implements
 		this.parentAction = new MCOperationCall(this.name, null, paramPatterns);
 	}
 
+	
+
+	@Override
+	public boolean equals(Object obj) {
+		boolean result = false;
+		if(obj instanceof MCAExplicitCmlOperationDefinition){
+			result = this.name.equals(((MCAExplicitCmlOperationDefinition) obj).getName())
+					&& this.paramPatterns.equals(((MCAExplicitCmlOperationDefinition) obj).getParamPatterns());
+		}
+		return result;
+	}
+
+
 
 	@Override
 	public String toFormula(String option) {

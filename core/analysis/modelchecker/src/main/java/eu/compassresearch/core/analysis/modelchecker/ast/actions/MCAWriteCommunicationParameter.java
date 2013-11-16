@@ -19,6 +19,17 @@ public class MCAWriteCommunicationParameter implements
 		return "!" + this.expression.toFormula(option);
 	}
 
+	
+
+	@Override
+	public boolean equals(Object obj) {
+		boolean result = false;
+		if(obj instanceof MCAWriteCommunicationParameter){
+			result = this.expression.equals(((MCAWriteCommunicationParameter) obj).getExpression());
+		}
+		return result;
+	}
+
 
 	public MCPCMLExp getExpression() {
 		return expression;

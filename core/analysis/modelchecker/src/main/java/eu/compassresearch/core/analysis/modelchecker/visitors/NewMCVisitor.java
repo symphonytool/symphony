@@ -261,7 +261,7 @@ public class NewMCVisitor extends
 				}
 			}
 		}else{
-			result = context.processDefinitions.getFirst();
+			result = context.processDefinitions.get(0);
 		}
 		
 		

@@ -9,9 +9,17 @@ public class MCAUnionVOpVarsetExpression implements MCPVarsetExpression{
 	protected MCPVarsetExpression right;
 	
 	public MCAUnionVOpVarsetExpression(MCPVarsetExpression l, MCPVarsetExpression r) {
-		super();
 		this.left = l;
 		this.right = r;
+	}
+	
+	public LinkedList<MCANameChannelExp> getChannelNames() {
+		LinkedList<MCANameChannelExp> result = new LinkedList<MCANameChannelExp>();
+
+		result.addAll(left.getChannelNames());
+		result.addAll(right.getChannelNames());
+		
+		return result;
 	}
 	
 	@Override

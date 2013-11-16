@@ -100,7 +100,10 @@ public class NewMCProcessVisitor extends
 		MCPProcess replicatedProc = (MCPProcess) node.getReplicatedProcess().apply(rootVisitor, question);
 		MCPVarsetExpression chansetExpression =  (MCPVarsetExpression) node.getChansetExpression().apply(rootVisitor, question);
 		
-		MCAAlphabetisedParallelismReplicatedProcess result = new MCAAlphabetisedParallelismReplicatedProcess(declarations, replicatedProc, chansetExpression);	
+		question.globalChanSets.add(chansetExpression);
+		
+		MCAAlphabetisedParallelismReplicatedProcess result = new MCAAlphabetisedParallelismReplicatedProcess(declarations, replicatedProc, chansetExpression);
+		
 		return result;
 	}
 

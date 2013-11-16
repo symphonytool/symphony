@@ -12,6 +12,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAExplicit
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAProcessDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCSCmlOperationDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
+import eu.compassresearch.core.analysis.modelchecker.visitors.ArrayListSet;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 
 public class MCAReferenceProcess implements MCPProcess {
@@ -45,7 +46,7 @@ public class MCAReferenceProcess implements MCPProcess {
 				}
 			}
 		}
-		LinkedList<MCAProcessDefinition> procDefs = context.processDefinitions;
+		ArrayListSet<MCAProcessDefinition> procDefs = context.processDefinitions;
 		if(!callResolved){
 			for (MCAProcessDefinition mcaProcessDefinition : procDefs) {
 				if(mcaProcessDefinition.getName().equals(this.name)){
