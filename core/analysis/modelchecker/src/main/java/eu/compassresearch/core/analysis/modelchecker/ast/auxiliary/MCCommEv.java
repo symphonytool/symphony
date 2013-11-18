@@ -46,9 +46,9 @@ public class MCCommEv implements MCNode {
 		while (it.hasNext()) {
 			MCPCommunicationParameter item = (MCPCommunicationParameter) it.next();
 			result.append(item.toFormula(option));
-			if(it.hasNext()){
-				result.append(".");
-			}
+			//if(it.hasNext()){
+			//	result.append(".");
+			//}
 		}
 		
 		return result.toString();

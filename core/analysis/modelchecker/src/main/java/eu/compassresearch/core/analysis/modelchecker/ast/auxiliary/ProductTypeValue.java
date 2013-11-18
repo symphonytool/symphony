@@ -1,5 +1,7 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.auxiliary;
 
+import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
+
 
 public class ProductTypeValue extends TypeValue {
 	private TypeValue firstValue;
@@ -38,6 +40,12 @@ public class ProductTypeValue extends TypeValue {
 		result.append(")");
 		
 		return result.toString();
+	}
+
+	@Override
+	public String toString() {
+		
+		return this.toFormula(MCNode.DEFAULT);
 	}
 
 	

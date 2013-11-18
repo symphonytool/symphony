@@ -24,8 +24,18 @@ public class MCALocalDefinition implements MCPCMLDefinition {
 		return null;
 	}
 
-
 	
+	
+
+	@Override
+	public boolean equals(Object obj) {
+		boolean result = false;
+		if(obj instanceof MCALocalDefinition){
+			result = this.name.equals(((MCALocalDefinition) obj).getName());
+		}
+		return result;
+	}
+
 
 	public String getName() {
 		return name;

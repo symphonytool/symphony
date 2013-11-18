@@ -53,10 +53,11 @@ public class MCAChannelDefinition implements MCPCMLDefinition {
 				break;
 			
 			case MCNode.DEFAULT:
+				
 				LinkedList<TypeValue> typeValues = getTypeValues();
 				if(typeValues.size() == 0){ //it is (probably an infinite type and must be instantiated by formula)
 					//lets try to get from the dependendies
-					int i = 0;
+					
 					NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 					LinkedList<ActionChannelDependency> dependencies = context.getActionChannelDependendiesByChannelName(this.name);
 					if(dependencies.size() > 0){
@@ -103,9 +104,10 @@ public class MCAChannelDefinition implements MCPCMLDefinition {
 	private LinkedList<TypeValue> getTypeValues(){
 		LinkedList<TypeValue> result = new LinkedList<TypeValue>();
 
+		
 		//MCPCMLType type = type.getType();
-		//if(type instanceof MCAChannelType){
-		//	type = ((MCAChannelType) type).getType();
+		if(this.type instanceof MCAChannelType){
+			this.type = ((MCAChannelType) this.type).getType();
 			
 			//MCAIntNumericBasicType, MCANatNumericBasicType are infinite, so we let formula to instantiate them
 			
@@ -114,7 +116,7 @@ public class MCAChannelDefinition implements MCPCMLDefinition {
 				TypeManipulator typeManipulator = TypeManipulator.getInstance();
 				result = typeManipulator.getValues(type);
 			}
-		//}
+		}
 		
 		return result;
 	}

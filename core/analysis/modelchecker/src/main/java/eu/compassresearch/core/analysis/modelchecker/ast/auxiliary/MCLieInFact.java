@@ -10,7 +10,6 @@ public class MCLieInFact implements MCNode {
 	
 	
 	public MCLieInFact(MCCommEv commEvent, MCPVarsetExpression setExp) {
-		super();
 		this.commEvent = commEvent;
 		this.setExp = setExp;
 	}
@@ -19,7 +18,7 @@ public class MCLieInFact implements MCNode {
 	@Override
 	public String toFormula(String option) {
 		StringBuilder lieIn = new StringBuilder();
-		lieIn.append("lieIn(");
+		lieIn.append("  lieIn(");
 		lieIn.append(commEvent.toFormula(option));
 		lieIn.append(",");
 		lieIn.append(setExp.toFormula(option));

@@ -1,5 +1,7 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.auxiliary;
 
+import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
+
 public class SingleTypeValue extends TypeValue {
 	private String value;
 
@@ -24,4 +26,11 @@ public class SingleTypeValue extends TypeValue {
 		
 		return result.toString();
 	}
+
+	@Override
+	public String toString() {
+		return this.toFormula(MCNode.DEFAULT);
+	}
+	
+	
 }

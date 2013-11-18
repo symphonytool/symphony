@@ -23,6 +23,17 @@ public class MCAValParametrisation implements MCPParametrisation {
 		return null;
 	}
 
+	
+
+	@Override
+	public boolean equals(Object obj) {
+		boolean result = false;
+		if(obj instanceof MCAValParametrisation){
+			result = this.declaration.equals(((MCAValParametrisation) obj).getDeclaration());
+		}
+		return result;
+	}
+
 
 	public MCALocalDefinition getDeclaration() {
 		return declaration;

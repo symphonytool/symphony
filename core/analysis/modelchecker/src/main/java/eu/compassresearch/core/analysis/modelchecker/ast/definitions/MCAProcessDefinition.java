@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAReadCommunicationParameter;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAValParametrisation;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPParametrisation;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ActionChannelDependency;
@@ -37,6 +38,19 @@ public class MCAProcessDefinition implements MCPCMLDefinition {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	
+	@Override
+	public boolean equals(Object obj) {
+		boolean result = false;
+		if(obj instanceof MCAProcessDefinition){
+			result = this.name.equals(((MCAProcessDefinition) obj).getName())
+					 && this.localState != null && ((MCAProcessDefinition)obj).getLocalState() != null
+					 && this.localState.equals(((MCAProcessDefinition) obj).getLocalState());
+		}
+		return result;
+
 	}
 
 	@Override
