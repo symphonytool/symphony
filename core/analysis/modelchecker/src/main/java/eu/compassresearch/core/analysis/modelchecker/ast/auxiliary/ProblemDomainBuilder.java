@@ -1,6 +1,7 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.auxiliary;
 
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Map.Entry;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
@@ -75,16 +76,20 @@ public class ProblemDomainBuilder {
 	private void generateGuardDefinitions(StringBuilder content, String option){
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 	
-		for (Iterator<Entry<MCPCMLExp,NewMCGuardDef>> iterator = context.guardDefs.entrySet().iterator(); iterator.hasNext();) {
-			Entry<MCPCMLExp,NewMCGuardDef> item = (Entry<MCPCMLExp,NewMCGuardDef>) iterator.next();
-			NewMCGuardDef guardDef = item.getValue();
-			content.append(guardDef.toFormula(option));
+		for (Iterator<Entry<MCPCMLExp,LinkedList<MCGuardDef>>> iterator = context.guardDefs.entrySet().iterator(); iterator.hasNext();) {
+			Entry<MCPCMLExp,LinkedList<MCGuardDef>> item = (Entry<MCPCMLExp,LinkedList<MCGuardDef>>) iterator.next();
+			LinkedList<MCGuardDef> guardDefList = item.getValue();
+			for (MCGuardDef mcGuardDef : guardDefList) {
+				content.append(mcGuardDef.toFormula(option));
+			}
 		}
+		/*
 		for (Iterator<Entry<MCPCMLExp,MCGuardDef>> iterator = context.actionGuardDefs.entrySet().iterator(); iterator.hasNext();) {
 			Entry<MCPCMLExp,MCGuardDef> item = (Entry<MCPCMLExp,MCGuardDef>) iterator.next();
 			MCGuardDef guardDef = item.getValue();
 			content.append(guardDef.toFormula(option));
 		}
+		*/
 	}
 	
 	private void generateAssignDefinitions(StringBuilder content, String option){

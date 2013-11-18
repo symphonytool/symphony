@@ -1,5 +1,6 @@
 package eu.compassresearch.core.analysis.modelchecker.visitors;
 
+
 import java.io.File;
 import java.io.IOException;
 import java.util.LinkedList;
@@ -12,7 +13,6 @@ import org.overture.ast.expressions.SBinaryExp;
 import org.overture.ast.expressions.SSeqExp;
 import org.overture.ast.expressions.SSetExp;
 import org.overture.ast.node.INode;
-import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.PPattern;
 import org.overture.ast.statements.PStateDesignator;
 import org.overture.ast.statements.PStm;
@@ -34,6 +34,9 @@ import eu.compassresearch.ast.statements.PCMLStateDesignator;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.FormulaSpecification;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAProcessDefinition;
+import eu.compassresearch.core.typechecker.VanillaFactory;
+import eu.compassresearch.core.typechecker.api.ICmlTypeChecker;
+import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 
 /**
  * The main MC visitor. It obtains other visitors from a factory.
@@ -164,12 +167,14 @@ public class NewMCVisitor extends
 		return node.apply(this.typeAndValueVisitor, question);
 	}
 	
+	
 	@Override
 	public MCNode defaultPStateDesignator(
 			PStateDesignator node, NewCMLModelcheckerContext question) throws AnalysisException
 	{
-		return node.apply(emptyVisitor, question);
+		return node.apply(stmVisitor, question);
 	}
+	
 	
 	@Override
 	public MCNode defaultSNumericBasicType(SNumericBasicType node,
@@ -310,6 +315,15 @@ public class NewMCVisitor extends
 		String cml_file = "src/test/resources/simpler-register.cml";
 		//System.out.println("Testing on " + cml_file);
 		PSource source1 = Utilities.makeSourceFromFile(cml_file);
+		// Type check
+		ITypeIssueHandler errors = VanillaFactory.newCollectingIssueHandle();
+		ICmlTypeChecker cmlTC = VanillaFactory.newTypeChecker(source1.getParagraphs(), errors);
+		boolean tcResult = cmlTC.typeCheck();
+
+		List<INode> r = new LinkedList<INode>();
+		for (INode n : source1.getParagraphs()){
+					r.add(n);
+		}
 		NewMCVisitor visitor1 = new NewMCVisitor(source1);
 		String formulaCode = visitor1.generateFormulaScript(source1.getParagraphs(),Utilities.DEADLOCK_PROPERTY);
 		//String[] codes1 = visitor1.generateFormulaCodeForAll(Utilities.DEADLOCK_PROPERTY);

@@ -1,12 +1,15 @@
-  functions
+ values
+    MAX : nat = 8
+    
+ functions
    oflow : int*int -> bool
-   oflow(i,j) == i+j > 255
+   oflow(i,j) == i+j > MAX
 
    uflow : int*int -> bool
    uflow(i,j) == i-j < 0
 
 
-  channels
+ channels
    init, overflow, underflow
    inc, dec : int
 
@@ -18,7 +21,7 @@ process RegisterProc =
 
   operations  
    INIT : () ==> ()
-   INIT() == reg := 254
+   INIT() == reg := MAX - 1
 
    ADD: int ==> ()
    ADD(i) == reg := reg + i

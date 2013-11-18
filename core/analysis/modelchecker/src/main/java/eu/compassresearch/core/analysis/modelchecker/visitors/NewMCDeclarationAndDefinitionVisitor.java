@@ -76,6 +76,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCVoidValue
 import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCPCMLPattern;
 import eu.compassresearch.core.analysis.modelchecker.ast.process.MCPProcess;
 import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCAActionStm;
+import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCPCMLStm;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAFieldField;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAIntNumericBasicType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLNumericType;
@@ -166,7 +167,7 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 			mcParameters.add((MCPParametrisation) pParametrisation.apply(rootVisitor, question));
 		}
 		MCPAction action = (MCPAction) node.getAction().apply(rootVisitor, question);
-		String name = node.getName().toString();
+		String name = Utilities.extractFunctionName(node.getName().toString());
 		MCAActionDefinition result = new MCAActionDefinition(name, mcParameters, action);
 		
 		question.localActions.add(result);
@@ -229,7 +230,7 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 		LinkedList<MCPCMLDefinition> stateDefs = new LinkedList<MCPCMLDefinition>(); 
 		
 		for (PDefinition pDefinition : node.getStateDefs()) {
-			stateDefs.add((MCPCMLDefinition) pDefinition.apply(this, question));
+			stateDefs.add((MCPCMLDefinition) pDefinition.apply(rootVisitor, question));
 		}
 		MCAStateDefinition result = new MCAStateDefinition(stateDefs, null, null, null, null, null);
 		
@@ -242,7 +243,7 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 
 		LinkedList<MCAChannelDefinition> chanNameDecls = new LinkedList<MCAChannelDefinition>(); 
 		for (AChannelDefinition chanDef : node.getChannelDeclarations()) {
-			chanNameDecls.add((MCAChannelDefinition) chanDef.apply(this, question));
+			chanNameDecls.add((MCAChannelDefinition) chanDef.apply(rootVisitor, question));
 		}
 		MCAChannelsDefinition result = new MCAChannelsDefinition(chanNameDecls);
 		
@@ -274,7 +275,7 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 			type = (MCPCMLType) node.getType().apply(rootVisitor, question);
 		}
 		MCALocalDefinition result = new MCALocalDefinition(name, type);
-
+		
 		return result;
 	}
 
@@ -285,7 +286,7 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 		LinkedList<SOperationDefinition> operations = node.getOperations();
 		LinkedList<MCSCmlOperationDefinition> mcOperations = new LinkedList<MCSCmlOperationDefinition>();
 		for (SOperationDefinition currentOperationDefinition : operations) {
-			mcOperations.add((MCAExplicitCmlOperationDefinition) currentOperationDefinition.apply(this, question));
+			mcOperations.add((MCAExplicitCmlOperationDefinition) currentOperationDefinition.apply(rootVisitor, question));
 		}
 		MCAOperationsDefinition result = new MCAOperationsDefinition(mcOperations);
 		
@@ -297,8 +298,8 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 			AExplicitOperationDefinition node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
 		
-		String name = node.getName().toString();
-		MCAActionStm body = (MCAActionStm) node.getBody().apply(rootVisitor, question);
+		String name = Utilities.extractFunctionName(node.getName().toString());
+		MCPCMLStm body = (MCPCMLStm) node.getBody().apply(rootVisitor, question);
 		
 		LinkedList<MCPCMLPattern> mcParamPatterns = new LinkedList<MCPCMLPattern>();
 		int patternPosition = 0;
@@ -334,7 +335,7 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 			AExplicitFunctionDefinition node, NewCMLModelcheckerContext question)
 			throws AnalysisException {
 		
-		String name = node.getName().toString();
+		String name = Utilities.extractFunctionName(node.getName().toString());
 		MCPCMLExp body = (MCPCMLExp) node.getBody().apply(rootVisitor, question);
 		
 		LinkedList<MCPCMLPattern> mcParamPatterns = new LinkedList<MCPCMLPattern>();
@@ -344,6 +345,7 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 				mcParamPatterns.add(pattern);
 			}
 		}
+		
 		MCPCMLType type = (MCPCMLType) node.getType().apply(rootVisitor, question);
 		MCAExplicitFunctionDefinition result = 
 				new MCAExplicitFunctionDefinition(name,type, body,mcParamPatterns);
@@ -360,7 +362,7 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 
 		LinkedList<MCPCMLDefinition> mcValueDefs = new LinkedList<MCPCMLDefinition>();
 		for (PDefinition pDef : node.getValueDefinitions()) {
-			mcValueDefs.add((MCPCMLDefinition) pDef.apply(this, question));
+			mcValueDefs.add((MCPCMLDefinition) pDef.apply(rootVisitor, question));
 		}
 		  
 		MCAValuesDefinition result = new MCAValuesDefinition(mcValueDefs);
@@ -375,7 +377,7 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 		String name = node.getPattern().toString();
 		LinkedList<MCPCMLDefinition> definitions = new LinkedList<MCPCMLDefinition>();
 		for (PDefinition pDef : node.getDefs()) {
-			definitions.add((MCPCMLDefinition) pDef.apply(this, question));
+			definitions.add((MCPCMLDefinition) pDef.apply(rootVisitor, question));
 		}
 		MCPCMLType type = (MCPCMLType) node.getType().apply(rootVisitor, question);
 		MCPCMLExp expression = (MCPCMLExp) node.getExpression().apply(rootVisitor, question);
@@ -403,7 +405,7 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 
 		LinkedList<MCATypeDefinition> mcTypes = new LinkedList<MCATypeDefinition>();
 		for (ATypeDefinition aTypeDef : node.getTypes()) {
-			mcTypes.add((MCATypeDefinition) aTypeDef.apply(this, question));
+			mcTypes.add((MCATypeDefinition) aTypeDef.apply(rootVisitor, question));
 		}
 		MCATypesDefinition result = new MCATypesDefinition(mcTypes);
 		
@@ -432,7 +434,7 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 		//String name = node.getName().toString();
 		LinkedList<MCPCMLDefinition> definitions = new LinkedList<MCPCMLDefinition>();
 		for (PDefinition pDefinition : node.getDefinitions()) {
-			definitions.add((MCPCMLDefinition) pDefinition.apply(this, question));
+			definitions.add((MCPCMLDefinition) pDefinition.apply(rootVisitor, question));
 		}
 		MCAActionClassDefinition result = new MCAActionClassDefinition(definitions);
 		

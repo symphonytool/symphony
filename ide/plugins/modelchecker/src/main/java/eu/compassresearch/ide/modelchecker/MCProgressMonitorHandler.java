@@ -8,6 +8,7 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -27,7 +28,7 @@ public class MCProgressMonitorHandler extends AbstractHandler{
 	private MCThread thread;
 	IResource cmlFile;
 	
-	public MCProgressMonitorHandler(IFile out, String property, IContainer mcFolder, ICmlSourceUnit selectedUnit, IResource cmlFile, ExecutionEvent event) {
+	public MCProgressMonitorHandler(IFile out, String property, IFolder mcFolder, ICmlSourceUnit selectedUnit, IResource cmlFile, ExecutionEvent event) {
 		IWorkbenchWindow window;
 		try {
 			window = HandlerUtil.getActiveWorkbenchWindowChecked(event);

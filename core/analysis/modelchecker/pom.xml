@@ -23,6 +23,13 @@
       <artifactId>parser</artifactId>
       <version>${project.version}</version>
     </dependency>
+    
+    <dependency>
+			<groupId>eu.compassresearch.core</groupId>
+			<artifactId>typechecker</artifactId>
+			<version>${project.version}</version>
+	</dependency>
+		
   </dependencies>
   
   <build>

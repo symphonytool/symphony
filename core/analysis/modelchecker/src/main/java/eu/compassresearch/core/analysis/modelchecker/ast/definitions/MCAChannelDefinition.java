@@ -1,8 +1,10 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.definitions;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ActionChannelDependency;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.TypeManipulator;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.TypeValue;
 import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCATypeSingleDeclaration;
@@ -13,6 +15,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANamedInvariant
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANatNumericBasicType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAProductType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCVoidType;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 
 public class MCAChannelDefinition implements MCPCMLDefinition {
@@ -29,51 +32,66 @@ public class MCAChannelDefinition implements MCPCMLDefinition {
 	@Override
 	public String toFormula(String option) {
 		StringBuilder result = new StringBuilder();
-		
-		switch (option) {
-		case MCNode.GENERIC:
-			result.append("  Channel(\"");
-			result.append(this.name);
-			result.append("\"");
-			result.append(",");
-			result.append("_");
-			result.append(")");
-			break;
-
-		case MCNode.NAMED:
-			result.append("  Channel(\"");
-			result.append(this.name);
-			result.append("\"");
-			result.append(",");
-			result.append("PARAM_NAMES");
-			result.append(")");
-			break;
-		
-		case MCNode.DEFAULT:
-			LinkedList<TypeValue> typeValues = getTypeValues();
-			if(typeValues.size() == 0){ //it is (probably an infinite type and must be instantiated by formula)
+		if(this.isTyped()){
+			switch (option) {
+			case MCNode.GENERIC:
 				result.append("  Channel(\"");
 				result.append(this.name);
 				result.append("\"");
 				result.append(",");
 				result.append("_");
 				result.append(")");
-			} else{
-				for (TypeValue typeValue : typeValues) {
-					result.append("  Channel(\"");
-					result.append(this.name);
-					result.append("\"");
-					result.append(",");
-					result.append(typeValue.toFormula(option));
-					result.append(")");
-					result.append("\n");
+				break;
+	
+			case MCNode.NAMED:
+				result.append("  Channel(\"");
+				result.append(this.name);
+				result.append("\"");
+				result.append(",");
+				result.append("PARAM_NAMES");
+				result.append(")");
+				break;
+			
+			case MCNode.DEFAULT:
+				LinkedList<TypeValue> typeValues = getTypeValues();
+				if(typeValues.size() == 0){ //it is (probably an infinite type and must be instantiated by formula)
+					//lets try to get from the dependendies
+					int i = 0;
+					NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+					LinkedList<ActionChannelDependency> dependencies = context.getActionChannelDependendiesByChannelName(this.name);
+					if(dependencies.size() > 0){
+						for (Iterator<ActionChannelDependency> iterator = dependencies.iterator(); iterator.hasNext();) {
+							ActionChannelDependency actionChannelDependency = (ActionChannelDependency) iterator.next();
+							result.append(actionChannelDependency.toFormula(option));
+							if(iterator.hasNext()){
+								result.append("\n");
+							}
+						}
+					}else{
+						result.append("  Channel(\"");
+						result.append(this.name);
+						result.append("\"");
+						result.append(",");
+						result.append("_");
+						result.append(")");
+					}
+				} else{
+					for (TypeValue typeValue : typeValues) {
+						result.append("  Channel(\"");
+						result.append(this.name);
+						result.append("\"");
+						result.append(",");
+						result.append(typeValue.toFormula(option));
+						result.append(")");
+						result.append("\n");
+					}
 				}
+				
+				break;
+				
+			default:
+				break;
 			}
-			
-			break;
-			
-		default:
-			break;
 		}
 		
 		//the default option for generating channels is generic (with underscore)
@@ -107,7 +125,11 @@ public class MCAChannelDefinition implements MCPCMLDefinition {
 		//if(realType instanceof MCAChannelType){
 		//	realType = ((MCAChannelType) realType).getType();
 		//}
-		result = type != null;
+		if(type != null){
+			if (type instanceof MCAChannelType){
+				result = !(((MCAChannelType) type).getType() instanceof MCVoidType);
+			}
+		}
 				
 		return result;
 	}

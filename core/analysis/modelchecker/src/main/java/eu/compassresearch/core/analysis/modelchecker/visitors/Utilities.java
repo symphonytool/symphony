@@ -99,6 +99,15 @@ public class Utilities {
 		return result;
 	}
 	
+	public static String extractFunctionName(String functionCall){
+		String result = functionCall;
+		int index = functionCall.indexOf("(");
+		if(index != -1){
+			result = functionCall.substring(0,index);
+		}
+		return result;
+	}
+	
 	 public static PSource makeSourceFromFile(String filePath)
 			    throws IOException, AnalysisException {
 

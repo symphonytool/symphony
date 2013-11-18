@@ -110,17 +110,20 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 	
 	public MCPCMLType instantiateMCType(LinkedList<MCPCMLExp> exps){
 		MCPCMLType result = null;
-		
-		if(exps.size() == 0){
+		if(exps == null){
 			result = new MCVoidType();
-		} else if (exps.size() == 1){
-			result = this.getTypeFor(exps.getFirst());
-		} else if (exps.size() > 1){
-			LinkedList<MCPCMLType> types = new LinkedList<MCPCMLType>();
-			for (MCPCMLExp exp : exps) {
-				types.add(instantiateMCType(exp));
+		}else {
+			if(exps.size() == 0){
+				result = new MCVoidType();
+			} else if (exps.size() == 1){
+				result = this.getTypeFor(exps.getFirst());
+			} else if (exps.size() > 1){
+				LinkedList<MCPCMLType> types = new LinkedList<MCPCMLType>();
+				for (MCPCMLExp exp : exps) {
+					types.add(instantiateMCType(exp));
+				}
+				result = new MCAProductType(types);
 			}
-			result = new MCAProductType(types);
 		}
 		
 		return result;

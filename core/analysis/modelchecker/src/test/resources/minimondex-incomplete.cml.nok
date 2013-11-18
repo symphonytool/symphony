@@ -16,7 +16,7 @@ channels
   accept , reject: Index
 
     
-process Card = val i: Index @
+process Card = val i: Index, val j:Index, val m:Money @
 begin
  state 
  	value: nat := 0
@@ -32,14 +32,23 @@ begin
     Debit(n) == value := value - n
   
   actions
-    Transfer = pay.i?j?n ->
+    Transfer = pay.i.j.n ->
     ( [n > value] & reject!i -> Skip
       []
       [n <= value] & transfer.i.j!n -> accept!i -> Debit(n) )
       
-    Receive = transfer?j.i?n -> Credit(n)
+    Receive = transfer.j.i.n -> Credit(n)
     
     Cycle = ( Transfer [] Receive ); Cycle  
 @ Init();Cycle
 
 end
+
+process Cards =
+  || i,j: Index, m:Money @ 
+  		[ {| pay.i,transfer.i,accept.i, reject.i |} union {| transfer.j.i.n |} ] Card(i)
+
+--the original description uses {| pay.i,transfer.i,accept.i, reject.i |} union {transfer.j.i.n | j <- Index, n <- Money}
+-- but the construct var <- expression is not accepted by the parser
+
+process Network = Cards \\ {|transfer|}

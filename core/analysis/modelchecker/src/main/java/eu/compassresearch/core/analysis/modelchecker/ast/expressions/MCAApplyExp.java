@@ -23,6 +23,7 @@ public class MCAApplyExp implements MCPCMLExp {
 		this.root = root;
 	}
 
+	
 	@Override
 	public String toFormula(String option) {
 		//this expression represents function apply.So we need to write its application code in formula  
@@ -48,7 +49,7 @@ public class MCAApplyExp implements MCPCMLExp {
 			actualParams.addAll(functionDef.getParamPatternList());
 			
 			LinkedList<PatternValue> argsMapping = evaluator.buildPatternValueList(actualParams, this.args);
-			int i = 0;
+			
 			MCPCMLExp bodyReady = functionDef.getBody().copy();
 			bodyReady.replacePatternWithValue(argsMapping);
 			result.append(bodyReady.toFormula(option));
