@@ -380,7 +380,9 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 		runningInterpreter.onStateChanged().registerObserver(this);
 		// sendStatusMessage(this.runningInterpreter.getStatus());
 		commandDispatcher = new CommandDispatcher();
-		new Thread(commandDispatcher, "CMLInterpreterRunner event dipsatcher").start();
+		Thread worker = new Thread(commandDispatcher, "CMLInterpreterRunner event dipsatcher");
+		worker.setDaemon(true);
+		worker.start();
 		runningInterpreter.initialize();
 	}
 
