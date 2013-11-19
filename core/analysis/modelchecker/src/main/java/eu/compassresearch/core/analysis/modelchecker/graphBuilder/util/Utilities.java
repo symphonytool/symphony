@@ -54,10 +54,8 @@ import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.IR;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Int;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Nat;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Str;
-import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.T1;
-import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.T2;
-import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.T3;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Type;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.TypeValue;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Void;
 
 public class Utilities {
@@ -135,10 +133,8 @@ public class Utilities {
 		constructors.put(Constructor.StrType.id, Constructor.StrType);
 		constructors.put(Constructor.NatType.id, Constructor.NatType);
 		constructors.put(Constructor.IRType.id, Constructor.IRType);
-		constructors.put(Constructor.T1.id, Constructor.T1);
-		constructors.put(Constructor.T2.id, Constructor.T2);
-		constructors.put(Constructor.T3.id, Constructor.T3);
 		constructors.put(Constructor.Void.id, Constructor.Void);
+		constructors.put(Constructor.TypeValue.id, Constructor.TypeValue);
 		
 		//EXPRESSION
 		constructors.put(Constructor.EqualExpression.id, Constructor.EqualExpression);
@@ -160,9 +156,9 @@ public class Utilities {
 				"condChoice"), ExtraChoice("extraChoice"), EqualExpression("EQ"), NotEqualExpression(
 				"NEQ"), LessThanExpression("LT"), GreaterThanExpression("GT"), IntType(
 				"Int"), NatType("Nat"), StrType("Str"), IRType("IR"), GivenProc(
-				"GivenProc"), ProcDef("ProcDef"), CommEv("CommEv"),T1("T1"),T2("T2"),T3("T3"),
+				"GivenProc"), ProcDef("ProcDef"), CommEv("CommEv"),
 				SingleBind("SingleBind"), Void("void"), VarDecl("var"), Let("let"), 
-				GenPar("genPar");
+				GenPar("genPar"), TypeValue("TypeValue");
 		
 		String id;
 		
@@ -206,6 +202,7 @@ public class Utilities {
 	//determina que construtor est� sendo usado em uma string
 	public static Constructor determineConstructor(String content){
 		StringBuilder constructor = new StringBuilder();
+		Constructor realConstructor = null;
 		
 		int currCharIndex = 0;
 		content = content.trim();
@@ -220,7 +217,13 @@ public class Utilities {
 			}
 		}
 		
-		return constructors.get(constructor.toString());
+		realConstructor = constructors.get(constructor.toString());  
+		if(realConstructor == null){
+			if(constructor.toString().length() > 0){
+				realConstructor = constructors.get(Constructor.TypeValue.id);
+			}
+		}
+		return realConstructor;
 		
 	}
 	
@@ -229,20 +232,23 @@ public class Utilities {
 		String result = "";
 		content = content.trim();
 		Constructor constructor = determineConstructor(content);
-		
-		if (constructor.equals(Constructor.Stop)
-			|| constructor.equals(Constructor.Skip)
-			|| constructor.equals(Constructor.Chaos)
-			|| constructor.equals(Constructor.Div)
-			|| constructor.equals(Constructor.Tau)
-			|| constructor.equals(Constructor.NoPar)
-			|| constructor.equals(Constructor.NullBind)
-			|| constructor.equals(Constructor.Void)) {
-			
-			//result = content.substring(constructor.id.length() + 1, content.length()-1);
-			result = "";
+		if(constructor != Constructor.TypeValue){
+			if (constructor.equals(Constructor.Stop)
+				|| constructor.equals(Constructor.Skip)
+				|| constructor.equals(Constructor.Chaos)
+				|| constructor.equals(Constructor.Div)
+				|| constructor.equals(Constructor.Tau)
+				|| constructor.equals(Constructor.NoPar)
+				|| constructor.equals(Constructor.NullBind)
+				|| constructor.equals(Constructor.Void)) {
+				
+				//result = content.substring(constructor.id.length() + 1, content.length()-1);
+				result = "";
+			}else{
+				result = content.substring(constructor.id.length()+1,content.length()-1);
+			}
 		}else{
-			result = content.substring(constructor.id.length()+1,content.length()-1);
+			result = content;
 		}
 		
 		return result;
@@ -309,11 +315,12 @@ public class Utilities {
 	
 	
 	public static Object createObject(String content){
-		Object result = new Object();
+		Object result = null;
 		Constructor c = determineConstructor(content);
 		content = extractConstructor(content);
 		content = content.replaceAll(" ","");
 		result = createObject(c, content);
+		
 		return result;
 	}
 	
@@ -366,14 +373,8 @@ public class Utilities {
 		case StrType:
 			result = new Str(arguments.pop());
 			break;
-		case T1:
-			result = new T1(arguments.pop());
-			break;
-		case T2:
-			result = new T2(arguments.pop());
-			break;
-		case T3:
-			result = new T3(arguments.pop());
+		case TypeValue:
+			result = new TypeValue(arguments.pop().trim());
 			break;
 		case VarDecl:
 			str = arguments.pop();
@@ -453,7 +454,6 @@ public class Utilities {
 		case Transition:
 			State source = (State) createObject(arguments.pop());
 			auxEvent = (Event) createObject(arguments.pop());
-			System.out.println();
 			State target = (State) createObject(arguments.pop());
 			result = new Transition(source, auxEvent, target);
 			break;
@@ -470,10 +470,10 @@ public class Utilities {
 			result = new Prefix(auxEvent, auxProcess);
 			break;
 		case BBind:
-			String procName = arguments.pop();
+			//String procName = arguments.pop();
 			SingleBind singleBind = (SingleBind)createObject(arguments.pop());
 			Binding tail = (Binding)createObject(arguments.pop());
-			result = new BBinding(procName,singleBind,tail);
+			result = new BBinding(null,singleBind,tail);
 			break;
 			
 		case SingleBind:
@@ -484,7 +484,10 @@ public class Utilities {
 			
 		case CommEv:
 			String begin = arguments.pop();
-			String middle = arguments.pop();
+			String middle = "";
+			if(arguments.size() > 1){
+				middle = arguments.pop();
+			}
 			Type tipo = (Type) createObject(arguments.pop());
 			result = new CommEv(begin,middle,tipo);
 			break;
@@ -515,7 +518,7 @@ public class Utilities {
 			result = new GivenProc(arguments.pop()); 
 			break;
 		case ProcDef:
-			str = arguments.pop();
+			str = arguments.pop().trim();
 			type = (Type) createObject(arguments.pop());
 			process = (Process) createObject(arguments.pop());
 			result = new ProcDef(str,type,process);
