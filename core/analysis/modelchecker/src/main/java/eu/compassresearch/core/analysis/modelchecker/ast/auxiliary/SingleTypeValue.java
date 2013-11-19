@@ -1,6 +1,7 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.auxiliary;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 
 public class SingleTypeValue extends TypeValue {
 	private String value;
@@ -30,6 +31,12 @@ public class SingleTypeValue extends TypeValue {
 	@Override
 	public String toString() {
 		return this.toFormula(MCNode.DEFAULT);
+	}
+
+	@Override
+	public MCPCMLType copy() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 	

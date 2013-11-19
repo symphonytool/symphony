@@ -28,11 +28,14 @@ public class ActionChannelDependency {
 		this.channelDefinition = context.getChannelDefinition(channelName);
 		if(channelDefinition != null){
 			StringBuilder temp = new StringBuilder();
+			
 			temp.append(channelDefinition.toFormula(MCNode.GENERIC));
 			int index = temp.indexOf("_");
 			ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
 			MCPCMLType paramTypes = evaluator.instantiateMCTypeFromCommParams(parameters);
-			temp.replace(index,index + 1, paramTypes.toFormula(option));
+			if(index != -1){
+				temp.replace(index,index + 1, paramTypes.toFormula(option));
+			}
 			result.append(temp.toString());
 		}
 		

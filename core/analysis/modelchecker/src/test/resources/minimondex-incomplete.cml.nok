@@ -1,6 +1,6 @@
 values
  N: nat = 2
- V: nat = 2
+ V: nat = 1
  M: nat = N*V
 
 types

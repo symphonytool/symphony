@@ -21,12 +21,14 @@ import eu.compassresearch.ast.actions.AHidingAction;
 import eu.compassresearch.ast.actions.AInterleavingParallelAction;
 import eu.compassresearch.ast.actions.AInternalChoiceAction;
 import eu.compassresearch.ast.actions.AInternalChoiceReplicatedAction;
+import eu.compassresearch.ast.actions.AInterruptAction;
 import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionReplicatedAction;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.AStmAction;
 import eu.compassresearch.ast.actions.AStopAction;
+import eu.compassresearch.ast.actions.AUntimedTimeoutAction;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.actions.PCommunicationParameter;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
@@ -50,6 +52,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAIfStatementA
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAInterleavingParallelAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAInternalChoiceAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAInternalChoiceReplicatedAction;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAInterruptAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAReferenceAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCASequentialCompositionAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCASequentialCompositionReplicatedAction;
@@ -57,6 +60,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCASingleGenera
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCASkipAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAStmAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAStopAction;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAUntimedTimeoutAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPCommunicationParameter;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ActionChannelDependency;
@@ -159,6 +163,30 @@ public class NewMCActionVisitor extends
 	}
 	
 	
+	
+	@Override
+	public MCNode caseAInterruptAction(AInterruptAction node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		
+		MCPAction left = (MCPAction) node.getLeft().apply(rootVisitor, question);
+		MCPAction right = (MCPAction) node.getRight().apply(rootVisitor, question);
+		MCAInterruptAction result = new MCAInterruptAction(left,right);
+		
+		return result;
+	}
+
+	
+	@Override
+	public MCNode caseAUntimedTimeoutAction(AUntimedTimeoutAction node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+
+		MCPAction left = (MCPAction) node.getLeft().apply(rootVisitor, question);
+		MCPAction right = (MCPAction) node.getRight().apply(rootVisitor, question);
+		MCAUntimedTimeoutAction result = new MCAUntimedTimeoutAction(left,right);
+
+		return result;
+	}
+
 	@Override
 	public MCNode caseAStmAction(AStmAction node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
@@ -237,6 +265,8 @@ public class NewMCActionVisitor extends
 		MCPVarsetExpression chanSetExpression = (MCPVarsetExpression) node.getChansetExpression().apply(rootVisitor, question);
 		MCPAction right = (MCPAction) node.getRightAction().apply(rootVisitor, question);
 		MCAGeneralisedParallelismParallelAction result = new MCAGeneralisedParallelismParallelAction(left, chanSetExpression, right);
+		
+		question.globalChanSets.add(chanSetExpression);
 		
 		return result;
 		

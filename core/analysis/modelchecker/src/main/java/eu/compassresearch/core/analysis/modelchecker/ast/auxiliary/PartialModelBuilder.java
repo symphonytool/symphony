@@ -26,6 +26,10 @@ public class PartialModelBuilder {
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 		//if(context.lieIn.size() != 0){
 			for (MCLieInFact lieIn : context.lieIn) {
+				//content.append(lieIn.toFormula(option) + "\n");
+				lieIn.prepareLieInFact();
+			}
+			for (MCLieInFact lieIn :  context.realLieInFacts) {
 				content.append(lieIn.toFormula(option) + "\n");
 			}
 		//}

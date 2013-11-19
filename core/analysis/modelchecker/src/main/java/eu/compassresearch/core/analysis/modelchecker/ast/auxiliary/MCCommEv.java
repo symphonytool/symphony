@@ -39,6 +39,19 @@ public class MCCommEv implements MCNode {
 		
 		return result.toString();
 	}
+	
+	
+
+	@Override
+	public boolean equals(Object obj) {
+		boolean result = false;
+		if(obj instanceof MCCommEv){
+			result = this.name.equals(((MCCommEv) obj).getName())
+					&& this.parameters.equals(((MCCommEv) obj).getParameters());
+		}
+		return result;
+	}
+
 
 	private String parametersToString(String option){
 		StringBuilder result = new StringBuilder();

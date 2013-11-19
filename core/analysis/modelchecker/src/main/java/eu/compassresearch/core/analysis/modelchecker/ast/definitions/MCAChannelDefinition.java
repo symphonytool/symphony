@@ -53,7 +53,6 @@ public class MCAChannelDefinition implements MCPCMLDefinition {
 				break;
 			
 			case MCNode.DEFAULT:
-				
 				LinkedList<TypeValue> typeValues = getTypeValues();
 				if(typeValues.size() == 0){ //it is (probably an infinite type and must be instantiated by formula)
 					//lets try to get from the dependendies
@@ -143,6 +142,14 @@ public class MCAChannelDefinition implements MCPCMLDefinition {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public MCPCMLType getType() {
+		return type;
+	}
+
+	public void setType(MCPCMLType type) {
+		this.type = type;
 	}
 
 	

@@ -785,7 +785,8 @@ public class GraphBuilder {
 		//String filePath = "/examples/simple-state.facts.txt";
 		//String filePath = "/examples/dphils.facts.txt";
 		//String filePath = "/examples/chaos.facts.txt";
-		String filePath = "/examples/dphils-d.facts.txt";
+		//String filePath = "/examples/dphils-d.facts.txt";
+		String filePath = "D:\\COMPASS\\test-branch\\compassresearch-code\\core\\analysis\\modelchecker\\src\\test\\resources\\simpler-register.facts";
 		//String filePath = "/examples/phils-and-fork0.facts.txt";
 		
 		//String filePath = "/examples/NDet2.facts.txt";
@@ -793,7 +794,9 @@ public class GraphBuilder {
 		//String filePath = "/examples/Livelock1.facts.txt";
 		//String filePath = "/examples/action-internal-choice.facts.D.txt";
 		//String filePath = "/examples/Livelock.facts.txt";
-		String dotCode = gb.generateDot(filePath,Utilities.DEADLOCK);
+		StringBuilder facts = Utilities.readScriptFromAbsoluteFile(filePath);
+		//eu.compassresearch.core.analysis.modelchecker.visitors.Utilities.readScriptFromFile(filePath);
+		String dotCode = gb.generateDot(facts,Utilities.DEADLOCK);
 		System.out.println(dotCode);
 	}
 	
