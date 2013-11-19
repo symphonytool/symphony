@@ -177,16 +177,12 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 					{
 						if (child.inspect().contains(selectedTransition))
 						{
+							// first we execute the child
+							child.execute(selectedTransition);
 							if (selectedTransition instanceof LabelledTransition)
-							{
-								// first we execute the child
-								child.execute(selectedTransition);
 								return caseExternalChoiceEnd(child, question);
-							} else
-							{
-								child.execute(selectedTransition);
+							else
 								return new Pair<INode, Context>(node, question);
-							}
 						}
 					}
 

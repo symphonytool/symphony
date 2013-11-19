@@ -37,6 +37,7 @@ import eu.compassresearch.ast.actions.AStopAction;
 import eu.compassresearch.ast.actions.ATimeoutAction;
 import eu.compassresearch.ast.actions.AUntimedTimeoutAction;
 import eu.compassresearch.ast.actions.AWaitAction;
+import eu.compassresearch.ast.actions.SReplicatedAction;
 import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.process.AAlphabetisedParallelismProcess;
@@ -52,6 +53,7 @@ import eu.compassresearch.ast.process.AInterruptProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.ATimeoutProcess;
 import eu.compassresearch.ast.process.AUntimedTimeoutProcess;
+import eu.compassresearch.ast.process.SReplicatedProcess;
 import eu.compassresearch.ast.statements.AActionStm;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
@@ -206,14 +208,46 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 	{
 		return caseAUntimedTimeout(node, node.getLeft(), question);
 	}
+	
+	/*
+	 * Replication
+	 */
 
-	interface ReplicationFactory
+	abstract class AbstractReplicationFactory
 	{
-		INode createNextReplication();
-
-		INode createLastReplication();
+		private final INode node;
 		
-		INode createSingle();
+		public AbstractReplicationFactory(INode node)
+		{
+			this.node = node;
+		}
+		
+		/**
+		 * This creates the next node in the replication when more than
+		 * 2 replication values are remaining
+		 * @return The replicated construct where the replicated action/process is left and
+		 * and the replication node is the right
+		 * 
+		 */
+		abstract INode createNextReplication();
+
+		/**
+		 * This creates the last node in the replication
+		 * @return The last replication node
+		 */
+		abstract INode createLastReplication();
+		
+		/**
+		 * This creates the node for a single replicated action/process
+		 * @return
+		 */
+		INode getReplicatedNode()
+		{
+			if(node instanceof SReplicatedAction)
+				return ((SReplicatedAction) node).getReplicatedAction();
+			else 
+				return ((SReplicatedProcess) node).getReplicatedProcess();
+		}
 	}
 
 	protected CmlQuantifierList createQuantifierList(
@@ -291,9 +325,8 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 			throws AnalysisException
 	{
 
-		return caseReplicated(node, node.getReplicationDeclaration(), new ReplicationFactory()
+		return caseReplicated(node, node.getReplicationDeclaration(), new AbstractReplicationFactory(node)
 		{
-
 			@Override
 			public INode createNextReplication()
 			{
@@ -307,13 +340,6 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 				// TODO The i'th namesetexpression should be evaluated in the i'th context
 				return new AInterleavingParallelAction(node.getLocation(), node.getReplicatedAction().clone(), node.getNamesetExpression().clone(), node.getNamesetExpression().clone(), node.getReplicatedAction().clone());
 			}
-			
-			@Override
-			public INode createSingle()
-			{
-				return node.getReplicatedAction();
-			}
-
 		}, question);
 	}
 
@@ -323,7 +349,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 			throws AnalysisException
 	{
 
-		return caseReplicated(node, node.getReplicationDeclaration(), new ReplicationFactory()
+		return caseReplicated(node, node.getReplicationDeclaration(), new AbstractReplicationFactory(node)
 		{
 
 			@Override
@@ -340,12 +366,6 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 				return new AGeneralisedParallelismParallelAction(node.getLocation(), node.getReplicatedAction().clone(), node.getNamesetExpression(), node.getNamesetExpression(), node.getReplicatedAction().clone(), node.getChansetExpression().clone());
 			}
 			
-			@Override
-			public INode createSingle()
-			{
-				return node.getReplicatedAction();
-			}
-			
 		}, question);
 	}
 
@@ -354,7 +374,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 			final AExternalChoiceReplicatedAction node, Context question)
 			throws AnalysisException
 	{
-		Pair<INode, Context> ret = caseReplicated(node, node.getReplicationDeclaration(), new ReplicationFactory()
+		Pair<INode, Context> ret = caseReplicated(node, node.getReplicationDeclaration(), new AbstractReplicationFactory(node)
 		{
 
 			@Override
@@ -369,11 +389,6 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 				return new AExternalChoiceAction(node.getLocation(), node.getReplicatedAction().clone(), node.getReplicatedAction().clone());
 			}
 			
-			@Override
-			public INode createSingle()
-			{
-				return node.getReplicatedAction();
-			}
 		}, question);
 		
 		if(ret.first instanceof ASkipAction)
@@ -388,7 +403,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 			throws AnalysisException
 	{
 
-		return caseReplicated(node, node.getReplicationDeclaration(), new ReplicationFactory()
+		return caseReplicated(node, node.getReplicationDeclaration(), new AbstractReplicationFactory(node)
 		{
 
 			@Override
@@ -403,11 +418,6 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 				return new AInternalChoiceAction(node.getLocation(), node.getReplicatedAction().clone(), node.getReplicatedAction().clone());
 			}
 			
-			@Override
-			public INode createSingle()
-			{
-				return node.getReplicatedAction();
-			}
 		}, question);
 	}
 
@@ -416,7 +426,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 	 */
 
 	protected Pair<INode, Context> caseReplicated(INode node,
-			List<PSingleDeclaration> decls, ReplicationFactory factory,
+			List<PSingleDeclaration> decls, AbstractReplicationFactory factory,
 			Context question) throws AnalysisException
 	{
 
@@ -460,7 +470,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 		else if (ql.size() == 1 && firstRun)
 		{
 			next = createReplicationChildContext(itQuantifiers, node, question);
-			nextNode = factory.createSingle();
+			nextNode = factory.getReplicatedNode();
 		}
 		else if (firstRun && ql.size() == 2)
 		{
@@ -513,7 +523,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 			Context question) throws AnalysisException
 	{
 
-		return caseReplicated(node, node.getReplicationDeclaration(), new ReplicationFactory()
+		return caseReplicated(node, node.getReplicationDeclaration(), new AbstractReplicationFactory(node)
 		{
 
 			@Override
@@ -528,11 +538,6 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 				return new AGeneralisedParallelismProcess(node.getLocation(), node.getReplicatedProcess().clone(), node.getChansetExpression().clone(), node.getReplicatedProcess().clone());
 			}
 			
-			@Override
-			public INode createSingle()
-			{
-				return node.getReplicatedProcess();
-			}
 		}, question);
 	}
 
@@ -542,7 +547,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 			throws AnalysisException
 	{
 
-		return caseReplicated(node, node.getReplicationDeclaration(), new ReplicationFactory()
+		return caseReplicated(node, node.getReplicationDeclaration(), new AbstractReplicationFactory(node)
 		{
 
 			@Override
@@ -557,12 +562,6 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 				return new AInterleavingProcess(node.getLocation(), node.getReplicatedProcess().clone(), node.getReplicatedProcess().clone());
 			}
 			
-			@Override
-			public INode createSingle()
-			{
-				return node.getReplicatedProcess();
-			}
-
 		}, question);
 	}
 
@@ -571,7 +570,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 			final AAlphabetisedParallelismReplicatedProcess node,
 			final Context question) throws AnalysisException
 	{
-		return caseReplicated(node, node.getReplicationDeclaration(), new ReplicationFactory()
+		return caseReplicated(node, node.getReplicationDeclaration(), new AbstractReplicationFactory(node)
 		{
 
 			@Override
@@ -587,12 +586,6 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 				return new AAlphabetisedParallelismProcess(node.getLocation(), node.getReplicatedProcess().clone(), node.getChansetExpression().clone(), node.getChansetExpression().clone(), node.getReplicatedProcess().clone());
 			}
 			
-			@Override
-			public INode createSingle()
-			{
-				return node.getReplicatedProcess();
-			}
-
 		}, question);
 	}
 
@@ -601,7 +594,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 			final AInternalChoiceReplicatedProcess node, Context question)
 			throws AnalysisException
 	{
-		return caseReplicated(node, node.getReplicationDeclaration(), new ReplicationFactory()
+		return caseReplicated(node, node.getReplicationDeclaration(), new AbstractReplicationFactory(node)
 		{
 
 			@Override
@@ -616,12 +609,6 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 				return new AInternalChoiceProcess(node.getLocation(), node.getReplicatedProcess().clone(), node.getReplicatedProcess().clone());
 			}
 			
-			@Override
-			public INode createSingle()
-			{
-				return node.getReplicatedProcess();
-			}
-
 		}, question);
 	}
 
