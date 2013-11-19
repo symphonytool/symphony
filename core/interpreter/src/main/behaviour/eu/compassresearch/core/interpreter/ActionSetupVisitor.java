@@ -31,6 +31,7 @@ import eu.compassresearch.ast.actions.AInternalChoiceAction;
 import eu.compassresearch.ast.actions.AInternalChoiceReplicatedAction;
 import eu.compassresearch.ast.actions.AInterruptAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
+import eu.compassresearch.ast.actions.ASequentialCompositionReplicatedAction;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.AStmAction;
 import eu.compassresearch.ast.actions.AStopAction;
@@ -249,12 +250,159 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 				return ((SReplicatedProcess) node).getReplicatedProcess();
 		}
 	}
+	
+	/*
+	 * Non public replication helper methods -- Start
+	 */
+	
+	@Override
+	public Pair<INode, Context> caseASequentialCompositionReplicatedAction(
+			final ASequentialCompositionReplicatedAction node, Context question)
+			throws AnalysisException
+	{
+		return caseReplicated(node, node.getReplicationDeclaration(), new AbstractReplicationFactory(node)
+		{
+			@Override
+			public INode createNextReplication()
+			{
+				return new ASequentialCompositionAction(node.getLocation(), node.getReplicatedAction().clone(), node.clone());
+			}
+
+			@Override
+			public INode createLastReplication()
+			{
+				return new ASequentialCompositionAction(node.getLocation(), node.getReplicatedAction().clone(), node.getReplicatedAction().clone());
+			}
+		}, question);
+	}
+	
+	protected Pair<INode, Context> caseReplicated(INode node,
+			List<PSingleDeclaration> decls, AbstractReplicationFactory factory,
+			Context question) throws AnalysisException
+	{
+
+		// The name of the value holding the state of the remaining values of the replication
+		ILexNameToken replicationContextValueName = NamespaceUtility.getReplicationNodeName(node);
+		CmlQuantifierList ql = (CmlQuantifierList) question.check(replicationContextValueName);
+		Context next = question;
+		// if null then this is the first action of the replication
+		// then we need to evaluate the
+		boolean firstRun = false;
+		if (ql == null)
+		{
+			firstRun = true;
+			// Make a set of tuples
+			// nextContext = CmlContextFactory.newContext(LocationExtractor.extractLocation(node),
+			// "replication contexts", question);
+			ql = createQuantifierList(decls, question);
+			// nextContext.putNew(new NameValuePair(replicationContextValueName, ql));
+		}
+
+		INode nextNode;
+		Iterator<NameValuePairList> itQuantifiers = ql.iterator();
+
+		//if no replicated Value exists we return skip since this it what all the operators should return except
+		//for external choice which should be Stop, this is handled specifically in that case
+		if(!itQuantifiers.hasNext())
+		{
+			return new Pair<INode, Context>(new ASkipAction(LocationExtractor.extractLocation(node)), question);
+		}
+		//fetch the left value and remove it from the list
+		NameValuePairList nextValue = itQuantifiers.next();
+		itQuantifiers.remove();
+		//if no more rep values exists 
+		//and this is the first run then we do no replication and just returns the action/process
+		if (!itQuantifiers.hasNext() && firstRun)
+		{
+			return new Pair<INode, Context>(factory.getReplicatedNode(), createReplicationChildContext(nextValue, node, question));
+		}
+		//and this is NOT the first run then we created the context for the left side already right above the
+		//current context
+		else if (!itQuantifiers.hasNext() && !firstRun)
+		{
+			nextNode = factory.createLastReplication();
+			//the outer is the pre-calculated context from the previous run
+			Context leftChildContext = question.outer;
+			//we take the outer.outer because we want the parent context of this one to be the one given to the replication node
+			Context rightChildContext = createReplicationChildContext(nextValue, node, question.outer.outer);
+			setChildContexts(new Pair<Context, Context>(leftChildContext, rightChildContext));
+			return new Pair<INode, Context>(nextNode, next);
+		}
+		
+		
+		NameValuePairList afterNextValue = itQuantifiers.next();
+		//itQuantifiers.remove();
+		
+		//If no values are left then we have exactly 2 values and thus we must create the last replication
+		if (!itQuantifiers.hasNext() && firstRun)
+		{
+			nextNode = factory.createLastReplication();
+
+			Context leftChildContext = createReplicationChildContext(nextValue, node, question);
+			Context rightChildContext = createReplicationChildContext(afterNextValue, node, question);
+			itQuantifiers.remove();
+			// the replication context, if it exist is lowest. But if this is the first run
+			// then the replication context does not exist
+
+			setChildContexts(new Pair<Context, Context>(leftChildContext, rightChildContext));
+			
+			return new Pair<INode, Context>(nextNode, next);
+		}
+		// If we have more than two replication values then we make an interleaving between the
+		// first value and the rest of the replicated values
+		else
+		{
+			nextNode = factory.createNextReplication();
+			Context leftChildContext;
+			Context rightChildContext;
+
+			// the replication context must always be the lowest
+			if (firstRun)
+			{
+				// if this is the first run then me must create the right child context and
+				// attach it to the replication context
+				leftChildContext = createReplicationChildContext(nextValue, node, question);
+				rightChildContext = createReplicationChildContext(afterNextValue, node, question);
+				itQuantifiers.remove();
+			} else
+			{
+				// if this is not the first run the the replication context already exist
+				// so we can pull out the parent and attach the right child context to this and
+				// then attach the replication
+				leftChildContext = question.outer;
+				rightChildContext = createReplicationChildContext(nextValue, node, question.outer.outer);
+			}
+
+			rightChildContext = CmlContextFactory.newContext(LocationExtractor.extractLocation(node), "replication contexts", rightChildContext);
+			rightChildContext.putNew(new NameValuePair(replicationContextValueName, ql));
+
+			setChildContexts(new Pair<Context, Context>(leftChildContext, rightChildContext));
+			return new Pair<INode, Context>(nextNode, next);
+		}
+	}
+	
+	// FIXME this check is not sufficient
+	private class UnboundedChecker extends DepthFirstAnalysisCMLAdaptor
+	{
+		private boolean isUnbounded = false;
+
+		public boolean isUnbounded()
+		{
+			return isUnbounded;
+		}
+
+		@Override
+		public void defaultInSNumericBasicType(SNumericBasicType node)
+				throws AnalysisException
+		{
+			isUnbounded = true;
+		}
+	}
 
 	protected CmlQuantifierList createQuantifierList(
 			List<PSingleDeclaration> replicationDeclaration, Context question)
 			throws AnalysisException
 	{
-
 		NameValuePairList replicationDecls = new NameValuePairList();
 		List<ILexNameToken> quantifierNames = new LinkedList<ILexNameToken>();
 		SetValue quantifierValues;
@@ -307,13 +455,17 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 	}
 
 	protected Context createReplicationChildContext(
-			Iterator<NameValuePairList> itQuantifiers, INode node, Context outer)
+			NameValuePairList npvl, INode node, Context outer)
 	{
 		Context childContext = CmlContextFactory.newContext(LocationExtractor.extractLocation(node), "", outer);
-		childContext.putAllNew(itQuantifiers.next());
-		itQuantifiers.remove();
+		childContext.putAllNew(npvl);
 		return childContext;
 	}
+	
+	/*
+	 * Non public replication helper methods -- End
+	 */
+	
 
 	/**
 	 * Replicated interleaving Syntax : '|||' , replication declarations , @ , action Example : |||i:e @ A(i) Execute
@@ -424,99 +576,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 	/*
 	 * Replicated processes
 	 */
-
-	protected Pair<INode, Context> caseReplicated(INode node,
-			List<PSingleDeclaration> decls, AbstractReplicationFactory factory,
-			Context question) throws AnalysisException
-	{
-
-		// The name of the value holding the state of the remaining values of the replication
-		ILexNameToken replicationContextValueName = NamespaceUtility.getReplicationNodeName(node);
-		CmlQuantifierList ql = (CmlQuantifierList) question.check(replicationContextValueName);
-		Context next = question;
-		// if null then this is the first action of the replication
-		// then we need to evaluate the
-		boolean firstRun = false;
-		if (ql == null)
-		{
-			firstRun = true;
-			// Make a set of tuples
-			// nextContext = CmlContextFactory.newContext(LocationExtractor.extractLocation(node),
-			// "replication contexts", question);
-			ql = createQuantifierList(decls, question);
-			// nextContext.putNew(new NameValuePair(replicationContextValueName, ql));
-		}
-
-		INode nextNode;
-		Iterator<NameValuePairList> itQuantifiers = ql.iterator();
-		// If we have two replication values then we need to have one interleaving action, since
-		// each value represents one process replication
-
-		if(ql.size() == 0)
-		{
-			//return skip since this it what all the operators should return except
-			//for externalchoice which should be Stop, this is handled specifically in that case
-			return new Pair<INode, Context>(new ASkipAction(LocationExtractor.extractLocation(node)), question);
-		}
-		else if (ql.size() == 1 && !firstRun)
-		{
-			nextNode = factory.createLastReplication();
-
-			Context leftChildContext = question.outer;
-			Context rightChildContext = createReplicationChildContext(itQuantifiers, node, question.outer.outer);
-			setChildContexts(new Pair<Context, Context>(leftChildContext, rightChildContext));
-
-		}
-		else if (ql.size() == 1 && firstRun)
-		{
-			next = createReplicationChildContext(itQuantifiers, node, question);
-			nextNode = factory.getReplicatedNode();
-		}
-		else if (firstRun && ql.size() == 2)
-		{
-			nextNode = factory.createLastReplication();
-
-			Context leftChildContext = createReplicationChildContext(itQuantifiers, node, question);
-			Context rightChildContext = createReplicationChildContext(itQuantifiers, node, question);
-			// the replication context, if it exist is lowest. But if this is the first run
-			// then the replication context does not exist
-
-			setChildContexts(new Pair<Context, Context>(leftChildContext, rightChildContext));
-		}
-		// If we have more than two replication values then we make an interleaving between the
-		// first value and the rest of the replicated values
-		else
-		{
-			nextNode = factory.createNextReplication();
-			Context leftChildContext;
-			Context rightChildContext;
-
-			// the replication context must always be the lowest
-			if (firstRun)
-			{
-				// if this is the first run then me must create the right child context and
-				// attach it to the replication context
-				leftChildContext = createReplicationChildContext(itQuantifiers, node, question);
-				rightChildContext = createReplicationChildContext(itQuantifiers, node, question);
-			} else
-			{
-				leftChildContext = question.outer;
-				// if this is not the first run the the replication context already exist
-				// so we can pull out the parent and attach the right child context to this and
-				// then attach the replication
-				rightChildContext = createReplicationChildContext(itQuantifiers, node, question.outer.outer);
-			}
-
-			rightChildContext = CmlContextFactory.newContext(LocationExtractor.extractLocation(node), "replication contexts", rightChildContext);
-			rightChildContext.putNew(new NameValuePair(replicationContextValueName, ql));
-
-			setChildContexts(new Pair<Context, Context>(leftChildContext, rightChildContext));
-		}
-
-		return new Pair<INode, Context>(nextNode, next);
-
-	}
-
+	
 	@Override
 	public Pair<INode, Context> caseAGeneralisedParallelismReplicatedProcess(
 			final AGeneralisedParallelismReplicatedProcess node,
@@ -611,31 +671,6 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 			
 		}, question);
 	}
-
-	/*
-	 * Non public replication helper methods -- Start
-	 */
-	// FIXME this check is not sufficient
-	private class UnboundedChecker extends DepthFirstAnalysisCMLAdaptor
-	{
-		private boolean isUnbounded = false;
-
-		public boolean isUnbounded()
-		{
-			return isUnbounded;
-		}
-
-		@Override
-		public void defaultInSNumericBasicType(SNumericBasicType node)
-				throws AnalysisException
-		{
-			isUnbounded = true;
-		}
-	}
-
-	/*
-	 * Non public replication helper methods -- End
-	 */
 
 	protected Pair<INode, Context> caseAInterrupt(INode node, INode leftNode,
 			INode rightNode, Context question) throws AnalysisException

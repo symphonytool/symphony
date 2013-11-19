@@ -78,7 +78,7 @@ public class CmlQuantifierList extends Value implements
 		@Override
 		public boolean hasNext()
 		{
-			return valueTuples.values.size() < valueIndex;
+			return valueTuples.values.size() > valueIndex;
 		}
 
 		@Override
