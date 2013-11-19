@@ -44,6 +44,7 @@ public class NewCMLModelcheckerContext {
 	public String propertyToCheck = Utilities.DEADLOCK_PROPERTY;
 	public NewSetStack<MCPVarsetExpression> setStack;
 	public ArrayList<MCLieInFact> lieIn;
+	public ArrayListSet<MCLieInFact> realLieInFacts;
 	public ArrayListSet<MCAActionDefinition> localActions;
 	public ArrayListSet<MCCondition> conditions;
 	public Binding maximalBinding = new NullBinding();
@@ -155,7 +156,8 @@ public class NewCMLModelcheckerContext {
 		processDefinitions = new ArrayListSet<MCAProcessDefinition>();
 		actionOrProcessDefStack = new Stack<INode>(); 
 		functions = new ArrayList<MCSFunctionDefinition>();
-		globalChanSets = new ArrayListSet<MCPVarsetExpression>(); 
+		globalChanSets = new ArrayListSet<MCPVarsetExpression>();
+		realLieInFacts = new ArrayListSet<MCLieInFact>();
 		ASSIGN_COUNTER = 0;
 		GUARD_COUNTER = 0;
 		IOCOMM_COUNTER = 0;

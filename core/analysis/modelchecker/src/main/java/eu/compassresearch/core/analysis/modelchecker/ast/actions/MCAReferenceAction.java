@@ -8,6 +8,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCGenericCall
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCOperationCall;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAActionDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAExplicitCmlOperationDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAProcessDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCSCmlOperationDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
@@ -39,10 +40,25 @@ public class MCAReferenceAction implements MCPAction {
 				if(localAction.getName().toString().equals(this.name.toString())){
 					callResolved = true;
 					call = new MCActionCall(name, args);
+					break;
 					
 				}
 			}
 		}
+		
+		if (!callResolved) {
+			for (MCAProcessDefinition pDefinition : context.processDefinitions) {
+				//if(pDefinition instanceof MCAExplicitCmlOperationDefinition){
+					//((MCAExplicitCmlOperationDefinition) pDefinition).setParentAction(this);
+					if(((MCAProcessDefinition) pDefinition).getName().toString().equals(this.name)){
+						callResolved = true;
+						call = new MCActionCall(name, args);
+						break;
+					}
+				//}
+			}
+		}
+		
 		if (!callResolved) {
 			for (MCSCmlOperationDefinition pDefinition : context.operations) {
 				if(pDefinition instanceof MCAExplicitCmlOperationDefinition){
@@ -54,6 +70,7 @@ public class MCAReferenceAction implements MCPAction {
 				}
 			}
 		}
+		
 		
 		result.append(call.toFormula(option));
 

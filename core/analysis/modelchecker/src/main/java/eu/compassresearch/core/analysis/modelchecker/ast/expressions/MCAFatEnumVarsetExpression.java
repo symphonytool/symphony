@@ -41,6 +41,15 @@ public class MCAFatEnumVarsetExpression implements MCPVarsetExpression {
 		return result.toString();
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		boolean result = false;
+		if(obj instanceof MCAFatEnumVarsetExpression){
+			result = this.channelNames.equals(((MCAFatEnumVarsetExpression) obj).getChannelNames());
+		}
+		return result;
+	}
+	
 	public LinkedList<MCANameChannelExp> getChannelNames() {
 		return channelNames;
 	}

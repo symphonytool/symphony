@@ -1,0 +1,66 @@
+channels
+a, b, c, d
+
+process P1 =
+begin
+     actions
+     S_rec = (a -> S_rec) [_> S_rec
+    @ (S_rec /_\ d -> Skip)
+end
+ 
+ 
+process P2 =
+begin
+   actions
+   R_rec = (a -> R_rec) [_> R_rec
+  @ (R_rec /_\ d -> Skip)
+end
+ 
+process SoS = 
+begin
+ @ P1 [|{a,d}|] P2
+end 
+
+process Deadlock =
+begin
+actions
+    ALeft = a -> c -> ALeft
+    A = ALeft /_\ b -> c -> Skip
+    B = c -> c -> Skip
+    A_B = A [|{| c |}|] B
+    @ A_B
+end
+ 
+process DeadlockFree =
+begin
+actions
+    A1Left = a -> c -> A1Left
+    A1 = A1Left /_\ b -> a_b -> Skip [] b_a -> Skip
+    B1 = c -> c -> b_a -> Skip /_\ a_b -> Skip
+    A1_B1 = A1 [|{|c,a,a_b,b_a|}|] B1
+    @ A1_B1
+end
+
+process TraceTest =
+begin
+actions
+  trace = a -> c -> a -> c -> b -> c -> Skip --deadlock trace
+  trace2 =  a -> c -> b -> c -> Skip --  lucky trace
+@ trace2
+end
+
+process deadlocktraceTest = 
+begin
+ @ TraceTest [|{|c,a,b|}|] Deadlock
+end
+
+process DeadlockFreeTimeOut =
+begin
+ actions
+    
+    A2Left = a -> c -> A2Left 
+    A2 = (A2Left [_> a_b -> Skip) /_\ b-> a_b -> Skip [] b_a -> Skip
+    B2 = c -> c -> b_a -> Skip /_\ a_b -> Skip
+    A2_B2 = A2 [|{|c,a,a_b,b_a|}|] B2
+    @A2_B2
+end

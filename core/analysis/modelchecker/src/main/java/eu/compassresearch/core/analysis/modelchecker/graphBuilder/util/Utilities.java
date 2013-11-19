@@ -1,5 +1,10 @@
 package eu.compassresearch.core.analysis.modelchecker.graphBuilder.util;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Hashtable;
 import java.util.LinkedList;
 
@@ -166,6 +171,37 @@ public class Utilities {
 		}
 		
 	}
+	
+	public static StringBuilder readScriptFromFile(String filePath) throws IOException {
+		 StringBuilder text = new StringBuilder();
+		 InputStream is = Utilities.class.getResourceAsStream(filePath);
+		 InputStreamReader isr = new InputStreamReader(is);
+		 BufferedReader br = new BufferedReader(isr);
+		 String line = "";
+		 while((line=br.readLine()) != null ){
+			 text.append(line);
+			 text.append("\n");
+		 }
+		 is.close();
+		 br.close();
+		 text.append("\n");
+		 return text;
+	 }
+	
+	public static StringBuilder readScriptFromAbsoluteFile(String filePath) throws IOException {
+		 StringBuilder text = new StringBuilder();
+		 FileReader fr = new FileReader(filePath);
+		 BufferedReader br = new BufferedReader(fr);
+		 String line = "";
+		 while((line=br.readLine()) != null ){
+			 text.append(line);
+			 text.append("\n");
+		 }
+		 fr.close();
+		 br.close();
+		 text.append("\n");
+		 return text;
+	 }
 	
 	//determina que construtor est� sendo usado em uma string
 	public static Constructor determineConstructor(String content){
@@ -356,8 +392,8 @@ public class Utilities {
 			break;
 		case Operation:
 			str = arguments.pop();
-			param = (Param) createObject(arguments.pop());
-			result = new Operation(str,param);
+			type = (Type) createObject(arguments.pop());
+			result = new Operation(str,type);
 			break;
 		case ProcessCall:
 			str = arguments.pop();

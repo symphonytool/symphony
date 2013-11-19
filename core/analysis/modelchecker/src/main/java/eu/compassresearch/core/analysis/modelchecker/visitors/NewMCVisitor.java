@@ -252,7 +252,7 @@ public class NewMCVisitor extends
 		MCAProcessDefinition result = null;
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 		
-		String mainProcessName = "Cards";
+		String mainProcessName = "DeadlockFreeTimeOut";
 
 		if(context.processDefinitions.size() > 1){
 			for (MCAProcessDefinition proc : context.processDefinitions) {
@@ -322,7 +322,9 @@ public class NewMCVisitor extends
 			files = folder.listFiles();
 		}
 		
-		String cml_file = "src/test/resources/minimondex-incomplete.cml.nok";
+		//String cml_file = "src/test/resources/simpler-b-and-o-model.cml";
+		String cml_file = "src/test/resources/simpler-register.cml";
+		//String cml_file = "src/test/resources/action-prefix-skip.cml";
 		//System.out.println("Testing on " + cml_file);
 		PSource source1 = Utilities.makeSourceFromFile(cml_file);
 		// Type check

@@ -1701,7 +1701,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseAInterruptAction(AInterruptAction node)
 			throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAInterruptAction(node);
@@ -3298,7 +3298,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseAUntimedTimeoutAction(AUntimedTimeoutAction node)
 			throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAUntimedTimeoutAction(node);
