@@ -64,19 +64,22 @@ public class GraphBuilder {
 		BufferedReader bfReader = new BufferedReader(isr);
 		LinkedList<Object> result = new LinkedList<Object>();
 		try {
+			
 			String line = "";
 			while((line = bfReader.readLine() )!= null){
-				Constructor c = util.determineConstructor(line);
+				Constructor c = Utilities.determineConstructor(line);
 				if(c != null){
 					if (c.equals(Constructor.GivenProc ) ||
 						c.equals(Constructor.ProcDef ) ||
 						c.equals(Constructor.Transition ) )  {
-						Object o = util.createObject(line);
+						Object o = Utilities.createObject(line);
 						result.add(o);					
 					}
 				}
 			}
 				
+		} catch(Exception ex){
+			ex.printStackTrace();
 		} finally{
 			bfReader.close();
 			isr.close();
