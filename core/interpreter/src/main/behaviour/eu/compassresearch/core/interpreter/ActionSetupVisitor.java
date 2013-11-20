@@ -12,6 +12,7 @@ import org.overture.ast.node.INode;
 import org.overture.ast.statements.AForPatternBindStm;
 import org.overture.ast.types.SNumericBasicType;
 import org.overture.interpreter.runtime.Context;
+import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.values.IntegerValue;
 import org.overture.interpreter.values.NameValuePair;
 import org.overture.interpreter.values.NameValuePairList;
@@ -59,7 +60,7 @@ import eu.compassresearch.ast.statements.AActionStm;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
-import eu.compassresearch.core.interpreter.api.values.CmlQuantifierList;
+import eu.compassresearch.core.interpreter.api.values.CmlSetQuantifier;
 import eu.compassresearch.core.interpreter.api.values.LatticeTopValue;
 import eu.compassresearch.core.interpreter.utility.LocationExtractor;
 import eu.compassresearch.core.interpreter.utility.Pair;
@@ -101,8 +102,8 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 	{
 		// We set up the left child of the sequential process/action before entering. The right will not
 		// be touched before the left has terminated
-		setLeftChild(new ConcreteCmlBehaviour(leftNode, question, new LexNameToken("", owner.name().getSimpleName()
-				+ ";", owner.name().getLocation()), owner));
+		setLeftChild(leftNode, new LexNameToken("", owner.name().getSimpleName()
+				+ ";", owner.name().getLocation()), question);
 		return new Pair<INode, Context>(node, question);
 	}
 
@@ -133,7 +134,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 			Context question) throws AnalysisException
 	{
 		// We setup the child node for the hiding operator
-		setLeftChild(new ConcreteCmlBehaviour(node.getLeft(), question, owner));
+		setLeftChild(node.getLeft(), question);
 		return new Pair<INode, Context>(node, question);
 	}
 
@@ -142,7 +143,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 			Context question) throws AnalysisException
 	{
 		// We setup the child node for the hiding operator
-		setLeftChild(new ConcreteCmlBehaviour(node.getLeft(), question, owner));
+		setLeftChild(node.getLeft(), question);
 		return new Pair<INode, Context>(node, question);
 	}
 
@@ -165,7 +166,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 		context.putNew(new NameValuePair(NamespaceUtility.getStartTimeName(), new IntegerValue(owner.getCurrentTime())));
 
 		// We setup the child nodes
-		setLeftChild(new ConcreteCmlBehaviour(leftNode, question, owner));
+		setLeftChild(leftNode, question);
 		return new Pair<INode, Context>(node, context);
 
 	}
@@ -189,7 +190,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 	{
 
 		// We setup the child nodes
-		setLeftChild(new ConcreteCmlBehaviour(leftNode, question, owner));
+		setLeftChild(leftNode, question);
 		return new Pair<INode, Context>(node, question);
 	}
 
@@ -260,7 +261,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 			final ASequentialCompositionReplicatedAction node, Context question)
 			throws AnalysisException
 	{
-		return caseReplicated(node, node.getReplicationDeclaration(), new AbstractReplicationFactory(node)
+		Pair<INode, Context> res =  caseReplicated(node, node.getReplicationDeclaration(), new AbstractReplicationFactory(node)
 		{
 			@Override
 			public INode createNextReplication()
@@ -274,6 +275,8 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 				return new ASequentialCompositionAction(node.getLocation(), node.getReplicatedAction().clone(), node.getReplicatedAction().clone());
 			}
 		}, question);
+		
+		return res.first.apply(ActionSetupVisitor.this,res.second);
 	}
 	
 	protected Pair<INode, Context> caseReplicated(INode node,
@@ -283,7 +286,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 
 		// The name of the value holding the state of the remaining values of the replication
 		ILexNameToken replicationContextValueName = NamespaceUtility.getReplicationNodeName(node);
-		CmlQuantifierList ql = (CmlQuantifierList) question.check(replicationContextValueName);
+		CmlSetQuantifier ql = (CmlSetQuantifier) question.check(replicationContextValueName);
 		Context next = question;
 		// if null then this is the first action of the replication
 		// then we need to evaluate the
@@ -399,7 +402,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 		}
 	}
 
-	protected CmlQuantifierList createQuantifierList(
+	protected CmlSetQuantifier createQuantifierList(
 			List<PSingleDeclaration> replicationDeclaration, Context question)
 			throws AnalysisException
 	{
@@ -432,7 +435,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 			NameValuePair nvp = replicationDecls.get(0);
 			quantifierNames.add(nvp.name);
 			quantifierValues = new SetValue();
-			for (Value val : nvp.value.setValue(question))
+			for (Value val : getIterator(nvp.value,question))
 				quantifierValues.values.add(new TupleValue(new ValueList(val)));
 
 		} else
@@ -443,7 +446,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 			for (NameValuePair nvp : replicationDecls)
 			{
 				List<Value> values = new LinkedList<Value>();
-				for (Value val : nvp.value.setValue(question))
+				for (Value val : getIterator(nvp.value,question))
 					values.add(val);
 				quantifierNames.add(nvp.name);
 				sets.add(new SetValue(nvp.value.setValue(question)));
@@ -451,7 +454,15 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 			quantifierValues = SetMath.getCrossProduct(sets);
 		}
 
-		return new CmlQuantifierList(quantifierNames, quantifierValues);
+		return new CmlSetQuantifier(quantifierNames, quantifierValues);
+	}
+	
+	private Iterable<Value> getIterator(Value val, Context question) throws ValueException
+	{
+		if(val instanceof SetValue)
+			return val.setValue(question);
+		else
+			return val.seqValue(question);
 	}
 
 	protected Context createReplicationChildContext(
@@ -676,8 +687,8 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 			INode rightNode, Context question) throws AnalysisException
 	{
 		// TODO create proper names!!
-		setLeftChild(new ConcreteCmlBehaviour(leftNode, question, new LexNameToken("", "left /_\\", new LexLocation()), owner));
-		setRightChild(new ConcreteCmlBehaviour(rightNode, question, new LexNameToken("", "/_\\ right", new LexLocation()), owner));
+		setLeftChild(leftNode, new LexNameToken("", "left /_\\", new LexLocation()), question);
+		setRightChild(rightNode, new LexNameToken("", "/_\\ right", new LexLocation()), question);
 
 		return new Pair<INode, Context>(node, question);
 	}

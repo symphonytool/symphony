@@ -12,13 +12,12 @@ import org.overture.interpreter.values.SetValue;
 import org.overture.interpreter.values.Value;
 import org.overture.interpreter.values.ValueList;
 
-public class CmlQuantifierList extends Value implements
-		Iterable<NameValuePairList>
+public class CmlSetQuantifier extends Value implements Iterable<NameValuePairList> 
 {
 	List<ILexNameToken> quantifierNames;
 	SetValue valueTuples;
 
-	public CmlQuantifierList(List<ILexNameToken> quantifierNames,
+	public CmlSetQuantifier(List<ILexNameToken> quantifierNames,
 			SetValue valueTuples)
 	{
 		this.quantifierNames = quantifierNames;
@@ -35,8 +34,8 @@ public class CmlQuantifierList extends Value implements
 	public boolean equals(Object other)
 	{
 		// FIXME include the values
-		if (other instanceof CmlQuantifierList)
-			return this.quantifierNames.equals(((CmlQuantifierList) other).quantifierNames);
+		if (other instanceof CmlSetQuantifier)
+			return this.quantifierNames.equals(((CmlSetQuantifier) other).quantifierNames);
 		else
 			return false;
 	}
@@ -44,19 +43,19 @@ public class CmlQuantifierList extends Value implements
 	@Override
 	public int hashCode()
 	{
-		return this.quantifierNames.hashCode();
+		return this.quantifierNames.hashCode() + this.valueTuples.hashCode();
 	}
 
 	@Override
 	public String kind()
 	{
-		return "QuantifierList";
+		return "CmlSetQuantifier";
 	}
 
 	@Override
 	public Object clone()
 	{
-		return new CmlQuantifierList(new LinkedList<ILexNameToken>(quantifierNames), valueTuples);
+		return new CmlSetQuantifier(new LinkedList<ILexNameToken>(quantifierNames), valueTuples);
 	}
 
 	public int size()
@@ -64,6 +63,9 @@ public class CmlQuantifierList extends Value implements
 		return this.valueTuples.values.size();
 	}
 
+	/* (non-Javadoc)
+	 * @see eu.compassresearch.core.interpreter.api.values.CmlQuantifier#iterator()
+	 */
 	@Override
 	public Iterator<NameValuePairList> iterator()
 	{
