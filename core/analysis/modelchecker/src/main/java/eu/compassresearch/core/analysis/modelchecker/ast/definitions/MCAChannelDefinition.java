@@ -32,6 +32,7 @@ public class MCAChannelDefinition implements MCPCMLDefinition {
 	@Override
 	public String toFormula(String option) {
 		StringBuilder result = new StringBuilder();
+		
 		if(this.isTyped()){
 			switch (option) {
 			case MCNode.GENERIC:
@@ -129,6 +130,8 @@ public class MCAChannelDefinition implements MCPCMLDefinition {
 		if(type != null){
 			if (type instanceof MCAChannelType){
 				result = !(((MCAChannelType) type).getType() instanceof MCVoidType);
+			} else{
+				result = true;
 			}
 		}
 				

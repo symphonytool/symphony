@@ -377,58 +377,58 @@ public class Utilities {
 			result = new TypeValue(arguments.pop().trim());
 			break;
 		case VarDecl:
-			str = arguments.pop();
-			String typeStr =  arguments.pop();
-			auxProcess = (Process) createObject(arguments.pop());
+			str = arguments.pop().trim();
+			String typeStr =  arguments.pop().trim();
+			auxProcess = (Process) createObject(arguments.pop().trim());
 			result = new VarDeclaration(str,typeStr,auxProcess);
 			break;
 		case Let:
-			str = arguments.pop();
-			auxProcess = (Process) createObject(arguments.pop());
+			str = arguments.pop().trim();
+			auxProcess = (Process) createObject(arguments.pop().trim());
 			result = new Let(str,auxProcess);
 			break;
 		case Assing:
-			nmbr = arguments.pop();
+			nmbr = arguments.pop().trim();
 			result = new Assing(nmbr);
 			break;
 		case Operation:
-			str = arguments.pop();
-			type = (Type) createObject(arguments.pop());
+			str = arguments.pop().trim();
+			type = (Type) createObject(arguments.pop().trim());
 			result = new Operation(str,type);
 			break;
 		case ProcessCall:
-			str = arguments.pop();
-			type = (Type) createObject(arguments.pop());
+			str = arguments.pop().trim();
+			type = (Type) createObject(arguments.pop().trim());
 			result = new ProcessCall(str,type);
 			break;
 		case SeqComposition:
-			auxProcess = (Process) createObject(arguments.pop());
-			Process process = (Process) createObject(arguments.pop());
+			auxProcess = (Process) createObject(arguments.pop().trim());
+			Process process = (Process) createObject(arguments.pop().trim());
 			result = new SeqComposition(auxProcess,process);
 			break;
 		case IntChoice:
-			auxProcess = (Process) createObject(arguments.pop());
-			process = (Process) createObject(arguments.pop());
+			auxProcess = (Process) createObject(arguments.pop().trim());
+			process = (Process) createObject(arguments.pop().trim());
 			result = new IntChoice(auxProcess,process);
 			break;
 		case ExtChoice:
-			auxProcess = (Process) createObject(arguments.pop());
-			process = (Process) createObject(arguments.pop());
+			auxProcess = (Process) createObject(arguments.pop().trim());
+			process = (Process) createObject(arguments.pop().trim());
 			result = new ExtChoice(auxProcess,process);
 			break;
 		case ExtraChoice:
 			//number = buildInteger(arguments.pop());
-			Binding leftBiding = (Binding) createObject(arguments.pop());
-			process = (Process) createObject(arguments.pop());
-			Binding rightBiding = (Binding) createObject(arguments.pop());
-			Process rightProcess = (Process) createObject(arguments.pop());
+			Binding leftBiding = (Binding) createObject(arguments.pop().trim());
+			process = (Process) createObject(arguments.pop().trim());
+			Binding rightBiding = (Binding) createObject(arguments.pop().trim());
+			Process rightProcess = (Process) createObject(arguments.pop().trim());
 			result = new ExtraChoice(leftBiding,process,rightBiding,rightProcess);
 			
 			break;
 		case CondChoice:
-			number = Integer.parseInt(arguments.pop());
-			auxProcess = (Process) createObject(arguments.pop());
-			process = (Process) createObject(arguments.pop());
+			number = Integer.parseInt(arguments.pop().trim());
+			auxProcess = (Process) createObject(arguments.pop().trim());
+			process = (Process) createObject(arguments.pop().trim());
 			result = new ConditionalChoice(number,auxProcess,process);
 			break;
 		case EqualExpression:
@@ -515,12 +515,12 @@ public class Utilities {
 			result = new DPar(typ,typ2);
 			break;
 		case GivenProc:
-			result = new GivenProc(arguments.pop()); 
+			result = new GivenProc(arguments.pop().trim()); 
 			break;
 		case ProcDef:
 			str = arguments.pop().trim();
-			type = (Type) createObject(arguments.pop());
-			process = (Process) createObject(arguments.pop());
+			type = (Type) createObject(arguments.pop().trim());
+			process = (Process) createObject(arguments.pop().trim());
 			result = new ProcDef(str,type,process);
 			break;
 		case IPar:

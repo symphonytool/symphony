@@ -34,7 +34,7 @@ public class ActionChannelDependency {
 			ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
 			MCPCMLType paramTypes = evaluator.instantiateMCTypeFromCommParams(parameters);
 			if(index != -1){
-				temp.replace(index,index + 1, paramTypes.toFormula(option));
+				temp = temp.replace(index,index + 1, paramTypes.toFormula(option));
 			}
 			result.append(temp.toString());
 		}

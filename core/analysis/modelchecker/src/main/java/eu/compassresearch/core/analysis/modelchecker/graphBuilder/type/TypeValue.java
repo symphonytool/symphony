@@ -16,6 +16,16 @@ public class TypeValue implements Type{
 		this.srt = srt;
 	}
 
+	
+	@Override
+	public boolean equals(Object arg0) {
+		boolean result = false;
+		if(arg0 instanceof TypeValue){
+			result = this.srt.equals(((TypeValue) arg0).getSrt());
+		}
+		return result;
+	}
+
 	@Override
 	public String toFormula() {
 		return this.srt;
