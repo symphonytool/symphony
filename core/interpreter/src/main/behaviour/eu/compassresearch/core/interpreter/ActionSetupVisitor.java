@@ -53,6 +53,7 @@ import eu.compassresearch.ast.process.AInternalChoiceProcess;
 import eu.compassresearch.ast.process.AInternalChoiceReplicatedProcess;
 import eu.compassresearch.ast.process.AInterruptProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
+import eu.compassresearch.ast.process.ASequentialCompositionReplicatedProcess;
 import eu.compassresearch.ast.process.ATimeoutProcess;
 import eu.compassresearch.ast.process.AUntimedTimeoutProcess;
 import eu.compassresearch.ast.process.SReplicatedProcess;
@@ -256,29 +257,6 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 	 * Non public replication helper methods -- Start
 	 */
 	
-	@Override
-	public Pair<INode, Context> caseASequentialCompositionReplicatedAction(
-			final ASequentialCompositionReplicatedAction node, Context question)
-			throws AnalysisException
-	{
-		Pair<INode, Context> res =  caseReplicated(node, node.getReplicationDeclaration(), new AbstractReplicationFactory(node)
-		{
-			@Override
-			public INode createNextReplication()
-			{
-				return new ASequentialCompositionAction(node.getLocation(), node.getReplicatedAction().clone(), node.clone());
-			}
-
-			@Override
-			public INode createLastReplication()
-			{
-				return new ASequentialCompositionAction(node.getLocation(), node.getReplicatedAction().clone(), node.getReplicatedAction().clone());
-			}
-		}, question);
-		
-		return res.first.apply(ActionSetupVisitor.this,res.second);
-	}
-	
 	protected Pair<INode, Context> caseReplicated(INode node,
 			List<PSingleDeclaration> decls, AbstractReplicationFactory factory,
 			Context question) throws AnalysisException
@@ -477,7 +455,33 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 	 * Non public replication helper methods -- End
 	 */
 	
+	/*
+	 * Replicated actions
+	 */
+	
+	@Override
+	public Pair<INode, Context> caseASequentialCompositionReplicatedAction(
+			final ASequentialCompositionReplicatedAction node, Context question)
+			throws AnalysisException
+	{
+		Pair<INode, Context> res =  caseReplicated(node, node.getReplicationDeclaration(), new AbstractReplicationFactory(node)
+		{
+			@Override
+			public INode createNextReplication()
+			{
+				return new ASequentialCompositionAction(node.getLocation(), node.getReplicatedAction().clone(), node.clone());
+			}
 
+			@Override
+			public INode createLastReplication()
+			{
+				return new ASequentialCompositionAction(node.getLocation(), node.getReplicatedAction().clone(), node.getReplicatedAction().clone());
+			}
+		}, question);
+		
+		return res.first.apply(ActionSetupVisitor.this,res.second);
+	}
+	
 	/**
 	 * Replicated interleaving Syntax : '|||' , replication declarations , @ , action Example : |||i:e @ A(i) Execute
 	 * all the actions A(i) in parallel without sync
@@ -587,6 +591,29 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 	/*
 	 * Replicated processes
 	 */
+	
+	@Override
+	public Pair<INode, Context> caseASequentialCompositionReplicatedProcess(
+			final ASequentialCompositionReplicatedProcess node, Context question)
+			throws AnalysisException
+	{
+		Pair<INode, Context> res =  caseReplicated(node, node.getReplicationDeclaration(), new AbstractReplicationFactory(node)
+		{
+			@Override
+			public INode createNextReplication()
+			{
+				return new ASequentialCompositionProcess(node.getLocation(), node.getReplicatedProcess().clone(), node.clone());
+			}
+
+			@Override
+			public INode createLastReplication()
+			{
+				return new ASequentialCompositionProcess(node.getLocation(), node.getReplicatedProcess().clone(), node.getReplicatedProcess().clone());
+			}
+		}, question);
+		
+		return res.first.apply(ActionSetupVisitor.this,res.second);
+	}
 	
 	@Override
 	public Pair<INode, Context> caseAGeneralisedParallelismReplicatedProcess(
