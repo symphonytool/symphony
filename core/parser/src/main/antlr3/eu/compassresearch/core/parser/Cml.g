@@ -103,7 +103,6 @@ import eu.compassresearch.ast.statements.*;
 import eu.compassresearch.ast.lex.CmlLexNameToken;
 import eu.compassresearch.ast.patterns.*;
 import eu.compassresearch.ast.process.*;
-import eu.compassresearch.ast.program.*;
 import eu.compassresearch.ast.types.*;
 
 // for the main() method
@@ -159,14 +158,7 @@ private void configureClass(SClassDefinition c)
 		for (PDefinition p : c.getDefinitions())
 		{
 			p.parent(c);
-			if(p instanceof AOperationsDefinition)//handle the operations paragraph
-			{
-				for(SOperationDefinition op : ((AOperationsDefinition)p).getOperations())
-				{
-					op.setClassDefinition(c);
-				}
-			}
-			else if(p instanceof AClassInvariantDefinition)
+            if(p instanceof AClassInvariantDefinition)
 			{
 				p.setName(c.getName().getInvName(p.getLocation()));
 			}
@@ -463,12 +455,11 @@ source returns[List<PDefinition> defs]
 programParagraph returns[List<? extends PDefinition> defs]
     : classDefinition   { $defs = Arrays.asList(new PDefinition[]{$classDefinition.def}); }
     | processDefinition { $defs = Arrays.asList(new PDefinition[]{$processDefinition.def}); }
-    | channelDefs       { $defs = $channelDefs.defs.getChannelDeclarations(); }
-    | chansetDefs       { $defs = $chansetDefs.defs.getChansets(); }
-    | typeDefs          { $defs = $typeDefs.defs.getTypes(); }
-    | valueDefs         { $defs = $valueDefs.defs.getValueDefinitions(); }
-    | functionDefs      { $defs = $functionDefs.defs.getFunctionDefinitions(); }
-	
+    | channelDefs       { $defs = $channelDefs.defs; }
+    | chansetDefs       { $defs = $chansetDefs.defs; }
+    | typeDefs          { $defs = $typeDefs.defs; }
+    | valueDefs         { $defs = $valueDefs.defs; }
+    | functionDefs      { $defs = $functionDefs.defs; }
     ;
 
 classDefinition returns[AClassClassDefinition def]
@@ -906,28 +897,17 @@ actionParagraphOptList returns[List<PDefinition> defs]
     ;
 
 actionParagraph returns[List<? extends PDefinition> defs]
-    : typeDefs          { $defs = $typeDefs.defs.getTypes(); }
-    | valueDefs         { $defs = $valueDefs.defs.getValueDefinitions(); }
-    | stateDefs         { $defs = ($stateDefs.defs!=null?$stateDefs.defs.getStateDefs():null); }
-    | functionDefs      { $defs = $functionDefs.defs.getFunctionDefinitions(); }
-    | operationDefs     { $defs = $operationDefs.defs.getOperations(); }
-    | actionDefs        { $defs = $actionDefs.defs.getActions(); }
-    | namesetDefs       { $defs = $namesetDefs.defs.getNamesets(); }
+    : typeDefs          { $defs = $typeDefs.defs; }
+    | valueDefs         { $defs = $valueDefs.defs; }
+    | functionDefs      { $defs = $functionDefs.defs; }
+    | stateDefs         { if ($stateDefs.defs != null) $defs = $stateDefs.defs.getStateDefs(); }
+    | operationDefs     { $defs = $operationDefs.defs; }
+    | actionDefs        { $defs = $actionDefs.defs; }
+    | namesetDefs       { $defs = $namesetDefs.defs; }
     ;
 
-actionDefs returns[AActionsDefinition defs]
-@after {
-    if ($defs != null)
-        $defs.setLocation(extractLexLocation($start, $stop));
-}
-    : 'actions' actionDefOptList
-        {
-            if ($actionDefOptList.defs.size()>0) {
-                $defs = new AActionsDefinition();
-                $defs.setName(new CmlLexNameToken("", "Actions", extractLexLocation($start)));
-                $defs.setActions($actionDefOptList.defs);
-            }
-        }
+actionDefs returns[List<AActionDefinition> defs]
+    : 'actions' actionDefOptList { $defs = $actionDefOptList.defs; }
     ;
 
 actionDefOptList returns[List<AActionDefinition> defs]
@@ -1684,17 +1664,8 @@ frameSpec returns[AExternalClause frameSpec]
  * though it may not be visually obvious (without the semis) that it
  * is a space that separates untyped channels from typed ones. (-jwc)
  */
-channelDefs returns[AChannelsDefinition defs]
-@after { $defs.setLocation(extractLexLocation($start, $stop)); }
-    : 'channels' channelDefOptList
-        {
-            $defs = new AChannelsDefinition();//location, NameScope.GLOBAL, false, access, null/* Pass */, chanNameDecls);
-            $defs.setName(new CmlLexNameToken("", "Channels", extractLexLocation($start)));
-            $defs.setNameScope(NameScope.GLOBAL);
-            $defs.setUsed(false);
-            $defs.setAccess(getDefaultAccessSpecifier(true, false, extractLexLocation($channelDefs.start)));
-            $defs.setChannelDeclarations($channelDefOptList.defs);
-        }
+channelDefs returns[List<AChannelDefinition> defs]
+    : 'channels' channelDefOptList { $defs = $channelDefOptList.defs; }
     ;
 
 channelDefOptList returns[List<AChannelDefinition> defs]
@@ -1749,17 +1720,8 @@ channelDef returns[List<AChannelDefinition> def]
         }
     ;
 
-chansetDefs returns[AChansetsDefinition defs]
-@after { $defs.setLocation(extractLexLocation($start, $stop)); }
-    : 'chansets' chansetDefOptList
-        {
-            $defs = new AChansetsDefinition();
-            $defs.setName(new CmlLexNameToken("", "Chansets", extractLexLocation($start)));
-            $defs.setNameScope(NameScope.GLOBAL);
-            $defs.setUsed(false);
-            $defs.setAccess(getDefaultAccessSpecifier(true, false, extractLexLocation($chansetDefs.start)));
-            $defs.setChansets($chansetDefOptList.defs);
-        }
+chansetDefs returns[List<AChansetDefinition> defs]
+    : 'chansets' chansetDefOptList { $defs = $chansetDefOptList.defs; }
     ;
 
 chansetDefOptList returns[List<AChansetDefinition> defs]
@@ -1938,16 +1900,8 @@ varsetName returns[ANameChannelExp name]
         }
     ;
 
-namesetDefs returns[ANamesetsDefinition defs]
-    : 'namesets' namesetDefOptList
-        {
-            $defs = new ANamesetsDefinition();
-            $defs.setName(new CmlLexNameToken("", "Namesets", extractLexLocation($start)));
-            $defs.setNameScope(NameScope.GLOBAL);
-            $defs.setUsed(false);
-            $defs.setAccess(getDefaultAccessSpecifier(true, false, extractLexLocation($namesetDefs.start)));
-            $defs.setNamesets($namesetDefOptList.defs);
-        }
+namesetDefs returns[List<ANamesetDefinition> defs]
+    : 'namesets' namesetDefOptList { $defs = $namesetDefOptList.defs; }
     ;
 
 namesetDefOptList returns[List<ANamesetDefinition> defs]
@@ -1972,24 +1926,12 @@ classDefinitionBlockOptList returns[List<PDefinition> defs]
     ;
 
 classDefinitionBlock returns[List<? extends PDefinition> defs]
-@init { $defs = null; }
-    : typeDefs                  { $defs = $typeDefs.defs.getTypes(); }
-    | valueDefs                 { $defs = $valueDefs.defs.getValueDefinitions(); }
-    | stateDefs
-        {
-            if ($stateDefs.defs != null)
-                $defs = $stateDefs.defs.getStateDefs();
-            else
-                $defs = new ArrayList<AStateDefinition>();
-        }
-    | functionDefs              { $defs = $functionDefs.defs.getFunctionDefinitions(); }
-    | operationDefs             
-        { 
-            if ($operationDefs.defs != null)
-                $defs = $operationDefs.defs.getOperations(); 
-            else
-                $defs = new ArrayList<SOperationDefinition>();
-        }
+@init { $defs = new ArrayList<PDefinition>(); }
+    : typeDefs                  { $defs = $typeDefs.defs; }
+    | valueDefs                 { $defs = $valueDefs.defs; }
+    | functionDefs              { $defs = $functionDefs.defs; }
+    | stateDefs                 { if ($stateDefs.defs != null) $defs = $stateDefs.defs.getStateDefs(); }
+    | operationDefs             { $defs = $operationDefs.defs; }
     | 'initial' operationDef
         {
             AInitialDefinition def = new AInitialDefinition();
@@ -2001,20 +1943,13 @@ classDefinitionBlock returns[List<? extends PDefinition> defs]
         }
     ;
 
-valueDefs returns[AValuesDefinition defs]
-@after { $defs.setLocation(extractLexLocation($start, $stop)); }
-    : 'values' qualValueDefinitionList?
-        {
-            AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true, false, extractLexLocation($valueDefs.start));
-            access.setStatic(new TStatic());
-            $defs = new AValuesDefinition(null, NameScope.NAMES, false, access, null, $qualValueDefinitionList.defs);
-            $defs.setName(new CmlLexNameToken("", "Values", extractLexLocation($start)));
-        }
+valueDefs returns[List<AValueDefinition> defs]
+    : 'values' qualValueDefinitionOptList { $defs = $qualValueDefinitionOptList.defs; }
     ;
 
-qualValueDefinitionList returns[List<AValueDefinition> defs]
+qualValueDefinitionOptList returns[List<AValueDefinition> defs]
 @init { defs = new ArrayList<AValueDefinition>(); }
-    : ( item=qualValueDefinition { $defs.add($item.def); } )+
+    : ( item=qualValueDefinition { $defs.add($item.def); } )*
     ;
 
 qualValueDefinition returns[AValueDefinition def]
@@ -2148,23 +2083,12 @@ invariantDefinition returns[AClassInvariantDefinition def]
         }
     ;
 
-functionDefs returns[AFunctionsDefinition defs]
-@after {
-    $defs.setLocation(extractLexLocation($start, $stop));
-    CmlLexNameToken name = new CmlLexNameToken("", new LexIdentifierToken("", false, $defs.getLocation()));
-    $defs.setName(name );
-}
-    : 'functions' qualFunctionDefinitionOptList
-        {
-            AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true, false, extractLexLocation($functionDefs.start));
-            $defs = new AFunctionsDefinition(null, NameScope.GLOBAL, false, access, null);
-            $defs.setName(new CmlLexNameToken("", "Functions", extractLexLocation($start)));
-            $defs.setFunctionDefinitions($qualFunctionDefinitionOptList.defs);
-        }
+functionDefs returns[List<SFunctionDefinition> defs]
+    : 'functions' qualFunctionDefinitionOptList { $defs = $qualFunctionDefinitionOptList.defs; }
     ;
 
-qualFunctionDefinitionOptList returns[List<PDefinition> defs]
-@init { $defs = new ArrayList<PDefinition>(); }
+qualFunctionDefinitionOptList returns[List<SFunctionDefinition> defs]
+@init { $defs = new ArrayList<SFunctionDefinition>(); }
     : (QUALIFIER? functionDefinition
             {
                 $functionDefinition.def.getAccess().setAccess(extractQualifier($QUALIFIER).getAccess());
@@ -2184,7 +2108,7 @@ qualFunctionDefinitionOptList returns[List<PDefinition> defs]
         )*
     ;
 
-functionDefinition returns[PDefinition def]
+functionDefinition returns[SFunctionDefinition def]
 @after {
     $def.setLocation(extractLexLocation($start, $stop)); 
 
@@ -2445,24 +2369,8 @@ functionBody returns[PExp exp]
     | 'is' 'subclass' 'responsibility' { $exp = new ASubclassResponsibilityExp(); }
     ;
 
-operationDefs returns[AOperationsDefinition defs]
-@after {
-    if ($defs != null) {
-        $defs.setLocation(extractLexLocation($start, $stop));
-        $defs.setName(new CmlLexNameToken("", new LexIdentifierToken("", false, $defs.getLocation())));
-    }
-}
-    : 'operations' qualOperationDefOptList
-        {
-            if ($qualOperationDefOptList.defs.size()>0) {
-                $defs = new AOperationsDefinition(); // FIXME
-                $defs.setName(new CmlLexNameToken("", "Operations", extractLexLocation($start)));
-                $defs.setOperations($qualOperationDefOptList.defs);
-                $defs.setNameScope(NameScope.LOCAL);
-                $defs.setUsed(false);
-                $defs.setAccess(getDefaultAccessSpecifier(true, false, extractLexLocation($operationDefs.start)));
-            }
-        }
+operationDefs returns[List<SOperationDefinition> defs]
+    : 'operations' qualOperationDefOptList { $defs = $qualOperationDefOptList.defs; }
     ;
 
 qualOperationDefOptList returns[List<SOperationDefinition> defs]
@@ -2580,21 +2488,9 @@ operationBody returns[PAction body]
     ;
 
 
-typeDefs returns[ATypesDefinition defs]
-@init {
-    List<ATypeDefinition> typeDefList = new ArrayList<ATypeDefinition>();
-    ATypeDefinition last = null;
-}
-    : t='types' ( def=typeDef { last = $def.def; typeDefList.add(last); } )*
-        {
-            ILexLocation loc = extractLexLocation($t);
-            if (typeDefList.size()>0)
-                loc = extractLexLocation(loc,last.getLocation());
-            $defs = new ATypesDefinition(loc, NameScope.LOCAL, false,
-                                         getDefaultAccessSpecifier(true, false, loc),
-                                         Pass.TYPES, typeDefList);
-            $defs.setName(new CmlLexNameToken("", "Types", loc));
-        }
+typeDefs returns[List<ATypeDefinition> defs]
+@init { $defs = new ArrayList<ATypeDefinition>(); }
+    : 'types' ( typeDef { $defs.add($typeDef.def); } )*
     ;
 
 typeDef returns[ATypeDefinition def]

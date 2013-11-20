@@ -4,8 +4,6 @@ import java.util.LinkedList;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
-import org.overture.ast.definitions.PDefinition;
-import org.overture.ast.definitions.SClassDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.node.INode;
 
@@ -13,8 +11,6 @@ import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
-import eu.compassresearch.ast.definitions.AActionDefinition;
-import eu.compassresearch.ast.definitions.AActionsDefinition;
 import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.ast.process.AAlphabetisedParallelismReplicatedProcess;
 import eu.compassresearch.ast.process.AHidingProcess;
@@ -22,9 +18,8 @@ import eu.compassresearch.ast.process.AReferenceProcess;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCPSingleDeclaration;
-import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAProcessDefinition;
-import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCPCMLDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAActionClassDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAProcessDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPVarsetExpression;
 import eu.compassresearch.core.analysis.modelchecker.ast.process.MCAActionProcess;
@@ -69,21 +64,26 @@ public class NewMCProcessVisitor extends
 	private PAction findRealAction(AActionProcess node,AReferenceAction action){
 		PAction result = null;
 		boolean found = false; 
-		for (PDefinition definition : node.getActionDefinition().getDefinitions()) {
-			if(definition instanceof AActionsDefinition){
-				for (AActionDefinition actionDef : ((AActionsDefinition) definition).getActions()) {
-					if(actionDef.getName().toString().equals(action.getName().toString())){
-						result = actionDef.getAction();
-						found = true;
-						break;
-					}
-				}
-				if(found){
-					break;
-				}
-				
-			}
-		}
+
+		/* There was no chance this would ever do anything; the AActionsDefinition class was
+		 * parser-only and never survived in the ultimate AST returned by the parser.
+		 * -jwc/20Nov2013
+		 */
+//		for (PDefinition definition : node.getActionDefinition().getDefinitions()) {
+//			if(definition instanceof AActionsDefinition){
+//				for (AActionDefinition actionDef : ((AActionsDefinition) definition).getActions()) {
+//					if(actionDef.getName().toString().equals(action.getName().toString())){
+//						result = actionDef.getAction();
+//						found = true;
+//						break;
+//					}
+//				}
+//				if(found){
+//					break;
+//				}
+//				
+//			}
+//		}
 		return result;
 	}
 	

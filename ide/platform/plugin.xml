@@ -78,10 +78,9 @@
         id="eu.compassresearch.ide.platform.splash">
     </splashHandler>
     <splashHandlerProductBinding
-        productId="eu.compassresearch.ide.platform.splash"
+        productId="eu.compassresearch.ide.platform.product"
         splashId="eu.compassresearch.ide.platform.splash">
     </splashHandlerProductBinding>
   </extension>
 
-  
 </plugin>
