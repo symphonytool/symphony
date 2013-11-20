@@ -12,6 +12,7 @@ import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlCalculationStep;
 import eu.compassresearch.core.interpreter.api.behaviour.Inspection;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.utility.Pair;
@@ -59,7 +60,7 @@ public class CmlInspectionVisitor extends AbstractInspectionVisitor
 	{
 		// TODO should this really evolve into skip?
 		final ASkipAction skipAction = new ASkipAction(node.getLocation());
-		return newInspection(createTauTransitionWithoutTime(skipAction, "inv/Pre/Post expression"), new AbstractCalculationStep(owner, visitorAccess)
+		return newInspection(createTauTransitionWithoutTime(skipAction, "inv/Pre/Post expression"), new CmlCalculationStep()
 		{
 
 			@Override

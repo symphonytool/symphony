@@ -104,12 +104,12 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		if (theChoosenOne.getLeftChild() != null)
 			theChoosenOne.getLeftChild().replaceState(newCurrentContext);
 
-		visitorAccess.setLeftChild(theChoosenOne.getLeftChild());
+		setLeftChild(theChoosenOne.getLeftChild());
 
 		if (theChoosenOne.getRightChild() != null)
 			theChoosenOne.getRightChild().replaceState(newCurrentContext);
 
-		visitorAccess.setRightChild(theChoosenOne.getRightChild());
+		setRightChild(theChoosenOne.getRightChild());
 
 		return new Pair<INode, Context>(theChoosenOne.getNextState().first, newCurrentContext);
 	}
@@ -123,7 +123,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		// external choice begin
 		if (!owner.hasChildren())
 		{
-			return newInspection(createTauTransitionWithoutTime(node, "Begin"), new AbstractCalculationStep(owner, visitorAccess)
+			return newInspection(createTauTransitionWithoutTime(node, "Begin"), new CmlCalculationStep()
 			{
 
 				@Override
@@ -131,16 +131,16 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 						CmlTransition selectedTransition)
 						throws AnalysisException
 				{
-					Pair<Context, Context> childContexts = visitorAccess.getChildContexts(question);
+					Pair<Context, Context> childContexts = getChildContexts(question);
 
 					String module = name().getModule();
 					String nameStr = name().getIdentifier().getName();
 
-					setLeftChild(new ConcreteCmlBehaviour(leftNode, CmlBehaviourUtility.deepCopyProcessContext(childContexts.first), new CmlLexNameToken(module, nameStr
-							+ "[]", LocationExtractor.extractLocation(leftNode)), this.owner));
+					setLeftChild(leftNode, new CmlLexNameToken(module, nameStr
+							+ "[]", LocationExtractor.extractLocation(leftNode)),CmlBehaviourUtility.deepCopyProcessContext(childContexts.first));
 
-					setRightChild(new ConcreteCmlBehaviour(rightNode, CmlBehaviourUtility.deepCopyProcessContext(childContexts.second), new CmlLexNameToken(module, "[]"
-							+ nameStr, LocationExtractor.extractLocation(rightNode)), this.owner));
+					setRightChild(rightNode, new CmlLexNameToken(module, "[]"
+							+ nameStr, LocationExtractor.extractLocation(rightNode)), CmlBehaviourUtility.deepCopyProcessContext(childContexts.second));
 
 					return new Pair<INode, Context>(node, question);
 				}
@@ -150,7 +150,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		// If this is true, the Skip rule is instantiated. This means that the entire choice evolves into Skip
 		// with the state from the skip. After this all the children processes are terminated
 		else if (CmlBehaviourUtility.finishedChildExists(owner))
-			return newInspection(createTauTransitionWithoutTime(node, "end"), new AbstractCalculationStep(owner, visitorAccess)
+			return newInspection(createTauTransitionWithoutTime(node, "end"), new CmlCalculationStep()
 			{
 
 				@Override
@@ -164,7 +164,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		// else we join the childrens alphabets
 		else
 		{
-			return newInspection(syncOnTockAndJoinChildren(), new AbstractCalculationStep(owner, visitorAccess)
+			return newInspection(syncOnTockAndJoinChildren(), new CmlCalculationStep()
 			{
 
 				@Override
@@ -191,6 +191,42 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			});
 		}
 	}
+	
+	/**
+	 * Finds the first finished child if any
+	 * 
+	 * @return The first finished child, if none then null is returned
+	 */
+	protected CmlBehaviour findFinishedChild()
+	{
+		for (CmlBehaviour child : owner.children())
+		{
+			if (child.finished())
+				return child;
+		}
+
+		return null;
+	}
+	
+	protected void caseParallelNonSync(CmlTransition selectedTransition)
+			throws AnalysisException
+	{
+		CmlBehaviour leftChild = owner.getLeftChild();
+		CmlTransitionSet leftChildAlpha = owner.getLeftChild().inspect();
+		CmlBehaviour rightChild = owner.getRightChild();
+		CmlTransitionSet rightChildAlpha = rightChild.inspect();
+
+		if (leftChildAlpha.contains(selectedTransition))
+		{
+			leftChild.execute(selectedTransition);
+		} else if (rightChildAlpha.contains(selectedTransition))
+		{
+			rightChild.execute(selectedTransition);
+		} else
+		{
+			throw new CmlInterpreterException("A selected event that should have affected either left or right");
+		}
+	}
 
 	/**
 	 * Private common helpers for Generalised Parallelism
@@ -208,7 +244,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		{
 			return newInspection(createTauTransitionWithTime(node, "Begin"),
 
-			new AbstractCalculationStep(owner, visitorAccess)
+			new CmlCalculationStep()
 			{
 
 				@Override
@@ -281,7 +317,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		CmlTransitionSet resultAlpha = new CmlTransitionSet(syncEvents).union(leftChildAlphabet.removeByChannelNameSet(cs));
 		resultAlpha = resultAlpha.union(rightChildAlphabet.removeByChannelNameSet(cs));
 
-		return newInspection(resultAlpha, new AbstractCalculationStep(owner, visitorAccess)
+		return newInspection(resultAlpha, new CmlCalculationStep()
 		{
 
 			@Override
@@ -313,7 +349,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 
 	protected CmlCalculationStep caseParallelEnd(final Context question)
 	{
-		return new AbstractCalculationStep(owner, visitorAccess)
+		return new CmlCalculationStep()
 		{
 
 			@Override
@@ -354,7 +390,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			for (ObservableTransition obsEvent : hiddenEvents.getObservableChannelEvents())
 				resultAlpha = resultAlpha.union(new HiddenTransition(owner, node, (LabelledTransition) obsEvent));
 
-			return newInspection(resultAlpha, new AbstractCalculationStep(owner, visitorAccess)
+			return newInspection(resultAlpha, new CmlCalculationStep()
 			{
 
 				@Override
@@ -374,7 +410,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		}
 		// If the Action is terminated then it evolves into Skip
 		else
-			return newInspection(createTauTransitionWithTime(new ASkipAction()), new AbstractCalculationStep(owner, visitorAccess)
+			return newInspection(createTauTransitionWithTime(new ASkipAction()), new CmlCalculationStep()
 			{
 
 				@Override
@@ -396,7 +432,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		// If the left is Skip then the whole process becomes skip with the state of the left child
 		if (owner.getLeftChild().finished())
 		{
-			return newInspection(createTauTransitionWithTime(owner.getLeftChild().getNextState().first), new AbstractCalculationStep(owner, visitorAccess)
+			return newInspection(createTauTransitionWithTime(owner.getLeftChild().getNextState().first), new CmlCalculationStep()
 			{
 
 				@Override
@@ -415,7 +451,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		// behaves as the right process
 		else if (this.rnd.nextBoolean())
 		{
-			return newInspection(createTauTransitionWithTime(rightNode), new AbstractCalculationStep(owner, visitorAccess)
+			return newInspection(createTauTransitionWithTime(rightNode), new CmlCalculationStep()
 			{
 
 				@Override
@@ -432,7 +468,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		// if no timeout has occurred the whole process behaves as the left process
 		else
 		{
-			return newInspection(owner.getLeftChild().inspect(), new AbstractCalculationStep(owner, visitorAccess)
+			return newInspection(owner.getLeftChild().inspect(), new CmlCalculationStep()
 			{
 
 				@Override
@@ -465,7 +501,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		// If the left is Skip then the whole process becomes skip with the state of the left child
 		if (owner.getLeftChild().finished())
 		{
-			return newInspection(createTauTransitionWithTime(owner.getLeftChild().getNextState().first, "Timeout: left behavior is finished"), new AbstractCalculationStep(owner, visitorAccess)
+			return newInspection(createTauTransitionWithTime(owner.getLeftChild().getNextState().first, "Timeout: left behavior is finished"), new CmlCalculationStep()
 			{
 
 				@Override
@@ -482,7 +518,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		// behaves as the right process
 		else if (owner.getCurrentTime() - startTimeVal >= val)
 		{
-			return newInspection(createTauTransitionWithoutTime(rightNode, "Timeout: time exceeded"), new AbstractCalculationStep(owner, visitorAccess)
+			return newInspection(createTauTransitionWithoutTime(rightNode, "Timeout: time exceeded"), new CmlCalculationStep()
 			{
 
 				@Override
@@ -518,7 +554,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			} else
 				resultAlpha = leftAlpha;
 
-			return newInspection(resultAlpha, new AbstractCalculationStep(owner, visitorAccess)
+			return newInspection(resultAlpha, new CmlCalculationStep()
 			{
 				@Override
 				public Pair<INode, Context> execute(
@@ -549,7 +585,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		{
 			return newInspection(createTauTransitionWithTime(owner.getLeftChild().getNextState().first),
 
-			new AbstractCalculationStep(owner, visitorAccess)
+			new CmlCalculationStep()
 			{
 
 				@Override
@@ -568,7 +604,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		{
 			return newInspection(createTauTransitionWithTime(owner.getRightChild().getNextState().first),
 
-			new AbstractCalculationStep(owner, visitorAccess)
+			new CmlCalculationStep()
 			{
 
 				@Override
@@ -583,7 +619,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		{
 			return newInspection(syncOnTockAndJoinChildren(),
 
-			new AbstractCalculationStep(owner, visitorAccess)
+			new CmlCalculationStep()
 			{
 
 				@Override
@@ -617,7 +653,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 
 		return new AFatEnumVarsetExpression(location, channelNames);
 	}
-
+	
 	/**
 	 * Common Sequential composition handler methods
 	 */
@@ -628,7 +664,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		// we execute the left action until it successfully terminates
 		if (!owner.getLeftChild().finished())
 		{
-			return newInspection(owner.getLeftChild().inspect(), new AbstractCalculationStep(owner, visitorAccess)
+			return newInspection(owner.getLeftChild().inspect(), new CmlCalculationStep()
 			{
 
 				@Override
@@ -645,7 +681,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		// if the left action is successfully finished then this node becomes the right action
 		else
 		{
-			return newInspection(createTauTransitionWithoutTime(leftNode), new AbstractCalculationStep(owner, visitorAccess)
+			return newInspection(createTauTransitionWithoutTime(leftNode), new CmlCalculationStep()
 			{
 
 				@Override

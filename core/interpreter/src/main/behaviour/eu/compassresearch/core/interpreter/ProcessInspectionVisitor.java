@@ -7,7 +7,6 @@ import java.util.Set;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AClassInvariantDefinition;
 import org.overture.ast.definitions.ALocalDefinition;
-import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
@@ -15,11 +14,9 @@ import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ObjectContext;
-import org.overture.interpreter.values.FunctionValue;
 import org.overture.interpreter.values.NameValuePair;
 import org.overture.interpreter.values.NameValuePairList;
 import org.overture.interpreter.values.NameValuePairMap;
-import org.overture.interpreter.values.OperationValue;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.actions.ASkipAction;
@@ -44,12 +41,12 @@ import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlCalculationStep;
 import eu.compassresearch.core.interpreter.api.behaviour.Inspection;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.transitions.LabelledTransition;
 import eu.compassresearch.core.interpreter.api.transitions.ObservableTransition;
-import eu.compassresearch.core.interpreter.api.values.ActionValue;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
 import eu.compassresearch.core.interpreter.api.values.ProcessObjectValue;
 import eu.compassresearch.core.interpreter.utility.Pair;
@@ -79,7 +76,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 	public Inspection caseAActionProcess(final AActionProcess node,
 			final Context question) throws AnalysisException
 	{
-		return newInspection(createTauTransitionWithoutTime(node.getAction()), new AbstractCalculationStep(owner, visitorAccess)
+		return newInspection(createTauTransitionWithoutTime(node.getAction()), new CmlCalculationStep()
 		{
 
 			@Override
@@ -186,7 +183,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 		// if true this means that this is the first time here, so the Parallel Begin rule is invoked.
 		if (!owner.hasChildren())
 		{
-			return newInspection(createTauTransitionWithTime(node, "Begin"), new AbstractCalculationStep(owner, visitorAccess)
+			return newInspection(createTauTransitionWithTime(node, "Begin"), new CmlCalculationStep()
 			{
 
 				@Override
@@ -194,13 +191,11 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 						CmlTransition selectedTransition)
 						throws AnalysisException
 				{
-					CmlBehaviour leftInstance = new ConcreteCmlBehaviour(node.getLeft(), question, new CmlLexNameToken(name().getModule(), name().getIdentifier().getName()
-							+ "[]", node.getLeft().getLocation()), this.owner);
-					setLeftChild(leftInstance);
+					setLeftChild(node.getLeft(),new CmlLexNameToken(name().getModule(), name().getIdentifier().getName()
+							+ "[]", node.getLeft().getLocation()) ,question);
 
-					CmlBehaviour rightInstance = new ConcreteCmlBehaviour(node.getRight(), question, new CmlLexNameToken(name().getModule(), "[]"
-							+ name().getIdentifier().getName(), node.getRight().getLocation()), this.owner);
-					setRightChild(rightInstance);
+					setRightChild(node.getRight(), new CmlLexNameToken(name().getModule(), "[]"
+							+ name().getIdentifier().getName(), node.getRight().getLocation()) ,question);
 					// Now let this process wait for the children to get into a waitForEvent state
 					return new Pair<INode, Context>(node, question);
 				}
@@ -210,7 +205,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 		// with the state from the skip. After this all the children processes are terminated
 		else if (CmlBehaviourUtility.finishedChildExists(owner))
 		{
-			return newInspection(createTauTransitionWithTime(node, "End"), new AbstractCalculationStep(owner, visitorAccess)
+			return newInspection(createTauTransitionWithTime(node, "End"), new CmlCalculationStep()
 			{
 
 				@Override
@@ -226,7 +221,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 			});
 		} else
 		{
-			return newInspection(syncOnTockAndJoinChildren(), new AbstractCalculationStep(owner, visitorAccess)
+			return newInspection(syncOnTockAndJoinChildren(), new CmlCalculationStep()
 			{
 
 				@Override
@@ -277,7 +272,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 		// if true this means that this is the first time here, so the Parallel Begin rule is invoked.
 		if (!owner.hasChildren())
 		{
-			return newInspection(createTauTransitionWithoutTime(node, "Begin"), new AbstractCalculationStep(owner, visitorAccess)
+			return newInspection(createTauTransitionWithoutTime(node, "Begin"), new CmlCalculationStep()
 			{
 				@Override
 				public Pair<INode, Context> execute(
@@ -340,7 +335,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 			CmlTransitionSet resultAlpha = new CmlTransitionSet(syncEvents).union(leftAllowedNonSyncTransitions);
 			resultAlpha = resultAlpha.union(rightAllowedNonSyncTransitions);
 
-			return newInspection(resultAlpha, new AbstractCalculationStep(owner, visitorAccess)
+			return newInspection(resultAlpha, new CmlCalculationStep()
 			{
 
 				@Override
@@ -402,7 +397,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 		if (!owner.hasChildren())
 		{
 
-			return newInspection(createTauTransitionWithTime(node, "Begin"), new AbstractCalculationStep(owner, visitorAccess)
+			return newInspection(createTauTransitionWithTime(node, "Begin"), new CmlCalculationStep()
 			{
 
 				@Override
@@ -424,7 +419,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 
 		} else
 		{
-			return newInspection(syncOnTockAndJoinChildren(), new AbstractCalculationStep(owner, visitorAccess)
+			return newInspection(syncOnTockAndJoinChildren(), new CmlCalculationStep()
 			{
 
 				@Override
@@ -474,7 +469,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 
 		if (rnd.nextInt(2) == 0)
 		{
-			return newInspection(createTauTransitionWithTime(node.getLeft()), new AbstractCalculationStep(owner, visitorAccess)
+			return newInspection(createTauTransitionWithTime(node.getLeft()), new CmlCalculationStep()
 			{
 
 				@Override
@@ -487,7 +482,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 			});
 		} else
 		{
-			return newInspection(createTauTransitionWithTime(node.getRight()), new AbstractCalculationStep(owner, visitorAccess)
+			return newInspection(createTauTransitionWithTime(node.getRight()), new CmlCalculationStep()
 			{
 
 				@Override
@@ -511,7 +506,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 			final Context question) throws AnalysisException
 	{
 
-		return newInspection(createTauTransitionWithoutTime(node.getProcessDefinition().getProcess()), new AbstractCalculationStep(owner, visitorAccess)
+		return newInspection(createTauTransitionWithoutTime(node.getProcessDefinition().getProcess()), new CmlCalculationStep()
 		{
 
 			@Override

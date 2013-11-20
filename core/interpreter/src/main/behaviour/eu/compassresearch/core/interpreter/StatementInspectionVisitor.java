@@ -5,8 +5,6 @@ import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
-import org.overture.ast.expressions.AApplyExp;
-import org.overture.ast.expressions.AVariableExp;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.INode;
@@ -19,7 +17,6 @@ import org.overture.ast.statements.AElseIfStm;
 import org.overture.ast.statements.AForPatternBindStm;
 import org.overture.ast.statements.AIfStm;
 import org.overture.ast.statements.ALetStm;
-import org.overture.ast.statements.AReturnStm;
 import org.overture.ast.statements.AWhileStm;
 import org.overture.ast.statements.PStm;
 import org.overture.ast.types.AVoidType;
@@ -30,10 +27,8 @@ import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.values.NameValuePair;
 import org.overture.interpreter.values.ObjectValue;
 import org.overture.interpreter.values.OperationValue;
-import org.overture.interpreter.values.UndefinedValue;
 import org.overture.interpreter.values.Value;
 import org.overture.interpreter.values.ValueList;
-import org.overture.interpreter.values.VoidValue;
 
 import eu.compassresearch.ast.actions.ADivAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
@@ -47,6 +42,7 @@ import eu.compassresearch.ast.statements.ANewStm;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlCalculationStep;
 import eu.compassresearch.core.interpreter.api.behaviour.Inspection;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.values.ProcessObjectValue;
@@ -82,7 +78,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 //			final Context question) throws AnalysisException
 //	{
 //
-//		return newInspection(createTauTransitionWithTime(node, null), new AbstractCalculationStep(owner, visitorAccess)
+//		return newInspection(createTauTransitionWithTime(node, null), new CmlCalculationStep()
 //		{
 //			@Override
 //			public Pair<INode, Context> execute(CmlTransition selectedTransition)
@@ -119,7 +115,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 			throws AnalysisException
 	{
 
-		return newInspection(createTauTransitionWithoutTime(node.getStatement()), new AbstractCalculationStep(owner, visitorAccess)
+		return newInspection(createTauTransitionWithoutTime(node.getStatement()), new CmlCalculationStep()
 		{
 
 			@Override
@@ -152,7 +148,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 	{
 		final PStm nextStm = node.getStatements().get(0);
 
-		return newInspection(createTauTransitionWithoutTime(nextStm), new AbstractCalculationStep(owner, visitorAccess)
+		return newInspection(createTauTransitionWithoutTime(nextStm), new CmlCalculationStep()
 		{
 			@Override
 			public Pair<INode, Context> execute(CmlTransition selectedTransition)
@@ -180,7 +176,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 	public Inspection caseACallObjectStm(final ACallObjectStm node, final Context question)
 			throws AnalysisException
 	{
-		return newInspection(createTauTransitionWithoutTime(node), new AbstractCalculationStep(owner, visitorAccess)
+		return newInspection(createTauTransitionWithoutTime(node), new CmlCalculationStep()
 		{
 			@Override
 			public Pair<INode, Context> execute(CmlTransition selectedTransition)
@@ -204,7 +200,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 		// if (!owner.hasChildren())
 		// {
 
-		return newInspection(createTauTransitionWithoutTime(node), new AbstractCalculationStep(owner, visitorAccess)
+		return newInspection(createTauTransitionWithoutTime(node), new CmlCalculationStep()
 		{
 
 			@Override
@@ -343,7 +339,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 		// // the next action of it
 		// else if (!owner.getLeftChild().finished())
 		// {
-		// return newInspection(owner.getLeftChild().inspect(), new AbstractCalculationStep(owner, visitorAccess)
+		// return newInspection(owner.getLeftChild().inspect(), new CmlCalculationStep()
 		// {
 		//
 		// @Override
@@ -360,7 +356,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 		// // non-empty then we execute it
 		// else if (owner.getRightChild() != null)
 		// {
-		// return newInspection(owner.getRightChild().inspect(), new AbstractCalculationStep(owner, visitorAccess)
+		// return newInspection(owner.getRightChild().inspect(), new CmlCalculationStep()
 		// {
 		//
 		// @Override
@@ -403,7 +399,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 
 		if (node.getIfExp().apply(cmlExpressionVisitor, question).boolValue(question))
 		{
-			return newInspection(createTauTransitionWithTime(node.getThenStm()), new AbstractCalculationStep(owner, visitorAccess)
+			return newInspection(createTauTransitionWithTime(node.getThenStm()), new CmlCalculationStep()
 			{
 
 				@Override
@@ -420,7 +416,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 			{
 				if (elseif.getElseIf().apply(cmlExpressionVisitor, question).boolValue(question))
 				{
-					return newInspection(createTauTransitionWithTime(elseif.getThenStm()), new AbstractCalculationStep(owner, visitorAccess)
+					return newInspection(createTauTransitionWithTime(elseif.getThenStm()), new CmlCalculationStep()
 					{
 
 						@Override
@@ -436,7 +432,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 
 			if (node.getElseStm() != null)
 			{
-				return newInspection(createTauTransitionWithTime(node.getElseStm()), new AbstractCalculationStep(owner, visitorAccess)
+				return newInspection(createTauTransitionWithTime(node.getElseStm()), new CmlCalculationStep()
 				{
 
 					@Override
@@ -452,7 +448,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 
 		@SuppressWarnings("deprecation")
 		final ASkipAction skipAction = new ASkipAction(node.getLocation());
-		return newInspection(createTauTransitionWithoutTime(skipAction), new AbstractCalculationStep(owner, visitorAccess)
+		return newInspection(createTauTransitionWithoutTime(skipAction), new CmlCalculationStep()
 		{
 
 			@Override
@@ -497,7 +493,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 		@SuppressWarnings("deprecation")
 		final ACallStm callStm = new ACallStm(name.getLocation(), name, node.getArgs());
 
-		return newInspection(createTauTransitionWithTime(callStm), new AbstractCalculationStep(owner, visitorAccess)
+		return newInspection(createTauTransitionWithTime(callStm), new CmlCalculationStep()
 		{
 
 			@Override
@@ -529,7 +525,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 		{
 			final INode next = availableAlts.get(rnd.nextInt(availableAlts.size())).getAction();
 
-			return newInspection(createTauTransitionWithTime(next), new AbstractCalculationStep(owner, visitorAccess)
+			return newInspection(createTauTransitionWithTime(next), new CmlCalculationStep()
 			{
 
 				@Override
@@ -550,7 +546,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 		{
 			@SuppressWarnings("deprecation")
 			final ADivAction divAction = new ADivAction(node.getLocation());
-			return newInspection(createTauTransitionWithoutTime(divAction), new AbstractCalculationStep(owner, visitorAccess)
+			return newInspection(createTauTransitionWithoutTime(divAction), new CmlCalculationStep()
 			{
 				@Override
 				public Pair<INode, Context> execute(
@@ -582,7 +578,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 			// so this should pose no risk of exception
 			@SuppressWarnings("deprecation")
 			final INode nextNode = new ASequentialCompositionAction(node.getLocation(), ActionVisitorHelper.wrapStatement(availableAlts.get(rnd.nextInt(availableAlts.size())).getAction().clone()), ActionVisitorHelper.wrapStatement(node.clone()));
-			return newInspection(createTauTransitionWithTime(nextNode), new AbstractCalculationStep(owner, visitorAccess)
+			return newInspection(createTauTransitionWithTime(nextNode), new CmlCalculationStep()
 			{
 
 				@Override
@@ -599,7 +595,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 		{
 			@SuppressWarnings("deprecation")
 			final ASkipAction skipAction = new ASkipAction(node.getLocation());
-			return newInspection(createTauTransitionWithoutTime(skipAction), new AbstractCalculationStep(owner, visitorAccess)
+			return newInspection(createTauTransitionWithoutTime(skipAction), new CmlCalculationStep()
 			{
 
 				@Override
@@ -619,7 +615,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 //			final Context question) throws AnalysisException
 //	{
 //
-//		return newInspection(createTauTransitionWithoutTime(new ASkipAction()), new AbstractCalculationStep(owner, visitorAccess)
+//		return newInspection(createTauTransitionWithoutTime(new ASkipAction()), new CmlCalculationStep()
 //		{
 //
 //			@Override
@@ -651,7 +647,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 		final INode skipNode = new ASkipAction(node.getLocation(), new AVoidType());
 		// FIXME according to the semantics this should be performed instantly so time is not
 		// allowed to pass
-		return newInspection(createTauTransitionWithoutTime(skipNode), new AbstractCalculationStep(owner, visitorAccess)
+		return newInspection(createTauTransitionWithoutTime(skipNode), new CmlCalculationStep()
 		{
 
 			@Override
@@ -671,7 +667,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 		final INode skipNode = new ASkipAction(node.getLocation(), new AVoidType());
 		// FIXME according to the semantics this should be performed instantly so time is not
 		// allowed to pass
-		return newInspection(createTauTransitionWithoutTime(skipNode), new AbstractCalculationStep(owner, visitorAccess)
+		return newInspection(createTauTransitionWithoutTime(skipNode), new CmlCalculationStep()
 		{
 
 			@Override
@@ -729,7 +725,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 		{
 			@SuppressWarnings("deprecation")
 			final ASkipAction skipAction = new ASkipAction(node.getLocation());
-			return newInspection(createTauTransitionWithTime(skipAction), new AbstractCalculationStep(owner, visitorAccess)
+			return newInspection(createTauTransitionWithTime(skipAction), new CmlCalculationStep()
 			{
 				@Override
 				public Pair<INode, Context> execute(
@@ -765,7 +761,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 			visitorAccess.setLeftChild(new ConcreteCmlBehaviour(node.getStatement(), question, owner));
 		}
 
-		return newInspection(owner.getLeftChild().inspect(), new AbstractCalculationStep(owner, visitorAccess)
+		return newInspection(owner.getLeftChild().inspect(), new CmlCalculationStep()
 		{
 
 			@Override
@@ -792,7 +788,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 		if (node.getExp().apply(cmlExpressionVisitor, question).boolValue(question))
 		{
 			// the next step is a sequential composition of the action and this node
-			return newInspection(createTauTransitionWithTime(node), new AbstractCalculationStep(owner, visitorAccess)
+			return newInspection(createTauTransitionWithTime(node), new CmlCalculationStep()
 			{
 
 				@SuppressWarnings("deprecation")
@@ -808,7 +804,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 		{
 			// if the condition is false then the While evolves into Skip
 			final INode skipNode = new ASkipAction();
-			return newInspection(createTauTransitionWithTime(skipNode), new AbstractCalculationStep(owner, visitorAccess)
+			return newInspection(createTauTransitionWithTime(skipNode), new CmlCalculationStep()
 			{
 
 				@Override
