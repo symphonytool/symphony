@@ -428,11 +428,11 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 		if (rndChoice == 0)
 		{
 			tmpNode = node.getLeft();
-			tmpContext = this.visitorAccess.getChildContexts(question).first;
+			tmpContext = getChildContexts(question).first;
 		} else
 		{
 			tmpNode = node.getRight();
-			tmpContext = this.visitorAccess.getChildContexts(question).second;
+			tmpContext = getChildContexts(question).second;
 		}
 
 		final INode nextNode = tmpNode;
@@ -499,7 +499,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 	{
 		PAction left = node.getLeftAction();
 		PAction right = node.getRightAction();
-		Pair<Context, Context> childContexts = visitorAccess.getChildContexts(question);
+		Pair<Context, Context> childContexts = getChildContexts(question);
 		CmlBehaviour leftInstance = new ConcreteCmlBehaviour(left, childContexts.first.deepCopy(), new CmlLexNameToken(owner.name().getModule(), owner.name().getIdentifier().getName()
 				+ "|||", left.getLocation()), owner);
 
@@ -507,8 +507,8 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 				+ owner.name().getIdentifier().getName(), right.getLocation()), owner);
 
 		// add the children to the process graph
-		visitorAccess.setLeftChild(leftInstance);
-		visitorAccess.setRightChild(rightInstance);
+		setLeftChild(leftInstance);
+		setRightChild(rightInstance);
 	}
 
 	/**

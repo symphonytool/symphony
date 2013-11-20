@@ -233,18 +233,12 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 					{
 						if (child.inspect().contains(selectedTransition))
 						{
+							// first we execute the child
+							child.execute(selectedTransition);
 							if (selectedTransition instanceof LabelledTransition)
-							{
-								// first we execute the child
-								child.execute(selectedTransition);
-								setLeftChild(child.getLeftChild());
-								setRightChild(child.getRightChild());
-								return child.getNextState();
-							} else
-							{
-								child.execute(selectedTransition);
+								return replaceWithChild(child);
+							else
 								return new Pair<INode, Context>(node, question);
-							}
 						}
 					}
 
@@ -280,7 +274,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 						throws AnalysisException
 				{
 
-					caseParallelBegin(node, node.getLeft(), node.getRight(), "[cs||cs]", question);
+					caseParallelProcessBegin(node, node.getLeft(), node.getRight(), "[cs||cs]", question);
 					// We push the current state, since this process will control the child processes created by it
 					return new Pair<INode, Context>(node, question);
 				}
@@ -379,7 +373,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 			@Override
 			public void caseParallelBegin() throws AnalysisException
 			{
-				ProcessInspectionVisitor.this.caseParallelBegin(node, node.getLeft(), node.getRight(), "[|cs|]", question);
+				ProcessInspectionVisitor.this.caseParallelProcessBegin(node, node.getLeft(), node.getRight(), "[|cs|]", question);
 			}
 		}, node.getChansetExpression(), question);
 	}
@@ -406,7 +400,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 						throws AnalysisException
 				{
 
-					caseParallelBegin(node, node.getLeft(), node.getRight(), "|||", question);
+					caseParallelProcessBegin(node, node.getLeft(), node.getRight(), "|||", question);
 					// We push the current state, since this process will control the child processes created by it
 					return new Pair<INode, Context>(node, question);
 				}
@@ -438,7 +432,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 	}
 
 	// FIXME the operator string is only a tmp solution
-	private void caseParallelBegin(PProcess node, PProcess left,
+	private void caseParallelProcessBegin(PProcess node, PProcess left,
 			PProcess right, String operatorsign, Context question)
 			throws AnalysisException
 	{
@@ -446,16 +440,12 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 			throw new InterpreterRuntimeException(InterpretationErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName()));
 
 		ILexNameToken name = owner.name();
-		Pair<Context, Context> childContexts = visitorAccess.getChildContexts(question);
 		// TODO: create a local copy of the question state for each of the actions
-		CmlBehaviour leftInstance = new ConcreteCmlBehaviour(left, childContexts.first, new CmlLexNameToken(name.getModule(), name.getIdentifier().getName()
-				+ operatorsign, left.getLocation()), owner);
-		CmlBehaviour rightInstance = new ConcreteCmlBehaviour(right, childContexts.second, new CmlLexNameToken(name.getModule(), operatorsign
-				+ name.getIdentifier().getName(), right.getLocation()), owner);
-
 		// add the children to the process graph
-		visitorAccess.setLeftChild(leftInstance);
-		visitorAccess.setRightChild(rightInstance);
+		setLeftChild(left,new CmlLexNameToken(name.getModule(), name.getIdentifier().getName()
+				+ operatorsign, left.getLocation()),question);
+		setRightChild(right,new CmlLexNameToken(name.getModule(), operatorsign
+				+ name.getIdentifier().getName(), right.getLocation()),question);
 	}
 
 	@Override
@@ -465,7 +455,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 	{
 
 		// we need to pass these on to the children if set
-		final Pair<Context, Context> childContexts = visitorAccess.getChildContexts(question);
+		final Pair<Context, Context> childContexts = getChildContexts(question);
 
 		if (rnd.nextInt(2) == 0)
 		{

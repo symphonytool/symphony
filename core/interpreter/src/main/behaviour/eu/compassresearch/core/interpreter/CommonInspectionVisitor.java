@@ -693,7 +693,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 					setLeftChild(null);
 					setRightChild(null);
 
-					return new Pair<INode, Context>(rightNode, visitorAccess.getChildContexts(question).second);
+					return new Pair<INode, Context>(rightNode, getChildContexts(question).second);
 				}
 			});
 

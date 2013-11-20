@@ -733,7 +733,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 						throws AnalysisException
 				{
 					// clear the child nodes
-					setLeftChild(null);
+					clearLeftChild();
 					return new Pair<INode, Context>(skipAction, question.outer);
 				}
 			});
@@ -758,7 +758,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 				}
 			}
 
-			visitorAccess.setLeftChild(new ConcreteCmlBehaviour(node.getStatement(), question, owner));
+			setLeftChild(node.getStatement(), question);
 		}
 
 		return newInspection(owner.getLeftChild().inspect(), new CmlCalculationStep()
