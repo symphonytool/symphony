@@ -11,6 +11,7 @@ import org.overture.ast.node.INode;
 import org.overture.pog.obligation.ProofObligation;
 import org.overture.pog.pub.IPOContextStack;
 import org.overture.pog.pub.IProofObligation;
+import org.overture.pog.pub.POType;
 
 abstract public class CmlProofObligation extends ProofObligation implements
 		IProofObligation
@@ -32,6 +33,15 @@ abstract public class CmlProofObligation extends ProofObligation implements
 
 	
 	
+
+
+	@Override
+	public String getKindString() {
+		return cmltype.toString();
+	}
+
+
+
 
 
 	@Override
