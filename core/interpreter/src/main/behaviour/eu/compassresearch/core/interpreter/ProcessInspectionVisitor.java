@@ -213,10 +213,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 						CmlTransition selectedTransition)
 						throws AnalysisException
 				{
-					CmlBehaviour theChoosenOne = findFinishedChild();
-					setLeftChild(theChoosenOne.getLeftChild());
-					setRightChild(theChoosenOne.getRightChild());
-					return theChoosenOne.getNextState();
+					return replaceWithChild(findFinishedChild());
 				}
 			});
 		} else

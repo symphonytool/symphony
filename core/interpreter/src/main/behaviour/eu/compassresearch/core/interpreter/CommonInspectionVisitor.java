@@ -357,8 +357,8 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 					throws AnalysisException
 			{
 
-				setLeftChild(null);
-				setRightChild(null);
+				clearLeftChild();
+				clearRightChild();
 
 				// now this process evolves into Skip
 				return new Pair<INode, Context>(new ASkipAction(), question);
@@ -418,7 +418,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 						CmlTransition selectedTransition)
 						throws AnalysisException
 				{
-					setLeftChild(null);
+					clearLeftChild();
 					return new Pair<INode, Context>(new ASkipAction(), question);
 				}
 			});
@@ -441,8 +441,8 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 						throws AnalysisException
 				{
 					CmlBehaviour leftChild = owner.getLeftChild();
-					setLeftChild(null);
-					setRightChild(null);
+					clearLeftChild();
+					clearRightChild();
 					return leftChild.getNextState();
 				}
 			});
@@ -460,7 +460,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 						throws AnalysisException
 				{
 					// We set the process to become the right behavior
-					setLeftChild(null);
+					clearLeftChild();
 					return new Pair<INode, Context>(rightNode, question);
 				}
 			});
@@ -482,7 +482,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 					if (selectedTransition instanceof ObservableTransition
 							&& selectedTransition instanceof LabelledTransition)
 					{
-						setLeftChild(null);
+						clearLeftChild();
 						return new Pair<INode, Context>(leftBehavior.getNextState().first, leftBehavior.getNextState().second);
 					} else
 						return new Pair<INode, Context>(node, question);
@@ -527,7 +527,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 						throws AnalysisException
 				{
 					// We set the process to become the right behavior
-					setLeftChild(null);
+					clearLeftChild();
 					// We need to return the outer context because of the extra context
 					// containing the start time has been added in the setup visitor
 					return new Pair<INode, Context>(rightNode, question.outer);
@@ -690,8 +690,8 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 						throws AnalysisException
 				{
 
-					setLeftChild(null);
-					setRightChild(null);
+					clearLeftChild();
+					clearRightChild();
 
 					return new Pair<INode, Context>(rightNode, getChildContexts(question).second);
 				}
