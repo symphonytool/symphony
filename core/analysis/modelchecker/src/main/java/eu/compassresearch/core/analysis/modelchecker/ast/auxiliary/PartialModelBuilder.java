@@ -48,7 +48,7 @@ public class PartialModelBuilder {
 	
 	private void generateGivenProc(StringBuilder content, String option){
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
-		MCAProcessDefinition mainProc = context.mainProcess;
+		MCAProcessDefinition mainProc = context.getMainProcessDefinition();
 		
 		content.append("  GivenProc(");
 		content.append("\"");

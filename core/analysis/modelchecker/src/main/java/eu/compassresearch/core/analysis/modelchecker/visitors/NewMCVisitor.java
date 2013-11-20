@@ -239,7 +239,8 @@ public class NewMCVisitor extends
 		for (PSource source : sources) {
 			if(source instanceof AFileSource){
 				//System.out.println("Analysing file: " + ((AFileSource) source).getName());
-				String currentScriptContent = this.generateFormulaScript(source.getParagraphs(), propertyToCheck);
+				
+				String currentScriptContent = this.generateFormulaScript(source.getParagraphs(), propertyToCheck, null);
 				NameContent element = new NameContent(((AFileSource) source).getName(), currentScriptContent);
 				codes.add(element);
 			}
@@ -268,32 +269,16 @@ public class NewMCVisitor extends
 		return result;
 	}
 	
-	private MCAProcessDefinition findMainProcessDefinition(String mainProcessName){
-		MCAProcessDefinition result = null;
-		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
-		for (MCAProcessDefinition pDefinition : context.processDefinitions) {
-				if(pDefinition.getName().equals(mainProcessName)){
-					result = pDefinition;
-					break;
-				}
-			
-		}
-		return result;
-	}
-	
-	
-	public String generateFormulaScript(List<PDefinition> definitions, String propertyToCheck) throws IOException, AnalysisException{
+	public String generateFormulaScript(List<PDefinition> definitions, String propertyToCheck, String mainProcessName) throws IOException, AnalysisException{
 		
 		NewCMLModelcheckerContext.resetInstance();
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 		context.propertyToCheck = propertyToCheck;
-
+		context.mainProcessName = mainProcessName;
+		
 		for (PDefinition paragraph : definitions) {
 			paragraph.apply(this, context);
 		}
-		
-		context.mainProcess = this.getMainProcess();
-		
 		String script = this.formulaSpecification.buildFormulaScript();
 		
 		return script;
@@ -337,7 +322,8 @@ public class NewMCVisitor extends
 					r.add(n);
 		}
 		NewMCVisitor visitor1 = new NewMCVisitor(source1);
-		String formulaCode = visitor1.generateFormulaScript(source1.getParagraphs(),Utilities.DEADLOCK_PROPERTY);
+		
+		String formulaCode = visitor1.generateFormulaScript(source1.getParagraphs(),Utilities.DEADLOCK_PROPERTY,visitor1.getMainProcess().getName());
 		//String[] codes1 = visitor1.generateFormulaCodeForAll(Utilities.DEADLOCK_PROPERTY);
 		//for (int j = 0; j < codes1.length; j++) {
 		//	System.out.println(codes1[j]);

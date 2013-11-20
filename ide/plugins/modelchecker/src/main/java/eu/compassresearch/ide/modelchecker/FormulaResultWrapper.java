@@ -13,15 +13,17 @@ public class FormulaResultWrapper implements AnalysisArtifact {
 	private String property;
 	private IContainer mcFolder;
 	private ICmlSourceUnit selectedUnit;
+	private String analysedProcess;
 
 	public FormulaResultWrapper(FormulaResult result, IFile svgFile, String property,
-			IContainer mcFolder, ICmlSourceUnit selectedUnit) {
+			IContainer mcFolder, ICmlSourceUnit selectedUnit, String analysedProcess) {
 		super();
 		this.result = result;
 		this.svgFile = svgFile;
 		this.property = property;
 		this.mcFolder = mcFolder;
 		this.selectedUnit = selectedUnit;
+		this.analysedProcess = analysedProcess;
 	}
 
 	
@@ -68,4 +70,15 @@ public class FormulaResultWrapper implements AnalysisArtifact {
 	public String getProperty(){
 		return property;
 	}
+
+
+	public String getAnalysedProcess() {
+		return analysedProcess;
+	}
+
+
+	public void setAnalysedProcess(String analysedProcess) {
+		this.analysedProcess = analysedProcess;
+	}
+	
 }

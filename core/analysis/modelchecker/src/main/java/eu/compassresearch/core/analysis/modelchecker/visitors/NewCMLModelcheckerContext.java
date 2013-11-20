@@ -39,7 +39,7 @@ public class NewCMLModelcheckerContext {
 	public static int GUARD_COUNTER;
 	public static int IOCOMM_COUNTER;
 	
-	public MCAProcessDefinition mainProcess;
+	public String mainProcessName;
 	public Domain propertiesDomain;
 	public String propertyToCheck = Utilities.DEADLOCK_PROPERTY;
 	public NewSetStack<MCPVarsetExpression> setStack;
@@ -96,6 +96,35 @@ public class NewCMLModelcheckerContext {
 		
 		return result;
 	}
+	
+	public MCAProcessDefinition getMainProcessDefinition(){
+		MCAProcessDefinition result = null;
+		if(this.processDefinitions.size() == 1){
+			result = this.processDefinitions.get(0);
+		}else{
+			if(this.mainProcessName != null){
+				result = this.getProcessByName(this.mainProcessName);
+			}
+		}
+		return result;
+	}
+	
+	public MCAProcessDefinition getProcessByName(String name){
+		MCAProcessDefinition result = null;
+		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+		
+		if(context.processDefinitions.size() > 1){
+			for (MCAProcessDefinition proc : context.processDefinitions) {
+				if(proc.getName().startsWith(name)){
+					result = proc;
+				}
+			}
+		}else{
+			result = context.processDefinitions.get(0);
+		}
+		
+		return result;
+	} 
 	
 	public LinkedList<ActionChannelDependency> getActionChannelDependendies(String actionName){
 		LinkedList<ActionChannelDependency> result = new LinkedList<ActionChannelDependency>();

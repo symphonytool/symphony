@@ -31,6 +31,7 @@ public class MCThread extends Thread{
 	private FormulaIntegrator mc;
 	private FormulaIntegrationException exception;
 	private FormulaResultWrapper fmw;
+	private String analysedProcess;
 	private String propertyToCheck;
 	private IFolder mcFolder;
 	private ICmlSourceUnit selectedUnit;
@@ -38,7 +39,7 @@ public class MCThread extends Thread{
 	private IWorkbenchWindow window;
 	private Registry registry;
 	
-	public MCThread(IFile f, String property, IFolder mcFolder, ICmlSourceUnit selectedUnit, IResource cmlFile, IWorkbenchWindow win) {
+	public MCThread(IFile f, String property, IFolder mcFolder, ICmlSourceUnit selectedUnit, IResource cmlFile, IWorkbenchWindow win, String analysedProcess) {
 		this.status = MCStatus.CREATED;
 		this.file = f;
 		this.propertyToCheck = property;
@@ -46,6 +47,7 @@ public class MCThread extends Thread{
 		this.selectedUnit = selectedUnit;
 		this.cmlFile = cmlFile;
 		this.window = win;
+		this.analysedProcess = analysedProcess;
 		RegistryFactory factory = eu.compassresearch.core.common.RegistryFactory.getInstance(MCConstants.MC_REGISTRY_ID);
 		this.registry = factory.getRegistry();
 	}
@@ -59,7 +61,7 @@ public class MCThread extends Thread{
 			String absolutePath = file.getLocation().toPortableString();
 			this.result = mc.analyseFile(absolutePath);
 			this.writeFormulaOutputTofile(selectedUnit, mcFolder, result);
-			this.fmw = new FormulaResultWrapper(result, null, propertyToCheck, mcFolder, selectedUnit);
+			this.fmw = new FormulaResultWrapper(result, null, propertyToCheck, mcFolder, selectedUnit, analysedProcess);
 			MCPluginDoStuff mcp = new MCPluginDoStuff(getWindow().getActivePage().getActivePart().getSite(), cmlFile, this.fmw);
 			mcp.run();
 			registry.store(selectedUnit.getParseNode(), fmw);
