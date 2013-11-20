@@ -148,6 +148,7 @@ public class GraphBuilder {
 		for (Object object : objects) {
 			if (object instanceof GivenProc) {
 				result = ((GivenProc) object).getName();
+				break;
 			}
 		}
 		return result;
@@ -155,12 +156,14 @@ public class GraphBuilder {
 	
 	private Process getMainProcessBody(LinkedList<Object> objects) {
 		String givenProcName = this.getMainProcessName(objects);
+		givenProcName = givenProcName.trim();
 		Process mainProcessBody = null;
 		
 		for (Object object : objects) {
 			if ((object instanceof ProcDef)) {
 				if (((ProcDef) object).getName().equals(givenProcName)) {
 					mainProcessBody = ((ProcDef) object).getProcess();
+					break;
 				}
 			} 
 
@@ -789,7 +792,7 @@ public class GraphBuilder {
 		//String filePath = "/examples/dphils.facts.txt";
 		//String filePath = "/examples/chaos.facts.txt";
 		//String filePath = "/examples/dphils-d.facts.txt";
-		String filePath = "D:\\COMPASS\\test-branch\\compassresearch-code\\core\\analysis\\modelchecker\\src\\test\\resources\\simpler-register.facts";
+		String filePath = "F:\\Copy\\ProjetoCompass\\compassresearch-code\\core\\analysis\\modelchecker\\src\\test\\resources\\simpler-register.facts";
 		//String filePath = "/examples/phils-and-fork0.facts.txt";
 		
 		//String filePath = "/examples/NDet2.facts.txt";
