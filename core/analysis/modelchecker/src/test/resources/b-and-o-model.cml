@@ -13,10 +13,7 @@ begin
   @ (R_rec /_\ d -> Skip)
 end
  
-process SoS = 
-begin
- @ P1[|{a,d}|] P2
-end 
+process SoS = P1[|{a,d}|] P2
  
 channels
 a

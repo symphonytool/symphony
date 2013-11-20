@@ -253,7 +253,7 @@ public class NewMCVisitor extends
 		MCAProcessDefinition result = null;
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 		
-		String mainProcessName = "DeadlockFreeTimeOut";
+		String mainProcessName = "SoS";
 
 		if(context.processDefinitions.size() > 1){
 			for (MCAProcessDefinition proc : context.processDefinitions) {
@@ -279,6 +279,7 @@ public class NewMCVisitor extends
 		for (PDefinition paragraph : definitions) {
 			paragraph.apply(this, context);
 		}
+		
 		String script = this.formulaSpecification.buildFormulaScript();
 		
 		return script;
@@ -307,8 +308,8 @@ public class NewMCVisitor extends
 			files = folder.listFiles();
 		}
 		
-		//String cml_file = "src/test/resources/simpler-b-and-o-model.cml";
-		String cml_file = "src/test/resources/simpler-register.cml";
+		String cml_file = "src/test/resources/simpler-b-and-o-model.cml";
+		//String cml_file = "src/test/resources/simpler-register.cml";
 		//String cml_file = "src/test/resources/action-prefix-skip.cml";
 		//System.out.println("Testing on " + cml_file);
 		PSource source1 = Utilities.makeSourceFromFile(cml_file);
@@ -322,8 +323,9 @@ public class NewMCVisitor extends
 					r.add(n);
 		}
 		NewMCVisitor visitor1 = new NewMCVisitor(source1);
+		String mainProcessName = "SoS";
 		
-		String formulaCode = visitor1.generateFormulaScript(source1.getParagraphs(),Utilities.DEADLOCK_PROPERTY,visitor1.getMainProcess().getName());
+		String formulaCode = visitor1.generateFormulaScript(source1.getParagraphs(),Utilities.DEADLOCK_PROPERTY,mainProcessName);
 		//String[] codes1 = visitor1.generateFormulaCodeForAll(Utilities.DEADLOCK_PROPERTY);
 		//for (int j = 0; j < codes1.length; j++) {
 		//	System.out.println(codes1[j]);

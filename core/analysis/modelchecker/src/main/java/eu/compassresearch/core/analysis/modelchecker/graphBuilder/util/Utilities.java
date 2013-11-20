@@ -48,6 +48,8 @@ import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Proces
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.SeqComposition;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Skip;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Stop;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.UntimedInterrupt;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.UntimedTimeout;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.VarDeclaration;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.transition.Transition;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.IR;
@@ -85,6 +87,8 @@ public class Utilities {
 		constructors.put(Constructor.ProcessCall.id, Constructor.ProcessCall);
 		constructors.put(Constructor.Operation.id, Constructor.Operation);
 		constructors.put(Constructor.Assing.id, Constructor.Assing);
+		constructors.put(Constructor.UntimedInterrupt.id, Constructor.UntimedInterrupt);
+		constructors.put(Constructor.UntimedTimeout.id, Constructor.UntimedTimeout);
 
 		//CHOICE
 		constructors.put(Constructor.IntChoice.id, Constructor.IntChoice);
@@ -102,7 +106,7 @@ public class Utilities {
 		constructors.put(Constructor.Par.id, Constructor.Par);
 		constructors.put(Constructor.GenPar.id, Constructor.GenPar);
 		
-		//these constructores will be removed
+		//some of these constructores will be removed
 		constructors.put(Constructor.IPar.id, Constructor.IPar);
 		constructors.put(Constructor.IParll.id, Constructor.IParll);
 		constructors.put(Constructor.Parll.id, Constructor.Parll);
@@ -158,7 +162,8 @@ public class Utilities {
 				"Int"), NatType("Nat"), StrType("Str"), IRType("IR"), GivenProc(
 				"GivenProc"), ProcDef("ProcDef"), CommEv("CommEv"),
 				SingleBind("SingleBind"), Void("void"), VarDecl("var"), Let("let"), 
-				GenPar("genPar"), TypeValue("TypeValue");
+				GenPar("genPar"), TypeValue("TypeValue"), UntimedInterrupt("intrpt"), 
+				UntimedTimeout ("timeout");
 		
 		String id;
 		
@@ -265,6 +270,7 @@ public class Utilities {
 		StringBuilder currentTerm = new StringBuilder();
 		int currIndex = 0;
 		int leftParen = 0;
+		int leftSquareBracket = 0;
 		int leftBracket = 0;
 		if(arguments.length() > 0){
 			char currChar = arguments.charAt(currIndex);
@@ -278,6 +284,9 @@ public class Utilities {
 						leftParen++;
 					}
 					if(currChar == '['){
+						leftSquareBracket++;
+					}
+					if(currChar == '{'){
 						leftBracket++;
 					}
 					if(currChar == ')'){
@@ -287,15 +296,18 @@ public class Utilities {
 						}
 					}
 					if(currChar == ']'){
-						leftBracket--;
+						leftSquareBracket--;
 						//if(leftParen == 0 ){
 						//	finish = true;
 						//}
 					}
+					if(currChar == '}'){
+						leftBracket--;
+					}
 					if((currChar == '\"')){
 						currChar = ' ';
 					}
-					if((currChar == ',') && (leftParen == 0) && (leftBracket == 0)){
+					if((currChar == ',') && (leftParen == 0) && (leftSquareBracket == 0) && (leftBracket == 0)){
 						break;
 					}
 
@@ -391,6 +403,7 @@ public class Utilities {
 			nmbr = arguments.pop().trim();
 			result = new Assing(nmbr);
 			break;
+			
 		case Operation:
 			str = arguments.pop().trim();
 			type = (Type) createObject(arguments.pop().trim());
@@ -410,6 +423,16 @@ public class Utilities {
 			auxProcess = (Process) createObject(arguments.pop().trim());
 			process = (Process) createObject(arguments.pop().trim());
 			result = new IntChoice(auxProcess,process);
+			break;
+		case UntimedInterrupt:
+			auxProcess = (Process) createObject(arguments.pop().trim());
+			process = (Process) createObject(arguments.pop().trim());
+			result = new UntimedInterrupt(auxProcess,process);
+			break;
+		case UntimedTimeout:
+			auxProcess = (Process) createObject(arguments.pop().trim());
+			process = (Process) createObject(arguments.pop().trim());
+			result = new UntimedTimeout(auxProcess,process);
 			break;
 		case ExtChoice:
 			auxProcess = (Process) createObject(arguments.pop().trim());
@@ -547,9 +570,9 @@ public class Utilities {
 			break;
 		
 		case GenPar:
-			process = (Process) createObject(arguments.pop());
-			str = arguments.pop();
-			auxProcess = (Process) createObject(arguments.pop());
+			process = (Process) createObject(arguments.pop().trim());
+			str = arguments.pop().trim();
+			auxProcess = (Process) createObject(arguments.pop().trim());
 			result = new GenPar(process,str,auxProcess);
 			break;
 			
