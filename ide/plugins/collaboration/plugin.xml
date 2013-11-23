@@ -27,6 +27,9 @@
       id="eu.compassresearch.ide.collaboration.treeview"
       name="Collaborative Modelling"
       point="org.eclipse.ui.views">
+      	<category
+			id="eu.compassresearch.ide.ui.category"
+			name="Symphony"/>
    <view
          name="Collaborative Modelling"
          icon="icons/icon_collaboration.gif"
