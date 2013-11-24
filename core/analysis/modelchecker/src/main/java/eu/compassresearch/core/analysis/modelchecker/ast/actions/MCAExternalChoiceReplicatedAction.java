@@ -44,13 +44,19 @@ public class MCAExternalChoiceReplicatedAction extends MCSReplicatedActionBase {
 		 
 		StringBuilder result = new StringBuilder();
 		if(indexes.size() == 1){
+			LinkedList<MCPCMLExp> realArgs = new LinkedList<MCPCMLExp>();
+			MCPCMLExp firstArg = indexes.removeFirst();
+			realArgs.add(firstArg);
+			((MCAReferenceAction) replicatedAction).setArgs(realArgs);
 			result.append(this.getReplicatedAction().toFormula(option));
 		}else if (indexes.size() > 1) {
 			MCPCMLExp firstArg = indexes.removeFirst();
 			result.append("eChoice(");
 			MCPAction replicatedAction = this.getReplicatedAction();
 			if(replicatedAction instanceof MCAReferenceAction){
-				//((MCAReferenceAction) replicatedAction).setArgs(first);
+				LinkedList<MCPCMLExp> realArgs = new LinkedList<MCPCMLExp>();
+				realArgs.add(firstArg);
+				((MCAReferenceAction) replicatedAction).setArgs(realArgs);
 			}
 			result.append(replicatedAction.toFormula(option));
 			result.append(",");

@@ -308,7 +308,8 @@ public class NewMCVisitor extends
 			files = folder.listFiles();
 		}
 		
-		String cml_file = "src/test/resources/simpler-b-and-o-model.cml";
+		//String cml_file = "src/test/resources/simpler-b-and-o-model.cml";
+		String cml_file = "src/test/resources/replicated-generalised-parallelism.cml";
 		//String cml_file = "src/test/resources/simpler-register.cml";
 		//String cml_file = "src/test/resources/action-prefix-skip.cml";
 		//System.out.println("Testing on " + cml_file);
@@ -317,13 +318,13 @@ public class NewMCVisitor extends
 		ITypeIssueHandler errors = VanillaFactory.newCollectingIssueHandle();
 		ICmlTypeChecker cmlTC = VanillaFactory.newTypeChecker(source1.getParagraphs(), errors);
 		boolean tcResult = cmlTC.typeCheck();
-
-		List<INode> r = new LinkedList<INode>();
-		for (INode n : source1.getParagraphs()){
-					r.add(n);
+		if(tcResult = false){
+			System.out.println("There are typecheck errors.");
+			return;
 		}
+		
 		NewMCVisitor visitor1 = new NewMCVisitor(source1);
-		String mainProcessName = "SoS";
+		String mainProcessName = "A";
 		
 		String formulaCode = visitor1.generateFormulaScript(source1.getParagraphs(),Utilities.DEADLOCK_PROPERTY,mainProcessName);
 		//String[] codes1 = visitor1.generateFormulaCodeForAll(Utilities.DEADLOCK_PROPERTY);

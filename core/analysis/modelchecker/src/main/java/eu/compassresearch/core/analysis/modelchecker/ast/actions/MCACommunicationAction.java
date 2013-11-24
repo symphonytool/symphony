@@ -79,8 +79,29 @@ public class MCACommunicationAction implements MCPAction {
 			
 		}
 		
-		for (MCPVarsetExpression globalChanSet : context.globalChanSets) {
-			
+		for (MCPVarsetExpression setExp : context.globalChanSets) {
+			LinkedList<MCANameChannelExp> chanNames = setExp.getChannelNames();
+			if(chanNames != null){
+				boolean generateLieIn = false;
+				for (MCANameChannelExp aNameChannelExp : chanNames) {
+					if(aNameChannelExp.getIdentifier().toString().equals(this.identifier.toString())){
+						generateLieIn = true;
+						break;
+					}
+				}
+				if(!generateLieIn && chanSetStack.size()==0){
+					break;
+				}else{
+					ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
+					MCPCMLType value = evaluator.instantiateMCTypeFromCommParams(this.communicationParameters);
+					
+					MCCommEv commEv = new MCCommEv(this.identifier,this.communicationParameters, value);
+					MCLieInFact lieIn = new MCLieInFact(commEv,setExp); 
+					if(!context.lieIn.contains(lieIn)){
+						context.lieIn.add(lieIn);
+					}
+				}
+			}
 		}
 		
 		return result.toString();

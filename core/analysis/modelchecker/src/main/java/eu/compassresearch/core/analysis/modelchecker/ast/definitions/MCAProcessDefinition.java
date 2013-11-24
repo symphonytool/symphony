@@ -56,7 +56,7 @@ public class MCAProcessDefinition implements MCPCMLDefinition {
 	@Override
 	public String toFormula(String option) {
 		StringBuilder result = new StringBuilder();
-		//NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 		
 		//probably we have to generate more than one procdef because of the arguments
 		//the argument has a type. for all values of such a type we generate a procdef
@@ -76,6 +76,19 @@ public class MCAProcessDefinition implements MCPCMLDefinition {
 				result.append(",");
 				result.append(this.process.toFormula(option));
 				result.append(")");
+				
+				//if the action has dependencies we get them from the context
+				LinkedList<ActionChannelDependency> dependencies = context.getActionChannelDependendies(this.name);
+				if(dependencies.size() > 0){
+					result.append(" :- ");
+					for (Iterator<ActionChannelDependency> iterator = dependencies.iterator(); iterator.hasNext();) {
+						ActionChannelDependency actionChannelDependency = (ActionChannelDependency) iterator.next();
+						result.append(actionChannelDependency.toFormula(option));
+						if(iterator.hasNext()){
+							result.append(",");
+						}
+					}
+				}
 				result.append(".\n");
 			}
 			
@@ -93,17 +106,18 @@ public class MCAProcessDefinition implements MCPCMLDefinition {
 			result.append(")");
 			
 			//if the action has dependencies we get them from the context
-			//LinkedList<ActionChannelDependency> dependencies = context.getActionChannelDependendies(this.name);
-			//if(dependencies.size() > 0){
-			//	result.append(" :- ");
-			//	for (Iterator<ActionChannelDependency> iterator = dependencies.iterator(); iterator.hasNext();) {
-			//		ActionChannelDependency actionChannelDependency = (ActionChannelDependency) iterator.next();
-			//		result.append(actionChannelDependency.toFormula(option));
-			//		if(iterator.hasNext()){
-			//			result.append(",");
-			//		}
-			//	}
-			//}
+			LinkedList<ActionChannelDependency> dependencies = context.getActionChannelDependendies(this.name);
+			if(dependencies.size() > 0){
+				result.append(" :- ");
+				for (Iterator<ActionChannelDependency> iterator = dependencies.iterator(); iterator.hasNext();) {
+					ActionChannelDependency actionChannelDependency = (ActionChannelDependency) iterator.next();
+					result.append(actionChannelDependency.toFormula(option));
+					if(iterator.hasNext()){
+						result.append(",");
+					}
+				}
+			}
+			
 			result.append(".\n");
 			}
 		

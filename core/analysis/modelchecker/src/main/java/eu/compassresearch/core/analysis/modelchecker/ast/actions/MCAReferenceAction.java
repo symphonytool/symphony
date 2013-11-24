@@ -39,7 +39,11 @@ public class MCAReferenceAction implements MCPAction {
 			for (MCAActionDefinition localAction : localActions) {
 				if(localAction.getName().toString().equals(this.name.toString())){
 					callResolved = true;
-					call = new MCActionCall(name, args);
+					if(localAction.getDeclarations().size() == 0){
+						call = new MCActionCall(name, new LinkedList<MCPCMLExp>());
+					}else{
+						call = new MCActionCall(name, args);
+					}
 					break;
 					
 				}
@@ -48,21 +52,17 @@ public class MCAReferenceAction implements MCPAction {
 		
 		if (!callResolved) {
 			for (MCAProcessDefinition pDefinition : context.processDefinitions) {
-				//if(pDefinition instanceof MCAExplicitCmlOperationDefinition){
-					//((MCAExplicitCmlOperationDefinition) pDefinition).setParentAction(this);
 					if(((MCAProcessDefinition) pDefinition).getName().toString().equals(this.name)){
 						callResolved = true;
 						call = new MCActionCall(name, args);
 						break;
 					}
-				//}
 			}
 		}
 		
 		if (!callResolved) {
 			for (MCSCmlOperationDefinition pDefinition : context.operations) {
 				if(pDefinition instanceof MCAExplicitCmlOperationDefinition){
-					//((MCAExplicitCmlOperationDefinition) pDefinition).setParentAction(this);
 					if(((MCAExplicitCmlOperationDefinition) pDefinition).getName().toString().equals(this.name)){
 						call = new MCOperationCall(name, args, null);
 						

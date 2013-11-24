@@ -8,7 +8,6 @@ import java.util.List;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -21,9 +20,7 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.MessageConsole;
@@ -36,11 +33,8 @@ import org.overture.ide.core.resources.IVdmProject;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.core.analysis.modelchecker.api.FormulaResult;
 import eu.compassresearch.core.analysis.modelchecker.api.IFormulaIntegrator;
-import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewMCVisitor;
 import eu.compassresearch.core.analysis.modelchecker.visitors.Utilities;
-import eu.compassresearch.core.common.Registry;
-import eu.compassresearch.core.common.RegistryFactory;
 import eu.compassresearch.ide.core.resources.ICmlModel;
 import eu.compassresearch.ide.core.resources.ICmlProject;
 import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
@@ -50,7 +44,6 @@ import eu.compassresearch.ide.ui.utility.CmlProjectUtil;
 
 public class MCHandler extends AbstractHandler {
 
-	private Registry registry;
 	private IWorkbenchWindow window;
 	private MessageConsoleStream console;
 	private NewMCVisitor adaptor;
@@ -143,9 +136,11 @@ public class MCHandler extends AbstractHandler {
 							//MCJob job = new MCJob("Model checker progress", outputFile);
 							//formulaOutput = job.getFormulaResult();
 							//job.schedule();
-	
-							MCProgressView p = new MCProgressView(outputFile, propertyToCheck, mcFolder, selectedUnit, cmlFile, event,mainProcessName);
-							p.execute();
+							
+							if(outputFile != null){
+								MCProgressView p = new MCProgressView(outputFile, propertyToCheck, mcFolder, selectedUnit, cmlFile, event,mainProcessName);
+								p.execute();
+							}
 							
 							//formulaOutput = p.getFormulaResult();
 							
@@ -227,7 +222,9 @@ public class MCHandler extends AbstractHandler {
 			IVdmProject vdmProject = (IVdmProject) proj.getAdapter(IVdmProject.class);
 			GlobalProcessSelectorDialog processSelector = new GlobalProcessSelectorDialog(window.getShell(), vdmProject,selectedCmlSourceUnit);
 			AProcessDefinition selectedProcess = processSelector.showDialog();
-			mainProcessName = selectedProcess.getName().getSimpleName();
+			if(selectedProcess != null){
+				mainProcessName = selectedProcess.getName().getSimpleName();
+			}
 			
 		}else{
 			for (PDefinition pDefinition : definitions) {
@@ -237,25 +234,27 @@ public class MCHandler extends AbstractHandler {
 				}
 			}
 		}
-		
-		String name = selectedCmlSourceUnit.getFile().getName();
-		String formulaFileName = name.substring(0,name.length()-selectedCmlSourceUnit.getFile().getFileExtension().length())+"4ml";
-		IFile outputFile = mcFolder.getFile(formulaFileName);
-		
-		
-		
-		this.adaptor =  new NewMCVisitor();
-		String specificationContent = this.adaptor.generateFormulaScript(definitions,propertyToCheck,mainProcessName);
-		try{
-			if(!outputFile.exists()){
-				outputFile.create(new ByteArrayInputStream(specificationContent.toString().getBytes()), true, new NullProgressMonitor());
-			}else{
-				outputFile.setContents(new ByteArrayInputStream(specificationContent.toString().getBytes()), true, true, new NullProgressMonitor());
+		IFile outputFile = null;
+		if(mainProcessName != null){
+			String name = selectedCmlSourceUnit.getFile().getName();
+			String formulaFileName = name.substring(0,name.length()-selectedCmlSourceUnit.getFile().getFileExtension().length())+"4ml";
+			outputFile = mcFolder.getFile(formulaFileName);
+			
+			
+			
+			this.adaptor =  new NewMCVisitor();
+			String specificationContent = this.adaptor.generateFormulaScript(definitions,propertyToCheck,mainProcessName);
+			try{
+				if(!outputFile.exists()){
+					outputFile.create(new ByteArrayInputStream(specificationContent.toString().getBytes()), true, new NullProgressMonitor());
+				}else{
+					outputFile.setContents(new ByteArrayInputStream(specificationContent.toString().getBytes()), true, true, new NullProgressMonitor());
+				}
+			}catch(CoreException e){
+				Activator.log(e);
 			}
-		}catch(CoreException e){
-			Activator.log(e);
-		}
 		
+		}
 		return outputFile;
 	}
 	private void writeToConsole(String fileName, FormulaResult formulaOutput)

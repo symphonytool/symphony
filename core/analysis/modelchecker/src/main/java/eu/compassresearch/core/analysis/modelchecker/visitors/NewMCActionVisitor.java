@@ -9,6 +9,7 @@ import org.overture.ast.expressions.PExp;
 import org.overture.ast.node.INode;
 import org.overture.ast.statements.AIfStm;
 
+import eu.compassresearch.ast.actions.ACallAction;
 import eu.compassresearch.ast.actions.AChaosAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.ADivAction;
@@ -37,6 +38,7 @@ import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCABlockStatementAction;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCACallAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCACallStatementAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAChaosAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCACommunicationAction;
@@ -304,6 +306,8 @@ public class NewMCActionVisitor extends
 		MCAGeneralisedParallelismReplicatedAction result = 
 				new MCAGeneralisedParallelismReplicatedAction(replicationDeclarations, replicatedAction,chansetExpression);
 		
+		question.globalChanSets.add(chansetExpression);
+		
 		return result;
 		
 
@@ -378,10 +382,12 @@ public class NewMCActionVisitor extends
 			if(!question.actionOrProcessDefStack.isEmpty()){ //there is an action definition in a wider context of this communication action
 				INode parentAction = question.actionOrProcessDefStack.peek();
 				if(parentAction instanceof AActionDefinition){
-					ActionChannelDependency actionChanDep = new ActionChannelDependency(((AActionDefinition) parentAction).getName().toString(), identifier, mcParameters);
+					String actionName = Utilities.extractFunctionName(((AActionDefinition) parentAction).getName().toString());
+					ActionChannelDependency actionChanDep = new ActionChannelDependency(actionName, identifier, mcParameters);
 					question.channelDependencies.add(actionChanDep);
 				} else if (parentAction instanceof AProcessDefinition){
-					ActionChannelDependency actionChanDep = new ActionChannelDependency(((AProcessDefinition) parentAction).getName().toString(), identifier, mcParameters);
+					String processName = Utilities.extractFunctionName(((AActionDefinition) parentAction).getName().toString());
+					ActionChannelDependency actionChanDep = new ActionChannelDependency(processName, identifier, mcParameters);
 					question.channelDependencies.add(actionChanDep);
 				}
 			}
@@ -477,6 +483,22 @@ public class NewMCActionVisitor extends
 		
 	}
 	*/
+	
+	@Override
+	public MCNode caseACallAction(ACallAction node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		
+		String name = node.getName().getSimpleName();
+		LinkedList<MCPCMLExp> args = new LinkedList<MCPCMLExp>();
+		for (PExp pExp : node.getArgs()) {
+			args.add((MCPCMLExp) pExp.apply(rootVisitor, question));
+		}
+		MCACallAction result = new MCACallAction(name, args);
+		
+		return result;
+	}
+
+	
 
 	/////REPLICATED ACTIONS
 	
@@ -488,6 +510,7 @@ public class NewMCActionVisitor extends
 		return null;
 	}
 	
+
 	@Override
 	public MCNode createNewReturnValue(Object node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
