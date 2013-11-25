@@ -1,166 +1,246 @@
-types
-  LampId      = <L1> | <L2> | <L3>
-  Signal      = set of LampId
-  ProperState = Signal
-  inv ps == ps in set {dark, stop, warning, drive}
-
-  DwarfType :: lastproperstate    : ProperState
-               turnoff            : set of LampId 
-               turnon             : set of LampId
-               laststate          : Signal
-               currentstate       : Signal
-               desiredproperstate : ProperState
-  inv d == 
-    (((d.currentstate \ d.turnoff) union d.turnon) = d.desiredproperstate) and
-    (d.turnoff inter d.turnon = {}) and
-    -- NeverShow All
-    d.currentstate <> {<L1>,<L2>,<L3>} and
-    -- MaxOneLampChange
-    card ((d.currentstate \ d.laststate) union (d.laststate \ d.currentstate)) <= 1 and
-    -- ForbidStopToDrive
-    ((d.lastproperstate = stop) => d.desiredproperstate <> drive) and
-    -- DarkOnlyToStop
-    ((d.lastproperstate = dark) => d.desiredproperstate in set {dark,stop}) and
-    -- DarkOnlyFromStop
-    ((d.desiredproperstate = dark) => d.lastproperstate in set {dark,stop})
-    
-  DwarfSignal = DwarfType
-  inv d == NeverShowAll(d) and 
-            MaxOneLampChange(d) and 
-            ForbidStopToDrive(d) and 
-            DarkOnlyToStop(d) and 
-            DarkOnlyFromStop(d)
 
 values
-  dark: Signal    = {}
-  stop: Signal    = {<L1>, <L2>}
-  warning: Signal = {<L1>, <L3>}
-  drive: Signal   = {<L2>, <L3>}
+  n: nat1 = 2													-- R1, Properties 
+  ownerset: set of nat1 = {1,...,n}  							-- R1 
 
-functions
+types
+  OwnerLoc = <InCar> | <Near> | <Far>			       			-- R2a,b,c,  
+         
+  Car :: engine: <On> | <Off>									-- R3a,b 
+         motion: <Moving> | <Stopped>							-- R4a,b
+         door: <UnlockedClosed> | <LockedClosed> | <Open>	-- R5a,b,c
 
-  NeverShowAll: DwarfType -> bool
-  NeverShowAll(d) == d.currentstate <> {<L1>,<L2>,<L3>}
-  
-  MaxOneLampChange: DwarfType -> bool 
-  MaxOneLampChange(d) == card ((d.currentstate \ d.laststate) union (d.laststate \ d.currentstate)) <= 1
-  
-  ForbidStopToDrive : DwarfType -> bool
-  ForbidStopToDrive(d) == ((d.lastproperstate = stop) => d.desiredproperstate <> drive)
-  
-  DarkOnlyToStop : DwarfType -> bool
-  DarkOnlyToStop(d) == ((d.lastproperstate = dark) => d.desiredproperstate in set {dark,stop}) 
-  
-  DarkOnlyFromStop: DwarfType -> bool
-  DarkOnlyFromStop(d) == ((d.desiredproperstate = dark) => d.lastproperstate in set {dark,stop})
+  KCard :: holder: OwnerId 										-- A3, R9c
+           location: <InCar> | <Near> | <Far>					-- R6a,b,A4
+
+  OwnerId = nat1
+  inv o == o in set ownerset
 
 channels
   init
-  light: LampId
-  extinguish: LampId
-  setPS: ProperState
-  shine: Signal
-  thunk
+  approach, goaway, getin, getout : OwnerId
 
-process Dwarf = begin 
+process CarKey =
+begin
 
-state 
-  dw : DwarfType
+functions
+
+  PreApproach: map OwnerId to OwnerLoc * OwnerId -> bool
+  PreApproach(m,i) ==
+    i in set dom m and m(i) = <Far>
+    
+  PreGoAway: map OwnerId to OwnerLoc * OwnerId -> bool
+  PreGoAway(m,i) ==
+    i in set dom m and m(i) = <Near>
+    
+  PreGetIn: map OwnerId to OwnerLoc * Car * OwnerId -> bool
+  PreGetIn(m,c,i) ==    
+    m(i) = <Near> and
+    c.door = <Open> and
+    c.motion <> <Moving>
+    
+  PreGetOut: map OwnerId to OwnerLoc * Car * OwnerId -> bool
+  PreGetOut(m,c,i) ==    
+    m(i) = <InCar> and
+    c.door = <Open> and
+    c.motion <> <Moving>
+
+state  
+  owners: map OwnerId to OwnerLoc
+  car: Car
+  key: KCard													 
+inv dom owners = ownerset
 
 operations
-  Init : () ==> ()
-  Init() ==
-    dw := mk_DwarfType(stop, {}, {}, stop, stop, stop) 
-    post dw.lastproperstate = stop and 
-         dw.turnoff = {} and 
-         dw.turnon = {} and 
-         dw.laststate = stop and 
-         dw.currentstate = stop and 
-         dw.desiredproperstate = stop
 
-  SetNewProperState: (ProperState) ==> ()
-  SetNewProperState(st) ==
-    dw := mk_DwarfType( dw.currentstate
-                        , dw.currentstate \ st
-                        , st \ dw.currentstate
-                        , dw.laststate
-                        , dw.currentstate
-                        , st) 
+Init: () ==> ()
+Init() == (
+  owners := {i |-> <Far> | i in set ownerset};			-- R7a
+  car := mk_Car(<Off>, <Stopped>, <LockedClosed>);		-- R7b,e,c
+  key := mk_KCard(1,owners(1))							-- R7d
+)
+-- Operations of owner i
+
+Approach(i:OwnerId)	-- R8a
+frame wr owners
+pre PreApproach(owners, i)
+post owners = owners~ ++ {i |-> <Near>}
+
+GoAway(i:OwnerId) -- R8b
+frame wr owners
+pre PreGoAway(owners,i)
+post owners = owners~ ++ {i |-> <Far>}
+
+GetIn(i:OwnerId) -- R8c 
+frame wr owners
+      rd car
+pre PreGetIn(owners,car,i)
+post owners = owners~ ++ {i |-> <InCar>}
+
+GetOut(i:OwnerId) -- R8d
+frame wr owners
+      rd car
+pre PreGetOut(owners,car,i)
+post owners = owners~ ++ {i |-> <Near>}	-- Assumed the location goes to <Near> when
+										-- owner gets out of car
+
+-- Operations of the Key Card -- R9 
+
+-- R9 a,b read as though they are invariants, but this contradicts the opening line of R9. 
+
+-- R9a 
+CardInCar()
+frame rd owners 
+      wr key  
+pre owners(key.holder) = <InCar> 			 
+post key = mk_KCard(key~.holder, <InCar>)
+
+-- A4
+CardNearCar()
+frame rd owners 
+      wr key   
+pre owners(key.holder) = <Near> 			 
+post key = mk_KCard(key~.holder, <Near>)
+
+-- R9b 
+CardFar()
+frame rd owners 
+    wr key   
+pre owners(key.holder) = <Far> 			 
+post key = mk_KCard(key~.holder, <Far>)
+
+-- R9c 
+CardPass(i:OwnerId)
+frame rd owners
+    wr key
+pre (key.location = <Far> and owners(i) = <Far>) or  
+    (key.location = <InCar> and owners(i) = <InCar>) 
+post key = mk_KCard(i,owners(i))
+
+-- R10a 
+CarUnlockOpenFromOutside()
+frame rd owners
+    wr car
+    rd key
+pre owners(key.holder) = <Near> and 
+    car.door = <LockedClosed> and 
+    car.motion <> <Moving> 
+post car = mk_Car(car~.engine,car~.motion,<Open>)
+
+-- R10b
+CarOpenFromOutside()
+frame rd owners
+    wr car
+    rd key
+pre owners(key.holder) = <Near> and 
+    car.door = <UnlockedClosed> and 
+    car.motion <> <Moving> 
+post car = mk_Car(car~.engine,car~.motion,<Open>)
+
+-- R10c
+-- Note the key appears to play no part in this. 
+-- Version 1 - parametric over i
+CarOpenFromInside1(i:OwnerId)
+frame rd owners
+    wr car
+pre car.door <> <Open> and 
+    owners(i) = <InCar>  
+post car = mk_Car(car~.engine,car~.motion,<Open>)
+
+-- Version 2 -- internal choice
+CarOpenFromInside2()
+frame rd owners
+    wr car
+pre car.door <> <Open> and 
+    <InCar> in set rng owners 			-- exists i in set dom owners & owners(i) = <InCar> 
+post car = mk_Car(car~.engine,car~.motion,<Open>)
+
+-- R10d
+CarDoorClose()
+frame wr car
+pre car.door = <Open> 
+post car = mk_Car(car~.engine,car~.motion,<UnlockedClosed>)
+
+-- R10e
+-- Note the key appears to play no part in this. 
+-- Version 1 - paramteric over i
+CarLockFromInside1(i:OwnerId) 
+frame rd owners
+      wr car
+pre car.door = <UnlockedClosed> and 	-- or car.door = <Open>? 
+    owners(i) = <InCar>
+post car = mk_Car(car~.engine,car~.motion,<LockedClosed>)
+ 
+-- Version 2 - internal choice
+CarLockFromInside2() 
+frame rd owners
+      wr car
+pre car.door = <UnlockedClosed> and 	-- or car.door = <Open>? 
+    <InCar> in set rng owners
+post car = mk_Car(car~.engine,car~.motion,<LockedClosed>)
+
+--R10f
+CarLockFromOutside()
+frame rd owners
+      wr car
+      rd key
+pre car.door = <UnlockedClosed> and		-- or car.door = <Open>?
+    owners(key.holder) = <Near>         -- Note no requirement that the key.location is <Near> here. 
+post car = mk_Car(car~.engine,car~.motion,<LockedClosed>)
+
+-- Operations on the Engine
+
+-- R11a
+EngineOn()
+frame rd owners
+      wr car
+      rd key
+pre owners(key.holder) = <InCar> and 
+    key.location = <InCar> and 
+    car.engine = <Off> 
+post car = mk_Car(<On>,car~.motion,car~.door)
+
+-- R11b
+-- Assumed that "changed to driving" means "changed to moving" 
+CarMoving()
+frame rd owners
+      wr car
+pre car.engine = <On> and 
+    <InCar> in set rng owners and 
+    car.motion <> <Moving> 
+post car = mk_Car(car~.engine,<Moving>,car~.door) 
+
+-- R11c
+CarStop()
+frame rd owners
+      wr car 
+pre car.engine = <On> and
+    car.motion = <Moving> and 
+    <InCar> in set rng owners
+post car = mk_Car(car~.engine,<Stopped>,car~.door) 
+
+--R11d 
+
+
+actions
+
+OwnerOptions = 
+  ([] i in set ownerset @
+     [PreApproach(owners,i)] & approach.i -> Approach(i))
+  []
+  ([] i in set ownerset @
+     [PreGoAway(owners,i)] & goaway.i -> GoAway(i))
+  []
+  ([] i in set ownerset @
+     [PreGetIn(owners,car,i)] & getin.i -> GetIn(i))
+  []
+  ([] i in set ownerset @
+     [PreGetOut(owners,car,i)] & getout.i -> GetOut(i))
+
+CarOptions = Skip
   
-    pre dw.currentstate = dw.desiredproperstate and
-        st <> dw.currentstate
-         
-    post dw.lastproperstate = dw~.currentstate and
-         dw.turnoff = dw~.currentstate \ st and
-         dw.turnon  = st \ dw~.currentstate and
-         dw.laststate = dw~.laststate and
-         dw.currentstate = dw~.currentstate and
-         dw.desiredproperstate = st
+CardOptions = Skip
 
-  TurnOn: (LampId) ==> ()
-  TurnOn(l) == 
-    dw := mk_DwarfType( dw.lastproperstate
-                      , dw.turnoff \ {l}
-                      , dw.turnon \ {l}
-                      , dw.currentstate
-                      , dw.currentstate union {l}
-                      , dw.desiredproperstate)
-                                          
-    pre l in set dw.turnon
-    post dw.lastproperstate = dw~.lastproperstate and
-         dw.turnoff = dw~.turnoff \ {l} and
-         dw.turnon  = dw~.turnon  \ {l} and 
-         dw.laststate = dw~.currentstate and
-         dw.currentstate = dw~.currentstate union {l} and
-         dw.desiredproperstate = dw~.desiredproperstate
-
-
-  TurnOff : (LampId) ==> ()
-  TurnOff(l) == 
-    dw := mk_DwarfType( dw.lastproperstate
-                      , dw.turnoff \ {l}
-                      , dw.turnon \ {l}
-                      , dw.currentstate
-                      , dw.currentstate \ {l}
-                      , dw.desiredproperstate)
-  
-    pre l in set dw.turnoff
-    post dw.lastproperstate = dw~.lastproperstate and
-         dw.turnoff = dw~.turnoff \ {l} and
-         dw.turnon  = dw~.turnon  \ {l} and 
-         dw.laststate = dw~.currentstate and
-         dw.currentstate = dw~.currentstate \ {l} and
-         dw.desiredproperstate = dw~.desiredproperstate
-
-  actions
-    DWARF =
-      (  (light?l -> TurnOn(l); DWARF) 
-      [] (extinguish?l -> TurnOff(l); DWARF)
-      [] (setPS?l -> SetNewProperState(l); DWARF)
-      [] (shine!(dw.currentstate) -> DWARF))
-      
-    -- Working test
-    TEST1 = setPS!warning -> extinguish!<L2> -> light!<L3> 
-          -> setPS!drive -> extinguish!<L1> -> light!<L2> -> Stop
-
-    -- Tries to turn on 3 lights simulaneously
-    TEST2 = setPS!warning -> light!<L3> -> extinguish!<L2> 
-          -> setPS!drive -> extinguish!<L1> -> light!<L2> -> Stop
-
-    -- Tries to go from dark to warning
-    TEST3 = setPS!dark -> extinguish!<L1> -> extinguish!<L2> -> setPS!warning -> 
-            light!<L1> -> light!<L2> -> Stop 
-          
-    -- Tries to go from stop to drive
-    TEST4 = setPS!drive -> extinguish!<L1> -> light!<L3> -> Stop
-
-    DWARF_TEST1 = DWARF [|{setPS,light,extinguish}|] TEST1
-    DWARF_TEST2 = DWARF [|{setPS,light,extinguish}|] TEST2      
-    DWARF_TEST3 = DWARF [|{setPS,light,extinguish}|] TEST3
-    DWARF_TEST4 = DWARF [|{setPS,light,extinguish}|] TEST4
-    
-@ 
-
-init -> Init() ; DWARF_TEST3
+@ Skip
 
 end

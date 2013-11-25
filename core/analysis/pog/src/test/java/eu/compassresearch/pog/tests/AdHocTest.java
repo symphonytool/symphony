@@ -41,11 +41,11 @@ public class AdHocTest {
 				
 		for (IProofObligation po : poList) {
 			System.out.println("------------------------");	
-			String preamble = getPreamble(po);
-			//String pretty = preamble + po.getValueTree().toString();
 			StringBuilder pretty = new StringBuilder();
 			pretty.append("Full Name: " + po.getUniqueName());			
 			pretty.append("\nIsabelle Name: " + po.getIsaName());
+			pretty.append("\nPO: " + getPreamble(po));
+			pretty.append(po.getValueTree().toString());
 			System.out.println(pretty.toString());
 
 		}
@@ -65,7 +65,7 @@ public class AdHocTest {
 			sb.append(po.getKind().toString());
 		}
 		
-		sb.append(" obligation // \n");
+		sb.append("\n");
 		return sb.toString();
 	}
 
