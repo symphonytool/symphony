@@ -1,5 +1,7 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.expressions;
 
+import java.util.LinkedList;
+
 
 public class MCAUnionVOpVarsetExpression implements MCPVarsetExpression{
 
@@ -7,14 +9,31 @@ public class MCAUnionVOpVarsetExpression implements MCPVarsetExpression{
 	protected MCPVarsetExpression right;
 	
 	public MCAUnionVOpVarsetExpression(MCPVarsetExpression l, MCPVarsetExpression r) {
-		super();
 		this.left = l;
 		this.right = r;
 	}
 	
+	public LinkedList<MCANameChannelExp> getChannelNames() {
+		LinkedList<MCANameChannelExp> result = new LinkedList<MCANameChannelExp>();
+
+		result.addAll(left.getChannelNames());
+		result.addAll(right.getChannelNames());
+		
+		return result;
+	}
+	
 	@Override
 	public String toFormula(String option) {
-		return null;
+		LinkedList<MCANameChannelExp> channelNames = new LinkedList<MCANameChannelExp>(); 
+		MCAFatEnumVarsetExpression syncSet = new MCAFatEnumVarsetExpression(channelNames);
+		
+		if(left instanceof MCAFatEnumVarsetExpression){
+			syncSet.getChannelNames().addAll(((MCAFatEnumVarsetExpression) left).getChannelNames());
+		}
+		if(right instanceof MCAFatEnumVarsetExpression){
+			syncSet.getChannelNames().addAll(((MCAFatEnumVarsetExpression) right).getChannelNames());
+		}
+		return syncSet.toFormula(option);
 	}
 
 	public MCPVarsetExpression getLeft() {

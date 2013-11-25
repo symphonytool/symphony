@@ -23,6 +23,14 @@ public class MCANameChannelExp implements MCSChannelExp {
 		return this.identifier;
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		boolean result = false;
+		if(obj instanceof MCANameChannelExp){
+			result = this.identifier.equals(((MCANameChannelExp) obj).getIdentifier());
+		}
+		return result;
+	}
 
 	public String getIdentifier() {
 		return identifier;

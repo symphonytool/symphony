@@ -26,22 +26,22 @@ public class MCProgressMonitorHandler extends AbstractHandler{
 
 	//private IFile output;
 	private MCThread thread;
-	IResource cmlFile;
+	private IResource cmlFile;
+	private String analysedProcess;
 	
-	public MCProgressMonitorHandler(IFile out, String property, IFolder mcFolder, ICmlSourceUnit selectedUnit, IResource cmlFile, ExecutionEvent event) {
+	public MCProgressMonitorHandler(IFile out, String property, IFolder mcFolder, ICmlSourceUnit selectedUnit, IResource cmlFile, ExecutionEvent event, String analysedProcess) {
 		IWorkbenchWindow window;
 		try {
 			window = HandlerUtil.getActiveWorkbenchWindowChecked(event);
-			this.thread = new MCThread(out, property, mcFolder, selectedUnit, cmlFile, window);
+			this.thread = new MCThread(out, property, mcFolder, selectedUnit, cmlFile, window, analysedProcess);
 			this.cmlFile = cmlFile;
+			this.analysedProcess = analysedProcess;
 		} catch (ExecutionException e) {
 			e.printStackTrace();
 		}
 	}
 	
-	public void join() throws InterruptedException{
-		thread.join();
-	}
+	
 	@Override
 	public synchronized Object execute(ExecutionEvent event) throws ExecutionException {
 		//final IWorkbenchWindow window = HandlerUtil.getActiveWorkbenchWindowChecked(event);
@@ -74,36 +74,7 @@ public class MCProgressMonitorHandler extends AbstractHandler{
 		};
 		
 		b.schedule();
-		/*ProgressMonitorDialog dialog = new ProgressMonitorDialog(window.getShell());
-		dialog.setCancelable(true);
-		try {
-			dialog.run(true, true, new IRunnableWithProgress(){
-			     public void run(IProgressMonitor monitor) {
-			         monitor.beginTask("Model Checker progress", 1000);
-			         thread.start();
-			         int i = 0;
-			         while (thread.getStatus() != MCStatus.FINISHED) { // && i <= 80
-			        	 try {
-			                 Thread.sleep(1000);
-			                 i++;
-				        	 monitor.worked(i);
-			             } catch (InterruptedException e) {} // ignore
-			         }
-			        if(thread.getStatus() == MCStatus.FINISHED && i < 100){
-			        	for(int j = i; j < 100; j++){
-			        		try {
-				                 Thread.sleep(10);
-				                 monitor.worked(j);
-				             } catch (InterruptedException e) {} // ignore
-			        		
-			        	}
-			        }
-			        monitor.done();
-			     }
-			 });
-		} catch (InvocationTargetException | InterruptedException e) {
-			e.printStackTrace();
-		} */
+		
 		return null;
 	}
 

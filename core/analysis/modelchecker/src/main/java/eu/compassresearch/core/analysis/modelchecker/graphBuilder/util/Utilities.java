@@ -1,5 +1,10 @@
 package eu.compassresearch.core.analysis.modelchecker.graphBuilder.util;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Hashtable;
 import java.util.LinkedList;
 
@@ -43,16 +48,16 @@ import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Proces
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.SeqComposition;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Skip;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Stop;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.UntimedInterrupt;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.UntimedTimeout;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.VarDeclaration;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.transition.Transition;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.IR;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Int;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Nat;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Str;
-import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.T1;
-import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.T2;
-import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.T3;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Type;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.TypeValue;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Void;
 
 public class Utilities {
@@ -82,6 +87,8 @@ public class Utilities {
 		constructors.put(Constructor.ProcessCall.id, Constructor.ProcessCall);
 		constructors.put(Constructor.Operation.id, Constructor.Operation);
 		constructors.put(Constructor.Assing.id, Constructor.Assing);
+		constructors.put(Constructor.UntimedInterrupt.id, Constructor.UntimedInterrupt);
+		constructors.put(Constructor.UntimedTimeout.id, Constructor.UntimedTimeout);
 
 		//CHOICE
 		constructors.put(Constructor.IntChoice.id, Constructor.IntChoice);
@@ -99,7 +106,7 @@ public class Utilities {
 		constructors.put(Constructor.Par.id, Constructor.Par);
 		constructors.put(Constructor.GenPar.id, Constructor.GenPar);
 		
-		//these constructores will be removed
+		//some of these constructores will be removed
 		constructors.put(Constructor.IPar.id, Constructor.IPar);
 		constructors.put(Constructor.IParll.id, Constructor.IParll);
 		constructors.put(Constructor.Parll.id, Constructor.Parll);
@@ -130,10 +137,8 @@ public class Utilities {
 		constructors.put(Constructor.StrType.id, Constructor.StrType);
 		constructors.put(Constructor.NatType.id, Constructor.NatType);
 		constructors.put(Constructor.IRType.id, Constructor.IRType);
-		constructors.put(Constructor.T1.id, Constructor.T1);
-		constructors.put(Constructor.T2.id, Constructor.T2);
-		constructors.put(Constructor.T3.id, Constructor.T3);
 		constructors.put(Constructor.Void.id, Constructor.Void);
+		constructors.put(Constructor.TypeValue.id, Constructor.TypeValue);
 		
 		//EXPRESSION
 		constructors.put(Constructor.EqualExpression.id, Constructor.EqualExpression);
@@ -155,9 +160,10 @@ public class Utilities {
 				"condChoice"), ExtraChoice("extraChoice"), EqualExpression("EQ"), NotEqualExpression(
 				"NEQ"), LessThanExpression("LT"), GreaterThanExpression("GT"), IntType(
 				"Int"), NatType("Nat"), StrType("Str"), IRType("IR"), GivenProc(
-				"GivenProc"), ProcDef("ProcDef"), CommEv("CommEv"),T1("T1"),T2("T2"),T3("T3"),
+				"GivenProc"), ProcDef("ProcDef"), CommEv("CommEv"),
 				SingleBind("SingleBind"), Void("void"), VarDecl("var"), Let("let"), 
-				GenPar("genPar");
+				GenPar("genPar"), TypeValue("TypeValue"), UntimedInterrupt("intrpt"), 
+				UntimedTimeout ("timeout");
 		
 		String id;
 		
@@ -167,9 +173,41 @@ public class Utilities {
 		
 	}
 	
+	public static StringBuilder readScriptFromFile(String filePath) throws IOException {
+		 StringBuilder text = new StringBuilder();
+		 InputStream is = Utilities.class.getResourceAsStream(filePath);
+		 InputStreamReader isr = new InputStreamReader(is);
+		 BufferedReader br = new BufferedReader(isr);
+		 String line = "";
+		 while((line=br.readLine()) != null ){
+			 text.append(line);
+			 text.append("\n");
+		 }
+		 is.close();
+		 br.close();
+		 text.append("\n");
+		 return text;
+	 }
+	
+	public static StringBuilder readScriptFromAbsoluteFile(String filePath) throws IOException {
+		 StringBuilder text = new StringBuilder();
+		 FileReader fr = new FileReader(filePath);
+		 BufferedReader br = new BufferedReader(fr);
+		 String line = "";
+		 while((line=br.readLine()) != null ){
+			 text.append(line);
+			 text.append("\n");
+		 }
+		 fr.close();
+		 br.close();
+		 text.append("\n");
+		 return text;
+	 }
+	
 	//determina que construtor est� sendo usado em uma string
 	public static Constructor determineConstructor(String content){
 		StringBuilder constructor = new StringBuilder();
+		Constructor realConstructor = null;
 		
 		int currCharIndex = 0;
 		content = content.trim();
@@ -184,7 +222,13 @@ public class Utilities {
 			}
 		}
 		
-		return constructors.get(constructor.toString());
+		realConstructor = constructors.get(constructor.toString());  
+		if(realConstructor == null){
+			if(constructor.toString().length() > 0){
+				realConstructor = constructors.get(Constructor.TypeValue.id);
+			}
+		}
+		return realConstructor;
 		
 	}
 	
@@ -193,20 +237,23 @@ public class Utilities {
 		String result = "";
 		content = content.trim();
 		Constructor constructor = determineConstructor(content);
-		
-		if (constructor.equals(Constructor.Stop)
-			|| constructor.equals(Constructor.Skip)
-			|| constructor.equals(Constructor.Chaos)
-			|| constructor.equals(Constructor.Div)
-			|| constructor.equals(Constructor.Tau)
-			|| constructor.equals(Constructor.NoPar)
-			|| constructor.equals(Constructor.NullBind)
-			|| constructor.equals(Constructor.Void)) {
-			
-			//result = content.substring(constructor.id.length() + 1, content.length()-1);
-			result = "";
+		if(constructor != Constructor.TypeValue){
+			if (constructor.equals(Constructor.Stop)
+				|| constructor.equals(Constructor.Skip)
+				|| constructor.equals(Constructor.Chaos)
+				|| constructor.equals(Constructor.Div)
+				|| constructor.equals(Constructor.Tau)
+				|| constructor.equals(Constructor.NoPar)
+				|| constructor.equals(Constructor.NullBind)
+				|| constructor.equals(Constructor.Void)) {
+				
+				//result = content.substring(constructor.id.length() + 1, content.length()-1);
+				result = "";
+			}else{
+				result = content.substring(constructor.id.length()+1,content.length()-1);
+			}
 		}else{
-			result = content.substring(constructor.id.length()+1,content.length()-1);
+			result = content;
 		}
 		
 		return result;
@@ -223,6 +270,7 @@ public class Utilities {
 		StringBuilder currentTerm = new StringBuilder();
 		int currIndex = 0;
 		int leftParen = 0;
+		int leftSquareBracket = 0;
 		int leftBracket = 0;
 		if(arguments.length() > 0){
 			char currChar = arguments.charAt(currIndex);
@@ -236,6 +284,9 @@ public class Utilities {
 						leftParen++;
 					}
 					if(currChar == '['){
+						leftSquareBracket++;
+					}
+					if(currChar == '{'){
 						leftBracket++;
 					}
 					if(currChar == ')'){
@@ -245,15 +296,18 @@ public class Utilities {
 						}
 					}
 					if(currChar == ']'){
-						leftBracket--;
+						leftSquareBracket--;
 						//if(leftParen == 0 ){
 						//	finish = true;
 						//}
 					}
+					if(currChar == '}'){
+						leftBracket--;
+					}
 					if((currChar == '\"')){
 						currChar = ' ';
 					}
-					if((currChar == ',') && (leftParen == 0) && (leftBracket == 0)){
+					if((currChar == ',') && (leftParen == 0) && (leftSquareBracket == 0) && (leftBracket == 0)){
 						break;
 					}
 
@@ -273,11 +327,12 @@ public class Utilities {
 	
 	
 	public static Object createObject(String content){
-		Object result = new Object();
+		Object result = null;
 		Constructor c = determineConstructor(content);
 		content = extractConstructor(content);
 		content = content.replaceAll(" ","");
 		result = createObject(c, content);
+		
 		return result;
 	}
 	
@@ -330,68 +385,73 @@ public class Utilities {
 		case StrType:
 			result = new Str(arguments.pop());
 			break;
-		case T1:
-			result = new T1(arguments.pop());
-			break;
-		case T2:
-			result = new T2(arguments.pop());
-			break;
-		case T3:
-			result = new T3(arguments.pop());
+		case TypeValue:
+			result = new TypeValue(arguments.pop().trim());
 			break;
 		case VarDecl:
-			str = arguments.pop();
-			String typeStr =  arguments.pop();
-			auxProcess = (Process) createObject(arguments.pop());
+			str = arguments.pop().trim();
+			String typeStr =  arguments.pop().trim();
+			auxProcess = (Process) createObject(arguments.pop().trim());
 			result = new VarDeclaration(str,typeStr,auxProcess);
 			break;
 		case Let:
-			str = arguments.pop();
-			auxProcess = (Process) createObject(arguments.pop());
+			str = arguments.pop().trim();
+			auxProcess = (Process) createObject(arguments.pop().trim());
 			result = new Let(str,auxProcess);
 			break;
 		case Assing:
-			nmbr = arguments.pop();
+			nmbr = arguments.pop().trim();
 			result = new Assing(nmbr);
 			break;
+			
 		case Operation:
-			str = arguments.pop();
-			param = (Param) createObject(arguments.pop());
-			result = new Operation(str,param);
+			str = arguments.pop().trim();
+			type = (Type) createObject(arguments.pop().trim());
+			result = new Operation(str,type);
 			break;
 		case ProcessCall:
-			str = arguments.pop();
-			type = (Type) createObject(arguments.pop());
+			str = arguments.pop().trim();
+			type = (Type) createObject(arguments.pop().trim());
 			result = new ProcessCall(str,type);
 			break;
 		case SeqComposition:
-			auxProcess = (Process) createObject(arguments.pop());
-			Process process = (Process) createObject(arguments.pop());
+			auxProcess = (Process) createObject(arguments.pop().trim());
+			Process process = (Process) createObject(arguments.pop().trim());
 			result = new SeqComposition(auxProcess,process);
 			break;
 		case IntChoice:
-			auxProcess = (Process) createObject(arguments.pop());
-			process = (Process) createObject(arguments.pop());
+			auxProcess = (Process) createObject(arguments.pop().trim());
+			process = (Process) createObject(arguments.pop().trim());
 			result = new IntChoice(auxProcess,process);
 			break;
+		case UntimedInterrupt:
+			auxProcess = (Process) createObject(arguments.pop().trim());
+			process = (Process) createObject(arguments.pop().trim());
+			result = new UntimedInterrupt(auxProcess,process);
+			break;
+		case UntimedTimeout:
+			auxProcess = (Process) createObject(arguments.pop().trim());
+			process = (Process) createObject(arguments.pop().trim());
+			result = new UntimedTimeout(auxProcess,process);
+			break;
 		case ExtChoice:
-			auxProcess = (Process) createObject(arguments.pop());
-			process = (Process) createObject(arguments.pop());
+			auxProcess = (Process) createObject(arguments.pop().trim());
+			process = (Process) createObject(arguments.pop().trim());
 			result = new ExtChoice(auxProcess,process);
 			break;
 		case ExtraChoice:
 			//number = buildInteger(arguments.pop());
-			Binding leftBiding = (Binding) createObject(arguments.pop());
-			process = (Process) createObject(arguments.pop());
-			Binding rightBiding = (Binding) createObject(arguments.pop());
-			Process rightProcess = (Process) createObject(arguments.pop());
+			Binding leftBiding = (Binding) createObject(arguments.pop().trim());
+			process = (Process) createObject(arguments.pop().trim());
+			Binding rightBiding = (Binding) createObject(arguments.pop().trim());
+			Process rightProcess = (Process) createObject(arguments.pop().trim());
 			result = new ExtraChoice(leftBiding,process,rightBiding,rightProcess);
 			
 			break;
 		case CondChoice:
-			number = Integer.parseInt(arguments.pop());
-			auxProcess = (Process) createObject(arguments.pop());
-			process = (Process) createObject(arguments.pop());
+			number = Integer.parseInt(arguments.pop().trim());
+			auxProcess = (Process) createObject(arguments.pop().trim());
+			process = (Process) createObject(arguments.pop().trim());
 			result = new ConditionalChoice(number,auxProcess,process);
 			break;
 		case EqualExpression:
@@ -417,7 +477,6 @@ public class Utilities {
 		case Transition:
 			State source = (State) createObject(arguments.pop());
 			auxEvent = (Event) createObject(arguments.pop());
-			System.out.println();
 			State target = (State) createObject(arguments.pop());
 			result = new Transition(source, auxEvent, target);
 			break;
@@ -434,10 +493,10 @@ public class Utilities {
 			result = new Prefix(auxEvent, auxProcess);
 			break;
 		case BBind:
-			String procName = arguments.pop();
+			//String procName = arguments.pop();
 			SingleBind singleBind = (SingleBind)createObject(arguments.pop());
 			Binding tail = (Binding)createObject(arguments.pop());
-			result = new BBinding(procName,singleBind,tail);
+			result = new BBinding(null,singleBind,tail);
 			break;
 			
 		case SingleBind:
@@ -448,7 +507,10 @@ public class Utilities {
 			
 		case CommEv:
 			String begin = arguments.pop();
-			String middle = arguments.pop();
+			String middle = "";
+			if(arguments.size() > 1){
+				middle = arguments.pop();
+			}
 			Type tipo = (Type) createObject(arguments.pop());
 			result = new CommEv(begin,middle,tipo);
 			break;
@@ -476,12 +538,12 @@ public class Utilities {
 			result = new DPar(typ,typ2);
 			break;
 		case GivenProc:
-			result = new GivenProc(arguments.pop()); 
+			result = new GivenProc(arguments.pop().trim()); 
 			break;
 		case ProcDef:
-			str = arguments.pop();
-			type = (Type) createObject(arguments.pop());
-			process = (Process) createObject(arguments.pop());
+			str = arguments.pop().trim();
+			type = (Type) createObject(arguments.pop().trim());
+			process = (Process) createObject(arguments.pop().trim());
 			result = new ProcDef(str,type,process);
 			break;
 		case IPar:
@@ -508,9 +570,9 @@ public class Utilities {
 			break;
 		
 		case GenPar:
-			process = (Process) createObject(arguments.pop());
-			str = arguments.pop();
-			auxProcess = (Process) createObject(arguments.pop());
+			process = (Process) createObject(arguments.pop().trim());
+			str = arguments.pop().trim();
+			auxProcess = (Process) createObject(arguments.pop().trim());
 			result = new GenPar(process,str,auxProcess);
 			break;
 			

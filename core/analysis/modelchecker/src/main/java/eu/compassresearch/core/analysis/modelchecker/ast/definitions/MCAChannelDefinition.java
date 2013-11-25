@@ -32,6 +32,7 @@ public class MCAChannelDefinition implements MCPCMLDefinition {
 	@Override
 	public String toFormula(String option) {
 		StringBuilder result = new StringBuilder();
+		
 		if(this.isTyped()){
 			switch (option) {
 			case MCNode.GENERIC:
@@ -56,7 +57,7 @@ public class MCAChannelDefinition implements MCPCMLDefinition {
 				LinkedList<TypeValue> typeValues = getTypeValues();
 				if(typeValues.size() == 0){ //it is (probably an infinite type and must be instantiated by formula)
 					//lets try to get from the dependendies
-					int i = 0;
+					
 					NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 					LinkedList<ActionChannelDependency> dependencies = context.getActionChannelDependendiesByChannelName(this.name);
 					if(dependencies.size() > 0){
@@ -103,9 +104,10 @@ public class MCAChannelDefinition implements MCPCMLDefinition {
 	private LinkedList<TypeValue> getTypeValues(){
 		LinkedList<TypeValue> result = new LinkedList<TypeValue>();
 
+		
 		//MCPCMLType type = type.getType();
-		//if(type instanceof MCAChannelType){
-		//	type = ((MCAChannelType) type).getType();
+		if(this.type instanceof MCAChannelType){
+			this.type = ((MCAChannelType) this.type).getType();
 			
 			//MCAIntNumericBasicType, MCANatNumericBasicType are infinite, so we let formula to instantiate them
 			
@@ -114,7 +116,7 @@ public class MCAChannelDefinition implements MCPCMLDefinition {
 				TypeManipulator typeManipulator = TypeManipulator.getInstance();
 				result = typeManipulator.getValues(type);
 			}
-		//}
+		}
 		
 		return result;
 	}
@@ -128,6 +130,8 @@ public class MCAChannelDefinition implements MCPCMLDefinition {
 		if(type != null){
 			if (type instanceof MCAChannelType){
 				result = !(((MCAChannelType) type).getType() instanceof MCVoidType);
+			} else{
+				result = true;
 			}
 		}
 				
@@ -141,6 +145,14 @@ public class MCAChannelDefinition implements MCPCMLDefinition {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public MCPCMLType getType() {
+		return type;
+	}
+
+	public void setType(MCPCMLType type) {
+		this.type = type;
 	}
 
 	

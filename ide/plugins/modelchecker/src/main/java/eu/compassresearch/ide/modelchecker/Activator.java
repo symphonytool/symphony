@@ -34,6 +34,8 @@ public class Activator extends AbstractUIPlugin implements IStartup{
     
 	
 	public void earlyStartup() {
+		//this line is useful to start Formula (if it is installed)
+		FORMULA_OK = FormulaIntegrator.checkFormulaInstallation();
     	//checkAuxiliarySoftware();
 	}
 	

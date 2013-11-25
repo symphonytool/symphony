@@ -13,15 +13,20 @@ import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCSCmlOpera
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 
-public class MCACallStatementAction implements MCPAction {
+public class MCACallAction implements MCPAction {
 
 	private String name;
 	private LinkedList<MCPCMLExp> args;
 
-	public MCACallStatementAction(String name, LinkedList<MCPCMLExp> args) {
+	
+	
+	public MCACallAction(String name, LinkedList<MCPCMLExp> args) {
+		super();
 		this.name = name;
 		this.args = args;
 	}
+
+
 
 	@Override
 	public String toFormula(String option) {
@@ -50,35 +55,47 @@ public class MCACallStatementAction implements MCPAction {
 				}
 			}
 		}
+
 		if (!callResolved) {
 			for (MCSCmlOperationDefinition pDefinition : context.operations) {
 				if(pDefinition instanceof MCAExplicitCmlOperationDefinition){
 					if(((MCAExplicitCmlOperationDefinition) pDefinition).getName().toString().equals(this.name)){
+						callResolved = true;
 						call = new MCOperationCall(name, args, null);
+						break;
 					}
 				}
 			}
 		}
 		
 		result.append(call.toFormula(option));
-		return result.toString();
+		
+		return result.toString();	
 	}
+
 
 
 	public String getName() {
 		return name;
 	}
 
+
+
 	public void setName(String name) {
 		this.name = name;
 	}
+
+
 
 	public LinkedList<MCPCMLExp> getArgs() {
 		return args;
 	}
 
+
+
 	public void setArgs(LinkedList<MCPCMLExp> args) {
 		this.args = args;
 	}
 
+	
 }
