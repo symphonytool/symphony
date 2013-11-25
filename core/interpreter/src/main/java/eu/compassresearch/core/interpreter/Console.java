@@ -105,7 +105,7 @@ public class Console
 						}
 					}
 					channnelName.updateValue(i, val);
-					return;
+//					return;
 				} catch (AnalysisException e)
 				{
 					throw new InterpreterRuntimeException("Analysis error in read user value", e);
