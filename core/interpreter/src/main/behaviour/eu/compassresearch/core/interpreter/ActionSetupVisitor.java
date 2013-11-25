@@ -12,6 +12,7 @@ import org.overture.ast.node.INode;
 import org.overture.ast.statements.AForPatternBindStm;
 import org.overture.ast.types.SNumericBasicType;
 import org.overture.interpreter.runtime.Context;
+import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.values.IntegerValue;
 import org.overture.interpreter.values.NameValuePair;
 import org.overture.interpreter.values.NameValuePairList;
@@ -31,10 +32,14 @@ import eu.compassresearch.ast.actions.AInternalChoiceAction;
 import eu.compassresearch.ast.actions.AInternalChoiceReplicatedAction;
 import eu.compassresearch.ast.actions.AInterruptAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
+import eu.compassresearch.ast.actions.ASequentialCompositionReplicatedAction;
+import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.AStmAction;
+import eu.compassresearch.ast.actions.AStopAction;
 import eu.compassresearch.ast.actions.ATimeoutAction;
 import eu.compassresearch.ast.actions.AUntimedTimeoutAction;
 import eu.compassresearch.ast.actions.AWaitAction;
+import eu.compassresearch.ast.actions.SReplicatedAction;
 import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.process.AAlphabetisedParallelismProcess;
@@ -48,13 +53,15 @@ import eu.compassresearch.ast.process.AInternalChoiceProcess;
 import eu.compassresearch.ast.process.AInternalChoiceReplicatedProcess;
 import eu.compassresearch.ast.process.AInterruptProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
+import eu.compassresearch.ast.process.ASequentialCompositionReplicatedProcess;
 import eu.compassresearch.ast.process.ATimeoutProcess;
 import eu.compassresearch.ast.process.AUntimedTimeoutProcess;
+import eu.compassresearch.ast.process.SReplicatedProcess;
 import eu.compassresearch.ast.statements.AActionStm;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
-import eu.compassresearch.core.interpreter.api.values.CmlQuantifierList;
+import eu.compassresearch.core.interpreter.api.values.CmlSetQuantifier;
 import eu.compassresearch.core.interpreter.api.values.LatticeTopValue;
 import eu.compassresearch.core.interpreter.utility.LocationExtractor;
 import eu.compassresearch.core.interpreter.utility.Pair;
@@ -96,8 +103,8 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 	{
 		// We set up the left child of the sequential process/action before entering. The right will not
 		// be touched before the left has terminated
-		setLeftChild(new ConcreteCmlBehaviour(leftNode, question, new LexNameToken("", owner.name().getSimpleName()
-				+ ";", owner.name().getLocation()), owner));
+		setLeftChild(leftNode, new LexNameToken("", owner.name().getSimpleName()
+				+ ";", owner.name().getLocation()), question);
 		return new Pair<INode, Context>(node, question);
 	}
 
@@ -128,7 +135,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 			Context question) throws AnalysisException
 	{
 		// We setup the child node for the hiding operator
-		setLeftChild(new ConcreteCmlBehaviour(node.getLeft(), question, owner));
+		setLeftChild(node.getLeft(), question);
 		return new Pair<INode, Context>(node, question);
 	}
 
@@ -137,7 +144,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 			Context question) throws AnalysisException
 	{
 		// We setup the child node for the hiding operator
-		setLeftChild(new ConcreteCmlBehaviour(node.getLeft(), question, owner));
+		setLeftChild(node.getLeft(), question);
 		return new Pair<INode, Context>(node, question);
 	}
 
@@ -160,7 +167,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 		context.putNew(new NameValuePair(NamespaceUtility.getStartTimeName(), new IntegerValue(owner.getCurrentTime())));
 
 		// We setup the child nodes
-		setLeftChild(new ConcreteCmlBehaviour(leftNode, question, owner));
+		setLeftChild(leftNode, question);
 		return new Pair<INode, Context>(node, context);
 
 	}
@@ -184,7 +191,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 	{
 
 		// We setup the child nodes
-		setLeftChild(new ConcreteCmlBehaviour(leftNode, question, owner));
+		setLeftChild(leftNode, question);
 		return new Pair<INode, Context>(node, question);
 	}
 
@@ -204,19 +211,179 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 	{
 		return caseAUntimedTimeout(node, node.getLeft(), question);
 	}
+	
+	/*
+	 * Replication
+	 */
 
-	interface ReplicationFactory
+	abstract class AbstractReplicationFactory
 	{
-		INode createNextReplication();
+		private final INode node;
+		
+		public AbstractReplicationFactory(INode node)
+		{
+			this.node = node;
+		}
+		
+		/**
+		 * This creates the next node in the replication when more than
+		 * 2 replication values are remaining
+		 * @return The replicated construct where the replicated action/process is left and
+		 * and the replication node is the right
+		 * 
+		 */
+		abstract INode createNextReplication();
 
-		INode createLastReplication();
+		/**
+		 * This creates the last node in the replication
+		 * @return The last replication node
+		 */
+		abstract INode createLastReplication();
+		
+		/**
+		 * This creates the node for a single replicated action/process
+		 * @return
+		 */
+		INode getReplicatedNode()
+		{
+			if(node instanceof SReplicatedAction)
+				return ((SReplicatedAction) node).getReplicatedAction();
+			else 
+				return ((SReplicatedProcess) node).getReplicatedProcess();
+		}
+	}
+	
+	/*
+	 * Non public replication helper methods -- Start
+	 */
+	
+	protected Pair<INode, Context> caseReplicated(INode node,
+			List<PSingleDeclaration> decls, AbstractReplicationFactory factory,
+			Context question) throws AnalysisException
+	{
+
+		// The name of the value holding the state of the remaining values of the replication
+		ILexNameToken replicationContextValueName = NamespaceUtility.getReplicationNodeName(node);
+		CmlSetQuantifier ql = (CmlSetQuantifier) question.check(replicationContextValueName);
+		Context next = question;
+		// if null then this is the first action of the replication
+		// then we need to evaluate the
+		boolean firstRun = false;
+		if (ql == null)
+		{
+			firstRun = true;
+			// Make a set of tuples
+			// nextContext = CmlContextFactory.newContext(LocationExtractor.extractLocation(node),
+			// "replication contexts", question);
+			ql = createQuantifierList(decls, question);
+			// nextContext.putNew(new NameValuePair(replicationContextValueName, ql));
+		}
+
+		INode nextNode;
+		Iterator<NameValuePairList> itQuantifiers = ql.iterator();
+
+		//if no replicated Value exists we return skip since this it what all the operators should return except
+		//for external choice which should be Stop, this is handled specifically in that case
+		if(!itQuantifiers.hasNext())
+		{
+			return new Pair<INode, Context>(new ASkipAction(LocationExtractor.extractLocation(node)), question);
+		}
+		//fetch the left value and remove it from the list
+		NameValuePairList nextValue = itQuantifiers.next();
+		itQuantifiers.remove();
+		//if no more rep values exists 
+		//and this is the first run then we do no replication and just returns the action/process
+		if (!itQuantifiers.hasNext() && firstRun)
+		{
+			return new Pair<INode, Context>(factory.getReplicatedNode(), createReplicationChildContext(nextValue, node, question));
+		}
+		//and this is NOT the first run then we created the context for the left side already right above the
+		//current context
+		else if (!itQuantifiers.hasNext() && !firstRun)
+		{
+			nextNode = factory.createLastReplication();
+			//the outer is the pre-calculated context from the previous run
+			Context leftChildContext = question.outer;
+			//we take the outer.outer because we want the parent context of this one to be the one given to the replication node
+			Context rightChildContext = createReplicationChildContext(nextValue, node, question.outer.outer);
+			setChildContexts(new Pair<Context, Context>(leftChildContext, rightChildContext));
+			return new Pair<INode, Context>(nextNode, next);
+		}
+		
+		
+		NameValuePairList afterNextValue = itQuantifiers.next();
+		//itQuantifiers.remove();
+		
+		//If no values are left then we have exactly 2 values and thus we must create the last replication
+		if (!itQuantifiers.hasNext() && firstRun)
+		{
+			nextNode = factory.createLastReplication();
+
+			Context leftChildContext = createReplicationChildContext(nextValue, node, question);
+			Context rightChildContext = createReplicationChildContext(afterNextValue, node, question);
+			itQuantifiers.remove();
+			// the replication context, if it exist is lowest. But if this is the first run
+			// then the replication context does not exist
+
+			setChildContexts(new Pair<Context, Context>(leftChildContext, rightChildContext));
+			
+			return new Pair<INode, Context>(nextNode, next);
+		}
+		// If we have more than two replication values then we make an interleaving between the
+		// first value and the rest of the replicated values
+		else
+		{
+			nextNode = factory.createNextReplication();
+			Context leftChildContext;
+			Context rightChildContext;
+
+			// the replication context must always be the lowest
+			if (firstRun)
+			{
+				// if this is the first run then me must create the right child context and
+				// attach it to the replication context
+				leftChildContext = createReplicationChildContext(nextValue, node, question);
+				rightChildContext = createReplicationChildContext(afterNextValue, node, question);
+				itQuantifiers.remove();
+			} else
+			{
+				// if this is not the first run the the replication context already exist
+				// so we can pull out the parent and attach the right child context to this and
+				// then attach the replication
+				leftChildContext = question.outer;
+				rightChildContext = createReplicationChildContext(nextValue, node, question.outer.outer);
+			}
+
+			rightChildContext = CmlContextFactory.newContext(LocationExtractor.extractLocation(node), "replication contexts", rightChildContext);
+			rightChildContext.putNew(new NameValuePair(replicationContextValueName, ql));
+
+			setChildContexts(new Pair<Context, Context>(leftChildContext, rightChildContext));
+			return new Pair<INode, Context>(nextNode, next);
+		}
+	}
+	
+	// FIXME this check is not sufficient
+	private class UnboundedChecker extends DepthFirstAnalysisCMLAdaptor
+	{
+		private boolean isUnbounded = false;
+
+		public boolean isUnbounded()
+		{
+			return isUnbounded;
+		}
+
+		@Override
+		public void defaultInSNumericBasicType(SNumericBasicType node)
+				throws AnalysisException
+		{
+			isUnbounded = true;
+		}
 	}
 
-	protected CmlQuantifierList createQuantifierList(
+	protected CmlSetQuantifier createQuantifierList(
 			List<PSingleDeclaration> replicationDeclaration, Context question)
 			throws AnalysisException
 	{
-
 		NameValuePairList replicationDecls = new NameValuePairList();
 		List<ILexNameToken> quantifierNames = new LinkedList<ILexNameToken>();
 		SetValue quantifierValues;
@@ -246,7 +413,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 			NameValuePair nvp = replicationDecls.get(0);
 			quantifierNames.add(nvp.name);
 			quantifierValues = new SetValue();
-			for (Value val : nvp.value.setValue(question))
+			for (Value val : getIterator(nvp.value,question))
 				quantifierValues.values.add(new TupleValue(new ValueList(val)));
 
 		} else
@@ -257,7 +424,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 			for (NameValuePair nvp : replicationDecls)
 			{
 				List<Value> values = new LinkedList<Value>();
-				for (Value val : nvp.value.setValue(question))
+				for (Value val : getIterator(nvp.value,question))
 					values.add(val);
 				quantifierNames.add(nvp.name);
 				sets.add(new SetValue(nvp.value.setValue(question)));
@@ -265,18 +432,56 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 			quantifierValues = SetMath.getCrossProduct(sets);
 		}
 
-		return new CmlQuantifierList(quantifierNames, quantifierValues);
+		return new CmlSetQuantifier(quantifierNames, quantifierValues);
+	}
+	
+	private Iterable<Value> getIterator(Value val, Context question) throws ValueException
+	{
+		if(val instanceof SetValue)
+			return val.setValue(question);
+		else
+			return val.seqValue(question);
 	}
 
 	protected Context createReplicationChildContext(
-			Iterator<NameValuePairList> itQuantifiers, INode node, Context outer)
+			NameValuePairList npvl, INode node, Context outer)
 	{
 		Context childContext = CmlContextFactory.newContext(LocationExtractor.extractLocation(node), "", outer);
-		childContext.putAllNew(itQuantifiers.next());
-		itQuantifiers.remove();
+		childContext.putAllNew(npvl);
 		return childContext;
 	}
+	
+	/*
+	 * Non public replication helper methods -- End
+	 */
+	
+	/*
+	 * Replicated actions
+	 */
+	
+	@Override
+	public Pair<INode, Context> caseASequentialCompositionReplicatedAction(
+			final ASequentialCompositionReplicatedAction node, Context question)
+			throws AnalysisException
+	{
+		Pair<INode, Context> res =  caseReplicated(node, node.getReplicationDeclaration(), new AbstractReplicationFactory(node)
+		{
+			@Override
+			public INode createNextReplication()
+			{
+				return new ASequentialCompositionAction(node.getLocation(), node.getReplicatedAction().clone(), node.clone());
+			}
 
+			@Override
+			public INode createLastReplication()
+			{
+				return new ASequentialCompositionAction(node.getLocation(), node.getReplicatedAction().clone(), node.getReplicatedAction().clone());
+			}
+		}, question);
+		
+		return res.first.apply(ActionSetupVisitor.this,res.second);
+	}
+	
 	/**
 	 * Replicated interleaving Syntax : '|||' , replication declarations , @ , action Example : |||i:e @ A(i) Execute
 	 * all the actions A(i) in parallel without sync
@@ -287,9 +492,8 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 			throws AnalysisException
 	{
 
-		return caseReplicated(node, node.getReplicationDeclaration(), new ReplicationFactory()
+		return caseReplicated(node, node.getReplicationDeclaration(), new AbstractReplicationFactory(node)
 		{
-
 			@Override
 			public INode createNextReplication()
 			{
@@ -303,7 +507,6 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 				// TODO The i'th namesetexpression should be evaluated in the i'th context
 				return new AInterleavingParallelAction(node.getLocation(), node.getReplicatedAction().clone(), node.getNamesetExpression().clone(), node.getNamesetExpression().clone(), node.getReplicatedAction().clone());
 			}
-
 		}, question);
 	}
 
@@ -313,7 +516,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 			throws AnalysisException
 	{
 
-		return caseReplicated(node, node.getReplicationDeclaration(), new ReplicationFactory()
+		return caseReplicated(node, node.getReplicationDeclaration(), new AbstractReplicationFactory(node)
 		{
 
 			@Override
@@ -329,6 +532,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 				// TODO The i'th namesetexpression should be evaluated in the i'th context
 				return new AGeneralisedParallelismParallelAction(node.getLocation(), node.getReplicatedAction().clone(), node.getNamesetExpression(), node.getNamesetExpression(), node.getReplicatedAction().clone(), node.getChansetExpression().clone());
 			}
+			
 		}, question);
 	}
 
@@ -337,8 +541,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 			final AExternalChoiceReplicatedAction node, Context question)
 			throws AnalysisException
 	{
-
-		return caseReplicated(node, node.getReplicationDeclaration(), new ReplicationFactory()
+		Pair<INode, Context> ret = caseReplicated(node, node.getReplicationDeclaration(), new AbstractReplicationFactory(node)
 		{
 
 			@Override
@@ -352,7 +555,13 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 			{
 				return new AExternalChoiceAction(node.getLocation(), node.getReplicatedAction().clone(), node.getReplicatedAction().clone());
 			}
+			
 		}, question);
+		
+		if(ret.first instanceof ASkipAction)
+			return new Pair<INode, Context>(new AStopAction(node.getLocation()),question);
+		else
+			return ret;
 	}
 
 	@Override
@@ -361,7 +570,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 			throws AnalysisException
 	{
 
-		return caseReplicated(node, node.getReplicationDeclaration(), new ReplicationFactory()
+		return caseReplicated(node, node.getReplicationDeclaration(), new AbstractReplicationFactory(node)
 		{
 
 			@Override
@@ -375,100 +584,44 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 			{
 				return new AInternalChoiceAction(node.getLocation(), node.getReplicatedAction().clone(), node.getReplicatedAction().clone());
 			}
+			
 		}, question);
 	}
 
 	/*
 	 * Replicated processes
 	 */
-
-	protected Pair<INode, Context> caseReplicated(INode node,
-			List<PSingleDeclaration> decls, ReplicationFactory factory,
-			Context question) throws AnalysisException
+	
+	@Override
+	public Pair<INode, Context> caseASequentialCompositionReplicatedProcess(
+			final ASequentialCompositionReplicatedProcess node, Context question)
+			throws AnalysisException
 	{
-
-		// The name of the value holding the state of the remaining values of the replication
-		ILexNameToken replicationContextValueName = NamespaceUtility.getReplicationNodeName(node);
-		CmlQuantifierList ql = (CmlQuantifierList) question.check(replicationContextValueName);
-
-		// if null then this is the first action of the replication
-		// then we need to evaluate the
-		boolean firstRun = false;
-		if (ql == null)
+		Pair<INode, Context> res =  caseReplicated(node, node.getReplicationDeclaration(), new AbstractReplicationFactory(node)
 		{
-			firstRun = true;
-			// Make a set of tuples
-			// nextContext = CmlContextFactory.newContext(LocationExtractor.extractLocation(node),
-			// "replication contexts", question);
-			ql = createQuantifierList(decls, question);
-			// nextContext.putNew(new NameValuePair(replicationContextValueName, ql));
-		}
-
-		INode nextNode;
-		Iterator<NameValuePairList> itQuantifiers = ql.iterator();
-		// If we have two replication values then we need to have one interleaving action, since
-		// each value represents one process replication
-
-		if (ql.size() == 1)
-		{
-			nextNode = factory.createLastReplication();
-
-			Context leftChildContext = question.outer;
-			Context rightChildContext = createReplicationChildContext(itQuantifiers, node, question.outer.outer);
-			setChildContexts(new Pair<Context, Context>(leftChildContext, rightChildContext));
-
-		} else if (firstRun && ql.size() == 2)
-		{
-			nextNode = factory.createLastReplication();
-
-			Context leftChildContext = createReplicationChildContext(itQuantifiers, node, question);
-			Context rightChildContext = createReplicationChildContext(itQuantifiers, node, question);
-			// the replication context, if it exist is lowest. But if this is the first run
-			// then the replication context does not exist
-
-			setChildContexts(new Pair<Context, Context>(leftChildContext, rightChildContext));
-		}
-		// If we have more than two replication values then we make an interleaving between the
-		// first value and the rest of the replicated values
-		else
-		{
-			nextNode = factory.createNextReplication();
-			Context leftChildContext;
-			Context rightChildContext;
-
-			// the replication context must always be the lowest
-			if (firstRun)
+			@Override
+			public INode createNextReplication()
 			{
-				// if this is the first run then me must create the right child context and
-				// attach it to the replication context
-				leftChildContext = createReplicationChildContext(itQuantifiers, node, question);
-				rightChildContext = createReplicationChildContext(itQuantifiers, node, question);
-			} else
-			{
-				leftChildContext = question.outer;
-				// if this is not the first run the the replication context already exist
-				// so we can pull out the parent and attach the right child context to this and
-				// then attach the replication
-				rightChildContext = createReplicationChildContext(itQuantifiers, node, question.outer.outer);
+				return new ASequentialCompositionProcess(node.getLocation(), node.getReplicatedProcess().clone(), node.clone());
 			}
 
-			rightChildContext = CmlContextFactory.newContext(LocationExtractor.extractLocation(node), "replication contexts", rightChildContext);
-			rightChildContext.putNew(new NameValuePair(replicationContextValueName, ql));
-
-			setChildContexts(new Pair<Context, Context>(leftChildContext, rightChildContext));
-		}
-
-		return new Pair<INode, Context>(nextNode, question);
-
+			@Override
+			public INode createLastReplication()
+			{
+				return new ASequentialCompositionProcess(node.getLocation(), node.getReplicatedProcess().clone(), node.getReplicatedProcess().clone());
+			}
+		}, question);
+		
+		return res.first.apply(ActionSetupVisitor.this,res.second);
 	}
-
+	
 	@Override
 	public Pair<INode, Context> caseAGeneralisedParallelismReplicatedProcess(
 			final AGeneralisedParallelismReplicatedProcess node,
 			Context question) throws AnalysisException
 	{
 
-		return caseReplicated(node, node.getReplicationDeclaration(), new ReplicationFactory()
+		return caseReplicated(node, node.getReplicationDeclaration(), new AbstractReplicationFactory(node)
 		{
 
 			@Override
@@ -482,6 +635,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 			{
 				return new AGeneralisedParallelismProcess(node.getLocation(), node.getReplicatedProcess().clone(), node.getChansetExpression().clone(), node.getReplicatedProcess().clone());
 			}
+			
 		}, question);
 	}
 
@@ -491,7 +645,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 			throws AnalysisException
 	{
 
-		return caseReplicated(node, node.getReplicationDeclaration(), new ReplicationFactory()
+		return caseReplicated(node, node.getReplicationDeclaration(), new AbstractReplicationFactory(node)
 		{
 
 			@Override
@@ -505,7 +659,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 			{
 				return new AInterleavingProcess(node.getLocation(), node.getReplicatedProcess().clone(), node.getReplicatedProcess().clone());
 			}
-
+			
 		}, question);
 	}
 
@@ -514,7 +668,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 			final AAlphabetisedParallelismReplicatedProcess node,
 			final Context question) throws AnalysisException
 	{
-		return caseReplicated(node, node.getReplicationDeclaration(), new ReplicationFactory()
+		return caseReplicated(node, node.getReplicationDeclaration(), new AbstractReplicationFactory(node)
 		{
 
 			@Override
@@ -529,7 +683,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 			{
 				return new AAlphabetisedParallelismProcess(node.getLocation(), node.getReplicatedProcess().clone(), node.getChansetExpression().clone(), node.getChansetExpression().clone(), node.getReplicatedProcess().clone());
 			}
-
+			
 		}, question);
 	}
 
@@ -538,7 +692,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 			final AInternalChoiceReplicatedProcess node, Context question)
 			throws AnalysisException
 	{
-		return caseReplicated(node, node.getReplicationDeclaration(), new ReplicationFactory()
+		return caseReplicated(node, node.getReplicationDeclaration(), new AbstractReplicationFactory(node)
 		{
 
 			@Override
@@ -552,41 +706,16 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 			{
 				return new AInternalChoiceProcess(node.getLocation(), node.getReplicatedProcess().clone(), node.getReplicatedProcess().clone());
 			}
-
+			
 		}, question);
 	}
-
-	/*
-	 * Non public replication helper methods -- Start
-	 */
-	// FIXME this check is not sufficient
-	private class UnboundedChecker extends DepthFirstAnalysisCMLAdaptor
-	{
-		private boolean isUnbounded = false;
-
-		public boolean isUnbounded()
-		{
-			return isUnbounded;
-		}
-
-		@Override
-		public void defaultInSNumericBasicType(SNumericBasicType node)
-				throws AnalysisException
-		{
-			isUnbounded = true;
-		}
-	}
-
-	/*
-	 * Non public replication helper methods -- End
-	 */
 
 	protected Pair<INode, Context> caseAInterrupt(INode node, INode leftNode,
 			INode rightNode, Context question) throws AnalysisException
 	{
 		// TODO create proper names!!
-		setLeftChild(new ConcreteCmlBehaviour(leftNode, question, new LexNameToken("", "left /_\\", new LexLocation()), owner));
-		setRightChild(new ConcreteCmlBehaviour(rightNode, question, new LexNameToken("", "/_\\ right", new LexLocation()), owner));
+		setLeftChild(leftNode, new LexNameToken("", "left /_\\", new LexLocation()), question);
+		setRightChild(rightNode, new LexNameToken("", "/_\\ right", new LexLocation()), question);
 
 		return new Pair<INode, Context>(node, question);
 	}

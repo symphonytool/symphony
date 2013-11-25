@@ -112,9 +112,7 @@ class CmlDefinitionVisitor extends
 			Context question) throws AnalysisException
 	{
 		NameValuePairList vpl = new NameValuePairList();
-
 		vpl.add(new NameValuePair(node.getName(), new ProcessObjectValue(node, null)));
-
 		return vpl;
 	}
 
@@ -122,7 +120,6 @@ class CmlDefinitionVisitor extends
 	public NameValuePairList caseAStateDefinition(AStateDefinition node,
 			Context question) throws AnalysisException
 	{
-
 		return definitionListHelper(node.getStateDefs(), node.getLocation(), question);
 	}
 
@@ -131,10 +128,7 @@ class CmlDefinitionVisitor extends
 			AInstanceVariableDefinition node, Context question)
 			throws AnalysisException
 	{
-		NameValuePairList vpl = PDefinitionAssistantInterpreter.getNamedValues(node,question);
-//		NameValuePairList vpl = new NameValuePairList();
-//		vpl.add(new NameValuePair(node.getName(), node.getExpression().apply(this.cmlExpressionVisitor, question)));
-		return vpl;
+		return PDefinitionAssistantInterpreter.getNamedValues(node,question);
 	}
 
 	@Override

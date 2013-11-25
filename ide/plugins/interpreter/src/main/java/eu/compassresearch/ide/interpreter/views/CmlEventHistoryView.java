@@ -34,7 +34,7 @@ public class CmlEventHistoryView extends ViewPart implements
 			public void run()
 			{
 				for (DebugEvent e : events)
-					if ((e.getKind() == DebugEvent.BREAKPOINT || e.getKind() == DebugEvent.SUSPEND)
+					if ((e.getKind() == DebugEvent.BREAKPOINT || e.getKind() == DebugEvent.SUSPEND || e.getKind() == DebugEvent.TERMINATE)
 							&& e.getSource() instanceof CmlDebugTarget)
 					{
 						fillHistoryList((CmlDebugTarget) e.getSource());

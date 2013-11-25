@@ -137,7 +137,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 			// first find the action value in the context
 			final ActionValue actionVal = (ActionValue) value;
 
-			return newInspection(createTauTransitionWithoutTime(actionVal.getActionDefinition().getAction(), null), new AbstractCalculationStep(owner, visitorAccess)
+			return newInspection(createTauTransitionWithoutTime(actionVal.getActionDefinition().getAction(), null), new CmlCalculationStep()
 			{
 
 				@Override
@@ -262,7 +262,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 		ObservableTransition observableEvent = CmlTransitionFactory.newObservableChannelEvent(owner, new ChannelNameValue(chanValue, values, constraints));
 		comset.add(observableEvent);
 
-		return newInspection(new CmlTransitionSet(comset).union(new TimedTransition(owner)), new AbstractCalculationStep(owner, visitorAccess)
+		return newInspection(new CmlTransitionSet(comset).union(new TimedTransition(owner)), new CmlCalculationStep()
 		{
 
 			@Override
@@ -373,7 +373,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 		if (!owner.hasChildren())
 		{
 
-			return newInspection(createTauTransitionWithoutTime(node, "Begin"), new AbstractCalculationStep(owner, visitorAccess)
+			return newInspection(createTauTransitionWithoutTime(node, "Begin"), new CmlCalculationStep()
 			{
 
 				@Override
@@ -395,7 +395,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 			return newInspection(createTauTransitionWithoutTime(new ASkipAction(node.getLocation()), "End"), caseParallelEnd(question));
 		} else
 		{
-			return newInspection(syncOnTockAndJoinChildren(), new AbstractCalculationStep(owner, visitorAccess)
+			return newInspection(syncOnTockAndJoinChildren(), new CmlCalculationStep()
 			{
 
 				@Override
@@ -428,17 +428,17 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 		if (rndChoice == 0)
 		{
 			tmpNode = node.getLeft();
-			tmpContext = this.visitorAccess.getChildContexts(question).first;
+			tmpContext = getChildContexts(question).first;
 		} else
 		{
 			tmpNode = node.getRight();
-			tmpContext = this.visitorAccess.getChildContexts(question).second;
+			tmpContext = getChildContexts(question).second;
 		}
 
 		final INode nextNode = tmpNode;
 		final Context nextContext = tmpContext;
 
-		return newInspection(createTauTransitionWithTime(nextNode), new AbstractCalculationStep(owner, visitorAccess)
+		return newInspection(createTauTransitionWithTime(nextNode), new CmlCalculationStep()
 		{
 
 			@Override
@@ -458,7 +458,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 			throws AnalysisException
 	{
 
-		return newInspection(createTauTransitionWithTime(node, null), new AbstractCalculationStep(owner, visitorAccess)
+		return newInspection(createTauTransitionWithTime(node, null), new CmlCalculationStep()
 		{
 
 			@Override
@@ -499,7 +499,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 	{
 		PAction left = node.getLeftAction();
 		PAction right = node.getRightAction();
-		Pair<Context, Context> childContexts = visitorAccess.getChildContexts(question);
+		Pair<Context, Context> childContexts = getChildContexts(question);
 		CmlBehaviour leftInstance = new ConcreteCmlBehaviour(left, childContexts.first.deepCopy(), new CmlLexNameToken(owner.name().getModule(), owner.name().getIdentifier().getName()
 				+ "|||", left.getLocation()), owner);
 
@@ -507,8 +507,8 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 				+ owner.name().getIdentifier().getName(), right.getLocation()), owner);
 
 		// add the children to the process graph
-		visitorAccess.setLeftChild(leftInstance);
-		visitorAccess.setRightChild(rightInstance);
+		setLeftChild(leftInstance);
+		setRightChild(rightInstance);
 	}
 
 	/**
@@ -532,7 +532,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 		else
 			alpha = new CmlTransitionSet(new TimedTransition(owner));
 
-		return newInspection(alpha, new AbstractCalculationStep(owner, visitorAccess)
+		return newInspection(alpha, new CmlCalculationStep()
 		{
 
 			@Override
@@ -588,7 +588,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 		// node.getName());
 		final ActionValue actionValue = (ActionValue) question.check(node.getName()).deref();
 
-		return newInspection(createTauTransitionWithoutTime(actionValue.getActionDefinition().getAction()), new AbstractCalculationStep(owner, visitorAccess)
+		return newInspection(createTauTransitionWithoutTime(actionValue.getActionDefinition().getAction()), new CmlCalculationStep()
 		{
 
 			@Override
@@ -715,7 +715,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 
 		// If the number of tocks exceeded val then we make a silent transition that ends the delay process
 		if (nTocks >= val)
-			return newInspection(createTauTransitionWithTime(new ASkipAction(), "Wait ended"), new AbstractCalculationStep(owner, visitorAccess)
+			return newInspection(createTauTransitionWithTime(new ASkipAction(), "Wait ended"), new CmlCalculationStep()
 			{
 
 				@Override

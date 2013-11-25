@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
+import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.lex.LexNameToken;
@@ -24,6 +25,7 @@ import eu.compassresearch.core.interpreter.api.behaviour.Inspection;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.transitions.TauTransition;
 import eu.compassresearch.core.interpreter.api.transitions.TimedTransition;
+import eu.compassresearch.core.interpreter.utility.Pair;
 
 @SuppressWarnings("serial")
 public class AbstractInspectionVisitor extends
@@ -47,7 +49,7 @@ public class AbstractInspectionVisitor extends
 	/**
 	 * Interface that gives access to methods that access protected parts of a CmlBehaviour
 	 */
-	protected final VisitorAccess visitorAccess;
+	private final VisitorAccess visitorAccess;
 
 	protected final QuestionAnswerCMLAdaptor<Context, Inspection> parentVisitor;
 
@@ -98,6 +100,68 @@ public class AbstractInspectionVisitor extends
 	protected void setWaiting()
 	{
 		visitorAccess.setWaiting();
+	}
+	
+	protected void clearLeftChild()
+	{
+		this.visitorAccess.setLeftChild(null);
+	}
+	
+	protected void setLeftChild(INode node, ILexNameToken name, Context question) throws AnalysisException
+	{
+		this.visitorAccess.setLeftChild(new ConcreteCmlBehaviour(node, this.visitorAccess.getChildContexts(question).first, name , owner));
+	}
+	
+	protected void setLeftChild(INode node, Context question) throws AnalysisException
+	{
+		this.visitorAccess.setLeftChild(new ConcreteCmlBehaviour(node, this.visitorAccess.getChildContexts(question).first, owner));
+	}
+	
+	protected void setLeftChild(CmlBehaviour child)
+	{
+		this.visitorAccess.setLeftChild(child);
+	}
+
+	protected void clearRightChild()
+	{
+		this.visitorAccess.setRightChild(null);
+	}
+	
+	protected void setRightChild(CmlBehaviour child)
+	{
+		this.visitorAccess.setRightChild(child);
+	}
+	
+	protected void setRightChild(INode node, ILexNameToken name, Context question) throws AnalysisException
+	{
+		this.visitorAccess.setRightChild(new ConcreteCmlBehaviour(node, this.visitorAccess.getChildContexts(question).second, name , owner));
+	}
+
+	protected void setRightChild(INode node, Context question) throws AnalysisException
+	{
+		this.visitorAccess.setRightChild(new ConcreteCmlBehaviour(node, this.visitorAccess.getChildContexts(question).second, owner));
+	}
+	
+	protected Pair<Context, Context> getChildContexts(Context context)
+	{
+		return this.visitorAccess.getChildContexts(context);
+	}
+	
+	protected ILexNameToken name()
+	{
+		return this.owner.name();
+	}
+	
+	protected List<CmlBehaviour> children()
+	{
+		return owner.children();
+	}
+	
+	protected Pair<INode, Context> replaceWithChild(CmlBehaviour child)
+	{
+		this.visitorAccess.setLeftChild(child.getLeftChild());
+		this.visitorAccess.setRightChild(child.getRightChild());
+		return child.getNextState();
 	}
 
 	protected Value lookupName(ILexNameToken name, Context question)
