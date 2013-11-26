@@ -133,7 +133,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 	 */
 	private Map<String, MessageEventHandler<CmlDbgStatusMessage>> initializeStatusHandlers()
 	{
-		Map<String, MessageEventHandler<CmlDbgStatusMessage>> handlers = new HashMap<String, MessageEventHandler<CmlDbgStatusMessage>>();
+		final Map<String, MessageEventHandler<CmlDbgStatusMessage>> handlers = new HashMap<String, MessageEventHandler<CmlDbgStatusMessage>>();
 
 		handlers.put(CmlInterpreterState.INITIALIZED.toString(), new MessageEventHandler<CmlDbgStatusMessage>()
 		{
@@ -346,6 +346,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 					}
 				});
 
+				handlers.get(CmlInterpreterState.SUSPENDED.toString()).handleMessage(message);
 				// threadManager.stopping();
 				return true;
 			}

@@ -10,6 +10,7 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.intf.lex.ILexNameToken;
+import org.overture.ast.lex.LexLocation;
 import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ValueException;
@@ -229,7 +230,8 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		// The process has children and they have all evolved into Skip so now the parallel end rule will be invoked
 		else if (CmlBehaviourUtility.isAllChildrenFinished(owner))
 		{
-			return newInspection(createTauTransitionWithoutTime(new ASkipAction(), "End"), caseParallelEnd(question));
+			ASkipAction dstNode = new ASkipAction(LocationExtractor.extractLocation(node));
+			return newInspection(createTauTransitionWithoutTime(dstNode, "End"), caseParallelEnd(dstNode, question));
 		} else
 		{
 			return caseParallelSyncOrNonsync(node, chansetExp, question);
@@ -315,7 +317,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 
 	}
 
-	protected CmlCalculationStep caseParallelEnd(final Context question)
+	protected CmlCalculationStep caseParallelEnd(final INode node, final Context question)
 	{
 		return new AbstractCalculationStep(owner, visitorAccess)
 		{
@@ -329,7 +331,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 				setRightChild(null);
 
 				// now this process evolves into Skip
-				return new Pair<INode, Context>(new ASkipAction(), question);
+				return new Pair<INode, Context>(node, question);
 			}
 		};
 	}
@@ -378,7 +380,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		}
 		// If the Action is terminated then it evolves into Skip
 		else
-			return newInspection(createTauTransitionWithTime(new ASkipAction()), new AbstractCalculationStep(owner, visitorAccess)
+			return newInspection(createTauTransitionWithTime(new ASkipAction(LocationExtractor.extractLocation(node))), new AbstractCalculationStep(owner, visitorAccess)
 			{
 
 				@Override
@@ -387,7 +389,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 						throws AnalysisException
 				{
 					setLeftChild(null);
-					return new Pair<INode, Context>(new ASkipAction(), question);
+					return new Pair<INode, Context>(new ASkipAction(LocationExtractor.extractLocation(node)), question);
 				}
 			});
 	}

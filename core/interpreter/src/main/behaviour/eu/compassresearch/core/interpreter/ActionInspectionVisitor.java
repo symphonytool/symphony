@@ -392,7 +392,8 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 		// the process has children and must now handle either termination or event sync
 		else if (CmlBehaviourUtility.isAllChildrenFinished(owner))
 		{
-			return newInspection(createTauTransitionWithoutTime(new ASkipAction(node.getLocation()), "End"), caseParallelEnd(question));
+			ASkipAction dstNode = new ASkipAction(node.getLocation());
+			return newInspection(createTauTransitionWithoutTime(dstNode, "End"), caseParallelEnd(dstNode, question));
 		} else
 		{
 			return newInspection(syncOnTockAndJoinChildren(), new AbstractCalculationStep(owner, visitorAccess)
@@ -704,7 +705,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 	}
 
 	@Override
-	public Inspection caseAWaitAction(AWaitAction node, final Context question)
+	public Inspection caseAWaitAction(final AWaitAction node, final Context question)
 			throws AnalysisException
 	{
 
@@ -715,7 +716,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 
 		// If the number of tocks exceeded val then we make a silent transition that ends the delay process
 		if (nTocks >= val)
-			return newInspection(createTauTransitionWithTime(new ASkipAction(), "Wait ended"), new AbstractCalculationStep(owner, visitorAccess)
+			return newInspection(createTauTransitionWithTime(new ASkipAction(node.getLocation()), "Wait ended"), new AbstractCalculationStep(owner, visitorAccess)
 			{
 
 				@Override
@@ -724,7 +725,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 						throws AnalysisException
 				{
 					// We need to remove the added context from the setup visitor
-					return new Pair<INode, Context>(new ASkipAction(), question.outer);
+					return new Pair<INode, Context>(new ASkipAction(node.getLocation()), question.outer);
 				}
 			});
 		else

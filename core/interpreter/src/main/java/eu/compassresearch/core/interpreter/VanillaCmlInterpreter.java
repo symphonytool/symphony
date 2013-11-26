@@ -277,6 +277,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		if (topProcess.deadlocked())
 		{
 			setNewState(CmlInterpreterState.DEADLOCKED);
+			Console.err.println("DEADLOCKED");
 			if (suspendBeforeTermination())
 				synchronized (suspendObject)
 				{
