@@ -150,7 +150,7 @@ public class ThmImplicitOperation extends ThmDecl{
 			}
 
 			//If there are remaining parameters, add a ","
-			if(itr.hasNext()){	
+			if(itr.hasNext() || res != null){	
 				sb.append(", ");
 			}
 		}
@@ -160,11 +160,11 @@ public class ThmImplicitOperation extends ThmDecl{
 			//Add the result too
 			PPattern p = res.getPattern();
 	
-			sb.append(", ^" + ((AIdentifierPattern) p).getName().toString() + "^");
+			sb.append("^" + ((AIdentifierPattern) p).getName().toString() + "^");
 		}
 		
 		sb.append(")");
-		return fixParamRefs(sb.toString(), parPair);
+		return sb.toString(); //NOT SURE IF NEED TO DO THIS =-fixParamRefs(sb.toString(), parPair);
 	}
 	
 	/**
@@ -211,14 +211,14 @@ public class ThmImplicitOperation extends ThmDecl{
 				
 		if (resType	!= null)
 		{
-			res.append(ThmProcessUtil.opExpLeft + "(" + ThmTypeUtil.isaOpLambdaPost + " " + ThmTypeUtil.isaFuncLambdaPostVal+ " : " + resType + " @ (post_" + name + postParamList +"))");
+			res.append(ThmProcessUtil.opExpLeft + "(" + ThmTypeUtil.isaOpLambdaPost + " " + ThmTypeUtil.isaFuncLambdaPostVal+ " : " + resType + " @ (post_" + name + postParamList +"))"+ ThmProcessUtil.opExpRight);
 		}
 		else
 		{
 			res.append(ThmProcessUtil.opExpLeft +"post_" + name + postParamList + ThmProcessUtil.opExpRight +" ");
 		}
 		
-		res.append(ThmProcessUtil.opExpRight + "`\"\n" + tacHook(name));
+		res.append("`\"\n" + tacHook(name));
 		
 		return res.toString();
 	}

@@ -508,8 +508,10 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 		{
 			//Set the expression utility postcondition flag to true - so to generate primed variables
 			ThmExprUtil.setPostExpr(true);
+			stringVisitor.setPostExpr(true);
 			post = node.getPostcondition().apply(stringVisitor, vars); //ThmExprUtil.getIsabelleExprStr(svars, bvars, node.getPostcondition());
 			ThmExprUtil.setPostExpr(false);
+			stringVisitor.setPostExpr(false);
 			nodeDeps.addAll(node.getPostcondition().apply(depVisitor, vars.getBVars()));//(ThmExprUtil.getIsabelleExprDeps(bvars, node.getPostcondition()));
 
 		}
@@ -554,8 +556,10 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 		{
 			//Set the expression utility postcondition flag to true - so to generate primed variables
 			ThmExprUtil.setPostExpr(true);
+			stringVisitor.setPostExpr(true);
 			post = node.getPostcondition().apply(stringVisitor, vars); //ThmExprUtil.getIsabelleExprStr(svars, bvars, node.getPostcondition());
 			ThmExprUtil.setPostExpr(false);
+			stringVisitor.setPostExpr(false);
 			nodeDeps.addAll(node.getPostcondition().apply(depVisitor, vars.getBVars()));//(ThmExprUtil.getIsabelleExprDeps(bvars, node.getPostcondition()));
 		}
 		String resType = null;

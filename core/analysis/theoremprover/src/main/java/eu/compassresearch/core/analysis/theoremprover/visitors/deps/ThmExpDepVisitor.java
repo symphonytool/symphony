@@ -855,13 +855,13 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 	}
 	
 
-//	public NodeNameList caseAUnaryMinusUnaryExp(AUnaryMinusUnaryExp ex, NodeNameList bvars) throws AnalysisException{
-//		NodeNameList nodeDeps = new NodeNameList();
-//
-//		nodeDeps.addAll(ex.getExp().apply(thmDepVisitor, bvars));	
-//
-//		return nodeDeps;
-//	}
+	public NodeNameList caseAUnaryMinusUnaryExp(AUnaryMinusUnaryExp ex, NodeNameList bvars) throws AnalysisException{
+		NodeNameList nodeDeps = new NodeNameList();
+
+		nodeDeps.addAll(ex.getExp().apply(thmDepVisitor, bvars));	
+
+		return nodeDeps;
+	}
 //
 //	public NodeNameList caseAUnaryPlusUnaryExp(AUnaryPlusUnaryExp ex, NodeNameList bvars) throws AnalysisException{
 //		NodeNameList nodeDeps = new NodeNameList();
