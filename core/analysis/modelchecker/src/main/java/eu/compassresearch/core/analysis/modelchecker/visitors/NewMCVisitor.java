@@ -239,7 +239,8 @@ public class NewMCVisitor extends
 		for (PSource source : sources) {
 			if(source instanceof AFileSource){
 				//System.out.println("Analysing file: " + ((AFileSource) source).getName());
-				String currentScriptContent = this.generateFormulaScript(source.getParagraphs(), propertyToCheck);
+				
+				String currentScriptContent = this.generateFormulaScript(source.getParagraphs(), propertyToCheck, null);
 				NameContent element = new NameContent(((AFileSource) source).getName(), currentScriptContent);
 				codes.add(element);
 			}
@@ -252,37 +253,32 @@ public class NewMCVisitor extends
 		MCAProcessDefinition result = null;
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 		
-		//for the moment we assume that only process is defined in a cml file 
-		result = context.processDefinitions.getFirst();
+		String mainProcessName = "SoS";
+
+		if(context.processDefinitions.size() > 1){
+			for (MCAProcessDefinition proc : context.processDefinitions) {
+				if(proc.getName().startsWith(mainProcessName)){
+					result = proc;
+				}
+			}
+		}else{
+			result = context.processDefinitions.get(0);
+		}
+		
 		
 		return result;
 	}
 	
-	private MCAProcessDefinition findMainProcessDefinition(String mainProcessName){
-		MCAProcessDefinition result = null;
-		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
-		for (MCAProcessDefinition pDefinition : context.processDefinitions) {
-				if(pDefinition.getName().equals(mainProcessName)){
-					result = pDefinition;
-					break;
-				}
-			
-		}
-		return result;
-	}
-	
-	
-	public String generateFormulaScript(List<PDefinition> definitions, String propertyToCheck) throws IOException, AnalysisException{
+	public String generateFormulaScript(List<PDefinition> definitions, String propertyToCheck, String mainProcessName) throws IOException, AnalysisException{
 		
 		NewCMLModelcheckerContext.resetInstance();
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 		context.propertyToCheck = propertyToCheck;
-
+		context.mainProcessName = mainProcessName;
+		
 		for (PDefinition paragraph : definitions) {
 			paragraph.apply(this, context);
 		}
-		
-		context.mainProcess = this.getMainProcess();
 		
 		String script = this.formulaSpecification.buildFormulaScript();
 		
@@ -312,20 +308,25 @@ public class NewMCVisitor extends
 			files = folder.listFiles();
 		}
 		
-		String cml_file = "src/test/resources/simpler-register.cml";
+		//String cml_file = "src/test/resources/simpler-b-and-o-model.cml";
+		String cml_file = "src/test/resources/replicated-generalised-parallelism.cml";
+		//String cml_file = "src/test/resources/simpler-register.cml";
+		//String cml_file = "src/test/resources/action-prefix-skip.cml";
 		//System.out.println("Testing on " + cml_file);
 		PSource source1 = Utilities.makeSourceFromFile(cml_file);
 		// Type check
 		ITypeIssueHandler errors = VanillaFactory.newCollectingIssueHandle();
 		ICmlTypeChecker cmlTC = VanillaFactory.newTypeChecker(source1.getParagraphs(), errors);
 		boolean tcResult = cmlTC.typeCheck();
-
-		List<INode> r = new LinkedList<INode>();
-		for (INode n : source1.getParagraphs()){
-					r.add(n);
+		if(tcResult = false){
+			System.out.println("There are typecheck errors.");
+			return;
 		}
+		
 		NewMCVisitor visitor1 = new NewMCVisitor(source1);
-		String formulaCode = visitor1.generateFormulaScript(source1.getParagraphs(),Utilities.DEADLOCK_PROPERTY);
+		String mainProcessName = "A";
+		
+		String formulaCode = visitor1.generateFormulaScript(source1.getParagraphs(),Utilities.DEADLOCK_PROPERTY,mainProcessName);
 		//String[] codes1 = visitor1.generateFormulaCodeForAll(Utilities.DEADLOCK_PROPERTY);
 		//for (int j = 0; j < codes1.length; j++) {
 		//	System.out.println(codes1[j]);

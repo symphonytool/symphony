@@ -135,8 +135,8 @@ public class MCListView extends ViewPart {
 		});
 
 		TableColumn column = new TableColumn(viewer.getTable(), SWT.CENTER);
-		column.setText("File");
-		column.setToolTipText("Selected file");
+		column.setText("Process");
+		column.setToolTipText("Selected process");
 		//column.setWidth(60);
 		column.setAlignment(SWT.LEFT);
 		
@@ -159,6 +159,7 @@ public class MCListView extends ViewPart {
 		
 		//makeActions();
 	}
+
 
 	
 	public void setData(final MCUIResult d) {
@@ -183,7 +184,8 @@ public class MCListView extends ViewPart {
 				if(data != null){
 					for(MCUIResult r : data){
 						TableItem ti = new TableItem(table, SWT.NONE);
-						ti.setText(0, r.getFile().getName());
+						//ti.setText(0, r.getFile().getName());
+						ti.setText(0, r.getFormulaResult().getAnalysedProcess());
 						//ti.setText(new String[] {data.getFile().getName(), getProperty(data), getSat(data)});
 						ti.setText(1, getProperty(r));
 						ti.setImage(2, getImage(r));

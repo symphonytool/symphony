@@ -303,7 +303,7 @@ public class TPVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContext, ThmNodeL
 				PExp poExp = poValTree.getPredicate();
 				NodeNameList bvars = new NodeNameList();
 				String theoryBody = poExp.apply(new ThmStringVisitor(), new ThmVarsContext(svars, bvars));//ThmExprUtil.getIsabelleExprStr(svars, bvars, poExp);//"true";
-				poThys.add(new ThmTheorem("po" + po.getUniqueName(), theoryBody, "by (cml_auto_tac)"));
+				poThys.add(new ThmTheorem("po" + po.getIsaName(), theoryBody, "by (cml_auto_tac)"));
 			}
 			pogString = poThys.toString();
 		}

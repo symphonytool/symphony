@@ -1,0 +1,24 @@
+channels
+chansets
+types
+values
+functions
+class C extends D =
+begin
+types
+values
+functions
+state
+operations
+end
+process P =
+begin
+types
+values
+state
+operations
+actions
+namesets
+@
+Skip
+end

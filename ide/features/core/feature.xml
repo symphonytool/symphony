@@ -2,7 +2,7 @@
 <feature
       id="eu.compassresearch.ide.features.core"
       label="Symphony Core"
-      version="0.2.1.qualifier"
+      version="0.2.3.qualifier"
       plugin="eu.compassresearch.ide.core">
 
    <description>

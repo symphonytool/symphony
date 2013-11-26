@@ -19,8 +19,11 @@ import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAReadCommunic
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCASignalCommunicationParameter;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAValParametrisation;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAWriteCommunicationParameter;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ExpressionEvaluator;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCALocalDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAUndefinedExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCVoidValue;
 import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCAIdentifierPattern;
 import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCPCMLPattern;
 
@@ -91,6 +94,14 @@ public class NewMCParameterAndPatternVisitor extends QuestionAnswerCMLAdaptor<Ne
 		
 		MCAReadCommunicationParameter result = new MCAReadCommunicationParameter(expression,pattern); 
 		
+		String name = node.getPattern().toString();
+		
+		if(expression == null){
+			expression = new MCVoidValue();
+		}
+		
+		question.maximalBinding = question.maximalBinding.addBinding("nP", name, expression);
+
 		return result;
 	}
 

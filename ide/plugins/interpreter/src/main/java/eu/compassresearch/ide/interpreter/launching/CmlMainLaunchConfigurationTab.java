@@ -349,7 +349,7 @@ public class CmlMainLaunchConfigurationTab extends
 	private void createAnimateSimulateSelection(Composite parent)
 	{
 		Group group = new Group(parent, parent.getStyle());
-		group.setText("Animate/Simulate");
+		group.setText("Execution Mode");
 		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
 
 		group.setLayoutData(gd);

@@ -51,7 +51,7 @@ public class CaseStudiesTestCase extends
 
 			"/TelephoneExchange/ClassesVersion",
 
-			"/TelephoneExchange/Original",
+		//	"/TelephoneExchange/Original",
 
 			"/TrafficManager/CityAndCars/City",
 

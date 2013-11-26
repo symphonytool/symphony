@@ -1,0 +1,22 @@
+channels 
+
+  init 
+  c : nat
+  
+values
+
+  little_seq = [1,2,3]
+  
+    
+process Test = 
+begin 
+ 
+  state
+ 
+  actions
+  
+  P = i : nat @ c.i -> Skip
+	
+ @ init -> (; i in seq little_seq @ P(i))
+ 
+  end	  

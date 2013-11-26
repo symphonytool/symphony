@@ -1,4 +1,11 @@
 -----------------------------------------------------------
+RTTMBTPLUGIN_0.2.2
+
+Changes: none
+
+Step forward for the M26 milestone release
+
+-----------------------------------------------------------
 RTTMBTPLUGIN_0.2.0
 
 Changes: none

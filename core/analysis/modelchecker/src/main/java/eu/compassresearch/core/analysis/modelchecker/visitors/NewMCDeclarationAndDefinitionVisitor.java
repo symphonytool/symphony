@@ -15,14 +15,9 @@ import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.AUntypedDefinition;
 import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.definitions.PDefinition;
-import org.overture.ast.definitions.SOperationDefinition;
 import org.overture.ast.expressions.PExp;
-import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.patterns.PPattern;
-
-
-import org.overture.ast.types.AFunctionType;
 import org.overture.ast.types.AOperationType;
 import org.overture.ast.types.PType;
 
@@ -33,56 +28,36 @@ import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionClassDefinition;
 import eu.compassresearch.ast.definitions.AActionDefinition;
-import eu.compassresearch.ast.definitions.AActionsDefinition;
 import eu.compassresearch.ast.definitions.AChannelDefinition;
-import eu.compassresearch.ast.definitions.AChannelsDefinition;
-import eu.compassresearch.ast.definitions.AOperationsDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
-import eu.compassresearch.ast.definitions.ATypesDefinition;
-import eu.compassresearch.ast.definitions.AValuesDefinition;
 import eu.compassresearch.ast.definitions.PCMLDefinition;
-import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPParametrisation;
-import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCChannel;
-import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.TypeManipulator;
-import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.TypeValue;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ExpressionEvaluator;
 import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCAExpressionSingleDeclaration;
 import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCATypeSingleDeclaration;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAActionClassDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAActionDefinition;
-import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAActionsDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAAssignmentDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAChannelDefinition;
-import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAChannelsDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAExplicitCmlOperationDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAExplicitFunctionDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAInstanceVariableDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCALocalDefinition;
-import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAOperationsDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAProcessDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAStateDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCATypeDefinition;
-import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCATypesDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAUntypedDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAValueDefinition;
-import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAValuesDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCPCMLDefinition;
-import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCSCmlOperationDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAUndefinedExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCVoidValue;
 import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCPCMLPattern;
 import eu.compassresearch.core.analysis.modelchecker.ast.process.MCPProcess;
-import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCAActionStm;
 import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCPCMLStm;
-import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAFieldField;
-import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAIntNumericBasicType;
-import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLNumericType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
-import eu.compassresearch.core.analysis.modelchecker.ast.types.MCVoidType;
-import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ExpressionEvaluator;
 
 public class NewMCDeclarationAndDefinitionVisitor extends
 		QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
@@ -238,18 +213,6 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 	}
 
 	@Override
-	public MCNode caseAChannelsDefinition(AChannelsDefinition node,
-			NewCMLModelcheckerContext question) throws AnalysisException {
-
-		LinkedList<MCAChannelDefinition> chanNameDecls = new LinkedList<MCAChannelDefinition>(); 
-		for (AChannelDefinition chanDef : node.getChannelDeclarations()) {
-			chanNameDecls.add((MCAChannelDefinition) chanDef.apply(rootVisitor, question));
-		}
-		MCAChannelsDefinition result = new MCAChannelsDefinition(chanNameDecls);
-		
-		return result;
-	}
-	@Override
 	public MCNode caseAChannelDefinition(
 			AChannelDefinition node, NewCMLModelcheckerContext question)
 			throws AnalysisException {
@@ -275,20 +238,6 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 			type = (MCPCMLType) node.getType().apply(rootVisitor, question);
 		}
 		MCALocalDefinition result = new MCALocalDefinition(name, type);
-		
-		return result;
-	}
-
-	@Override
-	public MCNode caseAOperationsDefinition(AOperationsDefinition node,
-			NewCMLModelcheckerContext question) throws AnalysisException {
-		
-		LinkedList<SOperationDefinition> operations = node.getOperations();
-		LinkedList<MCSCmlOperationDefinition> mcOperations = new LinkedList<MCSCmlOperationDefinition>();
-		for (SOperationDefinition currentOperationDefinition : operations) {
-			mcOperations.add((MCAExplicitCmlOperationDefinition) currentOperationDefinition.apply(rootVisitor, question));
-		}
-		MCAOperationsDefinition result = new MCAOperationsDefinition(mcOperations);
 		
 		return result;
 	}
@@ -357,20 +306,6 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 	}
 
 	@Override
-	public MCNode caseAValuesDefinition(AValuesDefinition node,
-			NewCMLModelcheckerContext question) throws AnalysisException {
-
-		LinkedList<MCPCMLDefinition> mcValueDefs = new LinkedList<MCPCMLDefinition>();
-		for (PDefinition pDef : node.getValueDefinitions()) {
-			mcValueDefs.add((MCPCMLDefinition) pDef.apply(rootVisitor, question));
-		}
-		  
-		MCAValuesDefinition result = new MCAValuesDefinition(mcValueDefs);
-		
-		return result;
-	}
-	
-	@Override
 	public MCNode caseAValueDefinition(AValueDefinition node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
 		
@@ -399,19 +334,6 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 		return result;
 	}
 	
-	@Override
-	public MCNode caseATypesDefinition(ATypesDefinition node,
-			NewCMLModelcheckerContext question) throws AnalysisException {
-
-		LinkedList<MCATypeDefinition> mcTypes = new LinkedList<MCATypeDefinition>();
-		for (ATypeDefinition aTypeDef : node.getTypes()) {
-			mcTypes.add((MCATypeDefinition) aTypeDef.apply(rootVisitor, question));
-		}
-		MCATypesDefinition result = new MCATypesDefinition(mcTypes);
-		
-		return result;
-	}
-
 	@Override
 	public MCNode caseATypeDefinition(ATypeDefinition node,
 			NewCMLModelcheckerContext question) throws AnalysisException {

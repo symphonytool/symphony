@@ -3,10 +3,6 @@ package eu.compassresearch.core.analysis.modelchecker.ast.definitions;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import eu.compassresearch.ast.actions.PAction;
-import eu.compassresearch.ast.actions.PParametrisation;
-import eu.compassresearch.ast.actions.PParametrisationBase;
-import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPParametrisation;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ActionChannelDependency;
@@ -28,6 +24,19 @@ public class MCAActionDefinition implements MCPCMLDefinition {
 		this.declarations = declarations;
 		this.action = action;
 	}
+
+	
+
+	@Override
+	public boolean equals(Object obj) {
+		boolean result = false;
+		if(obj instanceof MCAActionDefinition){
+			result = this.name.equals(((MCAActionDefinition) obj).getName())
+					 && this.declarations.equals(((MCAActionDefinition) obj).getDeclarations());
+		}
+		return result;
+	}
+
 
 
 	@Override

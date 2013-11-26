@@ -11,7 +11,6 @@ public class MCAReadCommunicationParameter implements MCPCommunicationParameter 
 	
 	public MCAReadCommunicationParameter(MCPCMLExp expression,
 			MCPCMLPattern pattern) {
-		super();
 		this.expression = expression;
 		this.pattern = pattern;
 	}
@@ -20,6 +19,18 @@ public class MCAReadCommunicationParameter implements MCPCommunicationParameter 
 	@Override
 	public String toFormula(String option) {
 		return "?" + this.pattern.toFormula(option);
+	}
+
+	
+
+	@Override
+	public boolean equals(Object obj) {
+		boolean result = false;
+		if(obj instanceof MCAReadCommunicationParameter){
+			result = this.pattern.equals(((MCAReadCommunicationParameter) obj).getPattern());
+		}
+		return result;
+
 	}
 
 

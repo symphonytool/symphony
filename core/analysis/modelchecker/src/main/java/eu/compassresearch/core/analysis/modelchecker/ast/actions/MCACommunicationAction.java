@@ -5,9 +5,12 @@ import java.util.LinkedList;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ExpressionEvaluator;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCCommEv;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCLieInFact;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.TypeManipulator;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAEnumVarsetExpression;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAFatEnumVarsetExpression;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANameChannelExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAUnionVOpVarsetExpression;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPVarsetExpression;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCVoidType;
@@ -48,15 +51,10 @@ public class MCACommunicationAction implements MCPAction {
 		result.append(")"); //closes Prefix
 		//if there is some set of event in the context we must generate lieIn events.
 		NewSetStack<MCPVarsetExpression> chanSetStack = context.setStack.copy();
+		chanSetStack.addAll(context.globalChanSets);
 		while(!chanSetStack.isEmpty()){
 			MCPVarsetExpression setExp = (MCPVarsetExpression)chanSetStack.pop();
-			LinkedList<MCANameChannelExp> chanNames = null;
-			if(setExp instanceof MCAEnumVarsetExpression){
-				chanNames = ((MCAEnumVarsetExpression) setExp).getChannelNames();
-			}
-			if(setExp instanceof MCAFatEnumVarsetExpression){
-				chanNames = ((MCAFatEnumVarsetExpression) setExp).getChannelNames();
-			}
+			LinkedList<MCANameChannelExp> chanNames = setExp.getChannelNames();
 			if(chanNames != null){
 				boolean generateLieIn = false;
 				for (MCANameChannelExp aNameChannelExp : chanNames) {
@@ -68,7 +66,10 @@ public class MCACommunicationAction implements MCPAction {
 				if(!generateLieIn && chanSetStack.size()==0){
 					break;
 				}else{
-					MCCommEv commEv = new MCCommEv(this.identifier,this.communicationParameters, new MCVoidType());
+					ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
+					MCPCMLType value = evaluator.instantiateMCTypeFromCommParams(this.communicationParameters);
+					
+					MCCommEv commEv = new MCCommEv(this.identifier,this.communicationParameters, value);
 					MCLieInFact lieIn = new MCLieInFact(commEv,setExp); 
 					if(!context.lieIn.contains(lieIn)){
 						context.lieIn.add(lieIn);
@@ -76,6 +77,31 @@ public class MCACommunicationAction implements MCPAction {
 				}
 			}
 			
+		}
+		
+		for (MCPVarsetExpression setExp : context.globalChanSets) {
+			LinkedList<MCANameChannelExp> chanNames = setExp.getChannelNames();
+			if(chanNames != null){
+				boolean generateLieIn = false;
+				for (MCANameChannelExp aNameChannelExp : chanNames) {
+					if(aNameChannelExp.getIdentifier().toString().equals(this.identifier.toString())){
+						generateLieIn = true;
+						break;
+					}
+				}
+				if(!generateLieIn && chanSetStack.size()==0){
+					break;
+				}else{
+					ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
+					MCPCMLType value = evaluator.instantiateMCTypeFromCommParams(this.communicationParameters);
+					
+					MCCommEv commEv = new MCCommEv(this.identifier,this.communicationParameters, value);
+					MCLieInFact lieIn = new MCLieInFact(commEv,setExp); 
+					if(!context.lieIn.contains(lieIn)){
+						context.lieIn.add(lieIn);
+					}
+				}
+			}
 		}
 		
 		return result.toString();

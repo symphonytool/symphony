@@ -49,6 +49,22 @@
     State(st3,Q_),
     trans(iS,ev,State(st3,Q_)) :- iS is State(st,extraChoice(st1,P,st2,Q)), trans(State(st2,Q),ev,State(st3,Q_)), ev != tau.
 
+	    // P /_\ Q (interrupt basic and non-skip-left)
+    State(st,P),State(st,Q) :- State(st,intrpt(P,Q)).
+    trans(iS,ev,State(st_,intrpt(P_,Q))) :- iS is State(st,intrpt(P,Q)), trans(State(st,P),ev,State(st_,P_)), P != Skip.
+    //(interrupt skip-left)
+    trans(iS,tau,State(st,Skip)) :- iS is State(st,intrpt(Skip,Q)).
+    //(interrupt silent progress right)
+    trans(iS,tau,State(st_,intrpt(P,Q_))) :- iS is State(st,intrpt(P,Q)), trans(State(st,Q),tau,State(st_,Q_)).
+    //(interrupt action right)
+    trans(iS,ev,State(st_,Q_)) :- iS is State(st,intrpt(P,Q)), trans(State(st,Q),ev,State(st_,Q_)), ev != tau.
+
+	    // P [> Q (timeout rules)
+    State(st,P),State(st,Q),
+    trans(iS,tau,State(st,Q)) :- iS is State(st,timeout(P,Q)).
+    trans(iS,tau,State(st_,timeout(P_,Q))) :- iS is State(st,timeout(P,Q)), trans(State(st,P),tau,State(st_,P_)).
+    trans(iS,ev,State(st_,P_)) :- iS is State(st,timeout(P,Q)), trans(State(st,P),ev,State(st_,P_)), ev != tau.
+
 	// if cond then P else Q
     State(st,p),
     trans(iS,tau,State(st,p)) :- iS is State(st,condChoice(id,p,q)),guardDef(id,st).

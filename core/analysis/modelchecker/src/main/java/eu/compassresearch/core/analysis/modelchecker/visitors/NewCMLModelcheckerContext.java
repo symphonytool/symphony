@@ -31,6 +31,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCSCmlOpera
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCSFunctionDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPVarsetExpression;
+import eu.compassresearch.core.parser.CmlParser.processDefinition_return;
 
 public class NewCMLModelcheckerContext {
 	
@@ -38,26 +39,28 @@ public class NewCMLModelcheckerContext {
 	public static int GUARD_COUNTER;
 	public static int IOCOMM_COUNTER;
 	
-	public MCAProcessDefinition mainProcess;
+	public String mainProcessName;
 	public Domain propertiesDomain;
 	public String propertyToCheck = Utilities.DEADLOCK_PROPERTY;
 	public NewSetStack<MCPVarsetExpression> setStack;
 	public ArrayList<MCLieInFact> lieIn;
-	public ArrayList<MCAActionDefinition> localActions;
-	public ArrayList<MCCondition> conditions;
+	public ArrayListSet<MCLieInFact> realLieInFacts;
+	public ArrayListSet<MCAActionDefinition> localActions;
+	public ArrayListSet<MCCondition> conditions;
 	public Binding maximalBinding = new NullBinding();
 	public HashMap<MCPCMLExp, LinkedList<MCGuardDef>> guardDefs;
 	public HashMap<MCPCMLExp, LinkedList<NewMCGuardDef>> stmGuardDefs;
 	public ArrayList<MCAssignDef> assignDefs;
 	public LinkedList<MCAChannelDefinition> channelDefs;
-	public ArrayList<MCSCmlOperationDefinition> operations;
+	public ArrayListSet<MCSCmlOperationDefinition> operations;
 	public ArrayList<MCSFunctionDefinition> functions;
 	public LinkedList<MCAValueDefinition> valueDefinitions;
 	public LinkedList<MCATypeDefinition> typeDefinitions;
-	public LinkedList<MCAProcessDefinition> processDefinitions;
+	public ArrayListSet<MCAProcessDefinition> processDefinitions;
 	public ArrayList<MCIOCommDef> ioCommDefs;
 	public Stack<INode> actionOrProcessDefStack;
 	public ArrayList<ActionChannelDependency> channelDependencies;
+	public ArrayListSet<MCPVarsetExpression> globalChanSets;
 	
 	
 	
@@ -82,6 +85,7 @@ public class NewCMLModelcheckerContext {
 	}
 	
 	public MCCondition getConditionByExpression(MCPCMLExp expression){
+		
 		MCCondition result = null;
 		for (MCCondition condition : this.conditions) {
 			if(condition.getExpression().equals(expression)){
@@ -92,6 +96,35 @@ public class NewCMLModelcheckerContext {
 		
 		return result;
 	}
+	
+	public MCAProcessDefinition getMainProcessDefinition(){
+		MCAProcessDefinition result = null;
+		if(this.processDefinitions.size() == 1){
+			result = this.processDefinitions.get(0);
+		}else{
+			if(this.mainProcessName != null){
+				result = this.getProcessByName(this.mainProcessName);
+			}
+		}
+		return result;
+	}
+	
+	public MCAProcessDefinition getProcessByName(String name){
+		MCAProcessDefinition result = null;
+		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+		
+		if(context.processDefinitions.size() > 1){
+			for (MCAProcessDefinition proc : context.processDefinitions) {
+				if(proc.getName().startsWith(name)){
+					result = proc;
+				}
+			}
+		}else{
+			result = context.processDefinitions.get(0);
+		}
+		
+		return result;
+	} 
 	
 	public LinkedList<ActionChannelDependency> getActionChannelDependendies(String actionName){
 		LinkedList<ActionChannelDependency> result = new LinkedList<ActionChannelDependency>();
@@ -138,9 +171,9 @@ public class NewCMLModelcheckerContext {
 	public NewCMLModelcheckerContext() {
 		setStack = new NewSetStack<MCPVarsetExpression>();
 		lieIn = new ArrayList<MCLieInFact>();
-		operations = new ArrayList<MCSCmlOperationDefinition>(); 
-		localActions = new ArrayList<MCAActionDefinition>();
-		conditions = new ArrayList<MCCondition>();
+		operations = new ArrayListSet<MCSCmlOperationDefinition>(); 
+		localActions = new ArrayListSet<MCAActionDefinition>();
+		conditions = new ArrayListSet<MCCondition>();
 		channelDependencies = new ArrayList<ActionChannelDependency>();
 		ioCommDefs = new ArrayList<MCIOCommDef>();
 		valueDefinitions = new LinkedList<MCAValueDefinition>();
@@ -149,9 +182,11 @@ public class NewCMLModelcheckerContext {
 		stmGuardDefs = new HashMap<MCPCMLExp, LinkedList<NewMCGuardDef>>();
 		assignDefs = new ArrayList<MCAssignDef>();
 		channelDefs = new LinkedList<MCAChannelDefinition>();
-		processDefinitions = new LinkedList<MCAProcessDefinition>();
+		processDefinitions = new ArrayListSet<MCAProcessDefinition>();
 		actionOrProcessDefStack = new Stack<INode>(); 
 		functions = new ArrayList<MCSFunctionDefinition>();
+		globalChanSets = new ArrayListSet<MCPVarsetExpression>();
+		realLieInFacts = new ArrayListSet<MCLieInFact>();
 		ASSIGN_COUNTER = 0;
 		GUARD_COUNTER = 0;
 		IOCOMM_COUNTER = 0;

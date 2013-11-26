@@ -19,6 +19,15 @@ public class MCASignalCommunicationParameter implements
 		return "." + this.expression.toFormula(option);
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		boolean result = false;
+		if(obj instanceof MCASignalCommunicationParameter){
+			result = this.expression.equals(((MCASignalCommunicationParameter) obj).getExpression());
+		}
+		return result;
+	}
+
 
 	public MCPCMLExp getExpression() {
 		return expression;
