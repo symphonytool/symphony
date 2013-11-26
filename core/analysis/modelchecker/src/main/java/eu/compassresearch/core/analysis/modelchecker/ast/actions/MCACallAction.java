@@ -17,8 +17,6 @@ public class MCACallAction implements MCPAction {
 
 	private String name;
 	private LinkedList<MCPCMLExp> args;
-
-	
 	
 	public MCACallAction(String name, LinkedList<MCPCMLExp> args) {
 		super();

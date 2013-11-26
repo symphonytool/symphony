@@ -18,7 +18,7 @@ public class MCAUntimedTimeoutAction implements MCPAction {
 	public String toFormula(String option) {
 		StringBuilder result = new StringBuilder();
 		
-		result.append("timeout(");
+		result.append("uTimeout(");
 		result.append(this.left.toFormula(option));
 		result.append(",");
 		result.append(this.right.toFormula(option));

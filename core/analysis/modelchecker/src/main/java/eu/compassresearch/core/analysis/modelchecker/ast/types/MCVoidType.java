@@ -16,8 +16,7 @@ public class MCVoidType implements MCPCMLType {
 
 	@Override
 	public MCPCMLType copy() {
-		// TODO Auto-generated method stub
-		return null;
+		return new MCVoidType();
 	}
 
 	

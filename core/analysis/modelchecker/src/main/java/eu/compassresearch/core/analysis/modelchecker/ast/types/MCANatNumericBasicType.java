@@ -30,8 +30,7 @@ public class MCANatNumericBasicType extends MCPCMLNumericType {
 
 	@Override
 	public MCPCMLType copy() {
-		// TODO Auto-generated method stub
-		return null;
+		return new MCANatNumericBasicType(new String(this.getValue()));
 	}
 
 }

@@ -15,14 +15,17 @@ import org.overture.ast.expressions.ALessNumericBinaryExp;
 import org.overture.ast.expressions.ANotEqualBinaryExp;
 import org.overture.ast.expressions.ANotUnaryExp;
 import org.overture.ast.expressions.APlusNumericBinaryExp;
+import org.overture.ast.expressions.AQuoteLiteralExp;
 import org.overture.ast.expressions.ASeqEnumSeqExp;
 import org.overture.ast.expressions.ASetEnumSetExp;
 import org.overture.ast.expressions.ASetRangeSetExp;
+import org.overture.ast.expressions.ASetUnionBinaryExp;
 import org.overture.ast.expressions.ASubtractNumericBinaryExp;
 import org.overture.ast.expressions.ATimesNumericBinaryExp;
 import org.overture.ast.expressions.AUndefinedExp;
 import org.overture.ast.expressions.AVariableExp;
 import org.overture.ast.expressions.PExp;
+import org.overture.ast.expressions.SNumericBinaryBase;
 import org.overture.ast.node.INode;
 import org.overture.ast.types.PType;
 
@@ -48,6 +51,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANameChan
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANotEqualsBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANotUnaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAPlusNumericBinaryExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAQuoteLiteralExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASeqEnumSeqExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASetEnumSetExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASetRangeSetExp;
@@ -408,6 +412,27 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 		
 		MCAUndefinedExp result = new MCAUndefinedExp();
 		return result;
+	}
+
+	
+
+	@Override
+	public MCNode caseAQuoteLiteralExp(AQuoteLiteralExp node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		
+		String value = node.getValue().getValue();
+		MCAQuoteLiteralExp result = new MCAQuoteLiteralExp(value);
+		
+		return result;
+	}
+
+	
+
+	@Override
+	public MCNode caseASetUnionBinaryExp(ASetUnionBinaryExp node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		
+		return super.caseASetUnionBinaryExp(node, question);
 	}
 
 

@@ -309,7 +309,8 @@ public class NewMCVisitor extends
 		}
 		
 		//String cml_file = "src/test/resources/simpler-b-and-o-model.cml";
-		String cml_file = "src/test/resources/replicated-generalised-parallelism.cml";
+		//String cml_file = "src/test/resources/minimondex-incomplete.cml.nok";
+		String cml_file = "src/test/resources/BeoAVDeviceDiscovery.cml";
 		//String cml_file = "src/test/resources/simpler-register.cml";
 		//String cml_file = "src/test/resources/action-prefix-skip.cml";
 		//System.out.println("Testing on " + cml_file);
@@ -317,14 +318,14 @@ public class NewMCVisitor extends
 		// Type check
 		ITypeIssueHandler errors = VanillaFactory.newCollectingIssueHandle();
 		ICmlTypeChecker cmlTC = VanillaFactory.newTypeChecker(source1.getParagraphs(), errors);
-		boolean tcResult = cmlTC.typeCheck();
-		if(tcResult = false){
+		
+		if(!cmlTC.typeCheck()){
 			System.out.println("There are typecheck errors.");
 			return;
 		}
 		
 		NewMCVisitor visitor1 = new NewMCVisitor(source1);
-		String mainProcessName = "A";
+		String mainProcessName = "SourceProduct_DD_SD_InterfaceProtocolView";
 		
 		String formulaCode = visitor1.generateFormulaScript(source1.getParagraphs(),Utilities.DEADLOCK_PROPERTY,mainProcessName);
 		//String[] codes1 = visitor1.generateFormulaCodeForAll(Utilities.DEADLOCK_PROPERTY);

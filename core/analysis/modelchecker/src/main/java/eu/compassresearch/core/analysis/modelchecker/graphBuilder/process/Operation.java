@@ -25,7 +25,7 @@ public class Operation implements Process {
 	
 	@Override
 	public String toString() {
-		return str + param.toString();
+		return str + "(" + param.toString() + ")";
 	}
 	
 	@Override
@@ -33,7 +33,8 @@ public class Operation implements Process {
 		boolean result = false;
 		if(obj instanceof Operation){
 			Operation other = (Operation) obj;
-			result = this.str.equals(other.str);
+			result = this.str.equals(other.str) &&
+					 this.param.equals(((Operation) obj).getParam());
 		}
 		return result;
 		

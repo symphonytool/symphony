@@ -43,6 +43,8 @@ begin
 
 end
 
+process OneCard = Card(1) 
+
 process Cards =
   || i: Index @ 
   		[ {| pay.i,transfer.i,accept.i, reject.i |} union {| transfer.j.i.n |} ] Card(i)

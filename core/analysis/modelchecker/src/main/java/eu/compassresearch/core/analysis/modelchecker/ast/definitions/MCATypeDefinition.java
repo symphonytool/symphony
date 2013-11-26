@@ -3,20 +3,24 @@ package eu.compassresearch.core.analysis.modelchecker.ast.definitions;
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 
 public class MCATypeDefinition implements MCPCMLDefinition {
 	
 	private String name;
 	//private MCAExplicitFunctionDefinition invDef;
 	private MCPCMLExp invExpression;
+	private MCPCMLType type;
 
 	
-	public MCATypeDefinition(String name, //MCAExplicitFunctionDefinition invDef,
-			MCPCMLExp invExpression) {
+	
+
+	public MCATypeDefinition(String name, MCPCMLExp invExpression,
+			MCPCMLType type) {
 		super();
 		this.name = name;
-		//this.invDef = invDef;
 		this.invExpression = invExpression;
+		this.type = type;
 	}
 
 
@@ -24,7 +28,11 @@ public class MCATypeDefinition implements MCPCMLDefinition {
 	public String toFormula(String option) {
 		StringBuilder result = new StringBuilder();
 		result.append(this.name + " ::= ");
-		result.append(this.invExpression.toFormula(option));
+		if(this.invExpression != null){
+			result.append(this.invExpression.toFormula(option));
+		} else if (this.type != null){
+			result.append(this.type.toFormula(option));
+		}
 		result.append(".");
 		
 		return result.toString();
@@ -51,6 +59,17 @@ public class MCATypeDefinition implements MCPCMLDefinition {
 		this.invExpression = invExpression;
 	}
 
+
+	public MCPCMLType getType() {
+		return type;
+	}
+
+
+	public void setType(MCPCMLType type) {
+		this.type = type;
+	}
+
+	
 
 	
 }

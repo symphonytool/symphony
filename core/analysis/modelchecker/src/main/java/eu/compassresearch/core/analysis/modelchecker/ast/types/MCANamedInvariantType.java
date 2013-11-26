@@ -38,8 +38,8 @@ public class MCANamedInvariantType implements MCPCMLType {
 
 	@Override
 	public MCPCMLType copy() {
-		// TODO Auto-generated method stub
-		return null;
+	
+		return new MCANamedInvariantType(new String(this.getName()));
 	}
 
 	

@@ -23,7 +23,9 @@ import org.overture.ast.patterns.PPattern;
 
 
 import org.overture.ast.types.AFunctionType;
+import org.overture.ast.types.ANamedInvariantType;
 import org.overture.ast.types.AOperationType;
+import org.overture.ast.types.AUnionType;
 import org.overture.ast.types.PType;
 
 import eu.compassresearch.ast.actions.PParametrisation;
@@ -70,6 +72,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAValueDef
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAValuesDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCPCMLDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCSCmlOperationDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAIntLiteralExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAUndefinedExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCVoidValue;
@@ -270,7 +273,7 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 			throws AnalysisException {
 		
 		MCPCMLType type = null;
-		String name = node.getName().toString();
+		String name = node.getName().getName();
 		if(node.getType() != null){
 			type = (MCPCMLType) node.getType().apply(rootVisitor, question);
 		}
@@ -418,8 +421,19 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 		
 		
 		String name = node.getName().toString();
-		MCPCMLExp invExpression = (MCPCMLExp) node.getInvExpression().apply(rootVisitor, question);
-		MCATypeDefinition result = new MCATypeDefinition(name, invExpression);
+		MCPCMLExp invExpression = null;
+		MCPCMLType type = null;
+		if( node.getInvExpression() != null) {
+			invExpression = (MCPCMLExp) node.getInvExpression().apply(rootVisitor, question);
+		} else {
+			PType pType = node.getType(); 
+			if( pType instanceof ANamedInvariantType){
+				pType = ((ANamedInvariantType) pType).getType();
+				type = (MCPCMLType) pType.apply(rootVisitor, question);
+			}
+			
+		}
+		MCATypeDefinition result = new MCATypeDefinition(name, invExpression, type);
 		
 		question.typeDefinitions.add(result);
 		
@@ -458,10 +472,10 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 			varValue = expression;
 			if(expression instanceof MCAUndefinedExp){
 				//this has to be improved to instantiate values of the suitable type of the expression.
-				ExpressionEvaluator evaluator = new ExpressionEvaluator();
+				ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
 				varValue = evaluator.getDefaultValue(type);
 				//from type we have to get the correct type instantiation
-			}
+			} 
 			
 		}
 		

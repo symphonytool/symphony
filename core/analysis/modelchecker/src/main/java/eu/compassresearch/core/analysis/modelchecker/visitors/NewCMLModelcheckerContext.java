@@ -19,6 +19,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCIOCommDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCLieInFact;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCNegGuardDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCPosGuardDef;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.NameValue;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.NewMCGuardDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.NullBinding;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAActionDefinition;
@@ -61,7 +62,7 @@ public class NewCMLModelcheckerContext {
 	public Stack<INode> actionOrProcessDefStack;
 	public ArrayList<ActionChannelDependency> channelDependencies;
 	public ArrayListSet<MCPVarsetExpression> globalChanSets;
-	
+	public ArrayListSet<NameValue> localVariablesMapping;
 	
 	
 	
@@ -168,6 +169,18 @@ public class NewCMLModelcheckerContext {
 		}
 		return result;
 	}
+	
+	public NameValue getNameValue(String variableName){
+		NameValue result = null;
+		for (NameValue item : this.localVariablesMapping) {
+			if(item.getVariableName().equals(variableName)){
+				result = item;
+				break;
+			}
+		}
+		return result;
+	}
+	
 	public NewCMLModelcheckerContext() {
 		setStack = new NewSetStack<MCPVarsetExpression>();
 		lieIn = new ArrayList<MCLieInFact>();
@@ -187,6 +200,7 @@ public class NewCMLModelcheckerContext {
 		functions = new ArrayList<MCSFunctionDefinition>();
 		globalChanSets = new ArrayListSet<MCPVarsetExpression>();
 		realLieInFacts = new ArrayListSet<MCLieInFact>();
+		localVariablesMapping = new ArrayListSet<NameValue>();
 		ASSIGN_COUNTER = 0;
 		GUARD_COUNTER = 0;
 		IOCOMM_COUNTER = 0;
