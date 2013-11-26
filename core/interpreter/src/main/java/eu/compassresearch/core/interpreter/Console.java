@@ -92,7 +92,7 @@ public class Console
 					{
 						try
 						{
-							Console.out.println("Enter value : ");
+							Console.out.println("Enter value for channel "+channnelName.getChannel().getName()+" argument "+(i+1)+ " expected type "+expectedType.toString()+": ");
 							String expressionString = new BufferedReader(new InputStreamReader(System.in)).readLine();
 							val = ValueParser.parse(expectedType, ctxt, expressionString);
 						} catch (LexException e)
@@ -105,7 +105,6 @@ public class Console
 						}
 					}
 					channnelName.updateValue(i, val);
-//					return;
 				} catch (AnalysisException e)
 				{
 					throw new InterpreterRuntimeException("Analysis error in read user value", e);
