@@ -23,7 +23,7 @@ public class RttMbtCleanRttTestProcedure extends RttMbtConcreteTestProcedureActi
 		}
 
 		// get RttMbtClient for this action
-		if (!initClient(selectedObjectPath)) {
+		if (!initClient()) {
 			client.addErrorMessage("[FAIL]: clean up test procedure: init of RTT-MBT client failed!");
 			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 			return null;
@@ -32,7 +32,7 @@ public class RttMbtCleanRttTestProcedure extends RttMbtConcreteTestProcedureActi
 		// if a test procedure generation context is selected, switch to test procedure
 		if ((!isRttTestProcSelected()) && (isTProcGenCtxSelected())) {
 			getRttTestProcPathFromTProcGenCtxPath();
-			client.addLogMessage("adjusting selected object to '" + selectedObjectPath + "'");
+			client.addLogMessage("adjusting selected object to '" + selectedObjectWorkspacePath + "'");
 		}
 		
 		// check that a test procedure is selected
@@ -43,9 +43,9 @@ public class RttMbtCleanRttTestProcedure extends RttMbtConcreteTestProcedureActi
 		Job job = new Job("Clean Test") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
-				client.addLogMessage("cleanup test procedure " + selectedObject + "... please wait for the task to be finished.");
+				client.addLogMessage("cleanup test procedure " + selectedObjectName + "... please wait for the task to be finished.");
 				// clean test procedure
-				if (client.cleanTestProcedure(selectedObject)) {
+				if (client.cleanTestProcedure(selectedObjectName)) {
 					client.addLogMessage("[PASS]: clean up test procedure");
 					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 				} else {

@@ -23,7 +23,7 @@ public class RttMbtReplayTestprocedure extends RttMbtConcreteTestProcedureAction
 		}
 
 		// get RttMbtClient for this action
-		if (!initClient(selectedObjectPath)) {
+		if (!initClient()) {
 			client.addErrorMessage("[FAIL]: replay test procedure: init of RTT-MBT client failed!");
 			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 			return null;
@@ -42,9 +42,9 @@ public class RttMbtReplayTestprocedure extends RttMbtConcreteTestProcedureAction
 		Job job = new Job("Replay Test") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
-				client.addLogMessage("replaying test results from test procedure " + selectedObject + "... please wait for the task to be finished.");
+				client.addLogMessage("replaying test results from test procedure " + selectedObjectName + "... please wait for the task to be finished.");
 				// replay test procedure
-				if (client.replayTestProcedure(selectedObject)) {
+				if (client.replayTestProcedure(selectedObjectName)) {
 					client.addLogMessage("[PASS]: replay test procedure");
 					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 				} else {
