@@ -128,7 +128,8 @@ import eu.compassresearch.core.analysis.theoremprover.utils.ThmExprUtil;
 public class ThmExpStringVisitor extends
 QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 
-	public static boolean isPost = false;
+	private boolean isPost = false;
+	
 	final private QuestionAnswerCMLAdaptor<ThmVarsContext, String> thmStringVisitor;
 	
 	public ThmExpStringVisitor(ThmStringVisitor thmStringVisitor) {
@@ -279,9 +280,9 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		return "("+ ThmExprUtil.tail + "(" + ex.getExp().apply(thmStringVisitor, vars)+ "))";
 	}
 
-//	public String caseAUnaryMinusUnaryExp(AUnaryMinusUnaryExp ex, ThmVarsContext vars) throws AnalysisException{
-//		return "("+ ThmExprUtil.unaryMinus + "(" + ex.getExp().apply(thmStringVisitor, vars)+ "))";
-//	}
+	public String caseAUnaryMinusUnaryExp(AUnaryMinusUnaryExp ex, ThmVarsContext vars) throws AnalysisException{
+		return "("+ ThmExprUtil.unaryMinus + ex.getExp().apply(thmStringVisitor, vars)+ ")";
+	}
 
 //	public String caseAUnaryPlusUnaryExp(AUnaryPlusUnaryExp ex, ThmVarsContext vars) throws AnalysisException{
 //		return "("+ ThmExprUtil.unaryPlus + "(" + ex.getExp().apply(thmStringVisitor, vars)+ "))";
@@ -1118,5 +1119,9 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	public void setPostExpr(boolean b) {
+		this.isPost = b;
 	}
 }

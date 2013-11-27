@@ -87,7 +87,6 @@ QuestionAnswerCMLAdaptor<NodeNameList, NodeNameList>{
 			
 			defNodes.addAll(pdef.apply(new TPVisitor(), new ThmVarsContext(svars, new NodeNameList())));//(ThmProcessUtil.getAExplicitFunctionDefinition(f));
 
-//			defNodes = defNodes.restrictExtOperationsDeps(procNodeNames);
 			//Add all dependencies to the list of process dependencies
 			nodeDeps.addAll(defNodes.getAllNodeDeps());
 		}

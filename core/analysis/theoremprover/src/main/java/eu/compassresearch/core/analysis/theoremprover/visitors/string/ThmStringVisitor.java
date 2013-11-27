@@ -94,5 +94,9 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	public void setPostExpr(boolean b) {
+		this.expStringVisitor.setPostExpr(b);
 	}	
 }
