@@ -734,6 +734,7 @@ public class jsonCommand {
 				if (!dir.exists()) {
 					if (!dir.mkdirs()) {
 						System.err.println("*** error: problem writing content to file " + filename + ": unable to create parent directory");
+						return false;
 					}
 				}
 			}

@@ -7,6 +7,7 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.viewers.ISelection;
@@ -18,11 +19,33 @@ import eu.compassresearch.rttMbtTmsClientApi.RttMbtClient;
 public class RttMbtPopupMenuAction extends AbstractHandler  {
 
 	protected RttMbtClient client = null;
-	protected String selectedObject;
-	protected String selectedObjectPath;
+
+	// the name of the selected object without oath information
+	protected String selectedObjectName;
+
+	// the absolute path to the selected object in the local file system
+	protected String selectedObjectFilesystemPath;
+
+	// the absolute path to the selected object in the current workspace
+	protected String selectedObjectWorkspacePath;
+
+	// the name of the selected project in the file system
+	protected String selectedObjectFilesystemProjectName;
+
+	// the name of the project of the selected object in the current workspace
+	protected String selectedObjectWorkspaceProjectName;
+
+	// the path to the selected project in the file system (including the project)
+	protected String selectedObjectFilesystemProjectPath;
+
+	// the relative path to the project of the selected object in the current workspace
+	protected String selectedObjectWorkspaceProjectPrefix;
+
+	// flags whether a folder of a file is selected
 	protected Boolean isFolderSelected = false;
 	protected Boolean isFileSelected = false;
 
+	// constructor
 	public RttMbtPopupMenuAction() {
 		// get RTT-MBT TMS client
     	client = Activator.getClient();
@@ -35,74 +58,137 @@ public class RttMbtPopupMenuAction extends AbstractHandler  {
 	
 	// get selected object (and path)
 	public Boolean getSelectedObject(ExecutionEvent event) {
+		
+		// get the different path informations
 		ISelection selection = HandlerUtil.getCurrentSelection(event);
+		String selectedObjectWorkspaceProjectPath = null;
 		if (selection instanceof TreeSelection) {
 			TreeSelection treeSelection = (TreeSelection)selection;
 			if ((treeSelection.getFirstElement() != null) &&
 				(treeSelection.getFirstElement() instanceof IFolder)) {
 				IFolder folder = (IFolder)treeSelection.getFirstElement();
-				selectedObject = folder.getName();
-				selectedObjectPath = folder.getFullPath().toString();
+				selectedObjectName = folder.getName();
+				selectedObjectFilesystemPath = RttMbtClient.getAbsolutePathFromFileURI(folder.getLocationURI());
+				selectedObjectWorkspacePath = folder.getFullPath().toString();
+				selectedObjectWorkspaceProjectName = folder.getProject().getName();
+				selectedObjectWorkspaceProjectPath = folder.getProject().getFullPath().toString();
 				isFolderSelected = true;
 			} else if ((treeSelection.getFirstElement() != null) &&
-				(treeSelection.getFirstElement() instanceof IFile)) {
+				       (treeSelection.getFirstElement() instanceof IFile)) {
 				IFile file = (IFile)treeSelection.getFirstElement();
-				selectedObject = file.getName();
-				selectedObjectPath = file.getFullPath().toString();
+				selectedObjectName = file.getName();
+				selectedObjectFilesystemPath = RttMbtClient.getAbsolutePathFromFileURI(file.getLocationURI());
+				selectedObjectWorkspacePath = file.getFullPath().toString();
+				selectedObjectWorkspaceProjectName = file.getProject().getName();
+				selectedObjectWorkspaceProjectPath = file.getProject().getFullPath().toString();
 				isFileSelected = true;
+			} else if ((treeSelection.getFirstElement() != null) &&
+					   (treeSelection.getFirstElement() instanceof IProject)) {
+				IProject project = (IProject)treeSelection.getFirstElement();
+				selectedObjectName = project.getName();
+				selectedObjectFilesystemPath = RttMbtClient.getAbsolutePathFromFileURI(project.getLocationURI());
+				selectedObjectWorkspacePath = project.getFullPath().toString();
+				selectedObjectWorkspaceProjectName = project.getName();
+				selectedObjectWorkspaceProjectPath = project.getFullPath().toString();
+				isFolderSelected = true;
 			}
 		}
-		if ((selectedObject == null) || (selectedObjectPath == null)) {
+
+		// check for null pointers
+		if ((selectedObjectName == null) ||
+			(selectedObjectFilesystemPath == null) ||
+			(selectedObjectWorkspacePath == null) ||
+			(selectedObjectWorkspaceProjectName == null) ||
+			(selectedObjectWorkspaceProjectPath == null)) {
+			client.addErrorMessage("*** error: retrieving information about the selected object failed!");
 			return false;
 		}
-		
+
+		// calculate selectedObjectWorkspaceProjectName and selectedObjectWorkspaceProjectPrefix
+		// from selectedObjectWorkspacePath and selectedObjectFilesystemPath
+		// iterate from the last pat item to the first and check for RT-Tester project criteria
+		String filesystempath = selectedObjectFilesystemPath;
+		String workspacepath = selectedObjectWorkspacePath;
+		int fpos = filesystempath.lastIndexOf(File.separator);
+		int wpos = workspacepath.lastIndexOf(File.separator);
+		while ((fpos != -1) && (wpos != -1)) {
+
+			// check that the path does not end with '/'
+			if ((filesystempath.length() > fpos + 1) && (workspacepath.length() > wpos + 1)) {
+				// get last item of path
+				String fitem = filesystempath.substring(fpos + 1);
+				String witem = workspacepath.substring(wpos + 1);
+				// the first RT-Tester project in the path must be
+				// the project of the selected item
+				if (RttMbtClient.isRttProject(filesystempath)) {
+					selectedObjectFilesystemProjectName = fitem;
+					selectedObjectFilesystemProjectPath = filesystempath;
+					selectedObjectWorkspaceProjectName = witem;
+					selectedObjectWorkspaceProjectPath = workspacepath;
+					break;
+				}
+				// if the items do not match, the file system item
+				// must be the file system project name
+				if (fitem.compareTo(witem) != 0) {
+					System.out.println(fitem + "and" + witem + " differ.");
+					selectedObjectFilesystemProjectName = fitem;
+					selectedObjectFilesystemProjectPath = filesystempath;
+					selectedObjectWorkspaceProjectName = witem;
+					selectedObjectWorkspaceProjectPath = workspacepath;
+					break;
+				}
+			}
+
+			// prepare next loop
+			filesystempath = filesystempath.substring(0, fpos);
+			workspacepath = workspacepath.substring(0, wpos);
+			fpos = filesystempath.lastIndexOf(File.separator);
+			wpos = workspacepath.lastIndexOf(File.separator);
+		}
+
+		// remove selectedObjectWorkspaceProjectName from selectedObjectWorkspaceProjectPrefix
+		int pos = selectedObjectWorkspaceProjectPath.indexOf(selectedObjectWorkspaceProjectName);
+		if (pos == -1) {
+			System.err.println("*** error: unable to find workspace project " +
+		                       selectedObjectWorkspaceProjectName + " in workspace project path " +
+		                       selectedObjectWorkspaceProjectPath);
+		}
+		selectedObjectWorkspaceProjectPrefix = selectedObjectWorkspaceProjectPath.substring(0, pos - 1);
+		if (selectedObjectWorkspaceProjectPrefix.length() == 0) {
+			selectedObjectWorkspaceProjectPrefix = null;
+		}
+
+		// remove leading file separator characters from workspace project prefix
+		if ((selectedObjectWorkspaceProjectPrefix != null) && (selectedObjectWorkspaceProjectPrefix.startsWith(File.separator))) {
+			selectedObjectWorkspaceProjectPrefix = selectedObjectWorkspaceProjectPrefix.substring(1);
+		}
+
 		return true;
 	}
 
 	// initialize the client according to the selection
-	public Boolean initClient(String selectionFullPath) {
+	public Boolean initClient() {
 		Boolean success = true;
 		
-		if (selectionFullPath == null) {
-			client.addErrorMessage("[FAIL]: unable to initialize client (no path to the selected object provided)!");
-			return false;
-		}
-		
-    	// set workspace
+		// set RT-Tester project name (folder in the file system)
+		client.setRttProjectName(selectedObjectFilesystemProjectName);
+
+		// set the path to the RT-Tester project in the filesystem
+		client.setRttProjectPath(selectedObjectFilesystemProjectPath);
+
+		// set eclipse project name in the current workspace that contains the RT-Tester project
+		client.setWorkspaceProjectName(selectedObjectWorkspaceProjectName);
+
+		// set the prefix of the RT-Tester project within the current workspace.
+		client.setWorkspaceProjectPrefix(selectedObjectWorkspaceProjectPrefix);
+
+		// set the path in the local file system to the current eclipse workspace.
     	IWorkspace workspace = ResourcesPlugin.getWorkspace();
-		File workspaceDirectory = workspace.getRoot().getLocation().toFile();
-		client.setCmlWorkspace(workspaceDirectory.getAbsolutePath());
-
-		// calculate CML project name from selected folder
-		String current = selectionFullPath.substring(1, selectionFullPath.length());
-		int pos = current.indexOf(File.separator);
-		String cmlProject;
-		if (pos > -1) {
-			cmlProject = current.substring(0, pos);
-		} else {
-			pos = current.indexOf('/');
-			if (pos == -1) {
-				client.addErrorMessage("[FAIL]: no RTT-MBT component selected");
-				return false;
-			} else {
-				cmlProject = current.substring(0, pos);
-			}
-		}
-		// calculate RTT-MBT project name from selected folder
-		current = current.substring(pos + 1, current.length());
-		pos = current.indexOf(File.separator);
-		if (pos == -1) pos = current.indexOf('/');
-		if (pos == -1) pos = current.length();
-		String rttProject = current.substring(0,pos);
-
-		// set CML project name
-		client.setCmlProject(cmlProject);
-
-		// set RTT-MBT project name
-		client.setProjectName(rttProject);
+		String workspacePath = workspace.getRoot().getLocation().toFile().getAbsolutePath();
+		client.setWorkspacePath(workspacePath);
 
 		// set console name
-		client.setConsoleName(selectedObject);
+		client.setConsoleName(selectedObjectWorkspaceProjectName);
 		
 		// test connection to rtt-mbt-tms server
 		if (client.testConenction()) {
@@ -133,12 +219,12 @@ public class RttMbtPopupMenuAction extends AbstractHandler  {
 	
 	// check if the selected item is a test procedure generation context
 	public Boolean isTProcGenCtxSelected() {
-		if (selectedObjectPath == null) {
+		if (selectedObjectWorkspacePath == null) {
 			return false;
 		}
-		int idx = selectedObjectPath.lastIndexOf(selectedObject);
+		int idx = selectedObjectWorkspacePath.lastIndexOf(selectedObjectName);
 		if (idx < 1) { return false; }
-		String path = selectedObjectPath.substring(0, idx - 1);
+		String path = selectedObjectWorkspacePath.substring(0, idx - 1);
 		String TProcGenCtx = client.getRttMbtTProcGenCtxFolderName();
 		idx = path.lastIndexOf(TProcGenCtx);
 		if (idx < 1) { return false; }
@@ -150,12 +236,12 @@ public class RttMbtPopupMenuAction extends AbstractHandler  {
 	
 	// check if the selected item is an rtt-test-procedure
 	public Boolean isRttTestProcSelected() {
-		if (selectedObjectPath == null) {
+		if (selectedObjectWorkspacePath == null) {
 			return false;
 		}
-		int idx = selectedObjectPath.lastIndexOf(selectedObject);
+		int idx = selectedObjectWorkspacePath.lastIndexOf(selectedObjectName);
 		if (idx < 1) { return false; }
-		String path = selectedObjectPath.substring(0, idx - 1);
+		String path = selectedObjectWorkspacePath.substring(0, idx - 1);
 		String RttTestProc = client.getRttMbtTestProcFolderName();
 		idx = path.lastIndexOf(RttTestProc);
 		if (idx < 1) { return false; }
@@ -166,26 +252,40 @@ public class RttMbtPopupMenuAction extends AbstractHandler  {
 	}
 
 	public void getRttTestProcPathFromTProcGenCtxPath() {
-		if (selectedObjectPath == null) {
+		if (selectedObjectWorkspacePath == null) {
 			return;
 		}
 		String TProcGenCtx = client.getRttMbtTProcGenCtxFolderName();
-		int idx = selectedObjectPath.lastIndexOf(TProcGenCtx);
+		int idx = selectedObjectWorkspacePath.lastIndexOf(TProcGenCtx);
 		if (idx < 1) { return; }
-		String path = selectedObjectPath.substring(0, idx);
+		// adjust selectedObjectWorkspacePath
+		String path = selectedObjectWorkspacePath.substring(0, idx);
 		String RttTestProc = client.getRttMbtTestProcFolderName();
-		selectedObjectPath = path + RttTestProc + File.separator + selectedObject;
+		selectedObjectWorkspacePath = path + RttTestProc + File.separator + selectedObjectName;
+		// adjust selectedObjectFilesystemPath
+		idx = selectedObjectFilesystemPath.lastIndexOf(TProcGenCtx);
+		if (idx < 1) { return; }
+		path = selectedObjectFilesystemPath.substring(0, idx);
+		RttTestProc = client.getRttMbtTestProcFolderName();
+		selectedObjectFilesystemPath = path + RttTestProc + File.separator + selectedObjectName;
 	}
 
 	public void getTProcGenCtxPathFromRttTestProcPath() {
-		if (selectedObjectPath == null) {
+		if (selectedObjectWorkspacePath == null) {
 			return;
 		}
 		String RttTestProc = client.getRttMbtTestProcFolderName();
-		int idx = selectedObjectPath.lastIndexOf(RttTestProc);
+		int idx = selectedObjectWorkspacePath.lastIndexOf(RttTestProc);
 		if (idx < 1) { return; }
-		String path = selectedObjectPath.substring(0, idx);
+		// adjust selectedObjectWorkspacePath
+		String path = selectedObjectWorkspacePath.substring(0, idx);
 		String TProcGenCtx = client.getRttMbtTProcGenCtxFolderName();
-		selectedObjectPath = path + TProcGenCtx + File.separator + selectedObject;
+		selectedObjectWorkspacePath = path + TProcGenCtx + File.separator + selectedObjectName;
+		idx = selectedObjectFilesystemPath.lastIndexOf(RttTestProc);
+		if (idx < 1) { return; }
+		// adjust selectedObjectFilesystemPath
+		path = selectedObjectFilesystemPath.substring(0, idx);
+		TProcGenCtx = client.getRttMbtTProcGenCtxFolderName();
+		selectedObjectFilesystemPath = path + TProcGenCtx + File.separator + selectedObjectName;
 	}
 }

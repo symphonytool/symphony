@@ -1,28 +1,24 @@
-/**
- * 
- */
 package eu.compassresearch.rttMbtTmsClientApi;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+
 import org.json.simple.JSONObject;
 
-/**
- * @author uwe
- *
- */
-public class jsonCompileTestCommand extends jsonCommand {
+public class jsonBuildMakeTargetCommand extends jsonCommand {
 
-	 private String testProcName;
+	 private String makefileName;
+	 private String target;
+	 private String makeTool;
 
-	 public jsonCompileTestCommand(RttMbtClient client) {
+	 public jsonBuildMakeTargetCommand(RttMbtClient client) {
 		 super(client);
 	 }
-		
+
 	 @SuppressWarnings({ "unchecked", "rawtypes" })
 	 public String getJsonCommandString() {
 		 // check if project name is properly assigned
-		 if (client.getRttProjectPath() == null) {
+		 if (client.getRttProjectName() == null) {
 			 System.err.println("[ERROR]: project name not assigned!");
 			 return null;
 		 }
@@ -31,11 +27,12 @@ public class jsonCompileTestCommand extends jsonCommand {
 		 Map params = new LinkedHashMap();
 		 params.put("user", client.getUserName());
 		 params.put("user-id", client.getUserId());
-		 params.put("project-name", client.toUnixPath(client.removeLocalWorkspace(client.getRttProjectPath())));
-		 params.put("test-procedure-path", client.toUnixPath(testProcName));
+		 params.put("filename", client.toUnixPath(client.removeLocalWorkspace(makefileName)));
+		 params.put("target", getTarget());
+		 params.put("make-tool", getMakeTool());
 		 // create command
 		 JSONObject cmd = new JSONObject();
-		 cmd.put("compile-test-command", params);
+		 cmd.put("build-make-target-command", params);
 		 return cmd.toJSONString();
 	 }
 
@@ -43,7 +40,7 @@ public class jsonCompileTestCommand extends jsonCommand {
 		 if (reply == null) {
 			 return null;
 		 }
-		 return (JSONObject)reply.get("compile-test-result");
+		 return (JSONObject)reply.get("build-make-target-result");
 	 }
 
 	 public void handleParameters(JSONObject parameters) {
@@ -60,11 +57,28 @@ public class jsonCompileTestCommand extends jsonCommand {
 		 }
 	 }
 
-	 public String getTestProcName() {
-		 return testProcName;
+	 public String getMakefileName() {
+		 return makefileName;
 	 }
 
-	 public void setTestProcName(String testProcName) {
-		 this.testProcName = testProcName;
+	 public void setMakefileName(String makefileName) {
+		 this.makefileName = makefileName;
 	 }
+
+	public String getTarget() {
+		return target;
+	}
+
+	public void setTarget(String target) {
+		this.target = target;
+	}
+
+	public String getMakeTool() {
+		return makeTool;
+	}
+
+	public void setMakeTool(String makeTool) {
+		this.makeTool = makeTool;
+	}
+
 }
