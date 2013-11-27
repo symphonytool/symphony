@@ -1,4 +1,4 @@
-package eu.compassresearch.pog.tests;
+package eu.compassresearch.pog.tests.utils;
 
 import java.io.File;
 import java.io.FilenameFilter;
