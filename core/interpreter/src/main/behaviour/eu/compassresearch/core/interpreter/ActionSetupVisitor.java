@@ -44,6 +44,8 @@ import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.process.AAlphabetisedParallelismProcess;
 import eu.compassresearch.ast.process.AAlphabetisedParallelismReplicatedProcess;
+import eu.compassresearch.ast.process.AExternalChoiceProcess;
+import eu.compassresearch.ast.process.AExternalChoiceReplicatedProcess;
 import eu.compassresearch.ast.process.AGeneralisedParallelismProcess;
 import eu.compassresearch.ast.process.AGeneralisedParallelismReplicatedProcess;
 import eu.compassresearch.ast.process.AHidingProcess;
@@ -613,6 +615,34 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 		}, question);
 		
 		return res.first.apply(ActionSetupVisitor.this,res.second);
+	}
+	
+	@Override
+	public Pair<INode, Context> caseAExternalChoiceReplicatedProcess(
+			final AExternalChoiceReplicatedProcess node, final Context question)
+			throws AnalysisException
+	{
+		Pair<INode, Context> ret = caseReplicated(node, node.getReplicationDeclaration(), new AbstractReplicationFactory(node)
+		{
+
+			@Override
+			public INode createNextReplication()
+			{
+				return new AExternalChoiceProcess(node.getLocation(), node.getReplicatedProcess().clone(), node.clone());
+			}
+
+			@Override
+			public INode createLastReplication()
+			{
+				return new AExternalChoiceProcess(node.getLocation(), node.getReplicatedProcess().clone(), node.getReplicatedProcess().clone());
+			}
+			
+		}, question);
+		
+		if(ret.first instanceof ASkipAction)
+			return new Pair<INode, Context>(new AStopAction(node.getLocation()),question);
+		else
+			return ret;
 	}
 	
 	@Override
