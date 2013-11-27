@@ -279,8 +279,10 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 		}
 		// the process has children and must now handle either termination or event sync
 		else if (CmlBehaviourUtility.isAllChildrenFinished(owner))
-			return newInspection(createTauTransitionWithTime(new ASkipAction(node.getLocation()), "End"), caseParallelEnd(question));
-		else
+		{
+			ASkipAction dstNode = new ASkipAction(node.getLocation());
+			return newInspection(createTauTransitionWithTime(dstNode, "End"), caseParallelEnd(dstNode,question));
+		} else
 		{
 			// evaluate the left in the context of the left child
 			ChannelNameSetValue leftChanset = (ChannelNameSetValue) node.getLeftChansetExpression().apply(cmlExpressionVisitor, owner.getLeftChild().getNextState().second);
@@ -406,7 +408,8 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 		// the process has children and must now handle either termination or event sync
 		else if (CmlBehaviourUtility.isAllChildrenFinished(owner))
 		{
-			return newInspection(createTauTransitionWithTime(new ASkipAction(), "End"), caseParallelEnd(question));
+			ASkipAction dstNode = new ASkipAction(node.getLocation());
+			return newInspection(createTauTransitionWithTime(dstNode, "End"), caseParallelEnd(dstNode, question));
 
 		} else
 		{

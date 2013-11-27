@@ -277,6 +277,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		if (topProcess.deadlocked())
 		{
 			setNewState(CmlInterpreterState.DEADLOCKED);
+			Console.err.println("DEADLOCKED");
 			if (suspendBeforeTermination())
 				synchronized (suspendObject)
 				{
@@ -479,7 +480,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	{
 		File cml_example = new File(
 		// "/home/akm/phd/runtime-COMPASS/simpleDLNA/SimpleDLNA.cml");
-		"src/test/resources/process/replicated/sequential-composition.cml");
+		"src/test/resources/process/replicated/externalchoice.cml");
 		//File cml_example = new File("/home/akm/phd/COMPASS-repo/Common/PublicLiveCMLCaseStudies/RingBuffer/RingBuffer.cml");
 		//File cml_example = new File("/home/akm/Downloads/minimondex.cml");
 		runOnFile(cml_example);

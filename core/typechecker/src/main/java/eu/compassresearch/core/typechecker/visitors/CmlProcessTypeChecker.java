@@ -313,7 +313,7 @@ public class CmlProcessTypeChecker extends
 		}
 
 		List<PDefinition> definitions = new LinkedList<PDefinition>();
-		List<LexIdentifierToken> ids = new LinkedList<LexIdentifierToken>();
+
 		for (PParametrisation d : decl)
 		{
 			PType dType = d.apply(THIS, question);
