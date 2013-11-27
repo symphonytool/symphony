@@ -37,8 +37,11 @@ public class MCAProductType implements MCPCMLType {
 
 	@Override
 	public MCPCMLType copy() {
-		// TODO Auto-generated method stub
-		return null;
+		LinkedList<MCPCMLType> typesCopy = new LinkedList<MCPCMLType>();
+		for (MCPCMLType type : types) {
+			typesCopy.add(type.copy());
+		}
+		return new MCAProductType(typesCopy);
 	}
 
 	public LinkedList<MCPCMLType> getTypes() {

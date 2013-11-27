@@ -2395,7 +2395,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 
 	@Override
 	public void caseAQuoteType(AQuoteType node) throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAQuoteType(node);
@@ -3188,7 +3188,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 
 	@Override
 	public void caseAUnionType(AUnionType node) throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAUnionType(node);
@@ -3299,7 +3299,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseAVoidReturnType(AVoidReturnType node)
 			throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAVoidReturnType(node);

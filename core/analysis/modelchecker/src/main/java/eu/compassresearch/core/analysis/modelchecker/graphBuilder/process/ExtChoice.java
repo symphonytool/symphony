@@ -10,7 +10,7 @@ public class ExtChoice extends Choice {
 	
 	@Override
 	public String toString() {
-		return this.getFirstProcess() + "[]" + this.getSecondProcess();
+		return "(" + firstProcess.toString() + ")" + " [] " + "(" + secondProcess.toString() + ")";
 	}
 
 	@Override

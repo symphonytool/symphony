@@ -7,6 +7,7 @@ import org.overture.ast.node.INode;
 import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.PPattern;
 
+import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.AReadCommunicationParameter;
 import eu.compassresearch.ast.actions.ASignalCommunicationParameter;
 import eu.compassresearch.ast.actions.AValParametrisation;
@@ -14,18 +15,23 @@ import eu.compassresearch.ast.actions.AWriteCommunicationParameter;
 import eu.compassresearch.ast.actions.PCommunicationParameter;
 import eu.compassresearch.ast.actions.PParametrisation;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
+import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAReadCommunicationParameter;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCASignalCommunicationParameter;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAValParametrisation;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAWriteCommunicationParameter;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ExpressionEvaluator;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.TypeManipulator;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAChannelDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCALocalDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAUndefinedExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCVoidValue;
 import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCAIdentifierPattern;
 import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCPCMLPattern;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAChannelType;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 
 public class NewMCParameterAndPatternVisitor extends QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 
@@ -97,7 +103,18 @@ public class NewMCParameterAndPatternVisitor extends QuestionAnswerCMLAdaptor<Ne
 		String name = node.getPattern().toString();
 		
 		if(expression == null){
-			expression = new MCVoidValue();
+			INode parent = node.parent();
+			if(parent instanceof ACommunicationAction){
+				String channelName = ((ACommunicationAction) parent).getIdentifier().getName();
+				MCAChannelDefinition chanDef = question.getChannelDefinition(channelName);
+				MCPCMLType realType = chanDef.getType();
+				if(realType instanceof MCAChannelType){
+					realType = ((MCAChannelType) realType).getType();
+					ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
+					expression = evaluator.getDefaultValue(realType);
+				}
+			} 
+			
 		}
 		
 		question.maximalBinding = question.maximalBinding.addBinding("nP", name, expression);

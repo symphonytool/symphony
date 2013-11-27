@@ -9,8 +9,26 @@
     primitive Set           ::= (SetType).   
     EmptySet                ::= {emptySet}.     
     primitive NonEmptySet   ::= (head:Type,tail:SetType).     
-    SetType                 ::= EmptySet + NonEmptySet.
+    SetType                 ::= EmptySet + NonEmptySet.  //This captures the notion of any set contains the empty set
     DerivableSet            ::= (SetType). 
+
+	//Operations and rules over sets
+    NonEmptySet(y, emptySet), NonEmptySet(x, S) :- NonEmptySet(y, NonEmptySet(x, S)).
+    
+    // Membership: x \in S => member(x, S). x \lnot\in S \defs fail member(x, S).
+    member                      ::= (elem: Type, set: SetType).
+    member(x, NonEmptySet(x, S)) :- NonEmptySet(x, S). 
+    member(x, NonEmptySet(y, S)) :- NonEmptySet(y, S), x != y, member(x, S). // It needs a T(_), an aSet(y, S) and a (recursive) member(x, S) to work.
+
+    // union: X \cup Y = Z => union(X, Y, Z)
+    union                       ::= (setX: SetType, setY: SetType, setZ: SetType).
+    union(emptySet, emptySet, emptySet).
+    union(emptySet, Sy, Sy)        :- Sy is NonEmptySet(_, _).
+    union(Sx, emptySet, Sx)        :- Sx is NonEmptySet(_, _).
+    union(NonEmptySet(x, S), NonEmptySet(y, emptySet), X) :- NonEmptySet(x, S), NonEmptySet(y, emptySet), y = x, X = NonEmptySet(x, S).
+    union(NonEmptySet(x, S), NonEmptySet(y, emptySet), X) :- NonEmptySet(x, S), NonEmptySet(y, emptySet), y < x, X = NonEmptySet(y, NonEmptySet(x, S)), fail member(y, S).
+    union(NonEmptySet(x, S), NonEmptySet(y, emptySet), X) :- NonEmptySet(x, S), NonEmptySet(y, emptySet), x < y, union(S, NonEmptySet(y, emptySet), X_), X = NonEmptySet(x, X_).
+    union(S, NonEmptySet(x, T), X_)    :- T != emptySet, NonEmptySet(x, T), union(S, NonEmptySet(x, emptySet), X), union(X, T, X_).
 
 	//A representation for product type
 	primitive ProdType ::= (first: Type, second: Type).

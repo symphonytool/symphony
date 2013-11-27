@@ -41,7 +41,7 @@ public class ProcessCall implements Process {
 
 	@Override
 	public String toString() {
-		return str + type.toString();
+		return str + "(" + type.toString() + ")";
 	}
 	
 	@Override
