@@ -157,42 +157,39 @@ public class ThmImplicitOperation extends ThmDecl{
 		//if there is a result value (it is a postcondition)
 		if  (res != null )
 		{
-			//Add the result too
-			PPattern p = res.getPattern();
-	
-			sb.append("^" + ((AIdentifierPattern) p).getName().toString() + "^");
+			sb.append("^" + ThmTypeUtil.isaFuncLambdaPostVal + "^");
 		}
 		
 		sb.append(")");
 		return sb.toString(); //NOT SURE IF NEED TO DO THIS =-fixParamRefs(sb.toString(), parPair);
 	}
 	
-	/**
-	 * Method to change the value names in an expression when they are parameter names
-	 * This is so that the lambda expression of a function operates as expected. 
-	 * Parameters are determined by numeric order.
-	 * @param ex - expression to fix
-	 * @param pattern - the parameters
-	 * @return the new, fixed string
-	 */
-	private String fixParamRefs(String ex, LinkedList<APatternListTypePair> pattern){
-		int count = 1;
-		for(APatternListTypePair p : pattern )
-		{
-			LinkedList<PPattern> pats = p.getPatterns();
-			//for each parameter, find it in the expression and replace with the lambda value
-			for(PPattern param : pats )
-			{
-				String pName = "^" + ((AIdentifierPattern) param).getName().toString() + "^";
-				String lambdaName = "^" +ThmTypeUtil.isaFuncLambaVal+"^.#" + count;
-			
-				ex = ex.replace(pName, lambdaName);
-				count++;
-			}
-		}
-	
-		return ex;
-	}
+//	/**
+//	 * Method to change the value names in an expression when they are parameter names
+//	 * This is so that the lambda expression of a function operates as expected. 
+//	 * Parameters are determined by numeric order.
+//	 * @param ex - expression to fix
+//	 * @param pattern - the parameters
+//	 * @return the new, fixed string
+//	 */
+//	private String fixParamRefs(String ex, LinkedList<APatternListTypePair> pattern){
+//		int count = 1;
+//		for(APatternListTypePair p : pattern )
+//		{
+//			LinkedList<PPattern> pats = p.getPatterns();
+//			//for each parameter, find it in the expression and replace with the lambda value
+//			for(PPattern param : pats )
+//			{
+//				String pName = "^" + ((AIdentifierPattern) param).getName().toString() + "^";
+//				String lambdaName = "^" +ThmTypeUtil.isaFuncLambaVal+"^.#" + count;
+//			
+//				ex = ex.replace(pName, lambdaName);
+//				count++;
+//			}
+//		}
+//	
+//		return ex;
+//	}
 	/**
 	 * To string method, first returns pre and post conditions, and then the
 	 * operation definition. 
