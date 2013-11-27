@@ -2,12 +2,16 @@ package eu.compassresearch.core.interpreter;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Vector;
 import java.util.logging.Level;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.intf.lex.ILexLocation;
+import org.overture.ast.lex.Dialect;
 import org.overture.ast.lex.LexLocation;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ValueException;
@@ -48,7 +52,6 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 6664128061930795395L;
 	protected List<PDefinition> sourceForest;
 	protected Context globalContext;
 	protected String defaultName = null;
@@ -349,77 +352,78 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		return globalContext;
 	}
 
-	// ---------------------------------------
-	// Static stuff for running the Interpreter from the commandline with any gui stuff
-	// ---------------------------------------
+	@Override
+	public CmlBehaviour getTopLevelProcess()
+	{
 
-	private static void runOnFiles(List<File> files) throws IOException,
+		return runningTopProcess;
+	}
+
+	public static void main(String[] args) throws IOException,
 			CmlInterpreterException
 	{
-		ParserResult res = ParserUtil.parse(files);
+		List<String> largs = Arrays.asList(args);
+		List<File> filenames = new Vector<File>();
+		String processName = null;
 
-		ITypeIssueHandler issueHandler = VanillaFactory.newCollectingIssueHandle();
-
-		// Type check
-		ICmlTypeChecker cmlTC = VanillaFactory.newTypeChecker(res.definitions, issueHandler);
-
-		// Print result and report errors if any
-		if (!cmlTC.typeCheck())
+		for (Iterator<String> i = largs.iterator(); i.hasNext();)
 		{
-			System.out.println("Failed to type check: "
-					+ res.definitions.toString());
-			System.out.println(issueHandler.getTypeErrors());
-			return;
-		}
-
-		// interpret
-		VanillaCmlInterpreter cmlInterp = new VanillaCmlInterpreter(res.definitions);
-		cmlInterp.onStateChanged().registerObserver(new CmlInterpreterStateObserver()
-		{
-
-			@Override
-			public void onStateChanged(Object source,
-					InterpreterStateChangedEvent event)
+			String arg = i.next();
+			if (arg.equals("-process"))
 			{
-				System.out.println("Simulator status event : "
-						+ event.getStatus());
+				if (i.hasNext())
+				{
+					processName = i.next();
+				} else
+				{
+					usage("-process option requires a process name");
+				}
+			} else if (arg.startsWith("-"))
+			{
+				usage("Unknown option " + arg);
+			} else
+			{
+				// It's a file or a directory
+				File file = new File(arg);
 
+				if (file.isDirectory())
+				{
+					for (File subFile : file.listFiles(Dialect.CML.getFilter()))
+					{
+						if (subFile.isFile())
+						{
+							filenames.add(subFile);
+						}
+					}
+				} else
+				{
+					if (file.exists())
+					{
+						filenames.add(file);
+					} else
+					{
+						usage("Cannot find file " + file);
+
+					}
+				}
 			}
-		});
-
-		try
-		{
-			CmlRuntime.logger().setLevel(Level.FINEST);
-			cmlInterp.initialize();
-			// cmlInterp.execute(new RandomSelectionStrategy());
-			ConsoleSelectionStrategy ss = new ConsoleSelectionStrategy();
-			ss.setHideSilentTransitions(false);
-			cmlInterp.execute(ss);
-		} catch (Exception ex)
-		{
-			System.out.println("Failed to interpret: " + files.toString());
-			System.out.println("With Error : ");
-			ex.printStackTrace();
-			return;
-
 		}
 
-		// Report success
-		System.out.println("The given CML Program is done simulating.");
+		runOnFile(processName, filenames.toArray(new File[filenames.size()]));
 
 	}
 
-	private static void runOnFile(File f) throws IOException,
-			CmlInterpreterException
+	private static void runOnFile(String processName, File... f)
+			throws IOException, CmlInterpreterException
 	{
 		ParserResult res = ParserUtil.parse(f);
 
-		if(res.errors.size() > 0)
+		if (res.errors.size() > 0)
 		{
 			res.printErrors(System.err);
 			return;
 		}
-		
+
 		ITypeIssueHandler issueHandler = VanillaFactory.newCollectingIssueHandle();
 
 		// Type check
@@ -434,8 +438,12 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		}
 
 		// interpret
-		VanillaCmlInterpreter cmlInterp = new VanillaCmlInterpreter(res.definitions);
-		cmlInterp.onStateChanged().registerObserver(new CmlInterpreterStateObserver()
+		VanillaCmlInterpreter interpreter = new VanillaCmlInterpreter(res.definitions);
+		if (processName != null)
+		{
+			interpreter.setDefaultName(processName);
+		}
+		interpreter.onStateChanged().registerObserver(new CmlInterpreterStateObserver()
 		{
 
 			@Override
@@ -451,11 +459,11 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		try
 		{
 			CmlRuntime.logger().setLevel(Level.FINEST);
-			cmlInterp.initialize();
+			interpreter.initialize();
 			// cmlInterp.execute(new RandomSelectionStrategy());
 			ConsoleSelectionStrategy ss = new ConsoleSelectionStrategy();
 			// ss.setHideSilentTransitions(false);
-			cmlInterp.execute(ss);
+			interpreter.execute(ss);
 		} catch (ValueException e)
 		{
 			System.out.println("With Error : " + e);
@@ -475,26 +483,33 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		System.out.println("The given CML Program is done simulating.");
 	}
 
-	public static void main(String[] args) throws IOException,
-			CmlInterpreterException
+	private static void usage(String msg)
 	{
-		File cml_example = new File(
-		// "/home/akm/phd/runtime-COMPASS/simpleDLNA/SimpleDLNA.cml");
-		"src/test/resources/process/replicated/sequential-composition.cml");
-		//File cml_example = new File("/home/akm/phd/COMPASS-repo/Common/PublicLiveCMLCaseStudies/RingBuffer/RingBuffer.cml");
-		//File cml_example = new File("/home/akm/Downloads/minimondex.cml");
-		runOnFile(cml_example);
+		System.err.println("COMPASS: " + msg + "\n");
+		System.err.println("Usage: COMPASS <-process> [<options>] [<files or dirs>]");
+//		System.err.println("-vdmsl: parse files as VDM-SL");
+//		System.err.println("-vdmpp: parse files as VDM++");
+//		System.err.println("-vdmrt: parse files as VDM-RT");
+//		System.err.println("-path: search path for files");
+//		System.err.println("-r <release>: VDM language release");
+//		System.err.println("-w: suppress warning messages");
+//		System.err.println("-q: suppress information messages");
+//		System.err.println("-i: run the interpreter if successfully type checked");
+//		System.err.println("-p: generate proof obligations and stop");
+//		System.err.println("-e <exp>: evaluate <exp> and stop");
+//		System.err.println("-c <charset>: select a file charset");
+//		System.err.println("-t <charset>: select a console charset");
+//		System.err.println("-o <filename>: saved type checked specification");
+//		System.err.println("-default <name>: set the default module/class");
+//		System.err.println("-pre: disable precondition checks");
+//		System.err.println("-post: disable postcondition checks");
+//		System.err.println("-inv: disable type/state invariant checks");
+//		System.err.println("-dtc: disable all dynamic type checking");
+//		System.err.println("-measures: disable recursive measure checking");
+//		System.err.println("-log: enable real-time event logging");
+//		System.err.println("-remote <class>: enable remote control");
 
-		// List<File> files = new LinkedList<File>();
-		// files.add(new File("/home/akm/phd/runtime-COMPASS/DwarfSimple/DwarfSimple.cml"));
-		// files.add(new File("/home/akm/phd/runtime-COMPASS/DwarfSimple/Ifm.cml"));
-		// runOnFiles(files);
+		System.exit(1);
 	}
 
-	@Override
-	public CmlBehaviour getTopLevelProcess()
-	{
-
-		return runningTopProcess;
-	}
 }
