@@ -82,7 +82,7 @@ class CmlBehaviourUtility
 		{
 			Value val = entry.getValue();
 			if (val instanceof UpdatableValue)
-				currentRoot.check(entry.getKey()).set(dst.location, entry.getValue(), dst);
+				currentRoot.check(entry.getKey()).set(dst.location, entry.getValue().deref(), dst);
 		}
 
 		// now we collect all the context below the RootContext for both the copy and the current

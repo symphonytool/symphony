@@ -309,7 +309,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 			//we take the outer.outer because we want the parent context of this one to be the one given to the replication node
 			Context rightChildContext = createReplicationChildContext(nextValue, node, question.outer.outer);
 			setChildContexts(new Pair<Context, Context>(leftChildContext, rightChildContext));
-			return new Pair<INode, Context>(nextNode, next);
+			return new Pair<INode, Context>(nextNode, question.outer.outer);
 		}
 		
 		
