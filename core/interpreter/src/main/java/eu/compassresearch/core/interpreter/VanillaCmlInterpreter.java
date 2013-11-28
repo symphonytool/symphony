@@ -10,9 +10,12 @@ import java.util.logging.Level;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.definitions.SClassDefinition;
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.lex.Dialect;
 import org.overture.ast.lex.LexLocation;
+import org.overture.ast.util.definitions.ClassList;
+import org.overture.interpreter.runtime.ClassInterpreter;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.scheduler.BasicSchedulableThread;
@@ -21,10 +24,12 @@ import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.lex.CmlLexNameToken;
+import eu.compassresearch.core.interpreter.api.AnnimationStrategy;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
 import eu.compassresearch.core.interpreter.api.ConsoleSelectionStrategy;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
+import eu.compassresearch.core.interpreter.api.RandomSelectionStrategy;
 import eu.compassresearch.core.interpreter.api.SelectionStrategy;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlTrace;
@@ -93,6 +98,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	 */
 	public void initialize() throws AnalysisException
 	{
+		super.initialize();
 		GlobalEnvironmentBuilder envBuilder = new GlobalEnvironmentBuilder(sourceForest);
 		// Build the global context
 		globalContext = envBuilder.getGlobalContext();
@@ -100,6 +106,23 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		// FIXME When there are multiple files there are no way to determine which one it will be!
 		topProcess = envBuilder.getLastDefinedProcess();
 		setNewState(CmlInterpreterState.INITIALIZED);
+
+		ClassList classes = new ClassList();
+		for (PDefinition def : sourceForest)
+		{
+			if (def instanceof SClassDefinition)
+			{
+				classes.add((SClassDefinition) def);
+			}
+		}
+		try
+		{
+			new ClassInterpreter(classes);// this stores an internal static reference needed later
+											// Interpreter.getInstance()
+		} catch (Exception e)
+		{
+			throw new AnalysisException("Faild to initialize class interpreter", e);
+		}
 	}
 
 	@Override
@@ -181,7 +204,9 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			ProcessObjectValue pov = (ProcessObjectValue) globalContext.check(name);
 
 			if (pov == null)
+			{
 				throw new CmlInterpreterException(InterpretationErrorMessages.NO_PROCESS_WITH_DEFINED_NAME_FOUND.customizeMessage(getDefaultName()));
+			}
 
 			topProcess = pov.getProcessDefinition();
 
@@ -194,18 +219,18 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	/**
 	 * Main loop for executing the top process
 	 * 
-	 * @param topProcess
+	 * @param behaviour
 	 * @throws AnalysisException
 	 * @throws InterruptedException
 	 */
-	private void executeTopProcess(CmlBehaviour topProcess)
+	private void executeTopProcess(CmlBehaviour behaviour)
 			throws AnalysisException, InterruptedException
 	{
 		// continue until the top process is not finished and not deadlocked
-		while (!topProcess.finished() && !topProcess.deadlocked())
+		while (!behaviour.finished() && !behaviour.deadlocked())
 		{
 			// inspect the top process to get the next possible trace element
-			CmlTransitionSet topAlphabet = topProcess.inspect();
+			CmlTransitionSet topAlphabet = behaviour.inspect();
 			// expand what's possible in the alphabet
 			CmlTransitionSet availableEvents = topAlphabet.expandAlphabet();
 
@@ -220,11 +245,15 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 				String state;
 
 				if (context.getSelf() != null)
+				{
 					state = context.getSelf().toString();
-				else if (context.outer != null)
+				} else if (context.outer != null)
+				{
 					state = context.getRoot().toString();
-				else
+				} else
+				{
 					state = context.toString();
+				}
 
 				CmlRuntime.logger().finer("State for " + event + " : " + state);
 			}
@@ -238,58 +267,67 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 
 			// if its null we terminate and assume that this happended because of a user interrupt
 			if (selectedEvent == null)
+			{
 				break;
+			}
 
 			// Handle the breakpoints if any
 			handleBreakpoints(selectedEvent);
 
 			if (getState() == CmlInterpreterState.SUSPENDED)
+			{
 				synchronized (suspendObject)
 				{
 					this.suspendObject.wait();
 				}
+			}
 
 			// if we get here it means that it in a running state again
 			setNewState(CmlInterpreterState.RUNNING);
 
-			topProcess.execute(selectedEvent);
-			CmlTrace trace = topProcess.getTraceModel();
+			behaviour.execute(selectedEvent);
+			CmlTrace trace = behaviour.getTraceModel();
 
 			if (trace.getLastTransition() instanceof ObservableTransition)
 			{
 				CmlRuntime.logger().fine("----------------observable step by '"
-						+ topProcess + "'----------------------");
-				CmlRuntime.logger().fine("Observable trace of '" + topProcess
+						+ behaviour + "'----------------------");
+				CmlRuntime.logger().fine("Observable trace of '" + behaviour
 						+ "': " + trace.getObservableTrace());
 				CmlRuntime.logger().fine("Eval. Status={ "
-						+ topProcess.nextStepToString() + " }");
+						+ behaviour.nextStepToString() + " }");
 				CmlRuntime.logger().fine("-----------------------------------------------------------------");
 			} else
 			{
 				CmlRuntime.logger().finer("----------------Silent step by '"
-						+ topProcess + "'--------------------");
-				CmlRuntime.logger().finer("Trace of '" + topProcess + "': "
+						+ behaviour + "'--------------------");
+				CmlRuntime.logger().finer("Trace of '" + behaviour + "': "
 						+ trace);
 				CmlRuntime.logger().finer("Eval. Status={ "
-						+ topProcess.nextStepToString() + " }");
+						+ behaviour.nextStepToString() + " }");
 				CmlRuntime.logger().finer("-----------------------------------------------------------------");
 			}
 
 		}
 
-		if (topProcess.deadlocked())
+		if (behaviour.deadlocked())
 		{
 			setNewState(CmlInterpreterState.DEADLOCKED);
 			Console.err.println("DEADLOCKED");
 			if (suspendBeforeTermination())
+			{
 				synchronized (suspendObject)
 				{
 					this.suspendObject.wait();
 				}
-		} else if (!topProcess.finished())
+			}
+		} else if (!behaviour.finished())
+		{
 			setNewState(CmlInterpreterState.TERMINATED_BY_USER);
-		else
+		} else
+		{
 			setNewState(CmlInterpreterState.FINISHED);
+		}
 
 	}
 
@@ -316,7 +354,9 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	{
 		activeBP = findActiveBreakpoint(selectedEvent);
 		if (activeBP != null || stepping)
+		{
 			setNewState(CmlInterpreterState.SUSPENDED);
+		}
 	}
 
 	private Breakpoint findActiveBreakpoint(CmlTransition selectedEvent)
@@ -328,7 +368,9 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		{
 			ILexLocation loc = LocationExtractor.extractLocation(b.getNextState().first);
 			if (loc == null)
+			{
 				continue;
+			}
 			String key = loc.getFile().toURI().toString() + ":"
 					+ loc.getStartLine();
 			if (this.breakpoints.containsKey(key))
@@ -365,6 +407,8 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		List<String> largs = Arrays.asList(args);
 		List<File> filenames = new Vector<File>();
 		String processName = null;
+		String remoteClass = null;
+		SelectionStrategy selectionStrategy = new ConsoleSelectionStrategy();
 
 		for (Iterator<String> i = largs.iterator(); i.hasNext();)
 		{
@@ -377,6 +421,21 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 				} else
 				{
 					usage("-process option requires a process name");
+				}
+			} else if (arg.equals("-animate"))
+			{
+				selectionStrategy = new AnnimationStrategy();
+			} else if (arg.equals("-simulate"))
+			{
+				selectionStrategy = new RandomSelectionStrategy();
+			} else if (arg.equals("-remote"))
+			{
+				if (i.hasNext())
+				{
+					remoteClass = i.next();
+				} else
+				{
+					usage("-remote option requires a fully qualified java class name");
 				}
 			} else if (arg.startsWith("-"))
 			{
@@ -409,12 +468,13 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			}
 		}
 
-		runOnFile(processName, filenames.toArray(new File[filenames.size()]));
+		execute(selectionStrategy, processName, filenames.toArray(new File[filenames.size()]));
 
 	}
 
-	private static void runOnFile(String processName, File... f)
-			throws IOException, CmlInterpreterException
+	private static void execute(SelectionStrategy selectionStrategy,
+			String processName, File... f) throws IOException,
+			CmlInterpreterException
 	{
 		ParserResult res = ParserUtil.parse(f);
 
@@ -460,10 +520,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		{
 			CmlRuntime.logger().setLevel(Level.FINEST);
 			interpreter.initialize();
-			// cmlInterp.execute(new RandomSelectionStrategy());
-			ConsoleSelectionStrategy ss = new ConsoleSelectionStrategy();
-			// ss.setHideSilentTransitions(false);
-			interpreter.execute(ss);
+			interpreter.execute(selectionStrategy);
 		} catch (ValueException e)
 		{
 			System.out.println("With Error : " + e);
@@ -487,27 +544,27 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	{
 		System.err.println("COMPASS: " + msg + "\n");
 		System.err.println("Usage: COMPASS <-process> [<options>] [<files or dirs>]");
-//		System.err.println("-vdmsl: parse files as VDM-SL");
-//		System.err.println("-vdmpp: parse files as VDM++");
-//		System.err.println("-vdmrt: parse files as VDM-RT");
-//		System.err.println("-path: search path for files");
-//		System.err.println("-r <release>: VDM language release");
-//		System.err.println("-w: suppress warning messages");
-//		System.err.println("-q: suppress information messages");
-//		System.err.println("-i: run the interpreter if successfully type checked");
-//		System.err.println("-p: generate proof obligations and stop");
-//		System.err.println("-e <exp>: evaluate <exp> and stop");
-//		System.err.println("-c <charset>: select a file charset");
-//		System.err.println("-t <charset>: select a console charset");
-//		System.err.println("-o <filename>: saved type checked specification");
-//		System.err.println("-default <name>: set the default module/class");
-//		System.err.println("-pre: disable precondition checks");
-//		System.err.println("-post: disable postcondition checks");
-//		System.err.println("-inv: disable type/state invariant checks");
-//		System.err.println("-dtc: disable all dynamic type checking");
-//		System.err.println("-measures: disable recursive measure checking");
-//		System.err.println("-log: enable real-time event logging");
-//		System.err.println("-remote <class>: enable remote control");
+		System.err.println("-animate: use the animation strategy");
+		System.err.println("-simulate: use the simulation strategy that autoselects events");
+		System.err.println("-remote: use a remote interpreter as selection strategy");
+		// System.err.println("-path: search path for files");
+		// System.err.println("-r <release>: VDM language release");
+		// System.err.println("-w: suppress warning messages");
+		// System.err.println("-q: suppress information messages");
+		// System.err.println("-i: run the interpreter if successfully type checked");
+		// System.err.println("-p: generate proof obligations and stop");
+		// System.err.println("-e <exp>: evaluate <exp> and stop");
+		// System.err.println("-c <charset>: select a file charset");
+		// System.err.println("-t <charset>: select a console charset");
+		// System.err.println("-o <filename>: saved type checked specification");
+		// System.err.println("-default <name>: set the default module/class");
+		// System.err.println("-pre: disable precondition checks");
+		// System.err.println("-post: disable postcondition checks");
+		// System.err.println("-inv: disable type/state invariant checks");
+		// System.err.println("-dtc: disable all dynamic type checking");
+		// System.err.println("-measures: disable recursive measure checking");
+		// System.err.println("-log: enable real-time event logging");
+		// System.err.println("-remote <class>: enable remote control");
 
 		System.exit(1);
 	}

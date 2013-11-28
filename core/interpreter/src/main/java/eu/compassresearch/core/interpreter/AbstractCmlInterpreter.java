@@ -3,6 +3,11 @@ package eu.compassresearch.core.interpreter;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.lex.Dialect;
+import org.overture.config.Release;
+import org.overture.config.Settings;
+
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
 import eu.compassresearch.core.interpreter.api.SelectionStrategy;
@@ -79,6 +84,13 @@ abstract class AbstractCmlInterpreter implements CmlInterpreter
 	{
 
 		return stateChangedEventHandler;
+	}
+
+	@Override
+	public void initialize() throws AnalysisException
+	{
+		Settings.dialect = Dialect.VDM_PP;
+		Settings.release = Release.VDM_10;
 	}
 
 	// Breakpoints
