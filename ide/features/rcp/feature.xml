@@ -2,7 +2,7 @@
 <feature
     id="eu.compassresearch.ide.features.rcp"
     label="Symphony IDE RCP"
-    version="0.2.3.qualifier">
+    version="0.2.4">
 
   <description>
     %description
