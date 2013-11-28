@@ -298,8 +298,8 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 		} else
 		{
 			// evaluate the left in the context of the left child
-			ChannelNameSetValue leftChanset = (ChannelNameSetValue) node.getLeftChansetExpression().apply(cmlExpressionVisitor, owner.getLeftChild().getNextState().second);
-			ChannelNameSetValue rightChanset = (ChannelNameSetValue) node.getRightChansetExpression().apply(cmlExpressionVisitor, owner.getRightChild().getNextState().second);
+			ChannelNameSetValue leftChanset = eval( node.getLeftChansetExpression(), owner.getLeftChild().getNextState().second);
+			ChannelNameSetValue rightChanset = eval(node.getRightChansetExpression(), owner.getRightChild().getNextState().second);
 
 			ChannelNameSetValue intersectionChanset = new ChannelNameSetValue(leftChanset);
 			intersectionChanset.retainAll(rightChanset);

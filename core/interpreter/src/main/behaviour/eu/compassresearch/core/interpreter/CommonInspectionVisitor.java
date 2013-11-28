@@ -35,6 +35,8 @@ import eu.compassresearch.core.interpreter.api.transitions.ObservableTransition;
 import eu.compassresearch.core.interpreter.api.transitions.TimedTransition;
 import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
+import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
+import eu.compassresearch.core.interpreter.api.values.NamesetValue;
 import eu.compassresearch.core.interpreter.utility.LocationExtractor;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
@@ -285,7 +287,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 	{
 
 		// convert the channel set of the current node to a alphabet
-		ChannelNameSetValue cs = (ChannelNameSetValue) chansetExp.apply(cmlExpressionVisitor, question);
+		ChannelNameSetValue cs = eval( chansetExp, question);
 
 		// Get all the child alphabets and add the events that are not in the channelset
 		final CmlBehaviour leftChild = owner.getLeftChild();
@@ -383,6 +385,21 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			}
 		};
 	}
+	
+	@SuppressWarnings("rawtypes")
+	protected ChannelNameSetValue eval(PVarsetExpression chansetExpression,Context question) throws AnalysisException
+	{
+		Value val = chansetExpression.apply(cmlExpressionVisitor, question);
+		if(val instanceof ChannelNameSetValue)
+		{
+			return (ChannelNameSetValue) val;
+		}else if(val instanceof Set && ((Set)val).isEmpty())
+		{
+			return new ChannelNameSetValue(new HashSet<ChannelNameValue>());
+		}
+		
+		throw new CmlInterpreterException(chansetExpression, InterpretationErrorMessages.FATAL_ERROR.customizeMessage("Failed to evaluate chanset expression"));
+	}
 
 	/**
 	 * Common Hiding handler methods
@@ -397,7 +414,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		if (!owner.getLeftChild().finished())
 		{
 			// first we convert the channelset expression into a channelNameSetValue
-			ChannelNameSetValue cs = (ChannelNameSetValue) chansetExpression.apply(cmlExpressionVisitor, question);
+			ChannelNameSetValue cs = eval( chansetExpression, question);
 			// next we inspect the action to get the current available transitions
 			final CmlTransitionSet alpha = owner.getLeftChild().inspect();
 			// Intersect the two to find which transitions should be converted to silents transitions
