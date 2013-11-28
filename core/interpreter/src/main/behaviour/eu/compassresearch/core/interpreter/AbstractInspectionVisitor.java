@@ -27,7 +27,6 @@ import eu.compassresearch.core.interpreter.api.transitions.TauTransition;
 import eu.compassresearch.core.interpreter.api.transitions.TimedTransition;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
-@SuppressWarnings("serial")
 public class AbstractInspectionVisitor extends
 		QuestionAnswerCMLAdaptor<Context, Inspection>
 {
