@@ -19,6 +19,7 @@ import org.overture.interpreter.values.NameValuePairList;
 import org.overture.interpreter.values.NameValuePairMap;
 import org.overture.interpreter.values.Value;
 
+import eu.compassresearch.ast.CmlAstFactory;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.PParametrisation;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
@@ -51,7 +52,6 @@ import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
 import eu.compassresearch.core.interpreter.api.values.ProcessObjectValue;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
-@SuppressWarnings("serial")
 public class ProcessInspectionVisitor extends CommonInspectionVisitor
 {
 	public ProcessInspectionVisitor(CmlBehaviour ownerProcess,
@@ -86,7 +86,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 				AProcessDefinition processDef;
 
 				NameValuePairMap valueMap = new NameValuePairMap();
-				
+
 				// We have a named process
 				if (node.parent() instanceof AProcessDefinition)
 				{
@@ -94,9 +94,13 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 					if (processDef.getLocalState().size() > 0)
 					{
 						for (Entry<ILexNameToken, Value> entry : question.entrySet())
-							//valueMap.putNew(new NameValuePair(entry.getKey().getModifiedName(processDef.getName().getSimpleName()), entry.getValue()));
+						{
+							// valueMap.putNew(new
+							// NameValuePair(entry.getKey().getModifiedName(processDef.getName().getSimpleName()),
+							// entry.getValue()));
 							valueMap.putNew(new NameValuePair(entry.getKey().getModifiedName(node.getActionDefinition().getName().getSimpleName()), entry.getValue()));
-							
+						}
+
 					}
 				}
 				// Unnamed process
@@ -122,13 +126,17 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 						}
 					}
 				}
-				
+
 				// Create a temporary context to evaluate the definitions in
 				Context tmpContext = null;
+				AProcessDefinition processDefinition = node.getAncestor(AProcessDefinition.class);
 				if (question.title.equals(CmlContextFactory.PARAMETRISED_PROCESS_CONTEXT_NAME))
-					tmpContext = CmlContextFactory.newObjectContext(node.getLocation(), "Tmp Action Process Context", question.outer, new ProcessObjectValue(node.getActionDefinition(), valueMap, null, null));
-				else
-					tmpContext = CmlContextFactory.newObjectContext(node.getLocation(), "Tmp Action Process Context", question, new ProcessObjectValue(node.getActionDefinition(), valueMap, null, null));
+				{
+					tmpContext = CmlContextFactory.newObjectContext(node.getLocation(), "Tmp Action Process Context", question.outer, new ProcessObjectValue(processDefinition,node.getActionDefinition(), valueMap, null, null));
+				} else
+				{
+					tmpContext = CmlContextFactory.newObjectContext(node.getLocation(), "Tmp Action Process Context", question, new ProcessObjectValue(processDefinition,node.getActionDefinition(), valueMap, null, null));
+				}
 
 				// Evaluate and add paragraph definitions and add the result to the state
 				PExp processInv = null;
@@ -143,7 +151,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 					NameValuePairList nvps = def.apply(cmlDefEvaluator, tmpContext);
 					tmpContext.putList(nvps);
 
-					//set the correct module on the member names
+					// set the correct module on the member names
 					for (NameValuePair nvp : nvps)
 					{
 						ILexNameToken name = nvp.name.getModifiedName(node.getActionDefinition().getName().getSimpleName());
@@ -151,19 +159,21 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 					}
 				}
 
-				ProcessObjectValue self = new ProcessObjectValue(node.getActionDefinition(), valueMap, question.getSelf(), processInv);
+				ProcessObjectValue self = new ProcessObjectValue(processDefinition,node.getActionDefinition(), valueMap, question.getSelf(), processInv);
 				ObjectContext processObjectContext = null;
 
-				// If params si defined in the above context them we need to add them to the created processContext
+				// If params is defined in the above context them we need to add them to the created processContext
 				// since it cannot look above that, meaning they won't be visible if we don't
 				if (question.title.equals(CmlContextFactory.PARAMETRISED_PROCESS_CONTEXT_NAME))
 				{
 					processObjectContext = CmlContextFactory.newObjectContext(node.getLocation(), "Action Process Context", question.outer, self);
 				} else
+				{
 					processObjectContext = CmlContextFactory.newObjectContext(node.getLocation(), "Action Process Context", question, self);
+				}
 
 				// push this node onto the execution stack again since this should execute
-				// the action behaviour until it terminates
+				// the action behavior until it terminates
 				return new Pair<INode, Context>(node.getAction(), processObjectContext);
 			}
 		});
@@ -191,11 +201,11 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 						CmlTransition selectedTransition)
 						throws AnalysisException
 				{
-					setLeftChild(node.getLeft(),new CmlLexNameToken(name().getModule(), name().getIdentifier().getName()
-							+ "[]", node.getLeft().getLocation()) ,question);
+					setLeftChild(node.getLeft(), new CmlLexNameToken(name().getModule(), name().getIdentifier().getName()
+							+ "[]", node.getLeft().getLocation()), question);
 
 					setRightChild(node.getRight(), new CmlLexNameToken(name().getModule(), "[]"
-							+ name().getIdentifier().getName(), node.getRight().getLocation()) ,question);
+							+ name().getIdentifier().getName(), node.getRight().getLocation()), question);
 					// Now let this process wait for the children to get into a waitForEvent state
 					return new Pair<INode, Context>(node, question);
 				}
@@ -233,9 +243,12 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 							// first we execute the child
 							child.execute(selectedTransition);
 							if (selectedTransition instanceof LabelledTransition)
+							{
 								return replaceWithChild(child);
-							else
+							} else
+							{
 								return new Pair<INode, Context>(node, question);
+							}
 						}
 					}
 
@@ -280,8 +293,8 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 		// the process has children and must now handle either termination or event sync
 		else if (CmlBehaviourUtility.isAllChildrenFinished(owner))
 		{
-			ASkipAction dstNode = new ASkipAction(node.getLocation());
-			return newInspection(createTauTransitionWithTime(dstNode, "End"), caseParallelEnd(dstNode,question));
+			ASkipAction dstNode = CmlAstFactory.newASkipAction(node.getLocation());
+			return newInspection(createTauTransitionWithTime(dstNode, "End"), caseParallelEnd(dstNode, question));
 		} else
 		{
 			// evaluate the left in the context of the left child
@@ -316,7 +329,9 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 
 						if (leftChannelEvent.getChannelName().isGTEQPrecise(rightChannelEvent.getChannelName())
 								|| rightChannelEvent.getChannelName().isGTEQPrecise(leftChannelEvent.getChannelName()))
+						{
 							syncEvents.add(leftTrans.synchronizeWith(rightTrans));
+						}
 					}
 				}
 			}
@@ -349,8 +364,10 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 					{
 						owner.getRightChild().execute(selectedTransition);
 					} else
+					{
 						// Something went wrong here
 						throw new CmlInterpreterException(node, InterpretationErrorMessages.FATAL_ERROR.customizeMessage(""));
+					}
 
 					// We push the current state,
 					return new Pair<INode, Context>(node, question);
@@ -408,7 +425,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 		// the process has children and must now handle either termination or event sync
 		else if (CmlBehaviourUtility.isAllChildrenFinished(owner))
 		{
-			ASkipAction dstNode = new ASkipAction(node.getLocation());
+			ASkipAction dstNode = CmlAstFactory.newASkipAction(node.getLocation());
 			return newInspection(createTauTransitionWithTime(dstNode, "End"), caseParallelEnd(dstNode, question));
 
 		} else
@@ -437,15 +454,17 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 			throws AnalysisException
 	{
 		if (left == null || right == null)
+		{
 			throw new InterpreterRuntimeException(InterpretationErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName()));
+		}
 
 		ILexNameToken name = owner.name();
 		// TODO: create a local copy of the question state for each of the actions
 		// add the children to the process graph
-		setLeftChild(left,new CmlLexNameToken(name.getModule(), name.getIdentifier().getName()
-				+ operatorsign, left.getLocation()),question);
-		setRightChild(right,new CmlLexNameToken(name.getModule(), operatorsign
-				+ name.getIdentifier().getName(), right.getLocation()),question);
+		setLeftChild(left, new CmlLexNameToken(name.getModule(), name.getIdentifier().getName()
+				+ operatorsign, left.getLocation()), question);
+		setRightChild(right, new CmlLexNameToken(name.getModule(), operatorsign
+				+ name.getIdentifier().getName(), right.getLocation()), question);
 	}
 
 	@Override

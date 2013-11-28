@@ -26,6 +26,7 @@ import org.overture.interpreter.values.NameValuePairMap;
 import org.overture.interpreter.values.UpdatableValue;
 import org.overture.interpreter.values.Value;
 
+import eu.compassresearch.ast.CmlAstFactory;
 import eu.compassresearch.ast.actions.ACallAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.ADivAction;
@@ -73,13 +74,11 @@ import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
 import eu.compassresearch.core.interpreter.api.values.ExpressionConstraint;
 import eu.compassresearch.core.interpreter.api.values.LatticeTopValue;
-import eu.compassresearch.core.interpreter.api.values.NamesetValue;
 import eu.compassresearch.core.interpreter.api.values.NoConstraint;
 import eu.compassresearch.core.interpreter.api.values.UnresolvedExpressionValue;
 import eu.compassresearch.core.interpreter.api.values.ValueConstraint;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
-@SuppressWarnings("serial")
 public class ActionInspectionVisitor extends CommonInspectionVisitor
 {
 
@@ -128,8 +127,8 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 	}
 
 	@Override
-	public Inspection caseACallAction(final ACallAction node, final Context question)
-			throws AnalysisException
+	public Inspection caseACallAction(final ACallAction node,
+			final Context question) throws AnalysisException
 	{
 		final Value value = lookupName(node.getName(), question);
 		if (value instanceof ActionValue)
@@ -151,48 +150,51 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 			});
 
 		} else
+		{
 			throw new CmlInterpreterException(node, InterpretationErrorMessages.FATAL_ERROR.customizeMessage());
+		}
 	}
-	
-//	/**
-//	 * This deals both with calls but also parametrised action reference, since the typechecker does not replace this
-//	 * node yet FIXME This might be changed! if the typechecker replaces the call node with a action reference node
-//	 */
-//	@Override
-//	public Inspection caseACallStm(final ACallStm node, final Context question)
-//			throws AnalysisException
-//	{
-//
-//		if (!owner.hasChildren())
-//		{
-//			final Value value = lookupName(node.getName(), question);
-//			if (value instanceof CmlOperationValue)
-//				return node.apply(statementInspectionVisitor, question);
-//			else if (value instanceof ActionValue)
-//			{
-//				// first find the action value in the context
-//				final ActionValue actionVal = (ActionValue) value;
-//
-//				return newInspection(createTauTransitionWithoutTime(actionVal.getActionDefinition().getAction(), null), new AbstractCalculationStep(owner, visitorAccess)
-//				{
-//
-//					@Override
-//					public Pair<INode, Context> execute(
-//							CmlTransition selectedTransition)
-//							throws AnalysisException
-//					{
-//
-//						return caseReferenceAction(node.getLocation(), node.getArgs(), actionVal, question);
-//					}
-//				});
-//
-//			} else
-//				throw new CmlInterpreterException(node, InterpretationErrorMessages.FATAL_ERROR.customizeMessage());
-//		} else
-//		{
-//			return node.apply(statementInspectionVisitor, question);
-//		}
-//	}
+
+	// /**
+	// * This deals both with calls but also parametrised action reference, since the typechecker does not replace this
+	// * node yet FIXME This might be changed! if the typechecker replaces the call node with a action reference node
+	// */
+	// @Override
+	// public Inspection caseACallStm(final ACallStm node, final Context question)
+	// throws AnalysisException
+	// {
+	//
+	// if (!owner.hasChildren())
+	// {
+	// final Value value = lookupName(node.getName(), question);
+	// if (value instanceof CmlOperationValue)
+	// return node.apply(statementInspectionVisitor, question);
+	// else if (value instanceof ActionValue)
+	// {
+	// // first find the action value in the context
+	// final ActionValue actionVal = (ActionValue) value;
+	//
+	// return newInspection(createTauTransitionWithoutTime(actionVal.getActionDefinition().getAction(), null), new
+	// AbstractCalculationStep(owner, visitorAccess)
+	// {
+	//
+	// @Override
+	// public Pair<INode, Context> execute(
+	// CmlTransition selectedTransition)
+	// throws AnalysisException
+	// {
+	//
+	// return caseReferenceAction(node.getLocation(), node.getArgs(), actionVal, question);
+	// }
+	// });
+	//
+	// } else
+	// throw new CmlInterpreterException(node, InterpretationErrorMessages.FATAL_ERROR.customizeMessage());
+	// } else
+	// {
+	// return node.apply(statementInspectionVisitor, question);
+	// }
+	// }
 
 	/**
 	 * Synchronization and Communication D23.2 7.5.2 This transition can either be Simple prefix : a -> A
@@ -233,13 +235,18 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 						valueExp = new UnresolvedExpressionValue(p.getExpression(), question);
 					}
 				} else
+				{
 					valueExp = p.getExpression().apply(cmlExpressionVisitor, question);
+				}
 				// Deref the variable if updatable since this could
 				// change the trace at a latter point
 				if (valueExp instanceof UpdatableValue)
+				{
 					values.add(valueExp.deref());
-				else
+				} else
+				{
 					values.add(valueExp);
+				}
 				constraints.add(new NoConstraint());
 			} else if (p instanceof AReadCommunicationParameter)
 			{
@@ -253,7 +260,9 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 					Context constraintContext = CmlContextFactory.newContext(p.getLocation(), "Constraint evaluation context", question);
 					constraints.add(new ExpressionConstraint(readParam, constraintContext));
 				} else
+				{
 					constraints.add(new NoConstraint());
+				}
 
 				hasLooseValue = true;
 			}
@@ -290,7 +299,9 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 							 * matter the number of params so we check for equality.
 							 */
 							if (nextContext == question)
+							{
 								nextContext = CmlContextFactory.newContext(node.getAction().getLocation(), "input communication context", question);
+							}
 
 							nextContext.putList(PPatternAssistantInterpreter.getNamedValues(pattern, value, nextContext));
 						}
@@ -361,13 +372,17 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 		// question);
 		// varsetContext.putNew(new NameValuePair(NamespaceUtility.getVarExpContextName(), new BooleanValue(true)));
 
-		NamesetValue leftNamesetValue = null;
-		NamesetValue rightNamesetValue = null;
+		// NamesetValue leftNamesetValue = null;
+		// NamesetValue rightNamesetValue = null;
 
 		if (node.getLeftNamesetExpression() != null)
-			leftNamesetValue = (NamesetValue) node.getLeftNamesetExpression().apply(cmlExpressionVisitor, question);
+		{
+			/* leftNamesetValue = (NamesetValue) */node.getLeftNamesetExpression().apply(cmlExpressionVisitor, question);
+		}
 		if (node.getRightNamesetExpression() != null)
-			rightNamesetValue = (NamesetValue) node.getRightNamesetExpression().apply(cmlExpressionVisitor, question);
+		{
+			/* rightNamesetValue = (NamesetValue) */node.getRightNamesetExpression().apply(cmlExpressionVisitor, question);
+		}
 
 		// if true this means that this is the first time here, so the Parallel Begin rule is invoked.
 		if (!owner.hasChildren())
@@ -392,7 +407,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 		// the process has children and must now handle either termination or event sync
 		else if (CmlBehaviourUtility.isAllChildrenFinished(owner))
 		{
-			ASkipAction dstNode = new ASkipAction(node.getLocation());
+			ASkipAction dstNode = CmlAstFactory.newASkipAction(node.getLocation());
 			return newInspection(createTauTransitionWithoutTime(dstNode, "End"), caseParallelEnd(dstNode, question));
 		} else
 		{
@@ -481,11 +496,13 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 
 					PAction action = node.getActions().get(i);
 
-					AActionDefinition actionDef = new AActionDefinition(node.getLocation(), NameScope.LOCAL, true, null, Pass.DEFS, null, action);
+					AActionDefinition actionDef = CmlAstFactory.newAActionDefinition(node.getLocation(), NameScope.LOCAL, true, null, Pass.DEFS, null, action);
 
 					nvpl.add(new NameValuePair(name, new ActionValue(actionDef)));
 					if (i == 0)
+					{
 						res = new Pair<INode, Context>(action, muContext);
+					}
 				}
 
 				muContext.putAllNew(nvpl);
@@ -528,10 +545,13 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 
 		// if the gaurd is true then we return the silent transition to the guarded action
 		if (guardExp.boolValue(question))
+		{
 			alpha = createTauTransitionWithTime(node.getAction());
-		// else we return the empty alphabet since no transition is possible
-		else
+			// else we return the empty alphabet since no transition is possible
+		} else
+		{
 			alpha = new CmlTransitionSet(new TimedTransition(owner));
+		}
 
 		return newInspection(alpha, new CmlCalculationStep()
 		{
@@ -624,8 +644,9 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 
 			// Decide whether the argument is updateable or not
 			if (parameterization instanceof AValParametrisation)
+			{
 				value = value.getConstant();
-			else
+			} else
 			{
 				value = value.getUpdatable(null);
 			}
@@ -664,7 +685,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 		// return newInspection(new CmlAlphabet(new CmlTock(owner)),null);
 		return newInspection(new CmlTransitionSet(), null);
 	}
-	
+
 	@Override
 	public Inspection caseASkipStm(ASkipStm node, Context question)
 			throws AnalysisException
@@ -705,8 +726,8 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 	}
 
 	@Override
-	public Inspection caseAWaitAction(final AWaitAction node, final Context question)
-			throws AnalysisException
+	public Inspection caseAWaitAction(final AWaitAction node,
+			final Context question) throws AnalysisException
 	{
 
 		// Evaluate the expression into a natural number
@@ -716,7 +737,8 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 
 		// If the number of tocks exceeded val then we make a silent transition that ends the delay process
 		if (nTocks >= val)
-			return newInspection(createTauTransitionWithTime(new ASkipAction(node.getLocation()), "Wait ended"), new CmlCalculationStep()
+		{
+			return newInspection(createTauTransitionWithTime(CmlAstFactory.newASkipAction(node.getLocation()), "Wait ended"), new CmlCalculationStep()
 			{
 
 				@Override
@@ -725,13 +747,15 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 						throws AnalysisException
 				{
 					// We need to remove the added context from the setup visitor
-					return new Pair<INode, Context>(new ASkipAction(node.getLocation()), question.outer);
+					return new Pair<INode, Context>(CmlAstFactory.newASkipAction(node.getLocation()), question.outer);
 				}
 			});
-		else
+		} else
+		{
 			// If the number of tocks has not exceeded val then behave as Stop
 			return newInspection(new CmlTransitionSet(new TimedTransition(owner, val
 					- nTocks)), null);
+		}
 	}
 
 	/**
