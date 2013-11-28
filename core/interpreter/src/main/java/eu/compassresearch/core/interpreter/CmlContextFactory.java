@@ -1,15 +1,18 @@
 package eu.compassresearch.core.interpreter;
 
 import org.overture.ast.intf.lex.ILexLocation;
-import org.overture.interpreter.assistant.InterpreterAssistantFactory;
+import org.overture.interpreter.assistant.IInterpreterAssistantFactory;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ObjectContext;
 import org.overture.interpreter.runtime.StateContext;
 import org.overture.interpreter.values.CPUValue;
 import org.overture.interpreter.values.ObjectValue;
 
+import eu.compassresearch.core.interpreter.assistant.CmlInterpreterAssistantFactory;
+
 class CmlContextFactory
 {
+	final static IInterpreterAssistantFactory factory = new CmlInterpreterAssistantFactory();
 
 	public static final String PARAMETRISED_PROCESS_CONTEXT_NAME = "Parametrised process context";
 
@@ -27,7 +30,7 @@ class CmlContextFactory
 	public static Context newContext(ILexLocation location, String title,
 			Context outer)
 	{
-		Context context = new Context(new InterpreterAssistantFactory(), location, title, outer);
+		Context context = new Context(factory, location, title, outer);
 		context.setThreadState(null, CPUValue.vCPU);
 		return context;
 	}
@@ -46,7 +49,7 @@ class CmlContextFactory
 	public static ObjectContext newObjectContext(ILexLocation location,
 			String title, Context outer, ObjectValue self)
 	{
-		ObjectContext objectContext = new ObjectContext(new InterpreterAssistantFactory(), location, title, outer, self);
+		ObjectContext objectContext = new ObjectContext(factory, location, title, outer, self);
 		objectContext.setThreadState(null, CPUValue.vCPU);
 		return objectContext;
 	}
@@ -54,7 +57,7 @@ class CmlContextFactory
 	public static StateContext newStateContext(ILexLocation location,
 			String title)
 	{
-		StateContext stateContext = new StateContext(new InterpreterAssistantFactory(), location, title);
+		StateContext stateContext = new StateContext(factory, location, title);
 		stateContext.setThreadState(null, CPUValue.vCPU);
 		return stateContext;
 	}
