@@ -499,7 +499,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 					throws AnalysisException
 			{
 
-				ObjectValue classValue = CmlValueFactory.createClassValue(node, question);
+				ObjectValue classValue = null;//FIXME CmlValueFactory.createClassValue(node, question);
 				Context ctorContext = CmlContextFactory.newObjectContext(node.getLocation(), "Class Constructor context", question, classValue);
 				Value oldVal = node.getDestination().apply(cmlExpressionVisitor, question);
 				oldVal.set(node.getLocation(), classValue, question);
