@@ -1159,7 +1159,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseAFatCompVarsetExpression(AFatCompVarsetExpression node)
 			throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAFatCompVarsetExpression(node);
@@ -3129,7 +3129,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseATypeMultipleBind(ATypeMultipleBind node)
 			throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseATypeMultipleBind(node);

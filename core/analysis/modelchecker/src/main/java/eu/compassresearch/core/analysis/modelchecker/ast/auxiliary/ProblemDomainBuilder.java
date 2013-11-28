@@ -50,7 +50,8 @@ public class ProblemDomainBuilder {
 		
 		
 		//generate all facts related to set manipulation (required by the toolkit)
-		generateSetFacts(content,option);
+		//some facts have (formula) dependencies. They need to be handled
+		//generateSetFacts(content,option);
 		
 		//generate conforms clause
 		generateConforms(content,option);
@@ -137,7 +138,7 @@ public class ProblemDomainBuilder {
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 		for (MCASBinaryExp setExp : context.setExpressioFacts) {
 			content.append(setExp.toFormula(option));
-			content.append("\n");
+			content.append(".\n");
 		}
 	}
 	
