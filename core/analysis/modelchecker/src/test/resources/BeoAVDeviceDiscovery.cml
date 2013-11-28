@@ -12,9 +12,9 @@
     targetBroadcastTime : nat = 2 -- timout for the targte product  these values can be used for playing with the wait time for the processes
     ServiceCallDataERROR:ServiceCallData = 0  -- error return value to the application layer
   
---  functions
---   IsDeviceInSet:Device_Record * set of Device_Record ->bool -- helper function 
---   IsDeviceInSet(d, s)== d not in set s   
+ functions
+   IsDeviceInSet : Device_Record * (set of Device_Record) -> bool -- helper function 
+   IsDeviceInSet(d, s) == d in set s   
   
   channels 
 --- channels for the DD and SD part of the SoS
@@ -63,15 +63,13 @@
 	     
 	     updateProductSet:Device_Record ==> () -- add device to the set, if the pre condition holds
 	     updateProductSet(dr)== product_DRs := product_DRs union {dr}  
-	     -- pre dr not in set product_DRs
-	     -- post dr in set product_DRs 
 	      
 	  
 	  actions
-		  Off_State = resetProductSet(); TargetProductPowerChannel.<POWER_ON>->On_State -- the product if off== not visable in the network
-		  -- On_State = Start_Discovery_State  /_\(TargetProductPowerChannel.<POWER_OFF>->Off_State) -- product on = try finding other B&O product. in this state the product can be power of by a user event
-		  -- Start_Discovery_State = (DD_SD_Discovery_State ; Wait(targetBroadcastTime) ; Start_Discovery_State)--run the Discovery logic 
-		  -- DD_SD_Discovery_State =  (IPMulticastChannel?pr->if not IsDeviceInSet(pr,product_DRs) then updateProductSet(pr); Skip )[_ timeout _> (Skip) 		                     
+		  Off_State = resetProductSet(); TargetProductPowerChannel.<POWER_ON>-> On_State -- the product if off== not visable in the network
+		  On_State = Start_Discovery_State  /_\ (TargetProductPowerChannel.<POWER_OFF> -> Off_State) -- product on = try finding other B&O product. in this state the product can be power of by a user event
+		  Start_Discovery_State = DD_SD_Discovery_State ; Start_Discovery_State --run the Discovery logic 
+		  DD_SD_Discovery_State =  IPMulticastChannel?pr -> (if IsDeviceInSet(pr,product_DRs) then updateProductSet(pr) else Skip; Skip)  [_> Skip 		                     
     @ Off_State                     -- simulate IP multicast logic using timeouts
   end	
    

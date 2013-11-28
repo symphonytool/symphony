@@ -15,8 +15,8 @@ public class NewMCPosGuardDef extends NewMCGuardDef{
 	public String toFormula(String option) {
 
 		StringBuilder result = new StringBuilder();
-		result.append("  guardDef("+ this.counterId +","+ max.toFormula(option)+")");
-		result.append(" :- State(" + max.toFormula(MCNode.GENERIC) + "," + parentStm.toFormula(MCNode.DEFAULT) + ")");
+		result.append("  guardDef("+ this.counterId +","+ max.toFormula(NAMED)+")");
+		result.append(" :- State(" + max.toFormula(MCNode.NAMED) + "," + parentStm.toFormula(MCNode.DEFAULT) + ")");
 		if(!ExpressionEvaluator.getInstance().canEvaluate(condition)){
 			result.append(",");
 			result.append(condition.toFormula(option));

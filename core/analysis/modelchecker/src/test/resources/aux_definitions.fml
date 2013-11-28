@@ -8,7 +8,7 @@
 	
     primitive Set           ::= (SetType).   
     EmptySet                ::= {emptySet}.     
-    primitive NonEmptySet   ::= (head:Type,tail:SetType).     
+    NonEmptySet   			::= (head:Type,tail:SetType).     
     SetType                 ::= EmptySet + NonEmptySet.  //This captures the notion of any set contains the empty set
     DerivableSet            ::= (SetType). 
 

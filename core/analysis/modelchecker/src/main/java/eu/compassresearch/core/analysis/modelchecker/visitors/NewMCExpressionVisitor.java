@@ -13,6 +13,7 @@ import org.overture.ast.expressions.AIntLiteralExp;
 import org.overture.ast.expressions.ALessEqualNumericBinaryExp;
 import org.overture.ast.expressions.ALessNumericBinaryExp;
 import org.overture.ast.expressions.ANotEqualBinaryExp;
+import org.overture.ast.expressions.ANotInSetBinaryExp;
 import org.overture.ast.expressions.ANotUnaryExp;
 import org.overture.ast.expressions.APlusNumericBinaryExp;
 import org.overture.ast.expressions.AQuoteLiteralExp;
@@ -49,12 +50,14 @@ import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCALessEqua
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCALessNumericBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANameChannelExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANotEqualsBinaryExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANotInSetBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANotUnaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAPlusNumericBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAQuoteLiteralExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASeqEnumSeqExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASetEnumSetExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASetRangeSetExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASetUnionBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASubtractNumericBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCATimesNumericBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAUndefinedExp;
@@ -431,8 +434,25 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 	@Override
 	public MCNode caseASetUnionBinaryExp(ASetUnionBinaryExp node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
+		MCPCMLExp left = (MCPCMLExp) node.getLeft().apply(rootVisitor,question);
+		MCPCMLExp right = (MCPCMLExp) node.getRight().apply(rootVisitor,question);
 		
-		return super.caseASetUnionBinaryExp(node, question);
+		MCASetUnionBinaryExp result = new MCASetUnionBinaryExp(left, right);
+		
+		return result;
+	}
+
+	
+
+	@Override
+	public MCNode caseANotInSetBinaryExp(ANotInSetBinaryExp node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		
+		MCPCMLExp left = (MCPCMLExp) node.getLeft().apply(rootVisitor, question);
+		MCPCMLExp right = (MCPCMLExp) node.getRight().apply(rootVisitor, question);
+		MCANotInSetBinaryExp result = new MCANotInSetBinaryExp(left, right);
+		
+		return result;
 	}
 
 

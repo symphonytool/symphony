@@ -10,6 +10,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAExplicit
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAProcessDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAValueDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCSCmlOperationDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 
@@ -47,6 +48,10 @@ public class ProblemDomainBuilder {
 		//generate iocom defs
 		generateIOCommDefs(content,option);
 		
+		
+		//generate all facts related to set manipulation (required by the toolkit)
+		generateSetFacts(content,option);
+		
 		//generate conforms clause
 		generateConforms(content,option);
 		
@@ -83,13 +88,15 @@ public class ProblemDomainBuilder {
 				content.append(mcGuardDef.toFormula(option));
 			}
 		}
-		/*
-		for (Iterator<Entry<MCPCMLExp,MCGuardDef>> iterator = context.actionGuardDefs.entrySet().iterator(); iterator.hasNext();) {
-			Entry<MCPCMLExp,MCGuardDef> item = (Entry<MCPCMLExp,MCGuardDef>) iterator.next();
-			MCGuardDef guardDef = item.getValue();
-			content.append(guardDef.toFormula(option));
+		
+		for (Iterator<Entry<MCPCMLExp,LinkedList<NewMCGuardDef>>> iterator = context.stmGuardDefs.entrySet().iterator(); iterator.hasNext();) {
+			Entry<MCPCMLExp,LinkedList<NewMCGuardDef>> item = (Entry<MCPCMLExp,LinkedList<NewMCGuardDef>>) iterator.next();
+			LinkedList<NewMCGuardDef> guardDefList = item.getValue();
+			for (NewMCGuardDef mcGuardDef : guardDefList) {
+				content.append(mcGuardDef.toFormula(option));
+			}
 		}
-		*/
+		
 	}
 	
 	private void generateAssignDefinitions(StringBuilder content, String option){
@@ -122,6 +129,14 @@ public class ProblemDomainBuilder {
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 		for (MCAValueDefinition valueDef : context.valueDefinitions) {
 			content.append(valueDef.toFormula(option));
+			content.append("\n");
+		}
+	}
+	
+	private void generateSetFacts(StringBuilder content, String option){
+		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+		for (MCASBinaryExp setExp : context.setExpressioFacts) {
+			content.append(setExp.toFormula(option));
 			content.append("\n");
 		}
 	}

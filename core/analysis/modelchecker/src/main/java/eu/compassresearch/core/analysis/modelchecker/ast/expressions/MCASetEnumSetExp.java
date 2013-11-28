@@ -4,7 +4,9 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.EmptySet;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.PatternValue;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.Set;
 
 public class MCASetEnumSetExp implements MCPCMLExp {
 
@@ -25,7 +27,11 @@ public class MCASetEnumSetExp implements MCPCMLExp {
 		if(members.size() == 0){
 			result.append("emptySet");
 		} else{
-			
+			Set set = new EmptySet(); 
+			for (MCPCMLExp elem : members) {
+				set = set.addElement(elem);
+			}
+			result.append(set.toFormula(option));
 		}
 		/*
 		result.append("{");

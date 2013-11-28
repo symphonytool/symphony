@@ -170,7 +170,10 @@ public class NewMCStmVisitor extends
 		
 		MCPCMLExp ifExp = (MCPCMLExp) node.getIfExp().apply(rootVisitor, question);
 		MCPCMLStm thenStm = (MCPCMLStm) node.getThenStm().apply(rootVisitor, question);
-		MCPCMLStm elseStm = (MCPCMLStm) node.getElseStm().apply(rootVisitor, question);
+		MCPCMLStm elseStm = null;
+		if(node.getElseStm() != null){
+			elseStm = (MCPCMLStm) node.getElseStm().apply(rootVisitor, question);
+		}
 		
 		MCAIfStm result = new MCAIfStm(ifExp, thenStm, elseStm);
 		

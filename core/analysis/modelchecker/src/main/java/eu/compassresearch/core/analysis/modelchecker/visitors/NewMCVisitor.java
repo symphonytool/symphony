@@ -319,10 +319,12 @@ public class NewMCVisitor extends
 		ITypeIssueHandler errors = VanillaFactory.newCollectingIssueHandle();
 		ICmlTypeChecker cmlTC = VanillaFactory.newTypeChecker(source1.getParagraphs(), errors);
 		
+		/*
 		if(!cmlTC.typeCheck()){
 			System.out.println("There are typecheck errors.");
 			return;
 		}
+		*/
 		
 		NewMCVisitor visitor1 = new NewMCVisitor(source1);
 		String mainProcessName = "SourceProduct_DD_SD_InterfaceProtocolView";

@@ -426,13 +426,14 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 		if( node.getInvExpression() != null) {
 			invExpression = (MCPCMLExp) node.getInvExpression().apply(rootVisitor, question);
 		} else {
-			PType pType = node.getType(); 
+			PType pType = node.getInvType(); 
 			if( pType instanceof ANamedInvariantType){
 				pType = ((ANamedInvariantType) pType).getType();
 				type = (MCPCMLType) pType.apply(rootVisitor, question);
 			}
 			
 		}
+		
 		MCATypeDefinition result = new MCATypeDefinition(name, invExpression, type);
 		
 		question.typeDefinitions.add(result);

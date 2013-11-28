@@ -22,7 +22,14 @@ public class NonEmptySet implements Set {
 	@Override
 	public String toFormula(String option) {
 		StringBuilder result = new StringBuilder();
+		result.append("NonEmptySet(");
+		result.append(this.head.toFormula(option));
+		result.append(",");
+		result.append(this.tail.toFormula(option));
+		result.append(")");
+		/*
 		LinkedList<MCPCMLExp> allElements = new LinkedList<MCPCMLExp>(); 
+		 
 		getAllElements(allElements, this);
 		for (Iterator<MCPCMLExp> iterator = allElements.iterator(); iterator.hasNext();) {
 			result.append("NonEmptySet(");
@@ -36,6 +43,7 @@ public class NonEmptySet implements Set {
 		for (int i = 0; i < allElements.size(); i++) {
 			result.append(")");
 		}
+		*/
 		
 		return result.toString();
 	}
@@ -47,6 +55,15 @@ public class NonEmptySet implements Set {
 		}
 	}
 
+	@Override
+	public Set addElement(MCPCMLExp elem) {
+		if(!head.equals(elem)){
+			tail = tail.addElement(elem);
+		} 
+		return this;
+	}
+
+	
 	public MCPCMLExp getHead() {
 		return head;
 	}
@@ -69,5 +86,8 @@ public class NonEmptySet implements Set {
 		this.tail = tail;
 	}
 
+
+
+	
 	
 }
