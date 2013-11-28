@@ -15,14 +15,7 @@ import org.overture.ast.definitions.SClassDefinition;
 import org.overture.ast.types.ARecordInvariantType;
 import org.overture.ide.core.resources.IVdmSourceUnit;
 
-import eu.compassresearch.ast.definitions.AActionsDefinition;
-import eu.compassresearch.ast.definitions.AChannelsDefinition;
-import eu.compassresearch.ast.definitions.AChansetsDefinition;
-import eu.compassresearch.ast.definitions.AFunctionsDefinition;
-import eu.compassresearch.ast.definitions.AOperationsDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
-import eu.compassresearch.ast.definitions.ATypesDefinition;
-import eu.compassresearch.ast.definitions.AValuesDefinition;
 import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.ide.core.resources.ICmlModel;
 import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
@@ -75,15 +68,6 @@ public class CmlTreeContentProvider implements ITreeContentProvider
 				// List<PDefinition> defs = PDefinitionListAssistantTC.singleDefinitions(((SClassDefinition)
 				// parentElement).getDefinitions());
 				return getDefinitions((SClassDefinition) n).toArray();
-			} else if (n instanceof AChannelsDefinition)
-			{
-				return ((AChannelsDefinition) n).getChannelDeclarations().toArray();
-			} else if (n instanceof AChansetsDefinition)
-			{
-				return ((AChansetsDefinition) n).getChansets().toArray();
-			} else if (n instanceof AValuesDefinition)
-			{
-				return ((AValuesDefinition) n).getValueDefinitions().toArray();
 			} else if (n instanceof AProcessDefinition)
 			{
 				return getChildren(((AProcessDefinition) n).getProcess());
@@ -119,19 +103,6 @@ public class CmlTreeContentProvider implements ITreeContentProvider
 				}
 				defs.removeAll(removes);
 				return defs.toArray();
-			} else if (n instanceof ATypesDefinition)
-			{
-				return ((ATypesDefinition) n).getTypes().toArray();
-
-			} else if (n instanceof AFunctionsDefinition)
-			{
-				return ((AFunctionsDefinition) n).getFunctionDefinitions().toArray();
-			} else if (n instanceof AOperationsDefinition)
-			{
-				return ((AOperationsDefinition) n).getOperations().toArray();
-			} else if (n instanceof AActionsDefinition)
-			{
-				return ((AActionsDefinition) n).getActions().toArray();
 			} else if (n instanceof AStateDefinition)
 			{
 				// a cml state def is just a list of instance variable defs
@@ -172,11 +143,6 @@ public class CmlTreeContentProvider implements ITreeContentProvider
 			// || d instanceof AStateDefinition)
 			{
 				defs.add(d);
-			}
-
-			if (d instanceof AOperationsDefinition)
-			{
-				defs.addAll(((AOperationsDefinition) d).getOperations());
 			}
 		}
 

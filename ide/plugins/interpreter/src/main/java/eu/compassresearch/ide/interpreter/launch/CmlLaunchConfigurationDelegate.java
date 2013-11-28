@@ -25,6 +25,7 @@ import org.eclipse.ui.WorkbenchException;
 import org.json.simple.JSONObject;
 import org.overture.ide.core.resources.IVdmProject;
 import org.overture.ide.core.resources.IVdmSourceUnit;
+import org.overture.ide.debug.core.dbgp.DbgpServer;
 import org.overture.ide.debug.utils.VdmProjectClassPathCollector;
 
 import eu.compassresearch.core.interpreter.debug.CmlDebugDefaultValues;
@@ -37,6 +38,8 @@ import eu.compassresearch.ide.interpreter.model.CmlDebugTarget;
 
 public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 {
+	private static final int FROM_PORT = 10000;
+	private static final int TO_PORT = 50000;
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
@@ -58,6 +61,12 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 		{
 
 			int port = CmlDebugDefaultValues.PORT;
+			
+			if (!configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_REMOTE_DEBUG, false))
+			{
+				port = DbgpServer.findAvailablePort(FROM_PORT, TO_PORT);
+			}
+			
 			ICmlProject project = (ICmlProject) getProject(configuration).getAdapter(ICmlProject.class);
 			// set launch encoding to UTF-8. Mainly used to set console encoding.
 			launch.setAttribute(DebugPlugin.ATTR_CONSOLE_ENCODING, "UTF-8");

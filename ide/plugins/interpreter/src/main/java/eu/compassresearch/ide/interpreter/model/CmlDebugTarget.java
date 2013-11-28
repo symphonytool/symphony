@@ -133,7 +133,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 	 */
 	private Map<String, MessageEventHandler<CmlDbgStatusMessage>> initializeStatusHandlers()
 	{
-		Map<String, MessageEventHandler<CmlDbgStatusMessage>> handlers = new HashMap<String, MessageEventHandler<CmlDbgStatusMessage>>();
+		final Map<String, MessageEventHandler<CmlDbgStatusMessage>> handlers = new HashMap<String, MessageEventHandler<CmlDbgStatusMessage>>();
 
 		handlers.put(CmlInterpreterState.INITIALIZED.toString(), new MessageEventHandler<CmlDbgStatusMessage>()
 		{
@@ -286,26 +286,26 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 			{
 				lastState = message.getInterpreterStatus();
 				// threadManager.stopping();
-				if (lastState.hasErrors())
-				{
-					if (lastState.getErrors().get(0).getLocation() != null)
-					{
-						Display.getDefault().syncExec(new Runnable()
-						{
-							@Override
-							public void run()
-							{
-								Map<StyledText, List<StyleRange>> map = new HashMap<StyledText, List<StyleRange>>();
-								CmlUtil.setSelectionFromLocation(lastState.getErrors().get(0).getLocation(), map);
-								CmlUtil.showLocation(map.keySet().iterator().next(), lastState.getErrors().get(0).getLocation());
-								MessageDialog.openError(null, "Simulation Error", lastState.getErrors().get(0).getErrorMessage());
-								CmlUtil.clearSelections(map);
-							}
-						});
-					}
-				}
-				CmlDebugPlugin.logWarning(message + " : "
-						+ message.getInterpreterStatus().getErrors());
+//				if (lastState.hasErrors())
+//				{
+//					if (lastState.getErrors().get(0).getLocation() != null)
+//					{
+//						Display.getDefault().syncExec(new Runnable()
+//						{
+//							@Override
+//							public void run()
+//							{
+//								Map<StyledText, List<StyleRange>> map = new HashMap<StyledText, List<StyleRange>>();
+//								CmlUtil.setSelectionFromLocation(lastState.getErrors().get(0).getLocation(), map);
+//								CmlUtil.showLocation(map.keySet().iterator().next(), lastState.getErrors().get(0).getLocation());
+//								MessageDialog.openError(null, "Simulation Error", lastState.getErrors().get(0).getErrorMessage());
+//								CmlUtil.clearSelections(map);
+//							}
+//						});
+//					}
+//				}
+//				CmlDebugPlugin.logWarning(message + " : "
+//						+ message.getInterpreterStatus().getErrors());
 				return false;
 			}
 		});
@@ -346,6 +346,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 					}
 				});
 
+				handlers.get(CmlInterpreterState.SUSPENDED.toString()).handleMessage(message);
 				// threadManager.stopping();
 				return true;
 			}

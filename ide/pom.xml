@@ -5,7 +5,7 @@
   <parent>
     <groupId>eu.compassresearch</groupId>
     <artifactId>root</artifactId>
-    <version>0.2.1-SNAPSHOT<!--Replaceable: Main Version--></version>
+    <version>0.2.3-SNAPSHOT<!--Replaceable: Main Version--></version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 

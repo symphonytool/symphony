@@ -7,6 +7,7 @@ import java.util.Vector;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.FunctionValue;
+import org.overture.interpreter.values.MapValue;
 import org.overture.interpreter.values.NameValuePair;
 import org.overture.interpreter.values.ObjectValue;
 import org.overture.interpreter.values.OperationValue;
@@ -170,6 +171,23 @@ public class VariableDTO
 			{
 				i++;
 				children.add(extractVariable("[" + i + "]", "[" + i + "]", vv));
+			}
+		} else if (derefedVal instanceof MapValue)
+		{
+			MapValue v = (MapValue) derefedVal;
+			int i = 0;
+			for (Entry<Value, Value> vv : v.values.entrySet())
+			{
+				i++;
+				VariableDTO	dom = extractVariable("dom", "dom", vv.getKey());
+				VariableDTO	rng = extractVariable("rng", "rng", vv.getValue());
+				
+				List<VariableDTO> childrenMaplet = new Vector<VariableDTO>();
+				childrenMaplet.add(dom);
+				childrenMaplet.add(rng);
+				
+				VariableDTO	maplet = new VariableDTO("Maplet "+i, fullName, val.kind(), "{"+vv.getKey() +" |-> "+vv.getValue()+"}", childrenMaplet.size(), !childrenMaplet.isEmpty(), !(val instanceof UpdatableValue), childrenMaplet);
+				children.add(maplet);
 			}
 		} else
 		{

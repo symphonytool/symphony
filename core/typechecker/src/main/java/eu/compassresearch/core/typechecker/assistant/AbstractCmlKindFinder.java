@@ -52,20 +52,12 @@ import eu.compassresearch.ast.declarations.AExpressionSingleDeclaration;
 import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionClassDefinition;
 import eu.compassresearch.ast.definitions.AActionDefinition;
-import eu.compassresearch.ast.definitions.AActionsDefinition;
 import eu.compassresearch.ast.definitions.AChannelDefinition;
-import eu.compassresearch.ast.definitions.AChannelsDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
-import eu.compassresearch.ast.definitions.AChansetsDefinition;
-import eu.compassresearch.ast.definitions.AFunctionsDefinition;
 import eu.compassresearch.ast.definitions.AInitialDefinition;
 import eu.compassresearch.ast.definitions.ALogicalAccess;
 import eu.compassresearch.ast.definitions.ANamesetDefinition;
-import eu.compassresearch.ast.definitions.ANamesetsDefinition;
-import eu.compassresearch.ast.definitions.AOperationsDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
-import eu.compassresearch.ast.definitions.ATypesDefinition;
-import eu.compassresearch.ast.definitions.AValuesDefinition;
 import eu.compassresearch.ast.expressions.ABracketedExp;
 import eu.compassresearch.ast.expressions.ACompVarsetExpression;
 import eu.compassresearch.ast.expressions.AComprehensionRenameChannelExp;
@@ -219,70 +211,6 @@ public class AbstractCmlKindFinder extends KindFinder implements
 
 	@Override
 	public String caseAChannelDefinition(AChannelDefinition node)
-			throws AnalysisException
-	{
-
-		return null;
-	}
-
-	@Override
-	public String caseAChannelsDefinition(AChannelsDefinition node)
-			throws AnalysisException
-	{
-
-		return null;
-	}
-
-	@Override
-	public String caseAChansetsDefinition(AChansetsDefinition node)
-			throws AnalysisException
-	{
-
-		return null;
-	}
-
-	@Override
-	public String caseANamesetsDefinition(ANamesetsDefinition node)
-			throws AnalysisException
-	{
-
-		return null;
-	}
-
-	@Override
-	public String caseAActionsDefinition(AActionsDefinition node)
-			throws AnalysisException
-	{
-
-		return null;
-	}
-
-	@Override
-	public String caseATypesDefinition(ATypesDefinition node)
-			throws AnalysisException
-	{
-
-		return null;
-	}
-
-	@Override
-	public String caseAOperationsDefinition(AOperationsDefinition node)
-			throws AnalysisException
-	{
-
-		return null;
-	}
-
-	@Override
-	public String caseAFunctionsDefinition(AFunctionsDefinition node)
-			throws AnalysisException
-	{
-
-		return null;
-	}
-
-	@Override
-	public String caseAValuesDefinition(AValuesDefinition node)
 			throws AnalysisException
 	{
 

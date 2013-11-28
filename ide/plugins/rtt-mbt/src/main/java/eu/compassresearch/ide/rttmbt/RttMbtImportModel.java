@@ -28,7 +28,7 @@ public class RttMbtImportModel extends RttMbtPopupMenuAction {
 		}
 		
 		// get RttMbtClient for this action
-		if (!initClient(selectedObjectPath)) {
+		if (!initClient()) {
 			return null;
 		}
 

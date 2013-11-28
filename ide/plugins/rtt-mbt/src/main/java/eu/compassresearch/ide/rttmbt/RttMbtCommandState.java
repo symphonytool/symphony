@@ -13,6 +13,7 @@ public class RttMbtCommandState extends AbstractSourceProvider {
 	public static String keyIsExecutionContextTP = "eu.compassresearch.ide.rttmbt.IsExecutionContextTP";
 	public static String keyIsRttPerspectiveActive = "eu.compassresearch.ide.rttmbt.IsRttPerspectiveActive";
 	public static String keyIsModelDumpSelected = "eu.compassresearch.ide.rttmbt.IsModelDumpSelected";
+	public static String keyIsMakefileSelected = "eu.compassresearch.ide.rttmbt.IsMakefileSelected";
 	public static String keyIsRttMbtProjectSelected = "eu.compassresearch.ide.rttmbt.IsRttMbtProjectSelected";
 
 	// values that can be used for the keys
@@ -25,8 +26,10 @@ public class RttMbtCommandState extends AbstractSourceProvider {
 			keyIsExecutionContextTP,
 			keyIsRttPerspectiveActive,
 			keyIsModelDumpSelected,
+			keyIsMakefileSelected,
 			keyIsRttMbtProjectSelected};
 	private String[] values = {
+			FALSE,
 			FALSE,
 			FALSE,
 			FALSE,

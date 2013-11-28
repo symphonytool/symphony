@@ -8,15 +8,8 @@ import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.PDefinition;
 
 import eu.compassresearch.ast.analysis.AnalysisCMLAdaptor;
-import eu.compassresearch.ast.definitions.AActionsDefinition;
 import eu.compassresearch.ast.definitions.AChannelDefinition;
-import eu.compassresearch.ast.definitions.AChannelsDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
-import eu.compassresearch.ast.definitions.AChansetsDefinition;
-import eu.compassresearch.ast.definitions.AFunctionsDefinition;
-import eu.compassresearch.ast.definitions.AOperationsDefinition;
-import eu.compassresearch.ast.definitions.ATypesDefinition;
-import eu.compassresearch.ast.definitions.AValuesDefinition;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.typechecker.DefinitionList;
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
@@ -86,95 +79,10 @@ public class CollectGlobalStateClass extends AnalysisCMLAdaptor
 		}
 	}
 
-	// | {channels}
-	// [channelDeclarations]: definition.channel*
-	// | {chansets}
-	// [chansets] : definition.chanset*
-	// | {namesets}
-	// [namesets] : definition.nameset*
-	// | {actions}
-	// [actions]: definition.action*
-	// | {types}
-	// [types]: definition.type*
-	// | {operations}
-	// [operations]:definition.#Operation*
-	// | {functions}
-	// (functionDefinitions):definition*
-
 	@Override
 	public void defaultPDefinition(PDefinition node) throws AnalysisException
 	{
 		globalDefinitions.add(node);
-	}
-
-	@Override
-	public void caseAChannelsDefinition(AChannelsDefinition node)
-			throws AnalysisException
-	{
-		for (PDefinition def : node.getChannelDeclarations())
-		{
-			def.apply(this);
-		}
-	}
-
-	@Override
-	public void caseATypesDefinition(ATypesDefinition node)
-			throws AnalysisException
-	{
-		for (PDefinition def : node.getTypes())
-		{
-			def.apply(this);
-		}
-	}
-
-	@Override
-	public void caseAValuesDefinition(AValuesDefinition node)
-			throws AnalysisException
-	{
-		for (PDefinition def : node.getValueDefinitions())
-		{
-			def.apply(this);
-		}
-	}
-
-	@Override
-	public void caseAChansetsDefinition(AChansetsDefinition node)
-			throws AnalysisException
-	{
-		for (PDefinition def : node.getChansets())
-		{
-			def.apply(this);
-		}
-	}
-
-	@Override
-	public void caseAFunctionsDefinition(AFunctionsDefinition node)
-			throws AnalysisException
-	{
-		for (PDefinition def : node.getFunctionDefinitions())
-		{
-			def.apply(this);
-		}
-	}
-
-	@Override
-	public void caseAOperationsDefinition(AOperationsDefinition node)
-			throws AnalysisException
-	{
-		for (PDefinition def : node.getOperations())
-		{
-			def.apply(this);
-		}
-	}
-
-	@Override
-	public void caseAActionsDefinition(AActionsDefinition node)
-			throws AnalysisException
-	{
-		for (PDefinition def : node.getActions())
-		{
-			def.apply(this);
-		}
 	}
 
 }

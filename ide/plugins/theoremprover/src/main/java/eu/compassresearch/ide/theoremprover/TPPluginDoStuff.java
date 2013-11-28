@@ -376,7 +376,9 @@ private 	void popBadPol(String msg, String reason, IProofObligationList badPol) 
 
 
 	private Status sFromPo(IProofObligation po) {
-		Status r = new Status(IStatus.ERROR, TPConstants.PLUGIN_ID, po.getKind().toString());
+		String kind = po.getKindString();
+		
+		Status r = new Status(IStatus.ERROR, TPConstants.PLUGIN_ID, kind);
 		return r;
 	}
 
@@ -516,7 +518,7 @@ private 	void popBadPol(String msg, String reason, IProofObligationList badPol) 
 	// }
 
 	private void popErrorMessage(String message) {
-		MessageDialog.openInformation(window.getShell(), "Symphony", message);
+		MessageDialog.openError(window.getShell(), "Symphony", message);
 	}
 
 	/**

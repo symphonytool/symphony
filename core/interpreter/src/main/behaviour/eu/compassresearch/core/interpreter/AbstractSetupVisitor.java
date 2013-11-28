@@ -1,6 +1,8 @@
 package eu.compassresearch.core.interpreter;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.intf.lex.ILexNameToken;
+import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.Value;
@@ -39,14 +41,34 @@ abstract class AbstractSetupVisitor extends
 		return new Pair<INode, Context>(node, question);
 	}
 
-	protected void setLeftChild(CmlBehaviour child)
+	protected void clearLeftChild()
 	{
-		this.controlAccess.setLeftChild(child);
+		this.controlAccess.setLeftChild(null);
+	}
+	
+	protected void setLeftChild(INode node, ILexNameToken name, Context question) throws AnalysisException
+	{
+		this.controlAccess.setLeftChild(new ConcreteCmlBehaviour(node, this.controlAccess.getChildContexts(question).first, name , owner));
+	}
+	
+	protected void setLeftChild(INode node, Context question) throws AnalysisException
+	{
+		this.controlAccess.setLeftChild(new ConcreteCmlBehaviour(node, this.controlAccess.getChildContexts(question).first, owner));
 	}
 
-	protected void setRightChild(CmlBehaviour child)
+	protected void clearRightChild()
 	{
-		this.controlAccess.setRightChild(child);
+		this.controlAccess.setRightChild(null);
+	}
+	
+	protected void setRightChild(INode node, ILexNameToken name, Context question) throws AnalysisException
+	{
+		this.controlAccess.setRightChild(new ConcreteCmlBehaviour(node, this.controlAccess.getChildContexts(question).second, name , owner));
+	}
+
+	protected void setRightChild(INode node, Context question) throws AnalysisException
+	{
+		this.controlAccess.setRightChild(new ConcreteCmlBehaviour(node, this.controlAccess.getChildContexts(question).second, owner));
 	}
 
 	protected void setChildContexts(Pair<Context, Context> preBuildContexts)

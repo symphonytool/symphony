@@ -54,20 +54,12 @@ import eu.compassresearch.ast.declarations.AExpressionSingleDeclaration;
 import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionClassDefinition;
 import eu.compassresearch.ast.definitions.AActionDefinition;
-import eu.compassresearch.ast.definitions.AActionsDefinition;
 import eu.compassresearch.ast.definitions.AChannelDefinition;
-import eu.compassresearch.ast.definitions.AChannelsDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
-import eu.compassresearch.ast.definitions.AChansetsDefinition;
-import eu.compassresearch.ast.definitions.AFunctionsDefinition;
 import eu.compassresearch.ast.definitions.AInitialDefinition;
 import eu.compassresearch.ast.definitions.ALogicalAccess;
 import eu.compassresearch.ast.definitions.ANamesetDefinition;
-import eu.compassresearch.ast.definitions.ANamesetsDefinition;
-import eu.compassresearch.ast.definitions.AOperationsDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
-import eu.compassresearch.ast.definitions.ATypesDefinition;
-import eu.compassresearch.ast.definitions.AValuesDefinition;
 import eu.compassresearch.ast.expressions.ABracketedExp;
 import eu.compassresearch.ast.expressions.ACompVarsetExpression;
 import eu.compassresearch.ast.expressions.AComprehensionRenameChannelExp;
@@ -215,62 +207,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 
 	@Override
 	public void caseAChannelDefinition(AChannelDefinition node,
-			Environment question) throws AnalysisException
-	{
-
-	}
-
-	@Override
-	public void caseAChannelsDefinition(AChannelsDefinition node,
-			Environment question) throws AnalysisException
-	{
-
-	}
-
-	@Override
-	public void caseAChansetsDefinition(AChansetsDefinition node,
-			Environment question) throws AnalysisException
-	{
-
-	}
-
-	@Override
-	public void caseANamesetsDefinition(ANamesetsDefinition node,
-			Environment question) throws AnalysisException
-	{
-
-	}
-
-	@Override
-	public void caseAActionsDefinition(AActionsDefinition node,
-			Environment question) throws AnalysisException
-	{
-
-	}
-
-	@Override
-	public void caseATypesDefinition(ATypesDefinition node, Environment question)
-			throws AnalysisException
-	{
-
-	}
-
-	@Override
-	public void caseAOperationsDefinition(AOperationsDefinition node,
-			Environment question) throws AnalysisException
-	{
-
-	}
-
-	@Override
-	public void caseAFunctionsDefinition(AFunctionsDefinition node,
-			Environment question) throws AnalysisException
-	{
-
-	}
-
-	@Override
-	public void caseAValuesDefinition(AValuesDefinition node,
 			Environment question) throws AnalysisException
 	{
 

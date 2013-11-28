@@ -3,7 +3,6 @@ package eu.compassresearch.core.interpreter;
 import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.assistant.definition.PDefinitionAssistant;
 import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.AClassClassDefinition;
 import org.overture.ast.definitions.AClassInvariantDefinition;
@@ -32,15 +31,9 @@ import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.AExpressionSingleDeclaration;
 import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionDefinition;
-import eu.compassresearch.ast.definitions.AActionsDefinition;
 import eu.compassresearch.ast.definitions.AChannelDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
-import eu.compassresearch.ast.definitions.AChansetsDefinition;
-import eu.compassresearch.ast.definitions.AFunctionsDefinition;
-import eu.compassresearch.ast.definitions.AOperationsDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
-import eu.compassresearch.ast.definitions.ATypesDefinition;
-import eu.compassresearch.ast.definitions.AValuesDefinition;
 import eu.compassresearch.ast.lex.CmlLexNameToken;
 import eu.compassresearch.core.interpreter.api.values.ActionValue;
 import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
@@ -119,9 +112,7 @@ class CmlDefinitionVisitor extends
 			Context question) throws AnalysisException
 	{
 		NameValuePairList vpl = new NameValuePairList();
-
 		vpl.add(new NameValuePair(node.getName(), new ProcessObjectValue(node, null)));
-
 		return vpl;
 	}
 
@@ -129,7 +120,6 @@ class CmlDefinitionVisitor extends
 	public NameValuePairList caseAStateDefinition(AStateDefinition node,
 			Context question) throws AnalysisException
 	{
-
 		return definitionListHelper(node.getStateDefs(), node.getLocation(), question);
 	}
 
@@ -138,10 +128,7 @@ class CmlDefinitionVisitor extends
 			AInstanceVariableDefinition node, Context question)
 			throws AnalysisException
 	{
-		NameValuePairList vpl = PDefinitionAssistantInterpreter.getNamedValues(node,question);
-//		NameValuePairList vpl = new NameValuePairList();
-//		vpl.add(new NameValuePair(node.getName(), node.getExpression().apply(this.cmlExpressionVisitor, question)));
-		return vpl;
+		return PDefinitionAssistantInterpreter.getNamedValues(node,question);
 	}
 
 	@Override
@@ -150,15 +137,6 @@ class CmlDefinitionVisitor extends
 			throws AnalysisException
 	{
 		return new NameValuePairList();
-	}
-
-	@Override
-	public NameValuePairList caseAActionsDefinition(AActionsDefinition node,
-			Context question) throws AnalysisException
-	{
-
-		return definitionListHelper(node.getActions(), node.getLocation(), question);
-
 	}
 
 	@Override
@@ -179,14 +157,6 @@ class CmlDefinitionVisitor extends
 	 }
 
 	@Override
-	public NameValuePairList caseAChansetsDefinition(AChansetsDefinition node,
-			Context question) throws AnalysisException
-	{
-
-		return definitionListHelper(node.getChansets(), node.getLocation(), question);
-	}
-
-	@Override
 	public NameValuePairList caseAChansetDefinition(AChansetDefinition node,
 			Context question) throws AnalysisException
 	{
@@ -201,15 +171,6 @@ class CmlDefinitionVisitor extends
 	/*
 	 * Function
 	 */
-
-	@Override
-	public NameValuePairList caseAFunctionsDefinition(
-			AFunctionsDefinition node, Context question)
-			throws AnalysisException
-	{
-
-		return definitionListHelper(node.getFunctionDefinitions(), node.getLocation(), question);
-	}
 
 	@Override
 	public NameValuePairList caseAExplicitFunctionDefinition(
@@ -267,17 +228,6 @@ class CmlDefinitionVisitor extends
 	 * Operations
 	 */
 
-	@Override
-	public NameValuePairList caseAOperationsDefinition(
-			AOperationsDefinition node, Context question)
-			throws AnalysisException
-	{
-
-		return definitionListHelper(node.getOperations(), node.getLocation(), question);
-	}
-
-	
-	
 	@Override
 	public NameValuePairList caseAExplicitOperationDefinition(
 			AExplicitOperationDefinition node, Context question)
@@ -352,14 +302,6 @@ class CmlDefinitionVisitor extends
 	 */
 
 	@Override
-	public NameValuePairList caseATypesDefinition(ATypesDefinition node,
-			Context question) throws AnalysisException
-	{
-
-		return definitionListHelper(node.getTypes(), node.getLocation(), question);
-	}
-
-	@Override
 	public NameValuePairList caseATypeDefinition(ATypeDefinition node,
 			Context question) throws AnalysisException
 	{
@@ -374,14 +316,6 @@ class CmlDefinitionVisitor extends
 	/*
 	 * Values
 	 */
-
-	@Override
-	public NameValuePairList caseAValuesDefinition(AValuesDefinition node,
-			Context question) throws AnalysisException
-	{
-
-		return definitionListHelper(node.getValueDefinitions(), node.getLocation(), question);
-	}
 
 	@Override
 	public NameValuePairList caseAValueDefinition(AValueDefinition node,

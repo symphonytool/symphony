@@ -197,20 +197,12 @@ import eu.compassresearch.ast.declarations.AExpressionSingleDeclaration;
 import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionClassDefinition;
 import eu.compassresearch.ast.definitions.AActionDefinition;
-import eu.compassresearch.ast.definitions.AActionsDefinition;
 import eu.compassresearch.ast.definitions.AChannelDefinition;
-import eu.compassresearch.ast.definitions.AChannelsDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
-import eu.compassresearch.ast.definitions.AChansetsDefinition;
-import eu.compassresearch.ast.definitions.AFunctionsDefinition;
 import eu.compassresearch.ast.definitions.AInitialDefinition;
 import eu.compassresearch.ast.definitions.ALogicalAccess;
 import eu.compassresearch.ast.definitions.ANamesetDefinition;
-import eu.compassresearch.ast.definitions.ANamesetsDefinition;
-import eu.compassresearch.ast.definitions.AOperationsDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
-import eu.compassresearch.ast.definitions.ATypesDefinition;
-import eu.compassresearch.ast.definitions.AValuesDefinition;
 import eu.compassresearch.ast.expressions.ABracketedExp;
 import eu.compassresearch.ast.expressions.ACompVarsetExpression;
 import eu.compassresearch.ast.expressions.AComprehensionRenameChannelExp;
@@ -323,14 +315,6 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAActionProcess(node);
-	}
-
-	@Override
-	public void caseAActionsDefinition(AActionsDefinition node)
-			throws AnalysisException {
-		unsupported=false;
-		// Do not remove the super call below.
-		super.caseAActionsDefinition(node);
 	}
 
 	@Override
@@ -472,8 +456,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 	@Override
 	public void caseABooleanConstExp(ABooleanConstExp node)
 			throws AnalysisException {
-		// unsupported=false;
-		// TODO Uncomment the above line to signal support for this node
+		unsupported=false;
 		// Do not remove the super call below.
 		super.caseABooleanConstExp(node);
 	}
@@ -605,14 +588,6 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 	}
 
 	@Override
-	public void caseAChannelsDefinition(AChannelsDefinition node)
-			throws AnalysisException {
-		unsupported = false;
-		// Do not remove the super call below.
-		super.caseAChannelsDefinition(node);
-	}
-	
-	@Override
 	public void caseAChannelType(AChannelType node)
 			throws AnalysisException {
 		unsupported = false;
@@ -626,14 +601,6 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 		unsupported = false;
 		// Do not remove the super call below.
 		super.caseAChansetDefinition(node);
-	}
-
-	@Override
-	public void caseAChansetsDefinition(AChansetsDefinition node)
-			throws AnalysisException {
-		unsupported = false;
-		// Do not remove the super call below.
-		super.caseAChansetsDefinition(node);
 	}
 
 	@Override
@@ -1300,14 +1267,6 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAFunctionExport(node);
-	}
-
-	@Override
-	public void caseAFunctionsDefinition(AFunctionsDefinition node)
-			throws AnalysisException {
-		unsupported = false;
-		// Do not remove the super call below.
-		super.caseAFunctionsDefinition(node);
 	}
 
 	@Override
@@ -2048,15 +2007,6 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 	}
 
 	@Override
-	public void caseANamesetsDefinition(ANamesetsDefinition node)
-			throws AnalysisException {
-		// unsupported=false;
-		// TODO Uncomment the above line to signal support for this node
-		// Do not remove the super call below.
-		super.caseANamesetsDefinition(node);
-	}
-
-	@Override
 	public void caseANarrowExp(ANarrowExp node) throws AnalysisException {
 		// unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
@@ -2169,14 +2119,6 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAOperationExport(node);
-	}
-
-	@Override
-	public void caseAOperationsDefinition(AOperationsDefinition node)
-			throws AnalysisException {
-		unsupported=false;
-		// Do not remove the super call below.
-		super.caseAOperationsDefinition(node);
 	}
 
 	@Override
@@ -2783,8 +2725,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 
 	@Override
 	public void caseASkipStm(ASkipStm node) throws AnalysisException {
-		// unsupported=false;
-		// TODO Uncomment the above line to signal support for this node
+		unsupported=false;
 		// Do not remove the super call below.
 		super.caseASkipStm(node);
 	}
@@ -3124,14 +3065,6 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 	}
 
 	@Override
-	public void caseATypesDefinition(ATypesDefinition node)
-			throws AnalysisException {
-		unsupported = false;
-		// Do not remove the super call below.
-		super.caseATypesDefinition(node);
-	}
-
-	@Override
 	public void caseATypeSingleDeclaration(ATypeSingleDeclaration node)
 			throws AnalysisException {
 		// unsupported=false;
@@ -3143,8 +3076,7 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 	@Override
 	public void caseAUnaryMinusUnaryExp(AUnaryMinusUnaryExp node)
 			throws AnalysisException {
-		// unsupported=false;
-		// TODO Uncomment the above line to signal support for this node
+		unsupported=false;
 		// Do not remove the super call below.
 		super.caseAUnaryMinusUnaryExp(node);
 	}
@@ -3271,14 +3203,6 @@ public class TPUnsupportedCollector extends UnsupportedCollector {
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAValueExport(node);
-	}
-
-	@Override
-	public void caseAValuesDefinition(AValuesDefinition node)
-			throws AnalysisException {
-		unsupported = false;
-		// Do not remove the super call below.
-		super.caseAValuesDefinition(node);
 	}
 
 	@Override

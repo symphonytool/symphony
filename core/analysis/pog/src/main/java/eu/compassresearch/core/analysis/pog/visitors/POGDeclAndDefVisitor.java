@@ -1,7 +1,6 @@
 package eu.compassresearch.core.analysis.pog.visitors;
 
 //POG-related imports
-import java.util.LinkedList;
 import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
@@ -13,7 +12,6 @@ import org.overture.ast.definitions.AExplicitOperationDefinition;
 import org.overture.ast.definitions.AImplicitOperationDefinition;
 import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.PDefinition;
-import org.overture.ast.definitions.SOperationDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.lex.LexNameList;
 import org.overture.ast.node.INode;
@@ -33,16 +31,9 @@ import org.overture.typechecker.TypeComparator;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionDefinition;
-import eu.compassresearch.ast.definitions.AActionsDefinition;
 import eu.compassresearch.ast.definitions.AChannelDefinition;
-import eu.compassresearch.ast.definitions.AChannelsDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
-import eu.compassresearch.ast.definitions.AChansetsDefinition;
-import eu.compassresearch.ast.definitions.AFunctionsDefinition;
-import eu.compassresearch.ast.definitions.AOperationsDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
-import eu.compassresearch.ast.definitions.ATypesDefinition;
-import eu.compassresearch.ast.definitions.AValuesDefinition;
 import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
 import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.ast.process.PProcess;
@@ -75,28 +66,6 @@ public class POGDeclAndDefVisitor extends
 
 	}
 
-	// handle CML Defns And Decls
-	/**
-	 * CML ELEMENT - Channels
-	 */
-
-	@Override
-	public CmlProofObligationList caseAChannelsDefinition(
-			AChannelsDefinition node, IPOContextStack question)
-			throws AnalysisException
-	{
-
-		CmlProofObligationList pol = new CmlProofObligationList();
-
-		LinkedList<AChannelDefinition> cns = node.getChannelDeclarations();
-		for (AChannelDefinition c : cns)
-		{
-			pol.addAll(c.apply(this, question));
-		}
-
-		return pol;
-	}
-
 	/**
 	 * CML channel definition CURRENTLY JUST PRINT TO SCREEN
 	 */
@@ -109,26 +78,6 @@ public class POGDeclAndDefVisitor extends
 		CmlProofObligationList pol = new CmlProofObligationList();
 
 		// NO POs here yet.
-
-		return pol;
-	}
-
-	/**
-	 * CML ELEMENT - Chansets
-	 */
-	@Override
-	public CmlProofObligationList caseAChansetsDefinition(
-			AChansetsDefinition node, IPOContextStack question)
-			throws AnalysisException
-	{
-
-		LinkedList<AChansetDefinition> subNodes = node.getChansets();
-		CmlProofObligationList pol = new CmlProofObligationList();
-
-		for (AChansetDefinition d : subNodes)
-		{
-			pol.addAll(d.apply(this, question));
-		}
 
 		return pol;
 	}
@@ -237,28 +186,6 @@ public class POGDeclAndDefVisitor extends
 		return pol;
 	}
 
-	/**
-	 * CML ELEMENT - Actions
-	 */
-	@Override
-	public CmlProofObligationList caseAActionsDefinition(
-			AActionsDefinition node, IPOContextStack question)
-			throws AnalysisException
-	{
-
-		CmlProofObligationList pol = new CmlProofObligationList();
-
-		// TODO re-enable pog action visits. for now, not doing it.
-
-		// LinkedList<AActionDefinition> actions = node.getActions();
-		// for (AActionDefinition action : actions)
-		// {
-		// pol.addAll(action.apply(parentPOG, question));
-		// }
-
-		return pol;
-	}
-
 	@Override
 	public CmlProofObligationList caseAActionDefinition(AActionDefinition node,
 			IPOContextStack question) throws AnalysisException
@@ -334,107 +261,6 @@ public class POGDeclAndDefVisitor extends
 	{
 		CmlProofObligationList pol = new CmlProofObligationList();
 		pol.addAll(node.apply(parentPOG, question));
-		return pol;
-	}
-
-	/**
-	 * VDM ELEMENT - Types
-	 */
-	@Override
-	public CmlProofObligationList caseATypesDefinition(ATypesDefinition node,
-			IPOContextStack question) throws AnalysisException
-	{
-		CmlProofObligationList pol = new CmlProofObligationList();
-
-		for (PDefinition def : node.getTypes())
-		{
-			pol.addAll(def.apply(parentPOG, question));
-		}
-
-		return pol;
-	}
-
-	/**
-	 * VDM ELEMENT - Values
-	 */
-	@Override
-	public CmlProofObligationList caseAValuesDefinition(AValuesDefinition node,
-			IPOContextStack question) throws AnalysisException
-	{
-
-		CmlProofObligationList pol = new CmlProofObligationList();
-		LinkedList<PDefinition> list = node.getValueDefinitions();
-
-		for (PDefinition def : list)
-		{
-			PONameContext name = def.apply(nameVisitor);
-			if (name != null)
-			{
-				question.push(name);
-				pol.addAll(def.apply(parentPOG, question));
-				question.pop();
-			} else
-			{
-				pol.addAll(def.apply(parentPOG, question));
-			}
-		}
-
-		return pol;
-	}
-
-	/**
-	 * VDM ELEMENT - Functions
-	 */
-	@Override
-	public CmlProofObligationList caseAFunctionsDefinition(
-			AFunctionsDefinition node, IPOContextStack question)
-			throws AnalysisException
-	{
-		CmlProofObligationList obligations = new CmlProofObligationList();
-
-		// add the name stuff HERE
-
-		for (PDefinition def : node.getFunctionDefinitions())
-		{
-			PONameContext name = def.apply(nameVisitor);
-			if (name != null)
-			{
-				question.push(name);
-				obligations.addAll(def.apply(parentPOG, question));
-				question.pop();
-			} else
-			{
-				obligations.addAll(def.apply(parentPOG, question));
-			}
-		}
-
-		return obligations;
-	}
-
-	/**
-	 * VDM ELEMENT - Operations
-	 */
-	@Override
-	public CmlProofObligationList caseAOperationsDefinition(
-			AOperationsDefinition node, IPOContextStack question)
-			throws AnalysisException
-	{
-
-		CmlProofObligationList pol = new CmlProofObligationList();
-
-		for (SOperationDefinition def : node.getOperations())
-		{
-			PONameContext name = def.apply(nameVisitor);
-			if (name != null)
-			{
-				question.push(name);
-				pol.addAll(def.apply(parentPOG, question));
-				question.pop();
-			} else
-			{
-				pol.addAll(def.apply(parentPOG, question));
-			}
-		}
 		return pol;
 	}
 

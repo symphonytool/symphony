@@ -10,8 +10,6 @@ import java.util.Scanner;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.SWT;
@@ -32,6 +30,8 @@ import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IWorkbenchPartConstants;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
+
+import eu.compassresearch.rttMbtTmsClientApi.RttMbtClient;
 
 /*
 import org.eclipse.swt.events.KeyAdapter;
@@ -287,9 +287,10 @@ public class RttMbtSignalmapEditor extends EditorPart {
 				istream = iFile.getContents();
 				fileScanner = new Scanner(istream);
 				// create output file for saving
-		    	IWorkspace workspace = ResourcesPlugin.getWorkspace();
-				File workspaceDirectory = workspace.getRoot().getLocation().toFile();
-				output = new File(workspaceDirectory.getAbsolutePath() + iFile.getFullPath().toString());
+				String outputFilename = RttMbtClient.getAbsolutePathFromFileURI(iFile.getLocationURI());
+				if (outputFilename != null) {
+					output = new File(outputFilename);
+				}
 			} catch (CoreException e) {
 				e.printStackTrace();
 			}

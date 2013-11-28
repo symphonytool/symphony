@@ -28,7 +28,7 @@ public class Activator implements BundleActivator {
 		if (client != null) {
 			RttMbtConsoleLogger consoleLogger = new RttMbtConsoleLogger();
 	    	consoleLogger.setConsole(t);
-	    	client.setLoggingFacility(client.getProjectName(), consoleLogger);
+	    	client.setLoggingFacility(client.getWorkspaceProjectName(), consoleLogger);
 		}
 	}
 	

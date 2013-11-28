@@ -23,7 +23,7 @@ public class RttMbtGenerateSimulation extends RttMbtAbstractTestProcedureAction 
 		}
 
 		// get RttMbtClient for this action
-		if (!initClient(selectedObjectPath)) {
+		if (!initClient()) {
 			client.addErrorMessage("[FAIL]: generate simulation: init of RTT-MBT client failed!");
 			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 			return null;
@@ -42,9 +42,9 @@ public class RttMbtGenerateSimulation extends RttMbtAbstractTestProcedureAction 
 		Job job = new Job("Generate Simulation") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
-				client.addLogMessage("generating simulation from configuration of " + selectedObject + "... please wait for the task to be finished.");
+				client.addLogMessage("generating simulation from configuration of " + selectedObjectName + "... please wait for the task to be finished.");
 				// generate simulation
-				if (client.generateSimulation(selectedObject)) {
+				if (client.generateSimulation(selectedObjectName)) {
 					client.addLogMessage("[PASS]: generate simulation");
 					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 				} else {

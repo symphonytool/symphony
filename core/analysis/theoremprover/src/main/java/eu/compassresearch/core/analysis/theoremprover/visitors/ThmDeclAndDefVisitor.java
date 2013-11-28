@@ -31,14 +31,8 @@ import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AChannelDefinition;
-import eu.compassresearch.ast.definitions.AChannelsDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
-import eu.compassresearch.ast.definitions.AChansetsDefinition;
-import eu.compassresearch.ast.definitions.AFunctionsDefinition;
-import eu.compassresearch.ast.definitions.AOperationsDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
-import eu.compassresearch.ast.definitions.ATypesDefinition;
-import eu.compassresearch.ast.definitions.AValuesDefinition;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.ast.process.PProcess;
@@ -77,23 +71,6 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 		this.tpVisitor = tpVisitor;
 	}
 	
-	/**
-	 * Visitor method for collection of type definitions
-	 */
-	@Override
-	public ThmNodeList caseATypesDefinition(ATypesDefinition node, ThmVarsContext vars) throws AnalysisException
-	{
-		ThmNodeList tnl = new ThmNodeList();
-
-		for (PDefinition def : node.getTypes())
-		{
-			tnl.addAll(def.apply(tpVisitor, vars));
-		}
-
-		return tnl;
-	}
-	
-
 	@Override
 	public ThmNodeList caseATypeDefinition(ATypeDefinition node, ThmVarsContext vars)
 			throws AnalysisException {
@@ -223,22 +200,6 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 //		return nodeDeps;
 //	}
 
-	/**
-	 * Visitor method for collection of value definitions
-	 */
-	@Override
-	public ThmNodeList caseAValuesDefinition(AValuesDefinition node, ThmVarsContext vars) throws AnalysisException
-	{
-		ThmNodeList tnl = new ThmNodeList();
-
-		for (PDefinition def : node.getValueDefinitions())
-		{
-			tnl.addAll(def.apply(tpVisitor, vars));
-		}
-
-		return tnl;
-	}
-
 	@Override
 	public ThmNodeList caseAValueDefinition(AValueDefinition node, ThmVarsContext vars)
 			throws AnalysisException {
@@ -257,22 +218,6 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 		return tnl;
 	}
 
-
-	/**
-	 * Visitor method for collection of function definitions
-	 */
-	@Override
-	public ThmNodeList caseAFunctionsDefinition(AFunctionsDefinition node, ThmVarsContext vars) throws AnalysisException
-	{
-		ThmNodeList tnl = new ThmNodeList();
-
-		for (PDefinition def : node.getFunctionDefinitions())
-		{
-			tnl.addAll(def.apply(tpVisitor, vars));
-		}
-
-		return tnl;
-	}
 
 	/**
 	 * Visitor method for an explicitly defined function
@@ -387,40 +332,6 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 	}
 
 
-	/**
-	 * Visitor method for a collection of channel definitions
-	 */
-	@Override
-	public ThmNodeList caseAChannelsDefinition(AChannelsDefinition node, ThmVarsContext vars)
-			throws AnalysisException
-	{
-		ThmNodeList tnl = new ThmNodeList();
-
-		for (AChannelDefinition c : node.getChannelDeclarations())
-		{
-			tnl.addAll(c.apply(tpVisitor, vars));
-		}
-
-		return tnl;
-	}
-
-
-	/**
-	 * Visitor method for a collection of chanset definitions
-	 */
-	@Override
-	public ThmNodeList caseAChansetsDefinition(AChansetsDefinition node, ThmVarsContext vars) throws AnalysisException
-	{
-		ThmNodeList tnl = new ThmNodeList();
-
-		for (AChansetDefinition c : node.getChansets())
-		{
-			tnl.addAll(c.apply(tpVisitor, vars));
-		}
-
-		return tnl;
-	}
-	
 	/**
 	 * CML channel definition 
 	 */
@@ -551,20 +462,6 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 		return tnl;
 	}
 	
-	@Override
-	public ThmNodeList caseAOperationsDefinition(AOperationsDefinition node, ThmVarsContext vars) throws AnalysisException
-	{
-		ThmNodeList tnl = new ThmNodeList();
-	
-
-		for (PDefinition def : node.getOperations())
-		{
-			tnl.addAll(def.apply(tpVisitor, vars));
-		}
-
-		return tnl;
-	}
-	
 	/***
 	 * Return the ThmNode for an operations of a process 
 	 * @param operations - the operation to check
@@ -611,8 +508,10 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 		{
 			//Set the expression utility postcondition flag to true - so to generate primed variables
 			ThmExprUtil.setPostExpr(true);
+			stringVisitor.setPostExpr(true);
 			post = node.getPostcondition().apply(stringVisitor, vars); //ThmExprUtil.getIsabelleExprStr(svars, bvars, node.getPostcondition());
 			ThmExprUtil.setPostExpr(false);
+			stringVisitor.setPostExpr(false);
 			nodeDeps.addAll(node.getPostcondition().apply(depVisitor, vars.getBVars()));//(ThmExprUtil.getIsabelleExprDeps(bvars, node.getPostcondition()));
 
 		}
@@ -657,8 +556,10 @@ public class ThmDeclAndDefVisitor extends QuestionAnswerCMLAdaptor<ThmVarsContex
 		{
 			//Set the expression utility postcondition flag to true - so to generate primed variables
 			ThmExprUtil.setPostExpr(true);
+			stringVisitor.setPostExpr(true);
 			post = node.getPostcondition().apply(stringVisitor, vars); //ThmExprUtil.getIsabelleExprStr(svars, bvars, node.getPostcondition());
 			ThmExprUtil.setPostExpr(false);
+			stringVisitor.setPostExpr(false);
 			nodeDeps.addAll(node.getPostcondition().apply(depVisitor, vars.getBVars()));//(ThmExprUtil.getIsabelleExprDeps(bvars, node.getPostcondition()));
 		}
 		String resType = null;

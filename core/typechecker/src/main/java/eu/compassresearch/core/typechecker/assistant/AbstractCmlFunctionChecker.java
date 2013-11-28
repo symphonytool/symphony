@@ -52,20 +52,12 @@ import eu.compassresearch.ast.declarations.AExpressionSingleDeclaration;
 import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionClassDefinition;
 import eu.compassresearch.ast.definitions.AActionDefinition;
-import eu.compassresearch.ast.definitions.AActionsDefinition;
 import eu.compassresearch.ast.definitions.AChannelDefinition;
-import eu.compassresearch.ast.definitions.AChannelsDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
-import eu.compassresearch.ast.definitions.AChansetsDefinition;
-import eu.compassresearch.ast.definitions.AFunctionsDefinition;
 import eu.compassresearch.ast.definitions.AInitialDefinition;
 import eu.compassresearch.ast.definitions.ALogicalAccess;
 import eu.compassresearch.ast.definitions.ANamesetDefinition;
-import eu.compassresearch.ast.definitions.ANamesetsDefinition;
-import eu.compassresearch.ast.definitions.AOperationsDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
-import eu.compassresearch.ast.definitions.ATypesDefinition;
-import eu.compassresearch.ast.definitions.AValuesDefinition;
 import eu.compassresearch.ast.expressions.ABracketedExp;
 import eu.compassresearch.ast.expressions.ACompVarsetExpression;
 import eu.compassresearch.ast.expressions.AComprehensionRenameChannelExp;
@@ -219,70 +211,6 @@ public class AbstractCmlFunctionChecker extends FunctionChecker implements
 
 	@Override
 	public Boolean caseAChannelDefinition(AChannelDefinition node)
-			throws AnalysisException
-	{
-
-		return false;
-	}
-
-	@Override
-	public Boolean caseAChannelsDefinition(AChannelsDefinition node)
-			throws AnalysisException
-	{
-
-		return false;
-	}
-
-	@Override
-	public Boolean caseAChansetsDefinition(AChansetsDefinition node)
-			throws AnalysisException
-	{
-
-		return false;
-	}
-
-	@Override
-	public Boolean caseANamesetsDefinition(ANamesetsDefinition node)
-			throws AnalysisException
-	{
-
-		return false;
-	}
-
-	@Override
-	public Boolean caseAActionsDefinition(AActionsDefinition node)
-			throws AnalysisException
-	{
-
-		return false;
-	}
-
-	@Override
-	public Boolean caseATypesDefinition(ATypesDefinition node)
-			throws AnalysisException
-	{
-
-		return false;
-	}
-
-	@Override
-	public Boolean caseAOperationsDefinition(AOperationsDefinition node)
-			throws AnalysisException
-	{
-
-		return false;
-	}
-
-	@Override
-	public Boolean caseAFunctionsDefinition(AFunctionsDefinition node)
-			throws AnalysisException
-	{
-
-		return false;
-	}
-
-	@Override
-	public Boolean caseAValuesDefinition(AValuesDefinition node)
 			throws AnalysisException
 	{
 

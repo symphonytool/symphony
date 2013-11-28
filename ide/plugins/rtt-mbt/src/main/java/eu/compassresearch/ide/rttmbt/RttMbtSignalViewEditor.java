@@ -12,8 +12,6 @@ import org.csstudio.swt.xygraph.figures.Trace;
 import org.csstudio.swt.xygraph.figures.XYGraph;
 import org.csstudio.swt.xygraph.figures.Trace.PointStyle;
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.draw2d.LightweightSystem;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -70,9 +68,7 @@ public class RttMbtSignalViewEditor extends EditorPart {
 			iFile = iFileInput.getFile();
 			try {
 				// parse JSON input
-		    	IWorkspace workspace = ResourcesPlugin.getWorkspace();
-				File workspaceDirectory = workspace.getRoot().getLocation().toFile();
-				File inputFile = new File(workspaceDirectory.getAbsolutePath() + iFile.getFullPath().toString());
+				File inputFile = new File(iFile.getLocationURI());
 				FileReader reader = new FileReader(inputFile);
 				JSONParser parser = new JSONParser();
 				Object obj = parser.parse(reader);

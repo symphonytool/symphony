@@ -76,9 +76,9 @@ public class jsonCheckModelCommand extends jsonCommand {
 			return;
 		}
 		String filename;
-		if (client.getProjectName() != null) {
+		if (client.getWorkspaceProjectName() != null) {
 			if (reportName == null) {
-				reportName = client.getRttProjectRoot() + File.separator + "model" + File.separator + "LivelockReport.log";
+				reportName = client.getRttProjectPath() + File.separator + "model" + File.separator + "LivelockReport.log";
 			}
 			filename = reportName;
 		} else {

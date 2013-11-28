@@ -177,7 +177,7 @@ public class ThmImpFunc extends ThmDecl {
 				}
 			}
 			//If there are remaining parameters, add a ","
-			if(itr1.hasNext()){	
+			if(itr1.hasNext() || ((prepost.equals("post") && res != null))){	
 				sb.append(", ");
 			}
 			
@@ -185,10 +185,6 @@ public class ThmImpFunc extends ThmDecl {
 		//if there is a result value
 		if (prepost.equals("post") && res != null)
 		{
-			if (!params.isEmpty())
-			{
-				sb.append(", ");
-			}
 			sb.append("^" + ThmTypeUtil.isaFuncLambdaPostVal + "^");
 		}
 		sb.append(")");

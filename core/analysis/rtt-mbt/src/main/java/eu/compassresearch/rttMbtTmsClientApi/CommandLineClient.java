@@ -423,26 +423,28 @@ public class CommandLineClient {
 			workspace = directory.getAbsolutePath() + File.separator;
 		}
 
-		// set CML workspace path
-		client.setCmlWorkspace(workspace);
+		// set workspace path
+		client.setWorkspacePath(workspace);
 
-		if (container == null) {
-			// create/set CML project
-			container = "ProjectContainer";
-			File cmlprjdir = new File(client.getCmlWorkspace(), container);
-			if (!cmlprjdir.exists()) {
-				cmlprjdir.mkdirs();
-			}
-		}
-		
-		// set CML project name
-		client.setCmlProject(container);
+		// set workspace prefix
+		client.setWorkspaceProjectPrefix(container);
 
 		// set RTT-MBT project name
 		if (project == null) {
-			client.setProjectName("Project");
+			client.setRttProjectName("Project");
+			client.setWorkspaceProjectName("Project");
 		} else {
-			client.setProjectName(project);
+			client.setRttProjectName(project);
+			client.setWorkspaceProjectName("Project");
+		}
+
+		// set project path
+		if (client.getWorkspaceProjectPrefix() == null) {
+			client.setRttProjectPath(client.getWorkspacePath() + File.separator + client.getRttProjectName());
+		} else {
+			client.setRttProjectPath(client.getWorkspacePath() + File.separator +
+					                 client.getWorkspaceProjectPrefix() + File.separator +
+					                 client.getRttProjectName());
 		}
 
 		// execute command
@@ -522,7 +524,7 @@ public class CommandLineClient {
 			client.setConsoleName("CreateProject");
 			String project = null;
 			if (args.length > 2) {
-				client.setCmlProject(args[1]);
+				client.setWorkspaceProjectPrefix(args[1]);
 				project = args[2];
 			} else {
 				project = args[1];
@@ -540,13 +542,15 @@ public class CommandLineClient {
 		case InitProject:
 			client.setConsoleName("InitProject");
 			if (args.length > 5) {
-				client.setCmlProject(args[1]);
-				client.setProjectName(args[2]);
+				client.setWorkspaceProjectPrefix(args[1]);
+				client.setWorkspaceProjectName(args[2]);
+				client.setRttProjectName(args[2]);
 				modelname = args[3];
 				modelversion = args[4];
 				modelfile = args[5];
 			} else {
-				client.setProjectName(args[1]);
+				client.setWorkspaceProjectName(args[1]);
+				client.setRttProjectName(args[1]);
 				modelname = args[2];
 				modelversion = args[3];
 				modelfile = args[4];
@@ -564,8 +568,9 @@ public class CommandLineClient {
 		case GenerateTest:
 			client.setConsoleName("GenerateTest");
 			if (args.length > 3) {
-				client.setCmlProject(args[1]);
-				client.setProjectName(args[2]);
+				client.setWorkspaceProjectPrefix(args[1]);
+				client.setWorkspaceProjectName(args[2]);
+				client.setRttProjectName(args[2]);
 				path = args[3];
 			} else {
 				path = args[1];
@@ -583,8 +588,9 @@ public class CommandLineClient {
 		case GenerateSimulation:
 			client.setConsoleName("GenerateSimulation");
 			if (args.length > 3) {
-				client.setCmlProject(args[1]);
-				client.setProjectName(args[2]);
+				client.setWorkspaceProjectPrefix(args[1]);
+				client.setWorkspaceProjectName(args[2]);
+				client.setRttProjectName(args[2]);
 				path = args[3];
 			} else {
 				path = args[1];
@@ -602,11 +608,13 @@ public class CommandLineClient {
 		case CleanTest:
 			client.setConsoleName("CleanTest");
 			if (args.length > 3) {
-				client.setCmlProject(args[1]);
-				client.setProjectName(args[2]);
+				client.setWorkspaceProjectPrefix(args[1]);
+				client.setWorkspaceProjectName(args[2]);
+				client.setRttProjectName(args[2]);
 				path = args[3];
 			} else {
-				client.setProjectName(args[1]);
+				client.setWorkspaceProjectName(args[1]);
+				client.setRttProjectName(args[1]);
 				path = args[2];
 			}
 			if (client.cleanTestProcedure(path)) {
@@ -622,11 +630,13 @@ public class CommandLineClient {
 		case CompileTest:
 			client.setConsoleName("CompileTest");
 			if (args.length > 3) {
-				client.setCmlProject(args[1]);
-				client.setProjectName(args[2]);
+				client.setWorkspaceProjectPrefix(args[1]);
+				client.setWorkspaceProjectName(args[2]);
+				client.setRttProjectName(args[2]);
 				path = args[3];
 			} else {
-				client.setProjectName(args[1]);
+				client.setWorkspaceProjectName(args[1]);
+				client.setRttProjectName(args[1]);
 				path = args[2];
 			}
 			if (client.compileTestProcedure(path)) {
@@ -642,11 +652,13 @@ public class CommandLineClient {
 		case RunTest:
 			client.setConsoleName("RunTest");
 			if (args.length > 3) {
-				client.setCmlProject(args[1]);
-				client.setProjectName(args[2]);
+				client.setWorkspaceProjectPrefix(args[1]);
+				client.setWorkspaceProjectName(args[2]);
+				client.setRttProjectName(args[2]);
 				path = args[3];
 			} else {
-				client.setProjectName(args[1]);
+				client.setWorkspaceProjectName(args[1]);
+				client.setRttProjectName(args[1]);
 				path = args[2];
 			}
 			if (client.runTestProcedure(path)) {
@@ -662,11 +674,13 @@ public class CommandLineClient {
 		case ReplayTest:
 			client.setConsoleName("ReplayTest");
 			if (args.length > 3) {
-				client.setCmlProject(args[1]);
-				client.setProjectName(args[2]);
+				client.setWorkspaceProjectPrefix(args[1]);
+				client.setWorkspaceProjectName(args[2]);
+				client.setRttProjectName(args[2]);
 				path = args[3];
 			} else {
-				client.setProjectName(args[1]);
+				client.setWorkspaceProjectName(args[1]);
+				client.setRttProjectName(args[1]);
 				path = args[2];
 			}
 			if (client.replayTestProcedure(path)) {
@@ -682,11 +696,13 @@ public class CommandLineClient {
 		case DocTest:
 			client.setConsoleName("DocTest");
 			if (args.length > 3) {
-				client.setCmlProject(args[1]);
-				client.setProjectName(args[2]);
+				client.setWorkspaceProjectPrefix(args[1]);
+				client.setWorkspaceProjectName(args[2]);
+				client.setRttProjectName(args[2]);
 				path = args[3];
 			} else {
-				client.setProjectName(args[1]);
+				client.setWorkspaceProjectName(args[1]);
+				client.setRttProjectName(args[1]);
 				path = args[2];
 			}
 			if (client.docTestProcedure(path)) {
@@ -805,9 +821,11 @@ public class CommandLineClient {
 			if (args.length > 3) {
 				client.setUserName(args[1]);
 				client.setUserId(args[2]);
-				client.setProjectName(args[3]);
+				client.setWorkspaceProjectName(args[3]);
+				client.setRttProjectName(args[3]);
 			} else {
-				client.setProjectName(args[3]);
+				client.setWorkspaceProjectName(args[1]);
+				client.setRttProjectName(args[1]);
 			}
 			if (client.createProjectDatabase()) {
 				System.out.println("[PASS]: create project database  " + client.getProjectDatabaseName());

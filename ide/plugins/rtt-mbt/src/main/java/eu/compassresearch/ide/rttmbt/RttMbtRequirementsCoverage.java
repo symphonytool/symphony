@@ -16,8 +16,6 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.viewers.LabelProvider;
@@ -76,17 +74,19 @@ public class RttMbtRequirementsCoverage extends MultiPageEditorPart  {
 			IFile ifile = iFileInput.getFile();
 			InputStream istream;
 			try {
+				// create fileScanners for req2tc.csv and tc2req.csv
+				String localpath = RttMbtClient.getAbsolutePathFromFileURI(ifile.getLocationURI());
+				if (localpath== null) {
+					client.addErrorMessage("*** error: unable to open related test case and requirements coverage files!");
+					return;
+				}
 				istream = ifile.getContents();
 				Scanner covScanner = new Scanner(istream);
-				// create fileScanners for req2tc.csv and tc2req.csv
-		    	IWorkspace workspace = ResourcesPlugin.getWorkspace();
-				String workspacepath = workspace.getRoot().getLocation().toFile().getAbsolutePath();
-				String localpath = ifile.getFullPath().toString();
-				RttProjectRoot = workspacepath + localpath.substring(0, localpath.lastIndexOf("model"));
+				RttProjectRoot = localpath.substring(0, localpath.lastIndexOf("model"));				
 				localpath = localpath.replaceAll("overall_coverage.csv", "");
-				String req2tcpath = workspacepath + localpath + "req2tc.csv";
-				String tc2reqpath = workspacepath + localpath + "tc2req.csv";
-				String tcpath = workspacepath + localpath + "testcases.csv";
+				String req2tcpath = localpath + "req2tc.csv";
+				String tc2reqpath = localpath + "tc2req.csv";
+				String tcpath = localpath + "testcases.csv";
 				FileInputStream req2tcstream = new FileInputStream(req2tcpath);
 				FileInputStream tc2reqstream = new FileInputStream(tc2reqpath);
 				FileInputStream tcstream = new FileInputStream(tcpath);

@@ -25,14 +25,14 @@ public class RttMbtCheckModel extends RttMbtPopupMenuAction {
 		}
 		
 		// get RttMbtClient for this action
-		if (!initClient(selectedObjectPath)) {
+		if (!initClient()) {
 			client.addErrorMessage("[FAIL]: check model: init of RTT-MBT client failed!");
 			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 			return null;
 		}
 
 		// get model file name
-		final File model = new File(client.getCmlWorkspace() + selectedObjectPath);
+		final File model = new File(selectedObjectFilesystemPath);
 		if (!model.exists()) {
 			client.addErrorMessage("[FAIL]: check model: unable to find model file " +
 		                           model.getAbsolutePath() + "!");

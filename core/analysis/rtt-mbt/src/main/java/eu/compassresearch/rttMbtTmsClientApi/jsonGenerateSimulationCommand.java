@@ -22,7 +22,7 @@ public class jsonGenerateSimulationCommand extends jsonCommand {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public String getJsonCommandString() {
 		// check if project name is properly assigned
-		if (client.getProjectName() == null) {
+		if (client.getRttProjectPath() == null) {
 			System.err.println("[ERROR]: project name not assigned!");
 			return null;
 		}
@@ -31,7 +31,7 @@ public class jsonGenerateSimulationCommand extends jsonCommand {
 		Map params = new LinkedHashMap();
 		params.put("user", client.getUserName());
 		params.put("user-id", client.getUserId());
-		params.put("project-name", client.toUnixPath(client.getProjectPath()));
+		params.put("project-name", client.toUnixPath(client.removeLocalWorkspace(client.getRttProjectPath())));
 		params.put("test-procedure-path", client.toUnixPath(testProcName));
 		// create command
 		JSONObject cmd = new JSONObject();

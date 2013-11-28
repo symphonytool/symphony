@@ -14,8 +14,6 @@ import java.util.Scanner;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.SWT;
@@ -36,6 +34,8 @@ import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IWorkbenchPartConstants;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
+
+import eu.compassresearch.rttMbtTmsClientApi.RttMbtClient;
 
 public class RttMbtConfigEditor extends EditorPart {
 
@@ -399,7 +399,7 @@ public class RttMbtConfigEditor extends EditorPart {
 		// if nothing is to be saved, exit.
 		if (!isDirty()) return;
 		
-		// if data is inconsitent: do not save anything
+		// if data is inconsistent: do not save anything
 		if (editors.size() < fileContent.size()) {
 			System.err.println("*** error: number of editor rows (" + editors.size() +
 							   ") does not match number of csv file rows (" + fileContent.size() + ")");
@@ -494,10 +494,10 @@ public class RttMbtConfigEditor extends EditorPart {
 				istream = iFile.getContents();
 				fileScanner = new Scanner(istream);
 				// create output file for saving
-		    	IWorkspace workspace = ResourcesPlugin.getWorkspace();
-				File workspaceDirectory = workspace.getRoot().getLocation().toFile();
-				String filename = workspaceDirectory.getAbsolutePath() + iFile.getFullPath().toString();
-				output = new File(filename);
+				String filename = RttMbtClient.getAbsolutePathFromFileURI(iFile.getLocationURI());
+				if (filename != null) {
+					output = new File(filename);
+				}
 			} catch (CoreException e) {
 				e.printStackTrace();
 			}
