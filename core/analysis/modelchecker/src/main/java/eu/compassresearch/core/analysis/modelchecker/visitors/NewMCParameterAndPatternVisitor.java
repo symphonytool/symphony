@@ -1,10 +1,13 @@
 package eu.compassresearch.core.analysis.modelchecker.visitors;
 
+import java.util.LinkedList;
+
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.analysis.intf.IQuestionAnswer;
 import org.overture.ast.node.INode;
 import org.overture.ast.patterns.AIdentifierPattern;
+import org.overture.ast.patterns.ATypeMultipleBind;
 import org.overture.ast.patterns.PPattern;
 
 import eu.compassresearch.ast.actions.ACommunicationAction;
@@ -29,6 +32,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAUndefine
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCVoidValue;
 import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCAIdentifierPattern;
+import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCATypeMultipleBind;
 import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCPCMLPattern;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAChannelType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
@@ -157,6 +161,23 @@ public class NewMCParameterAndPatternVisitor extends QuestionAnswerCMLAdaptor<Ne
 		
 		return result;
 	}
+	
+	
+
+	@Override
+	public MCNode caseATypeMultipleBind(ATypeMultipleBind node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		
+		MCPCMLType type = (MCPCMLType) node.getType().apply(rootVisitor, question);
+		LinkedList<MCPCMLPattern> pList = new LinkedList<MCPCMLPattern>();
+		for (PPattern p : node.getPlist()) {
+			pList.add((MCPCMLPattern) p.apply(rootVisitor, question));
+		}
+		MCATypeMultipleBind result = new MCATypeMultipleBind(pList, type);
+		
+		return result;
+	}
+
 
 	@Override
 	public MCNode createNewReturnValue(INode node,

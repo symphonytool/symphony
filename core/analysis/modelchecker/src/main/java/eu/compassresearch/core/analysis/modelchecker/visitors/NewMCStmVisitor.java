@@ -13,6 +13,7 @@ import org.overture.ast.statements.ABlockSimpleBlockStm;
 import org.overture.ast.statements.ACallStm;
 import org.overture.ast.statements.AIdentifierStateDesignator;
 import org.overture.ast.statements.AIfStm;
+import org.overture.ast.statements.ASkipStm;
 import org.overture.ast.statements.PStateDesignator;
 import org.overture.ast.statements.PStateDesignatorBase;
 import org.overture.ast.statements.PStm;
@@ -35,6 +36,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCABlockSimp
 import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCACallStm;
 import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCAIdentifierStateDesignator;
 import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCAIfStm;
+import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCASkipStm;
 import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCAUnresolvedStateDesignator;
 import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCPCMLStm;
 import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCPStateDesignator;
@@ -181,6 +183,14 @@ public class NewMCStmVisitor extends
 		question.stmGuardDefs.put(ifExp, guarDefs);
 		
 		return result;
+	}
+
+	
+	@Override
+	public MCNode caseASkipStm(ASkipStm node, NewCMLModelcheckerContext question)
+			throws AnalysisException {
+		
+		return new MCASkipStm();
 	}
 
 	@Override

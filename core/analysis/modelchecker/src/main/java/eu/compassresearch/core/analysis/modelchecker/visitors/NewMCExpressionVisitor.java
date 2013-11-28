@@ -28,11 +28,13 @@ import org.overture.ast.expressions.AVariableExp;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.expressions.SNumericBinaryBase;
 import org.overture.ast.node.INode;
+import org.overture.ast.patterns.PMultipleBind;
 import org.overture.ast.types.PType;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.expressions.ABracketedExp;
 import eu.compassresearch.ast.expressions.AEnumVarsetExpression;
+import eu.compassresearch.ast.expressions.AFatCompVarsetExpression;
 import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
 import eu.compassresearch.ast.expressions.ANameChannelExp;
 import eu.compassresearch.ast.expressions.AUnionVOpVarsetExpression;
@@ -41,6 +43,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAApplyExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAEnumVarsetExpression;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAEqualsBinaryExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAFatCompVarsetExpression;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAFatEnumVarsetExpression;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAGreaterEqualNumericBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAGreaterNumericBinaryExp;
@@ -66,6 +69,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAVariable
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPVarsetExpression;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCVoidValue;
+import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCPMultipleBind;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 
 public class NewMCExpressionVisitor extends
@@ -93,6 +97,23 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 		MCPVarsetExpression left = (MCPVarsetExpression) node.getLeft().apply(rootVisitor, question);
 		MCPVarsetExpression right = (MCPVarsetExpression) node.getRight().apply(rootVisitor, question);
 		MCAUnionVOpVarsetExpression result = new MCAUnionVOpVarsetExpression(left, right);
+		return result;
+	}
+
+	
+
+	@Override
+	public MCNode caseAFatCompVarsetExpression(AFatCompVarsetExpression node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		
+		
+		MCANameChannelExp channelNameExp = (MCANameChannelExp) node.getChannelNameExp().apply(rootVisitor, question);
+		LinkedList<MCPMultipleBind> bindings = new LinkedList<MCPMultipleBind>(); 
+		for (PMultipleBind mBind : node.getBindings()) {
+			bindings.add((MCPMultipleBind) mBind.apply(rootVisitor, question));
+		}
+		MCAFatCompVarsetExpression result = new MCAFatCompVarsetExpression(bindings,channelNameExp);
+		
 		return result;
 	}
 
