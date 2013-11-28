@@ -467,6 +467,11 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 				}
 			}
 		}
+		
+		if(remoteClass!=null)
+		{
+			//TODO
+		}
 
 		execute(selectionStrategy, processName, filenames.toArray(new File[filenames.size()]));
 
