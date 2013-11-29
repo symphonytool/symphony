@@ -25,8 +25,6 @@ import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.scheduler.BasicSchedulableThread;
 import org.overture.interpreter.scheduler.InitThread;
 import org.overture.interpreter.values.Value;
-import org.overture.parser.lex.LexTokenReader;
-import org.overture.parser.syntax.ExpressionReader;
 import org.overture.typechecker.Environment;
 
 import eu.compassresearch.ast.definitions.AProcessDefinition;
