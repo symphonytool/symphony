@@ -30,6 +30,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCATypeDefi
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAValueDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCSCmlOperationDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCSFunctionDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPVarsetExpression;
 import eu.compassresearch.core.parser.CmlParser.processDefinition_return;
@@ -63,6 +64,7 @@ public class NewCMLModelcheckerContext {
 	public ArrayList<ActionChannelDependency> channelDependencies;
 	public ArrayListSet<MCPVarsetExpression> globalChanSets;
 	public ArrayListSet<NameValue> localVariablesMapping;
+	public ArrayList<MCASBinaryExp> setExpressioFacts;
 	
 	
 	
@@ -201,6 +203,7 @@ public class NewCMLModelcheckerContext {
 		globalChanSets = new ArrayListSet<MCPVarsetExpression>();
 		realLieInFacts = new ArrayListSet<MCLieInFact>();
 		localVariablesMapping = new ArrayListSet<NameValue>();
+		setExpressioFacts = new ArrayList<MCASBinaryExp>(); 
 		ASSIGN_COUNTER = 0;
 		GUARD_COUNTER = 0;
 		IOCOMM_COUNTER = 0;

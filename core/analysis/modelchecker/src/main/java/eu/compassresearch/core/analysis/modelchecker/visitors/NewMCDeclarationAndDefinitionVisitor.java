@@ -168,6 +168,7 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 	}
 
 	
+	
 	@Override
 	public MCNode caseAAssignmentDefinition(AAssignmentDefinition node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
@@ -195,6 +196,7 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 	@Override
 	public MCNode caseATypeSingleDeclaration(ATypeSingleDeclaration node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
+		
 		String identifier = node.getIdentifier().getName();
 		MCPCMLType type = (MCPCMLType) node.getType().apply(rootVisitor, question);
 		MCATypeSingleDeclaration result = new MCATypeSingleDeclaration(identifier, type);
@@ -348,13 +350,14 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 		if( node.getInvExpression() != null) {
 			invExpression = (MCPCMLExp) node.getInvExpression().apply(rootVisitor, question);
 		} else {
-			PType pType = node.getType(); 
+			PType pType = node.getInvType(); 
 			if( pType instanceof ANamedInvariantType){
 				pType = ((ANamedInvariantType) pType).getType();
 				type = (MCPCMLType) pType.apply(rootVisitor, question);
 			}
 			
 		}
+		
 		MCATypeDefinition result = new MCATypeDefinition(name, invExpression, type);
 		
 		question.typeDefinitions.add(result);

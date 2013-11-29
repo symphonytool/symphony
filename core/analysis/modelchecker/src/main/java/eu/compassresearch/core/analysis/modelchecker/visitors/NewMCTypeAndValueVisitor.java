@@ -6,6 +6,7 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.node.INode;
 import org.overture.ast.types.ABooleanBasicType;
+import org.overture.ast.types.ABracketType;
 import org.overture.ast.types.AFunctionType;
 import org.overture.ast.types.AIntNumericBasicType;
 import org.overture.ast.types.ANamedInvariantType;
@@ -24,6 +25,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ExpressionEva
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.TypeManipulator;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCABooleanBasicType;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCABracketType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAChannelType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAFunctionType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAIntNumericBasicType;
@@ -167,6 +169,17 @@ public class NewMCTypeAndValueVisitor extends
 		
 		MCPCMLType setOf = (MCPCMLType) node.getSetof().apply(this, question);
 		MCASetType result = new MCASetType(setOf); 
+		return result;
+	}
+	
+	
+
+	@Override
+	public MCNode caseABracketType(ABracketType node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		MCPCMLType type = (MCPCMLType) node.getType().apply(rootVisitor, question);
+		MCABracketType result = new MCABracketType(type);
+		
 		return result;
 	}
 

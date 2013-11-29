@@ -365,7 +365,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	public void caseAAlphabetisedParallelismReplicatedProcess(
 			AAlphabetisedParallelismReplicatedProcess node)
 			throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAAlphabetisedParallelismReplicatedProcess(node);
@@ -1159,7 +1159,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseAFatCompVarsetExpression(AFatCompVarsetExpression node)
 			throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAFatCompVarsetExpression(node);
@@ -1393,7 +1393,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseAHidingProcess(AHidingProcess node)
 			throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAHidingProcess(node);
@@ -2790,7 +2790,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 
 	@Override
 	public void caseASkipStm(ASkipStm node) throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseASkipStm(node);
@@ -3129,7 +3129,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseATypeMultipleBind(ATypeMultipleBind node)
 			throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseATypeMultipleBind(node);
@@ -3138,7 +3138,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseATypeSingleDeclaration(ATypeSingleDeclaration node)
 			throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseATypeSingleDeclaration(node);
@@ -3197,7 +3197,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseAUnionVOpVarsetExpression(AUnionVOpVarsetExpression node)
 			throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAUnionVOpVarsetExpression(node);
@@ -3205,7 +3205,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 
 	@Override
 	public void caseAUnknownType(AUnknownType node) throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAUnknownType(node);

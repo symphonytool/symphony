@@ -15,6 +15,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ExpressionEva
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCOperationCall;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCPreOpTrue;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCStringType;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASetUnionBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAVariableExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCPCMLPattern;
@@ -137,7 +138,8 @@ public class MCAExplicitCmlOperationDefinition implements
 					newValueVarName = varName + "_";
 					MCPCMLExp newVarValue = new MCAVariableExp(newValueVarName);
 					maximalCopy.updateBinding(varName,newVarValue);
-					result.append(maximalCopy.toFormula(MCNode.DEFAULT)); 
+					//apenas os bindings envolvendo nomes com _ devem ser impressos na forma DEFAULT. Os outrs devem ser na forma NAMED
+					result.append(maximalCopy.toFormula(MCNode.NAMED)); 
 				}
 			} else if (stateDesignator instanceof MCAIdentifierStateDesignator){
 				String varName = ((MCAIdentifierStateDesignator) stateDesignator).getName();
@@ -151,7 +153,15 @@ public class MCAExplicitCmlOperationDefinition implements
 		//THE EXPRESSION OF THE ASSIGNMENT
 		if(assignmentBody.getExpression() != null){
 			result.append(", ");
-			result.append(newValueVarName + " = " + assignmentBody.getExpression().toFormula(option)); //expression assignment
+			MCPCMLExp realExpression = assignmentBody.getExpression();
+			if(realExpression instanceof MCASetUnionBinaryExp){
+				((MCASetUnionBinaryExp) realExpression).setNewVarName(newValueVarName);
+				result.append(realExpression.toFormula(option)); //expression assignment
+			}else{
+				//DEVE PRODUZIR ALGO SEMELHANTE A ISSO PORQUE OS FATOS UNION NAO ESTAO MUDANDO OS BINDINGS
+				//PODEMOS MUDAR OS BINDINGS EXPLICITAMENTE
+				result.append(newValueVarName + " = " + assignmentBody.getExpression().toFormula(option)); //expression assignment
+			}
 		}
 		result.append(".");
 		result.append("\n");

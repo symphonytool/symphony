@@ -163,7 +163,7 @@ public class Utilities {
 				"GivenProc"), ProcDef("ProcDef"), CommEv("CommEv"),
 				SingleBind("SingleBind"), Void("void"), VarDecl("var"), Let("let"), 
 				GenPar("genPar"), TypeValue("TypeValue"), UntimedInterrupt("intrpt"), 
-				UntimedTimeout ("timeout");
+				UntimedTimeout ("uTimeout");
 		
 		String id;
 		

@@ -13,7 +13,10 @@ import org.overture.ast.expressions.SBinaryExp;
 import org.overture.ast.expressions.SSeqExp;
 import org.overture.ast.expressions.SSetExp;
 import org.overture.ast.node.INode;
+import org.overture.ast.patterns.PBind;
+import org.overture.ast.patterns.PMultipleBind;
 import org.overture.ast.patterns.PPattern;
+import org.overture.ast.patterns.PPatternBind;
 import org.overture.ast.statements.PStateDesignator;
 import org.overture.ast.statements.PStm;
 import org.overture.ast.types.PType;
@@ -90,7 +93,6 @@ public class NewMCVisitor extends
 	@Override
 	public MCNode defaultINode(INode node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
-		
 		
 		return  node.apply(emptyVisitor, question);
 	}
@@ -216,6 +218,30 @@ public class NewMCVisitor extends
 		
 		return node.apply(stmVisitor, question);
 	}
+	
+	
+	@Override
+	public MCNode defaultPPatternBind(PPatternBind node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		
+		return node.apply(paramAndPatternVisitor, question);
+	}
+	
+	
+	
+	@Override
+	public MCNode defaultPMultipleBind(PMultipleBind node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		
+		return node.apply(paramAndPatternVisitor, question);
+	}
+	
+	@Override
+	public MCNode defaultPBind(PBind node, NewCMLModelcheckerContext question)
+			throws AnalysisException {
+		
+		return node.apply(paramAndPatternVisitor, question);
+	}
 	/*
 	 *
 	
@@ -253,7 +279,7 @@ public class NewMCVisitor extends
 		MCAProcessDefinition result = null;
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 		
-		String mainProcessName = "SoS";
+		String mainProcessName = "OneCard";
 
 		if(context.processDefinitions.size() > 1){
 			for (MCAProcessDefinition proc : context.processDefinitions) {
@@ -310,7 +336,7 @@ public class NewMCVisitor extends
 		
 		//String cml_file = "src/test/resources/simpler-b-and-o-model.cml";
 		//String cml_file = "src/test/resources/minimondex-incomplete.cml.nok";
-		String cml_file = "src/test/resources/BeoAVDeviceDiscovery.cml";
+		String cml_file = "src/test/resources/simpler-minimondex.cml";
 		//String cml_file = "src/test/resources/simpler-register.cml";
 		//String cml_file = "src/test/resources/action-prefix-skip.cml";
 		//System.out.println("Testing on " + cml_file);
@@ -319,13 +345,15 @@ public class NewMCVisitor extends
 		ITypeIssueHandler errors = VanillaFactory.newCollectingIssueHandle();
 		ICmlTypeChecker cmlTC = VanillaFactory.newTypeChecker(source1.getParagraphs(), errors);
 		
+		/*
 		if(!cmlTC.typeCheck()){
 			System.out.println("There are typecheck errors.");
 			return;
 		}
+		*/
 		
 		NewMCVisitor visitor1 = new NewMCVisitor(source1);
-		String mainProcessName = "SourceProduct_DD_SD_InterfaceProtocolView";
+		String mainProcessName = "OneCard";
 		
 		String formulaCode = visitor1.generateFormulaScript(source1.getParagraphs(),Utilities.DEADLOCK_PROPERTY,mainProcessName);
 		//String[] codes1 = visitor1.generateFormulaCodeForAll(Utilities.DEADLOCK_PROPERTY);
