@@ -226,7 +226,7 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 			AActionClassDefinition node) throws AnalysisException
 	{
 
-		return null;
+		return defaultSClassDefinition(node);
 	}
 
 	@Override

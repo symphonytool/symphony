@@ -2,7 +2,6 @@ package eu.compassresearch.core.interpreter;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.intf.lex.ILexNameToken;
-import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.Value;
@@ -45,13 +44,15 @@ abstract class AbstractSetupVisitor extends
 	{
 		this.controlAccess.setLeftChild(null);
 	}
-	
-	protected void setLeftChild(INode node, ILexNameToken name, Context question) throws AnalysisException
+
+	protected void setLeftChild(INode node, ILexNameToken name, Context question)
+			throws AnalysisException
 	{
-		this.controlAccess.setLeftChild(new ConcreteCmlBehaviour(node, this.controlAccess.getChildContexts(question).first, name , owner));
+		this.controlAccess.setLeftChild(new ConcreteCmlBehaviour(node, this.controlAccess.getChildContexts(question).first, name, owner));
 	}
-	
-	protected void setLeftChild(INode node, Context question) throws AnalysisException
+
+	protected void setLeftChild(INode node, Context question)
+			throws AnalysisException
 	{
 		this.controlAccess.setLeftChild(new ConcreteCmlBehaviour(node, this.controlAccess.getChildContexts(question).first, owner));
 	}
@@ -60,13 +61,15 @@ abstract class AbstractSetupVisitor extends
 	{
 		this.controlAccess.setRightChild(null);
 	}
-	
-	protected void setRightChild(INode node, ILexNameToken name, Context question) throws AnalysisException
+
+	protected void setRightChild(INode node, ILexNameToken name,
+			Context question) throws AnalysisException
 	{
-		this.controlAccess.setRightChild(new ConcreteCmlBehaviour(node, this.controlAccess.getChildContexts(question).second, name , owner));
+		this.controlAccess.setRightChild(new ConcreteCmlBehaviour(node, this.controlAccess.getChildContexts(question).second, name, owner));
 	}
 
-	protected void setRightChild(INode node, Context question) throws AnalysisException
+	protected void setRightChild(INode node, Context question)
+			throws AnalysisException
 	{
 		this.controlAccess.setRightChild(new ConcreteCmlBehaviour(node, this.controlAccess.getChildContexts(question).second, owner));
 	}

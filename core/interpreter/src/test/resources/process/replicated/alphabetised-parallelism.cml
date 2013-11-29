@@ -7,6 +7,9 @@ values
 channels 
 a : int
  
-process A = val i : NID @ begin @ a.(i) ->  a.(i+1) -> Skip end
+process A = val i : NID @ begin @ 
+	a.(i) ->  
+		a.(i+1) -> 
+			Skip end
 
-process Test = || i in set NodeIDs @ [ {| a.(j) | j in set {1,...,i+1} |} ]A(i) 
+process Test = || i in set NodeIDs @ [ {| a.(j) | j in set {i,i+1} @ j in set NodeIDs |} ]A(i) 

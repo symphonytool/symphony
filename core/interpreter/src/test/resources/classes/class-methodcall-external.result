@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <testResult>
   <exception/>
-  <interpreterState>DEADLOCKED</interpreterState>
+  <interpreterState>FINISHED</interpreterState>
   <trace>
-    <events>a.1,a.2,a.3</events>
+    <events>a.2</events>
   </trace>
 </testResult>

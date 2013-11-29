@@ -40,7 +40,6 @@ import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
 import eu.compassresearch.core.interpreter.api.values.LatticeTopValue;
 import eu.compassresearch.core.interpreter.api.values.ProcessObjectValue;
 
-@SuppressWarnings("serial")
 class CmlDefinitionVisitor extends
 		QuestionAnswerCMLAdaptor<Context, NameValuePairList>
 {
@@ -128,7 +127,7 @@ class CmlDefinitionVisitor extends
 			AInstanceVariableDefinition node, Context question)
 			throws AnalysisException
 	{
-		return PDefinitionAssistantInterpreter.getNamedValues(node,question);
+		return PDefinitionAssistantInterpreter.getNamedValues(node, question);
 	}
 
 	@Override
@@ -149,12 +148,13 @@ class CmlDefinitionVisitor extends
 		return vpl;
 	}
 
-	 @Override
-	 public NameValuePairList caseAClassClassDefinition(AClassClassDefinition node,
-	 Context question) throws AnalysisException
-	 {
-		 return new NameValuePairList();
-	 }
+	@Override
+	public NameValuePairList caseAClassClassDefinition(
+			AClassClassDefinition node, Context question)
+			throws AnalysisException
+	{
+		return new NameValuePairList();
+	}
 
 	@Override
 	public NameValuePairList caseAChansetDefinition(AChansetDefinition node,
@@ -180,18 +180,25 @@ class CmlDefinitionVisitor extends
 
 		NameValuePairList vpl = new NameValuePairList();
 		if (node.parent() instanceof ATypeDefinition)
+		{
 			node.setIsTypeInvariant(true);
-		else
+		} else
+		{
 			node.setIsTypeInvariant(false);
+		}
 
 		// make the pre and post functions
 		FunctionValue postFuncValue = null;
 		FunctionValue preFuncValue = null;
 
 		if (node.getPredef() != null)
+		{
 			preFuncValue = new FunctionValue(node.getPredef(), null, null, null);
+		}
 		if (node.getPostdef() != null)
+		{
 			postFuncValue = new FunctionValue(node.getPostdef(), null, null, null);
+		}
 
 		FunctionValue funcValue = new FunctionValue(node, preFuncValue, postFuncValue, null);
 
@@ -211,9 +218,13 @@ class CmlDefinitionVisitor extends
 		FunctionValue preFuncValue = null;
 
 		if (node.getPredef() != null)
+		{
 			preFuncValue = new FunctionValue(node.getPredef(), null, null, null);
+		}
 		if (node.getPostdef() != null)
+		{
 			postFuncValue = new FunctionValue(node.getPostdef(), null, null, null);
+		}
 
 		FunctionValue funcValue = new FunctionValue(node, preFuncValue, postFuncValue, null);
 		NameValuePairList vpl = new NameValuePairList();
@@ -234,8 +245,8 @@ class CmlDefinitionVisitor extends
 			throws AnalysisException
 	{
 
-//		NameValuePairList vpl = new NameValuePairList();
-//		vpl.add(new NameValuePair(node.getName().clone(), CmlValueFactory.createOperationValue(node, question)));
+		// NameValuePairList vpl = new NameValuePairList();
+		// vpl.add(new NameValuePair(node.getName().clone(), CmlValueFactory.createOperationValue(node, question)));
 
 		return PDefinitionAssistantInterpreter.getNamedValues(node, question);
 	}
@@ -246,10 +257,10 @@ class CmlDefinitionVisitor extends
 			throws AnalysisException
 	{
 
-//		NameValuePairList vpl = new NameValuePairList();
-//		vpl.add(new NameValuePair(node.getName(), CmlValueFactory.createOperationValue(node, question)));
-//
-//		return vpl;
+		// NameValuePairList vpl = new NameValuePairList();
+		// vpl.add(new NameValuePair(node.getName(), CmlValueFactory.createOperationValue(node, question)));
+		//
+		// return vpl;
 		return PDefinitionAssistantInterpreter.getNamedValues(node, question);
 	}
 
@@ -263,9 +274,12 @@ class CmlDefinitionVisitor extends
 
 		Value expValue = null;
 		if (node.getExpression() != null)
+		{
 			expValue = node.getExpression().apply(cmlExpressionVisitor, question);
-		else
+		} else
+		{
 			expValue = new UndefinedValue();
+		}
 
 		vpl.add(new NameValuePair(node.getName(), expValue));
 
@@ -308,7 +322,9 @@ class CmlDefinitionVisitor extends
 
 		NameValuePairList vpl = new NameValuePairList();
 		if (node.getInvdef() != null)
+		{
 			vpl.addAll(node.getInvdef().apply(this, question));
+		}
 
 		return vpl;
 	}
@@ -327,7 +343,9 @@ class CmlDefinitionVisitor extends
 		Value val = node.getExpression().apply(cmlExpressionVisitor, question);
 
 		if (node.getPattern() instanceof AIdentifierPattern)
+		{
 			vpl.add(new NameValuePair(((AIdentifierPattern) node.getPattern()).getName(), val));
+		}
 
 		return vpl;
 	}

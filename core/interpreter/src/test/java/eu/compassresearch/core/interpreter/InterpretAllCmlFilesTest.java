@@ -123,7 +123,7 @@ public class InterpretAllCmlFilesTest
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			PrintStream ps = new PrintStream(baos);
 			res.printErrors(ps);
-			Assume.assumeTrue(false);
+			Assume.assumeTrue("Parser errors",false);
 			assertTrue("Parser Errors: \n\n" + baos, res.errors.isEmpty());
 			return;
 		}
@@ -142,7 +142,7 @@ public class InterpretAllCmlFilesTest
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			PrintWriter pw = new PrintWriter(baos);
 			tcIssue.printErrors(pw);
-			Assume.assumeTrue(false);
+			Assume.assumeTrue("Type check errors",false);
 			assertTrue("Type Check failed\n\n" + baos, isTypechecked);
 			return;
 		}

@@ -21,6 +21,7 @@ import org.overture.interpreter.values.TupleValue;
 import org.overture.interpreter.values.Value;
 import org.overture.interpreter.values.ValueList;
 
+import eu.compassresearch.ast.CmlAstFactory;
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
 import eu.compassresearch.ast.actions.AExternalChoiceReplicatedAction;
 import eu.compassresearch.ast.actions.AGeneralisedParallelismParallelAction;
@@ -72,28 +73,23 @@ import eu.compassresearch.core.interpreter.utility.SetMath;
 class ActionSetupVisitor extends AbstractSetupVisitor
 {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
 	public ActionSetupVisitor(CmlBehaviour owner, VisitorAccess visitorAccess)
 	{
 		super(owner, visitorAccess);
 	}
-	
+
 	@Override
 	public Pair<INode, Context> caseAActionStm(AActionStm node, Context question)
 			throws AnalysisException
 	{
-		return node.getAction().apply(this,question);
+		return node.getAction().apply(this, question);
 	}
-	
+
 	@Override
 	public Pair<INode, Context> caseAStmAction(AStmAction node, Context question)
 			throws AnalysisException
 	{
-		return node.getStatement().apply(this,question);
+		return node.getStatement().apply(this, question);
 	}
 
 	/*
@@ -213,7 +209,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 	{
 		return caseAUntimedTimeout(node, node.getLeft(), question);
 	}
-	
+
 	/*
 	 * Replication
 	 */
@@ -221,44 +217,48 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 	abstract class AbstractReplicationFactory
 	{
 		private final INode node;
-		
+
 		public AbstractReplicationFactory(INode node)
 		{
 			this.node = node;
 		}
-		
+
 		/**
-		 * This creates the next node in the replication when more than
-		 * 2 replication values are remaining
-		 * @return The replicated construct where the replicated action/process is left and
-		 * and the replication node is the right
+		 * This creates the next node in the replication when more than 2 replication values are remaining
 		 * 
+		 * @return The replicated construct where the replicated action/process is left and and the replication node is
+		 *         the right
 		 */
 		abstract INode createNextReplication();
 
 		/**
 		 * This creates the last node in the replication
+		 * 
 		 * @return The last replication node
 		 */
 		abstract INode createLastReplication();
-		
+
 		/**
 		 * This creates the node for a single replicated action/process
+		 * 
 		 * @return
 		 */
 		INode getReplicatedNode()
 		{
-			if(node instanceof SReplicatedAction)
+			if (node instanceof SReplicatedAction)
+			{
 				return ((SReplicatedAction) node).getReplicatedAction();
-			else 
+			} else
+			{
 				return ((SReplicatedProcess) node).getReplicatedProcess();
+			}
 		}
 	}
-	
+
 	/*
 	 * Non public replication helper methods -- Start
 	 */
-	
+
 	protected Pair<INode, Context> caseReplicated(INode node,
 			List<PSingleDeclaration> decls, AbstractReplicationFactory factory,
 			Context question) throws AnalysisException
@@ -284,39 +284,39 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 		INode nextNode;
 		Iterator<NameValuePairList> itQuantifiers = ql.iterator();
 
-		//if no replicated Value exists we return skip since this it what all the operators should return except
-		//for external choice which should be Stop, this is handled specifically in that case
-		if(!itQuantifiers.hasNext())
+		// if no replicated Value exists we return skip since this it what all the operators should return except
+		// for external choice which should be Stop, this is handled specifically in that case
+		if (!itQuantifiers.hasNext())
 		{
-			return new Pair<INode, Context>(new ASkipAction(LocationExtractor.extractLocation(node)), question);
+			return new Pair<INode, Context>(CmlAstFactory.newASkipAction(LocationExtractor.extractLocation(node)), question);
 		}
-		//fetch the left value and remove it from the list
+		// fetch the left value and remove it from the list
 		NameValuePairList nextValue = itQuantifiers.next();
 		itQuantifiers.remove();
-		//if no more rep values exists 
-		//and this is the first run then we do no replication and just returns the action/process
+		// if no more rep values exists
+		// and this is the first run then we do no replication and just returns the action/process
 		if (!itQuantifiers.hasNext() && firstRun)
 		{
 			return new Pair<INode, Context>(factory.getReplicatedNode(), createReplicationChildContext(nextValue, node, question));
 		}
-		//and this is NOT the first run then we created the context for the left side already right above the
-		//current context
+		// and this is NOT the first run then we created the context for the left side already right above the
+		// current context
 		else if (!itQuantifiers.hasNext() && !firstRun)
 		{
 			nextNode = factory.createLastReplication();
-			//the outer is the pre-calculated context from the previous run
+			// the outer is the pre-calculated context from the previous run
 			Context leftChildContext = question.outer;
-			//we take the outer.outer because we want the parent context of this one to be the one given to the replication node
+			// we take the outer.outer because we want the parent context of this one to be the one given to the
+			// replication node
 			Context rightChildContext = createReplicationChildContext(nextValue, node, question.outer.outer);
 			setChildContexts(new Pair<Context, Context>(leftChildContext, rightChildContext));
 			return new Pair<INode, Context>(nextNode, question.outer.outer);
 		}
-		
-		
+
 		NameValuePairList afterNextValue = itQuantifiers.next();
-		//itQuantifiers.remove();
-		
-		//If no values are left then we have exactly 2 values and thus we must create the last replication
+		// itQuantifiers.remove();
+
+		// If no values are left then we have exactly 2 values and thus we must create the last replication
 		if (!itQuantifiers.hasNext() && firstRun)
 		{
 			nextNode = factory.createLastReplication();
@@ -328,7 +328,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 			// then the replication context does not exist
 
 			setChildContexts(new Pair<Context, Context>(leftChildContext, rightChildContext));
-			
+
 			return new Pair<INode, Context>(nextNode, next);
 		}
 		// If we have more than two replication values then we make an interleaving between the
@@ -363,7 +363,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 			return new Pair<INode, Context>(nextNode, next);
 		}
 	}
-	
+
 	// FIXME this check is not sufficient
 	private class UnboundedChecker extends DepthFirstAnalysisCMLAdaptor
 	{
@@ -402,7 +402,9 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 					UnboundedChecker uc = new UnboundedChecker();
 					((LatticeTopValue) nvp.value).getType().apply(uc);
 					if (uc.isUnbounded())
+					{
 						throw new CmlInterpreterException(singleDecl, InterpretationErrorMessages.UNBOUNDED_REPLICATION.customizeMessage());
+					}
 				}
 
 				replicationDecls.add(nvp);
@@ -415,8 +417,10 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 			NameValuePair nvp = replicationDecls.get(0);
 			quantifierNames.add(nvp.name);
 			quantifierValues = new SetValue();
-			for (Value val : getIterator(nvp.value,question))
+			for (Value val : getIterator(nvp.value, question))
+			{
 				quantifierValues.values.add(new TupleValue(new ValueList(val)));
+			}
 
 		} else
 		{
@@ -426,8 +430,10 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 			for (NameValuePair nvp : replicationDecls)
 			{
 				List<Value> values = new LinkedList<Value>();
-				for (Value val : getIterator(nvp.value,question))
+				for (Value val : getIterator(nvp.value, question))
+				{
 					values.add(val);
+				}
 				quantifierNames.add(nvp.name);
 				sets.add(new SetValue(nvp.value.setValue(question)));
 			}
@@ -436,37 +442,41 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 
 		return new CmlSetQuantifier(quantifierNames, quantifierValues);
 	}
-	
-	private Iterable<Value> getIterator(Value val, Context question) throws ValueException
+
+	private Iterable<Value> getIterator(Value val, Context question)
+			throws ValueException
 	{
-		if(val instanceof SetValue)
+		if (val instanceof SetValue)
+		{
 			return val.setValue(question);
-		else
+		} else
+		{
 			return val.seqValue(question);
+		}
 	}
 
-	protected Context createReplicationChildContext(
-			NameValuePairList npvl, INode node, Context outer)
+	protected Context createReplicationChildContext(NameValuePairList npvl,
+			INode node, Context outer)
 	{
 		Context childContext = CmlContextFactory.newContext(LocationExtractor.extractLocation(node), "", outer);
 		childContext.putAllNew(npvl);
 		return childContext;
 	}
-	
+
 	/*
 	 * Non public replication helper methods -- End
 	 */
-	
+
 	/*
 	 * Replicated actions
 	 */
-	
+
 	@Override
 	public Pair<INode, Context> caseASequentialCompositionReplicatedAction(
 			final ASequentialCompositionReplicatedAction node, Context question)
 			throws AnalysisException
 	{
-		Pair<INode, Context> res =  caseReplicated(node, node.getReplicationDeclaration(), new AbstractReplicationFactory(node)
+		Pair<INode, Context> res = caseReplicated(node, node.getReplicationDeclaration(), new AbstractReplicationFactory(node)
 		{
 			@Override
 			public INode createNextReplication()
@@ -480,10 +490,10 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 				return new ASequentialCompositionAction(node.getLocation(), node.getReplicatedAction().clone(), node.getReplicatedAction().clone());
 			}
 		}, question);
-		
-		return res.first.apply(ActionSetupVisitor.this,res.second);
+
+		return res.first.apply(ActionSetupVisitor.this, res.second);
 	}
-	
+
 	/**
 	 * Replicated interleaving Syntax : '|||' , replication declarations , @ , action Example : |||i:e @ A(i) Execute
 	 * all the actions A(i) in parallel without sync
@@ -534,7 +544,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 				// TODO The i'th namesetexpression should be evaluated in the i'th context
 				return new AGeneralisedParallelismParallelAction(node.getLocation(), node.getReplicatedAction().clone(), node.getNamesetExpression(), node.getNamesetExpression(), node.getReplicatedAction().clone(), node.getChansetExpression().clone());
 			}
-			
+
 		}, question);
 	}
 
@@ -557,13 +567,16 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 			{
 				return new AExternalChoiceAction(node.getLocation(), node.getReplicatedAction().clone(), node.getReplicatedAction().clone());
 			}
-			
+
 		}, question);
-		
-		if(ret.first instanceof ASkipAction)
-			return new Pair<INode, Context>(new AStopAction(node.getLocation()),question);
-		else
+
+		if (ret.first instanceof ASkipAction)
+		{
+			return new Pair<INode, Context>(new AStopAction(node.getLocation()), question);
+		} else
+		{
 			return ret;
+		}
 	}
 
 	@Override
@@ -586,20 +599,20 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 			{
 				return new AInternalChoiceAction(node.getLocation(), node.getReplicatedAction().clone(), node.getReplicatedAction().clone());
 			}
-			
+
 		}, question);
 	}
 
 	/*
 	 * Replicated processes
 	 */
-	
+
 	@Override
 	public Pair<INode, Context> caseASequentialCompositionReplicatedProcess(
 			final ASequentialCompositionReplicatedProcess node, Context question)
 			throws AnalysisException
 	{
-		Pair<INode, Context> res =  caseReplicated(node, node.getReplicationDeclaration(), new AbstractReplicationFactory(node)
+		Pair<INode, Context> res = caseReplicated(node, node.getReplicationDeclaration(), new AbstractReplicationFactory(node)
 		{
 			@Override
 			public INode createNextReplication()
@@ -613,10 +626,10 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 				return new ASequentialCompositionProcess(node.getLocation(), node.getReplicatedProcess().clone(), node.getReplicatedProcess().clone());
 			}
 		}, question);
-		
-		return res.first.apply(ActionSetupVisitor.this,res.second);
+
+		return res.first.apply(ActionSetupVisitor.this, res.second);
 	}
-	
+
 	@Override
 	public Pair<INode, Context> caseAExternalChoiceReplicatedProcess(
 			final AExternalChoiceReplicatedProcess node, final Context question)
@@ -665,7 +678,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 			{
 				return new AGeneralisedParallelismProcess(node.getLocation(), node.getReplicatedProcess().clone(), node.getChansetExpression().clone(), node.getReplicatedProcess().clone());
 			}
-			
+
 		}, question);
 	}
 
@@ -689,7 +702,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 			{
 				return new AInterleavingProcess(node.getLocation(), node.getReplicatedProcess().clone(), node.getReplicatedProcess().clone());
 			}
-			
+
 		}, question);
 	}
 
@@ -713,7 +726,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 			{
 				return new AAlphabetisedParallelismProcess(node.getLocation(), node.getReplicatedProcess().clone(), node.getChansetExpression().clone(), node.getChansetExpression().clone(), node.getReplicatedProcess().clone());
 			}
-			
+
 		}, question);
 	}
 
@@ -736,7 +749,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 			{
 				return new AInternalChoiceProcess(node.getLocation(), node.getReplicatedProcess().clone(), node.getReplicatedProcess().clone());
 			}
-			
+
 		}, question);
 	}
 
