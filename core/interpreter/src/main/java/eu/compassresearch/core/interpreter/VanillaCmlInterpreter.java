@@ -2,6 +2,7 @@ package eu.compassresearch.core.interpreter;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -11,16 +12,20 @@ import java.util.logging.Level;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.definitions.SClassDefinition;
+import org.overture.ast.expressions.PExp;
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.lex.Dialect;
 import org.overture.ast.lex.LexLocation;
+import org.overture.ast.types.PType;
 import org.overture.ast.util.definitions.ClassList;
 import org.overture.interpreter.runtime.ClassInterpreter;
 import org.overture.interpreter.runtime.Context;
+import org.overture.interpreter.runtime.Interpreter;
 import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.scheduler.BasicSchedulableThread;
 import org.overture.interpreter.scheduler.InitThread;
 import org.overture.interpreter.values.Value;
+import org.overture.typechecker.Environment;
 
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.lex.CmlLexNameToken;
@@ -78,6 +83,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	public VanillaCmlInterpreter(List<PDefinition> definitions)
 	{
 		this.sourceForest = definitions;
+		instance = this;
 	}
 
 	// /**
@@ -468,6 +474,11 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			}
 		}
 
+		if (remoteClass != null)
+		{
+			// TODO
+		}
+
 		execute(selectionStrategy, processName, filenames.toArray(new File[filenames.size()]));
 
 	}
@@ -567,5 +578,27 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		// System.err.println("-remote <class>: enable remote control");
 
 		System.exit(1);
+	}
+
+	@Override
+	public PType typeCheck(PExp expr, Environment env) throws Exception
+	{
+		// FIXME this is not the right type checker
+		Interpreter ip = Interpreter.getInstance();
+		return ip.typeCheck(expr, ip.getGlobalEnvironment());
+	}
+
+	@Override
+	public Environment getGlobalEnvironment()
+	{
+		// FIXME this is not the right environment
+		Interpreter ip = Interpreter.getInstance();
+		return ip.getGlobalEnvironment();
+	}
+
+	@Override
+	public PExp parseExpression(String line, String module) throws Exception
+	{
+		return ParserUtil.parseExpression(new File("Console"), ParserUtil.getCharStream(line, StandardCharsets.UTF_8.name())).exp;
 	}
 }

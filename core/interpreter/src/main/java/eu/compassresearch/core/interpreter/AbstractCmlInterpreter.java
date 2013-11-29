@@ -19,7 +19,7 @@ import eu.compassresearch.core.interpreter.api.events.EventSourceHandler;
 import eu.compassresearch.core.interpreter.api.events.InterpreterStateChangedEvent;
 import eu.compassresearch.core.interpreter.debug.Breakpoint;
 
-abstract class AbstractCmlInterpreter implements CmlInterpreter
+public abstract class AbstractCmlInterpreter implements CmlInterpreter
 {
 
 	/**
@@ -45,6 +45,9 @@ abstract class AbstractCmlInterpreter implements CmlInterpreter
 	protected CmlBehaviour runningTopProcess = null;
 	protected SelectionStrategy environment;
 	private boolean suspendBeforeTermination = false;
+
+	/** A static instance pointer to the interpreter. */
+	protected static CmlInterpreter instance = null;
 	/**
 	 * The current state of the interpreter
 	 */
@@ -101,8 +104,9 @@ abstract class AbstractCmlInterpreter implements CmlInterpreter
 		String key = bp.getFile() + ":" + bp.getLine();
 
 		if (breakpoints.containsKey(key))
+		{
 			return false;
-		else
+		} else
 		{
 			breakpoints.put(key, bp);
 			return true;
@@ -115,8 +119,9 @@ abstract class AbstractCmlInterpreter implements CmlInterpreter
 		String key = bp.getFile() + ":" + bp.getLine();
 
 		if (!breakpoints.containsKey(key))
+		{
 			return false;
-		else
+		} else
 		{
 			breakpoints.remove(key);
 			return true;
@@ -136,7 +141,9 @@ abstract class AbstractCmlInterpreter implements CmlInterpreter
 		CmlBehaviour foundBehavior = null;
 
 		if (behavior.getId() == id)
+		{
 			foundBehavior = behavior;
+		}
 
 		if (behavior.getLeftChild() != null && foundBehavior == null)
 		{
@@ -161,5 +168,13 @@ abstract class AbstractCmlInterpreter implements CmlInterpreter
 	public void setSuspendBeforeTermination(boolean suspendBeforeTermination)
 	{
 		this.suspendBeforeTermination = suspendBeforeTermination;
+	}
+
+	/**
+	 * @return The Interpreter instance.
+	 */
+	public static CmlInterpreter getInstance()
+	{
+		return instance; // NB. last one created
 	}
 }

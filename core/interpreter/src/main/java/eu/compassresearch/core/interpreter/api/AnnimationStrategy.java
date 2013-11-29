@@ -42,6 +42,7 @@ public class AnnimationStrategy implements SelectionStrategy
 		return availableChannelEvents.getSilentTransitionsAsSet().size() > 0;
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private CmlTransition systemSelect()
 	{
 		this.rndSelect.choices(new CmlTransitionSet((Set) this.availableChannelEvents.getSilentTransitionsAsSet()));

@@ -15,10 +15,6 @@ import eu.compassresearch.core.interpreter.api.values.ProcessObjectValue;
 
 public class GlobalEnvironmentBuilder extends AnalysisCMLAdaptor
 {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 493918199975006733L;
 	private AProcessDefinition lastDefinedProcess = null;
 	private StateContext globalState = null;
 	private List<AProcessDefinition> globalProcesses = null;
