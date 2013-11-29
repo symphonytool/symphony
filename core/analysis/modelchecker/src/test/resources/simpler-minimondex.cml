@@ -45,7 +45,8 @@ end
 
 process OneCard = Card(1) 
 
---THE FOLLOWING PROCESSES MAKE THE ANALYSIS VERY SLOW
+--THE FOLLOWING PROCESSES MAKE THE ANALYSIS VERY SLOW AND THE MODEL CHECKER 
+--STILL HAS PROBLEMS TO HANDLE IT. 
 process Cards =
   || i: Index @ 
   		[ {| pay.i,transfer.i,accept.i, reject.i |} union {| transfer.j.i.n | j:Index,n:Money|} ] Card(i)
