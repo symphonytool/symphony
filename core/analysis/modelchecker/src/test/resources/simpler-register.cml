@@ -1,4 +1,4 @@
---The original value for MAX is 255. De to eprformance questions we use 8
+--The original value for MAX is 255. De to performance questions we use 8
 values
     MAX : nat = 8
     

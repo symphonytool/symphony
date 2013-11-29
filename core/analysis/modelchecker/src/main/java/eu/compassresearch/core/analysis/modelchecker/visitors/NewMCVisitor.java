@@ -279,7 +279,7 @@ public class NewMCVisitor extends
 		MCAProcessDefinition result = null;
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 		
-		String mainProcessName = "SoS";
+		String mainProcessName = "OneCard";
 
 		if(context.processDefinitions.size() > 1){
 			for (MCAProcessDefinition proc : context.processDefinitions) {
@@ -336,7 +336,7 @@ public class NewMCVisitor extends
 		
 		//String cml_file = "src/test/resources/simpler-b-and-o-model.cml";
 		//String cml_file = "src/test/resources/minimondex-incomplete.cml.nok";
-		String cml_file = "src/test/resources/simpler-BeoAVDeviceDiscovery.cml";
+		String cml_file = "src/test/resources/simpler-minimondex.cml";
 		//String cml_file = "src/test/resources/simpler-register.cml";
 		//String cml_file = "src/test/resources/action-prefix-skip.cml";
 		//System.out.println("Testing on " + cml_file);
@@ -353,7 +353,7 @@ public class NewMCVisitor extends
 		*/
 		
 		NewMCVisitor visitor1 = new NewMCVisitor(source1);
-		String mainProcessName = "SourceProduct_DD_SD_InterfaceProtocolView";
+		String mainProcessName = "OneCard";
 		
 		String formulaCode = visitor1.generateFormulaScript(source1.getParagraphs(),Utilities.DEADLOCK_PROPERTY,mainProcessName);
 		//String[] codes1 = visitor1.generateFormulaCodeForAll(Utilities.DEADLOCK_PROPERTY);

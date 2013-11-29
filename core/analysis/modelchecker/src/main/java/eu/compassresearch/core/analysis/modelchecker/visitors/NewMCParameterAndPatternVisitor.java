@@ -28,6 +28,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ExpressionEva
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.TypeManipulator;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAChannelDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCALocalDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAIntLiteralExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAUndefinedExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCVoidValue;
@@ -35,6 +36,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCAIdentifierPa
 import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCATypeMultipleBind;
 import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCPCMLPattern;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAChannelType;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAProductType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 
 public class NewMCParameterAndPatternVisitor extends QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
@@ -115,7 +117,14 @@ public class NewMCParameterAndPatternVisitor extends QuestionAnswerCMLAdaptor<Ne
 				if(realType instanceof MCAChannelType){
 					realType = ((MCAChannelType) realType).getType();
 					ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
-					expression = evaluator.getDefaultValue(realType);
+					//this is a solution to avoid dealing with product type
+					//becaus only one parameter of the communication can be a read parameter
+					if(realType instanceof MCAProductType){
+						//simply use the defaul value for integers
+						expression = new MCAIntLiteralExp("0");
+					}else{
+						expression = evaluator.getDefaultValue(realType);
+					}
 				}
 			} 
 			
