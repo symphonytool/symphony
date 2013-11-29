@@ -45,6 +45,7 @@ public class ConsoleSelectionStrategy implements SelectionStrategy
 		return silentTransitions.size() > count;
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private CmlTransition systemSelect(CmlTransitionSet availableChannelEvents)
 	{
 		rndSelect.choices(new CmlTransitionSet((Set) availableChannelEvents.getSilentTransitionsAsSet()));
