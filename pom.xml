@@ -6,7 +6,7 @@
   <groupId>eu.compassresearch</groupId>
   <artifactId>root</artifactId>
   <name>The Symphony IDE Top-Level</name>
-  <version>0.2.4<!--Replaceable: Main Version--></version>
+  <version>0.2.5-SNAPSHOT<!--Replaceable: Main Version--></version>
 
   <modules>
     <module>tools</module>
