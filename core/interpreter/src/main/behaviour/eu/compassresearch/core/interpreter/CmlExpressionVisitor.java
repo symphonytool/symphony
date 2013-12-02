@@ -166,7 +166,7 @@ public class CmlExpressionVisitor extends
 	{
 		// find the channel value
 		ILexNameToken channelName = NamespaceUtility.createChannelName(varexp.getIdentifier());
-		return (CMLChannelValue) question.lookup(channelName) != null;
+		return question.check(channelName) instanceof CMLChannelValue;
 	}
 
 	@Override

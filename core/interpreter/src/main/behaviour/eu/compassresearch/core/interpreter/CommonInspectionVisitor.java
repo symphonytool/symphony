@@ -377,6 +377,18 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 					throws AnalysisException
 			{
 
+				Context leftChildContext = owner.getLeftChild().getNextState().second;
+				NamesetValue leftNameset = (NamesetValue) leftChildContext.check(NamespaceUtility.getNamesetName());
+				if(leftNameset != null)
+					for(ILexNameToken name : leftNameset)
+						question.lookup(name).set(name.getLocation(), leftChildContext.lookup(name), question);
+				
+				Context rightChildContext = owner.getRightChild().getNextState().second;
+				NamesetValue rightNameset = (NamesetValue) rightChildContext.check(NamespaceUtility.getNamesetName()); 
+				if(rightNameset != null)
+					for(ILexNameToken name : rightNameset)
+						question.lookup(name).set(name.getLocation(), rightChildContext.lookup(name), question);
+				
 				clearLeftChild();
 				clearRightChild();
 
