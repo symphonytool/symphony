@@ -30,7 +30,7 @@ public class jsonReceiveFileFromCacheCommand extends jsonCommand {
 		// create command
 		JSONObject cmd = new JSONObject();
 		cmd.put("receive-file-from-cache-command", params);
-		//System.out.println("request: '" + cmd.toJSONString() + "'");
+		System.out.println("request: '" + cmd.toJSONString() + "'");
 		return cmd.toJSONString();
 	}
 
@@ -44,6 +44,8 @@ public class jsonReceiveFileFromCacheCommand extends jsonCommand {
 
 	public void handleParameters(JSONObject parameters) {
 		if (parameters == null) {
+			System.err.println("*** error: no parameters in reply from server!");
+			resultValue = false;
 			return;
 		}
 		String user = (String)parameters.get("user");
@@ -56,14 +58,21 @@ public class jsonReceiveFileFromCacheCommand extends jsonCommand {
 			(filename == null) ||
 			(fileContent == null) ||
 			(checksum == null)) {
+			System.err.println("*** error: missing parameters in reply from server!");
+			resultValue = false;
 			return;
 		}
 		// store file
-		writeBase64StringFileContent(client.addLocalWorkspace(filename), fileContent, true);
-		String localChecksum = getSHA256Checksum(client.addLocalWorkspace(filename));
+		filename = client.addLocalWorkspace(filename);
+		writeBase64StringFileContent(filename, fileContent, true);
+		String localChecksum = getSHA256Checksum(filename);
 		if (!checksum.equals(localChecksum)) {
 			System.err.println("*** error: checksum of received file '" + filename + "' does not match!");
+			resultValue = false;
+			return;
 		}
+		System.out.println("local file '" + filename + "' successfully stored and checked against server checksum!");
+		resultValue = true;
 	}
 
 	public String getFilename() {

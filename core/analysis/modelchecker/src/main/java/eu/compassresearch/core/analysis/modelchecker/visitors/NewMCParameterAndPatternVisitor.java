@@ -1,12 +1,16 @@
 package eu.compassresearch.core.analysis.modelchecker.visitors;
 
+import java.util.LinkedList;
+
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.analysis.intf.IQuestionAnswer;
 import org.overture.ast.node.INode;
 import org.overture.ast.patterns.AIdentifierPattern;
+import org.overture.ast.patterns.ATypeMultipleBind;
 import org.overture.ast.patterns.PPattern;
 
+import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.AReadCommunicationParameter;
 import eu.compassresearch.ast.actions.ASignalCommunicationParameter;
 import eu.compassresearch.ast.actions.AValParametrisation;
@@ -14,18 +18,26 @@ import eu.compassresearch.ast.actions.AWriteCommunicationParameter;
 import eu.compassresearch.ast.actions.PCommunicationParameter;
 import eu.compassresearch.ast.actions.PParametrisation;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
+import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAReadCommunicationParameter;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCASignalCommunicationParameter;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAValParametrisation;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAWriteCommunicationParameter;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ExpressionEvaluator;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.TypeManipulator;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAChannelDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCALocalDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAIntLiteralExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAUndefinedExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCVoidValue;
 import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCAIdentifierPattern;
+import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCATypeMultipleBind;
 import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCPCMLPattern;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAChannelType;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAProductType;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 
 public class NewMCParameterAndPatternVisitor extends QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 
@@ -97,7 +109,25 @@ public class NewMCParameterAndPatternVisitor extends QuestionAnswerCMLAdaptor<Ne
 		String name = node.getPattern().toString();
 		
 		if(expression == null){
-			expression = new MCVoidValue();
+			INode parent = node.parent();
+			if(parent instanceof ACommunicationAction){
+				String channelName = ((ACommunicationAction) parent).getIdentifier().getName();
+				MCAChannelDefinition chanDef = question.getChannelDefinition(channelName);
+				MCPCMLType realType = chanDef.getType();
+				if(realType instanceof MCAChannelType){
+					realType = ((MCAChannelType) realType).getType();
+					ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
+					//this is a solution to avoid dealing with product type
+					//becaus only one parameter of the communication can be a read parameter
+					if(realType instanceof MCAProductType){
+						//simply use the defaul value for integers
+						expression = new MCAIntLiteralExp("0");
+					}else{
+						expression = evaluator.getDefaultValue(realType);
+					}
+				}
+			} 
+			
 		}
 		
 		question.maximalBinding = question.maximalBinding.addBinding("nP", name, expression);
@@ -140,6 +170,23 @@ public class NewMCParameterAndPatternVisitor extends QuestionAnswerCMLAdaptor<Ne
 		
 		return result;
 	}
+	
+	
+
+	@Override
+	public MCNode caseATypeMultipleBind(ATypeMultipleBind node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		
+		MCPCMLType type = (MCPCMLType) node.getType().apply(rootVisitor, question);
+		LinkedList<MCPCMLPattern> pList = new LinkedList<MCPCMLPattern>();
+		for (PPattern p : node.getPlist()) {
+			pList.add((MCPCMLPattern) p.apply(rootVisitor, question));
+		}
+		MCATypeMultipleBind result = new MCATypeMultipleBind(pList, type);
+		
+		return result;
+	}
+
 
 	@Override
 	public MCNode createNewReturnValue(INode node,

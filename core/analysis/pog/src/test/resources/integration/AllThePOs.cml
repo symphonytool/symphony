@@ -26,6 +26,7 @@ UT1 = (int * int) | int
 values
 
 n1 : nat = 3
+sq1 = [mk_(1,2),1]
 
 functions
 
@@ -89,7 +90,7 @@ functions
   expF6(m,n) ==
       m ** n
      
-           
+   
   --Tests for:
   --  Non-empty Sequence PO
   expF7 : SeqT -> nat
@@ -160,7 +161,7 @@ functions
   --  MapSeqCompatible PO
   expF14 : () -> MapT
   expF14() ==
-      {1|-> 2,3 |->4 ,4 |->3 ,3 |-> 4}
+      {1|-> 2, 3 |->4, 4 |->3, 3 |-> 4}
      
        
   --Tests for:
@@ -225,13 +226,21 @@ functions
   --Tests for:
   --TupleSelect PO
   -- NOTE: TC bug causes it to reject this function. Comment back in when fixed.
-  --expF20 : UT1 -> int
+  --expF20 : A -> int
   --expF20 (x) == x.#1
-  
+ 
+  -- Tests for:
+  -- ValueBindingPO, SubtypePO, SeqApplyPO
+  exp21: () -> int
+  exp21 () == let mk_(x,y) = sq1(1)
+               in 1
+
  process testProc1 = 
  begin
  
    state 
+    n2 : nat
+    inv n2 > 4
    
  
    operations
@@ -278,7 +287,12 @@ functions
     expOp3 : (SetT) ==> nat
     expOp3(setT) == 
       return iota x in set setT @ x > 1
+      
+    expOp4 : (nat) ==> ()
+    expOp4(n) ==
+        n2 := n
  
  @ Skip
  
  end
+

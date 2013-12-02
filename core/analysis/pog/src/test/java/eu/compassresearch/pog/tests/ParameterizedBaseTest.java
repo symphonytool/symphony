@@ -20,6 +20,7 @@ import eu.compassresearch.core.analysis.pog.obligations.CmlPOContextStack;
 import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligation;
 import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligationList;
 import eu.compassresearch.core.analysis.pog.visitors.ProofObligationGenerator;
+import eu.compassresearch.pog.tests.utils.BaseInputProvider;
 import eu.compassresearch.pog.tests.utils.TestInputHelper;
 import eu.compassresearch.pog.tests.utils.TestResultHelper;
 /**

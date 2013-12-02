@@ -63,8 +63,8 @@ public class MCAVariableExp implements MCNumericExp {
 
 	@Override
 	public MCPCMLExp copy() {
-		// TODO Auto-generated method stub
-		return null;
+		
+		return new MCAVariableExp(this.name);
 	}
 
 	@Override

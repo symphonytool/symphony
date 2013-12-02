@@ -2,7 +2,7 @@
 <feature
       id="eu.compassresearch.ide.features.plugins.pog"
       label="Proof Obligation Generation"
-      version="0.2.3.qualifier">
+      version="0.2.5.qualifier">
 
    <description>
       %description

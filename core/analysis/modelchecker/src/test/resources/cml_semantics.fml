@@ -61,9 +61,9 @@
 
 	    // P [> Q (timeout rules)
     State(st,P),State(st,Q),
-    trans(iS,tau,State(st,Q)) :- iS is State(st,timeout(P,Q)).
-    trans(iS,tau,State(st_,timeout(P_,Q))) :- iS is State(st,timeout(P,Q)), trans(State(st,P),tau,State(st_,P_)).
-    trans(iS,ev,State(st_,P_)) :- iS is State(st,timeout(P,Q)), trans(State(st,P),ev,State(st_,P_)), ev != tau.
+    trans(iS,tau,State(st,Q)) :- iS is State(st,uTimeout(P,Q)).
+    trans(iS,tau,State(st_,uTimeout(P_,Q))) :- iS is State(st,uTimeout(P,Q)), trans(State(st,P),tau,State(st_,P_)).
+    trans(iS,ev,State(st_,P_)) :- iS is State(st,uTimeout(P,Q)), trans(State(st,P),ev,State(st_,P_)), ev != tau.
 
 	// if cond then P else Q
     State(st,p),

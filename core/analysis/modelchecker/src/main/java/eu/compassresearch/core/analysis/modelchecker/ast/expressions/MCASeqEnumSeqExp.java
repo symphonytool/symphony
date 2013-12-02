@@ -38,8 +38,16 @@ public class MCASeqEnumSeqExp implements MCPCMLExp{
 
 	@Override
 	public MCPCMLExp copy() {
-		// TODO Auto-generated method stub
-		return null;
+		LinkedList<MCPCMLExp> membersCopy = new LinkedList<MCPCMLExp>();
+		for (MCPCMLExp member : members) {
+			membersCopy.add(member.copy());
+		}
+		
+		LinkedList<MCPCMLType> typesCopy = new LinkedList<MCPCMLType>();
+		for (MCPCMLType type : types) {
+			typesCopy.add(type.copy());
+		}
+		return new MCASeqEnumSeqExp(membersCopy,typesCopy);
 	}
 
 	@Override

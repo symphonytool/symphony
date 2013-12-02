@@ -53,6 +53,12 @@ public class MCAApplyExp implements MCPCMLExp {
 			MCPCMLExp bodyReady = functionDef.getBody().copy();
 			bodyReady.replacePatternWithValue(argsMapping);
 			result.append(bodyReady.toFormula(option));
+			
+			//if the expression of the funcion involves sets we have to generate NonEmptySet facts, getting the current set structure from the bindings
+			if(bodyReady instanceof MCASBinaryExp){
+				context.setExpressioFacts.add((MCASBinaryExp) bodyReady);
+			}
+			
 		}
 		
 		

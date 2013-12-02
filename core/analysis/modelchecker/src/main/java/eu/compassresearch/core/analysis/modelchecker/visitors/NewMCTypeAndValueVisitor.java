@@ -6,11 +6,15 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.node.INode;
 import org.overture.ast.types.ABooleanBasicType;
+import org.overture.ast.types.ABracketType;
 import org.overture.ast.types.AFunctionType;
 import org.overture.ast.types.AIntNumericBasicType;
 import org.overture.ast.types.ANamedInvariantType;
 import org.overture.ast.types.ANatNumericBasicType;
 import org.overture.ast.types.AProductType;
+import org.overture.ast.types.AQuoteType;
+import org.overture.ast.types.ASetType;
+import org.overture.ast.types.AUnionType;
 import org.overture.ast.types.PType;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
@@ -21,12 +25,16 @@ import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ExpressionEva
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.TypeManipulator;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCABooleanBasicType;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCABracketType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAChannelType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAFunctionType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAIntNumericBasicType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANamedInvariantType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANatNumericBasicType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAProductType;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAQuoteType;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCASetType;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAUnionType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 
 public class NewMCTypeAndValueVisitor extends
@@ -72,6 +80,29 @@ public class NewMCTypeAndValueVisitor extends
 	}
 
 	
+	
+	@Override
+	public MCNode caseAUnionType(AUnionType node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		LinkedList<MCPCMLType> types = new LinkedList<MCPCMLType>();
+		for (PType pType : node.getTypes()) {
+			types.add((MCPCMLType) pType.apply(rootVisitor, question));
+		}
+		MCAUnionType result = new MCAUnionType(types);
+		
+		return result;
+	}
+
+	
+	@Override
+	public MCNode caseAQuoteType(AQuoteType node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		
+		MCAQuoteType result = new MCAQuoteType(node.getValue().getValue());
+		
+		return result;
+	}
+
 	@Override
 	public MCNode caseAChannelType(AChannelType node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
@@ -127,6 +158,28 @@ public class NewMCTypeAndValueVisitor extends
 			NewCMLModelcheckerContext question) throws AnalysisException {
 		
 		MCABooleanBasicType result = new MCABooleanBasicType();
+		return result;
+	}
+	
+	
+
+	@Override
+	public MCNode caseASetType(ASetType node, NewCMLModelcheckerContext question)
+			throws AnalysisException {
+		
+		MCPCMLType setOf = (MCPCMLType) node.getSetof().apply(this, question);
+		MCASetType result = new MCASetType(setOf); 
+		return result;
+	}
+	
+	
+
+	@Override
+	public MCNode caseABracketType(ABracketType node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		MCPCMLType type = (MCPCMLType) node.getType().apply(rootVisitor, question);
+		MCABracketType result = new MCABracketType(type);
+		
 		return result;
 	}
 

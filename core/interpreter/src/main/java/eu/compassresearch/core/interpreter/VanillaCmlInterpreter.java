@@ -601,5 +601,4 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	{
 		return ParserUtil.parseExpression(new File("Console"), ParserUtil.getCharStream(line, StandardCharsets.UTF_8.name())).exp;
 	}
-
 }

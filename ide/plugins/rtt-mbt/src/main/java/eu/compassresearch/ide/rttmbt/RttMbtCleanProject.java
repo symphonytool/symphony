@@ -25,26 +25,21 @@ public class RttMbtCleanProject extends RttMbtPopupMenuAction {
 		}
 		
 		// get RttMbtClient for this action
-		if (!initClient(selectedObjectPath)) {
+		if (!initClient()) {
 			client.addErrorMessage("[FAIL]: Cleanup RTT-MBT project: init of RTT-MBT client failed!");
 			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 			return null;
 		}
 
 		// check if the selected item is a project
-		File item = new File(client.getCmlWorkspace() + selectedObjectPath);
+		File item = new File(selectedObjectFilesystemPath);
 		if (!item.exists()) {
 			client.addErrorMessage("[FAIL]: Cleanup RTT-MBT project: file or directory '" + item.getAbsolutePath() + "' does not exist!");
 			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 			return null;
 		}
 		if (!item.isDirectory()) {
-			client.addErrorMessage("[FAIL]: Cleanup RTT-MBT project: the selected item '" + selectedObject + "' is not a directory!");
-			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
-			return null;
-		}
-		if (client.getProjectName().compareTo(selectedObject) != 0) {
-			client.addErrorMessage("[FAIL]: Cleanup RTT-MBT project: the selected item '" + selectedObject + "' is no RTT-MBT project!");
+			client.addErrorMessage("[FAIL]: Cleanup RTT-MBT project: the selected item '" + selectedObjectName + "' is not a directory!");
 			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 			return null;
 		}
@@ -53,11 +48,11 @@ public class RttMbtCleanProject extends RttMbtPopupMenuAction {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				// cleanup project
-				if (client.cleanProject(selectedObject)) {
-					client.addLogMessage("[PASS]: clean RTT-MBT project " + selectedObject);
+				if (client.cleanProject(selectedObjectName)) {
+					client.addLogMessage("[PASS]: clean RTT-MBT project " + selectedObjectName);
 					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 				} else {
-					client.addLogMessage("[FAIL]: clean RTT-MBT project " + selectedObject);
+					client.addLogMessage("[FAIL]: clean RTT-MBT project " + selectedObjectName);
 					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 				}
 				return Status.OK_STATUS;

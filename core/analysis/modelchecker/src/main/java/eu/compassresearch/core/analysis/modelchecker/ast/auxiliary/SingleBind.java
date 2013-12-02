@@ -44,7 +44,12 @@ public class SingleBind {
 			break;
 
 		case MCNode.NAMED:
-			result = "SingleBind(\"" + variableName + "\"," + variableName + ")";
+			if(variableValue.toFormula(MCNode.NAMED).startsWith(variableName)){
+				result = "SingleBind(\"" + variableName + "\"," + variableValue.toFormula(option) + ")";
+			}else{
+				result = "SingleBind(\"" + variableName + "\"," + variableName + ")";
+			}
+			
 			break;
 			
 		case MCNode.GENERIC:

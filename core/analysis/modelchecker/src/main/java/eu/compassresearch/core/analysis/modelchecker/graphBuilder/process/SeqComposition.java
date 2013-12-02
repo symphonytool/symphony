@@ -28,7 +28,7 @@ public class SeqComposition implements Process {
 	
 	@Override
 	public String toString() {
-		return firstProcess.toString() + ";" + secondProcess.toString();
+		return "(" + firstProcess.toString() + ")" + ";" + "(" + secondProcess.toString() + ")";
 	}
 
 
