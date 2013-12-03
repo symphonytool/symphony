@@ -1,6 +1,8 @@
 package eu.compassresearch.core.typechecker.api;
 
+import org.overture.ast.expressions.PExp;
 import org.overture.ast.messages.InternalException;
+import org.overture.ast.types.PType;
 
 /**
  * @author rwl A CML Type checker has the characteristics of this interface.
@@ -31,6 +33,9 @@ public interface ICmlTypeChecker
 	 *         courses to failing the type check can be inspected though getErrors.
 	 */
 	public boolean typeCheck();
+	
+	
+	public PType typeCheck(PExp expr) throws Exception;
 
 	/**
 	 * Return a pretty name for this type checker user-interactive tools can use for printing.

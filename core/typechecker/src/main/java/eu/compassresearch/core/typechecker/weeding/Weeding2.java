@@ -8,19 +8,17 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.definitions.SClassDefinition;
 import org.overture.ast.expressions.ANotYetSpecifiedExp;
-import org.overture.ast.intf.lex.ILexLocation;
+import org.overture.ast.node.INode;
 import org.overture.ast.node.Node;
 import org.overture.ast.types.ABracketType;
 
 import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
-import eu.compassresearch.ast.definitions.AActionClassDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.core.typechecker.DefinitionList;
 
 /**
  * @author kel & cb
  */
-@SuppressWarnings("serial")
 public class Weeding2 extends DepthFirstAnalysisCMLAdaptor
 {
 
@@ -31,12 +29,29 @@ public class Weeding2 extends DepthFirstAnalysisCMLAdaptor
 		for (PDefinition s : sourceForest)
 		{
 			if (s != null)
+			{
 				try
 				{
 					s.apply(lv);
 				} catch (AnalysisException e)
 				{
 				}
+			}
+		}
+	}
+
+	public static void apply(INode node)
+	{
+
+		Weeding2 lv = new Weeding2();
+		if (node != null)
+		{
+			try
+			{
+				node.apply(lv);
+			} catch (AnalysisException e)
+			{
+			}
 		}
 	}
 
@@ -51,7 +66,6 @@ public class Weeding2 extends DepthFirstAnalysisCMLAdaptor
 		node.getType().apply(this);
 	}
 
-	
 	/**
 	 * Correcting the module used in locations which is used in the interpreter for Delegation
 	 */
@@ -68,7 +82,7 @@ public class Weeding2 extends DepthFirstAnalysisCMLAdaptor
 		} else
 		{
 			AProcessDefinition pDef = node.getAncestor(AProcessDefinition.class);
-			if(pDef!=null)
+			if (pDef != null)
 			{
 				setModule(node.getLocation(), pDef.getName().getName());
 			}
