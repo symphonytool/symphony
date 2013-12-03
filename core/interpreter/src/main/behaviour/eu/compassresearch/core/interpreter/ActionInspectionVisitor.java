@@ -601,7 +601,19 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 			@Override
 			public void caseParallelBegin() throws AnalysisException
 			{
-				ActionInspectionVisitor.this.caseParallelBegin(node,null,null, question);
+				NamesetValue leftNamesetValue = null;
+				NamesetValue rightNamesetValue = null;
+
+				if (node.getLeftNamesetExpression() != null)
+				{
+					leftNamesetValue = (NamesetValue)node.getLeftNamesetExpression().apply(cmlExpressionVisitor, question);
+				}
+				if (node.getRightNamesetExpression() != null)
+				{
+					rightNamesetValue = (NamesetValue)node.getRightNamesetExpression().apply(cmlExpressionVisitor, question);
+				}
+				
+				ActionInspectionVisitor.this.caseParallelBegin(node,leftNamesetValue,rightNamesetValue, question);
 			}
 		}, node.getChansetExpression(), question);
 	}
