@@ -45,6 +45,7 @@ import eu.compassresearch.ast.actions.ASignalCommunicationParameter;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.AStmAction;
 import eu.compassresearch.ast.actions.AStopAction;
+import eu.compassresearch.ast.actions.ATimedInterruptAction;
 import eu.compassresearch.ast.actions.ATimeoutAction;
 import eu.compassresearch.ast.actions.AUntimedTimeoutAction;
 import eu.compassresearch.ast.actions.AValParametrisation;
@@ -791,5 +792,12 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 	{
 
 		return caseAInterrupt(node, question);
+	}
+	
+	@Override
+	public Inspection caseATimedInterruptAction(ATimedInterruptAction node,
+			Context question) throws AnalysisException
+	{
+		return caseATimedInterrupt(node, node.getLeft(), node.getRight(), node.getTimeExpression(), question);
 	}
 }

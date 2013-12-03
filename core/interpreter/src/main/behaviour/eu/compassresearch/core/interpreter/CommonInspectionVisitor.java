@@ -546,6 +546,80 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		}
 	}
 
+	/**
+	 * Timed interrupt is implemented according to the following rules
+	 * in the operational semantics D23.4
+	 * R3.21 (Timed Interrupt progress left)
+	 * R3.22 (Timed Interrupt Skip left)
+	 * R3.23 (Timed Interrupt time up)
+	 * R3.24 (Timed Interrupt timed)
+	 * @param node The action/process timed interrupt node
+	 * @param leftNode the left action/process
+	 * @param rightNode the right action/process
+	 * @param timeoutExpression the timeout expression
+	 * @param question
+	 * @return
+	 * @throws AnalysisException
+	 */
+	protected Inspection caseATimedInterrupt(final INode node, INode leftNode,final INode rightNode, PExp timeoutExpression, final Context question) throws AnalysisException
+	{
+		// Evaluate the expression into a natural number
+		long val = timeoutExpression.apply(cmlExpressionVisitor, question).natValue(question);
+		long startTimeVal = question.lookup(NamespaceUtility.getStartTimeName()).intValue(question);
+		
+		// R3.22: If left is Skip then the whole becomes skip with the state of the left child
+		if (owner.getLeftChild().finished())
+		{
+			return newInspection(createTauTransitionWithoutTime(owner.getLeftChild().getNextState().first, "timed interrupt: left behavior is finished"), new CmlCalculationStep()
+			{
+				@Override
+				public Pair<INode, Context> execute(
+						CmlTransition selectedTransition)
+								throws AnalysisException
+								{
+					return replaceWithChild(owner.getLeftChild());
+								}
+			});
+		}
+		// R3.23: if the current time of the process has passed the limit (val) then process
+		// behaves as the right process
+		else if (owner.getCurrentTime() - startTimeVal >= val)
+		{
+			return newInspection(createTauTransitionWithoutTime(rightNode, "Timeout: time exceeded"), new CmlCalculationStep()
+			{
+
+				@Override
+				public Pair<INode, Context> execute(
+						CmlTransition selectedTransition)
+								throws AnalysisException
+								{
+					// We set the process to become the right behavior
+					clearLeftChild();
+					// We need to return the outer context because of the extra context
+					// containing the start time has been added in the setup visitor
+					return new Pair<INode, Context>(rightNode, question.outer);
+								}
+			});
+
+		}
+		// if the current time of the process has not passed the limit (val) it behaves as the left process
+		else
+		{
+			CmlTransitionSet leftAlpha = owner.getLeftChild().inspect();
+			return newInspection(leftAlpha, new CmlCalculationStep()
+			{
+				
+				@Override
+				public Pair<INode, Context> execute(CmlTransition selectedTransition)
+						throws AnalysisException
+				{
+					owner.getLeftChild().execute(selectedTransition);
+					return new Pair<INode, Context>(node,question);
+				}
+			});
+		}
+	}
+	
 	protected Inspection caseATimeout(final INode node, final INode leftNode,
 			final INode rightNode, PExp timeoutExpression,
 			final Context question) throws ValueException, AnalysisException

@@ -37,6 +37,7 @@ import eu.compassresearch.ast.actions.ASequentialCompositionReplicatedAction;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.AStmAction;
 import eu.compassresearch.ast.actions.AStopAction;
+import eu.compassresearch.ast.actions.ATimedInterruptAction;
 import eu.compassresearch.ast.actions.ATimeoutAction;
 import eu.compassresearch.ast.actions.AUntimedTimeoutAction;
 import eu.compassresearch.ast.actions.AWaitAction;
@@ -57,6 +58,7 @@ import eu.compassresearch.ast.process.AInternalChoiceReplicatedProcess;
 import eu.compassresearch.ast.process.AInterruptProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionReplicatedProcess;
+import eu.compassresearch.ast.process.ATimedInterruptProcess;
 import eu.compassresearch.ast.process.ATimeoutProcess;
 import eu.compassresearch.ast.process.AUntimedTimeoutProcess;
 import eu.compassresearch.ast.process.SReplicatedProcess;
@@ -157,6 +159,9 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 		return new Pair<INode, Context>(node, context);
 	}
 
+	/*
+	 * Timeout
+	 */
 	private Pair<INode, Context> caseATimeout(INode node, INode leftNode,
 			Context question) throws AnalysisException
 	{
@@ -169,7 +174,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 		return new Pair<INode, Context>(node, context);
 
 	}
-
+	
 	@Override
 	public Pair<INode, Context> caseATimeoutAction(ATimeoutAction node,
 			Context question) throws AnalysisException
@@ -183,6 +188,10 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 	{
 		return caseATimeout(node, node.getLeft(), question);
 	}
+
+	/*
+	 * Untimed timeout
+	 */
 
 	public Pair<INode, Context> caseAUntimedTimeout(INode node, INode leftNode,
 			Context question) throws AnalysisException
@@ -209,6 +218,41 @@ class ActionSetupVisitor extends AbstractSetupVisitor
 	{
 		return caseAUntimedTimeout(node, node.getLeft(), question);
 	}
+	
+	/*
+	 * Timed Interrupt
+	 */
+	
+	private Pair<INode, Context> caseATimedInterrupt(
+			INode node, 
+			INode leftNode,
+			Context question)
+			throws AnalysisException
+	{
+		Context context = CmlContextFactory.newContext(LocationExtractor.extractLocation(node), "Timed Interrupt context", question);
+		context.putNew(new NameValuePair(NamespaceUtility.getStartTimeName(), new IntegerValue(owner.getCurrentTime())));
+
+		// We setup the child nodes
+		setLeftChild(leftNode, question);
+		return new Pair<INode, Context>(node, context);
+	}
+	
+	@Override
+	public Pair<INode, Context> caseATimedInterruptAction(
+			ATimedInterruptAction node, Context question)
+			throws AnalysisException
+	{
+		return caseATimedInterrupt(node, node.getLeft(), question);
+	}
+	
+	@Override
+	public Pair<INode, Context> caseATimedInterruptProcess(
+			ATimedInterruptProcess node, Context question)
+			throws AnalysisException
+	{
+		return caseATimedInterrupt(node, node.getLeft(), question);
+	}
+	
 
 	/*
 	 * Replication
