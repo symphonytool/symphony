@@ -2,6 +2,7 @@ package eu.compassresearch.ide.interpreter.launch;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -12,17 +13,22 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.LaunchConfigurationDelegate;
+import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.WorkbenchException;
 import org.json.simple.JSONObject;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleException;
+import org.osgi.framework.Constants;
 import org.overture.ide.core.resources.IVdmProject;
 import org.overture.ide.core.resources.IVdmSourceUnit;
 import org.overture.ide.debug.core.dbgp.DbgpServer;
@@ -32,7 +38,6 @@ import eu.compassresearch.core.interpreter.debug.CmlDebugDefaultValues;
 import eu.compassresearch.core.interpreter.debug.CmlInterpreterArguments;
 import eu.compassresearch.ide.core.resources.ICmlProject;
 import eu.compassresearch.ide.interpreter.CmlDebugPlugin;
-import eu.compassresearch.ide.interpreter.CmlUtil;
 import eu.compassresearch.ide.interpreter.ICmlDebugConstants;
 import eu.compassresearch.ide.interpreter.model.CmlDebugTarget;
 
@@ -61,12 +66,12 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 		{
 
 			int port = CmlDebugDefaultValues.PORT;
-			
+
 			if (!configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_REMOTE_DEBUG, false))
 			{
 				port = DbgpServer.findAvailablePort(FROM_PORT, TO_PORT);
 			}
-			
+
 			ICmlProject project = (ICmlProject) getProject(configuration).getAdapter(ICmlProject.class);
 			// set launch encoding to UTF-8. Mainly used to set console encoding.
 			launch.setAttribute(DebugPlugin.ATTR_CONSOLE_ENCODING, "UTF-8");
@@ -79,6 +84,9 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 
 			configurationMap.put(CmlInterpreterArguments.HOST.key, "localhost");
 			configurationMap.put(CmlInterpreterArguments.PORT.key, port);
+			
+			configurationMap.put(CmlInterpreterArguments.AUTO_FILTER_TOCK_EVENTS.key, CmlDebugPlugin.getDefault().getPreferenceStore().getString(ICmlDebugConstants.PREFERENCES_AUTO_FILTER_TOCK_EVENTS));
+			
 
 			if (configuration.hasAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_REMOTE_INTERPRETER_CLASS))
 			{
@@ -180,7 +188,7 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 
 		commandArray.add("java");
 		// commandArray.addAll(getClassPath());
-		commandArray.addAll(VdmProjectClassPathCollector.getClassPath(getProject(configuration), CmlUtil.collectRequiredBundleIds(ICmlDebugConstants.ID_CML_PLUGIN_NAME), new String[] {}));
+		commandArray.addAll(VdmProjectClassPathCollector.getClassPath(getProject(configuration), collectRequiredBundleIds(ICmlDebugConstants.ID_CML_PLUGIN_NAME), new String[] {}));
 		commandArray.add(ICmlDebugConstants.DEBUG_ENGINE_CLASS);
 		commandArray.add(config);
 
@@ -222,6 +230,39 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 	public static boolean isWindowsPlatform()
 	{
 		return System.getProperty("os.name").toLowerCase().contains("win");
+	}
+
+	public static String[] collectRequiredBundleIds(String bundleId)
+	{
+		List<String> bundleIds = new ArrayList<String>();
+		bundleIds.add(bundleId);
+
+		final Bundle bundle = Platform.getBundle(bundleId);
+		if (bundle == null)
+		{
+			System.out.println("Bundle " + bundleId + " not found.");
+			return null;
+		}
+
+		try
+		{
+			String requires = (String) bundle.getHeaders().get(Constants.REQUIRE_BUNDLE);
+			ManifestElement[] elements = ManifestElement.parseHeader(Constants.REQUIRE_BUNDLE, requires);
+
+			for (ManifestElement manifestElement : elements)
+			{
+				String value = manifestElement.getValue();
+				if (value.startsWith("org.overture")
+						|| value.startsWith("eu.compassresearch"))
+				{
+					bundleIds.add(value);
+				}
+			}
+		} catch (BundleException e)
+		{
+			return null;
+		}
+		return bundleIds.toArray(new String[] {});
 	}
 
 }
