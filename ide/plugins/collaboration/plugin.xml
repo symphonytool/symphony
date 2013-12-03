@@ -24,25 +24,25 @@
 
 <!-- Collaboration View -->
 <extension
-      id="eu.compassresearch.ide.collaboration.treeview"
+      id="eu.compassresearch.ide.collaboration.ui.view"
       name="Collaborative Modelling"
       point="org.eclipse.ui.views">
       	<category
 			id="eu.compassresearch.ide.ui.category"
 			name="Symphony"/>
-   <view
+	  <view
          name="Collaborative Modelling"
          icon="icons/icon_collaboration.gif"
-         class="eu.compassresearch.ide.collaboration.treeview.ui.CollaborationView"
-         id="eu.compassresearch.ide.collaboration.treeview.ui.CollaborationView">
-   </view>
+         class="eu.compassresearch.ide.collaboration.ui.view.CollaborationView"
+         id="eu.compassresearch.ide.collaboration.ui.view.CollaborationView">
+     </view>
 </extension>
 
 <extension point = "org.eclipse.ui.viewActions">
       <viewContribution 
-         id="eu.compassresearch.ide.collaboration.treeview.ui.CollaborationView.Connect" 
-         targetID="eu.compassresearch.ide.collaboration.treeview.ui.CollaborationView">        
-	   <action id="eu.compassresearch.ide.collaboration.treeview.ui.CollaborationView.connectAction" 
+         id="eu.compassresearch.ide.collaboration.ui.view.CollaborationView.Connect" 
+         targetID="eu.compassresearch.ide.collaboration.ui.view.CollaborationView">        
+	   <action id="eu.compassresearch.ide.collaboration.ui.view.CollaborationView.connectAction" 
               class="org.eclipse.ecf.internal.ui.actions.SelectProviderAction" enablesFor="*"
               label="Connect to IM Provider" 
 	      	  menubarPath="additions"> 
@@ -50,4 +50,3 @@
       </viewContribution>
 </extension>
 </plugin>
-

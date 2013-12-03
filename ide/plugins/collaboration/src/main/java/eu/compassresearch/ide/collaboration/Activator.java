@@ -14,7 +14,7 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
 
-import eu.compassresearch.ide.collaboration.management.CollaborationManager;
+import eu.compassresearch.ide.collaboration.communication.dispatch.MessageProcessor;
 
 public class Activator extends AbstractUIPlugin
 {
@@ -26,9 +26,9 @@ public class Activator extends AbstractUIPlugin
 	
 	private ServiceTracker containerManagerTracker;
 	
-	private static final Hashtable<ID, CollaborationManager> collaborationChannels = new Hashtable<ID, CollaborationManager>();
+	private static final Hashtable<ID, MessageProcessor> collaborationChannels = new Hashtable<ID, MessageProcessor>();
 	
-	private CollaborationManager collabMgm;
+	private MessageProcessor collabMgm;
 	
 	public Activator() {
 		// nothing to do
@@ -43,8 +43,6 @@ public class Activator extends AbstractUIPlugin
 	@Override
 	public void stop(BundleContext context) throws Exception
 	{
-		deleteCollaborationDirectories();
-		
 		if (containerManagerTracker != null) {
 			containerManagerTracker.close();
 			containerManagerTracker = null;
@@ -56,25 +54,11 @@ public class Activator extends AbstractUIPlugin
 		super.stop(context);
 	}
 	
-	public void deleteCollaborationDirectories(){
-
-		try
-		{
-			IFolder folder = collabMgm.getProjectFolder();
-			folder.delete(true, null);
-		} catch (CoreException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-	}
-	
-	public CollaborationManager addCollaborationManager(ID containerID, IChannelContainerAdapter channelAdapter) throws ECFException {
+	public MessageProcessor addCollaborationManager(ID containerID, IChannelContainerAdapter channelAdapter) throws ECFException {
 
 		collabMgm = collaborationChannels.get(containerID);
 		if (collabMgm == null){
-			collabMgm = new CollaborationManager(channelAdapter);
+			collabMgm = new MessageProcessor(channelAdapter);
 			collaborationChannels.put(containerID, collabMgm);
 			return collabMgm;
 		}
@@ -83,13 +67,13 @@ public class Activator extends AbstractUIPlugin
 	}
 	
 	public void removeCollaborationManager(ID containerID){
-		CollaborationManager collabMgm = collaborationChannels.remove(containerID);
+		MessageProcessor collabMgm = collaborationChannels.remove(containerID);
 		if(collabMgm != null ){
 			collabMgm.dispose();
 		}
 	}
 	
-	public CollaborationManager getCollaborationManager(ID containerID) {
+	public MessageProcessor getCollaborationManager(ID containerID) {
 		return collaborationChannels.get(containerID);
 	}
 	
@@ -105,7 +89,7 @@ public class Activator extends AbstractUIPlugin
 		return plugin;
 	}
 
-	public CollaborationManager getCollaborationManager()
+	public MessageProcessor getCollaborationManager()
 	{
 		return collabMgm;
 	}
