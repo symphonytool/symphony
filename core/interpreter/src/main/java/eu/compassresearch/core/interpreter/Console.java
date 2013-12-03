@@ -9,6 +9,7 @@ import java.io.PrintStream;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.types.PType;
 import org.overture.interpreter.runtime.Context;
+import org.overture.interpreter.runtime.ContextException;
 import org.overture.interpreter.values.Value;
 import org.overture.parser.lex.LexException;
 import org.overture.parser.messages.VDMErrorsException;
@@ -19,6 +20,7 @@ import eu.compassresearch.core.interpreter.api.transitions.LabelledTransition;
 import eu.compassresearch.core.interpreter.api.values.AbstractValueInterpreter;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
 import eu.compassresearch.core.interpreter.utility.ValueParser;
+import eu.compassresearch.core.typechecker.api.CMLErrorsException;
 
 public class Console
 {
@@ -99,7 +101,7 @@ public class Console
 						{
 							Console.out.println("Parse error input: "
 									+ e.toString()+"\n");
-						} catch (InterpreterRuntimeException|VDMErrorsException|ParserException e)
+						} catch (InterpreterRuntimeException|VDMErrorsException|ParserException|ContextException|CMLErrorsException e)
 						{
 							Console.out.println(e.toString()+"\n");
 						}

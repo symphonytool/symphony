@@ -5,7 +5,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.Vector;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
@@ -17,11 +16,9 @@ import org.overture.ast.types.PType;
 import org.overture.ast.util.definitions.ClassList;
 import org.overture.interpreter.runtime.ClassInterpreter;
 import org.overture.interpreter.runtime.Context;
-import org.overture.interpreter.runtime.Interpreter;
 import org.overture.interpreter.scheduler.BasicSchedulableThread;
 import org.overture.interpreter.scheduler.InitThread;
 import org.overture.interpreter.values.Value;
-import org.overture.typechecker.Environment;
 
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.lex.CmlLexNameToken;
@@ -39,7 +36,8 @@ import eu.compassresearch.core.interpreter.api.values.ProcessObjectValue;
 import eu.compassresearch.core.interpreter.debug.Breakpoint;
 import eu.compassresearch.core.interpreter.utility.LocationExtractor;
 import eu.compassresearch.core.parser.ParserUtil;
-import eu.compassresearch.core.typechecker.visitors.CmlClassTypeChecker;
+import eu.compassresearch.core.typechecker.VanillaFactory;
+import eu.compassresearch.core.typechecker.api.ICmlTypeChecker;
 
 class VanillaCmlInterpreter extends AbstractCmlInterpreter
 {
@@ -76,16 +74,6 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		instance = this;
 	}
 
-	// /**
-	// * Construct a CmlTypeInterpreter with the intension of checking a single source.
-	// *
-	// * @param singleSource
-	// */
-	// public VanillaCmlInterpreter(PSource singleSource)
-	// {
-	// this.sourceForest = new LinkedList<PDefinition>();
-	// this.sourceForest.add(singleSource);
-	// }
 
 	/**
 	 * Initializes the interpreter by making a global context and setting the last defined process as the top process
@@ -99,7 +87,6 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		// Build the global context
 		globalContext = envBuilder.getGlobalContext();
 		// set the last defined process as the top process
-		// FIXME When there are multiple files there are no way to determine which one it will be!
 		topProcess = envBuilder.getLastDefinedProcess();
 		setNewState(CmlInterpreterState.INITIALIZED);
 
@@ -411,27 +398,15 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	@Override
 	public CmlBehaviour getTopLevelProcess()
 	{
-
 		return runningTopProcess;
 	}
 
 	@Override
-	public PType typeCheck(PExp expr, Environment env) throws Exception
+	public PType typeCheck(PExp expr) throws Exception
 	{
-		// FIXME this is not the right type checker
-		Interpreter ip = Interpreter.getInstance();
-		return ip.typeCheck(expr, ip.getGlobalEnvironment());
-	}
+		ICmlTypeChecker typeChecker = VanillaFactory.newTypeChecker(sourceForest, null);
+		return typeChecker.typeCheck(expr);
 
-	@Override
-	public Environment getGlobalEnvironment()
-	{
-		// FIXME this is not the right environment
-		// Interpreter ip = Interpreter.getInstance();
-		// return ip.getGlobalEnvironment();
-
-		CmlClassTypeChecker typeChecker = new CmlClassTypeChecker(new Vector(), sourceForest);
-		return typeChecker.getAllClassesEnvronment();
 	}
 
 	@Override

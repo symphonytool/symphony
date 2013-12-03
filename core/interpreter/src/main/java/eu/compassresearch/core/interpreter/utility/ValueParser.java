@@ -33,7 +33,7 @@ public class ValueParser
 		CmlInterpreter ip = AbstractCmlInterpreter.getInstance();
 		PExp exp = ip.parseExpression(expressionString, "IO");
 
-		PType expType = ip.typeCheck(exp, ip.getGlobalEnvironment());
+		PType expType = ip.typeCheck(exp);
 		if (!TypeComparator.compatible(expectedType, expType))
 		{
 			throw new InterpreterRuntimeException("Wrong expression type read from console. Expected: "
