@@ -9,6 +9,11 @@ import org.overture.ast.definitions.SFunctionDefinition;
 import org.overture.ast.node.INode;
 
 import eu.compassresearch.ast.definitions.AActionDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAReadCommunicationParameter;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCASignalCommunicationParameter;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAWriteCommunicationParameter;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPCommunicationParameter;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ActionChannelDependency;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.Binding;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.Domain;
@@ -65,6 +70,7 @@ public class NewCMLModelcheckerContext {
 	public ArrayListSet<MCPVarsetExpression> globalChanSets;
 	public ArrayListSet<NameValue> localVariablesMapping;
 	public ArrayList<MCASBinaryExp> setExpressioFacts;
+	
 	
 	
 	
@@ -183,6 +189,7 @@ public class NewCMLModelcheckerContext {
 		return result;
 	}
 	
+	
 	public NewCMLModelcheckerContext() {
 		setStack = new NewSetStack<MCPVarsetExpression>();
 		lieIn = new ArrayList<MCLieInFact>();
@@ -204,6 +211,7 @@ public class NewCMLModelcheckerContext {
 		realLieInFacts = new ArrayListSet<MCLieInFact>();
 		localVariablesMapping = new ArrayListSet<NameValue>();
 		setExpressioFacts = new ArrayList<MCASBinaryExp>(); 
+
 		ASSIGN_COUNTER = 0;
 		GUARD_COUNTER = 0;
 		IOCOMM_COUNTER = 0;

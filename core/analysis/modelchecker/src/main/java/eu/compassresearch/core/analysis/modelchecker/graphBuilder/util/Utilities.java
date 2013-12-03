@@ -18,7 +18,7 @@ import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.Single
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.event.BasicEvent;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.event.CommEv;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.event.Event;
-import eu.compassresearch.core.analysis.modelchecker.graphBuilder.event.IOCom;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.event.IOCommEv;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.event.Tau;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.expression.EqualBooleanExpression;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.expression.LessThanBooleanExpression;
@@ -55,6 +55,7 @@ import eu.compassresearch.core.analysis.modelchecker.graphBuilder.transition.Tra
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.IR;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Int;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Nat;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.ProdType;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Str;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Type;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.TypeValue;
@@ -139,6 +140,7 @@ public class Utilities {
 		constructors.put(Constructor.IRType.id, Constructor.IRType);
 		constructors.put(Constructor.Void.id, Constructor.Void);
 		constructors.put(Constructor.TypeValue.id, Constructor.TypeValue);
+		constructors.put(Constructor.ProdType.id, Constructor.ProdType);
 		
 		//EXPRESSION
 		constructors.put(Constructor.EqualExpression.id, Constructor.EqualExpression);
@@ -163,7 +165,7 @@ public class Utilities {
 				"GivenProc"), ProcDef("ProcDef"), CommEv("CommEv"),
 				SingleBind("SingleBind"), Void("void"), VarDecl("var"), Let("let"), 
 				GenPar("genPar"), TypeValue("TypeValue"), UntimedInterrupt("intrpt"), 
-				UntimedTimeout ("uTimeout");
+				UntimedTimeout ("uTimeout"), ProdType("ProdType");
 		
 		String id;
 		
@@ -388,6 +390,11 @@ public class Utilities {
 		case TypeValue:
 			result = new TypeValue(arguments.pop().trim());
 			break;
+		case ProdType:
+			Type first = (Type) createObject(arguments.pop().trim());
+			Type second = (Type) createObject(arguments.pop().trim());
+			result = new ProdType(first,second);
+			break;
 		case VarDecl:
 			str = arguments.pop().trim();
 			String typeStr =  arguments.pop().trim();
@@ -526,7 +533,9 @@ public class Utilities {
 		case IOComm:
 			nmbr = arguments.pop();
 			str = arguments.pop();
-			result = new IOCom(nmbr, str);
+			String exp = arguments.pop();
+			Type valueType = (Type) createObject(arguments.pop());
+			result = new IOCommEv(nmbr, str, exp, valueType);
 			break;
 		case Spar:
 			typ = (Type) createObject(arguments.pop());

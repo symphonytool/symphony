@@ -386,7 +386,7 @@ public class NewMCActionVisitor extends
 					ActionChannelDependency actionChanDep = new ActionChannelDependency(actionName, identifier, mcParameters);
 					question.channelDependencies.add(actionChanDep);
 				} else if (parentAction instanceof AProcessDefinition){
-					String processName = Utilities.extractFunctionName(((AActionDefinition) parentAction).getName().toString());
+					String processName = Utilities.extractFunctionName(((AProcessDefinition) parentAction).getName().toString());
 					ActionChannelDependency actionChanDep = new ActionChannelDependency(processName, identifier, mcParameters);
 					question.channelDependencies.add(actionChanDep);
 				}

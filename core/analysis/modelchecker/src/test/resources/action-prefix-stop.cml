@@ -1,5 +1,14 @@
-channels a
+types
+ Values = nat 
+  inv i == i in set {1,...,3} 
+  
+channels 
+
+a b c d
+
+e : Values
+
 process A = 
 begin 
-	@ a -> Stop 
+	@ a -> b -> c -> d -> e.1 -> Stop 
 end

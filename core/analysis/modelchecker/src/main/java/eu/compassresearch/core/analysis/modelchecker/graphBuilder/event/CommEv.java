@@ -2,8 +2,17 @@ package eu.compassresearch.core.analysis.modelchecker.graphBuilder.event;
 
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Type;
 
-public class CommEv implements Event{
+public class CommEv implements Event {
 
+	private String begin;
+	private String middle;
+	private Type end;
+
+	public CommEv(String str1, String str2, Type str3) {
+		this.begin = str1;
+		this.middle = str2;
+		this.end = str3;
+	}
 	public String getBegin() {
 		return begin;
 	}
@@ -28,33 +37,26 @@ public class CommEv implements Event{
 		this.end = end;
 	}
 
-	String begin;
-	String middle;
-	Type end;
-	
-	
-	public CommEv(String str1, String str2, Type str3) {
-		this.begin = str1;
-		this.middle = str2;
-		this.end = str3;
-	}
+
 
 	@Override
 	public String toString() {
-		return begin;
+		return begin + "." + end.toString();
 	}
-	
+
 	@Override
 	public int hashCode() {
-		return  ("ev" +getBegin() + getMiddle() + getEnd()).hashCode();
+		return ("ev" + getBegin() + getMiddle() + getEnd()).hashCode();
 	}
 
 	@Override
 	public boolean equals(Object obj) {
 		boolean result = false;
-		if (obj instanceof CommEv){
+		if (obj instanceof CommEv) {
 			CommEv other = (CommEv) obj;
-			result = this.getBegin().equals(other.getBegin()) && this.getMiddle().equals(other.getMiddle()) && this.getEnd().equals(other.getEnd());
+			result = this.getBegin().equals(other.getBegin())
+					&& this.getMiddle().equals(other.getMiddle())
+					&& this.getEnd().equals(other.getEnd());
 		}
 		return result;
 	}

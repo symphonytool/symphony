@@ -789,7 +789,7 @@ public class GraphBuilder {
 		//String filePath = "/examples/dphils.facts.txt";
 		//String filePath = "/examples/chaos.facts.txt";
 		//String filePath = "/examples/dphils-d.facts.txt";
-		String filePath = "D:\\COMPASS\\test-branch\\compassresearch-code\\core\\analysis\\modelchecker\\src\\test\\resources\\minimondex.facts";
+		String filePath = "D:\\COMPASS\\compassresearch-code\\core\\analysis\\modelchecker\\src\\test\\resources\\minimondex.facts";
 		//String filePath = "/examples/phils-and-fork0.facts.txt";
 		
 		//String filePath = "/examples/NDet2.facts.txt";
