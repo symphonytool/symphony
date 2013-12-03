@@ -1,27 +1,23 @@
 package eu.compassresearch.core.interpreter;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Iterator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.Vector;
-import java.util.logging.Level;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.definitions.SClassDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.intf.lex.ILexLocation;
-import org.overture.ast.lex.Dialect;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.types.PType;
 import org.overture.ast.util.definitions.ClassList;
 import org.overture.interpreter.runtime.ClassInterpreter;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.Interpreter;
-import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.scheduler.BasicSchedulableThread;
 import org.overture.interpreter.scheduler.InitThread;
 import org.overture.interpreter.values.Value;
@@ -29,28 +25,21 @@ import org.overture.typechecker.Environment;
 
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.lex.CmlLexNameToken;
-import eu.compassresearch.core.interpreter.api.AnnimationStrategy;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
-import eu.compassresearch.core.interpreter.api.ConsoleSelectionStrategy;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
-import eu.compassresearch.core.interpreter.api.RandomSelectionStrategy;
 import eu.compassresearch.core.interpreter.api.SelectionStrategy;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlTrace;
-import eu.compassresearch.core.interpreter.api.events.CmlInterpreterStateObserver;
-import eu.compassresearch.core.interpreter.api.events.InterpreterStateChangedEvent;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.transitions.ObservableTransition;
+import eu.compassresearch.core.interpreter.api.transitions.TimedTransition;
 import eu.compassresearch.core.interpreter.api.values.ProcessObjectValue;
 import eu.compassresearch.core.interpreter.debug.Breakpoint;
 import eu.compassresearch.core.interpreter.utility.LocationExtractor;
 import eu.compassresearch.core.parser.ParserUtil;
-import eu.compassresearch.core.parser.ParserUtil.ParserResult;
-import eu.compassresearch.core.typechecker.VanillaFactory;
-import eu.compassresearch.core.typechecker.api.ICmlTypeChecker;
-import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
+import eu.compassresearch.core.typechecker.visitors.CmlClassTypeChecker;
 
 class VanillaCmlInterpreter extends AbstractCmlInterpreter
 {
@@ -80,8 +69,9 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	 * @param definitions
 	 *            - Source containing CML Paragraphs for type checking.
 	 */
-	public VanillaCmlInterpreter(List<PDefinition> definitions)
+	public VanillaCmlInterpreter(List<PDefinition> definitions, Config config)
 	{
+		super(config);
 		this.sourceForest = definitions;
 		instance = this;
 	}
@@ -265,7 +255,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			}
 
 			// set the state of the interpreter to be waiting for the environment
-			getEnvironment().choices(availableEvents);
+			getEnvironment().choices(filterEvents(availableEvents));
 			setNewState(CmlInterpreterState.WAITING_FOR_ENVIRONMENT);
 			// Get the environment to select the next transition.
 			// this is potentially a blocking call!!
@@ -335,6 +325,24 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			setNewState(CmlInterpreterState.FINISHED);
 		}
 
+	}
+
+	private CmlTransitionSet filterEvents(CmlTransitionSet availableEvents)
+	{
+		if (!config.filterTockEvents)
+		{
+			return availableEvents;
+		}
+
+		Set<CmlTransition> events = new HashSet<CmlTransition>();
+		for (CmlTransition event : availableEvents.getAllEvents())
+		{
+			if (!(event instanceof TimedTransition))
+			{
+				events.add(event);
+			}
+		}
+		return new CmlTransitionSet(events);
 	}
 
 	@Override
@@ -407,179 +415,6 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		return runningTopProcess;
 	}
 
-	public static void main(String[] args) throws IOException,
-			CmlInterpreterException
-	{
-		List<String> largs = Arrays.asList(args);
-		List<File> filenames = new Vector<File>();
-		String processName = null;
-		String remoteClass = null;
-		SelectionStrategy selectionStrategy = new ConsoleSelectionStrategy();
-
-		for (Iterator<String> i = largs.iterator(); i.hasNext();)
-		{
-			String arg = i.next();
-			if (arg.equals("-process"))
-			{
-				if (i.hasNext())
-				{
-					processName = i.next();
-				} else
-				{
-					usage("-process option requires a process name");
-				}
-			} else if (arg.equals("-animate"))
-			{
-				selectionStrategy = new AnnimationStrategy();
-			} else if (arg.equals("-simulate"))
-			{
-				selectionStrategy = new RandomSelectionStrategy();
-			} else if (arg.equals("-remote"))
-			{
-				if (i.hasNext())
-				{
-					remoteClass = i.next();
-				} else
-				{
-					usage("-remote option requires a fully qualified java class name");
-				}
-			} else if (arg.startsWith("-"))
-			{
-				usage("Unknown option " + arg);
-			} else
-			{
-				// It's a file or a directory
-				File file = new File(arg);
-
-				if (file.isDirectory())
-				{
-					for (File subFile : file.listFiles(Dialect.CML.getFilter()))
-					{
-						if (subFile.isFile())
-						{
-							filenames.add(subFile);
-						}
-					}
-				} else
-				{
-					if (file.exists())
-					{
-						filenames.add(file);
-					} else
-					{
-						usage("Cannot find file " + file);
-
-					}
-				}
-			}
-		}
-
-		if (remoteClass != null)
-		{
-			// TODO
-		}
-
-		execute(selectionStrategy, processName, filenames.toArray(new File[filenames.size()]));
-
-	}
-
-	private static void execute(SelectionStrategy selectionStrategy,
-			String processName, File... f) throws IOException,
-			CmlInterpreterException
-	{
-		ParserResult res = ParserUtil.parse(f);
-
-		if (res.errors.size() > 0)
-		{
-			res.printErrors(System.err);
-			return;
-		}
-
-		ITypeIssueHandler issueHandler = VanillaFactory.newCollectingIssueHandle();
-
-		// Type check
-		ICmlTypeChecker cmlTC = VanillaFactory.newTypeChecker(res.definitions, issueHandler);
-
-		// Print result and report errors if any
-		if (!cmlTC.typeCheck())
-		{
-			System.out.println("Failed to type check: " + f.toString());
-			System.out.println(issueHandler.getTypeErrors());
-			return;
-		}
-
-		// interpret
-		VanillaCmlInterpreter interpreter = new VanillaCmlInterpreter(res.definitions);
-		if (processName != null)
-		{
-			interpreter.setDefaultName(processName);
-		}
-		interpreter.onStateChanged().registerObserver(new CmlInterpreterStateObserver()
-		{
-
-			@Override
-			public void onStateChanged(Object source,
-					InterpreterStateChangedEvent event)
-			{
-				System.out.println("Simulator status event : "
-						+ event.getStatus());
-
-			}
-		});
-
-		try
-		{
-			CmlRuntime.logger().setLevel(Level.FINEST);
-			interpreter.initialize();
-			interpreter.execute(selectionStrategy);
-		} catch (ValueException e)
-		{
-			System.out.println("With Error : " + e);
-			System.out.println(e.ctxt.location);
-			System.out.println("With stack trace : ");
-			e.printStackTrace();
-		} catch (Exception ex)
-		{
-			System.out.println("Failed to interpret: " + f.toString());
-			System.out.println("With Error : " + ex.getMessage());
-			System.out.println("With stack trace : ");
-			ex.printStackTrace();
-			return;
-		}
-
-		// Report success
-		System.out.println("The given CML Program is done simulating.");
-	}
-
-	private static void usage(String msg)
-	{
-		System.err.println("COMPASS: " + msg + "\n");
-		System.err.println("Usage: COMPASS <-process> [<options>] [<files or dirs>]");
-		System.err.println("-animate: use the animation strategy");
-		System.err.println("-simulate: use the simulation strategy that autoselects events");
-		System.err.println("-remote: use a remote interpreter as selection strategy");
-		// System.err.println("-path: search path for files");
-		// System.err.println("-r <release>: VDM language release");
-		// System.err.println("-w: suppress warning messages");
-		// System.err.println("-q: suppress information messages");
-		// System.err.println("-i: run the interpreter if successfully type checked");
-		// System.err.println("-p: generate proof obligations and stop");
-		// System.err.println("-e <exp>: evaluate <exp> and stop");
-		// System.err.println("-c <charset>: select a file charset");
-		// System.err.println("-t <charset>: select a console charset");
-		// System.err.println("-o <filename>: saved type checked specification");
-		// System.err.println("-default <name>: set the default module/class");
-		// System.err.println("-pre: disable precondition checks");
-		// System.err.println("-post: disable postcondition checks");
-		// System.err.println("-inv: disable type/state invariant checks");
-		// System.err.println("-dtc: disable all dynamic type checking");
-		// System.err.println("-measures: disable recursive measure checking");
-		// System.err.println("-log: enable real-time event logging");
-		// System.err.println("-remote <class>: enable remote control");
-
-		System.exit(1);
-	}
-
 	@Override
 	public PType typeCheck(PExp expr, Environment env) throws Exception
 	{
@@ -592,8 +427,11 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	public Environment getGlobalEnvironment()
 	{
 		// FIXME this is not the right environment
-		Interpreter ip = Interpreter.getInstance();
-		return ip.getGlobalEnvironment();
+		// Interpreter ip = Interpreter.getInstance();
+		// return ip.getGlobalEnvironment();
+
+		CmlClassTypeChecker typeChecker = new CmlClassTypeChecker(new Vector(), sourceForest);
+		return typeChecker.getAllClassesEnvronment();
 	}
 
 	@Override
