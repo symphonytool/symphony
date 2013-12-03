@@ -42,10 +42,6 @@ public class DefinitionList extends Vector<PDefinition>
 		{
 			this.apply(new DepthFirstAnalysisCMLAdaptor()
 			{
-				/**
-				 * 
-				 */
-				private static final long serialVersionUID = 1L;
 
 				@Override
 				public void caseAClassClassDefinition(AClassClassDefinition node)

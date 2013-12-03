@@ -120,10 +120,6 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 		super(af);
 	}
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -7520136998582515658L;
 
 	@Override
 	public PType caseFile(File node) throws AnalysisException

@@ -11,10 +11,6 @@ public class CmlFunctionChecker extends AbstractCmlFunctionChecker
 		super(af);
 	}
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1470058386572243235L;
 
 	@Override
 	public Boolean createNewReturnValue(INode node)

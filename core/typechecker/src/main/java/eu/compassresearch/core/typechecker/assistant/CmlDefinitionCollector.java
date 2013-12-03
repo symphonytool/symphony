@@ -16,10 +16,6 @@ import eu.compassresearch.ast.definitions.AProcessDefinition;
 public class CmlDefinitionCollector extends AbstractCmlDefinitionCollector
 {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 
 	public CmlDefinitionCollector(ITypeCheckerAssistantFactory af)
 	{
