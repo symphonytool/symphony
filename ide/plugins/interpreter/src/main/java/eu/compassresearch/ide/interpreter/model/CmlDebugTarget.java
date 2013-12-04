@@ -22,7 +22,6 @@ import org.eclipse.debug.core.model.IMemoryBlock;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.ITerminate;
 import org.eclipse.debug.core.model.IThread;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
@@ -256,12 +255,14 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 						{
 							Breakpoint bp = message.getInterpreterStatus().getActiveBreakpoint();
 							for (CmlProcessDTO pi : message.getInterpreterStatus().getAllProcesses())
+							{
 								if (pi.getLocation().getStartLine() == bp.getLine())
 								{
 									CmlUtil.setSelectionFromLocation(pi.getLocation(), lastSelectedRanges);
 									CmlUtil.showLocation(lastSelectedRanges.keySet().iterator().next(), pi.getLocation());
 									break;
 								}
+							}
 						}
 
 						try
@@ -286,26 +287,26 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 			{
 				lastState = message.getInterpreterStatus();
 				// threadManager.stopping();
-//				if (lastState.hasErrors())
-//				{
-//					if (lastState.getErrors().get(0).getLocation() != null)
-//					{
-//						Display.getDefault().syncExec(new Runnable()
-//						{
-//							@Override
-//							public void run()
-//							{
-//								Map<StyledText, List<StyleRange>> map = new HashMap<StyledText, List<StyleRange>>();
-//								CmlUtil.setSelectionFromLocation(lastState.getErrors().get(0).getLocation(), map);
-//								CmlUtil.showLocation(map.keySet().iterator().next(), lastState.getErrors().get(0).getLocation());
-//								MessageDialog.openError(null, "Simulation Error", lastState.getErrors().get(0).getErrorMessage());
-//								CmlUtil.clearSelections(map);
-//							}
-//						});
-//					}
-//				}
-//				CmlDebugPlugin.logWarning(message + " : "
-//						+ message.getInterpreterStatus().getErrors());
+				// if (lastState.hasErrors())
+				// {
+				// if (lastState.getErrors().get(0).getLocation() != null)
+				// {
+				// Display.getDefault().syncExec(new Runnable()
+				// {
+				// @Override
+				// public void run()
+				// {
+				// Map<StyledText, List<StyleRange>> map = new HashMap<StyledText, List<StyleRange>>();
+				// CmlUtil.setSelectionFromLocation(lastState.getErrors().get(0).getLocation(), map);
+				// CmlUtil.showLocation(map.keySet().iterator().next(), lastState.getErrors().get(0).getLocation());
+				// MessageDialog.openError(null, "Simulation Error", lastState.getErrors().get(0).getErrorMessage());
+				// CmlUtil.clearSelections(map);
+				// }
+				// });
+				// }
+				// }
+				// CmlDebugPlugin.logWarning(message + " : "
+				// + message.getInterpreterStatus().getErrors());
 				return false;
 			}
 		});
@@ -382,13 +383,13 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 	@Override
 	public boolean canTerminate()
 	{
-		return (process != null && process.canTerminate());
+		return process != null && process.canTerminate();
 	}
 
 	@Override
 	public boolean isTerminated()
 	{
-		return (process != null && process.isTerminated());
+		return process != null && process.isTerminated();
 	}
 
 	public void terminate() throws DebugException
@@ -456,9 +457,8 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 	public boolean isSuspended()
 	{
 		return lastState != null
-				&& (lastState.getInterpreterState() == CmlInterpreterState.SUSPENDED 
-				|| lastState.getInterpreterState() == CmlInterpreterState.WAITING_FOR_ENVIRONMENT
-				|| lastState.getInterpreterState() == CmlInterpreterState.DEADLOCKED);
+				&& (lastState.getInterpreterState() == CmlInterpreterState.SUSPENDED
+						|| lastState.getInterpreterState() == CmlInterpreterState.WAITING_FOR_ENVIRONMENT || lastState.getInterpreterState() == CmlInterpreterState.DEADLOCKED);
 	}
 
 	@Override
@@ -620,7 +620,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 	@Override
 	public boolean supportsBreakpoint(IBreakpoint breakpoint)
 	{
-		return (breakpoint instanceof CmlLineBreakpoint);
+		return breakpoint instanceof CmlLineBreakpoint;
 	}
 
 	/**
