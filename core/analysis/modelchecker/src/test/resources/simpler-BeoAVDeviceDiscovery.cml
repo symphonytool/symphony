@@ -98,15 +98,15 @@
 		  Off_State = (TargetProductEventChannel.<POWER_ON>->On_State) 
 		  On_State = WaitingOnFunctionCall_State /_\ TargetProductEventChannel.<POWER_OFF> -> Off_State 
 		  WaitingOnFunctionCall_State = BrowsingInterfaceCallChannel?x -> ConnectToDevice_State(x)
-		  ConnectToDevice_State= x:ServiceCallData @  (IPTCPPORTChannel.<CONNECT> -> SendingBrowsingRequest_State(x)) 
+		  ConnectToDevice_State= x1:ServiceCallData @  (IPTCPPORTChannel.<CONNECT> -> SendingBrowsingRequest_State(x1)) 
 		  						 [_> BrowsingInterfaceReplyChannel!ServiceCallDataERROR -> WaitingOnFunctionCall_State 
-		  SendingBrowsingRequest_State = x:ServiceCallData @ SendCallData_State(x) 
+		  SendingBrowsingRequest_State = x2:ServiceCallData @ SendCallData_State(x2) 
 		  						/_\ ( IPTCPPORTChannel.<DISCONNECT> -> BrowsingInterfaceReplyChannel!ServiceCallDataERROR -> WaitingOnFunctionCall_State 
 		  					          [] 
 		  					          TargetProductEventChannel.<INTERUPT> -> WaitingOnFunctionCall_State)   
-		  SendCallData_State = x:ServiceCallData @ ( IPTCPChannel!x -> IPTCPChannel?y -> ReplayTofunctionCall_State(y))
+		  SendCallData_State = x3:ServiceCallData @ ( IPTCPChannel!x3 -> IPTCPChannel?y -> ReplayTofunctionCall_State(y))
 		  						[_> BrowsingInterfaceReplyChannel!ServiceCallDataERROR -> WaitingOnFunctionCall_State
-		  ReplayTofunctionCall_State = x:ServiceCallData @ BrowsingInterfaceReplyChannel!x -> WaitingOnFunctionCall_State  
+		  ReplayTofunctionCall_State = x4:ServiceCallData @ BrowsingInterfaceReplyChannel!x4 -> WaitingOnFunctionCall_State  
       @ Off_State
   end 
   
@@ -117,7 +117,7 @@
 		  On_State = WaitingOnServiceCall_State /_\ SourceProductEventChannel.<POWER_OFF>->Off_State
 		  WaitingOnServiceCall_State = IPTCPPORTChannel.<CONNECT>->ReadCallData_State
 		  ReadCallData_State = ReadCallData /_\ (SourceProductEventChannel.<INTERUPT>->WaitingOnServiceCall_State [] IPTCPPORTChannel.<DISCONNECT> ->WaitingOnServiceCall_State)   
-		  ReadCallData = (IPTCPChannel?x->LocalInterfaceChannel!x->LocalInterfaceChannel?y->IPTCPChannel!y->WaitingOnServiceCall_State) [_> WaitingOnServiceCall_State    
+		  ReadCallData = (IPTCPChannel?x5->LocalInterfaceChannel!x5->LocalInterfaceChannel?y2->IPTCPChannel!y2->WaitingOnServiceCall_State) [_> WaitingOnServiceCall_State    
       @ Off_State
   end
   

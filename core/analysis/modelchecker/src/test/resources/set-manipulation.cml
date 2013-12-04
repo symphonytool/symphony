@@ -1,0 +1,25 @@
+types
+  Element = nat
+  	inv i == i in set {1,...,2}
+
+channels
+  init, empty, nonempty
+  insert: Element
+  
+process SetExample =
+begin
+  state
+    intset : set of Element := {}
+    
+  operations
+    Init : () ==> ()
+    Init() ==   intset := {}
+      
+    Insert : Element ==> ()
+    Insert(e) ==    intset := intset union {e}
+      
+  actions
+    Cycle = Insert(1);Skip
+  @  
+    init -> Init(); Cycle
+end

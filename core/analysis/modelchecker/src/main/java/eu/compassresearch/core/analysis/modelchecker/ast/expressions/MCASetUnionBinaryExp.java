@@ -1,5 +1,9 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.expressions;
 
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.NamedSet;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.NonEmptySet;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.Set;
+
 public class MCASetUnionBinaryExp extends MCASBinaryExp {
 
 	private String newVarName; 
@@ -17,6 +21,8 @@ public class MCASetUnionBinaryExp extends MCASBinaryExp {
 	@Override
 	public String toFormula(String option) {
 		StringBuilder result = new StringBuilder();
+		
+		/*
 		result.append("union(");
 		result.append(this.getLeft().toFormula(option));
 		result.append(",");
@@ -24,6 +30,25 @@ public class MCASetUnionBinaryExp extends MCASBinaryExp {
 		result.append(",");
 		result.append(this.newVarName);
 		result.append(")");
+		*/
+		result.append(this.newVarName);
+		result.append(" = ");
+		
+		MCPCMLExp setNameExp = this.getLeft();
+		MCPCMLExp setExp = this.getRight();
+		Set setRightExp = null;
+		if(! (setNameExp instanceof MCAVariableExp) ){
+			setNameExp = this.getRight();
+			setExp = this.getRight();
+		}
+		setRightExp = new NamedSet(((MCAVariableExp) setNameExp).getName());
+		if(setExp instanceof MCASetEnumSetExp){
+			for (MCPCMLExp member : ((MCASetEnumSetExp) setExp).getMembers()) {
+				setRightExp = setRightExp.addElement(member);
+			}
+		}
+		result.append(setRightExp.toFormula(option)); 
+		
 		
 		return result.toString();
 	}

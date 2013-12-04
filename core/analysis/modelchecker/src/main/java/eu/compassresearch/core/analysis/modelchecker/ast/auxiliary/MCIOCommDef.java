@@ -72,6 +72,7 @@ public class MCIOCommDef implements MCNode {
 		result.append(maxOldCopy.toFormula(MCNode.NAMED));
 		result.append(",");
 		result.append(this.parentAction.toFormula(MCNode.MINIMAL_GENERIC));
+		//result.append(this.parentAction.toFormula(MCNode.NAMED));
 		result.append(")");
 
 		result.append(".");
