@@ -1,0 +1,11 @@
+channels 
+a
+b : int
+
+process A = 
+begin
+	state
+		v : int := 0
+ 
+	@ (a -> v := 1 [| {v} | {| a |} | {} |] a-> v := 2) ; b.(v) -> Skip
+end

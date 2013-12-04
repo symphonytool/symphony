@@ -35,6 +35,7 @@ import eu.compassresearch.ast.process.AInternalChoiceProcess;
 import eu.compassresearch.ast.process.AInterruptProcess;
 import eu.compassresearch.ast.process.AReferenceProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
+import eu.compassresearch.ast.process.ATimedInterruptProcess;
 import eu.compassresearch.ast.process.ATimeoutProcess;
 import eu.compassresearch.ast.process.AUntimedTimeoutProcess;
 import eu.compassresearch.ast.process.PProcess;
@@ -407,7 +408,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 		if (!owner.hasChildren())
 		{
 
-			return newInspection(createTauTransitionWithTime(node, "Begin"), new CmlCalculationStep()
+			return newInspection(createTauTransitionWithoutTime(node, "Begin"), new CmlCalculationStep()
 			{
 
 				@Override
@@ -575,7 +576,6 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 			ASequentialCompositionProcess node, Context question)
 			throws AnalysisException
 	{
-
 		return caseASequentialComposition(node, node.getLeft(), node.getRight(), question);
 	}
 
@@ -584,6 +584,13 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 			throws AnalysisException
 	{
 		return caseATimeout(node, node.getLeft(), node.getRight(), node.getTimeoutExpression(), question);
+	}
+	
+	@Override
+	public Inspection caseATimedInterruptProcess(ATimedInterruptProcess node,
+			Context question) throws AnalysisException
+	{
+		return caseATimedInterrupt(node,node.getLeft(),node.getRight(),node.getTimeExpression(), question);
 	}
 
 	@Override

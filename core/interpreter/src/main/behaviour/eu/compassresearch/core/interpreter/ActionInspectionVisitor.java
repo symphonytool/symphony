@@ -45,6 +45,7 @@ import eu.compassresearch.ast.actions.ASignalCommunicationParameter;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.AStmAction;
 import eu.compassresearch.ast.actions.AStopAction;
+import eu.compassresearch.ast.actions.ATimedInterruptAction;
 import eu.compassresearch.ast.actions.ATimeoutAction;
 import eu.compassresearch.ast.actions.AUntimedTimeoutAction;
 import eu.compassresearch.ast.actions.AValParametrisation;
@@ -74,6 +75,7 @@ import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
 import eu.compassresearch.core.interpreter.api.values.ExpressionConstraint;
 import eu.compassresearch.core.interpreter.api.values.LatticeTopValue;
+import eu.compassresearch.core.interpreter.api.values.NamesetValue;
 import eu.compassresearch.core.interpreter.api.values.NoConstraint;
 import eu.compassresearch.core.interpreter.api.values.UnresolvedExpressionValue;
 import eu.compassresearch.core.interpreter.api.values.ValueConstraint;
@@ -372,18 +374,6 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 		// question);
 		// varsetContext.putNew(new NameValuePair(NamespaceUtility.getVarExpContextName(), new BooleanValue(true)));
 
-		// NamesetValue leftNamesetValue = null;
-		// NamesetValue rightNamesetValue = null;
-
-		if (node.getLeftNamesetExpression() != null)
-		{
-			/* leftNamesetValue = (NamesetValue) */node.getLeftNamesetExpression().apply(cmlExpressionVisitor, question);
-		}
-		if (node.getRightNamesetExpression() != null)
-		{
-			/* rightNamesetValue = (NamesetValue) */node.getRightNamesetExpression().apply(cmlExpressionVisitor, question);
-		}
-
 		// if true this means that this is the first time here, so the Parallel Begin rule is invoked.
 		if (!owner.hasChildren())
 		{
@@ -396,8 +386,19 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 						CmlTransition selectedTransition)
 						throws AnalysisException
 				{
+					NamesetValue leftNamesetValue = null;
+					NamesetValue rightNamesetValue = null;
 
-					caseParallelBegin(node, question);
+					if (node.getLeftNamesetExpression() != null)
+					{
+						leftNamesetValue = (NamesetValue)node.getLeftNamesetExpression().apply(cmlExpressionVisitor, question);
+					}
+					if (node.getRightNamesetExpression() != null)
+					{
+						rightNamesetValue = (NamesetValue)node.getRightNamesetExpression().apply(cmlExpressionVisitor, question);
+					}
+
+					caseParallelBegin(node, leftNamesetValue, rightNamesetValue, question);
 					// We push the current state, since this process will control the child processes created by it
 					return new Pair<INode, Context>(node, question);
 				}
@@ -511,17 +512,28 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 			}
 		});
 	}
-
-	private void caseParallelBegin(SParallelAction node, Context question)
+	
+	private void caseParallelBegin(SParallelAction node, NamesetValue leftNameset, NamesetValue rightNameset, Context question)
 			throws AnalysisException
 	{
 		PAction left = node.getLeftAction();
 		PAction right = node.getRightAction();
 		Pair<Context, Context> childContexts = getChildContexts(question);
-		CmlBehaviour leftInstance = new ConcreteCmlBehaviour(left, childContexts.first.deepCopy(), new CmlLexNameToken(owner.name().getModule(), owner.name().getIdentifier().getName()
+		
+		Context leftCopy = childContexts.first.deepCopy();
+		
+		if(leftNameset != null)
+			leftCopy.putNew(new NameValuePair(NamespaceUtility.getNamesetName(), leftNameset));
+		
+		CmlBehaviour leftInstance = new ConcreteCmlBehaviour(left, leftCopy, new CmlLexNameToken(owner.name().getModule(), owner.name().getIdentifier().getName()
 				+ "|||", left.getLocation()), owner);
-
-		CmlBehaviour rightInstance = new ConcreteCmlBehaviour(right, childContexts.second.deepCopy(), new CmlLexNameToken(owner.name().getModule(), "|||"
+		
+		Context rightCopy = childContexts.second.deepCopy();
+		
+		if(rightNameset != null)
+			rightCopy.putNew(new NameValuePair(NamespaceUtility.getNamesetName(), rightNameset));
+		
+		CmlBehaviour rightInstance = new ConcreteCmlBehaviour(right, rightCopy, new CmlLexNameToken(owner.name().getModule(), "|||"
 				+ owner.name().getIdentifier().getName(), right.getLocation()), owner);
 
 		// add the children to the process graph
@@ -590,7 +602,19 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 			@Override
 			public void caseParallelBegin() throws AnalysisException
 			{
-				ActionInspectionVisitor.this.caseParallelBegin(node, question);
+				NamesetValue leftNamesetValue = null;
+				NamesetValue rightNamesetValue = null;
+
+				if (node.getLeftNamesetExpression() != null)
+				{
+					leftNamesetValue = (NamesetValue)node.getLeftNamesetExpression().apply(cmlExpressionVisitor, question);
+				}
+				if (node.getRightNamesetExpression() != null)
+				{
+					rightNamesetValue = (NamesetValue)node.getRightNamesetExpression().apply(cmlExpressionVisitor, question);
+				}
+				
+				ActionInspectionVisitor.this.caseParallelBegin(node,leftNamesetValue,rightNamesetValue, question);
 			}
 		}, node.getChansetExpression(), question);
 	}
@@ -768,5 +792,12 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 	{
 
 		return caseAInterrupt(node, question);
+	}
+	
+	@Override
+	public Inspection caseATimedInterruptAction(ATimedInterruptAction node,
+			Context question) throws AnalysisException
+	{
+		return caseATimedInterrupt(node, node.getLeft(), node.getRight(), node.getTimeExpression(), question);
 	}
 }
