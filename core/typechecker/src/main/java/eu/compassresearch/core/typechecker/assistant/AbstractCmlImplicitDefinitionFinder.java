@@ -122,10 +122,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 		super(af);
 	}
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 4947466785754178741L;
 
 	@Override
 	public void caseFile(File node, Environment question)

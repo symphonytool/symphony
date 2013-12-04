@@ -116,10 +116,6 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 		implements ICMLAnswer<List<PDefinition>>
 {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 
 	public AbstractCmlDefinitionCollector(ITypeCheckerAssistantFactory af)
 	{

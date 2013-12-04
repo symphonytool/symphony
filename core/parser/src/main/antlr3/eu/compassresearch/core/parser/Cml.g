@@ -274,13 +274,13 @@ private ILexLocation extractLexLocation(CommonToken token) {
     int pos = token.getCharPositionInLine();
     int offset = token.getStartIndex();
     return new LexLocation(this.sourceFileName,
-                           "",// FIXME: (local?) module name
+                           "",
                            line, //start line
                            pos, //start column
                            line, //end line (FIXME?)
                            pos+len, //end column
                            offset, //absolute start offset
-                           offset+len); //absolute end offset
+                           offset+len/*is it on purpose that the StopIndex is not used here*/); //absolute end offset
 }
 
 private ILexLocation extractLexLocation(CommonToken start, CommonToken end) {
@@ -291,7 +291,7 @@ private ILexLocation extractLexLocation(CommonToken start, CommonToken end) {
     int soffset = start.getStartIndex();
     int eoffset = end.getStopIndex();
     return new LexLocation(this.sourceFileName,
-                           "",// FIXME: (local?) module name
+                           "",
                            sline, spos,
                            eline, epos,
                            soffset, eoffset);

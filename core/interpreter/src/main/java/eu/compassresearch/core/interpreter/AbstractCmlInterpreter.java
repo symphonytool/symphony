@@ -54,6 +54,16 @@ public abstract class AbstractCmlInterpreter implements CmlInterpreter
 	private CmlInterpreterState currentState = null;
 
 	/**
+	 * Configuration of the interpreter
+	 */
+	protected final Config config;
+
+	public AbstractCmlInterpreter(Config config)
+	{
+		this.config = config;
+	}
+
+	/**
 	 * Set the new state of the interpreter
 	 */
 	protected void setNewState(CmlInterpreterState newState)

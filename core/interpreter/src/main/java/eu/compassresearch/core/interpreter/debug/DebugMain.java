@@ -9,6 +9,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.overture.ast.analysis.AnalysisException;
 
+import eu.compassresearch.core.interpreter.Config;
 import eu.compassresearch.core.interpreter.Console;
 import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.api.AnnimationStrategy;
@@ -19,6 +20,7 @@ import eu.compassresearch.core.interpreter.api.SelectionStrategy;
 import eu.compassresearch.core.interpreter.remote.IRemoteControl;
 import eu.compassresearch.core.interpreter.remote.IRemoteInterpreter;
 import eu.compassresearch.core.interpreter.remote.RemoteInterpreter;
+import eu.compassresearch.core.interpreter.utility.TimedSpeckChecker;
 import eu.compassresearch.core.parser.ParserUtil;
 import eu.compassresearch.core.parser.ParserUtil.ParserResult;
 import eu.compassresearch.core.typechecker.VanillaFactory;
@@ -43,6 +45,7 @@ public class DebugMain
 		CmlDebugger debugger = new SocketServerCmlDebugger();
 		String remoteName = null;
 		Class<IRemoteControl> remoteClass = null;
+		boolean autoFilterTockEvents = false;
 		int port = CmlDebugDefaultValues.PORT;
 		String host = "localhost";
 		try
@@ -50,10 +53,10 @@ public class DebugMain
 			// ----------- Config -------------------------------------
 
 			// Index 0 of args is the JSON config
-			JSONObject config = (JSONObject) JSONValue.parse(args[0]);
+			JSONObject jargs = (JSONObject) JSONValue.parse(args[0]);
 			// retrieve the paths for the cml sources of the project
 			List<String> sourcesPaths = new LinkedList<String>();
-			Object sourcesPathsObject = config.get(CmlInterpreterArguments.CML_SOURCES_PATH.key);
+			Object sourcesPathsObject = jargs.get(CmlInterpreterArguments.CML_SOURCES_PATH.key);
 			// Since the used json encoding for some reason does not encode a list of size of 1 as a list but
 			// as a single normal string, we need to check this.
 			if (sourcesPathsObject instanceof List<?>)
@@ -62,10 +65,10 @@ public class DebugMain
 				sourcesPaths.add((String) sourcesPathsObject);
 
 			// retrieve the top process name
-			String startProcessName = (String) config.get(CmlInterpreterArguments.PROCESS_NAME.toString());
+			String startProcessName = (String) jargs.get(CmlInterpreterArguments.PROCESS_NAME.toString());
 			// retrieve the interpretation mode
 			InterpreterExecutionMode interpreterExecutionMode = InterpreterExecutionMode.ANIMATE;
-			boolean execMode = (boolean) config.get(CmlInterpreterArguments.CML_EXEC_MODE.key);
+			boolean execMode = (boolean) jargs.get(CmlInterpreterArguments.CML_EXEC_MODE.key);
 			if (!execMode)
 			{
 				interpreterExecutionMode = InterpreterExecutionMode.SIMULATE;
@@ -79,20 +82,25 @@ public class DebugMain
 				return;
 			}
 
-			if (config.containsKey(CmlInterpreterArguments.REMOTE_NAME.key))
+			if (jargs.containsKey(CmlInterpreterArguments.REMOTE_NAME.key))
 			{
-				remoteName = (String) config.get(CmlInterpreterArguments.REMOTE_NAME.key);
+				remoteName = (String) jargs.get(CmlInterpreterArguments.REMOTE_NAME.key);
 			}
 
-			if (config.containsKey(CmlInterpreterArguments.PORT.key))
+			if (jargs.containsKey(CmlInterpreterArguments.PORT.key))
 			{
 				port = Integer.parseInt(""
-						+ config.get(CmlInterpreterArguments.PORT.key));
+						+ jargs.get(CmlInterpreterArguments.PORT.key));
 			}
 
-			if (config.containsKey(CmlInterpreterArguments.HOST.key))
+			if (jargs.containsKey(CmlInterpreterArguments.HOST.key))
 			{
-				host = (String) config.get(CmlInterpreterArguments.HOST.key);
+				host = (String) jargs.get(CmlInterpreterArguments.HOST.key);
+			}
+			
+			if (jargs.containsKey(CmlInterpreterArguments.AUTO_FILTER_TOCK_EVENTS.key) && Boolean.parseBoolean(jargs.get(CmlInterpreterArguments.AUTO_FILTER_TOCK_EVENTS.key)+""))
+			{
+				autoFilterTockEvents = true;
 			}
 
 			// -----------------------------------------------------------------------------------------------
@@ -142,7 +150,9 @@ public class DebugMain
 			{
 				Console.debug.println("Debug Thread: Typechecking: OK");
 
-				CmlInterpreter cmlInterpreter = VanillaInterpreterFactory.newInterpreter(res.definitions);
+				boolean filterTockEvents= autoFilterTockEvents && !TimedSpeckChecker.containsTimeConstructs(res.definitions);
+				Config config = VanillaInterpreterFactory.newDefaultConfig(filterTockEvents);
+				CmlInterpreter cmlInterpreter = VanillaInterpreterFactory.newInterpreter(res.definitions,config);
 				cmlInterpreter.setDefaultName(startProcessName);
 				Console.debug.println("Debug Thread: Initializing the interpreter...");
 				debugger.initialize(cmlInterpreter);

@@ -6,7 +6,6 @@ import org.overture.ast.lex.LexLocation;
 import org.overture.ast.types.PType;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.Value;
-import org.overture.typechecker.Environment;
 
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.events.CmlInterpreterStateObserver;
@@ -93,13 +92,10 @@ public interface CmlInterpreter
 	public void resume();
 
 	public void step();
-	
-//	public CmlInterpreter getInstance();
-	 PExp parseExpression(String line, String module)
-			throws Exception;
-	
-	public PType typeCheck(PExp expr, Environment env) throws Exception;
 
-	public Environment getGlobalEnvironment();
+	// public CmlInterpreter getInstance();
+	PExp parseExpression(String line, String module) throws Exception;
+
+	public PType typeCheck(PExp expr) throws Exception;
 
 }

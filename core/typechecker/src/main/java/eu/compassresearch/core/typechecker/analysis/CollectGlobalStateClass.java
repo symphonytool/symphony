@@ -12,16 +12,14 @@ import eu.compassresearch.ast.definitions.AChannelDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.typechecker.DefinitionList;
-import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 
-@SuppressWarnings("serial")
 public class CollectGlobalStateClass extends AnalysisCMLAdaptor
 {
 
 	private final Collection<PDefinition> globalDefinitions = new Vector<PDefinition>();
 
-	public static DefinitionList getGlobalRoot(DefinitionList sourceForest,
-			ITypeIssueHandler issueHandler) throws AnalysisException
+	public static DefinitionList getGlobalRoot(DefinitionList sourceForest)
+			throws AnalysisException
 	{
 
 		CollectGlobalStateClass me = new CollectGlobalStateClass();

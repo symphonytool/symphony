@@ -53,6 +53,19 @@ public class WeedingUnresolvedPathReplacement extends
 		{
 		}
 	}
+	
+
+	public static void apply(List<SClassDefinition> globalClasses, INode node)
+	{
+
+		WeedingUnresolvedPathReplacement lv = new WeedingUnresolvedPathReplacement(globalClasses);
+		try
+		{
+			node.apply(lv);
+		} catch (AnalysisException e)
+		{
+		}
+	}
 
 	private List<SClassDefinition> globalClasses;
 

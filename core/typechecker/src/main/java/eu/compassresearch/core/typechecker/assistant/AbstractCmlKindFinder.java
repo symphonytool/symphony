@@ -114,10 +114,6 @@ public class AbstractCmlKindFinder extends KindFinder implements
 		ICMLAnswer<String>
 {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 
 	public AbstractCmlKindFinder(ITypeCheckerAssistantFactory af)
 	{

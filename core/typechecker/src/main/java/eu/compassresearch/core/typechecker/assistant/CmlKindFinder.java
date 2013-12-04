@@ -14,10 +14,6 @@ import eu.compassresearch.ast.definitions.AProcessDefinition;
 public class CmlKindFinder extends AbstractCmlKindFinder
 {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 
 	public CmlKindFinder(ITypeCheckerAssistantFactory af)
 	{

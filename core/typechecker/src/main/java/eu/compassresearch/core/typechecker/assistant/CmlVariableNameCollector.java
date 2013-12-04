@@ -14,10 +14,6 @@ import eu.compassresearch.ast.lex.CmlLexNameToken;
 public class CmlVariableNameCollector extends AbstractCmlVariableNameCollector
 {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 
 	public CmlVariableNameCollector(ITypeCheckerAssistantFactory af)
 	{

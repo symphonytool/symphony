@@ -115,10 +115,6 @@ public class AbstractCmlVariableNameCollector extends VariableNameCollector
 		implements ICMLAnswer<LexNameList>
 {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 
 	public AbstractCmlVariableNameCollector(ITypeCheckerAssistantFactory af)
 	{

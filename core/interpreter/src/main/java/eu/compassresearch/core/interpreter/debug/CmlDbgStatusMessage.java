@@ -28,9 +28,12 @@ public class CmlDbgStatusMessage extends Message
 	public CmlInterpreterState getStatus()
 	{
 		if (this.interpreterStatus != null)
+		{
 			return this.interpreterStatus.getInterpreterState();
-		else
+		} else
+		{
 			return CmlInterpreterState.TERMINATED_BY_USER;
+		}
 	}
 
 	public CmlInterpreterStateDTO getInterpreterStatus()
@@ -41,8 +44,7 @@ public class CmlDbgStatusMessage extends Message
 	@Override
 	public String toString()
 	{
-		return this.interpreterStatus.getInterpreterState().toString();
-
+		return getStatus().toString();
 	}
 
 	@Override

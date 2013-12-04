@@ -119,10 +119,6 @@ public class AbstractCmlFunctionChecker extends FunctionChecker implements
 		super(af);
 	}
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1470058386572243235L;
 
 	@Override
 	public Boolean caseFile(File node) throws AnalysisException
