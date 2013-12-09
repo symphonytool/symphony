@@ -272,8 +272,6 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 			final AAlphabetisedParallelismProcess node, final Context question)
 			throws AnalysisException
 	{
-		// throw new
-		// CmlInterpreterException(InterpretationErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName()));
 		// if true this means that this is the first time here, so the Parallel Begin rule is invoked.
 		if (!owner.hasChildren())
 		{
@@ -298,10 +296,11 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 			return newInspection(createTauTransitionWithTime(dstNode, "End"), caseParallelEnd(dstNode, question));
 		} else
 		{
-			// evaluate the left in the context of the left child
-			ChannelNameSetValue leftChanset = eval( node.getLeftChansetExpression(), owner.getLeftChild().getNextState().second);
-			ChannelNameSetValue rightChanset = eval(node.getRightChansetExpression(), owner.getRightChild().getNextState().second);
+			// evaluate the children in the their own context
+			ChannelNameSetValue leftChanset = eval( node.getLeftChansetExpression(), getChildContexts(owner.getLeftChild().getNextState().second).first);
+			ChannelNameSetValue rightChanset = eval(node.getRightChansetExpression(),getChildContexts(owner.getRightChild().getNextState().second).second);
 
+			//next we find the intersection of of them
 			ChannelNameSetValue intersectionChanset = new ChannelNameSetValue(leftChanset);
 			intersectionChanset.retainAll(rightChanset);
 
@@ -310,7 +309,6 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 
 			CmlTransitionSet leftAllowedNonSyncTransitions = leftChildAlpha.retainByChannelNameSet(leftChanset).removeByChannelNameSet(intersectionChanset).union(leftChildAlpha.getSilentTransitions());
 			CmlTransitionSet rightAllowedNonSyncTransitions = rightChildAlpha.retainByChannelNameSet(rightChanset).removeByChannelNameSet(intersectionChanset).union(rightChildAlpha.getSilentTransitions());
-			;
 
 			// combine all the common channel events that are in the channel set
 			CmlTransitionSet leftSync = leftChildAlpha.retainByChannelNameSet(intersectionChanset);
@@ -460,8 +458,6 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 		}
 
 		ILexNameToken name = owner.name();
-		// TODO: create a local copy of the question state for each of the actions
-		// add the children to the process graph
 		setLeftChild(left, new CmlLexNameToken(name.getModule(), name.getIdentifier().getName()
 				+ operatorsign, left.getLocation()), question);
 		setRightChild(right, new CmlLexNameToken(name.getModule(), operatorsign
