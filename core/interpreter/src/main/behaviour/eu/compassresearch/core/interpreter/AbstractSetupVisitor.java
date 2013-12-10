@@ -78,6 +78,11 @@ abstract class AbstractSetupVisitor extends
 	{
 		this.controlAccess.setChildContexts(preBuildContexts);
 	}
+	
+	protected Pair<Context, Context> getChildContexts(Context context)
+	{
+		return this.controlAccess.getChildContexts(context);
+	}
 
 	@Override
 	public Pair<INode, Context> createNewReturnValue(INode node,

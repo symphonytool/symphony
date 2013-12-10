@@ -43,6 +43,16 @@ class NamespaceUtility
 		return namesetName;
 	}
 	
+	public static ILexNameToken getLeftPrecalculatedChannetSet()
+	{
+		return new CmlLexNameToken("|ALPHABETISED_PARALLELISM|","leftChannelset", new LexLocation());
+	}
+	
+	public static ILexNameToken getRightPrecalculatedChannetSet()
+	{
+		return new CmlLexNameToken("|ALPHABETISED_PARALLELISM|","rightChannelset", new LexLocation());
+	}
+	
 	public static ILexNameToken getReplicationNodeName(INode node)
 	{
 		// The name of the value holding the state of the remaining values of the replication

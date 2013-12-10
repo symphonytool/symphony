@@ -282,7 +282,6 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 						CmlTransition selectedTransition)
 						throws AnalysisException
 				{
-
 					caseParallelProcessBegin(node, node.getLeft(), node.getRight(), "[cs||cs]", question);
 					// We push the current state, since this process will control the child processes created by it
 					return new Pair<INode, Context>(node, question);
@@ -293,12 +292,12 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 		else if (CmlBehaviourUtility.isAllChildrenFinished(owner))
 		{
 			ASkipAction dstNode = CmlAstFactory.newASkipAction(node.getLocation());
-			return newInspection(createTauTransitionWithTime(dstNode, "End"), caseParallelEnd(dstNode, question));
+			return newInspection(createTauTransitionWithoutTime(dstNode, "End"), caseParallelEnd(dstNode, question));
 		} else
 		{
-			// evaluate the children in the their own context
-			ChannelNameSetValue leftChanset = eval( node.getLeftChansetExpression(), getChildContexts(owner.getLeftChild().getNextState().second).first);
-			ChannelNameSetValue rightChanset = eval(node.getRightChansetExpression(),getChildContexts(owner.getRightChild().getNextState().second).second);
+			// fetch the already evaluated left and right channel sets 
+			ChannelNameSetValue leftChanset = (ChannelNameSetValue)question.lookup(NamespaceUtility.getLeftPrecalculatedChannetSet()); // eval( node.getLeftChansetExpression(), getChildContexts(owner.getLeftChild().getNextState().second).first);
+			ChannelNameSetValue rightChanset = (ChannelNameSetValue)question.lookup(NamespaceUtility.getRightPrecalculatedChannetSet()); //eval(node.getRightChansetExpression(),getChildContexts(owner.getRightChild().getNextState().second).second);
 
 			//next we find the intersection of of them
 			ChannelNameSetValue intersectionChanset = new ChannelNameSetValue(leftChanset);

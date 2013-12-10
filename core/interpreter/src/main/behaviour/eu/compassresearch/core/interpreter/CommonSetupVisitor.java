@@ -133,6 +133,19 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 		 */
 		abstract INode createLastReplication();
 
+		Context createReplicationChildContext(NameValuePairList npvl,
+				INode node, Context outer)
+		{
+			Context childContext = CmlContextFactory.newContext(LocationExtractor.extractLocation(node), "", outer);
+			childContext.putAllNew(npvl);
+			return childContext;
+		}
+		
+		Context createOperatorContext(INode node, CmlSetQuantifier remaining, Context question)
+		{
+			return question;
+		}
+		
 		/**
 		 * This creates the node for a single replicated action/process
 		 * 
@@ -154,11 +167,9 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 			List<PSingleDeclaration> decls, AbstractReplicationFactory factory,
 			Context question) throws AnalysisException
 	{
-
 		// The name of the value holding the state of the remaining values of the replication
 		ILexNameToken replicationContextValueName = NamespaceUtility.getReplicationNodeName(node);
 		CmlSetQuantifier ql = (CmlSetQuantifier) question.check(replicationContextValueName);
-		Context next = question;
 		// if null then this is the first action of the replication
 		// then we need to evaluate the
 		boolean firstRun = false;
@@ -188,10 +199,13 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 		// and this is the first run then we do no replication and just returns the action/process
 		if (!itQuantifiers.hasNext() && firstRun)
 		{
-			return new Pair<INode, Context>(factory.getReplicatedNode(), createReplicationChildContext(nextValue, node, question));
+			nextNode = factory.getReplicatedNode();
+			return new Pair<INode, Context>(nextNode, factory.createReplicationChildContext(nextValue, nextNode, question));
 		}
-		// and this is NOT the first run then we created the context for the left side already right above the
-		// current context
+		/*
+		 * if no more rep values exists and this is NOT the first run then we created the context 
+		 * for the left side already in the last step and is located above the current context
+		 */
 		else if (!itQuantifiers.hasNext() && !firstRun)
 		{
 			nextNode = factory.createLastReplication();
@@ -199,9 +213,9 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 			Context leftChildContext = question.outer;
 			// we take the outer.outer because we want the parent context of this one to be the one given to the
 			// replication node
-			Context rightChildContext = createReplicationChildContext(nextValue, node, question.outer.outer);
+			Context rightChildContext = factory.createReplicationChildContext(nextValue, nextNode, question.outer.outer);
 			setChildContexts(new Pair<Context, Context>(leftChildContext, rightChildContext));
-			return new Pair<INode, Context>(nextNode, question.outer.outer);
+			return new Pair<INode, Context>(nextNode, factory.createOperatorContext(nextNode,ql,question.outer.outer));
 		}
 
 		NameValuePairList afterNextValue = itQuantifiers.next();
@@ -212,15 +226,15 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 		{
 			nextNode = factory.createLastReplication();
 
-			Context leftChildContext = createReplicationChildContext(nextValue, node, question);
-			Context rightChildContext = createReplicationChildContext(afterNextValue, node, question);
+			Context leftChildContext = factory.createReplicationChildContext(nextValue, nextNode, question);
+			Context rightChildContext = factory.createReplicationChildContext(afterNextValue, nextNode, question);
 			itQuantifiers.remove();
 			// the replication context, if it exist is lowest. But if this is the first run
 			// then the replication context does not exist
 
 			setChildContexts(new Pair<Context, Context>(leftChildContext, rightChildContext));
 
-			return new Pair<INode, Context>(nextNode, next);
+			return new Pair<INode, Context>(nextNode, factory.createOperatorContext(nextNode,ql,question));
 		}
 		// If we have more than two replication values then we make an interleaving between the
 		// first value and the rest of the replicated values
@@ -235,8 +249,8 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 			{
 				// if this is the first run then me must create the right child context and
 				// attach it to the replication context
-				leftChildContext = createReplicationChildContext(nextValue, node, question);
-				rightChildContext = createReplicationChildContext(afterNextValue, node, question);
+				leftChildContext = factory.createReplicationChildContext(nextValue, nextNode, question);
+				rightChildContext = factory.createReplicationChildContext(afterNextValue, nextNode, question);
 				itQuantifiers.remove();
 			} else
 			{
@@ -244,14 +258,14 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 				// so we can pull out the parent and attach the right child context to this and
 				// then attach the replication
 				leftChildContext = question.outer;
-				rightChildContext = createReplicationChildContext(nextValue, node, question.outer.outer);
+				rightChildContext = factory.createReplicationChildContext(nextValue, nextNode, question.outer.outer);
 			}
 
 			rightChildContext = CmlContextFactory.newContext(LocationExtractor.extractLocation(node), "replication contexts", rightChildContext);
 			rightChildContext.putNew(new NameValuePair(replicationContextValueName, ql));
 
 			setChildContexts(new Pair<Context, Context>(leftChildContext, rightChildContext));
-			return new Pair<INode, Context>(nextNode, next);
+			return new Pair<INode, Context>(nextNode, factory.createOperatorContext(nextNode,ql,question));
 		}
 	}
 
@@ -302,7 +316,6 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 			}
 		}
 
-		// List<List<Value>> values = new LinkedList<List<Value>>();
 		if (replicationDecls.size() == 1)
 		{
 			NameValuePair nvp = replicationDecls.get(0);
@@ -344,14 +357,6 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 		{
 			return val.seqValue(question);
 		}
-	}
-
-	protected Context createReplicationChildContext(NameValuePairList npvl,
-			INode node, Context outer)
-	{
-		Context childContext = CmlContextFactory.newContext(LocationExtractor.extractLocation(node), "", outer);
-		childContext.putAllNew(npvl);
-		return childContext;
 	}
 
 	/*
