@@ -47,18 +47,4 @@ public final class VanillaInterpreterFactory
 	{
 		return new Config(filterTockEvents);
 	}
-
-	// /**
-	// * create an instance of the Vanilla interpreter.
-	// *
-	// * @param cmlSource
-	// * - A single parsed and type-checked CML source to interpret
-	// * @throws CmlInterpreterException
-	// */
-	// public static CmlInterpreter newInterpreter(PSource cmlSource)
-	// throws CmlInterpreterException
-	// {
-	// return new VanillaCmlInterpreter(cmlSource);
-	// }
-
 }
