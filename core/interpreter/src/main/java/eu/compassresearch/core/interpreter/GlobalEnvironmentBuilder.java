@@ -24,10 +24,10 @@ public class GlobalEnvironmentBuilder extends AnalysisCMLAdaptor
 	public GlobalEnvironmentBuilder(List<PDefinition> sourceForest)
 			throws AnalysisException
 	{
-		BuildGlobalEnvironment(sourceForest);
+		buildGlobalEnvironment(sourceForest);
 	}
 
-	private void BuildGlobalEnvironment(List<PDefinition> sourceForest)
+	private void buildGlobalEnvironment(List<PDefinition> sourceForest)
 			throws AnalysisException
 	{
 		// Make a state

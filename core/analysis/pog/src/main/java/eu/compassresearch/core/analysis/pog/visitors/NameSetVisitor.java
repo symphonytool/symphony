@@ -11,10 +11,12 @@ import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligationList;
 
 public class NameSetVisitor extends VarSetVisitor{
 
-	//TODO Unclear how to handle namesets for now. This is just here as placeholder.
-	
-	private static final long serialVersionUID = 1L;
 
+
+	public NameSetVisitor(ProofObligationGenerator parentPog){
+		super(parentPog);
+	}
+	
 	@Override
 	public CmlProofObligationList caseAEnumVarsetExpression(
 			AEnumVarsetExpression node, IPOContextStack question)
