@@ -25,7 +25,7 @@ public class ClassesCmlTypeCheckerTests extends
 	@Override
 	protected String getPropertyId()
 	{
-		return "clases";
+		return "classes";
 	}
 
 }
