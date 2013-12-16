@@ -3,6 +3,7 @@ package eu.compassresearch.core.analysis.modelchecker.ast.auxiliary;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
+import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 
 public class SingleBind {
 	protected String variableName;
@@ -37,6 +38,7 @@ public class SingleBind {
 	}
 	
 	public String toFormula(String option) {
+		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 		String result = "SingleBind";
 		switch (option) {
 		case MCNode.DEFAULT:
@@ -56,7 +58,11 @@ public class SingleBind {
 			result = "SingleBind(\"" + variableName + "\"," + variableName + "_" + ")";
 			break;
 
+		case MCNode.PARAM_RENAMED:
+			
+			break;
 		default:
+			result = "SingleBind(\"" + variableName + "\"," + variableValue.toFormula(option) + ")";
 			break;
 		}
 		

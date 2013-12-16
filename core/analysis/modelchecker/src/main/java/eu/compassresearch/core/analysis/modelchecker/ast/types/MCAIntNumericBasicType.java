@@ -23,6 +23,7 @@ public class MCAIntNumericBasicType extends MCPCMLNumericType {
 			break;
 			
 		default:
+			result.append(this.getValue());
 			break;
 		}
 		return result.toString();

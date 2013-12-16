@@ -188,7 +188,7 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 		};
 
 		// Initialize the visitors
-		setupVisitor = new ActionSetupVisitor(this, visitorAccess);
+		setupVisitor = new CmlSetupVisitor(this, visitorAccess);
 		inspectionVisitor = new CmlInspectionVisitor(this, visitorAccess);
 	}
 

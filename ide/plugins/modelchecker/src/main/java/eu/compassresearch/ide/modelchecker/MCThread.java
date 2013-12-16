@@ -9,7 +9,9 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.internal.ExceptionHandler;
 import org.eclipse.ui.internal.progress.FinishedJobs;
 import org.overture.ast.definitions.PDefinition;
 
@@ -30,6 +32,7 @@ public class MCThread extends Thread{
 	private FormulaResult result;
 	private FormulaIntegrator mc;
 	private FormulaIntegrationException exception;
+	private Throwable excep;
 	private FormulaResultWrapper fmw;
 	private String analysedProcess;
 	private String propertyToCheck;
@@ -62,11 +65,15 @@ public class MCThread extends Thread{
 			this.result = mc.analyseFile(absolutePath);
 			this.writeFormulaOutputTofile(selectedUnit, mcFolder, result);
 			this.fmw = new FormulaResultWrapper(result, null, propertyToCheck, mcFolder, selectedUnit, analysedProcess);
-			MCPluginDoStuff mcp = new MCPluginDoStuff(getWindow().getActivePage().getActivePart().getSite(), cmlFile, this.fmw);
+			MCPluginDoStuff mcp = new MCPluginDoStuff(window.getActivePage().getActivePart().getSite(), cmlFile, this.fmw);
 			mcp.run();
 			registry.store(selectedUnit.getParseNode(), fmw);
 		} catch (FormulaIntegrationException e) {
 			exception = e;
+			this.status = MCStatus.ERROR;
+			throw e;
+		} catch (Throwable e) {
+			excep = e;
 			this.status = MCStatus.ERROR;
 			throw e;
 		}
@@ -93,22 +100,16 @@ public class MCThread extends Thread{
 		return this.status;
 	}
 	
-	public FormulaIntegrationException getException(){
+	public Exception getException(){
 		return this.exception;
 	}
 
+	public Throwable getExcep(){
+		return this.excep;
+	}
 
 	public synchronized FormulaResult getFormulaResult() {
 		return this.result;
-	}
-
-
-	public void setWindow(IWorkbenchWindow window2) {
-		this.window = window2;
-	}
-	
-	public IWorkbenchWindow getWindow(){
-		return window;
 	}
 
 }

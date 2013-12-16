@@ -2,6 +2,7 @@ package eu.compassresearch.core.analysis.modelchecker.ast.actions;
 
 import java.util.LinkedList;
 
+import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ExpressionEvaluator;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCCommEv;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCLieInFact;
@@ -46,8 +47,13 @@ public class MCACommunicationAction implements MCPAction {
 		result.append(",");
 		result.append(buildIOCommActualParams(option));
 		result.append(")"); //closes IOComm
-		result.append(","); 
-		result.append(this.action.toFormula(option));
+		result.append(",");
+		if(option.equals(MCNode.MINIMAL_GENERIC)){
+			result.append("_");
+		}else{
+			result.append(this.action.toFormula(option));
+		}
+		
 		result.append(")"); //closes Prefix
 		//if there is some set of event in the context we must generate lieIn events.
 		NewSetStack<MCPVarsetExpression> chanSetStack = context.setStack.copy();

@@ -27,7 +27,13 @@ public class MCOperationCall extends MCGenericCall{
 		if (option.equals(MCNode.DEFAULT)){
 			argsType = evaluator.instantiateMCType(this.args);
 		} else if(option.equals(MCNode.NAMED) || option.equals(MCNode.GENERIC)){
-			argsType = evaluator.instantiateMCTypeFromPatterns(this.paramPatterns);
+			if(this.paramPatterns == null){
+				argsType = evaluator.instantiateMCType(this.args);
+			}else{
+				argsType = evaluator.instantiateMCTypeFromPatterns(this.paramPatterns);
+			}
+		} else{
+			argsType = evaluator.instantiateMCType(this.args);
 		}
 		result.append(argsType.toFormula(option));
 		result.append(")");

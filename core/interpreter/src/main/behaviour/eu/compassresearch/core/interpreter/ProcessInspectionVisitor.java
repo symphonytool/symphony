@@ -35,6 +35,7 @@ import eu.compassresearch.ast.process.AInternalChoiceProcess;
 import eu.compassresearch.ast.process.AInterruptProcess;
 import eu.compassresearch.ast.process.AReferenceProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
+import eu.compassresearch.ast.process.ATimedInterruptProcess;
 import eu.compassresearch.ast.process.ATimeoutProcess;
 import eu.compassresearch.ast.process.AUntimedTimeoutProcess;
 import eu.compassresearch.ast.process.PProcess;
@@ -271,8 +272,6 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 			final AAlphabetisedParallelismProcess node, final Context question)
 			throws AnalysisException
 	{
-		// throw new
-		// CmlInterpreterException(InterpretationErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName()));
 		// if true this means that this is the first time here, so the Parallel Begin rule is invoked.
 		if (!owner.hasChildren())
 		{
@@ -283,7 +282,6 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 						CmlTransition selectedTransition)
 						throws AnalysisException
 				{
-
 					caseParallelProcessBegin(node, node.getLeft(), node.getRight(), "[cs||cs]", question);
 					// We push the current state, since this process will control the child processes created by it
 					return new Pair<INode, Context>(node, question);
@@ -294,13 +292,14 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 		else if (CmlBehaviourUtility.isAllChildrenFinished(owner))
 		{
 			ASkipAction dstNode = CmlAstFactory.newASkipAction(node.getLocation());
-			return newInspection(createTauTransitionWithTime(dstNode, "End"), caseParallelEnd(dstNode, question));
+			return newInspection(createTauTransitionWithoutTime(dstNode, "End"), caseParallelEnd(dstNode, question));
 		} else
 		{
-			// evaluate the left in the context of the left child
-			ChannelNameSetValue leftChanset = eval( node.getLeftChansetExpression(), owner.getLeftChild().getNextState().second);
-			ChannelNameSetValue rightChanset = eval(node.getRightChansetExpression(), owner.getRightChild().getNextState().second);
+			// fetch the already evaluated left and right channel sets 
+			ChannelNameSetValue leftChanset = (ChannelNameSetValue)question.lookup(NamespaceUtility.getLeftPrecalculatedChannetSet()); // eval( node.getLeftChansetExpression(), getChildContexts(owner.getLeftChild().getNextState().second).first);
+			ChannelNameSetValue rightChanset = (ChannelNameSetValue)question.lookup(NamespaceUtility.getRightPrecalculatedChannetSet()); //eval(node.getRightChansetExpression(),getChildContexts(owner.getRightChild().getNextState().second).second);
 
+			//next we find the intersection of of them
 			ChannelNameSetValue intersectionChanset = new ChannelNameSetValue(leftChanset);
 			intersectionChanset.retainAll(rightChanset);
 
@@ -309,7 +308,6 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 
 			CmlTransitionSet leftAllowedNonSyncTransitions = leftChildAlpha.retainByChannelNameSet(leftChanset).removeByChannelNameSet(intersectionChanset).union(leftChildAlpha.getSilentTransitions());
 			CmlTransitionSet rightAllowedNonSyncTransitions = rightChildAlpha.retainByChannelNameSet(rightChanset).removeByChannelNameSet(intersectionChanset).union(rightChildAlpha.getSilentTransitions());
-			;
 
 			// combine all the common channel events that are in the channel set
 			CmlTransitionSet leftSync = leftChildAlpha.retainByChannelNameSet(intersectionChanset);
@@ -407,7 +405,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 		if (!owner.hasChildren())
 		{
 
-			return newInspection(createTauTransitionWithTime(node, "Begin"), new CmlCalculationStep()
+			return newInspection(createTauTransitionWithoutTime(node, "Begin"), new CmlCalculationStep()
 			{
 
 				@Override
@@ -459,8 +457,6 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 		}
 
 		ILexNameToken name = owner.name();
-		// TODO: create a local copy of the question state for each of the actions
-		// add the children to the process graph
 		setLeftChild(left, new CmlLexNameToken(name.getModule(), name.getIdentifier().getName()
 				+ operatorsign, left.getLocation()), question);
 		setRightChild(right, new CmlLexNameToken(name.getModule(), operatorsign
@@ -575,7 +571,6 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 			ASequentialCompositionProcess node, Context question)
 			throws AnalysisException
 	{
-
 		return caseASequentialComposition(node, node.getLeft(), node.getRight(), question);
 	}
 
@@ -584,6 +579,13 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 			throws AnalysisException
 	{
 		return caseATimeout(node, node.getLeft(), node.getRight(), node.getTimeoutExpression(), question);
+	}
+	
+	@Override
+	public Inspection caseATimedInterruptProcess(ATimedInterruptProcess node,
+			Context question) throws AnalysisException
+	{
+		return caseATimedInterrupt(node,node.getLeft(),node.getRight(),node.getTimeExpression(), question);
 	}
 
 	@Override
