@@ -315,8 +315,17 @@ public class jsonCommand {
 			String base64content = item.substring(first, last);
 			// base64 decode encoded into content
 			String content = new String(Base64.decodeBase64(base64content));
-			client.addLogMessage(content);			
-
+			// remove trailing newlines
+			while (content.endsWith("\n")) {
+				content = content.substring(0, content.length() -1);
+			}
+			// remove leading newlines
+			while (content.startsWith("\n")) {
+				content = content.substring(1);
+			}
+			if (content.length() > 0) {
+				client.addLogMessage(content);			
+			}
 			// scan again in the rest of the message
 			start = message.indexOf("{ \"console-item\"", end + 1);
 			end = message.indexOf('}', start);
