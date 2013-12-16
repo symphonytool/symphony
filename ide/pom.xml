@@ -129,8 +129,8 @@
     <!--   <layout>p2</layout> -->
     <!-- </repository> -->
     <repository>
-      <id>overture.iha.dk-p2</id>
-      <url>http://build.overturetool.org/builds/overture-compass-p2repo/</url>
+      <id>overture.au.dk-p2</id>
+      <url>http://overture.au.dk/p2/symphony-overture-development/</url>
       <layout>p2</layout>
     </repository>
     <repository>
