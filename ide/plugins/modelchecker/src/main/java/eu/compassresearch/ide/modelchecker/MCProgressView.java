@@ -59,10 +59,6 @@ public class MCProgressView extends ExtensionFactory {
 								msg = thread.getException().getMessage();
 							} else msg = thread.getExcep().getMessage();
 							 
-							MessageDialog.openInformation(
-									window.getShell(),
-									"Symphony",
-									msg);
 						}
 					} catch (InterruptedException e) {
 					} // ignore
