@@ -3,7 +3,7 @@ package eu.compassresearch.core.parser;
 import java.io.File;
 
 import org.antlr.runtime.RecognitionException;
-import org.antlr.runtime.Token;
+import org.antlr.runtime.CommonToken;
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.lex.LexLocation;
 
@@ -29,9 +29,9 @@ public class CmlParserError
 		this.stopIndex=stopIndex;
 	}
 	
-	public CmlParserError(String message, RecognitionException e,String sourceName, Token token)
+	public CmlParserError(String message, RecognitionException e,String sourceName, CommonToken token)
 	{
-		this(message,e,sourceName,token.getLine(),token.getCharPositionInLine(),token.getTokenIndex(),token.getTokenIndex()+token.getText().length());
+		this(message, e, sourceName, token.getLine(), token.getCharPositionInLine(), token.getStartIndex(), token.getStopIndex());
 	}
 	
 	public ILexLocation getLocation(File sourceFile)
@@ -51,9 +51,22 @@ public class CmlParserError
 	}
 	
 	public String getErrorHeader(RecognitionException e) {
-		if ( sourceName!=null )
-			return sourceName+" line "+line+":"+charPositionInLine;
+		StringBuffer out = new StringBuffer();
+
+		if (sourceName!=null) {
+			out.append(sourceName);
+			out.append(" ");
+		}
 				
-		return "line "+line+":"+charPositionInLine;
+		out.append("line ");
+		out.append(line);
+		out.append(":");
+		out.append(charPositionInLine);
+		// out.append(" offset ");
+		// out.append(startIndex);
+		// out.append("-");
+		// out.append(stopIndex);
+
+		return out.toString();
 	}
 }
