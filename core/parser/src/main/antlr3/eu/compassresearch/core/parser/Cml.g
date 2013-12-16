@@ -471,6 +471,12 @@ classDefinition returns[AClassClassDefinition def]
 			List<PDefinition> members = $classDefinitionBlockOptList.defs;
 			List<ILexNameToken> superclasses = new ArrayList<ILexNameToken>();
 			
+			if($parent!=null)
+			{
+				CmlLexNameToken superClassName = new CmlLexNameToken("", $parent.getText(), extractLexLocation($parent));
+				superclasses.add(superClassName);
+			}
+			
 			AClassClassDefinition cDef = AstFactory.newAClassClassDefinition(className, superclasses, members);
 			configureClass(cDef);	
 	
