@@ -4,6 +4,7 @@ import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IBreakpoint;
 import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.core.model.IThread;
+import org.overture.ide.debug.core.model.DebugEventHelper;
 
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorState;
 import eu.compassresearch.core.interpreter.debug.CmlProcessDTO;
@@ -174,7 +175,20 @@ public class CmlThread extends CmlDebugElement implements IThread
 	@Override
 	public String getName() throws DebugException
 	{
+//		String n = extractName(info);
 		return info.getName();
+	}
+
+	private static String extractName(CmlProcessDTO info)
+	{
+		if (info == null)
+		{
+			return "";
+		}
+		String name = info.getName().replaceAll("[^a-zA-Z0-9\\s]", "").replace("Process", "").replace("Action", "");
+
+		String base = extractName(info.getParent());
+		return  (base.isEmpty()?"": base+" -> ") + name;
 	}
 
 	// public String getName()
@@ -217,5 +231,16 @@ public class CmlThread extends CmlDebugElement implements IThread
 	public CmlCommunicationManager getCommunicationManager()
 	{
 		return this.communication;
+	}
+
+	public void updateInfo(CmlProcessDTO t)
+	{
+		this.info = t;
+		DebugEventHelper.fireChangeEvent(this);
+	}
+
+	public CmlProcessDTO getInfo()
+	{
+		return this.info;
 	}
 }

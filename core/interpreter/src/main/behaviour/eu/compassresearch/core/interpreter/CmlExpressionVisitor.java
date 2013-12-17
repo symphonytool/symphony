@@ -92,8 +92,8 @@ public class CmlExpressionVisitor extends
 	{
 		// To be able to work together with the VDM interpreter we need to set this
 		// to the current thread.
-		InitThread initThread = new InitThread(Thread.currentThread());
-		BasicSchedulableThread.setInitialThread(initThread);
+//		InitThread initThread = new InitThread(Thread.currentThread());
+//		BasicSchedulableThread.setInitialThread(initThread);
 	}
 
 	@Override

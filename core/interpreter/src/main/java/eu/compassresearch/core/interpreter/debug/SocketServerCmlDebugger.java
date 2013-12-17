@@ -281,12 +281,13 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 			case GET_STACK_FRAMES:
 			{
 				int id = message.getContent();
-				CmlBehaviour foundBehavior = this.runningInterpreter.findBehaviorById(id);
-				Context context = foundBehavior.getNextState().second;
+//				CmlBehaviour foundBehavior = this.runningInterpreter.findBehaviorById(id);
+				DebugContext debugContext = this.runningInterpreter.getDebugContext(id);
+//				Context context = debugContext.ctxt;
 				List<StackFrameDTO> stackframes = new LinkedList<StackFrameDTO>();
 
 				List<Context> contextStack = new LinkedList<Context>();
-				Context nextContext = context;
+				Context nextContext = debugContext.ctxt;
 				int contextCount = 0;
 				// First count the contexts since the getDepth method does not do what you would expect
 				// we remove the global context
@@ -299,7 +300,7 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 				for (Context c : contextStack)
 				{
 					if (contextIndex == contextCount)
-						stackframes.add(new StackFrameDTO(LocationExtractor.extractLocation(foundBehavior.getNextState().first).getStartLine(), c.location.getFile().toURI(), contextIndex--));
+						stackframes.add(new StackFrameDTO(debugContext.location.getStartLine(), c.location.getFile().toURI(), contextIndex--));
 					else
 						stackframes.add(new StackFrameDTO(c.location.getStartLine(), c.location.getFile().toURI(), contextIndex--));
 				}
@@ -315,8 +316,9 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 				int threadId = args[0];
 				int level = args[1];
 
-				CmlBehaviour foundBehavior = this.runningInterpreter.findBehaviorById(threadId);
-				Context context = foundBehavior.getNextState().second;
+//				CmlBehaviour foundBehavior = this.runningInterpreter.findBehaviorById(threadId);
+				DebugContext debugContext = this.runningInterpreter.getDebugContext(threadId);
+				Context context = debugContext.ctxt;
 
 				List<Context> contexts = new LinkedList<Context>();
 				while (context.outer != null)

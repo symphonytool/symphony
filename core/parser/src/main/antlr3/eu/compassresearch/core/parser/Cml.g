@@ -139,12 +139,12 @@ public void displayRecognitionError(String[] tokenNames,
 
 private PAction stm2action(PStm stm)
 {
-	return new AStmAction(null,stm);
+	return new AStmAction(stm.getLocation(),stm);
 }
 
 private PStm action2stm(PAction action)
 {
-	return new AActionStm(null,null,action);
+	return new AActionStm(action.getLocation(),null,action);
 }
 
 
@@ -2404,6 +2404,7 @@ operationDef returns[SOperationDefinition def]
                 
                 AActionStm bodyWrapper = new AActionStm();
 				bodyWrapper.setAction($operationBody.body);
+				bodyWrapper.setLocation($operationBody.body.getLocation());
                
                 AExplicitOperationDefinition opdef =
                     AstFactory.newAExplicitOperationDefinition(

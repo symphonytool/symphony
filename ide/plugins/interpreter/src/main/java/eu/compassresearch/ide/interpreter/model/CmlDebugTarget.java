@@ -12,6 +12,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.IBreakpointManager;
@@ -139,20 +140,6 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 			@Override
 			public boolean handleMessage(CmlDbgStatusMessage message)
 			{
-				// for (IBreakpoint b : getBreakpoints())
-				// {
-				// try
-				// {
-				// if (b.isEnabled())
-				// {
-				// System.out.println("Adding breakpoint: " + b);
-				// // TODO communnicate the setting of the breakpoint to the interpreter
-				// }
-				// } catch (CoreException e)
-				// {
-				// CmlDebugPlugin.logError("Failed to set breakpoint", e);
-				// }
-				// }
 				lastState = message.getInterpreterStatus();
 				threadManager.started(message.getInterpreterStatus());
 
@@ -240,6 +227,8 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 					protected IStatus run(IProgressMonitor monitor)
 					{
 						threadManager.updateThreads(message.getInterpreterStatus(), communicationManager);
+						DebugEventHelper.fireChangeEvent(CmlDebugTarget.this);
+						DebugEventHelper.fireSuspendEvent(CmlDebugTarget.this, DebugEvent.BREAKPOINT);
 						return Status.OK_STATUS;
 					}
 				};

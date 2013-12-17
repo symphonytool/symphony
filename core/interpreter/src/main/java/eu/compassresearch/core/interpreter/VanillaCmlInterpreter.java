@@ -34,6 +34,8 @@ import eu.compassresearch.core.interpreter.api.transitions.ObservableTransition;
 import eu.compassresearch.core.interpreter.api.transitions.TimedTransition;
 import eu.compassresearch.core.interpreter.api.values.ProcessObjectValue;
 import eu.compassresearch.core.interpreter.debug.Breakpoint;
+import eu.compassresearch.core.interpreter.debug.DebugContext;
+import eu.compassresearch.core.interpreter.utility.CmlInitThread;
 import eu.compassresearch.core.interpreter.utility.LocationExtractor;
 import eu.compassresearch.core.parser.ParserUtil;
 import eu.compassresearch.core.typechecker.VanillaFactory;
@@ -43,13 +45,12 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 {
 	static
 	{
-		BasicSchedulableThread.setInitialThread(new InitThread(Thread.currentThread()));
+		BasicSchedulableThread.setInitialThread(new CmlInitThread(Thread.currentThread()));
 	}
 
 	/**
 	 * 
 	 */
-	protected List<PDefinition> sourceForest;
 	protected Context globalContext;
 	protected String defaultName = null;
 	protected AProcessDefinition topProcess;
@@ -60,6 +61,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	private Object suspendObject = new Object();
 	private boolean stepping = false;
 	private Breakpoint activeBP = null;
+	private CmlTransition selectedEvent;
 
 	/**
 	 * Construct a CmlInterpreter with a list of PSources. These source may refer to each other.
@@ -73,7 +75,6 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		this.sourceForest = definitions;
 		instance = this;
 	}
-
 
 	/**
 	 * Initializes the interpreter by making a global context and setting the last defined process as the top process
@@ -246,7 +247,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			setNewState(CmlInterpreterState.WAITING_FOR_ENVIRONMENT);
 			// Get the environment to select the next transition.
 			// this is potentially a blocking call!!
-			CmlTransition selectedEvent = getEnvironment().resolveChoice();
+			 selectedEvent = getEnvironment().resolveChoice();
 
 			// if its null we terminate and assume that this happended because of a user interrupt
 			if (selectedEvent == null)
@@ -256,14 +257,6 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 
 			// Handle the breakpoints if any
 			handleBreakpoints(selectedEvent);
-
-			if (getState() == CmlInterpreterState.SUSPENDED)
-			{
-				synchronized (suspendObject)
-				{
-					this.suspendObject.wait();
-				}
-			}
 
 			// if we get here it means that it in a running state again
 			setNewState(CmlInterpreterState.RUNNING);
@@ -314,6 +307,26 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 
 	}
 
+	@Override
+	public DebugContext getDebugContext(int id)
+	{
+		DebugContext context =  super.getDebugContext(id);
+		if(context==null)
+		{
+			CmlBehaviour behaviour = findBehaviorById(id);
+			ILexLocation location = LocationExtractor.extractLocation(behaviour.getNextState().first);
+			context = new DebugContext(location, behaviour.getNextState().second);
+		}
+		
+		return context;
+	}
+	
+	@Override
+	public void setCurrentDebugContext(Context context, ILexLocation location)
+	{
+		setDebugContext(selectedEvent.getEventSources().iterator().next().getId(), context, location);
+	}
+
 	private CmlTransitionSet filterEvents(CmlTransitionSet availableEvents)
 	{
 		if (!config.filterTockEvents)
@@ -342,6 +355,17 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		}
 	}
 
+	@Override
+	public void suspend() throws InterruptedException
+	{
+		setNewState(CmlInterpreterState.SUSPENDED);
+
+		synchronized (suspendObject)
+		{
+			this.suspendObject.wait();
+		}
+	}
+
 	public void step()
 	{
 		synchronized (suspendObject)
@@ -352,11 +376,13 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	}
 
 	private void handleBreakpoints(CmlTransition selectedEvent)
+			throws InterruptedException
 	{
 		activeBP = findActiveBreakpoint(selectedEvent);
 		if (activeBP != null || stepping)
 		{
-			setNewState(CmlInterpreterState.SUSPENDED);
+			suspend();
+
 		}
 	}
 
@@ -414,4 +440,6 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	{
 		return ParserUtil.parseExpression(new File("Console"), ParserUtil.getCharStream(line, StandardCharsets.UTF_8.name())).exp;
 	}
+
+	
 }
