@@ -334,7 +334,8 @@ public class NewMCVisitor extends
 			files = folder.listFiles();
 		}
 		
-		String cml_file = "src/test/resources/simpler-BeoAVDeviceDiscovery.cml";
+		//String cml_file = "src/test/resources/simpler-BeoAVDeviceDiscovery.cml";
+		String cml_file = "src/test/resources/newInsielImpl.cml";
 		//String cml_file = "src/test/resources/minimondex-incomplete.cml.nok";
 		//String cml_file = "src/test/resources/simpler-minimondex.cml";
 		//String cml_file = "src/test/resources/set-manipulation.cml";

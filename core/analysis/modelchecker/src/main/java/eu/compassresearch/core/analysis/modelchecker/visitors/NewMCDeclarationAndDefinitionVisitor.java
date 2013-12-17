@@ -18,7 +18,6 @@ import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.node.INode;
 import org.overture.ast.patterns.PPattern;
-
 import org.overture.ast.types.ANamedInvariantType;
 import org.overture.ast.types.AOperationType;
 import org.overture.ast.types.AUnionType;
@@ -32,6 +31,7 @@ import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionClassDefinition;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AChannelDefinition;
+import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.definitions.PCMLDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
@@ -44,6 +44,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAActionCl
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAActionDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAAssignmentDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAChannelDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAChansetDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAExplicitCmlOperationDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAExplicitFunctionDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAInstanceVariableDefinition;
@@ -56,6 +57,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAValueDef
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCPCMLDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAUndefinedExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPVarsetExpression;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCVoidValue;
 import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCPCMLPattern;
 import eu.compassresearch.core.analysis.modelchecker.ast.process.MCPProcess;
@@ -230,6 +232,22 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 		
 		return result;
 		
+	}
+	
+	
+
+	@Override
+	public MCNode caseAChansetDefinition(AChansetDefinition node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		
+		String identifier = node.getIdentifier().getName().toString();
+		MCPVarsetExpression chansetExpression = (MCPVarsetExpression) node.getChansetExpression().apply(rootVisitor, question);
+		
+		MCAChansetDefinition result = new MCAChansetDefinition(identifier, chansetExpression);
+		
+		question.chansetDefs.add(result);
+		
+		return result;
 	}
 
 	@Override

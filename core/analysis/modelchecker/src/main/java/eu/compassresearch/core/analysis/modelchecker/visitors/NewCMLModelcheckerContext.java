@@ -29,6 +29,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.NewMCGuardDef
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.NullBinding;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAActionDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAChannelDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAChansetDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAExplicitCmlOperationDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAProcessDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCATypeDefinition;
@@ -70,7 +71,7 @@ public class NewCMLModelcheckerContext {
 	public ArrayListSet<MCPVarsetExpression> globalChanSets;
 	public ArrayListSet<NameValue> localVariablesMapping;
 	public ArrayList<MCASBinaryExp> setExpressioFacts;
-	
+	public LinkedList<MCAChansetDefinition> chansetDefs;
 	
 	
 	
@@ -166,6 +167,17 @@ public class NewCMLModelcheckerContext {
 		return result;
 	}
 	
+	public MCAChansetDefinition getChansetDefinition(String name){
+		MCAChansetDefinition result = null;
+		for (MCAChansetDefinition chansetDef : this.chansetDefs) {
+			if(chansetDef.getIdentifier().equals(name)){
+				result = chansetDef;
+				break;
+			}
+		}
+		return result;
+	}
+	
 	public MCSCmlOperationDefinition getOperationDefinition(String name){
 		MCSCmlOperationDefinition result = null;
 		for (MCSCmlOperationDefinition opDef : this.operations) {
@@ -211,7 +223,8 @@ public class NewCMLModelcheckerContext {
 		realLieInFacts = new ArrayListSet<MCLieInFact>();
 		localVariablesMapping = new ArrayListSet<NameValue>();
 		setExpressioFacts = new ArrayList<MCASBinaryExp>(); 
-
+		chansetDefs = new LinkedList<MCAChansetDefinition>();
+		
 		ASSIGN_COUNTER = 0;
 		GUARD_COUNTER = 0;
 		IOCOMM_COUNTER = 0;
