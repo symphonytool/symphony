@@ -1,17 +1,12 @@
 package eu.compassresearch.core.interpreter;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.NameValuePairList;
-import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.AStopAction;
-import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.process.AAlphabetisedParallelismProcess;
 import eu.compassresearch.ast.process.AAlphabetisedParallelismReplicatedProcess;
 import eu.compassresearch.ast.process.AExternalChoiceProcess;
@@ -29,11 +24,8 @@ import eu.compassresearch.ast.process.ASequentialCompositionReplicatedProcess;
 import eu.compassresearch.ast.process.ATimedInterruptProcess;
 import eu.compassresearch.ast.process.ATimeoutProcess;
 import eu.compassresearch.ast.process.AUntimedTimeoutProcess;
-import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
-import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
-import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
 import eu.compassresearch.core.interpreter.api.values.CmlSetQuantifier;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
@@ -44,38 +36,23 @@ class ProcessSetupVisitor extends CommonSetupVisitor
 	{
 		super(owner, visitorAccess);
 	}
-	
-	@SuppressWarnings("rawtypes")
-	protected ChannelNameSetValue eval(PVarsetExpression chansetExpression,Context question) throws AnalysisException
-	{
-		Value val = chansetExpression.apply(cmlExpressionVisitor, question);
-		if(val instanceof ChannelNameSetValue)
-		{
-			return (ChannelNameSetValue) val;
-		}else if(val instanceof Set && ((Set)val).isEmpty())
-		{
-			return new ChannelNameSetValue(new HashSet<ChannelNameValue>());
-		}
-		
-		throw new CmlInterpreterException(chansetExpression, InterpretationErrorMessages.FATAL_ERROR.customizeMessage("Failed to evaluate chanset expression"));
-	}
-	
+			
 	@Override
 	public Pair<INode, Context> caseAAlphabetisedParallelismProcess(
 			AAlphabetisedParallelismProcess node, Context question)
 			throws AnalysisException
 	{
-		
-		// evaluate the children in the their own context
-		ChannelNameSetValue leftChanset = eval( node.getLeftChansetExpression(), getChildContexts(question).first);
-		ChannelNameSetValue rightChanset = eval(node.getRightChansetExpression(),getChildContexts(question).second);
-
-		Context chansetContext = CmlContextFactory.newContext(node.getLocation(), "Alphabetised parallelism precalcualted channelsets", question);
-		
-		chansetContext.put(NamespaceUtility.getLeftPrecalculatedChannetSet(),leftChanset);
-		chansetContext.put(NamespaceUtility.getRightPrecalculatedChannetSet(),rightChanset);
-		
-		return new Pair<INode, Context>(node,chansetContext);
+		return caseAlphabetisedParallelism(node, node.getLeftChansetExpression(), node.getRightChansetExpression(), question);
+//		// evaluate the children in the their own context
+//		ChannelNameSetValue leftChanset = eval( node.getLeftChansetExpression(), getChildContexts(question).first);
+//		ChannelNameSetValue rightChanset = eval(node.getRightChansetExpression(),getChildContexts(question).second);
+//
+//		Context chansetContext = CmlContextFactory.newContext(node.getLocation(), "Alphabetised parallelism precalcualted channelsets", question);
+//		
+//		chansetContext.put(NamespaceUtility.getLeftPrecalculatedChannetSet(),leftChanset);
+//		chansetContext.put(NamespaceUtility.getRightPrecalculatedChannetSet(),rightChanset);
+//		
+//		return new Pair<INode, Context>(node,chansetContext);
 	}
 	
 	@Override

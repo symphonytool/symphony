@@ -7,6 +7,7 @@ import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.IntegerValue;
 import org.overture.interpreter.values.NameValuePair;
 
+import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
 import eu.compassresearch.ast.actions.AExternalChoiceReplicatedAction;
 import eu.compassresearch.ast.actions.AGeneralisedParallelismParallelAction;
@@ -28,6 +29,7 @@ import eu.compassresearch.ast.actions.AUntimedTimeoutAction;
 import eu.compassresearch.ast.actions.AWaitAction;
 import eu.compassresearch.ast.statements.AActionStm;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
+import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
 class ActionSetupVisitor extends CommonSetupVisitor
@@ -43,6 +45,14 @@ class ActionSetupVisitor extends CommonSetupVisitor
 			throws AnalysisException
 	{
 		return node.getAction().apply(this, question);
+	}
+	
+	@Override
+	public Pair<INode, Context> caseAAlphabetisedParallelismParallelAction(
+			AAlphabetisedParallelismParallelAction node, Context question)
+			throws AnalysisException
+	{
+		return caseAlphabetisedParallelism(node, node.getLeftChansetExpression(), node.getRightChansetExpression(), question);
 	}
 
 	@Override
