@@ -1,6 +1,7 @@
 package eu.compassresearch.ide.interpreter.model;
 
 import org.eclipse.debug.core.DebugException;
+import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.model.IBreakpoint;
 import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.core.model.IThread;
@@ -175,40 +176,13 @@ public class CmlThread extends CmlDebugElement implements IThread
 	@Override
 	public String getName() throws DebugException
 	{
-//		String n = extractName(info);
-		return info.getName();
+		return info.getName()+" (at line "+info.getLocation().getStartLine()+") #"+id;
 	}
-
-	private static String extractName(CmlProcessDTO info)
-	{
-		if (info == null)
-		{
-			return "";
-		}
-		String name = info.getName().replaceAll("[^a-zA-Z0-9\\s]", "").replace("Process", "").replace("Action", "");
-
-		String base = extractName(info.getParent());
-		return  (base.isEmpty()?"": base+" -> ") + name;
-	}
-
-	// public String getName()
-	// {
-	// String name = session.getInfo().getThreadId();
-	// if (name.length() > 0)
-	// {
-	// name = name.substring(0, 1).toUpperCase() + name.substring(1);
-	// }
-	// // TODO remove state from name
-	// return name
-	// + new String(interpreterThreadState == null ? "" : " - "
-	// + interpreterThreadState.getState().toString());
-	// }
 
 	@Override
 	public IBreakpoint[] getBreakpoints()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return DebugPlugin.getDefault().getBreakpointManager().getBreakpoints(getModelIdentifier());
 	}
 
 	@Override
