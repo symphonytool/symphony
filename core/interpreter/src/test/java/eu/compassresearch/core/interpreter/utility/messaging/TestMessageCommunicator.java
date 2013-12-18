@@ -151,9 +151,9 @@ public class TestMessageCommunicator
 			}
 
 			@Override
-			public ILexNameToken name()
+			public BehaviourName getName()
 			{
-				return new CmlLexNameToken("", new LexIdentifierToken("A", false, new LexLocation()));
+				return new BehaviourName("A");
 			}
 
 			@Override
@@ -308,6 +308,13 @@ public class TestMessageCommunicator
 			{
 				// TODO Auto-generated method stub
 				return false;
+			}
+
+			@Override
+			public void updateName(ILexNameToken name)
+			{
+				// TODO Auto-generated method stub
+				
 			}
 		}, CmlInterpreterState.FINISHED);
 		Message sentMessage = new CmlDbgStatusMessage(status);

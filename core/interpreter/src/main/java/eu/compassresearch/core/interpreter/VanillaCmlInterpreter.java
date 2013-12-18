@@ -17,7 +17,6 @@ import org.overture.ast.util.definitions.ClassList;
 import org.overture.interpreter.runtime.ClassInterpreter;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.scheduler.BasicSchedulableThread;
-import org.overture.interpreter.scheduler.InitThread;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.definitions.AProcessDefinition;
@@ -149,7 +148,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		// Create the initial context with the global definitions
 		Context topContext = getInitialContext(null);
 		// Create a CmlBehaviour for the top process
-		runningTopProcess = new ConcreteCmlBehaviour(topProcess.getProcess(), topContext, topProcess.getName());
+		runningTopProcess = new ConcreteCmlBehaviour(topProcess.getProcess(), topContext, new CmlBehaviour.BehaviourName(topProcess.getName().getName()));
 
 		// Fire the interpreter running event before we start
 		setNewState(CmlInterpreterState.RUNNING);
@@ -247,7 +246,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			setNewState(CmlInterpreterState.WAITING_FOR_ENVIRONMENT);
 			// Get the environment to select the next transition.
 			// this is potentially a blocking call!!
-			 selectedEvent = getEnvironment().resolveChoice();
+			selectedEvent = getEnvironment().resolveChoice();
 
 			// if its null we terminate and assume that this happended because of a user interrupt
 			if (selectedEvent == null)
@@ -310,17 +309,20 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	@Override
 	public DebugContext getDebugContext(int id)
 	{
-		DebugContext context =  super.getDebugContext(id);
-		if(context==null)
+		DebugContext context = super.getDebugContext(id);
+		if (context == null)
 		{
 			CmlBehaviour behaviour = findBehaviorById(id);
-			ILexLocation location = LocationExtractor.extractLocation(behaviour.getNextState().first);
-			context = new DebugContext(location, behaviour.getNextState().second);
+			if (behaviour != null)
+			{
+				ILexLocation location = LocationExtractor.extractLocation(behaviour.getNextState().first);
+				context = new DebugContext(location, behaviour.getNextState().second);
+			}
 		}
-		
+
 		return context;
 	}
-	
+
 	@Override
 	public void setCurrentDebugContext(Context context, ILexLocation location)
 	{
@@ -441,5 +443,4 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		return ParserUtil.parseExpression(new File("Console"), ParserUtil.getCharStream(line, StandardCharsets.UTF_8.name())).exp;
 	}
 
-	
 }

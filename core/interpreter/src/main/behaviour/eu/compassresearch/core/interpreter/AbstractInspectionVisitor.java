@@ -19,6 +19,7 @@ import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour.BehaviourName;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlCalculationStep;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlTrace;
 import eu.compassresearch.core.interpreter.api.behaviour.Inspection;
@@ -100,22 +101,24 @@ public class AbstractInspectionVisitor extends
 	{
 		visitorAccess.setWaiting();
 	}
-	
+
 	protected void clearLeftChild()
 	{
 		this.visitorAccess.setLeftChild(null);
 	}
-	
-	protected void setLeftChild(INode node, ILexNameToken name, Context question) throws AnalysisException
+
+	protected void setLeftChild(INode node, BehaviourName name, Context question)
+			throws AnalysisException
 	{
-		this.visitorAccess.setLeftChild(new ConcreteCmlBehaviour(node, this.visitorAccess.getChildContexts(question).first, name , owner));
+		this.visitorAccess.setLeftChild(new ConcreteCmlBehaviour(node, this.visitorAccess.getChildContexts(question).first, name, owner));
 	}
-	
-	protected void setLeftChild(INode node, Context question) throws AnalysisException
+
+	protected void setLeftChild(INode node, Context question)
+			throws AnalysisException
 	{
 		this.visitorAccess.setLeftChild(new ConcreteCmlBehaviour(node, this.visitorAccess.getChildContexts(question).first, owner));
 	}
-	
+
 	protected void setLeftChild(CmlBehaviour child)
 	{
 		this.visitorAccess.setLeftChild(child);
@@ -125,37 +128,39 @@ public class AbstractInspectionVisitor extends
 	{
 		this.visitorAccess.setRightChild(null);
 	}
-	
+
 	protected void setRightChild(CmlBehaviour child)
 	{
 		this.visitorAccess.setRightChild(child);
 	}
-	
-	protected void setRightChild(INode node, ILexNameToken name, Context question) throws AnalysisException
+
+	protected void setRightChild(INode node, BehaviourName name,
+			Context question) throws AnalysisException
 	{
-		this.visitorAccess.setRightChild(new ConcreteCmlBehaviour(node, this.visitorAccess.getChildContexts(question).second, name , owner));
+		this.visitorAccess.setRightChild(new ConcreteCmlBehaviour(node, this.visitorAccess.getChildContexts(question).second, name, owner));
 	}
 
-	protected void setRightChild(INode node, Context question) throws AnalysisException
+	protected void setRightChild(INode node, Context question)
+			throws AnalysisException
 	{
 		this.visitorAccess.setRightChild(new ConcreteCmlBehaviour(node, this.visitorAccess.getChildContexts(question).second, owner));
 	}
-	
+
 	protected Pair<Context, Context> getChildContexts(Context context)
 	{
 		return this.visitorAccess.getChildContexts(context);
 	}
-	
-	protected ILexNameToken name()
+
+	protected BehaviourName name()
 	{
-		return this.owner.name();
+		return this.owner.getName();
 	}
-	
+
 	protected List<CmlBehaviour> children()
 	{
 		return owner.children();
 	}
-	
+
 	protected Pair<INode, Context> replaceWithChild(CmlBehaviour child)
 	{
 		this.visitorAccess.setLeftChild(child.getLeftChild());
@@ -185,8 +190,9 @@ public class AbstractInspectionVisitor extends
 		Value retVal = null;
 
 		if (ids.size() == 0)
+		{
 			retVal = val;
-		else
+		} else
 		{
 
 			String nextId = ids.get(0);

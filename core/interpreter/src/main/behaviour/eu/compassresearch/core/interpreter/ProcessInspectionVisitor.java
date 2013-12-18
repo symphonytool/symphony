@@ -133,10 +133,10 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 				AProcessDefinition processDefinition = node.getAncestor(AProcessDefinition.class);
 				if (question.title.equals(CmlContextFactory.PARAMETRISED_PROCESS_CONTEXT_NAME))
 				{
-					tmpContext = CmlContextFactory.newObjectContext(node.getLocation(), "Tmp Action Process Context", question.outer, new ProcessObjectValue(processDefinition,node.getActionDefinition(), valueMap, null, null));
+					tmpContext = CmlContextFactory.newObjectContext(node.getLocation(), "Tmp Action Process Context", question.outer, new ProcessObjectValue(processDefinition, node.getActionDefinition(), valueMap, null, null));
 				} else
 				{
-					tmpContext = CmlContextFactory.newObjectContext(node.getLocation(), "Tmp Action Process Context", question, new ProcessObjectValue(processDefinition,node.getActionDefinition(), valueMap, null, null));
+					tmpContext = CmlContextFactory.newObjectContext(node.getLocation(), "Tmp Action Process Context", question, new ProcessObjectValue(processDefinition, node.getActionDefinition(), valueMap, null, null));
 				}
 
 				// Evaluate and add paragraph definitions and add the result to the state
@@ -160,7 +160,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 					}
 				}
 
-				ProcessObjectValue self = new ProcessObjectValue(processDefinition,node.getActionDefinition(), valueMap, question.getSelf(), processInv);
+				ProcessObjectValue self = new ProcessObjectValue(processDefinition, node.getActionDefinition(), valueMap, question.getSelf(), processInv);
 				ObjectContext processObjectContext = null;
 
 				// If params is defined in the above context them we need to add them to the created processContext
@@ -172,6 +172,8 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 				{
 					processObjectContext = CmlContextFactory.newObjectContext(node.getLocation(), "Action Process Context", question, self);
 				}
+
+				owner.getName().addAction(node.getAction());
 
 				// push this node onto the execution stack again since this should execute
 				// the action behavior until it terminates
@@ -202,11 +204,9 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 						CmlTransition selectedTransition)
 						throws AnalysisException
 				{
-					setLeftChild(node.getLeft(), new CmlLexNameToken(name().getModule(), name().getIdentifier().getName()
-							+ "[]", node.getLeft().getLocation()), question);
+					setLeftChild(node.getLeft(), new CmlBehaviour.BehaviourName(node.getLeft(), owner.getName(), "[]", ""), question);
 
-					setRightChild(node.getRight(), new CmlLexNameToken(name().getModule(), "[]"
-							+ name().getIdentifier().getName(), node.getRight().getLocation()), question);
+					setRightChild(node.getRight(), new CmlBehaviour.BehaviourName(node.getRight(), owner.getName(), "", "[]"), question);
 					// Now let this process wait for the children to get into a waitForEvent state
 					return new Pair<INode, Context>(node, question);
 				}
@@ -295,11 +295,13 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 			return newInspection(createTauTransitionWithoutTime(dstNode, "End"), caseParallelEnd(dstNode, question));
 		} else
 		{
-			// fetch the already evaluated left and right channel sets 
-			ChannelNameSetValue leftChanset = (ChannelNameSetValue)question.lookup(NamespaceUtility.getLeftPrecalculatedChannetSet()); // eval( node.getLeftChansetExpression(), getChildContexts(owner.getLeftChild().getNextState().second).first);
-			ChannelNameSetValue rightChanset = (ChannelNameSetValue)question.lookup(NamespaceUtility.getRightPrecalculatedChannetSet()); //eval(node.getRightChansetExpression(),getChildContexts(owner.getRightChild().getNextState().second).second);
+			// fetch the already evaluated left and right channel sets
+			ChannelNameSetValue leftChanset = (ChannelNameSetValue) question.lookup(NamespaceUtility.getLeftPrecalculatedChannetSet()); // eval(
+																																		// node.getLeftChansetExpression(),
+																																		// getChildContexts(owner.getLeftChild().getNextState().second).first);
+			ChannelNameSetValue rightChanset = (ChannelNameSetValue) question.lookup(NamespaceUtility.getRightPrecalculatedChannetSet()); // eval(node.getRightChansetExpression(),getChildContexts(owner.getRightChild().getNextState().second).second);
 
-			//next we find the intersection of of them
+			// next we find the intersection of of them
 			ChannelNameSetValue intersectionChanset = new ChannelNameSetValue(leftChanset);
 			intersectionChanset.retainAll(rightChanset);
 
@@ -456,11 +458,8 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 			throw new InterpreterRuntimeException(InterpretationErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName()));
 		}
 
-		ILexNameToken name = owner.name();
-		setLeftChild(left, new CmlLexNameToken(name.getModule(), name.getIdentifier().getName()
-				+ operatorsign, left.getLocation()), question);
-		setRightChild(right, new CmlLexNameToken(name.getModule(), operatorsign
-				+ name.getIdentifier().getName(), right.getLocation()), question);
+		setLeftChild(left, new CmlBehaviour.BehaviourName(node, owner.getName(), operatorsign, ""), question);
+		setRightChild(right, new CmlBehaviour.BehaviourName(node, owner.getName(), "", operatorsign), question);
 	}
 
 	@Override
@@ -560,7 +559,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 
 				// Context refProcessContext =
 				// refProcessContext.putAll(evaluatedArgs);
-
+				owner.getName().addProcess(node.getProcessName().getName());
 				return new Pair<INode, Context>(node.getProcessDefinition().getProcess(), nextContext);
 			}
 		});
@@ -580,12 +579,12 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 	{
 		return caseATimeout(node, node.getLeft(), node.getRight(), node.getTimeoutExpression(), question);
 	}
-	
+
 	@Override
 	public Inspection caseATimedInterruptProcess(ATimedInterruptProcess node,
 			Context question) throws AnalysisException
 	{
-		return caseATimedInterrupt(node,node.getLeft(),node.getRight(),node.getTimeExpression(), question);
+		return caseATimedInterrupt(node, node.getLeft(), node.getRight(), node.getTimeExpression(), question);
 	}
 
 	@Override
