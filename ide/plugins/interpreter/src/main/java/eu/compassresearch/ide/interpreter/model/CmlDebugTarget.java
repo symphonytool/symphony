@@ -179,15 +179,6 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 			public boolean handleMessage(final CmlDbgStatusMessage message)
 			{
 				lastState = message.getInterpreterStatus();
-				// Display.getDefault().asyncExec(new Runnable()
-				// {
-				//
-				// @Override
-				// public void run()
-				// {
-				// threadManager.updateThreads(message.getInterpreterStatus(), communicationManager);
-				// }
-				// });
 				Job setupThreads = new Job("setup cml threads")
 				{
 
@@ -240,19 +231,19 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 					@Override
 					public void run()
 					{
-						if (message.getInterpreterStatus().hasActiveBreakpoint())
-						{
-							Breakpoint bp = message.getInterpreterStatus().getActiveBreakpoint();
-							for (CmlProcessDTO pi : message.getInterpreterStatus().getAllProcesses())
-							{
-								if (pi.getLocation().getStartLine() == bp.getLine())
-								{
-									CmlUtil.setSelectionFromLocation(pi.getLocation(), lastSelectedRanges);
-									CmlUtil.showLocation(lastSelectedRanges.keySet().iterator().next(), pi.getLocation());
-									break;
-								}
-							}
-						}
+//						if (message.getInterpreterStatus().hasActiveBreakpoint())
+//						{
+//							Breakpoint bp = message.getInterpreterStatus().getActiveBreakpoint();
+//							for (CmlProcessDTO pi : message.getInterpreterStatus().getAllProcesses())
+//							{
+//								if (pi.getLocation().getStartLine() == bp.getLine())
+//								{
+//									CmlUtil.setSelectionFromLocation(pi.getLocation(), lastSelectedRanges);
+//									CmlUtil.showLocation(lastSelectedRanges.keySet().iterator().next(), pi.getLocation());
+//									break;
+//								}
+//							}
+//						}
 
 						try
 						{
