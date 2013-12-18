@@ -469,6 +469,11 @@ programParagraph returns[List<? extends PDefinition> defs]
     | typeDefs          { $defs = $typeDefs.defs; }
     | valueDefs         { $defs = $valueDefs.defs; }
     | functionDefs      { $defs = $functionDefs.defs; }
+    | configDefinition  { $defs = new ArrayList<PDefinition>(); } // FIXME: Arrays.asList(new PDefinition[]{$configDefinition.def}); }
+    ;
+
+configDefinition //returns[AConfigDefinition def]
+    : 'configuration' IDENTIFIER 'includes' identifierList 'end'
     ;
 
 classDefinition returns[AClassClassDefinition def]
@@ -1680,7 +1685,7 @@ frameSpec returns[AExternalClause frameSpec]
  * is a space that separates untyped channels from typed ones. (-jwc)
  */
 channelDefs returns[List<AChannelDefinition> defs]
-    : 'channels' channelDefOptList { $defs = $channelDefOptList.defs; }
+    : 'channels' ( '[' IDENTIFIER ']' )? channelDefOptList { $defs = $channelDefOptList.defs; }
     ;
 
 channelDefOptList returns[List<AChannelDefinition> defs]
@@ -1736,7 +1741,7 @@ channelDef returns[List<AChannelDefinition> def]
     ;
 
 chansetDefs returns[List<AChansetDefinition> defs]
-    : 'chansets' chansetDefOptList { $defs = $chansetDefOptList.defs; }
+    : 'chansets' ( '[' IDENTIFIER ']' )? chansetDefOptList { $defs = $chansetDefOptList.defs; }
     ;
 
 chansetDefOptList returns[List<AChansetDefinition> defs]
@@ -1959,7 +1964,7 @@ classDefinitionBlock returns[List<? extends PDefinition> defs]
     ;
 
 valueDefs returns[List<AValueDefinition> defs]
-    : 'values' qualValueDefinitionOptList { $defs = $qualValueDefinitionOptList.defs; }
+    : 'values' ( '[' IDENTIFIER ']' )? qualValueDefinitionOptList { $defs = $qualValueDefinitionOptList.defs; }
     ;
 
 qualValueDefinitionOptList returns[List<AValueDefinition> defs]
@@ -2099,7 +2104,7 @@ invariantDefinition returns[AClassInvariantDefinition def]
     ;
 
 functionDefs returns[List<SFunctionDefinition> defs]
-    : 'functions' qualFunctionDefinitionOptList { $defs = $qualFunctionDefinitionOptList.defs; }
+    : 'functions' ( '[' IDENTIFIER ']' )? qualFunctionDefinitionOptList { $defs = $qualFunctionDefinitionOptList.defs; }
     ;
 
 qualFunctionDefinitionOptList returns[List<SFunctionDefinition> defs]
@@ -2505,7 +2510,7 @@ operationBody returns[PAction body]
 
 typeDefs returns[List<ATypeDefinition> defs]
 @init { $defs = new ArrayList<ATypeDefinition>(); }
-    : 'types' ( typeDef { $defs.add($typeDef.def); } )*
+    : 'types' ( '[' IDENTIFIER ']' )? ( typeDef { $defs.add($typeDef.def); } )*
     ;
 
 typeDef returns[ATypeDefinition def]
