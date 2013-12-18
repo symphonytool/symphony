@@ -461,19 +461,25 @@ source returns[List<PDefinition> defs]
     : ( programParagraph { $defs.addAll($programParagraph.defs); } )* EOF
     ;
 
-programParagraph returns[List<? extends PDefinition> defs]
+programParagraph returns[List<PDefinition> defs]
     : classDefinition   { $defs = Arrays.asList(new PDefinition[]{$classDefinition.def}); }
     | processDefinition { $defs = Arrays.asList(new PDefinition[]{$processDefinition.def}); }
-    | channelDefs       { $defs = $channelDefs.defs; }
-    | chansetDefs       { $defs = $chansetDefs.defs; }
-    | typeDefs          { $defs = $typeDefs.defs; }
-    | valueDefs         { $defs = $valueDefs.defs; }
-    | functionDefs      { $defs = $functionDefs.defs; }
-    | configDefinition  { $defs = new ArrayList<PDefinition>(); } // FIXME: Arrays.asList(new PDefinition[]{$configDefinition.def}); }
+    | configDefinition  { $defs = Arrays.asList(new PDefinition[]{$configDefinition.def}); }
+    | channelDefs       { $defs = $channelDefs.block.getDefs();  $defs.add($channelDefs.block); }
+    | chansetDefs       { $defs = $chansetDefs.block.getDefs();  $defs.add($chansetDefs.block); }
+    | typeDefs          { $defs = $typeDefs.block.getDefs();     $defs.add($typeDefs.block); }
+    | valueDefs         { $defs = $valueDefs.block.getDefs();    $defs.add($valueDefs.block); }
+    | functionDefs      { $defs = $functionDefs.block.getDefs(); $defs.add($functionDefs.block); }
     ;
 
-configDefinition //returns[AConfigDefinition def]
-    : 'configuration' IDENTIFIER 'includes' identifierList 'end'
+configDefinition returns[AConfigDefinition def]
+    : 'configuration' id=IDENTIFIER 'includes' identifierList end='end'
+        {
+            $def = new AConfigDefinition();
+            $def.setLocation(extractLexLocation($start,$end));
+            $def.setConfigId(new LexIdentifierToken($id.getText(), false, extractLexLocation($id)));
+            $def.setIncluded($identifierList.ids);
+        }
     ;
 
 classDefinition returns[AClassClassDefinition def]
@@ -917,9 +923,9 @@ actionParagraphOptList returns[List<PDefinition> defs]
     ;
 
 actionParagraph returns[List<? extends PDefinition> defs]
-    : typeDefs          { $defs = $typeDefs.defs; }
-    | valueDefs         { $defs = $valueDefs.defs; }
-    | functionDefs      { $defs = $functionDefs.defs; }
+    : typeDefs          { $defs = $typeDefs.block.getDefs(); }
+    | valueDefs         { $defs = $valueDefs.block.getDefs(); }
+    | functionDefs      { $defs = $functionDefs.block.getDefs(); }
     | stateDefs         { if ($stateDefs.defs != null) $defs = $stateDefs.defs.getStateDefs(); }
     | operationDefs     { $defs = $operationDefs.defs; }
     | actionDefs        { $defs = $actionDefs.defs; }
@@ -1684,9 +1690,17 @@ frameSpec returns[AExternalClause frameSpec]
  * though it may not be visually obvious (without the semis) that it
  * is a space that separates untyped channels from typed ones. (-jwc)
  */
-channelDefs returns[List<AChannelDefinition> defs]
-    : 'channels' ( '[' IDENTIFIER ']' )? channelDefOptList { $defs = $channelDefOptList.defs; }
+channelDefs returns[AChannelBlockDefinition block]
+@after { $block.setLocation(extractLexLocation($start,$stop)); }
+    : 'channels' ( '[' id=IDENTIFIER ']' )? channelDefOptList
+        {
+            $block = new AChannelBlockDefinition();
+            if ($id != null)
+                $block.setConfigId(new LexIdentifierToken($id.getText(), false, extractLexLocation($id)));
+            $block.setDefs($channelDefOptList.defs);
+        }
     ;
+
 
 channelDefOptList returns[List<AChannelDefinition> defs]
 @init { $defs = new ArrayList<AChannelDefinition>(); }
@@ -1740,8 +1754,15 @@ channelDef returns[List<AChannelDefinition> def]
         }
     ;
 
-chansetDefs returns[List<AChansetDefinition> defs]
-    : 'chansets' ( '[' IDENTIFIER ']' )? chansetDefOptList { $defs = $chansetDefOptList.defs; }
+chansetDefs returns[AChansetBlockDefinition block]
+@after { $block.setLocation(extractLexLocation($start,$stop)); }
+    : 'chansets' ( '[' id=IDENTIFIER ']' )? chansetDefOptList
+        {
+            $block = new AChansetBlockDefinition();
+            if ($id != null)
+                $block.setConfigId(new LexIdentifierToken($id.getText(), false, extractLexLocation($id)));
+            $block.setDefs($chansetDefOptList.defs);
+        }
     ;
 
 chansetDefOptList returns[List<AChansetDefinition> defs]
@@ -1947,9 +1968,9 @@ classDefinitionBlockOptList returns[List<PDefinition> defs]
 
 classDefinitionBlock returns[List<? extends PDefinition> defs]
 @init { $defs = new ArrayList<PDefinition>(); }
-    : typeDefs                  { $defs = $typeDefs.defs; }
-    | valueDefs                 { $defs = $valueDefs.defs; }
-    | functionDefs              { $defs = $functionDefs.defs; }
+    : typeDefs                  { $defs = $typeDefs.block.getDefs(); }
+    | valueDefs                 { $defs = $valueDefs.block.getDefs(); }
+    | functionDefs              { $defs = $functionDefs.block.getDefs(); }
     | stateDefs                 { if ($stateDefs.defs != null) $defs = $stateDefs.defs.getStateDefs(); }
     | operationDefs             { $defs = $operationDefs.defs; }
     | 'initial' operationDef
@@ -1963,8 +1984,15 @@ classDefinitionBlock returns[List<? extends PDefinition> defs]
         }
     ;
 
-valueDefs returns[List<AValueDefinition> defs]
-    : 'values' ( '[' IDENTIFIER ']' )? qualValueDefinitionOptList { $defs = $qualValueDefinitionOptList.defs; }
+valueDefs returns[AValueBlockDefinition block]
+@after { $block.setLocation(extractLexLocation($start,$stop)); }
+    : 'values' ( '[' id=IDENTIFIER ']' )? qualValueDefinitionOptList
+        {
+            $block = new AValueBlockDefinition();
+            if ($id != null)
+                $block.setConfigId(new LexIdentifierToken($id.getText(), false, extractLexLocation($id)));
+            $block.setDefs($qualValueDefinitionOptList.defs);
+        }
     ;
 
 qualValueDefinitionOptList returns[List<AValueDefinition> defs]
@@ -2103,8 +2131,15 @@ invariantDefinition returns[AClassInvariantDefinition def]
         }
     ;
 
-functionDefs returns[List<SFunctionDefinition> defs]
-    : 'functions' ( '[' IDENTIFIER ']' )? qualFunctionDefinitionOptList { $defs = $qualFunctionDefinitionOptList.defs; }
+functionDefs returns[AFunctionBlockDefinition block]
+@after { $block.setLocation(extractLexLocation($start,$stop)); }
+    : 'functions' ( '[' id=IDENTIFIER ']' )? qualFunctionDefinitionOptList
+        {
+            $block = new AFunctionBlockDefinition();
+            if ($id != null)
+                $block.setConfigId(new LexIdentifierToken($id.getText(), false, extractLexLocation($id)));
+            $block.setDefs($qualFunctionDefinitionOptList.defs);
+        }
     ;
 
 qualFunctionDefinitionOptList returns[List<SFunctionDefinition> defs]
@@ -2508,9 +2543,16 @@ operationBody returns[PAction body]
     ;
 
 
-typeDefs returns[List<ATypeDefinition> defs]
-@init { $defs = new ArrayList<ATypeDefinition>(); }
-    : 'types' ( '[' IDENTIFIER ']' )? ( typeDef { $defs.add($typeDef.def); } )*
+typeDefs returns[ATypeBlockDefinition block]
+@init { List<ATypeDefinition> defs = new ArrayList<ATypeDefinition>(); }
+@after { $block.setLocation(extractLexLocation($start,$stop)); }
+    : 'types' ( '[' id=IDENTIFIER ']' )? ( typeDef { defs.add($typeDef.def); } )*
+        {
+            $block = new ATypeBlockDefinition();
+            if ($id != null)
+                $block.setConfigId(new LexIdentifierToken($id.getText(), false, extractLexLocation($id)));
+            $block.setDefs(defs);
+        }
     ;
 
 typeDef returns[ATypeDefinition def]

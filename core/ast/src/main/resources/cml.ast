@@ -58,6 +58,21 @@ definition {-> package='eu.compassresearch.ast.definitions'}
         [invPattern]:pattern [invExpression]:exp (invdef):definition.#Function.explicit
         [initPattern]:pattern [initExpression]:exp (initdef):definition.#Function.explicit
         (stateDefs):definition*
+    | #block
+    | {config}
+        [configId]: LexIdentifierToken
+        [included]: LexIdentifierToken*
+    ;
+
+#block {-> package='eu.compassresearch.ast.definitions'
+      | [configId]: LexIdentifierToken
+      | (defs): definition*
+      }
+    = {type}
+    | {channel}
+    | {chanset}
+    | {function}
+    | {value}
     ;
    
 #class {-> package='eu.compassresearch.ast.definitions'}
