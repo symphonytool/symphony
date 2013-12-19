@@ -34,7 +34,8 @@ public class CmlPDefinitionListAssistant extends PDefinitionListAssistantTC
 			if ((PDefinitionAssistantTC.isFunctionOrOperation(d)
 					|| d instanceof AChannelDefinition
 					|| d instanceof AChansetDefinition
-					|| d instanceof AActionDefinition || d instanceof AProcessDefinition)
+					|| d instanceof AActionDefinition 
+					|| d instanceof AProcessDefinition)
 					&& d.getName().matches(name))
 			{
 				set.add(d);

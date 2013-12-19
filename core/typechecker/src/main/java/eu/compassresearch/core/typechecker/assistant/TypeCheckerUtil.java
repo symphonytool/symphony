@@ -58,19 +58,16 @@ public class TypeCheckerUtil
 
 	}
 
-	/**
-	 * Creates the action type. This method is based on the simple block used in VDM operations
-	 * 
-	 * @param node
-	 * @param types
-	 * @return
-	 */
 	public static PType setTypeVoid(PAction node)
 	{
-
 		node.setType(AstFactory.newAVoidType(node.getLocation()));
 		return node.getType();
+	}
 
+	public static PType setTypeVoid(PDefinition node)
+	{
+		node.setType(AstFactory.newAVoidType(node.getLocation()));
+		return node.getType();
 	}
 
 	/**

@@ -33,6 +33,12 @@ import org.overture.typechecker.visitor.TypeCheckVisitor;
 
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
+import eu.compassresearch.ast.definitions.AChannelBlockDefinition;
+import eu.compassresearch.ast.definitions.AChansetBlockDefinition;
+import eu.compassresearch.ast.definitions.AConfigDefinition;
+import eu.compassresearch.ast.definitions.AFunctionBlockDefinition;
+import eu.compassresearch.ast.definitions.ATypeBlockDefinition;
+import eu.compassresearch.ast.definitions.AValueBlockDefinition;
 import eu.compassresearch.ast.expressions.ABracketedExp;
 import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
 import eu.compassresearch.ast.statements.AActionStm;
@@ -43,6 +49,7 @@ import eu.compassresearch.ast.statements.ANewStm;
 import eu.compassresearch.ast.statements.AUnresolvedObjectDesignator;
 import eu.compassresearch.ast.statements.AUnresolvedStateDesignator;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
+import eu.compassresearch.core.typechecker.assistant.TypeCheckerUtil;
 import eu.compassresearch.core.typechecker.environment.VdmRestrictedEnvironment;
 
 public class CmlVdmTypeCheckVisitor extends
@@ -331,5 +338,41 @@ public class CmlVdmTypeCheckVisitor extends
 
 		node.setType(type);
 		return node.getType();
+	}
+
+	@Override
+	public PType caseAConfigDefinition(AConfigDefinition node,
+			TypeCheckInfo question) throws AnalysisException {
+		return TypeCheckerUtil.setTypeVoid(node);
+	}
+
+	@Override
+	public PType caseATypeBlockDefinition(ATypeBlockDefinition node,
+			TypeCheckInfo question) throws AnalysisException {
+		return TypeCheckerUtil.setTypeVoid(node);
+	}
+
+	@Override
+	public PType caseAChannelBlockDefinition(AChannelBlockDefinition node,
+			TypeCheckInfo question) throws AnalysisException {
+		return TypeCheckerUtil.setTypeVoid(node);
+	}
+
+	@Override
+	public PType caseAChansetBlockDefinition(AChansetBlockDefinition node,
+			TypeCheckInfo question) throws AnalysisException {
+		return TypeCheckerUtil.setTypeVoid(node);
+	}
+
+	@Override
+	public PType caseAFunctionBlockDefinition(AFunctionBlockDefinition node,
+			TypeCheckInfo question) throws AnalysisException {
+		return TypeCheckerUtil.setTypeVoid(node);
+	}
+
+	@Override
+	public PType caseAValueBlockDefinition(AValueBlockDefinition node,
+			TypeCheckInfo question) throws AnalysisException {
+		return TypeCheckerUtil.setTypeVoid(node);
 	}
 }

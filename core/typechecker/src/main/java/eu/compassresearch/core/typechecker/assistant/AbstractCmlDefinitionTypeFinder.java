@@ -53,12 +53,18 @@ import eu.compassresearch.ast.declarations.AExpressionSingleDeclaration;
 import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionClassDefinition;
 import eu.compassresearch.ast.definitions.AActionDefinition;
+import eu.compassresearch.ast.definitions.AChannelBlockDefinition;
 import eu.compassresearch.ast.definitions.AChannelDefinition;
+import eu.compassresearch.ast.definitions.AChansetBlockDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
+import eu.compassresearch.ast.definitions.AConfigDefinition;
+import eu.compassresearch.ast.definitions.AFunctionBlockDefinition;
 import eu.compassresearch.ast.definitions.AInitialDefinition;
 import eu.compassresearch.ast.definitions.ALogicalAccess;
 import eu.compassresearch.ast.definitions.ANamesetDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
+import eu.compassresearch.ast.definitions.ATypeBlockDefinition;
+import eu.compassresearch.ast.definitions.AValueBlockDefinition;
 import eu.compassresearch.ast.expressions.ABracketedExp;
 import eu.compassresearch.ast.expressions.ACompVarsetExpression;
 import eu.compassresearch.ast.expressions.AComprehensionRenameChannelExp;
@@ -930,6 +936,48 @@ public class AbstractCmlDefinitionTypeFinder extends DefinitionTypeFinder
 	@Override
 	public PType caseAChannelType(AChannelType node) throws AnalysisException
 	{
+		return null;
+	}
+
+
+	@Override
+	public PType caseAConfigDefinition(AConfigDefinition node)
+			throws AnalysisException {
+		return null;
+	}
+
+
+	@Override
+	public PType caseATypeBlockDefinition(ATypeBlockDefinition node)
+			throws AnalysisException {
+		return null;
+	}
+
+
+	@Override
+	public PType caseAChannelBlockDefinition(AChannelBlockDefinition node)
+			throws AnalysisException {
+		return null;
+	}
+
+
+	@Override
+	public PType caseAChansetBlockDefinition(AChansetBlockDefinition node)
+			throws AnalysisException {
+		return null;
+	}
+
+
+	@Override
+	public PType caseAFunctionBlockDefinition(AFunctionBlockDefinition node)
+			throws AnalysisException {
+		return null;
+	}
+
+
+	@Override
+	public PType caseAValueBlockDefinition(AValueBlockDefinition node)
+			throws AnalysisException {
 		return null;
 	}
 

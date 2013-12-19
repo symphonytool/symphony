@@ -6,6 +6,7 @@ import org.overture.typechecker.assistant.ITypeCheckerAssistantFactory;
 import org.overture.typechecker.assistant.definition.PDefinitionAssistantTC;
 
 import eu.compassresearch.ast.definitions.AProcessDefinition;
+import eu.compassresearch.ast.definitions.SBlockDefinition;
 
 public class CmlPDefinitionAssistantTC extends PDefinitionAssistantTC
 {
@@ -21,6 +22,9 @@ public class CmlPDefinitionAssistantTC extends PDefinitionAssistantTC
 		if (def instanceof AProcessDefinition)
 		{
 			return null;// skip
+		}
+		else if (def instanceof SBlockDefinition) {
+			return null;
 		}
 
 		return super.getType(def);

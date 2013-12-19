@@ -5,11 +5,17 @@ import org.overture.ast.definitions.AStateDefinition;
 import org.overture.typechecker.assistant.ITypeCheckerAssistantFactory;
 
 import eu.compassresearch.ast.definitions.AActionDefinition;
+import eu.compassresearch.ast.definitions.AChannelBlockDefinition;
 import eu.compassresearch.ast.definitions.AChannelDefinition;
+import eu.compassresearch.ast.definitions.AChansetBlockDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
+import eu.compassresearch.ast.definitions.AConfigDefinition;
+import eu.compassresearch.ast.definitions.AFunctionBlockDefinition;
 import eu.compassresearch.ast.definitions.AInitialDefinition;
 import eu.compassresearch.ast.definitions.ANamesetDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
+import eu.compassresearch.ast.definitions.ATypeBlockDefinition;
+import eu.compassresearch.ast.definitions.AValueBlockDefinition;
 
 public class CmlKindFinder extends AbstractCmlKindFinder
 {
@@ -85,15 +91,40 @@ public class CmlKindFinder extends AbstractCmlKindFinder
 		return "state";
 	}
 
-	// containers
+	@Override
+	public String caseAConfigDefinition(AConfigDefinition node)
+			throws AnalysisException {
+		return "config";
+	}
 
-	// | {channels}
-	// | {chansets}
-	// | {namesets}
-	// | {actions}
-	// | {types}
-	// | {operations}
-	// | {functions}
-	// | {values}
+	@Override
+	public String caseATypeBlockDefinition(ATypeBlockDefinition node)
+			throws AnalysisException {
+		return null;
+	}
 
+	@Override
+	public String caseAChannelBlockDefinition(AChannelBlockDefinition node)
+			throws AnalysisException {
+		return null;
+	}
+
+	@Override
+	public String caseAChansetBlockDefinition(AChansetBlockDefinition node)
+			throws AnalysisException {
+		return null;
+	}
+
+	@Override
+	public String caseAFunctionBlockDefinition(AFunctionBlockDefinition node)
+			throws AnalysisException {
+		return null;
+	}
+
+	@Override
+	public String caseAValueBlockDefinition(AValueBlockDefinition node)
+			throws AnalysisException {
+		return null;
+	}
+	
 }

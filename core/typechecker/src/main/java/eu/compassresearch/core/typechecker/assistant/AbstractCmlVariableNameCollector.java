@@ -53,12 +53,18 @@ import eu.compassresearch.ast.declarations.AExpressionSingleDeclaration;
 import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionClassDefinition;
 import eu.compassresearch.ast.definitions.AActionDefinition;
+import eu.compassresearch.ast.definitions.AChannelBlockDefinition;
 import eu.compassresearch.ast.definitions.AChannelDefinition;
+import eu.compassresearch.ast.definitions.AChansetBlockDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
+import eu.compassresearch.ast.definitions.AConfigDefinition;
+import eu.compassresearch.ast.definitions.AFunctionBlockDefinition;
 import eu.compassresearch.ast.definitions.AInitialDefinition;
 import eu.compassresearch.ast.definitions.ALogicalAccess;
 import eu.compassresearch.ast.definitions.ANamesetDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
+import eu.compassresearch.ast.definitions.ATypeBlockDefinition;
+import eu.compassresearch.ast.definitions.AValueBlockDefinition;
 import eu.compassresearch.ast.expressions.ABracketedExp;
 import eu.compassresearch.ast.expressions.ACompVarsetExpression;
 import eu.compassresearch.ast.expressions.AComprehensionRenameChannelExp;
@@ -943,6 +949,42 @@ public class AbstractCmlVariableNameCollector extends VariableNameCollector
 	public LexNameList caseAChannelType(AChannelType node)
 			throws AnalysisException
 	{
+		return null;
+	}
+
+	@Override
+	public LexNameList caseAConfigDefinition(AConfigDefinition node)
+			throws AnalysisException {
+		return null;
+	}
+
+	@Override
+	public LexNameList caseATypeBlockDefinition(ATypeBlockDefinition node)
+			throws AnalysisException {
+		return null;
+	}
+
+	@Override
+	public LexNameList caseAChannelBlockDefinition(AChannelBlockDefinition node)
+			throws AnalysisException {
+		return null;
+	}
+
+	@Override
+	public LexNameList caseAChansetBlockDefinition(AChansetBlockDefinition node)
+			throws AnalysisException {
+		return null;
+	}
+
+	@Override
+	public LexNameList caseAFunctionBlockDefinition(
+			AFunctionBlockDefinition node) throws AnalysisException {
+		return null;
+	}
+
+	@Override
+	public LexNameList caseAValueBlockDefinition(AValueBlockDefinition node)
+			throws AnalysisException {
 		return null;
 	}
 

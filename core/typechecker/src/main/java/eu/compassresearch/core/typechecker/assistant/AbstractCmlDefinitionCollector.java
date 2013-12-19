@@ -54,12 +54,18 @@ import eu.compassresearch.ast.declarations.AExpressionSingleDeclaration;
 import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionClassDefinition;
 import eu.compassresearch.ast.definitions.AActionDefinition;
+import eu.compassresearch.ast.definitions.AChannelBlockDefinition;
 import eu.compassresearch.ast.definitions.AChannelDefinition;
+import eu.compassresearch.ast.definitions.AChansetBlockDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
+import eu.compassresearch.ast.definitions.AConfigDefinition;
+import eu.compassresearch.ast.definitions.AFunctionBlockDefinition;
 import eu.compassresearch.ast.definitions.AInitialDefinition;
 import eu.compassresearch.ast.definitions.ALogicalAccess;
 import eu.compassresearch.ast.definitions.ANamesetDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
+import eu.compassresearch.ast.definitions.ATypeBlockDefinition;
+import eu.compassresearch.ast.definitions.AValueBlockDefinition;
 import eu.compassresearch.ast.expressions.ABracketedExp;
 import eu.compassresearch.ast.expressions.ACompVarsetExpression;
 import eu.compassresearch.ast.expressions.AComprehensionRenameChannelExp;
@@ -217,6 +223,42 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 		return null;
 	}
 
+	@Override
+	public List<PDefinition> caseAConfigDefinition(AConfigDefinition node)
+			throws AnalysisException {
+		return null;
+	}
+
+	@Override
+	public List<PDefinition> caseATypeBlockDefinition(ATypeBlockDefinition node)
+			throws AnalysisException {
+		return null;
+	}
+
+	@Override
+	public List<PDefinition> caseAChannelBlockDefinition(
+			AChannelBlockDefinition node) throws AnalysisException {
+		return null;
+	}
+
+	@Override
+	public List<PDefinition> caseAChansetBlockDefinition(
+			AChansetBlockDefinition node) throws AnalysisException {
+		return null;
+	}
+
+	@Override
+	public List<PDefinition> caseAFunctionBlockDefinition(
+			AFunctionBlockDefinition node) throws AnalysisException {
+		return null;
+	}
+
+	@Override
+	public List<PDefinition> caseAValueBlockDefinition(
+			AValueBlockDefinition node) throws AnalysisException {
+		return null;
+	}
+	
 	@Override
 	public List<PDefinition> caseAActionClassDefinition(
 			AActionClassDefinition node) throws AnalysisException
@@ -950,5 +992,4 @@ public class AbstractCmlDefinitionCollector extends DefinitionCollector
 	{
 		return null;
 	}
-
 }
