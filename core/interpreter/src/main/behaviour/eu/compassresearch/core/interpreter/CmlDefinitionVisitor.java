@@ -31,9 +31,15 @@ import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.AExpressionSingleDeclaration;
 import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionDefinition;
+import eu.compassresearch.ast.definitions.AChannelBlockDefinition;
 import eu.compassresearch.ast.definitions.AChannelDefinition;
+import eu.compassresearch.ast.definitions.AChansetBlockDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
+import eu.compassresearch.ast.definitions.AConfigDefinition;
+import eu.compassresearch.ast.definitions.AFunctionBlockDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
+import eu.compassresearch.ast.definitions.ATypeBlockDefinition;
+import eu.compassresearch.ast.definitions.AValueBlockDefinition;
 import eu.compassresearch.ast.lex.CmlLexNameToken;
 import eu.compassresearch.core.interpreter.api.values.ActionValue;
 import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
@@ -390,5 +396,46 @@ class CmlDefinitionVisitor extends
 	{
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public NameValuePairList caseAConfigDefinition(AConfigDefinition node,
+			Context question) throws AnalysisException {
+		return new NameValuePairList();
+	}
+
+	@Override
+	public NameValuePairList caseATypeBlockDefinition(
+			ATypeBlockDefinition node, Context question)
+			throws AnalysisException {
+		return new NameValuePairList();
+	}
+
+	@Override
+	public NameValuePairList caseAChannelBlockDefinition(
+			AChannelBlockDefinition node, Context question)
+			throws AnalysisException {
+		return new NameValuePairList();
+	}
+
+	@Override
+	public NameValuePairList caseAChansetBlockDefinition(
+			AChansetBlockDefinition node, Context question)
+			throws AnalysisException {
+		return new NameValuePairList();
+	}
+
+	@Override
+	public NameValuePairList caseAFunctionBlockDefinition(
+			AFunctionBlockDefinition node, Context question)
+			throws AnalysisException {
+		return new NameValuePairList();
+	}
+
+	@Override
+	public NameValuePairList caseAValueBlockDefinition(
+			AValueBlockDefinition node, Context question)
+			throws AnalysisException {
+		return new NameValuePairList();
 	}
 }
