@@ -309,6 +309,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 						}
 					}
 				}
+				
 				return new Pair<INode, Context>(node.getAction(), nextContext);
 			}
 		});
@@ -528,7 +529,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 			leftCopy.putNew(new NameValuePair(NamespaceUtility.getNamesetName(), leftNameset));
 		}
 
-		CmlBehaviour leftInstance = new ConcreteCmlBehaviour(left, leftCopy, new CmlBehaviour.BehaviourName(owner.getName().clone()), owner);
+		CmlBehaviour leftInstance = new ConcreteCmlBehaviour(left, leftCopy, owner.getName().clone(), owner);
 
 		Context rightCopy = childContexts.second.deepCopy();
 
@@ -537,7 +538,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 			rightCopy.putNew(new NameValuePair(NamespaceUtility.getNamesetName(), rightNameset));
 		}
 
-		CmlBehaviour rightInstance = new ConcreteCmlBehaviour(right, rightCopy, new CmlBehaviour.BehaviourName(owner.getName().clone()), owner);
+		CmlBehaviour rightInstance = new ConcreteCmlBehaviour(right, rightCopy, owner.getName().clone(), owner);
 
 		// add the children to the process graph
 		setLeftChild(leftInstance);
@@ -643,7 +644,10 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 			public Pair<INode, Context> execute(CmlTransition selectedTransition)
 					throws AnalysisException
 			{
-				owner.getName().addAction(node.getName().getName());
+				if(!owner.getName().getLastAction().equals(node.getName().getName()))
+				{
+					owner.getName().addAction(node.getName().getName());
+				}
 				return caseReferenceAction(node.getLocation(), node.getArgs(), actionValue, question);
 			}
 		});

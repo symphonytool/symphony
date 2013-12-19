@@ -12,9 +12,15 @@ import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ValueException;
 
+import eu.compassresearch.ast.actions.ACommunicationAction;
+import eu.compassresearch.ast.actions.AExternalChoiceAction;
+import eu.compassresearch.ast.actions.AGeneralisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AReferenceAction;
+import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.PAction;
+import eu.compassresearch.ast.process.AExternalChoiceProcess;
 import eu.compassresearch.ast.process.AReferenceProcess;
+import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.interpreter.CmlRuntime;
 import eu.compassresearch.core.interpreter.api.events.CmlBehaviorStateObserver;
@@ -39,6 +45,7 @@ public interface CmlBehaviour extends Serializable // extends Transactable
 		BehaviourName owner = null;
 		List<String> processes = new Vector<String>();
 		List<String> actions = new Vector<String>();
+		private boolean unNamed=false;
 
 		public BehaviourName(String process)
 		{
@@ -51,7 +58,7 @@ public interface CmlBehaviour extends Serializable // extends Transactable
 			this(extractName(process), owner, prefix, postfix);
 		}
 
-		private static String extractName(INode node)
+		public static String extractName(INode node)
 		{
 			if (node instanceof AReferenceProcess)
 			{
@@ -59,6 +66,18 @@ public interface CmlBehaviour extends Serializable // extends Transactable
 			} else if (node instanceof AReferenceAction)
 			{
 				return ((AReferenceAction) node).getName().getName();
+			}else if(node instanceof AExternalChoiceProcess || node instanceof AExternalChoiceAction)
+			{
+				return "[]";
+			}else if(node instanceof AGeneralisedParallelismParallelAction)
+			{
+				return "[||]";
+			}else if(node instanceof ACommunicationAction)
+			{
+				return ((ACommunicationAction)node).getIdentifier().getName();
+			}else if(node instanceof ASequentialCompositionAction || node instanceof ASequentialCompositionProcess)
+			{
+				return ";";
 			}
 			return "???";
 		}
@@ -74,6 +93,12 @@ public interface CmlBehaviour extends Serializable // extends Transactable
 			{
 				this.processes.add(process);
 			}
+		}
+		
+		public BehaviourName(BehaviourName owner, PAction action, String prefix,
+				String postfix)
+		{
+			this(owner,extractName(action),prefix,postfix);
 		}
 
 		public BehaviourName(BehaviourName owner, String action, String prefix,
@@ -96,17 +121,19 @@ public interface CmlBehaviour extends Serializable // extends Transactable
 
 		private BehaviourName()
 		{
-
+unNamed =true;
 		}
 
 		public void addProcess(String name)
 		{
 			processes.add(name);
+			this.unNamed = false;
 		}
 
 		public void addAction(String name)
 		{
 			actions.add(name);
+			this.unNamed = false;
 		}
 
 		public void addAction(PAction action)
@@ -125,11 +152,11 @@ public interface CmlBehaviour extends Serializable // extends Transactable
 
 		public String getLastAction()
 		{
-			if (actions.isEmpty())
+			if (getAllActions().isEmpty())
 			{
 				return "";
 			}
-			return actions.get(actions.size() - 1);
+			return getAllActions().get(getAllActions().size() - 1);
 		}
 
 		@Override
@@ -147,6 +174,12 @@ public interface CmlBehaviour extends Serializable // extends Transactable
 					sb.append(PROCESS_SEPERATOR);
 				}
 			}
+			
+			if(unNamed && this.processes.isEmpty())
+			{
+				sb.append(PROCESS_SEPERATOR);
+				sb.append("???");
+			}
 
 			if (!actions.isEmpty())
 			{
@@ -161,10 +194,17 @@ public interface CmlBehaviour extends Serializable // extends Transactable
 					sb.append(ACTION_SEPERATOR);
 				}
 			}
+			
+			if(unNamed && !this.processes.isEmpty())
+			{
+				sb.append(ACTION_SEPERATOR);
+				sb.append("???");
+			}
+			
 			return sb.toString();
 		}
 
-		private Collection<? extends String> getAllActions()
+		private List<? extends String> getAllActions()
 		{
 			List<String> names = new Vector<String>();
 			if (owner != null)
@@ -195,6 +235,14 @@ public interface CmlBehaviour extends Serializable // extends Transactable
 			nb.processes.addAll(this.processes);
 			nb.actions.addAll(this.actions);
 			return nb;
+		}
+		
+		public BehaviourName clone(boolean unnamed)
+		{
+			BehaviourName n = clone();
+			n.unNamed = unnamed;
+			return n;
+			
 		}
 
 	}

@@ -9,16 +9,13 @@ import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.lex.Dialect;
-import org.overture.ast.lex.LexLocation;
 import org.overture.ast.node.INode;
 import org.overture.ast.statements.PStm;
-import org.overture.ast.types.PType;
 import org.overture.config.Release;
 import org.overture.config.Settings;
 import org.overture.interpreter.debug.BreakpointManager;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.Stoppoint;
-import org.overture.interpreter.values.Value;
 import org.overture.parser.lex.LexException;
 import org.overture.parser.syntax.ParserException;
 
@@ -78,11 +75,11 @@ public abstract class AbstractCmlInterpreter implements CmlInterpreter
 	 * The AST that the interpretation is performed on
 	 */
 	protected List<PDefinition> sourceForest;
-	
+
 	/**
 	 * The active debug contexts for all processes.
 	 */
-	private Map<Integer,DebugContext> debugContexts = new HashMap<Integer, DebugContext>();
+	private Map<Integer, DebugContext> debugContexts = new HashMap<Integer, DebugContext>();
 
 	public AbstractCmlInterpreter(Config config)
 	{
@@ -245,7 +242,6 @@ public abstract class AbstractCmlInterpreter implements CmlInterpreter
 		return instance; // NB. last one created
 	}
 
-
 	@Override
 	public DebugContext getDebugContext(int id)
 	{
@@ -255,7 +251,7 @@ public abstract class AbstractCmlInterpreter implements CmlInterpreter
 	@Override
 	public void setDebugContext(int id, Context context, ILexLocation location)
 	{
-		debugContexts.put(id,new DebugContext(location, context));
+		debugContexts.put(id, new DebugContext(location, context));
 	}
 
 }

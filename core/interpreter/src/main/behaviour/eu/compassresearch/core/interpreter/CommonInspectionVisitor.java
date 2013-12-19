@@ -138,18 +138,9 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 				{
 					Pair<Context, Context> childContexts = getChildContexts(question);
 
-					// String module = name().getModule();
-					String nameStr = name().getLastAction();// name().getIdentifier().getName();
+					setLeftChild(leftNode, name().clone(true), CmlBehaviourUtility.deepCopyProcessContext(childContexts.first));
 
-					setLeftChild(leftNode, new CmlBehaviour.BehaviourName(name(), nameStr, "", CmlRuntime.consoleMode ? "[]"
-							: ""), CmlBehaviourUtility.deepCopyProcessContext(childContexts.first));
-
-					// int index = nameStr.lastIndexOf(" -> ")+" -> ".length();
-					// String tmp = nameStr.substring(0,index)+(CmlRuntime.consoleMode?
-					// "[]":"")+nameStr.substring(index);
-
-					setRightChild(rightNode, new CmlBehaviour.BehaviourName(name(), nameStr, "", CmlRuntime.consoleMode ? ""
-							: "[]"), CmlBehaviourUtility.deepCopyProcessContext(childContexts.second));
+					setRightChild(rightNode, name().clone(true), CmlBehaviourUtility.deepCopyProcessContext(childContexts.second));
 
 					return new Pair<INode, Context>(node, question);
 				}

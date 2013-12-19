@@ -204,9 +204,9 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 						CmlTransition selectedTransition)
 						throws AnalysisException
 				{
-					setLeftChild(node.getLeft(), new CmlBehaviour.BehaviourName(node.getLeft(), owner.getName(), "[]", ""), question);
+					setLeftChild(node.getLeft(), owner.getName().clone(true), question);
 
-					setRightChild(node.getRight(), new CmlBehaviour.BehaviourName(node.getRight(), owner.getName(), "", "[]"), question);
+					setRightChild(node.getRight(), owner.getName().clone(true), question);
 					// Now let this process wait for the children to get into a waitForEvent state
 					return new Pair<INode, Context>(node, question);
 				}
@@ -559,7 +559,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 
 				// Context refProcessContext =
 				// refProcessContext.putAll(evaluatedArgs);
-				owner.getName().addProcess(node.getProcessName().getName());
+				owner.getName().addProcess(node.getProcessName().getName()+"#"+owner.getId());
 				return new Pair<INode, Context>(node.getProcessDefinition().getProcess(), nextContext);
 			}
 		});
