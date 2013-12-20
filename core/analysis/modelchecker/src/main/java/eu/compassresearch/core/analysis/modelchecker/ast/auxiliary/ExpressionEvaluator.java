@@ -28,6 +28,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANotEqual
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANotUnaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAQuoteLiteralExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASetRangeSetExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAUnaryMinusUnaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAVariableExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCAIdentifierPattern;
@@ -362,6 +363,8 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 			result = this.obtainValue((MCAIntLiteralExp)expression);
 		} else if(expression instanceof MCAVariableExp){
 			result = this.obtainValue((MCAVariableExp)expression);
+		} else if(expression instanceof MCAUnaryMinusUnaryExp){
+			result = this.obtainValue((MCAUnaryMinusUnaryExp)expression);
 		}
 		
 		return result;
@@ -405,7 +408,11 @@ public class ExpressionEvaluator implements IExpressionEvaluator {
 	
 	private String obtainValue(MCAIntLiteralExp expression){
 		return expression.getValue();
-	} 
+	}
+	
+	private String obtainValue(MCAUnaryMinusUnaryExp expression){
+		return "-" + obtainValue(expression.getExp());
+	}
 
 	private String obtainValue(MCAVariableExp expression){
 		String result = null;

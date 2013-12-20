@@ -103,18 +103,20 @@ public class MCAChannelDefinition implements MCPCMLDefinition {
 	
 	private LinkedList<TypeValue> getTypeValues(){
 		LinkedList<TypeValue> result = new LinkedList<TypeValue>();
-
+		MCPCMLType realType = this.type; 
 		
 		//MCPCMLType type = type.getType();
-		if(this.type instanceof MCAChannelType){
-			this.type = ((MCAChannelType) this.type).getType();
-			
+		//if(this.type instanceof MCAChannelType){
+		//	this.type = ((MCAChannelType) this.type).getType();
+		if(realType instanceof MCAChannelType){
+			realType = ((MCAChannelType) realType).getType();
+				
 			//MCAIntNumericBasicType, MCANatNumericBasicType are infinite, so we let formula to instantiate them
 			
 			//we check if named types have been previously defined and get all possible values for them
-			if(type instanceof MCANamedInvariantType || type instanceof MCAProductType){ 
+			if(realType instanceof MCANamedInvariantType || realType instanceof MCAProductType){ 
 				TypeManipulator typeManipulator = TypeManipulator.getInstance();
-				result = typeManipulator.getValues(type);
+				result = typeManipulator.getValues(realType);
 			}
 		}
 		

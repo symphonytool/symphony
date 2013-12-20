@@ -14,6 +14,7 @@ import org.eclipse.ui.ExtensionFactory;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.handlers.HandlerUtil;
 
+import eu.compassresearch.core.analysis.modelchecker.api.FormulaIntegrationException;
 import eu.compassresearch.core.analysis.modelchecker.api.FormulaResult;
 import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
 
@@ -21,7 +22,8 @@ public class MCProgressView extends ExtensionFactory {
 
 	private MCThread thread;
 	private IWorkbenchWindow window;
-
+	private Exception exception;
+	
 	public MCProgressView() {
 		super();
 	}
@@ -73,11 +75,24 @@ public class MCProgressView extends ExtensionFactory {
 					}
 				}
 				monitor.done();
+				exception = thread.getException();
 				return Status.OK_STATUS;
 			}
 		};
 
 		b.schedule();
+	}
+
+	
+
+	public MCThread getThread() {
+		return thread;
+	}
+
+	
+
+	public void setException(Exception exception) {
+		this.exception = exception;
 	}
 
 	public synchronized FormulaResult getFormulaResult()

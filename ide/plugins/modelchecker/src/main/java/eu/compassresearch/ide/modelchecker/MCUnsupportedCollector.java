@@ -1437,7 +1437,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseAIdentifierVarsetExpression(AIdentifierVarsetExpression node)
 			throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAIdentifierVarsetExpression(node);
@@ -1608,7 +1608,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseAInterleavingReplicatedAction(
 			AInterleavingReplicatedAction node) throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAInterleavingReplicatedAction(node);
@@ -3147,7 +3147,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseAUnaryMinusUnaryExp(AUnaryMinusUnaryExp node)
 			throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAUnaryMinusUnaryExp(node);
@@ -3222,7 +3222,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseAUnresolvedType(AUnresolvedType node)
 			throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAUnresolvedType(node);
