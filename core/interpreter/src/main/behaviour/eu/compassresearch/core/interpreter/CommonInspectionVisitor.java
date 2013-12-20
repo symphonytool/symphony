@@ -21,8 +21,6 @@ import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
 import eu.compassresearch.ast.expressions.ANameChannelExp;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
-import eu.compassresearch.ast.lex.CmlLexNameToken;
-import eu.compassresearch.ast.process.AAlphabetisedParallelismProcess;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
@@ -91,12 +89,9 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			return leftChildAlphabet.union(rightChildAlphabet);
 		}
 	}
-	
 
-	protected Inspection caseAlphabetisedParallelism(
-			final INode node, 
-			final parallelCompositionHelper helper,
-			final Context question)
+	protected Inspection caseAlphabetisedParallelism(final INode node,
+			final parallelCompositionHelper helper, final Context question)
 			throws AnalysisException
 	{
 		// if true this means that this is the first time here, so the Parallel Begin rule is invoked.
@@ -109,7 +104,8 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 						CmlTransition selectedTransition)
 						throws AnalysisException
 				{
-					helper.caseParallelBegin(); //caseParallelProcessBegin(node, leftNode, rightNode, "[cs||cs]", question);
+					helper.caseParallelBegin(); // caseParallelProcessBegin(node, leftNode, rightNode, "[cs||cs]",
+												// question);
 					// We push the current state, since this process will control the child processes created by it
 					return new Pair<INode, Context>(node, question);
 				}
@@ -122,11 +118,13 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			return newInspection(createTauTransitionWithoutTime(dstNode, "End"), caseParallelEnd(dstNode, question));
 		} else
 		{
-			// fetch the already evaluated left and right channel sets 
-			ChannelNameSetValue leftChanset = (ChannelNameSetValue)question.lookup(NamespaceUtility.getLeftPrecalculatedChannetSet()); // eval( node.getLeftChansetExpression(), getChildContexts(owner.getLeftChild().getNextState().second).first);
-			ChannelNameSetValue rightChanset = (ChannelNameSetValue)question.lookup(NamespaceUtility.getRightPrecalculatedChannetSet()); //eval(node.getRightChansetExpression(),getChildContexts(owner.getRightChild().getNextState().second).second);
+			// fetch the already evaluated left and right channel sets
+			ChannelNameSetValue leftChanset = (ChannelNameSetValue) question.lookup(NamespaceUtility.getLeftPrecalculatedChannetSet()); // eval(
+																																		// node.getLeftChansetExpression(),
+																																		// getChildContexts(owner.getLeftChild().getNextState().second).first);
+			ChannelNameSetValue rightChanset = (ChannelNameSetValue) question.lookup(NamespaceUtility.getRightPrecalculatedChannetSet()); // eval(node.getRightChansetExpression(),getChildContexts(owner.getRightChild().getNextState().second).second);
 
-			//next we find the intersection of of them
+			// next we find the intersection of of them
 			ChannelNameSetValue intersectionChanset = new ChannelNameSetValue(leftChanset);
 			intersectionChanset.retainAll(rightChanset);
 
@@ -250,14 +248,9 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 				{
 					Pair<Context, Context> childContexts = getChildContexts(question);
 
-					String module = name().getModule();
-					String nameStr = name().getIdentifier().getName();
+					setLeftChild(leftNode, name().clone(true), CmlBehaviourUtility.deepCopyProcessContext(childContexts.first));
 
-					setLeftChild(leftNode, new CmlLexNameToken(module, nameStr
-							+ "[]", LocationExtractor.extractLocation(leftNode)), CmlBehaviourUtility.deepCopyProcessContext(childContexts.first));
-
-					setRightChild(rightNode, new CmlLexNameToken(module, "[]"
-							+ nameStr, LocationExtractor.extractLocation(rightNode)), CmlBehaviourUtility.deepCopyProcessContext(childContexts.second));
+					setRightChild(rightNode, name().clone(true), CmlBehaviourUtility.deepCopyProcessContext(childContexts.second));
 
 					return new Pair<INode, Context>(node, question);
 				}
@@ -398,7 +391,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 	{
 
 		// convert the channel set of the current node to a alphabet
-		ChannelNameSetValue cs = eval( chansetExp, question);
+		ChannelNameSetValue cs = eval(chansetExp, question);
 
 		// Get all the child alphabets and add the events that are not in the channelset
 		final CmlBehaviour leftChild = owner.getLeftChild();
@@ -490,16 +483,24 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 
 				Context leftChildContext = owner.getLeftChild().getNextState().second;
 				NamesetValue leftNameset = (NamesetValue) leftChildContext.check(NamespaceUtility.getNamesetName());
-				if(leftNameset != null)
-					for(ILexNameToken name : leftNameset)
+				if (leftNameset != null)
+				{
+					for (ILexNameToken name : leftNameset)
+					{
 						question.lookup(name).set(name.getLocation(), leftChildContext.lookup(name), question);
-				
+					}
+				}
+
 				Context rightChildContext = owner.getRightChild().getNextState().second;
-				NamesetValue rightNameset = (NamesetValue) rightChildContext.check(NamespaceUtility.getNamesetName()); 
-				if(rightNameset != null)
-					for(ILexNameToken name : rightNameset)
+				NamesetValue rightNameset = (NamesetValue) rightChildContext.check(NamespaceUtility.getNamesetName());
+				if (rightNameset != null)
+				{
+					for (ILexNameToken name : rightNameset)
+					{
 						question.lookup(name).set(name.getLocation(), rightChildContext.lookup(name), question);
-				
+					}
+				}
+
 				clearLeftChild();
 				clearRightChild();
 
@@ -508,19 +509,20 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			}
 		};
 	}
-	
+
 	@SuppressWarnings("rawtypes")
-	protected ChannelNameSetValue eval(PVarsetExpression chansetExpression,Context question) throws AnalysisException
+	protected ChannelNameSetValue eval(PVarsetExpression chansetExpression,
+			Context question) throws AnalysisException
 	{
 		Value val = chansetExpression.apply(cmlExpressionVisitor, question);
-		if(val instanceof ChannelNameSetValue)
+		if (val instanceof ChannelNameSetValue)
 		{
 			return (ChannelNameSetValue) val;
-		}else if(val instanceof Set && ((Set)val).isEmpty())
+		} else if (val instanceof Set && ((Set) val).isEmpty())
 		{
 			return new ChannelNameSetValue(new HashSet<ChannelNameValue>());
 		}
-		
+
 		throw new CmlInterpreterException(chansetExpression, InterpretationErrorMessages.FATAL_ERROR.customizeMessage("Failed to evaluate chanset expression"));
 	}
 
@@ -537,7 +539,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		if (!owner.getLeftChild().finished())
 		{
 			// first we convert the channelset expression into a channelNameSetValue
-			ChannelNameSetValue cs = eval( chansetExpression, question);
+			ChannelNameSetValue cs = eval(chansetExpression, question);
 			// next we inspect the action to get the current available transitions
 			final CmlTransitionSet alpha = owner.getLeftChild().inspect();
 			// Intersect the two to find which transitions should be converted to silents transitions
@@ -658,26 +660,30 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 	}
 
 	/**
-	 * Timed interrupt is implemented according to the following rules
-	 * in the operational semantics D23.4
-	 * R3.21 (Timed Interrupt progress left)
-	 * R3.22 (Timed Interrupt Skip left)
-	 * R3.23 (Timed Interrupt time up)
-	 * R3.24 (Timed Interrupt timed)
-	 * @param node The action/process timed interrupt node
-	 * @param leftNode the left action/process
-	 * @param rightNode the right action/process
-	 * @param timeoutExpression the timeout expression
+	 * Timed interrupt is implemented according to the following rules in the operational semantics D23.4 R3.21 (Timed
+	 * Interrupt progress left) R3.22 (Timed Interrupt Skip left) R3.23 (Timed Interrupt time up) R3.24 (Timed Interrupt
+	 * timed)
+	 * 
+	 * @param node
+	 *            The action/process timed interrupt node
+	 * @param leftNode
+	 *            the left action/process
+	 * @param rightNode
+	 *            the right action/process
+	 * @param timeoutExpression
+	 *            the timeout expression
 	 * @param question
 	 * @return
 	 * @throws AnalysisException
 	 */
-	protected Inspection caseATimedInterrupt(final INode node, INode leftNode,final INode rightNode, PExp timeoutExpression, final Context question) throws AnalysisException
+	protected Inspection caseATimedInterrupt(final INode node, INode leftNode,
+			final INode rightNode, PExp timeoutExpression,
+			final Context question) throws AnalysisException
 	{
 		// Evaluate the expression into a natural number
 		long val = timeoutExpression.apply(cmlExpressionVisitor, question).natValue(question);
 		long startTimeVal = question.lookup(NamespaceUtility.getStartTimeName()).intValue(question);
-		
+
 		// R3.22: If left is Skip then the whole becomes skip with the state of the left child
 		if (owner.getLeftChild().finished())
 		{
@@ -686,10 +692,10 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 				@Override
 				public Pair<INode, Context> execute(
 						CmlTransition selectedTransition)
-								throws AnalysisException
-								{
+						throws AnalysisException
+				{
 					return replaceWithChild(owner.getLeftChild());
-								}
+				}
 			});
 		}
 		// R3.23: if the current time of the process has passed the limit (val) then process
@@ -702,14 +708,14 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 				@Override
 				public Pair<INode, Context> execute(
 						CmlTransition selectedTransition)
-								throws AnalysisException
-								{
+						throws AnalysisException
+				{
 					// We set the process to become the right behavior
 					clearLeftChild();
 					// We need to return the outer context because of the extra context
 					// containing the start time has been added in the setup visitor
 					return new Pair<INode, Context>(rightNode, question.outer);
-								}
+				}
 			});
 
 		}
@@ -719,18 +725,19 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			CmlTransitionSet leftAlpha = owner.getLeftChild().inspect();
 			return newInspection(leftAlpha, new CmlCalculationStep()
 			{
-				
+
 				@Override
-				public Pair<INode, Context> execute(CmlTransition selectedTransition)
+				public Pair<INode, Context> execute(
+						CmlTransition selectedTransition)
 						throws AnalysisException
 				{
 					owner.getLeftChild().execute(selectedTransition);
-					return new Pair<INode, Context>(node,question);
+					return new Pair<INode, Context>(node, question);
 				}
 			});
 		}
 	}
-	
+
 	protected Inspection caseATimeout(final INode node, final INode leftNode,
 			final INode rightNode, PExp timeoutExpression,
 			final Context question) throws ValueException, AnalysisException

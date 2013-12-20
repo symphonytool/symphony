@@ -27,10 +27,13 @@ public class HiddenTransition extends AbstractSilentTransition
 	{
 
 		// FIXME It might not be the best idea to make a hidden event equal to what it hides
-		if ((obj instanceof HiddenTransition))
+		if (obj instanceof HiddenTransition)
+		{
 			return this.getHiddenEvent().equals(((HiddenTransition) obj).getHiddenEvent());
-		else
+		} else
+		{
 			return this.getHiddenEvent().equals(obj);
+		}
 
 	}
 

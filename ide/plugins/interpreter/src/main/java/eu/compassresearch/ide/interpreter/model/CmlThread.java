@@ -1,9 +1,11 @@
 package eu.compassresearch.ide.interpreter.model;
 
 import org.eclipse.debug.core.DebugException;
+import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.model.IBreakpoint;
 import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.core.model.IThread;
+import org.overture.ide.debug.core.model.DebugEventHelper;
 
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorState;
 import eu.compassresearch.core.interpreter.debug.CmlProcessDTO;
@@ -174,27 +176,13 @@ public class CmlThread extends CmlDebugElement implements IThread
 	@Override
 	public String getName() throws DebugException
 	{
-		return info.getName();
+		return info.getName()+" (at line "+info.getLocation().getStartLine()+") #"+id;
 	}
-
-	// public String getName()
-	// {
-	// String name = session.getInfo().getThreadId();
-	// if (name.length() > 0)
-	// {
-	// name = name.substring(0, 1).toUpperCase() + name.substring(1);
-	// }
-	// // TODO remove state from name
-	// return name
-	// + new String(interpreterThreadState == null ? "" : " - "
-	// + interpreterThreadState.getState().toString());
-	// }
 
 	@Override
 	public IBreakpoint[] getBreakpoints()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return DebugPlugin.getDefault().getBreakpointManager().getBreakpoints(getModelIdentifier());
 	}
 
 	@Override
@@ -217,5 +205,16 @@ public class CmlThread extends CmlDebugElement implements IThread
 	public CmlCommunicationManager getCommunicationManager()
 	{
 		return this.communication;
+	}
+
+	public void updateInfo(CmlProcessDTO t)
+	{
+		this.info = t;
+		DebugEventHelper.fireChangeEvent(this);
+	}
+
+	public CmlProcessDTO getInfo()
+	{
+		return this.info;
 	}
 }

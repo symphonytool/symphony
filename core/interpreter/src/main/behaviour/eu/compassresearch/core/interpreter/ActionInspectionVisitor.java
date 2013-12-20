@@ -121,20 +121,20 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 	{
 		return node.getAction().apply(this.parentVisitor, question);
 	}
-	
+
 	@Override
 	public Inspection caseAAlphabetisedParallelismParallelAction(
-			final AAlphabetisedParallelismParallelAction node, final Context question)
-			throws AnalysisException
+			final AAlphabetisedParallelismParallelAction node,
+			final Context question) throws AnalysisException
 	{
 		return caseAlphabetisedParallelism(node, new parallelCompositionHelper()
 		{
-			
+
 			@Override
 			public void caseParallelBegin() throws AnalysisException
 			{
 				ActionInspectionVisitor.this.caseParallelBegin(node, null, null, question);
-				
+
 			}
 		}, question);
 	}
@@ -327,6 +327,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 						}
 					}
 				}
+
 				return new Pair<INode, Context>(node.getAction(), nextContext);
 			}
 		});
@@ -409,11 +410,11 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 
 					if (node.getLeftNamesetExpression() != null)
 					{
-						leftNamesetValue = (NamesetValue)node.getLeftNamesetExpression().apply(cmlExpressionVisitor, question);
+						leftNamesetValue = (NamesetValue) node.getLeftNamesetExpression().apply(cmlExpressionVisitor, question);
 					}
 					if (node.getRightNamesetExpression() != null)
 					{
-						rightNamesetValue = (NamesetValue)node.getRightNamesetExpression().apply(cmlExpressionVisitor, question);
+						rightNamesetValue = (NamesetValue) node.getRightNamesetExpression().apply(cmlExpressionVisitor, question);
 					}
 
 					caseParallelBegin(node, leftNamesetValue, rightNamesetValue, question);
@@ -530,29 +531,32 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 			}
 		});
 	}
-	
-	private void caseParallelBegin(SParallelAction node, NamesetValue leftNameset, NamesetValue rightNameset, Context question)
-			throws AnalysisException
+
+	private void caseParallelBegin(SParallelAction node,
+			NamesetValue leftNameset, NamesetValue rightNameset,
+			Context question) throws AnalysisException
 	{
 		PAction left = node.getLeftAction();
 		PAction right = node.getRightAction();
 		Pair<Context, Context> childContexts = getChildContexts(question);
-		
+
 		Context leftCopy = childContexts.first.deepCopy();
-		
-		if(leftNameset != null)
+
+		if (leftNameset != null)
+		{
 			leftCopy.putNew(new NameValuePair(NamespaceUtility.getNamesetName(), leftNameset));
-		
-		CmlBehaviour leftInstance = new ConcreteCmlBehaviour(left, leftCopy, new CmlLexNameToken(owner.name().getModule(), owner.name().getIdentifier().getName()
-				+ "|||", left.getLocation()), owner);
-		
+		}
+
+		CmlBehaviour leftInstance = new ConcreteCmlBehaviour(left, leftCopy, owner.getName().clone(), owner);
+
 		Context rightCopy = childContexts.second.deepCopy();
-		
-		if(rightNameset != null)
+
+		if (rightNameset != null)
+		{
 			rightCopy.putNew(new NameValuePair(NamespaceUtility.getNamesetName(), rightNameset));
-		
-		CmlBehaviour rightInstance = new ConcreteCmlBehaviour(right, rightCopy, new CmlLexNameToken(owner.name().getModule(), "|||"
-				+ owner.name().getIdentifier().getName(), right.getLocation()), owner);
+		}
+
+		CmlBehaviour rightInstance = new ConcreteCmlBehaviour(right, rightCopy, owner.getName().clone(), owner);
 
 		// add the children to the process graph
 		setLeftChild(leftInstance);
@@ -625,14 +629,14 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 
 				if (node.getLeftNamesetExpression() != null)
 				{
-					leftNamesetValue = (NamesetValue)node.getLeftNamesetExpression().apply(cmlExpressionVisitor, question);
+					leftNamesetValue = (NamesetValue) node.getLeftNamesetExpression().apply(cmlExpressionVisitor, question);
 				}
 				if (node.getRightNamesetExpression() != null)
 				{
-					rightNamesetValue = (NamesetValue)node.getRightNamesetExpression().apply(cmlExpressionVisitor, question);
+					rightNamesetValue = (NamesetValue) node.getRightNamesetExpression().apply(cmlExpressionVisitor, question);
 				}
-				
-				ActionInspectionVisitor.this.caseParallelBegin(node,leftNamesetValue,rightNamesetValue, question);
+
+				ActionInspectionVisitor.this.caseParallelBegin(node, leftNamesetValue, rightNamesetValue, question);
 			}
 		}, node.getChansetExpression(), question);
 	}
@@ -658,6 +662,10 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 			public Pair<INode, Context> execute(CmlTransition selectedTransition)
 					throws AnalysisException
 			{
+				if (!owner.getName().getLastAction().equals(node.getName().getName()))
+				{
+					owner.getName().addAction(node.getName().getName());
+				}
 				return caseReferenceAction(node.getLocation(), node.getArgs(), actionValue, question);
 			}
 		});
@@ -811,7 +819,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 
 		return caseAInterrupt(node, question);
 	}
-	
+
 	@Override
 	public Inspection caseATimedInterruptAction(ATimedInterruptAction node,
 			Context question) throws AnalysisException

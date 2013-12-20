@@ -8,8 +8,6 @@ import java.util.Set;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.intf.lex.ILexNameToken;
-import org.overture.ast.lex.LexLocation;
-import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.types.SNumericBasicType;
 import org.overture.interpreter.runtime.Context;
@@ -31,6 +29,7 @@ import eu.compassresearch.ast.process.SReplicatedProcess;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour.BehaviourName;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
 import eu.compassresearch.core.interpreter.api.values.CmlSetQuantifier;
@@ -46,64 +45,64 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 	{
 		super(owner, visitorAccess);
 	}
-	
+
 	@SuppressWarnings("rawtypes")
-	protected ChannelNameSetValue eval(PVarsetExpression chansetExpression,Context question) throws AnalysisException
+	protected ChannelNameSetValue eval(PVarsetExpression chansetExpression,
+			Context question) throws AnalysisException
 	{
 		Value val = chansetExpression.apply(cmlExpressionVisitor, question);
-		if(val instanceof ChannelNameSetValue)
+		if (val instanceof ChannelNameSetValue)
 		{
 			return (ChannelNameSetValue) val;
-		}else if(val instanceof Set && ((Set)val).isEmpty())
+		} else if (val instanceof Set && ((Set) val).isEmpty())
 		{
 			return new ChannelNameSetValue(new HashSet<ChannelNameValue>());
 		}
-		
+
 		throw new CmlInterpreterException(chansetExpression, InterpretationErrorMessages.FATAL_ERROR.customizeMessage("Failed to evaluate chanset expression"));
 	}
-	
-	public Pair<INode, Context> caseAlphabetisedParallelism(INode node, PVarsetExpression leftChansetExpression, PVarsetExpression rightChansetExpression, Context question) throws AnalysisException
+
+	public Pair<INode, Context> caseAlphabetisedParallelism(INode node,
+			PVarsetExpression leftChansetExpression,
+			PVarsetExpression rightChansetExpression, Context question)
+			throws AnalysisException
 	{
 		// evaluate the children in the their own context
 		ChannelNameSetValue leftChanset = eval(leftChansetExpression, getChildContexts(question).first);
-		ChannelNameSetValue rightChanset = eval(rightChansetExpression,getChildContexts(question).second);
+		ChannelNameSetValue rightChanset = eval(rightChansetExpression, getChildContexts(question).second);
 
 		Context chansetContext = CmlContextFactory.newContext(LocationExtractor.extractLocation(node), "Alphabetised parallelism precalcualted channelsets", question);
-		
-		chansetContext.put(NamespaceUtility.getLeftPrecalculatedChannetSet(),leftChanset);
-		chansetContext.put(NamespaceUtility.getRightPrecalculatedChannetSet(),rightChanset);
-		
-		return new Pair<INode, Context>(node,chansetContext);
+
+		chansetContext.put(NamespaceUtility.getLeftPrecalculatedChannetSet(), leftChanset);
+		chansetContext.put(NamespaceUtility.getRightPrecalculatedChannetSet(), rightChanset);
+
+		return new Pair<INode, Context>(node, chansetContext);
 	}
-	
+
 	protected Pair<INode, Context> caseAInterrupt(INode node, INode leftNode,
 			INode rightNode, Context question) throws AnalysisException
 	{
 		// TODO create proper names!!
-		setLeftChild(leftNode, new LexNameToken("", "left /_\\", new LexLocation()), question);
-		setRightChild(rightNode, new LexNameToken("", "/_\\ right", new LexLocation()), question);
+		setLeftChild(leftNode, new BehaviourName("left /_\\", owner.getName(), "", ""), question);
+		setRightChild(rightNode, new BehaviourName("/_\\ right", owner.getName(), "", ""), question);
 
 		return new Pair<INode, Context>(node, question);
 	}
-	
+
 	/*
-	 * Sequential Composition 
+	 * Sequential Composition
 	 */
 	protected Pair<INode, Context> caseASequentialComposition(INode node,
 			INode leftNode, Context question) throws AnalysisException
 	{
 		// We set up the left child of the sequential process/action before entering. The right will not
 		// be touched before the left has terminated
-		setLeftChild(leftNode, new LexNameToken("", owner.name().getSimpleName()
-				+ ";", owner.name().getLocation()), question);
+		setLeftChild(leftNode, new CmlBehaviour.BehaviourName(owner.getName().clone()), question);
 		return new Pair<INode, Context>(node, question);
 	}
-	
-	protected Pair<INode, Context> caseATimedInterrupt(
-			INode node, 
-			INode leftNode,
-			Context question)
-			throws AnalysisException
+
+	protected Pair<INode, Context> caseATimedInterrupt(INode node,
+			INode leftNode, Context question) throws AnalysisException
 	{
 		Context context = CmlContextFactory.newContext(LocationExtractor.extractLocation(node), "Timed Interrupt context", question);
 		context.putNew(new NameValuePair(NamespaceUtility.getStartTimeName(), new IntegerValue(owner.getCurrentTime())));
@@ -112,16 +111,16 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 		setLeftChild(leftNode, question);
 		return new Pair<INode, Context>(node, context);
 	}
-	
-	protected Pair<INode, Context> caseAUntimedTimeout(INode node, INode leftNode,
-			Context question) throws AnalysisException
+
+	protected Pair<INode, Context> caseAUntimedTimeout(INode node,
+			INode leftNode, Context question) throws AnalysisException
 	{
 
 		// We setup the child nodes
 		setLeftChild(leftNode, question);
 		return new Pair<INode, Context>(node, question);
 	}
-	
+
 	protected Pair<INode, Context> caseATimeout(INode node, INode leftNode,
 			Context question) throws AnalysisException
 	{
@@ -134,11 +133,11 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 		return new Pair<INode, Context>(node, context);
 
 	}
-	
+
 	/*
 	 * Non public replication helper methods -- Start
 	 */
-	
+
 	/*
 	 * Replication
 	 */
@@ -174,12 +173,13 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 			childContext.putAllNew(npvl);
 			return childContext;
 		}
-		
-		Context createOperatorContext(INode node, CmlSetQuantifier remaining, Context question)
+
+		Context createOperatorContext(INode node, CmlSetQuantifier remaining,
+				Context question)
 		{
 			return question;
 		}
-		
+
 		/**
 		 * This creates the node for a single replicated action/process
 		 * 
@@ -237,8 +237,8 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 			return new Pair<INode, Context>(nextNode, factory.createReplicationChildContext(nextValue, nextNode, question));
 		}
 		/*
-		 * if no more rep values exists and this is NOT the first run then we created the context 
-		 * for the left side already in the last step and is located above the current context
+		 * if no more rep values exists and this is NOT the first run then we created the context for the left side
+		 * already in the last step and is located above the current context
 		 */
 		else if (!itQuantifiers.hasNext() && !firstRun)
 		{
@@ -249,7 +249,7 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 			// replication node
 			Context rightChildContext = factory.createReplicationChildContext(nextValue, nextNode, question.outer.outer);
 			setChildContexts(new Pair<Context, Context>(leftChildContext, rightChildContext));
-			return new Pair<INode, Context>(nextNode, factory.createOperatorContext(nextNode,ql,question.outer.outer));
+			return new Pair<INode, Context>(nextNode, factory.createOperatorContext(nextNode, ql, question.outer.outer));
 		}
 
 		NameValuePairList afterNextValue = itQuantifiers.next();
@@ -268,7 +268,7 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 
 			setChildContexts(new Pair<Context, Context>(leftChildContext, rightChildContext));
 
-			return new Pair<INode, Context>(nextNode, factory.createOperatorContext(nextNode,ql,question));
+			return new Pair<INode, Context>(nextNode, factory.createOperatorContext(nextNode, ql, question));
 		}
 		// If we have more than two replication values then we make an interleaving between the
 		// first value and the rest of the replicated values
@@ -299,7 +299,7 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 			rightChildContext.putNew(new NameValuePair(replicationContextValueName, ql));
 
 			setChildContexts(new Pair<Context, Context>(leftChildContext, rightChildContext));
-			return new Pair<INode, Context>(nextNode, factory.createOperatorContext(nextNode,ql,question));
+			return new Pair<INode, Context>(nextNode, factory.createOperatorContext(nextNode, ql, question));
 		}
 	}
 

@@ -1,12 +1,23 @@
 package eu.compassresearch.core.interpreter;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.expressions.PExp;
+import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.lex.Dialect;
+import org.overture.ast.node.INode;
+import org.overture.ast.statements.PStm;
 import org.overture.config.Release;
 import org.overture.config.Settings;
+import org.overture.interpreter.debug.BreakpointManager;
+import org.overture.interpreter.runtime.Context;
+import org.overture.interpreter.runtime.Stoppoint;
+import org.overture.parser.lex.LexException;
+import org.overture.parser.syntax.ParserException;
 
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
@@ -18,6 +29,8 @@ import eu.compassresearch.core.interpreter.api.events.EventSource;
 import eu.compassresearch.core.interpreter.api.events.EventSourceHandler;
 import eu.compassresearch.core.interpreter.api.events.InterpreterStateChangedEvent;
 import eu.compassresearch.core.interpreter.debug.Breakpoint;
+import eu.compassresearch.core.interpreter.debug.DebugContext;
+import eu.compassresearch.core.interpreter.utility.FirstLineMatchSearcher;
 
 public abstract class AbstractCmlInterpreter implements CmlInterpreter
 {
@@ -57,6 +70,16 @@ public abstract class AbstractCmlInterpreter implements CmlInterpreter
 	 * Configuration of the interpreter
 	 */
 	protected final Config config;
+
+	/**
+	 * The AST that the interpretation is performed on
+	 */
+	protected List<PDefinition> sourceForest;
+
+	/**
+	 * The active debug contexts for all processes.
+	 */
+	private Map<Integer, DebugContext> debugContexts = new HashMap<Integer, DebugContext>();
 
 	public AbstractCmlInterpreter(Config config)
 	{
@@ -104,6 +127,8 @@ public abstract class AbstractCmlInterpreter implements CmlInterpreter
 	{
 		Settings.dialect = Dialect.VDM_PP;
 		Settings.release = Release.VDM_10;
+		// enable debugging in VDM source code
+		Settings.usingDBGP = true;
 	}
 
 	// Breakpoints
@@ -113,6 +138,8 @@ public abstract class AbstractCmlInterpreter implements CmlInterpreter
 
 		String key = bp.getFile() + ":" + bp.getLine();
 
+		addOvertureBreakpoint(bp);
+
 		if (breakpoints.containsKey(key))
 		{
 			return false;
@@ -120,6 +147,33 @@ public abstract class AbstractCmlInterpreter implements CmlInterpreter
 		{
 			breakpoints.put(key, bp);
 			return true;
+		}
+	}
+
+	protected void addOvertureBreakpoint(Breakpoint bp)
+	{
+		INode node = FirstLineMatchSearcher.search(sourceForest, bp.getFile(), bp.getLine());
+		if (node != null)
+		{
+			try
+			{
+				if (node instanceof PStm)
+				{
+					PStm stmt = (PStm) node;
+					BreakpointManager.setBreakpoint(stmt, new Stoppoint(stmt.getLocation(), bp.getId(), null));
+
+				} else if (node instanceof PExp)
+				{
+
+					PExp exp = (PExp) node;
+					BreakpointManager.setBreakpoint(exp, new Stoppoint(exp.getLocation(), bp.getId(), null));
+				}
+
+			} catch (ParserException | LexException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -187,4 +241,17 @@ public abstract class AbstractCmlInterpreter implements CmlInterpreter
 	{
 		return instance; // NB. last one created
 	}
+
+	@Override
+	public DebugContext getDebugContext(int id)
+	{
+		return debugContexts.get(id);
+	}
+
+	@Override
+	public void setDebugContext(int id, Context context, ILexLocation location)
+	{
+		debugContexts.put(id, new DebugContext(location, context));
+	}
+
 }

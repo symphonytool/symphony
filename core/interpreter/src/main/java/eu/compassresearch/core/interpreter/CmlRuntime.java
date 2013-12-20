@@ -11,6 +11,7 @@ public class CmlRuntime
 	protected static Logger logger = null;
 	protected static Handler logHandler = null;
 	private static boolean showHiddenEvents = true;
+	public static boolean consoleMode = true;
 
 	public static Logger logger()
 	{
