@@ -139,12 +139,12 @@ public void displayRecognitionError(String[] tokenNames,
 
 private PAction stm2action(PStm stm)
 {
-	return new AStmAction(stm.getLocation(),stm);
+	return new AStmAction((stm!=null?stm.getLocation():null),stm);
 }
 
 private PStm action2stm(PAction action)
 {
-	return new AActionStm(action.getLocation(),null,action);
+	return new AActionStm((action!=null?action.getLocation():null),null,action);
 }
 
 
