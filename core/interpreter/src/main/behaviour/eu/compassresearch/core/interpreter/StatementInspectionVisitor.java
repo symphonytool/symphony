@@ -483,31 +483,31 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 	// });
 	// }
 
-	@Override
-	public Inspection caseANewStm(final ANewStm node, final Context question)
-			throws AnalysisException
-	{
-		ILexNameToken name = new CmlLexNameToken(node.getClassName().getName(), node.getClassName().getName(), node.getLocation());
-		@SuppressWarnings("deprecation")
-		final ACallStm callStm = new ACallStm(name.getLocation(), name, node.getArgs());
-
-		return newInspection(createTauTransitionWithTime(callStm), new CmlCalculationStep()
-		{
-
-			@Override
-			public Pair<INode, Context> execute(CmlTransition selectedTransition)
-					throws AnalysisException
-			{
-
-				ObjectValue classValue = null;//FIXME CmlValueFactory.createClassValue(node, question);
-				Context ctorContext = CmlContextFactory.newObjectContext(node.getLocation(), "Class Constructor context", question, classValue);
-				Value oldVal = node.getDestination().apply(cmlExpressionVisitor, question);
-				oldVal.set(node.getLocation(), classValue, question);
-
-				return new Pair<INode, Context>(callStm, ctorContext);
-			}
-		});
-	}
+//	@Override
+//	public Inspection caseANewStm(final ANewStm node, final Context question)
+//			throws AnalysisException
+//	{
+//		ILexNameToken name = new CmlLexNameToken(node.getClassName().getName(), node.getClassName().getName(), node.getLocation());
+//		@SuppressWarnings("deprecation")
+//		final ACallStm callStm = new ACallStm(name.getLocation(), name, node.getArgs());
+//
+//		return newInspection(createTauTransitionWithTime(callStm), new CmlCalculationStep()
+//		{
+//
+//			@Override
+//			public Pair<INode, Context> execute(CmlTransition selectedTransition)
+//					throws AnalysisException
+//			{
+//
+//				ObjectValue classValue = null;//FIXME CmlValueFactory.createClassValue(node, question);
+//				Context ctorContext = CmlContextFactory.newObjectContext(node.getLocation(), "Class Constructor context", question, classValue);
+//				Value oldVal = node.getDestination().apply(cmlExpressionVisitor, question);
+//				oldVal.set(node.getLocation(), classValue, question);
+//
+//				return new Pair<INode, Context>(callStm, ctorContext);
+//			}
+//		});
+//	}
 
 	/**
 	 * Non deterministic if randomly chooses between options whose guard are evaluated to true

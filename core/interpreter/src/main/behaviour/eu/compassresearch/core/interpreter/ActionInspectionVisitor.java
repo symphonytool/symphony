@@ -27,6 +27,7 @@ import org.overture.interpreter.values.UpdatableValue;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.CmlAstFactory;
+import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.ACallAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.ADivAction;
@@ -119,6 +120,23 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 			throws AnalysisException
 	{
 		return node.getAction().apply(this.parentVisitor, question);
+	}
+	
+	@Override
+	public Inspection caseAAlphabetisedParallelismParallelAction(
+			final AAlphabetisedParallelismParallelAction node, final Context question)
+			throws AnalysisException
+	{
+		return caseAlphabetisedParallelism(node, new parallelCompositionHelper()
+		{
+			
+			@Override
+			public void caseParallelBegin() throws AnalysisException
+			{
+				ActionInspectionVisitor.this.caseParallelBegin(node, null, null, question);
+				
+			}
+		}, question);
 	}
 
 	@Override

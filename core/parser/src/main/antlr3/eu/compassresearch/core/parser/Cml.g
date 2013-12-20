@@ -1062,8 +1062,8 @@ action0op returns[SParallelAction op]
         ( '||' rn=varsetExpr
             {
                 AAlphabetisedParallelismParallelAction appa = new AAlphabetisedParallelismParallelAction();
-                appa.setLeftNamesetExpression($ln.vexp);
-                appa.setRightNamesetExpression($rn.vexp);
+                appa.setLeftChansetExpression($ln.vexp);
+                appa.setRightChansetExpression($rn.vexp);
                 $op = appa;
             }
         | '|' lc=varsetExpr '||' rc=varsetExpr '|' rn=varsetExpr

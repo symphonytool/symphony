@@ -22,6 +22,7 @@ import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
 import eu.compassresearch.ast.expressions.ANameChannelExp;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.lex.CmlLexNameToken;
+import eu.compassresearch.ast.process.AAlphabetisedParallelismProcess;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
@@ -88,6 +89,116 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		else
 		{
 			return leftChildAlphabet.union(rightChildAlphabet);
+		}
+	}
+	
+
+	protected Inspection caseAlphabetisedParallelism(
+			final INode node, 
+			final parallelCompositionHelper helper,
+			final Context question)
+			throws AnalysisException
+	{
+		// if true this means that this is the first time here, so the Parallel Begin rule is invoked.
+		if (!owner.hasChildren())
+		{
+			return newInspection(createTauTransitionWithoutTime(node, "Begin"), new CmlCalculationStep()
+			{
+				@Override
+				public Pair<INode, Context> execute(
+						CmlTransition selectedTransition)
+						throws AnalysisException
+				{
+					helper.caseParallelBegin(); //caseParallelProcessBegin(node, leftNode, rightNode, "[cs||cs]", question);
+					// We push the current state, since this process will control the child processes created by it
+					return new Pair<INode, Context>(node, question);
+				}
+			});
+		}
+		// the process has children and must now handle either termination or event sync
+		else if (CmlBehaviourUtility.isAllChildrenFinished(owner))
+		{
+			ASkipAction dstNode = CmlAstFactory.newASkipAction(LocationExtractor.extractLocation(node));
+			return newInspection(createTauTransitionWithoutTime(dstNode, "End"), caseParallelEnd(dstNode, question));
+		} else
+		{
+			// fetch the already evaluated left and right channel sets 
+			ChannelNameSetValue leftChanset = (ChannelNameSetValue)question.lookup(NamespaceUtility.getLeftPrecalculatedChannetSet()); // eval( node.getLeftChansetExpression(), getChildContexts(owner.getLeftChild().getNextState().second).first);
+			ChannelNameSetValue rightChanset = (ChannelNameSetValue)question.lookup(NamespaceUtility.getRightPrecalculatedChannetSet()); //eval(node.getRightChansetExpression(),getChildContexts(owner.getRightChild().getNextState().second).second);
+
+			//next we find the intersection of of them
+			ChannelNameSetValue intersectionChanset = new ChannelNameSetValue(leftChanset);
+			intersectionChanset.retainAll(rightChanset);
+
+			final CmlTransitionSet leftChildAlpha = owner.getLeftChild().inspect();
+			final CmlTransitionSet rightChildAlpha = owner.getRightChild().inspect();
+
+			CmlTransitionSet leftAllowedNonSyncTransitions = leftChildAlpha.retainByChannelNameSet(leftChanset).removeByChannelNameSet(intersectionChanset).union(leftChildAlpha.getSilentTransitions());
+			CmlTransitionSet rightAllowedNonSyncTransitions = rightChildAlpha.retainByChannelNameSet(rightChanset).removeByChannelNameSet(intersectionChanset).union(rightChildAlpha.getSilentTransitions());
+
+			// combine all the common channel events that are in the channel set
+			CmlTransitionSet leftSync = leftChildAlpha.retainByChannelNameSet(intersectionChanset);
+			CmlTransitionSet rightSync = rightChildAlpha.retainByChannelNameSet(intersectionChanset);
+			Set<CmlTransition> syncEvents = new HashSet<CmlTransition>();
+			// Find the intersection between the child alphabets and the channel set and join them.
+			// Then if both left and right have them the next step will combine them.
+			for (ObservableTransition leftTrans : leftSync.getObservableChannelEvents())
+			{
+				for (ObservableTransition rightTrans : rightSync.getObservableChannelEvents())
+				{
+					if (leftTrans.isComparable(rightTrans))
+					{
+
+						LabelledTransition leftChannelEvent = (LabelledTransition) leftTrans;
+						LabelledTransition rightChannelEvent = (LabelledTransition) rightTrans;
+
+						if (leftChannelEvent.getChannelName().isGTEQPrecise(rightChannelEvent.getChannelName())
+								|| rightChannelEvent.getChannelName().isGTEQPrecise(leftChannelEvent.getChannelName()))
+						{
+							syncEvents.add(leftTrans.synchronizeWith(rightTrans));
+						}
+					}
+				}
+			}
+
+			/*
+			 * Finally we create the returned alphabet by joining all the Synchronized events together with all the
+			 * event of the children that are not in the channel set.
+			 */
+			CmlTransitionSet resultAlpha = new CmlTransitionSet(syncEvents).union(leftAllowedNonSyncTransitions);
+			resultAlpha = resultAlpha.union(rightAllowedNonSyncTransitions);
+
+			return newInspection(resultAlpha, new CmlCalculationStep()
+			{
+
+				@Override
+				public Pair<INode, Context> execute(
+						CmlTransition selectedTransition)
+						throws AnalysisException
+				{
+					// if both contains the selected event it must be a sync event
+					if (leftChildAlpha.contains(selectedTransition)
+							&& rightChildAlpha.contains(selectedTransition))
+					{
+						owner.getLeftChild().execute(selectedTransition);
+						owner.getRightChild().execute(selectedTransition);
+					} else if (leftChildAlpha.contains(selectedTransition))
+					{
+						owner.getLeftChild().execute(selectedTransition);
+					} else if (rightChildAlpha.contains(selectedTransition))
+					{
+						owner.getRightChild().execute(selectedTransition);
+					} else
+					{
+						// Something went wrong here
+						throw new CmlInterpreterException(node, InterpretationErrorMessages.FATAL_ERROR.customizeMessage(""));
+					}
+
+					// We push the current state,
+					return new Pair<INode, Context>(node, question);
+				}
+			});
+
 		}
 	}
 
