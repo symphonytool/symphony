@@ -23,6 +23,7 @@ import org.overture.ast.expressions.ASetRangeSetExp;
 import org.overture.ast.expressions.ASetUnionBinaryExp;
 import org.overture.ast.expressions.ASubtractNumericBinaryExp;
 import org.overture.ast.expressions.ATimesNumericBinaryExp;
+import org.overture.ast.expressions.AUnaryMinusUnaryExp;
 import org.overture.ast.expressions.AUndefinedExp;
 import org.overture.ast.expressions.AVariableExp;
 import org.overture.ast.expressions.PExp;
@@ -63,6 +64,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASetRange
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASetUnionBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASubtractNumericBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCATimesNumericBinaryExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAUnaryMinusUnaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAUndefinedExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAUnionVOpVarsetExpression;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAVariableExp;
@@ -472,6 +474,18 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 		MCPCMLExp left = (MCPCMLExp) node.getLeft().apply(rootVisitor, question);
 		MCPCMLExp right = (MCPCMLExp) node.getRight().apply(rootVisitor, question);
 		MCANotInSetBinaryExp result = new MCANotInSetBinaryExp(left, right);
+		
+		return result;
+	}
+
+	
+
+	@Override
+	public MCNode caseAUnaryMinusUnaryExp(AUnaryMinusUnaryExp node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		
+		MCPCMLExp exp = (MCPCMLExp) node.getExp().apply(rootVisitor, question);
+		MCAUnaryMinusUnaryExp result = new MCAUnaryMinusUnaryExp(exp);
 		
 		return result;
 	}

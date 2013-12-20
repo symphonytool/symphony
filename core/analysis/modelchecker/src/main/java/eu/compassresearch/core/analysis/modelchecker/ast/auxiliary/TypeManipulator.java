@@ -2,12 +2,15 @@ package eu.compassresearch.core.analysis.modelchecker.ast.auxiliary;
 
 import java.util.LinkedList;
 
+import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPParametrisation;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCATypeDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAIntNumericBasicType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANamedInvariantType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANatNumericBasicType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAProductType;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAQuoteType;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAUnionType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 
@@ -37,6 +40,8 @@ public class TypeManipulator {
 			result = this.getValues((MCANatNumericBasicType)type);
 		} else if(type instanceof MCAIntNumericBasicType){
 			result = this.getValues((MCAIntNumericBasicType)type);
+		} else if(type instanceof MCAUnionType){
+			result = this.getValues((MCAUnionType)type);
 		}
 		return result;
 	}
@@ -48,7 +53,15 @@ public class TypeManipulator {
 		
 		MCATypeDefinition typeDef = context.getTypeDefinition(type.getName());
 		if(typeDef != null){
-			LinkedList<String> valueSet = evaluator.getValueSet(typeDef.getInvExpression());
+			LinkedList<String> valueSet = new LinkedList<String>(); 
+			if(typeDef.getInvExpression() != null){
+				valueSet = evaluator.getValueSet(typeDef.getInvExpression());
+			}else{
+				LinkedList<TypeValue> typeValues = getValues(typeDef.getType());
+				for (TypeValue typeValue : typeValues) {
+					valueSet.add(typeValue.toFormula(MCNode.DEFAULT));
+				}
+			}
 			for (String string : valueSet) {
 				result.add(new SingleTypeValue(string));
 			}
@@ -68,6 +81,18 @@ public class TypeManipulator {
 		LinkedList<TypeValue> result = new LinkedList<TypeValue>();
 
 		result.add(new SingleTypeValue("0"));
+
+		return result;
+	}
+	
+	public LinkedList<TypeValue> getValues(MCAUnionType type){
+		LinkedList<TypeValue> result = new LinkedList<TypeValue>();
+		for (MCPCMLType currType : type.getTypes()) {
+			if(currType instanceof MCAQuoteType){
+				result.add(new SingleTypeValue(((MCAQuoteType) currType).getValue()));
+			} 
+		}
+		
 
 		return result;
 	}

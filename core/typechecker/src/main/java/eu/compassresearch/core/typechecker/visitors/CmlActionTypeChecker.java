@@ -622,13 +622,15 @@ public class CmlActionTypeChecker extends
 
 		leftChanSet.apply(channelSetChecker, question);
 
-		leftNameSet.apply(nameSetChecker, question);
+		if(leftNameSet != null)
+			leftNameSet.apply(nameSetChecker, question);
 
 		PType rightActionType = rightAction.apply(THIS, question);
 
 		rightChanSet.apply(channelSetChecker, question);
 
-		rightNameSet.apply(nameSetChecker, question);
+		if(rightNameSet != null)
+			rightNameSet.apply(nameSetChecker, question);
 
 		return setType(node, leftActionType, rightActionType);
 	}

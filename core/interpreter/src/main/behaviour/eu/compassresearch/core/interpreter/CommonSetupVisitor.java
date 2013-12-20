@@ -1,8 +1,10 @@
 package eu.compassresearch.core.interpreter;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.intf.lex.ILexNameToken;
@@ -22,11 +24,14 @@ import eu.compassresearch.ast.CmlAstFactory;
 import eu.compassresearch.ast.actions.SReplicatedAction;
 import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
+import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.process.SReplicatedProcess;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour.BehaviourName;
+import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
+import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
 import eu.compassresearch.core.interpreter.api.values.CmlSetQuantifier;
 import eu.compassresearch.core.interpreter.api.values.LatticeTopValue;
 import eu.compassresearch.core.interpreter.utility.LocationExtractor;
@@ -40,7 +45,36 @@ class CommonSetupVisitor extends AbstractSetupVisitor
 	{
 		super(owner, visitorAccess);
 	}
+	
+	@SuppressWarnings("rawtypes")
+	protected ChannelNameSetValue eval(PVarsetExpression chansetExpression,Context question) throws AnalysisException
+	{
+		Value val = chansetExpression.apply(cmlExpressionVisitor, question);
+		if(val instanceof ChannelNameSetValue)
+		{
+			return (ChannelNameSetValue) val;
+		}else if(val instanceof Set && ((Set)val).isEmpty())
+		{
+			return new ChannelNameSetValue(new HashSet<ChannelNameValue>());
+		}
+		
+		throw new CmlInterpreterException(chansetExpression, InterpretationErrorMessages.FATAL_ERROR.customizeMessage("Failed to evaluate chanset expression"));
+	}
+	
+	public Pair<INode, Context> caseAlphabetisedParallelism(INode node, PVarsetExpression leftChansetExpression, PVarsetExpression rightChansetExpression, Context question) throws AnalysisException
+	{
+		// evaluate the children in the their own context
+		ChannelNameSetValue leftChanset = eval(leftChansetExpression, getChildContexts(question).first);
+		ChannelNameSetValue rightChanset = eval(rightChansetExpression,getChildContexts(question).second);
 
+		Context chansetContext = CmlContextFactory.newContext(LocationExtractor.extractLocation(node), "Alphabetised parallelism precalcualted channelsets", question);
+		
+		chansetContext.put(NamespaceUtility.getLeftPrecalculatedChannetSet(),leftChanset);
+		chansetContext.put(NamespaceUtility.getRightPrecalculatedChannetSet(),rightChanset);
+		
+		return new Pair<INode, Context>(node,chansetContext);
+	}
+	
 	protected Pair<INode, Context> caseAInterrupt(INode node, INode leftNode,
 			INode rightNode, Context question) throws AnalysisException
 	{

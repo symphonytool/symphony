@@ -20,6 +20,11 @@ public class RttMbtPopupMenuAction extends AbstractHandler  {
 
 	protected RttMbtClient client = null;
 
+	// the project of the selected item.
+	// properties that are defined for a project will override
+	// globally defined preferences.
+	protected IProject project;
+
 	// the name of the selected object without oath information
 	protected String selectedObjectName;
 
@@ -67,6 +72,7 @@ public class RttMbtPopupMenuAction extends AbstractHandler  {
 			if ((treeSelection.getFirstElement() != null) &&
 				(treeSelection.getFirstElement() instanceof IFolder)) {
 				IFolder folder = (IFolder)treeSelection.getFirstElement();
+				project = folder.getProject();
 				selectedObjectName = folder.getName();
 				selectedObjectFilesystemPath = RttMbtClient.getAbsolutePathFromFileURI(folder.getLocationURI());
 				selectedObjectWorkspacePath = folder.getFullPath().toString();
@@ -76,6 +82,7 @@ public class RttMbtPopupMenuAction extends AbstractHandler  {
 			} else if ((treeSelection.getFirstElement() != null) &&
 				       (treeSelection.getFirstElement() instanceof IFile)) {
 				IFile file = (IFile)treeSelection.getFirstElement();
+				project = file.getProject();
 				selectedObjectName = file.getName();
 				selectedObjectFilesystemPath = RttMbtClient.getAbsolutePathFromFileURI(file.getLocationURI());
 				selectedObjectWorkspacePath = file.getFullPath().toString();
@@ -84,7 +91,7 @@ public class RttMbtPopupMenuAction extends AbstractHandler  {
 				isFileSelected = true;
 			} else if ((treeSelection.getFirstElement() != null) &&
 					   (treeSelection.getFirstElement() instanceof IProject)) {
-				IProject project = (IProject)treeSelection.getFirstElement();
+				project = (IProject)treeSelection.getFirstElement();
 				selectedObjectName = project.getName();
 				selectedObjectFilesystemPath = RttMbtClient.getAbsolutePathFromFileURI(project.getLocationURI());
 				selectedObjectWorkspacePath = project.getFullPath().toString();
@@ -95,7 +102,8 @@ public class RttMbtPopupMenuAction extends AbstractHandler  {
 		}
 
 		// check for null pointers
-		if ((selectedObjectName == null) ||
+		if ((project == null) ||
+			(selectedObjectName == null) ||
 			(selectedObjectFilesystemPath == null) ||
 			(selectedObjectWorkspacePath == null) ||
 			(selectedObjectWorkspaceProjectName == null) ||
@@ -189,7 +197,25 @@ public class RttMbtPopupMenuAction extends AbstractHandler  {
 
 		// set console name
 		client.setConsoleName(selectedObjectWorkspaceProjectName);
-		
+
+		// set project specific properties
+		String value = RttMbtProjectPropertiesPage.getPropertyValue(project, "RttMbtrttProjectDatabase");
+		if (value != null) {
+			client.setProjectDatabaseName(value);
+		}
+		value = RttMbtProjectPropertiesPage.getPropertyValue(project, "RttMbtRttTprocPrefix");
+		if ((value != null) && (value.length() > 0)) {
+			client.setRttMbtTestProcFolderName(value);
+		} else {
+			client.setRttMbtTestProcFolderName(Activator.getPreferenceValue("RttMbtRttTprocPrefix"));
+		}
+		value = RttMbtProjectPropertiesPage.getPropertyValue(project, "RttMbtTProcGenCtx");
+		if ((value != null) && (value.length() > 0)) {
+			client.setRttMbtTProcGenCtxFolderName(value);
+		} else {
+			client.setRttMbtTProcGenCtxFolderName(Activator.getPreferenceValue("RttMbtTProcGenCtx"));
+		}
+
 		// test connection to rtt-mbt-tms server
 		if (client.testConenction()) {
 			if (client.getVerboseLogging()) {

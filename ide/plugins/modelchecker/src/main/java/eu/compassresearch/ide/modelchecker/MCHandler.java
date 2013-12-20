@@ -140,6 +140,9 @@ public class MCHandler extends AbstractHandler {
 							if(outputFile != null){
 								MCProgressView p = new MCProgressView(outputFile, propertyToCheck, mcFolder, selectedUnit, cmlFile, event,mainProcessName);
 								p.execute();
+								if(p.getThread().getException() != null){
+									throw p.getThread().getException();
+								}
 							}
 							
 							//formulaOutput = p.getFormulaResult();

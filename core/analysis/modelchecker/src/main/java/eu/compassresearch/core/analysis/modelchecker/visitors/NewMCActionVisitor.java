@@ -20,6 +20,7 @@ import eu.compassresearch.ast.actions.AGeneralisedParallelismReplicatedAction;
 import eu.compassresearch.ast.actions.AGuardedAction;
 import eu.compassresearch.ast.actions.AHidingAction;
 import eu.compassresearch.ast.actions.AInterleavingParallelAction;
+import eu.compassresearch.ast.actions.AInterleavingReplicatedAction;
 import eu.compassresearch.ast.actions.AInternalChoiceAction;
 import eu.compassresearch.ast.actions.AInternalChoiceReplicatedAction;
 import eu.compassresearch.ast.actions.AInterruptAction;
@@ -52,6 +53,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAGuardedActio
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAHidingAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAIfStatementAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAInterleavingParallelAction;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAInterleavingReplicatedAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAInternalChoiceAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAInternalChoiceReplicatedAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAInterruptAction;
@@ -310,28 +312,28 @@ public class NewMCActionVisitor extends
 		
 		return result;
 		
-
-		/*
-		// building combination of processses based on simple constructs
-		StringBuilder replicatedActionBuilder = buildReplicatedAction(node, question,
-				node.getReplicatedAction(), Utilities.GEN_PARALLELISM,
-				indexes.size());
-		String replicatedActionString = replicatedActionBuilder.toString();
-		for (PExp pExp : indexes) {
-			CMLModelcheckerContext argCtxt = new CMLModelcheckerContext();
-			StringBuilder argValue = pExp.apply(rootVisitor, argCtxt);
-			PAction replicatedAction = node.getReplicatedAction();
-			if(replicatedAction instanceof ACallStatementAction){
-				PExp arg0 = ((ACallStatementAction) replicatedAction).getArgs().getFirst();
-				if(arg0 instanceof AVariableExp){
-					replicatedActionString = replicatedActionString.replaceFirst("(" +  ((AVariableExp) arg0).getName().toString() + ")", argValue.toString());
-				}
-			} 
-		}
-		question.getScriptContent().append(replicatedActionString);
-		*/
 	}
 	
+	
+	
+	@Override
+	public MCNode caseAInterleavingReplicatedAction(
+			AInterleavingReplicatedAction node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+
+		
+		LinkedList<PSingleDeclaration> replicationDecls = node.getReplicationDeclaration();
+		LinkedList<MCPSingleDeclaration> replicationDeclarations = new LinkedList<MCPSingleDeclaration>();
+		for (PSingleDeclaration pSingleDecl : replicationDecls) {
+			replicationDeclarations.add((MCPSingleDeclaration) pSingleDecl.apply(rootVisitor, question));
+		}
+		MCPAction replicatedAction = (MCPAction) node.getReplicatedAction().apply(rootVisitor, question);
+		MCAInterleavingReplicatedAction result = 
+				new MCAInterleavingReplicatedAction(replicationDeclarations, replicatedAction);
+		
+		return result;
+	}
+
 	@Override
 	public MCNode caseAExternalChoiceReplicatedAction(
 			AExternalChoiceReplicatedAction node,
