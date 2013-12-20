@@ -6,7 +6,6 @@ import java.util.List;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
-import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.statements.AAssignmentStm;
 import org.overture.ast.statements.AAtomicStm;
@@ -24,7 +23,6 @@ import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.PatternMatchException;
 import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.values.NameValuePair;
-import org.overture.interpreter.values.ObjectValue;
 import org.overture.interpreter.values.OperationValue;
 import org.overture.interpreter.values.Value;
 import org.overture.interpreter.values.ValueList;
@@ -34,11 +32,9 @@ import eu.compassresearch.ast.actions.ADivAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
-import eu.compassresearch.ast.lex.CmlLexNameToken;
 import eu.compassresearch.ast.statements.AAltNonDeterministicStm;
 import eu.compassresearch.ast.statements.ADoNonDeterministicStm;
 import eu.compassresearch.ast.statements.AIfNonDeterministicStm;
-import eu.compassresearch.ast.statements.ANewStm;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
@@ -483,31 +479,33 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 	// });
 	// }
 
-//	@Override
-//	public Inspection caseANewStm(final ANewStm node, final Context question)
-//			throws AnalysisException
-//	{
-//		ILexNameToken name = new CmlLexNameToken(node.getClassName().getName(), node.getClassName().getName(), node.getLocation());
-//		@SuppressWarnings("deprecation")
-//		final ACallStm callStm = new ACallStm(name.getLocation(), name, node.getArgs());
-//
-//		return newInspection(createTauTransitionWithTime(callStm), new CmlCalculationStep()
-//		{
-//
-//			@Override
-//			public Pair<INode, Context> execute(CmlTransition selectedTransition)
-//					throws AnalysisException
-//			{
-//
-//				ObjectValue classValue = null;//FIXME CmlValueFactory.createClassValue(node, question);
-//				Context ctorContext = CmlContextFactory.newObjectContext(node.getLocation(), "Class Constructor context", question, classValue);
-//				Value oldVal = node.getDestination().apply(cmlExpressionVisitor, question);
-//				oldVal.set(node.getLocation(), classValue, question);
-//
-//				return new Pair<INode, Context>(callStm, ctorContext);
-//			}
-//		});
-//	}
+	// @Override
+	// public Inspection caseANewStm(final ANewStm node, final Context question)
+	// throws AnalysisException
+	// {
+	// ILexNameToken name = new CmlLexNameToken(node.getClassName().getName(), node.getClassName().getName(),
+	// node.getLocation());
+	// @SuppressWarnings("deprecation")
+	// final ACallStm callStm = new ACallStm(name.getLocation(), name, node.getArgs());
+	//
+	// return newInspection(createTauTransitionWithTime(callStm), new CmlCalculationStep()
+	// {
+	//
+	// @Override
+	// public Pair<INode, Context> execute(CmlTransition selectedTransition)
+	// throws AnalysisException
+	// {
+	//
+	// ObjectValue classValue = null;//FIXME CmlValueFactory.createClassValue(node, question);
+	// Context ctorContext = CmlContextFactory.newObjectContext(node.getLocation(), "Class Constructor context",
+	// question, classValue);
+	// Value oldVal = node.getDestination().apply(cmlExpressionVisitor, question);
+	// oldVal.set(node.getLocation(), classValue, question);
+	//
+	// return new Pair<INode, Context>(callStm, ctorContext);
+	// }
+	// });
+	// }
 
 	/**
 	 * Non deterministic if randomly chooses between options whose guard are evaluated to true

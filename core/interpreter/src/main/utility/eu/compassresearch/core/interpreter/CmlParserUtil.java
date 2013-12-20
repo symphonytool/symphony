@@ -33,10 +33,14 @@ public class CmlParserUtil
 		}
 
 		if (source instanceof AInputStreamSource)
+		{
 			in = new ANTLRInputStream(((AInputStreamSource) source).getStream());
+		}
 
 		if (in == null)
+		{
 			return false;
+		}
 
 		CmlLexer lexer = new CmlLexer(in);
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
@@ -50,11 +54,17 @@ public class CmlParserUtil
 			if (sourceDefs != null)
 			{
 				for (PDefinition def : sourceDefs)
+				{
 					if (def != null)
+					{
 						source.getParagraphs().add(def);
+					}
+				}
 				parseOK = true;
 			} else
+			{
 				parseOK = false;
+			}
 		} catch (RecognitionException e)
 		{
 			e.printStackTrace();

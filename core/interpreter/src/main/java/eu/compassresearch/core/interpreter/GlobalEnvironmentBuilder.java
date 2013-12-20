@@ -53,9 +53,12 @@ public class GlobalEnvironmentBuilder extends AnalysisCMLAdaptor
 				globalProcesses.add(pdef);
 
 				if (lastDefinedProcess == null)
+				{
 					lastDefinedProcess = pdef;
-				else if (pdef.getLocation().getStartLine() > lastDefinedProcess.getLocation().getStartLine())
+				} else if (pdef.getLocation().getStartLine() > lastDefinedProcess.getLocation().getStartLine())
+				{
 					lastDefinedProcess = pdef;
+				}
 			}
 		}
 

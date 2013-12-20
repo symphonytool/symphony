@@ -8,7 +8,7 @@ import org.overture.typechecker.assistant.definition.PDefinitionAssistantTC;
 public class ProcessDefinitionRuntime extends SClassDefinitionRuntime
 {
 
-	public ProcessDefinitionRuntime(SClassDefinition def,String name)
+	public ProcessDefinitionRuntime(SClassDefinition def, String name)
 	{
 		super(def);
 		delegate = new Delegate(name, PDefinitionAssistantTC.getDefinitions(def));

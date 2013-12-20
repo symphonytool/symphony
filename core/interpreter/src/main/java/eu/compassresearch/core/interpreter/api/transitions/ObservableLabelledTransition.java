@@ -59,7 +59,9 @@ class ObservableLabelledTransition extends AbstractLabelledTransition implements
 	{
 
 		if (!(obj instanceof ObservableLabelledTransition))
+		{
 			return false;
+		}
 
 		return super.equals(obj);
 	}
@@ -69,7 +71,9 @@ class ObservableLabelledTransition extends AbstractLabelledTransition implements
 	{
 
 		if (!(other instanceof LabelledTransition))
+		{
 			return false;
+		}
 
 		LabelledTransition otherChannelEvent = (LabelledTransition) other;
 		return channelName.isComparable(otherChannelEvent.getChannelName());
@@ -83,7 +87,9 @@ class ObservableLabelledTransition extends AbstractLabelledTransition implements
 		ChannelNameValue meetValue = this.getChannelName().meet(((LabelledTransition) otherComEvent).getChannelName());
 
 		if (meetValue == null)
+		{
 			throw new CmlInterpreterException(InterpretationErrorMessages.SYNC_OF_NONCOMPARABLE_EVENTS.customizeMessage(this.toString(), syncEvent.toString()));
+		}
 
 		if (meetValue.isConstraintValid())
 		{
@@ -92,7 +98,9 @@ class ObservableLabelledTransition extends AbstractLabelledTransition implements
 			sources.addAll(otherComEvent.getEventSources());
 			return new ObservableLabelledTransition(sources, meetValue);
 		} else
+		{
 			return null;
+		}
 
 	}
 
@@ -152,7 +160,9 @@ class ObservableLabelledTransition extends AbstractLabelledTransition implements
 					events.addAll(type.apply(this));
 				}
 			} else
+			{
 				events.add(ObservableLabelledTransition.this);
+			}
 
 			return events;
 		}

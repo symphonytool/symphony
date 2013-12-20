@@ -34,13 +34,16 @@ public class SetMath
 			List<Value> tmp = new LinkedList<Value>(current);
 			tmp.add(depth, sets.get(depth).values.get(i));
 			if (depth < sets.size() - 1)
+			{
 				getCrossProduct(result, sets, depth + 1, tmp);
-			else
+			} else
 			{
 				ValueList vl = new ValueList();
 
 				for (Value val : tmp)
+				{
 					vl.add(val);
+				}
 
 				result.values.add(new TupleValue(vl));
 				// current = new LinkedList<Value>();
@@ -56,8 +59,9 @@ public class SetMath
 			List<Value> tmp = new LinkedList<Value>(current);
 			tmp.add(depth, sets.get(depth).values.get(i));
 			if (depth < sets.size() - 1)
+			{
 				getCrossProduct(results, sets, depth + 1, tmp);
-			else
+			} else
 			{
 				results.add(tmp);
 				// current = new LinkedList<Value>();

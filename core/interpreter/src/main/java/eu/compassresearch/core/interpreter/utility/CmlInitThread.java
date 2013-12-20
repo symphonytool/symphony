@@ -10,7 +10,6 @@ public class CmlInitThread extends InitThread
 		super(t);
 	}
 
-	
 	@Override
 	public void suspendOthers()
 	{

@@ -76,27 +76,37 @@ public interface CmlInterpreter
 	public CmlBehaviour getTopLevelProcess();
 
 	public CmlBehaviour findBehaviorById(int id);
-	
+
 	/**
 	 * Gets the active debug context of a given process by its id
-	 * @param id a process id
+	 * 
+	 * @param id
+	 *            a process id
 	 * @return a the current debug context
 	 */
 	public DebugContext getDebugContext(int id);
-	
+
 	/**
 	 * Sets the current debug context for a given process
-	 * @param id the process id
-	 * @param context the current context
-	 * @param location the current location
+	 * 
+	 * @param id
+	 *            the process id
+	 * @param context
+	 *            the current context
+	 * @param location
+	 *            the current location
 	 */
 	public void setDebugContext(int id, Context context, ILexLocation location);
-	
+
 	/**
 	 * Sets the current debug context for the first active process
-	 * @param id the process id
-	 * @param context the current context
-	 * @param location the current location
+	 * 
+	 * @param id
+	 *            the process id
+	 * @param context
+	 *            the current context
+	 * @param location
+	 *            the current location
 	 */
 	public void setCurrentDebugContext(Context context, ILexLocation location);
 
@@ -115,7 +125,7 @@ public interface CmlInterpreter
 	public boolean suspendBeforeTermination();
 
 	public void resume();
-	
+
 	public void suspend() throws InterruptedException;
 
 	public void step();

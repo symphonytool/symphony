@@ -121,20 +121,20 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 	{
 		return node.getAction().apply(this.parentVisitor, question);
 	}
-	
+
 	@Override
 	public Inspection caseAAlphabetisedParallelismParallelAction(
-			final AAlphabetisedParallelismParallelAction node, final Context question)
-			throws AnalysisException
+			final AAlphabetisedParallelismParallelAction node,
+			final Context question) throws AnalysisException
 	{
 		return caseAlphabetisedParallelism(node, new parallelCompositionHelper()
 		{
-			
+
 			@Override
 			public void caseParallelBegin() throws AnalysisException
 			{
 				ActionInspectionVisitor.this.caseParallelBegin(node, null, null, question);
-				
+
 			}
 		}, question);
 	}
@@ -327,7 +327,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 						}
 					}
 				}
-				
+
 				return new Pair<INode, Context>(node.getAction(), nextContext);
 			}
 		});
@@ -662,7 +662,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 			public Pair<INode, Context> execute(CmlTransition selectedTransition)
 					throws AnalysisException
 			{
-				if(!owner.getName().getLastAction().equals(node.getName().getName()))
+				if (!owner.getName().getLastAction().equals(node.getName().getName()))
 				{
 					owner.getName().addAction(node.getName().getName());
 				}

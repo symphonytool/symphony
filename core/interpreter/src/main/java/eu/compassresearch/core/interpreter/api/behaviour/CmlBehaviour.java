@@ -45,7 +45,7 @@ public interface CmlBehaviour extends Serializable // extends Transactable
 		BehaviourName owner = null;
 		List<String> processes = new Vector<String>();
 		List<String> actions = new Vector<String>();
-		private boolean unNamed=false;
+		private boolean unNamed = false;
 
 		public BehaviourName(String process)
 		{
@@ -66,16 +66,18 @@ public interface CmlBehaviour extends Serializable // extends Transactable
 			} else if (node instanceof AReferenceAction)
 			{
 				return ((AReferenceAction) node).getName().getName();
-			}else if(node instanceof AExternalChoiceProcess || node instanceof AExternalChoiceAction)
+			} else if (node instanceof AExternalChoiceProcess
+					|| node instanceof AExternalChoiceAction)
 			{
 				return "[]";
-			}else if(node instanceof AGeneralisedParallelismParallelAction)
+			} else if (node instanceof AGeneralisedParallelismParallelAction)
 			{
 				return "[||]";
-			}else if(node instanceof ACommunicationAction)
+			} else if (node instanceof ACommunicationAction)
 			{
-				return ((ACommunicationAction)node).getIdentifier().getName();
-			}else if(node instanceof ASequentialCompositionAction || node instanceof ASequentialCompositionProcess)
+				return ((ACommunicationAction) node).getIdentifier().getName();
+			} else if (node instanceof ASequentialCompositionAction
+					|| node instanceof ASequentialCompositionProcess)
 			{
 				return ";";
 			}
@@ -94,11 +96,11 @@ public interface CmlBehaviour extends Serializable // extends Transactable
 				this.processes.add(process);
 			}
 		}
-		
-		public BehaviourName(BehaviourName owner, PAction action, String prefix,
-				String postfix)
+
+		public BehaviourName(BehaviourName owner, PAction action,
+				String prefix, String postfix)
 		{
-			this(owner,extractName(action),prefix,postfix);
+			this(owner, extractName(action), prefix, postfix);
 		}
 
 		public BehaviourName(BehaviourName owner, String action, String prefix,
@@ -121,7 +123,7 @@ public interface CmlBehaviour extends Serializable // extends Transactable
 
 		private BehaviourName()
 		{
-unNamed =true;
+			unNamed = true;
 		}
 
 		public void addProcess(String name)
@@ -174,8 +176,8 @@ unNamed =true;
 					sb.append(PROCESS_SEPERATOR);
 				}
 			}
-			
-			if(unNamed && this.processes.isEmpty())
+
+			if (unNamed && this.processes.isEmpty())
 			{
 				sb.append(PROCESS_SEPERATOR);
 				sb.append("???");
@@ -194,13 +196,13 @@ unNamed =true;
 					sb.append(ACTION_SEPERATOR);
 				}
 			}
-			
-			if(unNamed && !this.processes.isEmpty())
+
+			if (unNamed && !this.processes.isEmpty())
 			{
 				sb.append(ACTION_SEPERATOR);
 				sb.append("???");
 			}
-			
+
 			return sb.toString();
 		}
 
@@ -236,13 +238,13 @@ unNamed =true;
 			nb.actions.addAll(this.actions);
 			return nb;
 		}
-		
+
 		public BehaviourName clone(boolean unnamed)
 		{
 			BehaviourName n = clone();
 			n.unNamed = unnamed;
 			return n;
-			
+
 		}
 
 	}

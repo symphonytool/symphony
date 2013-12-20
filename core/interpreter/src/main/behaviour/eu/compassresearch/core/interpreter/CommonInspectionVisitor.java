@@ -21,8 +21,6 @@ import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
 import eu.compassresearch.ast.expressions.ANameChannelExp;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
-import eu.compassresearch.ast.lex.CmlLexNameToken;
-import eu.compassresearch.ast.process.AAlphabetisedParallelismProcess;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
@@ -91,12 +89,9 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			return leftChildAlphabet.union(rightChildAlphabet);
 		}
 	}
-	
 
-	protected Inspection caseAlphabetisedParallelism(
-			final INode node, 
-			final parallelCompositionHelper helper,
-			final Context question)
+	protected Inspection caseAlphabetisedParallelism(final INode node,
+			final parallelCompositionHelper helper, final Context question)
 			throws AnalysisException
 	{
 		// if true this means that this is the first time here, so the Parallel Begin rule is invoked.
@@ -109,7 +104,8 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 						CmlTransition selectedTransition)
 						throws AnalysisException
 				{
-					helper.caseParallelBegin(); //caseParallelProcessBegin(node, leftNode, rightNode, "[cs||cs]", question);
+					helper.caseParallelBegin(); // caseParallelProcessBegin(node, leftNode, rightNode, "[cs||cs]",
+												// question);
 					// We push the current state, since this process will control the child processes created by it
 					return new Pair<INode, Context>(node, question);
 				}
@@ -122,11 +118,13 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			return newInspection(createTauTransitionWithoutTime(dstNode, "End"), caseParallelEnd(dstNode, question));
 		} else
 		{
-			// fetch the already evaluated left and right channel sets 
-			ChannelNameSetValue leftChanset = (ChannelNameSetValue)question.lookup(NamespaceUtility.getLeftPrecalculatedChannetSet()); // eval( node.getLeftChansetExpression(), getChildContexts(owner.getLeftChild().getNextState().second).first);
-			ChannelNameSetValue rightChanset = (ChannelNameSetValue)question.lookup(NamespaceUtility.getRightPrecalculatedChannetSet()); //eval(node.getRightChansetExpression(),getChildContexts(owner.getRightChild().getNextState().second).second);
+			// fetch the already evaluated left and right channel sets
+			ChannelNameSetValue leftChanset = (ChannelNameSetValue) question.lookup(NamespaceUtility.getLeftPrecalculatedChannetSet()); // eval(
+																																		// node.getLeftChansetExpression(),
+																																		// getChildContexts(owner.getLeftChild().getNextState().second).first);
+			ChannelNameSetValue rightChanset = (ChannelNameSetValue) question.lookup(NamespaceUtility.getRightPrecalculatedChannetSet()); // eval(node.getRightChansetExpression(),getChildContexts(owner.getRightChild().getNextState().second).second);
 
-			//next we find the intersection of of them
+			// next we find the intersection of of them
 			ChannelNameSetValue intersectionChanset = new ChannelNameSetValue(leftChanset);
 			intersectionChanset.retainAll(rightChanset);
 

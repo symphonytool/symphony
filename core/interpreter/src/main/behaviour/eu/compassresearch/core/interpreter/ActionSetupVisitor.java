@@ -29,7 +29,6 @@ import eu.compassresearch.ast.actions.AUntimedTimeoutAction;
 import eu.compassresearch.ast.actions.AWaitAction;
 import eu.compassresearch.ast.statements.AActionStm;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
-import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
 class ActionSetupVisitor extends CommonSetupVisitor
@@ -46,7 +45,7 @@ class ActionSetupVisitor extends CommonSetupVisitor
 	{
 		return node.getAction().apply(this, question);
 	}
-	
+
 	@Override
 	public Pair<INode, Context> caseAAlphabetisedParallelismParallelAction(
 			AAlphabetisedParallelismParallelAction node, Context question)
@@ -63,7 +62,7 @@ class ActionSetupVisitor extends CommonSetupVisitor
 	}
 
 	/*
-	 * Sequential Composition 
+	 * Sequential Composition
 	 */
 	@Override
 	public Pair<INode, Context> caseASequentialCompositionAction(
@@ -120,7 +119,7 @@ class ActionSetupVisitor extends CommonSetupVisitor
 	/*
 	 * Timed Interrupt
 	 */
-	
+
 	@Override
 	public Pair<INode, Context> caseATimedInterruptAction(
 			ATimedInterruptAction node, Context question)
@@ -128,7 +127,7 @@ class ActionSetupVisitor extends CommonSetupVisitor
 	{
 		return caseATimedInterrupt(node, node.getLeft(), question);
 	}
-	
+
 	/*
 	 * Replicated actions
 	 */

@@ -21,26 +21,26 @@ class CmlSetupVisitor extends AbstractSetupVisitor
 		actionVisitor = new ActionSetupVisitor(owner, visitorAccess);
 		processVisitor = new ProcessSetupVisitor(owner, visitorAccess);
 	}
-	
+
 	@Override
 	public Pair<INode, Context> defaultPAction(PAction node, Context question)
 			throws AnalysisException
 	{
-		return node.apply(actionVisitor,question);
+		return node.apply(actionVisitor, question);
 	}
-	
+
 	@Override
 	public Pair<INode, Context> defaultPStm(PStm node, Context question)
 			throws AnalysisException
 	{
-		return node.apply(actionVisitor,question);
+		return node.apply(actionVisitor, question);
 	}
-	
+
 	@Override
 	public Pair<INode, Context> defaultPProcess(PProcess node, Context question)
 			throws AnalysisException
 	{
-		return node.apply(processVisitor,question);
+		return node.apply(processVisitor, question);
 	}
 
 }

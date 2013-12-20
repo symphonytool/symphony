@@ -42,7 +42,7 @@ public class FirstLineMatchSearcher extends DepthFirstAnalysisCMLAdaptor
 		this.file = file;
 		this.line = line;
 	}
-	
+
 	@Override
 	public void caseAActionClassDefinition(AActionClassDefinition node)
 			throws AnalysisException

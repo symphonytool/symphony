@@ -36,32 +36,33 @@ class ProcessSetupVisitor extends CommonSetupVisitor
 	{
 		super(owner, visitorAccess);
 	}
-			
+
 	@Override
 	public Pair<INode, Context> caseAAlphabetisedParallelismProcess(
 			AAlphabetisedParallelismProcess node, Context question)
 			throws AnalysisException
 	{
 		return caseAlphabetisedParallelism(node, node.getLeftChansetExpression(), node.getRightChansetExpression(), question);
-//		// evaluate the children in the their own context
-//		ChannelNameSetValue leftChanset = eval( node.getLeftChansetExpression(), getChildContexts(question).first);
-//		ChannelNameSetValue rightChanset = eval(node.getRightChansetExpression(),getChildContexts(question).second);
-//
-//		Context chansetContext = CmlContextFactory.newContext(node.getLocation(), "Alphabetised parallelism precalcualted channelsets", question);
-//		
-//		chansetContext.put(NamespaceUtility.getLeftPrecalculatedChannetSet(),leftChanset);
-//		chansetContext.put(NamespaceUtility.getRightPrecalculatedChannetSet(),rightChanset);
-//		
-//		return new Pair<INode, Context>(node,chansetContext);
+		// // evaluate the children in the their own context
+		// ChannelNameSetValue leftChanset = eval( node.getLeftChansetExpression(), getChildContexts(question).first);
+		// ChannelNameSetValue rightChanset = eval(node.getRightChansetExpression(),getChildContexts(question).second);
+		//
+		// Context chansetContext = CmlContextFactory.newContext(node.getLocation(),
+		// "Alphabetised parallelism precalcualted channelsets", question);
+		//
+		// chansetContext.put(NamespaceUtility.getLeftPrecalculatedChannetSet(),leftChanset);
+		// chansetContext.put(NamespaceUtility.getRightPrecalculatedChannetSet(),rightChanset);
+		//
+		// return new Pair<INode, Context>(node,chansetContext);
 	}
-	
+
 	@Override
 	public Pair<INode, Context> caseAInterruptProcess(AInterruptProcess node,
 			Context question) throws AnalysisException
 	{
 		return caseAInterrupt(node, node.getLeft(), node.getRight(), question);
 	}
-	
+
 	@Override
 	public Pair<INode, Context> caseASequentialCompositionProcess(
 			ASequentialCompositionProcess node, Context question)
@@ -69,7 +70,7 @@ class ProcessSetupVisitor extends CommonSetupVisitor
 	{
 		return caseASequentialComposition(node, node.getLeft(), question);
 	}
-	
+
 	@Override
 	public Pair<INode, Context> caseATimedInterruptProcess(
 			ATimedInterruptProcess node, Context question)
@@ -77,7 +78,7 @@ class ProcessSetupVisitor extends CommonSetupVisitor
 	{
 		return caseATimedInterrupt(node, node.getLeft(), question);
 	}
-	
+
 	@Override
 	public Pair<INode, Context> caseAUntimedTimeoutProcess(
 			AUntimedTimeoutProcess node, Context question)
@@ -85,7 +86,7 @@ class ProcessSetupVisitor extends CommonSetupVisitor
 	{
 		return caseAUntimedTimeout(node, node.getLeft(), question);
 	}
-	
+
 	@Override
 	public Pair<INode, Context> caseAHidingProcess(AHidingProcess node,
 			Context question) throws AnalysisException
@@ -94,14 +95,14 @@ class ProcessSetupVisitor extends CommonSetupVisitor
 		setLeftChild(node.getLeft(), question);
 		return new Pair<INode, Context>(node, question);
 	}
-	
+
 	@Override
 	public Pair<INode, Context> caseATimeoutProcess(ATimeoutProcess node,
 			Context question) throws AnalysisException
 	{
 		return caseATimeout(node, node.getLeft(), question);
 	}
-	
+
 	/*
 	 * Replicated processes
 	 */
@@ -148,15 +149,18 @@ class ProcessSetupVisitor extends CommonSetupVisitor
 			{
 				return new AExternalChoiceProcess(node.getLocation(), node.getReplicatedProcess().clone(), node.getReplicatedProcess().clone());
 			}
-			
+
 		}, question);
-		
-		if(ret.first instanceof ASkipAction)
-			return new Pair<INode, Context>(new AStopAction(node.getLocation()),question);
-		else
+
+		if (ret.first instanceof ASkipAction)
+		{
+			return new Pair<INode, Context>(new AStopAction(node.getLocation()), question);
+		} else
+		{
 			return ret;
+		}
 	}
-	
+
 	@Override
 	public Pair<INode, Context> caseAGeneralisedParallelismReplicatedProcess(
 			final AGeneralisedParallelismReplicatedProcess node,
@@ -225,38 +229,40 @@ class ProcessSetupVisitor extends CommonSetupVisitor
 			{
 				return new AAlphabetisedParallelismProcess(node.getLocation(), node.getReplicatedProcess().clone(), node.getChansetExpression().clone(), node.getChansetExpression().clone(), node.getReplicatedProcess().clone());
 			}
-			
+
 			@Override
-			Context createOperatorContext(INode node, CmlSetQuantifier ql, Context question)
+			Context createOperatorContext(INode node, CmlSetQuantifier ql,
+					Context question)
 			{
 				/*
 				 * We need to override this because the alphabetised operator expect the left and right channelsets to
 				 * be pre-calculated.
 				 */
-				//first we retreive the already calculated child contexts
+				// first we retreive the already calculated child contexts
 				Pair<Context, Context> createdChildContexts = ProcessSetupVisitor.this.getChildContexts(question);
-				AAlphabetisedParallelismProcess actualNode = (AAlphabetisedParallelismProcess)node;
-				//create the new context and start to calculate the left and right channelsets 
+				AAlphabetisedParallelismProcess actualNode = (AAlphabetisedParallelismProcess) node;
+				// create the new context and start to calculate the left and right channelsets
 				Context alphabetisedOperatorContext = CmlContextFactory.newContext(question.location, "Alphabetised parallelism precalcualted channelsets", question);
 				try
 				{
-					//the left channelset is always calculated from the defined channelset in the operator
-					//evaluated in the i'th context
-					ChannelNameSetValue leftChanset = (ChannelNameSetValue)eval(actualNode.getLeftChansetExpression(),createdChildContexts.first);
+					// the left channelset is always calculated from the defined channelset in the operator
+					// evaluated in the i'th context
+					ChannelNameSetValue leftChanset = (ChannelNameSetValue) eval(actualNode.getLeftChansetExpression(), createdChildContexts.first);
 					alphabetisedOperatorContext.put(NamespaceUtility.getLeftPrecalculatedChannetSet(), leftChanset);
-					//The right is also evaluated as the left but more channels might be added as described below
-					ChannelNameSetValue rightChanset = (ChannelNameSetValue)eval(actualNode.getRightChansetExpression(),createdChildContexts.second);
-					//now we join the rest of the values to the channelset to enable any proceesses further down to be able
-					//to independently participte in channel events
-					if(actualNode.getRight() instanceof AAlphabetisedParallelismReplicatedProcess)
+					// The right is also evaluated as the left but more channels might be added as described below
+					ChannelNameSetValue rightChanset = (ChannelNameSetValue) eval(actualNode.getRightChansetExpression(), createdChildContexts.second);
+					// now we join the rest of the values to the channelset to enable any proceesses further down to be
+					// able
+					// to independently participte in channel events
+					if (actualNode.getRight() instanceof AAlphabetisedParallelismReplicatedProcess)
 					{
-						for(NameValuePairList nvpl : ql)
+						for (NameValuePairList nvpl : ql)
 						{
-							Context nextChildContext = createReplicationChildContext(nvpl, actualNode, question); 
-							rightChanset.addAll((ChannelNameSetValue)eval(actualNode.getRightChansetExpression(),nextChildContext));
+							Context nextChildContext = createReplicationChildContext(nvpl, actualNode, question);
+							rightChanset.addAll((ChannelNameSetValue) eval(actualNode.getRightChansetExpression(), nextChildContext));
 						}
 					}
-					
+
 					alphabetisedOperatorContext.put(NamespaceUtility.getRightPrecalculatedChannetSet(), rightChanset);
 
 				} catch (AnalysisException e)
@@ -265,7 +271,6 @@ class ProcessSetupVisitor extends CommonSetupVisitor
 					e.printStackTrace();
 				}
 
-				
 				return alphabetisedOperatorContext;
 			}
 		}, question);

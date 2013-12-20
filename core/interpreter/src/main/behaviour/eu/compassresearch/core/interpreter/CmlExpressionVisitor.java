@@ -23,8 +23,6 @@ import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.runtime.VdmRuntime;
 import org.overture.interpreter.runtime.VdmRuntimeError;
-import org.overture.interpreter.scheduler.BasicSchedulableThread;
-import org.overture.interpreter.scheduler.InitThread;
 import org.overture.interpreter.values.NameValuePair;
 import org.overture.interpreter.values.NameValuePairList;
 import org.overture.interpreter.values.Quantifier;
@@ -92,8 +90,8 @@ public class CmlExpressionVisitor extends
 	{
 		// To be able to work together with the VDM interpreter we need to set this
 		// to the current thread.
-//		InitThread initThread = new InitThread(Thread.currentThread());
-//		BasicSchedulableThread.setInitialThread(initThread);
+		// InitThread initThread = new InitThread(Thread.currentThread());
+		// BasicSchedulableThread.setInitialThread(initThread);
 	}
 
 	@Override

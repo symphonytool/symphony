@@ -24,17 +24,17 @@ public class CmlDBGPReader extends DBGPReader
 
 	public CmlDBGPReader(CmlInterpreter interpreter)
 	{
-		super("",0,"",null,"",null);
+		super("", 0, "", null, "", null);
 		this.interpreter = interpreter;
 	}
-	
+
 	@Override
 	public void stopped(Context ctxt, Breakpoint bp)
 	{
-		System.out.println("Stopped as "+bp + " location: "+bp.location);
+		System.out.println("Stopped as " + bp + " location: " + bp.location);
 		try
 		{
-			interpreter.setCurrentDebugContext( ctxt, bp.location);
+			interpreter.setCurrentDebugContext(ctxt, bp.location);
 			interpreter.suspend();
 		} catch (InterruptedException e)
 		{
@@ -42,13 +42,13 @@ public class CmlDBGPReader extends DBGPReader
 			e.printStackTrace();
 		}
 	}
-	
+
 	@Override
 	public void stopped(Context ctxt, ILexLocation location)
 	{
-		System.out.println("Stopped as "+location);
+		System.out.println("Stopped as " + location);
 	}
-	
+
 	@Override
 	public void complete(DBGPReason reason, ContextException ctxt)
 	{
