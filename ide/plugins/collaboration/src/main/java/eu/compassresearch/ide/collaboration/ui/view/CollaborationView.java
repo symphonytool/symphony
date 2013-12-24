@@ -45,16 +45,15 @@ import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.ViewPart;
 
 import eu.compassresearch.ide.collaboration.Activator;
-import eu.compassresearch.ide.collaboration.communication.dispatch.MessageProcessor;
+import eu.compassresearch.ide.collaboration.communication.MessageProcessor;
 import eu.compassresearch.ide.collaboration.communication.messages.FileStatusMessage;
 import eu.compassresearch.ide.collaboration.communication.messages.FileStatusMessage.NegotiationStatus;
+import eu.compassresearch.ide.collaboration.datamodel.CollaborationDataModelManager;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationDataModelRoot;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationGroup;
-import eu.compassresearch.ide.collaboration.datamodel.CollaborationProject;
 import eu.compassresearch.ide.collaboration.datamodel.Contract;
 import eu.compassresearch.ide.collaboration.datamodel.Contracts;
 import eu.compassresearch.ide.collaboration.datamodel.Model;
-import eu.compassresearch.ide.collaboration.datamodel.User;
 import eu.compassresearch.ide.collaboration.datamodel.Version;
 import eu.compassresearch.ide.collaboration.ui.menu.AddCollaboratorRosterMenuContributionItem;
 
@@ -118,9 +117,97 @@ public class CollaborationView extends ViewPart {
 		treeViewer.expandAll();
 	}
 	
+protected void createActions() {
+		
+		diffWithPrevAction = new Action("Diff With Previous") {
+			public void run() {
+				diffWithPrev();
+			}			
+		};
+		diffWithPrevAction.setToolTipText("Diff selected version with previous version");
+
+		approveContractAction = new Action("Approve") {
+			public void run() {
+				try
+				{
+					approveSelected();
+				} catch (SerializationException e)
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}			
+		};
+		approveContractAction.setToolTipText("Approve this file");
+		
+		rejectContractAction = new Action("Reject") {
+			public void run() {
+				try
+				{
+					rejectSelected();
+				} catch (ECFException e)
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}			
+		};
+		rejectContractAction.setToolTipText("Reject this file");
+		
+		negotiateContractAction = new Action("Negotiate") {
+			public void run() {
+				negotiateSelected();
+			}			
+		};
+		negotiateContractAction.setToolTipText("Renegotiate this file");
+	}
+	
+	protected void diffWithPrev() {
+
+		if (treeViewer.getSelection().isEmpty()) {
+			return;
+		} else {
+			IStructuredSelection selection = (IStructuredSelection) treeViewer.getSelection();
+			Model selectedDomainObject = (Model) selection.getFirstElement();
+			
+			if ((selectedDomainObject instanceof Contracts)) {
+				Contracts contracts = (Contracts) selectedDomainObject;
+						
+			} else if ((selectedDomainObject instanceof Version)) {
+				Version version = (Version) selectedDomainObject;
+				Contract contract = (Contract) version.getParent();
+				
+				contract.getFilename();
+				MessageProcessor collabMgM = Activator.getDefault().getMessageProcessor();
+				
+				// CompareUI.openCompareEditor(new CompareInput());
+				
+				CompareConfiguration configuration = new CompareConfiguration();
+				CompareUI.openCompareDialog(new CompareEditorInput(configuration) {
+				    @Override
+				    protected Object prepareInput(final IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+				        String text1 = "channels\na : nat * nat\nb : int * nat * int\n";
+				        String text2 = "channels\na : nat * int\nb : int * nat * int\n";
+
+				        CompareItem left = new CompareItem("1", text1);
+				        CompareItem right = new CompareItem("2", text2);
+				        DiffNode diffNode = new DiffNode(left, right);
+				        return diffNode;
+				    }
+				});
+				
+				
+			} else {
+			
+				return;
+			}
+		}
+	}
+	
 	private void addContextMenu() {
-		MenuManager menuMgr = new MenuManager();
+		  MenuManager menuMgr = new MenuManager();
 		  Menu menu = menuMgr.createContextMenu(treeViewer.getControl());
+		  
 		  menuMgr.addMenuListener(new IMenuListener() {
 		    @Override
 		    public void menuAboutToShow(IMenuManager manager) {
@@ -176,98 +263,6 @@ public class CollaborationView extends ViewPart {
 			}
 		});
 	}
-	
-	protected void createActions() {
-		
-		diffWithPrevAction = new Action("Diff With Previous") {
-			public void run() {
-				diffWithPrev();
-			}			
-		};
-		diffWithPrevAction.setToolTipText("Diff selected version with previous version");
-
-		approveContractAction = new Action("Approve") {
-			public void run() {
-				try
-				{
-					approveSelected();
-				} catch (SerializationException e)
-				{
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (ECFException e)
-				{
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}			
-		};
-		approveContractAction.setToolTipText("Approve this file");
-		
-		rejectContractAction = new Action("Reject") {
-			public void run() {
-				try
-				{
-					rejectSelected();
-				} catch (ECFException e)
-				{
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}			
-		};
-		rejectContractAction.setToolTipText("Reject this file");
-		
-		negotiateContractAction = new Action("Negotiate") {
-			public void run() {
-				negotiateSelected();
-			}			
-		};
-		negotiateContractAction.setToolTipText("Renegotiate this file");
-	}
-	
-	protected void diffWithPrev() {
-
-		if (treeViewer.getSelection().isEmpty()) {
-			return;
-		} else {
-			IStructuredSelection selection = (IStructuredSelection) treeViewer.getSelection();
-			Model selectedDomainObject = (Model) selection.getFirstElement();
-			
-			if ((selectedDomainObject instanceof Contracts)) {
-				Contracts contracts = (Contracts) selectedDomainObject;
-						
-			} else if ((selectedDomainObject instanceof Version)) {
-				Version version = (Version) selectedDomainObject;
-				Contract contract = (Contract) version.getParent();
-				
-				contract.getFilename();
-				MessageProcessor collabMgM = Activator.getDefault().getCollaborationManager();
-				
-				// CompareUI.openCompareEditor(new CompareInput());
-				
-				CompareConfiguration configuration = new CompareConfiguration();
-				CompareUI.openCompareDialog(new CompareEditorInput(configuration) {
-				    @Override
-				    protected Object prepareInput(final IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-				        String text1 = "channels\na : nat * nat\nb : int * nat * int\n";
-				        String text2 = "channels\na : nat * int\nb : int * nat * int\n";
-
-				        CompareItem left = new CompareItem("1", text1);
-				        CompareItem right = new CompareItem("2", text2);
-				        DiffNode diffNode = new DiffNode(left, right);
-				        return diffNode;
-				    }
-				});
-				
-				
-			} else {
-			
-				return;
-			}
-		}
-	}
-	
 	
 	public class CompareItem implements IFlushable, IStreamContentAccessor, ITypedElement, IModificationDate, IEditableContent {
 	    private String name;
@@ -333,22 +328,6 @@ public class CollaborationView extends ViewPart {
 	    }
 	}
 	
-//	   class CompareInput extends CompareEditorInput {
-//		      public CompareInput() {
-//		         super(new CompareConfiguration());
-//		      }
-//		      protected Object prepareInput(IProgressMonitor pm) {
-//		         CompareItem ancestor = 
-//		            new CompareItem("Common", "contents");
-//		         CompareItem left = 
-//		            new CompareItem("Left", "new contents");
-//		         CompareItem right = 
-//		            new CompareItem("Right", "old contents");
-//		         return new DiffNode(null, Differencer.CONFLICTING, 
-//		            ancestor, left, right);
-//		      }
-//		   }
-	
 	protected void approveSelected() throws SerializationException {
 		if (treeViewer.getSelection().isEmpty()) {
 			return;
@@ -359,7 +338,7 @@ public class CollaborationView extends ViewPart {
 			if(selectedDomainObject instanceof Contract)
 			{
 				Contract contract = (Contract) selectedDomainObject;
-				MessageProcessor collabMgM = Activator.getDefault().getCollaborationManager();
+				MessageProcessor collabMgM = Activator.getDefault().getMessageProcessor();
 				FileStatusMessage statMsg = new FileStatusMessage(contract.getReceiver(), contract.getSender(), contract.getFilename(), NegotiationStatus.ACCEPT, new Date());
 				collabMgM.sendMessage(contract.getSender(), statMsg.serialize());
 			}
@@ -376,7 +355,7 @@ public class CollaborationView extends ViewPart {
 			if(selectedDomainObject instanceof Contract)
 			{
 				Contract contract = (Contract) selectedDomainObject;
-				MessageProcessor collabMgM = Activator.getDefault().getCollaborationManager();
+				MessageProcessor collabMgM = Activator.getDefault().getMessageProcessor();
 				FileStatusMessage statMsg = new FileStatusMessage(contract.getReceiver(), contract.getSender(), contract.getFilename(), NegotiationStatus.REJECT, new Date());
 				collabMgM.sendMessage(contract.getSender(), statMsg.serialize());
 			}
@@ -393,7 +372,7 @@ public class CollaborationView extends ViewPart {
 			if(selectedDomainObject instanceof Contract)
 			{
 				Contract contract = (Contract) selectedDomainObject;
-				MessageProcessor collabMgM = Activator.getDefault().getCollaborationManager();
+				MessageProcessor collabMgM = Activator.getDefault().getMessageProcessor();
 				
 			
 				IFile oldFile = collabMgM.getProjectFolder().getFile(contract.getFilename());
@@ -428,25 +407,30 @@ public class CollaborationView extends ViewPart {
 	}
 		
 	public CollaborationDataModelRoot getInitalInput() {
-		root = new CollaborationDataModelRoot();
-		
-		CollaborationProject clPr = new CollaborationProject("test");
-		root.addCollaborationProject(clPr);
-		
-		CollaborationProject clPr2 = new CollaborationProject("test 2");
-		root.addCollaborationProject(clPr2);
 
-		User u1 = new User("(You)");
+		CollaborationDataModelManager dataModelManager = Activator.getDefault().getDataModelManager();
 		
-		Contract contract = new Contract();
+		return dataModelManager.getDatamodel(); 
 		
-		clPr.addContract(contract);
-		clPr.addCollaborator(u1);
+//		root = new CollaborationDataModelRoot();
+//		
+//		CollaborationProject clPr = new CollaborationProject("test");
+//		root.addCollaborationProject(clPr);
+////		
+////		CollaborationProject clPr2 = new CollaborationProject("test 2");
+////		root.addCollaborationProject(clPr2);
+////
+//		User u1 = new User("(You)");
+//		
+//		Contract contract = new Contract();
+////		
+////		clPr.addContract(contract);
+//		clPr.addCollaborator(u1);
 		
-		return root;
+//		return root;
 	}
 	
-	public CollaborationDataModelRoot getRoot()
+	public CollaborationDataModelRoot getDataModel()
 	{
 		return root;
 	}

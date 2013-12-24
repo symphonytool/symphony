@@ -15,7 +15,7 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 
 import eu.compassresearch.ide.collaboration.Activator;
-import eu.compassresearch.ide.collaboration.communication.dispatch.MessageProcessor;
+import eu.compassresearch.ide.collaboration.communication.MessageProcessor;
 import eu.compassresearch.ide.collaboration.communication.messages.CollaborationRequest;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationDataModelRoot;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationGroup;
@@ -49,7 +49,6 @@ public class AddCollaboratorRosterMenuHandler extends AbstractRosterMenuHandler
 		
 			if (collabMgm == null)
 				Notification.showErrorMessage(Notification.CollabMenuRosterMenuHandler_ERROR_NO_COLLAB_CHANNEL);
-		
 			
 			IUser self = roster.getUser();	
 			IUser receiver = rosterEntry.getUser();
@@ -71,7 +70,7 @@ public class AddCollaboratorRosterMenuHandler extends AbstractRosterMenuHandler
 				final IViewPart view = page.findView("eu.compassresearch.ide.collaboration.treeview.ui.CollaborationView");
 				final CollaborationView collabview = (CollaborationView) view;
 				
-				CollaborationDataModelRoot root = collabview.getRoot();
+				CollaborationDataModelRoot root = collabview.getDataModel();
 				
 				CollaborationGroup collabGrp = (CollaborationGroup) root.getCollaborationProjects().get(0).getCollaboratorGroup();
 				User usr = new User(receiver.getName(), "(Request sent, pending response.)");

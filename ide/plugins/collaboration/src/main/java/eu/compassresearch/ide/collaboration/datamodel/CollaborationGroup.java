@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Map;
 
 public class CollaborationGroup extends Model {
+
+	private static final long serialVersionUID = 1083165101733581295L;
+	
 	protected Map<String,User> collaborators;
 	
 	public CollaborationGroup() {
@@ -17,13 +20,13 @@ public class CollaborationGroup extends Model {
 		collaborators.put(user.getName(), user);
 		user.setParent(this);
 		user.listener = this.listener;
-		fireAdd(user);
+		fireObjectAddedEvent(user);
 	}
 	
 	public void removeCollaborator(User user) {
 		collaborators.remove(user);
-		user.addListener(NullDeltaListener.getSoleInstance());
-		fireRemove(user);
+		user.removeListener(listener);
+		fireObjectRemovedEvent(user);
 	}
 	
 	public User getUser(String name) {	

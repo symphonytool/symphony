@@ -2,6 +2,8 @@ package eu.compassresearch.ide.collaboration.datamodel;
 
 public class Version extends Model {
 	
+	private static final long serialVersionUID = -6007439345479622225L;
+	
 	protected Shares shares;
 	
 	public Version(String title) {
@@ -13,13 +15,13 @@ public class Version extends Model {
 	public void addShare(Share share) {
 		shares.addShare(share);
 		share.setParent(this); 
-		fireAdd(share);
+		fireObjectAddedEvent(share);
 	}		
 	
 	protected void removeShare(Share share) {
 		shares.removeShare(share);
-		share.addListener(NullDeltaListener.getSoleInstance());
-		fireRemove(share);
+		share.removeListener(listener);
+		fireObjectRemovedEvent(share);
 	}
 	
 	public Shares getShares() {

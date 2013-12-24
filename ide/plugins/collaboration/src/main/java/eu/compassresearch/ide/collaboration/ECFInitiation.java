@@ -73,7 +73,7 @@ public class ECFInitiation implements IECFStart
 				ID containerID = container.getID();
 				if (event instanceof IContainerConnectedEvent) {
 					try {
-						Activator.getDefault().addCollaborationManager(containerID, cca);
+						Activator.getDefault().addMessageProcessor(containerID, cca);
 					} catch (ECFException e) {
 						Activator.getDefault().getLog().log(new Status(IStatus.WARNING, Activator.PLUGIN_ID, IStatus.WARNING, Notification.ECFInit_ERROR_COLLABORATION_NOT_CREATED + container.getID(), null));
 					}

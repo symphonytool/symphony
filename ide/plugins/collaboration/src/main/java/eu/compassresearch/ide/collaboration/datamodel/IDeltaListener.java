@@ -1,5 +1,5 @@
 package eu.compassresearch.ide.collaboration.datamodel;
 public interface IDeltaListener {
-	public void add(DeltaEvent event);
-	public void remove(DeltaEvent event);
+	public void onObjectAdded(DeltaEvent event);
+	public void onObjectRemove(DeltaEvent event);
 }

@@ -1,10 +1,18 @@
 package eu.compassresearch.ide.collaboration.datamodel;
 
+import java.io.Serializable;
 
-public abstract class Model {
+
+public abstract class Model implements Serializable {
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8593960173574664214L;
+	
 	private Model parent;
 	protected String name;	
-	protected IDeltaListener listener = NullDeltaListener.getSoleInstance();
+	protected IDeltaListener listener;
 	
 	public Model(String name) {
 		this.name = name;
@@ -14,12 +22,14 @@ public abstract class Model {
 
 	}
 	
-	protected void fireAdd(Object added) {
-		listener.add(new DeltaEvent(added));
+	protected void fireObjectAddedEvent(Object added) {
+		if(listener != null)
+			listener.onObjectAdded(new DeltaEvent(added));
 	}
 
-	protected void fireRemove(Object removed) {
-		listener.remove(new DeltaEvent(removed));
+	protected void fireObjectRemovedEvent(Object removed) {
+		if(listener != null)
+			listener.onObjectRemove(new DeltaEvent(removed));
 	}
 	
 	public void setName(String name) {
@@ -48,8 +58,9 @@ public abstract class Model {
 	}
 	
 	public void removeListener(IDeltaListener listener) {
+
 		if(this.listener.equals(listener)) {
-			this.listener = NullDeltaListener.getSoleInstance();
+			this.listener = null;
 		}
 	}
 	

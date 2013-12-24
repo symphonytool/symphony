@@ -2,10 +2,6 @@ package eu.compassresearch.ide.collaboration;
 
 import java.util.Hashtable;
 
-import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.ecf.core.IContainerManager;
 import org.eclipse.ecf.core.identity.ID;
 import org.eclipse.ecf.core.util.ECFException;
@@ -14,11 +10,15 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
 
-import eu.compassresearch.ide.collaboration.communication.dispatch.MessageProcessor;
+import eu.compassresearch.ide.collaboration.communication.MessageProcessor;
+import eu.compassresearch.ide.collaboration.communication.handlers.CollaborationRequestHandler;
+import eu.compassresearch.ide.collaboration.communication.handlers.CollaborationStatusMessageHandler;
+import eu.compassresearch.ide.collaboration.communication.handlers.FileStatusMessageHandler;
+import eu.compassresearch.ide.collaboration.communication.handlers.NewFileHandler;
+import eu.compassresearch.ide.collaboration.datamodel.CollaborationDataModelManager;
 
 public class Activator extends AbstractUIPlugin
 {
-
 	public static final String PLUGIN_ID = "eu.compassresearch.ide.collaboration"; 
 	
 	private BundleContext context;
@@ -26,9 +26,11 @@ public class Activator extends AbstractUIPlugin
 	
 	private ServiceTracker containerManagerTracker;
 	
+	private CollaborationDataModelManager dataModelManager;
+	
 	private static final Hashtable<ID, MessageProcessor> collaborationChannels = new Hashtable<ID, MessageProcessor>();
 	
-	private MessageProcessor collabMgm;
+	private MessageProcessor messageProcessor;
 	
 	public Activator() {
 		// nothing to do
@@ -38,6 +40,11 @@ public class Activator extends AbstractUIPlugin
 		super.start(ctxt);
 		plugin = this;
 		context = ctxt;
+		dataModelManager = new CollaborationDataModelManager();
+		
+		//Persist data model
+		//dataModelManager.loadModel();
+		
 	}
 	
 	@Override
@@ -48,24 +55,38 @@ public class Activator extends AbstractUIPlugin
 			containerManagerTracker = null;
 		}
 		
+		//dataModelManager.saveModel();
+		
 		plugin = null;
 		this.context = null;
+		dataModelManager = null;
 		
 		super.stop(context);
 	}
 	
-	public MessageProcessor addCollaborationManager(ID containerID, IChannelContainerAdapter channelAdapter) throws ECFException {
+	public MessageProcessor addMessageProcessor(ID containerID, IChannelContainerAdapter channelAdapter) throws ECFException {
 
-		collabMgm = collaborationChannels.get(containerID);
-		if (collabMgm == null){
-			collabMgm = new MessageProcessor(channelAdapter);
-			collaborationChannels.put(containerID, collabMgm);
-			return collabMgm;
+		messageProcessor = collaborationChannels.get(containerID);
+		if (messageProcessor == null){
+			messageProcessor = new MessageProcessor(channelAdapter);
+			collaborationChannels.put(containerID, messageProcessor);
+			
+			addMessageHandlers();
+			
+			return messageProcessor;
 		}
 			
-		return collabMgm;
+		return messageProcessor;
 	}
 	
+	private void addMessageHandlers()
+	{
+		messageProcessor.addMessageHandler(new CollaborationRequestHandler(messageProcessor));	
+		messageProcessor.addMessageHandler(new NewFileHandler(messageProcessor));
+		messageProcessor.addMessageHandler(new FileStatusMessageHandler(messageProcessor));
+		messageProcessor.addMessageHandler(new CollaborationStatusMessageHandler(messageProcessor));
+	}
+
 	public void removeCollaborationManager(ID containerID){
 		MessageProcessor collabMgm = collaborationChannels.remove(containerID);
 		if(collabMgm != null ){
@@ -89,9 +110,13 @@ public class Activator extends AbstractUIPlugin
 		return plugin;
 	}
 
-	public MessageProcessor getCollaborationManager()
+	public MessageProcessor getMessageProcessor()
 	{
-		return collabMgm;
+		return messageProcessor;
 	}
-	
+
+	public CollaborationDataModelManager getDataModelManager()
+	{
+		return dataModelManager;
+	}
 }

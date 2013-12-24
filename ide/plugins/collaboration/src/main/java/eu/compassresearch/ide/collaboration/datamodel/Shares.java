@@ -1,30 +1,32 @@
 package eu.compassresearch.ide.collaboration.datamodel;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 public class Shares extends Model {
-	protected List shares;
+
+	private static final long serialVersionUID = -5246629853836276264L;
+	
+	protected List<Share> shares;
 
 	public Shares() {
-		shares = new ArrayList();
+		shares = new ArrayList<Share>();
 		this.name = "Shares";
 	}
 	
 	public void addShare(Share share) {
 		shares.add(share);
 		share.setParent(this);
-		fireAdd(share);
+		fireObjectAddedEvent(share);
 	}
 	
 	protected void removeShare(Share share) {
 		shares.remove(share);
-		share.addListener(NullDeltaListener.getSoleInstance());
-		fireRemove(share);
+		share.removeListener(listener);
+		fireObjectRemovedEvent(share);
 	}
 	
-	public List getShares() {
+	public List<Share> getShares() {
 		return shares;
 	}
 	
@@ -39,9 +41,9 @@ public class Shares extends Model {
 	@Override
 	public void addListener(IDeltaListener listener) {
 		
-		for (Iterator iterator = shares.iterator(); iterator.hasNext();) {
-			Share share = (Share) iterator.next();
-			share.addListener(listener);
+		for (Share s : shares)
+		{
+			s.addListener(listener);
 		}
 		
 		super.addListener(listener);

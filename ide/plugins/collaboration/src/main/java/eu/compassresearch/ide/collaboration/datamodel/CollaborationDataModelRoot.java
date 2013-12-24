@@ -1,15 +1,18 @@
 package eu.compassresearch.ide.collaboration.datamodel;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class CollaborationDataModelRoot extends Model {
 
-	ArrayList<CollaborationProject> collabPrj;	
+	private static final long serialVersionUID = -1055683893766465746L;
+
+	HashMap<String,CollaborationProject> collaborationProjects;	
 	
 	public CollaborationDataModelRoot() {
 		super();
 
-		collabPrj = new ArrayList<CollaborationProject>();
+		collaborationProjects = new HashMap<String, CollaborationProject>();
 	}
 	
 	public CollaborationDataModelRoot(String name ) {
@@ -17,12 +20,22 @@ public class CollaborationDataModelRoot extends Model {
 		this.name = name;
 	}
 	
-	public void addCollaborationProject(CollaborationProject project) {
-		collabPrj.add(project);
+	public boolean addCollaborationProject(CollaborationProject project) {
+		
+		 String title = project.getTitle();
+		
+		if(collaborationProjects.containsKey(title)){
+			return false;
+		} else {
+			collaborationProjects.put(project.getTitle(), project);
+			fireObjectAddedEvent(project);
+			
+			return true;
+		}
 	}
 	
 	public ArrayList<CollaborationProject> getCollaborationProjects() {
-		return collabPrj;	
+		return new ArrayList<>(collaborationProjects.values());
 	}
 	
 	

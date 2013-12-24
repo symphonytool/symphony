@@ -5,26 +5,29 @@ import java.util.Iterator;
 import java.util.List;
 
 public class Versions extends Model {
-	protected List versions;
+
+	private static final long serialVersionUID = -2544433612278015772L;
+	
+	protected List<Version> versions;
 
 	public Versions() {
 		super("Versions");
-		versions = new ArrayList();
+		versions = new ArrayList<Version>();
 	}
 	
 	public void addVersion(Version version) {
 		versions.add(0,version);
 		version.setParent(this); 
-		fireAdd(version);
+		fireObjectAddedEvent(version);
 	}
 	
 	protected void removeVersion(Version version) {
 		versions.remove(version);
-		version.addListener(NullDeltaListener.getSoleInstance());
-		fireRemove(version);
+		version.removeListener(listener);
+		fireObjectRemovedEvent(version);
 	}
 	
-	public List getVersions() {
+	public List<Version> getVersions() {
 		return versions;
 	}
 	
@@ -39,8 +42,8 @@ public class Versions extends Model {
 	@Override
 	public void addListener(IDeltaListener listener) {
 		
-		for (Iterator iterator = versions.iterator(); iterator.hasNext();) {
-			Version version = (Version) iterator.next();
+		for (Iterator<Version> iterator = versions.iterator(); iterator.hasNext();) {
+			Version version = iterator.next();
 			version.addListener(listener);
 		}
 		

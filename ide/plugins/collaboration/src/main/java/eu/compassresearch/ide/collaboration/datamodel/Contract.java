@@ -5,6 +5,9 @@ import org.eclipse.ecf.core.user.IUser;
 import eu.compassresearch.ide.collaboration.communication.messages.FileStatusMessage.NegotiationStatus;
 
 public class Contract extends Model {
+
+	private static final long serialVersionUID = 3865745639653377130L;
+
 	protected Versions versions;
 	
 	private String filename;
@@ -29,13 +32,13 @@ public class Contract extends Model {
 	public void addVersion(Version version) {
 		versions.addVersion(version);
 		version.setParent(this);
-		fireAdd(version);
+		fireObjectAddedEvent(version);
 	}
 	
 	protected void removeVersion(Version version) {
 		versions.removeVersion(version);
-		version.addListener(NullDeltaListener.getSoleInstance());
-		fireRemove(version);
+		version.removeListener(listener);
+		fireObjectRemovedEvent(version);
 	}
 
 	public Versions getVersions() {
@@ -79,6 +82,6 @@ public class Contract extends Model {
 	public void setStatus(NegotiationStatus status)
 	{
 		this.status = status;
-		fireAdd(this);
+		fireObjectAddedEvent(this);
 	}	
 }

@@ -22,7 +22,7 @@ import org.eclipse.ui.handlers.HandlerUtil;
 
 import eu.compassresearch.ide.collaboration.Activator;
 import eu.compassresearch.ide.collaboration.CollaborationPluginUtils;
-import eu.compassresearch.ide.collaboration.communication.dispatch.MessageProcessor;
+import eu.compassresearch.ide.collaboration.communication.MessageProcessor;
 import eu.compassresearch.ide.collaboration.communication.messages.NewFileMessage;
 import eu.compassresearch.ide.collaboration.notifications.Notification;
 

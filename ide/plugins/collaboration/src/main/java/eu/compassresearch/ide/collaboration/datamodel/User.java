@@ -2,6 +2,8 @@ package eu.compassresearch.ide.collaboration.datamodel;
 
 public class User extends Model {
 	
+	private static final long serialVersionUID = 5634470790158709661L;
+	
 	private String postfix;
 	
 	public User(String name) {
@@ -38,6 +40,6 @@ public class User extends Model {
 	public void setPostfix(String postfix)
 	{
 		this.postfix = postfix;
-		fireAdd(this);
+		fireObjectAddedEvent(this);
 	}
 }

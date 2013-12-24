@@ -9,7 +9,7 @@ import org.eclipse.ecf.sync.SerializationException;
 import eu.compassresearch.ide.collaboration.notifications.Notification;
 
 
-public class BaseMessage implements IModelChangeMessage, Serializable {
+public class BaseMessage implements Serializable {
 
 	private static final long serialVersionUID = -70529594981572196L;
 
@@ -22,11 +22,11 @@ public class BaseMessage implements IModelChangeMessage, Serializable {
 		receiverID = receiver;
 	}
 	
-	public static IModelChangeMessage deserialize(byte[] bytes) throws SerializationException {
+	public static BaseMessage deserialize(byte[] bytes) throws SerializationException {
 		try {
 			final ByteArrayInputStream bins = new ByteArrayInputStream(bytes);
 			final ObjectInputStream oins = new ObjectInputStream(bins);
-			return (IModelChangeMessage) oins.readObject();
+			return (BaseMessage) oins.readObject();
 		} catch (final Exception e) {
 			throw new SerializationException(Notification.Collaboration_ERROR_SERIALIZATION_FAILED, e);
 		}

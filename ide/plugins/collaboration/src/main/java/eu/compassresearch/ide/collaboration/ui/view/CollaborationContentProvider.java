@@ -49,15 +49,8 @@ public class CollaborationContentProvider implements ITreeContentProvider, IDelt
 		}
 	}
 	
-	/** Because the domain model does not have a richer
-	 * listener model, recursively remove this listener
-	 * from each child box of the given box. */
 	protected void removeListenerFrom(CollaborationDataModelRoot root) {
 		root.removeListener(this);
-//		for (Iterator iterator = root.getContracts().iterator(); iterator.hasNext();) {
-//			Contracts aBox = (Contracts) iterator.next();
-//			//removeListenerFrom(aBox);
-//		}
 	}
 	
 	protected void addListenerTo(Model root) {
@@ -117,12 +110,12 @@ public class CollaborationContentProvider implements ITreeContentProvider, IDelt
 		return getChildren(inputElement);
 	}
 
-	public void add(DeltaEvent event) {
+	public void onObjectAdded(DeltaEvent event) {
 		Object root = ((Model)event.receiver()).getParent();
 		viewer.refresh(root, true);
 	}
 
-	public void remove(DeltaEvent event) {
-		remove(event);
+	public void onObjectRemove(DeltaEvent event) {
+		onObjectRemove(event);
 	}
 }

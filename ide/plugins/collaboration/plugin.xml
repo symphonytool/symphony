@@ -7,16 +7,24 @@
          allPopups="false"
          locationURI="popup:eu.compassresearch.ide.ui.CmlNavigator">
 	 <dynamic 
-			class="eu.compassresearch.ide.collaboration.menu.CollabRosterMenuContributionItem" 
+			class="eu.compassresearch.ide.collaboration.ui.menu.CollabRosterMenuContributionItem" 
 			id="eu.compassresearch.ide.collaboration">
 	</dynamic>
 	</menuContribution>		
+	<menuContribution
+         allPopups="false"
+         locationURI="additions:eu.compassresearch.ide.collaboration.ui.view.CollaborationView">
+	  <command
+            commandId="eu.compassresearch.ide.collaboration.ui.NewCollaborationProject"
+            label="Add new collaboration project"
+            style="push"
+            tooltip="Adds a new collaboration project">
+		</command>
+	</menuContribution>	
 </extension>
 
-
 <!-- ECF setup -->
-<extension
-      point="org.eclipse.ecf.start">
+<extension point="org.eclipse.ecf.start">
       <run
             class="eu.compassresearch.ide.collaboration.ECFInitiation">
       </run>
@@ -42,11 +50,29 @@
       <viewContribution 
          id="eu.compassresearch.ide.collaboration.ui.view.CollaborationView.Connect" 
          targetID="eu.compassresearch.ide.collaboration.ui.view.CollaborationView">        
-	   <action id="eu.compassresearch.ide.collaboration.ui.view.CollaborationView.connectAction" 
+	     <action id="eu.compassresearch.ide.collaboration.ui.view.CollaborationView.connectAction" 
               class="org.eclipse.ecf.internal.ui.actions.SelectProviderAction" enablesFor="*"
-              label="Connect to IM Provider" 
+              label="Connect to IM Provider"
+              definitionId="eu.compassresearch.ide.collaboration.ui.ConnectionToIM" 
 	      	  menubarPath="additions"> 
-	   </action>
+	    </action>
       </viewContribution>
 </extension>
+
+<!-- Commands -->
+<extension point="org.eclipse.ui.commands">
+		<command
+         id="eu.compassresearch.ide.collaboration.ui.NewCollaborationProject"
+         name="Add new collaboration project">
+		</command>
+</extension>
+
+<!--Handlers -->
+<extension point="org.eclipse.ui.handlers">
+	<handler
+	 class ="eu.compassresearch.ide.collaboration.ui.commands.NewCollaborationProjectHandler"
+     commandId="eu.compassresearch.ide.collaboration.ui.NewCollaborationProject">
+	</handler>
+</extension>
+
 </plugin>

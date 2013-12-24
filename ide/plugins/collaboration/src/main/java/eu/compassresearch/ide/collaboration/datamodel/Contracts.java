@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Map;
 
 public class Contracts extends Model {
+
+	private static final long serialVersionUID = -7710832265326698319L;
+	
 	protected Map<String, Contract> contracts;
 
 	public Contracts() {
@@ -17,13 +20,13 @@ public class Contracts extends Model {
 		contracts.put(contract.getName(), contract);
 		contract.addListener(listener);
 		contract.setParent(this);
-		fireAdd(contract);
+		fireObjectAddedEvent(contract);
 	}
 
 	protected void removeContract(Contract contract) {
 		contracts.remove(contract);
-		contract.addListener(NullDeltaListener.getSoleInstance());
-		fireRemove(contract);
+		contract.removeListener(listener);
+		fireObjectRemovedEvent(contract);
 	}
 
 	public List<Contract> getContracts() {

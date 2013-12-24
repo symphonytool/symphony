@@ -1,5 +1,7 @@
 package eu.compassresearch.ide.collaboration.ui.menu;
 
+import java.util.List;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -9,10 +11,12 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.progress.UIJob;
 
 import eu.compassresearch.ide.collaboration.Activator;
+import eu.compassresearch.ide.collaboration.datamodel.CollaborationProject;
 import eu.compassresearch.ide.collaboration.ui.view.CollaborationView;
 
 public class CollaborationDialogs
@@ -51,17 +55,34 @@ public class CollaborationDialogs
 		}.schedule(8000);
 	}
 	
-	public IWorkbenchWindow getWorkbench()
+	public NewCollaborationProjectDialog getCollaborationProjectDialog(List<CollaborationProject> collabProjects)
+	{
+		return new NewCollaborationProjectDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), collabProjects);	
+	}
+	
+	public static IWorkbenchWindow getWorkbench()
 	{
 		final IWorkbenchWindow workbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 		return workbenchWindow;
 	}
 	
-	public CollaborationView getCollaborationView(){
-		IWorkbenchPage page = this.getWorkbench().getActivePage();
+	public static CollaborationView getCollaborationView(){
+		IWorkbenchPage page = getWorkbench().getActivePage();
 		IViewPart view = page.findView("eu.compassresearch.ide.collaboration.treeview.ui.CollaborationView");
 		CollaborationView collabview = (CollaborationView) view;
 		
 		return collabview;
+	} 
+	
+	public static void showCollaborationView(){
+		IWorkbenchPage page = getWorkbench().getActivePage();
+		try
+		{
+			page.showView("eu.compassresearch.ide.collaboration.treeview.ui.CollaborationView");
+		} catch (PartInitException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	} 
 }

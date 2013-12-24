@@ -31,7 +31,7 @@ import eu.compassresearch.ide.collaboration.datamodel.Versions;
 import eu.compassresearch.ide.collaboration.ui.TreeViewerPlugin;
 
 public class CollaborationLabelProvider extends LabelProvider implements IColorProvider {	
-	private Map imageCache = new HashMap(11);
+	private Map<ImageDescriptor, Image> imageCache = new HashMap<ImageDescriptor, Image>(11);
 	
 	public Image getImage(Object element) {
 		ImageDescriptor descriptor = null;
@@ -68,7 +68,9 @@ public class CollaborationLabelProvider extends LabelProvider implements IColorP
 	public String getText(Object element) {
 	
 		if(element instanceof CollaborationProject){
-			return ((CollaborationProject) element).toString(); 
+			CollaborationProject collabProject = ((CollaborationProject) element);
+			
+			return collabProject.getTitle() +  " (attached to project: " + collabProject.getProjectWorkspaceName() + ")"; 
 		} else if (element instanceof Contracts) {
 			if(((Contracts)element).getName() == null) {
 				return "Contracts";
@@ -95,8 +97,8 @@ public class CollaborationLabelProvider extends LabelProvider implements IColorP
 	}
 
 	public void dispose() {
-		for (Iterator i = imageCache.values().iterator(); i.hasNext();) {
-			((Image) i.next()).dispose();
+		for (Iterator<Image> i = imageCache.values().iterator(); i.hasNext();) {
+			i.next().dispose();
 		}
 		imageCache.clear();
 	}

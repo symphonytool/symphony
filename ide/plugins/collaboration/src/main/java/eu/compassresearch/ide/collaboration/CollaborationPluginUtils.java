@@ -19,15 +19,11 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.ui.IWorkbenchSite;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.WorkbenchException;
 
 public class CollaborationPluginUtils
 {
-	private IWorkbenchSite site;
-
 	public static ArrayList<IResource> getAllCFilesInProject(IProject project)
 	{
 		ArrayList<IResource> allCFiles = new ArrayList<IResource>();
@@ -129,5 +125,4 @@ public class CollaborationPluginUtils
 		outs.close();
 		return fileStore;
 	}
-	
 }
