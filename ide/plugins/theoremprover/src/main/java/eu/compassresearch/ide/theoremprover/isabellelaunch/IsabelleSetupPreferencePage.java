@@ -4,6 +4,7 @@ import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.DirectoryFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
@@ -31,11 +32,17 @@ public class IsabelleSetupPreferencePage extends FieldEditorPreferencePage
 	@Override
 	protected void createFieldEditors()
 	{
-		addField(new DirectoryFieldEditor(IIsabelleConstants.ATTR_LOCATION, "Isabelle location", getFieldEditorParent()));
-		if(! LaunchIsabelleHandler.isWindowsPlatform()){
-			addField(new DirectoryFieldEditor(IIsabelleConstants.ATTR_SESSION_DIRS, "CML Theory location", getFieldEditorParent()));
+		if(LaunchIsabelleHandler.isMacPlatform()){
+			addField(new StringFieldEditor(IIsabelleConstants.ATTR_LOCATION, "Isabelle application location", getFieldEditorParent()));
 		}
-		addField(new BooleanFieldEditor(IIsabelleConstants.Z3_NON_COMMERCIAL, "Check box if for non commercial use", getFieldEditorParent()));
+		else
+		{
+			addField(new DirectoryFieldEditor(IIsabelleConstants.ATTR_LOCATION, "Isabelle application location", getFieldEditorParent()));
+		}
+		if(! LaunchIsabelleHandler.isWindowsPlatform()){
+			addField(new DirectoryFieldEditor(IIsabelleConstants.ATTR_SESSION_DIRS, "CML theory location", getFieldEditorParent()));
+		}
+		addField(new BooleanFieldEditor(IIsabelleConstants.Z3_NON_COMMERCIAL, "Check box if theorem prover is for non commercial use", getFieldEditorParent()));
 	}
 
 	@Override

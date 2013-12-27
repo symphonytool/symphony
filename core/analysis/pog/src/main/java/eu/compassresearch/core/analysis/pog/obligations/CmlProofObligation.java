@@ -30,9 +30,11 @@ abstract public class CmlProofObligation extends ProofObligation implements
 
 	}
 
-	
-	
-
+	@Override
+	public String getKindString()
+	{
+		return cmltype.toString();
+	}
 
 	@Override
 	public String toString()

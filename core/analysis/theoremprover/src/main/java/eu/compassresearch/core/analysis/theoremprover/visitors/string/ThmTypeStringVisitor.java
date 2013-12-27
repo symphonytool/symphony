@@ -133,7 +133,7 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		return (tp.getType().apply(thmStringVisitor, vars));
 	}
 	
-	public String AOptionalType(AOptionalType tp, ThmVarsContext vars) throws AnalysisException{	
+	public String caseAOptionalType(AOptionalType tp, ThmVarsContext vars) throws AnalysisException{	
 		
 		return (ThmTypeUtil.isaOtpOpen + tp.getType().apply(thmStringVisitor, vars) +  ThmTypeUtil.isaOtpClose);
 	}
@@ -190,7 +190,7 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 	}
 	
 	public String caseAVoidReturnType(AVoidReturnType tp, ThmVarsContext vars) throws AnalysisException{	
-		return ThmTypeUtil.notHandled;
+		return "()";
 	}
 	
 	public String caseAVoidType(AVoidType tp, ThmVarsContext vars) throws AnalysisException{	

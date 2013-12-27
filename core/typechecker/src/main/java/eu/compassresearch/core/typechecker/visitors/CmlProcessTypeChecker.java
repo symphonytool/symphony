@@ -14,13 +14,11 @@ import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.intf.lex.ILexLocation;
-import org.overture.ast.lex.LexIdentifierToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.types.ANatNumericBasicType;
 import org.overture.ast.types.PType;
 import org.overture.typechecker.Environment;
-import org.overture.typechecker.FlatCheckedEnvironment;
 import org.overture.typechecker.TypeCheckInfo;
 import org.overture.typechecker.TypeComparator;
 
@@ -51,8 +49,6 @@ import eu.compassresearch.ast.process.AReferenceProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionReplicatedProcess;
 import eu.compassresearch.ast.process.AStartDeadlineProcess;
-import eu.compassresearch.ast.process.ASynchronousParallelismProcess;
-import eu.compassresearch.ast.process.ASynchronousParallelismReplicatedProcess;
 import eu.compassresearch.ast.process.ATimedInterruptProcess;
 import eu.compassresearch.ast.process.ATimeoutProcess;
 import eu.compassresearch.ast.process.AUntimedTimeoutProcess;
@@ -170,51 +166,16 @@ public class CmlProcessTypeChecker extends
 	}
 
 	@Override
-	public PType caseASynchronousParallelismReplicatedProcess(
-			ASynchronousParallelismReplicatedProcess node,
-			TypeCheckInfo question) throws AnalysisException
-	{
-		PProcess proc = node.getReplicatedProcess();
-		LinkedList<PSingleDeclaration> repdecl = node.getReplicationDeclaration();
-
-		List<PDefinition> defs = new Vector<PDefinition>();
-		for (PSingleDeclaration decl : repdecl)
-		{
-			PType declType = decl.apply(THIS, question);
-
-			for (PDefinition def : declType.getDefinitions())
-			{
-				defs.add(def);
-			}
-		}
-
-		PType procType = proc.apply(THIS, question.newScope(defs));
-
-		return procType;
-	}
-
-	@Override
 	public PType caseASequentialCompositionReplicatedProcess(
 			ASequentialCompositionReplicatedProcess node, TypeCheckInfo question)
 			throws AnalysisException
 	{
 
 		PProcess proc = node.getReplicatedProcess();
-		LinkedList<PSingleDeclaration> repdecl = node.getReplicationDeclaration();
 
-		List<PDefinition> locals = new Vector<PDefinition>();
+		TypeCheckInfo info = createAndCheckReplicationDeclarations(question, node.getReplicationDeclaration());
 
-		for (PSingleDeclaration decl : repdecl)
-		{
-			PType declType = decl.apply(THIS, question);
-
-			for (PDefinition def : declType.getDefinitions())
-			{
-				locals.add(def);
-			}
-		}
-
-		proc.apply(THIS, question.newScope(locals));
+		proc.apply(THIS, info);
 
 		return getVoidType(node);
 	}
@@ -224,25 +185,10 @@ public class CmlProcessTypeChecker extends
 			AInternalChoiceReplicatedProcess node, TypeCheckInfo question)
 			throws AnalysisException
 	{
-
-		// FIXME
-
 		PProcess proc = node.getReplicatedProcess();
-		LinkedList<PSingleDeclaration> repdecl = node.getReplicationDeclaration();
+		TypeCheckInfo info = createAndCheckReplicationDeclarations(question, node.getReplicationDeclaration());
 
-		List<PDefinition> locals = new Vector<PDefinition>();
-
-		for (PSingleDeclaration decl : repdecl)
-		{
-			PType declType = decl.apply(THIS, question);
-
-			for (PDefinition def : declType.getDefinitions())
-			{
-				locals.add(def);
-			}
-		}
-
-		proc.apply(THIS, question.newScope(locals));
+		proc.apply(THIS, info);
 
 		return getVoidType(node);
 	}
@@ -255,23 +201,12 @@ public class CmlProcessTypeChecker extends
 
 		PVarsetExpression csExp = node.getChansetExpression();
 		PProcess repProc = node.getReplicatedProcess();
-		LinkedList<PSingleDeclaration> repDecl = node.getReplicationDeclaration();
 
 		csExp.apply(channelSetChecker, question);
 
-		List<PDefinition> locals = new Vector<PDefinition>();
+		TypeCheckInfo info = createAndCheckReplicationDeclarations(question, node.getReplicationDeclaration());
 
-		for (PSingleDeclaration decl : repDecl)
-		{
-			PType declType = decl.apply(THIS, question);
-
-			for (PDefinition def : declType.getDefinitions())
-			{
-				locals.add(def);
-			}
-		}
-
-		repProc.apply(THIS, question.newScope(locals));
+		repProc.apply(THIS, info);
 
 		return getVoidType(node);
 	}
@@ -281,34 +216,26 @@ public class CmlProcessTypeChecker extends
 			AExternalChoiceReplicatedProcess node, TypeCheckInfo question)
 			throws AnalysisException
 	{
-
-		LinkedList<PSingleDeclaration> repDecl = node.getReplicationDeclaration();
 		PProcess repProc = node.getReplicatedProcess();
 
-		for (PSingleDeclaration decl : repDecl)
-		{
-			PType declType = decl.apply(THIS, question);
-
-		}
-
-		PType repProcType = repProc.apply(THIS, question);
+		repProc.apply(THIS, createAndCheckReplicationDeclarations(question, node.getReplicationDeclaration()));
 
 		return getVoidType(node);
 	}
 
-	@Override
-	public PType caseAAlphabetisedParallelismReplicatedProcess(
-			AAlphabetisedParallelismReplicatedProcess node,
-			TypeCheckInfo question) throws AnalysisException
+	/**
+	 * Utility method to check replications and construct the new environment that containt them
+	 * 
+	 * @param question
+	 * @param repDec
+	 * @return
+	 * @throws AnalysisException
+	 */
+	private TypeCheckInfo createAndCheckReplicationDeclarations(
+			TypeCheckInfo question, List<PSingleDeclaration> repDec)
+			throws AnalysisException
 	{
-
 		List<PDefinition> localDefinitions = new Vector<PDefinition>();
-		Environment local = new FlatCheckedEnvironment(question.assistantFactory, localDefinitions, question.env, NameScope.NAMES);
-		TypeCheckInfo info = new TypeCheckInfo(question.assistantFactory, local, NameScope.NAMES);
-
-		PVarsetExpression csExp = node.getChansetExpression();
-		PProcess repProcess = node.getReplicatedProcess();
-		LinkedList<PSingleDeclaration> repDec = node.getReplicationDeclaration();
 
 		for (PSingleDeclaration d : repDec)
 		{
@@ -319,11 +246,22 @@ public class CmlProcessTypeChecker extends
 			}
 		}
 
-		PType csExpType = csExp.apply(channelSetChecker, info);
+		return question.newScope(localDefinitions);
+	}
 
-		// TODO: Maybe the declarations above needs to go into the environment ?
+	@Override
+	public PType caseAAlphabetisedParallelismReplicatedProcess(
+			AAlphabetisedParallelismReplicatedProcess node,
+			TypeCheckInfo question) throws AnalysisException
+	{
+		PVarsetExpression csExp = node.getChansetExpression();
+		PProcess repProcess = node.getReplicatedProcess();
 
-		PType repProcessType = repProcess.apply(THIS, info);
+		TypeCheckInfo info = createAndCheckReplicationDeclarations(question, node.getReplicationDeclaration());
+
+		csExp.apply(channelSetChecker, info);
+
+		repProcess.apply(THIS, info);
 
 		return getVoidType(node);
 	}
@@ -373,7 +311,7 @@ public class CmlProcessTypeChecker extends
 		}
 
 		List<PDefinition> definitions = new LinkedList<PDefinition>();
-		List<LexIdentifierToken> ids = new LinkedList<LexIdentifierToken>();
+
 		for (PParametrisation d : decl)
 		{
 			PType dType = d.apply(THIS, question);
@@ -533,40 +471,13 @@ public class CmlProcessTypeChecker extends
 			AInterleavingReplicatedProcess node, TypeCheckInfo question)
 			throws AnalysisException
 	{
-
-		LinkedList<PSingleDeclaration> declarations = node.getReplicationDeclaration();
-
-		List<PDefinition> defs = new Vector<PDefinition>();
-
-		for (PSingleDeclaration singleDecl : declarations)
-		{
-			PType singleDeclType = singleDecl.apply(THIS, question);
-
-			for (PDefinition def : singleDeclType.getDefinitions())
-			{
-				defs.add(def);
-			}
-
-		}
-
 		PProcess replicatedProcess = node.getReplicatedProcess();
 
-		PType replicatedProcessType = replicatedProcess.apply(THIS, question.newScope(defs));
+		TypeCheckInfo info = createAndCheckReplicationDeclarations(question, node.getReplicationDeclaration());
+
+		PType replicatedProcessType = replicatedProcess.apply(THIS, info);
 
 		return replicatedProcessType;
-	}
-
-	@Override
-	public PType caseASynchronousParallelismProcess(
-			ASynchronousParallelismProcess node,
-			org.overture.typechecker.TypeCheckInfo question)
-			throws AnalysisException
-	{
-
-		node.getLeft().apply(THIS, question);
-		node.getRight().apply(THIS, question);
-
-		return getVoidType(node);
 	}
 
 	@Override

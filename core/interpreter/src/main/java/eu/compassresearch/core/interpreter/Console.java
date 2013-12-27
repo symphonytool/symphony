@@ -9,13 +9,18 @@ import java.io.PrintStream;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.types.PType;
 import org.overture.interpreter.runtime.Context;
+import org.overture.interpreter.runtime.ContextException;
 import org.overture.interpreter.values.Value;
+import org.overture.parser.lex.LexException;
+import org.overture.parser.messages.VDMErrorsException;
+import org.overture.parser.syntax.ParserException;
 
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.transitions.LabelledTransition;
 import eu.compassresearch.core.interpreter.api.values.AbstractValueInterpreter;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
 import eu.compassresearch.core.interpreter.utility.ValueParser;
+import eu.compassresearch.core.typechecker.api.CMLErrorsException;
 
 public class Console
 {
@@ -78,16 +83,36 @@ public class Console
 
 			if (!AbstractValueInterpreter.isValueMostPrecise(currentValue))
 			{
-				System.out.println("Enter value : ");
-				Value val;
+
+				Value val = null;
 				try
 				{
 					PType expectedType = channnelName.getChannel().getValueTypes().get(i);
 					Context ctxt = chosenEvent.getEventSources().iterator().next().getNextState().second;
-					String expressionString = new BufferedReader(new InputStreamReader(System.in)).readLine();
-					val = ValueParser.parse(expectedType, ctxt, expressionString);
+
+					while (val == null)
+					{
+						try
+						{
+							Console.out.println("Enter value for channel "
+									+ channnelName.getChannel().getName()
+									+ " argument " + (i + 1)
+									+ " expected type "
+									+ expectedType.toString() + ": ");
+							String expressionString = new BufferedReader(new InputStreamReader(System.in)).readLine();
+							val = ValueParser.parse(expectedType, ctxt, expressionString);
+						} catch (LexException e)
+						{
+							Console.out.println("Parse error input: "
+									+ e.toString() + "\n");
+						} catch (InterpreterRuntimeException
+								| VDMErrorsException | ParserException
+								| ContextException | CMLErrorsException e)
+						{
+							Console.out.println(e.toString() + "\n");
+						}
+					}
 					channnelName.updateValue(i, val);
-					return;
 				} catch (AnalysisException e)
 				{
 					throw new InterpreterRuntimeException("Analysis error in read user value", e);

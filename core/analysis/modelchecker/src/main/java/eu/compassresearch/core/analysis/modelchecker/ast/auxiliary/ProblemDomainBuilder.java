@@ -1,6 +1,7 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.auxiliary;
 
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Map.Entry;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
@@ -9,6 +10,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAExplicit
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAProcessDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAValueDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCSCmlOperationDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 
@@ -46,6 +48,11 @@ public class ProblemDomainBuilder {
 		//generate iocom defs
 		generateIOCommDefs(content,option);
 		
+		
+		//generate all facts related to set manipulation (required by the toolkit)
+		//some facts have (formula) dependencies. They need to be handled
+		//generateSetFacts(content,option);
+		
 		//generate conforms clause
 		generateConforms(content,option);
 		
@@ -75,11 +82,22 @@ public class ProblemDomainBuilder {
 	private void generateGuardDefinitions(StringBuilder content, String option){
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 	
-		for (Iterator<Entry<MCPCMLExp,NewMCGuardDef>> iterator = context.guardDefs.entrySet().iterator(); iterator.hasNext();) {
-			Entry<MCPCMLExp,NewMCGuardDef> item = (Entry<MCPCMLExp,NewMCGuardDef>) iterator.next();
-			NewMCGuardDef guardDef = item.getValue();
-			content.append(guardDef.toFormula(option));
+		for (Iterator<Entry<MCPCMLExp,LinkedList<MCGuardDef>>> iterator = context.guardDefs.entrySet().iterator(); iterator.hasNext();) {
+			Entry<MCPCMLExp,LinkedList<MCGuardDef>> item = (Entry<MCPCMLExp,LinkedList<MCGuardDef>>) iterator.next();
+			LinkedList<MCGuardDef> guardDefList = item.getValue();
+			for (MCGuardDef mcGuardDef : guardDefList) {
+				content.append(mcGuardDef.toFormula(option));
+			}
 		}
+		
+		for (Iterator<Entry<MCPCMLExp,LinkedList<NewMCGuardDef>>> iterator = context.stmGuardDefs.entrySet().iterator(); iterator.hasNext();) {
+			Entry<MCPCMLExp,LinkedList<NewMCGuardDef>> item = (Entry<MCPCMLExp,LinkedList<NewMCGuardDef>>) iterator.next();
+			LinkedList<NewMCGuardDef> guardDefList = item.getValue();
+			for (NewMCGuardDef mcGuardDef : guardDefList) {
+				content.append(mcGuardDef.toFormula(option));
+			}
+		}
+		
 	}
 	
 	private void generateAssignDefinitions(StringBuilder content, String option){
@@ -113,6 +131,14 @@ public class ProblemDomainBuilder {
 		for (MCAValueDefinition valueDef : context.valueDefinitions) {
 			content.append(valueDef.toFormula(option));
 			content.append("\n");
+		}
+	}
+	
+	private void generateSetFacts(StringBuilder content, String option){
+		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+		for (MCASBinaryExp setExp : context.setExpressioFacts) {
+			content.append(setExp.toFormula(option));
+			content.append(".\n");
 		}
 	}
 	

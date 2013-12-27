@@ -64,19 +64,22 @@ public class GraphBuilder {
 		BufferedReader bfReader = new BufferedReader(isr);
 		LinkedList<Object> result = new LinkedList<Object>();
 		try {
+			
 			String line = "";
 			while((line = bfReader.readLine() )!= null){
-				Constructor c = util.determineConstructor(line);
+				Constructor c = Utilities.determineConstructor(line);
 				if(c != null){
 					if (c.equals(Constructor.GivenProc ) ||
 						c.equals(Constructor.ProcDef ) ||
 						c.equals(Constructor.Transition ) )  {
-						Object o = util.createObject(line);
+						Object o = Utilities.createObject(line);
 						result.add(o);					
 					}
 				}
 			}
 				
+		} catch(Exception ex){
+			ex.printStackTrace();
 		} finally{
 			bfReader.close();
 			isr.close();
@@ -785,7 +788,8 @@ public class GraphBuilder {
 		//String filePath = "/examples/simple-state.facts.txt";
 		//String filePath = "/examples/dphils.facts.txt";
 		//String filePath = "/examples/chaos.facts.txt";
-		String filePath = "/examples/dphils-d.facts.txt";
+		//String filePath = "/examples/dphils-d.facts.txt";
+		String filePath = "D:\\COMPASS\\compassresearch-code\\core\\analysis\\modelchecker\\src\\test\\resources\\minimondex.facts";
 		//String filePath = "/examples/phils-and-fork0.facts.txt";
 		
 		//String filePath = "/examples/NDet2.facts.txt";
@@ -793,7 +797,9 @@ public class GraphBuilder {
 		//String filePath = "/examples/Livelock1.facts.txt";
 		//String filePath = "/examples/action-internal-choice.facts.D.txt";
 		//String filePath = "/examples/Livelock.facts.txt";
-		String dotCode = gb.generateDot(filePath,Utilities.DEADLOCK);
+		StringBuilder facts = Utilities.readScriptFromAbsoluteFile(filePath);
+		//eu.compassresearch.core.analysis.modelchecker.visitors.Utilities.readScriptFromFile(filePath);
+		String dotCode = gb.generateDot(facts,Utilities.DEADLOCK);
 		System.out.println(dotCode);
 	}
 	

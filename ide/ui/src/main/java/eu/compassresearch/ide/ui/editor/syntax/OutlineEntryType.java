@@ -14,13 +14,8 @@ import org.overture.ast.definitions.SOperationDefinition;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AChannelDefinition;
-import eu.compassresearch.ast.definitions.AChannelsDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
-import eu.compassresearch.ast.definitions.AChansetsDefinition;
-import eu.compassresearch.ast.definitions.AFunctionsDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
-import eu.compassresearch.ast.definitions.ATypesDefinition;
-import eu.compassresearch.ast.definitions.AValuesDefinition;
 import eu.compassresearch.ast.process.PProcess;
 
 public enum OutlineEntryType
@@ -87,19 +82,7 @@ public enum OutlineEntryType
 		// obj = w.value;
 		// }
 
-		// Fetch Top-level definitions
-		if (obj instanceof AValuesDefinition)
-			return VALUE_TOP.getImage();
-		if (obj instanceof ATypesDefinition)
-			return TYPE_TOP.getImage();
-		if (obj instanceof AFunctionsDefinition)
-			return FUNCTION_TOP.getImage();
-
 		// Fetch channels and chansets
-		if (obj instanceof AChannelsDefinition)
-			return CHANNEL_TOP.getImage();
-		if (obj instanceof AChansetsDefinition)
-			return CHANSET_TOP.getImage();
 		if (obj instanceof AChannelDefinition)
 			return CHANNEL_ENTRY.getImage();
 		if (obj instanceof AChansetDefinition)

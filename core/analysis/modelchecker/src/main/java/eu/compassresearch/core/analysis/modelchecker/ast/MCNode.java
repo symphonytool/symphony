@@ -15,6 +15,15 @@ package eu.compassresearch.core.analysis.modelchecker.ast;
 	
 	//the named translation (with variable name)
 	public static final String NAMED = "NAMED";
+	
+	//the named translation (semantic name)
+	public static final String SEMANTIC_NAMED = "SEMANTIC_NAMED";
+	
+	//the generic translation (with underscore) for purposes of iocommmdef
+	public static final String MINIMAL_GENERIC = "MINIMAL_GENERIC";
+		
+	//the named translation (where parameters are used to change the parameter names only)
+	public static final String PARAM_RENAMED = "PARAM_NAMED";
 		
 	public String toFormula(String option);
 	

@@ -25,8 +25,9 @@ public class InternalTransition extends AbstractSilentTransition
 	{
 
 		if (!(obj instanceof InternalTransition))
+		{
 			return false;
-		else
+		} else
 		{
 			InternalTransition otherSilent = (InternalTransition) obj;
 			return super.equals(otherSilent);

@@ -315,6 +315,14 @@
      <display
            class="eu.compassresearch.ide.ui.adapters.CmlWorkbenchAdaptor">
      </display>
+  </extension>
+  <extension
+        point="org.eclipse.ui.preferencePages">
+     <page
+           class="eu.compassresearch.ide.ui.preferences.WorkbenchPreferencePageCompass"
+           id="eu.compassresearch.ide.ui.compass"
+           name="Symphony">
+     </page>
   </extension>  
 
 

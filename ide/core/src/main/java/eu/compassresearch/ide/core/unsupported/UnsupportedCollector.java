@@ -52,8 +52,6 @@ import eu.compassresearch.core.typechecker.api.ICmlTypeChecker;
  */
 public abstract class UnsupportedCollector extends DepthFirstAnalysisCMLAdaptor {
 
-	private static final long serialVersionUID = 1L;
-
 	List<UnsupportedElementInfo> unsupporteds = new LinkedList<UnsupportedElementInfo>();
 	UnsupportingFeatures feature;
 	protected boolean unsupported;

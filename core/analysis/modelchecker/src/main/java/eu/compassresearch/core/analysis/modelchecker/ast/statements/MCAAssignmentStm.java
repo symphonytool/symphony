@@ -1,6 +1,7 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.statements;
 
 import org.overture.ast.statements.AAssignmentStm;
+import org.overture.ast.statements.PStmBase;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
@@ -22,8 +23,11 @@ public class MCAAssignmentStm implements MCPCMLStm {
 
 	@Override
 	public String toFormula(String option) {
-		// TODO Auto-generated method stub
-		return null;
+		StringBuilder result = new StringBuilder();
+		
+		result.append("assign("+ counterId +")");
+		
+		return result.toString();
 	}
 
 

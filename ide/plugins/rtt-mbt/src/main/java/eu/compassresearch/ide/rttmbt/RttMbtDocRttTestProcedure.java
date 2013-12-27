@@ -23,7 +23,7 @@ public class RttMbtDocRttTestProcedure extends RttMbtConcreteTestProcedureAction
 		}
 
 		// get RttMbtClient for this action
-		if (!initClient(selectedObjectPath)) {
+		if (!initClient()) {
 			client.addErrorMessage("[FAIL]: generate test procedure documentation: init of RTT-MBT client failed!");
 			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 			return null;
@@ -42,9 +42,9 @@ public class RttMbtDocRttTestProcedure extends RttMbtConcreteTestProcedureAction
 		Job job = new Job("Generate Documentation") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
-				client.addLogMessage("generating documentation for " + selectedObject + "... please wait for the task to be finished.");
+				client.addLogMessage("generating documentation for " + selectedObjectName + "... please wait for the task to be finished.");
 				// generate test procedure documentation
-				if (client.docTestProcedure(selectedObject)) {
+				if (client.docTestProcedure(selectedObjectName)) {
 					client.addLogMessage("[PASS]: generate test procedure documentation");
 					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 				} else {

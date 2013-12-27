@@ -23,7 +23,7 @@ public class RttMbtSendFileOrDirectory extends RttMbtPopupMenuAction {
 		}
 		
 		// get RttMbtClient for this action
-		if (!initClient(selectedObjectPath)) {
+		if (!initClient()) {
 			client.addErrorMessage("[FAIL]: Add Directory/File to RTT-MBT Server Work Area: init of RTT-MBT client failed!");
 			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 			return null;
@@ -34,7 +34,7 @@ public class RttMbtSendFileOrDirectory extends RttMbtPopupMenuAction {
 			protected IStatus run(IProgressMonitor monitor) {
 				// perform action using client
 				Boolean success;
-				File item = new File(client.getCmlWorkspace() + selectedObjectPath);
+				File item = new File(selectedObjectFilesystemPath);
 				if (!item.exists()) {
 					client.addErrorMessage("[FAIL]: Add Directory/File to RTT-MBT Server Work Area: file or directory '" + item.getAbsolutePath() + "' does not exist!");
 					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);

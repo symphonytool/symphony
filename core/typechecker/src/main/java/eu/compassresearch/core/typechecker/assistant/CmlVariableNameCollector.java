@@ -14,10 +14,6 @@ import eu.compassresearch.ast.lex.CmlLexNameToken;
 public class CmlVariableNameCollector extends AbstractCmlVariableNameCollector
 {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 
 	public CmlVariableNameCollector(ITypeCheckerAssistantFactory af)
 	{
@@ -35,7 +31,9 @@ public class CmlVariableNameCollector extends AbstractCmlVariableNameCollector
 	public LexNameList caseAChansetDefinition(AChansetDefinition node)
 			throws AnalysisException
 	{
-		return new LexNameList(new CmlLexNameToken("", node.getIdentifier()));
+		CmlLexNameToken name = new CmlLexNameToken("", node.getIdentifier());
+		name.parent(node);
+		return new LexNameList(name);
 	}
 
 	@Override
@@ -56,7 +54,9 @@ public class CmlVariableNameCollector extends AbstractCmlVariableNameCollector
 	public LexNameList caseANamesetDefinition(ANamesetDefinition node)
 			throws AnalysisException
 	{
-		return new LexNameList(new CmlLexNameToken("", node.getIdentifier()));
+		CmlLexNameToken name = new CmlLexNameToken("", node.getIdentifier());
+		name.parent(node);
+		return new LexNameList(name);
 	}
 
 }

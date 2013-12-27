@@ -13,7 +13,7 @@ public enum CmlInterpreterArguments
 
 	HOST("host"),
 
-	REMOTE_NAME("remote");
+	REMOTE_NAME("remote"), AUTO_FILTER_TOCK_EVENTS("auto_filter_tock_events");
 
 	final String PREFIX = "eu.compassresearch.ide.interpreter.";
 

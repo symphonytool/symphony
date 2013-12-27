@@ -8,6 +8,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCGenericCall
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCOperationCall;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAActionDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAExplicitCmlOperationDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAProcessDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCSCmlOperationDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
@@ -36,22 +37,30 @@ public class MCACallStatementAction implements MCPAction {
 				if(localAction.getName().toString().equals(this.name.toString())){
 					callResolved = true;
 					call = new MCActionCall(name, args);
-					result.append(call.toFormula(option));
+					break;
+				}
+			}
+		}
+		if (!callResolved) {
+			for (MCAProcessDefinition pDefinition : context.processDefinitions) {
+				if(((MCAProcessDefinition) pDefinition).getName().toString().equals(this.name)){
+					callResolved = true;
+					call = new MCActionCall(name, args);
+					break;
 				}
 			}
 		}
 		if (!callResolved) {
 			for (MCSCmlOperationDefinition pDefinition : context.operations) {
 				if(pDefinition instanceof MCAExplicitCmlOperationDefinition){
-					//((MCAExplicitCmlOperationDefinition) pDefinition).setParentAction(this);
 					if(((MCAExplicitCmlOperationDefinition) pDefinition).getName().toString().equals(this.name)){
 						call = new MCOperationCall(name, args, null);
-						result.append(call.toFormula(option));
 					}
 				}
 			}
 		}
 		
+		result.append(call.toFormula(option));
 		return result.toString();
 	}
 

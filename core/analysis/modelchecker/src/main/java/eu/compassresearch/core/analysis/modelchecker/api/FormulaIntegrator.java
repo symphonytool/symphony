@@ -14,6 +14,10 @@ public class FormulaIntegrator implements IFormulaIntegrator {
 		return instance;
 	}  
 	
+	public static synchronized boolean hasInstance() {
+		return instance != null;
+	}
+	
 	private FormulaIntegrator() throws FormulaIntegrationException{
 		try {
 			//the real executor must be instantiated

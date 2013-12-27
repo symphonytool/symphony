@@ -83,8 +83,9 @@ public class RemoteInterpreter implements IRemoteInterpreter, SelectionStrategy
 
 	public boolean isFinished()
 	{
-		return this.interpreter!=null && this.interpreter.getState()!=null &&(this.interpreter.getState() == CmlInterpreterState.FINISHED
-				|| this.interpreter.getState() == CmlInterpreterState.FAILED);
+		return this.interpreter != null
+				&& this.interpreter.getState() != null
+				&& (this.interpreter.getState() == CmlInterpreterState.FINISHED || this.interpreter.getState() == CmlInterpreterState.FAILED);
 	}
 
 	public Set<? extends CmlTransition> getEvents()

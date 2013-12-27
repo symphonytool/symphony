@@ -28,14 +28,14 @@ public class jsonGenerateTestCommand extends jsonCommand {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public String getJsonCommandString() {
 		// check if project name is properly assigned
-		if (client.getProjectName() == null) {
+		if (client.getRttProjectPath() == null) {
 			System.err.println("[ERROR]: project name not assigned!");
 			return null;
 		}
 
 		// add parameters
 		Map params = new LinkedHashMap();
-		params.put("project-name", client.toUnixPath(client.getProjectPath()));
+		params.put("project-name", client.toUnixPath(client.removeLocalWorkspace(client.getRttProjectPath())));
 		params.put("test-procedure-path", client.toUnixPath(testProcName));
 		// maximize-model-coverage
 		if (maximizeModelCoverage) {

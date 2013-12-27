@@ -22,10 +22,6 @@ import eu.compassresearch.ast.analysis.AnswerCMLAdaptor;
 
 class RandomVDMValueGenerator extends AnswerCMLAdaptor<Value>
 {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -1235299489392276483L;
 	private final Random rndValue;
 
 	public RandomVDMValueGenerator(long seed)

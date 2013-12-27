@@ -1,0 +1,30 @@
+channels 
+a : int
+
+class eu_compassresearch_core_interpreter_testing_classes_external_A =
+begin
+	state
+		hello : int := 4
+		
+	operations 
+		
+		public getHello : () ==> int
+		getHello() == is not yet specified
+		
+	functions
+		public add: int * int -> int
+		add(a,b) == is not yet specified
+		pre true
+end
+
+process eu_compassresearch_core_interpreter_testing_classes_external_Test = 
+begin 
+
+functions
+	functions
+		public sub: int * int -> int
+		sub(a,b) == is not yet specified
+		pre true
+		
+	@ (dcl v : eu_compassresearch_core_interpreter_testing_classes_external_A, out : int @ v := new eu_compassresearch_core_interpreter_testing_classes_external_A(); out := v.getHello(); let t = sub(2,1)/*v.add(1,2)*/ in out := out+t;a.(out) -> Skip) 
+end

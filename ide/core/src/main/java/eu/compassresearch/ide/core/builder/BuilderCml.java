@@ -1,20 +1,25 @@
 package eu.compassresearch.ide.core.builder;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.lex.Dialect;
 import org.overture.ast.util.definitions.ClassList;
 import org.overture.config.Settings;
 import org.overture.ide.builders.vdmj.IBuilderVdmjConstants;
 import org.overture.ide.core.IVdmModel;
 import org.overture.ide.core.builder.AbstractVdmBuilder;
+import org.overture.ide.core.utility.FileUtility;
 import org.overture.parser.messages.VDMError;
 import org.overture.parser.messages.VDMWarning;
 import org.overture.typechecker.TypeCheckException;
 
+import eu.compassresearch.core.typechecker.CmlTypeCheckerAssistantFactory;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.ICmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
@@ -43,9 +48,11 @@ public class BuilderCml extends AbstractVdmBuilder
 		ICmlTypeChecker typeChecker = VanillaFactory.newTypeChecker(model.getDefinitions(), issueHandler);
 		try
 		{
+			// Force setup of the legacy static access assistants in Overture
+			CmlTypeCheckerAssistantFactory.init(new CmlTypeCheckerAssistantFactory());
 			typeChecker.typeCheck();
 
-			List<CMLTypeError> errorsThatMatter = (issueHandler.getTypeErrors());
+			List<CMLTypeError> errorsThatMatter = issueHandler.getTypeErrors();
 			for (final CMLTypeError error : errorsThatMatter)
 			{
 				addErrorMarker(error);
@@ -99,9 +106,25 @@ public class BuilderCml extends AbstractVdmBuilder
 		addErrorMarker(error.getLocation().getFile(), error.getMessage(), error.getLocation(), IBuilderVdmjConstants.PLUGIN_ID);
 	}
 
+
 	private void addWarningMarker(VDMWarning error)
 	{
 		addWarningMarker(error.location.getFile(), error.toProblemString(), error.location, IBuilderVdmjConstants.PLUGIN_ID);
+	}
+	
+	
+	
+	
+	protected void addWarningMarker(File file, String message, ILexLocation location,
+			String sourceId)
+	{
+		FileUtility.addMarker(getProject().findIFile( file),message,location,IMarker.SEVERITY_WARNING,sourceId);
+	}
+	
+	protected void addErrorMarker(File file, String message, ILexLocation location,
+			String sourceId)
+	{
+		FileUtility.addMarker(getProject().findIFile(file), message, location, IMarker.SEVERITY_ERROR,sourceId);
 	}
 
 }

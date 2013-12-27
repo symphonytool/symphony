@@ -1,0 +1,22 @@
+channels 
+a : int
+
+class eu_compassresearch_core_interpreter_testing_classes_external_A =
+begin
+	state
+		hello : int := 4
+		
+	operations 
+		public eu_compassresearch_core_interpreter_testing_classes_external_A : () ==> eu_compassresearch_core_interpreter_testing_classes_external_A 
+		eu_compassresearch_core_interpreter_testing_classes_external_A() == Skip
+		
+		public getHello : () ==> int
+		getHello() == is not yet specified
+		
+	
+end
+
+process Test = 
+begin 
+	@ (dcl v : eu_compassresearch_core_interpreter_testing_classes_external_A, out : int @ v := new eu_compassresearch_core_interpreter_testing_classes_external_A(); out := v.getHello();a.(out) -> Skip) 
+end

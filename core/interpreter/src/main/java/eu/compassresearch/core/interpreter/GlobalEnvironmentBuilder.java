@@ -15,10 +15,6 @@ import eu.compassresearch.core.interpreter.api.values.ProcessObjectValue;
 
 public class GlobalEnvironmentBuilder extends AnalysisCMLAdaptor
 {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 493918199975006733L;
 	private AProcessDefinition lastDefinedProcess = null;
 	private StateContext globalState = null;
 	private List<AProcessDefinition> globalProcesses = null;
@@ -28,10 +24,10 @@ public class GlobalEnvironmentBuilder extends AnalysisCMLAdaptor
 	public GlobalEnvironmentBuilder(List<PDefinition> sourceForest)
 			throws AnalysisException
 	{
-		BuildGlobalEnvironment(sourceForest);
+		buildGlobalEnvironment(sourceForest);
 	}
 
-	private void BuildGlobalEnvironment(List<PDefinition> sourceForest)
+	private void buildGlobalEnvironment(List<PDefinition> sourceForest)
 			throws AnalysisException
 	{
 		// Make a state
@@ -57,9 +53,12 @@ public class GlobalEnvironmentBuilder extends AnalysisCMLAdaptor
 				globalProcesses.add(pdef);
 
 				if (lastDefinedProcess == null)
+				{
 					lastDefinedProcess = pdef;
-				else if (pdef.getLocation().getStartLine() > lastDefinedProcess.getLocation().getStartLine())
+				} else if (pdef.getLocation().getStartLine() > lastDefinedProcess.getLocation().getStartLine())
+				{
 					lastDefinedProcess = pdef;
+				}
 			}
 		}
 

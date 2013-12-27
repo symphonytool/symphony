@@ -11,7 +11,7 @@ public class GuardDefGenerator {
 
 	public static LinkedList<MCGuardDef> generateGuardDefs(MCPCMLExp guardExp, int counterId, MCAGuardedAction parentAction){
 		LinkedList<MCGuardDef> result = new LinkedList<MCGuardDef>();
-		IExpressionEvaluator expEvaluator = ExpressionEvaluator.getInstance(); 
+		ExpressionEvaluator expEvaluator = ExpressionEvaluator.getInstance(); 
 		if(expEvaluator.canEvaluate(guardExp)){
 			MCGuardDef guardDef = new MCPosGuardDef(counterId, guardExp, parentAction);
 			if(!expEvaluator.evaluate(guardExp)){

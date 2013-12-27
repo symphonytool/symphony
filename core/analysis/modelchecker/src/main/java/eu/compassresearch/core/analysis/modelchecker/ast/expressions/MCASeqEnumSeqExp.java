@@ -2,6 +2,7 @@ package eu.compassresearch.core.analysis.modelchecker.ast.expressions;
 
 import java.util.LinkedList;
 
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.PatternValue;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 
 public class MCASeqEnumSeqExp implements MCPCMLExp{
@@ -37,8 +38,23 @@ public class MCASeqEnumSeqExp implements MCPCMLExp{
 
 	@Override
 	public MCPCMLExp copy() {
-		// TODO Auto-generated method stub
-		return null;
+		LinkedList<MCPCMLExp> membersCopy = new LinkedList<MCPCMLExp>();
+		for (MCPCMLExp member : members) {
+			membersCopy.add(member.copy());
+		}
+		
+		LinkedList<MCPCMLType> typesCopy = new LinkedList<MCPCMLType>();
+		for (MCPCMLType type : types) {
+			typesCopy.add(type.copy());
+		}
+		return new MCASeqEnumSeqExp(membersCopy,typesCopy);
+	}
+
+	@Override
+	public void replacePatternWithValue(LinkedList<PatternValue> mapping) {
+		for (MCPCMLExp member : members) {
+			member.replacePatternWithValue(mapping);
+		}
 	}
 
 	

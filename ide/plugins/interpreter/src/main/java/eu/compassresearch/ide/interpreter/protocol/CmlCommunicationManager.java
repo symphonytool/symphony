@@ -343,36 +343,9 @@ public class CmlCommunicationManager extends Thread
 			levels.add(new CmlStackLevel(frame.getFile(), "unknown", frame.getLevel(), frame.getLineNumber(), 1, 1));
 		}
 
-		// ICmlProject p = ((CmlDebugTarget) thread.getDebugTarget()).project;
-		//
-		// try
-		// {
-		// // for (ICmlSourceUnit su : p.getSourceUnits())
-		// // {
-		// ICmlSourceUnit su = p.getSourceUnits().get(0);
-		// levels.add(new CmlStackLevel(su.getFile().getLocationURI(), "A -"
-		// + su.getFile().getName(), 1, 1, 1, 1));
-		// levels.add(new CmlStackLevel(su.getFile().getLocationURI(), "B -"
-		// + su.getFile().getName(), 2, 2, 1, 1));
-		// levels.add(new CmlStackLevel(su.getFile().getLocationURI(), "C -"
-		// + su.getFile().getName(), 3, 3, 1, 1));
-		// // }
-		// } catch (CoreException e)
-		// {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
-		// }
-
 		return levels.toArray(new IDbgpStackLevel[] {});
 	}
 
-	private static IDbgpProperty[] getChilds()
-	{
-		List<IDbgpProperty> properties = new Vector<IDbgpProperty>();
-		properties.add(new DbgpProperty("a1", "A`a", "int", "1", 0, false, false, "A`a", "", new IDbgpProperty[] {}, 0, 0));
-		properties.add(new DbgpProperty("a2", "A`a", "int", "2", 0, false, false, "A`a", "", new IDbgpProperty[] {}, 0, 0));
-		return properties.toArray(new IDbgpProperty[properties.size()]);
-	}
 
 	public IDbgpProperty[] getContextProperties(int threadId, int level,
 			int contextId2)
@@ -389,29 +362,6 @@ public class CmlCommunicationManager extends Thread
 		{
 			properties.add(convert(var));
 		}
-		// switch (level)
-		// {
-		// case 1:
-		// properties.add(new DbgpProperty("a" + threadId, "A`a", "int", "8", 2, true, false, "A`a", "", getChilds(), 0,
-		// 0));
-		// properties.add(new DbgpProperty("b" + threadId, "A`a", "int", "8", 0, false, false, "A`a", "", new
-		// IDbgpProperty[] {}, 0, 0));
-		// break;
-		// case 2:
-		// properties.add(new DbgpProperty("c" + threadId, "A`a", "int", "8", 0, false, false, "A`a", "", new
-		// IDbgpProperty[] {}, 0, 0));
-		// properties.add(new DbgpProperty("d" + threadId, "A`a", "int", "8", 0, false, false, "A`a", "", new
-		// IDbgpProperty[] {}, 0, 0));
-		// break;
-		// case 3:
-		// properties.add(new DbgpProperty("e" + threadId, "A`a", "int", "8", 0, false, false, "A`a", "", new
-		// IDbgpProperty[] {}, 0, 0));
-		// properties.add(new DbgpProperty("f" + threadId, "A`a", "int", "8", 0, false, false, "A`a", "", new
-		// IDbgpProperty[] {}, 0, 0));
-		// properties.add(new DbgpProperty("g" + threadId, "A`a", "int", "8", 0, false, false, "A`a", "", new
-		// IDbgpProperty[] {}, 0, 0));
-		// break;
-		// }
 
 		return properties.toArray(new IDbgpProperty[properties.size()]);
 	}

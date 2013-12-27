@@ -2,6 +2,9 @@ package eu.compassresearch.core.analysis.modelchecker.ast.types;
 
 import java.util.LinkedList;
 
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAValueDefinition;
+import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
+
 public class MCANamedInvariantType implements MCPCMLType {
 
 	private String name;
@@ -12,7 +15,16 @@ public class MCANamedInvariantType implements MCPCMLType {
 
 	@Override
 	public String toFormula(String option) {
-		return this.name;
+		StringBuilder result = new StringBuilder();
+		
+		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+		MCAValueDefinition valueDef = context.getValueDefinition(name);
+		if(valueDef != null){
+			result.append(valueDef.getExpression().toFormula(option));
+		}else{
+			result.append(this.name);
+		}
+		return result.toString();
 	}
 
 	public String getName() {
@@ -26,8 +38,8 @@ public class MCANamedInvariantType implements MCPCMLType {
 
 	@Override
 	public MCPCMLType copy() {
-		// TODO Auto-generated method stub
-		return null;
+	
+		return new MCANamedInvariantType(new String(this.getName()));
 	}
 
 	

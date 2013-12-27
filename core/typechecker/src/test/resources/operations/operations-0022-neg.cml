@@ -1,0 +1,22 @@
+class
+
+ t =
+
+begin
+
+
+
+types
+
+ A :: a : int
+
+operations
+
+ o:A==>int 
+ o(b) == 
+ 	return b.a 
+ pre b.a > 0
+ --this is incorrect: b is a param, not state variable 
+ post b.a = b~.a
+
+end

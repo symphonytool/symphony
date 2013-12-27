@@ -61,7 +61,8 @@ public class State {
 	public boolean equals(Object obj) {
 		boolean result = false;
 		if(obj instanceof State){
-			result = this.process.equals(((State) obj).getProcess());
+			result = this.binding.equals(((State) obj).getBinding()) 
+					&& this.process.equals(((State) obj).getProcess());
 		}
 		return result;
 	}

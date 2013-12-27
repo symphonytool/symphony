@@ -4,6 +4,7 @@ import java.util.LinkedList;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
+import org.overture.ast.expressions.AApplyExp;
 import org.overture.ast.expressions.AEqualsBinaryExp;
 import org.overture.ast.expressions.AGreaterEqualNumericBinaryExp;
 import org.overture.ast.expressions.AGreaterNumericBinaryExp;
@@ -12,26 +13,38 @@ import org.overture.ast.expressions.AIntLiteralExp;
 import org.overture.ast.expressions.ALessEqualNumericBinaryExp;
 import org.overture.ast.expressions.ALessNumericBinaryExp;
 import org.overture.ast.expressions.ANotEqualBinaryExp;
+import org.overture.ast.expressions.ANotInSetBinaryExp;
+import org.overture.ast.expressions.ANotUnaryExp;
 import org.overture.ast.expressions.APlusNumericBinaryExp;
+import org.overture.ast.expressions.AQuoteLiteralExp;
 import org.overture.ast.expressions.ASeqEnumSeqExp;
 import org.overture.ast.expressions.ASetEnumSetExp;
 import org.overture.ast.expressions.ASetRangeSetExp;
+import org.overture.ast.expressions.ASetUnionBinaryExp;
 import org.overture.ast.expressions.ASubtractNumericBinaryExp;
 import org.overture.ast.expressions.ATimesNumericBinaryExp;
+import org.overture.ast.expressions.AUnaryMinusUnaryExp;
+import org.overture.ast.expressions.AUndefinedExp;
 import org.overture.ast.expressions.AVariableExp;
 import org.overture.ast.expressions.PExp;
+import org.overture.ast.expressions.SNumericBinaryBase;
 import org.overture.ast.node.INode;
+import org.overture.ast.patterns.PMultipleBind;
 import org.overture.ast.types.PType;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.expressions.ABracketedExp;
 import eu.compassresearch.ast.expressions.AEnumVarsetExpression;
+import eu.compassresearch.ast.expressions.AFatCompVarsetExpression;
 import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
 import eu.compassresearch.ast.expressions.ANameChannelExp;
+import eu.compassresearch.ast.expressions.AUnionVOpVarsetExpression;
 import eu.compassresearch.ast.expressions.PCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAApplyExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAEnumVarsetExpression;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAEqualsBinaryExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAFatCompVarsetExpression;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAFatEnumVarsetExpression;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAGreaterEqualNumericBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAGreaterNumericBinaryExp;
@@ -41,14 +54,24 @@ import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCALessEqua
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCALessNumericBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANameChannelExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANotEqualsBinaryExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANotInSetBinaryExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCANotUnaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAPlusNumericBinaryExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAQuoteLiteralExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASeqEnumSeqExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASetEnumSetExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASetRangeSetExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASetUnionBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASubtractNumericBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCATimesNumericBinaryExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAUnaryMinusUnaryExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAUndefinedExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAUnionVOpVarsetExpression;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAVariableExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPVarsetExpression;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCVoidValue;
+import eu.compassresearch.core.analysis.modelchecker.ast.pattern.MCPMultipleBind;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 
 public class NewMCExpressionVisitor extends
@@ -71,11 +94,38 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 	
 	
 	@Override
+	public MCNode caseAUnionVOpVarsetExpression(AUnionVOpVarsetExpression node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		MCPVarsetExpression left = (MCPVarsetExpression) node.getLeft().apply(rootVisitor, question);
+		MCPVarsetExpression right = (MCPVarsetExpression) node.getRight().apply(rootVisitor, question);
+		MCAUnionVOpVarsetExpression result = new MCAUnionVOpVarsetExpression(left, right);
+		return result;
+	}
+
+	
+
+	@Override
+	public MCNode caseAFatCompVarsetExpression(AFatCompVarsetExpression node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		
+		
+		MCANameChannelExp channelNameExp = (MCANameChannelExp) node.getChannelNameExp().apply(rootVisitor, question);
+		LinkedList<MCPMultipleBind> bindings = new LinkedList<MCPMultipleBind>(); 
+		for (PMultipleBind mBind : node.getBindings()) {
+			bindings.add((MCPMultipleBind) mBind.apply(rootVisitor, question));
+		}
+		MCAFatCompVarsetExpression result = new MCAFatCompVarsetExpression(bindings,channelNameExp);
+		
+		return result;
+	}
+
+
+	@Override
 	public MCNode caseAPlusNumericBinaryExp(APlusNumericBinaryExp node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
 		
-		MCPCMLExp left = (MCPCMLExp) node.getLeft().apply(this, question);
-		MCPCMLExp right = (MCPCMLExp) node.getRight().apply(this, question);
+		MCPCMLExp left = (MCPCMLExp) node.getLeft().apply(rootVisitor, question);
+		MCPCMLExp right = (MCPCMLExp) node.getRight().apply(rootVisitor, question);
 		MCAPlusNumericBinaryExp result = new MCAPlusNumericBinaryExp(left,right);
 		
 		return result;
@@ -87,8 +137,8 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 			ASubtractNumericBinaryExp node, NewCMLModelcheckerContext question)
 			throws AnalysisException {
 		
-		MCPCMLExp left = (MCPCMLExp) node.getLeft().apply(this, question);
-		MCPCMLExp right = (MCPCMLExp) node.getRight().apply(this, question);
+		MCPCMLExp left = (MCPCMLExp) node.getLeft().apply(rootVisitor, question);
+		MCPCMLExp right = (MCPCMLExp) node.getRight().apply(rootVisitor, question);
 		MCASubtractNumericBinaryExp result = new MCASubtractNumericBinaryExp(left,right);
 		
 		return result;
@@ -103,10 +153,10 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 		LinkedList<PType> typ = node.getTypes();
 		LinkedList<MCPCMLType> types = new LinkedList<MCPCMLType>();
 		for(PExp e: members){
-			memb.add((MCPCMLExp)e.apply(this,question));
+			memb.add((MCPCMLExp)e.apply(rootVisitor,question));
 		}
 		for(PType t: typ){
-			types.add((MCPCMLType)t.apply(this, question));
+			types.add((MCPCMLType)t.apply(rootVisitor, question));
 		}
 		return new MCASeqEnumSeqExp(memb, types);
 	}
@@ -117,7 +167,7 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 		LinkedList<PExp> memb = node.getMembers();
 		LinkedList<MCPCMLExp> members = new LinkedList<MCPCMLExp>();
 		for(PExp e: memb){
-			members.add((MCPCMLExp)e.apply(this,question));
+			members.add((MCPCMLExp)e.apply(rootVisitor,question));
 		}		
 		return new MCASetEnumSetExp(members);
 	}
@@ -129,7 +179,7 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 		LinkedList<ANameChannelExp> nameExp = node.getChannelNames();
 		LinkedList<MCANameChannelExp> mcNameExp = new LinkedList<MCANameChannelExp>();
 		for(ANameChannelExp n : nameExp){
-			mcNameExp.add((MCANameChannelExp)n.apply(this, question));
+			mcNameExp.add((MCANameChannelExp)n.apply(rootVisitor, question));
 		}
 		return new MCAEnumVarsetExpression(mcNameExp);
 	}
@@ -139,8 +189,8 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 	public MCNode caseAEqualsBinaryExp(AEqualsBinaryExp node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
 		
-		MCPCMLExp left = (MCPCMLExp) node.getLeft().apply(this, question);
-		MCPCMLExp right = (MCPCMLExp) node.getRight().apply(this, question);
+		MCPCMLExp left = (MCPCMLExp) node.getLeft().apply(rootVisitor, question);
+		MCPCMLExp right = (MCPCMLExp) node.getRight().apply(rootVisitor, question);
 		MCAEqualsBinaryExp result = new MCAEqualsBinaryExp(left, right);
 		
 		return result;
@@ -150,8 +200,8 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 	public MCNode caseANotEqualBinaryExp(ANotEqualBinaryExp node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
 
-		MCPCMLExp left = (MCPCMLExp) node.getLeft().apply(this, question);
-		MCPCMLExp right = (MCPCMLExp) node.getRight().apply(this, question);
+		MCPCMLExp left = (MCPCMLExp) node.getLeft().apply(rootVisitor, question);
+		MCPCMLExp right = (MCPCMLExp) node.getRight().apply(rootVisitor, question);
 		MCANotEqualsBinaryExp result = new MCANotEqualsBinaryExp(left, right);
 		
 		return result;
@@ -162,8 +212,8 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 			AGreaterEqualNumericBinaryExp node, NewCMLModelcheckerContext question)
 			throws AnalysisException {
 		
-		MCPCMLExp left = (MCPCMLExp) node.getLeft().apply(this, question);
-		MCPCMLExp right = (MCPCMLExp) node.getRight().apply(this, question);
+		MCPCMLExp left = (MCPCMLExp) node.getLeft().apply(rootVisitor, question);
+		MCPCMLExp right = (MCPCMLExp) node.getRight().apply(rootVisitor, question);
 		MCAGreaterEqualNumericBinaryExp result = new MCAGreaterEqualNumericBinaryExp(left, right);
 		
 		return result;
@@ -173,8 +223,8 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 	public MCNode caseALessNumericBinaryExp(ALessNumericBinaryExp node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
 		
-		MCPCMLExp left = (MCPCMLExp) node.getLeft().apply(this, question);
-		MCPCMLExp right = (MCPCMLExp) node.getRight().apply(this, question);
+		MCPCMLExp left = (MCPCMLExp) node.getLeft().apply(rootVisitor, question);
+		MCPCMLExp right = (MCPCMLExp) node.getRight().apply(rootVisitor, question);
 		MCALessNumericBinaryExp result = new MCALessNumericBinaryExp(left, right);
 		
 		return result;
@@ -184,8 +234,8 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 	public MCNode caseAGreaterNumericBinaryExp(
 			AGreaterNumericBinaryExp node, NewCMLModelcheckerContext question)
 			throws AnalysisException {
-		MCPCMLExp left = (MCPCMLExp) node.getLeft().apply(this, question);
-		MCPCMLExp right = (MCPCMLExp) node.getRight().apply(this, question);
+		MCPCMLExp left = (MCPCMLExp) node.getLeft().apply(rootVisitor, question);
+		MCPCMLExp right = (MCPCMLExp) node.getRight().apply(rootVisitor, question);
 		MCAGreaterNumericBinaryExp result = new MCAGreaterNumericBinaryExp(left, right);
 		
 		return result;
@@ -197,8 +247,8 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 			ALessEqualNumericBinaryExp node, NewCMLModelcheckerContext question)
 			throws AnalysisException {
 	
-		MCPCMLExp left = (MCPCMLExp) node.getLeft().apply(this, question);
-		MCPCMLExp right = (MCPCMLExp) node.getRight().apply(this, question);
+		MCPCMLExp left = (MCPCMLExp) node.getLeft().apply(rootVisitor, question);
+		MCPCMLExp right = (MCPCMLExp) node.getRight().apply(rootVisitor, question);
 		MCALessEqualNumericBinaryExp result = new MCALessEqualNumericBinaryExp(left, right);
 		
 		return result;
@@ -225,7 +275,9 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 	@Override
 	public MCNode caseAVariableExp(AVariableExp node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
-		return new MCAVariableExp(node.getName().toString());
+		
+		String name = Utilities.extractFunctionName(node.getOriginal());
+		return new MCAVariableExp(name);
 	}
 	
 	/*
@@ -268,20 +320,7 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 		return question.getScriptContent();
 	}
 
-	@Override
-	public StringBuilder caseANotUnaryExp(ANotUnaryExp node,
-			CMLModelcheckerContext question) throws AnalysisException {
-		
 	
-		if(ExpressionEvaluator.evaluate(node)){
-			//nothing todo
-		}else{
-			question.getScriptContent().append("GUARDNDEF#");
-		}
-
-		return question.getScriptContent();
-	}
-
 	@Override
 	public StringBuilder caseAOrBooleanBinaryExp(AOrBooleanBinaryExp node,
 			CMLModelcheckerContext question) throws AnalysisException {
@@ -300,6 +339,33 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 	*/
 
 	@Override
+	public MCNode caseANotUnaryExp(ANotUnaryExp node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		
+	
+		MCPCMLExp exp = (MCPCMLExp) node.getExp().apply(rootVisitor, question);
+		MCANotUnaryExp result = new MCANotUnaryExp(exp);
+
+		return result;
+	}
+
+	
+	@Override
+	public MCNode caseAApplyExp(AApplyExp node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		
+		MCPCMLExp root = (MCPCMLExp) node.getRoot().apply(rootVisitor, question);
+		LinkedList<MCPCMLExp> args = new LinkedList<MCPCMLExp>();
+		for (PExp pExp : node.getArgs()) {
+			args.add((MCPCMLExp) pExp.apply(rootVisitor, question));
+		}
+		MCAApplyExp result = new MCAApplyExp(args, root);
+		
+		return result;
+	}
+
+
+	@Override
 	public MCNode caseAIntLiteralExp(AIntLiteralExp node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
 
@@ -311,8 +377,8 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 			ATimesNumericBinaryExp node, NewCMLModelcheckerContext question)
 			throws AnalysisException {
 		
-		MCPCMLExp left = (MCPCMLExp) node.getLeft().apply(this, question);
-		MCPCMLExp right = (MCPCMLExp) node.getRight().apply(this, question);
+		MCPCMLExp left = (MCPCMLExp) node.getLeft().apply(rootVisitor, question);
+		MCPCMLExp right = (MCPCMLExp) node.getRight().apply(rootVisitor, question);
 		MCATimesNumericBinaryExp result = new MCATimesNumericBinaryExp(left, right);
 			
 		return result;
@@ -322,7 +388,7 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 	public MCNode caseABracketedExp(ABracketedExp node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
 		
-		return node.getExpression().apply(this,question);
+		return node.getExpression().apply(rootVisitor,question);
 	}
 
 	@Override
@@ -332,7 +398,7 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 		LinkedList<PExp> exp = node.getExpressions();
 		LinkedList<MCPCMLExp> mcExp = new LinkedList<MCPCMLExp>();
 		for(PExp e: exp){
-			mcExp.add((MCPCMLExp)e);
+			mcExp.add((MCPCMLExp)e.apply(rootVisitor, question));
 		}
 		return new MCANameChannelExp(name, mcExp);
 	}
@@ -343,8 +409,8 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 	public MCNode caseAInSetBinaryExp(AInSetBinaryExp node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
 		
-		MCPCMLExp left = (MCPCMLExp) node.getLeft().apply(this, question);
-		MCPCMLExp right = (MCPCMLExp) node.getRight().apply(this, question);
+		MCPCMLExp left = (MCPCMLExp) node.getLeft().apply(rootVisitor, question);
+		MCPCMLExp right = (MCPCMLExp) node.getRight().apply(rootVisitor, question);
 		MCAInSetBinaryExp result = new MCAInSetBinaryExp(left,right);
 		
 		return result;
@@ -356,10 +422,70 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 	public MCNode caseASetRangeSetExp(ASetRangeSetExp node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
 
-		MCPCMLExp first = (MCPCMLExp) node.getFirst().apply(this, question);
-		MCPCMLExp last = (MCPCMLExp) node.getLast().apply(this, question);
+		MCPCMLExp first = (MCPCMLExp) node.getFirst().apply(rootVisitor, question);
+		MCPCMLExp last = (MCPCMLExp) node.getLast().apply(rootVisitor, question);
 		
 		MCASetRangeSetExp result = new MCASetRangeSetExp(first, last);
+		
+		return result;
+	}
+
+	
+
+	@Override
+	public MCNode caseAUndefinedExp(AUndefinedExp node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		
+		MCAUndefinedExp result = new MCAUndefinedExp();
+		return result;
+	}
+
+	
+
+	@Override
+	public MCNode caseAQuoteLiteralExp(AQuoteLiteralExp node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		
+		String value = node.getValue().getValue();
+		MCAQuoteLiteralExp result = new MCAQuoteLiteralExp(value);
+		
+		return result;
+	}
+
+	
+
+	@Override
+	public MCNode caseASetUnionBinaryExp(ASetUnionBinaryExp node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		MCPCMLExp left = (MCPCMLExp) node.getLeft().apply(rootVisitor,question);
+		MCPCMLExp right = (MCPCMLExp) node.getRight().apply(rootVisitor,question);
+		
+		MCASetUnionBinaryExp result = new MCASetUnionBinaryExp(left, right);
+		
+		return result;
+	}
+
+	
+
+	@Override
+	public MCNode caseANotInSetBinaryExp(ANotInSetBinaryExp node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		
+		MCPCMLExp left = (MCPCMLExp) node.getLeft().apply(rootVisitor, question);
+		MCPCMLExp right = (MCPCMLExp) node.getRight().apply(rootVisitor, question);
+		MCANotInSetBinaryExp result = new MCANotInSetBinaryExp(left, right);
+		
+		return result;
+	}
+
+	
+
+	@Override
+	public MCNode caseAUnaryMinusUnaryExp(AUnaryMinusUnaryExp node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		
+		MCPCMLExp exp = (MCPCMLExp) node.getExp().apply(rootVisitor, question);
+		MCAUnaryMinusUnaryExp result = new MCAUnaryMinusUnaryExp(exp);
 		
 		return result;
 	}

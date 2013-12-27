@@ -4,44 +4,42 @@ import java.util.LinkedList;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
+import org.overture.ast.definitions.AAssignmentDefinition;
+import org.overture.ast.definitions.AExplicitOperationDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.node.INode;
 import org.overture.ast.statements.AAssignmentStm;
 import org.overture.ast.statements.ABlockSimpleBlockStm;
 import org.overture.ast.statements.ACallStm;
+import org.overture.ast.statements.AIdentifierStateDesignator;
 import org.overture.ast.statements.AIfStm;
+import org.overture.ast.statements.ASkipStm;
+import org.overture.ast.statements.PStateDesignator;
+import org.overture.ast.statements.PStateDesignatorBase;
 import org.overture.ast.statements.PStm;
-import org.overture.ast.types.AIntNumericBasicType;
-import org.overture.ast.types.ANamedInvariantType;
-import org.overture.ast.types.ANatNumericBasicType;
-import org.overture.ast.types.AProductType;
-import org.overture.ast.types.PType;
 
+import eu.compassresearch.ast.actions.AStmAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.statements.AActionStm;
 import eu.compassresearch.ast.statements.AUnresolvedStateDesignator;
-import eu.compassresearch.ast.types.PCMLType;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
-import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAGuardedAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.GuardDefGenerator;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCAssignDef;
-import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCGuardDef;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.NewMCGuardDef;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAAssignmentDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAVariableExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCAActionStm;
 import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCAAssignmentStm;
 import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCABlockSimpleBlockStm;
 import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCACallStm;
+import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCAIdentifierStateDesignator;
 import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCAIfStm;
+import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCASkipStm;
 import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCAUnresolvedStateDesignator;
 import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCPCMLStm;
 import eu.compassresearch.core.analysis.modelchecker.ast.statements.MCPStateDesignator;
-import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAChannelType;
-import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAIntNumericBasicType;
-import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANamedInvariantType;
-import eu.compassresearch.core.analysis.modelchecker.ast.types.MCANatNumericBasicType;
-import eu.compassresearch.core.analysis.modelchecker.ast.types.MCAProductType;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 
 public class NewMCStmVisitor extends
@@ -58,7 +56,7 @@ public class NewMCStmVisitor extends
 	public MCNode defaultPStm(PStm node, NewCMLModelcheckerContext question)
 			throws AnalysisException {
 		
-		throw new ModelcheckerRuntimeException(ModelcheckerErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName()));
+		throw new ModelcheckerRuntimeException(ModelcheckerErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName() + " Node: " + node.toString()));
 	}
 	
 	
@@ -82,11 +80,27 @@ public class NewMCStmVisitor extends
 		if(node.getExp() != null) {
 			expression = (MCPCMLExp) node.getExp().apply(rootVisitor, question);
 		}
-		MCAUnresolvedStateDesignator target = (MCAUnresolvedStateDesignator) node.getTarget().apply(rootVisitor, question);
+		MCPStateDesignator target = (MCPStateDesignator) node.getTarget().apply(rootVisitor, question);
 		MCAAssignmentStm result = new MCAAssignmentStm(expression,target);
+		INode ancestor = node.parent();
+		if(ancestor instanceof AStmAction){
+			ancestor = ancestor.parent();
+			if(ancestor instanceof AActionStm){
+				ancestor = ancestor.parent();
+				if(!(ancestor instanceof AExplicitOperationDefinition)){
+					//assignments inside operation definitions should not originate assign defs.
+					MCAssignDef assignDef = null;
+					if(target instanceof MCAUnresolvedStateDesignator){
+						assignDef = new MCAssignDef(result.getCounterId(), expression,((MCAUnresolvedStateDesignator) target).getPath(), result);
+					}else if (target instanceof MCAIdentifierStateDesignator){
+						MCAVariableExp name = new MCAVariableExp(((MCAIdentifierStateDesignator) target).getName());
+						assignDef = new MCAssignDef(result.getCounterId(), expression,name, result);
+					}
+					question.assignDefs.add(assignDef);
+				}
+			}
+		}
 		
-		MCAssignDef assignDef = new MCAssignDef(result.getCounterId(), expression,target.getPath(), result);
-		question.assignDefs.add(assignDef);
 		
 		return result; 
 	}
@@ -104,17 +118,34 @@ public class NewMCStmVisitor extends
 	}
 
 	
+	
+	@Override
+	public MCNode caseAIdentifierStateDesignator(
+			AIdentifierStateDesignator node, NewCMLModelcheckerContext question)
+			throws AnalysisException {
+
+		String name = node.getName().toString();
+		MCPCMLType type = (MCPCMLType) node.getType().apply(rootVisitor, question);
+		MCAIdentifierStateDesignator result = new MCAIdentifierStateDesignator(name, type);
+		return result;
+	}
+
 	@Override
 	public MCNode caseABlockSimpleBlockStm(ABlockSimpleBlockStm node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
 	
-		LinkedList<MCPCMLStm> statements = new LinkedList<MCPCMLStm>();
-			
-		for (PStm pStm : node.getStatements()) {
-			statements.add((MCPCMLStm) pStm.apply(this, question));
+		LinkedList<MCAAssignmentDefinition> assignDefs= new LinkedList<MCAAssignmentDefinition>();
+		
+		for (AAssignmentDefinition aAssignmentDefinition : node.getAssignmentDefs()) {
+			assignDefs.add((MCAAssignmentDefinition) aAssignmentDefinition.apply(rootVisitor, question));
 		}
 		
-		MCABlockSimpleBlockStm result = new MCABlockSimpleBlockStm(statements);
+		LinkedList<MCPCMLStm> statements = new LinkedList<MCPCMLStm>();
+		for (PStm pStm : node.getStatements()) {
+			statements.add((MCPCMLStm) pStm.apply(rootVisitor, question));
+		}
+		
+		MCABlockSimpleBlockStm result = new MCABlockSimpleBlockStm(assignDefs, statements);
 		
 		return result;
 	}
@@ -124,7 +155,7 @@ public class NewMCStmVisitor extends
 	public MCNode caseACallStm(ACallStm node, NewCMLModelcheckerContext question)
 			throws AnalysisException {
 
-		String name = node.getName().toString();
+		String name = Utilities.extractFunctionName(node.getName().toString());
 		LinkedList<MCPCMLExp> args = new LinkedList<MCPCMLExp>();
 		for (PExp pExp : node.getArgs()) {
 			args.add((MCPCMLExp) pExp.apply(rootVisitor, question));
@@ -140,19 +171,26 @@ public class NewMCStmVisitor extends
 			throws AnalysisException {
 		
 		MCPCMLExp ifExp = (MCPCMLExp) node.getIfExp().apply(rootVisitor, question);
-		MCPCMLStm thenStm = (MCPCMLStm) node.getThenStm().apply(this, question);
-		MCPCMLStm elseStm = (MCPCMLStm) node.getElseStm().apply(this, question);
+		MCPCMLStm thenStm = (MCPCMLStm) node.getThenStm().apply(rootVisitor, question);
+		MCPCMLStm elseStm = null;
+		if(node.getElseStm() != null){
+			elseStm = (MCPCMLStm) node.getElseStm().apply(rootVisitor, question);
+		}
 		
 		MCAIfStm result = new MCAIfStm(ifExp, thenStm, elseStm);
 		
 		LinkedList<NewMCGuardDef> guarDefs = GuardDefGenerator.generateGuardDefs(ifExp, result.getCounterId(), result);
+		question.stmGuardDefs.put(ifExp, guarDefs);
 		
-		for (NewMCGuardDef mcGuardDef : guarDefs) {
-			question.guardDefs.put(ifExp, mcGuardDef);
-		}
-		
-	
 		return result;
+	}
+
+	
+	@Override
+	public MCNode caseASkipStm(ASkipStm node, NewCMLModelcheckerContext question)
+			throws AnalysisException {
+		
+		return new MCASkipStm();
 	}
 
 	@Override

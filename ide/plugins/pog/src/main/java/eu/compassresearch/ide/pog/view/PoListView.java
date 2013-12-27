@@ -22,7 +22,6 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.PartInitException;
 import org.overture.ide.core.resources.IVdmProject;
-import org.overture.ide.plugins.poviewer.Activator;
 import org.overture.ide.plugins.poviewer.IPoviewerConstants;
 import org.overture.ide.plugins.poviewer.view.PoOverviewTableView;
 import org.overture.ide.ui.utility.EditorUtility;
@@ -32,8 +31,9 @@ import org.overture.pog.pub.POStatus;
 
 import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligation;
 import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligationList;
-import eu.compassresearch.ide.pog.POConstants;
 import eu.compassresearch.ide.core.resources.ICmlProject;
+import eu.compassresearch.ide.pog.Activator;
+import eu.compassresearch.ide.pog.POConstants;
 
 public class PoListView extends PoOverviewTableView {
 
@@ -84,8 +84,8 @@ public class PoListView extends PoOverviewTableView {
 		column3.setText("Status");
 		column3.setToolTipText("Show status");
 
-		viewer.setContentProvider(new ViewContentProvider());
-		viewer.setLabelProvider(new ViewLabelProvider());
+		viewer.setContentProvider(new CmlPoViewContentProvider());
+		viewer.setLabelProvider(new CmlPoViewLabelProvider());
 
 		makeActions();
 		super.hookDoubleClickAction();
@@ -120,8 +120,8 @@ public class PoListView extends PoOverviewTableView {
 		display.asyncExec(new Runnable() {
 
 			public void run() {
-				if (viewer.getLabelProvider() instanceof ViewLabelProvider)
-					((ViewLabelProvider) viewer.getLabelProvider())
+				if (viewer.getLabelProvider() instanceof CmlPoViewLabelProvider)
+					((CmlPoViewLabelProvider) viewer.getLabelProvider())
 							.resetCounter(); // this
 												// is
 												// needed
@@ -171,7 +171,7 @@ public class PoListView extends PoOverviewTableView {
 
 	}
 
-	class ViewContentProvider implements IStructuredContentProvider {
+	class CmlPoViewContentProvider implements IStructuredContentProvider {
 		public void inputChanged(Viewer v, Object oldInput, Object newInput) {
 		}
 
@@ -189,7 +189,7 @@ public class PoListView extends PoOverviewTableView {
 
 	}
 
-	class ViewLabelProvider extends LabelProvider implements
+	class CmlPoViewLabelProvider extends LabelProvider implements
 			ITableLabelProvider {
 
 		public void resetCounter() {
@@ -254,6 +254,8 @@ public class PoListView extends PoOverviewTableView {
 
 			return Activator.getImageDescriptor(imgPath).createImage();
 		}
+		
+
 
 	}
 

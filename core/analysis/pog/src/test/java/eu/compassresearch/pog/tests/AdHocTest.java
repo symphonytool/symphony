@@ -9,11 +9,9 @@ import org.overture.ast.node.INode;
 import org.overture.pog.pub.IProofObligation;
 import org.overture.pog.pub.IProofObligationList;
 
-import eu.compassresearch.core.analysis.pog.obligations.CmlPOContextStack;
 import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligation;
 import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligationList;
 import eu.compassresearch.core.analysis.pog.utility.PogPubUtil;
-import eu.compassresearch.core.analysis.pog.visitors.ProofObligationGenerator;
 import eu.compassresearch.pog.tests.utils.TestInputHelper;
 /**
  * Simple test class to play around with the POG without having
@@ -41,11 +39,11 @@ public class AdHocTest {
 				
 		for (IProofObligation po : poList) {
 			System.out.println("------------------------");	
-			String preamble = getPreamble(po);
-			//String pretty = preamble + po.getValueTree().toString();
 			StringBuilder pretty = new StringBuilder();
 			pretty.append("Full Name: " + po.getUniqueName());			
 			pretty.append("\nIsabelle Name: " + po.getIsaName());
+			pretty.append("\nPO: " + getPreamble(po));
+			pretty.append(po.getValueTree().toString());
 			System.out.println(pretty.toString());
 
 		}
@@ -65,7 +63,7 @@ public class AdHocTest {
 			sb.append(po.getKind().toString());
 		}
 		
-		sb.append(" obligation // \n");
+		sb.append("\n");
 		return sb.toString();
 	}
 

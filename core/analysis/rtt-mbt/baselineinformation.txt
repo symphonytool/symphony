@@ -1,4 +1,18 @@
 -----------------------------------------------------------
+RTTMBTAPI_0.2.4
+
+Changes: none
+
+Step forward for the M26 milestone release (again)
+
+-----------------------------------------------------------
+RTTMBTAPI_0.2.2
+
+Changes: none
+
+Step forward for the M26 milestone release
+
+-----------------------------------------------------------
 RTTMBTAPI_0.2.0
 
 Changes: none

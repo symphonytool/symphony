@@ -1,7 +1,6 @@
 package eu.compassresearch.core.interpreter;
 
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -13,7 +12,6 @@ import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.patterns.PMultipleBind;
 import org.overture.ast.patterns.PPattern;
-import org.overture.ast.statements.AIdentifierStateDesignator;
 import org.overture.ast.statements.PObjectDesignator;
 import org.overture.ast.statements.PStateDesignator;
 import org.overture.ast.statements.PStm;
@@ -25,14 +23,10 @@ import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.runtime.VdmRuntime;
 import org.overture.interpreter.runtime.VdmRuntimeError;
-import org.overture.interpreter.scheduler.BasicSchedulableThread;
-import org.overture.interpreter.scheduler.InitThread;
 import org.overture.interpreter.values.NameValuePair;
 import org.overture.interpreter.values.NameValuePairList;
-import org.overture.interpreter.values.ObjectValue;
 import org.overture.interpreter.values.Quantifier;
 import org.overture.interpreter.values.QuantifierList;
-import org.overture.interpreter.values.RecordValue;
 import org.overture.interpreter.values.Value;
 import org.overture.interpreter.values.ValueList;
 
@@ -44,10 +38,8 @@ import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
 import eu.compassresearch.ast.expressions.AIdentifierVarsetExpression;
 import eu.compassresearch.ast.expressions.ANameChannelExp;
 import eu.compassresearch.ast.expressions.AUnionVOpVarsetExpression;
-import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
 import eu.compassresearch.ast.expressions.PCMLExp;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
-import eu.compassresearch.ast.lex.CmlLexNameToken;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
@@ -56,7 +48,6 @@ import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
 import eu.compassresearch.core.interpreter.api.values.LatticeTopValue;
 import eu.compassresearch.core.interpreter.api.values.NamesetValue;
 
-@SuppressWarnings("serial")
 public class CmlExpressionVisitor extends
 		QuestionAnswerCMLAdaptor<Context, Value>
 {
@@ -82,30 +73,32 @@ public class CmlExpressionVisitor extends
 		{
 
 			if (node instanceof PCMLExp)
+			{
 				return defaultPCMLExp((PCMLExp) node, question);
-			else
+			} else
+			{
 				return node.apply(this, question);
+			}
 		}
 	}
 
 	private VdmExpressionEvaluator vdmExpEvaluator = new VdmExpressionEvaluator();
-	
+
 	private CmlStatementEvaluator stmEvaluator = new CmlStatementEvaluator();
 
 	public CmlExpressionVisitor()
 	{
 		// To be able to work together with the VDM interpreter we need to set this
 		// to the current thread.
-		InitThread initThread = new InitThread(Thread.currentThread());
-		BasicSchedulableThread.setInitialThread(initThread);
+		// InitThread initThread = new InitThread(Thread.currentThread());
+		// BasicSchedulableThread.setInitialThread(initThread);
 	}
-	
-	
+
 	@Override
 	public Value defaultPStm(PStm node, Context question)
 			throws AnalysisException
 	{
-		return node.apply(stmEvaluator,question); 
+		return node.apply(stmEvaluator, question);
 	}
 
 	@Override
@@ -156,9 +149,12 @@ public class CmlExpressionVisitor extends
 			// if the index is less than the number of expressions its defined
 			// else we put an anyValue
 			if (i < chanNameExp.getExpressions().size())
+			{
 				values.add(chanNameExp.getExpressions().get(i).apply(this, question));
-			else
+			} else
+			{
 				values.add(new LatticeTopValue(chanValue.getValueTypes().get(i)));
+			}
 		}
 
 		return new ChannelNameValue(chanValue, values);
@@ -168,7 +164,7 @@ public class CmlExpressionVisitor extends
 	{
 		// find the channel value
 		ILexNameToken channelName = NamespaceUtility.createChannelName(varexp.getIdentifier());
-		return (CMLChannelValue) question.lookup(channelName) != null;
+		return question.check(channelName) instanceof CMLChannelValue;
 	}
 
 	@Override
@@ -214,26 +210,15 @@ public class CmlExpressionVisitor extends
 	public Value defaultPStateDesignator(PStateDesignator node, Context question)
 			throws AnalysisException
 	{
-		return node.apply(stmEvaluator,question);
+		return node.apply(stmEvaluator, question);
 	}
-	
+
 	@Override
 	public Value defaultPObjectDesignator(PObjectDesignator node,
 			Context question) throws AnalysisException
 	{
-		return node.apply(stmEvaluator,question);
+		return node.apply(stmEvaluator, question);
 	}
-	
-//	@Override
-//	public Value caseAIdentifierStateDesignator(
-//			AIdentifierStateDesignator node, Context question)
-//			throws AnalysisException
-//	{
-//		
-//		// We lookup the name in a context comprising only state...
-//		// return ctxt.getUpdateable().lookup(name.getExplicit(true));
-//		return question.lookup(node.getName());
-//	}
 
 	@Override
 	public Value caseAEnumVarsetExpression(AEnumVarsetExpression node,
@@ -288,7 +273,9 @@ public class CmlExpressionVisitor extends
 			leftNameset.addAll((NamesetValue) rightValue);
 			return leftNameset;
 		} else
+		{
 			throw new CmlInterpreterException(node, InterpretationErrorMessages.FATAL_ERROR.customizeMessage(""));
+		}
 
 	}
 
@@ -384,35 +371,6 @@ public class CmlExpressionVisitor extends
 
 		return node.getExpression().apply(this, question);
 	}
-
-//	@Override
-//	public Value caseAUnresolvedPathExp(AUnresolvedPathExp node,
-//			Context question) throws AnalysisException
-//	{
-//
-//		// FIXME This is just for testing, this should be done in a more generic way.
-//
-//		Iterator<ILexIdentifierToken> iter = node.getIdentifiers().iterator();
-//
-//		Value val = question.check(new CmlLexNameToken("", iter.next()));
-//
-//		if (val.deref() instanceof RecordValue)
-//		{
-//			RecordValue recordVal = val.recordValue(question);
-//			Value fieldValue = recordVal.fieldmap.get(iter.next().getName());
-//
-//			return fieldValue;
-//		} else if (val.deref() instanceof ObjectValue)
-//		{
-//			ObjectValue objectVal = val.objectValue(question);
-//			return objectVal.get(new CmlLexNameToken("", (ILexIdentifierToken) iter.next().clone()), false);
-//		}
-//
-//		if (val.isUndefined())
-//			throw new CmlInterpreterException(node, InterpretationErrorMessages.EVAL_OF_UNDEFINED_VALUE.customizeMessage(node.toString(), node.getLocation().toString()));
-//
-//		return val;
-//	}
 
 	@Override
 	public Value createNewReturnValue(INode node, Context question)

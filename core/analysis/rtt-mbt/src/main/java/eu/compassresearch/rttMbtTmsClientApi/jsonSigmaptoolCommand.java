@@ -52,8 +52,8 @@ public class jsonSigmaptoolCommand extends jsonCommand {
 			return;
 		}
 		String filename = "";
-		if (client.getRttProjectRoot() != null) {
-			filename = client.getRttProjectRoot() + File.separator;
+		if (client.getRttProjectPath() != null) {
+			filename = client.getRttProjectPath() + File.separator;
 		}
 		// if the test procedure name is not defined, generate
 		// the signalmap.csv in the model folder of the project 

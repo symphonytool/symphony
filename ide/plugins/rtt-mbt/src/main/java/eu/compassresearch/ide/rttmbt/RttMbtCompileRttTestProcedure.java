@@ -23,7 +23,7 @@ public class RttMbtCompileRttTestProcedure extends RttMbtConcreteTestProcedureAc
 		}
 
 		// get RttMbtClient for this action
-		if (!initClient(selectedObjectPath)) {
+		if (!initClient()) {
 			client.addErrorMessage("[FAIL]: compile test procedure: init of RTT-MBT client failed!");
 			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 			return null;
@@ -42,9 +42,9 @@ public class RttMbtCompileRttTestProcedure extends RttMbtConcreteTestProcedureAc
 		Job job = new Job("Compile Test") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
-				client.addLogMessage("compiling test procedure " + selectedObject + "... please wait for the task to be finished.");
+				client.addLogMessage("compiling test procedure " + selectedObjectName + "... please wait for the task to be finished.");
 				// compile test procedure
-				if (client.compileTestProcedure(selectedObject)) {
+				if (client.compileTestProcedure(selectedObjectName)) {
 					client.addLogMessage("[PASS]: compile test procedure");
 					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 				} else {

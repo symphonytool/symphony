@@ -59,7 +59,9 @@ public class UnresolvedExpressionValue extends Value implements LooseValue
 			return unresolvedExpression.equals(((UnresolvedExpressionValue) other).unresolvedExpression)
 					&& evalContext.equals(((UnresolvedExpressionValue) other).evalContext);
 		} else
+		{
 			return false;
+		}
 	}
 
 	@Override

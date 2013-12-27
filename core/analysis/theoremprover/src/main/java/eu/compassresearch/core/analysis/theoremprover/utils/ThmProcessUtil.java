@@ -118,22 +118,12 @@ public class ThmProcessUtil {
 				others.add(pdef);
 			}
 		}
-		
-		//first we need to get all the state identifier names so expressions use correct reference
-		NodeNameList svars = ThmProcessUtil.getStateNames(procVars);
-		//also get operation and action names
-		
-		NodeNameList opNames = ThmProcessUtil.getOperationNames(operations);
-		NodeNameList efNames = ThmProcessUtil.getExpFunctionNames(expfunctions);
-		NodeNameList ifNames = ThmProcessUtil.getImpFunctionNames(impfunctions);
-		NodeNameList actNames = ThmProcessUtil.getActionNames(actions);
-			
-		//Add all state, operation and action names to list
-		procNodeNames.addAll(svars);
-		procNodeNames.addAll(opNames);
-		procNodeNames.addAll(actNames);
-		procNodeNames.addAll(efNames);
-		procNodeNames.addAll(ifNames);
+		//Add all names to list
+		procNodeNames.addAll(ThmProcessUtil.getStateNames(procVars));
+		procNodeNames.addAll(ThmProcessUtil.getOperationNames(operations));
+		procNodeNames.addAll(ThmProcessUtil.getExpFunctionNames(expfunctions));
+		procNodeNames.addAll(ThmProcessUtil.getImpFunctionNames(impfunctions));
+		procNodeNames.addAll(ThmProcessUtil.getActionNames(actions));
 		return procNodeNames;
 	}
 	
@@ -204,6 +194,8 @@ public class ThmProcessUtil {
 		{
 			//get the name and add it to the list
 			statenames.add(pdef.getName());
+			LexNameToken tildaStateName = new LexNameToken("", pdef.getName().toString() + "~", pdef.getLocation());
+			statenames.add(tildaStateName);
 		}
 		return statenames;
 	}

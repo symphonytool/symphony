@@ -109,12 +109,22 @@
       <wizard
             category="compass_eu.compassresearch.ide.ui.category"
             class="eu.compassresearch.ide.rttmbt.RttMbtComponentWizard"
+            finalPerspective="eu.compassresearch.ide.rttmbt.rtt-perspective"
             icon="icons/rtt-mbt-small.png"
             id="eu.compassresearch.ide.rttmbt.RttMbtComponentWizard"
-            name="RTT-MBT Project">
+            name="RTT-MBT Folder">
+      </wizard>
+      <wizard
+            category="compass_eu.compassresearch.ide.ui.category"
+            class="eu.compassresearch.ide.rttmbt.RttMbtProjectWizard"
+            finalPerspective="eu.compassresearch.ide.rttmbt.rtt-perspective"
+            icon="icons/rtt-mbt-small.png"
+            id="eu.compassresearch.ide.rttmbt.RttMbtProjectWizard"
+            name="RTT-MBT Project"
+            project="true">
       </wizard>
       <category
-            id="RT-Tester"
+            id="compass_eu.compassresearch.ide.rttmbt.category"
             name="RT-Tester"
             parentCategory="compass_eu.compassresearch.ide.ui.category">
       </category>
@@ -336,6 +346,18 @@
             </with>
          </activeWhen>
       </handler>
+      <handler
+            class="eu.compassresearch.ide.rttmbt.RttMbtBuildMakeTarget"
+            commandId="eu.compassresearch.ide.rttmbt.RttMbtBuildMakeTarget">
+         <activeWhen>
+            <with
+                  variable="eu.compassresearch.ide.rttmbt.IsMakefileSelected">
+               <equals
+                     value="truumpel">
+               </equals>
+            </with>
+         </activeWhen>
+      </handler>
    </extension>
    <extension
          point="org.eclipse.ui.menus">
@@ -450,6 +472,13 @@
                   name="eu.compassresearch.ide.rttmbt.separator-004"
                   visible="true">
             </separator>
+            <command
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtBuildMakeTarget"
+                  icon="icons/execute.png"
+                  label="Build Make Target"
+                  style="push"
+                  tooltip="Execute make clean all for selected Makefile">
+            </command>
             <command
                   commandId="eu.compassresearch.ide.rttmbt.RttMbtAbort"
                   icon="icons/stop.png"
@@ -566,6 +595,14 @@
                   label="Clean Test Generation"
                   style="push"
                   tooltip="Cleanup this Test Procedure Generation Context">
+               <visibleWhen>
+                  <with
+                        variable="eu.compassresearch.ide.rttmbt.IsRttPerspectiveActive">
+                     <equals
+                           value="truumpel">
+                     </equals>
+                  </with>
+               </visibleWhen>
             </command>
             <command
                   commandId="eu.compassresearch.ide.rttmbt.RttMbtGenerateTest"
@@ -681,6 +718,21 @@
                   visible="true">
             </separator>
             <command
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtBuildMakeTarget"
+                  icon="icons/execute.png"
+                  label="Build Make Target"
+                  style="push"
+                  tooltip="Execute make clean all for selected Makefile">
+               <visibleWhen>
+                  <with
+                        variable="eu.compassresearch.ide.rttmbt.IsRttPerspectiveActive">
+                     <equals
+                           value="truumpel">
+                     </equals>
+                  </with>
+               </visibleWhen>
+            </command>
+            <command
                   commandId="eu.compassresearch.ide.rttmbt.RttMbtAbort"
                   icon="icons/stop.png"
                   label="Abort Current task"
@@ -748,6 +800,13 @@
          <menu
                id="eu.compassresearch.ide.rttmbt.RttMbtProjectMenu"
                label="Resource">
+            <command
+                  commandId="eu.compassresearch.ide.rttmbt.RttMbtBuildMakeTarget"
+                  icon="icons/execute.png"
+                  label="Build Make Target"
+                  style="push"
+                  tooltip="Execute make clean all for selected Makefile">
+            </command>
             <!--
             <command
                   commandId="eu.compassresearch.ide.rttmbt.RttMbtNewProject"
@@ -997,6 +1056,16 @@
                priorityLevel="workbench">
          </variable>
       </sourceProvider>
+   </extension>
+   <extension
+         point="org.eclipse.ui.propertyPages">
+      <page
+            category="compass_eu.compassresearch.ide.ui.category"
+            class="eu.compassresearch.ide.rttmbt.RttMbtProjectPropertiesPage"
+            id="eu.compassresearch.ide.cml.rttplugin.rttprojectproperty"
+            name="RT-Tester"
+            objectClass="org.eclipse.core.resources.IProject">
+      </page>
    </extension>
 
 </plugin>

@@ -148,9 +148,10 @@
  <extension
        point="org.eclipse.ui.preferencePages">
     <page
+          category="eu.compassresearch.ide.ui.compass"
           class="eu.compassresearch.ide.interpreter.preferences.WorkbenchPreferencePageInterpreter"
           id="eu.compassresearch.ide.interpreter.page1"
-          name="CML Interpreter">
+          name="Simulator">
     </page>
  </extension>
  <extension

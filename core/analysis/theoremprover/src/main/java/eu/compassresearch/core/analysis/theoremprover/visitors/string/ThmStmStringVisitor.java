@@ -15,11 +15,12 @@ import org.overture.ast.statements.ACallStm;
 import org.overture.ast.statements.AElseIfStm;
 import org.overture.ast.statements.AIfStm;
 import org.overture.ast.statements.ALetStm;
+import org.overture.ast.statements.ASkipStm;
 import org.overture.ast.statements.AWhileStm;
 import org.overture.ast.statements.PStateDesignator;
 import org.overture.ast.statements.PStm;
-import eu.compassresearch.ast.statements.AActionStm;
 
+import eu.compassresearch.ast.statements.AActionStm;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.core.analysis.theoremprover.utils.ThmProcessUtil;
 
@@ -39,6 +40,12 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		return a.getAction().apply(thmStringVisitor, vars);
 	}
 	
+	public String caseASkipStm(ASkipStm a, ThmVarsContext vars) throws AnalysisException{
+		
+		return "II";		
+	}
+	
+	
 	public String caseACallStm(ACallStm a, ThmVarsContext vars) throws AnalysisException{
 		StringBuilder args = new StringBuilder();
 		
@@ -54,7 +61,6 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		
 		ILexNameToken name = a.getName();
 		return name.getName()+ "(" + args.toString() + ")";		
-		
 	}
 	
 	public String caseABlockSimpleBlockStm(ABlockSimpleBlockStm a, ThmVarsContext vars) throws AnalysisException{
@@ -62,20 +68,32 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		StringBuilder assignStr = new StringBuilder();
 		StringBuilder blockSb = new StringBuilder();
 		
-		for (PStm s : a.getStatements())
-		{
-			 blockSb.append(s.apply(thmStringVisitor, vars));	
-		}
-		String blockStr = blockSb.toString();
-		
-		for (AAssignmentDefinition aDef : a.getAssignmentDefs())
-		{
+		for(Iterator<AAssignmentDefinition> itr = a.getAssignmentDefs().listIterator(); itr.hasNext();) {
+			AAssignmentDefinition aDef = itr.next();
+
 			varsStr.add(aDef.getName().getName().toString());
 			if(aDef.getExpression() != null)
 			{
-				assignStr.append(aDef.getName().getName().toString() + ":=" + aDef.getExpression().apply(thmStringVisitor, vars) + "; ");
+				assignStr.append(aDef.getName().getName().toString() + ":=" + aDef.getExpression().apply(thmStringVisitor, vars));
+				//If there are remaining assignments, add a ";"
+				if(itr.hasNext()){	
+					assignStr.append("; ");
+				}
 			}
 		}
+		
+		for(Iterator<PStm> itr = a.getStatements().listIterator(); itr.hasNext();) {
+			PStm s = itr.next();
+
+			blockSb.append(s.apply(thmStringVisitor, vars));	
+			//If there are remaining statements, add a ","
+			if(itr.hasNext()){	
+				blockSb.append("; ");
+			}
+		}
+		String blockStr = blockSb.toString();
+		
+		
 
 		blockStr = assignStr.toString() + blockStr;
 		for(String as : varsStr)
@@ -96,14 +114,18 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		LinkedList<PDefinition> defs = a.getLocalDefs();
 		if(! defs.isEmpty()) 
 		{
-			
-			for (PDefinition pdef : a.getLocalDefs())
-			{
+			for(Iterator<PDefinition> itr = a.getLocalDefs().listIterator(); itr.hasNext();) {
+				PDefinition pdef = itr.next();
+
 				AAssignmentDefinition aDef = (AAssignmentDefinition) pdef;
 				varsStr.add(aDef.getName().getName().toString());
 				if(aDef.getExpression() != null)
 				{
-					assignStr.append(aDef.getName().getName().toString() + ":=" + aDef.getExpression().apply(thmStringVisitor, vars) + "; ");
+					assignStr.append(aDef.getName().getName().toString() + ":=" + aDef.getExpression().apply(thmStringVisitor, vars));
+					//If there are remaining assignments, add a ";"
+					if(itr.hasNext()){	
+						assignStr.append("; ");
+					}
 				}
 			}
 

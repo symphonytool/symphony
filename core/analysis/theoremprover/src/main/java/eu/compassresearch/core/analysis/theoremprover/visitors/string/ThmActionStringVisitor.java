@@ -26,7 +26,6 @@ import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.AStmAction;
 import eu.compassresearch.ast.actions.AStopAction;
-import eu.compassresearch.ast.actions.ASynchronousParallelismParallelAction;
 import eu.compassresearch.ast.actions.AWriteCommunicationParameter;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.actions.PCommunicationParameter;
@@ -250,10 +249,6 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 	
 	public String caseAInterleavingParallelAction(AInterleavingParallelAction a, ThmVarsContext vars) throws AnalysisException{
 		return a.getLeftAction().apply(thmStringVisitor, vars) + ThmProcessUtil.interleave  + a.getRightAction().apply(thmStringVisitor, vars);
-	}
-	
-	public String caseASynchronousParallelismParallelAction(ASynchronousParallelismParallelAction a, ThmVarsContext vars) throws AnalysisException{
-		return a.getLeftAction().apply(thmStringVisitor, vars) + ThmProcessUtil.syncParallel  + a.getRightAction().apply(thmStringVisitor, vars);
 	}
 	
 	public String caseAGeneralisedParallelismParallelAction(AGeneralisedParallelismParallelAction a, ThmVarsContext vars) throws AnalysisException{

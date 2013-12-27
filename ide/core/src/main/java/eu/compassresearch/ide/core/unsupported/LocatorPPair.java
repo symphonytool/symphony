@@ -5,16 +5,18 @@ import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.node.INode;
 import org.overture.ast.patterns.APatternListTypePair;
 import org.overture.ast.patterns.APatternTypePair;
+import org.overture.ast.patterns.PPair;
 
 import eu.compassresearch.ast.analysis.AnswerCMLAdaptor;
 import eu.compassresearch.ast.patterns.ARenamePair;
 
+/**
+ * Visitor to extract the {@link ILexLocation} from {@link PPair} nodes.
+ * @author ldc
+ *
+ */
 public class LocatorPPair extends AnswerCMLAdaptor<ILexLocation> {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 
 	@Override
 	public ILexLocation createNewReturnValue(INode node)

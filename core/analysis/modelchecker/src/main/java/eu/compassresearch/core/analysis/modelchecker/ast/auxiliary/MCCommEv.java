@@ -39,6 +39,19 @@ public class MCCommEv implements MCNode {
 		
 		return result.toString();
 	}
+	
+	
+
+	@Override
+	public boolean equals(Object obj) {
+		boolean result = false;
+		if(obj instanceof MCCommEv){
+			result = this.name.equals(((MCCommEv) obj).getName())
+					&& this.parameters.equals(((MCCommEv) obj).getParameters());
+		}
+		return result;
+	}
+
 
 	private String parametersToString(String option){
 		StringBuilder result = new StringBuilder();
@@ -46,9 +59,9 @@ public class MCCommEv implements MCNode {
 		while (it.hasNext()) {
 			MCPCommunicationParameter item = (MCPCommunicationParameter) it.next();
 			result.append(item.toFormula(option));
-			if(it.hasNext()){
-				result.append(".");
-			}
+			//if(it.hasNext()){
+			//	result.append(".");
+			//}
 		}
 		
 		return result.toString();

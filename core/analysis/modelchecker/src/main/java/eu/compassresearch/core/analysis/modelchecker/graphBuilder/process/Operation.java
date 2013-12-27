@@ -1,14 +1,15 @@
 package eu.compassresearch.core.analysis.modelchecker.graphBuilder.process;
 
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.param.Param;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Type;
 
 public class Operation implements Process {
 	
 	private String str;
-	private Param param;
+	private Type param;
 	
 	
-	public Operation(String str,Param par) {
+	public Operation(String str,Type par) {
 		this.str = str;
 		this.param = par;
 	}
@@ -21,17 +22,10 @@ public class Operation implements Process {
 		this.str = str;
 	}
 
-	public Param getParam() {
-		return param;
-	}
-
-	public void setParam(Param param) {
-		this.param = param;
-	}
-
+	
 	@Override
 	public String toString() {
-		return str + param.toString();
+		return str + "(" + param.toString() + ")";
 	}
 	
 	@Override
@@ -39,12 +33,22 @@ public class Operation implements Process {
 		boolean result = false;
 		if(obj instanceof Operation){
 			Operation other = (Operation) obj;
-			result = this.str.equals(other.str);
+			result = this.str.equals(other.str) &&
+					 this.param.equals(((Operation) obj).getParam());
 		}
 		return result;
 		
 	}
 	
+	
+	public Type getParam() {
+		return param;
+	}
+
+	public void setParam(Type param) {
+		this.param = param;
+	}
+
 	@Override
 	public boolean isDeadlock(){
 		return false;

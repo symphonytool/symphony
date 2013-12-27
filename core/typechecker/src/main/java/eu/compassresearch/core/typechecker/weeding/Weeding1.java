@@ -17,7 +17,6 @@ import eu.compassresearch.core.typechecker.DefinitionList;
 /**
  * @author kel & cb
  */
-@SuppressWarnings("serial")
 public class Weeding1 extends DepthFirstAnalysisCMLAdaptor
 {
 
@@ -28,12 +27,14 @@ public class Weeding1 extends DepthFirstAnalysisCMLAdaptor
 		for (PDefinition s : sourceForest)
 		{
 			if (s != null)
+			{
 				try
 				{
 					s.apply(lv);
 				} catch (AnalysisException e)
 				{
 				}
+			}
 		}
 	}
 

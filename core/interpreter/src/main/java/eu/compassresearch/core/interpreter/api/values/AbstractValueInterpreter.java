@@ -14,8 +14,9 @@ public class AbstractValueInterpreter
 		// The meet operator is reflexive so if both are AnyValue we can return either of them
 		// and since they only are comparable if
 		if (isValueMostPrecise(val1) && isValueMostPrecise(val2))
+		{
 			return val1;
-		else if (!isValueMostPrecise(val1) && !isValueMostPrecise(val2))
+		} else if (!isValueMostPrecise(val1) && !isValueMostPrecise(val2))
 		{
 			// If both are a nonprecise value and they differ the meet would be the set of of them, for now we
 			// just return the AnyValue
@@ -29,12 +30,17 @@ public class AbstractValueInterpreter
 			}
 			// any value would do here since they are identical
 			else
+			{
 				return val1;
+			}
 		} else if (isValueMostPrecise(val1))
+		{
 			return val1;
-		else
+		} else
+		{
 			// if(isAnyValue(val2))
 			return val2;
+		}
 	}
 
 	/**
@@ -50,13 +56,21 @@ public class AbstractValueInterpreter
 		if (value != null)
 		{
 			if (value instanceof ChannelNameValue)
+			{
 				for (Value innerValue : ((ChannelNameValue) value).getValues())
+				{
 					ret &= isValueMostPrecise(innerValue);
-			else if (value instanceof TupleValue)
+				}
+			} else if (value instanceof TupleValue)
+			{
 				for (Value innerValue : ((TupleValue) value).values)
+				{
 					ret &= isValueMostPrecise(innerValue);
-			else
+				}
+			} else
+			{
 				ret = !isAnyValue(value);
+			}
 
 		}
 
@@ -75,12 +89,16 @@ public class AbstractValueInterpreter
 		// if both are undefined we
 		if (isValueMostPrecise(val1) && isValueMostPrecise(val2)
 				|| !isValueMostPrecise(val1) && !isValueMostPrecise(val2))
+		{
 			return true;
-		else if (isValueMostPrecise(val1))
+		} else if (isValueMostPrecise(val1))
+		{
 			return true;
-		else
+		} else
+		{
 			// if(!isValueMostPrecise(val2))
 			return false;
+		}
 	}
 
 	public static boolean isAnyValue(Value value)

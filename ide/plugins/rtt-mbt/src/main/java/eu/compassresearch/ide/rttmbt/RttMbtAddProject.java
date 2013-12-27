@@ -25,21 +25,21 @@ public class RttMbtAddProject extends RttMbtPopupMenuAction  {
 		}
 		
 		// get RttMbtClient for this action
-		if (!initClient(selectedObjectPath)) {
+		if (!initClient()) {
 			client.addErrorMessage("[FAIL]: Add an existing RTT-MBT Component to the RTT-MBT Server: init of RTT-MBT client failed!");
 			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 			return null;
 		}
 
 		// check if the selected item is a project
-		File item = new File(client.getCmlWorkspace() + selectedObjectPath);
+		File item = new File(selectedObjectFilesystemPath);
 		if (!item.exists()) {
 			client.addErrorMessage("[FAIL]: Add an existing RTT-MBT Component to the RTT-MBT Server: file or directory '" + item.getAbsolutePath() + "' does not exist!");
 			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 			return null;
 		}
 		if (!item.isDirectory()) {
-			client.addErrorMessage("[FAIL]: Add an existing RTT-MBT Component to the RTT-MBT Server: the selected item '" + selectedObject + "' is not a directory!");
+			client.addErrorMessage("[FAIL]: Add an existing RTT-MBT Component to the RTT-MBT Server: the selected item '" + selectedObjectName + "' is not a directory!");
 			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 			return null;
 		} else {
@@ -54,21 +54,21 @@ public class RttMbtAddProject extends RttMbtPopupMenuAction  {
 				((!stubs.exists()) || (!stubs.isDirectory())) ||
 				((!TMPL.exists()) || (!TMPL.isDirectory()))) {
 				if ((!inc.exists()) || (!inc.isDirectory())) {
-					client.addErrorMessage("Required sub directory '" + selectedObject + File.separator + "inc' does not exist or is not a directory!");					
+					client.addErrorMessage("Required sub directory '" + selectedObjectName + File.separator + "inc' does not exist or is not a directory!");					
 				}
 				if ((!scripts.exists()) || (!scripts.isDirectory())) {
-					client.addErrorMessage("Required sub directory '" + selectedObject + File.separator + "scripts' does not exist or is not a directory!");					
+					client.addErrorMessage("Required sub directory '" + selectedObjectName + File.separator + "scripts' does not exist or is not a directory!");					
 				}
 				if ((!specs.exists()) || (!specs.isDirectory())) {
-					client.addErrorMessage("Required sub directory '" + selectedObject + File.separator + "specs' does not exist or is not a directory!");					
+					client.addErrorMessage("Required sub directory '" + selectedObjectName + File.separator + "specs' does not exist or is not a directory!");					
 				}
 				if ((!stubs.exists()) || (!stubs.isDirectory())) {
-					client.addErrorMessage("Required sub directory '" + selectedObject + File.separator + "stubs' does not exist or is not a directory!");					
+					client.addErrorMessage("Required sub directory '" + selectedObjectName + File.separator + "stubs' does not exist or is not a directory!");					
 				}
 				if ((!TMPL.exists()) || (!TMPL.isDirectory())) {
-					client.addErrorMessage("Required sub directory '" + selectedObject + File.separator + "TMPL' does not exist or is not a directory!");					
+					client.addErrorMessage("Required sub directory '" + selectedObjectName + File.separator + "TMPL' does not exist or is not a directory!");					
 				}
-				client.addErrorMessage("[FAIL]: Add an existing RTT-MBT Component to the RTT-MBT Server: the selected item '" + selectedObject + "' is not a RTT-MBT component directory!");
+				client.addErrorMessage("[FAIL]: Add an existing RTT-MBT Component to the RTT-MBT Server: the selected item '" + selectedObjectName + "' is not a RTT-MBT component directory!");
 				client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 				return null;
 			}
@@ -93,7 +93,7 @@ public class RttMbtAddProject extends RttMbtPopupMenuAction  {
 				
 				// conf
 				client.setProgress(IRttMbtProgressBar.Tasks.Global, 0);
-				client.addLogMessage("uploading '" + selectedObject + File.separator + "conf'...");
+				client.addLogMessage("uploading '" + selectedObjectName + File.separator + "conf'...");
 				ret = client.uploadDirectory(itempath + File.separator + "conf", true);
 				success = success && ret;
 				if (ret) {
@@ -104,7 +104,7 @@ public class RttMbtAddProject extends RttMbtPopupMenuAction  {
 				
 				// inc
 				client.setProgress(IRttMbtProgressBar.Tasks.Global, 0);
-				client.addLogMessage("uploading '" + selectedObject + File.separator + "inc'...");
+				client.addLogMessage("uploading '" + selectedObjectName + File.separator + "inc'...");
 				ret = client.uploadDirectory(itempath + File.separator + "inc", true);
 				success = success && ret;
 				if (ret) {
@@ -115,7 +115,7 @@ public class RttMbtAddProject extends RttMbtPopupMenuAction  {
 				
 				// model
 				client.setProgress(IRttMbtProgressBar.Tasks.Global, 0);
-				client.addLogMessage("uploading '" + selectedObject + File.separator + "model'...");
+				client.addLogMessage("uploading '" + selectedObjectName + File.separator + "model'...");
 				ret = client.uploadDirectory(itempath + File.separator + "model", true);
 				success = success && ret;
 				if (ret) {
@@ -126,7 +126,7 @@ public class RttMbtAddProject extends RttMbtPopupMenuAction  {
 				
 				// scripts
 				client.setProgress(IRttMbtProgressBar.Tasks.Global, 0);
-				client.addLogMessage("uploading '" + selectedObject + File.separator + "scripts'...");
+				client.addLogMessage("uploading '" + selectedObjectName + File.separator + "scripts'...");
 				ret = client.uploadDirectory(itempath + File.separator + "scripts", true);
 				success = success && ret;
 				if (ret) {
@@ -137,7 +137,7 @@ public class RttMbtAddProject extends RttMbtPopupMenuAction  {
 				
 				// specs
 				client.setProgress(IRttMbtProgressBar.Tasks.Global, 0);
-				client.addLogMessage("uploading '" + selectedObject + File.separator + "specs'...");
+				client.addLogMessage("uploading '" + selectedObjectName + File.separator + "specs'...");
 				ret = client.uploadDirectory(itempath + File.separator + "specs", true);
 				success = success && ret;
 				if (ret) {
@@ -148,7 +148,7 @@ public class RttMbtAddProject extends RttMbtPopupMenuAction  {
 				
 				// stubs
 				client.setProgress(IRttMbtProgressBar.Tasks.Global, 0);
-				client.addLogMessage("uploading '" + selectedObject + File.separator + "stubs'...");
+				client.addLogMessage("uploading '" + selectedObjectName + File.separator + "stubs'...");
 				ret = client.uploadDirectory(itempath + File.separator + "stubs", true);
 				success = success && ret;
 				if (ret) {
@@ -159,7 +159,7 @@ public class RttMbtAddProject extends RttMbtPopupMenuAction  {
 				
 				// TMPL
 				client.setProgress(IRttMbtProgressBar.Tasks.Global, 0);
-				client.addLogMessage("uploading '" + selectedObject + File.separator + "TMPL'...");
+				client.addLogMessage("uploading '" + selectedObjectName + File.separator + "TMPL'...");
 				ret = client.uploadDirectory(itempath + File.separator + "TMPL", true);
 				success = success && ret;
 				if (ret) {
@@ -170,9 +170,9 @@ public class RttMbtAddProject extends RttMbtPopupMenuAction  {
 
 				// final verdict of action
 				if (success) {
-					client.addLogMessage("[PASS]: Add RTT-MBT component '" + selectedObject + "'");
+					client.addLogMessage("[PASS]: Add RTT-MBT component '" + selectedObjectName + "'");
 				} else {
-					client.addLogMessage("[FAIL]: Add RTT-MBT component '" + selectedObject + "'");
+					client.addLogMessage("[FAIL]: Add RTT-MBT component '" + selectedObjectName + "'");
 				}
 				client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 				return Status.OK_STATUS;

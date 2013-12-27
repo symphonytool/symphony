@@ -5,13 +5,6 @@ import java.io.InputStream;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.intf.IQuestion;
-import eu.compassresearch.ast.statements.AActionStm;
-import eu.compassresearch.ast.statements.AAltNonDeterministicStm;
-import eu.compassresearch.ast.statements.ADoNonDeterministicStm;
-import eu.compassresearch.ast.statements.AIfNonDeterministicStm;
-import eu.compassresearch.ast.statements.ANewStm;
-import eu.compassresearch.ast.statements.AUnresolvedObjectDesignator;
-import eu.compassresearch.ast.statements.AUnresolvedStateDesignator;
 import org.overture.typechecker.Environment;
 import org.overture.typechecker.assistant.ITypeCheckerAssistantFactory;
 import org.overture.typechecker.utilities.ImplicitDefinitionFinder;
@@ -49,8 +42,6 @@ import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.AStartDeadlineAction;
 import eu.compassresearch.ast.actions.AStmAction;
 import eu.compassresearch.ast.actions.AStopAction;
-import eu.compassresearch.ast.actions.ASynchronousParallelismParallelAction;
-import eu.compassresearch.ast.actions.ASynchronousParallelismReplicatedAction;
 import eu.compassresearch.ast.actions.ATimedInterruptAction;
 import eu.compassresearch.ast.actions.ATimeoutAction;
 import eu.compassresearch.ast.actions.AUntimedTimeoutAction;
@@ -63,20 +54,12 @@ import eu.compassresearch.ast.declarations.AExpressionSingleDeclaration;
 import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionClassDefinition;
 import eu.compassresearch.ast.definitions.AActionDefinition;
-import eu.compassresearch.ast.definitions.AActionsDefinition;
 import eu.compassresearch.ast.definitions.AChannelDefinition;
-import eu.compassresearch.ast.definitions.AChannelsDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
-import eu.compassresearch.ast.definitions.AChansetsDefinition;
-import eu.compassresearch.ast.definitions.AFunctionsDefinition;
 import eu.compassresearch.ast.definitions.AInitialDefinition;
 import eu.compassresearch.ast.definitions.ALogicalAccess;
 import eu.compassresearch.ast.definitions.ANamesetDefinition;
-import eu.compassresearch.ast.definitions.ANamesetsDefinition;
-import eu.compassresearch.ast.definitions.AOperationsDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
-import eu.compassresearch.ast.definitions.ATypesDefinition;
-import eu.compassresearch.ast.definitions.AValuesDefinition;
 import eu.compassresearch.ast.expressions.ABracketedExp;
 import eu.compassresearch.ast.expressions.ACompVarsetExpression;
 import eu.compassresearch.ast.expressions.AComprehensionRenameChannelExp;
@@ -113,14 +96,19 @@ import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionReplicatedProcess;
 import eu.compassresearch.ast.process.ASkipProcess;
 import eu.compassresearch.ast.process.AStartDeadlineProcess;
-import eu.compassresearch.ast.process.ASynchronousParallelismProcess;
-import eu.compassresearch.ast.process.ASynchronousParallelismReplicatedProcess;
 import eu.compassresearch.ast.process.ATimedInterruptProcess;
 import eu.compassresearch.ast.process.ATimeoutProcess;
 import eu.compassresearch.ast.process.AUntimedTimeoutProcess;
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.ATcpStreamSource;
+import eu.compassresearch.ast.statements.AActionStm;
+import eu.compassresearch.ast.statements.AAltNonDeterministicStm;
+import eu.compassresearch.ast.statements.ADoNonDeterministicStm;
+import eu.compassresearch.ast.statements.AIfNonDeterministicStm;
+import eu.compassresearch.ast.statements.ANewStm;
+import eu.compassresearch.ast.statements.AUnresolvedObjectDesignator;
+import eu.compassresearch.ast.statements.AUnresolvedStateDesignator;
 import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.ast.types.AProcessType;
 
@@ -134,10 +122,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 		super(af);
 	}
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 4947466785754178741L;
 
 	@Override
 	public void caseFile(File node, Environment question)
@@ -219,62 +203,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 
 	@Override
 	public void caseAChannelDefinition(AChannelDefinition node,
-			Environment question) throws AnalysisException
-	{
-
-	}
-
-	@Override
-	public void caseAChannelsDefinition(AChannelsDefinition node,
-			Environment question) throws AnalysisException
-	{
-
-	}
-
-	@Override
-	public void caseAChansetsDefinition(AChansetsDefinition node,
-			Environment question) throws AnalysisException
-	{
-
-	}
-
-	@Override
-	public void caseANamesetsDefinition(ANamesetsDefinition node,
-			Environment question) throws AnalysisException
-	{
-
-	}
-
-	@Override
-	public void caseAActionsDefinition(AActionsDefinition node,
-			Environment question) throws AnalysisException
-	{
-
-	}
-
-	@Override
-	public void caseATypesDefinition(ATypesDefinition node, Environment question)
-			throws AnalysisException
-	{
-
-	}
-
-	@Override
-	public void caseAOperationsDefinition(AOperationsDefinition node,
-			Environment question) throws AnalysisException
-	{
-
-	}
-
-	@Override
-	public void caseAFunctionsDefinition(AFunctionsDefinition node,
-			Environment question) throws AnalysisException
-	{
-
-	}
-
-	@Override
-	public void caseAValuesDefinition(AValuesDefinition node,
 			Environment question) throws AnalysisException
 	{
 
@@ -455,14 +383,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	}
 
 	@Override
-	public void caseASynchronousParallelismProcess(
-			ASynchronousParallelismProcess node, Environment question)
-			throws AnalysisException
-	{
-
-	}
-
-	@Override
 	public void caseAInterleavingProcess(AInterleavingProcess node,
 			Environment question) throws AnalysisException
 	{
@@ -581,14 +501,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	@Override
 	public void caseAAlphabetisedParallelismReplicatedProcess(
 			AAlphabetisedParallelismReplicatedProcess node, Environment question)
-			throws AnalysisException
-	{
-
-	}
-
-	@Override
-	public void caseASynchronousParallelismReplicatedProcess(
-			ASynchronousParallelismReplicatedProcess node, Environment question)
 			throws AnalysisException
 	{
 
@@ -775,14 +687,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	}
 
 	@Override
-	public void caseASynchronousParallelismParallelAction(
-			ASynchronousParallelismParallelAction node, Environment question)
-			throws AnalysisException
-	{
-
-	}
-
-	@Override
 	public void caseASequentialCompositionReplicatedAction(
 			ASequentialCompositionReplicatedAction node, Environment question)
 			throws AnalysisException
@@ -833,14 +737,6 @@ public class AbstractCmlImplicitDefinitionFinder extends
 	@Override
 	public void caseAAlphabetisedParallelismReplicatedAction(
 			AAlphabetisedParallelismReplicatedAction node, Environment question)
-			throws AnalysisException
-	{
-
-	}
-
-	@Override
-	public void caseASynchronousParallelismReplicatedAction(
-			ASynchronousParallelismReplicatedAction node, Environment question)
 			throws AnalysisException
 	{
 
