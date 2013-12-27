@@ -11,6 +11,8 @@
     primitive Prefix        ::= (ev : Sigma, proc : CMLProcess).            //Prefix
     primitive iChoice       ::= (lProc : CMLProcess, rProc : CMLProcess).   //Internal choice
     primitive eChoice       ::= (lProc : CMLProcess, rProc : CMLProcess).   //External choice
+	primitive intrpt        ::= (lProc : CMLProcess, rProc : CMLProcess).   //Interrupt
+	primitive uTimeout       ::= (lProc : CMLProcess, rProc : CMLProcess).   //Timeout
 	
     //The Extra Choice operator of CML. The external choice is transformed into this operator
     extraChoice   ::= (lSt: Binding, lProc: CMLProcess, rSt: Binding, rProc: CMLProcess).  
@@ -26,7 +28,7 @@
     primitive par           ::= (lSt: Binding, lProc: CMLProcess, SyncS : String, rSt: Binding, rProc: CMLProcess).
 
     primitive proc          ::= (name : String, param:Type).            //Process call
-    operation               ::= (opName: String,opPar:Type).             //Operation
+    primitive operation     ::= (opName: String,opPar:Type).             //Operation
     primitive var           ::= (name: String, tName: String, p: CMLProcess).   //Variable declaration
     primitive let           ::= (name: String, p: CMLProcess).                  //Let process
     
@@ -36,5 +38,5 @@
     preOpNOk                ::= (schN: String, opPar:Type,st: Binding).
     operationDef            ::= (schN: String, opPar:Type,st: Binding, st_: Binding).
     CMLProcess              ::= BasicProcess + Prefix + iChoice + eChoice + extraChoice + condChoice + seqC + hide + par + 
-								genPar +  proc + var + let + operation + assign.
+								genPar +  proc + var + let + operation + assign + intrpt + uTimeout.
     ProcDef                 ::= (name:String, params:Type, proc:CMLProcess).

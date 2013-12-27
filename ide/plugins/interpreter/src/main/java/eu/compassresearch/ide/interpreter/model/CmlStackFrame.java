@@ -117,45 +117,6 @@ public class CmlStackFrame extends CmlDebugElement implements IStackFrame
 					|| globals != null;
 		}
 
-		/**
-		 * @param varName
-		 * @return
-		 * @throws DebugException
-		 */
-		public IVariable findVariable(String varName) throws DebugException
-		{
-			if (locals != null)
-			{
-				final IVariable variable = findVariable(varName, locals);
-				if (variable != null)
-				{
-					return variable;
-				}
-			}
-			if (globals != null)
-			{
-				final IVariable variable = findVariable(varName, globals);
-				if (variable != null)
-				{
-					return variable;
-				}
-			}
-			return null;
-		}
-
-		private static IVariable findVariable(String varName, IVariable[] vars)
-				throws DebugException
-		{
-			for (int i = 0; i < vars.length; i++)
-			{
-				final IVariable var = vars[i];
-				if (var.getName().equals(varName))
-				{
-					return var;
-				}
-			}
-			return null;
-		}
 	}
 
 	private final CmlThread thread;

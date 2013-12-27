@@ -23,7 +23,7 @@ public class RttMbtCleanTestProcedureGenerationContext extends RttMbtAbstractTes
 		}
 
 		// get RttMbtClient for this action
-		if (!initClient(selectedObjectPath)) {
+		if (!initClient()) {
 			client.addErrorMessage("[FAIL]: cleanup test procedure: init of RTT-MBT client failed!");
 			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 			return null;
@@ -42,9 +42,9 @@ public class RttMbtCleanTestProcedureGenerationContext extends RttMbtAbstractTes
 		Job job = new Job("Cleanup Test Procedure") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
-				client.addLogMessage("cleaning up test procedure generation context " + selectedObject + "... please wait for the task to be finished.");
+				client.addLogMessage("cleaning up test procedure generation context " + selectedObjectName + "... please wait for the task to be finished.");
 				// cleanup concrete test procedure
-				if (client.cleanTestProcedureGenerationContext(selectedObject)) {
+				if (client.cleanTestProcedureGenerationContext(selectedObjectName)) {
 					client.addLogMessage("[PASS]: cleanup test procedure");
 					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 				} else {

@@ -16,15 +16,9 @@ import org.overture.ide.ui.internal.viewsupport.VdmElementLabels;
 import eu.compassresearch.ast.analysis.AnswerCMLAdaptor;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AChannelDefinition;
-import eu.compassresearch.ast.definitions.AChannelsDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
-import eu.compassresearch.ast.definitions.AChansetsDefinition;
-import eu.compassresearch.ast.definitions.AFunctionsDefinition;
 import eu.compassresearch.ast.definitions.ANamesetDefinition;
-import eu.compassresearch.ast.definitions.ANamesetsDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
-import eu.compassresearch.ast.definitions.ATypesDefinition;
-import eu.compassresearch.ast.definitions.AValuesDefinition;
 import eu.compassresearch.ast.process.AActionProcess;
 
 public class CmlElementLabels extends VdmElementLabels
@@ -260,48 +254,6 @@ public class CmlElementLabels extends VdmElementLabels
 			result.append(" : "
 					+ node.getChansetExpression().toString().replace('[', '{').replace(']', '}'), StyledString.DECORATIONS_STYLER);
 			return result;
-		}
-
-		@Override
-		public StyledString caseATypesDefinition(ATypesDefinition node)
-				throws AnalysisException
-		{
-			return new StyledString("Types");
-		}
-
-		@Override
-		public StyledString caseAValuesDefinition(AValuesDefinition node)
-				throws AnalysisException
-		{
-			return new StyledString("Values");
-		}
-
-		@Override
-		public StyledString caseAFunctionsDefinition(AFunctionsDefinition node)
-				throws AnalysisException
-		{
-			return new StyledString("Functions");
-		}
-
-		@Override
-		public StyledString caseAChannelsDefinition(AChannelsDefinition node)
-				throws AnalysisException
-		{
-			return new StyledString("Channels");
-		}
-
-		@Override
-		public StyledString caseAChansetsDefinition(AChansetsDefinition node)
-				throws AnalysisException
-		{
-			return new StyledString("Channel Sets");
-		}
-		
-		@Override
-		public StyledString caseANamesetsDefinition(ANamesetsDefinition node)
-				throws AnalysisException
-		{
-			return new StyledString("Name Sets");
 		}
 
 		@Override

@@ -1,5 +1,6 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.statements;
 
+import eu.compassresearch.ast.statements.AActionStm;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPAction;
 
 public class MCAActionStm implements MCPCMLStm {
@@ -14,6 +15,8 @@ public class MCAActionStm implements MCPCMLStm {
 
 	@Override
 	public String toFormula(String option) {
+		AActionStm a = null;
+		
 		return this.action.toFormula(option);
 	}
 

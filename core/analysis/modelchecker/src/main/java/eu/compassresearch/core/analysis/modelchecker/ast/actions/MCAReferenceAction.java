@@ -1,9 +1,17 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.actions;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCActionCall;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCGenericCall;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.MCOperationCall;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAActionDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAExplicitCmlOperationDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAProcessDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCSCmlOperationDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
+import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 
 public class MCAReferenceAction implements MCPAction {
 
@@ -22,7 +30,47 @@ public class MCAReferenceAction implements MCPAction {
 	public String toFormula(String option) {
 		StringBuilder result = new StringBuilder();
 		
-		MCActionCall call = new MCActionCall(name, args);
+		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
+		ArrayList<MCAActionDefinition> localActions = context.localActions;
+		boolean callResolved = false;
+		MCGenericCall call = null;
+		
+		if(localActions.size() > 0){ //if there are auxiliary actions
+			for (MCAActionDefinition localAction : localActions) {
+				if(localAction.getName().toString().equals(this.name.toString())){
+					callResolved = true;
+					if(localAction.getDeclarations().size() == 0){
+						call = new MCActionCall(name, new LinkedList<MCPCMLExp>());
+					}else{
+						call = new MCActionCall(name, args);
+					}
+					break;
+					
+				}
+			}
+		}
+		
+		if (!callResolved) {
+			for (MCAProcessDefinition pDefinition : context.processDefinitions) {
+					if(((MCAProcessDefinition) pDefinition).getName().toString().equals(this.name)){
+						callResolved = true;
+						call = new MCActionCall(name, args);
+						break;
+					}
+			}
+		}
+		
+		if (!callResolved) {
+			for (MCSCmlOperationDefinition pDefinition : context.operations) {
+				if(pDefinition instanceof MCAExplicitCmlOperationDefinition){
+					if(((MCAExplicitCmlOperationDefinition) pDefinition).getName().toString().equals(this.name)){
+						call = new MCOperationCall(name, args, null);
+						
+					}
+				}
+			}
+		}
+		
 		
 		result.append(call.toFormula(option));
 

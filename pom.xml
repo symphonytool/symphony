@@ -6,8 +6,7 @@
   <groupId>eu.compassresearch</groupId>
   <artifactId>root</artifactId>
   <name>The Symphony IDE Top-Level</name>
-  <version>0.2.1-SNAPSHOT<!--Replaceable: Main Version-->
-  </version>
+  <version>0.2.5-SNAPSHOT<!--Replaceable: Main Version--></version>
 
   <modules>
     <module>tools</module>
@@ -42,19 +41,18 @@
 
   <repositories>
     <repository>
-      <id>overture.iha.dk-mirror-external</id>
+      <id>overture.au.dk-mirror-external</id>
       <name>Mirror of external dependencies at Project Build Repository at AU</name>
-      <url>http://build.overturetool.org/builds/mirror-external-m2repo/</url>
+      <url>http://overture.au.dk/maven/mirror-external-m2repo/</url>
       <layout>default</layout>
     </repository>
 
-
     <repository>
-      <id>overture.iha.dk</id>
-      <name>Overture Project Build Repository for COMPASS at AU/IHA</name>
+      <id>overture.au.dk</id>
+      <name>Overture Project Build Repository for Symphony at AU</name>
       <releases>
 	<enabled>false</enabled>
-	<updatePolicy>always</updatePolicy>
+	<updatePolicy>daily</updatePolicy>
 	<checksumPolicy>warn</checksumPolicy>
       </releases>
       <snapshots>
@@ -62,45 +60,28 @@
 	<updatePolicy>always</updatePolicy>
 	<checksumPolicy>warn</checksumPolicy>
       </snapshots>
-      <url>http://build.overturetool.org/builds/overture-compass-m2repo/</url>
+      <url>http://overture.au.dk/maven/symphony-overture-development/</url>
       <layout>default</layout>
     </repository>
   </repositories>
 
   <pluginRepositories>
     <pluginRepository>
-      <id>overture.iha.dk</id>
-      <name>Overture Project Build Repository for COMPASS at AU/IHA</name>
+      <id>overture.au.dk</id>
+      <name>Overture Project Build Repository for Symphony at AU</name>
       <releases>
 	<enabled>true</enabled>
-	<updatePolicy>always</updatePolicy>
+	<updatePolicy>daily</updatePolicy>
 	<checksumPolicy>warn</checksumPolicy>
       </releases>
       <snapshots>
-	<enabled>true</enabled>
-	<updatePolicy>daily</updatePolicy>
-	<checksumPolicy>warn</checksumPolicy>
-      </snapshots>
-      <url>http://build.overturetool.org/builds/overture-compass-m2repo/</url>
-      <layout>default</layout>
-    </pluginRepository>
-    <!--pluginRepository>
-	<id>overture.sf.net</id>
-	<name>Overture Project at SF.net</name>
-	<releases>
-	<enabled>true</enabled>
-	<updatePolicy>daily</updatePolicy>
-	<checksumPolicy>warn</checksumPolicy>
-	</releases>
-	<snapshots>
 	<enabled>false</enabled>
 	<updatePolicy>daily</updatePolicy>
 	<checksumPolicy>warn</checksumPolicy>
-	</snapshots>
-	<url>http://overture.sourceforge.net/maven/repo</url>
-	<layout>default</layout>
-	</pluginRepository-->
-    
+      </snapshots>
+      <url>http://overture.au.dk/maven/symphony-overture-development/</url>
+      <layout>default</layout>
+    </pluginRepository>
     
     <pluginRepository>
       <id>overture-astcreator-github</id>
@@ -143,14 +124,6 @@
 	  <groupId>org.apache.maven.plugins</groupId>
 	  <artifactId>maven-source-plugin</artifactId>
 	  <version>2.2.1</version>
-	  <!-- <executions> -->
-	  <!--   <execution> -->
-	  <!--     <id>attach-sources</id> -->
-	  <!--     <goals> -->
-	  <!--       <goal>jar</goal> -->
-	  <!--     </goals> -->
-	  <!--   </execution> -->
-	  <!-- </executions> -->
 	  <configuration>
 	    <attach>true</attach>
 	  </configuration>
@@ -244,51 +217,8 @@
 	  <artifactId>antlr3-maven-plugin</artifactId>
 	  <version>3.5</version>
 	</plugin>
-
-	<!-- Apparently maven-site-plugin doesn't work with Maven 3 as
-             it did in Maven 2.  Do not re-enable this until the
-             necessary configuration has been updated per
-             http://maven.apache.org/plugins/maven-site-plugin/maven-3.html
-             -jwc/28Feb2013
-        -->
-	<!-- <plugin> -->
-	<!--    <groupId>org.apache.maven.plugins</groupId> -->
-	<!--    <artifactId>maven-site-plugin</artifactId> -->
-	<!--    <version>2.0.1</version> -->
-	<!-- </plugin> -->
-
-	<!-- I would love to be using this, but we're more sensitive to
-             version numbering than just the pom files. -jwc/28Feb2013
-        -->
-	<!-- <plugin> -->
-	<!--    <groupId>org.apache.maven.plugins</groupId> -->
-	<!--    <artifactId>maven-release-plugin</artifactId> -->
-	<!--    <version>2.4</version> -->
-	<!--    <configuration> -->
-	<!--      <tagBase>https://svn.apache.org/repos/asf/maven/components/releases</tagBase> -->
-	<!--    </configuration> -->
-	<!-- </plugin> -->
       </plugins>
     </pluginManagement>
-
-    <!-- <plugins> -->
-    <!--   <plugin> -->
-    <!--     <groupId>org.codehaus.mojo</groupId> -->
-    <!--     <artifactId>buildnumber-maven-plugin</artifactId> -->
-    <!--     <version>1.1</version> -->
-    <!--     <executions> -->
-    <!--       <execution> -->
-    <!--         <phase>validate</phase> -->
-    <!--         <goals> -->
-    <!--           <goal>create</goal> -->
-    <!--         </goals> -->
-    <!--       </execution> -->
-    <!--     </executions> -->
-    <!--     <configuration> -->
-    <!--       <shortRevisionLength>5</shortRevisionLength> -->
-    <!--     </configuration> -->
-    <!--   </plugin> -->
-    <!-- </plugins> -->
 
     <extensions>
       <extension>

@@ -46,7 +46,7 @@ public class ThmExprUtil {
 	public static String powerSet = "power ";
 	public static String reverse = "reverse ";
 	public static String tail = "tl ";
-	public static String unaryMinus = "- ";
+	public static String unaryMinus = "-";
 	public static String unaryPlus = "+ ";
  
 	public static String notHandled = "(*expr not yet handled*)";

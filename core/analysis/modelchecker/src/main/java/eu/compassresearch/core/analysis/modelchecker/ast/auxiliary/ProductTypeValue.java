@@ -1,12 +1,14 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.auxiliary;
 
+import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
+import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
+
 
 public class ProductTypeValue extends TypeValue {
 	private TypeValue firstValue;
 	private TypeValue secondValue;
 	
 	public ProductTypeValue(TypeValue firstValue, TypeValue secondValue) {
-		super();
 		this.firstValue = firstValue;
 		this.secondValue = secondValue;
 	}
@@ -38,6 +40,18 @@ public class ProductTypeValue extends TypeValue {
 		result.append(")");
 		
 		return result.toString();
+	}
+
+	@Override
+	public String toString() {
+		
+		return this.toFormula(MCNode.DEFAULT);
+	}
+
+	@Override
+	public MCPCMLType copy() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	

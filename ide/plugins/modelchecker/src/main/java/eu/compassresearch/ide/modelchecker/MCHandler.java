@@ -8,7 +8,6 @@ import java.util.List;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -21,22 +20,21 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
+import org.eclipse.ui.handlers.HandlerUtil;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.ide.core.resources.IVdmProject;
 
+import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.core.analysis.modelchecker.api.FormulaResult;
 import eu.compassresearch.core.analysis.modelchecker.api.IFormulaIntegrator;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewMCVisitor;
 import eu.compassresearch.core.analysis.modelchecker.visitors.Utilities;
-import eu.compassresearch.core.common.Registry;
-import eu.compassresearch.core.common.RegistryFactory;
 import eu.compassresearch.ide.core.resources.ICmlModel;
 import eu.compassresearch.ide.core.resources.ICmlProject;
 import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
@@ -46,11 +44,13 @@ import eu.compassresearch.ide.ui.utility.CmlProjectUtil;
 
 public class MCHandler extends AbstractHandler {
 
-	private Registry registry;
 	private IWorkbenchWindow window;
 	private MessageConsoleStream console;
 	private NewMCVisitor adaptor;
 	private IFormulaIntegrator mc;
+	private IProject proj;
+	private String mainProcessName;
+
 	
 	public MCHandler() {
 		//RegistryFactory factory = eu.compassresearch.core.common.RegistryFactory.getInstance(MCConstants.MC_REGISTRY_ID);
@@ -68,8 +68,8 @@ public class MCHandler extends AbstractHandler {
 			popErrorMessage(Activator.formulaNotInstalledMsg);
 		}else{
 			try {
-				this.window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-				IProject proj = MCPluginUtility.getCurrentlySelectedProject();
+				this.window = HandlerUtil.getActiveWorkbenchWindow(event);
+				this.proj = MCPluginUtility.getCurrentlySelectedProject();
 				if (proj == null) {
 					popErrorMessage(new RuntimeException("No project is selected."));
 					return null;
@@ -79,19 +79,18 @@ public class MCHandler extends AbstractHandler {
 				ICmlProject cmlProj = (ICmlProject) proj.getAdapter(ICmlProject.class);
 				
 				//Check there are no type errors.
-				final Shell shell = this.window.getShell();
-				if (!CmlProjectUtil.typeCheck(shell, cmlProj)) {
+				if (!CmlProjectUtil.typeCheck(window.getShell(), cmlProj))
+				{
 					popErrorMessage(new RuntimeException("Errors in model."));
 					return null;
 				}
 				
 				// Check compatibility 
-				List<UnsupportedElementInfo> uns = new MCUnsupportedCollector().getUnsupporteds(cmlProj.getModel().getAst());
-
-				if (!uns.isEmpty())
-				{
+				
+				 List<UnsupportedElementInfo> uns = new MCUnsupportedCollector().getUnsupporteds(cmlProj.getModel().getAst());
+				if (!uns.isEmpty()){
 					cmlProj.addUnsupportedMarkers(uns);
-					MessageDialog.openError(null, "COMPASS", MCCollectorHandler.UNSUPPORTED_ELEMENTS_MSG);
+					MessageDialog.openError(null, "Symphony", MCCollectorHandler.UNSUPPORTED_ELEMENTS_MSG);
 					return null;
 				}
 				
@@ -114,10 +113,11 @@ public class MCHandler extends AbstractHandler {
 						if("cml".equalsIgnoreCase(cmlFile.getFileExtension())){
 							String propertyToCheck = this.getProperty(event.getParameter("eu.compassresearch.ide.modelchecker.property"));
 						    
+							
+							
 							IFolder mcFolder = cmlProj.getModelBuildPath().getOutput().getFolder(new Path("modelchecker"));
 							if(!mcFolder.exists()){
 								//if generated folder doesn't exist
-								IContainer mcParent = mcFolder.getParent();
 								if (!mcFolder.getParent().exists()){
 									((IFolder) mcFolder.getParent()).create(true, true, new NullProgressMonitor());
 								}
@@ -129,15 +129,21 @@ public class MCHandler extends AbstractHandler {
 								
 							}
 							ICmlSourceUnit selectedUnit = getSelectedSourceUnit(model, (IFile)cmlFile);
+							
 							IFile outputFile = translateCmlToFormula(model, (IFile)cmlFile, mcFolder, propertyToCheck);
 						
-							FormulaResult formulaOutput = new FormulaResult();
+							//FormulaResult formulaOutput = new FormulaResult();
 							//MCJob job = new MCJob("Model checker progress", outputFile);
 							//formulaOutput = job.getFormulaResult();
 							//job.schedule();
-	
-							MCProgressView p = new MCProgressView(outputFile, propertyToCheck, mcFolder, selectedUnit, cmlFile, event);
-							p.execute();
+							
+							if(outputFile != null){
+								MCProgressView p = new MCProgressView(outputFile, propertyToCheck, mcFolder, selectedUnit, cmlFile, event,mainProcessName);
+								p.execute();
+								if(p.getThread().getException() != null){
+									throw p.getThread().getException();
+								}
+							}
 							
 							//formulaOutput = p.getFormulaResult();
 							
@@ -158,7 +164,7 @@ public class MCHandler extends AbstractHandler {
 									"Only CML files can be analysed!");
 						}
 					}
-						}
+				}
 				
 			} catch(Exception e){
 				//logStackTrace(e);
@@ -172,6 +178,21 @@ public class MCHandler extends AbstractHandler {
 		for (int i = 0; i < trace.length; i++) {
 			Activator.logErrorMessage(trace[i].toString());
 		}
+	}
+	
+	private boolean hasMultipleProcessDefinitions(List<PDefinition> projectSources){
+		boolean result = false;
+		int i = 0;
+		for (PDefinition pDefinition : projectSources) {
+			if(pDefinition instanceof AProcessDefinition){
+				i++;
+				if(i > 1){
+					result = true;
+					break;
+				}
+			}
+		}
+		return result;
 	}
 	
 	private ICmlSourceUnit getSelectedSourceUnit(ICmlModel model, IFile selectedFile){
@@ -197,24 +218,46 @@ public class MCHandler extends AbstractHandler {
 		if(selectedCmlSourceUnit == null){
 			throw new AnalysisException("No selected file to convert!");
 		}
-		String name = selectedCmlSourceUnit.getFile().getName();
-		String formulaFileName = name.substring(0,name.length()-selectedCmlSourceUnit.getFile().getFileExtension().length())+"4ml";
-		IFile outputFile = mcFolder.getFile(formulaFileName);
 		
 		List<PDefinition> definitions = selectedCmlSourceUnit.getParseListDefinitions();
-		String basicContent = Utilities.readScriptFromFile(Utilities.BASIC_FORMULA_SCRIPT).toString();
-		this.adaptor =  new NewMCVisitor();
-		String specificationContent = this.adaptor.generateFormulaScript(definitions,propertyToCheck);
-		try{
-			if(!outputFile.exists()){
-				outputFile.create(new ByteArrayInputStream(specificationContent.toString().getBytes()), true, new NullProgressMonitor());
-			}else{
-				outputFile.setContents(new ByteArrayInputStream(specificationContent.toString().getBytes()), true, true, new NullProgressMonitor());
-			}
-		}catch(CoreException e){
-			Activator.log(e);
-		}
 		
+		if(hasMultipleProcessDefinitions(definitions)){
+			IVdmProject vdmProject = (IVdmProject) proj.getAdapter(IVdmProject.class);
+			GlobalProcessSelectorDialog processSelector = new GlobalProcessSelectorDialog(window.getShell(), vdmProject,selectedCmlSourceUnit);
+			AProcessDefinition selectedProcess = processSelector.showDialog();
+			if(selectedProcess != null){
+				mainProcessName = selectedProcess.getName().getSimpleName();
+			}
+			
+		}else{
+			for (PDefinition pDefinition : definitions) {
+				if(pDefinition instanceof AProcessDefinition){
+					mainProcessName = pDefinition.getName().getSimpleName();
+					break;
+				}
+			}
+		}
+		IFile outputFile = null;
+		if(mainProcessName != null){
+			String name = selectedCmlSourceUnit.getFile().getName();
+			String formulaFileName = name.substring(0,name.length()-selectedCmlSourceUnit.getFile().getFileExtension().length())+"4ml";
+			outputFile = mcFolder.getFile(formulaFileName);
+			
+			
+			
+			this.adaptor =  new NewMCVisitor();
+			String specificationContent = this.adaptor.generateFormulaScript(definitions,propertyToCheck,mainProcessName);
+			try{
+				if(!outputFile.exists()){
+					outputFile.create(new ByteArrayInputStream(specificationContent.toString().getBytes()), true, new NullProgressMonitor());
+				}else{
+					outputFile.setContents(new ByteArrayInputStream(specificationContent.toString().getBytes()), true, true, new NullProgressMonitor());
+				}
+			}catch(CoreException e){
+				Activator.log(e);
+			}
+		
+		}
 		return outputFile;
 	}
 	private void writeToConsole(String fileName, FormulaResult formulaOutput)

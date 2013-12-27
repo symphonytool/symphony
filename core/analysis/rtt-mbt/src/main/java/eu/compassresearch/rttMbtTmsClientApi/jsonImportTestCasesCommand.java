@@ -16,7 +16,7 @@ public class jsonImportTestCasesCommand extends jsonCommand {
 	 @SuppressWarnings({ "unchecked", "rawtypes" })
 	 public String getJsonCommandString() {
 		 // check if project name is properly assigned
-		 if (client.getProjectName() == null) {
+		 if (client.getRttProjectPath() == null) {
 			 System.err.println("[ERROR]: project name not assigned!");
 			 return null;
 		 }

@@ -15,12 +15,12 @@ import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.values.Value;
 
+import eu.compassresearch.ast.CmlAstFactory;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
 import eu.compassresearch.ast.expressions.ANameChannelExp;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
-import eu.compassresearch.ast.lex.CmlLexNameToken;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
@@ -34,10 +34,11 @@ import eu.compassresearch.core.interpreter.api.transitions.ObservableTransition;
 import eu.compassresearch.core.interpreter.api.transitions.TimedTransition;
 import eu.compassresearch.core.interpreter.api.values.CMLChannelValue;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
+import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
+import eu.compassresearch.core.interpreter.api.values.NamesetValue;
 import eu.compassresearch.core.interpreter.utility.LocationExtractor;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
-@SuppressWarnings("serial")
 class CommonInspectionVisitor extends AbstractInspectionVisitor
 {
 
@@ -89,6 +90,116 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		}
 	}
 
+	protected Inspection caseAlphabetisedParallelism(final INode node,
+			final parallelCompositionHelper helper, final Context question)
+			throws AnalysisException
+	{
+		// if true this means that this is the first time here, so the Parallel Begin rule is invoked.
+		if (!owner.hasChildren())
+		{
+			return newInspection(createTauTransitionWithoutTime(node, "Begin"), new CmlCalculationStep()
+			{
+				@Override
+				public Pair<INode, Context> execute(
+						CmlTransition selectedTransition)
+						throws AnalysisException
+				{
+					helper.caseParallelBegin(); // caseParallelProcessBegin(node, leftNode, rightNode, "[cs||cs]",
+												// question);
+					// We push the current state, since this process will control the child processes created by it
+					return new Pair<INode, Context>(node, question);
+				}
+			});
+		}
+		// the process has children and must now handle either termination or event sync
+		else if (CmlBehaviourUtility.isAllChildrenFinished(owner))
+		{
+			ASkipAction dstNode = CmlAstFactory.newASkipAction(LocationExtractor.extractLocation(node));
+			return newInspection(createTauTransitionWithoutTime(dstNode, "End"), caseParallelEnd(dstNode, question));
+		} else
+		{
+			// fetch the already evaluated left and right channel sets
+			ChannelNameSetValue leftChanset = (ChannelNameSetValue) question.lookup(NamespaceUtility.getLeftPrecalculatedChannetSet()); // eval(
+																																		// node.getLeftChansetExpression(),
+																																		// getChildContexts(owner.getLeftChild().getNextState().second).first);
+			ChannelNameSetValue rightChanset = (ChannelNameSetValue) question.lookup(NamespaceUtility.getRightPrecalculatedChannetSet()); // eval(node.getRightChansetExpression(),getChildContexts(owner.getRightChild().getNextState().second).second);
+
+			// next we find the intersection of of them
+			ChannelNameSetValue intersectionChanset = new ChannelNameSetValue(leftChanset);
+			intersectionChanset.retainAll(rightChanset);
+
+			final CmlTransitionSet leftChildAlpha = owner.getLeftChild().inspect();
+			final CmlTransitionSet rightChildAlpha = owner.getRightChild().inspect();
+
+			CmlTransitionSet leftAllowedNonSyncTransitions = leftChildAlpha.retainByChannelNameSet(leftChanset).removeByChannelNameSet(intersectionChanset).union(leftChildAlpha.getSilentTransitions());
+			CmlTransitionSet rightAllowedNonSyncTransitions = rightChildAlpha.retainByChannelNameSet(rightChanset).removeByChannelNameSet(intersectionChanset).union(rightChildAlpha.getSilentTransitions());
+
+			// combine all the common channel events that are in the channel set
+			CmlTransitionSet leftSync = leftChildAlpha.retainByChannelNameSet(intersectionChanset);
+			CmlTransitionSet rightSync = rightChildAlpha.retainByChannelNameSet(intersectionChanset);
+			Set<CmlTransition> syncEvents = new HashSet<CmlTransition>();
+			// Find the intersection between the child alphabets and the channel set and join them.
+			// Then if both left and right have them the next step will combine them.
+			for (ObservableTransition leftTrans : leftSync.getObservableChannelEvents())
+			{
+				for (ObservableTransition rightTrans : rightSync.getObservableChannelEvents())
+				{
+					if (leftTrans.isComparable(rightTrans))
+					{
+
+						LabelledTransition leftChannelEvent = (LabelledTransition) leftTrans;
+						LabelledTransition rightChannelEvent = (LabelledTransition) rightTrans;
+
+						if (leftChannelEvent.getChannelName().isGTEQPrecise(rightChannelEvent.getChannelName())
+								|| rightChannelEvent.getChannelName().isGTEQPrecise(leftChannelEvent.getChannelName()))
+						{
+							syncEvents.add(leftTrans.synchronizeWith(rightTrans));
+						}
+					}
+				}
+			}
+
+			/*
+			 * Finally we create the returned alphabet by joining all the Synchronized events together with all the
+			 * event of the children that are not in the channel set.
+			 */
+			CmlTransitionSet resultAlpha = new CmlTransitionSet(syncEvents).union(leftAllowedNonSyncTransitions);
+			resultAlpha = resultAlpha.union(rightAllowedNonSyncTransitions);
+
+			return newInspection(resultAlpha, new CmlCalculationStep()
+			{
+
+				@Override
+				public Pair<INode, Context> execute(
+						CmlTransition selectedTransition)
+						throws AnalysisException
+				{
+					// if both contains the selected event it must be a sync event
+					if (leftChildAlpha.contains(selectedTransition)
+							&& rightChildAlpha.contains(selectedTransition))
+					{
+						owner.getLeftChild().execute(selectedTransition);
+						owner.getRightChild().execute(selectedTransition);
+					} else if (leftChildAlpha.contains(selectedTransition))
+					{
+						owner.getLeftChild().execute(selectedTransition);
+					} else if (rightChildAlpha.contains(selectedTransition))
+					{
+						owner.getRightChild().execute(selectedTransition);
+					} else
+					{
+						// Something went wrong here
+						throw new CmlInterpreterException(node, InterpretationErrorMessages.FATAL_ERROR.customizeMessage(""));
+					}
+
+					// We push the current state,
+					return new Pair<INode, Context>(node, question);
+				}
+			});
+
+		}
+	}
+
 	/**
 	 * Handles the external choice end rule
 	 * 
@@ -97,20 +208,23 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 	protected Pair<INode, Context> caseExternalChoiceEnd(
 			CmlBehaviour theChoosenOne, Context context) throws ValueException
 	{
-		// FIXME the children contexts also needs to be replaced!!!!!!
 		Context copyContext = theChoosenOne.getNextState().second;
 		Context newCurrentContext = CmlBehaviourUtility.mergeAndReplaceState(context, copyContext);
 		// Context newCurrentContext = copyContext;
 
 		if (theChoosenOne.getLeftChild() != null)
+		{
 			theChoosenOne.getLeftChild().replaceState(newCurrentContext);
+		}
 
-		visitorAccess.setLeftChild(theChoosenOne.getLeftChild());
+		setLeftChild(theChoosenOne.getLeftChild());
 
 		if (theChoosenOne.getRightChild() != null)
+		{
 			theChoosenOne.getRightChild().replaceState(newCurrentContext);
+		}
 
-		visitorAccess.setRightChild(theChoosenOne.getRightChild());
+		setRightChild(theChoosenOne.getRightChild());
 
 		return new Pair<INode, Context>(theChoosenOne.getNextState().first, newCurrentContext);
 	}
@@ -124,7 +238,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		// external choice begin
 		if (!owner.hasChildren())
 		{
-			return newInspection(createTauTransitionWithoutTime(node, "Begin"), new AbstractCalculationStep(owner, visitorAccess)
+			return newInspection(createTauTransitionWithoutTime(node, "Begin"), new CmlCalculationStep()
 			{
 
 				@Override
@@ -132,16 +246,11 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 						CmlTransition selectedTransition)
 						throws AnalysisException
 				{
-					Pair<Context, Context> childContexts = visitorAccess.getChildContexts(question);
+					Pair<Context, Context> childContexts = getChildContexts(question);
 
-					String module = name().getModule();
-					String nameStr = name().getIdentifier().getName();
+					setLeftChild(leftNode, name().clone(true), CmlBehaviourUtility.deepCopyProcessContext(childContexts.first));
 
-					setLeftChild(new ConcreteCmlBehaviour(leftNode, CmlBehaviourUtility.deepCopyProcessContext(childContexts.first), new CmlLexNameToken(module, nameStr
-							+ "[]", LocationExtractor.extractLocation(leftNode)), this.owner));
-
-					setRightChild(new ConcreteCmlBehaviour(rightNode, CmlBehaviourUtility.deepCopyProcessContext(childContexts.second), new CmlLexNameToken(module, "[]"
-							+ nameStr, LocationExtractor.extractLocation(rightNode)), this.owner));
+					setRightChild(rightNode, name().clone(true), CmlBehaviourUtility.deepCopyProcessContext(childContexts.second));
 
 					return new Pair<INode, Context>(node, question);
 				}
@@ -151,7 +260,8 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		// If this is true, the Skip rule is instantiated. This means that the entire choice evolves into Skip
 		// with the state from the skip. After this all the children processes are terminated
 		else if (CmlBehaviourUtility.finishedChildExists(owner))
-			return newInspection(createTauTransitionWithoutTime(node, "end"), new AbstractCalculationStep(owner, visitorAccess)
+		{
+			return newInspection(createTauTransitionWithoutTime(node, "end"), new CmlCalculationStep()
 			{
 
 				@Override
@@ -162,10 +272,10 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 					return caseExternalChoiceEnd(findFinishedChild(), question);
 				}
 			});
-		// else we join the childrens alphabets
-		else
+			// else we join the childrens alphabets
+		} else
 		{
-			return newInspection(syncOnTockAndJoinChildren(), new AbstractCalculationStep(owner, visitorAccess)
+			return newInspection(syncOnTockAndJoinChildren(), new CmlCalculationStep()
 			{
 
 				@Override
@@ -178,14 +288,13 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 					{
 						if (child.inspect().contains(selectedTransition))
 						{
+							// first we execute the child
+							child.execute(selectedTransition);
 							if (selectedTransition instanceof LabelledTransition)
 							{
-								// first we execute the child
-								child.execute(selectedTransition);
 								return caseExternalChoiceEnd(child, question);
 							} else
 							{
-								child.execute(selectedTransition);
 								return new Pair<INode, Context>(node, question);
 							}
 						}
@@ -194,6 +303,44 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 					throw new AnalysisException("should not happen");
 				}
 			});
+		}
+	}
+
+	/**
+	 * Finds the first finished child if any
+	 * 
+	 * @return The first finished child, if none then null is returned
+	 */
+	protected CmlBehaviour findFinishedChild()
+	{
+		for (CmlBehaviour child : owner.children())
+		{
+			if (child.finished())
+			{
+				return child;
+			}
+		}
+
+		return null;
+	}
+
+	protected void caseParallelNonSync(CmlTransition selectedTransition)
+			throws AnalysisException
+	{
+		CmlBehaviour leftChild = owner.getLeftChild();
+		CmlTransitionSet leftChildAlpha = owner.getLeftChild().inspect();
+		CmlBehaviour rightChild = owner.getRightChild();
+		CmlTransitionSet rightChildAlpha = rightChild.inspect();
+
+		if (leftChildAlpha.contains(selectedTransition))
+		{
+			leftChild.execute(selectedTransition);
+		} else if (rightChildAlpha.contains(selectedTransition))
+		{
+			rightChild.execute(selectedTransition);
+		} else
+		{
+			throw new CmlInterpreterException("A selected event that should have affected either left or right");
 		}
 	}
 
@@ -213,7 +360,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		{
 			return newInspection(createTauTransitionWithTime(node, "Begin"),
 
-			new AbstractCalculationStep(owner, visitorAccess)
+			new CmlCalculationStep()
 			{
 
 				@Override
@@ -230,7 +377,8 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		// The process has children and they have all evolved into Skip so now the parallel end rule will be invoked
 		else if (CmlBehaviourUtility.isAllChildrenFinished(owner))
 		{
-			return newInspection(createTauTransitionWithoutTime(new ASkipAction(), "End"), caseParallelEnd(question));
+			ASkipAction dstNode = CmlAstFactory.newASkipAction(LocationExtractor.extractLocation(node));
+			return newInspection(createTauTransitionWithoutTime(dstNode, "End"), caseParallelEnd(dstNode, question));
 		} else
 		{
 			return caseParallelSyncOrNonsync(node, chansetExp, question);
@@ -243,7 +391,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 	{
 
 		// convert the channel set of the current node to a alphabet
-		ChannelNameSetValue cs = (ChannelNameSetValue) chansetExp.apply(cmlExpressionVisitor, question);
+		ChannelNameSetValue cs = eval(chansetExp, question);
 
 		// Get all the child alphabets and add the events that are not in the channelset
 		final CmlBehaviour leftChild = owner.getLeftChild();
@@ -269,7 +417,9 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 
 					if (leftChannelEvent.getChannelName().isGTEQPrecise(rightChannelEvent.getChannelName())
 							|| rightChannelEvent.getChannelName().isGTEQPrecise(leftChannelEvent.getChannelName()))
+					{
 						syncEvents.add(leftTrans.synchronizeWith(rightTrans));
+					}
 				}
 			}
 		}
@@ -277,7 +427,9 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		TimedTransition leftTock = leftChildAlphabet.getTockEvent();
 		TimedTransition rightTock = rightChildAlphabet.getTockEvent();
 		if (leftTock != null && rightTock != null)
+		{
 			syncEvents.add(leftTock.synchronizeWith(rightTock));
+		}
 
 		/*
 		 * Finally we create the returned alphabet by joining all the Synchronized events together with all the event of
@@ -286,7 +438,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		CmlTransitionSet resultAlpha = new CmlTransitionSet(syncEvents).union(leftChildAlphabet.removeByChannelNameSet(cs));
 		resultAlpha = resultAlpha.union(rightChildAlphabet.removeByChannelNameSet(cs));
 
-		return newInspection(resultAlpha, new AbstractCalculationStep(owner, visitorAccess)
+		return newInspection(resultAlpha, new CmlCalculationStep()
 		{
 
 			@Override
@@ -306,8 +458,10 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 				{
 					rightChild.execute(selectedTransition);
 				} else
+				{
 					// Something went wrong here
 					throw new CmlInterpreterException(node, InterpretationErrorMessages.FATAL_ERROR.customizeMessage(""));
+				}
 
 				// We push the current state,
 				return new Pair<INode, Context>(node, question);
@@ -316,9 +470,10 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 
 	}
 
-	protected CmlCalculationStep caseParallelEnd(final Context question)
+	protected CmlCalculationStep caseParallelEnd(final INode node,
+			final Context question)
 	{
-		return new AbstractCalculationStep(owner, visitorAccess)
+		return new CmlCalculationStep()
 		{
 
 			@Override
@@ -326,13 +481,49 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 					throws AnalysisException
 			{
 
-				setLeftChild(null);
-				setRightChild(null);
+				Context leftChildContext = owner.getLeftChild().getNextState().second;
+				NamesetValue leftNameset = (NamesetValue) leftChildContext.check(NamespaceUtility.getNamesetName());
+				if (leftNameset != null)
+				{
+					for (ILexNameToken name : leftNameset)
+					{
+						question.lookup(name).set(name.getLocation(), leftChildContext.lookup(name), question);
+					}
+				}
+
+				Context rightChildContext = owner.getRightChild().getNextState().second;
+				NamesetValue rightNameset = (NamesetValue) rightChildContext.check(NamespaceUtility.getNamesetName());
+				if (rightNameset != null)
+				{
+					for (ILexNameToken name : rightNameset)
+					{
+						question.lookup(name).set(name.getLocation(), rightChildContext.lookup(name), question);
+					}
+				}
+
+				clearLeftChild();
+				clearRightChild();
 
 				// now this process evolves into Skip
-				return new Pair<INode, Context>(new ASkipAction(), question);
+				return new Pair<INode, Context>(node, question);
 			}
 		};
+	}
+
+	@SuppressWarnings("rawtypes")
+	protected ChannelNameSetValue eval(PVarsetExpression chansetExpression,
+			Context question) throws AnalysisException
+	{
+		Value val = chansetExpression.apply(cmlExpressionVisitor, question);
+		if (val instanceof ChannelNameSetValue)
+		{
+			return (ChannelNameSetValue) val;
+		} else if (val instanceof Set && ((Set) val).isEmpty())
+		{
+			return new ChannelNameSetValue(new HashSet<ChannelNameValue>());
+		}
+
+		throw new CmlInterpreterException(chansetExpression, InterpretationErrorMessages.FATAL_ERROR.customizeMessage("Failed to evaluate chanset expression"));
 	}
 
 	/**
@@ -348,7 +539,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		if (!owner.getLeftChild().finished())
 		{
 			// first we convert the channelset expression into a channelNameSetValue
-			ChannelNameSetValue cs = (ChannelNameSetValue) chansetExpression.apply(cmlExpressionVisitor, question);
+			ChannelNameSetValue cs = eval(chansetExpression, question);
 			// next we inspect the action to get the current available transitions
 			final CmlTransitionSet alpha = owner.getLeftChild().inspect();
 			// Intersect the two to find which transitions should be converted to silents transitions
@@ -357,9 +548,11 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			CmlTransitionSet resultAlpha = alpha.subtract(hiddenEvents);
 			// convert them into silent events and add the again
 			for (ObservableTransition obsEvent : hiddenEvents.getObservableChannelEvents())
+			{
 				resultAlpha = resultAlpha.union(new HiddenTransition(owner, node, (LabelledTransition) obsEvent));
+			}
 
-			return newInspection(resultAlpha, new AbstractCalculationStep(owner, visitorAccess)
+			return newInspection(resultAlpha, new CmlCalculationStep()
 			{
 
 				@Override
@@ -370,7 +563,9 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 
 					if (selectedTransition instanceof HiddenTransition
 							&& alpha.contains(((HiddenTransition) selectedTransition).getHiddenEvent()))
+					{
 						selectedTransition = ((HiddenTransition) selectedTransition).getHiddenEvent();
+					}
 
 					owner.getLeftChild().execute(selectedTransition);
 					return new Pair<INode, Context>(node, question);
@@ -379,7 +574,8 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		}
 		// If the Action is terminated then it evolves into Skip
 		else
-			return newInspection(createTauTransitionWithTime(new ASkipAction()), new AbstractCalculationStep(owner, visitorAccess)
+		{
+			return newInspection(createTauTransitionWithTime(CmlAstFactory.newASkipAction(LocationExtractor.extractLocation(node))), new CmlCalculationStep()
 			{
 
 				@Override
@@ -387,10 +583,11 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 						CmlTransition selectedTransition)
 						throws AnalysisException
 				{
-					setLeftChild(null);
-					return new Pair<INode, Context>(new ASkipAction(), question);
+					clearLeftChild();
+					return new Pair<INode, Context>(CmlAstFactory.newASkipAction(LocationExtractor.extractLocation(node)), question);
 				}
 			});
+		}
 	}
 
 	protected Inspection caseAUntimedTimeout(final INode node,
@@ -401,7 +598,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		// If the left is Skip then the whole process becomes skip with the state of the left child
 		if (owner.getLeftChild().finished())
 		{
-			return newInspection(createTauTransitionWithTime(owner.getLeftChild().getNextState().first), new AbstractCalculationStep(owner, visitorAccess)
+			return newInspection(createTauTransitionWithTime(owner.getLeftChild().getNextState().first), new CmlCalculationStep()
 			{
 
 				@Override
@@ -410,8 +607,8 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 						throws AnalysisException
 				{
 					CmlBehaviour leftChild = owner.getLeftChild();
-					setLeftChild(null);
-					setRightChild(null);
+					clearLeftChild();
+					clearRightChild();
 					return leftChild.getNextState();
 				}
 			});
@@ -420,7 +617,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		// behaves as the right process
 		else if (this.rnd.nextBoolean())
 		{
-			return newInspection(createTauTransitionWithTime(rightNode), new AbstractCalculationStep(owner, visitorAccess)
+			return newInspection(createTauTransitionWithTime(rightNode), new CmlCalculationStep()
 			{
 
 				@Override
@@ -429,7 +626,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 						throws AnalysisException
 				{
 					// We set the process to become the right behavior
-					setLeftChild(null);
+					clearLeftChild();
 					return new Pair<INode, Context>(rightNode, question);
 				}
 			});
@@ -437,7 +634,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		// if no timeout has occurred the whole process behaves as the left process
 		else
 		{
-			return newInspection(owner.getLeftChild().inspect(), new AbstractCalculationStep(owner, visitorAccess)
+			return newInspection(owner.getLeftChild().inspect(), new CmlCalculationStep()
 			{
 
 				@Override
@@ -451,10 +648,91 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 					if (selectedTransition instanceof ObservableTransition
 							&& selectedTransition instanceof LabelledTransition)
 					{
-						setLeftChild(null);
+						clearLeftChild();
 						return new Pair<INode, Context>(leftBehavior.getNextState().first, leftBehavior.getNextState().second);
 					} else
+					{
 						return new Pair<INode, Context>(node, question);
+					}
+				}
+			});
+		}
+	}
+
+	/**
+	 * Timed interrupt is implemented according to the following rules in the operational semantics D23.4 R3.21 (Timed
+	 * Interrupt progress left) R3.22 (Timed Interrupt Skip left) R3.23 (Timed Interrupt time up) R3.24 (Timed Interrupt
+	 * timed)
+	 * 
+	 * @param node
+	 *            The action/process timed interrupt node
+	 * @param leftNode
+	 *            the left action/process
+	 * @param rightNode
+	 *            the right action/process
+	 * @param timeoutExpression
+	 *            the timeout expression
+	 * @param question
+	 * @return
+	 * @throws AnalysisException
+	 */
+	protected Inspection caseATimedInterrupt(final INode node, INode leftNode,
+			final INode rightNode, PExp timeoutExpression,
+			final Context question) throws AnalysisException
+	{
+		// Evaluate the expression into a natural number
+		long val = timeoutExpression.apply(cmlExpressionVisitor, question).natValue(question);
+		long startTimeVal = question.lookup(NamespaceUtility.getStartTimeName()).intValue(question);
+
+		// R3.22: If left is Skip then the whole becomes skip with the state of the left child
+		if (owner.getLeftChild().finished())
+		{
+			return newInspection(createTauTransitionWithoutTime(owner.getLeftChild().getNextState().first, "timed interrupt: left behavior is finished"), new CmlCalculationStep()
+			{
+				@Override
+				public Pair<INode, Context> execute(
+						CmlTransition selectedTransition)
+						throws AnalysisException
+				{
+					return replaceWithChild(owner.getLeftChild());
+				}
+			});
+		}
+		// R3.23: if the current time of the process has passed the limit (val) then process
+		// behaves as the right process
+		else if (owner.getCurrentTime() - startTimeVal >= val)
+		{
+			return newInspection(createTauTransitionWithoutTime(rightNode, "Timeout: time exceeded"), new CmlCalculationStep()
+			{
+
+				@Override
+				public Pair<INode, Context> execute(
+						CmlTransition selectedTransition)
+						throws AnalysisException
+				{
+					// We set the process to become the right behavior
+					clearLeftChild();
+					// We need to return the outer context because of the extra context
+					// containing the start time has been added in the setup visitor
+					return new Pair<INode, Context>(rightNode, question.outer);
+				}
+			});
+
+		}
+		// if the current time of the process has not passed the limit (val) it behaves as the left process
+		else
+		{
+			CmlTransitionSet leftAlpha = owner.getLeftChild().inspect();
+			return newInspection(leftAlpha, new CmlCalculationStep()
+			{
+
+				@Override
+				public Pair<INode, Context> execute(
+						CmlTransition selectedTransition)
+						throws AnalysisException
+				{
+					owner.getLeftChild().execute(selectedTransition);
+					return new Pair<INode, Context>(node, question);
 				}
 			});
 		}
@@ -470,7 +748,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		// If the left is Skip then the whole process becomes skip with the state of the left child
 		if (owner.getLeftChild().finished())
 		{
-			return newInspection(createTauTransitionWithTime(owner.getLeftChild().getNextState().first, "Timeout: left behavior is finished"), new AbstractCalculationStep(owner, visitorAccess)
+			return newInspection(createTauTransitionWithTime(owner.getLeftChild().getNextState().first, "Timeout: left behavior is finished"), new CmlCalculationStep()
 			{
 
 				@Override
@@ -487,7 +765,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		// behaves as the right process
 		else if (owner.getCurrentTime() - startTimeVal >= val)
 		{
-			return newInspection(createTauTransitionWithoutTime(rightNode, "Timeout: time exceeded"), new AbstractCalculationStep(owner, visitorAccess)
+			return newInspection(createTauTransitionWithoutTime(rightNode, "Timeout: time exceeded"), new CmlCalculationStep()
 			{
 
 				@Override
@@ -496,7 +774,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 						throws AnalysisException
 				{
 					// We set the process to become the right behavior
-					setLeftChild(null);
+					clearLeftChild();
 					// We need to return the outer context because of the extra context
 					// containing the start time has been added in the setup visitor
 					return new Pair<INode, Context>(rightNode, question.outer);
@@ -521,9 +799,11 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 				long limit = val - (owner.getCurrentTime() - startTimeVal);
 				resultAlpha = resultAlpha.union(leftTimeTransition.synchronizeWith(new TimedTransition(owner, limit)));
 			} else
+			{
 				resultAlpha = leftAlpha;
+			}
 
-			return newInspection(resultAlpha, new AbstractCalculationStep(owner, visitorAccess)
+			return newInspection(resultAlpha, new CmlCalculationStep()
 			{
 				@Override
 				public Pair<INode, Context> execute(
@@ -538,7 +818,9 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 					{
 						return replaceWithChild(leftBehavior);
 					} else
+					{
 						return new Pair<INode, Context>(node, question);
+					}
 				}
 			});
 
@@ -554,7 +836,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		{
 			return newInspection(createTauTransitionWithTime(owner.getLeftChild().getNextState().first),
 
-			new AbstractCalculationStep(owner, visitorAccess)
+			new CmlCalculationStep()
 			{
 
 				@Override
@@ -573,7 +855,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		{
 			return newInspection(createTauTransitionWithTime(owner.getRightChild().getNextState().first),
 
-			new AbstractCalculationStep(owner, visitorAccess)
+			new CmlCalculationStep()
 			{
 
 				@Override
@@ -588,7 +870,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		{
 			return newInspection(syncOnTockAndJoinChildren(),
 
-			new AbstractCalculationStep(owner, visitorAccess)
+			new CmlCalculationStep()
 			{
 
 				@Override
@@ -617,10 +899,14 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 
 		// Get all the channel name exps objects
 		for (Entry<ILexNameToken, Value> entry : globalContext.entrySet())
+		{
 			if (entry.getValue() instanceof CMLChannelValue)
-				channelNames.add(new ANameChannelExp(entry.getKey().getLocation(), entry.getKey().clone(), new LinkedList<PExp>()));
+			{
+				channelNames.add(CmlAstFactory.newANameChannelExp(entry.getKey().getLocation(), entry.getKey().clone(), new LinkedList<PExp>()));
+			}
+		}
 
-		return new AFatEnumVarsetExpression(location, channelNames);
+		return CmlAstFactory.newAFatEnumVarsetExpression(location, channelNames);
 	}
 
 	/**
@@ -633,7 +919,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		// we execute the left action until it successfully terminates
 		if (!owner.getLeftChild().finished())
 		{
-			return newInspection(owner.getLeftChild().inspect(), new AbstractCalculationStep(owner, visitorAccess)
+			return newInspection(owner.getLeftChild().inspect(), new CmlCalculationStep()
 			{
 
 				@Override
@@ -650,7 +936,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		// if the left action is successfully finished then this node becomes the right action
 		else
 		{
-			return newInspection(createTauTransitionWithoutTime(leftNode), new AbstractCalculationStep(owner, visitorAccess)
+			return newInspection(createTauTransitionWithoutTime(leftNode), new CmlCalculationStep()
 			{
 
 				@Override
@@ -659,10 +945,10 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 						throws AnalysisException
 				{
 
-					setLeftChild(null);
-					setRightChild(null);
+					clearLeftChild();
+					clearRightChild();
 
-					return new Pair<INode, Context>(rightNode, question);
+					return new Pair<INode, Context>(rightNode, getChildContexts(question).second);
 				}
 			});
 

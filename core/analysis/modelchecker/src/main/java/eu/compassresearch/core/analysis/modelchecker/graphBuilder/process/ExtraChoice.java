@@ -33,7 +33,7 @@ public class ExtraChoice extends Choice {
 	@Override
 	public String toString() {
 		//it needs to include bindings
-		return firstProcess.toString() + "[+]" + secondProcess.toString();
+		return "(" + firstProcess.toString() + ")" + " [+] " + "(" + secondProcess.toString() + ")";
 	}
 
 

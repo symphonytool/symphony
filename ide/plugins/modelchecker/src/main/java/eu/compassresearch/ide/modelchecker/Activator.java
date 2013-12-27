@@ -34,6 +34,8 @@ public class Activator extends AbstractUIPlugin implements IStartup{
     
 	
 	public void earlyStartup() {
+		//this line is useful to start Formula (if it is installed)
+		FORMULA_OK = FormulaIntegrator.checkFormulaInstallation();
     	//checkAuxiliarySoftware();
 	}
 	
@@ -75,13 +77,14 @@ public class Activator extends AbstractUIPlugin implements IStartup{
 	}
 
 	private void shutDownAuxiliarySoftware(){
-		try {
-			FormulaIntegrator.getInstance().finalize();
-		} catch (FormulaIntegrationException e) {
-			log(e);
-		} catch (Throwable e) {
-			logErrorMessage(e.getMessage());
-		}
+			try {
+				if (FormulaIntegrator.hasInstance())
+					FormulaIntegrator.getInstance().finalize();
+			} catch (FormulaIntegrationException e) {
+				log(e);
+			} catch (Throwable e) {
+				logErrorMessage(e.getMessage());
+			}
 	}
 	@Override
     protected void initializeImageRegistry(ImageRegistry registry) {

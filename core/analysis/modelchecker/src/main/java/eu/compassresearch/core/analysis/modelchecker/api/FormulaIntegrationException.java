@@ -9,7 +9,7 @@ package eu.compassresearch.core.analysis.modelchecker.api;
  * @author Gleydson
  */
 @SuppressWarnings("serial")
-public class FormulaIntegrationException extends Exception {
+public class FormulaIntegrationException extends RuntimeException {
 
     private String msg;
 

@@ -39,7 +39,8 @@ public class MCUIResult {
 
 	@Override
 	public boolean equals(Object obj) {
-		return this.getFile().getName().equals(((MCUIResult) obj).getFile().getName()) && this.getProperty().equals(((MCUIResult)obj).getProperty());
+		return this.getFormulaResult().getAnalysedProcess().equals(((MCUIResult) obj).getFormulaResult().getAnalysedProcess()) && this.getProperty().equals(((MCUIResult)obj).getProperty());
+		//return this.getFile().getName().equals(((MCUIResult) obj).getFile().getName()) && this.getProperty().equals(((MCUIResult)obj).getProperty());
 	}
 	
 	

@@ -20,54 +20,22 @@ public class MCOperationCall extends MCGenericCall{
 	@Override
 	public String toFormula(String option) {
 		StringBuilder result = new StringBuilder();
-		
-		result.append("operation(\"" + this.name + "\",");
-		
+		result.append("operation(\"" + this.name + "\"");
+		result.append(",");
 		ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
 		MCPCMLType argsType = null;
-		if(option.equals(MCNode.DEFAULT)){
+		if (option.equals(MCNode.DEFAULT)){
 			argsType = evaluator.instantiateMCType(this.args);
+		} else if(option.equals(MCNode.NAMED) || option.equals(MCNode.GENERIC)){
+			if(this.paramPatterns == null){
+				argsType = evaluator.instantiateMCType(this.args);
+			}else{
+				argsType = evaluator.instantiateMCTypeFromPatterns(this.paramPatterns);
+			}
 		} else{
-			argsType = evaluator.instantiateMCTypeFromPatterns(this.paramPatterns);
+			argsType = evaluator.instantiateMCType(this.args);
 		}
-		
 		result.append(argsType.toFormula(option));
-		
-		/*
-		switch (option) {
-		case MCNode.DEFAULT:
-			if(args.size()==0){
-				result.append("void");
-			} else if(args.size()==1){
-				if(option.equals(MCNode.GENERIC)){
-					result.append(paramPatterns.getFirst().toFormula(option));
-				}else{
-					result.append(args.getFirst().toFormula(option));
-				}
-			} else if(args.size() > 1){
-				//TODO
-			}
-			break;
-
-		case MCNode.NAMED:
-			if(paramPatterns.size()==0){
-				result.append("void");
-			} else if(paramPatterns.size()==1){
-				if(option.equals(MCNode.GENERIC)){
-					result.append(paramPatterns.getFirst().toFormula(option));
-				}else{
-					result.append(paramPatterns.getFirst().toFormula(option));
-				}
-			} else if(args.size() > 1){
-				//TODO
-			}
-			break;
-			
-		default:
-			break;
-		}
-		*/
-		
 		result.append(")");
 		
 		return result.toString();

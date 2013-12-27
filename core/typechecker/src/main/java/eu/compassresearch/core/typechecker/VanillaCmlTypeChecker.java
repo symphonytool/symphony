@@ -7,6 +7,7 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AClassClassDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.definitions.SClassDefinition;
+import org.overture.ast.expressions.PExp;
 import org.overture.ast.factory.AstFactory;
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.lex.Dialect;
@@ -22,6 +23,7 @@ import org.overture.typechecker.TypeCheckException;
 import org.overture.typechecker.TypeCheckInfo;
 import org.overture.typechecker.TypeChecker;
 import org.overture.typechecker.assistant.ITypeCheckerAssistantFactory;
+import org.overture.typechecker.visitor.TypeCheckVisitor;
 
 import eu.compassresearch.ast.definitions.AChannelDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
@@ -32,6 +34,7 @@ import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.typechecker.analysis.CollectGlobalStateClass;
 import eu.compassresearch.core.typechecker.analysis.OperationBodyValidater;
 import eu.compassresearch.core.typechecker.analysis.UniquenessChecker;
+import eu.compassresearch.core.typechecker.api.CMLErrorsException;
 import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 import eu.compassresearch.core.typechecker.visitors.CmlClassTypeChecker;
 import eu.compassresearch.core.typechecker.visitors.CmlCspTypeChecker;
@@ -114,9 +117,7 @@ public class VanillaCmlTypeChecker extends AbstractTypeChecker
 	{
 		try
 		{
-			TypeChecker.addStatusListner(this.issueHandler);
-			// Force setup of the legacy static access assistants in Overture
-			CmlTypeCheckerAssistantFactory.init(new CmlTypeCheckerAssistantFactory());
+			setup();
 
 			// Transform the AST before analysis
 			// W: Stage 1 remove intermediate product types in functions
@@ -134,7 +135,7 @@ public class VanillaCmlTypeChecker extends AbstractTypeChecker
 			// DotUtil.dot(sourceForest.iterator().next());
 
 			// Collect all Top-level entities
-			DefinitionList globalDefs = CollectGlobalStateClass.getGlobalRoot(sourceForest, issueHandler);
+			DefinitionList globalDefs = CollectGlobalStateClass.getGlobalRoot(sourceForest);
 			UniquenessChecker.apply(globalDefs, issueHandler);
 
 			VdmTypeCheckResult result = overtureClassTc(globalDefs);
@@ -162,10 +163,22 @@ public class VanillaCmlTypeChecker extends AbstractTypeChecker
 			throw new InternalException(0, e.getMessage());
 		} finally
 		{
-			TypeChecker.removeStatusListner(this.issueHandler);
+			teardown();
 		}
 
 		return !issueHandler.hasErrors();
+	}
+
+	public void teardown()
+	{
+		TypeChecker.removeStatusListner(this.issueHandler);
+	}
+
+	public void setup()
+	{
+		TypeChecker.addStatusListner(this.issueHandler);
+		// Force setup of the legacy static access assistants in Overture
+		CmlTypeCheckerAssistantFactory.init(new CmlTypeCheckerAssistantFactory());
 	}
 
 	private VdmTypeCheckResult overtureClassTc(DefinitionList globals)
@@ -249,6 +262,41 @@ public class VanillaCmlTypeChecker extends AbstractTypeChecker
 			}
 		}
 
+	}
+
+	@Override
+	public PType typeCheck(PExp expr) throws Exception
+	{
+		try
+		{
+			setup();
+			Weeding2.apply(expr);
+
+			DefinitionList globalDefs = CollectGlobalStateClass.getGlobalRoot(sourceForest);
+			// resolve AUnresolvedPathExp. Each resolved path will be replaced with a AVariableExp
+			WeedingUnresolvedPathReplacement.apply(globalDefs.getAllClasses(), expr);
+
+			CmlClassTypeChecker typeChecker = new CmlClassTypeChecker(globalDefs.getAllClasses(), globalDefs.getGlobalVdmDefinitions());
+
+			PType type = expr.apply(new TypeCheckVisitor(), new TypeCheckInfo(typeChecker.getAssistantFactory(), typeChecker.getAllClassesEnvronment(), NameScope.NAMESANDSTATE));
+
+			if (issueHandler.hasErrors())
+			{
+				throw new CMLErrorsException(issueHandler.getTypeErrors());
+			}
+
+			return type;
+		} catch (Exception e)
+		{
+			throw e;
+		} catch (Throwable e)
+		{
+			e.printStackTrace();
+		} finally
+		{
+			teardown();
+		}
+		return null;
 	}
 
 }

@@ -21,22 +21,10 @@ import eu.compassresearch.core.typechecker.DefinitionList;
 /**
  * @author kel & cb
  */
-@SuppressWarnings("serial")
 public class WeedingCallToCallActionReplacer extends
 		DepthFirstAnalysisCMLAdaptor
 {
 
-	// public static void apply(DefinitionList lp)
-	// {
-	//
-	// WeedingCallToCallActionReplacer lv = new WeedingCallToCallActionReplacer();
-	// try
-	// {
-	// lp.apply(lv);
-	// } catch (AnalysisException e)
-	// {
-	// }
-	// }
 
 	public static void apply(DefinitionList sourceForest)
 	{

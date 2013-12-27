@@ -3,6 +3,8 @@ package eu.compassresearch.ide.interpreter;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.DebugException;
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -129,4 +131,13 @@ public class CmlDebugPlugin extends AbstractUIPlugin
 		log(new Status(IStatus.ERROR, PLUGIN_ID, INTERNAL_ERROR, message, top));
 	}
 
+	/**
+	 * Initializes a preference store with default preference values for this plug-in.
+	 */
+	@Override
+	protected void initializeDefaultPreferences(IPreferenceStore store)
+	{
+		PreferenceConverter.setDefault(store, ICmlDebugConstants.PREFERENCES_DEBUG_HIGHLIGHT_COLOR, ICmlDebugConstants.DEFAULT_HIGHLIGHT_COLOR);
+		store.setDefault(ICmlDebugConstants.PREFERENCES_AUTO_FILTER_TOCK_EVENTS, ICmlDebugConstants.DEFAULT_AUTO_FILTER_TOCK_EVENTS);
+	}
 }

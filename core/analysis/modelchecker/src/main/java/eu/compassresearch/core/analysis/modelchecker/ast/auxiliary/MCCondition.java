@@ -11,7 +11,6 @@ public class MCCondition implements MCNode{
 	protected int counter;
 	
 	public MCCondition(MCPAction parentAction, MCPCMLExp expression, int counter) {
-		super();
 		this.parentAction = parentAction;
 		this.expression = expression;
 		this.counter = counter;
@@ -21,6 +20,16 @@ public class MCCondition implements MCNode{
 	public String toFormula(String option) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	
+	@Override
+	public boolean equals(Object obj) {
+		boolean result = false;
+		if(obj instanceof MCCondition){
+			result = this.counter == ((MCCondition) obj).getCounter();
+		}
+		return result;
 	}
 
 	public MCPCMLExp getExpression() {

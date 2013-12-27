@@ -128,24 +128,25 @@ import eu.compassresearch.core.analysis.theoremprover.utils.ThmExprUtil;
 public class ThmExpStringVisitor extends
 QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 
-	public static boolean isPost = false;
+	private boolean isPost = false;
+	
 	final private QuestionAnswerCMLAdaptor<ThmVarsContext, String> thmStringVisitor;
 	
 	public ThmExpStringVisitor(ThmStringVisitor thmStringVisitor) {
 		this.thmStringVisitor = thmStringVisitor;
 	}
 
-	public String caseACompBinaryExp(ACompBinaryExp ex, ThmVarsContext vars) throws AnalysisException{
-		return "(" + ex.getLeft().apply(thmStringVisitor, vars) + ThmExprUtil.comp +  ex.getRight().apply(thmStringVisitor, vars) + ")";
-	}
+//	public String caseACompBinaryExp(ACompBinaryExp ex, ThmVarsContext vars) throws AnalysisException{
+//		return "(" + ex.getLeft().apply(thmStringVisitor, vars) + ThmExprUtil.comp +  ex.getRight().apply(thmStringVisitor, vars) + ")";
+//	}
 
-	public String caseADomainResByBinaryExp(ADomainResByBinaryExp ex, ThmVarsContext vars) throws AnalysisException{
-		return "(" + ex.getLeft().apply(thmStringVisitor, vars) + ThmExprUtil.domainResBy +  ex.getRight().apply(thmStringVisitor, vars)+ ")";
-	}
-
-	public String caseADomainResToBinaryExp(ADomainResToBinaryExp ex, ThmVarsContext vars) throws AnalysisException{
-		return "(" + ex.getLeft().apply(thmStringVisitor, vars) + ThmExprUtil.domainResTo +  ex.getRight().apply(thmStringVisitor, vars)+ ")";
-	}
+//	public String caseADomainResByBinaryExp(ADomainResByBinaryExp ex, ThmVarsContext vars) throws AnalysisException{
+//		return "(" + ex.getLeft().apply(thmStringVisitor, vars) + ThmExprUtil.domainResBy +  ex.getRight().apply(thmStringVisitor, vars)+ ")";
+//	}
+//
+//	public String caseADomainResToBinaryExp(ADomainResToBinaryExp ex, ThmVarsContext vars) throws AnalysisException{
+//		return "(" + ex.getLeft().apply(thmStringVisitor, vars) + ThmExprUtil.domainResTo +  ex.getRight().apply(thmStringVisitor, vars)+ ")";
+//	}
 
 	public String caseAEqualsBinaryExp(AEqualsBinaryExp ex, ThmVarsContext vars) throws AnalysisException{
 		return "(" + ex.getLeft().apply(thmStringVisitor, vars) + ThmExprUtil.equals +  ex.getRight().apply(thmStringVisitor, vars)+ ")";
@@ -155,9 +156,9 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		return "(" + ex.getLeft().apply(thmStringVisitor, vars) + ThmExprUtil.inSet +  ex.getRight().apply(thmStringVisitor, vars)+ ")";
 	}
 
-	public String caseAMapUnionBinaryExp(AMapUnionBinaryExp ex, ThmVarsContext vars) throws AnalysisException{
-		return "(" + ex.getLeft().apply(thmStringVisitor, vars) + ThmExprUtil.mapUnion +  ex.getRight().apply(thmStringVisitor, vars)+ ")";
-	}
+//	public String caseAMapUnionBinaryExp(AMapUnionBinaryExp ex, ThmVarsContext vars) throws AnalysisException{
+//		return "(" + ex.getLeft().apply(thmStringVisitor, vars) + ThmExprUtil.mapUnion +  ex.getRight().apply(thmStringVisitor, vars)+ ")";
+//	}
 
 	public String caseANotEqualBinaryExp(ANotEqualBinaryExp ex, ThmVarsContext vars) throws AnalysisException{
 		return "(" + ex.getLeft().apply(thmStringVisitor, vars) + ThmExprUtil.notEqual +  ex.getRight().apply(thmStringVisitor, vars)+ ")";
@@ -167,25 +168,25 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		return "(" + ex.getLeft().apply(thmStringVisitor, vars) + ThmExprUtil.notInSet +  ex.getRight().apply(thmStringVisitor, vars)+ ")";
 	}
 
-	public String caseAPlusPlusBinaryExp(APlusPlusBinaryExp ex, ThmVarsContext vars) throws AnalysisException{
-		return "(" + ex.getLeft().apply(thmStringVisitor, vars) + ThmExprUtil.plusPlus +  ex.getRight().apply(thmStringVisitor, vars)+ ")";
-	}
+//	public String caseAPlusPlusBinaryExp(APlusPlusBinaryExp ex, ThmVarsContext vars) throws AnalysisException{
+//		return "(" + ex.getLeft().apply(thmStringVisitor, vars) + ThmExprUtil.plusPlus +  ex.getRight().apply(thmStringVisitor, vars)+ ")";
+//	}
 
 	public String caseAProperSubsetBinaryExp(AProperSubsetBinaryExp ex, ThmVarsContext vars) throws AnalysisException{
 		return "(" + ex.getLeft().apply(thmStringVisitor, vars) + ThmExprUtil.properSubset  +  ex.getRight().apply(thmStringVisitor, vars)+ ")";
 	}
 
-	public String caseARangeResByBinaryExp(ARangeResByBinaryExp ex, ThmVarsContext vars) throws AnalysisException{
-		return "(" + ex.getLeft().apply(thmStringVisitor, vars) + ThmExprUtil.rangeResBy +  ex.getRight().apply(thmStringVisitor, vars)+ ")";
-	}
+//	public String caseARangeResByBinaryExp(ARangeResByBinaryExp ex, ThmVarsContext vars) throws AnalysisException{
+//		return "(" + ex.getLeft().apply(thmStringVisitor, vars) + ThmExprUtil.rangeResBy +  ex.getRight().apply(thmStringVisitor, vars)+ ")";
+//	}
 
-	public String caseARangeResToBinaryExp(ARangeResToBinaryExp ex, ThmVarsContext vars) throws AnalysisException{
-		return "(" + ex.getLeft().apply(thmStringVisitor, vars) + ThmExprUtil.rangeResTo +  ex.getRight().apply(thmStringVisitor, vars)+ ")";
-	}
+//	public String caseARangeResToBinaryExp(ARangeResToBinaryExp ex, ThmVarsContext vars) throws AnalysisException{
+//		return "(" + ex.getLeft().apply(thmStringVisitor, vars) + ThmExprUtil.rangeResTo +  ex.getRight().apply(thmStringVisitor, vars)+ ")";
+//	}
 
-	public String caseASeqConcatBinaryExp(ASeqConcatBinaryExp ex, ThmVarsContext vars) throws AnalysisException{
-		return "(" + ex.getLeft().apply(thmStringVisitor, vars) + ThmExprUtil.seqConcat +  ex.getRight().apply(thmStringVisitor, vars)+ ")";
-	}
+//	public String caseASeqConcatBinaryExp(ASeqConcatBinaryExp ex, ThmVarsContext vars) throws AnalysisException{
+//		return "(" + ex.getLeft().apply(thmStringVisitor, vars) + ThmExprUtil.seqConcat +  ex.getRight().apply(thmStringVisitor, vars)+ ")";
+//	}
 
 	public String caseASetDifferenceBinaryExp(ASetDifferenceBinaryExp ex, ThmVarsContext vars) throws AnalysisException{
 		return "(" + ex.getLeft().apply(thmStringVisitor, vars) + ThmExprUtil.setDifference +  ex.getRight().apply(thmStringVisitor, vars)+ ")";
@@ -223,9 +224,9 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		return "("+ ThmExprUtil.distIntersect + "(" +ex.getExp().apply(thmStringVisitor, vars)+ "))";
 	}
 
-	public String caseADistMergeUnaryExp(ADistMergeUnaryExp ex, ThmVarsContext vars) throws AnalysisException{
-		return "("+ ThmExprUtil.distMerge + "(" + ex.getExp().apply(thmStringVisitor, vars)+ "))";
-	}
+//	public String caseADistMergeUnaryExp(ADistMergeUnaryExp ex, ThmVarsContext vars) throws AnalysisException{
+//		return "("+ ThmExprUtil.distMerge + "(" + ex.getExp().apply(thmStringVisitor, vars)+ "))";
+//	}
 
 	public String caseADistUnionUnaryExp(ADistUnionUnaryExp ex, ThmVarsContext vars) throws AnalysisException{
 		return "("+ ThmExprUtil.distUnion + "(" + ex.getExp().apply(thmStringVisitor, vars)+ "))";
@@ -243,9 +244,9 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		return "("+ ThmExprUtil.head + "(" + ex.getExp().apply(thmStringVisitor, vars)+ "))";
 	}
 
-	public String caseAIndicesUnaryExp(AIndicesUnaryExp ex, ThmVarsContext vars) throws AnalysisException{
-		return "("+ ThmExprUtil.indices + "(" + ex.getExp().apply(thmStringVisitor, vars)+ "))";
-	}
+//	public String caseAIndicesUnaryExp(AIndicesUnaryExp ex, ThmVarsContext vars) throws AnalysisException{
+//		return "("+ ThmExprUtil.indices + "(" + ex.getExp().apply(thmStringVisitor, vars)+ "))";
+//	}
 
 	public String caseALenUnaryExp(ALenUnaryExp ex, ThmVarsContext vars) throws AnalysisException{
 		return "("+ ThmExprUtil.len + "(" + ex.getExp().apply(thmStringVisitor, vars)+ "))";
@@ -255,9 +256,9 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		return "("+ ThmExprUtil.mapDomain + "(" + ex.getExp().apply(thmStringVisitor, vars)+ "))";
 	}
 
-	public String caseAMapInverseUnaryExp(AMapInverseUnaryExp ex, ThmVarsContext vars) throws AnalysisException{
-		return "("+ ThmExprUtil.mapInverse + "(" + ex.getExp().apply(thmStringVisitor, vars)+ "))";
-	}
+//	public String caseAMapInverseUnaryExp(AMapInverseUnaryExp ex, ThmVarsContext vars) throws AnalysisException{
+//		return "("+ ThmExprUtil.mapInverse + "(" + ex.getExp().apply(thmStringVisitor, vars)+ "))";
+//	}
 
 	public String caseAMapRangeUnaryExp(AMapRangeUnaryExp ex, ThmVarsContext vars) throws AnalysisException{
 		return "("+ ThmExprUtil.mapRange + "(" + ex.getExp().apply(thmStringVisitor, vars)+ "))";
@@ -271,21 +272,21 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		return "("+ ThmExprUtil.powerSet + "(" + ex.getExp().apply(thmStringVisitor, vars)+ "))";
 	}
 
-	public String caseAReverseUnaryExp(AReverseUnaryExp ex, ThmVarsContext vars) throws AnalysisException{
-		return "("+ ThmExprUtil.reverse + "(" + ex.getExp().apply(thmStringVisitor, vars)+ "))";
-	}
+//	public String caseAReverseUnaryExp(AReverseUnaryExp ex, ThmVarsContext vars) throws AnalysisException{
+//		return "("+ ThmExprUtil.reverse + "(" + ex.getExp().apply(thmStringVisitor, vars)+ "))";
+//	}
 
 	public String caseATailUnaryExp(ATailUnaryExp ex, ThmVarsContext vars) throws AnalysisException{
 		return "("+ ThmExprUtil.tail + "(" + ex.getExp().apply(thmStringVisitor, vars)+ "))";
 	}
 
 	public String caseAUnaryMinusUnaryExp(AUnaryMinusUnaryExp ex, ThmVarsContext vars) throws AnalysisException{
-		return "("+ ThmExprUtil.unaryMinus + "(" + ex.getExp().apply(thmStringVisitor, vars)+ "))";
+		return "("+ ThmExprUtil.unaryMinus + ex.getExp().apply(thmStringVisitor, vars)+ ")";
 	}
 
-	public String caseAUnaryPlusUnaryExp(AUnaryPlusUnaryExp ex, ThmVarsContext vars) throws AnalysisException{
-		return "("+ ThmExprUtil.unaryPlus + "(" + ex.getExp().apply(thmStringVisitor, vars)+ "))";
-	}
+//	public String caseAUnaryPlusUnaryExp(AUnaryPlusUnaryExp ex, ThmVarsContext vars) throws AnalysisException{
+//		return "("+ ThmExprUtil.unaryPlus + "(" + ex.getExp().apply(thmStringVisitor, vars)+ "))";
+//	}
 
 	public String caseABooleanConstExp(ABooleanConstExp ex, ThmVarsContext vars) throws AnalysisException{
 		return ex.getValue().toString();
@@ -551,9 +552,9 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		return "let " + sb + " in " + ex.getExpression().apply(thmStringVisitor, vars);
 	}
 
-	public String caseAMapletExp(AMapletExp ex, ThmVarsContext vars) throws AnalysisException{		
-		return ex.getLeft().apply(thmStringVisitor, vars) + " |-> " + ex.getRight().apply(thmStringVisitor, vars);
-	}
+//	public String caseAMapletExp(AMapletExp ex, ThmVarsContext vars) throws AnalysisException{		
+//		return ex.getLeft().apply(thmStringVisitor, vars) + " |-> " + ex.getRight().apply(thmStringVisitor, vars);
+//	}
 
 	public String caseAMkBasicExp(AMkBasicExp ex, ThmVarsContext vars) throws AnalysisException{
 		
@@ -606,10 +607,10 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		return "<<''" + value + "''>>";
 	}
 
-	public String caseASubseqExp(ASubseqExp ex, ThmVarsContext vars) throws AnalysisException{
-		
-		return ex.getSeq().apply(thmStringVisitor, vars) + "(" + ex.getFrom().apply(thmStringVisitor, vars) + ",...," + ex.getTo().apply(thmStringVisitor, vars) + ")";
-	}
+//	public String caseASubseqExp(ASubseqExp ex, ThmVarsContext vars) throws AnalysisException{
+//		
+//		return ex.getSeq().apply(thmStringVisitor, vars) + "(" + ex.getFrom().apply(thmStringVisitor, vars) + ",...," + ex.getTo().apply(thmStringVisitor, vars) + ")";
+//	}
 
 	public String caseATupleExp(ATupleExp ex, ThmVarsContext vars) throws AnalysisException{
 		StringBuilder sb = new StringBuilder();
@@ -795,56 +796,56 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 
 
 
-	public String caseAMapCompMapExp(AMapCompMapExp ex, ThmVarsContext vars) throws AnalysisException{
-
-		StringBuilder bindstr = new StringBuilder();
-		
-		LinkedList<PMultipleBind> binds = ex.getBindings();
-//		NodeNameList boundvars = new NodeNameList();
-//		boundvars.addAll(bvars);
-		
-		for(PMultipleBind b: binds)
-		{
-			if (b instanceof ATypeMultipleBind)
-			{
-				ATypeMultipleBind tmb = (ATypeMultipleBind) b;
-				for (Iterator<PPattern> itr = tmb.getPlist().listIterator(); itr.hasNext(); ) {
-					AIdentifierPattern p = (AIdentifierPattern) itr.next();
-					
-					bindstr.append(p.getName());
-					vars.addBVar(p.getName());
-					//If there are remaining patterns, add a ","
-					if(itr.hasNext()){	
-						bindstr.append(", ");
-					}
-				}
-				bindstr.append(" : ");
-				bindstr.append("@" + tmb.getType().toString()); //SHOULD USE VISITOR TO GET THIS?
-			}
-			else if (b instanceof ASetMultipleBind)
-			{
-				ASetMultipleBind smb = (ASetMultipleBind) b;
-				for (Iterator<PPattern> itr = smb.getPlist().listIterator(); itr.hasNext(); ) {
-					AIdentifierPattern p = (AIdentifierPattern) itr.next();
-					
-					bindstr.append(p.getName());
-					vars.addBVar(p.getName());
-					//If there are remaining patterns, add a ","
-					if(itr.hasNext()){	
-						bindstr.append(", ");
-					}
-				}
-			//	sb.append(smb.getPlist().toString());
-				bindstr.append(" in @set ");
-				bindstr.append(smb.getSet().apply(thmStringVisitor, vars));
-			}
-		}
-		String firstString =  ex.getFirst().apply(thmStringVisitor, vars);
-		String predString =  ex.getPredicate().apply(thmStringVisitor, vars);
-	//	String firstString = ThmExprUtil.getIsabelleExprStr(svars, boundvars, comp.getFirst()); 
-	//	String predString = ThmExprUtil.getIsabelleExprStr(svars, boundvars, comp.getPredicate()); 
-		return "{" + firstString + " | " + bindstr + " @ " + predString + "}";
-	}
+//	public String caseAMapCompMapExp(AMapCompMapExp ex, ThmVarsContext vars) throws AnalysisException{
+//
+//		StringBuilder bindstr = new StringBuilder();
+//		
+//		LinkedList<PMultipleBind> binds = ex.getBindings();
+////		NodeNameList boundvars = new NodeNameList();
+////		boundvars.addAll(bvars);
+//		
+//		for(PMultipleBind b: binds)
+//		{
+//			if (b instanceof ATypeMultipleBind)
+//			{
+//				ATypeMultipleBind tmb = (ATypeMultipleBind) b;
+//				for (Iterator<PPattern> itr = tmb.getPlist().listIterator(); itr.hasNext(); ) {
+//					AIdentifierPattern p = (AIdentifierPattern) itr.next();
+//					
+//					bindstr.append(p.getName());
+//					vars.addBVar(p.getName());
+//					//If there are remaining patterns, add a ","
+//					if(itr.hasNext()){	
+//						bindstr.append(", ");
+//					}
+//				}
+//				bindstr.append(" : ");
+//				bindstr.append("@" + tmb.getType().toString()); //SHOULD USE VISITOR TO GET THIS?
+//			}
+//			else if (b instanceof ASetMultipleBind)
+//			{
+//				ASetMultipleBind smb = (ASetMultipleBind) b;
+//				for (Iterator<PPattern> itr = smb.getPlist().listIterator(); itr.hasNext(); ) {
+//					AIdentifierPattern p = (AIdentifierPattern) itr.next();
+//					
+//					bindstr.append(p.getName());
+//					vars.addBVar(p.getName());
+//					//If there are remaining patterns, add a ","
+//					if(itr.hasNext()){	
+//						bindstr.append(", ");
+//					}
+//				}
+//			//	sb.append(smb.getPlist().toString());
+//				bindstr.append(" in @set ");
+//				bindstr.append(smb.getSet().apply(thmStringVisitor, vars));
+//			}
+//		}
+//		String firstString =  ex.getFirst().apply(thmStringVisitor, vars);
+//		String predString =  ex.getPredicate().apply(thmStringVisitor, vars);
+//	//	String firstString = ThmExprUtil.getIsabelleExprStr(svars, boundvars, comp.getFirst()); 
+//	//	String predString = ThmExprUtil.getIsabelleExprStr(svars, boundvars, comp.getPredicate()); 
+//		return "{" + firstString + " | " + bindstr + " @ " + predString + "}";
+//	}
 
 	public String caseAMapEnumMapExp(AMapEnumMapExp ex, ThmVarsContext vars) throws AnalysisException{
 
@@ -864,89 +865,89 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		
 	}
 	
-	public String caseASeqCompSeqExp(ASeqCompSeqExp ex, ThmVarsContext vars) throws AnalysisException{
-		StringBuilder bindstr = new StringBuilder();
-		
-		ASetBind bind = ex.getSetBind();
-	//	NodeNameList boundvars = new NodeNameList();
-	//	boundvars.addAll(bvars);
-		
-		bindstr.append(bind.getPattern().toString());
-		vars.addBVar(((AIdentifierPattern) bind.getPattern()).getName());
-		bindstr.append(" in @set ");
-		bindstr.append(bind.getSet().apply(thmStringVisitor, vars));
-		//bindstr.append(ThmExprUtil.getIsabelleExprStr(svars, bvars, bind.getSet()));
+//	public String caseASeqCompSeqExp(ASeqCompSeqExp ex, ThmVarsContext vars) throws AnalysisException{
+//		StringBuilder bindstr = new StringBuilder();
+//		
+//		ASetBind bind = ex.getSetBind();
+//	//	NodeNameList boundvars = new NodeNameList();
+//	//	boundvars.addAll(bvars);
+//		
+//		bindstr.append(bind.getPattern().toString());
+//		vars.addBVar(((AIdentifierPattern) bind.getPattern()).getName());
+//		bindstr.append(" in @set ");
+//		bindstr.append(bind.getSet().apply(thmStringVisitor, vars));
+//		//bindstr.append(ThmExprUtil.getIsabelleExprStr(svars, bvars, bind.getSet()));
+//
+//		String firstString =  ex.getFirst().apply(thmStringVisitor, vars);
+//		String predString =  ex.getPredicate().apply(thmStringVisitor, vars);
+//	//	String firstString = ThmExprUtil.getIsabelleExprStr(svars, boundvars, ex.getFirst()); 
+//	//	String predString = ThmExprUtil.getIsabelleExprStr(svars, boundvars, ex.getPredicate()); 
+//		return "{" + firstString + " | " + bindstr.toString() + " @ " + predString + "}";
+//	}
 
-		String firstString =  ex.getFirst().apply(thmStringVisitor, vars);
-		String predString =  ex.getPredicate().apply(thmStringVisitor, vars);
-	//	String firstString = ThmExprUtil.getIsabelleExprStr(svars, boundvars, ex.getFirst()); 
-	//	String predString = ThmExprUtil.getIsabelleExprStr(svars, boundvars, ex.getPredicate()); 
-		return "{" + firstString + " | " + bindstr.toString() + " @ " + predString + "}";
-	}
+//	public String caseASeqEnumSeqExp(ASeqEnumSeqExp ex, ThmVarsContext vars) throws AnalysisException{
+//		
+//		StringBuilder sb = new StringBuilder();
+//		LinkedList<PExp> mem = ex.getMembers();
+//
+//		for (Iterator<PExp> itr = mem.listIterator(); itr.hasNext(); ) {
+//			PExp m = itr.next();
+//			sb.append(m.apply(thmStringVisitor, vars));
+//			//If there are remaining types, add a ","
+//			if(itr.hasNext()){	
+//				sb.append(", ");
+//			}
+//		}
+//		
+//		return "[" + sb.toString() +"]";
+//	}
 
-	public String caseASeqEnumSeqExp(ASeqEnumSeqExp ex, ThmVarsContext vars) throws AnalysisException{
-		
-		StringBuilder sb = new StringBuilder();
-		LinkedList<PExp> mem = ex.getMembers();
-
-		for (Iterator<PExp> itr = mem.listIterator(); itr.hasNext(); ) {
-			PExp m = itr.next();
-			sb.append(m.apply(thmStringVisitor, vars));
-			//If there are remaining types, add a ","
-			if(itr.hasNext()){	
-				sb.append(", ");
-			}
-		}
-		
-		return "[" + sb.toString() +"]";
-	}
-
-	public String caseASetCompSetExp(ASetCompSetExp ex, ThmVarsContext vars) throws AnalysisException{
-		StringBuilder bindstr = new StringBuilder();
-		
-		LinkedList<PMultipleBind> binds = ex.getBindings();
-		
-		for(PMultipleBind b: binds)
-		{
-			if (b instanceof ATypeMultipleBind)
-			{
-				ATypeMultipleBind tmb = (ATypeMultipleBind) b;
-				for (Iterator<PPattern> itr = tmb.getPlist().listIterator(); itr.hasNext(); ) {
-					AIdentifierPattern p = (AIdentifierPattern) itr.next();
-					
-					bindstr.append(p.getName());
-					vars.addBVar(p.getName());
-					//If there are remaining patterns, add a ","
-					if(itr.hasNext()){	
-						bindstr.append(", ");
-					}
-				}
-				bindstr.append(" : ");
-				bindstr.append("@" + tmb.getType().toString()); //SHOULD USE TYPE VISITOR?
-			}
-			else if (b instanceof ASetMultipleBind)
-			{
-				ASetMultipleBind smb = (ASetMultipleBind) b;
-				for (Iterator<PPattern> itr = smb.getPlist().listIterator(); itr.hasNext(); ) {
-					AIdentifierPattern p = (AIdentifierPattern) itr.next();
-					
-					bindstr.append(p.getName());
-					vars.addBVar(p.getName());
-					//If there are remaining patterns, add a ","
-					if(itr.hasNext()){	
-						bindstr.append(", ");
-					}
-				}
-				bindstr.append(" in @set ");
-				bindstr.append(smb.getSet().apply(thmStringVisitor, vars));
-			}
-		}
-		
-		String firstString =  ex.getFirst().apply(thmStringVisitor, vars);
-		String predString =  ex.getPredicate().apply(thmStringVisitor, vars);
-
-		return "{" + firstString + " | " + bindstr.toString() + " @ " + predString + "}";
-	}
+//	public String caseASetCompSetExp(ASetCompSetExp ex, ThmVarsContext vars) throws AnalysisException{
+//		StringBuilder bindstr = new StringBuilder();
+//		
+//		LinkedList<PMultipleBind> binds = ex.getBindings();
+//		
+//		for(PMultipleBind b: binds)
+//		{
+//			if (b instanceof ATypeMultipleBind)
+//			{
+//				ATypeMultipleBind tmb = (ATypeMultipleBind) b;
+//				for (Iterator<PPattern> itr = tmb.getPlist().listIterator(); itr.hasNext(); ) {
+//					AIdentifierPattern p = (AIdentifierPattern) itr.next();
+//					
+//					bindstr.append(p.getName());
+//					vars.addBVar(p.getName());
+//					//If there are remaining patterns, add a ","
+//					if(itr.hasNext()){	
+//						bindstr.append(", ");
+//					}
+//				}
+//				bindstr.append(" : ");
+//				bindstr.append("@" + tmb.getType().toString()); //SHOULD USE TYPE VISITOR?
+//			}
+//			else if (b instanceof ASetMultipleBind)
+//			{
+//				ASetMultipleBind smb = (ASetMultipleBind) b;
+//				for (Iterator<PPattern> itr = smb.getPlist().listIterator(); itr.hasNext(); ) {
+//					AIdentifierPattern p = (AIdentifierPattern) itr.next();
+//					
+//					bindstr.append(p.getName());
+//					vars.addBVar(p.getName());
+//					//If there are remaining patterns, add a ","
+//					if(itr.hasNext()){	
+//						bindstr.append(", ");
+//					}
+//				}
+//				bindstr.append(" in @set ");
+//				bindstr.append(smb.getSet().apply(thmStringVisitor, vars));
+//			}
+//		}
+//		
+//		String firstString =  ex.getFirst().apply(thmStringVisitor, vars);
+//		String predString =  ex.getPredicate().apply(thmStringVisitor, vars);
+//
+//		return "{" + firstString + " | " + bindstr.toString() + " @ " + predString + "}";
+//	}
 
 	public String caseASetEnumSetExp(ASetEnumSetExp ex, ThmVarsContext vars) throws AnalysisException{
 		StringBuilder sb = new StringBuilder();
@@ -964,12 +965,12 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 		return "{" + sb.toString() +"}";
 	}
 
-	public String caseASetRangeSetExp(ASetRangeSetExp ex, ThmVarsContext vars) throws AnalysisException{
-		String first = ex.getFirst().apply(thmStringVisitor, vars);
-		String last = ex.getLast().apply(thmStringVisitor, vars);
-		
-		return "{" + first + ", ..., " + last + "}";
-	}
+//	public String caseASetRangeSetExp(ASetRangeSetExp ex, ThmVarsContext vars) throws AnalysisException{
+//		String first = ex.getFirst().apply(thmStringVisitor, vars);
+//		String last = ex.getLast().apply(thmStringVisitor, vars);
+//		
+//		return "{" + first + ", ..., " + last + "}";
+//	}
 
 	public String caseADivideNumericBinaryExp(ADivideNumericBinaryExp ex, ThmVarsContext vars) throws AnalysisException{
 		return "(" +ex.getLeft().apply(thmStringVisitor, vars) + " / " + ex.getRight().apply(thmStringVisitor, vars)+ ")";
@@ -1118,5 +1119,9 @@ QuestionAnswerCMLAdaptor<ThmVarsContext, String> {
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	public void setPostExpr(boolean b) {
+		this.isPost = b;
 	}
 }

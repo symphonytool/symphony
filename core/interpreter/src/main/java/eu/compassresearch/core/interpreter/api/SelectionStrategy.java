@@ -23,8 +23,7 @@ public interface SelectionStrategy
 	 * @return the next transition
 	 */
 	public CmlTransition resolveChoice();
-	
-	
+
 	/**
 	 * Initializes the strategy
 	 */

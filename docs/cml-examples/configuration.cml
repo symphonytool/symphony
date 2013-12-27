@@ -1,0 +1,40 @@
+configuration confid
+  includes tid, chid, csid, vid, fid, classname, procname
+end
+
+types [tid]
+  a = int
+
+channels [chid]
+  a, b
+
+chansets [csid]
+  cs = {a, b}
+
+values [vid]
+  v : a = 42
+
+functions [fid]
+  f : int -> int
+  f(x) == x + 1
+
+class classname = begin end
+
+process procname = begin @ Skip end
+
+types
+  z = nat
+
+channels
+  y
+
+chansets
+  ys = {y}
+
+functions
+  g : nat -> nat
+  g(v) == v + 2
+
+class otherclass = begin end
+
+process otherproc = begin @ Skip end

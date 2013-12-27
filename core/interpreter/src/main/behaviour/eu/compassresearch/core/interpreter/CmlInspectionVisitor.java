@@ -7,16 +7,17 @@ import org.overture.ast.statements.PStm;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ValueException;
 
+import eu.compassresearch.ast.CmlAstFactory;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlCalculationStep;
 import eu.compassresearch.core.interpreter.api.behaviour.Inspection;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
-@SuppressWarnings("serial")
 public class CmlInspectionVisitor extends AbstractInspectionVisitor
 {
 
@@ -45,7 +46,7 @@ public class CmlInspectionVisitor extends AbstractInspectionVisitor
 	{
 		return node.apply(this.actionVisitor, question);
 	}
-	
+
 	@Override
 	public Inspection defaultPStm(PStm node, Context question)
 			throws AnalysisException
@@ -58,8 +59,8 @@ public class CmlInspectionVisitor extends AbstractInspectionVisitor
 			throws AnalysisException
 	{
 		// TODO should this really evolve into skip?
-		final ASkipAction skipAction = new ASkipAction(node.getLocation());
-		return newInspection(createTauTransitionWithoutTime(skipAction, "inv/Pre/Post expression"), new AbstractCalculationStep(owner, visitorAccess)
+		final ASkipAction skipAction = CmlAstFactory.newASkipAction(node.getLocation());
+		return newInspection(createTauTransitionWithoutTime(skipAction, "inv/Pre/Post expression"), new CmlCalculationStep()
 		{
 
 			@Override

@@ -82,6 +82,7 @@ public class FormulaSpecification {
 		
 		
 		//it builds the problem domain for the problem to be analysed 
+		
 		ProblemDomainBuilder domainBuilder = new ProblemDomainBuilder();
 		this.problemDomain.setContent(domainBuilder.buildProblemDomain());
 		result.append(problemDomain.toFormula(MCNode.DEFAULT));

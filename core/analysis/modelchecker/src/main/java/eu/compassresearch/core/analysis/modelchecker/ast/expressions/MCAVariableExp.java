@@ -1,8 +1,11 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.expressions;
 
+import java.util.LinkedList;
+
 import org.overture.ast.expressions.AVariableExp;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
+import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.PatternValue;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAValueDefinition;
 import eu.compassresearch.core.analysis.modelchecker.visitors.NewCMLModelcheckerContext;
 
@@ -60,8 +63,18 @@ public class MCAVariableExp implements MCNumericExp {
 
 	@Override
 	public MCPCMLExp copy() {
-		// TODO Auto-generated method stub
-		return null;
+		
+		return new MCAVariableExp(this.name);
+	}
+
+	@Override
+	public void replacePatternWithValue(LinkedList<PatternValue> mapping) {
+		for (PatternValue patternValue : mapping) {
+			if(patternValue.getPattern().toFormula(MCNode.DEFAULT).equals(this.name)){
+				this.name = patternValue.getValue().toFormula(MCNode.DEFAULT);
+				break;
+			}
+		}
 	}
 
 }

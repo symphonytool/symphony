@@ -15,7 +15,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.intf.lex.ILexNameToken;
-import org.overture.ast.lex.LexIdentifierToken;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.node.INode;
 import org.overture.interpreter.assistant.InterpreterAssistantFactory;
@@ -26,7 +25,6 @@ import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
 import eu.compassresearch.ast.actions.ASkipAction;
-import eu.compassresearch.ast.lex.CmlLexNameToken;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorState;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
@@ -151,9 +149,9 @@ public class TestMessageCommunicator
 			}
 
 			@Override
-			public ILexNameToken name()
+			public BehaviourName getName()
 			{
-				return new CmlLexNameToken("", new LexIdentifierToken("A", false, new LexLocation()));
+				return new BehaviourName("A");
 			}
 
 			@Override
@@ -308,6 +306,13 @@ public class TestMessageCommunicator
 			{
 				// TODO Auto-generated method stub
 				return false;
+			}
+
+			@Override
+			public void updateName(ILexNameToken name)
+			{
+				// TODO Auto-generated method stub
+
 			}
 		}, CmlInterpreterState.FINISHED);
 		Message sentMessage = new CmlDbgStatusMessage(status);

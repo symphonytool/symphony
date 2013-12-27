@@ -24,27 +24,31 @@ public class PartialModelBuilder {
 	
 	private void generateLieInFacts(StringBuilder content, String option){
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
-		if(context.lieIn.size() != 0){
+		//if(context.lieIn.size() != 0){
 			for (MCLieInFact lieIn : context.lieIn) {
+				//content.append(lieIn.toFormula(option) + "\n");
+				lieIn.prepareLieInFact();
+			}
+			for (MCLieInFact lieIn :  context.realLieInFacts) {
 				content.append(lieIn.toFormula(option) + "\n");
 			}
-		}
+		//}
 	}
 	
 	private void generateChannels(StringBuilder content, String option){
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
-		if(context.channelDefs.size() != 0){
+		//if(context.channelDefs.size() != 0){
 			for (MCAChannelDefinition chanDef : context.channelDefs) {
-				if(chanDef.isTyped()){
+				//if(chanDef.isTyped()){
 					content.append(chanDef.toFormula(option) + "\n");
-				}
+				//}
 			}
-		}
+		//}
 	}
 	
 	private void generateGivenProc(StringBuilder content, String option){
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
-		MCAProcessDefinition mainProc = context.mainProcess;
+		MCAProcessDefinition mainProc = context.getMainProcessDefinition();
 		
 		content.append("  GivenProc(");
 		content.append("\"");

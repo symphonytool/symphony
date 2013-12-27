@@ -4,6 +4,9 @@ import java.io.File;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TreeSelection;
@@ -23,6 +26,7 @@ public class RttMbtProjectExplorer extends org.eclipse.ui.navigator.CommonNaviga
 	protected Boolean isFolderSelected = false;
 	protected Boolean isFileSelected = false;
 	protected RttMbtClient client = null;
+	protected File workspaceDirectory = null;
 
 	@Override
 	public void init(IViewSite aSite, IMemento aMemento) throws PartInitException {
@@ -51,6 +55,12 @@ public class RttMbtProjectExplorer extends org.eclipse.ui.navigator.CommonNaviga
 		selectedObjectPath = null;
 		isFolderSelected = false;
 		isFileSelected = false;
+
+    	// set workspace
+    	IWorkspace workspace = ResourcesPlugin.getWorkspace();
+		workspaceDirectory = workspace.getRoot().getLocation().toFile();
+
+		IProject project = null;
 		if (selection instanceof TreeSelection) {		    
 			TreeSelection treeSelection = (TreeSelection)selection;
 			if (treeSelection.size() == 0) {
@@ -61,44 +71,85 @@ public class RttMbtProjectExplorer extends org.eclipse.ui.navigator.CommonNaviga
 				setAllKeysFlase();
 				return;
 			}
-			if (treeSelection.getFirstElement() instanceof IFolder) {
+			if ((treeSelection.getFirstElement() != null) &&
+				(treeSelection.getFirstElement() instanceof IFolder)) {
 				IFolder folder = (IFolder)treeSelection.getFirstElement();
+				project = folder.getProject();
 				selectedObject = folder.getName();
-				selectedObjectPath = folder.getFullPath().toString();
+				selectedObjectPath = RttMbtClient.getAbsolutePathFromFileURI(folder.getLocationURI());
 				isFolderSelected = true;
 			} else if ((treeSelection.getFirstElement() != null) &&
-				(treeSelection.getFirstElement() instanceof IFile)) {
+				       (treeSelection.getFirstElement() instanceof IFile)) {
 				IFile file = (IFile)treeSelection.getFirstElement();
+				project = file.getProject();
 				selectedObject = file.getName();
-				selectedObjectPath = file.getFullPath().toString();
+				selectedObjectPath = RttMbtClient.getAbsolutePathFromFileURI(file.getLocationURI());
 				isFileSelected = true;
+			} else if ((treeSelection.getFirstElement() != null) &&
+				       (treeSelection.getFirstElement() instanceof IProject)) {
+				project = (IProject)treeSelection.getFirstElement();
+				selectedObject = project.getName();
+				selectedObjectPath = RttMbtClient.getAbsolutePathFromFileURI(project.getLocationURI());
+				isFolderSelected = true;
 			}
 		}
-		if ((selectedObject == null) ||
+		// check for invalid selection
+		if ((project == null) ||
+			(selectedObject == null) ||
 			(selectedObjectPath == null)) {
 			setAllKeysFlase();
 			return;
 		}
+
+		// set project specific properties
+		String value = RttMbtProjectPropertiesPage.getPropertyValue(project, "RttMbtrttProjectDatabase");
+		if (value != null) {
+			client.setProjectDatabaseName(value);
+		}
+		value = RttMbtProjectPropertiesPage.getPropertyValue(project, "RttMbtRttTprocPrefix");
+		if ((value != null) && (value.length() > 0)) {
+			client.setRttMbtTestProcFolderName(value);
+		} else {
+			client.setRttMbtTestProcFolderName(Activator.getPreferenceValue("RttMbtRttTprocPrefix"));
+		}
+		value = RttMbtProjectPropertiesPage.getPropertyValue(project, "RttMbtTProcGenCtx");
+		if ((value != null) && (value.length() > 0)) {
+			client.setRttMbtTProcGenCtxFolderName(value);
+		} else {
+			client.setRttMbtTProcGenCtxFolderName(Activator.getPreferenceValue("RttMbtTProcGenCtx"));
+		}
+
+		// enable RTT-MBT actions
 		if (isGenerationContextSelected()) {
 			setService(RttMbtCommandState.keyIsGenerationContextTP,RttMbtCommandState.TRUE);
 			setService(RttMbtCommandState.keyIsExecutionContextTP,RttMbtCommandState.FALSE);
 			setService(RttMbtCommandState.keyIsModelDumpSelected, RttMbtCommandState.FALSE);
+			setService(RttMbtCommandState.keyIsMakefileSelected, RttMbtCommandState.FALSE);
 			setService(RttMbtCommandState.keyIsRttMbtProjectSelected, RttMbtCommandState.FALSE);
 		} else if (isExecutionContextSelected()) {
 			setService(RttMbtCommandState.keyIsExecutionContextTP,RttMbtCommandState.TRUE);
 			setService(RttMbtCommandState.keyIsGenerationContextTP,RttMbtCommandState.FALSE);
 			setService(RttMbtCommandState.keyIsModelDumpSelected, RttMbtCommandState.FALSE);
+			setService(RttMbtCommandState.keyIsMakefileSelected, RttMbtCommandState.FALSE);
 			setService(RttMbtCommandState.keyIsRttMbtProjectSelected, RttMbtCommandState.FALSE);
 		} else if (isModelDumpSelected()) {
 			setService(RttMbtCommandState.keyIsModelDumpSelected, RttMbtCommandState.TRUE);
 			setService(RttMbtCommandState.keyIsGenerationContextTP, RttMbtCommandState.FALSE);
 			setService(RttMbtCommandState.keyIsExecutionContextTP, RttMbtCommandState.FALSE);
+			setService(RttMbtCommandState.keyIsMakefileSelected, RttMbtCommandState.FALSE);
 			setService(RttMbtCommandState.keyIsRttMbtProjectSelected, RttMbtCommandState.FALSE);
 		} else if (isRttMbtProjectSelected()) {
 			setService(RttMbtCommandState.keyIsRttMbtProjectSelected, RttMbtCommandState.TRUE);
 			setService(RttMbtCommandState.keyIsGenerationContextTP, RttMbtCommandState.FALSE);
 			setService(RttMbtCommandState.keyIsExecutionContextTP, RttMbtCommandState.FALSE);
 			setService(RttMbtCommandState.keyIsModelDumpSelected, RttMbtCommandState.FALSE);
+			setService(RttMbtCommandState.keyIsMakefileSelected, RttMbtCommandState.FALSE);
+		} else if (isMakefileSelected()) {
+			setService(RttMbtCommandState.keyIsMakefileSelected, RttMbtCommandState.TRUE);
+			setService(RttMbtCommandState.keyIsGenerationContextTP, RttMbtCommandState.FALSE);
+			setService(RttMbtCommandState.keyIsExecutionContextTP, RttMbtCommandState.FALSE);
+			setService(RttMbtCommandState.keyIsModelDumpSelected, RttMbtCommandState.FALSE);
+			setService(RttMbtCommandState.keyIsRttMbtProjectSelected, RttMbtCommandState.FALSE);
 		} else {
 			setAllKeysFlase();
 		}
@@ -122,7 +173,31 @@ public class RttMbtProjectExplorer extends org.eclipse.ui.navigator.CommonNaviga
 		commandStateService.setValue(key,value);    	
     }
     
-	// check if the selected item is a test procedure generation context
+    private Boolean hasModelSubdirectory() {
+    	// check if the selected object is a directory
+    	File thisFolder = new File(selectedObjectPath);
+    	if (!thisFolder.isDirectory()) {
+    		return false;
+    	}
+
+    	// search for child folder "model"
+		File[] files = thisFolder.listFiles();
+		if (files == null) {
+			return false;
+		}
+		for (int i = 0; i < files.length; i++) {
+			if (files[i].isDirectory()) {
+				if (files[i].getName().compareTo("model") == 0) {
+					return true;
+				}
+			}
+		}
+
+		// if no sub folder "model" was found: return false
+    	return false;
+    }
+
+    // check if the selected item is a test procedure generation context
     public Boolean isGenerationContextSelected() {
 		if (selectedObjectPath == null) {
 			return false;
@@ -163,35 +238,26 @@ public class RttMbtProjectExplorer extends org.eclipse.ui.navigator.CommonNaviga
 		return selectedObject.compareTo("model_dump.xml") == 0;
 	}
 
+	public Boolean isMakefileSelected() {
+		if (selectedObject == null) {
+			return false;
+		}
+		return selectedObject.startsWith("Makefile");
+	}
+
 	public Boolean isRttMbtProjectSelected() {
 		if (selectedObjectPath == null) {
 			return false;
 		}
 
-		// calculate CML project name from selectedObjectPath
-		String current = selectedObjectPath.substring(1, selectedObjectPath.length());
-		int pos = current.indexOf(File.separator);
-		String cmlProject;
-		if (pos > -1) {
-			cmlProject = current.substring(0, pos);
-		} else {
-			pos = current.indexOf('/');
-			if (pos == -1) {
-				// no RttMbt project selected
-				return false;
-			} else {
-				cmlProject = current.substring(0, pos);
-			}
+		if (RttMbtClient.isRttMbtProject(selectedObjectPath)) {
+			return true;
 		}
-		// calculate RTT-MBT project name from selected folder
-		current = current.substring(pos + 1, current.length());
-		pos = current.indexOf(File.separator);
-		if (pos == -1) pos = current.indexOf('/');
-		if (pos == -1) pos = current.length();
-		String rttProject = current.substring(0,pos);
+		// check if the selected directory has a sub directory "model"
+		if (!hasModelSubdirectory()) {
+			return false;
+		}
 
-		// check if rtt-mbt project is selected
-		String rttProjectPath = "/" + cmlProject + "/" + rttProject;
-		return selectedObjectPath.compareTo(rttProjectPath) == 0;
+		return false;
 	}
 }

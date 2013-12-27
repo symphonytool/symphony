@@ -23,7 +23,7 @@ public class RttMbtGenerateTest extends RttMbtAbstractTestProcedureAction  {
 		}
 
 		// get RttMbtClient for this action
-		if (!initClient(selectedObjectPath)) {
+		if (!initClient()) {
 			client.addErrorMessage("[FAIL]: generate test procedure: init of RTT-MBT client failed!");
 			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 			return null;
@@ -42,9 +42,9 @@ public class RttMbtGenerateTest extends RttMbtAbstractTestProcedureAction  {
 		Job job = new Job("Generate Test Procedure") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
-				client.addLogMessage("generating test procedure " + selectedObject + "... please wait for the task to be finished.");
+				client.addLogMessage("generating test procedure " + selectedObjectName + "... please wait for the task to be finished.");
 				// generate concrete test procedure
-				if (client.generateTestProcedure(selectedObject)) {
+				if (client.generateTestProcedure(selectedObjectName)) {
 					client.addLogMessage("[PASS]: generate test procedure");
 					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 				} else {

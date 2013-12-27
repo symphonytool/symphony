@@ -1,5 +1,6 @@
 package eu.compassresearch.core.analysis.modelchecker.visitors;
 
+
 import java.io.File;
 import java.io.IOException;
 import java.util.LinkedList;
@@ -12,8 +13,10 @@ import org.overture.ast.expressions.SBinaryExp;
 import org.overture.ast.expressions.SSeqExp;
 import org.overture.ast.expressions.SSetExp;
 import org.overture.ast.node.INode;
-import org.overture.ast.patterns.AIdentifierPattern;
+import org.overture.ast.patterns.PBind;
+import org.overture.ast.patterns.PMultipleBind;
 import org.overture.ast.patterns.PPattern;
+import org.overture.ast.patterns.PPatternBind;
 import org.overture.ast.statements.PStateDesignator;
 import org.overture.ast.statements.PStm;
 import org.overture.ast.types.PType;
@@ -34,6 +37,9 @@ import eu.compassresearch.ast.statements.PCMLStateDesignator;
 import eu.compassresearch.core.analysis.modelchecker.ast.MCNode;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.FormulaSpecification;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAProcessDefinition;
+import eu.compassresearch.core.typechecker.VanillaFactory;
+import eu.compassresearch.core.typechecker.api.ICmlTypeChecker;
+import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 
 /**
  * The main MC visitor. It obtains other visitors from a factory.
@@ -87,7 +93,6 @@ public class NewMCVisitor extends
 	@Override
 	public MCNode defaultINode(INode node,
 			NewCMLModelcheckerContext question) throws AnalysisException {
-		
 		
 		return  node.apply(emptyVisitor, question);
 	}
@@ -164,12 +169,14 @@ public class NewMCVisitor extends
 		return node.apply(this.typeAndValueVisitor, question);
 	}
 	
+	
 	@Override
 	public MCNode defaultPStateDesignator(
 			PStateDesignator node, NewCMLModelcheckerContext question) throws AnalysisException
 	{
-		return node.apply(emptyVisitor, question);
+		return node.apply(stmVisitor, question);
 	}
+	
 	
 	@Override
 	public MCNode defaultSNumericBasicType(SNumericBasicType node,
@@ -211,6 +218,30 @@ public class NewMCVisitor extends
 		
 		return node.apply(stmVisitor, question);
 	}
+	
+	
+	@Override
+	public MCNode defaultPPatternBind(PPatternBind node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		
+		return node.apply(paramAndPatternVisitor, question);
+	}
+	
+	
+	
+	@Override
+	public MCNode defaultPMultipleBind(PMultipleBind node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		
+		return node.apply(paramAndPatternVisitor, question);
+	}
+	
+	@Override
+	public MCNode defaultPBind(PBind node, NewCMLModelcheckerContext question)
+			throws AnalysisException {
+		
+		return node.apply(paramAndPatternVisitor, question);
+	}
 	/*
 	 *
 	
@@ -234,7 +265,8 @@ public class NewMCVisitor extends
 		for (PSource source : sources) {
 			if(source instanceof AFileSource){
 				//System.out.println("Analysing file: " + ((AFileSource) source).getName());
-				String currentScriptContent = this.generateFormulaScript(source.getParagraphs(), propertyToCheck);
+				
+				String currentScriptContent = this.generateFormulaScript(source.getParagraphs(), propertyToCheck, null);
 				NameContent element = new NameContent(((AFileSource) source).getName(), currentScriptContent);
 				codes.add(element);
 			}
@@ -247,37 +279,32 @@ public class NewMCVisitor extends
 		MCAProcessDefinition result = null;
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 		
-		//for the moment we assume that only process is defined in a cml file 
-		result = context.processDefinitions.getFirst();
+		String mainProcessName = "OneCard";
+
+		if(context.processDefinitions.size() > 1){
+			for (MCAProcessDefinition proc : context.processDefinitions) {
+				if(proc.getName().startsWith(mainProcessName)){
+					result = proc;
+				}
+			}
+		}else{
+			result = context.processDefinitions.get(0);
+		}
+		
 		
 		return result;
 	}
 	
-	private MCAProcessDefinition findMainProcessDefinition(String mainProcessName){
-		MCAProcessDefinition result = null;
-		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
-		for (MCAProcessDefinition pDefinition : context.processDefinitions) {
-				if(pDefinition.getName().equals(mainProcessName)){
-					result = pDefinition;
-					break;
-				}
-			
-		}
-		return result;
-	}
-	
-	
-	public String generateFormulaScript(List<PDefinition> definitions, String propertyToCheck) throws IOException, AnalysisException{
+	public String generateFormulaScript(List<PDefinition> definitions, String propertyToCheck, String mainProcessName) throws IOException, AnalysisException{
 		
 		NewCMLModelcheckerContext.resetInstance();
 		NewCMLModelcheckerContext context = NewCMLModelcheckerContext.getInstance();
 		context.propertyToCheck = propertyToCheck;
-
+		context.mainProcessName = mainProcessName;
+		
 		for (PDefinition paragraph : definitions) {
 			paragraph.apply(this, context);
 		}
-		
-		context.mainProcess = this.getMainProcess();
 		
 		String script = this.formulaSpecification.buildFormulaScript();
 		
@@ -307,11 +334,32 @@ public class NewMCVisitor extends
 			files = folder.listFiles();
 		}
 		
-		String cml_file = "src/test/resources/minimondex-incomplete.cml";
-		System.out.println("Testing on " + cml_file);
+		//String cml_file = "src/test/resources/simpler-BeoAVDeviceDiscovery.cml";
+		String cml_file = "src/test/resources/newInsielImpl.cml";
+		//String cml_file = "src/test/resources/minimondex-incomplete.cml.nok";
+		//String cml_file = "src/test/resources/simpler-minimondex.cml";
+		//String cml_file = "src/test/resources/set-manipulation.cml";
+		//String cml_file = "src/test/resources/action-prefix-stop.cml";
+		
+		//String cml_file = "src/test/resources/simpler-register.cml";
+		//String cml_file = "src/test/resources/action-prefix-skip.cml";
+		//System.out.println("Testing on " + cml_file);
 		PSource source1 = Utilities.makeSourceFromFile(cml_file);
+		// Type check
+		ITypeIssueHandler errors = VanillaFactory.newCollectingIssueHandle();
+		ICmlTypeChecker cmlTC = VanillaFactory.newTypeChecker(source1.getParagraphs(), errors);
+		
+		/*
+		if(!cmlTC.typeCheck()){
+			System.out.println("There are typecheck errors.");
+			return;
+		}
+		*/
+		
 		NewMCVisitor visitor1 = new NewMCVisitor(source1);
-		String formulaCode = visitor1.generateFormulaScript(source1.getParagraphs(),Utilities.DEADLOCK_PROPERTY);
+		String mainProcessName = "Test_TurnOnProduct";
+		
+		String formulaCode = visitor1.generateFormulaScript(source1.getParagraphs(),Utilities.DEADLOCK_PROPERTY,mainProcessName);
 		//String[] codes1 = visitor1.generateFormulaCodeForAll(Utilities.DEADLOCK_PROPERTY);
 		//for (int j = 0; j < codes1.length; j++) {
 		//	System.out.println(codes1[j]);

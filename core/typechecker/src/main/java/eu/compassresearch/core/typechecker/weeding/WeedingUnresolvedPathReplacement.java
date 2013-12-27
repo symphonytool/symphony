@@ -53,6 +53,19 @@ public class WeedingUnresolvedPathReplacement extends
 		{
 		}
 	}
+	
+
+	public static void apply(List<SClassDefinition> globalClasses, INode node)
+	{
+
+		WeedingUnresolvedPathReplacement lv = new WeedingUnresolvedPathReplacement(globalClasses);
+		try
+		{
+			node.apply(lv);
+		} catch (AnalysisException e)
+		{
+		}
+	}
 
 	private List<SClassDefinition> globalClasses;
 
@@ -129,7 +142,7 @@ public class WeedingUnresolvedPathReplacement extends
 			ILexLocation location = id.getLocation();
 			LexLocation loc = new LexLocation(location.getFile(), id.getName(), location.getStartLine(), location.getStartPos(), location.getEndLine(), location.getEndPos(), location.getStartOffset(), location.getEndOffset());
 
-			ILexNameToken name = new CmlLexNameToken(module, id.getName(), loc, false, isExplicit);
+			ILexNameToken name = new CmlLexNameToken(module, id.getName(), loc, id.getOld(), isExplicit);
 
 			exp = AstFactory.newAVariableExp(name);
 

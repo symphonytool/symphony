@@ -36,33 +36,26 @@ public class SplashHandler extends BasicSplashHandler
     {
         super.init(splash);
 
-        int foregroundColorInteger;
-
-        foregroundColorInteger = 0xFFFFFF;
+        int foregroundColorInteger = 0xFFFFFF;
         setForeground(new RGB((foregroundColorInteger & 0xFF0000) >> 16,
                               (foregroundColorInteger & 0xFF00) >> 8,
                               foregroundColorInteger & 0xFF));
 
-        final Point buildIdPoint = new Point(76, 200);
+        final Point buildIdPoint = new Point(12, 218);
 
-        final String productVersion = "Version " + Platform.getResourceString(Activator.getDefault().getBundle(), "%productVersion");
-        final String productBuild = Platform.getResourceString(Activator.getDefault().getBundle(), "%productBuild");
+        final Activator activator = Activator.getDefault();
+        final String buildIdString = "Version "
+        		+ Platform.getResourceString(activator.getBundle(), "%productVersion")
+        		+ "\n"
+        		+ Platform.getResourceString(activator.getBundle(), "%productBuild");
 
         getContent().addPaintListener(new PaintListener()
             {
                 public void paintControl(PaintEvent e)
                 {
                     e.gc.setForeground(getForeground());
-                    e.gc.drawText(productVersion, buildIdPoint.x, buildIdPoint.y, true);
-                    e.gc.drawText(productBuild, buildIdPoint.x, buildIdPoint.y+16, true);
+                    e.gc.drawText(buildIdString, buildIdPoint.x, buildIdPoint.y, true);
                 }
             });
     }
-
-    @Override
-    public void dispose()
-    {
-        super.dispose();
-    }
-
 }

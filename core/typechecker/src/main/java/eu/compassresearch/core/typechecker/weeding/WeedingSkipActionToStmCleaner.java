@@ -17,7 +17,6 @@ import eu.compassresearch.core.typechecker.DefinitionList;
 /**
  * @author kel & cb
  */
-@SuppressWarnings("serial")
 public class WeedingSkipActionToStmCleaner extends DepthFirstAnalysisCMLAdaptor
 {
 

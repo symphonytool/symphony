@@ -35,7 +35,9 @@ class CmlBehaviourUtility
 		for (CmlBehaviour child : process.children())
 		{
 			if (child.finished())
+			{
 				return true;
+			}
 		}
 
 		return false;
@@ -51,12 +53,15 @@ class CmlBehaviourUtility
 		// We should never copy more than the ObjectContext so If from is a
 		// ObjectContext then we stop and point to the old outer
 		if (from instanceof ObjectContext)
+		{
 			// TODO is shallow copy good enough here??? this must be investigated
 			result = CmlContextFactory.newObjectContext(from.location, from.title, from.outer, from.getSelf().shallowCopy());
-		// If not a ObjectContext and then we continue to copy
-		// NB this should never from.outer should never be null
-		else
+			// If not a ObjectContext and then we continue to copy
+			// NB this should never from.outer should never be null
+		} else
+		{
 			result = new Context(from.assistantFactory, from.location, from.title, deepCopyProcessContext(from.outer));
+		}
 
 		result.threadState = from.threadState;
 
@@ -82,7 +87,9 @@ class CmlBehaviourUtility
 		{
 			Value val = entry.getValue();
 			if (val instanceof UpdatableValue)
-				currentRoot.check(entry.getKey()).set(dst.location, entry.getValue(), dst);
+			{
+				currentRoot.check(entry.getKey()).set(dst.location, entry.getValue().deref(), dst);
+			}
 		}
 
 		// now we collect all the context below the RootContext for both the copy and the current
@@ -125,13 +132,18 @@ class CmlBehaviourUtility
 				// FIXME this should not be created like that a more general solution to this must
 				// be made. Eg. a method call that can clone the context with a new outer pointer
 				if (iCopy instanceof ClassContext)
+				{
 					throw new InterpreterRuntimeException("Not yet implemented!");
-				else if (iCopy instanceof ObjectContext)
+				} else if (iCopy instanceof ObjectContext)
+				{
 					newCurrent = CmlContextFactory.newObjectContext(iCopy.location, iCopy.title, newCurrent, iCopy.getSelf());
-				else if (iCopy instanceof StateContext)
+				} else if (iCopy instanceof StateContext)
+				{
 					throw new InterpreterRuntimeException("Trying to merge a StateContext, this should never happen!");
-				else
+				} else
+				{
 					newCurrent = CmlContextFactory.newContext(iCopy.location, iCopy.title, newCurrent);
+				}
 
 				for (Entry<ILexNameToken, Value> entry : iCopy.entrySet())
 				{

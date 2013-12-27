@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testResult>
+  <exception/>
+  <interpreterState>FINISHED</interpreterState>
+  <trace>
+  	<events>on\.0,on\.1,on\.2,on\.0,i</events>
+  </trace>
+</testResult>

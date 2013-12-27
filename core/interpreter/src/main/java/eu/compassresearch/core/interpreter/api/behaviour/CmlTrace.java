@@ -31,9 +31,12 @@ public class CmlTrace
 	public CmlTransition getLastTransition()
 	{
 		if (trace.size() > 0)
+		{
 			return trace.get(trace.size() - 1);
-		else
+		} else
+		{
 			return null;
+		}
 	}
 
 	@Override
@@ -46,7 +49,9 @@ public class CmlTrace
 		{
 			strbuilder.append(iterator.next());
 			if (iterator.hasNext())
+			{
 				strbuilder.append(",");
+			}
 		}
 		strbuilder.append(">");
 
@@ -66,7 +71,9 @@ public class CmlTrace
 		{
 			if (e instanceof LabelledTransition
 					&& e instanceof ObservableTransition)
+			{
 				visibleEvents.add(e);
+			}
 		}
 
 		return visibleEvents;
@@ -79,7 +86,9 @@ public class CmlTrace
 		for (CmlTransition e : trace)
 		{
 			if (e instanceof ObservableTransition)
+			{
 				visibleEvents.add(e);
+			}
 		}
 
 		return visibleEvents;
@@ -89,7 +98,9 @@ public class CmlTrace
 	{
 
 		if (!(obj instanceof CmlTrace))
+		{
 			return false;
+		}
 
 		CmlTrace otherTraceObj = (CmlTrace) obj;
 

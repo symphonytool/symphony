@@ -1,34 +1,17 @@
 package eu.compassresearch.core.interpreter.api;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
-
-import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.expressions.PExp;
-import org.overture.ast.lex.Dialect;
-import org.overture.ast.types.PType;
-import org.overture.interpreter.runtime.Context;
-import org.overture.interpreter.runtime.Interpreter;
-import org.overture.interpreter.runtime.VdmRuntime;
-import org.overture.interpreter.values.Value;
-import org.overture.parser.lex.LexTokenReader;
-import org.overture.parser.syntax.ExpressionReader;
-import org.overture.typechecker.TypeComparator;
 
 import eu.compassresearch.core.interpreter.Console;
 import eu.compassresearch.core.interpreter.api.transitions.AbstractSilentTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransitionSet;
 import eu.compassresearch.core.interpreter.api.transitions.LabelledTransition;
-import eu.compassresearch.core.interpreter.api.values.AbstractValueInterpreter;
-import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
 import eu.compassresearch.core.interpreter.debug.CmlDebugger;
-import eu.compassresearch.core.interpreter.utility.ValueParser;
 
 public class ConsoleSelectionStrategy implements SelectionStrategy
 {
@@ -56,12 +39,15 @@ public class ConsoleSelectionStrategy implements SelectionStrategy
 		int count = 0;
 
 		for (AbstractSilentTransition st : silentTransitions)
+		{
 			count = st.getEventSources().iterator().next().isDivergent() ? count + 1
 					: count;
+		}
 
 		return silentTransitions.size() > count;
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private CmlTransition systemSelect(CmlTransitionSet availableChannelEvents)
 	{
 		rndSelect.choices(new CmlTransitionSet((Set) availableChannelEvents.getSilentTransitionsAsSet()));
@@ -85,9 +71,25 @@ public class ConsoleSelectionStrategy implements SelectionStrategy
 		while (choiceNumber < 0 || choiceNumber >= events.size())
 		{
 			printTransitions(events);
-			choiceNumber = scanIn.nextInt();
+			boolean retry = false;
+			try
+			{
+				choiceNumber = scanIn.nextInt();
+			} catch (InputMismatchException e)
+			{
+				scanIn.next();
+				retry = true;
+			}
 			if (choiceNumber < 0 || choiceNumber >= events.size())
+			{
+				retry = true;
+			}
+
+			if (retry)
+			{
+				choiceNumber = -1;
 				System.out.println("Please try again!");
+			}
 		}
 
 		CmlTransition chosenEvent = events.get(choiceNumber);
@@ -100,8 +102,6 @@ public class ConsoleSelectionStrategy implements SelectionStrategy
 
 		return chosenEvent;
 	}
-
-	
 
 	public boolean isHideSilentTransitions()
 	{
@@ -142,7 +142,7 @@ public class ConsoleSelectionStrategy implements SelectionStrategy
 	public void initialize(CmlInterpreter interpreter, CmlDebugger debugger)
 	{
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

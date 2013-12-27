@@ -1,11 +1,12 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.definitions;
 
 import org.overture.ast.definitions.ALocalDefinition;
+import org.overture.ast.definitions.PDefinitionBase;
 
 import eu.compassresearch.core.analysis.modelchecker.ast.declarations.MCPSingleDeclaration;
 import eu.compassresearch.core.analysis.modelchecker.ast.types.MCPCMLType;
 
-public class MCALocalDefinition implements MCPSingleDeclaration {
+public class MCALocalDefinition implements MCPCMLDefinition {
 
 	private String name;
 	private MCPCMLType type;
@@ -23,8 +24,18 @@ public class MCALocalDefinition implements MCPSingleDeclaration {
 		return null;
 	}
 
-
 	
+	
+
+	@Override
+	public boolean equals(Object obj) {
+		boolean result = false;
+		if(obj instanceof MCALocalDefinition){
+			result = this.name.equals(((MCALocalDefinition) obj).getName());
+		}
+		return result;
+	}
+
 
 	public String getName() {
 		return name;
