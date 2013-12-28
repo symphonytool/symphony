@@ -4,11 +4,14 @@ import org.eclipse.ecf.core.util.ECFException;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Display;
 
+import eu.compassresearch.ide.collaboration.Activator;
 import eu.compassresearch.ide.collaboration.communication.MessageProcessor;
 import eu.compassresearch.ide.collaboration.communication.messages.CollaborationRequest;
 import eu.compassresearch.ide.collaboration.communication.messages.CollaborationStatusMessage;
+import eu.compassresearch.ide.collaboration.datamodel.CollaborationDataModelManager;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationDataModelRoot;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationGroup;
+import eu.compassresearch.ide.collaboration.datamodel.CollaborationProject;
 import eu.compassresearch.ide.collaboration.datamodel.User;
 import eu.compassresearch.ide.collaboration.ui.menu.CollaborationDialogs;
 import eu.compassresearch.ide.collaboration.ui.menu.CollaborationRequestedDialog;
@@ -26,6 +29,7 @@ public class CollaborationRequestHandler extends BaseMessageHandler<Collaboratio
 	public void process(final CollaborationRequest msg)
 	{
 		final String senderName = msg.getSenderID().getName();
+		final String collabProjectId = msg.getProjectID();
 		
 		Display.getDefault().asyncExec(new Runnable()
 		{
@@ -38,18 +42,18 @@ public class CollaborationRequestHandler extends BaseMessageHandler<Collaboratio
 					boolean join = collabRequestedDialog.open() == Window.OK; 
 					
 					if(join) {
-						CollaborationView collabview = CollaborationDialogs.getCollaborationView();
+						CollaborationDataModelManager modelMgm = Activator.getDefault().getDataModelManager();
+						CollaborationDataModelRoot root = modelMgm.getDataModel();
 						
-						CollaborationDataModelRoot root = collabview.getDataModel();
+						root.addCollaborationProject(new CollaborationProject(collabRequestedDialog.getProject(), msg.getTitle(), msg.getMessage(), collabProjectId));
 						
 						CollaborationGroup collabGrp = (CollaborationGroup) root.getCollaborationProjects().get(0).getCollaboratorGroup();
 						User usr = new User(senderName);
-						collabGrp.addCollaborator(usr);
-						
-						//project = collabRequestedDialog.getProject();	
+						collabGrp.addCollaborator(usr);	
 					}
 					
-					CollaborationStatusMessage statusMsg = new CollaborationStatusMessage(msg.getReceiverID(), msg.getSenderID(), join);
+					//send reply
+					CollaborationStatusMessage statusMsg = new CollaborationStatusMessage(msg.getReceiverID(), msg.getSenderID(), msg.getProjectID(), join);
 					messageProcessor.sendMessage(statusMsg.getReceiverID(), statusMsg.serialize());
 					
 				} catch (ECFException e)

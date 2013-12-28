@@ -8,7 +8,6 @@ import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.MenuManager;
-import org.eclipse.jface.action.Separator;
 
 import eu.compassresearch.ide.collaboration.notifications.Notification;
 
@@ -52,6 +51,7 @@ public class AddCollaboratorRosterMenuContributionItem extends
 			notConnected.setEnabled(false);
 			notConnected.setImageDescriptor(getTopMenuImageDescriptor());
 			menuManager.add(new ActionContributionItem(notConnected));
+			
 		} else {
 			
 			//if only one connected account, create simpler menu

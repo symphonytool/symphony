@@ -22,12 +22,13 @@ public class CollaborationDataModelRoot extends Model {
 	
 	public boolean addCollaborationProject(CollaborationProject project) {
 		
-		 String title = project.getTitle();
+		 String id = project.getUniqueID();
 		
-		if(collaborationProjects.containsKey(title)){
+		if(collaborationProjects.containsKey(id)){
 			return false;
 		} else {
-			collaborationProjects.put(project.getTitle(), project);
+			collaborationProjects.put(id, project);
+			project.addListener(listener);
 			fireObjectAddedEvent(project);
 			
 			return true;

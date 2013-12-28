@@ -1,42 +1,37 @@
 package eu.compassresearch.ide.collaboration.ui.menu;
 
-import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-import eu.compassresearch.ide.collaboration.CollaborationPluginUtils;
+import eu.compassresearch.ide.collaboration.notifications.Notification;
 
 public class CollaborationRequestDialog extends TitleAreaDialog
 {
 	private Text txtTitle;
 	private Text txtDescription;
-	private List listProject;
 
 	private String receiver;
 	private String title;
 	private String description;
-	private String project;
 
-	public CollaborationRequestDialog(String receiverName, Shell parentShell)
+	public CollaborationRequestDialog(String projectTitle, String receiverName, Shell parentShell)
 	{
 		super(parentShell);
 		receiver = receiverName;
-
+		title = projectTitle;
+		
 		this.setHelpAvailable(false);
 	}
 
@@ -44,8 +39,8 @@ public class CollaborationRequestDialog extends TitleAreaDialog
 	public void create()
 	{
 		super.create();
-		setTitle("Send collaboration request");
-		setMessage("Send to: " + receiver, IMessageProvider.NONE);
+		setTitle(Notification.Collab_Dialog_COLLAB_REQUEST_TITLE);
+		setMessage(Notification.Collab_Dialog_COLLAB_REQUEST_MSG + " " + receiver, IMessageProvider.NONE);
 	}
 
 	@Override
@@ -67,16 +62,8 @@ public class CollaborationRequestDialog extends TitleAreaDialog
 
 		txtTitle = new Text(container, SWT.BORDER);
 		txtTitle.setLayoutData(gdTitle);
-
-		txtTitle.addModifyListener(new ModifyListener()
-		{
-			@Override
-			public void modifyText(ModifyEvent arg0)
-			{
-				validate();
-			}
-		});
-		
+		txtTitle.setText(title);
+		txtTitle.setEnabled(false);
 		
 		Label lbtMessage = new Label(container, SWT.NONE);
 		lbtMessage.setText("Message");
@@ -87,30 +74,17 @@ public class CollaborationRequestDialog extends TitleAreaDialog
 		gdDescription.horizontalAlignment = GridData.FILL;
 		txtDescription = new Text(container, SWT.BORDER | SWT.MULTI);
 		gdDescription.heightHint = 5 * txtDescription.getLineHeight();
-		txtDescription.setLayoutData(gdDescription);
+		txtDescription.setLayoutData(gdDescription);;
 
-		Label lblTxtProject = new Label(container, SWT.NONE);
-		lblTxtProject.setText("Attach collaborative work \nto this project:");
-
-		GridData gdProject = new GridData();
-		gdProject.grabExcessHorizontalSpace = true;
-		gdProject.horizontalAlignment = GridData.FILL;
-		listProject = new List(container, SWT.BORDER | SWT.V_SCROLL);
-		listProject.setLayoutData(gdProject);
-
-		for (IProject project : CollaborationPluginUtils.getProjectsInWorkbench())
+		txtDescription.addModifyListener(new ModifyListener()
 		{
-			listProject.add(project.getName());
-		}
-
-		listProject.addSelectionListener(new SelectionAdapter()
-		{
-			public void widgetSelected(SelectionEvent e)
+			@Override
+			public void modifyText(ModifyEvent arg0)
 			{
 				validate();
 			}
 		});
-
+		
 		return area;
 	}
 
@@ -118,48 +92,34 @@ public class CollaborationRequestDialog extends TitleAreaDialog
 	{
 		Button okButton = getButton(IDialogConstants.OK_ID);
 
-		if (txtTitle.getText().isEmpty())
+		if (txtDescription.getText().isEmpty())
 		{
-			setErrorMessage("Please enter a title");
+			setErrorMessage("Please enter a description");
+			okButton.setEnabled(false);
 		} else {
 			setErrorMessage(null);
-			
-			if(listProject.getSelectionCount() != 0){
-				okButton.setEnabled(true);
-			}
+			okButton.setEnabled(true);
 		}
 	}
 
 	@Override
 	protected void createButtonsForButtonBar(Composite parent)
 	{
-		createButton(parent, IDialogConstants.OK_ID, "Send", true);
-		createButton(parent, IDialogConstants.CANCEL_ID, "Cancel", true);
+		createButton(parent, IDialogConstants.OK_ID, Notification.Collab_Dialog_BTN_Send, true);
+		createButton(parent, IDialogConstants.CANCEL_ID, Notification.Collab_Dialog_BTN_CANCEL, true);
 		getButton(IDialogConstants.OK_ID).setEnabled(false);
 	}
 
 	@Override
 	protected void okPressed()
 	{
-		title = txtTitle.getText();
 		description = txtDescription.getText();
-		project = listProject.getSelection()[0];
 
 		super.okPressed();
-	}
-
-	public String getTitle()
-	{
-		return title;
 	}
 
 	public String getDescription()
 	{
 		return description;
-	}
-
-	public String getProject()
-	{
-		return project;
 	}
 }

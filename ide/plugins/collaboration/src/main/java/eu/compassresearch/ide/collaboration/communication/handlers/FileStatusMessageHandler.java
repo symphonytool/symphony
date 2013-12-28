@@ -2,9 +2,11 @@ package eu.compassresearch.ide.collaboration.communication.handlers;
 
 import org.eclipse.swt.widgets.Display;
 
+import eu.compassresearch.ide.collaboration.Activator;
 import eu.compassresearch.ide.collaboration.communication.MessageProcessor;
 import eu.compassresearch.ide.collaboration.communication.messages.FileStatusMessage;
 import eu.compassresearch.ide.collaboration.communication.messages.FileStatusMessage.NegotiationStatus;
+import eu.compassresearch.ide.collaboration.datamodel.CollaborationDataModelManager;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationDataModelRoot;
 import eu.compassresearch.ide.collaboration.datamodel.Contract;
 import eu.compassresearch.ide.collaboration.datamodel.Contracts;
@@ -34,9 +36,8 @@ public class FileStatusMessageHandler extends BaseMessageHandler<FileStatusMessa
 					if(status == NegotiationStatus.RECEIVED) {
 					//MessageDialog.openInformation(null, "File received", statusMsg.getSenderID().getName() + " received " + statusMsg.getFilename());
 					
-					final CollaborationView collabview = CollaborationDialogs.getCollaborationView();
-
-					CollaborationDataModelRoot root = collabview.getDataModel();
+					CollaborationDataModelManager modelMgm = Activator.getDefault().getDataModelManager();
+					CollaborationDataModelRoot root = modelMgm.getDataModel();
 
 					String senderName = statusMsg.getSenderID().getName();
 					Contracts contracts = root.getCollaborationProjects().get(0).getContracts();
@@ -60,9 +61,10 @@ public class FileStatusMessageHandler extends BaseMessageHandler<FileStatusMessa
 					
 					} else if (status == NegotiationStatus.ACCEPT || status == NegotiationStatus.REJECT) {
 						
-						final CollaborationView collabview = CollaborationDialogs.getCollaborationView();
+						CollaborationDataModelManager modelMgm = Activator.getDefault().getDataModelManager();
+						CollaborationDataModelRoot root = modelMgm.getDataModel();
 						
-						Contracts cs = (Contracts) collabview.getDataModel().getCollaborationProjects().get(0).getContracts();
+						Contracts cs = (Contracts) root.getCollaborationProjects().get(0).getContracts();
 						Contract c = (Contract) cs.getContracts().get(0);
 						c.setStatus(status);
 					}

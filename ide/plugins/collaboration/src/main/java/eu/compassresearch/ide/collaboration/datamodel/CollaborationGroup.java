@@ -55,4 +55,9 @@ public class CollaborationGroup extends Model {
 	public void accept(IModelVisitor visitor, Object passAlongArgument) {
 		//visitor.visitContracts(this, passAlongArgument);
 	}
+
+	public boolean hasCollaborator(String name)
+	{
+		return collaborators.containsKey(name);
+	}
 }

@@ -10,6 +10,9 @@ import eu.compassresearch.ide.collaboration.Activator;
 public class Notification extends NLS {
 	private static final String BUNDLE_NAME = "eu.compassresearch.ide.collaboration.notifications.messages";
 
+	public static String Collab_Dialog_COLLAB_REQUEST_ALREADY_ADDED;
+	public static String Collab_Dialog_COLLAB_REQUEST_TITLE;	
+	public static String Collab_Dialog_COLLAB_REQUEST_MSG;
 	public static String CollabMenuRosterMenuHandler_ERROR_NOT_CONNECTED;
 	public static String CollabRosterMenuContributionItem_MAIN_MENU;
 	public static String CollabRosterMenuContributionItem_ADD_COLLABORATOR_MENU;

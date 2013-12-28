@@ -8,9 +8,9 @@ public class CollaborationStatusMessage extends BaseMessage
 	
 	boolean join;
 	
-	public CollaborationStatusMessage(IUser sender, IUser receiver, boolean joining)
+	public CollaborationStatusMessage(IUser sender, IUser receiver, String projectID, boolean joining)
 	{
-		super(sender, receiver);
+		super(sender, receiver, projectID);
 		join = joining;
 	}
 	

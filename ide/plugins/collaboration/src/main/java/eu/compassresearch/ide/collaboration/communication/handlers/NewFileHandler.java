@@ -11,10 +11,12 @@ import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 
+import eu.compassresearch.ide.collaboration.Activator;
 import eu.compassresearch.ide.collaboration.communication.MessageProcessor;
 import eu.compassresearch.ide.collaboration.communication.messages.FileStatusMessage;
 import eu.compassresearch.ide.collaboration.communication.messages.FileStatusMessage.NegotiationStatus;
 import eu.compassresearch.ide.collaboration.communication.messages.NewFileMessage;
+import eu.compassresearch.ide.collaboration.datamodel.CollaborationDataModelManager;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationDataModelRoot;
 import eu.compassresearch.ide.collaboration.datamodel.Contract;
 import eu.compassresearch.ide.collaboration.datamodel.Contracts;
@@ -53,7 +55,6 @@ public class NewFileHandler extends BaseMessageHandler<NewFileMessage>
 					{
 						final IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 						final IViewPart view = page.findView("eu.compassresearch.ide.collaboration.treeview.ui.CollaborationView");
-						final CollaborationView collabview = (CollaborationView) view;
 
 //						IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(getProject());
 //						projectFolder = project.getFolder("Collaboration");
@@ -66,7 +67,8 @@ public class NewFileHandler extends BaseMessageHandler<NewFileMessage>
 //						if (!projectFolder.exists())
 //							projectFolder.create(IResource.NONE, true, null);
 						
-						CollaborationDataModelRoot root = collabview.getDataModel();
+						CollaborationDataModelManager modelMgm = Activator.getDefault().getDataModelManager();
+						CollaborationDataModelRoot root = modelMgm.getDataModel();
 						
 						Contracts contracts = (Contracts) root.getCollaborationProjects().get(0).getContracts().getContracts();
 						
@@ -88,8 +90,8 @@ public class NewFileHandler extends BaseMessageHandler<NewFileMessage>
 						
 						//file.create(source, IResource.NONE, null);
 
-						FileStatusMessage statusMsg = new FileStatusMessage(fileMsg.getReceiverID(), fileMsg.getSenderID(), filename, NegotiationStatus.RECEIVED, time);
-						messageProcessor.sendMessage(statusMsg.getReceiverID(), statusMsg.serialize());
+						//FileStatusMessage statusMsg = new FileStatusMessage(fileMsg.getReceiverID(), fileMsg.getSenderID(), filename, NegotiationStatus.RECEIVED, time);
+						//messageProcessor.sendMessage(statusMsg.getReceiverID(), statusMsg.serialize());
 
 						contract.addVersion(new Version(contract.getFilename() + " Version: " + 1
 								+ " Received: " + new Date()));

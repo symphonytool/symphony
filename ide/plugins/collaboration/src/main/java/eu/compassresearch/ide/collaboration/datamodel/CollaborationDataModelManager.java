@@ -18,7 +18,7 @@ public class CollaborationDataModelManager
 		datamodel = new CollaborationDataModelRoot();
 	}
 
-	public CollaborationDataModelRoot getDatamodel()
+	public CollaborationDataModelRoot getDataModel()
 	{
 		return datamodel;
 	}

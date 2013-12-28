@@ -26,13 +26,13 @@ public class CollaborationDialogs
 		return soleInstance;
 	}
 	
-	public static void displayErrorDialog(final String errorMessage) {
+	public static void displayErrorDialog(final String errorMessage, final String reason) {
 		
 		Display.getDefault().asyncExec(new Runnable()
 		{
 			public void run()
 			{
-					ErrorDialog.openError(null, "Message", errorMessage, new Status(IStatus.ERROR, Activator.PLUGIN_ID, errorMessage, null));
+					ErrorDialog.openError(null, "Message", errorMessage, new Status(IStatus.ERROR, Activator.PLUGIN_ID, reason, null));
 			}
 		});
 	}
@@ -57,7 +57,14 @@ public class CollaborationDialogs
 	
 	public NewCollaborationProjectDialog getCollaborationProjectDialog(List<CollaborationProject> collabProjects)
 	{
-		return new NewCollaborationProjectDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), collabProjects);	
+		NewCollaborationProjectDialog collabReqDia = new NewCollaborationProjectDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), collabProjects);
+		collabReqDia.create();
+		
+		return collabReqDia;
+	}
+	
+	public CollaborationRequestDialog getCollaborationRequestDialog(String projectTitle, String receiverName){
+		return new CollaborationRequestDialog(projectTitle, receiverName, null);
 	}
 	
 	public static IWorkbenchWindow getWorkbench()
@@ -68,7 +75,7 @@ public class CollaborationDialogs
 	
 	public static CollaborationView getCollaborationView(){
 		IWorkbenchPage page = getWorkbench().getActivePage();
-		IViewPart view = page.findView("eu.compassresearch.ide.collaboration.treeview.ui.CollaborationView");
+		IViewPart view = page.findView("eu.compassresearch.ide.collaboration.ui.view.CollaborationView");
 		CollaborationView collabview = (CollaborationView) view;
 		
 		return collabview;
@@ -78,7 +85,7 @@ public class CollaborationDialogs
 		IWorkbenchPage page = getWorkbench().getActivePage();
 		try
 		{
-			page.showView("eu.compassresearch.ide.collaboration.treeview.ui.CollaborationView");
+			page.showView("eu.compassresearch.ide.collaboration.ui.view.CollaborationView");
 		} catch (PartInitException e)
 		{
 			// TODO Auto-generated catch block

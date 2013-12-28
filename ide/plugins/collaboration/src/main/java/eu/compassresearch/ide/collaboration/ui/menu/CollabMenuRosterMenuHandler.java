@@ -52,7 +52,7 @@ public class CollabMenuRosterMenuHandler extends AbstractRosterMenuHandler
 			if (container.getConnectedID() == null)
 				Notification.showErrorMessage(Notification.CollabMenuRosterMenuHandler_ERROR_NOT_CONNECTED);
 			
-			MessageProcessor collabMgm = Activator.getDefault().getCollaborationManager(container.getID()); 
+			MessageProcessor collabMgm = Activator.getDefault().getMessageProcessor(container.getID()); 
 			if (collabMgm == null)
 				Notification.showErrorMessage(Notification.CollabMenuRosterMenuHandler_ERROR_NO_COLLAB_CHANNEL);
 			
@@ -85,10 +85,8 @@ public class CollabMenuRosterMenuHandler extends AbstractRosterMenuHandler
 			
 			IUser self = roster.getUser();	
 			IUser receiver = rosterEntry.getUser();
-			NewFileMessage msg = new NewFileMessage(self, receiver, filename, fileContents);
-			try
-			{
-				collabMgm.sendMessage(receiver.getID(), msg.serialize());
+			//NewFileMessage msg = new NewFileMessage(self, receiver, filename, fileContents);
+			//	collabMgm.sendMessage(receiver.getID(), msg.serialize());
 	
 			
 //			try
@@ -122,11 +120,6 @@ public class CollabMenuRosterMenuHandler extends AbstractRosterMenuHandler
 //			{
 //				// TODO Auto-generated catch block
 //				e.printStackTrace();
-			} catch (ECFException e)
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 			
 		}
 		return null;

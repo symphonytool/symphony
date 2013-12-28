@@ -96,7 +96,7 @@ public class FileHandler
 				} catch (ClassNotFoundException | IOException | CoreException e)
 				{
 					CollaborationDialogs.displayErrorDialog("Error loading stored collaboration project: "
-							+ filename);
+							+ filename, "Exception thrown. Stack trace printed");
 					e.printStackTrace();
 				}
 			}

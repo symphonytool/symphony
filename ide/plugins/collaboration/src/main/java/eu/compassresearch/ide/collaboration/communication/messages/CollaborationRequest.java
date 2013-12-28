@@ -9,9 +9,9 @@ public class CollaborationRequest extends BaseMessage
 	String title;
 	String msg;
 	
-	public CollaborationRequest(IUser sender, IUser receiver, String title, String message)
+	public CollaborationRequest(IUser sender, IUser receiver, String projectID, String title, String message)
 	{
-		super(sender,receiver);
+		super(sender,receiver, projectID);
 		
 		this.title = title;
 		this.msg = message;

@@ -28,7 +28,7 @@ public class Activator extends AbstractUIPlugin
 	
 	private CollaborationDataModelManager dataModelManager;
 	
-	private static final Hashtable<ID, MessageProcessor> collaborationChannels = new Hashtable<ID, MessageProcessor>();
+	private static final Hashtable<ID, MessageProcessor> collaborationProcessors = new Hashtable<ID, MessageProcessor>();
 	
 	private MessageProcessor messageProcessor;
 	
@@ -66,10 +66,10 @@ public class Activator extends AbstractUIPlugin
 	
 	public MessageProcessor addMessageProcessor(ID containerID, IChannelContainerAdapter channelAdapter) throws ECFException {
 
-		messageProcessor = collaborationChannels.get(containerID);
+		messageProcessor = collaborationProcessors.get(containerID);
 		if (messageProcessor == null){
 			messageProcessor = new MessageProcessor(channelAdapter);
-			collaborationChannels.put(containerID, messageProcessor);
+			collaborationProcessors.put(containerID, messageProcessor);
 			
 			addMessageHandlers();
 			
@@ -88,14 +88,14 @@ public class Activator extends AbstractUIPlugin
 	}
 
 	public void removeCollaborationManager(ID containerID){
-		MessageProcessor collabMgm = collaborationChannels.remove(containerID);
+		MessageProcessor collabMgm = collaborationProcessors.remove(containerID);
 		if(collabMgm != null ){
 			collabMgm.dispose();
 		}
 	}
 	
-	public MessageProcessor getCollaborationManager(ID containerID) {
-		return collaborationChannels.get(containerID);
+	public MessageProcessor getMessageProcessor(ID containerID) {
+		return collaborationProcessors.get(containerID);
 	}
 	
 	public IContainerManager getContainerManager() {

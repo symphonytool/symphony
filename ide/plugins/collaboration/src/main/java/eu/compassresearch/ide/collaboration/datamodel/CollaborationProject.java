@@ -1,5 +1,7 @@
 package eu.compassresearch.ide.collaboration.datamodel;
 
+import java.util.UUID;
+
 
 public class CollaborationProject extends Model
 {
@@ -11,18 +13,25 @@ public class CollaborationProject extends Model
 	private String workspaceName; 
 	private String title; 
 	private String description; 
+	private final String uniqueID;
 	
-	public CollaborationProject(String workspaceName, String title, String description)
+	public CollaborationProject(String workspaceName, String title, String description, String uniqueID)
 	{
 		this.title = title;
 		this.description = description;
 		this.name = "Collaboration Project: " + title;
 		this.workspaceName = workspaceName;
+		this.uniqueID = uniqueID;
 		
 		contracts = new Contracts();
 		contracts.setParent(this);
 		collaboratorGroup = new CollaborationGroup();
 		collaboratorGroup.setParent(this);
+	}
+	
+	public CollaborationProject(String workspaceName, String title, String description)
+	{
+		this(workspaceName,title, description, UUID.randomUUID().toString());
 	}
 	
 	public void addContract(Contract contract) {
@@ -93,5 +102,10 @@ public class CollaborationProject extends Model
 	public String getDescription()
 	{
 		return description;
+	}
+
+	public String getUniqueID()
+	{
+		return uniqueID;
 	}
 }

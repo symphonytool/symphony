@@ -339,8 +339,8 @@ protected void createActions() {
 			{
 				Contract contract = (Contract) selectedDomainObject;
 				MessageProcessor collabMgM = Activator.getDefault().getMessageProcessor();
-				FileStatusMessage statMsg = new FileStatusMessage(contract.getReceiver(), contract.getSender(), contract.getFilename(), NegotiationStatus.ACCEPT, new Date());
-				collabMgM.sendMessage(contract.getSender(), statMsg.serialize());
+				//FileStatusMessage statMsg = new FileStatusMessage(contract.getReceiver(), contract.getSender(), contract.getFilename(), NegotiationStatus.ACCEPT, new Date());
+				//collabMgM.sendMessage(contract.getSender(), statMsg.serialize());
 			}
 		}
 	}
@@ -356,8 +356,8 @@ protected void createActions() {
 			{
 				Contract contract = (Contract) selectedDomainObject;
 				MessageProcessor collabMgM = Activator.getDefault().getMessageProcessor();
-				FileStatusMessage statMsg = new FileStatusMessage(contract.getReceiver(), contract.getSender(), contract.getFilename(), NegotiationStatus.REJECT, new Date());
-				collabMgM.sendMessage(contract.getSender(), statMsg.serialize());
+				//FileStatusMessage statMsg = new FileStatusMessage(contract.getReceiver(), contract.getSender(), contract.getFilename(), NegotiationStatus.REJECT, new Date());
+				//collabMgM.sendMessage(contract.getSender(), statMsg.serialize());
 			}
 		}
 	}
@@ -410,7 +410,7 @@ protected void createActions() {
 
 		CollaborationDataModelManager dataModelManager = Activator.getDefault().getDataModelManager();
 		
-		return dataModelManager.getDatamodel(); 
+		return dataModelManager.getDataModel(); 
 		
 //		root = new CollaborationDataModelRoot();
 //		
@@ -430,10 +430,18 @@ protected void createActions() {
 //		return root;
 	}
 	
-	public CollaborationDataModelRoot getDataModel()
+	public Model getSelectedEntry()
 	{
-		return root;
+		IStructuredSelection selection = (IStructuredSelection) treeViewer.getSelection();
+		Model selectedDomainObject = (Model) selection.getFirstElement();
+		return selectedDomainObject;
 	}
+	
+	
+//	public CollaborationDataModelRoot getDataModel()
+//	{
+//		return root;
+//	}
 	
 	public void setFocus() {}
 

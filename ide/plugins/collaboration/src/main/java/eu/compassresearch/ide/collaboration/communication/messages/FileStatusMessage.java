@@ -18,9 +18,9 @@ public class FileStatusMessage extends BaseMessage
 	    RECEIVED, ACCEPT, REJECT, RENEGOTIATE; 
 	}
 	
-	public FileStatusMessage(IUser sentBy, IUser sentTo, String filename, NegotiationStatus status, Date timestamp)
+	public FileStatusMessage(IUser sentBy, IUser sentTo, String projectID, String filename, NegotiationStatus status, Date timestamp)
 	{
-		super(sentBy, sentTo);
+		super(sentBy, sentTo, projectID);
 		
 		this.filename = filename;
 		this.status = status;
