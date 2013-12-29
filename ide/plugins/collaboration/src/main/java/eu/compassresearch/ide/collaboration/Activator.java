@@ -43,7 +43,7 @@ public class Activator extends AbstractUIPlugin
 		dataModelManager = new CollaborationDataModelManager();
 		
 		//Persist data model
-		//dataModelManager.loadModel();
+		dataModelManager.loadModel();
 		
 	}
 	
@@ -55,7 +55,7 @@ public class Activator extends AbstractUIPlugin
 			containerManagerTracker = null;
 		}
 		
-		//dataModelManager.saveModel();
+		dataModelManager.saveModel();
 		
 		plugin = null;
 		this.context = null;

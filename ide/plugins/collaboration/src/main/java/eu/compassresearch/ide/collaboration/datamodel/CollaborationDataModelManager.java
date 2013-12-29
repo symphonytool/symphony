@@ -1,6 +1,7 @@
 package eu.compassresearch.ide.collaboration.datamodel;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.resources.IProject;
@@ -56,5 +57,18 @@ public class CollaborationDataModelManager
 	public List<CollaborationProject> getExistingProjects()
 	{
 		return datamodel.getCollaborationProjects();
+	}
+
+	public CollaborationProject getCollaborationProject(String workspaceProjectName)
+	{
+		ArrayList<CollaborationProject> collaborationProjects = datamodel.getCollaborationProjects();
+		
+		for (CollaborationProject collaborationProject : collaborationProjects)
+		{
+			if(collaborationProject.getProjectWorkspaceName().equals(workspaceProjectName))
+				return collaborationProject;
+		}
+		
+		return null;
 	}
 }

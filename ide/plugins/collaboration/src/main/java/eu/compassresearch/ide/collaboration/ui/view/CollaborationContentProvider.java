@@ -7,14 +7,14 @@ import org.eclipse.jface.viewers.Viewer;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationDataModelRoot;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationGroup;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationProject;
-import eu.compassresearch.ide.collaboration.datamodel.Contract;
-import eu.compassresearch.ide.collaboration.datamodel.Contracts;
+import eu.compassresearch.ide.collaboration.datamodel.Configuration;
+import eu.compassresearch.ide.collaboration.datamodel.Configurations;
 import eu.compassresearch.ide.collaboration.datamodel.DeltaEvent;
 import eu.compassresearch.ide.collaboration.datamodel.IDeltaListener;
 import eu.compassresearch.ide.collaboration.datamodel.Model;
 import eu.compassresearch.ide.collaboration.datamodel.Shares;
-import eu.compassresearch.ide.collaboration.datamodel.Version;
-import eu.compassresearch.ide.collaboration.datamodel.Versions;
+import eu.compassresearch.ide.collaboration.datamodel.File;
+import eu.compassresearch.ide.collaboration.datamodel.Files;
 
 
 public class CollaborationContentProvider implements ITreeContentProvider, IDeltaListener {
@@ -63,22 +63,22 @@ public class CollaborationContentProvider implements ITreeContentProvider, IDelt
 				return root.getCollaborationProjects().toArray();
 		} else if(parentElement instanceof CollaborationProject){
 			CollaborationProject collabPrj = (CollaborationProject)parentElement;
-			Object[] both = new Object[]{collabPrj.getContracts(),collabPrj.getCollaboratorGroup()};
+			Object[] both = new Object[]{collabPrj.getConfiguration(),collabPrj.getCollaboratorGroup()};
 			return both;
-		} else if(parentElement instanceof Contracts) {
-			Contracts contracts = (Contracts)parentElement;
-			return contracts.getContracts().toArray();
-		} else if(parentElement instanceof Contract) {
-			Contract contract = (Contract)parentElement;
-			return new Object[]{contract.getVersions()};
+		} else if(parentElement instanceof Configurations) {
+			Configurations contracts = (Configurations)parentElement;
+			return contracts.getConfigurations().toArray();
+		} else if(parentElement instanceof Configuration) {
+			Configuration contract = (Configuration)parentElement;
+			return new Object[]{contract.getFiles()};
 		} else if(parentElement instanceof Shares) {
 			Shares shares = (Shares)parentElement;
 			return shares.getShares().toArray();
-		} else if(parentElement instanceof Versions) {
-			Versions versions = (Versions)parentElement;
-			return versions.getVersions().toArray();
-		} else if(parentElement instanceof Version) {
-			Version version = (Version)parentElement;
+		} else if(parentElement instanceof Files) {
+			Files versions = (Files)parentElement;
+			return versions.getFiles().toArray();
+		} else if(parentElement instanceof File) {
+			File version = (File)parentElement;
 			return version.getShares().getShares().toArray();
 		} 
 		else if(parentElement instanceof CollaborationGroup) {

@@ -51,10 +51,10 @@ import eu.compassresearch.ide.collaboration.communication.messages.FileStatusMes
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationDataModelManager;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationDataModelRoot;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationGroup;
-import eu.compassresearch.ide.collaboration.datamodel.Contract;
-import eu.compassresearch.ide.collaboration.datamodel.Contracts;
+import eu.compassresearch.ide.collaboration.datamodel.Configuration;
+import eu.compassresearch.ide.collaboration.datamodel.Configurations;
 import eu.compassresearch.ide.collaboration.datamodel.Model;
-import eu.compassresearch.ide.collaboration.datamodel.Version;
+import eu.compassresearch.ide.collaboration.datamodel.File;
 import eu.compassresearch.ide.collaboration.ui.menu.AddCollaboratorRosterMenuContributionItem;
 
 /**
@@ -117,7 +117,9 @@ public class CollaborationView extends ViewPart {
 		treeViewer.expandAll();
 	}
 	
-protected void createActions() {
+	
+	
+	protected void createActions() {
 		
 		diffWithPrevAction = new Action("Diff With Previous") {
 			public void run() {
@@ -170,14 +172,13 @@ protected void createActions() {
 			IStructuredSelection selection = (IStructuredSelection) treeViewer.getSelection();
 			Model selectedDomainObject = (Model) selection.getFirstElement();
 			
-			if ((selectedDomainObject instanceof Contracts)) {
-				Contracts contracts = (Contracts) selectedDomainObject;
+			if ((selectedDomainObject instanceof Configurations)) {
+				Configurations contracts = (Configurations) selectedDomainObject;
 						
-			} else if ((selectedDomainObject instanceof Version)) {
-				Version version = (Version) selectedDomainObject;
-				Contract contract = (Contract) version.getParent();
+			} else if ((selectedDomainObject instanceof File)) {
+				File version = (File) selectedDomainObject;
+				Configuration contract = (Configuration) version.getParent();
 				
-				contract.getFilename();
 				MessageProcessor collabMgM = Activator.getDefault().getMessageProcessor();
 				
 				// CompareUI.openCompareEditor(new CompareInput());
@@ -219,11 +220,11 @@ protected void createActions() {
 	    		IStructuredSelection selection = (IStructuredSelection) treeViewer.getSelection();
 				Model selectedDomainObject = (Model) selection.getFirstElement();
 		        
-				if ((selectedDomainObject instanceof Contract)) {
+				if ((selectedDomainObject instanceof Configuration)) {
 					manager.add(approveContractAction);
 					manager.add(rejectContractAction);
 					manager.add(negotiateContractAction);
-		        } else if ((selectedDomainObject instanceof Version)) {
+		        } else if ((selectedDomainObject instanceof File)) {
 		        	manager.add(diffWithPrevAction);
 		        }	
 		        else if(selectedDomainObject instanceof CollaborationGroup) {
@@ -335,9 +336,9 @@ protected void createActions() {
 			IStructuredSelection selection = (IStructuredSelection) treeViewer.getSelection();
 			Model selectedDomainObject = (Model) selection.getFirstElement();
 		
-			if(selectedDomainObject instanceof Contract)
+			if(selectedDomainObject instanceof Configuration)
 			{
-				Contract contract = (Contract) selectedDomainObject;
+				Configuration contract = (Configuration) selectedDomainObject;
 				MessageProcessor collabMgM = Activator.getDefault().getMessageProcessor();
 				//FileStatusMessage statMsg = new FileStatusMessage(contract.getReceiver(), contract.getSender(), contract.getFilename(), NegotiationStatus.ACCEPT, new Date());
 				//collabMgM.sendMessage(contract.getSender(), statMsg.serialize());
@@ -352,9 +353,9 @@ protected void createActions() {
 			IStructuredSelection selection = (IStructuredSelection) treeViewer.getSelection();
 			Model selectedDomainObject = (Model) selection.getFirstElement();
 		
-			if(selectedDomainObject instanceof Contract)
+			if(selectedDomainObject instanceof Configuration)
 			{
-				Contract contract = (Contract) selectedDomainObject;
+				Configuration contract = (Configuration) selectedDomainObject;
 				MessageProcessor collabMgM = Activator.getDefault().getMessageProcessor();
 				//FileStatusMessage statMsg = new FileStatusMessage(contract.getReceiver(), contract.getSender(), contract.getFilename(), NegotiationStatus.REJECT, new Date());
 				//collabMgM.sendMessage(contract.getSender(), statMsg.serialize());
@@ -369,37 +370,37 @@ protected void createActions() {
 			IStructuredSelection selection = (IStructuredSelection) treeViewer.getSelection();
 			Model selectedDomainObject = (Model) selection.getFirstElement();
 		
-			if(selectedDomainObject instanceof Contract)
+			if(selectedDomainObject instanceof Configuration)
 			{
-				Contract contract = (Contract) selectedDomainObject;
+				Configuration contract = (Configuration) selectedDomainObject;
 				MessageProcessor collabMgM = Activator.getDefault().getMessageProcessor();
 				
 			
-				IFile oldFile = collabMgM.getProjectFolder().getFile(contract.getFilename());
-				final IFile file = collabMgM.nextFilename(contract.getFilename());
-			
-				try
-				{
-					file.create(oldFile.getContents(), IResource.NONE, null);
-				} catch (CoreException e1)
-				{
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
+//				IFile oldFile = collabMgM.getProjectFolder().getFile(contract.getFilename());
+//				final IFile file = collabMgM.nextFilename(contract.getFilename());
+//			
+//				try
+//				{
+//					file.create(oldFile.getContents(), IResource.NONE, null);
+//				} catch (CoreException e1)
+//				{
+//					// TODO Auto-generated catch block
+//					e1.printStackTrace();
+//				}
 				
 				Display.getDefault().asyncExec(new Runnable()
 				{
 					public void run()
 					{
 						IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-						try
-						{
-							IEditorPart openEditor = IDE.openEditor(page, file, true);
-						} catch (PartInitException e)
-						{
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
+//						try
+//						{
+//							IEditorPart openEditor = IDE.openEditor(page, file, true);
+//						} catch (PartInitException e)
+//						{
+//							// TODO Auto-generated catch block
+//							e.printStackTrace();
+//						}
 					}
 				});
 			}

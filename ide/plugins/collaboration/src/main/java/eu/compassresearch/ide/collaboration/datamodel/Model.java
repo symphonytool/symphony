@@ -5,9 +5,6 @@ import java.io.Serializable;
 
 public abstract class Model implements Serializable {
 	
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -8593960173574664214L;
 	
 	private Model parent;
@@ -59,7 +56,7 @@ public abstract class Model implements Serializable {
 	
 	public void removeListener(IDeltaListener listener) {
 
-		if(this.listener.equals(listener)) {
+		if(this.listener != null && this.listener.equals(listener)) {
 			this.listener = null;
 		}
 	}

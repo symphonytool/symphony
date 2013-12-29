@@ -52,6 +52,17 @@ public class CollaborationGroup extends Model {
 		super.addListener(listener);
 	}
 	
+	@Override
+	public void removeListener(IDeltaListener listener)
+	{
+		for (User u : collaborators.values())
+		{
+			u.removeListener(listener);
+		}
+		
+		super.removeListener(listener);
+	}
+	
 	public void accept(IModelVisitor visitor, Object passAlongArgument) {
 		//visitor.visitContracts(this, passAlongArgument);
 	}

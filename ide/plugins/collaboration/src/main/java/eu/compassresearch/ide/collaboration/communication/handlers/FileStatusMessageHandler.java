@@ -8,9 +8,9 @@ import eu.compassresearch.ide.collaboration.communication.messages.FileStatusMes
 import eu.compassresearch.ide.collaboration.communication.messages.FileStatusMessage.NegotiationStatus;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationDataModelManager;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationDataModelRoot;
-import eu.compassresearch.ide.collaboration.datamodel.Contract;
-import eu.compassresearch.ide.collaboration.datamodel.Contracts;
-import eu.compassresearch.ide.collaboration.datamodel.Version;
+import eu.compassresearch.ide.collaboration.datamodel.Configuration;
+import eu.compassresearch.ide.collaboration.datamodel.Configurations;
+import eu.compassresearch.ide.collaboration.datamodel.File;
 import eu.compassresearch.ide.collaboration.ui.menu.CollaborationDialogs;
 import eu.compassresearch.ide.collaboration.ui.view.CollaborationView;
 
@@ -40,21 +40,21 @@ public class FileStatusMessageHandler extends BaseMessageHandler<FileStatusMessa
 					CollaborationDataModelRoot root = modelMgm.getDataModel();
 
 					String senderName = statusMsg.getSenderID().getName();
-					Contracts contracts = root.getCollaborationProjects().get(0).getContracts();
+					Configurations contracts = root.getCollaborationProjects().get(0).getConfiguration();
 					
 					String cleanFilename = filename.substring(0, filename.indexOf(".")); 
-					Contract contract = contracts.getContract(cleanFilename);
+					Configuration contract = contracts.getConfiguration(cleanFilename);
 					if (contract == null)
 					{
-						contract = new Contract(statusMsg.getFilename(), statusMsg.getSenderID(), statusMsg.getReceiverID());
+						//contract = new Configuration(statusMsg.getFilename(), statusMsg.getSenderID(), statusMsg.getReceiverID());
 						//contract.addShare(new Share(senderName));
 						//contract.addShare(new Share("You"));
-						contracts.addContract(contract);
+						//contracts.addContract(contract);
 					}
 					
-					contract.addVersion(new Version(contract.getFilename()
-							+ " Received by " + senderName + " on "
-							+ statusMsg.getTimestamp()));
+//					contract.addFile(new File(contract.getFilename()
+//							+ " Received by " + senderName + " on "
+//							+ statusMsg.getTimestamp()));
 
 					
 					CollaborationDialogs.showCollaborationView();
@@ -64,8 +64,8 @@ public class FileStatusMessageHandler extends BaseMessageHandler<FileStatusMessa
 						CollaborationDataModelManager modelMgm = Activator.getDefault().getDataModelManager();
 						CollaborationDataModelRoot root = modelMgm.getDataModel();
 						
-						Contracts cs = (Contracts) root.getCollaborationProjects().get(0).getContracts();
-						Contract c = (Contract) cs.getContracts().get(0);
+						Configurations cs = (Configurations) root.getCollaborationProjects().get(0).getConfiguration();
+						Configuration c = (Configuration) cs.getConfigurations().get(0);
 						c.setStatus(status);
 					}
 

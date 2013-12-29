@@ -1,5 +1,6 @@
 package eu.compassresearch.ide.collaboration.notifications;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
@@ -10,6 +11,9 @@ import eu.compassresearch.ide.collaboration.Activator;
 public class Notification extends NLS {
 	private static final String BUNDLE_NAME = "eu.compassresearch.ide.collaboration.notifications.messages";
 
+	public static String Collab_File_ERROR_NO_COLLAB_PROJECT_ATTACHED;
+	public static String Collab_File_ERROR_ADD_FILE_FAILED;
+	public static String Collab_File_NO_FILE_FROM_SELECTION ;
 	public static String Collab_Dialog_COLLAB_REQUEST_ALREADY_ADDED;
 	public static String Collab_Dialog_COLLAB_REQUEST_TITLE;	
 	public static String Collab_Dialog_COLLAB_REQUEST_MSG;

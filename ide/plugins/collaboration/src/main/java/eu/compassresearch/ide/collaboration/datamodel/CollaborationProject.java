@@ -1,13 +1,17 @@
 package eu.compassresearch.ide.collaboration.datamodel;
 
+import java.io.IOException;
 import java.util.UUID;
+
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.CoreException;
 
 
 public class CollaborationProject extends Model
 {
 	private static final long serialVersionUID = 8119280860561533717L;
 	
-	Contracts contracts;
+	Configurations configurations;
 	CollaborationGroup collaboratorGroup;
 	
 	private String workspaceName; 
@@ -23,8 +27,8 @@ public class CollaborationProject extends Model
 		this.workspaceName = workspaceName;
 		this.uniqueID = uniqueID;
 		
-		contracts = new Contracts();
-		contracts.setParent(this);
+		configurations = new Configurations();
+		configurations.setParent(this);
 		collaboratorGroup = new CollaborationGroup();
 		collaboratorGroup.setParent(this);
 	}
@@ -34,16 +38,16 @@ public class CollaborationProject extends Model
 		this(workspaceName,title, description, UUID.randomUUID().toString());
 	}
 	
-	public void addContract(Contract contract) {
-		contracts.addContract(contract);
-		contract.setParent(this);
-		fireObjectAddedEvent(contract);
+	private void addConfiguration(Configuration configuration) {
+		configurations.addConfiguration(configuration);
+		configuration.setParent(this);
+		fireObjectAddedEvent(configuration);
 	}
 	
-	protected void removeContracts(Contract contract) {
-		contracts.removeContract(contract);
-		contract.removeListener(listener);
-		fireObjectRemovedEvent(contract);
+	protected void removeConfiguration(Configuration configuration) {
+		configurations.removeConfiguration(configuration);
+		configuration.removeListener(listener);
+		fireObjectRemovedEvent(configuration);
 	}
 	
 	public void addCollaborator(User usr) {
@@ -57,8 +61,8 @@ public class CollaborationProject extends Model
 		fireObjectRemovedEvent(collabGroup);
 	}
 	
-	public Contracts getContracts() {
-		return contracts;
+	public Configurations getConfiguration() {
+		return configurations;
 	}
 	
 	public CollaborationGroup getCollaboratorGroup() {
@@ -66,16 +70,25 @@ public class CollaborationProject extends Model
 	}
 
 	public int size() {
-		return contracts.size() + collaboratorGroup.size();
+		return configurations.size() + collaboratorGroup.size();
 	}
 
 	@Override
 	public void addListener(IDeltaListener listener) {
 		
-		contracts.addListener(listener);
+		configurations.addListener(listener);
 		collaboratorGroup.addListener(listener);
 		
 		super.addListener(listener);
+	}
+	
+	@Override
+	public void removeListener(IDeltaListener listener)
+	{
+		configurations.removeListener(listener);
+		collaboratorGroup.removeListener(listener);
+		
+		super.removeListener(listener);
 	}
 	
 	@Override
@@ -107,5 +120,10 @@ public class CollaborationProject extends Model
 	public String getUniqueID()
 	{
 		return uniqueID;
+	}
+
+	public boolean addNewFile(IFile file) throws CoreException, IOException
+	{
+		return configurations.addFile(file);
 	}
 }

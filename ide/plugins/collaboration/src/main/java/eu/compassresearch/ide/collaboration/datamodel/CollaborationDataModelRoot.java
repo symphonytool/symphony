@@ -10,12 +10,12 @@ public class CollaborationDataModelRoot extends Model {
 	HashMap<String,CollaborationProject> collaborationProjects;	
 	
 	public CollaborationDataModelRoot() {
-		super();
-
+		super("Collaboration Data Model Root");
+		
 		collaborationProjects = new HashMap<String, CollaborationProject>();
 	}
 	
-	public CollaborationDataModelRoot(String name ) {
+	public CollaborationDataModelRoot(String name) {
 		this();
 		this.name = name;
 	}
@@ -33,6 +33,16 @@ public class CollaborationDataModelRoot extends Model {
 			
 			return true;
 		}
+	}
+	
+	@Override
+	public void removeListener(IDeltaListener listener)
+	{
+		for (CollaborationProject p : collaborationProjects.values())
+		{
+			p.removeListener(listener);
+		}
+		super.removeListener(listener);
 	}
 	
 	public ArrayList<CollaborationProject> getCollaborationProjects() {

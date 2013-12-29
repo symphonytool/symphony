@@ -18,9 +18,9 @@ import eu.compassresearch.ide.collaboration.communication.messages.FileStatusMes
 import eu.compassresearch.ide.collaboration.communication.messages.NewFileMessage;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationDataModelManager;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationDataModelRoot;
-import eu.compassresearch.ide.collaboration.datamodel.Contract;
-import eu.compassresearch.ide.collaboration.datamodel.Contracts;
-import eu.compassresearch.ide.collaboration.datamodel.Version;
+import eu.compassresearch.ide.collaboration.datamodel.Configuration;
+import eu.compassresearch.ide.collaboration.datamodel.Configurations;
+import eu.compassresearch.ide.collaboration.datamodel.File;
 import eu.compassresearch.ide.collaboration.ui.view.CollaborationView;
 
 public class NewFileHandler extends BaseMessageHandler<NewFileMessage>
@@ -70,19 +70,19 @@ public class NewFileHandler extends BaseMessageHandler<NewFileMessage>
 						CollaborationDataModelManager modelMgm = Activator.getDefault().getDataModelManager();
 						CollaborationDataModelRoot root = modelMgm.getDataModel();
 						
-						Contracts contracts = (Contracts) root.getCollaborationProjects().get(0).getContracts().getContracts();
+						Configurations contracts = (Configurations) root.getCollaborationProjects().get(0).getConfiguration().getConfigurations();
 						
 						byte[] bytes = fileContents.getBytes();
 						InputStream source = new ByteArrayInputStream(bytes);
 						
 						String cleanFilename = filename.substring(0, filename.indexOf(".")); 
-						Contract contract = contracts.getContract(cleanFilename);
+						Configuration contract = contracts.getConfiguration(cleanFilename);
 						if (contract == null)
 						{
-							contract = new Contract(filename, fileMsg.getSenderID(), fileMsg.getReceiverID());
+						//	contract = new Configuration(filename, fileMsg.getSenderID(), fileMsg.getReceiverID());
 							//contract.addShare(new Share(senderName));
 							//contract.addShare(new Share("You"));
-							contracts.addContract(contract);
+						//	contracts.addContract(contract);
 
 						} else {
 							//file = nextFilename(filename);
@@ -93,8 +93,8 @@ public class NewFileHandler extends BaseMessageHandler<NewFileMessage>
 						//FileStatusMessage statusMsg = new FileStatusMessage(fileMsg.getReceiverID(), fileMsg.getSenderID(), filename, NegotiationStatus.RECEIVED, time);
 						//messageProcessor.sendMessage(statusMsg.getReceiverID(), statusMsg.serialize());
 
-						contract.addVersion(new Version(contract.getFilename() + " Version: " + 1
-								+ " Received: " + new Date()));
+//						contract.addFile(new File(contract.getFilename() + " Version: " + 1
+//								+ " Received: " + new Date()));
 						
 						//IEditorPart openEditor = IDE.openEditor(page, file, true);
 						//IEditorInput editorInput = openEditor.getEditorInput();

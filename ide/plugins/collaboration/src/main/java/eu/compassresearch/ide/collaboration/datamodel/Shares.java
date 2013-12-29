@@ -14,6 +14,11 @@ public class Shares extends Model {
 		this.name = "Shares";
 	}
 	
+	private Shares(List<Share> shares) {
+		this.shares = shares;
+		this.name = "Shares";
+	}
+	
 	public void addShare(Share share) {
 		shares.add(share);
 		share.setParent(this);
@@ -33,9 +38,17 @@ public class Shares extends Model {
 	public int size() {
 		return shares.size();
 	}
-
-	public void accept(IModelVisitor visitor, Object passAlongArgument) {
-		//visitor.visitContracts(this, passAlongArgument);
+	
+	public Shares clone(){
+		
+		ArrayList<Share> clone = new ArrayList<Share>();
+		
+		for (Share share : shares)
+		{
+			clone.add(share.clone());
+		}
+	
+		return new Shares(clone);
 	}
 	
 	@Override
@@ -47,5 +60,20 @@ public class Shares extends Model {
 		}
 		
 		super.addListener(listener);
+	}
+	
+	@Override
+	public void removeListener(IDeltaListener listener)
+	{
+		for (Share s : shares)
+		{
+			s.removeListener(listener);
+		}
+		
+		super.removeListener(listener);
+	}
+	
+	public void accept(IModelVisitor visitor, Object passAlongArgument) {
+		//visitor.visitContracts(this, passAlongArgument);
 	}
 }

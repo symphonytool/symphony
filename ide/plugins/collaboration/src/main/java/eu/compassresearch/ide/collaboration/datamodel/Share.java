@@ -8,6 +8,10 @@ public class Share extends Model {
 		super(name);
 	}
 	
+	public Share clone(){
+		return new Share(name);
+	}
+	
 	/*
 	 * @see Model#accept(ModelVisitorI, Object)
 	 */

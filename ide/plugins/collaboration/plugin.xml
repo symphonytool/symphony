@@ -6,22 +6,58 @@
 	<menuContribution
          allPopups="false"
          locationURI="popup:eu.compassresearch.ide.ui.CmlNavigator">
-	 <dynamic 
+<!--	 <dynamic 
 			class="eu.compassresearch.ide.collaboration.ui.menu.CollabRosterMenuContributionItem" 
 			id="eu.compassresearch.ide.collaboration">
-	</dynamic>
+	</dynamic> !-->
+		<menu
+              id="eu.compassresearch.ide.collaboration.ui.CollaborativeModelling"
+              label="Collaborative Modelling">
+			<command
+            	commandId="eu.compassresearch.ide.collaboration.ui.AddFileToCollaboration"
+            	label="Include file in collaboration project"
+            	style="push"
+            tooltip="Adds the file to the collaboration project">
+			</command>
+			<visibleWhen>
+		 		<or>
+      				<with variable="selection">
+ 						<iterate ifEmtpy="false">
+       						<reference definitionId="eu.compassresearch.ide.collaboration.ui.extensionTest"/>
+     					</iterate>
+      				</with>
+  					<with variable="activeEditorInput">
+        				<reference definitionId="eu.compassresearch.ide.collaboration.ui.extensionTest"/>
+      				</with>
+   				</or>
+			</visibleWhen>
+    	</menu>
 	</menuContribution>		
 	<menuContribution
          allPopups="false"
          locationURI="additions:eu.compassresearch.ide.collaboration.ui.view.CollaborationView">
-	  <command
+	  	<command
             commandId="eu.compassresearch.ide.collaboration.ui.NewCollaborationProject"
             label="Add new collaboration project"
             style="push"
             tooltip="Adds a new collaboration project">
-		</command>
+    	</command>
 	</menuContribution>	
 </extension>
+
+<!-- Definitions -->
+<extension point="org.eclipse.core.expressions.definitions">
+   <definition id="eu.compassresearch.ide.collaboration.ui.extensionTest">
+      <adapt type="org.eclipse.core.resources.IResource">
+         <or>
+             <test property="org.eclipse.core.resources.extension"
+                   value="cml">
+             </test>
+         </or>
+      </adapt>
+   </definition>
+</extension>
+
 
 <!-- ECF setup -->
 <extension point="org.eclipse.ecf.start">
@@ -67,11 +103,25 @@
 		</command>
 </extension>
 
+<extension point="org.eclipse.ui.commands">
+		<command
+         id="eu.compassresearch.ide.collaboration.ui.AddFileToCollaboration"
+         name="Add file to collaboration project">
+		</command>
+</extension>
+
 <!--Handlers -->
 <extension point="org.eclipse.ui.handlers">
 	<handler
 	 class ="eu.compassresearch.ide.collaboration.ui.commands.NewCollaborationProjectHandler"
      commandId="eu.compassresearch.ide.collaboration.ui.NewCollaborationProject">
+	</handler>
+</extension>
+
+<extension point="org.eclipse.ui.handlers">
+	<handler
+	 class ="eu.compassresearch.ide.collaboration.ui.commands.AddFileToCollaborationHandler"
+     commandId="eu.compassresearch.ide.collaboration.ui.AddFileToCollaboration">
 	</handler>
 </extension>
 

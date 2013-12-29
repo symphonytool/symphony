@@ -21,13 +21,13 @@ import org.osgi.framework.FrameworkUtil;
 import eu.compassresearch.ide.collaboration.communication.messages.FileStatusMessage.NegotiationStatus;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationGroup;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationProject;
-import eu.compassresearch.ide.collaboration.datamodel.Contract;
-import eu.compassresearch.ide.collaboration.datamodel.Contracts;
+import eu.compassresearch.ide.collaboration.datamodel.Configuration;
+import eu.compassresearch.ide.collaboration.datamodel.Configurations;
 import eu.compassresearch.ide.collaboration.datamodel.Share;
 import eu.compassresearch.ide.collaboration.datamodel.Shares;
 import eu.compassresearch.ide.collaboration.datamodel.User;
-import eu.compassresearch.ide.collaboration.datamodel.Version;
-import eu.compassresearch.ide.collaboration.datamodel.Versions;
+import eu.compassresearch.ide.collaboration.datamodel.File;
+import eu.compassresearch.ide.collaboration.datamodel.Files;
 import eu.compassresearch.ide.collaboration.ui.TreeViewerPlugin;
 
 public class CollaborationLabelProvider extends LabelProvider implements IColorProvider {	
@@ -37,13 +37,13 @@ public class CollaborationLabelProvider extends LabelProvider implements IColorP
 		ImageDescriptor descriptor = null;
 		if(element instanceof CollaborationProject) {
 			descriptor = getImageDescriptor("contracts.gif");
-		} else if (element instanceof Contracts) {
+		} else if (element instanceof Configurations) {
 			descriptor = getImageDescriptor("contracts.gif");
-		} else if (element instanceof Contract) {
+		} else if (element instanceof Configuration) {
 			descriptor = getImageDescriptor("contract.gif");
-		} else if (element instanceof Versions) {
+		} else if (element instanceof Files) {
 			descriptor = getImageDescriptor("versions.gif");
-		} else if (element instanceof Version) {
+		} else if (element instanceof File) {
 			descriptor = getImageDescriptor("version.gif");
 		} else if (element instanceof Shares) {	
 			descriptor = getImageDescriptor("shares.gif");
@@ -71,20 +71,20 @@ public class CollaborationLabelProvider extends LabelProvider implements IColorP
 			CollaborationProject collabProject = ((CollaborationProject) element);
 			
 			return collabProject.getTitle() +  " (attached to project: " + collabProject.getProjectWorkspaceName() + ")"; 
-		} else if (element instanceof Contracts) {
-			if(((Contracts)element).getName() == null) {
+		} else if (element instanceof Configurations) {
+			if(((Configurations)element).getName() == null) {
 				return "Contracts";
 			} else {
-				return ((Contracts)element).getName();
+				return ((Configurations)element).getName();
 			}
-		} else if (element instanceof Contract) {
-			return ((Contract)element).getFilename();
-		} else if (element instanceof Versions) {
-			return ((Versions)element).toString();
+		} else if (element instanceof Configuration) {
+			return ((Configuration)element).getName();
+		} else if (element instanceof Files) {
+			return ((Files)element).toString();
 		} else if (element instanceof Shares) {
 			return ((Shares)element).toString();
-		} else if (element instanceof Version) {
-			return ((Version)element).toString();
+		} else if (element instanceof File) {
+			return ((File)element).toString();
 		} else if (element instanceof Share) {
 			return ((Share)element).toString();
 		} else if (element instanceof CollaborationGroup) {
@@ -117,8 +117,8 @@ public class CollaborationLabelProvider extends LabelProvider implements IColorP
 	@Override
 	public Color getBackground(Object element)
 	{
-		if(element instanceof Contract){
-			Contract c = (Contract) element;
+		if(element instanceof Configuration){
+			Configuration c = (Configuration) element;
 			
 			if(c.getStatus() == NegotiationStatus.ACCEPT) {
 				return Display.getCurrent().getSystemColor(SWT.COLOR_GREEN);
