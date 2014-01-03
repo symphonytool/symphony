@@ -28,6 +28,7 @@ import eu.compassresearch.core.interpreter.api.events.EventFireMediator;
 import eu.compassresearch.core.interpreter.api.events.EventSource;
 import eu.compassresearch.core.interpreter.api.events.EventSourceHandler;
 import eu.compassresearch.core.interpreter.api.events.InterpreterStateChangedEvent;
+import eu.compassresearch.core.interpreter.assistant.CmlInterpreterAssistantFactory;
 import eu.compassresearch.core.interpreter.debug.Breakpoint;
 import eu.compassresearch.core.interpreter.debug.DebugContext;
 import eu.compassresearch.core.interpreter.utility.FirstLineMatchSearcher;
@@ -129,6 +130,7 @@ public abstract class AbstractCmlInterpreter implements CmlInterpreter
 		Settings.release = Release.VDM_10;
 		// enable debugging in VDM source code
 		Settings.usingDBGP = true;
+		CmlInterpreterAssistantFactory.init(CmlContextFactory.factory);
 	}
 
 	// Breakpoints
