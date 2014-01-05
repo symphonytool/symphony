@@ -27,6 +27,7 @@ public class GlobalEnvironmentBuilder extends AnalysisCMLAdaptor
 		buildGlobalEnvironment(sourceForest);
 	}
 
+	@SuppressWarnings("static-access")
 	private void buildGlobalEnvironment(List<PDefinition> sourceForest)
 			throws AnalysisException
 	{
@@ -40,7 +41,14 @@ public class GlobalEnvironmentBuilder extends AnalysisCMLAdaptor
 		 */
 		for (PDefinition def : sourceForest)
 		{
-			globalState.putAllNew(def.apply(cmlDefEval, globalState));
+			//Fix for bug 184 where pre/post functions wasn't created correctly for the global context
+			if (CmlContextFactory.factory.createPDefinitionAssistant().isFunctionOrOperation(def))
+			{
+				globalState.putAllNew(CmlContextFactory.factory.createPDefinitionAssistant().getNamedValues(def, globalState));
+			} else
+			{
+				globalState.putAllNew(def.apply(cmlDefEval, globalState));
+			}
 		}
 
 		// Search though all the found processes and add them to the process list

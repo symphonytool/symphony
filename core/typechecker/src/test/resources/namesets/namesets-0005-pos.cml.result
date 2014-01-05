@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testResult type="eu.compassresearch.core.typechecker.NamesetCmlTypeCheckerTests">
+<message column="0" line="5" message="Instance variable 'ss' is not initialized." messageType="warning" number="5001" resource="namesets-0005-pos.cml"/>
+<result/>
+</testResult>

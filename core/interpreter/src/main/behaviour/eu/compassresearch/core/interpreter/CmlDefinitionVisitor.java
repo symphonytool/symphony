@@ -76,31 +76,6 @@ class CmlDefinitionVisitor extends
 		return vpl;
 	}
 
-	// /*
-	// * Visitor parametrisation case methods
-	// */
-	//
-	// @Override
-	// public NameValuePairList caseAValParametrisation(AValParametrisation node,
-	// Context question) throws AnalysisException {
-	// // TODO Auto-generated method stub
-	// return super.caseAValParametrisation(node, question);
-	// }
-	//
-	// @Override
-	// public NameValuePairList caseAVresParametrisation(
-	// AVresParametrisation node, Context question)
-	// throws AnalysisException {
-	// // TODO Auto-generated method stub
-	// return super.caseAVresParametrisation(node, question);
-	// }
-	//
-	// @Override
-	// public NameValuePairList caseAResParametrisation(AResParametrisation node,
-	// Context question) throws AnalysisException {
-	// // TODO Auto-generated method stub
-	// return super.caseAResParametrisation(node, question);
-	// }
 
 	/*
 	 * Visitor Definition case methods
