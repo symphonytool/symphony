@@ -19,6 +19,7 @@ import eu.compassresearch.ast.actions.ADivAction;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorFactory;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorState;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlTrace;
@@ -54,10 +55,18 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	 * Name of the instance
 	 */
 	protected BehaviourName name;
+	
+	/**
+	 * A factory for creating new Cmlbehavior instances
+	 */
+	final CmlBehaviorFactory cmlBehaviorFactory;
 	/**
 	 * Unique id for the process
 	 */
 	protected int processId = getNextId();
+	/**
+	 * The result of the last inspection performed on this object.
+	 */
 	protected Inspection lastInspection = null;
 
 	// Process/Action Graph variables
@@ -73,10 +82,6 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	 */
 
 	/**
-	 * The evaluation visitor
-	 */
-	// final transient QuestionAnswerCMLAdaptor<Context, Pair<INode, Context>> cmlEvaluationVisitor;
-	/**
 	 * The setup visitor
 	 */
 	final transient QuestionAnswerCMLAdaptor<Context, Pair<INode, Context>> setupVisitor;
@@ -84,12 +89,19 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	/**
 	 * The inspection visitor
 	 */
-	protected final transient QuestionAnswerCMLAdaptor<Context, Inspection> inspectionVisitor;
+	final transient QuestionAnswerCMLAdaptor<Context, Inspection> inspectionVisitor;
 
-	// Process/Action state variables
-
-	// The next INode to execute in the given Context
+	/*
+	 * Process/Action state variables
+	 */
+	/**
+	 * The next INode to execute in the given Context
+	 */
 	Pair<INode, Context> next;
+	/**
+	 * This pair contains pre-constructed contexts for the child behaviors.
+	 * They are only used when the child behaviors are created
+	 */
 	Pair<Context, Context> preConstructedChildContexts = null;
 
 	// This might get used to boost the performance
@@ -98,11 +110,13 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	// Denotational semantics
 
 	/**
-	 * This contains the current trace of this proces This corresponds to the observation tr' in the CML semantics
+	 * This contains the current trace of this behavior.
+	 * This corresponds to the observation tr' in the CML semantics
 	 */
 	protected final CmlTrace trPrime = new CmlTrace();
 	/**
-	 * This is true when the process is started This corresponds to the observation ok in the CML semantics
+	 * This is true when the process is started. 
+	 * This corresponds to the observation ok in the CML semantics
 	 */
 	protected boolean ok = false;
 	/**
@@ -139,11 +153,12 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	 * @param parent
 	 *            set the parent here if any else set to null
 	 */
-	private ConcreteCmlBehaviour(CmlBehaviour parent, BehaviourName name)
+	private ConcreteCmlBehaviour(CmlBehaviour parent, BehaviourName name, CmlBehaviorFactory cmlBehaviorFactory)
 	{
 
 		this.parent = parent;
 		this.name = name;
+		this.cmlBehaviorFactory = cmlBehaviorFactory;
 		waitPrime = false;
 		ok = false;
 		// must not notify before name is set
@@ -192,28 +207,23 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 		};
 
 		// Initialize the visitors
-		setupVisitor = new CmlSetupVisitor(this, visitorAccess);
-		inspectionVisitor = new CmlInspectionVisitor(this, visitorAccess);
+		setupVisitor = new CmlSetupVisitor(this, visitorAccess, this.cmlBehaviorFactory);
+		inspectionVisitor = new CmlInspectionVisitor(this, this.cmlBehaviorFactory, visitorAccess);
 	}
 
-	public ConcreteCmlBehaviour(INode action, Context context,
-			BehaviourName name) throws AnalysisException
+	ConcreteCmlBehaviour(INode action, Context context,
+			CmlBehaviour parent,
+			CmlBehaviorFactory cmlBehaviorFactory) throws AnalysisException
 	{
-		this(null, name);
+		this(parent, new BehaviourName("Child of " + parent.getName()), cmlBehaviorFactory);
 		setNext(new Pair<INode, Context>(action, context));
 	}
 
-	public ConcreteCmlBehaviour(INode action, Context context,
-			CmlBehaviour parent) throws AnalysisException
+	ConcreteCmlBehaviour(INode action, Context context,
+			BehaviourName name, CmlBehaviour parent,
+			CmlBehaviorFactory cmlBehaviorFactory) throws AnalysisException
 	{
-		this(parent, new BehaviourName("Child of " + parent.getName()));
-		setNext(new Pair<INode, Context>(action, context));
-	}
-
-	public ConcreteCmlBehaviour(INode action, Context context,
-			BehaviourName name, CmlBehaviour parent) throws AnalysisException
-	{
-		this(parent, name);
+		this(parent, name, cmlBehaviorFactory);
 		setNext(new Pair<INode, Context>(action, context));
 	}
 

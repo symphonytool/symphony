@@ -18,6 +18,7 @@ import org.overture.interpreter.values.RecordValue;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorFactory;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour.BehaviourName;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlCalculationStep;
@@ -28,41 +29,56 @@ import eu.compassresearch.core.interpreter.api.transitions.TauTransition;
 import eu.compassresearch.core.interpreter.api.transitions.TimedTransition;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
-public class AbstractInspectionVisitor extends
+/**
+ * This class 
+ * @author akm
+ *
+ */
+public abstract class AbstractInspectionVisitor extends
 		QuestionAnswerCMLAdaptor<Context, Inspection>
 {
 
-	// The process that contains this instance
+	/**
+	 * The behavior object that owns this visitor
+	 */
 	protected final CmlBehaviour owner;
+	/**
+	 * The parent visitor
+	 */
+	protected final QuestionAnswerCMLAdaptor<Context, Inspection> parentVisitor;
+	
+	protected CmlBehaviorFactory cmlBehaviorFactory;
+	/**
+	 * Interface that gives access to methods that access protected parts of a CmlBehaviour
+	 */
+	private final VisitorAccess visitorAccess;
+	/**
+	 * Evaluator for definitions
+	 */
+	protected QuestionAnswerCMLAdaptor<Context, NameValuePairList> cmlDefEvaluator = new CmlDefinitionVisitor();
+	/**
+	 * Evaluator for expressions
+	 */
 	protected final CmlExpressionVisitor cmlExpressionVisitor = new CmlExpressionVisitor();
-
+	
 	/**
 	 * Used for making random but deterministic decisions
 	 */
 	protected final Random rnd = new Random(9784345);
 
 	/**
-	 * Evaluator for definitions
-	 */
-	protected QuestionAnswerCMLAdaptor<Context, NameValuePairList> cmlDefEvaluator = new CmlDefinitionVisitor();
-
-	/**
-	 * Interface that gives access to methods that access protected parts of a CmlBehaviour
-	 */
-	private final VisitorAccess visitorAccess;
-
-	protected final QuestionAnswerCMLAdaptor<Context, Inspection> parentVisitor;
-
-	/**
-	 * @param ownerProcess
+	 * @param ownerProcess The behavior object that owns this visitor
+	 * @param visitorAccess Gives access to methods that access protected parts of a CmlBehaviour
 	 */
 	public AbstractInspectionVisitor(CmlBehaviour ownerProcess,
 			VisitorAccess visitorAccess,
+			CmlBehaviorFactory cmlBehaviorFactory,
 			QuestionAnswerCMLAdaptor<Context, Inspection> parentVisitor)
 	{
 		this.owner = ownerProcess;
 		this.visitorAccess = visitorAccess;
 		this.parentVisitor = parentVisitor;
+		this.cmlBehaviorFactory = cmlBehaviorFactory;
 	}
 
 	/**
@@ -110,13 +126,13 @@ public class AbstractInspectionVisitor extends
 	protected void setLeftChild(INode node, BehaviourName name, Context question)
 			throws AnalysisException
 	{
-		this.visitorAccess.setLeftChild(new ConcreteCmlBehaviour(node, this.visitorAccess.getChildContexts(question).first, name, owner));
+		this.visitorAccess.setLeftChild(this.cmlBehaviorFactory.newCmlBehaviour(node, this.visitorAccess.getChildContexts(question).first, name, owner));
 	}
 
 	protected void setLeftChild(INode node, Context question)
 			throws AnalysisException
 	{
-		this.visitorAccess.setLeftChild(new ConcreteCmlBehaviour(node, this.visitorAccess.getChildContexts(question).first, owner));
+		this.visitorAccess.setLeftChild(this.cmlBehaviorFactory.newCmlBehaviour(node, this.visitorAccess.getChildContexts(question).first, owner));
 	}
 
 	protected void setLeftChild(CmlBehaviour child)
@@ -137,13 +153,13 @@ public class AbstractInspectionVisitor extends
 	protected void setRightChild(INode node, BehaviourName name,
 			Context question) throws AnalysisException
 	{
-		this.visitorAccess.setRightChild(new ConcreteCmlBehaviour(node, this.visitorAccess.getChildContexts(question).second, name, owner));
+		this.visitorAccess.setRightChild(this.cmlBehaviorFactory.newCmlBehaviour(node, this.visitorAccess.getChildContexts(question).second, name, owner));
 	}
 
 	protected void setRightChild(INode node, Context question)
 			throws AnalysisException
 	{
-		this.visitorAccess.setRightChild(new ConcreteCmlBehaviour(node, this.visitorAccess.getChildContexts(question).second, owner));
+		this.visitorAccess.setRightChild(this.cmlBehaviorFactory.newCmlBehaviour(node, this.visitorAccess.getChildContexts(question).second, owner));
 	}
 
 	protected Pair<Context, Context> getChildContexts(Context context)

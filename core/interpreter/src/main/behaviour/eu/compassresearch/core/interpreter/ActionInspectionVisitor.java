@@ -62,6 +62,7 @@ import eu.compassresearch.ast.lex.CmlLexNameToken;
 import eu.compassresearch.ast.statements.AActionStm;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorFactory;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlCalculationStep;
 import eu.compassresearch.core.interpreter.api.behaviour.Inspection;
@@ -89,11 +90,12 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 
 	public ActionInspectionVisitor(CmlBehaviour ownerProcess,
 			VisitorAccess visitorAccess,
+			CmlBehaviorFactory cmlBehaviorFactory,
 			QuestionAnswerCMLAdaptor<Context, Inspection> parentVisitor)
 	{
-		super(ownerProcess, visitorAccess, parentVisitor);
+		super(ownerProcess, visitorAccess, cmlBehaviorFactory, parentVisitor);
 
-		this.statementInspectionVisitor = new StatementInspectionVisitor(ownerProcess, visitorAccess, this);
+		this.statementInspectionVisitor = new StatementInspectionVisitor(ownerProcess, visitorAccess, cmlBehaviorFactory, this);
 	}
 
 	/**
@@ -547,7 +549,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 			leftCopy.putNew(new NameValuePair(NamespaceUtility.getNamesetName(), leftNameset));
 		}
 
-		CmlBehaviour leftInstance = new ConcreteCmlBehaviour(left, leftCopy, owner.getName().clone(), owner);
+		CmlBehaviour leftInstance = cmlBehaviorFactory.newCmlBehaviour(left, leftCopy, owner.getName().clone(), owner);
 
 		Context rightCopy = childContexts.second.deepCopy();
 
@@ -556,7 +558,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 			rightCopy.putNew(new NameValuePair(NamespaceUtility.getNamesetName(), rightNameset));
 		}
 
-		CmlBehaviour rightInstance = new ConcreteCmlBehaviour(right, rightCopy, owner.getName().clone(), owner);
+		CmlBehaviour rightInstance = cmlBehaviorFactory.newCmlBehaviour(right, rightCopy, owner.getName().clone(), owner);
 
 		// add the children to the process graph
 		setLeftChild(leftInstance);

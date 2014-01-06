@@ -28,6 +28,7 @@ import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.process.SReplicatedProcess;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorFactory;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour.BehaviourName;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
@@ -41,9 +42,9 @@ import eu.compassresearch.core.interpreter.utility.SetMath;
 class CommonSetupVisitor extends AbstractSetupVisitor
 {
 
-	public CommonSetupVisitor(CmlBehaviour owner, VisitorAccess visitorAccess)
+	public CommonSetupVisitor(CmlBehaviour owner, VisitorAccess visitorAccess, CmlBehaviorFactory cmlBehaviorFactory)
 	{
-		super(owner, visitorAccess);
+		super(owner, visitorAccess, cmlBehaviorFactory);
 	}
 
 	@SuppressWarnings("rawtypes")

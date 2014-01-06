@@ -23,6 +23,7 @@ import eu.compassresearch.ast.expressions.ANameChannelExp;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorFactory;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlCalculationStep;
 import eu.compassresearch.core.interpreter.api.behaviour.Inspection;
@@ -49,9 +50,10 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 
 	public CommonInspectionVisitor(CmlBehaviour ownerProcess,
 			VisitorAccess visitorAccess,
+			CmlBehaviorFactory cmlBehaviorFactory,
 			QuestionAnswerCMLAdaptor<Context, Inspection> parentVisitor)
 	{
-		super(ownerProcess, visitorAccess, parentVisitor);
+		super(ownerProcess, visitorAccess, cmlBehaviorFactory, parentVisitor);
 	}
 
 	/**
