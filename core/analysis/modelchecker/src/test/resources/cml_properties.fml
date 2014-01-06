@@ -1,6 +1,9 @@
     // Deadlock property
-    Deadlock := GivenProc(name),ProcDef(name,params,body),reachable(State(st,L)),fail trans(State(st,L),_,_),L != Skip, L != body.
-    Deadlock := GivenProc(name),ProcDef(name,params,body),fail trans(State(s,body),_,_), body != Skip.
+    //Deadlock := GivenProc(name),ProcDef(name,params,body),reachable(State(st,L)),fail trans(State(st,L),_,_),L != Skip, L != body.
+    //Deadlock := GivenProc(name),ProcDef(name,params,body),fail trans(State(s,body),_,_), body != Skip.
+	Deadlock := reachable(State(st,L)),fail trans(State(st,L),_,_), L != Skip. 
+    Deadlock := reachable(State(st,L)),fail trans(State(st,L),ev,_), ev != tock, L != Skip, trans(State(st,L),tock,State(st,L)). 
+
 
     //Livelock property
     // Capturing tau-loops
@@ -10,7 +13,7 @@
     Livelock := tauPath(L,L). 
 
     // Nondeterminism property
-    accepts    ::= (iS:State,ev:SigmaTau).
+    accepts    ::= (iS:State,ev:SigmaTauTock).
     accepts(P, ev) :- trans(P,ev,_), ev != tau.
     accepts(P, ev) :- trans(P,tau,R),accepts(R,ev).
     

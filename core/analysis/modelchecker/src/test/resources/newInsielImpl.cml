@@ -74,5 +74,6 @@ begin
     FULL = FULL_UNIT(<Start_rescue_S>) ||| FULL_UNIT(<Start_Recovery_1_S>) ||| FULL_UNIT(<End_Recovery_1_S>)
     AE = AE_UNIT(<Fault_1_activation_S>) ||| AE_UNIT(<Error_1_detection_S>)
     SS = SS_UNIT(<Fault_1_activation_S>) ||| SS_UNIT(<Error_1_detection_S>)
-  @  FULL ||| AE ||| SS
+  @  FULL 
+  --||| AE ||| SS
 end

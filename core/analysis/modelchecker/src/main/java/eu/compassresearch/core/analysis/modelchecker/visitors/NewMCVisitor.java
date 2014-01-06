@@ -335,7 +335,7 @@ public class NewMCVisitor extends
 		}
 		
 		//String cml_file = "src/test/resources/simpler-BeoAVDeviceDiscovery.cml";
-		String cml_file = "src/test/resources/newInsielImpl.cml";
+		String cml_file = "src/test/resources/timed-interrupt.cml";
 		//String cml_file = "src/test/resources/minimondex-incomplete.cml.nok";
 		//String cml_file = "src/test/resources/simpler-minimondex.cml";
 		//String cml_file = "src/test/resources/set-manipulation.cml";
@@ -357,7 +357,7 @@ public class NewMCVisitor extends
 		*/
 		
 		NewMCVisitor visitor1 = new NewMCVisitor(source1);
-		String mainProcessName = "Test_TurnOnProduct";
+		String mainProcessName = "InterruptTest";
 		
 		String formulaCode = visitor1.generateFormulaScript(source1.getParagraphs(),Utilities.DEADLOCK_PROPERTY,mainProcessName);
 		//String[] codes1 = visitor1.generateFormulaCodeForAll(Utilities.DEADLOCK_PROPERTY);

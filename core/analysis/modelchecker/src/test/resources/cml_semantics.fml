@@ -1,19 +1,17 @@
 	State ::= (b: Binding, p: CMLProcess). 
-	trans ::= (source: State, ev: SigmaTau, target: State).
+	trans ::= (source: State, ev: SigmaTauTock, target: State).
+	primitive Clock ::= (Natural).
 
-    // a -> P 
-    //State(st,P),
-    //trans(State(st,Prefix(BasicEv(a),P)),BasicEv(a),State(st,P)) :- State(st,Prefix(BasicEv(a),P)).
-    
+	//Stop timed
+    trans(iS,tock,iS) :- iS is State(st,Stop). 
+	
 	// a?x -> P
     State(st_,P),
     trans(ini, CommEv(chName,chExp,chType), State(st_,P))
             :- ini is State(st,Prefix(IOComm(id,chName,chExp,chType),P)), IOCommDef(id,chType,st,st_).
     
-	// a?x -> P
-    //State(l, st_,pN,P),
-    //trans(ini, CommEv(l,chExp,chType), State(l, st_,pN,P))
-    //       :- ini is State(l, st,pN,Prefix(IOComm(occ,chExp,chType), P)), /*Channel(l,chName,chType),*/ IOCommDef(l, occ,chType,st,st_).
+	//Input and output timed
+    trans(ini, tock, ini) :- ini is State(st,Prefix(_,_)).   
     
     // P |~| Q
     State(st,P),
@@ -49,7 +47,11 @@
     State(st3,Q_),
     trans(iS,ev,State(st3,Q_)) :- iS is State(st,extraChoice(st1,P,st2,Q)), trans(State(st2,Q),ev,State(st3,Q_)), ev != tau.
 
-	    // P /_\ Q (interrupt basic and non-skip-left)
+	// external choice timed
+    trans(iS,tock,State(st,extraChoice(stP,P_,stQ,Q_))) :- iS is State(st,extraChoice(stP,P,stQ,Q)), 
+															trans(State(stP,P),tock,State(stP,P_)),trans(State(stQ,Q),tock,State(stQ,Q_)).
+	
+	// P /_\ Q (interrupt basic and non-skip-left)
     State(st,P),State(st,Q) :- State(st,intrpt(P,Q)).
     trans(iS,ev,State(st_,intrpt(P_,Q))) :- iS is State(st,intrpt(P,Q)), trans(State(st,P),ev,State(st_,P_)), P != Skip.
     //(interrupt skip-left)
@@ -59,18 +61,54 @@
     //(interrupt action right)
     trans(iS,ev,State(st_,Q_)) :- iS is State(st,intrpt(P,Q)), trans(State(st,Q),ev,State(st_,Q_)), ev != tau.
 
-	    // P [> Q (timeout rules)
+	//Interrupt timed
+	trans(iS,tock,iSF) :- iS is State(st,intrpt(P,Q)), iSF is State(st,intrpt(P_,Q_)), trans(State(st,P),tock,State(st,P_)), trans(State(st,Q),tock,State(st,Q_)).
+	
+	//Timed interrupt
+    State(st,P),State(st,Q)  :- State(st,tIntrpt(P,t,Q)).
+    //timed interrupt progress left
+    trans(iS,ev,State(st_,tIntrpt(P_,t,Q))) :- iS is State(st,tIntrpt(P,t,Q)), trans(State(st,P),ev,State(st_,P_)), ev != tock, P != Skip, t != 0. //this last condition is not explicit in the semantic rule
+    //timed interrupt skip left
+    trans(iS,tau,State(st,Skip)) :- iS is State(st,tIntrpt(Skip,t,Q)).
+    //timed interrupt time up
+    trans(iS,tau,State(st,Q)) :- iS is State(st,tIntrpt(P,0,Q)).
+    //timed interrupt timed
+    trans(iS,tock,State(st_,tIntrpt(P_,t_,Q))) :- iS is State(st,tIntrpt(P,t,Q)), trans(State(st,P),tock,State(st_,P_)), 
+                                                  Clock(t), Clock(t_), t_ = t - 1, t > 0.
+    trans(iS,tock,State(st_,tIntrpt(P_,0,Q))) :- iS is State(st,tIntrpt(P,1,Q)), trans(State(st,P),tock,State(st_,P_)).
+
+	
+	// P [> Q (timeout rules)
     State(st,P),State(st,Q),
     trans(iS,tau,State(st,Q)) :- iS is State(st,uTimeout(P,Q)).
     trans(iS,tau,State(st_,uTimeout(P_,Q))) :- iS is State(st,uTimeout(P,Q)), trans(State(st,P),tau,State(st_,P_)).
     trans(iS,ev,State(st_,P_)) :- iS is State(st,uTimeout(P,Q)), trans(State(st,P),ev,State(st_,P_)), ev != tau.
 
+	//Timed timeout
+    State(st,P),State(st,Q) :- iS is State(st,tTimeout(P,t,Q)).
+    //timeout event left
+    trans(iS,ev,State(st_,P_)) :- iS is State(st,tTimeout(P,t,Q)), trans(State(st,P),ev,State(st_,P_)), ev != tau, ev != tock.
+    //timeout silent left
+    trans(iS,tau,State(st_,tTimeout(P_,t,Q))) :- iS is State(st,tTimeout(P,t,Q)), trans(State(st,P),tau,State(st_,P_)).
+    //timeout time up
+    trans(iS,tau,State(st,Q)) :- iS is State(st,tTimeout(P,0,Q)).
+    //timeout timed
+    trans(iS,tock,State(st,tTimeout(P_,t_,Q))) :- iS is State(st,tTimeout(P,t,Q)), trans(State(st,P),tock,State(st,P_)),
+                                  Clock(t), Clock(t_), t_ = t - 1, t != 0.
+    trans(iS,tock,State(st,tTimeout(P_,0,Q))) :- iS is State(st,tTimeout(P,1,Q)), trans(State(st,P),tock,State(st,P_)).
+
+    //there is not specific rule qhen the left side of a timed timeout is Skip
+    trans(iS,tau,State(st,Skip)) :- iS is State(st,tTimeout(Skip,t,Q)).
+
+	
 	// if cond then P else Q
     State(st,p),
     trans(iS,tau,State(st,p)) :- iS is State(st,condChoice(id,p,q)),guardDef(id,st).
     State(st,q),
     trans(iS, tau, State(st,q)) :- iS is State(st,condChoice(id, p, q)), guardNDef(id, st).
 
+	trans(iS,tock,State(st,condChoice(id,p,q))) :- iS is State(st,condChoice(id,p,q)).
+	
 	// P \ X 
     State(st,P) :- State(st,hide(P,X)). 
 	
@@ -84,10 +122,13 @@
     State(st_,hide(P_, X)),
     trans(State(st,hide(P,X)), ev, State(st_,hide(P_, X))) :- State(st,hide(P,X)), trans(State(st,P), ev, State(st_,P_)), fail lieIn(ev, X).    
     
-    //Skip \ X --tick--> Skip
+    //Skip \ X --tau--> Skip
     State(st,Skip),
     trans(State(st,hide(Skip,X)), tau, State(st,Skip)) :- State(st,hide(Skip,X)).
 
+	//hiding timed
+    trans(iS, tock, iS) :- iS is State(st,hide(P,X)).
+	
 	// P ; Q 
     State(st,P) :- State(st,seqC(P, Q)), P != Skip.
     State(st,Q),
@@ -97,6 +138,9 @@
     State(st_,seqC(P_,Q)),
     trans(iS,ev,State(st_,seqC(P_,Q))) :- iS is State(st,seqC(P,Q)),trans(State(st,P),ev,State(st_,P_)).
 
+	//Sequence timed
+    trans(iS,tock,iS) :- iS is State(st,seqC(P,Q)), P != Skip. 
+	
 	// P [|X|] Q - parallel begin
 	State(st,P),
 	State(st,Q),
@@ -129,6 +173,11 @@
     State(st,Skip),
     trans(iS, tau, State(st,Skip)) :- iS is State(st,par(stP,Skip,X,stQ,Skip)).
     
+	//parallem timed
+    trans(iS,tock,State(st,par(stP,P_,X,stQ,Q_))) :- iS is State(st,par(stP,P,X,stQ,Q)), 
+                                                               trans(State(stP,P),tock,State(stP,P_)),
+                                                               trans(State(stQ,Q),tock,State(stQ,Q_)).
+															   
     // Call reusing state
     trans(n,tau,State(st,PBody)) :- n is State(st,proc(P,pPar)), ProcDef(P,pP,PBody).
 
