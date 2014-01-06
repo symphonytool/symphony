@@ -2,6 +2,7 @@ package eu.compassresearch.core.interpreter.api;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.expressions.PExp;
+import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.types.PType;
 import org.overture.interpreter.runtime.Context;
@@ -11,6 +12,7 @@ import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.events.CmlInterpreterStateObserver;
 import eu.compassresearch.core.interpreter.api.events.EventSource;
 import eu.compassresearch.core.interpreter.debug.Breakpoint;
+import eu.compassresearch.core.interpreter.debug.DebugContext;
 
 /**
  * The CML interpreter interface. This has the responsibility of simulating/animating a given AST representing a CML
@@ -75,6 +77,39 @@ public interface CmlInterpreter
 
 	public CmlBehaviour findBehaviorById(int id);
 
+	/**
+	 * Gets the active debug context of a given process by its id
+	 * 
+	 * @param id
+	 *            a process id
+	 * @return a the current debug context
+	 */
+	public DebugContext getDebugContext(int id);
+
+	/**
+	 * Sets the current debug context for a given process
+	 * 
+	 * @param id
+	 *            the process id
+	 * @param context
+	 *            the current context
+	 * @param location
+	 *            the current location
+	 */
+	public void setDebugContext(int id, Context context, ILexLocation location);
+
+	/**
+	 * Sets the current debug context for the first active process
+	 * 
+	 * @param id
+	 *            the process id
+	 * @param context
+	 *            the current context
+	 * @param location
+	 *            the current location
+	 */
+	public void setCurrentDebugContext(Context context, ILexLocation location);
+
 	public EventSource<CmlInterpreterStateObserver> onStateChanged();
 
 	// Debugging control methods
@@ -90,6 +125,8 @@ public interface CmlInterpreter
 	public boolean suspendBeforeTermination();
 
 	public void resume();
+
+	public void suspend() throws InterruptedException;
 
 	public void step();
 

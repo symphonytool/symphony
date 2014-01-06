@@ -6,7 +6,6 @@ import eu.compassresearch.ast.util.ToStringUtil;
 
 %source->file = [name]  
 %source->inputStream = [origin]
-// %source->tcpStream = "" [ip] ":" [port] ""
 
 // Actions
 %action->#Replicated = "Replication of action: " [replicatedAction]
@@ -18,11 +17,6 @@ import eu.compassresearch.ast.util.ToStringUtil;
 
 %action->#Replicated->generalisedParallelism = [chansetExpression]+"" +[replicationDeclaration]+ " @ "+[namesetExpression]+"" +[replicatedAction] 
 
-// %action->specification = "[" +
-//             $($[externals]$.isEmpty() ? "" : "\n\text " + $[externals]$) +
-//             ($[precondition]$ == null ? "" : "\n\tpre " + $[precondition]$) +
-//             ($[postcondition]$ == null ? "" : "\n\tpost " + $[postcondition]$) +
-//             ($[errors]$.isEmpty() ? "" : "\n\terrs " + $[errors]$)$ + "]" 
 %action->communication = [identifier] +$Utils.listToString($[communicationParameters]$,"")$ +" -> " [action]
 %communicationParameter->write ="!" [expression]
 %communicationParameter->signal ="." [expression]
@@ -39,13 +33,6 @@ import eu.compassresearch.ast.util.ToStringUtil;
 
 %action->#Parallel->#Parallelism->alphabetised= [leftAction] " [" [leftNamesetExpression] " | " [leftChansetExpression] " || " [rightChansetExpression] " | " [rightNamesetExpression] "] "[rightAction]
              
-                
-
-
-//%action->#Statement->block = "Block {" [action] "}"
-//%action->#Statement->new = [destination]" := new " [className] "("+ $Utils.listToString($[args]$)$ + ")"
-//%action->#Statement->return = "return "[exp]
-//%action->#Statement->#GeneralAssignment->single = [stateDesignator] " := " [expression]
 
 %action->parametrised = "params: " [parametrisations] " action: " [action]
 %parametrisation->val = "val " [declaration]
@@ -53,11 +40,9 @@ import eu.compassresearch.ast.util.ToStringUtil;
 %parametrisation->vres = "vres " [declaration]
 %action->communication = [identifier] " -> " [action]
 %action->guarded = [expression] " & " [action]
-//%action->#Statement->call = [name] "(" + $org.overture.ast.util.Utils.listToString($  [args]  $)$ + ")"
 %declaration->#Single->type = [identifier] " : " [type]
 %declaration->#Single->expression = [identifier] " := " [expression]
 
-//%exp->variable = [name]
 
 // Processes
 %process->action = "begin\n" [actionDefinition] " @ " [action] "\nend"
@@ -65,7 +50,6 @@ import eu.compassresearch.ast.util.ToStringUtil;
 %definition->#class->action = "class " [name]$.getFullName()+ ($[supernames]$.isEmpty() ? "" : " is subclass of " +$ [supernames]$) + "\n" + ToStringUtil.getDefinitionListString($[definitions]$)$+           "end "  [name]$.getFullName()$ + "\n"
 
 
-//%type->error = "Type Error"
 
 // varSetExpressions
 %VarsetExpression->fatEnum = "{| " +$Utils.listToString($[channelNames]$)$+ " |}"
@@ -76,7 +60,7 @@ import eu.compassresearch.ast.util.ToStringUtil;
 
 //  Expressions
 %exp->#Channel->name = [identifier]+ $($[expressions]$!=null && !$[expressions]$.isEmpty()?Utils.listToString("!",_expressions):"")$+""
-%exp->unresolvedPath = "("+  $org.overture.ast.util.Utils.listToString($[identifiers] $ , ".")$ +")"
+%exp->unresolvedPath = "("+  $Utils.listToString($[identifiers] $ , ".")$ +")"
 
 //  Patterns
 
@@ -87,10 +71,7 @@ import eu.compassresearch.ast.util.ToStringUtil;
 %definition->nameset = "nameset " [identifier] + " = " + [namesetExpression]
 
 
-//%definition->class = "Class " [name]$.getName()$
 %definition->state = "State Paragraph"
-//%definition->#cmlOperation->implicit = [name] + " " + [type]
-//%definition->#cmlOperation->explicit = [name] + " " + [type]
 //  Statements
 
 

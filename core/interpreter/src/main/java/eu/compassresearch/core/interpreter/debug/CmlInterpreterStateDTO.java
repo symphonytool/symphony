@@ -41,15 +41,21 @@ public class CmlInterpreterStateDTO
 		List<CmlProcessDTO> children = new LinkedList<CmlProcessDTO>();
 
 		if (process == null)
+		{
 			return children;
+		}
 
 		children.add(process);
 
 		if (process.getLeftChild() != null)
+		{
 			children.addAll(convertProcessTreeIntoList(process.getLeftChild()));
+		}
 
 		if (process.getRightChild() != null)
+		{
 			children.addAll(convertProcessTreeIntoList(process.getRightChild()));
+		}
 
 		return children;
 	}
@@ -60,10 +66,14 @@ public class CmlInterpreterStateDTO
 		List<CmlProcessDTO> children = new LinkedList<CmlProcessDTO>();
 
 		if (process == null)
+		{
 			return children;
+		}
 
 		if (process.getLeftChild() == null && process.getRightChild() == null)
+		{
 			children.add(process);
+		}
 
 		// if (process.getLeftChild() != null)
 		children.addAll(convertProcessTreeIntoLeafList(process.getLeftChild()));
@@ -94,9 +104,12 @@ public class CmlInterpreterStateDTO
 			CmlInterpreterState state)
 	{
 		if (topProcess != null)
+		{
 			topLevelProcess = new CmlProcessDTO(topProcess, null);
-		else
+		} else
+		{
 			topLevelProcess = null;
+		}
 		this.state = state;
 	}
 
@@ -119,17 +132,23 @@ public class CmlInterpreterStateDTO
 	public List<CmlProcessDTO> getAllProcesses()
 	{
 		if (topLevelProcess != null)
+		{
 			return convertProcessTreeIntoList(this.topLevelProcess);
-		else
+		} else
+		{
 			return new LinkedList<CmlProcessDTO>();
+		}
 	}
 
 	public List<CmlProcessDTO> getAllLeafProcesses()
 	{
 		if (topLevelProcess != null)
+		{
 			return convertProcessTreeIntoLeafList(this.topLevelProcess);
-		else
+		} else
+		{
 			return new LinkedList<CmlProcessDTO>();
+		}
 	}
 
 	public CmlProcessDTO getToplevelProcess()
@@ -140,17 +159,21 @@ public class CmlInterpreterStateDTO
 	public List<InterpreterErrorDTO> getErrors()
 	{
 		if (errors != null)
+		{
 			return Arrays.asList(errors);
-		else
+		} else
+		{
 			return null;
+		}
 	}
 
 	public void addError(InterpreterErrorDTO error)
 	{
 
 		if (errors == null)
+		{
 			errors = new InterpreterErrorDTO[] { error };
-		else
+		} else
 		{
 			errors = Arrays.copyOf(errors, errors.length + 1);
 		}

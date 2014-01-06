@@ -59,7 +59,9 @@ public class AnnimationStrategy implements SelectionStrategy
 		for (CmlTransition transition : this.availableChannelEvents.getAllEvents())
 		{
 			if (System.identityHashCode(transition) == choice.getTransitionObjectId())
+			{
 				selectedEvent = transition;
+			}
 		}
 
 		if (selectedEvent instanceof LabelledTransition
@@ -93,8 +95,9 @@ public class AnnimationStrategy implements SelectionStrategy
 		// to the user, so we randomly choose all the possible internal transitions
 		// before we let anything through to the user
 		if (isSystemSelect(this.availableChannelEvents))
+		{
 			return systemSelect();
-		else
+		} else
 		{
 
 			try

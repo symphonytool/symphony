@@ -25,8 +25,8 @@ import eu.compassresearch.core.interpreter.Console;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
+import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.SelectionStrategy;
-import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.events.CmlInterpreterStateObserver;
 import eu.compassresearch.core.interpreter.api.events.InterpreterStateChangedEvent;
 import eu.compassresearch.core.interpreter.debug.messaging.CmlRequest;
@@ -281,31 +281,39 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 			case GET_STACK_FRAMES:
 			{
 				int id = message.getContent();
-				CmlBehaviour foundBehavior = this.runningInterpreter.findBehaviorById(id);
-				Context context = foundBehavior.getNextState().second;
-				List<StackFrameDTO> stackframes = new LinkedList<StackFrameDTO>();
+				DebugContext debugContext = this.runningInterpreter.getDebugContext(id);
+				if (debugContext != null)
+				{
+					List<StackFrameDTO> stackframes = new LinkedList<StackFrameDTO>();
 
-				List<Context> contextStack = new LinkedList<Context>();
-				Context nextContext = context;
-				int contextCount = 0;
-				// First count the contexts since the getDepth method does not do what you would expect
-				// we remove the global context
-				for (; nextContext.outer != null; contextCount++)
-				{
-					contextStack.add(nextContext);
-					nextContext = nextContext.outer;
+					List<Context> contextStack = new LinkedList<Context>();
+					Context nextContext = debugContext.ctxt;
+					int contextCount = 0;
+					// First count the contexts since the getDepth method does not do what you would expect
+					// we remove the global context
+					for (; nextContext.outer != null; contextCount++)
+					{
+						contextStack.add(nextContext);
+						nextContext = nextContext.outer;
+					}
+					int contextIndex = contextCount;
+					for (Context c : contextStack)
+					{
+						if (contextIndex == contextCount)
+						{
+							stackframes.add(new StackFrameDTO(debugContext.location.getStartLine(), c.location.getFile().toURI(), contextIndex--));
+						} else
+						{
+							stackframes.add(new StackFrameDTO(c.location.getStartLine(), c.location.getFile().toURI(), contextIndex--));
+						}
+					}
+					ResponseMessage responseMessage = new ResponseMessage(message.getRequestId(), CmlRequest.GET_STACK_FRAMES, stackframes);
+					sendResponse(responseMessage);
+
+					return true;
 				}
-				int contextIndex = contextCount;
-				for (Context c : contextStack)
-				{
-					if (contextIndex == contextCount)
-						stackframes.add(new StackFrameDTO(LocationExtractor.extractLocation(foundBehavior.getNextState().first).getStartLine(), c.location.getFile().toURI(), contextIndex--));
-					else
-						stackframes.add(new StackFrameDTO(c.location.getStartLine(), c.location.getFile().toURI(), contextIndex--));
-				}
-				ResponseMessage responseMessage = new ResponseMessage(message.getRequestId(), CmlRequest.GET_STACK_FRAMES, stackframes);
-				sendResponse(responseMessage);
-				return true;
+
+				throw new InterpreterRuntimeException("Unable to get debug context");
 			}
 
 			case GET_CONTEXT_PROPERTIES:
@@ -315,20 +323,24 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 				int threadId = args[0];
 				int level = args[1];
 
-				CmlBehaviour foundBehavior = this.runningInterpreter.findBehaviorById(threadId);
-				Context context = foundBehavior.getNextState().second;
-
-				List<Context> contexts = new LinkedList<Context>();
-				while (context.outer != null)
+				DebugContext debugContext = this.runningInterpreter.getDebugContext(threadId);
+				if (debugContext != null)
 				{
-					contexts.add(0, context);
-					context = context.outer;
+					Context context = debugContext.ctxt;
+
+					List<Context> contexts = new LinkedList<Context>();
+					while (context.outer != null)
+					{
+						contexts.add(0, context);
+						context = context.outer;
+					}
+
+					ResponseMessage responseMessage = new ResponseMessage(message.getRequestId(), CmlRequest.GET_CONTEXT_PROPERTIES, VariableDTO.extractVariables(contexts.get(level - 1)));
+					sendResponse(responseMessage);
+
+					return true;
 				}
-
-				ResponseMessage responseMessage = new ResponseMessage(message.getRequestId(), CmlRequest.GET_CONTEXT_PROPERTIES, VariableDTO.extractVariables(contexts.get(level - 1)));
-				sendResponse(responseMessage);
-
-				return true;
+				throw new InterpreterRuntimeException("Unable to get debug context");
 			}
 
 			default:
@@ -407,9 +419,12 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 		{
 			CmlInterpreterStateDTO status = CmlInterpreterStateDTO.createCmlInterpreterStateDTO(runningInterpreter);
 			if (e.hasErrorNode())
+			{
 				status.addError(new InterpreterErrorDTO(e.getMessage(), LocationExtractor.extractLocation(e.getErrorNode())));
-			else
+			} else
+			{
 				status.addError(new InterpreterErrorDTO(e.getMessage()));
+			}
 			stopped(status);
 		} catch (ValueException e)
 		{

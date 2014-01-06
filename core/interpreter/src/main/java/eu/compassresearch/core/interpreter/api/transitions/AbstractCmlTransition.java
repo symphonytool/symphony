@@ -40,7 +40,8 @@ abstract class AbstractCmlTransition implements CmlTransition
 	public boolean isSourcesSubset(CmlTransition other)
 	{
 
-		return (other.getEventSources().containsAll(getEventSources()) || getEventSources().containsAll(other.getEventSources()));
+		return other.getEventSources().containsAll(getEventSources())
+				|| getEventSources().containsAll(other.getEventSources());
 
 	}
 
@@ -49,7 +50,9 @@ abstract class AbstractCmlTransition implements CmlTransition
 	{
 		HashSet<INode> nodes = new LinkedHashSet<INode>();
 		for (CmlBehaviour s : this.eventSources)
+		{
 			nodes.add(s.getNextState().first);
+		}
 
 		return nodes;
 	}
@@ -61,7 +64,9 @@ abstract class AbstractCmlTransition implements CmlTransition
 		CmlTransition other = null;
 
 		if (!(obj instanceof CmlTransition))
+		{
 			return false;
+		}
 
 		other = (CmlTransition) obj;
 		return eventSources.equals(other.getEventSources());

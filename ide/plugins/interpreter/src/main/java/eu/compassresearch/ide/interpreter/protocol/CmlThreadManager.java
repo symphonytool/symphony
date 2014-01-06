@@ -2,6 +2,7 @@ package eu.compassresearch.ide.interpreter.protocol;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Vector;
 
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.ITerminate;
@@ -15,7 +16,7 @@ import eu.compassresearch.ide.interpreter.model.CmlThread;
 public class CmlThreadManager implements ITerminate
 {
 	// threads
-	private List<IThread> threads = new LinkedList<IThread>();
+	private List<CmlThread> threads = new LinkedList<CmlThread>();
 	private CmlDebugTarget target;
 
 	public CmlThreadManager(CmlDebugTarget target)
@@ -26,8 +27,33 @@ public class CmlThreadManager implements ITerminate
 	public void updateThreads(final CmlInterpreterStateDTO status,
 			CmlCommunicationManager communication)
 	{
-		threads.clear();
-		for (CmlProcessDTO t : status.getAllLeafProcesses())
+		List<CmlThread> deadThreads = new LinkedList<CmlThread>();
+		List<CmlProcessDTO> dtos = new Vector<CmlProcessDTO>(status.getAllLeafProcesses());
+		for (CmlThread debugThread : threads)
+		{
+			boolean found = false;
+			for (CmlProcessDTO t : dtos)
+			{
+				if(debugThread.id== t.getId())
+				{
+					found = true;
+					debugThread.updateInfo(t);
+				}
+				
+			}
+			
+			if(!found)
+			{
+				deadThreads.add(debugThread);
+			}else
+			{
+				dtos.remove(debugThread.getInfo());
+			}
+		}
+		
+		threads.removeAll(deadThreads);
+		
+		for (CmlProcessDTO t : dtos)
 		{
 			CmlThread thread = new CmlThread(target, this, communication, t);
 			thread.initialize();
@@ -65,7 +91,7 @@ public class CmlThreadManager implements ITerminate
 		target.terminated();
 	}
 
-	public List<IThread> getThreads()
+	public List<? extends IThread> getThreads()
 	{
 		return this.threads;
 	}

@@ -120,5 +120,11 @@ public class Activator implements BundleActivator {
 	    	client.setExtraFiles(store.getBoolean("RttMbtExtraFiles"));
 		}
 	}
-    
+
+	public static String getPreferenceValue(String key) {
+		String value = null;
+		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
+		value = store.getString(key);
+		return value;
+	}
   }

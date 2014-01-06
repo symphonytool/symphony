@@ -20,7 +20,9 @@ public final class VanillaInterpreterFactory
 	public static CmlInterpreter newInterpreter(List<PDefinition> definitions)
 			throws CmlInterpreterException
 	{
-		return new VanillaCmlInterpreter(definitions, newDefaultConfig());
+		VanillaCmlInterpreter interpreter = new VanillaCmlInterpreter(definitions, newDefaultConfig());
+		CmlContextFactory.configureDBGPReader(interpreter);
+		return interpreter;
 	}
 
 	/**
@@ -35,7 +37,9 @@ public final class VanillaInterpreterFactory
 	public static CmlInterpreter newInterpreter(List<PDefinition> definitions,
 			Config config) throws CmlInterpreterException
 	{
-		return new VanillaCmlInterpreter(definitions, config);
+		VanillaCmlInterpreter interpreter = new VanillaCmlInterpreter(definitions, config);
+		CmlContextFactory.configureDBGPReader(interpreter);
+		return interpreter;
 	}
 
 	public static Config newDefaultConfig()
@@ -47,18 +51,4 @@ public final class VanillaInterpreterFactory
 	{
 		return new Config(filterTockEvents);
 	}
-
-	// /**
-	// * create an instance of the Vanilla interpreter.
-	// *
-	// * @param cmlSource
-	// * - A single parsed and type-checked CML source to interpret
-	// * @throws CmlInterpreterException
-	// */
-	// public static CmlInterpreter newInterpreter(PSource cmlSource)
-	// throws CmlInterpreterException
-	// {
-	// return new VanillaCmlInterpreter(cmlSource);
-	// }
-
 }

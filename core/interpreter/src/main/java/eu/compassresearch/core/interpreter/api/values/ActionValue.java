@@ -31,7 +31,9 @@ public class ActionValue extends Value
 	{
 
 		if (!(other instanceof ActionValue))
+		{
 			return false;
+		}
 
 		return actionDefinition.equals(((ActionValue) other).actionDefinition);
 	}

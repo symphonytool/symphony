@@ -1,0 +1,8 @@
+channels 
+a : int * int
+b : int
+
+process A = 
+begin 
+	@ a?x.(x-2) -> b.(x) -> Skip [| {| a |} |] a!(3).(1) -> Skip
+end
