@@ -2,9 +2,9 @@ package eu.compassresearch.core.interpreter;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
@@ -342,7 +342,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			return availableEvents;
 		}
 
-		Set<CmlTransition> events = new HashSet<CmlTransition>();
+		SortedSet<CmlTransition> events = new TreeSet<CmlTransition>();
 		for (CmlTransition event : availableEvents.getAllEvents())
 		{
 			if (!(event instanceof TimedTransition))

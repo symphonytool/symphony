@@ -1,7 +1,7 @@
 package eu.compassresearch.core.interpreter.api.transitions;
 
 import java.util.List;
-import java.util.Set;
+import java.util.SortedSet;
 
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameValue;
@@ -28,7 +28,7 @@ abstract class AbstractLabelledTransition extends AbstractCmlTransition
 		this.channelName = channelName;
 	}
 
-	protected AbstractLabelledTransition(Set<CmlBehaviour> sources,
+	protected AbstractLabelledTransition(SortedSet<CmlBehaviour> sources,
 			ChannelNameValue channelName)
 	{
 		super(sources);

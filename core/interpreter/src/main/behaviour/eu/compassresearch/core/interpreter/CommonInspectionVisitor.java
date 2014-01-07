@@ -5,6 +5,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.expressions.PExp;
@@ -139,7 +141,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			// combine all the common channel events that are in the channel set
 			CmlTransitionSet leftSync = leftChildAlpha.retainByChannelNameSet(intersectionChanset);
 			CmlTransitionSet rightSync = rightChildAlpha.retainByChannelNameSet(intersectionChanset);
-			Set<CmlTransition> syncEvents = new HashSet<CmlTransition>();
+			SortedSet<CmlTransition> syncEvents = new TreeSet<CmlTransition>();
 			// Find the intersection between the child alphabets and the channel set and join them.
 			// Then if both left and right have them the next step will combine them.
 			for (ObservableTransition leftTrans : leftSync.getObservableChannelEvents())
@@ -404,7 +406,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		// combine all the common channel events that are in the channel set
 		CmlTransitionSet leftSync = leftChildAlphabet.retainByChannelNameSet(cs);
 		CmlTransitionSet rightSync = rightChildAlphabet.retainByChannelNameSet(cs);
-		Set<CmlTransition> syncEvents = new HashSet<CmlTransition>();
+		SortedSet<CmlTransition> syncEvents = new TreeSet<CmlTransition>();
 		// Find the intersection between the child alphabets and the channel set and join them.
 		// Then if both left and right have them the next step will combine them.
 		for (ObservableTransition leftTrans : leftSync.getObservableChannelEvents())
@@ -420,7 +422,9 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 					if (leftChannelEvent.getChannelName().isGTEQPrecise(rightChannelEvent.getChannelName())
 							|| rightChannelEvent.getChannelName().isGTEQPrecise(leftChannelEvent.getChannelName()))
 					{
-						syncEvents.add(leftTrans.synchronizeWith(rightTrans));
+						ObservableTransition result = leftTrans.synchronizeWith(rightTrans);
+						if(result != null)
+							syncEvents.add(result);
 					}
 				}
 			}

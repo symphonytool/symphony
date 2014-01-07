@@ -2,7 +2,7 @@ package eu.compassresearch.core.interpreter.api;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
+import java.util.SortedSet;
 import java.util.concurrent.SynchronousQueue;
 
 import org.overture.ast.intf.lex.ILexLocation;
@@ -45,7 +45,7 @@ public class AnnimationStrategy implements SelectionStrategy
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private CmlTransition systemSelect()
 	{
-		this.rndSelect.choices(new CmlTransitionSet((Set) this.availableChannelEvents.getSilentTransitionsAsSet()));
+		this.rndSelect.choices(new CmlTransitionSet((SortedSet) this.availableChannelEvents.getSilentTransitionsAsSet()));
 		return rndSelect.resolveChoice();
 	}
 

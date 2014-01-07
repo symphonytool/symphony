@@ -698,4 +698,10 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 		// this.name = new CmlLexNameToken(name.getModule(), this.name.getName()+" -> "+name.getName(),
 		// name.getLocation());
 	}
+
+	@Override
+	public int compareTo(CmlBehaviour o)
+	{
+		return Integer.compare(getId(), o.getId());
+	}
 }

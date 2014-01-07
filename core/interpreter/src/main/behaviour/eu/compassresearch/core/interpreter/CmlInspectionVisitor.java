@@ -29,7 +29,6 @@ public class CmlInspectionVisitor extends AbstractInspectionVisitor
 			CmlBehaviorFactory cmlBehaviorFactory, 
 			VisitorAccess visitorAccess)
 	{
-
 		super(ownerProcess, visitorAccess, cmlBehaviorFactory, null);
 		this.actionVisitor = new ActionInspectionVisitor(ownerProcess, visitorAccess, cmlBehaviorFactory, this);
 		this.processVisitor = new ProcessInspectionVisitor(ownerProcess, visitorAccess, cmlBehaviorFactory, this);
