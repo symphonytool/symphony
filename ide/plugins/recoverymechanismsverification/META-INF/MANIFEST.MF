@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Symphony IDE RMV Plugin
 Bundle-SymbolicName: eu.compassresearch.ide.recoverymechanismsverification;singleton:=true
 Bundle-Version: 0.0.1.snapshot
-Bundle-Activator: eu.compassresearch.ide.recoverymechanismsverification.Activator
+Bundle-Activator: eu.compassresearch.ide.recoverymechanismsverification.RMVActivator
 Bundle-Vendor: The COMPASS Project
 Require-Bundle: 
  org.overture.ide.ui,
