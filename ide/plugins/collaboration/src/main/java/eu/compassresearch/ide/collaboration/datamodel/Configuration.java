@@ -1,8 +1,14 @@
 package eu.compassresearch.ide.collaboration.datamodel;
 
+import java.io.IOException;
+import java.util.Date;
 import java.util.UUID;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.CoreException;
+
 import eu.compassresearch.ide.collaboration.communication.messages.FileStatusMessage.NegotiationStatus;
+import eu.compassresearch.ide.collaboration.files.FileHandler;
 
 public class Configuration extends Model {
 
@@ -11,27 +17,30 @@ public class Configuration extends Model {
 	protected Files files;
 	private NegotiationStatus status;
 	private final String uniqueID;
+	protected final long timestamp_ux_epoch; 
 	private Configuration parentConfiguration;
 
-	private Configuration(){
+	private Configuration(Model parent){
+		super("Unnamed Configuration", parent);
 		uniqueID = UUID.randomUUID().toString();
-		files = new Files();
-		files.setParent(this);
+		files = new Files(this);
+		Date d = new Date();
+		timestamp_ux_epoch = d.getTime();
+		this.name =  uniqueID.substring(0, 8) + " - " + new Date(timestamp_ux_epoch);
 	}
 	
-	public Configuration(File file) {
-		this();
+	public Configuration(File file, Model parent) {
+		this(parent);
 		addFile(file);
 		parentConfiguration = null;
 	}
 	
-	public Configuration(Configuration oldConfiguration, File newFile) {
-		this();
+	public Configuration(Configuration oldConfiguration, File newFile, Model parent) {
+		this(parent);
 		
 		parentConfiguration = oldConfiguration;
 		Files filesInOldConfig = oldConfiguration.getFiles();
 		Files filesInNewConfig = filesInOldConfig.clone();
-		files.setParent(this);
 		filesInNewConfig.addFile(newFile);
 		files = filesInNewConfig;
 	}
@@ -83,9 +92,9 @@ public class Configuration extends Model {
 		fireObjectAddedEvent(this);
 	}
 
-	public boolean isKnownFile(String hash)
-	{
-		return files.isFileKnown(hash);
+	public boolean isKnownFile(IFile file) throws CoreException, IOException
+	{		
+		return files.isFileKnown(file);
 	}
 
 	public Configuration getParentConfiguration()
@@ -96,5 +105,17 @@ public class Configuration extends Model {
 	public String getUniqueID()
 	{
 		return uniqueID;
+	}
+	
+	@Override
+	public String toString()
+	{
+		return super.toString();
+	}
+
+	@Override
+	public CollaborationProject getCollaborationProject()
+	{
+		return getParent().getCollaborationProject();
 	}
 }

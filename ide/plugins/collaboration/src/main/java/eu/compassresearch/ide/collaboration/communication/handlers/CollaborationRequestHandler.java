@@ -45,11 +45,10 @@ public class CollaborationRequestHandler extends BaseMessageHandler<Collaboratio
 						CollaborationDataModelManager modelMgm = Activator.getDefault().getDataModelManager();
 						CollaborationDataModelRoot root = modelMgm.getDataModel();
 						
-						root.addCollaborationProject(new CollaborationProject(collabRequestedDialog.getProject(), msg.getTitle(), msg.getMessage(), collabProjectId));
+						root.addCollaborationProject(collabRequestedDialog.getProject(), msg.getTitle(), msg.getMessage(), collabProjectId);
 						
 						CollaborationGroup collabGrp = (CollaborationGroup) root.getCollaborationProjects().get(0).getCollaboratorGroup();
-						User usr = new User(senderName);
-						collabGrp.addCollaborator(usr);	
+						collabGrp.addCollaborator(senderName);	
 					}
 					
 					//send reply

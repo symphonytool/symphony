@@ -16,18 +16,17 @@ public class Configurations extends Model {
 	
 	protected LinkedList<Configuration> configurations;
 
-	public Configurations() {
+	public Configurations(Model parent) {
+		super("Configurations", parent);
 		configurations = new LinkedList<Configuration>();
-		this.name = "Configurations";
 	}
 
 	protected void addConfiguration(Configuration configuration) {
 		
 		assert(!configurations.contains(configuration));
 		
-		configurations.add(configuration);
+		configurations.add(0,configuration);
 		configuration.addListener(listener);
-		configuration.setParent(this);
 		fireObjectAddedEvent(configuration);
 	}
 
@@ -49,6 +48,12 @@ public class Configurations extends Model {
 		// visitor.visitContracts(this, passAlongArgument);
 	}
 
+	@Override
+	public String toString()
+	{
+		return super.toString() + "(" + configurations.size() + ")";
+	}
+	
 	@Override
 	public void addListener(IDeltaListener listener) {
 
@@ -76,41 +81,48 @@ public class Configurations extends Model {
 		return null; //configurations.get(name);
 	}
 
-	private CollaborationProject getCollaborationProject(){
-		return (CollaborationProject) this.getParent();
+	public CollaborationProject getCollaborationProject(){
+		return getParent().getCollaborationProject();
 	}
 	
-	private boolean isKnownFile(String hash)
+	private boolean isKnownFile(IFile file) throws CoreException, IOException
 	{
 		if(configurations.isEmpty()) return false;
 		
-		Configuration newestConfig = configurations.getLast();
+		Configuration newestConfig = configurations.getFirst();
 
-		return newestConfig.isKnownFile(hash);
+		return newestConfig.isKnownFile(file);
 	}
 
 	public boolean addFile(IFile file) throws CoreException, IOException
 	{
 		String calculatedSha = FileHandler.calculateSha(file);
 		
-		if(isKnownFile(calculatedSha)){
+		if(isKnownFile(file)){
 			return false;
 		} 
 		
 		IFile filePath = FileHandler.saveFile(file, getCollaborationProject());
-		File newFile = new File(file.getName(), calculatedSha, filePath.getFullPath().toString());
+		File newFile = new File(file.getName(), calculatedSha, filePath.getFullPath().toString(), this);
+		newFile.setNewFile(true);
 		
 		Configuration configuration;
 		if(configurations.isEmpty()){
-			 configuration = new Configuration(newFile);
+			 configuration = new Configuration(newFile, this);
 
 		} else {
-			Configuration oldConfig = configurations.getLast();
-			configuration = new Configuration(oldConfig, newFile);
+			Configuration oldConfig = configurations.getFirst();
+			configuration = new Configuration(oldConfig, newFile, this);
 		}
 		
 		addConfiguration(configuration);
 			
 		return true;
+	}
+
+	public boolean updateFile(IFile file)
+	{
+		// TODO Auto-generated method stub
+		return false;
 	}
 }

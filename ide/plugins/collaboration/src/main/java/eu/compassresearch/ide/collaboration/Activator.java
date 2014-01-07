@@ -2,6 +2,8 @@ package eu.compassresearch.ide.collaboration;
 
 import java.util.Hashtable;
 
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.ecf.core.IContainerManager;
 import org.eclipse.ecf.core.identity.ID;
 import org.eclipse.ecf.core.util.ECFException;
@@ -16,6 +18,7 @@ import eu.compassresearch.ide.collaboration.communication.handlers.Collaboration
 import eu.compassresearch.ide.collaboration.communication.handlers.FileStatusMessageHandler;
 import eu.compassresearch.ide.collaboration.communication.handlers.NewFileHandler;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationDataModelManager;
+import eu.compassresearch.ide.collaboration.files.FileChangeListener;
 
 public class Activator extends AbstractUIPlugin
 {
@@ -27,6 +30,7 @@ public class Activator extends AbstractUIPlugin
 	private ServiceTracker containerManagerTracker;
 	
 	private CollaborationDataModelManager dataModelManager;
+	private FileChangeListener fileChangeListener;
 	
 	private static final Hashtable<ID, MessageProcessor> collaborationProcessors = new Hashtable<ID, MessageProcessor>();
 	
@@ -45,6 +49,9 @@ public class Activator extends AbstractUIPlugin
 		//Persist data model
 		dataModelManager.loadModel();
 		
+		fileChangeListener = new FileChangeListener();
+		IWorkspace workspace = ResourcesPlugin.getWorkspace();
+		workspace.addResourceChangeListener(fileChangeListener);
 	}
 	
 	@Override
@@ -56,11 +63,14 @@ public class Activator extends AbstractUIPlugin
 		}
 		
 		dataModelManager.saveModel();
+	
+		IWorkspace workspace = ResourcesPlugin.getWorkspace();
+		workspace.removeResourceChangeListener(fileChangeListener);
 		
 		plugin = null;
 		this.context = null;
 		dataModelManager = null;
-		
+	
 		super.stop(context);
 	}
 	

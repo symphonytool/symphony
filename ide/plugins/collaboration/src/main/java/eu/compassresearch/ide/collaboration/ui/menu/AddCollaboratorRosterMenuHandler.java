@@ -77,8 +77,7 @@ public class AddCollaboratorRosterMenuHandler extends AbstractRosterMenuHandler
 				}
 			
 				//update user
-				User usr = new User(receiver.getName(), "(Request sent, pending response.)");
-				group.addCollaborator(usr);				
+				group.addCollaborator(receiver.getName());				
 			}
 		}
 		return null;

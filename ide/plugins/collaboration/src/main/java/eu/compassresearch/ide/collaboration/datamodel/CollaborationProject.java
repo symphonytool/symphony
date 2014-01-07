@@ -19,28 +19,26 @@ public class CollaborationProject extends Model
 	private String description; 
 	private final String uniqueID;
 	
-	public CollaborationProject(String workspaceName, String title, String description, String uniqueID)
+	public CollaborationProject(String workspaceName, String title, String description, String uniqueID, Model parent)
 	{
-		this.title = title;
+		super(title, parent);
 		this.description = description;
 		this.name = "Collaboration Project: " + title;
+		this.title = title;
 		this.workspaceName = workspaceName;
 		this.uniqueID = uniqueID;
 		
-		configurations = new Configurations();
-		configurations.setParent(this);
-		collaboratorGroup = new CollaborationGroup();
-		collaboratorGroup.setParent(this);
+		configurations = new Configurations(this);
+		collaboratorGroup = new CollaborationGroup(this);
 	}
 	
-	public CollaborationProject(String workspaceName, String title, String description)
+	public CollaborationProject(String workspaceName, String title, String description, Model parent)
 	{
-		this(workspaceName,title, description, UUID.randomUUID().toString());
+		this(workspaceName,title, description, UUID.randomUUID().toString(), parent);
 	}
 	
 	private void addConfiguration(Configuration configuration) {
 		configurations.addConfiguration(configuration);
-		configuration.setParent(this);
 		fireObjectAddedEvent(configuration);
 	}
 	
@@ -50,10 +48,10 @@ public class CollaborationProject extends Model
 		fireObjectRemovedEvent(configuration);
 	}
 	
-	public void addCollaborator(User usr) {
-		collaboratorGroup.addCollaborator(usr);
-		fireObjectAddedEvent(collaboratorGroup);
-	}
+//	public void addCollaborator(User usr) {
+//		collaboratorGroup.addCollaborator(usr);
+//		fireObjectAddedEvent(collaboratorGroup);
+//	}
 	
 	protected void removeCollaboratorGroup(CollaborationGroup collabGroup) {
 		//collaboratorGroups.remove(collabGroup);
@@ -125,5 +123,16 @@ public class CollaborationProject extends Model
 	public boolean addNewFile(IFile file) throws CoreException, IOException
 	{
 		return configurations.addFile(file);
+	}
+	
+	public boolean updateFile(IFile file) throws CoreException, IOException
+	{
+		return configurations.updateFile(file);
+	}
+
+	@Override
+	public CollaborationProject getCollaborationProject()
+	{
+		return this;
 	}
 }

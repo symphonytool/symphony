@@ -9,19 +9,18 @@ public class Shares extends Model {
 	
 	protected List<Share> shares;
 
-	public Shares() {
+	public Shares(Model parent) {
+		super("Shares", parent);
 		shares = new ArrayList<Share>();
-		this.name = "Shares";
 	}
 	
-	private Shares(List<Share> shares) {
+	private Shares(List<Share> shares, Model parent) {
+		super("Shares", parent);
 		this.shares = shares;
-		this.name = "Shares";
 	}
 	
 	public void addShare(Share share) {
 		shares.add(share);
-		share.setParent(this);
 		fireObjectAddedEvent(share);
 	}
 	
@@ -48,7 +47,7 @@ public class Shares extends Model {
 			clone.add(share.clone());
 		}
 	
-		return new Shares(clone);
+		return new Shares(clone, getParent());
 	}
 	
 	@Override
@@ -75,5 +74,11 @@ public class Shares extends Model {
 	
 	public void accept(IModelVisitor visitor, Object passAlongArgument) {
 		//visitor.visitContracts(this, passAlongArgument);
+	}
+
+	@Override
+	public CollaborationProject getCollaborationProject()
+	{
+		return getParent().getCollaborationProject();
 	}
 }

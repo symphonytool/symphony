@@ -3,38 +3,26 @@ package eu.compassresearch.ide.collaboration.datamodel;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class CollaborationDataModelRoot extends Model {
+public class CollaborationDataModelRoot extends Model
+{
 
 	private static final long serialVersionUID = -1055683893766465746L;
 
-	HashMap<String,CollaborationProject> collaborationProjects;	
-	
-	public CollaborationDataModelRoot() {
-		super("Collaboration Data Model Root");
-		
+	HashMap<String, CollaborationProject> collaborationProjects;
+
+	public CollaborationDataModelRoot()
+	{
+		super("Collaboration Data Model Root", null);
+
 		collaborationProjects = new HashMap<String, CollaborationProject>();
 	}
-	
-	public CollaborationDataModelRoot(String name) {
+
+	public CollaborationDataModelRoot(String name)
+	{
 		this();
 		this.name = name;
 	}
-	
-	public boolean addCollaborationProject(CollaborationProject project) {
-		
-		 String id = project.getUniqueID();
-		
-		if(collaborationProjects.containsKey(id)){
-			return false;
-		} else {
-			collaborationProjects.put(id, project);
-			project.addListener(listener);
-			fireObjectAddedEvent(project);
-			
-			return true;
-		}
-	}
-	
+
 	@Override
 	public void removeListener(IDeltaListener listener)
 	{
@@ -44,13 +32,48 @@ public class CollaborationDataModelRoot extends Model {
 		}
 		super.removeListener(listener);
 	}
-	
-	public ArrayList<CollaborationProject> getCollaborationProjects() {
+
+	public ArrayList<CollaborationProject> getCollaborationProjects()
+	{
 		return new ArrayList<>(collaborationProjects.values());
 	}
+
+	public void accept(IModelVisitor visitor, Object passAlongArgument)
+	{
+		// visitor.visitContracts(this, passAlongArgument);
+	}
+
+	@Override
+	public CollaborationProject getCollaborationProject()
+	{
+		return null;
+	}
 	
+	public boolean addCollaborationProject(CollaborationProject collabProject){
+		String id = collabProject.getUniqueID();
+
+		if (collaborationProjects.containsKey(id))
+		{
+			return false;
+		} else
+		{
+			collaborationProjects.put(id, collabProject);
+			collabProject.addListener(listener);
+			fireObjectAddedEvent(collabProject);
+
+			return true;
+		}
+	}
+
+	public boolean addCollaborationProject(String project, String title, String description)
+	{
+		CollaborationProject collabProject = new CollaborationProject(project, title, description, this);
+		return addCollaborationProject(collabProject);
+	}
 	
-	public void accept(IModelVisitor visitor, Object passAlongArgument) {
-		//visitor.visitContracts(this, passAlongArgument);
+	public boolean addCollaborationProject(String project, String title, String description, String collabProjectId)
+	{
+		CollaborationProject collabProject = new CollaborationProject(project, title, description, collabProjectId, this);
+		return addCollaborationProject(collabProject);
 	}
 }

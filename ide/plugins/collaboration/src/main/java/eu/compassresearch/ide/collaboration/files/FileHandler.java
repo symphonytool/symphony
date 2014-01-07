@@ -12,17 +12,17 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Formatter;
 
-import org.eclipse.core.filesystem.EFS;
-import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourceAttributes;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Status;
 
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationProject;
+import eu.compassresearch.ide.collaboration.datamodel.File;
 import eu.compassresearch.ide.collaboration.notifications.Notification;
 import eu.compassresearch.ide.collaboration.ui.menu.CollaborationDialogs;
 
@@ -32,25 +32,47 @@ public class FileHandler
 	private static final String defaultFileNameExtension = ".dat";
 	private static final String defaultCollaborationFolderName = ".Collaboration";
 
-	public void loadFile(String hash, CollaborationProject collaborationProject){
-		
+	public void loadFile(String hash, CollaborationProject collaborationProject)
+	{
+
 	}
 	
-	public static IFile saveFile(IFile file, CollaborationProject collaborationProject) throws CoreException 
+	public static IFile loadFile(File file, CollaborationProject collaborationProject) throws CoreException
 	{
 		String workspaceProjectName = collaborationProject.getProjectWorkspaceName();
-		IFolder collabProjectFolder = createCollaborationDirectory(workspaceProjectName);
-	
-		IFile newFile = collabProjectFolder.getFile(file.getName());
-		if (!newFile.exists()) {
-		    InputStream source = file.getContents();
-		    newFile.create(source, IResource.FORCE, null);
+		IFolder collabProjectFolder = getCollaborationDirectory(workspaceProjectName);
+		
+		if(collabProjectFolder != null) {
+			IFile loadedFile = collabProjectFolder.getFile(file.getName());
+			
+			return loadedFile;
 		}
 		
+		return null;
+	}
+
+	public static IFile saveFile(IFile file,
+			CollaborationProject collaborationProject) throws CoreException
+	{
+		String workspaceProjectName = collaborationProject.getProjectWorkspaceName();
+		IFolder collabProjectFolder = getCollaborationDirectory(workspaceProjectName);
+
+		IFile newFile = collabProjectFolder.getFile(file.getName());
+		if (!newFile.exists())
+		{
+			InputStream source = file.getContents();
+			newFile.create(source, IResource.FORCE, null);
+			ResourceAttributes resourceAttributes = new ResourceAttributes();
+			resourceAttributes.setReadOnly(true);
+			resourceAttributes.setHidden(true);
+			newFile.setResourceAttributes(resourceAttributes);
+		}
+
 		return newFile;
 	}
-	
-	public static String calculateSha(IFile file) throws CoreException, IOException
+
+	public static String calculateSha(IFile file) throws CoreException,
+			IOException
 	{
 		MessageDigest md;
 		try
@@ -59,46 +81,51 @@ public class FileHandler
 		} catch (NoSuchAlgorithmException e)
 		{
 			e.printStackTrace();
-			throw new CoreException(new Status(Status.ERROR, "", "SHA Hash failed for file: " + file));
+			throw new CoreException(new Status(Status.ERROR, "", "SHA Hash failed for file: "
+					+ file));
 		}
 		InputStream contents = file.getContents();
-		
+
 		byte[] dataBytes = new byte[1024];
-		 
-	    int read = 0; 
-	
-		while ((read = contents.read(dataBytes)) != -1) {
-			  md.update(dataBytes, 0, read);
+
+		int read = 0;
+
+		while ((read = contents.read(dataBytes)) != -1)
+		{
+			md.update(dataBytes, 0, read);
 		}
-	    
-	    return byteArray2Hex(md.digest());
+
+		return byteArray2Hex(md.digest());
 	}
-	
-	private static String byteArray2Hex(final byte[] hash) {
-	    
+
+	private static String byteArray2Hex(final byte[] hash)
+	{
+
 		Formatter formatter = new Formatter();
 		try
 		{
-		    for (byte b : hash) {
-		        formatter.format("%02x", b);
-		    }
-	    
-	    	return formatter.toString();
-		} finally{
+			for (byte b : hash)
+			{
+				formatter.format("%02x", b);
+			}
+
+			return formatter.toString();
+		} finally
+		{
 			formatter.close();
 		}
 	}
-	
-	
+
 	public void saveCollaborationProject(
 			CollaborationProject collaborationProject) throws CoreException,
 			IOException
 	{
 		String workspaceProjectName = collaborationProject.getProjectWorkspaceName();
-		IFolder projectFolder = createCollaborationDirectory(workspaceProjectName);
-		String filename = defaultFileName + workspaceProjectName + defaultFileNameExtension;
+		IFolder projectFolder = getCollaborationDirectory(workspaceProjectName);
+		String filename = defaultFileName + workspaceProjectName
+				+ defaultFileNameExtension;
 		IFile file = projectFolder.getFile(filename);
-		
+
 		ByteArrayInputStream bais = null;
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		ObjectOutput oos = new ObjectOutputStream(baos);
@@ -122,7 +149,7 @@ public class FileHandler
 		}
 	}
 
-	private static IFolder createCollaborationDirectory(
+	private static IFolder getCollaborationDirectory(
 			String workspaceProjectName) throws CoreException
 	{
 		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(workspaceProjectName);
@@ -138,41 +165,45 @@ public class FileHandler
 
 		IFolder projectFolder = project.getFolder(defaultCollaborationFolderName);
 
-		if (!projectFolder.exists()) 
+		if (!projectFolder.exists())
 		{
 			projectFolder.create(IResource.NONE, true, null);
 			projectFolder.setTeamPrivateMember(true);
 		}
-		
+
 		return projectFolder;
 
 	}
 
 	public CollaborationProject loadCollaborationProject(IProject project)
 	{
-		String filename = defaultFileName + project.getName() + defaultFileNameExtension;
+		String filename = defaultFileName + project.getName()
+				+ defaultFileNameExtension;
 		IFolder projectFolder = project.getFolder(defaultCollaborationFolderName);
-
-		if (projectFolder.exists())
+		try
 		{
-			IFile file = projectFolder.getFile(filename);
-
-			if(file.exists())
+			project.refreshLocal(IResource.DEPTH_INFINITE, null);
+			if (projectFolder.exists())
 			{
-				ObjectInput ois = null;
-				try
+				IFile file = projectFolder.getFile(filename);
+
+				if (file.exists())
 				{
-					ois = new ObjectInputStream(file.getContents());
+					ObjectInput ois = null;
+					InputStream contents = file.getContents();
+					ois = new ObjectInputStream(contents);
 					CollaborationProject collabProject = (CollaborationProject) ois.readObject();
 					ois.close();
 					return collabProject;
-				} catch (ClassNotFoundException | IOException | CoreException e)
-				{
-					CollaborationDialogs.displayErrorDialog("Error loading stored collaboration project: "
-							+ filename, "Exception thrown. Stack trace printed");
-					e.printStackTrace();
+
 				}
 			}
+
+		} catch (ClassNotFoundException | IOException | CoreException e)
+		{
+			CollaborationDialogs.displayErrorDialog("Error loading stored collaboration project: "
+					+ filename, "Exception thrown. Stack trace printed");
+			e.printStackTrace();
 		}
 
 		return null;

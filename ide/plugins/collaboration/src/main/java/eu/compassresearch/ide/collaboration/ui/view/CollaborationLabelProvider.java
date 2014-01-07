@@ -78,19 +78,42 @@ public class CollaborationLabelProvider extends LabelProvider implements IColorP
 				return ((Configurations)element).getName();
 			}
 		} else if (element instanceof Configuration) {
-			return ((Configuration)element).getName();
+			return ((Configuration)element).toString();
 		} else if (element instanceof Files) {
 			return ((Files)element).toString();
 		} else if (element instanceof Shares) {
 			return ((Shares)element).toString();
 		} else if (element instanceof File) {
-			return ((File)element).toString();
+			
+			File file = (File) element;
+			String toString;
+			
+			if(file.isNewFile()){
+				toString = file + " (File added to configuration)";
+			} else {
+				toString = file.toString();
+			}
+			
+			return toString;
+			
 		} else if (element instanceof Share) {
 			return ((Share)element).toString();
 		} else if (element instanceof CollaborationGroup) {
 			return ((CollaborationGroup)element).toString();
 		} else if (element instanceof User) {
-			return ((User)element).toString();
+			
+			User usr = (User) element;
+			String toString;
+			
+			if(usr.hasJoinedGroup()){
+				toString= usr.getName();
+			} else if(usr.hasDeclinedGroup()) {
+				toString = usr.getName() +  " (Declined Request)";
+			} else {
+				toString =  usr.getName() +  " (Request sent, pending response.)";
+			}
+			
+			return toString;
 		} else {
 			throw unknownElement(element);
 		}

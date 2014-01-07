@@ -11,13 +11,14 @@ public abstract class Model implements Serializable {
 	protected String name;	
 	protected IDeltaListener listener;
 	
-	public Model(String name) {
+	public Model(String name, Model parent) {
 		this.name = name;
+		this.parent = parent;
 	}
 	
-	public Model() {
-
-	}
+//	public Model() {
+//
+//	}
 	
 	protected void fireObjectAddedEvent(Object added) {
 		if(listener != null)
@@ -41,7 +42,7 @@ public abstract class Model implements Serializable {
 		return parent;
 	}
 	
-	protected void setParent(Model parent){
+	private void setParent(Model parent){
 		this.parent = parent;
 		listener = parent.listener;
 	}
@@ -49,6 +50,8 @@ public abstract class Model implements Serializable {
 	public String getName() {
 		return name;
 	}
+	
+	public abstract CollaborationProject getCollaborationProject();
 	
 	public void addListener(IDeltaListener listener) {
 		this.listener = listener;

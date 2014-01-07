@@ -42,10 +42,10 @@ public class CollaborationStatusMessageHandler extends BaseMessageHandler<Collab
 				String notification;
 				
 				if(collabRequest.isJoining()){
-					usr.setPostfix("");		
+					usr.acceptedToJoinGroup(true);
 					notification = "Joined Collaboration";
 				} else{
-					usr.setPostfix("(Declined collaboration)");		
+					usr.acceptedToJoinGroup(false);
 					notification = "Declined collaboration"; 
 				}
 				

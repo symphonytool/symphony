@@ -4,18 +4,13 @@ public class User extends Model {
 	
 	private static final long serialVersionUID = 5634470790158709661L;
 	
-	private String postfix;
+	private boolean hasJoinedGroup;
+	private boolean hasDeclinedGroup;
 	
-	public User(String name) {
-		super(name);
+	public User(String name, Model parent) {
+		super(name, parent);
 	}
 	
-	public User(String name, String namePostfix)
-	{
-		super(name);
-		postfix = namePostfix;
-	}
-
 	public void accept(IModelVisitor visitor, Object passAlongArgument) {
 		
 	}
@@ -25,21 +20,31 @@ public class User extends Model {
 	{
 		return name;
 	}
-	
+
 	@Override
-	public String toString()
+	public CollaborationProject getCollaborationProject()
 	{
-		return (postfix != null && !postfix.isEmpty() ? name + " " + postfix : name );
+		return getParent().getCollaborationProject();
 	}
 
-	public String getPostfix()
+	public boolean hasJoinedGroup()
 	{
-		return postfix;
+		return hasJoinedGroup;
 	}
 
-	public void setPostfix(String postfix)
+	public void acceptedToJoinGroup(boolean accepted)
 	{
-		this.postfix = postfix;
+		if(accepted){
+			this.hasJoinedGroup = accepted;
+		} else {
+			this.hasDeclinedGroup = true;
+		}
+		
 		fireObjectAddedEvent(this);
+	}
+
+	public boolean hasDeclinedGroup()
+	{
+		return hasDeclinedGroup;
 	}
 }

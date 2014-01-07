@@ -11,14 +11,14 @@ public class CollaborationGroup extends Model {
 	
 	protected Map<String,User> collaborators;
 	
-	public CollaborationGroup() {
+	public CollaborationGroup(Model parent) {
+		super("Collaborators", parent);
 		collaborators = new HashMap<String, User>();
-		this.name = "Collaborators";
 	}
 
-	public void addCollaborator(User user) {
+	public void addCollaborator(String username) {
+		User user = new User(username, this);
 		collaborators.put(user.getName(), user);
-		user.setParent(this);
 		user.listener = this.listener;
 		fireObjectAddedEvent(user);
 	}
@@ -70,5 +70,11 @@ public class CollaborationGroup extends Model {
 	public boolean hasCollaborator(String name)
 	{
 		return collaborators.containsKey(name);
+	}
+
+	@Override
+	public CollaborationProject getCollaborationProject()
+	{
+		return getParent().getCollaborationProject();
 	}
 }

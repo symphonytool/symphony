@@ -27,7 +27,7 @@ public class CollaborationDataModelManager
 	public void addCollaborationProject(String project, String title,
 			String description)
 	{
-		datamodel.addCollaborationProject(new CollaborationProject(project, title, description));
+		datamodel.addCollaborationProject(project, title, description);
 	}
 
 	public void saveModel() throws CoreException, IOException

@@ -3,7 +3,6 @@ package eu.compassresearch.ide.collaboration.ui.view;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Date;
 import java.util.Iterator;
 
 import org.eclipse.compare.CompareConfiguration;
@@ -16,7 +15,6 @@ import org.eclipse.compare.ITypedElement;
 import org.eclipse.compare.contentmergeviewer.IFlushable;
 import org.eclipse.compare.structuremergeviewer.DiffNode;
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.ecf.core.util.ECFException;
@@ -25,9 +23,13 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IDoubleClickListener;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
@@ -39,22 +41,21 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.ViewPart;
 
 import eu.compassresearch.ide.collaboration.Activator;
 import eu.compassresearch.ide.collaboration.communication.MessageProcessor;
-import eu.compassresearch.ide.collaboration.communication.messages.FileStatusMessage;
-import eu.compassresearch.ide.collaboration.communication.messages.FileStatusMessage.NegotiationStatus;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationDataModelManager;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationDataModelRoot;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationGroup;
+import eu.compassresearch.ide.collaboration.datamodel.CollaborationProject;
 import eu.compassresearch.ide.collaboration.datamodel.Configuration;
 import eu.compassresearch.ide.collaboration.datamodel.Configurations;
-import eu.compassresearch.ide.collaboration.datamodel.Model;
 import eu.compassresearch.ide.collaboration.datamodel.File;
+import eu.compassresearch.ide.collaboration.datamodel.Model;
+import eu.compassresearch.ide.collaboration.files.FileHandler;
 import eu.compassresearch.ide.collaboration.ui.menu.AddCollaboratorRosterMenuContributionItem;
 
 /**
@@ -72,8 +73,6 @@ public class CollaborationView extends ViewPart {
 	protected Action negotiateContractAction;
 	protected Action addToCollaborationGroup;
 	protected Action connectAction;
-	
-	private CollaborationDataModelRoot root;
 	
 	/**
 	 * The constructor.
@@ -116,8 +115,6 @@ public class CollaborationView extends ViewPart {
 		treeViewer.setInput(getInitalInput());
 		treeViewer.expandAll();
 	}
-	
-	
 	
 	protected void createActions() {
 		
@@ -263,6 +260,47 @@ public class CollaborationView extends ViewPart {
 				}
 			}
 		});
+		
+		treeViewer.addDoubleClickListener(new IDoubleClickListener()
+		{
+			@Override
+			public void doubleClick(DoubleClickEvent event)
+			{
+				ISelection selection = event.getSelection();
+				
+				if(selection.isEmpty()){
+					return;
+				} else if(selection instanceof TreeSelection) {
+					
+					TreeSelection ts = (TreeSelection) selection;
+					Object clickedElement = ts.getFirstElement(); 
+					
+					if(clickedElement instanceof File) {
+					
+						File file = (File) clickedElement;
+						try
+						{
+							CollaborationProject collabProj = file.getCollaborationProject();
+							openFileInEditor(file,collabProj);
+						} catch (CoreException e)
+						{
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				}
+			}
+		});
+	}
+
+
+	private void openFileInEditor(File file, CollaborationProject collaborationProject) throws CoreException
+	{
+		IFile iFile = FileHandler.loadFile(file, collaborationProject);
+		
+		final IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+		IEditorPart openEditor = IDE.openEditor(page, iFile, true);
+		openEditor.getEditorInput();
 	}
 	
 	public class CompareItem implements IFlushable, IStreamContentAccessor, ITypedElement, IModificationDate, IEditableContent {
@@ -291,7 +329,6 @@ public class CollaborationView extends ViewPart {
 	    public long getModificationDate() {return time;}
 	    public String getName() {return name;}
 	    public String getType() {
-	        // return something else..
 	        return ITypedElement.TEXT_TYPE;
 	    }
 	
@@ -412,23 +449,6 @@ public class CollaborationView extends ViewPart {
 		CollaborationDataModelManager dataModelManager = Activator.getDefault().getDataModelManager();
 		
 		return dataModelManager.getDataModel(); 
-		
-//		root = new CollaborationDataModelRoot();
-//		
-//		CollaborationProject clPr = new CollaborationProject("test");
-//		root.addCollaborationProject(clPr);
-////		
-////		CollaborationProject clPr2 = new CollaborationProject("test 2");
-////		root.addCollaborationProject(clPr2);
-////
-//		User u1 = new User("(You)");
-//		
-//		Contract contract = new Contract();
-////		
-////		clPr.addContract(contract);
-//		clPr.addCollaborator(u1);
-		
-//		return root;
 	}
 	
 	public Model getSelectedEntry()
@@ -439,11 +459,8 @@ public class CollaborationView extends ViewPart {
 	}
 	
 	
-//	public CollaborationDataModelRoot getDataModel()
-//	{
-//		return root;
-//	}
-	
-	public void setFocus() {}
+	public void setFocus() {
+		treeViewer.expandAll();
+	}
 
 }
