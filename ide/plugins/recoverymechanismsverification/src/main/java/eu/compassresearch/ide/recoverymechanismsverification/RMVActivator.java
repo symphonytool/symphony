@@ -3,6 +3,7 @@
  */
 package eu.compassresearch.ide.recoverymechanismsverification;
 
+import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -40,6 +41,11 @@ public class RMVActivator extends AbstractUIPlugin {
 
 	public boolean isModelCheckerOk() {
 		return Activator.FORMULA_OK;
+	}
+
+	@Override
+	protected void initializeImageRegistry(ImageRegistry reg) {
+		Image.RELOAD.updateImageDescriptor(reg, "reload.png");
 	}
 
 }

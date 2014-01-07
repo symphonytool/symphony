@@ -11,14 +11,14 @@
   
   <extension
         point="org.eclipse.ui.startup">
-     <startup class="eu.compassresearch.ide.recoverymechanismsverification.RMVStartup"> </startup>
+     <startup class="eu.compassresearch.ide.recoverymechanismsverification.RMVActivator"> </startup>
   </extension>
   <extension
         point="org.eclipse.ui.views"> 
       
         <view id="eu.compassresearch.ide.recoverymechanismsverification.view.VerificationResultsView"
                 name="RMV results view"
-                icon="icons\rmv.png"
+                icon="icons/rmv.png"
              category="eu.compassresearch.ide.ui.category"
                 class="eu.compassresearch.ide.recoverymechanismsverification.view.VerificationResultsView"/>
   </extension>

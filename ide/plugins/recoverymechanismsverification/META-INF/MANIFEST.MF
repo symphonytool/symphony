@@ -32,4 +32,5 @@ Export-Package: eu.compassresearch.ide.recoverymechanismsverification
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Eclipse-BuddyPolicy: registered
-Bundle-ClassPath: .
+Bundle-ClassPath: .,
+ target/classes/
