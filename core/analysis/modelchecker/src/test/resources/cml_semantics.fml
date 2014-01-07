@@ -139,7 +139,8 @@
     trans(iS,ev,State(st_,seqC(P_,Q))) :- iS is State(st,seqC(P,Q)),trans(State(st,P),ev,State(st_,P_)).
 
 	//Sequence timed
-    trans(iS,tock,iS) :- iS is State(st,seqC(P,Q)), P != Skip. 
+    //trans(iS,tock,iS) :- iS is State(st,seqC(P,Q)), P != Skip. 
+	trans(iS,tock,iS) :- iS is State(st,seqC(P,Q)), trans(State(st,P),ev,State(st_,P_)), ev != tock, ev != tau, P != Skip. 
 	
 	// P [|X|] Q - parallel begin
 	State(st,P),
