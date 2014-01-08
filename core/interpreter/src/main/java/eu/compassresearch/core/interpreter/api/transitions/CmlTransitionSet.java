@@ -1,8 +1,7 @@
 package eu.compassresearch.core.interpreter.api.transitions;
 
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.overture.interpreter.values.Value;
 
@@ -23,52 +22,52 @@ public class CmlTransitionSet extends Value
 	private static final long serialVersionUID = 5192258370825756900L;
 
 	// This contains the observable events
-	private final Set<ObservableTransition> _observableEvents;
+	private final SortedSet<ObservableTransition> _observableEvents;
 	// This contains all the special events like tau
-	private final Set<AbstractSilentTransition> silentEvents;
+	private final SortedSet<AbstractSilentTransition> silentEvents;
 
 	public CmlTransitionSet()
 	{
-		this.silentEvents = new LinkedHashSet<AbstractSilentTransition>();
-		this._observableEvents = new LinkedHashSet<ObservableTransition>();
+		this.silentEvents = new TreeSet<AbstractSilentTransition>();
+		this._observableEvents = new TreeSet<ObservableTransition>();
 	}
 
 	public CmlTransitionSet(ObservableTransition obsEvent)
 	{
-		this.silentEvents = new LinkedHashSet<AbstractSilentTransition>();
-		this._observableEvents = new LinkedHashSet<ObservableTransition>();
+		this.silentEvents = new TreeSet<AbstractSilentTransition>();
+		this._observableEvents = new TreeSet<ObservableTransition>();
 		this._observableEvents.add(obsEvent);
 	}
 
 	public CmlTransitionSet(AbstractSilentTransition tauEvent)
 	{
-		this.silentEvents = new LinkedHashSet<AbstractSilentTransition>();
-		this._observableEvents = new LinkedHashSet<ObservableTransition>();
+		this.silentEvents = new TreeSet<AbstractSilentTransition>();
+		this._observableEvents = new TreeSet<ObservableTransition>();
 		this.silentEvents.add(tauEvent);
 	}
 
 	public CmlTransitionSet(ObservableTransition obs,
 			AbstractSilentTransition tauEvent)
 	{
-		this.silentEvents = new LinkedHashSet<AbstractSilentTransition>();
+		this.silentEvents = new TreeSet<AbstractSilentTransition>();
 		this.silentEvents.add(tauEvent);
-		this._observableEvents = new LinkedHashSet<ObservableTransition>();
+		this._observableEvents = new TreeSet<ObservableTransition>();
 		this._observableEvents.add(obs);
 	}
 
-	public CmlTransitionSet(Set<ObservableTransition> comms,
-			Set<AbstractSilentTransition> specialEvents)
+	public CmlTransitionSet(SortedSet<ObservableTransition> comms,
+			SortedSet<AbstractSilentTransition> specialEvents)
 	{
-		this.silentEvents = new LinkedHashSet<AbstractSilentTransition>(specialEvents);
-		this._observableEvents = new LinkedHashSet<ObservableTransition>(comms);
+		this.silentEvents = new TreeSet<AbstractSilentTransition>(specialEvents);
+		this._observableEvents = new TreeSet<ObservableTransition>(comms);
 	}
 
-	public CmlTransitionSet(Set<CmlTransition> events)
+	public CmlTransitionSet(SortedSet<CmlTransition> events)
 	{
-		this.silentEvents = new LinkedHashSet<AbstractSilentTransition>();
-		this._observableEvents = new LinkedHashSet<ObservableTransition>();
+		this.silentEvents = new TreeSet<AbstractSilentTransition>();
+		this._observableEvents = new TreeSet<ObservableTransition>();
 
-		for (CmlTransition e : new LinkedHashSet<CmlTransition>(events))
+		for (CmlTransition e : events)
 		{
 			if (e instanceof AbstractSilentTransition)
 			{
@@ -85,14 +84,14 @@ public class CmlTransitionSet extends Value
 	 * 
 	 * @return
 	 */
-	public Set<ObservableTransition> getObservableEvents()
+	public SortedSet<ObservableTransition> getObservableEvents()
 	{
-		return new LinkedHashSet<ObservableTransition>(_observableEvents);
+		return new TreeSet<ObservableTransition>(_observableEvents);
 	}
 
-	public Set<ObservableTransition> getObservableChannelEvents()
+	public SortedSet<ObservableTransition> getObservableChannelEvents()
 	{
-		Set<ObservableTransition> observableChannelEvents = new LinkedHashSet<ObservableTransition>();
+		SortedSet<ObservableTransition> observableChannelEvents = new TreeSet<ObservableTransition>();
 		for (ObservableTransition obsEvent : _observableEvents)
 		{
 			if (obsEvent instanceof LabelledTransition)
@@ -109,14 +108,14 @@ public class CmlTransitionSet extends Value
 	 * 
 	 * @return
 	 */
-	public Set<AbstractSilentTransition> getSilentTransitionsAsSet()
+	public SortedSet<AbstractSilentTransition> getSilentTransitionsAsSet()
 	{
-		return new LinkedHashSet<AbstractSilentTransition>(silentEvents);
+		return new TreeSet<AbstractSilentTransition>(silentEvents);
 	}
 
 	public CmlTransitionSet getSilentTransitions()
 	{
-		return new CmlTransitionSet(new LinkedHashSet<CmlTransition>(silentEvents));
+		return new CmlTransitionSet(new TreeSet<CmlTransition>(silentEvents));
 	}
 
 	/**
@@ -124,9 +123,9 @@ public class CmlTransitionSet extends Value
 	 * 
 	 * @return all the observable and special events.
 	 */
-	public Set<CmlTransition> getAllEvents()
+	public SortedSet<CmlTransition> getAllEvents()
 	{
-		Set<CmlTransition> allEvents = new LinkedHashSet<CmlTransition>();
+		SortedSet<CmlTransition> allEvents = new TreeSet<CmlTransition>();
 		allEvents.addAll(_observableEvents);
 		allEvents.addAll(silentEvents);
 
@@ -141,7 +140,7 @@ public class CmlTransitionSet extends Value
 	 */
 	public CmlTransitionSet union(CmlTransitionSet other)
 	{
-		Set<CmlTransition> resultSet = this.getAllEvents();
+		SortedSet<CmlTransition> resultSet = this.getAllEvents();
 		resultSet.addAll(other.getAllEvents());
 
 		return new CmlTransitionSet(resultSet);
@@ -155,7 +154,7 @@ public class CmlTransitionSet extends Value
 	 */
 	public CmlTransitionSet union(CmlTransition event)
 	{
-		Set<CmlTransition> resultSet = this.getAllEvents();
+		SortedSet<CmlTransition> resultSet = this.getAllEvents();
 		resultSet.add(event);
 
 		return new CmlTransitionSet(resultSet);
@@ -172,7 +171,7 @@ public class CmlTransitionSet extends Value
 	 */
 	public CmlTransitionSet intersect(CmlTransitionSet other)
 	{
-		Set<CmlTransition> resultSet = new LinkedHashSet<CmlTransition>();
+		SortedSet<CmlTransition> resultSet = new TreeSet<CmlTransition>();
 
 		for (ObservableTransition thisEvent : _observableEvents)
 		{
@@ -191,7 +190,7 @@ public class CmlTransitionSet extends Value
 
 	public CmlTransitionSet intersect(ObservableTransition other)
 	{
-		Set<CmlTransition> resultSet = new LinkedHashSet<CmlTransition>();
+		SortedSet<CmlTransition> resultSet = new TreeSet<CmlTransition>();
 
 		for (ObservableTransition thisEvent : _observableEvents)
 		{
@@ -208,7 +207,7 @@ public class CmlTransitionSet extends Value
 	public CmlTransitionSet retainByChannelName(
 			ChannelNameValue channelNameValue)
 	{
-		Set<CmlTransition> resultSet = new LinkedHashSet<CmlTransition>();
+		SortedSet<CmlTransition> resultSet = new TreeSet<CmlTransition>();
 
 		for (ObservableTransition obsTransition : _observableEvents)
 		{
@@ -231,7 +230,7 @@ public class CmlTransitionSet extends Value
 	public CmlTransitionSet retainByChannelNameSet(
 			ChannelNameSetValue channelNameSetValue)
 	{
-		Set<CmlTransition> resultSet = new LinkedHashSet<CmlTransition>();
+		SortedSet<CmlTransition> resultSet = new TreeSet<CmlTransition>();
 
 		for (ObservableTransition obsTransition : _observableEvents)
 		{
@@ -259,7 +258,7 @@ public class CmlTransitionSet extends Value
 	public CmlTransitionSet removeByChannelName(
 			ChannelNameValue channelNameValue)
 	{
-		Set<ObservableTransition> resultSet = new LinkedHashSet<ObservableTransition>();
+		SortedSet<ObservableTransition> resultSet = new TreeSet<ObservableTransition>();
 
 		for (ObservableTransition obsTransition : _observableEvents)
 		{
@@ -281,7 +280,7 @@ public class CmlTransitionSet extends Value
 	public CmlTransitionSet removeByChannelNameSet(
 			ChannelNameSetValue channelNameSetValue)
 	{
-		Set<ObservableTransition> resultSet = new LinkedHashSet<ObservableTransition>();
+		SortedSet<ObservableTransition> resultSet = new TreeSet<ObservableTransition>();
 
 		for (ObservableTransition obsTransition : _observableEvents)
 		{
@@ -343,7 +342,7 @@ public class CmlTransitionSet extends Value
 	 */
 	public CmlTransitionSet subtract(CmlTransitionSet other)
 	{
-		Set<ObservableTransition> newReferenceEvents = new LinkedHashSet<ObservableTransition>();
+		SortedSet<ObservableTransition> newReferenceEvents = new TreeSet<ObservableTransition>();
 		newReferenceEvents.addAll(_observableEvents);
 		newReferenceEvents.removeAll(other.getObservableEvents());
 
@@ -352,7 +351,7 @@ public class CmlTransitionSet extends Value
 
 	public CmlTransitionSet subtract(ObservableTransition other)
 	{
-		Set<ObservableTransition> newReferenceEvents = new LinkedHashSet<ObservableTransition>();
+		SortedSet<ObservableTransition> newReferenceEvents = new TreeSet<ObservableTransition>();
 		newReferenceEvents.addAll(_observableEvents);
 		newReferenceEvents.remove(other);
 
@@ -367,7 +366,7 @@ public class CmlTransitionSet extends Value
 	 */
 	public CmlTransitionSet subtractImprecise(CmlTransitionSet other)
 	{
-		Set<ObservableTransition> newReferenceEvents = new LinkedHashSet<ObservableTransition>();
+		SortedSet<ObservableTransition> newReferenceEvents = new TreeSet<ObservableTransition>();
 		newReferenceEvents.addAll(_observableEvents);
 		newReferenceEvents.removeAll(this.intersect(other).getObservableEvents());
 
@@ -451,7 +450,7 @@ public class CmlTransitionSet extends Value
 	 */
 	public CmlTransitionSet expandAlphabet()
 	{
-		Set<CmlTransition> eventSet = new HashSet<CmlTransition>();
+		SortedSet<CmlTransition> eventSet = new TreeSet<CmlTransition>();
 
 		for (CmlTransition ev : getAllEvents())
 		{
@@ -472,6 +471,6 @@ public class CmlTransitionSet extends Value
 	public Object clone()
 	{
 
-		return new CmlTransitionSet(new LinkedHashSet<ObservableTransition>(_observableEvents), new LinkedHashSet<AbstractSilentTransition>(silentEvents));
+		return new CmlTransitionSet(new TreeSet<ObservableTransition>(_observableEvents), new TreeSet<AbstractSilentTransition>(silentEvents));
 	}
 }

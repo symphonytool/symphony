@@ -182,7 +182,7 @@ public class InterpretAllCmlFilesTest
 		String eventTrace = "";
 		if (null != topProcess)
 		{
-			eventTrace = traceToString(topProcess.getTraceModel().getEventTrace());
+			eventTrace = TraceUtility.traceToString(topProcess.getTraceModel().getEventTrace());
 		}
 		Pattern trace = testResult.getExpectedEventTracePattern();
 		Matcher matcher = trace.matcher(eventTrace);
@@ -193,7 +193,7 @@ public class InterpretAllCmlFilesTest
 		if (testResult.hasTimedTrace())
 		{
 			// Convert the trace into a list of strings to compare it with the expected
-			String timedTrace = traceToString(topProcess.getTraceModel().getObservableTrace());
+			String timedTrace = TraceUtility.traceToString(topProcess.getTraceModel().getObservableTrace());
 
 			matcher = testResult.getExpectedTimedTracePattern().matcher(timedTrace);
 			assertTrue(testResult.getExpectedTimedTracePattern() + " != "
@@ -202,24 +202,6 @@ public class InterpretAllCmlFilesTest
 
 		// Interpreter state
 		Assert.assertEquals(testResult.getInterpreterState(), interpreter.getState());
-	}
-
-	private String traceToString(List<CmlTransition> trace)
-	{
-		StringBuilder result = new StringBuilder();
-
-		for (int i = 0; i < trace.size(); i++)
-		{
-			CmlTransition e = trace.get(i);
-			if (i > 0)
-			{
-				result.append(",");
-			}
-
-			result.append(e.toString());
-		}
-
-		return result.toString();
 	}
 
 	@Parameters(name = "{index} : {1}")

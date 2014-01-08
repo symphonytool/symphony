@@ -2,9 +2,9 @@ package eu.compassresearch.core.interpreter;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
@@ -148,7 +148,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		// Create the initial context with the global definitions
 		Context topContext = getInitialContext(null);
 		// Create a CmlBehaviour for the top process
-		runningTopProcess = new ConcreteCmlBehaviour(topProcess.getProcess(), topContext, new CmlBehaviour.BehaviourName(topProcess.getName().getName()));
+		runningTopProcess = config.cmlBehaviorFactory.newCmlBehaviour(topProcess.getProcess(), topContext, new CmlBehaviour.BehaviourName(topProcess.getName().getName()),null);
 
 		// Fire the interpreter running event before we start
 		setNewState(CmlInterpreterState.RUNNING);
@@ -337,7 +337,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			return availableEvents;
 		}
 
-		Set<CmlTransition> events = new HashSet<CmlTransition>();
+		SortedSet<CmlTransition> events = new TreeSet<CmlTransition>();
 		for (CmlTransition event : availableEvents.getAllEvents())
 		{
 			if (!(event instanceof TimedTransition))

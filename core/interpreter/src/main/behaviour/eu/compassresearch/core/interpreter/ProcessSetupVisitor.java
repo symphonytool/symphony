@@ -24,6 +24,7 @@ import eu.compassresearch.ast.process.ASequentialCompositionReplicatedProcess;
 import eu.compassresearch.ast.process.ATimedInterruptProcess;
 import eu.compassresearch.ast.process.ATimeoutProcess;
 import eu.compassresearch.ast.process.AUntimedTimeoutProcess;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorFactory;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
 import eu.compassresearch.core.interpreter.api.values.CmlSetQuantifier;
@@ -32,9 +33,9 @@ import eu.compassresearch.core.interpreter.utility.Pair;
 class ProcessSetupVisitor extends CommonSetupVisitor
 {
 
-	public ProcessSetupVisitor(CmlBehaviour owner, VisitorAccess visitorAccess)
+	public ProcessSetupVisitor(CmlBehaviour owner, VisitorAccess visitorAccess, CmlBehaviorFactory cmlBehaviorFactory)
 	{
-		super(owner, visitorAccess);
+		super(owner, visitorAccess, cmlBehaviorFactory);
 	}
 
 	@Override

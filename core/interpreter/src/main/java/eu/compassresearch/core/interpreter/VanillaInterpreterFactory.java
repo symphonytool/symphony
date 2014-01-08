@@ -6,6 +6,7 @@ import org.overture.ast.definitions.PDefinition;
 
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorFactory;
 
 public final class VanillaInterpreterFactory
 {
@@ -44,11 +45,11 @@ public final class VanillaInterpreterFactory
 
 	public static Config newDefaultConfig()
 	{
-		return new Config(false);
+		return new Config(false, new DefaultCmlBehaviorFactory());
 	}
 
 	public static Config newDefaultConfig(boolean filterTockEvents)
 	{
-		return new Config(filterTockEvents);
+		return new Config(filterTockEvents, new DefaultCmlBehaviorFactory());
 	}
 }

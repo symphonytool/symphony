@@ -36,7 +36,7 @@ import eu.compassresearch.core.interpreter.utility.Pair;
  * 
  * @author akm
  */
-public interface CmlBehaviour extends Serializable // extends Transactable
+public interface CmlBehaviour extends Serializable , Comparable<CmlBehaviour>
 {
 	public static class BehaviourName
 	{

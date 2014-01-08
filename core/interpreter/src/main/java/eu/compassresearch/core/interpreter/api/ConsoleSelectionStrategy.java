@@ -5,6 +5,7 @@ import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.SortedSet;
 
 import eu.compassresearch.core.interpreter.Console;
 import eu.compassresearch.core.interpreter.api.transitions.AbstractSilentTransition;
@@ -50,7 +51,7 @@ public class ConsoleSelectionStrategy implements SelectionStrategy
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private CmlTransition systemSelect(CmlTransitionSet availableChannelEvents)
 	{
-		rndSelect.choices(new CmlTransitionSet((Set) availableChannelEvents.getSilentTransitionsAsSet()));
+		rndSelect.choices(new CmlTransitionSet((SortedSet) availableChannelEvents.getSilentTransitionsAsSet()));
 		return rndSelect.resolveChoice();
 	}
 
