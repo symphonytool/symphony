@@ -3,21 +3,24 @@
  */
 package eu.compassresearch.ide.recoverymechanismsverification.view;
 
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.part.ViewPart;
 
 import eu.compassresearch.ide.recoverymechanismsverification.Image;
 import eu.compassresearch.ide.recoverymechanismsverification.Messages;
-import eu.compassresearch.ide.recoverymechanismsverification.jobs.DivergenceFreeJob;
-import eu.compassresearch.ide.recoverymechanismsverification.jobs.FullFaultToleranceJob;
-import eu.compassresearch.ide.recoverymechanismsverification.jobs.LimitedFaultToleranceJob;
-import eu.compassresearch.ide.recoverymechanismsverification.jobs.SemifairnessJob;
+import eu.compassresearch.ide.recoverymechanismsverification.jobs.FaultToleranceVerificationEvent;
+import eu.compassresearch.ide.recoverymechanismsverification.jobs.FaultToleranceVerificationResults;
+import eu.compassresearch.ide.recoverymechanismsverification.jobs.FullFaultToleranceVerificationJob;
+import eu.compassresearch.ide.recoverymechanismsverification.jobs.IFaultToleranceVerificationListener;
+import eu.compassresearch.ide.recoverymechanismsverification.jobs.LimitedFaultToleranceVerificationJob;
 
 /**
  * @author Andr&eacute; Didier (<a href=
@@ -25,14 +28,17 @@ import eu.compassresearch.ide.recoverymechanismsverification.jobs.SemifairnessJo
  *         >alrd@cin.ufpe.br</a>)
  * 
  */
-public class VerificationResultsView extends ViewPart {
-	private static final String ID = "eu.compassresearch.ide.recoverymechanismsverification.view.VerificationResultsView";
+public class VerificationResultsView extends ViewPart implements
+		IFaultToleranceVerificationListener {
+	public static final String ID = "eu.compassresearch.ide.recoverymechanismsverification.view.VerificationResultsView";
 
 	private Label processName;
 	private Label divergenceFreeLabel;
 	private Label semifairnessLabel;
 	private Label fullFaultToleranceLabel;
 	private Label limitedFaultToleranceLabel;
+	private Text limitExpression;
+	private Combo comboProcesses;
 	private Action runRMV;
 
 	@Override
@@ -40,7 +46,7 @@ public class VerificationResultsView extends ViewPart {
 		GridLayout grid = new GridLayout(1, false);
 		parent.setLayout(grid);
 
-		createLabels(parent);
+		createForm(parent);
 		createActions(parent);
 		createToolBar(parent);
 	}
@@ -49,33 +55,20 @@ public class VerificationResultsView extends ViewPart {
 		runRMV = new Action(Messages.RUN_RMV.getName()) {
 			@Override
 			public void run() {
-				DivergenceFreeJob dfj = new DivergenceFreeJob();
-				SemifairnessJob sj = new SemifairnessJob();
-				FullFaultToleranceJob fftj = new FullFaultToleranceJob();
-				LimitedFaultToleranceJob lftj = new LimitedFaultToleranceJob(
-						parent);
+				FaultToleranceVerificationResults results = new FaultToleranceVerificationResults();
+				results.setLimitExpression(limitExpression.getText());
+				final FullFaultToleranceVerificationJob fftj = new FullFaultToleranceVerificationJob(
+						results);
+				final LimitedFaultToleranceVerificationJob lftj = new LimitedFaultToleranceVerificationJob(
+						results);
 
-				dfj.addJobChangeListener(new LabelJobStatusListener(
-						divergenceFreeLabel));
-				sj.addJobChangeListener(new LabelJobStatusListener(
-						semifairnessLabel));
-				fftj.addJobChangeListener(new LabelJobStatusListener(
-						fullFaultToleranceLabel));
-				lftj.addJobChangeListener(new LabelJobStatusListener(
-						limitedFaultToleranceLabel));
-
-				IProgressMonitor pm = Job.getJobManager().createProgressGroup();
-				dfj.setProgressGroup(pm, 100);
-				sj.setProgressGroup(pm, 100);
-				fftj.setProgressGroup(pm, 100);
-				lftj.setProgressGroup(pm, 100);
-
-				sj.schedule();
-				dfj.schedule();
+				fftj.add(VerificationResultsView.this);
+				lftj.add(VerificationResultsView.this);
 
 				fftj.schedule();
 				lftj.schedule();
 			}
+
 		};
 
 		runRMV.setImageDescriptor(Image.RELOAD.getImageDescriptor());
@@ -86,14 +79,19 @@ public class VerificationResultsView extends ViewPart {
 		mgr.add(runRMV);
 	}
 
-	private void createLabels(Composite parent) {
+	private void createForm(Composite parent) {
+		comboProcesses = new Combo(parent, 0);
 		processName = new Label(parent, 0);
 		divergenceFreeLabel = new Label(parent, 0);
 		semifairnessLabel = new Label(parent, 0);
 		fullFaultToleranceLabel = new Label(parent, 0);
 		limitedFaultToleranceLabel = new Label(parent, 0);
+		limitExpression = new Text(parent, 0);
 
 		processName.setText("System");
+		comboProcesses.add("System");
+		comboProcesses.add("Recovery");
+
 		divergenceFreeLabel.setText(Messages.DIVERGENCE_FREE_VERIFICATION
 				.getName());
 		semifairnessLabel.setText(Messages.SEMIFAIRNESS_VERIFICATION.getName());
@@ -102,10 +100,103 @@ public class VerificationResultsView extends ViewPart {
 		limitedFaultToleranceLabel
 				.setText(Messages.LIMITED_FAULT_TOLERANCE_VERIFICATION
 						.getName());
+		limitExpression.setText(Messages.LIMIT_EXPRESSION.getText());
 	}
 
 	@Override
 	public void setFocus() {
+	}
+
+	private void start(final Label label) {
+		final Display d = getViewSite().getShell().getDisplay();
+		d.syncExec(new Runnable() {
+			@Override
+			public void run() {
+				label.setForeground(d.getSystemColor(SWT.COLOR_GRAY));
+			}
+		});
+
+	}
+
+	private void finish(final Label label, final boolean success) {
+		final Display d = getViewSite().getShell().getDisplay();
+		d.syncExec(new Runnable() {
+			@Override
+			public void run() {
+				int colorCode = success ? SWT.COLOR_DARK_GREEN : SWT.COLOR_RED;
+				label.setForeground(d.getSystemColor(colorCode));
+			}
+		});
+	}
+
+	@Override
+	public void divergenceFreeVerificationStarted() {
+		start(divergenceFreeLabel);
+	}
+
+	@Override
+	public void divergenceFreeVerificationFinished(
+			FaultToleranceVerificationEvent event) {
+		finish(divergenceFreeLabel, event.isSuccess());
+	}
+
+	@Override
+	public void semifairnessVerificationStarted() {
+		start(semifairnessLabel);
+	}
+
+	@Override
+	public void semifairnessVerificationFinished(
+			FaultToleranceVerificationEvent event) {
+		finish(semifairnessLabel, event.isSuccess());
+	}
+
+	@Override
+	public void fullFaultToleranceVerificationStarted() {
+		start(fullFaultToleranceLabel);
+	}
+
+	@Override
+	public void fullFaultToleranceVerificationFinished(
+			final FaultToleranceVerificationEvent event) {
+		final Display d = getViewSite().getShell().getDisplay();
+		d.syncExec(new Runnable() {
+			@Override
+			public void run() {
+				int colorCode = SWT.COLOR_DARK_GREEN;
+				if (!event.getResults().isPreRequisitesOk()) {
+					colorCode = SWT.COLOR_DARK_GRAY;
+				} else if (event.isSuccess()) {
+					colorCode = SWT.COLOR_DARK_YELLOW;
+				}
+				fullFaultToleranceLabel.setForeground(d
+						.getSystemColor(colorCode));
+			}
+		});
+	}
+
+	@Override
+	public void limitedFaultToleranceVerificationStarted() {
+		start(limitedFaultToleranceLabel);
+	}
+
+	@Override
+	public void limitedFaultToleranceVerificationFinished(
+			final FaultToleranceVerificationEvent event) {
+		final Display d = getViewSite().getShell().getDisplay();
+		d.syncExec(new Runnable() {
+			@Override
+			public void run() {
+				int colorCode = SWT.COLOR_DARK_GREEN;
+				if (!event.getResults().isPreRequisitesOk()) {
+					colorCode = SWT.COLOR_DARK_GRAY;
+				} else if (!event.isSuccess()) {
+					colorCode = SWT.COLOR_RED;
+				}
+				limitedFaultToleranceLabel.setForeground(d
+						.getSystemColor(colorCode));
+			}
+		});
 	}
 
 }

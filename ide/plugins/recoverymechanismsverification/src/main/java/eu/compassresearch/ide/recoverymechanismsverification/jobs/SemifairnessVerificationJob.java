@@ -3,10 +3,9 @@
  */
 package eu.compassresearch.ide.recoverymechanismsverification.jobs;
 
+import java.util.Random;
+
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 
 import eu.compassresearch.ide.recoverymechanismsverification.Messages;
 
@@ -16,18 +15,20 @@ import eu.compassresearch.ide.recoverymechanismsverification.Messages;
  *         >alrd@cin.ufpe.br</a>)
  * 
  */
-public class SemifairnessJob extends Job {
-	public SemifairnessJob() {
-		super(Messages.SEMIFAIRNESS_JOB.getName());
+public class SemifairnessVerificationJob extends ModelCheckingJob {
+	public SemifairnessVerificationJob() {
+		super(Messages.SEMIFAIRNESS_JOB, 1);
 	}
 
 	@Override
-	protected IStatus run(IProgressMonitor progressMonitor) {
+	protected void performModelCheckingCall(ModelCheckingResult result,
+			IProgressMonitor monitor) throws InterruptedException {
 		try {
-			Thread.sleep(2000);
-			return Status.OK_STATUS;
-		} catch (InterruptedException e) {
-			return Status.CANCEL_STATUS;
+			Thread.sleep(4000);
+			Random r = new Random(System.currentTimeMillis());
+			result.setSuccess(r.nextInt(100) > 50);
+		} finally {
+			monitor.worked(1);
 		}
 	}
 
