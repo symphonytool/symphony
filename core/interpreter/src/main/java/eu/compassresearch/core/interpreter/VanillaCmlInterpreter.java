@@ -264,7 +264,25 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			behaviour.execute(selectedEvent);
 			CmlTrace trace = behaviour.getTraceModel();
 
-			logTransition(behaviour, trace);
+			if (trace.getLastTransition() instanceof ObservableTransition)
+			{
+				CmlRuntime.logger().fine("----------------observable step by '"
+						+ behaviour + "'----------------------");
+				CmlRuntime.logger().fine("Observable trace of '" + behaviour
+						+ "': " + trace.getObservableTrace());
+				CmlRuntime.logger().fine("Eval. Status={ "
+						+ behaviour.nextStepToString() + " }");
+				CmlRuntime.logger().fine("-----------------------------------------------------------------");
+			} else
+			{
+				CmlRuntime.logger().finer("----------------Silent step by '"
+						+ behaviour + "'--------------------");
+				CmlRuntime.logger().finer("Trace of '" + behaviour + "': "
+						+ trace);
+				CmlRuntime.logger().finer("Eval. Status={ "
+						+ behaviour.nextStepToString() + " }");
+				CmlRuntime.logger().finer("-----------------------------------------------------------------");
+			}
 
 		}
 
@@ -287,29 +305,6 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			setNewState(CmlInterpreterState.FINISHED);
 		}
 
-	}
-
-	public void logTransition(CmlBehaviour behaviour, CmlTrace trace)
-	{
-		if (trace.getLastTransition() instanceof ObservableTransition)
-		{
-			CmlRuntime.logger().fine("----------------observable step by '"
-					+ behaviour + "'----------------------");
-			CmlRuntime.logger().fine("Observable trace of '" + behaviour
-					+ "': " + trace.getObservableTrace());
-			CmlRuntime.logger().fine("Eval. Status={ "
-					+ behaviour.nextStepToString() + " }");
-			CmlRuntime.logger().fine("-----------------------------------------------------------------");
-		} else
-		{
-			CmlRuntime.logger().finer("----------------Silent step by '"
-					+ behaviour + "'--------------------");
-			CmlRuntime.logger().finer("Trace of '" + behaviour + "': "
-					+ trace);
-			CmlRuntime.logger().finer("Eval. Status={ "
-					+ behaviour.nextStepToString() + " }");
-			CmlRuntime.logger().finer("-----------------------------------------------------------------");
-		}
 	}
 
 	@Override
