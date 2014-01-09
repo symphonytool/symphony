@@ -1,0 +1,5 @@
+process Timeout2 = 
+begin 
+
+	@ Skip [_2_> a -> Skip
+end
