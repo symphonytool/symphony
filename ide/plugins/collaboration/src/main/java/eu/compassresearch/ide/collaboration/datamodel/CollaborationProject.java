@@ -1,10 +1,11 @@
 package eu.compassresearch.ide.collaboration.datamodel;
 
-import java.io.IOException;
 import java.util.UUID;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
+
+import eu.compassresearch.ide.collaboration.files.FileChangeManager.FileStatus;
 
 
 public class CollaborationProject extends Model
@@ -37,15 +38,15 @@ public class CollaborationProject extends Model
 		this(workspaceName,title, description, UUID.randomUUID().toString(), parent);
 	}
 	
-	private void addConfiguration(Configuration configuration) {
-		configurations.addConfiguration(configuration);
-		fireObjectAddedEvent(configuration);
-	}
-	
 	protected void removeConfiguration(Configuration configuration) {
 		configurations.removeConfiguration(configuration);
 		configuration.removeListener(listener);
 		fireObjectRemovedEvent(configuration);
+	}
+	
+	public void addNewConfiguration()
+	{
+		configurations.addNewConfiguration();	
 	}
 	
 //	public void addCollaborator(User usr) {
@@ -53,13 +54,13 @@ public class CollaborationProject extends Model
 //		fireObjectAddedEvent(collaboratorGroup);
 //	}
 	
-	protected void removeCollaboratorGroup(CollaborationGroup collabGroup) {
-		//collaboratorGroups.remove(collabGroup);
-		collabGroup.removeListener(listener);
-		fireObjectRemovedEvent(collabGroup);
-	}
+//	protected void removeCollaboratorGroup(CollaborationGroup collabGroup) {
+//		//collaboratorGroups.remove(collabGroup);
+//		collabGroup.removeListener(listener);
+//		fireObjectRemovedEvent(collabGroup);
+//	}
 	
-	public Configurations getConfiguration() {
+	public Configurations getConfigurations() {
 		return configurations;
 	}
 	
@@ -120,14 +121,25 @@ public class CollaborationProject extends Model
 		return uniqueID;
 	}
 
-	public boolean addNewFile(IFile file) throws CoreException, IOException
+	public void addNewFile(IFile file) throws CoreException
 	{
-		return configurations.addFile(file);
+		configurations.addFile(file);
 	}
 	
-	public boolean updateFile(IFile file) throws CoreException, IOException
+	public boolean updateFile(IFile file) 
 	{
 		return configurations.updateFile(file);
+	}
+	
+	public FileStatus getFileStatus(IFile file)
+	{
+		Configuration newestConfiguration = configurations.getNewestConfiguration();
+		
+		if(newestConfiguration == null){
+			return FileStatus.NEWFILE;
+		} else {
+			return newestConfiguration.getFileStatus(file);
+		}
 	}
 
 	@Override

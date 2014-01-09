@@ -2,7 +2,6 @@ package eu.compassresearch.ide.collaboration.communication.messages;
 
 import java.util.Date;
 
-import org.eclipse.ecf.core.identity.ID;
 import org.eclipse.ecf.core.user.IUser;
 
 public class FileStatusMessage extends BaseMessage

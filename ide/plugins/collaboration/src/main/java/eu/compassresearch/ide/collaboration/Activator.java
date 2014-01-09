@@ -18,7 +18,7 @@ import eu.compassresearch.ide.collaboration.communication.handlers.Collaboration
 import eu.compassresearch.ide.collaboration.communication.handlers.FileStatusMessageHandler;
 import eu.compassresearch.ide.collaboration.communication.handlers.NewFileHandler;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationDataModelManager;
-import eu.compassresearch.ide.collaboration.files.FileChangeListener;
+import eu.compassresearch.ide.collaboration.files.FileChangeManager;
 
 public class Activator extends AbstractUIPlugin
 {
@@ -27,10 +27,11 @@ public class Activator extends AbstractUIPlugin
 	private BundleContext context;
 	private static Activator plugin;
 	
+	@SuppressWarnings("rawtypes")
 	private ServiceTracker containerManagerTracker;
 	
 	private CollaborationDataModelManager dataModelManager;
-	private FileChangeListener fileChangeListener;
+	private FileChangeManager fileChangeManager;
 	
 	private static final Hashtable<ID, MessageProcessor> collaborationProcessors = new Hashtable<ID, MessageProcessor>();
 	
@@ -49,9 +50,9 @@ public class Activator extends AbstractUIPlugin
 		//Persist data model
 		dataModelManager.loadModel();
 		
-		fileChangeListener = new FileChangeListener();
+		fileChangeManager = new FileChangeManager();
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
-		workspace.addResourceChangeListener(fileChangeListener);
+		workspace.addResourceChangeListener(fileChangeManager);
 	}
 	
 	@Override
@@ -65,7 +66,7 @@ public class Activator extends AbstractUIPlugin
 		dataModelManager.saveModel();
 	
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
-		workspace.removeResourceChangeListener(fileChangeListener);
+		workspace.removeResourceChangeListener(fileChangeManager);
 		
 		plugin = null;
 		this.context = null;
@@ -108,6 +109,7 @@ public class Activator extends AbstractUIPlugin
 		return collaborationProcessors.get(containerID);
 	}
 	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public IContainerManager getContainerManager() {
 		if (containerManagerTracker == null) {
 			containerManagerTracker = new ServiceTracker(context, IContainerManager.class.getName(), null);

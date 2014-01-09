@@ -3,15 +3,18 @@ package eu.compassresearch.ide.collaboration.datamodel;
 import java.util.Date;
 
 public class File extends Model
-{
-
+{	
+	
+	private enum FileState {NEWFILE,UPDATED,NORMAL,INITIAL};
+	
 	private static final long serialVersionUID = -6007439345479622225L;
 
 	protected Shares shares;
 	protected final long timestamp_ux_epoch;
 	private final String hash;
 	private final String filePath;
-	private boolean newFile;
+	private FileState fileState;
+	private boolean hasBeenStored;
 
 	public File(String name, String hash, String filePath, Model parent)
 	{
@@ -21,7 +24,8 @@ public class File extends Model
 		this.filePath = filePath;
 		Date d = new Date();
 		this.timestamp_ux_epoch = d.getTime();
-		newFile = false;
+		fileState = FileState.INITIAL;
+		hasBeenStored = false;
 	}
 
 	private File(String name, String hash, String filePath, Shares shares, Date timestamp, Model parent)
@@ -32,13 +36,14 @@ public class File extends Model
 		this.hash = hash;
 		this.filePath = filePath;
 		this.timestamp_ux_epoch = timestamp.getTime();
-		newFile = false;
+		fileState = FileState.NORMAL;
+		this.hasBeenStored = true; 
 	}
 
 	public void addShare(Share share)
 	{
 		shares.addShare(share);
-		fireObjectAddedEvent(share);
+		fireObjectUpdatedEvent(share);
 	}
 
 	protected void removeShare(Share share)
@@ -67,6 +72,11 @@ public class File extends Model
 	public String getFilePath()
 	{
 		return filePath;
+	}
+	
+	public String getHashFileName(){
+		//limit the likelihood of windows 255 char max file path
+		return hash.substring(0, 30);
 	}
 
 	public Date getTimeStamp(){
@@ -105,12 +115,36 @@ public class File extends Model
 
 	public boolean isNewFile()
 	{
-		return newFile;
+		return fileState == FileState.NEWFILE;
 	}
-
-	public void setNewFile(boolean newFile)
+	
+	public boolean isUpdatedFile()
 	{
-		this.newFile = newFile;
+		return fileState == FileState.UPDATED;
 	}
 
+	public void setAsNewFile()
+	{
+		if(fileState == FileState.INITIAL){
+			fileState = FileState.NEWFILE;
+			fireObjectUpdatedEvent(this);
+		}
+	}
+	
+	public void setAsUpdated()
+	{
+		fileState = FileState.UPDATED;
+		fireObjectUpdatedEvent(this);
+	}
+
+	public boolean isStored()
+	{
+		return hasBeenStored;
+	}
+
+	public void setAsStored()
+	{
+		this.hasBeenStored = true;
+	}
+	
 }

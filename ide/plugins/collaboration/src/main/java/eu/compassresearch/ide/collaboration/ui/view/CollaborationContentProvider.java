@@ -63,7 +63,7 @@ public class CollaborationContentProvider implements ITreeContentProvider, IDelt
 				return root.getCollaborationProjects().toArray();
 		} else if(parentElement instanceof CollaborationProject){
 			CollaborationProject collabPrj = (CollaborationProject)parentElement;
-			Object[] both = new Object[]{collabPrj.getConfiguration(),collabPrj.getCollaboratorGroup()};
+			Object[] both = new Object[]{collabPrj.getConfigurations(),collabPrj.getCollaboratorGroup()};
 			return both;
 		} else if(parentElement instanceof Configurations) {
 			Configurations contracts = (Configurations)parentElement;
@@ -76,7 +76,7 @@ public class CollaborationContentProvider implements ITreeContentProvider, IDelt
 			return shares.getShares().toArray();
 		} else if(parentElement instanceof Files) {
 			Files versions = (Files)parentElement;
-			return versions.getFiles().toArray();
+			return versions.getFilesList().toArray();
 		} else if(parentElement instanceof File) {
 			File version = (File)parentElement;
 			return version.getShares().getShares().toArray();
@@ -110,7 +110,7 @@ public class CollaborationContentProvider implements ITreeContentProvider, IDelt
 		return getChildren(inputElement);
 	}
 
-	public void onObjectAdded(DeltaEvent event) {
+	public void onObjectUpdated(DeltaEvent event) {
 		Object root = ((Model)event.receiver()).getParent();
 		viewer.refresh(root, true);
 	}

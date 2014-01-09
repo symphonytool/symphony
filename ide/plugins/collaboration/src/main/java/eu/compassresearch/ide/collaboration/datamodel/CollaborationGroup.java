@@ -20,7 +20,7 @@ public class CollaborationGroup extends Model {
 		User user = new User(username, this);
 		collaborators.put(user.getName(), user);
 		user.listener = this.listener;
-		fireObjectAddedEvent(user);
+		fireObjectUpdatedEvent(user);
 	}
 	
 	public void removeCollaborator(User user) {

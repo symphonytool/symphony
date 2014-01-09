@@ -9,6 +9,7 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -49,6 +50,11 @@ public class NewCollaborationProjectDialog extends TitleAreaDialog
 		setTitle(Notification.Collab_Dialog_NEW_COLLAB_TITLE);
 		setMessage(Notification.Collab_Dialog_NEW_COLLAB_MSG, IMessageProvider.NONE);
 	}
+	
+	@Override
+	protected Point getInitialSize() {
+		return new Point(750, 350);
+	} 
 
 	@Override
 	protected Control createDialogArea(Composite parent)
@@ -135,7 +141,7 @@ public class NewCollaborationProjectDialog extends TitleAreaDialog
 			if (project.getProjectWorkspaceName().equals(listProject.getSelection()[0]))
 			{
 				setErrorMessage(Notification.Collab_Dialog_NEW_COLLAB_ERROR_COLLABORATION_ALREADY_ATTACHED
-						+ " "  + project);
+						+ " "  + project.getTitle());
 				configurationExists = true;
 				break;
 			}

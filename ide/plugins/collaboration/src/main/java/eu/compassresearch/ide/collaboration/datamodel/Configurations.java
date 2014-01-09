@@ -1,6 +1,5 @@
 package eu.compassresearch.ide.collaboration.datamodel;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -8,54 +7,65 @@ import java.util.List;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 
+import eu.compassresearch.ide.collaboration.files.FileChangeManager.FileStatus;
 import eu.compassresearch.ide.collaboration.files.FileHandler;
 
-public class Configurations extends Model {
+public class Configurations extends Model
+{
 
 	private static final long serialVersionUID = -7710832265326698319L;
-	
+
 	protected LinkedList<Configuration> configurations;
 
-	public Configurations(Model parent) {
+	public Configurations(Model parent)
+	{
 		super("Configurations", parent);
 		configurations = new LinkedList<Configuration>();
 	}
 
-	protected void addConfiguration(Configuration configuration) {
-		
-		assert(!configurations.contains(configuration));
-		
-		configurations.add(0,configuration);
+	private void addConfiguration(Configuration configuration)
+	{
+
+		assert (!configurations.contains(configuration));
+
+		configurations.add(0, configuration);
 		configuration.addListener(listener);
-		fireObjectAddedEvent(configuration);
+		fireObjectUpdatedEvent(this);
 	}
 
-	protected void removeConfiguration(Configuration configuration) {
+	protected void removeConfiguration(Configuration configuration)
+	{
 		configurations.remove(configuration);
 		configuration.removeListener(listener);
 		fireObjectRemovedEvent(configuration);
 	}
 
-	public List<Configuration> getConfigurations() {
+	public List<Configuration> getConfigurations()
+	{
 		return new ArrayList<Configuration>(configurations);
 	}
 
-	public int size() {
+	public int size()
+	{
 		return configurations.size();
 	}
 
-	public void accept(IModelVisitor visitor, Object passAlongArgument) {
+	public void accept(IModelVisitor visitor, Object passAlongArgument)
+	{
 		// visitor.visitContracts(this, passAlongArgument);
 	}
 
 	@Override
 	public String toString()
 	{
-		return super.toString() + "(" + configurations.size() + ")";
+		int size = configurations.size();
+		
+		return super.toString() + (size > 0 ? " (" + configurations.size() + ")" : "");
 	}
-	
+
 	@Override
-	public void addListener(IDeltaListener listener) {
+	public void addListener(IDeltaListener listener)
+	{
 
 		for (Configuration c : configurations)
 		{
@@ -72,57 +82,105 @@ public class Configurations extends Model {
 		{
 			c.removeListener(listener);
 		}
-		
+
 		super.removeListener(listener);
 	}
-	
+
 	public Configuration getConfiguration(String name)
 	{
-		return null; //configurations.get(name);
+		return null; // configurations.get(name);
 	}
 
-	public CollaborationProject getCollaborationProject(){
+	public CollaborationProject getCollaborationProject()
+	{
 		return getParent().getCollaborationProject();
 	}
-	
-	private boolean isKnownFile(IFile file) throws CoreException, IOException
-	{
-		if(configurations.isEmpty()) return false;
-		
-		Configuration newestConfig = configurations.getFirst();
 
-		return newestConfig.isKnownFile(file);
+	public void addNewConfiguration()
+	{
+		if (configurations.isEmpty())
+		{
+			Configuration configuration = new Configuration(this);
+			addConfiguration(configuration);
+		} else
+		{
+			Configuration newConfig = new Configuration(getNewestConfiguration(), this);
+			addConfiguration(newConfig);
+		}
 	}
 
-	public boolean addFile(IFile file) throws CoreException, IOException
+	public void addFile(IFile file) throws CoreException
 	{
-		String calculatedSha = FileHandler.calculateSha(file);
-		
-		if(isKnownFile(file)){
-			return false;
-		} 
-		
-		IFile filePath = FileHandler.saveFile(file, getCollaborationProject());
-		File newFile = new File(file.getName(), calculatedSha, filePath.getFullPath().toString(), this);
-		newFile.setNewFile(true);
-		
-		Configuration configuration;
-		if(configurations.isEmpty()){
-			 configuration = new Configuration(newFile, this);
-
-		} else {
-			Configuration oldConfig = configurations.getFirst();
-			configuration = new Configuration(oldConfig, newFile, this);
+		if (configurations.isEmpty())
+		{
+			addNewConfiguration();
 		}
+				
+		Configuration newestConfiguration = getNewestConfiguration();
 		
-		addConfiguration(configuration);
-			
-		return true;
+		String calculatedSha = FileHandler.calculateSha(file);
+		File newFile = new File(file.getName(), calculatedSha, file.getProjectRelativePath().toString(), newestConfiguration.getFiles());
+		newFile.setAsNewFile();
+		
+		newestConfiguration.addFile(newFile);
 	}
 
 	public boolean updateFile(IFile file)
 	{
-		// TODO Auto-generated method stub
+		Configuration newestConfiguration = getNewestConfiguration();
+		
+		File fileToUpdate = newestConfiguration.getFile(file.getName());
+		
+		//if new file, don't set as updated
+		if(!fileToUpdate.isNewFile()){
+			fileToUpdate.setAsUpdated();
+		}
+
 		return false;
 	}
+
+	public Configuration getConfiguration(int index)
+	{
+		if (!configurations.isEmpty()
+				&& (index >= 0 || index < configurations.size()))
+		{
+			return configurations.get(index);
+		} else
+		{
+			return null;
+		}
+	}
+
+	public Configuration getNewestConfiguration()
+	{
+		if (!configurations.isEmpty())
+		{
+			return configurations.getFirst();
+		}
+
+		return null;
+	}
+
+	public FileStatus getFileStatus()
+	{
+
+		// if(configurations.isEmpty()) return false;
+
+		// Configuration newestConfig = configurations.getFirst();
+
+		// is filename known.
+
+		// if not ->
+		// return FileStatus.NEWFILE;
+
+		// is it the same file
+
+		// if not sha match, is known file, but changed
+		//
+		// return FileStatus.CHANGED
+
+		// unchanged
+		return FileStatus.UNCHANGED;
+	}
+
 }

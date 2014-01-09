@@ -1,14 +1,13 @@
 package eu.compassresearch.ide.collaboration.datamodel;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.runtime.CoreException;
 
+import eu.compassresearch.ide.collaboration.files.FileChangeManager.FileStatus;
 import eu.compassresearch.ide.collaboration.files.FileHandler;
 
 public class Files extends Model {
@@ -28,8 +27,9 @@ public class Files extends Model {
 	}
 	
 	public void addFile(File file) {
-		files.put(file.getHash(),file);
-		fireObjectAddedEvent(file);
+		files.put(file.getName(),file);
+		file.addListener(listener);
+		fireObjectUpdatedEvent(file);
 	}
 	
 	protected void removeFile(File file) {
@@ -38,7 +38,7 @@ public class Files extends Model {
 		fireObjectRemovedEvent(file);
 	}
 	
-	public List<File> getFiles() {
+	public List<File> getFilesList() {
 		return new ArrayList<File>(files.values());
 	}
 	
@@ -58,6 +58,39 @@ public class Files extends Model {
 		}
 		
 		return new Files(clone, getParent());
+	}
+	
+	public FileStatus getFileStatus(IFile file) 
+	{
+		String fileName = file.getName();
+		if(files.containsKey(fileName)){
+			File foundFile = files.get(fileName);
+			String calculatedSha;
+			calculatedSha = FileHandler.calculateSha(file);
+
+			if(foundFile.getHash().equals(calculatedSha)){
+				return FileStatus.UNCHANGED;
+			}  else {
+				return FileStatus.CHANGED;
+			}
+		}
+		
+		return FileStatus.NEWFILE;
+	}
+	
+	private List<String> getHashes(){
+		
+		List<String> fileList = new ArrayList<String>();
+		for (File f : files.values())
+		{
+			fileList.add(f.getHash());
+		}
+		
+		return fileList;
+	}
+	
+	public void accept(IModelVisitor visitor, Object passAlongArgument) {
+		//visitor.visitFiles(this, passAlongArgument);
 	}
 	
 	@Override
@@ -87,40 +120,15 @@ public class Files extends Model {
 		
 		super.removeListener(listener);
 	}
-
-	public boolean isFileKnown(IFile file) throws CoreException, IOException
-	{
-		String calculatedSha = FileHandler.calculateSha(file);
-		
-		if(files.containsKey(calculatedSha)){
-			
-			File foundFile = files.get(calculatedSha);
-			if(foundFile.getName().equals(file.getName())){
-				return true;
-			}  
-		}
-		
-		return false;
-	}
 	
-	public List<String> getFileNames(){
-		
-		List<String> fileList = new ArrayList<String>();
-		for (File f : files.values())
-		{
-			fileList.add(f.getName());
-		}
-		
-		return fileList;
-	}
-	
-	public void accept(IModelVisitor visitor, Object passAlongArgument) {
-		//visitor.visitFiles(this, passAlongArgument);
-	}
-
 	@Override
 	public CollaborationProject getCollaborationProject()
 	{
 		return getParent().getCollaborationProject();
+	}
+
+	public File getFile(String filename)
+	{
+		return files.get(filename);
 	}
 }

@@ -73,12 +73,27 @@ public class CollaborationLabelProvider extends LabelProvider implements IColorP
 			return collabProject.getTitle() +  " (attached to project: " + collabProject.getProjectWorkspaceName() + ")"; 
 		} else if (element instanceof Configurations) {
 			if(((Configurations)element).getName() == null) {
-				return "Contracts";
+				return "Configurations";
 			} else {
-				return ((Configurations)element).getName();
+				return ((Configurations)element).toString();
 			}
 		} else if (element instanceof Configuration) {
-			return ((Configuration)element).toString();
+			
+			Configuration config = (Configuration) element;
+			
+			String toString = config.toString();
+			if(config.isSigned()){
+				toString += " (Signed by: " + config.getSignedBy() + ")";
+			}
+			
+			if(config.isSharedConfiguration()){
+				toString += " (Shared)";
+			} else {
+				toString += " (Not shared - local configuration)";
+			}
+			
+			return toString;
+			
 		} else if (element instanceof Files) {
 			return ((Files)element).toString();
 		} else if (element instanceof Shares) {
@@ -89,7 +104,10 @@ public class CollaborationLabelProvider extends LabelProvider implements IColorP
 			String toString;
 			
 			if(file.isNewFile()){
-				toString = file + " (File added to configuration)";
+				toString = file + " (New file)";
+			} else if(file.isUpdatedFile()) 
+			{
+				toString = file + " (Changed)";
 			} else {
 				toString = file.toString();
 			}
@@ -147,6 +165,12 @@ public class CollaborationLabelProvider extends LabelProvider implements IColorP
 				return Display.getCurrent().getSystemColor(SWT.COLOR_GREEN);
 			} else if (c.getStatus() == NegotiationStatus.REJECT) {
 				return Display.getCurrent().getSystemColor(SWT.COLOR_RED);
+			}
+			
+			if(c.isSharedConfiguration()){
+				return Display.getCurrent().getSystemColor(SWT.COLOR_LIST_BACKGROUND);
+			} else {
+				return Display.getCurrent().getSystemColor(SWT.COLOR_GRAY);
 			}
 		}
 		

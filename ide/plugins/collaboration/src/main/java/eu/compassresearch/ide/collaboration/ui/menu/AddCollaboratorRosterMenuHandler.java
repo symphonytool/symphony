@@ -16,7 +16,6 @@ import eu.compassresearch.ide.collaboration.communication.messages.Collaboration
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationGroup;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationProject;
 import eu.compassresearch.ide.collaboration.datamodel.Model;
-import eu.compassresearch.ide.collaboration.datamodel.User;
 import eu.compassresearch.ide.collaboration.notifications.Notification;
 
 public class AddCollaboratorRosterMenuHandler extends AbstractRosterMenuHandler

@@ -1,6 +1,7 @@
 package eu.compassresearch.ide.collaboration.ui.view;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
@@ -14,9 +15,14 @@ import org.eclipse.compare.IStreamContentAccessor;
 import org.eclipse.compare.ITypedElement;
 import org.eclipse.compare.contentmergeviewer.IFlushable;
 import org.eclipse.compare.structuremergeviewer.DiffNode;
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.ecf.core.util.ECFException;
 import org.eclipse.ecf.sync.SerializationException;
 import org.eclipse.jface.action.Action;
@@ -56,6 +62,7 @@ import eu.compassresearch.ide.collaboration.datamodel.Configurations;
 import eu.compassresearch.ide.collaboration.datamodel.File;
 import eu.compassresearch.ide.collaboration.datamodel.Model;
 import eu.compassresearch.ide.collaboration.files.FileHandler;
+import eu.compassresearch.ide.collaboration.notifications.Notification;
 import eu.compassresearch.ide.collaboration.ui.menu.AddCollaboratorRosterMenuContributionItem;
 
 /**
@@ -67,12 +74,12 @@ public class CollaborationView extends ViewPart {
 	protected Text text;
 	protected CollaborationLabelProvider labelProvider;
 	
+	protected Action signAndShareAction;
 	protected Action diffWithPrevAction; 
 	protected Action approveContractAction; 
 	protected Action rejectContractAction;
 	protected Action negotiateContractAction;
 	protected Action addToCollaborationGroup;
-	protected Action connectAction;
 	
 	/**
 	 * The constructor.
@@ -125,6 +132,14 @@ public class CollaborationView extends ViewPart {
 		};
 		diffWithPrevAction.setToolTipText("Diff selected version with previous version");
 
+		
+		signAndShareAction = new Action("Sign and Share Configuration") {
+			public void run() {
+				signAndShare();
+			}			
+		};
+		signAndShareAction.setToolTipText("Sign configuration and share with collaboration group");
+		
 		approveContractAction = new Action("Approve") {
 			public void run() {
 				try
@@ -202,6 +217,32 @@ public class CollaborationView extends ViewPart {
 		}
 	}
 	
+	protected void signAndShare()
+	{
+		if (treeViewer.getSelection().isEmpty()) {
+			return;
+		} else {
+			IStructuredSelection selection = (IStructuredSelection) treeViewer.getSelection();
+			Model selectedDomainObject = (Model) selection.getFirstElement();
+		
+			if(selectedDomainObject instanceof Configuration)
+			{
+				Configuration config = (Configuration) selectedDomainObject;
+				
+				CollaborationDataModelManager collabMgM = Activator.getDefault().getDataModelManager();
+				
+				try
+				{
+					collabMgM.signAndShareConfiguration(config);
+				} catch (CoreException e)
+				{
+					e.printStackTrace();
+					Notification.logError(e.toString(), e);
+				}		
+			}
+		}
+	}
+	
 	private void addContextMenu() {
 		  MenuManager menuMgr = new MenuManager();
 		  Menu menu = menuMgr.createContextMenu(treeViewer.getControl());
@@ -218,10 +259,18 @@ public class CollaborationView extends ViewPart {
 				Model selectedDomainObject = (Model) selection.getFirstElement();
 		        
 				if ((selectedDomainObject instanceof Configuration)) {
-					manager.add(approveContractAction);
-					manager.add(rejectContractAction);
-					manager.add(negotiateContractAction);
-		        } else if ((selectedDomainObject instanceof File)) {
+					
+					Configuration config = (Configuration) selectedDomainObject;
+					
+					if(!config.isSharedConfiguration()){
+						manager.add(signAndShareAction);
+					} else {
+						manager.add(approveContractAction);
+						manager.add(rejectContractAction);
+						manager.add(negotiateContractAction);
+					}
+
+				} else if ((selectedDomainObject instanceof File)) {
 		        	manager.add(diffWithPrevAction);
 		        }	
 		        else if(selectedDomainObject instanceof CollaborationGroup) {
@@ -261,6 +310,7 @@ public class CollaborationView extends ViewPart {
 			}
 		});
 		
+
 		treeViewer.addDoubleClickListener(new IDoubleClickListener()
 		{
 			@Override
@@ -275,6 +325,7 @@ public class CollaborationView extends ViewPart {
 					TreeSelection ts = (TreeSelection) selection;
 					Object clickedElement = ts.getFirstElement(); 
 					
+					//open file version in editor on double click 
 					if(clickedElement instanceof File) {
 					
 						File file = (File) clickedElement;
@@ -282,10 +333,11 @@ public class CollaborationView extends ViewPart {
 						{
 							CollaborationProject collabProj = file.getCollaborationProject();
 							openFileInEditor(file,collabProj);
-						} catch (CoreException e)
+						} 
+						catch (CoreException | IOException e)
 						{
-							// TODO Auto-generated catch block
 							e.printStackTrace();
+							Notification.logError(Notification.Collab_Dialog_ERROR_COULD_NOT_OPEN_EDITOR, e);
 						}
 					}
 				}
@@ -294,15 +346,41 @@ public class CollaborationView extends ViewPart {
 	}
 
 
-	private void openFileInEditor(File file, CollaborationProject collaborationProject) throws CoreException
+	private void openFileInEditor(File file, CollaborationProject collaborationProject) throws CoreException, IOException
 	{
-		IFile iFile = FileHandler.loadFile(file, collaborationProject);
+		CollaborationDataModelManager collabMgM = Activator.getDefault().getDataModelManager();
+		
+		IFile iFile = collabMgM.getFile(file, collaborationProject);
 		
 		final IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-		IEditorPart openEditor = IDE.openEditor(page, iFile, true);
+		IEditorPart openEditor;
+		if(file.isStored()) {
+			//file is loaded from the protected collaboration dir, 
+			//so open in a temp file to avoid modifications or work around of read-only
+			
+			IFileStore tempFileStore = getTempFileStore(file, iFile);
+			openEditor = IDE.openEditorOnFileStore(page, tempFileStore);
+		} else {
+			//file is not stored in the hidden collaboration dir and can be opened directly from the workspace
+			openEditor = IDE.openEditor(page, iFile, true);
+		}
 		openEditor.getEditorInput();
 	}
 	
+	IFileStore getTempFileStore(File file, IFile storedFile) throws IOException, CoreException {
+		
+		java.io.File tempFile = java.io.File.createTempFile(file.getName() + "-" + file.getHashFileName() , null);
+		tempFile.deleteOnExit();
+
+		final IFileStore storedFileStore = EFS.getStore(storedFile.getLocationURI());
+		final IFileStore tempFileStore = EFS.getLocalFileSystem().fromLocalFile(tempFile);
+	
+		storedFileStore.copy(tempFileStore, EFS.OVERWRITE , null);
+		tempFile = tempFileStore.toLocalFile(EFS.CACHE, null);
+		
+		return tempFileStore;
+	}
+
 	public class CompareItem implements IFlushable, IStreamContentAccessor, ITypedElement, IModificationDate, IEditableContent {
 	    private String name;
 	    private long time;

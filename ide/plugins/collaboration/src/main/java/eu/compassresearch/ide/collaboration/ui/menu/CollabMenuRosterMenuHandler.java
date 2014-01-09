@@ -8,7 +8,6 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.ecf.core.IContainer;
 import org.eclipse.ecf.core.user.IUser;
-import org.eclipse.ecf.core.util.ECFException;
 import org.eclipse.ecf.presence.roster.IRoster;
 import org.eclipse.ecf.presence.roster.IRosterEntry;
 import org.eclipse.ecf.presence.ui.menu.AbstractRosterMenuHandler;
@@ -23,7 +22,6 @@ import org.eclipse.ui.handlers.HandlerUtil;
 import eu.compassresearch.ide.collaboration.Activator;
 import eu.compassresearch.ide.collaboration.CollaborationPluginUtils;
 import eu.compassresearch.ide.collaboration.communication.MessageProcessor;
-import eu.compassresearch.ide.collaboration.communication.messages.NewFileMessage;
 import eu.compassresearch.ide.collaboration.notifications.Notification;
 
 public class CollabMenuRosterMenuHandler extends AbstractRosterMenuHandler

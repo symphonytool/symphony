@@ -24,6 +24,17 @@ public class CollaborationDataModelRoot extends Model
 	}
 
 	@Override
+	public void addListener(IDeltaListener listener)
+	{
+		for (CollaborationProject collab_project : collaborationProjects.values())
+		{
+			collab_project.addListener(listener);
+		}
+		
+		super.addListener(listener);
+	}
+	
+	@Override
 	public void removeListener(IDeltaListener listener)
 	{
 		for (CollaborationProject p : collaborationProjects.values())
@@ -59,7 +70,7 @@ public class CollaborationDataModelRoot extends Model
 		{
 			collaborationProjects.put(id, collabProject);
 			collabProject.addListener(listener);
-			fireObjectAddedEvent(collabProject);
+			fireObjectUpdatedEvent(collabProject);
 
 			return true;
 		}

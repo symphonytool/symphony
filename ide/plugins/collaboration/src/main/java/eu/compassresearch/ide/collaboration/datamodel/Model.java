@@ -16,13 +16,9 @@ public abstract class Model implements Serializable {
 		this.parent = parent;
 	}
 	
-//	public Model() {
-//
-//	}
-	
-	protected void fireObjectAddedEvent(Object added) {
+	protected void fireObjectUpdatedEvent(Object added) {
 		if(listener != null)
-			listener.onObjectAdded(new DeltaEvent(added));
+			listener.onObjectUpdated(new DeltaEvent(added));
 	}
 
 	protected void fireObjectRemovedEvent(Object removed) {
@@ -40,11 +36,6 @@ public abstract class Model implements Serializable {
 	
 	public Model getParent() {
 		return parent;
-	}
-	
-	private void setParent(Model parent){
-		this.parent = parent;
-		listener = parent.listener;
 	}
 	
 	public String getName() {

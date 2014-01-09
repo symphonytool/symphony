@@ -21,7 +21,7 @@ public class Shares extends Model {
 	
 	public void addShare(Share share) {
 		shares.add(share);
-		fireObjectAddedEvent(share);
+		fireObjectUpdatedEvent(share);
 	}
 	
 	protected void removeShare(Share share) {

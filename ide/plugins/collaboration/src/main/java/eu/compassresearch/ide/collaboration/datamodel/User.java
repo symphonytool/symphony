@@ -40,7 +40,7 @@ public class User extends Model {
 			this.hasDeclinedGroup = true;
 		}
 		
-		fireObjectAddedEvent(this);
+		fireObjectUpdatedEvent(this);
 	}
 
 	public boolean hasDeclinedGroup()

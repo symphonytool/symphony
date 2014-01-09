@@ -40,7 +40,7 @@ public class FileStatusMessageHandler extends BaseMessageHandler<FileStatusMessa
 					CollaborationDataModelRoot root = modelMgm.getDataModel();
 
 					String senderName = statusMsg.getSenderID().getName();
-					Configurations contracts = root.getCollaborationProjects().get(0).getConfiguration();
+					Configurations contracts = root.getCollaborationProjects().get(0).getConfigurations();
 					
 					String cleanFilename = filename.substring(0, filename.indexOf(".")); 
 					Configuration contract = contracts.getConfiguration(cleanFilename);
@@ -64,7 +64,7 @@ public class FileStatusMessageHandler extends BaseMessageHandler<FileStatusMessa
 						CollaborationDataModelManager modelMgm = Activator.getDefault().getDataModelManager();
 						CollaborationDataModelRoot root = modelMgm.getDataModel();
 						
-						Configurations cs = (Configurations) root.getCollaborationProjects().get(0).getConfiguration();
+						Configurations cs = (Configurations) root.getCollaborationProjects().get(0).getConfigurations();
 						Configuration c = (Configuration) cs.getConfigurations().get(0);
 						c.setStatus(status);
 					}

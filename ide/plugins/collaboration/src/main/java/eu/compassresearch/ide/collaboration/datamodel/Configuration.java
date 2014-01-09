@@ -1,14 +1,16 @@
 package eu.compassresearch.ide.collaboration.datamodel;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.UUID;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.Status;
 
+import eu.compassresearch.ide.collaboration.Activator;
 import eu.compassresearch.ide.collaboration.communication.messages.FileStatusMessage.NegotiationStatus;
-import eu.compassresearch.ide.collaboration.files.FileHandler;
+import eu.compassresearch.ide.collaboration.files.FileChangeManager.FileStatus;
+import eu.compassresearch.ide.collaboration.notifications.Notification;
 
 public class Configuration extends Model {
 
@@ -17,43 +19,45 @@ public class Configuration extends Model {
 	protected Files files;
 	private NegotiationStatus status;
 	private final String uniqueID;
-	protected final long timestamp_ux_epoch; 
+	protected long timestamp_ux_epoch; 
 	private Configuration parentConfiguration;
+	private boolean sharedConfiguration;
+	private String configurationSignature;
 
-	private Configuration(Model parent){
+	public Configuration(Model parent){
 		super("Unnamed Configuration", parent);
 		uniqueID = UUID.randomUUID().toString();
 		files = new Files(this);
+		sharedConfiguration = false;
+		configurationSignature = null;
 		Date d = new Date();
 		timestamp_ux_epoch = d.getTime();
 		this.name =  uniqueID.substring(0, 8) + " - " + new Date(timestamp_ux_epoch);
 	}
 	
-	public Configuration(File file, Model parent) {
-		this(parent);
-		addFile(file);
-		parentConfiguration = null;
-	}
-	
-	public Configuration(Configuration oldConfiguration, File newFile, Model parent) {
+	public Configuration(Configuration oldConfiguration, Model parent) {
 		this(parent);
 		
 		parentConfiguration = oldConfiguration;
 		Files filesInOldConfig = oldConfiguration.getFiles();
 		Files filesInNewConfig = filesInOldConfig.clone();
-		filesInNewConfig.addFile(newFile);
 		files = filesInNewConfig;
 	}
 	
-	private void addFile(File file) {
+	public void addFile(File file) throws CoreException {
+		
+		if(configurationSignature != null) {
+			throw new CoreException(new Status(Status.ERROR, Activator.PLUGIN_ID, Notification.Collab_File_ERROR_FILE_ADD_TO_SIGNED));
+		}
+		
 		files.addFile(file);
-		fireObjectAddedEvent(file);
+		fireObjectUpdatedEvent(file);
 	}
 	
-	protected void removeFile(File version) {
-		files.removeFile(version);
-		version.removeListener(listener);
-		fireObjectRemovedEvent(version);
+	protected void removeFile(File file) {
+		files.removeFile(file);
+		file.removeListener(listener);
+		fireObjectRemovedEvent(file);
 	}
 
 	public Files getFiles() {
@@ -89,12 +93,7 @@ public class Configuration extends Model {
 	public void setStatus(NegotiationStatus status)
 	{
 		this.status = status;
-		fireObjectAddedEvent(this);
-	}
-
-	public boolean isKnownFile(IFile file) throws CoreException, IOException
-	{		
-		return files.isFileKnown(file);
+		fireObjectUpdatedEvent(this);
 	}
 
 	public Configuration getParentConfiguration()
@@ -117,5 +116,54 @@ public class Configuration extends Model {
 	public CollaborationProject getCollaborationProject()
 	{
 		return getParent().getCollaborationProject();
+	}
+
+	public boolean isSharedConfiguration()
+	{
+		return sharedConfiguration;
+	}
+	
+	public boolean isSigned()
+	{
+		return configurationSignature != null;
+	}
+	
+	public String getSignedBy()
+	{
+		return configurationSignature;
+	}
+
+	public void setConfigurationShared()
+	{
+		if(!this.sharedConfiguration) {
+			this.sharedConfiguration = true;
+			
+			Date d = new Date();
+			timestamp_ux_epoch = d.getTime();
+			
+			fireObjectUpdatedEvent(this);
+		}
+	}
+
+	public void setSignedBy(String user)
+	{
+		if(this.configurationSignature == null) {
+			this.configurationSignature = user;
+			
+			Date d = new Date();
+			timestamp_ux_epoch = d.getTime();
+			
+			fireObjectUpdatedEvent(this);
+		}
+	}
+	
+	public FileStatus getFileStatus(IFile file)
+	{
+		return files.getFileStatus(file);
+	}
+
+	public File getFile(String filename)
+	{
+		return files.getFile(filename);
 	}
 }

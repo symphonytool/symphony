@@ -70,7 +70,7 @@ public class NewFileHandler extends BaseMessageHandler<NewFileMessage>
 						CollaborationDataModelManager modelMgm = Activator.getDefault().getDataModelManager();
 						CollaborationDataModelRoot root = modelMgm.getDataModel();
 						
-						Configurations contracts = (Configurations) root.getCollaborationProjects().get(0).getConfiguration().getConfigurations();
+						Configurations contracts = (Configurations) root.getCollaborationProjects().get(0).getConfigurations().getConfigurations();
 						
 						byte[] bytes = fileContents.getBytes();
 						InputStream source = new ByteArrayInputStream(bytes);
