@@ -4,6 +4,7 @@
 package eu.compassresearch.ide.faulttolerance;
 
 import org.eclipse.jface.resource.ImageRegistry;
+import org.eclipse.ui.IStartup;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -13,7 +14,7 @@ import org.osgi.framework.BundleContext;
  *         >alrd@cin.ufpe.br</a>)
  * 
  */
-public class Activator extends AbstractUIPlugin {
+public class Activator extends AbstractUIPlugin implements IStartup {
 	public static final String ID = "eu.compassresearch.ide.faulttolerance";
 	private static Activator plugin;
 
@@ -38,12 +39,18 @@ public class Activator extends AbstractUIPlugin {
 	}
 
 	public boolean isModelCheckerOk() {
-		return eu.compassresearch.ide.modelchecker.Activator.FORMULA_OK;
+		return true;// eu.compassresearch.ide.modelchecker.Activator.FORMULA_OK;
 	}
 
 	@Override
 	protected void initializeImageRegistry(ImageRegistry reg) {
 		Image.RELOAD.updateImageDescriptor(reg, "reload.png");
+	}
+
+	@Override
+	public void earlyStartup() {
+		// TODO Auto-generated method stub
+
 	}
 
 }

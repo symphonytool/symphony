@@ -1,10 +1,10 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Symphony IDE FT Plugin
+Bundle-Name: %Bundle-Name
 Bundle-SymbolicName: eu.compassresearch.ide.faulttolerance;singleton:=true
 Bundle-Version: 0.0.1.snapshot
 Bundle-Activator: eu.compassresearch.ide.faulttolerance.Activator
-Bundle-Vendor: The COMPASS Project
+Bundle-Vendor: %Bundle-Vendor
 Require-Bundle: 
  org.overture.ide.ui,
  eu.compassresearch.ide.core,
@@ -34,3 +34,4 @@ Bundle-ActivationPolicy: lazy
 Eclipse-BuddyPolicy: registered
 Bundle-ClassPath: .,
  target/classes/
+Bundle-Localization: l10n/plugin
