@@ -106,6 +106,33 @@
   <build>
     <defaultGoal>install</defaultGoal>
 
+    <plugins>
+      <plugin>
+        <!--
+            This plugin allows you to run
+
+            $ mvn versions:set -Dtycho.mode=maven -PWith-IDE -DnewVersion=1.6.1
+
+            and get all the maven version numbers updated nearly for
+            free.  The tycho bit on the end just tells tycho (used in
+            the eclipse plugin build) to piss off.
+
+            Don't forget to update all of the MANFEST.MF, feature.xml,
+            and symphony.product version numbers as well.  See
+            tools/build/update-versions.sh.
+
+            More details on the versions-maven-plugin are at
+            http://mojo.codehaus.org/versions-maven-plugin/
+        -->
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>versions-maven-plugin</artifactId>
+        <configuration>
+          <!-- Version control obviates the need for this. -->
+          <generateBackupPoms>false</generateBackupPoms>
+        </configuration>
+      </plugin>
+    </plugins>
+
     <pluginManagement>
       <plugins>
 	<!-- Configure the compiler for all Overture Projects -->
@@ -202,6 +229,12 @@
 	  <artifactId>build-helper-maven-plugin</artifactId>
 	  <version>1.7</version>
 	</plugin>
+
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>versions-maven-plugin</artifactId>
+          <version>2.1</version>
+        </plugin>
 
 	<plugin>
 	  <groupId>pl.project13.maven</groupId>
