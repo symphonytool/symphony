@@ -241,12 +241,13 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 				CmlRuntime.logger().finer("State for " + event + " : " + state);
 			}
 
+			SelectionStrategy env = getEnvironment();
 			// set the state of the interpreter to be waiting for the environment
-			getEnvironment().choices(filterEvents(availableEvents));
+			env.choices(filterEvents(availableEvents));
 			setNewState(CmlInterpreterState.WAITING_FOR_ENVIRONMENT);
 			// Get the environment to select the next transition.
 			// this is potentially a blocking call!!
-			selectedEvent = getEnvironment().resolveChoice();
+			selectedEvent = env.resolveChoice();
 
 			// if its null we terminate and assume that this happended because of a user interrupt
 			if (selectedEvent == null)
@@ -263,25 +264,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			behaviour.execute(selectedEvent);
 			CmlTrace trace = behaviour.getTraceModel();
 
-			if (trace.getLastTransition() instanceof ObservableTransition)
-			{
-				CmlRuntime.logger().fine("----------------observable step by '"
-						+ behaviour + "'----------------------");
-				CmlRuntime.logger().fine("Observable trace of '" + behaviour
-						+ "': " + trace.getObservableTrace());
-				CmlRuntime.logger().fine("Eval. Status={ "
-						+ behaviour.nextStepToString() + " }");
-				CmlRuntime.logger().fine("-----------------------------------------------------------------");
-			} else
-			{
-				CmlRuntime.logger().finer("----------------Silent step by '"
-						+ behaviour + "'--------------------");
-				CmlRuntime.logger().finer("Trace of '" + behaviour + "': "
-						+ trace);
-				CmlRuntime.logger().finer("Eval. Status={ "
-						+ behaviour.nextStepToString() + " }");
-				CmlRuntime.logger().finer("-----------------------------------------------------------------");
-			}
+			logTransition(behaviour, trace);
 
 		}
 
@@ -304,6 +287,29 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			setNewState(CmlInterpreterState.FINISHED);
 		}
 
+	}
+
+	public void logTransition(CmlBehaviour behaviour, CmlTrace trace)
+	{
+		if (trace.getLastTransition() instanceof ObservableTransition)
+		{
+			CmlRuntime.logger().fine("----------------observable step by '"
+					+ behaviour + "'----------------------");
+			CmlRuntime.logger().fine("Observable trace of '" + behaviour
+					+ "': " + trace.getObservableTrace());
+			CmlRuntime.logger().fine("Eval. Status={ "
+					+ behaviour.nextStepToString() + " }");
+			CmlRuntime.logger().fine("-----------------------------------------------------------------");
+		} else
+		{
+			CmlRuntime.logger().finer("----------------Silent step by '"
+					+ behaviour + "'--------------------");
+			CmlRuntime.logger().finer("Trace of '" + behaviour + "': "
+					+ trace);
+			CmlRuntime.logger().finer("Eval. Status={ "
+					+ behaviour.nextStepToString() + " }");
+			CmlRuntime.logger().finer("-----------------------------------------------------------------");
+		}
 	}
 
 	@Override
