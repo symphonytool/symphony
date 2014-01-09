@@ -85,10 +85,10 @@
     
     <pluginRepository>
       <id>overture-astcreator-github</id>
-      <name>Overture AST Creator Maven plugin</name>
+      <name>Overture AstCreator maven development repo on GitHub</name>
       <releases>
         <enabled>true</enabled>
-        <updatePolicy>always</updatePolicy>
+        <updatePolicy>daily</updatePolicy>
         <checksumPolicy>warn</checksumPolicy>
       </releases>
       <snapshots>
@@ -96,11 +96,9 @@
         <updatePolicy>daily</updatePolicy>
         <checksumPolicy>warn</checksumPolicy>
       </snapshots>
-      <url>https://github.com/overturetool/astcreator/raw/mvn-repo/release</url>
+      <url>https://github.com/overturetool/astcreator/raw/mvn-dev-repo</url>
       <layout>default</layout>
     </pluginRepository>
-    
-    
   </pluginRepositories>
 
   <build>
