@@ -1,14 +1,14 @@
 /**
  * 
  */
-package eu.compassresearch.ide.recoverymechanismsverification.jobs;
+package eu.compassresearch.ide.faulttolerance.jobs;
 
 import org.eclipse.core.runtime.jobs.ILock;
 import org.eclipse.core.runtime.jobs.Job;
 
 /**
  * @author Andr&eacute; Didier (<a href=
- *         "mailto:alrd@cin.ufpe.br?Subject=Package eu.compassresearch.ide.recoverymechanismsverification.jobs, class FaultToleranceResults"
+ *         "mailto:alrd@cin.ufpe.br?Subject=Package eu.compassresearch.ide.faulttolerance.jobs, class FaultToleranceResults"
  *         >alrd@cin.ufpe.br</a>)
  * 
  */

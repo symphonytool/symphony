@@ -1,11 +1,12 @@
 /**
  * 
  */
-package eu.compassresearch.ide.recoverymechanismsverification.jobs;
+package eu.compassresearch.ide.faulttolerance.jobs;
+
 
 /**
  * @author Andr&eacute; Didier (<a href=
- *         "mailto:alrd@cin.ufpe.br?Subject=Package eu.compassresearch.ide.recoverymechanismsverification.jobs, class FaultToleranceVerificationEvent"
+ *         "mailto:alrd@cin.ufpe.br?Subject=Package eu.compassresearch.ide.faulttolerance.jobs, class FaultToleranceVerificationEvent"
  *         >alrd@cin.ufpe.br</a>)
  * 
  */

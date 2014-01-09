@@ -11,16 +11,16 @@
   
   <extension
         point="org.eclipse.ui.startup">
-     <startup class="eu.compassresearch.ide.recoverymechanismsverification.RMVActivator"> </startup>
+     <startup class="eu.compassresearch.ide.faulttolerance.Activator"> </startup>
   </extension>
   <extension
         point="org.eclipse.ui.views"> 
       
-        <view id="eu.compassresearch.ide.recoverymechanismsverification.view.VerificationResultsView"
-                name="RMV results view"
-                icon="icons/rmv.png"
+        <view id="eu.compassresearch.ide.faulttolerance.view.VerificationResultsView"
+                name="FT verification results view"
+                icon="icons/resultsView.png"
              category="eu.compassresearch.ide.ui.category"
-                class="eu.compassresearch.ide.recoverymechanismsverification.view.VerificationResultsView"/>
+                class="eu.compassresearch.ide.faulttolerance.view.VerificationResultsView"/>
   </extension>
   
   

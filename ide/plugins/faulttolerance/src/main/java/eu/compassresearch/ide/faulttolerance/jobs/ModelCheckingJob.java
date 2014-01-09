@@ -1,18 +1,18 @@
 /**
  * 
  */
-package eu.compassresearch.ide.recoverymechanismsverification.jobs;
+package eu.compassresearch.ide.faulttolerance.jobs;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 
-import eu.compassresearch.ide.recoverymechanismsverification.Messages;
+import eu.compassresearch.ide.faulttolerance.Messages;
 
 /**
  * @author Andr&eacute; Didier (<a href=
- *         "mailto:alrd@cin.ufpe.br?Subject=Package eu.compassresearch.ide.recoverymechanismsverification.jobs, class ModelCheckingJob"
+ *         "mailto:alrd@cin.ufpe.br?Subject=Package eu.compassresearch.ide.faulttolerance.jobs, class ModelCheckingJob"
  *         >alrd@cin.ufpe.br</a>)
  * 
  */

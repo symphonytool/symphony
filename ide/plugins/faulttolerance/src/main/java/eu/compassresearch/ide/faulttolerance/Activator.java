@@ -1,25 +1,23 @@
 /**
  * 
  */
-package eu.compassresearch.ide.recoverymechanismsverification;
+package eu.compassresearch.ide.faulttolerance;
 
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
-import eu.compassresearch.ide.modelchecker.Activator;
-
 /**
  * @author Andr&eacute; Didier (<a href=
- *         "mailto:alrd@cin.ufpe.br?Subject=Package eu.compassresearch.ide.recoverymechanismsverification, class Activator"
+ *         "mailto:alrd@cin.ufpe.br?Subject=Package eu.compassresearch.ide.faulttolerance, class Activator"
  *         >alrd@cin.ufpe.br</a>)
  * 
  */
-public class RMVActivator extends AbstractUIPlugin {
-	public static final String ID = "eu.compassresearch.ide.recoverymechanismsverification";
-	private static RMVActivator plugin;
+public class Activator extends AbstractUIPlugin {
+	public static final String ID = "eu.compassresearch.ide.faulttolerance";
+	private static Activator plugin;
 
-	public RMVActivator() {
+	public Activator() {
 
 	}
 
@@ -35,12 +33,12 @@ public class RMVActivator extends AbstractUIPlugin {
 		super.stop(context);
 	}
 
-	public static RMVActivator getDefault() {
+	public static Activator getDefault() {
 		return plugin;
 	}
 
 	public boolean isModelCheckerOk() {
-		return Activator.FORMULA_OK;
+		return eu.compassresearch.ide.modelchecker.Activator.FORMULA_OK;
 	}
 
 	@Override

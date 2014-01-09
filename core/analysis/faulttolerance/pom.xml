@@ -7,7 +7,7 @@
     <version>0.2.4</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
-  <artifactId>recoverymechanismsverification</artifactId>
+  <artifactId>faulttolerance</artifactId>
   <version>0.0.1-SNAPSHOT</version>
-  <name>Symphony Core Analysis Recovery Mechanisms Verification</name>
+  <name>Symphony Core Analysis Fault Tolerance</name>
 </project>

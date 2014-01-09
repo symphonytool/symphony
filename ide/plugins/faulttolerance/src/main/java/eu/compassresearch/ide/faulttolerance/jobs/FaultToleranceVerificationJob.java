@@ -1,7 +1,7 @@
 /**
  * 
  */
-package eu.compassresearch.ide.recoverymechanismsverification.jobs;
+package eu.compassresearch.ide.faulttolerance.jobs;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -11,11 +11,11 @@ import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 
-import eu.compassresearch.ide.recoverymechanismsverification.Messages;
+import eu.compassresearch.ide.faulttolerance.Messages;
 
 /**
  * @author Andr&eacute; Didier (<a href=
- *         "mailto:alrd@cin.ufpe.br?Subject=Package eu.compassresearch.ide.recoverymechanismsverification.jobs, class FaultToleranceJob"
+ *         "mailto:alrd@cin.ufpe.br?Subject=Package eu.compassresearch.ide.faulttolerance.jobs, class FaultToleranceJob"
  *         >alrd@cin.ufpe.br</a>)
  * 
  */

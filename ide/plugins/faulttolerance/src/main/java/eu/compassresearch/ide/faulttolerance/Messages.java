@@ -1,13 +1,13 @@
 /**
  * 
  */
-package eu.compassresearch.ide.recoverymechanismsverification;
+package eu.compassresearch.ide.faulttolerance;
 
 import java.util.ResourceBundle;
 
 /**
  * @author Andr&eacute; Didier (<a href=
- *         "mailto:alrd@cin.ufpe.br?Subject=Package eu.compassresearch.ide.recoverymechanismsverification, class Messages"
+ *         "mailto:alrd@cin.ufpe.br?Subject=Package eu.compassresearch.ide.faulttolerance, class Messages"
  *         >alrd@cin.ufpe.br</a>)
  * 
  */

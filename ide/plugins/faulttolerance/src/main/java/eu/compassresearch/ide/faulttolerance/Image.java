@@ -1,7 +1,7 @@
 /**
  * 
  */
-package eu.compassresearch.ide.recoverymechanismsverification;
+package eu.compassresearch.ide.faulttolerance;
 
 import java.net.URL;
 
@@ -14,7 +14,7 @@ import org.osgi.framework.Bundle;
 
 /**
  * @author Andr&eacute; Didier (<a href=
- *         "mailto:alrd@cin.ufpe.br?Subject=Package eu.compassresearch.ide.recoverymechanismsverification, class Image"
+ *         "mailto:alrd@cin.ufpe.br?Subject=Package eu.compassresearch.ide.faulttolerance, class Image"
  *         >alrd@cin.ufpe.br</a>)
  * 
  */
@@ -22,12 +22,12 @@ public enum Image {
 	RELOAD;
 
 	public ImageDescriptor getImageDescriptor() {
-		return ImageDescriptor.createFromImage(RMVActivator.getDefault()
+		return ImageDescriptor.createFromImage(Activator.getDefault()
 				.getImageRegistry().get(name()));
 	}
 
 	public void updateImageDescriptor(ImageRegistry reg, String iconFileName) {
-		Bundle bundle = RMVActivator.getDefault().getBundle();
+		Bundle bundle = Activator.getDefault().getBundle();
 		IPath path = new Path("icons/" + iconFileName);
 		URL url = FileLocator.find(bundle, path, null);
 		ImageDescriptor desc = ImageDescriptor.createFromURL(url);

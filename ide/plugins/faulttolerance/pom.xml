@@ -8,7 +8,7 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
   <packaging>eclipse-plugin</packaging>
-  <artifactId>eu.compassresearch.ide.recoverymechanismsverification</artifactId>
+  <artifactId>eu.compassresearch.ide.faulttolerance</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <name>Symphony IDE RMV Plugin</name>
   

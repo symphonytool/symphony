@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Symphony IDE RMV Plugin
-Bundle-SymbolicName: eu.compassresearch.ide.recoverymechanismsverification;singleton:=true
+Bundle-Name: Symphony IDE FT Plugin
+Bundle-SymbolicName: eu.compassresearch.ide.faulttolerance;singleton:=true
 Bundle-Version: 0.0.1.snapshot
-Bundle-Activator: eu.compassresearch.ide.recoverymechanismsverification.RMVActivator
+Bundle-Activator: eu.compassresearch.ide.faulttolerance.Activator
 Bundle-Vendor: The COMPASS Project
 Require-Bundle: 
  org.overture.ide.ui,
@@ -28,7 +28,7 @@ Import-Package: eu.compassresearch.ast.program,
  org.eclipse.swt.widgets,
  org.eclipse.ui,
  org.eclipse.ui.console
-Export-Package: eu.compassresearch.ide.recoverymechanismsverification
+Export-Package: eu.compassresearch.ide.faulttolerance
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Eclipse-BuddyPolicy: registered

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package eu.compassresearch.ide.recoverymechanismsverification.jobs;
+package eu.compassresearch.ide.faulttolerance.jobs;
 
 import java.util.Random;
 
@@ -9,39 +9,40 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 
-import eu.compassresearch.ide.recoverymechanismsverification.Messages;
+import eu.compassresearch.ide.faulttolerance.Messages;
 
 /**
  * @author Andr&eacute; Didier (<a href=
- *         "mailto:alrd@cin.ufpe.br?Subject=Package eu.compassresearch.ide.recoverymechanismsverification.jobs, class FullFaultToleranceJob"
+ *         "mailto:alrd@cin.ufpe.br?Subject=Package eu.compassresearch.ide.faulttolerance.jobs, class LimitedFaultTolerance"
  *         >alrd@cin.ufpe.br</a>)
  * 
  */
-public class FullFaultToleranceVerificationJob extends FaultToleranceVerificationJob {
-	private final ListenerFirer fullFaultToleranceStartFirer;
-	private final ListenerFirer fullFaultToleranceFinishFirer;
+public class LimitedFaultToleranceVerificationJob extends FaultToleranceVerificationJob {
 
-	public FullFaultToleranceVerificationJob(
+	private final ListenerFirer limitedFaultToleranceStartFirer;
+	private final ListenerFirer limitedFaultToleranceFinishFirer;
+
+	public LimitedFaultToleranceVerificationJob(
 			final FaultToleranceVerificationResults results) {
-		super(results, Messages.FULL_FAULT_TOLERANCE_JOB, 1);
-		this.fullFaultToleranceStartFirer = new ListenerFirer() {
+		super(results, Messages.LIMITED_FAULT_TOLERANCE_JOB, 1);
+		this.limitedFaultToleranceStartFirer = new ListenerFirer() {
 			@Override
 			protected void doFire(IFaultToleranceVerificationListener l,
 					FaultToleranceVerificationEvent event) {
-				l.fullFaultToleranceVerificationStarted();
+				l.limitedFaultToleranceVerificationStarted();
 			}
 		};
-		this.fullFaultToleranceFinishFirer = new ListenerFirer() {
+		this.limitedFaultToleranceFinishFirer = new ListenerFirer() {
 			@Override
 			protected void doFire(IFaultToleranceVerificationListener l,
 					FaultToleranceVerificationEvent event) {
-				l.fullFaultToleranceVerificationFinished(event);
+				l.limitedFaultToleranceVerificationFinished(event);
 			}
 		};
 		addJobChangeListener(new JobChangeAdapter() {
 			@Override
 			public void aboutToRun(IJobChangeEvent event) {
-				fullFaultToleranceStartFirer.fire(null);
+				limitedFaultToleranceStartFirer.fire(null);
 			}
 
 			@Override
@@ -51,7 +52,7 @@ public class FullFaultToleranceVerificationJob extends FaultToleranceVerificatio
 				FaultToleranceVerificationEvent ftEvent = new FaultToleranceVerificationEvent(
 						results, mcr.isSuccess());
 				results.setFullFaultTolerant(mcr.isSuccess());
-				fullFaultToleranceFinishFirer.fire(ftEvent);
+				limitedFaultToleranceFinishFirer.fire(ftEvent);
 			}
 		});
 	}
@@ -61,7 +62,7 @@ public class FullFaultToleranceVerificationJob extends FaultToleranceVerificatio
 			FaultToleranceVerificationResults ftResults, IProgressMonitor monitor)
 			throws InterruptedException {
 		try {
-			Thread.sleep(2000);
+			Thread.sleep(1000);
 			Random r = new Random(System.currentTimeMillis());
 			mcResults.setSuccess(r.nextInt(100) > 50);
 		} finally {
@@ -73,8 +74,7 @@ public class FullFaultToleranceVerificationJob extends FaultToleranceVerificatio
 	protected void performPrerequisitesNotMet(
 			FaultToleranceVerificationResults faultToleranceResults,
 			IProgressMonitor monitor) {
-		faultToleranceResults.setFullFaultTolerant(false);
+		faultToleranceResults.setLimitedFaultTolerant(false);
 		monitor.worked(1);
 	}
-
 }

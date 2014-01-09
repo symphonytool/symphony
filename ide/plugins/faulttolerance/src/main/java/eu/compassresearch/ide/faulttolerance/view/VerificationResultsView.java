@@ -1,7 +1,7 @@
 /**
  * 
  */
-package eu.compassresearch.ide.recoverymechanismsverification.view;
+package eu.compassresearch.ide.faulttolerance.view;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
@@ -14,23 +14,23 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.part.ViewPart;
 
-import eu.compassresearch.ide.recoverymechanismsverification.Image;
-import eu.compassresearch.ide.recoverymechanismsverification.Messages;
-import eu.compassresearch.ide.recoverymechanismsverification.jobs.FaultToleranceVerificationEvent;
-import eu.compassresearch.ide.recoverymechanismsverification.jobs.FaultToleranceVerificationResults;
-import eu.compassresearch.ide.recoverymechanismsverification.jobs.FullFaultToleranceVerificationJob;
-import eu.compassresearch.ide.recoverymechanismsverification.jobs.IFaultToleranceVerificationListener;
-import eu.compassresearch.ide.recoverymechanismsverification.jobs.LimitedFaultToleranceVerificationJob;
+import eu.compassresearch.ide.faulttolerance.Image;
+import eu.compassresearch.ide.faulttolerance.Messages;
+import eu.compassresearch.ide.faulttolerance.jobs.FaultToleranceVerificationEvent;
+import eu.compassresearch.ide.faulttolerance.jobs.FaultToleranceVerificationResults;
+import eu.compassresearch.ide.faulttolerance.jobs.FullFaultToleranceVerificationJob;
+import eu.compassresearch.ide.faulttolerance.jobs.IFaultToleranceVerificationListener;
+import eu.compassresearch.ide.faulttolerance.jobs.LimitedFaultToleranceVerificationJob;
 
 /**
  * @author Andr&eacute; Didier (<a href=
- *         "mailto:alrd@cin.ufpe.br?Subject=Package eu.compassresearch.ide.recoverymechanismsverification.view, class VerificationResultsView"
+ *         "mailto:alrd@cin.ufpe.br?Subject=Package eu.compassresearch.ide.faulttolerance.view, class VerificationResultsView"
  *         >alrd@cin.ufpe.br</a>)
  * 
  */
 public class VerificationResultsView extends ViewPart implements
 		IFaultToleranceVerificationListener {
-	public static final String ID = "eu.compassresearch.ide.recoverymechanismsverification.view.VerificationResultsView";
+	public static final String ID = "eu.compassresearch.ide.faulttolerance.view.VerificationResultsView";
 
 	private Label processName;
 	private Label divergenceFreeLabel;
