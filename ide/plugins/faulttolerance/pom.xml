@@ -4,12 +4,12 @@
   <parent>
     <groupId>eu.compassresearch.ide</groupId>
     <artifactId>eu.compassresearch.ide.plugins</artifactId>
-    <version>0.2.4</version>
+    <version>0.2.7-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <packaging>eclipse-plugin</packaging>
   <artifactId>eu.compassresearch.ide.faulttolerance</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.2.7-SNAPSHOT</version>
   <name>Symphony IDE RMV Plugin</name>
   
   <build>
