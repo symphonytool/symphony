@@ -1,0 +1,5 @@
+process A = 
+begin 
+
+	@ Stop [_2_> Skip
+end
