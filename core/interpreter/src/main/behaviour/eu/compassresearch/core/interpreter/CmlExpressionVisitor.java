@@ -23,6 +23,8 @@ import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.runtime.VdmRuntime;
 import org.overture.interpreter.runtime.VdmRuntimeError;
+import org.overture.interpreter.scheduler.BasicSchedulableThread;
+import org.overture.interpreter.scheduler.InitThread;
 import org.overture.interpreter.values.NameValuePair;
 import org.overture.interpreter.values.NameValuePairList;
 import org.overture.interpreter.values.Quantifier;
@@ -90,8 +92,8 @@ public class CmlExpressionVisitor extends
 	{
 		// To be able to work together with the VDM interpreter we need to set this
 		// to the current thread.
-		// InitThread initThread = new InitThread(Thread.currentThread());
-		// BasicSchedulableThread.setInitialThread(initThread);
+		InitThread initThread = new InitThread(Thread.currentThread());
+		BasicSchedulableThread.setInitialThread(initThread);
 	}
 
 	@Override
@@ -219,6 +221,17 @@ public class CmlExpressionVisitor extends
 	{
 		return node.apply(stmEvaluator, question);
 	}
+
+	// @Override
+	// public Value caseAIdentifierStateDesignator(
+	// AIdentifierStateDesignator node, Context question)
+	// throws AnalysisException
+	// {
+	//
+	// // We lookup the name in a context comprising only state...
+	// // return ctxt.getUpdateable().lookup(name.getExplicit(true));
+	// return question.lookup(node.getName());
+	// }
 
 	@Override
 	public Value caseAEnumVarsetExpression(AEnumVarsetExpression node,
@@ -371,6 +384,37 @@ public class CmlExpressionVisitor extends
 
 		return node.getExpression().apply(this, question);
 	}
+
+	// @Override
+	// public Value caseAUnresolvedPathExp(AUnresolvedPathExp node,
+	// Context question) throws AnalysisException
+	// {
+	//
+	// // FIXME This is just for testing, this should be done in a more generic way.
+	//
+	// Iterator<ILexIdentifierToken> iter = node.getIdentifiers().iterator();
+	//
+	// Value val = question.check(new CmlLexNameToken("", iter.next()));
+	//
+	// if (val.deref() instanceof RecordValue)
+	// {
+	// RecordValue recordVal = val.recordValue(question);
+	// Value fieldValue = recordVal.fieldmap.get(iter.next().getName());
+	//
+	// return fieldValue;
+	// } else if (val.deref() instanceof ObjectValue)
+	// {
+	// ObjectValue objectVal = val.objectValue(question);
+	// return objectVal.get(new CmlLexNameToken("", (ILexIdentifierToken) iter.next().clone()), false);
+	// }
+	//
+	// if (val.isUndefined())
+	// throw new CmlInterpreterException(node,
+	// InterpretationErrorMessages.EVAL_OF_UNDEFINED_VALUE.customizeMessage(node.toString(),
+	// node.getLocation().toString()));
+	//
+	// return val;
+	// }
 
 	@Override
 	public Value createNewReturnValue(INode node, Context question)

@@ -12,7 +12,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.IBreakpointManager;
@@ -23,6 +22,7 @@ import org.eclipse.debug.core.model.IMemoryBlock;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.ITerminate;
 import org.eclipse.debug.core.model.IThread;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
@@ -140,6 +140,20 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 			@Override
 			public boolean handleMessage(CmlDbgStatusMessage message)
 			{
+				// for (IBreakpoint b : getBreakpoints())
+				// {
+				// try
+				// {
+				// if (b.isEnabled())
+				// {
+				// System.out.println("Adding breakpoint: " + b);
+				// // TODO communnicate the setting of the breakpoint to the interpreter
+				// }
+				// } catch (CoreException e)
+				// {
+				// CmlDebugPlugin.logError("Failed to set breakpoint", e);
+				// }
+				// }
 				lastState = message.getInterpreterStatus();
 				threadManager.started(message.getInterpreterStatus());
 
@@ -179,6 +193,15 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 			public boolean handleMessage(final CmlDbgStatusMessage message)
 			{
 				lastState = message.getInterpreterStatus();
+				// Display.getDefault().asyncExec(new Runnable()
+				// {
+				//
+				// @Override
+				// public void run()
+				// {
+				// threadManager.updateThreads(message.getInterpreterStatus(), communicationManager);
+				// }
+				// });
 				Job setupThreads = new Job("setup cml threads")
 				{
 
@@ -218,8 +241,6 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 					protected IStatus run(IProgressMonitor monitor)
 					{
 						threadManager.updateThreads(message.getInterpreterStatus(), communicationManager);
-						DebugEventHelper.fireChangeEvent(CmlDebugTarget.this);
-						DebugEventHelper.fireSuspendEvent(CmlDebugTarget.this, DebugEvent.BREAKPOINT);
 						return Status.OK_STATUS;
 					}
 				};
@@ -231,19 +252,17 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 					@Override
 					public void run()
 					{
-//						if (message.getInterpreterStatus().hasActiveBreakpoint())
-//						{
-//							Breakpoint bp = message.getInterpreterStatus().getActiveBreakpoint();
-//							for (CmlProcessDTO pi : message.getInterpreterStatus().getAllProcesses())
-//							{
-//								if (pi.getLocation().getStartLine() == bp.getLine())
-//								{
-//									CmlUtil.setSelectionFromLocation(pi.getLocation(), lastSelectedRanges);
-//									CmlUtil.showLocation(lastSelectedRanges.keySet().iterator().next(), pi.getLocation());
-//									break;
-//								}
-//							}
-//						}
+						if (message.getInterpreterStatus().hasActiveBreakpoint())
+						{
+							Breakpoint bp = message.getInterpreterStatus().getActiveBreakpoint();
+							for (CmlProcessDTO pi : message.getInterpreterStatus().getAllProcesses())
+								if (pi.getLocation().getStartLine() == bp.getLine())
+								{
+									CmlUtil.setSelectionFromLocation(pi.getLocation(), lastSelectedRanges);
+									CmlUtil.showLocation(lastSelectedRanges.keySet().iterator().next(), pi.getLocation());
+									break;
+								}
+						}
 
 						try
 						{
@@ -267,26 +286,26 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 			{
 				lastState = message.getInterpreterStatus();
 				// threadManager.stopping();
-				// if (lastState.hasErrors())
-				// {
-				// if (lastState.getErrors().get(0).getLocation() != null)
-				// {
-				// Display.getDefault().syncExec(new Runnable()
-				// {
-				// @Override
-				// public void run()
-				// {
-				// Map<StyledText, List<StyleRange>> map = new HashMap<StyledText, List<StyleRange>>();
-				// CmlUtil.setSelectionFromLocation(lastState.getErrors().get(0).getLocation(), map);
-				// CmlUtil.showLocation(map.keySet().iterator().next(), lastState.getErrors().get(0).getLocation());
-				// MessageDialog.openError(null, "Simulation Error", lastState.getErrors().get(0).getErrorMessage());
-				// CmlUtil.clearSelections(map);
-				// }
-				// });
-				// }
-				// }
-				// CmlDebugPlugin.logWarning(message + " : "
-				// + message.getInterpreterStatus().getErrors());
+//				if (lastState.hasErrors())
+//				{
+//					if (lastState.getErrors().get(0).getLocation() != null)
+//					{
+//						Display.getDefault().syncExec(new Runnable()
+//						{
+//							@Override
+//							public void run()
+//							{
+//								Map<StyledText, List<StyleRange>> map = new HashMap<StyledText, List<StyleRange>>();
+//								CmlUtil.setSelectionFromLocation(lastState.getErrors().get(0).getLocation(), map);
+//								CmlUtil.showLocation(map.keySet().iterator().next(), lastState.getErrors().get(0).getLocation());
+//								MessageDialog.openError(null, "Simulation Error", lastState.getErrors().get(0).getErrorMessage());
+//								CmlUtil.clearSelections(map);
+//							}
+//						});
+//					}
+//				}
+//				CmlDebugPlugin.logWarning(message + " : "
+//						+ message.getInterpreterStatus().getErrors());
 				return false;
 			}
 		});
@@ -363,13 +382,13 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 	@Override
 	public boolean canTerminate()
 	{
-		return process != null && process.canTerminate();
+		return (process != null && process.canTerminate());
 	}
 
 	@Override
 	public boolean isTerminated()
 	{
-		return process != null && process.isTerminated();
+		return (process != null && process.isTerminated());
 	}
 
 	public void terminate() throws DebugException
@@ -437,8 +456,9 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 	public boolean isSuspended()
 	{
 		return lastState != null
-				&& (lastState.getInterpreterState() == CmlInterpreterState.SUSPENDED
-						|| lastState.getInterpreterState() == CmlInterpreterState.WAITING_FOR_ENVIRONMENT || lastState.getInterpreterState() == CmlInterpreterState.DEADLOCKED);
+				&& (lastState.getInterpreterState() == CmlInterpreterState.SUSPENDED 
+				|| lastState.getInterpreterState() == CmlInterpreterState.WAITING_FOR_ENVIRONMENT
+				|| lastState.getInterpreterState() == CmlInterpreterState.DEADLOCKED);
 	}
 
 	@Override
@@ -600,7 +620,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 	@Override
 	public boolean supportsBreakpoint(IBreakpoint breakpoint)
 	{
-		return breakpoint instanceof CmlLineBreakpoint;
+		return (breakpoint instanceof CmlLineBreakpoint);
 	}
 
 	/**

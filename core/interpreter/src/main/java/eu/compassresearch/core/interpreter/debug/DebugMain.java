@@ -9,7 +9,6 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.overture.ast.analysis.AnalysisException;
 
-import eu.compassresearch.core.interpreter.CmlRuntime;
 import eu.compassresearch.core.interpreter.Config;
 import eu.compassresearch.core.interpreter.Console;
 import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
@@ -61,12 +60,9 @@ public class DebugMain
 			// Since the used json encoding for some reason does not encode a list of size of 1 as a list but
 			// as a single normal string, we need to check this.
 			if (sourcesPathsObject instanceof List<?>)
-			{
 				sourcesPaths.addAll((List<String>) sourcesPathsObject);
-			} else
-			{
+			else
 				sourcesPaths.add((String) sourcesPathsObject);
-			}
 
 			// retrieve the top process name
 			String startProcessName = (String) jargs.get(CmlInterpreterArguments.PROCESS_NAME.toString());
@@ -101,10 +97,8 @@ public class DebugMain
 			{
 				host = (String) jargs.get(CmlInterpreterArguments.HOST.key);
 			}
-
-			if (jargs.containsKey(CmlInterpreterArguments.AUTO_FILTER_TOCK_EVENTS.key)
-					&& Boolean.parseBoolean(jargs.get(CmlInterpreterArguments.AUTO_FILTER_TOCK_EVENTS.key)
-							+ ""))
+			
+			if (jargs.containsKey(CmlInterpreterArguments.AUTO_FILTER_TOCK_EVENTS.key) && Boolean.parseBoolean(jargs.get(CmlInterpreterArguments.AUTO_FILTER_TOCK_EVENTS.key)+""))
 			{
 				autoFilterTockEvents = true;
 			}
@@ -124,7 +118,7 @@ public class DebugMain
 				}
 			}
 
-			IRemoteControl remote = remoteClass == null ? null
+			IRemoteControl remote = (remoteClass == null) ? null
 					: remoteClass.newInstance();
 
 			// build the forest
@@ -156,12 +150,10 @@ public class DebugMain
 			{
 				Console.debug.println("Debug Thread: Typechecking: OK");
 
-				boolean filterTockEvents = autoFilterTockEvents
-						&& !TimedSpeckChecker.containsTimeConstructs(res.definitions);
+				boolean filterTockEvents= autoFilterTockEvents && !TimedSpeckChecker.containsTimeConstructs(res.definitions);
 				Config config = VanillaInterpreterFactory.newDefaultConfig(filterTockEvents);
-				CmlInterpreter cmlInterpreter = VanillaInterpreterFactory.newInterpreter(res.definitions, config);
+				CmlInterpreter cmlInterpreter = VanillaInterpreterFactory.newInterpreter(res.definitions,config);
 				cmlInterpreter.setDefaultName(startProcessName);
-				CmlRuntime.consoleMode = false;
 				Console.debug.println("Debug Thread: Initializing the interpreter...");
 				debugger.initialize(cmlInterpreter);
 

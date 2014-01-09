@@ -57,7 +57,7 @@ public class RttMbtRetrieveFileOrDirectory extends RttMbtPopupMenuAction {
 					client.addLogMessage("[PASS]: Retrieve Directory/File from RTT-MBT Server Work Area!");			
 					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 				} else {			
-					client.addErrorMessage("[FAIL]: Retrieve " + item.getAbsolutePath() + " failed!");			
+					client.addErrorMessage("[FAIL]: Retrieve Directory/File from RTT-MBT Server Work Area!");			
 					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 				}
 				return Status.OK_STATUS;

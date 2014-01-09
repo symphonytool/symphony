@@ -2,24 +2,19 @@ package eu.compassresearch.core.interpreter;
 
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.interpreter.assistant.IInterpreterAssistantFactory;
-import org.overture.interpreter.debug.DBGPReader;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ObjectContext;
 import org.overture.interpreter.runtime.StateContext;
 import org.overture.interpreter.values.CPUValue;
 import org.overture.interpreter.values.ObjectValue;
 
-import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.assistant.CmlInterpreterAssistantFactory;
-import eu.compassresearch.core.interpreter.debug.CmlDBGPReader;
 
 class CmlContextFactory
 {
 	final static IInterpreterAssistantFactory factory = new CmlInterpreterAssistantFactory();
 
 	public static final String PARAMETRISED_PROCESS_CONTEXT_NAME = "Parametrised process context";
-
-	private static DBGPReader dbgp;
 
 	/**
 	 * This creates a normal context which
@@ -36,22 +31,8 @@ class CmlContextFactory
 			Context outer)
 	{
 		Context context = new Context(factory, location, title, outer);
-		context.setThreadState(newDBGPReader(), CPUValue.vCPU);
+		context.setThreadState(null, CPUValue.vCPU);
 		return context;
-	}
-
-	public static DBGPReader newDBGPReader()
-	{
-		if (dbgp == null)
-		{
-			throw new RuntimeException("DBGPReader not configures!");
-		}
-		return dbgp;
-	}
-
-	public static void configureDBGPReader(CmlInterpreter interpreter)
-	{
-		dbgp = new CmlDBGPReader(interpreter);
 	}
 
 	/**
@@ -69,7 +50,7 @@ class CmlContextFactory
 			String title, Context outer, ObjectValue self)
 	{
 		ObjectContext objectContext = new ObjectContext(factory, location, title, outer, self);
-		objectContext.setThreadState(newDBGPReader(), CPUValue.vCPU);
+		objectContext.setThreadState(null, CPUValue.vCPU);
 		return objectContext;
 	}
 
@@ -77,7 +58,7 @@ class CmlContextFactory
 			String title)
 	{
 		StateContext stateContext = new StateContext(factory, location, title);
-		stateContext.setThreadState(newDBGPReader(), CPUValue.vCPU);
+		stateContext.setThreadState(null, CPUValue.vCPU);
 		return stateContext;
 	}
 }

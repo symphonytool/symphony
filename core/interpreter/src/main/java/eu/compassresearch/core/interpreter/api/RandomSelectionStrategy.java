@@ -135,7 +135,7 @@ public class RandomSelectionStrategy implements SelectionStrategy
 	public void initialize(CmlInterpreter interpreter, CmlDebugger debugger)
 	{
 		// TODO Auto-generated method stub
-
+		
 	}
 
 }

@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.overture.ast.intf.lex.ILexLocation;
+import org.overture.ast.intf.lex.ILexNameToken;
 
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorState;
@@ -14,7 +15,7 @@ import eu.compassresearch.core.interpreter.utility.LocationExtractor;
 public class CmlProcessDTO
 {
 
-	private final String name;
+	private final ILexNameToken name;
 	private final int id;
 	private final List<String> trace;
 	private final boolean isProcess;
@@ -42,7 +43,7 @@ public class CmlProcessDTO
 
 	public CmlProcessDTO(CmlBehaviour process, CmlProcessDTO parent)
 	{
-		this.name = process.getName().toString();
+		this.name = process.name();
 		this.id = process.getId();
 		this.trace = convertCmlEventsToStringList(process.getTraceModel().getObservableTrace());
 		this.isProcess = process.getNextState().first instanceof PProcess;
@@ -51,25 +52,19 @@ public class CmlProcessDTO
 		this.parent = parent;
 
 		if (process.getLeftChild() != null)
-		{
 			this.leftChild = new CmlProcessDTO(process.getLeftChild(), this);
-		} else
-		{
+		else
 			this.leftChild = null;
-		}
 
 		if (process.getRightChild() != null)
-		{
 			this.rightChild = new CmlProcessDTO(process.getRightChild(), this);
-		} else
-		{
+		else
 			this.rightChild = null;
-		}
 	}
 
 	public String getName()
 	{
-		return name;
+		return (isProcess ? "Process:" : "Action:") + " " + name;
 	}
 
 	public int getId()
@@ -80,12 +75,9 @@ public class CmlProcessDTO
 	public long level()
 	{
 		if (this.parent == null)
-		{
 			return 0;
-		} else
-		{
+		else
 			return 1 + parent.level();
-		}
 	}
 
 	public CmlBehaviorState getState()

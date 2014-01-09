@@ -14,6 +14,10 @@ import eu.compassresearch.ast.process.PProcess;
 
 public class ExecutableAnalysis extends DepthFirstAnalysisCMLAdaptor
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5353696074294132014L;
 	private final int searchLine;
 
 	private String module = null;

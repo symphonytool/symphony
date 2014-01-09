@@ -24,10 +24,12 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
+import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.intf.lex.ILexLocation;
 
 import eu.compassresearch.ast.definitions.AProcessDefinition;
+import eu.compassresearch.core.interpreter.GlobalEnvironmentBuilder;
 import eu.compassresearch.ide.interpreter.model.CmlDebugTarget;
 import eu.compassresearch.ide.ui.editor.core.CmlEditor;
 
@@ -100,9 +102,7 @@ public final class CmlUtil
 			lastSelectedRanges.add(sr);
 		} else
 		{
-			String message = "Unable to obtain styled text for location: "
-					+ loc + " not found in editor offset: "
-					+ loc.getStartOffset();
+			String message = "Unable to obtain styled text for location: " + loc + " not found in editor offset: "+ loc.getStartOffset();
 			System.err.println(message);
 			CmlDebugPlugin.logWarning(message);
 		}
@@ -175,7 +175,7 @@ public final class CmlUtil
 	public static List<AProcessDefinition> getGlobalProcessesFromSource(
 			List<PDefinition> definitions)
 	{
-		List<AProcessDefinition> processes = new Vector<AProcessDefinition>();
+		List<AProcessDefinition> processes = new Vector<AProcessDefinition>(); 
 		if (definitions.isEmpty())
 		{
 			return processes;
@@ -183,7 +183,7 @@ public final class CmlUtil
 
 		for (PDefinition def : definitions)
 		{
-			if (def instanceof AProcessDefinition)
+			if(def instanceof AProcessDefinition)
 			{
 				processes.add((AProcessDefinition) def);
 			}

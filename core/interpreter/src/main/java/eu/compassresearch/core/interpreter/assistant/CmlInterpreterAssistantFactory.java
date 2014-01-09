@@ -15,11 +15,6 @@ import eu.compassresearch.core.typechecker.assistant.CmlVariableNameCollector;
 
 public class CmlInterpreterAssistantFactory extends InterpreterAssistantFactory
 {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
 	static
 	{
 		// FIXME: remove this when conversion to factory obtained assistants are completed.

@@ -54,14 +54,11 @@ public class TimedTransition extends AbstractCmlTransition implements
 		// If they both have a time limit we take min of them
 		// since a potential transition can happen at this point
 		if (this.hasTimeLimit() && otherTock.hasTimeLimit())
-		{
 			newLimit = Math.min(this.timeLimit, otherTock.timeLimit);
-			// if at least one of them has no time limit we take max of them since
-			// zero means no timelimit so we always prefer the non-zero limit
-		} else
-		{
+		// if at least one of them has no time limit we take max of them since
+		// zero means no timelimit so we always prefer the non-zero limit
+		else
 			newLimit = Math.max(this.timeLimit, otherTock.timeLimit);
-		}
 
 		return new TimedTransition(sources, newLimit);
 	}
@@ -94,9 +91,7 @@ public class TimedTransition extends AbstractCmlTransition implements
 	{
 
 		if (!(obj instanceof TimedTransition))
-		{
 			return false;
-		}
 
 		return super.equals(obj);
 	}

@@ -67,7 +67,7 @@ public class InterpretAllCmlFilesTest
 		protected void failed(Throwable e, Description d)
 		{
 			// watchedLog+= d + "\n";
-
+			
 			System.err.println("Test failed in : " + d.getMethodName() + " : "
 					+ filePath);
 			System.err.println(e);
@@ -123,7 +123,7 @@ public class InterpretAllCmlFilesTest
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			PrintStream ps = new PrintStream(baos);
 			res.printErrors(ps);
-			Assume.assumeTrue("Parser errors", false);
+			Assume.assumeTrue("Parser errors",false);
 			assertTrue("Parser Errors: \n\n" + baos, res.errors.isEmpty());
 			return;
 		}
@@ -135,16 +135,14 @@ public class InterpretAllCmlFilesTest
 		boolean isTypechecked = cmlTC.typeCheck();
 
 		if (!isTypechecked)
-		{
 			System.err.println(tcIssue.getTypeErrors());
-		}
 
 		if (!isTypechecked)
 		{
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			PrintWriter pw = new PrintWriter(baos);
 			tcIssue.printErrors(pw);
-			Assume.assumeTrue("Type check errors", false);
+			Assume.assumeTrue("Type check errors",false);
 			assertTrue("Type Check failed\n\n" + baos, isTypechecked);
 			return;
 		}
@@ -181,9 +179,7 @@ public class InterpretAllCmlFilesTest
 		// events
 		String eventTrace = "";
 		if (null != topProcess)
-		{
 			eventTrace = traceToString(topProcess.getTraceModel().getEventTrace());
-		}
 		Pattern trace = testResult.getExpectedEventTracePattern();
 		Matcher matcher = trace.matcher(eventTrace);
 		assertTrue(testResult.getExpectedEventTracePattern() + " != "
@@ -212,9 +208,7 @@ public class InterpretAllCmlFilesTest
 		{
 			CmlTransition e = trace.get(i);
 			if (i > 0)
-			{
 				result.append(",");
-			}
 
 			result.append(e.toString());
 		}
@@ -257,9 +251,7 @@ public class InterpretAllCmlFilesTest
 		paths.addAll(addFilesInFolder(folder));
 
 		for (File subfolder : findSubfolders(folder))
-		{
 			paths.addAll(addFilesInFolder(subfolder));
-		}
 
 		return paths;
 	}
@@ -279,9 +271,7 @@ public class InterpretAllCmlFilesTest
 
 		List<File> subsubfolders = new LinkedList<File>();
 		for (File sub : subfolders)
-		{
 			subsubfolders.addAll(findSubfolders(sub));
-		}
 
 		subfolders.addAll(subsubfolders);
 

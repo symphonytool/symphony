@@ -17,6 +17,7 @@ import org.overture.ast.util.definitions.ClassList;
 import org.overture.interpreter.runtime.ClassInterpreter;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.scheduler.BasicSchedulableThread;
+import org.overture.interpreter.scheduler.InitThread;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.definitions.AProcessDefinition;
@@ -33,8 +34,6 @@ import eu.compassresearch.core.interpreter.api.transitions.ObservableTransition;
 import eu.compassresearch.core.interpreter.api.transitions.TimedTransition;
 import eu.compassresearch.core.interpreter.api.values.ProcessObjectValue;
 import eu.compassresearch.core.interpreter.debug.Breakpoint;
-import eu.compassresearch.core.interpreter.debug.DebugContext;
-import eu.compassresearch.core.interpreter.utility.CmlInitThread;
 import eu.compassresearch.core.interpreter.utility.LocationExtractor;
 import eu.compassresearch.core.parser.ParserUtil;
 import eu.compassresearch.core.typechecker.VanillaFactory;
@@ -44,12 +43,13 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 {
 	static
 	{
-		BasicSchedulableThread.setInitialThread(new CmlInitThread(Thread.currentThread()));
+		BasicSchedulableThread.setInitialThread(new InitThread(Thread.currentThread()));
 	}
 
 	/**
 	 * 
 	 */
+	protected List<PDefinition> sourceForest;
 	protected Context globalContext;
 	protected String defaultName = null;
 	protected AProcessDefinition topProcess;
@@ -60,7 +60,6 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	private Object suspendObject = new Object();
 	private boolean stepping = false;
 	private Breakpoint activeBP = null;
-	private CmlTransition selectedEvent;
 
 	/**
 	 * Construct a CmlInterpreter with a list of PSources. These source may refer to each other.
@@ -74,6 +73,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		this.sourceForest = definitions;
 		instance = this;
 	}
+
 
 	/**
 	 * Initializes the interpreter by making a global context and setting the last defined process as the top process
@@ -148,7 +148,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		// Create the initial context with the global definitions
 		Context topContext = getInitialContext(null);
 		// Create a CmlBehaviour for the top process
-		runningTopProcess = new ConcreteCmlBehaviour(topProcess.getProcess(), topContext, new CmlBehaviour.BehaviourName(topProcess.getName().getName()));
+		runningTopProcess = new ConcreteCmlBehaviour(topProcess.getProcess(), topContext, topProcess.getName());
 
 		// Fire the interpreter running event before we start
 		setNewState(CmlInterpreterState.RUNNING);
@@ -241,13 +241,12 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 				CmlRuntime.logger().finer("State for " + event + " : " + state);
 			}
 
-			SelectionStrategy env = getEnvironment();
 			// set the state of the interpreter to be waiting for the environment
-			env.choices(filterEvents(availableEvents));
+			getEnvironment().choices(filterEvents(availableEvents));
 			setNewState(CmlInterpreterState.WAITING_FOR_ENVIRONMENT);
 			// Get the environment to select the next transition.
 			// this is potentially a blocking call!!
-			selectedEvent = env.resolveChoice();
+			CmlTransition selectedEvent = getEnvironment().resolveChoice();
 
 			// if its null we terminate and assume that this happended because of a user interrupt
 			if (selectedEvent == null)
@@ -258,13 +257,39 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			// Handle the breakpoints if any
 			handleBreakpoints(selectedEvent);
 
+			if (getState() == CmlInterpreterState.SUSPENDED)
+			{
+				synchronized (suspendObject)
+				{
+					this.suspendObject.wait();
+				}
+			}
+
 			// if we get here it means that it in a running state again
 			setNewState(CmlInterpreterState.RUNNING);
 
 			behaviour.execute(selectedEvent);
 			CmlTrace trace = behaviour.getTraceModel();
 
-			logTransition(behaviour, trace);
+			if (trace.getLastTransition() instanceof ObservableTransition)
+			{
+				CmlRuntime.logger().fine("----------------observable step by '"
+						+ behaviour + "'----------------------");
+				CmlRuntime.logger().fine("Observable trace of '" + behaviour
+						+ "': " + trace.getObservableTrace());
+				CmlRuntime.logger().fine("Eval. Status={ "
+						+ behaviour.nextStepToString() + " }");
+				CmlRuntime.logger().fine("-----------------------------------------------------------------");
+			} else
+			{
+				CmlRuntime.logger().finer("----------------Silent step by '"
+						+ behaviour + "'--------------------");
+				CmlRuntime.logger().finer("Trace of '" + behaviour + "': "
+						+ trace);
+				CmlRuntime.logger().finer("Eval. Status={ "
+						+ behaviour.nextStepToString() + " }");
+				CmlRuntime.logger().finer("-----------------------------------------------------------------");
+			}
 
 		}
 
@@ -287,52 +312,6 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			setNewState(CmlInterpreterState.FINISHED);
 		}
 
-	}
-
-	public void logTransition(CmlBehaviour behaviour, CmlTrace trace)
-	{
-		if (trace.getLastTransition() instanceof ObservableTransition)
-		{
-			CmlRuntime.logger().fine("----------------observable step by '"
-					+ behaviour + "'----------------------");
-			CmlRuntime.logger().fine("Observable trace of '" + behaviour
-					+ "': " + trace.getObservableTrace());
-			CmlRuntime.logger().fine("Eval. Status={ "
-					+ behaviour.nextStepToString() + " }");
-			CmlRuntime.logger().fine("-----------------------------------------------------------------");
-		} else
-		{
-			CmlRuntime.logger().finer("----------------Silent step by '"
-					+ behaviour + "'--------------------");
-			CmlRuntime.logger().finer("Trace of '" + behaviour + "': "
-					+ trace);
-			CmlRuntime.logger().finer("Eval. Status={ "
-					+ behaviour.nextStepToString() + " }");
-			CmlRuntime.logger().finer("-----------------------------------------------------------------");
-		}
-	}
-
-	@Override
-	public DebugContext getDebugContext(int id)
-	{
-		DebugContext context = super.getDebugContext(id);
-		if (context == null)
-		{
-			CmlBehaviour behaviour = findBehaviorById(id);
-			if (behaviour != null)
-			{
-				ILexLocation location = LocationExtractor.extractLocation(behaviour.getNextState().first);
-				context = new DebugContext(location, behaviour.getNextState().second);
-			}
-		}
-
-		return context;
-	}
-
-	@Override
-	public void setCurrentDebugContext(Context context, ILexLocation location)
-	{
-		setDebugContext(selectedEvent.getEventSources().iterator().next().getId(), context, location);
 	}
 
 	private CmlTransitionSet filterEvents(CmlTransitionSet availableEvents)
@@ -363,17 +342,6 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		}
 	}
 
-	@Override
-	public void suspend() throws InterruptedException
-	{
-		setNewState(CmlInterpreterState.SUSPENDED);
-
-		synchronized (suspendObject)
-		{
-			this.suspendObject.wait();
-		}
-	}
-
 	public void step()
 	{
 		synchronized (suspendObject)
@@ -384,13 +352,11 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	}
 
 	private void handleBreakpoints(CmlTransition selectedEvent)
-			throws InterruptedException
 	{
 		activeBP = findActiveBreakpoint(selectedEvent);
 		if (activeBP != null || stepping)
 		{
-			suspend();
-
+			setNewState(CmlInterpreterState.SUSPENDED);
 		}
 	}
 
@@ -448,5 +414,4 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	{
 		return ParserUtil.parseExpression(new File("Console"), ParserUtil.getCharStream(line, StandardCharsets.UTF_8.name())).exp;
 	}
-
 }

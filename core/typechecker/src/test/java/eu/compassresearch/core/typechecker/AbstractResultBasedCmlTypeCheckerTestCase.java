@@ -259,7 +259,7 @@ public abstract class AbstractResultBasedCmlTypeCheckerTestCase extends
 	}
 
 	@Override
-	protected boolean assertEqualResults(Boolean expected, Boolean actual,PrintWriter out)
+	protected boolean assertEqualResults(Boolean expected, Boolean actual)
 	{
 		return true;
 	}

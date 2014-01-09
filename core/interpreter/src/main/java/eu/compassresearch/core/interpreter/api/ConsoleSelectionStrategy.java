@@ -39,10 +39,8 @@ public class ConsoleSelectionStrategy implements SelectionStrategy
 		int count = 0;
 
 		for (AbstractSilentTransition st : silentTransitions)
-		{
 			count = st.getEventSources().iterator().next().isDivergent() ? count + 1
 					: count;
-		}
 
 		return silentTransitions.size() > count;
 	}

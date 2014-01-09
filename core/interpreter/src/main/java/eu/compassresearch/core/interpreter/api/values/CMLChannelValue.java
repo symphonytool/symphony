@@ -1,9 +1,12 @@
 package eu.compassresearch.core.interpreter.api.values;
 
 import java.io.Serializable;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.overture.ast.intf.lex.ILexNameToken;
+import org.overture.ast.types.AProductType;
+import org.overture.ast.types.AUnknownType;
 import org.overture.ast.types.PType;
 import org.overture.interpreter.values.Value;
 
@@ -55,11 +58,11 @@ public class CMLChannelValue extends Value implements CmlChannel // CmlIOChannel
 	public CMLChannelValue(AChannelType channelType, ILexNameToken name)
 	{
 		this.channelType = channelType;
-		// if (channelType instanceof AProductType)
-		// valueTypes.addAll(((AProductType) channelType).getTypes());
-		// // FIXME THis is changed!!
-		// else if (!(channelType instanceof AChannelType))
-		// valueTypes.add(channelType);
+//		if (channelType instanceof AProductType)
+//			valueTypes.addAll(((AProductType) channelType).getTypes());
+//		// FIXME THis is changed!!
+//		else if (!(channelType instanceof AChannelType))
+//			valueTypes.add(channelType);
 
 		this.name = name;
 	}
@@ -101,9 +104,7 @@ public class CMLChannelValue extends Value implements CmlChannel // CmlIOChannel
 		CMLChannelValue otherValue = null;
 
 		if (!(other instanceof CMLChannelValue))
-		{
 			return false;
-		}
 
 		otherValue = (CMLChannelValue) other;
 

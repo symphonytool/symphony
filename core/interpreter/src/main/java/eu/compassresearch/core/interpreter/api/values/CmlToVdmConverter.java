@@ -2,7 +2,9 @@ package eu.compassresearch.core.interpreter.api.values;
 
 import org.overture.ast.types.AClassType;
 
+import eu.compassresearch.ast.definitions.AActionClassDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
+import eu.compassresearch.ast.process.AActionProcess;
 
 class CmlToVdmConverter
 {

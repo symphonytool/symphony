@@ -31,9 +31,7 @@ public class CmlVariableNameCollector extends AbstractCmlVariableNameCollector
 	public LexNameList caseAChansetDefinition(AChansetDefinition node)
 			throws AnalysisException
 	{
-		CmlLexNameToken name = new CmlLexNameToken("", node.getIdentifier());
-		name.parent(node);
-		return new LexNameList(name);
+		return new LexNameList(new CmlLexNameToken("", node.getIdentifier()));
 	}
 
 	@Override
@@ -54,9 +52,7 @@ public class CmlVariableNameCollector extends AbstractCmlVariableNameCollector
 	public LexNameList caseANamesetDefinition(ANamesetDefinition node)
 			throws AnalysisException
 	{
-		CmlLexNameToken name = new CmlLexNameToken("", node.getIdentifier());
-		name.parent(node);
-		return new LexNameList(name);
+		return new LexNameList(new CmlLexNameToken("", node.getIdentifier()));
 	}
 
 }

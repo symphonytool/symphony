@@ -20,18 +20,10 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
     private IProject project;
 	private String projectQualifiedname;
 
-	// Project Database Name
+	// Project Database name
 	private StringFieldEditor rttProjectDatabaseField;
 	private String rttProjectDatabaseValue;
 	
-	// Test Generation Context Name
-	private StringFieldEditor rttExeCtxNameField;
-	private String rttExeCtxName;
-	
-	// Test Execution Context Name
-	private StringFieldEditor rttTgenCtxNameField;
-	private String rttTgenCtxName;
-
 	public RttMbtProjectPropertiesPage() {
 		super(GRID);
 		setDescription("RTT-Project settings");
@@ -47,7 +39,7 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
 		if (client == null) {
 			return null;
 		}
-		String dbname = client.getDefaultProjectDatabaseName();
+		String dbname = client.getProjectDatabaseName();
 		return dbname;
 	}
 
@@ -61,24 +53,6 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
 			value = project.getPersistentProperty(propName);
 		} catch (CoreException e) {
 			client.addErrorMessage("*** error: unable to get persistent property '" + propName + "'!");
-			value = null;
-		}
-		return value;
-	}
-
-	// static version for RttMbtClient
-	static public String getPropertyValue(IProject proj, String key) {
-		String value = null;
-		if (proj == null) return value;
-		if (key == null) return value;
-
-		// calculate qualified name of the property key
-		String qname = proj.getFullPath().toString().replaceAll(File.separator, ".");
-		QualifiedName propName = new QualifiedName(qname, key);
-		try {
-			value = proj.getPersistentProperty(propName);
-		} catch (CoreException e) {
-			value = null;
 		}
 		return value;
 	}
@@ -134,27 +108,10 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
 		rttProjectDatabaseField.setStringValue(rttProjectDatabaseValue);
     	addField(rttProjectDatabaseField);
 
-		// add Test Execution Context field
-    	rttExeCtxNameField = new StringFieldEditor("RttMbtRttTprocPrefix",
-                                                   "Test Execution Context:",
-                                                   getFieldEditorParent());
-    	rttExeCtxNameField.setPreferenceStore(null);
-    	rttExeCtxName = getPropertyValue("RttMbtRttTprocPrefix");
-    	rttExeCtxNameField.setStringValue(rttExeCtxName);
-    	addField(rttExeCtxNameField);
-
-		// add Test Generation Context field
-    	rttTgenCtxNameField = new StringFieldEditor("RttMbtTProcGenCtx",
-                                                   "Test Generation Context:",
-                                                   getFieldEditorParent());
-    	rttTgenCtxNameField.setPreferenceStore(null);
-    	rttTgenCtxName = getPropertyValue("RttMbtTProcGenCtx");
-    	rttTgenCtxNameField.setStringValue(rttTgenCtxName);
-    	addField(rttTgenCtxNameField);
 	}
 
 	public void performDefaults() {
-		rttProjectDatabaseField.setStringValue(client.getDefaultProjectDatabaseName());
+		rttProjectDatabaseField.setStringValue(client.getProjectDatabaseName());
 		super.performDefaults();
 	}
 
@@ -163,12 +120,6 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
 
 			// project database name
 			setPropertyValue("RttMbtrttProjectDatabase", rttProjectDatabaseField.getStringValue());
-
-			// test execution context
-			setPropertyValue("RttMbtRttTprocPrefix", rttExeCtxNameField.getStringValue());
-
-			// test generation context
-			setPropertyValue("RttMbtTProcGenCtx", rttTgenCtxNameField.getStringValue());
 
 			return super.performOk();
 		} else {
@@ -181,12 +132,6 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
 
 			// project database name
 			setPropertyValue("RttMbtrttProjectDatabase", rttProjectDatabaseValue);
-
-			// test execution context
-			setPropertyValue("RttMbtRttTprocPrefix", rttExeCtxName);
-
-			// test generation context
-			setPropertyValue("RttMbtTProcGenCtx", rttTgenCtxName);
 
 			return super.performCancel();
 		} else {

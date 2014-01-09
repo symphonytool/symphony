@@ -58,7 +58,7 @@ public class jsonReceiveFileFromCacheCommand extends jsonCommand {
 			(filename == null) ||
 			(fileContent == null) ||
 			(checksum == null)) {
-			client.addErrorMessage("*** error: missing parameters in receive-file-from-cache-reply from server!");
+			System.err.println("*** error: missing parameters in reply from server!");
 			resultValue = false;
 			return;
 		}
@@ -67,7 +67,7 @@ public class jsonReceiveFileFromCacheCommand extends jsonCommand {
 		writeBase64StringFileContent(filename, fileContent, true);
 		String localChecksum = getSHA256Checksum(filename);
 		if (!checksum.equals(localChecksum)) {
-			client.addErrorMessage("*** error: checksum of received file '" + filename + "' does not match with retrieved local file!");
+			System.err.println("*** error: checksum of received file '" + filename + "' does not match!");
 			resultValue = false;
 			return;
 		}

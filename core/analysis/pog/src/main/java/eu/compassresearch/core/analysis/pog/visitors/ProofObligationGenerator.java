@@ -65,14 +65,15 @@ public class ProofObligationGenerator extends
 		QuestionAnswerCMLAdaptor<IPOContextStack, CmlProofObligationList>
 {
 	/**
-	 * Main generator class for the POG. <b> Do not.</b> apply this class directly to an ast as it will not order or
-	 * number the POs correctly. <br>
+	 * Main generator class for the POG. <b> Do not.</b> apply this class directly
+	 * to an ast as it will not order or number the POs correctly.
+	 * <br>
 	 * Use {@link PogPubUtil} methods instead.
 	 */
 	private static final long serialVersionUID = -4538022323752020155L;
 
 	private final static String ANALYSIS_NAME = "Proof Obligation Generator";
-
+	
 	private CmlPogAssistantFactory assistantFactory;
 
 	// ---------------------------------------------
@@ -95,6 +96,8 @@ public class ProofObligationGenerator extends
 		actionVisitor = new POGActionVisitor(this);
 		assistantFactory = new CmlPogAssistantFactory();
 	}
+	
+	
 
 	// ---------------------------------------------
 	// -- Dispatch to sub-visitors
@@ -103,10 +106,11 @@ public class ProofObligationGenerator extends
 	// Duplicated main overture handlers. Necessary for now since we don't want
 	// to
 	// switch visitor context at the root level
-	public ProofObligationGenerator()
-	{
+	public ProofObligationGenerator() {
 		this.initialize();
 	}
+
+
 
 	@Override
 	public CmlProofObligationList defaultPDefinition(PDefinition node,
@@ -130,7 +134,7 @@ public class ProofObligationGenerator extends
 		IProofObligationList ovtpos = assistantFactory.createPDefinitionAssistant().getProofObligations(node.getDefs(), this.declAndDefVisitor, question);
 		CmlProofObligationList cmlpos = new CmlProofObligationList();
 		cmlpos.addAll(ovtpos);
-
+		
 		return cmlpos;
 	}
 
@@ -175,6 +179,7 @@ public class ProofObligationGenerator extends
 	{
 		return node.getSet().apply(this.expressionVisitor, question);
 	}
+
 
 	@Override
 	public CmlProofObligationList caseACaseAlternative(ACaseAlternative node,
@@ -371,41 +376,44 @@ public class ProofObligationGenerator extends
 		return ANALYSIS_NAME;
 	}
 
+
+
 	/**
 	 * Run the proof obligation generator. The POs are placed in the return value but we may eventually want to switch
 	 * them over to the registry
 	 * 
-	 * @param sources
-	 *            The list of definition to generate obligations for
+	 * @param 
+	 * sources The list of definition to generate obligations for
 	 * @return - Returns CMLProofObligation list. This may need to change.
 	 */
-	public CmlProofObligationList generatePOs(List<PDefinition> sources)
-			throws AnalysisException
+	public CmlProofObligationList generatePOs(List<PDefinition> sources) throws AnalysisException
 	{
 		this.initialize();
 		CmlProofObligationList obligations = new CmlProofObligationList();
 		IPOContextStack ctxt = new POContextStack();
 
-		// for each CML paragraph
-		for (PDefinition paragraph : sources)
-		{
-			try
+	
+			// for each CML paragraph
+			for (PDefinition paragraph : sources)
 			{
+				try
+				{
+			
+					// process paragraph:
+					obligations.addAll(paragraph.apply(this, ctxt));
+					// obligations.addAll(paragraph.apply(overturePog, ctxt));
 
-				// process paragraph:
-				obligations.addAll(paragraph.apply(this, ctxt));
-				// obligations.addAll(paragraph.apply(overturePog, ctxt));
-
-			} catch (AnalysisException ae)
-			{
-				// unexpected pog crash
-				throw ae;
+				} catch (AnalysisException ae)
+				{
+					// unexpected pog crash
+					throw ae;
+				}
 			}
-		}
-
+			
 		obligations.renumber();
 		return obligations;
 	}
+
 
 	// ---------------------------------------------
 	// Static stuff for running the POG from Eclipse
@@ -496,6 +504,8 @@ public class ProofObligationGenerator extends
 				+ " was failures.");
 	}
 
+
+
 	@Override
 	public CmlProofObligationList createNewReturnValue(INode node,
 			IPOContextStack question)
@@ -503,6 +513,8 @@ public class ProofObligationGenerator extends
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+
 
 	@Override
 	public CmlProofObligationList createNewReturnValue(Object node,

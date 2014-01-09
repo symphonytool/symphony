@@ -6,6 +6,7 @@ import java.util.List;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
+import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.statements.AAssignmentStm;
 import org.overture.ast.statements.AAtomicStm;
@@ -23,6 +24,7 @@ import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.PatternMatchException;
 import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.values.NameValuePair;
+import org.overture.interpreter.values.ObjectValue;
 import org.overture.interpreter.values.OperationValue;
 import org.overture.interpreter.values.Value;
 import org.overture.interpreter.values.ValueList;
@@ -32,9 +34,11 @@ import eu.compassresearch.ast.actions.ADivAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
+import eu.compassresearch.ast.lex.CmlLexNameToken;
 import eu.compassresearch.ast.statements.AAltNonDeterministicStm;
 import eu.compassresearch.ast.statements.ADoNonDeterministicStm;
 import eu.compassresearch.ast.statements.AIfNonDeterministicStm;
+import eu.compassresearch.ast.statements.ANewStm;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
@@ -61,6 +65,47 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 	{
 		throw new CmlInterpreterException(node, InterpretationErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName()));
 	}
+
+	// /**
+	// * This methods splits the assignment call statement into the call and the assignment statements and.
+	// */
+	// public Inspection caseAssignmentCall(final AAssignmentStm node,
+	// final Context question) throws AnalysisException
+	// {
+	//
+	// return newInspection(createTauTransitionWithTime(node, null), new CmlCalculationStep()
+	// {
+	// @Override
+	// public Pair<INode, Context> execute(CmlTransition selectedTransition)
+	// throws AnalysisException
+	// {
+	// AApplyExp apply = (AApplyExp) node.getExp();
+	// // put return value in a new context
+	// Context resultContext = CmlContextFactory.newContext(node.getLocation(), "Call Result Context", question);
+	// // put return value in upper context if the parent is a AAssignmentCallStatementAction
+	// resultContext.putNew(new NameValuePair(NamespaceUtility.ReturnValueName(), new UndefinedValue()));
+	//
+	// // To access the result we put it in a Value named "|CALL|.|CALLRETURN|" this can never be created
+	// // in a cml model. This is a little ugly but it works and statys until something better comes up.
+	// @SuppressWarnings("deprecation")
+	// AVariableExp varExp = new AVariableExp(node.getType(), node.getLocation(), NamespaceUtility.ReturnValueName(),
+	// "", null);
+	// // Next we create the assignment statement with the expressions that graps the result
+	// @SuppressWarnings("deprecation")
+	// AAssignmentStm assignmentNode = new AAssignmentStm(node.getLocation(), node.getTarget().clone(), varExp);
+	//
+	// PExp root = apply.getRoot();
+	// ACallStm call = new ACallStm(apply.getLocation(), null, apply.getArgs());
+	//
+	// // We now compose the call statement and assignment statement into sequential composition
+	// @SuppressWarnings("deprecation")
+	// INode seqComp = new ASequentialCompositionAction(node.getLocation(), ActionVisitorHelper.wrapStatement(call),
+	// ActionVisitorHelper.wrapStatement(assignmentNode.clone()));
+	// return new Pair<INode, Context>(seqComp, resultContext);
+	// }
+	// });
+	//
+	// }
 
 	@Override
 	public Inspection caseALetStm(final ALetStm node, final Context question)
@@ -180,10 +225,170 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 
 				opVal.eval(node.getLocation(), argValues, question);
 
+				// // find the self object
+				// ObjectValue self = null;
+				// if (opVal.getSelf() != null)
+				// self = opVal.getSelf();
+				// else
+				// self = question.getSelf();
+				//
+				// // Create a new object context to perform the operation call
+				// Context callContext = CmlContextFactory.newObjectContext(opVal.getBody().getLocation(),
+				// "CML Operation Call", question, self);
+				//
+				// if (constValues.size() != opVal.getParamPatterns().size())
+				// {
+				// opVal.abort(4068, "Wrong number of arguments passed to "
+				// + node.getName(), question);
+				// }
+				//
+				// ListIterator<Value> valIter = constValues.listIterator();
+				// Iterator<PType> typeIter = opVal.getType().getParameters().iterator();
+				// NameValuePairMap args = new NameValuePairMap();
+				//
+				// for (PPattern p : opVal.getParamPatterns())
+				// {
+				// try
+				// {
+				// // Note values are assumed to be constant, as enforced by eval()
+				// Value pv = valIter.next().convertTo(typeIter.next(), question);
+				//
+				// for (NameValuePair nvp : PPatternAssistantInterpreter.getNamedValues(p, pv, question))
+				// {
+				// Value v = args.get(nvp.name);
+				//
+				// if (v == null)
+				// {
+				// args.put(nvp);
+				// } else
+				// // Names match, so values must also
+				// {
+				// if (!v.equals(nvp.value))
+				// {
+				// opVal.abort(4069, "Parameter patterns do not match arguments", question);
+				// }
+				// }
+				// }
+				// } catch (PatternMatchException e)
+				// {
+				// opVal.abort(e.number, e, question);
+				// }
+				// }
+				//
+				// // Note: arg name/values hide member values
+				// callContext.putAll(args);
+				//
+				// //opVal.eval(node.getLocation(), argValues, callContext);
+				//
+				// // push the pre condition on the execution stack so it gets executed first
+				// if (opVal.getPrecondition() != null)
+				// {
+				//
+				// PExp preExpNode = opVal.getPrecondition();
+				// Context preConditionContext = CmlContextFactory.newContext(preExpNode.getLocation(), "Operation "
+				// + node.getName() + " precondition context", callContext);
+				//
+				// callContext.setPrepost(0, "precondition violated for call "
+				// + node.getName());
+				//
+				// if (!preExpNode.apply(cmlExpressionVisitor, preConditionContext).boolValue(question))
+				// {
+				// throw new ValueException(4061, "precondition violated for call "
+				// + node.getName(), question);
+				// }
+				//
+				// }
+				//
+				// if (opVal.getPostcondition() != null)
+				// {
+				//
+				// PExp postExpNode = opVal.getPostcondition();
+				//
+				// Context postConditionContext = CmlContextFactory.newContext(postExpNode.getLocation(), "Operation "
+				// + node.getName() + " postcondition context", callContext);
+				//
+				// // set the old values
+				// for (NameValuePair nvp : postConditionContext.getSelf().getMemberValues().asList())
+				// if (UpdatableValue.class.isAssignableFrom(nvp.value.getClass()))
+				// {
+				// // FIXME it does not work when the module is there
+				// LexNameToken oldName = new LexNameToken("", (ILexIdentifierToken)
+				// nvp.name.getOldName().getIdentifier().clone());
+				// postConditionContext.putNew(new NameValuePair(oldName, nvp.value.getConstant()));
+				// }
+				//
+				// postConditionContext.setPrepost(0, "postcondition violated for "
+				// + node.getName());
+				//
+				// setRightChild(new ConcreteCmlBehaviour(postExpNode, postConditionContext, owner));
+				//
+				// // We now compose the call statement and post condition check into sequential composition
+				// // INode seqComp = new ASequentialCompositionAction(node.getLocation(), opVal.getBody(),
+				// // assignmentNode);
+				// // return new Pair<INode, Context>(seqComp,resultContext);
+				// }
+				// // the left child is the actual call executing
+				// setLeftChild(new ConcreteCmlBehaviour(opVal.getBody(), callContext, owner));
 				return new Pair<INode, Context>(CmlAstFactory.newASkipAction(node.getLocation()), question);
 			}
 		});
 
+		// }
+		// // The left child is the actual call so if it is not terminated then we execute
+		// // the next action of it
+		// else if (!owner.getLeftChild().finished())
+		// {
+		// return newInspection(owner.getLeftChild().inspect(), new CmlCalculationStep()
+		// {
+		//
+		// @Override
+		// public Pair<INode, Context> execute(
+		// CmlTransition selectedTransition)
+		// throws AnalysisException
+		// {
+		// owner.getLeftChild().execute(selectedTransition);
+		// return new Pair<INode, Context>(node, question);
+		// }
+		// });
+		// }
+		// // The right child contains the postcondition of the call, so if we are here and its
+		// // non-empty then we execute it
+		// else if (owner.getRightChild() != null)
+		// {
+		// return newInspection(owner.getRightChild().inspect(), new CmlCalculationStep()
+		// {
+		//
+		// @Override
+		// public Pair<INode, Context> execute(
+		// CmlTransition selectedTransition)
+		// throws AnalysisException
+		// {
+		//
+		// owner.getRightChild().execute(selectedTransition);
+		// setLeftChild(null);
+		// setRightChild(null);
+		// return new Pair<INode, Context>(CmlAstFactory.newASkipAction(), question);
+		// }
+		// });
+		//
+		// } else
+		// {
+		// final INode skipNode = CmlAstFactory.newASkipAction();
+		// return newInspection(createTauTransitionWithoutTime(skipNode), new AbstractCalculationStep(owner,
+		// visitorAccess)
+		// {
+		//
+		// @Override
+		// public Pair<INode, Context> execute(
+		// CmlTransition selectedTransition)
+		// throws AnalysisException
+		// {
+		//
+		// setLeftChild(null);
+		// return new Pair<INode, Context>(skipNode, question);
+		// }
+		// });
+		// }
 	}
 
 	@Override
@@ -249,6 +454,57 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 					throws AnalysisException
 			{
 				return new Pair<INode, Context>(skipAction, question);
+			}
+		});
+	}
+
+	// @Override
+	// public Inspection caseALetStatementAction(final ALetStatementAction node,
+	// final Context question) throws AnalysisException
+	// {
+	//
+	// return newInspection(createTauTransitionWithTime(node.getAction()), new AbstractCalculationStep(owner,
+	// visitorAccess)
+	// {
+	//
+	// @Override
+	// public Pair<INode, Context> execute(CmlTransition selectedTransition)
+	// throws AnalysisException
+	// {
+	//
+	// // Create a new context for the let statement
+	// Context letContext = CmlContextFactory.newContext(node.getLocation(), "let action context", question);
+	//
+	// for (PDefinition localDef : node.getLocalDefinitions())
+	// letContext.putList(localDef.apply(cmlDefEvaluator, letContext));
+	//
+	// return new Pair<INode, Context>(node.getAction(), letContext);
+	// }
+	// });
+	// }
+
+	@Override
+	public Inspection caseANewStm(final ANewStm node, final Context question)
+			throws AnalysisException
+	{
+		ILexNameToken name = new CmlLexNameToken(node.getClassName().getName(), node.getClassName().getName(), node.getLocation());
+		@SuppressWarnings("deprecation")
+		final ACallStm callStm = new ACallStm(name.getLocation(), name, node.getArgs());
+
+		return newInspection(createTauTransitionWithTime(callStm), new CmlCalculationStep()
+		{
+
+			@Override
+			public Pair<INode, Context> execute(CmlTransition selectedTransition)
+					throws AnalysisException
+			{
+
+				ObjectValue classValue = null;//FIXME CmlValueFactory.createClassValue(node, question);
+				Context ctorContext = CmlContextFactory.newObjectContext(node.getLocation(), "Class Constructor context", question, classValue);
+				Value oldVal = node.getDestination().apply(cmlExpressionVisitor, question);
+				oldVal.set(node.getLocation(), classValue, question);
+
+				return new Pair<INode, Context>(callStm, ctorContext);
 			}
 		});
 	}
@@ -350,6 +606,32 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 		}
 
 	}
+
+	// @Override
+	// public Inspection caseAReturnStm(final AReturnStm node,
+	// final Context question) throws AnalysisException
+	// {
+	//
+	// return newInspection(createTauTransitionWithoutTime(CmlAstFactory.newASkipAction()), new CmlCalculationStep()
+	// {
+	//
+	// @Override
+	// public Pair<INode, Context> execute(CmlTransition selectedTransition)
+	// throws AnalysisException
+	// {
+	// Context nameContext = (Context) question.locate(NamespaceUtility.ReturnValueName());
+	// if (nameContext != null)
+	// {
+	// if (node.getExpression() != null)
+	// nameContext.put(NamespaceUtility.ReturnValueName(), node.getExpression().apply(cmlExpressionVisitor, question));
+	// else
+	// nameContext.put(NamespaceUtility.ReturnValueName(), new VoidValue());
+	// }
+	//
+	// return new Pair<INode, Context>(CmlAstFactory.newASkipAction(), question);
+	// }
+	// });
+	// }
 
 	/**
 	 * Assignment - section 7.5.1 D23.2

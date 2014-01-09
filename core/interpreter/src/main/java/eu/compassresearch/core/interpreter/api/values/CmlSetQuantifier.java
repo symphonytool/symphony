@@ -12,8 +12,7 @@ import org.overture.interpreter.values.SetValue;
 import org.overture.interpreter.values.Value;
 import org.overture.interpreter.values.ValueList;
 
-public class CmlSetQuantifier extends Value implements
-		Iterable<NameValuePairList>
+public class CmlSetQuantifier extends Value implements Iterable<NameValuePairList> 
 {
 	List<ILexNameToken> quantifierNames;
 	SetValue valueTuples;
@@ -36,12 +35,9 @@ public class CmlSetQuantifier extends Value implements
 	{
 		// FIXME include the values
 		if (other instanceof CmlSetQuantifier)
-		{
 			return this.quantifierNames.equals(((CmlSetQuantifier) other).quantifierNames);
-		} else
-		{
+		else
 			return false;
-		}
 	}
 
 	@Override
@@ -67,8 +63,7 @@ public class CmlSetQuantifier extends Value implements
 		return this.valueTuples.values.size();
 	}
 
-	/*
-	 * (non-Javadoc)
+	/* (non-Javadoc)
 	 * @see eu.compassresearch.core.interpreter.api.values.CmlQuantifier#iterator()
 	 */
 	@Override
@@ -98,9 +93,7 @@ public class CmlSetQuantifier extends Value implements
 				ValueList tv = valueTuples.values.get(valueIndex++).tupleValue(null);
 				next = new NameValuePairList();
 				for (int tupleIndex = 0; tupleIndex < tv.size(); tupleIndex++)
-				{
 					next.add(new NameValuePair(quantifierNames.get(tupleIndex), tv.get(tupleIndex)));
-				}
 
 			} catch (ValueException e)
 			{

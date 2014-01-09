@@ -18,6 +18,7 @@ import org.overture.interpreter.values.Value;
 import eu.compassresearch.ast.actions.ADivAction;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
+import eu.compassresearch.ast.lex.CmlLexNameToken;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorState;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
@@ -53,7 +54,7 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	/**
 	 * Name of the instance
 	 */
-	protected BehaviourName name;
+	protected ILexNameToken name;
 	/**
 	 * Unique id for the process
 	 */
@@ -139,15 +140,13 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	 * @param parent
 	 *            set the parent here if any else set to null
 	 */
-	private ConcreteCmlBehaviour(CmlBehaviour parent, BehaviourName name)
+	private ConcreteCmlBehaviour(CmlBehaviour parent, ILexNameToken name)
 	{
-
+		notifyOnStateChange(CmlBehaviorState.INITIALIZED);
 		this.parent = parent;
 		this.name = name;
 		waitPrime = false;
 		ok = false;
-		// must not notify before name is set
-		notifyOnStateChange(CmlBehaviorState.INITIALIZED);
 
 		VisitorAccess visitorAccess = new VisitorAccess()
 		{
@@ -169,12 +168,9 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 			{
 
 				if (preConstructedChildContexts != null)
-				{
 					return preConstructedChildContexts;
-				} else
-				{
+				else
 					return new Pair<Context, Context>(context, context);
-				}
 			}
 
 			@Override
@@ -192,12 +188,12 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 		};
 
 		// Initialize the visitors
-		setupVisitor = new CmlSetupVisitor(this, visitorAccess);
+		setupVisitor = new ActionSetupVisitor(this, visitorAccess);
 		inspectionVisitor = new CmlInspectionVisitor(this, visitorAccess);
 	}
 
 	public ConcreteCmlBehaviour(INode action, Context context,
-			BehaviourName name) throws AnalysisException
+			ILexNameToken name) throws AnalysisException
 	{
 		this(null, name);
 		setNext(new Pair<INode, Context>(action, context));
@@ -206,12 +202,12 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	public ConcreteCmlBehaviour(INode action, Context context,
 			CmlBehaviour parent) throws AnalysisException
 	{
-		this(parent, new BehaviourName("Child of " + parent.getName()));
+		this(parent, new CmlLexNameToken("", "Child of " + parent.name(), parent.name().getLocation()));
 		setNext(new Pair<INode, Context>(action, context));
 	}
 
 	public ConcreteCmlBehaviour(INode action, Context context,
-			BehaviourName name, CmlBehaviour parent) throws AnalysisException
+			ILexNameToken name, CmlBehaviour parent) throws AnalysisException
 	{
 		this(parent, name);
 		setNext(new Pair<INode, Context>(action, context));
@@ -221,14 +217,12 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 			throws AnalysisException
 	{
 
-		if (next == null || newNext.first != next.first && !hasChildren())
+		if (next == null || (newNext.first != next.first && !hasChildren()))
 		{
 			next = newNext.first.apply(setupVisitor, newNext.second);
 			ok = false;
 		} else
-		{
 			next = newNext;
-		}
 	}
 
 	@Override
@@ -283,14 +277,10 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 			if (selectedTransition instanceof TimedTransition)
 			{
 				if (leftChild != null)
-				{
 					leftChild.execute(selectedTransition);
-				}
 
 				if (rightChild != null)
-				{
 					rightChild.execute(selectedTransition);
-				}
 			}
 			// If the selected event is not a tock event then we can evaluate
 			else
@@ -360,7 +350,7 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	// }
 
 	@Override
-	public BehaviourName getName()
+	public ILexNameToken name()
 	{
 		return this.name;
 	}
@@ -380,12 +370,9 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	{
 
 		if (parent() == null)
-		{
 			return 0;
-		} else
-		{
+		else
 			return parent().level() + 1;
-		}
 	}
 
 	@Override
@@ -400,14 +387,10 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 		List<CmlBehaviour> children = new LinkedList<CmlBehaviour>();
 
 		if (leftChild != null)
-		{
 			children.add(leftChild);
-		}
 
 		if (rightChild != null)
-		{
 			children.add(rightChild);
-		}
 
 		return children;
 	}
@@ -463,15 +446,12 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	public boolean waiting()
 	{
 		if (!hasChildren())
-		{
 			return waitPrime;
-		} else
+		else
 		{
 			boolean ret = getLeftChild().waiting();
 			if (getRightChild() != null)
-			{
 				ret &= getRightChild().waiting();
-			}
 
 			return ret;
 		}
@@ -486,8 +466,7 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	@Override
 	public boolean finished()
 	{
-		return !hasChildren()
-				&& (next.first instanceof ASkipAction || next.first instanceof ASkipStm);
+		return !hasChildren() && ((next.first instanceof ASkipAction) ||(next.first instanceof ASkipStm));
 		// ||
 		// next.first instanceof ASingleGeneralAssignmentStatementAction);
 	}
@@ -502,28 +481,23 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 
 			// A Process is deadlocked if its immediate alphabet is only tock with no limit
 			if (alpha.getAllEvents().isEmpty())
-			{
 				return true;
-			} else if (alpha.getAllEvents().size() == 1
+			else if (alpha.getAllEvents().size() == 1
 					&& alpha.getObservableEvents().size() == 1)
 			{
 				ObservableTransition obsEvent = alpha.getObservableEvents().iterator().next();
-				return obsEvent instanceof TimedTransition
+				return (obsEvent instanceof TimedTransition)
 						&& !((TimedTransition) obsEvent).hasTimeLimit();
 			} else
-			{
 				return false;
-			}
 		} else
-		{
 			return false;
-		}
 	}
 
 	protected void notifyOnStateChange(CmlBehaviorState state)
 	{
 		stateEventhandler.fireEvent(new CmlBehaviorStateEvent(this, state));
-		CmlRuntime.logger().finest(getName() + ":" + state.toString());
+		CmlRuntime.logger().finest(name() + ":" + state.toString());
 	}
 
 	@Override
@@ -542,15 +516,11 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 		try
 		{
 			if (finished())
-			{
 				return CmlBehaviorState.FINISHED;
-			} else if (deadlocked())
-			{
+			else if (deadlocked())
 				return CmlBehaviorState.STOPPED;
-			} else
-			{
+			else
 				return null;
-			}
 
 		} catch (AnalysisException e)
 		{
@@ -573,12 +543,8 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 		long nTocks = 0;
 
 		for (CmlTransition ev : getTraceModel().getTrace())
-		{
 			if (ev instanceof TimedTransition)
-			{
 				nTocks++;
-			}
-		}
 
 		return nTocks;
 	}
@@ -610,14 +576,10 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 		next = new Pair<INode, Context>(next.first, attachAdditionalContexts(next.second, context));
 
 		if (leftChild != null)
-		{
 			leftChild.replaceState(next.second);
-		}
 
 		if (rightChild != null)
-		{
 			rightChild.replaceState(next.second);
-		}
 	}
 
 	/**
@@ -659,18 +621,13 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 			// FIXME this should not be created like that a more general solution to this must
 			// be made. Eg. a method call that can clone the context with a new outer pointer
 			if (iCopy instanceof ClassContext)
-			{
 				throw new InterpreterRuntimeException("Not yet implemented!");
-			} else if (iCopy instanceof ObjectContext)
-			{
+			else if (iCopy instanceof ObjectContext)
 				newCurrent = CmlContextFactory.newObjectContext(iCopy.location, iCopy.title, newCurrent, iCopy.getSelf());
-			} else if (iCopy instanceof StateContext)
-			{
+			else if (iCopy instanceof StateContext)
 				throw new InterpreterRuntimeException("Trying to merge a StateContext, this should never happen!");
-			} else
-			{
+			else
 				newCurrent = CmlContextFactory.newContext(iCopy.location, iCopy.title, newCurrent);
-			}
 
 			for (Entry<ILexNameToken, Value> entry : iCopy.entrySet())
 			{
@@ -679,13 +636,5 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 		}
 
 		return newCurrent;
-	}
-
-	@Override
-	public void updateName(ILexNameToken name)
-	{
-		this.name.addProcess(name.getName());
-		// this.name = new CmlLexNameToken(name.getModule(), this.name.getName()+" -> "+name.getName(),
-		// name.getLocation());
 	}
 }

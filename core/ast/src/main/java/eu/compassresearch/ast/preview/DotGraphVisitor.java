@@ -18,6 +18,10 @@ import eu.compassresearch.ast.analysis.QuestionCMLAdaptor;
 public class DotGraphVisitor extends
 		QuestionCMLAdaptor<DotGraphVisitor.DotPair> {
 
+	/**
+	 * generated serial version
+	 */
+	private static final long serialVersionUID = 637147601437624885L;
 
 	public static class DotPair {
 		public DotNode parent;

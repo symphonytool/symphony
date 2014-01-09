@@ -117,9 +117,7 @@ public class VariableDTO
 			Value val = var.getValue();
 
 			if (!showValue(val))
-			{
 				continue;
-			}
 
 			variables.add(extractVariable(name.getName(), name.getFullName(), val));
 		}
@@ -131,9 +129,7 @@ public class VariableDTO
 			for (NameValuePair nvp : selfVal.getMemberValues().asList())
 			{
 				if (!showValue(nvp.value))
-				{
 					continue;
-				}
 
 				variables.add(extractVariable(nvp.name.getName(), nvp.name.getFullName(), nvp.value));
 			}
@@ -149,9 +145,7 @@ public class VariableDTO
 		{
 			return false;
 		} else
-		{
 			return true;
-		}
 
 	}
 
@@ -185,15 +179,14 @@ public class VariableDTO
 			for (Entry<Value, Value> vv : v.values.entrySet())
 			{
 				i++;
-				VariableDTO dom = extractVariable("dom", "dom", vv.getKey());
-				VariableDTO rng = extractVariable("rng", "rng", vv.getValue());
-
+				VariableDTO	dom = extractVariable("dom", "dom", vv.getKey());
+				VariableDTO	rng = extractVariable("rng", "rng", vv.getValue());
+				
 				List<VariableDTO> childrenMaplet = new Vector<VariableDTO>();
 				childrenMaplet.add(dom);
 				childrenMaplet.add(rng);
-
-				VariableDTO maplet = new VariableDTO("Maplet " + i, fullName, val.kind(), "{"
-						+ vv.getKey() + " |-> " + vv.getValue() + "}", childrenMaplet.size(), !childrenMaplet.isEmpty(), !(val instanceof UpdatableValue), childrenMaplet);
+				
+				VariableDTO	maplet = new VariableDTO("Maplet "+i, fullName, val.kind(), "{"+vv.getKey() +" |-> "+vv.getValue()+"}", childrenMaplet.size(), !childrenMaplet.isEmpty(), !(val instanceof UpdatableValue), childrenMaplet);
 				children.add(maplet);
 			}
 		} else

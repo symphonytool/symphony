@@ -46,7 +46,7 @@ public class CmlInspectionVisitor extends AbstractInspectionVisitor
 	{
 		return node.apply(this.actionVisitor, question);
 	}
-
+	
 	@Override
 	public Inspection defaultPStm(PStm node, Context question)
 			throws AnalysisException

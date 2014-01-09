@@ -68,7 +68,6 @@ public class RttMbtClient {
 	private Boolean serverWorkspaceChecked;
 	private String rttMbtServerVersion;
 	private String rttMbtServerUptime;
-	private String tmsDatabaseName;
 
 	// Logging facility
 	private String consoleName;
@@ -104,7 +103,6 @@ public class RttMbtClient {
 		serverWorkspaceChecked = false;
 		verboseLogging = false;
 		extraFiles = false;
-		tmsDatabaseName = null;
 	}
 
 	public void setLoggingFacility(String name, IRttMbtLoggingFacility logger) {
@@ -375,9 +373,7 @@ public class RttMbtClient {
 			return false;
 		}
 
-		if (getVerboseLogging()) {
-			addLogMessage("downloading files in directory " + directory);
-		}
+		System.out.println("downloading files in directory '" + directory + "' from cache");
 		
 		// get file list
 		jsonGetCachFileListCommand cmd = new jsonGetCachFileListCommand(this);
@@ -403,17 +399,15 @@ public class RttMbtClient {
 			success = folder.mkdirs();
 			if (!success) {
 				// Directory creation failed
-				addErrorMessage("[FAIL]: creating local directory '" + directory + "' failed!");
+				System.err.println("[FAIL]: creating local directory '" + directory + "' failed!");
 				return false;
 			}
 		}
 		
 		// for each file: download file
 		for (int idx = 0; idx < filenames.size(); idx++) {
+			//String filename = removeLocalWorkspace(directory) + "/" + filenames.get(idx);
 			String filename = directory + "/" + filenames.get(idx);
-			if (getVerboseLogging()) {
-				addLogMessage("downloading file " + filename);
-			}
 			success = success && downloadFile(filename);
 			setProgress(IRttMbtProgressBar.Tasks.Global, (idx * 100)/filenames.size());
 		}
@@ -542,7 +536,12 @@ public class RttMbtClient {
 			String[] entries = dir.list();
 			if (entries != null) {
 				for (int i = 0; i < entries.length; i++) {
-					if (!isRtt6TestProcedure(dirname + File.separator + entries[i])) {
+					if ((entries[i].compareTo(".svn") == 0) ||
+						(entries[i].compareTo("CVS") == 0) ||
+						(entries[i].compareTo("conf") == 0) ||
+						(entries[i].compareTo("inc") == 0) ||
+						(entries[i].compareTo("specs") == 0) ||
+						(entries[i].compareTo("stubs") == 0)) {
 						continue;
 					}
 					if (getVerboseLogging()) {
@@ -560,9 +559,10 @@ public class RttMbtClient {
 			String[] entries = dir.list();
 			if (entries != null) {
 				for (int i = 0; i < entries.length; i++) {
-					if (!isRttMbtTestProcedure(dirname + File.separator + entries[i])) {
-						continue;
-					}
+					if ((entries[i].compareTo(".svn") == 0) ||
+							(entries[i].compareTo("CVS") == 0)) {
+							continue;
+						}
 					if (getVerboseLogging()) {
 						addLogMessage("clean Test Procedure Generation Context " + entries[i]);
 					}
@@ -933,14 +933,7 @@ public class RttMbtClient {
 		if (getVerboseLogging()) {
 			addLogMessage("starting test generation...");
 		}
-		long startTime = System.nanoTime();
 		cmd.executeCommand();
-		long endTime = System.nanoTime();
-		if (getVerboseLogging()) {
-			long secs = ((endTime - startTime)/1000000000);
-			long msecs = ((endTime - startTime)/1000000);
-			addLogMessage("Generation took " + secs + "." + msecs + "s.");
-		}		
 		String dirname;
 		String errorsFileName;
 		if (getVerboseLogging()) {
@@ -1500,13 +1493,11 @@ public class RttMbtClient {
 					System.err.println("creating directory '" + dirName + "' failed!");
 				}
 			}
+			// - model/error.log
+			// - model/genertion.log
 			if (getExtraFiles()) {
-				// - complete testdata directory
 				downloadDirectory(dirName);
-				// - rtt-mbt-tms-execution.out
-				downloadFile(getRttProjectPath() + File.separator + "rtt-mbt-tms-execution.out");
 			} else {
-				// only selected files from testdata directory
 				downloadFile(dirName + "VERDICT.txt");
 				downloadFile(dirName + "rtt-run-test.log");
 			}
@@ -1911,95 +1902,6 @@ public class RttMbtClient {
 		return false;
 	}
 	
-	// this static function checks if a given path leads to an RT-Tester 6 test procedure
-	// the checks are perfomed according to the criteria in 
-	// Mantis PR 7720 "Adjust the project scanner library for MBT"
-	// https://software.verified.de/mantis/view.php?id=7720#c15235
-	public static Boolean isRtt6TestProcedure(String path) {
-		if (path == null) {
-			return false;
-		}
-
-		// check if directory exists
-		File folder = new File(path);
-		if (!((folder.exists()) && (folder.isDirectory()))) {
-			return false;
-		}
-
-    	// check if conf directory does not exist or is empty (if so, return false)
-		File confdir = new File(folder, "conf");
-		if (!((confdir.exists()) && (confdir.isDirectory()))) {
-			return false;
-		}
-		File[] files = confdir.listFiles();
-		if (files == null) {
-			return false;
-		}
-
-    	// check if config directory exists (if so, return false)
-		File configdir = new File(folder, "config");
-		if ((configdir.exists()) && (configdir.isDirectory())) {
-			return false;
-		}
-
-    	// search files in conf for *.conf, but NOT configuration.csv
-		Boolean has_conf_file = false;
-		for (int i = 0; i < files.length; i++) {
-			String name = files[i].getName();
-			if (files[i].isFile()) {
-				// search for *.conf
-				if (name.endsWith(".conf")) {
-					has_conf_file = true;
-				}
-				if (name.compareTo("configuration.csv") == 0) {
-					return false;
-				}
-			}
-		}
-
-		return has_conf_file;
-	}
-
-	// this static function checks if a given path leads to an RTT-MBT test procedure generation context
-	// this static function checks if a given path leads to an RT-Tester 6 test procedure
-	// the checks are perfomed according to the criteria in 
-	// Mantis PR 7720 "Adjust the project scanner library for MBT"
-	// https://software.verified.de/mantis/view.php?id=7720#c15235
-	public static Boolean isRttMbtTestProcedure(String path) {
-		if (path == null) {
-			return false;
-		}
-
-		// check if directory exists
-		File folder = new File(path);
-		if (!((folder.exists()) && (folder.isDirectory()))) {
-			return false;
-		}
-
-    	// check if conf directory does not exist or is empty (if so, return false)
-		File confdir = new File(folder, "conf");
-		if (!((confdir.exists()) && (confdir.isDirectory()))) {
-			return false;
-		}
-		File[] files = confdir.listFiles();
-		if (files == null) {
-			return false;
-		}
-
-    	// search files in conf for *.conf, but NOT configuration.csv
-		for (int i = 0; i < files.length; i++) {
-			String name = files[i].getName();
-			if (files[i].isFile()) {
-				// search for configuration.csv
-				if (name.compareTo("configuration.csv") == 0) {
-					return true;
-				}
-			}
-		}
-
-		return false;
-	}
-
 	public String getRttMbtServer() {
 		return rttMbtServer;
 	}
@@ -2019,17 +1921,9 @@ public class RttMbtClient {
 		this.rttMbtPort = rttMbtPort;
 	}
 
-	public String getDefaultProjectDatabaseName() {
+	public String getProjectDatabaseName() {
 		String databasename = substituteIllegalDbNameCharacters(userId + workspaceProjectPrefix + "_" + workspaceProjectName);
 		return databasename;
-	}
-
-	public String getProjectDatabaseName() {
-		return tmsDatabaseName;
-	}
-	
-	public void setProjectDatabaseName(String name) {
-		tmsDatabaseName = name;
 	}
 
 	public String getUserName() {
@@ -2116,9 +2010,6 @@ public class RttMbtClient {
 	}
 	
 	public void setRttMbtTestProcFolderName(String name) {
-		if (name == null) {
-			return;
-		}
 		RttMbtTestProcFolderName = name;
 	}
 
@@ -2131,9 +2022,6 @@ public class RttMbtClient {
 	}
 
 	public void setRttMbtTProcGenCtxFolderName(String name) {
-		if (name == null) {
-			return;
-		}
 		RttMbtTProcGenCtxFolderName = name;
 	}
 

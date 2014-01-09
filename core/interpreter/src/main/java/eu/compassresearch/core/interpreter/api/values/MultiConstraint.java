@@ -29,12 +29,8 @@ public class MultiConstraint implements ValueConstraint
 	{
 
 		for (ValueConstraint vc : this.constraints)
-		{
 			if (!vc.isValid(val))
-			{
 				return false;
-			}
-		}
 
 		return true;
 	}

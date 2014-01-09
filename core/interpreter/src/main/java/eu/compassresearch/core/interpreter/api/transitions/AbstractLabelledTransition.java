@@ -64,9 +64,7 @@ abstract class AbstractLabelledTransition extends AbstractCmlTransition
 		LabelledTransition other = null;
 
 		if (!(obj instanceof LabelledTransition))
-		{
 			return false;
-		}
 
 		other = (LabelledTransition) obj;
 

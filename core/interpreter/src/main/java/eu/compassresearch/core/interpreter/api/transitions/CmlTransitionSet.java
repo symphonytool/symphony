@@ -71,9 +71,8 @@ public class CmlTransitionSet extends Value
 		for (CmlTransition e : new LinkedHashSet<CmlTransition>(events))
 		{
 			if (e instanceof AbstractSilentTransition)
-			{
 				this.silentEvents.add((AbstractSilentTransition) e);
-			} else if (e instanceof ObservableTransition)
+			else if (e instanceof ObservableTransition)
 			{
 				_observableEvents.add((ObservableTransition) e);
 			}
@@ -94,12 +93,8 @@ public class CmlTransitionSet extends Value
 	{
 		Set<ObservableTransition> observableChannelEvents = new LinkedHashSet<ObservableTransition>();
 		for (ObservableTransition obsEvent : _observableEvents)
-		{
 			if (obsEvent instanceof LabelledTransition)
-			{
 				observableChannelEvents.add(obsEvent);
-			}
-		}
 
 		return observableChannelEvents;
 	}
@@ -213,9 +208,7 @@ public class CmlTransitionSet extends Value
 		for (ObservableTransition obsTransition : _observableEvents)
 		{
 			if (!(obsTransition instanceof LabelledTransition))
-			{
 				continue;
-			}
 
 			LabelledTransition obsChannelEvent = (LabelledTransition) obsTransition;
 			if (obsChannelEvent.getChannelName().isComparable(channelNameValue)
@@ -236,9 +229,7 @@ public class CmlTransitionSet extends Value
 		for (ObservableTransition obsTransition : _observableEvents)
 		{
 			if (!(obsTransition instanceof LabelledTransition))
-			{
 				continue;
-			}
 
 			LabelledTransition obsChannelEvent = (LabelledTransition) obsTransition;
 
@@ -264,9 +255,7 @@ public class CmlTransitionSet extends Value
 		for (ObservableTransition obsTransition : _observableEvents)
 		{
 			if (!(obsTransition instanceof LabelledTransition))
-			{
 				continue;
-			}
 
 			LabelledTransition obsChannelEvent = (LabelledTransition) obsTransition;
 			if (!(obsChannelEvent.getChannelName().isComparable(channelNameValue) && channelNameValue.isGTEQPrecise(obsChannelEvent.getChannelName())))
@@ -286,9 +275,7 @@ public class CmlTransitionSet extends Value
 		for (ObservableTransition obsTransition : _observableEvents)
 		{
 			if (!(obsTransition instanceof LabelledTransition))
-			{
 				continue;
-			}
 
 			boolean retaintIt = true;
 
@@ -305,9 +292,7 @@ public class CmlTransitionSet extends Value
 			}
 
 			if (retaintIt)
-			{
 				resultSet.add(obsTransition);
-			}
 		}
 
 		return new CmlTransitionSet(resultSet, silentEvents);
@@ -319,13 +304,11 @@ public class CmlTransitionSet extends Value
 		TimedTransition tock = null;
 
 		for (ObservableTransition obs : _observableEvents)
-		{
 			if (obs instanceof TimedTransition)
 			{
 				tock = (TimedTransition) obs;
 				break;
 			}
-		}
 
 		return tock;
 	}
@@ -383,15 +366,12 @@ public class CmlTransitionSet extends Value
 	{
 		if (event instanceof ObservableTransition
 				&& !intersect((ObservableTransition) event).isEmpty())
-		{
 			return true;
-		} else if (event instanceof AbstractSilentTransition)
+		else if (event instanceof AbstractSilentTransition)
 		{
 			return containsSilentTransition((AbstractSilentTransition) event);
 		} else
-		{
 			return _observableEvents.contains(event);
-		}
 	}
 
 	private boolean containsSilentTransition(AbstractSilentTransition transition)
@@ -399,9 +379,7 @@ public class CmlTransitionSet extends Value
 		for (CmlTransition thisTransition : getAllEvents())
 		{
 			if (thisTransition.isSourcesSubset(transition))
-			{
 				return true;
-			}
 		}
 
 		return false;
@@ -423,9 +401,7 @@ public class CmlTransitionSet extends Value
 	{
 
 		if (!(other instanceof CmlTransitionSet))
-		{
 			return false;
-		}
 
 		return getAllEvents().equals(((CmlTransitionSet) other).getAllEvents());
 	}
@@ -454,15 +430,10 @@ public class CmlTransitionSet extends Value
 		Set<CmlTransition> eventSet = new HashSet<CmlTransition>();
 
 		for (CmlTransition ev : getAllEvents())
-		{
 			if (ev instanceof LabelledTransition)
-			{
 				eventSet.addAll(((LabelledTransition) ev).expand());
-			} else
-			{
+			else
 				eventSet.add(ev);
-			}
-		}
 
 		return new CmlTransitionSet(eventSet);
 

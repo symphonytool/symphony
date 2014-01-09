@@ -66,13 +66,11 @@ public class LatticeTopElement extends Value implements LatticeElement
 	public boolean equals(Object other)
 	{
 		if (other instanceof LatticeElement)
-		{
 			return ((LatticeTopElement) other).getType().equals(type)
 					&& ((LatticeTopElement) other).isTopElement();
-		} else
-		{
+
+		else
 			return false;
-		}
 	}
 
 	@Override

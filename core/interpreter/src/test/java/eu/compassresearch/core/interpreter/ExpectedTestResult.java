@@ -56,9 +56,7 @@ public class ExpectedTestResult
 				Node firstChildNode = exceptionNl.item(0).getFirstChild();
 				if (firstChildNode != null
 						&& firstChildNode.getNodeValue() != null)
-				{
 					exceptionName = firstChildNode.getNodeValue();
-				}
 			}
 
 			// Parse the expected events
@@ -91,9 +89,7 @@ public class ExpectedTestResult
 		{
 			return CmlInterpreterState.valueOf(stateNode.getNodeValue());
 		} else
-		{
 			return null;
-		}
 	}
 
 	private static Pattern extractPatternFromNodeList(NodeList nl)

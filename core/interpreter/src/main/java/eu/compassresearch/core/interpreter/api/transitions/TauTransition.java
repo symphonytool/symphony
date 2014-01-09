@@ -28,9 +28,8 @@ public class TauTransition extends AbstractSilentTransition
 	{
 
 		if (!(obj instanceof TauTransition))
-		{
 			return false;
-		} else
+		else
 		{
 			TauTransition otherSilent = (TauTransition) obj;
 			return super.equals(otherSilent);

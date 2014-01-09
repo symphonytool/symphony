@@ -83,33 +83,27 @@ public class Console
 
 			if (!AbstractValueInterpreter.isValueMostPrecise(currentValue))
 			{
-
+				
 				Value val = null;
 				try
 				{
 					PType expectedType = channnelName.getChannel().getValueTypes().get(i);
 					Context ctxt = chosenEvent.getEventSources().iterator().next().getNextState().second;
-
+					
 					while (val == null)
 					{
 						try
 						{
-							Console.out.println("Enter value for channel "
-									+ channnelName.getChannel().getName()
-									+ " argument " + (i + 1)
-									+ " expected type "
-									+ expectedType.toString() + ": ");
+							Console.out.println("Enter value for channel "+channnelName.getChannel().getName()+" argument "+(i+1)+ " expected type "+expectedType.toString()+": ");
 							String expressionString = new BufferedReader(new InputStreamReader(System.in)).readLine();
 							val = ValueParser.parse(expectedType, ctxt, expressionString);
 						} catch (LexException e)
 						{
 							Console.out.println("Parse error input: "
-									+ e.toString() + "\n");
-						} catch (InterpreterRuntimeException
-								| VDMErrorsException | ParserException
-								| ContextException | CMLErrorsException e)
+									+ e.toString()+"\n");
+						} catch (InterpreterRuntimeException|VDMErrorsException|ParserException|ContextException|CMLErrorsException e)
 						{
-							Console.out.println(e.toString() + "\n");
+							Console.out.println(e.toString()+"\n");
 						}
 					}
 					channnelName.updateValue(i, val);

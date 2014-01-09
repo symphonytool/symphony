@@ -62,9 +62,7 @@ public class ChannelNameValue extends Value
 		StringBuilder strBuilder = new StringBuilder();
 		strBuilder.append(this.channel.getName());
 		for (Value v : values)
-		{
 			strBuilder.append("." + v);
-		}
 
 		return strBuilder.toString();
 	}
@@ -76,9 +74,7 @@ public class ChannelNameValue extends Value
 		ChannelNameValue otherChannelName = null;
 
 		if (!(other instanceof ChannelNameValue))
-		{
 			return false;
-		}
 
 		otherChannelName = (ChannelNameValue) other;
 
@@ -146,9 +142,7 @@ public class ChannelNameValue extends Value
 
 		// Combine all the constraint as a MultiConstraint
 		for (int i = 0; i < constraints.size(); i++)
-		{
 			meetConstraints.add(new MultiConstraint(this.constraints.get(i), other.constraints.get(i)));
-		}
 
 		return new ChannelNameValue(this.channel, meetValues, meetConstraints);
 	}
@@ -159,9 +153,8 @@ public class ChannelNameValue extends Value
 		// and since they only are comparable if
 		if (AbstractValueInterpreter.isValueMostPrecise(val1)
 				&& AbstractValueInterpreter.isValueMostPrecise(val2))
-		{
 			return val1;
-		} else if (!AbstractValueInterpreter.isValueMostPrecise(val1)
+		else if (!AbstractValueInterpreter.isValueMostPrecise(val1)
 				&& !AbstractValueInterpreter.isValueMostPrecise(val2))
 		{
 			// If both are a nonprecise value and they differ the meet would be the set of of them, for now we
@@ -176,17 +169,12 @@ public class ChannelNameValue extends Value
 			}
 			// any value would do here since they are identical
 			else
-			{
 				return val1;
-			}
 		} else if (AbstractValueInterpreter.isValueMostPrecise(val1))
-		{
 			return val1;
-		} else
-		{
+		else
 			// if(isAnyValue(val2))
 			return val2;
-		}
 	}
 
 	public boolean isComparable(ChannelNameValue channelNameValue)
@@ -207,9 +195,7 @@ public class ChannelNameValue extends Value
 			if (AbstractValueInterpreter.isValueMostPrecise(thisValue)
 					&& AbstractValueInterpreter.isValueMostPrecise(otherValue)
 					&& !thisValue.equals(otherValue))
-			{
 				return false;
-			}
 
 		}
 
@@ -232,12 +218,8 @@ public class ChannelNameValue extends Value
 	public boolean isConstraintValid() throws AnalysisException
 	{
 		for (int i = 0; i < values.size(); i++)
-		{
 			if (!constraints.get(i).isValid(values.get(i)))
-			{
 				return false;
-			}
-		}
 
 		return true;
 	}
@@ -247,12 +229,9 @@ public class ChannelNameValue extends Value
 		for (int i = 0; i < values.size(); i++)
 		{
 			if (this.values.size() < i)
-			{
 				updateValue(i, values.get(i));
-			} else
-			{
+			else
 				this.values.add(values.get(i));
-			}
 		}
 	}
 

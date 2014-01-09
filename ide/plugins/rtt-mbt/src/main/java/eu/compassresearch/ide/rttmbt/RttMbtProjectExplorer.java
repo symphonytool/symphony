@@ -60,7 +60,6 @@ public class RttMbtProjectExplorer extends org.eclipse.ui.navigator.CommonNaviga
     	IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		workspaceDirectory = workspace.getRoot().getLocation().toFile();
 
-		IProject project = null;
 		if (selection instanceof TreeSelection) {		    
 			TreeSelection treeSelection = (TreeSelection)selection;
 			if (treeSelection.size() == 0) {
@@ -74,51 +73,29 @@ public class RttMbtProjectExplorer extends org.eclipse.ui.navigator.CommonNaviga
 			if ((treeSelection.getFirstElement() != null) &&
 				(treeSelection.getFirstElement() instanceof IFolder)) {
 				IFolder folder = (IFolder)treeSelection.getFirstElement();
-				project = folder.getProject();
 				selectedObject = folder.getName();
 				selectedObjectPath = RttMbtClient.getAbsolutePathFromFileURI(folder.getLocationURI());
 				isFolderSelected = true;
 			} else if ((treeSelection.getFirstElement() != null) &&
 				       (treeSelection.getFirstElement() instanceof IFile)) {
 				IFile file = (IFile)treeSelection.getFirstElement();
-				project = file.getProject();
 				selectedObject = file.getName();
 				selectedObjectPath = RttMbtClient.getAbsolutePathFromFileURI(file.getLocationURI());
 				isFileSelected = true;
 			} else if ((treeSelection.getFirstElement() != null) &&
 				       (treeSelection.getFirstElement() instanceof IProject)) {
-				project = (IProject)treeSelection.getFirstElement();
+				IProject project = (IProject)treeSelection.getFirstElement();
 				selectedObject = project.getName();
 				selectedObjectPath = RttMbtClient.getAbsolutePathFromFileURI(project.getLocationURI());
 				isFolderSelected = true;
 			}
 		}
 		// check for invalid selection
-		if ((project == null) ||
-			(selectedObject == null) ||
+		if ((selectedObject == null) ||
 			(selectedObjectPath == null)) {
 			setAllKeysFlase();
 			return;
 		}
-
-		// set project specific properties
-		String value = RttMbtProjectPropertiesPage.getPropertyValue(project, "RttMbtrttProjectDatabase");
-		if (value != null) {
-			client.setProjectDatabaseName(value);
-		}
-		value = RttMbtProjectPropertiesPage.getPropertyValue(project, "RttMbtRttTprocPrefix");
-		if ((value != null) && (value.length() > 0)) {
-			client.setRttMbtTestProcFolderName(value);
-		} else {
-			client.setRttMbtTestProcFolderName(Activator.getPreferenceValue("RttMbtRttTprocPrefix"));
-		}
-		value = RttMbtProjectPropertiesPage.getPropertyValue(project, "RttMbtTProcGenCtx");
-		if ((value != null) && (value.length() > 0)) {
-			client.setRttMbtTProcGenCtxFolderName(value);
-		} else {
-			client.setRttMbtTProcGenCtxFolderName(Activator.getPreferenceValue("RttMbtTProcGenCtx"));
-		}
-
 		// enable RTT-MBT actions
 		if (isGenerationContextSelected()) {
 			setService(RttMbtCommandState.keyIsGenerationContextTP,RttMbtCommandState.TRUE);

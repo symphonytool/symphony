@@ -21,9 +21,7 @@ public abstract class AbstractSilentTransition extends AbstractCmlTransition
 	{
 		super(eventSource);
 		if (destinationNode == null)
-		{
 			throw new NullPointerException("A silent transition must have a destination node");
-		}
 		this.destinationNode = destinationNode;
 		this.kind = kind;
 	}
@@ -54,7 +52,6 @@ public abstract class AbstractSilentTransition extends AbstractCmlTransition
 		// We now that it always has one source because it an internal transition
 		INode transitionSrcNode = this.getEventSources().iterator().next().getNextState().first;
 		if (CmlRuntime.expandShowHiddenEvents())
-		{
 			return kind
 					+ "("
 					+ transitionSrcNode.getClass().getSimpleName()
@@ -63,10 +60,8 @@ public abstract class AbstractSilentTransition extends AbstractCmlTransition
 
 					+ destinationNode.getClass().getSimpleName() + ") : "
 					+ getEventSources();
-		} else
-		{
+		else
 			return kind;
-		}
 	}
 
 	@Override

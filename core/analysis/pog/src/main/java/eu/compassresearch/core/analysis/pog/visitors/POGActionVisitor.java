@@ -62,8 +62,6 @@ public class POGActionVisitor extends
 {
 
 	private ProofObligationGenerator parentPOG;
-	private NameSetVisitor nsvisitor;
-	private ChansetVisitor csvisitor;
 
 	// FIXME dispatch chan and varsets to the apropriate visitors
 
@@ -75,8 +73,6 @@ public class POGActionVisitor extends
 	public POGActionVisitor(ProofObligationGenerator parent)
 	{
 		this.parentPOG = parent;
-		this.nsvisitor = new NameSetVisitor(parentPOG);
-		this.csvisitor = new ChansetVisitor(parentPOG);
 	}
 
 	// Default action
@@ -100,15 +96,20 @@ public class POGActionVisitor extends
 		return pol;
 	}
 
+	
+	
+	
 	@Override
 	public CmlProofObligationList caseAStmAction(AStmAction node,
 			IPOContextStack question) throws AnalysisException
 	{
-		// FIXME What do we do with statements in actions?
-		// return node.getStatement().apply(parentPOG,question);
+		//FIXME What do we do with statements in actions?
+	//	return node.getStatement().apply(parentPOG,question);
 		// TODO Auto-generated method stub
 		return super.caseAStmAction(node, question);
 	}
+
+
 
 	/**
 	 * Composition action. Process left part, then right.
@@ -136,6 +137,9 @@ public class POGActionVisitor extends
 			throw new POException(node, e.getMessage());
 		}
 	}
+
+
+
 
 	@Override
 	public CmlProofObligationList caseATimedInterruptAction(
@@ -240,7 +244,7 @@ public class POGActionVisitor extends
 		try
 		{
 			CmlProofObligationList pol = new CmlProofObligationList();
-
+			
 			// Get subparts
 			PAction left = node.getLeft();
 			PAction right = node.getRight();
@@ -281,6 +285,7 @@ public class POGActionVisitor extends
 			throw new POException(node, e.getMessage());
 		}
 	}
+
 
 	@Override
 	public CmlProofObligationList caseAInternalChoiceReplicatedAction(
@@ -355,6 +360,11 @@ public class POGActionVisitor extends
 		}
 	}
 
+
+
+
+	
+	
 	@Override
 	public CmlProofObligationList caseAInterruptAction(AInterruptAction node,
 			IPOContextStack question) throws AnalysisException
@@ -397,16 +407,15 @@ public class POGActionVisitor extends
 			pol.addAll(leftAction.apply(parentPOG, question));
 			pol.addAll(rightAction.apply(parentPOG, question));
 
-			// Guard against empty nameset expressions
-			// Nothing to do with namesets for now
-			// if (leftNamesetExp != null)
-			// {
-			// pol.addAll(leftNamesetExp.apply(nsvisitor, question));
-			// }
-			// if (leftNamesetExp != null)
-			// {
-			// pol.addAll(rightnamesetExp.apply(nsvisitor, question));
-			// }
+			// GUard against empty nameset expressions
+			if (leftNamesetExp != null)
+			{
+				pol.addAll(leftNamesetExp.apply(parentPOG, question));
+			}
+			if (leftNamesetExp != null)
+			{
+				pol.addAll(rightnamesetExp.apply(parentPOG, question));
+			}
 			// TODO: Consider AInterleavingParallelAction POs
 
 			return pol;
@@ -415,6 +424,7 @@ public class POGActionVisitor extends
 			throw new POException(node, e.getMessage());
 		}
 	}
+
 
 	@Override
 	public CmlProofObligationList caseAGeneralisedParallelismParallelAction(
@@ -433,12 +443,10 @@ public class POGActionVisitor extends
 
 			pol.addAll(leftAction.apply(parentPOG, question));
 			pol.addAll(rightAction.apply(parentPOG, question));
-
-			// NOthind to do for namesets atm
-			// if (leftNamesetExp != null)
-			// pol.addAll(leftNamesetExp.apply(parentPOG, question));
-			// if (rightnamesetExp != null)
-			// pol.addAll(rightnameset/Exp.apply(parentPOG, question));
+			if (leftNamesetExp != null)
+				pol.addAll(leftNamesetExp.apply(parentPOG, question));
+			if (rightnamesetExp != null)
+				pol.addAll(rightnamesetExp.apply(parentPOG, question));
 
 			// TODO: Consider AGeneralisedParallelismParallelAction POs
 
@@ -448,6 +456,9 @@ public class POGActionVisitor extends
 			throw new POException(node, e.getMessage());
 		}
 	}
+
+	
+
 
 	@Override
 	public CmlProofObligationList caseAChannelRenamingAction(
@@ -492,6 +503,11 @@ public class POGActionVisitor extends
 		}
 	}
 
+	
+	
+	
+
+	
 	@Override
 	public CmlProofObligationList caseAMuAction(AMuAction node,
 			IPOContextStack question) throws AnalysisException
@@ -571,16 +587,12 @@ public class POGActionVisitor extends
 			PVarsetExpression rightChanSet = node.getRightChansetExpression();
 			PVarsetExpression rightNameSet = node.getLeftNamesetExpression();
 
-			// nothing to do for varsets atm...
-
-			// pol.addAll(leftChanSet.apply(parentPOG, question));
-			// pol.addAll(rightChanSet.apply(parentPOG, question));
-
-			// pol.addAll(leftNameSet.apply(parentPOG, question));
-			// pol.addAll(rightNameSet.apply(parentPOG, question));
-
 			pol.addAll(leftAction.apply(parentPOG, question));
+			pol.addAll(leftChanSet.apply(parentPOG, question));
+			pol.addAll(leftNameSet.apply(parentPOG, question));
 			pol.addAll(rightAction.apply(parentPOG, question));
+			pol.addAll(rightChanSet.apply(parentPOG, question));
+			pol.addAll(rightNameSet.apply(parentPOG, question));
 
 			// TODO: Any AAlphabetisedParallelismParallelAction POs?
 
@@ -590,6 +602,8 @@ public class POGActionVisitor extends
 			throw new POException(node, e.getMessage());
 		}
 	}
+
+
 
 	@Override
 	public CmlProofObligationList caseAGuardedAction(AGuardedAction node,
@@ -629,6 +643,7 @@ public class POGActionVisitor extends
 			throw new POException(node, e.getMessage());
 		}
 	}
+
 
 	@Override
 	public CmlProofObligationList caseACommonInterleavingReplicatedAction(
@@ -797,9 +812,7 @@ public class POGActionVisitor extends
 			PVarsetExpression chanSet = node.getChansetExpression();
 
 			pol.addAll(action.apply(parentPOG, question));
-	
-			// not processing varsets atm
-			//		pol.addAll(chanSet.apply(parentPOG, question));
+			pol.addAll(chanSet.apply(parentPOG, question));
 
 			// TODO Any AHidingAction POs?
 
@@ -924,6 +937,8 @@ public class POGActionVisitor extends
 			throw new POException(node, e.getMessage());
 		}
 	}
+
+
 
 	@Override
 	public CmlProofObligationList caseAParametrisedAction(

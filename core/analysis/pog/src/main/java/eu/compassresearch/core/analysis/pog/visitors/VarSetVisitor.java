@@ -11,28 +11,25 @@ import eu.compassresearch.ast.expressions.AUnionVOpVarsetExpression;
 import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligationList;
 
 public abstract class VarSetVisitor extends
-		QuestionAnswerCMLAdaptor<IPOContextStack, CmlProofObligationList>
-{
+		QuestionAnswerCMLAdaptor<IPOContextStack, CmlProofObligationList> {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	/*
 	 * IProofObligationList obligations = new ProofObligationList();
 	 * obligations.addAll(node.getLeft().apply(mainVisitor, question));
-	 * obligations.addAll(node.getRight().apply(mainVisitor, question)); return obligations;
+	 * obligations.addAll(node.getRight().apply(mainVisitor, question)); return
+	 * obligations;
 	 */
-
-	private ProofObligationGenerator parentVisitor;
-
-	public VarSetVisitor(ProofObligationGenerator parentPog)
-	{
-		parentVisitor = parentPog;
-	}
 
 	@Override
 	public CmlProofObligationList caseAInterVOpVarsetExpression(
 			AInterVOpVarsetExpression node, IPOContextStack question)
-			throws AnalysisException
-	{
-
+			throws AnalysisException {
+		
 		CmlProofObligationList obligations = new CmlProofObligationList();
 		obligations.addAll(node.getLeft().apply(this, question));
 		obligations.addAll(node.getRight().apply(this, question));
@@ -43,9 +40,8 @@ public abstract class VarSetVisitor extends
 	@Override
 	public CmlProofObligationList caseASubVOpVarsetExpression(
 			ASubVOpVarsetExpression node, IPOContextStack question)
-			throws AnalysisException
-	{
-
+			throws AnalysisException {
+		
 		CmlProofObligationList obligations = new CmlProofObligationList();
 		obligations.addAll(node.getLeft().apply(this, question));
 		obligations.addAll(node.getRight().apply(this, question));
@@ -56,16 +52,15 @@ public abstract class VarSetVisitor extends
 	@Override
 	public CmlProofObligationList caseAUnionVOpVarsetExpression(
 			AUnionVOpVarsetExpression node, IPOContextStack question)
-			throws AnalysisException
-	{
-
+			throws AnalysisException {
+		
 		CmlProofObligationList obligations = new CmlProofObligationList();
 		obligations.addAll(node.getLeft().apply(this, question));
 		obligations.addAll(node.getRight().apply(this, question));
 
 		return obligations;
 	}
-
+	
 	@Override
 	public CmlProofObligationList createNewReturnValue(INode node,
 			IPOContextStack question)

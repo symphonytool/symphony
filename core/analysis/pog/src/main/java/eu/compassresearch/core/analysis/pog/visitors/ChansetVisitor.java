@@ -1,6 +1,7 @@
 package eu.compassresearch.core.analysis.pog.visitors;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.node.INode;
 import org.overture.pog.pub.IPOContextStack;
 
 import eu.compassresearch.ast.expressions.AEnumVarsetExpression;
@@ -12,10 +13,10 @@ import eu.compassresearch.core.analysis.pog.obligations.CmlProofObligationList;
 public class ChansetVisitor extends VarSetVisitor {
 
 	
-	public ChansetVisitor (ProofObligationGenerator parentPog){
-		super(parentPog);
-	}
+	//TODO Unclear how to handle chansets for now. This is just here as placeholder.
 	
+	private static final long serialVersionUID = 1L;
+
 	@Override
 	public CmlProofObligationList caseAEnumVarsetExpression(
 			AEnumVarsetExpression node, IPOContextStack question)

@@ -40,13 +40,7 @@ public class InternalException extends RuntimeException
 	public String toString()
 	{
 		Formatter f = new Formatter();
-		try
-		{
-			f.format("Internal %04d: %s", number, getMessage());
-			return f.out().toString();
-		} finally
-		{
-			f.close();
-		}
+		f.format("Internal %04d: %s", number, getMessage());
+		return f.out().toString();
 	}
 }

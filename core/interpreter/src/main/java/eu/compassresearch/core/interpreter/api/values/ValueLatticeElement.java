@@ -49,19 +49,13 @@ public class ValueLatticeElement extends Value implements LatticeElement
 		if (this.type.equals(other.getType()))
 		{
 			if (other.isTopElement())
-			{
 				return true;
-			} else if (isMostPrecise() && other.isMostPrecise())
-			{
+			else if (isMostPrecise() && other.isMostPrecise())
 				return this.equals(other);
-			} else
-			{
+			else
 				return false;
-			}
 		} else
-		{
 			return false;
-		}
 	}
 
 	// @Override
@@ -84,9 +78,7 @@ public class ValueLatticeElement extends Value implements LatticeElement
 			return this.type.equals(((LatticeElement) other).getType())
 					&& this.value.equals(((LatticeElement) other).getValue());
 		} else
-		{
 			return false;
-		}
 	}
 
 	@Override

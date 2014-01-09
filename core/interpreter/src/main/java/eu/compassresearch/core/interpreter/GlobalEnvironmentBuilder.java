@@ -24,11 +24,10 @@ public class GlobalEnvironmentBuilder extends AnalysisCMLAdaptor
 	public GlobalEnvironmentBuilder(List<PDefinition> sourceForest)
 			throws AnalysisException
 	{
-		buildGlobalEnvironment(sourceForest);
+		BuildGlobalEnvironment(sourceForest);
 	}
 
-	@SuppressWarnings("static-access")
-	private void buildGlobalEnvironment(List<PDefinition> sourceForest)
+	private void BuildGlobalEnvironment(List<PDefinition> sourceForest)
 			throws AnalysisException
 	{
 		// Make a state
@@ -41,14 +40,7 @@ public class GlobalEnvironmentBuilder extends AnalysisCMLAdaptor
 		 */
 		for (PDefinition def : sourceForest)
 		{
-			//Fix for bug 184 where pre/post functions wasn't created correctly for the global context
-			if (CmlContextFactory.factory.createPDefinitionAssistant().isFunctionOrOperation(def))
-			{
-				globalState.putAllNew(CmlContextFactory.factory.createPDefinitionAssistant().getNamedValues(def, globalState));
-			} else
-			{
-				globalState.putAllNew(def.apply(cmlDefEval, globalState));
-			}
+			globalState.putAllNew(def.apply(cmlDefEval, globalState));
 		}
 
 		// Search though all the found processes and add them to the process list
@@ -61,12 +53,9 @@ public class GlobalEnvironmentBuilder extends AnalysisCMLAdaptor
 				globalProcesses.add(pdef);
 
 				if (lastDefinedProcess == null)
-				{
 					lastDefinedProcess = pdef;
-				} else if (pdef.getLocation().getStartLine() > lastDefinedProcess.getLocation().getStartLine())
-				{
+				else if (pdef.getLocation().getStartLine() > lastDefinedProcess.getLocation().getStartLine())
 					lastDefinedProcess = pdef;
-				}
 			}
 		}
 
