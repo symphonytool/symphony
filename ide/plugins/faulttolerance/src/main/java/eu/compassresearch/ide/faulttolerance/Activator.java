@@ -16,6 +16,7 @@ import org.osgi.framework.BundleContext;
  */
 public class Activator extends AbstractUIPlugin implements IStartup {
 	public static final String ID = "eu.compassresearch.ide.faulttolerance";
+	public final static String MARKERS_ID = "eu.compassresearch.ide.faulttolerance.verification.problem";
 	private static Activator plugin;
 
 	public Activator() {

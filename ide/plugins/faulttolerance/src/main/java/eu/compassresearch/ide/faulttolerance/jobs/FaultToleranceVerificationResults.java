@@ -3,8 +3,10 @@
  */
 package eu.compassresearch.ide.faulttolerance.jobs;
 
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.jobs.ILock;
 import org.eclipse.core.runtime.jobs.Job;
+import org.overture.ast.intf.lex.ILexLocation;
 
 /**
  * @author Andr&eacute; Didier (<a href=
@@ -20,6 +22,8 @@ public class FaultToleranceVerificationResults {
 	private boolean prerequisitesChecked;
 	private String limitExpression;
 	private String processName;
+	private IResource resource;
+	private ILexLocation location;
 
 	private final ILock prerequisitesLock;
 
@@ -97,6 +101,22 @@ public class FaultToleranceVerificationResults {
 
 	public boolean isPreRequisitesOk() {
 		return divergenceFree && semifair;
+	}
+
+	public IResource getResource() {
+		return resource;
+	}
+
+	public ILexLocation getLocation() {
+		return location;
+	}
+
+	public void setResource(IResource resource) {
+		this.resource = resource;
+	}
+
+	public void setLocation(ILexLocation location) {
+		this.location = location;
 	}
 
 }

@@ -12,20 +12,23 @@ import java.util.ResourceBundle;
  * 
  */
 public enum Messages {
-	DIVERGENCE_FREE_JOB, SEMIFAIRNESS_JOB, FULL_FAULT_TOLERANCE_JOB, LIMITED_FAULT_TOLERANCE_JOB, DIVERGENCE_FREE_OK, LIMITED_FAULT_TOLERANCE_VERIFICATION_COMPLETED, DIVERGENCE_FREE_VERIFICATION, SEMIFAIRNESS_VERIFICATION, FULL_FAULT_TOLERANCE_VERIFICATION, LIMITED_FAULT_TOLERANCE_VERIFICATION, VERIFY_FAULT_TOLERANCE, RUN_RMV, STARTING_MODEL_CHECKING, CHECKING_PREREQUISITES, LIMIT_EXPRESSION, FULL_FAULT_TOLERANCE_SUCCESS, FULL_FAULT_TOLERANCE_ERROR, LIMITED_FAULT_TOLERANCE_SUCCESS, LIMITED_FAULT_TOLERANCE_ERROR;
+	DIVERGENCE_FREE_JOB, SEMIFAIRNESS_JOB, FULL_FAULT_TOLERANCE_JOB, LIMITED_FAULT_TOLERANCE_JOB, DIVERGENCE_FREE_OK, LIMITED_FAULT_TOLERANCE_VERIFICATION_COMPLETED, DIVERGENCE_FREE_VERIFICATION, SEMIFAIRNESS_VERIFICATION, FULL_FAULT_TOLERANCE_VERIFICATION, LIMITED_FAULT_TOLERANCE_VERIFICATION, VERIFY_FAULT_TOLERANCE, RUN_RMV, STARTING_MODEL_CHECKING, CHECKING_PREREQUISITES, LIMIT_EXPRESSION, FULL_FAULT_TOLERANCE_SUCCESS, FULL_FAULT_TOLERANCE_ERROR, LIMITED_FAULT_TOLERANCE_SUCCESS, LIMITED_FAULT_TOLERANCE_ERROR, NO_PROJECT_SELECTED, MARKER_LOCATION;
 
-	public String getName() {
-		return ResourceBundle.getBundle("Messages").getString(
-				this.name() + ".name");
+	public String getName(Object... params) {
+		return String.format(
+				ResourceBundle.getBundle("Messages").getString(
+						this.name() + ".name"), params);
 	}
 
-	public String getTitle() {
-		return ResourceBundle.getBundle("Messages").getString(
-				this.name() + ".title");
+	public String getTitle(Object... params) {
+		return String.format(
+				ResourceBundle.getBundle("Messages").getString(
+						this.name() + ".title"), params);
 	}
 
-	public String getText() {
-		return ResourceBundle.getBundle("Messages").getString(
-				this.name() + ".text");
+	public String getText(Object... params) {
+		return String.format(ResourceBundle.getBundle("Messages").getString(
+						this.name() + ".text"), params);
 	}
+
 }
