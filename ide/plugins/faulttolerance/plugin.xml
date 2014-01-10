@@ -13,22 +13,12 @@
         point="org.eclipse.ui.startup">
      <startup class="eu.compassresearch.ide.faulttolerance.Activator"> </startup>
   </extension>
-  <!--
-  <extension
-        point="org.eclipse.ui.views"> 
-      
-        <view id="eu.compassresearch.ide.faulttolerance.view.VerificationResultsView"
-                name="FT verification results view"
-                icon="icons/resultsView.png"
-             category="eu.compassresearch.ide.ui.category"
-                class="eu.compassresearch.ide.faulttolerance.view.VerificationResultsView"/>
-  </extension>
-    -->
   <extension
         point="org.eclipse.ui.menus">
         <menuContribution locationURI="popup:org.eclipse.ui.popup.any?after=additions">
             <menu id="eu.compassresearch.ide.faulttolerance.verification" 
-              label="%FAULT_TOLERANCE" mnemonic="%FAULT_TOLERANCE_MNEMONIC">
+              label="%FAULT_TOLERANCE" mnemonic="%FAULT_TOLERANCE_MNEMONIC"
+              icon="icons/ft-graphic.png">
                 <command
                     commandId="eu.compassresearch.ide.faulttolerance.verification.Verify"
                     id="eu.compassresearch.ide.faulttolerance.verification.Verify"

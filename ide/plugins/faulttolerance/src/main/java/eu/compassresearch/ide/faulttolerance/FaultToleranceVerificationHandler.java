@@ -108,8 +108,6 @@ public class FaultToleranceVerificationHandler implements IHandler,
 	}
 
 	private void verifyProcess(ICmlSourceUnit su, AProcessDefinition apd) {
-		// TODO Select Resource
-
 		FaultToleranceVerificationResults results = new FaultToleranceVerificationResults();
 		// TODO: limit expression
 		results.setLimitExpression("TODO: limit expression");
