@@ -67,7 +67,6 @@ public class FullFaultToleranceVerificationJob extends
 			mcResults.setSuccess(r.nextInt(100) > 85);
 		} finally {
 			monitor.worked(1);
-			ftResults.incrementVerification();
 		}
 	}
 

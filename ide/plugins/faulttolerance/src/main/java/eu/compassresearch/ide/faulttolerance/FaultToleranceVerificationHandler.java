@@ -8,8 +8,10 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.IHandler;
 import org.eclipse.core.commands.IHandlerListener;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.handlers.HandlerUtil;
@@ -70,7 +72,8 @@ public class FaultToleranceVerificationHandler implements IHandler {
 			if (selection instanceof ITextSelection
 					&& editor instanceof CmlEditor) {
 				IProject proj = getCurrentlySelectedProject(event);
-				verify((ITextSelection) selection, (CmlEditor) editor, proj);
+				verify((ITextSelection) selection, (CmlEditor) editor, proj,
+						HandlerUtil.getActiveShell(event));
 			}
 			return null;
 		} catch (UnableToRunFaultToleranceVerificationException e) {
@@ -79,24 +82,25 @@ public class FaultToleranceVerificationHandler implements IHandler {
 	}
 
 	private void verify(ITextSelection selection, CmlEditor editor,
-			IProject proj) {
+			IProject proj, Shell shell) {
 		INode o = editor.getElementAt(selection.getOffset());
 
 		if (o instanceof AProcessDefinition) {
 			AProcessDefinition apd = (AProcessDefinition) o;
-			verifyProcess(proj, apd);
+			verifyProcess(proj, apd, shell);
 		}
 
 	}
 
-	private void verifyProcess(IProject proj, AProcessDefinition apd) {
+	private void verifyProcess(IProject proj, AProcessDefinition apd,
+			Shell shell) {
 		ICmlProject cmlProj = (ICmlProject) proj.getAdapter(ICmlProject.class);
 
 		boolean done = false;
 		for (ICmlSourceUnit su : cmlProj.getModel().getSourceUnits()) {
 			for (PDefinition def : su.getParseListDefinitions()) {
 				if (def.equals(apd)) {
-					verifyProcess(su, apd);
+					verifyProcess(su, apd, shell);
 					done = true;
 					break;
 				}
@@ -107,14 +111,27 @@ public class FaultToleranceVerificationHandler implements IHandler {
 		}
 	}
 
-	private void verifyProcess(ICmlSourceUnit su, AProcessDefinition apd) {
+	private void verifyProcess(ICmlSourceUnit su, AProcessDefinition apd,
+			Shell shell) {
 		FaultToleranceVerificationResults results = new FaultToleranceVerificationResults();
-		// TODO: limit expression
-		results.setLimitExpression(Message.LIMIT_EXPRESSION.format());
 		results.setLocation(apd.getLocation());
 		results.setResource(su.getFile());
 		results.setProcessName(apd.getName().getFullName());
-		markerManager.clearMarkers(results.getProcessName(),
+
+		InputDialog id = new InputDialog(shell,
+				Message.LIMIT_EXPRESSION_DIALOG_TITLE.format(results
+						.getProcessName()),
+				Message.LIMIT_EXPRESSION_DIALOG_MESSAGE.format(results
+						.getProcessName()),
+				Message.LIMIT_EXPRESSION.format(), null);
+		id.open();
+
+		results.setLimitExpression(id.getValue());
+		if (id.getReturnCode() == InputDialog.CANCEL) {
+			return;
+		}
+
+		MarkerManager.clearMarkers(results.getProcessName(),
 				results.getResource());
 		FaultToleranceHelper.schedule(results, markerManager);
 	}

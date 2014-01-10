@@ -29,21 +29,25 @@ public abstract class FaultToleranceVerificationJob extends ModelCheckingJob {
 	private final ListenerFirer divergenceFreeFinishFirer;
 	private final ListenerFirer semifairnessStartFirer;
 	private final ListenerFirer semifairnessFinishFirer;
-	private final ListenerFirer allFinishedFirer;
 
 	protected abstract class ListenerFirer {
 		protected abstract void doFire(IFaultToleranceVerificationListener l,
 				FaultToleranceVerificationEvent event);
 
 		public final void fire(FaultToleranceVerificationEvent event) {
+			FaultToleranceVerificationEvent allFiredEvent = null;
+			if (event != null
+					&& event.getResults().isAllVerificationsChecked(4)) {
+				allFiredEvent = new FaultToleranceVerificationEvent(
+						event.getResults(), true);
+			}
 			for (IFaultToleranceVerificationListener l : FaultToleranceVerificationJob.this.listeners) {
 				doFire(l, event);
+				if (allFiredEvent != null) {
+					l.faultToleranceVerificationsFinished(allFiredEvent);
+				}
 			}
-			if (event.getResults().isAllVerificationsChecked(4)) {
-				FaultToleranceVerificationEvent allFiredEvent = new FaultToleranceVerificationEvent(
-						event.getResults(), true);
-				allFinishedFirer.fire(allFiredEvent);
-			}
+
 		}
 	}
 
@@ -81,13 +85,6 @@ public abstract class FaultToleranceVerificationJob extends ModelCheckingJob {
 				l.semifairnessVerificationFinished(event);
 			}
 		};
-		this.allFinishedFirer = new ListenerFirer() {
-			@Override
-			protected void doFire(IFaultToleranceVerificationListener l,
-					FaultToleranceVerificationEvent event) {
-				l.faultToleranceVerificationsFinished(event);
-			}
-		};
 	}
 
 	public final void add(IFaultToleranceVerificationListener listener) {
@@ -111,6 +108,7 @@ public abstract class FaultToleranceVerificationJob extends ModelCheckingJob {
 		} else {
 			performPrerequisitesNotMet(faultToleranceResults, monitor);
 		}
+		faultToleranceResults.incrementVerification();
 	}
 
 	protected abstract void performPrerequisitesNotMet(

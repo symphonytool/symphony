@@ -67,7 +67,6 @@ public class LimitedFaultToleranceVerificationJob extends FaultToleranceVerifica
 			mcResults.setSuccess(r.nextInt(100) > 10);
 		} finally {
 			monitor.worked(1);
-			ftResults.incrementVerification();
 		}
 	}
 

@@ -4,7 +4,6 @@
 package eu.compassresearch.ide.faulttolerance.marker;
 
 import org.eclipse.core.resources.IMarker;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.IMarkerResolution;
 
 /**
@@ -28,8 +27,7 @@ public class FaultToleranceClearFix implements IMarkerResolution {
 
 	@Override
 	public void run(IMarker marker) {
-		MessageDialog.openInformation(null, "Clear " + processName,
-				"This quick-fix is not yet implemented");
+		MarkerManager.clearMarkers(processName, marker.getResource());
 	}
 
 }
