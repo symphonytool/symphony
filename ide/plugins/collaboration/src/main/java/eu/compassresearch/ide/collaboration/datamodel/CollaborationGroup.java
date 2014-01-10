@@ -15,9 +15,13 @@ public class CollaborationGroup extends Model {
 		super("Collaborators", parent);
 		collaborators = new HashMap<String, User>();
 	}
-
-	public void addCollaborator(String username) {
+	
+	public void addCollaborator(String username, boolean joined) {
 		User user = new User(username, this);
+		
+		if(joined) {
+			user.acceptedToJoinGroup(true);
+		} 
 		collaborators.put(user.getName(), user);
 		user.listener = this.listener;
 		fireObjectUpdatedEvent(user);

@@ -10,6 +10,10 @@ import eu.compassresearch.ide.collaboration.Activator;
 public class Notification extends NLS {
 	private static final String BUNDLE_NAME = "eu.compassresearch.ide.collaboration.notifications.messages";
 
+	public static String Collab_Dialog_SEND_NEW_CONFIG;
+	public static String Collab_ERROR_NO_SUCH_COLLAB__PROJ_ID;
+	public static String Collab_Dialog_ERROR_COMPARE_NO_PREVIOUS;
+	public static String Collab_Dialog_ERROR_COMPARE_FAILED;
 	public static String Collab_Dialog_ERROR_COULD_NOT_OPEN_EDITOR;
 	public static String Collab_File_ERROR_FILE_ADD_TO_SIGNED;
 	public static String Collab_file_ERROR_FILE_DOES_NOT_EXIST;

@@ -7,8 +7,9 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
 
-import eu.compassresearch.ide.collaboration.files.FileChangeManager.FileStatus;
 import eu.compassresearch.ide.collaboration.files.FileHandler;
+import eu.compassresearch.ide.collaboration.files.FileStatus;
+import eu.compassresearch.ide.collaboration.files.FileStatus.FileState;
 
 public class Files extends Model {
 
@@ -46,36 +47,36 @@ public class Files extends Model {
 		return files.size();
 	}
 	
-	public Files clone() {
+	public Files copy(Model newParent) {
 		
 		Map<String, File> clone = new HashMap<String,File>();
 		
 		File f;
 		for (File file : files.values())
 		{
-			f = file.clone();
+			f = file.copy(newParent);
 			clone.put(f.getName(), f);
 		}
 		
-		return new Files(clone, getParent());
+		return new Files(clone, newParent);
 	}
 	
-	public FileStatus getFileStatus(IFile file) 
+	public FileStatus getFileStatus(FileStatus forFile) 
 	{
-		String fileName = file.getName();
+		String fileName = forFile.getFileName();
 		if(files.containsKey(fileName)){
 			File foundFile = files.get(fileName);
-			String calculatedSha;
-			calculatedSha = FileHandler.calculateSha(file);
 
-			if(foundFile.getHash().equals(calculatedSha)){
-				return FileStatus.UNCHANGED;
+			if(foundFile.getHash().equals(forFile.getHash())){
+				 forFile.setStatus(FileState.UNCHANGED);
 			}  else {
-				return FileStatus.CHANGED;
+				forFile.setStatus(FileState.CHANGED);
 			}
+		} else {
+			forFile.setStatus(FileState.NEWFILE);
 		}
 		
-		return FileStatus.NEWFILE;
+		return forFile;
 	}
 	
 	private List<String> getHashes(){

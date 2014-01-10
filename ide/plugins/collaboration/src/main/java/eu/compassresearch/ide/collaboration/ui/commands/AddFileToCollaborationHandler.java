@@ -5,6 +5,7 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.viewers.ISelection;
@@ -13,7 +14,8 @@ import org.eclipse.ui.handlers.HandlerUtil;
 
 import eu.compassresearch.ide.collaboration.Activator;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationDataModelManager;
-import eu.compassresearch.ide.collaboration.files.FileChangeManager.FileStatus;
+import eu.compassresearch.ide.collaboration.files.FileStatus;
+import eu.compassresearch.ide.collaboration.files.FileStatus.FileState;
 import eu.compassresearch.ide.collaboration.notifications.Notification;
 import eu.compassresearch.ide.collaboration.ui.menu.CollaborationDialogs;
 
@@ -37,17 +39,16 @@ public class AddFileToCollaborationHandler extends AbstractHandler
 			//let modelManager handle the file file
 			FileStatus fileStatus = dataModelManager.handleFile(file);
 
-			if (fileStatus == FileStatus.NEWFILE)
+			if (fileStatus.getStatus() == FileState.NEWFILE)
 			{
 				CollaborationDialogs.getInstance().displayNotificationPopup("", "File added to collaboration");
-			} else if (fileStatus == FileStatus.UNCHANGED)
+			} else if (fileStatus.getStatus() == FileState.UNCHANGED)
 			{
 				CollaborationDialogs.getInstance().displayNotificationPopup("", "File already part of collaboration");
 			}
-
 		} else
 		{
-			ResourcesPlugin.getPlugin().getLog().log(new Status(Status.ERROR, Activator.PLUGIN_ID, 0, Notification.Collab_File_NO_FILE_FROM_SELECTION
+			ResourcesPlugin.getPlugin().getLog().log(new Status(IStatus.ERROR, Activator.PLUGIN_ID, 0, Notification.Collab_File_NO_FILE_FROM_SELECTION
 					+ " " + selection, null));
 		}
 

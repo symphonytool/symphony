@@ -9,11 +9,17 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.ecf.core.user.IUser;
 
 import eu.compassresearch.ide.collaboration.Activator;
 import eu.compassresearch.ide.collaboration.CollaborationPluginUtils;
-import eu.compassresearch.ide.collaboration.files.FileChangeManager.FileStatus;
+import eu.compassresearch.ide.collaboration.communication.messages.NewConfigurationMessage;
+import eu.compassresearch.ide.collaboration.files.FileComparison;
 import eu.compassresearch.ide.collaboration.files.FileHandler;
+import eu.compassresearch.ide.collaboration.files.FileSet;
+import eu.compassresearch.ide.collaboration.files.FileStatus;
+import eu.compassresearch.ide.collaboration.files.FileStatus.FileState;
+import eu.compassresearch.ide.collaboration.files.FileUpdate;
 import eu.compassresearch.ide.collaboration.notifications.Notification;
 
 public class CollaborationDataModelManager
@@ -23,6 +29,7 @@ public class CollaborationDataModelManager
 	public CollaborationDataModelManager()
 	{
 		datamodel = new CollaborationDataModelRoot();
+		Activator.getDefault().getMessageProcessor();
 	}
 
 	public CollaborationDataModelRoot getDataModel()
@@ -79,8 +86,15 @@ public class CollaborationDataModelManager
 		return null;
 	}
 
+	public CollaborationProject getCollaborationProjectFromID(String id)
+	{
+		return datamodel.getCollaborationProjectFromID(id);
+	}
+
 	public FileStatus handleFile(IFile file)
 	{
+		FileStatus fileStatus = createFileStatus(file);
+
 		String projectName = file.getProject().getName();
 		CollaborationProject collaborationProject = getCollaborationProject(projectName);
 
@@ -88,18 +102,19 @@ public class CollaborationDataModelManager
 		{
 			ResourcesPlugin.getPlugin().getLog().log(new Status(Status.ERROR, Activator.PLUGIN_ID, 0, Notification.Collab_File_ERROR_NO_SUCH_PROJECT
 					+ projectName, null));
-			return FileStatus.ERROR;
+			fileStatus.setStatus(FileState.ERROR);
+			return fileStatus;
 		}
 
-		FileStatus fileStatus = collaborationProject.getFileStatus(file);
+		fileStatus = collaborationProject.getFileStatus(fileStatus);
 
-		if (fileStatus != FileStatus.UNCHANGED)
+		if (fileStatus.getStatus() != FileState.UNCHANGED)
 		{
 			Configurations configurations = collaborationProject.getConfigurations();
 			Configuration newestConfiguration = configurations.getNewestConfiguration();
 
 			if (newestConfiguration == null
-					|| newestConfiguration.isSharedConfiguration())
+					|| newestConfiguration.isShared())
 			{
 				collaborationProject.addNewConfiguration();
 			}
@@ -113,13 +128,14 @@ public class CollaborationDataModelManager
 
 			try
 			{
-				if (fileStatus == FileStatus.NEWFILE)
+				if (fileStatus.getStatus() == FileState.NEWFILE)
 				{
 					collaborationProject.addNewFile(file);
 
-				} else if (fileStatus == FileStatus.CHANGED)
+				} else if (fileStatus.getStatus() == FileState.CHANGED)
 				{
-					collaborationProject.updateFile(file);
+					FileUpdate fileUdate = new FileUpdate(fileStatus.getFileName(), fileStatus.getHash());
+					collaborationProject.updateFile(fileUdate);
 				}
 
 			} catch (CoreException e)
@@ -132,21 +148,32 @@ public class CollaborationDataModelManager
 		return fileStatus;
 	}
 
-	public IFile getFile(File file, CollaborationProject collaborationProject) throws CoreException, IOException{
-		
+	private FileStatus createFileStatus(IFile file)
+	{
+		String hash = FileHandler.calculateSha(file);
+		FileStatus fileStatus = new FileStatus(file.getName(), hash);
+		return fileStatus;
+	}
+
+	public IFile getFile(File file, CollaborationProject collaborationProject)
+			throws CoreException, IOException
+	{
+
 		IFile iFile = null;
-		
-		//has file already been stored previously, get it from the collaboration dir
-		if(file.isStored()){
+
+		// has file already been stored previously, get it from the collaboration dir
+		if (file.isStored())
+		{
 			iFile = FileHandler.loadFileFromCollaborationDir(file, collaborationProject);
-		} else {
-			//otherwise try to get it directly from the project
+		} else
+		{
+			// otherwise try to get it directly from the project
 			iFile = FileHandler.loadFileFromProject(file, collaborationProject);
 		}
-		
+
 		return iFile;
 	}
-	
+
 	public boolean hasActiveCollaborationProjects()
 	{
 		return !datamodel.getCollaborationProjects().isEmpty();
@@ -154,12 +181,15 @@ public class CollaborationDataModelManager
 
 	public boolean isKnownFile(IFile file)
 	{
+		FileStatus fileStatus = createFileStatus(file);
+
 		String projectName = file.getProject().getName();
 		CollaborationProject collaborationProject = getCollaborationProject(projectName);
 
 		if (collaborationProject != null)
 		{
-			return collaborationProject.getFileStatus(file) != FileStatus.NEWFILE;
+			fileStatus = collaborationProject.getFileStatus(fileStatus);
+			return fileStatus.getStatus() != FileState.NEWFILE;
 		} else
 		{
 			return false;
@@ -169,18 +199,76 @@ public class CollaborationDataModelManager
 	public void signAndShareConfiguration(Configuration config)
 			throws CoreException
 	{
-		// TODO add user
-		// set as shared
+		//TODO add user
+		IUser self = Activator.getDefault().getSelf();
+		IUser receiver = Activator.getDefault().getReceiver();
 		
-		List<File> files = config.getFiles().getFilesList();
-		for (File file : files)
-		{
-			FileHandler.copyFileToCollaborationDir(file, config.getCollaborationProject());
-			file.setAsStored();
-		}
-		config.setSignedBy("Not logged in");
+		CollaborationProject collaborationProject = config.getCollaborationProject();
 
-		// TODO send over the line
+		List<File> files = config.getFiles().getFilesList();
+		List<FileSet> fileSets = new ArrayList<FileSet>();
+		IFile iFile;
+		String content;
+		try
+		{
+			for (File file : files)
+			{
+				if (!file.isStored())
+				{
+					iFile = FileHandler.copyFileToCollaborationDir(file, collaborationProject);
+					file.setAsStored();
+				} else
+				{
+					iFile = FileHandler.loadFileFromCollaborationDir(file, collaborationProject);
+				}
+
+				content = CollaborationPluginUtils.convertStreamToString(iFile.getContents());
+				fileSets.add(new FileSet(file, content));
+			}
+		} catch (IOException e)
+		{
+			e.printStackTrace();
+			Notification.logError(e.toString(), e);
+		}
+
+		config.setSignedBy(self.getName());
+
+		NewConfigurationMessage newConfigurationMessage = new NewConfigurationMessage(self, receiver, collaborationProject.getUniqueID(), config, fileSets);
+
+		// TODO
+		// create newConfigMessage
+		// send over the line
+		Activator.getDefault().getMessageProcessor().sendMessage(newConfigurationMessage.getReceiverID(), newConfigurationMessage.serialize());
+
 		config.setConfigurationShared();
+	}
+
+	public FileComparison getComparisonWithPrev(File targetFile)
+			throws CoreException, IOException
+	{
+		CollaborationProject collaborationProject = targetFile.getCollaborationProject();
+
+		Configuration thisConfiguration = (Configuration) targetFile.getParent();
+		Configuration previousConfiguration = thisConfiguration.getParentConfiguration();
+
+		if (previousConfiguration == null)
+		{
+			return null;
+		}
+
+		File previousFile = previousConfiguration.getFile(targetFile.getName());
+
+		if (previousFile == null)
+		{
+			return null;
+		}
+
+		IFile iTargetFile = getFile(targetFile, collaborationProject);
+		String targetContent = CollaborationPluginUtils.convertStreamToString(iTargetFile.getContents());
+
+		IFile iPrevFile = getFile(previousFile, collaborationProject);
+		String prevContent = CollaborationPluginUtils.convertStreamToString(iPrevFile.getContents());
+
+		return new FileComparison(targetFile, targetContent, previousFile, prevContent);
 	}
 }

@@ -5,7 +5,8 @@ import java.util.UUID;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 
-import eu.compassresearch.ide.collaboration.files.FileChangeManager.FileStatus;
+import eu.compassresearch.ide.collaboration.files.FileStatus;
+import eu.compassresearch.ide.collaboration.files.FileUpdate;
 
 
 public class CollaborationProject extends Model
@@ -126,19 +127,19 @@ public class CollaborationProject extends Model
 		configurations.addFile(file);
 	}
 	
-	public boolean updateFile(IFile file) 
+	public void updateFile(FileUpdate fileUpdate) 
 	{
-		return configurations.updateFile(file);
+		configurations.updateFile(fileUpdate);
 	}
 	
-	public FileStatus getFileStatus(IFile file)
+	public FileStatus getFileStatus(FileStatus fileStatus)
 	{
 		Configuration newestConfiguration = configurations.getNewestConfiguration();
 		
 		if(newestConfiguration == null){
-			return FileStatus.NEWFILE;
+			return fileStatus;
 		} else {
-			return newestConfiguration.getFileStatus(file);
+			return newestConfiguration.getFileStatus(fileStatus);
 		}
 	}
 
@@ -146,5 +147,10 @@ public class CollaborationProject extends Model
 	public CollaborationProject getCollaborationProject()
 	{
 		return this;
+	}
+
+	public Configuration getConfiguration(String configurationUniqueID)
+	{
+		return configurations.getConfigurationFromId(configurationUniqueID);
 	}
 }

@@ -6,6 +6,7 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.ecf.core.IContainerManager;
 import org.eclipse.ecf.core.identity.ID;
+import org.eclipse.ecf.core.user.IUser;
 import org.eclipse.ecf.core.util.ECFException;
 import org.eclipse.ecf.datashare.IChannelContainerAdapter;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -16,7 +17,7 @@ import eu.compassresearch.ide.collaboration.communication.MessageProcessor;
 import eu.compassresearch.ide.collaboration.communication.handlers.CollaborationRequestHandler;
 import eu.compassresearch.ide.collaboration.communication.handlers.CollaborationStatusMessageHandler;
 import eu.compassresearch.ide.collaboration.communication.handlers.FileStatusMessageHandler;
-import eu.compassresearch.ide.collaboration.communication.handlers.NewFileHandler;
+import eu.compassresearch.ide.collaboration.communication.handlers.NewConfigurationMessageHandler;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationDataModelManager;
 import eu.compassresearch.ide.collaboration.files.FileChangeManager;
 
@@ -36,6 +37,10 @@ public class Activator extends AbstractUIPlugin
 	private static final Hashtable<ID, MessageProcessor> collaborationProcessors = new Hashtable<ID, MessageProcessor>();
 	
 	private MessageProcessor messageProcessor;
+
+	//TODO remove when presence container is functional 
+	private IUser self;
+	private IUser receiver;
 	
 	public Activator() {
 		// nothing to do
@@ -81,9 +86,9 @@ public class Activator extends AbstractUIPlugin
 		if (messageProcessor == null){
 			messageProcessor = new MessageProcessor(channelAdapter);
 			collaborationProcessors.put(containerID, messageProcessor);
-			
+		
 			addMessageHandlers();
-			
+			 loadEcfPresenceActivator();
 			return messageProcessor;
 		}
 			
@@ -93,7 +98,7 @@ public class Activator extends AbstractUIPlugin
 	private void addMessageHandlers()
 	{
 		messageProcessor.addMessageHandler(new CollaborationRequestHandler(messageProcessor));	
-		messageProcessor.addMessageHandler(new NewFileHandler(messageProcessor));
+		messageProcessor.addMessageHandler(new NewConfigurationMessageHandler(messageProcessor));
 		messageProcessor.addMessageHandler(new FileStatusMessageHandler(messageProcessor));
 		messageProcessor.addMessageHandler(new CollaborationStatusMessageHandler(messageProcessor));
 	}
@@ -123,12 +128,49 @@ public class Activator extends AbstractUIPlugin
 	}
 
 	public MessageProcessor getMessageProcessor()
-	{
+	{ 
 		return messageProcessor;
+	}
+	
+	public boolean isConnectionInitialized(){
+		return messageProcessor != null;
 	}
 
 	public CollaborationDataModelManager getDataModelManager()
 	{
 		return dataModelManager;
+	}
+	
+	public void loadEcfPresenceActivator(){
+		
+//		Bundle bundle = Platform.getBundle("org.eclipse.ecf.presence.ui");
+//		String activator = (String)bundle.getHeaders().get(Constants.BUNDLE_ACTIVATOR);
+//		try
+//		{
+			//Class activatorClass = bundle.loadClass(activator);
+			//org.eclipse.ecf.internal.presence.ui.Activator activator2  = ( org.eclipse.ecf.internal.presence.ui.Activator) activatorClass.getMethod("getDefault").invoke(null);
+
+//		} catch (ClassNotFoundException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e)
+//		{
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} 		
+	}
+
+	//TODO remove when presence container is functional 
+	public void setConnections(IUser self, IUser receiver)
+	{
+		this.self = self;
+		this.receiver = receiver;
+	}
+
+	public IUser getSelf()
+	{
+		return self;
+	}
+
+	public IUser getReceiver()
+	{
+		return receiver;
 	}
 }

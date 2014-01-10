@@ -47,6 +47,7 @@ public class AddCollaboratorRosterMenuHandler extends AbstractRosterMenuHandler
 			//get users
 			IUser self = roster.getUser();	
 			IUser receiver = rosterEntry.getUser();
+			Activator.getDefault().setConnections(self,receiver);
 			
 			//get selected project
 			Model selected = CollaborationDialogs.getCollaborationView().getSelectedEntry();
@@ -76,7 +77,7 @@ public class AddCollaboratorRosterMenuHandler extends AbstractRosterMenuHandler
 				}
 			
 				//update user
-				group.addCollaborator(receiver.getName());				
+				group.addCollaborator(receiver.getName(), false);				
 			}
 		}
 		return null;

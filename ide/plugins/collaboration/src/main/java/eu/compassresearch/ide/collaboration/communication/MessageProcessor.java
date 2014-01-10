@@ -4,8 +4,6 @@ import java.io.InvalidObjectException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.ecf.core.identity.ID;
 import org.eclipse.ecf.core.user.IUser;
@@ -21,10 +19,6 @@ import eu.compassresearch.ide.collaboration.ui.menu.CollaborationDialogs;
 
 public class MessageProcessor extends AbstractShare
 {
-	private String project;
-	private int versionNrDummy = 1;
-	private IFolder projectFolder;
-
 	List<IMessageHandler> msgHandlers;
 	
 	public MessageProcessor(IChannelContainerAdapter adapter)
@@ -82,25 +76,5 @@ public class MessageProcessor extends AbstractShare
 	public synchronized void sendMessage(IUser toUser, byte[] data)
 	{
 		sendMessage(toUser.getID(), data);
-	}
-
-	public String getProject()
-	{
-		return project;
-	}
-
-	public void setProject(String project)
-	{
-		this.project = project;
-	}
-	
-	public IFolder getProjectFolder()
-	{
-		return projectFolder;
-	}
-
-	public IFile nextFilename(String filename)
-	{
-		return projectFolder.getFile(filename.substring(0, filename.indexOf('.')) + "." + ++versionNrDummy + ".cml");
 	}
 }

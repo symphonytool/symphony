@@ -115,14 +115,4 @@ public class CollaborationPluginUtils
 			scanner.close();
 		}
 	}
-
-	IFileStore getTempFileStore(String fromUsername, String fileName,
-			String content) throws IOException, CoreException
-	{
-		final IFileStore fileStore = EFS.getLocalFileSystem().fromLocalFile(File.createTempFile(fromUsername, fileName));
-		final OutputStream outs = fileStore.openOutputStream(EFS.OVERWRITE, null);
-		outs.write(content.getBytes());
-		outs.close();
-		return fileStore;
-	}
 }

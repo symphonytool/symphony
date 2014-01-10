@@ -18,11 +18,8 @@ import org.eclipse.compare.structuremergeviewer.DiffNode;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.ecf.core.util.ECFException;
 import org.eclipse.ecf.sync.SerializationException;
 import org.eclipse.jface.action.Action;
@@ -61,9 +58,10 @@ import eu.compassresearch.ide.collaboration.datamodel.Configuration;
 import eu.compassresearch.ide.collaboration.datamodel.Configurations;
 import eu.compassresearch.ide.collaboration.datamodel.File;
 import eu.compassresearch.ide.collaboration.datamodel.Model;
-import eu.compassresearch.ide.collaboration.files.FileHandler;
+import eu.compassresearch.ide.collaboration.files.FileComparison;
 import eu.compassresearch.ide.collaboration.notifications.Notification;
 import eu.compassresearch.ide.collaboration.ui.menu.AddCollaboratorRosterMenuContributionItem;
+import eu.compassresearch.ide.collaboration.ui.menu.CollaborationDialogs;
 
 /**
  * Insert the type's description here.
@@ -185,38 +183,59 @@ public class CollaborationView extends ViewPart {
 			Model selectedDomainObject = (Model) selection.getFirstElement();
 			
 			if ((selectedDomainObject instanceof Configurations)) {
-				Configurations contracts = (Configurations) selectedDomainObject;
-						
+				Configurations configurations = (Configurations) selectedDomainObject;
+				
 			} else if ((selectedDomainObject instanceof File)) {
-				File version = (File) selectedDomainObject;
-				Configuration contract = (Configuration) version.getParent();
+				File selectedFile = (File) selectedDomainObject;
 				
-				MessageProcessor collabMgM = Activator.getDefault().getMessageProcessor();
-				
-				// CompareUI.openCompareEditor(new CompareInput());
-				
-				CompareConfiguration configuration = new CompareConfiguration();
-				CompareUI.openCompareDialog(new CompareEditorInput(configuration) {
-				    @Override
-				    protected Object prepareInput(final IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-				        String text1 = "channels\na : nat * nat\nb : int * nat * int\n";
-				        String text2 = "channels\na : nat * int\nb : int * nat * int\n";
-
-				        CompareItem left = new CompareItem("1", text1);
-				        CompareItem right = new CompareItem("2", text2);
-				        DiffNode diffNode = new DiffNode(left, right);
-				        return diffNode;
-				    }
-				});
-				
+				CollaborationDataModelManager dataModelManager = Activator.getDefault().getDataModelManager();
+				try
+				{
+					FileComparison prevAndSelectedCompare = dataModelManager.getComparisonWithPrev(selectedFile);
+					if(prevAndSelectedCompare == null) {
+						CollaborationDialogs.getInstance().displayNotificationPopup(selectedFile.getName(), Notification.Collab_Dialog_ERROR_COMPARE_NO_PREVIOUS);
+						return;
+					}
+					
+					showCompareDialog(prevAndSelectedCompare);
+					
+				} catch (CoreException | IOException e)
+				{
+					e.printStackTrace();
+					Notification.logError(Notification.Collab_Dialog_ERROR_COMPARE_FAILED, e);
+				}
 				
 			} else {
-			
 				return;
 			}
 		}
 	}
 	
+	private void showCompareDialog(final FileComparison fileCompare)
+	{
+		final CompareConfiguration compareConfiguration = new CompareConfiguration();
+		compareConfiguration.setLeftLabel(fileCompare.getPreviousFileName());
+		compareConfiguration.setRightLabel(fileCompare.getTargetFileName());
+		CompareUI.openCompareDialog(new CompareEditorInput(compareConfiguration) {
+		    @Override
+		    protected Object prepareInput(final IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+
+		        CompareItem left = new CompareItem(fileCompare.getTargetFileName(), fileCompare.getTargetFileContent());
+		        CompareItem right = new CompareItem(fileCompare.getPreviousFileName(), fileCompare.getPreviousFileContent());
+		        DiffNode diffNode = new DiffNode(left, right);
+		       
+		        return diffNode;
+		    }
+		    
+		    @Override
+		    public String getCancelButtonLabel()
+		    {
+		    	// TODO Auto-generated method stub
+		    	return Notification.Collab_Dialog_BTN_OK;
+		    }
+		});
+	}
+
 	protected void signAndShare()
 	{
 		if (treeViewer.getSelection().isEmpty()) {
@@ -228,7 +247,6 @@ public class CollaborationView extends ViewPart {
 			if(selectedDomainObject instanceof Configuration)
 			{
 				Configuration config = (Configuration) selectedDomainObject;
-				
 				CollaborationDataModelManager collabMgM = Activator.getDefault().getDataModelManager();
 				
 				try
@@ -262,16 +280,26 @@ public class CollaborationView extends ViewPart {
 					
 					Configuration config = (Configuration) selectedDomainObject;
 					
-					if(!config.isSharedConfiguration()){
-						manager.add(signAndShareAction);
-					} else {
-						manager.add(approveContractAction);
-						manager.add(rejectContractAction);
-						manager.add(negotiateContractAction);
+					if(Activator.getDefault().isConnectionInitialized()){
+					
+						if(config.isLocal()){
+							manager.add(signAndShareAction);
+						} 
+						
+						if (config.isReceived()) {
+							manager.add(approveContractAction);
+							manager.add(rejectContractAction);
+							manager.add(negotiateContractAction);
+						}
 					}
 
 				} else if ((selectedDomainObject instanceof File)) {
-		        	manager.add(diffWithPrevAction);
+					
+					File file = (File) selectedDomainObject;
+					
+					if(!file.isNewFile()){
+						manager.add(diffWithPrevAction);
+					}
 		        }	
 		        else if(selectedDomainObject instanceof CollaborationGroup) {
 		        	manager.add(new AddCollaboratorRosterMenuContributionItem());

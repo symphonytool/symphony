@@ -28,6 +28,8 @@ public class CollaborationRequestHandler extends BaseMessageHandler<Collaboratio
 	@Override
 	public void process(final CollaborationRequest msg)
 	{
+		Activator.getDefault().setConnections(msg.getReceiverID(), msg.getSenderID());
+		
 		final String senderName = msg.getSenderID().getName();
 		final String collabProjectId = msg.getProjectID();
 		
@@ -48,7 +50,7 @@ public class CollaborationRequestHandler extends BaseMessageHandler<Collaboratio
 						root.addCollaborationProject(collabRequestedDialog.getProject(), msg.getTitle(), msg.getMessage(), collabProjectId);
 						
 						CollaborationGroup collabGrp = (CollaborationGroup) root.getCollaborationProjects().get(0).getCollaboratorGroup();
-						collabGrp.addCollaborator(senderName);	
+						collabGrp.addCollaborator(senderName, true);	
 					}
 					
 					//send reply

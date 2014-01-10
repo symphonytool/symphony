@@ -8,15 +8,11 @@ import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Formatter;
+import java.util.List;
 
-import javax.xml.parsers.DocumentBuilder;
-
-import org.eclipse.core.filesystem.EFS;
-import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -24,11 +20,8 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourceAttributes;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
-import org.w3c.dom.Document;
 
 import eu.compassresearch.ide.collaboration.Activator;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationProject;
@@ -43,7 +36,8 @@ public class FileHandler
 	private static final String defaultCollaborationFolderName = ".Collaboration";
 
 	public static IFile loadFileFromCollaborationDir(File file,
-			CollaborationProject collaborationProject) throws CoreException, IOException
+			CollaborationProject collaborationProject) throws CoreException,
+			IOException
 	{
 		String workspaceProjectName = collaborationProject.getProjectWorkspaceName();
 		IFolder collabProjectFolder = getCollaborationDirectory(workspaceProjectName);
@@ -51,55 +45,93 @@ public class FileHandler
 		if (collabProjectFolder != null)
 		{
 			IFile loadedFile = collabProjectFolder.getFile(file.getHashFileName());
-			
+
 			return loadedFile;
 		}
 
 		return null;
 	}
-	
+
 	public static IFile loadFileFromProject(File file,
-	CollaborationProject collaborationProject) throws CoreException{
-		
+			CollaborationProject collaborationProject) throws CoreException
+	{
+
 		String workspaceProjectName = collaborationProject.getProjectWorkspaceName();
-		IProject project =getIProjectFromWorkspaceProjectName(workspaceProjectName);
-		
+		IProject project = getIProjectFromWorkspaceProjectName(workspaceProjectName);
+
 		if (project != null)
 		{
 			IFile loadedFile = project.getFile(file.getFilePath());
 
 			return loadedFile;
 		}
-		
+
 		return null;
 	}
-	
-	
-	public static void copyFileToCollaborationDir(File file, CollaborationProject collaborationProject) throws CoreException
+
+	public static IFile copyFileToCollaborationDir(File file,
+			CollaborationProject collaborationProject) throws CoreException
 	{
-		//find project
+		// find project
 		String workspaceProjectName = collaborationProject.getProjectWorkspaceName();
-		IProject project = getIProjectFromWorkspaceProjectName(workspaceProjectName);	
-		if(project == null) return;
-	
-		//copy file
+		IProject project = getIProjectFromWorkspaceProjectName(workspaceProjectName);
+		if (project == null)
+			return null;
+
+		// copy file
 		IFolder collabProjectFolder = getCollaborationDirectory(project);
 		IFile newFile = collabProjectFolder.getFile(file.getHashFileName());
 		if (!newFile.exists())
 		{
-			//find file to copy to collaboration dir
+			// find file to copy to collaboration dir
 			IFile fileToCopy = project.getFile(file.getFilePath());
-			
-			if(fileToCopy.exists()) {
+
+			if (fileToCopy.exists())
+			{
 				newFile.create(fileToCopy.getContents(), IResource.FORCE, null);
 				ResourceAttributes resourceAttributes = new ResourceAttributes();
 				resourceAttributes.setReadOnly(true);
 				resourceAttributes.setHidden(true);
 				newFile.setResourceAttributes(resourceAttributes);
-			} else {
-				throw new CoreException(new Status(IStatus.ERROR, Activator.PLUGIN_ID, Notification.Collab_file_ERROR_FILE_DOES_NOT_EXIST + " " + file.getFilePath()));
+			} else
+			{
+				throw new CoreException(new Status(IStatus.ERROR, Activator.PLUGIN_ID, Notification.Collab_file_ERROR_FILE_DOES_NOT_EXIST
+						+ " " + file.getFilePath()));
 			}
 		}
+
+		return newFile;
+	}
+
+	public static boolean saveFilesToCollaborationDir(List<FileSet> list,
+			CollaborationProject collaborationProject) throws CoreException
+	{
+
+		// find project
+		String workspaceProjectName = collaborationProject.getProjectWorkspaceName();
+		IProject project = getIProjectFromWorkspaceProjectName(workspaceProjectName);
+		if (project == null)
+			return false;
+
+		// save files
+		IFolder collabProjectFolder = getCollaborationDirectory(project);
+		for (FileSet fs : list)
+		{
+			IFile newFile = collabProjectFolder.getFile(fs.getFileHashName());
+
+			if (!newFile.exists())
+			{
+				byte[] bytes = fs.getFileContent().getBytes();
+				InputStream source = new ByteArrayInputStream(bytes);
+				newFile.create(source, IResource.FORCE, null);
+				ResourceAttributes resourceAttributes = new ResourceAttributes();
+				resourceAttributes.setReadOnly(true);
+				resourceAttributes.setHidden(true);
+				newFile.setResourceAttributes(resourceAttributes);
+			}
+		}
+
+		return true;
 	}
 
 	private static IFolder getCollaborationDirectory(String workspaceProjectName)
@@ -123,7 +155,7 @@ public class FileHandler
 
 		return projectFolder;
 	}
-	
+
 	private static IProject getIProjectFromWorkspaceProjectName(
 			String workspaceProjectName) throws CoreException
 	{
@@ -131,17 +163,17 @@ public class FileHandler
 
 		if (project == null || !project.exists())
 		{
-			ResourcesPlugin.getPlugin().getLog().log(new Status(Status.ERROR, Activator.PLUGIN_ID, 0, Notification.Collab_File_ERROR_NO_SUCH_PROJECT
+			ResourcesPlugin.getPlugin().getLog().log(new Status(IStatus.ERROR, Activator.PLUGIN_ID, 0, Notification.Collab_File_ERROR_NO_SUCH_PROJECT
 					+ " " + workspaceProjectName, null));
 			return null;
 		}
 
 		if (!project.isOpen())
 			project.open(null);
-		
+
 		return project;
 	}
-	
+
 	public void saveCollaborationProject(
 			CollaborationProject collaborationProject) throws CoreException,
 			IOException
@@ -207,7 +239,7 @@ public class FileHandler
 
 		return null;
 	}
-	
+
 	public static String calculateSha(IFile file)
 	{
 		String sha = null;

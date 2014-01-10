@@ -2,16 +2,17 @@ package eu.compassresearch.ide.collaboration.datamodel;
 
 import java.util.Date;
 
+import eu.compassresearch.ide.collaboration.files.FileUpdate;
+
 public class File extends Model
 {	
-	
 	private enum FileState {NEWFILE,UPDATED,NORMAL,INITIAL};
 	
 	private static final long serialVersionUID = -6007439345479622225L;
 
 	protected Shares shares;
 	protected final long timestamp_ux_epoch;
-	private final String hash;
+	private String hash;
 	private final String filePath;
 	private FileState fileState;
 	private boolean hasBeenStored;
@@ -24,8 +25,8 @@ public class File extends Model
 		this.filePath = filePath;
 		Date d = new Date();
 		this.timestamp_ux_epoch = d.getTime();
-		fileState = FileState.INITIAL;
-		hasBeenStored = false;
+		this.fileState = FileState.INITIAL;
+		this.hasBeenStored = false;
 	}
 
 	private File(String name, String hash, String filePath, Shares shares, Date timestamp, Model parent)
@@ -36,8 +37,21 @@ public class File extends Model
 		this.hash = hash;
 		this.filePath = filePath;
 		this.timestamp_ux_epoch = timestamp.getTime();
-		fileState = FileState.NORMAL;
-		this.hasBeenStored = true; 
+		this.fileState = FileState.NORMAL;
+		this.hasBeenStored = false; 
+	}
+
+	public File(String fileName, String fileHash, long timestamp,
+			Configuration parent)
+	{
+		super(fileName,parent);
+		
+		this.shares = new Shares(this);
+		this.hash = fileHash;
+		this.timestamp_ux_epoch = timestamp;
+		this.fileState = FileState.NORMAL;
+		this.hasBeenStored = true;
+		this.filePath = ""; //no file in workspace, only in collaboration dir
 	}
 
 	public void addShare(Share share)
@@ -61,12 +75,6 @@ public class File extends Model
 	public String getHash()
 	{
 		return hash;
-	}
-
-	public File clone()
-	{
-		File f = new File(name, this.hash, this.filePath, shares.clone(),getTimeStamp(), getParent());
-		return f;
 	}
 
 	public String getFilePath()
@@ -131,9 +139,11 @@ public class File extends Model
 		}
 	}
 	
-	public void setAsUpdated()
+	public void setUpdate(FileUpdate fileUpdate)
 	{
 		fileState = FileState.UPDATED;
+		hash = fileUpdate.getHash();
+		
 		fireObjectUpdatedEvent(this);
 	}
 
@@ -146,5 +156,10 @@ public class File extends Model
 	{
 		this.hasBeenStored = true;
 	}
-	
+
+	public File copy(Model newParent)
+	{
+		File f = new File(name, this.hash, this.filePath, shares.clone(),getTimeStamp(), newParent);
+		return f;
+	}
 }

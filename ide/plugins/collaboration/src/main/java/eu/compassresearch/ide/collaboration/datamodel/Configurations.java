@@ -7,12 +7,11 @@ import java.util.List;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 
-import eu.compassresearch.ide.collaboration.files.FileChangeManager.FileStatus;
 import eu.compassresearch.ide.collaboration.files.FileHandler;
+import eu.compassresearch.ide.collaboration.files.FileUpdate;
 
 public class Configurations extends Model
 {
-
 	private static final long serialVersionUID = -7710832265326698319L;
 
 	protected LinkedList<Configuration> configurations;
@@ -23,9 +22,8 @@ public class Configurations extends Model
 		configurations = new LinkedList<Configuration>();
 	}
 
-	private void addConfiguration(Configuration configuration)
+	public void addConfiguration(Configuration configuration)
 	{
-
 		assert (!configurations.contains(configuration));
 
 		configurations.add(0, configuration);
@@ -111,6 +109,7 @@ public class Configurations extends Model
 
 	public void addFile(IFile file) throws CoreException
 	{
+		//TODO change away from IFile and move hash calc
 		if (configurations.isEmpty())
 		{
 			addNewConfiguration();
@@ -119,24 +118,21 @@ public class Configurations extends Model
 		Configuration newestConfiguration = getNewestConfiguration();
 		
 		String calculatedSha = FileHandler.calculateSha(file);
-		File newFile = new File(file.getName(), calculatedSha, file.getProjectRelativePath().toString(), newestConfiguration.getFiles());
+		File newFile = new File(file.getName(), calculatedSha, file.getProjectRelativePath().toString(), newestConfiguration);
 		newFile.setAsNewFile();
 		
 		newestConfiguration.addFile(newFile);
 	}
 
-	public boolean updateFile(IFile file)
+	public void updateFile(FileUpdate fileUpdate)
 	{
 		Configuration newestConfiguration = getNewestConfiguration();
-		
-		File fileToUpdate = newestConfiguration.getFile(file.getName());
+		File fileToUpdate = newestConfiguration.getFile(fileUpdate.getFileName());
 		
 		//if new file, don't set as updated
 		if(!fileToUpdate.isNewFile()){
-			fileToUpdate.setAsUpdated();
+			fileToUpdate.setUpdate(fileUpdate);
 		}
-
-		return false;
 	}
 
 	public Configuration getConfiguration(int index)
@@ -161,26 +157,15 @@ public class Configurations extends Model
 		return null;
 	}
 
-	public FileStatus getFileStatus()
+	public Configuration getConfigurationFromId(String configurationUniqueID)
 	{
-
-		// if(configurations.isEmpty()) return false;
-
-		// Configuration newestConfig = configurations.getFirst();
-
-		// is filename known.
-
-		// if not ->
-		// return FileStatus.NEWFILE;
-
-		// is it the same file
-
-		// if not sha match, is known file, but changed
-		//
-		// return FileStatus.CHANGED
-
-		// unchanged
-		return FileStatus.UNCHANGED;
+		for (Configuration config : configurations)
+		{
+			if(config.getUniqueID() == configurationUniqueID)
+				return config;
+		}
+		
+		return null;
 	}
 
 }

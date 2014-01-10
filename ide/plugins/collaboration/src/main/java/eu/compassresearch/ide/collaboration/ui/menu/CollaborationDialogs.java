@@ -5,6 +5,7 @@ import java.util.List;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.ecf.presence.ui.MultiRosterView;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
@@ -39,7 +40,11 @@ public class CollaborationDialogs
 	
 	public void displayNotificationPopup(String username, String message) {
 		
-		final CollaborationNotificationPopUp popup = new CollaborationNotificationPopUp(getWorkbench(), getCollaborationView());
+		CollaborationView collaborationView = getCollaborationView();
+		
+		if(collaborationView == null) return;
+		
+		final CollaborationNotificationPopUp popup = new CollaborationNotificationPopUp(getWorkbench(), collaborationView);
 	
 		popup.setContent(username, message);
 		popup.open();
@@ -74,7 +79,13 @@ public class CollaborationDialogs
 	}
 	
 	public static CollaborationView getCollaborationView(){
+		
+		IWorkbenchWindow workbench = getWorkbench();
+		if(workbench == null) return null;
+		
 		IWorkbenchPage page = getWorkbench().getActivePage();
+		if(page == null) return null;
+		
 		IViewPart view = page.findView("eu.compassresearch.ide.collaboration.ui.view.CollaborationView");
 		CollaborationView collabview = (CollaborationView) view;
 		

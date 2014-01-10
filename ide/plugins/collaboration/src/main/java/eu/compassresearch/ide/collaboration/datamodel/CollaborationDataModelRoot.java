@@ -60,6 +60,11 @@ public class CollaborationDataModelRoot extends Model
 		return null;
 	}
 	
+	public CollaborationProject getCollaborationProjectFromID(String id)
+	{
+		return collaborationProjects.get(id);
+	}
+	
 	public boolean addCollaborationProject(CollaborationProject collabProject){
 		String id = collabProject.getUniqueID();
 
