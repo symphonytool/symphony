@@ -7,7 +7,7 @@ import java.util.Random;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
-import eu.compassresearch.ide.faulttolerance.Messages;
+import eu.compassresearch.ide.faulttolerance.Message;
 
 /**
  * @author Andr&eacute; Didier (<a href=
@@ -17,8 +17,8 @@ import eu.compassresearch.ide.faulttolerance.Messages;
  */
 public class DivergenceFreeVerificationJob extends ModelCheckingJob {
 
-	public DivergenceFreeVerificationJob() {
-		super(Messages.DIVERGENCE_FREE_JOB, 1);
+	public DivergenceFreeVerificationJob(String processName) {
+		super(Message.DIVERGENCE_FREE_JOB, processName, 1);
 	}
 
 	@Override
@@ -27,7 +27,7 @@ public class DivergenceFreeVerificationJob extends ModelCheckingJob {
 		try {
 			Thread.sleep(5000);
 			Random r = new Random(System.currentTimeMillis());
-			result.setSuccess(r.nextInt(100) > 50);
+			result.setSuccess(r.nextInt(100) > 20);
 		} finally {
 			monitor.worked(1);
 		}

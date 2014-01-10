@@ -20,15 +20,18 @@ public class FaultToleranceVerificationResults {
 	private boolean fullFaultTolerant;
 	private boolean limitedFaultTolerant;
 	private boolean prerequisitesChecked;
+	private int verifications;
 	private String limitExpression;
 	private String processName;
 	private IResource resource;
 	private ILexLocation location;
 
 	private final ILock prerequisitesLock;
+	private final ILock verificationsLock;
 
 	public FaultToleranceVerificationResults() {
 		prerequisitesLock = Job.getJobManager().newLock();
+		verificationsLock = Job.getJobManager().newLock();
 	}
 
 	public void acquire() {
@@ -117,6 +120,19 @@ public class FaultToleranceVerificationResults {
 
 	public void setLocation(ILexLocation location) {
 		this.location = location;
+	}
+
+	public void incrementVerification() {
+		try {
+			verificationsLock.acquire();
+			verifications++;
+		} finally {
+			verificationsLock.release();
+		}
+	}
+
+	public boolean isAllVerificationsChecked(int maxVerifications) {
+		return verifications == maxVerifications;
 	}
 
 }

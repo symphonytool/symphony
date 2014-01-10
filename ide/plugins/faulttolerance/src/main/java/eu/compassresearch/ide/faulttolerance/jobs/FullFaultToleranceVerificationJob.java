@@ -9,7 +9,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 
-import eu.compassresearch.ide.faulttolerance.Messages;
+import eu.compassresearch.ide.faulttolerance.Message;
 
 /**
  * @author Andr&eacute; Didier (<a href=
@@ -17,13 +17,14 @@ import eu.compassresearch.ide.faulttolerance.Messages;
  *         >alrd@cin.ufpe.br</a>)
  * 
  */
-public class FullFaultToleranceVerificationJob extends FaultToleranceVerificationJob {
+public class FullFaultToleranceVerificationJob extends
+		FaultToleranceVerificationJob {
 	private final ListenerFirer fullFaultToleranceStartFirer;
 	private final ListenerFirer fullFaultToleranceFinishFirer;
 
 	public FullFaultToleranceVerificationJob(
 			final FaultToleranceVerificationResults results) {
-		super(results, Messages.FULL_FAULT_TOLERANCE_JOB, 1);
+		super(results, Message.FULL_FAULT_TOLERANCE_JOB, 1);
 		this.fullFaultToleranceStartFirer = new ListenerFirer() {
 			@Override
 			protected void doFire(IFaultToleranceVerificationListener l,
@@ -58,14 +59,15 @@ public class FullFaultToleranceVerificationJob extends FaultToleranceVerificatio
 
 	@Override
 	protected void performFaultToleranceCall(ModelCheckingResult mcResults,
-			FaultToleranceVerificationResults ftResults, IProgressMonitor monitor)
-			throws InterruptedException {
+			FaultToleranceVerificationResults ftResults,
+			IProgressMonitor monitor) throws InterruptedException {
 		try {
-			Thread.sleep(2000);
+			Thread.sleep(10000);
 			Random r = new Random(System.currentTimeMillis());
-			mcResults.setSuccess(r.nextInt(100) > 50);
+			mcResults.setSuccess(r.nextInt(100) > 85);
 		} finally {
 			monitor.worked(1);
+			ftResults.incrementVerification();
 		}
 	}
 

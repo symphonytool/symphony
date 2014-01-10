@@ -9,7 +9,6 @@
   </parent>
   <packaging>eclipse-plugin</packaging>
   <artifactId>eu.compassresearch.ide.faulttolerance</artifactId>
-  <version>0.2.7-SNAPSHOT</version>
   <name>Symphony IDE RMV Plugin</name>
   
   <build>

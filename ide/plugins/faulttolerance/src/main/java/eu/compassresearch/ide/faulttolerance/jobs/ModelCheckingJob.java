@@ -8,7 +8,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 
-import eu.compassresearch.ide.faulttolerance.Messages;
+import eu.compassresearch.ide.faulttolerance.Message;
 
 /**
  * @author Andr&eacute; Didier (<a href=
@@ -21,8 +21,9 @@ public abstract class ModelCheckingJob extends Job {
 	private final int totalUnitsOfWork;
 	private final ModelCheckingResult modelCheckingResult;
 
-	public ModelCheckingJob(Messages jobNameMessage, int totalUnitsOfWork) {
-		super(jobNameMessage.getName());
+	public ModelCheckingJob(Message jobNameMessage, String processName,
+			int totalUnitsOfWork) {
+		super(jobNameMessage.format(processName));
 		this.totalUnitsOfWork = totalUnitsOfWork;
 		this.modelCheckingResult = new ModelCheckingResult();
 	}
@@ -30,11 +31,11 @@ public abstract class ModelCheckingJob extends Job {
 	@Override
 	protected final IStatus run(IProgressMonitor monitor) {
 		try {
-			monitor.beginTask(Messages.STARTING_MODEL_CHECKING.getText(),
+			monitor.beginTask(
+					Message.STARTING_MODEL_CHECKING.format(getName()),
 					totalUnitsOfWork);
 			performModelCheckingCall(modelCheckingResult, monitor);
 			return Status.OK_STATUS;
-
 		} catch (InterruptedException e) {
 			return Status.CANCEL_STATUS;
 		}
@@ -46,6 +47,10 @@ public abstract class ModelCheckingJob extends Job {
 
 	public ModelCheckingResult getModelCheckingResult() {
 		return modelCheckingResult;
+	}
+
+	public int getTotalUnitsOfWork() {
+		return totalUnitsOfWork;
 	}
 
 }

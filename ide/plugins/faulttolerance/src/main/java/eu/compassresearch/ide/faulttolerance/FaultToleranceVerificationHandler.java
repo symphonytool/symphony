@@ -7,27 +7,21 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.IHandler;
 import org.eclipse.core.commands.IHandlerListener;
-import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.overture.ast.definitions.PDefinition;
-import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.node.INode;
 
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ide.core.resources.ICmlProject;
 import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
-import eu.compassresearch.ide.faulttolerance.jobs.FaultToleranceVerificationEvent;
+import eu.compassresearch.ide.faulttolerance.jobs.FaultToleranceHelper;
 import eu.compassresearch.ide.faulttolerance.jobs.FaultToleranceVerificationResults;
-import eu.compassresearch.ide.faulttolerance.jobs.FullFaultToleranceVerificationJob;
-import eu.compassresearch.ide.faulttolerance.jobs.IFaultToleranceVerificationListener;
-import eu.compassresearch.ide.faulttolerance.jobs.LimitedFaultToleranceVerificationJob;
+import eu.compassresearch.ide.faulttolerance.marker.MarkerManager;
 import eu.compassresearch.ide.ui.editor.core.CmlEditor;
 
 /**
@@ -36,8 +30,13 @@ import eu.compassresearch.ide.ui.editor.core.CmlEditor;
  *         >alrd@cin.ufpe.br</a>)
  * 
  */
-public class FaultToleranceVerificationHandler implements IHandler,
-		IFaultToleranceVerificationListener {
+public class FaultToleranceVerificationHandler implements IHandler {
+
+	private MarkerManager markerManager;
+
+	public FaultToleranceVerificationHandler() {
+		markerManager = new MarkerManager();
+	}
 
 	@Override
 	public void addHandlerListener(IHandlerListener listener) {
@@ -45,6 +44,7 @@ public class FaultToleranceVerificationHandler implements IHandler,
 
 	@Override
 	public void dispose() {
+		markerManager = null;
 	}
 
 	private static IProject getCurrentlySelectedProject(ExecutionEvent event)
@@ -55,7 +55,7 @@ public class FaultToleranceVerificationHandler implements IHandler,
 
 		if (fileEditorInput == null || fileEditorInput.getFile() == null) {
 			throw new UnableToRunFaultToleranceVerificationException(
-					Messages.NO_PROJECT_SELECTED);
+					Message.NO_PROJECT_SELECTED);
 		}
 
 		return fileEditorInput.getFile().getProject();
@@ -110,23 +110,13 @@ public class FaultToleranceVerificationHandler implements IHandler,
 	private void verifyProcess(ICmlSourceUnit su, AProcessDefinition apd) {
 		FaultToleranceVerificationResults results = new FaultToleranceVerificationResults();
 		// TODO: limit expression
-		results.setLimitExpression("TODO: limit expression");
+		results.setLimitExpression(Message.LIMIT_EXPRESSION.format());
 		results.setLocation(apd.getLocation());
 		results.setResource(su.getFile());
-
 		results.setProcessName(apd.getName().getFullName());
-		final FullFaultToleranceVerificationJob fftj = new FullFaultToleranceVerificationJob(
-				results);
-		final LimitedFaultToleranceVerificationJob lftj = new LimitedFaultToleranceVerificationJob(
-				results);
-
-		fftj.add(this);
-		lftj.add(this);
-
-		clearMarkers(results.getProcessName(), results.getResource());
-
-		fftj.schedule();
-		lftj.schedule();
+		markerManager.clearMarkers(results.getProcessName(),
+				results.getResource());
+		FaultToleranceHelper.schedule(results, markerManager);
 	}
 
 	@Override
@@ -142,120 +132,4 @@ public class FaultToleranceVerificationHandler implements IHandler,
 	@Override
 	public void removeHandlerListener(IHandlerListener listener) {
 	}
-
-	@Override
-	public void divergenceFreeVerificationStarted() {
-	}
-
-	@Override
-	public void divergenceFreeVerificationFinished(
-			FaultToleranceVerificationEvent event) {
-	}
-
-	@Override
-	public void semifairnessVerificationStarted() {
-	}
-
-	@Override
-	public void semifairnessVerificationFinished(
-			FaultToleranceVerificationEvent event) {
-	}
-
-	@Override
-	public void fullFaultToleranceVerificationStarted() {
-	}
-
-	private void renewMarker(int severity, String message, String processName,
-			String limitProcess, IResource selectedResource,
-			ILexLocation location) {
-		try {
-			if (selectedResource != null) {
-
-				IMarker marker = selectedResource
-						.createMarker(Activator.MARKERS_ID);
-				marker.setAttribute(IMarker.LOCATION, Messages.MARKER_LOCATION
-						.getText(location.getStartLine(),
-								location.getStartPos()));
-				marker.setAttribute(IMarker.SEVERITY, severity);
-				marker.setAttribute(IMarker.MESSAGE, message);
-				marker.setAttribute(IMarker.LINE_NUMBER,
-						location.getStartLine());
-				marker.setAttribute(IMarker.CHAR_START,
-						location.getStartOffset());
-				marker.setAttribute(IMarker.CHAR_END,
-						location.getEndOffset() + 1);
-				if (processName != null) {
-					marker.setAttribute("processName", processName);
-				}
-				if (limitProcess != null) {
-					marker.setAttribute("limitProcess", limitProcess);
-				}
-			}
-		} catch (CoreException e) {
-			//
-		}
-	}
-
-	private void clearMarkers(String processName, IResource selectedResource) {
-		try {
-			IMarker[] markers = selectedResource.findMarkers(
-					Activator.MARKERS_ID, true, IResource.DEPTH_INFINITE);
-			for (IMarker marker : markers) {
-				if (processName.equals(marker.getAttribute("processName"))) {
-					marker.delete();
-				}
-			}
-		} catch (CoreException e) {
-			//
-		}
-	}
-
-	@Override
-	public void fullFaultToleranceVerificationFinished(
-			FaultToleranceVerificationEvent event) {
-
-		int severity;
-		String message;
-
-		if (event.isSuccess()) {
-			severity = IMarker.SEVERITY_WARNING;
-			message = Messages.FULL_FAULT_TOLERANCE_SUCCESS.getText();
-		} else {
-			severity = IMarker.SEVERITY_INFO;
-			message = Messages.FULL_FAULT_TOLERANCE_ERROR.getText(event
-					.getResults().getProcessName());
-		}
-		renewMarker(severity, message, event.getResults().getProcessName(),
-				null, event.getResults().getResource(), event.getResults()
-						.getLocation());
-	}
-
-	@Override
-	public void limitedFaultToleranceVerificationStarted() {
-	}
-
-	@Override
-	public void limitedFaultToleranceVerificationFinished(
-			FaultToleranceVerificationEvent event) {
-		int severity;
-		String message;
-
-		if (event.isSuccess()) {
-			severity = IMarker.SEVERITY_INFO;
-			message = Messages.LIMITED_FAULT_TOLERANCE_SUCCESS.getText(event
-					.getResults().getProcessName(), event.getResults()
-					.getLimitExpression());
-		} else {
-			severity = IMarker.SEVERITY_ERROR;
-			message = Messages.LIMITED_FAULT_TOLERANCE_ERROR.getText(event
-					.getResults().getProcessName(), event.getResults()
-					.getLimitExpression());
-		}
-
-		renewMarker(severity, message, event.getResults().getProcessName(),
-				event.getResults().getLimitExpression(), event.getResults()
-						.getResource(), event.getResults().getLocation());
-
-	}
-
 }

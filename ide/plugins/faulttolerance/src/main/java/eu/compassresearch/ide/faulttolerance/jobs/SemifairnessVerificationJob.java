@@ -7,7 +7,7 @@ import java.util.Random;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
-import eu.compassresearch.ide.faulttolerance.Messages;
+import eu.compassresearch.ide.faulttolerance.Message;
 
 /**
  * @author Andr&eacute; Didier (<a href=
@@ -16,8 +16,8 @@ import eu.compassresearch.ide.faulttolerance.Messages;
  * 
  */
 public class SemifairnessVerificationJob extends ModelCheckingJob {
-	public SemifairnessVerificationJob() {
-		super(Messages.SEMIFAIRNESS_JOB, 1);
+	public SemifairnessVerificationJob(String processName) {
+		super(Message.SEMIFAIRNESS_JOB, processName, 1);
 	}
 
 	@Override
@@ -26,7 +26,7 @@ public class SemifairnessVerificationJob extends ModelCheckingJob {
 		try {
 			Thread.sleep(4000);
 			Random r = new Random(System.currentTimeMillis());
-			result.setSuccess(r.nextInt(100) > 50);
+			result.setSuccess(r.nextInt(100) > 20);
 		} finally {
 			monitor.worked(1);
 		}

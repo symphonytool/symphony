@@ -71,4 +71,10 @@
      <super type="org.eclipse.core.resources.problemmarker"/>
      <persistent value="true"/>
   </extension>
+  
+  <extension point="org.eclipse.ui.ide.markerResolution">
+      <markerResolutionGenerator
+         markerType="eu.compassresearch.ide.faulttolerance.verification.problem"
+         class="eu.compassresearch.ide.faulttolerance.marker.FaultToleranceFixer"/>
+   </extension>
 </plugin>

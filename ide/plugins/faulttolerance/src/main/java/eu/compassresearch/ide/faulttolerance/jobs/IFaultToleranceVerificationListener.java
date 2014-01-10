@@ -30,4 +30,6 @@ public interface IFaultToleranceVerificationListener {
 	void limitedFaultToleranceVerificationFinished(
 			FaultToleranceVerificationEvent event);
 
+	void faultToleranceVerificationsFinished(
+			FaultToleranceVerificationEvent event);
 }
