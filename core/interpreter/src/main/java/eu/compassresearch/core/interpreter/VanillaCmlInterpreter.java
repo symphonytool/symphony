@@ -220,26 +220,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			CmlRuntime.logger().fine("Waiting for environment on : "
 					+ availableEvents.getAllEvents());
 
-			for (CmlTransition event : availableEvents.getAllEvents())
-			{
-				// TODO this should be handled differently
-				Context context = event.getEventSources().iterator().next().getNextState().second;
-
-				String state;
-
-				if (context.getSelf() != null)
-				{
-					state = context.getSelf().toString();
-				} else if (context.outer != null)
-				{
-					state = context.getRoot().toString();
-				} else
-				{
-					state = context.toString();
-				}
-
-				CmlRuntime.logger().finer("State for " + event + " : " + state);
-			}
+			logState(availableEvents);
 
 			SelectionStrategy env = getEnvironment();
 			// set the state of the interpreter to be waiting for the environment
@@ -249,7 +230,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			// this is potentially a blocking call!!
 			selectedEvent = env.resolveChoice();
 
-			// if its null we terminate and assume that this happended because of a user interrupt
+			// if its null we terminate and assume that this happened because of a user interrupt
 			if (selectedEvent == null)
 			{
 				break;
@@ -264,25 +245,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			behaviour.execute(selectedEvent);
 			CmlTrace trace = behaviour.getTraceModel();
 
-			if (trace.getLastTransition() instanceof ObservableTransition)
-			{
-				CmlRuntime.logger().fine("----------------observable step by '"
-						+ behaviour + "'----------------------");
-				CmlRuntime.logger().fine("Observable trace of '" + behaviour
-						+ "': " + trace.getObservableTrace());
-				CmlRuntime.logger().fine("Eval. Status={ "
-						+ behaviour.nextStepToString() + " }");
-				CmlRuntime.logger().fine("-----------------------------------------------------------------");
-			} else
-			{
-				CmlRuntime.logger().finer("----------------Silent step by '"
-						+ behaviour + "'--------------------");
-				CmlRuntime.logger().finer("Trace of '" + behaviour + "': "
-						+ trace);
-				CmlRuntime.logger().finer("Eval. Status={ "
-						+ behaviour.nextStepToString() + " }");
-				CmlRuntime.logger().finer("-----------------------------------------------------------------");
-			}
+			logTransition(behaviour, trace);
 
 		}
 
@@ -305,6 +268,53 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			setNewState(CmlInterpreterState.FINISHED);
 		}
 
+	}
+
+	public void logState(CmlTransitionSet availableEvents)
+	{
+		for (CmlTransition event : availableEvents.getAllEvents())
+		{
+			// TODO this should be handled differently
+			Context context = event.getEventSources().iterator().next().getNextState().second;
+
+			String state;
+
+			if (context.getSelf() != null)
+			{
+				state = context.getSelf().toString();
+			} else if (context.outer != null)
+			{
+				state = context.getRoot().toString();
+			} else
+			{
+				state = context.toString();
+			}
+
+			CmlRuntime.logger().finer("State for " + event + " : " + state);
+		}
+	}
+
+	public void logTransition(CmlBehaviour behaviour, CmlTrace trace)
+	{
+		if (trace.getLastTransition() instanceof ObservableTransition)
+		{
+			CmlRuntime.logger().fine("----------------observable step by '"
+					+ behaviour + "'----------------------");
+			CmlRuntime.logger().fine("Observable trace of '" + behaviour
+					+ "': " + trace.getObservableTrace());
+			CmlRuntime.logger().fine("Eval. Status={ "
+					+ behaviour.nextStepToString() + " }");
+			CmlRuntime.logger().fine("-----------------------------------------------------------------");
+		} else
+		{
+			CmlRuntime.logger().finer("----------------Silent step by '"
+					+ behaviour + "'--------------------");
+			CmlRuntime.logger().finer("Trace of '" + behaviour + "': "
+					+ trace);
+			CmlRuntime.logger().finer("Eval. Status={ "
+					+ behaviour.nextStepToString() + " }");
+			CmlRuntime.logger().finer("-----------------------------------------------------------------");
+		}
 	}
 
 	@Override
