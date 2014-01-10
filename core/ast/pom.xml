@@ -95,8 +95,8 @@
 	      <pluginExecutions>
 		<pluginExecution>
 		  <pluginExecutionFilter>
-		    <groupId>org.overture.maven.tools</groupId>
-		    <artifactId>ast-creator-plugin</artifactId>
+		    <groupId>org.overture.astcreator</groupId>
+		    <artifactId>astcreator-plugin</artifactId>
 		    <versionRange>${astcreator.version}</versionRange>
 		    <goals>
 		      <goal>generate</goal>
