@@ -3,10 +3,9 @@
  */
 package eu.compassresearch.ide.faulttolerance;
 
+import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.core.commands.IHandler;
-import org.eclipse.core.commands.IHandlerListener;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.text.ITextSelection;
@@ -32,7 +31,7 @@ import eu.compassresearch.ide.ui.editor.core.CmlEditor;
  *         >alrd@cin.ufpe.br</a>)
  * 
  */
-public class FaultToleranceVerificationHandler implements IHandler {
+public class FaultToleranceVerificationHandler extends AbstractHandler {
 
 	private MarkerManager markerManager;
 
@@ -41,11 +40,8 @@ public class FaultToleranceVerificationHandler implements IHandler {
 	}
 
 	@Override
-	public void addHandlerListener(IHandlerListener listener) {
-	}
-
-	@Override
 	public void dispose() {
+		super.dispose();
 		markerManager = null;
 	}
 
@@ -122,8 +118,8 @@ public class FaultToleranceVerificationHandler implements IHandler {
 				Message.LIMIT_EXPRESSION_DIALOG_TITLE.format(results
 						.getProcessName()),
 				Message.LIMIT_EXPRESSION_DIALOG_MESSAGE.format(results
-						.getProcessName()),
-				Message.LIMIT_EXPRESSION.format(), null);
+						.getProcessName()), Message.LIMIT_EXPRESSION.format(),
+				null);
 		id.open();
 
 		results.setLimitExpression(id.getValue());
@@ -146,7 +142,4 @@ public class FaultToleranceVerificationHandler implements IHandler {
 		return true;
 	}
 
-	@Override
-	public void removeHandlerListener(IHandlerListener listener) {
-	}
 }

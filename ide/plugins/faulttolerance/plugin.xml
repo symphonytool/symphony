@@ -22,6 +22,7 @@
                 <command
                     commandId="eu.compassresearch.ide.faulttolerance.verification.Verify"
                     id="eu.compassresearch.ide.faulttolerance.verification.Verify"
+                    icon="icons/ft-graphic-run.png"
                     mnemonic="%VERIFY_FAULT_TOLERANCE_MNEMONIC">
                       <visibleWhen>
                      <with variable="activeEditorId">
@@ -41,6 +42,20 @@
               </command>
             </menu>
         </menuContribution>
+        <!--
+        <menuContribution
+            locationURI="toolbar:org.eclipse.ui.main.toolbar">
+         <toolbar
+               id="eu.compassresearch.ide.faulttolerance.verification.toolbar">
+            <command
+                  commandId="eu.compassresearch.ide.faulttolerance.verification.Verify"
+                  icon="icons/ft-graphic-run.png"
+                  label="Say Hello"
+                  style="push">
+            </command>
+         </toolbar>
+      </menuContribution>
+      -->
   </extension>
   
    <extension
@@ -77,4 +92,5 @@
          markerType="eu.compassresearch.ide.faulttolerance.verification.problem"
          class="eu.compassresearch.ide.faulttolerance.marker.FaultToleranceFixer"/>
    </extension>
+   
 </plugin>
