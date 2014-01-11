@@ -20,6 +20,7 @@ import eu.compassresearch.core.analysis.modelchecker.graphBuilder.event.CommEv;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.event.Event;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.event.IOCommEv;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.event.Tau;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.event.Tock;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.expression.EqualBooleanExpression;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.expression.LessThanBooleanExpression;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.expression.NotEqualBooleanExpression;
@@ -63,6 +64,10 @@ import eu.compassresearch.core.analysis.modelchecker.graphBuilder.type.Void;
 
 public class Utilities {
 	
+	//adicionar  
+	//primitive tIntrpt        ::= (lProc : CMLProcess, t:Natural, rProc : CMLProcess).   //Timed Interrupt 
+    //primitive tTimeout       ::= (lProc : CMLProcess, t:Natural, rProc : CMLProcess).   //timed Timeout  
+		    
 	public static final String DEADLOCK = "Deadlock";
 	public static final String LIVELOCK = "Livelock";
 	public static final String NONDETERMINISM = "Nondeterminism";
@@ -90,6 +95,7 @@ public class Utilities {
 		constructors.put(Constructor.Assing.id, Constructor.Assing);
 		constructors.put(Constructor.UntimedInterrupt.id, Constructor.UntimedInterrupt);
 		constructors.put(Constructor.UntimedTimeout.id, Constructor.UntimedTimeout);
+		
 
 		//CHOICE
 		constructors.put(Constructor.IntChoice.id, Constructor.IntChoice);
@@ -125,6 +131,7 @@ public class Utilities {
 		constructors.put(Constructor.BasicEvent.id, Constructor.BasicEvent);
 		constructors.put(Constructor.IOComm.id, Constructor.IOComm);
 		constructors.put(Constructor.Tau.id, Constructor.Tau);
+		constructors.put(Constructor.Tock.id, Constructor.Tock);
 		constructors.put(Constructor.CommEv.id, Constructor.CommEv);
 
 		
@@ -152,7 +159,7 @@ public class Utilities {
 	}
 	
 	public enum Constructor {
-		Stop("Stop"), Skip("Skip"), Chaos("Chaos"), Div("Div"), Tau("tau"), NoPar(
+		Stop("Stop"), Skip("Skip"), Chaos("Chaos"), Div("Div"), Tau("tau"), Tock("tock"), NoPar(
 				"nopar"), NullBind("nBind"), Par("par"), IPar("iPar"), Parll(
 				"parll"), IParll("iParll"), Prefix("Prefix"), BasicEvent(
 				"BasicEv"), IOComm("IOComm"), Hide("hide"), BBind("BBinding"), State(
@@ -245,6 +252,7 @@ public class Utilities {
 				|| constructor.equals(Constructor.Chaos)
 				|| constructor.equals(Constructor.Div)
 				|| constructor.equals(Constructor.Tau)
+				|| constructor.equals(Constructor.Tock)
 				|| constructor.equals(Constructor.NoPar)
 				|| constructor.equals(Constructor.NullBind)
 				|| constructor.equals(Constructor.Void)) {
@@ -365,6 +373,9 @@ public class Utilities {
 			break;
 		case Tau:
 			result = new Tau();
+			break;
+		case Tock:
+			result = new Tock();
 			break;
 		case NoPar:
 			result = new NoPar();
