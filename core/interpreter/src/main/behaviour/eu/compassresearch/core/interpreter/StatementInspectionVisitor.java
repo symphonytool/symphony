@@ -164,10 +164,6 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 				// first find the operation value in the context
 				OperationValue opVal = (OperationValue) question.lookup(node.getName()).deref();
 
-				if (opVal.body == null)
-				{
-					throw new CmlInterpreterException(node, InterpretationErrorMessages.EVAL_OF_IMPLICIT_OP.customizeMessage(node.getName().toString()));
-				}
 
 				// evaluate all the arguments
 				ValueList argValues = new ValueList();
