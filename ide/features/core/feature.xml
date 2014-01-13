@@ -20,6 +20,10 @@
    <includes
          id="org.overture.ide.features.core"
          version="0.0.0"/>
+		 
+	 <includes
+         id="org.overture.ide.plugins.features.probruntime"
+         version="0.0.0"/>
 
    <requires>
       <import plugin="org.eclipse.core.resources" version="3.5.1" match="greaterOrEqual"/>

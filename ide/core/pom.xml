@@ -119,7 +119,7 @@
 <developer>
       <id>lausdahl</id>
       <name>Kenneth Lausdahl</name>
-      <email>lausdahl@users.sourceforge.net</email>
+      <email>lausdahl@eng.au.dk</email>
       <organization>AU</organization>
       <roles>
         <role>architect</role>
@@ -130,7 +130,7 @@
     <developer>
       <id>ldcouto</id>
       <name>Luis Diogo Couto</name>
-      <email>ldcouto@users.sourceforge.net</email>
+      <email>ldc@eng.au.dk</email>
       <organization>AU</organization>
       <roles>
         <role>developer</role>

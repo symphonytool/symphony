@@ -1,18 +1,24 @@
 package eu.compassresearch.ide.interpreter.launch;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
@@ -31,7 +37,12 @@ import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.overture.ide.core.resources.IVdmProject;
 import org.overture.ide.core.resources.IVdmSourceUnit;
+import org.overture.ide.debug.core.IDebugConstants;
+import org.overture.ide.debug.core.IDebugPreferenceConstants;
+import org.overture.ide.debug.core.VdmDebugPlugin;
 import org.overture.ide.debug.core.dbgp.DbgpServer;
+import org.overture.ide.debug.core.launching.VdmLaunchConfigurationDelegate;
+import org.overture.ide.debug.utils.ClassPathCollector;
 import org.overture.ide.debug.utils.VdmProjectClassPathCollector;
 
 import eu.compassresearch.core.interpreter.debug.CmlDebugDefaultValues;
@@ -190,6 +201,7 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 		// commandArray.addAll(getClassPath());
 		commandArray.addAll(VdmProjectClassPathCollector.getClassPath(getProject(configuration), collectRequiredBundleIds(ICmlDebugConstants.ID_CML_PLUGIN_NAME), new String[] {}));
 		commandArray.add(ICmlDebugConstants.DEBUG_ENGINE_CLASS);
+		commandArray.addAll(1, getVmArguments(configuration));
 		commandArray.add(config);
 
 		// Execute in a new JVM process
@@ -213,6 +225,62 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 		}
 
 		return iprocess;
+	}
+	
+	
+	private Collection<? extends String> getVmArguments(
+			ILaunchConfiguration configuration) throws CoreException
+	{
+		List<String> options = new Vector<String>();
+		String opt = configuration.getAttribute(IDebugConstants.VDM_LAUNCH_CONFIG_VM_MEMORY_OPTION, "");
+		if (opt.trim().length() != 0)
+		{
+			String[] opts = opt.split(" ");
+			for (String o : opts)
+			{
+				o = o.trim();
+				if (o.startsWith("-"))
+				{
+					options.add(o);
+				}
+			}
+		}
+
+		if (VdmDebugPlugin.getDefault().getPreferenceStore().getBoolean(IDebugPreferenceConstants.PREF_DBGP_ENABLE_EXPERIMENTAL_MODELCHECKER))
+		{
+			final Bundle bundle = Platform.getBundle(VdmLaunchConfigurationDelegate.ORG_OVERTURE_IDE_PLUGINS_PROBRUNTIME);
+			if (bundle != null)
+			{
+				URL buildInfoUrl = FileLocator.find(bundle, new Path("build_info.txt"), null);
+
+				try
+				{
+					if (buildInfoUrl != null)
+					{
+						URL buildInfofileUrl = FileLocator.toFileURL(buildInfoUrl);
+						if (buildInfofileUrl != null)
+						{
+							File file = new File(buildInfofileUrl.getFile());
+							if (ClassPathCollector.isWindowsPlatform())
+							{
+								options.add("-Dprob.home=\""
+										+ file.getParentFile().getPath() + "\"");
+							} else
+							{
+								options.add("-Dprob.home="
+										+ file.getParentFile().getPath());
+							}
+						}
+
+					}
+				} catch (IOException e)
+				{
+				}
+			}
+
+		}
+
+		return options;
 	}
 
 	private String getArgumentString(List<String> args)
@@ -258,6 +326,13 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 					bundleIds.add(value);
 				}
 			}
+			
+			
+			if (VdmDebugPlugin.getDefault().getPreferenceStore().getBoolean(IDebugPreferenceConstants.PREF_DBGP_ENABLE_EXPERIMENTAL_MODELCHECKER))
+			{
+				bundleIds.add(VdmLaunchConfigurationDelegate.ORG_OVERTURE_IDE_PLUGINS_PROBRUNTIME);
+			}
+			
 		} catch (BundleException e)
 		{
 			return null;

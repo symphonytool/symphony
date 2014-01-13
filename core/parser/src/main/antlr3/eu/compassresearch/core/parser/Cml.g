@@ -2614,7 +2614,7 @@ typebase returns[PType type]
     | 'compose' IDENTIFIER 'of' fieldOptList 'end'
         {
             CmlLexNameToken name = new CmlLexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER));
-            $type = new ARecordInvariantType(null, false, null, false, false, null, name, $fieldOptList.fieldList, false);
+            $type = AstFactory.newARecordInvariantType(name, $fieldOptList.fieldList);
         }
     ;
 
