@@ -27,5 +27,9 @@ public interface CmlTransition extends Serializable , Comparable<CmlTransition>
 
 	public boolean isSourcesSubset(CmlTransition other);
 	
+	/**
+	 * A unique id for this transitions objects
+	 * @return
+	 */
 	public int getTransitionId();
 }
