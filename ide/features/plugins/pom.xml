@@ -21,6 +21,6 @@
     <module>theoremprover</module>
     <module>rtt-mbt</module>
     <module>modelchecker</module>
+    <module>faulttolerance</module>
   </modules>
-
 </project>

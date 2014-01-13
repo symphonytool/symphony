@@ -24,6 +24,9 @@
   <feature url="features/eu.compassresearch.ide.features.plugins.modelchecker_0.0.0.qualifier.jar" id="eu.compassresearch.ide.features.plugins.modelchecker" version="0.0.0">
     <category name="Symphony IDE"/>
   </feature>
+  <feature url="features/eu.compassresearch.ide.features.plugins.faulttolerance_0.0.0.qualifier.jar" id="eu.compassresearch.ide.features.plugins.faulttolerance" version="0.0.0">
+    <category name="Symphony IDE"/>
+  </feature>
   <category-def name="Symphony IDE" label="The Symphony IDE">
     <description>
       The Symphony IDE
