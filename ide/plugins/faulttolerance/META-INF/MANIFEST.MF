@@ -2,14 +2,15 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %Bundle-Name
 Bundle-SymbolicName: eu.compassresearch.ide.faulttolerance;singleton:=true
-Bundle-Version: 0.0.1.snapshot
+Bundle-Version: 0.2.7.qualifier
 Bundle-Activator: eu.compassresearch.ide.faulttolerance.Activator
 Bundle-Vendor: %Bundle-Vendor
 Require-Bundle: 
  org.overture.ide.ui,
  eu.compassresearch.ide.core,
  eu.compassresearch.ide.ui,
- eu.compassresearch.ide.modelchecker;bundle-version="0.2.4"
+ eu.compassresearch.ide.pog,
+ eu.compassresearch.ide.modelchecker
 Import-Package: eu.compassresearch.ast.program,
  eu.compassresearch.core.common,
  eu.compassresearch.ide.core.resources,
@@ -32,6 +33,5 @@ Export-Package: eu.compassresearch.ide.faulttolerance
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Eclipse-BuddyPolicy: registered
-Bundle-ClassPath: .,
- target/classes/
+Bundle-ClassPath: .
 Bundle-Localization: l10n/plugin
