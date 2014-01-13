@@ -1,0 +1,8 @@
+channels 
+a
+
+process A = 
+begin 
+
+	@ Wait 4 ; a -> Skip
+end

@@ -1,4 +1,11 @@
 -----------------------------------------------------------
+RTTMBTAPI_0.2.6
+
+Changes: none
+
+Step forward for the Jan 2014 CIG release
+
+-----------------------------------------------------------
 RTTMBTAPI_0.2.4
 
 Changes: none

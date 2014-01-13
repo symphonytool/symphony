@@ -1,7 +1,5 @@
 package eu.compassresearch.core.analysis.modelchecker.ast.actions;
 
-import eu.compassresearch.ast.actions.AUntimedTimeoutAction;
-
 
 public class MCAUntimedTimeoutAction implements MCPAction {
 
