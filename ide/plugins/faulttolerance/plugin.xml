@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+
+<plugin>
+  <!-- For possible extension points see
+ 
+  http://help.eclipse.org/indigo/index.jsp?
+  topic=%2Forg.eclipse.platform.doc.isv%2Freference%2Fextension-points%2Findex.html
+
+  -->
+  
+  <extension
+        point="org.eclipse.ui.startup">
+     <startup class="eu.compassresearch.ide.faulttolerance.Activator"> </startup>
+  </extension>
+  <extension
+        point="org.eclipse.ui.menus">
+        <menuContribution locationURI="popup:org.eclipse.ui.popup.any?after=additions">
+            <menu id="eu.compassresearch.ide.faulttolerance.verification" 
+              label="%FAULT_TOLERANCE" mnemonic="%FAULT_TOLERANCE_MNEMONIC"
+              icon="icons/ft-graphic.png">
+                <command
+                    commandId="eu.compassresearch.ide.faulttolerance.verification.Verify"
+                    id="eu.compassresearch.ide.faulttolerance.verification.Verify"
+                    icon="icons/ft-graphic-run.png"
+                    mnemonic="%VERIFY_FAULT_TOLERANCE_MNEMONIC">
+                      <visibleWhen>
+                     <with variable="activeEditorId">
+                      <equals value="eu.compassresearch.ide.ui.editor"/>
+                     </with>
+                </visibleWhen>
+              </command>
+              <command
+                    commandId="eu.compassresearch.ide.faulttolerance.verification.Clear"
+                    id="eu.compassresearch.ide.faulttolerance.verification.Clear"
+                    mnemonic="%VERIFY_FAULT_TOLERANCE_MNEMONIC">
+                      <visibleWhen>
+                     <with variable="activeEditorId">
+                      <equals value="eu.compassresearch.ide.ui.editor"/>
+                     </with>
+                </visibleWhen>
+              </command>
+            </menu>
+        </menuContribution>
+        <!--
+        <menuContribution
+            locationURI="toolbar:org.eclipse.ui.main.toolbar">
+         <toolbar
+               id="eu.compassresearch.ide.faulttolerance.verification.toolbar">
+            <command
+                  commandId="eu.compassresearch.ide.faulttolerance.verification.Verify"
+                  icon="icons/ft-graphic-run.png"
+                  label="Say Hello"
+                  style="push">
+            </command>
+         </toolbar>
+      </menuContribution>
+      -->
+  </extension>
+  
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            id="eu.compassresearch.ide.faulttolerance.verification.Verify"
+            name="%VERIFY_FAULT_TOLERANCE">
+      </command>
+      <command
+            id="eu.compassresearch.ide.faulttolerance.verification.Clear"
+            name="%CLEAR_FAULT_TOLERANCE_VERIFICATIONS">
+      </command>
+   </extension>
+   
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="eu.compassresearch.ide.faulttolerance.FaultToleranceVerificationHandler"
+            commandId="eu.compassresearch.ide.faulttolerance.verification.Verify">
+      </handler>
+      <handler
+            class="eu.compassresearch.ide.faulttolerance.ClearFaultToleranceHandler"
+            commandId="eu.compassresearch.ide.faulttolerance.verification.Clear">
+      </handler>
+   </extension>
+   
+  <extension id="eu.compassresearch.ide.faulttolerance.verification.problem" point="org.eclipse.core.resources.markers">
+     <super type="org.eclipse.core.resources.problemmarker"/>
+     <persistent value="true"/>
+  </extension>
+  
+  <extension point="org.eclipse.ui.ide.markerResolution">
+      <markerResolutionGenerator
+         markerType="eu.compassresearch.ide.faulttolerance.verification.problem"
+         class="eu.compassresearch.ide.faulttolerance.marker.FaultToleranceFixer"/>
+   </extension>
+   
+</plugin>
