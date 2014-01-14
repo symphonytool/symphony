@@ -17,7 +17,7 @@ import org.eclipse.swt.widgets.Display;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 
-import eu.compassresearch.ide.collaboration.communication.messages.FileStatusMessage.NegotiationStatus;
+import eu.compassresearch.ide.collaboration.communication.messages.ConfigurationStatusMessage.NegotiationStatus;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationGroup;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationProject;
 import eu.compassresearch.ide.collaboration.datamodel.Configuration;
@@ -201,13 +201,13 @@ public class CollaborationLabelProvider extends LabelProvider implements
 		{
 			Configuration c = (Configuration) element;
 
-//			if (c.getStatus() == NegotiationStatus.ACCEPT)
-//			{
-//				return Display.getCurrent().getSystemColor(SWT.COLOR_GREEN);
-//			} else if (c.getStatus() == NegotiationStatus.REJECT)
-//			{
-//				return Display.getCurrent().getSystemColor(SWT.COLOR_RED);
-//			}
+			if (c.getStatus() == NegotiationStatus.ACCEPT)
+			{
+				return Display.getCurrent().getSystemColor(SWT.COLOR_GREEN);
+			} else if (c.getStatus() == NegotiationStatus.REJECT)
+			{
+				return Display.getCurrent().getSystemColor(SWT.COLOR_RED);
+			}
 
 			if (c.isShared())
 			{

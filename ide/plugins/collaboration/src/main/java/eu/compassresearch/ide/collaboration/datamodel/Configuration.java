@@ -7,7 +7,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Status;
 
 import eu.compassresearch.ide.collaboration.Activator;
-import eu.compassresearch.ide.collaboration.communication.messages.FileStatusMessage.NegotiationStatus;
+import eu.compassresearch.ide.collaboration.communication.messages.ConfigurationStatusMessage.NegotiationStatus;
 import eu.compassresearch.ide.collaboration.files.FileStatus;
 import eu.compassresearch.ide.collaboration.notifications.Notification;
 
@@ -71,9 +71,9 @@ public class Configuration extends Model {
 		fireObjectUpdatedEvent(file);
 	}
 	
-	public void addNewFile(String fileName, String fileHash, long timestamp)
+	public void addNewFile(String fileName, String fileHash, long timestamp, String filePath)
 	{
-		files.addFile(new File(fileName, fileHash, timestamp, this));
+		files.addFile(new File(fileName, fileHash, timestamp, filePath, this));
 	}
 	
 	protected void removeFile(File file) {
@@ -202,5 +202,4 @@ public class Configuration extends Model {
 	{
 		return files.getFile(filename);
 	}
-
 }

@@ -25,7 +25,7 @@ public class FileChangeManager implements IResourceChangeListener
 	@Override
 	public void resourceChanged(IResourceChangeEvent event)
 	{
-		if(!modelMgm.hasActiveCollaborationProjects())
+		if(!modelMgm.hasCollaborationProjects())
 			return;
 		
 		if (event.getType() != IResourceChangeEvent.POST_CHANGE)

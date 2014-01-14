@@ -1,7 +1,6 @@
 package eu.compassresearch.ide.collaboration.files;
 
 import java.io.Serializable;
-import java.util.Date;
 
 import eu.compassresearch.ide.collaboration.datamodel.File;
 
@@ -12,6 +11,7 @@ public class FileSet implements Serializable
 	private String fileName;
 	private String fileHash;
 	private String fileHashName;
+	private String filePath;
 	private String fileContent;
 	private long timstamp;
 	
@@ -19,6 +19,7 @@ public class FileSet implements Serializable
 	{
 		this.fileName = file.getName();
 		this.fileHash = file.getHash();
+		this.filePath = file.getFilePath();
 		this.fileContent = content;
 		this.timstamp = file.getTimeStamp().getTime();
 		this.fileHashName = file.getHashFileName();
@@ -47,5 +48,10 @@ public class FileSet implements Serializable
 	public long getTimestamp()
 	{
 		return timstamp;
+	}
+
+	public String getFilePath()
+	{
+		return filePath;
 	}
 }

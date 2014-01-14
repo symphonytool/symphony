@@ -129,7 +129,7 @@ public class Configurations extends Model
 		Configuration newestConfiguration = getNewestConfiguration();
 		File fileToUpdate = newestConfiguration.getFile(fileUpdate.getFileName());
 		
-		//if new file, don't set as updated
+		//if new file, don't set as updated //TODO if is received
 		if(!fileToUpdate.isNewFile()){
 			fileToUpdate.setUpdate(fileUpdate);
 		}
@@ -161,7 +161,7 @@ public class Configurations extends Model
 	{
 		for (Configuration config : configurations)
 		{
-			if(config.getUniqueID() == configurationUniqueID)
+			if(config.getUniqueID().equals(configurationUniqueID))
 				return config;
 		}
 		

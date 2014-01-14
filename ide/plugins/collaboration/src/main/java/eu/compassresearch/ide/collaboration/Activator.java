@@ -16,7 +16,7 @@ import org.osgi.util.tracker.ServiceTracker;
 import eu.compassresearch.ide.collaboration.communication.MessageProcessor;
 import eu.compassresearch.ide.collaboration.communication.handlers.CollaborationRequestHandler;
 import eu.compassresearch.ide.collaboration.communication.handlers.CollaborationStatusMessageHandler;
-import eu.compassresearch.ide.collaboration.communication.handlers.FileStatusMessageHandler;
+import eu.compassresearch.ide.collaboration.communication.handlers.ConfigurationStatusMessageHandler;
 import eu.compassresearch.ide.collaboration.communication.handlers.NewConfigurationMessageHandler;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationDataModelManager;
 import eu.compassresearch.ide.collaboration.files.FileChangeManager;
@@ -99,7 +99,7 @@ public class Activator extends AbstractUIPlugin
 	{
 		messageProcessor.addMessageHandler(new CollaborationRequestHandler(messageProcessor));	
 		messageProcessor.addMessageHandler(new NewConfigurationMessageHandler(messageProcessor));
-		messageProcessor.addMessageHandler(new FileStatusMessageHandler(messageProcessor));
+		messageProcessor.addMessageHandler(new ConfigurationStatusMessageHandler(messageProcessor));
 		messageProcessor.addMessageHandler(new CollaborationStatusMessageHandler(messageProcessor));
 	}
 

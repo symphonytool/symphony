@@ -11,7 +11,7 @@ public class File extends Model
 	private static final long serialVersionUID = -6007439345479622225L;
 
 	protected Shares shares;
-	protected final long timestamp_ux_epoch;
+	protected long timestamp_ux_epoch;
 	private String hash;
 	private final String filePath;
 	private FileState fileState;
@@ -42,7 +42,7 @@ public class File extends Model
 	}
 
 	public File(String fileName, String fileHash, long timestamp,
-			Configuration parent)
+			String filePath, Configuration parent)
 	{
 		super(fileName,parent);
 		
@@ -51,7 +51,7 @@ public class File extends Model
 		this.timestamp_ux_epoch = timestamp;
 		this.fileState = FileState.NORMAL;
 		this.hasBeenStored = true;
-		this.filePath = ""; //no file in workspace, only in collaboration dir
+		this.filePath = filePath; 
 	}
 
 	public void addShare(Share share)
@@ -143,6 +143,7 @@ public class File extends Model
 	{
 		fileState = FileState.UPDATED;
 		hash = fileUpdate.getHash();
+		timestamp_ux_epoch = new Date().getTime();
 		
 		fireObjectUpdatedEvent(this);
 	}

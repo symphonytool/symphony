@@ -13,6 +13,8 @@ import org.eclipse.ecf.core.user.IUser;
 
 import eu.compassresearch.ide.collaboration.Activator;
 import eu.compassresearch.ide.collaboration.CollaborationPluginUtils;
+import eu.compassresearch.ide.collaboration.communication.messages.ConfigurationStatusMessage;
+import eu.compassresearch.ide.collaboration.communication.messages.ConfigurationStatusMessage.NegotiationStatus;
 import eu.compassresearch.ide.collaboration.communication.messages.NewConfigurationMessage;
 import eu.compassresearch.ide.collaboration.files.FileComparison;
 import eu.compassresearch.ide.collaboration.files.FileHandler;
@@ -43,29 +45,6 @@ public class CollaborationDataModelManager
 		datamodel.addCollaborationProject(project, title, description);
 	}
 
-	public void saveModel() throws CoreException, IOException
-	{
-		FileHandler filehandler = new FileHandler();
-		for (CollaborationProject collabProject : datamodel.getCollaborationProjects())
-		{
-			filehandler.saveCollaborationProject(collabProject);
-		}
-	}
-
-	public void loadModel()
-	{
-		IProject[] projectsInWorkbench = CollaborationPluginUtils.getProjectsInWorkbench();
-		FileHandler filehandler = new FileHandler();
-
-		for (IProject iProject : projectsInWorkbench)
-		{
-			CollaborationProject project = filehandler.loadCollaborationProject(iProject);
-			if (project != null)
-			{
-				datamodel.addCollaborationProject(project);
-			}
-		}
-	}
 
 	public List<CollaborationProject> getExistingProjects()
 	{
@@ -114,7 +93,7 @@ public class CollaborationDataModelManager
 			Configuration newestConfiguration = configurations.getNewestConfiguration();
 
 			if (newestConfiguration == null
-					|| newestConfiguration.isShared())
+					|| newestConfiguration.isShared() || newestConfiguration.isReceived())
 			{
 				collaborationProject.addNewConfiguration();
 			}
@@ -158,7 +137,6 @@ public class CollaborationDataModelManager
 	public IFile getFile(File file, CollaborationProject collaborationProject)
 			throws CoreException, IOException
 	{
-
 		IFile iFile = null;
 
 		// has file already been stored previously, get it from the collaboration dir
@@ -174,7 +152,7 @@ public class CollaborationDataModelManager
 		return iFile;
 	}
 
-	public boolean hasActiveCollaborationProjects()
+	public boolean hasCollaborationProjects()
 	{
 		return !datamodel.getCollaborationProjects().isEmpty();
 	}
@@ -270,5 +248,57 @@ public class CollaborationDataModelManager
 		String prevContent = CollaborationPluginUtils.convertStreamToString(iPrevFile.getContents());
 
 		return new FileComparison(targetFile, targetContent, previousFile, prevContent);
+	}
+
+	public void activateConfiguration(Configuration configToActivate) throws CoreException
+	{
+		Files files = configToActivate.getFiles();
+		FileHandler.copyFilesToProjectWorkspace(files.getFilesList(), configToActivate.getCollaborationProject());
+	}
+	
+	
+	public void saveModel() throws CoreException, IOException
+	{
+		FileHandler filehandler = new FileHandler();
+		for (CollaborationProject collabProject : datamodel.getCollaborationProjects())
+		{
+			filehandler.saveCollaborationProject(collabProject);
+		}
+	}
+
+	public void loadModel()
+	{
+		IProject[] projectsInWorkbench = CollaborationPluginUtils.getProjectsInWorkbench();
+		FileHandler filehandler = new FileHandler();
+
+		for (IProject iProject : projectsInWorkbench)
+		{
+			CollaborationProject project = filehandler.loadCollaborationProject(iProject);
+			if (project != null)
+			{
+				datamodel.addCollaborationProject(project);
+			}
+		}
+	}
+
+	public void approveConfiguration(Configuration configToApprove) throws CoreException
+	{
+		//TODO add user
+		IUser self = Activator.getDefault().getSelf();
+		IUser receiver = Activator.getDefault().getReceiver();
+		CollaborationProject collaborationProject = configToApprove.getCollaborationProject();
+		
+		ConfigurationStatusMessage statMsg = new ConfigurationStatusMessage(self, receiver, collaborationProject.getUniqueID(), configToApprove.getUniqueID(), NegotiationStatus.ACCEPT);
+		
+		Activator.getDefault().getMessageProcessor().sendMessage(statMsg.getReceiverID(), statMsg.serialize());
+		
+		configToApprove.setStatus(NegotiationStatus.ACCEPT);
+	}
+
+	public void updateConfigurationStatus(String configurationId, NegotiationStatus negotiationStatus, String projectId)
+	{
+		CollaborationProject collaborationProject = getCollaborationProjectFromID(projectId);
+		Configuration configuration = collaborationProject.getConfiguration(configurationId);
+		configuration.setStatus(negotiationStatus);
 	}
 }

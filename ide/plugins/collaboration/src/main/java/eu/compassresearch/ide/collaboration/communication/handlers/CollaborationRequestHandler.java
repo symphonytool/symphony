@@ -11,11 +11,7 @@ import eu.compassresearch.ide.collaboration.communication.messages.Collaboration
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationDataModelManager;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationDataModelRoot;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationGroup;
-import eu.compassresearch.ide.collaboration.datamodel.CollaborationProject;
-import eu.compassresearch.ide.collaboration.datamodel.User;
-import eu.compassresearch.ide.collaboration.ui.menu.CollaborationDialogs;
 import eu.compassresearch.ide.collaboration.ui.menu.CollaborationRequestedDialog;
-import eu.compassresearch.ide.collaboration.ui.view.CollaborationView;
 
 public class CollaborationRequestHandler extends BaseMessageHandler<CollaborationRequest>
 {		

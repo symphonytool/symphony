@@ -1,6 +1,5 @@
 package eu.compassresearch.ide.collaboration.communication.messages;
 
-import java.util.Date;
 import java.util.List;
 
 import org.eclipse.ecf.core.user.IUser;

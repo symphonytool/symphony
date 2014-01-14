@@ -55,7 +55,6 @@ public class FileHandler
 	public static IFile loadFileFromProject(File file,
 			CollaborationProject collaborationProject) throws CoreException
 	{
-
 		String workspaceProjectName = collaborationProject.getProjectWorkspaceName();
 		IProject project = getIProjectFromWorkspaceProjectName(workspaceProjectName);
 
@@ -106,7 +105,6 @@ public class FileHandler
 	public static boolean saveFilesToCollaborationDir(List<FileSet> list,
 			CollaborationProject collaborationProject) throws CoreException
 	{
-
 		// find project
 		String workspaceProjectName = collaborationProject.getProjectWorkspaceName();
 		IProject project = getIProjectFromWorkspaceProjectName(workspaceProjectName);
@@ -133,13 +131,41 @@ public class FileHandler
 
 		return true;
 	}
+	
+	public static void copyFilesToProjectWorkspace(List<File> filesList,
+			CollaborationProject collaborationProject) throws CoreException
+	{
+		String workspaceProjectName = collaborationProject.getProjectWorkspaceName();
+		IProject project = getIProjectFromWorkspaceProjectName(workspaceProjectName);
+		
+		IFolder collabProjectFolder = getCollaborationDirectory(workspaceProjectName);
+
+		if (collabProjectFolder == null)
+		{
+			return;
+		}
+		
+		for (File file : filesList)
+		{
+		  IFile projectFile = project.getFile(file.getFilePath());
+		  
+		  if(!projectFile.exists()){
+			  
+			  IFile loadedFile = collabProjectFolder.getFile(file.getHashFileName());
+			  projectFile.create(loadedFile.getContents(), true, null);
+			  
+		  } else {
+			  //TODO report error, file list should be handled at the GUI level
+		  }
+		}
+		
+	}
 
 	private static IFolder getCollaborationDirectory(String workspaceProjectName)
 			throws CoreException
 	{
 		IProject project = getIProjectFromWorkspaceProjectName(workspaceProjectName);
 		return getCollaborationDirectory(project);
-
 	}
 
 	private static IFolder getCollaborationDirectory(IProject project)
