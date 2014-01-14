@@ -149,7 +149,7 @@ public class InterpretAllCmlFilesTest
 			return;
 		}
 
-		CmlInterpreter interpreter = VanillaInterpreterFactory.newInterpreter(res.definitions);
+		CmlInterpreter interpreter = new VanillaInterpreterFactory().newInterpreter(res.definitions);
 
 		Exception exception = null;
 		try

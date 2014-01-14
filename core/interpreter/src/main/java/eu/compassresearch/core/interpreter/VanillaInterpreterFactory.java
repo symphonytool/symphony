@@ -6,18 +6,27 @@ import org.overture.ast.definitions.PDefinition;
 
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorFactory;
 
-public final class VanillaInterpreterFactory
+public class VanillaInterpreterFactory implements InterpreterFactory 
 {
-
-	/**
-	 * create an instance of the Vanilla interpreter.
-	 * 
-	 * @param definitions
-	 *            - List of parsed and type-checked CML source to interpret
-	 * @throws CmlInterpreterException
+	
+	 CmlBehaviorFactory cmlBehaviorFactory = new DefaultCmlBehaviorFactory();
+	
+	/* (non-Javadoc)
+	 * @see eu.compassresearch.core.interpreter.InterpreterFactory#setDefaultCmlBehaviourFactory(eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorFactory)
 	 */
-	public static CmlInterpreter newInterpreter(List<PDefinition> definitions)
+	@Override
+	public  void setDefaultCmlBehaviourFactory(CmlBehaviorFactory factory)
+	{
+		cmlBehaviorFactory = factory;
+	}
+
+	/* (non-Javadoc)
+	 * @see eu.compassresearch.core.interpreter.InterpreterFactory#newInterpreter(java.util.List)
+	 */
+	@Override
+	public  CmlInterpreter newInterpreter(List<PDefinition> definitions)
 			throws CmlInterpreterException
 	{
 		VanillaCmlInterpreter interpreter = new VanillaCmlInterpreter(definitions, newDefaultConfig());
@@ -25,16 +34,11 @@ public final class VanillaInterpreterFactory
 		return interpreter;
 	}
 
-	/**
-	 * create an instance of the Vanilla interpreter.
-	 * 
-	 * @param definitions
-	 *            - List of parsed and type-checked CML source to interpret
-	 * @param config
-	 *            the configuration that the interpreter should use
-	 * @throws CmlInterpreterException
+	/* (non-Javadoc)
+	 * @see eu.compassresearch.core.interpreter.InterpreterFactory#newInterpreter(java.util.List, eu.compassresearch.core.interpreter.Config)
 	 */
-	public static CmlInterpreter newInterpreter(List<PDefinition> definitions,
+	@Override
+	public  CmlInterpreter newInterpreter(List<PDefinition> definitions,
 			Config config) throws CmlInterpreterException
 	{
 		VanillaCmlInterpreter interpreter = new VanillaCmlInterpreter(definitions, config);
@@ -42,13 +46,21 @@ public final class VanillaInterpreterFactory
 		return interpreter;
 	}
 
-	public static Config newDefaultConfig()
+	/* (non-Javadoc)
+	 * @see eu.compassresearch.core.interpreter.InterpreterFactory#newDefaultConfig()
+	 */
+	@Override
+	public  Config newDefaultConfig()
 	{
-		return new Config(false, new DefaultCmlBehaviorFactory());
+		return new Config(false, cmlBehaviorFactory);
 	}
 
-	public static Config newDefaultConfig(boolean filterTockEvents)
+	/* (non-Javadoc)
+	 * @see eu.compassresearch.core.interpreter.InterpreterFactory#newDefaultConfig(boolean)
+	 */
+	@Override
+	public  Config newDefaultConfig(boolean filterTockEvents)
 	{
-		return new Config(filterTockEvents, new DefaultCmlBehaviorFactory());
+		return new Config(filterTockEvents,cmlBehaviorFactory);
 	}
 }

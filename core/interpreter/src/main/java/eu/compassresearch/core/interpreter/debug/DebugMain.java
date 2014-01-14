@@ -12,6 +12,7 @@ import org.overture.ast.analysis.AnalysisException;
 import eu.compassresearch.core.interpreter.CmlRuntime;
 import eu.compassresearch.core.interpreter.Config;
 import eu.compassresearch.core.interpreter.Console;
+import eu.compassresearch.core.interpreter.InterpreterFactory;
 import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.api.AnnimationStrategy;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
@@ -49,6 +50,8 @@ public class DebugMain
 		boolean autoFilterTockEvents = false;
 		int port = CmlDebugDefaultValues.PORT;
 		String host = "localhost";
+		InterpreterFactory factory =new VanillaInterpreterFactory();
+		
 		try
 		{
 			// ----------- Config -------------------------------------
@@ -158,8 +161,8 @@ public class DebugMain
 
 				boolean filterTockEvents = autoFilterTockEvents
 						&& !TimedSpeckChecker.containsTimeConstructs(res.definitions);
-				Config config = VanillaInterpreterFactory.newDefaultConfig(filterTockEvents);
-				CmlInterpreter cmlInterpreter = VanillaInterpreterFactory.newInterpreter(res.definitions, config);
+				Config config = factory.newDefaultConfig(filterTockEvents);
+				CmlInterpreter cmlInterpreter = factory.newInterpreter(res.definitions, config);
 				cmlInterpreter.setDefaultName(startProcessName);
 				CmlRuntime.consoleMode = false;
 				Console.debug.println("Debug Thread: Initializing the interpreter...");

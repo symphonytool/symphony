@@ -83,7 +83,7 @@ public class DeterministicTraceTest
 		
 		for(int i = 0; i < 10 ; i++)
 		{
-			CmlInterpreter interpreter = VanillaInterpreterFactory.newInterpreter(res.definitions);
+			CmlInterpreter interpreter =new VanillaInterpreterFactory().newInterpreter(res.definitions);
 			interpreter.initialize();
 			interpreter.execute(new RandomSelectionStrategy());
 			traceList.add(interpreter.getTopLevelProcess().getTraceModel());
