@@ -38,12 +38,16 @@ public class AddCollaboratorRosterMenuHandler extends AbstractRosterMenuHandler
 			
 			final IContainer container = (IContainer) roster.getPresenceContainerAdapter().getAdapter(IContainer.class);
 			if (container.getConnectedID() == null)
+			{
 				Notification.showErrorMessage(Notification.CollabMenuRosterMenuHandler_ERROR_NOT_CONNECTED);
+				return null;
+			}		
 			
 			MessageProcessor messageProcessor = Activator.getDefault().getMessageProcessor(container.getID()); 
-			if (messageProcessor == null)
+			if (messageProcessor == null){
 				Notification.showErrorMessage(Notification.CollabMenuRosterMenuHandler_ERROR_NO_COLLAB_CHANNEL);
-			
+				return null;
+			}
 			//get users
 			IUser self = roster.getUser();	
 			IUser receiver = rosterEntry.getUser();
