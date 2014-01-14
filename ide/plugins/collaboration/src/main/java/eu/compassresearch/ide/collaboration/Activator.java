@@ -156,6 +156,35 @@ public class Activator extends AbstractUIPlugin
 //			e.printStackTrace();
 //		} 		
 	}
+	
+//	private void retrieveServices()
+//	{
+//		//getPresenceServices();
+//		ServiceReference[] references = serviceTracker.getServiceReferences();
+//		IPresenceService[] services;
+//
+//		if (references == null)
+//		{
+//			services = new IPresenceService[0];
+//		} else
+//		{
+//			int length = references.length;
+//			services = new IPresenceService[length];
+//			for (int i = 0; i < length; i++)
+//			{
+//				services[i] = (IPresenceService) serviceTracker.getService(references[i]);
+//			}
+//		}
+//
+//		for (int i = 0; i < services.length; i++)
+//		{
+//			IContainer container = (IContainer) services[i].getAdapter(IContainer.class);
+//			if (container != null && container.getConnectedID() != null)
+//			{
+//				//addContainer(container);
+//			}
+//		}
+//	}
 
 	//TODO remove when presence container is functional 
 	public void setConnections(IUser self, IUser receiver)
