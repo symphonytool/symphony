@@ -2978,7 +2978,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseATimedInterruptAction(ATimedInterruptAction node)
 			throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseATimedInterruptAction(node);
@@ -3004,7 +3004,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 	@Override
 	public void caseATimeoutAction(ATimeoutAction node)
 			throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseATimeoutAction(node);
@@ -3324,7 +3324,7 @@ public class MCUnsupportedCollector extends UnsupportedCollector
 
 	@Override
 	public void caseAWaitAction(AWaitAction node) throws AnalysisException {
-		// unsupported=false;
+		unsupported=false;
 		// TODO Uncomment the above line to signal support for this node
 		// Do not remove the super call below.
 		super.caseAWaitAction(node);

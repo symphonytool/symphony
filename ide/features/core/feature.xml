@@ -2,7 +2,7 @@
 <feature
       id="eu.compassresearch.ide.features.core"
       label="Symphony Core"
-      version="0.2.5.qualifier"
+      version="0.2.7.qualifier"
       plugin="eu.compassresearch.ide.core">
 
    <description>
@@ -19,6 +19,10 @@
 
    <includes
          id="org.overture.ide.features.core"
+         version="0.0.0"/>
+		 
+	 <includes
+         id="org.overture.ide.plugins.features.probruntime"
          version="0.0.0"/>
 
    <requires>

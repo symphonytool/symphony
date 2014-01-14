@@ -30,7 +30,10 @@ import eu.compassresearch.ast.actions.ASequentialCompositionReplicatedAction;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.AStmAction;
 import eu.compassresearch.ast.actions.AStopAction;
+import eu.compassresearch.ast.actions.ATimedInterruptAction;
+import eu.compassresearch.ast.actions.ATimeoutAction;
 import eu.compassresearch.ast.actions.AUntimedTimeoutAction;
+import eu.compassresearch.ast.actions.AWaitAction;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.actions.PCommunicationParameter;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
@@ -64,7 +67,10 @@ import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCASingleGenera
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCASkipAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAStmAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAStopAction;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCATimedInterruptAction;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCATimeoutAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAUntimedTimeoutAction;
+import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCAWaitAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPAction;
 import eu.compassresearch.core.analysis.modelchecker.ast.actions.MCPCommunicationParameter;
 import eu.compassresearch.core.analysis.modelchecker.ast.auxiliary.ActionChannelDependency;
@@ -500,10 +506,58 @@ public class NewMCActionVisitor extends
 		return result;
 	}
 
-	
+	/////TIMED ACTIONS
+	@Override
+	public MCNode caseATimedInterruptAction(ATimedInterruptAction node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		
+		MCPAction left = (MCPAction) node.getLeft().apply(rootVisitor, question);
+		MCPAction right = (MCPAction) node.getRight().apply(rootVisitor, question);
+		MCPCMLExp timeExpression = (MCPCMLExp) node.getTimeExpression().apply(rootVisitor, question);
+		MCATimedInterruptAction result = new MCATimedInterruptAction(left, right, timeExpression);
+		
+		//we need to update the maximum value for clock in the context 
+		question.updateMaxClock(timeExpression);
+		
+		return result;
+	}
 
+
+	@Override
+	public MCNode caseATimeoutAction(ATimeoutAction node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		
+		MCPAction left = (MCPAction) node.getLeft().apply(rootVisitor, question);
+		MCPAction right = (MCPAction) node.getRight().apply(rootVisitor, question);
+		MCPCMLExp timeoutExpression = (MCPCMLExp) node.getTimeoutExpression().apply(rootVisitor, question);
+		MCATimeoutAction result = new MCATimeoutAction(left, right, timeoutExpression);
+		
+		//we need to update the maximum value for clock in the context 
+		question.updateMaxClock(timeoutExpression);
+		
+		return result;
+	}
+	
+	@Override
+	public MCNode caseAWaitAction(AWaitAction node,
+			NewCMLModelcheckerContext question) throws AnalysisException {
+		MCPCMLExp timeoutExpression = (MCPCMLExp) node.getExpression().apply(rootVisitor, question);
+		MCAWaitAction result = new MCAWaitAction(timeoutExpression);
+		
+		//we need to update the maximum value for clock in the context 
+		question.updateMaxClock(timeoutExpression);
+				
+		return result;
+	}
+	
+	
+	
 	/////REPLICATED ACTIONS
 	
+	
+
+	
+
 	@Override
 	public MCNode createNewReturnValue(INode node,
 			NewCMLModelcheckerContext question) throws AnalysisException
@@ -511,6 +565,8 @@ public class NewMCActionVisitor extends
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+
 	
 
 	@Override

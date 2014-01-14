@@ -37,6 +37,7 @@ import eu.compassresearch.ast.statements.ADoNonDeterministicStm;
 import eu.compassresearch.ast.statements.AIfNonDeterministicStm;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorFactory;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlCalculationStep;
 import eu.compassresearch.core.interpreter.api.behaviour.Inspection;
@@ -49,10 +50,11 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 
 	public StatementInspectionVisitor(CmlBehaviour ownerProcess,
 			VisitorAccess visitorAccess,
+			CmlBehaviorFactory cmlBehaviorFactory,
 			QuestionAnswerCMLAdaptor<Context, Inspection> parentVisitor)
 	{
 
-		super(ownerProcess, visitorAccess, parentVisitor);
+		super(ownerProcess, visitorAccess, cmlBehaviorFactory, parentVisitor);
 	}
 
 	@Override
@@ -162,10 +164,6 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 				// first find the operation value in the context
 				OperationValue opVal = (OperationValue) question.lookup(node.getName()).deref();
 
-				if (opVal.body == null)
-				{
-					throw new CmlInterpreterException(node, InterpretationErrorMessages.EVAL_OF_IMPLICIT_OP.customizeMessage(node.getName().toString()));
-				}
 
 				// evaluate all the arguments
 				ValueList argValues = new ValueList();

@@ -1,10 +1,10 @@
 package eu.compassresearch.core.interpreter.api.transitions;
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.node.INode;
@@ -35,7 +35,7 @@ class ObservableLabelledTransition extends AbstractLabelledTransition implements
 		super(source, channelName);
 	}
 
-	private ObservableLabelledTransition(Set<CmlBehaviour> sources,
+	private ObservableLabelledTransition(SortedSet<CmlBehaviour> sources,
 			ChannelNameValue channelName)
 	{
 		super(sources, channelName);
@@ -93,7 +93,7 @@ class ObservableLabelledTransition extends AbstractLabelledTransition implements
 
 		if (meetValue.isConstraintValid())
 		{
-			Set<CmlBehaviour> sources = new HashSet<CmlBehaviour>();
+			SortedSet<CmlBehaviour> sources = new TreeSet<CmlBehaviour>();
 			sources.addAll(this.getEventSources());
 			sources.addAll(otherComEvent.getEventSources());
 			return new ObservableLabelledTransition(sources, meetValue);

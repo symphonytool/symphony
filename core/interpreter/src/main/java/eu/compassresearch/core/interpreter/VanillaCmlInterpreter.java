@@ -2,9 +2,9 @@ package eu.compassresearch.core.interpreter;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
@@ -148,7 +148,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		// Create the initial context with the global definitions
 		Context topContext = getInitialContext(null);
 		// Create a CmlBehaviour for the top process
-		runningTopProcess = new ConcreteCmlBehaviour(topProcess.getProcess(), topContext, new CmlBehaviour.BehaviourName(topProcess.getName().getName()));
+		runningTopProcess = config.cmlBehaviorFactory.newCmlBehaviour(topProcess.getProcess(), topContext, new CmlBehaviour.BehaviourName(topProcess.getName().getName()),null);
 
 		// Fire the interpreter running event before we start
 		setNewState(CmlInterpreterState.RUNNING);
@@ -220,35 +220,17 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			CmlRuntime.logger().fine("Waiting for environment on : "
 					+ availableEvents.getAllEvents());
 
-			for (CmlTransition event : availableEvents.getAllEvents())
-			{
-				// TODO this should be handled differently
-				Context context = event.getEventSources().iterator().next().getNextState().second;
+			logState(availableEvents);
 
-				String state;
-
-				if (context.getSelf() != null)
-				{
-					state = context.getSelf().toString();
-				} else if (context.outer != null)
-				{
-					state = context.getRoot().toString();
-				} else
-				{
-					state = context.toString();
-				}
-
-				CmlRuntime.logger().finer("State for " + event + " : " + state);
-			}
-
+			SelectionStrategy env = getEnvironment();
 			// set the state of the interpreter to be waiting for the environment
-			getEnvironment().choices(filterEvents(availableEvents));
+			env.choices(filterEvents(availableEvents));
 			setNewState(CmlInterpreterState.WAITING_FOR_ENVIRONMENT);
 			// Get the environment to select the next transition.
 			// this is potentially a blocking call!!
-			selectedEvent = getEnvironment().resolveChoice();
+			selectedEvent = env.resolveChoice();
 
-			// if its null we terminate and assume that this happended because of a user interrupt
+			// if its null we terminate and assume that this happened because of a user interrupt
 			if (selectedEvent == null)
 			{
 				break;
@@ -263,25 +245,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			behaviour.execute(selectedEvent);
 			CmlTrace trace = behaviour.getTraceModel();
 
-			if (trace.getLastTransition() instanceof ObservableTransition)
-			{
-				CmlRuntime.logger().fine("----------------observable step by '"
-						+ behaviour + "'----------------------");
-				CmlRuntime.logger().fine("Observable trace of '" + behaviour
-						+ "': " + trace.getObservableTrace());
-				CmlRuntime.logger().fine("Eval. Status={ "
-						+ behaviour.nextStepToString() + " }");
-				CmlRuntime.logger().fine("-----------------------------------------------------------------");
-			} else
-			{
-				CmlRuntime.logger().finer("----------------Silent step by '"
-						+ behaviour + "'--------------------");
-				CmlRuntime.logger().finer("Trace of '" + behaviour + "': "
-						+ trace);
-				CmlRuntime.logger().finer("Eval. Status={ "
-						+ behaviour.nextStepToString() + " }");
-				CmlRuntime.logger().finer("-----------------------------------------------------------------");
-			}
+			logTransition(behaviour, trace);
 
 		}
 
@@ -304,6 +268,53 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			setNewState(CmlInterpreterState.FINISHED);
 		}
 
+	}
+
+	public void logState(CmlTransitionSet availableEvents)
+	{
+		for (CmlTransition event : availableEvents.getAllEvents())
+		{
+			// TODO this should be handled differently
+			Context context = event.getEventSources().iterator().next().getNextState().second;
+
+			String state;
+
+			if (context.getSelf() != null)
+			{
+				state = context.getSelf().toString();
+			} else if (context.outer != null)
+			{
+				state = context.getRoot().toString();
+			} else
+			{
+				state = context.toString();
+			}
+
+			CmlRuntime.logger().finer("State for " + event + " : " + state);
+		}
+	}
+
+	public void logTransition(CmlBehaviour behaviour, CmlTrace trace)
+	{
+		if (trace.getLastTransition() instanceof ObservableTransition)
+		{
+			CmlRuntime.logger().fine("----------------observable step by '"
+					+ behaviour + "'----------------------");
+			CmlRuntime.logger().fine("Observable trace of '" + behaviour
+					+ "': " + trace.getObservableTrace());
+			CmlRuntime.logger().fine("Eval. Status={ "
+					+ behaviour.nextStepToString() + " }");
+			CmlRuntime.logger().fine("-----------------------------------------------------------------");
+		} else
+		{
+			CmlRuntime.logger().finer("----------------Silent step by '"
+					+ behaviour + "'--------------------");
+			CmlRuntime.logger().finer("Trace of '" + behaviour + "': "
+					+ trace);
+			CmlRuntime.logger().finer("Eval. Status={ "
+					+ behaviour.nextStepToString() + " }");
+			CmlRuntime.logger().finer("-----------------------------------------------------------------");
+		}
 	}
 
 	@Override
@@ -336,7 +347,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			return availableEvents;
 		}
 
-		Set<CmlTransition> events = new HashSet<CmlTransition>();
+		SortedSet<CmlTransition> events = new TreeSet<CmlTransition>();
 		for (CmlTransition event : availableEvents.getAllEvents())
 		{
 			if (!(event instanceof TimedTransition))

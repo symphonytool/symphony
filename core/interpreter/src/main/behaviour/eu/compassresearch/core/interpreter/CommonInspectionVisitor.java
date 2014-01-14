@@ -5,6 +5,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.expressions.PExp;
@@ -23,6 +25,7 @@ import eu.compassresearch.ast.expressions.ANameChannelExp;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorFactory;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlCalculationStep;
 import eu.compassresearch.core.interpreter.api.behaviour.Inspection;
@@ -49,9 +52,10 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 
 	public CommonInspectionVisitor(CmlBehaviour ownerProcess,
 			VisitorAccess visitorAccess,
+			CmlBehaviorFactory cmlBehaviorFactory,
 			QuestionAnswerCMLAdaptor<Context, Inspection> parentVisitor)
 	{
-		super(ownerProcess, visitorAccess, parentVisitor);
+		super(ownerProcess, visitorAccess, cmlBehaviorFactory, parentVisitor);
 	}
 
 	/**
@@ -104,8 +108,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 						CmlTransition selectedTransition)
 						throws AnalysisException
 				{
-					helper.caseParallelBegin(); // caseParallelProcessBegin(node, leftNode, rightNode, "[cs||cs]",
-												// question);
+					helper.caseParallelBegin(); 
 					// We push the current state, since this process will control the child processes created by it
 					return new Pair<INode, Context>(node, question);
 				}
@@ -118,26 +121,33 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			return newInspection(createTauTransitionWithoutTime(dstNode, "End"), caseParallelEnd(dstNode, question));
 		} else
 		{
-			// fetch the already evaluated left and right channel sets
-			ChannelNameSetValue leftChanset = (ChannelNameSetValue) question.lookup(NamespaceUtility.getLeftPrecalculatedChannetSet()); // eval(
-																																		// node.getLeftChansetExpression(),
-																																		// getChildContexts(owner.getLeftChild().getNextState().second).first);
-			ChannelNameSetValue rightChanset = (ChannelNameSetValue) question.lookup(NamespaceUtility.getRightPrecalculatedChannetSet()); // eval(node.getRightChansetExpression(),getChildContexts(owner.getRightChild().getNextState().second).second);
+			//The left and right channel sets has already been evaluated in the setup visitor and put in the context, so we just fetch them.
+			ChannelNameSetValue leftChanset = (ChannelNameSetValue) question.lookup(NamespaceUtility.getLeftPrecalculatedChannetSet()); 
+			ChannelNameSetValue rightChanset = (ChannelNameSetValue) question.lookup(NamespaceUtility.getRightPrecalculatedChannetSet());
 
-			// next we find the intersection of of them
+			// next we find the intersection of of them, since these are the ones that left and right must sync on
 			ChannelNameSetValue intersectionChanset = new ChannelNameSetValue(leftChanset);
 			intersectionChanset.retainAll(rightChanset);
 
+			
 			final CmlTransitionSet leftChildAlpha = owner.getLeftChild().inspect();
 			final CmlTransitionSet rightChildAlpha = owner.getRightChild().inspect();
 
-			CmlTransitionSet leftAllowedNonSyncTransitions = leftChildAlpha.retainByChannelNameSet(leftChanset).removeByChannelNameSet(intersectionChanset).union(leftChildAlpha.getSilentTransitions());
-			CmlTransitionSet rightAllowedNonSyncTransitions = rightChildAlpha.retainByChannelNameSet(rightChanset).removeByChannelNameSet(intersectionChanset).union(rightChildAlpha.getSilentTransitions());
+			/*
+			 * The independent transitions are the ones that are defined in the corresponding 
+			 * channel set which is not in the intersection of the left and right channel set.
+			 * This is calculated by taking the each child alphabet and first retain corresponding 
+			 * channel set and then remove the intersection.
+			 */
+			CmlTransitionSet leftIndependentTransitions = leftChildAlpha.retainByChannelNameSet(leftChanset).
+					removeByChannelNameSet(intersectionChanset).union(leftChildAlpha.getSilentTransitions());
+			CmlTransitionSet rightIndependentTransitions = rightChildAlpha.retainByChannelNameSet(rightChanset).
+					removeByChannelNameSet(intersectionChanset).union(rightChildAlpha.getSilentTransitions());
 
 			// combine all the common channel events that are in the channel set
 			CmlTransitionSet leftSync = leftChildAlpha.retainByChannelNameSet(intersectionChanset);
 			CmlTransitionSet rightSync = rightChildAlpha.retainByChannelNameSet(intersectionChanset);
-			Set<CmlTransition> syncEvents = new HashSet<CmlTransition>();
+			SortedSet<CmlTransition> syncEvents = new TreeSet<CmlTransition>();
 			// Find the intersection between the child alphabets and the channel set and join them.
 			// Then if both left and right have them the next step will combine them.
 			for (ObservableTransition leftTrans : leftSync.getObservableChannelEvents())
@@ -163,8 +173,8 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			 * Finally we create the returned alphabet by joining all the Synchronized events together with all the
 			 * event of the children that are not in the channel set.
 			 */
-			CmlTransitionSet resultAlpha = new CmlTransitionSet(syncEvents).union(leftAllowedNonSyncTransitions);
-			resultAlpha = resultAlpha.union(rightAllowedNonSyncTransitions);
+			CmlTransitionSet resultAlpha = new CmlTransitionSet(syncEvents).union(leftIndependentTransitions);
+			resultAlpha = resultAlpha.union(rightIndependentTransitions);
 
 			return newInspection(resultAlpha, new CmlCalculationStep()
 			{
@@ -402,7 +412,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 		// combine all the common channel events that are in the channel set
 		CmlTransitionSet leftSync = leftChildAlphabet.retainByChannelNameSet(cs);
 		CmlTransitionSet rightSync = rightChildAlphabet.retainByChannelNameSet(cs);
-		Set<CmlTransition> syncEvents = new HashSet<CmlTransition>();
+		SortedSet<CmlTransition> syncEvents = new TreeSet<CmlTransition>();
 		// Find the intersection between the child alphabets and the channel set and join them.
 		// Then if both left and right have them the next step will combine them.
 		for (ObservableTransition leftTrans : leftSync.getObservableChannelEvents())
@@ -418,7 +428,9 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 					if (leftChannelEvent.getChannelName().isGTEQPrecise(rightChannelEvent.getChannelName())
 							|| rightChannelEvent.getChannelName().isGTEQPrecise(leftChannelEvent.getChannelName()))
 					{
-						syncEvents.add(leftTrans.synchronizeWith(rightTrans));
+						ObservableTransition result = leftTrans.synchronizeWith(rightTrans);
+						if(result != null)
+							syncEvents.add(result);
 					}
 				}
 			}

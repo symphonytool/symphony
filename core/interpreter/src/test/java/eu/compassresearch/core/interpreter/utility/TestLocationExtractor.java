@@ -1,6 +1,6 @@
 package eu.compassresearch.core.interpreter.utility;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Test;
 import org.overture.ast.intf.lex.ILexLocation;

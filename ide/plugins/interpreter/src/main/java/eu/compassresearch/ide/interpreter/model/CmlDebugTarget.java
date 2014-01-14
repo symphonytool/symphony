@@ -30,12 +30,10 @@ import org.eclipse.swt.widgets.Display;
 import org.overture.ide.debug.core.model.DebugEventHelper;
 
 import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
-import eu.compassresearch.core.interpreter.debug.Breakpoint;
 import eu.compassresearch.core.interpreter.debug.CmlDbgCommandMessage;
 import eu.compassresearch.core.interpreter.debug.CmlDbgStatusMessage;
 import eu.compassresearch.core.interpreter.debug.CmlDebugCommand;
 import eu.compassresearch.core.interpreter.debug.CmlInterpreterStateDTO;
-import eu.compassresearch.core.interpreter.debug.CmlProcessDTO;
 import eu.compassresearch.core.interpreter.debug.TransitionDTO;
 import eu.compassresearch.core.interpreter.debug.messaging.CmlRequest;
 import eu.compassresearch.core.interpreter.debug.messaging.RequestMessage;
@@ -231,19 +229,19 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget
 					@Override
 					public void run()
 					{
-//						if (message.getInterpreterStatus().hasActiveBreakpoint())
-//						{
-//							Breakpoint bp = message.getInterpreterStatus().getActiveBreakpoint();
-//							for (CmlProcessDTO pi : message.getInterpreterStatus().getAllProcesses())
-//							{
-//								if (pi.getLocation().getStartLine() == bp.getLine())
-//								{
-//									CmlUtil.setSelectionFromLocation(pi.getLocation(), lastSelectedRanges);
-//									CmlUtil.showLocation(lastSelectedRanges.keySet().iterator().next(), pi.getLocation());
-//									break;
-//								}
-//							}
-//						}
+						// if (message.getInterpreterStatus().hasActiveBreakpoint())
+						// {
+						// Breakpoint bp = message.getInterpreterStatus().getActiveBreakpoint();
+						// for (CmlProcessDTO pi : message.getInterpreterStatus().getAllProcesses())
+						// {
+						// if (pi.getLocation().getStartLine() == bp.getLine())
+						// {
+						// CmlUtil.setSelectionFromLocation(pi.getLocation(), lastSelectedRanges);
+						// CmlUtil.showLocation(lastSelectedRanges.keySet().iterator().next(), pi.getLocation());
+						// break;
+						// }
+						// }
+						// }
 
 						try
 						{

@@ -34,6 +34,7 @@ import org.overture.ide.debug.utils.JarClassSelector;
 
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ide.core.ICmlCoreConstants;
+import eu.compassresearch.ide.core.resources.ICmlProject;
 import eu.compassresearch.ide.interpreter.ICmlDebugConstants;
 
 public class CmlMainLaunchConfigurationTab extends
@@ -194,11 +195,9 @@ public class CmlMainLaunchConfigurationTab extends
 			public void widgetSelected(SelectionEvent e)
 			{
 				final IProject project = getProject();
-				IVdmProject vdmProject = (IVdmProject) project.getAdapter(IVdmProject.class);
+				ICmlProject cmlProject = (ICmlProject) project.getAdapter(ICmlProject.class);
 
-				GlobalProcessSelectorDialog dialog = new GlobalProcessSelectorDialog(getShell(), vdmProject);
-
-				AProcessDefinition selectedProcess = dialog.showDialog();
+				AProcessDefinition selectedProcess = GlobalProcessSelectorDialog.chooseProcess( cmlProject,getShell());
 
 				if (selectedProcess != null)
 				{
@@ -241,12 +240,6 @@ public class CmlMainLaunchConfigurationTab extends
 			@Override
 			public void widgetSelected(SelectionEvent e)
 			{
-				// ListSelectionDialog dlg = new ListSelectionDialog(getShell(),
-				// ResourcesPlugin.getWorkspace().getRoot(), new
-				// BaseWorkbenchContentProvider(), new
-				// WorkbenchLabelProvider(), "Select the Project:");
-				// dlg.setTitle("Project Selection");
-				// dlg.open();
 				class ProjectContentProvider extends
 						BaseWorkbenchContentProvider
 				{
@@ -477,35 +470,6 @@ public class CmlMainLaunchConfigurationTab extends
 		}
 		configuration.setAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_REMOTE_INTERPRETER_CLASS, fRemoteControlClassText.getText());
 
-		// CML_LAUNCH_CONFIG_IS_ANIMATION
-
-		// configuration.setAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_PROCESS_FILE_PATH, fTopProcessFilePath);
-
-		// configuration.setAttribute(ICmlLaunchConfigurationConstants.ATTR_PROJECT_NAME, fProjectText.getText());
-		//
-		// configuration.setAttribute(CmlInterpreterLaunchConfigurationConstants.PROCESS_NAME.toString(),
-		// fTopProcessText.getText());
-		//
-		// if (fProjectText.getText().length() > 0)
-		// {
-		//
-		// IProject project = getProjectByName(fProjectText.getText());
-		// // Set the project src path
-		// configuration.setAttribute(CmlInterpreterLaunchConfigurationConstants.CML_SOURCES_PATH.toString(),
-		// CmlUtil.getCmlSourcesPathsFromProject(project));
-		//
-		// List<AProcessDefinition> globalProcess = CmlUtil.GetGlobalProcessesFromProject(project);
-		//
-		// for (AProcessDefinition processDef : globalProcess)
-		// {
-		// if (fTopProcessText.getText().equals(processDef.getName().getName()))
-		// configuration.setAttribute(CmlInterpreterLaunchConfigurationConstants.PROCESS_FILE_PATH.toString(),
-		// processDef.getLocation().getFile().getAbsolutePath());
-		// }
-		//
-		// }
-
-		// updateLaunchConfigurationDialog();
 	}
 
 	@Override
