@@ -203,7 +203,7 @@ public class CollaborationLabelProvider extends LabelProvider implements
 
 			if (c.getStatus() == NegotiationStatus.ACCEPT)
 			{
-				return Display.getCurrent().getSystemColor(SWT.COLOR_GREEN);
+				return Display.getCurrent().getSystemColor(SWT.COLOR_DARK_GREEN);
 			} else if (c.getStatus() == NegotiationStatus.REJECT)
 			{
 				return Display.getCurrent().getSystemColor(SWT.COLOR_RED);
@@ -231,6 +231,11 @@ public class CollaborationLabelProvider extends LabelProvider implements
 		{
 			Configuration c = (Configuration) element;
 
+			if (c.getStatus() == NegotiationStatus.ACCEPT || c.getStatus() == NegotiationStatus.REJECT)
+			{
+				return Display.getCurrent().getSystemColor(SWT.COLOR_WHITE);
+			} 
+			
 			if (c.isShared())
 			{
 				return Display.getCurrent().getSystemColor(SWT.COLOR_GRAY);
@@ -240,7 +245,7 @@ public class CollaborationLabelProvider extends LabelProvider implements
 			} else if (c.isLocal())
 			{
 				return Display.getCurrent().getSystemColor(SWT.COLOR_DARK_RED);
-			}
+			}	
 		}
 		return null;
 	}
