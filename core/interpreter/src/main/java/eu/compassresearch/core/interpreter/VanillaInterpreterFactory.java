@@ -44,11 +44,11 @@ public final class VanillaInterpreterFactory
 
 	public static Config newDefaultConfig()
 	{
-		return new Config(false);
+		return new Config(false, new DefaultCmlBehaviorFactory());
 	}
 
 	public static Config newDefaultConfig(boolean filterTockEvents)
 	{
-		return new Config(filterTockEvents);
+		return new Config(filterTockEvents, new DefaultCmlBehaviorFactory());
 	}
 }

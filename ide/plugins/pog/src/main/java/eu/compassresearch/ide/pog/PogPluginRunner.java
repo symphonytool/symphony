@@ -79,7 +79,7 @@ public class PogPluginRunner {
 			PogPluginUtils
 					.popErrorMessage(
 							window,
-							"Internal POG error. Please submit a bug report at: \n\nhttp://sourceforge.net/p/compassresearch/tickets/new/");
+							"Internal POG error. Please submit a bug report at: \n\nhttps://github.com/symphonytool/symphony/issues/new");
 			e.printStackTrace();
 			return poList;
 		}

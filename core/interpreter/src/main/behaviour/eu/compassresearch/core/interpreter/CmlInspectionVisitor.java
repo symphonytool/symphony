@@ -12,6 +12,7 @@ import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.process.PProcess;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorFactory;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlCalculationStep;
 import eu.compassresearch.core.interpreter.api.behaviour.Inspection;
@@ -25,12 +26,12 @@ public class CmlInspectionVisitor extends AbstractInspectionVisitor
 	private QuestionAnswerCMLAdaptor<Context, Inspection> actionVisitor;
 
 	public CmlInspectionVisitor(CmlBehaviour ownerProcess,
+			CmlBehaviorFactory cmlBehaviorFactory, 
 			VisitorAccess visitorAccess)
 	{
-
-		super(ownerProcess, visitorAccess, null);
-		this.actionVisitor = new ActionInspectionVisitor(ownerProcess, visitorAccess, this);
-		this.processVisitor = new ProcessInspectionVisitor(ownerProcess, visitorAccess, this);
+		super(ownerProcess, visitorAccess, cmlBehaviorFactory, null);
+		this.actionVisitor = new ActionInspectionVisitor(ownerProcess, visitorAccess, cmlBehaviorFactory, this);
+		this.processVisitor = new ProcessInspectionVisitor(ownerProcess, visitorAccess, cmlBehaviorFactory, this);
 	}
 
 	@Override

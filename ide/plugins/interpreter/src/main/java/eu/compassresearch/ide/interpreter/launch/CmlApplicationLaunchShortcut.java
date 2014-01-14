@@ -1,9 +1,10 @@
 package eu.compassresearch.ide.interpreter.launch;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.DebugPlugin;
@@ -11,39 +12,44 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationType;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.ILaunchManager;
+import org.eclipse.debug.ui.DebugUITools;
+import org.eclipse.debug.ui.IDebugModelPresentation;
 import org.eclipse.debug.ui.ILaunchShortcut2;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.TreeSelection;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.ide.IDE;
+import org.eclipse.ui.dialogs.ElementListSelectionDialog;
+import org.eclipse.ui.progress.IProgressService;
 import org.overture.ide.core.resources.IVdmProject;
+import org.overture.ide.debug.ui.launchconfigurations.LauncherMessages;
 import org.overture.ide.ui.utility.VdmTypeCheckerUi;
 
 import eu.compassresearch.ast.definitions.AProcessDefinition;
-import eu.compassresearch.ide.core.resources.ICmlSourceUnit;
+import eu.compassresearch.ide.core.resources.ICmlProject;
 import eu.compassresearch.ide.interpreter.CmlDebugPlugin;
 import eu.compassresearch.ide.interpreter.CmlUtil;
 import eu.compassresearch.ide.interpreter.ICmlDebugConstants;
 import eu.compassresearch.ide.interpreter.launching.GlobalProcessSelectorDialog;
 
-//import eu.compassresearch.core.interpreter.debug.CmlInterpreterLaunchConfigurationConstants;
 
 public class CmlApplicationLaunchShortcut implements ILaunchShortcut2
 {
+
+	private IProject project;
 
 	@Override
 	public void launch(ISelection selection, String mode)
 	{
 
-		if (selection instanceof TreeSelection)
+		if (selection instanceof IStructuredSelection)
 		{
-			TreeSelection treeSelection = (TreeSelection) selection;
+			IStructuredSelection treeSelection = (IStructuredSelection) selection;
 			// find the associated CmlSourceUnit for this selected file.
-			searchAndLaunch(treeSelection.getFirstElement(), mode);
+			searchAndLaunch(treeSelection.toArray(), mode);
 		}
 
 	}
@@ -51,30 +57,26 @@ public class CmlApplicationLaunchShortcut implements ILaunchShortcut2
 	@Override
 	public void launch(IEditorPart editor, String mode)
 	{
-		// System.out.println(editor.toString());
 	}
 
-	@Override
-	public ILaunchConfiguration[] getLaunchConfigurations(ISelection selection)
-	{
 
-		if (selection instanceof TreeSelection)
-		{
-			TreeSelection treeSelection = (TreeSelection) selection;
-			// find the associated CmlSourceUnit for this selected file.
-			IFile file = (IFile) treeSelection.getFirstElement();
-
-			ICmlSourceUnit source = (ICmlSourceUnit) file.getAdapter(ICmlSourceUnit.class);
-			List<ILaunchConfiguration> foundConfs = findLaunchConfigurationsByFile(source);
-
-			return foundConfs.toArray(new ILaunchConfiguration[foundConfs.size()]);
-		} else
-			return null;
-	}
-
-	@Override
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.debug.ui.ILaunchShortcut2#getLaunchConfigurations(org.eclipse.ui.IEditorPart)
+	 */
 	public ILaunchConfiguration[] getLaunchConfigurations(IEditorPart editorpart)
 	{
+		// let the framework resolve configurations based on resource mapping
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.debug.ui.ILaunchShortcut2#getLaunchConfigurations(org.eclipse.jface.viewers.ISelection)
+	 */
+	public ILaunchConfiguration[] getLaunchConfigurations(ISelection selection)
+	{
+		// let the framework resolve configurations based on resource mapping
 		return null;
 	}
 
@@ -91,142 +93,200 @@ public class CmlApplicationLaunchShortcut implements ILaunchShortcut2
 		return null;
 	}
 
+	protected IProject findProject(Object[] scope,
+			IProgressService progressService) throws InterruptedException,
+			CoreException
+	{
+		for (Object object : scope)
+		{
+			if (object instanceof IProject)
+			{
+				IProject project = (IProject) object;
+				return project;
+
+			} else if (object instanceof IResource)
+			{
+				return ((IResource) object).getProject();
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Finds and returns an <b>existing</b> configuration to re-launch for the given type, or <code>null</code> if there
+	 * is no existing configuration.
+	 * 
+	 * @return a configuration to use for launching the given type or <code>null</code> if none
+	 */
+	protected ILaunchConfiguration findLaunchConfiguration(String projectName,
+			ILaunchConfigurationType configType)
+	{
+		List<ILaunchConfiguration> candidateConfigs = Collections.emptyList();
+		try
+		{
+			ILaunchConfiguration[] configs = DebugPlugin.getDefault().getLaunchManager().getLaunchConfigurations(configType);
+			candidateConfigs = new ArrayList<ILaunchConfiguration>(configs.length);
+			for (int i = 0; i < configs.length; i++)
+			{
+				ILaunchConfiguration config = configs[i];
+
+				// String defaultModule = config.getAttribute(IDebugConstants.VDM_LAUNCH_CONFIG_DEFAULT, "");
+				String pName = config.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_PROJECT, "");
+				// String operation = config.getAttribute(IDebugConstants.VDM_LAUNCH_CONFIG_OPERATION, "");
+
+				if (// defaultModule.equals(getModuleName(type).toString())
+					// &&
+				pName.equalsIgnoreCase(projectName)
+				// && operation.equals(getOperationName(type) + "()")
+				)
+				{ //$NON-NLS-1$
+					candidateConfigs.add(config);
+				}
+			}
+
+		} catch (CoreException e)
+		{
+			// JDIDebugUIPlugin.log(e);
+		}
+		int candidateCount = candidateConfigs.size();
+		if (candidateCount == 1)
+		{
+			return (ILaunchConfiguration) candidateConfigs.get(0);
+		} else if (candidateCount > 1)
+		{
+			return chooseConfiguration(candidateConfigs);
+			// return candidateConfigs.get(0);
+		}
+		return null;
+	}
+
+	/**
+	 * Returns a configuration from the given collection of configurations that should be launched, or <code>null</code>
+	 * to cancel. Default implementation opens a selection dialog that allows the user to choose one of the specified
+	 * launch configurations. Returns the chosen configuration, or <code>null</code> if the user cancels.
+	 * 
+	 * @param configList
+	 *            list of configurations to choose from
+	 * @return configuration to launch or <code>null</code> to cancel
+	 */
+	protected ILaunchConfiguration chooseConfiguration(
+			List<ILaunchConfiguration> configList)
+	{
+		IDebugModelPresentation labelProvider = DebugUITools.newDebugModelPresentation();
+		ElementListSelectionDialog dialog = new ElementListSelectionDialog(getShell(), labelProvider);
+		dialog.setElements(configList.toArray());
+		dialog.setTitle("Choose CML configuration");
+		dialog.setMessage(LauncherMessages.VdmLaunchShortcut_2);
+		dialog.setMultipleSelection(false);
+		int result = dialog.open();
+		labelProvider.dispose();
+		if (result == Window.OK)
+		{
+			return (ILaunchConfiguration) dialog.getFirstResult();
+		}
+		return null;
+	}
+
+	private void launch(ILaunchConfiguration config, String mode)
+	{
+		if (config != null)
+		{
+			DebugUITools.launch(config, mode);
+		}
+	}
+
 	/**
 	 * Protected Methods
 	 */
-	protected void searchAndLaunch(Object file, String mode)
-	{
-
-		IFile ifile = (IFile) file;
-		ICmlSourceUnit source = (ICmlSourceUnit) ifile.getAdapter(ICmlSourceUnit.class);
-
-		// Open the file that are going being debugged
-		try
-		{
-			IDE.openEditor(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), ifile);
-		} catch (PartInitException e1)
-		{
-			e1.printStackTrace();
-		}
-
-		IVdmProject vdmProject = (IVdmProject) ifile.getProject().getAdapter(IVdmProject.class);
-		if (VdmTypeCheckerUi.typeCheck(getShell(), vdmProject))
-		{
-			if (vdmProject != null && vdmProject.getModel().isParseCorrect()
-					&& source != null) // && vdmProject.getModel().isTypeCorrect())
-			{
-
-				List<AProcessDefinition> defsInFile = CmlUtil.getGlobalProcessesFromSource(source.getParseListDefinitions());
-
-				if (defsInFile.size() == 1)
-				{
-					String processName = defsInFile.get(0).getName().getName();
-					launch(source, processName, mode);
-				} else if (defsInFile.size() > 1)
-				{
-
-					GlobalProcessSelectorDialog dialog = new GlobalProcessSelectorDialog(getShell(), vdmProject);
-
-					AProcessDefinition selectedProcess = dialog.showDialog();
-
-					if (selectedProcess != null)
-					{
-						String processName = selectedProcess.getName().getName();
-						launch(source, processName, mode);
-					}
-
-				}
-			}
-		} else
-		// If no ast is attached then there are either parser or type errors
-		{
-			if (!vdmProject.getModel().isParseCorrect())
-				MessageDialog.openError(null, "Launch failure", "The Cml model is not parsed correctly and therefore cannot be launched. This could be a glitch, try to close and open the source.");
-			else if (!vdmProject.getModel().isTypeCorrect())
-				MessageDialog.openError(null, "Launch failure", "The Cml model is not typecheck correctly and therefore cannot be launched. This could be a glitch, try to close and open the source.");
-			else
-				MessageDialog.openError(null, "Launch failure", "The Cml model is not loaded correctly and therefore cannot be launched");
-		}
-
-	}
-
-	protected void launch(ICmlSourceUnit sourceUnit, String processName,
-			String mode)
+	protected void searchAndLaunch(Object[] scope, String mode)
 	{
 		try
 		{
-			ILaunchConfiguration config = findLaunchConfiguration(sourceUnit, processName, mode);
+			project = findProject(scope, PlatformUI.getWorkbench().getProgressService());
 
+			ILaunchConfiguration config = findLaunchConfiguration(project.getName(), getConfigurationType());
 			if (config != null)
 			{
-				config.launch(mode, null);
+				// config already exists for the project.
+				launch(config, mode);
+				return;
 			}
-		} catch (CoreException e)
+
+			IVdmProject vdmProject = (IVdmProject) project.getAdapter(IVdmProject.class);
+			if (VdmTypeCheckerUi.typeCheck(getShell(), vdmProject))
+			{
+				if (vdmProject != null
+						&& vdmProject.getModel().isParseCorrect()) // &&
+																	// vdmProject.getModel().isTypeCorrect())
+				{
+					ICmlProject cmlProject = (ICmlProject) vdmProject.getAdapter(ICmlProject.class);
+
+					List<AProcessDefinition> defsInFile = CmlUtil.getGlobalProcessesFromSource(cmlProject.getModel().getDefinitions());
+
+					ILaunchConfiguration launchConfig = null;
+					if (defsInFile.size() == 1)
+					{
+						String processName = defsInFile.get(0).getName().getName();
+						launchConfig = createConfiguration(processName, mode);
+					} else if (defsInFile.size() > 1)
+					{
+
+						AProcessDefinition selectedProcess = GlobalProcessSelectorDialog.chooseProcess(cmlProject, getShell());
+
+						if (selectedProcess != null)
+						{
+							String processName = selectedProcess.getName().getName();
+							launchConfig = createConfiguration(processName, mode);
+						}
+
+					}
+
+					launch(launchConfig, mode);
+				}
+			} else
+			// If no ast is attached then there are either parser or type errors
+			{
+				if (!vdmProject.getModel().isParseCorrect())
+				{
+					MessageDialog.openError(null, "Launch failure", "The Cml model is not parsed correctly and therefore cannot be launched. This could be a glitch, try to close and open the source.");
+				} else if (!vdmProject.getModel().isTypeCorrect())
+				{
+					MessageDialog.openError(null, "Launch failure", "The Cml model is not typecheck correctly and therefore cannot be launched. This could be a glitch, try to close and open the source.");
+				} else
+				{
+					MessageDialog.openError(null, "Launch failure", "The Cml model is not loaded correctly and therefore cannot be launched");
+				}
+			}
+		} catch (InterruptedException | CoreException e)
 		{
-			/* Handle exceptions */
-			e.printStackTrace();
+			MessageDialog.openError(getShell(), LauncherMessages.VdmLaunchShortcut_0, e.getMessage());
+			return;
 		}
 	}
 
-	protected List<ILaunchConfiguration> findLaunchConfigurationsByFile(
-			ICmlSourceUnit file)
-
+	private ILaunchConfiguration createConfiguration(String processName,
+			String mode) throws CoreException
 	{
+		// create a new one
 		ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
 		ILaunchConfigurationType ctype = launchManager.getLaunchConfigurationType(ICmlDebugConstants.ATTR_LAUNCH_CONFIGURATION_TYPE);
 
-		// Get the current project which this file lives in
+		ILaunchConfigurationWorkingCopy lcwc = ctype.newInstance(null, launchManager.generateLaunchConfigurationName(project.getName()));
 
-		List<ILaunchConfiguration> result = new LinkedList<ILaunchConfiguration>();
-
-		try
-		{
-			for (ILaunchConfiguration lc : launchManager.getLaunchConfigurations(ctype))
-			{
-				String projectName = lc.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_PROJECT, "");
-				if (file.getFile().getProject().getName().equals(projectName))
-					result.add(lc);
-			}
-		} catch (CoreException e)
-		{
-			e.printStackTrace();
-		}
-
-		return result;
+		lcwc.setAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_PROCESS_NAME, processName);
+		lcwc.setAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_PROJECT, project.getName());
+		lcwc.doSave();
+		return lcwc;
 	}
 
-	protected ILaunchConfiguration findLaunchConfiguration(
-			ICmlSourceUnit sourceUnit, String processName, String mode)
-			throws CoreException
+	private ILaunchConfigurationType getConfigurationType()
 	{
-		List<ILaunchConfiguration> confs = findLaunchConfigurationsByFile(sourceUnit);
+		return getLaunchManager().getLaunchConfigurationType(ICmlDebugConstants.ATTR_LAUNCH_CONFIGURATION_TYPE);
+	}
 
-		ILaunchConfiguration result = null;
-
-		for (ILaunchConfiguration lc : confs)
-		{
-			String foundProcessName = lc.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_PROCESS_NAME, "");
-			if (foundProcessName.equals(processName))
-				result = lc;
-		}
-
-		// create a new one
-		if (result == null)
-		{
-			ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
-			ILaunchConfigurationType ctype = launchManager.getLaunchConfigurationType(ICmlDebugConstants.ATTR_LAUNCH_CONFIGURATION_TYPE);
-
-			ILaunchConfigurationWorkingCopy lcwc = ctype.newInstance(null, launchManager.generateLaunchConfigurationName(sourceUnit.getProject().getName()));
-
-			lcwc.setAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_PROCESS_NAME, processName);
-			lcwc.setAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_PROJECT, sourceUnit.getFile().getProject().getName());
-			// lcwc.setAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_PROCESS_FILE_PATH,
-			// sourceUnit.getSystemFile().getAbsolutePath());
-			lcwc.doSave();
-			result = lcwc;
-		}
-
-		return result;
+	protected ILaunchManager getLaunchManager()
+	{
+		return DebugPlugin.getDefault().getLaunchManager();
 	}
 
 	/**

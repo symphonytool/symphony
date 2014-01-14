@@ -1,0 +1,5 @@
+process InterruptTest = 
+begin 
+
+	@ a -> Skip /_2_\ b -> Skip
+end

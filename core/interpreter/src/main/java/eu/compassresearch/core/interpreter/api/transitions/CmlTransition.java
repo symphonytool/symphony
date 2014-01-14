@@ -2,12 +2,13 @@ package eu.compassresearch.core.interpreter.api.transitions;
 
 import java.io.Serializable;
 import java.util.Set;
+import java.util.SortedSet;
 
 import org.overture.ast.node.INode;
 
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 
-public interface CmlTransition extends Serializable // , Comparable<CmlTransition>
+public interface CmlTransition extends Serializable , Comparable<CmlTransition>
 {
 
 	/**
@@ -15,7 +16,7 @@ public interface CmlTransition extends Serializable // , Comparable<CmlTransitio
 	 * 
 	 * @return
 	 */
-	public Set<CmlBehaviour> getEventSources();
+	public SortedSet<CmlBehaviour> getEventSources();
 
 	/**
 	 * Convenience methods to get all the current nodes of the source
@@ -25,4 +26,10 @@ public interface CmlTransition extends Serializable // , Comparable<CmlTransitio
 	public Set<INode> getSourceNodes();
 
 	public boolean isSourcesSubset(CmlTransition other);
+	
+	/**
+	 * A unique id for this transitions objects
+	 * @return
+	 */
+	public int getTransitionId();
 }

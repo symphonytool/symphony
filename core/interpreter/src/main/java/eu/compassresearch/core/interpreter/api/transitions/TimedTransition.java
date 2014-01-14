@@ -2,6 +2,8 @@ package eu.compassresearch.core.interpreter.api.transitions;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.overture.ast.node.INode;
 
@@ -30,11 +32,11 @@ public class TimedTransition extends AbstractCmlTransition implements
 
 	public TimedTransition()
 	{
-		super(new HashSet<CmlBehaviour>());
+		super(new TreeSet<CmlBehaviour>());
 		timeLimit = 0;
 	}
 
-	protected TimedTransition(Set<CmlBehaviour> eventSources, long timeLimit)
+	protected TimedTransition(SortedSet<CmlBehaviour> eventSources, long timeLimit)
 	{
 		super(eventSources);
 		this.timeLimit = timeLimit;
@@ -47,7 +49,7 @@ public class TimedTransition extends AbstractCmlTransition implements
 		// if(!isComparable(other))
 		// throw new NotComparableException();
 		TimedTransition otherTock = (TimedTransition) syncEvent;
-		Set<CmlBehaviour> sources = new HashSet<CmlBehaviour>();
+		SortedSet<CmlBehaviour> sources = new TreeSet<CmlBehaviour>();
 		sources.addAll(this.getEventSources());
 		sources.addAll(otherTock.getEventSources());
 		long newLimit;

@@ -6,31 +6,47 @@ import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorFactory;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour.BehaviourName;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
 /**
- * Handles all setup actions. However, this is not meant to handle the semantic begin rules for actions.
- * 
+ * Handles all setup actions. However, this is not meant to handle the 
+ * semantic begin rules for actions.
  * @author akm
  */
 abstract class AbstractSetupVisitor extends
 		QuestionAnswerCMLAdaptor<Context, Pair<INode, Context>>
 {
 
-	// Interface that gives access to methods that control the behaviour
-	private final VisitorAccess controlAccess;
+	/**
+	 * The behavior that owns this visitor object
+	 */
 	protected final CmlBehaviour owner;
-	// Evaluator for expressions and definitions
+	/**
+	 * Interface that gives access to methods that control the behavior
+	 */
+	private final VisitorAccess controlAccess;
+	/**
+	 * Factory to create new CmlBehavior objects
+	 */
+	protected final CmlBehaviorFactory cmlBehaviorFactory;
+	
+	/**
+	 * Evaluator for expressions 
+	 */
 	protected final QuestionAnswerCMLAdaptor<Context, Value> cmlExpressionVisitor = new CmlExpressionVisitor();
+	/**
+	 * Evaluator for definitions
+	 */
 	protected final CmlDefinitionVisitor cmlDefEvaluator = new CmlDefinitionVisitor();
 
-	public AbstractSetupVisitor(CmlBehaviour owner, VisitorAccess visitorAccess)
+	public AbstractSetupVisitor(CmlBehaviour owner, VisitorAccess visitorAccess, CmlBehaviorFactory cmlBehaviorFactory)
 	{
 		this.owner = owner;
 		this.controlAccess = visitorAccess;
-
+		this.cmlBehaviorFactory = cmlBehaviorFactory;
 	}
 
 	@Override
@@ -48,13 +64,13 @@ abstract class AbstractSetupVisitor extends
 	protected void setLeftChild(INode node, BehaviourName name, Context question)
 			throws AnalysisException
 	{
-		this.controlAccess.setLeftChild(new ConcreteCmlBehaviour(node, this.controlAccess.getChildContexts(question).first, new BehaviourName(name.clone()), owner));
+		this.controlAccess.setLeftChild(cmlBehaviorFactory.newCmlBehaviour(node, this.controlAccess.getChildContexts(question).first, new BehaviourName(name.clone()), owner));
 	}
 
 	protected void setLeftChild(INode node, Context question)
 			throws AnalysisException
 	{
-		this.controlAccess.setLeftChild(new ConcreteCmlBehaviour(node, this.controlAccess.getChildContexts(question).first, owner));
+		this.controlAccess.setLeftChild(cmlBehaviorFactory.newCmlBehaviour(node, this.controlAccess.getChildContexts(question).first, owner));
 	}
 
 	protected void clearRightChild()
@@ -65,13 +81,13 @@ abstract class AbstractSetupVisitor extends
 	protected void setRightChild(INode node, BehaviourName name,
 			Context question) throws AnalysisException
 	{
-		this.controlAccess.setRightChild(new ConcreteCmlBehaviour(node, this.controlAccess.getChildContexts(question).second, name, owner));
+		this.controlAccess.setRightChild(cmlBehaviorFactory.newCmlBehaviour(node, this.controlAccess.getChildContexts(question).second, name, owner));
 	}
 
 	protected void setRightChild(INode node, Context question)
 			throws AnalysisException
 	{
-		this.controlAccess.setRightChild(new ConcreteCmlBehaviour(node, this.controlAccess.getChildContexts(question).second, owner));
+		this.controlAccess.setRightChild(cmlBehaviorFactory.newCmlBehaviour(node, this.controlAccess.getChildContexts(question).second, owner));
 	}
 
 	protected void setChildContexts(Pair<Context, Context> preBuildContexts)

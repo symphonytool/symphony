@@ -36,6 +36,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCATypeDefi
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCAValueDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCSCmlOperationDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCSFunctionDefinition;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAIntLiteralExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPVarsetExpression;
@@ -72,6 +73,7 @@ public class NewCMLModelcheckerContext {
 	public ArrayListSet<NameValue> localVariablesMapping;
 	public ArrayList<MCASBinaryExp> setExpressioFacts;
 	public LinkedList<MCAChansetDefinition> chansetDefs;
+	public int maxClock;
 	
 	
 	
@@ -224,13 +226,22 @@ public class NewCMLModelcheckerContext {
 		localVariablesMapping = new ArrayListSet<NameValue>();
 		setExpressioFacts = new ArrayList<MCASBinaryExp>(); 
 		chansetDefs = new LinkedList<MCAChansetDefinition>();
-		
+		maxClock = 0;
 		ASSIGN_COUNTER = 0;
 		GUARD_COUNTER = 0;
 		IOCOMM_COUNTER = 0;
 		CHANTYPE_COUNTER = 0;
 	}
 	
+	public void updateMaxClock(MCPCMLExp timeExpression){
+		if(timeExpression instanceof MCAIntLiteralExp){
+			String value = ((MCAIntLiteralExp) timeExpression).getValue();
+			int clockValue = Integer.parseInt(value);
+			if(clockValue > this.maxClock){
+				this.maxClock = clockValue;
+			}
+		}
+	}
 	
 	public MCAValueDefinition getValueDefinition(String valueName){
 		MCAValueDefinition result = null;

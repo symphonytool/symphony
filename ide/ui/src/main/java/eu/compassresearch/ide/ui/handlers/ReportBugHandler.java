@@ -18,7 +18,7 @@ public class ReportBugHandler extends AbstractHandler implements IHandler
 	{
 		try
 		{
-			PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(new URL("https://sourceforge.net/p/compassresearch/tickets/new/"));
+			PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(new URL("https://github.com/symphonytool/symphony/issues/new"));
 		} catch (PartInitException e)
 		{
 			e.printStackTrace();

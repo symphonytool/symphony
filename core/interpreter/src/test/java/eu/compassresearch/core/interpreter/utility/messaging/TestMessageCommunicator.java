@@ -5,10 +5,11 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.junit.After;
 import org.junit.Before;
@@ -185,9 +186,9 @@ public class TestMessageCommunicator
 				{
 
 					@Override
-					public Set<CmlBehaviour> getEventSources()
+					public SortedSet<CmlBehaviour> getEventSources()
 					{
-						return new HashSet<CmlBehaviour>();
+						return new TreeSet<CmlBehaviour>();
 					}
 
 					// @Override
@@ -229,6 +230,20 @@ public class TestMessageCommunicator
 					{
 						// TODO Auto-generated method stub
 						return null;
+					}
+
+					@Override
+					public int compareTo(CmlTransition o)
+					{
+						// TODO Auto-generated method stub
+						return 0;
+					}
+
+					@Override
+					public int getTransitionId()
+					{
+						// TODO Auto-generated method stub
+						return 0;
 					}
 				});
 
@@ -313,6 +328,13 @@ public class TestMessageCommunicator
 			{
 				// TODO Auto-generated method stub
 
+			}
+
+			@Override
+			public int compareTo(CmlBehaviour o)
+			{
+				// TODO Auto-generated method stub
+				return 0;
 			}
 		}, CmlInterpreterState.FINISHED);
 		Message sentMessage = new CmlDbgStatusMessage(status);

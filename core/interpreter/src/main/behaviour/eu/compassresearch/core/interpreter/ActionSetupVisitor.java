@@ -28,15 +28,16 @@ import eu.compassresearch.ast.actions.ATimeoutAction;
 import eu.compassresearch.ast.actions.AUntimedTimeoutAction;
 import eu.compassresearch.ast.actions.AWaitAction;
 import eu.compassresearch.ast.statements.AActionStm;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorFactory;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
 class ActionSetupVisitor extends CommonSetupVisitor
 {
 
-	public ActionSetupVisitor(CmlBehaviour owner, VisitorAccess visitorAccess)
+	public ActionSetupVisitor(CmlBehaviour owner, VisitorAccess visitorAccess, CmlBehaviorFactory cmlBehaviorFactory)
 	{
-		super(owner, visitorAccess);
+		super(owner, visitorAccess, cmlBehaviorFactory);
 	}
 
 	@Override
