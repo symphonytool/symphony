@@ -37,7 +37,7 @@ import eu.compassresearch.core.interpreter.api.transitions.ObservableTransition;
 import eu.compassresearch.core.interpreter.api.transitions.TimedTransition;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
-class ConcreteCmlBehaviour implements CmlBehaviour
+ class ConcreteCmlBehaviour implements CmlBehaviour
 {
 	private static int globalIdCount = 0;
 	private static final long serialVersionUID = -4920762081111266274L;
@@ -691,13 +691,13 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 		return newCurrent;
 	}
 
-	@Override
-	public void updateName(ILexNameToken name)
-	{
-		this.name.addProcess(name.getName());
-		// this.name = new CmlLexNameToken(name.getModule(), this.name.getName()+" -> "+name.getName(),
-		// name.getLocation());
-	}
+//	@Override
+//	public void updateName(ILexNameToken name)
+//	{
+//		this.name.addProcess(name.getName());
+//		// this.name = new CmlLexNameToken(name.getModule(), this.name.getName()+" -> "+name.getName(),
+//		// name.getLocation());
+//	}
 
 	@Override
 	public int compareTo(CmlBehaviour o)
