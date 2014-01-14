@@ -29,6 +29,7 @@ public abstract class Message
 		this.content = value;
 	}
 
+	@SuppressWarnings("unchecked")
 	public <T> T getContent()
 	{
 		// Gson gson = new Gson();
