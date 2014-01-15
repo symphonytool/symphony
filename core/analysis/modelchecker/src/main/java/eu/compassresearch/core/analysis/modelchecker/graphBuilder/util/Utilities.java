@@ -49,6 +49,8 @@ import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Proces
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.SeqComposition;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Skip;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Stop;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.TimedInterrupt;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.TimedTimeout;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.UntimedInterrupt;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.UntimedTimeout;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.VarDeclaration;
@@ -95,6 +97,8 @@ public class Utilities {
 		constructors.put(Constructor.Assing.id, Constructor.Assing);
 		constructors.put(Constructor.UntimedInterrupt.id, Constructor.UntimedInterrupt);
 		constructors.put(Constructor.UntimedTimeout.id, Constructor.UntimedTimeout);
+		constructors.put(Constructor.TimedInterrupt.id, Constructor.TimedInterrupt);
+		constructors.put(Constructor.TimedTimeout.id, Constructor.TimedTimeout);
 		
 
 		//CHOICE
@@ -172,7 +176,8 @@ public class Utilities {
 				"GivenProc"), ProcDef("ProcDef"), CommEv("CommEv"),
 				SingleBind("SingleBind"), Void("void"), VarDecl("var"), Let("let"), 
 				GenPar("genPar"), TypeValue("TypeValue"), UntimedInterrupt("intrpt"), 
-				UntimedTimeout ("uTimeout"), ProdType("ProdType");
+				UntimedTimeout ("uTimeout"), ProdType("ProdType"), TimedInterrupt("tIntrpt"),
+				TimedTimeout ("tTimeout");
 		
 		String id;
 		
@@ -278,13 +283,16 @@ public class Utilities {
 	
 	private static void extractTerms(LinkedList<String> terms, String arguments){
 		StringBuilder currentTerm = new StringBuilder();
+		
 		int currIndex = 0;
 		int leftParen = 0;
 		int leftSquareBracket = 0;
 		int leftBracket = 0;
 		if(arguments.length() > 0){
 			char currChar = arguments.charAt(currIndex);
+			
 			if((currChar == ',')){
+				
 				arguments = arguments.substring(1);
 				extractTerms(terms, arguments);
 			}else{
@@ -326,9 +334,11 @@ public class Utilities {
 					
 					if(currIndex != arguments.length()){
 						currChar = arguments.charAt(currIndex);
+						
 					}
 				}
 				terms.add(currentTerm.toString());
+				
 				arguments = arguments.substring(currentTerm.length());
 				extractTerms(terms, arguments);
 			}
@@ -340,7 +350,7 @@ public class Utilities {
 		Object result = null;
 		Constructor c = determineConstructor(content);
 		content = extractConstructor(content);
-		content = content.replaceAll(" ","");
+		//content = content.replaceAll(" ","");
 		result = createObject(c, content);
 		
 		return result;
@@ -451,6 +461,18 @@ public class Utilities {
 			auxProcess = (Process) createObject(arguments.pop().trim());
 			process = (Process) createObject(arguments.pop().trim());
 			result = new UntimedTimeout(auxProcess,process);
+			break;
+		case TimedInterrupt:
+			auxProcess = (Process) createObject(arguments.pop().trim());
+			String timeExp = arguments.pop().trim();
+			process = (Process) createObject(arguments.pop().trim());
+			result = new TimedInterrupt(auxProcess, process, timeExp);
+			break;
+		case TimedTimeout:
+			auxProcess = (Process) createObject(arguments.pop().trim());
+			String timeout = arguments.pop().trim();
+			process = (Process) createObject(arguments.pop().trim());
+			result = new TimedTimeout(auxProcess, process, timeout);
 			break;
 		case ExtChoice:
 			auxProcess = (Process) createObject(arguments.pop().trim());

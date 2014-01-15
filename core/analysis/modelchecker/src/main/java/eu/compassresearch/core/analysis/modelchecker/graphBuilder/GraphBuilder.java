@@ -12,6 +12,7 @@ import java.util.LinkedList;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.binding.NullBinding;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.event.Event;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.event.Tau;
+import eu.compassresearch.core.analysis.modelchecker.graphBuilder.event.Tock;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Divergence;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Process;
 import eu.compassresearch.core.analysis.modelchecker.graphBuilder.process.Skip;
@@ -136,7 +137,12 @@ public class GraphBuilder {
 			result.append(((Transition) trans).getSourceState().toString()
 					+ "->" + ((Transition) trans).getTargetState().toString() 
 					+ " [label= " + "\""
-					+ ((Transition) trans).getEvent().toString() + "\"]" + "\n");
+					+ ((Transition) trans).getEvent().toString() + "\""); 
+			if(trans.getEvent().equals(new Tock())){
+				result.append(",fontcolor=\"#D80032\", color=\"#D80032\"");
+			}
+			
+			result.append("]\n");
 			
 		}
 		
@@ -268,6 +274,7 @@ public class GraphBuilder {
 			}
 			//System.out.println("Size of visited states: " + visitedStates.size());
 			//visitedStates.add(current);
+			
 			LinkedList<Transition> transitionsFrom = this.getAllTransitionsFrom(transitions, current);
 			if(transitionsFrom.size() == 0){ //if there is outgoing transition
 				if (current.equals(basicDeadlock)){ //if the state is basic deadlock
@@ -291,6 +298,13 @@ public class GraphBuilder {
 					}
 					if(!visitedTransitions.contains(transition)){
 						visitedTransitions.add(transition);
+					}
+					if (current.equals(basicDeadlock)){ //if the state is basic deadlock
+						realFinalState = basicDeadlock;
+					}else{
+						if(current.equals(target) && transition.getEvent().equals(new Tock())){
+							realFinalState = basicDeadlock;
+						}
 					}
 				}
 			}
@@ -789,8 +803,9 @@ public class GraphBuilder {
 		//String filePath = "/examples/dphils.facts.txt";
 		//String filePath = "/examples/chaos.facts.txt";
 		//String filePath = "/examples/dphils-d.facts.txt";
-		String filePath = "D:\\COMPASS\\compassresearch-code\\core\\analysis\\modelchecker\\src\\test\\resources\\minimondex.facts";
+		//String filePath = "D:\\COMPASS\\compassresearch-code\\core\\analysis\\modelchecker\\src\\test\\resources\\action-wait.facts";
 		//String filePath = "/examples/phils-and-fork0.facts.txt";
+		String filePath = "D:\\COMPASS\\compassresearch-code\\core\\analysis\\modelchecker\\src\\test\\resources\\timed-interrupt2.facts";
 		
 		//String filePath = "/examples/NDet2.facts.txt";
 		//String filePath = "/examples/Livelock2.facts.txt";
