@@ -32,6 +32,14 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
 	private StringFieldEditor rttTgenCtxNameField;
 	private String rttTgenCtxName;
 
+	// Make tool
+	private StringFieldEditor makeToolField;
+	private String makeToolProperty;
+
+	// ignore patterns for upload/download
+	private StringFieldEditor ignorePatternUploadField;
+	private String ignorePatternUploadProperty;
+
 	public RttMbtProjectPropertiesPage() {
 		super(GRID);
 		setDescription("RTT-Project settings");
@@ -40,15 +48,13 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
     	projectQualifiedname = null;
 	}
 
-	/** 
-	 * this function calculates a project database name from the user id and the project name
-	 */
-	public String getDefaultProjectDatabasename() {
-		if (client == null) {
-			return null;
+	// file separator that is regular expression compatible
+	private static String fileSeparatorPattern() {
+		String pattern = File.separator;
+		if (pattern.compareTo("\\") == 0) {
+			pattern = "\\\\";
 		}
-		String dbname = client.getDefaultProjectDatabaseName();
-		return dbname;
+		return pattern;
 	}
 
 	/** 
@@ -60,7 +66,7 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
 		try {
 			value = project.getPersistentProperty(propName);
 		} catch (CoreException e) {
-			client.addErrorMessage("*** error: unable to get persistent property '" + propName + "'!");
+			client.addErrorMessage("unable to get persistent property '" + propName + "'!");
 			value = null;
 		}
 		return value;
@@ -73,7 +79,7 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
 		if (key == null) return value;
 
 		// calculate qualified name of the property key
-		String qname = proj.getFullPath().toString().replaceAll(File.separator, ".");
+		String qname = proj.getFullPath().toString().replaceAll(fileSeparatorPattern(), ".");
 		QualifiedName propName = new QualifiedName(qname, key);
 		try {
 			value = proj.getPersistentProperty(propName);
@@ -91,7 +97,7 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
 		try {
 			project.setPersistentProperty(propName, value);
 		} catch (CoreException e) {
-			client.addErrorMessage("*** error: unable to set persistent property '" + propName + "' to value '" + value + "'!");
+			client.addErrorMessage("unable to set persistent property '" + propName + "' to value '" + value + "'!");
 		}
 	}
 
@@ -122,7 +128,7 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
 			client.setWorkspaceProjectPrefix("");
 		}
 		client.setWorkspaceProjectName(project.getName());
-		projectQualifiedname = project.getFullPath().toString().replaceAll(File.separator, ".");
+		projectQualifiedname = project.getFullPath().toString().replaceAll(fileSeparatorPattern(), ".");
 		setDescription("RTT-Project settings for " + project.getFullPath());
 
 		// add Project Database Name field
@@ -151,10 +157,33 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
     	rttTgenCtxName = getPropertyValue("RttMbtTProcGenCtx");
     	rttTgenCtxNameField.setStringValue(rttTgenCtxName);
     	addField(rttTgenCtxNameField);
+
+		// add make tool field
+    	makeToolField = new StringFieldEditor("RttMbtSutMakeTool",
+                                              "Make tool for SUT code:",
+                                              getFieldEditorParent());
+    	makeToolField.setPreferenceStore(null);
+    	makeToolProperty = getPropertyValue("RttMbtSutMakeTool");
+    	makeToolField.setStringValue(makeToolProperty);
+    	addField(makeToolField);
+
+		// add file ignore pattern field
+    	ignorePatternUploadField = new StringFieldEditor("RttMbtFileIgnorePattern",
+                                                         "Test Generation Context:",
+                                                         getFieldEditorParent());
+    	ignorePatternUploadField.setPreferenceStore(null);
+    	ignorePatternUploadProperty = getPropertyValue("RttMbtFileIgnorePattern");
+    	ignorePatternUploadField.setStringValue(ignorePatternUploadProperty);
+    	addField(ignorePatternUploadField);
+
 	}
 
 	public void performDefaults() {
 		rttProjectDatabaseField.setStringValue(client.getDefaultProjectDatabaseName());
+    	rttExeCtxNameField.setStringValue("TestExecution");
+    	rttTgenCtxNameField.setStringValue("TestGeneration");
+		makeToolField.setStringValue("make");
+		ignorePatternUploadField.setStringValue(".svn:.git:*.o");
 		super.performDefaults();
 	}
 
@@ -169,6 +198,12 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
 
 			// test generation context
 			setPropertyValue("RttMbtTProcGenCtx", rttTgenCtxNameField.getStringValue());
+
+			// make tool
+			setPropertyValue("RttMbtSutMakeTool", makeToolField.getStringValue());
+
+			// file ignore pattern for upload/download
+			setPropertyValue("RttMbtFileIgnorePattern", ignorePatternUploadField.getStringValue());
 
 			return super.performOk();
 		} else {
@@ -187,6 +222,12 @@ public class RttMbtProjectPropertiesPage extends FieldEditorPreferencePage imple
 
 			// test generation context
 			setPropertyValue("RttMbtTProcGenCtx", rttTgenCtxName);
+
+			// make tool
+			setPropertyValue("RttMbtSutMakeTool", makeToolProperty);
+
+			// file ignore pattern for upload/download
+			setPropertyValue("RttMbtFileIgnorePattern", ignorePatternUploadProperty);
 
 			return super.performCancel();
 		} else {
