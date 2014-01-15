@@ -3,6 +3,8 @@
  */
 package eu.compassresearch.ide.faulttolerance;
 
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.ui.IStartup;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -54,4 +56,9 @@ public class Activator extends AbstractUIPlugin implements IStartup {
 
 	}
 
+	public void log(Exception exception) {
+		getLog().log(
+				new Status(IStatus.ERROR, ID, Activator.class.getSimpleName(),
+						exception));
+	}
 }

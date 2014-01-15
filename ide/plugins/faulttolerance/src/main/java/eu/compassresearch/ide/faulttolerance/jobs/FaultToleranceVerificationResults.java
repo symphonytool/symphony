@@ -3,10 +3,13 @@
  */
 package eu.compassresearch.ide.faulttolerance.jobs;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.jobs.ILock;
 import org.eclipse.core.runtime.jobs.Job;
 import org.overture.ast.intf.lex.ILexLocation;
+
+import eu.compassresearch.ide.faulttolerance.UnableToRunFaultToleranceVerificationException;
 
 /**
  * @author Andr&eacute; Didier (<a href=
@@ -25,6 +28,9 @@ public class FaultToleranceVerificationResults {
 	private String processName;
 	private IResource resource;
 	private ILexLocation location;
+	private IContainer outputContainer;
+
+	private UnableToRunFaultToleranceVerificationException exception;
 
 	private final ILock prerequisitesLock;
 	private final ILock verificationsLock;
@@ -133,6 +139,23 @@ public class FaultToleranceVerificationResults {
 
 	public boolean isAllVerificationsChecked(int maxVerifications) {
 		return verifications == maxVerifications;
+	}
+
+	public UnableToRunFaultToleranceVerificationException getException() {
+		return exception;
+	}
+
+	public void setException(
+			UnableToRunFaultToleranceVerificationException exception) {
+		this.exception = exception;
+	}
+
+	public IContainer getOutputContainer() {
+		return outputContainer;
+	}
+
+	public void setOutputContainer(IContainer outputContainer) {
+		this.outputContainer = outputContainer;
 	}
 
 }

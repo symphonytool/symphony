@@ -113,6 +113,8 @@ public class FaultToleranceVerificationHandler extends AbstractHandler {
 		results.setLocation(apd.getLocation());
 		results.setResource(su.getFile());
 		results.setProcessName(apd.getName().getFullName());
+		results.setOutputContainer(su.getProject().getModelBuildPath()
+				.getOutput());
 
 		InputDialog id = new InputDialog(shell,
 				Message.LIMIT_EXPRESSION_DIALOG_TITLE.format(results

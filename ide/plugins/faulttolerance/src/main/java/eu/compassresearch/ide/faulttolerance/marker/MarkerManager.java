@@ -119,6 +119,13 @@ public class MarkerManager implements IFaultToleranceVerificationListener {
 	public void faultToleranceVerificationsFinished(
 			FaultToleranceVerificationEvent event) {
 		FaultToleranceVerificationResults r = event.getResults();
+
+		if (r.getException() != null) {
+			markerException(r);
+			Activator.getDefault().log(r.getException());
+			return;
+		}
+
 		int cases = (r.isDivergenceFree() ? 1 : 0) | (r.isSemifair() ? 2 : 0)
 				| (r.isFullFaultTolerant() ? 4 : 0)
 				| (r.isLimitedFaultTolerant() ? 8 : 0);
@@ -153,6 +160,11 @@ public class MarkerManager implements IFaultToleranceVerificationListener {
 			markerFullFaultTolerant(r);
 			break;
 		}
+	}
+
+	private void markerException(FaultToleranceVerificationResults r) {
+		renewMarker(IMarker.SEVERITY_ERROR, r.getException().getMessage(),
+				r.getProcessName(), null, r.getResource(), r.getLocation());
 	}
 
 	private String getLimitExpression(FaultToleranceVerificationResults r) {
@@ -190,8 +202,7 @@ public class MarkerManager implements IFaultToleranceVerificationListener {
 	}
 
 	private void markerLimitedFaultTolerant(FaultToleranceVerificationResults r) {
-		renewMarker(
-				IMarker.SEVERITY_ERROR,
+		renewMarker(IMarker.SEVERITY_ERROR,
 				Message.LIMITED_FAULT_TOLERANCE_ERROR.format(
 						r.getProcessName(), getLimitExpression(r)),
 				r.getProcessName(), null, r.getResource(), r.getLocation());

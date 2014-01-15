@@ -12,6 +12,7 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 
 import eu.compassresearch.ide.faulttolerance.Message;
+import eu.compassresearch.ide.faulttolerance.UnableToRunFaultToleranceVerificationException;
 
 /**
  * @author Andr&eacute; Didier (<a href=
@@ -136,57 +137,85 @@ public abstract class FaultToleranceVerificationJob extends ModelCheckingJob {
 
 	private void runPreRequisitesVerification(IProgressMonitor group)
 			throws InterruptedException {
-		group.beginTask(Message.CHECKING_PREREQUISITES.format(), 2);
 
-		DivergenceFreeVerificationJob dfj = new DivergenceFreeVerificationJob(
-				faultToleranceResults.getProcessName());
-		SemifairnessVerificationJob sj = new SemifairnessVerificationJob(
-				faultToleranceResults.getProcessName());
+		if (!manageFiles()) {
+			faultToleranceResults.incrementVerification(); // semifair
+			faultToleranceResults.incrementVerification(); // div-free
+			return;
+		}
 
-		dfj.setProgressGroup(group, dfj.getTotalUnitsOfWork());
-		sj.setProgressGroup(group, sj.getTotalUnitsOfWork());
+		try {
+			group.beginTask(Message.CHECKING_PREREQUISITES.format(), 3);
 
-		dfj.addJobChangeListener(new JobChangeAdapter() {
-			@Override
-			public void done(IJobChangeEvent event) {
-				ModelCheckingResult mcr = ((ModelCheckingJob) event.getJob())
-						.getModelCheckingResult();
-				FaultToleranceVerificationEvent ftEvent = new FaultToleranceVerificationEvent(
-						faultToleranceResults, mcr.isSuccess());
-				faultToleranceResults.setDivergenceFree(mcr.isSuccess());
-				faultToleranceResults.incrementVerification();
-				divergenceFreeFinishFirer.fire(ftEvent);
-			}
+			DivergenceFreeVerificationJob dfj = new DivergenceFreeVerificationJob(
+					faultToleranceResults.getProcessName());
+			SemifairnessVerificationJob sj = new SemifairnessVerificationJob(
+					faultToleranceResults.getProcessName());
 
-			@Override
-			public void aboutToRun(IJobChangeEvent event) {
-				divergenceFreeStartFirer.fire(null);
-			}
-		});
-		sj.addJobChangeListener(new JobChangeAdapter() {
-			@Override
-			public void done(IJobChangeEvent event) {
-				ModelCheckingResult mcr = ((ModelCheckingJob) event.getJob())
-						.getModelCheckingResult();
-				FaultToleranceVerificationEvent ftEvent = new FaultToleranceVerificationEvent(
-						faultToleranceResults, mcr.isSuccess());
-				faultToleranceResults.setSemifair(mcr.isSuccess());
-				faultToleranceResults.incrementVerification();
-				semifairnessFinishFirer.fire(ftEvent);
-			}
+			dfj.setProgressGroup(group, dfj.getTotalUnitsOfWork());
+			sj.setProgressGroup(group, sj.getTotalUnitsOfWork());
 
-			@Override
-			public void aboutToRun(IJobChangeEvent event) {
-				semifairnessStartFirer.fire(null);
-			}
-		});
+			dfj.addJobChangeListener(new JobChangeAdapter() {
+				@Override
+				public void done(IJobChangeEvent event) {
+					ModelCheckingResult mcr = ((ModelCheckingJob) event
+							.getJob()).getModelCheckingResult();
+					FaultToleranceVerificationEvent ftEvent = new FaultToleranceVerificationEvent(
+							faultToleranceResults, mcr.isSuccess());
+					faultToleranceResults.setDivergenceFree(mcr.isSuccess());
+					faultToleranceResults.incrementVerification();
+					divergenceFreeFinishFirer.fire(ftEvent);
+				}
 
-		dfj.schedule();
-		sj.schedule();
+				@Override
+				public void aboutToRun(IJobChangeEvent event) {
+					divergenceFreeStartFirer.fire(null);
+				}
+			});
+			sj.addJobChangeListener(new JobChangeAdapter() {
+				@Override
+				public void done(IJobChangeEvent event) {
+					ModelCheckingResult mcr = ((ModelCheckingJob) event
+							.getJob()).getModelCheckingResult();
+					FaultToleranceVerificationEvent ftEvent = new FaultToleranceVerificationEvent(
+							faultToleranceResults, mcr.isSuccess());
+					faultToleranceResults.setSemifair(mcr.isSuccess());
+					faultToleranceResults.incrementVerification();
+					semifairnessFinishFirer.fire(ftEvent);
+				}
 
-		dfj.join();
-		sj.join();
+				@Override
+				public void aboutToRun(IJobChangeEvent event) {
+					semifairnessStartFirer.fire(null);
+				}
+			});
 
+			dfj.schedule();
+			sj.schedule();
+
+			dfj.join();
+			sj.join();
+		} finally {
+			group.done();
+		}
 	}
 
+	private boolean manageFiles() throws InterruptedException {
+		FilesManagementJob fmj = new FilesManagementJob(
+				faultToleranceResults.getProcessName(),
+				faultToleranceResults.getOutputContainer());
+
+		fmj.addJobChangeListener(new JobChangeAdapter() {
+			@Override
+			public void done(IJobChangeEvent event) {
+				UnableToRunFaultToleranceVerificationException e = ((FilesManagementJob) event
+						.getJob()).getException();
+				faultToleranceResults.setException(e);
+			}
+		});
+
+		fmj.schedule();
+		fmj.join();
+		return faultToleranceResults.getException() == null;
+	}
 }
