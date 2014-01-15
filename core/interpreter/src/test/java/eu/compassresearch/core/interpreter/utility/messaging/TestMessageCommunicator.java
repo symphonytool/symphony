@@ -254,6 +254,13 @@ public class TestMessageCommunicator
 
 						return null;
 					}
+
+					@Override
+					public int getRawTransitionId()
+					{
+						// TODO Auto-generated method stub
+						return 0;
+					}
 				});
 
 				return trace;

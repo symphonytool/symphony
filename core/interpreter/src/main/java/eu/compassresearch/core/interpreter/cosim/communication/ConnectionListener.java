@@ -62,13 +62,6 @@ public class ConnectionListener extends Thread
 				{
 					Socket conn = socket.accept();
 
-					if (group.activeCount() >= 1)
-					{
-						System.out.println("Too many DBGp connections");
-						conn.close();
-						continue;
-					}
-
 					ConnectionThread worker = new ConnectionThread(group, conn, principal == null, this.delegationManager);
 
 					if (principal == null)

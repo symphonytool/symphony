@@ -102,7 +102,10 @@ public class ConnectionThread extends Thread
 		} catch (SocketException e)
 		{
 			// Caused by die(), and CDMJ death
-			e.printStackTrace();
+			if (connected)
+			{
+				e.printStackTrace();
+			}
 		} catch (IOException e)
 		{
 			System.out.println("Connection exception: " + e.getMessage());
@@ -112,10 +115,6 @@ public class ConnectionThread extends Thread
 			die();
 		}
 
-		if (!principal && !quiet)
-		{
-			System.out.println("Thread stopped: " + this);
-		}
 	}
 
 	public synchronized void die()

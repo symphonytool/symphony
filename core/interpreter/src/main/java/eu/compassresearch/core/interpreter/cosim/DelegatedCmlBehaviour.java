@@ -124,6 +124,25 @@ public class DelegatedCmlBehaviour implements CmlBehaviour
 		eventSourcesField.set(t, eventSources);
 	}
 
+	public static void setTransitionId(CmlTransition t, int id)
+			throws IllegalAccessException
+	{
+		Field activeTransitionIdField = null;
+
+		List<Field> fields = Node.getAllFields(new Vector<Field>(), t.getClass());
+		for (Field field : fields)
+		{
+			if (field.getName().equals("activeTransitionsId"))
+			{
+				field.setAccessible(true);
+				activeTransitionIdField = field;
+				break;
+			}
+		}
+
+		activeTransitionIdField.set(t, id);
+	}
+
 	@Override
 	public Pair<INode, Context> getNextState()
 	{

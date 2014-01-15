@@ -43,7 +43,6 @@ public class CoSimulationClient extends Thread
 
 	private final boolean principal;
 
-	private static boolean quiet = false;
 	private boolean connected;
 
 	/**
@@ -100,10 +99,6 @@ public class CoSimulationClient extends Thread
 			die();
 		}
 
-		if (!principal && !quiet)
-		{
-			System.out.println("Thread stopped: " + this);
-		}
 	}
 
 	public synchronized void die()
@@ -134,11 +129,16 @@ public class CoSimulationClient extends Thread
 			{
 				throw new InterpreterRuntimeException("Interpreter inspection failed in co-simulation client", e);
 			}
+
+			for (ObservableTransition t : transitions.getObservableChannelEvents())
+			{
+				System.out.println("Offering event: " + t.getTransitionId());
+			}
 			comm.send(new InspectionReplyMessage(inspectMessage.getProcess(), transitions));
 		} else if (message instanceof ExecuteMessage)
 		{
 			ExecuteMessage executeMessage = (ExecuteMessage) message;
-			availableTransitions.add(new CmlTransitionSet((ObservableTransition) executeMessage.getTransition()));
+			availableTransitions.add(remapTransitionIds(new CmlTransitionSet((ObservableTransition) executeMessage.getTransition())));
 		} else if (message instanceof FinishedRequestMessage)
 		{
 			FinishedRequestMessage finishedRequest = (FinishedRequestMessage) message;
@@ -149,6 +149,23 @@ public class CoSimulationClient extends Thread
 			return;
 		}
 
+	}
+
+	private static CmlTransitionSet remapTransitionIds(
+			CmlTransitionSet transitions)
+	{
+		for (CmlTransition t : transitions.getAllEvents())
+		{
+			try
+			{
+				DelegatedCmlBehaviour.setTransitionId(t, t.getRawTransitionId());
+			} catch (IllegalAccessException e)
+			{
+				throw new InterpreterRuntimeException(e);
+			}
+		}
+
+		return transitions;
 	}
 
 	public void registerImplementation(String... processes)
