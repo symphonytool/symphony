@@ -17,6 +17,8 @@ public interface CmlTransition extends Serializable , Comparable<CmlTransition>
 	 * @return
 	 */
 	public SortedSet<CmlBehaviour> getEventSources();
+	
+	public SortedSet<Integer> getHashedEventSources();
 
 	/**
 	 * Convenience methods to get all the current nodes of the source

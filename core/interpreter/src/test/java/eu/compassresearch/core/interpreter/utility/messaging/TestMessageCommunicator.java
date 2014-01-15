@@ -15,7 +15,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.node.INode;
 import org.overture.interpreter.assistant.InterpreterAssistantFactory;
@@ -100,52 +99,56 @@ public class TestMessageCommunicator
 		CmlInterpreterStateDTO status = new CmlInterpreterStateDTO(new CmlBehaviour()
 		{
 
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			public boolean waiting()
 			{
-				// TODO Auto-generated method stub
+
 				return false;
 			}
 
 			@Override
 			public boolean started()
 			{
-				// TODO Auto-generated method stub
+
 				return false;
 			}
 
 			@Override
 			public void replaceState(Context context) throws ValueException
 			{
-				// TODO Auto-generated method stub
 
 			}
 
 			@Override
 			public CmlBehaviour parent()
 			{
-				// TODO Auto-generated method stub
+
 				return null;
 			}
 
 			@Override
 			public EventSource<TraceObserver> onTraceChanged()
 			{
-				// TODO Auto-generated method stub
+
 				return null;
 			}
 
 			@Override
 			public EventSource<CmlBehaviorStateObserver> onStateChanged()
 			{
-				// TODO Auto-generated method stub
+
 				return null;
 			}
 
 			@Override
 			public String nextStepToString()
 			{
-				// TODO Auto-generated method stub
+
 				return null;
 			}
 
@@ -158,21 +161,21 @@ public class TestMessageCommunicator
 			@Override
 			public long level()
 			{
-				// TODO Auto-generated method stub
+
 				return 0;
 			}
 
 			@Override
 			public CmlTransitionSet inspect()
 			{
-				// TODO Auto-generated method stub
+
 				return null;
 			}
 
 			@Override
 			public boolean hasChildren()
 			{
-				// TODO Auto-generated method stub
+
 				return false;
 			}
 
@@ -185,30 +188,29 @@ public class TestMessageCommunicator
 				trace.addEvent(new ObservableTransition()
 				{
 
+					/**
+					 * 
+					 */
+					private static final long serialVersionUID = 1L;
+
 					@Override
 					public SortedSet<CmlBehaviour> getEventSources()
 					{
 						return new TreeSet<CmlBehaviour>();
 					}
 
-					// @Override
-					// public CmlTransitionSet getAsAlphabet() {
-					// // TODO Auto-generated method stub
-					// return null;
-					// }
-
 					@Override
 					public ObservableTransition synchronizeWith(
 							ObservableTransition other)
 					{
-						// TODO Auto-generated method stub
+
 						return null;
 					}
 
 					@Override
 					public boolean isComparable(ObservableTransition other)
 					{
-						// TODO Auto-generated method stub
+
 						return false;
 					}
 
@@ -221,29 +223,36 @@ public class TestMessageCommunicator
 					@Override
 					public boolean isSourcesSubset(CmlTransition other)
 					{
-						// TODO Auto-generated method stub
+
 						return false;
 					}
 
 					@Override
 					public Set<INode> getSourceNodes()
 					{
-						// TODO Auto-generated method stub
+
 						return null;
 					}
 
 					@Override
 					public int compareTo(CmlTransition o)
 					{
-						// TODO Auto-generated method stub
+
 						return 0;
 					}
 
 					@Override
 					public int getTransitionId()
 					{
-						// TODO Auto-generated method stub
+
 						return 0;
+					}
+
+					@Override
+					public SortedSet<Integer> getHashedEventSources()
+					{
+
+						return null;
 					}
 				});
 
@@ -253,14 +262,14 @@ public class TestMessageCommunicator
 			@Override
 			public CmlBehaviorState getState()
 			{
-				// TODO Auto-generated method stub
+
 				return CmlBehaviorState.FINISHED;
 			}
 
 			@Override
 			public CmlBehaviour getRightChild()
 			{
-				// TODO Auto-generated method stub
+
 				return null;
 			}
 
@@ -273,7 +282,7 @@ public class TestMessageCommunicator
 			@Override
 			public CmlBehaviour getLeftChild()
 			{
-				// TODO Auto-generated method stub
+
 				return null;
 			}
 
@@ -304,7 +313,7 @@ public class TestMessageCommunicator
 			@Override
 			public int getId()
 			{
-				// TODO Auto-generated method stub
+
 				return 0;
 			}
 
@@ -312,28 +321,20 @@ public class TestMessageCommunicator
 			public void execute(CmlTransition selectedTransition)
 					throws AnalysisException
 			{
-				// TODO Auto-generated method stub
 
 			}
 
 			@Override
 			public boolean isDivergent()
 			{
-				// TODO Auto-generated method stub
+
 				return false;
-			}
-
-			@Override
-			public void updateName(ILexNameToken name)
-			{
-				// TODO Auto-generated method stub
-
 			}
 
 			@Override
 			public int compareTo(CmlBehaviour o)
 			{
-				// TODO Auto-generated method stub
+
 				return 0;
 			}
 		}, CmlInterpreterState.FINISHED);

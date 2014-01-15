@@ -56,8 +56,7 @@ public class RemoteInterpreter implements IRemoteInterpreter, SelectionStrategy
 			this.availableTransitions.put(availableTransitions);
 		} catch (InterruptedException e)
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new InterpreterRuntimeException("Unable to store avaliable transitions",e);
 		}
 	}
 
@@ -69,10 +68,8 @@ public class RemoteInterpreter implements IRemoteInterpreter, SelectionStrategy
 			return selection.take();
 		} catch (InterruptedException e)
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new InterpreterRuntimeException("Unable to take selection provided by selected transition",e);
 		}
-		return null;
 	}
 
 	@Override
@@ -110,10 +107,8 @@ public class RemoteInterpreter implements IRemoteInterpreter, SelectionStrategy
 			return tmp.getAllEvents();
 		} catch (InterruptedException e)
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new InterpreterRuntimeException(e);
 		}
-		return null;
 	}
 
 	public void select(CmlTransition event)
@@ -127,8 +122,7 @@ public class RemoteInterpreter implements IRemoteInterpreter, SelectionStrategy
 			selection.put(event);
 		} catch (InterruptedException e)
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new InterpreterRuntimeException("Unable to store selected event in queue",e);
 		}
 	}
 
@@ -187,8 +181,7 @@ public class RemoteInterpreter implements IRemoteInterpreter, SelectionStrategy
 			selection.put(event);
 		} catch (InterruptedException e)
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new InterpreterRuntimeException("Unable to store seleceted event in queue",e);
 		}
 	}
 

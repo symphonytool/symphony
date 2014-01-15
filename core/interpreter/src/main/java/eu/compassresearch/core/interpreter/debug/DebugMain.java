@@ -201,7 +201,6 @@ public class DebugMain
 
 		} catch (IOException | AnalysisException e)
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace(Console.err);
 		} finally
 		{

@@ -43,13 +43,6 @@ public class FirstLineMatchSearcher extends DepthFirstAnalysisCMLAdaptor
 		this.line = line;
 	}
 
-	@Override
-	public void caseAActionClassDefinition(AActionClassDefinition node)
-			throws AnalysisException
-	{
-		// TODO Auto-generated method stub
-		super.caseAActionClassDefinition(node);
-	}
 
 	@Override
 	public void defaultInPExp(PExp node) throws AnalysisException

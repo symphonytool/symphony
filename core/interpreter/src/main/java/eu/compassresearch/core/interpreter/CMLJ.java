@@ -2,6 +2,7 @@ package eu.compassresearch.core.interpreter;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -19,6 +20,8 @@ import eu.compassresearch.core.interpreter.api.RandomSelectionStrategy;
 import eu.compassresearch.core.interpreter.api.SelectionStrategy;
 import eu.compassresearch.core.interpreter.api.events.CmlInterpreterStateObserver;
 import eu.compassresearch.core.interpreter.api.events.InterpreterStateChangedEvent;
+import eu.compassresearch.core.interpreter.cosim.CoSimulationClient;
+import eu.compassresearch.core.interpreter.cosim.CoSimulationServer;
 import eu.compassresearch.core.parser.ParserUtil;
 import eu.compassresearch.core.parser.ParserUtil.ParserResult;
 import eu.compassresearch.core.typechecker.VanillaFactory;
@@ -27,6 +30,43 @@ import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 
 public class CMLJ
 {
+	private enum SimulationMode
+	{
+		Standard("std"), CoSimCoordinator("server"), CoSimClient("client");
+		public final String tag;
+
+		SimulationMode(String tag)
+		{
+			this.tag = tag;
+		}
+
+		public static SimulationMode fromString(String string)
+		{
+			for (SimulationMode mode : SimulationMode.values())
+			{
+				if (mode.tag.equals(string))
+				{
+					return mode;
+				}
+			}
+
+			return null;
+		}
+	}
+
+	static InterpreterFactory factory = new VanillaInterpreterFactory();
+
+	/**
+	 * Cosim server: -process P -delegatedprocessed A -mode server -cosimport 8088 -simulate
+	 * C:\overture\runtime-compass.product\cosim-cml\main.cml
+	 * <p/>
+	 * Cosim client: -process A -mode client -cosimport 8088 -simulate
+	 * C:\overture\runtime-compass.product\cosim-cml\main.cml
+	 * 
+	 * @param args
+	 * @throws IOException
+	 * @throws CmlInterpreterException
+	 */
 	public static void main(String[] args) throws IOException,
 			CmlInterpreterException
 	{
@@ -34,6 +74,10 @@ public class CMLJ
 		List<File> filenames = new Vector<File>();
 		String processName = null;
 		String remoteClass = null;
+		List<String> delegatedProcesses = null;
+		SimulationMode mode = SimulationMode.Standard;
+		int coSimPort = -1;
+
 		SelectionStrategy selectionStrategy = new ConsoleSelectionStrategy();
 
 		for (Iterator<String> i = largs.iterator(); i.hasNext();)
@@ -47,6 +91,39 @@ public class CMLJ
 				} else
 				{
 					usage("-process option requires a process name");
+				}
+			} else if (arg.equals("-delegatedprocessed"))
+			{
+				if (i.hasNext())
+				{
+					delegatedProcesses = new ArrayList<String>();
+
+					String processes = i.next();
+
+					String tmp[] = processes.split(",");
+					delegatedProcesses.addAll(Arrays.asList(tmp));
+
+				} else
+				{
+					usage("-delegatedprocessed option requires a comma seperated list of delegated process names");
+				}
+			} else if (arg.equals("-mode"))
+			{
+				if (i.hasNext())
+				{
+					mode = SimulationMode.fromString(i.next());
+				} else
+				{
+					usage("-mode option requires a mode");
+				}
+			} else if (arg.equals("-cosimport"))
+			{
+				if (i.hasNext())
+				{
+					coSimPort = Integer.valueOf(i.next());
+				} else
+				{
+					usage("-cosimport option requires a number");
 				}
 			} else if (arg.equals("-animate"))
 			{
@@ -99,8 +176,37 @@ public class CMLJ
 			// TODO
 		}
 
+		CoSimulationServer server = null;
+		switch (mode)
+		{
+			case CoSimCoordinator:
+			{
+
+				server = new CoSimulationServer(delegatedProcesses, coSimPort);
+				server.listen();
+				server.waitForClients();
+				factory = new CoSimCoordinatorInterpreterFactory(server);
+
+				break;
+			}
+			case CoSimClient:
+			{
+				CoSimulationClient client = new CoSimulationClient("localhost",coSimPort);
+				client.connect();
+				client.start();
+				client.registerImplementation(processName);
+				factory = new CoSimClientInterpreterFactory(client);
+
+				break;
+			}
+		}
+
 		execute(selectionStrategy, processName, filenames.toArray(new File[filenames.size()]));
 
+		if (mode == SimulationMode.CoSimCoordinator)
+		{
+			server.close();
+		}
 	}
 
 	private static void execute(SelectionStrategy selectionStrategy,
@@ -121,7 +227,8 @@ public class CMLJ
 		ICmlTypeChecker cmlTC = VanillaFactory.newTypeChecker(res.definitions, issueHandler);
 
 		// Print result and report errors if any
-		if (!cmlTC.typeCheck())
+		cmlTC.typeCheck();
+		if (issueHandler.hasErrors())
 		{
 			System.out.println("Failed to type check: " + f.toString());
 			System.out.println(issueHandler.getTypeErrors());
@@ -129,7 +236,7 @@ public class CMLJ
 		}
 
 		// interpret
-		CmlInterpreter interpreter = VanillaInterpreterFactory.newInterpreter(res.definitions);
+		CmlInterpreter interpreter = factory.newInterpreter(res.definitions);
 		if (processName != null)
 		{
 			interpreter.setDefaultName(processName);

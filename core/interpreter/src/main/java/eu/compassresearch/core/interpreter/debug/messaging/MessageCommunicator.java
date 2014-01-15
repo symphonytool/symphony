@@ -3,33 +3,53 @@ package eu.compassresearch.core.interpreter.debug.messaging;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.List;
-import java.util.Set;
-
-import org.overture.ast.intf.lex.ILexLocation;
-import org.overture.ast.node.INode;
-import org.overture.ast.node.Node;
-import org.overture.ast.types.PType;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonGenerator.Feature;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.BeanDescription;
+import com.fasterxml.jackson.databind.DeserializationConfig;
+import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.KeyDeserializer;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.deser.KeyDeserializers;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
 import eu.compassresearch.ast.lex.CmlLexNameToken;
-import eu.compassresearch.core.interpreter.debug.Breakpoint;
-import eu.compassresearch.core.interpreter.debug.CmlProcessDTO;
 
 public class MessageCommunicator
 {
+	public static class DefaultCmlLexNameToken extends CmlLexNameToken
+	{
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 7135571662334504016L;
+
+		public DefaultCmlLexNameToken()
+		{
+			super(null, null, null, false, false);
+		}
+	}
+
+	private static class ILexNameTokenDeserializer extends KeyDeserializer
+	{
+
+		@Override
+		public Object deserializeKey(String key, DeserializationContext ctxt)
+				throws IOException, JsonProcessingException
+		{
+			System.out.println("Strange key: " + key);
+			return new DefaultCmlLexNameToken();
+		}
+	}
 
 	private static ObjectMapper mapper = null;
 
@@ -37,43 +57,13 @@ public class MessageCommunicator
 	{
 		if (mapper == null)
 		{
-			abstract class MixIn
-			{
-				MixIn(@JsonProperty("module") String module,
-						@JsonProperty("name") String name,
-						@JsonProperty("location") ILexLocation location)
-				{
-				}
-
-				@JsonIgnore
-				List<PType> typeQualifier;
-			}
-
-			abstract class BreakpointMixIn
-			{
-				BreakpointMixIn(@JsonProperty("id") int id,
-						@JsonProperty("file") String file,
-						@JsonProperty("line") int line)
-				{
-				}
-
-			}
-
-			abstract class NodeMixIn
-			{
-				@JsonIgnore
-				INode parent;
-				@JsonIgnore
-				Set _visitedNodes;
-			}
-
-			@JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class, property = "@id")
-			abstract class CmlProcessDTOMixIn
-			{
-			}
-
 			class MyModule extends SimpleModule
 			{
+				/**
+				 * 
+				 */
+				private static final long serialVersionUID = 3893158551719185244L;
+
 				public MyModule()
 				{
 					super("MyModule");
@@ -82,17 +72,38 @@ public class MessageCommunicator
 				@Override
 				public void setupModule(SetupContext context)
 				{
-					context.setMixInAnnotations(CmlLexNameToken.class, MixIn.class);
-					context.setMixInAnnotations(org.overture.ast.lex.LexNameToken.class, MixIn.class);
-					context.setMixInAnnotations(Node.class, NodeMixIn.class);
-					context.setMixInAnnotations(Breakpoint.class, BreakpointMixIn.class);
-					context.setMixInAnnotations(CmlProcessDTO.class, CmlProcessDTOMixIn.class);
+					MessageCommunicatorMixins.setup(context);
+
 					// and other set up, if any
+
+					context.addKeyDeserializers(new KeyDeserializers()
+					{
+
+						@Override
+						public KeyDeserializer findKeyDeserializer(
+								JavaType type, DeserializationConfig config,
+								BeanDescription beanDesc)
+								throws JsonMappingException
+						{
+							if (type.getRawClass().equals(org.overture.ast.intf.lex.ILexNameToken.class))
+							{
+								return new ILexNameTokenDeserializer();
+							}
+							return null;
+						}
+					});
+
 				}
+
 			}
 
 			mapper = new ObjectMapper();
-			mapper.registerModule(new MyModule());
+			MyModule module = new MyModule();
+			// module.addAbstractTypeMapping(org.overture.ast.intf.lex.ILexNameToken.class,DefaultCmlLexNameToken.class);
+			// module.a.addAbstractTypeMapping(org.overture.ast.node.NodeList.class, NodeListJsonWrapper.class);
+
+			mapper.enableDefaultTyping();
+			mapper.registerModule(module);
 			mapper.enableDefaultTyping();
 			mapper.configure(MapperFeature.AUTO_DETECT_GETTERS, false);
 			mapper.configure(MapperFeature.AUTO_DETECT_IS_GETTERS, false);
@@ -108,17 +119,14 @@ public class MessageCommunicator
 	}
 
 	public static void sendMessage(OutputStream outStream, Message message)
+			throws IOException
 	{
+		System.out.println("Sending..." + message);
 		MessageContainer messageContainer = new MessageContainer(message);
-		try
-		{
-			mapperInstance().writeValue(outStream, messageContainer);
-			outStream.write(System.lineSeparator().getBytes());
-			outStream.flush();
-		} catch (IOException e)
-		{
-			e.printStackTrace();
-		}
+		mapperInstance().writeValue(outStream, messageContainer);
+		outStream.write(System.lineSeparator().getBytes());
+		outStream.flush();
+		System.out.println("Sendt..." + message);
 		// PrintWriter writer = new PrintWriter(outStream);
 		// writer.println(mapperInstance().toJson(messageContainer));
 		// writer.flush();
@@ -136,14 +144,11 @@ public class MessageCommunicator
 	{
 		MessageContainer message = null;
 		String strMessage = requestReader.readLine();
+		// System.out.println("Read RAW:\n\t" + strMessage);
 		if (strMessage != null)
 		{
 			message = mapperInstance().readValue(strMessage, MessageContainer.class);
 		}
-		// else
-		// {
-		// message = new MessageContainer(new CmlDbgStatusMessage(CmlDbgpStatus.CONNECTION_CLOSED));
-		// }
 
 		return message;
 	}
@@ -160,6 +165,7 @@ public class MessageCommunicator
 	{
 		MessageContainer message = null;
 		String strMessage = requestReader.readLine();
+		// System.out.println("Read RAW:\n\t" + strMessage);
 		if (strMessage != null)
 		{
 			message = mapperInstance().readValue(strMessage, MessageContainer.class);
