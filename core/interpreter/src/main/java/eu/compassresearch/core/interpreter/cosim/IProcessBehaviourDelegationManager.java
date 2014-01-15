@@ -33,4 +33,13 @@ public interface IProcessBehaviourDelegationManager
 	 * @return
 	 */
 	public IProcessDelegate getDelegate(String name);
+	
+	
+	/**
+	 * Registers the use of a delegate. This prevents it from being given to others
+	 * @param delegate
+	 * 
+	 * @return true if successful 
+	 */
+	public boolean registerUse(IProcessDelegate delegate);
 }

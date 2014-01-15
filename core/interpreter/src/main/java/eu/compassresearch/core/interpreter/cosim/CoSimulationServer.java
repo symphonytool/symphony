@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Vector;
 
 import eu.compassresearch.core.interpreter.cosim.communication.ConnectionListener;
 import eu.compassresearch.core.interpreter.cosim.communication.Utils;
@@ -19,6 +21,7 @@ public class CoSimulationServer implements IProcessBehaviourDelegationManager
 	private ConnectionListener listener;
 
 	private final Map<String, IProcessDelegate> processDelegation = new HashMap<String, IProcessDelegate>();
+	private final Map<String, IProcessDelegate> freeProcessDelegation = new HashMap<String, IProcessDelegate>();
 	private final List<String> delegatedProcesses;
 
 	public CoSimulationServer(List<String> delegatedProcesses, int port)
@@ -65,18 +68,43 @@ public class CoSimulationServer implements IProcessBehaviourDelegationManager
 	public void addDelegate(IProcessDelegate delegate)
 	{
 		this.processDelegation.put(delegate.getProcessName(), delegate);
+		this.freeProcessDelegation.put(delegate.getProcessName(), delegate);
 	}
 
 	@Override
 	public boolean hasDelegate(String name)
 	{
-		return this.processDelegation.containsKey(name);
+		return this.freeProcessDelegation.containsKey(name);
 	}
 
 	@Override
 	public IProcessDelegate getDelegate(String name)
 	{
-		return this.processDelegation.get(name);
+		return this.freeProcessDelegation.get(name);
+	}
+
+	@Override
+	public boolean registerUse(IProcessDelegate delegate)
+	{
+		if(freeProcessDelegation.values().contains(delegate))
+		{
+			List<String> keys = new Vector<String>();
+			for (Entry<String, IProcessDelegate> entry : freeProcessDelegation.entrySet())
+			{
+				if(entry.getValue()==delegate)
+				{
+					keys.add(entry.getKey());
+				}
+			}
+			
+			for (String key : keys)
+			{
+				freeProcessDelegation.remove(key);
+			}
+			return true;
+		}
+		
+		return false;
 	}
 
 }

@@ -11,6 +11,7 @@ import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour.BehaviourName;
 import eu.compassresearch.core.interpreter.cosim.DelegatedCmlBehaviour;
 import eu.compassresearch.core.interpreter.cosim.IProcessBehaviourDelegationManager;
+import eu.compassresearch.core.interpreter.cosim.IProcessDelegate;
 
 /**
  * Custom {@link CmlBehaviorFactory} which replaces the instantiation of behaviors from the default
@@ -48,8 +49,10 @@ public class CoSimCmlBehaviorFactory implements CmlBehaviorFactory
 			String name = def.getName().getName();
 			if (delegationManager.hasDelegate(name))
 			{
+				IProcessDelegate delegate = this.delegationManager.getDelegate(name);
+				this.delegationManager.registerUse(delegate);
 				return new DelegatedCmlBehaviour(node, context, parent, new BehaviourName("Child of "
-						+ parent.getName()), this, this.delegationManager.getDelegate(name));
+						+ parent.getName()), this, delegate);
 			}
 		}
 		return new ConcreteCmlBehaviour(node, context, parent, this);
@@ -75,8 +78,10 @@ public class CoSimCmlBehaviorFactory implements CmlBehaviorFactory
 			String defName = def.getName().getName();
 			if (delegationManager.hasDelegate(defName))
 			{
+				IProcessDelegate delegate = this.delegationManager.getDelegate(defName);
+				this.delegationManager.registerUse(delegate);
 				return new DelegatedCmlBehaviour(node, context, parent, new BehaviourName("Child of "
-						+ parent.getName()), this, this.delegationManager.getDelegate(defName));
+						+ parent.getName()), this, delegate);
 			}
 		}
 
