@@ -16,7 +16,7 @@ public class RttMbtConsoleView extends ViewPart {
 	@Override
 	public void createPartControl(Composite parent) {
 		// create text field used for console output
-		org.eclipse.swt.widgets.Text console = new Text(parent, SWT.V_SCROLL);
+		org.eclipse.swt.widgets.Text console = new Text(parent, SWT.H_SCROLL | SWT.V_SCROLL);
 
         // make console view accessable
         Activator.setConsole(console);

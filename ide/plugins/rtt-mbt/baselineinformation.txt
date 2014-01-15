@@ -1,4 +1,88 @@
 -----------------------------------------------------------
+RTTMBTPLUGIN_0.2.7
+
+merge from local rtt-plugin development into symphony
+
+Changes:
+
+- added support for "file does not exist" indication in receive file from server command
+- fixed activation of build make target command
+- download directory from server now works recursively.
+- removed warnings in plugin.xml
+- fixed problems with windows path separator.
+- added output of VERDICT.txt to console log after successful test execution.
+- removed warnings and obsolete elements from plugin.xml
+- added project properties for ignore file patterns and SUT
+  make tool.
+- allow to sequentially perform rt-tester actions on multiple
+  selected objects
+- added support for eclipse job profess monitoring
+- removed obsolete prefix "*** error:" from error messages.
+- fixed scanning for job id for tasks without progress or
+  console indication.
+- fixed add button for test cases with new path resolution
+  for imported projects.
+- store currently selected item(s) in Activator and use
+  the selection as fall-back in pop-up menu actions.
+- added editor assignment for .rtp files
+- fixed project cleanup for RTT-MBT projects
+- fixed upload of RT-Tester test procedures with non-RTT-MBT
+  path structure
+- fixed bug in testcase_coverage.csv editor
+- added dependency to org.eclipse.ui.editors and updated
+  version number
+- added default editors for .rts, .cnl, .conf, .confinc and .stubs
+- added support for ignore patterns that are used during file
+  upload
+- added support for RT-Tester clean, compile, run, doc
+  commands for RT-Tester test procedures that are not in
+  execution context.
+- Added support/editor for local covered_testcases.csv file
+- adjusted log output in case of a failure
+- added support for local project properties overriding
+  global workspace preferences.
+- adjusted tms database name support
+- adjusted file transfer messages
+- added check functions that check if a given path leads to an 
+  RTT-MBT test procedure generation context or an or RT-Tester 6
+  test procedure. The checks are performed according to the 
+  criteria in Mantis PR 7720 "Adjust the project scanner library for MBT"
+  https://software.verified.de/mantis/view.php?id=7720#c15235
+- remove leading and trailing newlines from console log items.
+- adjusted behaviour when switching to RTT-Perspective
+- prevent RT-Tester properties to be defined for non RT-Tester
+  projects.
+- back-ports from COMPASS source tree.
+- Added properties page for RT-Tester Projects
+- adjusted console output
+- adjusted default project database name
+- added support for build-make-target command
+- adjusted version information and dependencies for rtt-mbt client api
+- Adjustments to support absolute path inside the file system for all
+  selected items in the project explorer.
+  This is necessary to be able to deal with external projects that
+  are only mapped inside the current workshop.
+- RT-Tester Projects are now supported as Eclipse projects
+  (New->Project->RTT-MBT Project) 
+  or folders inside projects (New->Other->RTT-MBT-older).
+- added support for stand alone RT-Tester Projects
+- adjusted version number to match latest symphony release
+- refactoring of package name
+- added additional console output (in verbose mode) during test generation
+- started support for TMS database commands
+- improved error reporting
+- added cleanup functionality
+- started support for TMS database commands
+- added new command to cleanup a test procedure generation context
+- using courier as font for console
+- allow checking of checking selected model_dump.xml file
+- added error reporting of failed server tasks
+- Added parser for advanced.conf file
+- added support for advanced.conf settings MM and AI override
+- added org.eclipse.draw2d_3.9.0.jar to plugin bundle
+- updated version number to 0.1.3 and added baseline information files
+
+-----------------------------------------------------------
 RTTMBTPLUGIN_0.2.6
 
 Changes: none

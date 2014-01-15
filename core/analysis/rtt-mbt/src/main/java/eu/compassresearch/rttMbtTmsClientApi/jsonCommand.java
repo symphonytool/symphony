@@ -196,10 +196,7 @@ public class jsonCommand {
 		while (hasJobAcknowledgeItem(message)) {
 			start = message.indexOf("{ \"job-acknowledge\"");
 			end = message.indexOf('}', start);
-			if (start == -1) {
-				return;
-			}
-			if (end == -1) {
+			if ((start == -1) || (end == -1)) {
 				return;
 			}
 
@@ -348,7 +345,7 @@ public class jsonCommand {
 				bytes_read = replyStream.read(buffer, offset, buffer_size - offset);
 				// only scan for progress and console items
 				// if they are expected for this command
-				if (hasProgress || hasConsole) {
+				if (hasProgress || hasConsole || (!hasJobId)) {
 					byte[] chunkBuffer = null;
 					String chunk = null;
 					if (bytes_read > 0) {

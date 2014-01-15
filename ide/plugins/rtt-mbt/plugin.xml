@@ -132,7 +132,6 @@
    <extension
          point="org.eclipse.ui.preferencePages">
       <page
-            category="compass_eu.compassresearch.ide.ui.category"
             class="eu.compassresearch.ide.rttmbt.RttMbtPreferencesPage"
             id="eu.compassresearch.ide.rttmbt.RttMbtPreferencesMainPage"
             name="RT-Tester">
@@ -149,12 +148,6 @@
             id="eu.compassresearch.ide.rttmbt.RttMbtPreferencesProjectPage"
             name="Project">
       </page>
-   </extension>
-   <extension
-         point="org.eclipse.core.runtime.preferences">
-      <initializer
-            class="org.eclipse.core.internal.resources.PreferenceInitializer">
-      </initializer>
    </extension>
    <extension
          point="org.eclipse.core.expressions.propertyTesters">
@@ -179,11 +172,6 @@
             name="New Project">
       </command>
       <command
-            defaultHandler="eu.compassresearch.ide.rttmbt.RttMbtAddProject"
-            id="eu.compassresearch.ide.rttmbt.RttMbtAddProject"
-            name="Add Project">
-      </command>
-      <command
             defaultHandler="eu.compassresearch.ide.rttmbt.RttMbtAbort"
             id="eu.compassresearch.ide.rttmbt.RttMbtAbort"
             name="Abort Current Task">
@@ -202,6 +190,54 @@
             defaultHandler="eu.compassresearch.ide.rttmbt.RttMbtDeleteFile"
             id="eu.compassresearch.ide.rttmbt.DeleteLocalAndServer"
             name="Delete RTT-MBT Resource">
+      </command>
+      <command
+            id="eu.compassresearch.ide.rttmbt.RttMbtCleanTestGenCtx"
+            name="Clean Test Generation">
+      </command>
+      <command
+            id="eu.compassresearch.ide.rttmbt.RttMbtGenerateTest"
+            name="Generate Test">
+      </command>
+      <command
+            id="eu.compassresearch.ide.rttmbt.RttMbtGenerateSimulation"
+            name="Generate Simulation">
+      </command>
+      <command
+            id="eu.compassresearch.ide.rttmbt.RttMbtCleanTest"
+            name="Clean Test">
+      </command>
+      <command
+            id="eu.compassresearch.ide.rttmbt.RttMbtCompileTest"
+            name="Compile Test">
+      </command>
+      <command
+            id="eu.compassresearch.ide.rttmbt.RttMbtRunTest"
+            name="Run Test">
+      </command>
+      <command
+            id="eu.compassresearch.ide.rttmbt.RttMbtReplayTest"
+            name="Replay Test result">
+      </command>
+      <command
+            id="eu.compassresearch.ide.rttmbt.RttMbtDocTest"
+            name="Generate Test Documentation">
+      </command>
+      <command
+            id="eu.compassresearch.ide.rttmbt.RttMbtCheckModel"
+            name="Check Model">
+      </command>
+      <command
+            id="eu.compassresearch.ide.rttmbt.RttMbtImportModel"
+            name="Import Model">
+      </command>
+      <command
+            id="eu.compassresearch.ide.rttmbt.RttMbtCleanProject"
+            name="Clean Project">
+      </command>
+      <command
+            id="eu.compassresearch.ide.rttmbt.RttMbtBuildMakeTarget"
+            name="Build Make Target">
       </command>
    </extension>
    <extension
@@ -374,22 +410,6 @@
                   style="push"
                   tooltip="Cleanup Project">
             </command>
-            <!--
-            <command
-                  commandId="eu.compassresearch.ide.rttmbt.RttMbtNewProject"
-                  icon="icons/rtt-mbt-small.png"
-                  label="New Project"
-                  style="push"
-                  tooltip="Creates a new RTT-MBT project structure locally and on the initialize the RTT-MBT server work area">
-            </command>
-            <command
-                  commandId="eu.compassresearch.ide.rttmbt.RttMbtAddProject"
-                  icon="icons/add.png"
-                  label="Add Project"
-                  style="push"
-                  tooltip="Adds a local project to the workspace on the RTT-MBT server">
-            </command>
-            -->
             <command
                   commandId="eu.compassresearch.ide.rttmbt.RttMbtImportModel"
                   icon="icons/mbt_import_model.png"
@@ -539,22 +559,6 @@
                   </with>
                </visibleWhen>
             </command>
-            <!--
-            <command
-                  commandId="eu.compassresearch.ide.rttmbt.RttMbtNewProject"
-                  icon="icons/rtt-mbt-small.png"
-                  label="New Project"
-                  style="push"
-                  tooltip="Creates a new RTT-MBT project structure locally and on the initialize the RTT-MBT server work area">
-            </command>
-            <command
-                  commandId="eu.compassresearch.ide.rttmbt.RttMbtAddProject"
-                  icon="icons/add.png"
-                  label="Add Project"
-                  style="push"
-                  tooltip="Adds a local project to the workspace on the RTT-MBT server">
-            </command>
-            -->
             <command
                   commandId="eu.compassresearch.ide.rttmbt.RttMbtImportModel"
                   icon="icons/mbt_import_model.png"
@@ -807,22 +811,6 @@
                   style="push"
                   tooltip="Execute make clean all for selected Makefile">
             </command>
-            <!--
-            <command
-                  commandId="eu.compassresearch.ide.rttmbt.RttMbtNewProject"
-                  icon="icons/rtt-mbt-small.png"
-                  label="New Project"
-                  style="push"
-                  tooltip="Creates a new RTT-MBT project structure locally and on the initialize the RTT-MBT server work area">
-            </command>
-            <command
-                  commandId="eu.compassresearch.ide.rttmbt.RttMbtAddProject"
-                  icon="icons/add.png"
-                  label="Add Project"
-                  style="push"
-                  tooltip="Adds a local project to the workspace on the RTT-MBT server">
-            </command>
-            -->
             <command
                   commandId="eu.compassresearch.ide.rttmbt.RttMbtPushToServer"
                   icon="icons/back.png"
@@ -1024,6 +1012,15 @@
             class="eu.compassresearch.ide.rttmbt.RttMbtRequirementsCoverage"
             contributorClass="eu.compassresearch.ide.rttmbt.RttMbtRequirementsCoverageContributor"
             default="true"
+            filenames="covered_testcases.csv"
+            icon="icons/configure.png"
+            id="eu.compassresearch.ide.rttmbt.overallcoverageeditor"
+            name="Test Coverage Editor">
+      </editor>
+      <editor
+            class="eu.compassresearch.ide.rttmbt.RttMbtRequirementsCoverage"
+            contributorClass="eu.compassresearch.ide.rttmbt.RttMbtRequirementsCoverageContributor"
+            default="true"
             filenames="overall_coverage.csv"
             icon="icons/configure.png"
             id="eu.compassresearch.ide.rttmbt.overallcoverageeditor"
@@ -1037,6 +1034,24 @@
             icon="icons/mbt_run.png"
             id="eu.compassresearch.ide.rttmbt.signalviewer"
             name="Signal Viewer">
+      </editor>
+      <editor
+            class="org.eclipse.ui.editors.text.TextEditor"
+            contributorClass="org.eclipse.ui.editors.text.TextEditorActionContributor"
+            default="true"
+            filenames="*.rts, *.stubs, *.cnl"
+            icon="icons/rtt-mbt-small.png"
+            id="eu.compassresearch.ide.rttmbt.rttleditor"
+            name="RTTL-Editor">
+      </editor>
+      <editor
+            class="org.eclipse.ui.editors.text.TextEditor"
+            contributorClass="org.eclipse.ui.editors.text.TextEditorActionContributor"
+            default="true"
+            filenames="*.conf, *.confinc, *.rtp"
+            icon="icons/rtt-mbt-small.png"
+            id="eu.compassresearch.ide.rttmbt.rttleditor"
+            name="config-Editor">
       </editor>
    </extension>
    <extension
@@ -1060,11 +1075,9 @@
    <extension
          point="org.eclipse.ui.propertyPages">
       <page
-            category="compass_eu.compassresearch.ide.ui.category"
             class="eu.compassresearch.ide.rttmbt.RttMbtProjectPropertiesPage"
             id="eu.compassresearch.ide.cml.rttplugin.rttprojectproperty"
-            name="RT-Tester"
-            objectClass="org.eclipse.core.resources.IProject">
+            name="RT-Tester">
       </page>
    </extension>
 
