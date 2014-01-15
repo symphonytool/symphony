@@ -1,4 +1,5 @@
 package eu.compassresearch.core.interpreter;
+
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayOutputStream;
@@ -9,9 +10,10 @@ import java.io.PrintWriter;
 import java.util.LinkedList;
 import java.util.List;
 
-import junit.framework.Assert;
+
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,20 +33,21 @@ public class DeterministicTraceTest
 	@Before
 	public void setUp() throws Exception
 	{
-		
+
 	}
 
 	@After
 	public void tearDown() throws Exception
 	{
-		
+
 	}
-	
+
 	@Test
-	public void testThatMultipleRunsHasSameTrace() throws IOException, AnalysisException
+	public void testThatMultipleRunsHasSameTrace() throws IOException,
+			AnalysisException
 	{
-		File f = new File("src/test/resources/action/parallel-composition/action-interleaving3.cml");
-		
+		File f = new File("src/test/resources/standard/action/parallel-composition/action-interleaving3.cml");
+
 		ParserResult res = ParserUtil.parse(f);
 
 		// assertTrue(CmlParserUtil.parseSource(ast));
@@ -80,23 +83,20 @@ public class DeterministicTraceTest
 		}
 
 		List<CmlTrace> traceList = new LinkedList<CmlTrace>();
-		
-		for(int i = 0; i < 10 ; i++)
+
+		for (int i = 0; i < 10; i++)
 		{
-			CmlInterpreter interpreter =new VanillaInterpreterFactory().newInterpreter(res.definitions);
+			CmlInterpreter interpreter = new VanillaInterpreterFactory().newInterpreter(res.definitions);
 			interpreter.initialize();
 			interpreter.execute(new RandomSelectionStrategy());
 			traceList.add(interpreter.getTopLevelProcess().getTraceModel());
-			
-			if(i > 0)
+
+			if (i > 0)
 			{
-				Assert.assertEquals(TraceUtility.traceToString(traceList.get(i-1).getEventTrace()), 
-						TraceUtility.traceToString(traceList.get(i).getEventTrace()));
+				Assert.assertEquals(TraceUtility.traceToString(traceList.get(i - 1).getEventTrace()), TraceUtility.traceToString(traceList.get(i).getEventTrace()));
 			}
 		}
-		
-		
-		
+
 	}
 
 }

@@ -33,7 +33,6 @@ import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterException;
 import eu.compassresearch.core.interpreter.api.RandomSelectionStrategy;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
-import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.parser.ParserUtil;
 import eu.compassresearch.core.parser.ParserUtil.ParserResult;
 import eu.compassresearch.core.typechecker.VanillaFactory;
@@ -208,7 +207,7 @@ public class InterpretAllCmlFilesTest
 	public static Collection<Object[]> getCmlfilePaths()
 	{
 
-		final String initialPath = "src/test/resources";
+		final String initialPath = "src/test/resources/standard";
 		List<Object[]> paths = findAllCmlFiles(initialPath);
 
 		// List<Object[]> paths = findAllCmlFiles("src/test/resources/action/parallel-composition");
