@@ -43,7 +43,7 @@ public class InspectionReplyMessage extends Message
 	@Override
 	public String toString()
 	{
-		return "Inspect reply: " + process;
+		return "Inspect reply: " + process + " transitions: " + transitions;
 	}
 
 	public String getProcess()

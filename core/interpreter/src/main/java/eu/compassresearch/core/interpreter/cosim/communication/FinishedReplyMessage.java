@@ -42,7 +42,7 @@ public class FinishedReplyMessage extends Message
 	@Override
 	public String toString()
 	{
-		return "IsFinished reply: " + process;
+		return "IsFinished reply: " + process + " " + (finished ? "yes" : "no");
 	}
 
 	public String getProcess()
