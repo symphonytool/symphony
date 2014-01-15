@@ -1,61 +1,51 @@
 package eu.compassresearch.ide.rttmbt;
 
-import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 
 import eu.compassresearch.rttMbtTmsClientApi.IRttMbtProgressBar;
 
 public class RttMbtCleanTestProcedureGenerationContext extends RttMbtAbstractTestProcedureAction  {
 
 	@Override
-	public Object execute(ExecutionEvent event) throws ExecutionException {
+	public String getTaskName() {
+		return "Clean Test Generation";
+	}
 
-		// get selected object
-		client.setProgress(IRttMbtProgressBar.Tasks.ALL, 0);
-		if (!getSelectedObject(event)) {
-			client.addErrorMessage("[FAIL]: Please select a test procedure generation context!");
-			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
-			return null;
-		}
+	@Override
+	public IStatus performSingleTask(IProgressMonitor monitor) {
 
-		// get RttMbtClient for this action
-		if (!initClient()) {
-			client.addErrorMessage("[FAIL]: cleanup test procedure: init of RTT-MBT client failed!");
-			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
-			return null;
-		}
-		
+		// start task
+		IStatus status = Status.OK_STATUS;
+		client.beginTask("cleanup test procedure generation context " + selectedObjectName, 4);
+
 		// if a test procedure is selected, switch to test procedure generation context
 		if ((!isTProcGenCtxSelected()) && (isRttTestProcSelected())) {
 			getTProcGenCtxPathFromRttTestProcPath();
 		}
 		
 		// check that test procedure generation context is selected
-		if (!isTProcGenCtxSelected()) {
-			client.addErrorMessage("Please select a valid test procedure generation context!");
-		}
-		
-		Job job = new Job("Cleanup Test Procedure") {
-			@Override
-			protected IStatus run(IProgressMonitor monitor) {
-				client.addLogMessage("cleaning up test procedure generation context " + selectedObjectName + "... please wait for the task to be finished.");
-				// cleanup concrete test procedure
-				if (client.cleanTestProcedureGenerationContext(selectedObjectName)) {
-					client.addLogMessage("[PASS]: cleanup test procedure");
-					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
-				} else {
-					client.addErrorMessage("[FAIL]: cleanup test procedure");
-					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
-				}
-				return Status.OK_STATUS;
+		if (isTProcGenCtxSelected()) {
+			client.addLogMessage("cleaning up test procedure generation context " + selectedObjectName + "... please wait for the task to be finished.");
+			// cleanup concrete test procedure
+			if (client.cleanTestProcedureGenerationContext(selectedObjectName)) {
+				client.addLogMessage("[PASS]: cleanup test procedure generation context " + selectedObjectName);
+				client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
+			} else {
+				client.addErrorMessage("[FAIL]: cleanup test procedure generation context " + selectedObjectName);
+				client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 			}
-		};
-		job.schedule();
-		
-		return null;
+		} else {
+			client.addErrorMessage("[FAIL]: cleanup test procedure generation context " + selectedObjectName + ": please select a valid test procedure generation context!");
+			status = Status.CANCEL_STATUS;
+			client.addCompletedTaskItems(3);
+		}
+
+		// cleanup
+		client.setSubTaskName("finishing task");
+		client.addCompletedTaskItems(1);
+		client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
+		return status;
 	}
 }
