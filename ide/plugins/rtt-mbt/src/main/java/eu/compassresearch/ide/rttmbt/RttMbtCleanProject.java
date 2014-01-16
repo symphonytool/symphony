@@ -2,65 +2,51 @@ package eu.compassresearch.ide.rttmbt;
 
 import java.io.File;
 
-import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 
 import eu.compassresearch.rttMbtTmsClientApi.IRttMbtProgressBar;
 
 public class RttMbtCleanProject extends RttMbtPopupMenuAction {
 
 	@Override
-	public Object execute(ExecutionEvent event) throws ExecutionException {
+	public String getTaskName() {
+		return "Clean Project";
+	}
 
-		// get selected object
-		client.setProgress(IRttMbtProgressBar.Tasks.ALL, 0);
-		if (!getSelectedObject(event)) {
-			client.addErrorMessage("[FAIL]: Cleanup RTT-MBT project: Please select an RTT-MBT component!");
-			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
-			return null;
-		}
-		
-		// get RttMbtClient for this action
-		if (!initClient()) {
-			client.addErrorMessage("[FAIL]: Cleanup RTT-MBT project: init of RTT-MBT client failed!");
-			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
-			return null;
-		}
+	@Override
+	public IStatus performSingleTask(IProgressMonitor monitor) {
 
 		// check if the selected item is a project
 		File item = new File(selectedObjectFilesystemPath);
 		if (!item.exists()) {
 			client.addErrorMessage("[FAIL]: Cleanup RTT-MBT project: file or directory '" + item.getAbsolutePath() + "' does not exist!");
 			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
-			return null;
+			return Status.CANCEL_STATUS;
 		}
 		if (!item.isDirectory()) {
 			client.addErrorMessage("[FAIL]: Cleanup RTT-MBT project: the selected item '" + selectedObjectName + "' is not a directory!");
 			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
-			return null;
+			return Status.CANCEL_STATUS;
 		}
 
-		Job job = new Job("Cleanup Project") {
-			@Override
-			protected IStatus run(IProgressMonitor monitor) {
-				// cleanup project
-				if (client.cleanProject(selectedObjectName)) {
-					client.addLogMessage("[PASS]: clean RTT-MBT project " + selectedObjectName);
-					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
-				} else {
-					client.addLogMessage("[FAIL]: clean RTT-MBT project " + selectedObjectName);
-					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
-				}
-				return Status.OK_STATUS;
-			}
-		};
-		job.schedule();
+		// start task
+		IStatus status = Status.OK_STATUS;
+		client.beginTask("cleanup project " + selectedObjectName, 5);
 
+		// cleanup project
+		client.addLogMessage("cleanup RTT-MBT project " + selectedObjectName + " ... please wait for the task to be finished.");
+		if (client.cleanProject(selectedObjectName)) {
+			client.addLogMessage("[PASS]: clean RTT-MBT project " + selectedObjectName);
+		} else {
+			client.addLogMessage("[FAIL]: clean RTT-MBT project " + selectedObjectName);
+		}
+
+		// cleanup
+		client.setSubTaskName("finishing task");
+		client.addCompletedTaskItems(1);
 		client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
-		return null;
+		return status;
 	}
 }
