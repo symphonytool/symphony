@@ -1,11 +1,8 @@
 channels 
 a
 
-values
-  timeout : nat = 3
-  
-process A = 
+process Wait4 = 
 begin 
 
-	@ Wait timeout ; a -> Skip
+	@ Wait 4 ; a -> Skip
 end

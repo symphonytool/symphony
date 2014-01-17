@@ -1,4 +1,4 @@
-process InterruptTest = 
+process InterruptTest2 = 
 begin 
 
 	@ a -> Skip /_2_\ b -> Stop

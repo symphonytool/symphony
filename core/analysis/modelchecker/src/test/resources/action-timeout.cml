@@ -1,4 +1,4 @@
-process A = 
+process Wait2 = 
 begin 
 
 	@ Stop [_2_> Skip
