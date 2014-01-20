@@ -252,11 +252,6 @@ public class GraphBuilder {
 			realFinalState = basicTermination;
 		}
 		
-		//it is better to see transitions as Transition objects
-		//LinkedList<Transition> transitions = new LinkedList<Transition>();
-		//for (Object current : objects) {
-		//	transitions.add((Transition)current);
-		//}
 		LinkedList<Transition> transitions = this.filterTransitions(objects);
 		
 		ArrayDeque<State> toVisit = new ArrayDeque<State>();
@@ -266,7 +261,7 @@ public class GraphBuilder {
 		toVisit.addLast(initialState);
 
 		while(toVisit.size() > 0){
-			//System.out.println("Size of to visit states: " + toVisit.size());
+			//System.out.println("Initial size of to visit states: " + toVisit.size());
 			State current = toVisit.pollFirst();
 			current.setVisited(true);
 			if(!visitedStates.contains(current)){
@@ -278,7 +273,7 @@ public class GraphBuilder {
 			LinkedList<Transition> transitionsFrom = this.getAllTransitionsFrom(transitions, current);
 			if(transitionsFrom.size() == 0){ //if there is outgoing transition
 				if (current.equals(basicDeadlock)){ //if the state is basic deadlock
-					realFinalState = basicDeadlock;
+					realFinalState = current;
 					break;
 				}else if(current.equals(basicTermination)) { //if the state is termination
 					//do nothing
@@ -288,32 +283,36 @@ public class GraphBuilder {
 					break;
 				}
 			}else{
+				//there are outgoing transitions. they can be tock transitions
 				for (Transition transition : transitionsFrom) {
 					State target = transition.getTargetState();
 					
-					boolean visitedContains = visitedStates.contains(target);
-					
-					if(!visitedContains){
-						toVisit.addLast(target);
+					if(!visitedStates.contains(target)){
+						if(!toVisit.contains(target)){
+							toVisit.addLast(target);
+						}
 					}
 					if(!visitedTransitions.contains(transition)){
 						visitedTransitions.add(transition);
 					}
-					if (current.equals(basicDeadlock)){ //if the state is basic deadlock
-						realFinalState = basicDeadlock;
-					}else{
+					//if (current.equals(basicDeadlock)){ //if the state is basic deadlock
+					//	realFinalState = current;
+					//}else{ //if the state is not basic deadlock but has only one tock transition to itself
 						if(current.equals(target) && transition.getEvent().equals(new Tock())){
-							realFinalState = basicDeadlock;
+							realFinalState = current;
 						}
-					}
+					//}
+				
 				}
 			}
+			//System.out.println("Final size of to visit states: " + toVisit.size());
 		}
 		
 		//at the end of this loop visitedTransitions contains transitions used to  
 		//reach a deadlock. We must build the path from initial state to the real deadlock state.
 		//we use a reverse path construction: from the deadlock state to the first state.  
 		LinkedList<Transition> reversePath = new LinkedList<Transition>();
+		//realFinalState = this.getDeadlockState(visitedStates, visitedTransitions);
 		buildReversePath(reversePath, visitedTransitions, initialState, realFinalState);
 		//at the end, reversePath contains the transitions of our interest to build the graph
 		//but we need to build a single path from initial state to deadlock
@@ -362,6 +361,12 @@ public class GraphBuilder {
 			if(transitionsFrom.size() == 0){
 				result = state;
 				break;
+			} else if (transitionsFrom.size() == 1){
+				Transition t = transitionsFrom.getFirst();
+				if(t.getSourceState().equals(t.getTargetState()) && t.getEvent().equals(new Tock())){
+					result = state;
+					break;
+				}
 			}
 		}
 		return result;
@@ -765,6 +770,16 @@ public class GraphBuilder {
 			singlePath.add(currentTransition);
 			State newInitialState = currentTransition.getTargetState();
 			currentTransitions.remove(currentTransition);
+			
+			for (Transition transition : currentTransitions) {
+				if(transition.getEvent().equals(new Tock())){
+					if(initialState.equals(transition.getTargetState())){
+						transition.setSourceState(initialState);
+						singlePath.add(transition);
+					}
+				}
+			}
+			
 			transitions.remove(currentTransition);
 			transitions.removeAll(currentTransitions); //for optimization
 						
@@ -806,7 +821,8 @@ public class GraphBuilder {
 		//String filePath = "D:\\COMPASS\\compassresearch-code\\core\\analysis\\modelchecker\\src\\test\\resources\\action-wait.facts";
 		//String filePath = "/examples/phils-and-fork0.facts.txt";
 		//String filePath = "D:\\COMPASS\\compassresearch-code\\core\\analysis\\modelchecker\\src\\test\\resources\\timed-interrupt2.facts";
-		String filePath = "D:\\COMPASS\\compassresearch-code\\core\\analysis\\modelchecker\\src\\test\\resources\\simpler-register.facts";
+		//String filePath = "D:\\COMPASS\\compassresearch-code\\core\\analysis\\modelchecker\\src\\test\\resources\\simpler-register.facts";
+		String filePath = "D:\\COMPASS\\compassresearch-code\\core\\analysis\\modelchecker\\src\\test\\resources\\DPhils2.facts";
 		
 		//String filePath = "/examples/NDet2.facts.txt";
 		//String filePath = "/examples/Livelock2.facts.txt";

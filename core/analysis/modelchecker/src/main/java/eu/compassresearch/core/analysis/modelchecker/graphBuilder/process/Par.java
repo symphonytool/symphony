@@ -24,8 +24,9 @@ public class Par implements ParallelProcess {
 		boolean result = false;
 		if (obj instanceof Par) {
 			Par other = (Par) obj;
-			result = //this.left.equals(other.getLeft())
-					//&& this.right.equals(other.getRight());
+			result = //this.leftBinding.equals(other.getLeftBinding())
+					//&& this.rightBinding.equals(other.getRightBinding())
+					//&& this.syncSet.equals(other.getSyncSet())
 					this.left.equals(other.getLeft())
 					&& this.right.equals(other.getRight());
 					
