@@ -1,7 +1,7 @@
 /**
  * 
  */
-package eu.compassresearch.ide.faulttolerance.marker;
+package eu.compassresearch.ide.faulttolerance.markers;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
@@ -16,11 +16,13 @@ import eu.compassresearch.ide.faulttolerance.jobs.IFaultToleranceVerificationLis
 
 /**
  * @author Andr&eacute; Didier (<a href=
- *         "mailto:alrd@cin.ufpe.br?Subject=Package eu.compassresearch.ide.faulttolerance.marker, class MarkerManager"
+ *         "mailto:alrd@cin.ufpe.br?Subject=Package eu.compassresearch.ide.faulttolerance.markers, class MarkerManager"
  *         >alrd@cin.ufpe.br</a>)
  * 
  */
 public class MarkerManager implements IFaultToleranceVerificationListener {
+
+	public final static String ATTRIBUTE_PROCESS_NAME = "processName";
 
 	@Override
 	public void divergenceFreeVerificationStarted() {
@@ -231,11 +233,12 @@ public class MarkerManager implements IFaultToleranceVerificationListener {
 				marker.setAttribute(IMarker.CHAR_END,
 						location.getEndOffset() + 1);
 				if (processName != null) {
-					marker.setAttribute("processName", processName);
+					marker.setAttribute(ATTRIBUTE_PROCESS_NAME, processName);
 				}
-				if (limitProcess != null) {
-					marker.setAttribute("limitProcess", limitProcess);
-				}
+				/*
+				 * TODO: verify if needed. if (limitProcess != null) {
+				 * marker.setAttribute("limitProcess", limitProcess); }
+				 */
 			}
 		} catch (CoreException e) {
 			//

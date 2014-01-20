@@ -9,7 +9,6 @@ Require-Bundle:
  org.overture.ide.ui,
  eu.compassresearch.ide.core,
  eu.compassresearch.ide.ui,
- eu.compassresearch.ide.pog,
  eu.compassresearch.ide.modelchecker
 Import-Package: eu.compassresearch.ast.program,
  eu.compassresearch.core.common,

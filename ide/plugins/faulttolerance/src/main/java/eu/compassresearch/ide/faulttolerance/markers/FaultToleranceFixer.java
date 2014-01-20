@@ -1,7 +1,7 @@
 /**
  * 
  */
-package eu.compassresearch.ide.faulttolerance.marker;
+package eu.compassresearch.ide.faulttolerance.markers;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;
@@ -10,7 +10,7 @@ import org.eclipse.ui.IMarkerResolutionGenerator;
 
 /**
  * @author Andr&eacute; Didier (<a href=
- *         "mailto:alrd@cin.ufpe.br?Subject=Package eu.compassresearch.ide.faulttolerance.marker, class FaultToleranceFixer"
+ *         "mailto:alrd@cin.ufpe.br?Subject=Package eu.compassresearch.ide.faulttolerance.markers, class FaultToleranceFixer"
  *         >alrd@cin.ufpe.br</a>)
  * 
  */

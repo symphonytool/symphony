@@ -1,14 +1,14 @@
 /**
  * 
  */
-package eu.compassresearch.ide.faulttolerance.marker;
+package eu.compassresearch.ide.faulttolerance.markers;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.ui.IMarkerResolution;
 
 /**
  * @author Andr&eacute; Didier (<a href=
- *         "mailto:alrd@cin.ufpe.br?Subject=Package eu.compassresearch.ide.faulttolerance.marker, class FaultToleranceClearFix"
+ *         "mailto:alrd@cin.ufpe.br?Subject=Package eu.compassresearch.ide.faulttolerance.markers, class FaultToleranceClearFix"
  *         >alrd@cin.ufpe.br</a>)
  * 
  */

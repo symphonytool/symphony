@@ -21,6 +21,7 @@ public class FaultToleranceVerificationResults {
 	private boolean limitedFaultTolerant;
 	private boolean prerequisitesChecked;
 	private int verifications;
+	@Deprecated
 	private String limitExpression;
 	private String processName;
 	private IResource resource;
@@ -58,6 +59,7 @@ public class FaultToleranceVerificationResults {
 		return limitedFaultTolerant;
 	}
 
+	@Deprecated
 	public String getLimitExpression() {
 		return limitExpression;
 	}
@@ -86,6 +88,7 @@ public class FaultToleranceVerificationResults {
 		this.limitedFaultTolerant = limitedFaultTolerant;
 	}
 
+	@Deprecated
 	public void setLimitExpression(String limitExpression) {
 		this.limitExpression = limitExpression;
 	}
