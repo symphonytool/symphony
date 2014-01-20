@@ -20,6 +20,12 @@
       <import plugin="org.eclipse.ui.console"/>
       <import plugin="eu.compassresearch.ide.core"/>
       <import plugin="org.eclipse.core.runtime" version="3.5.0" match="compatible"/>
+      <import feature="org.eclipse.ecf.core" version="3.7.1.v20131027-1505"/>
+      <import feature="org.eclipse.ecf.datashare.feature" version="1.0.0.v20131027-1505"/>
+      <import feature="org.eclipse.ecf.osgi.services.feature" version="2.0.1.v20131027-1505"/>
+      <import feature="org.eclipse.ecf.remoteservice.examples.feature" version="1.2.0.v20131027-1505"/>
+      <import feature="org.eclipse.ecf.remoteservice.feature" version="1.1.0.v20131027-1505"/>
+      <import feature="org.eclipse.ecf.xmpp.feature" version="1.0.0.v20131027-1505"/>
    </requires>
 
    <plugin
