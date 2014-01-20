@@ -3,6 +3,8 @@
  */
 package eu.compassresearch.ide.faulttolerance;
 
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.ui.IStartup;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -16,7 +18,6 @@ import org.osgi.framework.BundleContext;
  */
 public class Activator extends AbstractUIPlugin implements IStartup {
 	public static final String ID = "eu.compassresearch.ide.faulttolerance";
-	public final static String MARKERS_ID = "eu.compassresearch.ide.faulttolerance.verification.problem";
 	private static Activator plugin;
 
 	public Activator() {
@@ -40,7 +41,7 @@ public class Activator extends AbstractUIPlugin implements IStartup {
 	}
 
 	public boolean isModelCheckerOk() {
-		return true;// eu.compassresearch.ide.modelchecker.Activator.FORMULA_OK;
+		return eu.compassresearch.ide.modelchecker.Activator.FORMULA_OK;
 	}
 
 	@Override
@@ -54,4 +55,9 @@ public class Activator extends AbstractUIPlugin implements IStartup {
 
 	}
 
+	public void log(Exception exception) {
+		getLog().log(
+				new Status(IStatus.ERROR, ID, Activator.class.getSimpleName(),
+						exception));
+	}
 }

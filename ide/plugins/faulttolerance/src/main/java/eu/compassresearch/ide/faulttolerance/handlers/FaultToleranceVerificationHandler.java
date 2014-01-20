@@ -50,6 +50,8 @@ public class FaultToleranceVerificationHandler extends SelectProcessHandler {
 		results.setLocation(processDefinition.getLocation());
 		results.setResource(su.getFile());
 		results.setProcessName(processDefinition.getName().getFullName());
+		results.setOutputContainer(su.getProject().getModelBuildPath()
+				.getOutput());
 
 		/*
 		 * InputDialog id = new InputDialog(shell,

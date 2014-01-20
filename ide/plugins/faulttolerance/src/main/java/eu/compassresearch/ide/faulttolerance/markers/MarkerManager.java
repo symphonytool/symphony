@@ -8,7 +8,6 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.overture.ast.intf.lex.ILexLocation;
 
-import eu.compassresearch.ide.faulttolerance.Activator;
 import eu.compassresearch.ide.faulttolerance.Message;
 import eu.compassresearch.ide.faulttolerance.jobs.FaultToleranceVerificationEvent;
 import eu.compassresearch.ide.faulttolerance.jobs.FaultToleranceVerificationResults;
@@ -23,6 +22,7 @@ import eu.compassresearch.ide.faulttolerance.jobs.IFaultToleranceVerificationLis
 public class MarkerManager implements IFaultToleranceVerificationListener {
 
 	public final static String ATTRIBUTE_PROCESS_NAME = "processName";
+	public final static String MARKERS_ID = "eu.compassresearch.ide.faulttolerance.verification.problem";
 
 	@Override
 	public void divergenceFreeVerificationStarted() {
@@ -158,12 +158,12 @@ public class MarkerManager implements IFaultToleranceVerificationListener {
 	}
 
 	private String getLimitExpression(FaultToleranceVerificationResults r) {
-		final int maxLen = Message.LIMIT_EXPRESSION.format().length();
-		String le = r.getLimitExpression();
-		if (le.length() > maxLen) {
-			le = le.substring(0, maxLen - 3) + "...";
-		}
-		return le;
+		/*
+		 * final int maxLen = Message.LIMIT_EXPRESSION.format().length(); String
+		 * le = r.getLimitExpression(); if (le.length() > maxLen) { le =
+		 * le.substring(0, maxLen - 3) + "..."; } return le;
+		 */
+		return Message.LIMIT_PROCESS_NAME.format(r.getProcessName());
 	}
 
 	private void markerFullFaultTolerant(FaultToleranceVerificationResults r) {
@@ -192,8 +192,7 @@ public class MarkerManager implements IFaultToleranceVerificationListener {
 	}
 
 	private void markerLimitedFaultTolerant(FaultToleranceVerificationResults r) {
-		renewMarker(
-				IMarker.SEVERITY_ERROR,
+		renewMarker(IMarker.SEVERITY_ERROR,
 				Message.LIMITED_FAULT_TOLERANCE_ERROR.format(
 						r.getProcessName(), getLimitExpression(r)),
 				r.getProcessName(), null, r.getResource(), r.getLocation());
@@ -219,8 +218,7 @@ public class MarkerManager implements IFaultToleranceVerificationListener {
 		try {
 			if (selectedResource != null) {
 
-				IMarker marker = selectedResource
-						.createMarker(Activator.MARKERS_ID);
+				IMarker marker = selectedResource.createMarker(MARKERS_ID);
 				marker.setAttribute(IMarker.LOCATION,
 						Message.MARKER_LOCATION.format(location.getStartLine(),
 								location.getStartPos()));
@@ -248,10 +246,11 @@ public class MarkerManager implements IFaultToleranceVerificationListener {
 	public static void clearMarkers(String processName,
 			IResource selectedResource) {
 		try {
-			IMarker[] markers = selectedResource.findMarkers(
-					Activator.MARKERS_ID, true, IResource.DEPTH_INFINITE);
+			IMarker[] markers = selectedResource.findMarkers(MARKERS_ID, true,
+					IResource.DEPTH_INFINITE);
 			for (IMarker marker : markers) {
-				if (processName.equals(marker.getAttribute("processName"))) {
+				if (processName.equals(marker
+						.getAttribute(ATTRIBUTE_PROCESS_NAME))) {
 					marker.delete();
 				}
 			}

@@ -38,6 +38,8 @@ public abstract class ModelCheckingJob extends Job {
 			return Status.OK_STATUS;
 		} catch (InterruptedException e) {
 			return Status.CANCEL_STATUS;
+		} finally {
+			monitor.done();
 		}
 	}
 
