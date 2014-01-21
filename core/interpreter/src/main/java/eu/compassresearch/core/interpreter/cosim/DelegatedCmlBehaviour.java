@@ -43,6 +43,8 @@ public class DelegatedCmlBehaviour implements CmlBehaviour
 	private IProcessDelegate delegate;
 
 	private Pair<INode, Context> next;
+	
+	private boolean finished = false;
 
 	public DelegatedCmlBehaviour(INode node, Context context,
 			CmlBehaviour parent, BehaviourName name,
@@ -60,9 +62,13 @@ public class DelegatedCmlBehaviour implements CmlBehaviour
 	}
 
 	@Override
-	public void execute(CmlTransition selectedTransition)
+	public synchronized void execute(CmlTransition selectedTransition)
 			throws AnalysisException
 	{
+		if(finished)
+		{
+			return;
+		}
 		try
 		{
 			if (selectedTransition instanceof AbstractSilentTransition
@@ -78,8 +84,12 @@ public class DelegatedCmlBehaviour implements CmlBehaviour
 	}
 
 	@Override
-	public CmlTransitionSet inspect() throws AnalysisException
+	public synchronized CmlTransitionSet inspect() throws AnalysisException
 	{
+		if(finished)
+		{
+			return new CmlTransitionSet();
+		}
 		try
 		{
 			CmlTransitionSet transitions = this.delegate.inspect();
@@ -216,11 +226,16 @@ public class DelegatedCmlBehaviour implements CmlBehaviour
 	}
 
 	@Override
-	public boolean finished()
+	public synchronized boolean finished()
 	{
+		if(finished)
+		{
+			return finished;
+		}
 		try
 		{
-			return this.delegate.isFinished();
+			this.finished= this.delegate.isFinished();
+			return finished;
 		} catch (Exception e)
 		{
 			throw new InterpreterRuntimeException("Failed to invoke isFinished on delegate", e);
