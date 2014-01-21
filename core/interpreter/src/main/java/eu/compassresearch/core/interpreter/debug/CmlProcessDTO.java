@@ -2,6 +2,7 @@ package eu.compassresearch.core.interpreter.debug;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Vector;
 
 import org.overture.ast.intf.lex.ILexLocation;
 
@@ -44,7 +45,13 @@ public class CmlProcessDTO
 	{
 		this.name = process.getName().toString();
 		this.id = process.getId();
+		if(process.getTraceModel()!=null)
+		{
 		this.trace = convertCmlEventsToStringList(process.getTraceModel().getObservableTrace());
+		}else
+		{
+			this.trace = new Vector<String>();
+		}
 		this.isProcess = process.getNextState().first instanceof PProcess;
 		this.state = process.getState();
 		this.location = LocationExtractor.extractLocation(process.getNextState().first);
