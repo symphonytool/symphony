@@ -10,7 +10,6 @@ import org.overture.interpreter.runtime.Interpreter;
 import org.overture.interpreter.values.CPUValue;
 
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
-import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 
 public class CmlDBGPReader extends DBGPReader
 {

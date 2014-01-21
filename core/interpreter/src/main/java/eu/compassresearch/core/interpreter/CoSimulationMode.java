@@ -1,6 +1,5 @@
 package eu.compassresearch.core.interpreter;
 
-
 public enum CoSimulationMode
 {
 	Standard("std"), CoSimCoordinator("server"), CoSimClient("client");

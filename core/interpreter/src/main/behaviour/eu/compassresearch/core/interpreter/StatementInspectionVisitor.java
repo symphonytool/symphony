@@ -49,8 +49,7 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 {
 
 	public StatementInspectionVisitor(CmlBehaviour ownerProcess,
-			VisitorAccess visitorAccess,
-			CmlBehaviorFactory cmlBehaviorFactory,
+			VisitorAccess visitorAccess, CmlBehaviorFactory cmlBehaviorFactory,
 			QuestionAnswerCMLAdaptor<Context, Inspection> parentVisitor)
 	{
 
@@ -163,7 +162,6 @@ public class StatementInspectionVisitor extends AbstractInspectionVisitor
 			{
 				// first find the operation value in the context
 				OperationValue opVal = (OperationValue) question.lookup(node.getName()).deref();
-
 
 				// evaluate all the arguments
 				ValueList argValues = new ValueList();

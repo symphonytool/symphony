@@ -32,10 +32,12 @@ import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorFactory;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
+@SuppressWarnings("deprecation")
 class ActionSetupVisitor extends CommonSetupVisitor
 {
 
-	public ActionSetupVisitor(CmlBehaviour owner, VisitorAccess visitorAccess, CmlBehaviorFactory cmlBehaviorFactory)
+	public ActionSetupVisitor(CmlBehaviour owner, VisitorAccess visitorAccess,
+			CmlBehaviorFactory cmlBehaviorFactory)
 	{
 		super(owner, visitorAccess, cmlBehaviorFactory);
 	}
@@ -140,6 +142,7 @@ class ActionSetupVisitor extends CommonSetupVisitor
 	{
 		Pair<INode, Context> res = caseReplicated(node, node.getReplicationDeclaration(), new AbstractReplicationFactory(node)
 		{
+
 			@Override
 			public INode createNextReplication()
 			{

@@ -196,7 +196,7 @@ public class VariableDTO
 						+ vv.getKey() + " |-> " + vv.getValue() + "}", childrenMaplet.size(), !childrenMaplet.isEmpty(), !(val instanceof UpdatableValue), childrenMaplet);
 				children.add(maplet);
 			}
-		} 
+		}
 
 		return new VariableDTO(name, fullName, val.kind(), val.toString(), children.size(), !children.isEmpty(), !(val instanceof UpdatableValue), children);
 	}

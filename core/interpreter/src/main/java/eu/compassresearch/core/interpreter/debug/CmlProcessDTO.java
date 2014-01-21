@@ -6,7 +6,6 @@ import java.util.Vector;
 
 import org.overture.ast.intf.lex.ILexLocation;
 
-import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorState;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
@@ -18,7 +17,6 @@ public class CmlProcessDTO
 	private final String name;
 	private final int id;
 	private final List<String> trace;
-	private final boolean isProcess;
 	private final CmlBehaviorState state;
 	private final ILexLocation location;
 	private final CmlProcessDTO leftChild;
@@ -33,7 +31,6 @@ public class CmlProcessDTO
 		name = null;
 		id = -1;
 		trace = new LinkedList<String>();
-		isProcess = false;
 		state = null;
 		location = null;
 		this.leftChild = null;
@@ -45,14 +42,14 @@ public class CmlProcessDTO
 	{
 		this.name = process.getName().toString();
 		this.id = process.getId();
-		if(process.getTraceModel()!=null)
+		if (process.getTraceModel() != null)
 		{
-		this.trace = convertCmlEventsToStringList(process.getTraceModel().getObservableTrace());
-		}else
+			this.trace = convertCmlEventsToStringList(process.getTraceModel().getObservableTrace());
+		} else
 		{
 			this.trace = new Vector<String>();
 		}
-		this.isProcess = process.getNextState().first instanceof PProcess;
+		// this.isProcess = process.getNextState().first instanceof PProcess;
 		this.state = process.getState();
 		this.location = LocationExtractor.extractLocation(process.getNextState().first);
 		this.parent = parent;

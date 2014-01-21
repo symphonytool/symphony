@@ -89,8 +89,7 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 	private QuestionAnswerCMLAdaptor<Context, Inspection> statementInspectionVisitor;
 
 	public ActionInspectionVisitor(CmlBehaviour ownerProcess,
-			VisitorAccess visitorAccess,
-			CmlBehaviorFactory cmlBehaviorFactory,
+			VisitorAccess visitorAccess, CmlBehaviorFactory cmlBehaviorFactory,
 			QuestionAnswerCMLAdaptor<Context, Inspection> parentVisitor)
 	{
 		super(ownerProcess, visitorAccess, cmlBehaviorFactory, parentVisitor);

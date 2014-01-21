@@ -76,7 +76,6 @@ class CmlDefinitionVisitor extends
 		return vpl;
 	}
 
-
 	/*
 	 * Visitor Definition case methods
 	 */

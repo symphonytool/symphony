@@ -86,24 +86,24 @@ public class CoSimulationServer implements IProcessBehaviourDelegationManager
 	@Override
 	public boolean registerUse(IProcessDelegate delegate)
 	{
-		if(freeProcessDelegation.values().contains(delegate))
+		if (freeProcessDelegation.values().contains(delegate))
 		{
 			List<String> keys = new Vector<String>();
 			for (Entry<String, IProcessDelegate> entry : freeProcessDelegation.entrySet())
 			{
-				if(entry.getValue()==delegate)
+				if (entry.getValue() == delegate)
 				{
 					keys.add(entry.getKey());
 				}
 			}
-			
+
 			for (String key : keys)
 			{
 				freeProcessDelegation.remove(key);
 			}
 			return true;
 		}
-		
+
 		return false;
 	}
 

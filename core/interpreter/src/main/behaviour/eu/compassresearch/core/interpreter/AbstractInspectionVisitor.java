@@ -30,9 +30,9 @@ import eu.compassresearch.core.interpreter.api.transitions.TimedTransition;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
 /**
- * This class 
+ * This class
+ * 
  * @author akm
- *
  */
 public abstract class AbstractInspectionVisitor extends
 		QuestionAnswerCMLAdaptor<Context, Inspection>
@@ -46,7 +46,7 @@ public abstract class AbstractInspectionVisitor extends
 	 * The parent visitor
 	 */
 	protected final QuestionAnswerCMLAdaptor<Context, Inspection> parentVisitor;
-	
+
 	protected CmlBehaviorFactory cmlBehaviorFactory;
 	/**
 	 * Interface that gives access to methods that access protected parts of a CmlBehaviour
@@ -60,19 +60,20 @@ public abstract class AbstractInspectionVisitor extends
 	 * Evaluator for expressions
 	 */
 	protected final CmlExpressionVisitor cmlExpressionVisitor = new CmlExpressionVisitor();
-	
+
 	/**
 	 * Used for making random but deterministic decisions
 	 */
 	protected final Random rnd = new Random(9784345);
 
 	/**
-	 * @param ownerProcess The behavior object that owns this visitor
-	 * @param visitorAccess Gives access to methods that access protected parts of a CmlBehaviour
+	 * @param ownerProcess
+	 *            The behavior object that owns this visitor
+	 * @param visitorAccess
+	 *            Gives access to methods that access protected parts of a CmlBehaviour
 	 */
 	public AbstractInspectionVisitor(CmlBehaviour ownerProcess,
-			VisitorAccess visitorAccess,
-			CmlBehaviorFactory cmlBehaviorFactory,
+			VisitorAccess visitorAccess, CmlBehaviorFactory cmlBehaviorFactory,
 			QuestionAnswerCMLAdaptor<Context, Inspection> parentVisitor)
 	{
 		this.owner = ownerProcess;

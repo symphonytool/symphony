@@ -52,8 +52,7 @@ import eu.compassresearch.core.interpreter.utility.Pair;
 public class ProcessInspectionVisitor extends CommonInspectionVisitor
 {
 	public ProcessInspectionVisitor(CmlBehaviour ownerProcess,
-			VisitorAccess visitorAccess,
-			CmlBehaviorFactory cmlBehaviorFactory,
+			VisitorAccess visitorAccess, CmlBehaviorFactory cmlBehaviorFactory,
 			QuestionAnswerCMLAdaptor<Context, Inspection> parentVisitor)
 	{
 		super(ownerProcess, visitorAccess, cmlBehaviorFactory, parentVisitor);

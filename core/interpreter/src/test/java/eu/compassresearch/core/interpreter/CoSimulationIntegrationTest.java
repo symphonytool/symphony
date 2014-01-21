@@ -84,7 +84,7 @@ public class CoSimulationIntegrationTest
 		Assert.assertTrue("Simulators did not finish successfully", isFinished());
 
 	}
-	
+
 	@Test
 	public void testMainTwoClients() throws Exception
 	{

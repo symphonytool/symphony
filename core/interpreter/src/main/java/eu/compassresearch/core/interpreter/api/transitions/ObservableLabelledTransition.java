@@ -27,8 +27,7 @@ class ObservableLabelledTransition extends AbstractLabelledTransition implements
 	 * 
 	 */
 	private static final long serialVersionUID = -2217645151439301812L;
-	
-	
+
 	/**
 	 * Added for json construction
 	 */
@@ -50,17 +49,16 @@ class ObservableLabelledTransition extends AbstractLabelledTransition implements
 
 	/**
 	 * Synchronized constructor
+	 * 
 	 * @param baseEvent
 	 * @param syncEvent
 	 * @param meetValue
 	 */
-	public ObservableLabelledTransition(
-			CmlTransition baseEvent,
+	public ObservableLabelledTransition(CmlTransition baseEvent,
 			CmlTransition otherComEvent, ChannelNameValue meetValue)
 	{
-		super(baseEvent, otherComEvent,meetValue);
+		super(baseEvent, otherComEvent, meetValue);
 	}
-	
 
 	@Override
 	public String toString()
@@ -113,7 +111,7 @@ class ObservableLabelledTransition extends AbstractLabelledTransition implements
 
 		if (meetValue.isConstraintValid())
 		{
-			return new ObservableLabelledTransition(this,otherComEvent, meetValue);
+			return new ObservableLabelledTransition(this, otherComEvent, meetValue);
 		} else
 		{
 			return null;

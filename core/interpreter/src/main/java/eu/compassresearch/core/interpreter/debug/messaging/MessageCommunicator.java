@@ -126,7 +126,7 @@ public class MessageCommunicator
 		mapperInstance().writeValue(outStream, messageContainer);
 		outStream.write(System.lineSeparator().getBytes());
 		outStream.flush();
-//		System.out.println("Sendt..." + message);
+		// System.out.println("Sendt..." + message);
 		// PrintWriter writer = new PrintWriter(outStream);
 		// writer.println(mapperInstance().toJson(messageContainer));
 		// writer.flush();

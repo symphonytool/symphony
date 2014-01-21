@@ -56,7 +56,7 @@ public class RemoteInterpreter implements IRemoteInterpreter, SelectionStrategy
 			this.availableTransitions.put(availableTransitions);
 		} catch (InterruptedException e)
 		{
-			throw new InterpreterRuntimeException("Unable to store avaliable transitions",e);
+			throw new InterpreterRuntimeException("Unable to store avaliable transitions", e);
 		}
 	}
 
@@ -68,7 +68,7 @@ public class RemoteInterpreter implements IRemoteInterpreter, SelectionStrategy
 			return selection.take();
 		} catch (InterruptedException e)
 		{
-			throw new InterpreterRuntimeException("Unable to take selection provided by selected transition",e);
+			throw new InterpreterRuntimeException("Unable to take selection provided by selected transition", e);
 		}
 	}
 
@@ -122,7 +122,7 @@ public class RemoteInterpreter implements IRemoteInterpreter, SelectionStrategy
 			selection.put(event);
 		} catch (InterruptedException e)
 		{
-			throw new InterpreterRuntimeException("Unable to store selected event in queue",e);
+			throw new InterpreterRuntimeException("Unable to store selected event in queue", e);
 		}
 	}
 
@@ -181,7 +181,7 @@ public class RemoteInterpreter implements IRemoteInterpreter, SelectionStrategy
 			selection.put(event);
 		} catch (InterruptedException e)
 		{
-			throw new InterpreterRuntimeException("Unable to store seleceted event in queue",e);
+			throw new InterpreterRuntimeException("Unable to store seleceted event in queue", e);
 		}
 	}
 

@@ -42,7 +42,8 @@ import eu.compassresearch.core.interpreter.utility.SetMath;
 class CommonSetupVisitor extends AbstractSetupVisitor
 {
 
-	public CommonSetupVisitor(CmlBehaviour owner, VisitorAccess visitorAccess, CmlBehaviorFactory cmlBehaviorFactory)
+	public CommonSetupVisitor(CmlBehaviour owner, VisitorAccess visitorAccess,
+			CmlBehaviorFactory cmlBehaviorFactory)
 	{
 		super(owner, visitorAccess, cmlBehaviorFactory);
 	}

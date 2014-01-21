@@ -15,8 +15,8 @@ public class JsonIgnoreIntrospector extends AnnotationIntrospector
 	 */
 	private static final long serialVersionUID = 4080324790812049795L;
 	private Map<Class<?>, String[]> jsonignoreProperties;
-	
-	public JsonIgnoreIntrospector(Map<Class<?>,String[]> jsonignoreProperties)
+
+	public JsonIgnoreIntrospector(Map<Class<?>, String[]> jsonignoreProperties)
 	{
 		this.jsonignoreProperties = jsonignoreProperties;
 	}

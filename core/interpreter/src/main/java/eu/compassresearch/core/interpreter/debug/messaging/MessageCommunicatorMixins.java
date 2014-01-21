@@ -173,7 +173,7 @@ public class MessageCommunicatorMixins
 		ctxt.setMixInAnnotations(MultiConstraint.class, MultiConstraintMixIn.class);
 		ctxt.setMixInAnnotations(ChannelNameValue.class, ChannelNameValueMixIn.class);
 		ctxt.setMixInAnnotations(IntegerValue.class, IntegerValueMixIn.class);
-		
+
 		ctxt.appendAnnotationIntrospector(new JsonIgnoreIntrospector(ignore));
 	}
 }

@@ -148,7 +148,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		// Create the initial context with the global definitions
 		Context topContext = getInitialContext(null);
 		// Create a CmlBehaviour for the top process
-		runningTopProcess = config.cmlBehaviorFactory.newCmlBehaviour(topProcess.getProcess(), topContext, new CmlBehaviour.BehaviourName(topProcess.getName().getName()),null);
+		runningTopProcess = config.cmlBehaviorFactory.newCmlBehaviour(topProcess.getProcess(), topContext, new CmlBehaviour.BehaviourName(topProcess.getName().getName()), null);
 
 		// Fire the interpreter running event before we start
 		setNewState(CmlInterpreterState.RUNNING);
@@ -327,8 +327,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		{
 			CmlRuntime.logger().finer("----------------Silent step by '"
 					+ behaviour + "'--------------------");
-			CmlRuntime.logger().finer("Trace of '" + behaviour + "': "
-					+ trace);
+			CmlRuntime.logger().finer("Trace of '" + behaviour + "': " + trace);
 			CmlRuntime.logger().finer("Eval. Status={ "
 					+ behaviour.nextStepToString() + " }");
 			CmlRuntime.logger().finer("-----------------------------------------------------------------");

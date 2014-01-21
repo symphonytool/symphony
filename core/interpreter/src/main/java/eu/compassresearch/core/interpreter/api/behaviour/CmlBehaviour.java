@@ -35,7 +35,7 @@ import eu.compassresearch.core.interpreter.utility.Pair;
  * 
  * @author akm
  */
-public interface CmlBehaviour extends Serializable , Comparable<CmlBehaviour>
+public interface CmlBehaviour extends Serializable, Comparable<CmlBehaviour>
 {
 	public static class BehaviourName
 	{
@@ -372,6 +372,5 @@ public interface CmlBehaviour extends Serializable , Comparable<CmlBehaviour>
 	 * @return The appropriate EventSource for event registration
 	 */
 	public EventSource<TraceObserver> onTraceChanged();
-
 
 }

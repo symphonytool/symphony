@@ -38,8 +38,8 @@ import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 
 public class DebugMain
 {
-	
-	static InterpreterFactory factory =new VanillaInterpreterFactory();
+
+	static InterpreterFactory factory = new VanillaInterpreterFactory();
 
 	/**
 	 * @param args
@@ -48,6 +48,7 @@ public class DebugMain
 	 * @throws CmlInterpreterException
 	 * @throws AnalysisException
 	 */
+	@SuppressWarnings("unchecked")
 	public static void main(String[] args) throws Exception
 	{
 
@@ -59,8 +60,7 @@ public class DebugMain
 		boolean autoFilterTockEvents = false;
 		int port = CmlDebugDefaultValues.PORT;
 		String host = "localhost";
-		
-		
+
 		try
 		{
 			// ----------- Config -------------------------------------
@@ -167,7 +167,7 @@ public class DebugMain
 			if (tc.typeCheck())
 			{
 				Console.debug.println("Debug Thread: Typechecking: OK");
-				
+
 				configureCoSimulation(jargs);
 
 				boolean filterTockEvents = autoFilterTockEvents
@@ -219,51 +219,50 @@ public class DebugMain
 		}
 	}
 
-	private static void configureCoSimulation(JSONObject jargs) throws IOException
+	private static void configureCoSimulation(JSONObject jargs)
+			throws IOException
 	{
 		CoSimulationMode mode = null;
-		List<String> externalProcesses =new Vector<String>();
+		List<String> externalProcesses = new Vector<String>();
 		String host = null;
 		int port = 0;
-		
+
 		String processName = (String) jargs.get(CmlInterpreterArguments.PROCESS_NAME.toString());
-		
-		
+
 		if (jargs.containsKey(CmlInterpreterArguments.COSIM_MODE.key))
 		{
-			mode=CoSimulationMode.fromString( (String) jargs.get(CmlInterpreterArguments.COSIM_MODE.key));
-		}else
+			mode = CoSimulationMode.fromString((String) jargs.get(CmlInterpreterArguments.COSIM_MODE.key));
+		} else
 		{
 			return;
 		}
-		
-		if (mode == CoSimulationMode.CoSimCoordinator )
+
+		if (mode == CoSimulationMode.CoSimCoordinator)
 		{
-			if(jargs.containsKey(CmlInterpreterArguments.COSIM_EXTERNAL_PROCESSES.key))
+			if (jargs.containsKey(CmlInterpreterArguments.COSIM_EXTERNAL_PROCESSES.key))
 			{
-				 String tmp = (String) jargs.get(CmlInterpreterArguments.COSIM_EXTERNAL_PROCESSES.key);
-				 externalProcesses.addAll(Arrays.asList(tmp.split(",")));
-			}else
+				String tmp = (String) jargs.get(CmlInterpreterArguments.COSIM_EXTERNAL_PROCESSES.key);
+				externalProcesses.addAll(Arrays.asList(tmp.split(",")));
+			} else
 			{
 				Console.err.println("Missing required argument for external processes");
 			}
-			
+
 		}
-		
+
 		if (jargs.containsKey(CmlInterpreterArguments.COSIM_HOST.key))
 		{
-			String tmp =(String) jargs.get(CmlInterpreterArguments.COSIM_HOST.key);
-			
+			String tmp = (String) jargs.get(CmlInterpreterArguments.COSIM_HOST.key);
+
 			String[] decodedTmp = tmp.split("\\:");
 			host = decodedTmp[0];
 			port = Integer.valueOf(decodedTmp[1]);
 		}
-		
-		//configure
-		Console.out.println("Starting co-simulation with "+host+":"+port);
+
+		// configure
+		Console.out.println("Starting co-simulation with " + host + ":" + port);
 		CoSimulationServer server = null;
-		
-		
+
 		switch (mode)
 		{
 			case CoSimCoordinator:
@@ -278,10 +277,10 @@ public class DebugMain
 			}
 			case CoSimClient:
 			{
-				CoSimulationClient client = new CoSimulationClient(host,port);
+				CoSimulationClient client = new CoSimulationClient(host, port);
 				client.connect();
 				client.start();
-				
+
 				client.registerImplementation(processName);
 				factory = new CoSimClientInterpreterFactory(client);
 

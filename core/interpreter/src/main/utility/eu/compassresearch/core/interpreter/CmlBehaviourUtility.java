@@ -121,7 +121,7 @@ class CmlBehaviourUtility
 				Context iCurrent = contexts.get(i);
 				for (Entry<ILexNameToken, Value> entry : iCopy.entrySet())
 				{
-					Value val = entry.getValue();
+					// Value val = entry.getValue();
 					// if(val instanceof UpdatableValue)
 					iCurrent.put(entry.getKey(), entry.getValue());
 				}

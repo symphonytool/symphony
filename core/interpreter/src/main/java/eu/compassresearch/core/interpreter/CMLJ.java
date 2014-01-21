@@ -168,7 +168,7 @@ public class CMLJ
 			}
 			case CoSimClient:
 			{
-				CoSimulationClient client = new CoSimulationClient("localhost",coSimPort);
+				CoSimulationClient client = new CoSimulationClient("localhost", coSimPort);
 				client.connect();
 				client.start();
 				client.registerImplementation(processName);

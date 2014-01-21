@@ -30,10 +30,12 @@ import eu.compassresearch.core.interpreter.api.values.ChannelNameSetValue;
 import eu.compassresearch.core.interpreter.api.values.CmlSetQuantifier;
 import eu.compassresearch.core.interpreter.utility.Pair;
 
+@SuppressWarnings("deprecation")
 class ProcessSetupVisitor extends CommonSetupVisitor
 {
 
-	public ProcessSetupVisitor(CmlBehaviour owner, VisitorAccess visitorAccess, CmlBehaviorFactory cmlBehaviorFactory)
+	public ProcessSetupVisitor(CmlBehaviour owner, VisitorAccess visitorAccess,
+			CmlBehaviorFactory cmlBehaviorFactory)
 	{
 		super(owner, visitorAccess, cmlBehaviorFactory);
 	}

@@ -51,8 +51,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 	}
 
 	public CommonInspectionVisitor(CmlBehaviour ownerProcess,
-			VisitorAccess visitorAccess,
-			CmlBehaviorFactory cmlBehaviorFactory,
+			VisitorAccess visitorAccess, CmlBehaviorFactory cmlBehaviorFactory,
 			QuestionAnswerCMLAdaptor<Context, Inspection> parentVisitor)
 	{
 		super(ownerProcess, visitorAccess, cmlBehaviorFactory, parentVisitor);
@@ -423,8 +422,10 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 							|| rightChannelEvent.getChannelName().isGTEQPrecise(leftChannelEvent.getChannelName()))
 					{
 						ObservableTransition result = leftTrans.synchronizeWith(rightTrans);
-						if(result != null)
+						if (result != null)
+						{
 							syncEvents.add(result);
+						}
 					}
 				}
 			}

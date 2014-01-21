@@ -43,7 +43,7 @@ public class DelegatedCmlBehaviour implements CmlBehaviour
 	private IProcessDelegate delegate;
 
 	private Pair<INode, Context> next;
-	
+
 	private boolean finished = false;
 
 	public DelegatedCmlBehaviour(INode node, Context context,
@@ -65,7 +65,7 @@ public class DelegatedCmlBehaviour implements CmlBehaviour
 	public synchronized void execute(CmlTransition selectedTransition)
 			throws AnalysisException
 	{
-		if(finished)
+		if (finished)
 		{
 			return;
 		}
@@ -86,7 +86,7 @@ public class DelegatedCmlBehaviour implements CmlBehaviour
 	@Override
 	public synchronized CmlTransitionSet inspect() throws AnalysisException
 	{
-		if(finished)
+		if (finished)
 		{
 			return new CmlTransitionSet();
 		}
@@ -228,13 +228,13 @@ public class DelegatedCmlBehaviour implements CmlBehaviour
 	@Override
 	public synchronized boolean finished()
 	{
-		if(finished)
+		if (finished)
 		{
 			return finished;
 		}
 		try
 		{
-			this.finished= this.delegate.isFinished();
+			this.finished = this.delegate.isFinished();
 			return finished;
 		} catch (Exception e)
 		{

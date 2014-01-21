@@ -4,12 +4,12 @@ public abstract class Message
 {
 
 	/**
-	 *  sessions id current debugging session
+	 * sessions id current debugging session
 	 */
 	// TODO: this is not currently used
 	protected String sessionId;
 	/**
-	 *  message content
+	 * message content
 	 */
 	protected Object content;
 
