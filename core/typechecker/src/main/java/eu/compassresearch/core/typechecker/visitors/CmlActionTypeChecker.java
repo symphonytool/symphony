@@ -146,7 +146,7 @@ public class CmlActionTypeChecker extends
 			node.getName().setTypeQualifier(atypes);
 		}
 
-		PDefinition opdef = findDefinition(node.getName(), question.env);
+		PDefinition opdef = question.env.findName(node.getName(), question.scope);//findDefinition(node.getName(), question.env);
 
 		if (opdef == null)
 		{
@@ -746,7 +746,8 @@ public class CmlActionTypeChecker extends
 			throws AnalysisException
 	{
 
-		PDefinition def = findDefinition(node.getName().getIdentifier(), question.env);
+		PDefinition def =question.env.findName(node.getName(), question.scope); //findDefinition(node.getName().getIdentifier(), question.env);
+		
 
 		if (def == null)
 		{
