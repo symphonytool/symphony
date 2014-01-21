@@ -86,7 +86,7 @@ public class CollaborationLabelProvider extends LabelProvider implements
 			CollaborationProject collabProject = ((CollaborationProject) element);
 
 			return collabProject.getTitle() + " (attached to project: "
-					+ collabProject.getProjectWorkspaceName() + ")";
+					+ collabProject.getProjectWorkspaceName() + ") " + collabProject.getUniqueID();
 		} else if (element instanceof Configurations)
 		{
 			if (((Configurations) element).getName() == null)
