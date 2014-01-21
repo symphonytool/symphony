@@ -123,6 +123,7 @@
 					<with variable="selection">
 						<count value="1"/>
 						<iterate>
+						<or>
 						<!-- wrap the next part in something that is not a project -->
 							<adapt type="org.eclipse.core.resources.IFile">
 								<and>
@@ -130,6 +131,14 @@
            	    	value="eu.compassresearch.ide.core.content-type-cml"/>
 								</and>
 							</adapt>
+							<adapt
+                     type="org.overture.ide.core.resources.IVdmProject">
+                  <test
+                        property="org.overture.ide.core.resources.dialect"
+                        value="CML">
+                  </test>
+               </adapt>
+							</or>
 						</iterate>
 					</with>
 				</enablement>
