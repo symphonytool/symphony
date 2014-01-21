@@ -482,7 +482,8 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 		{
 			// Only send this if status is not FAILED, this will be handled in the start method
 			// which appends the correct errors to the status
-			if (event.getStatus() == CmlInterpreterState.WAITING_FOR_ENVIRONMENT)
+			CmlInterpreterState status = event.getStatus();
+			if (status == CmlInterpreterState.WAITING_FOR_ENVIRONMENT)
 			{
 				if (!waitingChoices.isEmpty())
 				{
@@ -492,13 +493,13 @@ public class SocketServerCmlDebugger implements CmlDebugger,
 					sendStatusMessage(CmlInterpreterStateDTO.createCmlInterpreterStateDTO(runningInterpreter, waitingChoices));
 
 				}
-			} else if (event.getStatus() != CmlInterpreterState.FAILED)
+			} else if (status != CmlInterpreterState.FAILED )
 			{
 				Console.debug.println("Debug thread sending Status event to controller: "
 						+ event);
 				sendStatusMessage(CmlInterpreterStateDTO.createCmlInterpreterStateDTO(runningInterpreter, waitingChoices));
 			}
-			CmlRuntime.logger().fine(event.getStatus().toString());
+			CmlRuntime.logger().fine(status.toString());
 		} catch (IOException e)
 		{
 			throw new InterpreterRuntimeException("Unable to send message", e);
