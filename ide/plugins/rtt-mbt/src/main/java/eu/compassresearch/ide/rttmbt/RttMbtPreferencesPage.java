@@ -98,7 +98,7 @@ public class RttMbtPreferencesPage extends FieldEditorPreferencePage implements 
     	valServerConnection = new Label(parent, SWT.NONE);
     	valServerConnection.setText("");
 
-		// add test connection button
+		// add reset workspace button
 	    Button resetWorkspace = new Button(parent, SWT.PUSH);
 	    resetWorkspace.setText("Reset server workspace");
 	    resetWorkspace.addSelectionListener(new SelectionListener() {

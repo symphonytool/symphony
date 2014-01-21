@@ -15,12 +15,17 @@ public class RttMbtAbort extends RttMbtPopupMenuAction {
 
 		// get job identification number
 		String jobIdString = client.getCurrentJobId();
+		client.setCurrentTaskCanceled(true);
 		
-		// abort job
-		if (client.abortCommand(jobIdString)) {
-			client.addLogMessage("[PASS]: aborting command with id " + jobIdString);
+		// abort job if a valid job ID has been received
+		if (jobIdString != null && jobIdString.compareTo("-1") != 0) {
+			if (client.abortCommand(jobIdString)) {
+				client.addLogMessage("[PASS]: aborting command with id " + jobIdString + ". Termination request has been sent to local tasks.");
+			} else {
+				client.addErrorMessage("[FAIL]: aborting command with id " + jobIdString + ". Termination request has been sent to local tasks.");
+			}
 		} else {
-			client.addErrorMessage("[FAIL]: aborting command with id " + jobIdString);			
+			client.addLogMessage("[PASS]: aborting command: no active server task running. Termination request has been sent to local tasks.");
 		}
 
 		return null;

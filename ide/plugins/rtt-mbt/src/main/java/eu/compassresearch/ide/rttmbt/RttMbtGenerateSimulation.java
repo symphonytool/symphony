@@ -1,33 +1,20 @@
 package eu.compassresearch.ide.rttmbt;
 
-import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 
 import eu.compassresearch.rttMbtTmsClientApi.IRttMbtProgressBar;
 
 public class RttMbtGenerateSimulation extends RttMbtAbstractTestProcedureAction  {
 
 	@Override
-	public Object execute(ExecutionEvent event) throws ExecutionException {
+	public String getTaskName() {
+		return "Generate Simulation";
+	}
 
-		// get selected object
-		client.setProgress(IRttMbtProgressBar.Tasks.ALL, 0);
-		if (!getSelectedObject(event)) {
-			client.addErrorMessage("[FAIL]: Please select a test proceduregeneration context!");
-			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
-			return null;
-		}
-
-		// get RttMbtClient for this action
-		if (!initClient()) {
-			client.addErrorMessage("[FAIL]: generate simulation: init of RTT-MBT client failed!");
-			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
-			return null;
-		}
+	@Override
+	public IStatus performSingleTask(IProgressMonitor monitor) {
 
 		// if a test procedure is selected, switch to test procedure generation context
 		if ((!isTProcGenCtxSelected()) && (isRttTestProcSelected())) {
@@ -37,25 +24,26 @@ public class RttMbtGenerateSimulation extends RttMbtAbstractTestProcedureAction 
 		// check that test procedure generation context is selected
 		if (!isTProcGenCtxSelected()) {
 			client.addErrorMessage("Please select a valid test procedure generation context!");
+			return Status.CANCEL_STATUS;
 		}
-		
-		Job job = new Job("Generate Simulation") {
-			@Override
-			protected IStatus run(IProgressMonitor monitor) {
-				client.addLogMessage("generating simulation from configuration of " + selectedObjectName + "... please wait for the task to be finished.");
-				// generate simulation
-				if (client.generateSimulation(selectedObjectName)) {
-					client.addLogMessage("[PASS]: generate simulation");
-					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
-				} else {
-					client.addErrorMessage("[FAIL]: generate simulation");
-					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
-				}
-				return Status.OK_STATUS;
-			}
-		};
-		job.schedule();
-		
-		return null;
+
+		// start task
+		IStatus status = Status.OK_STATUS;
+		client.beginTask("generate simulation from " + selectedObjectName, 5);
+
+		client.addLogMessage("generating simulation from configuration of " + selectedObjectName + "... please wait for the task to be finished.");
+		// generate simulation
+		if (client.generateSimulation(selectedObjectName)) {
+			client.addLogMessage("[PASS]: generate simulation from " + selectedObjectName);
+		} else {
+			client.addErrorMessage("[FAIL]: generate simulation from " + selectedObjectName);
+		}
+
+		// cleanup
+		client.setSubTaskName("finishing task");
+		client.addCompletedTaskItems(1);
+		client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
+		return status;
 	}
 }
+
