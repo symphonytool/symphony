@@ -1,6 +1,6 @@
 package eu.compassresearch.ide.collaboration.communication.messages;
 
-import org.eclipse.ecf.core.user.IUser;
+import org.eclipse.ecf.core.identity.ID;
 
 public class ConfigurationStatusMessage extends BaseMessage
 {
@@ -13,9 +13,9 @@ public class ConfigurationStatusMessage extends BaseMessage
 	    ACCEPT, REJECT, RENEGOTIATE; 
 	}
 	
-	public ConfigurationStatusMessage(IUser sentBy, IUser sentTo, String projectID, String configurationId, NegotiationStatus status)
+	public ConfigurationStatusMessage(ID sender, String projectID, String configurationId, NegotiationStatus status)
 	{
-		super(sentBy, sentTo, projectID);
+		super(sender,projectID);
 		
 		this.configurationId = configurationId;
 		this.status = status;

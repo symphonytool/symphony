@@ -1,6 +1,6 @@
 package eu.compassresearch.ide.collaboration.communication.messages;
 
-import org.eclipse.ecf.core.user.IUser;
+import org.eclipse.ecf.core.identity.ID;
 
 public class CollaborationRequest extends BaseMessage
 {
@@ -9,9 +9,9 @@ public class CollaborationRequest extends BaseMessage
 	String title;
 	String msg;
 	
-	public CollaborationRequest(IUser sender, IUser receiver, String projectID, String title, String message)
+	public CollaborationRequest(ID sender, String projectID, String title, String message)
 	{
-		super(sender,receiver, projectID);
+		super(sender, projectID);
 		
 		this.title = title;
 		this.msg = message;

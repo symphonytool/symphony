@@ -1,6 +1,6 @@
 package eu.compassresearch.ide.collaboration.communication.messages;
 
-import org.eclipse.ecf.core.user.IUser;
+import org.eclipse.ecf.core.identity.ID;
 
 public class CollaborationStatusMessage extends BaseMessage
 {
@@ -8,9 +8,9 @@ public class CollaborationStatusMessage extends BaseMessage
 	
 	boolean join;
 	
-	public CollaborationStatusMessage(IUser sender, IUser receiver, String projectID, boolean joining)
+	public CollaborationStatusMessage(ID sender, String projectID, boolean joining)
 	{
-		super(sender, receiver, projectID);
+		super(sender, projectID);
 		join = joining;
 	}
 	

@@ -6,24 +6,21 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
-import org.eclipse.ecf.core.user.IUser;
+import org.eclipse.ecf.core.identity.ID;
 import org.eclipse.ecf.sync.SerializationException;
 
 import eu.compassresearch.ide.collaboration.notifications.Notification;
-
 
 public class BaseMessage implements Serializable {
 
 	private static final long serialVersionUID = -70529594981572196L;
 
-	private final IUser senderID;
-	private final IUser receiverID;
+	private final ID senderID;
 	private final String projectID;
 	
-	public BaseMessage(IUser sender, IUser receiver, String collabProjectID)
+	public BaseMessage(ID sender, String collabProjectID)
 	{
 		senderID = sender;
-		receiverID = receiver;
 		projectID = collabProjectID;
 	}
 	
@@ -48,23 +45,13 @@ public class BaseMessage implements Serializable {
 		}
 	}
 
-	public IUser getSenderID()
+	public ID getSenderID()
 	{
 		return senderID;
 	}
 	
-	public Object getAdapter(Class adapter) {
-		return null;
-	}
-
-	public IUser getReceiverID()
-	{
-		return receiverID;
-	}
-
 	public String getProjectID()
 	{
 		return projectID;
 	}
-
 }

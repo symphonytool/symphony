@@ -2,7 +2,7 @@ package eu.compassresearch.ide.collaboration.communication.messages;
 
 import java.util.List;
 
-import org.eclipse.ecf.core.user.IUser;
+import org.eclipse.ecf.core.identity.ID;
 
 import eu.compassresearch.ide.collaboration.datamodel.Configuration;
 import eu.compassresearch.ide.collaboration.files.FileSet;
@@ -16,10 +16,10 @@ public class NewConfigurationMessage extends BaseMessage
 	private String parentConfigUniqueID;
 	private List<FileSet> fileSets;
 
-	public NewConfigurationMessage(IUser sentBy, IUser sentTo,
+	public NewConfigurationMessage(ID sender, 
 			String projectID, Configuration config, List<FileSet> fileSets)
 	{
-		super(sentBy, sentTo, projectID);
+		super(sender, projectID);
 
 		this.configUniqueID = config.getUniqueID();
 		this.signedBy = config.getSignedBy();

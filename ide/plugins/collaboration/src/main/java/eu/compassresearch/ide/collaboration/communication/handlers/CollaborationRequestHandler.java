@@ -1,5 +1,6 @@
 package eu.compassresearch.ide.collaboration.communication.handlers;
 
+import org.eclipse.ecf.core.identity.ID;
 import org.eclipse.ecf.core.util.ECFException;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Display;
@@ -21,12 +22,11 @@ public class CollaborationRequestHandler extends BaseMessageHandler<Collaboratio
 		super(CollaborationRequest.class, processor);
 	}
 
+	@SuppressWarnings("unused")
 	@Override
 	public void process(final CollaborationRequest msg)
 	{
-		Activator.getDefault().setConnections(msg.getReceiverID(), msg.getSenderID());
-		
-		final String senderName = msg.getSenderID().getName();
+		final ID sender = Activator.getDefault().getConnectionManager().getConnectedUser();
 		final String collabProjectId = msg.getProjectID();
 		
 		Display.getDefault().asyncExec(new Runnable()
@@ -35,23 +35,25 @@ public class CollaborationRequestHandler extends BaseMessageHandler<Collaboratio
 			{
 				try
 				{
-					CollaborationRequestedDialog collabRequestedDialog = new CollaborationRequestedDialog(senderName, msg.getTitle(), msg.getMessage(), null);
+					CollaborationRequestedDialog collabRequestedDialog = new CollaborationRequestedDialog(sender.getName(), msg.getTitle(), msg.getMessage(), null);
 					collabRequestedDialog.create();
 					boolean join = collabRequestedDialog.open() == Window.OK; 
 					
 					if(join) {
+						//TODO move to model manager
 						CollaborationDataModelManager modelMgm = Activator.getDefault().getDataModelManager();
 						CollaborationDataModelRoot root = modelMgm.getDataModel();
 						
 						root.addCollaborationProject(collabRequestedDialog.getProject(), msg.getTitle(), msg.getMessage(), collabProjectId);
 						
 						CollaborationGroup collabGrp = (CollaborationGroup) root.getCollaborationProjects().get(0).getCollaboratorGroup();
-						collabGrp.addCollaborator(senderName, true);	
+						collabGrp.addCollaborator(sender.getName(), true);	
 					}
 					
 					//send reply
-					CollaborationStatusMessage statusMsg = new CollaborationStatusMessage(msg.getReceiverID(), msg.getSenderID(), msg.getProjectID(), join);
-					messageProcessor.sendMessage(statusMsg.getReceiverID(), statusMsg.serialize());
+					CollaborationStatusMessage statusMsg = new CollaborationStatusMessage(sender, msg.getProjectID(), join);
+					//TODO send via connection manager
+					messageProcessor.sendMessage(msg.getSenderID(), statusMsg.serialize());
 					
 				} catch (ECFException e)
 				{

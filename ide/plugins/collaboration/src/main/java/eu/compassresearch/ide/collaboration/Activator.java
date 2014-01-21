@@ -1,23 +1,14 @@
 package eu.compassresearch.ide.collaboration;
 
-import java.util.Hashtable;
-
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.ecf.core.IContainerManager;
-import org.eclipse.ecf.core.identity.ID;
 import org.eclipse.ecf.core.user.IUser;
-import org.eclipse.ecf.core.util.ECFException;
-import org.eclipse.ecf.datashare.IChannelContainerAdapter;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
 
-import eu.compassresearch.ide.collaboration.communication.MessageProcessor;
-import eu.compassresearch.ide.collaboration.communication.handlers.CollaborationRequestHandler;
-import eu.compassresearch.ide.collaboration.communication.handlers.CollaborationStatusMessageHandler;
-import eu.compassresearch.ide.collaboration.communication.handlers.ConfigurationStatusMessageHandler;
-import eu.compassresearch.ide.collaboration.communication.handlers.NewConfigurationMessageHandler;
+import eu.compassresearch.ide.collaboration.communication.ConnectionManager;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationDataModelManager;
 import eu.compassresearch.ide.collaboration.files.FileChangeManager;
 
@@ -33,11 +24,9 @@ public class Activator extends AbstractUIPlugin
 	
 	private CollaborationDataModelManager dataModelManager;
 	private FileChangeManager fileChangeManager;
-	
-	private static final Hashtable<ID, MessageProcessor> collaborationProcessors = new Hashtable<ID, MessageProcessor>();
-	
-	private MessageProcessor messageProcessor;
+	private ConnectionManager connectionManager;
 
+	
 	//TODO remove when presence container is functional 
 	private IUser self;
 	private IUser receiver;
@@ -50,14 +39,18 @@ public class Activator extends AbstractUIPlugin
 		super.start(ctxt);
 		plugin = this;
 		context = ctxt;
+
+		//load data models
 		dataModelManager = new CollaborationDataModelManager();
-		
-		//Persist data model
 		dataModelManager.loadModel();
 		
+		//track changes in workspace
 		fileChangeManager = new FileChangeManager();
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		workspace.addResourceChangeListener(fileChangeManager);
+		
+		//init connections manager
+		connectionManager = new ConnectionManager();
 	}
 	
 	@Override
@@ -68,6 +61,7 @@ public class Activator extends AbstractUIPlugin
 			containerManagerTracker = null;
 		}
 		
+		//Persist data model
 		dataModelManager.saveModel();
 	
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
@@ -79,41 +73,7 @@ public class Activator extends AbstractUIPlugin
 	
 		super.stop(context);
 	}
-	
-	public MessageProcessor addMessageProcessor(ID containerID, IChannelContainerAdapter channelAdapter) throws ECFException {
 
-		messageProcessor = collaborationProcessors.get(containerID);
-		if (messageProcessor == null){
-			messageProcessor = new MessageProcessor(channelAdapter);
-			collaborationProcessors.put(containerID, messageProcessor);
-		
-			addMessageHandlers();
-			 loadEcfPresenceActivator();
-			return messageProcessor;
-		}
-			
-		return messageProcessor;
-	}
-	
-	private void addMessageHandlers()
-	{
-		messageProcessor.addMessageHandler(new CollaborationRequestHandler(messageProcessor));	
-		messageProcessor.addMessageHandler(new NewConfigurationMessageHandler(messageProcessor));
-		messageProcessor.addMessageHandler(new ConfigurationStatusMessageHandler(messageProcessor));
-		messageProcessor.addMessageHandler(new CollaborationStatusMessageHandler(messageProcessor));
-	}
-
-	public void removeCollaborationManager(ID containerID){
-		MessageProcessor collabMgm = collaborationProcessors.remove(containerID);
-		if(collabMgm != null ){
-			collabMgm.dispose();
-		}
-	}
-	
-	public MessageProcessor getMessageProcessor(ID containerID) {
-		return collaborationProcessors.get(containerID);
-	}
-	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public IContainerManager getContainerManager() {
 		if (containerManagerTracker == null) {
@@ -126,80 +86,14 @@ public class Activator extends AbstractUIPlugin
 	public static Activator getDefault() {
 		return plugin;
 	}
-
-	public MessageProcessor getMessageProcessor()
-	{ 
-		return messageProcessor;
-	}
 	
-	public boolean isConnectionInitialized(){
-		return messageProcessor != null;
-	}
-
 	public CollaborationDataModelManager getDataModelManager()
 	{
 		return dataModelManager;
 	}
-	
-	public void loadEcfPresenceActivator(){
-		
-//		Bundle bundle = Platform.getBundle("org.eclipse.ecf.presence.ui");
-//		String activator = (String)bundle.getHeaders().get(Constants.BUNDLE_ACTIVATOR);
-//		try
-//		{
-			//Class activatorClass = bundle.loadClass(activator);
-			//org.eclipse.ecf.internal.presence.ui.Activator activator2  = ( org.eclipse.ecf.internal.presence.ui.Activator) activatorClass.getMethod("getDefault").invoke(null);
 
-//		} catch (ClassNotFoundException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e)
-//		{
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} 		
-	}
-	
-//	private void retrieveServices()
-//	{
-//		//getPresenceServices();
-//		ServiceReference[] references = serviceTracker.getServiceReferences();
-//		IPresenceService[] services;
-//
-//		if (references == null)
-//		{
-//			services = new IPresenceService[0];
-//		} else
-//		{
-//			int length = references.length;
-//			services = new IPresenceService[length];
-//			for (int i = 0; i < length; i++)
-//			{
-//				services[i] = (IPresenceService) serviceTracker.getService(references[i]);
-//			}
-//		}
-//
-//		for (int i = 0; i < services.length; i++)
-//		{
-//			IContainer container = (IContainer) services[i].getAdapter(IContainer.class);
-//			if (container != null && container.getConnectedID() != null)
-//			{
-//				//addContainer(container);
-//			}
-//		}
-//	}
-
-	//TODO remove when presence container is functional 
-	public void setConnections(IUser self, IUser receiver)
+	public ConnectionManager getConnectionManager()
 	{
-		this.self = self;
-		this.receiver = receiver;
-	}
-
-	public IUser getSelf()
-	{
-		return self;
-	}
-
-	public IUser getReceiver()
-	{
-		return receiver;
+		return connectionManager;
 	}
 }

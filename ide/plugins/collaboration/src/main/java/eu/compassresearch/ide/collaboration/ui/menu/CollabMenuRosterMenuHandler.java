@@ -50,7 +50,7 @@ public class CollabMenuRosterMenuHandler extends AbstractRosterMenuHandler
 			if (container.getConnectedID() == null)
 				Notification.showErrorMessage(Notification.CollabMenuRosterMenuHandler_ERROR_NOT_CONNECTED);
 			
-			MessageProcessor collabMgm = Activator.getDefault().getMessageProcessor(container.getID()); 
+			MessageProcessor collabMgm = Activator.getDefault().getConnectionManager().getMessageProcessor(container.getID()); 
 			if (collabMgm == null)
 				Notification.showErrorMessage(Notification.CollabMenuRosterMenuHandler_ERROR_NO_COLLAB_CHANNEL);
 			

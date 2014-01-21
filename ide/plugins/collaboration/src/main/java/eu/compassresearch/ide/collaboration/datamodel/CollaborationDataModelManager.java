@@ -13,6 +13,7 @@ import org.eclipse.ecf.core.user.IUser;
 
 import eu.compassresearch.ide.collaboration.Activator;
 import eu.compassresearch.ide.collaboration.CollaborationPluginUtils;
+import eu.compassresearch.ide.collaboration.communication.ConnectionManager;
 import eu.compassresearch.ide.collaboration.communication.messages.ConfigurationStatusMessage;
 import eu.compassresearch.ide.collaboration.communication.messages.ConfigurationStatusMessage.NegotiationStatus;
 import eu.compassresearch.ide.collaboration.communication.messages.NewConfigurationMessage;
@@ -31,7 +32,6 @@ public class CollaborationDataModelManager
 	public CollaborationDataModelManager()
 	{
 		datamodel = new CollaborationDataModelRoot();
-		Activator.getDefault().getMessageProcessor();
 	}
 
 	public CollaborationDataModelRoot getDataModel()
@@ -177,10 +177,6 @@ public class CollaborationDataModelManager
 	public void signAndShareConfiguration(Configuration config)
 			throws CoreException
 	{
-		//TODO add user
-		IUser self = Activator.getDefault().getSelf();
-		IUser receiver = Activator.getDefault().getReceiver();
-		
 		CollaborationProject collaborationProject = config.getCollaborationProject();
 
 		List<File> files = config.getFiles().getFilesList();
@@ -209,14 +205,13 @@ public class CollaborationDataModelManager
 			Notification.logError(e.toString(), e);
 		}
 
-		config.setSignedBy(self.getName());
-
-		NewConfigurationMessage newConfigurationMessage = new NewConfigurationMessage(self, receiver, collaborationProject.getUniqueID(), config, fileSets);
-
-		// TODO
-		// create newConfigMessage
-		// send over the line
-		Activator.getDefault().getMessageProcessor().sendMessage(newConfigurationMessage.getReceiverID(), newConfigurationMessage.serialize());
+		ConnectionManager connectionManager = Activator.getDefault().getConnectionManager();
+		
+		//TODO rework
+		config.setSignedBy(connectionManager.getConnectedUser().getName());
+		
+		NewConfigurationMessage newConfigurationMessage = new NewConfigurationMessage(connectionManager.getConnectedUser(), collaborationProject.getUniqueID(), config, fileSets);
+		connectionManager.send(newConfigurationMessage, collaborationProject);
 
 		config.setConfigurationShared();
 	}
@@ -283,14 +278,11 @@ public class CollaborationDataModelManager
 
 	public void approveConfiguration(Configuration configToApprove) throws CoreException
 	{
-		//TODO add user
-		IUser self = Activator.getDefault().getSelf();
-		IUser receiver = Activator.getDefault().getReceiver();
+		ConnectionManager connectionManager = Activator.getDefault().getConnectionManager();
 		CollaborationProject collaborationProject = configToApprove.getCollaborationProject();
 		
-		ConfigurationStatusMessage statMsg = new ConfigurationStatusMessage(self, receiver, collaborationProject.getUniqueID(), configToApprove.getUniqueID(), NegotiationStatus.ACCEPT);
-		
-		Activator.getDefault().getMessageProcessor().sendMessage(statMsg.getReceiverID(), statMsg.serialize());
+		ConfigurationStatusMessage statMsg = new ConfigurationStatusMessage(connectionManager.getConnectedUser(), collaborationProject.getUniqueID(), configToApprove.getUniqueID(), NegotiationStatus.ACCEPT);
+		connectionManager.send(statMsg, collaborationProject);
 		
 		configToApprove.setStatus(NegotiationStatus.ACCEPT);
 	}

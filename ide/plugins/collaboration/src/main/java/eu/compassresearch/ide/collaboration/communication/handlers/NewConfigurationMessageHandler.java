@@ -37,6 +37,9 @@ public class NewConfigurationMessageHandler extends
 			Notification.logError(Notification.Collab_ERROR_NO_SUCH_COLLAB__PROJ_ID
 					+ " " + senderName, null);
 			// TODO reply with error msg of no such collaboration project id
+			//TODO gentle notification of error
+			
+			return;
 		}
 
 		// TODO check that parent config is the same as msg.getParentConfigurationUniqueID()

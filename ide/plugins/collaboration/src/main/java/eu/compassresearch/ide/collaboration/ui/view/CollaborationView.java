@@ -223,7 +223,7 @@ public class CollaborationView extends ViewPart
 							manager.add(activateConfigurationAction);
 						}
 						
-						if (Activator.getDefault().isConnectionInitialized())
+						if (Activator.getDefault().getConnectionManager().isConnectionInitialized())
 						{
 
 							if (config.isLocal())
@@ -618,7 +618,7 @@ public class CollaborationView extends ViewPart
 			if (selectedDomainObject instanceof Configuration)
 			{
 				Configuration contract = (Configuration) selectedDomainObject;
-				MessageProcessor collabMgM = Activator.getDefault().getMessageProcessor();
+				MessageProcessor messageProcessor = Activator.getDefault().getConnectionManager().getMessageProcessor();
 				// FileStatusMessage statMsg = new FileStatusMessage(contract.getReceiver(), contract.getSender(),
 				// contract.getFilename(), NegotiationStatus.REJECT, new Date());
 				// collabMgM.sendMessage(contract.getSender(), statMsg.serialize());
@@ -639,7 +639,7 @@ public class CollaborationView extends ViewPart
 			if (selectedDomainObject instanceof Configuration)
 			{
 				Configuration contract = (Configuration) selectedDomainObject;
-				MessageProcessor collabMgM = Activator.getDefault().getMessageProcessor();
+				MessageProcessor messageProcessor = Activator.getDefault().getConnectionManager().getMessageProcessor();
 
 				// IFile oldFile = collabMgM.getProjectFolder().getFile(contract.getFilename());
 				// final IFile file = collabMgM.nextFilename(contract.getFilename());

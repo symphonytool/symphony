@@ -11,6 +11,7 @@ import org.eclipse.ecf.sync.SerializationException;
 import org.eclipse.jface.window.Window;
 
 import eu.compassresearch.ide.collaboration.Activator;
+import eu.compassresearch.ide.collaboration.communication.ConnectionManager;
 import eu.compassresearch.ide.collaboration.communication.MessageProcessor;
 import eu.compassresearch.ide.collaboration.communication.messages.CollaborationRequest;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationGroup;
@@ -43,15 +44,14 @@ public class AddCollaboratorRosterMenuHandler extends AbstractRosterMenuHandler
 				return null;
 			}		
 			
-			MessageProcessor messageProcessor = Activator.getDefault().getMessageProcessor(container.getID()); 
+			//TODO change error handling
+			MessageProcessor messageProcessor = Activator.getDefault().getConnectionManager().getMessageProcessor(container.getID()); 
 			if (messageProcessor == null){
 				Notification.showErrorMessage(Notification.CollabMenuRosterMenuHandler_ERROR_NO_COLLAB_CHANNEL);
 				return null;
 			}
 			//get users
-			IUser self = roster.getUser();	
 			IUser receiver = rosterEntry.getUser();
-			Activator.getDefault().setConnections(self,receiver);
 			
 			//get selected project
 			Model selected = CollaborationDialogs.getCollaborationView().getSelectedEntry();
@@ -69,11 +69,13 @@ public class AddCollaboratorRosterMenuHandler extends AbstractRosterMenuHandler
 			
 			if(collabReqDia.open() == Window.OK){
 				
-				CollaborationRequest msg = new CollaborationRequest(self, receiver, project.getUniqueID(), project.getTitle(), collabReqDia.getDescription());
-	
+				//TODO move to collab manager
+				ConnectionManager connectionManager = Activator.getDefault().getConnectionManager();
+				CollaborationRequest msg = new CollaborationRequest(connectionManager.getConnectedUser(), project.getUniqueID(), project.getTitle(), collabReqDia.getDescription());
+				
 				try
 				{
-					messageProcessor.sendMessage(receiver.getID(), msg.serialize());
+					connectionManager.sendTo(receiver.getID(), msg);
 				} catch (SerializationException e)
 				{
 					// TODO Auto-generated catch block
