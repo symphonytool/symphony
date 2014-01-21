@@ -30,29 +30,6 @@ import eu.compassresearch.core.typechecker.api.ITypeIssueHandler;
 
 public class CMLJ
 {
-	private enum SimulationMode
-	{
-		Standard("std"), CoSimCoordinator("server"), CoSimClient("client");
-		public final String tag;
-
-		SimulationMode(String tag)
-		{
-			this.tag = tag;
-		}
-
-		public static SimulationMode fromString(String string)
-		{
-			for (SimulationMode mode : SimulationMode.values())
-			{
-				if (mode.tag.equals(string))
-				{
-					return mode;
-				}
-			}
-
-			return null;
-		}
-	}
 
 	static InterpreterFactory factory = new VanillaInterpreterFactory();
 
@@ -75,7 +52,7 @@ public class CMLJ
 		String processName = null;
 		String remoteClass = null;
 		List<String> delegatedProcesses = null;
-		SimulationMode mode = SimulationMode.Standard;
+		CoSimulationMode mode = CoSimulationMode.Standard;
 		int coSimPort = -1;
 
 		SelectionStrategy selectionStrategy = new ConsoleSelectionStrategy();
@@ -111,7 +88,7 @@ public class CMLJ
 			{
 				if (i.hasNext())
 				{
-					mode = SimulationMode.fromString(i.next());
+					mode = CoSimulationMode.fromString(i.next());
 				} else
 				{
 					usage("-mode option requires a mode");
@@ -203,7 +180,7 @@ public class CMLJ
 
 		execute(selectionStrategy, processName, filenames.toArray(new File[filenames.size()]));
 
-		if (mode == SimulationMode.CoSimCoordinator)
+		if (mode == CoSimulationMode.CoSimCoordinator)
 		{
 			server.close();
 		}

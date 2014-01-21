@@ -57,7 +57,6 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 	private static final int FROM_PORT = 10000;
 	private static final int TO_PORT = 50000;
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public void launch(ILaunchConfiguration configuration, String mode,
 			ILaunch launch, IProgressMonitor monitor) throws CoreException
@@ -87,26 +86,7 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 			// set launch encoding to UTF-8. Mainly used to set console encoding.
 			launch.setAttribute(DebugPlugin.ATTR_CONSOLE_ENCODING, "UTF-8");
 
-			// Write out the launch configuration to the interpreter runner
-			Map configurationMap = new HashMap();
-			configurationMap.put(CmlInterpreterArguments.PROCESS_NAME.key, configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_PROCESS_NAME, ""));
-			configurationMap.put(CmlInterpreterArguments.CML_SOURCES_PATH.key, getSources(configuration));
-			configurationMap.put(CmlInterpreterArguments.CML_EXEC_MODE.key, configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_IS_ANIMATION, true));
-
-			configurationMap.put(CmlInterpreterArguments.HOST.key, "localhost");
-			configurationMap.put(CmlInterpreterArguments.PORT.key, port);
-			
-			configurationMap.put(CmlInterpreterArguments.AUTO_FILTER_TOCK_EVENTS.key, CmlDebugPlugin.getDefault().getPreferenceStore().getString(ICmlDebugConstants.PREFERENCES_AUTO_FILTER_TOCK_EVENTS));
-			
-
-			if (configuration.hasAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_REMOTE_INTERPRETER_CLASS))
-			{
-				String remoteClass = configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_REMOTE_INTERPRETER_CLASS, "");
-				if (!remoteClass.trim().isEmpty())
-				{
-					configurationMap.put(CmlInterpreterArguments.REMOTE_NAME.toString(), remoteClass);
-				}
-			}
+			Map<String,Object> configurationMap = createDebuggerArgumentMap(configuration, port);
 
 			if (mode.equals(ILaunchManager.DEBUG_MODE))
 			{
@@ -141,6 +121,32 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate
 			monitor.done();
 		}
 
+	}
+
+	protected Map<String,Object> createDebuggerArgumentMap(ILaunchConfiguration configuration,
+			int port) throws CoreException, IOException
+	{
+		// Write out the launch configuration to the interpreter runner
+		Map<String,Object> configurationMap = new HashMap<String,Object>();
+		configurationMap.put(CmlInterpreterArguments.PROCESS_NAME.key, configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_PROCESS_NAME, ""));
+		configurationMap.put(CmlInterpreterArguments.CML_SOURCES_PATH.key, getSources(configuration));
+		configurationMap.put(CmlInterpreterArguments.CML_EXEC_MODE.key, configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_IS_ANIMATION, true));
+
+		configurationMap.put(CmlInterpreterArguments.HOST.key, "localhost");
+		configurationMap.put(CmlInterpreterArguments.PORT.key, port);
+		
+		configurationMap.put(CmlInterpreterArguments.AUTO_FILTER_TOCK_EVENTS.key, CmlDebugPlugin.getDefault().getPreferenceStore().getString(ICmlDebugConstants.PREFERENCES_AUTO_FILTER_TOCK_EVENTS));
+		
+
+		if (configuration.hasAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_REMOTE_INTERPRETER_CLASS))
+		{
+			String remoteClass = configuration.getAttribute(ICmlDebugConstants.CML_LAUNCH_CONFIG_REMOTE_INTERPRETER_CLASS, "");
+			if (!remoteClass.trim().isEmpty())
+			{
+				configurationMap.put(CmlInterpreterArguments.REMOTE_NAME.toString(), remoteClass);
+			}
+		}
+		return configurationMap;
 	}
 
 	private List<String> getSources(ILaunchConfiguration configuration)

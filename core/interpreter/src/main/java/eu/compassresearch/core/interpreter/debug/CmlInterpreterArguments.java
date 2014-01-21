@@ -13,7 +13,13 @@ public enum CmlInterpreterArguments
 
 	HOST("host"),
 
-	REMOTE_NAME("remote"), AUTO_FILTER_TOCK_EVENTS("auto_filter_tock_events");
+	REMOTE_NAME("remote"), AUTO_FILTER_TOCK_EVENTS("auto_filter_tock_events"),
+	
+	COSIM_MODE("cosim_mode"),
+	
+	COSIM_EXTERNAL_PROCESSES("cosim_external"),
+	
+	COSIM_HOST("cosim_host");
 
 	final String PREFIX = "eu.compassresearch.ide.interpreter.";
 
