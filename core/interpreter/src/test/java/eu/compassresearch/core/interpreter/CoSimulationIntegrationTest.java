@@ -16,8 +16,11 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import eu.compassresearch.core.interpreter.cosim.communication.Utils;
+
 public class CoSimulationIntegrationTest
 {
+	private static final int DEFAULT_TIMEOUT = 30 * 1000;
 	private boolean quit = false;
 	Set<ConsoleWatcher> watched = new HashSet<ConsoleWatcher>();
 
@@ -72,6 +75,26 @@ public class CoSimulationIntegrationTest
 		}
 	}
 
+	private void waitForCompletion(final Process coordinator, final int timeout)
+			throws InterruptedException
+	{
+		Thread timer = new Thread(new Runnable()
+		{
+
+			@Override
+			public void run()
+			{
+				Utils.milliPause(timeout);
+				coordinator.destroy();
+				Assert.fail("Simulation timeout reached. Value = " + timeout);
+			}
+		});
+
+		timer.setDaemon(true);
+		timer.start();
+		coordinator.waitFor();
+	}
+
 	@Test
 	public void testMain() throws Exception
 	{
@@ -79,7 +102,7 @@ public class CoSimulationIntegrationTest
 		Process coordinator = setUpCoordinator(source, "P", "B");
 		setUpClient(source, "B");
 
-		coordinator.waitFor();
+		waitForCompletion(coordinator, DEFAULT_TIMEOUT);
 
 		Assert.assertTrue("Simulators did not finish successfully", isFinished());
 
@@ -93,7 +116,7 @@ public class CoSimulationIntegrationTest
 		setUpClient(source, "B");
 		setUpClient(source, "A");
 
-		coordinator.waitFor();
+		waitForCompletion(coordinator, DEFAULT_TIMEOUT);
 
 		Assert.assertTrue("Simulators did not finish successfully", isFinished());
 
@@ -106,7 +129,7 @@ public class CoSimulationIntegrationTest
 		Process coordinator = setUpCoordinator(source, "P", "B");
 		setUpClient(source, "B");
 
-		coordinator.waitFor();
+		waitForCompletion(coordinator, DEFAULT_TIMEOUT);
 
 		Assert.assertFalse("Simulators did not finish successfully", isFinished());
 
