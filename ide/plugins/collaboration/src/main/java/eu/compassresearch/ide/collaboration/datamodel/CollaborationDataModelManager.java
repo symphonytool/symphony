@@ -2,7 +2,12 @@ package eu.compassresearch.ide.collaboration.datamodel;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
+
+import javax.crypto.spec.OAEPParameterSpec;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -45,7 +50,6 @@ public class CollaborationDataModelManager
 		datamodel.addCollaborationProject(project, title, description);
 	}
 
-
 	public List<CollaborationProject> getExistingProjects()
 	{
 		return datamodel.getCollaborationProjects();
@@ -81,19 +85,19 @@ public class CollaborationDataModelManager
 		{
 			ResourcesPlugin.getPlugin().getLog().log(new Status(Status.ERROR, Activator.PLUGIN_ID, 0, Notification.Collab_File_ERROR_NO_SUCH_PROJECT
 					+ projectName, null));
-			fileStatus.setStatus(FileState.ERROR);
+			fileStatus.setState(FileState.ERROR);
 			return fileStatus;
 		}
 
 		fileStatus = collaborationProject.getFileStatus(fileStatus);
 
-		if (fileStatus.getStatus() != FileState.UNCHANGED)
+		if (fileStatus.getState() != FileState.UNCHANGED)
 		{
 			Configurations configurations = collaborationProject.getConfigurations();
 			Configuration newestConfiguration = configurations.getNewestConfiguration();
 
-			if (newestConfiguration == null
-					|| newestConfiguration.isShared() || newestConfiguration.isReceived())
+			if (newestConfiguration == null || newestConfiguration.isShared()
+					|| newestConfiguration.isReceived())
 			{
 				collaborationProject.addNewConfiguration();
 			}
@@ -107,11 +111,11 @@ public class CollaborationDataModelManager
 
 			try
 			{
-				if (fileStatus.getStatus() == FileState.NEWFILE)
+				if (fileStatus.getState() == FileState.ADDED)
 				{
 					collaborationProject.addNewFile(file);
 
-				} else if (fileStatus.getStatus() == FileState.CHANGED)
+				} else if (fileStatus.getState() == FileState.CHANGED)
 				{
 					FileUpdate fileUdate = new FileUpdate(fileStatus.getFileName(), fileStatus.getHash());
 					collaborationProject.updateFile(fileUdate);
@@ -167,7 +171,7 @@ public class CollaborationDataModelManager
 		if (collaborationProject != null)
 		{
 			fileStatus = collaborationProject.getFileStatus(fileStatus);
-			return fileStatus.getStatus() != FileState.NEWFILE;
+			return fileStatus.getState() != FileState.ADDED;
 		} else
 		{
 			return false;
@@ -206,17 +210,69 @@ public class CollaborationDataModelManager
 		}
 
 		ConnectionManager connectionManager = Activator.getDefault().getConnectionManager();
-		
-		//TODO rework
+
+		// TODO rework set signed
 		config.setSignedBy(connectionManager.getConnectedUser().getName());
-		
+
 		NewConfigurationMessage newConfigurationMessage = new NewConfigurationMessage(connectionManager.getConnectedUser(), collaborationProject.getUniqueID(), config, fileSets);
 		connectionManager.send(newConfigurationMessage, collaborationProject);
 
 		config.setConfigurationShared();
 	}
 
-	public FileComparison getComparisonWithPrev(File targetFile)
+	public ConfigurationComparison compareConfigurationWithPrev(
+			Configuration targetConfiguration)
+	{
+		ConfigurationComparison compare = compareConfigurations(targetConfiguration, targetConfiguration.getParentConfiguration());
+
+		return compare;
+	}
+
+	private ConfigurationComparison compareConfigurations(Configuration target,
+			Configuration compareTo)
+	{
+		if (target == null || compareTo == null)
+		{
+			return null;
+		}
+
+		ConfigurationComparison configComparison = new ConfigurationComparison();
+
+		Files targetFiles = target.getFiles();
+		List<File> targetFilesList = targetFiles.getFilesList();
+
+		Files compareTofiles = compareTo.getFiles();
+		List<File> compareTofilesList = compareTofiles.getFilesList();
+
+		// find removed files
+		ArrayList<File> removedFiles = new ArrayList<File>(compareTofilesList);
+		removedFiles.removeAll(targetFilesList);
+		configComparison.addRemovedFiles(removedFiles);
+
+		// find added files
+		ArrayList<File> addedFiles = new ArrayList<File>(targetFilesList);
+		addedFiles.removeAll(compareTofilesList);
+		configComparison.addAddedFiles(addedFiles);
+		
+		// intersection
+		targetFilesList.retainAll(compareTofilesList);
+
+		// check if existing files have changed
+		for (File fileToCheck : targetFilesList)
+		{
+			File fileToCompareWith = compareTo.getFile(fileToCheck.getName());
+			if(fileToCheck.isIdentical(fileToCompareWith)) {
+				configComparison.addUnchangedFile(fileToCheck);
+			} else
+			{
+				configComparison.addChangedFile(fileToCheck);
+			}
+		}
+		
+		return configComparison;
+	}
+
+	public FileComparison compareFileWithPrev(File targetFile)
 			throws CoreException, IOException
 	{
 		CollaborationProject collaborationProject = targetFile.getCollaborationProject();
@@ -245,13 +301,13 @@ public class CollaborationDataModelManager
 		return new FileComparison(targetFile, targetContent, previousFile, prevContent);
 	}
 
-	public void activateConfiguration(Configuration configToActivate) throws CoreException
+	public void activateConfiguration(Configuration configToActivate)
+			throws CoreException
 	{
 		Files files = configToActivate.getFiles();
 		FileHandler.copyFilesToProjectWorkspace(files.getFilesList(), configToActivate.getCollaborationProject());
 	}
-	
-	
+
 	public void saveModel() throws CoreException, IOException
 	{
 		FileHandler filehandler = new FileHandler();
@@ -276,18 +332,20 @@ public class CollaborationDataModelManager
 		}
 	}
 
-	public void approveConfiguration(Configuration configToApprove) throws CoreException
+	public void approveConfiguration(Configuration configToApprove)
+			throws CoreException
 	{
 		ConnectionManager connectionManager = Activator.getDefault().getConnectionManager();
 		CollaborationProject collaborationProject = configToApprove.getCollaborationProject();
-		
+
 		ConfigurationStatusMessage statMsg = new ConfigurationStatusMessage(connectionManager.getConnectedUser(), collaborationProject.getUniqueID(), configToApprove.getUniqueID(), NegotiationStatus.ACCEPT);
 		connectionManager.send(statMsg, collaborationProject);
-		
+
 		configToApprove.setStatus(NegotiationStatus.ACCEPT);
 	}
 
-	public void updateConfigurationStatus(String configurationId, NegotiationStatus negotiationStatus, String projectId)
+	public void updateConfigurationStatus(String configurationId,
+			NegotiationStatus negotiationStatus, String projectId)
 	{
 		CollaborationProject collaborationProject = getCollaborationProjectFromID(projectId);
 		Configuration configuration = collaborationProject.getConfiguration(configurationId);

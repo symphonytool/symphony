@@ -48,4 +48,8 @@ public class FileComparison
 	{
 		return previousFile.getName() + " " + previousFile.getTimeStamp();
 	}
+	
+	public boolean isIdentical(){
+		return targetFile.isIdentical(previousFile);
+	}
 }

@@ -4,18 +4,23 @@ public class FileStatus
 {
 	public enum FileState
 	{
-		NEWFILE, CHANGED, UNCHANGED, NOCONFIG, ERROR;
+		ADDED, REMOVED, CHANGED, UNCHANGED, NOCONFIG, ERROR;
 	}
 	
 	private String fileName;
-	private FileState status;
+	private FileState state;
 	private String hash;
 	
 	public FileStatus(String fileName, String hash)
 	{
+		this(fileName, hash,  FileState.ADDED);
+	}
+	
+	public FileStatus(String fileName, String hash, FileState state)
+	{
 		this.fileName = fileName;
 		this.hash = hash;
-		this.status = FileState.NEWFILE;
+		this.state = state;
 	}
 
 	public String getFileName()
@@ -33,13 +38,13 @@ public class FileStatus
 		this.hash = hash;
 	}
 
-	public FileState getStatus()
+	public FileState getState()
 	{
-		return status;
+		return state;
 	}
 
-	public void setStatus(FileState status)
+	public void setState(FileState state)
 	{
-		this.status = status;
+		this.state = state;
 	}
 }

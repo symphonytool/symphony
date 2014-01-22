@@ -163,4 +163,33 @@ public class File extends Model
 		File f = new File(name, this.hash, this.filePath, shares.clone(),getTimeStamp(), newParent);
 		return f;
 	}
+	
+	/*
+	 * (non-Javadoc)
+	 *  Equal if they have the same name. Use isIdentical() for a compare of both name and hash.
+	 * 
+	 * Returns true if the values returned by getName() are equal, else false. 
+	 * 
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj)
+	{
+		if(obj instanceof File) {
+			File compareTo = (File) obj;
+			
+			if(compareTo.getName().equals(this.name))
+				return true;
+		}
+		
+		return false;
+	}
+	
+	public boolean isIdentical(File compareTo)
+	{			
+			if(compareTo.getHash().equals(this.hash) && compareTo.getName().equals(this.name))
+				return true;
+			else
+				return false;
+	}
 }

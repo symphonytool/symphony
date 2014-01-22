@@ -56,6 +56,7 @@ import eu.compassresearch.ide.collaboration.datamodel.CollaborationDataModelRoot
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationGroup;
 import eu.compassresearch.ide.collaboration.datamodel.CollaborationProject;
 import eu.compassresearch.ide.collaboration.datamodel.Configuration;
+import eu.compassresearch.ide.collaboration.datamodel.ConfigurationComparison;
 import eu.compassresearch.ide.collaboration.datamodel.Configurations;
 import eu.compassresearch.ide.collaboration.datamodel.File;
 import eu.compassresearch.ide.collaboration.datamodel.Model;
@@ -65,8 +66,6 @@ import eu.compassresearch.ide.collaboration.ui.menu.AddCollaboratorRosterMenuCon
 import eu.compassresearch.ide.collaboration.ui.menu.CollaborationDialogs;
 
 /**
- * Insert the type's description here.
- * 
  * @see ViewPart
  */
 public class CollaborationView extends ViewPart
@@ -75,9 +74,10 @@ public class CollaborationView extends ViewPart
 	protected Text text;
 	protected CollaborationLabelProvider labelProvider;
 
-	private IAction activateConfigurationAction;
+	protected IAction diffWithPrevConfigurationAction;
+	protected IAction activateConfigurationAction;
 	protected Action signAndShareAction;
-	protected Action diffWithPrevAction;
+	protected Action diffWithPrevFileAction;
 	protected Action approveContractAction;
 	protected Action rejectContractAction;
 	protected Action negotiateContractAction;
@@ -122,6 +122,15 @@ public class CollaborationView extends ViewPart
 
 	protected void createActions()
 	{
+		diffWithPrevConfigurationAction = new Action("Diff with previous configuration")
+		{
+			public void run()
+			{
+				diffWithPrev();
+			}
+		};
+		diffWithPrevConfigurationAction.setToolTipText("Diff selected configuration with the previous configuration");
+		
 		activateConfigurationAction = new Action("Activate configuration (introduce files into workspace)")
 		{
 			public void run()
@@ -132,14 +141,14 @@ public class CollaborationView extends ViewPart
 		activateConfigurationAction.setToolTipText("Activates this configuration by moving the files into the workspace project");
 		
 
-		diffWithPrevAction = new Action("Diff With Previous")
+		diffWithPrevFileAction = new Action("Diff with previous file")
 		{
 			public void run()
 			{
 				diffWithPrev();
 			}
 		};
-		diffWithPrevAction.setToolTipText("Diff selected version with previous version");
+		diffWithPrevFileAction.setToolTipText("Diff selected file version with the version in the previous configuration");
 
 		signAndShareAction = new Action("Sign and Share Configuration")
 		{
@@ -199,7 +208,6 @@ public class CollaborationView extends ViewPart
 
 		menuMgr.addMenuListener(new IMenuListener()
 		{
-
 			@Override
 			public void menuAboutToShow(IMenuManager manager)
 			{
@@ -215,8 +223,6 @@ public class CollaborationView extends ViewPart
 
 					if ((selectedDomainObject instanceof Configuration))
 					{
-
-					
 						Configuration config = (Configuration) selectedDomainObject;
 
 						if(config.isShared() || config.isReceived()){
@@ -239,6 +245,9 @@ public class CollaborationView extends ViewPart
 								//manager.add(negotiateContractAction);
 							}
 						}
+						
+						manager.add(diffWithPrevConfigurationAction);
+						
 
 					} else if ((selectedDomainObject instanceof File))
 					{
@@ -247,7 +256,7 @@ public class CollaborationView extends ViewPart
 
 						if (!file.isNewFile())
 						{
-							manager.add(diffWithPrevAction);
+							manager.add(diffWithPrevFileAction);
 						}
 					} else if (selectedDomainObject instanceof CollaborationGroup)
 					{
@@ -402,44 +411,57 @@ public class CollaborationView extends ViewPart
 	
 	protected void diffWithPrev()
 	{
-
+		
 		if (treeViewer.getSelection().isEmpty())
 		{
 			return;
-		} else
+		} 
+		
+		CollaborationDataModelManager dataModelManager = Activator.getDefault().getDataModelManager();
+		
+		IStructuredSelection selection = (IStructuredSelection) treeViewer.getSelection();
+		Model selectedDomainObject = (Model) selection.getFirstElement();
+
+		if ((selectedDomainObject instanceof Configuration))
 		{
-			IStructuredSelection selection = (IStructuredSelection) treeViewer.getSelection();
-			Model selectedDomainObject = (Model) selection.getFirstElement();
-
-			if ((selectedDomainObject instanceof Configurations))
+			Configuration configuration = (Configuration) selectedDomainObject;
+			
+			ConfigurationComparison configurationCompare = dataModelManager.compareConfigurationWithPrev(configuration);
+			
+			if (configurationCompare == null)
 			{
-				Configurations configurations = (Configurations) selectedDomainObject;
+				CollaborationDialogs.getInstance().displayNotificationPopup(configuration.getName(), Notification.Collab_Dialog_ERROR_COMPARE_NO_PREVIOUS);
+				return;
+			}
+			
+			configurationCompare.getCompareResult();
 
-			} else if ((selectedDomainObject instanceof File))
+		} else if ((selectedDomainObject instanceof File))
+		{
+			File selectedFile = (File) selectedDomainObject;
+
+			try
 			{
-				File selectedFile = (File) selectedDomainObject;
-
-				CollaborationDataModelManager dataModelManager = Activator.getDefault().getDataModelManager();
-				try
+				FileComparison prevAndSelectedCompare = dataModelManager.compareFileWithPrev(selectedFile);
+				//is file defined previously
+				if (prevAndSelectedCompare == null)
 				{
-					FileComparison prevAndSelectedCompare = dataModelManager.getComparisonWithPrev(selectedFile);
-					if (prevAndSelectedCompare == null)
-					{
-						CollaborationDialogs.getInstance().displayNotificationPopup(selectedFile.getName(), Notification.Collab_Dialog_ERROR_COMPARE_NO_PREVIOUS);
-						return;
-					}
-
-					showCompareDialog(prevAndSelectedCompare);
-
-				} catch (CoreException | IOException e)
-				{
-					e.printStackTrace();
-					Notification.logError(Notification.Collab_Dialog_ERROR_COMPARE_FAILED, e);
+					CollaborationDialogs.getInstance().displayNotificationPopup(selectedFile.getName(), Notification.Collab_Dialog_ERROR_COMPARE_NO_PREVIOUS);
+					return;
 				}
 
-			} else
+				//are they identical?
+				if(prevAndSelectedCompare.isIdentical()){
+					CollaborationDialogs.getInstance().displayNotificationPopup(selectedFile.getName(), Notification.Collab_Dialog_COMPARE_ARE_IDENTICAL);
+					return;
+				}
+				
+				showCompareDialog(prevAndSelectedCompare);
+
+			} catch (CoreException | IOException e)
 			{
-				return;
+				e.printStackTrace();
+				Notification.logError(Notification.Collab_Dialog_ERROR_COMPARE_FAILED, e);
 			}
 		}
 	}

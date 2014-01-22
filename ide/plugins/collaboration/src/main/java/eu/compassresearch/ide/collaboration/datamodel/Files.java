@@ -65,12 +65,12 @@ public class Files extends Model {
 			File foundFile = files.get(fileName);
 
 			if(foundFile.getHash().equals(forFile.getHash())){
-				 forFile.setStatus(FileState.UNCHANGED);
+				 forFile.setState(FileState.UNCHANGED);
 			}  else {
-				forFile.setStatus(FileState.CHANGED);
+				forFile.setState(FileState.CHANGED);
 			}
 		} else {
-			forFile.setStatus(FileState.NEWFILE);
+			forFile.setState(FileState.ADDED);
 		}
 		
 		return forFile;

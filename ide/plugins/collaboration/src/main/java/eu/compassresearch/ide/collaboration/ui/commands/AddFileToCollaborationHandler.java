@@ -39,10 +39,10 @@ public class AddFileToCollaborationHandler extends AbstractHandler
 			//let modelManager handle the file file
 			FileStatus fileStatus = dataModelManager.handleFile(file);
 
-			if (fileStatus.getStatus() == FileState.NEWFILE)
+			if (fileStatus.getState() == FileState.ADDED)
 			{
 				CollaborationDialogs.getInstance().displayNotificationPopup("", "File added to collaboration");
-			} else if (fileStatus.getStatus() == FileState.UNCHANGED)
+			} else if (fileStatus.getState() == FileState.UNCHANGED)
 			{
 				CollaborationDialogs.getInstance().displayNotificationPopup("", "File already part of collaboration");
 			}
