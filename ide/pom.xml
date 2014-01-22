@@ -186,5 +186,16 @@
         </plugins>
       </build>
     </profile>
+
+    <profile>
+      <id>overture-test-repo</id>
+      <repositories>
+        <repository>
+          <id>overture.au.dk-p2</id>
+          <url>http://overture.au.dk/p2/symphony-overture-test/</url>
+          <layout>p2</layout>
+        </repository>
+      </repositories>
+    </profile>
   </profiles>
 </project>
