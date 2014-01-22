@@ -37,6 +37,28 @@
 	<module>ide</module>
       </modules>
     </profile>
+
+    <profile>
+      <id>overture-test-repo</id>
+      <repositories>
+        <repository>
+          <id>overture.au.dk</id>
+          <name>Overture Project Build Repository for Symphony at AU</name>
+          <releases>
+	    <enabled>false</enabled>
+	    <updatePolicy>daily</updatePolicy>
+	    <checksumPolicy>warn</checksumPolicy>
+          </releases>
+          <snapshots>
+	    <enabled>true</enabled>
+	    <updatePolicy>always</updatePolicy>
+	    <checksumPolicy>warn</checksumPolicy>
+          </snapshots>
+          <url>http://overture.au.dk/maven/symphony-overture-test/</url>
+          <layout>default</layout>
+        </repository>
+      </repositories>
+    </profile>
   </profiles>
 
   <repositories>
