@@ -46,6 +46,7 @@ public class TPPluginDoStuff {
 	private IWorkbenchSite site;
 
 	public static final String UNSUPPORTED_ELEMENTS_MSG = "This model contains unsupported CML elements. Check the warnings for more information.";
+	public static final String ISABELLE_KEYWORDS_MSG = "This model contains Isabelle reserved words. Check the warnings for more information.";
 
 	/**
 	 * We will cache window object in order to be able to provide parent shell
@@ -181,6 +182,9 @@ public class TPPluginDoStuff {
 			return true;
 		}
 	}
+	
+
+	
 
 	public void explicitCheckUnsupported(IProject proj)
 			throws AnalysisException {
