@@ -1,33 +1,21 @@
 package eu.compassresearch.ide.rttmbt;
 
-import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 
 import eu.compassresearch.rttMbtTmsClientApi.IRttMbtProgressBar;
+import eu.compassresearch.rttMbtTmsClientApi.RttMbtClient;
 
 public class RttMbtDocRttTestProcedure extends RttMbtConcreteTestProcedureAction {
 
 	@Override
-	public Object execute(ExecutionEvent event) throws ExecutionException {
+	public String getTaskName() {
+		return "Generate Test Documentation";
+	}
 
-		// get selected object
-		client.setProgress(IRttMbtProgressBar.Tasks.ALL, 0);
-		if (!getSelectedObject(event)) {
-			client.addErrorMessage("[FAIL]: Please select an abstract test procedure!");
-			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
-			return null;
-		}
-
-		// get RttMbtClient for this action
-		if (!initClient()) {
-			client.addErrorMessage("[FAIL]: generate test procedure documentation: init of RTT-MBT client failed!");
-			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
-			return null;
-		}
+	@Override
+	public IStatus performSingleTask(IProgressMonitor monitor) {
 
 		// if a test procedure generation context is selected, switch to test procedure
 		if ((!isRttTestProcSelected()) && (isTProcGenCtxSelected())) {
@@ -35,27 +23,30 @@ public class RttMbtDocRttTestProcedure extends RttMbtConcreteTestProcedureAction
 		}
 		
 		// check that a test procedure is selected
-		if (!isRttTestProcSelected()) {
+		if ((!isRttTestProcSelected()) && (!RttMbtClient.isRtt6TestProcedure(selectedObjectFilesystemPath))) {
 			client.addErrorMessage("Please select a valid test procedure!\n");
+			return Status.CANCEL_STATUS;
 		}
 
-		Job job = new Job("Generate Documentation") {
-			@Override
-			protected IStatus run(IProgressMonitor monitor) {
-				client.addLogMessage("generating documentation for " + selectedObjectName + "... please wait for the task to be finished.");
-				// generate test procedure documentation
-				if (client.docTestProcedure(selectedObjectName)) {
-					client.addLogMessage("[PASS]: generate test procedure documentation");
-					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
-				} else {
-					client.addErrorMessage("[FAIL]: generate test procedure documentation");
-					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
-				}
-				return Status.OK_STATUS;
-			}
-		};
-		job.schedule();
+		// start task
+		IStatus status = Status.OK_STATUS;
+		client.beginTask("generate test procedure documentation for " + selectedObjectName, 5);
+		String rttTestprocPath = client.getPathInsideRttTestcontext(selectedObjectFilesystemPath);
+		client.addLogMessage("generating documentation for " + rttTestprocPath + "... please wait for the task to be finished.");
 
-		return null;
+		// generate test procedure documentation
+		if (client.docTestProcedure(rttTestprocPath)) {
+			client.addLogMessage("[PASS]: generate test procedure documentation for " + selectedObjectName);
+			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
+		} else {
+			client.addErrorMessage("[FAIL]: generate test procedure documentation for " + selectedObjectName);
+			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
+		}
+
+		// cleanup
+		client.setSubTaskName("finishing task");
+		client.addCompletedTaskItems(1);
+		client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
+		return status;
 	}
 }

@@ -2,12 +2,9 @@ package eu.compassresearch.ide.rttmbt;
 
 import java.io.File;
 
-import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
@@ -17,51 +14,72 @@ import eu.compassresearch.rttMbtTmsClientApi.IRttMbtProgressBar;
 
 public class RttMbtImportModel extends RttMbtPopupMenuAction {
 
-	@Override
-	public Object execute(ExecutionEvent event) throws ExecutionException {
+	private String ModelFile;
+	private String ModelName;
 
-		// get selected object
-		client.setProgress(IRttMbtProgressBar.Tasks.ALL, 0);
-		if (!getSelectedObject(event)) {
-			client.addErrorMessage("[FAIL]: Please select an RTT-MBT component!");
-			return null;
-		}
-		
-		// get RttMbtClient for this action
-		if (!initClient()) {
-			return null;
-		}
+	@Override
+	public String getTaskName() {
+		return "Import Model";
+	}
+
+	@Override
+	public void performJobPreprocessing() {
+		// reset model
+		ModelFile = null;
+		ModelName = null;
 
 		// get model file name
-		Shell activeShell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-		FileDialog getModelFile = new FileDialog(activeShell);
-		final String ModelFile = getModelFile.open();
-		if (ModelFile == null) {
-			return null;
+		if (!((PlatformUI.getWorkbench() != null) &&
+			  (PlatformUI.getWorkbench().getDisplay() != null))) {
+			client.addErrorMessage("[FAIL]: importing model: unable to get active shell!");
+			if (PlatformUI.getWorkbench() == null) {
+				client.addErrorMessage("reason: PlatformUI.getWorkbench() is null!");
+				return;
+			}
+			if (PlatformUI.getWorkbench().getDisplay() == null) {
+				client.addErrorMessage("reason: PlatformUI.getWorkbench().getDisplay() is null!");
+				return;
+			}
+			return;
 		}
-		client.addLogMessage("model file '" + ModelFile + "'");
+		PlatformUI.getWorkbench().getDisplay().getActiveShell();
+		Shell activeShell = PlatformUI.getWorkbench().getDisplay().getActiveShell();
+		FileDialog getModelFile = new FileDialog(activeShell);
+		ModelFile = getModelFile.open();
+		if (ModelFile == null) {
+			client.addErrorMessage("[FAIL]: importing model: please select a vallid model file!");
+			ModelFile = null;
+			return;
+		}
 		int pos = ModelFile.lastIndexOf(File.separator);
 		if (pos == -1) pos = 0; else pos += 1;
-		final String ModelName = ModelFile.substring(pos, ModelFile.length());
-		client.addLogMessage("model name '" + ModelName + "'");
+		ModelName = ModelFile.substring(pos, ModelFile.length());
+	}
 
-		Job job = new Job("Import Model") {
-			@Override
-			protected IStatus run(IProgressMonitor monitor) {
-				client.addLogMessage("importing model " + ModelFile + "... please wait for the task to be finished.");
-				// initialize project with a model
-				if (client.initProject(ModelName, client.getUserId(), ModelFile)) {
-					client.addLogMessage("[PASS]: init project");
-					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
-				} else {
-					client.addErrorMessage("[FAIL]: init project");
-					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
-				}
-				return Status.OK_STATUS;
-			}
-		};
-		job.schedule();
-				
-		return null;
+	@Override
+	public IStatus performSingleTask(IProgressMonitor monitor) {
+
+		// check if model file is selected
+		if (ModelName == null || ModelFile == null) {
+			return Status.CANCEL_STATUS;
+		}
+
+		// start task
+		IStatus status = Status.OK_STATUS;
+		client.beginTask("importing model " + ModelFile, 10);
+
+		client.addLogMessage("importing model " + ModelFile + "... please wait for the task to be finished.");
+		// initialize project with a model
+		if (client.initProject(ModelName, client.getUserId(), ModelFile)) {
+			client.addLogMessage("[PASS]: importing model " + ModelFile);
+		} else {
+			client.addErrorMessage("[FAIL]: importing model " + ModelFile);
+		}
+
+		// cleanup
+		client.setSubTaskName("finishing task");
+		client.addCompletedTaskItems(1);
+		client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
+		return status;
 	}
 }

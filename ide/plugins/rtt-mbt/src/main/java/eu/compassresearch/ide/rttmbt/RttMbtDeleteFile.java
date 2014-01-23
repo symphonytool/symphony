@@ -2,76 +2,69 @@ package eu.compassresearch.ide.rttmbt;
 
 import java.io.File;
 
-import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 
 import eu.compassresearch.rttMbtTmsClientApi.IRttMbtProgressBar;
 
 public class RttMbtDeleteFile extends RttMbtPopupMenuAction {
 
 	@Override
-	public Object execute(ExecutionEvent event) throws ExecutionException {
+	public String getTaskName() {
+		return "Delete Rtt-Mbt Resource";
+	}
 
-		// get selected object
-		client.setProgress(IRttMbtProgressBar.Tasks.ALL, 0);
-		if (!getSelectedObject(event)) {
-			client.addErrorMessage("[FAIL]: Delete RTT-MBT Resource: Please select a file or directory!");
+	@Override
+	public IStatus performSingleTask(IProgressMonitor monitor) {
+
+		// check for valid resource
+		Boolean success;
+		File item = new File(selectedObjectFilesystemPath);
+		if (!item.exists()) {
+			client.addErrorMessage("[FAIL]: Delete RTT-MBT Resource " + selectedObjectName + ": file or directory '" + selectedObjectFilesystemPath + "' does not exist!");
 			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
-			return null;
+			return Status.CANCEL_STATUS;
 		}
 		
-		// get RttMbtClient for this action
-		if (!initClient()) {
-			client.addErrorMessage("[FAIL]: Delete RTT-MBT Resource: init of RTT-MBT client failed!");
+		if ((!item.isFile()) && (!item.isDirectory())) {
+			client.addErrorMessage("[FAIL]: Delete RTT-MBT Resource " + selectedObjectName + ": selection is not a file or directory!");			
 			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
-			return null;
+			return Status.CANCEL_STATUS;
 		}
 
-		Job job = new Job("Delete RTT-MBT Resource") {
-			@Override
-			protected IStatus run(IProgressMonitor monitor) {
-				// perform action using client
-				Boolean success;
-				File item = new File(selectedObjectFilesystemPath);
-				if (!item.exists()) {
-					client.addErrorMessage("[FAIL]: Delete RTT-MBT Resource: file or directory '" + item.getAbsolutePath() + "' does not exist!");
-					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
-					return Status.OK_STATUS;
-				}
-				
-				if ((!item.isFile()) && (!item.isDirectory())) {
-					client.addErrorMessage("[FAIL]: Delete RTT-MBT Resource: selection is not a file or directory!");			
-					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
-					return Status.OK_STATUS;
-				}
+		// start task
+		IStatus status = Status.OK_STATUS;
+		client.beginTask("Delete RTT-MBT Resource " + selectedObjectName, 3);
 
-				// remove resource on RTT-MBT server
-				success = client.deleteRemoteFileOrDir(item.getAbsolutePath());
-				if (!success) {
-					client.addErrorMessage("[FAIL]: Delete RTT-MBT Resource: error while removing resource from RTT-MBT server");
-				} else {
-					if (item.isDirectory()) {
-						success = client.deleteLocalDirectory(item, false);						
-					} else if (item.isFile()) {
-						success = item.delete();
-					}
-				}
+		// remove resource on RTT-MBT server
+		client.setSubTaskName("remove local resource");
+		success = client.deleteRemoteFileOrDir(item.getAbsolutePath());
+		client.addCompletedTaskItems(1);
 
-				if (success) {
-					client.addLogMessage("[PASS]: Delete RTT-MBT Resource!");			
-				} else {			
-					client.addErrorMessage("[FAIL]: Delete RTT-MBT Resource!");			
-				}
-				return Status.OK_STATUS;
+		// remove local resource
+		if (!success) {
+			client.addErrorMessage("[FAIL]: Delete RTT-MBT Resource: error while removing resource from RTT-MBT server");
+			status = Status.CANCEL_STATUS;
+		} else {
+			client.setSubTaskName("remove local resource");
+			if (item.isDirectory()) {
+				success = client.deleteLocalDirectory(item, false);						
+			} else if (item.isFile()) {
+				success = item.delete();
 			}
-		};
-		job.schedule();
+		}
+		client.addCompletedTaskItems(1);
 
+		// finishing task
+		client.setSubTaskName("finishing task");
+		if (success) {
+			client.addLogMessage("[PASS]: Delete RTT-MBT Resource!");			
+		} else {			
+			client.addErrorMessage("[FAIL]: Delete RTT-MBT Resource!");			
+		}
+		client.addCompletedTaskItems(1);
 		client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
-		return null;
+		return status;
 	}
 }
