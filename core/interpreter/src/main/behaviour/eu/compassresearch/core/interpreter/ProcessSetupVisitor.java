@@ -21,6 +21,7 @@ import eu.compassresearch.ast.process.AInternalChoiceReplicatedProcess;
 import eu.compassresearch.ast.process.AInterruptProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionReplicatedProcess;
+import eu.compassresearch.ast.process.AStartDeadlineProcess;
 import eu.compassresearch.ast.process.ATimedInterruptProcess;
 import eu.compassresearch.ast.process.ATimeoutProcess;
 import eu.compassresearch.ast.process.AUntimedTimeoutProcess;
@@ -95,6 +96,14 @@ class ProcessSetupVisitor extends CommonSetupVisitor
 		// We setup the child node for the hiding operator
 		setLeftChild(node.getLeft(), question);
 		return new Pair<INode, Context>(node, question);
+	}
+	
+	@Override
+	public Pair<INode, Context> caseAStartDeadlineProcess(
+			AStartDeadlineProcess node, Context question)
+			throws AnalysisException
+	{
+		return setupTimedOperator(node, node.getLeft(), NamespaceUtility.getStartsByTimeName(), question);
 	}
 
 	@Override

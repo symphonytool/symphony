@@ -33,6 +33,7 @@ import eu.compassresearch.ast.process.AInternalChoiceProcess;
 import eu.compassresearch.ast.process.AInterruptProcess;
 import eu.compassresearch.ast.process.AReferenceProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
+import eu.compassresearch.ast.process.AStartDeadlineProcess;
 import eu.compassresearch.ast.process.ATimedInterruptProcess;
 import eu.compassresearch.ast.process.ATimeoutProcess;
 import eu.compassresearch.ast.process.AUntimedTimeoutProcess;
@@ -476,6 +477,16 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 			throws AnalysisException
 	{
 		return caseASequentialComposition(node, node.getLeft(), node.getRight(), question);
+	}
+	
+	/**
+	 * see {@link CommonInspectionVisitor#caseStartDeadline(INode, INode, PExp, Context) }
+	 */
+	@Override
+	public Inspection caseAStartDeadlineProcess(final AStartDeadlineProcess node,
+			final Context question) throws AnalysisException
+	{
+		return caseStartDeadline(node, node.getLeft(), node.getExpression(), question);
 	}
 
 	@Override
