@@ -44,6 +44,7 @@ import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASignalCommunicationParameter;
 import eu.compassresearch.ast.actions.ASkipAction;
+import eu.compassresearch.ast.actions.AStartDeadlineAction;
 import eu.compassresearch.ast.actions.AStmAction;
 import eu.compassresearch.ast.actions.AStopAction;
 import eu.compassresearch.ast.actions.ATimedInterruptAction;
@@ -176,47 +177,6 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 			throw new CmlInterpreterException(node, InterpretationErrorMessages.FATAL_ERROR.customizeMessage());
 		}
 	}
-
-	// /**
-	// * This deals both with calls but also parametrised action reference, since the typechecker does not replace this
-	// * node yet FIXME This might be changed! if the typechecker replaces the call node with a action reference node
-	// */
-	// @Override
-	// public Inspection caseACallStm(final ACallStm node, final Context question)
-	// throws AnalysisException
-	// {
-	//
-	// if (!owner.hasChildren())
-	// {
-	// final Value value = lookupName(node.getName(), question);
-	// if (value instanceof CmlOperationValue)
-	// return node.apply(statementInspectionVisitor, question);
-	// else if (value instanceof ActionValue)
-	// {
-	// // first find the action value in the context
-	// final ActionValue actionVal = (ActionValue) value;
-	//
-	// return newInspection(createTauTransitionWithoutTime(actionVal.getActionDefinition().getAction(), null), new
-	// AbstractCalculationStep(owner, visitorAccess)
-	// {
-	//
-	// @Override
-	// public Pair<INode, Context> execute(
-	// CmlTransition selectedTransition)
-	// throws AnalysisException
-	// {
-	//
-	// return caseReferenceAction(node.getLocation(), node.getArgs(), actionVal, question);
-	// }
-	// });
-	//
-	// } else
-	// throw new CmlInterpreterException(node, InterpretationErrorMessages.FATAL_ERROR.customizeMessage());
-	// } else
-	// {
-	// return node.apply(statementInspectionVisitor, question);
-	// }
-	// }
 
 	/**
 	 * Synchronization and Communication D23.2 7.5.2 This transition can either be Simple prefix : a -> A
@@ -754,12 +714,94 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 		return newInspection(new CmlTransitionSet(new TimedTransition(owner)), null);
 	}
 
-	/**
+	/*
 	 * Timed actions
 	 * 
-	 * @throws AnalysisException
-	 * @throws ValueException
 	 */
+
+	/**
+	 * This implements the startsby operator which is defined as. So assume we have
+	 * A startsby e then A must execute an observable event within e
+     * time units. Otherwise, the process is infeasible. In other words it throws a postcondition
+     * Exception if the process has no observable behavior within e timeunits
+	 * 
+	 * @throws AnalysisException
+	 */
+	@Override
+	public Inspection caseAStartDeadlineAction(final AStartDeadlineAction node,
+			final Context question) throws AnalysisException
+	{
+		// Evaluate the expression into a natural number
+		long val = node.getExpression().apply(cmlExpressionVisitor, question).natValue(question);
+		long startTimeVal = question.lookup(NamespaceUtility.getStartsByTimeName()).natValue(question);
+		
+		// If the left is Skip then the whole process becomes skip with the state of the left child
+		if (owner.getLeftChild().finished())
+		{
+			return newInspection(createTauTransitionWithTime(owner.getLeftChild().getNextState().first, "Timeout: left behavior is finished"), new CmlCalculationStep()
+			{
+
+				@Override
+				public Pair<INode, Context> execute(
+						CmlTransition selectedTransition)
+						throws AnalysisException
+				{
+
+					return replaceWithChild(owner.getLeftChild());
+				}
+			});
+		}
+		// if the current time of the process has passed the limit (val) then 
+		// a post condition exception is thrown
+		else if (owner.getCurrentTime() - startTimeVal >= val)
+		{
+			throw new ValueException(4072, "Postcondition failure: This process is infeasable since it exceeded the start deadline without any observable events", question);
+		}
+		// if the current time of the process has not passed the limit (val) and the left process
+		// makes an observable transition then the whole process behaves as the left process
+		else
+		{
+			//
+			final CmlBehaviour leftBehavior = owner.getLeftChild();
+
+			CmlTransitionSet resultAlpha = null;
+			CmlTransitionSet leftAlpha = leftBehavior.inspect();
+			// If time can pass in the left, we need to put the remaining time of the timeout
+			if (leftAlpha.hasTockEvent())
+			{
+				TimedTransition leftTimeTransition = leftAlpha.getTockEvent();
+				resultAlpha = leftAlpha.subtract(leftTimeTransition);
+				long limit = val - (owner.getCurrentTime() - startTimeVal);
+				resultAlpha = resultAlpha.union(leftTimeTransition.synchronizeWith(new TimedTransition(owner, limit)));
+			} else
+			{
+				resultAlpha = leftAlpha;
+			}
+
+			return newInspection(resultAlpha, new CmlCalculationStep()
+			{
+				@Override
+				public Pair<INode, Context> execute(
+						CmlTransition selectedTransition)
+						throws AnalysisException
+				{
+
+					leftBehavior.execute(selectedTransition);
+
+					if (selectedTransition instanceof ObservableTransition
+							&& selectedTransition instanceof LabelledTransition)
+					{
+						return replaceWithChild(leftBehavior);
+					} else
+					{
+						return new Pair<INode, Context>(node, question);
+					}
+				}
+			});
+
+		}
+		
+	}
 
 	@Override
 	public Inspection caseATimeoutAction(final ATimeoutAction node,

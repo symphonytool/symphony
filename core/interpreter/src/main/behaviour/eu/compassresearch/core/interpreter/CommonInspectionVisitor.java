@@ -756,7 +756,7 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 	{
 		// Evaluate the expression into a natural number
 		long val = timeoutExpression.apply(cmlExpressionVisitor, question).natValue(question);
-		long startTimeVal = question.lookup(NamespaceUtility.getStartTimeName()).intValue(question);
+		long startTimeVal = question.lookup(NamespaceUtility.getStartTimeName()).natValue(question);
 		// If the left is Skip then the whole process becomes skip with the state of the left child
 		if (owner.getLeftChild().finished())
 		{

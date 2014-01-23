@@ -32,6 +32,11 @@ class NamespaceUtility
 	{
 		return new CmlLexNameToken("|TIMEOUT|", "STARTTIME", new LexLocation());
 	}
+	
+	public static ILexNameToken getStartsByTimeName()
+	{
+		return new CmlLexNameToken("|STARTSBY|", "STARTTIME", new LexLocation());
+	}
 
 	public static ILexNameToken getSeqForName()
 	{

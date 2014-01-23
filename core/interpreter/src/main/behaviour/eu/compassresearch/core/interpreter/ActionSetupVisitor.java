@@ -21,6 +21,7 @@ import eu.compassresearch.ast.actions.AInterruptAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionReplicatedAction;
 import eu.compassresearch.ast.actions.ASkipAction;
+import eu.compassresearch.ast.actions.AStartDeadlineAction;
 import eu.compassresearch.ast.actions.AStmAction;
 import eu.compassresearch.ast.actions.AStopAction;
 import eu.compassresearch.ast.actions.ATimedInterruptAction;
@@ -94,6 +95,14 @@ class ActionSetupVisitor extends CommonSetupVisitor
 		return new Pair<INode, Context>(node, context);
 	}
 
+	@Override
+	public Pair<INode, Context> caseAStartDeadlineAction(
+			AStartDeadlineAction node, Context question)
+			throws AnalysisException
+	{
+		return setupTimedOperator(node, node.getLeft(), NamespaceUtility.getStartsByTimeName(), question);
+	}
+	
 	/*
 	 * Timeout
 	 */
@@ -101,7 +110,7 @@ class ActionSetupVisitor extends CommonSetupVisitor
 	public Pair<INode, Context> caseATimeoutAction(ATimeoutAction node,
 			Context question) throws AnalysisException
 	{
-		return caseATimeout(node, node.getLeft(), question);
+		return setupTimedOperator(node, node.getLeft(), NamespaceUtility.getStartTimeName(), question);
 	}
 
 	/*

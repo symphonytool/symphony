@@ -101,7 +101,7 @@ class ProcessSetupVisitor extends CommonSetupVisitor
 	public Pair<INode, Context> caseATimeoutProcess(ATimeoutProcess node,
 			Context question) throws AnalysisException
 	{
-		return caseATimeout(node, node.getLeft(), question);
+		return setupTimedOperator(node, node.getLeft(), NamespaceUtility.getStartTimeName(), question);
 	}
 
 	/*
