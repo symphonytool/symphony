@@ -1,8 +1,5 @@
-channels 
-a
-
-process A = 
+process Wait3 = 
 begin 
 
-	@ Wait 2;a -> Wait 1 
+	@ Wait 3;a -> Wait 1 
 end

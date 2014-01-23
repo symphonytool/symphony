@@ -37,6 +37,7 @@ import eu.compassresearch.ast.expressions.ABracketedExp;
 import eu.compassresearch.ast.expressions.AEnumVarsetExpression;
 import eu.compassresearch.ast.expressions.AFatCompVarsetExpression;
 import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
+import eu.compassresearch.ast.expressions.AIdentifierVarsetExpression;
 import eu.compassresearch.ast.expressions.ANameChannelExp;
 import eu.compassresearch.ast.expressions.AUnionVOpVarsetExpression;
 import eu.compassresearch.ast.expressions.PCMLExp;
@@ -48,6 +49,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAFatCompV
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAFatEnumVarsetExpression;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAGreaterEqualNumericBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAGreaterNumericBinaryExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAIdentifierVarsetExpression;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAInSetBinaryExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAIntLiteralExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCALessEqualNumericBinaryExp;
@@ -486,6 +488,18 @@ QuestionAnswerCMLAdaptor<NewCMLModelcheckerContext, MCNode> {
 		
 		MCPCMLExp exp = (MCPCMLExp) node.getExp().apply(rootVisitor, question);
 		MCAUnaryMinusUnaryExp result = new MCAUnaryMinusUnaryExp(exp);
+		
+		return result;
+	}
+
+	
+
+	@Override
+	public MCNode caseAIdentifierVarsetExpression(
+			AIdentifierVarsetExpression node, NewCMLModelcheckerContext question)
+			throws AnalysisException {
+		String identifier = node.getIdentifier().getName();
+		MCAIdentifierVarsetExpression result = new MCAIdentifierVarsetExpression(identifier);
 		
 		return result;
 	}

@@ -43,9 +43,9 @@
 
     //using a visible event (external choice: end)
     State(st3,P_),
-    trans(iS,ev,State(st3,P_)) :- iS is State(st,extraChoice(st1,P,st2,Q)), trans(State(st1,P),ev,State(st3,P_)), ev != tau.
+    trans(iS,ev,State(st3,P_)) :- iS is State(st,extraChoice(st1,P,st2,Q)), trans(State(st1,P),ev,State(st3,P_)), ev != tau, ev != tock.
     State(st3,Q_),
-    trans(iS,ev,State(st3,Q_)) :- iS is State(st,extraChoice(st1,P,st2,Q)), trans(State(st2,Q),ev,State(st3,Q_)), ev != tau.
+    trans(iS,ev,State(st3,Q_)) :- iS is State(st,extraChoice(st1,P,st2,Q)), trans(State(st2,Q),ev,State(st3,Q_)), ev != tau, ev != tock.
 
 	// external choice timed
     trans(iS,tock,State(st,extraChoice(stP,P_,stQ,Q_))) :- iS is State(st,extraChoice(stP,P,stQ,Q)), 

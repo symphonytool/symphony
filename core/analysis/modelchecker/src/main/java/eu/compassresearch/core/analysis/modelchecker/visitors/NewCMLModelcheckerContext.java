@@ -38,6 +38,7 @@ import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCSCmlOpera
 import eu.compassresearch.core.analysis.modelchecker.ast.definitions.MCSFunctionDefinition;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAIntLiteralExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCASBinaryExp;
+import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCAVariableExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPCMLExp;
 import eu.compassresearch.core.analysis.modelchecker.ast.expressions.MCPVarsetExpression;
 import eu.compassresearch.core.parser.CmlParser.processDefinition_return;
@@ -239,6 +240,18 @@ public class NewCMLModelcheckerContext {
 			int clockValue = Integer.parseInt(value);
 			if(clockValue > this.maxClock){
 				this.maxClock = clockValue;
+			}
+		} else if (timeExpression instanceof MCAVariableExp){
+			String name = ((MCAVariableExp) timeExpression).getName();
+			MCAValueDefinition valueDef = this.getValueDefinition(name);
+			if(valueDef != null){
+				MCPCMLExp value = valueDef.getExpression();
+				if(value instanceof MCAIntLiteralExp){
+					int clockValue = Integer.parseInt(((MCAIntLiteralExp) value).getValue());
+					if(clockValue > this.maxClock){
+						this.maxClock = clockValue;
+					}
+				}
 			}
 		}
 	}
