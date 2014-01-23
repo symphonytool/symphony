@@ -338,7 +338,9 @@ public class NewMCVisitor extends
 		//String cml_file = "src/test/resources/BeoAVDeviceDiscovery-final version-model checker.cml";
 		//String cml_file = "src/test/resources/simpler-register.cml";
 		//String cml_file = "src/test/resources/simpler-BeoAVDeviceDiscovery.cml";
-		String cml_file = "src/test/resources/timed-interrupt2.cml";
+		//String cml_file = "src/test/resources/timed-interrupt2.cml";
+		String cml_file = "src/test/resources/insiel-ex1.cml";
+		//String cml_file = "src/test/resources/action-generalised-parallelism-no-state-simple.cml";
 		//String cml_file = "src/test/resources/action-wait.cml";
 		//String cml_file = "src/test/resources/recursion.cml";
 		//String cml_file = "src/test/resources/action-prefix-stop.cml";
@@ -363,7 +365,7 @@ public class NewMCVisitor extends
 		*/
 		
 		NewMCVisitor visitor1 = new NewMCVisitor(source1);
-		String mainProcessName = "InterruptTest2";
+		String mainProcessName = "Q";
 		//String mainProcessName = "RegisterProc";
 		
 		String formulaCode = visitor1.generateFormulaScript(source1.getParagraphs(),Utilities.DEADLOCK_PROPERTY,mainProcessName);

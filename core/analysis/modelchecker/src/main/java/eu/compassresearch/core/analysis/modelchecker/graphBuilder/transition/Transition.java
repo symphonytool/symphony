@@ -80,7 +80,7 @@ public class Transition {
 
 	@Override
 	public String toString() {
-		return this.sourceState.toString() + " -> " + this.targetState.toString();
+		return this.sourceState.toString() + " -" + this.event.toString() + "-> " + this.targetState.toString();
 	}
 	
 

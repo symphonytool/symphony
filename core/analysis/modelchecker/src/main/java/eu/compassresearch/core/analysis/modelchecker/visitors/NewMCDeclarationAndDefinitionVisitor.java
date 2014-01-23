@@ -247,6 +247,9 @@ public class NewMCDeclarationAndDefinitionVisitor extends
 		
 		question.chansetDefs.add(result);
 		
+		//maybe only the bellow insertion is enough
+		question.globalChanSets.add(chansetExpression);
+		
 		return result;
 	}
 

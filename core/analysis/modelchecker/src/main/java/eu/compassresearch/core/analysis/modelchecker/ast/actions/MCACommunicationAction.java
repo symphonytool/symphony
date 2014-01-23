@@ -65,23 +65,33 @@ public class MCACommunicationAction implements MCPAction {
 				boolean generateLieIn = false;
 				for (MCANameChannelExp aNameChannelExp : chanNames) {
 					if(aNameChannelExp.getIdentifier().toString().equals(this.identifier.toString())){
-						generateLieIn = true;
-						break;
+						//generateLieIn = true;
+						ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
+						MCPCMLType value = evaluator.instantiateMCTypeFromCommParams(this.communicationParameters);
+						
+						MCCommEv commEv = new MCCommEv(this.identifier,this.communicationParameters, value);
+						MCLieInFact lieIn = new MCLieInFact(commEv,setExp); 
+						if(!context.lieIn.contains(lieIn)){
+							context.lieIn.add(lieIn);
+						}
+						//break;
 					}
 				}
-				if(!generateLieIn && chanSetStack.size()==0){
-					break;
-				}else{
-					ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
-					MCPCMLType value = evaluator.instantiateMCTypeFromCommParams(this.communicationParameters);
-					
-					MCCommEv commEv = new MCCommEv(this.identifier,this.communicationParameters, value);
-					MCLieInFact lieIn = new MCLieInFact(commEv,setExp); 
-					if(!context.lieIn.contains(lieIn)){
-						context.lieIn.add(lieIn);
+				//if(!generateLieIn && chanSetStack.size()==0){
+				//	break;
+			} /*else{
+					if (chanNames.size() > 0){
+						ExpressionEvaluator evaluator = ExpressionEvaluator.getInstance();
+						MCPCMLType value = evaluator.instantiateMCTypeFromCommParams(this.communicationParameters);
+						
+						MCCommEv commEv = new MCCommEv(this.identifier,this.communicationParameters, value);
+						MCLieInFact lieIn = new MCLieInFact(commEv,setExp); 
+						if(!context.lieIn.contains(lieIn)){
+							context.lieIn.add(lieIn);
+						}
 					}
 				}
-			}
+			}*/
 			
 		}
 		

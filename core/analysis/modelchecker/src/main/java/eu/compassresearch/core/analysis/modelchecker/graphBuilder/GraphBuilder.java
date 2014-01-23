@@ -259,8 +259,10 @@ public class GraphBuilder {
 		LinkedList<Transition> visitedTransitions = new LinkedList<Transition>(); 
 		
 		toVisit.addLast(initialState);
+		
+		boolean deadlockFound = false;
 
-		while(toVisit.size() > 0){
+		while(toVisit.size() > 0 && !deadlockFound){
 			//System.out.println("Initial size of to visit states: " + toVisit.size());
 			State current = toVisit.pollFirst();
 			current.setVisited(true);
@@ -274,13 +276,51 @@ public class GraphBuilder {
 			if(transitionsFrom.size() == 0){ //if there is outgoing transition
 				if (current.equals(basicDeadlock)){ //if the state is basic deadlock
 					realFinalState = current;
+					deadlockFound = true;
 					break;
 				}else if(current.equals(basicTermination)) { //if the state is termination
 					//do nothing
 				} else {
 					//a new deadlock situation (not default) was found
 					realFinalState = current;
+					deadlockFound = true;
 					break;
+				}
+			}else if (transitionsFrom.size() == 1){
+				//the existing transition must be tock
+				Transition transition = transitionsFrom.getFirst();
+				
+				if(transition.getEvent().equals(new Tock())){
+					if(transition.getSourceState().equals(transition.getTargetState())){
+						//this is a deadlock
+						realFinalState = transition.getSourceState();
+						deadlockFound = true;
+						break;
+					}else{
+						//is not a deadlock
+						State target = transition.getTargetState();
+						
+						if(!visitedStates.contains(target)){
+							//if(!toVisit.contains(target)){
+								toVisit.addLast(target);
+							//}
+						}
+						if(!visitedTransitions.contains(transition)){
+							visitedTransitions.add(transition);
+						}
+					}
+				}else{
+					//there is one one transition different from tock
+					State target = transition.getTargetState();
+					
+					if(!visitedStates.contains(target)){
+						//if(!toVisit.contains(target)){
+							toVisit.addLast(target);
+						//}
+					}
+					if(!visitedTransitions.contains(transition)){
+						visitedTransitions.add(transition);
+					}
 				}
 			}else{
 				//there are outgoing transitions. they can be tock transitions
@@ -298,9 +338,11 @@ public class GraphBuilder {
 					//if (current.equals(basicDeadlock)){ //if the state is basic deadlock
 					//	realFinalState = current;
 					//}else{ //if the state is not basic deadlock but has only one tock transition to itself
-						if(current.equals(target) && transition.getEvent().equals(new Tock())){
-							realFinalState = current;
-						}
+					//	if(current.equals(target) && transition.getEvent().equals(new Tock())){
+					//		realFinalState = current;
+					//		deadlockFound = true;
+					//		break;
+					//	}
 					//}
 				
 				}
@@ -822,7 +864,7 @@ public class GraphBuilder {
 		//String filePath = "/examples/phils-and-fork0.facts.txt";
 		//String filePath = "D:\\COMPASS\\compassresearch-code\\core\\analysis\\modelchecker\\src\\test\\resources\\timed-interrupt2.facts";
 		//String filePath = "D:\\COMPASS\\compassresearch-code\\core\\analysis\\modelchecker\\src\\test\\resources\\simpler-register.facts";
-		String filePath = "D:\\COMPASS\\compassresearch-code\\core\\analysis\\modelchecker\\src\\test\\resources\\DPhils2.facts";
+		String filePath = "D:\\COMPASS\\compassresearch-code\\core\\analysis\\modelchecker\\src\\test\\resources\\DPhils.facts";
 		
 		//String filePath = "/examples/NDet2.facts.txt";
 		//String filePath = "/examples/Livelock2.facts.txt";
