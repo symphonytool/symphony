@@ -31,6 +31,7 @@ import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.ACallAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.ADivAction;
+import eu.compassresearch.ast.actions.AEndDeadlineAction;
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
 import eu.compassresearch.ast.actions.AGeneralisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AGuardedAction;
@@ -727,6 +728,13 @@ public class ActionInspectionVisitor extends CommonInspectionVisitor
 			final Context question) throws AnalysisException
 	{
 		return caseStartDeadline(node, node.getLeft(), node.getExpression(), question);
+	}
+	
+	@Override
+	public Inspection caseAEndDeadlineAction(AEndDeadlineAction node,
+			Context question) throws AnalysisException
+	{
+		return caseEndDeadline(node, node.getLeft(), node.getExpression(), question);
 	}
 
 	@Override

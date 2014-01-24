@@ -434,16 +434,17 @@ public class CmlProcessTypeChecker extends
 
 		return getVoidType(node);
 	}
-
-	@Override
-	public PType caseAStartDeadlineProcess(AStartDeadlineProcess node,
+	
+	
+	private PType caseDeadlineProcess(PProcess node, PProcess leftProcess,
+			PExp expression,
 			org.overture.typechecker.TypeCheckInfo question)
 			throws AnalysisException
 	{
 
-		PProcess left = node.getLeft();
+		PProcess left = leftProcess;
 
-		PExp timeExp = node.getExpression();
+		PExp timeExp = expression;
 
 		PType leftType = left.apply(THIS, question);
 
@@ -456,14 +457,21 @@ public class CmlProcessTypeChecker extends
 		}
 
 		return getVoidType(node);
+	} 
+
+	@Override
+	public PType caseAStartDeadlineProcess(AStartDeadlineProcess node,
+			org.overture.typechecker.TypeCheckInfo question)
+			throws AnalysisException
+	{
+		return caseDeadlineProcess(node, node.getLeft(), node.getExpression(), question);
 	}
 
 	@Override
 	public PType caseAEndDeadlineProcess(AEndDeadlineProcess node,
 			TypeCheckInfo question) throws AnalysisException
 	{
-		// TODO RWL Make this complete
-		return getVoidType(node);
+		return caseDeadlineProcess(node, node.getLeft(), node.getExpression(), question);
 	}
 
 	@Override

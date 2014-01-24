@@ -25,6 +25,7 @@ import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.lex.CmlLexNameToken;
 import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.ast.process.AAlphabetisedParallelismProcess;
+import eu.compassresearch.ast.process.AEndDeadlineProcess;
 import eu.compassresearch.ast.process.AExternalChoiceProcess;
 import eu.compassresearch.ast.process.AGeneralisedParallelismProcess;
 import eu.compassresearch.ast.process.AHidingProcess;
@@ -414,7 +415,7 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 	public Inspection caseAReferenceProcess(final AReferenceProcess node,
 			final Context question) throws AnalysisException
 	{
-
+		//TODO: This should be a lookup in a map name -> definition instead of it attached to the AST node directly
 		return newInspection(createTauTransitionWithoutTime(node.getProcessDefinition().getProcess()), new CmlCalculationStep()
 		{
 
@@ -487,6 +488,13 @@ public class ProcessInspectionVisitor extends CommonInspectionVisitor
 			final Context question) throws AnalysisException
 	{
 		return caseStartDeadline(node, node.getLeft(), node.getExpression(), question);
+	}
+	
+	@Override
+	public Inspection caseAEndDeadlineProcess(AEndDeadlineProcess node,
+			Context question) throws AnalysisException
+	{
+		return caseEndDeadline(node, node.getLeft(), node.getExpression(), question);
 	}
 
 	@Override

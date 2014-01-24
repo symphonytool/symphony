@@ -8,6 +8,7 @@ import org.overture.interpreter.values.IntegerValue;
 import org.overture.interpreter.values.NameValuePair;
 
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
+import eu.compassresearch.ast.actions.AEndDeadlineAction;
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
 import eu.compassresearch.ast.actions.AExternalChoiceReplicatedAction;
 import eu.compassresearch.ast.actions.AGeneralisedParallelismParallelAction;
@@ -101,6 +102,14 @@ class ActionSetupVisitor extends CommonSetupVisitor
 			throws AnalysisException
 	{
 		return setupTimedOperator(node, node.getLeft(), NamespaceUtility.getStartsByTimeName(), question);
+	}
+	
+	@Override
+	public Pair<INode, Context> caseAEndDeadlineAction(
+			AEndDeadlineAction node, Context question)
+			throws AnalysisException
+	{
+		return setupTimedOperator(node, node.getLeft(), NamespaceUtility.getEndsByTimeName(), question);
 	}
 	
 	/*

@@ -832,6 +832,75 @@ class CommonInspectionVisitor extends AbstractInspectionVisitor
 			});
 		}
 	}
+	
+	/**
+	 * 
+	 * @throws AnalysisException
+	 */
+	protected Inspection caseEndDeadline(final INode node,
+			final INode leftNode, PExp timeExpression,
+			final Context question) throws AnalysisException
+	{
+		// Evaluate the expression into a natural number
+		long val = timeExpression.apply(cmlExpressionVisitor, question).natValue(question);
+		long startTimeVal = question.lookup(NamespaceUtility.getEndsByTimeName()).natValue(question);
+		
+		// If the left is Skip then the whole process becomes skip with the state of the left child
+		if (owner.getLeftChild().finished())
+		{
+			return newInspection(createTauTransitionWithTime(owner.getLeftChild().getNextState().first, "Timeout: left behavior is finished"), new CmlCalculationStep()
+			{
+
+				@Override
+				public Pair<INode, Context> execute(
+						CmlTransition selectedTransition)
+						throws AnalysisException
+				{
+
+					return replaceWithChild(owner.getLeftChild());
+				}
+			});
+		}
+		// if the current time of the process has passed the limit (val) then 
+		// a post condition exception is thrown
+		else if (owner.getCurrentTime() - startTimeVal >= val)
+		{
+			throw new ValueException(4072, "Postcondition failure: This process is infeasable since it did not successfully terminate before the deadline", question);
+		}
+		// if the current time of the process has not passed the limit (val) and the left process
+		// makes an observable transition then the whole process behaves as the left process
+		else
+		{
+			//
+			final CmlBehaviour leftBehavior = owner.getLeftChild();
+
+			CmlTransitionSet resultAlpha = null;
+			CmlTransitionSet leftAlpha = leftBehavior.inspect();
+			// If time can pass in the left, we need to put the remaining time of the timeout
+			if (leftAlpha.hasTockEvent())
+			{
+				TimedTransition leftTimeTransition = leftAlpha.getTockEvent();
+				resultAlpha = leftAlpha.subtract(leftTimeTransition);
+				long limit = val - (owner.getCurrentTime() - startTimeVal);
+				resultAlpha = resultAlpha.union(leftTimeTransition.synchronizeWith(new TimedTransition(owner, limit)));
+			} else
+			{
+				resultAlpha = leftAlpha;
+			}
+
+			return newInspection(resultAlpha, new CmlCalculationStep()
+			{
+				@Override
+				public Pair<INode, Context> execute(
+						CmlTransition selectedTransition)
+						throws AnalysisException
+				{
+					leftBehavior.execute(selectedTransition);
+					return new Pair<INode, Context>(node, question);
+				}
+			});
+		}
+	}
 
 	protected Inspection caseATimeout(final INode node, final INode leftNode,
 			final INode rightNode, PExp timeoutExpression,
